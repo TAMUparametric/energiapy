@@ -1,0 +1,93 @@
+#%%
+"""pyomo constraints
+"""
+
+__author__ = "Rahul Kakodkar"
+__copyright__ = "Copyright 2022, Multi-parametric Optimization & Control Lab"
+__credits__ = ["Rahul Kakodkar", "Efstratios N. Pistikopoulos"]
+__license__ = "Open"
+__version__ = "0.0.1"
+__maintainer__ = "Rahul Kakodkar"
+__email__ = "cacodcar@tamu.edu"
+__status__ = "Production"
+
+from pyomo.environ import ConcreteModel, Constraint, Set #, OrderedSimpleSet, IndexedConstratint
+from ..utils.latex_utils import constraint_latex_render
+from ..utils.model_utils import scale_set, scale_list
+
+def nameplate_production_constraint(instance: ConcreteModel, network_scale_level:int = 0, scheduling_scale_level:int= 2):
+    #, f_conv_dict: dict, rep_days_dict: dict) -> IndexedConstraint:
+
+    scale_level = max(network_scale_level, scheduling_scale_level)
+    scales = scale_list(instance= instance, scale_level = scale_level)
+    def nameplate_production_rule(instance, location, process, *scale_list):
+        return instance.P[location, process, scale_list[:scheduling_scale_level+1]] <= instance.Cap_P[location, process, scale_list[:network_scale_level+1]]
+    instance.nameplate_production_constraint = Constraint(
+        instance.locations, instance.processes, *scales, rule=nameplate_production_rule, doc='nameplate production capacity constraint')
+    constraint_latex_render(nameplate_production_rule)
+    return instance.nameplate_production_constraint
+
+
+
+def nameplate_inventory_constraint(instance: ConcreteModel, network_scale_level:int = 0, scheduling_scale_level:int= 2): 
+    # -> pyomo.core.base.constraint.IndexedConstraint:
+
+    scale_level = max(network_scale_level, scheduling_scale_level)
+    scales = scale_list(instance= instance, scale_level = scale_level)
+    def nameplate_inventory_rule(instance, location, resource, *scale_list):
+        if resource in instance.resources_store:
+            return instance.Inv[location, resource, scale_list[:scheduling_scale_level+1]] <= instance.Cap_S[location, resource, scale_list[:network_scale_level+1]]
+        else:
+            return instance.Inv[location, resource, scale_list[:scheduling_scale_level+1]] <= 0
+    instance.nameplate_inventory_constraint = Constraint(
+        instance.locations, instance.resources, *scales, rule=nameplate_inventory_rule, doc='nameplate inventory capacity constraint')
+    constraint_latex_render(nameplate_inventory_rule)
+    return instance.nameplate_inventory_constraint
+
+
+
+def resource_consumption_constraint(instance: ConcreteModel, scheduling_scale_level:int= 2):
+    
+    scales = scale_list(instance= instance, scale_level = scheduling_scale_level)
+    def resource_consumption_rule(instance, location, resource, *scale_list):
+        return instance.C[location, resource, scale_list] <= 5 
+    # next((resource_.consumption_max for resource_ in resource_list if resource_.name == resource))
+    instance.resource_consumption_constraint = Constraint(
+        instance.locations, instance.resources, *scales, rule=resource_consumption_rule, doc='resource consumption')
+    constraint_latex_render(resource_consumption_rule)
+    return instance.resource_consumption_constraint
+
+
+def resource_expenditure_constraint(instance: ConcreteModel, scheduling_scale_level:int= 2):
+    scales = scale_list(instance= instance, scale_level = scheduling_scale_level)
+    def resource_expenditure_rule(instance, location, resource, *scale_list):
+        return instance.B[location, resource, scale_list] == 5*instance.C[location, resource, scale_list]
+     
+    #f_purchase_dict[location][resource][rep_days_dict[day]['rep_day']][hour] *\
+     #       next((resource_.price for resource_ in resource_list if resource_.name ==
+      #           resource))*instance.C[location, resource, hour, day, year]
+    constraint_latex_render(resource_expenditure_rule)
+    instance.resource_expenditure_constraint = Constraint(instance.locations, instance.resources, *scales, rule=resource_expenditure_rule, doc='expenditure on purchase of resource')
+    return instance.resource_expenditure_constraint
+
+
+
+def resource_discharge_constraint(instance: ConcreteModel, scheduling_scale_level:int= 2):
+    scales = scale_list(instance= instance, scale_level = scheduling_scale_level)
+    def resource_discharge_rule(instance, location, resource, *scale_list):
+        if resource in instance.resource_nosell:
+            return instance.S[location, resource, scale_list] == 0
+    instance.resource_discharge_cons = Constraint(instance.locations, instance.resource_nosell, *scales, rule=resource_discharge_rule, doc='restrict discharge of non marketable resources')
+    constraint_latex_render(resource_discharge_rule)
+    return instance.resource_discharge_cons
+
+# def test_constraint(instance:ConcreteModel):
+#     def test_cons_rule(instance, location, process):
+#         return instance.P[location, process, 0] <= 5
+#     instance.test_cons = Constraint(instance.locations, instance.processes, rule = test_cons_rule)
+#     constraint_latex_render(test_cons_rule)
+#     return instance.test_cons
+   
+
+
+# %%
