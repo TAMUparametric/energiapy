@@ -36,7 +36,7 @@ from src.energiapy.components.resource import resource
 from src.energiapy.components.process import process
 from src.energiapy.components.material import material
 from src.energiapy.components.location import location
-from src.energiapy.components.cost_scenario import cost_scenario
+# from src.energiapy.components.cost_scenario import cost_scenario
 from src.energiapy.components.transport import transport
 from src.energiapy.utils.data_utils import get_data, make_conversion_dict, make_material_dict
 # from src.energiapy.utils.cluster_utils import ahc_elbow, dtw_cluster, find_dtw_path
@@ -273,14 +273,20 @@ power_output_dict = {
         },
 
     }
+
+
+
 #%%
+
 
 f_capacity = capacity_factor(locations = location_list, processes= process_list, scales = scales, varying_process_dict= power_output_dict, scheduling_scale_level= scheduling_scale, name = 'Raju')
 nameplate_production_constraint(instance= m, capacity_factor = f_capacity, network_scale_level= network_scale, scheduling_scale_level= scheduling_scale)
-# nameplate_inventory_constraint(instance= m, network_scale_level= network_scale, scheduling_scale_level= scheduling_scale)
-# resource_consumption_constraint(instance= m, resource_list = resource_list, scheduling_scale_level= scheduling_scale)
-# resource_expenditure_constraint(instance= m, scheduling_scale_level= scheduling_scale)
-# resource_discharge_constraint(instance= m, scheduling_scale_level= scheduling_scale)
+nameplate_inventory_constraint(instance= m, network_scale_level= network_scale, scheduling_scale_level= scheduling_scale)
+resource_consumption_constraint(instance= m, resource_list = resource_list, scheduling_scale_level= scheduling_scale)
+resource_expenditure_constraint(instance= m, scheduling_scale_level= scheduling_scale)
+resource_discharge_constraint(instance= m, scheduling_scale_level= scheduling_scale)
+
+
 #%%
 
 # test_constraint(instance= m)
