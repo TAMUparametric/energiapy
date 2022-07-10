@@ -28,9 +28,9 @@ __status__ = "Production"
 
 
 import pandas
-import numpy 
-from pyomo.opt import SolverStatus, TerminationCondition
-from pyomo.environ import ConcreteModel, Var, NonNegativeReals, Set
+# import numpy 
+# from pyomo.opt import SolverStatus, TerminationCondition
+from pyomo.environ import ConcreteModel #, Var, NonNegativeReals, Set
 from src.energiapy.components.temporal_scale import temporal_scale
 from src.energiapy.components.resource import resource
 from src.energiapy.components.process import process
@@ -44,14 +44,14 @@ from src.energiapy.utils.model_utils import fetch_components
 from src.energiapy.model.pyomo_sets import generate_sets
 from src.energiapy.model.pyomo_vars import generate_vars
 from src.energiapy.model.pyomo_cons import *# nameplate_production_constraint #, test_constraint
-
+from src.energiapy.components.capacity_factor import capacity_factor
 
 
 # =================================================================================================================
 # *                                                 Initialize case study
 # =================================================================================================================
-# scales = temporal_scale(discretization_list = [1, 365, 24])
-scales = temporal_scale(discretization_list = [1, 2, 3])
+scales = temporal_scale(discretization_list = [1, 365, 24])
+# scales = temporal_scale(discretization_list = [1, 2, 3])
 
 
 # scale0 = scales[0] #equivalent to years 
@@ -237,15 +237,50 @@ generate_sets(instance= m, process_list= process_list, resource_list= resource_l
 
 generate_vars(instance = m, expenditure_scale_level = 0, scheduling_scale_level = 2)
 
-nameplate_production_constraint(instance= m, network_scale_level= 0, scheduling_scale_level= 2)
-nameplate_inventory_constraint(instance= m, network_scale_level= 0, scheduling_scale_level= 2)
-resource_consumption_constraint(instance= m, scheduling_scale_level= 2)
-resource_expenditure_constraint(instance= m, scheduling_scale_level= 2)
-resource_discharge_constraint(instance= m, scheduling_scale_level= 2)
+scheduling_scale = 2
+network_scale = 0
 
-
-# test_constraint(instance= m)
 
 
 #%%
+la_power_output_df = pandas.read_csv('la_power_output_df.csv').drop(columns='datetime')
+la_power_output_df['day'] = [i - 1 for i in la_power_output_df['day']]
+la_power_output_df['scales'] = [(0,j,k) for j,k in zip(la_power_output_df['day'], la_power_output_df['hour'])]
+la_power_output_df = la_power_output_df.drop(columns= ['day', 'hour'])
+la_power_output_df['PV'] = la_power_output_df['PV']/max(la_power_output_df['PV'])
+la_power_output_df['WF'] = la_power_output_df['WF']/max(la_power_output_df['WF'])
 
+
+ho_power_output_df = pandas.read_csv('power_output_df.csv').drop(columns='datetime')
+ho_power_output_df['day'] = [i - 1 for i in ho_power_output_df['day']]
+ho_power_output_df['scales'] = [(0,j,k) for j,k in zip(ho_power_output_df['day'], ho_power_output_df['hour'])]
+ho_power_output_df = ho_power_output_df.drop(columns= ['day', 'hour'])
+ho_power_output_df['PV'] = ho_power_output_df['PV']/max(ho_power_output_df['PV'])
+ho_power_output_df['WF'] = ho_power_output_df['WF']/max(ho_power_output_df['WF'])
+
+power_output_dict = {
+    'HO': 
+        {
+            'PV': {i: ho_power_output_df['PV'][ho_power_output_df['scales'] == i].values[0] for i in ho_power_output_df['scales']},
+            'WF': {i: ho_power_output_df['WF'][ho_power_output_df['scales'] == i].values[0] for i in ho_power_output_df['scales']}
+ 
+        },
+    'LA': 
+        {
+            'PV': {i: la_power_output_df['PV'][la_power_output_df['scales'] == i].values[0] for i in la_power_output_df['scales']},
+            'WF': {i: la_power_output_df['WF'][la_power_output_df['scales'] == i].values[0] for i in la_power_output_df['scales']}
+ 
+        },
+
+    }
+#%%
+
+f_capacity = capacity_factor(locations = location_list, processes= process_list, scales = scales, varying_process_dict= power_output_dict, scheduling_scale_level= scheduling_scale, name = 'Raju')
+nameplate_production_constraint(instance= m, capacity_factor = f_capacity, network_scale_level= network_scale, scheduling_scale_level= scheduling_scale)
+# nameplate_inventory_constraint(instance= m, network_scale_level= network_scale, scheduling_scale_level= scheduling_scale)
+# resource_consumption_constraint(instance= m, resource_list = resource_list, scheduling_scale_level= scheduling_scale)
+# resource_expenditure_constraint(instance= m, scheduling_scale_level= scheduling_scale)
+# resource_discharge_constraint(instance= m, scheduling_scale_level= scheduling_scale)
+#%%
+
+# test_constraint(instance= m)

@@ -14,14 +14,15 @@ __status__ = "Production"
 from pyomo.environ import ConcreteModel, Constraint, Set #, OrderedSimpleSet, IndexedConstratint
 from ..utils.latex_utils import constraint_latex_render
 from ..utils.model_utils import scale_set, scale_list
+from ..components.capacity_factor import capacity_factor
 
-def nameplate_production_constraint(instance: ConcreteModel, network_scale_level:int = 0, scheduling_scale_level:int= 2):
-    #, f_conv_dict: dict, rep_days_dict: dict) -> IndexedConstraint:
 
+def nameplate_production_constraint(instance: ConcreteModel, capacity_factor: capacity_factor, network_scale_level:int = 0, scheduling_scale_level:int= 2):
     scale_level = max(network_scale_level, scheduling_scale_level)
     scales = scale_list(instance= instance, scale_level = scale_level)
     def nameplate_production_rule(instance, location, process, *scale_list):
-        return instance.P[location, process, scale_list[:scheduling_scale_level+1]] <= instance.Cap_P[location, process, scale_list[:network_scale_level+1]]
+        return instance.P[location, process, scale_list[:scheduling_scale_level+1]] <= capacity_factor.capacity_factor[location][process][scale_list[:scheduling_scale_level+1]]*\
+            instance.Cap_P[location, process, scale_list[:network_scale_level+1]]
     instance.nameplate_production_constraint = Constraint(
         instance.locations, instance.processes, *scales, rule=nameplate_production_rule, doc='nameplate production capacity constraint')
     constraint_latex_render(nameplate_production_rule)
@@ -30,8 +31,6 @@ def nameplate_production_constraint(instance: ConcreteModel, network_scale_level
 
 
 def nameplate_inventory_constraint(instance: ConcreteModel, network_scale_level:int = 0, scheduling_scale_level:int= 2): 
-    # -> pyomo.core.base.constraint.IndexedConstraint:
-
     scale_level = max(network_scale_level, scheduling_scale_level)
     scales = scale_list(instance= instance, scale_level = scale_level)
     def nameplate_inventory_rule(instance, location, resource, *scale_list):
@@ -46,12 +45,11 @@ def nameplate_inventory_constraint(instance: ConcreteModel, network_scale_level:
 
 
 
-def resource_consumption_constraint(instance: ConcreteModel, scheduling_scale_level:int= 2):
+def resource_consumption_constraint(instance: ConcreteModel, resource_list:list, scheduling_scale_level:int= 2):
     
     scales = scale_list(instance= instance, scale_level = scheduling_scale_level)
     def resource_consumption_rule(instance, location, resource, *scale_list):
-        return instance.C[location, resource, scale_list] <= 5 
-    # next((resource_.consumption_max for resource_ in resource_list if resource_.name == resource))
+        return instance.C[location, resource, scale_list] <= next((resource_.consumption_max for resource_ in resource_list if resource_.name == resource))
     instance.resource_consumption_constraint = Constraint(
         instance.locations, instance.resources, *scales, rule=resource_consumption_rule, doc='resource consumption')
     constraint_latex_render(resource_consumption_rule)

@@ -102,36 +102,6 @@ def make_cost_dict(location_list: list, cost_scenario_list: list, process_list: 
     return cost_dict
 
 
-def make_f_conv(location_list: list, day_list: list, hour_list: list, process_list: list, varying_process_dict: dict):
-    """makes a dictionary of varying conversion factors.
-    minimum resolution: hour
-
-    Args:
-        location_list (list): list of locations
-        day_list (list): list of days/seasons
-        hour_list (list): list of hours
-        process_list (list): list of processes
-        varying_process_dict[location.name] (pandas.DataFrame): dataframe with varying outputs for processes
-
-    Returns:
-        dict: dictionary containing hourly conversion factors for all processes
-    """
-    # declare empty dict
-    f_conv_dict_ = {location.name: {process.name: {day: {hour: {} for hour in hour_list}
-                                                   for day in day_list} for process in process_list} for location in location_list}
-    for process, location in product(process_list, location_list):
-        if process.name in [col for col in varying_process_dict[location.name]]:
-            varying_process_dict[location.name][process.name] = varying_process_dict[location.name][process.name] / \
-                max(varying_process_dict[location.name][process.name])
-    for location, process, day, hour in product(location_list, process_list, day_list, hour_list):
-        if process.name in [col for col in varying_process_dict[location.name]]:
-            f_conv_dict_[location.name][process.name][day][hour] = varying_process_dict[location.name][(
-                varying_process_dict[location.name]['day'] == day) & (varying_process_dict[location.name]['hour'] == hour)][process.name].values[0]
-        else:
-            f_conv_dict_[location.name][process.name][day][hour] = 1
-
-    return f_conv_dict_
-
 
 def make_f_purchase(location_list: list, day_list: list, hour_list: list, resource_list: list, varying_resource_df: pandas.DataFrame) -> dict:
     """makes a dictionary for varying resource costs.
