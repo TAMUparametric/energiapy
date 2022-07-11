@@ -48,12 +48,6 @@ from src.energiapy.graph import graph
 scales = temporal_scale(discretization_list = [1, 365, 24])
 # scales = temporal_scale(discretization_list = [1, 2, 3])
 
-# *-------------------------Geographic scales/location------------------------------------
-HO = location(name='HO', PV_class='Class5', WF_class='Class4',
-                      LiI_class='8Hr Battery Storage', PSH_class='Class 3', label='Houston')
-LA = location(name='LA', PV_class='Class3', WF_class='Class5',
-                      LiI_class='8Hr Battery Storage', PSH_class='Class 3', label='LosAngeles')
-location_list = [HO, LA]
 
 # *-------------------------Constance defined here for ease------------------------------------
 bigM = 10**10 #very large number
@@ -225,12 +219,9 @@ Train_H2 = transport(name= 'Train_H2', resources= [H2_B, H2_C], locations= [HO, 
                              trans_max= 10**8, trans_loss= 0.001, trans_cost= 1.667*10**(-3))
 transport_list = [Train_H2]
 
-
+#%%
 m = ConcreteModel()
 
-generate_sets(instance= m, process_list= process_list, location_list= location_list, transport_list= transport_list, scales= scales)
-
-generate_vars(instance = m, expenditure_scale_level = 0, scheduling_scale_level = 2)
 
 scheduling_scale = 2
 network_scale = 0
