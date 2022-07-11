@@ -47,27 +47,34 @@ from src.energiapy.model.pyomo_cons import *# nameplate_production_constraint #,
 from src.energiapy.components.capacity_factor import capacity_factor
 
 
-# =================================================================================================================
-# *                                                 Initialize case study
-# =================================================================================================================
+ 
+# *-------------------------Temporal scales------------------------------------
 scales = temporal_scale(discretization_list = [1, 365, 24])
 # scales = temporal_scale(discretization_list = [1, 2, 3])
 
+# *-------------------------Geographic scales/location------------------------------------
+HO = location(name='HO', PV_class='Class5', WF_class='Class4',
+                      LiI_class='8Hr Battery Storage', PSH_class='Class 3', label='Houston')
+LA = location(name='LA', PV_class='Class3', WF_class='Class5',
+                      LiI_class='8Hr Battery Storage', PSH_class='Class 3', label='LosAngeles')
+location_list = [HO, LA]
 
-# scale0 = scales[0] #equivalent to years 
-# scale1 = scales[1] #equivalent to days 
-# scale2 = scales[2] #equivalent to hours 
-
+# *-------------------------Constance defined here for ease------------------------------------
 bigM = 10**10 #very large number
 water_price = 31.70  # $/5000gallons
 power_price = 8  # cents/kWh
 ur_price = 42.70  # 250 Pfund U308 (Uranium)
 A_f = 0.05  # annualization factor
 # CO2_res = 0.2
+pv_start = 0
+ake_start = 0
+smrh_start = 0
+smr_start = 0 
+asmr_start = 0 
 
-# =================================================================================================================
-# *                                                  Resource declarations
-# =================================================================================================================
+
+
+# *-------------------------Resources------------------------------------
 
 Charge = resource(name='Charge', sell=False,
                           store_max=bigM, basis='MW', label='Battery energy', block= 'energystorage')
@@ -115,15 +122,12 @@ Power = resource(name='Power', basis='MW',
 all_resource_list = [Charge, Air_C, H2O_E, Solar, Wind, Uranium, H2_C, H2_L, H2, H2_B, H2_G,
                      H2O, O2, CH4, CO2, CO2_DAC, CO2_AQoff, CO2_EOR, CH3OH, Power_Gr, CO2_Vent, Power, Uranium]
 
+# *-------------------------Materials------------------------------------
+Li = material(name='Li', gwp=0, basis= 'kg', label='Lithium')
 
-pv_start = 0
-ake_start = 0
-smrh_start = 0
-smr_start = 0 
-asmr_start = 0 
+# *-------------------------Processes ------------------------------------
 
-
-LiI_c = process(name='LiI_c', conversion={Charge: 1, Power: -1}, prod_max=bigM, trl='nrel',
+LiI_c = process(name='LiI_c', conversion={Charge: 1, Power: -1}, material_cons = {Li: 20}, prod_max=bigM, trl='nrel',
                         block='power_storage', label='Lithium-ion battery', source='Zakeri 2015')
 LiI_d = process(name='LiI_d', conversion={Charge: -1.1765, Power: 1}, prod_max=bigM, trl='discharge',
                         block='power_storage', label='Lithium-ion battery discharge', source='Zakeri 2015')
@@ -179,27 +183,11 @@ H2_Green = process(name='H2_Green', conversion={H2: 1, H2_G: -1}, prod_max=bigM,
 all_process_list = [LiI_c, LiI_d, CAES_c, CAES_d, PSH_c, PSH_d, PV, WF, AKE, SMRH, SMR, ASMR, H2_C_c, H2_C_d, H2_L_c,
                     H2_L_d, MEFC, DAC, EOR, AQoff_SMR, H2_Blue, H2_Green]  # SMRM, DOWC,AQoff_DAC, Grid,
 
-# =================================================================================================================
-# *                                                  Material declarations
-# =================================================================================================================
-
-Lithium = material(name='Lithium', gwp=0, label='Lithium (kg)')
-all_material_list = [Lithium]
 
 
 
-# =================================================================================================================
-# *                                                  Locations
-# =================================================================================================================
-HO = location(name='HO', PV_class='Class5', WF_class='Class4',
-                      LiI_class='8Hr Battery Storage', PSH_class='Class 3', label='Houston')
-LA = location(name='LA', PV_class='Class3', WF_class='Class5',
-                      LiI_class='8Hr Battery Storage', PSH_class='Class 3', label='LosAngeles')
-location_list = [HO, LA]
+# *-------------------------Transport modes------------------------------------
 
-# =================================================================================================================
-# *                                                  Transport mode
-# =================================================================================================================
 
 Train_H2 = transport(name= 'Train_H2', resources= [H2_B, H2_C], locations= [HO, LA], label= 'Railway for hydrogen transportation', 
                              trans_max= 10**8, trans_loss= 0.001, trans_cost= 1.667*10**(-3))
@@ -207,33 +195,24 @@ Train_H2 = transport(name= 'Train_H2', resources= [H2_B, H2_C], locations= [HO, 
 
 transport_list = [Train_H2]
 
-cost_metrics_list = ['CAPEX', 'Fixed O&M', 'Variable O&M', 'units', 'source']
 
-# =================================================================================================================
-# *                                                  Constant Parameters
-# =================================================================================================================
+# *-------------------------Data------------------------------------
+
+cost_metrics_list = ['CAPEX', 'Fixed O&M', 'Variable O&M', 'units', 'source']
 conversion_dict = make_conversion_dict('conversion.csv')
 material_dict = make_material_dict('materials.csv')
 
 cost_dict = get_data(file_name='cost_dict')
 
-
-# =================================================================================================================
-# *                                                  Generate model components
-# =================================================================================================================
+# *-------------------------Generate scenario------------------------------------
 
 process_list = [LiI_c, LiI_d, CAES_c, CAES_d, PSH_c, PSH_d, PV, WF, AKE, SMRH, H2_C_c,
                 H2_C_d, H2_L_c, H2_L_d, DAC, EOR, AQoff_SMR, H2_Blue, H2_Green, ASMR] 
 
-resource_list = fetch_components(
-    process_list=process_list, master_list=all_resource_list, dict_with_relevant_data=conversion_dict)
-material_list = fetch_components(
-    process_list=process_list, master_list=all_material_list, dict_with_relevant_data=material_dict)
 
 m = ConcreteModel()
 
-generate_sets(instance= m, process_list= process_list, resource_list= resource_list, material_list= material_list,\
-    location_list= location_list, transport_list= transport_list, scales= scales)
+generate_sets(instance= m, process_list= process_list, location_list= location_list, transport_list= transport_list, scales= scales)
 
 generate_vars(instance = m, expenditure_scale_level = 0, scheduling_scale_level = 2)
 
