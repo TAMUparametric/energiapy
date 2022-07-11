@@ -33,12 +33,14 @@ def generate_sets(instance: ConcreteModel, process_list:list = [], resource_list
     instance.resources = Set(initialize = [i.name for i in resource_list], doc = 'Set of resources')
     instance.resources_store = Set(initialize = [i.name for i in resource_list if i.store_max > 0], doc = 'Set of storeable resources')
     instance.resource_nosell = Set(initialize = [i.name for i in resource_list if i.sell ==  False], doc = 'Set of dischargeable resources')
-    instance.materials = Set(initialize = [i.name for i in material_list], doc = 'Set of materials')
+    print([l for l in [ list(map(itemgetter(0), k.items())) [j for j in [i.material_cons for i in process_list if i.material_cons is not None]]]])
+    # instance.materials = Set(initialize = [i.name for i in j.material_cons for j in process_list], doc = 'Set of materials')
     instance.locations = Set(initialize = [i.name for i in location_list], doc = 'Set of locations')
     instance.transports = Set(initialize = [i.name for i in transport_list], doc = 'Set of transports')
     instance.scales = Set(scales.name, initialize = scales.scale)
     return
 
-
+dict = j.material_cons
+[i.name for i in dict.keys()]
 
 # %%
