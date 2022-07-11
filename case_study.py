@@ -21,12 +21,8 @@ __maintainer__ = "Rahul Kakodkar"
 __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
-# =================================================================================================================
-# *                                                 Import modules
-# =================================================================================================================
 
-
-
+# *-------------------------Import modules------------------------------------
 import pandas
 # import numpy 
 # from pyomo.opt import SolverStatus, TerminationCondition
@@ -38,26 +34,19 @@ from src.energiapy.components.material import material
 from src.energiapy.components.location import location
 # from src.energiapy.components.cost_scenario import cost_scenario
 from src.energiapy.components.transport import transport
-from src.energiapy.utils.data_utils import get_data, make_conversion_dict, make_material_dict
+from src.energiapy.utils.data_utils import get_data, make_conversion_dict, make_material_dict, make_henry_price_df
 # from src.energiapy.utils.cluster_utils import ahc_elbow, dtw_cluster, find_dtw_path
 from src.energiapy.utils.model_utils import fetch_components
 from src.energiapy.model.pyomo_sets import generate_sets
 from src.energiapy.model.pyomo_vars import generate_vars
 from src.energiapy.model.pyomo_cons import *# nameplate_production_constraint #, test_constraint
-from src.energiapy.components.capacity_factor import capacity_factor
-
+from src.energiapy.graph import graph
 
  
 # *-------------------------Temporal scales------------------------------------
 scales = temporal_scale(discretization_list = [1, 365, 24])
 # scales = temporal_scale(discretization_list = [1, 2, 3])
 
-# *-------------------------Geographic scales/location------------------------------------
-HO = location(name='HO', PV_class='Class5', WF_class='Class4',
-                      LiI_class='8Hr Battery Storage', PSH_class='Class 3', label='Houston')
-LA = location(name='LA', PV_class='Class3', WF_class='Class5',
-                      LiI_class='8Hr Battery Storage', PSH_class='Class 3', label='LosAngeles')
-location_list = [HO, LA]
 
 # *-------------------------Constance defined here for ease------------------------------------
 bigM = 10**10 #very large number
@@ -119,11 +108,10 @@ CO2_Vent = resource(
 Power = resource(name='Power', basis='MW',
                          label='Renewable power generated', block = 'resource')
 
-all_resource_list = [Charge, Air_C, H2O_E, Solar, Wind, Uranium, H2_C, H2_L, H2, H2_B, H2_G,
-                     H2O, O2, CH4, CO2, CO2_DAC, CO2_AQoff, CO2_EOR, CH3OH, Power_Gr, CO2_Vent, Power, Uranium]
 
 # *-------------------------Materials------------------------------------
 Li = material(name='Li', gwp=0, basis= 'kg', label='Lithium')
+
 
 # *-------------------------Processes ------------------------------------
 
@@ -180,48 +168,15 @@ H2_Blue = process(name='H2_Blue', conversion={H2: 1, H2_B: -1}, prod_max=bigM, g
 H2_Green = process(name='H2_Green', conversion={H2: 1, H2_G: -1}, prod_max=bigM,
                            trl='nocost', block='dummy', label='Green Hydrogen production')
 
-all_process_list = [LiI_c, LiI_d, CAES_c, CAES_d, PSH_c, PSH_d, PV, WF, AKE, SMRH, SMR, ASMR, H2_C_c, H2_C_d, H2_L_c,
-                    H2_L_d, MEFC, DAC, EOR, AQoff_SMR, H2_Blue, H2_Green]  # SMRM, DOWC,AQoff_DAC, Grid,
-
-
-
-
-# *-------------------------Transport modes------------------------------------
-
-
-Train_H2 = transport(name= 'Train_H2', resources= [H2_B, H2_C], locations= [HO, LA], label= 'Railway for hydrogen transportation', 
-                             trans_max= 10**8, trans_loss= 0.001, trans_cost= 1.667*10**(-3))
-
-
-transport_list = [Train_H2]
-
 
 # *-------------------------Data------------------------------------
 
 cost_metrics_list = ['CAPEX', 'Fixed O&M', 'Variable O&M', 'units', 'source']
-conversion_dict = make_conversion_dict('conversion.csv')
-material_dict = make_material_dict('materials.csv')
 
 cost_dict = get_data(file_name='cost_dict')
 
 # *-------------------------Generate scenario------------------------------------
 
-process_list = [LiI_c, LiI_d, CAES_c, CAES_d, PSH_c, PSH_d, PV, WF, AKE, SMRH, H2_C_c,
-                H2_C_d, H2_L_c, H2_L_d, DAC, EOR, AQoff_SMR, H2_Blue, H2_Green, ASMR] 
-
-
-m = ConcreteModel()
-
-generate_sets(instance= m, process_list= process_list, location_list= location_list, transport_list= transport_list, scales= scales)
-
-generate_vars(instance = m, expenditure_scale_level = 0, scheduling_scale_level = 2)
-
-scheduling_scale = 2
-network_scale = 0
-
-
-
-#%%
 la_power_output_df = pandas.read_csv('la_power_output_df.csv').drop(columns='datetime')
 la_power_output_df['day'] = [i - 1 for i in la_power_output_df['day']]
 la_power_output_df['scales'] = [(0,j,k) for j,k in zip(la_power_output_df['day'], la_power_output_df['hour'])]
@@ -237,31 +192,49 @@ ho_power_output_df = ho_power_output_df.drop(columns= ['day', 'hour'])
 ho_power_output_df['PV'] = ho_power_output_df['PV']/max(ho_power_output_df['PV'])
 ho_power_output_df['WF'] = ho_power_output_df['WF']/max(ho_power_output_df['WF'])
 
-power_output_dict = {
-    'HO': 
-        {
-            'PV': {i: ho_power_output_df['PV'][ho_power_output_df['scales'] == i].values[0] for i in ho_power_output_df['scales']},
-            'WF': {i: ho_power_output_df['WF'][ho_power_output_df['scales'] == i].values[0] for i in ho_power_output_df['scales']}
- 
-        },
-    'LA': 
-        {
-            'PV': {i: la_power_output_df['PV'][la_power_output_df['scales'] == i].values[0] for i in la_power_output_df['scales']},
-            'WF': {i: la_power_output_df['WF'][la_power_output_df['scales'] == i].values[0] for i in la_power_output_df['scales']}
- 
-        },
 
-    }
+daily_ng_price_df = make_henry_price_df(
+    file_name='Henry_Hub_Natural_Gas_Spot_Price_Daily.csv', year=2019, stretch=False)
+
+# *-------------------------Geographic scales/location------------------------------------
+HO = location(name='HO', processes= {PV, LiI_c, LiI_d, WF, AKE}, scales = scales, varying_cost_df = daily_ng_price_df, \
+    varying_process_df= ho_power_output_df, PV_class='Class5', WF_class='Class4',
+                      LiI_class='8Hr Battery Storage', PSH_class='Class 3', label='Houston')
+LA = location(name='LA', processes= {PV, LiI_c, LiI_d, WF, SMRH}, scales = scales, varying_cost_df = daily_ng_price_df, \
+    varying_process_df= la_power_output_df, PV_class='Class3', WF_class='Class5',
+                      LiI_class='8Hr Battery Storage', PSH_class='Class 3', label='LosAngeles')
+location_list = [HO, LA]
+
+graph.capacity_factor(location= HO, process= PV)
+graph.cost_factor (location= LA, resource= CH4 )
 
 
+# *-------------------------Transport modes------------------------------------
+Train_H2 = transport(name= 'Train_H2', resources= [H2_B, H2_C], locations= [HO, LA], label= 'Railway for hydrogen transportation', 
+                             trans_max= 10**8, trans_loss= 0.001, trans_cost= 1.667*10**(-3))
+transport_list = [Train_H2]
+
+
+# *-------------------------Build model------------------------------------
+
+m = ConcreteModel()
+
+
+scheduling_scale = 2
+network_scale = 0
+
+
+generate_sets(instance= m, location_list= location_list, transport_list= transport_list, scales= scales)
+
+generate_vars(instance = m, expenditure_scale_level = network_scale, scheduling_scale_level = scheduling_scale)
+
+nameplate_production_constraint(instance= m, location_list= location_list, network_scale_level= network_scale, scheduling_scale_level= scheduling_scale)
+
+
+nameplate_inventory_constraint(instance= m, location_list= location_list, network_scale_level= network_scale, scheduling_scale_level= scheduling_scale)
 
 #%%
-
-
-f_capacity = capacity_factor(locations = location_list, processes= process_list, scales = scales, varying_process_dict= power_output_dict, scheduling_scale_level= scheduling_scale, name = 'Raju')
-nameplate_production_constraint(instance= m, capacity_factor = f_capacity, network_scale_level= network_scale, scheduling_scale_level= scheduling_scale)
-nameplate_inventory_constraint(instance= m, network_scale_level= network_scale, scheduling_scale_level= scheduling_scale)
-resource_consumption_constraint(instance= m, resource_list = resource_list, scheduling_scale_level= scheduling_scale)
+resource_consumption_constraint(instance= m, process_list = process_list, scheduling_scale_level= scheduling_scale)
 resource_expenditure_constraint(instance= m, scheduling_scale_level= scheduling_scale)
 resource_discharge_constraint(instance= m, scheduling_scale_level= scheduling_scale)
 
@@ -269,3 +242,5 @@ resource_discharge_constraint(instance= m, scheduling_scale_level= scheduling_sc
 #%%
 
 # test_constraint(instance= m)
+
+# %%

@@ -20,9 +20,9 @@ class temporal_scale:
     """object with the temporal scales of the problem
     e.g.:
     scales = temporal_scale(discretization_list = [1, 365, 24]).generate_scales()
-    Generates three temporal scales with 1, 365, and 8760 discretizations respectively
+    Generates three temporal scales with 1, 365, and 24 discretizations respectively
     """
-    def __init__(self, discretization_list: list):
+    def __init__(self, discretization_list: list, ):
         self.discretization_list = discretization_list
         self.scale  = self.generate_scales()
         self.name = [i for i in range(len(discretization_list))]

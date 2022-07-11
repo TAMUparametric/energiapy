@@ -179,12 +179,15 @@ def make_henry_price_df(file_name: str, year: int, stretch: bool) -> pandas.Data
     df_ = df_.reset_index(drop=True)
     df_['CH4'] = df_['CH4'] / 22.4  # convert from $/MMBtu to $/kg
     df_ = df_[['CH4', 'doy']].rename(columns={'doy': 'day'})
-
     if stretch == False:
         df_ = df_
+        df_['scales'] = [(0, int(i - 1)) for i in df_['day']]
+        
     else:
         df_ = df_.loc[df_.index.repeat(24)].reset_index(drop=True)
         df_['hour'] = [int(i) for i in range(0, 24)]*365
+        df_['scales'] = [(0, int(i - 1), int(j)) for i,j in zip(df_['day'], df_['hour'])]
+    df_ = df_[['CH4', 'scales']]    
     return df_
 
 
