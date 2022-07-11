@@ -17,12 +17,15 @@ from ..utils.model_utils import scale_set, scale_list
 from ..components.capacity_factor import capacity_factor
 
 
-def nameplate_production_constraint(instance: ConcreteModel, capacity_factor: capacity_factor, network_scale_level:int = 0, scheduling_scale_level:int= 2):
+def nameplate_production_constraint(instance: ConcreteModel, capacity_factor: capacity_factor = [], network_scale_level:int = 0, scheduling_scale_level:int= 2):
     scale_level = max(network_scale_level, scheduling_scale_level)
     scales = scale_list(instance= instance, scale_level = scale_level)
     def nameplate_production_rule(instance, location, process, *scale_list):
-        return instance.P[location, process, scale_list[:scheduling_scale_level+1]] <= capacity_factor.capacity_factor[location][process][scale_list[:scheduling_scale_level+1]]*\
-            instance.Cap_P[location, process, scale_list[:network_scale_level+1]]
+        try: 
+            cap_factor = capacity_factor.capacity_factor[location][process][scale_list[:scheduling_scale_level+1]]
+        except: 
+            cap_factor = 1
+        return instance.P[location, process, scale_list[:scheduling_scale_level+1]] <= cap_factor*instance.Cap_P[location, process, scale_list[:network_scale_level+1]]
     instance.nameplate_production_constraint = Constraint(
         instance.locations, instance.processes, *scales, rule=nameplate_production_rule, doc='nameplate production capacity constraint')
     constraint_latex_render(nameplate_production_rule)
