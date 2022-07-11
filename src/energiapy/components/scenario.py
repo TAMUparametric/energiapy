@@ -13,16 +13,3 @@ __status__ = "Production"
 from dataclasses import dataclass
 
 
-@dataclass
-class scenario:
-
-    def __init__(self, name: str, process_list: list, conversion_dict:dict= {}, material_dict: {}):
-
-    resource_list = fetch_components(process_list=process_list, master_list=all_resource_list, dict_with_relevant_data=conversion_dict) 
-    def __repr__(self):
-        return self.name
-
-resource_list = fetch_components(
-    process_list=process_list, master_list=all_resource_list, dict_with_relevant_data=conversion_dict)
-material_list = fetch_components(
-    process_list=process_list, master_list=all_material_list, dict_with_relevant_data=material_dict #put material requirements in the process class)

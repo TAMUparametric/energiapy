@@ -14,18 +14,20 @@ __status__ = "Production"
 from pyomo.environ import ConcreteModel, Constraint, Set #, OrderedSimpleSet, IndexedConstratint
 from ..utils.latex_utils import constraint_latex_render
 from ..utils.model_utils import scale_set, scale_list
-from ..components.capacity_factor import capacity_factor
+from ..components.location import location
 
 
-def nameplate_production_constraint(instance: ConcreteModel, capacity_factor: capacity_factor = [], network_scale_level:int = 0, scheduling_scale_level:int= 2):
+def nameplate_production_constraint(instance: ConcreteModel, location_list:list, network_scale_level:int = 0, scheduling_scale_level:int= 2):
     scale_level = max(network_scale_level, scheduling_scale_level)
     scales = scale_list(instance= instance, scale_level = scale_level)
+    capacity_factor = {location.name: location.capacity_factor for location in location_list}
+    
+    #%%% use intersection of processes from location object and capacity factor processes 
     def nameplate_production_rule(instance, location, process, *scale_list):
-        try: 
-            cap_factor = capacity_factor.capacity_factor[location][process][scale_list[:scheduling_scale_level+1]]
-        except: 
-            cap_factor = 1
-        return instance.P[location, process, scale_list[:scheduling_scale_level+1]] <= cap_factor*instance.Cap_P[location, process, scale_list[:network_scale_level+1]]
+        try:
+            return instance.P[location, process, scale_list[:scheduling_scale_level+1]] <= capacity_factor[location][process][scale_list[:scheduling_scale_level+1]]*instance.Cap_P[location, process, scale_list[:network_scale_level+1]]
+        except:
+            return Constraint.Skip
     instance.nameplate_production_constraint = Constraint(
         instance.locations, instance.processes, *scales, rule=nameplate_production_rule, doc='nameplate production capacity constraint')
     constraint_latex_render(nameplate_production_rule)
@@ -33,11 +35,12 @@ def nameplate_production_constraint(instance: ConcreteModel, capacity_factor: ca
 
 
 
-def nameplate_inventory_constraint(instance: ConcreteModel, network_scale_level:int = 0, scheduling_scale_level:int= 2): 
+def nameplate_inventory_constraint(instance: ConcreteModel, location_list:list, network_scale_level:int = 0, scheduling_scale_level:int= 2): 
     scale_level = max(network_scale_level, scheduling_scale_level)
     scales = scale_list(instance= instance, scale_level = scale_level)
+    loc_res_dict = {loc.name: {i.name for i in loc.resources} for loc in location_list}
     def nameplate_inventory_rule(instance, location, resource, *scale_list):
-        if resource in instance.resources_store:
+        if resource in instance.resources_store.intersection(loc_res_dict[location]):
             return instance.Inv[location, resource, scale_list[:scheduling_scale_level+1]] <= instance.Cap_S[location, resource, scale_list[:network_scale_level+1]]
         else:
             return instance.Inv[location, resource, scale_list[:scheduling_scale_level+1]] <= 0
@@ -48,11 +51,11 @@ def nameplate_inventory_constraint(instance: ConcreteModel, network_scale_level:
 
 
 
-def resource_consumption_constraint(instance: ConcreteModel, resource_list:list, scheduling_scale_level:int= 2):
-    
+def resource_consumption_constraint(instance: ConcreteModel, process_list:list, scheduling_scale_level:int= 2):
+    resource_set = set().union(*[set(i.conversion.keys()) for i in process_list])
     scales = scale_list(instance= instance, scale_level = scheduling_scale_level)
     def resource_consumption_rule(instance, location, resource, *scale_list):
-        return instance.C[location, resource, scale_list] <= next((resource_.consumption_max for resource_ in resource_list if resource_.name == resource))
+        return instance.C[location, resource, scale_list] <= next((resource_.consumption_max for resource_ in resource_set if resource_.name == resource))
     instance.resource_consumption_constraint = Constraint(
         instance.locations, instance.resources, *scales, rule=resource_consumption_rule, doc='resource consumption')
     constraint_latex_render(resource_consumption_rule)
