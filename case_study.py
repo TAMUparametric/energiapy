@@ -42,11 +42,18 @@ from src.energiapy.model.pyomo_vars import generate_vars
 from src.energiapy.model.pyomo_cons import *# nameplate_production_constraint #, test_constraint
 from src.energiapy.graph import graph
 
+
  
 # *-------------------------Temporal scales------------------------------------
 scales = temporal_scale(discretization_list = [1, 365, 24])
 # scales = temporal_scale(discretization_list = [1, 2, 3])
 
+# *-------------------------Geographic scales/location------------------------------------
+HO = location(name='HO', PV_class='Class5', WF_class='Class4',
+                      LiI_class='8Hr Battery Storage', PSH_class='Class 3', label='Houston')
+LA = location(name='LA', PV_class='Class3', WF_class='Class5',
+                      LiI_class='8Hr Battery Storage', PSH_class='Class 3', label='LosAngeles')
+location_list = [HO, LA]
 
 # *-------------------------Constance defined here for ease------------------------------------
 bigM = 10**10 #very large number
@@ -60,8 +67,6 @@ ake_start = 0
 smrh_start = 0
 smr_start = 0 
 asmr_start = 0 
-
-
 
 # *-------------------------Resources------------------------------------
 
@@ -169,11 +174,10 @@ H2_Green = process(name='H2_Green', conversion={H2: 1, H2_G: -1}, prod_max=bigM,
                            trl='nocost', block='dummy', label='Green Hydrogen production')
 
 
-# *-------------------------Data------------------------------------
-
 cost_metrics_list = ['CAPEX', 'Fixed O&M', 'Variable O&M', 'units', 'source']
 
 cost_dict = get_data(file_name='cost_dict')
+
 
 # *-------------------------Generate scenario------------------------------------
 
@@ -185,12 +189,15 @@ la_power_output_df['PV'] = la_power_output_df['PV']/max(la_power_output_df['PV']
 la_power_output_df['WF'] = la_power_output_df['WF']/max(la_power_output_df['WF'])
 
 
+
+
 ho_power_output_df = pandas.read_csv('power_output_df.csv').drop(columns='datetime')
 ho_power_output_df['day'] = [i - 1 for i in ho_power_output_df['day']]
 ho_power_output_df['scales'] = [(0,j,k) for j,k in zip(ho_power_output_df['day'], ho_power_output_df['hour'])]
 ho_power_output_df = ho_power_output_df.drop(columns= ['day', 'hour'])
 ho_power_output_df['PV'] = ho_power_output_df['PV']/max(ho_power_output_df['PV'])
 ho_power_output_df['WF'] = ho_power_output_df['WF']/max(ho_power_output_df['WF'])
+
 
 
 daily_ng_price_df = make_henry_price_df(
@@ -205,6 +212,10 @@ LA = location(name='LA', processes= {PV, LiI_c, LiI_d, WF, SMRH}, scales = scale
                       LiI_class='8Hr Battery Storage', PSH_class='Class 3', label='LosAngeles')
 location_list = [HO, LA]
 
+# *-------------------------Data------------------------------------
+
+cost_metrics_list = ['CAPEX', 'Fixed O&M', 'Variable O&M', 'units', 'source']
+
 graph.capacity_factor(location= HO, process= PV)
 graph.cost_factor (location= LA, resource= CH4 )
 
@@ -215,10 +226,11 @@ Train_H2 = transport(name= 'Train_H2', resources= [H2_B, H2_C], locations= [HO, 
 transport_list = [Train_H2]
 
 
-# *-------------------------Build model------------------------------------
-
 m = ConcreteModel()
 
+generate_sets(instance= m, process_list= process_list, location_list= location_list, transport_list= transport_list, scales= scales)
+
+generate_vars(instance = m, expenditure_scale_level = 0, scheduling_scale_level = 2)
 
 scheduling_scale = 2
 network_scale = 0
@@ -237,6 +249,7 @@ nameplate_inventory_constraint(instance= m, location_list= location_list, networ
 resource_consumption_constraint(instance= m, process_list = process_list, scheduling_scale_level= scheduling_scale)
 resource_expenditure_constraint(instance= m, scheduling_scale_level= scheduling_scale)
 resource_discharge_constraint(instance= m, scheduling_scale_level= scheduling_scale)
+
 
 
 #%%

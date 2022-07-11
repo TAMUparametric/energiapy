@@ -13,7 +13,3 @@ __status__ = "Production"
 from dataclasses import dataclass
 
 
-# @dataclass
-# class scenario:
-
-#     def __init__(self, name: str, process_list: list, conversion_dict:dict= {}, material_dict: {}):
