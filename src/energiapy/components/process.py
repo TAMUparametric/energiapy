@@ -19,13 +19,14 @@ class process:
     Object with process data
     """
 
-    def __init__(self, name: str, conversion: dict= None, cost:float or dict = 1, label: str = None, year: int = 0, prod_max: float = 0, prod_min: float = 0, cap_seg: dict = None, capex_seg: dict = None,
+    def __init__(self, name: str, conversion: dict= None, cost:float or dict = None, material_cons:float or dict = None, label: str = None, year: int = 0, prod_max: float = 0, prod_min: float = 0, cap_seg: dict = None, capex_seg: dict = None,
                  carbon_credit: bool = False, gwp: float = 0, land: float = 0, trl: str = None, block: str = None, source: str = 'citation needed'):
         """process object parameters
         Args:
             name (str): ID for process
             conversion (dict, optional): conversion data
             cost(float, optional): process costs
+            material(float, optional): materials required
             label (str, optional): name of the process. Defaults to ''.
             year (int, optional): Year when process is introduced. Defaults to 0.
             prod_max (float, optional): Maximum allowed capacity increase in a year. Defaults to 0.
@@ -44,6 +45,7 @@ class process:
         # self.conversion = {resource.name: conversion[resource] for resource in conversion.keys()}
         self.conversion = conversion
         self.cost = cost 
+        self.material_cons = material_cons
         self.label = label
         self.year = year
         self.prod_max = prod_max
@@ -60,7 +62,33 @@ class process:
     def __repr__(self):
         return self.name
 
+    # class cost_scenario:
+    #     """
+    #     Onject with data regarding a cost scenario
+    #     """
 
+    #     def __init__(self, name: str, horizon: float, label: str = '', enterprise: float = '', utility: float = '', pilot: float = '', repurposed: float = ''):
+    #         """cost scenario parameters
+
+    #         Args:
+    #             name (str): ID for the cost scenario
+    #             label (str, optional): name of the location. Defaults to ''.
+    #             horizon (float): length of planning horizon
+    #             enterprise (float, optional): reduction in cost over horizon for enterprise TRL. Defaults to ''.
+    #             utility (float, optional): reduction in cost over horizon for utility TRL. Defaults to ''.
+    #             pilot (float, optional): reduction in cost over horizon for pilot TRL. Defaults to ''.
+    #             repurposed (float, optional): reduction in cost over horizon for repurposed TRL. Defaults to ''.
+    #         """
+    #         self.name = name
+    #         self.label = label
+    #         self.horizon = horizon
+    #         self.enterprise = enterprise
+    #         self.utility = utility
+    #         self.pilot = pilot
+    #         self.repurposed = repurposed
+
+    #     def __repr__(self):
+    #         return self.name
 
     # def fill_cost(cost_dict: dict, process, location_list: list, cost_scenario_list: list,
     #             year_list: list, cost_parameters: dict, nrel_cost_dict:dict = {}): #: pandas.DataFrame = {}):
