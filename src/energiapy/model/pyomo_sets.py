@@ -26,9 +26,9 @@ def generate_sets(instance: ConcreteModel, location_list:list = [], transport_li
         scales (dict, optional): scales of the problem, generated through temporal_scale. Defaults to {}.
         
     """
-    process_set = set().union(*[i.processes for i in location_list])
-    resource_set = set().union(*[i.resources for i in location_list])
-    material_set = set().union(*[i.materials for i in location_list])
+    process_set = set().union(*[i.processes for i in location_list if i.processes is not None])
+    resource_set = set().union(*[i.resources for i in location_list if i.resources is not None])
+    material_set = set().union(*[i.materials for i in location_list if i.materials is not None])
     
     instance.processes = Set(initialize  = [i.name for i in process_set], doc = 'Set of processes')
     instance.resources = Set(initialize = [i.name for i in resource_set], doc = 'Set of resources')
