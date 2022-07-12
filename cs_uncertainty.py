@@ -77,10 +77,10 @@ H2O = resource(name='H2O', consumption_max=10**20,
 O2 = resource(name='O2', sell=True, loss=0.07,
                       basis='kg', label='Oxygen', block = 'resource')
 CH4 = resource(name='CH4', consumption_max=10 **
-                       20, price=1, basis='kg', label='Natural gas', block = 'materialfeedstock')
+                       20, varying = True, price=1, basis='kg', label='Natural gas', block = 'materialfeedstock')
 CO2 = resource(name='CO2', basis='kg', label='Carbon dioxide', block = 'resource')
-Power_Gr = resource(name='Power_Gr', consumption_max=10 **
-                            20, price=power_price*(10), basis='kg', label='Grid electricity', block = 'energyfeedstock')
+Power_Gr = resource(name='Power_Gr', consumption_max=10 **20,\
+    price=power_price*(10), basis='kg', label='Grid electricity', block = 'energyfeedstock')
 Power = resource(name='Power', basis='MW',
                          label='Renewable power generated', block = 'resource')
 CO2_Vent = resource(
@@ -90,7 +90,8 @@ H2_cons = resource(
 
 
 # *-------------------------Materials------------------------------------
-Li = material(name='Li', gwp=0, basis= 'kg', label='Lithium')
+Li = material(name='Li', gwp=30, basis= 'kg', label='Lithium')
+St = material(name='St', gwp=50, basis= 'kg', label='Steel')
 
 
 # *-------------------------Processes ------------------------------------
@@ -99,9 +100,9 @@ LiI_c = process(name='LiI_c', conversion={Charge: 1, Power: -1}, material_cons =
                         block='power_storage', label='Lithium-ion battery', source='Zakeri 2015')
 LiI_d = process(name='LiI_d', conversion={Charge: -1.1765, Power: 1}, prod_max=bigM, trl='discharge',
                         block='power_storage', label='Lithium-ion battery discharge', source='Zakeri 2015')
-PV = process(name='PV', year=pv_start, conversion={Solar: -1, Power: 1, H2O: -20}, prod_max=bigM, gwp=53000, land=13320/1800,
+PV = process(name='PV', year=pv_start, conversion={Solar: -1, Power: 1, H2O: -20}, varying= True, material_cons={St: 40}, prod_max=bigM, gwp=53000, land=13320/1800,
                      trl='nrel', block='power_generation', label='Solar photovoltaics (PV) array', source='Use pvlib conversion')
-WF = process(name='WF', conversion={Wind: -1, Power: 1, H2O: -1}, prod_max=bigM, gwp=52700, land=10800 /
+WF = process(name='WF', conversion={Wind: -1, Power: 1, H2O: -1}, varying= True, prod_max=bigM, gwp=52700, land=10800 /
                      1800, trl='nrel', block='power_generation', label='Wind mill array', source='Use windtoolkit conversion')
 AKE = process(name='AKE', year=ake_start, conversion={Power: -1, H2_G: 19.474, O2: 763.2, H2O: -175.266}, prod_max=bigM, trl='utility', block='material_production',
                       label='Alkaline water electrolysis (AWE)', source='Demirhan et al. 2018 AIChE paper')  # 20.833 MW required to produce 1000t/day.H2
@@ -130,11 +131,12 @@ H2_B_sink = process(name='H2_B_sink', conversion={H2_B: -1, H2_cons: 1}, prod_ma
 
 # *-------------------------Geographic scales/location------------------------------------
 
+#candidate cities (sources)
 CityA = location(name= 'A', processes= {PV, LiI_c, LiI_d, WF, AKE}, scales = scales, label= 'city A')
 CityB = location(name= 'B', processes= {PV, LiI_c, LiI_d, WF, AKE}, scales = scales, label= 'city B')
 CityC = location(name= 'C', processes= {PV, LiI_c, LiI_d, WF, AKE}, scales = scales, label= 'city C')
 
-
+#candidate cities (sinks)
 Site1 = location(name= '1', processes = {H2_G_sink}, scales = scales, label= 'site close to A')
 Site2 = location(name= '2', processes = {H2_G_sink}, scales = scales, label= 'site close to B')
 Site3 = location(name= '3', processes = {H2_G_sink}, scales = scales, label= 'site close to C')
@@ -164,13 +166,6 @@ Arcs = transport(name= 'arcs', resources= {H2_G}, source_locations= city_list, s
 
 m = ConcreteModel()
 
-
-#Treat parameters as uncertain variables 
-# candidates - cost of ng purchase
-# intermittent avaialability of solar and wind 
-
-
-
 scheduling_scale = 0
 network_scale = 0
 
@@ -186,8 +181,8 @@ nameplate_production_constraint(instance= m, location_list= location_list, netwo
 
 nameplate_inventory_constraint(instance= m, location_list= location_list, network_scale_level= network_scale, scheduling_scale_level= scheduling_scale)
 
+resource_consumption_constraint(instance= m, location_list= location_list, scheduling_scale_level= scheduling_scale)
 #%%
-resource_consumption_constraint(instance= m, process_list = process_list, scheduling_scale_level= scheduling_scale)
 resource_expenditure_constraint(instance= m, scheduling_scale_level= scheduling_scale)
 resource_discharge_constraint(instance= m, scheduling_scale_level= scheduling_scale)
 

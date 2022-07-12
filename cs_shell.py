@@ -89,7 +89,7 @@ H2O = resource(name='H2O', consumption_max=10**20,
 O2 = resource(name='O2', sell=True, loss=0.07,
                       basis='kg', label='Oxygen', block = 'resource')
 CH4 = resource(name='CH4', consumption_max=10 **
-                       20, price=1, basis='kg', label='Natural gas', block = 'materialfeedstock')
+                       20, varying= True, price=1, basis='kg', label='Natural gas', block = 'materialfeedstock')
 CO2 = resource(name='CO2', basis='kg', label='Carbon dioxide', block = 'resource')
 CO2_DAC = resource(
     name='CO2_DAC', basis='kg', label='Carbon dioxide - captured', block = 'carbonsequestration')
@@ -127,9 +127,9 @@ PSH_c = process(name='PSH_c', conversion={H2O_E: 1, Power: -1}, year=0, prod_max
                         block='power_storage', label='Pumped storage hydropower (PSH)', source='Zakeri 2015')
 PSH_d = process(name='PSH_d', conversion={H2O: -1, Power: -1.4286}, prod_max=bigM, trl='discharge',
                         block='power_storage', label='Pumped storage hydropower (PSH) discharge', source='Zakeri 2015')
-PV = process(name='PV', year=pv_start, conversion={Solar: -1, Power: 1, H2O: -20}, prod_max=bigM, gwp=53000, land=13320/1800,
+PV = process(name='PV', year=pv_start, conversion={Solar: -1, Power: 1, H2O: -20}, varying= True, prod_max=bigM, gwp=53000, land=13320/1800,
                      trl='nrel', block='power_generation', label='Solar photovoltaics (PV) array', source='Use pvlib conversion')
-WF = process(name='WF', conversion={Wind: -1, Power: 1, H2O: -1}, prod_max=bigM, gwp=52700, land=10800 /
+WF = process(name='WF', conversion={Wind: -1, Power: 1, H2O: -1}, varying= True, prod_max=bigM, gwp=52700, land=10800 /
                      1800, trl='nrel', block='power_generation', label='Wind mill array', source='Use windtoolkit conversion')
 AKE = process(name='AKE', year=ake_start, conversion={Power: -1, H2_G: 19.474, O2: 763.2, H2O: -175.266}, prod_max=bigM, trl='utility', block='material_production',
                       label='Alkaline water electrolysis (AWE)', source='Demirhan et al. 2018 AIChE paper')  # 20.833 MW required to produce 1000t/day.H2
@@ -214,19 +214,26 @@ cost_metrics_list = ['CAPEX', 'Fixed O&M', 'Variable O&M', 'units', 'source']
 graph.capacity_factor(location= HO, process= PV)
 graph.cost_factor (location= LA, resource= CH4 )
 
+distance_matrix = [
+    [0, 678],
+    [678, 0]
+                   ]
+
+
 
 # *-------------------------Transport modes------------------------------------
-Train_H2 = transport(name= 'Train_H2', resources= {H2_B, H2_G}, source_locations= {HO, LA}, sink_location= {HO, LA}, label= 'Railway for hydrogen transportation', 
-                             trans_max= 10**8, trans_loss= 0.001, trans_cost= 1.667*10**(-3))
+Train_H2 = transport(name= 'Train_H2', resources= {H2_B, H2_G}, source_locations= [HO, LA], sink_locations= [HO, LA], distance_matrix= distance_matrix,\
+    label= 'Railway for hydrogen transportation', trans_max= 10**8, trans_loss= 0.001, trans_cost= 1.667*10**(-3))
 transport_list = [Train_H2]
 
-#%%
+
 m = ConcreteModel()
 
 
 
 
 scheduling_scale = 2
+purchase_scale = 1
 network_scale = 0
 
 
@@ -239,21 +246,13 @@ nameplate_production_constraint(instance= m, location_list= location_list, netwo
 
 nameplate_inventory_constraint(instance= m, location_list= location_list, network_scale_level= network_scale, scheduling_scale_level= scheduling_scale)
 
-#%%
-resource_consumption_constraint(instance= m, process_list = process_list, scheduling_scale_level= scheduling_scale)
-resource_expenditure_constraint(instance= m, scheduling_scale_level= scheduling_scale)
+
+resource_consumption_constraint(instance= m, location_list= location_list, scheduling_scale_level= scheduling_scale)
+
+resource_expenditure_constraint(instance= m, location_list= location_list, scheduling_scale_level= scheduling_scale, purchase_scale_level= purchase_scale)
 resource_discharge_constraint(instance= m, scheduling_scale_level= scheduling_scale)
 
 
 
-#%%
 
-# test_constraint(instance= m)
-
-# %%
-
-
-# %%
-from IPython.display import display, Math, Latex
-display(Math(r'F(k) = \int_{-\infty}^{\infty} f(x) e^{2\pi i k} dx'))
 # %%

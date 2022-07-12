@@ -17,17 +17,18 @@ from ..utils.model_utils import scale_set, scale_list
 from ..components.location import location
 
 
-def nameplate_production_constraint(instance: ConcreteModel, location_list:list, network_scale_level:int = 0, scheduling_scale_level:int= 2):
+def nameplate_production_constraint(instance: ConcreteModel, location_list:list, network_scale_level:int = 0, scheduling_scale_level:int= 0):
     scale_level = max(network_scale_level, scheduling_scale_level)
     scales = scale_list(instance= instance, scale_level = scale_level)
     capacity_factor = {location.name: location.capacity_factor for location in location_list}
     
     #%%% use intersection of processes from location object and capacity factor processes 
     def nameplate_production_rule(instance, location, process, *scale_list):
-        try:
-            return instance.P[location, process, scale_list[:scheduling_scale_level+1]] <= capacity_factor[location][process][scale_list[:scheduling_scale_level+1]]*instance.Cap_P[location, process, scale_list[:network_scale_level+1]]
-        except:
-            return Constraint.Skip
+        if process in instance.processes_varying:
+            return instance.P[location, process, scale_list[:scheduling_scale_level+1]] <= \
+                capacity_factor[location][process][scale_list[:scheduling_scale_level+1]]*instance.Cap_P[location, process, scale_list[:network_scale_level+1]]
+        else:
+            return instance.P[location, process, scale_list[:scheduling_scale_level+1]] <= instance.Cap_P[location, process, scale_list[:network_scale_level+1]]
     instance.nameplate_production_constraint = Constraint(
         instance.locations, instance.processes, *scales, rule=nameplate_production_rule, doc='nameplate production capacity constraint')
     constraint_latex_render(nameplate_production_rule)
@@ -35,7 +36,7 @@ def nameplate_production_constraint(instance: ConcreteModel, location_list:list,
 
 
 
-def nameplate_inventory_constraint(instance: ConcreteModel, location_list:list, network_scale_level:int = 0, scheduling_scale_level:int= 2): 
+def nameplate_inventory_constraint(instance: ConcreteModel, location_list:list, network_scale_level:int = 0, scheduling_scale_level:int= 0): 
     scale_level = max(network_scale_level, scheduling_scale_level)
     scales = scale_list(instance= instance, scale_level = scale_level)
     loc_res_dict = {loc.name: {i.name for i in loc.resources} for loc in location_list}
@@ -51,8 +52,9 @@ def nameplate_inventory_constraint(instance: ConcreteModel, location_list:list, 
 
 
 
-def resource_consumption_constraint(instance: ConcreteModel, process_list:list, scheduling_scale_level:int= 2):
-    resource_set = set().union(*[set(i.conversion.keys()) for i in process_list])
+def resource_consumption_constraint(instance: ConcreteModel, location_list:list, scheduling_scale_level:int= 0):
+    process_set = set().union(*[i.processes for i in location_list if i.processes is not None])
+    resource_set = set().union(*[set(i.conversion.keys()) for i in list(process_set)])
     scales = scale_list(instance= instance, scale_level = scheduling_scale_level)
     def resource_consumption_rule(instance, location, resource, *scale_list):
         return instance.C[location, resource, scale_list] <= next((resource_.consumption_max for resource_ in resource_set if resource_.name == resource))
@@ -62,11 +64,20 @@ def resource_consumption_constraint(instance: ConcreteModel, process_list:list, 
     return instance.resource_consumption_constraint
 
 
-def resource_expenditure_constraint(instance: ConcreteModel, scheduling_scale_level:int= 2):
+def resource_expenditure_constraint(instance: ConcreteModel, location_list:list, scheduling_scale_level:int= 0, purchase_scale_level:int= 0):
     scales = scale_list(instance= instance, scale_level = scheduling_scale_level)
+    cost_factor = {location.name: location.cost_factor for location in location_list}
+    cost = {location.name: location.resource_price for location in location_list}
+    loc_res_dict = {loc.name: {i.name for i in loc.resources} for loc in location_list}
     def resource_expenditure_rule(instance, location, resource, *scale_list):
-        return instance.B[location, resource, scale_list] == 5*instance.C[location, resource, scale_list]
-     
+        if resource in instance.resources_varying.intersection(loc_res_dict[location]):
+            return instance.B[location, resource, scale_list] == cost_factor[location][resource][scale_list[:purchase_scale_level+1]]\
+                *instance.C[location, resource, scale_list]
+        else:
+            if resource in instance.resources_purch.intersection(loc_res_dict[location]):
+                return instance.B[location, resource, scale_list] == cost[location][resource]*instance.C[location, resource, scale_list]      
+            else:
+                return instance.B[location, resource, scale_list] == 0     
     #f_purchase_dict[location][resource][rep_days_dict[day]['rep_day']][hour] *\
      #       next((resource_.price for resource_ in resource_list if resource_.name ==
       #           resource))*instance.C[location, resource, hour, day, year]

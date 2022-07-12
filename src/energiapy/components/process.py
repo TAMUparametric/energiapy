@@ -19,7 +19,8 @@ class process:
     Object with process data
     """
 
-    def __init__(self, name: str, conversion: dict= None, cost:float or dict = None, material_cons:float or dict = None, label: str = None, year: int = 0, prod_max: float = 0, prod_min: float = 0, cap_seg: dict = None, capex_seg: dict = None,
+    def __init__(self, name: str, conversion: dict= None, cost:float or dict = None, material_cons:float or dict = None, varying:bool= False, \
+        label: str = None, year: int = 0, prod_max: float = 0, prod_min: float = 0, cap_seg: dict = None, capex_seg: dict = None,
                  carbon_credit: bool = False, gwp: float = 0, land: float = 0, trl: str = None, block: str = None, source: str = 'citation needed'):
         """process object parameters
         Args:
@@ -58,6 +59,7 @@ class process:
         self.trl = trl
         self.block = block
         self.source = source
+        self.varying = varying
 
     def __repr__(self):
         return self.name
