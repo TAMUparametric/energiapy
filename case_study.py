@@ -45,6 +45,7 @@ from src.energiapy.graph import graph
 
  
 # *-------------------------Temporal scales------------------------------------
+
 scales = temporal_scale(discretization_list = [1, 365, 24])
 # scales = temporal_scale(discretization_list = [1, 2, 3])
 
@@ -247,4 +248,10 @@ resource_discharge_constraint(instance= m, scheduling_scale_level= scheduling_sc
 
 # test_constraint(instance= m)
 
+# %%
+
+
+# %%
+from IPython.display import display, Math, Latex
+display(Math(r'F(k) = \int_{-\infty}^{\infty} f(x) e^{2\pi i k} dx'))
 # %%
