@@ -13,7 +13,11 @@ __status__ = "Production"
 from dataclasses import dataclass
 
 from ..components.temporal_scale import temporal_scale
+from ..components.process import process
+from ..components.resource import resource
+from ..components.material import material
 import pandas
+from typing import Set 
 
 @dataclass
 class location:
@@ -21,17 +25,23 @@ class location:
     Object with data regarding a location
     """
 
-    def __init__(self, name: str, processes:set, scales:temporal_scale, varying_process_df:pandas.DataFrame = pandas.DataFrame(),\
+    def __init__(self, name: str, processes:Set[process], scales:temporal_scale, varying_process_df:pandas.DataFrame = pandas.DataFrame(),\
         varying_cost_df:pandas.DataFrame= pandas.DataFrame(), label: str = '', PV_class: str = '', WF_class: str = '', LiI_class: str = '', PSH_class: str = ''):
-        """location object parameters
+        """creates a dataclass with information pertaining to a location
+        can include - varying capacity factors for processes, varying costs of resources
+        PV, WF, Li-ion, PSH classes 
 
         Args:
-            name (str): ID for locations
-            label (str, optional): name of the location. Defaults to ''.
-            PV_class (str, optional): Residential solar PV costing class based on average availability (DOE/NRELatb). Defaults to ''.
-            WF_class (str, optional): Wind costing class based on average availability (DOE/NRELatb). Defaults to ''.
-            LiI_class (str, optional): Charging cycle for lithium ion batteries (NRELatb). Defaults to ''.
-            PSH_class (str, optional): PSH category (NRELatb). Defaults to ''.
+            name (str): ID
+            processes (Set[process]): set of processes to include at location
+            scales (temporal_scale): temporal scale of the problem
+            varying_process_df (pandas.DataFrame, optional): contains varying production data at appropriate resolution. Defaults to pandas.DataFrame().
+            varying_cost_df (pandas.DataFrame, optional): contains varying resource cost data at appropriate resolution. Defaults to pandas.DataFrame().
+            label (str, optional): label. Defaults to ''.
+            PV_class (str, optional): PV cost category as defined by NREL annual technology baseline (ATB). Defaults to ''.
+            WF_class (str, optional): WF cost category as defined by NREL ATB. Defaults to ''.
+            LiI_class (str, optional): Li-ion cost category as defined by NREL ATB. Defaults to ''.
+            PSH_class (str, optional): PSH cost category as defined by NREL ATB. Defaults to ''.
         """
         self.name = name
         self.processes = processes
@@ -51,7 +61,12 @@ class location:
         self.cost_factor = self.make_cost_factor()
         self.resource_price = self.get_resource_price()
         
-    def make_capacity_factor(self):
+    def make_capacity_factor(self)-> dict:
+        """makes capacity factor dict from varying process/production output DataFrame()
+
+        Returns:
+            dict: dictionary with varying capacity factor, structure - {process: scale: value}
+        """
         if self.varying_process_df.empty == True:
             return None
         else:
@@ -60,7 +75,12 @@ class location:
                     for process in self.varying_processes}
             return capacity_factor
         
-    def make_cost_factor(self):
+    def make_cost_factor(self) -> dict:
+        """makes cost factor dict from varying process/production output DataFrame()
+
+        Returns:
+            dict: dictionary with varying cost factor, structure - {resource: scale: value}
+        """
         if self.varying_cost_df.empty == True:
             return None
         else:
@@ -68,28 +88,51 @@ class location:
                 if resource.name in list(self.varying_cost_df.columns) else 1 for scale in self.varying_cost_df['scales']} for resource in self.varying_resources}
             return cost_factor
     
-    def get_resources(self):
+    def get_resources(self) -> Set[resource]:
+        """fetches required resources for processes introduced at locations 
+
+        Returns:
+            Set[resource]: set of resources
+        """
         if len(self.processes) == 0:
             return None
         else:
             return set().union(*[set(i.conversion.keys()) for i in self.processes])
     
-    def get_materials(self):
+    def get_materials(self) -> Set[material]:
+        """fetches required materials for processes introduced at locations
+
+        Returns:
+            Set[material]: set of materials
+        """
         if len(self.processes) == 0:
             return None
         else:
             return set().union(*[set(i.material_cons.keys()) for i in self.processes if i.material_cons is not None])
     
-    def get_varying_processes(self):
+    def get_varying_processes(self) -> Set[process]:
+        """makes a set of processes with varying capacity factors
+
+        Returns:
+            Set[process]: set of processes with varying capacity factors
+        """
         return {i for i in self.processes if i.varying == True}
     
-    def get_varying_resources(self):
+    def get_varying_resources(self) -> Set[resource]:
+        """makes a set of resources with varying cost factors
+        
+        Returns:
+            Set[resource]: set of resources with varying cost factors
+        """
         return {i for i in self.resources if i.varying == True}
     
     def get_resource_price(self):
-        # return {i.name: i.price for i in self.resources if i.varying == False if i.consumption_max > 0}
+        """gets resource prices for resources with non-varying costs
+        
+        Returns:
+            Set[resource]: set of resources with non-varying cost factors
+        """
         return {i.name: i.price for i in self.resources if i.varying == False}
-    
     
     def __repr__(self):
         return self.name
