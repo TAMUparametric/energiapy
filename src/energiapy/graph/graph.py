@@ -20,8 +20,17 @@ from ..components.location import location
 
 #%%
 
-def capacity_factor(process: process, location: location = None, \
-    fig_size:tuple = (12,6), font_size:int = 16, color:str ='black'):
+def capacity_factor(process: process, location: location, \
+    fig_size:tuple = (12,6), font_size:int = 16, color:str ='blue'):
+    """generates a graph for varying capacity factor of process
+
+    Args:
+        process (process): process data object
+        location (location): location
+        font_size (int, optional): font size. Defaults to 16.
+        fig_size (tuple, optional): figure size. Defaults to (12,6).
+        color (str, optional): color of plot. Defaults to 'blue'.
+    """
 
     rc('font', **{'family': 'serif', 'serif': ['Computer Modern'], 'size': font_size})
     rc('text', usetex=True)
@@ -37,8 +46,17 @@ def capacity_factor(process: process, location: location = None, \
     plt.rcdefaults()
     return
 
-def cost_factor(resource: resource, location: location = None, \
-    fig_size:tuple = (12,6), font_size:int = 16, color:str ='black'):
+def cost_factor(resource: resource, location: location, \
+    fig_size:tuple = (12,6), font_size:int = 16, color:str ='blue'):
+    """generates a graph for varying cost factor of resource
+
+    Args:
+        resource (resource): resource data object
+        location (location): location data object
+        font_size (int, optional): font size. Defaults to 16.
+        fig_size (tuple, optional): figure size. Defaults to (12,6).
+        color (str, optional): color of plot. Defaults to 'blue'.
+    """
     rc('font', **{'family': 'serif', 'serif': ['Computer Modern'], 'size': font_size})
     rc('text', usetex=True)
     fig, ax = plt.subplots(figsize= fig_size)

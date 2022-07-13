@@ -27,6 +27,8 @@ from src.energiapy.components.resource import resource
 from src.energiapy.components.process import process
 from src.energiapy.components.material import material
 from src.energiapy.components.location import location
+from src.energiapy.components.linkage import linkage
+
 # from src.energiapy.components.cost_scenario import cost_scenario
 from src.energiapy.components.transport import transport
 from src.energiapy.utils.data_utils import get_data, make_conversion_dict, make_material_dict, make_henry_price_df
@@ -100,13 +102,13 @@ LiI_c = process(name='LiI_c', conversion={Charge: 1, Power: -1}, material_cons =
                         block='power_storage', label='Lithium-ion battery', source='Zakeri 2015')
 LiI_d = process(name='LiI_d', conversion={Charge: -1.1765, Power: 1}, prod_max=bigM, trl='discharge',
                         block='power_storage', label='Lithium-ion battery discharge', source='Zakeri 2015')
-PV = process(name='PV', year=pv_start, conversion={Solar: -1, Power: 1, H2O: -20}, varying= True, material_cons={St: 40}, prod_max=bigM, gwp=53000, land=13320/1800,
+PV = process(name='PV', intro_scale=pv_start, conversion={Solar: -1, Power: 1, H2O: -20}, varying= True, material_cons={St: 40}, prod_max=bigM, gwp=53000, land=13320/1800,
                      trl='nrel', block='power_generation', label='Solar photovoltaics (PV) array', source='Use pvlib conversion')
 WF = process(name='WF', conversion={Wind: -1, Power: 1, H2O: -1}, varying= True, prod_max=bigM, gwp=52700, land=10800 /
                      1800, trl='nrel', block='power_generation', label='Wind mill array', source='Use windtoolkit conversion')
-AKE = process(name='AKE', year=ake_start, conversion={Power: -1, H2_G: 19.474, O2: 763.2, H2O: -175.266}, prod_max=bigM, trl='utility', block='material_production',
+AKE = process(name='AKE', intro_scale=ake_start, conversion={Power: -1, H2_G: 19.474, O2: 763.2, H2O: -175.266}, prod_max=bigM, trl='utility', block='material_production',
                       label='Alkaline water electrolysis (AWE)', source='Demirhan et al. 2018 AIChE paper')  # 20.833 MW required to produce 1000t/day.H2
-SMRH = process(name='SMRH', year=smrh_start, conversion={Power: -1.11*10**(-3), CH4: -3.76, H2O: -23.7, H2_B: 1, CO2_Vent: 1.03, CO2: 9.332}, prod_max=bigM, gwp=0, trl='enterprise',
+SMRH = process(name='SMRH', intro_scale=smrh_start, conversion={Power: -1.11*10**(-3), CH4: -3.76, H2O: -23.7, H2_B: 1, CO2_Vent: 1.03, CO2: 9.332}, prod_max=bigM, gwp=0, trl='enterprise',
                        block='material_production', label='Steam methane reforming + CCUS', source='Mosca 2020, 90pc capture')
 H2_C_c = process(name='H2_C_c', conversion={Power: -1.10*10**(-3), H2_C: 1, H2: -1},  prod_max=12000, gwp=0, trl='pilot',
                          block='material_storage', label='Hydrogen local storage (Compressed)', source='Bossel and Eliasson - Energy and the Hydrogen Economy')
@@ -150,20 +152,27 @@ location_list = [CityA, CityB, CityC, Site1, Site2, Site3, Site4, Site5, Site6, 
 city_list = [CityA, CityB, CityC]
 site_list = [Site1, Site2, Site3, Site4, Site5, Site6, Site7]
 
+# *-------------------------Transport modes------------------------------------
+Train = transport(name= 'Train', resources= {H2_G}, trans_max= 10**8, trans_loss= 0.002, trans_cost= 1.667*10**(-3), label= 'Railroad transport')
+Pipe = transport(name= 'Pipe', resources= {H2_G}, trans_max= 10**8, trans_loss= 0.001, trans_cost= 0.5*10**(-3), label= 'Railroad transport')
 
 
-# *-------------------------Data------------------------------------
 
+# *-------------------------Linakges between locations------------------------------------
 distance_matrix = [
     [  0.  ,  40.  , 120.4 ,  27.  ,  52.2 ,  68.7 ,  40.5 ],
     [ 40.  ,   0.  , 125.4 ,  12.  ,  47.  ,  77.7 ,  39.8 ],
     [120.4 , 125.4 ,   0.  , 122.19,  78.4 ,  51.7 ,  86.8 ]
     ]
 
-# *-------------------------Transport modes------------------------------------
-Arcs = transport(name= 'arcs', resources= {H2_G}, source_locations= city_list, sink_locations= site_list, distance_matrix= distance_matrix, \
-    label= 'Arcs between cities(sources) and sites(sinks)', trans_max= 10**8, trans_loss= 0.001, trans_cost= 1.667*10**(-3))
+transport_matrix = [
+    [  []  ,  [Train, Pipe]  , [Train] ,  [Pipe]  ,  [Pipe] ,  [Pipe] ,  [Train] ],
+    [ [Train]  ,   []  , [Train, Pipe] ,  [Train]  ,  [Train]  ,  [Pipe] ,  [Train, Pipe] ],
+    [[Pipe] , [Train, Pipe] ,   []  , [Train, Pipe],  [Pipe] ,  [Train] ,  [Train] ]
+    ]
 
+Arcs = linkage(name= 'Arcs', source_locations= city_list, sink_locations= site_list, \
+    distance_matrix= distance_matrix, transport_matrix= transport_matrix, label= 'connections between cities and sites')
 m = ConcreteModel()
 
 scheduling_scale = 0
@@ -174,7 +183,7 @@ generate_sets(instance= m, location_list= location_list, transport_list= [Arcs],
 
 generate_vars(instance = m, expenditure_scale_level = network_scale, scheduling_scale_level = scheduling_scale)
 
-
+#%%
 
 nameplate_production_constraint(instance= m, location_list= location_list, network_scale_level= network_scale, scheduling_scale_level= scheduling_scale)
 
@@ -182,7 +191,7 @@ nameplate_production_constraint(instance= m, location_list= location_list, netwo
 nameplate_inventory_constraint(instance= m, location_list= location_list, network_scale_level= network_scale, scheduling_scale_level= scheduling_scale)
 
 resource_consumption_constraint(instance= m, location_list= location_list, scheduling_scale_level= scheduling_scale)
-#%%
+
 resource_expenditure_constraint(instance= m, scheduling_scale_level= scheduling_scale)
 resource_discharge_constraint(instance= m, scheduling_scale_level= scheduling_scale)
 

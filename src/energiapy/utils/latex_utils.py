@@ -53,4 +53,8 @@ def constraint_latex_render(constraint_rule, latex_alias_dict:dict= {}) -> str:
     
     return str_
 
+
+
+
+
 # %%

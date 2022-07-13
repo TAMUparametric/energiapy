@@ -37,14 +37,12 @@ def generate_sets(instance: ConcreteModel, location_list:list = [], transport_li
     instance.resources_purch = Set(initialize = [i.name for i in resource_set if i.consumption_max > 0], doc = 'Set of purchased resources')   
     instance.resources_varying = Set(initialize = [i.name for i in resource_set if i.varying == True], doc = 'Set of resources with varying purchase price')    
     instance.processes_varying = Set(initialize  = [i.name for i in process_set if i.varying == True], doc = 'Set of processes with varying capacity')
-    
-     
     instance.materials = Set(initialize = [i.name for i in material_set], doc = 'Set of materials')
-
     instance.locations = Set(initialize = [i.name for i in location_list], doc = 'Set of locations')
     instance.transports = Set(initialize = [i.name for i in transport_list], doc = 'Set of transports')
     instance.scales = Set(scales.name, initialize = scales.scale)
     
+        
     return
 
 

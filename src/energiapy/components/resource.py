@@ -30,6 +30,7 @@ class resource:
             consumption_max (float, optional): Maximum allowed resource consumption in time period [unit/h]. Defaults to 0.
             loss (float, optional): Amount of resource lost in time period [h]. Defaults to 0.
             revenue (float, optional): Amount earned through sale of resource [$/unit]. Defaults to 0.
+            varying (bool, optional): If the cost of resource is varying/uncertain. Defaults to False.
             price (float, optional): Purchase cost of unit [$/unit]. Defaults to 0.
             mile (float, optional): mileage offered by resource [mile/unit]. Defaults to 0.
             store_max (float, optional): Maximum storage capacity increase in a year. Defaults to 0.
