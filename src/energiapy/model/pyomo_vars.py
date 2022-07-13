@@ -66,13 +66,31 @@ def generate_network_vars(instance: ConcreteModel, scale_level:int = 0):
     return 
 
 def generate_uncertainty_vars(instance:ConcreteModel, scale_level:int= 0):
+    """declares pyomo variables for uncertainty analysis of processes and resources
+
+    Args:
+        instance (ConcreteModel): pyomo instance
+        scale_level (int, optional): scale for uncertainty. Defaults to 0.
+    """
     instance.scale_uncertainty = scale_set(instance, scale_level= scale_level)
-    instance.Resource_price_delta = Var(instance.locations, instance.resources_varying, instance.scale_uncertainty, within= NonNegativeReals, doc= 'uncertain purchase price')
-    instance.Process_capacity_delta = Var(instance.locations, instance.processes_varying, instance.scale_uncertainty, within= NonNegativeReals, doc= 'uncertain resource availability')
-    
+    instance.Delta_Cost_R = Var(instance.locations, instance.resources_varying, instance.scale_uncertainty, within= NonNegativeReals, doc= 'uncertain purchase price')
+    instance.Delta_Cap_P = Var(instance.locations, instance.processes_varying, instance.scale_uncertainty, within= NonNegativeReals, doc= 'uncertain resource availability')
     return
 
-def generate_vars(instance:ConcreteModel,  expenditure_scale_level:int=0, scheduling_scale_level:int = 0, network_scale_level:int = 0):
+def generate_milp_vars(instance:ConcreteModel,  expenditure_scale_level:int=0, scheduling_scale_level:int = 0, network_scale_level:int = 0):
+    """declares pyomo variables at chosen scales
+
+    Args:
+        instance (ConcreteModel): pyomo instance
+        expenditure_scale_level (int, optional): scale for expenditure variables. Defaults to 0.
+        scheduling_scale_level (int, optional): scale for scheduling variables. Defaults to 0.
+    """
+    generate_expenditure_vars(instance = instance, scale_level= expenditure_scale_level)
+    generate_scheduling_vars(instance = instance, scale_level= scheduling_scale_level)
+    generate_network_vars(instance = instance, scale_level= network_scale_level)
+    return 
+
+def generate_mpmilp_vars(instance:ConcreteModel, expenditure_scale_level:int=0, scheduling_scale_level:int = 0, network_scale_level:int = 0):
     """declares pyomo variables at chosen scales
 
     Args:
@@ -85,6 +103,7 @@ def generate_vars(instance:ConcreteModel,  expenditure_scale_level:int=0, schedu
     generate_network_vars(instance = instance, scale_level= network_scale_level)
     generate_uncertainty_vars(instance= instance, scale_level= scheduling_scale_level)
     return 
+
 
 #%%
 

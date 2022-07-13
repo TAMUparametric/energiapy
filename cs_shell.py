@@ -33,15 +33,10 @@ from src.energiapy.components.resource import resource
 from src.energiapy.components.process import process
 from src.energiapy.components.material import material
 from src.energiapy.components.location import location
-from src.energiapy.components.linkage import linkage
-# from src.energiapy.components.cost_scenario import cost_scenario
+from src.energiapy.components.network import network
+from src.energiapy.components.scenario import scenario
 from src.energiapy.components.transport import transport
-from src.energiapy.utils.data_utils import get_data, make_conversion_dict, make_material_dict, make_henry_price_df
-# from src.energiapy.utils.cluster_utils import ahc_elbow, dtw_cluster, find_dtw_path
-from src.energiapy.utils.model_utils import fetch_components
-from src.energiapy.model.pyomo_sets import generate_sets
-from src.energiapy.model.pyomo_vars import generate_vars
-from src.energiapy.model.pyomo_cons import *# nameplate_production_constraint #, test_constraint
+from src.energiapy.utils.data_utils import get_data,make_henry_price_df
 from src.energiapy.graph import graph
 
 
@@ -235,31 +230,12 @@ transport_matrix = [
                    ]
 
 
-Network = linkage(name= 'Network', source_locations= [HO, LA], sink_locations= [HO, LA], distance_matrix= distance_matrix, transport_matrix= transport_matrix) 
-
+Network = network(name= 'Network', source_locations= [HO, LA], sink_locations= [HO, LA], distance_matrix= distance_matrix, transport_matrix= transport_matrix) 
 
 m = ConcreteModel()
 
-scheduling_scale = 2
-purchase_scale = 1
-network_scale = 0
-
-
-generate_sets(instance= m, location_list= location_list, transport_list= transport_list, scales= scales)
-
-generate_vars(instance = m, expenditure_scale_level = network_scale, scheduling_scale_level = scheduling_scale)
-
-nameplate_production_constraint(instance= m, location_list= location_list, network_scale_level= network_scale, scheduling_scale_level= scheduling_scale)
-
-
-nameplate_inventory_constraint(instance= m, location_list= location_list, network_scale_level= network_scale, scheduling_scale_level= scheduling_scale)
-
-
-resource_consumption_constraint(instance= m, location_list= location_list, scheduling_scale_level= scheduling_scale)
-
-resource_expenditure_constraint(instance= m, location_list= location_list, scheduling_scale_level= scheduling_scale, purchase_scale_level= purchase_scale)
-resource_discharge_constraint(instance= m, scheduling_scale_level= scheduling_scale)
-
+case = scenario(name= '', network= Network, scales= scales, instance= m, \
+    expenditure_scale_level= 1, scheduling_scale_level= 2, network_scale_level= 0, label= 'shell milp case study').formulate_milp()
 
 
 
