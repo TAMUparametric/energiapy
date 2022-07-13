@@ -202,7 +202,6 @@ HO = location(name='HO', processes= {PV, LiI_c, LiI_d, WF, AKE}, scales = scales
 LA = location(name='LA', processes= {PV, LiI_c, LiI_d, WF, SMRH}, scales = scales, varying_cost_df = daily_ng_price_df, \
     varying_process_df= la_power_output_df, PV_class='Class3', WF_class='Class5',
                       LiI_class='8Hr Battery Storage', PSH_class='Class 3', label='LosAngeles')
-location_list = [HO, LA]
 
 # *-------------------------Data------------------------------------
 
@@ -215,10 +214,8 @@ graph.cost_factor (location= LA, resource= CH4 )
 
 # *-------------------------Transport modes------------------------------------
 Train_H2 = transport(name= 'Train_H2', resources= {H2_B, H2_G}, label= 'Railway for hydrogen transportation', trans_max= 10**8, trans_loss= 0.001, trans_cost= 1.667*10**(-3))
-transport_list = [Train_H2]
 
 # *-------------------------Linkage between locations------------------------------------
-
 distance_matrix = [
     [0, 678],
     [678, 0]

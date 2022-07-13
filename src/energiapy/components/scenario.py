@@ -21,8 +21,22 @@ from ..model.pyomo_cons import *
 
 @dataclass
 class scenario:
+    """creates a scenario dataclass object
+    """
     def __init__(self, name:str, network:network, scales: temporal_scale,  instance:ConcreteModel, \
         expenditure_scale_level:int= 0, scheduling_scale_level:int= 0, network_scale_level:int= 0, label:str=''):
+        """_summary_
+
+        Args:
+            name (str): ID
+            network (network): network object with the locations, transport linakges, and processes (with resources and materials)
+            scales (temporal_scale): scales of the problem 
+            instance (ConcreteModel): pyomo model instance
+            expenditure_scale_level (int, optional): scale for resource purchase. Defaults to 0.
+            scheduling_scale_level (int, optional): scale of production and inventory scheduling. Defaults to 0.
+            network_scale_level (int, optional): scale for network decisions such as facility location. Defaults to 0.
+            label (str, optional): descriptive label. Defaults to ''.
+        """
         self.name = name
         self.network= network
         self.source_locations = self.network.source_locations
@@ -37,6 +51,8 @@ class scenario:
         self.label = label
         
     def formulate_milp(self):
+        """formulates a multi-scale mixed integer linear programming formulation of the scenario
+        """
         generate_sets(instance= self.instance, location_set= self.location_set, transport_set= self.transport_set, scales= self.scales)
         generate_milp_vars(instance= self.instance, expenditure_scale_level= self.expenditure_scale_level, scheduling_scale_level = self.scheduling_scale_level \
             , network_scale_level= self.network_scale_level)
@@ -49,14 +65,17 @@ class scenario:
         resource_expenditure_constraint(instance= self.instance, location_set= self.location_set, scheduling_scale_level= self.scheduling_scale_level,\
             expenditure_scale_level= self.expenditure_scale_level)
         resource_discharge_constraint(instance= self.instance, scheduling_scale_level= self.scheduling_scale_level)
+        return
         
     def formulate_mpmilp(self):
+        """formulates a multi-scale multi-parametric mixed integer linear programming formulation of the scenario
+        """
         generate_sets(instance= self.instance, location_set= self.location_set, transport_set= self.transport_set, scales= self.scales)
         generate_mpmilp_vars(instance= self.instance, expenditure_scale_level= self.expenditure_scale_level, scheduling_scale_level = self.scheduling_scale_level \
             , network_scale_level= self.network_scale_level)
         uncertain_nameplate_production_constraint(instance= self.instance, location_set= self.location_set, network_scale_level= self.network_scale_level,\
             scheduling_scale_level= self.scheduling_scale_level)
-        
+        return
     
     def __repr__(self):
         return self.name

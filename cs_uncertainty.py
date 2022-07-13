@@ -21,7 +21,7 @@ __status__ = "Production"
 import pandas
 # import numpy 
 # from pyomo.opt import SolverStatus, TerminationCondition
-from pyomo.environ import ConcreteModel #, Var, NonNegativeReals, Set
+from pyomo.environ import ConcreteModel 
 from src.energiapy.components.temporal_scale import temporal_scale
 from src.energiapy.components.resource import resource
 from src.energiapy.components.process import process
@@ -30,7 +30,7 @@ from src.energiapy.components.location import location
 from src.energiapy.components.network import network
 from src.energiapy.components.scenario import scenario
 from src.energiapy.components.transport import transport
-from src.energiapy.model.pyomo_cons import *# nameplate_production_constraint #, test_constraint
+from src.energiapy.model.pyomo_cons import *
 from src.energiapy.graph import graph
 
 
