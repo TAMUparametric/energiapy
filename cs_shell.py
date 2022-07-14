@@ -46,7 +46,6 @@ from src.energiapy.graph import graph
 scales = temporal_scale(discretization_list = [1, 365, 24])
 # scales = temporal_scale(discretization_list = [1, 2, 3])
 
-
 # *-------------------------Constants defined here for ease------------------------------------
 bigM = 10**10 #very large number
 water_price = 31.70  # $/5000gallons
@@ -194,6 +193,8 @@ ho_power_output_df['WF'] = ho_power_output_df['WF']/max(ho_power_output_df['WF']
 #varying natural gas prices
 daily_ng_price_df = make_henry_price_df(
     file_name='Henry_Hub_Natural_Gas_Spot_Price_Daily.csv', year=2019, stretch=False)
+daily_ng_price_df['CH4'] = daily_ng_price_df['CH4']/max(daily_ng_price_df['CH4']) 
+
 
 # *-------------------------Geographic scales/location------------------------------------
 HO = location(name='HO', processes= {PV, LiI_c, LiI_d, WF, AKE}, scales = scales, varying_cost_df = daily_ng_price_df, \
@@ -232,7 +233,9 @@ Network = network(name= 'Network', source_locations= [HO, LA], sink_locations= [
 m = ConcreteModel()
 
 case = scenario(name= '', network= Network, scales= scales, instance= m, \
-    expenditure_scale_level= 1, scheduling_scale_level= 2, network_scale_level= 0, label= 'shell milp case study').formulate_milp()
+    expenditure_scale_level= 1, scheduling_scale_level= 2, network_scale_level= 0, label= 'shell milp case study')
+
+milp = case.formulate_milp()
 
 
 

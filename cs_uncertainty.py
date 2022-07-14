@@ -33,16 +33,9 @@ from src.energiapy.components.transport import transport
 from src.energiapy.model.pyomo_cons import *
 from src.energiapy.graph import graph
 
-import IPython.display as ip
-
-
-#%%
-
-
 # *-------------------------Temporal scales------------------------------------
-scales = temporal_scale(discretization_list = [3])
+scales = temporal_scale(discretization_list = [1])
 # scales = temporal_scale(discretization_list = [1, 2, 3])
-
 
 # *-------------------------Constance defined here for ease------------------------------------
 bigM = 10**10 #very large number
@@ -74,8 +67,6 @@ H2_cons = resource(name='H2_cons', sell=True, basis='kg', label='Hydrogen consum
 # *-------------------------Materials------------------------------------
 Li = material(name='Li', gwp=30, basis= 'kg', label='Lithium', citation= 'some paper')
 St = material(name='St', gwp=50, basis= 'kg', label='Steel')
-
-
 
 # *-------------------------Processes ------------------------------------
 
@@ -149,7 +140,11 @@ Arcs = network(name= 'Arcs', source_locations= city_list, sink_locations= site_l
 m = ConcreteModel()
 
 case = scenario(name= '', network= Arcs, scales= scales, instance= m, \
-    expenditure_scale_level= 0, scheduling_scale_level= 0, network_scale_level= 0, label= 'mpmilp case study').formulate_mpmilp()
+    expenditure_scale_level= 0, scheduling_scale_level= 0, network_scale_level= 0, label= 'mpmilp case study')
+mpmilp = case.formulate_mpmilp()
+
+
+
 
 #%%
 

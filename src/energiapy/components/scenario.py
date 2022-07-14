@@ -75,7 +75,14 @@ class scenario:
             , network_scale_level= self.network_scale_level)
         uncertain_nameplate_production_constraint(instance= self.instance, location_set= self.location_set, network_scale_level= self.network_scale_level,\
             scheduling_scale_level= self.scheduling_scale_level)
+        nameplate_inventory_constraint(instance= self.instance, location_set= self.location_set, network_scale_level= self.network_scale_level,\
+            scheduling_scale_level= self.scheduling_scale_level)
+        resource_consumption_constraint(instance= self.instance, location_set= self.location_set, scheduling_scale_level= self.scheduling_scale_level)
+        uncertain_resource_expenditure_constraint(instance= self.instance, location_set= self.location_set, scheduling_scale_level= self.scheduling_scale_level,\
+            expenditure_scale_level= self.expenditure_scale_level)
+        resource_discharge_constraint(instance= self.instance, location_set= self.location_set, scheduling_scale_level= self.scheduling_scale_level)
         return
+    
     
     def __repr__(self):
         return self.name
