@@ -49,7 +49,7 @@ def constraint_latex_render(constraint_rule, latex_alias_dict:dict= {}) -> str:
         str_ = str_.replace(key, dict_[key])
     # str_ = '\begin{equation}'
     ip.display(ip.Math(str_))
-    # display(str_)
+    display(str_)
     
     return str_
 

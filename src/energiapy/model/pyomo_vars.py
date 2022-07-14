@@ -50,7 +50,6 @@ def generate_scheduling_vars(instance: ConcreteModel, scale_level:int = 0):
     return 
 
 
-
 def generate_network_vars(instance: ConcreteModel, scale_level:int = 0):    
     """declares pyomo variables for network location at the chosen scale
 
@@ -64,6 +63,7 @@ def generate_network_vars(instance: ConcreteModel, scale_level:int = 0):
     instance.Cap_P = Var(instance.locations, instance.processes, instance.scales_network, within=NonNegativeReals, doc='Process Capacity')
     instance.Cap_S = Var(instance.locations, instance.resources_store, instance.scales_network, within=NonNegativeReals, doc='Storage Capacity')
     return 
+
 
 def generate_uncertainty_vars(instance:ConcreteModel, scale_level:int= 0):
     """declares pyomo variables for uncertainty analysis of processes and resources

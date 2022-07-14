@@ -48,6 +48,7 @@ class location:
         self.resources = self.get_resources()
         self.materials = self.get_materials()
         self.scales = scales
+        self.scale_levels = scales.scale_levels
         self.label = label
         self.varying_process_df = varying_process_df
         self.varying_cost_df = varying_cost_df
@@ -60,6 +61,7 @@ class location:
         self.capacity_factor = self.make_capacity_factor()
         self.cost_factor = self.make_cost_factor()
         self.resource_price = self.get_resource_price()
+        
         
     def make_capacity_factor(self)-> dict:
         """makes capacity factor dict from varying process/production output DataFrame()
@@ -132,7 +134,7 @@ class location:
         Returns:
             Set[resource]: set of resources with non-varying cost factors
         """
-        return {i.name: i.price for i in self.resources if i.varying == False}
+        return {i.name: i.price for i in self.resources}
     
     def __repr__(self):
         return self.name

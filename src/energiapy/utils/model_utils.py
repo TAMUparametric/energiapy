@@ -43,11 +43,11 @@ def scale_set(instance: ConcreteModel, scale_level:int=0):
     return  Set(initialize = [i for i in product(*list_)])
 
 
-def scale_list(instance: ConcreteModel, scale_level:int=0):
+def scale_list(instance: ConcreteModel, scale_levels:int=0):
     """returns a list with appropropriate scale(s)
 
     Args:
         instance (ConcreteModel): pyomo instance
         scale_level (int, optional): appropriate scale. Defaults to 0.
     """
-    return  [instance.scales[i].data() for i in range(scale_level+ 1)]
+    return  [instance.scales[i].data() for i in range(scale_levels)]

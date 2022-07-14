@@ -31,6 +31,7 @@ class temporal_scale:
         self.discretization_list = discretization_list
         self.scale  = self.generate_scales()
         self.name = [i for i in range(len(discretization_list))]
+        self.scale_levels = len(discretization_list)
     
     def generate_scales(self) -> dict:
         """generates a dict with the scales of the problem
