@@ -24,7 +24,7 @@ class process:
 
     def __init__(self, name: str, conversion:Dict[resource, float]= None, cost:float or dict = None, material_cons:Dict[material, float]= None, varying:bool= False, \
         label: str = None, intro_scale:int = 0, prod_max: float = 0, prod_min: float = 0, cap_seg: dict = None, capex_seg: dict = None, basis:str= 'unit',
-                 carbon_credit: bool = False, gwp: float = 0, land: float = 0, trl: str = None, block: str = None, source: str = 'citation needed'):
+                 carbon_credit: bool = False, gwp: float = 0, land: float = 0, trl: str = None, block: str = None, citation: str = 'citation needed'):
         """_summary_
 
         Args:
@@ -44,7 +44,7 @@ class process:
             land (float, optional): land requirement. Defaults to 0.
             trl (str, optional): technology readiness level. Defaults to None.
             block (str, optional): define block for convenience. Defaults to None.
-            source (str, optional): source for data. Defaults to 'citation needed'.
+            citation (str, optional): citation for data. Defaults to 'citation needed'.
         """
         self.name = name
         self.conversion = conversion
@@ -62,7 +62,7 @@ class process:
         self.land = land
         self.trl = trl
         self.block = block
-        self.source = source
+        self.citation = citation
         self.varying = varying
 
     def __repr__(self):

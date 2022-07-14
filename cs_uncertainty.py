@@ -78,7 +78,7 @@ H2_cons = resource(
 
 
 # *-------------------------Materials------------------------------------
-Li = material(name='Li', gwp=30, basis= 'kg', label='Lithium', source= 'some paper')
+Li = material(name='Li', gwp=30, basis= 'kg', label='Lithium', citation= 'some paper')
 St = material(name='St', gwp=50, basis= 'kg', label='Steel')
 
 
@@ -86,24 +86,24 @@ St = material(name='St', gwp=50, basis= 'kg', label='Steel')
 # *-------------------------Processes ------------------------------------
 
 LiI_c = process(name='LiI_c', conversion={Charge: 1, Power: -1}, material_cons = {Li: 20, St:5}, prod_max=bigM, \
-    label='Lithium-ion battery', source='Zakeri 2015')
+    label='Lithium-ion battery', citation='Zakeri 2015')
 LiI_d = process(name='LiI_d', conversion={Charge: -1.1765, Power: 1}, prod_max=bigM, \
-    label='Lithium-ion battery discharge', source='Zakeri 2015')
-PV = process(name='PV',  conversion={Solar: -1, Power: 1, H2O: -20}, varying= True, label='Solar photovoltaics (PV) array', source='Use pvlib conversion')
+    label='Lithium-ion battery discharge', citation='Zakeri 2015')
+PV = process(name='PV',  conversion={Solar: -1, Power: 1, H2O: -20}, varying= True, label='Solar photovoltaics (PV) array', citation='Use pvlib conversion')
 WF = process(name='WF', conversion={Wind: -1, Power: 1, H2O: -1}, varying= True, prod_max=bigM, \
-    label='Wind mill array', source='Use windtoolkit conversion')
+    label='Wind mill array', citation='Use windtoolkit conversion')
 AKE = process(name='AKE', conversion={Power: -1, H2_G: 19.474, O2: 763.2, H2O: -175.266}, \
-    prod_max=bigM, label='Alkaline water electrolysis (AWE)', source='Demirhan et al. 2018 AIChE paper')  # 20.833 MW required to produce 1000t/day.H2
+    prod_max=bigM, label='Alkaline water electrolysis (AWE)', citation='Demirhan et al. 2018 AIChE paper')  # 20.833 MW required to produce 1000t/day.H2
 SMRH = process(name='SMRH', conversion={Power: -1.11*10**(-3), CH4: -3.76, H2O: -23.7, H2_B: 1, CO2_Vent: 1.03, CO2: 9.332},\
-    prod_max=bigM, label='Steam methane reforming + CCUS', source='Mosca 2020, 90pc capture')
+    prod_max=bigM, label='Steam methane reforming + CCUS', citation='Mosca 2020, 90pc capture')
 H2_C_c = process(name='H2_C_c', conversion={Power: -1.10*10**(-3), H2_C: 1, H2: -1},  prod_max=12000,\
-    label='Hydrogen local storage (Compressed)', source='Bossel and Eliasson - Energy and the Hydrogen Economy')
+    label='Hydrogen local storage (Compressed)', citation='Bossel and Eliasson - Energy and the Hydrogen Economy')
 H2_C_d = process(name='H2_C_d',  conversion={H2_C: -1, H2: 1}, prod_max=bigM, \
-    label='Hydrogen local storage (Compressed) discharge', source='Bossel and Eliasson - Energy and the Hydrogen Economy')
+    label='Hydrogen local storage (Compressed) discharge', citation='Bossel and Eliasson - Energy and the Hydrogen Economy')
 H2_L_c = process(name='H2_L_c', conversion={Power: -4.17*10**(-4), H2_L: 1, H2: -1}, prod_max=bigM, \
-    label='Hydrogen geological storage', source='Bossel and Eliasson - Energy and the Hydrogen Economy')
+    label='Hydrogen geological storage', citation='Bossel and Eliasson - Energy and the Hydrogen Economy')
 H2_L_d = process(name='H2_L_d', conversion={H2_L: -1, H2: 1}, prod_max=bigM, \
-    label='Hydrogen geological storage discharge', source='Bossel and Eliasson - Energy and the Hydrogen Economy')
+    label='Hydrogen geological storage discharge', citation='Bossel and Eliasson - Energy and the Hydrogen Economy')
 H2_Blue = process(name='H2_Blue', conversion={H2: 1, H2_B: -1}, prod_max=bigM, label='Blue Hydrogen production')
 H2_Green = process(name='H2_Green', conversion={H2: 1, H2_G: -1}, prod_max=bigM, label='Green Hydrogen production')
 H2_G_sink = process(name='H2_G_sink', conversion={H2_G: -1, H2_cons: 1}, prod_max=bigM, label='Green Hydrogen consumption at site')
