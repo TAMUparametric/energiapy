@@ -19,7 +19,7 @@ class material:
     Object with data regarding infrastructure material
     """
 
-    def __init__(self, name: str, basis:str= ' - units', label: str = '', gwp: float = 0, source:str= 'citation needed'):
+    def __init__(self, name: str, basis:str= ' - units', label: str = '', gwp: float = 0, citation:str= 'citation needed'):
         """material object parameters
 
         Args:
@@ -27,14 +27,14 @@ class material:
             basis (str): base unit for calculation
             label (str, optional): name of the material. Defaults to ''.
             gwp (float, optional): global warming potential. Defaults to 0.
-            source (str, optional): add citation. Defaults to 'citation'.
+            citation (str, optional): add citation. Defaults to 'citation needed'.
             
         """
         self.name = name
         self.label = label + '[' + self.name + ']'
         self.gwp = gwp
         self.basis = basis
-        self.source = source
+        self.citation = citation
 
     def __repr__(self):
         return self.name
