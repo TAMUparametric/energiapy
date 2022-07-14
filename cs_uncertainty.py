@@ -33,6 +33,11 @@ from src.energiapy.components.transport import transport
 from src.energiapy.model.pyomo_cons import *
 from src.energiapy.graph import graph
 
+import IPython.display as ip
+
+
+#%%
+
 
 # *-------------------------Temporal scales------------------------------------
 scales = temporal_scale(discretization_list = [3])
@@ -48,33 +53,22 @@ A_f = 0.05  # annualization factor
 
 # *-------------------------Resources------------------------------------
 Charge = resource(name='Charge', sell=False,
-                          store_max=bigM, basis='MW', label='Battery energy', block= 'energystorage')
-Solar = resource(
-    name='Solar', consumption_max=10**20, basis='MW', label='Solar Power', block = 'energyfeedstock')
-Wind = resource(name='Wind', consumption_max=10 **
-                        20, basis='MW', label='Wind Power', block = 'energyfeedstock')
-H2_C = resource(name='H2_C', sell=True, store_max=10**4, loss=0.025/24, revenue=2, mile=1/(0.1180535*1.60934),
-                        demand=True, basis='kg', label='Hydrogen - Local Cryo', block= 'resourcestorage') 
-H2_L = resource(name='H2_L', sell=True, store_max=10**10, demand=True, revenue=2,
-                        mile=1/(0.1180535*1.60934), basis='kg', label='Hydrogen - Geological', block= 'resourcestorage')
-H2 = resource(name='H2', basis='kg', label='Hydrogen', block= 'resource')
-H2_B = resource(name='H2_B', basis='kg', label='Blue hydrogen', block= 'product')
-H2_G = resource(name='H2_G', basis='kg', label='Green hydrogen', block= 'product')
-H2O = resource(name='H2O', consumption_max=10**20,
-                       price=water_price/(5000*3.7854), basis='kg', label='Water', block= 'resource')
-O2 = resource(name='O2', sell=True, loss=0.07,
-                      basis='kg', label='Oxygen', block = 'resource')
-CH4 = resource(name='CH4', consumption_max=10 **
-                       20, varying = True, price=1, basis='kg', label='Natural gas', block = 'materialfeedstock')
-CO2 = resource(name='CO2', basis='kg', label='Carbon dioxide', block = 'resource')
-Power_Gr = resource(name='Power_Gr', consumption_max=10 **20,\
-    price=power_price*(10), basis='kg', label='Grid electricity', block = 'energyfeedstock')
-Power = resource(name='Power', basis='MW',
-                         label='Renewable power generated', block = 'resource')
-CO2_Vent = resource(
-    name='CO2_Vent', sell=True, basis='kg', label='Carbon dioxide - Vented', block = 'resourcedischarge')
-H2_cons = resource(
-    name='H2_cons', sell=True, basis='kg', label='Hydrogen consumed at site', block = 'resourcedischarge')
+                          store_max=bigM, basis='MW', label='Battery energy')
+Solar = resource(name='Solar', consumption_max=10**20, basis='MW', label='Solar Power')
+Wind = resource(name='Wind', consumption_max=10**20, basis='MW', label='Wind Power')
+H2_C = resource(name='H2_C', sell=True, store_max=10**4, loss=0.025/24, demand=True, basis='kg', label='Hydrogen - Local Cryo') 
+H2_L = resource(name='H2_L', sell=True, store_max=10**10, demand=True, basis='kg', label='Hydrogen - Geological')
+H2 = resource(name='H2', basis='kg', label='Hydrogen')
+H2_B = resource(name='H2_B', basis='kg', label='Blue hydrogen')
+H2_G = resource(name='H2_G', basis='kg', label='Green hydrogen')
+H2O = resource(name='H2O', consumption_max=10**20, price=water_price/(5000*3.7854), basis='kg', label='Water')
+O2 = resource(name='O2', sell=True, loss=0.07, basis='kg', label='Oxygen')
+CH4 = resource(name='CH4', consumption_max=10**20, varying = True, price=1, basis='kg', label='Natural gas')
+CO2 = resource(name='CO2', basis='kg', label='Carbon dioxide')
+Power_Gr = resource(name='Power_Gr', consumption_max=10 **20, price=power_price*(10), basis='kg', label='Grid electricity')
+Power = resource(name='Power', basis='MW', label='Renewable power generated')
+CO2_Vent = resource(name='CO2_Vent', sell=True, basis='kg', label='Carbon dioxide - Vented')
+H2_cons = resource(name='H2_cons', sell=True, basis='kg', label='Hydrogen consumed at site')
 
 
 # *-------------------------Materials------------------------------------
