@@ -11,59 +11,53 @@ __maintainer__ = "Rahul Kakodkar"
 __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
-from dataclasses import dataclass
-from typing import Dict
-from ..components.resource import resource
-from ..components.material import material
+from dataclasses import dataclass, field
+from typing import Dict, Union
+from ..components.resource import Resource
+from ..components.material import Material
 
 @dataclass
-class process:
+class Process:
     """
     Object with process data
+    Args:
+        name (str): ID
+        conversion (Dict[resource, float], optional): conversion data. Defaults to None.
+        cost (floatordict, optional): cost of operation. Defaults to None.
+        material_cons (Dict[material, float], optional): material consumption data. Defaults to None.
+        varying (bool, optional): if production capacity is varying. Defaults to False.
+        intro_scale (int, optional): scale when process is introduced. Defaults to 0.
+        prod_max (float, optional): maximum production. Defaults to 0.
+        prod_min (float, optional): minimum production. Defaults to 0.
+        cap_seg (dict, optional): capacity pwl segment. Defaults to None.
+        capex_seg (dict, optional): capex pwl segment. Defaults to None.
+        carbon_credit (bool, optional): does process earn carbon credits. Defaults to False.
+        basis(str, optional): base units for operation. Defaults to 'unit'.
+        gwp (float, optional): global warming potential per basis. Defaults to 0.
+        land (float, optional): land requirement. Defaults to 0.
+        trl (str, optional): technology readiness level. Defaults to None.
+        block (str, optional): define block for convenience. Defaults to None.
+        citation (str, optional): citation for data. Defaults to 'citation needed'.
     """
 
-    def __init__(self, name: str, conversion:Dict[resource, float]= None, cost:float or dict = None, material_cons:Dict[material, float]= None, varying:bool= False, \
-        label: str = None, intro_scale:int = 0, prod_max: float = 0, prod_min: float = 0, cap_seg: dict = None, capex_seg: dict = None, basis:str= 'unit',
-                 carbon_credit: bool = False, gwp: float = 0, land: float = 0, trl: str = None, block: str = None, citation: str = 'citation needed'):
-        """_summary_
-
-        Args:
-            name (str): ID
-            conversion (Dict[resource, float], optional): conversion data. Defaults to None.
-            cost (floatordict, optional): cost of operation. Defaults to None.
-            material_cons (Dict[material, float], optional): material consumption data. Defaults to None.
-            varying (bool, optional): if production capacity is varying. Defaults to False.
-            intro_scale (int, optional): scale when process is introduced. Defaults to 0.
-            prod_max (float, optional): maximum production. Defaults to 0.
-            prod_min (float, optional): minimum production. Defaults to 0.
-            cap_seg (dict, optional): capacity pwl segment. Defaults to None.
-            capex_seg (dict, optional): capex pwl segment. Defaults to None.
-            carbon_credit (bool, optional): does process earn carbon credits. Defaults to False.
-            basis(str, optional): base units for operation. Defaults to 'unit'.
-            gwp (float, optional): global warming potential per basis. Defaults to 0.
-            land (float, optional): land requirement. Defaults to 0.
-            trl (str, optional): technology readiness level. Defaults to None.
-            block (str, optional): define block for convenience. Defaults to None.
-            citation (str, optional): citation for data. Defaults to 'citation needed'.
-        """
-        self.name = name
-        self.conversion = conversion
-        self.cost = cost 
-        self.material_cons = material_cons
-        self.label = label
-        self.intro_scale = intro_scale
-        self.prod_max = prod_max
-        self.prod_min = prod_min
-        self.cap_seg = cap_seg
-        self.capex_seg = capex_seg
-        self.basis = basis
-        self.carbon_credit = carbon_credit
-        self.gwp = gwp
-        self.land = land
-        self.trl = trl
-        self.block = block
-        self.citation = citation
-        self.varying = varying
+    name: str 
+    conversion: Dict[Resource, float] = field(default_factory= dict)
+    cost: Union[float, dict] = field(default_factory = dict) 
+    material_cons: Dict[Material, float] = field(default_factory= dict)
+    label: str = ''
+    intro_scale: int = 0
+    prod_max: float = 0
+    prod_min: float = 0
+    cap_seg: dict = field(default_factory= dict)
+    capex_seg: dict = field(default_factory= dict)
+    basis: str = 'unit'
+    carbon_credit: bool = False
+    gwp: float = 0
+    land: float = 0
+    trl: str = ''
+    block: str = None
+    citation: str = 'citation needed'
+    varying: bool = False
 
     def __repr__(self):
         return self.name

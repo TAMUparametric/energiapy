@@ -16,7 +16,7 @@ import numpy
 import pickle
 import json
 from itertools import product
-from ..components.location import location
+from ..components.location import Location
 
 
 def get_data(file_name: str) -> dict:
@@ -191,7 +191,7 @@ def make_henry_price_df(file_name: str, year: int, stretch: bool) -> pandas.Data
     return df_
 
 
-def make_nrel_cost_df(location: location, nrel_cost_xlsx, pick_nrel_process_list: list, year_list: list, case: str, crpyears: float) -> pandas.DataFrame:
+def make_nrel_cost_df(location: Location, nrel_cost_xlsx, pick_nrel_process_list: list, year_list: list, case: str, crpyears: float) -> pandas.DataFrame:
     """makes dataframe for nrel atb data
     processes should be specified based on NREL technology tags
     classes for technology will be picked based on location 

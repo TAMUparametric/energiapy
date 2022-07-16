@@ -14,13 +14,13 @@ __status__ = "Production"
 from matplotlib import rc
 import matplotlib.pyplot as plt
 from ..utils.graph_utils import axis_formatter
-from ..components.process import process
-from ..components.resource import resource
-from ..components.location import location
+from ..components.process import Process
+from ..components.resource import Resource
+from ..components.location import Location
 
 #%%
 
-def capacity_factor(process: process, location: location, \
+def capacity_factor(process: Process, location: Location, \
     fig_size:tuple = (12,6), font_size:int = 16, color:str ='blue'):
     """generates a graph for varying capacity factor of process
 
@@ -45,7 +45,7 @@ def capacity_factor(process: process, location: location, \
     plt.rcdefaults()
     return
 
-def cost_factor(resource: resource, location: location, \
+def cost_factor(resource: Resource, location: Location, \
     fig_size:tuple = (12,6), font_size:int = 16, color:str ='blue'):
     """generates a graph for varying cost factor of resource
 

@@ -16,31 +16,20 @@ from functools import reduce
 import operator
 
 @dataclass
-class temporal_scale:
+class Temporal_scale:
     """object with the temporal scales of the problem
     e.g.:
     scales = temporal_scale(discretization_list = [1, 365, 24]).generate_scales()
     Generates three temporal scales with 1, 365, and 24 discretizations respectively
+    Args:
+        discretization_list (list): list of discretization of temporal scale
     """
-    def __init__(self, discretization_list: list):
-        """creates a data class with the discretized temporal scale
-
-        Args:
-            discretization_list (list): list of discretization of temporal scale
-        """
-        self.discretization_list = discretization_list
-        self.scale  = self.generate_scales()
-        self.name = [i for i in range(len(discretization_list))]
-        self.scale_levels = len(discretization_list)
+    discretization_list: list
     
-    def generate_scales(self) -> dict:
-        """generates a dict with the scales of the problem
+    def __post_init__(self):        
+        self.scale  = {i: [j for j in range(self.discretization_list[i])] for i in range(len(self.discretization_list))}
+        self.name = [i for i in range(len(self.discretization_list))]
+        self.scale_levels = len(self.discretization_list)
 
-        Returns:
-            dict: dictionary with the scales of the problem
-        """
-        scales_dict = {i: [j for j in range(self.discretization_list[i])] for i in range(len(self.discretization_list))}
-        
-        return scales_dict
 
 # %%

@@ -22,20 +22,21 @@ import pandas
 # import numpy 
 # from pyomo.opt import SolverStatus, TerminationCondition
 from pyomo.environ import ConcreteModel 
-from src.energiapy.components.temporal_scale import temporal_scale
-from src.energiapy.components.resource import resource
-from src.energiapy.components.process import process
-from src.energiapy.components.material import material
-from src.energiapy.components.location import location
-from src.energiapy.components.network import network
-from src.energiapy.components.scenario import scenario
-from src.energiapy.components.transport import transport
+from src.energiapy.components.temporal_scale import Temporal_scale
+from src.energiapy.components.resource import Resource
+from src.energiapy.components.process import Process
+from src.energiapy.components.material import Material
+from src.energiapy.components.location import Location
+from src.energiapy.components.network import Network
+from src.energiapy.components.scenario import Scenario
+from src.energiapy.components.transport import Transport
 from src.energiapy.model.pyomo_cons import *
 from src.energiapy.graph import graph
+from src.energiapy.model.mpmilp import formulate_mpmilp
 
 # *-------------------------Temporal scales------------------------------------
 # scales = temporal_scale(discretization_list = [4, 20, 15])
-scales = temporal_scale(discretization_list= [42])
+scales = Temporal_scale(discretization_list= [42])
 # scales = temporal_scale(discretization_list = [1, 2, 3])
 
 # *-------------------------Constance defined here for ease------------------------------------
@@ -46,71 +47,71 @@ ur_price = 42.70  # 250 Pfund U308 (Uranium)
 A_f = 0.05  # annualization factor
 
 # *-------------------------Resources------------------------------------
-Charge = resource(name='Charge', sell=False,
+Charge = Resource(name='Charge', sell=False,
                           store_max=bigM, basis='MW', label='Battery energy')
-Solar = resource(name='Solar', consumption_max=10**20, basis='MW', label='Solar Power')
-Wind = resource(name='Wind', consumption_max=10**20, basis='MW', label='Wind Power')
-H2_C = resource(name='H2_C', sell=True, store_max=10**4, loss=0.025/24, demand=True, basis='kg', label='Hydrogen - Local Cryo') 
-H2_L = resource(name='H2_L', sell=True, store_max=10**10, demand=True, basis='kg', label='Hydrogen - Geological')
-H2 = resource(name='H2', basis='kg', label='Hydrogen')
-H2_B = resource(name='H2_B', basis='kg', label='Blue hydrogen')
-H2_G = resource(name='H2_G', basis='kg', label='Green hydrogen')
-H2O = resource(name='H2O', consumption_max=10**20, price=water_price/(5000*3.7854), basis='kg', label='Water')
-O2 = resource(name='O2', sell=True, loss=0.07, basis='kg', label='Oxygen')
-CH4 = resource(name='CH4', consumption_max=10**20, varying = True, price=1, basis='kg', label='Natural gas')
-CO2 = resource(name='CO2', basis='kg', label='Carbon dioxide')
-Power_Gr = resource(name='Power_Gr', consumption_max=10 **20, price=power_price*(10), basis='kg', label='Grid electricity')
-Power = resource(name='Power', basis='MW', label='Renewable power generated')
-CO2_Vent = resource(name='CO2_Vent', sell=True, basis='kg', label='Carbon dioxide - Vented')
-H2_cons = resource(name='H2_cons', sell=True, basis='kg', label='Hydrogen consumed at site')
+Solar = Resource(name='Solar', consumption_max=10**20, basis='MW', label='Solar Power')
+Wind = Resource(name='Wind', consumption_max=10**20, basis='MW', label='Wind Power')
+H2_C = Resource(name='H2_C', sell=True, store_max=10**4, loss=0.025/24, demand=True, basis='kg', label='Hydrogen - Local Cryo') 
+H2_L = Resource(name='H2_L', sell=True, store_max=10**10, demand=True, basis='kg', label='Hydrogen - Geological')
+H2 = Resource(name='H2', basis='kg', label='Hydrogen')
+H2_B = Resource(name='H2_B', basis='kg', label='Blue hydrogen')
+H2_G = Resource(name='H2_G', basis='kg', label='Green hydrogen')
+H2O = Resource(name='H2O', consumption_max=10**20, price=water_price/(5000*3.7854), basis='kg', label='Water')
+O2 = Resource(name='O2', sell=True, loss=0.07, basis='kg', label='Oxygen')
+CH4 = Resource(name='CH4', consumption_max=10**20, varying = True, price=1, basis='kg', label='Natural gas')
+CO2 = Resource(name='CO2', basis='kg', label='Carbon dioxide')
+Power_Gr = Resource(name='Power_Gr', consumption_max=10 **20, price=power_price*(10), basis='kg', label='Grid electricity')
+Power = Resource(name='Power', basis='MW', label='Renewable power generated')
+CO2_Vent = Resource(name='CO2_Vent', sell=True, basis='kg', label='Carbon dioxide - Vented')
+H2_cons = Resource(name='H2_cons', sell=True, basis='kg', label='Hydrogen consumed at site')
 
 
 # *-------------------------Materials------------------------------------
-Li = material(name='Li', gwp=30, basis= 'kg', label='Lithium', citation= 'some paper')
-St = material(name='St', gwp=50, basis= 'kg', label='Steel')
+Li = Material(name='Li', gwp=30, basis= 'kg', label='Lithium', citation= 'some paper')
+St = Material(name='St', gwp=50, basis= 'kg', label='Steel')
 
 # *-------------------------Processes ------------------------------------
 
-LiI_c = process(name='LiI_c', conversion={Charge: 1, Power: -1}, material_cons = {Li: 20, St:5}, prod_max=bigM, \
+LiI_c = Process(name='LiI_c', conversion={Charge: 1, Power: -1}, material_cons = {Li: 20, St:5}, prod_max=bigM, \
     label='Lithium-ion battery', citation='Zakeri 2015')
-LiI_d = process(name='LiI_d', conversion={Charge: -1.1765, Power: 1}, prod_max=bigM, \
+LiI_d = Process(name='LiI_d', conversion={Charge: -1.1765, Power: 1}, prod_max=bigM, \
     label='Lithium-ion battery discharge', citation='Zakeri 2015')
-PV = process(name='PV',  conversion={Solar: -1, Power: 1, H2O: -20}, varying= True, label='Solar photovoltaics (PV) array', citation='Use pvlib conversion')
-WF = process(name='WF', conversion={Wind: -1, Power: 1, H2O: -1}, varying= True, prod_max=bigM, \
+PV = Process(name='PV',  conversion={Solar: -1, Power: 1, H2O: -20}, varying= True, label='Solar photovoltaics (PV) array', citation='Use pvlib conversion')
+WF = Process(name='WF', conversion={Wind: -1, Power: 1, H2O: -1}, varying= True, prod_max=bigM, \
     label='Wind mill array', citation='Use windtoolkit conversion')
-AKE = process(name='AKE', conversion={Power: -1, H2_G: 19.474, O2: 763.2, H2O: -175.266}, \
+AKE = Process(name='AKE', conversion={Power: -1, H2_G: 19.474, O2: 763.2, H2O: -175.266}, \
     prod_max=bigM, label='Alkaline water electrolysis (AWE)', citation='Demirhan et al. 2018 AIChE paper')  # 20.833 MW required to produce 1000t/day.H2
-SMRH = process(name='SMRH', conversion={Power: -1.11*10**(-3), CH4: -3.76, H2O: -23.7, H2_B: 1, CO2_Vent: 1.03, CO2: 9.332},\
+SMRH = Process(name='SMRH', conversion={Power: -1.11*10**(-3), CH4: -3.76, H2O: -23.7, H2_B: 1, CO2_Vent: 1.03, CO2: 9.332},\
     prod_max=bigM, label='Steam methane reforming + CCUS', citation='Mosca 2020, 90pc capture')
-H2_C_c = process(name='H2_C_c', conversion={Power: -1.10*10**(-3), H2_C: 1, H2: -1},  prod_max=12000,\
+H2_C_c = Process(name='H2_C_c', conversion={Power: -1.10*10**(-3), H2_C: 1, H2: -1},  prod_max=12000,\
     label='Hydrogen local storage (Compressed)', citation='Bossel and Eliasson - Energy and the Hydrogen Economy')
-H2_C_d = process(name='H2_C_d',  conversion={H2_C: -1, H2: 1}, prod_max=bigM, \
+H2_C_d = Process(name='H2_C_d',  conversion={H2_C: -1, H2: 1}, prod_max=bigM, \
     label='Hydrogen local storage (Compressed) discharge', citation='Bossel and Eliasson - Energy and the Hydrogen Economy')
-H2_L_c = process(name='H2_L_c', conversion={Power: -4.17*10**(-4), H2_L: 1, H2: -1}, prod_max=bigM, \
+H2_L_c = Process(name='H2_L_c', conversion={Power: -4.17*10**(-4), H2_L: 1, H2: -1}, prod_max=bigM, \
     label='Hydrogen geological storage', citation='Bossel and Eliasson - Energy and the Hydrogen Economy')
-H2_L_d = process(name='H2_L_d', conversion={H2_L: -1, H2: 1}, prod_max=bigM, \
+H2_L_d = Process(name='H2_L_d', conversion={H2_L: -1, H2: 1}, prod_max=bigM, \
     label='Hydrogen geological storage discharge', citation='Bossel and Eliasson - Energy and the Hydrogen Economy')
-H2_Blue = process(name='H2_Blue', conversion={H2: 1, H2_B: -1}, prod_max=bigM, label='Blue Hydrogen production')
-H2_Green = process(name='H2_Green', conversion={H2: 1, H2_G: -1}, prod_max=bigM, label='Green Hydrogen production')
-H2_G_sink = process(name='H2_G_sink', conversion={H2_G: -1, H2_cons: 1}, prod_max=bigM, label='Green Hydrogen consumption at site')
-H2_B_sink = process(name='H2_B_sink', conversion={H2_B: -1, H2_cons: 1}, prod_max=bigM, label='Blue Hydrogen consumption at site')
+H2_Blue = Process(name='H2_Blue', conversion={H2: 1, H2_B: -1}, prod_max=bigM, label='Blue Hydrogen production')
+H2_Green = Process(name='H2_Green', conversion={H2: 1, H2_G: -1}, prod_max=bigM, label='Green Hydrogen production')
+H2_G_sink = Process(name='H2_G_sink', conversion={H2_G: -1, H2_cons: 1}, prod_max=bigM, label='Green Hydrogen consumption at site')
+H2_B_sink = Process(name='H2_B_sink', conversion={H2_B: -1, H2_cons: 1}, prod_max=bigM, label='Blue Hydrogen consumption at site')
 
 
 # *-------------------------Geographic scales/location------------------------------------
 
 #candidate cities (sources)
-CityA = location(name= 'A', processes= {PV, LiI_c, LiI_d, WF, AKE}, scales = scales, label= 'city A')
-# CityB = location(name= 'B', processes= {PV, LiI_c, LiI_d, WF, AKE}, scales = scales, label= 'city B')
-# CityC = location(name= 'C', processes= {PV, LiI_c, LiI_d, WF, AKE}, scales = scales, label= 'city C')
+CityA = Location(name= 'A', processes= {PV, LiI_c, LiI_d, WF, AKE}, scales = scales, label= 'city A')
+# CityB = Location(name= 'B', processes= {PV, LiI_c, LiI_d, WF, AKE}, scales = scales, label= 'city B')
+# CityC = Location(name= 'C', processes= {PV, LiI_c, LiI_d, WF, AKE}, scales = scales, label= 'city C')
 
 #candidate cities (sinks)
-Site1 = location(name= '1', processes = {H2_G_sink}, scales = scales, label= 'site close to A')
-# Site2 = location(name= '2', processes = {H2_G_sink}, scales = scales, label= 'site close to B')
-# Site3 = location(name= '3', processes = {H2_G_sink}, scales = scales, label= 'site close to C')
-# Site4 = location(name= '4', processes = {H2_G_sink}, scales = scales, label= 'site between A and B')
-# Site5 = location(name= '5', processes = {H2_G_sink}, scales = scales, label= 'site between B and C')
-# Site6 = location(name= '6', processes = {H2_G_sink}, scales = scales, label= 'site between C and A')
-# Site7 = location(name= '7', processes = {H2_G_sink}, scales = scales, label= 'site between A, B and C')
+Site1 = Location(name= '1', processes = {H2_G_sink}, scales = scales, label= 'site close to A')
+# Site2 = Location(name= '2', processes = {H2_G_sink}, scales = scales, label= 'site close to B')
+# Site3 = Location(name= '3', processes = {H2_G_sink}, scales = scales, label= 'site close to C')
+# Site4 = Location(name= '4', processes = {H2_G_sink}, scales = scales, label= 'site between A and B')
+# Site5 = Location(name= '5', processes = {H2_G_sink}, scales = scales, label= 'site between B and C')
+# Site6 = Location(name= '6', processes = {H2_G_sink}, scales = scales, label= 'site between C and A')
+# Site7 = Location(name= '7', processes = {H2_G_sink}, scales = scales, label= 'site between A, B and C')
 
 # location_list = [CityA, CityB, CityC, Site1, Site2, Site3, Site4, Site5, Site6, Site7]
 # city_list = [CityA, CityB, CityC]
@@ -120,8 +121,8 @@ city_list = [CityA]
 site_list = [Site1]
 
 # *-------------------------Transport modes------------------------------------
-Train = transport(name= 'Train', resources= {H2_G}, trans_max= 10**8, trans_loss= 0.002, trans_cost= 1.667*10**(-3), label= 'Railroad transport')
-Pipe = transport(name= 'Pipe', resources= {H2_G}, trans_max= 10**8, trans_loss= 0.001, trans_cost= 0.5*10**(-3), label= 'Railroad transport')
+Train = Transport(name= 'Train', resources= {H2_G}, trans_max= 10**8, trans_loss= 0.002, trans_cost= 1.667*10**(-3), label= 'Railroad transport')
+Pipe = Transport(name= 'Pipe', resources= {H2_G}, trans_max= 10**8, trans_loss= 0.001, trans_cost= 0.5*10**(-3), label= 'Railroad transport')
 
 
 
@@ -138,14 +139,14 @@ transport_matrix = [
     [[Pipe] , [Train, Pipe] ,   []  , [Train, Pipe],  [Pipe] ,  [Train] ,  [Train] ]
     ]
 
-Arcs = network(name= 'Arcs', source_locations= city_list, sink_locations= site_list, \
+Arcs = Network(name= 'Arcs', source_locations= city_list, sink_locations= site_list, \
     distance_matrix= distance_matrix, transport_matrix= transport_matrix, label= 'connections between cities and sites')
 
 m = ConcreteModel()
 
-case = scenario(name= '', network= Arcs, scales= scales, instance= m, \
+case = Scenario(name= '', network= Arcs, scales= scales, \
     expenditure_scale_level= 0, scheduling_scale_level= 0, network_scale_level= 0, label= 'mpmilp case study')
-mpmilp = case.formulate_mpmilp()
+mpmilp = formulate_mpmilp(instance= m, scenario= case)
 
 
 
