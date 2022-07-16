@@ -11,11 +11,11 @@ __maintainer__ = "Rahul Kakodkar"
 __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
-from src.energiapy.components.location import location
-from ..components.temporal_scale import temporal_scale
+from src.energiapy.components.location import Location
+from ..components.temporal_scale import Temporal_scale
 from pyomo.environ import ConcreteModel, Set
 
-def generate_sets(instance: ConcreteModel, location_set:set = {}, transport_set:set= {}, scales: temporal_scale = {}):
+def generate_sets(instance: ConcreteModel, location_set:set = {}, transport_set:set= {}, scales: Temporal_scale = {}):
     """Generates pyomo sets based on declared lists
 
     Args:

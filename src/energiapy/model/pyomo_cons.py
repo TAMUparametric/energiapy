@@ -16,7 +16,7 @@ from ..utils.latex_utils import constraint_latex_render
 from ..utils.model_utils import scale_list
 from ..utils.model_utils import scale_pyomo_set
 from ..utils.model_utils import scale_tuple
-from ..components.location import location
+from ..components.location import Location
 
 
 def nameplate_production_constraint(instance: ConcreteModel, location_set:set, network_scale_level:int = 0, scheduling_scale_level:int= 0) -> Constraint:
