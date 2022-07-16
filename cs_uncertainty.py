@@ -34,7 +34,8 @@ from src.energiapy.model.pyomo_cons import *
 from src.energiapy.graph import graph
 
 # *-------------------------Temporal scales------------------------------------
-scales = temporal_scale(discretization_list = [1])
+# scales = temporal_scale(discretization_list = [4, 20, 15])
+scales = temporal_scale(discretization_list= [42])
 # scales = temporal_scale(discretization_list = [1, 2, 3])
 
 # *-------------------------Constance defined here for ease------------------------------------
@@ -99,21 +100,24 @@ H2_B_sink = process(name='H2_B_sink', conversion={H2_B: -1, H2_cons: 1}, prod_ma
 
 #candidate cities (sources)
 CityA = location(name= 'A', processes= {PV, LiI_c, LiI_d, WF, AKE}, scales = scales, label= 'city A')
-CityB = location(name= 'B', processes= {PV, LiI_c, LiI_d, WF, AKE}, scales = scales, label= 'city B')
-CityC = location(name= 'C', processes= {PV, LiI_c, LiI_d, WF, AKE}, scales = scales, label= 'city C')
+# CityB = location(name= 'B', processes= {PV, LiI_c, LiI_d, WF, AKE}, scales = scales, label= 'city B')
+# CityC = location(name= 'C', processes= {PV, LiI_c, LiI_d, WF, AKE}, scales = scales, label= 'city C')
 
 #candidate cities (sinks)
 Site1 = location(name= '1', processes = {H2_G_sink}, scales = scales, label= 'site close to A')
-Site2 = location(name= '2', processes = {H2_G_sink}, scales = scales, label= 'site close to B')
-Site3 = location(name= '3', processes = {H2_G_sink}, scales = scales, label= 'site close to C')
-Site4 = location(name= '4', processes = {H2_G_sink}, scales = scales, label= 'site between A and B')
-Site5 = location(name= '5', processes = {H2_G_sink}, scales = scales, label= 'site between B and C')
-Site6 = location(name= '6', processes = {H2_G_sink}, scales = scales, label= 'site between C and A')
-Site7 = location(name= '7', processes = {H2_G_sink}, scales = scales, label= 'site between A, B and C')
+# Site2 = location(name= '2', processes = {H2_G_sink}, scales = scales, label= 'site close to B')
+# Site3 = location(name= '3', processes = {H2_G_sink}, scales = scales, label= 'site close to C')
+# Site4 = location(name= '4', processes = {H2_G_sink}, scales = scales, label= 'site between A and B')
+# Site5 = location(name= '5', processes = {H2_G_sink}, scales = scales, label= 'site between B and C')
+# Site6 = location(name= '6', processes = {H2_G_sink}, scales = scales, label= 'site between C and A')
+# Site7 = location(name= '7', processes = {H2_G_sink}, scales = scales, label= 'site between A, B and C')
 
-location_list = [CityA, CityB, CityC, Site1, Site2, Site3, Site4, Site5, Site6, Site7]
-city_list = [CityA, CityB, CityC]
-site_list = [Site1, Site2, Site3, Site4, Site5, Site6, Site7]
+# location_list = [CityA, CityB, CityC, Site1, Site2, Site3, Site4, Site5, Site6, Site7]
+# city_list = [CityA, CityB, CityC]
+# site_list = [Site1, Site2, Site3, Site4, Site5, Site6, Site7]
+
+city_list = [CityA]
+site_list = [Site1]
 
 # *-------------------------Transport modes------------------------------------
 Train = transport(name= 'Train', resources= {H2_G}, trans_max= 10**8, trans_loss= 0.002, trans_cost= 1.667*10**(-3), label= 'Railroad transport')
