@@ -114,6 +114,28 @@ def test_cycle(instance: ConcreteModel, location_set:set, scheduling_scale_level
     constraint_latex_render(test_cycle)
     return instance.test_cycle_cons
 
+def inventory_balance_constraint(instance: ConcreteModel, location_set:set, scheduling_scale_level:int= 0) -> Constraint:
+    scale_levels = instance.scales.__len__()
+    scales = scale_list(instance= instance, scale_levels = scale_levels)
+    scale_iter = scale_tuple(instance= instance, scale_levels = scale_levels)
+    def inventory_balance_rule(instance, location, resource, *scale_list):
+        if scale_list[:scheduling_scale_level+1] != scale_iter[0]:
+            return instance.Inv[location, resource, scale_list[:scheduling_scale_level+1]] \
+                - instance.Inv[location, resource, scale_iter[scale_iter.index(scale_list[:scheduling_scale_level+1]) -1]] \
+                    + instance.S[location, resource, scale_list[:scheduling_scale_level+1]] \
+                    - instance.C[location, resource, scale_list[:scheduling_scale_level+1]] \
+                    - sum(instance.P[location, process, scale_list[:scheduling_scale_level+1]] for process in instance.processes) \
+                        == 0
+        else:
+            return instance.Inv[location, resource, scale_list[:scheduling_scale_level+1]] \
+                    + instance.S[location, resource, scale_list[:scheduling_scale_level+1]] \
+                    - instance.C[location, resource, scale_list[:scheduling_scale_level+1]] \
+                    - sum(instance.P[location, process, scale_list[:scheduling_scale_level+1]] for process in instance.processes) \
+                        == 0
+    instance.inventory_balance_cons = Constraint(instance.locations, instance.resources, *scales, rule=inventory_balance_rule, doc='restrict discharge of non marketable resources')
+    constraint_latex_render(inventory_balance_constraint)
+    return instance.inventory_balance_cons
+
 
 # def inventory_balance_constraint(instance: ConcreteModel, location_set:set, scheduling_scale_level:int= 0) -> Constraint:
 #     scale_levels = instance.scales.__len__()

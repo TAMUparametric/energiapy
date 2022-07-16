@@ -21,7 +21,7 @@ __status__ = "Production"
 import pandas
 # import numpy 
 # from pyomo.opt import SolverStatus, TerminationCondition
-from pyomo.environ import ConcreteModel 
+from pyomo.environ import SolverFactory  
 from src.energiapy.components.temporal_scale import Temporal_scale
 from src.energiapy.components.resource import Resource
 from src.energiapy.components.process import Process
@@ -36,7 +36,7 @@ from src.energiapy.model.mpmilp import formulate_mpmilp
 
 # *-------------------------Temporal scales------------------------------------
 # scales = temporal_scale(discretization_list = [4, 20, 15])
-scales = Temporal_scale(discretization_list= [42])
+scales = Temporal_scale(discretization_list= [1])
 # scales = temporal_scale(discretization_list = [1, 2, 3])
 
 # *-------------------------Constance defined here for ease------------------------------------
@@ -101,24 +101,24 @@ H2_B_sink = Process(name='H2_B_sink', conversion={H2_B: -1, H2_cons: 1}, prod_ma
 
 #candidate cities (sources)
 CityA = Location(name= 'A', processes= {PV, LiI_c, LiI_d, WF, AKE}, scales = scales, label= 'city A')
-# CityB = Location(name= 'B', processes= {PV, LiI_c, LiI_d, WF, AKE}, scales = scales, label= 'city B')
-# CityC = Location(name= 'C', processes= {PV, LiI_c, LiI_d, WF, AKE}, scales = scales, label= 'city C')
+CityB = Location(name= 'B', processes= {PV, LiI_c, LiI_d, WF, AKE}, scales = scales, label= 'city B')
+CityC = Location(name= 'C', processes= {PV, LiI_c, LiI_d, WF, AKE}, scales = scales, label= 'city C')
 
 #candidate cities (sinks)
 Site1 = Location(name= '1', processes = {H2_G_sink}, scales = scales, label= 'site close to A')
-# Site2 = Location(name= '2', processes = {H2_G_sink}, scales = scales, label= 'site close to B')
-# Site3 = Location(name= '3', processes = {H2_G_sink}, scales = scales, label= 'site close to C')
-# Site4 = Location(name= '4', processes = {H2_G_sink}, scales = scales, label= 'site between A and B')
-# Site5 = Location(name= '5', processes = {H2_G_sink}, scales = scales, label= 'site between B and C')
-# Site6 = Location(name= '6', processes = {H2_G_sink}, scales = scales, label= 'site between C and A')
-# Site7 = Location(name= '7', processes = {H2_G_sink}, scales = scales, label= 'site between A, B and C')
+Site2 = Location(name= '2', processes = {H2_G_sink}, scales = scales, label= 'site close to B')
+Site3 = Location(name= '3', processes = {H2_G_sink}, scales = scales, label= 'site close to C')
+Site4 = Location(name= '4', processes = {H2_G_sink}, scales = scales, label= 'site between A and B')
+Site5 = Location(name= '5', processes = {H2_G_sink}, scales = scales, label= 'site between B and C')
+Site6 = Location(name= '6', processes = {H2_G_sink}, scales = scales, label= 'site between C and A')
+Site7 = Location(name= '7', processes = {H2_G_sink}, scales = scales, label= 'site between A, B and C')
 
 # location_list = [CityA, CityB, CityC, Site1, Site2, Site3, Site4, Site5, Site6, Site7]
-# city_list = [CityA, CityB, CityC]
-# site_list = [Site1, Site2, Site3, Site4, Site5, Site6, Site7]
+city_list = [CityA, CityB, CityC]
+site_list = [Site1, Site2, Site3, Site4, Site5, Site6, Site7]
 
-city_list = [CityA]
-site_list = [Site1]
+# city_list = [CityA]
+# site_list = [Site1]
 
 # *-------------------------Transport modes------------------------------------
 Train = Transport(name= 'Train', resources= {H2_G}, trans_max= 10**8, trans_loss= 0.002, trans_cost= 1.667*10**(-3), label= 'Railroad transport')
@@ -126,7 +126,7 @@ Pipe = Transport(name= 'Pipe', resources= {H2_G}, trans_max= 10**8, trans_loss= 
 
 
 
-# *-------------------------Linakges between locations------------------------------------
+# *-------------------------Network------------------------------------
 distance_matrix = [
     [  0.  ,  40.  , 120.4 ,  27.  ,  52.2 ,  68.7 ,  40.5 ],
     [ 40.  ,   0.  , 125.4 ,  12.  ,  47.  ,  77.7 ,  39.8 ],
@@ -142,13 +142,16 @@ transport_matrix = [
 Arcs = Network(name= 'Arcs', source_locations= city_list, sink_locations= site_list, \
     distance_matrix= distance_matrix, transport_matrix= transport_matrix, label= 'connections between cities and sites')
 
-m = ConcreteModel()
+# *-------------------------Scenario------------------------------------
 
 case = Scenario(name= '', network= Arcs, scales= scales, \
     expenditure_scale_level= 0, scheduling_scale_level= 0, network_scale_level= 0, label= 'mpmilp case study')
-mpmilp = formulate_mpmilp(instance= m, scenario= case)
 
+# *-------------------------Model formulation------------------------------------
 
+mpmilp = formulate_mpmilp(scenario= case)
+
+result = SolverFactory('gurobi', solver_io= 'python').solve(mpmilp)
 
 
 #%%

@@ -11,11 +11,14 @@ __maintainer__ = "Rahul Kakodkar"
 __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
-from src.energiapy.components.location import Location
+from ..components.location import Location
+from ..components.scenario import Scenario 
 from ..components.temporal_scale import Temporal_scale
 from pyomo.environ import ConcreteModel, Set
+# from typing import 
 
-def generate_sets(instance: ConcreteModel, location_set:set = {}, transport_set:set= {}, scales: Temporal_scale = {}):
+def generate_sets(instance: ConcreteModel, location_set:set = {}, transport_set:set= {}, scales: Temporal_scale = {},\
+    process_set:set = {}, resource_set:set = {}, material_set:set = {}, source_set:set = {}, sink_set:set = {} ):
     """Generates pyomo sets based on declared lists
 
     Args:
@@ -26,10 +29,6 @@ def generate_sets(instance: ConcreteModel, location_set:set = {}, transport_set:
         scales (dict, optional): scales of the problem, generated through temporal_scale. Defaults to {}.
         
     """
-    process_set = set().union(*[i.processes for i in location_set if i.processes is not None])
-    resource_set = set().union(*[i.resources for i in location_set if i.resources is not None])
-    material_set = set().union(*[i.materials for i in location_set if i.materials is not None])
-    
     instance.processes = Set(initialize  = [i.name for i in process_set], doc = 'Set of processes')
     instance.resources = Set(initialize = [i.name for i in resource_set], doc = 'Set of resources')
     instance.resources_store = Set(initialize = [i.name for i in resource_set if i.store_max > 0], doc = 'Set of storeable resources')
@@ -41,8 +40,8 @@ def generate_sets(instance: ConcreteModel, location_set:set = {}, transport_set:
     instance.locations = Set(initialize = [i.name for i in location_set], doc = 'Set of locations')
     instance.transports = Set(initialize = [i.name for i in transport_set], doc = 'Set of transports')
     instance.scales = Set(scales.name, initialize = scales.scale)
-    
-        
+    instance.sources = Set(initialize = [i.name for i in source_set], doc = 'Set of sources')
+    instance.sinks = Set(initialize = [i.name for i in sink_set], doc = 'Set of sinks')
     return
 
 
