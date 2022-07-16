@@ -13,8 +13,6 @@ __status__ = "Production"
 from dataclasses import dataclass
 from ..components.network import Network
 from ..components.temporal_scale import Temporal_scale
-from ..model.pyomo_sets import generate_sets
-from ..model.pyomo_vars import generate_milp_vars, generate_mpmilp_vars 
 from ..model.pyomo_cons import *
 
 @dataclass
@@ -24,7 +22,6 @@ class Scenario:
         name (str): ID
         network (network): network object with the locations, transport linakges, and processes (with resources and materials)
         scales (temporal_scale): scales of the problem 
-        instance (ConcreteModel): pyomo model instance
         expenditure_scale_level (int, optional): scale for resource purchase. Defaults to 0.
         scheduling_scale_level (int, optional): scale of production and inventory scheduling. Defaults to 0.
         network_scale_level (int, optional): scale for network decisions such as facility location. Defaults to 0.
@@ -43,7 +40,9 @@ class Scenario:
         self.source_locations = self.network.source_locations
         self.sink_locations = self.network.sink_locations
         self.location_set = set(self.source_locations + self.sink_locations)         
-    
+        self.process_set = set().union(*[i.processes for i in self.location_set if i.processes is not None])
+        self.resource_set = set().union(*[i.resources for i in self.location_set if i.resources is not None])
+        self.material_set = set().union(*[i.materials for i in self.location_set if i.materials is not None])
     def __repr__(self):
         return self.name
     
@@ -51,3 +50,5 @@ class Scenario:
 
     
 
+    
+    

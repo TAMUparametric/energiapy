@@ -217,7 +217,8 @@ graph.cost_factor (location= LA, resource= CH4)
 Train_H2 = Transport(name= 'Train_H2', resources= {H2_B, H2_G}, label= 'Railway for hydrogen transportation', trans_max= 10**8, trans_loss= 0.001, trans_cost= 1.667*10**(-3))
 Pipe = Transport(name= 'Pipe', resources= {H2_G}, trans_max= 10**8, trans_loss= 0.001, trans_cost= 0.5*10**(-3), label= 'Railroad transport')
 
-# *-------------------------Linkage between locations------------------------------------
+
+# *-------------------------Network------------------------------------
 distance_matrix = [
     [0, 678],
     [678, 0]
@@ -228,14 +229,14 @@ transport_matrix = [
     [[Train_H2, Pipe], []] 
                    ]
 
-
 network = Network(name= 'Network', source_locations= [HO, LA], sink_locations= [HO, LA], distance_matrix= distance_matrix, transport_matrix= transport_matrix) 
 
-m = ConcreteModel()
+# *-------------------------Scenario------------------------------------
 
 case = Scenario(name= '', network= network, scales= scales, expenditure_scale_level= 1, scheduling_scale_level= 2, network_scale_level= 0, label= 'shell milp case study')
 
-milp = formulate_milp(instance= m, scenario= case)
+# *-------------------------Model formulation------------------------------------
+milp = formulate_milp(scenario= case)
 
 
 
