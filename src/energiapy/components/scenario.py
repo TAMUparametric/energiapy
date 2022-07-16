@@ -11,7 +11,6 @@ __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
 from dataclasses import dataclass
-from turtle import pu
 from ..components.network import network
 from ..components.temporal_scale import temporal_scale
 from pyomo.environ import ConcreteModel
@@ -53,10 +52,11 @@ class scenario:
     def formulate_milp(self):
         """formulates a multi-scale mixed integer linear programming formulation of the scenario
         """
-        generate_sets(instance= self.instance, location_set= self.location_set, transport_set= self.transport_set, scales= self.scales)
+        generate_sets(instance= self.instance, location_set= self.location_set,\
+            transport_set= self.transport_set, scales= self.scales)
         generate_milp_vars(instance= self.instance, expenditure_scale_level= self.expenditure_scale_level, scheduling_scale_level = self.scheduling_scale_level \
             , network_scale_level= self.network_scale_level)
-        
+        # test_cycle(instance= self.instance, location_set= self.location_set, scheduling_scale_level= self.scheduling_scale_level)
         nameplate_production_constraint(instance= self.instance, location_set= self.location_set, network_scale_level= \
             self.network_scale_level, scheduling_scale_level= self.scheduling_scale_level)
         nameplate_inventory_constraint(instance= self.instance, location_set= self.location_set, network_scale_level= self.network_scale_level,\
@@ -64,7 +64,8 @@ class scenario:
         resource_consumption_constraint(instance= self.instance, location_set= self.location_set, scheduling_scale_level= self.scheduling_scale_level)
         resource_expenditure_constraint(instance= self.instance, location_set= self.location_set, scheduling_scale_level= self.scheduling_scale_level,\
             expenditure_scale_level= self.expenditure_scale_level)
-        resource_discharge_constraint(instance= self.instance, scheduling_scale_level= self.scheduling_scale_level)
+        resource_discharge_constraint(instance= self.instance, location_set= self.location_set, scheduling_scale_level= self.scheduling_scale_level)
+        
         return
         
     def formulate_mpmilp(self):
@@ -73,6 +74,7 @@ class scenario:
         generate_sets(instance= self.instance, location_set= self.location_set, transport_set= self.transport_set, scales= self.scales)
         generate_mpmilp_vars(instance= self.instance, expenditure_scale_level= self.expenditure_scale_level, scheduling_scale_level = self.scheduling_scale_level \
             , network_scale_level= self.network_scale_level)
+        # test_cycle(instance= self.instance, location_set= self.location_set, scheduling_scale_level= self.scheduling_scale_level)
         uncertain_nameplate_production_constraint(instance= self.instance, location_set= self.location_set, network_scale_level= self.network_scale_level,\
             scheduling_scale_level= self.scheduling_scale_level)
         nameplate_inventory_constraint(instance= self.instance, location_set= self.location_set, network_scale_level= self.network_scale_level,\
@@ -81,6 +83,7 @@ class scenario:
         uncertain_resource_expenditure_constraint(instance= self.instance, location_set= self.location_set, scheduling_scale_level= self.scheduling_scale_level,\
             expenditure_scale_level= self.expenditure_scale_level)
         resource_discharge_constraint(instance= self.instance, location_set= self.location_set, scheduling_scale_level= self.scheduling_scale_level)
+        
         return
     
     

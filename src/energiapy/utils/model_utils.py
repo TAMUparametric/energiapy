@@ -32,7 +32,7 @@ def fetch_components(process_list: list, master_list: list, dict_with_relevant_d
             list_.append(value) if value not in list_ else list_
     return list_
 
-def scale_set(instance: ConcreteModel, scale_level:int=0):
+def scale_pyomo_set(instance: ConcreteModel, scale_level:int=0):
     """returns a set with appropropriate scale(s)
 
     Args:
@@ -51,3 +51,14 @@ def scale_list(instance: ConcreteModel, scale_levels:int=0):
         scale_level (int, optional): appropriate scale. Defaults to 0.
     """
     return  [instance.scales[i].data() for i in range(scale_levels)]
+
+def scale_tuple(instance: ConcreteModel, scale_levels:int=0):
+    """returns a tuple with appropropriate scale(s)
+
+    Args:
+        instance (ConcreteModel): pyomo instance
+        scale_level (int, optional): appropriate scale. Defaults to 0.
+    """
+    data = [instance.scales[i].data() for i in range(scale_levels)]
+    list_ = [i for i in product(*data)]
+    return  list_

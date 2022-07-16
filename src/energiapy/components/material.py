@@ -12,7 +12,7 @@ __status__ = "Production"
 
 from dataclasses import dataclass
 
-
+#TODO - check POPT data class, do not need __init__
 @dataclass
 class material:
     """
@@ -31,11 +31,14 @@ class material:
             
         """
         self.name = name
-        self.label = label + '[' + self.name + ']'
+        #TODO: 
         self.gwp = gwp
         self.basis = basis
         self.citation = citation
 
+    # def __post_init__(self):
+        # self.label = label + '[' + self.name + ']'
+        
     def __repr__(self):
         return self.name
 

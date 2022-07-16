@@ -20,8 +20,11 @@ class resource:
     Object with resource data
     """
 
-    def __init__(self, name: str, label: str = '', consumption_max: float = 0, loss: float = 0, revenue: float = 0, varying:bool= False,
-                 price: float = 0, mile: float = 0, store_max: float = 0, store_min: float = 0, sell: bool = False, demand: bool = False, basis: str = '', block: str = ''):
+    def __init__(self, name: str, label: str = '', consumption_max: float = 0, \
+        loss: float = 0, revenue: float = 0, varying:bool= False,
+                 price: float = 0, mile: float = 0, store_max: float = 0, \
+                     store_min: float = 0, sell: bool = False, demand: bool = False, \
+                         basis: str = '', block: str = ''):
         """resource object parameters
 
         Args:

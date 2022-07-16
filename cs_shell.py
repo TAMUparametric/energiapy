@@ -23,7 +23,7 @@ __status__ = "Production"
 
 
 # *-------------------------Import modules------------------------------------
-from turtle import distance
+# from turtle import distance
 import pandas
 # import numpy 
 # from pyomo.opt import SolverStatus, TerminationCondition
@@ -202,19 +202,19 @@ HO = location(name='HO', processes= {PV, LiI_c, LiI_d, WF, AKE}, scales = scales
                       LiI_class='8Hr Battery Storage', PSH_class='Class 3', label='Houston')
 LA = location(name='LA', processes= {PV, LiI_c, LiI_d, WF, SMRH}, scales = scales, varying_cost_df = daily_ng_price_df, \
     varying_process_df= la_power_output_df, PV_class='Class3', WF_class='Class5',
-                      LiI_class='8Hr Battery Storage', PSH_class='Class 3', label='LosAngeles')
+                      LiI_class='8Hr Battery Storage', PSH_class='Class 3', label='Los Angeles')
 
 # *-------------------------Data------------------------------------
 
 cost_metrics_list = ['CAPEX', 'Fixed O&M', 'Variable O&M', 'units', 'source']
 
-graph.capacity_factor(location= HO, process= PV)
-graph.cost_factor (location= LA, resource= CH4 )
-
+graph.capacity_factor(location= HO, process= PV, color= 'orange')
+graph.cost_factor (location= LA, resource= CH4) 
 
 
 # *-------------------------Transport modes------------------------------------
 Train_H2 = transport(name= 'Train_H2', resources= {H2_B, H2_G}, label= 'Railway for hydrogen transportation', trans_max= 10**8, trans_loss= 0.001, trans_cost= 1.667*10**(-3))
+Pipe = transport(name= 'Pipe', resources= {H2_G}, trans_max= 10**8, trans_loss= 0.001, trans_cost= 0.5*10**(-3), label= 'Railroad transport')
 
 # *-------------------------Linkage between locations------------------------------------
 distance_matrix = [
@@ -223,8 +223,8 @@ distance_matrix = [
                    ]
 
 transport_matrix = [
-    [[], [Train_H2]],
-    [[Train_H2], []]
+    [[], [Train_H2, Pipe]],
+    [[Train_H2, Pipe], []] 
                    ]
 
 
@@ -238,5 +238,7 @@ case = scenario(name= '', network= Network, scales= scales, instance= m, \
 milp = case.formulate_milp()
 
 
+
+# %%
 
 # %%

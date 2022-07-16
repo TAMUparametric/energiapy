@@ -39,10 +39,9 @@ def capacity_factor(process: process, location: location, \
     x_ = [i for i in range(len(y_))]
     ax.plot(x_, y_, linewidth=0.5, color=color)
     ax = axis_formatter(axes= ax, xcord = x_, axis_labels= 'M')
-    plt.title('Conversion factor for ' + process.label)
+    plt.title('Conversion factor for ' + process.label + ' in ' + location.label)
     plt.ylabel('Normalized conversion factors')
     plt.grid(alpha=0.3)
-    fig.show()
     plt.rcdefaults()
     return
 
@@ -64,10 +63,9 @@ def cost_factor(resource: resource, location: location, \
     x_ = [i for i in range(len(y_))]
     ax.plot(x_, y_, linewidth=0.5, color=color)
     ax = axis_formatter(axes= ax, xcord = x_, axis_labels= 'M')
-    plt.title('Conversion factor for ' + resource.label)
-    plt.ylabel('Normalized conversion factors')
+    plt.title('Cost factor for ' + resource.label + ' in ' + location.label)
+    plt.ylabel('Normalized Cost factor')
     plt.grid(alpha=0.3)
-    fig.show()
     plt.rcdefaults()
     return
 
