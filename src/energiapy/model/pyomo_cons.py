@@ -25,8 +25,7 @@ from ..components.location import Location
 # *-------------------------Network decision constraints--------------------------------
 
 def network_production_constraint(instance: ConcreteModel, prod_max:dict, loc_pro_dict:dict = {}, network_scale_level:int = 0) -> Constraint:
-    scale_levels = instance.scales.__len__()
-    scales = scale_list(instance= instance, scale_levels = scale_levels)
+    scales = scale_list(instance= instance, scale_levels = network_scale_level+1)
     def network_production_rule(instance, location, process, *scale_list):
         if process in loc_pro_dict[location]:
             return instance.Cap_P[location, process, scale_list[:network_scale_level+1]] <= prod_max[location][process]*\
@@ -39,8 +38,7 @@ def network_production_constraint(instance: ConcreteModel, prod_max:dict, loc_pr
 
 
 def network_storage_constraint(instance: ConcreteModel, store_max:dict, loc_res_dict:dict = {},  network_scale_level:int = 0) -> Constraint:
-    scale_levels = instance.scales.__len__()
-    scales = scale_list(instance= instance, scale_levels = scale_levels)
+    scales = scale_list(instance= instance, scale_levels = network_scale_level + 1)
     def network_storage_rule(instance, location, resource, *scale_list):
         if resource in loc_res_dict[location]:
             return instance.Cap_S[location, resource, scale_list[:network_scale_level+1]] <= store_max[location][resource]*\
@@ -54,8 +52,7 @@ def network_storage_constraint(instance: ConcreteModel, store_max:dict, loc_res_
 # *-------------------------Mass balance constraints------------------------------------
 
 def nameplate_production_constraint(instance: ConcreteModel, capacity_factor:dict = {}, network_scale_level:int = 0, scheduling_scale_level:int= 0) -> Constraint:
-    scale_levels = instance.scales.__len__()
-    scales = scale_list(instance= instance, scale_levels = scale_levels)
+    scales = scale_list(instance= instance, scale_levels = instance.scales.__len__())
     def nameplate_production_rule(instance, location, process, *scale_list):
         if process in instance.processes_varying:
             return instance.P[location, process, scale_list[:scheduling_scale_level+1]] <= \
@@ -69,8 +66,7 @@ def nameplate_production_constraint(instance: ConcreteModel, capacity_factor:dic
 
 
 def nameplate_inventory_constraint(instance: ConcreteModel, loc_res_dict:dict = {}, network_scale_level:int = 0, scheduling_scale_level:int= 0) -> Constraint: 
-    scale_levels = instance.scales.__len__()
-    scales = scale_list(instance= instance, scale_levels = scale_levels)
+    scales = scale_list(instance= instance, scale_levels = instance.scales.__len__())
     def nameplate_inventory_rule(instance, location, resource, *scale_list):
         if resource in instance.resources_store.intersection(loc_res_dict[location]):
             return instance.Inv[location, resource, scale_list[:scheduling_scale_level+1]] <= instance.Cap_S[location, resource, scale_list[:network_scale_level+1]]
@@ -82,8 +78,7 @@ def nameplate_inventory_constraint(instance: ConcreteModel, loc_res_dict:dict = 
     return instance.nameplate_inventory_constraint
 
 def resource_consumption_constraint(instance: ConcreteModel, loc_res_dict:dict = {}, cons_max:dict = {}, scheduling_scale_level:int= 0) -> Constraint:
-    scale_levels = instance.scales.__len__()
-    scales = scale_list(instance= instance, scale_levels = scale_levels)
+    scales = scale_list(instance= instance, scale_levels = instance.scales.__len__())
     def resource_consumption_rule(instance, location, resource, *scale_list):
         if resource in loc_res_dict[location]:
             return instance.C[location, resource, scale_list[:scheduling_scale_level+1]] <= cons_max[location][resource]
@@ -96,8 +91,7 @@ def resource_consumption_constraint(instance: ConcreteModel, loc_res_dict:dict =
 
 def resource_expenditure_constraint(instance: ConcreteModel, cost_factor:dict = {}, price:dict = {}, \
     loc_res_dict:dict = {}, scheduling_scale_level:int= 0, expenditure_scale_level:int= 0) -> Constraint:
-    scale_levels = instance.scales.__len__()
-    scales = scale_list(instance= instance, scale_levels = scale_levels)
+    scales = scale_list(instance= instance, scale_levels = instance.scales.__len__())
     def resource_expenditure_rule(instance, location, resource, *scale_list):
         if resource in instance.resources_varying.intersection(loc_res_dict[location]):
             return instance.B[location, resource, scale_list[:scheduling_scale_level+1]] == price[location][resource]*\
@@ -112,8 +106,7 @@ def resource_expenditure_constraint(instance: ConcreteModel, cost_factor:dict = 
     return instance.resource_expenditure_constraint
 
 def resource_discharge_constraint(instance: ConcreteModel, scheduling_scale_level:int= 0) -> Constraint:
-    scale_levels = instance.scales.__len__()
-    scales = scale_list(instance= instance, scale_levels = scale_levels)
+    scales = scale_list(instance= instance, scale_levels = instance.scales.__len__())
     def resource_discharge_rule(instance, location, resource, *scale_list):
         if resource in instance.resource_nosell:
             return instance.S[location, resource, scale_list[:scheduling_scale_level+1]] == 0
@@ -122,9 +115,8 @@ def resource_discharge_constraint(instance: ConcreteModel, scheduling_scale_leve
     return instance.resource_discharge_constraint
 
 def test_cycle(instance: ConcreteModel,  scheduling_scale_level:int= 0) -> Constraint:
-    scale_levels = instance.scales.__len__()
-    scales = scale_list(instance= instance, scale_levels = scale_levels)
-    scale_iter = scale_tuple(instance= instance, scale_levels = scale_levels)
+    scales = scale_list(instance= instance, scale_levels = instance.scales.__len__())
+    scale_iter = scale_tuple(instance= instance, scale_levels = instance.scales.__len__())
     def test_cycle_rule(instance, location, resource, *scale_list):
         if scale_list[:scheduling_scale_level+1] != scale_iter[0]:
             return instance.Inv[location, resource, scale_list[:scheduling_scale_level+1]] - instance.Inv[location, resource, scale_iter[scale_iter.index(scale_list[:scheduling_scale_level+1]) -1]] == 0
@@ -135,9 +127,8 @@ def test_cycle(instance: ConcreteModel,  scheduling_scale_level:int= 0) -> Const
     return instance.test_cycle_cons
 
 def inventory_balance_constraint(instance: ConcreteModel, scheduling_scale_level:int= 0, conversion:dict = {}) -> Constraint:
-    scale_levels = instance.scales.__len__()
-    scales = scale_list(instance= instance, scale_levels = scale_levels)
-    scale_iter = scale_tuple(instance= instance, scale_levels = scale_levels)
+    scales = scale_list(instance= instance, scale_levels = instance.scales.__len__())
+    scale_iter = scale_tuple(instance= instance, scale_levels = instance.scales.__len__())
     def inventory_balance_rule(instance, location, resource, *scale_list):
         if scale_list[:scheduling_scale_level+1] != scale_iter[0]:
             return instance.Inv[location, resource, scale_list[:scheduling_scale_level+1]] \
@@ -167,8 +158,7 @@ def inventory_balance_constraint(instance: ConcreteModel, scheduling_scale_level
 # *-------------------------Uncertainty analysis constraints------------------------------------
 
 def uncertain_nameplate_production_constraint(instance: ConcreteModel, network_scale_level:int = 0, scheduling_scale_level:int= 0) -> Constraint:
-    scale_levels = instance.scales.__len__()
-    scales = scale_list(instance= instance, scale_levels = scale_levels)
+    scales = scale_list(instance= instance, scale_levels = instance.scales.__len__())
     def uncertain_nameplate_production_rule(instance, location, process, *scale_list):
         if process in instance.processes_varying:
             return instance.P[location, process, scale_list[:scheduling_scale_level+1]] <= instance.Cap_P[location, process, scale_list[:network_scale_level+1]]\
@@ -181,8 +171,7 @@ def uncertain_nameplate_production_constraint(instance: ConcreteModel, network_s
     return instance.uncertain_nameplate_production_constraint
    
 def uncertain_resource_expenditure_constraint(instance: ConcreteModel, price:dict = {},  loc_res_dict:dict = {}, scheduling_scale_level:int= 0, expenditure_scale_level:int= 0) -> Constraint:
-    scale_levels = instance.scales.__len__()
-    scales = scale_list(instance= instance, scale_levels = scale_levels)
+    scales = scale_list(instance= instance, scale_levels = instance.scales.__len__())
     def uncertain_resource_expenditure_rule(instance, location, resource, *scale_list):
         if resource in instance.resources_varying.intersection(loc_res_dict[location]):
             return instance.B[location, resource, scale_list[:scheduling_scale_level+1]] == price[location][resource]*\

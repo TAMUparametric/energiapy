@@ -76,7 +76,7 @@ LiI_c = Process(name='LiI_c', conversion={Charge: 1, Power: -1}, material_cons =
     label='Lithium-ion battery', citation='Zakeri 2015')
 LiI_d = Process(name='LiI_d', conversion={Charge: -1.1765, Power: 1}, prod_max=bigM, \
     label='Lithium-ion battery discharge', citation='Zakeri 2015')
-PV = Process(name='PV',  conversion={Solar: -1, Power: 1, H2O: -20}, varying= True, label='Solar photovoltaics (PV) array', citation='Use pvlib conversion')
+PV = Process(name='PV',  conversion={Solar: -1, Power: 1, H2O: -20}, varying= True, prod_max=bigM, label='Solar photovoltaics (PV) array', citation='Use pvlib conversion')
 WF = Process(name='WF', conversion={Wind: -1, Power: 1, H2O: -1}, varying= True, prod_max=bigM, \
     label='Wind mill array', citation='Use windtoolkit conversion')
 AKE = Process(name='AKE', conversion={Power: -1, H2_G: 19.474, O2: 763.2, H2O: -175.266}, \
