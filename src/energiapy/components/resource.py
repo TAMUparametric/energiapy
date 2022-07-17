@@ -39,7 +39,7 @@ class Resource:
     
     name: str
     label: str = ''
-    consumption_max: float = 0
+    cons_max: float = 0
     loss: float = 0
     revenue: float = 0
     price: float = 0

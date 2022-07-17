@@ -36,7 +36,7 @@ from src.energiapy.model.mpmilp import formulate_mpmilp
 
 # *-------------------------Temporal scales------------------------------------
 # scales = temporal_scale(discretization_list = [4, 20, 15])
-scales = Temporal_scale(discretization_list= [1])
+scales = Temporal_scale(discretization_list= [2])
 # scales = temporal_scale(discretization_list = [1, 2, 3])
 
 # *-------------------------Constance defined here for ease------------------------------------
@@ -49,18 +49,18 @@ A_f = 0.05  # annualization factor
 # *-------------------------Resources------------------------------------
 Charge = Resource(name='Charge', sell=False,
                           store_max=bigM, basis='MW', label='Battery energy')
-Solar = Resource(name='Solar', consumption_max=10**20, basis='MW', label='Solar Power')
-Wind = Resource(name='Wind', consumption_max=10**20, basis='MW', label='Wind Power')
+Solar = Resource(name='Solar', cons_max=10**20, basis='MW', label='Solar Power')
+Wind = Resource(name='Wind', cons_max=10**20, basis='MW', label='Wind Power')
 H2_C = Resource(name='H2_C', sell=True, store_max=10**4, loss=0.025/24, demand=True, basis='kg', label='Hydrogen - Local Cryo') 
 H2_L = Resource(name='H2_L', sell=True, store_max=10**10, demand=True, basis='kg', label='Hydrogen - Geological')
 H2 = Resource(name='H2', basis='kg', label='Hydrogen')
 H2_B = Resource(name='H2_B', basis='kg', label='Blue hydrogen')
 H2_G = Resource(name='H2_G', basis='kg', label='Green hydrogen')
-H2O = Resource(name='H2O', consumption_max=10**20, price=water_price/(5000*3.7854), basis='kg', label='Water')
+H2O = Resource(name='H2O', cons_max=10**20, price=water_price/(5000*3.7854), basis='kg', label='Water')
 O2 = Resource(name='O2', sell=True, loss=0.07, basis='kg', label='Oxygen')
-CH4 = Resource(name='CH4', consumption_max=10**20, varying = True, price=1, basis='kg', label='Natural gas')
+CH4 = Resource(name='CH4', cons_max=10**20, varying = True, price=1, basis='kg', label='Natural gas')
 CO2 = Resource(name='CO2', basis='kg', label='Carbon dioxide')
-Power_Gr = Resource(name='Power_Gr', consumption_max=10 **20, price=power_price*(10), basis='kg', label='Grid electricity')
+Power_Gr = Resource(name='Power_Gr', cons_max=10 **20, price=power_price*(10), basis='kg', label='Grid electricity')
 Power = Resource(name='Power', basis='MW', label='Renewable power generated')
 CO2_Vent = Resource(name='CO2_Vent', sell=True, basis='kg', label='Carbon dioxide - Vented')
 H2_cons = Resource(name='H2_cons', sell=True, basis='kg', label='Hydrogen consumed at site')
@@ -113,12 +113,9 @@ Site5 = Location(name= '5', processes = {H2_G_sink}, scales = scales, label= 'si
 Site6 = Location(name= '6', processes = {H2_G_sink}, scales = scales, label= 'site between C and A')
 Site7 = Location(name= '7', processes = {H2_G_sink}, scales = scales, label= 'site between A, B and C')
 
-# location_list = [CityA, CityB, CityC, Site1, Site2, Site3, Site4, Site5, Site6, Site7]
-city_list = [CityA, CityB, CityC]
-site_list = [Site1, Site2, Site3, Site4, Site5, Site6, Site7]
+city_list = [CityA, CityB, CityC] #sources
+site_list = [Site1, Site2, Site3, Site4, Site5, Site6, Site7] #sinks
 
-# city_list = [CityA]
-# site_list = [Site1]
 
 # *-------------------------Transport modes------------------------------------
 Train = Transport(name= 'Train', resources= {H2_G}, trans_max= 10**8, trans_loss= 0.002, trans_cost= 1.667*10**(-3), label= 'Railroad transport')
@@ -155,9 +152,6 @@ result = SolverFactory('gurobi', solver_io= 'python').solve(mpmilp)
 
 
 #%%
-
-
-
 
 
 #%%

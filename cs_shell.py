@@ -69,10 +69,10 @@ Air_C = Resource(name='Air_C', store_max=bigM, basis='MW',
 H2O_E = Resource(name='H2O_E', store_max=bigM, basis='MW',
                          label='PSH energy', block= 'energystorage')
 Solar = Resource(
-    name='Solar', consumption_max=10**20, basis='MW', label='Solar Power', block = 'energyfeedstock')
-Wind = Resource(name='Wind', consumption_max=10 **
+    name='Solar', cons_max=10**20, basis='MW', label='Solar Power', block = 'energyfeedstock')
+Wind = Resource(name='Wind', cons_max=10 **
                         20, basis='MW', label='Wind Power', block = 'energyfeedstock')
-Uranium = Resource(name='Uranium', consumption_max=10 **
+Uranium = Resource(name='Uranium', cons_max=10 **
                            20, price=ur_price/(250/2), basis='kg', label='Uranium', block = 'energyfeedstock')
 H2_C = Resource(name='H2_C', sell=True, store_max=10**4, loss=0.025/24, revenue=2, mile=1/(0.1180535*1.60934),
                         demand=True, basis='kg', label='Hydrogen - Local Cryo', block= 'resourcestorage') 
@@ -81,11 +81,11 @@ H2_L = Resource(name='H2_L', sell=True, store_max=10**10, demand=True, revenue=2
 H2 = Resource(name='H2', basis='kg', label='Hydrogen', block= 'Resource')
 H2_B = Resource(name='H2_B', basis='kg', label='Blue hydrogen', block= 'product')
 H2_G = Resource(name='H2_G', basis='kg', label='Green hydrogen', block= 'product')
-H2O = Resource(name='H2O', consumption_max=10**20,
+H2O = Resource(name='H2O', cons_max=10**20,
                        price=water_price/(5000*3.7854), basis='kg', label='Water', block= 'Resource')
 O2 = Resource(name='O2', sell=True, loss=0.07,
                       basis='kg', label='Oxygen', block = 'Resource')
-CH4 = Resource(name='CH4', consumption_max=10 **
+CH4 = Resource(name='CH4', cons_max=10 **
                        20, varying= True, price=1, basis='kg', label='Natural gas', block = 'materialfeedstock')
 CO2 = Resource(name='CO2', basis='kg', label='Carbon dioxide', block = 'Resource')
 CO2_DAC = Resource(
@@ -96,7 +96,7 @@ CO2_EOR = Resource(
     name='CO2_EOR', store_max=10**10, basis='kg', label='Carbon dioxide - EOR', block = 'carbonsequestration')
 CH3OH = Resource(name='CH3OH', sell=True, revenue=0.5,
                          mile=1/(0.0195508*1.60934), basis='kg', label='Methanol', block = 'resourcedischarge')
-Power_Gr = Resource(name='Power_Gr', consumption_max=10 **
+Power_Gr = Resource(name='Power_Gr', cons_max=10 **
                             20, price=power_price*(10), basis='kg', label='Grid electricity', block = 'energyfeedstock')
 CO2_Vent = Resource(
     name='CO2_Vent', sell=True, basis='kg', label='Carbon dioxide - Vented', block = 'resourcedischarge')
