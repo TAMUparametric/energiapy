@@ -39,8 +39,6 @@ from src.energiapy.components.transport import Transport
 from src.energiapy.model.milp import formulate_milp
 from src.energiapy.utils.data_utils import get_data,make_henry_price_df
 from src.energiapy.graph import graph
-
-
  
 # *-------------------------Temporal scales------------------------------------
 
