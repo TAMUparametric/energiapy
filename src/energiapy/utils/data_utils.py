@@ -166,14 +166,14 @@ def make_henry_price_df(file_name: str, year: int, stretch: bool) -> pandas.Data
     for i in numpy.arange(1, 366):  # fixes values for weekends and holidays to last active day
         if i not in doy_list:
             if i == 1:  # onetime fix if first day has no value, takes value from day 2
-                df_ = df_.append({'CH4': df_['CH4'][df_[
-                                 'doy'] == 2].values[0], 'month': 1, 'day': 1, 'year': year, 'doy': 1}, ignore_index=True)
+                df_ = pandas.concat([df_, pandas.DataFrame.from_records([{'CH4': df_['CH4'][df_['doy'] == 2].values[0],\
+                    'month': 1, 'day': 1, 'year': year, 'doy': 1}])])
+                # df_ = df_.append({'CH4': df_['CH4'][df_['doy'] == 2].values[0], 'month': 1, 'day': 1, 'year': year, 'doy': 1}, ignore_index=True)
             else:
-                df_ = df_.append({'CH4': df_['CH4'][df_['doy'] == i-1].values[0],
-                                  'month': df_['month'][df_['doy'] == i-1].values[0],
-                                  'day': df_['day'][df_['doy'] == i-1].values[0],
-                                  'year': df_['year'][df_['doy'] == i-1].values[0],
-                                  'doy': i}, ignore_index=True)
+                df_ = pandas.concat([df_, pandas.DataFrame.from_records([{'CH4': df_['CH4'][df_['doy'] == i-1].values[0], \
+                    'month': df_['month'][df_['doy'] == i-1].values[0], 'day': df_['day'][df_['doy'] == i-1].values[0], \
+                        'year': df_['year'][df_['doy'] == i-1].values[0], 'doy': i}])])
+                # df_ = df_.append({'CH4': df_['CH4'][df_['doy'] == i-1].values[0], 'month': df_['month'][df_['doy'] == i-1].values[0], 'day': df_['day'][df_['doy'] == i-1].values[0], 'year': df_['year'][df_['doy'] == i-1].values[0], 'doy': i}, ignore_index=True)
 
     df_ = df_.sort_values(by=['doy'])
     df_ = df_.reset_index(drop=True)
