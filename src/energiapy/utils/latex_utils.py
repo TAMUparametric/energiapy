@@ -36,6 +36,7 @@ def constraint_latex_render(constraint_rule, latex_alias_dict:dict= {}) -> str:
         'instance.':'',
         'location':'l',
         'resource': 'r',
+        'network': 'n',
         'scale_list[:scheduling_scale_level+1]':'y,d,h',
         'scale_list[:network_scale_level+1]':'y',
         'scale_list[:expenditure_scale_level+1]':'y,d',
@@ -54,15 +55,17 @@ def constraint_latex_render(constraint_rule, latex_alias_dict:dict= {}) -> str:
         'annualization_factor': 'A^{f}',
         'scale_list': 'y',
         'for location_ in instance.locations': '',
+        'for process_ in instance.processes': '',
+        'for resource_ in instance.resources': '',
         'capex_dict': 'Capex^{unit}',
         'fopex_dict': 'Opex^{unit, fix}',
         'vopex_dict': 'Opex^{unit, var}',
         'Cap_P': 'Cap^{P}',
         'Cap_S': 'Cap^{S}',
         'instance.Fopex': 'Opex^{fix}',
-        'instance.Vopex': 'Opex^{var}'
-
-
+        'instance.Vopex': 'Opex^{var}',
+        'demand_dict': 'Demand^{r}',
+        'for scale_ in scale_iter if scale_[:demand_scale_level+1] == scale_list': ''
         }
     
     unsorted_dict_ = {**latex_alias_dict, **general_dict}
