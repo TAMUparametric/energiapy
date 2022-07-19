@@ -110,63 +110,70 @@ Li = Material(name='Li', gwp=0, basis= 'kg', label='Lithium')
 
 # *-------------------------Processes ------------------------------------
 
-LiI_c = Process(name='LiI_c', conversion={Charge: 1, Power: -1}, material_cons = {Li: 20}, prod_max=bigM, trl='nrel',
-                        block='power_storage', label='Lithium-ion battery', citation='Zakeri 2015')
-LiI_d = Process(name='LiI_d', conversion={Charge: -1.1765, Power: 1}, prod_max=bigM, trl='discharge',
-                        block='power_storage', label='Lithium-ion battery discharge', citation='Zakeri 2015')
-CAES_c = Process(name='CAES_c', conversion={Air_C: 1, Power: -1}, intro_scale=2, prod_max=bigM, trl='pilot',
-                         block='power_storage', label='Compressed air energy storage (CAES)', citation='Zakeri 2015')
-CAES_d = Process(name='CAES_d', conversion={Air_C: -1.4286, Power: 1}, intro_scale=2, prod_max=bigM, trl='discharge',
-                         block='power_storage', label='Compressed air energy storage (CAES) discharge', citation='Zakeri 2015')
-PSH_c = Process(name='PSH_c', conversion={H2O_E: 1, Power: -1}, intro_scale=0, prod_max=bigM, trl='nrel',
-                        block='power_storage', label='Pumped storage hydropower (PSH)', citation='Zakeri 2015')
-PSH_d = Process(name='PSH_d', conversion={H2O: -1, Power: -1.4286}, prod_max=bigM, trl='discharge',
-                        block='power_storage', label='Pumped storage hydropower (PSH) discharge', citation='Zakeri 2015')
-PV = Process(name='PV', intro_scale=pv_start, conversion={Solar: -1, Power: 1, H2O: -20}, varying= True, prod_max=bigM, gwp=53000, land=13320/1800,
-                     trl='nrel', block='power_generation', label='Solar photovoltaics (PV) array', citation='Use pvlib conversion')
-WF = Process(name='WF', conversion={Wind: -1, Power: 1, H2O: -1}, varying= True, prod_max=bigM, gwp=52700, land=10800 /
-                     1800, trl='nrel', block='power_generation', label='Wind mill array', citation='Use windtoolkit conversion')
-AKE = Process(name='AKE', intro_scale=ake_start, conversion={Power: -1, H2_G: 19.474, O2: 763.2, H2O: -175.266}, prod_max=bigM, trl='utility', block='material_production',
-                      label='Alkaline water electrolysis (AWE)', citation='Demirhan et al. 2018 AIChE paper')  # 20.833 MW required to produce 1000t/day.H2
-SMRH = Process(name='SMRH', intro_scale=smrh_start, conversion={Power: -1.11*10**(-3), CH4: -3.76, H2O: -23.7, H2_B: 1, CO2_Vent: 1.03, CO2: 9.332}, prod_max=bigM, gwp=0, trl='enterprise',
-                       block='material_production', label='Steam methane reforming + CCUS', citation='Mosca 2020, 90pc capture')
-SMR = Process(name='SMR', intro_scale=smr_start, conversion={Power: -1.11*10**(-3), CH4: -3.76, H2O: -23.7, H2_B: 1, CO2_Vent: 9.4979}, prod_max=bigM, gwp=0, trl='enterprise',
-                      block='material_production', label='Steam methane reforming', citation='Mosca 2020')
-ASMR = Process(name='ASMR', conversion={Uranium: -4.17*10**(-5), H2O: -3364.1, Power: 1}, intro_scale=asmr_start, gwp=9100, prod_max=bigM, land=1100/1800,
-                       trl='pilot', block='power_generation', label='Small modular reactors (SMRs)')
-H2_C_c = Process(name='H2_C_c', conversion={Power: -1.10*10**(-3), H2_C: 1, H2: -1},  prod_max=12000, gwp=0, trl='pilot',
-                         block='material_storage', label='Hydrogen local storage (Compressed)', citation='Bossel and Eliasson - Energy and the Hydrogen Economy')
-H2_C_d = Process(name='H2_C_d',  conversion={H2_C: -1, H2: 1}, prod_max=bigM, gwp=0, trl='nocost',
+cost_dict = get_data(file_name='cost_dict')
+
+LiI_c = Process(name='LiI_c', conversion={Charge: 1, Power: -1}, cost = cost_dict['HO']['moderate']['LiI_c']['0'],\
+    material_cons = {Li: 20}, prod_max=bigM, trl='nrel', block='power_storage', label='Lithium-ion battery', citation='Zakeri 2015')
+LiI_d = Process(name='LiI_d', conversion={Charge: -1.1765, Power: 1}, cost = cost_dict['HO']['moderate']['LiI_d']['0'], \
+    prod_max=bigM, trl='discharge', block='power_storage', label='Lithium-ion battery discharge', citation='Zakeri 2015')
+CAES_c = Process(name='CAES_c', conversion={Air_C: 1, Power: -1}, cost = cost_dict['HO']['moderate']['CAES_c']['0'], \
+    intro_scale=2, prod_max=bigM, trl='pilot', block='power_storage', label='Compressed air energy storage (CAES)', citation='Zakeri 2015')
+CAES_d = Process(name='CAES_d', conversion={Air_C: -1.4286, Power: 1}, cost = cost_dict['HO']['moderate']['CAES_d']['0'],\
+    intro_scale=2, prod_max=bigM, trl='discharge', block='power_storage', label='Compressed air energy storage (CAES) discharge', citation='Zakeri 2015')
+PSH_c = Process(name='PSH_c', conversion={H2O_E: 1, Power: -1}, cost = cost_dict['HO']['moderate']['PSH_c']['0'], \
+    intro_scale=0, prod_max=bigM, trl='nrel', block='power_storage', label='Pumped storage hydropower (PSH)', citation='Zakeri 2015')
+PSH_d = Process(name='PSH_d', conversion={H2O: -1, Power: -1.4286}, cost = cost_dict['HO']['moderate']['PSH_d']['0'], \
+    prod_max=bigM, trl='discharge', block='power_storage', label='Pumped storage hydropower (PSH) discharge', citation='Zakeri 2015')
+PV = Process(name='PV', intro_scale=pv_start, conversion={Solar: -1, Power: 1, H2O: -20}, cost = cost_dict['HO']['moderate']['PV']['0'], \
+    varying= True, prod_max=bigM, gwp=53000, land=13320/1800, trl='nrel', block='power_generation', label='Solar photovoltaics (PV) array', citation='Use pvlib conversion')
+WF = Process(name='WF', conversion={Wind: -1, Power: 1, H2O: -1}, cost = cost_dict['HO']['moderate']['WF']['0'], \
+    varying= True, prod_max=bigM, gwp=52700, land=10800/1800, trl='nrel', block='power_generation', \
+        label='Wind mill array', citation='Use windtoolkit conversion')
+AKE = Process(name='AKE', intro_scale=ake_start, conversion={Power: -1, H2_G: 19.474, O2: 763.2, H2O: -175.266}, \
+    cost = cost_dict['HO']['moderate']['AKE']['0'], prod_max=bigM, trl='utility', block='material_production', \
+        label='Alkaline water electrolysis (AWE)', citation='Demirhan et al. 2018 AIChE paper')  # 20.833 MW required to produce 1000t/day.H2
+SMRH = Process(name='SMRH', intro_scale=smrh_start, conversion={Power: -1.11*10**(-3), CH4: -3.76, H2O: -23.7, H2_B: 1, CO2_Vent: 1.03, CO2: 9.332}, \
+    cost = cost_dict['HO']['moderate']['SMRH']['0'], prod_max=bigM, gwp=0, trl='enterprise', block='material_production', \
+        label='Steam methane reforming + CCUS', citation='Mosca 2020, 90pc capture')
+# SMR = Process(name='SMR', intro_scale=smr_start, cost = cost_dict['HO']['moderate']['SMR']['0'], conversion={Power: -1.11*10**(-3), CH4: -3.76, H2O: -23.7, H2_B: 1, CO2_Vent: 9.4979}, prod_max=bigM, gwp=0, trl='enterprise',
+#                       block='material_production', label='Steam methane reforming', citation='Mosca 2020')
+ASMR = Process(name='ASMR', conversion={Uranium: -4.17*10**(-5), H2O: -3364.1, Power: 1}, cost = cost_dict['HO']['moderate']['ASMR']['0'], \
+    intro_scale=asmr_start, gwp=9100, prod_max=bigM, land=1100/1800, trl='pilot', block='power_generation', label='Small modular reactors (SMRs)')
+H2_C_c = Process(name='H2_C_c', conversion={Power: -1.10*10**(-3), H2_C: 1, H2: -1}, cost = cost_dict['HO']['moderate']['H2_C_c']['0'], \
+    prod_max=12000, gwp=0, trl='pilot', block='material_storage', label='Hydrogen local storage (Compressed)', \
+        citation='Bossel and Eliasson - Energy and the Hydrogen Economy')
+H2_C_d = Process(name='H2_C_d',  conversion={H2_C: -1, H2: 1}, cost = cost_dict['HO']['moderate']['H2_C_d']['0'], prod_max=bigM, gwp=0, trl='nocost',
                          block='material_storage', label='Hydrogen local storage (Compressed) discharge', citation='Bossel and Eliasson - Energy and the Hydrogen Economy')
-H2_L_c = Process(name='H2_L_c', conversion={Power: -4.17*10**(-4), H2_L: 1, H2: -1}, prod_max=bigM, gwp=0, trl='repurposed',
+H2_L_c = Process(name='H2_L_c', conversion={Power: -4.17*10**(-4), H2_L: 1, H2: -1}, cost = cost_dict['HO']['moderate']['H2_L_c']['0'], prod_max=bigM, gwp=0, trl='repurposed',
                          block='material_storage', label='Hydrogen geological storage', citation='Bossel and Eliasson - Energy and the Hydrogen Economy')
-H2_L_d = Process(name='H2_L_d', conversion={H2_L: -1, H2: 1}, prod_max=bigM, gwp=0, trl='nocost',
+H2_L_d = Process(name='H2_L_d', conversion={H2_L: -1, H2: 1}, prod_max=bigM, gwp=0, trl='nocost', cost = cost_dict['HO']['moderate']['H2_L_d']['0'],
                          block='material_storage', label='Hydrogen geological storage discharge', citation='Bossel and Eliasson - Energy and the Hydrogen Economy')
 # SMRM = Process(name='SMRM', intro_scale=20, prod_max=bigM, gwp=0,
 #                        trl='enterprise', block='material_production', label='Methanol SMR')
-MEFC = Process(name='MEFC', conversion={Power: -4.84*10**(-1), H2_G: -0.4048, CO2_DAC: -1.2143, CH3OH: 1}, intro_scale=6, prod_max=bigM, carbon_credit=True, trl='pilot',
-                       block='material_production', label='Catalytic methanol production', citation='Keith et al (2018), Fasihi et al (2019)')  # 10,000t/y
-DAC = Process(name='DAC', conversion={Power: -1.93*10**(-4), H2O: -4.048, CO2_DAC: 1}, intro_scale=4, prod_max=bigM, gwp=0,
-                      trl='pilot', block='CCUS', label='Direct air capture', citation='D. Belloti et al (2017)')
+# MEFC = Process(name='MEFC', conversion={Power: -4.84*10**(-1), H2_G: -0.4048, CO2_DAC: -1.2143, CH3OH: 1}, intro_scale=6, prod_max=bigM, carbon_credit=True, trl='pilot',
+#                        block='material_production', label='Catalytic methanol production', citation='Keith et al (2018), Fasihi et al (2019)')  # 10,000t/y
+DAC = Process(name='DAC', conversion={Power: -1.93*10**(-4), H2O: -4.048, CO2_DAC: 1}, cost = cost_dict['HO']['moderate']['DAC']['0'], \
+    intro_scale=4, prod_max=bigM, gwp=0, trl='pilot', block='CCUS', label='Direct air capture', citation='D. Belloti et al (2017)')
 # DOWC = Process(name='DOWC', intro_scale=20, prod_max=bigM, gwp=0,
 #                        trl='repurposed', block='CCUS', label='Depleted oil wells')
-EOR = Process(name='EOR', intro_scale=0, conversion={Power: -0.00255, CO2: -1, CO2_EOR: 1, CO2_Vent: 0.67}, prod_max=bigM, carbon_credit=True,
-                      trl='enterprise', block='CCUS', label='CO2-Enhanced oil recovery')
-AQoff_SMR = Process(name='AQoff_SMR', conversion={Power: -0.00128, CO2_AQoff: 1, CO2: -1}, prod_max=bigM, carbon_credit=True,
-                            trl='repurposed', block='CCUS', label='Offshore aquifer CO2 sequestration (SMR)')
+EOR = Process(name='EOR', intro_scale=0, conversion={Power: -0.00255, CO2: -1, CO2_EOR: 1, CO2_Vent: 0.67}, \
+    cost = cost_dict['HO']['moderate']['EOR']['0'], prod_max=bigM, carbon_credit=True, \
+        trl='enterprise', block='CCUS', label='CO2-Enhanced oil recovery')
+AQoff_SMR = Process(name='AQoff_SMR', conversion={Power: -0.00128, CO2_AQoff: 1, CO2: -1}, cost = cost_dict['HO']['moderate']['AQoff_SMR']['0'], \
+    prod_max=bigM, carbon_credit=True, trl='repurposed', block='CCUS', label='Offshore aquifer CO2 sequestration (SMR)')
 # AQoff_DAC = Process(name='AQoff_DAC', intro_scale=20, prod_max=bigM, carbon_credit=True,
 # trl='repurposed', block='CCUS', label='Offshore aquifer CO2 sequestration (DAC)')
 # Grid = Process(name='Grid', intro_scale=20, prod_max=bigM, gwp=0.343,
 #    trl='utility', block='power_generation', label='Grid electricity')
-H2_Blue = Process(name='H2_Blue', conversion={H2: 1, H2_B: -1}, prod_max=bigM, gwp=0,
+H2_Blue = Process(name='H2_Blue', conversion={H2: 1, H2_B: -1}, prod_max=bigM, gwp=0, cost = cost_dict['HO']['moderate']['H2_Blue']['0'],
                           trl='nocost', block='dummy', label='Blue Hydrogen production')
-H2_Green = Process(name='H2_Green', conversion={H2: 1, H2_G: -1}, prod_max=bigM,
+H2_Green = Process(name='H2_Green', conversion={H2: 1, H2_G: -1}, prod_max=bigM, cost = cost_dict['HO']['moderate']['H2_Green']['0'],
                            trl='nocost', block='dummy', label='Green Hydrogen production')
 
 
 cost_metrics_list = ['CAPEX', 'Fixed O&M', 'Variable O&M', 'units', 'source']
 
-cost_dict = get_data(file_name='cost_dict')
+
 
 
 # *-------------------------Generate scenario------------------------------------
@@ -203,12 +210,9 @@ LA = Location(name='LA', processes= {PV, LiI_c, LiI_d, WF, SMRH}, scales = scale
     varying_process_df= la_power_output_df, PV_class='Class3', WF_class='Class5',
                       LiI_class='8Hr Battery Storage', PSH_class='Class 3', label='Los Angeles')
 
-# *-------------------------Data------------------------------------
-
-cost_metrics_list = ['CAPEX', 'Fixed O&M', 'Variable O&M', 'units', 'source']
-
-graph.capacity_factor(location= HO, process= PV, color= 'orange')
-graph.cost_factor (location= LA, resource= CH4) 
+# # *-------------------------Input data graphs------------------------------------
+# graph.capacity_factor(location= HO, process= PV, color= 'orange')
+# graph.cost_factor (location= LA, resource= CH4) 
 
 
 # *-------------------------Transport modes------------------------------------
@@ -231,7 +235,7 @@ network = Network(name= 'Network', source_locations= [HO, LA], sink_locations= [
 
 # *-------------------------Scenario------------------------------------
 
-case = Scenario(name= '', network= network, scales= scales, expenditure_scale_level= 1, scheduling_scale_level= 2, network_scale_level= 0, label= 'shell milp case study')
+case = Scenario(name= '', network= network, scales= scales,  expenditure_scale_level= 1, scheduling_scale_level= 2, network_scale_level= 0, label= 'shell milp case study')
 
 # *-------------------------Model formulation------------------------------------
 milp = formulate_milp(scenario= case)

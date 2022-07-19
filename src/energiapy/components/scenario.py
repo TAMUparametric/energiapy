@@ -55,6 +55,9 @@ class Scenario:
         self.loc_pro_dict =  {i.name: {j.name for j in i.processes} for i in self.location_set}
         self.cost_factor =  {i.name: i.cost_factor for i in self.location_set}
         self.price = {i.name: i.resource_price for i in self.location_set}
+        self.capex_dict = {i.name: i.capex for i in self.process_set}
+        self.fopex_dict = {i.name: i.fopex for i in self.process_set}
+        self.vopex_dict = {i.name: i.vopex for i in self.process_set}
     def __repr__(self):
         return self.name
 

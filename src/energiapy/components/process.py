@@ -42,7 +42,7 @@ class Process:
 
     name: str 
     conversion: Dict[Resource, float] = field(default_factory= dict)
-    cost: Union[float, dict] = field(default_factory = dict) 
+    cost: Union[float, dict] = None #field(default_factory = dict) 
     material_cons: Dict[Material, float] = field(default_factory= dict)
     label: str = ''
     intro_scale: int = 0
@@ -58,7 +58,18 @@ class Process:
     block: str = None
     citation: str = 'citation needed'
     varying: bool = False
-
+    
+    
+    def __post_init__(self):
+        if self.cost is not None:
+            self.capex = self.cost['CAPEX']
+            self.fopex = self.cost['Fixed O&M']
+            self.vopex = self.cost['Variable O&M']            
+        else:
+            self.capex = 100
+            self.fopex = 10
+            self.vopex = 1
+            
     def __repr__(self):
         return self.name
     
