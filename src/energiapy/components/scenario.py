@@ -25,6 +25,7 @@ class Scenario:
         expenditure_scale_level (int, optional): scale for resource purchase. Defaults to 0.
         scheduling_scale_level (int, optional): scale of production and inventory scheduling. Defaults to 0.
         network_scale_level (int, optional): scale for network decisions such as facility location. Defaults to 0.
+        demand_scale_level (int, optional): scale for meeting specific demand for resource. Defaults to 0.
         label (str, optional): descriptive label. Defaults to ''.
     """
     name: str 
@@ -33,6 +34,7 @@ class Scenario:
     expenditure_scale_level: int = 0
     scheduling_scale_level: int = 0
     network_scale_level: int = 0
+    demand_scale_level: int = 0 
     label: str = ''
 
     def __post_init__(self):    
@@ -58,6 +60,7 @@ class Scenario:
         self.capex_dict = {i.name: i.capex for i in self.process_set}
         self.fopex_dict = {i.name: i.fopex for i in self.process_set}
         self.vopex_dict = {i.name: i.vopex for i in self.process_set}
+        self.demand_dict = {i.name: {j.name: i.demand[j] for j in i.demand} for i in self.location_set}
     def __repr__(self):
         return self.name
 

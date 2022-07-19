@@ -26,10 +26,18 @@ def generate_expenditure_vars(instance: ConcreteModel, scale_level:int = 0):
     """
     # exp_scales_list = [instance.scales[i].data() for i in range(scale_level+ 1)]
     instance.scales_expenditure = scale_pyomo_set(instance= instance, scale_level= scale_level)
-    instance.Fopex_location = Var(instance.locations, instance.processes, instance.scales_expenditure, within = NonNegativeReals, doc = 'Fixed Opex' )
-    instance.Vopex_location = Var(instance.locations, instance.processes, instance.scales_expenditure, within = NonNegativeReals, doc = 'Variable Opex' )
-    instance.Capex_location = Var(instance.locations, instance.processes, instance.scales_expenditure, within = NonNegativeReals, doc = 'Capex' )
-
+    instance.Fopex_process = Var(instance.locations, instance.processes, instance.scales_expenditure, within = NonNegativeReals, doc = 'Fixed Opex for process' )
+    instance.Vopex_process = Var(instance.locations, instance.processes, instance.scales_expenditure, within = NonNegativeReals, doc = 'Variable Opex for process' )
+    instance.Capex_process = Var(instance.locations, instance.processes, instance.scales_expenditure, within = NonNegativeReals, doc = 'Capex for process' )
+    
+    instance.Fopex_location = Var(instance.locations, instance.scales_expenditure, within = NonNegativeReals, doc = 'Fixed Opex at location scale' )
+    instance.Vopex_location = Var(instance.locations, instance.scales_expenditure, within = NonNegativeReals, doc = 'Variable Opex at location scale' )
+    instance.Capex_location = Var(instance.locations, instance.scales_expenditure, within = NonNegativeReals, doc = 'Capex at location scale' )
+    
+    
+    instance.Fopex_network = Var(instance.scales_expenditure, within = NonNegativeReals, doc = 'Fixed Opex at network scale' )
+    instance.Vopex_network = Var(instance.scales_expenditure, within = NonNegativeReals, doc = 'Variable Opex at network scale' )
+    instance.Capex_network = Var(instance.scales_expenditure, within = NonNegativeReals, doc = 'Capex at network scale' )
     return
 
 def generate_scheduling_vars(instance: ConcreteModel, scale_level:int = 0):    

@@ -392,9 +392,9 @@ def network_purchase_constraint(instance:ConcreteModel, network_scale_level:int=
     constraint_latex_render(network_purchase_rule)
     return instance.network_purchase_constraint
 
-# *-------------------------Loction costing constraints--------------------------------------
+# *-------------------------Process costing constraints--------------------------------------
 
-def location_capex_constraint(instance:ConcreteModel, capex_dict:dict, network_scale_level:int=0, annualization_factor:float = 1) -> Constraint:
+def process_capex_constraint(instance:ConcreteModel, capex_dict:dict, network_scale_level:int=0, annualization_factor:float = 1) -> Constraint:
     """Capital expenditure for each process at location in network
 
     Args:
@@ -404,16 +404,16 @@ def location_capex_constraint(instance:ConcreteModel, capex_dict:dict, network_s
         annualization_factor (float, optional): Annual depreciation of asset. Defaults to 1.
 
     Returns:
-        Constraint: location_capex_constraint
+        Constraint: process_capex_constraint
     """
     scales = scale_list(instance= instance, scale_levels = network_scale_level+1) 
-    def location_capex_rule(instance, location, process, *scale_list):
-        return instance.Capex_location[location, process, scale_list] == annualization_factor*capex_dict[process]*instance.Cap_P[location, process, scale_list]
-    instance.location_capex_constraint = Constraint(instance.locations, instance.processes, *scales, rule = location_capex_rule, doc = 'total purchase from network')
-    constraint_latex_render(location_capex_rule)
-    return instance.location_capex_constraint
+    def process_capex_rule(instance, location, process, *scale_list):
+        return instance.Capex_process[location, process, scale_list] == annualization_factor*capex_dict[process]*instance.Cap_P[location, process, scale_list]
+    instance.process_capex_constraint = Constraint(instance.locations, instance.processes, *scales, rule = process_capex_rule, doc = 'total purchase from network')
+    constraint_latex_render(process_capex_rule)
+    return instance.process_capex_constraint
 
-def location_fopex_constraint(instance:ConcreteModel, fopex_dict:dict, network_scale_level:int=0, annualization_factor:float = 1) -> Constraint:
+def process_fopex_constraint(instance:ConcreteModel, fopex_dict:dict, network_scale_level:int=0, annualization_factor:float = 1) -> Constraint:
     """Fixed operational expenditure for each process at location in network
 
     Args:
@@ -423,35 +423,152 @@ def location_fopex_constraint(instance:ConcreteModel, fopex_dict:dict, network_s
         annualization_factor (float, optional): Annual depreciation of asset. Defaults to 1.
 
     Returns:
-        Constraint: location_fopex_constraint
+        Constraint: process_fopex_constraint
     """
     scales = scale_list(instance= instance, scale_levels = network_scale_level+1) 
-    def location_fopex_rule(instance, location, process, *scale_list):
-        return instance.Fopex_location[location, process, scale_list] == annualization_factor*fopex_dict[process]*instance.Cap_P[location, process, scale_list]
-    instance.location_fopex_constraint = Constraint(instance.locations, instance.processes, *scales, rule = location_fopex_rule, doc = 'total purchase from network')
-    constraint_latex_render(location_fopex_rule)
-    return instance.location_fopex_constraint
+    def process_fopex_rule(instance, location, process, *scale_list):
+        return instance.Fopex_process[location, process, scale_list] == annualization_factor*fopex_dict[process]*instance.Cap_P[location, process, scale_list]
+    instance.process_fopex_constraint = Constraint(instance.locations, instance.processes, *scales, rule = process_fopex_rule, doc = 'total purchase from network')
+    constraint_latex_render(process_fopex_rule)
+    return instance.process_fopex_constraint
 
-def location_vopex_constraint(instance:ConcreteModel, vopex_dict:dict, network_scale_level:int=0, annualization_factor:float = 1) -> Constraint:
+def process_vopex_constraint(instance:ConcreteModel, vopex_dict:dict, network_scale_level:int=0, annualization_factor:float = 1) -> Constraint:
     """Fixed operational expenditure for each process at location in network
 
     Args:
         instance (ConcreteModel): pyomo instance
-        vopex_dict (dict): variable opex at location #TODO
         network_scale_level (int, optional): scale of network decisions. Defaults to 0.
-        annualization_factor (float, optional): Annual depreciation of asset. Defaults to 1.
+
+    Returns:
+        Constraint: process_vopex_constraint
+    """
+    scales = scale_list(instance= instance, scale_levels = network_scale_level+1) 
+    def process_vopex_rule(instance, location, process, *scale_list):
+        return instance.Vopex_process[location, process, scale_list] == annualization_factor*vopex_dict[process]*instance.P_location[location, process, scale_list]
+    instance.process_vopex_constraint = Constraint(instance.locations, instance.processes, *scales, rule = process_vopex_rule, doc = 'total purchase from network')
+    constraint_latex_render(process_vopex_rule)
+    return instance.process_vopex_constraint
+
+
+# *-------------------------Location costing constraints--------------------------------------
+
+def location_capex_constraint(instance:ConcreteModel, network_scale_level:int=0) -> Constraint:
+    """Capital expenditure for each process at location in network
+
+    Args:
+        instance (ConcreteModel): pyomo instance
+        network_scale_level (int, optional): scale of network decisions. Defaults to 0.
+
+    Returns:
+        Constraint: location_capex_constraint
+    """
+    scales = scale_list(instance= instance, scale_levels = network_scale_level+1) 
+    def location_capex_rule(instance, location, *scale_list):
+        return instance.Capex_location[location, scale_list] == sum(instance.Capex_process[location, process_, scale_list] for process_ in instance.processes)
+    instance.location_capex_constraint = Constraint(instance.locations, *scales, rule = location_capex_rule, doc = 'total purchase from network')
+    constraint_latex_render(location_capex_rule)
+    return instance.location_capex_constraint
+
+def location_fopex_constraint(instance:ConcreteModel, network_scale_level:int=0) -> Constraint:
+    """Fixed operational expenditure for each process at location in network
+
+    Args:
+        instance (ConcreteModel): pyomo instance
+        network_scale_level (int, optional): scale of network decisions. Defaults to 0.
+
+    Returns:
+        Constraint: location_fopex_constraint
+    """
+    scales = scale_list(instance= instance, scale_levels = network_scale_level+1) 
+    def location_fopex_rule(instance, location, *scale_list):
+        return instance.Fopex_location[location, scale_list] == sum(instance.Fopex_process[location, process_, scale_list] for process_ in instance.processes)
+    instance.location_fopex_constraint = Constraint(instance.locations, *scales, rule = location_fopex_rule, doc = 'total purchase from network')
+    constraint_latex_render(location_fopex_rule)
+    return instance.location_fopex_constraint
+
+def location_vopex_constraint(instance:ConcreteModel, network_scale_level:int=0) -> Constraint:
+    """Fixed operational expenditure for each process at location in network
+
+    Args:
+        instance (ConcreteModel): pyomo instance
+        network_scale_level (int, optional): scale of network decisions. Defaults to 0.
 
     Returns:
         Constraint: location_vopex_constraint
     """
     scales = scale_list(instance= instance, scale_levels = network_scale_level+1) 
-    def location_vopex_rule(instance, location, process, *scale_list):
-        return instance.Vopex_location[location, process, scale_list] == annualization_factor*vopex_dict[process]*instance.P_location[location, process, scale_list]
-    instance.location_vopex_constraint = Constraint(instance.locations, instance.processes, *scales, rule = location_vopex_rule, doc = 'total purchase from network')
+    def location_vopex_rule(instance, location, *scale_list):
+        return instance.Vopex_location[location, scale_list] == sum(instance.Vopex_process[location, process_, scale_list] for process_ in instance.processes)
+    instance.location_vopex_constraint = Constraint(instance.locations, *scales, rule = location_vopex_rule, doc = 'total purchase from network')
     constraint_latex_render(location_vopex_rule)
     return instance.location_vopex_constraint
 
-# *-------------------------Demand constraints--------------------------------------
+# *-------------------------Location costing constraints--------------------------------------
+
+
+
+def network_capex_constraint(instance:ConcreteModel, network_scale_level:int=0) -> Constraint:
+    """Capital expenditure for each process at location in network
+
+    Args:
+        instance (ConcreteModel): pyomo instance
+        network_scale_level (int, optional): scale of network decisions. Defaults to 0.
+
+    Returns:
+        Constraint: network_capex_constraint
+    """
+    scales = scale_list(instance= instance, scale_levels = network_scale_level+1) 
+    def network_capex_rule(instance, *scale_list):
+        return instance.Capex_network[scale_list] == sum(instance.Capex_location[location_, scale_list] for location_ in instance.locations) 
+    instance.network_capex_constraint = Constraint(*scales, rule = network_capex_rule, doc = 'total purchase from network')
+    constraint_latex_render(network_capex_rule)
+    return instance.network_capex_constraint
+
+def network_vopex_constraint(instance:ConcreteModel, network_scale_level:int=0) -> Constraint:
+    """Variable operational expenditure for each process at location in network
+
+    Args:
+        instance (ConcreteModel): pyomo instance
+        network_scale_level (int, optional): scale of network decisions. Defaults to 0.
+
+    Returns:
+        Constraint: network_vopex_constraint
+    """
+    scales = scale_list(instance= instance, scale_levels = network_scale_level+1) 
+    def network_vopex_rule(instance, *scale_list):
+        return instance.Vopex_network[scale_list] == sum(instance.Vopex_location[location_, scale_list] for location_ in instance.locations) 
+    instance.network_vopex_constraint = Constraint(*scales, rule = network_vopex_rule, doc = 'total purchase from network')
+    constraint_latex_render(network_vopex_rule)
+    return instance.network_vopex_constraint
+
+
+def network_fopex_constraint(instance:ConcreteModel, network_scale_level:int=0) -> Constraint:
+    """Fixed operational for each process at location in network
+
+    Args:
+        instance (ConcreteModel): pyomo instance
+        network_scale_level (int, optional): scale of network decisions. Defaults to 0.
+        
+    Returns:
+        Constraint: network_fopex_constraint
+    """
+    scales = scale_list(instance= instance, scale_levels = network_scale_level+1) 
+    def network_fopex_rule(instance, *scale_list):
+        return instance.Fopex_network[scale_list] == sum(instance.Fopex_location[location_, scale_list] for location_ in instance.locations) 
+    instance.network_fopex_constraint = Constraint(*scales, rule = network_fopex_rule, doc = 'total purchase from network')
+    constraint_latex_render(network_fopex_rule)
+    return instance.network_fopex_constraint
+
+# *-------------------------Demand constraint--------------------------------------
+
+def demand_constraint(instance:ConcreteModel, demand_scale_level:int= 0, scheduling_scale_level:int= 0, demand_dict:dict = {}) -> Constraint:
+    scales = scale_list(instance= instance, scale_levels = demand_scale_level+1) 
+    scale_iter = scale_tuple(instance= instance, scale_levels = scheduling_scale_level+1)
+    def demand_rule(instance, location, resource, *scale_list):
+        return sum(instance.S[location, resource, scale_] for scale_ in scale_iter if scale_[:demand_scale_level+1] == scale_list)  == demand_dict[location][resource]
+    instance.demand_constraint = Constraint(instance.sinks, instance.resources_demand, *scales, rule = demand_rule, doc = 'speific demand for resources')
+    constraint_latex_render(demand_rule)
+    return instance.demand_constraint
 
 # *-------------------------Uncertainty analysis constraints------------------------------------
 

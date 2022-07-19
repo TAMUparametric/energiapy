@@ -10,14 +10,14 @@ __maintainer__ = "Rahul Kakodkar"
 __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from ..components.temporal_scale import Temporal_scale
 from ..components.process import Process
 from ..components.resource import Resource
 from ..components.material import Material
 import pandas
-from typing import Set 
+from typing import Set, Dict
 
 @dataclass
 class Location:
@@ -25,8 +25,9 @@ class Location:
     Object with data regarding a location
     Args:
         name (str): ID
-        processes (Set[process]): set of processes to include at location
+        processes (Set[Process]): set of processes to include at location
         scales (temporal_scale): temporal scale of the problem
+        demand (Set[Resource], optional): demand for resources at location
         varying_process_df (pandas.DataFrame, optional): contains varying production data at appropriate resolution. Defaults to pandas.DataFrame().
         varying_cost_df (pandas.DataFrame, optional): contains varying resource cost data at appropriate resolution. Defaults to pandas.DataFrame().
         label (str, optional): label. Defaults to ''.
@@ -38,6 +39,7 @@ class Location:
     name: str 
     processes: Set[Process] 
     scales: Temporal_scale 
+    demand: Dict[Resource, float] = field(default_factory=dict)
     label: str = ''
     PV_class: str = ''
     WF_class: str = ''
@@ -93,6 +95,7 @@ class Location:
             return None
         else:
             return set().union(*[set(i.conversion.keys()) for i in self.processes])
+
     
     def get_materials(self) -> Set[Material]:
         """fetches required materials for processes introduced at locations

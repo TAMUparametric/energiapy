@@ -14,6 +14,7 @@ from ..components.scenario import Scenario
 from ..model.pyomo_sets import generate_sets
 from ..model.pyomo_vars import generate_milp_vars
 from ..model.pyomo_cons import *
+from ..model.pyomo_objs import cost_objective
 from pyomo.environ import ConcreteModel
 
     
@@ -34,10 +35,6 @@ def formulate_milp(scenario: Scenario) -> ConcreteModel:
             source_set= scenario.source_locations, sink_set= scenario.sink_locations)
     generate_milp_vars(instance= instance, expenditure_scale_level= scenario.expenditure_scale_level, \
         scheduling_scale_level = scenario.scheduling_scale_level, network_scale_level= scenario.network_scale_level)
-    
-    location_capex_constraint(instance= instance, capex_dict= scenario.capex_dict, network_scale_level= scenario.network_scale_level)
-    location_fopex_constraint(instance= instance, fopex_dict= scenario.fopex_dict, network_scale_level= scenario.network_scale_level)
-    location_vopex_constraint(instance= instance, vopex_dict= scenario.vopex_dict, network_scale_level= scenario.network_scale_level)
     
     
     inventory_balance_constraint(instance= instance, scheduling_scale_level= scenario.scheduling_scale_level,\
@@ -61,12 +58,30 @@ def formulate_milp(scenario: Scenario) -> ConcreteModel:
     location_discharge_constraint(instance= instance, network_scale_level= scenario.network_scale_level)
     location_consumption_constraint(instance= instance, network_scale_level= scenario.network_scale_level)
     location_purchase_constraint(instance= instance, network_scale_level= scenario.network_scale_level)
-    
 
     network_production_constraint(instance= instance, network_scale_level= scenario.network_scale_level)
     network_discharge_constraint(instance= instance, network_scale_level= scenario.network_scale_level)
     network_consumption_constraint(instance= instance, network_scale_level= scenario.network_scale_level)
     network_purchase_constraint(instance= instance, network_scale_level= scenario.network_scale_level)
+
+
+    process_capex_constraint(instance= instance, capex_dict= scenario.capex_dict, network_scale_level= scenario.network_scale_level)
+    process_fopex_constraint(instance= instance, fopex_dict= scenario.fopex_dict, network_scale_level= scenario.network_scale_level)
+    process_vopex_constraint(instance= instance, vopex_dict= scenario.vopex_dict, network_scale_level= scenario.network_scale_level)
+    
+
+    location_capex_constraint(instance= instance, network_scale_level= scenario.network_scale_level)
+    location_fopex_constraint(instance= instance, network_scale_level= scenario.network_scale_level)
+    location_vopex_constraint(instance= instance, network_scale_level= scenario.network_scale_level)
+    
+    network_capex_constraint(instance= instance, network_scale_level= scenario.network_scale_level)
+    network_fopex_constraint(instance= instance, network_scale_level= scenario.network_scale_level)
+    network_vopex_constraint(instance= instance, network_scale_level= scenario.network_scale_level)
+    
+
+    demand_constraint(instance= instance, demand_scale_level= scenario.demand_scale_level, scheduling_scale_level= scenario.scheduling_scale_level, demand_dict= scenario.demand_dict)
+
+    cost_objective(instance= instance, network_scale_level= scenario.network_scale_level)
     
 
     return instance

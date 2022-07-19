@@ -36,7 +36,7 @@ from src.energiapy.model.mpmilp import formulate_mpmilp
 
 # *-------------------------Temporal scales------------------------------------
 # scales = temporal_scale(discretization_list = [4, 20, 15])
-scales = Temporal_scale(discretization_list= [2])
+scales = Temporal_scale(discretization_list= [42])
 # scales = temporal_scale(discretization_list = [1, 2, 3])
 
 # *-------------------------Constance defined here for ease------------------------------------
@@ -106,13 +106,13 @@ CityB = Location(name= 'B', processes= {PV, LiI_c, LiI_d, WF, AKE}, scales = sca
 CityC = Location(name= 'C', processes= {PV, LiI_c, LiI_d, WF, AKE}, scales = scales, label= 'city C')
 
 #candidate cities (sinks)
-Site1 = Location(name= '1', processes = {H2_G_sink}, scales = scales, label= 'site close to A')
-Site2 = Location(name= '2', processes = {H2_G_sink}, scales = scales, label= 'site close to B')
-Site3 = Location(name= '3', processes = {H2_G_sink}, scales = scales, label= 'site close to C')
-Site4 = Location(name= '4', processes = {H2_G_sink}, scales = scales, label= 'site between A and B')
-Site5 = Location(name= '5', processes = {H2_G_sink}, scales = scales, label= 'site between B and C')
-Site6 = Location(name= '6', processes = {H2_G_sink}, scales = scales, label= 'site between C and A')
-Site7 = Location(name= '7', processes = {H2_G_sink}, scales = scales, label= 'site between A, B and C')
+Site1 = Location(name= '1', processes = {H2_L_c, H2_L_d, H2_G_sink}, demand = {H2_L: 100, H2_C: 100}, scales = scales, label= 'site close to A')
+Site2 = Location(name= '2', processes = {H2_L_c, H2_L_d, H2_G_sink}, demand = {H2_L: 100, H2_C: 100}, scales = scales, label= 'site close to B')
+Site3 = Location(name= '3', processes = {H2_L_c, H2_L_d, H2_G_sink}, demand = {H2_L: 100, H2_C: 100}, scales = scales, label= 'site close to C')
+Site4 = Location(name= '4', processes = {H2_L_c, H2_L_d, H2_G_sink}, demand = {H2_L: 100, H2_C: 100}, scales = scales, label= 'site between A and B')
+Site5 = Location(name= '5', processes = {H2_L_c, H2_L_d, H2_G_sink}, demand = {H2_L: 100, H2_C: 100}, scales = scales, label= 'site between B and C')
+Site6 = Location(name= '6', processes = {H2_L_c, H2_L_d, H2_G_sink}, demand = {H2_L: 100, H2_C: 100}, scales = scales, label= 'site between C and A')
+Site7 = Location(name= '7', processes = {H2_L_c, H2_L_d, H2_G_sink}, demand = {H2_L: 100, H2_C: 100}, scales = scales, label= 'site between A, B and C')
 
 city_list = [CityA, CityB, CityC] #sources
 site_list = [Site1, Site2, Site3, Site4, Site5, Site6, Site7] #sinks
@@ -143,7 +143,7 @@ Arcs = Network(name= 'Arcs', source_locations= city_list, sink_locations= site_l
 # *-------------------------Scenario------------------------------------
 
 case = Scenario(name= '', network= Arcs, scales= scales, \
-    expenditure_scale_level= 0, scheduling_scale_level= 0, network_scale_level= 0, label= 'mpmilp case study')
+    expenditure_scale_level= 0, scheduling_scale_level= 0, network_scale_level= 0,  demand_scale_level=0,  label= 'mpmilp case study')
 
 # *-------------------------Model formulation------------------------------------
 

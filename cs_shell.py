@@ -27,7 +27,7 @@ __status__ = "Production"
 import pandas
 # import numpy 
 # from pyomo.opt import SolverStatus, TerminationCondition
-from pyomo.environ import ConcreteModel #, Var, NonNegativeReals, Set
+from pyomo.environ import SolverFactory #, Var, NonNegativeReals, Set
 from src.energiapy.components.temporal_scale import Temporal_scale
 from src.energiapy.components.resource import Resource
 from src.energiapy.components.process import Process
@@ -203,10 +203,10 @@ daily_ng_price_df['CH4'] = daily_ng_price_df['CH4']/max(daily_ng_price_df['CH4']
 
 
 # *-------------------------Geographic scales/location------------------------------------
-HO = Location(name='HO', processes= {PV, LiI_c, LiI_d, WF, AKE}, scales = scales, varying_cost_df = daily_ng_price_df, \
+HO = Location(name='HO', processes= {H2_L_c, H2_L_d, PV, LiI_c, LiI_d, WF, AKE}, demand = {H2_L: 100, H2_C: 100}, scales = scales, varying_cost_df = daily_ng_price_df, \
     varying_process_df= ho_power_output_df, PV_class='Class5', WF_class='Class4',
                       LiI_class='8Hr Battery Storage', PSH_class='Class 3', label='Houston')
-LA = Location(name='LA', processes= {PV, LiI_c, LiI_d, WF, SMRH}, scales = scales, varying_cost_df = daily_ng_price_df, \
+LA = Location(name='LA', processes= {H2_L_c, H2_L_d, PV, LiI_c, LiI_d, WF, SMRH}, demand = {H2_L: 100, H2_C: 100}, scales = scales, varying_cost_df = daily_ng_price_df, \
     varying_process_df= la_power_output_df, PV_class='Class3', WF_class='Class5',
                       LiI_class='8Hr Battery Storage', PSH_class='Class 3', label='Los Angeles')
 
@@ -235,7 +235,7 @@ network = Network(name= 'Network', source_locations= [HO, LA], sink_locations= [
 
 # *-------------------------Scenario------------------------------------
 
-case = Scenario(name= '', network= network, scales= scales,  expenditure_scale_level= 1, scheduling_scale_level= 2, network_scale_level= 0, label= 'shell milp case study')
+case = Scenario(name= '', network= network, scales= scales,  expenditure_scale_level= 1, scheduling_scale_level= 2, network_scale_level= 0, demand_scale_level= 1, label= 'shell milp case study')
 
 # *-------------------------Model formulation------------------------------------
 milp = formulate_milp(scenario= case)
@@ -243,5 +243,10 @@ milp = formulate_milp(scenario= case)
 
 
 # %%
+from pyomo.environ import SolverFactory #, Var, NonNegativeReals, Set
+
+
+result = SolverFactory('gurobi', solver_io= 'python').solve(milp)
+
 
 # %%
