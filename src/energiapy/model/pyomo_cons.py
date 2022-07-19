@@ -241,6 +241,10 @@ def inventory_balance_constraint(instance: ConcreteModel, scheduling_scale_level
     return instance.inventory_balance_constraint
 
 
+# *-------------------------Transport constraints--------------------------
+
+
+
 # *-------------------------Location scale mass balance calculation constraints--------------------------
 
 def location_production_constraint(instance:ConcreteModel, network_scale_level:int=0) -> Constraint:

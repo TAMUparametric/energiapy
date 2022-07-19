@@ -66,14 +66,12 @@ CO2_Vent = Resource(name='CO2_Vent', sell=True, basis='kg', label='Carbon dioxid
 H2_cons = Resource(name='H2_cons', sell=True, basis='kg', label='Hydrogen consumed at site')
 
 
-# *-------------------------Materials------------------------------------
-Li = Material(name='Li', gwp=30, basis= 'kg', label='Lithium', citation= 'some paper')
-St = Material(name='St', gwp=50, basis= 'kg', label='Steel')
+
 
 # *-------------------------Processes ------------------------------------
 
 
-LiI_c = Process(name='LiI_c', conversion={Charge: 1, Power: -1}, material_cons = {Li: 20, St:5}, prod_max=bigM, \
+LiI_c = Process(name='LiI_c', conversion={Charge: 1, Power: -1}, prod_max=bigM, \
     label='Lithium-ion battery', citation='Zakeri 2015')
 LiI_d = Process(name='LiI_d', conversion={Charge: -1.1765, Power: 1}, prod_max=bigM, \
     label='Lithium-ion battery discharge', citation='Zakeri 2015')

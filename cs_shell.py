@@ -216,8 +216,8 @@ LA = Location(name='LA', processes= {H2_L_c, H2_L_d, PV, LiI_c, LiI_d, WF, SMRH}
 
 
 # *-------------------------Transport modes------------------------------------
-Train_H2 = Transport(name= 'Train_H2', resources= {H2_B, H2_G}, label= 'Railway for hydrogen transportation', trans_max= 10**8, trans_loss= 0.001, trans_cost= 1.667*10**(-3))
-Pipe = Transport(name= 'Pipe', resources= {H2_G}, trans_max= 10**8, trans_loss= 0.001, trans_cost= 0.5*10**(-3), label= 'Railroad transport')
+Train_H2 = Transport(name= 'Train_H2', resources= {H2_L, H2_C}, label= 'Railway for hydrogen transportation', trans_max= 10**8, trans_loss= 0.001, trans_cost= 1.667*10**(-3))
+Pipe = Transport(name= 'Pipe', resources= {H2_L}, trans_max= 10**8, trans_loss= 0.001, trans_cost= 0.5*10**(-3), label= 'Railroad transport')
 
 
 # *-------------------------Network------------------------------------
@@ -239,11 +239,6 @@ case = Scenario(name= '', network= network, scales= scales,  expenditure_scale_l
 
 # *-------------------------Model formulation------------------------------------
 milp = formulate_milp(scenario= case)
-
-
-
-# %%
-from pyomo.environ import SolverFactory #, Var, NonNegativeReals, Set
 
 
 result = SolverFactory('gurobi', solver_io= 'python').solve(milp)
