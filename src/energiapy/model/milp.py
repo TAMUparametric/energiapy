@@ -28,12 +28,18 @@ def formulate_milp(scenario: Scenario) -> ConcreteModel:
     """
     
     instance = ConcreteModel()
+    
     generate_sets(instance= instance, location_set= scenario.location_set, transport_set= scenario.transport_set, scales= scenario.scales, \
         process_set= scenario.process_set, resource_set= scenario.resource_set, material_set= scenario.material_set, \
             source_set= scenario.source_locations, sink_set= scenario.sink_locations)
     generate_milp_vars(instance= instance, expenditure_scale_level= scenario.expenditure_scale_level, \
         scheduling_scale_level = scenario.scheduling_scale_level, network_scale_level= scenario.network_scale_level)
-
+    
+    location_capex_constraint(instance= instance, capex_dict= scenario.capex_dict, network_scale_level= scenario.network_scale_level)
+    location_fopex_constraint(instance= instance, fopex_dict= scenario.fopex_dict, network_scale_level= scenario.network_scale_level)
+    location_vopex_constraint(instance= instance, vopex_dict= scenario.vopex_dict, network_scale_level= scenario.network_scale_level)
+    
+    
     inventory_balance_constraint(instance= instance, scheduling_scale_level= scenario.scheduling_scale_level,\
         conversion= scenario.conversion)
 
@@ -50,16 +56,17 @@ def formulate_milp(scenario: Scenario) -> ConcreteModel:
 
     production_facility_constraint(instance= instance, prod_max= scenario.prod_max, loc_pro_dict= scenario.loc_pro_dict, network_scale_level= scenario.network_scale_level)
     storage_facility_constraint(instance= instance, store_max= scenario.store_max, loc_res_dict= scenario.loc_res_dict, network_scale_level= scenario.network_scale_level)
-
-    location_production_constraint(instance= instance)
-    location_discharge_constraint(instance= instance)
-    location_consumption_constraint(instance= instance)
-    location_purchase_constraint(instance= instance)
+    
+    location_production_constraint(instance= instance, network_scale_level= scenario.network_scale_level)
+    location_discharge_constraint(instance= instance, network_scale_level= scenario.network_scale_level)
+    location_consumption_constraint(instance= instance, network_scale_level= scenario.network_scale_level)
+    location_purchase_constraint(instance= instance, network_scale_level= scenario.network_scale_level)
     
 
-    network_production_constraint(instance= instance)
-    network_discharge_constraint(instance= instance)
-    network_consumption_constraint(instance= instance)
-    network_purchase_constraint(instance= instance)
+    network_production_constraint(instance= instance, network_scale_level= scenario.network_scale_level)
+    network_discharge_constraint(instance= instance, network_scale_level= scenario.network_scale_level)
+    network_consumption_constraint(instance= instance, network_scale_level= scenario.network_scale_level)
+    network_purchase_constraint(instance= instance, network_scale_level= scenario.network_scale_level)
     
+
     return instance

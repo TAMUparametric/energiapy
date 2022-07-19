@@ -48,15 +48,21 @@ def formulate_mpmilp(scenario: Scenario) -> ConcreteModel:
     production_facility_constraint(instance= instance, prod_max= scenario.prod_max, loc_pro_dict= scenario.loc_pro_dict, network_scale_level= scenario.network_scale_level)
     storage_facility_constraint(instance= instance, store_max= scenario.store_max, loc_res_dict= scenario.loc_res_dict, network_scale_level= scenario.network_scale_level)
     
-    location_production_constraint(instance= instance)
-    location_discharge_constraint(instance= instance)
-    location_consumption_constraint(instance= instance)
-    location_purchase_constraint(instance= instance)
+    location_production_constraint(instance= instance, network_scale_level= scenario.network_scale_level)
+    location_discharge_constraint(instance= instance, network_scale_level= scenario.network_scale_level)
+    location_consumption_constraint(instance= instance, network_scale_level= scenario.network_scale_level)
+    location_purchase_constraint(instance= instance, network_scale_level= scenario.network_scale_level)
     
-    network_production_constraint(instance= instance)
-    network_discharge_constraint(instance= instance)
-    network_consumption_constraint(instance= instance)
-    network_purchase_constraint(instance= instance)
+
+    network_production_constraint(instance= instance, network_scale_level= scenario.network_scale_level)
+    network_discharge_constraint(instance= instance, network_scale_level= scenario.network_scale_level)
+    network_consumption_constraint(instance= instance, network_scale_level= scenario.network_scale_level)
+    network_purchase_constraint(instance= instance, network_scale_level= scenario.network_scale_level)
+    
+    location_capex_constraint(instance= instance, capex_dict= scenario.capex_dict, network_scale_level= scenario.network_scale_level)
+    location_fopex_constraint(instance= instance, fopex_dict= scenario.fopex_dict, network_scale_level= scenario.network_scale_level)
+    location_vopex_constraint(instance= instance, vopex_dict= scenario.vopex_dict, network_scale_level= scenario.network_scale_level)
+    
     
     return instance
        

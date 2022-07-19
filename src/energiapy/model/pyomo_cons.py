@@ -154,67 +154,110 @@ def inventory_balance_constraint(instance: ConcreteModel, scheduling_scale_level
 
 # *-------------------------Location scale mass balance calculation constraints--------------------------
 
-def location_production_constraint(instance:ConcreteModel) -> Constraint:
+def location_production_constraint(instance:ConcreteModel, network_scale_level:int=0) -> Constraint:
+    scales = scale_list(instance= instance, scale_levels = network_scale_level+1) 
     scale_iter = scale_tuple(instance= instance, scale_levels = instance.scales.__len__())
-    def location_production_rule(instance, location, process):
-        return instance.P_location[location, process] == sum(instance.P[location, process, scale_] for scale_ in scale_iter) 
-    instance.location_production_constraint = Constraint(instance.locations, instance.processes, rule = location_production_rule, doc = 'total production at location')
+    def location_production_rule(instance, location, process, *scale_list):
+        return instance.P_location[location, process, scale_list] == \
+            sum(instance.P[location, process, scale_] for scale_ in  scale_iter)
+    instance.location_production_constraint = Constraint(instance.locations, instance.processes, *scales, rule = location_production_rule, doc = 'total production at location')
     constraint_latex_render(location_production_rule)
     return instance.location_production_constraint
 
-def location_discharge_constraint(instance:ConcreteModel) -> Constraint:
+def location_discharge_constraint(instance:ConcreteModel, network_scale_level:int=0) -> Constraint:
+    scales = scale_list(instance= instance, scale_levels = network_scale_level+1) 
     scale_iter = scale_tuple(instance= instance, scale_levels = instance.scales.__len__())
-    def location_discharge_rule(instance, location, resource):
-        return instance.S_location[location, resource] == sum(instance.S[location, resource, scale_] for scale_ in scale_iter) 
-    instance.location_discharge_constraint = Constraint(instance.locations, instance.resources, rule = location_discharge_rule, doc = 'total resource discharge at location')
+    def location_discharge_rule(instance, location, resource, *scale_list):
+        return instance.S_location[location, resource, scale_list] == \
+            sum(instance.S[location, resource, scale_] for scale_ in  scale_iter)
+    instance.location_discharge_constraint = Constraint(instance.locations, instance.resources, *scales, rule = location_discharge_rule, doc = 'total discharge at location')
     constraint_latex_render(location_discharge_rule)
     return instance.location_discharge_constraint
 
-def location_consumption_constraint(instance:ConcreteModel) -> Constraint:
+def location_consumption_constraint(instance:ConcreteModel, network_scale_level:int=0) -> Constraint:
+    scales = scale_list(instance= instance, scale_levels = network_scale_level+1) 
     scale_iter = scale_tuple(instance= instance, scale_levels = instance.scales.__len__())
-    def location_consumption_rule(instance, location, resource):
-        return instance.C_location[location, resource] == sum(instance.C[location, resource, scale_] for scale_ in scale_iter) 
-    instance.location_consumption_constraint = Constraint(instance.locations, instance.resources, rule = location_consumption_rule, doc = 'total resource consumption at location')
+    def location_consumption_rule(instance, location, resource, *scale_list):
+        return instance.C_location[location, resource, scale_list] == \
+            sum(instance.C[location, resource, scale_] for scale_ in  scale_iter)
+    instance.location_consumption_constraint = Constraint(instance.locations, instance.resources, *scales, rule = location_consumption_rule, doc = 'total consumption at location')
     constraint_latex_render(location_consumption_rule)
     return instance.location_consumption_constraint
 
-def location_purchase_constraint(instance:ConcreteModel) -> Constraint:
+
+def location_purchase_constraint(instance:ConcreteModel, network_scale_level:int=0) -> Constraint:
+    scales = scale_list(instance= instance, scale_levels = network_scale_level+1) 
     scale_iter = scale_tuple(instance= instance, scale_levels = instance.scales.__len__())
-    def location_purchase_rule(instance, location, resource):
-        return instance.B_location[location, resource] == sum(instance.B[location, resource, scale_] for scale_ in scale_iter) 
-    instance.location_purchase_constraint = Constraint(instance.locations, instance.resources, rule = location_purchase_rule, doc = 'total resource purchase at location')
+    def location_purchase_rule(instance, location, resource, *scale_list):
+        return instance.B_location[location, resource, scale_list] == \
+            sum(instance.B[location, resource, scale_] for scale_ in  scale_iter)
+    instance.location_purchase_constraint = Constraint(instance.locations, instance.resources, *scales, rule = location_purchase_rule, doc = 'total purchase at location')
     constraint_latex_render(location_purchase_rule)
     return instance.location_purchase_constraint
 
+
 # *-------------------------Network scale mass balance calculation constraints--------------------------
 
-def network_production_constraint(instance:ConcreteModel) -> Constraint:
-    def network_production_rule(instance, process):
-        return instance.P_network[process] == sum(instance.P_location[location_, process] for location_ in instance.locations) 
-    instance.network_production_constraint = Constraint(instance.processes, rule = network_production_rule, doc = 'total production from network')
+def network_production_constraint(instance:ConcreteModel, network_scale_level:int=0) -> Constraint:
+    scales = scale_list(instance= instance, scale_levels = network_scale_level+1) 
+    def network_production_rule(instance, process, *scale_list):
+        return instance.P_network[process, scale_list] == sum(instance.P_location[location_, process, scale_list] for location_ in instance.locations) 
+    instance.network_production_constraint = Constraint(instance.processes, *scales, rule = network_production_rule, doc = 'total production from network')
     constraint_latex_render(network_production_rule)
     return instance.network_production_constraint
 
-def network_discharge_constraint(instance:ConcreteModel) -> Constraint:
-    def network_discharge_rule(instance, resource):
-        return instance.S_network[resource] == sum(instance.S_location[location_, resource] for location_ in instance.locations) 
-    instance.network_discharge_constraint = Constraint(instance.resources, rule = network_discharge_rule, doc = 'total resource discharge from network')
+def network_discharge_constraint(instance:ConcreteModel, network_scale_level:int=0) -> Constraint:
+    scales = scale_list(instance= instance, scale_levels = network_scale_level+1) 
+    def network_discharge_rule(instance, resource, *scale_list):
+        return instance.S_network[resource, scale_list] == sum(instance.S_location[location_, resource, scale_list] for location_ in instance.locations) 
+    instance.network_discharge_constraint = Constraint(instance.resources, *scales, rule = network_discharge_rule, doc = 'total discharge from network')
     constraint_latex_render(network_discharge_rule)
     return instance.network_discharge_constraint
 
-def network_consumption_constraint(instance:ConcreteModel) -> Constraint:
-    def network_consumption_rule(instance, resource):
-        return instance.C_network[resource] == sum(instance.C_location[location_, resource] for location_ in instance.locations) 
-    instance.network_consumption_constraint = Constraint(instance.resources, rule = network_consumption_rule, doc = 'total resource consumption from network')
+def network_consumption_constraint(instance:ConcreteModel, network_scale_level:int=0) -> Constraint:
+    scales = scale_list(instance= instance, scale_levels = network_scale_level+1) 
+    def network_consumption_rule(instance, resource, *scale_list):
+        return instance.C_network[resource, scale_list] == sum(instance.C_location[location_, resource, scale_list] for location_ in instance.locations) 
+    instance.network_consumption_constraint = Constraint(instance.resources, *scales, rule = network_consumption_rule, doc = 'total consumption from network')
     constraint_latex_render(network_consumption_rule)
     return instance.network_consumption_constraint
 
-def network_purchase_constraint(instance:ConcreteModel) -> Constraint:
-    def network_purchase_rule(instance, resource):
-        return instance.B_network[resource] == sum(instance.B_location[location_, resource] for location_ in instance.locations) 
-    instance.network_purchase_constraint = Constraint(instance.resources, rule = network_purchase_rule, doc = 'total resource purchase from network')
+
+def network_purchase_constraint(instance:ConcreteModel, network_scale_level:int=0) -> Constraint:
+    scales = scale_list(instance= instance, scale_levels = network_scale_level+1) 
+    def network_purchase_rule(instance, resource, *scale_list):
+        return instance.B_network[resource, scale_list] == sum(instance.B_location[location_, resource, scale_list] for location_ in instance.locations) 
+    instance.network_purchase_constraint = Constraint(instance.resources, *scales, rule = network_purchase_rule, doc = 'total purchase from network')
     constraint_latex_render(network_purchase_rule)
     return instance.network_purchase_constraint
+
+# *-------------------------Loction costing constraints--------------------------------------
+
+def location_capex_constraint(instance:ConcreteModel, capex_dict:dict, network_scale_level:int=0, annualization_factor:float = 1) -> Constraint:
+    scales = scale_list(instance= instance, scale_levels = network_scale_level+1) 
+    def location_capex_rule(instance, location, process, *scale_list):
+        return instance.Capex_location[location, process, scale_list] == annualization_factor*capex_dict[process]*instance.Cap_P[location, process, scale_list]
+    instance.location_capex_constraint = Constraint(instance.locations, instance.processes, *scales, rule = location_capex_rule, doc = 'total purchase from network')
+    constraint_latex_render(location_capex_rule)
+    return instance.location_capex_constraint
+
+def location_fopex_constraint(instance:ConcreteModel, fopex_dict:dict, network_scale_level:int=0, annualization_factor:float = 1) -> Constraint:
+    scales = scale_list(instance= instance, scale_levels = network_scale_level+1) 
+    def location_fopex_rule(instance, location, process, *scale_list):
+        return instance.Fopex_location[location, process, scale_list] == annualization_factor*fopex_dict[process]*instance.Cap_P[location, process, scale_list]
+    instance.location_fopex_constraint = Constraint(instance.locations, instance.processes, *scales, rule = location_fopex_rule, doc = 'total purchase from network')
+    constraint_latex_render(location_fopex_rule)
+    return instance.location_fopex_constraint
+
+def location_vopex_constraint(instance:ConcreteModel, vopex_dict:dict, network_scale_level:int=0, annualization_factor:float = 1) -> Constraint:
+    scales = scale_list(instance= instance, scale_levels = network_scale_level+1) 
+    def location_vopex_rule(instance, location, process, *scale_list):
+        return instance.Vopex_location[location, process, scale_list] == annualization_factor*vopex_dict[process]*instance.P_location[location, process, scale_list]
+    instance.location_vopex_constraint = Constraint(instance.locations, instance.processes, *scales, rule = location_vopex_rule, doc = 'total purchase from network')
+    constraint_latex_render(location_vopex_rule)
+    return instance.location_vopex_constraint
+
+# *-------------------------Demand constraints--------------------------------------
 
 # *-------------------------Uncertainty analysis constraints------------------------------------
 
