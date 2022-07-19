@@ -34,6 +34,35 @@ def constraint_latex_render(constraint_rule, latex_alias_dict:dict= {}) -> str:
         ']': ')',
         'exp': 'exp',
         'instance.':'',
+        'location':'l',
+        'resource': 'r',
+        'scale_list[:scheduling_scale_level+1]':'y,d,h',
+        'scale_list[:network_scale_level+1]':'y',
+        'scale_list[:expenditure_scale_level+1]':'y,d',
+        '[location][resource]': '(l,r)',
+        'cons_max': 'C^{max}',
+        'price': 'R^{base}',
+        'process': 'p',
+        'P_location': 'P^{l}',
+        'C_location': 'C^{l}', 
+        'S_location': 'S^{l}', 
+        'B_location': 'B^{l}', 
+        'P_network': 'P^{n}',
+        'C_network': 'C^{n}', 
+        'S_network': 'S^{n}', 
+        'B_network': 'B^{n}', 
+        'annualization_factor': 'A^{f}',
+        'scale_list': 'y',
+        'for location_ in instance.locations': '',
+        'capex_dict': 'Capex^{unit}',
+        'fopex_dict': 'Opex^{unit, fix}',
+        'vopex_dict': 'Opex^{unit, var}',
+        'Cap_P': 'Cap^{P}',
+        'Cap_S': 'Cap^{S}',
+        'instance.Fopex': 'Opex^{fix}',
+        'instance.Vopex': 'Opex^{var}'
+
+
         }
     
     unsorted_dict_ = {**latex_alias_dict, **general_dict}
@@ -49,7 +78,7 @@ def constraint_latex_render(constraint_rule, latex_alias_dict:dict= {}) -> str:
         str_ = str_.replace(key, dict_[key])
     # str_ = '\begin{equation}'
     ip.display(ip.Math(str_))
-    display(str_)
+    # display(str_)
     
     return str_
 
