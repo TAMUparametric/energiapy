@@ -53,8 +53,8 @@ def generate_scheduling_vars(instance: ConcreteModel, scale_level:int = 0):
     instance.C = Var(instance.locations, instance.resources, instance.scales_scheduling, within = NonNegativeReals, doc = 'Resource Consumption')
     instance.S = Var(instance.locations, instance.resources, instance.scales_scheduling, within = NonNegativeReals, doc = 'Resource Dispensed/Sold')
     instance.Inv = Var(instance.locations, instance.resources, instance.scales_scheduling, within = NonNegativeReals, doc = 'Resource Inventory')
-    instance.Imp = Var(instance.sources, instance.sinks, instance.resources, instance.scales_scheduling, within = NonNegativeReals, doc = 'Resource Inventory')
-    instance.Exp = Var(instance.sources, instance.sinks, instance.resources, instance.scales_scheduling, within = NonNegativeReals, doc = 'Resource Inventory')
+    instance.Imp = Var(instance.sinks, instance.sources, instance.resources, instance.scales_scheduling, within = NonNegativeReals, doc = 'Resource import')
+    instance.Exp = Var(instance.sources, instance.sinks, instance.resources, instance.scales_scheduling, within = NonNegativeReals, doc = 'Resource export')
     return 
 
 
@@ -71,6 +71,21 @@ def generate_network_vars(instance: ConcreteModel, scale_level:int = 0):
     instance.Cap_P = Var(instance.locations, instance.processes, instance.scales_network, within=NonNegativeReals, doc='Process Capacity')
     instance.Cap_S = Var(instance.locations, instance.resources_store, instance.scales_network, within=NonNegativeReals, doc='Storage Capacity')
     return 
+
+
+def generate_transport_vars(instance: ConcreteModel, scale_level:int = 0):    
+    """declares pyomo variables for network location at the chosen scale
+
+    Args:
+        instance (ConcreteModel): pyomo instance
+        scale_level (int, optional):  scale for network variables. Defaults to 0.
+    """
+    instance.scales_transport = scale_pyomo_set(instance= instance, scale_level= scale_level)
+    instance.Trans_imp = Var(instance.sinks, instance.sources, instance.resources, instance.transports, instance.scales_scheduling, within = NonNegativeReals, doc = 'Resource imported through transport mode')
+    instance.Trans_exp = Var(instance.sources, instance.sinks, instance.resources, instance.transports, instance.scales_scheduling, within = NonNegativeReals, doc = 'Resource exported through transport mode')
+    return 
+
+
 
 def generate_summing_vars(instance:ConcreteModel, scale_level:int = 0):
     """declares pyomo variables to sum mass balance at location and network scales
@@ -113,6 +128,7 @@ def generate_milp_vars(instance:ConcreteModel,  expenditure_scale_level:int=0, s
     generate_scheduling_vars(instance = instance, scale_level= scheduling_scale_level)
     generate_network_vars(instance = instance, scale_level= network_scale_level)
     generate_summing_vars(instance = instance, scale_level= network_scale_level)
+    generate_transport_vars(instance= instance, scale_level= scheduling_scale_level)
     return 
 
 def generate_mpmilp_vars(instance:ConcreteModel, expenditure_scale_level:int=0, scheduling_scale_level:int = 0, network_scale_level:int = 0):
@@ -128,7 +144,11 @@ def generate_mpmilp_vars(instance:ConcreteModel, expenditure_scale_level:int=0, 
     generate_network_vars(instance = instance, scale_level= network_scale_level)
     generate_uncertainty_vars(instance= instance, scale_level= scheduling_scale_level)
     generate_summing_vars(instance = instance, scale_level= network_scale_level)
+    generate_transport_vars(instance= instance, scale_level= scheduling_scale_level)
+    
     return 
+
+
 
 
 #%%

@@ -36,7 +36,7 @@ from src.energiapy.model.mpmilp import formulate_mpmilp
 
 # *-------------------------Temporal scales------------------------------------
 # scales = temporal_scale(discretization_list = [4, 20, 15])
-scales = Temporal_scale(discretization_list= [42])
+scales = Temporal_scale(discretization_list= [2])
 # scales = temporal_scale(discretization_list = [1, 2, 3])
 
 # *-------------------------Constance defined here for ease------------------------------------
@@ -146,7 +146,7 @@ case = Scenario(name= '', network= Arcs, scales= scales, \
 # *-------------------------Model formulation------------------------------------
 
 mpmilp = formulate_mpmilp(scenario= case)
-
+#%%
 result = SolverFactory('gurobi', solver_io= 'python').solve(mpmilp)
 
 

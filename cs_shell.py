@@ -243,5 +243,4 @@ milp = formulate_milp(scenario= case)
 
 result = SolverFactory('gurobi', solver_io= 'python').solve(milp)
 
-
 # %%
