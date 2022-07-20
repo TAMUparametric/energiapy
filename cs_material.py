@@ -113,7 +113,7 @@ St = Material(name='St', gwp=50, basis= 'kg', label='Steel')
 cost_dict = get_data(file_name='cost_dict')
 
 LiI_c = Process(name='LiI_c', conversion={Charge: 1, Power: -1}, cost = cost_dict['HO']['moderate']['LiI_c']['0'],\
-    material_cons = {Li: 20}, prod_max=bigM, trl='nrel', block='power_storage', label='Lithium-ion battery', citation='Zakeri 2015')
+    material_cons = {Li: 20}, prod_max=bigM, trl='nrel', block='power_storage', lifetime= 10, label='Lithium-ion battery', citation='Zakeri 2015')
 LiI_d = Process(name='LiI_d', conversion={Charge: -1.1765, Power: 1}, cost = cost_dict['HO']['moderate']['LiI_d']['0'], \
     prod_max=bigM, trl='discharge', block='power_storage', label='Lithium-ion battery discharge', citation='Zakeri 2015')
 CAES_c = Process(name='CAES_c', conversion={Air_C: 1, Power: -1}, cost = cost_dict['HO']['moderate']['CAES_c']['0'], \

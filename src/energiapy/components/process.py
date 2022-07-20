@@ -38,6 +38,8 @@ class Process:
         trl (str, optional): technology readiness level. Defaults to None.
         block (str, optional): define block for convenience. Defaults to None.
         citation (str, optional): citation for data. Defaults to 'citation needed'.
+        lifetime (float, optional): the lifetime of process. Defaults to None.
+    
     """
 
     name: str 
@@ -58,8 +60,9 @@ class Process:
     block: str = None
     citation: str = 'citation needed'
     varying: bool = False
-    
-    
+    lifetime: float = None
+
+
     def __post_init__(self):
         if self.cost is not None:
             self.capex = self.cost['CAPEX']
