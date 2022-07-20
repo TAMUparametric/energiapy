@@ -65,7 +65,15 @@ def constraint_latex_render(constraint_rule, latex_alias_dict:dict= {}) -> str:
         'instance.Fopex': 'Opex^{fix}',
         'instance.Vopex': 'Opex^{var}',
         'demand_dict': 'Demand^{r}',
-        'for scale_ in scale_iter if scale_[:demand_scale_level+1] == scale_list': ''
+        'for scale_ in scale_iter if scale_[:demand_scale_level+1] == scale_list': '',
+        'for transport_ in instance.transports': '',
+        '_exp': '^{exp}',
+        '_imp': '^{imp}',
+        'source': 'l^{source}',
+        'sink': 'l^{sink}',
+        'transport_':'t'
+        
+        
         }
     
     unsorted_dict_ = {**latex_alias_dict, **general_dict}
