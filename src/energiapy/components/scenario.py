@@ -42,6 +42,10 @@ class Scenario:
         self.source_locations = self.network.source_locations
         self.sink_locations = self.network.sink_locations
         self.location_set = set(self.source_locations + self.sink_locations)         
+        self.trans_max = {j.name: j.trans_max for j in self.transport_set}
+        self.trans_loss = {j.name: j.trans_loss for j in self.transport_set} 
+        self.trans_cost = {j.name: j.trans_cost for j in self.transport_set}
+        self.trans_emit =  {j.name: j.trans_emit for j in self.transport_set} 
         self.process_set = set().union(*[i.processes for i in self.location_set if i.processes is not None])
         self.resource_set = set().union(*[i.resources for i in self.location_set if i.resources is not None])
         self.material_set = set().union(*[i.materials for i in self.location_set if i.materials is not None])
@@ -61,6 +65,7 @@ class Scenario:
         self.fopex_dict = {i.name: i.fopex for i in self.process_set}
         self.vopex_dict = {i.name: i.vopex for i in self.process_set}
         self.demand_dict = {i.name: {j.name: i.demand[j] for j in i.demand} for i in self.location_set}
+        self.distance_dict = self.network.distance_dict
     def __repr__(self):
         return self.name
 
