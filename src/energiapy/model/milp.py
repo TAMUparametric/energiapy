@@ -84,7 +84,11 @@ def formulate_milp(scenario: Scenario) -> ConcreteModel:
     transport_export_constraint(instance= instance, scheduling_scale_level= scenario.scheduling_scale_level)
     transport_import_constraint(instance= instance, scheduling_scale_level= scenario.scheduling_scale_level)
     
-
+    transport_UB_constraint(instance= instance, scheduling_scale_level= scenario.scheduling_scale_level, trans_max= scenario.trans_max)  
+    
+    transport_exp_UB_constraint(instance= instance, scheduling_scale_level= scenario.scheduling_scale_level, trans_max= scenario.trans_max)  
+    transport_imp_UB_constraint(instance= instance, scheduling_scale_level= scenario.scheduling_scale_level, trans_max= scenario.trans_max)  
+    
     cost_objective(instance= instance, network_scale_level= scenario.network_scale_level)
     
 
