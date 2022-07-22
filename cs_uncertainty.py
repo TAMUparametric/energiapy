@@ -25,14 +25,16 @@ from pyomo.environ import SolverFactory
 from src.energiapy.components.temporal_scale import Temporal_scale
 from src.energiapy.components.resource import Resource
 from src.energiapy.components.process import Process
-from src.energiapy.components.material import Material
 from src.energiapy.components.location import Location
 from src.energiapy.components.network import Network
 from src.energiapy.components.scenario import Scenario
 from src.energiapy.components.transport import Transport
+from src.energiapy.components.result import Result
 from src.energiapy.model.pyomo_cons import *
 from src.energiapy.graph import graph
 from src.energiapy.model.mpmilp import formulate_mpmilp
+
+
 
 # *-------------------------Temporal scales------------------------------------
 # scales = temporal_scale(discretization_list = [4, 20, 15])
@@ -146,8 +148,15 @@ case = Scenario(name= '', network= Arcs, scales= scales, \
 # *-------------------------Model formulation------------------------------------
 
 mpmilp = formulate_mpmilp(scenario= case)
-#%%
+
 result = SolverFactory('gurobi', solver_io= 'python').solve(mpmilp)
+
+res = Result(name = 'try', instance = mpmilp, result= result)
+#%%
+for i in case.resource_set:
+    graph.schedule(result = res.S_location, component= i, location= CityA)
+#%%
+
 
 
 #%%

@@ -113,7 +113,7 @@ def generate_uncertainty_vars(instance:ConcreteModel, scale_level:int= 0):
     """
     instance.scale_uncertainty = scale_pyomo_set(instance, scale_level= scale_level)
     instance.Delta_Cost_R = Var(instance.locations, instance.resources_varying, instance.scale_uncertainty, within= NonNegativeReals, doc= 'uncertain purchase price')
-    instance.Delta_Cap_P = Var(instance.locations, instance.processes_varying, instance.scale_uncertainty, within= NonNegativeReals, doc= 'uncertain resource availability')
+    instance.Delta_Cap_P = Var(instance.locations, instance.processes_varying, instance.scale_uncertainty, bounds = (0, 200), within= NonNegativeReals, doc= 'uncertain resource availability')
     return
 
 def generate_milp_vars(instance:ConcreteModel,  expenditure_scale_level:int=0, scheduling_scale_level:int = 0, network_scale_level:int = 0):

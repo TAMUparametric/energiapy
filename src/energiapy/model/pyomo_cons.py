@@ -644,6 +644,8 @@ def uncertain_nameplate_production_constraint(instance: ConcreteModel, network_s
         instance.locations, instance.processes, *scales, rule=uncertain_nameplate_production_rule, doc='nameplate production capacity constraint')
     constraint_latex_render(uncertain_nameplate_production_rule)
     return instance.uncertain_nameplate_production_constraint
+
+
    
 def uncertain_resource_purchase_constraint(instance: ConcreteModel, price:dict = {},  loc_res_dict:dict = {}, scheduling_scale_level:int= 0, expenditure_scale_level:int= 0) -> Constraint:
     """Determines expenditure on resource at location in network at the scheduling/expenditure scale
