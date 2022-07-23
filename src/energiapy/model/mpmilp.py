@@ -80,6 +80,10 @@ def formulate_mpmilp(scenario: Scenario) -> ConcreteModel:
     transport_exp_UB_constraint(instance= instance, scheduling_scale_level= scenario.scheduling_scale_level, trans_max= scenario.trans_max)  
     transport_imp_UB_constraint(instance= instance, scheduling_scale_level= scenario.scheduling_scale_level, trans_max= scenario.trans_max)  
     
+    transport_exp_cost_constraint(instance= instance, scheduling_scale_level= scenario.scheduling_scale_level, trans_cost= scenario.trans_cost, distance_dict= scenario.distance_dict)  
+    transport_imp_cost_constraint(instance= instance, scheduling_scale_level= scenario.scheduling_scale_level, trans_cost= scenario.trans_cost, distance_dict= scenario.distance_dict)  
+    transport_cost_constraint(instance= instance, scheduling_scale_level= scenario.scheduling_scale_level)
+    
     cost_objective(instance= instance, network_scale_level= scenario.network_scale_level)
     
     

@@ -86,7 +86,7 @@ def schedule(result: dict, component: Union[Resource, Process], location: Locati
         color (str, optional): color of plot. Defaults to 'blue'.
     """
     rc('font', **{'family': 'serif', 'serif': ['Computer Modern'], 'size': font_size})
-    rc('text', usetex=False)
+    rc('text', usetex=True)
     fig, ax = plt.subplots(figsize= fig_size)
     y_ = [result[i] for i in result.keys() if location.name in i if component.name in i]
     x_ = [i for i in range(len(y_))]

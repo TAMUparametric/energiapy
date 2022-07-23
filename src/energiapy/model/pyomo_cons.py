@@ -17,6 +17,7 @@ from ..utils.model_utils import scale_list
 from ..utils.model_utils import scale_pyomo_set
 from ..utils.model_utils import scale_tuple
 from ..components.location import Location
+from itertools import product
 
 #TODO - Demand constraint
 #TODO - Production cost constraint
@@ -266,19 +267,43 @@ def transport_exp_UB_constraint(instance:ConcreteModel, scheduling_scale_level: 
     constraint_latex_render(transport_exp_UB_rule)
     return instance.transport_exp_UB_constraint
 
-
 def transport_imp_UB_constraint(instance:ConcreteModel, scheduling_scale_level: int= 0, trans_max:dict = {}) -> Constraint:
     scales = scale_list(instance= instance, scale_levels= scheduling_scale_level+1)
-    def transport_imp_UB_rule(instance, source, sink, resource, transport, *scale_list):
-        return instance.Trans_imp[source, sink, resource, transport, scale_list[:scheduling_scale_level+1]] <= trans_max[transport]
+    def transport_imp_UB_rule(instance, sink, source, resource, transport, *scale_list):
+        return instance.Trans_imp[sink, source, resource, transport, scale_list[:scheduling_scale_level+1]] <= trans_max[transport]
     instance.transport_imp_UB_constraint = Constraint(instance.sinks, instance.sources, instance.resources, instance.transports, *scales, rule=transport_imp_UB_rule, doc='import of resource from sink to source')
     constraint_latex_render(transport_imp_UB_rule)
     return instance.transport_imp_UB_constraint
 
+def transport_exp_cost_constraint(instance:ConcreteModel, scheduling_scale_level: int= 0, trans_cost:dict = {}, distance_dict:dict = {}) -> Constraint:
+    scales = scale_list(instance= instance, scale_levels= scheduling_scale_level+1)
+    def transport_exp_cost_rule(instance, source, sink, resource, transport, *scale_list):
+        return instance.Trans_exp_cost[source, sink, resource, transport, scale_list[:scheduling_scale_level+1]] == \
+            trans_cost[transport]*distance_dict[(source, sink)]*instance.Trans_exp[source, sink, resource, transport, scale_list[:scheduling_scale_level+1]]
+    instance.transport_exp_cost_constraint = Constraint(instance.sources, instance.sinks, instance.resources, instance.transports, *scales, rule=transport_exp_cost_rule, doc='import of resource from sink to source')
+    constraint_latex_render(transport_exp_cost_rule)
+    return instance.transport_exp_cost_constraint
 
- 
- 
- 
+def transport_imp_cost_constraint(instance:ConcreteModel, scheduling_scale_level: int= 0, trans_cost:dict = {}, distance_dict:dict = {}) -> Constraint:
+    scales = scale_list(instance= instance, scale_levels= scheduling_scale_level+1)
+    def transport_imp_cost_rule(instance, sink, source, resource, transport, *scale_list):
+        return instance.Trans_imp_cost[sink, source, resource, transport, scale_list[:scheduling_scale_level+1]] == \
+            trans_cost[transport]*distance_dict[(source, sink)]*instance.Trans_imp[sink, source, resource, transport, scale_list[:scheduling_scale_level+1]]
+    instance.transport_imp_cost_constraint = Constraint(instance.sinks, instance.sources, instance.resources, instance.transports, *scales, rule=transport_imp_cost_rule, doc='import of resource from sink to source')
+    constraint_latex_render(transport_imp_cost_rule)
+    return instance.transport_imp_cost_constraint
+
+def transport_cost_constraint(instance:ConcreteModel, scheduling_scale_level:int = 0):
+    scales = scale_list(instance= instance, scale_levels= scheduling_scale_level+1)
+    def transport_cost_rule(instance, transport, *scale_list):
+        return instance.Trans_cost[transport, scale_list[:scheduling_scale_level+1]] == \
+            sum(instance.Trans_imp_cost[sink, source, resource, transport, scale_list[:scheduling_scale_level+1]] + \
+                instance.Trans_exp_cost[source, sink, resource, transport, scale_list[:scheduling_scale_level+1]] \
+                    for sink, source, resource in product(instance.sinks, instance.sources, instance.resources))
+    instance.transport_cost_constraint = Constraint(instance.transports, *scales, rule = transport_cost_rule, doc = 'total transport cost')
+    constraint_latex_render(transport_cost_rule)
+    return instance.transport_cost_constraint
+    
 
 # *-------------------------Location scale mass balance calculation constraints--------------------------
 

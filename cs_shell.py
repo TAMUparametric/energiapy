@@ -209,12 +209,12 @@ HO = Location(name='HO', processes= {H2_L_c, H2_L_d, PV, LiI_c, LiI_d, WF, AKE},
 LA = Location(name='LA', processes= {H2_L_c, H2_L_d, PV, LiI_c, LiI_d, WF, SMRH}, demand = {H2_L: 100, H2_C: 100}, scales = scales, varying_cost_df = daily_ng_price_df, \
     varying_process_df= la_power_output_df, PV_class='Class3', WF_class='Class5',
                       LiI_class='8Hr Battery Storage', PSH_class='Class 3', label='Los Angeles')
-#%%
-# # *-------------------------Input data graphs------------------------------------
-graph.capacity_factor(location= HO, process= PV, color= 'orange')
-graph.cost_factor (location= LA, resource= CH4) 
 
-#%%
+# # *-------------------------Input data graphs------------------------------------
+# graph.capacity_factor(location= HO, process= PV, color= 'orange')
+# graph.cost_factor (location= LA, resource= CH4) 
+
+
 # *-------------------------Transport modes------------------------------------
 Train_H2 = Transport(name= 'Train_H2', resources= {H2_L, H2_C}, label= 'Railway for hydrogen transportation', trans_max= 10**8, trans_loss= 0.001, trans_cost= 1.667*10**(-3))
 Pipe = Transport(name= 'Pipe', resources= {H2_L}, trans_max= 10**8, trans_loss= 0.001, trans_cost= 0.5*10**(-3), label= 'Railroad transport')
@@ -236,7 +236,7 @@ network = Network(name= 'Network', source_locations= [HO, LA], sink_locations= [
 # *-------------------------Scenario------------------------------------
 
 case = Scenario(name= '', network= network, scales= scales,  expenditure_scale_level= 1, scheduling_scale_level= 2, network_scale_level= 0, demand_scale_level= 1, label= 'shell milp case study')
-
+#%%
 # *-------------------------Model formulation------------------------------------
 milp = formulate_milp(scenario= case)
 
