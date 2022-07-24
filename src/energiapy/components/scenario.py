@@ -41,6 +41,8 @@ class Scenario:
         self.transport_set = set().union(*self.network.transport_dict.values())
         self.source_locations = self.network.source_locations
         self.sink_locations = self.network.sink_locations
+        self.transport_dict = self.network.transport_dict
+        self.transport_avail_dict = self.network.transport_avail_dict
         self.location_set = set(self.source_locations + self.sink_locations)         
         self.trans_max = {j.name: j.trans_max for j in self.transport_set}
         self.trans_loss = {j.name: j.trans_loss for j in self.transport_set} 

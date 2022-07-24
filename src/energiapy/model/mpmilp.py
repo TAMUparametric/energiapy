@@ -75,10 +75,14 @@ def formulate_mpmilp(scenario: Scenario) -> ConcreteModel:
     
     demand_constraint(instance= instance, demand_scale_level= scenario.demand_scale_level, scheduling_scale_level= scenario.scheduling_scale_level, demand_dict= scenario.demand_dict)
     
-    transport_export_constraint(instance= instance, scheduling_scale_level= scenario.scheduling_scale_level)
-    transport_import_constraint(instance= instance, scheduling_scale_level= scenario.scheduling_scale_level)
+    transport_export_constraint(instance= instance, scheduling_scale_level= scenario.scheduling_scale_level, transport_avail_dict= scenario.transport_avail_dict)
+    transport_import_constraint(instance= instance, scheduling_scale_level= scenario.scheduling_scale_level, transport_avail_dict= scenario.transport_avail_dict)
     transport_exp_UB_constraint(instance= instance, scheduling_scale_level= scenario.scheduling_scale_level, trans_max= scenario.trans_max)  
     transport_imp_UB_constraint(instance= instance, scheduling_scale_level= scenario.scheduling_scale_level, trans_max= scenario.trans_max)  
+    
+    transport_exp_cost_constraint(instance= instance, scheduling_scale_level= scenario.scheduling_scale_level, trans_cost= scenario.trans_cost, distance_dict= scenario.distance_dict)  
+    transport_imp_cost_constraint(instance= instance, scheduling_scale_level= scenario.scheduling_scale_level, trans_cost= scenario.trans_cost, distance_dict= scenario.distance_dict)  
+    transport_cost_constraint(instance= instance, scheduling_scale_level= scenario.scheduling_scale_level)
     
     cost_objective(instance= instance, network_scale_level= scenario.network_scale_level)
     

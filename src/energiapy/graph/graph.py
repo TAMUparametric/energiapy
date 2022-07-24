@@ -86,7 +86,7 @@ def schedule(result: dict, component: Union[Resource, Process], location: Locati
         color (str, optional): color of plot. Defaults to 'blue'.
     """
     rc('font', **{'family': 'serif', 'serif': ['Computer Modern'], 'size': font_size})
-    rc('text', usetex=False)
+    rc('text', usetex=True)
     fig, ax = plt.subplots(figsize= fig_size)
     y_ = [result[i] for i in result.keys() if location.name in i if component.name in i]
     x_ = [i for i in range(len(y_))]
@@ -96,6 +96,15 @@ def schedule(result: dict, component: Union[Resource, Process], location: Locati
     plt.grid(alpha=0.3)
     plt.rcdefaults()
     return
+
+#TODO - plots are independent of scales, check
+#TODO - make bar plots / pie plots for contribution from different components 
+#TODO - make layered scheduling graph for comparison 
+#TODO - make scenario comparison graphs, perhaps use kwargs, allow n number of comparisons 
+
+
+
+
 
 
 # %%

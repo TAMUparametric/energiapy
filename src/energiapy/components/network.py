@@ -38,6 +38,7 @@ class Network:
     def __post_init__(self):
         self.transport_dict = self.make_transport_dict()
         self.distance_dict = self.make_distance_dict()
+        self.transport_avail_dict = self.make_transport_avail_dict()
     
         
     def make_distance_dict(self) -> dict:
@@ -59,6 +60,15 @@ class Network:
         transport_dict = {(self.source_locations[i].name, self.sink_locations[j].name): \
             set(self.transport_matrix[i][j]) for i,j in product(range(len(self.source_locations)), range(len(self.sink_locations)))}
         return transport_dict
+
+    def make_transport_avail_dict(self) -> dict:
+        """returns a dictionary with transportation modes available between sources and sinks
+
+        Returns:
+            dict: a dictionary with transportation modes availabels between sources and sinks 
+        """
+        transport_avail_dict =  {i: {j.name for j in self.transport_dict[i]} for i in self.transport_dict.keys()}
+        return transport_avail_dict
 
     def __refr__(self):
         return self.name
