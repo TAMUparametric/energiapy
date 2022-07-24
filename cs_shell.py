@@ -236,7 +236,7 @@ network = Network(name= 'Network', source_locations= [HO, LA], sink_locations= [
 # *-------------------------Scenario------------------------------------
 
 case = Scenario(name= '', network= network, scales= scales,  expenditure_scale_level= 1, scheduling_scale_level= 2, network_scale_level= 0, demand_scale_level= 1, label= 'shell milp case study')
-#%%
+
 # *-------------------------Model formulation------------------------------------
 milp = formulate_milp(scenario= case)
 

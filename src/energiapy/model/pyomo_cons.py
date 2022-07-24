@@ -242,20 +242,26 @@ def inventory_balance_constraint(instance: ConcreteModel, scheduling_scale_level
 
 
 # *-------------------------Transport constraints--------------------------
-def transport_export_constraint(instance:ConcreteModel, scheduling_scale_level:int= 0) -> Constraint:
+def transport_export_constraint(instance:ConcreteModel, scheduling_scale_level:int= 0, transport_avail_dict:dict = {}) -> Constraint:
     scales = scale_list(instance= instance, scale_levels= scheduling_scale_level+1)
     def transport_export_rule(instance, source, sink, resource, *scale_list):
-        return instance.Exp[source, sink, resource, scale_list[:scheduling_scale_level+1]] == sum(instance.Trans_exp[source, sink, resource, transport_, scale_list[:scheduling_scale_level+1]] for transport_ in instance.transports)
-    instance.transport_export_constraint = Constraint(instance.sources, instance.sinks, instance.resources, *scales, rule=transport_export_rule, doc='export of resource from source to sink')
+        return instance.Exp[source, sink, resource, scale_list[:scheduling_scale_level+1]] == \
+            sum(instance.Trans_exp[source, sink, resource, transport_, scale_list[:scheduling_scale_level+1]] \
+                for transport_ in instance.transports.intersection(transport_avail_dict[(source, sink)]))
+    instance.transport_export_constraint = Constraint(instance.sources, instance.sinks, \
+        instance.resources, *scales, rule=transport_export_rule, doc='export of resource from source to sink')
     constraint_latex_render(transport_export_rule)
     return instance.transport_export_constraint
 
 
-def transport_import_constraint(instance:ConcreteModel, scheduling_scale_level:int= 0) -> Constraint:
+def transport_import_constraint(instance:ConcreteModel, scheduling_scale_level:int= 0, transport_avail_dict:dict = {}) -> Constraint:
     scales = scale_list(instance= instance, scale_levels= scheduling_scale_level+1)
     def transport_import_rule(instance, sink, source, resource, *scale_list):
-        return instance.Imp[sink, source, resource, scale_list[:scheduling_scale_level+1]] == sum(instance.Trans_imp[sink, source, resource, transport_, scale_list[:scheduling_scale_level+1]] for transport_ in instance.transports)
-    instance.transport_import_constraint = Constraint(instance.sinks, instance.sources, instance.resources, *scales, rule=transport_import_rule, doc='import of resource from sink to source')
+        return instance.Imp[sink, source, resource, scale_list[:scheduling_scale_level+1]] == \
+            sum(instance.Trans_imp[sink, source, resource, transport_, scale_list[:scheduling_scale_level+1]] \
+                for transport_ in instance.transports.intersection(transport_avail_dict[(source, sink)]))
+    instance.transport_import_constraint = Constraint(instance.sinks, instance.sources, \
+        instance.resources, *scales, rule=transport_import_rule, doc='import of resource from sink to source')
     constraint_latex_render(transport_import_rule)
     return instance.transport_import_constraint
 

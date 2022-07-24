@@ -97,6 +97,15 @@ def schedule(result: dict, component: Union[Resource, Process], location: Locati
     plt.rcdefaults()
     return
 
+#TODO - plots are independent of scales, check
+#TODO - make bar plots / pie plots for contribution from different components 
+#TODO - make layered scheduling graph for comparison 
+#TODO - make scenario comparison graphs, perhaps use kwargs, allow n number of comparisons 
+
+
+
+
+
 
 # %%
 

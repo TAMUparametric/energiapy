@@ -152,13 +152,15 @@ mpmilp = formulate_mpmilp(scenario= case)
 result = SolverFactory('gurobi', solver_io= 'python').solve(mpmilp)
 
 res = Result(name = 'try', instance = mpmilp, result= result)
+# res.saveresults('test.pkl')
 #%%
 for i in case.resource_set:
     graph.schedule(result = res.S_location, component= i, location= CityA)
 #%%
+import pickle
 
 
-
+with open('test' + '.pkl', 'rb') as f_: locals()['test'] = pickle.load(f_)
 #%%
 
 
@@ -881,3 +883,6 @@ print('The steady-state system profit is ', sum(profit[len(time)-1][l] for l in 
 
 # %%
 
+
+    
+# %%

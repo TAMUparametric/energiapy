@@ -14,6 +14,8 @@ from dataclasses import dataclass
 from pyomo.environ import ConcreteModel
 from pyomo.opt import SolverResults
 from ..components.scenario import Scenario
+import json
+import pickle
 
 @dataclass
 class Result:
@@ -44,6 +46,15 @@ class Result:
     
     
     def __post_init__(self):
+        self.LB = self.result['Problem'][0]['Lower bound']
+        self.UB = self.result['Problem'][0]['Upper bound']
+        self.cost_objective = self.instance.cost_objective()
+        self.n_cons = self.result['Problem'][0]['Number of constraints']
+        self.n_vars = self.result['Problem'][0]['Number of variables']
+        self.n_binvars = self.result['Problem'][0]['Number of binary variables']
+        self.n_intvars = self.result['Problem'][0]['Number of integer variables']
+        self.n_convars = self.result['Problem'][0]['Number of continuous variables']
+        self.n_nonzero = self.result['Problem'][0]['Number of nonzeros']
         self.P = self.instance.P.extract_values()    
         self.B = self.instance.B.extract_values()        
         self.C = self.instance.C.extract_values()        
@@ -76,7 +87,26 @@ class Result:
         self.S_network = self.instance.S_network.extract_values()  
         self.Delta_Cost_R = self.instance.Delta_Cost_R.extract_values()        
         self.Delta_Cap_P = self.instance.Delta_Cap_P.extract_values()  
-           
+    
+    def saveresults(self, file_name:str):
+        data = self.__dict__
+        del data['instance']
+        del data['result']
+
+        if '.pkl' in file_name:
+            with open(file_name, "wb") as f:
+                pickle.dump(data, f)
+                f.close()
+        elif '.json' in file_name:
+            with open(file_name, 'w') as f:
+                json.dump(data, f)
+
+        elif '.txt' in file_name:
+            with open(file_name, "w") as f:
+                f.write(str(data))
+                f.close()
+        return
+
            
     def __repr__(self):
         return self.name
@@ -86,3 +116,4 @@ class Result:
     
     def __eq__(self, other):
         return self.name == other.name
+
