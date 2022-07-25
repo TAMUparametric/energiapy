@@ -24,7 +24,7 @@ from typing import Union
 
 
 def capacity_factor(process: Process, location: Location, \
-    fig_size:tuple = (12,6), font_size:int = 16, color:str ='blue'):
+    fig_size:tuple = (12,6), font_size:int = 16, color:str ='blue', usetex:bool = True):
     """generates a graph for varying capacity factor of process
 
     Args:
@@ -33,6 +33,7 @@ def capacity_factor(process: Process, location: Location, \
         font_size (int, optional): font size. Defaults to 16.
         fig_size (tuple, optional): figure size. Defaults to (12,6).
         color (str, optional): color of plot. Defaults to 'blue'.
+        usetex (bool, optional): True, if using latex font, need Tex set up (prone to errors). Defaults to 'True'.
     """
 
     rc('font', **{'family': 'serif', 'serif': ['Computer Modern'], 'size': font_size})
@@ -49,7 +50,7 @@ def capacity_factor(process: Process, location: Location, \
     return
 
 def cost_factor(resource: Resource, location: Location, \
-    fig_size:tuple = (12,6), font_size:int = 16, color:str ='blue'):
+    fig_size:tuple = (12,6), font_size:int = 16, color:str ='blue', usetex:bool = True):
     """generates a graph for varying cost factor of resource
 
     Args:
@@ -58,6 +59,7 @@ def cost_factor(resource: Resource, location: Location, \
         font_size (int, optional): font size. Defaults to 16.
         fig_size (tuple, optional): figure size. Defaults to (12,6).
         color (str, optional): color of plot. Defaults to 'blue'.
+        usetex (bool, optional): True, if using latex font, need Tex set up (prone to errors). Defaults to 'True'.
     """
     rc('font', **{'family': 'serif', 'serif': ['Computer Modern'], 'size': font_size})
     rc('text', usetex=True)
@@ -74,7 +76,7 @@ def cost_factor(resource: Resource, location: Location, \
 
 
 def schedule(result: dict, component: Union[Resource, Process], location: Location,\
-    fig_size:tuple = (12,6), font_size:int = 16, color:str ='blue'):
+    fig_size:tuple = (12,6), font_size:int = 16, color:str ='blue', usetex:bool = True):
     """generates a graph for scheduling result
 
     Args:
@@ -84,9 +86,11 @@ def schedule(result: dict, component: Union[Resource, Process], location: Locati
         font_size (int, optional): font size. Defaults to 16.
         fig_size (tuple, optional): figure size. Defaults to (12,6).
         color (str, optional): color of plot. Defaults to 'blue'.
+        usetex (bool, optional): True, if using latex font, need Tex set up (prone to errors). Defaults to 'True'.
+        
     """
     rc('font', **{'family': 'serif', 'serif': ['Computer Modern'], 'size': font_size})
-    rc('text', usetex=True)
+    rc('text', usetex=usetex)
     fig, ax = plt.subplots(figsize= fig_size)
     y_ = [result[i] for i in result.keys() if location.name in i if component.name in i]
     x_ = [i for i in range(len(y_))]

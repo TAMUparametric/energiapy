@@ -90,6 +90,7 @@ def constraint_latex_render(constraint_rule, latex_alias_dict:dict= {}) -> str:
     ip.display(ip.Math(str_))
     # str_ = '\begin{equation}'
     # display(str_)
+    print(constraint_rule)
     
     return str_
 

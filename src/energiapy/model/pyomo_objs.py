@@ -34,3 +34,4 @@ def cost_objective(instance:ConcreteModel, network_scale_level:int=0) -> Objecti
     instance.cost_objective = Objective(rule = cost_objective_rule, doc = 'total purchase from network')
     constraint_latex_render(cost_objective_rule)
     return instance.cost_objective
+
