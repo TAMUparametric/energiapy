@@ -38,7 +38,7 @@ from src.energiapy.model.mpmilp import formulate_mpmilp
 
 # *-------------------------Temporal scales------------------------------------
 #Defined as a single temporal scale with 42 discretization, base scale becomes 0
-scales = Temporal_scale(discretization_list= [42])
+scales = Temporal_scale(discretization_list= [1, 42])
 
 # *-------------------------Constants defined here for ease------------------------------------
 bigM = 10**10 #very large number
@@ -128,11 +128,11 @@ Arcs = Network(name= 'Arcs', source_locations= city_list, sink_locations= site_l
 # *-------------------------Scenario------------------------------------
 #given that this is a single temporal scale model, all scales could be allowed to default to 0. Scales stated here due to clarity
 case = Scenario(name= '', network= Arcs, scales= scales, \
-    expenditure_scale_level= 0, scheduling_scale_level= 0, network_scale_level= 0,  demand_scale_level=0,  label= 'mpmilp case study')
+    expenditure_scale_level= 1, scheduling_scale_level= 1, network_scale_level= 0,  demand_scale_level=1,  label= 'mpmilp case study')
 
 # *-------------------------Model formulation------------------------------------
 #this creates a pyomo instance, prior to this step the model is only defined in energiapy
-mpmilp = formulate_mpmilp(scenario= case)
+mpmilp = formulate_mpmilp(scenario= case, penalty= 1)
 
 #could add a class method to do this implicitly in scenario/result class
 result = SolverFactory('gurobi', solver_io= 'python').solve(mpmilp, tee = True)
@@ -159,5 +159,12 @@ for i in case.resource_set:
 for i in case.resource_set:
     graph.schedule(result = res.B, component= i, location= CityA, usetex = False)    
 #%%
+for i in case.resource_set:
+    graph.schedule(result = res.Inv, component= i, location= CityA, usetex = False)    
+
+# %%
+
+for i in case.process_set:
+    graph.schedule(result = res.Delta_Cap_P, component= i, location= CityA, usetex = False)    
 
 # %%

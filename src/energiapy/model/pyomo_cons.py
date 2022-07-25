@@ -314,6 +314,8 @@ def transport_imp_cost_constraint(instance:ConcreteModel, scheduling_scale_level
     constraint_latex_render(transport_imp_cost_rule)
     return instance.transport_imp_cost_constraint
 
+# *-------------------------Transport costing constraints--------------------------
+
 def transport_cost_constraint(instance:ConcreteModel, scheduling_scale_level:int = 0):
     scales = scale_list(instance= instance, scale_levels= scheduling_scale_level+1)
     def transport_cost_rule(instance, transport, *scale_list):
@@ -324,6 +326,17 @@ def transport_cost_constraint(instance:ConcreteModel, scheduling_scale_level:int
     instance.transport_cost_constraint = Constraint(instance.transports, *scales, rule = transport_cost_rule, doc = 'total transport cost')
     constraint_latex_render(transport_cost_rule)
     return instance.transport_cost_constraint
+
+def transport_cost_network_constraint(instance:ConcreteModel, network_scale_level:int = 0):
+    scales = scale_list(instance= instance, scale_levels = network_scale_level+1) 
+    scale_iter = scale_tuple(instance= instance, scale_levels = instance.scales.__len__())
+    def transport_cost_network_rule(instance, transport, *scale_list):
+        return instance.Trans_cost_network[transport, scale_list] == sum(instance.Trans_cost[transport, scale_] for scale_ in scale_iter)
+    instance.transport_cost_network_constraint = Constraint(instance.transports, *scales, rule = transport_cost_network_rule, doc = 'total transport cost across scale')
+    constraint_latex_render(transport_cost_network_rule)
+    return instance.transport_cost_network_constraint
+
+
     
 
 # *-------------------------Location scale mass balance calculation constraints--------------------------
@@ -498,28 +511,22 @@ def process_capex_constraint(instance:ConcreteModel, capex_dict:dict, network_sc
     constraint_latex_render(process_capex_rule)
     return instance.process_capex_constraint
 
-def uncertain_process_capex_constraint(instance:ConcreteModel, capex_dict:dict, network_scale_level:int=0, annualization_factor:float = 1) -> Constraint:
-    """Capital expenditure for each process at location in network
-
-    Args:
-        instance (ConcreteModel): pyomo instance
-        capex_dict (dict): capex at location #TODO
-        network_scale_level (int, optional): scale of network decisions. Defaults to 0.
-        annualization_factor (float, optional): Annual depreciation of asset. Defaults to 1.
-
-    Returns:
-        Constraint: process_capex_constraint
-    """
+def delta_cap_location_constraint(instance:ConcreteModel, network_scale_level:int=0) -> Constraint:
     scales = scale_list(instance= instance, scale_levels = network_scale_level+1) 
-    def process_capex_rule(instance, location, process, *scale_list):
-        if process in instance.processes_varying:
-            return instance.Capex_process[location, process, scale_list] == annualization_factor*capex_dict[process]*(instance.Cap_P[location, process, scale_list]\
-                + instance.Delta_Cap_P[location, process, scale_list])
-        else:
-            return instance.Capex_process[location, process, scale_list] == annualization_factor*capex_dict[process]*instance.Cap_P[location, process, scale_list]            
-    instance.process_capex_constraint = Constraint(instance.locations, instance.processes, *scales, rule = process_capex_rule, doc = 'total purchase from network')
-    constraint_latex_render(process_capex_rule)
-    return instance.process_capex_constraint
+    scale_iter = scale_tuple(instance= instance, scale_levels = instance.scales.__len__())
+    def delta_cap_location_rule(instance, location, process, *scale_list):
+        return instance.Delta_Cap_P_location[location, process, scale_list] == sum(instance.Delta_Cap_P[location, process, scale_] for scale_ in scale_iter)
+    instance.delta_cap_location_constraint = Constraint(instance.locations, instance.processes_varying, *scales, rule = delta_cap_location_rule, doc = 'total transport cost across scale')
+    constraint_latex_render(delta_cap_location_rule)
+    return instance.delta_cap_location_constraint
+
+def delta_cap_network_constraint(instance:ConcreteModel, network_scale_level:int=0) -> Constraint:
+    scales = scale_list(instance= instance, scale_levels = network_scale_level+1) 
+    def delta_cap_network_rule(instance, process, *scale_list):
+        return instance.Delta_Cap_P_network[process, scale_list] == sum(instance.Delta_Cap_P_location[location_, process, scale_list] for location_ in instance.locations)
+    instance.delta_cap_network_constraint = Constraint(instance.processes_varying, *scales, rule = delta_cap_network_rule, doc = 'total transport cost across scale')
+    constraint_latex_render(delta_cap_network_rule)
+    return instance.delta_cap_network_constraint
 
 def process_fopex_constraint(instance:ConcreteModel, fopex_dict:dict, network_scale_level:int=0, annualization_factor:float = 1) -> Constraint:
     """Fixed operational expenditure for each process at location in network
@@ -612,7 +619,7 @@ def location_vopex_constraint(instance:ConcreteModel, network_scale_level:int=0)
     return instance.location_vopex_constraint
 
 
-# *-------------------------Location costing constraints--------------------------------------
+# *-------------------------Network costing constraints--------------------------------------
 
 def network_capex_constraint(instance:ConcreteModel, network_scale_level:int=0) -> Constraint:
     """Capital expenditure for each process at location in network

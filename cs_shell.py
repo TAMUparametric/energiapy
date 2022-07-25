@@ -36,6 +36,7 @@ from src.energiapy.components.location import Location
 from src.energiapy.components.network import Network
 from src.energiapy.components.scenario import Scenario
 from src.energiapy.components.transport import Transport
+from src.energiapy.components.result import Result
 from src.energiapy.model.milp import formulate_milp
 from src.energiapy.utils.data_utils import get_data,make_henry_price_df
 from src.energiapy.graph import graph
@@ -241,7 +242,10 @@ case = Scenario(name= '', network= network, scales= scales,  expenditure_scale_l
 milp = formulate_milp(scenario= case)
 
 
-result = SolverFactory('gurobi', solver_io= 'python').solve(milp)
+result = SolverFactory('gurobi', solver_io= 'python').solve(milp, tee =True)
+
+res = Result(name = 'try', instance = milp, result= result)
+
 
 
 # %%

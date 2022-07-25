@@ -48,7 +48,6 @@ class Result:
     def __post_init__(self):
         self.LB = self.result['Problem'][0]['Lower bound']
         self.UB = self.result['Problem'][0]['Upper bound']
-        self.cost_objective = self.instance.cost_objective()
         self.n_cons = self.result['Problem'][0]['Number of constraints']
         self.n_vars = self.result['Problem'][0]['Number of variables']
         self.n_binvars = self.result['Problem'][0]['Number of binary variables']
@@ -85,8 +84,14 @@ class Result:
         self.B_network = self.instance.B_network.extract_values()        
         self.C_network = self.instance.C_network.extract_values()        
         self.S_network = self.instance.S_network.extract_values()  
+        self.Trans_cost = self.instance.Trans_cost.extract_values()
+        self.Trans_cost_network = self.instance.Trans_cost_network.extract_values()
+        self.cost_objective = self.instance.uncertainty_cost_objective()
         self.Delta_Cost_R = self.instance.Delta_Cost_R.extract_values()        
         self.Delta_Cap_P = self.instance.Delta_Cap_P.extract_values()  
+        self.Delta_Cap_P_location = self.instance.Delta_Cap_P_location.extract_values()  
+        self.Delta_Cap_P_network = self.instance.Delta_Cap_P_network.extract_values()  
+        
     
     def saveresults(self, file_name:str):
         data = self.__dict__

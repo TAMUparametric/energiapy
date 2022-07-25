@@ -85,7 +85,7 @@ def generate_transport_vars(instance: ConcreteModel, scale_level:int = 0):
     instance.Trans_exp = Var(instance.sources, instance.sinks, instance.resources, instance.transports, instance.scales_scheduling, within = NonNegativeReals, doc = 'Resource exported through transport mode')
     instance.Trans_imp_cost = Var(instance.sinks, instance.sources, instance.resources, instance.transports, instance.scales_scheduling, within = NonNegativeReals, doc = 'Resource imported through transport mode')
     instance.Trans_exp_cost = Var(instance.sources, instance.sinks, instance.resources, instance.transports, instance.scales_scheduling, within = NonNegativeReals, doc = 'Resource exported through transport mode')
-    instance.Trans_cost = Var(instance.transports, instance.scales_scheduling, within = NonNegativeReals)
+    instance.Trans_cost = Var(instance.transports, instance.scales_scheduling, within = NonNegativeReals, doc = 'cost of transportation for transport mode')
     return 
 
 
@@ -106,6 +106,8 @@ def generate_summing_vars(instance:ConcreteModel, scale_level:int = 0):
     instance.S_network = Var(instance.resources, instance.scales_summing, within=NonNegativeReals, doc='Total resource discharge from network')
     instance.C_network = Var(instance.resources, instance.scales_summing, within=NonNegativeReals, doc='Total resource consumption from network')
     instance.B_network = Var(instance.resources, instance.scales_summing, within=NonNegativeReals, doc='Total resource purchase from network')
+    instance.Trans_cost_network = Var(instance.transports, instance.scales_summing, within = NonNegativeReals, doc = 'cost of transportation for transport mode')
+    
     return
 
 def generate_uncertainty_vars(instance:ConcreteModel, scale_level:int= 0):
@@ -118,6 +120,8 @@ def generate_uncertainty_vars(instance:ConcreteModel, scale_level:int= 0):
     instance.scale_uncertainty = scale_pyomo_set(instance, scale_level= scale_level)
     instance.Delta_Cost_R = Var(instance.locations, instance.resources_varying, instance.scale_uncertainty, within= NonNegativeReals, doc= 'uncertain purchase price')
     instance.Delta_Cap_P = Var(instance.locations, instance.processes_varying, instance.scale_uncertainty, bounds = (0, 200), within= NonNegativeReals, doc= 'uncertain resource availability')
+    instance.Delta_Cap_P_location = Var(instance.locations, instance.processes_varying, instance.scales_summing, within= NonNegativeReals, doc= 'uncertain resource availability - network scale at location')
+    instance.Delta_Cap_P_network = Var(instance.processes_varying, instance.scales_summing, within= NonNegativeReals, doc= 'uncertain resource availability - network scale')
     return
 
 def generate_milp_vars(instance:ConcreteModel,  expenditure_scale_level:int=0, scheduling_scale_level:int = 0, network_scale_level:int = 0):
@@ -146,9 +150,9 @@ def generate_mpmilp_vars(instance:ConcreteModel, expenditure_scale_level:int=0, 
     generate_expenditure_vars(instance = instance, scale_level= network_scale_level)
     generate_scheduling_vars(instance = instance, scale_level= scheduling_scale_level)
     generate_network_vars(instance = instance, scale_level= network_scale_level)
-    generate_uncertainty_vars(instance= instance, scale_level= scheduling_scale_level)
     generate_summing_vars(instance = instance, scale_level= network_scale_level)
     generate_transport_vars(instance= instance, scale_level= scheduling_scale_level)
+    generate_uncertainty_vars(instance= instance, scale_level= scheduling_scale_level)
     
     return 
 
