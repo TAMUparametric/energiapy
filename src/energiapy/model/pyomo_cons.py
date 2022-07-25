@@ -227,7 +227,7 @@ def inventory_balance_constraint(instance: ConcreteModel, scheduling_scale_level
                     - sum(conversion[process][resource]*instance.P[location, process, scale_list[:scheduling_scale_level+1]] for process in instance.processes) \
                         - sum(instance.Imp[location, source_, resource, scale_list[:scheduling_scale_level+1]] for source_ in instance.sources if source_ != location if location in instance.sinks)\
                         + sum(instance.Exp[location, sink_, resource, scale_list[:scheduling_scale_level+1]] for sink_ in instance.sinks if sink_ != location if location in instance.sources)\
-                            == 0
+                        == 0
         else:
             return instance.Inv[location, resource, scale_list[:scheduling_scale_level+1]] \
                     + instance.S[location, resource, scale_list[:scheduling_scale_level+1]] \
@@ -265,18 +265,33 @@ def transport_import_constraint(instance:ConcreteModel, scheduling_scale_level:i
     constraint_latex_render(transport_import_rule)
     return instance.transport_import_constraint
 
-def transport_exp_UB_constraint(instance:ConcreteModel, scheduling_scale_level: int= 0, trans_max:dict = {}) -> Constraint:
+def transport_balance_constraint(instance:ConcreteModel, scheduling_scale_level:int= 0) -> Constraint:
+    scales = scale_list(instance= instance, scale_levels= scheduling_scale_level+1)
+    def transport_balance_rule(instance, sink, source, resource, *scale_list):
+        return instance.Imp[sink, source, resource, scale_list[:scheduling_scale_level+1]] == instance.Exp[source, sink, resource, scale_list[:scheduling_scale_level+1]]
+    instance.transport_balance_constraint = Constraint(instance.sinks, instance.sources, \
+        instance.resources, *scales, rule=transport_balance_rule, doc='balances import and export from source to sinks')
+    constraint_latex_render(transport_balance_rule)
+    return instance.transport_balance_constraint
+
+def transport_exp_UB_constraint(instance:ConcreteModel, scheduling_scale_level: int= 0, trans_max:dict = {}, transport_avail_dict:dict = {}) -> Constraint:
     scales = scale_list(instance= instance, scale_levels= scheduling_scale_level+1)
     def transport_exp_UB_rule(instance, source, sink, resource, transport, *scale_list):
-        return instance.Trans_exp[source, sink, resource, transport, scale_list[:scheduling_scale_level+1]] <= trans_max[transport]
+        if transport in transport_avail_dict[(source, sink)]:
+            return instance.Trans_exp[source, sink, resource, transport, scale_list[:scheduling_scale_level+1]] <= trans_max[transport]
+        else:
+            return instance.Trans_exp[source, sink, resource, transport, scale_list[:scheduling_scale_level+1]] <= 0
     instance.transport_exp_UB_constraint = Constraint(instance.sources, instance.sinks, instance.resources, instance.transports, *scales, rule=transport_exp_UB_rule, doc='import of resource from sink to source')
     constraint_latex_render(transport_exp_UB_rule)
     return instance.transport_exp_UB_constraint
 
-def transport_imp_UB_constraint(instance:ConcreteModel, scheduling_scale_level: int= 0, trans_max:dict = {}) -> Constraint:
+def transport_imp_UB_constraint(instance:ConcreteModel, scheduling_scale_level: int= 0, trans_max:dict = {}, transport_avail_dict:dict = {}) -> Constraint:
     scales = scale_list(instance= instance, scale_levels= scheduling_scale_level+1)
     def transport_imp_UB_rule(instance, sink, source, resource, transport, *scale_list):
-        return instance.Trans_imp[sink, source, resource, transport, scale_list[:scheduling_scale_level+1]] <= trans_max[transport]
+        if transport in transport_avail_dict[(source, sink)]:
+            return instance.Trans_imp[sink, source, resource, transport, scale_list[:scheduling_scale_level+1]] <= trans_max[transport]
+        else:
+            return instance.Trans_imp[sink, source, resource, transport, scale_list[:scheduling_scale_level+1]] <= 0
     instance.transport_imp_UB_constraint = Constraint(instance.sinks, instance.sources, instance.resources, instance.transports, *scales, rule=transport_imp_UB_rule, doc='import of resource from sink to source')
     constraint_latex_render(transport_imp_UB_rule)
     return instance.transport_imp_UB_constraint
@@ -479,6 +494,29 @@ def process_capex_constraint(instance:ConcreteModel, capex_dict:dict, network_sc
     scales = scale_list(instance= instance, scale_levels = network_scale_level+1) 
     def process_capex_rule(instance, location, process, *scale_list):
         return instance.Capex_process[location, process, scale_list] == annualization_factor*capex_dict[process]*instance.Cap_P[location, process, scale_list]
+    instance.process_capex_constraint = Constraint(instance.locations, instance.processes, *scales, rule = process_capex_rule, doc = 'total purchase from network')
+    constraint_latex_render(process_capex_rule)
+    return instance.process_capex_constraint
+
+def uncertain_process_capex_constraint(instance:ConcreteModel, capex_dict:dict, network_scale_level:int=0, annualization_factor:float = 1) -> Constraint:
+    """Capital expenditure for each process at location in network
+
+    Args:
+        instance (ConcreteModel): pyomo instance
+        capex_dict (dict): capex at location #TODO
+        network_scale_level (int, optional): scale of network decisions. Defaults to 0.
+        annualization_factor (float, optional): Annual depreciation of asset. Defaults to 1.
+
+    Returns:
+        Constraint: process_capex_constraint
+    """
+    scales = scale_list(instance= instance, scale_levels = network_scale_level+1) 
+    def process_capex_rule(instance, location, process, *scale_list):
+        if process in instance.processes_varying:
+            return instance.Capex_process[location, process, scale_list] == annualization_factor*capex_dict[process]*(instance.Cap_P[location, process, scale_list]\
+                + instance.Delta_Cap_P[location, process, scale_list])
+        else:
+            return instance.Capex_process[location, process, scale_list] == annualization_factor*capex_dict[process]*instance.Cap_P[location, process, scale_list]            
     instance.process_capex_constraint = Constraint(instance.locations, instance.processes, *scales, rule = process_capex_rule, doc = 'total purchase from network')
     constraint_latex_render(process_capex_rule)
     return instance.process_capex_constraint

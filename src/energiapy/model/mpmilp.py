@@ -61,7 +61,7 @@ def formulate_mpmilp(scenario: Scenario) -> ConcreteModel:
     network_purchase_constraint(instance= instance, network_scale_level= scenario.network_scale_level)
     
  
-    process_capex_constraint(instance= instance, capex_dict= scenario.capex_dict, network_scale_level= scenario.network_scale_level)
+    uncertain_process_capex_constraint(instance= instance, capex_dict= scenario.capex_dict, network_scale_level= scenario.network_scale_level)
     process_fopex_constraint(instance= instance, fopex_dict= scenario.fopex_dict, network_scale_level= scenario.network_scale_level)
     process_vopex_constraint(instance= instance, vopex_dict= scenario.vopex_dict, network_scale_level= scenario.network_scale_level)
 
@@ -77,8 +77,9 @@ def formulate_mpmilp(scenario: Scenario) -> ConcreteModel:
     
     transport_export_constraint(instance= instance, scheduling_scale_level= scenario.scheduling_scale_level, transport_avail_dict= scenario.transport_avail_dict)
     transport_import_constraint(instance= instance, scheduling_scale_level= scenario.scheduling_scale_level, transport_avail_dict= scenario.transport_avail_dict)
-    transport_exp_UB_constraint(instance= instance, scheduling_scale_level= scenario.scheduling_scale_level, trans_max= scenario.trans_max)  
-    transport_imp_UB_constraint(instance= instance, scheduling_scale_level= scenario.scheduling_scale_level, trans_max= scenario.trans_max)  
+    transport_exp_UB_constraint(instance= instance, scheduling_scale_level= scenario.scheduling_scale_level, trans_max= scenario.trans_max, transport_avail_dict= scenario.transport_avail_dict)  
+    transport_imp_UB_constraint(instance= instance, scheduling_scale_level= scenario.scheduling_scale_level, trans_max= scenario.trans_max, transport_avail_dict= scenario.transport_avail_dict)  
+    transport_balance_constraint(instance= instance, scheduling_scale_level= scenario.scheduling_scale_level)
     
     transport_exp_cost_constraint(instance= instance, scheduling_scale_level= scenario.scheduling_scale_level, trans_cost= scenario.trans_cost, distance_dict= scenario.distance_dict)  
     transport_imp_cost_constraint(instance= instance, scheduling_scale_level= scenario.scheduling_scale_level, trans_cost= scenario.trans_cost, distance_dict= scenario.distance_dict)  
