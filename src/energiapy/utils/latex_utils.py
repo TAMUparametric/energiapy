@@ -87,11 +87,23 @@ def constraint_latex_render(constraint_rule, latex_alias_dict:dict= {}) -> str:
     str_ = inspect.getsource(constraint_rule).split('return ')[1].split('\n')[0]
     for key in dict_.keys():
         str_ = str_.replace(key, dict_[key])
-    ip.display(ip.Math(str_))
+
     # str_ = '\begin{equation}'
     # display(str_)
-    print(constraint_rule)
-    
+    print('----------------------------------------------------------------------')
+    print_ = str(constraint_rule)
+    print_ = print_.split('<function ')[1]
+    try:
+        print_ = print_.split('.<locals>')[0]
+    except:
+        print_ = print_.split('at ')[0]
+    finally:
+        print_ = print_
+    print_ = print_.replace('_', ' ')
+    print(print_)
+    ip.display(ip.Math(str_))
+    print('----------------------------------------------------------------------')
+
     return str_
 
 
