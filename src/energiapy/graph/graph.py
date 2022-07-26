@@ -75,14 +75,14 @@ def cost_factor(resource: Resource, location: Location, \
     return
 
 
-def schedule(result: dict, component: Union[Resource, Process], location: Location,\
+def schedule(results: Result, y_axis:str, component:str, location:str,\
     fig_size:tuple = (12,6), font_size:int = 16, color:str ='blue', usetex:bool = True):
     """generates a graph for scheduling result
 
     Args:
         result (dict): dictionary that can be taken from result object 
-        component (Union[Resource, Process]): resource or process data object
-        location (Location): location data object
+        component (str): resource or process name
+        location (str): location name
         font_size (int, optional): font size. Defaults to 16.
         fig_size (tuple, optional): figure size. Defaults to (12,6).
         color (str, optional): color of plot. Defaults to 'blue'.
@@ -92,11 +92,12 @@ def schedule(result: dict, component: Union[Resource, Process], location: Locati
     rc('font', **{'family': 'serif', 'serif': ['Computer Modern'], 'size': font_size})
     rc('text', usetex=usetex)
     fig, ax = plt.subplots(figsize= fig_size)
-    y_ = [result[i] for i in result.keys() if location.name in i if component.name in i]
+    y_ = [results.output[y_axis][i] for i in results.output[y_axis].keys() if location in i if component in i]
+    title = f"Schedule for {results.components[component]['label']} in {results.components[location]['label']}"
+    plt.title(title)
+    plt.ylabel(results.components[component]['basis'])
     x_ = [i for i in range(len(y_))]
     ax.plot(x_, y_, linewidth=0.5, color=color)
-    plt.title(f'Schedule for {component.label} in {location.label}')
-    plt.ylabel(component.basis)
     plt.grid(alpha=0.3)
     plt.rcdefaults()
     return

@@ -30,8 +30,28 @@ def cost_objective(instance:ConcreteModel, network_scale_level:int=0) -> Objecti
     def cost_objective_rule(instance):
         return sum(instance.Capex_network[scale_] + instance.Vopex_network[scale_] + instance.Fopex_network[scale_] \
             + sum(instance.B_network[resource_, scale_] for resource_ in instance.resources_purch)\
-                + sum(instance.Trans_cost[transport_, scale_] for transport_ in instance.transports) for scale_ in scale_iter) 
+                + sum(instance.Trans_cost_network[transport_, scale_] for transport_ in instance.transports) for scale_ in scale_iter) 
     instance.cost_objective = Objective(rule = cost_objective_rule, doc = 'total purchase from network')
     constraint_latex_render(cost_objective_rule)
     return instance.cost_objective
 
+
+def uncertainty_cost_objective(instance:ConcreteModel, penalty: float, network_scale_level:int=0) -> Objective:
+    """Objective to minimize total cost
+
+    Args:
+        instance (ConcreteModel): pyomo instance
+        network_scale_level (int, optional): scale of network decisions. Defaults to 0.
+
+    Returns:
+        Objective: cost objective
+    """
+    scale_iter = scale_tuple(instance= instance, scale_levels = network_scale_level + 1)
+    def uncertainty_cost_objective_rule(instance):
+        return sum(instance.Capex_network[scale_] + instance.Vopex_network[scale_] + instance.Fopex_network[scale_] \
+            + sum(instance.B_network[resource_, scale_] for resource_ in instance.resources_purch)\
+                + sum(instance.Trans_cost_network[transport_, scale_] for transport_ in instance.transports) \
+                    +penalty*sum(instance.Delta_Cap_P_network[process_, scale_] for process_ in instance.processes_varying) for scale_ in scale_iter) 
+    instance.uncertainty_cost_objective = Objective(rule = uncertainty_cost_objective_rule, doc = 'total purchase from network')
+    constraint_latex_render(uncertainty_cost_objective_rule)
+    return instance.uncertainty_cost_objective

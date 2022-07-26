@@ -14,11 +14,11 @@ from ..components.scenario import Scenario
 from ..model.pyomo_sets import generate_sets
 from ..model.pyomo_vars import generate_mpmilp_vars
 from ..model.pyomo_cons import *
-from ..model.pyomo_objs import cost_objective
+from ..model.pyomo_objs import uncertainty_cost_objective
 from pyomo.environ import ConcreteModel
     
       
-def formulate_mpmilp(scenario: Scenario) -> ConcreteModel:
+def formulate_mpmilp(scenario: Scenario, penalty:float) -> ConcreteModel:
     """formulates a multi-scale multi-parametric mixed integer linear programming formulation of the scenario
     
     Args:
@@ -61,7 +61,7 @@ def formulate_mpmilp(scenario: Scenario) -> ConcreteModel:
     network_purchase_constraint(instance= instance, network_scale_level= scenario.network_scale_level)
     
  
-    uncertain_process_capex_constraint(instance= instance, capex_dict= scenario.capex_dict, network_scale_level= scenario.network_scale_level)
+    process_capex_constraint(instance= instance, capex_dict= scenario.capex_dict, network_scale_level= scenario.network_scale_level)
     process_fopex_constraint(instance= instance, fopex_dict= scenario.fopex_dict, network_scale_level= scenario.network_scale_level)
     process_vopex_constraint(instance= instance, vopex_dict= scenario.vopex_dict, network_scale_level= scenario.network_scale_level)
 
@@ -84,9 +84,12 @@ def formulate_mpmilp(scenario: Scenario) -> ConcreteModel:
     transport_exp_cost_constraint(instance= instance, scheduling_scale_level= scenario.scheduling_scale_level, trans_cost= scenario.trans_cost, distance_dict= scenario.distance_dict)  
     transport_imp_cost_constraint(instance= instance, scheduling_scale_level= scenario.scheduling_scale_level, trans_cost= scenario.trans_cost, distance_dict= scenario.distance_dict)  
     transport_cost_constraint(instance= instance, scheduling_scale_level= scenario.scheduling_scale_level)
+    transport_cost_network_constraint(instance= instance, network_scale_level= scenario.network_scale_level)
     
-    cost_objective(instance= instance, network_scale_level= scenario.network_scale_level)
+    delta_cap_location_constraint(instance= instance, network_scale_level= scenario.network_scale_level)
+    delta_cap_network_constraint(instance= instance, network_scale_level= scenario.network_scale_level)
     
+    uncertainty_cost_objective(instance= instance, penalty = penalty, network_scale_level= scenario.network_scale_level)
     
     return instance
        

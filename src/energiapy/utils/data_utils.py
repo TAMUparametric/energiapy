@@ -17,6 +17,7 @@ import pickle
 import json
 from itertools import product
 from ..components.location import Location
+from ..components.result import Result
 
 
 def get_data(file_name: str) -> dict:
@@ -257,6 +258,20 @@ def make_nrel_cost_df(location: Location, nrel_cost_xlsx, pick_nrel_process_list
     # nrel_cost_df_['units'][nrel_cost_df_['units'] == '$/MWh'] = '$/MW'
 
     return nrel_cost_df_
+
+def load_results(filename:str) -> Result:
+    """loads saved results
+
+    Args:
+        filename (str): file name
+
+    Returns:
+        Result: a energiapy result type object
+    """
+    file_ = open(filename, 'rb')
+    results_dict = pickle.load(file_)
+    results = Result(name = filename.split('.')[0], output = results_dict['output'], components= results_dict['components'])
+    return results
 
 
 # %%
