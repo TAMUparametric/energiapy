@@ -40,6 +40,8 @@ from src.energiapy.components.result import Result
 from src.energiapy.model.formulate_milp import formulate_milp
 from src.energiapy.utils.data_utils import get_data,make_henry_price_df
 from src.energiapy.graph import graph
+from src.energiapy.model.pyomo_solve import solve
+
  
 # *-------------------------Temporal scales------------------------------------
 
@@ -242,9 +244,7 @@ case = Scenario(name= '', network= network, scales= scales,  expenditure_scale_l
 milp = formulate_milp(scenario= case)
 
 
-result = SolverFactory('gurobi', solver_io= 'python').solve(milp, tee =True)
-
-res = Result(name = 'try', instance = milp, result= result)
+results = solve(scenario = case, instance=milp, solver= 'gurobi', name='trialmilp', tee = True)
 
 
 
