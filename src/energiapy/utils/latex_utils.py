@@ -96,7 +96,7 @@ def constraint_latex_render(constraint_rule, latex_alias_dict:dict= {}) -> str:
     try:
         print_ = print_.split('.<locals>')[0]
     except:
-        print_ = print_.split('at ')[0]
+        print_ = print_.split(' at')[0]
     finally:
         print_ = print_
     print_ = print_.replace('_', ' ')
