@@ -60,7 +60,7 @@ class Process:
     block: str = None
     citation: str = 'citation needed'
     varying: bool = False
-    lifetime: float = None
+    lifetime: tuple = None
 
 
     def __post_init__(self):
