@@ -33,8 +33,6 @@ from src.energiapy.graph import graph
 from src.energiapy.model.formulate_mpmilp import formulate_mpmilp
 from src.energiapy.model.pyomo_solve import solve
 from src.energiapy.utils.data_utils import load_results
-#%%
-
 
 # *-------------------------Temporal scales------------------------------------
 #Defined as a single temporal scale with 42 discretization, base scale becomes 0
@@ -134,34 +132,27 @@ case = Scenario(name= '', network= Arcs, scales= scales, \
 #this creates a pyomo instance, prior to this step the model is only defined in energiapy
 mpmilp = formulate_mpmilp(scenario= case, penalty= 1)
 
-
-results = solve(instance=mpmilp, solver= 'gurobi', name='trial', saveformat= '.pkl', tee = True)
-#%%
-from src.energiapy.utils.data_utils import load_results
-
-results = load_results(filename = 'test.pkl')
-#To open .pkl file use:
-# import pickle
-# with open('test' + '.pkl', 'rb') as f_: locals()['test'] = pickle.load(f_)
+results = solve(scenario = case, instance=mpmilp, solver= 'gurobi', name='trial', saveformat= '.pkl', tee = True)
 
 #%% plots results at requested scales, usetex giving a very unique error only for this plot!! 
 #TODO - add the type of graph generated in the title
-for i in case.process_set:
-    graph.schedule(result = results.P, component= i, location= CityA, usetex = False)
-for i in case.resource_set:
-    graph.schedule(result = results.S, component= i, location= CityA, usetex = False)
-for i in case.resource_set:
-    graph.schedule(result = results.C, component= i, location= CityA, usetex = False)
-for i in case.resource_set:
-    graph.schedule(result = results.B, component= i, location= CityA, usetex = False)    
-#%%
-for i in case.resource_set:
-    graph.schedule(result = results.Inv, component= i, location= CityA, usetex = False)    
+# for i in case.process_set:
+#     graph.schedule(result = results.output['P'], component= i, location= CityA, usetex = False)
+# for i in case.resource_set:
+#     graph.schedule(result = results.output['S'], component= i, location= CityA, usetex = False)
+# for i in case.resource_set:
+#     graph.schedule(result = results.output['C'], component= i, location= CityA, usetex = False)
+# for i in case.resource_set:
+#     graph.schedule(result = results.output['B'], component= i, location= CityA, usetex = False)    
+# for i in case.resource_set:
+#     graph.schedule(result = results.output['Inv'], component= i, location= CityA, usetex = False)    
+# for i in case.process_set:
+#     if i.varying == True:
+#         graph.schedule(result = results.output['Delta_Cap_P'], component= i, location= CityA, usetex = True)    
+graph.schedule(results = results, y_axis = 'P', component= 'WF', location= 'C', usetex = False)
 
 # %%
 
-for i in case.process_set:
-    if i.varying == True:
-        graph.schedule(result = results.Delta_Cap_P, component= i, location= CityA, usetex = True)    
 
+# %%
 # %%

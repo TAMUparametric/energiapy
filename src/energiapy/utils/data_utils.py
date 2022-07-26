@@ -270,7 +270,7 @@ def load_results(filename:str) -> Result:
     """
     file_ = open(filename, 'rb')
     results_dict = pickle.load(file_)
-    results = Result(filename.split('.')[0], results_dict)
+    results = Result(name = filename.split('.')[0], output = results_dict['output'], components= results_dict['components'])
     return results
 
 
