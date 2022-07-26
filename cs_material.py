@@ -36,9 +36,10 @@ from src.energiapy.components.location import Location
 from src.energiapy.components.network import Network
 from src.energiapy.components.scenario import Scenario
 from src.energiapy.components.transport import Transport
-from src.energiapy.model.milp import formulate_milp
+from src.energiapy.model.formulate_milp import formulate_milp
 from src.energiapy.utils.data_utils import get_data,make_henry_price_df
 from src.energiapy.graph import graph
+from src.energiapy.model.pyomo_solve import solve
  
 # *-------------------------Temporal scales------------------------------------
 
@@ -105,15 +106,18 @@ Power = Resource(name='Power', basis='MW',
 
 
 # *-------------------------Materials------------------------------------
-Li = Material(name='Li', gwp=30, basis= 'kg', label='Lithium', citation= 'some paper')
-St = Material(name='St', gwp=50, basis= 'kg', label='Steel')
+Li = Material(name='Li', gwp=0.025, basis= 'kgCO2-eq/kWh', label='Lithium', citation= 'Florin, N. and Dominish, E. (2017)')
+Na_S = Material(name='Na-S', gwp=0.028, basis= 'kgCO2-eq/kWh', label='Sodium-Sulfur', citation= 'Florin, N. and Dominish, E. (2017)')
+Lead = Material(name='Lead', gwp=0.075, basis= 'kgCO2-eq/kWh', label='Lead-acid', citation= 'Florin, N. and Dominish, E. (2017)')
+VRB = Material(name='VRB', gwp=0.02, basis= 'kgCO2-eq/kWh', label='VRB', citation= 'Florin, N. and Dominish, E. (2017)')
+Ni_Cd = Material(name='Na-S', gwp=0.08, basis= 'kgCO2-eq/kWh', label='Ni-Cd', citation= 'Florin, N. and Dominish, E. (2017)')
 
 # *-------------------------Processes ------------------------------------
 
 cost_dict = get_data(file_name='cost_dict')
 
 LiI_c = Process(name='LiI_c', conversion={Charge: 1, Power: -1}, cost = cost_dict['HO']['moderate']['LiI_c']['0'],\
-    material_cons = {Li: 20}, prod_max=bigM, trl='nrel', block='power_storage', lifetime= 10, label='Lithium-ion battery', citation='Zakeri 2015')
+    material_cons = {Li: 20}, prod_max=bigM, trl='nrel', block='power_storage', lifetime= 10, label='Lithium-ion battery', citation='Zakeri 2015', lifetime = (5,6))
 LiI_d = Process(name='LiI_d', conversion={Charge: -1.1765, Power: 1}, cost = cost_dict['HO']['moderate']['LiI_d']['0'], \
     prod_max=bigM, trl='discharge', block='power_storage', label='Lithium-ion battery discharge', citation='Zakeri 2015')
 CAES_c = Process(name='CAES_c', conversion={Air_C: 1, Power: -1}, cost = cost_dict['HO']['moderate']['CAES_c']['0'], \
@@ -236,7 +240,8 @@ case = Scenario(name= '', network= network, scales= scales,  expenditure_scale_l
 milp = formulate_milp(scenario= case)
 
 
-result = SolverFactory('gurobi', solver_io= 'python').solve(milp)
+results = solve(scenario = case, instance=milp, solver= 'gurobi', name='trialmilp', tee = True)
+
 
 
 # %%
