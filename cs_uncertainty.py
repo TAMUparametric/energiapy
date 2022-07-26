@@ -21,7 +21,6 @@ __status__ = "Production"
 import pandas
 # import numpy 
 # from pyomo.opt import SolverStatus, TerminationCondition
-from pyomo.environ import SolverFactory  
 from src.energiapy.components.temporal_scale import Temporal_scale
 from src.energiapy.components.resource import Resource
 from src.energiapy.components.process import Process
@@ -30,15 +29,16 @@ from src.energiapy.components.network import Network
 from src.energiapy.components.scenario import Scenario
 from src.energiapy.components.transport import Transport
 from src.energiapy.components.result import Result
-from src.energiapy.model.pyomo_cons import *
 from src.energiapy.graph import graph
-from src.energiapy.model.mpmilp import formulate_mpmilp
-
+from src.energiapy.model.formulate_mpmilp import formulate_mpmilp
+from src.energiapy.model.pyomo_solve import solve
+from src.energiapy.utils.data_utils import load_results
+#%%
 
 
 # *-------------------------Temporal scales------------------------------------
 #Defined as a single temporal scale with 42 discretization, base scale becomes 0
-scales = Temporal_scale(discretization_list= [1, 42])
+scales = Temporal_scale(discretization_list= [1, 3])
 
 # *-------------------------Constants defined here for ease------------------------------------
 bigM = 10**10 #very large number
@@ -134,37 +134,34 @@ case = Scenario(name= '', network= Arcs, scales= scales, \
 #this creates a pyomo instance, prior to this step the model is only defined in energiapy
 mpmilp = formulate_mpmilp(scenario= case, penalty= 1)
 
-#could add a class method to do this implicitly in scenario/result class
-result = SolverFactory('gurobi', solver_io= 'python').solve(mpmilp, tee = True)
 
-#saves the results as a dict
-res = Result(name = 'try', instance = mpmilp, result= result)
+results = solve(instance=mpmilp, solver= 'gurobi', name='trial', saveformat= '.pkl', tee = True)
+#%%
+from src.energiapy.utils.data_utils import load_results
 
-#saveresults method outputs a .pkl/.json/.txt file as required
-#.json is a little erratic, use .pkl for now
-#res.saveresults('test.pkl')
-
+results = load_results(filename = 'test.pkl')
 #To open .pkl file use:
-#import pickle
-#with open('test' + '.pkl', 'rb') as f_: locals()['test'] = pickle.load(f_)
+# import pickle
+# with open('test' + '.pkl', 'rb') as f_: locals()['test'] = pickle.load(f_)
 
 #%% plots results at requested scales, usetex giving a very unique error only for this plot!! 
 #TODO - add the type of graph generated in the title
 for i in case.process_set:
-    graph.schedule(result = res.P, component= i, location= CityA, usetex = False)
+    graph.schedule(result = results.P, component= i, location= CityA, usetex = False)
 for i in case.resource_set:
-    graph.schedule(result = res.S, component= i, location= CityA, usetex = False)
+    graph.schedule(result = results.S, component= i, location= CityA, usetex = False)
 for i in case.resource_set:
-    graph.schedule(result = res.C, component= i, location= CityA, usetex = False)
+    graph.schedule(result = results.C, component= i, location= CityA, usetex = False)
 for i in case.resource_set:
-    graph.schedule(result = res.B, component= i, location= CityA, usetex = False)    
+    graph.schedule(result = results.B, component= i, location= CityA, usetex = False)    
 #%%
 for i in case.resource_set:
-    graph.schedule(result = res.Inv, component= i, location= CityA, usetex = False)    
+    graph.schedule(result = results.Inv, component= i, location= CityA, usetex = False)    
 
 # %%
 
 for i in case.process_set:
-    graph.schedule(result = res.Delta_Cap_P, component= i, location= CityA, usetex = False)    
+    if i.varying == True:
+        graph.schedule(result = results.Delta_Cap_P, component= i, location= CityA, usetex = True)    
 
 # %%

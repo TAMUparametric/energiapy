@@ -37,7 +37,7 @@ from src.energiapy.components.network import Network
 from src.energiapy.components.scenario import Scenario
 from src.energiapy.components.transport import Transport
 from src.energiapy.components.result import Result
-from src.energiapy.model.milp import formulate_milp
+from src.energiapy.model.formulate_milp import formulate_milp
 from src.energiapy.utils.data_utils import get_data,make_henry_price_df
 from src.energiapy.graph import graph
  
