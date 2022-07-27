@@ -17,12 +17,11 @@ __status__ = "Production"
 
 from src.energiapy.utils.data_utils import load_results
 from src.energiapy.graph import graph
-|
+
 results = load_results(filename = 'trial.pkl')
 #%%
 
 #%%consumption amounts of consumable processes
-
 
 for i in results.fetch_components_specific(component_type= 'resources', condition = ('cons_max', 'g', 0)):
     graph.schedule(results = results, y_axis = 'C', component= i, location= 'A', usetex = False)
