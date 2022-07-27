@@ -53,8 +53,9 @@ def generate_scheduling_vars(instance: ConcreteModel, scale_level:int = 0):
     instance.C = Var(instance.locations, instance.resources, instance.scales_scheduling, within = NonNegativeReals, doc = 'Resource Consumption')
     instance.S = Var(instance.locations, instance.resources, instance.scales_scheduling, within = NonNegativeReals, doc = 'Resource Dispensed/Sold')
     instance.Inv = Var(instance.locations, instance.resources, instance.scales_scheduling, within = NonNegativeReals, doc = 'Resource Inventory')
-    instance.Imp = Var(instance.sinks, instance.sources, instance.resources, instance.scales_scheduling, within = NonNegativeReals, doc = 'Resource import')
-    instance.Exp = Var(instance.sources, instance.sinks, instance.resources, instance.scales_scheduling, within = NonNegativeReals, doc = 'Resource export')
+    if len(instance.locations) > 1:
+        instance.Imp = Var(instance.sinks, instance.sources, instance.resources, instance.scales_scheduling, within = NonNegativeReals, doc = 'Resource import')
+        instance.Exp = Var(instance.sources, instance.sinks, instance.resources, instance.scales_scheduling, within = NonNegativeReals, doc = 'Resource export')
     return 
 
 
@@ -106,7 +107,8 @@ def generate_summing_vars(instance:ConcreteModel, scale_level:int = 0):
     instance.S_network = Var(instance.resources, instance.scales_summing, within=NonNegativeReals, doc='Total resource discharge from network')
     instance.C_network = Var(instance.resources, instance.scales_summing, within=NonNegativeReals, doc='Total resource consumption from network')
     instance.B_network = Var(instance.resources, instance.scales_summing, within=NonNegativeReals, doc='Total resource purchase from network')
-    instance.Trans_cost_network = Var(instance.transports, instance.scales_summing, within = NonNegativeReals, doc = 'cost of transportation for transport mode')
+    if len(instance.locations) > 1:
+        instance.Trans_cost_network = Var(instance.transports, instance.scales_summing, within = NonNegativeReals, doc = 'cost of transportation for transport mode')
     
     return
 
@@ -136,7 +138,8 @@ def generate_milp_vars(instance:ConcreteModel,  expenditure_scale_level:int=0, s
     generate_scheduling_vars(instance = instance, scale_level= scheduling_scale_level)
     generate_network_vars(instance = instance, scale_level= network_scale_level)
     generate_summing_vars(instance = instance, scale_level= network_scale_level)
-    generate_transport_vars(instance= instance, scale_level= scheduling_scale_level)
+    if len(instance.locations) > 1:
+        generate_transport_vars(instance= instance, scale_level= scheduling_scale_level)
     return 
 
 def generate_mpmilp_vars(instance:ConcreteModel, expenditure_scale_level:int=0, scheduling_scale_level:int = 0, network_scale_level:int = 0):

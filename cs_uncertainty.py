@@ -19,8 +19,6 @@ __status__ = "Production"
 
 # *-------------------------Import modules------------------------------------
 import pandas
-# import numpy 
-# from pyomo.opt import SolverStatus, TerminationCondition
 from src.energiapy.components.temporal_scale import Temporal_scale
 from src.energiapy.components.resource import Resource
 from src.energiapy.components.process import Process
@@ -31,6 +29,8 @@ from src.energiapy.components.transport import Transport
 from src.energiapy.graph import graph
 from src.energiapy.model.formulate_mpmilp import formulate_mpmilp
 from src.energiapy.model.pyomo_solve import solve
+
+
 
 # *-------------------------Temporal scales------------------------------------
 #Defined as a single temporal scale with 42 discretization, base scale becomes 0
@@ -138,29 +138,29 @@ results = solve(scenario = case, instance=mpmilp, solver= 'gurobi', name='trial'
 #TODO - add the type of graph generated in the title
 location = 'B'
 
-for i in results.fetch_components_specific(component_type= 'resources', condition = ('cons_max', 'g', 0)):
+for i in results.fetch_components(component_type= 'resources', condition = ('cons_max', 'g', 0)):
     graph.schedule(results = results, y_axis = 'C', component= i, location= location, usetex = False)
 
 
 #%%expenditure on consumable resources
-for i in results.fetch_components_specific(component_type= 'resources', condition = ('cons_max', 'g', 0)):
+for i in results.fetch_components(component_type= 'resources', condition = ('cons_max', 'g', 0)):
     graph.schedule(results = results, y_axis = 'B', component= i, location= location, usetex = False)    
 
 
 #%%inventory levels of storable processes
-for i in results.fetch_components_specific(component_type= 'resources', condition = ('store_max','g', 0)):
+for i in results.fetch_components(component_type= 'resources', condition = ('store_max','g', 0)):
     graph.schedule(results = results, y_axis = 'Inv', component= i, location= location, usetex = False)    
 
 
 #%%Production on per basis level for processes with varying capacities
 
-for i in results.fetch_components_specific(component_type= 'processes', condition = ('varying', True)):
+for i in results.fetch_components(component_type= 'processes', condition = ('varying', True)):
     graph.schedule(results = results, y_axis = 'P', component= i, location= location, usetex = False)
    
 
 #%%Delta Cap of process with varying capacities 
 
-for i in results.fetch_components_specific(component_type= 'processes', condition = ('varying', True)):
+for i in results.fetch_components(component_type= 'processes', condition = ('varying', True)):
     graph.schedule(results = results, y_axis = 'Delta_Cap_P', component= i, location= location, usetex = False)    
 
 

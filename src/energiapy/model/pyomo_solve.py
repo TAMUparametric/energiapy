@@ -17,18 +17,23 @@ from ..components.scenario import Scenario
 
 def solve(instance:ConcreteModel, solver:str, name:str, scenario:Scenario = None, saveformat:str = None, tee:bool = True) -> Result:
     output = SolverFactory(solver, solver_io= 'python').solve(instance, tee = True)
-    
+    # if (results.solver.status == SolverStatus.ok) and (results.solver.termination_condition == TerminationCondition.optimal)
     if scenario is None:
         components_dict = {}
     else:
         components_dict = {
-            'transports': {i.name: i.__dict__ for i in scenario.transport_set},
             'processes': {i.name: i.__dict__ for i in scenario.process_set},  
             'resources': {i.name: i.__dict__ for i in scenario.resource_set},   
             'materials': {i.name: i.__dict__ for i in scenario.material_set},    
-            'locations': {i.name: i.__dict__ for i in scenario.location_set}
+            'locations': {i.name: i.__dict__ for i in scenario.location_set},
+            'transports': {}
             }
+        
+    if len(instance.locations) > 1:
+        components_dict['transports'] = {i.name: i.__dict__ for i in scenario.transport_set}
+ 
     solution_dict ={
+        'termination': str(output['Solver'][0]['Termination condition']),
         'LB': output['Problem'][0]['Lower bound'], 
         'UB': output['Problem'][0]['Upper bound'],
         'n_cons': output['Problem'][0]['Number of constraints'],
@@ -39,14 +44,20 @@ def solve(instance:ConcreteModel, solver:str, name:str, scenario:Scenario = None
         'n_nonzero': output['Problem'][0]['Number of nonzeros'] 
         }
     
-    model_vars = instance.component_map(ctype = Var)    
-    vars_dict = {i: model_vars[i].extract_values() for i in model_vars.keys()}  
-    
-    model_obj = instance.component_map(ctype = Objective)
-    obj_dict = {i: model_obj[i]() for i in model_obj.keys()}  
-    
-    results_dict = {**solution_dict, **vars_dict, **obj_dict}
+    if solution_dict['termination'] == 'optimal':
+        
+        model_vars = instance.component_map(ctype = Var)    
+        vars_dict = {i: model_vars[i].extract_values() for i in model_vars.keys()}  
+        
+        model_obj = instance.component_map(ctype = Objective)
+        obj_dict = {i: model_obj[i]() for i in model_obj.keys()}  
+        
+        results_dict = {**solution_dict, **vars_dict, **obj_dict}
 
+    else:
+        
+        results_dict = solution_dict
+        
     results = Result(name= name, components = components_dict, output= results_dict)
 
     if saveformat is not None:
