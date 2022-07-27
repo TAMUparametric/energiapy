@@ -11,8 +11,6 @@ __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
 from dataclasses import dataclass
-from pyomo.environ import ConcreteModel
-from pyomo.opt import SolverResults
 from ..components.scenario import Scenario
 import json
 import pickle
