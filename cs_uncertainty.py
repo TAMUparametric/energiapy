@@ -154,7 +154,7 @@ for i in results.fetch_components_specific(component_type= 'resources', conditio
 
 #%%Production on per basis level for processes with varying capacities
 
-for i in results.fetch_components(component_type= 'processes', condition = ('varying', True)):
+for i in results.fetch_components_specific(component_type= 'processes', condition = ('varying', True)):
     graph.schedule(results = results, y_axis = 'P', component= i, location= location, usetex = False)
    
 
@@ -163,3 +163,5 @@ for i in results.fetch_components(component_type= 'processes', condition = ('var
 for i in results.fetch_components_specific(component_type= 'processes', condition = ('varying', True)):
     graph.schedule(results = results, y_axis = 'Delta_Cap_P', component= i, location= location, usetex = False)    
 
+
+# %%
