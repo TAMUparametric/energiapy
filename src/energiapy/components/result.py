@@ -26,7 +26,8 @@ class Result:
     
    Args:
        name (str): ID for the resource
-       data (dict): data output
+       components (dict): input data relating to components
+       output (dict): results from analysis
     """
     name:str
     components: dict
@@ -49,7 +50,52 @@ class Result:
                 f.close()
         return
 
+    def fetch_components(self, component_type:str) -> set:
+        component_set = set(self.__dict__['components'][component_type].keys())
+        return component_set     
             
+    
+    def fetch_components_specific(self, component_type:str, condition:tuple) -> set:
+        """fetches components that meet a specific condition
+
+        Args:
+            component_type (str): type of component: processs, resources, locations, materials, transports 
+            condition (tuple): condition to be met
+            For bool:
+            condition = ('attribute', True))
+            For str:
+            condition = ('attribute', str))
+            For numeric:
+            condition = ('attribute', '*', numeric))
+            * - can be 'eq', 'ge', 'le', 'g', 'l'
+
+        Returns:
+            set: set meeting condition
+        """
+        component_set = self.fetch_components(component_type)
+        if (type(condition[1]) == bool or str) and (condition[1] not in ['eq', 'ge', 'le', 'g', 'l']) :
+            specific_component_set = {i for i in self.components[component_type].keys()\
+                if self.components[component_type][i][condition[0]] == condition[1]}
+        
+        elif condition[1] == 'eq':
+            specific_component_set = {i for i in self.components[component_type].keys()\
+                if self.components[component_type][i][condition[0]] == condition[2]}
+        elif condition[1] == 'ge':
+            specific_component_set = {i for i in self.components[component_type].keys()\
+                if self.components[component_type][i][condition[0]] >= condition[2]}
+        elif condition[1] == 'le':
+            specific_component_set = {i for i in self.components[component_type].keys()\
+                if self.components[component_type][i][condition[0]] <= condition[2]}
+        elif condition[1] == 'l':
+            specific_component_set = {i for i in self.components[component_type].keys()\
+                if self.components[component_type][i][condition[0]] < condition[2]}
+        elif condition[1] == 'g':
+            specific_component_set = {i for i in self.components[component_type].keys()\
+                if self.components[component_type][i][condition[0]] > condition[2]}
+        else:
+            specific_component_set = {}
+        return specific_component_set
+
     def __repr__(self):
         return self.name
 
@@ -58,4 +104,5 @@ class Result:
 
     def __eq__(self, other):
         return self.name == other.name
+
 

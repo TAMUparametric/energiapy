@@ -130,33 +130,36 @@ case = Scenario(name= '', network= Arcs, scales= scales, \
 #this creates a pyomo instance, prior to this step the model is only defined in energiapy
 mpmilp = formulate_mpmilp(scenario= case, penalty= 1)
 
-results = solve(scenario = case, instance=mpmilp, solver= 'gurobi', name='trial', tee = True)
-# results = solve(scenario = case, instance=mpmilp, solver= 'gurobi', name='trial', saveformat= '.pkl', tee = True)
+# results = solve(scenario = case, instance=mpmilp, solver= 'gurobi', name='trial', tee = True)
+results = solve(scenario = case, instance=mpmilp, solver= 'gurobi', name='trial', saveformat= '.pkl', tee = True)
 
 
 #%% plots results at requested scales, usetex giving a very unique error only for this plot!! 
 #TODO - add the type of graph generated in the title
 location = 'B'
-for i in case.process_set:
-    graph.schedule(results = results, y_axis = 'P', component= i.name, location= location, usetex = False)
-#%%
-for i in case.resource_set:
-    graph.schedule(results = results, y_axis = 'S', component= i.name, location= location, usetex = False)
-for i in case.resource_set:
-    graph.schedule(results = results, y_axis = 'C', component= i.name, location= location, usetex = False)
-for i in case.resource_set:
-    graph.schedule(results = results, y_axis = 'B', component= i.name, location= location, usetex = False)    
-for i in case.resource_set:
-    graph.schedule(results = results, y_axis = 'Inv', component= i.name, location= location, usetex = False)    
 
-for i in case.process_set:
-    if i.varying == True:
-        graph.schedule(results = results, y_axis = 'Delta_Cap_P', component= i.name, location= location, usetex = False)    
-#%%
-graph.schedule(results = results, y_axis = 'P', component= 'WF', location= 'C', usetex = False)
-
-# %%
+for i in results.fetch_components_specific(component_type= 'resources', condition = ('cons_max', 'g', 0)):
+    graph.schedule(results = results, y_axis = 'C', component= i, location= location, usetex = False)
 
 
-# %%
-# %%
+#%%expenditure on consumable resources
+for i in results.fetch_components_specific(component_type= 'resources', condition = ('cons_max', 'g', 0)):
+    graph.schedule(results = results, y_axis = 'B', component= i, location= location, usetex = False)    
+
+
+#%%inventory levels of storable processes
+for i in results.fetch_components_specific(component_type= 'resources', condition = ('store_max','g', 0)):
+    graph.schedule(results = results, y_axis = 'Inv', component= i, location= location, usetex = False)    
+
+
+#%%Production on per basis level for processes with varying capacities
+
+for i in results.fetch_components(component_type= 'processes', condition = ('varying', True)):
+    graph.schedule(results = results, y_axis = 'P', component= i, location= location, usetex = False)
+   
+
+#%%Delta Cap of process with varying capacities 
+
+for i in results.fetch_components_specific(component_type= 'processes', condition = ('varying', True)):
+    graph.schedule(results = results, y_axis = 'Delta_Cap_P', component= i, location= location, usetex = False)    
+

@@ -21,9 +21,13 @@ def solve(instance:ConcreteModel, solver:str, name:str, scenario:Scenario = None
     if scenario is None:
         components_dict = {}
     else:
-        components_dict = {i.name: i.__dict__ for i in set().union(scenario.transport_set, scenario.process_set, \
-            scenario.resource_set, scenario.material_set, scenario.location_set)}
-        
+        components_dict = {
+            'transports': {i.name: i.__dict__ for i in scenario.transport_set},
+            'processes': {i.name: i.__dict__ for i in scenario.process_set},  
+            'resources': {i.name: i.__dict__ for i in scenario.resource_set},   
+            'materials': {i.name: i.__dict__ for i in scenario.material_set},    
+            'locations': {i.name: i.__dict__ for i in scenario.location_set}
+            }
     results_dict ={
         'LB': output['Problem'][0]['Lower bound'], 
         'UB': output['Problem'][0]['Upper bound'],
