@@ -71,7 +71,9 @@ def constraint_latex_render(constraint_rule, latex_alias_dict:dict= {}) -> str:
         '_imp': '^{imp}',
         'source': 'l^{source}',
         'sink': 'l^{sink}',
-        'transport_':'t'
+        'transport_':'t',
+        'transport':'t'
+        
         
         
         }

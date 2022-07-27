@@ -39,12 +39,10 @@ def formulate_milp(scenario: Scenario) -> ConcreteModel:
     
     inventory_balance_constraint(instance= instance, scheduling_scale_level= scenario.scheduling_scale_level,\
         conversion= scenario.conversion)
-
     nameplate_production_constraint(instance= instance, capacity_factor= scenario.capacity_factor, network_scale_level= \
         scenario.network_scale_level, scheduling_scale_level= scenario.scheduling_scale_level)
     nameplate_inventory_constraint(instance= instance, loc_res_dict= scenario.loc_res_dict, network_scale_level= scenario.network_scale_level,\
         scheduling_scale_level= scenario.scheduling_scale_level)
-
     resource_consumption_constraint(instance= instance, loc_res_dict= scenario.loc_res_dict, cons_max= scenario.cons_max, scheduling_scale_level= scenario.scheduling_scale_level)
     resource_purchase_constraint(instance= instance, cost_factor= scenario.cost_factor, price= scenario.price, \
         loc_res_dict= scenario.loc_res_dict, scheduling_scale_level= scenario.scheduling_scale_level, \
@@ -78,21 +76,21 @@ def formulate_milp(scenario: Scenario) -> ConcreteModel:
     network_fopex_constraint(instance= instance, network_scale_level= scenario.network_scale_level)
     network_vopex_constraint(instance= instance, network_scale_level= scenario.network_scale_level)
     
-
     demand_constraint(instance= instance, demand_scale_level= scenario.demand_scale_level, scheduling_scale_level= scenario.scheduling_scale_level, demand_dict= scenario.demand_dict)
     
-    transport_export_constraint(instance= instance, scheduling_scale_level= scenario.scheduling_scale_level, transport_avail_dict= scenario.transport_avail_dict)
-    transport_import_constraint(instance= instance, scheduling_scale_level= scenario.scheduling_scale_level, transport_avail_dict= scenario.transport_avail_dict)
-    transport_exp_UB_constraint(instance= instance, scheduling_scale_level= scenario.scheduling_scale_level, trans_max= scenario.trans_max, transport_avail_dict= scenario.transport_avail_dict)  
-    transport_imp_UB_constraint(instance= instance, scheduling_scale_level= scenario.scheduling_scale_level, trans_max= scenario.trans_max, transport_avail_dict= scenario.transport_avail_dict)  
-    transport_balance_constraint(instance= instance, scheduling_scale_level= scenario.scheduling_scale_level)
-    
-    transport_exp_cost_constraint(instance= instance, scheduling_scale_level= scenario.scheduling_scale_level, trans_cost= scenario.trans_cost, distance_dict= scenario.distance_dict)  
-    transport_imp_cost_constraint(instance= instance, scheduling_scale_level= scenario.scheduling_scale_level, trans_cost= scenario.trans_cost, distance_dict= scenario.distance_dict)  
-    transport_cost_constraint(instance= instance, scheduling_scale_level= scenario.scheduling_scale_level)
-    transport_cost_network_constraint(instance= instance, network_scale_level= scenario.network_scale_level)
-    
-    
+    if len(scenario.location_set) > 1:
+        transport_export_constraint(instance= instance, scheduling_scale_level= scenario.scheduling_scale_level, transport_avail_dict= scenario.transport_avail_dict)
+        transport_import_constraint(instance= instance, scheduling_scale_level= scenario.scheduling_scale_level, transport_avail_dict= scenario.transport_avail_dict)
+        transport_exp_UB_constraint(instance= instance, scheduling_scale_level= scenario.scheduling_scale_level, trans_max= scenario.trans_max, transport_avail_dict= scenario.transport_avail_dict)  
+        transport_imp_UB_constraint(instance= instance, scheduling_scale_level= scenario.scheduling_scale_level, trans_max= scenario.trans_max, transport_avail_dict= scenario.transport_avail_dict)  
+        transport_balance_constraint(instance= instance, scheduling_scale_level= scenario.scheduling_scale_level)
+        
+        transport_exp_cost_constraint(instance= instance, scheduling_scale_level= scenario.scheduling_scale_level, trans_cost= scenario.trans_cost, distance_dict= scenario.distance_dict)  
+        transport_imp_cost_constraint(instance= instance, scheduling_scale_level= scenario.scheduling_scale_level, trans_cost= scenario.trans_cost, distance_dict= scenario.distance_dict)  
+        transport_cost_constraint(instance= instance, scheduling_scale_level= scenario.scheduling_scale_level)
+        transport_cost_network_constraint(instance= instance, network_scale_level= scenario.network_scale_level)
+        
+        
     cost_objective(instance= instance, network_scale_level= scenario.network_scale_level)
     
 
