@@ -92,15 +92,23 @@ def schedule(results: Result, y_axis:str, component:str, location:str,\
     rc('font', **{'family': 'serif', 'serif': ['Computer Modern'], 'size': font_size})
     rc('text', usetex=usetex)
     fig, ax = plt.subplots(figsize= fig_size)
+    results.__dict__['components'].keys()
     y_ = [results.output[y_axis][i] for i in results.output[y_axis].keys() if location in i if component in i]
-    title = f"Schedule for {results.components[component]['label']} in {results.components[location]['label']}"
+    
+    for i in results.__dict__['components'].keys():
+        if component in results.__dict__['components'][i]:
+            component_type = i
+
+    title = f"Schedule for {results.components[component_type][component]['label']} in {results.components['locations'][location]['label']}"
     plt.title(title)
-    plt.ylabel(results.components[component]['basis'])
+    plt.ylabel(results.components[component_type][component]['basis'])
     x_ = [i for i in range(len(y_))]
     ax.plot(x_, y_, linewidth=0.5, color=color)
     plt.grid(alpha=0.3)
     plt.rcdefaults()
     return
+
+
 
 #TODO - plots are independent of scales, check
 #TODO - make bar plots / pie plots for contribution from different components 
