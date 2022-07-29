@@ -44,12 +44,19 @@ from src.energiapy.model.pyomo_solve import solve
 
  
 # *-------------------------Temporal scales------------------------------------
-
+# Temporal_scale is used to define a descritizations of the temporal scale
+# E.g.: A year at annual, daily and hourly descritization cane be represented as:
+# Annual (1x1 = 1) - network level trends and their inherent uncertainties can be well 
+# represented at an annual scale, for example, augmentations in process
+# efficiencies, reductions in technology cost. 
+# Daily (1x365 = 365) - Purchase level decisions can be sufficienctly described at a daily scale.
+# Hourly (1x365x24 = 8760)- Solar and wind availability can be represented to within some factor
+# of accuracy at an hourly scale. 
 scales = Temporal_scale(discretization_list = [1, 365, 24])
 # scales = temporal_scale(discretization_list = [1, 2, 3])
 
 # *-------------------------Constants defined here for ease------------------------------------
-bigM = 10**10 #very large number
+bigM = 10**20 #very large number
 water_price = 31.70  # $/5000gallons
 power_price = 8  # cents/kWh
 ur_price = 42.70  # 250 Pfund U308 (Uranium)
@@ -61,7 +68,19 @@ smrh_start = 0
 smr_start = 0 
 asmr_start = 0 
 
-# *-------------------------Resources------------------------------------
+# *-------------------------Resources-------------------------------------
+#Resources can be - 
+# consumed, e.g. solar, wind 
+# purchased (consumed at a cost), e.g. natural gas, water 
+# sold, e.g. hydrogen, power
+# produced, e.g. hydrogen, methanol
+# stored, e.g. power as charge or elevated water, hydrogen as cryogenic or compressed 
+# discharged (sold for 0 currency), e.g. CO2, O2 (could be assigned profit)
+# basis can be declared, maximum consumption and storage can be defined
+# selling and purchase costs can vary. Natural gas and power for example 
+# labels and blocks can be defined
+# these can be represented as cost factors (0,1) multiplied to a base resource cost 
+# *------------------------------------------------------------------------
 
 Charge = Resource(name='Charge', sell=False,
                           store_max=bigM, basis='MW', label='Battery energy', block= 'energystorage')
@@ -108,11 +127,24 @@ Power = Resource(name='Power', basis='MW',
 
 
 # *-------------------------Materials------------------------------------
+# Materials required to build processes
 Li = Material(name='Li', gwp=0, basis= 'kg', label='Lithium')
 
 
 # *-------------------------Processes ------------------------------------
+# Processes can convert resources, for example electorlysis converts 
+# water and power into hydrogen.
+# processes also require materials such as Lithium for Li-ion batteries 
+# production capacity could be subject to variation. e.g. Solar PVs and Wind farms 
+# intermittency can be represented through capacity factors (0,1)
+# production costs and their trajectories can be defined
+# blocks can be defined
+# TRL trajectories can be defined 
+# citations and sources can be added
+# *------------------------------------------------------------------------
 
+
+#cost of processes
 cost_dict = get_data(file_name='cost_dict')
 
 LiI_c = Process(name='LiI_c', conversion={Charge: 1, Power: -1}, cost = cost_dict['HO']['moderate']['LiI_c']['0'],\
@@ -191,20 +223,25 @@ daily_ng_price_df = make_henry_price_df(
 daily_ng_price_df['CH4'] = daily_ng_price_df['CH4']/max(daily_ng_price_df['CH4']) 
 
 # *-------------------------Geographic scales/location------------------------------------
-HO = Location(name='HO', processes= {H2_L_c, H2_L_d, PV, LiI_c, LiI_d, WF, AKE}, demand = {H2_L: 100, H2_C: 100}, scales = scales, varying_cost_df = daily_ng_price_df, \
+HO = Location(name='HO', processes= {H2_L_c, H2_L_d, PV, LiI_c, LiI_d, WF, AKE, SMRH}, demand = {H2_L: 100, H2_C: 100}, scales = scales, varying_cost_df = daily_ng_price_df, \
     varying_process_df= ho_power_output_df, PV_class='Class5', WF_class='Class4',
                       LiI_class='8Hr Battery Storage', PSH_class='Class 3', label='Houston')
 
-# # *-------------------------Input data graphs------------------------------------
-# graph.capacity_factor(location= HO, process= PV, color= 'orange')
-# graph.cost_factor (location= HO, resource= CH4) 
+# *-------------------------Input data graphs------------------------------------
+graph.capacity_factor(location= HO, process= PV, color= 'orange')
+graph.cost_factor (location= HO, resource= CH4) 
+
+# *-------------------------Scenario------------------------------------
+
+case = Scenario(name= '', network = HO, scales= scales,  expenditure_scale_level= 1, scheduling_scale_level= 2, network_scale_level= 0, demand_scale_level= 1, label= 'shell milp case study')
+
+# *-------------------------Model formulation------------------------------------
+milp = formulate_milp(scenario= case)
+results = solve(scenario = case, instance=milp, solver= 'gurobi', name='onelocmilp', saveformat = '.pkl', tee = True)
 
 #%%
 
-#%%
-
-
-def reduce_scenario(varying_process_df: pandas.DataFrame, varying_resource_df: pandas.DataFrame, red_scn_method: str, rep_days_no: int) -> dict:
+def reduce_scenario(varying_process_df: pandas.DataFrame, varying_cost_df: pandas.DataFrame, red_scn_method: str, rep_days_no: int) -> dict:
     """Reduces scenario to set of representative days
     days closest to the cluster centroids are chosen
     red_scn_methods available: Agglomorative Hierarchial Clustering (AHC)
@@ -478,15 +515,6 @@ def find_dtw_path(matrix:numpy.ndarray)-> list:
 
 #%%
 
-
-# *-------------------------Scenario------------------------------------
-
-case = Scenario(name= '', network = HO, scales= scales,  expenditure_scale_level= 1, scheduling_scale_level= 2, network_scale_level= 0, demand_scale_level= 1, label= 'shell milp case study')
-
-# *-------------------------Model formulation------------------------------------
-milp = formulate_milp(scenario= case)
-
-results = solve(scenario = case, instance=milp, solver= 'gurobi', name='onelocmilp', saveformat = '.pkl', tee = True)
 
 
 
