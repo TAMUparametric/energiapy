@@ -42,6 +42,21 @@ from src.energiapy.utils.data_utils import get_data,make_henry_price_df
 from src.energiapy.graph import graph
 from src.energiapy.model.pyomo_solve import solve
 
+# *-------------------------Import data------------------------------------
+
+ho_power_output_df = pandas.read_csv('power_output_df.csv').drop(columns='datetime')
+ho_power_output_df['day'] = [i - 1 for i in ho_power_output_df['day']]
+ho_power_output_df['scales'] = [(0,j,k) for j,k in zip(ho_power_output_df['day'], ho_power_output_df['hour'])]
+ho_power_output_df = ho_power_output_df.drop(columns= ['day', 'hour'])
+ho_power_output_df['PV'] = ho_power_output_df['PV']/max(ho_power_output_df['PV'])
+ho_power_output_df['WF'] = ho_power_output_df['WF']/max(ho_power_output_df['WF'])
+
+
+#varying natural gas prices
+hp_price_daily_df = make_henry_price_df(
+    file_name='Henry_Hub_Natural_Gas_Spot_Price_Daily.csv', year=2019, stretch=False)
+hp_price_daily_df['CH4'] = hp_price_daily_df['CH4']/max(hp_price_daily_df['CH4']) 
+
  
 # *-------------------------Temporal scales------------------------------------
 # Temporal_scale is used to define a descritizations of the temporal scale
@@ -217,14 +232,9 @@ ho_power_output_df['PV'] = ho_power_output_df['PV']/max(ho_power_output_df['PV']
 ho_power_output_df['WF'] = ho_power_output_df['WF']/max(ho_power_output_df['WF'])
 
 
-#varying natural gas prices
-daily_ng_price_df = make_henry_price_df(
-    file_name='Henry_Hub_Natural_Gas_Spot_Price_Daily.csv', year=2019, stretch=False)
-daily_ng_price_df['CH4'] = daily_ng_price_df['CH4']/max(daily_ng_price_df['CH4']) 
-
 # *-------------------------Geographic scales/location------------------------------------
-HO = Location(name='HO', processes= {H2_L_c, H2_L_d, PV, LiI_c, LiI_d, WF, AKE, SMRH}, demand = {H2_L: 100, H2_C: 100}, scales = scales, varying_cost_df = daily_ng_price_df, \
-    varying_process_df= ho_power_output_df, PV_class='Class5', WF_class='Class4',
+HO = Location(name='HO', processes= {H2_L_c, H2_L_d, PV, LiI_c, LiI_d, WF, AKE, SMRH}, demand = {H2_L: 100, H2_C: 100}, scales = scales, varying_cost_df = ho_price_daily_df, \
+    varying_process_df= ho_capacityf_hourly_df, PV_class='Class5', WF_class='Class4',
                       LiI_class='8Hr Battery Storage', PSH_class='Class 3', label='Houston')
 
 # *-------------------------Input data graphs------------------------------------

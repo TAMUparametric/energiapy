@@ -58,32 +58,7 @@ class Location:
         self.cost_factor = self.make_cost_factor()
         self.resource_price = self.get_resource_price()            
     
-    def make_capacity_factor(self)-> dict:
-        """makes capacity factor dict from varying process/production output DataFrame()
 
-        Returns:
-            dict: dictionary with varying capacity factor, structure - {process: scale: value}
-        """
-        if self.varying_process_df is None:
-            return None
-        else:
-            capacity_factor = {process.name: {scale: self.varying_process_df[process.name][self.varying_process_df['scales'] == scale].values[0] \
-                if process.name in list(self.varying_process_df.columns) else 1 for scale in self.varying_process_df['scales']}\
-                    for process in self.varying_processes}
-            return capacity_factor
-        
-    def make_cost_factor(self) -> dict:
-        """makes cost factor dict from varying process/production output DataFrame()
-
-        Returns:
-            dict: dictionary with varying cost factor, structure - {resource: scale: value}
-        """
-        if self.varying_cost_df is None:
-            return None
-        else:
-            cost_factor = {resource.name: {scale: self.varying_cost_df[resource.name][self.varying_cost_df['scales'] == scale].values[0]\
-                if resource.name in list(self.varying_cost_df.columns) else 1 for scale in self.varying_cost_df['scales']} for resource in self.varying_resources}
-            return cost_factor
     
     def get_resources(self) -> Set[Resource]:
         """fetches required resources for processes introduced at locations 
@@ -108,22 +83,7 @@ class Location:
         else:
             return set().union(*[set(i.material_cons.keys()) for i in self.processes if i.material_cons is not None])
     
-    def get_varying_processes(self) -> Set[Process]:
-        """makes a set of processes with varying capacity factors
 
-        Returns:
-            Set[process]: set of processes with varying capacity factors
-        """
-        return {i for i in self.processes if i.varying == True}
-    
-    def get_varying_resources(self) -> Set[Resource]:
-        """makes a set of resources with varying cost factors
-        
-        Returns:
-            Set[resource]: set of resources with varying cost factors
-        """
-        return {i for i in self.resources if i.varying == True}
-    
     def get_resource_price(self):
         """gets resource prices for resources with non-varying costs
         

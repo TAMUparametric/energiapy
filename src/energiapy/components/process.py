@@ -15,6 +15,7 @@ from dataclasses import dataclass, field
 from typing import Dict, Union
 from ..components.resource import Resource
 from ..components.material import Material
+import pandas
 
 @dataclass
 class Process:
@@ -39,7 +40,8 @@ class Process:
         block (str, optional): define block for convenience. Defaults to None.
         citation (str, optional): citation for data. Defaults to 'citation needed'.
         lifetime (float, optional): the lifetime of process. Defaults to None.
-    
+        varying_cost_df (pandas.DataFrame, optional): input dataframe to generate cost factors. Defaults to None.
+        varying_capacity_df (pandas.DataFrame, optional): input dataframe to generate capacity factors. Defaults to None.  
     """
 
     name: str 
@@ -61,7 +63,8 @@ class Process:
     citation: str = 'citation needed'
     varying: bool = False
     lifetime: tuple = None
-
+    varying_cost_df: pandas.DataFrame = None
+    varying_capacity_df: pandas.DataFrame = None
 
     def __post_init__(self):
         if self.cost is not None:
@@ -72,7 +75,35 @@ class Process:
             self.capex = 100
             self.fopex = 10
             self.vopex = 1
-            
+        self.capacity_factor = self.make_capacity_factor()
+        self.cost_factor = self.make_cost_factor()
+
+    def make_capacity_factor(self)-> dict:
+        """makes capacity factor dict from varying process/production output DataFrame()
+
+        Returns:
+            dict: dictionary with varying capacity factor, structure - {process: scale: value}
+        """
+        if self.varying_process_df is None:
+            return None
+        else:
+            capacity_factor = {process.name: {scale: self.varying_process_df[self.varying_process_df['scales'] == scale].values[0] \
+                 for scale in self.varying_process_df['scales']}
+            return capacity_factor
+        
+    def make_cost_factor(self) -> dict:
+        """makes cost factor dict from varying process/production output DataFrame()
+
+        Returns:
+            dict: dictionary with varying cost factor, structure - {resource: scale: value}
+        """
+        if self.varying_cost_df is None:
+            return None
+        else:
+            cost_factor = {resource.name: {scale: self.varying_cost_df[resource.name][self.varying_cost_df['scales'] == scale].values[0]\
+                if resource.name in list(self.varying_cost_df.columns) else 1 for scale in self.varying_cost_df['scales']} for resource in self.varying_resources}
+            return cost_factor   
+
     def __repr__(self):
         return self.name
     
