@@ -61,9 +61,7 @@ class Process:
     trl: str = ''
     block: str = None
     citation: str = 'citation needed'
-    varying: bool = False
     lifetime: tuple = None
-    varying_cost_df: pandas.DataFrame = None
     varying_capacity_df: pandas.DataFrame = None
 
     def __post_init__(self):
@@ -76,7 +74,6 @@ class Process:
             self.fopex = 10
             self.vopex = 1
         self.capacity_factor = self.make_capacity_factor()
-        self.cost_factor = self.make_cost_factor()
 
     def make_capacity_factor(self)-> dict:
         """makes capacity factor dict from varying process/production output DataFrame()
@@ -84,25 +81,20 @@ class Process:
         Returns:
             dict: dictionary with varying capacity factor, structure - {process: scale: value}
         """
-        if self.varying_process_df is None:
+        if self.varying_capacity_df is None:
+            self.varying = False
             return None
         else:
-            capacity_factor = {process.name: {scale: self.varying_process_df[self.varying_process_df['scales'] == scale].values[0] \
-                 for scale in self.varying_process_df['scales']}
+            self.varying = True
+            df = self.varying_capacity_df
+            df['hour'] = pandas.to_datetime(df.index).strftime("%H")
+            df['day'] = pandas.to_datetime(df.index).strftime("%j")
+            df['scales'] = [(0,int(j),int(k)) for j,k in zip(df['day'], df['hour'])]
+            df = df.drop(['hour', 'day'], axis = 1)
+            df.columns = ['value', 'scales']
+            capacity_factor = {scale_: df['value'][df['scales'] == scale_][0]/max(df['value']) for scale_ in df['scales']}
             return capacity_factor
         
-    def make_cost_factor(self) -> dict:
-        """makes cost factor dict from varying process/production output DataFrame()
-
-        Returns:
-            dict: dictionary with varying cost factor, structure - {resource: scale: value}
-        """
-        if self.varying_cost_df is None:
-            return None
-        else:
-            cost_factor = {resource.name: {scale: self.varying_cost_df[resource.name][self.varying_cost_df['scales'] == scale].values[0]\
-                if resource.name in list(self.varying_cost_df.columns) else 1 for scale in self.varying_cost_df['scales']} for resource in self.varying_resources}
-            return cost_factor   
 
     def __repr__(self):
         return self.name

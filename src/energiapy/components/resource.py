@@ -12,6 +12,7 @@ __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
 from dataclasses import dataclass
+import pandas
 
 
 @dataclass
@@ -50,8 +51,28 @@ class Resource:
     demand: bool = False
     basis: str = 'unit'
     block: str = None
-    varying: bool = False
     citation: str = 'citation needed'
+    varying_cost_df: pandas.DataFrame = None
+    
+    def __post_init__(self):
+        self.cost_factor = self.make_cost_factor()
+        
+    def make_cost_factor(self) -> dict:
+        """makes cost factor dict from varying process/production output DataFrame()
+
+        Returns:
+            dict: dictionary with varying cost factor, structure - {resource: scale: value}
+        """
+        if self.varying_cost_df is None:
+            self.varying = False
+            return None
+        else:
+            self.varying = True
+            df = self.varying_cost_df
+            df.columns = ['value','scales']
+            
+            cost_factor = {scale_: df['value'][df['scales'] == scale_].values[0]/max(df['value']) for scale_ in df['scales']}
+            return cost_factor
 
     def __repr__(self):
         return self.name
@@ -64,3 +85,5 @@ class Resource:
         
 
 # %%
+
+ 

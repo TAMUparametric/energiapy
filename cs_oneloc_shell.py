@@ -27,6 +27,7 @@ __status__ = "Production"
 
 # *-------------------------Import modules------------------------------------
 # from turtle import distance
+from os import stat
 import pandas
 from src.energiapy.components.temporal_scale import Temporal_scale
 from src.energiapy.components.resource import Resource
@@ -38,25 +39,20 @@ from src.energiapy.components.scenario import Scenario
 from src.energiapy.components.transport import Transport
 from src.energiapy.components.result import Result
 from src.energiapy.model.formulate_milp import formulate_milp
-from src.energiapy.utils.data_utils import get_data,make_henry_price_df
+from src.energiapy.utils.data_utils import get_data, make_henry_price_df
+from src.energiapy.utils.nsrdb_utils import fetch_nsrdb_data
 from src.energiapy.graph import graph
 from src.energiapy.model.pyomo_solve import solve
 
 # *-------------------------Import data------------------------------------
 
-ho_power_output_df = pandas.read_csv('power_output_df.csv').drop(columns='datetime')
-ho_power_output_df['day'] = [i - 1 for i in ho_power_output_df['day']]
-ho_power_output_df['scales'] = [(0,j,k) for j,k in zip(ho_power_output_df['day'], ho_power_output_df['hour'])]
-ho_power_output_df = ho_power_output_df.drop(columns= ['day', 'hour'])
-ho_power_output_df['PV'] = ho_power_output_df['PV']/max(ho_power_output_df['PV'])
-ho_power_output_df['WF'] = ho_power_output_df['WF']/max(ho_power_output_df['WF'])
-
+#get solar data as dni and wind data as wind speed for most populated data point in Harris county (TX) at an hourly resolution
+ho_wind_df = fetch_nsrdb_data(attrs = ['wind_speed'], year = 2019, state = 'Texas', county = 'Harris', resolution= 'hourly') #(lon_lat, wind df)
+ho_solar_df = fetch_nsrdb_data(attrs = ['dni'], year = 2019, state = 'Texas', county = 'Harris', resolution= 'hourly') #(lon_lat, wind df)
 
 #varying natural gas prices
 hp_price_daily_df = make_henry_price_df(
     file_name='Henry_Hub_Natural_Gas_Spot_Price_Daily.csv', year=2019, stretch=False)
-hp_price_daily_df['CH4'] = hp_price_daily_df['CH4']/max(hp_price_daily_df['CH4']) 
-
  
 # *-------------------------Temporal scales------------------------------------
 # Temporal_scale is used to define a descritizations of the temporal scale
@@ -121,7 +117,7 @@ H2O = Resource(name='H2O', cons_max=10**20,
 O2 = Resource(name='O2', sell=True, loss=0.07,
                       basis='kg', label='Oxygen', block = 'Resource')
 CH4 = Resource(name='CH4', cons_max=10 **
-                       20, varying= True, price=1, basis='kg', label='Natural gas', block = 'materialfeedstock')
+                       20, price=1, basis='kg', label='Natural gas', block = 'materialfeedstock', varying_cost_df= hp_price_daily_df)
 CO2 = Resource(name='CO2', basis='kg', label='Carbon dioxide', block = 'Resource')
 CO2_DAC = Resource(
     name='CO2_DAC', basis='kg', label='Carbon dioxide - captured', block = 'carbonsequestration')
@@ -139,7 +135,6 @@ CO2_Vent = Resource(
 #    mile= (10**3)/(0.2167432**1.60934), label= 'Renewable power generated')
 Power = Resource(name='Power', basis='MW',
                          label='Renewable power generated', block = 'Resource')
-
 
 # *-------------------------Materials------------------------------------
 # Materials required to build processes
@@ -175,10 +170,10 @@ PSH_c = Process(name='PSH_c', conversion={H2O_E: 1, Power: -1}, cost = cost_dict
 PSH_d = Process(name='PSH_d', conversion={H2O: -1, Power: -1.4286}, cost = cost_dict['HO']['moderate']['PSH_d']['0'], \
     prod_max=bigM, trl='discharge', block='power_storage', label='Pumped storage hydropower (PSH) discharge', citation='Zakeri 2015')
 PV = Process(name='PV', intro_scale=pv_start, conversion={Solar: -1, Power: 1, H2O: -20}, cost = cost_dict['HO']['moderate']['PV']['0'], \
-    varying= True, prod_max=bigM, gwp=53000, land=13320/1800, trl='nrel', block='power_generation', label='Solar photovoltaics (PV) array', citation='Use pvlib conversion')
+    prod_max=bigM, gwp=53000, land=13320/1800, trl='nrel', block='power_generation', label='Solar photovoltaics (PV) array', citation='Use pvlib conversion', varying_capacity_df= ho_solar_df[1])
 WF = Process(name='WF', conversion={Wind: -1, Power: 1, H2O: -1}, cost = cost_dict['HO']['moderate']['WF']['0'], \
-    varying= True, prod_max=bigM, gwp=52700, land=10800/1800, trl='nrel', block='power_generation', \
-        label='Wind mill array', citation='Use windtoolkit conversion')
+    prod_max=bigM, gwp=52700, land=10800/1800, trl='nrel', block='power_generation', \
+        label='Wind mill array', citation='Use windtoolkit conversion', varying_capacity_df= ho_wind_df[1])
 AKE = Process(name='AKE', intro_scale=ake_start, conversion={Power: -1, H2_G: 19.474, O2: 763.2, H2O: -175.266}, \
     cost = cost_dict['HO']['moderate']['AKE']['0'], prod_max=bigM, trl='utility', block='material_production', \
         label='Alkaline water electrolysis (AWE)', citation='Demirhan et al. 2018 AIChE paper')  # 20.833 MW required to produce 1000t/day.H2
@@ -221,30 +216,20 @@ H2_Green = Process(name='H2_Green', conversion={H2: 1, H2_G: -1}, prod_max=bigM,
                            trl='nocost', block='dummy', label='Green Hydrogen production')
 
 
-# *-------------------------Generate scenario------------------------------------
-
-
-ho_power_output_df = pandas.read_csv('power_output_df.csv').drop(columns='datetime')
-ho_power_output_df['day'] = [i - 1 for i in ho_power_output_df['day']]
-ho_power_output_df['scales'] = [(0,j,k) for j,k in zip(ho_power_output_df['day'], ho_power_output_df['hour'])]
-ho_power_output_df = ho_power_output_df.drop(columns= ['day', 'hour'])
-ho_power_output_df['PV'] = ho_power_output_df['PV']/max(ho_power_output_df['PV'])
-ho_power_output_df['WF'] = ho_power_output_df['WF']/max(ho_power_output_df['WF'])
-
 
 # *-------------------------Geographic scales/location------------------------------------
-HO = Location(name='HO', processes= {H2_L_c, H2_L_d, PV, LiI_c, LiI_d, WF, AKE, SMRH}, demand = {H2_L: 100, H2_C: 100}, scales = scales, varying_cost_df = ho_price_daily_df, \
-    varying_process_df= ho_capacityf_hourly_df, PV_class='Class5', WF_class='Class4',
+HO = Location(name='HO', processes= {H2_L_c, H2_L_d, PV, LiI_c, LiI_d, WF, AKE, SMRH}, demand = {H2_L: 100, H2_C: 100}, scales = scales, PV_class='Class5', WF_class='Class4',
                       LiI_class='8Hr Battery Storage', PSH_class='Class 3', label='Houston')
 
 # *-------------------------Input data graphs------------------------------------
 graph.capacity_factor(location= HO, process= PV, color= 'orange')
 graph.cost_factor (location= HO, resource= CH4) 
 
-# *-------------------------Scenario------------------------------------
+# *-------------------------Generate scenario------------------------------------
 
 case = Scenario(name= '', network = HO, scales= scales,  expenditure_scale_level= 1, scheduling_scale_level= 2, network_scale_level= 0, demand_scale_level= 1, label= 'shell milp case study')
 
+#%%
 # *-------------------------Model formulation------------------------------------
 milp = formulate_milp(scenario= case)
 results = solve(scenario = case, instance=milp, solver= 'gurobi', name='onelocmilp', saveformat = '.pkl', tee = True)

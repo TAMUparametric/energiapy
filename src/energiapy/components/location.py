@@ -45,21 +45,18 @@ class Location:
     WF_class: str = ''
     LiI_class: str = ''
     PSH_class: str = ''
-    varying_process_df: pandas.DataFrame = None
-    varying_cost_df: pandas.DataFrame = None
-
+    
     def __post_init__(self):
         self.resources = self.get_resources()
         self.materials = self.get_materials()
         self.scale_levels = self.scales.scale_levels
         self.varying_processes = self.get_varying_processes()
         self.varying_resources = self.get_varying_resources()
-        self.capacity_factor = self.make_capacity_factor()
-        self.cost_factor = self.make_cost_factor()
-        self.resource_price = self.get_resource_price()            
+        self.capacity_factor = self.get_capacityfactor()
+        self.cost_factor = self.get_costfactor()
+        self.resource_price = self.get_resource_price()    
     
-
-    
+      
     def get_resources(self) -> Set[Resource]:
         """fetches required resources for processes introduced at locations 
 
@@ -91,6 +88,20 @@ class Location:
             Set[resource]: set of resources with non-varying cost factors
         """
         return {i.name: i.price for i in self.resources}
+    
+    
+    def get_varying_processes(self):
+        return {i for i in self.processes if i.varying == True}
+    
+    def get_varying_resources(self):
+        return {i for i in self.resources if i.varying == True}            
+    
+    def get_capacityfactor(self):
+        return {i.name: i.capacity_factor for i in self.varying_processes}
+    
+    def get_costfactor(self):
+        return {i.name: i.cost_factor for i in self.varying_resources}
+    
     
     def __repr__(self):
         return self.name
