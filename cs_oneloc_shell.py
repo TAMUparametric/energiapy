@@ -46,9 +46,12 @@ from src.energiapy.model.pyomo_solve import solve
 
 # *-------------------------Import data------------------------------------
 
-#get solar data as dni and wind data as wind speed for most populated data point in Harris county (TX) at an hourly resolution
-ho_wind_df = fetch_nsrdb_data(attrs = ['wind_speed'], year = 2019, state = 'Texas', county = 'Harris', resolution= 'hourly') #(lon_lat, wind df)
-ho_solar_df = fetch_nsrdb_data(attrs = ['dni'], year = 2019, state = 'Texas', county = 'Harris', resolution= 'hourly') #(lon_lat, wind df)
+# get solar data as dni and wind data as wind speed for most populated data point in Harris county (TX) at an hourly resolution
+# lat_lon_ho, ho_wind_df = fetch_nsrdb_data(attrs = ['wind_speed'], year = 2019, state = 'Texas', county = 'Harris', resolution= 'hourly', save = 'ho_wind') #(lon_lat, wind df)
+# lat_lon_ho, ho_solar_df = fetch_nsrdb_data(attrs = ['dni'], year = 2019, state = 'Texas', county = 'Harris', resolution= 'hourly',  save = 'ho_solar') #(lon_lat, wind df)
+
+ho_solar_df = pandas.read_csv('ho_solar.csv', index_col= 0)
+ho_wind_df = pandas.read_csv('ho_wind.csv', index_col= 0)
 
 #varying natural gas prices
 hp_price_daily_df = make_henry_price_df(
@@ -170,10 +173,10 @@ PSH_c = Process(name='PSH_c', conversion={H2O_E: 1, Power: -1}, cost = cost_dict
 PSH_d = Process(name='PSH_d', conversion={H2O: -1, Power: -1.4286}, cost = cost_dict['HO']['moderate']['PSH_d']['0'], \
     prod_max=bigM, trl='discharge', block='power_storage', label='Pumped storage hydropower (PSH) discharge', citation='Zakeri 2015')
 PV = Process(name='PV', intro_scale=pv_start, conversion={Solar: -1, Power: 1, H2O: -20}, cost = cost_dict['HO']['moderate']['PV']['0'], \
-    prod_max=bigM, gwp=53000, land=13320/1800, trl='nrel', block='power_generation', label='Solar photovoltaics (PV) array', citation='Use pvlib conversion', varying_capacity_df= ho_solar_df[1])
+    prod_max=bigM, gwp=53000, land=13320/1800, trl='nrel', block='power_generation', label='Solar photovoltaics (PV) array', citation='Use pvlib conversion', varying_capacity_df= ho_solar_df)
 WF = Process(name='WF', conversion={Wind: -1, Power: 1, H2O: -1}, cost = cost_dict['HO']['moderate']['WF']['0'], \
     prod_max=bigM, gwp=52700, land=10800/1800, trl='nrel', block='power_generation', \
-        label='Wind mill array', citation='Use windtoolkit conversion', varying_capacity_df= ho_wind_df[1])
+        label='Wind mill array', citation='Use windtoolkit conversion', varying_capacity_df= ho_wind_df)
 AKE = Process(name='AKE', intro_scale=ake_start, conversion={Power: -1, H2_G: 19.474, O2: 763.2, H2O: -175.266}, \
     cost = cost_dict['HO']['moderate']['AKE']['0'], prod_max=bigM, trl='utility', block='material_production', \
         label='Alkaline water electrolysis (AWE)', citation='Demirhan et al. 2018 AIChE paper')  # 20.833 MW required to produce 1000t/day.H2
@@ -217,13 +220,16 @@ H2_Green = Process(name='H2_Green', conversion={H2: 1, H2_G: -1}, prod_max=bigM,
 
 
 
+ho_processes = {LiI_c, LiI_d, CAES_c, CAES_d, PSH_c, PSH_d, PV, WF, AKE, SMRH, H2_C_c,
+                H2_C_d, H2_L_c, H2_L_d, DAC, EOR, AQoff_SMR, H2_Blue, H2_Green, ASMR}
+# {H2_L_c, H2_L_d, PV, LiI_c, LiI_d, WF, AKE, SMRH}
 # *-------------------------Geographic scales/location------------------------------------
-HO = Location(name='HO', processes= {H2_L_c, H2_L_d, PV, LiI_c, LiI_d, WF, AKE, SMRH}, demand = {H2_L: 100, H2_C: 100}, scales = scales, PV_class='Class5', WF_class='Class4',
+HO = Location(name='HO', processes= ho_processes, demand = {H2_L: 100, H2_C: 100}, scales = scales, PV_class='Class5', WF_class='Class4',
                       LiI_class='8Hr Battery Storage', PSH_class='Class 3', label='Houston')
 
 # *-------------------------Input data graphs------------------------------------
-graph.capacity_factor(location= HO, process= PV, color= 'orange')
-graph.cost_factor (location= HO, resource= CH4) 
+# graph.capacity_factor(location= HO, process= PV, color= 'orange')
+# graph.cost_factor (location= HO, resource= CH4) 
 
 # *-------------------------Generate scenario------------------------------------
 
@@ -232,7 +238,7 @@ case = Scenario(name= '', network = HO, scales= scales,  expenditure_scale_level
 #%%
 # *-------------------------Model formulation------------------------------------
 milp = formulate_milp(scenario= case)
-results = solve(scenario = case, instance=milp, solver= 'gurobi', name='onelocmilp', saveformat = '.pkl', tee = True)
+results = solve(scenario = case, instance=milp, solver= 'gurobi', name='onelocmilp', saveformat = '.pkl')
 
 #%%
 

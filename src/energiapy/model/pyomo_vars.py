@@ -17,28 +17,6 @@ from ..utils.model_utils import scale_pyomo_set
 
 
 
-def generate_expenditure_vars(instance: ConcreteModel, scale_level:int = 0):
-    """declares pyomo variables for expenditure at the chosen scale
-
-    Args:
-        instance (ConcreteModel): pyomo instance
-        scale_level (int, optional):  scale for scheduling variables. Defaults to 0.
-    """
-    # exp_scales_list = [instance.scales[i].data() for i in range(scale_level+ 1)]
-    instance.scales_expenditure = scale_pyomo_set(instance= instance, scale_level= scale_level)
-    instance.Fopex_process = Var(instance.locations, instance.processes, instance.scales_expenditure, within = NonNegativeReals, doc = 'Fixed Opex for process' )
-    instance.Vopex_process = Var(instance.locations, instance.processes, instance.scales_expenditure, within = NonNegativeReals, doc = 'Variable Opex for process' )
-    instance.Capex_process = Var(instance.locations, instance.processes, instance.scales_expenditure, within = NonNegativeReals, doc = 'Capex for process' )
-    
-    instance.Fopex_location = Var(instance.locations, instance.scales_expenditure, within = NonNegativeReals, doc = 'Fixed Opex at location scale' )
-    instance.Vopex_location = Var(instance.locations, instance.scales_expenditure, within = NonNegativeReals, doc = 'Variable Opex at location scale' )
-    instance.Capex_location = Var(instance.locations, instance.scales_expenditure, within = NonNegativeReals, doc = 'Capex at location scale' )
-    
-    
-    instance.Fopex_network = Var(instance.scales_expenditure, within = NonNegativeReals, doc = 'Fixed Opex at network scale' )
-    instance.Vopex_network = Var(instance.scales_expenditure, within = NonNegativeReals, doc = 'Variable Opex at network scale' )
-    instance.Capex_network = Var(instance.scales_expenditure, within = NonNegativeReals, doc = 'Capex at network scale' )
-    return
 
 def generate_scheduling_vars(instance: ConcreteModel, scale_level:int = 0):    
     """declares pyomo variables for scheduling at the chosen scale
@@ -56,6 +34,7 @@ def generate_scheduling_vars(instance: ConcreteModel, scale_level:int = 0):
     if len(instance.locations) > 1:
         instance.Imp = Var(instance.sinks, instance.sources, instance.resources, instance.scales_scheduling, within = NonNegativeReals, doc = 'Resource import')
         instance.Exp = Var(instance.sources, instance.sinks, instance.resources, instance.scales_scheduling, within = NonNegativeReals, doc = 'Resource export')
+    
     return 
 
 
@@ -71,6 +50,29 @@ def generate_network_vars(instance: ConcreteModel, scale_level:int = 0):
     instance.X_S = Var(instance.locations, instance.resources_store, instance.scales_network, within=Binary, doc='Storage Binary')
     instance.Cap_P = Var(instance.locations, instance.processes, instance.scales_network, within=NonNegativeReals, doc='Process Capacity')
     instance.Cap_S = Var(instance.locations, instance.resources_store, instance.scales_network, within=NonNegativeReals, doc='Storage Capacity')
+    instance.Land_process = Var(instance.locations, instance.processes, instance.scales_network, within=NonNegativeReals, doc='Land used by Process')
+    instance.P_location = Var(instance.locations, instance.processes, instance.scales_network, within=NonNegativeReals, doc='Total production at location')
+    instance.S_location = Var(instance.locations, instance.resources, instance.scales_network, within=NonNegativeReals, doc='Total resource discharge at location')
+    instance.C_location = Var(instance.locations, instance.resources, instance.scales_network, within=NonNegativeReals, doc='Total resource consumption at location')
+    instance.B_location = Var(instance.locations, instance.resources, instance.scales_network, within=NonNegativeReals, doc='Total resource purchase at location')
+    instance.P_network = Var(instance.processes, instance.scales_network, within=NonNegativeReals, doc='Total production from network')
+    instance.S_network = Var(instance.resources, instance.scales_network, within=NonNegativeReals, doc='Total resource discharge from network')
+    instance.C_network = Var(instance.resources, instance.scales_network, within=NonNegativeReals, doc='Total resource consumption from network')
+    instance.B_network = Var(instance.resources, instance.scales_network, within=NonNegativeReals, doc='Total resource purchase from network')
+    if len(instance.locations) > 1:
+        instance.Trans_cost_network = Var(instance.transports, instance.scales_network, within = NonNegativeReals, doc = 'cost of transportation for transport mode')
+    instance.Fopex_process = Var(instance.locations, instance.processes, instance.scales_network, within = NonNegativeReals, doc = 'Fixed Opex for process' )
+    instance.Vopex_process = Var(instance.locations, instance.processes, instance.scales_network, within = NonNegativeReals, doc = 'Variable Opex for process' )
+    instance.Capex_process = Var(instance.locations, instance.processes, instance.scales_network, within = NonNegativeReals, doc = 'Capex for process' )
+    
+    instance.Fopex_location = Var(instance.locations, instance.scales_network, within = NonNegativeReals, doc = 'Fixed Opex at location scale' )
+    instance.Vopex_location = Var(instance.locations, instance.scales_network, within = NonNegativeReals, doc = 'Variable Opex at location scale' )
+    instance.Capex_location = Var(instance.locations, instance.scales_network, within = NonNegativeReals, doc = 'Capex at location scale' )
+    
+    instance.Fopex_network = Var(instance.scales_network, within = NonNegativeReals, doc = 'Fixed Opex at network scale' )
+    instance.Vopex_network = Var(instance.scales_network, within = NonNegativeReals, doc = 'Variable Opex at network scale' )
+    instance.Capex_network = Var(instance.scales_network, within = NonNegativeReals, doc = 'Capex at network scale' )
+    
     return 
 
 
@@ -89,28 +91,6 @@ def generate_transport_vars(instance: ConcreteModel, scale_level:int = 0):
     instance.Trans_cost = Var(instance.transports, instance.scales_scheduling, within = NonNegativeReals, doc = 'cost of transportation for transport mode')
     return 
 
-
-
-
-def generate_summing_vars(instance:ConcreteModel, scale_level:int = 0):
-    """declares pyomo variables to sum mass balance at location and network scales
-
-    Args:
-        instance (ConcreteModel): pyomo instance
-    """
-    instance.scales_summing = scale_pyomo_set(instance= instance, scale_level= scale_level)
-    instance.P_location = Var(instance.locations, instance.processes, instance.scales_summing, within=NonNegativeReals, doc='Total production at location')
-    instance.S_location = Var(instance.locations, instance.resources, instance.scales_summing, within=NonNegativeReals, doc='Total resource discharge at location')
-    instance.C_location = Var(instance.locations, instance.resources, instance.scales_summing, within=NonNegativeReals, doc='Total resource consumption at location')
-    instance.B_location = Var(instance.locations, instance.resources, instance.scales_summing, within=NonNegativeReals, doc='Total resource purchase at location')
-    instance.P_network = Var(instance.processes, instance.scales_summing, within=NonNegativeReals, doc='Total production from network')
-    instance.S_network = Var(instance.resources, instance.scales_summing, within=NonNegativeReals, doc='Total resource discharge from network')
-    instance.C_network = Var(instance.resources, instance.scales_summing, within=NonNegativeReals, doc='Total resource consumption from network')
-    instance.B_network = Var(instance.resources, instance.scales_summing, within=NonNegativeReals, doc='Total resource purchase from network')
-    if len(instance.locations) > 1:
-        instance.Trans_cost_network = Var(instance.transports, instance.scales_summing, within = NonNegativeReals, doc = 'cost of transportation for transport mode')
-    
-    return
 
 def generate_uncertainty_vars(instance:ConcreteModel, scale_level:int= 0):
     """declares pyomo variables for uncertainty analysis of processes and resources
@@ -134,10 +114,8 @@ def generate_milp_vars(instance:ConcreteModel,  expenditure_scale_level:int=0, s
         expenditure_scale_level (int, optional): scale for expenditure variables. Defaults to 0.
         scheduling_scale_level (int, optional): scale for scheduling variables. Defaults to 0.
     """
-    generate_expenditure_vars(instance = instance, scale_level= network_scale_level)
     generate_scheduling_vars(instance = instance, scale_level= scheduling_scale_level)
     generate_network_vars(instance = instance, scale_level= network_scale_level)
-    generate_summing_vars(instance = instance, scale_level= network_scale_level)
     if len(instance.locations) > 1:
         generate_transport_vars(instance= instance, scale_level= scheduling_scale_level)
     return 
@@ -150,10 +128,8 @@ def generate_mpmilp_vars(instance:ConcreteModel, expenditure_scale_level:int=0, 
         expenditure_scale_level (int, optional): scale for expenditure variables. Defaults to 0.
         scheduling_scale_level (int, optional): scale for scheduling variables. Defaults to 0.
     """
-    generate_expenditure_vars(instance = instance, scale_level= network_scale_level)
     generate_scheduling_vars(instance = instance, scale_level= scheduling_scale_level)
     generate_network_vars(instance = instance, scale_level= network_scale_level)
-    generate_summing_vars(instance = instance, scale_level= network_scale_level)
     generate_transport_vars(instance= instance, scale_level= scheduling_scale_level)
     generate_uncertainty_vars(instance= instance, scale_level= scheduling_scale_level)
     

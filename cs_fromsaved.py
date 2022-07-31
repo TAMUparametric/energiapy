@@ -26,23 +26,23 @@ results = load_results(filename = 'onelocmilp.pkl')
 #%%consumption amounts of consumable processes
 
 for i in results.fetch_components(component_type= 'resources', condition = ('cons_max', 'g', 0)):
-    graph.schedule(results = results, y_axis = 'C', component= i, location= 'A', usetex = False)
+    graph.schedule(results = results, y_axis = 'C', component= i, location= 'HO', usetex = False)
 
 
 #%%expenditure on consumable resources
 for i in results.fetch_components(component_type= 'resources', condition = ('cons_max', 'g', 0)):
-    graph.schedule(results = results, y_axis = 'B', component= i, location= 'A', usetex = False)    
+    graph.schedule(results = results, y_axis = 'B', component= i, location= 'HO', usetex = False)    
 
 
 #%%inventory levels of storable processes
 for i in results.fetch_components(component_type= 'resources', condition = ('store_max','g', 0)):
-    graph.schedule(results = results, y_axis = 'Inv', component= i, location= 'A', usetex = False)    
+    graph.schedule(results = results, y_axis = 'Inv', component= i, location= 'HO', usetex = True)    
 
 
 #%%Production on per basis level for processes with varying capacities
 
 for i in results.fetch_components(component_type= 'processes', condition = ('varying', True)):
-    graph.schedule(results = results, y_axis = 'P', component= i, location= 'A', usetex = False)
+    graph.schedule(results = results, y_axis = 'P', component= i, location= 'HO', usetex = True)
    
 
 #%%Delta Cap of process with varying capacities 
