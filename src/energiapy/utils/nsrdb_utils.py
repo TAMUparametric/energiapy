@@ -27,7 +27,7 @@ from typing import List, Tuple, Union
 
 
 def fetch_nsrdb_data(attrs: List[str], year:int, lat_lon:Tuple[float] = None, state:str = '', \
-    county:str = '', resolution:str = '', get:str = 'max-population') -> Union[pandas.DataFrame, tuple]:
+    county:str = '', resolution:str = '', get:str = 'max-population', save:str = None) -> Union[pandas.DataFrame, tuple]:
     """fetches nsrdb data from nearest coordinates (latitude, longitude) 
     or from county in a state matching a particular 'get' metric
 
@@ -113,6 +113,10 @@ def fetch_nsrdb_data(attrs: List[str], year:int, lat_lon:Tuple[float] = None, st
         full_output = nsrdb_data[attr][:, idx] #native data set at 30 mins
         averaged_output[attr] = numpy.average(full_output.reshape(-1, timestep_dict[resolution]), axis = 1) #averages over resolution
     averaged_output = averaged_output.set_index(time_index[::timestep_dict[resolution]])
+    
+    if save is not None:
+        averaged_output.to_csv(save+ '.csv')
+        
     return lat_lon, averaged_output
 #%%
 

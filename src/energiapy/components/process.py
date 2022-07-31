@@ -89,7 +89,7 @@ class Process:
             df = self.varying_capacity_df
             df['hour'] = pandas.to_datetime(df.index).strftime("%H")
             df['day'] = pandas.to_datetime(df.index).strftime("%j")
-            df['scales'] = [(0,int(j),int(k)) for j,k in zip(df['day'], df['hour'])]
+            df['scales'] = [(0,int(j) - 1, int(k)) for j,k in zip(df['day'], df['hour'])]
             df = df.drop(['hour', 'day'], axis = 1)
             df.columns = ['value', 'scales']
             capacity_factor = {scale_: df['value'][df['scales'] == scale_][0]/max(df['value']) for scale_ in df['scales']}

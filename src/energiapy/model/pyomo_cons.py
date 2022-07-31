@@ -546,7 +546,6 @@ def delta_cap_network_constraint(instance:ConcreteModel, network_scale_level:int
 
 def process_fopex_constraint(instance:ConcreteModel, fopex_dict:dict, network_scale_level:int=0, annualization_factor:float = 1) -> Constraint:
     """Fixed operational expenditure for each process at location in network
-
     Args:
         instance (ConcreteModel): pyomo instance
         fopex_dict (dict): fixed opex at location #TODO
@@ -713,6 +712,26 @@ def demand_constraint(instance:ConcreteModel, demand_scale_level:int= 0, schedul
         instance.demand_constraint = Constraint(instance.locations, instance.resources_demand, *scales, rule = demand_rule, doc = 'speific demand for resources')        
     constraint_latex_render(demand_rule)
     return instance.demand_constraint
+
+# *-------------------------Nexus constraints--------------------------------------
+
+def process_land_constraint(instance:ConcreteModel, land_dict:dict, network_scale_level:int=0) -> Constraint:
+    """Land required for each process at location in network
+
+    Args:
+        instance (ConcreteModel): pyomo instance
+        land_dict (dict): land required at location #TODO
+        network_scale_level (int, optional): scale of network decisions. Defaults to 0.
+        
+    Returns:
+        Constraint: process_land_constraint
+    """
+    scales = scale_list(instance= instance, scale_levels = network_scale_level+1) 
+    def process_land_rule(instance, location, process, *scale_list):
+        return instance.Land_process[location, process, scale_list] == land_dict[process]*instance.Cap_P[location, process, scale_list]
+    instance.process_land_constraint = Constraint(instance.locations, instance.processes, *scales, rule = process_land_rule, doc = 'land required for process')
+    constraint_latex_render(process_land_rule)
+    return instance.process_land_constraint
 
 # *-------------------------Uncertainty analysis constraints------------------------------------
 

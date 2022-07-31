@@ -15,8 +15,8 @@ from pyomo.environ import ConcreteModel, SolverFactory, Var, Objective
 from ..components.result import Result
 from ..components.scenario import Scenario
 
-def solve(instance:ConcreteModel, solver:str, name:str, scenario:Scenario = None, saveformat:str = None, tee:bool = True) -> Result:
-    output = SolverFactory(solver, solver_io= 'python').solve(instance, tee = True)
+def solve(instance:ConcreteModel, solver:str, name:str, scenario:Scenario = None, saveformat:str = None, print_solversteps:bool = True) -> Result:
+    output = SolverFactory(solver, solver_io= 'python').solve(instance, tee = print_solversteps)
     # if (results.solver.status == SolverStatus.ok) and (results.solver.termination_condition == TerminationCondition.optimal)
     if scenario is None:
         components_dict = {}
@@ -52,13 +52,17 @@ def solve(instance:ConcreteModel, solver:str, name:str, scenario:Scenario = None
         model_obj = instance.component_map(ctype = Objective)
         obj_dict = {i: model_obj[i]() for i in model_obj.keys()}  
         
-        results_dict = {**solution_dict, **vars_dict, **obj_dict}
+        output_dict = {**solution_dict, **vars_dict, **obj_dict}
+        
+ 
 
     else:
         
-        results_dict = solution_dict
+        output_dict = solution_dict
         
-    results = Result(name= name, components = components_dict, output= results_dict)
+        return
+        
+    results = Result(name= name, components = components_dict, output= output_dict)
 
     if saveformat is not None:
         results.saveoutputs(name + saveformat)

@@ -51,7 +51,7 @@ class Scenario:
             self.trans_cost = None
             self.trans_emit =  None
             self.distance_dict = None
-            self.location_set = {self.network}         
+            self.location_set = {self.network}   
             
         else:
             self.transport_set = set().union(*self.network.transport_dict.values())
@@ -85,6 +85,7 @@ class Scenario:
         self.fopex_dict = {i.name: i.fopex for i in self.process_set}
         self.vopex_dict = {i.name: i.vopex for i in self.process_set}
         self.demand_dict = {i.name: {j.name: i.demand[j] for j in i.demand} for i in self.location_set}
+        self.land_dict = {i.name: i.land for i in self.process_set}
         
     def __repr__(self):
         return self.name
