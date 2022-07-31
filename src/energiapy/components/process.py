@@ -15,6 +15,7 @@ from dataclasses import dataclass, field
 from typing import Dict, Union
 from ..components.resource import Resource
 from ..components.material import Material
+import pandas
 
 @dataclass
 class Process:
@@ -39,7 +40,8 @@ class Process:
         block (str, optional): define block for convenience. Defaults to None.
         citation (str, optional): citation for data. Defaults to 'citation needed'.
         lifetime (float, optional): the lifetime of process. Defaults to None.
-    
+        varying_cost_df (pandas.DataFrame, optional): input dataframe to generate cost factors. Defaults to None.
+        varying_capacity_df (pandas.DataFrame, optional): input dataframe to generate capacity factors. Defaults to None.  
     """
 
     name: str 
@@ -59,9 +61,8 @@ class Process:
     trl: str = ''
     block: str = None
     citation: str = 'citation needed'
-    varying: bool = False
     lifetime: tuple = None
-
+    varying_capacity_df: pandas.DataFrame = None
 
     def __post_init__(self):
         if self.cost is not None:
@@ -72,7 +73,29 @@ class Process:
             self.capex = 100
             self.fopex = 10
             self.vopex = 1
-            
+        self.capacity_factor = self.make_capacity_factor()
+
+    def make_capacity_factor(self)-> dict:
+        """makes capacity factor dict from varying process/production output DataFrame()
+
+        Returns:
+            dict: dictionary with varying capacity factor, structure - {process: scale: value}
+        """
+        if self.varying_capacity_df is None:
+            self.varying = False
+            return None
+        else:
+            self.varying = True
+            df = self.varying_capacity_df
+            df['hour'] = pandas.to_datetime(df.index).strftime("%H")
+            df['day'] = pandas.to_datetime(df.index).strftime("%j")
+            df['scales'] = [(0,int(j),int(k)) for j,k in zip(df['day'], df['hour'])]
+            df = df.drop(['hour', 'day'], axis = 1)
+            df.columns = ['value', 'scales']
+            capacity_factor = {scale_: df['value'][df['scales'] == scale_][0]/max(df['value']) for scale_ in df['scales']}
+            return capacity_factor
+        
+
     def __repr__(self):
         return self.name
     
