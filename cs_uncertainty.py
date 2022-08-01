@@ -131,7 +131,7 @@ case = Scenario(name= '', network= Arcs, scales= scales, \
 mpmilp = formulate_mpmilp(scenario= case, penalty= 1)
 
 # results = solve(scenario = case, instance=mpmilp, solver= 'gurobi', name='trial', tee = True)
-results = solve(scenario = case, instance=mpmilp, solver= 'gurobi', name='trial', saveformat= '.pkl', tee = True)
+results = solve(scenario = case, instance=mpmilp, solver= 'gurobi', name='trial', saveformat= '.pkl', print_solversteps= True)
 
 
 #%% plots results at requested scales, usetex giving a very unique error only for this plot!! 

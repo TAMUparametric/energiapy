@@ -68,6 +68,8 @@ def formulate_milp(scenario: Scenario) -> ConcreteModel:
     process_vopex_constraint(instance= instance, vopex_dict= scenario.vopex_dict, network_scale_level= scenario.network_scale_level)
     
     process_land_constraint(instance= instance, land_dict= scenario.land_dict, network_scale_level= scenario.network_scale_level)
+    location_land_constraint(instance= instance, network_scale_level= scenario.network_scale_level)
+    network_land_constraint(instance= instance, network_scale_level= scenario.network_scale_level)
     
 
     location_capex_constraint(instance= instance, network_scale_level= scenario.network_scale_level)

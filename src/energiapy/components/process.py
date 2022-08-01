@@ -40,7 +40,7 @@ class Process:
         block (str, optional): define block for convenience. Defaults to None.
         citation (str, optional): citation for data. Defaults to 'citation needed'.
         lifetime (float, optional): the lifetime of process. Defaults to None.
-        varying_cost_df (pandas.DataFrame, optional): input dataframe to generate cost factors. Defaults to None.
+        varying (bool, optional): whether process is subject to uncertainty. Defaults to False.
         varying_capacity_df (pandas.DataFrame, optional): input dataframe to generate capacity factors. Defaults to None.  
     """
 
@@ -62,6 +62,7 @@ class Process:
     block: str = None
     citation: str = 'citation needed'
     lifetime: tuple = None
+    varying:bool = False
     varying_capacity_df: pandas.DataFrame = None
 
     def __post_init__(self):
@@ -82,7 +83,6 @@ class Process:
             dict: dictionary with varying capacity factor, structure - {process: scale: value}
         """
         if self.varying_capacity_df is None:
-            self.varying = False
             return None
         else:
             self.varying = True

@@ -50,7 +50,11 @@ def generate_network_vars(instance: ConcreteModel, scale_level:int = 0):
     instance.X_S = Var(instance.locations, instance.resources_store, instance.scales_network, within=Binary, doc='Storage Binary')
     instance.Cap_P = Var(instance.locations, instance.processes, instance.scales_network, within=NonNegativeReals, doc='Process Capacity')
     instance.Cap_S = Var(instance.locations, instance.resources_store, instance.scales_network, within=NonNegativeReals, doc='Storage Capacity')
+    
     instance.Land_process = Var(instance.locations, instance.processes, instance.scales_network, within=NonNegativeReals, doc='Land used by Process')
+    instance.Land_location = Var(instance.locations, instance.scales_network, within=NonNegativeReals, doc='Land used at location')
+    instance.Land_network = Var(instance.scales_network, within=NonNegativeReals, doc='Land used at network')
+    
     instance.P_location = Var(instance.locations, instance.processes, instance.scales_network, within=NonNegativeReals, doc='Total production at location')
     instance.S_location = Var(instance.locations, instance.resources, instance.scales_network, within=NonNegativeReals, doc='Total resource discharge at location')
     instance.C_location = Var(instance.locations, instance.resources, instance.scales_network, within=NonNegativeReals, doc='Total resource consumption at location')
@@ -99,11 +103,11 @@ def generate_uncertainty_vars(instance:ConcreteModel, scale_level:int= 0):
         instance (ConcreteModel): pyomo instance
         scale_level (int, optional): scale for uncertainty. Defaults to 0.
     """
-    instance.scale_uncertainty = scale_pyomo_set(instance, scale_level= scale_level)
-    instance.Delta_Cost_R = Var(instance.locations, instance.resources_varying, instance.scale_uncertainty, within= NonNegativeReals, doc= 'uncertain purchase price')
-    instance.Delta_Cap_P = Var(instance.locations, instance.processes_varying, instance.scale_uncertainty, bounds = (0, 200), within= NonNegativeReals, doc= 'uncertain resource availability')
-    instance.Delta_Cap_P_location = Var(instance.locations, instance.processes_varying, instance.scales_summing, within= NonNegativeReals, doc= 'uncertain resource availability - network scale at location')
-    instance.Delta_Cap_P_network = Var(instance.processes_varying, instance.scales_summing, within= NonNegativeReals, doc= 'uncertain resource availability - network scale')
+    instance.scales_uncertainty = scale_pyomo_set(instance, scale_level= scale_level)
+    instance.Delta_Cost_R = Var(instance.locations, instance.resources_varying, instance.scales_uncertainty, within= NonNegativeReals, doc= 'uncertain purchase price')
+    instance.Delta_Cap_P = Var(instance.locations, instance.processes_varying, instance.scales_uncertainty, bounds = (0, 200), within= NonNegativeReals, doc= 'uncertain resource availability')
+    instance.Delta_Cap_P_location = Var(instance.locations, instance.processes_varying, instance.scales_network, within= NonNegativeReals, doc= 'uncertain resource availability - network scale at location')
+    instance.Delta_Cap_P_network = Var(instance.processes_varying, instance.scales_network, within= NonNegativeReals, doc= 'uncertain resource availability - network scale')
     return
 
 def generate_milp_vars(instance:ConcreteModel,  expenditure_scale_level:int=0, scheduling_scale_level:int = 0, network_scale_level:int = 0):
