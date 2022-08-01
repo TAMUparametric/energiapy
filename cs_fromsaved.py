@@ -21,7 +21,8 @@ from src.energiapy.graph import graph
 # results = load_results(filename = 'trial.pkl')
 results = load_results(filename = 'onelocmilp.pkl')
 
-#%%
+
+graph.contribution(results = results, y_axis = 'X_S', location= 'HO', usetex = False)
 
 #%%consumption amounts of consumable processes
 

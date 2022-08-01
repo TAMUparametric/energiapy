@@ -707,9 +707,9 @@ def demand_constraint(instance:ConcreteModel, demand_scale_level:int= 0, schedul
     def demand_rule(instance, location, resource, *scale_list):
         return sum(instance.S[location, resource, scale_] for scale_ in scale_iter if scale_[:demand_scale_level+1] == scale_list)  == demand_dict[location][resource]
     if len(instance.locations) > 1:    
-        instance.demand_constraint = Constraint(instance.sinks, instance.resources_demand, *scales, rule = demand_rule, doc = 'speific demand for resources')
+        instance.demand_constraint = Constraint(instance.sinks, instance.resources_demand, *scales, rule = demand_rule, doc = 'specific demand for resources')
     else:                 
-        instance.demand_constraint = Constraint(instance.locations, instance.resources_demand, *scales, rule = demand_rule, doc = 'speific demand for resources')        
+        instance.demand_constraint = Constraint(instance.locations, instance.resources_demand, *scales, rule = demand_rule, doc = 'specific demand for resources')        
     constraint_latex_render(demand_rule)
     return instance.demand_constraint
 
@@ -720,7 +720,7 @@ def process_land_constraint(instance:ConcreteModel, land_dict:dict, network_scal
 
     Args:
         instance (ConcreteModel): pyomo instance
-        land_dict (dict): land required at location #TODO
+        land_dict (dict): land required at location
         network_scale_level (int, optional): scale of network decisions. Defaults to 0.
         
     Returns:
@@ -732,6 +732,40 @@ def process_land_constraint(instance:ConcreteModel, land_dict:dict, network_scal
     instance.process_land_constraint = Constraint(instance.locations, instance.processes, *scales, rule = process_land_rule, doc = 'land required for process')
     constraint_latex_render(process_land_rule)
     return instance.process_land_constraint
+
+def location_land_constraint(instance:ConcreteModel, network_scale_level:int=0) -> Constraint:
+    """Land required at each location in network
+
+    Args:
+        instance (ConcreteModel): pyomo instance
+        network_scale_level (int, optional): scale of network decisions. Defaults to 0.
+        
+    Returns:
+        Constraint: location_land_constraint
+    """
+    scales = scale_list(instance= instance, scale_levels = network_scale_level+1) 
+    def location_land_rule(instance, location, *scale_list):
+        return instance.Land_location[location, scale_list] == sum(instance.Land_process[location, process_, scale_list] for process_ in instance.processes)
+    instance.location_land_constraint = Constraint(instance.locations, *scales, rule = location_land_rule, doc = 'land required for process')
+    constraint_latex_render(location_land_rule)
+    return instance.location_land_constraint
+
+def network_land_constraint(instance:ConcreteModel, network_scale_level:int=0) -> Constraint:
+    """Land required by network
+
+    Args:
+        instance (ConcreteModel): pyomo instance
+        network_scale_level (int, optional): scale of network decisions. Defaults to 0.
+        
+    Returns:
+        Constraint: network_land_constraint
+    """
+    scales = scale_list(instance= instance, scale_levels = network_scale_level+1) 
+    def network_land_rule(instance, *scale_list):
+        return instance.Land_network[scale_list] == sum(instance.Land_location[location_, scale_list] for location_ in instance.locations)
+    instance.network_land_constraint = Constraint(*scales, rule = network_land_rule, doc = 'land required for process')
+    constraint_latex_render(network_land_rule)
+    return instance.network_land_constraint
 
 # *-------------------------Uncertainty analysis constraints------------------------------------
 

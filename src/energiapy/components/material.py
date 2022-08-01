@@ -12,7 +12,6 @@ __status__ = "Production"
 
 from dataclasses import dataclass
 
-#TODO - check POPT data class, do not need __init__
 @dataclass
 class Material:
     """

@@ -34,8 +34,9 @@ class Resource:
         demand (bool, optional): True, if the process has to meet set demand. Defaults to False.
         basis (str, optional): Base unit for the resource. Defaults to 'unit'.
         block (str, optional): Assign a block for categorization. Defaults to None.
-        varying (bool, optional): If the cost of resource is varying/uncertain. Defaults to False.
         citation (str, optional): Add citations for data sources. Defaults to 'citation needed'.
+        varying (bool, optional): If the cost of resource is varying/uncertain. Defaults to False.
+        varying_cost_df (pandas.DataFrame, optional). cost trend for uncertain resource. Defaults to None
     """
     
     name: str
@@ -52,6 +53,7 @@ class Resource:
     basis: str = 'unit'
     block: str = None
     citation: str = 'citation needed'
+    varying: bool = False
     varying_cost_df: pandas.DataFrame = None
     
     def __post_init__(self):
@@ -64,13 +66,11 @@ class Resource:
             dict: dictionary with varying cost factor, structure - {resource: scale: value}
         """
         if self.varying_cost_df is None:
-            self.varying = False
             return None
         else:
             self.varying = True
             df = self.varying_cost_df
             df.columns = ['value','scales']
-            
             cost_factor = {scale_: df['value'][df['scales'] == scale_].values[0]/max(df['value']) for scale_ in df['scales']}
             return cost_factor
 

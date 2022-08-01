@@ -50,6 +50,7 @@ from src.energiapy.model.pyomo_solve import solve
 # lat_lon_ho, ho_wind_df = fetch_nsrdb_data(attrs = ['wind_speed'], year = 2019, state = 'Texas', county = 'Harris', resolution= 'hourly', save = 'ho_wind') #(lon_lat, wind df)
 # lat_lon_ho, ho_solar_df = fetch_nsrdb_data(attrs = ['dni'], year = 2019, state = 'Texas', county = 'Harris', resolution= 'hourly',  save = 'ho_solar') #(lon_lat, wind df)
 
+#import stored files from fetch_nsrdb_data
 ho_solar_df = pandas.read_csv('ho_solar.csv', index_col= 0)
 ho_wind_df = pandas.read_csv('ho_wind.csv', index_col= 0)
 
@@ -120,7 +121,7 @@ H2O = Resource(name='H2O', cons_max=10**20,
 O2 = Resource(name='O2', sell=True, loss=0.07,
                       basis='kg', label='Oxygen', block = 'Resource')
 CH4 = Resource(name='CH4', cons_max=10 **
-                       20, price=1, basis='kg', label='Natural gas', block = 'materialfeedstock', varying_cost_df= hp_price_daily_df)
+                       20, price=1, basis='kg', label='Natural gas', block = 'materialfeedstock', varying= hp_price_daily_df)
 CO2 = Resource(name='CO2', basis='kg', label='Carbon dioxide', block = 'Resource')
 CO2_DAC = Resource(
     name='CO2_DAC', basis='kg', label='Carbon dioxide - captured', block = 'carbonsequestration')
@@ -226,11 +227,11 @@ ho_processes = {LiI_c, LiI_d, CAES_c, CAES_d, PSH_c, PSH_d, PV, WF, AKE, SMRH, H
 # *-------------------------Geographic scales/location------------------------------------
 HO = Location(name='HO', processes= ho_processes, demand = {H2_L: 100, H2_C: 100}, scales = scales, PV_class='Class5', WF_class='Class4',
                       LiI_class='8Hr Battery Storage', PSH_class='Class 3', label='Houston')
-
+#%%
 # *-------------------------Input data graphs------------------------------------
-# graph.capacity_factor(location= HO, process= PV, color= 'orange')
-# graph.cost_factor (location= HO, resource= CH4) 
-
+graph.capacity_factor(location= HO, process= PV, color= 'orange')
+graph.cost_factor (location= HO, resource= CH4) 
+#%%
 # *-------------------------Generate scenario------------------------------------
 
 case = Scenario(name= '', network = HO, scales= scales,  expenditure_scale_level= 1, scheduling_scale_level= 2, network_scale_level= 0, demand_scale_level= 1, label= 'shell milp case study')
@@ -241,6 +242,12 @@ milp = formulate_milp(scenario= case)
 results = solve(scenario = case, instance=milp, solver= 'gurobi', name='onelocmilp', saveformat = '.pkl')
 
 #%%
+
+graph.schedule(results = results, y_axis = 'Vopex_process', component= 'PV', location= 'HO', usetex = True)
+
+#%%
+
+
 
 def reduce_scenario(varying_process_df: pandas.DataFrame, varying_cost_df: pandas.DataFrame, red_scn_method: str, rep_days_no: int) -> dict:
     """Reduces scenario to set of representative days
