@@ -51,7 +51,7 @@ class Process:
     label: str = ''
     intro_scale: int = 0
     prod_max: float = 0
-    prod_min: float = 0
+    prod_min: float = 0.01
     cap_seg: dict = field(default_factory= dict)
     capex_seg: dict = field(default_factory= dict)
     basis: str = 'unit'

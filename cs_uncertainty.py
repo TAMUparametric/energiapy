@@ -37,7 +37,7 @@ from src.energiapy.model.pyomo_solve import solve
 scales = Temporal_scale(discretization_list= [1, 42])
 
 # *-------------------------Constants defined here for ease------------------------------------
-bigM = 10**10 #very large number
+bigM = 10**3 #very large number
 water_price = 31.70  # $/5000gallons
 power_price = 8  # cents/kWh
 ur_price = 42.70  # 250 Pfund U308 (Uranium)
@@ -46,13 +46,13 @@ A_f = 0.05  # annualization factor
 # *-------------------------Resources------------------------------------
 Charge = Resource(name='Charge', sell=False,
                           store_max=bigM, basis='MW', label='Battery energy')
-Solar = Resource(name='Solar', cons_max=10**20, basis='MW', label='Solar Power')
-Wind = Resource(name='Wind', cons_max=10**20, basis='MW', label='Wind Power')
+Solar = Resource(name='Solar', cons_max=10**4, basis='MW', label='Solar Power')
+Wind = Resource(name='Wind', cons_max=10**4, basis='MW', label='Wind Power')
 H2_L = Resource(name='H2_L', sell=True, store_max=10**10, demand=True, basis='kg', label='Hydrogen - Geological')
 H2 = Resource(name='H2', basis='kg', label='Hydrogen')
-H2O = Resource(name='H2O', cons_max=10**20, price=water_price/(5000*3.7854), basis='kg', label='Water')
+H2O = Resource(name='H2O', cons_max=10**4, price=water_price/(5000*3.7854), basis='kg', label='Water')
 O2 = Resource(name='O2', sell=True, loss=0.07, basis='kg', label='Oxygen')
-CH4 = Resource(name='CH4', cons_max=10**20, varying = True, price=1, basis='kg', label='Natural gas')
+CH4 = Resource(name='CH4', cons_max=10**4, varying = True, price=1, basis='kg', label='Natural gas')
 CO2 = Resource(name='CO2', basis='kg', label='Carbon dioxide')
 Power = Resource(name='Power', basis='MW', label='Renewable power generated')
 
