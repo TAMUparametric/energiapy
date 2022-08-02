@@ -165,3 +165,13 @@ for i in results.fetch_components(component_type= 'processes', condition = ('var
 
 
 # %%
+from pyomo.environ import Constraint
+cons_dict = {str(c): {d: c[d]._active for d in c} for c in mpmilp.component_objects(Constraint)}
+
+for i  in  mpmilp.component_objects(Constraint):
+    for j in i:
+        if cons_dict[str(i)][j] == False:
+            print('asd')
+        else:
+            print('asc')
+# %%

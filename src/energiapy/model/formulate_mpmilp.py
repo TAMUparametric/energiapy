@@ -15,7 +15,7 @@ from ..model.pyomo_sets import generate_sets
 from ..model.pyomo_vars import generate_mpmilp_vars
 from ..model.pyomo_cons import *
 from ..model.pyomo_objs import uncertainty_cost_objective
-from pyomo.environ import ConcreteModel
+from pyomo.environ import ConcreteModel, Suffix
     
       
 def formulate_mpmilp(scenario: Scenario, penalty:float) -> ConcreteModel:
@@ -89,6 +89,8 @@ def formulate_mpmilp(scenario: Scenario, penalty:float) -> ConcreteModel:
     delta_cap_location_constraint(instance= instance, network_scale_level= scenario.network_scale_level)
     delta_cap_network_constraint(instance= instance, network_scale_level= scenario.network_scale_level)
     
+    instance.dual = Suffix(direction=Suffix.IMPORT)
+
     uncertainty_cost_objective(instance= instance, penalty = penalty, network_scale_level= scenario.network_scale_level)
     
     return instance
