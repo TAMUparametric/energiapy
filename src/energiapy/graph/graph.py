@@ -129,13 +129,14 @@ def contribution(results: Result, y_axis:str, location:str,\
     fig, ax = plt.subplots(figsize= fig_size)
     y_ = [results.output[y_axis][i] for i in results.output[y_axis].keys() if location in i]
 
-    title = 'asdd'
     # title = f"Schedule for {results.components[component_type][component]['label']} in {results.components['locations'][location]['label']}"
-    plt.title(title)
+    plt.title(f"${y_axis.split('_')[0]}_{{{y_axis.split('_')[1]}}}$")
     # plt.ylabel(results.components[component_type])
     # results.components['processes'][i[1]]['label'] 
-    x_ = [i[1]for i in results.output[y_axis].keys() if location in i]
+    # x_ = [f"${i[1].split('_')[0]}_{{{i[1].split('_')[1]}}}$" for i in results.output[y_axis].keys() if location in i]
+    x_ = [i[1] for i in results.output[y_axis].keys() if location in i]
     ax.bar(x_, y_, linewidth=0.5, color=color)
+    plt.xticks(rotation = 90)
     plt.grid(alpha=0.3)
     plt.rcdefaults()
     return

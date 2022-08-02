@@ -71,7 +71,7 @@ scales = Temporal_scale(discretization_list = [1, 365, 24])
 # scales = temporal_scale(discretization_list = [1, 2, 3])
 
 # *-------------------------Constants defined here for ease------------------------------------
-bigM = 10**20 #very large number
+bigM = 10**4 #very large number
 water_price = 31.70  # $/5000gallons
 power_price = 8  # cents/kWh
 ur_price = 42.70  # 250 Pfund U308 (Uranium)
@@ -104,11 +104,11 @@ Air_C = Resource(name='Air_C', store_max=bigM, basis='MW',
 H2O_E = Resource(name='H2O_E', store_max=bigM, basis='MW',
                          label='PSH energy', block= 'energystorage')
 Solar = Resource(
-    name='Solar', cons_max=10**20, basis='MW', label='Solar Power', block = 'energyfeedstock')
+    name='Solar', cons_max=10**4, basis='MW', label='Solar Power', block = 'energyfeedstock')
 Wind = Resource(name='Wind', cons_max=10 **
-                        20, basis='MW', label='Wind Power', block = 'energyfeedstock')
+                        4, basis='MW', label='Wind Power', block = 'energyfeedstock')
 Uranium = Resource(name='Uranium', cons_max=10 **
-                           20, price=ur_price/(250/2), basis='kg', label='Uranium', block = 'energyfeedstock')
+                           4, price=ur_price/(250/2), basis='kg', label='Uranium', block = 'energyfeedstock')
 H2_C = Resource(name='H2_C', sell=True, store_max=10**4, loss=0.025/24, revenue=2, mile=1/(0.1180535*1.60934),
                         demand=True, basis='kg', label='Hydrogen - Local Cryo', block= 'resourcestorage') 
 H2_L = Resource(name='H2_L', sell=True, store_max=10**10, demand=True, revenue=2,
@@ -116,12 +116,12 @@ H2_L = Resource(name='H2_L', sell=True, store_max=10**10, demand=True, revenue=2
 H2 = Resource(name='H2', basis='kg', label='Hydrogen', block= 'Resource')
 H2_B = Resource(name='H2_B', basis='kg', label='Blue hydrogen', block= 'product')
 H2_G = Resource(name='H2_G', basis='kg', label='Green hydrogen', block= 'product')
-H2O = Resource(name='H2O', cons_max=10**20,
+H2O = Resource(name='H2O', cons_max=10**4,
                        price=water_price/(5000*3.7854), basis='kg', label='Water', block= 'Resource')
 O2 = Resource(name='O2', sell=True, loss=0.07,
                       basis='kg', label='Oxygen', block = 'Resource')
 CH4 = Resource(name='CH4', cons_max=10 **
-                       20, price=1, basis='kg', label='Natural gas', block = 'materialfeedstock', varying= hp_price_daily_df)
+                       20, price=1, basis='kg', label='Natural gas', block = 'materialfeedstock', varying_cost_df = hp_price_daily_df)
 CO2 = Resource(name='CO2', basis='kg', label='Carbon dioxide', block = 'Resource')
 CO2_DAC = Resource(
     name='CO2_DAC', basis='kg', label='Carbon dioxide - captured', block = 'carbonsequestration')
@@ -227,15 +227,13 @@ ho_processes = {LiI_c, LiI_d, CAES_c, CAES_d, PSH_c, PSH_d, PV, WF, AKE, SMRH, H
 # *-------------------------Geographic scales/location------------------------------------
 HO = Location(name='HO', processes= ho_processes, demand = {H2_L: 100, H2_C: 100}, scales = scales, PV_class='Class5', WF_class='Class4',
                       LiI_class='8Hr Battery Storage', PSH_class='Class 3', label='Houston')
-#%%
+
 # *-------------------------Input data graphs------------------------------------
-graph.capacity_factor(location= HO, process= PV, color= 'orange')
-graph.cost_factor (location= HO, resource= CH4) 
-#%%
+# graph.capacity_factor(location= HO, process= PV, color= 'orange')
+# graph.cost_factor (location= HO, resource= CH4) 
 # *-------------------------Generate scenario------------------------------------
 
 case = Scenario(name= '', network = HO, scales= scales,  expenditure_scale_level= 1, scheduling_scale_level= 2, network_scale_level= 0, demand_scale_level= 1, label= 'shell milp case study')
-
 #%%
 # *-------------------------Model formulation------------------------------------
 milp = formulate_milp(scenario= case)
@@ -243,8 +241,12 @@ results = solve(scenario = case, instance=milp, solver= 'gurobi', name='onelocmi
 
 #%%
 
-graph.schedule(results = results, y_axis = 'Vopex_process', component= 'PV', location= 'HO', usetex = True)
+graph.schedule(results = results, y_axis = 'Vopex_process', component= 'ASMR', location= 'HO', usetex = True)
 
+
+#%%
+
+graph.contribution(results = results, y_axis = 'Capex_process', location = 'HO')
 #%%
 
 
@@ -519,6 +521,7 @@ def find_dtw_path(matrix:numpy.ndarray)-> list:
             j = j - 1
         path.append([i,j])
     # path.append([0,0])
+
     return path
 
 #%%
