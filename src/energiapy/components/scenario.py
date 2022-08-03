@@ -10,13 +10,19 @@ __maintainer__ = "Rahul Kakodkar"
 __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
-from dataclasses import dataclass
+import pandas
 from ..components.network import Network
 from ..components.location import Location
 from ..components.temporal_scale import Temporal_scale
 from ..model.pyomo_cons import *
-from typing import Union
 from ..utils.math_utils import scaler, find_euclidean_distance, generate_connectivity_matrix
+from sklearn.cluster import AgglomerativeClustering
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LinearRegression
+from sklearn.cluster import KMeans
+from sklearn.neighbors import NearestCentroid
+from dataclasses import dataclass
+from typing import Union
 
 @dataclass
 class Scenario:
@@ -89,14 +95,10 @@ class Scenario:
         self.demand_dict = {i.name: {j.name: i.demand[j] for j in i.demand} for i in self.location_set}
         self.land_dict = {i.name: i.land for i in self.process_set}
 
-    # def reduce_scenario(self, location:Location, periods:int, method:str = 'agg_hierarchial'):
-        
 
-
-    #     return reduced_scenario
-        
     def __repr__(self):
         return self.name
+
 
 
 
