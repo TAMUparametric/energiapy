@@ -12,6 +12,8 @@ __status__ = "Production"
 
 from dataclasses import dataclass
 
+from cs_uncertainty import H2O
+
 #TODO - check POPT data class, do not need __init__
 @dataclass
 class Material:
@@ -28,9 +30,10 @@ class Material:
     
     name: str 
     label: str = ''
-    gwp: float = 0
+    gwp: tuple=none
     basis: str = 'unit'
     citation: str = 'citation needed'
+    H2O: float=0
     
     #? CHECK
     def __post_init__(self):

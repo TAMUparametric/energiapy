@@ -54,7 +54,7 @@ class Process:
     capex_seg: dict = field(default_factory= dict)
     basis: str = 'unit'
     carbon_credit: bool = False
-    gwp: float = 0
+    gwp: tuple = None
     land: float = 0
     trl: str = ''
     block: str = None

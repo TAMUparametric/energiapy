@@ -142,6 +142,7 @@ for i in case.process_set:
 #%%
 for i in case.resource_set:
     graph.schedule(results = results, y_axis = 'S', component= i.name, location= location, usetex = False)
+#%%
 for i in case.resource_set:
     graph.schedule(results = results, y_axis = 'C', component= i.name, location= location, usetex = False)
 for i in case.resource_set:
