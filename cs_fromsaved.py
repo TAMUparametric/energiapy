@@ -19,11 +19,11 @@ from src.energiapy.utils.data_utils import load_results
 from src.energiapy.graph import graph
 
 # results = load_results(filename = 'trial.pkl')
-results = load_results(filename = 'onelocmilp.pkl')
+results = load_results(filename = 'trial.pkl')
 #%%
 
-graph.contribution(results = results, y_axis = 'Capex_process', location= 'HO', usetex = True)
-graph.contribution(results = results, y_axis = 'Cap_P', location= 'HO', usetex = True)
+graph.contribution(results = results, y_axis = 'Capex_process', location= 'A', usetex = True)
+graph.contribution(results = results, y_axis = 'Cap_P', location= 'A', usetex = True)
 
 #%%consumption amounts of consumable processes
 
