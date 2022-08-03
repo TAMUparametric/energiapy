@@ -241,7 +241,7 @@ HO = Location(name='HO', processes= ho_processes, demand = {H2_L: 100, H2_C: 100
 # *-------------------------Generate scenario------------------------------------
 
 case = Scenario(name= '', network = HO, scales= scales,  expenditure_scale_level= 1, scheduling_scale_level= 2, network_scale_level= 0, demand_scale_level= 1, label= 'shell milp case study')
-#%%
+
 # *-------------------------Model formulation------------------------------------
 milp = formulate_milp(scenario= case)
 results = solve(scenario = case, instance=milp, solver= 'gurobi', name='onelocmilp', saveformat = '.pkl')
@@ -255,11 +255,76 @@ graph.schedule(results = results, y_axis = 'Vopex_process', component= 'ASMR', l
 
 graph.contribution(results = results, y_axis = 'Capex_process', location = 'HO')
 #%%
+from src.energiapy.utils.math_utils import scaler, find_euclidean_distance, generate_connectivity_matrix
+import pandas
 
+from sklearn.cluster import AgglomerativeClustering
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LinearRegression
+from sklearn.cluster import KMeans
+from sklearn.neighbors import NearestCentroid
 
+def reduce_scenario(scenario, location:Location, periods:int, scale_level:int = 0, method:str = 'agg_hierarchial'):
+    cost_factor_df = pandas.DataFrame.from_dict(scenario.cost_factor[location.name])
+    capacity_factor_df = pandas.DataFrame.from_dict(scenario.capacity_factor[location.name])
+    df = pandas.concat([cost_factor_df, capacity_factor_df], axis = 1).reset_index(drop=True)
+    parent_scale = scenario.scales.scale[scale_level]
+    child_scale = scenario.scales.scale[scale_level+1]
+    scaled_df = scaler(input_df= df, parent_scale = parent_scale, child_scale = child_scale)
+    scaled_array = scaled_df.to_numpy()
+    if method == 'agg_hierarchial':
+        connectivity_matrix = generate_connectivity_matrix(parent_scale)
+        ahc = AgglomerativeClustering(n_clusters = periods, affinity='euclidean', connectivity=connectivity_matrix,
+                                          linkage='ward', compute_full_tree = True)
+        clustered_array = ahc.fit_predict(scaled_array)
+        cluster_labels = ahc.labels_  # get list of representative days
 
+        nearest_centroid_array = NearestCentroid().fit(scaled_array, clustered_array).centroids_  # get the centroids of the clusters
+        nearest_centroid_df = pandas.DataFrame(data=nearest_centroid_array, columns=[col for col in scaled_df])
+        scaled_df['cluster_no'] = cluster_labels # add cluster numbers to the dataset
+        nearest_centroid_df['cluster_no'] = scaled_df['cluster_no'].unique()
+        
+        euclidean_distance_list = []
+        closest_to_centroid_df = pandas.DataFrame(columns=['day', 'rep_day', 'cluster_wt'])
 
+        for cluster_no in nearest_centroid_df['cluster_no']:
+            # -1 skips cluster_no row
+            cluster_array = scaled_df[scaled_df['cluster_no']
+                                        == cluster_no].iloc[:, :-1].to_numpy()
+            centroid_array = nearest_centroid_df[nearest_centroid_df['cluster_no']
+                                                    == cluster_no].iloc[:, :-1].to_numpy()
+            centroid = centroid_array.tolist()[0]
+            for cluster in cluster_array:
+                cluster_point = [cluster for cluster in cluster]
+                euclidean_distance = find_euclidean_distance(
+                    cluster_point, centroid)
+                euclidean_distance_list.append(euclidean_distance)
+        scaled_df['ED'] = euclidean_distance_list
+        closest_to_centroid_df['day'] = (scaled_df['cluster_no'].value_counts().index.values)
+        cluster_wts = [i for i in scaled_df['cluster_no'].value_counts()]
+        closest_to_centroid_df['cluster_wt'] = cluster_wts
+        
+        list_ = []
+        for i in closest_to_centroid_df['day']:
+            list_.append(
+                scaled_df.index.values[scaled_df['ED'] == scaled_df['ED'][scaled_df['cluster_no'] == i].min()][0])
+        closest_to_centroid_df['rep_day'] = list_
+        closest_to_centroid_df = closest_to_centroid_df.sort_values(
+            by=['rep_day']).reset_index(drop=True)
+        closest_to_centroid_df['day'] = list(
+            range(len(closest_to_centroid_df['day'])))
+        rep_day_dict = {int(day) + 1: {i: {} for i in ['rep_day', 'cluster_wt']}
+                        for day in list(closest_to_centroid_df['day'])}
+        for day in closest_to_centroid_df['day']:
+            rep_day_dict[day + 1]['rep_day'] = closest_to_centroid_df['rep_day'][closest_to_centroid_df['day'] == day].values[0]
+            rep_day_dict[day + 1]['cluster_wt'] = closest_to_centroid_df['cluster_wt'][closest_to_centroid_df['day'] == day].values[0]
+    
+    return rep_day_dict
+
+a = reduce_scenario(scenario = case, location = HO, periods = 20, scale_level = 1, method = 'agg_hierarchial' )
+print(a)
 #%%
+
 
 
 
