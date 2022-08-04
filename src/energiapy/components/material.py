@@ -27,9 +27,10 @@ class Material:
     
     name: str 
     label: str = ''
-    gwp: float = 0
+    gwp: tuple=none
     basis: str = 'unit'
     citation: str = 'citation needed'
+    H2O: float=0
     
     #? CHECK
     def __post_init__(self):

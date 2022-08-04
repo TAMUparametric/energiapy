@@ -138,6 +138,7 @@ results = solve(scenario = case, instance=mpmilp, solver= 'gurobi', name='trial'
 #TODO - add the type of graph generated in the title
 location = 'B'
 
+
 for i in results.fetch_components(component_type= 'resources', condition = ('cons_max', 'g', 0)):
     graph.schedule(results = results, y_axis = 'C', component= i, location= location, usetex = False)
 
