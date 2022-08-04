@@ -43,7 +43,8 @@ class Scenario:
     expenditure_scale_level: int = 0
     scheduling_scale_level: int = 0
     network_scale_level: int = 0
-    demand_scale_level: int = 0 
+    demand_scale_level: int = 0
+    cluster_wt: dict = None 
     label: str = ''
 
     def __post_init__(self):    

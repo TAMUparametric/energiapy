@@ -57,10 +57,10 @@ def formulate_milp(scenario: Scenario) -> ConcreteModel:
     min_storage_facility_constraint(instance= instance, store_min= scenario.store_min, loc_res_dict= scenario.loc_res_dict, network_scale_level= scenario.network_scale_level)
     
     
-    location_production_constraint(instance= instance, network_scale_level= scenario.network_scale_level)
-    location_discharge_constraint(instance= instance, network_scale_level= scenario.network_scale_level)
-    location_consumption_constraint(instance= instance, network_scale_level= scenario.network_scale_level)
-    location_purchase_constraint(instance= instance, network_scale_level= scenario.network_scale_level)
+    location_production_constraint(instance= instance, network_scale_level= scenario.network_scale_level, cluster_wt = scenario.cluster_wt)
+    location_discharge_constraint(instance= instance, network_scale_level= scenario.network_scale_level, cluster_wt = scenario.cluster_wt)
+    location_consumption_constraint(instance= instance, network_scale_level= scenario.network_scale_level, cluster_wt = scenario.cluster_wt)
+    location_purchase_constraint(instance= instance, network_scale_level= scenario.network_scale_level, cluster_wt = scenario.cluster_wt)
 
     network_production_constraint(instance= instance, network_scale_level= scenario.network_scale_level)
     network_discharge_constraint(instance= instance, network_scale_level= scenario.network_scale_level)
