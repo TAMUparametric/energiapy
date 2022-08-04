@@ -13,6 +13,8 @@ __status__ = "Production"
 
 import pandas
 import numpy
+from itertools import product
+
 from sklearn.cluster import AgglomerativeClustering
 from sklearn.neighbors import NearestCentroid
 from ..utils.math_utils import scaler, generate_connectivity_matrix, find_euclidean_distance
@@ -20,7 +22,6 @@ from ..components.scenario import Scenario
 from ..components.temporal_scale import Temporal_scale
 from ..components.network import Network
 from ..components.location import Location
-
 from typing import Union
 
 
@@ -51,7 +52,7 @@ def reduce_scenario(scenario: Scenario, network:Union[Network, Location], period
         nearest_centroid_df['cluster_no'] = scaled_df['cluster_no'].unique()
         
         euclidean_distance_list = []
-        closest_to_centroid_df = pandas.DataFrame(columns=['day', 'rep_day', 'cluster_wt'])
+        closest_to_centroid_df = pandas.DataFrame(columns=['period', 'rep_period', 'cluster_wt'])
 
         for cluster_no in nearest_centroid_df['cluster_no']:
             # -1 skips cluster_no row
@@ -65,37 +66,39 @@ def reduce_scenario(scenario: Scenario, network:Union[Network, Location], period
                 euclidean_distance = find_euclidean_distance(
                     cluster_point, centroid)
                 euclidean_distance_list.append(euclidean_distance)
+                
         scaled_df['ED'] = euclidean_distance_list
-        closest_to_centroid_df['day'] = (scaled_df['cluster_no'].value_counts().index.values)
+        closest_to_centroid_df['period'] = (scaled_df['cluster_no'].value_counts().index.values)
         cluster_wts = [i for i in scaled_df['cluster_no'].value_counts()]
         closest_to_centroid_df['cluster_wt'] = cluster_wts
         
         list_ = []
-        for i in closest_to_centroid_df['day']:
+        for i in closest_to_centroid_df['period']:
             list_.append(
                 scaled_df.index.values[scaled_df['ED'] == scaled_df['ED'][scaled_df['cluster_no'] == i].min()][0])
-        closest_to_centroid_df['rep_day'] = list_
+        closest_to_centroid_df['rep_period'] = list_
         closest_to_centroid_df = closest_to_centroid_df.sort_values(
-            by=['rep_day']).reset_index(drop=True)
-        closest_to_centroid_df['day'] = list(
-            range(len(closest_to_centroid_df['day'])))
-        rep_day_dict = {int(day) + 1: {i: {} for i in ['rep_day', 'cluster_wt']}
-                        for day in list(closest_to_centroid_df['day'])}
-        for day in closest_to_centroid_df['day']:
-            rep_day_dict[day + 1]['rep_day'] = closest_to_centroid_df['rep_day'][closest_to_centroid_df['day'] == day].values[0]
-            rep_day_dict[day + 1]['cluster_wt'] = closest_to_centroid_df['cluster_wt'][closest_to_centroid_df['day'] == day].values[0]
-        
-        reduced_dicretization_list = scenario.scales.discretization_list
-        reduced_dicretization_list[scale_level] = len(rep_day_dict.keys())
-        reduced_temporal_scale = Temporal_scale(reduced_dicretization_list)
+            by=['rep_period']).reset_index(drop=True)
+        closest_to_centroid_df['period'] = list(
+            range(len(closest_to_centroid_df['period'])))
 
+        
+        reduced_dicretization_list = list(scenario.scales.discretization_list)
+        reduced_dicretization_list[scale_level] = periods
+        reduced_temporal_scale = Temporal_scale(reduced_dicretization_list)
+        reduced_scenario_scaleiter = [(i) for i in product(*[reduced_temporal_scale.scale[i] for i in reduced_temporal_scale.scale])]
+
+        rep_dict = {scale: {'rep_period': (*scale[:scale_level], closest_to_centroid_df['rep_period'][closest_to_centroid_df['period'] == scale[scale_level]].values[0], *scale[scale_level+1:]) ,\
+            'cluster_wt': closest_to_centroid_df['cluster_wt'][closest_to_centroid_df['period'] == scale[scale_level]].values[0]} for scale in reduced_scenario_scaleiter}
+        
         reduced_scenario = Scenario(name = f"{scenario.name}_reduced", scales = reduced_temporal_scale, \
             network = scenario.network, expenditure_scale_level= scenario.expenditure_scale_level, 
             scheduling_scale_level= scenario.scheduling_scale_level, network_scale_level= scenario.network_scale_level, 
             demand_scale_level= scenario.demand_scale_level, label= f"{scenario.label}(reduced)")
-        reduced_scenario.cost_factor = {'cost_factor'}
-        reduce_scenario.capacity_factor = {'capacity_factor'}
-
+                
+        reduced_scenario.capacity_factor = {network.name: {i.name: {j: scenario.capacity_factor[network.name][i.name][j] for j in rep_dict.keys()} for i in scenario.process_set if i.varying == True}}
+        reduced_scenario.cost_factor = {network.name: {i.name: {j: scenario.cost_factor[network.name][i.name][j] for j in rep_dict.keys()} for i in scenario.resource_set if i.varying == True}}
+        reduced_scenario.cluster_wt = {scale: rep_dict[scale]['cluster_wt'] for scale in reduced_scenario_scaleiter}
 
     return reduced_scenario
 

@@ -30,6 +30,14 @@ class Temporal_scale:
         self.scale  = {i: [j for j in range(self.discretization_list[i])] for i in range(len(self.discretization_list))}
         self.name = [i for i in range(len(self.discretization_list))]
         self.scale_levels = len(self.discretization_list)
-
+        
+    def __repr__(self):
+        return self.name
+    
+    def __hash__(self):
+        return hash(self.name)
+    
+    def __eq__(self, other):
+        return self.name == other.name
 
 # %%

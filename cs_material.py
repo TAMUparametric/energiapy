@@ -141,7 +141,7 @@ PTFE = Material(name='PTFE', gwp=9.6, basis= 'kg', label='Poly tetra fluoroethyl
 cost_dict = get_data(file_name='cost_dict')
 # Unit for gwp is kgCO2/Kwh
 LiI_c = Process(name='LiI_c', conversion={Charge: 1, Power: -1}, cost = cost_dict['HO']['moderate']['LiI_c']['0'], \
-    material_cons = {Li: 20}, prod_max=bigM, trl='nrel', block='power_storage', lifetime=(5,15), gwp=0.025, label='Lithium-ion battery', citation='Zakeri 2015', gwp'Florin, N. and Dominish, E. (2017)')
+    material_cons = {LiR: 20}, prod_max=bigM, trl='nrel', block='power_storage', lifetime=(5,15), gwp=0.025, label='Lithium-ion battery', citation='Zakeri 2015', gwp'Florin, N. and Dominish, E. (2017)')
 LiI_d = Process(name='LiI_d', conversion={Charge: -1.1765, Power: 1}, cost = cost_dict['HO']['moderate']['LiI_d']['0'], \
     prod_max=bigM, trl='discharge', block='power_storage', lifetime=(5,15), label='Lithium-ion battery discharge', citation='Zakeri 2015')
 CAES_c = Process(name='CAES_c', conversion={Air_C: 1, Power: -1}, cost = cost_dict['HO']['moderate']['CAES_c']['0'], \

@@ -43,6 +43,7 @@ from src.energiapy.utils.data_utils import get_data, make_henry_price_df
 from src.energiapy.utils.nsrdb_utils import fetch_nsrdb_data
 from src.energiapy.graph import graph
 from src.energiapy.model.pyomo_solve import solve
+from src.energiapy.utils.cluster_utils import reduce_scenario
 
 # *-------------------------Import data------------------------------------
 
@@ -238,19 +239,20 @@ HO = Location(name='HO', processes= ho_processes, demand = {H2_L: 100, H2_C: 100
 # *-------------------------Input data graphs------------------------------------
 # graph.capacity_factor(location= HO, process= PV, color= 'orange')
 # graph.cost_factor (location= HO, resource= CH4) 
-# *-------------------------Generate scenario------------------------------------
 
-case = Scenario(name= '', network = HO, scales= scales,  expenditure_scale_level= 0, scheduling_scale_level= 2, network_scale_level= 0, demand_scale_level= 1, label= 'shell milp case study')
-#%%
-from src.energiapy.utils.cluster_utils import reduce_scenario
+# *-------------------------Generate full-scale scenario------------------------------------
+case = Scenario(name= '', network = HO, scales= scales,  expenditure_scale_level= 2, scheduling_scale_level= 2, network_scale_level= 0, demand_scale_level= 1, label= 'shell milp case study')
 
-reduced_case = reduce_scenario(scenario= case, network= HO, periods= 20, scale_level= 1, method= 'agg_hierarchial')
-
-#TODO, add weights to scheduling scales, map cost_factor, capacity_dict in cluster_utils.reduce_scenario
-#%%
-# *-------------------------Model formulation------------------------------------
+# *------------------------- Full-scale model formulation------------------------------------
 milp = formulate_milp(scenario= case)
 results = solve(scenario = case, instance=milp, solver= 'gurobi', name='onelocmilp', saveformat = '.pkl')
+
+# *-------------------------Generate reduced scenario------------------------------------
+# reduced_case = reduce_scenario(scenario= case, network= HO, periods= 20, scale_level= 1, method= 'agg_hierarchial')
+
+# *------------------------- Reduced model formulation------------------------------------
+# milp_red = formulate_milp(scenario= reduced_case)
+# results_red = solve(scenario = reduced_case, instance=milp_red, solver= 'gurobi', name='red_onelocmilp', saveformat = '.pkl')
 
 #%%
 

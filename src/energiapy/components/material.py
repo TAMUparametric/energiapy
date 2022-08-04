@@ -27,7 +27,7 @@ class Material:
     
     name: str 
     label: str = ''
-    gwp: tuple=none
+    gwp: tuple= None
     basis: str = 'unit'
     citation: str = 'citation needed'
     H2O: float=0
