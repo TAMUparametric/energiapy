@@ -72,7 +72,7 @@ scales = Temporal_scale(discretization_list = [1, 365, 24])
 # scales = temporal_scale(discretization_list = [1, 2, 3])
 
 # *-------------------------Constants defined here for ease------------------------------------
-bigM = 10**4 #very large number
+bigM = 10**3 #very large number
 smallM = 0.1
 water_price = 31.70  # $/5000gallons
 power_price = 8  # cents/kWh
@@ -233,7 +233,7 @@ ho_processes = {LiI_c, LiI_d, CAES_c, CAES_d, PSH_c, PSH_d, PV, WF, AKE, SMRH, H
                 H2_C_d, H2_L_c, H2_L_d, DAC, EOR, AQoff_SMR, H2_Blue, H2_Green}#, ASMR}
 # {H2_L_c, H2_L_d, PV, LiI_c, LiI_d, WF, AKE, SMRH}
 # *-------------------------Geographic scales/location------------------------------------
-HO = Location(name='HO', processes= ho_processes, demand = 100.0, scales = scales, PV_class='Class5', WF_class='Class4',
+HO = Location(name='HO', processes= ho_processes, demand = 10000.0, scales = scales, PV_class='Class5', WF_class='Class4',
                       LiI_class='8Hr Battery Storage', PSH_class='Class 3', label='Houston')
 
 # *-------------------------Input data graphs------------------------------------

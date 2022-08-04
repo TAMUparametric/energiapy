@@ -85,7 +85,7 @@ def formulate_milp(scenario: Scenario) -> ConcreteModel:
     network_fopex_constraint(instance= instance, network_scale_level= scenario.network_scale_level)
     network_vopex_constraint(instance= instance, network_scale_level= scenario.network_scale_level)
     
-    demand_constraint(instance= instance, demand_scale_level= scenario.demand_scale_level, scheduling_scale_level= scenario.scheduling_scale_level, demand_dict= scenario.demand_dict)
+    demand_constraint(instance= instance, demand_scale_level= scenario.demand_scale_level, scheduling_scale_level= scenario.scheduling_scale_level, demand= scenario.demand)
     
     if len(scenario.location_set) > 1:
         transport_export_constraint(instance= instance, scheduling_scale_level= scenario.scheduling_scale_level, transport_avail_dict= scenario.transport_avail_dict)

@@ -94,11 +94,10 @@ class Scenario:
         self.fopex_dict = {i.name: i.fopex for i in self.process_set}
         self.vopex_dict = {i.name: i.vopex for i in self.process_set}
         self.land_dict = {i.name: i.land for i in self.process_set}
-        # if type(list(self.location_set)[0].demand) == float:
-        #     print(type(list(self.location_set)[0].demand))
-        #     self.demand = {i: i.demand for i in self.location_set}
-        # else:
-        #     self.demand = {i.name: {j.name: i.demand[j] for j in i.demand} for i in self.location_set}
+        if type(list(self.location_set)[0].demand) == float:
+            self.demand = {i.name: i.demand for i in self.location_set}
+        else:
+            self.demand = {i.name: {j.name: i.demand[j] for j in i.demand} for i in self.location_set}
 
 
     def __repr__(self):

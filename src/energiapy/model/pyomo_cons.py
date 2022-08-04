@@ -769,8 +769,8 @@ def demand_constraint(instance:ConcreteModel, demand: Union[dict,float], demand_
     def demand_rule(instance, location, resource, *scale_list):
         if type(demand[location]) == float:
             return sum(instance.S[location, resource_, scale_] for resource_, scale_ in \
-                product(instance.resource_demand, scale_iter) if scale_[:demand_scale_level+1] == scale_list)\
-                    == demand       
+                product(instance.resources_demand, scale_iter) if scale_[:demand_scale_level+1] == scale_list)\
+                    == demand[location]       
         else:
             return sum(instance.S[location, resource, scale_] for scale_ in scale_iter if scale_[:demand_scale_level+1] == scale_list)\
                 == demand[location][resource]

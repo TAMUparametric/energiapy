@@ -19,8 +19,8 @@ from src.energiapy.utils.data_utils import load_results
 from src.energiapy.graph import graph
 
 # results = load_results(filename = 'trial.pkl')
-results = load_results(filename = 'onelocmilp2.pkl')
-# results = load_results(filename = 'red_onelocmilp.pkl')
+# results = load_results(filename = 'onelocmilp2.pkl')
+results = load_results(filename = 'red_onelocmilp.pkl')
 
 # graph.contribution(results = results, y_axis = 'Capex_process', location= 'HO', usetex = True)
 # graph.contribution(results = results, y_axis = 'Cap_P', location= 'HO', usetex = True)
@@ -43,7 +43,6 @@ for i in results.fetch_components(component_type= 'resources', condition = ('sto
 
 
 #%%Production on per basis level for processes with varying capacities
-
 for i in results.fetch_components(component_type= 'processes', condition = ('varying', True)):
     graph.schedule(results = results, y_axis = 'P', component= i, location= 'HO', usetex = True)
    
