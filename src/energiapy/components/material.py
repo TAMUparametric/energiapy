@@ -12,9 +12,6 @@ __status__ = "Production"
 
 from dataclasses import dataclass
 
-from cs_uncertainty import H2O
-
-#TODO - check POPT data class, do not need __init__
 @dataclass
 class Material:
     """

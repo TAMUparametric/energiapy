@@ -48,6 +48,29 @@ def production_facility_constraint(instance: ConcreteModel, prod_max:dict, loc_p
     constraint_latex_render(production_facility_rule)
     return instance.production_facility_constraint
 
+def min_production_facility_constraint(instance: ConcreteModel, prod_min:dict, loc_pro_dict:dict = {}, network_scale_level:int = 0) -> Constraint:
+    """Determines where production facility of certain capacity is inserted at location in network
+
+    Args:
+        instance (ConcreteModel): pyomo instance
+        prod_max (dict): maximum production of process at location
+        loc_pro_dict (dict, optional): production facilities avaiable at location. Defaults to {}.
+        network_scale_level (int, optional): scale of network decisions. Defaults to 0.
+
+    Returns:
+        Constraint: min_production_facility_constraint
+    """
+    scales = scale_list(instance= instance, scale_levels = network_scale_level+1)
+    def min_production_facility_rule(instance, location, process, *scale_list):
+        if process in loc_pro_dict[location]:
+            return instance.Cap_P[location, process, scale_list[:network_scale_level+1]] >= prod_min[location][process]*\
+                instance.X_P[location, process, scale_list[:network_scale_level+1]]    
+        else:
+            return Constraint.Skip 
+    instance.min_production_facility_constraint = Constraint(instance.locations, instance.processes, *scales, rule= min_production_facility_rule, doc = 'production facility sizing and location')
+    constraint_latex_render(min_production_facility_rule)
+    return instance.min_production_facility_constraint
+
 
 def storage_facility_constraint(instance: ConcreteModel, store_max:dict, loc_res_dict:dict = {},  network_scale_level:int = 0) -> Constraint:
     """Determines where storage facility of certain capacity is inserted at location in network
@@ -72,6 +95,33 @@ def storage_facility_constraint(instance: ConcreteModel, store_max:dict, loc_res
     instance.storage_facility_constraint = Constraint(instance.locations, instance.resources_store, *scales, rule= storage_facility_rule, doc = 'storage facility sizing and location')
     constraint_latex_render(storage_facility_rule)
     return instance.storage_facility_constraint
+
+
+def min_storage_facility_constraint(instance: ConcreteModel, store_min:dict, loc_res_dict:dict = {},  network_scale_level:int = 0) -> Constraint:
+    """Determines where storage facility of certain capacity is inserted at location in network
+
+    Args:
+        instance (ConcreteModel): pyomo instance
+        store_max (dict): maximum storage capacity of resource at location
+        loc_res_dict (dict, optional): storage facilities for resource available at location. Defaults to {}.
+        network_scale_level (int, optional): scale of network decisions. Defaults to 0.
+
+
+    Returns:
+        Constraint: min_storage_facility_constraint
+    """
+    scales = scale_list(instance= instance, scale_levels = network_scale_level + 1)
+    def min_storage_facility_rule(instance, location, resource, *scale_list):
+        if resource in loc_res_dict[location]:
+            return instance.Cap_S[location, resource, scale_list[:network_scale_level+1]] >= store_min[location][resource]*\
+                instance.X_S[location, resource, scale_list[:network_scale_level+1]]   
+        else:
+            return Constraint.Skip   
+    instance.min_storage_facility_constraint = Constraint(instance.locations, instance.resources_store, *scales, rule= min_storage_facility_rule, doc = 'storage facility sizing and location')
+    constraint_latex_render(min_storage_facility_rule)
+    return instance.min_storage_facility_constraint
+
+
 
 # *-------------------------Mass balance constraints------------------------------------
 
@@ -122,6 +172,8 @@ def nameplate_inventory_constraint(instance: ConcreteModel, loc_res_dict:dict = 
         instance.locations, instance.resources, *scales, rule=nameplate_inventory_rule, doc='nameplate inventory capacity constraint')
     constraint_latex_render(nameplate_inventory_rule)
     return instance.nameplate_inventory_constraint
+
+
 
 def resource_consumption_constraint(instance: ConcreteModel, loc_res_dict:dict = {}, cons_max:dict = {}, scheduling_scale_level:int= 0) -> Constraint:
     """Determines consumption of resource at location in network 
@@ -219,23 +271,39 @@ def inventory_balance_constraint(instance: ConcreteModel, scheduling_scale_level
     scales = scale_list(instance= instance, scale_levels = instance.scales.__len__())
     scale_iter = scale_tuple(instance= instance, scale_levels = instance.scales.__len__())
     def inventory_balance_rule(instance, location, resource, *scale_list):
-        if scale_list[:scheduling_scale_level+1] != scale_iter[0]:
-            return instance.Inv[location, resource, scale_list[:scheduling_scale_level+1]] \
-                - instance.Inv[location, resource, scale_iter[scale_iter.index(scale_list[:scheduling_scale_level+1]) -1]] \
-                    + instance.S[location, resource, scale_list[:scheduling_scale_level+1]] \
-                    - instance.C[location, resource, scale_list[:scheduling_scale_level+1]] \
-                    - sum(conversion[process][resource]*instance.P[location, process, scale_list[:scheduling_scale_level+1]] for process in instance.processes) \
-                        - sum(instance.Imp[location, source_, resource, scale_list[:scheduling_scale_level+1]] for source_ in instance.sources if source_ != location if location in instance.sinks)\
-                        + sum(instance.Exp[location, sink_, resource, scale_list[:scheduling_scale_level+1]] for sink_ in instance.sinks if sink_ != location if location in instance.sources)\
-                        == 0
+        if len(instance.locations) > 1:    
+            if scale_list[:scheduling_scale_level+1] != scale_iter[0]:
+                return instance.Inv[location, resource, scale_list[:scheduling_scale_level+1]] \
+                    - instance.Inv[location, resource, scale_iter[scale_iter.index(scale_list[:scheduling_scale_level+1]) -1]] \
+                        + instance.S[location, resource, scale_list[:scheduling_scale_level+1]] \
+                        - instance.C[location, resource, scale_list[:scheduling_scale_level+1]] \
+                        - sum(conversion[process][resource]*instance.P[location, process, scale_list[:scheduling_scale_level+1]] for process in instance.processes) \
+                            - sum(instance.Imp[location, source_, resource, scale_list[:scheduling_scale_level+1]] for source_ in instance.sources if source_ != location if location in instance.sinks)\
+                            + sum(instance.Exp[location, sink_, resource, scale_list[:scheduling_scale_level+1]] for sink_ in instance.sinks if sink_ != location if location in instance.sources)\
+                            == 0
+            else:
+                return instance.Inv[location, resource, scale_list[:scheduling_scale_level+1]] \
+                        + instance.S[location, resource, scale_list[:scheduling_scale_level+1]] \
+                        - instance.C[location, resource, scale_list[:scheduling_scale_level+1]] \
+                        - sum(conversion[process][resource]*instance.P[location, process, scale_list[:scheduling_scale_level+1]] for process in instance.processes) \
+                            - sum(instance.Imp[location, source_, resource, scale_list[:scheduling_scale_level+1]] for source_ in instance.sources if source_ != location if location in instance.sinks)\
+                            + sum(instance.Exp[location, sink_, resource, scale_list[:scheduling_scale_level+1]] for sink_ in instance.sinks if sink_ != location if location in instance.sources)\
+                            == 0
         else:
-            return instance.Inv[location, resource, scale_list[:scheduling_scale_level+1]] \
-                    + instance.S[location, resource, scale_list[:scheduling_scale_level+1]] \
-                    - instance.C[location, resource, scale_list[:scheduling_scale_level+1]] \
-                    - sum(conversion[process][resource]*instance.P[location, process, scale_list[:scheduling_scale_level+1]] for process in instance.processes) \
-                        - sum(instance.Imp[location, source_, resource, scale_list[:scheduling_scale_level+1]] for source_ in instance.sources if source_ != location if location in instance.sinks)\
-                        + sum(instance.Exp[location, sink_, resource, scale_list[:scheduling_scale_level+1]] for sink_ in instance.sinks if sink_ != location if location in instance.sources)\
-                        == 0
+            if scale_list[:scheduling_scale_level+1] != scale_iter[0]:
+                return instance.Inv[location, resource, scale_list[:scheduling_scale_level+1]] \
+                    - instance.Inv[location, resource, scale_iter[scale_iter.index(scale_list[:scheduling_scale_level+1]) -1]] \
+                        + instance.S[location, resource, scale_list[:scheduling_scale_level+1]] \
+                        - instance.C[location, resource, scale_list[:scheduling_scale_level+1]] \
+                        - sum(conversion[process][resource]*instance.P[location, process, scale_list[:scheduling_scale_level+1]] for process in instance.processes)\
+                            == 0
+            else:
+                return instance.Inv[location, resource, scale_list[:scheduling_scale_level+1]] \
+                        + instance.S[location, resource, scale_list[:scheduling_scale_level+1]] \
+                        - instance.C[location, resource, scale_list[:scheduling_scale_level+1]] \
+                        - sum(conversion[process][resource]*instance.P[location, process, scale_list[:scheduling_scale_level+1]] for process in instance.processes) \
+                            == 0
+                            
     instance.inventory_balance_constraint = Constraint(instance.locations, instance.resources, *scales, rule=inventory_balance_rule, doc='mass balance across scheduling scale')
     constraint_latex_render(inventory_balance_constraint)
     return instance.inventory_balance_constraint
@@ -530,7 +598,6 @@ def delta_cap_network_constraint(instance:ConcreteModel, network_scale_level:int
 
 def process_fopex_constraint(instance:ConcreteModel, fopex_dict:dict, network_scale_level:int=0, annualization_factor:float = 1) -> Constraint:
     """Fixed operational expenditure for each process at location in network
-
     Args:
         instance (ConcreteModel): pyomo instance
         fopex_dict (dict): fixed opex at location #TODO
@@ -691,9 +758,66 @@ def demand_constraint(instance:ConcreteModel, demand_scale_level:int= 0, schedul
     scale_iter = scale_tuple(instance= instance, scale_levels = scheduling_scale_level+1)
     def demand_rule(instance, location, resource, *scale_list):
         return sum(instance.S[location, resource, scale_] for scale_ in scale_iter if scale_[:demand_scale_level+1] == scale_list)  == demand_dict[location][resource]
-    instance.demand_constraint = Constraint(instance.sinks, instance.resources_demand, *scales, rule = demand_rule, doc = 'speific demand for resources')
+    if len(instance.locations) > 1:    
+        instance.demand_constraint = Constraint(instance.sinks, instance.resources_demand, *scales, rule = demand_rule, doc = 'specific demand for resources')
+    else:                 
+        instance.demand_constraint = Constraint(instance.locations, instance.resources_demand, *scales, rule = demand_rule, doc = 'specific demand for resources')        
     constraint_latex_render(demand_rule)
     return instance.demand_constraint
+
+# *-------------------------Nexus constraints--------------------------------------
+
+def process_land_constraint(instance:ConcreteModel, land_dict:dict, network_scale_level:int=0) -> Constraint:
+    """Land required for each process at location in network
+
+    Args:
+        instance (ConcreteModel): pyomo instance
+        land_dict (dict): land required at location
+        network_scale_level (int, optional): scale of network decisions. Defaults to 0.
+        
+    Returns:
+        Constraint: process_land_constraint
+    """
+    scales = scale_list(instance= instance, scale_levels = network_scale_level+1) 
+    def process_land_rule(instance, location, process, *scale_list):
+        return instance.Land_process[location, process, scale_list] == land_dict[process]*instance.Cap_P[location, process, scale_list]
+    instance.process_land_constraint = Constraint(instance.locations, instance.processes, *scales, rule = process_land_rule, doc = 'land required for process')
+    constraint_latex_render(process_land_rule)
+    return instance.process_land_constraint
+
+def location_land_constraint(instance:ConcreteModel, network_scale_level:int=0) -> Constraint:
+    """Land required at each location in network
+
+    Args:
+        instance (ConcreteModel): pyomo instance
+        network_scale_level (int, optional): scale of network decisions. Defaults to 0.
+        
+    Returns:
+        Constraint: location_land_constraint
+    """
+    scales = scale_list(instance= instance, scale_levels = network_scale_level+1) 
+    def location_land_rule(instance, location, *scale_list):
+        return instance.Land_location[location, scale_list] == sum(instance.Land_process[location, process_, scale_list] for process_ in instance.processes)
+    instance.location_land_constraint = Constraint(instance.locations, *scales, rule = location_land_rule, doc = 'land required for process')
+    constraint_latex_render(location_land_rule)
+    return instance.location_land_constraint
+
+def network_land_constraint(instance:ConcreteModel, network_scale_level:int=0) -> Constraint:
+    """Land required by network
+
+    Args:
+        instance (ConcreteModel): pyomo instance
+        network_scale_level (int, optional): scale of network decisions. Defaults to 0.
+        
+    Returns:
+        Constraint: network_land_constraint
+    """
+    scales = scale_list(instance= instance, scale_levels = network_scale_level+1) 
+    def network_land_rule(instance, *scale_list):
+        return instance.Land_network[scale_list] == sum(instance.Land_location[location_, scale_list] for location_ in instance.locations)
+    instance.network_land_constraint = Constraint(*scales, rule = network_land_rule, doc = 'land required for process')
+    constraint_latex_render(network_land_rule)
+    return instance.network_land_constraint
 
 # *-------------------------Uncertainty analysis constraints------------------------------------
 

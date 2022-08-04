@@ -13,25 +13,6 @@ __status__ = "Production"
 from itertools import product
 from pyomo.environ import ConcreteModel, Set
 
-def fetch_components(process_list: list, master_list: list, dict_with_relevant_data: dict) -> str:
-    """Fetches a list of materials for which relevant data is available 
-    conversion for example will be used draw resources from the specified processes
-
-    Args:
-        process_list (list): list of processes
-        master_list (list): master list of all defined elements 
-        dict_with_relevant_data (dict): dictionary to look up for matches, conversion with resources for example
-
-
-    Returns:
-        str: list of components
-    """
-    list_ = []
-    for process, value in product(process_list, master_list):
-        if dict_with_relevant_data[process.name][value.name] != 0:
-            list_.append(value) if value not in list_ else list_
-    return list_
-
 def scale_pyomo_set(instance: ConcreteModel, scale_level:int=0):
     """returns a set with appropropriate scale(s)
 

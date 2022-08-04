@@ -92,15 +92,55 @@ def schedule(results: Result, y_axis:str, component:str, location:str,\
     rc('font', **{'family': 'serif', 'serif': ['Computer Modern'], 'size': font_size})
     rc('text', usetex=usetex)
     fig, ax = plt.subplots(figsize= fig_size)
+    results.__dict__['components'].keys()
     y_ = [results.output[y_axis][i] for i in results.output[y_axis].keys() if location in i if component in i]
-    title = f"Schedule for {results.components[component]['label']} in {results.components[location]['label']}"
+    
+    for i in results.__dict__['components'].keys():
+        if component in results.__dict__['components'][i]:
+            component_type = i
+
+    title = f"Schedule for {results.components[component_type][component]['label']} in {results.components['locations'][location]['label']}"
     plt.title(title)
-    plt.ylabel(results.components[component]['basis'])
+    plt.ylabel(results.components[component_type][component]['basis'])
     x_ = [i for i in range(len(y_))]
     ax.plot(x_, y_, linewidth=0.5, color=color)
     plt.grid(alpha=0.3)
     plt.rcdefaults()
     return
+
+
+
+def contribution(results: Result, y_axis:str, location:str,\
+    fig_size:tuple = (12,6), font_size:int = 16, color:str ='blue', usetex:bool = True):
+    """generates a graph for scheduling result
+
+    Args:
+    #     result (dict): dictionary that can be taken from result object 
+    #     component (str): resource or process name
+    #     location (str): location name
+    #     font_size (int, optional): font size. Defaults to 16.
+    #     fig_size (tuple, optional): figure size. Defaults to (12,6).
+    #     color (str, optional): color of plot. Defaults to 'blue'.
+    #     usetex (bool, optional): True, if using latex font, need Tex set up (prone to errors). Defaults to 'True'.
+        
+    # """
+    rc('font', **{'family': 'serif', 'serif': ['Computer Modern'], 'size': font_size})
+    rc('text', usetex=usetex)
+    fig, ax = plt.subplots(figsize= fig_size)
+    y_ = [results.output[y_axis][i] for i in results.output[y_axis].keys() if location in i]
+
+    # title = f"Schedule for {results.components[component_type][component]['label']} in {results.components['locations'][location]['label']}"
+    plt.title(f"${y_axis.split('_')[0]}_{{{y_axis.split('_')[1]}}}$")
+    # plt.ylabel(results.components[component_type])
+    # results.components['processes'][i[1]]['label'] 
+    # x_ = [f"${i[1].split('_')[0]}_{{{i[1].split('_')[1]}}}$" for i in results.output[y_axis].keys() if location in i]
+    x_ = [i[1] for i in results.output[y_axis].keys() if location in i]
+    ax.bar(x_, y_, linewidth=0.5, color=color)
+    plt.xticks(rotation = 90)
+    plt.grid(alpha=0.3)
+    plt.rcdefaults()
+    return
+
 
 #TODO - plots are independent of scales, check
 #TODO - make bar plots / pie plots for contribution from different components 

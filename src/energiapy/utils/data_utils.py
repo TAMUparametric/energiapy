@@ -153,43 +153,43 @@ def make_henry_price_df(file_name: str, year: int, stretch: bool) -> pandas.Data
         pandas.DataFrame: data frame with varying natural gas prices
     """
 
-    df_ = pandas.read_csv(file_name, skiprows=5, names=['date', 'CH4'])
+    df = pandas.read_csv(file_name, skiprows=5, names=['date', 'CH4'])
 
-    df_[["month", "day", "year"]] = df_['date'].str.split("/", expand=True)
-    df_ = df_[df_['year'] == str(year)].astype(
+    df[["month", "day", "year"]] = df['date'].str.split("/", expand=True)
+    df = df[df['year'] == str(year)].astype(
         {"month": int, "day": int, "year": int})
-    df_['date'] = pandas.to_datetime(df_['date'])  # , format='%d%b%Y:%H:%M:%S.%f')
-    df_['doy'] = df_['date'].dt.dayofyear
-    df_ = df_.sort_values(by=['doy'])
-    df_ = df_.drop(columns='date').dropna(axis='rows')
-    doy_list = [i for i in df_['doy']]
+    df['date'] = pandas.to_datetime(df['date'])  # , format='%d%b%Y:%H:%M:%S.%f')
+    df['doy'] = df['date'].dt.dayofyear
+    df = df.sort_values(by=['doy'])
+    df = df.drop(columns='date').dropna(axis='rows')
+    doy_list = [i for i in df['doy']]
 
     for i in numpy.arange(1, 366):  # fixes values for weekends and holidays to last active day
         if i not in doy_list:
             if i == 1:  # onetime fix if first day has no value, takes value from day 2
-                df_ = pandas.concat([df_, pandas.DataFrame.from_records([{'CH4': df_['CH4'][df_['doy'] == 2].values[0],\
+                df = pandas.concat([df, pandas.DataFrame.from_records([{'CH4': df['CH4'][df['doy'] == 2].values[0],\
                     'month': 1, 'day': 1, 'year': year, 'doy': 1}])])
-                # df_ = df_.append({'CH4': df_['CH4'][df_['doy'] == 2].values[0], 'month': 1, 'day': 1, 'year': year, 'doy': 1}, ignore_index=True)
+                # df = df.append({'CH4': df['CH4'][df['doy'] == 2].values[0], 'month': 1, 'day': 1, 'year': year, 'doy': 1}, ignore_index=True)
             else:
-                df_ = pandas.concat([df_, pandas.DataFrame.from_records([{'CH4': df_['CH4'][df_['doy'] == i-1].values[0], \
-                    'month': df_['month'][df_['doy'] == i-1].values[0], 'day': df_['day'][df_['doy'] == i-1].values[0], \
-                        'year': df_['year'][df_['doy'] == i-1].values[0], 'doy': i}])])
-                # df_ = df_.append({'CH4': df_['CH4'][df_['doy'] == i-1].values[0], 'month': df_['month'][df_['doy'] == i-1].values[0], 'day': df_['day'][df_['doy'] == i-1].values[0], 'year': df_['year'][df_['doy'] == i-1].values[0], 'doy': i}, ignore_index=True)
+                df = pandas.concat([df, pandas.DataFrame.from_records([{'CH4': df['CH4'][df['doy'] == i-1].values[0], \
+                    'month': df['month'][df['doy'] == i-1].values[0], 'day': df['day'][df['doy'] == i-1].values[0], \
+                        'year': df['year'][df['doy'] == i-1].values[0], 'doy': i}])])
+                # df = df.append({'CH4': df['CH4'][df['doy'] == i-1].values[0], 'month': df['month'][df['doy'] == i-1].values[0], 'day': df['day'][df['doy'] == i-1].values[0], 'year': df['year'][df['doy'] == i-1].values[0], 'doy': i}, ignore_index=True)
 
-    df_ = df_.sort_values(by=['doy'])
-    df_ = df_.reset_index(drop=True)
-    df_['CH4'] = df_['CH4'] / 22.4  # convert from $/MMBtu to $/kg
-    df_ = df_[['CH4', 'doy']].rename(columns={'doy': 'day'})
+    df = df.sort_values(by=['doy'])
+    df = df.reset_index(drop=True)
+    df['CH4'] = df['CH4'] / 22.4  # convert from $/MMBtu to $/kg
+    df = df[['CH4', 'doy']].rename(columns={'doy': 'day'})
     if stretch == False:
-        df_ = df_
-        df_['scales'] = [(0, int(i - 1)) for i in df_['day']]
+        df = df
+        df['scales'] = [(0, int(i - 1)) for i in df['day']]
         
     else:
-        df_ = df_.loc[df_.index.repeat(24)].reset_index(drop=True)
-        df_['hour'] = [int(i) for i in range(0, 24)]*365
-        df_['scales'] = [(0, int(i - 1), int(j)) for i,j in zip(df_['day'], df_['hour'])]
-    df_ = df_[['CH4', 'scales']]    
-    return df_
+        df = df.loc[df.index.repeat(24)].reset_index(drop=True)
+        df['hour'] = [int(i) for i in range(0, 24)]*365
+        df['scales'] = [(0, int(i - 1), int(j)) for i,j in zip(df['day'], df['hour'])]
+    df = df[['CH4', 'scales']]    
+    return df
 
 
 def make_nrel_cost_df(location: Location, nrel_cost_xlsx, pick_nrel_process_list: list, year_list: list, case: str, crpyears: float) -> pandas.DataFrame:
@@ -270,8 +270,11 @@ def load_results(filename:str) -> Result:
     """
     file_ = open(filename, 'rb')
     results_dict = pickle.load(file_)
+    if results_dict['output']['termination'] != 'optimal':
+        print('WARNING: Loading non-optimal results')
     results = Result(name = filename.split('.')[0], output = results_dict['output'], components= results_dict['components'])
     return results
+
 
 
 # %%

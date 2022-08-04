@@ -1,6 +1,9 @@
 
 #%%
-"""Example case study implemeted on the energia python module
+"""
+Single location case study:
+
+Example case study implemeted on the energia python module
 The presented simultaneous design and scheduling MIP framework models:
 the hydrogen economy, carbon capture utilization & storage, power generation under an integrated network
 
@@ -16,7 +19,7 @@ __author__ = "Rahul Kakodkar"
 __copyright__ = "Copyright 2022, Multi-parametric Optimization & Control Lab"
 __credits__ = ["Rahul Kakodkar", "Efstratios N. Pistikopoulos"]
 __license__ = "Open"
-__version__ = "1.0.3"
+__version__ = "1.0.0"
 __maintainer__ = "Rahul Kakodkar"
 __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
@@ -24,10 +27,8 @@ __status__ = "Production"
 
 # *-------------------------Import modules------------------------------------
 # from turtle import distance
+from os import stat
 import pandas
-# import numpy 
-# from pyomo.opt import SolverStatus, TerminationCondition
-from pyomo.environ import SolverFactory #, Var, NonNegativeReals, Set
 from src.energiapy.components.temporal_scale import Temporal_scale
 from src.energiapy.components.resource import Resource
 from src.energiapy.components.process import Process
@@ -38,18 +39,40 @@ from src.energiapy.components.scenario import Scenario
 from src.energiapy.components.transport import Transport
 from src.energiapy.components.result import Result
 from src.energiapy.model.formulate_milp import formulate_milp
-from src.energiapy.utils.data_utils import get_data,make_henry_price_df
+from src.energiapy.utils.data_utils import get_data, make_henry_price_df
+from src.energiapy.utils.nsrdb_utils import fetch_nsrdb_data
 from src.energiapy.graph import graph
 from src.energiapy.model.pyomo_solve import solve
 
+# *-------------------------Import data------------------------------------
+
+# get solar data as dni and wind data as wind speed for most populated data point in Harris county (TX) at an hourly resolution
+# lat_lon_ho, ho_wind_df = fetch_nsrdb_data(attrs = ['wind_speed'], year = 2019, state = 'Texas', county = 'Harris', resolution= 'hourly', save = 'ho_wind') #(lon_lat, wind df)
+# lat_lon_ho, ho_solar_df = fetch_nsrdb_data(attrs = ['dni'], year = 2019, state = 'Texas', county = 'Harris', resolution= 'hourly',  save = 'ho_solar') #(lon_lat, wind df)
+
+#import stored files from fetch_nsrdb_data
+ho_solar_df = pandas.read_csv('ho_solar.csv', index_col= 0)
+ho_wind_df = pandas.read_csv('ho_wind.csv', index_col= 0)
+
+#varying natural gas prices
+hp_price_daily_df = make_henry_price_df(
+    file_name='Henry_Hub_Natural_Gas_Spot_Price_Daily.csv', year=2019, stretch=True)
  
 # *-------------------------Temporal scales------------------------------------
-
+# Temporal_scale is used to define a descritizations of the temporal scale
+# E.g.: A year at annual, daily and hourly descritization cane be represented as:
+# Annual (1x1 = 1) - network level trends and their inherent uncertainties can be well 
+# represented at an annual scale, for example, augmentations in process
+# efficiencies, reductions in technology cost. 
+# Daily (1x365 = 365) - Purchase level decisions can be sufficienctly described at a daily scale.
+# Hourly (1x365x24 = 8760)- Solar and wind availability can be represented to within some factor
+# of accuracy at an hourly scale. 
 scales = Temporal_scale(discretization_list = [1, 365, 24])
 # scales = temporal_scale(discretization_list = [1, 2, 3])
 
 # *-------------------------Constants defined here for ease------------------------------------
-bigM = 10**10 #very large number
+bigM = 10**4 #very large number
+smallM = 0.1
 water_price = 31.70  # $/5000gallons
 power_price = 8  # cents/kWh
 ur_price = 42.70  # 250 Pfund U308 (Uranium)
@@ -61,7 +84,19 @@ smrh_start = 0
 smr_start = 0 
 asmr_start = 0 
 
-# *-------------------------Resources------------------------------------
+# *-------------------------Resources-------------------------------------
+#Resources can be - 
+# consumed, e.g. solar, wind 
+# purchased (consumed at a cost), e.g. natural gas, water 
+# sold, e.g. hydrogen, power
+# produced, e.g. hydrogen, methanol
+# stored, e.g. power as charge or elevated water, hydrogen as cryogenic or compressed 
+# discharged (sold for 0 currency), e.g. CO2, O2 (could be assigned profit)
+# basis can be declared, maximum consumption and storage can be defined
+# selling and purchase costs can vary. Natural gas and power for example 
+# labels and blocks can be defined
+# these can be represented as cost factors (0,1) multiplied to a base resource cost 
+# *------------------------------------------------------------------------
 
 Charge = Resource(name='Charge', sell=False,
                           store_max=bigM, basis='MW', label='Battery energy', block= 'energystorage')
@@ -70,11 +105,11 @@ Air_C = Resource(name='Air_C', store_max=bigM, basis='MW',
 H2O_E = Resource(name='H2O_E', store_max=bigM, basis='MW',
                          label='PSH energy', block= 'energystorage')
 Solar = Resource(
-    name='Solar', cons_max=10**20, basis='MW', label='Solar Power', block = 'energyfeedstock')
+    name='Solar', cons_max=10**4, basis='MW', label='Solar Power', block = 'energyfeedstock')
 Wind = Resource(name='Wind', cons_max=10 **
-                        20, basis='MW', label='Wind Power', block = 'energyfeedstock')
+                        4, basis='MW', label='Wind Power', block = 'energyfeedstock')
 Uranium = Resource(name='Uranium', cons_max=10 **
-                           20, price=ur_price/(250/2), basis='kg', label='Uranium', block = 'energyfeedstock')
+                           4, price=ur_price/(250/2), basis='kg', label='Uranium', block = 'energyfeedstock')
 H2_C = Resource(name='H2_C', sell=True, store_max=10**4, loss=0.025/24, revenue=2, mile=1/(0.1180535*1.60934),
                         demand=True, basis='kg', label='Hydrogen - Local Cryo', block= 'resourcestorage') 
 H2_L = Resource(name='H2_L', sell=True, store_max=10**10, demand=True, revenue=2,
@@ -82,12 +117,12 @@ H2_L = Resource(name='H2_L', sell=True, store_max=10**10, demand=True, revenue=2
 H2 = Resource(name='H2', basis='kg', label='Hydrogen', block= 'Resource')
 H2_B = Resource(name='H2_B', basis='kg', label='Blue hydrogen', block= 'product')
 H2_G = Resource(name='H2_G', basis='kg', label='Green hydrogen', block= 'product')
-H2O = Resource(name='H2O', cons_max=10**20,
+H2O = Resource(name='H2O', cons_max=10**4,
                        price=water_price/(5000*3.7854), basis='kg', label='Water', block= 'Resource')
 O2 = Resource(name='O2', sell=True, loss=0.07,
                       basis='kg', label='Oxygen', block = 'Resource')
 CH4 = Resource(name='CH4', cons_max=10 **
-                       20, varying= True, price=1, basis='kg', label='Natural gas', block = 'materialfeedstock')
+                       20, price=1, basis='kg', label='Natural gas', block = 'materialfeedstock', varying_cost_df = hp_price_daily_df)
 CO2 = Resource(name='CO2', basis='kg', label='Carbon dioxide', block = 'Resource')
 CO2_DAC = Resource(
     name='CO2_DAC', basis='kg', label='Carbon dioxide - captured', block = 'carbonsequestration')
@@ -106,13 +141,25 @@ CO2_Vent = Resource(
 Power = Resource(name='Power', basis='MW',
                          label='Renewable power generated', block = 'Resource')
 
-
 # *-------------------------Materials------------------------------------
+# Materials required to build processes
 Li = Material(name='Li', gwp=0, basis= 'kg', label='Lithium')
 
 
 # *-------------------------Processes ------------------------------------
+# Processes can convert resources, for example electorlysis converts 
+# water and power into hydrogen.
+# processes also require materials such as Lithium for Li-ion batteries 
+# production capacity could be subject to variation. e.g. Solar PVs and Wind farms 
+# intermittency can be represented through capacity factors (0,1)
+# production costs and their trajectories can be defined
+# blocks can be defined
+# TRL trajectories can be defined 
+# citations and sources can be added
+# *------------------------------------------------------------------------
 
+
+#cost of processes
 cost_dict = get_data(file_name='cost_dict')
 
 LiI_c = Process(name='LiI_c', conversion={Charge: 1, Power: -1}, cost = cost_dict['HO']['moderate']['LiI_c']['0'],\
@@ -128,10 +175,10 @@ PSH_c = Process(name='PSH_c', conversion={H2O_E: 1, Power: -1}, cost = cost_dict
 PSH_d = Process(name='PSH_d', conversion={H2O: -1, Power: -1.4286}, cost = cost_dict['HO']['moderate']['PSH_d']['0'], \
     prod_max=bigM, trl='discharge', block='power_storage', label='Pumped storage hydropower (PSH) discharge', citation='Zakeri 2015')
 PV = Process(name='PV', intro_scale=pv_start, conversion={Solar: -1, Power: 1, H2O: -20}, cost = cost_dict['HO']['moderate']['PV']['0'], \
-    varying= True, prod_max=bigM, gwp=53000, land=13320/1800, trl='nrel', block='power_generation', label='Solar photovoltaics (PV) array', citation='Use pvlib conversion')
+    prod_max=bigM, gwp=53000, land=13320/1800, trl='nrel', block='power_generation', label='Solar photovoltaics (PV) array', citation='Use pvlib conversion', varying_capacity_df= ho_solar_df)
 WF = Process(name='WF', conversion={Wind: -1, Power: 1, H2O: -1}, cost = cost_dict['HO']['moderate']['WF']['0'], \
-    varying= True, prod_max=bigM, gwp=52700, land=10800/1800, trl='nrel', block='power_generation', \
-        label='Wind mill array', citation='Use windtoolkit conversion')
+    prod_max=bigM, gwp=52700, land=10800/1800, trl='nrel', block='power_generation', \
+        label='Wind mill array', citation='Use windtoolkit conversion', varying_capacity_df= ho_wind_df)
 AKE = Process(name='AKE', intro_scale=ake_start, conversion={Power: -1, H2_G: 19.474, O2: 763.2, H2O: -175.266}, \
     cost = cost_dict['HO']['moderate']['AKE']['0'], prod_max=bigM, trl='utility', block='material_production', \
         label='Alkaline water electrolysis (AWE)', citation='Demirhan et al. 2018 AIChE paper')  # 20.833 MW required to produce 1000t/day.H2
@@ -142,15 +189,21 @@ SMRH = Process(name='SMRH', intro_scale=smrh_start, conversion={Power: -1.11*10*
 #                       block='material_production', label='Steam methane reforming', citation='Mosca 2020')
 ASMR = Process(name='ASMR', conversion={Uranium: -4.17*10**(-5), H2O: -3364.1, Power: 1}, cost = cost_dict['HO']['moderate']['ASMR']['0'], \
     intro_scale=asmr_start, gwp=9100, prod_max=bigM, land=1100/1800, trl='pilot', block='power_generation', label='Small modular reactors (SMRs)')
-H2_C_c = Process(name='H2_C_c', conversion={Power: -1.10*10**(-3), H2_C: 1, H2: -1}, cost = cost_dict['HO']['moderate']['H2_C_c']['0'], \
+H2_C_c = Process(name='H2_C_c', conversion={Power: -1.10*10**(-3), H2_C: 1, H2: -1}, cost = {'CAPEX': smallM, 'Fixed O&M': 0, 'Variable O&M': 0, \
+    'units': '$/kg','source': 'dummy'}, \
     prod_max=12000, gwp=0, trl='pilot', block='material_storage', label='Hydrogen local storage (Compressed)', \
         citation='Bossel and Eliasson - Energy and the Hydrogen Economy')
-H2_C_d = Process(name='H2_C_d',  conversion={H2_C: -1, H2: 1}, cost = cost_dict['HO']['moderate']['H2_C_d']['0'], prod_max=bigM, gwp=0, trl='nocost',
+H2_C_d = Process(name='H2_C_d',  conversion={H2_C: -1, H2: 1}, cost = {'CAPEX': smallM, 'Fixed O&M': 0, 'Variable O&M': 0, \
+    'units': '$/kg','source': 'dummy'}, \
+        prod_max=bigM, gwp=0, trl='nocost',
                          block='material_storage', label='Hydrogen local storage (Compressed) discharge', citation='Bossel and Eliasson - Energy and the Hydrogen Economy')
-H2_L_c = Process(name='H2_L_c', conversion={Power: -4.17*10**(-4), H2_L: 1, H2: -1}, cost = cost_dict['HO']['moderate']['H2_L_c']['0'], prod_max=bigM, gwp=0, trl='repurposed',
-                         block='material_storage', label='Hydrogen geological storage', citation='Bossel and Eliasson - Energy and the Hydrogen Economy')
-H2_L_d = Process(name='H2_L_d', conversion={H2_L: -1, H2: 1}, prod_max=bigM, gwp=0, trl='nocost', cost = cost_dict['HO']['moderate']['H2_L_d']['0'],
-                         block='material_storage', label='Hydrogen geological storage discharge', citation='Bossel and Eliasson - Energy and the Hydrogen Economy')
+H2_L_c = Process(name='H2_L_c', conversion={Power: -4.17*10**(-4), H2_L: 1, H2: -1}, cost = {'CAPEX': smallM, 'Fixed O&M': 0, 'Variable O&M': 0, \
+    'units': '$/kg','source': 'dummy'}, \
+         prod_max=bigM, gwp=0, trl='repurposed', block='material_storage', label='Hydrogen geological storage', \
+            citation='Bossel and Eliasson - Energy and the Hydrogen Economy')
+H2_L_d = Process(name='H2_L_d', conversion={H2_L: -1, H2: 1}, prod_max=bigM, gwp=0, trl='nocost', cost = {'CAPEX': smallM, 'Fixed O&M': 0, 'Variable O&M': 0, \
+    'units': '$/kg','source': 'dummy'}, \
+        block='material_storage', label='Hydrogen geological storage discharge', citation='Bossel and Eliasson - Energy and the Hydrogen Economy')
 # SMRM = Process(name='SMRM', intro_scale=20, prod_max=bigM, gwp=0,
 #                        trl='enterprise', block='material_production', label='Methanol SMR')
 # MEFC = Process(name='MEFC', conversion={Power: -4.84*10**(-1), H2_G: -0.4048, CO2_DAC: -1.2143, CH3OH: 1}, intro_scale=6, prod_max=bigM, carbon_credit=True, trl='pilot',
@@ -174,77 +227,43 @@ H2_Green = Process(name='H2_Green', conversion={H2: 1, H2_G: -1}, prod_max=bigM,
                            trl='nocost', block='dummy', label='Green Hydrogen production')
 
 
-cost_metrics_list = ['CAPEX', 'Fixed O&M', 'Variable O&M', 'units', 'source']
 
+ho_processes = {LiI_c, LiI_d, CAES_c, CAES_d, PSH_c, PSH_d, PV, WF, AKE, SMRH, H2_C_c,
+                H2_C_d, H2_L_c, H2_L_d, DAC, EOR, AQoff_SMR, H2_Blue, H2_Green, ASMR}
+# {H2_L_c, H2_L_d, PV, LiI_c, LiI_d, WF, AKE, SMRH}
+# *-------------------------Geographic scales/location------------------------------------
+HO = Location(name='HO', processes= ho_processes, demand = {H2_L: 100, H2_C: 100}, scales = scales, PV_class='Class5', WF_class='Class4',
+                      LiI_class='8Hr Battery Storage', PSH_class='Class 3', label='Houston')
 
-
-
+# *-------------------------Input data graphs------------------------------------
+# graph.capacity_factor(location= HO, process= PV, color= 'orange')
+# graph.cost_factor (location= HO, resource= CH4) 
 # *-------------------------Generate scenario------------------------------------
 
-la_power_output_df = pandas.read_csv('la_power_output_df.csv').drop(columns='datetime')
-la_power_output_df['day'] = [i - 1 for i in la_power_output_df['day']]
-la_power_output_df['scales'] = [(0,j,k) for j,k in zip(la_power_output_df['day'], la_power_output_df['hour'])]
-la_power_output_df = la_power_output_df.drop(columns= ['day', 'hour'])
-la_power_output_df['PV'] = la_power_output_df['PV']/max(la_power_output_df['PV'])
-la_power_output_df['WF'] = la_power_output_df['WF']/max(la_power_output_df['WF'])
+case = Scenario(name= '', network = HO, scales= scales,  expenditure_scale_level= 0, scheduling_scale_level= 2, network_scale_level= 0, demand_scale_level= 1, label= 'shell milp case study')
+#%%
+from src.energiapy.utils.cluster_utils import reduce_scenario
 
+reduced_case = reduce_scenario(scenario= case, network= HO, periods= 20, scale_level= 1, method= 'agg_hierarchial')
 
-
-
-ho_power_output_df = pandas.read_csv('power_output_df.csv').drop(columns='datetime')
-ho_power_output_df['day'] = [i - 1 for i in ho_power_output_df['day']]
-ho_power_output_df['scales'] = [(0,j,k) for j,k in zip(ho_power_output_df['day'], ho_power_output_df['hour'])]
-ho_power_output_df = ho_power_output_df.drop(columns= ['day', 'hour'])
-ho_power_output_df['PV'] = ho_power_output_df['PV']/max(ho_power_output_df['PV'])
-ho_power_output_df['WF'] = ho_power_output_df['WF']/max(ho_power_output_df['WF'])
-
-
-#varying natural gas prices
-daily_ng_price_df = make_henry_price_df(
-    file_name='Henry_Hub_Natural_Gas_Spot_Price_Daily.csv', year=2019, stretch=False)
-daily_ng_price_df['CH4'] = daily_ng_price_df['CH4']/max(daily_ng_price_df['CH4']) 
-
-
-# *-------------------------Geographic scales/location------------------------------------
-HO = Location(name='HO', processes= {H2_L_c, H2_L_d, PV, LiI_c, LiI_d, WF, AKE}, demand = {H2_L: 100, H2_C: 100}, scales = scales, varying_cost_df = daily_ng_price_df, \
-    varying_process_df= ho_power_output_df, PV_class='Class5', WF_class='Class4',
-                      LiI_class='8Hr Battery Storage', PSH_class='Class 3', label='Houston')
-LA = Location(name='LA', processes= {H2_L_c, H2_L_d, PV, LiI_c, LiI_d, WF, SMRH}, demand = {H2_L: 100, H2_C: 100}, scales = scales, varying_cost_df = daily_ng_price_df, \
-    varying_process_df= la_power_output_df, PV_class='Class3', WF_class='Class5',
-                      LiI_class='8Hr Battery Storage', PSH_class='Class 3', label='Los Angeles')
-
-# # *-------------------------Input data graphs------------------------------------
-# graph.capacity_factor(location= HO, process= PV, color= 'orange')
-# graph.cost_factor (location= LA, resource= CH4) 
-
-
-# *-------------------------Transport modes------------------------------------
-Train_H2 = Transport(name= 'Train_H2', resources= {H2_L, H2_C}, label= 'Railway for hydrogen transportation', trans_max= 10**8, trans_loss= 0.001, trans_cost= 1.667*10**(-3))
-Pipe = Transport(name= 'Pipe', resources= {H2_L}, trans_max= 10**8, trans_loss= 0.001, trans_cost= 0.5*10**(-3), label= 'Railroad transport')
-
-
-# *-------------------------Network------------------------------------
-distance_matrix = [
-    [0, 678],
-    [678, 0]
-                   ]
-
-transport_matrix = [
-    [[], [Train_H2, Pipe]],
-    [[Train_H2, Pipe], []] 
-                   ]
-
-network = Network(name= 'Network', source_locations= [HO, LA], sink_locations= [HO, LA], distance_matrix= distance_matrix, transport_matrix= transport_matrix) 
-
-# *-------------------------Scenario------------------------------------
-
-case = Scenario(name= '', network= network, scales= scales,  expenditure_scale_level= 1, scheduling_scale_level= 2, network_scale_level= 0, demand_scale_level= 1, label= 'shell milp case study')
-
+#TODO, add weights to scheduling scales, map cost_factor, capacity_dict in cluster_utils.reduce_scenario
+#%%
 # *-------------------------Model formulation------------------------------------
 milp = formulate_milp(scenario= case)
+results = solve(scenario = case, instance=milp, solver= 'gurobi', name='onelocmilp', saveformat = '.pkl')
+
+#%%
+
+graph.schedule(results = results, y_axis = 'Vopex_process', component= 'ASMR', location= 'HO', usetex = True)
 
 
-results = solve(scenario = case, instance=milp, solver= 'gurobi', name='trialmilp', tee = True)
+#%%
+
+graph.contribution(results = results, y_axis = 'Capex_process', location = 'HO')
+#%%
+#%%
+
+
 
 
 
