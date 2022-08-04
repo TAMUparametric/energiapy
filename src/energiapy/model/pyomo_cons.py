@@ -18,6 +18,7 @@ from ..utils.model_utils import scale_pyomo_set
 from ..utils.model_utils import scale_tuple
 from ..components.location import Location
 from itertools import product
+from typing import Union
 
 #TODO - Demand constraint
 #TODO - Production cost constraint
@@ -751,7 +752,7 @@ def network_fopex_constraint(instance:ConcreteModel, network_scale_level:int=0) 
 
 # *-------------------------Demand constraint--------------------------------------
 
-def demand_constraint(instance:ConcreteModel, demand_scale_level:int= 0, scheduling_scale_level:int= 0, demand_dict:dict = {}) -> Constraint:
+def demand_constraint(instance:ConcreteModel, demand: Union[dict,float], demand_scale_level:int= 0, scheduling_scale_level:int= 0) -> Constraint:
     """Ensures that demand for resource is met at chosen temporal scale
 
     Args:
@@ -766,7 +767,14 @@ def demand_constraint(instance:ConcreteModel, demand_scale_level:int= 0, schedul
     scales = scale_list(instance= instance, scale_levels = demand_scale_level+1) 
     scale_iter = scale_tuple(instance= instance, scale_levels = scheduling_scale_level+1)
     def demand_rule(instance, location, resource, *scale_list):
-        return sum(instance.S[location, resource, scale_] for scale_ in scale_iter if scale_[:demand_scale_level+1] == scale_list)  == demand_dict[location][resource]
+        if type(demand[location]) == float:
+            return sum(instance.S[location, resource_, scale_] for resource_, scale_ in \
+                product(instance.resources_demand, scale_iter) if scale_[:demand_scale_level+1] == scale_list)\
+                    == demand[location]       
+        else:
+            return sum(instance.S[location, resource, scale_] for scale_ in scale_iter if scale_[:demand_scale_level+1] == scale_list)\
+                == demand[location][resource]
+
     if len(instance.locations) > 1:    
         instance.demand_constraint = Constraint(instance.sinks, instance.resources_demand, *scales, rule = demand_rule, doc = 'specific demand for resources')
     else:                 
@@ -827,6 +835,16 @@ def network_land_constraint(instance:ConcreteModel, network_scale_level:int=0) -
     instance.network_land_constraint = Constraint(*scales, rule = network_land_rule, doc = 'land required for process')
     constraint_latex_render(network_land_rule)
     return instance.network_land_constraint
+
+# def carbon_emission_constraint(instance.ConcreteModel, network_scale_level:int=0) -> Constraint:
+    
+#     scales = scale_list(instance= instance, scale_levels = network_scale_level+1) 
+#     def network_land_rule(instance, *scale_list):
+#         return instance.carbon_network[scale_list] == instance.Land_location[location_, scale_list] for location_ in instance.locations)
+#     instance.network_land_constraint = Constraint(*scales, rule = network_land_rule, doc = 'land required for process')
+#     constraint_latex_render(network_land_rule)
+#     return instance.network_land_constraint
+
 
 # *-------------------------Uncertainty analysis constraints------------------------------------
 
