@@ -222,18 +222,18 @@ AQoff_SMR = Process(name='AQoff_SMR', conversion={Power: -0.00128, CO2_AQoff: 1,
 # trl='repurposed', block='CCUS', label='Offshore aquifer CO2 sequestration (DAC)')
 # Grid = Process(name='Grid', intro_scale=20, prod_max=bigM, gwp=0.343,
 #    trl='utility', block='power_generation', label='Grid electricity')
-H2_Blue = Process(name='H2_Blue', conversion={H2: 1, H2_B: -1}, prod_max=bigM, gwp=0, cost = cost_dict['HO']['moderate']['H2_Blue']['0'],
-                          trl='nocost', block='dummy', label='Blue Hydrogen production')
-H2_Green = Process(name='H2_Green', conversion={H2: 1, H2_G: -1}, prod_max=bigM, cost = cost_dict['HO']['moderate']['H2_Green']['0'],
-                           trl='nocost', block='dummy', label='Green Hydrogen production')
+H2_Blue = Process(name='H2_Blue', conversion={H2: 1, H2_B: -1}, prod_max=bigM, gwp=0, cost = {'CAPEX': smallM, 'Fixed O&M': 0, 'Variable O&M': 0, \
+    'units': '$/kg','source': 'dummy'}, trl='nocost', block='dummy', label='Blue Hydrogen production')
+H2_Green = Process(name='H2_Green', conversion={H2: 1, H2_G: -1}, prod_max=bigM, cost = {'CAPEX': smallM, 'Fixed O&M': 0, 'Variable O&M': 0, \
+    'units': '$/kg','source': 'dummy'}, trl='nocost', block='dummy', label='Green Hydrogen production')
 
 
 
 ho_processes = {LiI_c, LiI_d, CAES_c, CAES_d, PSH_c, PSH_d, PV, WF, AKE, SMRH, H2_C_c,
-                H2_C_d, H2_L_c, H2_L_d, DAC, EOR, AQoff_SMR, H2_Blue, H2_Green, ASMR}
+                H2_C_d, H2_L_c, H2_L_d, DAC, EOR, AQoff_SMR, H2_Blue, H2_Green}#, ASMR}
 # {H2_L_c, H2_L_d, PV, LiI_c, LiI_d, WF, AKE, SMRH}
 # *-------------------------Geographic scales/location------------------------------------
-HO = Location(name='HO', processes= ho_processes, demand = {H2_L: 100, H2_C: 100}, scales = scales, PV_class='Class5', WF_class='Class4',
+HO = Location(name='HO', processes= ho_processes, demand = 100.0, scales = scales, PV_class='Class5', WF_class='Class4',
                       LiI_class='8Hr Battery Storage', PSH_class='Class 3', label='Houston')
 
 # *-------------------------Input data graphs------------------------------------
@@ -243,16 +243,16 @@ HO = Location(name='HO', processes= ho_processes, demand = {H2_L: 100, H2_C: 100
 # *-------------------------Generate full-scale scenario------------------------------------
 case = Scenario(name= '', network = HO, scales= scales,  expenditure_scale_level= 2, scheduling_scale_level= 2, network_scale_level= 0, demand_scale_level= 1, label= 'shell milp case study')
 
-# *------------------------- Full-scale model formulation------------------------------------
-milp = formulate_milp(scenario= case)
-results = solve(scenario = case, instance=milp, solver= 'gurobi', name='onelocmilp', saveformat = '.pkl')
-
 # *-------------------------Generate reduced scenario------------------------------------
-# reduced_case = reduce_scenario(scenario= case, network= HO, periods= 20, scale_level= 1, method= 'agg_hierarchial')
+reduced_case = reduce_scenario(scenario= case, network= HO, periods= 20, scale_level= 1, method= 'agg_hierarchial')
+
+# *------------------------- Full-scale model formulation------------------------------------
+# milp = formulate_milp(scenario= case)
+# results = solve(scenario = case, instance=milp, solver= 'gurobi', name='onelocmilp2', saveformat = '.pkl')
 
 # *------------------------- Reduced model formulation------------------------------------
-# milp_red = formulate_milp(scenario= reduced_case)
-# results_red = solve(scenario = reduced_case, instance=milp_red, solver= 'gurobi', name='red_onelocmilp', saveformat = '.pkl')
+milp_red = formulate_milp(scenario= reduced_case)
+results_red = solve(scenario = reduced_case, instance=milp_red, solver= 'gurobi', name='red_onelocmilp', saveformat = '.pkl')
 
 #%%
 

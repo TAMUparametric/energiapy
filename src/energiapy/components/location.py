@@ -17,7 +17,7 @@ from ..components.process import Process
 from ..components.resource import Resource
 from ..components.material import Material
 import pandas
-from typing import Set, Dict
+from typing import Set, Dict, Union
 
 @dataclass
 class Location:
@@ -39,7 +39,7 @@ class Location:
     name: str 
     processes: Set[Process] 
     scales: Temporal_scale 
-    demand: Dict[Resource, float] = field(default_factory=dict)
+    demand: Union[float, Dict[Resource, float]] 
     label: str = ''
     PV_class: str = ''
     WF_class: str = ''
