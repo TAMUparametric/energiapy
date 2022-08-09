@@ -59,7 +59,7 @@ ho_wind_df = pandas.read_csv('ho_wind.csv', index_col= 0)
 hp_price_daily_df = make_henry_price_df(
     file_name='Henry_Hub_Natural_Gas_Spot_Price_Daily.csv', year=2019, stretch=True)
  
-# *-------------------------Temporal scales------------------------------------
+# *--------------------------------Temporal scales------------------------------------
 # Temporal_scale is used to define a descritizations of the temporal scale
 # E.g.: A year at annual, daily and hourly descritization cane be represented as:
 # Annual (1x1 = 1) - network level trends and their inherent uncertainties can be well 
@@ -100,7 +100,7 @@ asmr_start = 0
 # *------------------------------------------------------------------------
 
 Charge = Resource(name='Charge', sell=False,
-                          store_max=bigM, basis='MW', label='Battery energy', block= 'energystorage')
+                          store_max=100, basis='MW', label='Battery energy', block= 'energystorage')
 Air_C = Resource(name='Air_C', store_max=bigM, basis='MW',
                          label='CAES energy', block= 'energystorage')
 H2O_E = Resource(name='H2O_E', store_max=bigM, basis='MW',
@@ -164,7 +164,7 @@ Li = Material(name='Li', gwp=0, basis= 'kg', label='Lithium')
 cost_dict = get_data(file_name='cost_dict')
 
 LiI_c = Process(name='LiI_c', conversion={Charge: 1, Power: -1}, cost = cost_dict['HO']['moderate']['LiI_c']['0'],\
-    material_cons = {Li: 20}, prod_max=bigM, trl='nrel', block='power_storage', label='Lithium-ion battery', citation='Zakeri 2015')
+    material_cons = {Li: 20}, prod_max=1, trl='nrel', block='power_storage', label='Lithium-ion battery', citation='Zakeri 2015')
 LiI_d = Process(name='LiI_d', conversion={Charge: -1.1765, Power: 1}, cost = cost_dict['HO']['moderate']['LiI_d']['0'], \
     prod_max=bigM, trl='discharge', block='power_storage', label='Lithium-ion battery discharge', citation='Zakeri 2015')
 CAES_c = Process(name='CAES_c', conversion={Air_C: 1, Power: -1}, cost = cost_dict['HO']['moderate']['CAES_c']['0'], \
@@ -255,14 +255,22 @@ milp_red = formulate_milp(scenario= reduced_case)
 results_red = solve(scenario = reduced_case, instance=milp_red, solver= 'gurobi', name='red_onelocmilp', saveformat = '.pkl')
 
 #%%
+milp_red_fix = formulate_milp(scenario=reduced_case, relax= {'X_P': results_red.output['X_P'],'X_S': results_red.output['X_S'] })
+#%%
+results_red_fix = solve(scenario = reduced_case, instance=milp_red_fix, solver= 'gurobi', name='red_fix_onelocmilp', saveformat = '.pkl')
 
-graph.schedule(results = results, y_axis = 'Vopex_process', component= 'ASMR', location= 'HO', usetex = True)
+#%%
+
+graph.schedule(results = results_red, y_axis = 'P', component= 'LiI_c', location= 'HO', usetex = True)
 
 
 #%%
 
-graph.contribution(results = results, y_axis = 'Capex_process', location = 'HO')
+graph.contribution(results = results_red, y_axis = 'Capex_process', location = 'HO')
 #%%
+graph.capacity_utilization(results = results_red, location = 'HO')
+
+
 #%%
 
 
