@@ -28,6 +28,7 @@ from src.energiapy.components.scenario import Scenario
 from src.energiapy.components.transport import Transport
 from src.energiapy.graph import graph
 from src.energiapy.model.formulate_mpmilp import formulate_mpmilp
+from src.energiapy.model.formulate_mplp import formulate_mplp
 from src.energiapy.model.pyomo_solve import solve
 
 
@@ -128,12 +129,14 @@ case = Scenario(name= '', network= Arcs, scales= scales, \
 
 # *-------------------------Model formulation------------------------------------
 #this creates a pyomo instance, prior to this step the model is only defined in energiapy
-mpmilp = formulate_mpmilp(scenario= case, penalty= 1)
+mpmilp = formulate_mpmilp(scenario= case, penalty= 1.5)
 results = solve(scenario = case, instance=mpmilp, solver= 'gurobi', name='trial', saveformat= '.pkl', print_solversteps= True)
 
 #%%
-mpmilp_fix = formulate_mpmilp(scenario= case, penalty= 1, relax= {'X_P': results.output['X_P'],'X_S': results.output['X_S'] })
-results_fix = solve(scenario = case, instance=mpmilp_fix, solver= 'gurobi', name='trial', saveformat= '.pkl', print_solversteps= True)
+
+#%%
+mplp= formulate_mplp(scenario= case, relax= {'X_P': results.output['X_P'],'X_S': results.output['X_S'] }, penalty= 1.5)
+results_fix = solve(scenario = case, instance=mplp, solver= 'gurobi', name='trialmp', saveformat= '.pkl', print_solversteps= True)
 
 #%% plots results at requested scales, usetex giving a very unique error only for this plot!! 
 #TODO - add the type of graph generated in the title

@@ -12,13 +12,13 @@ __status__ = "Production"
 
 from ..components.scenario import Scenario
 from ..model.pyomo_sets import generate_sets
-from ..model.pyomo_vars import generate_mpmilp_vars
+from ..model.pyomo_vars import *
 from ..model.pyomo_cons import *
 from ..model.pyomo_objs import uncertainty_cost_objective
 from pyomo.environ import ConcreteModel, Suffix
     
       
-def formulate_mpmilp(scenario: Scenario, penalty:float, relax: dict = None) -> ConcreteModel:
+def formulate_mpmilp(scenario: Scenario, penalty:float) -> ConcreteModel:
     """formulates a multi-scale multi-parametric mixed integer linear programming formulation of the scenario
     
     Args:
@@ -31,8 +31,12 @@ def formulate_mpmilp(scenario: Scenario, penalty:float, relax: dict = None) -> C
     generate_sets(instance= instance, location_set= scenario.location_set, transport_set= scenario.transport_set, scales= scenario.scales, \
         process_set= scenario.process_set, resource_set= scenario.resource_set, material_set= scenario.material_set, \
             source_set= scenario.source_locations, sink_set= scenario.sink_locations)
-    generate_mpmilp_vars(instance= instance, expenditure_scale_level= scenario.expenditure_scale_level, scheduling_scale_level = scenario.scheduling_scale_level \
-        , network_scale_level= scenario.network_scale_level)
+    
+    generate_scheduling_vars(instance = instance, scale_level= scenario.scheduling_scale_level)
+    generate_network_vars(instance = instance, scale_level= scenario.network_scale_level)
+    generate_network_binary_vars(instance = instance)
+    generate_transport_vars(instance= instance, scale_level= scenario.scheduling_scale_level)
+    generate_uncertainty_vars(instance= instance, scale_level= scenario.scheduling_scale_level)
     
     inventory_balance_constraint(instance= instance, scheduling_scale_level= scenario.scheduling_scale_level,\
         conversion= scenario.conversion)
@@ -52,23 +56,10 @@ def formulate_mpmilp(scenario: Scenario, penalty:float, relax: dict = None) -> C
     # min_production_facility_constraint(instance= instance, prod_min= scenario.prod_min, loc_pro_dict= scenario.loc_pro_dict, network_scale_level= scenario.network_scale_level)
     # min_storage_facility_constraint(instance= instance, store_min= scenario.store_min, loc_res_dict= scenario.loc_res_dict, network_scale_level= scenario.network_scale_level)
         
-    if relax is not None:
-        for i in relax['X_P'].keys():
-            if relax['X_P'][i] is not None:
-                instance.X_P[i].fix(abs(relax['X_P'][i]))
-        for i in relax['X_S'].keys():
-            if relax['X_S'][i] is not None:
-                instance.X_S[i].fix(abs(relax['X_S'][i]))
                 
-        delta_cap_location_constraint(instance= instance, network_scale_level= scenario.network_scale_level)
-        delta_cap_network_constraint(instance= instance, network_scale_level= scenario.network_scale_level)
-            
-            
-    else:    
-        min_production_facility_constraint(instance= instance, prod_min= scenario.prod_min, loc_pro_dict= scenario.loc_pro_dict, network_scale_level= scenario.network_scale_level)
-        min_storage_facility_constraint(instance= instance, store_min= scenario.store_min, loc_res_dict= scenario.loc_res_dict, network_scale_level= scenario.network_scale_level)
+    delta_cap_location_constraint(instance= instance, network_scale_level= scenario.network_scale_level)
+    delta_cap_network_constraint(instance= instance, network_scale_level= scenario.network_scale_level)
         
-
     
     location_production_constraint(instance= instance, network_scale_level= scenario.network_scale_level, cluster_wt = scenario.cluster_wt)
     location_discharge_constraint(instance= instance, network_scale_level= scenario.network_scale_level, cluster_wt = scenario.cluster_wt)

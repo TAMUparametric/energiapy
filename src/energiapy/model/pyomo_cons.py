@@ -49,6 +49,30 @@ def production_facility_constraint(instance: ConcreteModel, prod_max:dict, loc_p
     constraint_latex_render(production_facility_rule)
     return instance.production_facility_constraint
 
+def production_facility_fix_constraint(instance: ConcreteModel, prod_max: dict, production_binaries: dict,loc_pro_dict:dict = {}, network_scale_level:int = 0) -> Constraint:
+    """Determines where production facility of certain capacity is inserted at location in network
+
+    Args:
+        instance (ConcreteModel): pyomo instance
+        prod_max (dict): maximum production of process at location
+        loc_pro_dict (dict, optional): production facilities avaiable at location. Defaults to {}.
+        network_scale_level (int, optional): scale of network decisions. Defaults to 0.
+
+    Returns:
+        Constraint: production_facility_fix_constraint
+    """
+    scales = scale_list(instance= instance, scale_levels = network_scale_level+1)
+    def production_facility_fix_rule(instance, location, process, *scale_list):
+        if process in loc_pro_dict[location]:
+            return instance.Cap_P[location, process, scale_list[:network_scale_level+1]] <= prod_max[location][process]*\
+                production_binaries[(location, process, *scale_list[:network_scale_level+1])]     
+        else:
+            return instance.Cap_P[location, process, scale_list[:network_scale_level+1]] == 0
+    instance.production_facility_fix_constraint = Constraint(instance.locations, instance.processes, *scales, rule= production_facility_fix_rule, doc = 'production facility sizing and location')
+    constraint_latex_render(production_facility_fix_rule)
+    return instance.production_facility_fix_constraint
+
+
 def min_production_facility_constraint(instance: ConcreteModel, prod_min:dict, loc_pro_dict:dict = {}, network_scale_level:int = 0) -> Constraint:
     """Determines where production facility of certain capacity is inserted at location in network
 
@@ -96,6 +120,30 @@ def storage_facility_constraint(instance: ConcreteModel, store_max:dict, loc_res
     instance.storage_facility_constraint = Constraint(instance.locations, instance.resources_store, *scales, rule= storage_facility_rule, doc = 'storage facility sizing and location')
     constraint_latex_render(storage_facility_rule)
     return instance.storage_facility_constraint
+
+def storage_facility_fix_constraint(instance: ConcreteModel, store_max:dict, storage_binaries:dict, loc_res_dict:dict = {},  network_scale_level:int = 0) -> Constraint:
+    """Determines where storage facility of certain capacity is inserted at location in network
+
+    Args:
+        instance (ConcreteModel): pyomo instance
+        store_max (dict): maximum storage capacity of resource at location
+        loc_res_dict (dict, optional): storage facilities for resource available at location. Defaults to {}.
+        network_scale_level (int, optional): scale of network decisions. Defaults to 0.
+
+
+    Returns:
+        Constraint: storage_facility_fix_constraint
+    """
+    scales = scale_list(instance= instance, scale_levels = network_scale_level + 1)
+    def storage_facility_fix_rule(instance, location, resource, *scale_list):
+        if resource in loc_res_dict[location]:
+            return instance.Cap_S[location, resource, scale_list[:network_scale_level+1]] <= store_max[location][resource]*\
+                storage_binaries[(location, resource, *scale_list[:network_scale_level+1])]     
+        else:
+            return instance.Cap_S[location, resource, scale_list[:network_scale_level+1]] == 0
+    instance.storage_facility_fix_constraint = Constraint(instance.locations, instance.resources_store, *scales, rule= storage_facility_fix_rule, doc = 'storage facility sizing and location')
+    constraint_latex_render(storage_facility_fix_rule)
+    return instance.storage_facility_fix_constraint
 
 
 def min_storage_facility_constraint(instance: ConcreteModel, store_min:dict, loc_res_dict:dict = {},  network_scale_level:int = 0) -> Constraint:

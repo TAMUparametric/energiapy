@@ -14,11 +14,11 @@ from ..components.scenario import Scenario
 from ..model.pyomo_sets import generate_sets
 from ..model.pyomo_vars import *
 from ..model.pyomo_cons import *
-from ..model.pyomo_objs import cost_objective
-from pyomo.environ import ConcreteModel
+from ..model.pyomo_objs import uncertainty_cost_objective
+from pyomo.environ import ConcreteModel, Suffix
 
     
-def formulate_milp(scenario: Scenario) -> ConcreteModel:
+def formulate_mplp(scenario: Scenario, relax: dict = None, penalty = float) -> ConcreteModel:
     """formulates a multi-scale mixed integer linear programming formulation of the scenario
     
     Args:
@@ -27,40 +27,35 @@ def formulate_milp(scenario: Scenario) -> ConcreteModel:
     Returns:
         ConcreteModel: pyomo model instance with sets, variables, constraints, objectives generated
     """
-
     
     instance = ConcreteModel()
     
     generate_sets(instance= instance, location_set= scenario.location_set, transport_set= scenario.transport_set, scales= scenario.scales, \
         process_set= scenario.process_set, resource_set= scenario.resource_set, material_set= scenario.material_set, \
             source_set= scenario.source_locations, sink_set= scenario.sink_locations)
-    
+
     generate_scheduling_vars(instance = instance, scale_level= scenario.scheduling_scale_level)
     generate_network_vars(instance = instance, scale_level= scenario.network_scale_level)
-    generate_network_binary_vars(instance = instance)
+    generate_transport_vars(instance= instance, scale_level= scenario.scheduling_scale_level)
+    generate_uncertainty_vars(instance= instance, scale_level= scenario.scheduling_scale_level)
     
-    if len(instance.locations) > 1:
-        generate_transport_vars(instance= instance, scale_level= scenario.scheduling_scale_level)
     
     inventory_balance_constraint(instance= instance, scheduling_scale_level= scenario.scheduling_scale_level,\
         conversion= scenario.conversion)
-    nameplate_production_constraint(instance= instance, capacity_factor= scenario.capacity_factor, network_scale_level= \
+    uncertain_nameplate_production_constraint(instance= instance, network_scale_level= \
         scenario.network_scale_level, scheduling_scale_level= scenario.scheduling_scale_level)
     nameplate_inventory_constraint(instance= instance, loc_res_dict= scenario.loc_res_dict, network_scale_level= scenario.network_scale_level,\
         scheduling_scale_level= scenario.scheduling_scale_level)
     resource_consumption_constraint(instance= instance, loc_res_dict= scenario.loc_res_dict, cons_max= scenario.cons_max, scheduling_scale_level= scenario.scheduling_scale_level)
-    resource_purchase_constraint(instance= instance, cost_factor= scenario.cost_factor, price= scenario.price, \
+    uncertain_resource_purchase_constraint(instance= instance, price= scenario.price, \
         loc_res_dict= scenario.loc_res_dict, scheduling_scale_level= scenario.scheduling_scale_level, \
             expenditure_scale_level= scenario.expenditure_scale_level)
     resource_discharge_constraint(instance= instance, scheduling_scale_level= scenario.scheduling_scale_level)
 
-    production_facility_constraint(instance= instance, prod_max= scenario.prod_max, loc_pro_dict= scenario.loc_pro_dict, network_scale_level= scenario.network_scale_level)
-    storage_facility_constraint(instance= instance, store_max= scenario.store_max, loc_res_dict= scenario.loc_res_dict, network_scale_level= scenario.network_scale_level)
-    
-
-               
-    min_production_facility_constraint(instance= instance, prod_min= scenario.prod_min, loc_pro_dict= scenario.loc_pro_dict, network_scale_level= scenario.network_scale_level)
-    min_storage_facility_constraint(instance= instance, store_min= scenario.store_min, loc_res_dict= scenario.loc_res_dict, network_scale_level= scenario.network_scale_level)
+    # production_facility_fix_constraint(instance= instance, production_binaries = relax['X_P'],prod_max= scenario.prod_max, loc_pro_dict= scenario.loc_pro_dict, network_scale_level= scenario.network_scale_level)
+    # storage_facility_fix_constraint(instance= instance, storage_binaries = relax['X_S'], store_max= scenario.store_max, loc_res_dict= scenario.loc_res_dict, network_scale_level= scenario.network_scale_level)
+    delta_cap_location_constraint(instance= instance, network_scale_level= scenario.network_scale_level)
+    delta_cap_network_constraint(instance= instance, network_scale_level= scenario.network_scale_level)
         
     
     location_production_constraint(instance= instance, network_scale_level= scenario.network_scale_level, cluster_wt = scenario.cluster_wt)
@@ -106,7 +101,8 @@ def formulate_milp(scenario: Scenario) -> ConcreteModel:
         transport_cost_network_constraint(instance= instance, network_scale_level= scenario.network_scale_level)
         
         
-    cost_objective(instance= instance, network_scale_level= scenario.network_scale_level)
-    
+    instance.dual = Suffix(direction=Suffix.IMPORT)
 
+    uncertainty_cost_objective(instance= instance, penalty = penalty, network_scale_level= scenario.network_scale_level)
+    
     return instance
