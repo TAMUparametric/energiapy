@@ -18,7 +18,7 @@ from ..model.pyomo_objs import cost_objective
 from pyomo.environ import ConcreteModel
 
     
-def formulate_milp(scenario: Scenario) -> ConcreteModel:
+def formulate_milp(scenario: Scenario, relax: dict = None) -> ConcreteModel:
     """formulates a multi-scale mixed integer linear programming formulation of the scenario
     
     Args:
@@ -52,10 +52,16 @@ def formulate_milp(scenario: Scenario) -> ConcreteModel:
     production_facility_constraint(instance= instance, prod_max= scenario.prod_max, loc_pro_dict= scenario.loc_pro_dict, network_scale_level= scenario.network_scale_level)
     storage_facility_constraint(instance= instance, store_max= scenario.store_max, loc_res_dict= scenario.loc_res_dict, network_scale_level= scenario.network_scale_level)
     
-    
-    min_production_facility_constraint(instance= instance, prod_min= scenario.prod_min, loc_pro_dict= scenario.loc_pro_dict, network_scale_level= scenario.network_scale_level)
-    min_storage_facility_constraint(instance= instance, store_min= scenario.store_min, loc_res_dict= scenario.loc_res_dict, network_scale_level= scenario.network_scale_level)
-    
+    if relax is not None:
+        for i in relax['X_P'].keys():
+            instance.X_P[i].fix(abs(relax['X_P'][i]))
+        for i in relax['X_S'].keys():
+            instance.X_S[i].fix(abs(relax['X_S'][i]))
+            
+    else:    
+        min_production_facility_constraint(instance= instance, prod_min= scenario.prod_min, loc_pro_dict= scenario.loc_pro_dict, network_scale_level= scenario.network_scale_level)
+        min_storage_facility_constraint(instance= instance, store_min= scenario.store_min, loc_res_dict= scenario.loc_res_dict, network_scale_level= scenario.network_scale_level)
+        
     
     location_production_constraint(instance= instance, network_scale_level= scenario.network_scale_level, cluster_wt = scenario.cluster_wt)
     location_discharge_constraint(instance= instance, network_scale_level= scenario.network_scale_level, cluster_wt = scenario.cluster_wt)
