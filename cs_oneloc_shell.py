@@ -253,10 +253,7 @@ reduced_case = reduce_scenario(scenario= case, network= HO, periods= 20, scale_l
 # *------------------------- Reduced model formulation------------------------------------
 milp_red = formulate_milp(scenario= reduced_case)
 results_red = solve(scenario = reduced_case, instance=milp_red, solver= 'gurobi', name='red_onelocmilp', saveformat = '.pkl')
-
-#%%
 milp_red_fix = formulate_milp(scenario=reduced_case, relax= {'X_P': results_red.output['X_P'],'X_S': results_red.output['X_S'] })
-#%%
 results_red_fix = solve(scenario = reduced_case, instance=milp_red_fix, solver= 'gurobi', name='red_fix_onelocmilp', saveformat = '.pkl')
 
 #%%

@@ -37,7 +37,7 @@ from src.energiapy.model.pyomo_solve import solve
 scales = Temporal_scale(discretization_list= [1, 42])
 
 # *-------------------------Constants defined here for ease------------------------------------
-bigM = 10**3 #very large number
+bigM = 100 #very large number
 water_price = 31.70  # $/5000gallons
 power_price = 8  # cents/kWh
 ur_price = 42.70  # 250 Pfund U308 (Uranium)
@@ -84,13 +84,13 @@ CityC = Location(name= 'C', processes= {PV, LiI_c, LiI_d, WF, AKE, H2_L_c, H2_L_
 
 #candidate cities (sinks)
 #can only consume green hydrogen that is liquefied or dispensed through storage. 
-Site1 = Location(name= '1', processes = {H2_L_c, H2_L_d}, demand = {H2_L: 2}, scales = scales, label= 'site close to A')
-Site2 = Location(name= '2', processes = {H2_L_c, H2_L_d}, demand = {H2_L: 2}, scales = scales, label= 'site close to B')
-Site3 = Location(name= '3', processes = {H2_L_c, H2_L_d}, demand = {H2_L: 2}, scales = scales, label= 'site close to C')
-Site4 = Location(name= '4', processes = {H2_L_c, H2_L_d}, demand = {H2_L: 2}, scales = scales, label= 'site between A and B')
-Site5 = Location(name= '5', processes = {H2_L_c, H2_L_d}, demand = {H2_L: 2}, scales = scales, label= 'site between B and C')
-Site6 = Location(name= '6', processes = {H2_L_c, H2_L_d}, demand = {H2_L: 2}, scales = scales, label= 'site between C and A')
-Site7 = Location(name= '7', processes = {H2_L_c, H2_L_d}, demand = {H2_L: 2}, scales = scales, label= 'site between A, B and C')
+Site1 = Location(name= '1', processes = {H2_L_c, H2_L_d}, demand = 100.0, scales = scales, label= 'site close to A')
+Site2 = Location(name= '2', processes = {H2_L_c, H2_L_d}, demand = 100.0, scales = scales, label= 'site close to B')
+Site3 = Location(name= '3', processes = {H2_L_c, H2_L_d}, demand = 100.0, scales = scales, label= 'site close to C')
+Site4 = Location(name= '4', processes = {H2_L_c, H2_L_d}, demand = 100.0, scales = scales, label= 'site between A and B')
+Site5 = Location(name= '5', processes = {H2_L_c, H2_L_d}, demand = 100.0, scales = scales, label= 'site between B and C')
+Site6 = Location(name= '6', processes = {H2_L_c, H2_L_d}, demand = 100.0, scales = scales, label= 'site between C and A')
+Site7 = Location(name= '7', processes = {H2_L_c, H2_L_d}, demand = 100.0, scales = scales, label= 'site between A, B and C')
 
 city_list = [CityA, CityB, CityC] #sources
 site_list = [Site1, Site2, Site3, Site4, Site5, Site6, Site7] #sinks
@@ -129,10 +129,11 @@ case = Scenario(name= '', network= Arcs, scales= scales, \
 # *-------------------------Model formulation------------------------------------
 #this creates a pyomo instance, prior to this step the model is only defined in energiapy
 mpmilp = formulate_mpmilp(scenario= case, penalty= 1)
-
-# results = solve(scenario = case, instance=mpmilp, solver= 'gurobi', name='trial', tee = True)
 results = solve(scenario = case, instance=mpmilp, solver= 'gurobi', name='trial', saveformat= '.pkl', print_solversteps= True)
 
+#%%
+mpmilp_fix = formulate_mpmilp(scenario= case, penalty= 1, relax= {'X_P': results.output['X_P'],'X_S': results.output['X_S'] })
+results_fix = solve(scenario = case, instance=mpmilp_fix, solver= 'gurobi', name='trial', saveformat= '.pkl', print_solversteps= True)
 
 #%% plots results at requested scales, usetex giving a very unique error only for this plot!! 
 #TODO - add the type of graph generated in the title

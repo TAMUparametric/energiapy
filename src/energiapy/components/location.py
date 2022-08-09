@@ -39,7 +39,7 @@ class Location:
     name: str 
     processes: Set[Process] 
     scales: Temporal_scale 
-    demand: Union[float, Dict[Resource, float]] 
+    demand: Union[float, Dict[Resource, float]] = 0.0
     label: str = ''
     PV_class: str = ''
     WF_class: str = ''
