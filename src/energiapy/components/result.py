@@ -30,6 +30,7 @@ class Result:
     name:str
     components: dict
     output: dict
+    duals: dict 
 
     def saveoutputs(self, file_name:str):
         data = self.__dict__
