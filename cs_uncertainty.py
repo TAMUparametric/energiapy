@@ -126,16 +126,18 @@ Arcs = Network(name= 'Arcs', source_locations= city_list, sink_locations= site_l
 #given that this is a single temporal scale model, all scales could be allowed to default to 0. Scales stated here due to clarity
 case = Scenario(name= '', network= Arcs, scales= scales, \
     expenditure_scale_level= 1, scheduling_scale_level= 1, network_scale_level= 0,  demand_scale_level=1,  label= 'mpmilp case study')
-
+#%%
 # *-------------------------Model formulation------------------------------------
 #this creates a pyomo instance, prior to this step the model is only defined in energiapy
 mpmilp = formulate_mpmilp(scenario= case, penalty= 1.5)
 results_mpmilp = solve(scenario = case, instance=mpmilp, solver= 'gurobi', name='trial', saveformat= '.pkl', print_solversteps= True)
 
-
 #%%
 mplp= formulate_mplp(scenario= case, penalty= 1.5)
 results_mplp = solve(scenario = case, instance=mplp, solver= 'gurobi', name='trialmp', saveformat= '.pkl', print_solversteps= True)
+
+ 
+
 
 #%% plots results at requested scales, usetex giving a very unique error only for this plot!! 
 #TODO - add the type of graph generated in the title
