@@ -130,13 +130,12 @@ case = Scenario(name= '', network= Arcs, scales= scales, \
 # *-------------------------Model formulation------------------------------------
 #this creates a pyomo instance, prior to this step the model is only defined in energiapy
 mpmilp = formulate_mpmilp(scenario= case, penalty= 1.5)
-results = solve(scenario = case, instance=mpmilp, solver= 'gurobi', name='trial', saveformat= '.pkl', print_solversteps= True)
+results_mpmilp = solve(scenario = case, instance=mpmilp, solver= 'gurobi', name='trial', saveformat= '.pkl', print_solversteps= True)
+
 
 #%%
-
-#%%
-mplp= formulate_mplp(scenario= case, relax= {'X_P': results.output['X_P'],'X_S': results.output['X_S'] }, penalty= 1.5)
-results_fix = solve(scenario = case, instance=mplp, solver= 'gurobi', name='trialmp', saveformat= '.pkl', print_solversteps= True)
+mplp= formulate_mplp(scenario= case, penalty= 1.5)
+results_mplp = solve(scenario = case, instance=mplp, solver= 'gurobi', name='trialmp', saveformat= '.pkl', print_solversteps= True)
 
 #%% plots results at requested scales, usetex giving a very unique error only for this plot!! 
 #TODO - add the type of graph generated in the title
