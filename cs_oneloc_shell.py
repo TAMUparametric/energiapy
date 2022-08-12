@@ -227,8 +227,6 @@ H2_Blue = Process(name='H2_Blue', conversion={H2: 1, H2_B: -1}, prod_max=bigM, g
 H2_Green = Process(name='H2_Green', conversion={H2: 1, H2_G: -1}, prod_max=bigM, cost = {'CAPEX': smallM, 'Fixed O&M': 0, 'Variable O&M': 0, \
     'units': '$/kg','source': 'dummy'}, trl='nocost', block='dummy', label='Green Hydrogen production')
 
-
-
 ho_processes = {LiI_c, LiI_d, CAES_c, CAES_d, PSH_c, PSH_d, PV, WF, AKE, SMRH, H2_C_c,
                 H2_C_d, H2_L_c, H2_L_d, DAC, EOR, AQoff_SMR, H2_Blue, H2_Green}#, ASMR}
 # {H2_L_c, H2_L_d, PV, LiI_c, LiI_d, WF, AKE, SMRH}
@@ -253,8 +251,8 @@ reduced_case = reduce_scenario(scenario= case, network= HO, periods= 20, scale_l
 # *------------------------- Reduced model formulation------------------------------------
 milp_red = formulate_milp(scenario= reduced_case)
 results_red = solve(scenario = reduced_case, instance=milp_red, solver= 'gurobi', name='red_onelocmilp', saveformat = '.pkl')
-milp_red_fix = formulate_milp(scenario=reduced_case, relax= {'X_P': results_red.output['X_P'],'X_S': results_red.output['X_S'] })
-results_red_fix = solve(scenario = reduced_case, instance=milp_red_fix, solver= 'gurobi', name='red_fix_onelocmilp', saveformat = '.pkl')
+# milp_red_fix = formulate_milp(scenario=reduced_case, relax= {'X_P': results_red.output['X_P'],'X_S': results_red.output['X_S'] })
+# results_red_fix = solve(scenario = reduced_case, instance=milp_red_fix, solver= 'gurobi', name='red_fix_onelocmilp', saveformat = '.pkl')
 
 #%%
 

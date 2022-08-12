@@ -124,9 +124,9 @@ Arcs = Network(name= 'Arcs', source_locations= city_list, sink_locations= site_l
 
 # *-------------------------Scenario------------------------------------
 #given that this is a single temporal scale model, all scales could be allowed to default to 0. Scales stated here due to clarity
-case = Scenario(name= '', network= Arcs, scales= scales, \
+case = Scenario(name= 'uncertainty', network= Arcs, scales= scales, \
     expenditure_scale_level= 1, scheduling_scale_level= 1, network_scale_level= 0,  demand_scale_level=1,  label= 'mpmilp case study')
-#%%
+
 # *-------------------------Model formulation------------------------------------
 #this creates a pyomo instance, prior to this step the model is only defined in energiapy
 mpmilp = formulate_mpmilp(scenario= case, penalty= 1.5)
@@ -180,4 +180,43 @@ for i  in  mpmilp.component_objects(Constraint):
             print('asd')
         else:
             print('asc')
+# %%
+from pyomo.environ import ConcreteModel, Var, Constraint
+m = ConcreteModel()
+
+m.a = Var(initialize = 1)
+m.b = Var(initialize = 2)
+a = m.a
+b = 0
+m.c = Constraint(expr = a + b == 0)
+# %%
+
+# %%
+#%%
+
+from pyomo.environ import Param, ConcreteModel, Var, Objective, ConstraintList, value, minimize
+from pyomo.opt import SolverFactory
+from pyomo.util.infeasible import log_infeasible_constraints
+import logging
+
+m = ConcreteModel()
+m.LE = set([1, 2, 3])
+m.x = Var(m.LE, initialize=0)
+m.M = Param(initialize=1000000)
+
+def obj_rule(m):
+        return sum(m.x[i] * 1 for i in m.LE)
+
+m.z = Objective(rule=obj_rule, sense=minimize)
+m.cons1 = ConstraintList()
+
+for i in m.LE:
+    m.cons1.add(10**2 * m.x[i] >= m.M)
+    m.cons1.add(10**2 * m.x[i] <= -3)
+
+solver = SolverFactory('gurobi')
+solution = solver.solve(m, tee=False)
+logging.basicConfig(filename='example2.log', encoding='utf-8', level=logging.INFO)
+log_infeasible_constraints(m, log_expression=True, log_variables=True)
+print(value(m.z))
 # %%

@@ -32,7 +32,8 @@ def generate_sets(instance: ConcreteModel, location_set:set = {}, transport_set:
     instance.processes = Set(initialize  = [i.name for i in process_set], doc = 'Set of processes')
     instance.resources = Set(initialize = [i.name for i in resource_set], doc = 'Set of resources')
     instance.resources_store = Set(initialize = [i.name for i in resource_set if i.store_max > 0], doc = 'Set of storeable resources')
-    instance.resource_nosell = Set(initialize = [i.name for i in resource_set if i.sell ==  False], doc = 'Set of dischargeable resources')
+    instance.resources_nosell = Set(initialize = [i.name for i in resource_set if i.sell ==  False], doc = 'Set of non-dischargeable resources')
+    instance.resources_sell = Set(initialize = [i.name for i in resource_set if i.sell ==  True], doc = 'Set of dischargeable resources')
     instance.resources_purch = Set(initialize = [i.name for i in resource_set if i.cons_max > 0], doc = 'Set of purchased resources')   
     instance.resources_varying = Set(initialize = [i.name for i in resource_set if i.varying == True], doc = 'Set of resources with varying purchase price')    
     instance.resources_demand = Set(initialize = [i.name for i in resource_set if i.demand == True], doc = 'Set of resources with exact demand')    
@@ -51,7 +52,7 @@ def generate_sets(instance: ConcreteModel, location_set:set = {}, transport_set:
     
     if transport_set is not None:
         instance.transports = Set(initialize = [i.name for i in transport_set], doc = 'Set of transports')
-        instance.resource_trans = Set(initialize = [i.name for i in set().union(*[i.resources for i in case.transport_set])], doc= 'Set of transportable resources')
+        instance.resources_trans = Set(initialize = [i.name for i in set().union(*[i.resources for i in transport_set])], doc= 'Set of transportable resources')
     return
 
 

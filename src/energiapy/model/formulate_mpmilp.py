@@ -48,7 +48,7 @@ def formulate_mpmilp(scenario: Scenario, penalty:float) -> ConcreteModel:
     resource_consumption_constraint(instance= instance, loc_res_dict= scenario.loc_res_dict, cons_max= scenario.cons_max, scheduling_scale_level= scenario.scheduling_scale_level)
     uncertain_resource_purchase_constraint(instance= instance, price= scenario.price, loc_res_dict= scenario.loc_res_dict, \
         scheduling_scale_level= scenario.scheduling_scale_level, expenditure_scale_level= scenario.expenditure_scale_level)
-    resource_discharge_constraint(instance= instance, scheduling_scale_level= scenario.scheduling_scale_level)
+    # resource_discharge_constraint(instance= instance, scheduling_scale_level= scenario.scheduling_scale_level)
     
     production_facility_constraint(instance= instance, prod_max= scenario.prod_max, loc_pro_dict= scenario.loc_pro_dict, network_scale_level= scenario.network_scale_level)
     storage_facility_constraint(instance= instance, store_max= scenario.store_max, loc_res_dict= scenario.loc_res_dict, network_scale_level= scenario.network_scale_level)
@@ -97,8 +97,6 @@ def formulate_mpmilp(scenario: Scenario, penalty:float) -> ConcreteModel:
     transport_imp_cost_constraint(instance= instance, scheduling_scale_level= scenario.scheduling_scale_level, trans_cost= scenario.trans_cost, distance_dict= scenario.distance_dict)  
     transport_cost_constraint(instance= instance, scheduling_scale_level= scenario.scheduling_scale_level)
     transport_cost_network_constraint(instance= instance, network_scale_level= scenario.network_scale_level)
-
-    instance.dual = Suffix(direction=Suffix.IMPORT)
 
     uncertainty_cost_objective(instance= instance, penalty = penalty, network_scale_level= scenario.network_scale_level)
     

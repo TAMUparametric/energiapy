@@ -50,7 +50,7 @@ def formulate_mplp(scenario: Scenario, relax: dict = None, penalty = float) -> C
     uncertain_resource_purchase_constraint(instance= instance, price= scenario.price, \
         loc_res_dict= scenario.loc_res_dict, scheduling_scale_level= scenario.scheduling_scale_level, \
             expenditure_scale_level= scenario.expenditure_scale_level)
-    resource_discharge_constraint(instance= instance, scheduling_scale_level= scenario.scheduling_scale_level)
+    # resource_discharge_constraint(instance= instance, scheduling_scale_level= scenario.scheduling_scale_level)
 
     # production_facility_fix_constraint(instance= instance, production_binaries = relax['X_P'],prod_max= scenario.prod_max, loc_pro_dict= scenario.loc_pro_dict, network_scale_level= scenario.network_scale_level)
     # storage_facility_fix_constraint(instance= instance, storage_binaries = relax['X_S'], store_max= scenario.store_max, loc_res_dict= scenario.loc_res_dict, network_scale_level= scenario.network_scale_level)
