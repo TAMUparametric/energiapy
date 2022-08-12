@@ -12,12 +12,15 @@ __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
 from pyomo.environ import ConcreteModel, SolverFactory, Var, Objective, Constraint
+from pyomo.util.infeasible import log_infeasible_constraints
+import logging
 from ..components.result import Result
 from ..components.scenario import Scenario
 
 def solve(instance:ConcreteModel, solver:str, name:str, scenario:Scenario = None, saveformat:str = None, print_solversteps:bool = True) -> Result:
     output = SolverFactory(solver, solver_io= 'python').solve(instance, tee = print_solversteps)
-    # if (results.solver.status == SolverStatus.ok) and (results.solver.termination_condition == TerminationCondition.optimal)
+    
+    
     if scenario is None:
         components_dict = {}
     else:
@@ -55,18 +58,21 @@ def solve(instance:ConcreteModel, solver:str, name:str, scenario:Scenario = None
         output_dict = {**solution_dict, **vars_dict, **obj_dict}
         
         model_cons=[i for i in instance.component_objects() if i.ctype == Constraint]   
-        if len(instance.dual) > 0:
-            index_dict = {c: [i for i in c.index_set()] for c in model_cons}    
-            duals_dict = {cons.name: { index: instance.dual[cons[index]] for index in index_dict[cons]} for cons in model_cons}
-        else:
-            duals_dict = {}
 
+        if solution_dict['n_binvars'] > 0:
+            duals_dict = {}
+        else:
+            index_dict = {c: [i for i in c.index_set()] for c in model_cons}    
+            duals_dict = {cons.name: { index: instance.dual[cons[index]] for index \
+                in index_dict[cons]} for cons in model_cons}
     else:
-        
         output_dict = solution_dict
         duals_dict = {}
+
+        logging.basicConfig(filename= f"{scenario.name}_infeasible.log", encoding='utf-8', level=logging.INFO)
+        log_infeasible_constraints(instance)
         
-        return
+    
         
     results = Result(name= name, components = components_dict, output = output_dict, duals = duals_dict)
 

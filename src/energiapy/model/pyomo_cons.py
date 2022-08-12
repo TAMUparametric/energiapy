@@ -213,12 +213,12 @@ def nameplate_inventory_constraint(instance: ConcreteModel, loc_res_dict:dict = 
     """
     scales = scale_list(instance= instance, scale_levels = instance.scales.__len__())
     def nameplate_inventory_rule(instance, location, resource, *scale_list):
-        if resource in instance.resources_store.intersection(loc_res_dict[location]):
+        if resource in loc_res_dict[location]:
             return instance.Inv[location, resource, scale_list[:scheduling_scale_level+1]] <= instance.Cap_S[location, resource, scale_list[:network_scale_level+1]]
         else:
             return instance.Inv[location, resource, scale_list[:scheduling_scale_level+1]] <= 0
     instance.nameplate_inventory_constraint = Constraint(
-        instance.locations, instance.resources, *scales, rule=nameplate_inventory_rule, doc='nameplate inventory capacity constraint')
+        instance.locations, instance.resources_store, *scales, rule=nameplate_inventory_rule, doc='nameplate inventory capacity constraint')
     constraint_latex_render(nameplate_inventory_rule)
     return instance.nameplate_inventory_constraint
 
@@ -243,7 +243,7 @@ def resource_consumption_constraint(instance: ConcreteModel, loc_res_dict:dict =
         else:
             return instance.C[location, resource, scale_list[:scheduling_scale_level+1]] <= 0 
     instance.resource_consumption_constraint = Constraint(
-        instance.locations, instance.resources, *scales, rule=resource_consumption_rule, doc='resource consumption')
+        instance.locations, instance.resources_purch, *scales, rule=resource_consumption_rule, doc='resource consumption')
     constraint_latex_render(resource_consumption_rule)
     return instance.resource_consumption_constraint
 
@@ -272,39 +272,39 @@ def resource_purchase_constraint(instance: ConcreteModel, cost_factor:dict = {},
             else:
                 return instance.B[location, resource, scale_list[:scheduling_scale_level+1]] == 0     
     constraint_latex_render(resource_purchase_rule)
-    instance.resource_purchase_constraint = Constraint(instance.locations, instance.resources, *scales, rule=resource_purchase_rule, doc='expenditure on purchase of resource')
+    instance.resource_purchase_constraint = Constraint(instance.locations, instance.resources_purch, *scales, rule=resource_purchase_rule, doc='expenditure on purchase of resource')
     return instance.resource_purchase_constraint
 
-def resource_discharge_constraint(instance: ConcreteModel, scheduling_scale_level:int= 0) -> Constraint:
-    """Determines discharge/sale of resource at location in network 
+# def resource_discharge_constraint(instance: ConcreteModel, scheduling_scale_level:int= 0) -> Constraint:
+#     """Determines discharge/sale of resource at location in network 
 
-    Args:
-        instance (ConcreteModel): pyomo instance
-        scheduling_scale_level (int, optional): scale of scheduling decisions. Defaults to 0.
+#     Args:
+#         instance (ConcreteModel): pyomo instance
+#         scheduling_scale_level (int, optional): scale of scheduling decisions. Defaults to 0.
 
-    Returns:
-        Constraint: resource_discharge_constraint
-    """
-    scales = scale_list(instance= instance, scale_levels = instance.scales.__len__())
-    def resource_discharge_rule(instance, location, resource, *scale_list):
-        return instance.S[location, resource, scale_list[:scheduling_scale_level+1]] == 0
-    instance.resource_discharge_constraint = Constraint(instance.locations, instance.resource_nosell, *scales, rule=resource_discharge_rule, doc='restrict discharge of non marketable resources')
-    constraint_latex_render(resource_discharge_rule)
-    return instance.resource_discharge_constraint
+#     Returns:
+#         Constraint: resource_discharge_constraint
+#     """
+#     scales = scale_list(instance= instance, scale_levels = instance.scales.__len__())
+#     def resource_discharge_rule(instance, location, resource, *scale_list):
+#         return instance.S[location, resource, scale_list[:scheduling_scale_level+1]] == 0
+#     instance.resource_discharge_constraint = Constraint(instance.locations, instance.resource_nosell, *scales, rule=resource_discharge_rule, doc='restrict discharge of non marketable resources')
+#     constraint_latex_render(resource_discharge_rule)
+#     return instance.resource_discharge_constraint
 
-def test_cycle(instance: ConcreteModel,  scheduling_scale_level:int= 0) -> Constraint:
-    """TEST CONSTRAINT
-    """
-    scales = scale_list(instance= instance, scale_levels = instance.scales.__len__())
-    scale_iter = scale_tuple(instance= instance, scale_levels = instance.scales.__len__())
-    def test_cycle_rule(instance, location, resource, *scale_list):
-        if scale_list[:scheduling_scale_level+1] != scale_iter[0]:
-            return instance.Inv[location, resource, scale_list[:scheduling_scale_level+1]] - instance.Inv[location, resource, scale_iter[scale_iter.index(scale_list[:scheduling_scale_level+1]) -1]] == 0
-        else:
-            return instance.Inv[location, resource, scale_list[:scheduling_scale_level+1]] == 0
-    instance.test_cycle_cons = Constraint(instance.locations, instance.resource_nosell, *scales, rule=test_cycle_rule, doc='test cycle')
-    constraint_latex_render(test_cycle)
-    return instance.test_cycle_cons
+# def test_cycle(instance: ConcreteModel,  scheduling_scale_level:int= 0) -> Constraint:
+#     """TEST CONSTRAINT
+#     """
+#     scales = scale_list(instance= instance, scale_levels = instance.scales.__len__())
+#     scale_iter = scale_tuple(instance= instance, scale_levels = instance.scales.__len__())
+#     def test_cycle_rule(instance, location, resource, *scale_list):
+#         if scale_list[:scheduling_scale_level+1] != scale_iter[0]:
+#             return instance.Inv[location, resource, scale_list[:scheduling_scale_level+1]] - instance.Inv[location, resource, scale_iter[scale_iter.index(scale_list[:scheduling_scale_level+1]) -1]] == 0
+#         else:
+#             return instance.Inv[location, resource, scale_list[:scheduling_scale_level+1]] == 0
+#     instance.test_cycle_cons = Constraint(instance.locations, instance.resource_nosell, *scales, rule=test_cycle_rule, doc='test cycle')
+#     constraint_latex_render(test_cycle)
+#     return instance.test_cycle_cons
 
 def inventory_balance_constraint(instance: ConcreteModel, scheduling_scale_level:int= 0, conversion:dict = {}) -> Constraint:
     """balances resource across the scheduling horizon
@@ -320,38 +320,74 @@ def inventory_balance_constraint(instance: ConcreteModel, scheduling_scale_level
     scales = scale_list(instance= instance, scale_levels = instance.scales.__len__())
     scale_iter = scale_tuple(instance= instance, scale_levels = instance.scales.__len__())
     def inventory_balance_rule(instance, location, resource, *scale_list):
-        if len(instance.locations) > 1:    
-            if scale_list[:scheduling_scale_level+1] != scale_iter[0]:
-                return instance.Inv[location, resource, scale_list[:scheduling_scale_level+1]] \
-                    - instance.Inv[location, resource, scale_iter[scale_iter.index(scale_list[:scheduling_scale_level+1]) -1]] \
-                        + instance.S[location, resource, scale_list[:scheduling_scale_level+1]] \
-                        - instance.C[location, resource, scale_list[:scheduling_scale_level+1]] \
-                        - sum(conversion[process][resource]*instance.P[location, process, scale_list[:scheduling_scale_level+1]] for process in instance.processes) \
-                            - sum(instance.Imp[location, source_, resource, scale_list[:scheduling_scale_level+1]] for source_ in instance.sources if source_ != location if location in instance.sinks)\
-                            + sum(instance.Exp[location, sink_, resource, scale_list[:scheduling_scale_level+1]] for sink_ in instance.sinks if sink_ != location if location in instance.sources)\
-                            == 0
-            else:
-                return instance.Inv[location, resource, scale_list[:scheduling_scale_level+1]] \
-                        + instance.S[location, resource, scale_list[:scheduling_scale_level+1]] \
-                        - instance.C[location, resource, scale_list[:scheduling_scale_level+1]] \
-                        - sum(conversion[process][resource]*instance.P[location, process, scale_list[:scheduling_scale_level+1]] for process in instance.processes) \
-                            - sum(instance.Imp[location, source_, resource, scale_list[:scheduling_scale_level+1]] for source_ in instance.sources if source_ != location if location in instance.sinks)\
-                            + sum(instance.Exp[location, sink_, resource, scale_list[:scheduling_scale_level+1]] for sink_ in instance.sinks if sink_ != location if location in instance.sources)\
-                            == 0
+        if resource in instance.resources_purch:
+            consumption = instance.C[location, resource, scale_list[:scheduling_scale_level+1]]
         else:
+            consumption = 0
+        
+        if resource in instance.resources_store:
             if scale_list[:scheduling_scale_level+1] != scale_iter[0]:
-                return instance.Inv[location, resource, scale_list[:scheduling_scale_level+1]] \
-                    - instance.Inv[location, resource, scale_iter[scale_iter.index(scale_list[:scheduling_scale_level+1]) -1]] \
-                        + instance.S[location, resource, scale_list[:scheduling_scale_level+1]] \
-                        - instance.C[location, resource, scale_list[:scheduling_scale_level+1]] \
-                        - sum(conversion[process][resource]*instance.P[location, process, scale_list[:scheduling_scale_level+1]] for process in instance.processes)\
-                            == 0
+                storage = instance.Inv[location, resource, scale_list[:scheduling_scale_level+1]] \
+                        - instance.Inv[location, resource, scale_iter[scale_iter.index(scale_list[:scheduling_scale_level+1]) -1]] 
             else:
-                return instance.Inv[location, resource, scale_list[:scheduling_scale_level+1]] \
-                        + instance.S[location, resource, scale_list[:scheduling_scale_level+1]] \
-                        - instance.C[location, resource, scale_list[:scheduling_scale_level+1]] \
-                        - sum(conversion[process][resource]*instance.P[location, process, scale_list[:scheduling_scale_level+1]] for process in instance.processes) \
-                            == 0
+                storage = instance.Inv[location, resource, scale_list[:scheduling_scale_level+1]] 
+        else:
+            storage = 0
+
+        if resource in instance.resources_sell:
+            discharge = instance.S[location, resource, scale_list[:scheduling_scale_level+1]]
+        else:
+            discharge = 0
+        
+        if len(instance.locations) > 1:
+            if resource in instance.resources_trans:
+                transport =  - sum(instance.Imp[location, source_, resource, scale_list[:scheduling_scale_level+1]] for source_ in instance.sources if source_ != location if location in instance.sinks)\
+                                + sum(instance.Exp[location, sink_, resource, scale_list[:scheduling_scale_level+1]] for sink_ in instance.sinks if sink_ != location if location in instance.sources)\
+
+            else:
+                transport = 0
+        else:
+            transport = 0
+
+        produced = sum(conversion[process][resource]*instance.P[location, process, scale_list[:scheduling_scale_level+1]] for process in instance.processes)
+        
+        return - consumption + storage + discharge + transport - produced == 0
+
+
+
+        
+        # if len(instance.locations) > 1:    
+        #     if scale_list[:scheduling_scale_level+1] != scale_iter[0]:
+        #         return instance.Inv[location, resource, scale_list[:scheduling_scale_level+1]] \
+        #             - instance.Inv[location, resource, scale_iter[scale_iter.index(scale_list[:scheduling_scale_level+1]) -1]] \
+        #                 + instance.S[location, resource, scale_list[:scheduling_scale_level+1]] \
+        #                 - instance.C[location, resource, scale_list[:scheduling_scale_level+1]] \
+        #                 - sum(conversion[process][resource]*instance.P[location, process, scale_list[:scheduling_scale_level+1]] for process in instance.processes) \
+        #                     - sum(instance.Imp[location, source_, resource, scale_list[:scheduling_scale_level+1]] for source_ in instance.sources if source_ != location if location in instance.sinks)\
+        #                     + sum(instance.Exp[location, sink_, resource, scale_list[:scheduling_scale_level+1]] for sink_ in instance.sinks if sink_ != location if location in instance.sources)\
+        #                     == 0
+        #     else:
+        #         return instance.Inv[location, resource, scale_list[:scheduling_scale_level+1]] \
+        #                 + instance.S[location, resource, scale_list[:scheduling_scale_level+1]] \
+        #                 - instance.C[location, resource, scale_list[:scheduling_scale_level+1]] \
+        #                 - sum(conversion[process][resource]*instance.P[location, process, scale_list[:scheduling_scale_level+1]] for process in instance.processes) \
+        #                     - sum(instance.Imp[location, source_, resource, scale_list[:scheduling_scale_level+1]] for source_ in instance.sources if source_ != location if location in instance.sinks)\
+        #                     + sum(instance.Exp[location, sink_, resource, scale_list[:scheduling_scale_level+1]] for sink_ in instance.sinks if sink_ != location if location in instance.sources)\
+        #                     == 0
+        # else:
+        #     if scale_list[:scheduling_scale_level+1] != scale_iter[0]:
+        #         return instance.Inv[location, resource, scale_list[:scheduling_scale_level+1]] \
+        #             - instance.Inv[location, resource, scale_iter[scale_iter.index(scale_list[:scheduling_scale_level+1]) -1]] \
+        #                 + instance.S[location, resource, scale_list[:scheduling_scale_level+1]] \
+        #                 - instance.C[location, resource, scale_list[:scheduling_scale_level+1]] \
+        #                 - sum(conversion[process][resource]*instance.P[location, process, scale_list[:scheduling_scale_level+1]] for process in instance.processes)\
+        #                     == 0
+        #     else:
+        #         return instance.Inv[location, resource, scale_list[:scheduling_scale_level+1]] \
+        #                 + instance.S[location, resource, scale_list[:scheduling_scale_level+1]] \
+        #                 - instance.C[location, resource, scale_list[:scheduling_scale_level+1]] \
+        #                 - sum(conversion[process][resource]*instance.P[location, process, scale_list[:scheduling_scale_level+1]] for process in instance.processes) \
+        #                     == 0
                             
     instance.inventory_balance_constraint = Constraint(instance.locations, instance.resources, *scales, rule=inventory_balance_rule, doc='mass balance across scheduling scale')
     constraint_latex_render(inventory_balance_constraint)
@@ -366,7 +402,7 @@ def transport_export_constraint(instance:ConcreteModel, scheduling_scale_level:i
             sum(instance.Trans_exp[source, sink, resource, transport_, scale_list[:scheduling_scale_level+1]] \
                 for transport_ in instance.transports.intersection(transport_avail_dict[(source, sink)]))
     instance.transport_export_constraint = Constraint(instance.sources, instance.sinks, \
-        instance.resources, *scales, rule=transport_export_rule, doc='export of resource from source to sink')
+        instance.resources_trans, *scales, rule=transport_export_rule, doc='export of resource from source to sink')
     constraint_latex_render(transport_export_rule)
     return instance.transport_export_constraint
 
@@ -378,7 +414,7 @@ def transport_import_constraint(instance:ConcreteModel, scheduling_scale_level:i
             sum(instance.Trans_imp[sink, source, resource, transport_, scale_list[:scheduling_scale_level+1]] \
                 for transport_ in instance.transports.intersection(transport_avail_dict[(source, sink)]))
     instance.transport_import_constraint = Constraint(instance.sinks, instance.sources, \
-        instance.resources, *scales, rule=transport_import_rule, doc='import of resource from sink to source')
+        instance.resources_trans, *scales, rule=transport_import_rule, doc='import of resource from sink to source')
     constraint_latex_render(transport_import_rule)
     return instance.transport_import_constraint
 
@@ -387,7 +423,7 @@ def transport_balance_constraint(instance:ConcreteModel, scheduling_scale_level:
     def transport_balance_rule(instance, sink, source, resource, *scale_list):
         return instance.Imp[sink, source, resource, scale_list[:scheduling_scale_level+1]] == instance.Exp[source, sink, resource, scale_list[:scheduling_scale_level+1]]
     instance.transport_balance_constraint = Constraint(instance.sinks, instance.sources, \
-        instance.resources, *scales, rule=transport_balance_rule, doc='balances import and export from source to sinks')
+        instance.resources_trans, *scales, rule=transport_balance_rule, doc='balances import and export from source to sinks')
     constraint_latex_render(transport_balance_rule)
     return instance.transport_balance_constraint
 
@@ -398,7 +434,7 @@ def transport_exp_UB_constraint(instance:ConcreteModel, scheduling_scale_level: 
             return instance.Trans_exp[source, sink, resource, transport, scale_list[:scheduling_scale_level+1]] <= trans_max[transport]
         else:
             return instance.Trans_exp[source, sink, resource, transport, scale_list[:scheduling_scale_level+1]] <= 0
-    instance.transport_exp_UB_constraint = Constraint(instance.sources, instance.sinks, instance.resources, instance.transports, *scales, rule=transport_exp_UB_rule, doc='import of resource from sink to source')
+    instance.transport_exp_UB_constraint = Constraint(instance.sources, instance.sinks, instance.resources_trans, instance.transports, *scales, rule=transport_exp_UB_rule, doc='import of resource from sink to source')
     constraint_latex_render(transport_exp_UB_rule)
     return instance.transport_exp_UB_constraint
 
@@ -409,7 +445,7 @@ def transport_imp_UB_constraint(instance:ConcreteModel, scheduling_scale_level: 
             return instance.Trans_imp[sink, source, resource, transport, scale_list[:scheduling_scale_level+1]] <= trans_max[transport]
         else:
             return instance.Trans_imp[sink, source, resource, transport, scale_list[:scheduling_scale_level+1]] <= 0
-    instance.transport_imp_UB_constraint = Constraint(instance.sinks, instance.sources, instance.resources, instance.transports, *scales, rule=transport_imp_UB_rule, doc='import of resource from sink to source')
+    instance.transport_imp_UB_constraint = Constraint(instance.sinks, instance.sources, instance.resources_trans, instance.transports, *scales, rule=transport_imp_UB_rule, doc='import of resource from sink to source')
     constraint_latex_render(transport_imp_UB_rule)
     return instance.transport_imp_UB_constraint
 
@@ -418,7 +454,7 @@ def transport_exp_cost_constraint(instance:ConcreteModel, scheduling_scale_level
     def transport_exp_cost_rule(instance, source, sink, resource, transport, *scale_list):
         return instance.Trans_exp_cost[source, sink, resource, transport, scale_list[:scheduling_scale_level+1]] == \
             trans_cost[transport]*distance_dict[(source, sink)]*instance.Trans_exp[source, sink, resource, transport, scale_list[:scheduling_scale_level+1]]
-    instance.transport_exp_cost_constraint = Constraint(instance.sources, instance.sinks, instance.resources, instance.transports, *scales, rule=transport_exp_cost_rule, doc='import of resource from sink to source')
+    instance.transport_exp_cost_constraint = Constraint(instance.sources, instance.sinks, instance.resources_trans, instance.transports, *scales, rule=transport_exp_cost_rule, doc='import of resource from sink to source')
     constraint_latex_render(transport_exp_cost_rule)
     return instance.transport_exp_cost_constraint
 
@@ -427,7 +463,7 @@ def transport_imp_cost_constraint(instance:ConcreteModel, scheduling_scale_level
     def transport_imp_cost_rule(instance, sink, source, resource, transport, *scale_list):
         return instance.Trans_imp_cost[sink, source, resource, transport, scale_list[:scheduling_scale_level+1]] == \
             trans_cost[transport]*distance_dict[(source, sink)]*instance.Trans_imp[sink, source, resource, transport, scale_list[:scheduling_scale_level+1]]
-    instance.transport_imp_cost_constraint = Constraint(instance.sinks, instance.sources, instance.resources, instance.transports, *scales, rule=transport_imp_cost_rule, doc='import of resource from sink to source')
+    instance.transport_imp_cost_constraint = Constraint(instance.sinks, instance.sources, instance.resources_trans, instance.transports, *scales, rule=transport_imp_cost_rule, doc='import of resource from sink to source')
     constraint_latex_render(transport_imp_cost_rule)
     return instance.transport_imp_cost_constraint
 
@@ -439,7 +475,7 @@ def transport_cost_constraint(instance:ConcreteModel, scheduling_scale_level:int
         return instance.Trans_cost[transport, scale_list[:scheduling_scale_level+1]] == \
             sum(instance.Trans_imp_cost[sink, source, resource, transport, scale_list[:scheduling_scale_level+1]] + \
                 instance.Trans_exp_cost[source, sink, resource, transport, scale_list[:scheduling_scale_level+1]] \
-                    for sink, source, resource in product(instance.sinks, instance.sources, instance.resources))
+                    for sink, source, resource in product(instance.sinks, instance.sources, instance.resources_trans))
     instance.transport_cost_constraint = Constraint(instance.transports, *scales, rule = transport_cost_rule, doc = 'total transport cost')
     constraint_latex_render(transport_cost_rule)
     return instance.transport_cost_constraint
@@ -497,7 +533,7 @@ def location_discharge_constraint(instance:ConcreteModel, cluster_wt:dict, netwo
             return instance.S_location[location, resource, scale_list] == sum(cluster_wt[scale_]*instance.S[location, resource, scale_] for scale_ in  scale_iter)
         else:
             return instance.S_location[location, resource, scale_list] == sum(instance.S[location, resource, scale_] for scale_ in  scale_iter)
-    instance.location_discharge_constraint = Constraint(instance.locations, instance.resources, *scales, rule = location_discharge_rule, doc = 'total discharge at location')
+    instance.location_discharge_constraint = Constraint(instance.locations, instance.resources_sell, *scales, rule = location_discharge_rule, doc = 'total discharge at location')
     constraint_latex_render(location_discharge_rule)
     return instance.location_discharge_constraint
 
@@ -518,7 +554,7 @@ def location_consumption_constraint(instance:ConcreteModel, cluster_wt:dict, net
             return instance.C_location[location, resource, scale_list] == sum(cluster_wt[scale_]*instance.C[location, resource, scale_] for scale_ in  scale_iter)
         else:
             return instance.C_location[location, resource, scale_list] == sum(instance.C[location, resource, scale_] for scale_ in  scale_iter)
-    instance.location_consumption_constraint = Constraint(instance.locations, instance.resources, *scales, rule = location_consumption_rule, doc = 'total consumption at location')
+    instance.location_consumption_constraint = Constraint(instance.locations, instance.resources_purch, *scales, rule = location_consumption_rule, doc = 'total consumption at location')
     constraint_latex_render(location_consumption_rule)
     return instance.location_consumption_constraint
 
@@ -540,7 +576,7 @@ def location_purchase_constraint(instance:ConcreteModel, cluster_wt:dict, networ
             return instance.B_location[location, resource, scale_list] == sum(cluster_wt[scale_]*instance.B[location, resource, scale_] for scale_ in  scale_iter)
         else:
             return instance.B_location[location, resource, scale_list] == sum(instance.B[location, resource, scale_] for scale_ in  scale_iter)
-    instance.location_purchase_constraint = Constraint(instance.locations, instance.resources, *scales, rule = location_purchase_rule, doc = 'total purchase at location')
+    instance.location_purchase_constraint = Constraint(instance.locations, instance.resources_purch, *scales, rule = location_purchase_rule, doc = 'total purchase at location')
     constraint_latex_render(location_purchase_rule)
     return instance.location_purchase_constraint
 
@@ -577,7 +613,7 @@ def network_discharge_constraint(instance:ConcreteModel, network_scale_level:int
     scales = scale_list(instance= instance, scale_levels = network_scale_level+1) 
     def network_discharge_rule(instance, resource, *scale_list):
         return instance.S_network[resource, scale_list] == sum(instance.S_location[location_, resource, scale_list] for location_ in instance.locations) 
-    instance.network_discharge_constraint = Constraint(instance.resources, *scales, rule = network_discharge_rule, doc = 'total discharge from network')
+    instance.network_discharge_constraint = Constraint(instance.resources_sell, *scales, rule = network_discharge_rule, doc = 'total discharge from network')
     constraint_latex_render(network_discharge_rule)
     return instance.network_discharge_constraint
 
@@ -594,7 +630,7 @@ def network_consumption_constraint(instance:ConcreteModel, network_scale_level:i
     scales = scale_list(instance= instance, scale_levels = network_scale_level+1) 
     def network_consumption_rule(instance, resource, *scale_list):
         return instance.C_network[resource, scale_list] == sum(instance.C_location[location_, resource, scale_list] for location_ in instance.locations) 
-    instance.network_consumption_constraint = Constraint(instance.resources, *scales, rule = network_consumption_rule, doc = 'total consumption from network')
+    instance.network_consumption_constraint = Constraint(instance.resources_purch, *scales, rule = network_consumption_rule, doc = 'total consumption from network')
     constraint_latex_render(network_consumption_rule)
     return instance.network_consumption_constraint
 
@@ -612,7 +648,7 @@ def network_purchase_constraint(instance:ConcreteModel, network_scale_level:int=
     scales = scale_list(instance= instance, scale_levels = network_scale_level+1) 
     def network_purchase_rule(instance, resource, *scale_list):
         return instance.B_network[resource, scale_list] == sum(instance.B_location[location_, resource, scale_list] for location_ in instance.locations) 
-    instance.network_purchase_constraint = Constraint(instance.resources, *scales, rule = network_purchase_rule, doc = 'total purchase from network')
+    instance.network_purchase_constraint = Constraint(instance.resources_purch, *scales, rule = network_purchase_rule, doc = 'total purchase from network')
     constraint_latex_render(network_purchase_rule)
     return instance.network_purchase_constraint
 
@@ -947,7 +983,7 @@ def uncertain_resource_purchase_constraint(instance: ConcreteModel, price:dict =
             else:
                 return instance.B[location, resource, scale_list[:scheduling_scale_level+1]] == 0     
     constraint_latex_render(uncertain_resource_purchase_rule)
-    instance.uncertain_resource_purchase_constraint = Constraint(instance.locations, instance.resources, *scales, rule=uncertain_resource_purchase_rule, doc='expenditure on purchase of resource')
+    instance.uncertain_resource_purchase_constraint = Constraint(instance.locations, instance.resources_purch, *scales, rule=uncertain_resource_purchase_rule, doc='expenditure on purchase of resource')
     return instance.uncertain_resource_purchase_constraint
 
 
