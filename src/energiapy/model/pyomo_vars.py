@@ -27,13 +27,13 @@ def generate_scheduling_vars(instance: ConcreteModel, scale_level:int = 0):
     """
     instance.scales_scheduling = scale_pyomo_set(instance= instance, scale_level= scale_level)
     instance.P = Var(instance.locations, instance.processes, instance.scales_scheduling, within = NonNegativeReals, doc = 'Resource Production')
-    instance.B = Var(instance.locations, instance.resources, instance.scales_scheduling, within = NonNegativeReals, doc = 'Purchase Expenditure')
-    instance.C = Var(instance.locations, instance.resources, instance.scales_scheduling, within = NonNegativeReals, doc = 'Resource Consumption')
-    instance.S = Var(instance.locations, instance.resources, instance.scales_scheduling, within = NonNegativeReals, doc = 'Resource Dispensed/Sold')
-    instance.Inv = Var(instance.locations, instance.resources, instance.scales_scheduling, within = NonNegativeReals, doc = 'Resource Inventory')
+    instance.B = Var(instance.locations, instance.resources_purch, instance.scales_scheduling, within = NonNegativeReals, doc = 'Purchase Expenditure')
+    instance.C = Var(instance.locations, instance.resources_purch, instance.scales_scheduling, within = NonNegativeReals, doc = 'Resource Consumption')
+    instance.S = Var(instance.locations, instance.resources_sell, instance.scales_scheduling, within = NonNegativeReals, doc = 'Resource Dispensed/Sold')
+    instance.Inv = Var(instance.locations, instance.resources_store, instance.scales_scheduling, within = NonNegativeReals, doc = 'Resource Inventory')
     if len(instance.locations) > 1:
-        instance.Imp = Var(instance.sinks, instance.sources, instance.resources, instance.scales_scheduling, within = NonNegativeReals, doc = 'Resource import')
-        instance.Exp = Var(instance.sources, instance.sinks, instance.resources, instance.scales_scheduling, within = NonNegativeReals, doc = 'Resource export')
+        instance.Imp = Var(instance.sinks, instance.sources, instance.resources_trans, instance.scales_scheduling, within = NonNegativeReals, doc = 'Resource import')
+        instance.Exp = Var(instance.sources, instance.sinks, instance.resources_trans, instance.scales_scheduling, within = NonNegativeReals, doc = 'Resource export')
     
     return 
 
@@ -54,13 +54,13 @@ def generate_network_vars(instance: ConcreteModel, scale_level:int = 0):
     instance.Land_network = Var(instance.scales_network, within=NonNegativeReals, doc='Land used at network')
     
     instance.P_location = Var(instance.locations, instance.processes, instance.scales_network, within=NonNegativeReals, doc='Total production at location')
-    instance.S_location = Var(instance.locations, instance.resources, instance.scales_network, within=NonNegativeReals, doc='Total resource discharge at location')
-    instance.C_location = Var(instance.locations, instance.resources, instance.scales_network, within=NonNegativeReals, doc='Total resource consumption at location')
-    instance.B_location = Var(instance.locations, instance.resources, instance.scales_network, within=NonNegativeReals, doc='Total resource purchase at location')
-    instance.P_network = Var(instance.processes, instance.scales_network, within=NonNegativeReals, doc='Total production from network')
-    instance.S_network = Var(instance.resources, instance.scales_network, within=NonNegativeReals, doc='Total resource discharge from network')
-    instance.C_network = Var(instance.resources, instance.scales_network, within=NonNegativeReals, doc='Total resource consumption from network')
-    instance.B_network = Var(instance.resources, instance.scales_network, within=NonNegativeReals, doc='Total resource purchase from network')
+    instance.S_location = Var(instance.locations, instance.resources_sell, instance.scales_network, within=NonNegativeReals, doc='Total resource discharge at location')
+    instance.C_location = Var(instance.locations, instance.resources_purch, instance.scales_network, within=NonNegativeReals, doc='Total resource consumption at location')
+    instance.B_location = Var(instance.locations, instance.resources_purch, instance.scales_network, within=NonNegativeReals, doc='Total resource purchase at location')
+    instance.P_network = Var(instance.processes, instance.scales_network_processes, within=NonNegativeReals, doc='Total production from network')
+    instance.S_network = Var(instance.resources, instance.scales_network_sell, within=NonNegativeReals, doc='Total resource discharge from network')
+    instance.C_network = Var(instance.resources, instance.scales_network_purch, within=NonNegativeReals, doc='Total resource consumption from network')
+    instance.B_network = Var(instance.resources, instance.scales_network_purch, within=NonNegativeReals, doc='Total resource purchase from network')
     if len(instance.locations) > 1:
         instance.Trans_cost_network = Var(instance.transports, instance.scales_network, within = NonNegativeReals, doc = 'cost of transportation for transport mode')
     instance.Fopex_process = Var(instance.locations, instance.processes, instance.scales_network, within = NonNegativeReals, doc = 'Fixed Opex for process' )
@@ -96,10 +96,10 @@ def generate_transport_vars(instance: ConcreteModel, scale_level:int = 0):
         scale_level (int, optional):  scale for network variables. Defaults to 0.
     """
     instance.scales_transport = scale_pyomo_set(instance= instance, scale_level= scale_level)
-    instance.Trans_imp = Var(instance.sinks, instance.sources, instance.resources, instance.transports, instance.scales_scheduling, within = NonNegativeReals, doc = 'Resource imported through transport mode')
-    instance.Trans_exp = Var(instance.sources, instance.sinks, instance.resources, instance.transports, instance.scales_scheduling, within = NonNegativeReals, doc = 'Resource exported through transport mode')
-    instance.Trans_imp_cost = Var(instance.sinks, instance.sources, instance.resources, instance.transports, instance.scales_scheduling, within = NonNegativeReals, doc = 'Resource imported through transport mode')
-    instance.Trans_exp_cost = Var(instance.sources, instance.sinks, instance.resources, instance.transports, instance.scales_scheduling, within = NonNegativeReals, doc = 'Resource exported through transport mode')
+    instance.Trans_imp = Var(instance.sinks, instance.sources, instance.resources_trans, instance.transports, instance.scales_scheduling, within = NonNegativeReals, doc = 'Resource imported through transport mode')
+    instance.Trans_exp = Var(instance.sources, instance.sinks, instance.resources_trans, instance.transports, instance.scales_scheduling, within = NonNegativeReals, doc = 'Resource exported through transport mode')
+    instance.Trans_imp_cost = Var(instance.sinks, instance.sources, instance.resources_trans, instance.transports, instance.scales_scheduling, within = NonNegativeReals, doc = 'Resource imported through transport mode')
+    instance.Trans_exp_cost = Var(instance.sources, instance.sinks, instance.resources_trans, instance.transports, instance.scales_scheduling, within = NonNegativeReals, doc = 'Resource exported through transport mode')
     instance.Trans_cost = Var(instance.transports, instance.scales_scheduling, within = NonNegativeReals, doc = 'cost of transportation for transport mode')
     return 
 
