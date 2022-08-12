@@ -51,7 +51,7 @@ def generate_sets(instance: ConcreteModel, location_set:set = {}, transport_set:
     
     if transport_set is not None:
         instance.transports = Set(initialize = [i.name for i in transport_set], doc = 'Set of transports')
-
+        instance.resource_trans = Set(initialize = [i.name for i in set().union(*[i.resources for i in case.transport_set])], doc= 'Set of transportable resources')
     return
 
 
