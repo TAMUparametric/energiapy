@@ -126,7 +126,7 @@ Arcs = Network(name= 'Arcs', source_locations= city_list, sink_locations= site_l
 #given that this is a single temporal scale model, all scales could be allowed to default to 0. Scales stated here due to clarity
 case = Scenario(name= 'uncertainty', network= Arcs, scales= scales, \
     expenditure_scale_level= 1, scheduling_scale_level= 1, network_scale_level= 0,  demand_scale_level=1,  label= 'mpmilp case study')
-
+#%%
 # *-------------------------Model formulation------------------------------------
 #this creates a pyomo instance, prior to this step the model is only defined in energiapy
 mpmilp = formulate_mpmilp(scenario= case, penalty= 1.5)

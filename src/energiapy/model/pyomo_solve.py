@@ -12,7 +12,7 @@ __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
 from pyomo.environ import ConcreteModel, SolverFactory, Var, Objective, Constraint
-from pyomo.util.infeasible import log_infeasible_constraints
+from pyomo.util.infeasible import log_infeasible_constraints, log_infeasible_bounds, log_close_to_bounds
 import logging
 from ..components.result import Result
 from ..components.scenario import Scenario
@@ -65,13 +65,20 @@ def solve(instance:ConcreteModel, solver:str, name:str, scenario:Scenario = None
             index_dict = {c: [i for i in c.index_set()] for c in model_cons}    
             duals_dict = {cons.name: { index: instance.dual[cons[index]] for index \
                 in index_dict[cons]} for cons in model_cons}
+
+        logging.basicConfig(filename= f"{scenario.name}_nearbound.log", encoding='utf-8', level=logging.INFO)
+        log_close_to_bounds(instance)
+        
     else:
         output_dict = solution_dict
         duals_dict = {}
 
         logging.basicConfig(filename= f"{scenario.name}_infeasible.log", encoding='utf-8', level=logging.INFO)
+        log_infeasible_bounds(instance)
         log_infeasible_constraints(instance)
+        log_close_to_bounds(instance)
         
+
     
         
     results = Result(name= name, components = components_dict, output = output_dict, duals = duals_dict)
