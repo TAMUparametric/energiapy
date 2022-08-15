@@ -1,7 +1,7 @@
 
 #%%
 #%%
-"""material perspective
+"""Shell Case Study 
 
 Framework for the analysis of the impact of the energy transition on
 material supply chains.
@@ -141,6 +141,8 @@ CO2_DAC = Resource(
 CO2_AQoff = Resource(
     name='CO2_AQoff', store_max=10**10, basis='kg', label='Carbon dioxide - sequestered', block = 'carbonsequestration')
 CO2_EOR = Resource(
+    name='CO2_EOR', store_max=10**10, basis='kg', label='Carbon dioxide - EOR', block = 'carbonsequestration')
+CO2_Mat = Resource(
     name='CO2_EOR', store_max=10**10, basis='kg', label='Carbon dioxide - EOR', block = 'carbonsequestration')
 CH3OH = Resource(name='CH3OH', sell=True, revenue=0.5,
                          mile=1/(0.0195508*1.60934), basis='kg', label='Methanol', block = 'resourcedischarge')

@@ -158,7 +158,7 @@ def capacity_utilization(results: Result, location:str, process:str = None,\
     if process is not None:
         rc('font', **{'family': 'serif', 'serif': ['Computer Modern'], 'size': font_size})
         rc('text', usetex=usetex)
-        Cap_P = [results.output['Cap_P'][i] for i in results.output['Cap_P'].keys() if process in i if location in i][0]
+        Cap_P = max([results.output['Cap_P'][i] for i in results.output['Cap_P'].keys() if process in i if location in i])
         if Cap_P > 0:
             fig, ax = plt.subplots(figsize= fig_size)
             y_ = [100*results.output['P'][i]/Cap_P \

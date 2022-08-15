@@ -142,6 +142,8 @@ graph.capacity_utilization(results = results_mplp, location = 'A')
 # graph.capacity_utilization(results = results_mplp, location = 'A', process= 'PV')
 graph.capacity_utilization(results = results_mplp, location = 'A', process= 'WF')
 
+
+
 #%% plots results at requested scales, usetex giving a very unique error only for this plot!! 
 #TODO - add the type of graph generated in the title
 location = 'B'
@@ -171,55 +173,3 @@ for i in results.fetch_components(component_type= 'processes', condition = ('var
 
 for i in results.fetch_components(component_type= 'processes', condition = ('varying', True)):
     graph.schedule(results = results, y_axis = 'Delta_Cap_P', component= i, location= location, usetex = False)    
-
-
-# %%
-from pyomo.environ import Constraint
-cons_dict = {str(c): {d: c[d]._active for d in c} for c in mpmilp.component_objects(Constraint)}
-
-for i  in  mpmilp.component_objects(Constraint):
-    for j in i:
-        if cons_dict[str(i)][j] == False:
-            print('asd')
-        else:
-            print('asc')
-# %%
-from pyomo.environ import ConcreteModel, Var, Constraint
-m = ConcreteModel()
-
-m.a = Var(initialize = 1)
-m.b = Var(initialize = 2)
-a = m.a
-b = 0
-m.c = Constraint(expr = a + b == 0)
-# %%
-
-# %%
-#%%
-
-from pyomo.environ import Param, ConcreteModel, Var, Objective, ConstraintList, value, minimize
-from pyomo.opt import SolverFactory
-from pyomo.util.infeasible import log_infeasible_constraints
-import logging
-
-m = ConcreteModel()
-m.LE = set([1, 2, 3])
-m.x = Var(m.LE, initialize=0)
-m.M = Param(initialize=1000000)
-
-def obj_rule(m):
-        return sum(m.x[i] * 1 for i in m.LE)
-
-m.z = Objective(rule=obj_rule, sense=minimize)
-m.cons1 = ConstraintList()
-
-for i in m.LE:
-    m.cons1.add(10**2 * m.x[i] >= m.M)
-    m.cons1.add(10**2 * m.x[i] <= -3)
-
-solver = SolverFactory('gurobi')
-solution = solver.solve(m, tee=False)
-logging.basicConfig(filename='example2.log', encoding='utf-8', level=logging.INFO)
-log_infeasible_constraints(m, log_expression=True, log_variables=True)
-print(value(m.z))
-# %%
