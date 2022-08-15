@@ -141,7 +141,7 @@ def contribution(results: Result, y_axis:str, location:str,\
     plt.rcdefaults()
     return
 
-def capacity_utilization(results: Result, location:str,\
+def capacity_utilization(results: Result, location:str, process:str = None,\
     fig_size:tuple = (12,6), font_size:int = 16, color:str ='blue', usetex:bool = True):
     """generates a graph for scheduling result
 
@@ -155,20 +155,38 @@ def capacity_utilization(results: Result, location:str,\
     #     usetex (bool, optional): True, if using latex font, need Tex set up (prone to errors). Defaults to 'True'.
         
     # """
-    rc('font', **{'family': 'serif', 'serif': ['Computer Modern'], 'size': font_size})
-    rc('text', usetex=usetex)
-    fig, ax = plt.subplots(figsize= fig_size)
-    y_ = [100*results.output['Cap_P'][i]/results.components['processes'][i[1]]['prod_max'] for i in results.output['Cap_P'].keys() if location in i]
+    if process is not None:
+        rc('font', **{'family': 'serif', 'serif': ['Computer Modern'], 'size': font_size})
+        rc('text', usetex=usetex)
+        fig, ax = plt.subplots(figsize= fig_size)
+        y_ = [100*results.output['P'][i]/results.output['P'][i[1]] \
+            for i in results.output['P'].keys() if location in i if process in i]
 
-    title = f"Capacity utilization in {results.components['locations'][location]['label']}"
-    plt.ylabel(f"\%")
-    # results.components['processes'][i[1]]['label'] 
-    # x_ = [f"${i[1].split('_')[0]}_{{{i[1].split('_')[1]}}}$" for i in results.output[y_axis].keys() if location in i]
-    x_ = [i[1] for i in results.output['Cap_P'].keys() if location in i]
-    ax.bar(x_, y_, linewidth=0.5, color=color)
-    plt.xticks(rotation = 90)
-    plt.grid(alpha=0.3)
-    plt.rcdefaults()
+        title = f"Capacity utilization in {results.components['locations'][location]['label']}"
+        plt.ylabel(f"\%")
+        # results.components['processes'][i[1]]['label'] 
+        # x_ = [f"${i[1].split('_')[0]}_{{{i[1].split('_')[1]}}}$" for i in results.output[y_axis].keys() if location in i]
+       
+        ax.plt(y_, linewidth=0.5, color=color)
+        plt.xticks(rotation = 90)
+        plt.grid(alpha=0.3)
+        plt.rcdefaults()
+
+    else:
+        rc('font', **{'family': 'serif', 'serif': ['Computer Modern'], 'size': font_size})
+        rc('text', usetex=usetex)
+        fig, ax = plt.subplots(figsize= fig_size)
+        y_ = [100*results.output['Cap_P'][i]/results.components['processes'][i[1]]['prod_max'] for i in results.output['Cap_P'].keys() if location in i]
+
+        title = f"Capacity utilization in {results.components['locations'][location]['label']}"
+        plt.ylabel(f"\%")
+        # results.components['processes'][i[1]]['label'] 
+        # x_ = [f"${i[1].split('_')[0]}_{{{i[1].split('_')[1]}}}$" for i in results.output[y_axis].keys() if location in i]
+        x_ = [i[1] for i in results.output['Cap_P'].keys() if location in i]
+        ax.bar(x_, y_, linewidth=0.5, color=color)
+        plt.xticks(rotation = 90)
+        plt.grid(alpha=0.3)
+        plt.rcdefaults()
     return
 
 
