@@ -158,20 +158,23 @@ def capacity_utilization(results: Result, location:str, process:str = None,\
     if process is not None:
         rc('font', **{'family': 'serif', 'serif': ['Computer Modern'], 'size': font_size})
         rc('text', usetex=usetex)
-        fig, ax = plt.subplots(figsize= fig_size)
-        y_ = [100*results.output['P'][i]/results.output['P'][i[1]] \
-            for i in results.output['P'].keys() if location in i if process in i]
+        Cap_P = [results.output['Cap_P'][i] for i in results.output['Cap_P'].keys() if process in i if location in i][0]
+        if Cap_P > 0:
+            fig, ax = plt.subplots(figsize= fig_size)
+            y_ = [100*results.output['P'][i]/Cap_P \
+                for i in results.output['P'].keys() if location in i if process in i]
 
-        title = f"Capacity utilization in {results.components['locations'][location]['label']}"
-        plt.ylabel(f"\%")
-        # results.components['processes'][i[1]]['label'] 
-        # x_ = [f"${i[1].split('_')[0]}_{{{i[1].split('_')[1]}}}$" for i in results.output[y_axis].keys() if location in i]
-       
-        ax.plt(y_, linewidth=0.5, color=color)
-        plt.xticks(rotation = 90)
-        plt.grid(alpha=0.3)
-        plt.rcdefaults()
-
+            title = f"Capacity utilization in {results.components['locations'][location]['label']}"
+            plt.ylabel(f"\%")
+            # results.components['processes'][i[1]]['label'] 
+            # x_ = [f"${i[1].split('_')[0]}_{{{i[1].split('_')[1]}}}$" for i in results.output[y_axis].keys() if location in i]
+            
+            ax.plot(y_, linewidth=0.5, color=color)
+            plt.xticks(rotation = 90)
+            plt.grid(alpha=0.3)
+            plt.rcdefaults()
+        else:
+            print('Process not established')
     else:
         rc('font', **{'family': 'serif', 'serif': ['Computer Modern'], 'size': font_size})
         rc('text', usetex=usetex)

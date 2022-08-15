@@ -8,12 +8,12 @@ Flexibility analysis case study
 
 # case study source: https://doi.org/10.1016/0098-1354(87)87011-4 (Grossmann and Floudas 1987)
 
-__author__ = "Natasha Jane Chrisandina, Rahul Kakodkar"
+__author__ = "Rahul Kakodkar, Natasha Jane Chrisandina"
 __copyright__ = "Copyright 2022, Multi-parametric Optimization & Control Lab"
-__credits__ = ["Natasha Jane Chrisandina", "Rahul Kakodkar", "Efstratios N. Pistikopoulos", "Mahmoud M. El-Halwagi"]
+__credits__ = ["Rahul Kakodkar", "Natasha Jane Chrisandina", "Efstratios N. Pistikopoulos", "Mahmoud M. El-Halwagi"]
 __license__ = "Open"
 __version__ = "0.0.1"
-__maintainer__ = "Natasha Jane Chrisandina"
+__maintainer__ = "Rahul Kakodkar"
 __email__ = "nchrisandina@tamu.edu"
 __status__ = "Production"
 
@@ -35,7 +35,7 @@ from src.energiapy.model.pyomo_solve import solve
 
 # *-------------------------Temporal scales------------------------------------
 #Defined as a single temporal scale with 42 discretization, base scale becomes 0
-scales = Temporal_scale(discretization_list= [1, 42])
+scales = Temporal_scale(discretization_list= [5, 42])
 
 # *-------------------------Constants defined here for ease------------------------------------
 bigM = 100 #very large number

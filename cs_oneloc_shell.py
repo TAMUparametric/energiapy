@@ -250,7 +250,7 @@ HO = Location(name='HO', processes= ho_processes, demand = 10000.0, scales = sca
 # graph.cost_factor (location= HO, resource= CH4) 
 
 # *-------------------------Generate full-scale scenario------------------------------------
-case = Scenario(name= '', network = HO, scales= scales,  expenditure_scale_level= 2, scheduling_scale_level= 2, network_scale_level= 0, demand_scale_level= 1, label= 'shell milp case study')
+case = Scenario(name= 'case', network = HO, scales= scales,  expenditure_scale_level= 2, scheduling_scale_level= 2, network_scale_level= 0, demand_scale_level= 1, label= 'shell milp case study')
 
 # *-------------------------Generate reduced scenario------------------------------------
 reduced_case = reduce_scenario(scenario= case, network= HO, periods= 20, scale_level= 1, method= 'agg_hierarchial')
@@ -275,7 +275,7 @@ graph.schedule(results = results_red, y_axis = 'P', component= 'LiI_c', location
 graph.contribution(results = results_red, y_axis = 'Capex_process', location = 'HO')
 #%%
 graph.capacity_utilization(results = results_red, location = 'HO')
-graph.capacity_utilization(results = results_red, location = 'HO', process= 'PV')
+graph.capacity_utilization(results = results_red, location = 'HO', process= 'WF')
 
 
 
