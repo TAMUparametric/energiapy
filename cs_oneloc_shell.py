@@ -1,11 +1,22 @@
 
 #%%
-"""
-Single location case study:
+#%%
+"""material perspective
 
-Example case study implemeted on the energia python module
+Framework for the analysis of the impact of the energy transition on
+material supply chains.
+
+Key goals - 
+1. Identify syergies between material and energy supply chains 
+2. Propose network designs for future energy systems
+3. Perform scenario analysis to identify critical components
+
+Case Study - 
+Design of future Texas energy systems
 The presented simultaneous design and scheduling MIP framework models:
 the hydrogen economy, carbon capture utilization & storage, power generation under an integrated network
+
+Example case study implemeted on the energia python module
 
 Costing for available technologies are imported from NREL's annual technology baseline
 The rest are fed through a variety of sources from literature
@@ -264,6 +275,8 @@ graph.schedule(results = results_red, y_axis = 'P', component= 'LiI_c', location
 graph.contribution(results = results_red, y_axis = 'Capex_process', location = 'HO')
 #%%
 graph.capacity_utilization(results = results_red, location = 'HO')
+graph.capacity_utilization(results = results_red, location = 'HO', process= 'PV')
+
 
 
 #%%
