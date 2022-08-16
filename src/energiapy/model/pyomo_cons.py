@@ -851,14 +851,27 @@ def demand_constraint(instance:ConcreteModel, demand: Union[dict,float], demand_
     scales = scale_list(instance= instance, scale_levels = demand_scale_level+1) 
     scale_iter = scale_tuple(instance= instance, scale_levels = scheduling_scale_level+1)
     def demand_rule(instance, location, resource, *scale_list):
+
+
         if type(demand[location]) == float:
             return sum(instance.S[location, resource_, scale_] for resource_, scale_ in \
-                product(instance.resources_demand, scale_iter) if scale_[:demand_scale_level+1] == scale_list)\
-                    == demand[location]       
+                    product(instance.resources_demand, scale_iter) if scale_[:scheduling_scale_level+1] == scale_list)\
+                        == demand[location]    
         else:
-            return sum(instance.S[location, resource, scale_] for scale_ in scale_iter if scale_[:demand_scale_level+1] == scale_list)\
-                == demand[location][resource]
+            if type(list(demand[location].keys())[0]) == float:
+                return sum(instance.S[location, resource_, scale_list[:scheduling_scale_level+1]] for \
+                    resource_ in instance.resources_demand) == demand[location][scale_list[:demand_scale_level+1]] 
+            else:
+                if type(list(demand[location][resource].keys()[0])) == float:
+                    return sum(instance.S[location, resource, scale_] for scale_ in scale_iter if scale_[:scheduling_scale_level+1] == scale_list)\
+                            == demand[location][resource]  
+        if type(demand[location][resource][scale_list[:demand_scale_level+1]]) == float:  
+            print('c')
+            return instance.S[location, resource, scale_list[:scheduling_scale_level+1]] == demand[location][resource][scale_list[:demand_scale_level+1]] 
+        if type(demand[location][scale_list[:demand_scale_level+1]]) == float:  
+            print('d')
 
+                 
     if len(instance.locations) > 1:    
         instance.demand_constraint = Constraint(instance.sinks, instance.resources_demand, *scales, rule = demand_rule, doc = 'specific demand for resources')
     else:                 

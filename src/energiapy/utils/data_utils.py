@@ -272,7 +272,7 @@ def load_results(filename:str) -> Result:
     results_dict = pickle.load(file_)
     if results_dict['output']['termination'] != 'optimal':
         print('WARNING: Loading non-optimal results')
-    results = Result(name = filename.split('.')[0], output = results_dict['output'], components= results_dict['components'])
+    results = Result(name = filename.split('.')[0], output = results_dict['output'], components= results_dict['components'], duals= results_dict['duals'])
     return results
 
 
