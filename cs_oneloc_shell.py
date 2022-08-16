@@ -142,8 +142,6 @@ CO2_AQoff = Resource(
     name='CO2_AQoff', store_max=10**10, basis='kg', label='Carbon dioxide - sequestered', block = 'carbonsequestration')
 CO2_EOR = Resource(
     name='CO2_EOR', store_max=10**10, basis='kg', label='Carbon dioxide - EOR', block = 'carbonsequestration')
-CO2_Mat = Resource(
-    name='CO2_EOR', store_max=10**10, basis='kg', label='Carbon dioxide - EOR', block = 'carbonsequestration')
 CH3OH = Resource(name='CH3OH', sell=True, revenue=0.5,
                          mile=1/(0.0195508*1.60934), basis='kg', label='Methanol', block = 'resourcedischarge')
 Power_Gr = Resource(name='Power_Gr', cons_max=10 **
@@ -281,7 +279,7 @@ graph.capacity_utilization(results = results_red, location = 'HO', process= 'WF'
 
 
 
-#%%
+ #%%
 
 
 

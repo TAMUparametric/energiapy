@@ -848,21 +848,21 @@ def demand_constraint(instance:ConcreteModel, demand: Union[dict,float], demand_
     Returns:
         Constraint: demand_constraint
     """
-    scales = scale_list(instance= instance, scale_levels = demand_scale_level+1) 
+    # scales = scale_list(instance= instance, scale_levels = demand_scale_level+1) 
+    scales = scale_list(instance= instance, scale_levels = instance.scales.__len__())
     scale_iter = scale_tuple(instance= instance, scale_levels = scheduling_scale_level+1)
     def demand_rule(instance, location, resource, *scale_list):
-        if type(demand[location]) == float:
-            return sum(instance.S[location, resource_, scale_] for resource_, scale_ in \
-                product(instance.resources_demand, scale_iter) if scale_[:demand_scale_level+1] == scale_list)\
-                    == demand[location]       
+        if type(demand[location][(0,)]) == float:
+            return sum(instance.S[location, resource_, scale_list[:scheduling_scale_level+1]] for \
+                    resource_ in instance.resources_demand) == demand[location][scale_list[:demand_scale_level+1]] 
         else:
-            return sum(instance.S[location, resource, scale_] for scale_ in scale_iter if scale_[:demand_scale_level+1] == scale_list)\
-                == demand[location][resource]
-
+            return sum(instance.S[location, resource, scale_] for scale_ in scale_iter if scale_[:scheduling_scale_level+1] == scale_list)\
+                            == demand[location][scale_list[:demand_scale_level+1]][resource]   
+                 
     if len(instance.locations) > 1:    
         instance.demand_constraint = Constraint(instance.sinks, instance.resources_demand, *scales, rule = demand_rule, doc = 'specific demand for resources')
     else:                 
-        instance.demand_constraint = Constraint(instance.locations, instance.resources_demand, *scales, rule = demand_rule, doc = 'specific demand for resources')        
+         instance.demand_constraint = Constraint(instance.locations, instance.resources_demand, *scales, rule = demand_rule, doc = 'specific demand for resources')        
     constraint_latex_render(demand_rule)
     return instance.demand_constraint
 
