@@ -279,7 +279,7 @@ graph.capacity_utilization(results = results_red, location = 'HO', process= 'WF'
 
 
 
-#%%
+ #%%
 
 
 

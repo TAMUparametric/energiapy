@@ -3,6 +3,10 @@
 
 """
 Carbon cycle case study
+Specifics - 
+Start with a conventional system 
+Introduce renewable power technologies
+ 
 """
 # flexibility test: given a fixed range for the uncertain parameter Fh,  where is the critical point?
 
@@ -36,7 +40,7 @@ results_milp = load_results(filename = 'red_onelocmilp.pkl')
 
 # *-------------------------Temporal scales------------------------------------
 #Defined as a single temporal scale with 42 discretization, base scale becomes 0
-scales = Temporal_scale(discretization_list= [10, 1])
+scales = Temporal_scale(discretization_list= [1, 1])
 
 # *-------------------------Constants defined here for ease------------------------------------
 bigM = 100 #very large number
@@ -45,6 +49,7 @@ power_price = 8  # cents/kWh
 ur_price = 42.70  # 250 Pfund U308 (Uranium)
 A_f = 0.05  # annualization factor
 smallM = 0.1
+
 # *-------------------------Resources------------------------------------
 Charge = Resource(name='Charge', sell=False,
                           store_max=100, basis='MW', label='Battery energy', block= 'energystorage')
@@ -143,7 +148,7 @@ H2_L_d = Process(name='H2_L_d', conversion={H2_L: -1, H2: 1}, prod_max=bigM, gwp
 # MEFC = Process(name='MEFC', conversion={Power: -4.84*10**(-1), H2_G: -0.4048, CO2_DAC: -1.2143, CH3OH: 1}, intro_scale=6, prod_max=bigM, carbon_credit=True, trl='pilot',
 #                        block='material_production', label='Catalytic methanol production', citation='Keith et al (2018), Fasihi et al (2019)')  # 10,000t/y
 DAC = Process(name='DAC', conversion={Power: -1.93*10**(-4), H2O: -4.048, CO2_DAC: 1}, cost = cost_dict['HO']['moderate']['DAC']['0'], \
-    intro_scale=4, prod_max=bigM, gwp=0, trl='pilot', block='CCUS', label='Direct air capture', citation='D. Belloti et al (2017)')
+    intro_scale=0, prod_max=bigM, gwp=0, trl='pilot', block='CCUS', label='Direct air capture', citation='D. Belloti et al (2017)')
 # DOWC = Process(name='DOWC', intro_scale=20, prod_max=bigM, gwp=0,
 #                        trl='repurposed', block='CCUS', label='Depleted oil wells')
 EOR = Process(name='EOR', intro_scale=0, conversion={Power: -0.00255, CO2: -1, CO2_EOR: 1, CO2_Vent: 0.67}, \
@@ -165,7 +170,7 @@ tx_processes = {LiI_c, LiI_d, CAES_c, CAES_d, PSH_c, PSH_d, PV, WF, AKE, SMRH, H
 # {H2_L_c, H2_L_d, PV, LiI_c, LiI_d, WF, AKE, SMRH}
 
 # *-------------------------Geographic scales/location------------------------------------
-demand = {i: 100.0*i for i in range(scales.discretization_list[0])}
+demand = {(i,): 100.0*(i+1) for i in range(scales.discretization_list[0])}
 # demand = 1000
 # demand = {H2_C:50.0, H2_L:50.0}
 
@@ -176,8 +181,7 @@ TX = Location(name= 'TX', processes= tx_processes, scales = scales, demand= dema
 # *-------------------------Scenario------------------------------------
 #given that this is a single temporal scale model, all scales could be allowed to default to 0. Scales stated here due to clarity
 case = Scenario(name= 'carboncycle', network= TX, scales= scales, \
-    expenditure_scale_level= 1, scheduling_scale_level= 1, network_scale_level= 0,  demand_scale_level=0,  label= 'mpmilp case study')
-#%%
+    expenditure_scale_level= 1, scheduling_scale_level= 1, network_scale_level= 0,  demand_scale_level=0,  label= 'carbon cycle milp')
 # *-------------------------Model formulation------------------------------------
 #this creates a pyomo instance, prior to this step the model is only defined in energiapy
 # mpmilp = formulate_mpmilp(scenario= case, penalty= 1.5)
