@@ -40,7 +40,7 @@ results_milp = load_results(filename = 'red_onelocmilp.pkl')
 
 # *-------------------------Temporal scales------------------------------------
 #Defined as a single temporal scale with 42 discretization, base scale becomes 0
-scales = Temporal_scale(discretization_list= [1, 1])
+scales = Temporal_scale(discretization_list= [1])
 
 # *-------------------------Constants defined here for ease------------------------------------
 bigM = 100 #very large number
@@ -181,7 +181,7 @@ TX = Location(name= 'TX', processes= tx_processes, scales = scales, demand= dema
 # *-------------------------Scenario------------------------------------
 #given that this is a single temporal scale model, all scales could be allowed to default to 0. Scales stated here due to clarity
 case = Scenario(name= 'carboncycle', network= TX, scales= scales, \
-    expenditure_scale_level= 1, scheduling_scale_level= 1, network_scale_level= 0,  demand_scale_level=0,  label= 'carbon cycle milp')
+    expenditure_scale_level= 1, scheduling_scale_level= 0, network_scale_level= 0,  demand_scale_level=0,  label= 'carbon cycle milp')
 # *-------------------------Model formulation------------------------------------
 #this creates a pyomo instance, prior to this step the model is only defined in energiapy
 # mpmilp = formulate_mpmilp(scenario= case, penalty= 1.5)
