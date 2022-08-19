@@ -241,8 +241,10 @@ H2_Green = Process(name='H2_Green', conversion={H2: 1, H2_G: -1}, prod_max=bigM,
 ho_processes = {LiI_c, LiI_d, CAES_c, CAES_d, PSH_c, PSH_d, PV, WF, AKE, SMRH, H2_C_c,
                 H2_C_d, H2_L_c, H2_L_d, DAC, EOR, AQoff_SMR, H2_Blue, H2_Green}#, ASMR}
 # {H2_L_c, H2_L_d, PV, LiI_c, LiI_d, WF, AKE, SMRH}
+
+demand_dict = {(0,i): 100.0 for i in range(scales.discretization_list[1])}
 # *-------------------------Geographic scales/location------------------------------------
-HO = Location(name='HO', processes= ho_processes, demand = 10000.0, scales = scales, PV_class='Class5', WF_class='Class4',
+HO = Location(name='HO', processes= ho_processes, demand = demand_dict, scales = scales, PV_class='Class5', WF_class='Class4',
                       LiI_class='8Hr Battery Storage', PSH_class='Class 3', label='Houston')
 
 # *-------------------------Input data graphs------------------------------------
@@ -267,12 +269,12 @@ results_red = solve(scenario = reduced_case, instance=milp_red, solver= 'gurobi'
 
 #%%
 
-graph.schedule(results = results_red, y_axis = 'P', component= 'LiI_c', location= 'HO', usetex = True)
+graph.schedule(results = results_red, y_axis = 'P', component= 'WF', location= 'HO', usetex = True)
 
 
 #%%
 
-graph.contribution(results = results_red, y_axis = 'Capex_process', location = 'HO')
+graph.contribution(results = results_red, y_axis = 'Vopex_process', location = 'HO')
 #%%
 graph.capacity_utilization(results = results_red, location = 'HO')
 graph.capacity_utilization(results = results_red, location = 'HO', process= 'WF')
