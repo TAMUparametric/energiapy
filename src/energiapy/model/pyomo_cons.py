@@ -20,8 +20,6 @@ from ..components.location import Location
 from itertools import product
 from typing import Union
 
-#TODO - Demand constraint
-#TODO - Production cost constraint
 #TODO - carbon credit constraint
 
 # *-------------------------Network decision constraints--------------------------------
@@ -275,23 +273,6 @@ def resource_purchase_constraint(instance: ConcreteModel, cost_factor:dict = {},
     instance.resource_purchase_constraint = Constraint(instance.locations, instance.resources_purch, *scales, rule=resource_purchase_rule, doc='expenditure on purchase of resource')
     return instance.resource_purchase_constraint
 
-# def resource_discharge_constraint(instance: ConcreteModel, scheduling_scale_level:int= 0) -> Constraint:
-#     """Determines discharge/sale of resource at location in network 
-
-#     Args:
-#         instance (ConcreteModel): pyomo instance
-#         scheduling_scale_level (int, optional): scale of scheduling decisions. Defaults to 0.
-
-#     Returns:
-#         Constraint: resource_discharge_constraint
-#     """
-#     scales = scale_list(instance= instance, scale_levels = instance.scales.__len__())
-#     def resource_discharge_rule(instance, location, resource, *scale_list):
-#         return instance.S[location, resource, scale_list[:scheduling_scale_level+1]] == 0
-#     instance.resource_discharge_constraint = Constraint(instance.locations, instance.resource_nosell, *scales, rule=resource_discharge_rule, doc='restrict discharge of non marketable resources')
-#     constraint_latex_render(resource_discharge_rule)
-#     return instance.resource_discharge_constraint
-
 # def test_cycle(instance: ConcreteModel,  scheduling_scale_level:int= 0) -> Constraint:
 #     """TEST CONSTRAINT
 #     """
@@ -352,42 +333,6 @@ def inventory_balance_constraint(instance: ConcreteModel, scheduling_scale_level
         produced = sum(conversion[process][resource]*instance.P[location, process, scale_list[:scheduling_scale_level+1]] for process in instance.processes)
         
         return - consumption + storage + discharge + transport - produced == 0
-
-
-
-        
-        # if len(instance.locations) > 1:    
-        #     if scale_list[:scheduling_scale_level+1] != scale_iter[0]:
-        #         return instance.Inv[location, resource, scale_list[:scheduling_scale_level+1]] \
-        #             - instance.Inv[location, resource, scale_iter[scale_iter.index(scale_list[:scheduling_scale_level+1]) -1]] \
-        #                 + instance.S[location, resource, scale_list[:scheduling_scale_level+1]] \
-        #                 - instance.C[location, resource, scale_list[:scheduling_scale_level+1]] \
-        #                 - sum(conversion[process][resource]*instance.P[location, process, scale_list[:scheduling_scale_level+1]] for process in instance.processes) \
-        #                     - sum(instance.Imp[location, source_, resource, scale_list[:scheduling_scale_level+1]] for source_ in instance.sources if source_ != location if location in instance.sinks)\
-        #                     + sum(instance.Exp[location, sink_, resource, scale_list[:scheduling_scale_level+1]] for sink_ in instance.sinks if sink_ != location if location in instance.sources)\
-        #                     == 0
-        #     else:
-        #         return instance.Inv[location, resource, scale_list[:scheduling_scale_level+1]] \
-        #                 + instance.S[location, resource, scale_list[:scheduling_scale_level+1]] \
-        #                 - instance.C[location, resource, scale_list[:scheduling_scale_level+1]] \
-        #                 - sum(conversion[process][resource]*instance.P[location, process, scale_list[:scheduling_scale_level+1]] for process in instance.processes) \
-        #                     - sum(instance.Imp[location, source_, resource, scale_list[:scheduling_scale_level+1]] for source_ in instance.sources if source_ != location if location in instance.sinks)\
-        #                     + sum(instance.Exp[location, sink_, resource, scale_list[:scheduling_scale_level+1]] for sink_ in instance.sinks if sink_ != location if location in instance.sources)\
-        #                     == 0
-        # else:
-        #     if scale_list[:scheduling_scale_level+1] != scale_iter[0]:
-        #         return instance.Inv[location, resource, scale_list[:scheduling_scale_level+1]] \
-        #             - instance.Inv[location, resource, scale_iter[scale_iter.index(scale_list[:scheduling_scale_level+1]) -1]] \
-        #                 + instance.S[location, resource, scale_list[:scheduling_scale_level+1]] \
-        #                 - instance.C[location, resource, scale_list[:scheduling_scale_level+1]] \
-        #                 - sum(conversion[process][resource]*instance.P[location, process, scale_list[:scheduling_scale_level+1]] for process in instance.processes)\
-        #                     == 0
-        #     else:
-        #         return instance.Inv[location, resource, scale_list[:scheduling_scale_level+1]] \
-        #                 + instance.S[location, resource, scale_list[:scheduling_scale_level+1]] \
-        #                 - instance.C[location, resource, scale_list[:scheduling_scale_level+1]] \
-        #                 - sum(conversion[process][resource]*instance.P[location, process, scale_list[:scheduling_scale_level+1]] for process in instance.processes) \
-        #                     == 0
                             
     instance.inventory_balance_constraint = Constraint(instance.locations, instance.resources, *scales, rule=inventory_balance_rule, doc='mass balance across scheduling scale')
     constraint_latex_render(inventory_balance_constraint)
@@ -852,7 +797,7 @@ def demand_constraint(instance:ConcreteModel, demand: Union[dict,float], demand_
     scales = scale_list(instance= instance, scale_levels = instance.scales.__len__())
     scale_iter = scale_tuple(instance= instance, scale_levels = scheduling_scale_level+1)
     def demand_rule(instance, location, resource, *scale_list):
-        if type(demand[location][(0,)]) == float:
+        if type(demand[location][list(demand[location])[0]]) == float:
             return sum(instance.S[location, resource_, scale_list[:scheduling_scale_level+1]] for \
                     resource_ in instance.resources_demand) == demand[location][scale_list[:demand_scale_level+1]] 
         else:
