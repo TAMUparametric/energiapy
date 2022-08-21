@@ -58,6 +58,7 @@ ake_start = 0
 smrh_start = 0
 smr_start = 0 
 asmr_start = 0 
+smallM = 0.01
 
 # *-------------------------Resources------------------------------------
 
@@ -140,18 +141,22 @@ PTFE = Material(name='PTFE', gwp=9.6, basis= 'kg', label='Poly tetra fluoroethyl
 
 cost_dict = get_data(file_name='cost_dict')
 # Unit for gwp is kgCO2/Kwh
-LiI_c = Process(name='LiI_c', conversion={Charge: 1, Power: -1}, cost = cost_dict['HO']['moderate']['LiI_c']['0'], \
-    material_cons = {LiR: 20}, prod_max=bigM, trl='nrel', block='power_storage', lifetime=(5,15), gwp=0.025, label='Lithium-ion battery', citation='Zakeri 2015', gwp'Florin, N. and Dominish, E. (2017)')
-LiI_d = Process(name='LiI_d', conversion={Charge: -1.1765, Power: 1}, cost = cost_dict['HO']['moderate']['LiI_d']['0'], \
-    prod_max=bigM, trl='discharge', block='power_storage', lifetime=(5,15), label='Lithium-ion battery discharge', citation='Zakeri 2015')
+
+LiI_c = Process(name='LiI_c', conversion={Charge: 1, Power: -1}, cost = cost_dict['HO']['moderate']['LiI_c']['0'],\
+    prod_max=bigM, trl='nrel', block='power_storage', label='Lithium-ion battery', citation='Zakeri 2015')
+LiI_d = Process(name='LiI_d', conversion={Charge: -1.1765, Power: 1}, cost =  {'CAPEX': smallM, 'Fixed O&M': 0, 'Variable O&M': smallM, \
+    'units': '$/kg','source': 'dummy'}, \
+    prod_max=bigM, trl='discharge', block='power_storage', label='Lithium-ion battery discharge', citation='Zakeri 2015')
 CAES_c = Process(name='CAES_c', conversion={Air_C: 1, Power: -1}, cost = cost_dict['HO']['moderate']['CAES_c']['0'], \
-    intro_scale=2, prod_max=bigM, trl='pilot', block='power_storage', lifetime=(20,40), gwp=0.292, label='Compressed air energy storage (CAES)', citation='Zakeri 2015', gwp'Denholm 2004')
-CAES_d = Process(name='CAES_d', conversion={Air_C: -1.4286, Power: 1}, cost = cost_dict['HO']['moderate']['CAES_d']['0'],\
-    intro_scale=2, prod_max=bigM, trl='discharge', block='power_storage',  lifetime=(20,40), label='Compressed air energy storage (CAES) discharge', citation='Zakeri 2015')
+    intro_scale=0, prod_max=bigM, trl='pilot', block='power_storage', label='Compressed air energy storage (CAES)', citation='Zakeri 2015')
+CAES_d = Process(name='CAES_d', conversion={Air_C: -1.4286, Power: 1}, cost =  {'CAPEX': smallM, 'Fixed O&M': 0, 'Variable O&M': smallM, \
+    'units': '$/kg','source': 'dummy'},\
+    intro_scale=0, prod_max=bigM, trl='discharge', block='power_storage', label='Compressed air energy storage (CAES) discharge', citation='Zakeri 2015')
 PSH_c = Process(name='PSH_c', conversion={H2O_E: 1, Power: -1}, cost = cost_dict['HO']['moderate']['PSH_c']['0'], \
-    intro_scale=0, prod_max=bigM, trl='nrel', block='power_storage',  lifetime=(50,60), gwp=0.024, label='Pumped storage hydropower (PSH)', citation='Zakeri 2015')
-PSH_d = Process(name='PSH_d', conversion={H2O: -1, Power: -1.4286}, cost = cost_dict['HO']['moderate']['PSH_d']['0'], \
-    prod_max=bigM, trl='discharge', block='power_storage',  lifetime=(50,60), label='Pumped storage hydropower (PSH) discharge', citation='Zakeri 2015', gwp'https://www.hydropower.org/factsheets/greenhouse-gas-emissions')
+    intro_scale=0, prod_max=bigM, trl='nrel', block='power_storage', label='Pumped storage hydropower (PSH)', citation='Zakeri 2015')
+PSH_d = Process(name='PSH_d', conversion={H2O_E: -1.4286, Power: 1}, cost =  {'CAPEX': smallM, 'Fixed O&M': 0, 'Variable O&M': smallM, \
+    'units': '$/kg','source': 'dummy'}, \
+    prod_max=bigM, trl='discharge', block='power_storage', label='Pumped storage hydropower (PSH) discharge', citation='Zakeri 2015')
 PV = Process(name='PV', intro_scale=pv_start, conversion={Solar: -1, Power: 1, H2O: -20}, cost = cost_dict['HO']['moderate']['PV']['0'], \
     varying= True, prod_max=bigM, gwp=0.005, land=13320/1800, trl='nrel', block='power_generation', lifetime=(25,30), label='Solar photovoltaics (PV) array', citation='Use pvlib conversion', lifetime'Lu 2021', gwp'Marco Raugei 2020')
 WF = Process(name='WF', conversion={Wind: -1, Power: 1, H2O: -1}, cost = cost_dict['HO']['moderate']['WF']['0'], \
