@@ -96,6 +96,41 @@ class Result:
                 specific_component_set = {}
             return specific_component_set
 
+    def divide_by_objective(self, var:str, index:tuple):
+        """divides variable at index
+
+        Args:
+            var (str): variable name
+            index (tuple): index for variable as tuple
+        Returns:
+            float: value
+        """
+        value = self.output[var][index]/self.output['objective']
+        return value
+    
+    def get_varindex(self, var:str):
+        """gives the index of variable
+
+        Args:
+            var (str): variable name
+
+        Returns:
+            list: list of tuple indices
+        """
+        return [i for i in self.output[var].keys()]
+
+    def model_summary(self):
+        print(f"SUMMARY:\n\
+            number of constraints: {self.output['n_cons']}\n\
+            number of variables: {self.output['n_vars']}\n\
+            number of binary variables: {self.output['n_binvars']}\n\
+            number of integer variables: {self.output['n_intvars']}\n\
+            number of continuous variables: {self.output['n_convars']}")
+
+
+
+        
+
     def __repr__(self):
         return self.name
 

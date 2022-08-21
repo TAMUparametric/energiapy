@@ -53,7 +53,7 @@ def solve(instance:ConcreteModel, solver:str, name:str, scenario:Scenario = None
         vars_dict = {i: model_vars[i].extract_values() for i in model_vars.keys()}  
         
         model_obj = instance.component_map(ctype = Objective)
-        obj_dict = {i: model_obj[i]() for i in model_obj.keys()}  
+        obj_dict = {'objective': model_obj[i]() for i in model_obj.keys()}  
         
         output_dict = {**solution_dict, **vars_dict, **obj_dict}
         
