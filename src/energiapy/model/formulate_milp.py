@@ -37,7 +37,7 @@ def formulate_milp(scenario: Scenario) -> ConcreteModel:
     
     generate_scheduling_vars(instance = instance, scale_level= scenario.scheduling_scale_level)
     generate_network_vars(instance = instance, scale_level= scenario.network_scale_level)
-    generate_network_binary_vars(instance = instance)
+    generate_network_binary_vars(instance = instance, scale_level=scenario.network_scale_level)
     
     if len(instance.locations) > 1:
         generate_transport_vars(instance= instance, scale_level= scenario.scheduling_scale_level)
