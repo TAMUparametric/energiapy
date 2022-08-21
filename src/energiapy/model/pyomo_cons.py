@@ -22,6 +22,10 @@ from typing import Union
 
 #TODO - carbon credit constraint
 
+# *-------------------------Summing 
+# constraints--------------------------------
+
+
 # *-------------------------Network decision constraints--------------------------------
 
 def production_facility_constraint(instance: ConcreteModel, prod_max:dict, loc_pro_dict:dict = {}, network_scale_level:int = 0) -> Constraint:
