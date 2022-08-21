@@ -176,18 +176,22 @@ Li = Material(name='Li', gwp=0, basis='kg', label='Lithium')
 # cost of processes
 cost_dict = get_data(file_name='cost_dict')
 
-LiI_c = Process(name='LiI_c', conversion={Charge: 1, Power: -1}, cost=cost_dict['HO']['moderate']['LiI_c']['0'],
-                material_cons={Li: 20}, prod_max=1, trl='nrel', block='power_storage', label='Lithium-ion battery', citation='Zakeri 2015')
-LiI_d = Process(name='LiI_d', conversion={Charge: -1.1765, Power: 1}, cost=cost_dict['HO']['moderate']['LiI_d']['0'],
-                prod_max=bigM, trl='discharge', block='power_storage', label='Lithium-ion battery discharge', citation='Zakeri 2015')
-CAES_c = Process(name='CAES_c', conversion={Air_C: 1, Power: -1}, cost=cost_dict['HO']['moderate']['CAES_c']['0'],
-                 intro_scale=2, prod_max=bigM, trl='pilot', block='power_storage', label='Compressed air energy storage (CAES)', citation='Zakeri 2015')
-CAES_d = Process(name='CAES_d', conversion={Air_C: -1.4286, Power: 1}, cost=cost_dict['HO']['moderate']['CAES_d']['0'],
-                 intro_scale=2, prod_max=bigM, trl='discharge', block='power_storage', label='Compressed air energy storage (CAES) discharge', citation='Zakeri 2015')
-PSH_c = Process(name='PSH_c', conversion={H2O_E: 1, Power: -1}, cost=cost_dict['HO']['moderate']['PSH_c']['0'],
-                intro_scale=0, prod_max=bigM, trl='nrel', block='power_storage', label='Pumped storage hydropower (PSH)', citation='Zakeri 2015')
-PSH_d = Process(name='PSH_d', conversion={H2O: -1, Power: -1.4286}, cost=cost_dict['HO']['moderate']['PSH_d']['0'],
-                prod_max=bigM, trl='discharge', block='power_storage', label='Pumped storage hydropower (PSH) discharge', citation='Zakeri 2015')
+
+LiI_c = Process(name='LiI_c', conversion={Charge: 1, Power: -1}, cost = cost_dict['HO']['moderate']['LiI_c']['0'],\
+    prod_max=bigM, trl='nrel', block='power_storage', label='Lithium-ion battery', citation='Zakeri 2015')
+LiI_d = Process(name='LiI_d', conversion={Charge: -1.1765, Power: 1}, cost =  {'CAPEX': smallM, 'Fixed O&M': 0, 'Variable O&M': smallM, \
+    'units': '$/kg','source': 'dummy'}, \
+    prod_max=bigM, trl='discharge', block='power_storage', label='Lithium-ion battery discharge', citation='Zakeri 2015')
+CAES_c = Process(name='CAES_c', conversion={Air_C: 1, Power: -1}, cost = cost_dict['HO']['moderate']['CAES_c']['0'], \
+    intro_scale=0, prod_max=bigM, trl='pilot', block='power_storage', label='Compressed air energy storage (CAES)', citation='Zakeri 2015')
+CAES_d = Process(name='CAES_d', conversion={Air_C: -1.4286, Power: 1}, cost =  {'CAPEX': smallM, 'Fixed O&M': 0, 'Variable O&M': smallM, \
+    'units': '$/kg','source': 'dummy'},\
+    intro_scale=0, prod_max=bigM, trl='discharge', block='power_storage', label='Compressed air energy storage (CAES) discharge', citation='Zakeri 2015')
+PSH_c = Process(name='PSH_c', conversion={H2O_E: 1, Power: -1}, cost = cost_dict['HO']['moderate']['PSH_c']['0'], \
+    intro_scale=0, prod_max=bigM, trl='nrel', block='power_storage', label='Pumped storage hydropower (PSH)', citation='Zakeri 2015')
+PSH_d = Process(name='PSH_d', conversion={H2O_E: -1.4286, Power: 1}, cost =  {'CAPEX': smallM, 'Fixed O&M': 0, 'Variable O&M': smallM, \
+    'units': '$/kg','source': 'dummy'}, \
+    prod_max=bigM, trl='discharge', block='power_storage', label='Pumped storage hydropower (PSH) discharge', citation='Zakeri 2015')
 PV = Process(name='PV', intro_scale=pv_start, conversion={Solar: -1, Power: 1, H2O: -20}, cost=cost_dict['HO']['moderate']['PV']['0'],
              prod_max=bigM, gwp=53000, land=13320/1800, trl='nrel', block='power_generation', label='Solar photovoltaics (PV) array', citation='Use pvlib conversion', varying_capacity_df=ho_solar_df)
 WF = Process(name='WF', conversion={Wind: -1, Power: 1, H2O: -1}, cost=cost_dict['HO']['moderate']['WF']['0'],
@@ -274,7 +278,7 @@ results_red = solve(scenario=reduced_case, instance=milp_red,
 # %%
 
 graph.schedule(results=results_red, y_axis='P',
-               component='WF', location='HO', usetex=True)
+               component='PV', location='HO', usetex=True)
 
 
 # %%
