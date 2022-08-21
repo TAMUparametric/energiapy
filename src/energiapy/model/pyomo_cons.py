@@ -326,7 +326,7 @@ def inventory_balance_constraint(instance: ConcreteModel, scheduling_scale_level
         
         if len(instance.locations) > 1:
             if resource in instance.resources_trans:
-                transport =  - sum(instance.Imp[location, source_, resource, scale_list[:scheduling_scale_level+1]] for source_ in instance.sources if source_ != location if location in instance.sinks)\
+                transport =  sum(instance.Imp[location, source_, resource, scale_list[:scheduling_scale_level+1]] for source_ in instance.sources if source_ != location if location in instance.sinks)\
                                 + sum(instance.Exp[location, sink_, resource, scale_list[:scheduling_scale_level+1]] for sink_ in instance.sinks if sink_ != location if location in instance.sources)\
 
             else:
@@ -336,8 +336,8 @@ def inventory_balance_constraint(instance: ConcreteModel, scheduling_scale_level
 
         produced = sum(conversion[process][resource]*instance.P[location, process, scale_list[:scheduling_scale_level+1]] for process in instance.processes)
         
-        return - consumption + storage + discharge + transport - produced == 0
-                            
+        return  consumption + produced - storage - discharge + transport  == 0
+
     instance.inventory_balance_constraint = Constraint(instance.locations, instance.resources, *scales, rule=inventory_balance_rule, doc='mass balance across scheduling scale')
     constraint_latex_render(inventory_balance_constraint)
     return instance.inventory_balance_constraint

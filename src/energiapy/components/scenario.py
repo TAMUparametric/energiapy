@@ -10,7 +10,7 @@ __maintainer__ = "Rahul Kakodkar"
 __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
-import pandas
+from pandas import DataFrame
 from ..components.network import Network
 from ..components.location import Location
 from ..components.temporal_scale import Temporal_scale
@@ -102,6 +102,8 @@ class Scenario:
 
         #     self.demand = {i.name: {j.name if type(j: i.demand[j] for j in i.demand} for i in self.location_set}
 
+    def make_conversion_df(self):
+        return DataFrame.from_dict(self.conversion)
 
     def __repr__(self):
         return self.name
