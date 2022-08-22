@@ -1,0 +1,21 @@
+process,CAPEX,Fixed O&M,Variable O&M,units,Source
+Lithium-ion battery,2384549.2,59613.73,0,$/MW,"NREL Annual Technology Baseline 2021, https://atb.nrel.gov/"
+Lithium-ion battery discharge,0.001,0.001,0,$/MW,Dummy Process
+Compressed air energy storage (CAES),1950000,1900000,0,$/MW,https://www.pnm.com/documents/396023/1506047/2017+-+HDR+10-30-17+PNM+Energy+Storage+Report.pdf/a2b7ca65-e1ba-92c8-308a-9a8391a87331
+Compressed air energy storage (CAES) discharge,0.001,0.001,0,$/MW,Dummy Process
+Pumped storage hydropower (PSH),0,17600,4435.188,$/MW,"NREL Annual Technology Baseline 2021, https://atb.nrel.gov/"
+Pumped storage hydropower (PSH) discharge,0.001,0.001,0,$/MW,Dummy Process
+Solar photovoltaics (PV) array,1357123.344,23144.35266,0,$/MW,"NREL Annual Technology Baseline 2021, https://atb.nrel.gov/"
+Wind mill array,1356727.273,43000,0,$/MW,"NREL Annual Technology Baseline 2021, https://atb.nrel.gov/"
+Alkaline water electrolysis (AWE),784000,17000,0,$/MW,https://www.cell.com/cell-reports-physical-science/pdfExtended/S2666-3864(20)30224-1
+Steam methane reforming + CCUS,0.001,0.98,0,$/kg,"https://www.sciencedirect.com/science/article/pii/S0360319917347201, https://www.iea.org/data-and-statistics/charts/hydrogen-production-costs-using-natural-gas-in-selected-regions-2018-2"
+Hydrogen local storage (Compressed),4,0,0.0022,$/kgH2,Citation Needed
+Hydrogen local storage (Compressed) discharge,0,0,0,None,Dummy Process
+Hydrogen geological sequestration,1.29,0,0.0011023,$/kgH2,https://www.sciencedirect.com/science/article/pii/S1364032119300528
+Hydrogen geological sequestration discharge,0,0,0,None,Dummy Process
+Catalytic methanol production,0.001,2.4955,0,$/kgMOH,D. Bellotti et al. Journal of CO2 Utilization(2017)
+Direct air capture,0.02536,0.634,0,$/kgCO2,"M. Fasihi, O. Efimova, C. Breyer Journal of Cleaner Production (2019)"
+CO2-Enhanced oil recovery,1.00E-06,0,0,$/kgCO2,Citation Needed
+Offshore aquifer CO2 sequestration (SMR),0.00552,0.00414,0,$/kgCO2,https://www.globalccsinstitute.com/archive/hub/publications/119816/costs-co2-storage-post-demonstration-ccs-eu.pdf
+Blue Hydrogen production,0,0,0,None,Dummy Process
+Green Hydrogen production,0,0,0,None,Dummy Process
