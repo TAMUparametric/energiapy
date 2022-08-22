@@ -30,6 +30,7 @@ setup(
         'matplotlib',
         'setuptools',
         'pvlib',
+        'scikit-learn'
         ],
     packages=find_packages(where='src'),
     package_dir={'': 'src'}
