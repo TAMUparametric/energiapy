@@ -31,3 +31,4 @@ def axis_formatter(axes, xcord:list, axis_labels:str = 'M'):
         pass
     return axes
         
+# %%
