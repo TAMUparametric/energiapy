@@ -20,6 +20,17 @@ setup(
     long_description_content_type="text/markdown",
     license='',
     url='',
+    install_requires=[
+        'numpy',
+        'pandas',
+        'Pyomo',
+        'gurobipy',
+        'h5pyd',
+        'scipy',
+        'matplotlib',
+        'setuptools',
+        'pvlib',
+        ],
     packages=find_packages(where='src'),
     package_dir={'': 'src'}
 )
