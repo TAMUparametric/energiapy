@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>src.energiapy.model package &mdash; Energiapy 0.0.1 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> Energiapy
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">src.energiapy.model package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-src.energiapy.model.formulate_milp">src.energiapy.model.formulate_milp module</a></li>
+<li><a class="reference internal" href="#module-src.energiapy.model.formulate_mplp">src.energiapy.model.formulate_mplp module</a></li>
+<li><a class="reference internal" href="#module-src.energiapy.model.formulate_mpmilp">src.energiapy.model.formulate_mpmilp module</a></li>
+<li><a class="reference internal" href="#module-src.energiapy.model.pyomo_cons">src.energiapy.model.pyomo_cons module</a></li>
+<li><a class="reference internal" href="#module-src.energiapy.model.pyomo_objs">src.energiapy.model.pyomo_objs module</a></li>
+<li><a class="reference internal" href="#module-src.energiapy.model.pyomo_sets">src.energiapy.model.pyomo_sets module</a></li>
+<li><a class="reference internal" href="#module-src.energiapy.model.pyomo_solve">src.energiapy.model.pyomo_solve module</a></li>
+<li><a class="reference internal" href="#module-src.energiapy.model.pyomo_vars">src.energiapy.model.pyomo_vars module</a></li>
+<li><a class="reference internal" href="#module-src.energiapy.model">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Energiapy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>src.energiapy.model package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/src.energiapy.model.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="src-energiapy-model-package">
+<h1>src.energiapy.model package<a class="headerlink" href="#src-energiapy-model-package" title="Permalink to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
+</section>
+<section id="module-src.energiapy.model.formulate_milp">
+<span id="src-energiapy-model-formulate-milp-module"></span><h2>src.energiapy.model.formulate_milp module<a class="headerlink" href="#module-src.energiapy.model.formulate_milp" title="Permalink to this heading"></a></h2>
+<p>Formulates a multiscale mixed integer linear programming (MILP) model from Scenario</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="src.energiapy.model.formulate_milp.formulate_milp">
+<span class="sig-prename descclassname"><span class="pre">src.energiapy.model.formulate_milp.</span></span><span class="sig-name descname"><span class="pre">formulate_milp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scenario</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.energiapy.components.html#src.energiapy.components.scenario.Scenario" title="src.energiapy.components.scenario.Scenario"><span class="pre">Scenario</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ConcreteModel</span></span></span><a class="headerlink" href="#src.energiapy.model.formulate_milp.formulate_milp" title="Permalink to this definition"></a></dt>
+<dd><p>formulates a multi-scale mixed integer linear programming formulation of the scenario</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>scenario (Scenario): scenario under consideration</p>
+</dd>
+<dt>Returns:</dt><dd><p>ConcreteModel: pyomo model instance with sets, variables, constraints, objectives generated</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-src.energiapy.model.formulate_mplp">
+<span id="src-energiapy-model-formulate-mplp-module"></span><h2>src.energiapy.model.formulate_mplp module<a class="headerlink" href="#module-src.energiapy.model.formulate_mplp" title="Permalink to this heading"></a></h2>
+<p>Formulates a multiscale mixed integer linear programming (MILP) model from Scenario</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="src.energiapy.model.formulate_mplp.formulate_mplp">
+<span class="sig-prename descclassname"><span class="pre">src.energiapy.model.formulate_mplp.</span></span><span class="sig-name descname"><span class="pre">formulate_mplp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scenario:</span> <span class="pre">~src.energiapy.components.scenario.Scenario</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relax:</span> <span class="pre">~typing.Optional[dict]</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">penalty=&lt;class</span> <span class="pre">'float'&gt;</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ConcreteModel</span></span></span><a class="headerlink" href="#src.energiapy.model.formulate_mplp.formulate_mplp" title="Permalink to this definition"></a></dt>
+<dd><p>formulates a multi-scale mixed integer linear programming formulation of the scenario</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>scenario (Scenario): scenario under consideration</p>
+</dd>
+<dt>Returns:</dt><dd><p>ConcreteModel: pyomo model instance with sets, variables, constraints, objectives generated</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-src.energiapy.model.formulate_mpmilp">
+<span id="src-energiapy-model-formulate-mpmilp-module"></span><h2>src.energiapy.model.formulate_mpmilp module<a class="headerlink" href="#module-src.energiapy.model.formulate_mpmilp" title="Permalink to this heading"></a></h2>
+<p>Formulates a multiparameteric mixed integer linear programming model (mpMILP) from Scenario</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="src.energiapy.model.formulate_mpmilp.formulate_mpmilp">
+<span class="sig-prename descclassname"><span class="pre">src.energiapy.model.formulate_mpmilp.</span></span><span class="sig-name descname"><span class="pre">formulate_mpmilp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scenario</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.energiapy.components.html#src.energiapy.components.scenario.Scenario" title="src.energiapy.components.scenario.Scenario"><span class="pre">Scenario</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">penalty</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ConcreteModel</span></span></span><a class="headerlink" href="#src.energiapy.model.formulate_mpmilp.formulate_mpmilp" title="Permalink to this definition"></a></dt>
+<dd><p>formulates a multi-scale multi-parametric mixed integer linear programming formulation of the scenario</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>scenario (Scenario): scenario under consideration</p>
+</dd>
+<dt>Returns:</dt><dd><p>ConcreteModel: pyomo model instance with sets, variables, constraints, objectives generated</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-src.energiapy.model.pyomo_cons">
+<span id="src-energiapy-model-pyomo-cons-module"></span><h2>src.energiapy.model.pyomo_cons module<a class="headerlink" href="#module-src.energiapy.model.pyomo_cons" title="Permalink to this heading"></a></h2>
+<p>pyomo constraints</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="src.energiapy.model.pyomo_cons.delta_cap_location_constraint">
+<span class="sig-prename descclassname"><span class="pre">src.energiapy.model.pyomo_cons.</span></span><span class="sig-name descname"><span class="pre">delta_cap_location_constraint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ConcreteModel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">network_scale_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Constraint</span></span></span><a class="headerlink" href="#src.energiapy.model.pyomo_cons.delta_cap_location_constraint" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.energiapy.model.pyomo_cons.delta_cap_network_constraint">
+<span class="sig-prename descclassname"><span class="pre">src.energiapy.model.pyomo_cons.</span></span><span class="sig-name descname"><span class="pre">delta_cap_network_constraint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ConcreteModel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">network_scale_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Constraint</span></span></span><a class="headerlink" href="#src.energiapy.model.pyomo_cons.delta_cap_network_constraint" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.energiapy.model.pyomo_cons.demand_constraint">
+<span class="sig-prename descclassname"><span class="pre">src.energiapy.model.pyomo_cons.</span></span><span class="sig-name descname"><span class="pre">demand_constraint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ConcreteModel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_scale_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scheduling_scale_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Constraint</span></span></span><a class="headerlink" href="#src.energiapy.model.pyomo_cons.demand_constraint" title="Permalink to this definition"></a></dt>
+<dd><p>Ensures that demand for resource is met at chosen temporal scale</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>instance (ConcreteModel): pyomo instance
+demand_scale_level (int, optional): scale of demand decisions. Defaults to 0.
+scheduling_scale_level (int, optional): scale of scheduling decisions. Defaults to 0.
+demand_dict (dict, optional): demand at location. Defaults to {}.</p>
+</dd>
+<dt>Returns:</dt><dd><p>Constraint: demand_constraint</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.energiapy.model.pyomo_cons.inventory_balance_constraint">
+<span class="sig-prename descclassname"><span class="pre">src.energiapy.model.pyomo_cons.</span></span><span class="sig-name descname"><span class="pre">inventory_balance_constraint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ConcreteModel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scheduling_scale_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conversion</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Constraint</span></span></span><a class="headerlink" href="#src.energiapy.model.pyomo_cons.inventory_balance_constraint" title="Permalink to this definition"></a></dt>
+<dd><p>balances resource across the scheduling horizon</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>instance (ConcreteModel): pyomo instance
+scheduling_scale_level (int, optional): scale of scheduling decisions. Defaults to 0.
+conversion (dict, optional): unit conversion of resource by production facility. Defaults to {}.</p>
+</dd>
+<dt>Returns:</dt><dd><p>Constraint: inventory_balance_constraint</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.energiapy.model.pyomo_cons.location_capex_constraint">
+<span class="sig-prename descclassname"><span class="pre">src.energiapy.model.pyomo_cons.</span></span><span class="sig-name descname"><span class="pre">location_capex_constraint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ConcreteModel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">network_scale_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Constraint</span></span></span><a class="headerlink" href="#src.energiapy.model.pyomo_cons.location_capex_constraint" title="Permalink to this definition"></a></dt>
+<dd><p>Capital expenditure for each process at location in network</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>instance (ConcreteModel): pyomo instance
+network_scale_level (int, optional): scale of network decisions. Defaults to 0.</p>
+</dd>
+<dt>Returns:</dt><dd><p>Constraint: location_capex_constraint</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.energiapy.model.pyomo_cons.location_consumption_constraint">
+<span class="sig-prename descclassname"><span class="pre">src.energiapy.model.pyomo_cons.</span></span><span class="sig-name descname"><span class="pre">location_consumption_constraint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ConcreteModel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cluster_wt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">network_scale_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Constraint</span></span></span><a class="headerlink" href="#src.energiapy.model.pyomo_cons.location_consumption_constraint" title="Permalink to this definition"></a></dt>
+<dd><p>Determines total resource consumed at locations in network</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>instance (ConcreteModel): pyomo instance
+network_scale_level (int, optional): scale of network decisions. Defaults to 0.</p>
+</dd>
+<dt>Returns:</dt><dd><p>Constraint: location_consumption_constraint</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.energiapy.model.pyomo_cons.location_discharge_constraint">
+<span class="sig-prename descclassname"><span class="pre">src.energiapy.model.pyomo_cons.</span></span><span class="sig-name descname"><span class="pre">location_discharge_constraint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ConcreteModel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cluster_wt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">network_scale_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Constraint</span></span></span><a class="headerlink" href="#src.energiapy.model.pyomo_cons.location_discharge_constraint" title="Permalink to this definition"></a></dt>
+<dd><p>Determines total resource discharged/sold at locations in network</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>instance (ConcreteModel): pyomo instance
+network_scale_level (int, optional): scale of network decisions. Defaults to 0.</p>
+</dd>
+<dt>Returns:</dt><dd><p>Constraint: location_discharge_constraint</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.energiapy.model.pyomo_cons.location_fopex_constraint">
+<span class="sig-prename descclassname"><span class="pre">src.energiapy.model.pyomo_cons.</span></span><span class="sig-name descname"><span class="pre">location_fopex_constraint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ConcreteModel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">network_scale_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Constraint</span></span></span><a class="headerlink" href="#src.energiapy.model.pyomo_cons.location_fopex_constraint" title="Permalink to this definition"></a></dt>
+<dd><p>Fixed operational expenditure for each process at location in network</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>instance (ConcreteModel): pyomo instance
+network_scale_level (int, optional): scale of network decisions. Defaults to 0.</p>
+</dd>
+<dt>Returns:</dt><dd><p>Constraint: location_fopex_constraint</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.energiapy.model.pyomo_cons.location_land_constraint">
+<span class="sig-prename descclassname"><span class="pre">src.energiapy.model.pyomo_cons.</span></span><span class="sig-name descname"><span class="pre">location_land_constraint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ConcreteModel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">network_scale_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Constraint</span></span></span><a class="headerlink" href="#src.energiapy.model.pyomo_cons.location_land_constraint" title="Permalink to this definition"></a></dt>
+<dd><p>Land required at each location in network</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>instance (ConcreteModel): pyomo instance
+network_scale_level (int, optional): scale of network decisions. Defaults to 0.</p>
+</dd>
+<dt>Returns:</dt><dd><p>Constraint: location_land_constraint</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.energiapy.model.pyomo_cons.location_production_constraint">
+<span class="sig-prename descclassname"><span class="pre">src.energiapy.model.pyomo_cons.</span></span><span class="sig-name descname"><span class="pre">location_production_constraint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ConcreteModel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cluster_wt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">network_scale_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Constraint</span></span></span><a class="headerlink" href="#src.energiapy.model.pyomo_cons.location_production_constraint" title="Permalink to this definition"></a></dt>
+<dd><p>Determines total production capacity utilization at location</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>instance (ConcreteModel): pyomo instance
+network_scale_level (int, optional): scale of network decisions. Defaults to 0.</p>
+</dd>
+<dt>Returns:</dt><dd><p>Constraint: location_production_constraint</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.energiapy.model.pyomo_cons.location_purchase_constraint">
+<span class="sig-prename descclassname"><span class="pre">src.energiapy.model.pyomo_cons.</span></span><span class="sig-name descname"><span class="pre">location_purchase_constraint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ConcreteModel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cluster_wt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">network_scale_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Constraint</span></span></span><a class="headerlink" href="#src.energiapy.model.pyomo_cons.location_purchase_constraint" title="Permalink to this definition"></a></dt>
+<dd><p>Determines total resource purchase expenditure at locations in network</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>instance (ConcreteModel): pyomo instance
+network_scale_level (int, optional): scale of network decisions. Defaults to 0.</p>
+</dd>
+<dt>Returns:</dt><dd><p>Constraint: location_purchase_constraint</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.energiapy.model.pyomo_cons.location_vopex_constraint">
+<span class="sig-prename descclassname"><span class="pre">src.energiapy.model.pyomo_cons.</span></span><span class="sig-name descname"><span class="pre">location_vopex_constraint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ConcreteModel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">network_scale_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Constraint</span></span></span><a class="headerlink" href="#src.energiapy.model.pyomo_cons.location_vopex_constraint" title="Permalink to this definition"></a></dt>
+<dd><p>Fixed operational expenditure for each process at location in network</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>instance (ConcreteModel): pyomo instance
+network_scale_level (int, optional): scale of network decisions. Defaults to 0.</p>
+</dd>
+<dt>Returns:</dt><dd><p>Constraint: location_vopex_constraint</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.energiapy.model.pyomo_cons.min_production_facility_constraint">
+<span class="sig-prename descclassname"><span class="pre">src.energiapy.model.pyomo_cons.</span></span><span class="sig-name descname"><span class="pre">min_production_facility_constraint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ConcreteModel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prod_min</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loc_pro_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">network_scale_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Constraint</span></span></span><a class="headerlink" href="#src.energiapy.model.pyomo_cons.min_production_facility_constraint" title="Permalink to this definition"></a></dt>
+<dd><p>Determines where production facility of certain capacity is inserted at location in network</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>instance (ConcreteModel): pyomo instance
+prod_max (dict): maximum production of process at location
+loc_pro_dict (dict, optional): production facilities avaiable at location. Defaults to {}.
+network_scale_level (int, optional): scale of network decisions. Defaults to 0.</p>
+</dd>
+<dt>Returns:</dt><dd><p>Constraint: min_production_facility_constraint</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.energiapy.model.pyomo_cons.min_storage_facility_constraint">
+<span class="sig-prename descclassname"><span class="pre">src.energiapy.model.pyomo_cons.</span></span><span class="sig-name descname"><span class="pre">min_storage_facility_constraint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ConcreteModel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">store_min</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loc_res_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">network_scale_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Constraint</span></span></span><a class="headerlink" href="#src.energiapy.model.pyomo_cons.min_storage_facility_constraint" title="Permalink to this definition"></a></dt>
+<dd><p>Determines where storage facility of certain capacity is inserted at location in network</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>instance (ConcreteModel): pyomo instance
+store_max (dict): maximum storage capacity of resource at location
+loc_res_dict (dict, optional): storage facilities for resource available at location. Defaults to {}.
+network_scale_level (int, optional): scale of network decisions. Defaults to 0.</p>
+</dd>
+<dt>Returns:</dt><dd><p>Constraint: min_storage_facility_constraint</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.energiapy.model.pyomo_cons.nameplate_inventory_constraint">
+<span class="sig-prename descclassname"><span class="pre">src.energiapy.model.pyomo_cons.</span></span><span class="sig-name descname"><span class="pre">nameplate_inventory_constraint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ConcreteModel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loc_res_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">network_scale_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scheduling_scale_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Constraint</span></span></span><a class="headerlink" href="#src.energiapy.model.pyomo_cons.nameplate_inventory_constraint" title="Permalink to this definition"></a></dt>
+<dd><p>Determines storage capacity utilization for resource at location in network and capacity of facilities</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>instance (ConcreteModel): pyomo instance
+loc_res_dict (dict, optional): storage facilities for resource available at location. Defaults to {}.
+network_scale_level (int, optional): scale of network decisions. Defaults to 0.
+scheduling_scale_level (int, optional): scale of scheduling decisions. Defaults to 0.</p>
+</dd>
+<dt>Returns:</dt><dd><p>Constraint: nameplate_inventory_constraint</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.energiapy.model.pyomo_cons.nameplate_production_constraint">
+<span class="sig-prename descclassname"><span class="pre">src.energiapy.model.pyomo_cons.</span></span><span class="sig-name descname"><span class="pre">nameplate_production_constraint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ConcreteModel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity_factor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">network_scale_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scheduling_scale_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Constraint</span></span></span><a class="headerlink" href="#src.energiapy.model.pyomo_cons.nameplate_production_constraint" title="Permalink to this definition"></a></dt>
+<dd><p>Determines production capacity utilization of facilities at location in network and capacity of facilities</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>instance (ConcreteModel): pyomo instance
+capacity_factor (dict, optional): uncertain capacity availability training data. Defaults to {}.
+network_scale_level (int, optional): scale of network decisions. Defaults to 0.
+scheduling_scale_level (int, optional): scale of scheduling decisions. Defaults to 0.</p>
+</dd>
+<dt>Returns:</dt><dd><p>Constraint: nameplate_production_constraint</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.energiapy.model.pyomo_cons.network_capex_constraint">
+<span class="sig-prename descclassname"><span class="pre">src.energiapy.model.pyomo_cons.</span></span><span class="sig-name descname"><span class="pre">network_capex_constraint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ConcreteModel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">network_scale_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Constraint</span></span></span><a class="headerlink" href="#src.energiapy.model.pyomo_cons.network_capex_constraint" title="Permalink to this definition"></a></dt>
+<dd><p>Capital expenditure for each process at location in network</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>instance (ConcreteModel): pyomo instance
+network_scale_level (int, optional): scale of network decisions. Defaults to 0.</p>
+</dd>
+<dt>Returns:</dt><dd><p>Constraint: network_capex_constraint</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.energiapy.model.pyomo_cons.network_consumption_constraint">
+<span class="sig-prename descclassname"><span class="pre">src.energiapy.model.pyomo_cons.</span></span><span class="sig-name descname"><span class="pre">network_consumption_constraint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ConcreteModel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">network_scale_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Constraint</span></span></span><a class="headerlink" href="#src.energiapy.model.pyomo_cons.network_consumption_constraint" title="Permalink to this definition"></a></dt>
+<dd><p>Determines total resource consumed across network</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>instance (ConcreteModel): pyomo instance
+network_scale_level (int, optional): scale of network decisions. Defaults to 0.</p>
+</dd>
+<dt>Returns:</dt><dd><p>Constraint: network_consumption_constraint</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.energiapy.model.pyomo_cons.network_discharge_constraint">
+<span class="sig-prename descclassname"><span class="pre">src.energiapy.model.pyomo_cons.</span></span><span class="sig-name descname"><span class="pre">network_discharge_constraint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ConcreteModel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">network_scale_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Constraint</span></span></span><a class="headerlink" href="#src.energiapy.model.pyomo_cons.network_discharge_constraint" title="Permalink to this definition"></a></dt>
+<dd><p>Determines total resource discharged across network</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>instance (ConcreteModel): pyomo instance
+network_scale_level (int, optional): scale of network decisions. Defaults to 0.</p>
+</dd>
+<dt>Returns:</dt><dd><p>Constraint: network_discharge_constraint</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.energiapy.model.pyomo_cons.network_fopex_constraint">
+<span class="sig-prename descclassname"><span class="pre">src.energiapy.model.pyomo_cons.</span></span><span class="sig-name descname"><span class="pre">network_fopex_constraint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ConcreteModel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">network_scale_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Constraint</span></span></span><a class="headerlink" href="#src.energiapy.model.pyomo_cons.network_fopex_constraint" title="Permalink to this definition"></a></dt>
+<dd><p>Fixed operational for each process at location in network</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>instance (ConcreteModel): pyomo instance
+network_scale_level (int, optional): scale of network decisions. Defaults to 0.</p>
+</dd>
+<dt>Returns:</dt><dd><p>Constraint: network_fopex_constraint</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.energiapy.model.pyomo_cons.network_land_constraint">
+<span class="sig-prename descclassname"><span class="pre">src.energiapy.model.pyomo_cons.</span></span><span class="sig-name descname"><span class="pre">network_land_constraint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ConcreteModel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">network_scale_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Constraint</span></span></span><a class="headerlink" href="#src.energiapy.model.pyomo_cons.network_land_constraint" title="Permalink to this definition"></a></dt>
+<dd><p>Land required by network</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>instance (ConcreteModel): pyomo instance
+network_scale_level (int, optional): scale of network decisions. Defaults to 0.</p>
+</dd>
+<dt>Returns:</dt><dd><p>Constraint: network_land_constraint</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.energiapy.model.pyomo_cons.network_production_constraint">
+<span class="sig-prename descclassname"><span class="pre">src.energiapy.model.pyomo_cons.</span></span><span class="sig-name descname"><span class="pre">network_production_constraint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ConcreteModel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">network_scale_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Constraint</span></span></span><a class="headerlink" href="#src.energiapy.model.pyomo_cons.network_production_constraint" title="Permalink to this definition"></a></dt>
+<dd><p>Determines total production utilization across network</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>instance (ConcreteModel): pyomo instance
+network_scale_level (int, optional): scale of network decisions. Defaults to 0.</p>
+</dd>
+<dt>Returns:</dt><dd><p>Constraint: network_production_constraint</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.energiapy.model.pyomo_cons.network_purchase_constraint">
+<span class="sig-prename descclassname"><span class="pre">src.energiapy.model.pyomo_cons.</span></span><span class="sig-name descname"><span class="pre">network_purchase_constraint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ConcreteModel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">network_scale_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Constraint</span></span></span><a class="headerlink" href="#src.energiapy.model.pyomo_cons.network_purchase_constraint" title="Permalink to this definition"></a></dt>
+<dd><p>Determines total purchase expenditure on resource across network</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>instance (ConcreteModel): pyomo instance
+network_scale_level (int, optional): scale of network decisions. Defaults to 0.</p>
+</dd>
+<dt>Returns:</dt><dd><p>Constraint: network_purchase_constraint</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.energiapy.model.pyomo_cons.network_vopex_constraint">
+<span class="sig-prename descclassname"><span class="pre">src.energiapy.model.pyomo_cons.</span></span><span class="sig-name descname"><span class="pre">network_vopex_constraint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ConcreteModel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">network_scale_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Constraint</span></span></span><a class="headerlink" href="#src.energiapy.model.pyomo_cons.network_vopex_constraint" title="Permalink to this definition"></a></dt>
+<dd><p>Variable operational expenditure for each process at location in network</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>instance (ConcreteModel): pyomo instance
+network_scale_level (int, optional): scale of network decisions. Defaults to 0.</p>
+</dd>
+<dt>Returns:</dt><dd><p>Constraint: network_vopex_constraint</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.energiapy.model.pyomo_cons.process_capex_constraint">
+<span class="sig-prename descclassname"><span class="pre">src.energiapy.model.pyomo_cons.</span></span><span class="sig-name descname"><span class="pre">process_capex_constraint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ConcreteModel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capex_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">network_scale_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">annualization_factor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Constraint</span></span></span><a class="headerlink" href="#src.energiapy.model.pyomo_cons.process_capex_constraint" title="Permalink to this definition"></a></dt>
+<dd><p>Capital expenditure for each process at location in network</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>instance (ConcreteModel): pyomo instance
+capex_dict (dict): capex at location #TODO
+network_scale_level (int, optional): scale of network decisions. Defaults to 0.
+annualization_factor (float, optional): Annual depreciation of asset. Defaults to 1.</p>
+</dd>
+<dt>Returns:</dt><dd><p>Constraint: process_capex_constraint</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.energiapy.model.pyomo_cons.process_fopex_constraint">
+<span class="sig-prename descclassname"><span class="pre">src.energiapy.model.pyomo_cons.</span></span><span class="sig-name descname"><span class="pre">process_fopex_constraint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ConcreteModel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fopex_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">network_scale_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">annualization_factor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Constraint</span></span></span><a class="headerlink" href="#src.energiapy.model.pyomo_cons.process_fopex_constraint" title="Permalink to this definition"></a></dt>
+<dd><p>Fixed operational expenditure for each process at location in network
+Args:</p>
+<blockquote>
+<div><p>instance (ConcreteModel): pyomo instance
+fopex_dict (dict): fixed opex at location #TODO
+network_scale_level (int, optional): scale of network decisions. Defaults to 0.
+annualization_factor (float, optional): Annual depreciation of asset. Defaults to 1.</p>
+</div></blockquote>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>Constraint: process_fopex_constraint</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.energiapy.model.pyomo_cons.process_land_constraint">
+<span class="sig-prename descclassname"><span class="pre">src.energiapy.model.pyomo_cons.</span></span><span class="sig-name descname"><span class="pre">process_land_constraint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ConcreteModel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">land_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">network_scale_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Constraint</span></span></span><a class="headerlink" href="#src.energiapy.model.pyomo_cons.process_land_constraint" title="Permalink to this definition"></a></dt>
+<dd><p>Land required for each process at location in network</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>instance (ConcreteModel): pyomo instance
+land_dict (dict): land required at location
+network_scale_level (int, optional): scale of network decisions. Defaults to 0.</p>
+</dd>
+<dt>Returns:</dt><dd><p>Constraint: process_land_constraint</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.energiapy.model.pyomo_cons.process_vopex_constraint">
+<span class="sig-prename descclassname"><span class="pre">src.energiapy.model.pyomo_cons.</span></span><span class="sig-name descname"><span class="pre">process_vopex_constraint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ConcreteModel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vopex_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">network_scale_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">annualization_factor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Constraint</span></span></span><a class="headerlink" href="#src.energiapy.model.pyomo_cons.process_vopex_constraint" title="Permalink to this definition"></a></dt>
+<dd><p>Fixed operational expenditure for each process at location in network</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>instance (ConcreteModel): pyomo instance
+network_scale_level (int, optional): scale of network decisions. Defaults to 0.</p>
+</dd>
+<dt>Returns:</dt><dd><p>Constraint: process_vopex_constraint</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.energiapy.model.pyomo_cons.production_facility_constraint">
+<span class="sig-prename descclassname"><span class="pre">src.energiapy.model.pyomo_cons.</span></span><span class="sig-name descname"><span class="pre">production_facility_constraint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ConcreteModel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prod_max</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loc_pro_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">network_scale_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Constraint</span></span></span><a class="headerlink" href="#src.energiapy.model.pyomo_cons.production_facility_constraint" title="Permalink to this definition"></a></dt>
+<dd><p>Determines where production facility of certain capacity is inserted at location in network</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>instance (ConcreteModel): pyomo instance
+prod_max (dict): maximum production of process at location
+loc_pro_dict (dict, optional): production facilities avaiable at location. Defaults to {}.
+network_scale_level (int, optional): scale of network decisions. Defaults to 0.</p>
+</dd>
+<dt>Returns:</dt><dd><p>Constraint: production_facility_constraint</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.energiapy.model.pyomo_cons.production_facility_fix_constraint">
+<span class="sig-prename descclassname"><span class="pre">src.energiapy.model.pyomo_cons.</span></span><span class="sig-name descname"><span class="pre">production_facility_fix_constraint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ConcreteModel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prod_max</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">production_binaries</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loc_pro_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">network_scale_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Constraint</span></span></span><a class="headerlink" href="#src.energiapy.model.pyomo_cons.production_facility_fix_constraint" title="Permalink to this definition"></a></dt>
+<dd><p>Determines where production facility of certain capacity is inserted at location in network</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>instance (ConcreteModel): pyomo instance
+prod_max (dict): maximum production of process at location
+loc_pro_dict (dict, optional): production facilities avaiable at location. Defaults to {}.
+network_scale_level (int, optional): scale of network decisions. Defaults to 0.</p>
+</dd>
+<dt>Returns:</dt><dd><p>Constraint: production_facility_fix_constraint</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.energiapy.model.pyomo_cons.resource_consumption_constraint">
+<span class="sig-prename descclassname"><span class="pre">src.energiapy.model.pyomo_cons.</span></span><span class="sig-name descname"><span class="pre">resource_consumption_constraint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ConcreteModel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loc_res_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cons_max</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scheduling_scale_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Constraint</span></span></span><a class="headerlink" href="#src.energiapy.model.pyomo_cons.resource_consumption_constraint" title="Permalink to this definition"></a></dt>
+<dd><p>Determines consumption of resource at location in network</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>instance (ConcreteModel): pyomo instance
+loc_res_dict (dict, optional): storage facilities for resource available at location. Defaults to {}.
+cons_max (dict, optional): maximum allowed consumption of resource at location. Defaults to {}.
+scheduling_scale_level (int, optional): scale of scheduling decisions. Defaults to 0.</p>
+</dd>
+<dt>Returns:</dt><dd><p>Constraint: resource_consumption_constraint</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.energiapy.model.pyomo_cons.resource_purchase_constraint">
+<span class="sig-prename descclassname"><span class="pre">src.energiapy.model.pyomo_cons.</span></span><span class="sig-name descname"><span class="pre">resource_purchase_constraint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ConcreteModel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost_factor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">price</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loc_res_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scheduling_scale_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expenditure_scale_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Constraint</span></span></span><a class="headerlink" href="#src.energiapy.model.pyomo_cons.resource_purchase_constraint" title="Permalink to this definition"></a></dt>
+<dd><p>Determines expenditure on resource at location in network at the scheduling/expenditure scale</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>instance (ConcreteModel): pyomo instance
+cost_factor (dict, optional): uncertain cost training data. Defaults to {}.
+price (dict, optional): base price of resource. Defaults to {}.
+scheduling_scale_level (int, optional): scale of scheduling decisions. Defaults to 0.
+expenditure_scale_level (int, optional): scale of resource purchase decisions. Defaults to 0.</p>
+</dd>
+<dt>Returns:</dt><dd><p>Constraint: resource_purchase_constraint</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.energiapy.model.pyomo_cons.storage_facility_constraint">
+<span class="sig-prename descclassname"><span class="pre">src.energiapy.model.pyomo_cons.</span></span><span class="sig-name descname"><span class="pre">storage_facility_constraint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ConcreteModel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">store_max</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loc_res_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">network_scale_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Constraint</span></span></span><a class="headerlink" href="#src.energiapy.model.pyomo_cons.storage_facility_constraint" title="Permalink to this definition"></a></dt>
+<dd><p>Determines where storage facility of certain capacity is inserted at location in network</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>instance (ConcreteModel): pyomo instance
+store_max (dict): maximum storage capacity of resource at location
+loc_res_dict (dict, optional): storage facilities for resource available at location. Defaults to {}.
+network_scale_level (int, optional): scale of network decisions. Defaults to 0.</p>
+</dd>
+<dt>Returns:</dt><dd><p>Constraint: storage_facility_constraint</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.energiapy.model.pyomo_cons.storage_facility_fix_constraint">
+<span class="sig-prename descclassname"><span class="pre">src.energiapy.model.pyomo_cons.</span></span><span class="sig-name descname"><span class="pre">storage_facility_fix_constraint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ConcreteModel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">store_max</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">storage_binaries</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loc_res_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">network_scale_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Constraint</span></span></span><a class="headerlink" href="#src.energiapy.model.pyomo_cons.storage_facility_fix_constraint" title="Permalink to this definition"></a></dt>
+<dd><p>Determines where storage facility of certain capacity is inserted at location in network</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>instance (ConcreteModel): pyomo instance
+store_max (dict): maximum storage capacity of resource at location
+loc_res_dict (dict, optional): storage facilities for resource available at location. Defaults to {}.
+network_scale_level (int, optional): scale of network decisions. Defaults to 0.</p>
+</dd>
+<dt>Returns:</dt><dd><p>Constraint: storage_facility_fix_constraint</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.energiapy.model.pyomo_cons.transport_balance_constraint">
+<span class="sig-prename descclassname"><span class="pre">src.energiapy.model.pyomo_cons.</span></span><span class="sig-name descname"><span class="pre">transport_balance_constraint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ConcreteModel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scheduling_scale_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Constraint</span></span></span><a class="headerlink" href="#src.energiapy.model.pyomo_cons.transport_balance_constraint" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.energiapy.model.pyomo_cons.transport_cost_constraint">
+<span class="sig-prename descclassname"><span class="pre">src.energiapy.model.pyomo_cons.</span></span><span class="sig-name descname"><span class="pre">transport_cost_constraint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ConcreteModel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scheduling_scale_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.energiapy.model.pyomo_cons.transport_cost_constraint" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.energiapy.model.pyomo_cons.transport_cost_network_constraint">
+<span class="sig-prename descclassname"><span class="pre">src.energiapy.model.pyomo_cons.</span></span><span class="sig-name descname"><span class="pre">transport_cost_network_constraint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ConcreteModel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">network_scale_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.energiapy.model.pyomo_cons.transport_cost_network_constraint" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.energiapy.model.pyomo_cons.transport_exp_UB_constraint">
+<span class="sig-prename descclassname"><span class="pre">src.energiapy.model.pyomo_cons.</span></span><span class="sig-name descname"><span class="pre">transport_exp_UB_constraint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ConcreteModel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scheduling_scale_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trans_max</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transport_avail_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Constraint</span></span></span><a class="headerlink" href="#src.energiapy.model.pyomo_cons.transport_exp_UB_constraint" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.energiapy.model.pyomo_cons.transport_exp_cost_constraint">
+<span class="sig-prename descclassname"><span class="pre">src.energiapy.model.pyomo_cons.</span></span><span class="sig-name descname"><span class="pre">transport_exp_cost_constraint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ConcreteModel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scheduling_scale_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trans_cost</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Constraint</span></span></span><a class="headerlink" href="#src.energiapy.model.pyomo_cons.transport_exp_cost_constraint" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.energiapy.model.pyomo_cons.transport_export_constraint">
+<span class="sig-prename descclassname"><span class="pre">src.energiapy.model.pyomo_cons.</span></span><span class="sig-name descname"><span class="pre">transport_export_constraint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ConcreteModel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scheduling_scale_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transport_avail_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Constraint</span></span></span><a class="headerlink" href="#src.energiapy.model.pyomo_cons.transport_export_constraint" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.energiapy.model.pyomo_cons.transport_imp_UB_constraint">
+<span class="sig-prename descclassname"><span class="pre">src.energiapy.model.pyomo_cons.</span></span><span class="sig-name descname"><span class="pre">transport_imp_UB_constraint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ConcreteModel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scheduling_scale_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trans_max</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transport_avail_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Constraint</span></span></span><a class="headerlink" href="#src.energiapy.model.pyomo_cons.transport_imp_UB_constraint" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.energiapy.model.pyomo_cons.transport_imp_cost_constraint">
+<span class="sig-prename descclassname"><span class="pre">src.energiapy.model.pyomo_cons.</span></span><span class="sig-name descname"><span class="pre">transport_imp_cost_constraint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ConcreteModel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scheduling_scale_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trans_cost</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Constraint</span></span></span><a class="headerlink" href="#src.energiapy.model.pyomo_cons.transport_imp_cost_constraint" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.energiapy.model.pyomo_cons.transport_import_constraint">
+<span class="sig-prename descclassname"><span class="pre">src.energiapy.model.pyomo_cons.</span></span><span class="sig-name descname"><span class="pre">transport_import_constraint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ConcreteModel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scheduling_scale_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transport_avail_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Constraint</span></span></span><a class="headerlink" href="#src.energiapy.model.pyomo_cons.transport_import_constraint" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.energiapy.model.pyomo_cons.uncertain_nameplate_production_constraint">
+<span class="sig-prename descclassname"><span class="pre">src.energiapy.model.pyomo_cons.</span></span><span class="sig-name descname"><span class="pre">uncertain_nameplate_production_constraint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ConcreteModel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">network_scale_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scheduling_scale_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Constraint</span></span></span><a class="headerlink" href="#src.energiapy.model.pyomo_cons.uncertain_nameplate_production_constraint" title="Permalink to this definition"></a></dt>
+<dd><p>Determines production capacity utilization of facilities at location in network and capacity of facilities 
+with uncertain capacility available for utilization</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>instance (ConcreteModel): pyomo instance
+network_scale_level (int, optional): scale of network decisions. Defaults to 0.
+scheduling_scale_level (int, optional): scale of scheduling decisions. Defaults to 0.</p>
+</dd>
+<dt>Returns:</dt><dd><p>Constraint: uncertain_nameplate_production_constraint</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.energiapy.model.pyomo_cons.uncertain_resource_purchase_constraint">
+<span class="sig-prename descclassname"><span class="pre">src.energiapy.model.pyomo_cons.</span></span><span class="sig-name descname"><span class="pre">uncertain_resource_purchase_constraint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ConcreteModel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">price</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loc_res_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scheduling_scale_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expenditure_scale_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Constraint</span></span></span><a class="headerlink" href="#src.energiapy.model.pyomo_cons.uncertain_resource_purchase_constraint" title="Permalink to this definition"></a></dt>
+<dd><p>Determines expenditure on resource at location in network at the scheduling/expenditure scale
+with uncertainty in resource proce</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>instance (ConcreteModel): pyomo instance
+price (dict, optional): base price of resource. Defaults to {}.
+loc_res_dict (dict, optional): storage facilities for resource available at location. Defaults to {}.
+scheduling_scale_level (int, optional): scale of scheduling decisions. Defaults to 0.
+expenditure_scale_level (int, optional): scale of expenditure decisions. Defaults to 0.</p>
+</dd>
+<dt>Returns:</dt><dd><p>Constraint: uncertain_resource_purchase_constraint</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-src.energiapy.model.pyomo_objs">
+<span id="src-energiapy-model-pyomo-objs-module"></span><h2>src.energiapy.model.pyomo_objs module<a class="headerlink" href="#module-src.energiapy.model.pyomo_objs" title="Permalink to this heading"></a></h2>
+<p>pyomo objective</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="src.energiapy.model.pyomo_objs.cost_objective">
+<span class="sig-prename descclassname"><span class="pre">src.energiapy.model.pyomo_objs.</span></span><span class="sig-name descname"><span class="pre">cost_objective</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ConcreteModel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">network_scale_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Objective</span></span></span><a class="headerlink" href="#src.energiapy.model.pyomo_objs.cost_objective" title="Permalink to this definition"></a></dt>
+<dd><p>Objective to minimize total cost</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>instance (ConcreteModel): pyomo instance
+network_scale_level (int, optional): scale of network decisions. Defaults to 0.</p>
+</dd>
+<dt>Returns:</dt><dd><p>Objective: cost objective</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.energiapy.model.pyomo_objs.uncertainty_cost_objective">
+<span class="sig-prename descclassname"><span class="pre">src.energiapy.model.pyomo_objs.</span></span><span class="sig-name descname"><span class="pre">uncertainty_cost_objective</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ConcreteModel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">penalty</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">network_scale_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Objective</span></span></span><a class="headerlink" href="#src.energiapy.model.pyomo_objs.uncertainty_cost_objective" title="Permalink to this definition"></a></dt>
+<dd><p>Objective to minimize total cost</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>instance (ConcreteModel): pyomo instance
+network_scale_level (int, optional): scale of network decisions. Defaults to 0.</p>
+</dd>
+<dt>Returns:</dt><dd><p>Objective: cost objective</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-src.energiapy.model.pyomo_sets">
+<span id="src-energiapy-model-pyomo-sets-module"></span><h2>src.energiapy.model.pyomo_sets module<a class="headerlink" href="#module-src.energiapy.model.pyomo_sets" title="Permalink to this heading"></a></h2>
+<p>pyomo sets</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="src.energiapy.model.pyomo_sets.generate_sets">
+<span class="sig-prename descclassname"><span class="pre">src.energiapy.model.pyomo_sets.</span></span><span class="sig-name descname"><span class="pre">generate_sets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ConcreteModel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">location_set</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">set</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transport_set</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">set</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scales</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.energiapy.components.html#src.energiapy.components.temporal_scale.Temporal_scale" title="src.energiapy.components.temporal_scale.Temporal_scale"><span class="pre">Temporal_scale</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">process_set</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">set</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resource_set</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">set</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">material_set</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">set</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_set</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">set</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sink_set</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">set</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.energiapy.model.pyomo_sets.generate_sets" title="Permalink to this definition"></a></dt>
+<dd><p>Generates pyomo sets based on declared lists</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>instance (ConcreteModel): pyomo instance
+process_list (list, optional): list of processes. Defaults to [].
+location_list (list, optional): list of locations. Defaults to [].
+transport_list (list, optional): list of transports. Defaults to [].
+scales (dict, optional): scales of the problem, generated through temporal_scale. Defaults to {}.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-src.energiapy.model.pyomo_solve">
+<span id="src-energiapy-model-pyomo-solve-module"></span><h2>src.energiapy.model.pyomo_solve module<a class="headerlink" href="#module-src.energiapy.model.pyomo_solve" title="Permalink to this heading"></a></h2>
+<p>pyomo_solve</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="src.energiapy.model.pyomo_solve.solve">
+<span class="sig-prename descclassname"><span class="pre">src.energiapy.model.pyomo_solve.</span></span><span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ConcreteModel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solver</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scenario</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="src.energiapy.components.html#src.energiapy.components.scenario.Scenario" title="src.energiapy.components.scenario.Scenario"><span class="pre">Scenario</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">saveformat</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">print_solversteps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="src.energiapy.components.html#src.energiapy.components.result.Result" title="src.energiapy.components.result.Result"><span class="pre">Result</span></a></span></span><a class="headerlink" href="#src.energiapy.model.pyomo_solve.solve" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-src.energiapy.model.pyomo_vars">
+<span id="src-energiapy-model-pyomo-vars-module"></span><h2>src.energiapy.model.pyomo_vars module<a class="headerlink" href="#module-src.energiapy.model.pyomo_vars" title="Permalink to this heading"></a></h2>
+<p>pyomo variables</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="src.energiapy.model.pyomo_vars.generate_network_binary_vars">
+<span class="sig-prename descclassname"><span class="pre">src.energiapy.model.pyomo_vars.</span></span><span class="sig-name descname"><span class="pre">generate_network_binary_vars</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ConcreteModel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.energiapy.model.pyomo_vars.generate_network_binary_vars" title="Permalink to this definition"></a></dt>
+<dd><p>declares pyomo binary variables for network location at the chosen scale</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>instance (ConcreteModel): pyomo instance
+scale_level (int, optional):  scale for network variables. Defaults to 0.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.energiapy.model.pyomo_vars.generate_network_vars">
+<span class="sig-prename descclassname"><span class="pre">src.energiapy.model.pyomo_vars.</span></span><span class="sig-name descname"><span class="pre">generate_network_vars</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ConcreteModel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.energiapy.model.pyomo_vars.generate_network_vars" title="Permalink to this definition"></a></dt>
+<dd><p>declares pyomo variables for network location at the chosen scale</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>instance (ConcreteModel): pyomo instance
+scale_level (int, optional):  scale for network variables. Defaults to 0.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.energiapy.model.pyomo_vars.generate_scheduling_vars">
+<span class="sig-prename descclassname"><span class="pre">src.energiapy.model.pyomo_vars.</span></span><span class="sig-name descname"><span class="pre">generate_scheduling_vars</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ConcreteModel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.energiapy.model.pyomo_vars.generate_scheduling_vars" title="Permalink to this definition"></a></dt>
+<dd><p>declares pyomo variables for scheduling at the chosen scale</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>instance (ConcreteModel): pyomo instance
+scale_level (int, optional):  scale for scheduling variables. Defaults to 0.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.energiapy.model.pyomo_vars.generate_transport_vars">
+<span class="sig-prename descclassname"><span class="pre">src.energiapy.model.pyomo_vars.</span></span><span class="sig-name descname"><span class="pre">generate_transport_vars</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ConcreteModel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.energiapy.model.pyomo_vars.generate_transport_vars" title="Permalink to this definition"></a></dt>
+<dd><p>declares pyomo variables for network location at the chosen scale</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>instance (ConcreteModel): pyomo instance
+scale_level (int, optional):  scale for network variables. Defaults to 0.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.energiapy.model.pyomo_vars.generate_uncertainty_vars">
+<span class="sig-prename descclassname"><span class="pre">src.energiapy.model.pyomo_vars.</span></span><span class="sig-name descname"><span class="pre">generate_uncertainty_vars</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ConcreteModel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.energiapy.model.pyomo_vars.generate_uncertainty_vars" title="Permalink to this definition"></a></dt>
+<dd><p>declares pyomo variables for uncertainty analysis of processes and resources</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>instance (ConcreteModel): pyomo instance
+scale_level (int, optional): scale for uncertainty. Defaults to 0.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-src.energiapy.model">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-src.energiapy.model" title="Permalink to this heading"></a></h2>
+<p>energiapy.model init file</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Rahul Kakodkar, Efstratios N. Pistikopoulos.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

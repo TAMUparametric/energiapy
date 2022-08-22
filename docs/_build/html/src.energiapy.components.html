@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>src.energiapy.components package &mdash; Energiapy 0.0.1 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> Energiapy
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">src.energiapy.components package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-src.energiapy.components.location">src.energiapy.components.location module</a></li>
+<li><a class="reference internal" href="#module-src.energiapy.components.material">src.energiapy.components.material module</a></li>
+<li><a class="reference internal" href="#module-src.energiapy.components.network">src.energiapy.components.network module</a></li>
+<li><a class="reference internal" href="#module-src.energiapy.components.process">src.energiapy.components.process module</a></li>
+<li><a class="reference internal" href="#module-src.energiapy.components.resource">src.energiapy.components.resource module</a></li>
+<li><a class="reference internal" href="#module-src.energiapy.components.result">src.energiapy.components.result module</a></li>
+<li><a class="reference internal" href="#module-src.energiapy.components.scenario">src.energiapy.components.scenario module</a></li>
+<li><a class="reference internal" href="#module-src.energiapy.components.temporal_scale">src.energiapy.components.temporal_scale module</a></li>
+<li><a class="reference internal" href="#module-src.energiapy.components.transport">src.energiapy.components.transport module</a></li>
+<li><a class="reference internal" href="#module-src.energiapy.components">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Energiapy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>src.energiapy.components package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/src.energiapy.components.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="src-energiapy-components-package">
+<h1>src.energiapy.components package<a class="headerlink" href="#src-energiapy-components-package" title="Permalink to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
+</section>
+<section id="module-src.energiapy.components.location">
+<span id="src-energiapy-components-location-module"></span><h2>src.energiapy.components.location module<a class="headerlink" href="#module-src.energiapy.components.location" title="Permalink to this heading"></a></h2>
+<p>Location data class</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.energiapy.components.location.Location">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.energiapy.components.location.</span></span><span class="sig-name descname"><span class="pre">Location</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">processes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.energiapy.components.process.Process" title="src.energiapy.components.process.Process"><span class="pre">Process</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scales</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#src.energiapy.components.temporal_scale.Temporal_scale" title="src.energiapy.components.temporal_scale.Temporal_scale"><span class="pre">Temporal_scale</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.energiapy.components.resource.Resource" title="src.energiapy.components.resource.Resource"><span class="pre">Resource</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">PV_class</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">WF_class</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">LiI_class</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">PSH_class</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.energiapy.components.location.Location" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Object with data regarding a location
+Args:</p>
+<blockquote>
+<div><p>name (str): ID
+processes (Set[Process]): set of processes to include at location
+scales (temporal_scale): temporal scale of the problem
+demand (Set[Resource], optional): demand for resources at location
+varying_process_df (pandas.DataFrame, optional): contains varying production data at appropriate resolution. Defaults to pandas.DataFrame().
+varying_cost_df (pandas.DataFrame, optional): contains varying resource cost data at appropriate resolution. Defaults to pandas.DataFrame().
+label (str, optional): label. Defaults to ‘’.
+PV_class (str, optional): PV cost category as defined by NREL annual technology baseline (ATB). Defaults to ‘’.
+WF_class (str, optional): WF cost category as defined by NREL ATB. Defaults to ‘’.
+LiI_class (str, optional): Li-ion cost category as defined by NREL ATB. Defaults to ‘’.
+PSH_class (str, optional): PSH cost category as defined by NREL ATB. Defaults to ‘’.</p>
+</div></blockquote>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.energiapy.components.location.Location.LiI_class">
+<span class="sig-name descname"><span class="pre">LiI_class</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#src.energiapy.components.location.Location.LiI_class" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.energiapy.components.location.Location.PSH_class">
+<span class="sig-name descname"><span class="pre">PSH_class</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#src.energiapy.components.location.Location.PSH_class" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.energiapy.components.location.Location.PV_class">
+<span class="sig-name descname"><span class="pre">PV_class</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#src.energiapy.components.location.Location.PV_class" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.energiapy.components.location.Location.WF_class">
+<span class="sig-name descname"><span class="pre">WF_class</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#src.energiapy.components.location.Location.WF_class" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.energiapy.components.location.Location.demand">
+<span class="sig-name descname"><span class="pre">demand</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.energiapy.components.resource.Resource" title="src.energiapy.components.resource.Resource"><span class="pre">Resource</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.0</span></em><a class="headerlink" href="#src.energiapy.components.location.Location.demand" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.energiapy.components.location.Location.get_capacityfactor">
+<span class="sig-name descname"><span class="pre">get_capacityfactor</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.energiapy.components.location.Location.get_capacityfactor" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.energiapy.components.location.Location.get_costfactor">
+<span class="sig-name descname"><span class="pre">get_costfactor</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.energiapy.components.location.Location.get_costfactor" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.energiapy.components.location.Location.get_materials">
+<span class="sig-name descname"><span class="pre">get_materials</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.energiapy.components.material.Material" title="src.energiapy.components.material.Material"><span class="pre">Material</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.energiapy.components.location.Location.get_materials" title="Permalink to this definition"></a></dt>
+<dd><p>fetches required materials for processes introduced at locations</p>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>Set[material]: set of materials</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.energiapy.components.location.Location.get_resource_price">
+<span class="sig-name descname"><span class="pre">get_resource_price</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.energiapy.components.location.Location.get_resource_price" title="Permalink to this definition"></a></dt>
+<dd><p>gets resource prices for resources with non-varying costs</p>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>Set[resource]: set of resources with non-varying cost factors</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.energiapy.components.location.Location.get_resources">
+<span class="sig-name descname"><span class="pre">get_resources</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.energiapy.components.resource.Resource" title="src.energiapy.components.resource.Resource"><span class="pre">Resource</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.energiapy.components.location.Location.get_resources" title="Permalink to this definition"></a></dt>
+<dd><p>fetches required resources for processes introduced at locations</p>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>Set[resource]: set of resources</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.energiapy.components.location.Location.get_varying_processes">
+<span class="sig-name descname"><span class="pre">get_varying_processes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.energiapy.components.location.Location.get_varying_processes" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.energiapy.components.location.Location.get_varying_resources">
+<span class="sig-name descname"><span class="pre">get_varying_resources</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.energiapy.components.location.Location.get_varying_resources" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.energiapy.components.location.Location.label">
+<span class="sig-name descname"><span class="pre">label</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#src.energiapy.components.location.Location.label" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.energiapy.components.location.Location.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.energiapy.components.location.Location.name" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.energiapy.components.location.Location.processes">
+<span class="sig-name descname"><span class="pre">processes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.energiapy.components.process.Process" title="src.energiapy.components.process.Process"><span class="pre">Process</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.energiapy.components.location.Location.processes" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.energiapy.components.location.Location.scales">
+<span class="sig-name descname"><span class="pre">scales</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#src.energiapy.components.temporal_scale.Temporal_scale" title="src.energiapy.components.temporal_scale.Temporal_scale"><span class="pre">Temporal_scale</span></a></em><a class="headerlink" href="#src.energiapy.components.location.Location.scales" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-src.energiapy.components.material">
+<span id="src-energiapy-components-material-module"></span><h2>src.energiapy.components.material module<a class="headerlink" href="#module-src.energiapy.components.material" title="Permalink to this heading"></a></h2>
+<p>Material data class</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.energiapy.components.material.Material">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.energiapy.components.material.</span></span><span class="sig-name descname"><span class="pre">Material</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gwp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">basis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'unit'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">citation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'citation</span> <span class="pre">needed'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">H2O</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.energiapy.components.material.Material" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Object with data regarding infrastructure material</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>name (str): ID 
+basis (str): base unit for calculation
+label (str, optional): name of the material. Defaults to ‘’.
+gwp (float, optional): global warming potential. Defaults to 0.
+citation (str, optional): add citation. Defaults to ‘citation needed’.</p>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.energiapy.components.material.Material.H2O">
+<span class="sig-name descname"><span class="pre">H2O</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#src.energiapy.components.material.Material.H2O" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.energiapy.components.material.Material.basis">
+<span class="sig-name descname"><span class="pre">basis</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'unit'</span></em><a class="headerlink" href="#src.energiapy.components.material.Material.basis" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.energiapy.components.material.Material.citation">
+<span class="sig-name descname"><span class="pre">citation</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'citation</span> <span class="pre">needed'</span></em><a class="headerlink" href="#src.energiapy.components.material.Material.citation" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.energiapy.components.material.Material.gwp">
+<span class="sig-name descname"><span class="pre">gwp</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">tuple</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#src.energiapy.components.material.Material.gwp" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.energiapy.components.material.Material.label">
+<span class="sig-name descname"><span class="pre">label</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#src.energiapy.components.material.Material.label" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.energiapy.components.material.Material.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.energiapy.components.material.Material.name" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-src.energiapy.components.network">
+<span id="src-energiapy-components-network-module"></span><h2>src.energiapy.components.network module<a class="headerlink" href="#module-src.energiapy.components.network" title="Permalink to this heading"></a></h2>
+<p>Linkage data class</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.energiapy.components.network.Network">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.energiapy.components.network.</span></span><span class="sig-name descname"><span class="pre">Network</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name:</span> <span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_locations:</span> <span class="pre">~typing.List[~src.energiapy.components.location.Location]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sink_locations:</span> <span class="pre">~typing.List[~src.energiapy.components.location.Location]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance_matrix:</span> <span class="pre">~typing.List[~typing.List[float]]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transport_matrix:</span> <span class="pre">~typing.List[~typing.List[~src.energiapy.components.transport.Transport]]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.energiapy.components.network.Network" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Object with data regarding the linakges between two locations
+Args:</p>
+<blockquote>
+<div><p>name (str): _description_
+source_locations (List[location], optional): list of location dataclass objects of source locations
+sink_locations (List[location], optional): list of location dataclass objects of sink locations
+distance_matrix (List[List[float]], optional): matrix with distances between sources and sinks, needs to be ordered
+transport_matrix (List[List[float]], optional): matrix with distances between sources and sinks, needs to be ordered
+label (str, optional): label. Defaults to ‘’.</p>
+</div></blockquote>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.energiapy.components.network.Network.distance_matrix">
+<span class="sig-name descname"><span class="pre">distance_matrix</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.energiapy.components.network.Network.distance_matrix" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.energiapy.components.network.Network.label">
+<span class="sig-name descname"><span class="pre">label</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#src.energiapy.components.network.Network.label" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.energiapy.components.network.Network.make_distance_dict">
+<span class="sig-name descname"><span class="pre">make_distance_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#src.energiapy.components.network.Network.make_distance_dict" title="Permalink to this definition"></a></dt>
+<dd><p>returns a dictionary of distances from sources to sinks</p>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>dict: a dictionary of distances from sources to sinks</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.energiapy.components.network.Network.make_transport_avail_dict">
+<span class="sig-name descname"><span class="pre">make_transport_avail_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#src.energiapy.components.network.Network.make_transport_avail_dict" title="Permalink to this definition"></a></dt>
+<dd><p>returns a dictionary with transportation modes available between sources and sinks</p>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>dict: a dictionary with transportation modes availabels between sources and sinks</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.energiapy.components.network.Network.make_transport_dict">
+<span class="sig-name descname"><span class="pre">make_transport_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#src.energiapy.components.network.Network.make_transport_dict" title="Permalink to this definition"></a></dt>
+<dd><p>returns a dictionary of trasportation modes available between sources to sinks</p>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>dict: a dictionary of trasportation modes available between sources to sinks</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.energiapy.components.network.Network.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.energiapy.components.network.Network.name" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.energiapy.components.network.Network.sink_locations">
+<span class="sig-name descname"><span class="pre">sink_locations</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.energiapy.components.location.Location" title="src.energiapy.components.location.Location"><span class="pre">Location</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.energiapy.components.network.Network.sink_locations" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.energiapy.components.network.Network.source_locations">
+<span class="sig-name descname"><span class="pre">source_locations</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.energiapy.components.location.Location" title="src.energiapy.components.location.Location"><span class="pre">Location</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.energiapy.components.network.Network.source_locations" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.energiapy.components.network.Network.transport_matrix">
+<span class="sig-name descname"><span class="pre">transport_matrix</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.energiapy.components.transport.Transport" title="src.energiapy.components.transport.Transport"><span class="pre">Transport</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.energiapy.components.network.Network.transport_matrix" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-src.energiapy.components.process">
+<span id="src-energiapy-components-process-module"></span><h2>src.energiapy.components.process module<a class="headerlink" href="#module-src.energiapy.components.process" title="Permalink to this heading"></a></h2>
+<p>Process data class</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.energiapy.components.process.Process">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.energiapy.components.process.</span></span><span class="sig-name descname"><span class="pre">Process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name:</span> <span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conversion:</span> <span class="pre">~typing.Dict[~src.energiapy.components.resource.Resource</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">float]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost:</span> <span class="pre">~typing.Optional[~typing.Union[float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dict]]</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">material_cons:</span> <span class="pre">~typing.Dict[~src.energiapy.components.material.Material</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">float]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intro_scale:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prod_max:</span> <span class="pre">float</span> <span class="pre">=</span> <span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prod_min:</span> <span class="pre">float</span> <span class="pre">=</span> <span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cap_seg:</span> <span class="pre">dict</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capex_seg:</span> <span class="pre">dict</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">basis:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'unit'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">carbon_credit:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gwp:</span> <span class="pre">~typing.Optional[tuple]</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">land:</span> <span class="pre">float</span> <span class="pre">=</span> <span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trl:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">block:</span> <span class="pre">~typing.Optional[str]</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">citation:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'citation</span> <span class="pre">needed'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lifetime:</span> <span class="pre">~typing.Optional[tuple]</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">varying:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">varying_capacity_df:</span> <span class="pre">~typing.Optional[~pandas.core.frame.DataFrame]</span> <span class="pre">=</span> <span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.energiapy.components.process.Process" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Object with process data
+Args:</p>
+<blockquote>
+<div><p>name (str): ID
+conversion (Dict[resource, float], optional): conversion data. Defaults to None.
+cost (floatordict, optional): cost of operation. Defaults to None.
+material_cons (Dict[material, float], optional): material consumption data. Defaults to None.
+varying (bool, optional): if production capacity is varying. Defaults to False.
+intro_scale (int, optional): scale when process is introduced. Defaults to 0.
+prod_max (float, optional): maximum production. Defaults to 0.
+prod_min (float, optional): minimum production. Defaults to 0.
+cap_seg (dict, optional): capacity pwl segment. Defaults to None.
+capex_seg (dict, optional): capex pwl segment. Defaults to None.
+carbon_credit (bool, optional): does process earn carbon credits. Defaults to False.
+basis(str, optional): base units for operation. Defaults to ‘unit’.
+gwp (float, optional): global warming potential per basis. Defaults to 0.
+land (float, optional): land requirement. Defaults to 0.
+trl (str, optional): technology readiness level. Defaults to None.
+block (str, optional): define block for convenience. Defaults to None.
+citation (str, optional): citation for data. Defaults to ‘citation needed’.
+lifetime (float, optional): the lifetime of process. Defaults to None.
+varying (bool, optional): whether process is subject to uncertainty. Defaults to False.
+varying_capacity_df (pandas.DataFrame, optional): input dataframe to generate capacity factors. Defaults to None.</p>
+</div></blockquote>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.energiapy.components.process.Process.basis">
+<span class="sig-name descname"><span class="pre">basis</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'unit'</span></em><a class="headerlink" href="#src.energiapy.components.process.Process.basis" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.energiapy.components.process.Process.block">
+<span class="sig-name descname"><span class="pre">block</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#src.energiapy.components.process.Process.block" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.energiapy.components.process.Process.cap_seg">
+<span class="sig-name descname"><span class="pre">cap_seg</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span></em><a class="headerlink" href="#src.energiapy.components.process.Process.cap_seg" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.energiapy.components.process.Process.capex_seg">
+<span class="sig-name descname"><span class="pre">capex_seg</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span></em><a class="headerlink" href="#src.energiapy.components.process.Process.capex_seg" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.energiapy.components.process.Process.carbon_credit">
+<span class="sig-name descname"><span class="pre">carbon_credit</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#src.energiapy.components.process.Process.carbon_credit" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.energiapy.components.process.Process.citation">
+<span class="sig-name descname"><span class="pre">citation</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'citation</span> <span class="pre">needed'</span></em><a class="headerlink" href="#src.energiapy.components.process.Process.citation" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.energiapy.components.process.Process.conversion">
+<span class="sig-name descname"><span class="pre">conversion</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.energiapy.components.resource.Resource" title="src.energiapy.components.resource.Resource"><span class="pre">Resource</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.energiapy.components.process.Process.conversion" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.energiapy.components.process.Process.cost">
+<span class="sig-name descname"><span class="pre">cost</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#src.energiapy.components.process.Process.cost" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.energiapy.components.process.Process.gwp">
+<span class="sig-name descname"><span class="pre">gwp</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">tuple</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#src.energiapy.components.process.Process.gwp" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.energiapy.components.process.Process.intro_scale">
+<span class="sig-name descname"><span class="pre">intro_scale</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#src.energiapy.components.process.Process.intro_scale" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.energiapy.components.process.Process.label">
+<span class="sig-name descname"><span class="pre">label</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#src.energiapy.components.process.Process.label" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.energiapy.components.process.Process.land">
+<span class="sig-name descname"><span class="pre">land</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#src.energiapy.components.process.Process.land" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.energiapy.components.process.Process.lifetime">
+<span class="sig-name descname"><span class="pre">lifetime</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">tuple</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#src.energiapy.components.process.Process.lifetime" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.energiapy.components.process.Process.make_capacity_factor">
+<span class="sig-name descname"><span class="pre">make_capacity_factor</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#src.energiapy.components.process.Process.make_capacity_factor" title="Permalink to this definition"></a></dt>
+<dd><p>makes capacity factor dict from varying process/production output DataFrame()</p>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>dict: dictionary with varying capacity factor, structure - {process: scale: value}</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.energiapy.components.process.Process.material_cons">
+<span class="sig-name descname"><span class="pre">material_cons</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.energiapy.components.material.Material" title="src.energiapy.components.material.Material"><span class="pre">Material</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.energiapy.components.process.Process.material_cons" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.energiapy.components.process.Process.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.energiapy.components.process.Process.name" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.energiapy.components.process.Process.prod_max">
+<span class="sig-name descname"><span class="pre">prod_max</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#src.energiapy.components.process.Process.prod_max" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.energiapy.components.process.Process.prod_min">
+<span class="sig-name descname"><span class="pre">prod_min</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.01</span></em><a class="headerlink" href="#src.energiapy.components.process.Process.prod_min" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.energiapy.components.process.Process.trl">
+<span class="sig-name descname"><span class="pre">trl</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#src.energiapy.components.process.Process.trl" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.energiapy.components.process.Process.varying">
+<span class="sig-name descname"><span class="pre">varying</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#src.energiapy.components.process.Process.varying" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.energiapy.components.process.Process.varying_capacity_df">
+<span class="sig-name descname"><span class="pre">varying_capacity_df</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">DataFrame</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#src.energiapy.components.process.Process.varying_capacity_df" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-src.energiapy.components.resource">
+<span id="src-energiapy-components-resource-module"></span><h2>src.energiapy.components.resource module<a class="headerlink" href="#module-src.energiapy.components.resource" title="Permalink to this heading"></a></h2>
+<p>Resource data class</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.energiapy.components.resource.Resource">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.energiapy.components.resource.</span></span><span class="sig-name descname"><span class="pre">Resource</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cons_max</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">revenue</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">price</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mile</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">store_max</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">store_min</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sell</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">basis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'unit'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">block</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">citation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'citation</span> <span class="pre">needed'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">varying</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">varying_cost_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">DataFrame</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.energiapy.components.resource.Resource" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Object with resource data</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>name (str): ID for the resource
+label (str, optional): name of the resource. Defaults to ‘’.
+consumption_max (float, optional): Maximum allowed resource consumption in time period [unit/h]. Defaults to 0.
+loss (float, optional): Amount of resource lost in time period [h]. Defaults to 0.
+revenue (float, optional): Amount earned through sale of resource [$/unit]. Defaults to 0.
+price (float, optional): Purchase cost of unit [$/unit]. Defaults to 0.
+mile (float, optional): mileage offered by resource [mile/unit]. Defaults to 0.
+store_max (float, optional): Maximum storage capacity increase in a year. Defaults to 0.
+store_min (float, optional): Minimum storage capacity increase in a year. Defaults to 0.
+sell (bool, optional): True if resource can be discharged. Defaults to False.
+demand (bool, optional): True, if the process has to meet set demand. Defaults to False.
+basis (str, optional): Base unit for the resource. Defaults to ‘unit’.
+block (str, optional): Assign a block for categorization. Defaults to None.
+citation (str, optional): Add citations for data sources. Defaults to ‘citation needed’.
+varying (bool, optional): If the cost of resource is varying/uncertain. Defaults to False.
+varying_cost_df (pandas.DataFrame, optional). cost trend for uncertain resource. Defaults to None</p>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.energiapy.components.resource.Resource.basis">
+<span class="sig-name descname"><span class="pre">basis</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'unit'</span></em><a class="headerlink" href="#src.energiapy.components.resource.Resource.basis" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.energiapy.components.resource.Resource.block">
+<span class="sig-name descname"><span class="pre">block</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#src.energiapy.components.resource.Resource.block" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.energiapy.components.resource.Resource.citation">
+<span class="sig-name descname"><span class="pre">citation</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'citation</span> <span class="pre">needed'</span></em><a class="headerlink" href="#src.energiapy.components.resource.Resource.citation" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.energiapy.components.resource.Resource.cons_max">
+<span class="sig-name descname"><span class="pre">cons_max</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#src.energiapy.components.resource.Resource.cons_max" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.energiapy.components.resource.Resource.demand">
+<span class="sig-name descname"><span class="pre">demand</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#src.energiapy.components.resource.Resource.demand" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.energiapy.components.resource.Resource.label">
+<span class="sig-name descname"><span class="pre">label</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#src.energiapy.components.resource.Resource.label" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.energiapy.components.resource.Resource.loss">
+<span class="sig-name descname"><span class="pre">loss</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#src.energiapy.components.resource.Resource.loss" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.energiapy.components.resource.Resource.make_cost_factor">
+<span class="sig-name descname"><span class="pre">make_cost_factor</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#src.energiapy.components.resource.Resource.make_cost_factor" title="Permalink to this definition"></a></dt>
+<dd><p>makes cost factor dict from varying process/production output DataFrame()</p>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>dict: dictionary with varying cost factor, structure - {resource: scale: value}</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.energiapy.components.resource.Resource.mile">
+<span class="sig-name descname"><span class="pre">mile</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#src.energiapy.components.resource.Resource.mile" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.energiapy.components.resource.Resource.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.energiapy.components.resource.Resource.name" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.energiapy.components.resource.Resource.price">
+<span class="sig-name descname"><span class="pre">price</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#src.energiapy.components.resource.Resource.price" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.energiapy.components.resource.Resource.revenue">
+<span class="sig-name descname"><span class="pre">revenue</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#src.energiapy.components.resource.Resource.revenue" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.energiapy.components.resource.Resource.sell">
+<span class="sig-name descname"><span class="pre">sell</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#src.energiapy.components.resource.Resource.sell" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.energiapy.components.resource.Resource.store_max">
+<span class="sig-name descname"><span class="pre">store_max</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#src.energiapy.components.resource.Resource.store_max" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.energiapy.components.resource.Resource.store_min">
+<span class="sig-name descname"><span class="pre">store_min</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.01</span></em><a class="headerlink" href="#src.energiapy.components.resource.Resource.store_min" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.energiapy.components.resource.Resource.varying">
+<span class="sig-name descname"><span class="pre">varying</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#src.energiapy.components.resource.Resource.varying" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.energiapy.components.resource.Resource.varying_cost_df">
+<span class="sig-name descname"><span class="pre">varying_cost_df</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">DataFrame</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#src.energiapy.components.resource.Resource.varying_cost_df" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-src.energiapy.components.result">
+<span id="src-energiapy-components-result-module"></span><h2>src.energiapy.components.result module<a class="headerlink" href="#module-src.energiapy.components.result" title="Permalink to this heading"></a></h2>
+<p>Result data class</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.energiapy.components.result.Result">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.energiapy.components.result.</span></span><span class="sig-name descname"><span class="pre">Result</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">components</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duals</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.energiapy.components.result.Result" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Result data class object</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>name (str): ID for the resource
+components (dict): input data relating to components
+output (dict): results from analysis</p>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.energiapy.components.result.Result.components">
+<span class="sig-name descname"><span class="pre">components</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span></em><a class="headerlink" href="#src.energiapy.components.result.Result.components" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.energiapy.components.result.Result.divide_by_objective">
+<span class="sig-name descname"><span class="pre">divide_by_objective</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.energiapy.components.result.Result.divide_by_objective" title="Permalink to this definition"></a></dt>
+<dd><p>divides variable at index</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>var (str): variable name
+index (tuple): index for variable as tuple</p>
+</dd>
+<dt>Returns:</dt><dd><p>float: value</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.energiapy.components.result.Result.duals">
+<span class="sig-name descname"><span class="pre">duals</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span></em><a class="headerlink" href="#src.energiapy.components.result.Result.duals" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.energiapy.components.result.Result.fetch_components">
+<span class="sig-name descname"><span class="pre">fetch_components</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">condition</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">set</span></span></span><a class="headerlink" href="#src.energiapy.components.result.Result.fetch_components" title="Permalink to this definition"></a></dt>
+<dd><p>fetches components that meet a specific condition</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>component_type (str): type of component: processs, resources, locations, materials, transports 
+condition (tuple): condition to be met
+For bool:
+condition = (‘attribute’, True))
+For str:
+condition = (‘attribute’, str))
+For numeric:
+condition = (‘attribute’, ‘*’, numeric))
+* - can be ‘eq’, ‘ge’, ‘le’, ‘g’, ‘l’</p>
+</dd>
+<dt>Returns:</dt><dd><p>set: set meeting condition</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.energiapy.components.result.Result.get_varindex">
+<span class="sig-name descname"><span class="pre">get_varindex</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.energiapy.components.result.Result.get_varindex" title="Permalink to this definition"></a></dt>
+<dd><p>gives the index of variable</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>var (str): variable name</p>
+</dd>
+<dt>Returns:</dt><dd><p>list: list of tuple indices</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.energiapy.components.result.Result.model_summary">
+<span class="sig-name descname"><span class="pre">model_summary</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.energiapy.components.result.Result.model_summary" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.energiapy.components.result.Result.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.energiapy.components.result.Result.name" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.energiapy.components.result.Result.output">
+<span class="sig-name descname"><span class="pre">output</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span></em><a class="headerlink" href="#src.energiapy.components.result.Result.output" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.energiapy.components.result.Result.saveoutputs">
+<span class="sig-name descname"><span class="pre">saveoutputs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.energiapy.components.result.Result.saveoutputs" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-src.energiapy.components.scenario">
+<span id="src-energiapy-components-scenario-module"></span><h2>src.energiapy.components.scenario module<a class="headerlink" href="#module-src.energiapy.components.scenario" title="Permalink to this heading"></a></h2>
+<p>Cost scenario data class</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.energiapy.components.scenario.Scenario">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.energiapy.components.scenario.</span></span><span class="sig-name descname"><span class="pre">Scenario</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scales</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#src.energiapy.components.temporal_scale.Temporal_scale" title="src.energiapy.components.temporal_scale.Temporal_scale"><span class="pre">Temporal_scale</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">network</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.energiapy.components.network.Network" title="src.energiapy.components.network.Network"><span class="pre">Network</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#src.energiapy.components.location.Location" title="src.energiapy.components.location.Location"><span class="pre">Location</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expenditure_scale_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scheduling_scale_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">network_scale_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_scale_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cluster_wt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.energiapy.components.scenario.Scenario" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>creates a scenario dataclass object
+Args:</p>
+<blockquote>
+<div><p>name (str): ID
+network (network): network object with the locations, transport linakges, and processes (with resources and materials)
+scales (temporal_scale): scales of the problem 
+expenditure_scale_level (int, optional): scale for resource purchase. Defaults to 0.
+scheduling_scale_level (int, optional): scale of production and inventory scheduling. Defaults to 0.
+network_scale_level (int, optional): scale for network decisions such as facility location. Defaults to 0.
+demand_scale_level (int, optional): scale for meeting specific demand for resource. Defaults to 0.
+label (str, optional): descriptive label. Defaults to ‘’.</p>
+</div></blockquote>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.energiapy.components.scenario.Scenario.cluster_wt">
+<span class="sig-name descname"><span class="pre">cluster_wt</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#src.energiapy.components.scenario.Scenario.cluster_wt" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.energiapy.components.scenario.Scenario.demand_scale_level">
+<span class="sig-name descname"><span class="pre">demand_scale_level</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#src.energiapy.components.scenario.Scenario.demand_scale_level" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.energiapy.components.scenario.Scenario.expenditure_scale_level">
+<span class="sig-name descname"><span class="pre">expenditure_scale_level</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#src.energiapy.components.scenario.Scenario.expenditure_scale_level" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.energiapy.components.scenario.Scenario.label">
+<span class="sig-name descname"><span class="pre">label</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#src.energiapy.components.scenario.Scenario.label" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.energiapy.components.scenario.Scenario.make_conversion_df">
+<span class="sig-name descname"><span class="pre">make_conversion_df</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.energiapy.components.scenario.Scenario.make_conversion_df" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.energiapy.components.scenario.Scenario.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.energiapy.components.scenario.Scenario.name" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.energiapy.components.scenario.Scenario.network">
+<span class="sig-name descname"><span class="pre">network</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.energiapy.components.network.Network" title="src.energiapy.components.network.Network"><span class="pre">Network</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#src.energiapy.components.location.Location" title="src.energiapy.components.location.Location"><span class="pre">Location</span></a><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#src.energiapy.components.scenario.Scenario.network" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.energiapy.components.scenario.Scenario.network_scale_level">
+<span class="sig-name descname"><span class="pre">network_scale_level</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#src.energiapy.components.scenario.Scenario.network_scale_level" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.energiapy.components.scenario.Scenario.scales">
+<span class="sig-name descname"><span class="pre">scales</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#src.energiapy.components.temporal_scale.Temporal_scale" title="src.energiapy.components.temporal_scale.Temporal_scale"><span class="pre">Temporal_scale</span></a></em><a class="headerlink" href="#src.energiapy.components.scenario.Scenario.scales" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.energiapy.components.scenario.Scenario.scheduling_scale_level">
+<span class="sig-name descname"><span class="pre">scheduling_scale_level</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#src.energiapy.components.scenario.Scenario.scheduling_scale_level" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-src.energiapy.components.temporal_scale">
+<span id="src-energiapy-components-temporal-scale-module"></span><h2>src.energiapy.components.temporal_scale module<a class="headerlink" href="#module-src.energiapy.components.temporal_scale" title="Permalink to this heading"></a></h2>
+<p>Temporal scale component</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.energiapy.components.temporal_scale.Temporal_scale">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.energiapy.components.temporal_scale.</span></span><span class="sig-name descname"><span class="pre">Temporal_scale</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">discretization_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.energiapy.components.temporal_scale.Temporal_scale" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>object with the temporal scales of the problem
+e.g.:
+scales = temporal_scale(discretization_list = [1, 365, 24]).generate_scales()
+Generates three temporal scales with 1, 365, and 24 discretizations respectively
+Args:</p>
+<blockquote>
+<div><p>discretization_list (list): list of discretization of temporal scale</p>
+</div></blockquote>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.energiapy.components.temporal_scale.Temporal_scale.discretization_list">
+<span class="sig-name descname"><span class="pre">discretization_list</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span></em><a class="headerlink" href="#src.energiapy.components.temporal_scale.Temporal_scale.discretization_list" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-src.energiapy.components.transport">
+<span id="src-energiapy-components-transport-module"></span><h2>src.energiapy.components.transport module<a class="headerlink" href="#module-src.energiapy.components.transport" title="Permalink to this heading"></a></h2>
+<p>Transport data class</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.energiapy.components.transport.Transport">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.energiapy.components.transport.</span></span><span class="sig-name descname"><span class="pre">Transport</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resources</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.energiapy.components.resource.Resource" title="src.energiapy.components.resource.Resource"><span class="pre">Resource</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intro_scale</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trans_max</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trans_loss</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trans_cost</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trans_emit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">citation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'citation</span> <span class="pre">needed'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.energiapy.components.transport.Transport" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>creates a transport object for specific material
+Args:
+name (str): ID for transportation mode
+resources (Set[Resource]): specific resources transported through mode.
+intro_scale (int, optional): when transportation mode is introduced. Defaults to 0.
+label (str, optional): name for the transportation mode. Defaults to ‘’.
+trans_max (float, optional): maximum capacity of material that can be transported. Defaults to 0.
+trans_loss (float, optional): transport lossed per unit of scheduling scale. Defaults to 0.
+trans_cost (float, optional): cost per unit distance. Defaults to 0.
+trans_emit (float, optional): carbon emissions per unit distance. Defaults to 0.
+citation (str, optional): cite data source. Defaults to citation needed</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.energiapy.components.transport.Transport.citation">
+<span class="sig-name descname"><span class="pre">citation</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'citation</span> <span class="pre">needed'</span></em><a class="headerlink" href="#src.energiapy.components.transport.Transport.citation" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.energiapy.components.transport.Transport.intro_scale">
+<span class="sig-name descname"><span class="pre">intro_scale</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#src.energiapy.components.transport.Transport.intro_scale" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.energiapy.components.transport.Transport.label">
+<span class="sig-name descname"><span class="pre">label</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#src.energiapy.components.transport.Transport.label" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.energiapy.components.transport.Transport.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.energiapy.components.transport.Transport.name" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.energiapy.components.transport.Transport.resources">
+<span class="sig-name descname"><span class="pre">resources</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.energiapy.components.resource.Resource" title="src.energiapy.components.resource.Resource"><span class="pre">Resource</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.energiapy.components.transport.Transport.resources" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.energiapy.components.transport.Transport.trans_cost">
+<span class="sig-name descname"><span class="pre">trans_cost</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#src.energiapy.components.transport.Transport.trans_cost" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.energiapy.components.transport.Transport.trans_emit">
+<span class="sig-name descname"><span class="pre">trans_emit</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#src.energiapy.components.transport.Transport.trans_emit" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.energiapy.components.transport.Transport.trans_loss">
+<span class="sig-name descname"><span class="pre">trans_loss</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#src.energiapy.components.transport.Transport.trans_loss" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.energiapy.components.transport.Transport.trans_max">
+<span class="sig-name descname"><span class="pre">trans_max</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#src.energiapy.components.transport.Transport.trans_max" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-src.energiapy.components">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-src.energiapy.components" title="Permalink to this heading"></a></h2>
+<p>energiapy.components init file</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Rahul Kakodkar, Efstratios N. Pistikopoulos.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

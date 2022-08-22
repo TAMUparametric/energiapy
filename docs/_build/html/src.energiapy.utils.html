@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>src.energiapy.utils package &mdash; Energiapy 0.0.1 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> Energiapy
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">src.energiapy.utils package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-src.energiapy.utils.cluster_utils">src.energiapy.utils.cluster_utils module</a></li>
+<li><a class="reference internal" href="#module-src.energiapy.utils.data_utils">src.energiapy.utils.data_utils module</a></li>
+<li><a class="reference internal" href="#module-src.energiapy.utils.graph_utils">src.energiapy.utils.graph_utils module</a></li>
+<li><a class="reference internal" href="#module-src.energiapy.utils.latex_utils">src.energiapy.utils.latex_utils module</a></li>
+<li><a class="reference internal" href="#module-src.energiapy.utils.math_utils">src.energiapy.utils.math_utils module</a></li>
+<li><a class="reference internal" href="#module-src.energiapy.utils.model_utils">src.energiapy.utils.model_utils module</a></li>
+<li><a class="reference internal" href="#module-src.energiapy.utils.nsrdb_utils">src.energiapy.utils.nsrdb_utils module</a></li>
+<li><a class="reference internal" href="#module-src.energiapy.utils">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Energiapy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>src.energiapy.utils package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/src.energiapy.utils.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="src-energiapy-utils-package">
+<h1>src.energiapy.utils package<a class="headerlink" href="#src-energiapy-utils-package" title="Permalink to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
+</section>
+<section id="module-src.energiapy.utils.cluster_utils">
+<span id="src-energiapy-utils-cluster-utils-module"></span><h2>src.energiapy.utils.cluster_utils module<a class="headerlink" href="#module-src.energiapy.utils.cluster_utils" title="Permalink to this heading"></a></h2>
+<p>Clustering utilities</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="src.energiapy.utils.cluster_utils.ahc_elbow">
+<span class="sig-prename descclassname"><span class="pre">src.energiapy.utils.cluster_utils.</span></span><span class="sig-name descname"><span class="pre">ahc_elbow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">varying_process_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">varying_resource_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">red_scn_method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rep_days_no</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#src.energiapy.utils.cluster_utils.ahc_elbow" title="Permalink to this definition"></a></dt>
+<dd><p>Reduces scenario to set of representative days
+days closest to the cluster centroids are chosen
+red_scn_methods available: Agglomorative Hierarchial Clustering (AHC)
+output dictionary contains representative days and their corresponding cluster weights</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>varying_process_df (pandas.DataFrame): contains varying process paramters (e.g.: conversion factors)
+varying_resource_df (pandas.DataFrame): contains varying resource paramters (e.g.: cost)
+red_scn_method (str): specify the type of clustering to use (e.g.: ‘AHC’)
+rep_days_no (int): number of representative days</p>
+</dd>
+<dt>Returns:</dt><dd><p>dict: contains set of representative days and corresponding cluster weights</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.energiapy.utils.cluster_utils.dtw_cluster">
+<span class="sig-prename descclassname"><span class="pre">src.energiapy.utils.cluster_utils.</span></span><span class="sig-name descname"><span class="pre">dtw_cluster</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">series1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">series2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.energiapy.utils.cluster_utils.dtw_cluster" title="Permalink to this definition"></a></dt>
+<dd><p>clusters time series data with disparate temporal resolution 
+using dynamic time warping (dtw)</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>series1 (list): time series 1
+series2 (list): time series 2</p>
+</dd>
+<dt>Returns:</dt><dd><p>matrix: cost matrix for dtw</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.energiapy.utils.cluster_utils.find_dtw_path">
+<span class="sig-prename descclassname"><span class="pre">src.energiapy.utils.cluster_utils.</span></span><span class="sig-name descname"><span class="pre">find_dtw_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="headerlink" href="#src.energiapy.utils.cluster_utils.find_dtw_path" title="Permalink to this definition"></a></dt>
+<dd><p>finds optimal warping path from a dynamic time warping cost matrix</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>matrix (numpy.ndarray): cost matrix from application of dtw</p>
+</dd>
+<dt>Returns:</dt><dd><p>list: optimal path with list of coordinates</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.energiapy.utils.cluster_utils.reduce_scenario">
+<span class="sig-prename descclassname"><span class="pre">src.energiapy.utils.cluster_utils.</span></span><span class="sig-name descname"><span class="pre">reduce_scenario</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scenario</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.energiapy.components.html#src.energiapy.components.scenario.Scenario" title="src.energiapy.components.scenario.Scenario"><span class="pre">Scenario</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">network</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="src.energiapy.components.html#src.energiapy.components.network.Network" title="src.energiapy.components.network.Network"><span class="pre">Network</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="src.energiapy.components.html#src.energiapy.components.location.Location" title="src.energiapy.components.location.Location"><span class="pre">Location</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">periods</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.energiapy.utils.cluster_utils.reduce_scenario" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-src.energiapy.utils.data_utils">
+<span id="src-energiapy-utils-data-utils-module"></span><h2>src.energiapy.utils.data_utils module<a class="headerlink" href="#module-src.energiapy.utils.data_utils" title="Permalink to this heading"></a></h2>
+<p>Data management utilities</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="src.energiapy.utils.data_utils.dump_data">
+<span class="sig-prename descclassname"><span class="pre">src.energiapy.utils.data_utils.</span></span><span class="sig-name descname"><span class="pre">dump_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.energiapy.utils.data_utils.dump_data" title="Permalink to this definition"></a></dt>
+<dd><p>dump data in any of the following formats: .json, .txt, .pkl</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>data (dict): dictionary with cost trajectories for all processes
+file_name (str): name of output file with format, e.g. file_name.pkl</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.energiapy.utils.data_utils.get_data">
+<span class="sig-prename descclassname"><span class="pre">src.energiapy.utils.data_utils.</span></span><span class="sig-name descname"><span class="pre">get_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#src.energiapy.utils.data_utils.get_data" title="Permalink to this definition"></a></dt>
+<dd><p>gets data from energia json database</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>file_name (str): name of file</p>
+</dd>
+<dt>Returns:</dt><dd><p>dict: dictionary with data</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.energiapy.utils.data_utils.load_results">
+<span class="sig-prename descclassname"><span class="pre">src.energiapy.utils.data_utils.</span></span><span class="sig-name descname"><span class="pre">load_results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="src.energiapy.components.html#src.energiapy.components.result.Result" title="src.energiapy.components.result.Result"><span class="pre">Result</span></a></span></span><a class="headerlink" href="#src.energiapy.utils.data_utils.load_results" title="Permalink to this definition"></a></dt>
+<dd><p>loads saved results</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>filename (str): file name</p>
+</dd>
+<dt>Returns:</dt><dd><p>Result: a energiapy result type object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.energiapy.utils.data_utils.make_conversion_dict">
+<span class="sig-prename descclassname"><span class="pre">src.energiapy.utils.data_utils.</span></span><span class="sig-name descname"><span class="pre">make_conversion_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#src.energiapy.utils.data_utils.make_conversion_dict" title="Permalink to this definition"></a></dt>
+<dd><p>updates conversion.json conversion values by process</p>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>dict: dictionary with conversion values</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.energiapy.utils.data_utils.make_cost_dict">
+<span class="sig-prename descclassname"><span class="pre">src.energiapy.utils.data_utils.</span></span><span class="sig-name descname"><span class="pre">make_cost_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">location_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost_scenario_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">process_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">year_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#src.energiapy.utils.data_utils.make_cost_dict" title="Permalink to this definition"></a></dt>
+<dd><p>intializes an empty dictionary for cost data for all processes</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>location_list (list): list of locations
+cost_scenario_list (list): list of scenarios
+process_list (list): list of processes
+year_list (list): list of years</p>
+</dd>
+<dt>Returns:</dt><dd><p>dict: dictionary with costs</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.energiapy.utils.data_utils.make_f_purchase">
+<span class="sig-prename descclassname"><span class="pre">src.energiapy.utils.data_utils.</span></span><span class="sig-name descname"><span class="pre">make_f_purchase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">location_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">day_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hour_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resource_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">varying_resource_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#src.energiapy.utils.data_utils.make_f_purchase" title="Permalink to this definition"></a></dt>
+<dd><p>makes a dictionary for varying resource costs.
+minimum resolution hour|</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>location_list (list): list of locations
+day_list (list): list of days/seasons
+hour_list (list): list of hours
+process_list (list): list of processes
+varying_resource_df (pandas.DataFrame): dataframe with varying resource costs</p>
+</dd>
+<dt>Returns:</dt><dd><p>dict: dictionary containing hourly conversion factors for all processes</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.energiapy.utils.data_utils.make_henry_price_df">
+<span class="sig-prename descclassname"><span class="pre">src.energiapy.utils.data_utils.</span></span><span class="sig-name descname"><span class="pre">make_henry_price_df</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">year</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stretch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="headerlink" href="#src.energiapy.utils.data_utils.make_henry_price_df" title="Permalink to this definition"></a></dt>
+<dd><p>makes a df from Henry Spot Price Index data
+Days with missing data are filled using previous day values
+The costs are converted to $/kg from $/MMBtu using a factor of /22.4</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>file_name (str): provide csv file with data
+year (int): import data from a particular year
+stretch (bool): if True, streches the timescale from days (365) to hours (8760)</p>
+</dd>
+<dt>Returns:</dt><dd><p>pandas.DataFrame: data frame with varying natural gas prices</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.energiapy.utils.data_utils.make_material_dict">
+<span class="sig-prename descclassname"><span class="pre">src.energiapy.utils.data_utils.</span></span><span class="sig-name descname"><span class="pre">make_material_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.energiapy.utils.data_utils.make_material_dict" title="Permalink to this definition"></a></dt>
+<dd><p>updates infra_mat.json which contains infrastructaral material needs by facility</p>
+<dl class="simple">
+<dt>Returns:</dt><dd><p><a href="#id1"><span class="problematic" id="id2">infra_mat_dict_</span></a>: dictionary with infrastructaral material needs</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.energiapy.utils.data_utils.make_nrel_cost_df">
+<span class="sig-prename descclassname"><span class="pre">src.energiapy.utils.data_utils.</span></span><span class="sig-name descname"><span class="pre">make_nrel_cost_df</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">location</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.energiapy.components.html#src.energiapy.components.location.Location" title="src.energiapy.components.location.Location"><span class="pre">Location</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">nrel_cost_xlsx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pick_nrel_process_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">year_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">case</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">crpyears</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="headerlink" href="#src.energiapy.utils.data_utils.make_nrel_cost_df" title="Permalink to this definition"></a></dt>
+<dd><p>makes dataframe for nrel atb data
+processes should be specified based on NREL technology tags
+classes for technology will be picked based on location 
+list of cost metrics (‘CAPEX’, ‘Fixed O&amp;M’, ‘Variable O&amp;M’)</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>location (location): location object
+nrel_cost_xlsx (.xlsx): excel file from NREL ATB 
+pick_nrel_process_list (list): list of nrel defined processes 
+year_list (list): list of years
+case (str): Market or Research case
+crpyears (float): cost recovery period</p>
+</dd>
+<dt>Returns:</dt><dd><p>pandas.DataFrame: with nrel costing data for the specified year</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-src.energiapy.utils.graph_utils">
+<span id="src-energiapy-utils-graph-utils-module"></span><h2>src.energiapy.utils.graph_utils module<a class="headerlink" href="#module-src.energiapy.utils.graph_utils" title="Permalink to this heading"></a></h2>
+<p>Utilities for graphing, manages axes and such</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="src.energiapy.utils.graph_utils.axis_formatter">
+<span class="sig-prename descclassname"><span class="pre">src.energiapy.utils.graph_utils.</span></span><span class="sig-name descname"><span class="pre">axis_formatter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">axes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xcord</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axis_labels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'M'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.energiapy.utils.graph_utils.axis_formatter" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-src.energiapy.utils.latex_utils">
+<span id="src-energiapy-utils-latex-utils-module"></span><h2>src.energiapy.utils.latex_utils module<a class="headerlink" href="#module-src.energiapy.utils.latex_utils" title="Permalink to this heading"></a></h2>
+<p>Generates latex doc string</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="src.energiapy.utils.latex_utils.constraint_latex_render">
+<span class="sig-prename descclassname"><span class="pre">src.energiapy.utils.latex_utils.</span></span><span class="sig-name descname"><span class="pre">constraint_latex_render</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">constraint_rule</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">latex_alias_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.energiapy.utils.latex_utils.constraint_latex_render" title="Permalink to this definition"></a></dt>
+<dd><p>renders a string for equation in latex format</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>constraint_rule (function, optional): constraint definition rule. Defaults to {}
+latex_alias_dict (dict): aliases for vaiables, sets, and symbols</p>
+</dd>
+<dt>Returns:</dt><dd><p>str: string in latex format</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-src.energiapy.utils.math_utils">
+<span id="src-energiapy-utils-math-utils-module"></span><h2>src.energiapy.utils.math_utils module<a class="headerlink" href="#module-src.energiapy.utils.math_utils" title="Permalink to this heading"></a></h2>
+<p>Math utilities</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="src.energiapy.utils.math_utils.find_euclidean_distance">
+<span class="sig-prename descclassname"><span class="pre">src.energiapy.utils.math_utils.</span></span><span class="sig-name descname"><span class="pre">find_euclidean_distance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cluster_node_a</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cluster_node_b</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.energiapy.utils.math_utils.find_euclidean_distance" title="Permalink to this definition"></a></dt>
+<dd><p>finds euclidean distances between two cluster nodes</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>cluster_node_a (float): index tag for cluster node a
+cluster_node_b (float): index tag for cluster node b</p>
+</dd>
+<dt>Returns:</dt><dd><p>float: euclidean distance</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.energiapy.utils.math_utils.generate_connectivity_matrix">
+<span class="sig-prename descclassname"><span class="pre">src.energiapy.utils.math_utils.</span></span><span class="sig-name descname"><span class="pre">generate_connectivity_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.energiapy.utils.math_utils.generate_connectivity_matrix" title="Permalink to this definition"></a></dt>
+<dd><p>generates a connectivity matrixto maintain chronology [..1,0,1..]</p>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>array: matrix with connectivity relations</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.energiapy.utils.math_utils.scaler">
+<span class="sig-prename descclassname"><span class="pre">src.energiapy.utils.math_utils.</span></span><span class="sig-name descname"><span class="pre">scaler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent_scale</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">child_scale</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="headerlink" href="#src.energiapy.utils.math_utils.scaler" title="Permalink to this definition"></a></dt>
+<dd><p>creates a scaled list from a pandas.DataFrame object</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>input_df (pandas.DataFrame): df with values to be scaled
+parent_scale (list): scale to project into
+child_scale (list): scale to project</p>
+</dd>
+<dt>Returns:</dt><dd><p>pandas.DataFrame: scaled values</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-src.energiapy.utils.model_utils">
+<span id="src-energiapy-utils-model-utils-module"></span><h2>src.energiapy.utils.model_utils module<a class="headerlink" href="#module-src.energiapy.utils.model_utils" title="Permalink to this heading"></a></h2>
+<p>Model utilities</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="src.energiapy.utils.model_utils.scale_list">
+<span class="sig-prename descclassname"><span class="pre">src.energiapy.utils.model_utils.</span></span><span class="sig-name descname"><span class="pre">scale_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ConcreteModel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_levels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.energiapy.utils.model_utils.scale_list" title="Permalink to this definition"></a></dt>
+<dd><p>returns a list with appropropriate scale(s)</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>instance (ConcreteModel): pyomo instance
+scale_level (int, optional): appropriate scale. Defaults to 0.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.energiapy.utils.model_utils.scale_pyomo_set">
+<span class="sig-prename descclassname"><span class="pre">src.energiapy.utils.model_utils.</span></span><span class="sig-name descname"><span class="pre">scale_pyomo_set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ConcreteModel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.energiapy.utils.model_utils.scale_pyomo_set" title="Permalink to this definition"></a></dt>
+<dd><p>returns a set with appropropriate scale(s)</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>instance (ConcreteModel): pyomo instance
+scale_level (int, optional): appropriate scale. Defaults to 0.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.energiapy.utils.model_utils.scale_tuple">
+<span class="sig-prename descclassname"><span class="pre">src.energiapy.utils.model_utils.</span></span><span class="sig-name descname"><span class="pre">scale_tuple</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ConcreteModel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_levels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.energiapy.utils.model_utils.scale_tuple" title="Permalink to this definition"></a></dt>
+<dd><p>returns a tuple with appropropriate scale(s)</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>instance (ConcreteModel): pyomo instance
+scale_level (int, optional): appropriate scale. Defaults to 0.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-src.energiapy.utils.nsrdb_utils">
+<span id="src-energiapy-utils-nsrdb-utils-module"></span><h2>src.energiapy.utils.nsrdb_utils module<a class="headerlink" href="#module-src.energiapy.utils.nsrdb_utils" title="Permalink to this heading"></a></h2>
+<p>pvlib utils</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="src.energiapy.utils.nsrdb_utils.fetch_nsrdb_data">
+<span class="sig-prename descclassname"><span class="pre">src.energiapy.utils.nsrdb_utils.</span></span><span class="sig-name descname"><span class="pre">fetch_nsrdb_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">attrs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">year</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lat_lon</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">county</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resolution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'max-population'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.energiapy.utils.nsrdb_utils.fetch_nsrdb_data" title="Permalink to this definition"></a></dt>
+<dd><p>fetches nsrdb data from nearest coordinates (latitude, longitude) 
+or from county in a state matching a particular ‘get’ metric</p>
+<dl>
+<dt>Args:</dt><dd><dl class="simple">
+<dt>attrs (List[str]): attributes to fetch [‘air_temperature’,</dt><dd><p>‘clearsky_dhi’,
+‘clearsky_dni’,
+‘clearsky_ghi’,
+‘cloud_type’,
+‘coordinates’,
+‘dew_point’,
+‘dhi’,
+‘dni’,
+‘fill_flag’,
+‘ghi’,
+‘meta’,
+‘relative_humidity’,
+‘solar_zenith_angle’,
+‘surface_albedo’,
+‘surface_pressure’,
+‘time_index’,
+‘total_precipitable_water’,
+‘wind_direction’,
+‘wind_speed’]</p>
+</dd>
+</dl>
+<p>year (int): year of choice, e.g. 2019
+lat_lon (Tuple[float], optional): (latitude, longitude) to fetch closest data point. Defaults to None.
+state (str, optional): capitalized state name, e.g. ‘Texas’ . Defaults to ‘’.
+county (str, optional): capitalized county name, e.g. ‘Brazos’ . Defaults to ‘’.
+resolution (str, optional): choose from ‘halfhourly’, ‘hourly’, ‘daily’. Defaults to ‘’.
+get (str, optional): Defaults to ‘max-population’.</p>
+<blockquote>
+<div><p>From within county choose the data point that matches one of the following. 
+‘max-population’, ‘max-elevation’, ‘max-landcover’
+‘min-population’, ‘min-elevation’, ‘min-landcover’</p>
+</div></blockquote>
+</dd>
+<dt>Returns:</dt><dd><p>pandas.DataFrame, tuple: Dataframe with data, (latitude, longitude)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.energiapy.utils.nsrdb_utils.solar_power_output">
+<span class="sig-prename descclassname"><span class="pre">src.energiapy.utils.nsrdb_utils.</span></span><span class="sig-name descname"><span class="pre">solar_power_output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">weather_df:</span> <span class="pre">~pandas.core.frame.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lat_lon=&lt;class</span> <span class="pre">'tuple'&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.energiapy.utils.nsrdb_utils.solar_power_output" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-src.energiapy.utils">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-src.energiapy.utils" title="Permalink to this heading"></a></h2>
+<p>energiapy.utils init file</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Rahul Kakodkar, Efstratios N. Pistikopoulos.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
