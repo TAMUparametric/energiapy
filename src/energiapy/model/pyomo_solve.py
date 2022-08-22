@@ -73,7 +73,7 @@ def solve(instance:ConcreteModel, solver:str, name:str, scenario:Scenario = None
         output_dict = solution_dict
         duals_dict = {}
 
-        logging.basicConfig(filename= f"{scenario.name}_infeasible.log", encoding='utf-8', level=logging.INFO)
+        logging.basicConfig(filename= f"output_log/{scenario.name}_infeasible.log", encoding='utf-8', level=logging.INFO)
         log_infeasible_bounds(instance)
         log_infeasible_constraints(instance)
         log_close_to_bounds(instance)
