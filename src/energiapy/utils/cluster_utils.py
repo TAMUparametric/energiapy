@@ -114,12 +114,12 @@ def reduce_scenario(scenario: Scenario, location: Location, periods:int, scale_l
 
 def agg_hierarchial_elbow(scales: Temporal_scale, scale_level: int, cost_factor: dict = None, capacity_factor: dict = None, range_list:list = None):
     if range_list is None:
-        iter = scales.scale[scale_level]
+        iter_ = scales.scale[scale_level]
     else:
-        iter = range_list
+        iter_ = range_list
     wcss_list = [agg_hierarchial(scales, scale_level= scale_level, periods= i,\
-            cost_factor= cost_factor, capacity_factor= capacity_factor)[1]  for i in iter]    
-    return wcss_list, iter
+            cost_factor= cost_factor, capacity_factor= capacity_factor)[1]  for i in iter_]    
+    return wcss_list
 
 def dtw_cluster(series1:list, series2:list):
     """clusters time series data with disparate temporal resolution 
