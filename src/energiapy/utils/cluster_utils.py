@@ -93,6 +93,8 @@ def agg_hierarchial(scales: Temporal_scale, scale_level: int, periods: int, cost
 
     return rep_dict, wcss_sum, reduced_temporal_scale  
     
+# TODO - call methods as a function 
+# TODO - Handle multiple outputs
 
 def reduce_scenario(scenario: Scenario, location: Location, periods:int, scale_level:int, method: str):
     

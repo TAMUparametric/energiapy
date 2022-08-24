@@ -88,7 +88,7 @@ def solve(instance:ConcreteModel, solver:str, name:str, scenario:Scenario = None
     
     return results
 
+#%%
 
 
-
-# %%
+# %
