@@ -23,9 +23,25 @@ from ..components.temporal_scale import Temporal_scale
 from ..components.network import Network
 from ..components.location import Location
 from typing import Union
+from enum import Enum, auto
 
+class Clustermethod(Enum):
+    agg_hierarchial = auto()
+    
 
 def agg_hierarchial(scales: Temporal_scale, scale_level: int, periods: int, cost_factor: dict = None, capacity_factor: dict = None):
+    """perform agglomerative hierarchial clustering over time-series data
+
+    Args:
+        scales (Temporal_scale): scales of the problme
+        scale_level (int): scale level to cluster at
+        periods (int): number of clustering periods
+        cost_factor (dict, optional): factor to account for varying cost factors. Defaults to None.
+        capacity_factor (dict, optional): factor to account for varying production capacity. Defaults to None.
+
+    Returns:
+        _type_: _description_
+    """
     
     
     cost_factor_df = pandas.DataFrame.from_dict(cost_factor)
@@ -91,14 +107,29 @@ def agg_hierarchial(scales: Temporal_scale, scale_level: int, periods: int, cost
 
     wcss_sum = sum(i for i in scaled_df['ED'])/periods
 
-    return rep_dict, wcss_sum, reduced_temporal_scale  
+    return rep_dict, wcss_sum, reduced_temporal_scale
     
 # TODO - call methods as a function 
-# TODO - Handle multiple outputs
+# TODO  - Handle multiple outputs
 
-def reduce_scenario(scenario: Scenario, location: Location, periods:int, scale_level:int, method: str):
+
+
+
+def reduce_scenario(scenario: Scenario, location: Location, periods:int, scale_level:int, method: Clustermethod) -> Scenario:
+    """reduce scenario using a particular method
+
+    Args:
+        scenario (Scenario): full-scale scenario
+        location (Location): location in scenario to cluster
+        periods (int): number of clustering intervals
+        scale_level (int): scale at which to cluster
+        method (Clustermethod): available clustering methods
+
+    Returns:
+        Scenario: reduced scenario
+    """
     
-    if method == 'agg_hierarchial':
+    if method is Clustermethod.agg_hierarchial:
         rep_dict, wcss_sum, reduced_temporal_scale = agg_hierarchial(scenario.scales, scale_level= scale_level, periods= periods, \
             cost_factor= scenario.cost_factor[location.name], capacity_factor= scenario.capacity_factor[location.name])   
    
@@ -114,7 +145,19 @@ def reduce_scenario(scenario: Scenario, location: Location, periods:int, scale_l
    
     return reduced_scenario
 
-def agg_hierarchial_elbow(scales: Temporal_scale, scale_level: int, cost_factor: dict = None, capacity_factor: dict = None, range_list:list = None):
+def agg_hierarchial_elbow(scales: Temporal_scale, scale_level: int, cost_factor: dict = None, capacity_factor: dict = None, range_list:list = None) -> list:
+    """calculate the error of a particular clustering method over a range of different cluster periods
+
+    Args:
+        scales (Temporal_scale): scales of the problem
+        scale_level (int): scale over which to cluster
+        cost_factor (dict, optional): factor for varying resource cost. Defaults to None.
+        capacity_factor (dict, optional): factor for varying production capacities. Defaults to None.
+        range_list (list, optional): range of clustering days over which to compute error. Defaults to None.
+
+    Returns:
+        list: error for each cluster period returned as a list
+    """
     if range_list is None:
         iter_ = scales.scale[scale_level]
     else:
