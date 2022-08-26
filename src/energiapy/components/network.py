@@ -39,6 +39,7 @@ class Network:
         self.transport_dict = self.make_transport_dict()
         self.distance_dict = self.make_distance_dict()
         self.transport_avail_dict = self.make_transport_avail_dict()
+        self.locations = list(set(self.source_locations).union(set(self.sink_locations)))
     
         
     def make_distance_dict(self) -> dict:
