@@ -17,6 +17,7 @@ from ..components.transport import Transport
 from ..components.location import Location
 from typing import List
 
+
 @dataclass
 class Network:
     """Object with data regarding the linakges between two locations
@@ -33,33 +34,33 @@ class Network:
     sink_locations: List[Location] = field(default_factory=list)
     distance_matrix: List[List[float]] = field(default_factory=list)
     transport_matrix: List[List[Transport]] = field(default_factory=list)
-    label: str = '' 
+    label: str = ''
 
     def __post_init__(self):
         self.transport_dict = self.make_transport_dict()
         self.distance_dict = self.make_distance_dict()
         self.transport_avail_dict = self.make_transport_avail_dict()
-        self.locations = list(set(self.source_locations).union(set(self.sink_locations)))
-    
-        
+        self.locations = list(
+            set(self.source_locations).union(set(self.sink_locations)))
+
     def make_distance_dict(self) -> dict:
         """returns a dictionary of distances from sources to sinks
 
         Returns:
             dict: a dictionary of distances from sources to sinks
         """
-        distance_dict = {(self.source_locations[i].name, self.sink_locations[j].name): \
-            self.distance_matrix[i][j] for i,j in product(range(len(self.source_locations)), range(len(self.sink_locations)))}
+        distance_dict = {(self.source_locations[i].name, self.sink_locations[j].name):
+                         self.distance_matrix[i][j] for i, j in product(range(len(self.source_locations)), range(len(self.sink_locations)))}
         return distance_dict
-    
+
     def make_transport_dict(self) -> dict:
         """returns a dictionary of trasportation modes available between sources to sinks
 
         Returns:
             dict: a dictionary of trasportation modes available between sources to sinks
         """
-        transport_dict = {(self.source_locations[i].name, self.sink_locations[j].name): \
-            set(self.transport_matrix[i][j]) for i,j in product(range(len(self.source_locations)), range(len(self.sink_locations)))}
+        transport_dict = {(self.source_locations[i].name, self.sink_locations[j].name):
+                          set(self.transport_matrix[i][j]) for i, j in product(range(len(self.source_locations)), range(len(self.sink_locations)))}
         return transport_dict
 
     def make_transport_avail_dict(self) -> dict:
@@ -68,11 +69,9 @@ class Network:
         Returns:
             dict: a dictionary with transportation modes availabels between sources and sinks 
         """
-        transport_avail_dict =  {i: {j.name for j in self.transport_dict[i]} for i in self.transport_dict.keys()}
+        transport_avail_dict = {
+            i: {j.name for j in self.transport_dict[i]} for i in self.transport_dict.keys()}
         return transport_avail_dict
 
     def __refr__(self):
         return self.name
-    
-    
-    

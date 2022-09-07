@@ -1,4 +1,4 @@
-#%%
+# %%
 from setuptools import setup, find_packages
 
 __version__ = "1.0.0"
@@ -31,7 +31,7 @@ setup(
         'setuptools',
         'pvlib',
         'scikit-learn'
-        ],
+    ],
     packages=find_packages(where='src'),
     package_dir={'': 'src'}
 )
