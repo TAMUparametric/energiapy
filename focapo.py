@@ -17,14 +17,12 @@ from src.energiapy.plot import plot
 from src.energiapy.model.pyomo_solve import solve
 from src.energiapy.utils.cluster_utils import reduce_scenario, agg_hierarchial_elbow, Clustermethod
 from src.energiapy.utils.data_utils import load_results
-import matplotlib.pyplot as plt
-
-
-from pyomo.environ import ConcreteModel
 from src.energiapy.model.pyomo_sets import generate_sets
 from src.energiapy.model.pyomo_vars import *
 from src.energiapy.model.pyomo_cons import *
 from src.energiapy.model.pyomo_objs import cost_objective
+import matplotlib.pyplot as plt
+from pyomo.environ import ConcreteModel
 
 
 ho_solar_df = pandas.read_csv('data/ho_solar.csv', index_col=0) #Houston solar dni
@@ -170,7 +168,7 @@ plot.capacity_factor(location= HO, process= WF, color= 'blue')
 plot.cost_factor (location= HO, resource= CH4, color= 'red')
 
 
-# %%
+#%%
 case_sl = Scenario(name= 'shell', network= HO, scales= scales,  expenditure_scale_level= 2, scheduling_scale_level= 2, \
     network_scale_level= 0, demand_scale_level= 1, label= 'shell milp case study (HO)')
 
@@ -295,52 +293,188 @@ def formulate_houston_milp(scenario: Scenario, carbon_bound:float= None, carbon_
 
 
 reduced_milp_sl = formulate_houston_milp(scenario= reduced_case_sl)
-results_reduced_sl = solve(scenario = reduced_case_sl, instance= reduced_milp_sl, solver= 'gurobi', name=f"Houston_MILP_C100",\
+results_reduced_sl = solve(scenario = reduced_case_sl, instance= reduced_milp_sl, solver= 'gurobi', name=f"Houston_MILP_C0",\
     saveformat= '.pkl', print_solversteps = True)
 
 
-def carbon_reduction_cases(scenario: Scenario, carbon_bound:float, discretization_points:float = 10):
-    iter_list = [100.0/discretization_points*(i + 1) for i in range(discretization_points-1)]
+# def carbon_reduction_cases(scenario: Scenario, carbon_bound:float, discretization_points:float = 10):
+#     iter_list = [100.0/discretization_points*(i + 1) for i in range(discretization_points-1)]
 
-    for iter_ in iter_list:
-        milp_ = formulate_houston_milp(scenario= scenario, carbon_bound= carbon_bound \
-            , carbon_reduction_percentage= iter_)
-        results_ = solve(scenario = scenario, instance= milp_, solver= 'gurobi', name=f"Houston_MILP_C{int(iter_)}",\
-            saveformat= '.pkl')
-    return milp_
+#     for iter_ in iter_list:
+#         milp_ = formulate_houston_milp(scenario= scenario, carbon_bound= carbon_bound \
+#             , carbon_reduction_percentage= iter_)
+#         results_ = solve(scenario = scenario, instance= milp_, solver= 'gurobi', name=f"Houston_MILP_C{int(iter_)}",\
+#             saveformat= '.pkl')
+#     return milp_
 
 
-carbon_reduction_cases(scenario = reduced_case_sl, carbon_bound = results_reduced_sl.output['S_location'][('HO', 'CO2_Vent', 0)], discretization_points = 10)
+# carbon_reduction_cases(scenario = reduced_case_sl, carbon_bound = results_reduced_sl.output['S_location'][('HO', 'CO2_Vent', 0)], discretization_points = 10)
 
 #%%
-
 results = {i: load_results(f"Houston_MILP_C{i+1}0.pkl") for i in range(9)}
 
 # %%
 carbon = [results[i].output['S_location'][('HO', 'CO2_Vent', 0)] for i in range(9)]
 electrolysis = [results[i].output['P_location'][('HO', 'AKE', 0)] for i in range(9)]
+carbon_f = [results_flex[i].output['S_location'][('HO', 'CO2_Vent', 0)] for i in range(9)]
 smrh = [results[i].output['P_location'][('HO', 'SMRH', 0)] for i in range(9)]
 smr = [results[i].output['P_location'][('HO', 'SMR', 0)] for i in range(9)]
 cap_smr = [results[i].output['Cap_P'][('HO', 'SMR', 0)] for i in range(9)]
 cap_smrh = [results[i].output['Cap_P'][('HO', 'SMRH', 0)] for i in range(9)]
 cap_ake = [results[i].output['Cap_P'][('HO', 'AKE', 0)] for i in range(9)]
+LCOE = [results[i].output['objective'] /(results[i].output['S_location'][('HO', 'H2_L', 0)] + results[i].output['S_location'][('HO', 'H2_C', 0)]) for i in range(9)]
 
 objective = [results[i].output['objective'] for i in range(9)]
+objective_f = [results_flex[i].output['objective'] for i in range(9)]
 
-# %%
 plt.plot(carbon, objective)
+plt.plot(carbon_f, objective_f)
 
 
-# %%
+plt.plot(LCOE)
+
+
 # plt.plot(smrh)
 # plt.plot(smr)
 plt.plot(cap_ake)
 
+#%%
 
 
-plot.schedule(results=results[0], y_axis='Inv',
+
+def flexibility_reformulation(scenario: Scenario, affix_results: Result, carbon_bound:float= None, carbon_reduction_percentage:float= 0):
+    
+    instance = ConcreteModel()
+
+    generate_sets(instance=instance, location_set=scenario.location_set, transport_set=scenario.transport_set, scales=scenario.scales,
+                  process_set=scenario.process_set, resource_set=scenario.resource_set, material_set=scenario.material_set,
+                  source_set=scenario.source_locations, sink_set=scenario.sink_locations)
+
+    generate_scheduling_vars(
+        instance=instance, scale_level=scenario.scheduling_scale_level)
+    generate_network_vars(
+        instance=instance, scale_level=scenario.network_scale_level)
+    generate_network_binary_vars(
+        instance=instance, scale_level=scenario.network_scale_level)
+
+    if len(instance.locations) > 1:
+        generate_transport_vars(
+            instance=instance, scale_level=scenario.scheduling_scale_level)
+
+    inventory_balance_constraint(instance=instance, scheduling_scale_level=scenario.scheduling_scale_level,
+                                 conversion=scenario.conversion)
+    nameplate_production_constraint(instance=instance, capacity_factor=scenario.capacity_factor,
+                                    network_scale_level=scenario.network_scale_level, scheduling_scale_level=scenario.scheduling_scale_level)
+    nameplate_inventory_constraint(instance=instance, loc_res_dict=scenario.loc_res_dict, network_scale_level=scenario.network_scale_level,
+                                   scheduling_scale_level=scenario.scheduling_scale_level)
+    resource_consumption_constraint(instance=instance, loc_res_dict=scenario.loc_res_dict,
+                                    cons_max=scenario.cons_max, scheduling_scale_level=scenario.scheduling_scale_level)
+    resource_purchase_constraint(instance=instance, cost_factor=scenario.cost_factor, price=scenario.price,
+                                 loc_res_dict=scenario.loc_res_dict, scheduling_scale_level=scenario.scheduling_scale_level,
+                                 expenditure_scale_level=scenario.expenditure_scale_level)
+
+    production_facility_affix_constraint(instance=instance, affix_production_cap = affix_results.output['Cap_P'],
+                                   loc_pro_dict=scenario.loc_pro_dict, network_scale_level=scenario.network_scale_level)
+    
+    storage_facility_affix_constraint(instance=instance, affix_storage_cap = affix_results.output['Cap_S'],
+                                loc_res_dict=scenario.loc_res_dict, network_scale_level=scenario.network_scale_level)
+
+    min_production_facility_constraint(instance=instance, prod_min=scenario.prod_min,
+                                       loc_pro_dict=scenario.loc_pro_dict, network_scale_level=scenario.network_scale_level)
+    min_storage_facility_constraint(instance=instance, store_min=scenario.store_min,
+                                    loc_res_dict=scenario.loc_res_dict, network_scale_level=scenario.network_scale_level)
+
+    location_production_constraint(
+        instance=instance, network_scale_level=scenario.network_scale_level, cluster_wt=scenario.cluster_wt)
+    location_discharge_constraint(
+        instance=instance, network_scale_level=scenario.network_scale_level, cluster_wt=scenario.cluster_wt)
+    location_consumption_constraint(
+        instance=instance, network_scale_level=scenario.network_scale_level, cluster_wt=scenario.cluster_wt)
+    location_purchase_constraint(
+        instance=instance, network_scale_level=scenario.network_scale_level, cluster_wt=scenario.cluster_wt)
+
+    network_production_constraint(
+        instance=instance, network_scale_level=scenario.network_scale_level)
+    network_discharge_constraint(
+        instance=instance, network_scale_level=scenario.network_scale_level)
+    network_consumption_constraint(
+        instance=instance, network_scale_level=scenario.network_scale_level)
+    network_purchase_constraint(
+        instance=instance, network_scale_level=scenario.network_scale_level)
+
+    process_capex_constraint(instance=instance, capex_dict=scenario.capex_dict,
+                             network_scale_level=scenario.network_scale_level)
+    process_fopex_constraint(instance=instance, fopex_dict=scenario.fopex_dict,
+                             network_scale_level=scenario.network_scale_level)
+    process_vopex_constraint(instance=instance, vopex_dict=scenario.vopex_dict,
+                             network_scale_level=scenario.network_scale_level)
+
+    process_land_constraint(instance=instance, land_dict=scenario.land_dict,
+                            network_scale_level=scenario.network_scale_level)
+    location_land_constraint(
+        instance=instance, network_scale_level=scenario.network_scale_level)
+    network_land_constraint(
+        instance=instance, network_scale_level=scenario.network_scale_level)
+
+    location_capex_constraint(
+        instance=instance, network_scale_level=scenario.network_scale_level)
+    location_fopex_constraint(
+        instance=instance, network_scale_level=scenario.network_scale_level)
+    location_vopex_constraint(
+        instance=instance, network_scale_level=scenario.network_scale_level)
+
+    network_capex_constraint(
+        instance=instance, network_scale_level=scenario.network_scale_level)
+    network_fopex_constraint(
+        instance=instance, network_scale_level=scenario.network_scale_level)
+    network_vopex_constraint(
+        instance=instance, network_scale_level=scenario.network_scale_level)
+
+    demand_constraint(instance=instance, demand_scale_level=scenario.demand_scale_level,
+                      scheduling_scale_level=scenario.scheduling_scale_level, demand=scenario.demand)
+    
+    if carbon_bound is not None:
+        carbon_emission_constraint(instance= instance, network_scale_level= scenario.network_scale_level, \
+            carbon_reduction_percentage = carbon_reduction_percentage, carbon_bound = carbon_bound)
+    
+
+    cost_objective(instance=instance,
+                   network_scale_level=scenario.network_scale_level)
+    
+
+    return instance
+
+#%%
+
+def flex_carbon_reduction_cases(scenario: Scenario, results: Result, carbon_bound:float, discretization_points:float = 10):
+    iter_list = [100.0/discretization_points*(i + 1) for i in range(discretization_points-1)]
+    iterr_ = 0
+    for iter_ in iter_list:
+        milp_ = flexibility_reformulation(scenario= scenario, affix_results= results[iterr_], carbon_bound= carbon_bound \
+            , carbon_reduction_percentage= iter_)
+        results_ = solve(scenario = scenario, instance= milp_, solver= 'gurobi', name=f"Houston_MILP_F{int(iter_)}",\
+            saveformat= '.pkl')
+        iterr_ += 1
+    return milp_
+
+
+flex_carbon_reduction_cases(scenario = reduced_case_sl,  results = results, carbon_bound = results_reduced_sl.output['S_location'][('HO', 'CO2_Vent', 0)], discretization_points = 10)
+
+#%%
+
+results_flex = {i: load_results(f"Houston_MILP_F{i+1}0.pkl") for i in range(9)}
+
+#%%
+flex_LP = flexibility_reformulation(scenario= reduced_case_sl, affix_results= results[2])
+
+results_flex = solve(scenario = reduced_case_sl, instance= flex_LP, solver= 'gurobi', name=f"Houston_MILP_Flex",\
+    saveformat= '.pkl', print_solversteps = True)
+#%%
+plot.schedule(results=results[2], y_axis='Inv',
                component='H2_C', location='HO')
-
+plot.schedule(results= results_flex[2], y_axis='Inv',
+               component='H2_C', location='HO')
+#%%
 plot.schedule(results=results[0], y_axis='Inv',
                component='H2_L', location='HO')
 
