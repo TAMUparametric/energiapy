@@ -1,5 +1,5 @@
 #%%
-"""Graphing module
+"""plotting module
 """
 
 __author__ = "Rahul Kakodkar"
@@ -13,7 +13,7 @@ __status__ = "Production"
 
 from matplotlib import rc
 import matplotlib.pyplot as plt
-from ..utils.graph_utils import axis_formatter
+from ..utils.plot_utils import axis_formatter
 from ..components.process import Process
 from ..components.resource import Resource
 from ..components.result import Result
@@ -24,8 +24,8 @@ from typing import Union
 
 
 def capacity_factor(process: Process, location: Location, \
-    fig_size:tuple = (12,6), font_size:int = 16, color:str ='blue', usetex:bool = True):
-    """generates a graph for varying capacity factor of process
+    fig_size:tuple = (12,6), font_size:int = 16, color:str ='blue', usetex:bool = False):
+    """generates a plot for varying capacity factor of process
 
     Args:
         process (Process): process data object
@@ -33,11 +33,11 @@ def capacity_factor(process: Process, location: Location, \
         font_size (int, optional): font size. Defaults to 16.
         fig_size (tuple, optional): figure size. Defaults to (12,6).
         color (str, optional): color of plot. Defaults to 'blue'.
-        usetex (bool, optional): True, if using latex font, need Tex set up (prone to errors). Defaults to 'True'.
+        usetex (bool, optional): False, if using latex font, need Tex set up (prone to errors). Defaults to 'False'.
     """
 
     rc('font', **{'family': 'serif', 'serif': ['Computer Modern'], 'size': font_size})
-    rc('text', usetex=True)
+    rc('text', usetex=False)
     fig, ax = plt.subplots(figsize= fig_size)
     y_ = list(location.capacity_factor[process.name].values())
     x_ = [i for i in range(len(y_))]
@@ -50,8 +50,8 @@ def capacity_factor(process: Process, location: Location, \
     return
 
 def cost_factor(resource: Resource, location: Location, \
-    fig_size:tuple = (12,6), font_size:int = 16, color:str ='blue', usetex:bool = True):
-    """generates a graph for varying cost factor of resource
+    fig_size:tuple = (12,6), font_size:int = 16, color:str ='blue', usetex:bool = False):
+    """generates a plot for varying cost factor of resource
 
     Args:
         resource (Resource): resource data object
@@ -59,10 +59,10 @@ def cost_factor(resource: Resource, location: Location, \
         font_size (int, optional): font size. Defaults to 16.
         fig_size (tuple, optional): figure size. Defaults to (12,6).
         color (str, optional): color of plot. Defaults to 'blue'.
-        usetex (bool, optional): True, if using latex font, need Tex set up (prone to errors). Defaults to 'True'.
+        usetex (bool, optional): False, if using latex font, need Tex set up (prone to errors). Defaults to 'False'.
     """
     rc('font', **{'family': 'serif', 'serif': ['Computer Modern'], 'size': font_size})
-    rc('text', usetex=True)
+    rc('text', usetex=False)
     fig, ax = plt.subplots(figsize= fig_size)
     y_ = list(location.cost_factor[resource.name].values())
     x_ = [i for i in range(len(y_))]
@@ -76,8 +76,8 @@ def cost_factor(resource: Resource, location: Location, \
 
 
 def schedule(results: Result, y_axis:str, component:str, location:str,\
-    fig_size:tuple = (12,6), font_size:int = 16, color:str ='blue', usetex:bool = True):
-    """generates a graph for scheduling result
+    fig_size:tuple = (12,6), font_size:int = 16, color:str ='blue', usetex:bool = False):
+    """generates a plot for scheduling result
 
     Args:
         result (dict): dictionary that can be taken from result object 
@@ -86,7 +86,7 @@ def schedule(results: Result, y_axis:str, component:str, location:str,\
         font_size (int, optional): font size. Defaults to 16.
         fig_size (tuple, optional): figure size. Defaults to (12,6).
         color (str, optional): color of plot. Defaults to 'blue'.
-        usetex (bool, optional): True, if using latex font, need Tex set up (prone to errors). Defaults to 'True'.
+        usetex (bool, optional): False, if using latex font, need Tex set up (prone to errors). Defaults to 'False'.
         
     """
     rc('font', **{'family': 'serif', 'serif': ['Computer Modern'], 'size': font_size})
@@ -111,8 +111,8 @@ def schedule(results: Result, y_axis:str, component:str, location:str,\
 
 
 def contribution(results: Result, y_axis:str, location:str,\
-    fig_size:tuple = (12,6), font_size:int = 16, color:str ='blue', usetex:bool = True):
-    """generates a graph for scheduling result
+    fig_size:tuple = (12,6), font_size:int = 16, color:str ='blue', usetex:bool = False):
+    """generates a plot for scheduling result
 
     Args:
     #     result (dict): dictionary that can be taken from result object 
@@ -121,7 +121,7 @@ def contribution(results: Result, y_axis:str, location:str,\
     #     font_size (int, optional): font size. Defaults to 16.
     #     fig_size (tuple, optional): figure size. Defaults to (12,6).
     #     color (str, optional): color of plot. Defaults to 'blue'.
-    #     usetex (bool, optional): True, if using latex font, need Tex set up (prone to errors). Defaults to 'True'.
+    #     usetex (bool, optional): False, if using latex font, need Tex set up (prone to errors). Defaults to 'False'.
         
     # """
     rc('font', **{'family': 'serif', 'serif': ['Computer Modern'], 'size': font_size})
@@ -142,8 +142,8 @@ def contribution(results: Result, y_axis:str, location:str,\
     return
 
 def capacity_utilization(results: Result, location:str, process:str = None,\
-    fig_size:tuple = (12,6), font_size:int = 16, color:str ='blue', usetex:bool = True):
-    """generates a graph for scheduling result
+    fig_size:tuple = (12,6), font_size:int = 16, color:str ='blue', usetex:bool = False):
+    """generates a plot for scheduling result
 
     Args:
     #     result (dict): dictionary that can be taken from result object 
@@ -152,7 +152,7 @@ def capacity_utilization(results: Result, location:str, process:str = None,\
     #     font_size (int, optional): font size. Defaults to 16.
     #     fig_size (tuple, optional): figure size. Defaults to (12,6).
     #     color (str, optional): color of plot. Defaults to 'blue'.
-    #     usetex (bool, optional): True, if using latex font, need Tex set up (prone to errors). Defaults to 'True'.
+    #     usetex (bool, optional): False, if using latex font, need Tex set up (prone to errors). Defaults to 'False'.
         
     # """
     if process is not None:
@@ -196,8 +196,8 @@ def capacity_utilization(results: Result, location:str, process:str = None,\
 
 #TODO - plots are independent of scales, check
 #TODO - make bar plots / pie plots for contribution from different components 
-#TODO - make layered scheduling graph for comparison 
-#TODO - make scenario comparison graphs, perhaps use kwargs, allow n number of comparisons 
+#TODO - make layered scheduling plot for comparison 
+#TODO - make scenario comparison plots, perhaps use kwargs, allow n number of comparisons 
 
 
 

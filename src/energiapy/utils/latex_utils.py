@@ -92,7 +92,6 @@ def constraint_latex_render(constraint_rule, latex_alias_dict:dict= {}) -> str:
 
     # str_ = '\begin{equation}'
     # display(str_)
-    print('----------------------------------------------------------------------')
     print_ = str(constraint_rule)
     print_ = print_.split('<function ')[1]
     try:
@@ -104,7 +103,6 @@ def constraint_latex_render(constraint_rule, latex_alias_dict:dict= {}) -> str:
     print_ = print_.replace('_', ' ')
     print(print_)
     ip.display(ip.Math(str_))
-    print('----------------------------------------------------------------------')
 
     return str_
 

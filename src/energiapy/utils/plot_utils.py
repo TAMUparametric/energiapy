@@ -1,5 +1,5 @@
 #%%
-"""Utilities for graphing, manages axes and such
+"""Utilities for plots, manages axes and such
 """
 
 __author__ = "Rahul Kakodkar"

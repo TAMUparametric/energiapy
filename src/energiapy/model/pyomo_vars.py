@@ -75,6 +75,12 @@ def generate_network_vars(instance: ConcreteModel, scale_level:int = 0):
     instance.Vopex_network = Var(instance.scales_network, within = NonNegativeReals, doc = 'Variable Opex at network scale' )
     instance.Capex_network = Var(instance.scales_network, within = NonNegativeReals, doc = 'Capex at network scale' )
     
+    instance.carbon_emission_network = Var(instance.scales_network, within = NonNegativeReals, doc = 'Carbon emissions across network at network_scale')
+    instance.carbon_emission_location = Var(instance.locations, instance.scales_network, within = NonNegativeReals, doc = 'Carbon emissions at location at network_scale')
+
+
+
+    
     return 
 
 def generate_network_binary_vars(instance: ConcreteModel, scale_level:int= 0):    
