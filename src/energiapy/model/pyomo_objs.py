@@ -39,7 +39,7 @@ def cost_objective(instance:ConcreteModel, network_scale_level:int=0) -> Objecti
             cost_trans = 0
         return capex + vopex + fopex + cost_purch + cost_trans
     instance.cost_objective = Objective(rule = cost_objective_rule, doc = 'total purchase from network')
-    constraint_latex_render(cost_objective_rule)
+    # constraint_latex_render(cost_objective_rule)
     return instance.cost_objective
 
 
@@ -68,5 +68,5 @@ def uncertainty_cost_objective(instance:ConcreteModel, penalty: float, network_s
         return capex + vopex + fopex + cost_purch + cost_trans + cap_penalty           
     
     instance.uncertainty_cost_objective = Objective(rule = uncertainty_cost_objective_rule, doc = 'total purchase from network')
-    constraint_latex_render(uncertainty_cost_objective_rule)
+    # constraint_latex_render(uncertainty_cost_objective_rule)
     return instance.uncertainty_cost_objective
