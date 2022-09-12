@@ -1,4 +1,4 @@
-"""energiapy.graph init file
+"""energiapy.plot init file
 """
 
 __author__ = "Rahul Kakodkar"

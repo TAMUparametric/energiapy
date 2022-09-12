@@ -51,7 +51,7 @@ def production_facility_constraint(instance: ConcreteModel, prod_max: dict, loc_
             return instance.Cap_P[location, process, scale_list[:network_scale_level+1]] == 0
     instance.production_facility_constraint = Constraint(
         instance.locations, instance.processes, *scales, rule=production_facility_rule, doc='production facility sizing and location')
-    constraint_latex_render(production_facility_rule)
+    #constraint_latex_render(production_facility_rule)
     return instance.production_facility_constraint
 
 
@@ -78,7 +78,7 @@ def production_facility_fix_constraint(instance: ConcreteModel, prod_max: dict, 
             return instance.Cap_P[location, process, scale_list[:network_scale_level+1]] == 0
     instance.production_facility_fix_constraint = Constraint(
         instance.locations, instance.processes, *scales, rule=production_facility_fix_rule, doc='production facility sizing and location')
-    constraint_latex_render(production_facility_fix_rule)
+    #constraint_latex_render(production_facility_fix_rule)
     return instance.production_facility_fix_constraint
 
 
@@ -105,7 +105,7 @@ def min_production_facility_constraint(instance: ConcreteModel, prod_min: dict, 
             return Constraint.Skip
     instance.min_production_facility_constraint = Constraint(
         instance.locations, instance.processes, *scales, rule=min_production_facility_rule, doc='production facility sizing and location')
-    constraint_latex_render(min_production_facility_rule)
+    #constraint_latex_render(min_production_facility_rule)
     return instance.min_production_facility_constraint
 
 
@@ -133,7 +133,7 @@ def storage_facility_constraint(instance: ConcreteModel, store_max: dict, loc_re
             return instance.Cap_S[location, resource, scale_list[:network_scale_level+1]] == 0
     instance.storage_facility_constraint = Constraint(
         instance.locations, instance.resources_store, *scales, rule=storage_facility_rule, doc='storage facility sizing and location')
-    constraint_latex_render(storage_facility_rule)
+    #constraint_latex_render(storage_facility_rule)
     return instance.storage_facility_constraint
 
 
@@ -162,7 +162,7 @@ def storage_facility_fix_constraint(instance: ConcreteModel, store_max: dict, st
             return instance.Cap_S[location, resource, scale_list[:network_scale_level+1]] == 0
     instance.storage_facility_fix_constraint = Constraint(
         instance.locations, instance.resources_store, *scales, rule=storage_facility_fix_rule, doc='storage facility sizing and location')
-    constraint_latex_render(storage_facility_fix_rule)
+    #constraint_latex_render(storage_facility_fix_rule)
     return instance.storage_facility_fix_constraint
 
 
@@ -191,7 +191,7 @@ def min_storage_facility_constraint(instance: ConcreteModel, store_min: dict, lo
             return Constraint.Skip
     instance.min_storage_facility_constraint = Constraint(
         instance.locations, instance.resources_store, *scales, rule=min_storage_facility_rule, doc='storage facility sizing and location')
-    constraint_latex_render(min_storage_facility_rule)
+    #constraint_latex_render(min_storage_facility_rule)
     return instance.min_storage_facility_constraint
 
 
@@ -222,7 +222,7 @@ def nameplate_production_constraint(instance: ConcreteModel, capacity_factor: di
             return instance.P[location, process, scale_list[:scheduling_scale_level+1]] <= instance.Cap_P[location, process, scale_list[:network_scale_level+1]]
     instance.nameplate_production_constraint = Constraint(
         instance.locations, instance.processes, *scales, rule=nameplate_production_rule, doc='nameplate production capacity constraint')
-    constraint_latex_render(nameplate_production_rule)
+    #constraint_latex_render(nameplate_production_rule)
     return instance.nameplate_production_constraint
 
 
@@ -248,7 +248,7 @@ def nameplate_inventory_constraint(instance: ConcreteModel, loc_res_dict: dict =
             return instance.Inv[location, resource, scale_list[:scheduling_scale_level+1]] <= 0
     instance.nameplate_inventory_constraint = Constraint(
         instance.locations, instance.resources_store, *scales, rule=nameplate_inventory_rule, doc='nameplate inventory capacity constraint')
-    constraint_latex_render(nameplate_inventory_rule)
+    #constraint_latex_render(nameplate_inventory_rule)
     return instance.nameplate_inventory_constraint
 
 
@@ -274,7 +274,7 @@ def resource_consumption_constraint(instance: ConcreteModel, loc_res_dict: dict 
             return instance.C[location, resource, scale_list[:scheduling_scale_level+1]] <= 0
     instance.resource_consumption_constraint = Constraint(
         instance.locations, instance.resources_purch, *scales, rule=resource_consumption_rule, doc='resource consumption')
-    constraint_latex_render(resource_consumption_rule)
+    #constraint_latex_render(resource_consumption_rule)
     return instance.resource_consumption_constraint
 
 
@@ -306,7 +306,7 @@ def resource_purchase_constraint(instance: ConcreteModel, cost_factor: dict = {}
                 return instance.B[location, resource, scale_list[:scheduling_scale_level+1]] == price[location][resource]*instance.C[location, resource, scale_list[:scheduling_scale_level+1]]
             else:
                 return instance.B[location, resource, scale_list[:scheduling_scale_level+1]] == 0
-    constraint_latex_render(resource_purchase_rule)
+    #constraint_latex_render(resource_purchase_rule)
     instance.resource_purchase_constraint = Constraint(
         instance.locations, instance.resources_purch, *scales, rule=resource_purchase_rule, doc='expenditure on purchase of resource')
     return instance.resource_purchase_constraint
@@ -322,7 +322,7 @@ def resource_purchase_constraint(instance: ConcreteModel, cost_factor: dict = {}
 #         else:
 #             return instance.Inv[location, resource, scale_list[:scheduling_scale_level+1]] == 0
 #     instance.test_cycle_cons = Constraint(instance.locations, instance.resource_nosell, *scales, rule=test_cycle_rule, doc='test cycle')
-#     constraint_latex_render(test_cycle)
+#     #constraint_latex_render(test_cycle)
 #     return instance.test_cycle_cons
 
 
@@ -383,7 +383,7 @@ def inventory_balance_constraint(instance: ConcreteModel, scheduling_scale_level
 
     instance.inventory_balance_constraint = Constraint(
         instance.locations, instance.resources, *scales, rule=inventory_balance_rule, doc='mass balance across scheduling scale')
-    constraint_latex_render(inventory_balance_constraint)
+    #constraint_latex_render(inventory_balance_constraint)
     return instance.inventory_balance_constraint
 
 
@@ -398,7 +398,7 @@ def transport_export_constraint(instance: ConcreteModel, scheduling_scale_level:
                 for transport_ in instance.transports.intersection(transport_avail_dict[(source, sink)]))
     instance.transport_export_constraint = Constraint(instance.sources, instance.sinks,
                                                       instance.resources_trans, *scales, rule=transport_export_rule, doc='export of resource from source to sink')
-    constraint_latex_render(transport_export_rule)
+    #constraint_latex_render(transport_export_rule)
     return instance.transport_export_constraint
 
 
@@ -412,7 +412,7 @@ def transport_import_constraint(instance: ConcreteModel, scheduling_scale_level:
                 for transport_ in instance.transports.intersection(transport_avail_dict[(source, sink)]))
     instance.transport_import_constraint = Constraint(instance.sinks, instance.sources,
                                                       instance.resources_trans, *scales, rule=transport_import_rule, doc='import of resource from sink to source')
-    constraint_latex_render(transport_import_rule)
+    #constraint_latex_render(transport_import_rule)
     return instance.transport_import_constraint
 
 
@@ -424,7 +424,7 @@ def transport_balance_constraint(instance: ConcreteModel, scheduling_scale_level
         return instance.Imp[sink, source, resource, scale_list[:scheduling_scale_level+1]] == instance.Exp[source, sink, resource, scale_list[:scheduling_scale_level+1]]
     instance.transport_balance_constraint = Constraint(instance.sinks, instance.sources,
                                                        instance.resources_trans, *scales, rule=transport_balance_rule, doc='balances import and export from source to sinks')
-    constraint_latex_render(transport_balance_rule)
+    #constraint_latex_render(transport_balance_rule)
     return instance.transport_balance_constraint
 
 
@@ -439,7 +439,7 @@ def transport_exp_UB_constraint(instance: ConcreteModel, scheduling_scale_level:
             return instance.Trans_exp[source, sink, resource, transport, scale_list[:scheduling_scale_level+1]] <= 0
     instance.transport_exp_UB_constraint = Constraint(instance.sources, instance.sinks, instance.resources_trans,
                                                       instance.transports, *scales, rule=transport_exp_UB_rule, doc='import of resource from sink to source')
-    constraint_latex_render(transport_exp_UB_rule)
+    #constraint_latex_render(transport_exp_UB_rule)
     return instance.transport_exp_UB_constraint
 
 
@@ -454,7 +454,7 @@ def transport_imp_UB_constraint(instance: ConcreteModel, scheduling_scale_level:
             return instance.Trans_imp[sink, source, resource, transport, scale_list[:scheduling_scale_level+1]] <= 0
     instance.transport_imp_UB_constraint = Constraint(instance.sinks, instance.sources, instance.resources_trans,
                                                       instance.transports, *scales, rule=transport_imp_UB_rule, doc='import of resource from sink to source')
-    constraint_latex_render(transport_imp_UB_rule)
+    #constraint_latex_render(transport_imp_UB_rule)
     return instance.transport_imp_UB_constraint
 
 
@@ -468,7 +468,7 @@ def transport_exp_cost_constraint(instance: ConcreteModel, scheduling_scale_leve
                                                                                    sink, resource, transport, scale_list[:scheduling_scale_level+1]]
     instance.transport_exp_cost_constraint = Constraint(instance.sources, instance.sinks, instance.resources_trans,
                                                         instance.transports, *scales, rule=transport_exp_cost_rule, doc='import of resource from sink to source')
-    constraint_latex_render(transport_exp_cost_rule)
+    #constraint_latex_render(transport_exp_cost_rule)
     return instance.transport_exp_cost_constraint
 
 
@@ -482,7 +482,7 @@ def transport_imp_cost_constraint(instance: ConcreteModel, scheduling_scale_leve
                                                                                    source, resource, transport, scale_list[:scheduling_scale_level+1]]
     instance.transport_imp_cost_constraint = Constraint(instance.sinks, instance.sources, instance.resources_trans,
                                                         instance.transports, *scales, rule=transport_imp_cost_rule, doc='import of resource from sink to source')
-    constraint_latex_render(transport_imp_cost_rule)
+    #constraint_latex_render(transport_imp_cost_rule)
     return instance.transport_imp_cost_constraint
 
 # *-------------------------Transport costing constraints--------------------------
@@ -500,7 +500,7 @@ def transport_cost_constraint(instance: ConcreteModel, scheduling_scale_level: i
                 for sink, source, resource in product(instance.sinks, instance.sources, instance.resources_trans))
     instance.transport_cost_constraint = Constraint(
         instance.transports, *scales, rule=transport_cost_rule, doc='total transport cost')
-    constraint_latex_render(transport_cost_rule)
+    #constraint_latex_render(transport_cost_rule)
     return instance.transport_cost_constraint
 
 
@@ -513,7 +513,7 @@ def transport_cost_network_constraint(instance: ConcreteModel, network_scale_lev
         return instance.Trans_cost_network[transport, scale_list] == sum(instance.Trans_cost[transport, scale_] for scale_ in scale_iter)
     instance.transport_cost_network_constraint = Constraint(
         instance.transports, *scales, rule=transport_cost_network_rule, doc='total transport cost across scale')
-    constraint_latex_render(transport_cost_network_rule)
+    #constraint_latex_render(transport_cost_network_rule)
     return instance.transport_cost_network_constraint
 
 
@@ -541,7 +541,7 @@ def location_production_constraint(instance: ConcreteModel, cluster_wt: dict, ne
             return instance.P_location[location, process, scale_list] == sum(instance.P[location, process, scale_] for scale_ in scale_iter)
     instance.location_production_constraint = Constraint(
         instance.locations, instance.processes, *scales, rule=location_production_rule, doc='total production at location')
-    constraint_latex_render(location_production_rule)
+    #constraint_latex_render(location_production_rule)
     return instance.location_production_constraint
 
 
@@ -566,7 +566,7 @@ def location_discharge_constraint(instance: ConcreteModel, cluster_wt: dict, net
             return instance.S_location[location, resource, scale_list] == sum(instance.S[location, resource, scale_] for scale_ in scale_iter)
     instance.location_discharge_constraint = Constraint(
         instance.locations, instance.resources_sell, *scales, rule=location_discharge_rule, doc='total discharge at location')
-    constraint_latex_render(location_discharge_rule)
+    #constraint_latex_render(location_discharge_rule)
     return instance.location_discharge_constraint
 
 
@@ -591,7 +591,7 @@ def location_consumption_constraint(instance: ConcreteModel, cluster_wt: dict, n
             return instance.C_location[location, resource, scale_list] == sum(instance.C[location, resource, scale_] for scale_ in scale_iter)
     instance.location_consumption_constraint = Constraint(
         instance.locations, instance.resources_purch, *scales, rule=location_consumption_rule, doc='total consumption at location')
-    constraint_latex_render(location_consumption_rule)
+    #constraint_latex_render(location_consumption_rule)
     return instance.location_consumption_constraint
 
 
@@ -616,7 +616,7 @@ def location_purchase_constraint(instance: ConcreteModel, cluster_wt: dict, netw
             return instance.B_location[location, resource, scale_list] == sum(instance.B[location, resource, scale_] for scale_ in scale_iter)
     instance.location_purchase_constraint = Constraint(
         instance.locations, instance.resources_purch, *scales, rule=location_purchase_rule, doc='total purchase at location')
-    constraint_latex_render(location_purchase_rule)
+    #constraint_latex_render(location_purchase_rule)
     return instance.location_purchase_constraint
 
 
@@ -638,7 +638,7 @@ def network_production_constraint(instance: ConcreteModel, network_scale_level: 
         return instance.P_network[process, scale_list] == sum(instance.P_location[location_, process, scale_list] for location_ in instance.locations)
     instance.network_production_constraint = Constraint(
         instance.processes, *scales, rule=network_production_rule, doc='total production from network')
-    constraint_latex_render(network_production_rule)
+    #constraint_latex_render(network_production_rule)
     return instance.network_production_constraint
 
 
@@ -658,7 +658,7 @@ def network_discharge_constraint(instance: ConcreteModel, network_scale_level: i
         return instance.S_network[resource, scale_list] == sum(instance.S_location[location_, resource, scale_list] for location_ in instance.locations)
     instance.network_discharge_constraint = Constraint(
         instance.resources_sell, *scales, rule=network_discharge_rule, doc='total discharge from network')
-    constraint_latex_render(network_discharge_rule)
+    #constraint_latex_render(network_discharge_rule)
     return instance.network_discharge_constraint
 
 
@@ -678,7 +678,7 @@ def network_consumption_constraint(instance: ConcreteModel, network_scale_level:
         return instance.C_network[resource, scale_list] == sum(instance.C_location[location_, resource, scale_list] for location_ in instance.locations)
     instance.network_consumption_constraint = Constraint(
         instance.resources_purch, *scales, rule=network_consumption_rule, doc='total consumption from network')
-    constraint_latex_render(network_consumption_rule)
+    #constraint_latex_render(network_consumption_rule)
     return instance.network_consumption_constraint
 
 
@@ -698,7 +698,7 @@ def network_purchase_constraint(instance: ConcreteModel, network_scale_level: in
         return instance.B_network[resource, scale_list] == sum(instance.B_location[location_, resource, scale_list] for location_ in instance.locations)
     instance.network_purchase_constraint = Constraint(
         instance.resources_purch, *scales, rule=network_purchase_rule, doc='total purchase from network')
-    constraint_latex_render(network_purchase_rule)
+    #constraint_latex_render(network_purchase_rule)
     return instance.network_purchase_constraint
 
 # *-------------------------Process costing constraints--------------------------------------
@@ -722,7 +722,7 @@ def process_capex_constraint(instance: ConcreteModel, capex_dict: dict, network_
         return instance.Capex_process[location, process, scale_list] == annualization_factor*capex_dict[process]*instance.Cap_P[location, process, scale_list]
     instance.process_capex_constraint = Constraint(
         instance.locations, instance.processes, *scales, rule=process_capex_rule, doc='total purchase from network')
-    constraint_latex_render(process_capex_rule)
+    #constraint_latex_render(process_capex_rule)
     return instance.process_capex_constraint
 
 
@@ -735,7 +735,7 @@ def delta_cap_location_constraint(instance: ConcreteModel, network_scale_level: 
         return instance.Delta_Cap_P_location[location, process, scale_list] == sum(instance.Delta_Cap_P[location, process, scale_] for scale_ in scale_iter)
     instance.delta_cap_location_constraint = Constraint(
         instance.locations, instance.processes_varying, *scales, rule=delta_cap_location_rule, doc='total transport cost across scale')
-    constraint_latex_render(delta_cap_location_rule)
+    #constraint_latex_render(delta_cap_location_rule)
     return instance.delta_cap_location_constraint
 
 
@@ -746,7 +746,7 @@ def delta_cap_network_constraint(instance: ConcreteModel, network_scale_level: i
         return instance.Delta_Cap_P_network[process, scale_list] == sum(instance.Delta_Cap_P_location[location_, process, scale_list] for location_ in instance.locations)
     instance.delta_cap_network_constraint = Constraint(
         instance.processes_varying, *scales, rule=delta_cap_network_rule, doc='total transport cost across scale')
-    constraint_latex_render(delta_cap_network_rule)
+    #constraint_latex_render(delta_cap_network_rule)
     return instance.delta_cap_network_constraint
 
 
@@ -767,7 +767,7 @@ def process_fopex_constraint(instance: ConcreteModel, fopex_dict: dict, network_
         return instance.Fopex_process[location, process, scale_list] == annualization_factor*fopex_dict[process]*instance.Cap_P[location, process, scale_list]
     instance.process_fopex_constraint = Constraint(
         instance.locations, instance.processes, *scales, rule=process_fopex_rule, doc='total purchase from network')
-    constraint_latex_render(process_fopex_rule)
+    #constraint_latex_render(process_fopex_rule)
     return instance.process_fopex_constraint
 
 
@@ -787,7 +787,7 @@ def process_vopex_constraint(instance: ConcreteModel, vopex_dict: dict, network_
         return instance.Vopex_process[location, process, scale_list] == annualization_factor*vopex_dict[process]*instance.P_location[location, process, scale_list]
     instance.process_vopex_constraint = Constraint(
         instance.locations, instance.processes, *scales, rule=process_vopex_rule, doc='total purchase from network')
-    constraint_latex_render(process_vopex_rule)
+    #constraint_latex_render(process_vopex_rule)
     return instance.process_vopex_constraint
 
 
@@ -809,7 +809,7 @@ def location_capex_constraint(instance: ConcreteModel, network_scale_level: int 
         return instance.Capex_location[location, scale_list] == sum(instance.Capex_process[location, process_, scale_list] for process_ in instance.processes)
     instance.location_capex_constraint = Constraint(
         instance.locations, *scales, rule=location_capex_rule, doc='total purchase from network')
-    constraint_latex_render(location_capex_rule)
+    #constraint_latex_render(location_capex_rule)
     return instance.location_capex_constraint
 
 
@@ -829,7 +829,7 @@ def location_fopex_constraint(instance: ConcreteModel, network_scale_level: int 
         return instance.Fopex_location[location, scale_list] == sum(instance.Fopex_process[location, process_, scale_list] for process_ in instance.processes)
     instance.location_fopex_constraint = Constraint(
         instance.locations, *scales, rule=location_fopex_rule, doc='total purchase from network')
-    constraint_latex_render(location_fopex_rule)
+    #constraint_latex_render(location_fopex_rule)
     return instance.location_fopex_constraint
 
 
@@ -849,7 +849,7 @@ def location_vopex_constraint(instance: ConcreteModel, network_scale_level: int 
         return instance.Vopex_location[location, scale_list] == sum(instance.Vopex_process[location, process_, scale_list] for process_ in instance.processes)
     instance.location_vopex_constraint = Constraint(
         instance.locations, *scales, rule=location_vopex_rule, doc='total purchase from network')
-    constraint_latex_render(location_vopex_rule)
+    #constraint_latex_render(location_vopex_rule)
     return instance.location_vopex_constraint
 
 
@@ -871,7 +871,7 @@ def network_capex_constraint(instance: ConcreteModel, network_scale_level: int =
         return instance.Capex_network[scale_list] == sum(instance.Capex_location[location_, scale_list] for location_ in instance.locations)
     instance.network_capex_constraint = Constraint(
         *scales, rule=network_capex_rule, doc='total purchase from network')
-    constraint_latex_render(network_capex_rule)
+    #constraint_latex_render(network_capex_rule)
     return instance.network_capex_constraint
 
 
@@ -891,7 +891,7 @@ def network_vopex_constraint(instance: ConcreteModel, network_scale_level: int =
         return instance.Vopex_network[scale_list] == sum(instance.Vopex_location[location_, scale_list] for location_ in instance.locations)
     instance.network_vopex_constraint = Constraint(
         *scales, rule=network_vopex_rule, doc='total purchase from network')
-    constraint_latex_render(network_vopex_rule)
+    #constraint_latex_render(network_vopex_rule)
     return instance.network_vopex_constraint
 
 
@@ -911,7 +911,7 @@ def network_fopex_constraint(instance: ConcreteModel, network_scale_level: int =
         return instance.Fopex_network[scale_list] == sum(instance.Fopex_location[location_, scale_list] for location_ in instance.locations)
     instance.network_fopex_constraint = Constraint(
         *scales, rule=network_fopex_rule, doc='total purchase from network')
-    constraint_latex_render(network_fopex_rule)
+    #constraint_latex_render(network_fopex_rule)
     return instance.network_fopex_constraint
 
 # *-------------------------Demand constraint--------------------------------------
@@ -949,7 +949,7 @@ def demand_constraint(instance: ConcreteModel, demand: Union[dict, float], deman
     else:
         instance.demand_constraint = Constraint(
             instance.locations, instance.resources_demand, *scales, rule=demand_rule, doc='specific demand for resources')
-    constraint_latex_render(demand_rule)
+    #constraint_latex_render(demand_rule)
     return instance.demand_constraint
 
 # *-------------------------Nexus constraints--------------------------------------
@@ -972,7 +972,7 @@ def process_land_constraint(instance: ConcreteModel, land_dict: dict, network_sc
         return instance.Land_process[location, process, scale_list] == land_dict[process]*instance.Cap_P[location, process, scale_list]
     instance.process_land_constraint = Constraint(
         instance.locations, instance.processes, *scales, rule=process_land_rule, doc='land required for process')
-    constraint_latex_render(process_land_rule)
+    #constraint_latex_render(process_land_rule)
     return instance.process_land_constraint
 
 
@@ -992,7 +992,7 @@ def location_land_constraint(instance: ConcreteModel, network_scale_level: int =
         return instance.Land_location[location, scale_list] == sum(instance.Land_process[location, process_, scale_list] for process_ in instance.processes)
     instance.location_land_constraint = Constraint(
         instance.locations, *scales, rule=location_land_rule, doc='land required for process')
-    constraint_latex_render(location_land_rule)
+    #constraint_latex_render(location_land_rule)
     return instance.location_land_constraint
 
 
@@ -1012,17 +1012,33 @@ def network_land_constraint(instance: ConcreteModel, network_scale_level: int = 
         return instance.Land_network[scale_list] == sum(instance.Land_location[location_, scale_list] for location_ in instance.locations)
     instance.network_land_constraint = Constraint(
         *scales, rule=network_land_rule, doc='land required for process')
-    constraint_latex_render(network_land_rule)
+    #constraint_latex_render(network_land_rule)
     return instance.network_land_constraint
 
-# def carbon_emission_constraint(instance.ConcreteModel, network_scale_level:int=0) -> Constraint:
+def carbon_emission_location_constraint(instance: ConcreteModel, network_scale_level:int=0) -> Constraint:
+    scales = scale_list(instance= instance, scale_levels = network_scale_level+1)
+    def carbon_emission_location_rule(instance, location, *scale_list):
+        return instance.carbon_emission_location[location, scale_list] == instance.S_location[location, 'CO2_Vent', scale_list] 
+    instance.carbon_emission_location_constraint = Constraint(instance.locations, *scales, rule = carbon_emission_location_rule, doc = 'carbon_emission_location_process')
+    #constraint_latex_render(carbon_emission_location_rule)
+    return instance.carbon_emission_location_constraint
 
-#     scales = scale_list(instance= instance, scale_levels = network_scale_level+1)
-#     def network_land_rule(instance, *scale_list):
-#         return instance.carbon_network[scale_list] == instance.Land_location[location_, scale_list] for location_ in instance.locations)
-#     instance.network_land_constraint = Constraint(*scales, rule = network_land_rule, doc = 'land required for process')
-#     constraint_latex_render(network_land_rule)
-#     return instance.network_land_constraint
+def carbon_emission_constraint(instance: ConcreteModel, carbon_bound:float,  network_scale_level:int=0, carbon_reduction_percentage:float = 0.0) -> Constraint:
+    scales = scale_list(instance= instance, scale_levels = network_scale_level+1)
+    def carbon_emission_rule(instance, location, *scale_list):
+        return instance.S_location[location, 'CO2_Vent', scale_list] <= (100.0 - carbon_reduction_percentage)*carbon_bound/100.0
+    instance.carbon_emission_constraint = Constraint(instance.locations, *scales, rule = carbon_emission_rule, doc = 'carbon_emission_process')
+    # constraint_latex_render(carbon_emission_rule)
+    return instance.carbon_emission_constraint
+
+
+def carbon_emission_network_constraint(instance: ConcreteModel, network_scale_level:int=0) -> Constraint:
+    scales = scale_list(instance= instance, scale_levels = network_scale_level+1)
+    def carbon_emission_network_rule(instance, *scale_list):
+        return instance.carbon_emission_network[scale_list] == sum(instance.carbon_emission_location[location_, scale_list] for location_ in instance.locations)
+    instance.carbon_emission_network_constraint = Constraint(*scales, rule = carbon_emission_network_rule, doc = 'carbon_emission_network_process')
+    #constraint_latex_render(carbon_emission_network_rule)
+    return instance.carbon_emission_network_constraint
 
 
 # *-------------------------Uncertainty analysis constraints------------------------------------
@@ -1051,7 +1067,7 @@ def uncertain_nameplate_production_constraint(instance: ConcreteModel, network_s
             return instance.P[location, process, scale_list[:scheduling_scale_level+1]] <= instance.Cap_P[location, process, scale_list[:network_scale_level+1]]
     instance.uncertain_nameplate_production_constraint = Constraint(
         instance.locations, instance.processes, *scales, rule=uncertain_nameplate_production_rule, doc='nameplate production capacity constraint')
-    constraint_latex_render(uncertain_nameplate_production_rule)
+    #constraint_latex_render(uncertain_nameplate_production_rule)
     return instance.uncertain_nameplate_production_constraint
 
 
@@ -1083,7 +1099,7 @@ def uncertain_resource_purchase_constraint(instance: ConcreteModel, price: dict 
                 return instance.B[location, resource, scale_list[:scheduling_scale_level+1]] == price[location][resource]*instance.C[location, resource, scale_list[:scheduling_scale_level+1]]
             else:
                 return instance.B[location, resource, scale_list[:scheduling_scale_level+1]] == 0
-    constraint_latex_render(uncertain_resource_purchase_rule)
+    #constraint_latex_render(uncertain_resource_purchase_rule)
     instance.uncertain_resource_purchase_constraint = Constraint(
         instance.locations, instance.resources_purch, *scales, rule=uncertain_resource_purchase_rule, doc='expenditure on purchase of resource')
     return instance.uncertain_resource_purchase_constraint
