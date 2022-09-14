@@ -98,11 +98,11 @@ SMRH = Process(name='SMRH', intro_scale=smrh_start, conversion={Power: -1.11*10*
 SMR = Process(name='SMR', intro_scale=smr_start, cost= {'CAPEX': 2400, 'Fixed O&M': 800, 'Variable O&M': 0.03, 'units': '$/kg', 'source': 'dummy'}, \
     conversion={Power: -1.11*10**(-3), CH4: -3.76, H2O: -23.7, H2: 1, CO2_Vent: 9.4979}, prod_max=bigM, gwp=0, trl='enterprise',
                       block='material_production', label='Steam methane reforming', citation='Mosca 2020')
-H2_L_c = Process(name='H2_L_c', conversion={Power: -4.17*10**(-4), H2_L: 1, H2: -1}, cost={'CAPEX': smallM, 'Fixed O&M': 0, 'Variable O&M': 0,
+H2_L_c = Process(name='H2_L_c', conversion={Power: -4.17*10**(-4), H2_L: -1, H2: 1}, cost={'CAPEX': smallM, 'Fixed O&M': 0, 'Variable O&M': 0,
                                                                                            'units': '$/kg', 'source': 'dummy'},
                  prod_max=bigM, gwp=0, trl='repurposed', block='material_storage', label='Hydrogen geological storage',
                  citation='Bossel and Eliasson - Energy and the Hydrogen Economy')
-H2_L_d = Process(name='H2_L_d', conversion={H2_L: -1, H2: 1}, prod_max=bigM, gwp=0, trl='nocost', cost={'CAPEX': smallM, 'Fixed O&M': 0, 'Variable O&M': 0,                                                                                                        'units': '$/kg', 'source': 'dummy'},
+H2_L_d = Process(name='H2_L_d', conversion={H2_L: 1, H2: -1}, prod_max=bigM, gwp=0, trl='nocost', cost={'CAPEX': smallM, 'Fixed O&M': 0, 'Variable O&M': 0,                                                                                                        'units': '$/kg', 'source': 'dummy'},
                  block='material_storage', label='Hydrogen geological storage discharge', citation='Bossel and Eliasson - Energy and the Hydrogen Economy')
 EOR = Process(name='EOR', intro_scale=0, conversion={Power: -0.00255, CO2: -1, CO2_seq: 1, CO2_Vent: 0.67},
               cost=cost_dict['HO']['moderate']['EOR']['0'], prod_max=bigM, carbon_credit=True,
@@ -291,6 +291,7 @@ results_reduced_sl = solve(scenario = reduced_case_sl, instance= reduced_milp_sl
 # plt.plot(cap_ake)
 
 #%%
+
 def flexibility_reformulation(scenario: Scenario, affix_results: Result, carbon_bound:float= None, carbon_reduction_percentage:float= 0):
     
     instance = ConcreteModel()
@@ -417,9 +418,9 @@ y = list(results.components['locations']['HO']['demand'].values())
 
 #%%
 plot.schedule(results=results, y_axis='P',
-               component='H2_L_c', location='HO')
+               component='H2_L_d', location='HO')
 plot.schedule(results= results_flex, y_axis='P',
-               component='H2_L_c', location='HO')
+               component='H2_L_d', location='HO')
 
 #%%
 plot.contribution(results = results_flex, y_axis = 'S_location', location = 'HO')
