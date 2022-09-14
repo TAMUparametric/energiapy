@@ -1009,6 +1009,41 @@ def demand_constraint(instance: ConcreteModel, demand: Union[dict, float], deman
     #constraint_latex_render(demand_rule)
     return instance.demand_constraint
 
+def demand_constraint_flex(instance: ConcreteModel, demand: Union[dict, float], demand_scale_level: int = 0, scheduling_scale_level: int = 0) -> Constraint:
+    """Ensures that demand for resource is met at chosen temporal scale
+
+    Args:
+        instance (ConcreteModel): pyomo instance
+        demand_scale_level (int, optional): scale of demand decisions. Defaults to 0.
+        scheduling_scale_level (int, optional): scale of scheduling decisions. Defaults to 0.
+        demand_dict (dict, optional): demand at location. Defaults to {}.
+
+    Returns:
+        Constraint: demand_constraint_flex
+    """
+    # scales = scale_list(instance= instance, scale_levels = demand_scale_level+1)
+    scales = scale_list(instance=instance,
+                        scale_levels=instance.scales.__len__())
+    scale_iter = scale_tuple(
+        instance=instance, scale_levels=scheduling_scale_level+1)
+
+    def demand_rule(instance, location, resource, *scale_list):
+        if type(demand[location][list(demand[location])[0]]) == float:
+            return sum(instance.S[location, resource_, scale_list[:scheduling_scale_level+1]] for
+                       resource_ in instance.resources_demand) == demand[location][scale_list[:demand_scale_level+1]] - instance.Demand_slack[location, scale_list[:demand_scale_level+1]]
+        else:
+            return sum(instance.S[location, resource, scale_] for scale_ in scale_iter if scale_[:scheduling_scale_level+1] == scale_list)\
+                == demand[location][scale_list[:demand_scale_level+1]][resource]
+
+    if len(instance.locations) > 1:
+        instance.demand_constraint_flex = Constraint(
+            instance.sinks, instance.resources_demand, *scales, rule=demand_rule, doc='specific demand for resources')
+    else:
+        instance.demand_constraint_flex = Constraint(
+            instance.locations, instance.resources_demand, *scales, rule=demand_rule, doc='specific demand for resources')
+    #constraint_latex_render(demand_rule)
+    return instance.demand_constraint_flex
+
 # *-------------------------Nexus constraints--------------------------------------
 
 
