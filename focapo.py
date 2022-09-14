@@ -24,7 +24,7 @@ from src.energiapy.model.pyomo_objs import cost_objective
 import matplotlib.pyplot as plt
 from pyomo.environ import ConcreteModel, Suffix
 import random
-
+#%%
 ho_solar_df = pandas.read_csv('data/ho_solar.csv', index_col=0) #Houston solar dni
 ho_wind_df = pandas.read_csv('data/ho_wind.csv', index_col=0) #Houston wind speeds
 
@@ -58,9 +58,9 @@ Charge = Resource(name='Charge', sell=False,
 Solar = Resource(
     name='Solar', cons_max=bigM, basis='MW', label='Solar Power', block='energyfeedstock')
 Wind = Resource(name='Wind', cons_max= bigM, basis='MW', label='Wind Power', block='energyfeedstock')
-H2_L = Resource(name='H2_L', sell=True, store_max=10**10, demand=True, revenue=2,
+H2_L = Resource(name='H2_L', store_max=10**4, revenue=2,
                 mile=1/(0.1180535*1.60934), basis='kg', label='Hydrogen - Geological', block='resourcestorage')
-H2 = Resource(name='H2', basis='kg', label='Hydrogen', block='Resource')
+H2 = Resource(name='H2', basis='kg', sell = True, demand = True, label='Hydrogen', block='Resource')
 H2O = Resource(name='H2O', cons_max=10**6,
                price=water_price/(5000*3.7854), basis='kg', label='Water', block='Resource')
 O2 = Resource(name='O2', sell=True, loss=0.07,
@@ -69,14 +69,13 @@ CH4 = Resource(name='CH4', cons_max=10 **
                6, price=1, basis='kg', label='Natural gas', block='materialfeedstock', varying_cost_df=hp_price_daily_df)
 CO2 = Resource(name='CO2', basis='kg',
                label='Carbon dioxide', block='Resource')
-CO2_seq = Resource(
-    name='CO2_seq', store_max=10**6, basis='kg', label='Carbon dioxide - sequestered', block='carbonsequestration')
 CO2_Vent = Resource(
     name='CO2_Vent', sell=True, basis='kg', label='Carbon dioxide - Vented', block='resourcedischarge')
 # Power= Resource(name= 'Power', sell= True, store_max=0,   \
 #    mile= (10**3)/(0.2167432**1.60934), label= 'Renewable power generated')
 Power = Resource(name='Power', basis='MW',
                  label='Renewable power generated', block='Resource')
+
 
 LiI_c = Process(name='LiI_c', conversion={Charge: 1, Power: -1}, cost = cost_dict['HO']['moderate']['LiI_c']['0'],\
     prod_max=5, trl='nrel', block='power_storage', label='Lithium-ion battery', citation='Zakeri 2015')
@@ -85,42 +84,33 @@ LiI_d = Process(name='LiI_d', conversion={Charge: -1.1765, Power: 1}, cost =  {'
     prod_max=5, trl='discharge', block='power_storage', label='Lithium-ion battery discharge', citation='Zakeri 2015')
 WF = Process(name='WF', conversion={Wind: -1, Power: 1, H2O: -1}, cost=cost_dict['HO']['moderate']['WF']['0'],
              prod_max=100, gwp=52700, land=10800/1800, trl='nrel', block='power_generation',
-             label='Wind mill array', citation='Use windtoolkit conversion', varying_capacity_df=ho_wind_df)
+             label='Wind mill array', citation='Use windtoolkit conversion', varying_capacity_df=ho_wind_df, p_fail= 0.20)
 PV = Process(name='PV', intro_scale=pv_start, conversion={Solar: -1, Power: 1, H2O: -20}, cost=cost_dict['HO']['moderate']['PV']['0'],
              prod_max=bigM, gwp=53000, land=13320/1800, trl='nrel', block='power_generation', \
                  label='Solar photovoltaics (PV) array', citation='Use pvlib conversion', varying_capacity_df=ho_solar_df)
 AKE = Process(name='AKE', intro_scale=ake_start, conversion={Power: -1, H2: 19.474, O2: 763.2, H2O: -175.266},
               cost=cost_dict['HO']['moderate']['AKE']['0'], prod_max=bigM, trl='utility', block='material_production',
-              label='Alkaline water electrolysis (AWE)', citation='Demirhan et al. 2018 AIChE paper')  # 20.833 MW required to produce 1000t/day.H2
-SMRH = Process(name='SMRH', intro_scale=smrh_start, conversion={Power: -1.11*10**(-3), CH4: -3.76, H2O: -23.7, H2: 1, CO2_Vent: 1.03, CO2: 9.332},
-               cost=cost_dict['HO']['moderate']['SMRH']['0'], prod_max=bigM, gwp=0, trl='enterprise', block='material_production',
-               label='Steam methane reforming + CCUS', citation='Mosca 2020, 90pc capture')
-SMR = Process(name='SMR', intro_scale=smr_start, cost= {'CAPEX': 2400, 'Fixed O&M': 800, 'Variable O&M': 0.03, 'units': '$/kg', 'source': 'dummy'}, \
+              label='Alkaline water electrolysis (AWE)', citation='Demirhan et al. 2018 AIChE paper', p_fail= 0.03)  # 20.833 MW required to produce 1000t/day.H2
+SMR = Process(name='SMR', intro_scale=smr_start, cost= {'CAPEX': 2400, 'Fixed O&M': 800, 'Variable O&M': 0.05, 'units': '$/kg', 'source': 'dummy'}, \
     conversion={Power: -1.11*10**(-3), CH4: -3.76, H2O: -23.7, H2: 1, CO2_Vent: 9.4979}, prod_max=bigM, gwp=0, trl='enterprise',
-                      block='material_production', label='Steam methane reforming', citation='Mosca 2020')
-H2_L_c = Process(name='H2_L_c', conversion={Power: -4.17*10**(-4), H2_L: -1, H2: 1}, cost={'CAPEX': smallM, 'Fixed O&M': 0, 'Variable O&M': 0,
+                      block='material_production', label='Steam methane reforming', citation='Mosca 2020', p_fail= 0.15)
+H2_L_c = Process(name='H2_L_c', conversion={Power: -4.17*10**(-4), H2_L: 1, H2: -1}, cost={'CAPEX': smallM, 'Fixed O&M': 0, 'Variable O&M': 1,
                                                                                            'units': '$/kg', 'source': 'dummy'},
                  prod_max=bigM, gwp=0, trl='repurposed', block='material_storage', label='Hydrogen geological storage',
                  citation='Bossel and Eliasson - Energy and the Hydrogen Economy')
-H2_L_d = Process(name='H2_L_d', conversion={H2_L: 1, H2: -1}, prod_max=bigM, gwp=0, trl='nocost', cost={'CAPEX': smallM, 'Fixed O&M': 0, 'Variable O&M': 0,                                                                                                        'units': '$/kg', 'source': 'dummy'},
-                 block='material_storage', label='Hydrogen geological storage discharge', citation='Bossel and Eliasson - Energy and the Hydrogen Economy')
-EOR = Process(name='EOR', intro_scale=0, conversion={Power: -0.00255, CO2: -1, CO2_seq: 1, CO2_Vent: 0.67},
-              cost=cost_dict['HO']['moderate']['EOR']['0'], prod_max=bigM, carbon_credit=True,
-              trl='enterprise', block='CCUS', label='CO2-Enhanced oil recovery')
-AQoff_SMR = Process(name='AQoff_SMR', conversion={Power: -0.00128, CO2_seq: 1, CO2: -1}, cost=cost_dict['HO']['moderate']['AQoff_SMR']['0'],
-                    prod_max=bigM, carbon_credit=True, trl='repurposed', block='CCUS', label='Offshore aquifer CO2 sequestration (SMR)')
+H2_L_d = Process(name='H2_L_d', conversion={H2_L: -1, H2: 1}, prod_max=bigM, gwp=0, trl='nocost', cost={'CAPEX': smallM, 'Fixed O&M': 0, 'Variable O&M': 1,                                                                                                        'units': '$/kg', 'source': 'dummy'},
+                 block='material_storage', label='Hydrogen geological storage discharge', citation='Bossel and Eliasson - Energy and the Hydrogen Economy', p_fail= 0.06)
 
-ho_demand_dict = {(0, i, j): 1.0*10**3*random.uniform(0, 1) for i,j in product(range(scales.discretization_list[1]), range(scales.discretization_list[2]))}
-# ho_demand_dict = {(0, i): 1.0*10**3 for i in range(scales.discretization_list[1])}
+ho_demand_dict = {(0, i, j): 100.0 for i,j in product(range(scales.discretization_list[1]), range(scales.discretization_list[2]))}
 
-HO = Location(name='HO', processes={LiI_c, LiI_d, PV, WF, AKE, SMRH, H2_L_c, H2_L_d, EOR, AQoff_SMR, SMR}, demand= ho_demand_dict, scales=scales, label='Houston')
+HO = Location(name='HO', processes={LiI_c, LiI_d, PV, WF, AKE, SMR, H2_L_c, H2_L_d}, demand= ho_demand_dict, scales=scales, label='Houston')
 
 # for i in HO.processes:
 #     print(f"{i.label}: {i.cost}: {i.citation}")
 
-plot.capacity_factor(location= HO, process= PV, color= 'orange')
-plot.capacity_factor(location= HO, process= WF, color= 'blue')
-plot.cost_factor (location= HO, resource= CH4, color= 'red')
+# plot.capacity_factor(location= HO, process= PV, color= 'orange')
+# plot.capacity_factor(location= HO, process= WF, color= 'blue')
+# plot.cost_factor (location= HO, resource= CH4, color= 'red')
 
 
 case_sl = Scenario(name= 'shell', network= HO, scales= scales,  expenditure_scale_level= 2, scheduling_scale_level= 2, \
@@ -128,7 +118,6 @@ case_sl = Scenario(name= 'shell', network= HO, scales= scales,  expenditure_scal
 
 reduced_case_sl = reduce_scenario(
     scenario=case_sl, location=HO, periods=20, scale_level=1, method=Clustermethod.agg_hierarchial)
-
 
 
 
@@ -250,7 +239,7 @@ reduced_milp_sl = formulate_houston_milp(scenario= reduced_case_sl)
 results_reduced_sl = solve(scenario = reduced_case_sl, instance= reduced_milp_sl, solver= 'gurobi', name=f"Houston_MILP",\
     saveformat= '.pkl', print_solversteps = True)
 
-#%%
+
 # def carbon_reduction_cases(scenario: Scenario, carbon_bound:float, discretization_points:float = 10):
 #     iter_list = [100.0/discretization_points*(i + 1) for i in range(discretization_points-1)]
 
@@ -291,9 +280,7 @@ results_reduced_sl = solve(scenario = reduced_case_sl, instance= reduced_milp_sl
 # plt.plot(cap_ake)
 
 #%%
-
 def flexibility_reformulation(scenario: Scenario, affix_results: Result, carbon_bound:float= None, carbon_reduction_percentage:float= 0):
-    
     instance = ConcreteModel()
 
     generate_sets(instance=instance, location_set=scenario.location_set, transport_set=scenario.transport_set, scales=scenario.scales,
@@ -304,6 +291,9 @@ def flexibility_reformulation(scenario: Scenario, affix_results: Result, carbon_
         instance=instance, scale_level=scenario.scheduling_scale_level)
     generate_network_vars(
         instance=instance, scale_level=scenario.network_scale_level)
+    
+    generate_network_binary_vars(
+        instance=instance, scale_level=scenario.network_scale_level)
 
     if len(instance.locations) > 1:
         generate_transport_vars(
@@ -313,6 +303,10 @@ def flexibility_reformulation(scenario: Scenario, affix_results: Result, carbon_
                                  conversion=scenario.conversion)
     nameplate_production_constraint(instance=instance, capacity_factor=scenario.capacity_factor,
                                     network_scale_level=scenario.network_scale_level, scheduling_scale_level=scenario.scheduling_scale_level)
+    
+    nameplate_production_failure_constraint(instance=instance, fail_factor=scenario.fail_factor,
+                                    network_scale_level=scenario.network_scale_level, scheduling_scale_level=scenario.scheduling_scale_level)
+    
     nameplate_inventory_constraint(instance=instance, loc_res_dict=scenario.loc_res_dict, network_scale_level=scenario.network_scale_level,
                                    scheduling_scale_level=scenario.scheduling_scale_level)
     resource_consumption_constraint(instance=instance, loc_res_dict=scenario.loc_res_dict,
@@ -321,12 +315,17 @@ def flexibility_reformulation(scenario: Scenario, affix_results: Result, carbon_
                                  loc_res_dict=scenario.loc_res_dict, scheduling_scale_level=scenario.scheduling_scale_level,
                                  expenditure_scale_level=scenario.expenditure_scale_level)
 
-    production_facility_affix_constraint(instance=instance, affix_production_cap = affix_results.output['Cap_P'],
-                                   loc_pro_dict=scenario.loc_pro_dict, network_scale_level=scenario.network_scale_level)
+    # production_facility_affix_constraint(instance=instance, affix_production_cap = affix_results.output['Cap_P'],
+    #                                loc_pro_dict=scenario.loc_pro_dict, network_scale_level=scenario.network_scale_level)
     
-    storage_facility_affix_constraint(instance=instance, affix_storage_cap = affix_results.output['Cap_S'],
-                                loc_res_dict=scenario.loc_res_dict, network_scale_level=scenario.network_scale_level)
+    # storage_facility_affix_constraint(instance=instance, affix_storage_cap = affix_results.output['Cap_S'],
+    #                             loc_res_dict=scenario.loc_res_dict, network_scale_level=scenario.network_scale_level)
 
+    production_facility_constraint(instance=instance, prod_max=scenario.prod_max,
+                                   loc_pro_dict=scenario.loc_pro_dict, network_scale_level=scenario.network_scale_level)
+    storage_facility_constraint(instance=instance, store_max=scenario.store_max,
+                                loc_res_dict=scenario.loc_res_dict, network_scale_level=scenario.network_scale_level)
+    
     location_production_constraint(
         instance=instance, network_scale_level=scenario.network_scale_level, cluster_wt=scenario.cluster_wt)
     location_discharge_constraint(
@@ -406,31 +405,49 @@ def flexibility_reformulation(scenario: Scenario, affix_results: Result, carbon_
 
 # results_flex = {i: load_results(f"Houston_MILP_F{i+1}0.pkl") for i in range(9)}
 
+# for i in range(8):
+#     flex_LP = flexibility_reformulation(scenario= reduced_case_sl, affix_results= results_reduced_sl, carbon_bound= results_reduced_sl.output['S_location'][('HO', 'CO2_Vent', 0)], carbon_reduction_percentage= 10*i)
+
+#     results_flex = solve(scenario = reduced_case_sl, instance= flex_LP, solver= 'gurobi', name=f"Houston_MILP_Flex{i}",\
+#         saveformat= '.pkl', print_solversteps = True)
+    
+
 flex_LP = flexibility_reformulation(scenario= reduced_case_sl, affix_results= results_reduced_sl)
 
 results_flex = solve(scenario = reduced_case_sl, instance= flex_LP, solver= 'gurobi', name=f"Houston_MILP_Flex",\
-    saveformat= '.pkl', print_solversteps = True)
+        saveformat= '.pkl', print_solversteps = True)
 #%%
 results = load_results(filename = "Houston_MILP.pkl")
-results_flex = load_results(filename = "Houston_MILP_flex.pkl")
-#%%
-y = list(results.components['locations']['HO']['demand'].values())
+# results_flex = {i: load_results(filename = f"Houston_MILP_Flex{i}.pkl") for i in range(8)}
+results_flex = load_results(filename = f"Houston_MILP_Flex.pkl") 
 
+#%%
+plot.schedule(results=results, y_axis='Inv',
+               component='H2_L', location='HO')
+plot.schedule(results= results_flex, y_axis='Inv',
+               component='H2_L', location='HO')
 #%%
 plot.schedule(results=results, y_axis='P',
-               component='H2_L_d', location='HO')
-plot.schedule(results= results_flex, y_axis='P',
-               component='H2_L_d', location='HO')
+               component='SMR', location='HO')
+
+plot.schedule(results=results_flex, y_axis='P',
+               component='SMR', location='HO')
 
 #%%
-plot.contribution(results = results_flex, y_axis = 'S_location', location = 'HO')
+plot.contribution(results = results, y_axis = 'P_location', location = 'HO')
+plot.contribution(results = results_flex, y_axis = 'P_location', location = 'HO')
+
+# for i in range(8):
+#     plot.contribution(results = results_flex[i], y_axis = 'P_location', location = 'HO')
+    
+
 #%%
 plot.capacity_utilization(results, 'HO')
 plot.capacity_utilization(results_flex, 'HO')
 
 #%%
-
-results_flex.duals['nameplate_production_constraint']['HO', 'WF', 0, 0 ,0]
+for i in range(8):
+    print(results_flex[i].duals['nameplate_production_constraint']['HO', 'WF', 0, 0 ,0])
 
 
 # %%

@@ -70,8 +70,11 @@ def production_facility_affix_constraint(instance: ConcreteModel, affix_producti
     scales = scale_list(instance=instance, scale_levels=network_scale_level+1) 
     def production_facility_affix_rule(instance, location, process, *scale_list):
         if process in loc_pro_dict[location]:
-            return instance.Cap_P[location, process, scale_list[:network_scale_level+1]] \
-                == affix_production_cap[location, process, scale_list[:network_scale_level+1][0]]
+            if  affix_production_cap[location, process, scale_list[:network_scale_level+1][0]] > 0.0:
+                return instance.Cap_P[location, process, scale_list[:network_scale_level+1]] \
+                    == affix_production_cap[location, process, scale_list[:network_scale_level+1][0]]
+            else:
+                return instance.Cap_P[location, process, scale_list[:network_scale_level+1]] >= 0.0
         else:
             return instance.Cap_P[location, process, scale_list[:network_scale_level+1]] == 0
     instance.production_facility_affix_constraint = Constraint(
@@ -178,8 +181,11 @@ def storage_facility_affix_constraint(instance: ConcreteModel, affix_storage_cap
 
     def storage_facility_affix_rule(instance, location, resource, *scale_list):
         if resource in loc_res_dict[location]:
-            return instance.Cap_S[location, resource, scale_list[:network_scale_level+1]] \
-                == affix_storage_cap[location, resource, scale_list[:network_scale_level+1][0]] 
+            if affix_storage_cap[location, resource, scale_list[:network_scale_level+1][0]] > 0.0:
+                return instance.Cap_S[location, resource, scale_list[:network_scale_level+1]] \
+                    == affix_storage_cap[location, resource, scale_list[:network_scale_level+1][0]] 
+            else:
+                return instance.Cap_S[location, resource, scale_list[:network_scale_level+1]] >= 0.0
         else:
             return instance.Cap_S[location, resource, scale_list[:network_scale_level+1]] == 0
     instance.storage_facility_affix_constraint = Constraint(
@@ -1155,5 +1161,33 @@ def uncertain_resource_purchase_constraint(instance: ConcreteModel, price: dict 
         instance.locations, instance.resources_purch, *scales, rule=uncertain_resource_purchase_rule, doc='expenditure on purchase of resource')
     return instance.uncertain_resource_purchase_constraint
 
+
+def nameplate_production_failure_constraint(instance: ConcreteModel, fail_factor:dict = {}, network_scale_level: int = 0, scheduling_scale_level: int = 0) -> Constraint:
+    """Determines production capacity utilization of facilities at location in network and capacity of facilities 
+
+    Args:
+        instance (ConcreteModel): pyomo instance
+        capacity_factor (dict, optional): uncertain capacity availability training data. Defaults to {}.
+        network_scale_level (int, optional): scale of network decisions. Defaults to 0.
+        scheduling_scale_level (int, optional): scale of scheduling decisions. Defaults to 0.
+
+    Returns:
+        Constraint: nameplate_production_failure_constraint
+    """
+    scales = scale_list(instance=instance,
+                        scale_levels=instance.scales.__len__())
+
+    def nameplate_production_failure_rule(instance, location, process, *scale_list):
+        if process in instance.processes_failure:
+            return instance.P[location, process, scale_list[:scheduling_scale_level+1]] <= \
+                fail_factor[location][process][scale_list[:scheduling_scale_level+1]]* \
+                instance.Cap_P[location, process,
+                               scale_list[:network_scale_level+1]]
+        else:
+            return instance.P[location, process, scale_list[:scheduling_scale_level+1]] <= instance.Cap_P[location, process, scale_list[:network_scale_level+1]]
+    instance.nameplate_production_failure_constraint = Constraint(
+        instance.locations, instance.processes, *scales, rule=nameplate_production_failure_rule, doc='nameplate production capacity constraint')
+    #constraint_latex_render(nameplate_production_failure_rule)
+    return instance.nameplate_production_failure_constraint
 
 # %%

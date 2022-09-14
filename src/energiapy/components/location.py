@@ -17,7 +17,9 @@ from ..components.process import Process
 from ..components.resource import Resource
 from ..components.material import Material
 import pandas
+from random import sample
 from typing import Set, Dict, Union
+from itertools import product
 
 @dataclass
 class Location:
@@ -54,8 +56,9 @@ class Location:
         self.varying_resources = self.get_varying_resources()
         self.capacity_factor = self.get_capacityfactor()
         self.cost_factor = self.get_costfactor()
-        self.resource_price = self.get_resource_price()    
-    
+        self.resource_price = self.get_resource_price()   
+        self.failure_processes = self.get_failure_processes()
+        self.fail_factor = self.make_fail_factor()
       
     def get_resources(self) -> Set[Resource]:
         """fetches required resources for processes introduced at locations 
@@ -89,7 +92,17 @@ class Location:
         """
         return {i.name: i.price for i in self.resources}
     
+    def get_failure_processes(self):
+        return {i for i in self.processes if i.p_fail is not None}
     
+    def make_fail_factor(self)-> dict:
+        if self.failure_processes is None:
+            return None
+        else:
+            scale_iter = [(i) for i in product(self.scales.scale[0], self.scales.scale[1], self.scales.scale[2])]
+            fail_factor = {process_.name: {(scale_): sample([0]*int(process_.p_fail*100) +  [1] *int((1- process_.p_fail)*100), 1)[0] for scale_ in   scale_iter} for process_ in self.failure_processes}
+            return fail_factor
+        
     def get_varying_processes(self):
         return {i for i in self.processes if i.varying == True}
     
