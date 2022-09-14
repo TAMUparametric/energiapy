@@ -43,7 +43,7 @@ def cost_objective(instance:ConcreteModel, network_scale_level:int=0) -> Objecti
     return instance.cost_objective
 
 
-def uncertainty_cost_objective(instance:ConcreteModel, penalty: float, network_scale_level:int=0) -> Objective:
+def uncertainty_cost_objective(instance:ConcreteModel, penalty: float, network_scale_level:int=0, uncertainty_scale_level:int = 0) -> Objective:
     """Objective to minimize total cost
 
     Args:
@@ -54,13 +54,13 @@ def uncertainty_cost_objective(instance:ConcreteModel, penalty: float, network_s
         Objective: cost objective
     """
     scale_iter = scale_tuple(instance= instance, scale_levels = network_scale_level + 1)
-
+    scale_iter_uncertainty = scale_tuple(instance= instance, scale_levels = uncertainty_scale_level + 1)
     def uncertainty_cost_objective_rule(instance):
         capex = sum(instance.Capex_network[scale_] for scale_ in scale_iter) 
         vopex = sum(instance.Vopex_network[scale_] for scale_ in scale_iter)
         fopex = sum(instance.Fopex_network[scale_] for scale_ in scale_iter)
         cost_purch = sum(instance.B_network[resource_, scale_] for resource_, scale_ in product(instance.resources_purch, scale_iter))
-        cap_penalty = penalty*sum(instance.Delta_Cap_P_network[process_, scale_] for process_, scale_ in product(instance.processes_varying, scale_iter)) 
+        cap_penalty = penalty*sum(instance.Demand_slack[location_, scale_] for location_, scale_ in product(instance.locations, scale_iter_uncertainty)) 
         if len(instance.locations) > 1:
             cost_trans = sum(instance.Trans_cost_network[transport_, scale_] for transport_, scale_ in product(instance.transports, scale_iter))
         else:
