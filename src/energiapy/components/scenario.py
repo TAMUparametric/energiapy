@@ -95,7 +95,7 @@ class Scenario:
         self.vopex_dict = {i.name: i.vopex for i in self.process_set}
         self.land_dict = {i.name: i.land for i in self.process_set}
         self.demand = {i.name: i.demand for i in self.location_set}
-        
+        self.fail_factor = {i.name: i.fail_factor for i in self.location_set}
         # if type(list(self.location_set)[0].demand) == float:
         #     self.demand = {i.name: i.demand for i in self.location_set}
         # else:

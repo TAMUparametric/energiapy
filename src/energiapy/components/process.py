@@ -16,6 +16,7 @@ from typing import Dict, Union
 from ..components.resource import Resource
 from ..components.material import Material
 import pandas
+from random import sample
 
 @dataclass
 class Process:
@@ -64,6 +65,7 @@ class Process:
     lifetime: tuple = None
     varying:bool = False
     varying_capacity_df: pandas.DataFrame = None
+    p_fail: float = None
 
     def __post_init__(self):
         if self.cost is not None:
@@ -95,7 +97,7 @@ class Process:
             capacity_factor = {scale_: df['value'][df['scales'] == scale_][0]/max(df['value']) for scale_ in df['scales']}
             return capacity_factor
         
-
+         
     def __repr__(self):
         return self.name
     
