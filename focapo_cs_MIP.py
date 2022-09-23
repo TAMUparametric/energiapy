@@ -80,7 +80,7 @@ Power = Resource(name='Power', basis='MW',
 
 
 LiI_c = Process(name='LiI_c', conversion={Charge: 1, Power: -1}, cost = cost_dict['HO']['moderate']['LiI_c']['0'],\
-    prod_max=5, trl='nrel', block='power_storage', label='Lithium-ion battery', citation='Zakeri 2015', p_fail = 0.05)
+    prod_max=5, trl='nrel', block='power_storage', label='Lithium-ion battery', citation='Zakeri 2015')
 LiI_d = Process(name='LiI_d', conversion={Charge: -1.1765, Power: 1}, cost =  {'CAPEX': smallM, 'Fixed O&M': 0, 'Variable O&M': smallM, \
     'units': '$/kg','source': 'dummy'}, \
     prod_max=5, trl='discharge', block='power_storage', label='Lithium-ion battery discharge', citation='Zakeri 2015')
@@ -120,7 +120,7 @@ case_sl = Scenario(name= 'shell', network= HO, scales= scales,  expenditure_scal
     network_scale_level= 0, demand_scale_level= 1, label= 'shell milp case study (HO)')
 
 reduced_case_sl = reduce_scenario(
-    scenario=case_sl, location=HO, periods=20, scale_level=1, method=Clustermethod.agg_hierarchial)
+    scenario=case_sl, location=HO, periods=35, scale_level=1, method=Clustermethod.agg_hierarchial)
 
 
 
@@ -251,6 +251,22 @@ def MIP_flex_cases(scenario: Scenario, penalty_list: list):
     return results_MIP_flex
 
 MIP_flex_cases(scenario= reduced_case_sl, penalty_list= [5000*i for i in range(10)])
+
+
+#%%
+def MIP_flex_cases_full(scenario: Scenario, penalty_list: list):
+    iter_list = penalty_list
+
+    for iter_ in iter_list:
+        flex_MILP = flexibility_MIP_reformulation(scenario= scenario, penalty = iter_)
+
+        results_MIP_flex = solve(scenario = scenario, instance= flex_MILP, solver= 'gurobi', name=f"Houston_MIP_Full{iter_}",\
+        saveformat= '.pkl', print_solversteps = True)
+
+    return results_MIP_flex
+
+MIP_flex_cases_full(scenario= case_sl, penalty_list= [15000])
+
 #%%
 results_MIP = {i: load_results(f"Houston_MIP_Flex{i}.pkl") for i in [5000*i for i in range(10)]}
 
@@ -269,21 +285,31 @@ plt.plot([10000*i for i in range(10)], base_obj)
 
 from matplotlib import rc
 
-rc('font', **{'family': 'serif', 'serif': ['Computer Modern'], 'size': 15})
+rc('font', **{'family': 'serif', 'serif': ['Computer Modern'], 'size': 14})
 rc('text', usetex=False)
 fig, ax = plt.subplots(figsize= (8,5))
-ax.plot([10000*i for i in range(10)], obj, label = 'with penalty')
-ax.plot([10000*i for i in range(10)], base_obj, label = 'base case', linestyle = '--')
-plt.xlabel(f'Penalty factor on unmet demand')
-plt.ylabel('Cost Objective')
+ax.plot([0.1*i for i in range(10)], obj, label = 'with penalty')
+ax.plot([0.1*i for i in range(10)], base_obj, label = 'base case', linestyle = '--')
+plt.xlabel(f'Penalty on unmet demand [\$/kg.H2]')
+plt.ylabel('Cost Objective [\$]')
 plt.title('Trade-off between penalty and cost objective')
 plt.legend()
 plt.grid(alpha=0.3)
 plt.rcdefaults()
 # %%
+labels = {i.name: i.label for i in case_sl.process_set}
 
-Cap_OG = {i[1]: results.output['Cap_P'][i] for i in results.output['Cap_P'].keys()}
-Cap_50000 = {i[1]: results_MIP[40000].output['Cap_P'][i] for i in results_MIP[40000].output['Cap_P'].keys()}
+labels = {'LiI_c': 'Li-ion (c)',
+ 'SMR': 'Methane ref.',
+ 'AKE': 'Water elec.',
+ 'WF': 'Wind Farm',
+ 'PV': 'Solar PVs',
+ 'LiI_d': 'Li-ion (d)',
+ 'H2_L_c': 'H2 str. (c)',
+ 'H2_L_d': 'H2 str. (d)'}
+
+Cap_OG = {labels[i[1]]: results.output['Cap_P'][i] for i in results.output['Cap_P'].keys()}
+Cap_50000 = {labels[i[1]]: results_MIP[15000].output['Cap_P'][i] for i in results_MIP[15000].output['Cap_P'].keys()}
 
 plt_  = [(i-j)/i*100  if i != 0 else 0 for i,j in zip( list(Cap_50000.values()),list(Cap_OG.values()))  ]
 
@@ -295,8 +321,41 @@ rc('text', usetex=False)
 fig, ax = plt.subplots(figsize= (8,5))
 ax.bar(list(Cap_50000.keys()), plt_)
 plt.xlabel(f"Processes")
+plt.xticks(rotation = 45)
 plt.ylabel(' % ')
 plt.title('Change in installed capacity')
 plt.grid(alpha=0.3)
 plt.rcdefaults()
 # %%
+
+# %%
+results_MIP_full = load_results(f"Houston_MIP_Full15000.pkl") 
+
+Cap_15000 = {labels[i[1]]: results_MIP[15000].output['Cap_P'][i] for i in results_MIP[15000].output['Cap_P'].keys()}
+Cap_15000_full = {labels[i[1]]: results_MIP_full.output['Cap_P'][i] for i in results_MIP_full.output['Cap_P'].keys()}
+
+
+# plt_  = [(i-j)/i*100  if i != 0 else 0 for i,j in zip( list(Cap_15000.values()),list(Cap_OG.values()))  ]
+# plt2_  = [(i-j)/i*100  if i != 0 else 0 for i,j in zip( list(Cap_15000_full.values()),list(Cap_OG.values()))]
+
+
+plt_  = [i  for i in list(Cap_15000.values()) ]
+plt2_  = [i  for i in list(Cap_15000_full.values()) ]
+plt3_  = [(i-j)/i*100  if i != 0 else 0 for i,j in zip( list(Cap_15000_full.values()),list(Cap_15000.values()))  ]
+
+rc('font', **{'family': 'serif', 'serif': ['Computer Modern'], 'size': 15})
+rc('text', usetex=False)
+fig, ax = plt.subplots(figsize= (8,5))
+ax.bar(list(Cap_50000.keys()), plt3_, alpha = 0.6, color = 'r')
+# ax.bar(list(Cap_50000.keys()), plt_, color = 'b', alpha = 0.6)
+# ax.bar(list(Cap_50000.keys()), plt2_, color = 'b', alpha = 0.6)
+
+plt.xlabel(f"Processes")
+plt.xticks(rotation = 45)
+plt.ylabel(' % ')
+plt.title('Change in installed capacity')
+plt.grid(alpha=0.3)
+plt.rcdefaults()
+# %%
+
+
