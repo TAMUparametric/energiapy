@@ -1,5 +1,4 @@
 #%%
-
 """ Case study for the interplay between energy and materials transition
 """
 
