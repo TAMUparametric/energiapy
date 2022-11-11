@@ -88,9 +88,9 @@ class Process:
             return None
         else:
             self.varying = True
-            df = self.varying_capacity_df
-            df['hour'] = pandas.to_datetime(df.index).strftime("%H")
-            df['day'] = pandas.to_datetime(df.index).strftime("%j")
+            df = pandas.DataFrame(self.varying_capacity_df)
+            df['hour'] = pandas.to_datetime(df.index, errors='coerce').strftime("%H")
+            df['day'] = pandas.to_datetime(df.index, errors='coerce').strftime("%j")
             df['scales'] = [(0,int(j) - 1, int(k)) for j,k in zip(df['day'], df['hour'])]
             df = df.drop(['hour', 'day'], axis = 1)
             df.columns = ['value', 'scales']
