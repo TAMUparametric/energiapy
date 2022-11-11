@@ -366,4 +366,10 @@ plt.rcdefaults()
 # %%
 
 
+import pyomo.environ as pyo
+from itertools import compress
 
+pyomo_solvers_list = pyo.SolverFactory.__dict__['_cls'].keys()
+
+
+# %%

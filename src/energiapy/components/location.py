@@ -43,10 +43,6 @@ class Location:
     scales: Temporal_scale 
     demand: Union[float, Dict[Resource, float]] = 0.0
     label: str = ''
-    PV_class: str = ''
-    WF_class: str = ''
-    LiI_class: str = ''
-    PSH_class: str = ''
     
     def __post_init__(self):
         self.resources = self.get_resources()
