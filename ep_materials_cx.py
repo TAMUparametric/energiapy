@@ -117,8 +117,9 @@ Power = Resource(name='Power', basis='MW',
                          label='Renewable power generated', block = 'Resource')
 Geothermal_energy= Resource(name='Geotehrmal', store_max=10**10, sell=True, basis='MW',  label='Geothermal Storage', block='resourcestorage')
 
-# *-------------------------Materials------------------------------------
-LiR = Material(name='LiR', gwp=1.484, H2O=2273, basis= 'kg', label='Rock-based Lithium', citation= 'Nelson Bunyui Manjong (2021), https://www.tcc.fl.edu/media/divisions/academic-affairs/academic-enrichment/urc/poster-abstracts/Xanders_Madison_Poster_URS.pdf') #gwp=(0.216,0.314)
+               
+               
+               dia/divisions/academic-affairs/academic-enrichment/urc/poster-abstracts/Xanders_Madison_Poster_URS.pdf') #gwp=(0.216,0.314)
 LiB = Material(name='LiB', gwp=0.031, basis= 'kg', label='Brine-based Lithium', citation= 'Nelson Bunyui Manjong (2021)') #gwp=(0.289,0.499)
 Mn = Material(name='Mn', gwp=4.51, basis= 'kg', label='Manganese', citation= 'Nelson Bunyui Manjong (2021)') #inventory data #9.6, 2.6,7.9
 Ni = Material(name='Ni', gwp=7.64, H2O=80, basis= 'kg', label='Nickel', citation= 'Mark Mistry (2016), Sustainable water use in minerals and metal production')
