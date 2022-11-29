@@ -46,19 +46,9 @@ def agg_hierarchial(scales: Temporal_scale, scale_level: int, periods: int, cost
         _type_: _description_
     """
 
-    # cost_factor_df = pandas.DataFrame.from_dict(cost_factor)
-    # capacity_factor_df = pandas.DataFrame.from_dict(capacity_factor)
-    # demand_factor_df = pandas.DataFrame.from_dict(demand_factor)
-    
-    capacity_factor_df = pandas.concat([pandas.DataFrame(capacity_factor[list(capacity_factor.keys())[i]])\
-        for i in range(len(capacity_factor.keys()))], axis = 1)    
-    
-    cost_factor_df = pandas.concat([pandas.DataFrame(cost_factor[list(cost_factor.keys())[i]])\
-        for i in range(len(cost_factor.keys()))], axis = 1)
-    
-    demand_factor_df = pandas.concat([pandas.DataFrame(demand_factor[list(demand_factor.keys())[i]])\
-        for i in range(len(demand_factor.keys()))], axis = 1)   
-        
+    cost_factor_df = pandas.DataFrame(cost_factor)
+    capacity_factor_df = pandas.DataFrame(capacity_factor)
+    demand_factor_df = pandas.DataFrame(demand_factor)
    
     df = pandas.concat([cost_factor_df, capacity_factor_df, demand_factor_df],
                        axis=1).reset_index(drop=True) # makes a common data frame with all different data sets
@@ -233,7 +223,7 @@ def reduce_scenario(scenario: Scenario, location: Location, periods: int, scale_
     reduced_scenario_scaleiter = [(i) for i in product(
         *[reduced_temporal_scale.scale[i] for i in reduced_temporal_scale.scale])]
     reduced_scenario.capacity_factor = {location.name: {i: {
-        j: scenario.capacity_factor[location.name][i][j] for j in rep_dict.keys()} for i in list(scenario.capacity_factor[location.name].keys())}}
+        j: scenario.capacity_factor[location.name][i][j] for j in rep_dict.keys()} for i in list(scenario.capacity_factor[location.name])}}
     reduced_scenario.cost_factor = {location.name: {i: {
         j: scenario.cost_factor[location.name][i][j] for j in rep_dict.keys()} for i in list(scenario.cost_factor[location.name])}}
     reduced_scenario.demand_factor = {location.name: {i: {

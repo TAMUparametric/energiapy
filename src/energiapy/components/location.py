@@ -20,6 +20,7 @@ import pandas
 from random import sample
 from typing import Set, Dict, Union
 from itertools import product
+from ..utils.model_utils import scale_changer
 
 @dataclass
 class Location:
@@ -50,11 +51,11 @@ class Location:
         self.resources = self.get_resources()
         self.materials = self.get_materials()
         self.scale_levels = self.scales.scale_levels
-        self.varying_processes = self.get_varying_processes()
-        self.varying_resources = self.get_varying_resources()
-        self.capacity_factor_dict = self.get_capacityfactor()
-        self.cost_factor_dict = self.get_costfactor()
-        self.demand_factor_dict = self.get_demandfactor()
+        self.varying_processes = self.capacity_factor.keys()
+        self.varying_resources = self.cost_factor.keys()
+        self.capacity_factor = scale_changer(self.capacity_factor)
+        self.cost_factor = scale_changer(self.cost_factor)
+        self.demand_factor = scale_changer(self.demand_factor)
         self.resource_price = self.get_resource_price()   
         self.failure_processes = self.get_failure_processes()
         self.fail_factor = self.make_fail_factor()
@@ -101,22 +102,7 @@ class Location:
             scale_iter = [(i) for i in product(self.scales.scale[0], self.scales.scale[1], self.scales.scale[2])]
             fail_factor = {process_.name: {(scale_): sample([0]*int(process_.p_fail*100) +  [1] *int((1- process_.p_fail)*100), 1)[0] for scale_ in   scale_iter} for process_ in self.failure_processes}
             return fail_factor
-        
-    def get_varying_processes(self):
-        return {i for i in self.processes if i.varying == True}
-    
-    def get_varying_resources(self):
-        return {i for i in self.resources if i.varying == True}            
-    
-    def get_capacityfactor(self):
-        return {i.name: self.capacity_factor[i]/max(self.capacity_factor[i].iloc[:,0]) for i in self.capacity_factor.keys()}
-    
-    def get_costfactor(self):
-        return {i.name: self.cost_factor[i]/max(self.cost_factor[i].iloc[:,0]) for i in self.cost_factor.keys()}
-    
-    def get_demandfactor(self):
-        return {i.name: self.demand_factor[i]/max(self.demand_factor[i].iloc[:,0]) for i in self.demand_factor.keys()}
-    
+         
     def __repr__(self):
         return self.name
     
@@ -126,39 +112,6 @@ class Location:
     def __eq__(self, other):
         return self.name == other.name
     
-    
-    # def make_capacity_factor(self)-> dict:
-    #     """makes capacity factor dict from varying process/production output DataFrame()
 
-    #     Returns:
-    #         dict: dictionary with varying capacity factor, structure - {process: scale: value}
-    #     """
-    #     if self.varying_capacity_df is None:
-    #         return None
-    #     else:
-    #         self.varying = True
-    #         df = pandas.DataFrame(self.varying_capacity_df)
-    #         df['hour'] = pandas.to_datetime(df.index, errors='coerce').strftime("%H")
-    #         df['day'] = pandas.to_datetime(df.index, errors='coerce').strftime("%j")
-    #         df['scales'] = [(0,int(j) - 1, int(k)) for j,k in zip(df['day'], df['hour'])]
-    #         df = df.drop(['hour', 'day'], axis = 1)
-    #         df.columns = ['value', 'scales']
-    #         capacity_factor = {scale_: df['value'][df['scales'] == scale_][0]/max(df['value']) for scale_ in df['scales']}
-    #         return capacity_factor
-    
-    # def make_cost_factor(self) -> dict:
-    #     """makes cost factor dict from varying process/production output DataFrame()
-
-    #     Returns:
-    #         dict: dictionary with varying cost factor, structure - {resource: scale: value}
-    #     """
-    #     if self.varying_cost_df is None:
-    #         return None
-    #     else:
-    #         self.varying = True
-    #         df = self.varying_cost_df
-    #         df.columns = ['value','scales']
-    #         cost_factor = {scale_: df['value'][df['scales'] == scale_].values[0]/max(df['value']) for scale_ in df['scales']}
-    #         return cost_factor
 
 
