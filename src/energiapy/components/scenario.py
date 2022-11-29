@@ -85,16 +85,16 @@ class Scenario:
         self.cons_max = {i.name: {j.name: j.cons_max for j in i.resources} for i in self.location_set}
         self.store_max = {i.name: {j.name: j.store_max for j in i.resources} for i in self.location_set}
         self.store_min = {i.name: {j.name: j.store_min for j in i.resources} for i in self.location_set}
-        self.capacity_factor = {i.name: i.capacity_factor for i in self.location_set}  
+        self.capacity_factor = {i.name: i.capacity_factor_dict for i in self.location_set}  
         self.loc_res_dict =  {i.name: {j.name for j in i.resources} for i in self.location_set}
         self.loc_pro_dict =  {i.name: {j.name for j in i.processes} for i in self.location_set}
-        self.cost_factor =  {i.name: i.cost_factor for i in self.location_set}
+        self.cost_factor =  {i.name: i.cost_factor_dict for i in self.location_set}
         self.price = {i.name: i.resource_price for i in self.location_set}
         self.capex_dict = {i.name: i.capex for i in self.process_set}
         self.fopex_dict = {i.name: i.fopex for i in self.process_set}
         self.vopex_dict = {i.name: i.vopex for i in self.process_set}
         self.land_dict = {i.name: i.land for i in self.process_set}
-        self.demand = {i.name: i.demand for i in self.location_set}
+        self.demand_factor = {i.name: i.demand_factor_dict for i in self.location_set}
         self.fail_factor = {i.name: i.fail_factor for i in self.location_set}
         # if type(list(self.location_set)[0].demand) == float:
         #     self.demand = {i.name: i.demand for i in self.location_set}

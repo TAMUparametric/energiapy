@@ -32,7 +32,7 @@ class Clustermethod(Enum):
     dynamic_warping_path = auto()
     
 
-def agg_hierarchial(scales: Temporal_scale, scale_level: int, periods: int, cost_factor: dict = None, capacity_factor: dict = None, demand: dict = None):
+def agg_hierarchial(scales: Temporal_scale, scale_level: int, periods: int, cost_factor: dict = None, capacity_factor: dict = None, demand_factor: dict = None):
     """perform agglomerative hierarchial clustering over time-series data
 
     Args:
@@ -46,11 +46,20 @@ def agg_hierarchial(scales: Temporal_scale, scale_level: int, periods: int, cost
         _type_: _description_
     """
 
-    cost_factor_df = pandas.DataFrame.from_dict(cost_factor)
-    capacity_factor_df = pandas.DataFrame.from_dict(capacity_factor)
-    demand_factor_df = pandas.DataFrame.from_dict(demand)
+    # cost_factor_df = pandas.DataFrame.from_dict(cost_factor)
+    # capacity_factor_df = pandas.DataFrame.from_dict(capacity_factor)
+    # demand_factor_df = pandas.DataFrame.from_dict(demand_factor)
     
-
+    capacity_factor_df = pandas.concat([pandas.DataFrame(capacity_factor[list(capacity_factor.keys())[i]])\
+        for i in range(len(capacity_factor.keys()))], axis = 1)    
+    
+    cost_factor_df = pandas.concat([pandas.DataFrame(cost_factor[list(cost_factor.keys())[i]])\
+        for i in range(len(cost_factor.keys()))], axis = 1)
+    
+    demand_factor_df = pandas.concat([pandas.DataFrame(demand_factor[list(demand_factor.keys())[i]])\
+        for i in range(len(demand_factor.keys()))], axis = 1)   
+        
+   
     df = pandas.concat([cost_factor_df, capacity_factor_df, demand_factor_df],
                        axis=1).reset_index(drop=True) # makes a common data frame with all different data sets
 
@@ -214,7 +223,7 @@ def reduce_scenario(scenario: Scenario, location: Location, periods: int, scale_
     if method is Clustermethod.agg_hierarchial:
         rep_dict, wcss_sum, reduced_temporal_scale = agg_hierarchial(scenario.scales, scale_level=scale_level, periods=periods,
                                                                      cost_factor=scenario.cost_factor[location.name], capacity_factor=scenario.capacity_factor[location.name],
-                                                                     demand = scenario.demand)
+                                                                     demand_factor = scenario.demand_factor[location.name])
 
     reduced_scenario = Scenario(name=f"{scenario.name}_reduced", scales=reduced_temporal_scale,
                                 network=scenario.network, expenditure_scale_level=scenario.expenditure_scale_level,
@@ -223,11 +232,12 @@ def reduce_scenario(scenario: Scenario, location: Location, periods: int, scale_
 
     reduced_scenario_scaleiter = [(i) for i in product(
         *[reduced_temporal_scale.scale[i] for i in reduced_temporal_scale.scale])]
-    reduced_scenario.capacity_factor = {location.name: {i.name: {
-        j: scenario.capacity_factor[location.name][i.name][j] for j in rep_dict.keys()} for i in scenario.process_set if i.varying == True}}
-    reduced_scenario.cost_factor = {location.name: {i.name: {
-        j: scenario.cost_factor[location.name][i.name][j] for j in rep_dict.keys()} for i in scenario.resource_set if i.varying == True}}
-    reduced_scenario.demand = {location.name: {j: scenario.demand[location.name][j] for j in rep_dict.keys()}}
+    reduced_scenario.capacity_factor = {location.name: {i: {
+        j: scenario.capacity_factor[location.name][i][j] for j in rep_dict.keys()} for i in list(scenario.capacity_factor[location.name].keys())}}
+    reduced_scenario.cost_factor = {location.name: {i: {
+        j: scenario.cost_factor[location.name][i][j] for j in rep_dict.keys()} for i in list(scenario.cost_factor[location.name])}}
+    reduced_scenario.demand_factor = {location.name: {i: {
+        j: scenario.demand_factor[location.name][i][j] for j in rep_dict.keys()} for i in list(scenario.demand_factor[location.name])}}
     reduced_scenario.cluster_wt = {
         scale: rep_dict[scale]['cluster_wt'] for scale in reduced_scenario_scaleiter}
 
