@@ -20,6 +20,7 @@ import pandas
 from random import sample
 from typing import Set, Dict, Union
 from itertools import product
+from ..utils.model_utils import scale_changer
 
 @dataclass
 class Location:
@@ -41,17 +42,20 @@ class Location:
     name: str 
     processes: Set[Process] 
     scales: Temporal_scale 
-    demand: Union[float, Dict[Resource, float]] = 0.0
+    demand_factor: Union[float, Dict[Resource, float]] = 0.0
+    cost_factor: Union[float, Dict[Resource, float]] = 0.0
+    capacity_factor: Union[float, Dict[Process, float]] = 0.0
     label: str = ''
     
     def __post_init__(self):
         self.resources = self.get_resources()
         self.materials = self.get_materials()
         self.scale_levels = self.scales.scale_levels
-        self.varying_processes = self.get_varying_processes()
-        self.varying_resources = self.get_varying_resources()
-        self.capacity_factor = self.get_capacityfactor()
-        self.cost_factor = self.get_costfactor()
+        self.varying_processes = self.capacity_factor.keys()
+        self.varying_resources = self.cost_factor.keys()
+        self.capacity_factor = scale_changer(self.capacity_factor)
+        self.cost_factor = scale_changer(self.cost_factor)
+        self.demand_factor = scale_changer(self.demand_factor)
         self.resource_price = self.get_resource_price()   
         self.failure_processes = self.get_failure_processes()
         self.fail_factor = self.make_fail_factor()
@@ -98,20 +102,7 @@ class Location:
             scale_iter = [(i) for i in product(self.scales.scale[0], self.scales.scale[1], self.scales.scale[2])]
             fail_factor = {process_.name: {(scale_): sample([0]*int(process_.p_fail*100) +  [1] *int((1- process_.p_fail)*100), 1)[0] for scale_ in   scale_iter} for process_ in self.failure_processes}
             return fail_factor
-        
-    def get_varying_processes(self):
-        return {i for i in self.processes if i.varying == True}
-    
-    def get_varying_resources(self):
-        return {i for i in self.resources if i.varying == True}            
-    
-    def get_capacityfactor(self):
-        return {i.name: i.capacity_factor for i in self.varying_processes}
-    
-    def get_costfactor(self):
-        return {i.name: i.cost_factor for i in self.varying_resources}
-    
-    
+         
     def __repr__(self):
         return self.name
     
@@ -120,5 +111,7 @@ class Location:
     
     def __eq__(self, other):
         return self.name == other.name
+    
+
 
 

@@ -36,6 +36,8 @@ def scaler(input_df: pandas.DataFrame, parent_scale:list, child_scale:list) -> p
         scaled_df = pandas.concat([scaled_df, scaled_iter], axis = 1)
     return scaled_df
 
+
+
 def find_euclidean_distance(cluster_node_a: list, cluster_node_b: list) -> float:
     """finds euclidean distances between two cluster nodes
 
