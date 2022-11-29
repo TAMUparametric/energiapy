@@ -32,7 +32,7 @@ class Clustermethod(Enum):
     dynamic_warping_path = auto()
     
 
-def agg_hierarchial(scales: Temporal_scale, scale_level: int, periods: int, cost_factor: dict = None, capacity_factor: dict = None):
+def agg_hierarchial(scales: Temporal_scale, scale_level: int, periods: int, cost_factor: dict = None, capacity_factor: dict = None, demand: dict = None):
     """perform agglomerative hierarchial clustering over time-series data
 
     Args:
@@ -48,17 +48,19 @@ def agg_hierarchial(scales: Temporal_scale, scale_level: int, periods: int, cost
 
     cost_factor_df = pandas.DataFrame.from_dict(cost_factor)
     capacity_factor_df = pandas.DataFrame.from_dict(capacity_factor)
+    demand_factor_df = pandas.DataFrame.from_dict(demand)
+    
 
-    df = pandas.concat([cost_factor_df, capacity_factor_df],
-                       axis=1).reset_index(drop=True)
+    df = pandas.concat([cost_factor_df, capacity_factor_df, demand_factor_df],
+                       axis=1).reset_index(drop=True) # makes a common data frame with all different data sets
 
-    parent_scale = scales.scale[scale_level]
-    child_scale = scales.scale[scale_level+1]
+    parent_scale = scales.scale[scale_level] # the scale for which to cluster, e.g.: day
+    child_scale = scales.scale[scale_level+1] # the lower scale which is nested under the parent scale, e.g. : hour
     scaled_df = scaler(input_df=df, parent_scale=parent_scale,
-                       child_scale=child_scale)
-    scaled_array = scaled_df.to_numpy()
+                       child_scale=child_scale) # reshapes the data frame, e.g. instead of 8760 linear data points, creates a 365x24 matrix
+    scaled_array = scaled_df.to_numpy() # makes an array instead of a dataframe, as raw data is better handled in other libraries, removes dependencies 
 
-    connectivity_matrix = generate_connectivity_matrix(parent_scale)
+    connectivity_matrix = generate_connectivity_matrix(parent_scale) # make a matrix to ensure that chronology is maintained 
     ahc = AgglomerativeClustering(n_clusters=periods, affinity='euclidean', connectivity=connectivity_matrix,
                                   linkage='ward', compute_full_tree=True)
     clustered_array = ahc.fit_predict(scaled_array)
@@ -83,13 +85,13 @@ def agg_hierarchial(scales: Temporal_scale, scale_level: int, periods: int, cost
         centroid_array = nearest_centroid_df[nearest_centroid_df['cluster_no']
                                              == cluster_no].iloc[:, :-1].to_numpy()
         centroid = centroid_array.tolist()[0]
-        for cluster in cluster_array:
+        for cluster in cluster_array: # finding euclidean distance from each data point to centroid 
             cluster_point = [cluster for cluster in cluster]
             euclidean_distance = find_euclidean_distance(
                 cluster_point, centroid)
             euclidean_distance_list.append(euclidean_distance)
 
-    scaled_df['ED'] = euclidean_distance_list
+    scaled_df['ED'] = euclidean_distance_list #find the actual day closest to centroid
     closest_to_centroid_df['period'] = (
         scaled_df['cluster_no'].value_counts().index.values)
     cluster_wts = [i for i in scaled_df['cluster_no'].value_counts()]
@@ -98,22 +100,24 @@ def agg_hierarchial(scales: Temporal_scale, scale_level: int, periods: int, cost
     list_ = []
     for i in closest_to_centroid_df['period']:
         list_.append(
-            scaled_df.index.values[scaled_df['ED'] == scaled_df['ED'][scaled_df['cluster_no'] == i].min()][0])
+            scaled_df.index.values[scaled_df['ED'] == scaled_df['ED'][scaled_df['cluster_no'] == i].min()][0])#find the actual day closest to centroid
     closest_to_centroid_df['rep_period'] = list_
     closest_to_centroid_df = closest_to_centroid_df.sort_values(
         by=['rep_period']).reset_index(drop=True)
     closest_to_centroid_df['period'] = list(
         range(len(closest_to_centroid_df['period'])))
 
+    #creates a new Temporal_scale object on the reduced scale
     reduced_dicretization_list = list(scales.discretization_list)
     reduced_dicretization_list[scale_level] = periods
     reduced_temporal_scale = Temporal_scale(reduced_dicretization_list)
     reduced_scenario_scaleiter = [(i) for i in product(*[reduced_temporal_scale.scale[i] for i in reduced_temporal_scale.scale])]
 
+    #puts all relevant data in a dictionary
     rep_dict = {scale: {'rep_period': (*scale[:scale_level], closest_to_centroid_df['rep_period'][closest_to_centroid_df['period'] == scale[scale_level]].values[0], *scale[scale_level+1:]),
                         'cluster_wt': closest_to_centroid_df['cluster_wt'][closest_to_centroid_df['period'] == scale[scale_level]].values[0]} for scale in reduced_scenario_scaleiter}
 
-    wcss_sum = sum(i for i in scaled_df['ED'])/periods
+    wcss_sum = sum(i for i in scaled_df['ED'])/periods # collects the error data
 
     return rep_dict, wcss_sum, reduced_temporal_scale
 
@@ -209,7 +213,8 @@ def reduce_scenario(scenario: Scenario, location: Location, periods: int, scale_
 
     if method is Clustermethod.agg_hierarchial:
         rep_dict, wcss_sum, reduced_temporal_scale = agg_hierarchial(scenario.scales, scale_level=scale_level, periods=periods,
-                                                                     cost_factor=scenario.cost_factor[location.name], capacity_factor=scenario.capacity_factor[location.name])
+                                                                     cost_factor=scenario.cost_factor[location.name], capacity_factor=scenario.capacity_factor[location.name],
+                                                                     demand = scenario.demand)
 
     reduced_scenario = Scenario(name=f"{scenario.name}_reduced", scales=reduced_temporal_scale,
                                 network=scenario.network, expenditure_scale_level=scenario.expenditure_scale_level,
@@ -222,6 +227,7 @@ def reduce_scenario(scenario: Scenario, location: Location, periods: int, scale_
         j: scenario.capacity_factor[location.name][i.name][j] for j in rep_dict.keys()} for i in scenario.process_set if i.varying == True}}
     reduced_scenario.cost_factor = {location.name: {i.name: {
         j: scenario.cost_factor[location.name][i.name][j] for j in rep_dict.keys()} for i in scenario.resource_set if i.varying == True}}
+    reduced_scenario.demand = {location.name: {j: scenario.demand[location.name][j] for j in rep_dict.keys()}}
     reduced_scenario.cluster_wt = {
         scale: rep_dict[scale]['cluster_wt'] for scale in reduced_scenario_scaleiter}
 
