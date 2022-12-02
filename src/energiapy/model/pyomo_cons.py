@@ -305,7 +305,7 @@ def nameplate_inventory_constraint(instance: ConcreteModel, loc_res_dict: dict =
             return instance.Inv[location, resource, scale_list[:scheduling_scale_level+1]] <= 0
     instance.nameplate_inventory_constraint = Constraint(
         instance.locations, instance.resources_store, *scales, rule=nameplate_inventory_rule, doc='nameplate inventory capacity constraint')
-    #constraint_latex_render(nameplate_inventory_rule)
+    # constraint_latex_render(nameplate_inventory_rule)
     return instance.nameplate_inventory_constraint
 
 
@@ -974,7 +974,7 @@ def network_fopex_constraint(instance: ConcreteModel, network_scale_level: int =
 # *-------------------------Demand constraint--------------------------------------
 
 
-def demand_constraint(instance: ConcreteModel, demand: Union[dict, float], demand_scale_level: int = 0, scheduling_scale_level: int = 0) -> Constraint:
+def demand_constraint(instance: ConcreteModel, demand: int, demand_factor: Union[dict, float], demand_scale_level: int = 0, scheduling_scale_level: int = 0) -> Constraint:
     """Ensures that demand for resource is met at chosen temporal scale
 
     Args:
@@ -993,12 +993,12 @@ def demand_constraint(instance: ConcreteModel, demand: Union[dict, float], deman
         instance=instance, scale_levels=scheduling_scale_level+1)
 
     def demand_rule(instance, location, resource, *scale_list):
-        if type(demand[location][list(demand[location])[0]]) == float:
+        if type(demand_factor[location][list(demand_factor[location])[0]]) == float:
             return sum(instance.S[location, resource_, scale_list[:scheduling_scale_level+1]] for
-                       resource_ in instance.resources_demand) == demand[location][scale_list[:demand_scale_level+1]]
+                       resource_ in instance.resources_demand) == demand*demand_factor[location][scale_list[:demand_scale_level+1]]
         else:
             return sum(instance.S[location, resource, scale_] for scale_ in scale_iter if scale_[:scheduling_scale_level+1] == scale_list)\
-                == demand[location][scale_list[:demand_scale_level+1]][resource]
+                == demand*demand_factor[location][resource][scale_list[:demand_scale_level+1]]
 
     if len(instance.locations) > 1:
         instance.demand_constraint = Constraint(

@@ -42,13 +42,13 @@ class Location:
     name: str 
     processes: Set[Process] 
     scales: Temporal_scale 
-    demand_factor: Union[float, Dict[Resource, float]] = 0.0
-    cost_factor: Union[float, Dict[Resource, float]] = 0.0
-    capacity_factor: Union[float, Dict[Process, float]] = 0.0
+    demand_factor: Union[float, Dict[Resource, float]] = 1.0
+    cost_factor: Union[float, Dict[Resource, float]] = 1.0
+    capacity_factor: Union[float, Dict[Process, float]] = 1.0
     label: str = ''
     
     def __post_init__(self):
-        self.resources = self.get_resources()
+        self.resources= self.get_resources()
         self.materials = self.get_materials()
         self.scale_levels = self.scales.scale_levels
         self.varying_processes = self.capacity_factor.keys()
