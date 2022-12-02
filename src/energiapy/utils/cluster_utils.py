@@ -223,14 +223,14 @@ def reduce_scenario(scenario: Scenario, location: Location, periods: int, scale_
     reduced_scenario_scaleiter = [(i) for i in product(
         *[reduced_temporal_scale.scale[i] for i in reduced_temporal_scale.scale])]
     reduced_scenario.capacity_factor = {location.name: {i: {
-        j: scenario.capacity_factor[location.name][i][j] for j in rep_dict.keys()} for i in list(scenario.capacity_factor[location.name])}}
+        j: scenario.capacity_factor[location.name][i][rep_dict[j]['rep_period']] for j in rep_dict.keys()} for i in list(scenario.capacity_factor[location.name])}}
     reduced_scenario.cost_factor = {location.name: {i: {
-        j: scenario.cost_factor[location.name][i][j] for j in rep_dict.keys()} for i in list(scenario.cost_factor[location.name])}}
+        j: scenario.cost_factor[location.name][i][rep_dict[j]['rep_period']] for j in rep_dict.keys()} for i in list(scenario.cost_factor[location.name])}}
     reduced_scenario.demand_factor = {location.name: {i: {
-        j: scenario.demand_factor[location.name][i][j] for j in rep_dict.keys()} for i in list(scenario.demand_factor[location.name])}}
+        j: scenario.demand_factor[location.name][i][rep_dict[j]['rep_period']] for j in rep_dict.keys()} for i in list(scenario.demand_factor[location.name])}}
     reduced_scenario.cluster_wt = {
         scale: rep_dict[scale]['cluster_wt'] for scale in reduced_scenario_scaleiter}
-
+    
     return reduced_scenario
 # %%
 
