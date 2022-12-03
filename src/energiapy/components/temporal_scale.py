@@ -25,6 +25,7 @@ class Temporal_scale:
         discretization_list (list): list of discretization of temporal scale
     """
     discretization_list: list
+    start_zero: int = None
     
     def __post_init__(self):        
         self.scale  = {i: [j for j in range(self.discretization_list[i])] for i in range(len(self.discretization_list))}
