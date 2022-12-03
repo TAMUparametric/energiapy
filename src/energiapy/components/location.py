@@ -53,9 +53,9 @@ class Location:
         self.scale_levels = self.scales.scale_levels
         self.varying_processes = self.capacity_factor.keys()
         self.varying_resources = self.cost_factor.keys()
-        self.capacity_factor = scale_changer(self.capacity_factor)
-        self.cost_factor = scale_changer(self.cost_factor)
-        self.demand_factor = scale_changer(self.demand_factor)
+        self.capacity_factor = scale_changer(self.capacity_factor, scales=self.scales)
+        self.cost_factor = scale_changer(self.cost_factor, scales=self.scales)
+        self.demand_factor = scale_changer(self.demand_factor, scales=self.scales)
         self.resource_price = self.get_resource_price()   
         self.failure_processes = self.get_failure_processes()
         self.fail_factor = self.make_fail_factor()

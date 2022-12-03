@@ -23,6 +23,15 @@ from sklearn.cluster import KMeans
 from sklearn.neighbors import NearestCentroid
 from dataclasses import dataclass
 from typing import Union
+from enum import Enum, auto
+
+class Costdynamics(Enum):
+    constant = auto()
+
+class Capacitydynamics(Enum):
+    constant = auto()
+    exp_decay = auto()
+   
 
 @dataclass
 class Scenario:
@@ -46,6 +55,9 @@ class Scenario:
     demand_scale_level: int = 0
     cluster_wt: dict = None 
     label: str = ''
+    costdynamics: Costdynamics = Costdynamics.constant
+    capacitydynamics: Capacitydynamics = Capacitydynamics.constant
+    
 
     def __post_init__(self):    
 
@@ -88,7 +100,6 @@ class Scenario:
         self.capacity_factor = {i.name: i.capacity_factor for i in self.location_set}  
         self.loc_res_dict =  {i.name: {j.name for j in i.resources} for i in self.location_set}
         self.loc_pro_dict =  {i.name: {j.name for j in i.processes} for i in self.location_set}
-        self.cost_factor =  {i.name: i.cost_factor for i in self.location_set}
         self.price = {i.name: i.resource_price for i in self.location_set} # TODO change to be location wise
         self.capex_dict = {i.name: i.capex for i in self.process_set}
         self.fopex_dict = {i.name: i.fopex for i in self.process_set}
@@ -101,7 +112,10 @@ class Scenario:
         # else:
 
         #     self.demand = {i.name: {j.name if type(j: i.demand[j] for j in i.demand} for i in self.location_set}
-
+        # if self.costdynamics == Costdynamics.constant:
+        #     self.cost_factor =  {i.name: i.cost_factor for i in self.location_set}
+        # elif 
+            
     def make_conversion_df(self):
         return DataFrame.from_dict(self.conversion)
 
