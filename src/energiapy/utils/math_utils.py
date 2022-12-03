@@ -15,7 +15,7 @@ import pandas
 import numpy
 from sklearn.preprocessing import StandardScaler
 
-def scaler(input_df: pandas.DataFrame, parent_scale:list, child_scale:list) -> pandas.DataFrame:
+def scaler(input_df: pandas.DataFrame, scale:list, child_scale:list) -> pandas.DataFrame:
     """creates a scaled list from a pandas.DataFrame object
 
     Args:
@@ -30,7 +30,7 @@ def scaler(input_df: pandas.DataFrame, parent_scale:list, child_scale:list) -> p
     scaled_df = pandas.DataFrame()
     for col in cols:
         col_names = [col + '-' + str(i) for i in range(len(child_scale))]
-        reshaped_df = numpy.reshape(input_df[col].values, (len(parent_scale), len(child_scale)))
+        reshaped_df = numpy.reshape(input_df[col].values, (len(scale), len(child_scale)))
         scaler = StandardScaler().fit(reshaped_df)
         scaled_iter = pandas.DataFrame(scaler.transform(reshaped_df), columns=col_names)
         scaled_df = pandas.concat([scaled_df, scaled_iter], axis = 1)
@@ -54,13 +54,12 @@ def find_euclidean_distance(cluster_node_a: list, cluster_node_b: list) -> float
     return euclidean_distance_
 
 
-def generate_connectivity_matrix(scale:list):
+def generate_connectivity_matrix(scale_len):
     """generates a connectivity matrixto maintain chronology [..1,0,1..]
 
     Returns:
         array: matrix with connectivity relations
     """
-    scale_len = len(scale)
     connect_ = numpy.zeros((scale_len, scale_len), dtype=int)
     for i_ in range(len(connect_)):
 

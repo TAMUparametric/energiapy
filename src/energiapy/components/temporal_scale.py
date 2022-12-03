@@ -14,6 +14,7 @@ __status__ = "Production"
 from dataclasses import dataclass
 from functools import reduce
 import operator
+from itertools import product
 
 @dataclass
 class Temporal_scale:
@@ -32,6 +33,9 @@ class Temporal_scale:
         self.list = [i for i in range(len(self.discretization_list))]
         self.name = f"{[i for i in range(len(self.list))]}"
         self.scale_levels = len(self.discretization_list)
+        
+    def scale_iter(self):
+        return [(i) for i in product(*[self.scale[i] for i in self.scale])]
         
     def __repr__(self):
         return self.name

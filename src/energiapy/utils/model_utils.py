@@ -50,13 +50,12 @@ def scale_changer(input_dict:dict, scales: Temporal_scale)-> dict:
     """changes the scales form datetime to tuples 
     """
     df = pandas.concat([pandas.DataFrame(input_dict[list(input_dict.keys())[i]])\
-    for i in range(len(input_dict.keys()))], axis = 1)
-    print(df.head())    
+    for i in range(len(input_dict.keys()))], axis = 1)   
     df['hour'] = pandas.to_datetime(df.index, errors='coerce').strftime("%H")
     df['day'] = pandas.to_datetime(df.index, errors='coerce').strftime("%j")
     df['year'] = pandas.to_datetime(df.index, errors='coerce').strftime("%Y")
     if scales.start_zero is not None:
-        df['scales'] = [(int(int(i)/scales.start_zero) - 1, int(j) - 1, int(k)) \
+        df['scales'] = [(int(i)  - scales.start_zero, int(j) - 1, int(k)) \
             for i,j,k in zip(df['year'], df['day'], df['hour'])]
     else:
         df['scales'] = [(0, int(j) - 1, int(k)) \
@@ -64,8 +63,6 @@ def scale_changer(input_dict:dict, scales: Temporal_scale)-> dict:
     df = df.drop(['hour', 'day', 'year'], axis = 1)
     df = df.set_index(['scales'])
     df.columns = [i.name for i in input_dict.keys()]
-    df = df.apply(lambda x:x/x.max(), axis = 0)
-    print(df.head())    
-    output_dict = {i: {j: df[i][j]  for j in df.index } for i in df.columns}
-    print(output_dict)
+    df = df.apply(lambda x:x/x.max(), axis = 0)   
+    output_dict = {i: {j: df[i][j] for j in df.index } for i in df.columns}
     return output_dict
