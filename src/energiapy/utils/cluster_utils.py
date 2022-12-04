@@ -53,72 +53,91 @@ def agg_hierarchial(scales: Temporal_scale, scale_level: int, periods: int, cost
     df = pandas.concat([cost_factor_df, capacity_factor_df, demand_factor_df],
                        axis=1).reset_index(drop=True) # makes a common data frame with all different data sets
 
-    parent_scale = scales.scale[scale_level] # the scale for which to cluster, e.g.: day
+    parent_scale = scales.scale[scale_level-1]
+    scale = scales.scale[scale_level] # the scale for which to cluster, e.g.: day
     child_scale = scales.scale[scale_level+1] # the lower scale which is nested under the parent scale, e.g. : hour
-    scaled_df = scaler(input_df=df, parent_scale=parent_scale,
-                       child_scale=child_scale) # reshapes the data frame, e.g. instead of 8760 linear data points, creates a 365x24 matrix
-    scaled_array = scaled_df.to_numpy() # makes an array instead of a dataframe, as raw data is better handled in other libraries, removes dependencies 
 
-    connectivity_matrix = generate_connectivity_matrix(parent_scale) # make a matrix to ensure that chronology is maintained 
-    ahc = AgglomerativeClustering(n_clusters=periods, affinity='euclidean', connectivity=connectivity_matrix,
-                                  linkage='ward', compute_full_tree=True)
-    clustered_array = ahc.fit_predict(scaled_array)
-    cluster_labels = ahc.labels_  # get list of representative days
-
-    nearest_centroid_array = NearestCentroid().fit(
-        scaled_array, clustered_array).centroids_  # get the centroids of the clusters
-    nearest_centroid_df = pandas.DataFrame(
-        data=nearest_centroid_array, columns=[col for col in scaled_df])
-    # add cluster numbers to the dataset
-    scaled_df['cluster_no'] = cluster_labels
-    nearest_centroid_df['cluster_no'] = scaled_df['cluster_no'].unique()
-
-    euclidean_distance_list = []
-    closest_to_centroid_df = pandas.DataFrame(
-        columns=['period', 'rep_period', 'cluster_wt'])
-
-    for cluster_no in nearest_centroid_df['cluster_no']:
-        # -1 skips cluster_no row
-        cluster_array = scaled_df[scaled_df['cluster_no']
-                                  == cluster_no].iloc[:, :-1].to_numpy()
-        centroid_array = nearest_centroid_df[nearest_centroid_df['cluster_no']
-                                             == cluster_no].iloc[:, :-1].to_numpy()
-        centroid = centroid_array.tolist()[0]
-        for cluster in cluster_array: # finding euclidean distance from each data point to centroid 
-            cluster_point = [cluster for cluster in cluster]
-            euclidean_distance = find_euclidean_distance(
-                cluster_point, centroid)
-            euclidean_distance_list.append(euclidean_distance)
-
-    scaled_df['ED'] = euclidean_distance_list #find the actual day closest to centroid
-    closest_to_centroid_df['period'] = (
-        scaled_df['cluster_no'].value_counts().index.values)
-    cluster_wts = [i for i in scaled_df['cluster_no'].value_counts()]
-    closest_to_centroid_df['cluster_wt'] = cluster_wts
-
-    list_ = []
-    for i in closest_to_centroid_df['period']:
-        list_.append(
-            scaled_df.index.values[scaled_df['ED'] == scaled_df['ED'][scaled_df['cluster_no'] == i].min()][0])#find the actual day closest to centroid
-    closest_to_centroid_df['rep_period'] = list_
-    closest_to_centroid_df = closest_to_centroid_df.sort_values(
-        by=['rep_period']).reset_index(drop=True)
-    closest_to_centroid_df['period'] = list(
-        range(len(closest_to_centroid_df['period'])))
-
+    split_df = numpy.array_split(df, len(parent_scale))
+    # output_df = pandas.DataFrame()
+    # rep_dict_iter = {i: 0 for i in range(len(parent_scale))} 
+    rep_dict_iter = {}    
+       
+    
     #creates a new Temporal_scale object on the reduced scale
     reduced_dicretization_list = list(scales.discretization_list)
     reduced_dicretization_list[scale_level] = periods
     reduced_temporal_scale = Temporal_scale(reduced_dicretization_list)
-    reduced_scenario_scaleiter = [(i) for i in product(*[reduced_temporal_scale.scale[i] for i in reduced_temporal_scale.scale])]
+    reduced_scenario_scaleiter = numpy.array_split(reduced_temporal_scale.scale_iter(), len(parent_scale))
+    
+    for parent_iter in range(len(parent_scale)):
+        
+        scaled_df = scaler(input_df=split_df[parent_iter], scale = scale,
+                        child_scale=child_scale) # reshapes the data frame, e.g. instead of 8760 linear data points, creates a 365x24 matrix
+        scaled_array = scaled_df.to_numpy() # makes an array instead of a dataframe, as raw data is better handled in other libraries, removes dependencies 
 
-    #puts all relevant data in a dictionary
-    rep_dict = {scale: {'rep_period': (*scale[:scale_level], closest_to_centroid_df['rep_period'][closest_to_centroid_df['period'] == scale[scale_level]].values[0], *scale[scale_level+1:]),
-                        'cluster_wt': closest_to_centroid_df['cluster_wt'][closest_to_centroid_df['period'] == scale[scale_level]].values[0]} for scale in reduced_scenario_scaleiter}
+        connectivity_matrix = generate_connectivity_matrix(scale_len= len(scale)) # make a matrix to ensure that chronology is maintained 
+        ahc = AgglomerativeClustering(n_clusters=periods, affinity='euclidean', connectivity=connectivity_matrix,
+                                    linkage='ward', compute_full_tree=True)
+        clustered_array = ahc.fit_predict(scaled_array)
+        cluster_labels = ahc.labels_  # get list of representative days
 
-    wcss_sum = sum(i for i in scaled_df['ED'])/periods # collects the error data
+        nearest_centroid_array = NearestCentroid().fit(
+            scaled_array, clustered_array).centroids_  # get the centroids of the clusters
+        nearest_centroid_df = pandas.DataFrame(
+            data=nearest_centroid_array, columns=[col for col in scaled_df])
+        # add cluster numbers to the dataset
+        scaled_df['cluster_no'] = cluster_labels
+        nearest_centroid_df['cluster_no'] = scaled_df['cluster_no'].unique()
 
-    return rep_dict, wcss_sum, reduced_temporal_scale
+        euclidean_distance_list = []
+        closest_to_centroid_df = pandas.DataFrame(
+            columns=['period', 'rep_period', 'cluster_wt'])
+
+        for cluster_no in nearest_centroid_df['cluster_no']:
+            # -1 skips cluster_no row
+            cluster_array = scaled_df[scaled_df['cluster_no']
+                                    == cluster_no].iloc[:, :-1].to_numpy()
+            centroid_array = nearest_centroid_df[nearest_centroid_df['cluster_no']
+                                                == cluster_no].iloc[:, :-1].to_numpy()
+            centroid = centroid_array.tolist()[0]
+            for cluster in cluster_array: # finding euclidean distance from each data point to centroid 
+                cluster_point = [cluster for cluster in cluster]
+                euclidean_distance = find_euclidean_distance(
+                    cluster_point, centroid)
+                euclidean_distance_list.append(euclidean_distance)
+
+        scaled_df['ED'] = euclidean_distance_list #find the actual day closest to centroid
+        closest_to_centroid_df['period'] = (
+            scaled_df['cluster_no'].value_counts().index.values)
+        cluster_wts = [i for i in scaled_df['cluster_no'].value_counts()]
+        closest_to_centroid_df['cluster_wt'] = cluster_wts
+
+        list_ = []
+        for i in closest_to_centroid_df['period']:
+            list_.append(
+                scaled_df.index.values[scaled_df['ED'] == scaled_df['ED'][scaled_df['cluster_no'] == i].min()][0])#find the actual day closest to centroid
+        closest_to_centroid_df['rep_period'] = list_
+        closest_to_centroid_df = closest_to_centroid_df.sort_values(
+            by=['rep_period']).reset_index(drop=True)
+        closest_to_centroid_df['period'] = list(
+            range(len(closest_to_centroid_df['period'])))
+
+        current_iter = [ tuple(i) for i in reduced_scenario_scaleiter[parent_iter]]
+        
+        output_dict= {scale: {'rep_period': (parent_iter, \
+            closest_to_centroid_df['rep_period'][closest_to_centroid_df['period'] == scale[scale_level]].values[0], *scale[scale_level+1:]),
+                            'cluster_wt': closest_to_centroid_df['cluster_wt'][closest_to_centroid_df['period'] == scale[scale_level]].values[0]}\
+                                for scale in current_iter}
+
+        rep_dict_iter = {**rep_dict_iter, **output_dict}
+    # rep_dict = {rep_dict_iter[i].values() for i}
+
+    # puts all relevant data in a dictionary
+
+    
+    # wcss_sum = sum(i for i in scaled_df['ED'])/periods # collects the error data
+
+    return rep_dict_iter, reduced_temporal_scale
 
 # TODO - call methods as a function
 # TODO  - Handle multiple outputs
@@ -211,7 +230,7 @@ def reduce_scenario(scenario: Scenario, location: Location, periods: int, scale_
     """
 
     if method is Clustermethod.agg_hierarchial:
-        rep_dict, wcss_sum, reduced_temporal_scale = agg_hierarchial(scenario.scales, scale_level=scale_level, periods=periods,
+        rep_dict, reduced_temporal_scale= agg_hierarchial(scenario.scales, scale_level=scale_level, periods=periods,
                                                                      cost_factor=scenario.cost_factor[location.name], capacity_factor=scenario.capacity_factor[location.name],
                                                                      demand_factor = scenario.demand_factor[location.name])
 
