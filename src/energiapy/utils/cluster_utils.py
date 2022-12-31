@@ -32,7 +32,7 @@ class Clustermethod(Enum):
     dynamic_warping_path = auto()
     
 
-def agg_hierarchial(scales: Temporal_scale, scale_level: int, periods: int, cost_factor: dict = None, capacity_factor: dict = None, demand_factor: dict = None):
+def agg_hierarchial(scales: Temporal_scale, scale_level: int, periods: int, include:list, cost_factor: dict = None, capacity_factor: dict = None, demand_factor: dict = None):
     """perform agglomerative hierarchial clustering over time-series data
 
     Args:
@@ -45,11 +45,21 @@ def agg_hierarchial(scales: Temporal_scale, scale_level: int, periods: int, cost
     Returns:
         _type_: _description_
     """
-
-    cost_factor_df = pandas.DataFrame(cost_factor)
-    capacity_factor_df = pandas.DataFrame(capacity_factor)
-    demand_factor_df = pandas.DataFrame(demand_factor)
-   
+    if 'cost' in include:
+        cost_factor_df = pandas.DataFrame(cost_factor)
+    else:
+        cost_factor_df = None
+    
+    if 'capacity' in include:    
+        capacity_factor_df = pandas.DataFrame(capacity_factor)
+    else:
+        capacity_factor_df = None
+    
+    if 'demand' in include:
+        demand_factor_df = pandas.DataFrame(demand_factor)
+    else:
+        demand_factor_df = None
+        
     df = pandas.concat([cost_factor_df, capacity_factor_df, demand_factor_df],
                        axis=1).reset_index(drop=True) # makes a common data frame with all different data sets
 
@@ -67,7 +77,7 @@ def agg_hierarchial(scales: Temporal_scale, scale_level: int, periods: int, cost
     reduced_dicretization_list = list(scales.discretization_list)
     reduced_dicretization_list[scale_level] = periods
     reduced_temporal_scale = Temporal_scale(reduced_dicretization_list)
-    reduced_scenario_scaleiter = numpy.array_split(reduced_temporal_scale.scale_iter(), len(parent_scale))
+    reduced_scenario_scaleiter = numpy.array_split(reduced_temporal_scale.scale_iter(scale_level= len(parent_scale)), len(parent_scale))
     
     for parent_iter in range(len(parent_scale)):
         
@@ -215,7 +225,7 @@ def dynamic_warping_path(matrix: numpy.ndarray) -> list:
 
 
 
-def reduce_scenario(scenario: Scenario, location: Location, periods: int, scale_level: int, method: Clustermethod) -> Scenario:
+def reduce_scenario(scenario: Scenario, location: Location, periods: int, scale_level: int, method: Clustermethod, include: list) -> Scenario:
     """reduce scenario using a particular method
 
     Args:
@@ -232,7 +242,7 @@ def reduce_scenario(scenario: Scenario, location: Location, periods: int, scale_
     if method is Clustermethod.agg_hierarchial:
         rep_dict, reduced_temporal_scale= agg_hierarchial(scenario.scales, scale_level=scale_level, periods=periods,
                                                                      cost_factor=scenario.cost_factor[location.name], capacity_factor=scenario.capacity_factor[location.name],
-                                                                     demand_factor = scenario.demand_factor[location.name])
+                                                                     demand_factor = scenario.demand_factor[location.name], include = include)
 
     reduced_scenario = Scenario(name=f"{scenario.name}_reduced", scales=reduced_temporal_scale,
                                 network=scenario.network, expenditure_scale_level=scenario.expenditure_scale_level,
@@ -241,12 +251,19 @@ def reduce_scenario(scenario: Scenario, location: Location, periods: int, scale_
 
     reduced_scenario_scaleiter = [(i) for i in product(
         *[reduced_temporal_scale.scale[i] for i in reduced_temporal_scale.scale])]
-    reduced_scenario.capacity_factor = {location.name: {i: {
-        j: scenario.capacity_factor[location.name][i][rep_dict[j]['rep_period']] for j in rep_dict.keys()} for i in list(scenario.capacity_factor[location.name])}}
-    reduced_scenario.cost_factor = {location.name: {i: {
-        j: scenario.cost_factor[location.name][i][rep_dict[j]['rep_period']] for j in rep_dict.keys()} for i in list(scenario.cost_factor[location.name])}}
-    reduced_scenario.demand_factor = {location.name: {i: {
-        j: scenario.demand_factor[location.name][i][rep_dict[j]['rep_period']] for j in rep_dict.keys()} for i in list(scenario.demand_factor[location.name])}}
+    
+    if 'capacity' in include:
+        reduced_scenario.capacity_factor = {location.name: {i: {
+            j: scenario.capacity_factor[location.name][i][rep_dict[j]['rep_period']] for j in rep_dict.keys()} for i in list(scenario.capacity_factor[location.name])}}
+    
+    if 'cost' in include:  
+        reduced_scenario.cost_factor = {location.name: {i: {
+            j: scenario.cost_factor[location.name][i][rep_dict[j]['rep_period']] for j in rep_dict.keys()} for i in list(scenario.cost_factor[location.name])}}
+    
+    if 'demand' in include:  
+        reduced_scenario.demand_factor = {location.name: {i: {
+            j: scenario.demand_factor[location.name][i][rep_dict[j]['rep_period']] for j in rep_dict.keys()} for i in list(scenario.demand_factor[location.name])}}
+        
     reduced_scenario.cluster_wt = {
         scale: rep_dict[scale]['cluster_wt'] for scale in reduced_scenario_scaleiter}
     
