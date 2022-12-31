@@ -34,8 +34,8 @@ class Temporal_scale:
         self.name = f"{[i for i in range(len(self.list))]}"
         self.scale_levels = len(self.discretization_list)
         
-    def scale_iter(self):
-        return [(i) for i in product(*[self.scale[i] for i in self.scale])]
+    def scale_iter(self, scale_level):
+        return [(i) for i in product(*[self.scale[i] for i in self.scale][:scale_level+1])]
         
     def __repr__(self):
         return self.name

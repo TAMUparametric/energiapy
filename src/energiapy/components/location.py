@@ -45,6 +45,9 @@ class Location:
     demand_factor: Union[float, Dict[Resource, float]] = 1.0
     cost_factor: Union[float, Dict[Resource, float]] = 1.0
     capacity_factor: Union[float, Dict[Process, float]] = 1.0
+    demand_level: int = 1.0
+    cost_level: int = 1.0
+    capacity_level: int = 1.0
     label: str = ''
     
     def __post_init__(self):
@@ -53,9 +56,9 @@ class Location:
         self.scale_levels = self.scales.scale_levels
         self.varying_processes = self.capacity_factor.keys()
         self.varying_resources = self.cost_factor.keys()
-        self.capacity_factor = scale_changer(self.capacity_factor, scales=self.scales)
-        self.cost_factor = scale_changer(self.cost_factor, scales=self.scales)
-        self.demand_factor = scale_changer(self.demand_factor, scales=self.scales)
+        self.capacity_factor = scale_changer(self.capacity_factor, scales=self.scales, scale_level=self.capacity_level)
+        self.cost_factor = scale_changer(self.cost_factor, scales=self.scales, scale_level=self.cost_level)
+        self.demand_factor = scale_changer(self.demand_factor, scales=self.scales, scale_level=self.demand_level)
         self.resource_price = self.get_resource_price()   
         self.failure_processes = self.get_failure_processes()
         self.fail_factor = self.make_fail_factor()

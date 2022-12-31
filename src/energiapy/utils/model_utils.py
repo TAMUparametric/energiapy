@@ -46,7 +46,7 @@ def scale_tuple(instance: ConcreteModel, scale_levels:int=0):
     list_ = [i for i in product(*data)]
     return  list_
 
-def scale_changer(input_dict:dict, scales: Temporal_scale)-> dict:
+def scale_changer(input_dict:dict, scales: Temporal_scale, scale_level: int)-> dict:
     """changes the scales form datetime to tuples 
     """
     df = pandas.concat([pandas.DataFrame(input_dict[list(input_dict.keys())[i]])\
@@ -62,7 +62,7 @@ def scale_changer(input_dict:dict, scales: Temporal_scale)-> dict:
     #     df['scales'] = [(0, int(j) - 1, int(k)) \
     #         for i,j,k in zip(df['year'], df['day'], df['hour'])]
     # df = df.drop(['hour', 'day', 'year'], axis = 1)
-    df['scales'] = scales.scale_iter()
+    df['scales'] = scales.scale_iter(scale_level = scale_level)
     df = df.set_index(['scales'])
     df.columns = [i.name for i in input_dict.keys()]
     df = df.apply(lambda x:x/x.max(), axis = 0)   
