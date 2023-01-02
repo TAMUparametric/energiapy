@@ -116,7 +116,7 @@ class Scenario:
         # if self.costdynamics == Costdynamics.constant:
         #     self.cost_factor =  {i.name: i.cost_factor for i in self.location_set}
         # elif 
-            
+     
     def make_conversion_df(self):
         return DataFrame.from_dict(self.conversion)
 

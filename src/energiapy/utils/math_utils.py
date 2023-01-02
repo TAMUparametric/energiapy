@@ -15,7 +15,7 @@ import pandas
 import numpy
 from sklearn.preprocessing import StandardScaler
 
-def scaler(input_df: pandas.DataFrame, scale:list, child_scale:list) -> pandas.DataFrame:
+def scaler(input_df: pandas.DataFrame, scale:list, child_scale:list = None) -> pandas.DataFrame:
     """creates a scaled list from a pandas.DataFrame object
 
     Args:
@@ -26,11 +26,18 @@ def scaler(input_df: pandas.DataFrame, scale:list, child_scale:list) -> pandas.D
     Returns:
         pandas.DataFrame: scaled values
     """
+
     cols = list(input_df.columns)
     scaled_df = pandas.DataFrame()
+
     for col in cols:
-        col_names = [col + '-' + str(i) for i in range(len(child_scale))]
-        reshaped_df = numpy.reshape(input_df[col].values, (len(scale), len(child_scale)))
+        if child_scale is not None:
+            col_names = [col + '-' + str(i) for i in range(len(child_scale))]
+            reshaped_df = numpy.reshape(input_df[col].values, (len(scale), len(child_scale)))
+        else:
+            col_names = [col]
+            reshaped_df = input_df      
+            
         scaler = StandardScaler().fit(reshaped_df)
         scaled_iter = pandas.DataFrame(scaler.transform(reshaped_df), columns=col_names)
         scaled_df = pandas.concat([scaled_df, scaled_iter], axis = 1)

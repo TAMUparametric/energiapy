@@ -54,7 +54,7 @@ class Result:
         """fetches components that meet a specific condition
 
         Args:
-            component_type (str): type of component: processs, resources, locations, materials, transports 
+            component_type (str): type of component: processses, resources, locations, materials, transports 
             condition (tuple): condition to be met
             For bool:
             condition = ('attribute', True))
@@ -66,6 +66,10 @@ class Result:
 
         Returns:
             set: set meeting condition
+        
+        Example:
+            results.fetch_components(component_type= 'processes', condition= ('capex', 'ge', 20 ))
+            results.fetch_components(component_type= 'resources', condition= ('sell', True ))
         """
         component_set = set(self.__dict__['components'][component_type].keys())
         
