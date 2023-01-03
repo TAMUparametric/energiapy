@@ -21,6 +21,7 @@ from random import sample
 from typing import Set, Dict, Union
 from itertools import product
 from ..utils.model_utils import scale_changer
+from pandas import DataFrame
 
 @dataclass
 class Location:
@@ -56,9 +57,12 @@ class Location:
         self.scale_levels = self.scales.scale_levels
         self.varying_processes = self.capacity_factor.keys()
         self.varying_resources = self.cost_factor.keys()
-        self.capacity_factor = scale_changer(self.capacity_factor, scales=self.scales, scale_level=self.capacity_level)
-        self.cost_factor = scale_changer(self.cost_factor, scales=self.scales, scale_level=self.cost_level)
-        self.demand_factor = scale_changer(self.demand_factor, scales=self.scales, scale_level=self.demand_level)
+        if isinstance(list(self.capacity_factor.values())[0], DataFrame):
+            self.capacity_factor = scale_changer(self.capacity_factor, scales=self.scales, scale_level=self.capacity_level)
+        if isinstance(list(self.cost_factor.values())[0], DataFrame):
+            self.cost_factor = scale_changer(self.cost_factor, scales=self.scales, scale_level=self.cost_level)
+        if isinstance(list(self.demand_factor.values())[0], DataFrame):
+            self.demand_factor = scale_changer(self.demand_factor, scales=self.scales, scale_level=self.demand_level)
         self.resource_price = self.get_resource_price()   
         self.failure_processes = self.get_failure_processes()
         self.fail_factor = self.make_fail_factor()
