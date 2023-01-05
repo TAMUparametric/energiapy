@@ -14,22 +14,23 @@ __status__ = "Production"
 import pandas
 from numpy import polyfit, array_split, zeros, inf, min, argmin, ndarray
 from itertools import product
-
+from typing import Union
 from sklearn.cluster import AgglomerativeClustering
 from sklearn.neighbors import NearestCentroid
 from ..utils.math_utils import scaler, generate_connectivity_matrix, find_euclidean_distance
 from ..components.scenario import Scenario
+from ..components.resource import Resource
+from ..components.process import Process
 from ..components.temporal_scale import Temporal_scale
 from ..components.network import Network
 from ..components.location import Location
 from enum import Enum, auto
-
 import matplotlib.pyplot as plt
 
 class Clustermethod(Enum):
     agg_hierarchial = auto()
     dynamic_warping = auto()
-    dynamic_warping_path = auto()
+
     
 
 def agg_hierarchial(scales: Temporal_scale, scale_level: int, periods: int, include:list, cost_factor: dict = None, \
@@ -80,8 +81,8 @@ def agg_hierarchial(scales: Temporal_scale, scale_level: int, periods: int, incl
     reduced_dicretization_list = list(scales.discretization_list)
     reduced_dicretization_list[scale_level] = periods
     reduced_temporal_scale = Temporal_scale(reduced_dicretization_list)
-    reduced_scenario_scaleiter = array_split(reduced_temporal_scale.scale_iter(scale_level= len(parent_scale)), len(parent_scale))
-    
+
+    reduced_scenario_scaleiter = array_split(reduced_temporal_scale.scale_iter(scale_level= scale_level +1), len(parent_scale))
     for parent_iter in range(len(parent_scale)):
         
         if len(df) == len(parent_scale)*len(scale):
@@ -156,7 +157,11 @@ def agg_hierarchial(scales: Temporal_scale, scale_level: int, periods: int, incl
     
     wcss_sum = sum(i for i in scaled_df['ED'])/periods # collects the error data
 
-    return rep_dict_iter, reduced_temporal_scale, wcss_sum
+    info_dict = {
+        'wcss_sum': wcss_sum
+    }
+    
+    return rep_dict_iter, reduced_temporal_scale, info_dict
 
 # TODO - call methods as a function
 # TODO  - Handle multiple outputs
@@ -206,7 +211,7 @@ def agg_hierarchial_elbow(scenario: Scenario, location: Location, scale_level: i
     return wcss_list
 
 
-def dynamic_warping(series1: list, series2: list):
+def dynamic_warping_matrix(series1: list, series2: list):
     """clusters time series data with disparate temporal resolution 
     using dynamic time warping (dtw)
 
@@ -255,9 +260,75 @@ def dynamic_warping_path(matrix: ndarray) -> list:
     # path.append([0,0])
     return path
 
+def dynamic_warping(source_scenario: Scenario, target_scenario: Scenario, scale_level: int, include: list, aspect: Union[Resource, Process]):
+    
+    source_location = list(source_scenario.location_set)[0]
+    target_location = list(target_scenario.location_set)[0]
+
+    if 'cost' in include:
+        source_series = list(source_scenario.cost_factor[source_location.name][aspect.name].values())
+        target_series = list(target_scenario.cost_factor[target_location.name][aspect.name].values())
+        
+        reference_keys = target_scenario.cost_factor[target_location.name][aspect.name].keys()
+    
+    elif 'capacity' in include:    
+        source_series = list(source_scenario.capacity_factor[source_location.name][aspect.name].values())
+        target_series = list(target_scenario.capacity_factor[target_location.name][aspect.name].values())
+        
+        reference_keys = target_scenario.capacity_factor[target_location.name][aspect.name].keys()
+        
+
+    elif 'demand' in include:
+        source_series = list(source_scenario.demand_factor[source_location.name][aspect.name].values())
+        target_series = list(target_scenario.demand_factor[target_location.name][aspect.name].values())
+        
+        reference_keys = target_scenario.demand_factor[target_location.name][aspect.name].keys()
+        
+    
+    matrix = dynamic_warping_matrix(series1= source_series, series2= target_series)
+    
+    path = dynamic_warping_path(matrix= matrix)
+ 
+    x_ = [path[i][0] for i in range(len(path))]
+    y_ = [path[i][1] for i in range(len(path))]
+    
+    x_.reverse()
+    y_.reverse()
+    
+    xr = x_[:-1]
+    yr = y_[:-1]
+    
+    i_list = list(range(len(target_series)))
+    len(i_list)
+    j_list = list(reference_keys)
+    
+    source_values = [source_series[i] for i in xr]
+    target_values = [target_series[i] for i in yr]
+
+    reduced_temporal_scale = target_scenario.scales
+    
+    reduced_scenario_scaleiter = [(i) for i in product(*[reduced_temporal_scale.scale[i] for i in reduced_temporal_scale.scale])]
+    #TODO Check this 
+    counts = {j:  yr.count(i) for i,j in zip(i_list, j_list)}
+    
+       
+    rep_dict = {j: {'rep_period': j, 'cluster_wt': counts[j[:scale_level]]} for j in reduced_scenario_scaleiter}
+    
+    
+    info_dict = {
+        'matrix': matrix,
+        'path': path,
+        'input_data': {'source': source_series, 'target': target_series},
+        'output_data': {'source': source_values, 'target': target_values}  
+    }
+    
+    return rep_dict, reduced_temporal_scale, info_dict
 
 
-def reduce_scenario(scenario: Scenario, location: Location, periods: int, scale_level: int, method: Clustermethod, include: list) -> Scenario:
+
+def reduce_scenario(scenario: Scenario, method: Clustermethod, include: list, \
+    scale_level: int = None, target_scenario: Scenario= None, aspect: Union[Resource, Process] = None, \
+        location: Location = None, periods: int = None) -> Scenario:
     """reduce scenario using a particular method
 
     Args:
@@ -272,37 +343,43 @@ def reduce_scenario(scenario: Scenario, location: Location, periods: int, scale_
     """
 
     if method is Clustermethod.agg_hierarchial:
-        rep_dict, reduced_temporal_scale, wcss_sum = agg_hierarchial(scenario.scales, scale_level=scale_level, periods=periods,
+        rep_dict, reduced_temporal_scale, info_dict = agg_hierarchial(scenario.scales, scale_level=scale_level, periods=periods,
                                                                      cost_factor=scenario.cost_factor[location.name], capacity_factor=scenario.capacity_factor[location.name],
                                                                      demand_factor = scenario.demand_factor[location.name], include = include)
-
+        
+    if method is Clustermethod.dynamic_warping:
+        rep_dict, reduced_temporal_scale, info_dict = dynamic_warping(source_scenario = scenario, \
+            target_scenario= target_scenario, include= include, aspect= aspect, scale_level= scale_level)
+        
     reduced_scenario = Scenario(name=f"{scenario.name}_reduced", scales=reduced_temporal_scale,
                                 network=scenario.network, expenditure_scale_level=scenario.expenditure_scale_level,
                                 scheduling_scale_level=scenario.scheduling_scale_level, network_scale_level=scenario.network_scale_level,
                                 demand_scale_level=scenario.demand_scale_level, label=f"{scenario.label}(reduced)")
 
+
     reduced_scenario_scaleiter = [(i) for i in product(
         *[reduced_temporal_scale.scale[i] for i in reduced_temporal_scale.scale])]
-    
-    # if 'capacity' in include:
-    len_ = len(list(list(scenario.capacity_factor[location.name].values())[0].keys())[0])
-    reduced_scenario.capacity_factor = {location.name: {i: {
-        j[:len_]: scenario.capacity_factor[location.name][i][rep_dict[j]['rep_period'][:len_]] for j in list(rep_dict.keys())} for i in list(scenario.capacity_factor[location.name])}}
-    
-    # if 'cost' in include:  
+  
+
     len_ = len(list(list(scenario.cost_factor[location.name].values())[0].keys())[0])
     reduced_scenario.cost_factor = {location.name: {i: {
         j[:len_]: scenario.cost_factor[location.name][i][rep_dict[j]['rep_period'][:len_]] for j in list(rep_dict.keys())} for i in list(scenario.cost_factor[location.name])}}
 
-    # if 'demand' in include:  
+    len_ = len(list(list(scenario.capacity_factor[location.name].values())[0].keys())[0])
+    reduced_scenario.capacity_factor = {location.name: {i: {
+        j[:len_]: scenario.capacity_factor[location.name][i][rep_dict[j]['rep_period'][:len_]] \
+            for j in list(rep_dict.keys())} for i in list(scenario.capacity_factor[location.name])}}
+
+    
+
     len_ = len(list(list(scenario.demand_factor[location.name].values())[0].keys())[0])
     reduced_scenario.demand_factor = {location.name: {i: {
         j[:len_]: scenario.demand_factor[location.name][i][rep_dict[j]['rep_period'][:len_]] for j in list(rep_dict.keys())} for i in list(scenario.demand_factor[location.name])}}
-    
+
     reduced_scenario.cluster_wt = {
         scale: rep_dict[scale]['cluster_wt'] for scale in reduced_scenario_scaleiter}
     
-    return reduced_scenario, wcss_sum, rep_dict
+    return reduced_scenario, rep_dict, info_dict
 # %%
 
 

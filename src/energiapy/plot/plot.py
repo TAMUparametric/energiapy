@@ -44,7 +44,7 @@ def capacity_factor(process: Process, location: Location, \
     ax.plot(x_, y_, linewidth=0.5, color=color)
     ax = axis_formatter(axes= ax, xcord = x_, axis_labels= 'M')
     plt.title(f'Conversion factor for {process.label} in {location.label}')
-    plt.ylabel('Normalized conversion factors')
+    plt.ylabel('Normalized capacity factor')
     plt.grid(alpha=0.3)
     plt.rcdefaults()
     return
@@ -69,7 +69,32 @@ def cost_factor(resource: Resource, location: Location, \
     ax.plot(x_, y_, linewidth=0.5, color=color)
     ax = axis_formatter(axes= ax, xcord = x_, axis_labels= 'M')
     plt.title(f'Cost factor for {resource.label} in {location.label}')
-    plt.ylabel('Normalized Cost factor')
+    plt.ylabel('Normalized cost factor')
+    plt.grid(alpha=0.3)
+    plt.rcdefaults()
+    return
+
+def demand_factor(resource: Resource, location: Location, \
+    fig_size:tuple = (12,6), font_size:int = 16, color:str ='blue', usetex:bool = False):
+    """generates a plot for varying demand factor of resource
+
+    Args:
+        resource (Resource): resource data object
+        location (Location): location data object
+        font_size (int, optional): font size. Defaults to 16.
+        fig_size (tuple, optional): figure size. Defaults to (12,6).
+        color (str, optional): color of plot. Defaults to 'blue'.
+        usetex (bool, optional): False, if using latex font, need Tex set up (prone to errors). Defaults to 'False'.
+    """
+    rc('font', **{'family': 'serif', 'serif': ['Computer Modern'], 'size': font_size})
+    rc('text', usetex=False)
+    fig, ax = plt.subplots(figsize= fig_size)
+    y_ = list(location.demand_factor[resource.name].values())
+    x_ = [i for i in range(len(y_))]
+    ax.plot(x_, y_, linewidth=0.5, color=color)
+    ax = axis_formatter(axes= ax, xcord = x_, axis_labels= 'M')
+    plt.title(f'demand factor for {resource.label} in {location.label}')
+    plt.ylabel('Normalized demand factor')
     plt.grid(alpha=0.3)
     plt.rcdefaults()
     return
