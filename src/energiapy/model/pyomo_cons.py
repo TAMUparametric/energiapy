@@ -991,7 +991,7 @@ def demand_constraint(instance: ConcreteModel, demand: int, demand_factor: Union
                         scale_levels=instance.scales.__len__())
     scale_iter = scale_tuple(
         instance=instance, scale_levels=scheduling_scale_level+1)
-
+ 
     def demand_rule(instance, location, resource, *scale_list):
         if type(demand_factor[location][list(demand_factor[location])[0]]) == float:
             return sum(instance.S[location, resource_, scale_list[:scheduling_scale_level+1]] for
