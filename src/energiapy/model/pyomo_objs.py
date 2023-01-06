@@ -10,7 +10,7 @@ __maintainer__ = "Rahul Kakodkar"
 __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
-from pyomo.environ import ConcreteModel, Objective 
+from pyomo.environ import ConcreteModel, Objective, maximize
 from ..utils.latex_utils import constraint_latex_render
 from ..utils.model_utils import scale_list
 from ..utils.model_utils import scale_tuple
@@ -70,3 +70,21 @@ def uncertainty_cost_objective(instance:ConcreteModel, penalty: float, network_s
     instance.uncertainty_cost_objective = Objective(rule = uncertainty_cost_objective_rule, doc = 'total purchase from network')
     # constraint_latex_render(uncertainty_cost_objective_rule)
     return instance.uncertainty_cost_objective
+
+def demand_objective(instance:ConcreteModel, network_scale_level:int=0) -> Objective:
+    """Objective to maximize total discharge
+
+    Args:
+        instance (ConcreteModel): pyomo instance
+        network_scale_level (int, optional): scale of network decisions. Defaults to 0.
+
+    Returns:
+        Objective: cost objective
+    """
+    scale_iter = scale_tuple(instance= instance, scale_levels = network_scale_level + 1)
+    def demand_objective_rule(instance):
+        return sum(instance.S_network[resource_, scale_] for resource_, scale_ in product(instance.resources_sell, scale_iter))
+    
+    instance.demand_objective = Objective(rule = demand_objective_rule, doc = 'total purchase from network', sense= maximize)
+    # constraint_latex_render(cost_objective_rule)
+    return instance.demand_objective
