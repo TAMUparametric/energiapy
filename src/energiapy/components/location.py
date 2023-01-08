@@ -11,7 +11,6 @@ __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
 from dataclasses import dataclass, field
-
 from ..components.temporal_scale import Temporal_scale
 from ..components.process import Process
 from ..components.resource import Resource
