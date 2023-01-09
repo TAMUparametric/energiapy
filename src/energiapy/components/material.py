@@ -15,22 +15,26 @@ from dataclasses import dataclass
 @dataclass
 class Material:
     """
-    Object with data regarding infrastructure material
+    Materials are needed to set up processes. 
+    They could result in the emission, toxicty, etc.
 
     Args:
-        name (str): ID 
+        name (str): name of the material, short ones are better to deal with
         basis (str): base unit for calculation
-        label (str, optional): name of the material. Defaults to ''.
         gwp (float, optional): global warming potential. Defaults to 0.
         citation (str, optional): add citation. Defaults to 'citation needed'.
+        H20 (str, optional): water consumed per unit. Defaults to 'citation needed'.
+        label (str, optional): Longer descriptive label if required. Defaults to ''
+
     """
     
     name: str 
-    label: str = ''
     gwp: tuple= None
     basis: str = 'unit'
     citation: str = 'citation needed'
     H2O: float=0
+    label: str = ''
+
     
     #? CHECK
     def __post_init__(self):

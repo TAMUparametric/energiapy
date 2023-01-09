@@ -974,7 +974,7 @@ def network_fopex_constraint(instance: ConcreteModel, network_scale_level: int =
 # *-------------------------Demand constraint--------------------------------------
 
 
-def demand_constraint(instance: ConcreteModel, demand: int, demand_factor: Union[dict, float], \
+def demand_constraint(instance: ConcreteModel, demand: float, demand_factor: Union[dict, float], \
     demand_scale_level: int = 0, scheduling_scale_level: int = 0) -> Constraint:
     """Ensures that demand for resource is met at chosen temporal scale
 

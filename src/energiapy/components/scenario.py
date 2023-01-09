@@ -35,16 +35,19 @@ class Capacitydynamics(Enum):
 
 @dataclass
 class Scenario:
-    """creates a scenario dataclass object
+    """
+    Scenario contains the network between location and all the data within.
+
     Args:
-        name (str): ID
-        network (network): network object with the locations, transport linakges, and processes (with resources and materials)
+        name (str): name of scenario, short ones are better to deal with.
         scales (temporal_scale): scales of the problem 
+        network (Union[Network, Location]): network object with the locations, transport linakges, and processes (with resources and materials)
         expenditure_scale_level (int, optional): scale for resource purchase. Defaults to 0.
         scheduling_scale_level (int, optional): scale of production and inventory scheduling. Defaults to 0.
         network_scale_level (int, optional): scale for network decisions such as facility location. Defaults to 0.
         demand_scale_level (int, optional): scale for meeting specific demand for resource. Defaults to 0.
-        label (str, optional): descriptive label. Defaults to ''.
+        cluster_wt (dict): cluster weights as a dictionary. {scale: int}. Defaults to None. 
+        label (str, optional): Longer descriptive label if required. Defaults to ''
     """
     name: str 
     scales: Temporal_scale 
