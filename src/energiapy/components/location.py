@@ -11,7 +11,6 @@ __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
 from dataclasses import dataclass, field
-
 from ..components.temporal_scale import Temporal_scale
 from ..components.process import Process
 from ..components.resource import Resource
@@ -25,24 +24,45 @@ from pandas import DataFrame
 
 @dataclass
 class Location:
-    """
-    Object with data regarding a location
+    """Location is essentially a set of processes 
+    Factors for varying capacity, cost, and demand can be provided as dictionary
+    The scale levels of capacity, cost, and demand need to be provided as well
+
     Args:
-        name (str): ID
-        processes (Set[Process]): set of processes to include at location
-        scales (temporal_scale): temporal scale of the problem
-        demand (Set[Resource], optional): demand for resources at location
-        varying_process_df (pandas.DataFrame, optional): contains varying production data at appropriate resolution. Defaults to pandas.DataFrame().
-        varying_cost_df (pandas.DataFrame, optional): contains varying resource cost data at appropriate resolution. Defaults to pandas.DataFrame().
-        label (str, optional): label. Defaults to ''.
-        PV_class (str, optional): PV cost category as defined by NREL annual technology baseline (ATB). Defaults to ''.
-        WF_class (str, optional): WF cost category as defined by NREL ATB. Defaults to ''.
-        LiI_class (str, optional): Li-ion cost category as defined by NREL ATB. Defaults to ''.
-        PSH_class (str, optional): PSH cost category as defined by NREL ATB. Defaults to ''.
+        name (str): name of the location, short ones are better to deal with.
+        processes (Set[Process]): set of processes (Process objects) to include at location
+        scales (temporal_scale): temporal scales of the problem
+        demand (Dict[Resource, float]): demand for resources at location. Defaults to 1.0
+        demand_factor (Union[float, Dict[Resource, DataFrame]), optional): Factor for varying demand, scale changer normalizes.Defaults to 1.0
+        cost_factor (Union[float, Dict[Resource, DataFrame]), optional): Factor for varying cost, scale changer normalizes. Defaults to 1.0
+        capacity_factor (Union[float, Dict[Process, DataFrame]), optional):  Factor for varying capacity, scale changer normalizesDefaults to 1.0
+        demand_level (int, optional): scale level for demand. Defaults to 1.0
+        cost_level (int, optional): scale level for cost. Defaults to 1.0
+        capacity_level(int, optional): scale level for capacity. Defaults to 1.0
+        label(str, optional):Longer descriptive label if required. Defaults to ''
+
+    Calculated in situ:
+        resources (Set[Resource]): set of resources. Get resources fetches these using the processes
+        materials (Set[Resource]): set of materials. Get materials fetches these using the processes
+        scale_levels (int): the levels of scales involved
+        varying_capacity (Set): processes with varying capacities
+        varying_cost (Set): resources with varying costs
+        varying_demand (Set): resources with varying demands
+        resource_price (Dict): dictionary with the cost of resources
+        failure_processes (Set): set of processes with failure rates
+        fail_factor (Dict[Process, float]): creates a dictionary with failure points on a temporal scale
+
+    Example:
+    CS= Location(name='CS', processes= {Process 1, Process 2}, demand_factor= {Resource1: dataframe with varying demand,..}, \
+        cost_factor = {Resource2: dataframe with varying costs,..}, capacity_factor = {Process1: dataframe with varying capacity,..}\
+            , scales= Temporal_scale object, \
+            label='College Station - Home of the Aggies', demand_level=2, capacity_level= 2, cost_level= 1)
     """
+
     name: str 
     processes: Set[Process] 
     scales: Temporal_scale 
+    demand: Dict[Resource, float] = 1.0
     demand_factor: Union[float, Dict[Resource, float]] = 1.0
     cost_factor: Union[float, Dict[Resource, float]] = 1.0
     capacity_factor: Union[float, Dict[Process, float]] = 1.0
@@ -55,8 +75,9 @@ class Location:
         self.resources= self.get_resources()
         self.materials = self.get_materials()
         self.scale_levels = self.scales.scale_levels
-        self.varying_processes = self.capacity_factor.keys()
-        self.varying_resources = self.cost_factor.keys()
+        self.varying_capacity = set(self.capacity_factor.keys())
+        self.varying_cost = set(self.cost_factor.keys())
+        self.varying_demand = set(self.demand_factor.keys())
         if isinstance(list(self.capacity_factor.values())[0], DataFrame):
             self.capacity_factor = scale_changer(self.capacity_factor, scales=self.scales, scale_level=self.capacity_level)
         if isinstance(list(self.cost_factor.values())[0], DataFrame):
@@ -107,7 +128,8 @@ class Location:
             return None
         else:
             scale_iter = [(i) for i in product(self.scales.scale[0], self.scales.scale[1], self.scales.scale[2])]
-            fail_factor = {process_.name: {(scale_): sample([0]*int(process_.p_fail*100) +  [1] *int((1- process_.p_fail)*100), 1)[0] for scale_ in   scale_iter} for process_ in self.failure_processes}
+            fail_factor = {process_.name: {(scale_): sample([0]*int(process_.p_fail*100) +  [1] *int((1- process_.p_fail)*100),\
+                 1)[0] for scale_ in   scale_iter} for process_ in self.failure_processes}
             return fail_factor
          
     def __repr__(self):

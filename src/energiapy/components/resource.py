@@ -21,9 +21,8 @@ class Resource:
     Object with resource data
     
     Args:
-        name (str): ID for the resource
-        label (str, optional): name of the resource. Defaults to ''.
-        consumption_max (float, optional): Maximum allowed resource consumption in time period [unit/h]. Defaults to 0.
+        name (str): name of resource, short ones are better to deal with.
+        cons_max (float, optional): Maximum allowed resource consumption in time period. Defaults to 0.
         loss (float, optional): Amount of resource lost in time period [h]. Defaults to 0.
         revenue (float, optional): Amount earned through sale of resource [$/unit]. Defaults to 0.
         price (float, optional): Purchase cost of unit [$/unit]. Defaults to 0.
@@ -36,10 +35,10 @@ class Resource:
         block (str, optional): Assign a block for categorization. Defaults to None.
         citation (str, optional): Add citations for data sources. Defaults to 'citation needed'.
         varying (bool, optional): If the cost of resource is varying/uncertain. Defaults to False.
+        label(str, optional): Longer descriptive label if required. Defaults to ''
     """
     
     name: str
-    label: str = ''
     cons_max: float = 0
     loss: float = 0
     revenue: float = 0
@@ -53,6 +52,8 @@ class Resource:
     block: str = None
     citation: str = 'citation needed'
     varying: bool = False
+    label: str = ''
+
     
     # def __post_init__(self):
     #     self.cost_factor = self.make_cost_factor()

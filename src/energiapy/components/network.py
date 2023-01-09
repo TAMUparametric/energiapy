@@ -20,14 +20,22 @@ from typing import List
 
 @dataclass
 class Network:
-    """Object with data regarding the linakges between two locations
+    """
+    Networks link locations with Transports
+    
     Args:
-        name (str): _description_
+        name (str): name of the network, short ones are better to deal with
         source_locations (List[location], optional): list of location dataclass objects of source locations
         sink_locations (List[location], optional): list of location dataclass objects of sink locations
         distance_matrix (List[List[float]], optional): matrix with distances between sources and sinks, needs to be ordered
         transport_matrix (List[List[float]], optional): matrix with distances between sources and sinks, needs to be ordered
-        label (str, optional): label. Defaults to ''.
+        label(str, optional):Longer descriptive label if required. Defaults to ''
+
+    Calculated:
+        transport_dict (dict): dictionary with transportation modes available between sources and sinks
+        distance_dict (dict): dictionary of distances from sources to sinks
+        transport_avail_dict (dict): transportation modes available between sources and sinks 
+        locations (list): list of locations, sinks + sources 
     """
     name: str
     source_locations: List[Location] = field(default_factory=list)
@@ -67,7 +75,7 @@ class Network:
         """returns a dictionary with transportation modes available between sources and sinks
 
         Returns:
-            dict: a dictionary with transportation modes availabels between sources and sinks 
+            dict: a dictionary with transportation modes available between sources and sinks 
         """
         transport_avail_dict = {
             i: {j.name for j in self.transport_dict[i]} for i in self.transport_dict.keys()}
