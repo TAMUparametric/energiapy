@@ -21,13 +21,13 @@ from random import sample
 @dataclass
 class Process:
     """
-    Object with process data
+    Processes convert resources into other resources 
+
     Args:
-        name (str): ID
+        name (str): name of process, short ones are better to deal with.
         conversion (Dict[resource, float], optional): conversion data. Defaults to None.
-        cost (floatordict, optional): cost of operation. Defaults to None.
+        cost (floatordict, optional): cost of operation {'CAPEX':_, 'Fixed O&M':_, 'Variable O&M':_}. Defaults to None.
         material_cons (Dict[material, float], optional): material consumption data. Defaults to None.
-        varying (bool, optional): if production capacity is varying. Defaults to False.
         intro_scale (int, optional): scale when process is introduced. Defaults to 0.
         prod_max (float, optional): maximum production. Defaults to 0.
         prod_min (float, optional): minimum production. Defaults to 0.
@@ -42,13 +42,14 @@ class Process:
         citation (str, optional): citation for data. Defaults to 'citation needed'.
         lifetime (float, optional): the lifetime of process. Defaults to None.
         varying (bool, optional): whether process is subject to uncertainty. Defaults to False.
+        p_fail (float, optional): failure rate of process. Defaults to None.
+        label(str, optional):Longer descriptive label if required. Defaults to ''
     """
 
     name: str 
     conversion: Dict[Resource, float] = field(default_factory= dict)
     cost: Union[float, dict] = None #field(default_factory = dict) 
     material_cons: Dict[Material, float] = field(default_factory= dict)
-    label: str = ''
     intro_scale: int = 0
     exit_scale: int = 0
     prod_max: float = 0
@@ -65,6 +66,8 @@ class Process:
     lifetime: tuple = None
     varying:bool = False
     p_fail: float = None
+    label: str = ''
+
 
     def __post_init__(self):
         if self.cost is not None:

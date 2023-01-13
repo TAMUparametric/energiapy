@@ -18,12 +18,20 @@ from itertools import product
 
 @dataclass
 class Temporal_scale:
-    """object with the temporal scales of the problem
+    """
+    Temporal scales of the problems
     e.g.:
     scales = temporal_scale(discretization_list = [1, 365, 24]).generate_scales()
     Generates three temporal scales with 1, 365, and 24 discretizations respectively
     Args:
         discretization_list (list): list of discretization of temporal scale
+        start_zero (int): which year the scale starts. Defaults to None.
+
+    Calculated:
+        scale (dict): dictionary with the scales as tuples
+        list (list): list of scale levels
+        name (str): the discretization list is the name.
+        scale_levels (int): levels of the scale.
     """
     discretization_list: list
     start_zero: int = None

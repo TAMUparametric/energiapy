@@ -20,12 +20,15 @@ import pickle
 
 @dataclass
 class Result:
-    """Result data class object
+    """Result of running scenario 
     
-   Args:
-       name (str): ID for the resource
+    Args:
+       name (str): name of the material, short ones are better to deal with.
        components (dict): input data relating to components
        output (dict): results from analysis
+       duals (dict): duals if not MIP.
+
+    Methods: fetch_components,divide_by_objective, get_varindex, model_summary
     """
     name:str
     components: dict
@@ -111,7 +114,7 @@ class Result:
         """
         value = self.output[var][index]/self.output['objective']
         return value
-    
+
     def get_varindex(self, var:str):
         """gives the index of variable
 
@@ -130,10 +133,6 @@ class Result:
             number of binary variables: {self.output['n_binvars']}\n\
             number of integer variables: {self.output['n_intvars']}\n\
             number of continuous variables: {self.output['n_convars']}")
-
-
-
-        
 
     def __repr__(self):
         return self.name
