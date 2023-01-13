@@ -44,6 +44,7 @@ class Process:
         varying (bool, optional): whether process is subject to uncertainty. Defaults to False.
         p_fail (float, optional): failure rate of process. Defaults to None.
         label(str, optional):Longer descriptive label if required. Defaults to ''
+        storage(list, optional): List of Resources that can be stored in process.
     """
 
     name: str 
@@ -67,7 +68,7 @@ class Process:
     varying:bool = False
     p_fail: float = None
     label: str = ''
-
+    storage: list = None
 
     def __post_init__(self):
         if self.cost is not None:
