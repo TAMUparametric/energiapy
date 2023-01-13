@@ -50,6 +50,7 @@ class Process:
     material_cons: Dict[Material, float] = field(default_factory= dict)
     label: str = ''
     intro_scale: int = 0
+    exit_scale: int = 0
     prod_max: float = 0
     prod_min: float = 0.01
     cap_seg: dict = field(default_factory= dict)
