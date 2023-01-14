@@ -12,9 +12,10 @@ __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
 from dataclasses import dataclass, field
-from typing import Dict, Union
+from typing import Dict, Union, Set
 from ..components.resource import Resource
 from ..components.material import Material
+from ..utils.model_utils import create_dummy_resource
 import pandas
 from random import sample
 
@@ -68,7 +69,8 @@ class Process:
     varying:bool = False
     p_fail: float = None
     label: str = ''
-    storage: list = None
+    storage: Resource = None
+    storage_loss: float = 0
 
     def __post_init__(self):
         if self.cost is not None:
@@ -80,9 +82,13 @@ class Process:
             self.fopex = 10
             self.vopex = 1
         # self.capacity_factor = self.make_capacity_factor()
-
-        
-         
+        if self.storage is not None:
+            # self.storage_dummy = {create_dummy_resource(resource=i, store_max= self.prod_max,\
+            #     store_min= self.prod_min) for i in self.storage}
+            dummy = create_dummy_resource(resource=self.storage, store_max= self.prod_max,store_min= self.prod_min)
+            self.conversion = {self.storage:-1, dummy:1}
+            self.conversion_discharge = {dummy:-1, self.storage:1*(1- self.storage_loss)}
+                 
     def __repr__(self):
         return self.name
     
