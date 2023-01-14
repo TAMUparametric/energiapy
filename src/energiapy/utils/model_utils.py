@@ -14,6 +14,17 @@ from itertools import product
 from pyomo.environ import ConcreteModel, Set
 import pandas
 from ..components.temporal_scale import Temporal_scale
+from ..components.resource import Resource
+
+
+def create_dummy_resource(resource: Resource, store_max: float = 0, store_min: float = 0):
+    
+    resource_dummy = Resource(name = resource.name + '_stored', loss = resource.loss, store_max= store_max, \
+        store_min = store_min, basis = resource.basis, block = resource.block + '(stored)', label = resource.label + '(stored)')
+    
+    return resource_dummy
+
+
 
 def scale_pyomo_set(instance: ConcreteModel, scale_level:int=0):
     """returns a set with appropropriate scale(s)
