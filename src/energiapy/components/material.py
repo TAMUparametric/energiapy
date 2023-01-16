@@ -10,7 +10,9 @@ __maintainer__ = "Rahul Kakodkar"
 __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from typing import Dict
+from ..components.resource import Resource
 
 @dataclass
 class Material:
@@ -30,9 +32,9 @@ class Material:
     
     name: str 
     gwp: tuple= None
+    resource_cons: Dict[Resource, float] = field(default_factory= dict)
     basis: str = 'unit'
     citation: str = 'citation needed'
-    H2O: float=0
     label: str = ''
 
     
