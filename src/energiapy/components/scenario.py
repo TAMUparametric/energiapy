@@ -23,15 +23,9 @@ from sklearn.cluster import KMeans
 from sklearn.neighbors import NearestCentroid
 from dataclasses import dataclass
 from typing import Union
-from enum import Enum, auto
 
-class Costdynamics(Enum):
-    constant = auto()
 
-class Capacitydynamics(Enum):
-    constant = auto()
-    exp_decay = auto()
-   
+
 
 @dataclass
 class Scenario:
@@ -58,9 +52,6 @@ class Scenario:
     demand_scale_level: int = 0
     cluster_wt: dict = None 
     label: str = ''
-    costdynamics: Costdynamics = Costdynamics.constant
-    capacitydynamics: Capacitydynamics = Capacitydynamics.constant
-    
 
     def __post_init__(self):    
 
@@ -120,6 +111,7 @@ class Scenario:
         # if self.costdynamics == Costdynamics.constant:
         #     self.cost_factor =  {i.name: i.cost_factor for i in self.location_set}
         # elif 
+        
      
     def make_conversion_df(self):
         return DataFrame.from_dict(self.conversion)
@@ -131,4 +123,5 @@ class Scenario:
 
 
     
+
 
