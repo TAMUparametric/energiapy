@@ -1173,6 +1173,53 @@ def carbon_emission_constraint(instance: ConcreteModel, carbon_bound:float,  net
     return instance.carbon_emission_constraint
 
 
+def global_warming_potential_process_constraint(instance: ConcreteModel, process_gwp_dict: dict, network_scale_level:int=0):
+    scales = scale_list(instance= instance, scale_levels= network_scale_level+1)
+    
+    def global_warming_potential_process_rule(instance, location, process,  *scale_list):
+        return instance.global_warming_potential_process[location, process, scale_list] == process_gwp_dict[location][process]*instance.Cap_P[location, process, scale_list]
+    instance.global_warming_potential_process_constraint = Constraint(instance.locations, instance.processes, *scales, rule = global_warming_potential_process_rule, doc= 'global warming potential for the each process' )
+    return instance.global_warming_potential_process_constraint
+
+#TODO - Fix this, this needs some work
+def global_warming_potential_material_constraint(instance: ConcreteModel, material_gwp_dict: dict, network_scale_level:int=0):
+    scales = scale_list(instance= instance, scale_levels= network_scale_level+1)
+    
+    def global_warming_potential_material_rule(instance, location, material,  *scale_list):
+        return instance.global_warming_potential_material[location, material, scale_list] == material_gwp_dict[location][material]*instance.Cap_P[location, material, scale_list] 
+    instance.global_warming_potential_material_constraint = Constraint(instance.locations, instance.materials, *scales, rule = global_warming_potential_material_rule, doc= 'global warming potential for the each material' )
+    return instance.global_warming_potential_material_constraint
+
+def global_warming_potential_resource_constraint(instance: ConcreteModel, resource_gwp_dict: dict, network_scale_level:int=0):
+    scales = scale_list(instance= instance, scale_levels= network_scale_level+1)
+    
+    def global_warming_potential_resource_rule(instance, location, resource,  *scale_list):
+        return instance.global_warming_potential_resource[location, resource, scale_list] == resource_gwp_dict[location][resource]*instance.C_location[location, resource, scale_list]
+    instance.global_warming_potential_resource_constraint = Constraint(instance.locations, instance.resources_purch, *scales, rule = global_warming_potential_resource_rule, doc= 'global warming potential for the each resource' )
+    return instance.global_warming_potential_resource_constraint
+
+
+def global_warming_potential_location_constraint(instance: ConcreteModel, network_scale_level:int=0):
+    scales = scale_list(instance= instance, scale_levels= network_scale_level+1)
+    
+    def global_warming_potential_location_rule(instance, location, *scale_list):
+        gwp_process =  sum(instance.global_warming_potential_process[process_, location, scale_list] for process_ in instance.processes)
+        gwp_resource = sum(instance.global_warming_potential_resource[resource_, location, scale_list] for resource_ in instance.resources)
+        gwp_material = sum(instance.global_warming_potential_material[material_, location, scale_list] for material_ in instance.materials)
+        
+        return instance.global_warming_potential_location[location, scale_list] == gwp_process + gwp_resource + gwp_material
+    instance.global_warming_potential_location_constraint = Constraint(*scales, rule = global_warming_potential_location_rule, doc= 'global warming potential for the each location' )
+    return instance.global_warming_potential_location_constraint
+
+def global_warming_potential_network_constraint(instance: ConcreteModel, network_scale_level:int=0):
+    scales = scale_list(instance= instance, scale_levels= network_scale_level+1)
+    
+    def global_warming_potential_network_rule(instance, *scale_list):
+        return instance.global_warming_potential_network(scale_list) == \
+            sum(instance.global_warming_potential_location[location_, scale_list] for location_ in instance.locations)
+    instance.global_warming_potential_network_constraint = Constraint(*scales, rule = global_warming_potential_network_rule, doc= 'global warming potential for the whole network' )
+    return instance.global_warming_potential_network_constraint
+
 def carbon_emission_network_constraint(instance: ConcreteModel, network_scale_level:int=0) -> Constraint:
     scales = scale_list(instance= instance, scale_levels = network_scale_level+1)
     def carbon_emission_network_rule(instance, *scale_list):

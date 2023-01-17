@@ -101,6 +101,9 @@ class Scenario:
         self.fopex_dict = {i.name: i.fopex for i in self.process_set}
         self.vopex_dict = {i.name: i.vopex for i in self.process_set}
         self.land_dict = {i.name: i.land for i in self.process_set}
+        self.material_gwp_dict = {i.name:{j.name: j.gwp for j in self.material_set} for i in self.location_set}
+        self.resource_gwp_dict = {i.name:{j.name: j.gwp for j in self.resource_set} for i in self.location_set}
+        self.process_gwp_dict = {i.name: {j.name: j.gwp for j in self.process_set} for i in self.location_set}
         self.demand_factor = {i.name: i.demand_factor for i in self.location_set}
         self.fail_factor = {i.name: i.fail_factor for i in self.location_set}
         # if type(list(self.location_set)[0].demand) == float:

@@ -67,7 +67,7 @@ class Process:
     scaling_metrics: dict = field(default_factory= dict)
     basis: str = 'unit'
     carbon_credit: bool = False
-    gwp: tuple = None
+    gwp: float  = 0
     land: float = 0
     trl: str = ''
     block: str = None

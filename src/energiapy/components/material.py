@@ -31,7 +31,7 @@ class Material:
     """
     
     name: str 
-    gwp: tuple= None
+    gwp: float = None
     resource_cons: Dict[Resource, float] = field(default_factory= dict)
     basis: str = 'unit'
     citation: str = 'citation needed'
