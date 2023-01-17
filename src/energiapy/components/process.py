@@ -18,6 +18,12 @@ from ..components.material import Material
 from ..utils.model_utils import create_dummy_resource
 import pandas
 from random import sample
+from enum import Enum, auto
+
+class Costdynamics(Enum):
+    constant = auto()
+    pwl = auto()
+    scaled = auto()
 
 @dataclass
 class Process:
@@ -32,8 +38,9 @@ class Process:
         intro_scale (int, optional): scale when process is introduced. Defaults to 0.
         prod_max (float, optional): maximum production. Defaults to 0.
         prod_min (float, optional): minimum production. Defaults to 0.
-        cap_seg (dict, optional): capacity pwl segment. Defaults to None.
+        scaling_segments (dict, optional): capacity and capex pwl segment {'capacity': {1:_, 2:_, ..}, 'capex': {1:_, 2:_, ..}}.Defaults to None.
         capex_seg (dict, optional): capex pwl segment. Defaults to None.
+        scaling_metrics (dict, optional): scaling metrics for expenditure {'factor':_, 'ref_capacity':_}. Defaults to None.
         carbon_credit (bool, optional): does process earn carbon credits. Defaults to False.
         basis(str, optional): base units for operation. Defaults to 'unit'.
         gwp (float, optional): global warming potential per basis. Defaults to 0.
@@ -56,8 +63,8 @@ class Process:
     exit_scale: int = 0
     prod_max: float = 0
     prod_min: float = 0.01
-    cap_seg: dict = field(default_factory= dict)
-    capex_seg: dict = field(default_factory= dict)
+    scaling_segments: dict = field(default_factory= dict)
+    scaling_metrics: dict = field(default_factory= dict)
     basis: str = 'unit'
     carbon_credit: bool = False
     gwp: tuple = None
@@ -71,16 +78,10 @@ class Process:
     label: str = ''
     storage: Resource = None
     storage_loss: float = 0
+    costdynamics: Costdynamics = Costdynamics.constant
+    
 
     def __post_init__(self):
-        if self.cost is not None:
-            self.capex = self.cost['CAPEX']
-            self.fopex = self.cost['Fixed O&M']
-            self.vopex = self.cost['Variable O&M']            
-        else:
-            self.capex = 100
-            self.fopex = 10
-            self.vopex = 1
         # self.capacity_factor = self.make_capacity_factor()
         if self.storage is not None:
             # self.storage_dummy = {create_dummy_resource(resource=i, store_max= self.prod_max,\
@@ -88,7 +89,26 @@ class Process:
             dummy = create_dummy_resource(resource=self.storage, store_max= self.prod_max,store_min= self.prod_min)
             self.conversion = {self.storage:-1, dummy:1}
             self.conversion_discharge = {dummy:-1, self.storage:1*(1- self.storage_loss)}
+            
+        if self.costdynamics is Costdynamics.constant:
+            if self.cost is not None:
+                self.capex = self.cost['CAPEX']
+                self.fopex = self.cost['Fixed O&M']
+                self.vopex = self.cost['Variable O&M']            
+            else:
+                self.capex = 100
+                self.fopex = 10
+                self.vopex = 1
+        
+        elif self.costdynamics is Costdynamics.pwl:
+            self.capacity_segments = self.scaling_segments['capacity']
+            self.capex_segments = self.capex_segments['capex']
+            
                  
+        elif self.costdynamics is Costdynamics.scaled:
+            self.scaling_factor = self.scaling_metrics['factor']
+            self.ref_capacity = self.scaling_metrics['ref_capacity']
+            
     def __repr__(self):
         return self.name
     

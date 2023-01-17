@@ -127,7 +127,8 @@ def generate_uncertainty_vars(instance:ConcreteModel, scale_level:int= 0):
     # instance.Delta_Cap_P_network = Var(instance.processes_varying, instance.scales_network, within= NonNegativeReals, doc= 'uncertain resource availability - network scale')
     return
 
-
+def costing_vars(instance:ConcreteModel):
+    instance.cost_segments = Var(instance.locations, instance.processes, within = Binary, doc = 'Segment for costing')
 
 
 

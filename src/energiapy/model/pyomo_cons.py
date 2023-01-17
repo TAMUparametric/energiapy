@@ -20,6 +20,13 @@ from ..components.location import Location
 from itertools import product
 from typing import Union
 
+from enum import Enum, auto
+
+class Costdynamics(Enum):
+    constant = auto()
+    pwl = auto()
+    scaled = auto()
+
 # TODO - carbon credit constraint
 
 # *-------------------------Summing
@@ -761,7 +768,8 @@ def network_purchase_constraint(instance: ConcreteModel, network_scale_level: in
 # *-------------------------Process costing constraints--------------------------------------
 
 
-def process_capex_constraint(instance: ConcreteModel, capex_dict: dict, network_scale_level: int = 0, annualization_factor: float = 1) -> Constraint:
+def process_capex_constraint(instance: ConcreteModel, capex_dict: dict, network_scale_level: int = 0, annualization_factor: float = 1,\
+    cost_dynamics: Costdynamics = Costdynamics.constant) -> Constraint:
     """Capital expenditure for each process at location in network
 
     Args:
@@ -774,11 +782,13 @@ def process_capex_constraint(instance: ConcreteModel, capex_dict: dict, network_
         Constraint: process_capex_constraint
     """
     scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
-
-    def process_capex_rule(instance, location, process, *scale_list):
-        return instance.Capex_process[location, process, scale_list] == annualization_factor*capex_dict[process]*instance.Cap_P[location, process, scale_list]
-    instance.process_capex_constraint = Constraint(
-        instance.locations, instance.processes, *scales, rule=process_capex_rule, doc='total purchase from network')
+    
+    if cost_dynamics is Costdynamics.constant:
+        def process_capex_rule(instance, location, process, *scale_list):
+            return instance.Capex_process[location, process, scale_list] == annualization_factor*capex_dict[process]*instance.Cap_P[location, process, scale_list]
+        instance.process_capex_constraint = Constraint(
+            instance.locations, instance.processes, *scales, rule=process_capex_rule, doc='total purchase from network')
+        
     #constraint_latex_render(process_capex_rule)
     return instance.process_capex_constraint
 
