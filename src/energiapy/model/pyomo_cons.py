@@ -1182,12 +1182,14 @@ def global_warming_potential_process_constraint(instance: ConcreteModel, process
     return instance.global_warming_potential_process_constraint
 
 #TODO - Fix this, this needs some work
-def global_warming_potential_material_constraint(instance: ConcreteModel, material_gwp_dict: dict, network_scale_level:int=0):
+def global_warming_potential_material_constraint(instance: ConcreteModel, material_gwp_dict: dict, process_material_dict: dict, network_scale_level:int=0):
     scales = scale_list(instance= instance, scale_levels= network_scale_level+1)
     
-    def global_warming_potential_material_rule(instance, location, material,  *scale_list):
-        return instance.global_warming_potential_material[location, material, scale_list] == material_gwp_dict[location][material]*instance.Cap_P[location, material, scale_list] 
-    instance.global_warming_potential_material_constraint = Constraint(instance.locations, instance.materials, *scales, rule = global_warming_potential_material_rule, doc= 'global warming potential for the each material' )
+    def global_warming_potential_material_rule(instance, location, process,  *scale_list):
+        return instance.global_warming_potential_material[location, process, scale_list] == \
+            sum(process_material_dict[process][material]*material_gwp_dict[location][material] for material in process_material_dict[process].keys()) *\
+                instance.Cap_P[location, process, scale_list] 
+    instance.global_warming_potential_material_constraint = Constraint(instance.locations, instance.processes_materials, *scales, rule = global_warming_potential_material_rule, doc= 'global warming potential for the each material' )
     return instance.global_warming_potential_material_constraint
 
 def global_warming_potential_resource_constraint(instance: ConcreteModel, resource_gwp_dict: dict, network_scale_level:int=0):

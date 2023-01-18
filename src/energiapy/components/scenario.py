@@ -106,6 +106,9 @@ class Scenario:
         self.process_gwp_dict = {i.name: {j.name: j.gwp for j in self.process_set} for i in self.location_set}
         self.demand_factor = {i.name: i.demand_factor for i in self.location_set}
         self.fail_factor = {i.name: i.fail_factor for i in self.location_set}
+        self.process_resource_dict = {i.name: {j.name for j in i.conversion.keys()} for i in self.process_set}
+        self.process_material_dict = {i.name: {j.name: i.material_cons[j] for j in i.material_cons.keys()} for i in self.process_set}
+        
         # if type(list(self.location_set)[0].demand) == float:
         #     self.demand = {i.name: i.demand for i in self.location_set}
         # else:
