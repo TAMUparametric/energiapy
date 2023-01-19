@@ -265,7 +265,7 @@ def dynamic_warping_path(matrix: ndarray) -> list:
 def dynamic_warping(source_scenario: Scenario, target_scenario: Scenario, \
     scale_level: int, include: list, aspect: Union[Resource, Process], reference_dict: dict = None):
     
-    source_location = list(source_scenario.location_set)[0]
+    source_location = list(source_scenario.location_set)[0] 
     target_location = list(target_scenario.location_set)[0]
 
     if 'cost' in include:
@@ -291,25 +291,35 @@ def dynamic_warping(source_scenario: Scenario, target_scenario: Scenario, \
     
     path = dynamic_warping_path(matrix= matrix)
     
-    x_ = [path[i][0] for i in range(len(path))]
+    path = [i for i in path if i[0] != 0] #remove zeroth value
     
-    y_ = [path[i][1] for i in range(len(path))]
+
+    
+    #collects the x and y coordinates of path as separate lists
+    x_ = [path[i][0] -1 for i in range(len(path))] 
+    y_ = [path[i][1] -1 for i in range(len(path))] 
     
     
-    x_.reverse()
+    #reverse the coordinates 
+    x_.reverse() 
     y_.reverse()
     
-    xr = x_[:-1]
-    yr = y_[:-1]
-    print(yr)
+    # xr = x_[:-1]
+    # yr = y_[:-1]
+    
+    
     i_list = list(range(len(target_series)))
     
     
     j_list = list(reference_keys)
+    print(source_series, len(source_series))
+    source_values = [source_series[i] for i in x_]
+ 
     
-    source_values = [source_series[i] for i in xr]
-    
-    target_values = [target_series[i] for i in yr]
+    target_values = [target_series[i] for i in y_]
+
+    print(len(target_values))
+
 
     # reduced_temporal_scale = Temporal_scale(discretization_list=[1, len(target_values), 24])
     
@@ -321,7 +331,7 @@ def dynamic_warping(source_scenario: Scenario, target_scenario: Scenario, \
     
     
     #TODO Check this 
-    counts = {j:  yr.count(i) for i,j in zip(i_list, j_list)}
+    counts = {j:  y_.count(i) for i,j in zip(i_list, j_list)}
     
     print(counts)
     
