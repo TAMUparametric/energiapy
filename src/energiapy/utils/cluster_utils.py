@@ -312,13 +312,12 @@ def dynamic_warping(source_scenario: Scenario, target_scenario: Scenario, \
     
     
     j_list = list(reference_keys)
-    print(source_series, len(source_series))
     source_values = [source_series[i] for i in x_]
  
     
     target_values = [target_series[i] for i in y_]
 
-    print(len(target_values))
+    # print(len(target_values))
 
 
     # reduced_temporal_scale = Temporal_scale(discretization_list=[1, len(target_values), 24])
@@ -333,7 +332,7 @@ def dynamic_warping(source_scenario: Scenario, target_scenario: Scenario, \
     #TODO Check this 
     counts = {j:  y_.count(i) for i,j in zip(i_list, j_list)}
     
-    print(counts)
+    # print(counts)
     
     # #TODO find actual rep_day
     # if reference_dict is not None:
