@@ -56,9 +56,9 @@ class Process:
     """
 
     name: str 
-    conversion: Dict[Resource, float] = field(default_factory= dict)
+    conversion: Dict[Resource, float] = None # field(default_factory= dict)
     cost: Union[float, dict] = None #field(default_factory = dict) 
-    material_cons: Dict[Material, float] = field(default_factory= dict)
+    material_cons: Dict[Material, float] = None # field(default_factory= dict)
     intro_scale: int = 0
     exit_scale: int = 0
     prod_max: float = 0
