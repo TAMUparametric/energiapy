@@ -390,7 +390,7 @@ def resource_purchase_constraint(instance: ConcreteModel, cost_factor: dict = {}
 #     return instance.test_cycle_cons
 
 
-def inventory_balance_constraint(instance: ConcreteModel, scheduling_scale_level: int = 0, conversion: dict = {}) -> Constraint:
+def inventory_balance_constraint(instance: ConcreteModel, scheduling_scale_level: int = 0, conversion: dict = {}, cluster_wt: dict = None) -> Constraint:
     """balances resource across the scheduling horizon
 
     Args:
@@ -443,8 +443,10 @@ def inventory_balance_constraint(instance: ConcreteModel, scheduling_scale_level
         produced = sum(conversion[process][resource]*instance.P[location, process,
                        scale_list[:scheduling_scale_level+1]] for process in instance.processes)
 
-        return consumption + produced - storage - discharge + transport == 0
-
+        if cluster_wt is not None:
+            return cluster_wt[scale_list[:scheduling_scale_level+1]]*(consumption + produced - discharge + transport) == storage
+        else:
+            return consumption + produced - discharge + transport == storage
     instance.inventory_balance_constraint = Constraint(
         instance.locations, instance.resources, *scales, rule=inventory_balance_rule, doc='mass balance across scheduling scale')
     #constraint_latex_render(inventory_balance_constraint)
@@ -985,7 +987,7 @@ def network_fopex_constraint(instance: ConcreteModel, network_scale_level: int =
 
 
 def demand_constraint(instance: ConcreteModel, demand: float, demand_factor: Union[dict, float], \
-    demand_scale_level: int = 0, scheduling_scale_level: int = 0) -> Constraint:
+    demand_scale_level: int = 0, scheduling_scale_level: int = 0, cluster_wt: dict = None) -> Constraint:
     """Ensures that demand for resource is met at chosen temporal scale
 
     Args:
@@ -1005,11 +1007,17 @@ def demand_constraint(instance: ConcreteModel, demand: float, demand_factor: Uni
  
     def demand_rule(instance, location, resource, *scale_list):
         if type(demand_factor[location][list(demand_factor[location])[0]]) == float:
-            return sum(instance.S[location, resource_, scale_list[:scheduling_scale_level+1]] for
-                       resource_ in instance.resources_demand) == demand*demand_factor[location][scale_list[:demand_scale_level+1]]
+            discharge = sum(instance.S[location, resource_, scale_list[:scheduling_scale_level+1]] for
+                       resource_ in instance.resources_demand) 
         else:
-            return sum(instance.S[location, resource, scale_] for scale_ in scale_iter if scale_[:scheduling_scale_level+1] == scale_list)\
-                == demand*demand_factor[location][resource][scale_list[:demand_scale_level+1]]
+            discharge = sum(instance.S[location, resource, scale_] for scale_ in scale_iter if scale_[:scheduling_scale_level+1] == scale_list)
+        
+        demandtarget = demand*demand_factor[location][resource][scale_list[:demand_scale_level+1]]
+        
+        # if cluster_wt is not None: 
+        #     return discharge == cluster_wt[scale_list[:scheduling_scale_level+1]]*demandtarget
+        # else:
+        return discharge == demandtarget
 
     if len(instance.locations) > 1:
         instance.demand_constraint = Constraint(
