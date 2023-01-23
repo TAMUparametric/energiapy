@@ -66,14 +66,17 @@ def generate_network_vars(instance: ConcreteModel, scale_level:int = 0):
     instance.Fopex_process = Var(instance.locations, instance.processes, instance.scales_network, within = NonNegativeReals, doc = 'Fixed Opex for process' )
     instance.Vopex_process = Var(instance.locations, instance.processes, instance.scales_network, within = NonNegativeReals, doc = 'Variable Opex for process' )
     instance.Capex_process = Var(instance.locations, instance.processes, instance.scales_network, within = NonNegativeReals, doc = 'Capex for process' )
+    instance.Incidental_process = Var(instance.locations, instance.processes, instance.scales_network, within = NonNegativeReals, doc = 'Incidentals for process' )
     
     instance.Fopex_location = Var(instance.locations, instance.scales_network, within = NonNegativeReals, doc = 'Fixed Opex at location scale' )
     instance.Vopex_location = Var(instance.locations, instance.scales_network, within = NonNegativeReals, doc = 'Variable Opex at location scale' )
     instance.Capex_location = Var(instance.locations, instance.scales_network, within = NonNegativeReals, doc = 'Capex at location scale' )
+    instance.Incidental_location = Var(instance.locations, instance.scales_network, within = NonNegativeReals, doc = 'Incidental at location scale' )
     
     instance.Fopex_network = Var(instance.scales_network, within = NonNegativeReals, doc = 'Fixed Opex at network scale' )
     instance.Vopex_network = Var(instance.scales_network, within = NonNegativeReals, doc = 'Variable Opex at network scale' )
     instance.Capex_network = Var(instance.scales_network, within = NonNegativeReals, doc = 'Capex at network scale' )
+    instance.Incidental_network = Var(instance.scales_network, within = NonNegativeReals, doc = 'Incidental at network scale' )
     
     instance.carbon_emission_network = Var(instance.scales_network, within = NonNegativeReals, doc = 'Carbon emissions across network at network_scale')
     instance.carbon_emission_location = Var(instance.locations, instance.scales_network, within = NonNegativeReals, doc = 'Carbon emissions at location at network_scale')

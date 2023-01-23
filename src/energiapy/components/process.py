@@ -24,6 +24,9 @@ class Costdynamics(Enum):
     constant = auto()
     pwl = auto()
     scaled = auto()
+    wind = auto () #TODO allow user to give equation
+    battery = auto () #TODO allow user to give equation
+    solar = auto()
 
 @dataclass
 class Process:
@@ -34,6 +37,7 @@ class Process:
         name (str): name of process, short ones are better to deal with.
         conversion (Dict[resource, float], optional): conversion data. Defaults to None.
         cost (floatordict, optional): cost of operation {'CAPEX':_, 'Fixed O&M':_, 'Variable O&M':_}. Defaults to None.
+        battery_cost (floatordict, optional): battery sizing cost {'CAPEX_capacity':_, 'CAPEX_power':_,}. Defaults to None
         material_cons (Dict[material, float], optional): material consumption data. Defaults to None.
         intro_scale (int, optional): scale when process is introduced. Defaults to 0.
         prod_max (float, optional): maximum production. Defaults to 0.
@@ -80,6 +84,14 @@ class Process:
     storage_loss: float = 0
     costdynamics: Costdynamics = Costdynamics.constant
     
+    # if costdynamics is Costdynamics.wind_equation:
+    #     cost
+        
+    # if costdynamics is Costdynamics.battery_equation:
+    #     cost
+        
+        
+    
 
     def __post_init__(self):
         # self.capacity_factor = self.make_capacity_factor()
@@ -94,20 +106,65 @@ class Process:
             if self.cost is not None:
                 self.capex = self.cost['CAPEX']
                 self.fopex = self.cost['Fixed O&M']
-                self.vopex = self.cost['Variable O&M']            
+                self.vopex = self.cost['Variable O&M'] 
+                self.incidental = None
+                self.capex_capacity = None
+                self.capex_power = None
+                           
             else:
                 self.capex = 100
                 self.fopex = 10
                 self.vopex = 1
-        
+                self.incidental = None
+                self.capex_capacity = None
+                self.capex_power = None
+                
+        if self.costdynamics is Costdynamics.battery:
+            if 'CAPEX_capacity' in self.cost.keys():
+                self.capex_capacity = self.cost['CAPEX_capacity']
+            if 'CAPEX_power' in self.cost.keys():
+                self.capex_power = self.cost['CAPEX_power']
+            self.capex = None
+            self.fopex = None
+            self.vopex = None
+            self.incidental = None
+            
+        if self.costdynamics is Costdynamics.wind:
+            if 'CAPEX' in self.cost.keys():
+                self.capex = self.cost['CAPEX']
+            if 'Incidental' in self.cost.keys():
+                self.incidental = self.cost['Incidental']
+            self.fopex = None
+            self.vopex = None
+            self.capex_capacity = None
+            self.capex_power = None
+                
+        if self.costdynamics is Costdynamics.solar:
+            if 'CAPEX' in self.cost.keys():
+                self.capex = self.cost['CAPEX']
+            if 'Incidental' in self.cost.keys():
+                self.incidental = self.cost['Incidental']
+            self.capex = None
+            self.fopex = None
+            self.vopex = None
+            self.capex_capacity = None
+            self.capex_power = None
+            
         elif self.costdynamics is Costdynamics.pwl:
             self.capacity_segments = self.scaling_segments['capacity']
             self.capex_segments = self.capex_segments['capex']
+            self.capex = None
+            self.fopex = None
+            self.vopex = None
             
                  
         elif self.costdynamics is Costdynamics.scaled:
             self.scaling_factor = self.scaling_metrics['factor']
             self.ref_capacity = self.scaling_metrics['ref_capacity']
+            self.capex = None
+            self.fopex = None
+            self.vopex = None
+            
             
     def __repr__(self):
         return self.name

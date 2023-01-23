@@ -63,9 +63,9 @@ class Location:
     processes: Set[Process] 
     scales: Temporal_scale 
     demand: Dict[Resource, float] = 1.0
-    demand_factor: Union[float, Dict[Resource, float]] = 1.0
-    cost_factor: Union[float, Dict[Resource, float]] = 1.0
-    capacity_factor: Union[float, Dict[Process, float]] = 1.0
+    demand_factor: Union[float, Dict[Resource, float]] = None
+    cost_factor: Union[float, Dict[Resource, float]] = None
+    capacity_factor: Union[float, Dict[Process, float]] = None
     demand_level: int = 1.0
     cost_level: int = 1.0
     capacity_level: int = 1.0
@@ -75,15 +75,21 @@ class Location:
         self.resources= self.get_resources()
         self.materials = self.get_materials()
         self.scale_levels = self.scales.scale_levels
-        self.varying_capacity = set(self.capacity_factor.keys())
-        self.varying_cost = set(self.cost_factor.keys())
-        self.varying_demand = set(self.demand_factor.keys())
-        if isinstance(list(self.capacity_factor.values())[0], DataFrame):
-            self.capacity_factor = scale_changer(self.capacity_factor, scales=self.scales, scale_level=self.capacity_level)
-        if isinstance(list(self.cost_factor.values())[0], DataFrame):
-            self.cost_factor = scale_changer(self.cost_factor, scales=self.scales, scale_level=self.cost_level)
-        if isinstance(list(self.demand_factor.values())[0], DataFrame):
-            self.demand_factor = scale_changer(self.demand_factor, scales=self.scales, scale_level=self.demand_level)
+        if self.capacity_factor is not None:
+            self.varying_capacity = set(self.capacity_factor.keys())
+            if isinstance(list(self.capacity_factor.values())[0], DataFrame):
+                self.capacity_factor = scale_changer(self.capacity_factor, scales=self.scales, scale_level=self.capacity_level)
+        
+        if self.cost_factor is not None:
+            self.varying_cost = set(self.cost_factor.keys())
+            if isinstance(list(self.cost_factor.values())[0], DataFrame):
+                self.cost_factor = scale_changer(self.cost_factor, scales=self.scales, scale_level=self.cost_level)
+        
+        if self.demand_factor is not None:    
+            self.varying_demand = set(self.demand_factor.keys())
+            if isinstance(list(self.demand_factor.values())[0], DataFrame):
+                self.demand_factor = scale_changer(self.demand_factor, scales=self.scales, scale_level=self.demand_level)
+       
         self.resource_price = self.get_resource_price()   
         self.failure_processes = self.get_failure_processes()
         self.fail_factor = self.make_fail_factor()

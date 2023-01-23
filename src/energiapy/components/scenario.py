@@ -100,6 +100,9 @@ class Scenario:
         self.capex_dict = {i.name: i.capex for i in self.process_set}
         self.fopex_dict = {i.name: i.fopex for i in self.process_set}
         self.vopex_dict = {i.name: i.vopex for i in self.process_set}
+        self.capex_capacity_dict = {i.name: i.capex_capacity for i in self.process_set}
+        self.capex_power_dict = {i.name: i.capex_power for i in self.process_set}
+        self.incidental_dict =  {i.name: i.incidental for i in self.process_set}
         self.land_dict = {i.name: i.land for i in self.process_set}
         self.material_gwp_dict = {i.name:{j.name: j.gwp for j in self.material_set} for i in self.location_set}
         self.resource_gwp_dict = {i.name:{j.name: j.gwp for j in self.resource_set} for i in self.location_set}
