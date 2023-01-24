@@ -24,6 +24,7 @@ class Material:
         name (str): name of the material, short ones are better to deal with
         basis (str): base unit for calculation
         gwp (float, optional): global warming potential. Defaults to 0.
+        toxicity (float, optional): toxicity potential. Defaults to 0.
         citation (str, optional): add citation. Defaults to 'citation needed'.
         H20 (str, optional): water consumed per unit. Defaults to 'citation needed'.
         label (str, optional): Longer descriptive label if required. Defaults to ''
@@ -32,6 +33,7 @@ class Material:
     
     name: str 
     gwp: float = None
+    toxicity: float = None
     resource_cons: Dict[Resource, float] = field(default_factory= dict)
     basis: str = 'unit'
     citation: str = 'citation needed'
