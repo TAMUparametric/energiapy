@@ -11,10 +11,10 @@ __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
 from ..components.scenario import Scenario
-from ..model.pyomo_sets import generate_sets
-from ..model.pyomo_vars import *
-from ..model.pyomo_cons import *
-from ..model.pyomo_objs import cost_objective
+from ..model.sets import generate_sets
+from ..model.variables import *
+from ..model.constraints import *
+from ..model.objectives import cost_objective
 from pyomo.environ import ConcreteModel
 
 
