@@ -14,7 +14,7 @@ from pandas import DataFrame
 from ..components.network import Network
 from ..components.location import Location
 from ..components.temporal_scale import Temporal_scale
-from ..model.pyomo_cons import *
+from ..model.constraints import *
 from ..utils.math_utils import scaler, find_euclidean_distance, generate_connectivity_matrix
 from sklearn.cluster import AgglomerativeClustering
 from sklearn.preprocessing import StandardScaler

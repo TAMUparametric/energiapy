@@ -144,7 +144,6 @@ class Process:
                 self.capex = self.cost['CAPEX']
             if 'Incidental' in self.cost.keys():
                 self.incidental = self.cost['Incidental']
-            self.capex = None
             self.fopex = None
             self.vopex = None
             self.capex_capacity = None
