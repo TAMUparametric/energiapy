@@ -1351,6 +1351,16 @@ def global_warming_potential_network_constraint(instance: ConcreteModel, network
     instance.global_warming_potential_network_constraint = Constraint(*scales, rule = global_warming_potential_network_rule, doc= 'global warming potential for the whole network' )
     return instance.global_warming_potential_network_constraint
 
+def global_warming_potential_network_reduction_constraint(instance: ConcreteModel, network_scale_level:int=0, gwp_reduction_pct:float= 0, gwp:float = 0):
+    scales = scale_list(instance= instance, scale_levels= network_scale_level+1)
+    
+    def global_warming_potential_network_reduction_rule(instance, *scale_list):
+        return instance.global_warming_potential_network[scale_list] <= gwp*(1 - gwp_reduction_pct/100)
+    instance.global_warming_potential_network_reduction_constraint = Constraint(*scales, rule = global_warming_potential_network_reduction_rule, doc= 'global warming potential for the whole network' )
+    return instance.global_warming_potential_network_reduction_constraint
+
+
+
 def carbon_emission_network_constraint(instance: ConcreteModel, network_scale_level:int=0) -> Constraint:
     scales = scale_list(instance= instance, scale_levels = network_scale_level+1)
     def carbon_emission_network_rule(instance, *scale_list):
