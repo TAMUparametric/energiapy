@@ -10,40 +10,13 @@ __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
 
-from ast import Constant
-from re import I
-from xmlrpc.client import Boolean
-import pandas as pd
-import numpy as np
+import pandas
+import numpy 
 import random
-import pickle as pkl
-import csv
-from itertools import product
-from functools import reduce
-from pyomo.environ import *
-from pyomo.opt import SolverStatus, TerminationCondition
-import time
-from subprocess import call
-from datetime import datetime, date
-from collections import defaultdict
-# from sklearn.cluster import AgglomerativeClustering
-# from sklearn.preprocessing import StandardScaler
-# from sklearn.linear_model import LinearRegression
-# from sklearn.cluster import KMeans
-# import scipy.stats as stats
-
-import json as json
-import matplotlib.pyplot as plt
-import os
-from matplotlib.ticker import (
-    MultipleLocator, FormatStrFormatter, AutoMinorLocator)
+from matplotlib.ticker import (MultipleLocator, FormatStrFormatter, AutoMinorLocator)
 from matplotlib.colors import ListedColormap
-from sys import executable
-from pyomo.core import *
-# from graphviz import Digraph
 from typing import Tuple
-
-
+import math
 
 def distance(u_x: float, u_y: float, v_x: float, v_y: float, method: str = 'euclidean'):
     """Finds the distance: rectilinear/chebyshev/euclidean
