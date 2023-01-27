@@ -10,115 +10,33 @@ __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
 
-# from ast import Constant
-# from re import I
-# from xmlrpc.client import Boolean
-# import pandas as pd
-# import numpy as np
-# import random
-# import pickle as pkl
-# import csv
-# from itertools import product
-# from functools import reduce
-# from pyomo.environ import *
-# from pyomo.opt import SolverStatus, TerminationCondition
-# import time
-# from subprocess import call
-# from datetime import datetime, date
-# from collections import defaultdict
-# from sklearn.cluster import AgglomerativeClustering
-# from sklearn.preprocessing import StandardScaler
-# from sklearn.linear_model import LinearRegression
-# from sklearn.cluster import KMeans
-# import scipy.stats as stats
-
-# import json as json
-# import matplotlib.pyplot as plt
-# import os
-# from matplotlib.ticker import (
-#     MultipleLocator, FormatStrFormatter, AutoMinorLocator)
-# from matplotlib.colors import ListedColormap
-# from sys import executable
-# from pyomo.core import *
-# from graphviz import Digraph
-# from typing import Tuple
-
-
-from dataclasses import dataclass, field
-from typing import Dict, Union
 import pandas
-from random import sample
+import numpy 
+import random
+from matplotlib.ticker import (MultipleLocator, FormatStrFormatter, AutoMinorLocator)
+from matplotlib.colors import ListedColormap
+from typing import Tuple
+import math
 
+def distance(u_x: float, u_y: float, v_x: float, v_y: float, method: str = 'euclidean'):
+    """Finds the distance: rectilinear/chebyshev/euclidean
+    Args:
+        u_x (float): x-coordinate of node a
+        u_y (float): y-coordinate of node a
+        v_x (float): x-coordinate of node b
+        v_y (float): y-coordinate of node b
+        method (str, optional): _description_. Defaults to 'euclidean'.
+    Returns:
+        float: _description_
+    """
+    if 'rectilinear':
+        distance = abs(u_x-v_x) + abs(u_y-v_y)
 
-
-@dataclass
-class Graph:
-    source_list: list  # supply node
-    sink_list: list # demand sink
-    facility_list: list 
-
-    # source_list = list(range(n_sources))  # supply node
-    # sink_list = list(range(n_sinks))  # demand sink
-    # facility_list = list(range(n_facilities))
-
-    # electricity, gas, water
-    criteria_utility_index = [i for i in source_list]
-    critera_transport_index = [i for i in source_list]  # car, train
-
-    sink_cost = [random.random() for i in sink_list]
-
-    # locations sink location
-    loc_sink_x = [random.random() for i in sink_list]
-    loc_sink_y = [random.random() for i in sink_list]
-
-    # locations nodes location
-    loc_source_x = [random.random() for i in source_list]
-    loc_source_y = [random.random() for i in source_list]
-
-    loc_facility_x = [random.random() for i in facility_list]
-    loc_facility_y = [random.random() for i in facility_list]
-
-    # distance_dict = { (i,j) : distance(loc_source_x[i], loc_source_y[i], loc_sink_x[j], loc_sink_y[j], method) for i in source_list for j in sink_list}
-    distance_feed_dict = {i: {j: distance(
-        loc_source_x[i], loc_source_y[i], loc_facility_x[j], loc_facility_y[j], method) for j in facility_list} for i in source_list}
-    distance_prod_dict = {i: {j: distance(
-        loc_facility_x[i], loc_facility_y[i], loc_sink_x[j], loc_sink_y[j], method) for j in sink_list} for i in facility_list}
-
-    source_dict = {i: [loc_source_x[i], loc_source_y[i]]for i in source_list}
-    sink_dict = {i: [loc_sink_x[i], loc_sink_y[i]]for i in sink_list}
-    facility_dict = {i: [loc_facility_x[i], loc_facility_y[i]]
-                     for i in facility_list}
-
-    # return source_dict, sink_dict, facility_dict, distance_feed_dict, distance_prod_dict
-
-    def __repr__(self):
-        return self.name
-    
-    def __hash__(self):
-        return hash(self.name)
-    
-    def __eq__(self, other):
-        return self.name == other.name
-
-# def distance(u_x: float, u_y: float, v_x: float, v_y: float, method: str = 'euclidean'):
-#     """Finds the distance: rectilinear/chebyshev/euclidean
-#     Args:
-#         u_x (float): x-coordinate of node a
-#         u_y (float): y-coordinate of node a
-#         v_x (float): x-coordinate of node b
-#         v_y (float): y-coordinate of node b
-#         method (str, optional): _description_. Defaults to 'euclidean'.
-#     Returns:
-#         float: _description_
-#     """
-#     if 'rectilinear':
-#         distance = abs(u_x-v_x) + abs(u_y-v_y)
-
-#     elif 'chebyshev':
-#         distance = max(abs(u_x-v_x) + abs(u_y-v_y))
-#     elif 'euclidean':
-#         distance = math.sqrt((u_x-v_x)**2 + (u_y-v_y)**2)
-#     return distance
+    elif 'chebyshev':
+        distance = max(abs(u_x-v_x) + abs(u_y-v_y))
+    elif 'euclidean':
+        distance = math.sqrt((u_x-v_x)**2 + (u_y-v_y)**2)
+    return distance
 
 
 def make_graph(n_sources: int, n_sinks: int, n_facilities: int, method: str = 'euclidean') -> Tuple[dict, dict, dict]:

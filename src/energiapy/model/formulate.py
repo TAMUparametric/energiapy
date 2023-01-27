@@ -54,7 +54,8 @@ class Objective(Enum):
     cost = auto()
     demand = auto()
     
-def formulate(scenario: Scenario, constraints:Set[Constraints], objective:Objective, demand:float = 10000, land_restriction:float = 10**9) -> ConcreteModel:
+def formulate(scenario: Scenario, constraints:Set[Constraints], objective:Objective, demand:float = 10000,\
+    land_restriction:float = 10**9, gwp:float = None, gwp_reduction_pct:float = None) -> ConcreteModel:
     """formulates a model
 
     Args:
@@ -231,6 +232,11 @@ def formulate(scenario: Scenario, constraints:Set[Constraints], objective:Object
                 instance=instance, scheduling_scale_level=scenario.scheduling_scale_level)
             transport_cost_network_constraint(
                 instance=instance, network_scale_level=scenario.network_scale_level)
+    
+    if gwp is not None:
+        global_warming_potential_network_reduction_constraint(instance= instance, network_scale_level = scenario.network_scale_level\
+            , gwp_reduction_pct = gwp_reduction_pct, gwp = gwp)
+
             
     if objective == Objective.cost:
         cost_objective(instance=instance,
