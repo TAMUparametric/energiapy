@@ -54,7 +54,6 @@ class Resource:
     varying: bool = False
     label: str = ''
     gwp: float = 0
-    
     # def __post_init__(self):
     #     self.cost_factor = self.make_cost_factor()
 
