@@ -13,6 +13,7 @@ __status__ = "Production"
 
 from dataclasses import dataclass
 import pandas
+from enum import Enum, auto
 
 
 @dataclass
@@ -45,7 +46,7 @@ class Resource:
     price: float = 0
     mile: float = 0
     store_max: float = 0
-    store_min: float = 0.01
+    store_min: float = 0
     sell: bool = False
     demand: bool = False
     basis: str = 'unit'

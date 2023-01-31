@@ -102,6 +102,9 @@ class Process:
             self.conversion = {self.storage:-1, dummy:1}
             self.conversion_discharge = {dummy:-1, self.storage:1*(1- self.storage_loss)}
             
+        else:
+            self.conversion_discharge = None
+            
         if self.costdynamics is Costdynamics.constant:
             if self.cost is not None:
                 self.capex = self.cost['CAPEX']

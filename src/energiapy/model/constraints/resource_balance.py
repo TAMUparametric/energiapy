@@ -82,9 +82,20 @@ def resource_purchase_constraint(instance: ConcreteModel, cost_factor: dict = {}
     return instance.resource_purchase_constraint
 
 
-def inventory_balance_constraint(instance: ConcreteModel, scheduling_scale_level: int = 0, conversion: dict = {}, cluster_wt: dict = None) -> Constraint:
+def inventory_balance_constraint(instance: ConcreteModel, scheduling_scale_level: int = 0, \
+    conversion: dict = {}, cluster_wt: dict = None) -> Constraint:
     """balances resource across the scheduling horizon
-
+    Mass balance in any temporal discretization has the following within their respective sets:
+    - consumption for resources that can be purchased
+    - produced for resources produced in the system. [conversion * nameplate capacity]
+    - discharge for resources that can be sold(if selling cost)/discharged bound by the demand constraint
+    - transport for resources that can be translocated
+    - storage for resources that can be held in inventory
+    
+    The general mass balance is given as:
+    
+    consumption + produced - discharge + transport == storage
+    
     Args:
         instance (ConcreteModel): pyomo instance
         scheduling_scale_level (int, optional): scale of scheduling decisions. Defaults to 0.
@@ -181,7 +192,8 @@ def demand_constraint(instance: ConcreteModel, demand: float, demand_factor: Uni
         # if cluster_wt is not None: 
         #     return discharge == cluster_wt[scale_list[:scheduling_scale_level+1]]*demandtarget
         # else:
-        return discharge >= demandtarget
+        # return discharge >= demandtarget
+        return discharge == demandtarget
 
     if len(instance.locations) > 1:
         instance.demand_constraint = Constraint(
@@ -191,9 +203,6 @@ def demand_constraint(instance: ConcreteModel, demand: float, demand_factor: Uni
             instance.locations, instance.resources_demand, *scales, rule=demand_rule, doc='specific demand for resources')
     #constraint_latex_render(demand_rule)
     return instance.demand_constraint
-
-
-
 
 
 

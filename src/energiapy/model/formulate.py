@@ -54,7 +54,7 @@ class Objective(Enum):
     cost = auto()
     demand = auto()
     
-def formulate(scenario: Scenario, constraints:Set[Constraints], objective:Objective, demand:float = 10000,\
+def formulate(scenario: Scenario, constraints:Set[Constraints], objective:Objective, demand:float = 0.0001,\
     land_restriction:float = 10**9, gwp:float = None, gwp_reduction_pct:float = None) -> ConcreteModel:
     """formulates a model
 
@@ -184,7 +184,7 @@ def formulate(scenario: Scenario, constraints:Set[Constraints], objective:Object
         
         inventory_balance_constraint(instance=instance, scheduling_scale_level=scenario.scheduling_scale_level,
                                     conversion=scenario.conversion)
-
+        
         resource_consumption_constraint(instance=instance, loc_res_dict=scenario.loc_res_dict,
                                 cons_max=scenario.cons_max, scheduling_scale_level=scenario.scheduling_scale_level)
         

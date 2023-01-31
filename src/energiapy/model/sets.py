@@ -29,8 +29,9 @@ def generate_sets(instance: ConcreteModel, location_set:set = {}, transport_set:
         scales (dict, optional): scales of the problem, generated through temporal_scale. Defaults to {}.
         
     """
+    
+
     instance.processes = Set(initialize  = [i.name for i in process_set], doc = 'Set of processes')
-    instance.resources = Set(initialize = [i.name for i in resource_set], doc = 'Set of resources')
     instance.resources_store = Set(initialize = [i.name for i in resource_set if i.store_max > 0], doc = 'Set of storeable resources')
     instance.resources_nosell = Set(initialize = [i.name for i in resource_set if i.sell ==  False], doc = 'Set of non-dischargeable resources')
     instance.resources_sell = Set(initialize = [i.name for i in resource_set if i.sell ==  True], doc = 'Set of dischargeable resources')
@@ -40,8 +41,20 @@ def generate_sets(instance: ConcreteModel, location_set:set = {}, transport_set:
     instance.processes_varying = Set(initialize  = [i.name for i in process_set if i.varying == True], doc = 'Set of processes with varying capacity')
     instance.processes_failure = Set(initialize  = [i.name for i in process_set if i.p_fail is not None], doc = 'Set of processes which can fail')
     instance.processes_materials = Set(initialize  = [i.name for i in process_set if i.material_cons is not None], doc = 'Set of processes which can fail')
+    instance.processes_storage = Set(initialize= [i.name for i in process_set if i.conversion_discharge is not None], doc = 'Set of storage process' )
     instance.locations = Set(initialize = [i.name for i in location_set], doc = 'Set of locations')
     instance.scales = Set(scales.list, initialize = scales.scale) #indexed set. scales.scale is a set of list(s) {[],.}
+    
+    dummy_resources = set() # collect dummy resources for storage
+    for i in [i for i in process_set if i.conversion_discharge is not None]:
+        dummy_resources = dummy_resources.union(set(i.conversion_discharge.keys()))
+    print(resource_set)
+    print(dummy_resources)
+    
+    
+    resources = dummy_resources.union({i for i in resource_set})
+    instance.resources = Set(initialize = [i for i in resources], doc = 'Set of resources')
+
     
     if source_set is not None:
         instance.sources = Set(initialize = [i.name for i in source_set], doc = 'Set of sources')
