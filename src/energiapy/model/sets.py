@@ -35,7 +35,6 @@ def generate_sets(instance: ConcreteModel, scenario:Scenario):
     sink_set= scenario.sink_locations
 
     instance.processes = Set(initialize  = [i.name for i in process_set], doc = 'Set of processes')
-    instance.resources_store = Set(initialize = [i.name for i in resource_set if i.store_max > 0], doc = 'Set of storeable resources')
     instance.resources_nosell = Set(initialize = [i.name for i in resource_set if i.sell ==  False], doc = 'Set of non-dischargeable resources')
     instance.resources_sell = Set(initialize = [i.name for i in resource_set if i.sell ==  True], doc = 'Set of dischargeable resources')
     instance.resources_purch = Set(initialize = [i.name for i in resource_set if i.cons_max > 0], doc = 'Set of purchased resources')   
@@ -49,13 +48,18 @@ def generate_sets(instance: ConcreteModel, scenario:Scenario):
     instance.scales = Set(scales.list, initialize = scales.scale) #indexed set. scales.scale is a set of list(s) {[],.}
     
     instance.processes_full = Set(initialize = list(scenario.conversion.keys()), doc = 'set of process + discharge dummy processes')
+    dummy_resources = {i.dummy for i in process_set if i.dummy is not None}
+    # dummy_resources = set() # collect dummy resources for storage
+    # for i in [i for i in process_set if i.conversion_discharge is not None]:
+    #     dummy_resources = dummy_resources.union(set(i.dummy))
+    print(dummy_resources)
+    
+    if dummy_resources:
+        instance.resources_store = Set(initialize = [i.name for i in list(dummy_resources)], doc = 'Set of storeable resources')
+        resource_set = dummy_resources.union(resource_set)
 
-    dummy_resources = set() # collect dummy resources for storage
-    for i in [i for i in process_set if i.conversion_discharge is not None]:
-        dummy_resources = dummy_resources.union(set(i.conversion_discharge.keys()))
-
-    resource_set = dummy_resources.union(resource_set)
-
+    else:
+        instance.resources_store = Set(initialize = [i.name for i in resource_set if i.store_max > 0], doc = 'Set of storeable resources')
 
     instance.resources = Set(initialize = [i.name for i in resource_set], doc = 'Set of resources')
 

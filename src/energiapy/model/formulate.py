@@ -177,8 +177,6 @@ def formulate(scenario: Scenario, constraints:Set[Constraints], objective:Object
             instance=instance, network_scale_level=scenario.network_scale_level, land_restriction= land_restriction)
 
     if Constraints.resource_balance in constraints:
-        demand_constraint(instance=instance, demand_scale_level=scenario.demand_scale_level,
-                    scheduling_scale_level=scenario.scheduling_scale_level, demand = demand, demand_factor=scenario.demand_factor)
         
         inventory_balance_constraint(instance=instance, scheduling_scale_level=scenario.scheduling_scale_level,
                                     conversion=scenario.conversion)
@@ -237,8 +235,13 @@ def formulate(scenario: Scenario, constraints:Set[Constraints], objective:Object
 
             
     if objective == Objective.cost:
+        
+        demand_constraint(instance=instance, demand_scale_level=scenario.demand_scale_level,
+                    scheduling_scale_level=scenario.scheduling_scale_level, demand = demand, demand_factor=scenario.demand_factor)
+        
         cost_objective(instance=instance,
                 network_scale_level=scenario.network_scale_level)
+        
         
     if objective == Objective.demand:
         demand_objective(instance=instance,

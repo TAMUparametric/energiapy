@@ -174,8 +174,8 @@ def demand_constraint(instance: ConcreteModel, demand: float, demand_factor: Uni
                         scale_levels=instance.scales.__len__())
     scale_iter = scale_tuple(
         instance=instance, scale_levels=scheduling_scale_level+1)
- 
-    def demand_rule(instance, location, resource, *scale_list):
+
+    def demand_rule(instance, location, resource, *scale_list):  
         if demand_factor[location] is not None:
             if type(demand_factor[location][list(demand_factor[location])[0]]) == float:
                 discharge = sum(instance.S[location, resource_, scale_list[:scheduling_scale_level+1]] for
@@ -186,14 +186,19 @@ def demand_constraint(instance: ConcreteModel, demand: float, demand_factor: Uni
             demandtarget = demand*demand_factor[location][resource][scale_list[:demand_scale_level+1]]
         
         else: 
+            # if scale_list[:scheduling_scale_level+1] != scale_iter[0]: #TODO - doesn't meet demand in first timeperiod
             discharge = sum(instance.S[location, resource, scale_] for scale_ in scale_iter if scale_[:scheduling_scale_level+1] == scale_list)
             demandtarget = demand
-        
+            
+            # else:
+            #     discharge = instance.S[location, resource, scale_list[:scheduling_scale_level+1]]
+            #     demandtarget = 0
+            
         # if cluster_wt is not None: 
         #     return discharge == cluster_wt[scale_list[:scheduling_scale_level+1]]*demandtarget
         # else:
         # return discharge >= demandtarget
-        return discharge == demandtarget
+        return discharge >= demandtarget
 
     if len(instance.locations) > 1:
         instance.demand_constraint = Constraint(
