@@ -84,9 +84,7 @@ def formulate(scenario: Scenario, constraints:Set[Constraints], objective:Object
         ConcreteModel: instance
     """
     instance = ConcreteModel() 
-    generate_sets(instance=instance, location_set=scenario.location_set, transport_set=scenario.transport_set, scales=scenario.scales,
-                process_set=scenario.process_set, resource_set=scenario.resource_set, material_set=scenario.material_set,
-                source_set=scenario.source_locations, sink_set=scenario.sink_locations)
+    generate_sets(instance=instance, scenario= scenario)
 
 
     generate_scheduling_vars(instance=instance, scale_level=scenario.scheduling_scale_level)

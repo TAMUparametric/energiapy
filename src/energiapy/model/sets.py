@@ -17,19 +17,22 @@ from ..components.temporal_scale import Temporal_scale
 from pyomo.environ import ConcreteModel, Set
 # from typing import 
 
-def generate_sets(instance: ConcreteModel, location_set:set = {}, transport_set:set= {}, scales: Temporal_scale = {},\
-    process_set:set = {}, resource_set:set = {}, material_set:set = {}, source_set:set = {}, sink_set:set = {} ):
+def generate_sets(instance: ConcreteModel, scenario:Scenario):
     """Generates pyomo sets based on declared lists
 
     Args:
         instance (ConcreteModel): pyomo instance
-        process_list (list, optional): list of processes. Defaults to [].
-        location_list (list, optional): list of locations. Defaults to [].
-        transport_list (list, optional): list of transports. Defaults to [].
-        scales (dict, optional): scales of the problem, generated through temporal_scale. Defaults to {}.
-        
+        scenario (Scenario): scenario
+
     """
-    
+    location_set = scenario.location_set
+    transport_set= scenario.transport_set
+    scales= scenario.scales
+    process_set= scenario.process_set
+    resource_set= scenario.resource_set 
+    material_set= scenario.material_set
+    source_set= scenario.source_locations
+    sink_set= scenario.sink_locations
 
     instance.processes = Set(initialize  = [i.name for i in process_set], doc = 'Set of processes')
     instance.resources_store = Set(initialize = [i.name for i in resource_set if i.store_max > 0], doc = 'Set of storeable resources')
@@ -45,15 +48,16 @@ def generate_sets(instance: ConcreteModel, location_set:set = {}, transport_set:
     instance.locations = Set(initialize = [i.name for i in location_set], doc = 'Set of locations')
     instance.scales = Set(scales.list, initialize = scales.scale) #indexed set. scales.scale is a set of list(s) {[],.}
     
+    instance.processes_full = Set(initialize = list(scenario.conversion.keys()), doc = 'set of process + discharge dummy processes')
+
     dummy_resources = set() # collect dummy resources for storage
     for i in [i for i in process_set if i.conversion_discharge is not None]:
         dummy_resources = dummy_resources.union(set(i.conversion_discharge.keys()))
-    print(resource_set)
-    print(dummy_resources)
-    
-    
-    resources = dummy_resources.union({i for i in resource_set})
-    instance.resources = Set(initialize = [i for i in resources], doc = 'Set of resources')
+
+    resource_set = dummy_resources.union(resource_set)
+
+
+    instance.resources = Set(initialize = [i.name for i in resource_set], doc = 'Set of resources')
 
     
     if source_set is not None:

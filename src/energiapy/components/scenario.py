@@ -84,10 +84,15 @@ class Scenario:
         self.process_set = set().union(*[i.processes for i in self.location_set if i.processes is not None])
         self.resource_set = set().union(*[i.resources for i in self.location_set if i.resources is not None])
         self.material_set = set().union(*[i.materials for i in self.location_set if i.materials is not None])
-        self.conversion = {i.name: {j.name: i.conversion[j] if j in i.conversion.keys()\
+        
+        
+        conversion = {i.name: {j.name: i.conversion[j] if j in i.conversion.keys()\
             else 0 for j in self.resource_set} for i in self.process_set}
-        self.conversion_discharge = {i.name: {j.name: i.conversion_discharge[j] if j in i.conversion_discharge.keys()\
+        conversion_discharge = {i.name + '_discharge': {j.name: i.conversion_discharge[j] if j in i.conversion_discharge.keys()\
             else 0 for j in self.resource_set} for i in self.process_set if i.conversion_discharge is not None}
+        
+        self.conversion = {**conversion, **conversion_discharge}
+        
         self.prod_max = {i.name: {j.name: j.prod_max for j in i.processes} for i in self.location_set}
         self.prod_min = {i.name: {j.name: j.prod_min for j in i.processes} for i in self.location_set}
         self.cons_max = {i.name: {j.name: j.cons_max for j in i.resources} for i in self.location_set}
