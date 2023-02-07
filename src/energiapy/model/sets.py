@@ -52,7 +52,6 @@ def generate_sets(instance: ConcreteModel, scenario:Scenario):
     # dummy_resources = set() # collect dummy resources for storage
     # for i in [i for i in process_set if i.conversion_discharge is not None]:
     #     dummy_resources = dummy_resources.union(set(i.dummy))
-    print(dummy_resources)
     
     if dummy_resources:
         instance.resources_store = Set(initialize = [i.name for i in list(dummy_resources)], doc = 'Set of storeable resources')
