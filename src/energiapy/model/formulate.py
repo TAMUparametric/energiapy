@@ -54,7 +54,7 @@ class Objective(Enum):
     cost = auto()
     demand = auto()
     
-def formulate(scenario: Scenario, constraints:Set[Constraints], objective:Objective, demand:float = 10000,\
+def formulate(scenario: Scenario, constraints:Set[Constraints], objective:Objective, demand:float = 0.0001,\
     land_restriction:float = 10**9, gwp:float = None, gwp_reduction_pct:float = None) -> ConcreteModel:
     """formulates a model
 
@@ -84,9 +84,7 @@ def formulate(scenario: Scenario, constraints:Set[Constraints], objective:Object
         ConcreteModel: instance
     """
     instance = ConcreteModel() 
-    generate_sets(instance=instance, location_set=scenario.location_set, transport_set=scenario.transport_set, scales=scenario.scales,
-                process_set=scenario.process_set, resource_set=scenario.resource_set, material_set=scenario.material_set,
-                source_set=scenario.source_locations, sink_set=scenario.sink_locations)
+    generate_sets(instance=instance, scenario= scenario)
 
 
     generate_scheduling_vars(instance=instance, scale_level=scenario.scheduling_scale_level)
@@ -179,12 +177,10 @@ def formulate(scenario: Scenario, constraints:Set[Constraints], objective:Object
             instance=instance, network_scale_level=scenario.network_scale_level, land_restriction= land_restriction)
 
     if Constraints.resource_balance in constraints:
-        demand_constraint(instance=instance, demand_scale_level=scenario.demand_scale_level,
-                    scheduling_scale_level=scenario.scheduling_scale_level, demand = demand, demand_factor=scenario.demand_factor)
         
         inventory_balance_constraint(instance=instance, scheduling_scale_level=scenario.scheduling_scale_level,
                                     conversion=scenario.conversion)
-
+        
         resource_consumption_constraint(instance=instance, loc_res_dict=scenario.loc_res_dict,
                                 cons_max=scenario.cons_max, scheduling_scale_level=scenario.scheduling_scale_level)
         
@@ -239,8 +235,13 @@ def formulate(scenario: Scenario, constraints:Set[Constraints], objective:Object
 
             
     if objective == Objective.cost:
+        
+        demand_constraint(instance=instance, demand_scale_level=scenario.demand_scale_level,
+                    scheduling_scale_level=scenario.scheduling_scale_level, demand = demand, demand_factor=scenario.demand_factor)
+        
         cost_objective(instance=instance,
                 network_scale_level=scenario.network_scale_level)
+        
         
     if objective == Objective.demand:
         demand_objective(instance=instance,
