@@ -153,6 +153,7 @@ def contribution(results: Result, y_axis:str, location:str,\
     rc('text', usetex=usetex)
     fig, ax = plt.subplots(figsize= fig_size)
     y_ = [results.output[y_axis][i] for i in results.output[y_axis].keys() if location in i]
+    print(y_)
 
     # title = f"Schedule for {results.components[component_type][component]['label']} in {results.components['locations'][location]['label']}"
     plt.title(f"${y_axis.split('_')[0]}_{{{y_axis.split('_')[1]}}}$")
