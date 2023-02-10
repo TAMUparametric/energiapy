@@ -30,7 +30,7 @@ class Result:
 
     Methods: fetch_components,divide_by_objective, get_varindex, model_summary
     """
-    name:str
+    name:dict
     components: dict
     output: dict
     duals: dict 

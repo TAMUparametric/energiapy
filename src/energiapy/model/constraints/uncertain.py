@@ -53,7 +53,7 @@ def demand_constraint_flex(instance: ConcreteModel, demand: int, demand_factor: 
     else:
         instance.demand_constraint_flex = Constraint(
             instance.locations, instance.resources_demand, *scales, rule=demand_flex_rule, doc='specific demand for resources')
-    #constraint_latex_render(demand_rule)
+    constraint_latex_render(demand_flex_rule)
     return instance.demand_constraint_flex
 
 
@@ -67,7 +67,7 @@ def delta_cap_location_constraint(instance: ConcreteModel, network_scale_level: 
         return instance.Delta_Cap_P_location[location, process, scale_list] == sum(instance.Delta_Cap_P[location, process, scale_] for scale_ in scale_iter)
     instance.delta_cap_location_constraint = Constraint(
         instance.locations, instance.processes_varying, *scales, rule=delta_cap_location_rule, doc='total transport cost across scale')
-    #constraint_latex_render(delta_cap_location_rule)
+    constraint_latex_render(delta_cap_location_rule)
     return instance.delta_cap_location_constraint
 
 
@@ -78,7 +78,7 @@ def delta_cap_network_constraint(instance: ConcreteModel, network_scale_level: i
         return instance.Delta_Cap_P_network[process, scale_list] == sum(instance.Delta_Cap_P_location[location_, process, scale_list] for location_ in instance.locations)
     instance.delta_cap_network_constraint = Constraint(
         instance.processes_varying, *scales, rule=delta_cap_network_rule, doc='total transport cost across scale')
-    #constraint_latex_render(delta_cap_network_rule)
+    constraint_latex_render(delta_cap_network_rule)
     return instance.delta_cap_network_constraint
 
 
@@ -107,7 +107,7 @@ def uncertain_nameplate_production_constraint(instance: ConcreteModel, network_s
             return instance.P[location, process, scale_list[:scheduling_scale_level+1]] <= instance.Cap_P[location, process, scale_list[:network_scale_level+1]]
     instance.uncertain_nameplate_production_constraint = Constraint(
         instance.locations, instance.processes, *scales, rule=uncertain_nameplate_production_rule, doc='nameplate production capacity constraint')
-    #constraint_latex_render(uncertain_nameplate_production_rule)
+    constraint_latex_render(uncertain_nameplate_production_rule)
     return instance.uncertain_nameplate_production_constraint
 
 
@@ -139,7 +139,7 @@ def uncertain_resource_purchase_constraint(instance: ConcreteModel, price: dict 
                 return instance.B[location, resource, scale_list[:scheduling_scale_level+1]] == price[location][resource]*instance.C[location, resource, scale_list[:scheduling_scale_level+1]]
             else:
                 return instance.B[location, resource, scale_list[:scheduling_scale_level+1]] == 0
-    #constraint_latex_render(uncertain_resource_purchase_rule)
     instance.uncertain_resource_purchase_constraint = Constraint(
         instance.locations, instance.resources_purch, *scales, rule=uncertain_resource_purchase_rule, doc='expenditure on purchase of resource')
+    constraint_latex_render(uncertain_resource_purchase_rule)
     return instance.uncertain_resource_purchase_constraint

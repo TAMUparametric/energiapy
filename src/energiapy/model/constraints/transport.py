@@ -34,7 +34,7 @@ def transport_export_constraint(instance: ConcreteModel, scheduling_scale_level:
                 for transport_ in instance.transports.intersection(transport_avail_dict[(source, sink)]))
     instance.transport_export_constraint = Constraint(instance.sources, instance.sinks,
                                                       instance.resources_trans, *scales, rule=transport_export_rule, doc='export of resource from source to sink')
-    #constraint_latex_render(transport_export_rule)
+    constraint_latex_render(transport_export_rule)
     return instance.transport_export_constraint
 
 
@@ -48,7 +48,7 @@ def transport_import_constraint(instance: ConcreteModel, scheduling_scale_level:
                 for transport_ in instance.transports.intersection(transport_avail_dict[(source, sink)]))
     instance.transport_import_constraint = Constraint(instance.sinks, instance.sources,
                                                       instance.resources_trans, *scales, rule=transport_import_rule, doc='import of resource from sink to source')
-    #constraint_latex_render(transport_import_rule)
+    constraint_latex_render(transport_import_rule)
     return instance.transport_import_constraint
 
 
@@ -60,7 +60,7 @@ def transport_balance_constraint(instance: ConcreteModel, scheduling_scale_level
         return instance.Imp[sink, source, resource, scale_list[:scheduling_scale_level+1]] == instance.Exp[source, sink, resource, scale_list[:scheduling_scale_level+1]]
     instance.transport_balance_constraint = Constraint(instance.sinks, instance.sources,
                                                        instance.resources_trans, *scales, rule=transport_balance_rule, doc='balances import and export from source to sinks')
-    #constraint_latex_render(transport_balance_rule)
+    constraint_latex_render(transport_balance_rule)
     return instance.transport_balance_constraint
 
 
@@ -75,7 +75,7 @@ def transport_exp_UB_constraint(instance: ConcreteModel, scheduling_scale_level:
             return instance.Trans_exp[source, sink, resource, transport, scale_list[:scheduling_scale_level+1]] <= 0
     instance.transport_exp_UB_constraint = Constraint(instance.sources, instance.sinks, instance.resources_trans,
                                                       instance.transports, *scales, rule=transport_exp_UB_rule, doc='import of resource from sink to source')
-    #constraint_latex_render(transport_exp_UB_rule)
+    constraint_latex_render(transport_exp_UB_rule)
     return instance.transport_exp_UB_constraint
 
 
@@ -90,5 +90,5 @@ def transport_imp_UB_constraint(instance: ConcreteModel, scheduling_scale_level:
             return instance.Trans_imp[sink, source, resource, transport, scale_list[:scheduling_scale_level+1]] <= 0
     instance.transport_imp_UB_constraint = Constraint(instance.sinks, instance.sources, instance.resources_trans,
                                                       instance.transports, *scales, rule=transport_imp_UB_rule, doc='import of resource from sink to source')
-    #constraint_latex_render(transport_imp_UB_rule)
+    constraint_latex_render(transport_imp_UB_rule)
     return instance.transport_imp_UB_constraint

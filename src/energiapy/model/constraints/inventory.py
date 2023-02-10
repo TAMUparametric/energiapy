@@ -45,7 +45,7 @@ def storage_facility_constraint(instance: ConcreteModel, store_max: dict, loc_re
             return instance.Cap_S[location, resource, scale_list[:network_scale_level+1]] == 0
     instance.storage_facility_constraint = Constraint(
         instance.locations, instance.resources_store, *scales, rule=storage_facility_rule, doc='storage facility sizing and location')
-    #constraint_latex_render(storage_facility_rule)
+    constraint_latex_render(storage_facility_rule)
     return instance.storage_facility_constraint
 
 def storage_facility_affix_constraint(instance: ConcreteModel, affix_storage_cap: dict, loc_res_dict: dict = {},  network_scale_level: int = 0) -> Constraint:
@@ -74,7 +74,7 @@ def storage_facility_affix_constraint(instance: ConcreteModel, affix_storage_cap
             return instance.Cap_S[location, resource, scale_list[:network_scale_level+1]] == 0
     instance.storage_facility_affix_constraint = Constraint(
         instance.locations, instance.resources_store, *scales, rule=storage_facility_affix_rule, doc='storage facility sizing and location')
-    #constraint_latex_render(storage_facility_affix_rule)
+    constraint_latex_render(storage_facility_affix_rule)
     return instance.storage_facility_affix_constraint
 
 
@@ -103,7 +103,7 @@ def storage_facility_fix_constraint(instance: ConcreteModel, store_max: dict, st
             return instance.Cap_S[location, resource, scale_list[:network_scale_level+1]] == 0
     instance.storage_facility_fix_constraint = Constraint(
         instance.locations, instance.resources_store, *scales, rule=storage_facility_fix_rule, doc='storage facility sizing and location')
-    #constraint_latex_render(storage_facility_fix_rule)
+    constraint_latex_render(storage_facility_fix_rule)
     return instance.storage_facility_fix_constraint
 
 
@@ -132,7 +132,7 @@ def min_storage_facility_constraint(instance: ConcreteModel, store_min: dict, lo
             return Constraint.Skip
     instance.min_storage_facility_constraint = Constraint(
         instance.locations, instance.resources_store, *scales, rule=min_storage_facility_rule, doc='storage facility sizing and location')
-    #constraint_latex_render(min_storage_facility_rule)
+    constraint_latex_render(min_storage_facility_rule)
     return instance.min_storage_facility_constraint
 
 
@@ -158,5 +158,5 @@ def nameplate_inventory_constraint(instance: ConcreteModel, loc_res_dict: dict =
             return instance.Inv[location, resource, scale_list[:scheduling_scale_level+1]] <= 0
     instance.nameplate_inventory_constraint = Constraint(
         instance.locations, instance.resources_store, *scales, rule=nameplate_inventory_rule, doc='nameplate inventory capacity constraint')
-    # constraint_latex_render(nameplate_inventory_rule)
+    constraint_latex_render(nameplate_inventory_rule)
     return instance.nameplate_inventory_constraint

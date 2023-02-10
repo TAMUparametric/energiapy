@@ -46,5 +46,5 @@ def nameplate_production_failure_constraint(instance: ConcreteModel, fail_factor
             return instance.P[location, process, scale_list[:scheduling_scale_level+1]] <= instance.Cap_P[location, process, scale_list[:network_scale_level+1]]
     instance.nameplate_production_failure_constraint = Constraint(
         instance.locations, instance.processes, *scales, rule=nameplate_production_failure_rule, doc='nameplate production capacity constraint')
-    #constraint_latex_render(nameplate_production_failure_rule)
+    constraint_latex_render(nameplate_production_failure_rule)
     return instance.nameplate_production_failure_constraint

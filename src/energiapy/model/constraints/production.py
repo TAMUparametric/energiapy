@@ -44,7 +44,7 @@ def production_facility_constraint(instance: ConcreteModel, prod_max: dict, loc_
             return instance.Cap_P[location, process, scale_list[:network_scale_level+1]] == 0
     instance.production_facility_constraint = Constraint(
         instance.locations, instance.processes, *scales, rule=production_facility_rule, doc='production facility sizing and location')
-    #constraint_latex_render(production_facility_rule)
+    constraint_latex_render(production_facility_rule)
     return instance.production_facility_constraint
 
 
@@ -72,7 +72,7 @@ def production_facility_affix_constraint(instance: ConcreteModel, affix_producti
             return instance.Cap_P[location, process, scale_list[:network_scale_level+1]] == 0
     instance.production_facility_affix_constraint = Constraint(
         instance.locations, instance.processes, *scales, rule=production_facility_affix_rule, doc='production facility sizing and location')
-    #constraint_latex_render(production_facility_affix_rule)
+    constraint_latex_render(production_facility_affix_rule)
     return instance.production_facility_affix_constraint
 
 
@@ -99,7 +99,7 @@ def production_facility_fix_constraint(instance: ConcreteModel, prod_max: dict, 
             return instance.Cap_P[location, process, scale_list[:network_scale_level+1]] == 0
     instance.production_facility_fix_constraint = Constraint(
         instance.locations, instance.processes, *scales, rule=production_facility_fix_rule, doc='production facility sizing and location')
-    #constraint_latex_render(production_facility_fix_rule)
+    constraint_latex_render(production_facility_fix_rule)
     return instance.production_facility_fix_constraint
 
 
@@ -126,7 +126,7 @@ def min_production_facility_constraint(instance: ConcreteModel, prod_min: dict, 
             return Constraint.Skip
     instance.min_production_facility_constraint = Constraint(
         instance.locations, instance.processes, *scales, rule=min_production_facility_rule, doc='production facility sizing and location')
-    #constraint_latex_render(min_production_facility_rule)
+    constraint_latex_render(min_production_facility_rule)
     return instance.min_production_facility_constraint
 
 def nameplate_production_constraint(instance: ConcreteModel, capacity_factor: dict = {}, network_scale_level: int = 0, scheduling_scale_level: int = 0) -> Constraint:
@@ -154,6 +154,6 @@ def nameplate_production_constraint(instance: ConcreteModel, capacity_factor: di
             return instance.P[location, process, scale_list[:scheduling_scale_level+1]] <= instance.Cap_P[location, process, scale_list[:network_scale_level+1]]
     instance.nameplate_production_constraint = Constraint(
         instance.locations, instance.processes, *scales, rule=nameplate_production_rule, doc='nameplate production capacity constraint')
-    #constraint_latex_render(nameplate_production_rule)
+    constraint_latex_render(nameplate_production_rule)
     return instance.nameplate_production_constraint
 

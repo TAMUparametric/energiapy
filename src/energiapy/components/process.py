@@ -83,6 +83,7 @@ class Process:
     storage: Resource = None
     storage_loss: float = 0
     costdynamics: Costdynamics = Costdynamics.constant
+    price: float = 0
     
     # if costdynamics is Costdynamics.wind_equation:
     #     cost

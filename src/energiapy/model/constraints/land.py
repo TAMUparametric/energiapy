@@ -37,7 +37,7 @@ def process_land_constraint(instance: ConcreteModel, land_dict: dict, network_sc
         return instance.Land_process[location, process, scale_list] == land_dict[process]*instance.Cap_P[location, process, scale_list]
     instance.process_land_constraint = Constraint(
         instance.locations, instance.processes, *scales, rule=process_land_rule, doc='land required for process')
-    #constraint_latex_render(process_land_rule)
+    constraint_latex_render(process_land_rule)
     return instance.process_land_constraint
 
 
@@ -58,7 +58,7 @@ def location_land_constraint(instance: ConcreteModel, network_scale_level: int =
         return instance.Land_location[location, scale_list] == sum(instance.Land_process[location, process_, scale_list] for process_ in instance.processes)
     instance.location_land_constraint = Constraint(
         instance.locations, *scales, rule=location_land_rule, doc='land required for process')
-    #constraint_latex_render(location_land_rule)
+    constraint_latex_render(location_land_rule)
     return instance.location_land_constraint
 
 
@@ -79,7 +79,7 @@ def network_land_constraint(instance: ConcreteModel, network_scale_level: int = 
         return instance.Land_network[scale_list] == sum(instance.Land_location[location_, scale_list] for location_ in instance.locations)
     instance.network_land_constraint = Constraint(
         *scales, rule=network_land_rule, doc='land required for process')
-    #constraint_latex_render(network_land_rule)
+    constraint_latex_render(network_land_rule)
     return instance.network_land_constraint
 
 def location_land_restriction_constraint(instance: ConcreteModel, network_scale_level: int = 0, land_restriction: float = 0) -> Constraint:
@@ -88,7 +88,7 @@ def location_land_restriction_constraint(instance: ConcreteModel, network_scale_
     Args:
         instance (ConcreteModel): pyomo instance
         network_scale_level (int, optional): scale of network decisions. Defaults to 0.
-
+ 
     Returns:
         Constraint: location_land_constraint
     """
@@ -98,5 +98,5 @@ def location_land_restriction_constraint(instance: ConcreteModel, network_scale_
         return instance.Land_location[location, scale_list] <= land_restriction
     instance.location_land_restriction_constraint = Constraint(
         instance.locations, *scales, rule=location_land_restriction_rule, doc='land required for process')
-    #constraint_latex_render(location_land_rule)
+    constraint_latex_render(location_land_restriction_rule)
     return instance.location_land_restriction_constraint
