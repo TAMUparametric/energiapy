@@ -27,6 +27,10 @@ class Costdynamics(Enum):
     wind = auto () #TODO allow user to give equation
     battery = auto () #TODO allow user to give equation
     solar = auto()
+    
+class ProcessMode(Enum):
+    single = auto() #only allows one mode
+    multi = auto() # allows multiple modes
 
 @dataclass
 class Process:
@@ -84,17 +88,25 @@ class Process:
     storage_loss: float = 0
     costdynamics: Costdynamics = Costdynamics.constant
     price: float = 0
+    multiconversion: Dict[int,Dict[Resource, float]] = None 
     
     # if costdynamics is Costdynamics.wind_equation:
     #     cost
         
     # if costdynamics is Costdynamics.battery_equation:
     #     cost
-        
-        
+    
+ 
+            
     
 
     def __post_init__(self):
+        
+        if self.multiconversion is not None:
+            self.processmode = ProcessMode.multi
+        else:
+            self.processmode = ProcessMode.single
+            
         # self.capacity_factor = self.make_capacity_factor()
         if self.storage is not None:
             # self.storage_dummy = {create_dummy_resource(resource=i, store_max= self.prod_max,\

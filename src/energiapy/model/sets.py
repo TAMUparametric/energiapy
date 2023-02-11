@@ -13,9 +13,11 @@ __status__ = "Production"
 
 from ..components.location import Location
 from ..components.scenario import Scenario 
+from ..components.process import ProcessMode 
 from ..components.temporal_scale import Temporal_scale
 from pyomo.environ import ConcreteModel, Set
-# from typing import 
+from enum import Enum, auto
+
 
 def generate_sets(instance: ConcreteModel, location_set:set = {}, transport_set:set= {}, scales: Temporal_scale = {},\
     process_set:set = {}, resource_set:set = {}, material_set:set = {}, source_set:set = {}, sink_set:set = {} ):
@@ -40,9 +42,10 @@ def generate_sets(instance: ConcreteModel, location_set:set = {}, transport_set:
     instance.processes_varying = Set(initialize  = [i.name for i in process_set if i.varying == True], doc = 'Set of processes with varying capacity')
     instance.processes_failure = Set(initialize  = [i.name for i in process_set if i.p_fail is not None], doc = 'Set of processes which can fail')
     instance.processes_materials = Set(initialize  = [i.name for i in process_set if i.material_cons is not None], doc = 'Set of processes which can fail')
+    instance.processes_multim = Set(initialize = [i.name for i in process_set if i.processmode == ProcessMode.multi], doc = 'Set of processes with multiple modes')
+    instance.processes_singlem = Set(initialize = [i.name for i in process_set if i.processmode == ProcessMode.single], doc = 'Set of processes with multiple modes')
     instance.locations = Set(initialize = [i.name for i in location_set], doc = 'Set of locations')
     instance.scales = Set(scales.list, initialize = scales.scale) #indexed set. scales.scale is a set of list(s) {[],.}
-    
     if source_set is not None:
         instance.sources = Set(initialize = [i.name for i in source_set], doc = 'Set of sources')
     

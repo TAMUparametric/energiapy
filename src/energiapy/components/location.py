@@ -12,7 +12,7 @@ __status__ = "Production"
 
 from dataclasses import dataclass, field
 from ..components.temporal_scale import Temporal_scale
-from ..components.process import Process
+from ..components.process import Process, ProcessMode
 from ..components.resource import Resource
 from ..components.material import Material
 import pandas
@@ -21,6 +21,8 @@ from typing import Set, Dict, Union
 from itertools import product
 from ..utils.model_utils import scale_changer
 from pandas import DataFrame
+from enum import Enum, auto
+
 
 @dataclass
 class Location:
@@ -103,7 +105,11 @@ class Location:
         if len(self.processes) == 0:
             return None
         else:
-            return set().union(*[set(i.conversion.keys()) for i in self.processes])
+            resources_single = set().union(*[set(i.conversion.keys()) for i in self.processes if i.processmode == ProcessMode.single])
+            resources_multi = set()
+            for i in [i for i in self.processes if i.processmode == ProcessMode.multi]:
+                resources_multi  = resources_multi.union(*[set(j.keys()) for j in list(i.multiconversion.values())])
+            return resources_single.union(resources_multi)
 
     
     def get_materials(self) -> Set[Material]:

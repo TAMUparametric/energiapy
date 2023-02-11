@@ -18,6 +18,7 @@ from .variables.binary import *
 from .variables.cost import *
 from .variables.transport import *
 from .variables.uncertain import *
+from .variables.mode import *
 from src.energiapy.model.constraints.resource_balance import *
 from src.energiapy.model.constraints.production import *
 from src.energiapy.model.constraints.inventory import *
@@ -89,11 +90,14 @@ def formulate(scenario: Scenario, constraints:Set[Constraints], objective:Object
                 source_set=scenario.source_locations, sink_set=scenario.sink_locations)
 
 
-    generate_scheduling_vars(instance=instance, scale_level=scenario.scheduling_scale_level)
+    generate_scheduling_vars(instance=instance, scale_level=scenario.scheduling_scale_level, mode_dict= scenario.mode_dict)
     generate_network_vars(instance=instance, scale_level=scenario.network_scale_level)
     generate_network_binary_vars(instance=instance, scale_level=scenario.network_scale_level)
     generate_costing_vars(instance= instance)
     generate_uncertainty_vars(instance = instance, scale_level = scenario.scheduling_scale_level)
+    
+    generate_mode_vars(instance=instance, scale_level=scenario.scheduling_scale_level, mode_dict= scenario.mode_dict)
+
     
     if len(scenario.location_set) > 1:
         generate_transport_vars(instance=instance, scale_level=scenario.scheduling_scale_level)
@@ -183,7 +187,7 @@ def formulate(scenario: Scenario, constraints:Set[Constraints], objective:Object
                     scheduling_scale_level=scenario.scheduling_scale_level, demand = demand, demand_factor=scenario.demand_factor)
         
         inventory_balance_constraint(instance=instance, scheduling_scale_level=scenario.scheduling_scale_level,
-                                    conversion=scenario.conversion)
+                                    conversion=scenario.conversion, cluster_wt=scenario.cluster_wt)
 
         resource_consumption_constraint(instance=instance, loc_res_dict=scenario.loc_res_dict,
                                 cons_max=scenario.cons_max, scheduling_scale_level=scenario.scheduling_scale_level)

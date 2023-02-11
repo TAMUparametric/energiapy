@@ -14,6 +14,7 @@ from pandas import DataFrame
 from ..components.network import Network
 from ..components.location import Location
 from ..components.temporal_scale import Temporal_scale
+from ..components.process import Process, ProcessMode
 from ..model.constraints import *
 from ..utils.math_utils import scaler, find_euclidean_distance, generate_connectivity_matrix
 from sklearn.cluster import AgglomerativeClustering
@@ -23,7 +24,6 @@ from sklearn.cluster import KMeans
 from sklearn.neighbors import NearestCentroid
 from dataclasses import dataclass
 from typing import Union
-
 
 
 
@@ -85,7 +85,7 @@ class Scenario:
         self.resource_set = set().union(*[i.resources for i in self.location_set if i.resources is not None])
         self.material_set = set().union(*[i.materials for i in self.location_set if i.materials is not None])
         self.conversion = {i.name: {j.name: i.conversion[j] if j in i.conversion.keys()\
-            else 0 for j in self.resource_set} for i in self.process_set}
+            else 0 for j in self.resource_set} for i in self.process_set if i.processmode == ProcessMode.single}
         self.prod_max = {i.name: {j.name: j.prod_max for j in i.processes} for i in self.location_set}
         self.prod_min = {i.name: {j.name: j.prod_min for j in i.processes} for i in self.location_set}
         self.cons_max = {i.name: {j.name: j.cons_max for j in i.resources} for i in self.location_set}
@@ -111,7 +111,7 @@ class Scenario:
         self.fail_factor = {i.name: i.fail_factor for i in self.location_set}
         self.process_resource_dict = {i.name: {j.name for j in i.conversion.keys() } for i in self.process_set if i.conversion is not None}
         self.process_material_dict = {i.name: {j.name: i.material_cons[j] for j in i.material_cons.keys() } for i in self.process_set if i.material_cons is not None}
-        
+        self.mode_dict = {i.name: [j for j in list(i.multiconversion.keys())] for i in self.process_set if i.processmode == ProcessMode.multi }
         # if type(list(self.location_set)[0].demand) == float:
         #     self.demand = {i.name: i.demand for i in self.location_set}
         # else:

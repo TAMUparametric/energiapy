@@ -20,6 +20,9 @@ from itertools import product
 from typing import Union
 from enum import Enum, auto
 
+class ProcessMode(Enum):
+    single = auto() #only allows one mode
+    multi = auto() # allows multiple modes
 
 
 def resource_consumption_constraint(instance: ConcreteModel, loc_res_dict: dict = {}, cons_max: dict = {}, scheduling_scale_level: int = 0) -> Constraint:
@@ -132,8 +135,9 @@ def inventory_balance_constraint(instance: ConcreteModel, scheduling_scale_level
         else:
             transport = 0
 
-        produced = sum(conversion[process][resource]*instance.P[location, process,
-                       scale_list[:scheduling_scale_level+1]] for process in instance.processes)
+        produced = sum(conversion[process][resource]*instance.P[location, process, scale_list[:scheduling_scale_level+1]] for process in instance.processes_singlem) \
+            + sum(instance.P[location, process, scale_list[:scheduling_scale_level+1]] for process in instance.processes_multim)
+        
 
         if cluster_wt is not None:
             return cluster_wt[scale_list[:scheduling_scale_level+1]]*(consumption + produced - discharge + transport) == storage

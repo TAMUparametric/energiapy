@@ -16,7 +16,7 @@ from itertools import product
 from ...utils.model_utils import scale_pyomo_set
 
 
-def generate_scheduling_vars(instance: ConcreteModel, scale_level:int = 0):    
+def generate_scheduling_vars(instance: ConcreteModel, scale_level:int = 0, mode_dict:dict = {}):    
     """declares pyomo variables for scheduling at the chosen scale
 
     Args:
@@ -24,7 +24,7 @@ def generate_scheduling_vars(instance: ConcreteModel, scale_level:int = 0):
         scale_level (int, optional):  scale for scheduling variables. Defaults to 0.
     """
     instance.scales_scheduling = scale_pyomo_set(instance= instance, scale_level= scale_level)
-    instance.P = Var(instance.locations, instance.processes, instance.scales_scheduling, within = NonNegativeReals, doc = 'Resource Production')
+    instance.P = Var(instance.locations, instance.processes, instance.scales_scheduling, within = NonNegativeReals, doc = 'Production')
     instance.B = Var(instance.locations, instance.resources_purch, instance.scales_scheduling, within = NonNegativeReals, doc = 'Purchase Expenditure')
     instance.C = Var(instance.locations, instance.resources_purch, instance.scales_scheduling, within = NonNegativeReals, doc = 'Resource Consumption')
     instance.S = Var(instance.locations, instance.resources_sell, instance.scales_scheduling, within = NonNegativeReals, doc = 'Resource Dispensed/Sold')
@@ -32,5 +32,6 @@ def generate_scheduling_vars(instance: ConcreteModel, scale_level:int = 0):
     if len(instance.locations) > 1:
         instance.Imp = Var(instance.sinks, instance.sources, instance.resources_trans, instance.scales_scheduling, within = NonNegativeReals, doc = 'Resource import')
         instance.Exp = Var(instance.sources, instance.sinks, instance.resources_trans, instance.scales_scheduling, within = NonNegativeReals, doc = 'Resource export')
+       
     
     return 
