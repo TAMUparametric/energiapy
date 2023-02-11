@@ -19,21 +19,24 @@ from pyomo.environ import ConcreteModel, Set
 from enum import Enum, auto
 
 
-def generate_sets(instance: ConcreteModel, location_set:set = {}, transport_set:set= {}, scales: Temporal_scale = {},\
-    process_set:set = {}, resource_set:set = {}, material_set:set = {}, source_set:set = {}, sink_set:set = {} ):
+def generate_sets(instance: ConcreteModel, scenario:Scenario):
     """Generates pyomo sets based on declared lists
 
     Args:
         instance (ConcreteModel): pyomo instance
-        process_list (list, optional): list of processes. Defaults to [].
-        location_list (list, optional): list of locations. Defaults to [].
-        transport_list (list, optional): list of transports. Defaults to [].
-        scales (dict, optional): scales of the problem, generated through temporal_scale. Defaults to {}.
-        
+        scenario (Scenario): scenario
+
     """
+    location_set = scenario.location_set
+    transport_set= scenario.transport_set
+    scales= scenario.scales
+    process_set= scenario.process_set
+    resource_set= scenario.resource_set 
+    material_set= scenario.material_set
+    source_set= scenario.source_locations
+    sink_set= scenario.sink_locations
+
     instance.processes = Set(initialize  = [i.name for i in process_set], doc = 'Set of processes')
-    instance.resources = Set(initialize = [i.name for i in resource_set], doc = 'Set of resources')
-    instance.resources_store = Set(initialize = [i.name for i in resource_set if i.store_max > 0], doc = 'Set of storeable resources')
     instance.resources_nosell = Set(initialize = [i.name for i in resource_set if i.sell ==  False], doc = 'Set of non-dischargeable resources')
     instance.resources_sell = Set(initialize = [i.name for i in resource_set if i.sell ==  True], doc = 'Set of dischargeable resources')
     instance.resources_purch = Set(initialize = [i.name for i in resource_set if i.cons_max > 0], doc = 'Set of purchased resources')   
@@ -42,6 +45,7 @@ def generate_sets(instance: ConcreteModel, location_set:set = {}, transport_set:
     instance.processes_varying = Set(initialize  = [i.name for i in process_set if i.varying == True], doc = 'Set of processes with varying capacity')
     instance.processes_failure = Set(initialize  = [i.name for i in process_set if i.p_fail is not None], doc = 'Set of processes which can fail')
     instance.processes_materials = Set(initialize  = [i.name for i in process_set if i.material_cons is not None], doc = 'Set of processes which can fail')
+    instance.processes_storage = Set(initialize= [i.name for i in process_set if i.conversion_discharge is not None], doc = 'Set of storage process' )
     instance.processes_multim = Set(initialize = [i.name for i in process_set if i.processmode == ProcessMode.multi], doc = 'Set of processes with multiple modes')
     instance.processes_singlem = Set(initialize = [i.name for i in process_set if i.processmode == ProcessMode.single], doc = 'Set of processes with multiple modes')
     instance.locations = Set(initialize = [i.name for i in location_set], doc = 'Set of locations')

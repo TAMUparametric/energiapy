@@ -85,7 +85,7 @@ def demand_objective(instance:ConcreteModel, network_scale_level:int=0) -> Objec
     """
     scale_iter = scale_tuple(instance= instance, scale_levels = network_scale_level + 1)
     def demand_objective_rule(instance):
-        return sum(instance.S_network[resource_, scale_] for resource_, scale_ in product(instance.resources_sell, scale_iter))
+        return sum(instance.S_network[resource_, scale_] for resource_, scale_ in product(instance.resources_demand, scale_iter))
     
     instance.demand_objective = Objective(rule = demand_objective_rule, doc = 'total purchase from network', sense= maximize)
     # constraint_latex_render(cost_objective_rule)

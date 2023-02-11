@@ -85,9 +85,20 @@ def resource_purchase_constraint(instance: ConcreteModel, cost_factor: dict = {}
     return instance.resource_purchase_constraint
 
 
-def inventory_balance_constraint(instance: ConcreteModel, scheduling_scale_level: int = 0, conversion: dict = {}, cluster_wt: dict = None) -> Constraint:
+def inventory_balance_constraint(instance: ConcreteModel, scheduling_scale_level: int = 0, \
+    conversion: dict = {}, cluster_wt: dict = None) -> Constraint:
     """balances resource across the scheduling horizon
-
+    Mass balance in any temporal discretization has the following within their respective sets:
+    - consumption for resources that can be purchased
+    - produced for resources produced in the system. [conversion * nameplate capacity]
+    - discharge for resources that can be sold(if selling cost)/discharged bound by the demand constraint
+    - transport for resources that can be translocated
+    - storage for resources that can be held in inventory
+    
+    The general mass balance is given as:
+    
+    consumption + produced - discharge + transport == storage
+    
     Args:
         instance (ConcreteModel): pyomo instance
         scheduling_scale_level (int, optional): scale of scheduling decisions. Defaults to 0.
@@ -135,9 +146,11 @@ def inventory_balance_constraint(instance: ConcreteModel, scheduling_scale_level
         else:
             transport = 0
 
-        produced = sum(conversion[process][resource]*instance.P[location, process, scale_list[:scheduling_scale_level+1]] for process in instance.processes_singlem) \
-            + sum(instance.P[location, process, scale_list[:scheduling_scale_level+1]] for process in instance.processes_multim)
+        # produced = sum(conversion[process][resource]*instance.P[location, process, scale_list[:scheduling_scale_level+1]] for process in instance.processes_singlem) \
+        #     + sum(instance.P[location, process, scale_list[:scheduling_scale_level+1]] for process in instance.processes_multim)
         
+        produced = sum(conversion[process][resource]*instance.P[location, process,
+                       scale_list[:scheduling_scale_level+1]] for process in instance.processes_full) #includes processes + discharge
 
         if cluster_wt is not None:
             return cluster_wt[scale_list[:scheduling_scale_level+1]]*(consumption + produced - discharge + transport) == storage
@@ -167,8 +180,8 @@ def demand_constraint(instance: ConcreteModel, demand: float, demand_factor: Uni
                         scale_levels=instance.scales.__len__())
     scale_iter = scale_tuple(
         instance=instance, scale_levels=scheduling_scale_level+1)
- 
-    def demand_rule(instance, location, resource, *scale_list):
+
+    def demand_rule(instance, location, resource, *scale_list):  
         if demand_factor[location] is not None:
             if type(demand_factor[location][list(demand_factor[location])[0]]) == float:
                 discharge = sum(instance.S[location, resource_, scale_list[:scheduling_scale_level+1]] for
@@ -179,12 +192,18 @@ def demand_constraint(instance: ConcreteModel, demand: float, demand_factor: Uni
             demandtarget = demand*demand_factor[location][resource][scale_list[:demand_scale_level+1]]
         
         else: 
+            # if scale_list[:scheduling_scale_level+1] != scale_iter[0]: #TODO - doesn't meet demand in first timeperiod
             discharge = sum(instance.S[location, resource, scale_] for scale_ in scale_iter if scale_[:scheduling_scale_level+1] == scale_list)
             demandtarget = demand
-        
+            
+            # else:
+            #     discharge = instance.S[location, resource, scale_list[:scheduling_scale_level+1]]
+            #     demandtarget = 0
+            
         # if cluster_wt is not None: 
         #     return discharge == cluster_wt[scale_list[:scheduling_scale_level+1]]*demandtarget
         # else:
+        # return discharge >= demandtarget
         return discharge >= demandtarget
 
     if len(instance.locations) > 1:
@@ -195,9 +214,6 @@ def demand_constraint(instance: ConcreteModel, demand: float, demand_factor: Uni
             instance.locations, instance.resources_demand, *scales, rule=demand_rule, doc='specific demand for resources')
     constraint_latex_render(demand_rule)
     return instance.demand_constraint
-
-
-
 
 
 

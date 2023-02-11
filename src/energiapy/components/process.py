@@ -111,9 +111,12 @@ class Process:
         if self.storage is not None:
             # self.storage_dummy = {create_dummy_resource(resource=i, store_max= self.prod_max,\
             #     store_min= self.prod_min) for i in self.storage}
-            dummy = create_dummy_resource(resource=self.storage, store_max= self.prod_max,store_min= self.prod_min)
-            self.conversion = {self.storage:-1, dummy:1}
-            self.conversion_discharge = {dummy:-1, self.storage:1*(1- self.storage_loss)}
+            self.dummy = create_dummy_resource(resource=self.storage, store_max= self.prod_max,store_min= self.prod_min)
+            self.conversion = {self.storage:-1, self.dummy:1}
+            self.conversion_discharge = {self.dummy:-1, self.storage:1*(1- self.storage_loss)}
+        else:
+            self.conversion_discharge = None
+            self.dummy = None
             
         if self.costdynamics is Costdynamics.constant:
             if self.cost is not None:
