@@ -1,0 +1,11 @@
+numpy
+pandas
+Pyomo
+gurobipy
+h5pyd
+scipy
+matplotlib
+setuptools
+pvlib
+scikit-learn
+
