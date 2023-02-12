@@ -89,7 +89,7 @@ def transport_cost_network_constraint(instance: ConcreteModel, network_scale_lev
     return instance.transport_cost_network_constraint
 
 
-def process_capex_constraint(instance: ConcreteModel, capex_dict: dict, network_scale_level: int = 0, annualization_factor: float = 1,\
+def process_capex_constraint(instance: ConcreteModel, capex_dict: dict, network_scale_level: int = 0, annualization_factor: float = 1/20,\
     cost_dynamics: Costdynamics = Costdynamics.constant) -> Constraint:
     """Capital expenditure for each process at location in network
 
@@ -115,7 +115,7 @@ def process_capex_constraint(instance: ConcreteModel, capex_dict: dict, network_
     constraint_latex_render(process_capex_rule)
     return instance.process_capex_constraint
 
-def process_incidental_constraint(instance: ConcreteModel, incidental_dict: dict, network_scale_level: int = 0, annualization_factor: float = 1,\
+def process_incidental_constraint(instance: ConcreteModel, incidental_dict: dict, network_scale_level: int = 0, annualization_factor: float = 1/20,\
     cost_dynamics: Costdynamics = Costdynamics.constant) -> Constraint:
     """Capital expenditure for each process at location in network
 
@@ -142,7 +142,7 @@ def process_incidental_constraint(instance: ConcreteModel, incidental_dict: dict
     return instance.process_incidental_constraint
 
 
-def process_fopex_constraint(instance: ConcreteModel, fopex_dict: dict, network_scale_level: int = 0, annualization_factor: float = 1) -> Constraint:
+def process_fopex_constraint(instance: ConcreteModel, fopex_dict: dict, network_scale_level: int = 0, annualization_factor: float = 1/20) -> Constraint:
     """Fixed operational expenditure for each process at location in network
     Args:
         instance (ConcreteModel): pyomo instance

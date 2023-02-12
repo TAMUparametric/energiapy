@@ -161,6 +161,7 @@ def inventory_balance_constraint(instance: ConcreteModel, scheduling_scale_level
     constraint_latex_render(inventory_balance_constraint)
     return instance.inventory_balance_constraint
 
+#TODO fix demand cosntraint to allow summation over days 
 
 def demand_constraint(instance: ConcreteModel, demand: float, demand_factor: Union[dict, float], \
     demand_scale_level: int = 0, scheduling_scale_level: int = 0, cluster_wt: dict = None) -> Constraint:

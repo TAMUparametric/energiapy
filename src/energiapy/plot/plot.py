@@ -43,7 +43,7 @@ def capacity_factor(process: Process, location: Location, \
     x_ = [i for i in range(len(y_))]
     ax.plot(x_, y_, linewidth=0.5, color=color)
     ax = axis_formatter(axes= ax, xcord = x_, axis_labels= 'M')
-    plt.title(f'Conversion factor for {process.label} in {location.label}')
+    plt.title(f'Capacity factor for {process.label} in {location.label}')
     plt.ylabel('Normalized capacity factor')
     plt.grid(alpha=0.3)
     plt.rcdefaults()
@@ -129,8 +129,8 @@ def schedule(results: Result, y_axis:str, component:str, location:str,\
     plt.ylabel(results.components[component_type][component]['basis'])
     x_ = [i for i in range(len(y_))]
     ax.plot(x_, y_, linewidth=0.5, color=color)
-    plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%b'))
-    plt.gca().xaxis.set_major_locator(mdates.MonthLocator())
+    #plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%b'))
+    #plt.gca().xaxis.set_major_locator(mdates.MonthLocator())#
     plt.grid(alpha=0.3)
     plt.rcdefaults()
     return

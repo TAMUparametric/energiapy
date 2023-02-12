@@ -401,21 +401,29 @@ def reduce_scenario(scenario: Scenario, method: Clustermethod, include: list, \
                                 demand_scale_level=scenario.demand_scale_level, \
                                     label=f"{scenario.label}(reduced)")
 
-    len_ = len(list(list(scenario.cost_factor[location.name].values())[0].keys())[0])
-    reduced_scenario.cost_factor = {location.name: {i: {
-        j[:len_]: scenario.cost_factor[location.name][i][rep_dict[j]['rep_period'][:len_]] \
-            for j in list(rep_dict.keys())} for i in list(scenario.cost_factor[location.name])}}
-
-    len_ = len(list(list(scenario.capacity_factor[location.name].values())[0].keys())[0])
-    reduced_scenario.capacity_factor = {location.name: {i: {
-        j[:len_]: scenario.capacity_factor[location.name][i][rep_dict[j]['rep_period'][:len_]] \
-            for j in list(rep_dict.keys())} for i in list(scenario.capacity_factor[location.name])}}
-
-    len_ = len(list(list(scenario.demand_factor[location.name].values())[0].keys())[0])
-    reduced_scenario.demand_factor = {location.name: {i: {
-        j[:len_]: scenario.demand_factor[location.name][i][rep_dict[j]['rep_period'][:len_]] \
-            for j in list(rep_dict.keys())} for i in list(scenario.demand_factor[location.name])}}
-
+    if scenario.cost_factor[location.name] is not None:
+        len_ = len(list(list(scenario.cost_factor[location.name].values())[0].keys())[0])
+        reduced_scenario.cost_factor = {location.name: {i: {
+            j[:len_]: scenario.cost_factor[location.name][i][rep_dict[j]['rep_period'][:len_]] \
+                for j in list(rep_dict.keys())} for i in list(scenario.cost_factor[location.name])}}
+    else:
+        reduced_scenario.cost_factor[location.name]  = None
+        
+    if scenario.capacity_factor[location.name] is not None:
+        len_ = len(list(list(scenario.capacity_factor[location.name].values())[0].keys())[0])
+        reduced_scenario.capacity_factor = {location.name: {i: {
+            j[:len_]: scenario.capacity_factor[location.name][i][rep_dict[j]['rep_period'][:len_]] \
+                for j in list(rep_dict.keys())} for i in list(scenario.capacity_factor[location.name])}}
+    else:
+        reduced_scenario.capacity_factor[location.name] = None
+        
+    if scenario.demand_factor[location.name] is not None:
+        len_ = len(list(list(scenario.demand_factor[location.name].values())[0].keys())[0])
+        reduced_scenario.demand_factor = {location.name: {i: {
+            j[:len_]: scenario.demand_factor[location.name][i][rep_dict[j]['rep_period'][:len_]] \
+                for j in list(rep_dict.keys())} for i in list(scenario.demand_factor[location.name])}}
+    else:
+        reduced_scenario.demand_factor[location.name]  = None
     # reduced_scenario.
     
     # print(cluster_wt)
