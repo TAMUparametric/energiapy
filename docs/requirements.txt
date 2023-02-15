@@ -1,1 +1,10 @@
 sphinx_mdinclude
+pandas
+numpy
+pyomo
+scikit-learn
+h5pyd
+Pyomo
+gurobipy
+h5pyd
+matplotlib
