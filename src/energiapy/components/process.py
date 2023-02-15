@@ -37,7 +37,7 @@ class Process:
     """
     Processes convert resources into other resources 
 
-    Args:
+    Attributes:
         name (str): name of process, short ones are better to deal with.
         conversion (Dict[resource, float], optional): conversion data. Defaults to None.
         cost (floatordict, optional): cost of operation {'CAPEX':_, 'Fixed O&M':_, 'Variable O&M':_}. Defaults to None.
