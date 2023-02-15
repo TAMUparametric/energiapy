@@ -70,15 +70,18 @@ def make_conversion_dict(file_name: str) -> dict:
     return conversion_dict_
 
 
-def make_material_dict(file_name: str):
+def make_material_dict(file_name: str) -> dict:
     """updates infra_mat.json which contains infrastructaral material needs by facility
 
+    Args:
+        file_name (str):name of file
+
     Returns:
-        infra_mat_dict_: dictionary with infrastructaral material needs
+        dict: dictionary with infrastructaral material needs
     """
-    material_dict_ = pandas.read_csv(file_name, index_col=0).dropna(
-        axis='rows').transpose().to_dict()
+    material_dict_ = pandas.read_csv(file_name, index_col=0).dropna(axis='rows').transpose().to_dict()
     dump_data(material_dict_, 'material.json')
+    
     return material_dict_
 
 

@@ -1,4 +1,3 @@
-#%%
 """pvlib utils  
 """
 
@@ -10,10 +9,6 @@ __version__ = "0.0.1"
 __maintainer__ = "Rahul Kakodkar"
 __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
-
-
-# import pandas
-
 
 from itertools import count
 from xml.sax.handler import feature_external_ges
@@ -32,35 +27,13 @@ def fetch_nsrdb_data(attrs: List[str], year:int, lat_lon:Tuple[float] = None, st
     or from county in a state matching a particular 'get' metric
 
     Args:
-        attrs (List[str]): attributes to fetch ['air_temperature',
-                                        'clearsky_dhi',
-                                        'clearsky_dni',
-                                        'clearsky_ghi',
-                                        'cloud_type',
-                                        'coordinates',
-                                        'dew_point',
-                                        'dhi',
-                                        'dni',
-                                        'fill_flag',
-                                        'ghi',
-                                        'meta',
-                                        'relative_humidity',
-                                        'solar_zenith_angle',
-                                        'surface_albedo',
-                                        'surface_pressure',
-                                        'time_index',
-                                        'total_precipitable_water',
-                                        'wind_direction',
-                                        'wind_speed']
+        attrs (List[str]): attributes to fetch ['air_temperature', 'clearsky_dhi', 'clearsky_dni', 'clearsky_ghi', 'cloud_type', 'coordinates', 'dew_point', 'dhi', 'dni', 'fill_flag', 'ghi', 'meta', 'relative_humidity', 'solar_zenith_angle', 'surface_albedo', 'surface_pressure', 'time_index', 'total_precipitable_water', 'wind_direction', 'wind_speed']
         year (int): year of choice, e.g. 2019
         lat_lon (Tuple[float], optional): (latitude, longitude) to fetch closest data point. Defaults to None.
         state (str, optional): capitalized state name, e.g. 'Texas' . Defaults to ''.
         county (str, optional): capitalized county name, e.g. 'Brazos' . Defaults to ''.
         resolution (str, optional): choose from 'halfhourly', 'hourly', 'daily'. Defaults to ''.
-        get (str, optional): Defaults to 'max-population'. 
-                            From within county choose the data point that matches one of the following. 
-                            'max-population', 'max-elevation', 'max-landcover'
-                            'min-population', 'min-elevation', 'min-landcover' 
+        get (str, optional): Defaults to 'max-population'. From within county choose the data point that matches one of the following. 'max-population', 'max-elevation', 'max-landcover' 'min-population', 'min-elevation', 'min-landcover' 
                              
     Returns:
         pandas.DataFrame, tuple: Dataframe with data, (latitude, longitude)
@@ -118,37 +91,4 @@ def fetch_nsrdb_data(attrs: List[str], year:int, lat_lon:Tuple[float] = None, st
         averaged_output.to_csv(save+ '.csv')
         
     return lat_lon, averaged_output
-#%%
 
-#%%
-
-from pvlib.pvsystem import PVSystem, retrieve_sam
-from pvlib.temperature import TEMPERATURE_MODEL_PARAMETERS
-from pvlib.tracking import SingleAxisTracker
-from pvlib.modelchain import ModelChain
-from pvlib.location import Location
-
-
-
-def solar_power_output(weather_df: pandas.DataFrame, lat_lon = tuple):
-    weather_df = weather_df.rename(columns = {'air_temperature': 'temp_air', 'dew_point': 'temp_dew'}) #rename for pvlib purposes
-    modules = retrieve_sam('cecmod')
-    module_parameters = modules['Canadian_Solar_Inc__CS5P_220M']
-    inverters = retrieve_sam('cecinverter')
-    inverter_parameters = inverters['ABB__MICRO_0_25_I_OUTD_US_208__208V_']
-    tparams = TEMPERATURE_MODEL_PARAMETERS['sapm']['open_rack_glass_glass']
-    system = PVSystem(
-    module_parameters=module_parameters,
-    inverter_parameters=inverter_parameters,
-    temperature_model_parameters=tparams)
-    location = Location(latitude=lat_lon[0], longitude=lat_lon[1])
-    mc = ModelChain(system, location, aoi_model = 'no_loss',
-    ac_model = 'sandia', spectral_model= 'no_loss')
-    mc.run_model(weather=weather_df)
-    output_ = pandas.DataFrame(numpy.maximum(0, numpy.nan_to_num(numpy.array(mc.results.ac))), index = weather_df.index)
-    # output_ = pandas.DataFrame(numpy.nan_to_num(numpy.array(mc.results.ac)), index = weather_df.index)
-    
-    return output_
-# solar = solar_power_output('ho', '19')
-
-#%%
