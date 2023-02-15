@@ -1,7 +1,7 @@
 # energiapy
 
 
-[![Documentation Status](https://readthedocs.org/projects/energiapy/badge/?version=latest)](https://energiapy.readthedocs.io/en/latest/?badge=latest)
+[![Documentation Status](https://readthedocs.org/projects/energiapy/badge/)](https://energiapy.readthedocs.io/en/latest/)
 
 
 energiapy is a tool for design and analysis of integrated energy systems 
