@@ -66,6 +66,10 @@ class Process:
     name: str 
     conversion: Dict[Resource, float] = None # field(default_factory= dict)
     cost: Union[float, dict] = None #field(default_factory = dict) 
+    capex: float = None
+    fopex: float = None
+    vopex: float = None
+    incidental: float = None
     material_cons: Dict[Material, float] = None # field(default_factory= dict)
     intro_scale: int = 0
     exit_scale: int = 0
@@ -95,10 +99,6 @@ class Process:
         
     # if costdynamics is Costdynamics.battery_equation:
     #     cost
-    
- 
-            
-    
 
     def __post_init__(self):
         
