@@ -2,7 +2,7 @@ energiapy
 =========
 
 .. toctree::
-   :maxdepth: 6
+   :maxdepth: 2
 
    setup
    src

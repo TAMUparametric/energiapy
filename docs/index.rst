@@ -14,7 +14,7 @@ API
 ---
 .. toctree::
    :maxdepth: 6
-   :caption:
+   :caption: energiapy-API:
 
    energiapy
 
