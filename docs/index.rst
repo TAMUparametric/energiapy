@@ -6,14 +6,11 @@
 Welcome to energiapy's documentation!
 =====================================
 
-Readme File
-===========
 .. mdinclude:: ../README.md
 
-API
----
+
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 10
    :caption: energiapy-API:
 
    energiapy
