@@ -13,8 +13,8 @@ Readme File
 API
 ---
 .. toctree::
-   :maxdepth: 4
-   :caption: API:
+   :maxdepth: 6
+   :caption:
 
    energiapy
 
