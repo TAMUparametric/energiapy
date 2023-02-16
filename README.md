@@ -10,4 +10,4 @@ Constituent functionalities have been built over the research conducted by the M
 
 ### Installation
 
-    pip install pyomo
+    pip install git+https://github.com/TAMUparametric/energiapy.git
