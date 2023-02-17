@@ -31,11 +31,14 @@ class Network:
         transport_matrix (List[List[float]], optional): matrix with distances between sources and sinks, needs to be ordered
         label(str, optional):Longer descriptive label if required. Defaults to ''
 
-    Calculated:
-        transport_dict (dict): dictionary with transportation modes available between sources and sinks
-        distance_dict (dict): dictionary of distances from sources to sinks
-        transport_avail_dict (dict): transportation modes available between sources and sinks 
-        locations (list): list of locations, sinks + sources 
+    Examples:
+        Networks object with to and from movement of resources using Transport. In the following example, Train and Pipeline can be set up from 'Goa' to 'Texas'
+        
+        >>> Move = Network(name= 'Network', source_locations= [Goa, Texas], sink_locations= [Texas, Goa], distance_matrix= [[0, 500],[500, 0]], transport_matrix= [[], [Train, Pipe]], [[Train, Pipe], []]], label = 'network for moving stuff') 
+        
+        Networks can also have one way movement of resources. In the following example, a Pipeline is set up from Goa to Texas.
+        
+        >>> BrainDrain = Network(name= 'BrainDrain, source_locations= [Goa], sink_locations= [Texas], distance_matrix= [[0, 500],[500, 0]], transport_matrix= [[], [Pipe]], [[], []]], label = 'The Pipeline') )
     """
     name: str
     source_locations: List[Location] = field(default_factory=list)
@@ -45,6 +48,14 @@ class Network:
     label: str = ''
 
     def __post_init__(self):
+        """Makes handy dictionaries
+        
+        Args:
+            transport_dict (dict): dictionary with transportation modes available between sources and sinks
+            distance_dict (dict): dictionary of distances from sources to sinks
+            transport_avail_dict (dict): transportation modes available between sources and sinks 
+            locations (list): list of locations, sinks + sources 
+        """
         self.transport_dict = self.make_transport_dict()
         self.distance_dict = self.make_distance_dict()
         self.transport_avail_dict = self.make_transport_avail_dict()
