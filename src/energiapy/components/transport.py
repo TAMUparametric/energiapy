@@ -13,6 +13,7 @@ __status__ = "Production"
 from dataclasses import dataclass
 from typing import Set, Dict
 from ..components.resource import Resource
+from ..components.material import Material
 
 @dataclass
 class Transport:
