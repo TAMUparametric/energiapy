@@ -23,10 +23,7 @@ from enum import Enum, auto
 class Costdynamics(Enum):
     constant = auto()
     pwl = auto()
-    scaled = auto()
-    wind = auto () #TODO allow user to give equation
-    battery = auto () #TODO allow user to give equation
-    solar = auto()
+
     
 class ProcessMode(Enum):
     single = auto() #only allows one mode
@@ -40,48 +37,62 @@ class Process:
     Args:
         name (str): name of process, short ones are better to deal with.
         conversion (Dict[resource, float], optional): conversion data. Defaults to None.
-        cost (floatordict, optional): cost of operation {'CAPEX':_, 'Fixed O&M':_, 'Variable O&M':_}. Defaults to None.
-        battery_cost (floatordict, optional): battery sizing cost {'CAPEX_capacity':_, 'CAPEX_power':_,}. Defaults to None
+        multiconversion (Dict[int,Dict[Resource, float]], optional): Multiple modes for conversion can be passed as dictionaries. Defaults to None. 
+        introduce (int, optional): Time period in the network scale when introduced. Defaults to 0.
+        retire (int, optional): Time period in the network scale when retired. Defaults to None.
+        capex (Union[float, dict], None): Capital expenditure per unit basis, can be scaled with capacity. Defaults to None.
+        fopex (Union[float, dict], None): Fixed operational expenditure per unit basis, can be scaled with capacity. Defaults to None.
+        vopex (Union[float, dict], None): Variable operational expenditure per unit basis, can be scaled with capacity. Defaults to None.
+        incidental (float, None): Incidental expenditure. Defaults to None.
         material_cons (Dict[material, float], optional): material consumption data. Defaults to None.
-        intro_scale (int, optional): scale when process is introduced. Defaults to 0.
-        prod_max (float, optional): maximum production. Defaults to 0.
-        prod_min (float, optional): minimum production. Defaults to 0.
-        scaling_segments (dict, optional): capacity and capex pwl segment {'capacity': {1:_, 2:_, ..}, 'capex': {1:_, 2:_, ..}}.Defaults to None.
-        capex_seg (dict, optional): capex pwl segment. Defaults to None.
-        scaling_metrics (dict, optional): scaling metrics for expenditure {'factor':_, 'ref_capacity':_}. Defaults to None.
-        carbon_credit (bool, optional): does process earn carbon credits. Defaults to False.
+        prod_max (float, optional): Maximum production capacity allowed in a time period of the scheduling scale. Defaults to 0.
+        prod_min (float, optional): Minimum production capacity allowed in a time period of the scheduling scale. Defaults to 0.
+        carbon_credit (float, optional): Carbon Credit earned per unit basis of production. Defaults to 0.
         basis(str, optional): base units for operation. Defaults to 'unit'.
-        gwp (float, optional): global warming potential per basis. Defaults to 0.
-        land (float, optional): land requirement. Defaults to 0.
+        gwp (float, optional): global warming potential for settting up facility per unit basis. Defaults to 0.
+        land (float, optional): land requirement per unit basis. Defaults to 0.
         trl (str, optional): technology readiness level. Defaults to None.
         block (str, optional): define block for convenience. Defaults to None.
         citation (str, optional): citation for data. Defaults to 'citation needed'.
-        lifetime (float, optional): the lifetime of process. Defaults to None.
+        lifetime (float, optional): the expected lifetime of process. Defaults to None.
         varying (bool, optional): whether process is subject to uncertainty. Defaults to False.
         p_fail (float, optional): failure rate of process. Defaults to None.
         label(str, optional):Longer descriptive label if required. Defaults to ''
         storage(list, optional): List of Resources that can be stored in process.
+        storage_loss (float, optional): If storage process, storage loss experienced per time period in scheduling horizon. Defaults to 0. 
+        
+    Examples:
+        For processes with varying production capacity
+        
+        >>> WF = Process(name='WF', conversion={Wind: -1, Power: 1}, capex= 100, Fopex= 10, Vopex= 1,prod_max=100, gwp=52700, land= 90, basis = 'MW', block='power', label='Wind mill array')
+
+        For process with multiple modes of operation
+        
+        >>> PEM = Process(name = 'PEM', multiconversion = {1: {Power: -1, H2: 19.474, O2: 763.2, H2O: -175.266}, 2: {Power: -1, H2: 1.2*19.474, O2: 1.2*763.2, H2O: 1.2*-175.266}, prod_max= 100, capex = 784000, label = 'PEM Electrolysis')
+        
+        For process with multiple resource inputs
+        
+        >>> CoolCar = Process(name = 'CoolCar', multiconversion = {1: {Power: -1, Mile: 1}, 2: {H2: -1, Mile:2}, prod_max= 50, capex = 70, label = 'CoolCar')
+        
     """
 
     name: str 
-    conversion: Dict[Resource, float] = None # field(default_factory= dict)
-    # cost: Union[float, dict] = None #field(default_factory = dict) 
-    capex: float = None
-    fopex: float = None
-    vopex: float = None
+    introduce: int = 0
+    retire: int = None
+    conversion: Dict[Resource, float] = None
+    multiconversion: Dict[int,Dict[Resource, float]] = None 
+    capex: Union[float, dict] = None
+    fopex: Union[float, dict] = None
+    vopex: Union[float, dict] = None
     incidental: float = None
-    material_cons: Dict[Material, float] = None # field(default_factory= dict)
-    intro_scale: int = 0
-    exit_scale: int = 0
+    material_cons: Dict[Material, float] = None
     prod_max: float = 0
-    prod_min: float = 0.01
-    scaling_segments: dict = field(default_factory= dict)
-    scaling_metrics: dict = field(default_factory= dict)
+    prod_min: float = 0
     basis: str = 'unit'
-    carbon_credit: bool = False
+    carbon_credit: float = 0
     gwp: float  = 0
     land: float = 0
-    trl: str = ''
+    trl: str = None
     block: str = None
     citation: str = 'citation needed'
     lifetime: tuple = None
@@ -90,14 +101,7 @@ class Process:
     label: str = ''
     storage: Resource = None
     storage_loss: float = 0
-    costdynamics: Costdynamics = Costdynamics.constant
-    multiconversion: Dict[int,Dict[Resource, float]] = None 
     
-    # if costdynamics is Costdynamics.wind_equation:
-    #     cost
-        
-    # if costdynamics is Costdynamics.battery_equation:
-    #     cost
 
     def __post_init__(self):
         
@@ -106,80 +110,19 @@ class Process:
         else:
             self.processmode = ProcessMode.single
             
-        # self.capacity_factor = self.make_capacity_factor()
         if self.storage is not None:
-            # self.storage_dummy = {create_dummy_resource(resource=i, store_max= self.prod_max,\
-            #     store_min= self.prod_min) for i in self.storage}
             self.dummy = create_dummy_resource(resource=self.storage, store_max= self.prod_max,store_min= self.prod_min)
             self.conversion = {self.storage:-1, self.dummy:1}
             self.conversion_discharge = {self.dummy:-1, self.storage:1*(1- self.storage_loss)}
         else:
             self.conversion_discharge = None
             self.dummy = None
-            
-        if self.costdynamics is Costdynamics.constant:
-            if self.cost is not None:
-                self.capex = self.cost['CAPEX']
-                self.fopex = self.cost['Fixed O&M']
-                self.vopex = self.cost['Variable O&M'] 
-                self.incidental = None
-                self.capex_capacity = None
-                self.capex_power = None
-                           
-            else:
-                self.capex = 100
-                self.fopex = 10
-                self.vopex = 1
-                self.incidental = None
-                self.capex_capacity = None
-                self.capex_power = None
-                
-        if self.costdynamics is Costdynamics.battery:
-            if 'CAPEX_capacity' in self.cost.keys():
-                self.capex_capacity = self.cost['CAPEX_capacity']
-            if 'CAPEX_power' in self.cost.keys():
-                self.capex_power = self.cost['CAPEX_power']
-            self.capex = None
-            self.fopex = None
-            self.vopex = None
-            self.incidental = None
-            
-        if self.costdynamics is Costdynamics.wind:
-            if 'CAPEX' in self.cost.keys():
-                self.capex = self.cost['CAPEX']
-            if 'Incidental' in self.cost.keys():
-                self.incidental = self.cost['Incidental']
-            self.fopex = None
-            self.vopex = None
-            self.capex_capacity = None
-            self.capex_power = None
-                
-        if self.costdynamics is Costdynamics.solar:
-            if 'CAPEX' in self.cost.keys():
-                self.capex = self.cost['CAPEX']
-            if 'Incidental' in self.cost.keys():
-                self.incidental = self.cost['Incidental']
-            self.fopex = None
-            self.vopex = None
-            self.capex_capacity = None
-            self.capex_power = None
-            
-        elif self.costdynamics is Costdynamics.pwl:
-            self.capacity_segments = self.scaling_segments['capacity']
-            self.capex_segments = self.capex_segments['capex']
-            self.capex = None
-            self.fopex = None
-            self.vopex = None
-            
-                 
-        elif self.costdynamics is Costdynamics.scaled:
-            self.scaling_factor = self.scaling_metrics['factor']
-            self.ref_capacity = self.scaling_metrics['ref_capacity']
-            self.capex = None
-            self.fopex = None
-            self.vopex = None
-            
-            
+    
+        if self.multiconversion is not None:
+            self.cost_dynamics = Costdynamics.multi
+        else:
+            self.cost_dynamics = Costdynamics.single        
+                    
     def __repr__(self):
         return self.name
     
