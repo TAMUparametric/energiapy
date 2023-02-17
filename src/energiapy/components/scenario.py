@@ -42,6 +42,15 @@ class Scenario:
         demand_scale_level (int, optional): scale for meeting specific demand for resource. Defaults to 0.
         cluster_wt (dict): cluster weights as a dictionary. {scale: int}. Defaults to None. 
         label (str, optional): Longer descriptive label if required. Defaults to ''
+        
+    Example:
+        The Scenario can be built over a single location. The network here is specified as a single Location. Considering scales (Temporal_scale object for a year, [1, 365, 24]), scheduling, expenditure, and demand are met at an hourly level, and network at an annual level.
+        
+        >>> Current = Scenario(name= 'current', network= Goa, scales= scales, expenditure_scale_level= 2, scheduling_scale_level= 2, network_scale_level= 0, demand_scale_level= 2, label= 'Current Scenario')
+
+        A multilocation Scenario needs a Network to be provided. Here, expenditure (on resource purchase) is determined at a daily scale. cost_factor in the Location object needs to be commensurate in scale.
+        
+        >>> Future = Scenario(name= 'Future', network= System, scales= scales, expenditure_scale_level= 1, scheduling_scale_level= 2, network_scale_level= 0, demand_scale_level= 2, label= 'Future Scenario )
     """
     name: str 
     scales: Temporal_scale 
@@ -53,7 +62,52 @@ class Scenario:
     cluster_wt: dict = None 
     label: str = ''
 
-    def __post_init__(self):    
+    def __post_init__(self):   
+        """
+        Determines a bunch of handy sets
+
+        Args:
+            transport_set (set): Set of transport options.
+            source_locations (set): Set of source locations.
+            sink_locations (set): Set of sink locations.
+            transport_dict (dict): A dictionary of trasportation modes available between sources to sinks
+            transport_avail_dict (dict): A dictionary of available trasportation modes available between sources to sinks.
+            transport_max (dict): A dictionary of the maximum amount of each resource that can be transported between sources and sinks.
+            transport_loss (dict): A dictionary of the transport losses for each resource that can be transported between sources and sinks.
+            transport_cost (dict): A dictionary of the transport cost for each resource that can be transported between sources and sinks.
+            transport_cost (dict): A dictionary of the transport emissions for each resource that can be transported between sources and sinks.
+            distance_dict (dict): A dictionary of distances between sources and sinks.
+            process_set (set): Set of all Process objects.
+            resource_set (set): Set of all Resource objects.
+            material_set (set): Set of all Material objects.
+            conversion (dict): A dictionary with all conversion values for each Process.
+            conversion_discharge (dict): A dictionary with all discharge conversions for Process of storage (ProcessMode.storage) type. 
+            prod_max (dict): A dictionary with maximum production capacity per timeperiod in the network scale for each Process at each Location.
+            prod_min (dict): A dictionary with minimum production capacity per timeperiod in the network scale for each Process at each Location.
+            cons_max (dict): A dictionary with maximum consumption per timeperiod in the scheduling scale for each Resource at each Location.
+            store_max (dict): A dictionary with maximum storage per timeperiod in the scheduling scale for each Resource at each Location.
+            store_min (dict): A dictionary with minimum storage per timeperiod in the scheduling scale for each Resource at each Location.
+            capacity_factor (dict): A dictionary with Location-wise capacity factors for varying Process objects.
+            cost_factor (dict): A dictionary with Location-wise cost factors for varying purchase costs of Resource objects.
+            demand_factor (dict): A dictionary with Location-wise demand factors for varying demands of Resource objects.
+            loc_res_dict (dict): A dictionary with Location-wise availability of Resource objects.   
+            loc_pro_dict (dict): A dictionary with Location-wise availability of Process objects.
+            loc_mat_dict (dict): A dictionary with Location-wise availability of Material objects.  
+            price (dict): A dictionary with Location-wise cost of Resource objects  
+            capex_dict (dict): A dictionary with capital expenditure data for each Process.  
+            fopex_dict (dict): A dictionary with fixed operational expenditure data for each Process.
+            vopex_dict (dict): A dictionary with variable operational expenditure data for each Process.  
+            incidental_dict (dict): A dictionary with incidental expenditure data for each Process.  
+            land_dict (dict): A dictionary with land use data for each Process.
+            material_gwp_dict (dict): A dictionary with global warming potential values for each Material object.
+            resource_gwp_dict (dict): A dictionary with global warming potential values for each Resource object.
+            process_gwp_dict (dict): A dictionary with global warming potential values for each Process object.  
+            fail_factor (dict): A dictionary with fail factors for each Process object.
+            process_resource_dict (dict): A dictionary with Resource required for each Process.
+            process_material_dict (dict): A dictionary with Material required for each Process
+            mode_dict (dict): A dictionary with the multiple modes of each Process with ProcessMode.multi
+        """
+         
 
         if type(self.network) == Location:
             self.transport_set = None
@@ -100,6 +154,7 @@ class Scenario:
         self.store_min = {i.name: {j.name: j.store_min for j in i.resources} for i in self.location_set}
         self.capacity_factor = {i.name: i.capacity_factor for i in self.location_set}  
         self.cost_factor = {i.name: i.cost_factor for i in self.location_set}  
+        self.demand_factor = {i.name: i.demand_factor for i in self.location_set}
         self.loc_res_dict =  {i.name: {j.name for j in i.resources} for i in self.location_set}
         self.loc_pro_dict =  {i.name: {j.name for j in i.processes} for i in self.location_set}
         self.loc_mat_dict =  {i.name: {j.name for j in i.materials} for i in self.location_set}
@@ -107,27 +162,15 @@ class Scenario:
         self.capex_dict = {i.name: i.capex for i in self.process_set}
         self.fopex_dict = {i.name: i.fopex for i in self.process_set}
         self.vopex_dict = {i.name: i.vopex for i in self.process_set}
-        self.capex_capacity_dict = {i.name: i.capex_capacity for i in self.process_set}
-        self.capex_power_dict = {i.name: i.capex_power for i in self.process_set}
         self.incidental_dict =  {i.name: i.incidental for i in self.process_set}
         self.land_dict = {i.name: i.land for i in self.process_set}
         self.material_gwp_dict = {i.name:{j.name: j.gwp for j in self.material_set} for i in self.location_set}
         self.resource_gwp_dict = {i.name:{j.name: j.gwp for j in self.resource_set} for i in self.location_set}
         self.process_gwp_dict = {i.name: {j.name: j.gwp for j in self.process_set} for i in self.location_set}
-        self.demand_factor = {i.name: i.demand_factor for i in self.location_set}
         self.fail_factor = {i.name: i.fail_factor for i in self.location_set}
         self.process_resource_dict = {i.name: {j.name for j in i.conversion.keys() } for i in self.process_set if i.conversion is not None}
         self.process_material_dict = {i.name: {j.name: i.material_cons[j] for j in i.material_cons.keys() } for i in self.process_set if i.material_cons is not None}
         self.mode_dict = {i.name: [j for j in list(i.multiconversion.keys())] for i in self.process_set if i.processmode == ProcessMode.multi }
-        # if type(list(self.location_set)[0].demand) == float:
-        #     self.demand = {i.name: i.demand for i in self.location_set}
-        # else:
-
-        #     self.demand = {i.name: {j.name if type(j: i.demand[j] for j in i.demand} for i in self.location_set}
-        # if self.costdynamics == Costdynamics.constant:
-        #     self.cost_factor =  {i.name: i.cost_factor for i in self.location_set}
-        # elif 
-        
      
     def make_conversion_df(self):
         return DataFrame.from_dict(self.conversion)
