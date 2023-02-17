@@ -1,4 +1,3 @@
-#%%
 """pyomo sets
 """
 
@@ -20,12 +19,28 @@ from enum import Enum, auto
 
 
 def generate_sets(instance: ConcreteModel, scenario:Scenario):
-    """Generates pyomo sets based on declared lists
+    """Generates pyomo sets based on declared lists.
+    Creates the following sets:
+    processes: Set of all processes
+    resources_nosell: Set of non-dischargeable resources
+    resources_sell: Set of dischargeable resources
+    resources_purch: Set of purchased resources  
+    resources_varying: Set of resources with varying purchase price
+    resources_demand: Set of resources with exact demand
+    processes_varying: Set of processes with varying capacity
+    processes_failure: Set of processes which can fail
+    processes_materials: Set of processes with material requirements
+    processes_storage: Set of storage process
+    processes_multim: Set of processes with multiple modes
+    processes_singlem: Set of processes with multiple modes
+    locations: Set of locations
+    scales: Set of scales
+    
 
     Args:
         instance (ConcreteModel): pyomo instance
         scenario (Scenario): scenario
-
+        
     """
     location_set = scenario.location_set
     transport_set= scenario.transport_set
@@ -44,12 +59,12 @@ def generate_sets(instance: ConcreteModel, scenario:Scenario):
     instance.resources_demand = Set(initialize = [i.name for i in resource_set if i.demand == True], doc = 'Set of resources with exact demand')    
     instance.processes_varying = Set(initialize  = [i.name for i in process_set if i.varying == True], doc = 'Set of processes with varying capacity')
     instance.processes_failure = Set(initialize  = [i.name for i in process_set if i.p_fail is not None], doc = 'Set of processes which can fail')
-    instance.processes_materials = Set(initialize  = [i.name for i in process_set if i.material_cons is not None], doc = 'Set of processes which can fail')
+    instance.processes_materials = Set(initialize  = [i.name for i in process_set if i.material_cons is not None], doc = 'Set of processes with material requirements')
     instance.processes_storage = Set(initialize= [i.name for i in process_set if i.conversion_discharge is not None], doc = 'Set of storage process' )
     instance.processes_multim = Set(initialize = [i.name for i in process_set if i.processmode == ProcessMode.multi], doc = 'Set of processes with multiple modes')
     instance.processes_singlem = Set(initialize = [i.name for i in process_set if i.processmode == ProcessMode.single], doc = 'Set of processes with multiple modes')
     instance.locations = Set(initialize = [i.name for i in location_set], doc = 'Set of locations')
-    instance.scales = Set(scales.list, initialize = scales.scale) #indexed set. scales.scale is a set of list(s) {[],.}
+    instance.scales = Set(scales.list, initialize = scales.scale)
     if source_set is not None:
         instance.sources = Set(initialize = [i.name for i in source_set], doc = 'Set of sources')
     
@@ -66,4 +81,3 @@ def generate_sets(instance: ConcreteModel, scenario:Scenario):
 
 
 
-# %%

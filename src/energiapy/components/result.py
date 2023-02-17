@@ -29,7 +29,7 @@ class Result:
        duals (dict): duals if not MIP.
     
     """
-    name:dict
+    name: str
     components: dict
     output: dict
     duals: dict 
