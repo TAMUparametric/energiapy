@@ -17,7 +17,8 @@ from ...utils.model_utils import scale_pyomo_set
 
 
 def generate_scheduling_vars(instance: ConcreteModel, scale_level:int = 0, mode_dict:dict = {}):    
-    """declares pyomo variables for scheduling at the chosen scale
+    """declares pyomo variables for scheduling at the chosen scales
+    
 
     Args:
         instance (ConcreteModel): pyomo instance
