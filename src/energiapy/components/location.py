@@ -44,7 +44,7 @@ class Location:
     Examples:
         Locations need a set of processes and the scale levels for demand, capacity, and cost, and if applicable demand factors, cost_factors, capacity factors
         
-        >>> Goa= Location(name='Goa', processes= {Process1, Process2}, demand_level=2, capacity_level= 2, cost_level= 1, demand_factor= {Resource1: dataframe with varying demand,..}, cost_factor = {Resource2: dataframe with varying costs,..}, capacity_factor = {Process1: dataframe with varying capacity,..}, scales= Temporal_scale object, label='Home')
+        >>> Goa= Location(name='Goa', processes= {Process1, Process2}, demand_level=2, capacity_level= 2, cost_level= 1, demand_factor= {Resource1: DataFrame,}, cost_factor = {Resource2: DataFrame}, capacity_factor = {Process1: DataFrame}, scales= Temporal_scale object, label='Home')
     """
 
     name: str 
