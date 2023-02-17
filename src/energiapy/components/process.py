@@ -65,7 +65,7 @@ class Process:
 
     name: str 
     conversion: Dict[Resource, float] = None # field(default_factory= dict)
-    cost: Union[float, dict] = None #field(default_factory = dict) 
+    # cost: Union[float, dict] = None #field(default_factory = dict) 
     capex: float = None
     fopex: float = None
     vopex: float = None
@@ -91,7 +91,6 @@ class Process:
     storage: Resource = None
     storage_loss: float = 0
     costdynamics: Costdynamics = Costdynamics.constant
-    price: float = 0
     multiconversion: Dict[int,Dict[Resource, float]] = None 
     
     # if costdynamics is Costdynamics.wind_equation:
