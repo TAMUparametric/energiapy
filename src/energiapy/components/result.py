@@ -20,15 +20,14 @@ import pickle
 
 @dataclass
 class Result:
-    """Result of running scenario 
+    """Results from solving a Scenario 
     
     Args:
        name (str): name of the material, short ones are better to deal with.
        components (dict): input data relating to components
        output (dict): results from analysis
        duals (dict): duals if not MIP.
-
-    Methods: fetch_components,divide_by_objective, get_varindex, model_summary
+    
     """
     name:dict
     components: dict
@@ -36,6 +35,11 @@ class Result:
     duals: dict 
 
     def saveoutputs(self, file_name:str):
+        """Saves output with provide name. 
+
+        Args:
+            file_name (str): Give a name to the file you want to save the results in. Be sure to mention extension [.pkl, .json, .txt]
+        """
         data = self.__dict__
 
         if '.pkl' in file_name:
@@ -70,7 +74,8 @@ class Result:
         Returns:
             set: set meeting condition
         
-        Example:
+        Examples:
+        
             results.fetch_components(component_type= 'processes', condition= ('capex', 'ge', 20 ))
             results.fetch_components(component_type= 'resources', condition= ('sell', True ))
         """
@@ -127,6 +132,8 @@ class Result:
         return [i for i in self.output[var].keys()]
 
     def model_summary(self):
+        """Prints a summary of the model with number of variables of different types and constraints. 
+        """
         print(f"SUMMARY:\n\
             number of constraints: {self.output['n_cons']}\n\
             number of variables: {self.output['n_vars']}\n\
