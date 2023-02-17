@@ -26,54 +26,53 @@ from enum import Enum, auto
 
 @dataclass
 class Location:
-    """Location is essentially a set of processes 
-    Factors for varying capacity, cost, and demand can be provided as dictionary
-    The scale levels of capacity, cost, and demand need to be provided as well
+    """Location is essentially a set of processes. Factors for varying capacity, cost, and demand can be provided as dictionary. The scale levels of capacity, cost, and demand need to be provided as well
 
     Args:
         name (str): name of the location, short ones are better to deal with.
         processes (Set[Process]): set of processes (Process objects) to include at location
-        scales (temporal_scale): temporal scales of the problem
+        scales (Temporal_scale): temporal scales of the problem
         demand (Dict[Resource, float]): demand for resources at location. Defaults to 1.0
         demand_factor (Union[float, Dict[Resource, DataFrame]), optional): Factor for varying demand, scale changer normalizes.Defaults to 1.0
         cost_factor (Union[float, Dict[Resource, DataFrame]), optional): Factor for varying cost, scale changer normalizes. Defaults to 1.0
         capacity_factor (Union[float, Dict[Process, DataFrame]), optional):  Factor for varying capacity, scale changer normalizesDefaults to 1.0
-        demand_level (int, optional): scale level for demand. Defaults to 1.0
-        cost_level (int, optional): scale level for cost. Defaults to 1.0
-        capacity_level(int, optional): scale level for capacity. Defaults to 1.0
+        demand_scale_level (int, optional): scale level for demand. Defaults to 1.0
+        cost_scale_level (int, optional): scale level for cost. Defaults to 1.0
+        capacity_scale_level(int, optional): scale level for capacity. Defaults to 1.0
         label(str, optional):Longer descriptive label if required. Defaults to ''
 
-    Calculated in situ:
-        resources (Set[Resource]): set of resources. Get resources fetches these using the processes
-        materials (Set[Resource]): set of materials. Get materials fetches these using the processes
-        scale_levels (int): the levels of scales involved
-        varying_capacity (Set): processes with varying capacities
-        varying_cost (Set): resources with varying costs
-        varying_demand (Set): resources with varying demands
-        resource_price (Dict): dictionary with the cost of resources
-        failure_processes (Set): set of processes with failure rates
-        fail_factor (Dict[Process, float]): creates a dictionary with failure points on a temporal scale
-
-    Example:
-    CS= Location(name='CS', processes= {Process 1, Process 2}, demand_factor= {Resource1: dataframe with varying demand,..}, \
-        cost_factor = {Resource2: dataframe with varying costs,..}, capacity_factor = {Process1: dataframe with varying capacity,..}\
-            , scales= Temporal_scale object, \
-            label='College Station - Home of the Aggies', demand_level=2, capacity_level= 2, cost_level= 1)
+    Examples:
+        Locations need a set of processes and the scale levels for demand, capacity, and cost, and if applicable demand factors, cost_factors, capacity factors
+        
+        >>> Goa= Location(name='Goa', processes= {Process1, Process2}, demand_level=2, capacity_level= 2, cost_level= 1, demand_factor= {Resource1: dataframe with varying demand,..}, cost_factor = {Resource2: dataframe with varying costs,..}, capacity_factor = {Process1: dataframe with varying capacity,..}, scales= Temporal_scale object, label='Home')
     """
 
     name: str 
     processes: Set[Process] 
     scales: Temporal_scale 
-    demand: Dict[Resource, float] = 1.0
+    demand: Dict[Resource, float] = None
     demand_factor: Union[float, Dict[Resource, float]] = None
     cost_factor: Union[float, Dict[Resource, float]] = None
     capacity_factor: Union[float, Dict[Process, float]] = None
-    demand_level: int = 1.0
-    cost_level: int = 1.0
-    capacity_level: int = 1.0
+    demand_scale_level: int = 1
+    cost_scale_level: int = 1
+    capacity_scale_level: int = 1
     label: str = ''
     
     def __post_init__(self):
+        """Sets and stuff generated insitu 
+        
+        Args:
+            resources (Set[Resource]): set of resources. Get resources fetches these using the processes
+            materials (Set[Resource]): set of materials. Get materials fetches these using the processes
+            scale_levels (int): the levels of scales involved
+            varying_capacity (Set): processes with varying capacities
+            varying_cost (Set): resources with varying costs
+            varying_demand (Set): resources with varying demands
+            resource_price (Dict): dictionary with the purchase cost of resources.
+            failure_processes (Set): set of processes with failure rates
+            fail_factor (Dict[Process, float]): creates a dictionary with failure points on a temporal scale
+        """
         self.resources= self.get_resources()
         self.materials = self.get_materials()
         self.scale_levels = self.scales.scale_levels
@@ -99,8 +98,8 @@ class Location:
     def get_resources(self) -> Set[Resource]:
         """fetches required resources for processes introduced at locations 
 
-        Returns:
-            Set[resource]: set of resources
+        Returns: 
+            Set[Resource]: set of resources
         """
         if len(self.processes) == 0:
             return None
@@ -116,7 +115,7 @@ class Location:
         """fetches required materials for processes introduced at locations
 
         Returns:
-            Set[material]: set of materials
+            Set[Material]: set of materials
         """
         if len(self.processes) == 0:
             return None
@@ -128,21 +127,30 @@ class Location:
         """gets resource prices for resources with non-varying costs
         
         Returns:
-            Set[resource]: set of resources with non-varying cost factors
+            Set[Resource]: set of resources with non-varying cost factors
         """
         return {i.name: i.price for i in self.resources}
     
     def get_failure_processes(self):
+        """get processes with failure rates
+
+        Returns:
+            Set[Process]: set of resources with failure rates
+        """
         return {i for i in self.processes if i.p_fail is not None}
     
     def make_fail_factor(self)-> dict:
+        """samples randomly from a probablity distribution to generate timeperiods in the scheduling scale that fail
+
+        Returns:
+            dict: temporal horizon with certain days at the scheduling level failing
+        """
         if self.failure_processes == set():
             return None
             
         else:       
             scale_iter = [(i) for i in product(self.scales.scale[0], self.scales.scale[1], self.scales.scale[2])]
-            fail_factor = {process_.name: {(scale_): sample([0]*int(process_.p_fail*100) +  [1] *int((1- process_.p_fail)*100),\
-                 1)[0] for scale_ in   scale_iter} for process_ in self.failure_processes}
+            fail_factor = {process_.name: {(scale_): sample([0]*int(process_.p_fail*100) +  [1] *int((1- process_.p_fail)*100), 1)[0] for scale_ in   scale_iter} for process_ in self.failure_processes}
             return fail_factor
             
     def __repr__(self):
