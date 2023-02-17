@@ -20,7 +20,7 @@ import pandas
 from random import sample
 from enum import Enum, auto
 
-class Costdynamics(Enum):
+class CostDynamics(Enum):
     constant = auto()
     pwl = auto()
 
@@ -28,6 +28,7 @@ class Costdynamics(Enum):
 class ProcessMode(Enum):
     single = auto() #only allows one mode
     multi = auto() # allows multiple modes
+    storage = auto()
 
 @dataclass
 class Process:
@@ -44,7 +45,7 @@ class Process:
         fopex (Union[float, dict], None): Fixed operational expenditure per unit basis, can be scaled with capacity. Defaults to None.
         vopex (Union[float, dict], None): Variable operational expenditure per unit basis, can be scaled with capacity. Defaults to None.
         incidental (float, None): Incidental expenditure. Defaults to None.
-        material_cons (Dict[material, float], optional): material consumption data. Defaults to None.
+        material_cons (Dict[Material, float], optional): Materials consumed per unit basis of production capacity. Defaults to None.
         prod_max (float, optional): Maximum production capacity allowed in a time period of the scheduling scale. Defaults to 0.
         prod_min (float, optional): Minimum production capacity allowed in a time period of the scheduling scale. Defaults to 0.
         carbon_credit (float, optional): Carbon Credit earned per unit basis of production. Defaults to 0.
@@ -58,7 +59,7 @@ class Process:
         varying (bool, optional): whether process is subject to uncertainty. Defaults to False.
         p_fail (float, optional): failure rate of process. Defaults to None.
         label(str, optional):Longer descriptive label if required. Defaults to ''
-        storage(list, optional): List of Resources that can be stored in process.
+        storage(list, optional): Resource that can be stored in process.
         storage_loss (float, optional): If storage process, storage loss experienced per time period in scheduling horizon. Defaults to 0. 
         
     Examples:
@@ -102,12 +103,18 @@ class Process:
     storage: Resource = None
     storage_loss: float = 0
     
-
     def __post_init__(self):
+        """Determines the ProcessMode, CostDynamics, and kicks out dummy resources if process is stores resource
         
+        Args:
+            processmode (ProcessMode): Determines whether the model is single mode, multi mode, or storage type.
+            dummy (Resource):  Dummy resource which is stored in the Process. 
+            conversion_discharge (Dict[Resource, float]): Creates a dictionary with the discharge conversion values (considers storage loss).
+            cost_dynamics (CostDynamics): Determines whether the cost scales linearly with the unit capacity, or is a piecewise-linear function.
+        """
         if self.multiconversion is not None:
             self.processmode = ProcessMode.multi
-        else:
+        elif self.conversion is not None:
             self.processmode = ProcessMode.single
             
         if self.storage is not None:
@@ -118,10 +125,10 @@ class Process:
             self.conversion_discharge = None
             self.dummy = None
     
-        if self.multiconversion is not None:
-            self.cost_dynamics = Costdynamics.multi
+        if type(self.capex) is dict:
+            self.cost_dynamics = CostDynamics.pwl
         else:
-            self.cost_dynamics = Costdynamics.single        
+            self.cost_dynamics = CostDynamics.constant      
                     
     def __repr__(self):
         return self.name
