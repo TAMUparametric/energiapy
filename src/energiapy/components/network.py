@@ -38,7 +38,7 @@ class Network:
         
         Networks can also have one way movement of resources. In the following example, a Pipeline is set up from Goa to Texas.
         
-        >>> BrainDrain = Network(name= 'BrainDrain, source_locations= [Goa], sink_locations= [Texas], distance_matrix= [[0, 500],[500, 0]], transport_matrix= [[], [Pipe]], [[], []]], label = 'The Pipeline') )
+        >>> BrainDrain = Network(name= 'BrainDrain', source_locations= [Goa], sink_locations= [Texas], distance_matrix= [[0, 500],[500, 0]], transport_matrix= [[], [Pipe]], [[], []]], label = 'The Pipeline') )
     """
     name: str
     source_locations: List[Location] = field(default_factory=list)
