@@ -15,7 +15,14 @@ from itertools import product
 from ...utils.model_utils import scale_pyomo_set
 
 def generate_network_binary_vars(instance: ConcreteModel, scale_level:int= 0):    
-    """declares pyomo binary variables for Location at the chosen scale
+    """declares the following binary variables:
+
+    scales_network_binary: Set of scales to define the network level
+
+    .. math::
+        X_P (location, process, network_scale_index): Process binary, 1 if process is set up, 0 otherwise
+
+        X_S (location, process, network_scale_index): Storage binary variable, 1 if storage for resource is set up, 0 otherwise
 
    Args:
         instance (ConcreteModel): pyomo instance

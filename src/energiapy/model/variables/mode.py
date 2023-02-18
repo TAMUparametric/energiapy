@@ -17,7 +17,13 @@ from itertools import product
 
 
 def generate_mode_vars(instance: ConcreteModel, scale_level:int = 0, mode_dict:dict = {}):    
-    """declares pyomo variables for mode based production at the chosen scale
+    """declares pyomo variables for mode based production at the chosen scale:
+
+    P_m: Production within a mode
+
+    X_P_m: Production mode binary variable, 1 if process is in mode
+
+
 
     Args:
         instance (ConcreteModel): pyomo instance
