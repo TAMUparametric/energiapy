@@ -20,20 +20,35 @@ from enum import Enum, auto
 
 def generate_sets(instance: ConcreteModel, scenario:Scenario):
     """Generates pyomo sets based on declared lists.
+
     Creates the following sets:
+
     processes: Set of all processes
+
     resources_nosell: Set of non-dischargeable resources
+    
     resources_sell: Set of dischargeable resources
+    
     resources_purch: Set of purchased resources  
+    
     resources_varying: Set of resources with varying purchase price
+    
     resources_demand: Set of resources with exact demand
+    
     processes_varying: Set of processes with varying capacity
+    
     processes_failure: Set of processes which can fail
+    
     processes_materials: Set of processes with material requirements
+    
     processes_storage: Set of storage process
+    
     processes_multim: Set of processes with multiple modes
+    
     processes_singlem: Set of processes with multiple modes
+    
     locations: Set of locations
+    
     scales: Set of scales
     
 
