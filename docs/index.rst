@@ -11,7 +11,7 @@ Welcome to energiapy's documentation!
 
 .. toctree::
    :maxdepth: 10
-   :caption: energiapy-API:
+   :caption: energiapy:
 
    energiapy
 
