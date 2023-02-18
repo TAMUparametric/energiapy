@@ -34,6 +34,8 @@ def generate_sets(instance: ConcreteModel, scenario:Scenario):
     resources_varying: Set of resources with varying purchase price
     
     resources_demand: Set of resources with exact demand
+
+    resources_transport: Set of resource which can be transported
     
     processes_varying: Set of processes with varying capacity
     
@@ -48,6 +50,16 @@ def generate_sets(instance: ConcreteModel, scenario:Scenario):
     processes_singlem: Set of processes with multiple modes
     
     locations: Set of locations
+
+    sources: Set of locations which act as sources
+
+    sinks: Set of locations which act as sinks
+
+    materials: Set of materials
+
+    transports: Set of transportation options
+
+    
     
     scales: Set of scales
     
