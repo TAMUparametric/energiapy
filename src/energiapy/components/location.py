@@ -44,7 +44,7 @@ class Location:
     Examples:
         Locations need a set of processes and the scale levels for demand, capacity, and cost, and if applicable demand factors, cost_factors, capacity factors
         
-        >>> Goa= Location(name='Goa', processes= {Process1, Process2}, demand_level=2, capacity_level= 2, cost_level= 1, demand_factor= {Resource1: DataFrame,}, cost_factor = {Resource2: DataFrame}, capacity_factor = {Process1: DataFrame}, scales= Temporal_scale object, label='Home')
+        >>> Goa= Location(name='Goa', processes= {Process1, Process2}, demand_scale_level=2, capacity_scale_level= 2, cost_scale_level= 1, demand_factor= {Resource1: DataFrame,}, cost_factor = {Resource2: DataFrame}, capacity_factor = {Process1: DataFrame}, scales= Temporal_scale object, label='Home')
     """
 
     name: str 
@@ -79,17 +79,17 @@ class Location:
         if self.capacity_factor is not None:
             self.varying_capacity = set(self.capacity_factor.keys())
             if isinstance(list(self.capacity_factor.values())[0], DataFrame):
-                self.capacity_factor = scale_changer(self.capacity_factor, scales=self.scales, scale_level=self.capacity_level)
+                self.capacity_factor = scale_changer(self.capacity_factor, scales=self.scales, scale_level=self.capacity_scale_level)
         
         if self.cost_factor is not None:
             self.varying_cost = set(self.cost_factor.keys())
             if isinstance(list(self.cost_factor.values())[0], DataFrame):
-                self.cost_factor = scale_changer(self.cost_factor, scales=self.scales, scale_level=self.cost_level)
+                self.cost_factor = scale_changer(self.cost_factor, scales=self.scales, scale_level=self.cost_scale_level)
         
         if self.demand_factor is not None:    
             self.varying_demand = set(self.demand_factor.keys())
             if isinstance(list(self.demand_factor.values())[0], DataFrame):
-                self.demand_factor = scale_changer(self.demand_factor, scales=self.scales, scale_level=self.demand_level)
+                self.demand_factor = scale_changer(self.demand_factor, scales=self.scales, scale_level=self.demand_scale_level)
        
         self.resource_price = self.get_resource_price()   
         self.failure_processes = self.get_failure_processes()
