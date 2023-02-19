@@ -19,6 +19,7 @@ def generate_network_binary_vars(instance: ConcreteModel, scale_level:int= 0):
 
     scales_network_binary: Set of scales to define the network level
 
+    ..math ::
     
     X^{P}_{location, process, scale_{network}} \\textnormal{Process binary, 1 if process is set up, 0 otherwise}
     X^{S}_{location, resource, scale_{network}}: \\textnormal{Storage binary variable, 1 if storage for resource is set up, 0 otherwise}
