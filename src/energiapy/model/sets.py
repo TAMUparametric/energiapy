@@ -24,6 +24,8 @@ def generate_sets(instance: ConcreteModel, scenario:Scenario):
     Creates the following sets:
 
     processes: Set of all processes
+    
+    resources: Set of all resources
 
     resources_nosell: Set of non-dischargeable resources
     
@@ -81,6 +83,7 @@ def generate_sets(instance: ConcreteModel, scenario:Scenario):
     sink_set= scenario.sink_locations
 
     instance.processes = Set(initialize  = [i.name for i in process_set], doc = 'Set of processes')
+    instance.resources = Set(initialize  = [i.name for i in resource_set], doc = 'Set of resources')
     instance.resources_nosell = Set(initialize = [i.name for i in resource_set if i.sell ==  False], doc = 'Set of non-dischargeable resources')
     instance.resources_sell = Set(initialize = [i.name for i in resource_set if i.sell ==  True], doc = 'Set of dischargeable resources')
     instance.resources_store = Set(initialize = [i.name for i in resource_set if i.store_max >0], doc = 'Set of storeable resources')
