@@ -8,4 +8,4 @@ matplotlib
 setuptools
 pvlib
 scikit-learn
-
+openpyxl

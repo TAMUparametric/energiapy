@@ -23,6 +23,15 @@ from enum import Enum, auto
 
 
 def carbon_emission_location_constraint(instance: ConcreteModel, network_scale_level:int=0) -> Constraint:
+    """Determines the total CO2_Vent at each location
+
+    Args:
+        instance (ConcreteModel): pyomo model instance
+        network_scale_level (int, optional): scale of network decisions. Defaults to 0.
+
+    Returns:
+        Constraint: carbon_emission_location_constraint
+    """
     scales = scale_list(instance= instance, scale_levels = network_scale_level+1)
     def carbon_emission_location_rule(instance, location, *scale_list):
         return instance.carbon_emission_location[location, scale_list] == instance.S_location[location, 'CO2_Vent', scale_list] 
@@ -32,6 +41,17 @@ def carbon_emission_location_constraint(instance: ConcreteModel, network_scale_l
     return instance.carbon_emission_location_constraint
 
 def carbon_emission_constraint(instance: ConcreteModel, carbon_bound:float,  network_scale_level:int=0, carbon_reduction_percentage:float = 0.0) -> Constraint:
+    """Determines the total network-wide CO2_Vent 
+
+    Args:
+        instance (ConcreteModel): pyomo model instance
+        carbon_bound (float): bound for network carbon emission
+        network_scale_level (int, optional):  scale of network decisions. Defaults to 0.
+        carbon_reduction_percentage (float, optional): percentage reduction required. Defaults to 0.0.
+
+    Returns:
+        Constraint: carbon_emission_constraint
+    """
     scales = scale_list(instance= instance, scale_levels = network_scale_level+1)
     def carbon_emission_rule(instance, location, *scale_list):
         return instance.S_location[location, 'CO2_Vent', scale_list] <= (100.0 - carbon_reduction_percentage)*carbon_bound/100.0
