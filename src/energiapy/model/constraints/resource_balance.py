@@ -150,7 +150,7 @@ def inventory_balance_constraint(instance: ConcreteModel, scheduling_scale_level
         #     + sum(instance.P[location, process, scale_list[:scheduling_scale_level+1]] for process in instance.processes_multim)
         
         produced = sum(conversion[process][resource]*instance.P[location, process,
-                       scale_list[:scheduling_scale_level+1]] for process in instance.processes) #includes processes + discharge
+                       scale_list[:scheduling_scale_level+1]] for process in instance.processes_full) #includes processes + discharge
 
         if cluster_wt is not None:
             return cluster_wt[scale_list[:scheduling_scale_level+1]]*(consumption + produced - discharge + transport) == storage
