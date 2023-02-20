@@ -103,6 +103,7 @@ class Process:
     storage: Resource = None
     storage_loss: float = 0
     
+    
     def __post_init__(self):
         """Determines the ProcessMode, CostDynamics, and kicks out dummy resources if process is stores resource
         

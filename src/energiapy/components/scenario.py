@@ -147,7 +147,6 @@ class Scenario:
             else 0 for j in self.resource_set} for i in self.process_set if i.conversion_discharge is not None}
         
         self.conversion = {**conversion, **conversion_discharge}
-        
         self.prod_max = {i.name: {j.name: j.prod_max for j in i.processes} for i in self.location_set}
         self.prod_min = {i.name: {j.name: j.prod_min for j in i.processes} for i in self.location_set}
         self.cons_max = {i.name: {j.name: j.cons_max for j in i.resources} for i in self.location_set}
