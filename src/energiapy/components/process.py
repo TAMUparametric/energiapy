@@ -15,7 +15,7 @@ from dataclasses import dataclass, field
 from typing import Dict, Union, Set
 from ..components.resource import Resource
 from ..components.material import Material
-from ..utils.model_utils import create_dummy_resource
+from ..utils.resource_utils import create_storage_resource
 import pandas
 from random import sample
 from enum import Enum, auto
@@ -120,13 +120,13 @@ class Process:
             
         if self.storage is not None:
             self.resource_storage= create_dummy_resource(resource=self.storage, store_max= self.prod_max, store_min= self.prod_min)
-            self.conversion = {self.storage:-1, self.dummy:1}
-            self.conversion_discharge = {self.dummy:-1, self.storage:1*(1- self.storage_loss)}
+            self.conversion = {self.storage:-1, self.resource_storage:1}
+            self.conversion_discharge = {self.resource_storage:-1, self.storage:1*(1- self.storage_loss)}
             self.processmode = ProcessMode.storage
             
         else:
             self.conversion_discharge = None
-            self.dummy = None
+            self.resource_storage = None
     
         if type(self.capex) is dict:
             self.cost_dynamics = CostDynamics.pwl
