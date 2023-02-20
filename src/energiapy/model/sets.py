@@ -95,7 +95,7 @@ def generate_sets(instance: ConcreteModel, scenario:Scenario):
     instance.processes_materials = Set(initialize  = [i.name for i in process_set if i.material_cons is not None], doc = 'Set of processes with material requirements')
     instance.processes_storage = Set(initialize= [i.name for i in process_set if i.conversion_discharge is not None], doc = 'Set of storage process' )
     instance.processes_multim = Set(initialize = [i.name for i in process_set if i.processmode == ProcessMode.multi], doc = 'Set of processes with multiple modes')
-    instance.processes_singlem = Set(initialize = [i.name for i in process_set if i.processmode == ProcessMode.single], doc = 'Set of processes with multiple modes')
+    instance.processes_singlem = Set(initialize = [i.name for i in process_set if (i.processmode == ProcessMode.single) or (i.processmode == ProcessMode.storage)], doc = 'Set of processes with multiple modes')
     instance.locations = Set(initialize = [i.name for i in location_set], doc = 'Set of locations')
     instance.scales = Set(scales.list, initialize = scales.scale)
     if source_set is not None:
