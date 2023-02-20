@@ -12,7 +12,7 @@ __status__ = "Production"
 
 from pyomo.environ import ConcreteModel, Var, NonNegativeReals, Set, Binary
 from itertools import product
-from ...utils.model_utils import scale_pyomo_set
+from ...utils.scale_utils import scale_pyomo_set
 
 def generate_transport_vars(instance: ConcreteModel, scale_level:int = 0):    
     """declares pyomo variables for network location at the chosen scale
