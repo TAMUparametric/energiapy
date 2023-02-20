@@ -15,9 +15,11 @@ from pyomo.environ import ConcreteModel, Set
 import pandas
 from ..components.temporal_scale import Temporal_scale
 from ..components.resource import Resource
+from ..components.process import Process
+from typing import Dict
 
 
-def create_dummy_resource(resource: Resource, store_max: float = 0, store_min: float = 0):
+def create_storage_resource(resource: Resource, store_max: float = 0, store_min: float = 0) -> Resource:
     """Creates a dummy resource for storage, used if process is storage type
 
     Args:
@@ -31,6 +33,20 @@ def create_dummy_resource(resource: Resource, store_max: float = 0, store_min: f
     resource_dummy = Resource(name= resource.name+'_stored', loss= resource.loss, store_max= store_max, store_min= store_min, basis= resource.basis, block= resource.block+'(stored)', label= resource.label+'(stored)')
     
     return resource_dummy
+
+
+def create_storage_process(process) -> Process:
+    """Creates a dummy process for storage, used if process is storage type
+
+    Args:
+        process (Process): Dummy process name derived from storage process
+    Returns:
+        Process: Dummy process for storage
+    """
+    process_dummy = Process(name= process.name+'_storage', conversion = process.conversion_discharge, prod_min= process.prod_min, \
+        prod_max= process.prod_max, introduce= process.introduce, retire= process.retire, lifetime= process.lifetime, label = process.label +'_storage')
+    return process_dummy
+
 
 
 

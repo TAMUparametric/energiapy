@@ -19,9 +19,10 @@ import pandas
 from random import sample
 from typing import Set, Dict, Union
 from itertools import product
-from ..utils.model_utils import scale_changer
+from ..utils.model_utils import scale_changer, create_storage_process
 from pandas import DataFrame
 from enum import Enum, auto
+
 
 
 @dataclass
@@ -74,9 +75,10 @@ class Location:
             fail_factor (Dict[Process, float]): creates a dictionary with failure points on a temporal scale
         """
         self.resources= self.get_resources()
-        self.resources_full = self.resources.union({i.dummy for i in self.processes if i.dummy is not None})
+        self.resources_full = self.resources.union({i.resource_storage for i in self.processes if i.resource_storage is not None})
         self.materials = self.get_materials()
         self.scale_levels = self.scales.scale_levels
+        self.processes_full = self.processes.union({create_storage_process(i) for i in self.processes if i.processmode == ProcessMode.storage})
         
         if self.capacity_factor is not None:
             self.varying_capacity = set(self.capacity_factor.keys())
