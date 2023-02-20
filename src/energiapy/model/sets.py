@@ -27,7 +27,6 @@ def generate_sets(instance: ConcreteModel, scenario:Scenario):
     
     processes_full: 'Set of all processes including dummy discharge'
     
-    
     resources: Set of all resources
 
     resources_nosell: Set of non-dischargeable resources

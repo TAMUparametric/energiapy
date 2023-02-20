@@ -43,7 +43,7 @@ def production_facility_constraint(instance: ConcreteModel, prod_max: dict, loc_
         else:
             return instance.Cap_P[location, process, scale_list[:network_scale_level+1]] == 0
     instance.production_facility_constraint = Constraint(
-        instance.locations, instance.processes, *scales, rule=production_facility_rule, doc='production facility sizing and location')
+        instance.locations, instance.processes_full, *scales, rule=production_facility_rule, doc='production facility sizing and location')
     constraint_latex_render(production_facility_rule)
     return instance.production_facility_constraint
 

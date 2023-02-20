@@ -25,7 +25,7 @@ def generate_scheduling_vars(instance: ConcreteModel, scale_level:int = 0, mode_
         scale_level (int, optional):  scale for scheduling variables. Defaults to 0.
     """
     instance.scales_scheduling = scale_pyomo_set(instance= instance, scale_level= scale_level)
-    instance.P = Var(instance.locations, instance.processes, instance.scales_scheduling, within = NonNegativeReals, doc = 'Production')
+    instance.P = Var(instance.locations, instance.processes_full, instance.scales_scheduling, within = NonNegativeReals, doc = 'Production')
     instance.B = Var(instance.locations, instance.resources_purch, instance.scales_scheduling, within = NonNegativeReals, doc = 'Purchase Expenditure')
     instance.C = Var(instance.locations, instance.resources_purch, instance.scales_scheduling, within = NonNegativeReals, doc = 'Resource Consumption')
     instance.S = Var(instance.locations, instance.resources_sell, instance.scales_scheduling, within = NonNegativeReals, doc = 'Resource Dispensed/Sold')
