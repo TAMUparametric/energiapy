@@ -25,6 +25,9 @@ def generate_sets(instance: ConcreteModel, scenario:Scenario):
 
     processes: Set of all processes
     
+    processes_full: 'Set of all processes including dummy discharge'
+    
+    
     resources: Set of all resources
 
     resources_nosell: Set of non-dischargeable resources
@@ -83,6 +86,7 @@ def generate_sets(instance: ConcreteModel, scenario:Scenario):
     sink_set= scenario.sink_locations
 
     instance.processes = Set(initialize  = [i.name for i in process_set], doc = 'Set of processes')
+    instance.processes_full = Set(initialize = list(scenario.conversion.keys()), doc = 'Set of all processes including dummy discharge')
     instance.resources = Set(initialize  = [i.name for i in resource_set], doc = 'Set of resources')
     instance.resources_nosell = Set(initialize = [i.name for i in resource_set if i.sell ==  False], doc = 'Set of non-dischargeable resources')
     instance.resources_sell = Set(initialize = [i.name for i in resource_set if i.sell ==  True], doc = 'Set of dischargeable resources')
