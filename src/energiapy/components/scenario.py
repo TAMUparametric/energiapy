@@ -138,7 +138,7 @@ class Scenario:
         self.process_set = set().union(*[i.processes for i in self.location_set if i.processes is not None])
         self.resource_set = set().union(*[i.resources for i in self.location_set if i.resources is not None])
         self.material_set = set().union(*[i.materials for i in self.location_set if i.materials is not None])
-        # self.dummy_resource_set = set().union(*[i.dummy for i in self.process_set if i.dummy is not None])
+        self.dummy_resource_set = set().union(*[i.dummy for i in self.process_set if i.dummy is not None])
         
         conversion = {i.name: {j.name: i.conversion[j] if j in i.conversion.keys()\
             else 0 for j in self.resource_set} for i in self.process_set if i.processmode == ProcessMode.single}

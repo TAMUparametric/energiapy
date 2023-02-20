@@ -121,6 +121,8 @@ class Process:
             self.dummy = create_dummy_resource(resource=self.storage, store_max= self.prod_max,store_min= self.prod_min)
             self.conversion = {self.storage:-1, self.dummy:1}
             self.conversion_discharge = {self.dummy:-1, self.storage:1*(1- self.storage_loss)}
+            self.processmode = ProcessMode.storage
+            
         else:
             self.conversion_discharge = None
             self.dummy = None
