@@ -74,7 +74,7 @@ class Location:
             fail_factor (Dict[Process, float]): creates a dictionary with failure points on a temporal scale
         """
         self.resources= self.get_resources()
-        self.resources_full = self.resources.union({i.dummy for i in self.processes})
+        self.resources_full = self.resources.union({i.dummy for i in self.processes if i.dummy is not None})
         self.materials = self.get_materials()
         self.scale_levels = self.scales.scale_levels
         
