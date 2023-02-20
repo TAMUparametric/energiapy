@@ -109,7 +109,7 @@ class Process:
         
         Args:
             processmode (ProcessMode): Determines whether the model is single mode, multi mode, or storage type.
-            dummy (Resource):  Dummy resource which is stored in the Process. 
+            resource_storage (Resource):  Dummy resource which is stored in the Process. 
             conversion_discharge (Dict[Resource, float]): Creates a dictionary with the discharge conversion values (considers storage loss).
             cost_dynamics (CostDynamics): Determines whether the cost scales linearly with the unit capacity, or is a piecewise-linear function.
         """
@@ -119,7 +119,7 @@ class Process:
             self.processmode = ProcessMode.single
             
         if self.storage is not None:
-            self.resource_storage= create_dummy_resource(resource=self.storage, store_max= self.prod_max, store_min= self.prod_min)
+            self.resource_storage= create_storage_resource(resource=self.storage, store_max= self.prod_max, store_min= self.prod_min)
             self.conversion = {self.storage:-1, self.resource_storage:1}
             self.conversion_discharge = {self.resource_storage:-1, self.storage:1*(1- self.storage_loss)}
             self.processmode = ProcessMode.storage
