@@ -20,6 +20,7 @@ from random import sample
 from typing import Set, Dict, Union
 from itertools import product
 from ..utils.process_utils import create_storage_process
+from ..utils.scale_utils import scale_changer
 from pandas import DataFrame
 from enum import Enum, auto
 
