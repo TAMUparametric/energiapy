@@ -150,12 +150,12 @@ class Scenario:
         self.prod_max = {i.name: {j.name: j.prod_max for j in i.processes} for i in self.location_set}
         self.prod_min = {i.name: {j.name: j.prod_min for j in i.processes} for i in self.location_set}
         self.cons_max = {i.name: {j.name: j.cons_max for j in i.resources} for i in self.location_set}
-        self.store_max = {i.name: {j.name: j.store_max for j in i.resources} for i in self.location_set}
-        self.store_min = {i.name: {j.name: j.store_min for j in i.resources} for i in self.location_set}
+        self.store_max = {i.name: {j.name: j.store_max for j in i.resources_full} for i in self.location_set}
+        self.store_min = {i.name: {j.name: j.store_min for j in i.resources_full} for i in self.location_set}
         self.capacity_factor = {i.name: i.capacity_factor for i in self.location_set}  
         self.cost_factor = {i.name: i.cost_factor for i in self.location_set}  
         self.demand_factor = {i.name: i.demand_factor for i in self.location_set}
-        self.loc_res_dict =  {i.name: {j.name for j in i.resources} for i in self.location_set}
+        self.loc_res_dict =  {i.name: {j.name for j in i.resources_full} for i in self.location_set}
         self.loc_pro_dict =  {i.name: {j.name for j in i.processes} for i in self.location_set}
         self.loc_mat_dict =  {i.name: {j.name for j in i.materials} for i in self.location_set}
         self.price = {i.name: i.resource_price for i in self.location_set} # TODO change to be location wise

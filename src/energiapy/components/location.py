@@ -74,8 +74,10 @@ class Location:
             fail_factor (Dict[Process, float]): creates a dictionary with failure points on a temporal scale
         """
         self.resources= self.get_resources()
+        self.resources_full = self.resources.union({i.dummy for i in self.processes})
         self.materials = self.get_materials()
         self.scale_levels = self.scales.scale_levels
+        
         if self.capacity_factor is not None:
             self.varying_capacity = set(self.capacity_factor.keys())
             if isinstance(list(self.capacity_factor.values())[0], DataFrame):
@@ -109,7 +111,6 @@ class Location:
             for i in [i for i in self.processes if i.processmode == ProcessMode.multi]:
                 resources_multi  = resources_multi.union(*[set(j.keys()) for j in list(i.multiconversion.values())])
             return resources_single.union(resources_multi)
-
     
     def get_materials(self) -> Set[Material]:
         """fetches required materials for processes introduced at locations
