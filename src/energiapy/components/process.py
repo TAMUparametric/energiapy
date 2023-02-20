@@ -96,7 +96,7 @@ class Process:
     trl: str = None
     block: str = None
     citation: str = 'citation needed'
-    lifetime: tuple = None
+    lifetime: int = None
     varying:bool = False
     p_fail: float = None
     label: str = ''
@@ -119,7 +119,7 @@ class Process:
             self.processmode = ProcessMode.single
             
         if self.storage is not None:
-            self.dummy = create_dummy_resource(resource=self.storage, store_max= self.prod_max,store_min= self.prod_min)
+            self.resource_storage= create_dummy_resource(resource=self.storage, store_max= self.prod_max, store_min= self.prod_min)
             self.conversion = {self.storage:-1, self.dummy:1}
             self.conversion_discharge = {self.dummy:-1, self.storage:1*(1- self.storage_loss)}
             self.processmode = ProcessMode.storage
