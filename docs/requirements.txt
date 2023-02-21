@@ -8,3 +8,4 @@ Pyomo
 gurobipy
 h5pyd
 matplotlib
+sphinx-rtd-theme
