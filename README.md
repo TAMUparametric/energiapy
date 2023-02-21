@@ -12,18 +12,28 @@ Constituent functionalities have been built over the research conducted by the [
 
     pip install git+https://github.com/TAMUparametric/energiapy.git
 
+## Key Applications
+
+1. Design of future energy systems (network design)
+2. Scheduling under uncertainty
+3. Life-cycle and environmental impact assessment
+4. Techno-economic analysis 
+5. System resiliency and reliability characterization
+
+Models can also simultaneously assuage the above under an integrated paradigm.
+
 ## Modeling Approach
 
 Model components are declared as energiapy objects. The suggested hierarchy is as follows:
 
-1. Temporal_scale: The multiple temporal scales being considered
-2. Resource: Resources can be in any quantifiable form such mass, energy, information
-3. Material: Infrastructural materials are required for establishing tasks, and require resources if produced 
-4. Process: Tasks/processes are set up by utilizing materials, and convert resources from on form to the other.
-5. Location: Locations are essentially a set of process. Capacity, cost, and demand variability can also be introduced.
-6. Transport: Modes of transportation translocate resources. Materials usage can also be provided.
-7. Network: Networks connect locations using transport linkages. The distance and transport availability matrices need to be provided. 
-8. Scenario: single location (using Location) or multi-location (using Network) scenarios can be generated at appropriate scales.
+1. **Temporal_scale:** The multiple temporal scales being considered
+2. **Resource:** Resources can be in any quantifiable form such mass, energy, information
+3. **Material:** Infrastructural materials are required for establishing tasks, and require resources if produced 
+4. **Process:** Tasks/processes are set up by utilizing materials, and convert resources from on form to the other.
+5. **Location:** Locations are essentially a set of process. Capacity, cost, and demand variability can also be introduced.
+6. **Transport:** Modes of transportation translocate resources. Materials usage can also be provided.
+7. **Network:** Networks connect locations using transport linkages. The distance and transport availability matrices need to be provided. 
+8. **Scenario:** single location (using Location) or multi-location (using Network) scenarios can be generated at appropriate scales.
 
 Scenarios can then be formulated as a pyomo instance with the formulate function by using a set of constraints, setting an objective, providing demand targets, etc. Sets and variables are defined implicitly. Bespoke constraints can be added using the pyomo syntax. The solve functionality using appropriate solvers provides a solution (Result), which can be exported, analyzed, or itself used to initialize models. 
 
@@ -64,13 +74,5 @@ Other (and optional) features include:
 3. function to fetch weather data at an appropriate resolution from [NREL NSRDB](https://nsrdb.nrel.gov/) for any county in the US
 4. latex constraints writer for model documentation
 
-## Key Applications
 
-1. Design of future energy systems (network design)
-2. Scheduling under uncertainty
-3. Life-cycle and environmental impact assessment
-4. Techno-economic analysis 
-5. System resiliency and reliability characterization
-
-Models can also simultaneously assuage the above under an integrated paradigm.
 
