@@ -27,6 +27,7 @@ from .constraints.land import *
 from .constraints.emission import *
 from .constraints.transport import *
 from .constraints.failure import *
+from .constraints.uncertain import *
 from .objectives import *
 from pyomo.environ import ConcreteModel
 from typing import  Set
@@ -94,7 +95,12 @@ def formulate(scenario: Scenario, constraints:Set[Constraints], objective:Object
     generate_network_vars(instance=instance, scale_level=scenario.network_scale_level)
     generate_network_binary_vars(instance=instance, scale_level=scenario.network_scale_level)
     generate_costing_vars(instance= instance)
-    generate_uncertainty_vars(instance = instance, scale_level = scenario.scheduling_scale_level)
+
+    if Constraints.uncertain in constraints:
+        generate_uncertainty_vars(instance = instance, scale_level = scenario.scheduling_scale_level)
+
+        uncertain_process_capacity_constraint(instance = instance, capacity = scenario.prod_max, network_scale_level = scenario.network_scale_level)
+        uncertain_resource_demand_constraint(instance = instance, demand = demand, scheduling_scale_level = scenario.scheduling_scale_level)
     
     if Constraints.mode in constraints:
         generate_mode_vars(instance=instance, scale_level=scenario.scheduling_scale_level, mode_dict= scenario.mode_dict)

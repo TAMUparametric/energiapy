@@ -30,6 +30,9 @@ class ProcessMode(Enum):
     multi = auto() # allows multiple modes
     storage = auto()
 
+class UncertainProcess(Enum):
+    capacity = auto() #if capacity is uncertain
+
 @dataclass
 class Process:
     """
@@ -61,7 +64,8 @@ class Process:
         label(str, optional):Longer descriptive label if required. Defaults to ''
         storage(list, optional): Resource that can be stored in process.
         storage_loss (float, optional): If storage process, storage loss experienced per time period in scheduling horizon. Defaults to 0. 
-        
+        uncertain (UncertainProcess, optional): the type of uncertainty the process experiences. Defaults to None.
+
     Examples:
         For processes with varying production capacity
         
@@ -102,6 +106,7 @@ class Process:
     label: str = ''
     storage: Resource = None
     storage_loss: float = 0
+    uncertain: UncertainProcess = None
     
     
     def __post_init__(self):
