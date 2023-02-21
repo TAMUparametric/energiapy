@@ -15,14 +15,14 @@ from ..components.process import Process
 
 
 def create_storage_process(process) -> Process:
-    """Creates a dummy process for storage, used if process is storage type
+    """Creates a dummy process for discharge of stored resource
 
     Args:
         process (Process): Dummy process name derived from storage process
     Returns:
         Process: Dummy process for storage
     """
-    process_dummy = Process(name= process.name+'_storage', conversion = process.conversion_discharge, prod_min= process.prod_min, \
+    process_dummy = Process(name= process.name+'_discharge', conversion = process.conversion_discharge, prod_min= process.prod_min, \
         prod_max= process.prod_max, introduce= process.introduce, retire= process.retire, lifetime= process.lifetime, label = process.label +'_storage')
     return process_dummy
 

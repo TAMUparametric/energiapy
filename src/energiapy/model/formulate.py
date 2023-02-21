@@ -50,6 +50,8 @@ class Constraints(Enum):
     resource_balance = auto() 
     transport = auto()
     uncertain = auto()
+    mode = auto()
+    lifecycle = auto()
 
 class Objective(Enum):
     cost = auto()
@@ -94,7 +96,8 @@ def formulate(scenario: Scenario, constraints:Set[Constraints], objective:Object
     generate_costing_vars(instance= instance)
     generate_uncertainty_vars(instance = instance, scale_level = scenario.scheduling_scale_level)
     
-    generate_mode_vars(instance=instance, scale_level=scenario.scheduling_scale_level, mode_dict= scenario.mode_dict)
+    if Constraints.mode in constraints:
+        generate_mode_vars(instance=instance, scale_level=scenario.scheduling_scale_level, mode_dict= scenario.mode_dict)
 
     
     if len(scenario.location_set) > 1:

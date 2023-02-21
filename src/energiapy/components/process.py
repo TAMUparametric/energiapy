@@ -94,7 +94,7 @@ class Process:
     gwp: float  = 0
     land: float = 0
     trl: str = None
-    block: str = None
+    block: str = ''
     citation: str = 'citation needed'
     lifetime: int = None
     varying:bool = False
