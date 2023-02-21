@@ -93,7 +93,7 @@ def demand_factor(resource: Resource, location: Location, \
     x_ = [i for i in range(len(y_))]
     ax.plot(x_, y_, linewidth=0.5, color=color)
     ax = axis_formatter(axes= ax, xcord = x_, axis_labels= 'M')
-    plt.title(f'demand factor for {resource.label} in {location.label}')
+    plt.title(f'Demand factor for {resource.label} in {location.label}')
     plt.ylabel('Normalized demand factor')
     plt.grid(alpha=0.3)
     plt.rcdefaults()

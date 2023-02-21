@@ -63,7 +63,7 @@ class Resource:
     sell: bool = False
     demand: bool = False
     basis: str = 'unit'
-    block: str = None
+    block: str = ''
     citation: str = 'citation needed'
     varying: bool = False
     label: str = ''
