@@ -1,5 +1,6 @@
 Small Energy Systems MILP Example
-==============================
+=================================
+
 A simple problem with three processes
 
 - Solar PV with varying capacity factor

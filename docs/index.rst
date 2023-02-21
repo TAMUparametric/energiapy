@@ -11,14 +11,14 @@ Welcome to energiapy's documentation!
 
 .. toctree::
    :maxdepth: 2
-   :caption: Examples:
+   :caption: Examples
 
    small_example
 
 
 .. toctree::
-   :maxdepth: 7
-   :caption: API:
+   :maxdepth: 5
+   :caption: API
 
    energiapy
 

@@ -12,7 +12,7 @@ Constituent functionalities have been built over the research conducted by the [
 
     pip install git+https://github.com/TAMUparametric/energiapy.git
 
-## Features
+## Modeling Approach
 
 Model components are declared as energiapy objects. The suggested hierarchy is as follows:
 
@@ -25,9 +25,9 @@ Model components are declared as energiapy objects. The suggested hierarchy is a
 7. Network: Networks connect locations using transport linkages. The distance and transport availability matrices need to be provided. 
 8. Scenario: single location (using Location) or multi-location (using Network) scenarios can be generated at appropriate scales.
 
-Scenarios can then be formulated as a pyomo instance with the formulate function by using a set of constraints, setting an objective, providing demand targets, etc. Sets and variables are defined implicitly. Bespoke constraints can be added using the pyomo syntax. 
+Scenarios can then be formulated as a pyomo instance with the formulate function by using a set of constraints, setting an objective, providing demand targets, etc. Sets and variables are defined implicitly. Bespoke constraints can be added using the pyomo syntax. The solve functionality using appropriate solvers provides a solution (Result), which can be exported, analyzed, or itself used to initialize models. 
 
-The solve functionality using appropriate solvers provides a solution (Result), which can be exported, analyzed, or itself used to initialize models. 
+## Select Features
 
 Available constraints are able to model:
 
@@ -62,7 +62,7 @@ Other (and optional) features include:
 1. math utilities for calculating euclidean distances, generation connectivity matrices, etc.
 2. generating dataframes with missing data fixed (weekends, public holidays) for time-series data such as resource price
 3. function to fetch weather data at an appropriate resolution from [NREL NSRDB](https://nsrdb.nrel.gov/) for any county in the US
-4. latex constraints writer, for model documentation
+4. latex constraints writer for model documentation
 
 ## Key Applications
 
