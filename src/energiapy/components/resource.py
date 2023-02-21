@@ -15,6 +15,9 @@ from dataclasses import dataclass
 import pandas
 from enum import Enum, auto
 
+class UncertainResource(Enum):
+    demand = auto()
+    price = auto()
 
 @dataclass
 class Resource:
@@ -36,7 +39,9 @@ class Resource:
         citation (str, optional): Add citations for data sources. Defaults to 'citation needed'.
         varying (bool, optional): If the cost of resource is varying/uncertain. Defaults to False.
         label (str, optional): Longer descriptive label if required. Defaults to ''.
-        gwp (float, optional): Global Warming Potential per unit consumption of resource. Defaults to 0.and
+        gwp (float, optional): Global Warming Potential per unit consumption of resource. Defaults to 0.
+        uncertain (UncertainResource, optional): the type of uncertainty the resource experiences. Defaults to None.
+
         
     Examples:
         For a resource that cannot be consumed from outside the system, but can be stored.
@@ -68,6 +73,8 @@ class Resource:
     varying: bool = False
     label: str = ''
     gwp: float = 0
+    uncertain: UncertainResource = None
+
 
     def __post_init__(self):
         if self.demand is True:
