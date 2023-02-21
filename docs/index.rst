@@ -8,17 +8,13 @@ Welcome to energiapy's documentation!
 
 .. mdinclude:: ../README.md
 
-Tutorial
 
 .. toctree::
    :maxdepth: 2
-   :caption: Overview
+   :caption: Examples:
 
    small_example
 
-
-API
----
 
 .. toctree::
    :maxdepth: 7
