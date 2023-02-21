@@ -16,6 +16,7 @@ The problem is modeled over two scales
 **Import modules**
 
 .. code-block:: python
+
     import pandas 
     from energiapy.components.temporal_scale import Temporal_scale
     from energiapy.components.resource import Resource
@@ -36,6 +37,7 @@ Factors are normalized, and can be used to account for:
 - varying resource purchase cost (cost factor)
 
 .. code-block:: python
+
     demand_factor = pandas.DataFrame(data={'Power': [0.6, 1, 0.8, 0.3]})
     capacity_factor_pv = pandas.DataFrame(data={'PV': [0.6, 0.8, 0.9, 0.7]})
     capacity_factor_wf = pandas.DataFrame(data={'WF': [0.9, 0.8, 0.5, 0.7]})
@@ -49,6 +51,7 @@ Network decisions are taken annually (scale level 0)
 Scheduling decisions are taken seasonally (scale level 1)
 
 .. code-block:: python
+    
     scales = Temporal_scale(discretization_list= [1, 4])
 
 **Declare resources**
@@ -58,6 +61,7 @@ Resources can be declared with attributes such as maximum consumption (cons_max)
 As also whether they can be discharged (sell), have to meet demand (demand)
 
 .. code-block:: python
+
     Solar = Resource(name='Solar', cons_max=100, basis='MW', label='Solar Power')
 
     Wind = Resource(name='Wind', cons_max= 100, basis='MW', label='Wind Power')
@@ -89,14 +93,15 @@ Location-wise capacity, demand, and cost factors can be provided.
 The scales of the capacity and demand data need to be provided as well.
 
 .. code-block:: python
-    place = Location(name='place', processes= {LiI, PV, WF}, demand_factor = {Power: demand_factor}, capacity_factor= {PV: capacity_factor_pv, WF:capacity_factor_wf}, \
-    capacity_scale_level= 1, demand_scale_level = 1, scales=scales, label='some place')
+
+    place = Location(name='place', processes= {LiI, PV, WF}, demand_factor = {Power: demand_factor}, capacity_factor= {PV: capacity_factor_pv, WF:capacity_factor_wf}, capacity_scale_level= 1, demand_scale_level = 1, scales=scales, label='some place')
 
 *plot varying factors*
 
 Plotting functions in energiapy.plot can be used to plot the factors
 
 .. code-block:: python
+
     plot.capacity_factor(location= place, process= PV, fig_size= (9,5), color= 'orange')
     plot.capacity_factor(location= place, process= WF, fig_size= (9,5), color= 'blue')
     plot.demand_factor(location= place, resource= Power, fig_size= (9,5), color= 'red')
@@ -112,6 +117,7 @@ In this case we are generating a scenario for the location houston. The scales n
 The demand, network, scheduling, and expenditure scales need to be provided. They all default to 0.
 
 .. code-block:: python
+
     case = Scenario(name= 'case', network= place, network_scale_level= 0, demand_scale_level = 1, scheduling_scale_level= 1, scales= scales, label= 'small scenario')
 
 **Formulate MILP**
@@ -121,6 +127,7 @@ Models can be formulated using different constraints and objectives.
 milp is a pyomo instance, additional constraints can be provided in a bespoke manner
 
 .. code-block:: python
+
     milp = formulate(scenario= case, demand = 200, constraints={Constraints.cost, Constraints.inventory, Constraints.production, Constraints.resource_balance}, \
         objective= Objective.cost)
 
@@ -131,6 +138,7 @@ To solve the model, the solve requires a scenario and a modeling instance to be 
 Also a solver needs to be chosen.
 
 .. code-block:: python
+
     results = solve(scenario = case, instance= milp, solver= 'gurobi', name=f"MILP")
 
 **Results**
@@ -138,6 +146,7 @@ Also a solver needs to be chosen.
 Models can be summarized as shown below:
 
 .. code-block:: python
+
     results.model_summary()
 
 *Plot results*
@@ -145,6 +154,7 @@ Models can be summarized as shown below:
 Some handy plotting functions such as schedule can plot the production, consumption, sales, inventory schedules
 
 .. code-block:: python
+
     plot.schedule(results= results, y_axis= 'P', component= 'PV', location = 'place', fig_size= (9,5), color = 'orange')
     plot.schedule(results= results, y_axis= 'P', component= 'WF', location = 'place', fig_size= (9,5), color = 'blue')
     plot.schedule(results= results, y_axis= 'P', component= 'LiI', location = 'place', fig_size= (9,5), color = 'green')
@@ -158,5 +168,6 @@ All outputs are stored in results.output
 Values can be accessed as shown below
 
 .. code-block:: python
+
     results.output['X_P']
     results.output['Cap_P']
