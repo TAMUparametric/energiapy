@@ -44,7 +44,8 @@ def capacity_factor(process: Process, location: Location, \
     ax.plot(x_, y_, linewidth=0.5, color=color)
     ax = axis_formatter(axes= ax, xcord = x_, axis_labels= 'M')
     plt.title(f'Conversion factor for {process.label} in {location.label}')
-    plt.ylabel('Normalized capacity factor')
+    plt.ylabel("Normalized capacity factor")
+    plt.xlabel(f"Scheduling Horizon")
     plt.grid(alpha=0.3)
     plt.rcdefaults()
     return
@@ -69,7 +70,8 @@ def cost_factor(resource: Resource, location: Location, \
     ax.plot(x_, y_, linewidth=0.5, color=color)
     ax = axis_formatter(axes= ax, xcord = x_, axis_labels= 'M')
     plt.title(f'Cost factor for {resource.label} in {location.label}')
-    plt.ylabel('Normalized cost factor')
+    plt.ylabel(f"Normalized cost factor")
+    plt.xlabel(f"Scheduling Horizon")
     plt.grid(alpha=0.3)
     plt.rcdefaults()
     return
@@ -94,7 +96,8 @@ def demand_factor(resource: Resource, location: Location, \
     ax.plot(x_, y_, linewidth=0.5, color=color)
     ax = axis_formatter(axes= ax, xcord = x_, axis_labels= 'M')
     plt.title(f'Demand factor for {resource.label} in {location.label}')
-    plt.ylabel('Normalized demand factor')
+    plt.ylabel(f"Normalized demand factor")
+    plt.xlabel(f"Scheduling Horizon")
     plt.grid(alpha=0.3)
     plt.rcdefaults()
     return
@@ -127,10 +130,9 @@ def schedule(results: Result, y_axis:str, component:str, location:str,\
     title = f"Schedule for {results.components[component_type][component]['label']} in {results.components['locations'][location]['label']}"
     plt.title(title)
     plt.ylabel(results.components[component_type][component]['basis'])
+    plt.xlabel(f"Scheduling Horizon")
     x_ = [i for i in range(len(y_))]
     ax.plot(x_, y_, linewidth=0.5, color=color)
-    # plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%b'))
-    # plt.gca().xaxis.set_major_locator(mdates.MonthLocator())
     plt.grid(alpha=0.3)
     plt.rcdefaults()
     return
