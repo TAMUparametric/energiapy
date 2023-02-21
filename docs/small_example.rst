@@ -103,8 +103,12 @@ Plotting functions in energiapy.plot can be used to plot the factors
 .. code-block:: python
 
     plot.capacity_factor(location= place, process= PV, fig_size= (9,5), color= 'orange')
-    plot.capacity_factor(location= place, process= WF, fig_size= (9,5), color= 'blue')
     plot.demand_factor(location= place, resource= Power, fig_size= (9,5), color= 'red')
+
+.. image:: capacity_factor_pv.png 
+
+.. image:: demand_factor_pw.png 
+
 
 **Declare scenario**
 
@@ -151,15 +155,19 @@ Models can be summarized as shown below:
 
 *Plot results*
 
-Some handy plotting functions such as schedule can plot the production, consumption, sales, inventory schedules
+Some handy plotting functions such as schedule can plot the production, consumption, sales, inventory schedules. 
+
+In the example below, the production schedule for the windfarm (WF), and the inventory levels for stored power is shown. 
 
 .. code-block:: python
 
-    plot.schedule(results= results, y_axis= 'P', component= 'PV', location = 'place', fig_size= (9,5), color = 'orange')
     plot.schedule(results= results, y_axis= 'P', component= 'WF', location = 'place', fig_size= (9,5), color = 'blue')
-    plot.schedule(results= results, y_axis= 'P', component= 'LiI', location = 'place', fig_size= (9,5), color = 'green')
-    plot.schedule(results= results, y_axis= 'P', component= 'LiI_discharge', location = 'place', fig_size= (9,5), color = 'green')
     plot.schedule(results= results, y_axis= 'Inv', component= 'Power_stored', location = 'place', fig_size= (9,5), color = 'green')
+
+.. image:: sch_wf.png 
+
+.. image:: sch_pow.png 
+
 
 All inputs are stored in results.component
 

@@ -119,7 +119,7 @@ class Process:
             self.processmode = ProcessMode.single
             
         if self.storage is not None:
-            self.resource_storage= create_storage_resource(resource=self.storage, store_max= self.prod_max, store_min= self.prod_min)
+            self.resource_storage= create_storage_resource(process_name= self.name, resource= self.storage, store_max= self.prod_max, store_min= self.prod_min)
             self.conversion = {self.storage:-1, self.resource_storage:1}
             self.conversion_discharge = {self.resource_storage:-1, self.storage:1*(1- self.storage_loss)}
             self.processmode = ProcessMode.storage
