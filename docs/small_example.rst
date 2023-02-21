@@ -162,7 +162,7 @@ In the example below, the production schedule for the windfarm (WF), and the inv
 .. code-block:: python
 
     plot.schedule(results= results, y_axis= 'P', component= 'WF', location = 'place', fig_size= (9,5), color = 'blue')
-    plot.schedule(results= results, y_axis= 'Inv', component= 'Power_stored', location = 'place', fig_size= (9,5), color = 'green')
+    plot.schedule(results= results, y_axis= 'Inv', component= 'LiI_Power_stored', location = 'place', fig_size= (9,5), color = 'green')
 
 .. image:: sch_wf.png 
 
