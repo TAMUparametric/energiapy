@@ -12,7 +12,8 @@ __status__ = "Production"
 
 from ..components.location import Location
 from ..components.scenario import Scenario 
-from ..components.process import ProcessMode 
+from ..components.process import ProcessMode, UncertainProcess
+from ..components.resource import UncertainResource 
 from ..components.temporal_scale import Temporal_scale
 from pyomo.environ import ConcreteModel, Set
 from enum import Enum, auto
@@ -101,6 +102,12 @@ def generate_sets(instance: ConcreteModel, scenario:Scenario):
     instance.processes_singlem = Set(initialize = [i.name for i in process_set if (i.processmode == ProcessMode.single) or (i.processmode == ProcessMode.storage)], doc = 'Set of processes with multiple modes')
     instance.locations = Set(initialize = [i.name for i in location_set], doc = 'Set of locations')
     instance.scales = Set(scales.list, initialize = scales.scale)
+
+    instance.resources_uncertain_price = Set(initialize = [i.name for i in resource_set if i.uncertain == UncertainResource.price], doc = 'Set of resources with uncertain purchase price')
+    instance.resources_uncertain_demand= Set(initialize = [i.name for i in resource_set if i.uncertain == UncertainResource.demand], doc = 'Set of resources with uncertain demand')
+    instance.processes_uncertain_capacity= Set(initialize = [i.name for i in process_set if i.uncertain == UncertainProcess.capacity], doc = 'Set of processes with uncertain capacity')
+    
+    
     if source_set is not None:
         instance.sources = Set(initialize = [i.name for i in source_set], doc = 'Set of sources')
     
