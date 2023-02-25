@@ -14,7 +14,8 @@ from pandas import DataFrame
 from ..components.network import Network
 from ..components.location import Location
 from ..components.temporal_scale import Temporal_scale
-from ..components.process import Process, ProcessMode
+from ..components.process import Process, ProcessMode, UncertainProcess
+from ..components.resource import Resource, UncertainResource 
 from ..model.constraints import *
 from ..utils.math_utils import scaler, find_euclidean_distance, generate_connectivity_matrix
 from sklearn.cluster import AgglomerativeClustering
@@ -23,8 +24,7 @@ from sklearn.linear_model import LinearRegression
 from sklearn.cluster import KMeans
 from sklearn.neighbors import NearestCentroid
 from dataclasses import dataclass
-from typing import Union
-
+from typing import Union, Dict
 
 
 @dataclass
@@ -60,6 +60,7 @@ class Scenario:
     network_scale_level: int = 0
     demand_scale_level: int = 0
     cluster_wt: dict = None 
+    demand: Union[Dict[Location, Dict[Resource, float]], float] = None
     label: str = ''
 
     def __post_init__(self):   
@@ -167,7 +168,53 @@ class Scenario:
         self.process_resource_dict = {i.name: {j.name for j in i.conversion.keys() } for i in self.process_set if i.conversion is not None}
         self.process_material_dict = {i.name: {j.name: i.material_cons[j] for j in i.material_cons.keys() } for i in self.process_set if i.material_cons is not None}
         self.mode_dict = {i.name: [j for j in list(i.multiconversion.keys())] for i in self.process_set if i.processmode == ProcessMode.multi }
-     
+    
+
+        self.set_dict ={
+            'resources': [i.name for i in self.resource_set],
+            'resources_nosell': [i.name for i in self.resource_set if i.sell ==  False],
+            'resources_sell': [i.name for i in self.resource_set if i.sell ==  True], 
+            'resources_store': [i.name for i in self.resource_set if i.store_max >0],
+            'resources_purch': [i.name for i in self.resource_set if i.cons_max > 0],
+            'resources_varying': [i.name for i in self.resource_set if i.varying == True],
+            'resources_demand': [i.name for i in self.resource_set if i.demand == True],
+            'resources_uncertain_price': [i.name for i in self.resource_set if i.uncertain == UncertainResource.price],
+            'resources_uncertain_demand': [i.name for i in self.resource_set if i.uncertain == UncertainResource.demand],
+            'processes': [i.name for i in self.process_set],
+            'processes_full': list(self.conversion.keys()),
+            'processes_varying': [i.name for i in self.process_set if i.varying == True],
+            'processes_failure': [i.name for i in self.process_set if i.p_fail is not None],
+            'processes_materials': [i.name for i in self.process_set if i.material_cons is not None],
+            'processes_storage': [i.name for i in self.process_set if i.conversion_discharge is not None],
+            'processes_multim': [i.name for i in self.process_set if i.processmode == ProcessMode.multi],
+            'processes_singlem': [i.name for i in self.process_set if (i.processmode == ProcessMode.single) or (i.processmode == ProcessMode.storage)],
+            'processes_certain_capacity': [i.name for i in self.process_set if i.uncertain is None],
+            'processes_uncertain_capacity': [i.name for i in self.process_set if i.uncertain == UncertainProcess.capacity],
+            'locations': [i.name for i in self.location_set]
+            }
+        
+        if self.source_locations is not None:
+            self.set_dict['sources']: [i.name for i in self.source_locations if self.source_locations is not None]
+        else:
+            self.set_dict['sources']: []      
+            
+        if self.sink_locations is not None:
+            self.set_dict['sinks']: [i.name for i in self.sink_locations]
+        else:
+            self.set_dict['sinks']: []
+            
+        if self.material_set is not None:
+            self.set_dict['materials']: [i.name for i in self.material_set]
+        else:
+            self.set_dict['materials']: []
+            
+        if self.transport_set is not None:
+            self.set_dict['transports']: [i.name for i in self.transport_set]
+            self.set_dict['resources_trans']: [i.name for i in set().union(*[i.resources for i in self.transport_set])]
+        else:
+            self.set_dict['transports']: []
+            self.set_dict['resources_trans']: []
+
     def make_conversion_df(self):
         return DataFrame.from_dict(self.conversion)
 
