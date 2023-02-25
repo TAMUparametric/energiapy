@@ -162,7 +162,7 @@ def inventory_balance_constraint(instance: ConcreteModel, scheduling_scale_level
     return instance.inventory_balance_constraint
 
 
-def demand_constraint(instance: ConcreteModel, demand: float, demand_factor: Union[dict, float], \
+def demand_constraint(instance: ConcreteModel, demand: Union[dict, float], demand_factor: Union[dict, float], \
     demand_scale_level: int = 0, scheduling_scale_level: int = 0, cluster_wt: dict = None) -> Constraint:
     """Ensures that demand for resource is met at chosen temporal scale
 
@@ -181,7 +181,8 @@ def demand_constraint(instance: ConcreteModel, demand: float, demand_factor: Uni
     scale_iter = scale_tuple(
         instance=instance, scale_levels=scheduling_scale_level+1)
 
-    def demand_rule(instance, location, resource, *scale_list):  
+    def demand_rule(instance, location, resource, *scale_list): 
+         
         if demand_factor[location] is not None:
             if type(demand_factor[location][list(demand_factor[location])[0]]) == float:
                 discharge = sum(instance.S[location, resource_, scale_list[:scheduling_scale_level+1]] for
@@ -189,12 +190,20 @@ def demand_constraint(instance: ConcreteModel, demand: float, demand_factor: Uni
             else:
                 discharge = sum(instance.S[location, resource, scale_] for scale_ in scale_iter if scale_[:scheduling_scale_level+1] == scale_list)
            
-            demandtarget = demand*demand_factor[location][resource][scale_list[:demand_scale_level+1]]
-        
+            if type(demand) is dict:
+                demandtarget = demand[location][resource]*demand_factor[location][resource][scale_list[:demand_scale_level+1]]
+            else:
+                demandtarget = demand*demand_factor[location][resource][scale_list[:demand_scale_level+1]]
+                
         else: 
             # if scale_list[:scheduling_scale_level+1] != scale_iter[0]: #TODO - doesn't meet demand in first timeperiod
             discharge = sum(instance.S[location, resource, scale_] for scale_ in scale_iter if scale_[:scheduling_scale_level+1] == scale_list)
-            demandtarget = demand
+            
+            if type(demand) is dict:        
+                demandtarget = demand[location][resource]
+            
+            else:
+                demandtarget = demand
             
             # else:
             #     discharge = instance.S[location, resource, scale_list[:scheduling_scale_level+1]]
