@@ -12,8 +12,6 @@ __status__ = "Production"
 
 from ..components.location import Location
 from ..components.scenario import Scenario 
-from ..components.process import ProcessMode, UncertainProcess
-from ..components.resource import UncertainResource 
 from ..components.temporal_scale import Temporal_scale
 from pyomo.environ import ConcreteModel, Set
 from enum import Enum, auto
@@ -76,50 +74,45 @@ def generate_sets(instance: ConcreteModel, scenario:Scenario):
         scenario (Scenario): scenario
         
     """
-    location_set = scenario.location_set
-    transport_set= scenario.transport_set
-    scales= scenario.scales
-    process_set= scenario.process_set
-    resource_set= scenario.resource_set 
-    material_set= scenario.material_set
-    source_set= scenario.source_locations
-    sink_set= scenario.sink_locations
 
-    instance.processes = Set(initialize  = [i.name for i in process_set], doc = 'Set of processes')
-    instance.processes_full = Set(initialize = list(scenario.conversion.keys()), doc = 'Set of all processes including dummy discharge')
-    instance.resources = Set(initialize  = [i.name for i in resource_set], doc = 'Set of resources')
-    instance.resources_nosell = Set(initialize = [i.name for i in resource_set if i.sell ==  False], doc = 'Set of non-dischargeable resources')
-    instance.resources_sell = Set(initialize = [i.name for i in resource_set if i.sell ==  True], doc = 'Set of dischargeable resources')
-    instance.resources_store = Set(initialize = [i.name for i in resource_set if i.store_max >0], doc = 'Set of storeable resources')
-    instance.resources_purch = Set(initialize = [i.name for i in resource_set if i.cons_max > 0], doc = 'Set of purchased resources')   
-    instance.resources_varying = Set(initialize = [i.name for i in resource_set if i.varying == True], doc = 'Set of resources with varying purchase price')  
-    instance.resources_demand = Set(initialize = [i.name for i in resource_set if i.demand == True], doc = 'Set of resources with exact demand')    
-    instance.processes_varying = Set(initialize  = [i.name for i in process_set if i.varying == True], doc = 'Set of processes with varying capacity')
-    instance.processes_failure = Set(initialize  = [i.name for i in process_set if i.p_fail is not None], doc = 'Set of processes which can fail')
-    instance.processes_materials = Set(initialize  = [i.name for i in process_set if i.material_cons is not None], doc = 'Set of processes with material requirements')
-    instance.processes_storage = Set(initialize= [i.name for i in process_set if i.conversion_discharge is not None], doc = 'Set of storage process' )
-    instance.processes_multim = Set(initialize = [i.name for i in process_set if i.processmode == ProcessMode.multi], doc = 'Set of processes with multiple modes')
-    instance.processes_singlem = Set(initialize = [i.name for i in process_set if (i.processmode == ProcessMode.single) or (i.processmode == ProcessMode.storage)], doc = 'Set of processes with multiple modes')
-    instance.locations = Set(initialize = [i.name for i in location_set], doc = 'Set of locations')
-    instance.scales = Set(scales.list, initialize = scales.scale)
+    instance.scales = Set(scenario.scales.list, initialize = scenario.scales.scale, doc = 'set of scales')
 
-    instance.resources_uncertain_price = Set(initialize = [i.name for i in resource_set if i.uncertain == UncertainResource.price], doc = 'Set of resources with uncertain purchase price')
-    instance.resources_uncertain_demand= Set(initialize = [i.name for i in resource_set if i.uncertain == UncertainResource.demand], doc = 'Set of resources with uncertain demand')
-    instance.processes_uncertain_capacity= Set(initialize = [i.name for i in process_set if i.uncertain == UncertainProcess.capacity], doc = 'Set of processes with uncertain capacity')
+    sets = scenario.set_dict
+    
+    instance.processes = Set(initialize  = sets['processes'], doc = 'Set of processes')
+    instance.processes_full = Set(initialize = sets['processes_full'], doc = 'Set of all processes including dummy discharge')
+    instance.resources = Set(initialize  = sets['resources'], doc = 'Set of resources')
+    instance.resources_nosell = Set(initialize = sets['resources_nosell'], doc = 'Set of non-dischargeable resources')
+    instance.resources_sell = Set(initialize = sets['resources_sell'], doc = 'Set of dischargeable resources')
+    instance.resources_store = Set(initialize = sets['resources_store'], doc = 'Set of storeable resources')
+    instance.resources_purch = Set(initialize = sets['resources_purch'], doc = 'Set of purchased resources')   
+    instance.resources_varying = Set(initialize = sets['resources_varying'], doc = 'Set of resources with varying purchase price')  
+    instance.resources_demand = Set(initialize = sets['resources_demand'], doc = 'Set of resources with exact demand')    
+    instance.processes_varying = Set(initialize  = sets['processes_varying'], doc = 'Set of processes with varying capacity')
+    instance.processes_failure = Set(initialize  = sets['processes_failure'], doc = 'Set of processes which can fail')
+    instance.processes_materials = Set(initialize  = sets['processes_materials'], doc = 'Set of processes with material requirements')
+    instance.processes_storage = Set(initialize= sets['processes_storage'], doc = 'Set of storage process' )
+    instance.processes_multim = Set(initialize = sets['processes_multim'], doc = 'Set of processes with multiple modes')
+    instance.processes_singlem = Set(initialize = sets['processes_singlem'], doc = 'Set of processes with multiple modes')
+    instance.locations = Set(initialize = sets['locations'], doc = 'Set of locations')
+
+    instance.resources_uncertain_price = Set(initialize = sets['resources_uncertain_price'], doc = 'Set of resources with uncertain purchase price')
+    instance.resources_uncertain_demand = Set(initialize = sets['resources_uncertain_demand'], doc = 'Set of resources with uncertain demand')
+    instance.processes_uncertain_capacity= Set(initialize = sets['processes_uncertain_capacity'], doc = 'Set of processes with uncertain capacity')
     
     
-    if source_set is not None:
-        instance.sources = Set(initialize = [i.name for i in source_set], doc = 'Set of sources')
+    if scenario.source_locations is not None:
+        instance.sources = Set(initialize = sets['sources'], doc = 'Set of sources')
     
-    if sink_set is not None:
-        instance.sinks = Set(initialize = [i.name for i in sink_set], doc = 'Set of sinks')
+    if scenario.sink_locations is not None:
+        instance.sinks = Set(initialize = sets['sinks'], doc = 'Set of sinks')
     
-    if material_set is not None:
-        instance.materials = Set(initialize = [i.name for i in material_set], doc = 'Set of materials')
+    if len(scenario.material_set) > 0:
+        instance.materials = Set(initialize = sets['materials'], doc = 'Set of materials')
     
-    if transport_set is not None:
-        instance.transports = Set(initialize = [i.name for i in transport_set], doc = 'Set of transports')
-        instance.resources_trans = Set(initialize = [i.name for i in set().union(*[i.resources for i in transport_set])], doc= 'Set of transportable resources')
+    if scenario.transport_set is not None:
+        instance.transports = Set(initialize = sets['transports'], doc = 'Set of transports')
+        instance.resources_trans = Set(initialize = sets['resources_trans'], doc= 'Set of transportable resources')
     return
 
 
