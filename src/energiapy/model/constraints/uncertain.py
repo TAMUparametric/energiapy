@@ -145,7 +145,7 @@ from enum import Enum, auto
 #     return instance.uncertain_resource_purchase_constraint
 
 
-def uncertain_resource_demand_constraint(instance: ConcreteModel, demand:float, scheduling_scale_level: int = 0) -> Constraint:
+def uncertain_resource_demand_constraint(instance: ConcreteModel, demand:Union[dict, float], scheduling_scale_level: int = 0) -> Constraint:
     """Discharge meets an uncertain demand
 
     Args:
@@ -160,8 +160,11 @@ def uncertain_resource_demand_constraint(instance: ConcreteModel, demand:float, 
     scales = scale_tuple(instance=instance, scale_levels=scheduling_scale_level+1)
     
     def uncertain_resource_demand_rule(instance, location, resource, *scale_list):
-        return instance.S[location, resource, scale_list[:scheduling_scale_level+1]] >= demand*instance.resource_demand_uncertainty[location, resource, scale_list[:scheduling_scale_level+1]]
-    
+        if type(demand) is dict:
+            return instance.S[location, resource, scale_list[:scheduling_scale_level+1]] >= demand[location][resource]*instance.resource_demand_uncertainty[location, resource, scale_list[:scheduling_scale_level+1]]
+        else:
+            return instance.S[location, resource, scale_list[:scheduling_scale_level+1]] >= demand*instance.resource_demand_uncertainty[location, resource, scale_list[:scheduling_scale_level+1]]
+            
     instance.uncertain_resource_demand_constraint = Constraint(instance.locations, instance.resources_uncertain_demand, *scales, rule= uncertain_resource_demand_rule,\
         doc = 'meet uncertain demand')
     return instance.uncertain_resource_demand_constraint
