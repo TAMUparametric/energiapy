@@ -11,6 +11,7 @@ __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
 from pandas import DataFrame
+import numpy
 from ..components.network import Network
 from ..components.location import Location
 from ..components.temporal_scale import Temporal_scale
@@ -144,6 +145,9 @@ class Scenario:
         self.conversion = {i.name: {j.name: i.conversion[j] if j in i.conversion.keys() \
             else 0 for j in self.resource_set} for i in self.process_set if i.conversion is not None}
 
+        if type(self.demand) is dict:
+            self.demand = {location.name: {resource.name: self.demand[location][resource] for resource in self.demand[location].keys()} for location in self.demand.keys()}
+        
         self.prod_max = {i.name: {j.name: j.prod_max for j in i.processes_full} for i in self.location_set}
         self.prod_min = {i.name: {j.name: j.prod_min for j in i.processes_full} for i in self.location_set}
         self.cons_max = {i.name: {j.name: j.cons_max for j in i.resources_full} for i in self.location_set}
@@ -178,7 +182,9 @@ class Scenario:
             'resources_purch': [i.name for i in self.resource_set if i.cons_max > 0],
             'resources_varying': [i.name for i in self.resource_set if i.varying == True],
             'resources_demand': [i.name for i in self.resource_set if i.demand == True],
+            'resources_certain_price': [i.name for i in self.resource_set if (i.uncertain is None) and (i.cons_max >0)],
             'resources_uncertain_price': [i.name for i in self.resource_set if i.uncertain == UncertainResource.price],
+            'resources_certain_demand': [i.name for i in self.resource_set if (i.uncertain is None) and (i.demand == True)],
             'resources_uncertain_demand': [i.name for i in self.resource_set if i.uncertain == UncertainResource.demand],
             'processes': [i.name for i in self.process_set],
             'processes_full': list(self.conversion.keys()),
@@ -217,7 +223,116 @@ class Scenario:
 
     def make_conversion_df(self):
         return DataFrame.from_dict(self.conversion)
+    
+        
+    def matrix_form(self):
+        """returns matrices for the scenario.
+        
+        Returns:
+            tuple: A, b, c, H, CRa, CRb, F
+        """
+        
+        
+        if len(self.location_set) > 1:
+            "can only do this for a single location scenario"
+        else:
+            location = list(self.location_set)[0].name
+            
+            #find number of different variables
+            
+            n_Inv = len(self.set_dict['resources_store'])
+            n_Sf = len(self.set_dict['resources_certain_demand'])
+            n_Cf = len(self.set_dict['resources_certain_price'])
+            n_Pf = len(self.set_dict['processes_certain_capacity'])
+            n_S = len(self.set_dict['resources_uncertain_demand'])
+            n_C = len(self.set_dict['resources_uncertain_price'])
+            n_P = len(self.set_dict['processes_uncertain_capacity'])
+            n_bal = n_P + n_Pf
 
+            n_vars_fix = n_Inv + n_Sf + n_Cf + n_Pf
+            n_vars_theta = n_S + n_C + n_P 
+            n_vars = n_vars_fix + n_vars_theta
+            
+            #make b matrix
+            
+            b_bal = numpy.zeros((n_bal,1))
+            b_Inv = numpy.array([[self.store_max[location][i]] for i in self.set_dict['resources_store']]) 
+            b_Sf = numpy.array([[-self.demand[location][i]] for i in self.set_dict['resources_certain_demand']])
+            b_Cf = numpy.array([[self.cons_max[location][i]] for i in self.set_dict['resources_certain_price']])
+            b_Pf = numpy.array([[self.prod_max[location][i]] for i in self.set_dict['processes_certain_capacity']]) 
+
+            b_S = numpy.array([[-self.demand[location][i]] for i in self.set_dict['resources_uncertain_demand']])
+            b_C = numpy.array([[self.cons_max[location][i]] for i in self.set_dict['resources_uncertain_price']])
+            b_P = numpy.array([[self.prod_max[location][i]] for i in self.set_dict['processes_uncertain_capacity']])
+            b_nn = numpy.zeros((n_vars,1))
+
+            b_list = [b_bal, b_Inv, b_Sf, b_Cf, b_Pf, b_S, b_C, b_P, b_nn ]
+
+            b = numpy.block([[i] for i in b_list if len(i)>0])
+            
+            
+            #make F matrix
+
+            F = numpy.zeros((len(b), n_vars_theta))
+
+            iter_ = 0
+            for i in range(n_S):
+                F[n_bal + n_vars_fix + iter_][i] = self.demand[location][self.set_dict['resources_uncertain_demand'][i]]
+                iter_+= 1
+
+            iter_ = 0
+            for i in range(n_C):
+                F[n_bal + n_vars_fix + n_S + iter_][n_S + i] = self.cons_max[location][self.set_dict['resources_uncertain_price'][i]]
+                iter_+= 1
+
+
+            iter_ = 0
+            for i in range(n_P):
+                F[n_bal + n_vars_fix + n_S + n_C + iter_][n_S + n_C + i] = self.prod_max[location][self.set_dict['processes_uncertain_capacity'][i]]
+                iter_+= 1
+            
+
+            #make A matrix
+            
+            A_bal = numpy.diag([*[-1]*n_Inv, *[-1]*n_Sf, *[1]*n_Cf, *[-1]*n_S, *[1]*n_C])
+
+            A_conv = numpy.array([[self.conversion[i][j] for j in self.conversion[i].keys()] for i in self.conversion.keys() ]).transpose()
+
+            A_diag = numpy.diag([*[-1]*n_Inv, *[-1]*n_Sf, *[1]*n_Cf, *[1]*n_Pf, *[-1]*n_S, *[1]*n_C, *[1]*n_P])
+
+            A_nn = numpy.eye(n_vars)
+
+            A = numpy.block([ [numpy.block([A_bal, A_conv])], [A_diag],  [-A_nn]])
+            
+            #make c matrix
+            
+            
+            c_Inv = numpy.zeros((n_Inv,1))
+            c_Sf = numpy.zeros((n_Sf,1))
+            c_Cf = numpy.zeros((n_Cf,1))
+            c_Pf = numpy.array([[self.capex_dict[i]] for i in self.set_dict['processes_certain_capacity']])
+
+            c_S = numpy.zeros((n_S,1))
+            c_C = numpy.zeros((n_C,1))
+            c_P = numpy.array([[self.capex_dict[i]] for i in self.set_dict['processes_uncertain_capacity']])
+
+            c_list = [c_Inv, c_Sf, c_Cf, c_Pf, c_S, c_C, c_P]
+            c = numpy.block([[i] for i in c_list if len(i) > 0 ])
+            
+            
+            #make H matrix
+                
+            H = numpy.zeros((A.shape[1],F.shape[1]))
+            
+            #make critical regions
+            
+            
+            CRa = numpy.vstack((numpy.eye(n_vars_theta), -numpy.eye(n_vars_theta)))
+            CRb = numpy.array([*[1]*n_vars_theta, *[0]*n_vars_theta]).reshape(n_vars_theta*2, 1)
+            
+            return A, b, c, H, CRa, CRb, F
+
+        
     def __repr__(self):
         return self.name
 
