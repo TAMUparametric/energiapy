@@ -196,7 +196,8 @@ class Scenario:
             'processes_singlem': [i.name for i in self.process_set if (i.processmode == ProcessMode.single) or (i.processmode == ProcessMode.storage)],
             'processes_certain_capacity': [i.name for i in self.process_set if i.uncertain is None],
             'processes_uncertain_capacity': [i.name for i in self.process_set if i.uncertain == UncertainProcess.capacity],
-            'locations': [i.name for i in self.location_set]
+            'locations': [i.name for i in self.location_set],
+            'materials': [i.name for i in self.material_set]
             }
         
         if self.source_locations is not None:
