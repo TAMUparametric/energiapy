@@ -92,5 +92,5 @@ class Network:
             i: {j.name for j in self.transport_dict[i]} for i in self.transport_dict.keys()}
         return transport_avail_dict
 
-    def __refr__(self):
+    def __repr__(self):
         return self.name
