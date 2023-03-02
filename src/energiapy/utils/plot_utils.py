@@ -1,4 +1,3 @@
-#%%
 """Utilities for plots, manages axes and such
 """
 
@@ -25,10 +24,12 @@ def axis_formatter(axes, xcord:list, axis_labels:str = 'M'):
     if axis_labels == 'M' and len(xcord) == 365:
         axes.xaxis.set_major_locator(ticker.FixedLocator((pos_list_365)))
         axes.xaxis.set_major_formatter(ticker.FixedFormatter((name_list)))
+    if axis_labels == 'M' and len(xcord) == 12:
+        axes.xaxis.set_major_locator(ticker.FixedLocator((list(range(12)))))
+        axes.xaxis.set_major_formatter(ticker.FixedFormatter((name_list)))
         
         
     else:
         pass
     return axes
-        
-# %%
+                
