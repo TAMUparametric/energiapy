@@ -220,6 +220,10 @@ The factors for demand, cost, and capacity can be plotted
     plot.capacity_factor(location= sandiego, process= WF, color= 'blue')
     plot.cost_factor (location= sandiego, resource= CH4, color= 'red')
 
+.. image:: multi_loc_pv.png
+
+.. image:: multi_loc_ng.png
+
 
 
 **Declare transport options**
@@ -293,7 +297,7 @@ Note that plotting of results requires the provision of the names as opposed to 
 
     plot.schedule(results= results, y_axis= 'S', component= 'Power', location= 'SD')
 
-
+.. image:: multi_loc_sch.png
 
 
 
