@@ -289,6 +289,24 @@ def load_results(filename: str) -> Result:
     return results
 
 
+def remove_outliers(data: pandas.DataFrame, sd_cuttoff: int = 2) -> pandas.DataFrame:
+    """Removes outliers upto chosen standard deviations
+    fixes data as the mean of data around the point
+    Args:
+        data (pandas.DataFrame): input data
+        sd_cuttoff (int, optional): data upto integer number of standard deviations. Defaults to 2.
 
+    Returns:
+        pandas.DataFrame: data sans outliers
+    """
+    data_mean, data_std = data.mean(), data.std()
+    # identify outliers
+    cut_off = data_std * 3
+    lower, upper = data_mean - cut_off, data_mean + cut_off
+    for i in range(len(data)):
+        x = data.iloc[i].values[0]
+        if x < float(lower) or x > float(upper):
+            data.iloc[i] = (data.iloc[i-1] + data.iloc[i+1])/2
+    return data
 
 # %%
