@@ -22,7 +22,7 @@ The systems modeled in the example case study include:
 * transportation networks; e.g. trains and pipeline for the transport of energy vectors.
 
 
-.. image:: multi_loc_im.png
+.. image:: multiloc_im.png
 
 **import modules**
 
