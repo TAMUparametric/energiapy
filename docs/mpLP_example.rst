@@ -239,7 +239,7 @@ Now we are ready to implement the above problem in energiapy
 
 **Import modules**
 
-.. code-block::
+.. code-block:: python
 
     from energiapy.components.temporal_scale import Temporal_scale
     from energiapy.components.resource import Resource, VaryingResource
@@ -260,13 +260,13 @@ Now we are ready to implement the above problem in energiapy
 
 In the mpLP example, instead of using multi-scale indices, the problem can be formulated in a single period.
 
-.. code-block::
+.. code-block:: python
 
     scales = Temporal_scale(discretization_list=[1])
 
 **Declare the problem scenario**
 
-.. code-block::
+.. code-block:: python
 
     Solar = Resource(name='Solar', cons_max=100, basis='MW', label='Solar Power')
 
@@ -287,14 +287,14 @@ In the mpLP example, instead of using multi-scale indices, the problem can be fo
 
 **Generate the problem in matrix form**
 
-.. code-block::
+.. code-block:: python
 
     A, b, c, H, CRa, CRb, F  = example.matrix_form()
 
 
 **Solve the problem using the ppopt solver**
 
-.. code-block::
+.. code-block:: python
 
     prog = MPLP_Program(A, b, c, H, CRa, CRb, F, equality_indices=[0,1,2,3])
     prog.solver.solvers['lp'] = 'gurobi'
