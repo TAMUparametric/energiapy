@@ -24,6 +24,7 @@ The systems modeled in the example case study include:
 **import modules**
 
 .. code-block:: python 
+
     import pandas 
     from energiapy.components.temporal_scale import Temporal_scale
     from energiapy.components.resource import Resource, VaryingResource
@@ -55,7 +56,8 @@ The fetch_nsrdb function accesses the National Solar Radiation Database (NSRDB) 
 Here, we import solar data as dni and wind data as wind speed for most populated data point in Harris county (TX) and San Diego county (SD) at an hourly resolution
 
 
-.. codeblock:: python 
+.. code-block:: python 
+
     weather_sandiego =  fetch_nsrdb_data(attrs = ['wind_speed', 'dni'], year = 2019, state = 'California', county = 'San Diego',\
             resolution= 'hourly', get = 'min-elevation', save = 'data/sd_solar19')[1] 
 
@@ -74,7 +76,8 @@ The stretch functionality stretches the values over the hourly temporal scale (8
 
 Moreover, we can remove outliers usig the remove_outliers features in data_utils
 
-.. codeblock:: python 
+.. code-block:: python 
+
     ng_price = make_henry_price_df(file_name='data/Henry_Hub_Natural_Gas_Spot_Price_Daily.csv', year=2019, stretch=False)
     ng_price = ng_price.set_index(weather_sandiego.index[::24])
     ng_price = ng_price.drop(columns= 'scales')
@@ -84,7 +87,7 @@ Moreover, we can remove outliers usig the remove_outliers features in data_utils
 
 Here we import the power demand data for San Diego (CAISO for SDGE region) and Houston (ERCOT for COAST region)
 
-.. codeblock:: python 
+.. code-block:: python 
 
     demand_sandiego = pandas.read_excel('data/HistoricalEMSHourlyLoad-2019.xlsx', index_col= 0)[['SDGE']]
     demand_houston = pandas.read_excel('data/Native_Load_2019.xlsx')[['COAST']]
@@ -105,7 +108,7 @@ For e.g.: Here we declare three temporal scales at different levels from right t
 In essence, we are creating a temporal scale of 8760 points.
 
 
-.. codeblock:: python 
+.. code-block:: python 
 
     scales = Temporal_scale(discretization_list=[1, 365, 24], start_zero= 2019)
 
@@ -133,7 +136,7 @@ labels and blocks can be defined
 
 these can be represented as cost factors (0,1) multiplied to a base resource cost
 
-.. codeblock:: python
+.. code-block:: python
 
     Solar = Resource(name='Solar', cons_max=100, basis='MW', label='Solar Power')
 
@@ -162,7 +165,7 @@ these can be represented as cost factors (0,1) multiplied to a base resource cos
 Processes convert a resource into another through the utilization of resources. 
 Essentially, the model is developed as an RTN
 
-.. codeblock:: python
+.. code-block:: python
 
     LiI = Process(name='LiI', storage= Power, capex = 1302182, fopex= 41432, vopex = 2000,  prod_max=100, label='Lithium-ion battery', basis = 'MW')
 
@@ -194,7 +197,7 @@ The scale levels [0,1,2] can be used to declare the resolution at which to handl
 
 Note that not all of these are required to build a problem.
 
-.. codeblock:: python
+.. code-block:: python
 
     houston = Location(name='HO', processes= {LiI, PV, WF, SMRH, SMR, H2FC, DAC}, demand_factor= {Power: demand_houston}, cost_factor = {CH4: ng_price}, \
         capacity_factor = {PV: pandas.DataFrame(weather_houston['dni']), WF: pandas.DataFrame(weather_houston['wind_speed'])},\
@@ -211,7 +214,7 @@ energiapy also has significant plotting capabilities.
 
 The factors for demand, cost, and capacity can be plotted
 
-.. codeblock:: python
+.. code-block:: python
 
     plot.capacity_factor(location= sandiego, process= PV, color= 'orange')
     plot.capacity_factor(location= sandiego, process= WF, color= 'blue')
@@ -223,7 +226,8 @@ The factors for demand, cost, and capacity can be plotted
 
 Transport objects translocate resources, and can have associated costs as well as transport losses.
 
-.. codeblock:: python
+.. code-block:: python
+
     Train_H2 = Transport(name= 'Train_H2', resources= {H2}, trans_max= 10000, trans_loss= 0.001, trans_cost= 1.667*10**(-3), label= 'Railway for hydrogen transportation')
     Pipe = Transport(name= 'Pipe', resources= {H2}, trans_max= 10000, trans_loss= 0.001, trans_cost= 0.5*10**(-3), label= 'Railroad transport')
 
@@ -232,7 +236,7 @@ Transport objects translocate resources, and can have associated costs as well a
 Networks link locations with transportation. The availability of differnt transport objects and the distances between the locations needs to be provided.
 
 
-.. codeblock:: python
+.. code-block:: python
 
     distance_matrix = [
         [0, 2366],
@@ -254,7 +258,8 @@ Scenarios are data sets that can be fed to models for analysis.
 
 In this case we are generating a scenario for a network with locations Houston and San Diego. The scales need to be consistent.
 
-.. codeblock:: python
+.. code-block:: python
+
     scenario = Scenario(name= 'dtw_example', network= network, scales= scales,  expenditure_scale_level= 1, scheduling_scale_level= 2, \
     network_scale_level= 0, demand_scale_level= 2, label= 'DTW_case')
 
@@ -265,7 +270,8 @@ Models of different classes can be formulated based on the constraints considere
 
 In the following case, we optimize the cost while constraining inventory, production, resource balance, transport, and cost
 
-.. codeblock:: python
+.. code-block:: python
+
     milp = formulate(scenario= scenario, demand = {sandiego: {Power: 30}, houston: {Power: 20}}, \
     constraints={Constraints.cost, Constraints.inventory, Constraints.production, Constraints.resource_balance, Constraints.transport}, objective= Objective.cost)
 
@@ -273,7 +279,8 @@ In the following case, we optimize the cost while constraining inventory, produc
 
 The instance can then be solved using an appropriate solver. Here we solve the problem using the Gurobi solver.
 
-.. codeblock:: python
+.. code-block:: python
+
     results = solve(scenario = scenario, instance= milp, solver= 'gurobi', name=f"Multi-Loc", print_solversteps = True)
 
 
@@ -282,7 +289,8 @@ The instance can then be solved using an appropriate solver. Here we solve the p
 The results can be analyzed, and used for illustrations.
 Note that plotting of results requires the provision of the names as opposed to energiapy objects.
 
-.. codeblock:: python
+.. code-block:: python
+
     plot.schedule(results= results, y_axis= 'S', component= 'Power', location= 'SD')
 
 
