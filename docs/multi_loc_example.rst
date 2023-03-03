@@ -21,6 +21,9 @@ The systems modeled in the example case study include:
 * power generation; e.g. solar, wind, natural gas
 * transportation networks; e.g. trains and pipeline for the transport of energy vectors.
 
+
+.. image:: multi_loc_im.png
+
 **import modules**
 
 .. code-block:: python 
