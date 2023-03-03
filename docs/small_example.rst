@@ -1,18 +1,21 @@
 Small Energy Systems MILP Example
 =================================
 
-A simple problem with three processes
+Consider a simple system with three processes
 
-- Solar PV with varying capacity factor
-- Wind Farm with varying capacity factor
+- Solar PV with varying capacity
+- Wind Farm with varying capacity
 - Lithium-ion battery storage
 
-and varying demand.
+and varying demand for power.
 
-The problem is modeled over two scales
+The objective is to meet demand over four seasons by generating power using the PV and Wind Farm, 
+storing the power in a Lithium-ion battery if necessary and meeting a varying demand for Power
 
-- 0, network scale with 1 time period
-- 1, scheduling and demand scales with 4 time periods
+The problem can be modeled over two scales
+
+- 0, network scale with 1 time period where the network decisions such as setting up a unit are taken
+- 1, scheduling and demand scales with 4 time periods, where the resource flows are determined
 
 **Import modules**
 
@@ -20,28 +23,14 @@ The problem is modeled over two scales
 
     import pandas 
     from energiapy.components.temporal_scale import Temporal_scale
-    from energiapy.components.resource import Resource
-    from energiapy.components.process import Process, ProcessMode
+    from energiapy.components.resource import Resource, VaryingResource
+    from energiapy.components.process import Process, ProcessMode, VaryingProcess
     from energiapy.components.location import Location
     from energiapy.components.scenario import Scenario
     from energiapy.components.result import Result 
     from energiapy.model.formulate import formulate, Constraints, Objective
     from energiapy.plot import plot
     from energiapy.model.solve import solve
-
-**Input Data**
-
-Factors are normalized, and can be used to account for:
-
-- variable resource demand (demand_factor)
-- intermittent resource availability (capacity factor)
-- varying resource purchase cost (cost factor)
-
-.. code-block:: python
-
-    demand_factor = pandas.DataFrame(data={'Power': [0.6, 1, 0.8, 0.3]})
-    capacity_factor_pv = pandas.DataFrame(data={'PV': [0.6, 0.8, 0.9, 0.7]})
-    capacity_factor_wf = pandas.DataFrame(data={'WF': [0.9, 0.8, 0.5, 0.7]})
 
 **Declare temporal scale**
 
@@ -67,7 +56,7 @@ As also whether they can be discharged (sell), have to meet demand (demand)
 
     Wind = Resource(name='Wind', cons_max= 100, basis='MW', label='Wind Power')
 
-    Power = Resource(name='Power', basis='MW', demand = True, block = 'bla', label='Power generated', varying = True)
+    Power = Resource(name='Power', basis='MW', demand = True, label='Power generated', varying = VaryingResource.determinstic_demand)
 
 **Declare processes**
 
@@ -81,9 +70,24 @@ Processes consume resources and can be of three type:
 
     LiI = Process(name='LiI', storage= Power, capex = 1302182, fopex= 41432, vopex = 2000,  prod_max=100, label='Lithium-ion battery', basis = 'MW')
 
-    WF = Process(name='WF', conversion={Wind: -1, Power: 1},capex=990637, fopex=3354, vopex=4953, prod_max=100, label='Wind mill array', varying= True, basis = 'MW')
+    WF = Process(name='WF', conversion={Wind: -1, Power: 1},capex=990637, fopex=3354, vopex=4953, prod_max=100, label='Wind mill array', varying= VaryingProcess.determinstic_capacity, basis = 'MW')
 
-    PV = Process(name='PV', conversion={Solar: -1, Power: 1}, capex=567000, fopex=872046, vopex=90000, prod_max=100, varying = True, label = 'Solar PV', basis = 'MW')
+    PV = Process(name='PV', conversion={Solar: -1, Power: 1}, capex=567000, fopex=872046, vopex=90000, prod_max=100, varying = VaryingProcess.determinstic_capacity, label = 'Solar PV', basis = 'MW')
+
+
+**Location level input data**
+
+Factors are normalized, and can be used to account for:
+
+- variable resource demand (demand_factor)
+- intermittent resource availability (capacity factor)
+- varying resource purchase cost (cost factor)
+
+.. code-block:: python
+
+    demand_factor = pandas.DataFrame(data={'Power': [0.6, 1, 0.8, 0.3]})
+    capacity_factor_pv = pandas.DataFrame(data={'PV': [0.6, 0.8, 0.9, 0.7]})
+    capacity_factor_wf = pandas.DataFrame(data={'WF': [0.9, 0.8, 0.5, 0.7]})
 
 **Declare location**
 
@@ -133,7 +137,7 @@ milp is a pyomo instance, additional constraints can be provided in a bespoke ma
 
 .. code-block:: python
 
-    milp = formulate(scenario= case, demand = 200, constraints={Constraints.cost, Constraints.inventory, Constraints.production, Constraints.resource_balance}, \
+    milp = formulate(scenario= case, demand = {place: {Power: 200}}, constraints={Constraints.cost, Constraints.inventory, Constraints.production, Constraints.resource_balance}, \
         objective= Objective.cost)
 
 **Solve**

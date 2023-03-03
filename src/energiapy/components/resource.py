@@ -15,9 +15,12 @@ from dataclasses import dataclass
 import pandas
 from enum import Enum, auto
 
-class UncertainResource(Enum):
-    demand = auto()
-    price = auto()
+class VaryingResource(Enum):
+    deterministic_demand = auto()
+    deterministic_price = auto()
+    uncertain_demand = auto()
+    uncertain_price = auto()
+    
 
 @dataclass
 class Resource:
@@ -70,11 +73,9 @@ class Resource:
     basis: str = 'unit'
     block: str = ''
     citation: str = 'citation needed'
-    varying: bool = False
+    varying: VaryingResource = None
     label: str = ''
     gwp: float = 0
-    uncertain: UncertainResource = None
-
 
     def __post_init__(self):
         if self.demand is True:

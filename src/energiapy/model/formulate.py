@@ -87,6 +87,8 @@ def formulate(scenario: Scenario, constraints:Set[Constraints], objective:Object
         ConcreteModel: instance
     """
 
+    if type(demand) is dict:
+        demand = {i.name: {j.name: demand[i][j] for j in demand[i].keys()} for i in demand.keys()}
         
     instance = ConcreteModel() 
     generate_sets(instance=instance, scenario= scenario)

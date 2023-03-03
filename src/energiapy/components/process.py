@@ -30,9 +30,10 @@ class ProcessMode(Enum):
     multi = auto() # allows multiple modes
     storage = auto()
 
-class UncertainProcess(Enum):
-    capacity = auto() #if capacity is uncertain
-
+class VaryingProcess(Enum):
+    deterministic_capacity = auto() #if capacity is uncertain
+    uncertain_capacity = auto()
+    
 @dataclass
 class Process:
     """
@@ -59,13 +60,12 @@ class Process:
         block (str, optional): define block for convenience. Defaults to None.
         citation (str, optional): citation for data. Defaults to 'citation needed'.
         lifetime (float, optional): the expected lifetime of process. Defaults to None.
-        varying (bool, optional): whether process is subject to uncertainty. Defaults to False.
+        varying (VaryingProcess, optional): whether process is subject to uncertainty. Defaults to False.
         p_fail (float, optional): failure rate of process. Defaults to None.
         label(str, optional):Longer descriptive label if required. Defaults to ''
         storage(list, optional): Resource that can be stored in process.
         storage_loss (float, optional): If storage process, storage loss experienced per time period in scheduling horizon. Defaults to 0. 
-        uncertain (UncertainProcess, optional): the type of uncertainty the process experiences. Defaults to None.
-
+        
     Examples:
         For processes with varying production capacity
         
@@ -101,12 +101,12 @@ class Process:
     block: str = ''
     citation: str = 'citation needed'
     lifetime: int = None
-    varying:bool = False
+    varying: VaryingProcess = None
     p_fail: float = None
     label: str = ''
     storage: Resource = None
     storage_loss: float = 0
-    uncertain: UncertainProcess = None
+
     
     
     def __post_init__(self):
