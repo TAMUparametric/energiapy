@@ -15,9 +15,6 @@ from pyomo.environ import ConcreteModel, Var, NonNegativeReals, Set, Binary
 from itertools import product
 from ...utils.scale_utils import scale_pyomo_set
 
-from ...components.process import UncertainProcess
-from ...components.resource import UncertainResource
-
 
 def generate_uncertainty_vars(instance:ConcreteModel, scale_level:int= 0):
     """declares pyomo variables for uncertainty analysis of processes and resources

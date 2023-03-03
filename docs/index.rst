@@ -14,7 +14,7 @@ Welcome to energiapy's documentation!
    :caption: Examples
 
    small_example
-
+   multi_loc_example
 
 .. toctree::
    :maxdepth: 5
