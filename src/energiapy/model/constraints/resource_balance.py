@@ -69,7 +69,7 @@ def resource_purchase_constraint(instance: ConcreteModel, cost_factor: dict = {}
                         scale_levels=instance.scales.__len__())
 
     def resource_purchase_rule(instance, location, resource, *scale_list):
-        if resource in instance.resources_varying.intersection(loc_res_dict[location]):
+        if resource in instance.resources_varying_price.intersection(loc_res_dict[location]):
             return instance.B[location, resource, scale_list[:scheduling_scale_level+1]] == price[location][resource] *\
                 cost_factor[location][resource][scale_list[:expenditure_scale_level+1]] * \
                 instance.C[location, resource,
