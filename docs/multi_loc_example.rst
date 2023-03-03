@@ -291,7 +291,7 @@ The instance can then be solved using an appropriate solver. Here we solve the p
     results = solve(scenario = scenario, instance= milp, solver= 'gurobi', name=f"Multi-Loc", print_solversteps = True)
 
 
-**Plotting output 
+**Plotting output**
 
 The results can be analyzed, and used for illustrations.
 Note that plotting of results requires the provision of the names as opposed to energiapy objects.
