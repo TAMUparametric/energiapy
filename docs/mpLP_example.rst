@@ -21,7 +21,8 @@ The sets and variables used are stated here
 - R\ :sup:`sell` - set of resources that can be discharged
 - R\ :sup:`demand` - set of resources that meet  demand
 - R\ :sup:`cons` - set of resources that can be consumed
-- P\ :sup:`uncertain` - set of processes with uncertain capacity
+- P\ :sup:`uncertain-cap` - set of processes with uncertain capacity
+- P\ :sup:`uncertain-capex` - set of processes with uncertain capital expenditure
 - T - set of temporal periods 
 - T\ :sup:`net` - set of temporal periods t for network level decision making
 - T\ :sup:`sch` - set of temporal periods t for schedule level decision making
@@ -56,11 +57,11 @@ The sets and variables used are stated here
 *Parametric Variables*
 
 
-- :math:`{\\alpha}` \ :sub:`p` - uncertainty in production capacity of process p :math:`{\in}` P\ :sup:`uncertain`
+- :math:`{\\alpha}` \ :sub:`p` - uncertainty in production capacity of process p :math:`{\in}` P\ :sup:`uncertain-cap`
 - :math:`{\\beta}` \ :sub:`r` - uncertainty in demand for resource r :math:`{\in}` R\ :sup:`demand`
 - :math:`{\\gamma}` \ :sub:`r` - uncertainty in purchase price for resource r :math:`{\in}` R\ :sup:`cons`
 - :math:`{\\delta}` \ :sub:`r` - uncertainty in consumption availability for resource r :math:`{\in}` R\ :sup:`demand`
-
+- :math:`{\\epsilon}` \ :sub:`p` - uncertainty in the cost of technology for p :math:`{\in}` P\ :sup:`uncertain-capex`
 
 *Parameters*
 
@@ -79,7 +80,7 @@ Given is a general MILP modeling and optimization framework for simultaneous net
 
 .. math::
     \begin{equation}
-        min \sum_{t \in \mathcal{T}^{net}} \sum_{p \in \mathcal{P}} Capex_{p,t} \times Cap^P_{p,t} + \sum_{t \in \mathcal{T}^{sch}} \sum_{r \in \mathcal{R}^{cons}}  Price_{r,t}  \times C_{r,t} + \sum_{t \in \mathcal{T}^{sch}} \sum_{p \in \mathcal{P}}  Vopex_{r,t} \times P_{r,t} 
+        min \sum_{t \in \mathcal{T}^{net}} \sum_{p \in \mathcal{P}} Capex_{p,t} \times Cap^P_{p,t} + \sum_{t \in \mathcal{T}^{sch}} \sum_{p \in \mathcal{P}}  Vopex_{r,t} \times P_{r,t} + \sum_{t \in \mathcal{T}^{sch}} \sum_{r \in \mathcal{R}^{cons}}  Price_{r,t}  \times C_{r,t} 
     \end{equation}
 
 
@@ -138,10 +139,11 @@ Given is a general MILP modeling and optimization framework for simultaneous net
 
 Reformulated, a general mpLP for the above MILP will looks something like this:
 
-.. math::     
+.. math::
     \begin{equation}
-        min \hspace{1cm} \sum_{p \in \mathcal{P}} Capex_p \times P_p + \sum_{r \in \mathcal{R}^{cons}} C_r \times \gamma_r 
+        min \hspace{1cm} \sum_{p \in \mathcal{P}} Capex_p \times \epsilon_p \times P_p + \sum_{r \in \mathcal{R}^{cons}} C_r \times \gamma_r 
     \end{equation}
+
 
 .. math::
     \begin{equation}
@@ -170,7 +172,7 @@ Reformulated, a general mpLP for the above MILP will looks something like this:
 
 .. math::
     \begin{equation}
-        -Inv_{r} + \sum_{p \in \mathcal{P}} P_{p} \times \eta(p,r) = 0 \hspace{1cm} \forall r \in \mathcal{R}^{stored}
+        - Inv_{r} + \sum_{p \in \mathcal{P}} P_{p} \times \eta(p,r) = 0 \hspace{1cm} \forall r \in \mathcal{R}^{stored}
     \end{equation}
 
 .. math::
@@ -200,9 +202,15 @@ Reformulated, a general mpLP for the above MILP will looks something like this:
 
 .. math::
     \begin{equation}
-        S_r, C_r, Inv_r, P_p \in R_{\geq 0}
+        \epsilon_p \in E_p \hspace{1cm} \forall p \in \mathcal{P}
     \end{equation}
 
+
+.. math::
+    \begin{equation}
+        S_r, C_r, Inv_r, P_p \in R_{\geq 0}
+    \end{equation}
+    
 **Example energiapy implementation**
 
 Let us now look at an example problem
