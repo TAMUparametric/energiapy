@@ -39,23 +39,24 @@ The sets and variables used are stated here
 - R\ :sup:`cons` - set of resources that can be consumed
 - P\ :sup:`uncertain` - set of processes with uncertain capacity
 - T - set of temporal periods 
-
+- T\ :sup:`net` - set of temporal periods t for network level decision making
+- T\ :sup:`sch` - set of temporal periods t for schedule level decision making
 
 
 *Continuous Variables*
 
 
-- P\ :sub:`p,t` - production level of p :math:`{\in}`  P in time period t :math:`{\in}` T  
+- P\ :sub:`p,t` - production level of p :math:`{\in}`  P in time period t :math:`{\in}` T\ :sup:`sch`  
     
-- C\ :sub:`r,t` - consumption of r :math:`{\in}` R\ :sup:`cons` time period t :math:`{\in}` T 
+- C\ :sub:`r,t` - consumption of r :math:`{\in}` R\ :sup:`cons` time period t :math:`{\in}` T\ :sup:`sch` 
     
-- S\ :sub:`r,t` - discharge of r :math:`{\in}` R\ :sup:`demand` time period t :math:`{\in}` T 
+- S\ :sub:`r,t` - discharge of r :math:`{\in}` R\ :sup:`demand` time period t :math:`{\in}` T\ :sup:`sch` 
     
-- Inv\ :sub:`r,t` - inventory level of r :math:`{\in}` R\ :sup:`storage`  in time period t :math:`{\in}` T
+- Inv\ :sub:`r,t` - inventory level of r :math:`{\in}` R\ :sup:`storage`  in time period t :math:`{\in}` T\ :sup:`sch`
     
-- Cap\ :sup:`S` \ :sub:`r` - installed inventory capacity for resource r :math:`{\in}`  R\ :sup:`storage` 
+- Cap\ :sup:`S` \ :sub:`r,t` - installed inventory capacity for resource r :math:`{\in}`  R\ :sup:`storage` in time period t :math:`{\in}` T\ :sup:`net`
     
-- Cap\ :sup:`P` \ :sub:`p` - installed production capacity for process p :math:`{\in}` P
+- Cap\ :sup:`P` \ :sub:`p,t` - installed production capacity for process p :math:`{\in}` P in time period t :math:`{\in}` T\ :sup:`net`
     
 
 
@@ -63,19 +64,18 @@ The sets and variables used are stated here
 *Binary Variables*
 
 
-- X\ :sup:`P` \ :sub:`p` - network binary for production process p :math:`{\in}` P
-- X\ :sup:`S` \ :sub:`r` - network binary for inventory of resource r :math:`{\in}` R\ :sup:`storage`
-
-
+- X\ :sup:`P` \ :sub:`p,t` - network binary for production process p :math:`{\in}` P in time period t :math:`{\in}` T\ :sup:`net`
+- X\ :sup:`S` \ :sub:`r,t` - network binary for inventory of resource r :math:`{\in}` R\ :sup:`storage` in time period t :math:`{\in}` T\ :sup:`net`
 
 *Parameters*
 
-- Cap\ :sup:`P-max` \ :sub:`p` - maximum production capacity of process p :math:`{\in}` P
-- Cap\ :sup:`S-max` \ :sub:`r` - maximum inventory capacity for process r :math:`{\in}` R\ :sup:`storage`
-- Capex\ :sub:`p` - capital expenditure for process p :math:`{\in}` P in time t :math:`{\in}` T
-- Price\ :sub:`r,t` - purchase price for resource r :math:`{\in}` R\ :sup:`cons` in time t :math:`{\in}` T
-- C\ :sup:`max` \ :sub:`r,t` - maximum consumption availability for resource r :math:`{\in}` R\ :sup:`cons` in time t :math:`{\in}` T}
-- D\ :sub:`r,t` - demand for resource r in R\ :sup:`sell` in time t :math:`{\in}` T
+
+- Cap\ :sup:`P-max` \ :sub:`p,t` - maximum production capacity of process p :math:`{\in}` P in time period t :math:`{\in}` T\ :sup:`net`
+- Cap\ :sup:`S-max` \ :sub:`r,t` - maximum inventory capacity for process r :math:`{\in}` R\ :sup:`storage` in time period t :math:`{\in}` T\ :sup:`net`
+- Capex\ :sub:`p,t` - capital expenditure for process p :math:`{\in}` P in time t :math:`{\in}` T\ :sup:`net`
+- Price\ :sub:`r,t` - purchase price for resource r :math:`{\in}` R\ :sup:`cons` in time t :math:`{\in}` T\ :sup:`sch`
+- C\ :sup:`max` \ :sub:`r,t` - maximum consumption availability for resource r :math:`{\in}` R\ :sup:`cons` in time t :math:`{\in}` T\ :sup:`sch`
+- D\ :sub:`r,t` - demand for resource r in R\ :sup:`sell` in time t :math:`{\in}` T\ :sup:`sch`
 
 **MILP Formulation**
 
