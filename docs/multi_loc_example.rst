@@ -23,6 +23,153 @@ The systems modeled in the example case study include:
 
 .. image:: multiloc_im.png
 
+
+**Nomenclature**
+
+*Sets*
+
+
+- R - set of all resources r
+- P - set of all processes p
+- T - set of temporal periods p
+- B - set of transport modes b
+- L - set of locations l
+
+
+*Subsets*
+
+
+- R\ :sup:`storage` - set of resources that can be stored
+- R\ :sup:`sell` - set of resources that can be discharged
+- R\ :sup:`demand` - set of resources that meet  demand
+- R\ :sup:`cons` - set of resources that can be consumed
+- P\ :sup:`uncertain` - set of processes with uncertain capacity
+- R\ :sup:`trans` - set of resources that can be transported
+- T - set of temporal periods p
+- L\ :sup:`source` - set of source locations 
+- L\ :sup:`sink` - set of sink locations 
+
+
+
+
+*Continuous Variables*
+
+
+- P\ :sub:`l,p,t`- production level of p :math:`{\in}`  P in time period t :math:`{\in}` T\ :sup:`sch`  
+
+- C\ :sub:`l,r,t`- consumption of r :math:`{\in}` in R\ :sup:`cons` time period t :math:`{\in}` T\ :sup:`sch` 
+
+- S\ :sub:`l,r,t`- discharge of r :math:`{\in}` in R\ :sup:`demand` time period t :math:`{\in}` T\ :sup:`sch` 
+
+- Inv\ :sub:`l,r,t`- inventory level of r :math:`{\in}` R\ :sup:`storage`  in time period t :math:`{\in}` T\ :sup:`sch` 
+
+- Cap\ :sup:`S` \ :sub:`l,r,t` - installed inventory capacity for resource r :math:`{\in}`  R\ :sup:`storage` in time period t :math:`{\in}` T\ :sup:`net` 
+
+- Cap\ :sup:`P` \ :sub:`l,p,t` - installed production capacity for process p :math:`{\in}` P in time period t :math:`{\in}` T\ :sup:`net` 
+
+- Trans\ :sup:`out` \ :sub:`b,l,l',p,t` - amount of r :math:`{\in}` R through mode b :math:`{\in}` B in time period t :math:`{\in}` T\ :sup:`net` 
+
+- Trans\ :sup:`in` \ :sub:`b,l,l',p,t` - amount of r :math:`{\in}` R through mode b :math:`{\in}` B in time period t :math:`{\in}` T\ :sup:`net` 
+
+
+
+*Binary Variables*
+
+
+- X\ :sup:`P` \ :sub:`l,p,t` - network binary for production process p :math:`{\in}` P
+- X\ :sup:`S` \ :sub:`l,r,t` - network binary for inventory of resource r :math:`{\in}`  R\ :sup:`storage` 
+- X\ :sup:`B` \ :sub:`b,l,l',r,t` - binary for transport of resource r :math:`{\in}` R\ :sup:`trans`   between locations
+
+
+
+*Parameters*
+
+
+- Cap\ :sup:`P-max` \ :sub:`l,p,t` - maximum production capacity of process p :math:`{\in}` P in time t :math:`{\in}` T\ :sup:`net`
+- Cap\ :sup:`S-max` \ :sub:`l,r,t` - maximum inventory capacity for process r :math:`{\in}` R\ :sup:`storage` in time t :math:`{\in}` T\ :sup:`net`
+- Capex\ :sub:`l,p,t` - capital expenditure for process p :math:`{\in}` P in time t :math:`{\in}` T\ :sup:`net`
+- Vopex\ :sub:`l,p,t` - variable operational expenditure for process p :math:`{\in}` P in time t :math:`{\in}` T\ :sup:`sch`
+- Price\ :sub:`l,r,t` - purchase price for resource r :math:`{\in}` R\ :sup:`cons` in time t :math:`{\in}` T\ :sup:`sch`
+- C\ :sup:`max` \ :sub:`l,r,t` - maximum consumption availability for resource r :math:`{\in}` R\ :sup:`cons` in time t :math:`{\in}` T\ :sup:`sch`
+- D\ :sub:`l,r,t` - demand for resource r $in$ R\ :sup:`sell` in time t :math:`{\in}` T\ :sup:`sch`
+- Trans\ :sup:`cost` \ :sub:`b,r,t- transport cost for resource r $in$ R\ :sup:`trans` in time t :math:`{\in}` T\ :sup:`sch` for mode b :math:`{\in}` B
+
+**MILP Formulation**
+
+A multi-location, multi-product energy system model can be formulated as shown here 
+
+
+
+.. math::
+    \begin{equation}
+        min \sum_{l \in \mathcal{L}} \Big(\sum_{t \in \mathcal{T}^{net}} \sum_{p \in \mathcal{P}} Capex_{l,p,t} \times Cap^P_{l,p,t} +  \sum_{t \in \mathcal{T}^{sch}} \sum_{p \in \mathcal{P}}  Vopex_{l,r,t} \times P_{l,r,t} 
+    \end{equation}
+
+.. math::
+    \begin{equation*}
+        \sum_{b \in \mathcal{B}} \Big(\sum_{t \in \mathcal{T}^{sch}} \sum_{l \in \mathcal{L}} Trans^{cost}_{b,r,t} Trans^{in}_{b,l,l',r,t} + \sum_{t \in \mathcal{T}^{sch}} \sum_{l \in \mathcal{L}} Trans^{cost}_{b,r,t}Trans^{out}_{b,l,l',r,t} \Big)
+    \end{equation*}
+
+.. math::
+    \begin{equation*}
+        + \sum_{t \in \mathcal{T}^{sch}} \sum_{r \in \mathcal{R}^{cons}} C_{l,r,t} \times Price_{l,r,t} \Big)
+    \end{equation*}
+
+.. math::
+    \begin{equation}
+        Cap^S_{l,r,t} \leq Cap^{S-max}_{l,r,t} \times X^S_{l,r,t} \hspace{1cm} \forall r \in \mathcal{R}^{storage}, t \in \mathcal{T}^{net}
+    \end{equation}
+
+.. math::
+    \begin{equation}
+        Cap^P_{l,p,t} \leq Cap^{P-max}_{l,p,t} \times X^P_{l,p,t}  \hspace{1cm} \forall p \in \mathcal{P}, t \in \mathcal{T}^{net}, l \in \mathcal{L}
+    \end{equation} 
+
+.. math::
+    \begin{equation}
+        P_{l,p,t} \leq Cap^{P}_{l,p,t}  \hspace{1cm} \forall p \in \mathcal{P}, t \in \mathcal{T}^{sch}
+    \end{equation} 
+
+.. math::
+    \begin{equation}
+        Inv_{l,r,t} \leq Cap^{S}_{l,r,t}  \hspace{1cm} \forall r \in \mathcal{R}^{storage}, t \in \mathcal{T}^{sch}
+    \end{equation} 
+
+
+.. math::
+    \begin{equation}
+        - S_{l,r,t} \leq - D_{l,r,t}  \hspace{1cm} \forall r \in \mathcal{R}, t \in \mathcal{T}^{sch}
+    \end{equation}
+
+.. math::
+    \begin{equation}
+        C_{l,r,t} \leq C^{max}_{l,r,t} \hspace{1cm} \forall r \in \mathcal{R}, t \in \mathcal{T}^{sch}
+    \end{equation}
+
+
+.. math::
+    \begin{equation}
+        Trans^{in/out}_{b, l, l', r,t} \leq Trans^{max-in/out}_{b, l,l', r,t} \times X^B_{b,l,l',r,t} \hspace{1cm} \forall r \in \mathcal{R}, t \in \mathcal{T}^{sch} , (l,l') \in \mathcal{L}^2, b \in \mathcal{B} 
+    \end{equation}
+
+
+.. math::
+    \begin{equation}
+        \sum_{p \in \mathcal{P}} P_{l,p,t} \times \eta(p,r) + C_{l,r,t} + \sum_{l' \in \mathcal{L} \cap {l}}Trans^{in}_{l,l',r,t} = \sum_{l' \in \mathcal{L} \cap {l}} Trans^{out}_{l,l',r,t} + Inv_{l,r,t} + S_{l,r,t}  
+    \end{equation}
+
+    \begin{equation*}
+        \forall r \in \mathcal{R}^{cons}, t \in \mathcal{T}^{sch}, l \in \mathcal{L}
+    \end{equation*}
+
+.. math::
+    \begin{equation}
+        S_{l,r,t}, C_{l,r,t}, Inv_{l,r,t}, P_{l,p,t}, Cap^P_{l,p,t}, Cap^S_{l,r,t}, Trans^{in/out}_{b,l,l',r,t} \in R_{\geq 0}
+    \end{equation}
+
+
+The problem can now modeled in energiapy
+
 **import modules**
 
 .. code-block:: python 
