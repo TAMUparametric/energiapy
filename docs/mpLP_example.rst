@@ -68,7 +68,7 @@ The sets and variables used are stated here
 - Cap\ :sup:`S-max` \ :sub:`r` - maximum inventory capacity for process r :math:`{\in}` R\ :sup:`storage`
 - Capex\ :sub:`p` - capital expenditure for process p :math:`{\in}` P in time t :math:`{\in}` T
 - Price\ :sub:`r,t` - purchase price for resource r :math:`{\in}` R\ :sup:`cons` in time t :math:`{\in}` T
-- C\ :sup:`max ` \ :sub:`r,t` - maximum consumption availability for resource r :math:`{\in}` R\ :sup:`cons` in time t :math:`{\in}` T}
+- C\ :sup:`max` \ :sub:`r,t` - maximum consumption availability for resource r :math:`{\in}` R\ :sup:`cons` in time t :math:`{\in}` T}
 - D\ :sub:`r,t` - demand for resource r in R\ :sup:`sell` in time t :math:`{\in}` T
 
 **MILP Formulation**
@@ -201,7 +201,7 @@ Reformulated, a general mpLP for the above MILP will looks something like this:
         S_r, C_r, Inv_r, P_p \in R_{\geq 0}
     \end{equation}
 
-**Example problem**
+**Example energiapy implementation**
 
 Let us now look at an example problem
 
@@ -245,6 +245,7 @@ Let us now look at an example problem
     \begin{equation}
         \beta_r \in \mathcal{B}_r \hspace{1cm} \forall r \in \{Power\} 
     \end{equation}
+
 
 Now we are ready to implement the above problem in energiapy
 
