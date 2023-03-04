@@ -57,11 +57,11 @@ The sets and variables used are stated here
 *Parametric Variables*
 
 
-- :math:`{\\alpha}` \ :sub:`p` - uncertainty in production capacity of process p :math:`{\in}` P\ :sup:`uncertain-cap`
-- :math:`{\\beta}` \ :sub:`r` - uncertainty in demand for resource r :math:`{\in}` R\ :sup:`demand`
-- :math:`{\\gamma}` \ :sub:`r` - uncertainty in purchase price for resource r :math:`{\in}` R\ :sup:`cons`
-- :math:`{\\delta}` \ :sub:`r` - uncertainty in consumption availability for resource r :math:`{\in}` R\ :sup:`demand`
-- :math:`{\\epsilon}` \ :sub:`p` - uncertainty in the cost of technology for p :math:`{\in}` P\ :sup:`uncertain-capex`
+- :math:`{\alpha}` \ :sub:`p` - uncertainty in production capacity of process p :math:`{\in}` P\ :sup:`uncertain-cap`
+- :math:`{\beta}` \ :sub:`r` - uncertainty in demand for resource r :math:`{\in}` R\ :sup:`demand`
+- :math:`{\gamma}` \ :sub:`r` - uncertainty in purchase price for resource r :math:`{\in}` R\ :sup:`cons`
+- :math:`{\delta}` \ :sub:`r` - uncertainty in consumption availability for resource r :math:`{\in}` R\ :sup:`demand`
+- :math:`{\epsilon}` \ :sub:`p` - uncertainty in the cost of technology for p :math:`{\in}` P\ :sup:`uncertain-capex`
 
 *Parameters*
 
@@ -210,7 +210,7 @@ Reformulated, a general mpLP for the above MILP will looks something like this:
     \begin{equation}
         S_r, C_r, Inv_r, P_p \in R_{\geq 0}
     \end{equation}
-    
+
 **Example energiapy implementation**
 
 Let us now look at an example problem
