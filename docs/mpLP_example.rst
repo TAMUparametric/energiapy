@@ -74,3 +74,75 @@ The sets and variables used are stated here
 **MILP Formulation**
 
 Given is a general MILP modeling and optimization framework for simultaneous network design and scheduling.
+
+
+.. math::
+    \begin{equation}
+        min \hspace{1cm} \sum_{p \in \mathcal{P}} Capex_p \times Cap^P_p + \sum_{t \in \mathcal{T}} \sum_{r \in \mathcal{R}^{cons}} C_{r,t} \times Price_{r,t}
+    \end{equation}
+
+.. math::
+    \begin{equation}
+        Cap^S_r \leq Cap^{S-max}_r \times X^S_r \hspace{1cm} \forall r \in \mathcal{R}^{storage}, t \in \mathcal{T}
+    \end{equation}
+
+.. math::
+    \begin{equation}
+        Cap^P_p \leq Cap^{P-max}_p \times X^P_p  \hspace{1cm} \forall p \in \mathcal{P}, t \in \mathcal{T}
+    \end{equation} 
+
+.. math::
+    \begin{equation}
+        P_{p,t} \leq Cap^{P}_p  \hspace{1cm} \forall p \in \mathcal{P}, t \in \mathcal{T}
+    \end{equation} 
+
+.. math::
+    \begin{equation}
+        Inv_{r,t} \leq Cap^{S}_r  \hspace{1cm} \forall r \in \mathcal{R}^{storage}, t \in \mathcal{T}
+    \end{equation} 
+
+.. math::
+    \begin{equation}
+        - S_{r,t} \leq - D_{r,t}  \hspace{1cm} \forall r \in \mathcal{R}, t \in \mathcal{T}
+    \end{equation}
+
+.. math::
+    \begin{equation}
+        C_{r,t} \leq C^{max}_{r,t} \hspace{1cm} \forall r \in \mathcal{R}, t \in \mathcal{T}
+    \end{equation}
+
+.. math::
+    \begin{equation}
+        - S_{r,t} + \sum_{p \in \mathcal{P}} P_{p,t} \times \eta(p,r) = 0 \hspace{1cm} \forall r \in \mathcal{R}^{sell}, t \in \mathcal{T}
+    \end{equation}
+
+.. math::
+    \begin{equation}
+        -Inv_{r,t} + \sum_{p \in \mathcal{P}} P_{p,t} \times \eta(p,r) = 0 \hspace{1cm} \forall r \in \mathcal{R}^{stored}, t \in \mathcal{T}
+    \end{equation}
+
+.. math::
+    \begin{equation}
+        \sum_{p \in \mathcal{P}} P_{p,t} \times \eta(p,r) + C_{r,t} = 0 \hspace{1cm} \forall r \in \mathcal{R}^{cons}, t \in \mathcal{T}
+    \end{equation}
+
+.. math::
+    \begin{equation}
+        S_{r,t}, C_{r,t}, Inv_{r,t}, P_{p,t}, Cap^P_p, Cap^S_r \in R_{\geq 0}
+    \end{equation}
+
+
+**mpLP**
+
+Reformulated, a general mpLP for the above MILP will looks something like this:
+
+.. math::     
+    \begin{equation}
+        min \hspace{1cm} \sum_{p \in \mathcal{P}} Capex_p \times P_p + \sum_{r \in \mathcal{R}^{cons}} C_r \times \gamma_r 
+    \end{equation}
+
+.. math::
+    \begin{equation}
+        Inv_r \leq Cap^{S-max}_r \hspace{1cm} \forall r \in \mathcal{R}^{stored}
+    \end{equation}
+
