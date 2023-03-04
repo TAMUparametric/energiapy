@@ -31,7 +31,7 @@ The systems modeled in the example case study include:
 
 - R - set of all resources r
 - P - set of all processes p
-- T - set of temporal periods p
+- T - set of temporal periods t
 - B - set of transport modes b
 - L - set of locations l
 
@@ -45,7 +45,8 @@ The systems modeled in the example case study include:
 - R\ :sup:`cons` - set of resources that can be consumed
 - P\ :sup:`uncertain` - set of processes with uncertain capacity
 - R\ :sup:`trans` - set of resources that can be transported
-- T - set of temporal periods p
+- T\ :sup:`sch` - set of temporal periods t for scheduling decisions
+- T\ :sup:`net`- set of temporal periods t for network decisions
 - L\ :sup:`source` - set of source locations 
 - L\ :sup:`sink` - set of sink locations 
 
