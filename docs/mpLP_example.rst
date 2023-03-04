@@ -7,73 +7,72 @@ In this example a simple multi-scale energy systems MILP is reformulated as a si
 
 The sets and variables used are stated here
 
-.. math::
 
-        
-    $\textbf{Sets}$
-
-
-    - $\mathcal{R}$ - set of all resources r
-    - $\mathcal{P}$ - set of all processes p
-    - $\mathcal{T}$ - set of temporal periods p
+    
+*Sets*
 
 
-    $\textbf{Subsets}$
+- R - set of all resources r
+- P - set of all processes p
+- T - set of temporal periods p
 
 
-    - $\mathcal{R}^{storage}$ - set of resources that can be stored
-    - $\mathcal{R}^{sell}$ - set of resources that can be discharged
-    - $\mathcal{R}^{demand}$ - set of resources that meet  demand
-    - $\mathcal{R}^{cons}$ - set of resources that can be consumed
-    - $\mathcal{P}^{uncertain}$ - set of processes with uncertain capacity
-    - $\mathcal{T}$ - set of temporal periods p
+*Subsets*
 
 
-
-    $\textbf{Continuous Variables}$
-
-
-    - $P_{p,t}$ - production level of p $\in$  $\mathcal{P}$ in time period t $\in$ $\mathcal{T}$  
-        
-    - $C_{r,t}$ - consumption of r $\in$ in $\mathcal{R}^{cons}$ time period t $\in$ $\mathcal{T}$ 
-        
-    - $S_{r,t}$ - discharge of r $\in$ in $\mathcal{R}^{demand}$ time period t $\in$ $\mathcal{T}$ 
-        
-    - $Inv_{r,t}$ - inventory level of r $\in$ $\mathcal{R}^{storage}$  in time period t $\in$ $\mathcal{T}$
-        
-    - $Cap^S_{r}$ - installed inventory capacity for resource r $\in$  $\mathcal{R}^{storage}$ 
-        
-    - $Cap^P_{p}$ - installed production capacity for process p $\in$ $\mathcal{P}$
-        
+- R\ :sup:`storage` - set of resources that can be stored
+- R\ :sup:`sell` - set of resources that can be discharged
+- R\ :sup:`demand` - set of resources that meet  demand
+- R\ :sup:`cons` - set of resources that can be consumed
+- P\ :sup:`uncertain` - set of processes with uncertain capacity
+- T - set of temporal periods p
 
 
 
-    $\textbf{Binary Variables}$
+*Continuous Variables*
 
 
-    - $X^P_{p}$ - network binary for production process p $\in$ $\mathcal{P}$
-    - $X^S_{r}$ - network binary for inventory of resource r  $\mathcal{R}^{storage}$ 
+- P\ :sub:`p,t` - production level of p :math:`{\in}`  P in time period t :math:`{\in}` T  
+    
+- C\ :sub:`r,t` - consumption of r :math:`{\in}` R\ :sup:`cons` time period t :math:`{\in}` T 
+    
+- S\ :sub:`r,t` - discharge of r :math:`{\in}` R\ :sup:`demand` time period t :math:`{\in}` T 
+    
+- Inv\ :sub:`r,t` - inventory level of r :math:`{\in}` R\ :sup:`storage`  in time period t :math:`{\in}` T
+    
+- Cap\ :sup:`S` \ :sub:`r` - installed inventory capacity for resource r :math:`{\in}`  R\ :sup:`storage` 
+    
+- Cap\ :sup:`P` \ :sub:`p` - installed production capacity for process p :math:`{\in}` P
+    
 
 
 
-    $\textbf{Parametric Variables}$
+*Binary Variables*
 
 
-    - $\alpha_{p}$ - uncertainty in production capacity of process p $\in$ $\mathcal{P}^{uncertain}$
-    - $\beta_{r}$ - uncertainty in demand for resource r $\in$ $\mathcal{R}^{demand}$
-    - $\gamma_{r}$ - uncertainty in purchase price for resource r $\in$ $\mathcal{R}^{cons}$
-    - $\delta_{r}$ - uncertainty in consumption availability for resource r $\in$ $\mathcal{R}^{cons}$
+- X\ :sup:`P` \ :sub:`p` - network binary for production process p :math:`{\in}` P
+- X\ :sup:`S` \ :sub:`r` - network binary for inventory of resource r :math:`{\in}` R\ :sup:`storage`
 
 
-    $\textbf{Parameters}$
+
+*Parametric Variables*
 
 
-    - $Cap^{P-max}_p$ - maximum production capacity of process p $\in$ $\mathcal{P}$
-    - $Cap^{S-max}_r$ - maximum inventory capacity for process r $\in$ $\mathcal{R}^{storage}$
-    - $Capex_p$ - capital expenditure for process p $\in$ $\mathcal{P}$ in time t $\in$ $\mathcal{T}$
-    - $Price_{r,t}$ - purchase price for resource r $\in$ $\mathcal{R}^{cons}$ in time t $\in$ $\mathcal{T}$
-    - $C^{max}_{r,t}$ - maximum consumption availability for resource r $\in$ $\mathcal{R}^{cons}$ in time t $\in$ $\mathcal{T}$
-    - $D_{r,t}$ - demand for resource r $in$ $\mathcal{R}^{sell}$ in time t $\in$ $\mathcal{T}$
+- :math:`{\\alpha}` \ :sub:`p` - uncertainty in production capacity of process p :math:`{\in}` P\ :sup:`uncertain`
+- :math:`{\\beta}` \ :sub:`r` - uncertainty in demand for resource r :math:`{\in}` R\ :sup:`demand`
+- :math:`{\\gamma}` \ :sub:`r` - uncertainty in purchase price for resource r :math:`{\in}` R\ :sup:`cons`
+- :math:`{\\delta}` \ :sub:`r` - uncertainty in consumption availability for resource r :math:`{\in}` R\ :sup:`demand`
+
+
+*Parameters*
+
+
+- Cap\ :sup:`P-max` \ :sub:`p` - maximum production capacity of process p :math:`{\in}` P
+- Cap\ :sup:`S-max` \ :sub:`r` - maximum inventory capacity for process r :math:`{\in}` R\ :sup:`storage`
+- Capex\ :sub:`p` - capital expenditure for process p :math:`{\in}` P in time t :math:`{\in}` T
+- Price\ :sub:`r,t ` - purchase price for resource r :math:`{\in}` R\ :sup:`cons` in time t :math:`{\in}` T
+- C\ :sup:`max ` \ :sub:`r,t` - maximum consumption availability for resource r :math:`{\in}` R\ :sup:`cons` in time t :math:`{\in}` T}
+- D\ :sub:`r,t` - demand for resource r in R\ :sup:`sell` in time t :math:`{\in}` T
 
 **MILP Formulation**
 
