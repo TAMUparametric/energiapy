@@ -1,4 +1,4 @@
-#%%
+
 """Math utilities  
 """
 
@@ -29,16 +29,20 @@ def scaler(input_df: pandas.DataFrame, scale:list, child_scale:list = None) -> p
 
     cols = list(input_df.columns)
     scaled_df = pandas.DataFrame()
-
     for col in cols:
         if child_scale is not None:
-            col_names = [col + '-' + str(i) for i in range(len(child_scale))]
+            col_names = [str(col) + '-' + str(i) for i in range(len(child_scale))]
             reshaped_df = numpy.reshape(input_df[col].values, (len(scale), len(child_scale)))
         else:
             col_names = [col]
-            reshaped_df = input_df      
-            
+            # reshaped_df = input_df 
+            if len(cols) > 1: 
+                reshaped_df = numpy.reshape(input_df[col].values, (len(scale), 1))
+            else:
+                reshaped_df = input_df 
+                    
         scaler = StandardScaler().fit(reshaped_df)
+
         scaled_iter = pandas.DataFrame(scaler.transform(reshaped_df), columns=col_names)
         scaled_df = pandas.concat([scaled_df, scaled_iter], axis = 1)
     return scaled_df
@@ -81,4 +85,4 @@ def generate_connectivity_matrix(scale_len):
             connect_[i_, i_+1] = 1
     return connect_
 
-# %%
+
