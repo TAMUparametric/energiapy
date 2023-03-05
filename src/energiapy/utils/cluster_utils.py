@@ -12,7 +12,7 @@ __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
 import pandas
-from numpy import polyfit, array_split, zeros, inf, min, argmin, ndarray
+from numpy import polyfit, array_split, zeros, inf, min, argmin, ndarray, arange
 from itertools import product
 from typing import Union
 from sklearn.cluster import AgglomerativeClustering
@@ -30,6 +30,11 @@ import matplotlib.pyplot as plt
 class Clustermethod(Enum):
     agg_hierarchial = auto()
     dynamic_warping = auto()
+    
+class Include(Enum):
+    cost = auto()
+    demand = auto()
+    capacity = auto()
 
     
 
@@ -47,18 +52,22 @@ def agg_hierarchial(scales: Temporal_scale, scale_level: int, periods: int, incl
     Returns:
         _type_: _description_
     """
-    if 'cost' in include:
-        cost_factor_df = pandas.DataFrame(cost_factor)
+    if Include.cost in include:
+        # cost_factor_df = pandas.DataFrame(cost_factor)
+        cost_factor_df = pandas.concat([pandas.DataFrame(cost_factor[i]) for i in cost_factor.keys()], axis = 1)
     else:
         cost_factor_df = None
     
-    if 'capacity' in include:    
-        capacity_factor_df = pandas.DataFrame(capacity_factor)
+    if Include.capacity in include:    
+        # capacity_factor_df = pandas.DataFrame(capacity_factor)
+        capacity_factor_df = pandas.concat([pandas.DataFrame(capacity_factor[i]) for i in capacity_factor.keys()], axis = 1)
+        
     else:
         capacity_factor_df = None
     
-    if 'demand' in include:
-        demand_factor_df = pandas.DataFrame(demand_factor)
+    if Include.demand in include:
+        demand_factor_df = pandas.concat([pandas.DataFrame(demand_factor[i]) for i in demand_factor.keys()], axis = 1)
+        # demand_factor_df = pandas.DataFrame(demand_factor)
     else:
         demand_factor_df = None
     
@@ -66,7 +75,7 @@ def agg_hierarchial(scales: Temporal_scale, scale_level: int, periods: int, incl
     
     df = pandas.concat([cost_factor_df, capacity_factor_df, demand_factor_df],
                        axis=1).reset_index(drop=True) # makes a common data frame with all different data sets
-
+    df.columns = arange(len(df.columns))
     parent_scale = scales.scale[scale_level-1]
     scale = scales.scale[scale_level] # the scale for which to cluster, e.g.: day
     
@@ -89,7 +98,6 @@ def agg_hierarchial(scales: Temporal_scale, scale_level: int, periods: int, incl
         
         if len(df) == len(parent_scale)*len(scale):
             scaled_df = scaler(input_df=split_df[parent_iter], scale = scale)
-        
         else:
             scaled_df = scaler(input_df=split_df[parent_iter], scale = scale,
                         child_scale=child_scale) # reshapes the data frame, e.g. instead of 8760 linear data points, creates a 365x24 matrix
@@ -97,7 +105,7 @@ def agg_hierarchial(scales: Temporal_scale, scale_level: int, periods: int, incl
         scaled_array = scaled_df.to_numpy() # makes an array instead of a dataframe, as raw data is better handled in other libraries, removes dependencies 
 
         connectivity_matrix = generate_connectivity_matrix(scale_len= len(scale)) # make a matrix to ensure that chronology is maintained 
-        ahc = AgglomerativeClustering(n_clusters=periods, affinity='euclidean', connectivity=connectivity_matrix,
+        ahc = AgglomerativeClustering(n_clusters=periods, metric='euclidean', connectivity=connectivity_matrix,
                                     linkage='ward', compute_full_tree=True)
         clustered_array = ahc.fit_predict(scaled_array)
         cluster_labels = ahc.labels_  # get list of representative days
@@ -169,7 +177,7 @@ def agg_hierarchial(scales: Temporal_scale, scale_level: int, periods: int, incl
 # TODO  - Handle multiple outputs
 
 
-def agg_hierarchial_elbow(scenario: Scenario, location: Location, scale_level: int, include: list, range_list: list = None) -> list:
+def agg_hierarchial_elbow(scenario: Scenario, scale_level: int, include: list, range_list: list = None) -> list:
     """calculate the error of a particular clustering method over a range of different cluster periods
 
     Args:
@@ -189,8 +197,8 @@ def agg_hierarchial_elbow(scenario: Scenario, location: Location, scale_level: i
     wcss_list  = []
     for i in iter_:
         rep_dict_iter, reduced_temporal_scale, info_dict = agg_hierarchial(scales = scenario.scales, scale_level=scale_level, periods=i,
-                                 cost_factor= scenario.cost_factor[location.name], capacity_factor= scenario.capacity_factor[location.name], \
-                                     demand_factor= scenario.demand_factor[location.name], include= include)
+                                 cost_factor= scenario.cost_factor, capacity_factor= scenario.capacity_factor, \
+                                     demand_factor= scenario.demand_factor, include= include)
         wcss_list.append(info_dict['wcss_sum'])
         
         
@@ -211,7 +219,9 @@ def agg_hierarchial_elbow(scenario: Scenario, location: Location, scale_level: i
     x = range_list
     ax.plot(x, y_line)
     ax.scatter(x, wcss_list, color = 'indianred')
-    plt.title('Clustering using AHC for Houston')
+    included = ''.join([str(i).split('Include.')[1] + str(' ') for i in include])
+    
+    plt.title(f'Clustering using AHC for Houston for {included}')
     plt.xlabel('Cluster Size')
     plt.ylabel('WCSS')
     plt.grid(alpha=0.3)
@@ -276,20 +286,20 @@ def dynamic_warping(source_scenario: Scenario, target_scenario: Scenario, \
     source_location = list(source_scenario.location_set)[0] 
     target_location = list(target_scenario.location_set)[0]
 
-    if 'cost' in include:
+    if Include.cost in include:
         source_series = list(source_scenario.cost_factor[source_location.name][aspect.name].values())
         target_series = list(target_scenario.cost_factor[target_location.name][aspect.name].values())
         
         reference_keys = target_scenario.cost_factor[target_location.name][aspect.name].keys()
     
-    elif 'capacity' in include:    
+    elif Include.capacity in include:    
         source_series = list(source_scenario.capacity_factor[source_location.name][aspect.name].values())
         target_series = list(target_scenario.capacity_factor[target_location.name][aspect.name].values())
         
         reference_keys = target_scenario.capacity_factor[target_location.name][aspect.name].keys()
         
 
-    elif 'demand' in include:
+    elif Include.demand in include:
         source_series = list(source_scenario.demand_factor[source_location.name][aspect.name].values())
         target_series = list(target_scenario.demand_factor[target_location.name][aspect.name].values())
         
@@ -379,8 +389,8 @@ def reduce_scenario(scenario: Scenario, method: Clustermethod, include: list, \
 
     if method is Clustermethod.agg_hierarchial:
         rep_dict, reduced_temporal_scale, info_dict = agg_hierarchial(scenario.scales, scale_level=scale_level, periods=periods,
-                                                                     cost_factor=scenario.cost_factor[location.name], capacity_factor=scenario.capacity_factor[location.name],
-                                                                     demand_factor = scenario.demand_factor[location.name], include = include)
+                                                                     cost_factor=scenario.cost_factor, capacity_factor=scenario.capacity_factor,
+                                                                     demand_factor = scenario.demand_factor, include = include)
         
 
         
