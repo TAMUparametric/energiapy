@@ -338,8 +338,11 @@ Essentially, the model is developed as an RTN
 **Declare locations**
 
 Locations have a set of available processes, the deterministic variability for the:
+
 - price of purchase (consumption) of resource; natural gas in this case.
+  
 - demand data; mileage in this case
+  
 - capacities; here we use dni and windspeed data to capture the intermittent availability of solar and wind power
 
 Note that there is absolutely no limitations on the number of variable resources (demand, purchase price) or processes (capacity) you can consider. 
