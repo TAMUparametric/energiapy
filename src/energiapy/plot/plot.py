@@ -109,13 +109,25 @@ def schedule(results: Result, y_axis:str, component:str, location:str,\
 
     Args:
         result (dict): dictionary that can be taken from result object 
+        y_axis (str): the y-axis, can be production (P), inventory (I), sales (S), consumption (C)
         component (str): resource or process name
         location (str): location name
         font_size (int, optional): font size. Defaults to 16.
         fig_size (tuple, optional): figure size. Defaults to (12,6).
         color (str, optional): color of plot. Defaults to 'blue'.
         usetex (bool, optional): False, if using latex font, need Tex set up (prone to errors). Defaults to 'False'.
+    
+    Examples:
+        For production the component has to be a process. For the rest use the appropriate resource
         
+        Note that results plotting requires the string names to be provided as opposed to energiapy objects
+               
+        >>> plot.schedule(results= results, component='Power', y_axis= 'S', location= 'Goa')
+        
+        >>> plot.schedule(results= results, component='PV', y_axis= 'P', location= 'Goa')
+        
+
+
     """
     rc('font', **{'family': 'serif', 'serif': ['Computer Modern'], 'size': font_size})
     rc('text', usetex=usetex)
