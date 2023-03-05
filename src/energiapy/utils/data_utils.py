@@ -140,7 +140,7 @@ def make_f_purchase(location_list: list, day_list: list, hour_list: list, resour
     return f_purchase_dict_
 
 
-def make_henry_price_df(file_name: str, year: int, stretch: bool) -> pandas.DataFrame:
+def make_henry_price_df(file_name: str, year: int, stretch: bool = False) -> pandas.DataFrame:
     """makes a df from Henry Spot Price Index data
     Days with missing data are filled using previous day values
     The costs are converted to $/kg from $/MMBtu using a factor of /22.4
@@ -148,7 +148,7 @@ def make_henry_price_df(file_name: str, year: int, stretch: bool) -> pandas.Data
     Args:
         file_name (str): provide csv file with data
         year (int): import data from a particular year
-        stretch (bool): if True, streches the timescale from days (365) to hours (8760)
+        stretch (bool): if True, streches the timescale from days (365) to hours (8760). Defaults to False.
 
 
     Returns:
