@@ -1,4 +1,3 @@
-#%%
 """Process data class  
 """
 
