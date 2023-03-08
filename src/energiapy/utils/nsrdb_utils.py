@@ -82,6 +82,7 @@ def fetch_nsrdb_data(attrs: List[str], year:int, lat_lon:Tuple[float] = None, st
         'daily' : 48, #averages over the day
         }
     averaged_output = pandas.DataFrame()
+    
     for attr in attrs:
         full_output = nsrdb_data[attr][:, idx] #native data set at 30 mins
         averaged_output[attr] = numpy.average(full_output.reshape(-1, timestep_dict[resolution]), axis = 1) #averages over resolution
@@ -90,5 +91,5 @@ def fetch_nsrdb_data(attrs: List[str], year:int, lat_lon:Tuple[float] = None, st
     if save is not None:
         averaged_output.to_csv(save+ '.csv')
         
-    return lat_lon, averaged_output
+    return lat_lon, averaged_output, full_output
 

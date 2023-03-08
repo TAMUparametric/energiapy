@@ -25,9 +25,14 @@ def generate_network_vars(instance: ConcreteModel, scale_level:int = 0):
     instance.Cap_P = Var(instance.locations, instance.processes, instance.scales_network, within=NonNegativeReals, doc='Process Capacity')
     instance.Cap_S = Var(instance.locations, instance.resources_store, instance.scales_network, within=NonNegativeReals, doc='Storage Capacity')
     
-    instance.Land_process = Var(instance.locations, instance.processes, instance.scales_network, within=NonNegativeReals, doc='Land used by Process')
+    instance.Land_process = Var(instance.locations, instance.processes, instance.scales_network, within=NonNegativeReals, doc='Land cost by Process')
     instance.Land_location = Var(instance.locations, instance.scales_network, within=NonNegativeReals, doc='Land used at location')
     instance.Land_network = Var(instance.scales_network, within=NonNegativeReals, doc='Land used at network')
+    
+    instance.Land_cost_process = Var(instance.locations, instance.processes, instance.scales_network, within=NonNegativeReals, doc='Land used by Process')
+    instance.Land_cost_location = Var(instance.locations, instance.scales_network, within=NonNegativeReals, doc='Land cost at location')
+    instance.Land_cost_network = Var(instance.scales_network, within=NonNegativeReals, doc='Land cost at network')
+    
     
     instance.P_location = Var(instance.locations, instance.processes, instance.scales_network, within=NonNegativeReals, doc='Total production at location')
     instance.S_location = Var(instance.locations, instance.resources_sell, instance.scales_network, within=NonNegativeReals, doc='Total resource discharge at location')
