@@ -58,8 +58,7 @@ class Objective(Enum):
     cost = auto()
     demand = auto()
     
-def formulate(scenario: Scenario, constraints:Set[Constraints], objective:Objective, demand:float = 0.0001,\
-    land_restriction:float = 10**9, gwp:float = None, gwp_reduction_pct:float = None) -> ConcreteModel:
+def formulate(scenario: Scenario, constraints:Set[Constraints], objective:Objective, demand:float = 0.0001, gwp:float = None,  land_restriction: float = None, gwp_reduction_pct:float = None) -> ConcreteModel:
     """formulates a model
 
     Args:
@@ -189,8 +188,15 @@ def formulate(scenario: Scenario, constraints:Set[Constraints], objective:Object
         network_land_constraint(
             instance=instance, network_scale_level=scenario.network_scale_level)
         
-        location_land_restriction_constraint(
-            instance=instance, network_scale_level=scenario.network_scale_level, land_restriction= land_restriction)
+        process_land_cost_constraint(instance=instance, land_dict=scenario.land_dict, land_cost_dict = scenario.land_cost_dict,\
+            network_scale_level=scenario.network_scale_level)
+        location_land_cost_constraint(
+            instance=instance, network_scale_level=scenario.network_scale_level)
+        network_land_cost_constraint(
+            instance=instance, network_scale_level=scenario.network_scale_level)
+        
+        if land_restriction is not None:
+            location_land_restriction_constraint(instance=instance, network_scale_level=scenario.network_scale_level, land_restriction= land_restriction)
 
     if Constraints.resource_balance in constraints:
         

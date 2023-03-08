@@ -349,3 +349,67 @@ def network_fopex_constraint(instance: ConcreteModel, network_scale_level: int =
         *scales, rule=network_fopex_rule, doc='total purchase from network')
     constraint_latex_render(network_fopex_rule)
     return instance.network_fopex_constraint
+
+
+def process_land_cost_constraint(instance: ConcreteModel, land_dict: dict, land_cost_dict:dict, network_scale_level: int = 0) -> Constraint:
+    """Land cost for each process at location in network
+
+    Args:
+        instance (ConcreteModel): pyomo instance
+        land_dict (dict): land required at location
+        land_cost_dict (dict): land cost at location
+        network_scale_level (int, optional): scale of network decisions. Defaults to 0.
+
+    Returns:
+        Constraint: process_land_constraint
+    """
+    scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
+
+    def process_land_cost_rule(instance, location, process, *scale_list):
+        return instance.Land_cost_process[location, process, scale_list] == land_cost_dict[location]*land_dict[process]*instance.Cap_P[location, process, scale_list]
+    instance.process_land_cost_constraint = Constraint(
+        instance.locations, instance.processes, *scales, rule=process_land_cost_rule, doc='land cost for process at location')
+    constraint_latex_render(process_land_cost_rule)
+    return instance.process_land_cost_constraint
+
+
+
+def location_land_cost_constraint(instance: ConcreteModel, network_scale_level: int = 0) -> Constraint:
+    """Land cost each location in network
+
+    Args:
+        instance (ConcreteModel): pyomo instance
+        network_scale_level (int, optional): scale of network decisions. Defaults to 0.
+
+    Returns:
+        Constraint: location_land_cost_constraint
+    """
+    scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
+
+    def location_land_cost_rule(instance, location, *scale_list):
+        return instance.Land_cost_location[location, scale_list] == sum(instance.Land_cost_process[location, process_, scale_list] for process_ in instance.processes)
+    instance.location_land_cost_constraint = Constraint(
+        instance.locations, *scales, rule=location_land_cost_rule, doc='land cost at location')
+    constraint_latex_render(location_land_cost_rule)
+    return instance.location_land_cost_constraint
+
+
+
+def network_land_cost_constraint(instance: ConcreteModel, network_scale_level: int = 0) -> Constraint:
+    """Land cost by network
+
+    Args:
+        instance (ConcreteModel): pyomo instance
+        network_scale_level (int, optional): scale of network decisions. Defaults to 0.
+
+    Returns:
+        Constraint: network_land_cost_constraint
+    """
+    scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
+
+    def network_land_cost_rule(instance, *scale_list):
+        return instance.Land_cost_network[scale_list] == sum(instance.Land_cost_location[location_, scale_list] for location_ in instance.locations)
+    instance.network_land_cost_constraint = Constraint(
+        *scales, rule=network_land_cost_rule, doc='land cost for process')
+    constraint_latex_render(network_land_cost_rule)
+    return instance.network_land_cost_constraint

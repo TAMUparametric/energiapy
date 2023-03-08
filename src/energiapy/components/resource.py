@@ -43,7 +43,6 @@ class Resource:
         varying (bool, optional): If the cost of resource is varying/uncertain. Defaults to False.
         label (str, optional): Longer descriptive label if required. Defaults to ''.
         gwp (float, optional): Global Warming Potential per unit consumption of resource. Defaults to 0.
-        uncertain (UncertainResource, optional): the type of uncertainty the resource experiences. Defaults to None.
 
         
     Examples:

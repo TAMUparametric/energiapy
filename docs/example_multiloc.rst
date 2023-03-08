@@ -10,7 +10,7 @@ The distinction between and energy and material resources is merely illustrative
 
 The key goals are to:
 
-1. Identify syergies between material and energy supply chains 
+1. Identify synergies between material and energy supply chains 
 2. Propose network designs for future energy systems
 3. Perform scenario analysis to identify critical components
 

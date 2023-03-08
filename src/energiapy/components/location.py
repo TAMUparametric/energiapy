@@ -59,6 +59,7 @@ class Location:
     demand_scale_level: int = 1
     cost_scale_level: int = 1
     capacity_scale_level: int = 1
+    land_cost: float = 0
     label: str = ''
     
     def __post_init__(self):
