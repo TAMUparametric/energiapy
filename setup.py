@@ -29,7 +29,8 @@ setup(
         'scikit-learn',
         'openpyxl',
         'ppopt',
-        'gurobipy'
+        'gurobipy',
+        'setuptools'
     ],
     packages=find_packages(where='src'),
     package_dir={'': 'src'}
