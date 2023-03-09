@@ -1,4 +1,3 @@
-# %%
 from setuptools import setup, find_packages
 
 __version__ = "1.0.0"
@@ -23,17 +22,16 @@ setup(
     install_requires=[
         'numpy',
         'pandas',
-        'Pyomo',
-        'gurobipy',
+        'pyomo',
         'h5pyd',
         'scipy',
         'matplotlib',
-        'setuptools',
-        'pvlib',
-        'scikit-learn'
+        'scikit-learn',
+        'openpyxl',
+        'ppopt',
+        'gurobipy'
     ],
     packages=find_packages(where='src'),
     package_dir={'': 'src'}
 )
 
-# %%
