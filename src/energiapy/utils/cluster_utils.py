@@ -12,6 +12,7 @@ __status__ = "Production"
 
 import pandas
 import numpy
+from pyearth import Earth
 from itertools import product
 from typing import Union, Tuple
 from sklearn.cluster import AgglomerativeClustering
@@ -34,6 +35,11 @@ class Include(Enum):
     cost = auto()
     demand = auto()
     capacity = auto()
+    
+class Fit(Enum):
+    poly2 = auto()
+    poly3 = auto()
+    mars = auto()
 
     
 
@@ -176,7 +182,7 @@ def agg_hierarchial(scales: Temporal_scale, scale_level: int, periods: int, incl
 # TODO  - Handle multiple outputs
 
 
-def agg_hierarchial_elbow(scenario: Scenario, scale_level: int, include: list, range_list: list = None, fit: int = 3) -> Tuple[list, int]:
+def agg_hierarchial_elbow(scenario: Scenario, scale_level: int, include: list, range_list: list = None, fit: Fit = Fit.mars) -> Tuple[list, int]:
     """calculate the error of a particular clustering method over a range of different cluster periods
 
     Args:
@@ -185,7 +191,7 @@ def agg_hierarchial_elbow(scenario: Scenario, scale_level: int, include: list, r
         cost_factor (dict, optional): factor for varying resource cost. Defaults to None.
         capacity_factor (dict, optional): factor for varying production capacities. Defaults to None.
         range_list (list, optional): range of clustering days over which to compute error. Defaults to None.
-
+        fit (Fit, optional): a polyfit curve of 2nd or 3rd degree, or MARS fit to be shown in the results plot. Defaults to Fit.mars.
     Returns:
         Tuple(list, int): error for each cluster period returned as a list
     """
@@ -204,39 +210,52 @@ def agg_hierarchial_elbow(scenario: Scenario, scale_level: int, include: list, r
     # wcss_list = [agg_hierarchial(scales = scenario.scales, scale_level=scale_level, periods=i,
     #                              cost_factor= scenario.cost_factor[location.name], capacity_factor= scenario.capacity_factor[location.name], \
     #                                  demand_factor= scenario.demand_factor[location.name], include= include) for i in iter_]
+    elbow = 0
+    elbow_y = 0
     
-    if fit == 2:
+    if fit == Fit.poly2:
         theta  = numpy.polyfit(x= range_list,  y= wcss_list, deg=2)
         y_line = [theta[2] + theta[1] * pow(x, 1) + theta[0] * pow(x, 2) for x in range_list]
         y_slope = [theta[1] + 2*theta[0] * pow(x, 1) for x in range_list]
+
         
-    if fit == 3:
+    if fit == Fit.poly3:
         theta  = numpy.polyfit(x= range_list,  y= wcss_list, deg=3)
         y_line = [theta[3] + theta[2] * pow(x, 1) + theta[1] * pow(x, 2) + theta[0] * pow(x, 3) for x in range_list]
         y_slope = [theta[2] + 2*theta[1] * pow(x, 1) + 3*theta[0] * pow(x, 2) for x in range_list]
+ 
+    if fit == Fit.mars:
+        X = [numpy.array([i]) for i in range(len(wcss_list))]
+        mars = Earth()
+        mars.fit(X, wcss_list)
+        y_hat = mars.predict(X)
+        y_line = y_hat ## for plotting
+        #determine the elbow point
+        m = numpy.diff(y_line)/numpy.diff(range(len(wcss_list)))
+        m = [numpy.round(i, 2) for i in m]
+        m_un = list(set(m))
+        elbow = max([m.index(i) + range_list[0] for i in sorted(m_un)])
         
-
     fig, ax = plt.subplots(figsize=(8, 6))
     x = range_list
-    ax.plot(x, y_line)
+    
+    ax.plot(x, y_line, label = 'MARS fit', color = 'steelblue', alpha = 0.6)
+    
     ax.scatter(x, wcss_list, color = 'indianred')
-    included = ''.join([str(i).split('Include.')[1] + str(' ') for i in include])
+    plt.axvline(x = elbow, alpha = 0.6, linestyle = 'dotted', label = f"elbow at {elbow}", color = 'slategrey', zorder = 3)    
 
-    #lowest 10 percentile of values
-    l_10 = [i  if i < numpy.percentile(wcss_list, 10) else None for i in wcss_list]    
-    ax.scatter(x, l_10, color = 'steelblue', label = 'lower 10 percentile')
-    ax.bar(x, y_slope, label = 'slope', color = 'seagreen')
+    included = ''.join([str(i).split('Include.')[1] + str(' ') for i in include])
+    
+    
     plt.title(f'Clustering using AHC for Houston for {included}')
     plt.xlabel('Cluster Size')
     plt.ylabel('WCSS')
     plt.grid(alpha=0.3)
     plt.legend()
     
-    y_slope_abs = [abs(i) for i in y_slope]
-    elbow_point = y_slope_abs.index(min(y_slope_abs)) + range_list[0]
-    print(f"The lowest absolute slope is: {min(y_slope_abs)} and occurs first at {elbow_point}")    
     
-    return wcss_list, elbow_point
+    
+    return wcss_list, elbow
 
 
 def dynamic_warping_matrix(series1: list, series2: list):
