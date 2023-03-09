@@ -4,7 +4,7 @@
 [![Documentation Status](https://readthedocs.org/projects/energiapy/badge/)](https://energiapy.readthedocs.io/en/latest/)
 
 
-energiapy (ενέργεια-py) is a tool for the multiscale modeling and optimization of energy systems. energiapy uses a resource task network (RTN) based approach to formulate mathematical programs as pyomo instances. Models can be solved using solvers, and the results can be analyzed within the energiapy framework. 
+energiapy is a tool for the multiscale modeling and optimization of energy systems. energiapy uses a resource task network (RTN) based approach to formulate mathematical programs as pyomo instances. Models can be solved using solvers, and the results can be analyzed within the energiapy framework. 
 Constituent functionalities have been built over the research conducted by the [Multiparameteric Optimization and Control (Pistikopoulos) Group](https://parametric.tamu.edu/).
 
 
