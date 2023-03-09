@@ -1,11 +1,9 @@
 numpy
 pandas
-Pyomo
+pyomo
 gurobipy
 h5pyd
 matplotlib
-setuptools
-pvlib
 scikit-learn
 openpyxl
 ppopt

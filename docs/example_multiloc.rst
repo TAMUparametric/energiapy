@@ -126,27 +126,6 @@ A multi-location, multi-product energy system model can be formulated as shown h
         Cap^P_{l,p,t} \leq Cap^{P-max}_{l,p,t} \times X^P_{l,p,t}  \hspace{1cm} \forall p \in \mathcal{P}, t \in \mathcal{T}^{net}, l \in \mathcal{L}
     \end{equation} 
 
-.. math::
-    \begin{equation}
-        P_{l,p,t} \leq Cap^{P}_{l,p,t}  \hspace{1cm} \forall p \in \mathcal{P}, t \in \mathcal{T}^{sch}
-    \end{equation} 
-
-.. math::
-    \begin{equation}
-        Inv_{l,r,t} \leq Cap^{S}_{l,r,t}  \hspace{1cm} \forall r \in \mathcal{R}^{storage}, t \in \mathcal{T}^{sch}
-    \end{equation} 
-
-
-.. math::
-    \begin{equation}
-        - S_{l,r,t} \leq - D_{l,r,t}  \hspace{1cm} \forall r \in \mathcal{R}, t \in \mathcal{T}^{sch}
-    \end{equation}
-
-.. math::
-    \begin{equation}
-        C_{l,r,t} \leq C^{max}_{l,r,t} \hspace{1cm} \forall r \in \mathcal{R}, t \in \mathcal{T}^{sch}
-    \end{equation}
-
 
 .. math::
     \begin{equation}
