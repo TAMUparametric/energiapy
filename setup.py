@@ -30,7 +30,7 @@ setup(
         'openpyxl',
         'ppopt',
         'gurobipy',
-        'setuptools'
+        'sklearn-contrib-py-earth'
     ],
     packages=find_packages(where='src'),
     package_dir={'': 'src'}
