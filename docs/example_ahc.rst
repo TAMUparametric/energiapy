@@ -75,13 +75,13 @@ The solar and wind availability data for Houston can be fetched using the fetch_
 
 .. code-block:: python 
 
-    weather_houston = pandas.read_csv('data/ho_solar19.csv')
-    weather_houston =  weather_houston.rename(columns = {'Unnamed: 0': 'date'})
-    weather_houston = weather_houston.set_index('date')
+    weather_houston =  fetch_nsrdb_data(attrs = ['wind_speed', 'dni'], year = 2019, state = 'Texas', county = 'Harris',\
+        resolution= 'hourly', get = 'min-elevation', save = 'data/ho_solar19')[1] 
 
 The demand data for Houston can be downloaded for the ERCOT website
 
 .. code-block:: python 
+
     demand_houston = pandas.read_excel('data/Native_Load_2019.xlsx')[['COAST']]
     demand_houston = demand_houston.set_index(weather_houston.index)
 
