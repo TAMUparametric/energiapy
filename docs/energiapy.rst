@@ -7,6 +7,7 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
+   energiapy.aggregation
    energiapy.components
    energiapy.graph
    energiapy.model
