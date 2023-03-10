@@ -7,3 +7,4 @@ matplotlib
 scikit-learn
 openpyxl
 ppopt
+sklearn-contrib-py-earth

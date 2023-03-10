@@ -179,7 +179,7 @@ As also whether they can be discharged (sell), have to meet demand (demand)
 
     Wind = Resource(name='Wind', cons_max= 100, basis='MW', label='Wind Power')
 
-    Power = Resource(name='Power', basis='MW', demand = True, label='Power generated', varying = VaryingResource.determinstic_demand)
+    Power = Resource(name='Power', basis='MW', demand = True, label='Power generated', varying = VaryingResource.deterministic_demand)
 
 **Declare processes**
 
@@ -193,9 +193,9 @@ Processes consume resources and can be of three type:
 
     LiI = Process(name='LiI', storage= Power, capex = 1302182, fopex= 41432, vopex = 2000,  prod_max=100, label='Lithium-ion battery', basis = 'MW')
 
-    WF = Process(name='WF', conversion={Wind: -1, Power: 1},capex=990637, fopex=3354, vopex=4953, prod_max=100, label='Wind mill array', varying= VaryingProcess.determinstic_capacity, basis = 'MW')
+    WF = Process(name='WF', conversion={Wind: -1, Power: 1},capex=990637, fopex=3354, vopex=4953, prod_max=100, label='Wind mill array', varying= VaryingProcess.deterministic_capacity, basis = 'MW')
 
-    PV = Process(name='PV', conversion={Solar: -1, Power: 1}, capex=567000, fopex=872046, vopex=90000, prod_max=100, varying = VaryingProcess.determinstic_capacity, label = 'Solar PV', basis = 'MW')
+    PV = Process(name='PV', conversion={Solar: -1, Power: 1}, capex=567000, fopex=872046, vopex=90000, prod_max=100, varying = VaryingProcess.deterministic_capacity, label = 'Solar PV', basis = 'MW')
 
 
 **Location level input data**
