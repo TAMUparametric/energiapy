@@ -3,7 +3,7 @@ Agglomerative Hierarchial Clustering (AHC) example
 
 In this example, we highlight the scenario aggregation capabilities of energiapy
 
-Consider the example stated in the *small example*. 
+Consider the example stated in the *Small Energy Systems MILP Example*. 
 
 However, let us use data the following data for Houston:
 
@@ -51,9 +51,9 @@ With 1 year, 365 days, and 24 hours in each day.
     
     scales = Temporal_scale(discretization_list= [1, 365, 24])
 
-**Declare the model**
+**Declare resources and processes**
 
-This is the same problem as shown in *small example*. 
+This is the same problem as shown in *Small Energy Systems MILP Example*. 
 
 .. code-block:: python
 
@@ -145,6 +145,10 @@ Next, we apply Multivariate Adapative Regression Splines (MARS) to determine the
 **Generate a reduced scenario**
 
 The reduce_scenario function provides a reduced scenario, the set of representative days and some related information, such as the total WCSS.
+
+    scenario_reduced, repdays, info =  reduce_scenario(scenario=scenario, periods=elbow, scale_level=1, method=Clustermethod.agg_hierarchial, include = [Include.capacity, Include.demand])
+
+**Formulate the reduced MILP**
 
 .. code-block:: python
 
