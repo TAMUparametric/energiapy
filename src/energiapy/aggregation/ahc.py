@@ -52,9 +52,11 @@ def agg_hierarchial(scales: Temporal_scale, scale_level: int, periods: int, incl
         capacity_factor (dict, optional): factor to account for varying production capacity. Defaults to None.
         demand_factor (dict, optional): factor to account for varying resource demand. Defaults to None.
 
+
     Returns:
         _type_: _description_
     """
+    
     if Include.cost in include:
         # cost_factor_df = pandas.DataFrame(cost_factor)
         cost_factor_df = pandas.concat([pandas.DataFrame(cost_factor[i]) for i in cost_factor.keys()], axis = 1)
