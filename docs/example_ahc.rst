@@ -172,6 +172,10 @@ Here, we are plotting production schedule for both the full scale as well as the
     plot.schedule(results = results_reduced, location='HO', component='WF', y_axis= 'P')
 
 
+.. image:: sch_full_wf.png
+
+.. image:: sch_red_wf.png
+
 
 
 
