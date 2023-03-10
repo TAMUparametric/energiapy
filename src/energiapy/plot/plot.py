@@ -126,8 +126,6 @@ def schedule(results: Result, y_axis:str, component:str, location:str,\
         
         >>> plot.schedule(results= results, component='PV', y_axis= 'P', location= 'Goa')
         
-
-
     """
     rc('font', **{'family': 'serif', 'serif': ['Computer Modern'], 'size': font_size})
     rc('text', usetex=usetex)
@@ -156,15 +154,15 @@ def contribution(results: Result, y_axis:str, location:str,\
     """generates a plot for scheduling result
 
     Args:
-    #     result (dict): dictionary that can be taken from result object 
-    #     component (str): resource or process name
-    #     location (str): location name
-    #     font_size (int, optional): font size. Defaults to 16.
-    #     fig_size (tuple, optional): figure size. Defaults to (12,6).
-    #     color (str, optional): color of plot. Defaults to 'blue'.
-    #     usetex (bool, optional): False, if using latex font, need Tex set up (prone to errors). Defaults to 'False'.
+        result (dict): dictionary that can be taken from result object 
+        component (str): resource or process name
+        location (str): location name
+        font_size (int, optional): font size. Defaults to 16.
+        fig_size (tuple, optional): figure size. Defaults to (12,6).
+        color (str, optional): color of plot. Defaults to 'blue'.
+        usetex (bool, optional): False, if using latex font, need Tex set up (prone to errors). Defaults to 'False'.
         
-    # """
+    """
     rc('font', **{'family': 'serif', 'serif': ['Computer Modern'], 'size': font_size})
     rc('text', usetex=usetex)
     fig, ax = plt.subplots(figsize= fig_size)
@@ -188,15 +186,15 @@ def capacity_utilization(results: Result, location:str, process:str = None,\
     """generates a plot for scheduling result
 
     Args:
-    #     result (dict): dictionary that can be taken from result object 
-    #     component (str): resource or process name
-    #     location (str): location name
-    #     font_size (int, optional): font size. Defaults to 16.
-    #     fig_size (tuple, optional): figure size. Defaults to (12,6).
-    #     color (str, optional): color of plot. Defaults to 'blue'.
-    #     usetex (bool, optional): False, if using latex font, need Tex set up (prone to errors). Defaults to 'False'.
+        result (dict): dictionary that can be taken from result object 
+        component (str): resource or process name
+        location (str): location name
+        font_size (int, optional): font size. Defaults to 16.
+        fig_size (tuple, optional): figure size. Defaults to (12,6).
+        color (str, optional): color of plot. Defaults to 'blue'.
+        usetex (bool, optional): False, if using latex font, need Tex set up (prone to errors). Defaults to 'False'.
         
-    # """
+    """
     if process is not None:
         rc('font', **{'family': 'serif', 'serif': ['Computer Modern'], 'size': font_size})
         rc('text', usetex=usetex)
