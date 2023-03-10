@@ -50,6 +50,7 @@ def agg_hierarchial(scales: Temporal_scale, scale_level: int, periods: int, incl
         periods (int): number of clustering periods
         cost_factor (dict, optional): factor to account for varying cost factors. Defaults to None.
         capacity_factor (dict, optional): factor to account for varying production capacity. Defaults to None.
+        demand_factor (dict, optional): factor to account for varying resource demand. Defaults to None.
 
     Returns:
         _type_: _description_
@@ -185,10 +186,10 @@ def agg_hierarchial_elbow(scenario: Scenario, scale_level: int, include: list, r
     Args:
         scales (Temporal_scale): scales of the problem
         scale_level (int): scale over which to cluster
-        cost_factor (dict, optional): factor for varying resource cost. Defaults to None.
-        capacity_factor (dict, optional): factor for varying production capacities. Defaults to None.
+        include (list): list of factors to include
         range_list (list, optional): range of clustering days over which to compute error. Defaults to None.
         fit (Fit, optional): a polyfit curve of 2nd or 3rd degree, or MARS fit to be shown in the results plot. Defaults to Fit.mars.
+    
     Returns:
         Tuple(list, int): error for each cluster period returned as a list
     """
