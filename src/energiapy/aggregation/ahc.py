@@ -193,6 +193,7 @@ def agg_hierarchial_elbow(scenario: Scenario, scale_level: int, include: list, r
     Returns:
         Tuple(list, int): error for each cluster period returned as a list
     """
+    
     if range_list is None:
         iter_ = scenario.scales.scale[scale_level]
     else:

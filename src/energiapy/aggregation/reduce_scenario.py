@@ -32,9 +32,9 @@ class Clustermethod(Enum):
     dynamic_warping = auto()
 
 
-def reduce_scenario(scenario: Scenario, method: Clustermethod, include: list, scale_level: int = None, source_scenario: Scenario = None, \
-    target_scenario: Scenario= None, aspect: Union[Resource, Process] = None, location: Location = None, \
-        periods: int = None, reference_dict: dict = None) -> Scenario:
+def reduce_scenario(scenario: Scenario, method: Clustermethod, include: list,\
+    scale_level: int = None, source_scenario: Scenario = None, target_scenario: Scenario= None,\
+        aspect: Union[Resource, Process] = None, location: Location = None, periods: int = None, reference_dict: dict = None) -> Scenario:
     """reduce scenario using a particular method
 
     Args:
@@ -44,10 +44,10 @@ def reduce_scenario(scenario: Scenario, method: Clustermethod, include: list, sc
         scale_level (int): the scale level
         source_scenario (Scenario): scenario to warp from
         target_scenario (Scenario): scenario to warp onto
-        aspect (Union[Resource, Process]): _description_
+        aspect (Union[Resource, Process]): aspect for dtw to reconcile over
         location (Location): location in scenario to cluster
         periods (int): number of clustering intervals
-        reference_dict (dict, optional): _description_. Defaults to None.
+        reference_dict (dict, optional): dictionary to pull values from. Defaults to None.
 
 
     Returns:
