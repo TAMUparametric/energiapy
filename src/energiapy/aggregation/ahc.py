@@ -28,7 +28,7 @@ from enum import Enum, auto
 import matplotlib.pyplot as plt
 
 
-class Include(Enum):
+class IncludeAHC(Enum):
     cost = auto()
     demand = auto()
     capacity = auto()
@@ -57,20 +57,20 @@ def agg_hierarchial(scales: Temporal_scale, scale_level: int, periods: int, incl
         _type_: _description_
     """
     
-    if Include.cost in include:
+    if IncludeAHC.cost in include:
         # cost_factor_df = pandas.DataFrame(cost_factor)
         cost_factor_df = pandas.concat([pandas.DataFrame(cost_factor[i]) for i in cost_factor.keys()], axis = 1)
     else:
         cost_factor_df = None
     
-    if Include.capacity in include:    
+    if IncludeAHC.capacity in include:    
         # capacity_factor_df = pandas.DataFrame(capacity_factor)
         capacity_factor_df = pandas.concat([pandas.DataFrame(capacity_factor[i]) for i in capacity_factor.keys()], axis = 1)
         
     else:
         capacity_factor_df = None
     
-    if Include.demand in include:
+    if IncludeAHC.demand in include:
         demand_factor_df = pandas.concat([pandas.DataFrame(demand_factor[i]) for i in demand_factor.keys()], axis = 1)
         # demand_factor_df = pandas.DataFrame(demand_factor)
     else:
@@ -233,7 +233,7 @@ def agg_hierarchial_elbow(scenario: Scenario, scale_level: int, include: list, r
     ax.scatter(x, wcss_list, color = 'indianred')
     # plt.axvline(x = elbow, alpha = 0.6, linestyle = 'dotted', label = f"elbow at {elbow}", color = 'slategrey', zorder = 3)    
 
-    included = ''.join([str(i).split('Include.')[1] + str(' ') for i in include])
+    included = ''.join([str(i).split('IncludeAHC.')[1] + str(' ') for i in include])
     
     
     plt.title(f'Clustering using AHC for Houston for {included}')

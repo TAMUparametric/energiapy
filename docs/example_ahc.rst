@@ -38,7 +38,7 @@ a set of representative days over which the problem can be solve. Understandably
     from energiapy.utils.nsrdb_utils import fetch_nsrdb_data
     from energiapy.plot import plot
     from energiapy.model.solve import solve
-    from energiapy.aggregation.ahc import agg_hierarchial, agg_hierarchial_elbow, Include, Fit
+    from energiapy.aggregation.ahc import agg_hierarchial, agg_hierarchial_elbow, IncludeAHC, Fit
     from energiapy.aggregation.reduce_scenario import reduce_scenario, Clustermethod
     from energiapy.utils.data_utils import load_results
 
@@ -134,7 +134,7 @@ First, determine the WCSS for a reasonable range of clusters
 
 .. code-block:: python
 
-    wcss = agg_hierarchial_elbow(scenario= scenario, scale_level=1, include= [Include.capacity, Include.demand], range_list = list(range(30,120)))
+    wcss = agg_hierarchial_elbow(scenario= scenario, scale_level=1, include= [IncludeAHC.capacity, IncludeAHC.demand], range_list = list(range(30,120)))
 
 
 Next, we apply Multivariate Adapative Regression Splines (MARS) to determine the elbow point 
@@ -148,7 +148,7 @@ The reduce_scenario function provides a reduced scenario, the set of representat
 
 .. code-block:: python
 
-    scenario_reduced, repdays, info =  reduce_scenario(scenario=scenario, periods=elbow, scale_level=1, method=Clustermethod.agg_hierarchial, include = [Include.capacity, Include.demand])
+    scenario_reduced, repdays, info =  reduce_scenario(scenario=scenario, periods=elbow, scale_level=1, method=Clustermethod.agg_hierarchial, include = [IncludeAHC.capacity, IncludeAHC.demand])
 
 **Formulate the reduced MILP**
 
