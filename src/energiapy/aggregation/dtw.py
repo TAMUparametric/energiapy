@@ -23,6 +23,7 @@ from ..components.network import Network
 from ..components.location import Location
 import matplotlib.pyplot as plt
 from enum import Enum, auto
+from ..utils.cluster_utils import dynamic_warping_matrix, dynamic_warping_path
 
 
 class IncludeDTW(Enum):
