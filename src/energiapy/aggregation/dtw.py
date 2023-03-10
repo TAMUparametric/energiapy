@@ -24,8 +24,20 @@ from ..components.location import Location
 import matplotlib.pyplot as plt
 
 
-def dynamic_warping(source_scenario: Scenario, target_scenario: Scenario, \
-    scale_level: int, include: list, aspect: Union[Resource, Process], reference_dict: dict = None):
+def dynamic_warping(source_scenario: Scenario, target_scenario: Scenario, scale_level: int, include: list, aspect: Union[Resource, Process], reference_dict: dict = None):
+    """Dynamic time warping for scenario reconciliation
+
+    Args:
+        source_scenario (Scenario): scenario to warp from
+        target_scenario (Scenario): scenario to warp onto
+        scale_level (int): the scale level
+        include (list): which factors to include
+        aspect (Union[Resource, Process]): _description_
+        reference_dict (dict, optional): _description_. Defaults to None.
+
+    Returns:
+        _type_: _description_
+    """
     
     source_location = list(source_scenario.location_set)[0] 
     target_location = list(target_scenario.location_set)[0]
@@ -104,13 +116,13 @@ def dynamic_warping(source_scenario: Scenario, target_scenario: Scenario, \
     # rep_dict = {j: {'rep_period': j, 'cluster_wt': counts[j[:scale_level]]} for j in reduced_scenario_scaleiter}
             
     
-    numpy.info_dict = {
+    info_dict = {
         'matrix': matrix,
         'path': path,
         'input_data': {'source': source_series, 'target': target_series},
         'output_data': {'source': source_values, 'target': target_values}  
     }
     
-    return rep_dict, reduced_temporal_scale, numpy.info_dict
+    return rep_dict, reduced_temporal_scale, info_dict
 
 
