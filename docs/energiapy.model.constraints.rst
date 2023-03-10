@@ -28,6 +28,14 @@ energiapy.model.constraints.failure module
    :undoc-members:
    :show-inheritance:
 
+energiapy.model.constraints.integer\_cuts module
+------------------------------------------------
+
+.. automodule:: energiapy.model.constraints.integer_cuts
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 energiapy.model.constraints.inventory module
 --------------------------------------------
 
