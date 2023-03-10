@@ -10,7 +10,7 @@ Constituent functionalities have been built over the research conducted by the [
 
 ## Installation
 
-    pip install git+https://github.com/TAMUparametric/energiapy.git
+    pip install energiapy
 
 ## Key Applications
 
