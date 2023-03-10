@@ -33,7 +33,7 @@ def dynamic_warping(source_scenario: Scenario, target_scenario: Scenario, scale_
         scale_level (int): the scale level
         include (list): which factors to include
         aspect (Union[Resource, Process]): _description_
-        reference_dict (dict, optional): _description_. Defaults to None.
+        reference_dict (dict, optional): dictionary to pull values from. Defaults to None.
 
     Returns:
         _type_: _description_
