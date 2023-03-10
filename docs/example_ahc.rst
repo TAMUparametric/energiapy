@@ -146,6 +146,8 @@ Next, we apply Multivariate Adapative Regression Splines (MARS) to determine the
 
 The reduce_scenario function provides a reduced scenario, the set of representative days and some related information, such as the total WCSS.
 
+.. code-block:: python
+
     scenario_reduced, repdays, info =  reduce_scenario(scenario=scenario, periods=elbow, scale_level=1, method=Clustermethod.agg_hierarchial, include = [Include.capacity, Include.demand])
 
 **Formulate the reduced MILP**
