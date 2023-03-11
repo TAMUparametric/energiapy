@@ -11,7 +11,7 @@ Constituent functionalities have been built over the research conducted by the [
 
 ## Installation
 
-    pip install energiapy
+    pip install energiapy==1.0.1
 
 ## Key Applications
 
