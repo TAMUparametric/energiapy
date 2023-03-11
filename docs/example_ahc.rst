@@ -10,7 +10,7 @@ However, let us use data the following data for Houston:
 - demand data for power at an hourly resolution from ERCOT
 - solar and wind capacities at an hourly resolution from NREL NSRDB
 
-The temporal scale in it's entirety has 8760 time periods
+The temporal scale in its entirety has 8760 time periods
 
 The problem can be modeled over three scales
 
