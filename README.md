@@ -13,9 +13,19 @@ Constituent functionalities have been built over the research conducted by the [
 
 energiapy can be installed using the standard pip installation. It is recommended to install the package in a separate conda or pip environment. 
 
+Create and activate a conda environment 
+
     conda create --name energiaenv python=3.10
     conda activate energiaenv
+
+Or, create and activate a pip environment 
+    python3.10 -m venv energiaenv
+    .\energiaenv\Scripts\activate
+
+Install energiapy
+
     pip install energiapy
+
 
 ## Key Applications
 
