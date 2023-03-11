@@ -3,7 +3,7 @@
 
 [![Documentation Status](https://readthedocs.org/projects/energiapy/badge/)](https://energiapy.readthedocs.io/en/latest/)
 [![PyPI](https://img.shields.io/pypi/v/energiapy.svg)](https://pypi.org/project/energiapy)
-[![Github All Releases](https://img.shields.io/github/downloads/TAMUparametric/energiapy/total.svg)]()
+[![Github All Releases](https://img.shields.io/github/downloads/TAMUparametric/energiapy/total.svg)]
 
 
 energiapy is a tool for the multiscale modeling and optimization of energy systems. energiapy uses a resource task network (RTN) based approach to formulate mathematical programs as pyomo instances. Models can be solved using solvers, and the results can be analyzed within the energiapy framework. 
