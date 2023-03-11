@@ -129,12 +129,13 @@ def min_production_facility_constraint(instance: ConcreteModel, prod_min: dict, 
     constraint_latex_render(min_production_facility_rule)
     return instance.min_production_facility_constraint
 
-def nameplate_production_constraint(instance: ConcreteModel, capacity_factor: dict = {}, network_scale_level: int = 0, scheduling_scale_level: int = 0) -> Constraint:
+def nameplate_production_constraint(instance: ConcreteModel, capacity_factor: dict = {}, loc_pro_dict: dict = {}, network_scale_level: int = 0, scheduling_scale_level: int = 0) -> Constraint:
     """Determines production capacity utilization of facilities at location in network and capacity of facilities 
 
     Args:
         instance (ConcreteModel): pyomo instance
         capacity_factor (dict, optional): uncertain capacity availability training data. Defaults to {}.
+        loc_pro_dict (dict, optional): production facilities avaiable at location. Defaults to {}.
         network_scale_level (int, optional): scale of network decisions. Defaults to 0.
         scheduling_scale_level (int, optional): scale of scheduling decisions. Defaults to 0.
 
