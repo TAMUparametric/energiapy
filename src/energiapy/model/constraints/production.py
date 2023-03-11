@@ -145,13 +145,17 @@ def nameplate_production_constraint(instance: ConcreteModel, capacity_factor: di
                         scale_levels=instance.scales.__len__())
 
     def nameplate_production_rule(instance, location, process, *scale_list):
-        if process in instance.processes_varying:
-            return instance.P[location, process, scale_list[:scheduling_scale_level+1]] <= \
-                capacity_factor[location][process][scale_list[:scheduling_scale_level+1]] * \
-                instance.Cap_P[location, process,
-                               scale_list[:network_scale_level+1]]
+        if process in loc_pro_dict[location]:
+            if process in instance.processes_varying:
+                return instance.P[location, process, scale_list[:scheduling_scale_level+1]] <= \
+                    capacity_factor[location][process][scale_list[:scheduling_scale_level+1]] * \
+                    instance.Cap_P[location, process,
+                                scale_list[:network_scale_level+1]]
+            else:
+                return instance.P[location, process, scale_list[:scheduling_scale_level+1]] <= instance.Cap_P[location, process, scale_list[:network_scale_level+1]]
         else:
-            return instance.P[location, process, scale_list[:scheduling_scale_level+1]] <= instance.Cap_P[location, process, scale_list[:network_scale_level+1]]
+            return Constraint.Skip
+        
     instance.nameplate_production_constraint = Constraint(
         instance.locations, instance.processes, *scales, rule=nameplate_production_rule, doc='nameplate production capacity constraint')
     constraint_latex_render(nameplate_production_rule)
