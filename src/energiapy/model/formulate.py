@@ -173,7 +173,7 @@ def formulate(scenario: Scenario, constraints:Set[Constraints], objective:Object
                                         loc_res_dict=scenario.loc_res_dict, network_scale_level=scenario.network_scale_level)
 
     if Constraints.production in constraints:
-        nameplate_production_constraint(instance=instance, capacity_factor=scenario.capacity_factor,
+        nameplate_production_constraint(instance=instance, capacity_factor=scenario.capacity_factor, loc_pro_dict=scenario.loc_pro_dict,
                                 network_scale_level=scenario.network_scale_level, scheduling_scale_level=scenario.scheduling_scale_level)
         production_facility_constraint(instance=instance, prod_max=scenario.prod_max,
                                 loc_pro_dict=scenario.loc_pro_dict, network_scale_level=scenario.network_scale_level)
