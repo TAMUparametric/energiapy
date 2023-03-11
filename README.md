@@ -19,6 +19,7 @@ Create and activate a conda environment
     conda activate energiaenv
 
 Or, create and activate a pip environment 
+
     python3.10 -m venv energiaenv
     .\energiaenv\Scripts\activate
 
