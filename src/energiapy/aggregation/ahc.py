@@ -235,22 +235,22 @@ def agg_hierarchial_elbow(scenario: Scenario, scale_level: int, include: list, r
         m_un = list(set(m))
         elbow = max([m.index(i) + range_list[0] for i in sorted(m_un)])
         
-    fig, ax = plt.subplots(figsize=(8, 6))
-    x = range_list
+    # fig, ax = plt.subplots(figsize=(8, 6))
+    # x = range_list
     
-    ax.plot(x, y_line, label = 'MARS fit', color = 'steelblue', alpha = 0.6)
+    # ax.plot(x, y_line, label = 'MARS fit', color = 'steelblue', alpha = 0.6)
     
-    ax.scatter(x, wcss_list, color = 'indianred')
-    plt.axvline(x = elbow, alpha = 0.6, linestyle = 'dotted', label = f"elbow at {elbow}", color = 'slategrey', zorder = 3)    
+    # ax.scatter(x, wcss_list, color = 'indianred')
+    # plt.axvline(x = elbow, alpha = 0.6, linestyle = 'dotted', label = f"elbow at {elbow}", color = 'slategrey', zorder = 3)    
 
-    included = ''.join([str(i).split('Include.')[1] + str(' ') for i in include])
+    # included = ''.join([str(i).split('Include.')[1] + str(' ') for i in include])
     
     
-    plt.title(f'Clustering using AHC for Houston for {included}')
-    plt.xlabel('Cluster Size')
-    plt.ylabel('WCSS')
-    plt.grid(alpha=0.3)
-    plt.legend()
+    # plt.title(f'Clustering using AHC for Houston for {included}')
+    # plt.xlabel('Cluster Size')
+    # plt.ylabel('WCSS')
+    # plt.grid(alpha=0.3)
+    # plt.legend()
     
     
     
