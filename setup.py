@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 
 short_desc = (
     "Python-based energy systems modeling and optimization tool"
@@ -17,8 +17,8 @@ setup(
     description=short_desc,
     long_description=long_description,
     long_description_content_type="text/markdown",
-    license='',
-    url='',
+    license='MIT',
+    url='https://github.com/TAMUparametric/energiapy',
     install_requires=[
         'numpy',
         'pandas',
@@ -30,7 +30,6 @@ setup(
         'openpyxl',
         'ppopt',
         'gurobipy',
-        'sklearn-contrib-py-earth'
     ],
     packages=find_packages(where='src'),
     package_dir={'': 'src'}

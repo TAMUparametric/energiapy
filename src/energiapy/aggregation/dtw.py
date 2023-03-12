@@ -22,7 +22,14 @@ from ..components.temporal_scale import Temporal_scale
 from ..components.network import Network
 from ..components.location import Location
 import matplotlib.pyplot as plt
+from enum import Enum, auto
+from ..utils.cluster_utils import dynamic_warping_matrix, dynamic_warping_path
 
+
+class IncludeDTW(Enum):
+    cost = auto()
+    demand = auto()
+    capacity = auto()
 
 def dynamic_warping(source_scenario: Scenario, target_scenario: Scenario, scale_level: int, include: list, aspect: Union[Resource, Process], reference_dict: dict = None):
     """Dynamic time warping for scenario reconciliation
@@ -33,7 +40,7 @@ def dynamic_warping(source_scenario: Scenario, target_scenario: Scenario, scale_
         scale_level (int): the scale level
         include (list): which factors to include
         aspect (Union[Resource, Process]): _description_
-        reference_dict (dict, optional): _description_. Defaults to None.
+        reference_dict (dict, optional): dictionary to pull values from. Defaults to None.
 
     Returns:
         _type_: _description_
@@ -42,20 +49,20 @@ def dynamic_warping(source_scenario: Scenario, target_scenario: Scenario, scale_
     source_location = list(source_scenario.location_set)[0] 
     target_location = list(target_scenario.location_set)[0]
 
-    if Include.cost in include:
+    if IncludeDTW.cost in include:
         source_series = list(source_scenario.cost_factor[source_location.name][aspect.name].values())
         target_series = list(target_scenario.cost_factor[target_location.name][aspect.name].values())
         
         reference_keys = target_scenario.cost_factor[target_location.name][aspect.name].keys()
     
-    elif Include.capacity in include:    
+    elif IncludeDTW.capacity in include:    
         source_series = list(source_scenario.capacity_factor[source_location.name][aspect.name].values())
         target_series = list(target_scenario.capacity_factor[target_location.name][aspect.name].values())
         
         reference_keys = target_scenario.capacity_factor[target_location.name][aspect.name].keys()
         
 
-    elif Include.demand in include:
+    elif IncludeDTW.demand in include:
         source_series = list(source_scenario.demand_factor[source_location.name][aspect.name].values())
         target_series = list(target_scenario.demand_factor[target_location.name][aspect.name].values())
         
