@@ -16,6 +16,7 @@ Welcome to energiapy's documentation!
    example_small
    example_multiloc
    example_mpLP
+   example_ahc
 
 .. toctree::
    :maxdepth: 5

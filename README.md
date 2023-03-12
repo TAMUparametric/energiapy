@@ -2,7 +2,8 @@
 
 
 [![Documentation Status](https://readthedocs.org/projects/energiapy/badge/)](https://energiapy.readthedocs.io/en/latest/)
-
+[![PyPI](https://img.shields.io/pypi/v/energiapy.svg)](https://pypi.org/project/energiapy)
+[![Downloads](https://static.pepy.tech/personalized-badge/energiapy?period=total&units=international_system&left_color=grey&right_color=orange&left_text=Downloads)](https://pepy.tech/project/energiapy)
 
 energiapy is a tool for the multiscale modeling and optimization of energy systems. energiapy uses a resource task network (RTN) based approach to formulate mathematical programs as pyomo instances. Models can be solved using solvers, and the results can be analyzed within the energiapy framework. 
 Constituent functionalities have been built over the research conducted by the [Multiparameteric Optimization and Control (Pistikopoulos) Group](https://parametric.tamu.edu/).
@@ -10,7 +11,22 @@ Constituent functionalities have been built over the research conducted by the [
 
 ## Installation
 
-    pip install git+https://github.com/TAMUparametric/energiapy.git
+energiapy can be installed using the standard pip installation. It is recommended to install the package in a separate conda or pip environment. 
+
+Create and activate a conda environment 
+
+    conda create --name energiaenv python=3.10
+    conda activate energiaenv
+
+Or, create and activate a pip environment 
+
+    python3.10 -m venv energiaenv
+    .\energiaenv\Scripts\activate
+
+Install energiapy
+
+    pip install energiapy
+
 
 ## Key Applications
 

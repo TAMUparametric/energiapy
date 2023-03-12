@@ -12,6 +12,7 @@ __status__ = "Production"
 
 import pandas
 import numpy
+from itertools import product
 
 
 def dynamic_warping_matrix(series1: list, series2: list):

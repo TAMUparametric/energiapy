@@ -12,7 +12,7 @@ __status__ = "Production"
 
 import pandas
 import numpy
-from pyearth import Earth
+# from pyearth import Earth
 from itertools import product
 from typing import Union, Tuple
 from sklearn.cluster import AgglomerativeClustering
@@ -28,7 +28,7 @@ from enum import Enum, auto
 import matplotlib.pyplot as plt
 
 
-class Include(Enum):
+class IncludeAHC(Enum):
     cost = auto()
     demand = auto()
     capacity = auto()
@@ -36,7 +36,7 @@ class Include(Enum):
 class Fit(Enum):
     poly2 = auto()
     poly3 = auto()
-    mars = auto()
+    # mars = auto()
 
     
 
@@ -52,23 +52,25 @@ def agg_hierarchial(scales: Temporal_scale, scale_level: int, periods: int, incl
         capacity_factor (dict, optional): factor to account for varying production capacity. Defaults to None.
         demand_factor (dict, optional): factor to account for varying resource demand. Defaults to None.
 
+
     Returns:
         _type_: _description_
     """
-    if Include.cost in include:
+    
+    if IncludeAHC.cost in include:
         # cost_factor_df = pandas.DataFrame(cost_factor)
         cost_factor_df = pandas.concat([pandas.DataFrame(cost_factor[i]) for i in cost_factor.keys()], axis = 1)
     else:
         cost_factor_df = None
     
-    if Include.capacity in include:    
+    if IncludeAHC.capacity in include:    
         # capacity_factor_df = pandas.DataFrame(capacity_factor)
         capacity_factor_df = pandas.concat([pandas.DataFrame(capacity_factor[i]) for i in capacity_factor.keys()], axis = 1)
         
     else:
         capacity_factor_df = None
     
-    if Include.demand in include:
+    if IncludeAHC.demand in include:
         demand_factor_df = pandas.concat([pandas.DataFrame(demand_factor[i]) for i in demand_factor.keys()], axis = 1)
         # demand_factor_df = pandas.DataFrame(demand_factor)
     else:
@@ -180,7 +182,7 @@ def agg_hierarchial(scales: Temporal_scale, scale_level: int, periods: int, incl
 # TODO  - Handle multiple outputs
 
 
-def agg_hierarchial_elbow(scenario: Scenario, scale_level: int, include: list, range_list: list = None, fit: Fit = Fit.mars) -> Tuple[list, int]:
+def agg_hierarchial_elbow(scenario: Scenario, scale_level: int, include: list, range_list: list = None, fit: Fit = None) -> Tuple[list, int]:
     """calculate the error of a particular clustering method over a range of different cluster periods
 
     Args:
@@ -222,37 +224,26 @@ def agg_hierarchial_elbow(scenario: Scenario, scale_level: int, include: list, r
         theta  = numpy.polyfit(x= range_list,  y= wcss_list, deg=3)
         y_line = [theta[3] + theta[2] * pow(x, 1) + theta[1] * pow(x, 2) + theta[0] * pow(x, 3) for x in range_list]
         y_slope = [theta[2] + 2*theta[1] * pow(x, 1) + 3*theta[0] * pow(x, 2) for x in range_list]
- 
-    if fit == Fit.mars:
-        X = [numpy.array([i]) for i in range(len(wcss_list))]
-        mars = Earth()
-        mars.fit(X, wcss_list)
-        y_hat = mars.predict(X)
-        y_line = y_hat ## for plotting
-        #determine the elbow point
-        m = numpy.diff(y_line)/numpy.diff(range(len(wcss_list)))
-        m = [numpy.round(i, 2) for i in m]
-        m_un = list(set(m))
-        elbow = max([m.index(i) + range_list[0] for i in sorted(m_un)])
-        
-    # fig, ax = plt.subplots(figsize=(8, 6))
-    # x = range_list
+
+    #fig, ax = plt.subplots(figsize=(8, 6))
+    #x = range_list
     
     # ax.plot(x, y_line, label = 'MARS fit', color = 'steelblue', alpha = 0.6)
     
-    # ax.scatter(x, wcss_list, color = 'indianred')
+    #ax.scatter(x, wcss_list, color = 'indianred')
     # plt.axvline(x = elbow, alpha = 0.6, linestyle = 'dotted', label = f"elbow at {elbow}", color = 'slategrey', zorder = 3)    
 
-    # included = ''.join([str(i).split('Include.')[1] + str(' ') for i in include])
+    #included = ''.join([str(i).split('IncludeAHC.')[1] + str(' ') for i in include])
     
     
-    # plt.title(f'Clustering using AHC for Houston for {included}')
-    # plt.xlabel('Cluster Size')
-    # plt.ylabel('WCSS')
-    # plt.grid(alpha=0.3)
+    #plt.title(f'Clustering using AHC for Houston for {included}')
+    #plt.xlabel('Cluster Size')
+    #plt.ylabel('WCSS')
+    #plt.grid(alpha=0.3)
+
     # plt.legend()
     
     
     
-    return wcss_list, elbow
+    return wcss_list
 
