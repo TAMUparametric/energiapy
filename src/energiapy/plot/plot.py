@@ -242,8 +242,3 @@ def capacity_utilization(results: Result, location:str, process:str = None,\
 
 
 
-
-
-# %%
-
-# %%
