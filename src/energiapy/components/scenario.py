@@ -296,6 +296,7 @@ class Scenario:
             
 
             #make A matrix
+            print(n_Inv, n_Sf, n_Cf, n_S, n_C)
             
             A_bal = numpy.diag([*[-1]*n_Inv, *[-1]*n_Sf, *[1]*n_Cf, *[-1]*n_S, *[1]*n_C])
 
@@ -304,9 +305,18 @@ class Scenario:
             A_diag = numpy.diag([*[-1]*n_Inv, *[-1]*n_Sf, *[1]*n_Cf, *[1]*n_Pf, *[-1]*n_S, *[1]*n_C, *[1]*n_P])
 
             A_nn = numpy.eye(n_vars)
+            
+            print(A_bal)
+            
+            print(A_conv)
+            
+            print(A_diag)
+            
+            print(A_nn)
 
             A = numpy.block([ [numpy.block([A_bal, A_conv])], [A_diag],  [-A_nn]])
             
+        
             #make c matrix
             
             
