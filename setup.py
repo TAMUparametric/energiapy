@@ -2,13 +2,21 @@ from setuptools import setup, find_packages
 
 __version__ = "1.0.1"
 
-short_desc = (
-    "Python-based energy systems modeling and optimization tool"
-)
+short_desc = ("Python-based energy systems modeling and optimization tool")
 
-with open('README.md', 'r') as f:
-    long_description = f.read()
+# with open('README.md', 'r') as f:
+#     long_description = f.read()
+    
+def readme():
+    with open('README.md') as f:
+        return f.read()
 
+    try:
+        with open('README.md') as f:
+            return f.read()
+    except IOError:
+        return ''
+    
 setup(
     name='energiapy',
     version=__version__,
