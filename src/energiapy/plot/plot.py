@@ -233,6 +233,25 @@ def capacity_utilization(results: Result, location:str, process:str = None,\
     return
 
 def transport(results: Result, source:str, sink:str, resource: str, transport: str, fig_size:tuple = (12,6), font_size:int = 16, color:str ='blue', usetex:bool = False):
+    """Plots the transportation schedule from source to sink of choice for resource through a transportation mode
+
+    Args:
+        results (Result): _description_
+        source (str): _description_
+        sink (str): _description_
+        resource (str): _description_
+        transport (str): _description_
+        fig_size (tuple, optional): _description_. Defaults to (12,6).
+        font_size (int, optional): _description_. Defaults to 16.
+        color (str, optional): _description_. Defaults to 'blue'.
+        usetex (bool, optional): _description_. Defaults to False.
+    
+    Examples:
+    
+        >>> plot.transport(results= results, source= 'Goa', sink= 'Texas', resource= 'PhDStudents', transport= 'GradSchool')
+    
+    """
+    
     rc('font', **{'family': 'serif', 'serif': ['Computer Modern'], 'size': font_size})
     rc('text', usetex=usetex)
     fig, ax = plt.subplots(figsize= fig_size)
