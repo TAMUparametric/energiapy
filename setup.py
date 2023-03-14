@@ -2,28 +2,20 @@ from setuptools import setup, find_packages
 
 __version__ = "1.0.1"
 
-short_desc = ("Python-based energy systems modeling and optimization tool")
+short_desc = (
+    "Python-based energy systems modeling and optimization tool"
+)
 
-# with open('README.md', 'r') as f:
-#     long_description = f.read()
-    
-def readme():
-    with open('README.md') as f:
-        return f.read()
+with open('README.md') as f:
+    long_description = f.read()
 
-    try:
-        with open('README.md', 'r') as f:
-            return f.read()
-    except IOError:
-        return ''
-    
 setup(
     name='energiapy',
     version=__version__,
     author='Rahul Kakodkar',
     author_email='cacodcar@tamu.edu',
     description=short_desc,
-    long_description=readme(),
+    long_description=long_description,
     long_description_content_type="text/markdown",
     license='MIT',
     url='https://github.com/TAMUparametric/energiapy',
@@ -42,4 +34,3 @@ setup(
     packages=find_packages(where='src'),
     package_dir={'': 'src'}
 )
-
