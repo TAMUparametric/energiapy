@@ -23,7 +23,7 @@ setup(
     author='Rahul Kakodkar',
     author_email='cacodcar@tamu.edu',
     description=short_desc,
-    long_description=long_description,
+    long_description=readme(),
     long_description_content_type="text/markdown",
     license='MIT',
     url='https://github.com/TAMUparametric/energiapy',
