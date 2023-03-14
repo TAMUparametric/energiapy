@@ -238,6 +238,8 @@ def transport(results: Result, source:str, sink:str, resource: str, transport: s
     fig, ax = plt.subplots(figsize= fig_size)
     y_ = [results.output['Trans_exp'][i] for i in results.output['Trans_exp'].keys() if list(i)[:4] == [source, sink, resource, transport]]
     plt.plot(y_)
+    plt.ylabel(f"Amount in unit basis")
+    plt.xlabel(f"Scheduling scale")
     plt.title(f"Schedule for {resource} transported on {transport} from {source} to {sink}")
     plt.xticks(rotation = 90)
     plt.grid(alpha=0.3)
