@@ -232,9 +232,18 @@ def capacity_utilization(results: Result, location:str, process:str = None,\
         plt.rcdefaults()
     return
 
+def transport(results: Result, source:str, sink:str, resource: str, transport: str, fig_size:tuple = (12,6), font_size:int = 16, color:str ='blue', usetex:bool = False):
+    rc('font', **{'family': 'serif', 'serif': ['Computer Modern'], 'size': font_size})
+    rc('text', usetex=usetex)
+    fig, ax = plt.subplots(figsize= fig_size)
+    y_ = [results.output['Trans_exp'][i] for i in results.output['Trans_exp'].keys() if list(i)[:4] == [source, sink, resource, transport]]
+    plt.plot(y_)
+    plt.title(f"Schedule for {resource} transported on {transport} from {source} to {sink}")
+    plt.xticks(rotation = 90)
+    plt.grid(alpha=0.3)
+    plt.rcdefaults()
+    return 
 
-
-#TODO - plots are independent of scales, check
 #TODO - make bar plots / pie plots for contribution from different components 
 #TODO - make layered scheduling plot for comparison 
 #TODO - make scenario comparison plots, perhaps use kwargs, allow n number of comparisons 
