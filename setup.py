@@ -6,8 +6,8 @@ short_desc = (
     "Python-based energy systems modeling and optimization tool"
 )
 
-with open('README.md') as f:
-    long_description = f.read()
+with open('README.md') as file:
+    long_description = file.read()
 
 setup(
     name='energiapy',
