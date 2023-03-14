@@ -236,17 +236,19 @@ def transport(results: Result, source:str, sink:str, resource: str, transport: s
     """Plots the transportation schedule from source to sink of choice for resource through a transportation mode
 
     Args:
-        results (Result): _description_
-        source (str): _description_
-        sink (str): _description_
-        resource (str): _description_
-        transport (str): _description_
-        fig_size (tuple, optional): _description_. Defaults to (12,6).
-        font_size (int, optional): _description_. Defaults to 16.
-        color (str, optional): _description_. Defaults to 'blue'.
-        usetex (bool, optional): _description_. Defaults to False.
+        results (Result): results
+        source (str): source location
+        sink (str): sink location
+        resource (str): Resource that is being transported 
+        transport (str): Transport being used
+        fig_size (tuple, optional): Defaults to (12,6).
+        font_size (int, optional): Defaults to 16.
+        color (str, optional): Defaults to 'blue'.
+        usetex (bool, optional): Defaults to False.
     
     Examples:
+
+        Plotting transport is fairly straight forward. This plots the export from source to sink. 
     
         >>> plot.transport(results= results, source= 'Goa', sink= 'Texas', resource= 'PhDStudents', transport= 'GradSchool')
     
