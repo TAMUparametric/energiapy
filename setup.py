@@ -12,7 +12,7 @@ def readme():
         return f.read()
 
     try:
-        with open('README.md') as f:
+        with open('README.md', 'r') as f:
             return f.read()
     except IOError:
         return ''
