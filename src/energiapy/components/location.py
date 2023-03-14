@@ -23,6 +23,7 @@ from ..utils.process_utils import create_storage_process
 from ..utils.scale_utils import scale_changer
 from pandas import DataFrame
 from enum import Enum, auto
+import warnings
 
 
 
@@ -86,17 +87,23 @@ class Location:
             self.varying_capacity = set(self.capacity_factor.keys())
             if isinstance(list(self.capacity_factor.values())[0], DataFrame):
                 self.capacity_factor = scale_changer(self.capacity_factor, scales=self.scales, scale_level=self.capacity_scale_level)
-        
+            else:
+                warnings.warn('Input should be a dict of a DataFrame, Dict[Process, float]')
+                
         if self.cost_factor is not None:
             self.varying_cost = set(self.cost_factor.keys())
             if isinstance(list(self.cost_factor.values())[0], DataFrame):
                 self.cost_factor = scale_changer(self.cost_factor, scales=self.scales, scale_level=self.cost_scale_level)
-        
+            else:
+                warnings.warn('Input should be a dict of a DataFrame, Dict[Resource, float]')
+                
         if self.demand_factor is not None:    
             self.varying_demand = set(self.demand_factor.keys())
             if isinstance(list(self.demand_factor.values())[0], DataFrame):
                 self.demand_factor = scale_changer(self.demand_factor, scales=self.scales, scale_level=self.demand_scale_level)
-       
+            else:
+                warnings.warn('Input should be a dict of a DataFrame, Dict[Resource, float]')
+                
         self.resource_price = self.get_resource_price()   
         self.failure_processes = self.get_failure_processes()
         self.fail_factor = self.make_fail_factor()
