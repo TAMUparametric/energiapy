@@ -7,7 +7,7 @@ short_desc = (
     "Python-based energy systems modeling and optimization tool"
 )
 
-with open('README.md') as f:
+with open('README.rst') as f:
     long_description = f.read()
 
 setup(
