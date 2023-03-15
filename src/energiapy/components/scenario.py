@@ -172,9 +172,20 @@ class Scenario:
         self.fail_factor = {i.name: i.fail_factor for i in self.location_set}
         self.process_resource_dict = {i.name: {j.name for j in i.conversion.keys() } for i in self.process_set if i.conversion is not None}
         self.process_material_dict = {i.name: {j.name: i.material_cons[j] for j in i.material_cons.keys() } for i in self.process_set if i.material_cons is not None}
-        self.mode_dict = {i.name: [j for j in list(i.multiconversion.keys())] for i in self.process_set if i.processmode == ProcessMode.multi }
-    
 
+        multiconversion_dict = dict()
+        for i in self.process_set:
+            if i.processmode == ProcessMode.multi:
+               multiconversion_dict[i.name] = {j.name: i.conversion[j]  if j in i.conversion.keys() else 0 for j in self.resource_set}
+            else:
+               multiconversion_dict[i.name] = {0: None}
+               multiconversion_dict[i.name][0] = {j.name: i.conversion[j]  if j in i.conversion.keys() else 0 for j in self.resource_set}
+        
+        self.multiconversion = multiconversion_dict
+                
+   
+        self.mode_dict = {i.name: [j for j in list(self.multiconversion[i.name].keys())] for i in self.process_set}
+    
         self.set_dict ={
             'resources': [i.name for i in self.resource_set],
             'resources_nosell': [i.name for i in self.resource_set if i.sell ==  False],

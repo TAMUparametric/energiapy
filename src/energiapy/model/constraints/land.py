@@ -20,7 +20,7 @@ from itertools import product
 from typing import Union
 from enum import Enum, auto
 
-def process_land_constraint(instance: ConcreteModel, land_dict: dict, network_scale_level: int = 0) -> Constraint:
+def constraint_process_land(instance: ConcreteModel, land_dict: dict, network_scale_level: int = 0) -> Constraint:
     """Land required for each process at location in network
 
     Args:
@@ -29,20 +29,20 @@ def process_land_constraint(instance: ConcreteModel, land_dict: dict, network_sc
         network_scale_level (int, optional): scale of network decisions. Defaults to 0.
 
     Returns:
-        Constraint: process_land_constraint
+        Constraint: process_land
     """
     scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
 
     def process_land_rule(instance, location, process, *scale_list):
         return instance.Land_process[location, process, scale_list] == land_dict[process]*instance.Cap_P[location, process, scale_list]
-    instance.process_land_constraint = Constraint(
+    instance.constraint_process_land = Constraint(
         instance.locations, instance.processes, *scales, rule=process_land_rule, doc='land required for process')
     constraint_latex_render(process_land_rule)
-    return instance.process_land_constraint
+    return instance.constraint_process_land
 
 
 
-def location_land_constraint(instance: ConcreteModel, network_scale_level: int = 0) -> Constraint:
+def constraint_location_land(instance: ConcreteModel, network_scale_level: int = 0) -> Constraint:
     """Land required at each location in network
 
     Args:
@@ -50,20 +50,20 @@ def location_land_constraint(instance: ConcreteModel, network_scale_level: int =
         network_scale_level (int, optional): scale of network decisions. Defaults to 0.
 
     Returns:
-        Constraint: location_land_constraint
+        Constraint: location_land
     """
     scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
 
     def location_land_rule(instance, location, *scale_list):
         return instance.Land_location[location, scale_list] == sum(instance.Land_process[location, process_, scale_list] for process_ in instance.processes)
-    instance.location_land_constraint = Constraint(
+    instance.constraint_location_land = Constraint(
         instance.locations, *scales, rule=location_land_rule, doc='land required for process')
     constraint_latex_render(location_land_rule)
-    return instance.location_land_constraint
+    return instance.constraint_location_land
 
 
 
-def network_land_constraint(instance: ConcreteModel, network_scale_level: int = 0) -> Constraint:
+def constraint_network_land(instance: ConcreteModel, network_scale_level: int = 0) -> Constraint:
     """Land required by network
 
     Args:
@@ -71,18 +71,18 @@ def network_land_constraint(instance: ConcreteModel, network_scale_level: int = 
         network_scale_level (int, optional): scale of network decisions. Defaults to 0.
 
     Returns:
-        Constraint: network_land_constraint
+        Constraint: network_land
     """
     scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
 
     def network_land_rule(instance, *scale_list):
         return instance.Land_network[scale_list] == sum(instance.Land_location[location_, scale_list] for location_ in instance.locations)
-    instance.network_land_constraint = Constraint(
+    instance.constraint_network_land = Constraint(
         *scales, rule=network_land_rule, doc='land required for process')
     constraint_latex_render(network_land_rule)
-    return instance.network_land_constraint
+    return instance.constraint_network_land
 
-def location_land_restriction_constraint(instance: ConcreteModel, network_scale_level: int = 0, land_restriction: float = 0) -> Constraint:
+def constraint_location_land_restriction(instance: ConcreteModel, network_scale_level: int = 0, land_restriction: float = 0) -> Constraint:
     """Land required at each location in network
 
     Args:
@@ -90,13 +90,13 @@ def location_land_restriction_constraint(instance: ConcreteModel, network_scale_
         network_scale_level (int, optional): scale of network decisions. Defaults to 0.
  
     Returns:
-        Constraint: location_land_constraint
+        Constraint: location_land
     """
     scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
 
     def location_land_restriction_rule(instance, location, *scale_list):
         return instance.Land_location[location, scale_list] <= land_restriction
-    instance.location_land_restriction_constraint = Constraint(
+    instance.constraint_location_land_restriction = Constraint(
         instance.locations, *scales, rule=location_land_restriction_rule, doc='land required for process')
     constraint_latex_render(location_land_restriction_rule)
-    return instance.location_land_restriction_constraint
+    return instance.constraint_location_land_restriction

@@ -40,9 +40,8 @@ class Process:
 
     Args:
         name (str): name of process, short ones are better to deal with.
-        conversion (Dict[resource, float], optional): conversion data. Defaults to None.
-        multiconversion (Dict[int,Dict[Resource, float]], optional): Multiple modes for conversion can be passed as dictionaries. Defaults to None. 
-        introduce (int, optional): Time period in the network scale when introduced. Defaults to 0.
+        conversion (Dict[resource, float], optional): conversion data (Dict[Resource, float]]), if multimode the of form Dict[int,Dict[Resource, float]]. Defaults to None.
+       introduce (int, optional): Time period in the network scale when introduced. Defaults to 0.
         retire (int, optional): Time period in the network scale when retired. Defaults to None.
         capex (Union[float, dict], None): Capital expenditure per unit basis, can be scaled with capacity. Defaults to None.
         fopex (Union[float, dict], None): Fixed operational expenditure per unit basis, can be scaled with capacity. Defaults to None.
@@ -83,8 +82,7 @@ class Process:
     name: str 
     introduce: int = 0
     retire: int = None
-    conversion: Dict[Resource, float] = None
-    multiconversion: Dict[int,Dict[Resource, float]] = None 
+    conversion: Union[Dict[int,Dict[Resource, float]], Dict[Resource, float]] = None
     capex: Union[float, dict] = None
     fopex: Union[float, dict] = None
     vopex: Union[float, dict] = None
@@ -119,11 +117,7 @@ class Process:
             conversion_discharge (Dict[Resource, float]): Creates a dictionary with the discharge conversion values (considers storage loss).
             cost_dynamics (CostDynamics): Determines whether the cost scales linearly with the unit capacity, or is a piecewise-linear function.
         """
-        if self.multiconversion is not None:
-            self.processmode = ProcessMode.multi
-        elif self.conversion is not None:
-            self.processmode = ProcessMode.single
-            
+
         if self.storage is not None:
             self.resource_storage= create_storage_resource(process_name= self.name, resource= self.storage, store_max= self.store_max, store_min= self.store_min)
             self.conversion = {self.storage:-1, self.resource_storage:1}
@@ -133,7 +127,11 @@ class Process:
         else:
             self.conversion_discharge = None
             self.resource_storage = None
-    
+            if list(self.conversion.keys())[0] is int:
+                self.processmode = ProcessMode.multi
+            else:
+                self.processmode = ProcessMode.single
+                
         if type(self.capex) is dict:
             self.cost_dynamics = CostDynamics.pwl
         else:
