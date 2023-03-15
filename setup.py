@@ -6,8 +6,10 @@ short_desc = (
     "Python-based energy systems modeling and optimization tool"
 )
 
-with open('README.md') as f:
+with open(os.path.join(os.path.dirname(__file__), 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
+# with open('README.md') as f:
+#     long_description = f.read()
     
 setup(
     name='energiapy',
@@ -33,7 +35,7 @@ setup(
     ],
     extras_require={
         'test': ['pytest'],
-    }
+    },
     packages=find_packages(where='src'),
     package_dir={'': 'src'},
 )
