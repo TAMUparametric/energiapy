@@ -31,6 +31,9 @@ setup(
         'ppopt',
         'gurobipy',
     ],
+    extras_require={
+        'test': ['pytest'],
+    }
     packages=find_packages(where='src'),
     package_dir={'': 'src'},
 )
