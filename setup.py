@@ -1,13 +1,12 @@
 from setuptools import setup, find_packages
-from pathlib import Path
 
-__version__ = "1.0.2"
+__version__ = "1.0.4"
 
 short_desc = (
     "Python-based energy systems modeling and optimization tool"
 )
 
-with open('README.rst') as f:
+with open('README.md') as f:
     long_description = f.read()
 
 setup(
