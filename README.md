@@ -26,10 +26,6 @@ Install energiapy
 
     pip install energiapy
 
-energiapy is being developed as a PhD project, and is updated fairly regularly. To get the most updated version, install via the git repository
-
-    pip install git+https://github.com/TAMUparametric/energiapy.git
-
 ## Key Applications
 
 1. Design of future energy systems (network design)
