@@ -1,5 +1,5 @@
 from setuptools import setup, find_packages
-
+import os
 __version__ = "1.0.4"
 
 short_desc = (
