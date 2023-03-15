@@ -19,13 +19,11 @@ from ...components.location import Location
 from itertools import product
 from typing import Union
 from enum import Enum, auto
-
-class ProcessMode(Enum):
-    single = auto() #only allows one mode
-    multi = auto() # allows multiple modes
+from ...components.process import ProcessMode
 
 
-def resource_consumption_constraint(instance: ConcreteModel, loc_res_dict: dict = {}, cons_max: dict = {}, scheduling_scale_level: int = 0) -> Constraint:
+
+def constraint_resource_consumption(instance: ConcreteModel, loc_res_dict: dict = {}, cons_max: dict = {}, scheduling_scale_level: int = 0) -> Constraint:
     """Determines consumption of resource at location in network 
 
     Args:
@@ -35,7 +33,7 @@ def resource_consumption_constraint(instance: ConcreteModel, loc_res_dict: dict 
         scheduling_scale_level (int, optional): scale of scheduling decisions. Defaults to 0.
 
     Returns:
-        Constraint: resource_consumption_constraint
+        Constraint: resource_consumption
     """
     scales = scale_list(instance=instance,
                         scale_levels=instance.scales.__len__())
@@ -45,13 +43,13 @@ def resource_consumption_constraint(instance: ConcreteModel, loc_res_dict: dict 
             return instance.C[location, resource, scale_list[:scheduling_scale_level+1]] <= cons_max[location][resource]
         else:
             return instance.C[location, resource, scale_list[:scheduling_scale_level+1]] <= 0
-    instance.resource_consumption_constraint = Constraint(
+    instance.constraint_resource_consumption = Constraint(
         instance.locations, instance.resources_purch, *scales, rule=resource_consumption_rule, doc='resource consumption')
     constraint_latex_render(resource_consumption_rule)
-    return instance.resource_consumption_constraint
+    return instance.constraint_resource_consumption
 
 
-def resource_purchase_constraint(instance: ConcreteModel, cost_factor: dict = {}, price: dict = {},
+def constraint_resource_purchase(instance: ConcreteModel, cost_factor: dict = {}, price: dict = {},
                                  loc_res_dict: dict = {}, scheduling_scale_level: int = 0, expenditure_scale_level: int = 0) -> Constraint:
     """Determines expenditure on resource at location in network at the scheduling/expenditure scale
 
@@ -63,7 +61,7 @@ def resource_purchase_constraint(instance: ConcreteModel, cost_factor: dict = {}
         expenditure_scale_level (int, optional): scale of resource purchase decisions. Defaults to 0.
 
     Returns:
-        Constraint: resource_purchase_constraint
+        Constraint: resource_purchase
     """
     scales = scale_list(instance=instance,
                         scale_levels=instance.scales.__len__())
@@ -79,14 +77,14 @@ def resource_purchase_constraint(instance: ConcreteModel, cost_factor: dict = {}
                 return instance.B[location, resource, scale_list[:scheduling_scale_level+1]] == price[location][resource]*instance.C[location, resource, scale_list[:scheduling_scale_level+1]]
             else:
                 return instance.B[location, resource, scale_list[:scheduling_scale_level+1]] == 0
-    instance.resource_purchase_constraint = Constraint(
+    instance.constraint_resource_purchase = Constraint(
         instance.locations, instance.resources_purch, *scales, rule=resource_purchase_rule, doc='expenditure on purchase of resource')
     constraint_latex_render(resource_purchase_rule)
-    return instance.resource_purchase_constraint
+    return instance.constraint_resource_purchase
 
 
-def inventory_balance_constraint(instance: ConcreteModel, scheduling_scale_level: int = 0, \
-    conversion: dict = {}, cluster_wt: dict = None) -> Constraint:
+def constraint_inventory_balance(instance: ConcreteModel, scheduling_scale_level: int = 0, \
+    multiconversion: dict = {}, mode_dict: dict = {}, cluster_wt: dict = None) -> Constraint:
     """balances resource across the scheduling horizon
     Mass balance in any temporal discretization has the following within their respective sets:
     - consumption for resources that can be purchased
@@ -102,10 +100,12 @@ def inventory_balance_constraint(instance: ConcreteModel, scheduling_scale_level
     Args:
         instance (ConcreteModel): pyomo instance
         scheduling_scale_level (int, optional): scale of scheduling decisions. Defaults to 0.
-        conversion (dict, optional): unit conversion of resource by production facility. Defaults to {}.
-
+        multiconversion (dict, optional): unit conversion of resource by production facility. Defaults to {}.
+        mode_dict (dict, optional): dictionary with modes available. Defaults to {}.
+        cluster_wt (dict, optional): weight of cluster as determined through scenario aggregation. Defaults to None. 
+    
     Returns:
-        Constraint: inventory_balance_constraint
+        Constraint: inventory_balance
     """
     scales = scale_list(instance=instance,
                         scale_levels=instance.scales.__len__())
@@ -149,20 +149,20 @@ def inventory_balance_constraint(instance: ConcreteModel, scheduling_scale_level
         # produced = sum(conversion[process][resource]*instance.P[location, process, scale_list[:scheduling_scale_level+1]] for process in instance.processes_singlem) \
         #     + sum(instance.P[location, process, scale_list[:scheduling_scale_level+1]] for process in instance.processes_multim)
         
-        produced = sum(conversion[process][resource]*instance.P[location, process,
-                       scale_list[:scheduling_scale_level+1]] for process in instance.processes_full) #includes processes + discharge
-
+        produced = sum(sum(multiconversion[process][mode][resource]*instance.P_m[location, process, mode,
+                       scale_list[:scheduling_scale_level+1]] for mode in mode_dict[process]) for process in instance.processes_full) #includes processes + discharge
+    
         if cluster_wt is not None:
             return cluster_wt[scale_list[:scheduling_scale_level+1]]*(consumption + produced - discharge + transport) == storage
         else:
             return consumption + produced - discharge + transport == storage
-    instance.inventory_balance_constraint = Constraint(
+    instance.constraint_inventory_balance = Constraint(
         instance.locations, instance.resources, *scales, rule=inventory_balance_rule, doc='mass balance across scheduling scale')
-    constraint_latex_render(inventory_balance_constraint)
-    return instance.inventory_balance_constraint
+    constraint_latex_render(inventory_balance_rule)
+    return instance.constraint_inventory_balance
 
 
-def demand_constraint(instance: ConcreteModel, demand: Union[dict, float], demand_factor: Union[dict, float], \
+def constraint_demand(instance: ConcreteModel, demand: Union[dict, float], demand_factor: Union[dict, float], \
     demand_scale_level: int = 0, scheduling_scale_level: int = 0, cluster_wt: dict = None) -> Constraint:
     """Ensures that demand for resource is met at chosen temporal scale
 
@@ -173,7 +173,7 @@ def demand_constraint(instance: ConcreteModel, demand: Union[dict, float], deman
         demand_dict (dict, optional): demand at location. Defaults to {}.
 
     Returns:
-        Constraint: demand_constraint
+        Constraint: demand
     """
     # scales = scale_list(instance= instance, scale_levels = demand_scale_level+1)
     scales = scale_list(instance=instance,
@@ -216,17 +216,17 @@ def demand_constraint(instance: ConcreteModel, demand: Union[dict, float], deman
         return discharge >= demandtarget
 
     if len(instance.locations) > 1:
-        instance.demand_constraint = Constraint(
+        instance.constraint_demand = Constraint(
             instance.sinks, instance.resources_demand, *scales, rule=demand_rule, doc='specific demand for resources')
     else:
-        instance.demand_constraint = Constraint(
+        instance.constraint_demand = Constraint(
             instance.locations, instance.resources_demand, *scales, rule=demand_rule, doc='specific demand for resources')
     constraint_latex_render(demand_rule)
-    return instance.demand_constraint
+    return instance.constraint_demand
 
 
 
-def location_production_constraint(instance: ConcreteModel, cluster_wt: dict, network_scale_level: int = 0) -> Constraint:
+def constraint_location_production(instance: ConcreteModel, cluster_wt: dict, network_scale_level: int = 0) -> Constraint:
     """Determines total production capacity utilization at location
 
     Args:
@@ -234,7 +234,7 @@ def location_production_constraint(instance: ConcreteModel, cluster_wt: dict, ne
         network_scale_level (int, optional): scale of network decisions. Defaults to 0.
 
     Returns:
-        Constraint: location_production_constraint
+        Constraint: location_production
     """
 
     scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
@@ -246,13 +246,13 @@ def location_production_constraint(instance: ConcreteModel, cluster_wt: dict, ne
             return instance.P_location[location, process, scale_list] == sum(cluster_wt[scale_]*instance.P[location, process, scale_] for scale_ in scale_iter)
         else:
             return instance.P_location[location, process, scale_list] == sum(instance.P[location, process, scale_] for scale_ in scale_iter)
-    instance.location_production_constraint = Constraint(
+    instance.constraint_location_production = Constraint(
         instance.locations, instance.processes, *scales, rule=location_production_rule, doc='total production at location')
     constraint_latex_render(location_production_rule)
-    return instance.location_production_constraint
+    return instance.constraint_location_production
 
 
-def location_discharge_constraint(instance: ConcreteModel, cluster_wt: dict, network_scale_level: int = 0) -> Constraint:
+def constraint_location_discharge(instance: ConcreteModel, cluster_wt: dict, network_scale_level: int = 0) -> Constraint:
     """Determines total resource discharged/sold at locations in network
 
     Args:
@@ -260,7 +260,7 @@ def location_discharge_constraint(instance: ConcreteModel, cluster_wt: dict, net
         network_scale_level (int, optional): scale of network decisions. Defaults to 0.
 
     Returns:
-        Constraint: location_discharge_constraint
+        Constraint: location_discharge
     """
     scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
     scale_iter = scale_tuple(
@@ -271,13 +271,13 @@ def location_discharge_constraint(instance: ConcreteModel, cluster_wt: dict, net
             return instance.S_location[location, resource, scale_list] == sum(cluster_wt[scale_]*instance.S[location, resource, scale_] for scale_ in scale_iter)
         else:
             return instance.S_location[location, resource, scale_list] == sum(instance.S[location, resource, scale_] for scale_ in scale_iter)
-    instance.location_discharge_constraint = Constraint(
+    instance.constraint_location_discharge = Constraint(
         instance.locations, instance.resources_sell, *scales, rule=location_discharge_rule, doc='total discharge at location')
     constraint_latex_render(location_discharge_rule)
-    return instance.location_discharge_constraint
+    return instance.constraint_location_discharge
 
 
-def location_consumption_constraint(instance: ConcreteModel, cluster_wt: dict, network_scale_level: int = 0) -> Constraint:
+def constraint_location_consumption(instance: ConcreteModel, cluster_wt: dict, network_scale_level: int = 0) -> Constraint:
     """Determines total resource consumed at locations in network
 
     Args:
@@ -285,7 +285,7 @@ def location_consumption_constraint(instance: ConcreteModel, cluster_wt: dict, n
         network_scale_level (int, optional): scale of network decisions. Defaults to 0.
 
     Returns:
-        Constraint: location_consumption_constraint
+        Constraint: location_consumption
     """
     scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
     scale_iter = scale_tuple(
@@ -296,13 +296,13 @@ def location_consumption_constraint(instance: ConcreteModel, cluster_wt: dict, n
             return instance.C_location[location, resource, scale_list] == sum(cluster_wt[scale_]*instance.C[location, resource, scale_] for scale_ in scale_iter)
         else:
             return instance.C_location[location, resource, scale_list] == sum(instance.C[location, resource, scale_] for scale_ in scale_iter)
-    instance.location_consumption_constraint = Constraint(
+    instance.constraint_location_consumption = Constraint(
         instance.locations, instance.resources_purch, *scales, rule=location_consumption_rule, doc='total consumption at location')
     constraint_latex_render(location_consumption_rule)
-    return instance.location_consumption_constraint
+    return instance.constraint_location_consumption
 
 
-def location_purchase_constraint(instance: ConcreteModel, cluster_wt: dict, network_scale_level: int = 0) -> Constraint:
+def constraint_location_purchase(instance: ConcreteModel, cluster_wt: dict, network_scale_level: int = 0) -> Constraint:
     """Determines total resource purchase expenditure at locations in network
 
     Args:
@@ -310,7 +310,7 @@ def location_purchase_constraint(instance: ConcreteModel, cluster_wt: dict, netw
         network_scale_level (int, optional): scale of network decisions. Defaults to 0.
 
     Returns:
-        Constraint: location_purchase_constraint
+        Constraint: location_purchase
     """
     scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
     scale_iter = scale_tuple(
@@ -321,15 +321,15 @@ def location_purchase_constraint(instance: ConcreteModel, cluster_wt: dict, netw
             return instance.B_location[location, resource, scale_list] == sum(cluster_wt[scale_]*instance.B[location, resource, scale_] for scale_ in scale_iter)
         else:
             return instance.B_location[location, resource, scale_list] == sum(instance.B[location, resource, scale_] for scale_ in scale_iter)
-    instance.location_purchase_constraint = Constraint(
+    instance.constraint_location_purchase = Constraint(
         instance.locations, instance.resources_purch, *scales, rule=location_purchase_rule, doc='total purchase at location')
     constraint_latex_render(location_purchase_rule)
-    return instance.location_purchase_constraint
+    return instance.constraint_location_purchase
 
 
 # *-------------------------Network scale mass balance calculation constraints--------------------------
 
-def network_production_constraint(instance: ConcreteModel, network_scale_level: int = 0) -> Constraint:
+def constraint_network_production(instance: ConcreteModel, network_scale_level: int = 0) -> Constraint:
     """Determines total production utilization across network
 
     Args:
@@ -337,19 +337,19 @@ def network_production_constraint(instance: ConcreteModel, network_scale_level: 
         network_scale_level (int, optional): scale of network decisions. Defaults to 0.
 
     Returns:
-        Constraint: network_production_constraint
+        Constraint: network_production
     """
     scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
 
     def network_production_rule(instance, process, *scale_list):
         return instance.P_network[process, scale_list] == sum(instance.P_location[location_, process, scale_list] for location_ in instance.locations)
-    instance.network_production_constraint = Constraint(
+    instance.constraint_network_production = Constraint(
         instance.processes, *scales, rule=network_production_rule, doc='total production from network')
     constraint_latex_render(network_production_rule)
-    return instance.network_production_constraint
+    return instance.constraint_network_production
 
 
-def network_discharge_constraint(instance: ConcreteModel, network_scale_level: int = 0) -> Constraint:
+def constraint_network_discharge(instance: ConcreteModel, network_scale_level: int = 0) -> Constraint:
     """Determines total resource discharged across network
 
     Args:
@@ -357,19 +357,19 @@ def network_discharge_constraint(instance: ConcreteModel, network_scale_level: i
         network_scale_level (int, optional): scale of network decisions. Defaults to 0.
 
     Returns:
-        Constraint: network_discharge_constraint
+        Constraint: network_discharge
     """
     scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
 
     def network_discharge_rule(instance, resource, *scale_list):
         return instance.S_network[resource, scale_list] == sum(instance.S_location[location_, resource, scale_list] for location_ in instance.locations)
-    instance.network_discharge_constraint = Constraint(
+    instance.constraint_network_discharge = Constraint(
         instance.resources_sell, *scales, rule=network_discharge_rule, doc='total discharge from network')
     constraint_latex_render(network_discharge_rule)
-    return instance.network_discharge_constraint
+    return instance.constraint_network_discharge
 
 
-def network_consumption_constraint(instance: ConcreteModel, network_scale_level: int = 0) -> Constraint:
+def constraint_network_consumption(instance: ConcreteModel, network_scale_level: int = 0) -> Constraint:
     """Determines total resource consumed across network
 
     Args:
@@ -377,19 +377,19 @@ def network_consumption_constraint(instance: ConcreteModel, network_scale_level:
         network_scale_level (int, optional): scale of network decisions. Defaults to 0.
 
     Returns:
-        Constraint: network_consumption_constraint
+        Constraint: network_consumption
     """
     scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
 
     def network_consumption_rule(instance, resource, *scale_list):
         return instance.C_network[resource, scale_list] == sum(instance.C_location[location_, resource, scale_list] for location_ in instance.locations)
-    instance.network_consumption_constraint = Constraint(
+    instance.constraint_network_consumption = Constraint(
         instance.resources_purch, *scales, rule=network_consumption_rule, doc='total consumption from network')
     constraint_latex_render(network_consumption_rule)
-    return instance.network_consumption_constraint
+    return instance.constraint_network_consumption
 
 
-def network_purchase_constraint(instance: ConcreteModel, network_scale_level: int = 0) -> Constraint:
+def constraint_network_purchase(instance: ConcreteModel, network_scale_level: int = 0) -> Constraint:
     """Determines total purchase expenditure on resource across network
 
     Args:
@@ -397,13 +397,13 @@ def network_purchase_constraint(instance: ConcreteModel, network_scale_level: in
         network_scale_level (int, optional): scale of network decisions. Defaults to 0.
 
     Returns:
-        Constraint: network_purchase_constraint
+        Constraint: network_purchase
     """
     scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
 
     def network_purchase_rule(instance, resource, *scale_list):
         return instance.B_network[resource, scale_list] == sum(instance.B_location[location_, resource, scale_list] for location_ in instance.locations)
-    instance.network_purchase_constraint = Constraint(
+    instance.constraint_network_purchase = Constraint(
         instance.resources_purch, *scales, rule=network_purchase_rule, doc='total purchase from network')
     constraint_latex_render(network_purchase_rule)
-    return instance.network_purchase_constraint
+    return instance.constraint_network_purchase

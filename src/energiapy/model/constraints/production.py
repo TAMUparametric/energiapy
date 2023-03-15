@@ -21,7 +21,7 @@ from typing import Union
 from enum import Enum, auto
 
 
-def production_facility_constraint(instance: ConcreteModel, prod_max: dict, loc_pro_dict: dict = {}, network_scale_level: int = 0) -> Constraint:
+def constraint_production_facility(instance: ConcreteModel, prod_max: dict, loc_pro_dict: dict = {}, network_scale_level: int = 0) -> Constraint:
     """Determines where production facility of certain capacity is inserted at location in network
 
     Args:
@@ -31,7 +31,7 @@ def production_facility_constraint(instance: ConcreteModel, prod_max: dict, loc_
         network_scale_level (int, optional): scale of network decisions. Defaults to 0.
 
     Returns:
-        Constraint: production_facility_constraint
+        Constraint: production_facility
     """
     scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
 
@@ -42,13 +42,13 @@ def production_facility_constraint(instance: ConcreteModel, prod_max: dict, loc_
                              scale_list[:network_scale_level+1]]
         else:
             return instance.Cap_P[location, process, scale_list[:network_scale_level+1]] == 0
-    instance.production_facility_constraint = Constraint(
+    instance.constraint_production_facility = Constraint(
         instance.locations, instance.processes, *scales, rule=production_facility_rule, doc='production facility sizing and location')
     constraint_latex_render(production_facility_rule)
-    return instance.production_facility_constraint
+    return instance.constraint_production_facility
 
 
-def production_facility_affix_constraint(instance: ConcreteModel, affix_production_cap: dict, loc_pro_dict: dict = {}, network_scale_level: int = 0) -> Constraint:
+def constraint_production_facility_affix(instance: ConcreteModel, affix_production_cap: dict, loc_pro_dict: dict = {}, network_scale_level: int = 0) -> Constraint:
     """affixes the capacity of production facilities
 
     Args:
@@ -58,7 +58,7 @@ def production_facility_affix_constraint(instance: ConcreteModel, affix_producti
         network_scale_level (int, optional): scale of network decisions. Defaults to 0.
 
     Returns:
-        Constraint: production_facility_affix_constraint
+        Constraint: production_facility_affix
     """
     scales = scale_list(instance=instance, scale_levels=network_scale_level+1) 
     def production_facility_affix_rule(instance, location, process, *scale_list):
@@ -70,13 +70,13 @@ def production_facility_affix_constraint(instance: ConcreteModel, affix_producti
                 return instance.Cap_P[location, process, scale_list[:network_scale_level+1]] >= 0.0
         else:
             return instance.Cap_P[location, process, scale_list[:network_scale_level+1]] == 0
-    instance.production_facility_affix_constraint = Constraint(
+    instance.constraint_production_facility_affix = Constraint(
         instance.locations, instance.processes, *scales, rule=production_facility_affix_rule, doc='production facility sizing and location')
     constraint_latex_render(production_facility_affix_rule)
-    return instance.production_facility_affix_constraint
+    return instance.constraint_production_facility_affix
 
 
-def production_facility_fix_constraint(instance: ConcreteModel, prod_max: dict, production_binaries: dict, loc_pro_dict: dict = {}, network_scale_level: int = 0) -> Constraint:
+def constraint_production_facility_fix(instance: ConcreteModel, prod_max: dict, production_binaries: dict, loc_pro_dict: dict = {}, network_scale_level: int = 0) -> Constraint:
     """Determines where production facility of certain capacity is inserted at location in network
 
     Args:
@@ -86,7 +86,7 @@ def production_facility_fix_constraint(instance: ConcreteModel, prod_max: dict, 
         network_scale_level (int, optional): scale of network decisions. Defaults to 0.
 
     Returns:
-        Constraint: production_facility_fix_constraint
+        Constraint: production_facility_fix
     """
     scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
 
@@ -97,13 +97,13 @@ def production_facility_fix_constraint(instance: ConcreteModel, prod_max: dict, 
                     location, process, *scale_list[:network_scale_level+1])]
         else:
             return instance.Cap_P[location, process, scale_list[:network_scale_level+1]] == 0
-    instance.production_facility_fix_constraint = Constraint(
+    instance.constraint_production_facility_fix = Constraint(
         instance.locations, instance.processes, *scales, rule=production_facility_fix_rule, doc='production facility sizing and location')
     constraint_latex_render(production_facility_fix_rule)
-    return instance.production_facility_fix_constraint
+    return instance.constraint_production_facility_fix
 
 
-def min_production_facility_constraint(instance: ConcreteModel, prod_min: dict, loc_pro_dict: dict = {}, network_scale_level: int = 0) -> Constraint:
+def constraint_min_production_facility(instance: ConcreteModel, prod_min: dict, loc_pro_dict: dict = {}, network_scale_level: int = 0) -> Constraint:
     """Determines where production facility of certain capacity is inserted at location in network
 
     Args:
@@ -113,7 +113,7 @@ def min_production_facility_constraint(instance: ConcreteModel, prod_min: dict, 
         network_scale_level (int, optional): scale of network decisions. Defaults to 0.
 
     Returns:
-        Constraint: min_production_facility_constraint
+        Constraint: min_production_facility
     """
     scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
 
@@ -124,12 +124,12 @@ def min_production_facility_constraint(instance: ConcreteModel, prod_min: dict, 
                              scale_list[:network_scale_level+1]]
         else:
             return Constraint.Skip
-    instance.min_production_facility_constraint = Constraint(
+    instance.constraint_min_production_facility = Constraint(
         instance.locations, instance.processes, *scales, rule=min_production_facility_rule, doc='production facility sizing and location')
     constraint_latex_render(min_production_facility_rule)
-    return instance.min_production_facility_constraint
+    return instance.constraint_min_production_facility
 
-def nameplate_production_constraint(instance: ConcreteModel, capacity_factor: dict = {}, loc_pro_dict: dict = {}, network_scale_level: int = 0, scheduling_scale_level: int = 0) -> Constraint:
+def constraint_nameplate_production(instance: ConcreteModel, capacity_factor: dict = {}, loc_pro_dict: dict = {}, network_scale_level: int = 0, scheduling_scale_level: int = 0) -> Constraint:
     """Determines production capacity utilization of facilities at location in network and capacity of facilities 
 
     Args:
@@ -140,7 +140,7 @@ def nameplate_production_constraint(instance: ConcreteModel, capacity_factor: di
         scheduling_scale_level (int, optional): scale of scheduling decisions. Defaults to 0.
 
     Returns:
-        Constraint: nameplate_production_constraint
+        Constraint: nameplate_production
     """
     scales = scale_list(instance=instance,
                         scale_levels=instance.scales.__len__())
@@ -157,8 +157,8 @@ def nameplate_production_constraint(instance: ConcreteModel, capacity_factor: di
         else:
             return Constraint.Skip
         
-    instance.nameplate_production_constraint = Constraint(
+    instance.constraint_nameplate_production = Constraint(
         instance.locations, instance.processes, *scales, rule=nameplate_production_rule, doc='nameplate production capacity constraint')
     constraint_latex_render(nameplate_production_rule)
-    return instance.nameplate_production_constraint
+    return instance.constraint_nameplate_production
 
