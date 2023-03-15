@@ -1,12 +1,12 @@
 from setuptools import setup, find_packages
-import io
+
 __version__ = "1.0.4"
 
 short_desc = (
     "Python-based energy systems modeling and optimization tool"
 )
 
-with io.open('README.md', encoding="utf-8") as f:
+with open('README.md') as f:
     long_description = f.read()
     
 setup(
