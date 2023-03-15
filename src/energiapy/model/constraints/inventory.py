@@ -21,7 +21,7 @@ from typing import Union
 from enum import Enum, auto
 
 
-def storage_facility_constraint(instance: ConcreteModel, store_max: dict, loc_res_dict: dict = {},  network_scale_level: int = 0) -> Constraint:
+def constraint_storage_facility(instance: ConcreteModel, store_max: dict, loc_res_dict: dict = {},  network_scale_level: int = 0) -> Constraint:
     """Determines where storage facility of certain capacity is inserted at location in network
 
     Args:
@@ -31,7 +31,7 @@ def storage_facility_constraint(instance: ConcreteModel, store_max: dict, loc_re
         network_scale_level (int, optional): scale of network decisions. Defaults to 0.
 
     Returns:
-        Constraint: storage_facility_constraint
+        Constraint: storage_facility
     """
     scales = scale_list(instance=instance,
                         scale_levels=network_scale_level + 1)
@@ -43,12 +43,12 @@ def storage_facility_constraint(instance: ConcreteModel, store_max: dict, loc_re
                              scale_list[:network_scale_level+1]]
         else:
             return instance.Cap_S[location, resource, scale_list[:network_scale_level+1]] == 0
-    instance.storage_facility_constraint = Constraint(
+    instance.constraint_storage_facility = Constraint(
         instance.locations, instance.resources_store, *scales, rule=storage_facility_rule, doc='storage facility sizing and location')
     constraint_latex_render(storage_facility_rule)
-    return instance.storage_facility_constraint
+    return instance.constraint_storage_facility
 
-def storage_facility_affix_constraint(instance: ConcreteModel, affix_storage_cap: dict, loc_res_dict: dict = {},  network_scale_level: int = 0) -> Constraint:
+def constraint_storage_facility_affix(instance: ConcreteModel, affix_storage_cap: dict, loc_res_dict: dict = {},  network_scale_level: int = 0) -> Constraint:
     """Determines where storage facility of certain capacity is inserted at location in network
 
     Args:
@@ -58,7 +58,7 @@ def storage_facility_affix_constraint(instance: ConcreteModel, affix_storage_cap
         network_scale_level (int, optional): scale of network decisions. Defaults to 0.
 
     Returns:
-        Constraint: storage_facility_affix_constraint
+        Constraint: storage_facility_affix
     """
     scales = scale_list(instance=instance,
                         scale_levels=network_scale_level + 1)
@@ -72,13 +72,13 @@ def storage_facility_affix_constraint(instance: ConcreteModel, affix_storage_cap
                 return instance.Cap_S[location, resource, scale_list[:network_scale_level+1]] >= 0.0
         else:
             return instance.Cap_S[location, resource, scale_list[:network_scale_level+1]] == 0
-    instance.storage_facility_affix_constraint = Constraint(
+    instance.constraint_storage_facility_affix = Constraint(
         instance.locations, instance.resources_store, *scales, rule=storage_facility_affix_rule, doc='storage facility sizing and location')
     constraint_latex_render(storage_facility_affix_rule)
-    return instance.storage_facility_affix_constraint
+    return instance.constraint_storage_facility_affix
 
 
-def storage_facility_fix_constraint(instance: ConcreteModel, store_max: dict, storage_binaries: dict, loc_res_dict: dict = {},  network_scale_level: int = 0) -> Constraint:
+def constraint_storage_facility_fix(instance: ConcreteModel, store_max: dict, storage_binaries: dict, loc_res_dict: dict = {},  network_scale_level: int = 0) -> Constraint:
     """Determines where storage facility of certain capacity is inserted at location in network
 
     Args:
@@ -89,7 +89,7 @@ def storage_facility_fix_constraint(instance: ConcreteModel, store_max: dict, st
 
 
     Returns:
-        Constraint: storage_facility_fix_constraint
+        Constraint: storage_facility_fix
     """
     scales = scale_list(instance=instance,
                         scale_levels=network_scale_level + 1)
@@ -101,13 +101,13 @@ def storage_facility_fix_constraint(instance: ConcreteModel, store_max: dict, st
                                   scale_list[:network_scale_level+1])]
         else:
             return instance.Cap_S[location, resource, scale_list[:network_scale_level+1]] == 0
-    instance.storage_facility_fix_constraint = Constraint(
+    instance.constraint_storage_facility_fix = Constraint(
         instance.locations, instance.resources_store, *scales, rule=storage_facility_fix_rule, doc='storage facility sizing and location')
     constraint_latex_render(storage_facility_fix_rule)
-    return instance.storage_facility_fix_constraint
+    return instance.constraint_storage_facility_fix
 
 
-def min_storage_facility_constraint(instance: ConcreteModel, store_min: dict, loc_res_dict: dict = {},  network_scale_level: int = 0) -> Constraint:
+def constraint_min_storage_facility(instance: ConcreteModel, store_min: dict, loc_res_dict: dict = {},  network_scale_level: int = 0) -> Constraint:
     """Determines where storage facility of certain capacity is inserted at location in network
 
     Args:
@@ -118,7 +118,7 @@ def min_storage_facility_constraint(instance: ConcreteModel, store_min: dict, lo
 
 
     Returns:
-        Constraint: min_storage_facility_constraint
+        Constraint: min_storage_facility
     """
     scales = scale_list(instance=instance,
                         scale_levels=network_scale_level + 1)
@@ -130,13 +130,13 @@ def min_storage_facility_constraint(instance: ConcreteModel, store_min: dict, lo
                              scale_list[:network_scale_level+1]]
         else:
             return Constraint.Skip
-    instance.min_storage_facility_constraint = Constraint(
+    instance.constraint_min_storage_facility = Constraint(
         instance.locations, instance.resources_store, *scales, rule=min_storage_facility_rule, doc='storage facility sizing and location')
     constraint_latex_render(min_storage_facility_rule)
-    return instance.min_storage_facility_constraint
+    return instance.constraint_min_storage_facility
 
 
-def nameplate_inventory_constraint(instance: ConcreteModel, loc_res_dict: dict = {}, network_scale_level: int = 0, scheduling_scale_level: int = 0) -> Constraint:
+def constraint_nameplate_inventory(instance: ConcreteModel, loc_res_dict: dict = {}, network_scale_level: int = 0, scheduling_scale_level: int = 0) -> Constraint:
     """Determines storage capacity utilization for resource at location in network and capacity of facilities 
 
     Args:
@@ -146,7 +146,7 @@ def nameplate_inventory_constraint(instance: ConcreteModel, loc_res_dict: dict =
         scheduling_scale_level (int, optional): scale of scheduling decisions. Defaults to 0.
 
     Returns:
-        Constraint: nameplate_inventory_constraint
+        Constraint: nameplate_inventory
     """
     scales = scale_list(instance=instance,
                         scale_levels=instance.scales.__len__())
@@ -156,7 +156,7 @@ def nameplate_inventory_constraint(instance: ConcreteModel, loc_res_dict: dict =
             return instance.Inv[location, resource, scale_list[:scheduling_scale_level+1]] <= instance.Cap_S[location, resource, scale_list[:network_scale_level+1]]
         else:
             return instance.Inv[location, resource, scale_list[:scheduling_scale_level+1]] <= 0
-    instance.nameplate_inventory_constraint = Constraint(
+    instance.constraint_nameplate_inventory = Constraint(
         instance.locations, instance.resources_store, *scales, rule=nameplate_inventory_rule, doc='nameplate inventory capacity constraint')
     constraint_latex_render(nameplate_inventory_rule)
-    return instance.nameplate_inventory_constraint
+    return instance.constraint_nameplate_inventory
