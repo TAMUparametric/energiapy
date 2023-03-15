@@ -6,8 +6,18 @@ short_desc = (
     "Python-based energy systems modeling and optimization tool"
 )
 
-with open('README.md') as f:
-    long_description = f.read()
+# with open('README.md') as f:
+#     long_description = f.read()
+    
+try:
+    long_description = pypandoc.convert('README.md', 'rst')
+    long_description = long_description.replace("\r","") 
+except OSError:
+    print("Pandoc not found. Long_description conversion failure.")
+    import io
+    # pandoc is not installed, fallback to using raw contents
+    with io.open('README.md', encoding="utf-8") as f:
+        long_description = f.read()
 
 setup(
     name='energiapy',
@@ -32,5 +42,5 @@ setup(
         'gurobipy',
     ],
     packages=find_packages(where='src'),
-    package_dir={'': 'src'}
+    package_dir={'': 'src'},
 )
