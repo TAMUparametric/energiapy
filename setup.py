@@ -1,5 +1,4 @@
 from setuptools import setup, find_packages
-import pypandoc
 import io
 __version__ = "1.0.4"
 
