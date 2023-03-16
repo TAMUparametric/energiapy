@@ -27,7 +27,7 @@ Install energiapy
 
     pip install energiapy
 
-energiapy is being developed as a PhD project, and is hence frequently updated. For the most updated (often unstable) version use
+energiapy is being developed as a PhD project, and is hence frequently updated. For the most updated (sometimes unstable) version use
 
     pip install git+https://github.com/TAMUparametric/energiapy
 

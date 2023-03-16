@@ -14,6 +14,7 @@ Tutorial
 .. toctree::
    :maxdepth: 2
    :caption: Overview:
+
    example_small
    example_multiloc
    example_mpLP
