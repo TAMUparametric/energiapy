@@ -111,6 +111,8 @@ def formulate(scenario: Scenario, constraints:Set[Constraints], objective:Object
         generate_mode_vars(instance= instance, scale_level=scenario.scheduling_scale_level, mode_dict= scenario.mode_dict)
         
         constraint_production_mode(instance= instance, mode_dict= scenario.mode_dict, scheduling_scale_level= scenario.scheduling_scale_level)
+        constraint_production_mode_facility(instance= instance, prod_max= scenario.prod_max, loc_pro_dict= scenario.loc_pro_dict, scheduling_scale_level= scenario.scheduling_scale_level)
+        constraint_production_mode_binary(instance= instance, mode_dict= scenario.mode_dict, scheduling_scale_level= scenario.scheduling_scale_level, network_scale_level= scenario.network_scale_level)
     
     if len(scenario.location_set) > 1:
         generate_transport_vars(instance=instance, scale_level=scenario.scheduling_scale_level)

@@ -15,7 +15,7 @@ from ..components.scenario import Scenario
 from ..components.temporal_scale import Temporal_scale
 from pyomo.environ import ConcreteModel, Set
 from enum import Enum, auto
-
+from itertools import product
 
 def generate_sets(instance: ConcreteModel, scenario:Scenario):
     """Generates pyomo sets based on declared lists.
@@ -100,6 +100,12 @@ def generate_sets(instance: ConcreteModel, scenario:Scenario):
     instance.resources_uncertain_price = Set(initialize = sets['resources_uncertain_price'], doc = 'Set of resources with uncertain purchase price')
     instance.resources_uncertain_demand = Set(initialize = sets['resources_uncertain_demand'], doc = 'Set of resources with uncertain demand')
     instance.processes_uncertain_capacity= Set(initialize = sets['processes_uncertain_capacity'], doc = 'Set of processes with uncertain capacity')
+    
+    mode_lens  = []
+    for i,j in product(scenario.process_set, scenario.location_set):
+        mode_lens.append(len(scenario.prod_max[j.name][i.name].keys()))
+        
+    instance.modes = Set(initialize = list(range(max(mode_lens))), doc = 'Set of process modes')
     
     
     if scenario.source_locations is not None:

@@ -18,6 +18,8 @@ from ..utils.resource_utils import create_storage_resource
 import pandas
 from random import sample
 from enum import Enum, auto
+from warnings import warn
+
 
 class CostDynamics(Enum):
     constant = auto()
@@ -40,8 +42,8 @@ class Process:
 
     Args:
         name (str): name of process, short ones are better to deal with.
-        conversion (Dict[resource, float], optional): conversion data (Dict[Resource, float]]), if multimode the of form Dict[int,Dict[Resource, float]]. Defaults to None.
-       introduce (int, optional): Time period in the network scale when introduced. Defaults to 0.
+        conversion (Union[Dict[int,Dict[Resource, float]], Dict[Resource, float]], optional): conversion data (Dict[Resource, float]]), if multimode the of form Dict[int,Dict[Resource, float]]. Defaults to None.
+        introduce (int, optional): Time period in the network scale when introduced. Defaults to 0.
         retire (int, optional): Time period in the network scale when retired. Defaults to None.
         capex (Union[float, dict], None): Capital expenditure per unit basis, can be scaled with capacity. Defaults to None.
         fopex (Union[float, dict], None): Fixed operational expenditure per unit basis, can be scaled with capacity. Defaults to None.
@@ -71,11 +73,11 @@ class Process:
 
         For process with multiple modes of operation
         
-        >>> PEM = Process(name = 'PEM', multiconversion = {1: {Power: -1, H2: 19.474, O2: 763.2, H2O: -175.266}, 2: {Power: -1, H2: 1.2*19.474, O2: 1.2*763.2, H2O: 1.2*-175.266}, prod_max= 100, capex = 784000, label = 'PEM Electrolysis')
+        >>> PEM = Process(name = 'PEM', conversion = {1: {Power: -1, H2: 19.474, O2: 763.2, H2O: -175.266}, 2: {Power: -1, H2: 1.2*19.474, O2: 1.2*763.2, H2O: 1.2*-175.266}, prod_max= 100, capex = 784000, label = 'PEM Electrolysis')
         
         For process with multiple resource inputs
         
-        >>> CoolCar = Process(name = 'CoolCar', multiconversion = {1: {Power: -1, Mile: 1}, 2: {H2: -1, Mile:2}, prod_max= 50, capex = 70, label = 'CoolCar')
+        >>> CoolCar = Process(name = 'CoolCar', conversion = {1: {Power: -1, Mile: 1}, 2: {H2: -1, Mile:2}, prod_max= 50, capex = 70, label = 'CoolCar')
         
     """
 
@@ -88,7 +90,7 @@ class Process:
     vopex: Union[float, dict] = None
     incidental: float = None
     material_cons: Dict[Material, float] = None
-    prod_max: float = 0
+    prod_max: Union[Dict[int,float], float] = 0
     prod_min: float = 0
     basis: str = 'unit'
     carbon_credit: float = 0
@@ -127,7 +129,7 @@ class Process:
         else:
             self.conversion_discharge = None
             self.resource_storage = None
-            if list(self.conversion.keys())[0] is int:
+            if type(list(self.conversion.keys())[0]) is int:
                 self.processmode = ProcessMode.multi
             else:
                 self.processmode = ProcessMode.single
@@ -136,7 +138,16 @@ class Process:
             self.cost_dynamics = CostDynamics.pwl
         else:
             self.cost_dynamics = CostDynamics.constant      
-                    
+        
+        if self.processmode is ProcessMode.multi:
+            self.resource_req = {i.name for i in self.conversion[list(self.conversion.keys())[0]].keys()}
+        else:
+            self.resource_req = {i.name for i in self.conversion.keys()}     
+    
+        if self.processmode == ProcessMode.multi:    
+            if list(self.prod_max.keys()) != list(self.conversion.keys()):
+                warn('The keys for prod_max and conversion need to match if ProcessMode.multi')
+                            
     def __repr__(self):
         return self.name
     

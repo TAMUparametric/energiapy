@@ -148,7 +148,7 @@ class Scenario:
         if type(self.demand) is dict:
             self.demand = {location.name: {resource.name: self.demand[location][resource] for resource in self.demand[location].keys()} for location in self.demand.keys()}
         
-        self.prod_max = {i.name: {j.name: j.prod_max for j in i.processes_full} for i in self.location_set}
+        self.prod_max = {i.name: i.prod_max for i in self.location_set}
         self.prod_min = {i.name: {j.name: j.prod_min for j in i.processes_full} for i in self.location_set}
         self.cons_max = {i.name: {j.name: j.cons_max for j in i.resources_full} for i in self.location_set}
         self.store_max = {i.name: {j.name: j.store_max for j in i.resources_full} for i in self.location_set}
@@ -170,16 +170,21 @@ class Scenario:
         self.process_gwp_dict = {i.name: {j.name: j.gwp for j in self.process_set} for i in self.location_set}
         self.land_cost_dict = {i.name: i.land_cost for i in self.location_set}
         self.fail_factor = {i.name: i.fail_factor for i in self.location_set}
-        self.process_resource_dict = {i.name: {j.name for j in i.conversion.keys() } for i in self.process_set if i.conversion is not None}
+        
+        
+        self.process_resource_dict = {i.name: i.resource_req for i in self.process_set}
+        
         self.process_material_dict = {i.name: {j.name: i.material_cons[j] for j in i.material_cons.keys() } for i in self.process_set if i.material_cons is not None}
 
         multiconversion_dict = dict()
         for i in self.process_set:
             if i.processmode == ProcessMode.multi:
-               multiconversion_dict[i.name] = {j.name: i.conversion[j]  if j in i.conversion.keys() else 0 for j in self.resource_set}
+                multiconversion_dict[i.name] = {j: None for j in i.conversion.keys()}
+                for k in list(multiconversion_dict[i.name].keys()):
+                    multiconversion_dict[i.name][k] = {j.name: i.conversion[k][j] if j in i.conversion[k].keys() else 0 for j in self.resource_set}
             else:
-               multiconversion_dict[i.name] = {0: None}
-               multiconversion_dict[i.name][0] = {j.name: i.conversion[j]  if j in i.conversion.keys() else 0 for j in self.resource_set}
+                multiconversion_dict[i.name] = {0: None}
+                multiconversion_dict[i.name][0] = {j.name: i.conversion[j]  if j in i.conversion.keys() else 0 for j in self.resource_set}
         
         self.multiconversion = multiconversion_dict
                 

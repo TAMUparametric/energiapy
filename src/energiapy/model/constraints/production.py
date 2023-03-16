@@ -37,7 +37,7 @@ def constraint_production_facility(instance: ConcreteModel, prod_max: dict, loc_
 
     def production_facility_rule(instance, location, process, *scale_list):
         if process in loc_pro_dict[location]:
-            return instance.Cap_P[location, process, scale_list[:network_scale_level+1]] <= prod_max[location][process] *\
+            return instance.Cap_P[location, process, scale_list[:network_scale_level+1]] <= prod_max[location][process][list(prod_max[location][process].keys())[-1:][0]] *\
                 instance.X_P[location, process,
                              scale_list[:network_scale_level+1]]
         else:
