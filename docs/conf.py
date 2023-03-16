@@ -22,7 +22,7 @@ sys.setrecursionlimit(10000)
 project = 'energiapy'
 copyright = '2023, Rahul Kakodkar'
 author = 'Rahul Kakodkar'
-release = '1.0.3'
+release = '1.0.4'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
