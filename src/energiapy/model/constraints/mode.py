@@ -23,7 +23,7 @@ def constraint_production_mode(instance: ConcreteModel, mode_dict:dict, scheduli
         scheduling_scale_level (int, optional): scale for scheduling decisions. Defaults to 0.
 
     Returns:
-        Constraint: _description_
+        Constraint: production_mode
     """
 
     scales = scale_list(instance=instance, scale_levels=scheduling_scale_level+1)
@@ -46,7 +46,7 @@ def constraint_production_mode_facility(instance: ConcreteModel, prod_max: dict,
         scheduling_scale_level (int, optional): scale of scheduling decisions. Defaults to 0.
 
     Returns:
-        Constraint: production_facility
+        Constraint: production_facility_mode
     """
     scales = scale_list(instance=instance, scale_levels=scheduling_scale_level+1)
 
@@ -55,7 +55,6 @@ def constraint_production_mode_facility(instance: ConcreteModel, prod_max: dict,
             if mode <= list(prod_max[location][process].keys())[-1:][0]:
                 return instance.Cap_P_m[location, process, mode, scale_list[:scheduling_scale_level+1]] <= prod_max[location][process][mode]*\
                     instance.X_P_m[location, process, mode, scale_list[:scheduling_scale_level+1]]
-                print('kan')
             else:
                 return Constraint.Skip
         else:
@@ -75,7 +74,7 @@ def constraint_production_mode_binary(instance: ConcreteModel, mode_dict:dict, s
         network_scale_level (int, optional): scale for network decisions. Defaults to 0.
 
     Returns:
-        Constraint: _description_
+        Constraint: production_mode_binary
     """
 
     scales = scale_list(instance=instance, scale_levels=scheduling_scale_level+1)

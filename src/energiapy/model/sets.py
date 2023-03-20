@@ -76,9 +76,9 @@ def generate_sets(instance: ConcreteModel, scenario:Scenario):
     """
 
     instance.scales = Set(scenario.scales.list, initialize = scenario.scales.scale, doc = 'set of scales')
-
-    sets = scenario.set_dict
     
+    sets = scenario.set_dict
+       
     instance.processes = Set(initialize  = sets['processes'], doc = 'Set of processes')
     instance.processes_full = Set(initialize = sets['processes_full'], doc = 'Set of all processes including dummy discharge')
     instance.resources = Set(initialize  = sets['resources'], doc = 'Set of resources')
