@@ -1,4 +1,3 @@
-#%%
 """plotting module
 """
 
@@ -19,6 +18,7 @@ from ..components.resource import Resource
 from ..components.result import Result
 from ..components.location import Location
 from typing import Union
+from enum import Enum, auto
 
 
 
@@ -272,5 +272,104 @@ def transport(results: Result, source:str, sink:str, resource: str, transport: s
 #TODO - make scenario comparison plots, perhaps use kwargs, allow n number of comparisons 
 
 
+class CostX(Enum):
+    """X axis for cost plot
 
+    Args:
+        Enum (_type_): location-wise or process-wise
+    """
+    location_wise = auto()
+    process_wise = auto()
+    
+class CostY(Enum):
+    """Y axis for cost plot
+    
+    Args:
+        Enum (_type_): capex, fopex, vopex, or total
+    """
+    total = auto()
+    capex = auto()
+    vopex = auto()
+    fopex = auto()
+
+
+def cost(results:Result,x: CostX, y: CostY, location: str = None, fig_size:tuple = (12,6), font_size:int = 16, color:str ='blue', usetex:bool = False):
+    """Plots the cost of processes, such as capex, vopex, fopex, or total
+
+    Args:
+        results (Result): results 
+        x (CostX): one of CostX.location_wise, CostX.process_wise 
+        y (CostY): one of CostY.total, CostY.capex, CostY.fopex, CostY.vopes
+        location (str, optional): location to plot for, applicable for CostX.process_wise. Defaults to None.
+        fig_size (tuple, optional): Defaults to (12,6).
+        font_size (int, optional): Defaults to 16.
+        color (str, optional): Defaults to 'blue'.
+        usetex (bool, optional): Defaults to False.
+    """
+
+    if x == CostX.process_wise:
+        
+        if y is CostY.capex:
+            res_dict = results.output['Capex_process']
+        if y is CostY.vopex:
+            res_dict = results.output['Vopex_process']
+        if y is CostY.fopex:
+            res_dict = results.output['Fopex_process']
+
+        if y is CostY.total:
+            res_dict = {i: results.output['Capex_process'][i] + results.output['Vopex_process'][i] + \
+                results.output['Fopex_process'][i] for i in results.output['Capex_process'].keys()}
+        
+
+        x_,y_,n_ = ([] for _ in range(3))
+        for i in res_dict.keys():
+            if i[0] == location:
+                if res_dict[i]> 0:
+                    y_.append(res_dict[i])
+                    x_.append(i[1])
+                else:
+                    n_.append(i[1])
+                    
+        rc('font', **{'family': 'serif', 'serif': ['Computer Modern'], 'size': font_size})
+        rc('text', usetex=usetex)
+        fig, ax = plt.subplots(figsize= fig_size)
+        ax.bar(x_,y_, zorder = 3)
+        y_plot = ''.join(str(y).split('CostY.')[1])
+        plt.title(f'Process-wise {y_plot} cost at {location}')
+        plt.ylabel(f'Unit Currency')
+        plt.xlabel(f'Processes')
+        plt.yscale('log')
+        plt.rcdefaults()
+        plt.grid(alpha = 0.3, zorder = 0)
+        
+    if x == CostX.location_wise:
+        
+        res_dict = {i: results.output['Capex_process'][i] + results.output['Vopex_process'][i] + \
+                results.output['Fopex_process'][i] for i in results.output['Capex_process'].keys()}
+        
+        
+        locations = {i[0] for i in results.output['Capex_process']}
+
+        locations = tuple(locations)
+
+        # weight_counts = dict()
+        # for i in res_dict.keys():
+            
+        # weight_counts = {i[1]: numpy.array([res_dict[j] for j in res_dict.keys() if  ])
+        #     "Below": np.array([70, 31, 58]),
+        #     "Above": np.array([82, 37, 66]),
+        # }
+        # width = 0.5
+
+        # fig, ax = plt.subplots()
+        # bottom = np.zeros(3)
+
+        # for boolean, weight_count in weight_counts.items():
+        #     p = ax.bar(species, weight_count, width, label=boolean, bottom=bottom)
+        #     bottom += weight_count
+
+        # ax.set_title("Number of penguins with above average body mass")
+        # ax.legend(loc="upper right")
+
+    return
 
