@@ -144,7 +144,7 @@ class Scenario:
         
         self.conversion = {i.name: {j.name: i.conversion[j] if j in i.conversion.keys() \
             else 0 for j in self.resource_set} for i in self.process_set if i.conversion is not None}
-
+        
         if type(self.demand) is dict:
             self.demand = {location.name: {resource.name: self.demand[location][resource] for resource in self.demand[location].keys()} for location in self.demand.keys()}
         
@@ -241,7 +241,7 @@ class Scenario:
             self.set_dict['resources_trans'] = []
 
     def make_conversion_df(self):
-        return DataFrame.from_dict(self.conversion)
+        return DataFrame.from_dict(self.conversion).transpose()
     
         
     def matrix_form(self):
