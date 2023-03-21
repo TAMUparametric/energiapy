@@ -2,15 +2,16 @@
 """
 
 __author__ = "Rahul Kakodkar"
-__copyright__ = "Copyright 2022, Multi-parametric Optimization & Control Lab"
+__copyright__ = "Copyright 2023, Multi-parametric Optimization & Control Lab"
 __credits__ = ["Rahul Kakodkar", "Efstratios N. Pistikopoulos"]
 __license__ = "Open"
-__version__ = "0.0.1"
+__version__ = "1.0.4"
 __maintainer__ = "Rahul Kakodkar"
 __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
 from matplotlib import rc
+from numpy import zeros, array
 import matplotlib.pyplot as plt
 from ..utils.plot_utils import axis_formatter
 from ..components.process import Process
@@ -21,7 +22,27 @@ from typing import Union
 from enum import Enum, auto
 
 
+class CostX(Enum):
+    """X axis for cost plot
 
+    Args:
+        Enum (_type_): location-wise or process-wise
+    """
+    location_wise = auto()
+    process_wise = auto()
+    
+class CostY(Enum):
+    """Y axis for cost plot
+    
+    Args:
+        Enum (_type_): capex, fopex, vopex, or total
+    """
+    total = auto()
+    capex = auto()
+    vopex = auto()
+    fopex = auto()
+    
+    
 
 def capacity_factor(process: Process, location: Location, \
     fig_size:tuple = (12,6), font_size:int = 16, color:str ='blue', usetex:bool = False):
@@ -272,54 +293,33 @@ def transport(results: Result, source:str, sink:str, resource: str, transport: s
 #TODO - make scenario comparison plots, perhaps use kwargs, allow n number of comparisons 
 
 
-class CostX(Enum):
-    """X axis for cost plot
-
-    Args:
-        Enum (_type_): location-wise or process-wise
-    """
-    location_wise = auto()
-    process_wise = auto()
-    
-class CostY(Enum):
-    """Y axis for cost plot
-    
-    Args:
-        Enum (_type_): capex, fopex, vopex, or total
-    """
-    total = auto()
-    capex = auto()
-    vopex = auto()
-    fopex = auto()
-
-
-def cost(results:Result,x: CostX, y: CostY, location: str = None, fig_size:tuple = (12,6), font_size:int = 16, color:str ='blue', usetex:bool = False):
+def cost(results:Result,x: CostX, y: CostY, location: str = None, fig_size:tuple = (12,6), bar_width: float = 0.5, font_size:int = 16, color:str ='blue', usetex:bool = False):
     """Plots the cost of processes, such as capex, vopex, fopex, or total
 
     Args:
         results (Result): results 
         x (CostX): one of CostX.location_wise, CostX.process_wise 
-        y (CostY): one of CostY.total, CostY.capex, CostY.fopex, CostY.vopes
+        y (CostY): one of CostY.total, CostY.capex, CostY.fopex, CostY.vopex
         location (str, optional): location to plot for, applicable for CostX.process_wise. Defaults to None.
         fig_size (tuple, optional): Defaults to (12,6).
+        bar_width (float, optional): Defaults to 0.5.
         font_size (int, optional): Defaults to 16.
         color (str, optional): Defaults to 'blue'.
         usetex (bool, optional): Defaults to False.
     """
+    
+    if y is CostY.capex:
+        res_dict = results.output['Capex_process']
+    if y is CostY.vopex:
+        res_dict = results.output['Vopex_process']
+    if y is CostY.fopex:
+        res_dict = results.output['Fopex_process']
 
+    if y is CostY.total:
+        res_dict = {i: results.output['Capex_process'][i] + results.output['Vopex_process'][i] + \
+            results.output['Fopex_process'][i] for i in results.output['Capex_process'].keys()}
+    
     if x == CostX.process_wise:
-        
-        if y is CostY.capex:
-            res_dict = results.output['Capex_process']
-        if y is CostY.vopex:
-            res_dict = results.output['Vopex_process']
-        if y is CostY.fopex:
-            res_dict = results.output['Fopex_process']
-
-        if y is CostY.total:
-            res_dict = {i: results.output['Capex_process'][i] + results.output['Vopex_process'][i] + \
-                results.output['Fopex_process'][i] for i in results.output['Capex_process'].keys()}
-        
 
         x_,y_,n_ = ([] for _ in range(3))
         for i in res_dict.keys():
@@ -333,43 +333,45 @@ def cost(results:Result,x: CostX, y: CostY, location: str = None, fig_size:tuple
         rc('font', **{'family': 'serif', 'serif': ['Computer Modern'], 'size': font_size})
         rc('text', usetex=usetex)
         fig, ax = plt.subplots(figsize= fig_size)
-        ax.bar(x_,y_, zorder = 3)
+        ax.bar(x_,y_, width = bar_width, zorder = 3)
         y_plot = ''.join(str(y).split('CostY.')[1])
         plt.title(f'Process-wise {y_plot} cost at {location}')
         plt.ylabel(f'Unit Currency')
         plt.xlabel(f'Processes')
         plt.yscale('log')
-        plt.rcdefaults()
         plt.grid(alpha = 0.3, zorder = 0)
+        plt.rcdefaults()
         
     if x == CostX.location_wise:
         
-        res_dict = {i: results.output['Capex_process'][i] + results.output['Vopex_process'][i] + \
-                results.output['Fopex_process'][i] for i in results.output['Capex_process'].keys()}
-        
-        
-        locations = {i[0] for i in results.output['Capex_process']}
+        locations = tuple(results.components['locations'].keys())
 
-        locations = tuple(locations)
+        weight_counts = dict()
 
-        # weight_counts = dict()
-        # for i in res_dict.keys():
+        for i in list(results.components['processes'].keys()):
+            vals = []
+            for j in res_dict.keys():
+                if j[1] == i:
+                    vals.append(res_dict[j]) 
+            weight_counts[i] = array(vals)        
             
-        # weight_counts = {i[1]: numpy.array([res_dict[j] for j in res_dict.keys() if  ])
-        #     "Below": np.array([70, 31, 58]),
-        #     "Above": np.array([82, 37, 66]),
-        # }
-        # width = 0.5
+        rc('font', **{'family': 'serif', 'serif': ['Computer Modern'], 'size': font_size})
+        rc('text', usetex=usetex)
+        fig, ax = plt.subplots(figsize= fig_size)
+        bottom = zeros(len(locations))
 
-        # fig, ax = plt.subplots()
-        # bottom = np.zeros(3)
-
-        # for boolean, weight_count in weight_counts.items():
-        #     p = ax.bar(species, weight_count, width, label=boolean, bottom=bottom)
-        #     bottom += weight_count
-
-        # ax.set_title("Number of penguins with above average body mass")
-        # ax.legend(loc="upper right")
-
+        for boolean, weight_count in weight_counts.items():
+            p = ax.bar(locations, weight_count,  width = bar_width, label=boolean, bottom=bottom, zorder = 3)
+            bottom += weight_count
+        y_plot = ''.join(str(y).split('CostY.')[1])
+        plt.title(f'Location-wise {y_plot}')
+        plt.ylabel(f'Unit Currency')
+        plt.xlabel(f'Locations')
+        plt.yscale('log')
+        plt.legend()
+        plt.grid(alpha = 0.3, zorder = 0)
+        plt.rcdefaults()
+        plt.plot()
     return
+
 
