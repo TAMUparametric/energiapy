@@ -151,7 +151,7 @@ Given is a general MILP modeling and optimization framework for simultaneous net
     from energiapy.components.scenario import Scenario
     from energiapy.components.result import Result 
     from energiapy.model.formulate import formulate, Constraints, Objective
-    from energiapy.plot import plot
+    
     from energiapy.model.solve import solve
 
 **Declare temporal scale**
