@@ -64,7 +64,8 @@ class Process:
         p_fail (float, optional): failure rate of process. Defaults to None.
         label(str, optional):Longer descriptive label if required. Defaults to ''
         storage(list, optional): Resource that can be stored in process.
-        storage_loss (float, optional): If storage process, storage loss experienced per time period in scheduling horizon. Defaults to 0. 
+        store_max (float, optional): Maximum allowed storage of resource in process. Defaults to 0. 
+        store_min (float, optional): Minimum allowed storage of resource in process. Defaults to 0. 
         
     Examples:
         For processes with varying production capacity
