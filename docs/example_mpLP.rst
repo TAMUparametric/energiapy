@@ -104,7 +104,6 @@ Given is a general MILP modeling and optimization framework for simultaneous net
         Inv_{r,t} \leq Cap^{S}_{r,t}  \hspace{1cm} \forall r \in \mathcal{R}^{storage}, t \in \mathcal{T}^{sch}
     \end{equation} 
 
-
 .. math::
     \begin{equation}
         - S_{r,t} \leq - D_{r,t}  \hspace{1cm} \forall r \in \mathcal{R}, t \in \mathcal{T}^{sch}
@@ -143,7 +142,6 @@ Reformulated, a general mpLP for the above MILP will looks something like this:
     \begin{equation}
         min \hspace{1cm} \sum_{p \in \mathcal{P}} Capex_p \times \epsilon_p \times P_p + \sum_{r \in \mathcal{R}^{cons}} C_r \times \gamma_r 
     \end{equation}
-
 
 .. math::
     \begin{equation}
@@ -255,6 +253,12 @@ Let us now look at an example problem
     \begin{equation}
         \beta_r \in \mathcal{B}_r \hspace{1cm} \forall r \in \{Power\} 
     \end{equation}
+
+
+
+**Example energiapy implementation**
+
+Let us now look at an example problem
 
 
 Now we are ready to implement the above problem in energiapy

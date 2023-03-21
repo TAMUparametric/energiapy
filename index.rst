@@ -1,7 +1,8 @@
-.. energiapy documentation master file, created by Rahul Kakodkar
-   sphinx-quickstart on Wed Mar 15 15:20:31 2023.
+.. energiapy documentation master file, created by
+   sphinx-quickstart on Wed Mar 15 16:51:49 2023.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
+
 
 .. mdinclude:: ../README.md
 
@@ -20,7 +21,6 @@ Tutorial
    example_mpLP
    example_ahc
 
-
 API
 ---
 
@@ -36,4 +36,3 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-
