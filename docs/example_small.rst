@@ -81,7 +81,6 @@ The sets and variables used are stated here
 
 Given is a general MILP modeling and optimization framework for simultaneous network design and scheduling for a single location problem.
 
-
 .. math::
     \begin{equation}
         min \sum_{t \in \mathcal{T}^{net}} \sum_{p \in \mathcal{P}} Capex_{p,t} \times Cap^P_{p,t} + \sum_{t \in \mathcal{T}^{sch}} \sum_{r \in \mathcal{R}^{cons}}  Price_{r,t}  \times C_{r,t} + \sum_{t \in \mathcal{T}^{sch}} \sum_{p \in \mathcal{P}}  Vopex_{r,t} \times P_{r,t} 

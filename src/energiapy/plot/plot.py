@@ -1,17 +1,17 @@
-#%%
 """plotting module
 """
 
 __author__ = "Rahul Kakodkar"
-__copyright__ = "Copyright 2022, Multi-parametric Optimization & Control Lab"
+__copyright__ = "Copyright 2023, Multi-parametric Optimization & Control Lab"
 __credits__ = ["Rahul Kakodkar", "Efstratios N. Pistikopoulos"]
 __license__ = "Open"
-__version__ = "0.0.1"
+__version__ = "1.0.4"
 __maintainer__ = "Rahul Kakodkar"
 __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
 from matplotlib import rc
+from numpy import zeros, array
 import matplotlib.pyplot as plt
 from ..utils.plot_utils import axis_formatter
 from ..components.process import Process
@@ -19,9 +19,30 @@ from ..components.resource import Resource
 from ..components.result import Result
 from ..components.location import Location
 from typing import Union
+from enum import Enum, auto
 
 
+class CostX(Enum):
+    """X axis for cost plot
 
+    Args:
+        Enum (_type_): location-wise or process-wise
+    """
+    location_wise = auto()
+    process_wise = auto()
+    
+class CostY(Enum):
+    """Y axis for cost plot
+    
+    Args:
+        Enum (_type_): capex, fopex, vopex, or total
+    """
+    total = auto()
+    capex = auto()
+    vopex = auto()
+    fopex = auto()
+    
+    
 
 def capacity_factor(process: Process, location: Location, \
     fig_size:tuple = (12,6), font_size:int = 16, color:str ='blue', usetex:bool = False):
@@ -232,13 +253,125 @@ def capacity_utilization(results: Result, location:str, process:str = None,\
         plt.rcdefaults()
     return
 
+def transport(results: Result, source:str, sink:str, resource: str, transport: str, fig_size:tuple = (12,6), font_size:int = 16, color:str ='blue', usetex:bool = False):
+    """Plots the transportation schedule from source to sink of choice for resource through a transportation mode
 
+    Args:
+        results (Result): results
+        source (str): source location
+        sink (str): sink location
+        resource (str): Resource that is being transported 
+        transport (str): Transport being used
+        fig_size (tuple, optional): Defaults to (12,6).
+        font_size (int, optional): Defaults to 16.
+        color (str, optional): Defaults to 'blue'.
+        usetex (bool, optional): Defaults to False.
+    
+    Examples:
 
-#TODO - plots are independent of scales, check
+        Plotting transport is fairly straight forward. This plots the export from source to sink. 
+    
+        >>> plot.transport(results= results, source= 'Goa', sink= 'Texas', resource= 'PhDStudents', transport= 'GradSchool')
+    
+    """
+    
+    rc('font', **{'family': 'serif', 'serif': ['Computer Modern'], 'size': font_size})
+    rc('text', usetex=usetex)
+    fig, ax = plt.subplots(figsize= fig_size)
+    y_ = [results.output['Trans_exp'][i] for i in results.output['Trans_exp'].keys() if list(i)[:4] == [source, sink, resource, transport]]
+    plt.plot(y_)
+    plt.ylabel(f"Amount in unit basis")
+    plt.xlabel(f"Scheduling scale")
+    plt.title(f"Schedule for {resource} transported on {transport} from {source} to {sink}")
+    plt.xticks(rotation = 90)
+    plt.grid(alpha=0.3)
+    plt.rcdefaults()
+    return 
+
 #TODO - make bar plots / pie plots for contribution from different components 
 #TODO - make layered scheduling plot for comparison 
 #TODO - make scenario comparison plots, perhaps use kwargs, allow n number of comparisons 
 
 
+def cost(results:Result,x: CostX, y: CostY, location: str = None, fig_size:tuple = (12,6), bar_width: float = 0.5, font_size:int = 16, color:str ='blue', usetex:bool = False):
+    """Plots the cost of processes, such as capex, vopex, fopex, or total
+
+    Args:
+        results (Result): results 
+        x (CostX): one of CostX.location_wise, CostX.process_wise 
+        y (CostY): one of CostY.total, CostY.capex, CostY.fopex, CostY.vopex
+        location (str, optional): location to plot for, applicable for CostX.process_wise. Defaults to None.
+        fig_size (tuple, optional): Defaults to (12,6).
+        bar_width (float, optional): Defaults to 0.5.
+        font_size (int, optional): Defaults to 16.
+        color (str, optional): Defaults to 'blue'.
+        usetex (bool, optional): Defaults to False.
+    """
+    
+    if y is CostY.capex:
+        res_dict = results.output['Capex_process']
+    if y is CostY.vopex:
+        res_dict = results.output['Vopex_process']
+    if y is CostY.fopex:
+        res_dict = results.output['Fopex_process']
+
+    if y is CostY.total:
+        res_dict = {i: results.output['Capex_process'][i] + results.output['Vopex_process'][i] + \
+            results.output['Fopex_process'][i] for i in results.output['Capex_process'].keys()}
+    
+    if x == CostX.process_wise:
+
+        x_,y_,n_ = ([] for _ in range(3))
+        for i in res_dict.keys():
+            if i[0] == location:
+                if res_dict[i]> 0:
+                    y_.append(res_dict[i])
+                    x_.append(i[1])
+                else:
+                    n_.append(i[1])
+                    
+        rc('font', **{'family': 'serif', 'serif': ['Computer Modern'], 'size': font_size})
+        rc('text', usetex=usetex)
+        fig, ax = plt.subplots(figsize= fig_size)
+        ax.bar(x_,y_, width = bar_width, zorder = 3)
+        y_plot = ''.join(str(y).split('CostY.')[1])
+        plt.title(f'Process-wise {y_plot} cost at {location}')
+        plt.ylabel(f'Unit Currency')
+        plt.xlabel(f'Processes')
+        plt.yscale('log')
+        plt.grid(alpha = 0.3, zorder = 0)
+        plt.rcdefaults()
+        
+    if x == CostX.location_wise:
+        
+        locations = tuple(results.components['locations'].keys())
+
+        weight_counts = dict()
+
+        for i in list(results.components['processes'].keys()):
+            vals = []
+            for j in res_dict.keys():
+                if j[1] == i:
+                    vals.append(res_dict[j]) 
+            weight_counts[i] = array(vals)        
+            
+        rc('font', **{'family': 'serif', 'serif': ['Computer Modern'], 'size': font_size})
+        rc('text', usetex=usetex)
+        fig, ax = plt.subplots(figsize= fig_size)
+        bottom = zeros(len(locations))
+
+        for boolean, weight_count in weight_counts.items():
+            p = ax.bar(locations, weight_count,  width = bar_width, label=boolean, bottom=bottom, zorder = 3)
+            bottom += weight_count
+        y_plot = ''.join(str(y).split('CostY.')[1])
+        plt.title(f'Location-wise {y_plot}')
+        plt.ylabel(f'Unit Currency')
+        plt.xlabel(f'Locations')
+        plt.yscale('log')
+        plt.legend()
+        plt.grid(alpha = 0.3, zorder = 0)
+        plt.rcdefaults()
+        plt.plot()
+    return
 
 
