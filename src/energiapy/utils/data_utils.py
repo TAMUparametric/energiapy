@@ -140,15 +140,14 @@ def make_f_purchase(location_list: list, day_list: list, hour_list: list, resour
     return f_purchase_dict_
 
 
-def make_henry_price_df(file_name: str, year: int, stretch: bool) -> pandas.DataFrame:
-    """makes a df from Henry Spot Price Index data
-    Days with missing data are filled using previous day values
+def make_henry_price_df(file_name: str, year: int, stretch: bool = False,) -> pandas.DataFrame:
+    """makes a df from data with missing data filled using previous day values
     The costs are converted to $/kg from $/MMBtu using a factor of /22.4
 
     Args:
         file_name (str): provide csv file with data
         year (int): import data from a particular year
-        stretch (bool): if True, streches the timescale from days (365) to hours (8760)
+        stretch (bool): if True, streches the timescale from days (365) to hours (8760). Defaults to False.
 
 
     Returns:
@@ -289,6 +288,24 @@ def load_results(filename: str) -> Result:
     return results
 
 
+def remove_outliers(data: pandas.DataFrame, sd_cuttoff: int = 2) -> pandas.DataFrame:
+    """Removes outliers upto chosen standard deviations
+    fixes data as the mean of data around the point
+    Args:
+        data (pandas.DataFrame): input data
+        sd_cuttoff (int, optional): data upto integer number of standard deviations. Defaults to 2.
 
+    Returns:
+        pandas.DataFrame: data sans outliers
+    """
+    data_mean, data_std = data.mean(), data.std()
+    # identify outliers
+    cut_off = data_std * 3
+    lower, upper = data_mean - cut_off, data_mean + cut_off
+    for i in range(len(data)):
+        x = data.iloc[i].values[0]
+        if x < float(lower) or x > float(upper):
+            data.iloc[i] = (data.iloc[i-1] + data.iloc[i+1])/2
+    return data
 
 # %%

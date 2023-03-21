@@ -61,6 +61,7 @@ class Network:
         self.transport_avail_dict = self.make_transport_avail_dict()
         self.locations = list(
             set(self.source_locations).union(set(self.sink_locations)))
+        
 
     def make_distance_dict(self) -> dict:
         """returns a dictionary of distances from sources to sinks
@@ -92,5 +93,5 @@ class Network:
             i: {j.name for j in self.transport_dict[i]} for i in self.transport_dict.keys()}
         return transport_avail_dict
 
-    def __refr__(self):
+    def __repr__(self):
         return self.name

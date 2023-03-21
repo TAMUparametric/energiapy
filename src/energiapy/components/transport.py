@@ -53,7 +53,7 @@ class Transport:
     label: str = '' 
 
 
-    def __refr__(self):
+    def __repr__(self):
         return self.name
     
     def __hash__(self):

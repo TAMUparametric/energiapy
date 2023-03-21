@@ -1,26 +1,34 @@
-.. energiapy documentation master file, created by
-   sphinx-quickstart on Wed Feb 15 12:55:59 2023.
+.. energiapy documentation master file, created by Rahul Kakodkar
+   sphinx-quickstart on Wed Mar 15 15:20:31 2023.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
+
+.. mdinclude:: ../README.md
 
 Welcome to energiapy's documentation!
 =====================================
 
-.. mdinclude:: ../README.md
-
+Tutorial
+--------
 
 .. toctree::
    :maxdepth: 2
-   :caption: Examples
+   :caption: Overview:
 
-   small_example
+   example_small
+   example_multiloc
+   example_mpLP
+   example_ahc
 
+
+API
+---
 
 .. toctree::
-   :maxdepth: 5
-   :caption: API
+    :maxdepth: 5
+    :caption: API
 
-   energiapy
+    energiapy
 
 Indices and tables
 ==================
@@ -28,3 +36,4 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
+

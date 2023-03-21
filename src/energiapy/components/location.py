@@ -23,6 +23,7 @@ from ..utils.process_utils import create_storage_process
 from ..utils.scale_utils import scale_changer
 from pandas import DataFrame
 from enum import Enum, auto
+from warnings import warn
 
 
 
@@ -59,6 +60,7 @@ class Location:
     demand_scale_level: int = 1
     cost_scale_level: int = 1
     capacity_scale_level: int = 1
+    land_cost: float = 0
     label: str = ''
     
     def __post_init__(self):
@@ -80,22 +82,29 @@ class Location:
         self.materials = self.get_materials()
         self.scale_levels = self.scales.scale_levels
         self.processes_full = self.processes.union({create_storage_process(i) for i in self.processes if i.processmode == ProcessMode.storage})
+        self.prod_max = self.get_prod_max()
         
         if self.capacity_factor is not None:
             self.varying_capacity = set(self.capacity_factor.keys())
             if isinstance(list(self.capacity_factor.values())[0], DataFrame):
                 self.capacity_factor = scale_changer(self.capacity_factor, scales=self.scales, scale_level=self.capacity_scale_level)
-        
+            else:
+                warn('Input should be a dict of a DataFrame, Dict[Process, float]')
+                
         if self.cost_factor is not None:
             self.varying_cost = set(self.cost_factor.keys())
             if isinstance(list(self.cost_factor.values())[0], DataFrame):
                 self.cost_factor = scale_changer(self.cost_factor, scales=self.scales, scale_level=self.cost_scale_level)
-        
+            else:
+                warn('Input should be a dict of a DataFrame, Dict[Resource, float]')
+                
         if self.demand_factor is not None:    
             self.varying_demand = set(self.demand_factor.keys())
             if isinstance(list(self.demand_factor.values())[0], DataFrame):
                 self.demand_factor = scale_changer(self.demand_factor, scales=self.scales, scale_level=self.demand_scale_level)
-       
+            else:
+                warn('Input should be a dict of a DataFrame, Dict[Resource, float]')
+                
         self.resource_price = self.get_resource_price()   
         self.failure_processes = self.get_failure_processes()
         self.fail_factor = self.make_fail_factor()
@@ -112,7 +121,7 @@ class Location:
             resources_single = set().union(*[set(i.conversion.keys()) for i in self.processes if i.processmode == ProcessMode.single])
             resources_multi = set()
             for i in [i for i in self.processes if i.processmode == ProcessMode.multi]:
-                resources_multi  = resources_multi.union(*[set(j.keys()) for j in list(i.multiconversion.values())])
+                resources_multi  = resources_multi.union(*[set(j.keys()) for j in list(i.conversion.values())])
             return resources_single.union(resources_multi)
     
     def get_materials(self) -> Set[Material]:
@@ -156,7 +165,17 @@ class Location:
             scale_iter = [(i) for i in product(self.scales.scale[0], self.scales.scale[1], self.scales.scale[2])]
             fail_factor = {process_.name: {(scale_): sample([0]*int(process_.p_fail*100) +  [1] *int((1- process_.p_fail)*100), 1)[0] for scale_ in   scale_iter} for process_ in self.failure_processes}
             return fail_factor
-            
+        
+    def get_prod_max(self) -> dict:
+        prod_max_dict = dict()
+        for i in self.processes_full:
+            if i.processmode == ProcessMode.multi:
+                prod_max_dict[i.name] = i.prod_max
+            else:
+                prod_max_dict[i.name] = {0: None}
+                prod_max_dict[i.name][0] = i.prod_max
+        return prod_max_dict
+    
     def __repr__(self):
         return self.name
     

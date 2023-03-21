@@ -14,10 +14,14 @@ __status__ = "Production"
 from dataclasses import dataclass
 import pandas
 from enum import Enum, auto
+from typing import Union
 
-class UncertainResource(Enum):
-    demand = auto()
-    price = auto()
+class VaryingResource(Enum):
+    deterministic_demand = auto()
+    deterministic_price = auto()
+    uncertain_demand = auto()
+    uncertain_price = auto()
+    
 
 @dataclass
 class Resource:
@@ -35,12 +39,11 @@ class Resource:
         sell (bool, optional): True if resource can be discharged. Defaults to False.
         demand (bool, optional): True, if the process has to meet specific demand. If True, sell defaults to True. Defaults to False.
         basis (str, optional): Unit basis for the resource. Defaults to 'unit'.
-        block (str, optional): Assign a block for categorization. Defaults to None.
+        block (Union[str, list, dict], optional): Assign a block for categorization. Defaults to None.
         citation (str, optional): Add citations for data sources. Defaults to 'citation needed'.
         varying (bool, optional): If the cost of resource is varying/uncertain. Defaults to False.
         label (str, optional): Longer descriptive label if required. Defaults to ''.
         gwp (float, optional): Global Warming Potential per unit consumption of resource. Defaults to 0.
-        uncertain (UncertainResource, optional): the type of uncertainty the resource experiences. Defaults to None.
 
         
     Examples:
@@ -68,13 +71,11 @@ class Resource:
     sell: bool = False
     demand: bool = False
     basis: str = 'unit'
-    block: str = ''
+    block: Union[str,list,dict] = ''
     citation: str = 'citation needed'
-    varying: bool = False
+    varying: VaryingResource = None
     label: str = ''
     gwp: float = 0
-    uncertain: UncertainResource = None
-
 
     def __post_init__(self):
         if self.demand is True:

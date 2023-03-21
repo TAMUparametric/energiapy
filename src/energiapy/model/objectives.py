@@ -35,12 +35,15 @@ def cost_objective(instance:ConcreteModel, network_scale_level:int=0) -> Objecti
         incidental = sum(instance.Incidental_network[scale_] for scale_ in scale_iter)
         
         cost_purch = sum(instance.B_network[resource_, scale_] for resource_, scale_ in product(instance.resources_purch, scale_iter))
+        
+        land_cost = sum(instance.Land_cost_network[scale_] for scale_ in scale_iter) 
+        
         if len(instance.locations) > 1:
             cost_trans = sum(instance.Trans_cost_network[transport_, scale_] for transport_, scale_ in product(instance.transports, scale_iter))
         else:
             cost_trans = 0
-        return capex + vopex + fopex + cost_purch + cost_trans + incidental
-    instance.cost_objective = Objective(rule = cost_objective_rule, doc = 'total purchase from network')
+        return capex + vopex + fopex + cost_purch + cost_trans + incidental + land_cost
+    instance.cost_objective = Objective(rule = cost_objective_rule, doc = 'total cost')
     constraint_latex_render(cost_objective_rule)
     return instance.cost_objective
 
