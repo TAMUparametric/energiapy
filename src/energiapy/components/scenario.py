@@ -145,10 +145,6 @@ class Scenario:
         self.conversion = {i.name: {j.name: i.conversion[j] if j in i.conversion.keys() \
             else 0 for j in self.resource_set} for i in self.process_set if i.conversion is not None}
 
-        
-        if type(self.demand) is dict:
-            self.demand = {location.name: {resource.name: self.demand[location][resource] for resource in self.demand[location].keys()} for location in self.demand.keys()}
-        
         self.prod_max = {i.name: i.prod_max for i in self.location_set}
         self.prod_min = {i.name: {j.name: j.prod_min for j in i.processes_full} for i in self.location_set}
         self.cons_max = {i.name: {j.name: j.cons_max for j in i.resources_full} for i in self.location_set}
@@ -274,16 +270,16 @@ class Scenario:
             n_vars = n_vars_fix + n_vars_theta
             
             #make b matrix
-            
+            #prod max has 0 because the default mode is 0
             b_bal = numpy.zeros((n_bal,1))
             b_Inv = numpy.array([[self.store_max[location][i]] for i in self.set_dict['resources_store']]) 
             b_Sf = numpy.array([[-self.demand[location][i]] for i in self.set_dict['resources_certain_demand']])
             b_Cf = numpy.array([[self.cons_max[location][i]] for i in self.set_dict['resources_certain_price']])
-            b_Pf = numpy.array([[self.prod_max[location][i]] for i in self.set_dict['processes_certain_capacity']]) 
+            b_Pf = numpy.array([[self.prod_max[location][i][0]] for i in self.set_dict['processes_certain_capacity']]) 
 
             b_S = numpy.array([[-self.demand[location][i]] for i in self.set_dict['resources_uncertain_demand']])
             b_C = numpy.array([[self.cons_max[location][i]] for i in self.set_dict['resources_uncertain_price']])
-            b_P = numpy.array([[self.prod_max[location][i]] for i in self.set_dict['processes_uncertain_capacity']])
+            b_P = numpy.array([[self.prod_max[location][i][0]] for i in self.set_dict['processes_uncertain_capacity']])
             b_nn = numpy.zeros((n_vars,1))
 
             b_list = [b_bal, b_Inv, b_Sf, b_Cf, b_Pf, b_S, b_C, b_P, b_nn ]
@@ -308,7 +304,7 @@ class Scenario:
 
             iter_ = 0
             for i in range(n_P):
-                F[n_bal + n_vars_fix + n_S + n_C + iter_][n_S + n_C + i] = self.prod_max[location][self.set_dict['processes_uncertain_capacity'][i]]
+                F[n_bal + n_vars_fix + n_S + n_C + iter_][n_S + n_C + i] = self.prod_max[location][self.set_dict['processes_uncertain_capacity'][i]][0] #defaults to 0 as mode, using P_m instead of P
                 iter_+= 1
             
 

@@ -61,13 +61,14 @@ class Objective(Enum):
     cost = auto()
     demand = auto()
     
-def formulate(scenario: Scenario, constraints:Set[Constraints], objective:Objective, demand:float = 0.0001, gwp:float = None,  land_restriction: float = None, gwp_reduction_pct:float = None) -> ConcreteModel:
+def formulate(scenario: Scenario, constraints:Set[Constraints], objective:Objective, gwp:float = None,  land_restriction: float = None, gwp_reduction_pct:float = None) -> ConcreteModel:
     """formulates a model
 
     Args:
         scenario (Scenario): scenario to formulate model over
         constraints (Set[Constraints]): constraints to include. 
         objective (Objective): objective 
+        demand (float, optional): demand level. Defaults to 0. 
         land_restriction (float, optional): restrict land usage. Defaults to 10**9.
 
     Constraints include:
@@ -88,10 +89,11 @@ def formulate(scenario: Scenario, constraints:Set[Constraints], objective:Object
     Returns:
         ConcreteModel: instance
     """
-
+    
+    demand = scenario.demand
     if type(demand) is dict:
         demand = {i.name: {j.name: demand[i][j] for j in demand[i].keys()} for i in demand.keys()}
-        
+
     instance = ConcreteModel() 
     generate_sets(instance=instance, scenario= scenario)
 
