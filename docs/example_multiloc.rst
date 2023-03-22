@@ -156,6 +156,7 @@ The problem can now modeled in energiapy
 .. code-block:: python 
 
     import pandas 
+    import numpy
     from energiapy.components.temporal_scale import Temporal_scale
     from energiapy.components.resource import Resource, VaryingResource
     from energiapy.components.process import Process, VaryingProcess
@@ -165,11 +166,17 @@ The problem can now modeled in energiapy
     from energiapy.components.scenario import Scenario
     from energiapy.components.transport import Transport
     from energiapy.components.result import Result 
-    from energiapy.utils.data_utils import make_henry_price_df, remove_outliers
+    from energiapy.utils.data_utils import get_data, make_henry_price_df, remove_outliers, load_results
     from energiapy.model.formulate import formulate, Constraints, Objective
     from energiapy.utils.nsrdb_utils import fetch_nsrdb_data
-    from energiapy.plot import plot
+    from energiapy.plot import plot_results, plot_scenario
+    from energiapy.plot.plot_results import CostY, CostX
     from energiapy.model.solve import solve
+    from energiapy.aggregation.reduce_scenario import reduce_scenario, Clustermethod
+    from energiapy.aggregation.ahc import agg_hierarchial_elbow, IncludeAHC, Fit
+    from energiapy.aggregation.dtw import dynamic_warping, dynamic_warping_matrix, dynamic_warping_path, IncludeDTW
+    from energiapy.utils.data_utils import load_results
+    import matplotlib.pyplot as plt
 
 **import weather data**
 
@@ -194,6 +201,24 @@ Here, we import solar data as dni and wind data as wind speed for most populated
     weather_houston =  fetch_nsrdb_data(attrs = ['wind_speed', 'dni'], year = 2019, state = 'Texas', county = 'Harris',\
             resolution= 'hourly', get = 'min-elevation', save = 'data/ho_solar19')[1] 
 
+Alternatively, saved files can also be imported.
+
+.. code-block:: python
+
+    def load_data(loc:str, index:list):
+        df = pandas.read_csv(f'data/{loc}_solar19.csv')
+        df['idx'] = index
+        df = df.set_index('idx')
+        return df
+
+    idx = [(i,j,k) for i,j,k in product(range(1), range(365), range(24))]
+
+    weather_ny = load_data('ny', idx)[['DNI', 'Wind Speed']]
+    weather_ny = weather_ny.rename(columns= {'DNI': 'dni', 'Wind Speed': 'wind_speed'})
+    weather_sd = load_data('sd', idx)[['dni', 'wind_speed']]
+    weather_ho = load_data('ho', idx)[['dni', 'wind_speed']]
+
+
 **import natural gas prices**
 
 Natural gas prices are from the Henry price index at a daily temporal resolution. 
@@ -208,10 +233,11 @@ Moreover, we can remove outliers usig the remove_outliers features in data_utils
 
 .. code-block:: python 
 
-    ng_price = make_henry_price_df(file_name='data/Henry_Hub_Natural_Gas_Spot_Price_Daily.csv', year=2019, stretch=False)
-    ng_price = ng_price.set_index(weather_sandiego.index[::24])
+    ng_price = make_henry_price_df(
+        file_name='data/Henry_Hub_Natural_Gas_Spot_Price_Daily.csv', year=2019, stretch=True)
     ng_price = ng_price.drop(columns= 'scales')
     ng_price = remove_outliers(ng_price, sd_cuttoff = 3)
+    ng_price = ng_price.set_index(weather_ho.index) #Fix index
 
 **Import demand data**
 
@@ -219,11 +245,13 @@ Here we import the power demand data for San Diego (CAISO for SDGE region) and H
 
 .. code-block:: python 
 
-    demand_sandiego = pandas.read_excel('data/HistoricalEMSHourlyLoad-2019.xlsx', index_col= 0)[['SDGE']]
-    demand_houston = pandas.read_excel('data/Native_Load_2019.xlsx')[['COAST']]
-    #Fix Index
-    demand_sandiego = demand_sandiego.set_index(weather_sandiego.index)
-    demand_houston = demand_houston.set_index(weather_houston.index)
+    demand_sd = pandas.read_excel('data/HistoricalEMSHourlyLoad-2019.xlsx', index_col= 0)[['SDGE']]
+    demand_ho = pandas.read_excel('data/Native_Load_2019.xlsx')[['COAST']]
+    demand_ny = pandas.DataFrame(pandas.read_csv('data/NYC_load.csv')['Load']) #from Will and Doga
+    # Fix Index
+    demand_sd = demand_sd.set_index(weather_ho.index)
+    demand_ho = demand_ho.set_index(weather_ho.index)
+    demand_ny = demand_ny.set_index(weather_ho.index)
 
 
 **Define temporal scale**
@@ -240,7 +268,7 @@ In essence, we are creating a temporal scale of 8760 points.
 
 .. code-block:: python 
 
-    scales = Temporal_scale(discretization_list=[1, 365, 24], start_zero= 2019)
+    scales = Temporal_scale(discretization_list=[1, 365, 24])
 
 **Declare resources**
 
@@ -268,18 +296,22 @@ these can be represented as cost factors (0,1) multiplied to a base resource cos
 
 .. code-block:: python
 
-    Solar = Resource(name='Solar', cons_max=100, basis='MW', label='Solar Power')
+    Solar = Resource(name='Solar', cons_max=bigM, basis='MW', label='Solar Power')
 
-    Wind = Resource(name='Wind', cons_max= 100, basis='MW', label='Wind Power')
+    Wind = Resource(name='Wind', cons_max= bigM, basis='MW', label='Wind Power')
 
     Power = Resource(name='Power', basis='MW', demand = True, label='Power generated', varying = VaryingResource.deterministic_demand)
 
     H2 = Resource(name='H2', basis='kg', label='Hydrogen', block='Resource')
 
-    H2O = Resource(name='H2O', cons_max=10**10,
+    H2_L = Resource(name='H2', basis='kg', label='Hydrogen', block='Resource', store_max = 10000)
+
+    CO2_AQoff = Resource(name='CO2_AQoff', basis='kg', label='Carbon dioxide - sequestered', store_max = 10000)
+
+    H2O = Resource(name='H2O', cons_max=bigM**2,
                 price= 0.001, basis='kg', label='Water', block='Resource')
 
-    CH4 = Resource(name='CH4', cons_max=10**10, price=1, basis='kg', label='Natural gas', varying=  VaryingResource.deterministic_price)
+    CH4 = Resource(name='CH4', cons_max=bigM**2, price=1, basis='kg', label='Natural gas', varying=  VaryingResource.deterministic_price)
 
     CO2 = Resource(name='CO2', basis='kg', label='Carbon dioxide', block='Resource')
 
@@ -297,22 +329,27 @@ Essentially, the model is developed as an RTN
 
 .. code-block:: python
 
-    LiI = Process(name='LiI', storage= Power, capex = 1302182, fopex= 41432, vopex = 2000,  prod_max=100, label='Lithium-ion battery', basis = 'MW')
+    LiI = Process(name='LiI', storage= Power, capex = 1302182, fopex= 41432, vopex = 2000,  prod_max=bigM, label='Lithium-ion battery', basis = 'MW')
 
-    WF = Process(name='WF', conversion={Wind: -1, Power: 1},capex=990637, fopex=3354, vopex=4953, prod_max=100, label='Wind mill array', varying= VaryingProcess.deterministic_capacity, basis = 'MW')
+    WF = Process(name='WF', conversion={Wind: -1, Power: 1},capex=990637, fopex=3354, vopex=4953, prod_max=bigM, label='Wind mill array', varying= VaryingProcess.deterministic_capacity, basis = 'MW')
 
-    PV = Process(name='PV', conversion={Solar: -1, Power: 1}, capex=567000, fopex=872046, vopex=90000, prod_max=100, varying = VaryingProcess.deterministic_capacity, label = 'Solar PV', basis = 'MW')
-
-
+    PV = Process(name='PV', conversion={Solar: -1, Power: 1}, capex=567000, fopex=872046, vopex=90000, prod_max=bigM, varying = VaryingProcess.deterministic_capacity, label = 'Solar PV', basis = 'MW')
 
     SMRH = Process(name='SMRH', conversion={Power: -1.11*10**(-3), CH4: -3.76, H2O: -23.7, H2: 1, CO2_Vent: 1.03, CO2: 9.332}, capex =2520, fopex = 945, vopex = 0.0515,\
-        prod_max= 10000, label='Steam methane reforming + CCUS')
+        prod_max= bigM, label='Steam methane reforming + CCUS')
 
-    SMR = Process(name='SMR', capex = 2400, fopex = 800, vopex = 0.03,  conversion={Power: -1.11*10**(-3), CH4: -3.76, H2O: -23.7, H2: 1, CO2_Vent: 9.4979}, prod_max=10000, label='Steam methane reforming')
+    SMR = Process(name='SMR', capex = 2400, fopex = 800, vopex = 0.03,  conversion={Power: -1.11*10**(-3), CH4: -3.76, H2O: -23.7, H2: 1, CO2_Vent: 9.4979}, prod_max=bigM, label='Steam methane reforming')
 
-    H2FC = Process(name='H2FC', conversion = {H2:-50, Power: 1}, capex =  1.6*10**6, vopex = 3.5, fopex = 0, prod_max = 100, label = 'hydrogen fuel cell')
+    H2FC = Process(name='H2FC', conversion = {H2:-50, Power: 1}, capex =  1.6*10**6, vopex = 3.5, fopex = 0, prod_max = bigM, label = 'hydrogen fuel cell')
 
-    DAC = Process(name='DAC', capex = 0.02536, fopex = 0.634, vopex = 0, conversion={Power: -1.93*10**(-4), H2O: -4.048, CO2_DAC: 1}, prod_max=10000, gwp=0, label='Direct air capture')
+    DAC = Process(name='DAC', capex = 0.02536, fopex = 0.634, vopex = 0, conversion={Power: -1.93*10**(-4), H2O: -4.048, CO2_DAC: 1}, prod_max=bigM, label='Direct air capture')
+
+
+    H2_L_c = Process(name='H2_L_c', conversion={Power: -4.17*10**(-4), H2_L: 1, H2: -1}, capex =  1.6*10**6, vopex = 3.5, fopex = 0, prod_max= bigM, label='Hydrogen geological storage')
+
+    H2_L_d = Process(name='H2_L_d', conversion={H2_L: -1, H2: 1}, capex =  0.01, vopex = 0.001, fopex = 0, prod_max= bigM, label='Hydrogen geological storage discharge')
+
+    AQoff_SMR = Process(name='AQoff_SMR', conversion={Power: -0.00128, CO2_AQoff: 1, CO2: -1}, capex =  0.00552, vopex = 0.00414, fopex = 0, prod_max= bigM,  label='Offshore aquifer CO2 sequestration (SMR)')
 
 **Declare locations**
 
@@ -332,13 +369,14 @@ Note that not all of these are required to build a problem.
 
 .. code-block:: python
 
-    houston = Location(name='HO', processes= {LiI, PV, WF, SMRH, SMR, H2FC, DAC}, demand_factor= {Power: demand_houston}, cost_factor = {CH4: ng_price}, \
-        capacity_factor = {PV: pandas.DataFrame(weather_houston['dni']), WF: pandas.DataFrame(weather_houston['wind_speed'])},\
-            scales=scales, label='Houston', demand_scale_level=2, capacity_scale_level= 2, cost_scale_level= 1)
+    houston = Location(name='HO', processes= {LiI, PV, WF, SMRH, H2FC, DAC, AQoff_SMR}, capacity_factor = {PV: weather_ho[['dni']], WF: weather_ho[['wind_speed']]},\
+        demand_factor= {Power: demand_ho}, cost_factor = {CH4: ng_price}, scales=scales, label='Houston', demand_scale_level=2, capacity_scale_level= 2, cost_scale_level= 2)
 
-    sandiego = Location(name='SD', processes= {LiI, PV, WF, H2FC}, demand_factor= {Power: demand_sandiego}, cost_factor = {CH4: ng_price}, \
-        capacity_factor = {PV: pandas.DataFrame(weather_sandiego['dni']), WF: pandas.DataFrame(weather_sandiego['wind_speed'])},\
-            scales=scales, label='SanDiego', demand_scale_level=2, capacity_scale_level= 2, cost_scale_level= 1)
+    sandiego = Location(name='SD', processes= {LiI, PV, WF, SMRH, H2FC, DAC, AQoff_SMR}, capacity_factor = {PV: weather_sd[['dni']], WF: weather_sd[['wind_speed']]},\
+        demand_factor= {Power: demand_sd}, cost_factor = {CH4: ng_price}, scales=scales, label='SanDiego', demand_scale_level=2, capacity_scale_level= 2, cost_scale_level= 2)
+
+    newyork = Location(name='NY', processes= {LiI, PV, WF, SMRH,  H2FC, DAC, AQoff_SMR}, capacity_factor = {PV: weather_ny[['dni']], WF: weather_ny[['wind_speed']]},\
+        demand_factor= {Power: demand_ny}, cost_factor = {CH4: ng_price}, scales=scales, label='NewYork', demand_scale_level=2, capacity_scale_level= 2, cost_scale_level= 2)
 
 
 **Plotting input data**
@@ -349,9 +387,9 @@ The factors for demand, cost, and capacity can be plotted
 
 .. code-block:: python
 
-    plot.capacity_factor(location= sandiego, process= PV, color= 'orange')
-    plot.capacity_factor(location= sandiego, process= WF, color= 'blue')
-    plot.cost_factor (location= sandiego, resource= CH4, color= 'red')
+    plot_scenario.capacity_factor(scenario = scenario, location= houston, process= PV, fig_size= (9,5), color= 'orange')
+    plot_scenario.capacity_factor(scenario = scenario, location= sandiego, process= WF, fig_size= (9,5), color= 'blue')
+    plot_scenario.demand_factor(scenario = scenario, location= newyork, resource= Power, fig_size= (9,5), color= 'red')
 
 .. image:: multi_loc_pv.png
 
@@ -365,8 +403,21 @@ Transport objects translocate resources, and can have associated costs as well a
 
 .. code-block:: python
 
-    Train_H2 = Transport(name= 'Train_H2', resources= {H2}, trans_max= 10000, trans_loss= 0.001, trans_cost= 1.667*10**(-3), label= 'Railway for hydrogen transportation')
-    Pipe = Transport(name= 'Pipe', resources= {H2}, trans_max= 10000, trans_loss= 0.001, trans_cost= 0.5*10**(-3), label= 'Railroad transport')
+    Train_H2 = Transport(name= 'Train_H2', resources= {H2}, trans_max= bigM, trans_loss= 0.03, trans_cost= 1.667*10**(-3)\
+        , label= 'Railway for hydrogen transportation')
+    Grid = Transport(name= 'Grid', resources= {Power}, trans_max= bigM, trans_loss= 0.001, trans_cost= 0.5*10**(-3), label= 'Railroad transport')
+
+    distance_matrix = [
+        [0, 2366, 2620],
+        [2366, 0, 4440],
+        [2620, 4440, 0]
+                    ]
+
+    transport_matrix = [
+        [[], [Grid, Train_H2], [Grid, Train_H2]],
+        [[Grid, Train_H2], [], [Grid, Train_H2]],
+        [[Grid, Train_H2], [Grid, Train_H2], []] 
+                    ]
 
 **Declare network**
 
@@ -375,17 +426,7 @@ Networks link locations with transportation. The availability of differnt transp
 
 .. code-block:: python
 
-    distance_matrix = [
-        [0, 2366],
-        [2366, 0]
-                    ]
-
-    transport_matrix = [
-        [[], [Train_H2, Pipe]],
-        [[Train_H2, Pipe], []] 
-                    ]
-
-    network = Network(name= 'Network', source_locations= [houston, sandiego], sink_locations= [houston, sandiego], distance_matrix= distance_matrix, transport_matrix= transport_matrix) 
+    network = Network(name= 'Network', source_locations= [houston, sandiego, newyork], sink_locations= [houston, sandiego, newyork], distance_matrix= distance_matrix, transport_matrix= transport_matrix) 
 
 **Declare scenario**
 
@@ -397,8 +438,9 @@ In this case we are generating a scenario for a network with locations Houston a
 
 .. code-block:: python
 
-    scenario = Scenario(name= 'dtw_example', network= network, scales= scales,  expenditure_scale_level= 1, scheduling_scale_level= 2, \
-    network_scale_level= 0, demand_scale_level= 2, label= 'DTW_case')
+    
+    scenario = Scenario(name= 'scenario_full', network= network, scales= scales,  expenditure_scale_level= 2, scheduling_scale_level= 2, \
+        network_scale_level= 0, demand_scale_level= 2, label= 'full_case', demand = {newyork: {Power: 80}, houston: {Power: 0}, sandiego: {Power: 0}})
 
 
 **Formulate milp instance**
@@ -409,8 +451,17 @@ In the following case, we optimize the cost while constraining inventory, produc
 
 .. code-block:: python
 
-    milp = formulate(scenario= scenario, demand = {sandiego: {Power: 30}, houston: {Power: 20}}, \
-    constraints={Constraints.cost, Constraints.inventory, Constraints.production, Constraints.resource_balance, Constraints.transport}, objective= Objective.cost)
+    milp_cost = formulate(scenario= scenario, constraints={Constraints.cost, Constraints.inventory,\
+        Constraints.production, Constraints.resource_balance, Constraints.transport, Constraints.mode}, \
+        objective=Objective.cost)
+
+We can also optimize the model towards a different objective
+
+.. code-block:: python
+
+    milp_demand = formulate(scenario= scenario, constraints={Constraints.cost, Constraints.inventory,\
+        Constraints.production, Constraints.resource_balance, Constraints.transport, Constraints.mode}, \
+        objective=Objective.demand)
 
 **Solve the instance**
 
@@ -418,21 +469,50 @@ The instance can then be solved using an appropriate solver. Here we solve the p
 
 .. code-block:: python
 
-    results = solve(scenario = scenario, instance= milp, solver= 'gurobi', name=f"Multi-Loc", print_solversteps = True)
-
+    results_cost = solve(scenario = scenario, instance= milp_cost, solver= 'gurobi', name=f"results_cost", print_solversteps = True, saveformat = '.pkl')
 
 **Plotting output**
 
 The results can be analyzed, and used for illustrations.
 Note that plotting of results requires the provision of the names as opposed to energiapy objects.
 
+*cost curves - process wise*
+
 .. code-block:: python
 
-    plot.schedule(results= results, y_axis= 'S', component= 'Power', location= 'SD')
+    plot_results.cost(results= results_cost, x = CostX.process_wise, y = CostY.capex, location= 'HO', fig_size= (8,6))
+
+.. image:: multi_loc_capex.png
+
+*cost curves - location wise*
+
+.. code-block:: python
+
+    plot_results.cost(results= results_cost, x = CostX.location_wise, y = CostY.fopex, fig_size= (8,6))
+
+.. image:: multi_loc_fopex.png
+
+
+*schedule - transportation*
+
+.. code-block:: python
+
+    plot_results.transport(results= results_cost, source= 'HO', sink = 'NY', resource= 'Power', transport = 'Grid')
+
+.. image:: multi_loc_trans.png
+
+*schedule - production*
+
+.. code-block:: python
+
+    plot_results.schedule(results= results_cost, y_axis= 'P', component= 'WF', location = 'HO', fig_size= (9,5), color = 'steelblue')
+
+.. image:: multi_loc_prod.png
+
+*schedule - sales*
+
+.. code-block:: python
+
+    plot_results.schedule(results= results_cost, y_axis= 'S', component= 'Power', location= 'NY')
 
 .. image:: multi_loc_sch.png
-
-
-
-
-
