@@ -105,7 +105,14 @@ The input data can be plotted using the native plotting function plot for capaci
 
 .. image:: multi_loc_dem.png
 
+**Declare Scenario**
 
+The scenario can then be declared.
+
+.. code-block:: python 
+
+    scenario = Scenario(name= 'scenario_full', network= network, scales= scales,  expenditure_scale_level= 2, scheduling_scale_level= 2, \
+        network_scale_level= 0, demand_scale_level= 2, label= 'full_case', demand = {newyork: {Power: 80}, houston: {Power: 0}, sandiego: {Power: 0}})
 
 **Generate the full-scale MILP**
 
@@ -113,7 +120,7 @@ We include constraints for cost, inventory, production, and resource_balance.
 
 .. code-block:: python 
 
-    milp = formulate(scenario= scenario, demand = {houston: {Power: 2}}, constraints={Constraints.cost, Constraints.inventory, Constraints.production, Constraints.resource_balance}, \
+    milp = formulate(scenario= scenario, constraints={Constraints.cost, Constraints.inventory, Constraints.production, Constraints.resource_balance}, \
             objective=Objective.cost)
  
 
@@ -150,11 +157,19 @@ The reduce_scenario function provides a reduced scenario, the set of representat
 
     scenario_reduced, repdays, info =  reduce_scenario(scenario=scenario, periods=elbow, scale_level=1, method=Clustermethod.agg_hierarchial, include = [IncludeAHC.capacity, IncludeAHC.demand])
 
+The reduced scenario samples from the actual days to produce a surrogate temporal scale.
+
+.. code-block:: python
+
+    plot_scenario.capacity_factor(scenario= scenario_reduced, process = WF, location = houston)
+
+.. image:: ahc_red.png
+
 **Formulate the reduced MILP**
 
 .. code-block:: python
 
-    milp_reduced = formulate(scenario= scenario_reduced, demand = { houston: {Power: 2}}, constraints={Constraints.cost, Constraints.inventory, Constraints.production, Constraints.resource_balance}, \
+    milp_reduced = formulate(scenario= scenario_reduced, constraints={Constraints.cost, Constraints.inventory, Constraints.production, Constraints.resource_balance}, \
         objective=Objective.cost)
 
 **Solve the reduced scenario**
@@ -174,8 +189,8 @@ Here, we are plotting production schedule for both the full scale as well as the
 
 .. code-block:: python 
 
-    plot.schedule(results = results, location='HO', component='WF', y_axis= 'P')
-    plot.schedule(results = results_reduced, location='HO', component='WF', y_axis= 'P')
+    plot_results.schedule(results = results, location='HO', component='WF', y_axis= 'P')
+    plot_results.schedule(results = results_reduced, location='HO', component='WF', y_axis= 'P')
 
 
 .. image:: sch_full_wf.png
