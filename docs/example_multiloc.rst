@@ -434,7 +434,7 @@ The combination of parameter data, locations, and transportation options generat
 
 Scenarios are data sets that can be fed to models for analysis. 
 
-In this case we are generating a scenario for a network with locations Houston and San Diego. The scales need to be consistent.
+In this case we are generating a scenario for a network with locations Houston, New York, and San Diego. The scales need to be consistent.
 
 .. code-block:: python
 
