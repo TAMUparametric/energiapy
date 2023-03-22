@@ -201,10 +201,10 @@ def constraint_demand(instance: ConcreteModel, demand: Union[dict, float], deman
             
             if type(demand) is dict:        
                 demandtarget = demand[location][resource]
-            
+
             else:
                 demandtarget = demand
-            
+
             # else:
             #     discharge = instance.S[location, resource, scale_list[:scheduling_scale_level+1]]
             #     demandtarget = 0

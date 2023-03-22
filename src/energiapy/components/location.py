@@ -35,13 +35,14 @@ class Location:
         name (str): name of the location, short ones are better to deal with.
         processes (Set[Process]): set of processes (Process objects) to include at location
         scales (Temporal_scale): temporal scales of the problem
-        demand (Dict[Resource, float]): demand for resources at location. Defaults to 1.0
+        demand (Dict[Resource, float]): demand for resources at location. Defaults to None.
         demand_factor (Union[float, Dict[Resource, DataFrame]), optional): Factor for varying demand, scale changer normalizes.Defaults to 1.0
         cost_factor (Union[float, Dict[Resource, DataFrame]), optional): Factor for varying cost, scale changer normalizes. Defaults to 1.0
         capacity_factor (Union[float, Dict[Process, DataFrame]), optional):  Factor for varying capacity, scale changer normalizesDefaults to 1.0
         demand_scale_level (int, optional): scale level for demand. Defaults to 1.0
         cost_scale_level (int, optional): scale level for cost. Defaults to 1.0
         capacity_scale_level(int, optional): scale level for capacity. Defaults to 1.0
+        land_cost(float, optional): cost of land. Defaults to 0
         label(str, optional):Longer descriptive label if required. Defaults to ''
 
     Examples:
@@ -57,9 +58,9 @@ class Location:
     demand_factor: Union[float, Dict[Resource, float]] = None
     cost_factor: Union[float, Dict[Resource, float]] = None
     capacity_factor: Union[float, Dict[Process, float]] = None
-    demand_scale_level: int = 1
-    cost_scale_level: int = 1
-    capacity_scale_level: int = 1
+    demand_scale_level: int = 0
+    cost_scale_level: int = 0
+    capacity_scale_level: int = 0
     land_cost: float = 0
     label: str = ''
     
