@@ -51,7 +51,7 @@ def agg_hierarchial(scales: Temporal_scale, scale_level: int, periods: int, incl
         cost_factor (dict, optional): factor to account for varying cost factors. Defaults to None.
         capacity_factor (dict, optional): factor to account for varying production capacity. Defaults to None.
         demand_factor (dict, optional): factor to account for varying resource demand. Defaults to None.
-
+        pick (Days, Days.actual): pick Days.actual days (sampled from full series) or Days.centroids (determined). Defaults to Days.actual
 
     Returns:
         _type_: _description_
@@ -139,13 +139,13 @@ def agg_hierarchial(scales: Temporal_scale, scale_level: int, periods: int, incl
                 euclidean_distance = find_euclidean_distance(
                     cluster_point, centroid)
                 euclidean_distance_list.append(euclidean_distance)
-
+                
         scaled_df['ED'] = euclidean_distance_list #find the actual day closest to centroid
         closest_to_centroid_df['period'] = (
             scaled_df['cluster_no'].value_counts().index.values)
         cluster_wts = [i for i in scaled_df['cluster_no'].value_counts()]
         closest_to_centroid_df['cluster_wt'] = cluster_wts
-
+  
         list_ = []
         for i in closest_to_centroid_df['period']:
             list_.append(
