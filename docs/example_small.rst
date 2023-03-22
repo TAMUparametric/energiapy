@@ -151,7 +151,8 @@ Given is a general MILP modeling and optimization framework for simultaneous net
     from energiapy.components.scenario import Scenario
     from energiapy.components.result import Result 
     from energiapy.model.formulate import formulate, Constraints, Objective
-    
+    from energiapy.plot import plot_results, plot_scenario
+    from energiapy.plot.plot_results import CostY, CostX
     from energiapy.model.solve import solve
 
 **Declare temporal scale**
@@ -178,7 +179,7 @@ As also whether they can be discharged (sell), have to meet demand (demand)
 
     Wind = Resource(name='Wind', cons_max= 100, basis='MW', label='Wind Power')
 
-    Power = Resource(name='Power', basis='MW', demand = True, label='Power generated', varying = VaryingResource.deterministic_demand)
+    Power = Resource(name='Power', basis='MW', demand = True, label='Power generated', varying = VaryingResource.deterministic_price)
 
 **Declare processes**
 
@@ -196,7 +197,6 @@ Processes consume resources and can be of three type:
 
     PV = Process(name='PV', conversion={Solar: -1, Power: 1}, capex=567000, fopex=872046, vopex=90000, prod_max=100, varying = VaryingProcess.deterministic_capacity, label = 'Solar PV', basis = 'MW')
 
-
 **Location level input data**
 
 Factors are normalized, and can be used to account for:
@@ -207,7 +207,7 @@ Factors are normalized, and can be used to account for:
 
 .. code-block:: python
 
-    demand_factor = pandas.DataFrame(data={'Power': [0.6, 1, 0.8, 0.3]})
+    demand_factor = pandas.DataFrame(data={'Power': [0.6, 0.7, 0.8,0.3]})
     capacity_factor_pv = pandas.DataFrame(data={'PV': [0.6, 0.8, 0.9, 0.7]})
     capacity_factor_wf = pandas.DataFrame(data={'WF': [0.9, 0.8, 0.5, 0.7]})
 
@@ -221,16 +221,17 @@ The scales of the capacity and demand data need to be provided as well.
 
 .. code-block:: python
 
-    place = Location(name='place', processes= {LiI, PV, WF}, demand_factor = {Power: demand_factor}, capacity_factor= {PV: capacity_factor_pv, WF:capacity_factor_wf}, capacity_scale_level= 1, demand_scale_level = 1, scales=scales, label='some place')
-
+    place = Location(name='place', processes= {LiI, PV, WF}, demand_factor = {Power: demand_factor}, capacity_factor= {PV: capacity_factor_pv, WF:capacity_factor_wf}, \
+    capacity_scale_level= 1, demand_scale_level = 1, scales=scales, label='some place')
 *plot varying factors*
 
 Plotting functions in energiapy.plot can be used to plot the factors
 
 .. code-block:: python
 
-    plot.capacity_factor(location= place, process= PV, fig_size= (9,5), color= 'orange')
-    plot.demand_factor(location= place, resource= Power, fig_size= (9,5), color= 'red')
+    plot_scenario.capacity_factor(scenario = case, location= place, process= PV, fig_size= (9,5), color= 'orange')
+    plot_scenario.capacity_factor(scenario = case, location= place, process= WF, fig_size= (9,5), color= 'blue')
+    plot_scenario.demand_factor(scenario = case, location= place, resource= Power, fig_size= (9,5), color= 'red')
 
 .. image:: capacity_factor_pv.png 
 
@@ -249,7 +250,7 @@ The demand, network, scheduling, and expenditure scales need to be provided. The
 
 .. code-block:: python
 
-    case = Scenario(name= 'case', network= place, network_scale_level= 0, demand_scale_level = 1, scheduling_scale_level= 1, scales= scales, label= 'small scenario')
+    case = Scenario(name= 'case', network= place, network_scale_level= 0, demand_scale_level = 1, scheduling_scale_level= 1, scales= scales,  demand = {place: {Power: 150}}, label= 'small scenario')
 
 **Formulate MILP**
 
@@ -259,9 +260,9 @@ milp is a pyomo instance, additional constraints can be provided in a bespoke ma
 
 .. code-block:: python
 
-    milp = formulate(scenario= case, demand = {place: {Power: 200}}, constraints={Constraints.cost, Constraints.inventory, Constraints.production, Constraints.resource_balance}, \
+    milp = formulate(scenario= case, constraints={Constraints.cost, Constraints.inventory, Constraints.production, Constraints.resource_balance, Constraints.mode}, \
         objective= Objective.cost)
-
+        
 **Solve**
 
 To solve the model, the solve requires a scenario and a modeling instance to be provided. 

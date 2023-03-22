@@ -274,13 +274,15 @@ Now we are ready to implement the above problem in energiapy
     from energiapy.components.scenario import Scenario
     from energiapy.components.result import Result 
     from energiapy.model.formulate import formulate, Constraints, Objective
-    from energiapy.plot import plot
+    from energiapy.plot import plot_results, plot_scenario
+    from energiapy.plot.plot_results import CostY, CostX
     from energiapy.model.solve import solve
     import numpy
     from ppopt.mpqp_program import MPQP_Program
     from ppopt.mplp_program import MPLP_Program
     from ppopt.mp_solvers.solve_mpqp import solve_mpqp, mpqp_algorithm
     from ppopt.plot import parametric_plot
+    import polytope as pt
 
 **Define the temporal scale**
 
@@ -308,7 +310,7 @@ In the mpLP example, instead of using multi-scale indices, the problem can be fo
     
     region = Location(name='region', processes= {LiI, PV, WF}, scales=scales, label='some region')
     
-    example = Scenario(name= 'example', demand = {region: {Power: 100}}, network= region, scales= scales, label= 'example scenario')
+    example = Scenario(name= 'example', demand = {region: {Power: 100.0}}, network= region, scales= scales, label= 'example scenario')
 
 
 **Generate the problem in matrix form**
