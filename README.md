@@ -45,6 +45,9 @@ Models can also simultaneously assuage the above under an integrated paradigm.
 
 Model components are declared as energiapy objects. The suggested hierarchy is as follows:
 
+![plot](./docs/hierarchy.png?raw=true)
+
+
 1. **Temporal_scale:** The multiple temporal scales being considered
 2. **Resource:** Resources can be in any quantifiable form such mass, energy, information
 3. **Material:** Infrastructural materials are required for establishing tasks, and require resources if produced 
