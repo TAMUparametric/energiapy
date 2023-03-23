@@ -45,8 +45,8 @@ Models can also simultaneously assuage the above under an integrated paradigm.
 
 Model components are declared as energiapy objects. The suggested hierarchy is as follows:
 
-![plot](./docs/hierarchy.png?raw=true)
 
+![alt text](https://github.com/TAMUparametric/energiapy/blob/main/docs/hierarchy.png?raw=true)
 
 1. **Temporal_scale:** The multiple temporal scales being considered
 2. **Resource:** Resources can be in any quantifiable form such mass, energy, information
