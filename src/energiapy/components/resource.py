@@ -47,17 +47,18 @@ class Resource:
 
         
     Examples:
-        For a resource that cannot be consumed from outside the system, but can be stored.
+        For a resource that cannot be consumed from outside the system.
         
-        >>> Charge = Resource(name= 'Charge', loss= 0.001, store_max= 100, store_min= 5, basis='MW', block= 'energy storage', label='Water', block='Resource')
+        >>> H2 = Resource(name='H2', basis='kg', label='Hydrogen', block='Resource')
         
         For a resource that can be consumed from outside the system, and has a varying purchase price.
         
-        >>> NG = Resource(name= 'NG', price= 4, basis= 'Btu', varying= True, label= 'Natural Gas', gwp= 20)
+        >>> CH4 = Resource(name='CH4', cons_max=1000, price=1, basis='kg', label='Natural gas', varying=  VaryingResource.deterministic_price)
         
         For a resource that is produced and needs to meet a fixed demand.
         
-        >>> H2 = Resource(name= 'H2', demand= True, basis= 'kg', label= 'Hydrogen')
+        >>> Power = Resource(name='Power', basis='MW', demand = True, label='Power generated', varying = VaryingResource.deterministic_demand)
+
 
     """
     
