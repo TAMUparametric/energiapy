@@ -2,7 +2,7 @@
 """
 
 __author__ = "Rahul Kakodkar"
-__copyright__ = "Copyright 2022, Multi-parametric Optimization & Control Lab"
+__copyright__ = "Copyright 2023, Multi-parametric Optimization & Control Lab"
 __credits__ = ["Rahul Kakodkar", "Efstratios N. Pistikopoulos"]
 __license__ = "Open"
 __version__ = "0.0.1"
@@ -10,35 +10,65 @@ __maintainer__ = "Rahul Kakodkar"
 __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
-from dataclasses import dataclass, field
-from typing import Dict, Union, Set
+from dataclasses import dataclass
+from typing import Dict, Union
+from enum import Enum, auto
+from warnings import warn
 from ..components.resource import Resource
 from ..components.material import Material
 from ..utils.resource_utils import create_storage_resource
-import pandas
-from random import sample
-from enum import Enum, auto
-from warnings import warn
 
 
 class CostDynamics(Enum):
-    constant = auto()
-    pwl = auto()
+    """
+    To consider the dynamics of CAPEX
+    """
+    CONSTANT = auto()
+    """
+    Consider constance CAPEX
+    """
+    PWL = auto()
+    """
+    Use piece-wise linear CAPEX
+    """
 
-    
+
 class ProcessMode(Enum):
-    single = auto() #only allows one mode
-    multi = auto() # allows multiple modes
-    storage = auto()
+    """
+    Mode for process
+    """
+    SINGLE = auto()
+    """
+    Only allows one mode
+    """
+    MULTI = auto()
+    """
+    Allows multiple modes
+    """
+    STORAGE = auto()
+    """
+    Storage type process
+    """
+
 
 class VaryingProcess(Enum):
-    deterministic_capacity = auto() #if capacity is uncertain
-    uncertain_capacity = auto()
-    
+    """
+    The type of process capacity variability
+    """
+    DETERMINISTIC_CAPACITY = auto()
+    """
+    Utilize deterministic data
+    """
+    UNCERTAIN_CAPACITY = auto()
+    """
+    Generate uncertainty variables
+    """
+
+
 @dataclass
 class Process:
     """
-    Processes convert resources into other resources 
+    Processes convert resources into other resources
 
     Args:
         name (str): name of process, short ones are better to deal with.
@@ -66,36 +96,37 @@ class Process:
         storage(list, optional): Resource that can be stored in process.
         store_max (float, optional): Maximum allowed storage of resource in process. Defaults to 0. 
         store_min (float, optional): Minimum allowed storage of resource in process. Defaults to 0. 
-        
+
     Examples:
         For processes with varying production capacity
-        
+
         >>> WF = Process(name='WF', conversion={Wind: -1, Power: 1}, capex= 100, Fopex= 10, Vopex= 1,prod_max=100, gwp=52700, land= 90, basis = 'MW', block='power', label='Wind mill array')
 
         For process with multiple modes of operation
-        
+
         >>> PEM = Process(name = 'PEM', conversion = {1: {Power: -1, H2: 19.474, O2: 763.2, H2O: -175.266}, 2: {Power: -1, H2: 1.2*19.474, O2: 1.2*763.2, H2O: 1.2*-175.266}, prod_max= 100, capex = 784000, label = 'PEM Electrolysis')
-        
+
         For process with multiple resource inputs
-        
+
         >>> CoolCar = Process(name = 'CoolCar', conversion = {1: {Power: -1, Mile: 1}, 2: {H2: -1, Mile:2}, prod_max= 50, capex = 70, label = 'CoolCar')
-        
+
     """
 
-    name: str 
+    name: str
     introduce: int = 0
     retire: int = None
-    conversion: Union[Dict[int,Dict[Resource, float]], Dict[Resource, float]] = None
+    conversion: Union[Dict[int, Dict[Resource, float]],
+                      Dict[Resource, float]] = None
     capex: Union[float, dict] = None
     fopex: Union[float, dict] = None
     vopex: Union[float, dict] = None
     incidental: float = None
     material_cons: Dict[Material, float] = None
-    prod_max: Union[Dict[int,float], float] = 0
+    prod_max: Union[Dict[int, float], float] = 0
     prod_min: float = 0
     basis: str = 'unit'
     carbon_credit: float = 0
-    gwp: float  = 0
+    gwp: float = 0
     land: float = 0
     trl: str = None
     block: str = ''
@@ -109,11 +140,9 @@ class Process:
     store_max: float = 0
     store_min: float = 0
 
-    
-    
     def __post_init__(self):
         """Determines the ProcessMode, CostDynamics, and kicks out dummy resources if process is stores resource
-        
+
         Args:
             processmode (ProcessMode): Determines whether the model is single mode, multi mode, or storage type.
             resource_storage (Resource):  Dummy resource which is stored in the Process. 
@@ -122,38 +151,42 @@ class Process:
         """
 
         if self.storage is not None:
-            self.resource_storage= create_storage_resource(process_name= self.name, resource= self.storage, store_max= self.store_max, store_min= self.store_min)
-            self.conversion = {self.storage:-1, self.resource_storage:1}
-            self.conversion_discharge = {self.resource_storage:-1, self.storage:1*(1- self.storage_loss)}
-            self.processmode = ProcessMode.storage
-            
+            self.resource_storage = create_storage_resource(
+                process_name=self.name, resource=self.storage, store_max=self.store_max, store_min=self.store_min)
+            self.conversion = {self.storage: -1, self.resource_storage: 1}
+            self.conversion_discharge = {
+                self.resource_storage: -1, self.storage: 1*(1 - self.storage_loss)}
+            self.processmode = ProcessMode.STORAGE
+
         else:
             self.conversion_discharge = None
             self.resource_storage = None
-            if type(list(self.conversion.keys())[0]) is int:
-                self.processmode = ProcessMode.multi
+            if isinstance(list(self.conversion.keys())[0], int):
+                self.processmode = ProcessMode.MULTI
             else:
-                self.processmode = ProcessMode.single
-                
-        if type(self.capex) is dict:
-            self.cost_dynamics = CostDynamics.pwl
+                self.processmode = ProcessMode.SINGLE
+
+        if isinstance(self.capex, int):
+            self.cost_dynamics = CostDynamics.PWL
         else:
-            self.cost_dynamics = CostDynamics.constant      
-        
-        if self.processmode is ProcessMode.multi:
-            self.resource_req = {i.name for i in self.conversion[list(self.conversion.keys())[0]].keys()}
+            self.cost_dynamics = CostDynamics.CONSTANT
+
+        if self.processmode is ProcessMode.MULTI:
+            self.resource_req = {
+                i.name for i in self.conversion[list(self.conversion.keys())[0]].keys()}
         else:
-            self.resource_req = {i.name for i in self.conversion.keys()}     
-    
-        if self.processmode == ProcessMode.multi:    
+            self.resource_req = {i.name for i in self.conversion.keys()}
+
+        if self.processmode == ProcessMode.MULTI:
             if list(self.prod_max.keys()) != list(self.conversion.keys()):
-                warn('The keys for prod_max and conversion need to match if ProcessMode.multi')
-                            
+                warn(
+                    'The keys for prod_max and conversion need to match if ProcessMode.multi')
+
     def __repr__(self):
         return self.name
-    
+
     def __hash__(self):
         return hash(self.name)
-    
+
     def __eq__(self, other):
         return self.name == other.name

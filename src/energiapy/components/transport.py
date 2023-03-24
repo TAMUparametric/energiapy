@@ -2,10 +2,10 @@
 """
 
 __author__ = "Rahul Kakodkar"
-__copyright__ = "Copyright 2022, Multi-parametric Optimization & Control Lab"
+__copyright__ = "Copyright 2023, Multi-parametric Optimization & Control Lab"
 __credits__ = ["Rahul Kakodkar", "Efstratios N. Pistikopoulos"]
-__license__ = "Open"
-__version__ = "0.0.1"
+__license__ = "MIT"
+__version__ = "1.0.5"
 __maintainer__ = "Rahul Kakodkar"
 __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
@@ -14,6 +14,7 @@ from dataclasses import dataclass
 from typing import Set, Dict
 from ..components.resource import Resource
 from ..components.material import Material
+
 
 @dataclass
 class Transport:
@@ -32,12 +33,12 @@ class Transport:
         trans_emit (float, optional): carbon emissions per unit distance per unit basis of Resource. Defaults to 0.
         citation (str, optional): cite data source. Defaults to 'citation needed'.
         label (str, optional): Longer descriptive label if required. Defaults to ''.
-        
+
     Examples:
         Transport objects can be anything from Trains to Pipelines
-        
+
         >>> Train = Transport(name= 'Train', resources= {H2}, materials_cons = {Steel: 100}, trans_max= 10000, trans_loss= 0.001, trans_cost= 0.002, label = 'Railine for Hydrogen)
-        
+
 
     """
     name: str
@@ -50,14 +51,13 @@ class Transport:
     trans_cost: float = 0
     trans_emit: float = 0
     citation: str = 'citation needed'
-    label: str = '' 
-
+    label: str = ''
 
     def __repr__(self):
         return self.name
-    
+
     def __hash__(self):
         return hash(self.name)
-    
+
     def __eq__(self, other):
         return self.name == other.name

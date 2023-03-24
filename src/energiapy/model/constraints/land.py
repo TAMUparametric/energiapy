@@ -4,8 +4,8 @@
 __author__ = "Rahul Kakodkar"
 __copyright__ = "Copyright 2022, Multi-parametric Optimization & Control Lab"
 __credits__ = ["Rahul Kakodkar", "Efstratios N. Pistikopoulos"]
-__license__ = "Open"
-__version__ = "0.0.1"
+__license__ = "MIT"
+__version__ = "1.0.5"
 __maintainer__ = "Rahul Kakodkar"
 __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
@@ -13,12 +13,7 @@ __status__ = "Production"
 from pyomo.environ import ConcreteModel, Constraint
 from ...utils.latex_utils import constraint_latex_render
 from ...utils.scale_utils import scale_list
-from ...utils.scale_utils import scale_pyomo_set
-from ...utils.scale_utils import scale_tuple
-from ...components.location import Location
-from itertools import product
-from typing import Union
-from enum import Enum, auto
+
 
 def constraint_process_land(instance: ConcreteModel, land_dict: dict, network_scale_level: int = 0) -> Constraint:
     """Land required for each process at location in network
@@ -41,7 +36,6 @@ def constraint_process_land(instance: ConcreteModel, land_dict: dict, network_sc
     return instance.constraint_process_land
 
 
-
 def constraint_location_land(instance: ConcreteModel, network_scale_level: int = 0) -> Constraint:
     """Land required at each location in network
 
@@ -60,7 +54,6 @@ def constraint_location_land(instance: ConcreteModel, network_scale_level: int =
         instance.locations, *scales, rule=location_land_rule, doc='land required for process')
     constraint_latex_render(location_land_rule)
     return instance.constraint_location_land
-
 
 
 def constraint_network_land(instance: ConcreteModel, network_scale_level: int = 0) -> Constraint:
@@ -82,13 +75,14 @@ def constraint_network_land(instance: ConcreteModel, network_scale_level: int = 
     constraint_latex_render(network_land_rule)
     return instance.constraint_network_land
 
+
 def constraint_location_land_restriction(instance: ConcreteModel, network_scale_level: int = 0, land_restriction: float = 0) -> Constraint:
     """Land required at each location in network
 
     Args:
         instance (ConcreteModel): pyomo instance
         network_scale_level (int, optional): scale of network decisions. Defaults to 0.
- 
+
     Returns:
         Constraint: location_land
     """

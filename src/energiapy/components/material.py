@@ -10,9 +10,10 @@ __maintainer__ = "Rahul Kakodkar"
 __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Dict
 from ..components.resource import Resource
+
 
 @dataclass
 class Material:
@@ -21,22 +22,22 @@ class Material:
 
     Args:
         name (str): name of the material, short ones are better to deal with
-        resource_cons (Dict[Resource, float], optional): Resources consumed per unit basis of Material produced. Defaults to 0.
+        resource_cons (Dict[Resource, float], optional): Resources consumed per unit basis of Material. Defaults to 0.
         basis (str, optional): Unit basis for material. Defaults to 'unit.
         gwp (float, optional): global warming potential per unit basis of Material produced. Defaults to 0.
         toxicity (float, optional): toxicity potential per unit basis of Material produced. Defaults to 0.
         citation (str, optional): Add citation. Defaults to 'citation needed'.
         label (str, optional): Longer descriptive label if required. Defaults to ''
-        
+
     Examples:
         Materials can be declared using the resources they consume 
-        
+
         >>>  Steel = Material(name='Steel', gwp=0.8, resource_cons = {H2O: 3.94}, toxicity=40, basis= 'kg', label='Steel')
-        
+
     """
-    
-    name: str 
-    resource_cons: Dict[Resource, float] =  None
+
+    name: str
+    resource_cons: Dict[Resource, float] = None
     gwp: float = None
     toxicity: float = None
     basis: str = 'unit'
@@ -48,7 +49,6 @@ class Material:
 
     def __hash__(self):
         return hash(self.name)
-    
+
     def __eq__(self, other):
         return self.name == other.name
-        

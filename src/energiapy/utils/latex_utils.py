@@ -1,19 +1,20 @@
-#%%
+# %%
 """Generates latex doc string
 """
 
 __author__ = "Rahul Kakodkar"
 __copyright__ = "Copyright 2022, Multi-parametric Optimization & Control Lab"
 __credits__ = ["Rahul Kakodkar", "Efstratios N. Pistikopoulos"]
-__license__ = "Open"
-__version__ = "0.0.1"
+__license__ = "MIT"
+__version__ = "1.0.5"
 __maintainer__ = "Rahul Kakodkar"
 __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
 import inspect
 
-def constraint_latex_render(constraint_rule, latex_alias_dict:dict= {}) -> str:
+
+def constraint_latex_render(constraint_rule, latex_alias_dict: dict = {}) -> str:
     """renders a string for equation in latex format
 
     Args:
@@ -32,25 +33,25 @@ def constraint_latex_render(constraint_rule, latex_alias_dict:dict= {}) -> str:
         '[': '(',
         ']': ')',
         'exp': 'exp',
-        'instance.':'',
-        'location':'l',
+        'instance.': '',
+        'location': 'l',
         'resource': 'r',
         'network': 'n',
-        'scale_list[:scheduling_scale_level+1]':'y,d,h',
-        'scale_list[:network_scale_level+1]':'y',
-        'scale_list[:expenditure_scale_level+1]':'y,d',
+        'scale_list[:scheduling_scale_level+1]': 'y,d,h',
+        'scale_list[:network_scale_level+1]': 'y',
+        'scale_list[:expenditure_scale_level+1]': 'y,d',
         '[location][resource]': '(l,r)',
         'cons_max': 'C^{max}',
         'price': 'R^{base}',
         'process': 'p',
         'P_location': 'P^{l}',
-        'C_location': 'C^{l}', 
-        'S_location': 'S^{l}', 
-        'B_location': 'B^{l}', 
+        'C_location': 'C^{l}',
+        'S_location': 'S^{l}',
+        'B_location': 'B^{l}',
         'P_network': 'P^{n}',
-        'C_network': 'C^{n}', 
-        'S_network': 'S^{n}', 
-        'B_network': 'B^{n}', 
+        'C_network': 'C^{n}',
+        'S_network': 'S^{n}',
+        'B_network': 'B^{n}',
         'annualization_factor': 'A^{f}',
         'scale_list': 'y',
         'for location_ in instance.locations': '',
@@ -70,19 +71,19 @@ def constraint_latex_render(constraint_rule, latex_alias_dict:dict= {}) -> str:
         '_imp': '^{imp}',
         'source': 'l^{source}',
         'sink': 'l^{sink}',
-        'transport_':'t',
-        'transport':'t'
-        }
-    
+        'transport_': 't',
+        'transport': 't'
+    }
+
     unsorted_dict_ = {**latex_alias_dict, **general_dict}
-    
-    
+
     list_ = [i for i in unsorted_dict_.keys()]
-    list_.sort(key = len)
+    list_.sort(key=len)
     list_.reverse()
 
     dict_ = {i: unsorted_dict_[i] for i in list_}
-    str_ = inspect.getsource(constraint_rule).split('return ')[1].split('\n')[0]
+    str_ = inspect.getsource(constraint_rule).split(
+        'return ')[1].split('\n')[0]
     for key in dict_.keys():
         str_ = str_.replace(key, dict_[key])
 
@@ -100,9 +101,6 @@ def constraint_latex_render(constraint_rule, latex_alias_dict:dict= {}) -> str:
     print(print_)
 
     return str_
-
-
-
 
 
 # %%
