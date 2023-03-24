@@ -13,9 +13,9 @@ __status__ = "Production"
 
 from dataclasses import dataclass, field
 from itertools import product
+from typing import List
 from ..components.transport import Transport
 from ..components.location import Location
-from typing import List
 
 
 @dataclass
@@ -49,12 +49,12 @@ class Network:
 
     def __post_init__(self):
         """Makes handy dictionaries
-        
+           
         Args:
             transport_dict (dict): dictionary with transportation modes available between sources and sinks
             distance_dict (dict): dictionary of distances from sources to sinks
-            transport_avail_dict (dict): transportation modes available between sources and sinks 
-            locations (list): list of locations, sinks + sources 
+            transport_avail_dict (dict): transportation modes available between sources and sinks
+            locations (list): list of locations, sinks + sources
         """
         self.transport_dict = self.make_transport_dict()
         self.distance_dict = self.make_distance_dict()

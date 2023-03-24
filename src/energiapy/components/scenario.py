@@ -4,8 +4,8 @@
 __author__ = "Rahul Kakodkar"
 __copyright__ = "Copyright 2022, Multi-parametric Optimization & Control Lab"
 __credits__ = ["Rahul Kakodkar", "Efstratios N. Pistikopoulos"]
-__license__ = "Open"
-__version__ = "0.0.1"
+__license__ = "MIT"
+__version__ = "1.0.5"
 __maintainer__ = "Rahul Kakodkar"
 __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
@@ -14,7 +14,7 @@ from pandas import DataFrame
 import numpy
 from ..components.network import Network
 from ..components.location import Location
-from ..components.temporal_scale import Temporal_scale
+from ..components.temporal_scale import TemporalScale
 from ..components.process import Process, ProcessMode, VaryingProcess
 from ..components.resource import Resource, VaryingResource 
 from ..model.constraints import *
@@ -45,7 +45,7 @@ class Scenario:
         label (str, optional): Longer descriptive label if required. Defaults to ''
         
     Example:
-        The Scenario can be built over a single location. The network here is specified as a single Location. Considering scales (Temporal_scale object for a year, [1, 365, 24]), scheduling, expenditure, and demand are met at an hourly level, and network at an annual level.
+        The Scenario can be built over a single location. The network here is specified as a single Location. Considering scales (TemporalScale object for a year, [1, 365, 24]), scheduling, expenditure, and demand are met at an hourly level, and network at an annual level.
         
         >>> Current = Scenario(name= 'current', network= Goa, scales= scales, expenditure_scale_level= 2, scheduling_scale_level= 2, network_scale_level= 0, demand_scale_level= 2, label= 'Current Scenario')
 
@@ -54,7 +54,7 @@ class Scenario:
         >>> Future = Scenario(name= 'Future', network= System, scales= scales, expenditure_scale_level= 1, scheduling_scale_level= 2, network_scale_level= 0, demand_scale_level= 2, label= 'Future Scenario )
     """
     name: str 
-    scales: Temporal_scale 
+    scales: TemporalScale 
     network: Union[Network, Location] = None
     expenditure_scale_level: int = 0
     scheduling_scale_level: int = 0
@@ -83,7 +83,7 @@ class Scenario:
             resource_set (set): Set of all Resource objects.
             material_set (set): Set of all Material objects.
             conversion (dict): A dictionary with all conversion values for each Process.
-            conversion_discharge (dict): A dictionary with all discharge conversions for Process of storage (ProcessMode.storage) type. 
+            conversion_discharge (dict): A dictionary with all discharge conversions for Process of storage (ProcessMode.STORAGE) type. 
             prod_max (dict): A dictionary with maximum production capacity per timeperiod in the network scale for each Process at each Location.
             prod_min (dict): A dictionary with minimum production capacity per timeperiod in the network scale for each Process at each Location.
             cons_max (dict): A dictionary with maximum consumption per timeperiod in the scheduling scale for each Resource at each Location.
@@ -107,7 +107,7 @@ class Scenario:
             fail_factor (dict): A dictionary with fail factors for each Process object.
             process_resource_dict (dict): A dictionary with Resource required for each Process.
             process_material_dict (dict): A dictionary with Material required for each Process
-            mode_dict (dict): A dictionary with the multiple modes of each Process with ProcessMode.multi
+            mode_dict (dict): A dictionary with the multiple modes of each Process with ProcessMode.MULTI
         """
          
 
@@ -175,7 +175,7 @@ class Scenario:
 
         multiconversion_dict = dict()
         for i in self.process_set:
-            if i.processmode == ProcessMode.multi:
+            if i.processmode == ProcessMode.MULTI:
                 multiconversion_dict[i.name] = {j: None for j in i.conversion.keys()}
                 for k in list(multiconversion_dict[i.name].keys()):
                     multiconversion_dict[i.name][k] = {j.name: i.conversion[k][j] if j in i.conversion[k].keys() else 0 for j in self.resource_set}
@@ -185,7 +185,7 @@ class Scenario:
         
         self.multiconversion = multiconversion_dict
                 
-   
+
         self.mode_dict = {i.name: [j for j in list(self.multiconversion[i.name].keys())] for i in self.process_set}
     
         self.set_dict ={
@@ -194,23 +194,23 @@ class Scenario:
             'resources_sell': [i.name for i in self.resource_set if i.sell ==  True], 
             'resources_store': [i.name for i in self.resource_set if i.store_max >0],
             'resources_purch': [i.name for i in self.resource_set if i.cons_max > 0],
-            'resources_varying_demand': [i.name for i in self.resource_set if i.varying == VaryingResource.deterministic_demand],
-            'resources_varying_price': [i.name for i in self.resource_set if i.varying == VaryingResource.deterministic_price],
+            'resources_varying_demand': [i.name for i in self.resource_set if i.varying == VaryingResource.DETERMINISTIC_DEMAND],
+            'resources_varying_price': [i.name for i in self.resource_set if i.varying == VaryingResource.DETERMINISTIC_PRICE],
             'resources_demand': [i.name for i in self.resource_set if i.demand == True],
             'resources_certain_price': [i.name for i in self.resource_set if (i.varying is None) and (i.cons_max >0)],
-            'resources_uncertain_price': [i.name for i in self.resource_set if i.varying == VaryingResource.uncertain_price],
+            'resources_uncertain_price': [i.name for i in self.resource_set if i.varying == VaryingResource.UNCERTAIN_PRICE],
             'resources_certain_demand': [i.name for i in self.resource_set if (i.varying is None) and (i.demand == True)],
-            'resources_uncertain_demand': [i.name for i in self.resource_set if i.varying == VaryingResource.uncertain_demand],
+            'resources_uncertain_demand': [i.name for i in self.resource_set if i.varying == VaryingResource.UNCERTAIN_DEMAND],
             'processes': [i.name for i in self.process_set],
             'processes_full': list(self.conversion.keys()),
-            'processes_varying': [i.name for i in self.process_set if i.varying == VaryingProcess.deterministic_capacity],
+            'processes_varying': [i.name for i in self.process_set if i.varying == VaryingProcess.DETERMINISTIC_CAPACITY],
             'processes_failure': [i.name for i in self.process_set if i.p_fail is not None],
             'processes_materials': [i.name for i in self.process_set if i.material_cons is not None],
             'processes_storage': [i.name for i in self.process_set if i.conversion_discharge is not None],
-            'processes_multim': [i.name for i in self.process_set if i.processmode == ProcessMode.multi],
-            'processes_singlem': [i.name for i in self.process_set if (i.processmode == ProcessMode.single) or (i.processmode == ProcessMode.storage)],
+            'processes_multim': [i.name for i in self.process_set if i.processmode == ProcessMode.MULTI],
+            'processes_singlem': [i.name for i in self.process_set if (i.processmode == ProcessMode.SINGLE) or (i.processmode == ProcessMode.STORAGE)],
             'processes_certain_capacity': [i.name for i in self.process_set if i.varying is None],
-            'processes_uncertain_capacity': [i.name for i in self.process_set if i.varying == VaryingProcess.uncertain_capacity],
+            'processes_uncertain_capacity': [i.name for i in self.process_set if i.varying == VaryingProcess.UNCERTAIN_CAPACITY],
             'locations': [i.name for i in self.location_set],
             'materials': [i.name for i in self.material_set]
             }
@@ -247,8 +247,11 @@ class Scenario:
         Returns:
             tuple: A, b, c, H, CRa, CRb, F
         """
-        
-        
+        demand = self.demand
+        if type(demand) is dict:
+            if type(list(demand.keys())[0]) is Location:
+                self.demand = {i.name: {j.name: demand[i][j] for j in demand[i].keys()} for i in demand.keys()}
+        print(demand)
         if len(self.location_set) > 1:
             "can only do this for a single location scenario"
         else:
