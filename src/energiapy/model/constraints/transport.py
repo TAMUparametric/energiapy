@@ -4,8 +4,8 @@
 __author__ = "Rahul Kakodkar"
 __copyright__ = "Copyright 2022, Multi-parametric Optimization & Control Lab"
 __credits__ = ["Rahul Kakodkar", "Efstratios N. Pistikopoulos"]
-__license__ = "Open"
-__version__ = "0.0.1"
+__license__ = "MIT"
+__version__ = "1.0.5"
 __maintainer__ = "Rahul Kakodkar"
 __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
@@ -13,17 +13,8 @@ __status__ = "Production"
 from pyomo.environ import ConcreteModel, Constraint
 from ...utils.latex_utils import constraint_latex_render
 from ...utils.scale_utils import scale_list
-from ...utils.scale_utils import scale_pyomo_set
-from ...utils.scale_utils import scale_tuple
-from ...components.location import Location
-from itertools import product
-from typing import Union
-from enum import Enum, auto
 
 
-
-
-# *-------------------------Transport constraints--------------------------
 def constraint_transport_export(instance: ConcreteModel, scheduling_scale_level: int = 0, transport_avail_dict: dict = {}) -> Constraint:
     """Total resource exported equals amount transported through all modes
 
@@ -93,7 +84,7 @@ def constraint_transport_balance(instance: ConcreteModel, scheduling_scale_level
     return instance.constraint_transport_balance
 
 
-def constraint_transport_exp_UB(instance: ConcreteModel, scheduling_scale_level: int = 0, trans_max: dict = {}, transport_avail_dict: dict = {}) -> Constraint:
+def constraint_transport_exp_UB(instance: ConcreteModel, scheduling_scale_level: int = 0, network_scale_level: int = 0, trans_max: dict = {}, transport_avail_dict: dict = {}) -> Constraint:
     """Maximum resource that can be transported
 
     Args:
@@ -110,7 +101,7 @@ def constraint_transport_exp_UB(instance: ConcreteModel, scheduling_scale_level:
 
     def transport_exp_UB_rule(instance, source, sink, resource, transport, *scale_list):
         if transport in transport_avail_dict[(source, sink)]:
-            return instance.Trans_exp[source, sink, resource, transport, scale_list[:scheduling_scale_level+1]] <= trans_max[transport]
+            return instance.Trans_exp[source, sink, resource, transport, scale_list[:scheduling_scale_level+1]] <= trans_max[transport]*instance.X_T[source, sink, transport, scale_list[:network_scale_level+1]]
         else:
             return instance.Trans_exp[source, sink, resource, transport, scale_list[:scheduling_scale_level+1]] <= 0
     instance.constraint_transport_exp_UB = Constraint(instance.sources, instance.sinks, instance.resources_trans,
@@ -119,7 +110,7 @@ def constraint_transport_exp_UB(instance: ConcreteModel, scheduling_scale_level:
     return instance.constraint_transport_exp_UB
 
 
-def constraint_transport_imp_UB(instance: ConcreteModel, scheduling_scale_level: int = 0, trans_max: dict = {}, transport_avail_dict: dict = {}) -> Constraint:
+def constraint_transport_imp_UB(instance: ConcreteModel, scheduling_scale_level: int = 0, network_scale_level: int = 0, trans_max: dict = {}, transport_avail_dict: dict = {}) -> Constraint:
     """Maximum amount of resource that can be imported
 
     Args:
@@ -136,7 +127,7 @@ def constraint_transport_imp_UB(instance: ConcreteModel, scheduling_scale_level:
 
     def transport_imp_UB_rule(instance, sink, source, resource, transport, *scale_list):
         if transport in transport_avail_dict[(source, sink)]:
-            return instance.Trans_imp[sink, source, resource, transport, scale_list[:scheduling_scale_level+1]] <= trans_max[transport]
+            return instance.Trans_imp[sink, source, resource, transport, scale_list[:scheduling_scale_level+1]] <= trans_max[transport]*instance.X_T[source, sink, transport, scale_list[:network_scale_level+1]]
         else:
             return instance.Trans_imp[sink, source, resource, transport, scale_list[:scheduling_scale_level+1]] <= 0
     instance.constraint_transport_imp_UB = Constraint(instance.sinks, instance.sources, instance.resources_trans,

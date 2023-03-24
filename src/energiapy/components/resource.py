@@ -1,9 +1,8 @@
-#%%
-"""Resource data class  
+"""Resource data class
 """
 
 __author__ = "Rahul Kakodkar"
-__copyright__ = "Copyright 2022, Multi-parametric Optimization & Control Lab"
+__copyright__ = "Copyright 2023, Multi-parametric Optimization & Control Lab"
 __credits__ = ["Rahul Kakodkar", "Efstratios N. Pistikopoulos"]
 __license__ = "Open"
 __version__ = "0.0.1"
@@ -12,15 +11,29 @@ __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
 from dataclasses import dataclass
-import pandas
 from enum import Enum, auto
 from typing import Union
 
 class VaryingResource(Enum):
-    deterministic_demand = auto()
-    deterministic_price = auto()
-    uncertain_demand = auto()
-    uncertain_price = auto()
+    """
+    Whether the demand or price are varying
+    """
+    DETERMINISTIC_DEMAND = auto()
+    """
+    Utilize deterministic demand data
+    """
+    DETERMINISTIC_PRICE = auto()
+    """
+    Utilize deterministic price data
+    """
+    UNCERTAIN_DEMAND = auto()
+    """
+    Utilize uncertainty variables for demand
+    """
+    UNCERTAIN_PRICE = auto()
+    """
+    Utilize uncertainty variables for price
+    """
     
 
 @dataclass
@@ -81,18 +94,12 @@ class Resource:
     def __post_init__(self):
         if self.demand is True:
             self.sell = True
-            
+ 
     def __repr__(self):
         return self.name
-    
+  
     def __hash__(self):
         return hash(self.name)
-    
+  
     def __eq__(self, other):
         return self.name == other.name
-     
-        
-
-# %%
-
- 

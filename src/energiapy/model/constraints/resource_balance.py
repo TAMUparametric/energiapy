@@ -4,23 +4,17 @@
 __author__ = "Rahul Kakodkar"
 __copyright__ = "Copyright 2022, Multi-parametric Optimization & Control Lab"
 __credits__ = ["Rahul Kakodkar", "Efstratios N. Pistikopoulos"]
-__license__ = "Open"
-__version__ = "0.0.1"
+__license__ = "MIT"
+__version__ = "1.0.5"
 __maintainer__ = "Rahul Kakodkar"
 __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
+from typing import Union
 from pyomo.environ import ConcreteModel, Constraint
 from ...utils.latex_utils import constraint_latex_render
 from ...utils.scale_utils import scale_list
-from ...utils.scale_utils import scale_pyomo_set
 from ...utils.scale_utils import scale_tuple
-from ...components.location import Location
-from itertools import product
-from typing import Union
-from enum import Enum, auto
-from ...components.process import ProcessMode
-
 
 
 def constraint_resource_consumption(instance: ConcreteModel, loc_res_dict: dict = {}, cons_max: dict = {}, scheduling_scale_level: int = 0) -> Constraint:
@@ -83,8 +77,8 @@ def constraint_resource_purchase(instance: ConcreteModel, cost_factor: dict = {}
     return instance.constraint_resource_purchase
 
 
-def constraint_inventory_balance(instance: ConcreteModel, scheduling_scale_level: int = 0, \
-    multiconversion: dict = {}, mode_dict: dict = {}, cluster_wt: dict = None) -> Constraint:
+def constraint_inventory_balance(instance: ConcreteModel, scheduling_scale_level: int = 0,
+                                 multiconversion: dict = {}, mode_dict: dict = {}, cluster_wt: dict = None) -> Constraint:
     """balances resource across the scheduling horizon
     Mass balance in any temporal discretization has the following within their respective sets:
     - consumption for resources that can be purchased
@@ -92,18 +86,18 @@ def constraint_inventory_balance(instance: ConcreteModel, scheduling_scale_level
     - discharge for resources that can be sold(if selling cost)/discharged bound by the demand constraint
     - transport for resources that can be translocated
     - storage for resources that can be held in inventory
-    
+
     The general mass balance is given as:
-    
+
     consumption + produced - discharge + transport == storage
-    
+
     Args:
         instance (ConcreteModel): pyomo instance
         scheduling_scale_level (int, optional): scale of scheduling decisions. Defaults to 0.
         multiconversion (dict, optional): unit conversion of resource by production facility. Defaults to {}.
         mode_dict (dict, optional): dictionary with modes available. Defaults to {}.
         cluster_wt (dict, optional): weight of cluster as determined through scenario aggregation. Defaults to None. 
-    
+
     Returns:
         Constraint: inventory_balance
     """
@@ -148,10 +142,10 @@ def constraint_inventory_balance(instance: ConcreteModel, scheduling_scale_level
 
         # produced = sum(conversion[process][resource]*instance.P[location, process, scale_list[:scheduling_scale_level+1]] for process in instance.processes_singlem) \
         #     + sum(instance.P[location, process, scale_list[:scheduling_scale_level+1]] for process in instance.processes_multim)
-        
+
         produced = sum(sum(multiconversion[process][mode][resource]*instance.P_m[location, process, mode,
-                       scale_list[:scheduling_scale_level+1]] for mode in mode_dict[process]) for process in instance.processes_full) #includes processes + discharge
-    
+                       scale_list[:scheduling_scale_level+1]] for mode in mode_dict[process]) for process in instance.processes_full)  # includes processes + discharge
+
         if cluster_wt is not None:
             return cluster_wt[scale_list[:scheduling_scale_level+1]]*(consumption + produced - discharge + transport) == storage
         else:
@@ -162,8 +156,8 @@ def constraint_inventory_balance(instance: ConcreteModel, scheduling_scale_level
     return instance.constraint_inventory_balance
 
 
-def constraint_demand(instance: ConcreteModel, demand: Union[dict, float], demand_factor: Union[dict, float], \
-    demand_scale_level: int = 0, scheduling_scale_level: int = 0, cluster_wt: dict = None) -> Constraint:
+def constraint_demand(instance: ConcreteModel, demand: Union[dict, float], demand_factor: Union[dict, float],
+                      demand_scale_level: int = 0, scheduling_scale_level: int = 0, cluster_wt: dict = None) -> Constraint:
     """Ensures that demand for resource is met at chosen temporal scale
 
     Args:
@@ -181,25 +175,29 @@ def constraint_demand(instance: ConcreteModel, demand: Union[dict, float], deman
     scale_iter = scale_tuple(
         instance=instance, scale_levels=scheduling_scale_level+1)
 
-    def demand_rule(instance, location, resource, *scale_list): 
-         
+    def demand_rule(instance, location, resource, *scale_list):
+
         if demand_factor[location] is not None:
             if type(demand_factor[location][list(demand_factor[location])[0]]) == float:
                 discharge = sum(instance.S[location, resource_, scale_list[:scheduling_scale_level+1]] for
-                        resource_ in instance.resources_demand) 
+                                resource_ in instance.resources_demand)
             else:
-                discharge = sum(instance.S[location, resource, scale_] for scale_ in scale_iter if scale_[:scheduling_scale_level+1] == scale_list)
-           
+                discharge = sum(instance.S[location, resource, scale_] for scale_ in scale_iter if scale_[
+                                :scheduling_scale_level+1] == scale_list)
+
             if type(demand) is dict:
-                demandtarget = demand[location][resource]*demand_factor[location][resource][scale_list[:demand_scale_level+1]]
+                demandtarget = demand[location][resource] * \
+                    demand_factor[location][resource][scale_list[:demand_scale_level+1]]
             else:
-                demandtarget = demand*demand_factor[location][resource][scale_list[:demand_scale_level+1]]
-                
-        else: 
+                demandtarget = demand * \
+                    demand_factor[location][resource][scale_list[:demand_scale_level+1]]
+
+        else:
             # if scale_list[:scheduling_scale_level+1] != scale_iter[0]: #TODO - doesn't meet demand in first timeperiod
-            discharge = sum(instance.S[location, resource, scale_] for scale_ in scale_iter if scale_[:scheduling_scale_level+1] == scale_list)
-            
-            if type(demand) is dict:        
+            discharge = sum(instance.S[location, resource, scale_] for scale_ in scale_iter if scale_[
+                            :scheduling_scale_level+1] == scale_list)
+
+            if type(demand) is dict:
                 demandtarget = demand[location][resource]
 
             else:
@@ -208,8 +206,8 @@ def constraint_demand(instance: ConcreteModel, demand: Union[dict, float], deman
             # else:
             #     discharge = instance.S[location, resource, scale_list[:scheduling_scale_level+1]]
             #     demandtarget = 0
-            
-        # if cluster_wt is not None: 
+
+        # if cluster_wt is not None:
         #     return discharge == cluster_wt[scale_list[:scheduling_scale_level+1]]*demandtarget
         # else:
         # return discharge >= demandtarget
@@ -223,7 +221,6 @@ def constraint_demand(instance: ConcreteModel, demand: Union[dict, float], deman
             instance.locations, instance.resources_demand, *scales, rule=demand_rule, doc='specific demand for resources')
     constraint_latex_render(demand_rule)
     return instance.constraint_demand
-
 
 
 def constraint_location_production(instance: ConcreteModel, cluster_wt: dict, network_scale_level: int = 0) -> Constraint:

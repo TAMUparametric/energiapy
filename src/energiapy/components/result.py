@@ -2,7 +2,7 @@
 """
 
 __author__ = "Rahul Kakodkar"
-__copyright__ = "Copyright 2022, Multi-parametric Optimization & Control Lab"
+__copyright__ = "Copyright 2023, Multi-parametric Optimization & Control Lab"
 __credits__ = ["Rahul Kakodkar", "Efstratios N. Pistikopoulos"]
 __license__ = "Open"
 __version__ = "0.0.1"
@@ -11,30 +11,27 @@ __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
 from dataclasses import dataclass
-from ..components.scenario import Scenario
 import json
 import pickle
-
-
 
 
 @dataclass
 class Result:
     """Results from solving a Scenario 
-    
+
     Args:
        name (str): name of the material, short ones are better to deal with.
        components (dict): input data relating to components
        output (dict): results from analysis
        duals (dict): duals if not MIP.
-    
+
     """
     name: str
     components: dict
     output: dict
-    duals: dict 
+    duals: dict
 
-    def saveoutputs(self, file_name:str):
+    def saveoutputs(self, file_name: str):
         """Saves output with provide name. 
 
         Args:
@@ -55,9 +52,8 @@ class Result:
                 f.write(str(data))
                 f.close()
         return
-            
-    
-    def fetch_components(self, component_type:str, condition:tuple = None) -> set:
+
+    def fetch_components(self, component_type: str, condition: tuple = None) -> set:
         """fetches components that meet a specific condition
 
         Args:
@@ -73,42 +69,42 @@ class Result:
 
         Returns:
             set: set meeting condition
-        
+
         Examples:
-        
+
             results.fetch_components(component_type= 'processes', condition= ('capex', 'ge', 20 ))
             results.fetch_components(component_type= 'resources', condition= ('sell', True ))
         """
         component_set = set(self.__dict__['components'][component_type].keys())
-        
+
         if condition is None:
             return component_set
-        
-        else:         
-            if (type(condition[1]) == bool or str) and (condition[1] not in ['eq', 'ge', 'le', 'g', 'l']) :
-                specific_component_set = {i for i in self.components[component_type].keys()\
-                    if self.components[component_type][i][condition[0]] == condition[1]}
-            
+
+        else:
+            if (type(condition[1]) == bool or str) and (condition[1] not in ['eq', 'ge', 'le', 'g', 'l']):
+                specific_component_set = {i for i in self.components[component_type].keys()
+                                          if self.components[component_type][i][condition[0]] == condition[1]}
+
             elif condition[1] == 'eq':
-                specific_component_set = {i for i in self.components[component_type].keys()\
-                    if self.components[component_type][i][condition[0]] == condition[2]}
+                specific_component_set = {i for i in self.components[component_type].keys()
+                                          if self.components[component_type][i][condition[0]] == condition[2]}
             elif condition[1] == 'ge':
-                specific_component_set = {i for i in self.components[component_type].keys()\
-                    if self.components[component_type][i][condition[0]] >= condition[2]}
+                specific_component_set = {i for i in self.components[component_type].keys()
+                                          if self.components[component_type][i][condition[0]] >= condition[2]}
             elif condition[1] == 'le':
-                specific_component_set = {i for i in self.components[component_type].keys()\
-                    if self.components[component_type][i][condition[0]] <= condition[2]}
+                specific_component_set = {i for i in self.components[component_type].keys()
+                                          if self.components[component_type][i][condition[0]] <= condition[2]}
             elif condition[1] == 'l':
-                specific_component_set = {i for i in self.components[component_type].keys()\
-                    if self.components[component_type][i][condition[0]] < condition[2]}
+                specific_component_set = {i for i in self.components[component_type].keys()
+                                          if self.components[component_type][i][condition[0]] < condition[2]}
             elif condition[1] == 'g':
-                specific_component_set = {i for i in self.components[component_type].keys()\
-                    if self.components[component_type][i][condition[0]] > condition[2]}
+                specific_component_set = {i for i in self.components[component_type].keys()
+                                          if self.components[component_type][i][condition[0]] > condition[2]}
             else:
                 specific_component_set = {}
             return specific_component_set
 
-    def divide_by_objective(self, var:str, index:tuple):
+    def divide_by_objective(self, var: str, index: tuple):
         """divides variable at index
 
         Args:
@@ -120,7 +116,7 @@ class Result:
         value = self.output[var][index]/self.output['objective']
         return value
 
-    def get_varindex(self, var:str):
+    def get_varindex(self, var: str):
         """gives the index of variable
 
         Args:
@@ -149,5 +145,3 @@ class Result:
 
     def __eq__(self, other):
         return self.name == other.name
-
-

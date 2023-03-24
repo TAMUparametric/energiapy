@@ -4,8 +4,8 @@
 __author__ = "Rahul Kakodkar"
 __copyright__ = "Copyright 2022, Multi-parametric Optimization & Control Lab"
 __credits__ = ["Rahul Kakodkar", "Efstratios N. Pistikopoulos"]
-__license__ = "Open"
-__version__ = "0.0.1"
+__license__ = "MIT"
+__version__ = "1.0.5"
 __maintainer__ = "Rahul Kakodkar"
 __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
@@ -13,12 +13,6 @@ __status__ = "Production"
 from pyomo.environ import ConcreteModel, Constraint
 from ...utils.latex_utils import constraint_latex_render
 from ...utils.scale_utils import scale_list
-from ...utils.scale_utils import scale_pyomo_set
-from ...utils.scale_utils import scale_tuple
-from ...components.location import Location
-from itertools import product
-from typing import Union
-from enum import Enum, auto
 
 
 def constraint_production_facility(instance: ConcreteModel, prod_max: dict, loc_pro_dict: dict = {}, network_scale_level: int = 0) -> Constraint:
@@ -60,10 +54,11 @@ def constraint_production_facility_affix(instance: ConcreteModel, affix_producti
     Returns:
         Constraint: production_facility_affix
     """
-    scales = scale_list(instance=instance, scale_levels=network_scale_level+1) 
+    scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
+
     def production_facility_affix_rule(instance, location, process, *scale_list):
         if process in loc_pro_dict[location]:
-            if  affix_production_cap[location, process, scale_list[:network_scale_level+1][0]] > 0.0:
+            if affix_production_cap[location, process, scale_list[:network_scale_level+1][0]] > 0.0:
                 return instance.Cap_P[location, process, scale_list[:network_scale_level+1]] \
                     == affix_production_cap[location, process, scale_list[:network_scale_level+1][0]]
             else:
@@ -129,6 +124,7 @@ def constraint_min_production_facility(instance: ConcreteModel, prod_min: dict, 
     constraint_latex_render(min_production_facility_rule)
     return instance.constraint_min_production_facility
 
+
 def constraint_nameplate_production(instance: ConcreteModel, capacity_factor: dict = {}, loc_pro_dict: dict = {}, network_scale_level: int = 0, scheduling_scale_level: int = 0) -> Constraint:
     """Determines production capacity utilization of facilities at location in network and capacity of facilities 
 
@@ -151,14 +147,13 @@ def constraint_nameplate_production(instance: ConcreteModel, capacity_factor: di
                 return instance.P[location, process, scale_list[:scheduling_scale_level+1]] <= \
                     capacity_factor[location][process][scale_list[:scheduling_scale_level+1]] * \
                     instance.Cap_P[location, process,
-                                scale_list[:network_scale_level+1]]
+                                   scale_list[:network_scale_level+1]]
             else:
                 return instance.P[location, process, scale_list[:scheduling_scale_level+1]] <= instance.Cap_P[location, process, scale_list[:network_scale_level+1]]
         else:
             return Constraint.Skip
-        
+
     instance.constraint_nameplate_production = Constraint(
         instance.locations, instance.processes, *scales, rule=nameplate_production_rule, doc='nameplate production capacity constraint')
     constraint_latex_render(nameplate_production_rule)
     return instance.constraint_nameplate_production
-
