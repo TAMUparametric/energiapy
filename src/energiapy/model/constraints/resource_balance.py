@@ -17,7 +17,7 @@ from ...utils.scale_utils import scale_list
 from ...utils.scale_utils import scale_tuple
 
 
-def constraint_resource_consumption(instance: ConcreteModel, loc_res_dict: dict = {}, cons_max: dict = {}, scheduling_scale_level: int = 0) -> Constraint:
+def constraint_resource_consumption(instance: ConcreteModel, loc_res_dict: dict = None, cons_max: dict = None, scheduling_scale_level: int = 0) -> Constraint:
     """Determines consumption of resource at location in network 
 
     Args:
@@ -29,6 +29,13 @@ def constraint_resource_consumption(instance: ConcreteModel, loc_res_dict: dict 
     Returns:
         Constraint: resource_consumption
     """
+
+    if loc_res_dict is None:
+        loc_res_dict = dict()
+
+    if cons_max is None:
+        cons_max = dict()
+
     scales = scale_list(instance=instance,
                         scale_levels=instance.scales.__len__())
 
@@ -43,8 +50,8 @@ def constraint_resource_consumption(instance: ConcreteModel, loc_res_dict: dict 
     return instance.constraint_resource_consumption
 
 
-def constraint_resource_purchase(instance: ConcreteModel, cost_factor: dict = {}, price: dict = {},
-                                 loc_res_dict: dict = {}, scheduling_scale_level: int = 0, expenditure_scale_level: int = 0) -> Constraint:
+def constraint_resource_purchase(instance: ConcreteModel, cost_factor: dict = None, price: dict = None,
+                                 loc_res_dict: dict = None, scheduling_scale_level: int = 0, expenditure_scale_level: int = 0) -> Constraint:
     """Determines expenditure on resource at location in network at the scheduling/expenditure scale
 
     Args:
@@ -57,6 +64,16 @@ def constraint_resource_purchase(instance: ConcreteModel, cost_factor: dict = {}
     Returns:
         Constraint: resource_purchase
     """
+
+    if loc_res_dict is None:
+        loc_res_dict = dict()
+
+    if cost_factor is None:
+        cost_factor = dict()
+
+    if price is None:
+        price = dict()
+
     scales = scale_list(instance=instance,
                         scale_levels=instance.scales.__len__())
 
@@ -78,7 +95,7 @@ def constraint_resource_purchase(instance: ConcreteModel, cost_factor: dict = {}
 
 
 def constraint_inventory_balance(instance: ConcreteModel, scheduling_scale_level: int = 0,
-                                 multiconversion: dict = {}, mode_dict: dict = {}, cluster_wt: dict = None) -> Constraint:
+                                 multiconversion: dict = None, mode_dict: dict = None, cluster_wt: dict = None) -> Constraint:
     """balances resource across the scheduling horizon
     Mass balance in any temporal discretization has the following within their respective sets:
     - consumption for resources that can be purchased
@@ -101,6 +118,13 @@ def constraint_inventory_balance(instance: ConcreteModel, scheduling_scale_level
     Returns:
         Constraint: inventory_balance
     """
+
+    if multiconversion is None:
+        multiconversion = dict()
+
+    if mode_dict is None:
+        mode_dict = dict()
+
     scales = scale_list(instance=instance,
                         scale_levels=instance.scales.__len__())
     scale_iter = scale_tuple(
@@ -178,14 +202,14 @@ def constraint_demand(instance: ConcreteModel, demand: Union[dict, float], deman
     def demand_rule(instance, location, resource, *scale_list):
 
         if demand_factor[location] is not None:
-            if type(demand_factor[location][list(demand_factor[location])[0]]) == float:
+            if isinstance(demand_factor[location][list(demand_factor[location])[0]], float):
                 discharge = sum(instance.S[location, resource_, scale_list[:scheduling_scale_level+1]] for
                                 resource_ in instance.resources_demand)
             else:
                 discharge = sum(instance.S[location, resource, scale_] for scale_ in scale_iter if scale_[
                                 :scheduling_scale_level+1] == scale_list)
 
-            if type(demand) is dict:
+            if isinstance(demand, dict):
                 demandtarget = demand[location][resource] * \
                     demand_factor[location][resource][scale_list[:demand_scale_level+1]]
             else:

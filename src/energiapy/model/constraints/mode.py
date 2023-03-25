@@ -38,7 +38,7 @@ def constraint_production_mode(instance: ConcreteModel, mode_dict: dict, schedul
     return instance.constraint_production_mode
 
 
-def constraint_production_mode_facility(instance: ConcreteModel, prod_max: dict, loc_pro_dict: dict = {}, scheduling_scale_level: int = 0) -> Constraint:
+def constraint_production_mode_facility(instance: ConcreteModel, prod_max: dict, loc_pro_dict: dict = None, scheduling_scale_level: int = 0) -> Constraint:
     """Determines where production facility of certain capacity is mode for process at location in schedule
 
     Args:
@@ -50,6 +50,10 @@ def constraint_production_mode_facility(instance: ConcreteModel, prod_max: dict,
     Returns:
         Constraint: production_facility_mode
     """
+
+    if loc_pro_dict is None:
+        loc_pro_dict = dict()
+
     scales = scale_list(instance=instance,
                         scale_levels=scheduling_scale_level+1)
 
