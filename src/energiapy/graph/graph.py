@@ -1,4 +1,3 @@
-
 __author__ = "Rahul Kakodkar, Natasha Chrisandina"
 __copyright__ = "Copyright 2022, Multi-parametric Optimization & Control Lab"
 __credits__ = ["Rahul Kakodkar", "Natasha Chrisandina",
@@ -9,10 +8,10 @@ __maintainer__ = "Rahul Kakodkar"
 __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
-
-import random
+import numpy as np
 from typing import Tuple
 import math
+
 
 def distance(u_x: float, u_y: float, v_x: float, v_y: float, method: str = 'euclidean'):
     """Finds the distance: rectilinear/chebyshev/euclidean
@@ -25,17 +24,18 @@ def distance(u_x: float, u_y: float, v_x: float, v_y: float, method: str = 'eucl
     Returns:
         float: _description_
     """
-    if 'rectilinear':
-        distance = abs(u_x-v_x) + abs(u_y-v_y)
+    if method == 'rectilinear':
+        return abs(u_x - v_x) + abs(u_y - v_y)
+    elif method == 'chebyshev':
+        return max(abs(u_x - v_x) + abs(u_y - v_y))
+    elif method == 'euclidean':
+        return math.sqrt((u_x - v_x) ** 2 + (u_y - v_y) ** 2)
+    else:
+        raise ValueError('Unknown distance method')
 
-    elif 'chebyshev':
-        distance = max(abs(u_x-v_x) + abs(u_y-v_y))
-    elif 'euclidean':
-        distance = math.sqrt((u_x-v_x)**2 + (u_y-v_y)**2)
-    return distance
 
-
-def make_graph(n_sources: int, n_sinks: int, n_facilities: int, method: str = 'euclidean') -> Tuple[dict, dict, dict]:
+def make_graph(n_sources: int, n_sinks: int, n_facilities: int, method: str = 'euclidean', random_seed: int = 12345) -> \
+Tuple[dict, dict, dict]:
     """Creates a graph based on number of sources and sink location
     Location co-ordinates are assigned at random
     distance method needs to be specified: euclidean, rectilinear, chebyshev
@@ -44,6 +44,7 @@ def make_graph(n_sources: int, n_sinks: int, n_facilities: int, method: str = 'e
         n_sinks (int): number of sink nodes
         n_facilities (int): number of facility nodes
         method (str, optional): distance method. Defaults to 'euclidean'.
+        random_seed (int, optional): random seed. Defaults to 12345.
     Returns:
         Tuple[dict, dict, dict]: _description_
     """
@@ -51,31 +52,36 @@ def make_graph(n_sources: int, n_sinks: int, n_facilities: int, method: str = 'e
     sink_list = list(range(n_sinks))  # demand sink
     facility_list = list(range(n_facilities))
 
-    # electricity, gas, water
-    # criteria_utility_index = [i for i in source_list]
-    # critera_transport_index = [i for i in source_list]  # car, train
+    # random number generator with passed seed
+    rng = np.random.default_rng(random_seed)
 
-    # sink_cost = [random.random() for i in sink_list]
+    # helper function to generate random weights/locations
+    make_locations = lambda: rng.random(len(sink_list)).to_list()
 
     # locations sink location
-    loc_sink_x = [random.random() for i in sink_list]
-    loc_sink_y = [random.random() for i in sink_list]
+    loc_sink_x = make_locations()
+    loc_sink_y = make_locations()
 
-    # locations nodes location
-    loc_source_x = [random.random() for i in source_list]
-    loc_source_y = [random.random() for i in source_list]
+    # locations source location
+    loc_source_x = make_locations()
+    loc_source_y = make_locations()
 
-    loc_facility_x = [random.random() for i in facility_list]
-    loc_facility_y = [random.random() for i in facility_list]
+    # locations facility location
+    loc_facility_x = make_locations()
+    loc_facility_y = make_locations()
 
-    # distance_dict = { (i,j) : distance(loc_source_x[i], loc_source_y[i], loc_sink_x[j], loc_sink_y[j], method) for i in source_list for j in sink_list}
+    # sets up the distance dictionary between all nodes
     distance_feed_dict = {i: {j: distance(
-        loc_source_x[i], loc_source_y[i], loc_facility_x[j], loc_facility_y[j], method) for j in facility_list} for i in source_list}
-    distance_prod_dict = {i: {j: distance(
-        loc_facility_x[i], loc_facility_y[i], loc_sink_x[j], loc_sink_y[j], method) for j in sink_list} for i in facility_list}
+        loc_source_x[i], loc_source_y[i], loc_facility_x[j], loc_facility_y[j], method) for j in facility_list} for i in
+        source_list}
 
-    source_dict = {i: [loc_source_x[i], loc_source_y[i]]for i in source_list}
-    sink_dict = {i: [loc_sink_x[i], loc_sink_y[i]]for i in sink_list}
+    # sets up the production distance dictionary between all nodes
+    distance_prod_dict = {i: {j: distance(
+        loc_facility_x[i], loc_facility_y[i], loc_sink_x[j], loc_sink_y[j], method) for j in sink_list} for i in
+        facility_list}
+
+    source_dict = {i: [loc_source_x[i], loc_source_y[i]] for i in source_list}
+    sink_dict = {i: [loc_sink_x[i], loc_sink_y[i]] for i in sink_list}
     facility_dict = {i: [loc_facility_x[i], loc_facility_y[i]]
                      for i in facility_list}
 

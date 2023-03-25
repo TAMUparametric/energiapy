@@ -102,7 +102,7 @@ def constraint_production_facility_fix(instance: ConcreteModel, prod_max: dict, 
     return instance.constraint_production_facility_fix
 
 
-def constraint_min_production_facility(instance: ConcreteModel, prod_min: dict, loc_pro_dict: dict = {}, network_scale_level: int = 0) -> Constraint:
+def constraint_min_production_facility(instance: ConcreteModel, prod_min: dict, loc_pro_dict: dict = None, network_scale_level: int = 0) -> Constraint:
     """Determines where production facility of certain capacity is inserted at location in network
 
     Args:
@@ -114,6 +114,10 @@ def constraint_min_production_facility(instance: ConcreteModel, prod_min: dict, 
     Returns:
         Constraint: min_production_facility
     """
+
+    if loc_pro_dict is None:
+        loc_pro_dict = dict()
+
     scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
 
     def min_production_facility_rule(instance, location, process, *scale_list):
@@ -129,7 +133,7 @@ def constraint_min_production_facility(instance: ConcreteModel, prod_min: dict, 
     return instance.constraint_min_production_facility
 
 
-def constraint_nameplate_production(instance: ConcreteModel, capacity_factor: dict = {}, loc_pro_dict: dict = {}, network_scale_level: int = 0, scheduling_scale_level: int = 0) -> Constraint:
+def constraint_nameplate_production(instance: ConcreteModel, capacity_factor: dict = None, loc_pro_dict: dict = None, network_scale_level: int = 0, scheduling_scale_level: int = 0) -> Constraint:
     """Determines production capacity utilization of facilities at location in network and capacity of facilities 
 
     Args:
@@ -142,6 +146,13 @@ def constraint_nameplate_production(instance: ConcreteModel, capacity_factor: di
     Returns:
         Constraint: nameplate_production
     """
+
+    if capacity_factor is None:
+        capacity_factor = dict()
+
+    if loc_pro_dict is None:
+        loc_pro_dict = dict()
+
     scales = scale_list(instance=instance,
                         scale_levels=instance.scales.__len__())
 

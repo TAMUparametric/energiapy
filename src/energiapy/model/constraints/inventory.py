@@ -15,7 +15,7 @@ from ...utils.latex_utils import constraint_latex_render
 from ...utils.scale_utils import scale_list
 
 
-def constraint_storage_facility(instance: ConcreteModel, store_max: dict, loc_res_dict: dict = {},  network_scale_level: int = 0) -> Constraint:
+def constraint_storage_facility(instance: ConcreteModel, store_max: dict, loc_res_dict: dict = None,  network_scale_level: int = 0) -> Constraint:
     """Determines where storage facility of certain capacity is inserted at location in network
 
     Args:
@@ -27,6 +27,10 @@ def constraint_storage_facility(instance: ConcreteModel, store_max: dict, loc_re
     Returns:
         Constraint: storage_facility
     """
+
+    if loc_res_dict is None:
+        loc_res_dict = dict()
+
     scales = scale_list(instance=instance,
                         scale_levels=network_scale_level + 1)
 
@@ -43,7 +47,7 @@ def constraint_storage_facility(instance: ConcreteModel, store_max: dict, loc_re
     return instance.constraint_storage_facility
 
 
-def constraint_storage_facility_affix(instance: ConcreteModel, affix_storage_cap: dict, loc_res_dict: dict = {},  network_scale_level: int = 0) -> Constraint:
+def constraint_storage_facility_affix(instance: ConcreteModel, affix_storage_cap: dict, loc_res_dict: dict = None,  network_scale_level: int = 0) -> Constraint:
     """Determines where storage facility of certain capacity is inserted at location in network
 
     Args:
@@ -55,6 +59,11 @@ def constraint_storage_facility_affix(instance: ConcreteModel, affix_storage_cap
     Returns:
         Constraint: storage_facility_affix
     """
+
+    if loc_res_dict is None:
+        loc_res_dict = dict()
+
+
     scales = scale_list(instance=instance,
                         scale_levels=network_scale_level + 1)
 
@@ -73,7 +82,7 @@ def constraint_storage_facility_affix(instance: ConcreteModel, affix_storage_cap
     return instance.constraint_storage_facility_affix
 
 
-def constraint_storage_facility_fix(instance: ConcreteModel, store_max: dict, storage_binaries: dict, loc_res_dict: dict = {},  network_scale_level: int = 0) -> Constraint:
+def constraint_storage_facility_fix(instance: ConcreteModel, store_max: dict, storage_binaries: dict, loc_res_dict: dict = None,  network_scale_level: int = 0) -> Constraint:
     """Determines where storage facility of certain capacity is inserted at location in network
 
     Args:
@@ -86,6 +95,10 @@ def constraint_storage_facility_fix(instance: ConcreteModel, store_max: dict, st
     Returns:
         Constraint: storage_facility_fix
     """
+
+    if loc_res_dict is None:
+        loc_res_dict = dict()
+
     scales = scale_list(instance=instance,
                         scale_levels=network_scale_level + 1)
 
@@ -102,7 +115,7 @@ def constraint_storage_facility_fix(instance: ConcreteModel, store_max: dict, st
     return instance.constraint_storage_facility_fix
 
 
-def constraint_min_storage_facility(instance: ConcreteModel, store_min: dict, loc_res_dict: dict = {},  network_scale_level: int = 0) -> Constraint:
+def constraint_min_storage_facility(instance: ConcreteModel, store_min: dict, loc_res_dict: dict = None,  network_scale_level: int = 0) -> Constraint:
     """Determines where storage facility of certain capacity is inserted at location in network
 
     Args:
@@ -115,6 +128,10 @@ def constraint_min_storage_facility(instance: ConcreteModel, store_min: dict, lo
     Returns:
         Constraint: min_storage_facility
     """
+
+    if loc_res_dict is None:
+        loc_res_dict = dict()
+
     scales = scale_list(instance=instance,
                         scale_levels=network_scale_level + 1)
 
@@ -131,7 +148,7 @@ def constraint_min_storage_facility(instance: ConcreteModel, store_min: dict, lo
     return instance.constraint_min_storage_facility
 
 
-def constraint_nameplate_inventory(instance: ConcreteModel, loc_res_dict: dict = {}, network_scale_level: int = 0, scheduling_scale_level: int = 0) -> Constraint:
+def constraint_nameplate_inventory(instance: ConcreteModel, loc_res_dict: dict = None, network_scale_level: int = 0, scheduling_scale_level: int = 0) -> Constraint:
     """Determines storage capacity utilization for resource at location in network and capacity of facilities 
 
     Args:
@@ -143,6 +160,10 @@ def constraint_nameplate_inventory(instance: ConcreteModel, loc_res_dict: dict =
     Returns:
         Constraint: nameplate_inventory
     """
+
+    if loc_res_dict is None:
+        loc_res_dict = dict()
+
     scales = scale_list(instance=instance,
                         scale_levels=instance.scales.__len__())
 
