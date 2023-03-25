@@ -46,11 +46,11 @@ class TemporalScale:
             name (str): the discretization list is the name.
             scale_levels (int): levels of the scale.
         """
-        self.scale = {i: [j for j in range(self.discretization_list[i])] for i in range(
-            len(self.discretization_list))}
-        self.list = [i for i in range(len(self.discretization_list))]
-        self.name = f"{[i for i in range(len(self.list))]}"
+
         self.scale_levels = len(self.discretization_list)
+        self.scale = {i: list(range(self.discretization_list[i])) for i in range(self.scale_levels)}
+        self.list = list(range(len(self.discretization_list)))
+        self.name = str(self.list)
 
     def scale_iter(self, scale_level):
         """Generates a list of tuples as a representation of the scales
@@ -61,7 +61,7 @@ class TemporalScale:
         Returns:
             List[tuple]: list of tuples with representing the scales 
         """
-        return [(i) for i in product(*[self.scale[i] for i in self.scale][:scale_level+1])]
+        return [(i,) for i in product(*[self.scale[i] for i in self.scale][:scale_level+1])]
 
     def __repr__(self):
         return self.name

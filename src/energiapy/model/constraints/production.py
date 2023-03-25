@@ -110,8 +110,8 @@ def constraint_production_facility_fix(instance: ConcreteModel, prod_max: dict, 
                 process] * \
                 production_binaries[(
                     location, process, *scale_list[:network_scale_level + 1])]
-        else:
-            return instance.Cap_P[location, process, scale_list[:network_scale_level + 1]] == 0
+
+        return instance.Cap_P[location, process, scale_list[:network_scale_level + 1]] == 0
 
     instance.constraint_production_facility_fix = Constraint(
         instance.locations, instance.processes, *scales, rule=production_facility_fix_rule,
@@ -140,13 +140,14 @@ def constraint_min_production_facility(instance: ConcreteModel, prod_min: dict, 
     scales = scale_list(instance=instance, scale_levels=network_scale_level + 1)
 
     def min_production_facility_rule(instance, location, process, *scale_list):
-        if process in loc_pro_dict[location]:
-            return instance.Cap_P[location, process, scale_list[:network_scale_level + 1]] >= prod_min[location][
-                process] * \
-                instance.X_P[location, process,
-                scale_list[:network_scale_level + 1]]
-        else:
+
+        if process not in loc_pro_dict[location]:
             return Constraint.Skip
+
+        return instance.Cap_P[location, process, scale_list[:network_scale_level + 1]] >= prod_min[location][
+            process] * \
+            instance.X_P[location, process,
+            scale_list[:network_scale_level + 1]]
 
     instance.constraint_min_production_facility = Constraint(
         instance.locations, instance.processes, *scales, rule=min_production_facility_rule,
@@ -180,17 +181,18 @@ def constraint_nameplate_production(instance: ConcreteModel, capacity_factor: di
                         scale_levels=instance.scales.__len__())
 
     def nameplate_production_rule(instance, location, process, *scale_list):
-        if process in loc_pro_dict[location]:
-            if process in instance.processes_varying:
-                return instance.P[location, process, scale_list[:scheduling_scale_level + 1]] <= \
-                    capacity_factor[location][process][scale_list[:scheduling_scale_level + 1]] * \
-                    instance.Cap_P[location, process,
-                    scale_list[:network_scale_level + 1]]
-            else:
-                return instance.P[location, process, scale_list[:scheduling_scale_level + 1]] <= instance.Cap_P[
-                    location, process, scale_list[:network_scale_level + 1]]
-        else:
+
+        if process not in loc_pro_dict[location]:
             return Constraint.Skip
+
+        if process not in instance.processes_varying:
+            return instance.P[location, process, scale_list[:scheduling_scale_level + 1]] <= instance.Cap_P[
+                location, process, scale_list[:network_scale_level + 1]]
+
+        return instance.P[location, process, scale_list[:scheduling_scale_level + 1]] <= \
+            capacity_factor[location][process][scale_list[:scheduling_scale_level + 1]] * \
+            instance.Cap_P[location, process,
+            scale_list[:network_scale_level + 1]]
 
     instance.constraint_nameplate_production = Constraint(
         instance.locations, instance.processes, *scales, rule=nameplate_production_rule,

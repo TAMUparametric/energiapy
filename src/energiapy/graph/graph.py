@@ -56,7 +56,7 @@ Tuple[dict, dict, dict]:
     rng = np.random.default_rng(random_seed)
 
     # helper function to generate random weights/locations
-    make_locations = lambda: rng.random(len(sink_list)).to_list()
+    make_locations = lambda: rng.random(len(sink_list)).tolist()
 
     # locations sink location
     loc_sink_x = make_locations()
