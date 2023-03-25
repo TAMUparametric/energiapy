@@ -37,7 +37,7 @@ def capacity_factor(scenario: Scenario, process: Process, location: Location, fi
     rc('text', usetex=False)
     fig, ax = plt.subplots(figsize=fig_size)
     y_ = list(scenario.capacity_factor[location.name][process.name].values())
-    x_ = [i for i in range(len(y_))]
+    x_ = list(range(len(y_)))
     ax.plot(x_, y_, linewidth=0.5, color=color)
     ax = axis_formatter(axes=ax, xcord=x_, axis_labels='M')
     plt.title(f'Conversion factor for {process.label} in {location.label}')
