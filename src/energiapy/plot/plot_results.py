@@ -10,16 +10,11 @@ __maintainer__ = "Rahul Kakodkar"
 __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
+from enum import Enum, auto
 from matplotlib import rc
 from numpy import zeros, array
 import matplotlib.pyplot as plt
-from ..utils.plot_utils import axis_formatter
-from ..components.process import Process
-from ..components.resource import Resource
 from ..components.result import Result
-from ..components.location import Location
-from typing import Union
-from enum import Enum, auto
 
 
 class CostX(Enum):

@@ -10,22 +10,16 @@ __maintainer__ = "Rahul Kakodkar"
 __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
+from dataclasses import dataclass
+from typing import Union, Dict
 from pandas import DataFrame
 import numpy
 from ..components.network import Network
 from ..components.location import Location
 from ..components.temporal_scale import TemporalScale
-from ..components.process import Process, ProcessMode, VaryingProcess
+from ..components.process import ProcessMode, VaryingProcess
 from ..components.resource import Resource, VaryingResource 
-from ..model.constraints import *
-from ..utils.math_utils import scaler, find_euclidean_distance, generate_connectivity_matrix
-from sklearn.cluster import AgglomerativeClustering
-from sklearn.preprocessing import StandardScaler
-from sklearn.linear_model import LinearRegression
-from sklearn.cluster import KMeans
-from sklearn.neighbors import NearestCentroid
-from dataclasses import dataclass
-from typing import Union, Dict
+
 
 
 @dataclass
@@ -111,7 +105,7 @@ class Scenario:
         """
          
 
-        if type(self.network) == Location:
+        if isinstance(self.network, Location):
             self.transport_set = None
             self.source_locations = None
             self.sink_locations = None
@@ -248,12 +242,12 @@ class Scenario:
             tuple: A, b, c, H, CRa, CRb, F
         """
         demand = self.demand
-        if type(demand) is dict:
-            if type(list(demand.keys())[0]) is Location:
+        if isinstance(demand, dict):
+            if isinstance(list(demand.keys())[0], Location):
                 self.demand = {i.name: {j.name: demand[i][j] for j in demand[i].keys()} for i in demand.keys()}
         print(demand)
         if len(self.location_set) > 1:
-            "can only do this for a single location scenario"
+            print("can only do this for a single location scenario")
         else:
             location = list(self.location_set)[0].name
             

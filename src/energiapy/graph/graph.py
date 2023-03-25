@@ -3,18 +3,14 @@ __author__ = "Rahul Kakodkar, Natasha Chrisandina"
 __copyright__ = "Copyright 2022, Multi-parametric Optimization & Control Lab"
 __credits__ = ["Rahul Kakodkar", "Natasha Chrisandina",
                "Efstratios N. Pistikopoulos", "Mahmoud El-Halwagi", "Sergiy Butenko"]
-__license__ = "Open"
-__version__ = "1.0.0"
+__license__ = "MIT"
+__version__ = "1.0.5"
 __maintainer__ = "Rahul Kakodkar"
 __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
 
-import pandas
-import numpy 
 import random
-from matplotlib.ticker import (MultipleLocator, FormatStrFormatter, AutoMinorLocator)
-from matplotlib.colors import ListedColormap
 from typing import Tuple
 import math
 
@@ -56,10 +52,10 @@ def make_graph(n_sources: int, n_sinks: int, n_facilities: int, method: str = 'e
     facility_list = list(range(n_facilities))
 
     # electricity, gas, water
-    criteria_utility_index = [i for i in source_list]
-    critera_transport_index = [i for i in source_list]  # car, train
+    # criteria_utility_index = [i for i in source_list]
+    # critera_transport_index = [i for i in source_list]  # car, train
 
-    sink_cost = [random.random() for i in sink_list]
+    # sink_cost = [random.random() for i in sink_list]
 
     # locations sink location
     loc_sink_x = [random.random() for i in sink_list]
