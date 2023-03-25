@@ -12,7 +12,6 @@ __status__ = "Production"
 
 from pyomo.environ import ConcreteModel, Objective, maximize
 from ..utils.latex_utils import constraint_latex_render
-from ..utils.scale_utils import scale_list
 from ..utils.scale_utils import scale_tuple
 from itertools import product
 
