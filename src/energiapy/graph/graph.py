@@ -35,7 +35,7 @@ def distance(u_x: float, u_y: float, v_x: float, v_y: float, method: str = 'eucl
 
 
 def make_graph(n_sources: int, n_sinks: int, n_facilities: int, method: str = 'euclidean', random_seed: int = 12345) -> \
-Tuple[dict, dict, dict, dict, dict]:
+        Tuple[dict, dict, dict, dict, dict]:
     """Creates a graph based on number of sources and sink location
     Location co-ordinates are assigned at random
     distance method needs to be specified: euclidean, rectilinear, chebyshev
