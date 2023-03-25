@@ -51,14 +51,14 @@ class Costdynamics(Enum):
 #     return instance.constraint_transport_exp_cost
 
 
-def constraint_transport_imp_cost(instance: ConcreteModel, scheduling_scale_level: int = 0, trans_cost: dict = {}, distance_dict: dict = {}) -> Constraint:
+def constraint_transport_imp_cost(instance: ConcreteModel, scheduling_scale_level: int = 0, trans_cost: dict = None, distance_dict: dict = None) -> Constraint:
     """Calculates the expenditure on importing resource throught transport
 
     Args:
         instance (ConcreteModel): pyomo instance
         scheduling_scale_level (int, optional): scheduling scale level. Defaults to 0.
-        trans_cost (dict, optional): dictionary with transport costs. Defaults to {}.
-        distance_dict (dict, optional): dictionary with distances. Defaults to {}.
+        trans_cost (dict, optional): dictionary with transport costs. Defaults to None.
+        distance_dict (dict, optional): dictionary with distances. Defaults to Non.
 
     Returns:
         Constraint: transport_imp_cost
@@ -67,8 +67,14 @@ def constraint_transport_imp_cost(instance: ConcreteModel, scheduling_scale_leve
                         scale_levels=scheduling_scale_level+1)
 
     def transport_imp_cost_rule(instance, sink, source, resource, transport, *scale_list):
-        return instance.Trans_imp_cost[sink, source, resource, transport, scale_list[:scheduling_scale_level+1]] == trans_cost[transport]*distance_dict[(source, sink)]*instance.Trans_imp[sink, source, resource, transport, scale_list[:scheduling_scale_level+1]]
-    instance.constraint_transport_imp_cost = Constraint(instance.sinks, instance.sources, instance.resources_trans,
+        if trans_cost is None:
+            return Constraint.Skip
+        elif distance_dict is None:
+            return Constraint.Skip
+        else:
+            return instance.Trans_imp_cost[sink, source, resource, transport, scale_list[:scheduling_scale_level+1]] == trans_cost[transport]*distance_dict[(source, sink)]*instance.Trans_imp[sink, source, resource, transport, scale_list[:scheduling_scale_level+1]] 
+        
+        instance.constraint_transport_imp_cost = Constraint(instance.sinks, instance.sources, instance.resources_trans,
                                                         instance.transports, *scales, rule=transport_imp_cost_rule, doc='import of resource from sink to source')
     constraint_latex_render(transport_imp_cost_rule)
     return instance.constraint_transport_imp_cost
