@@ -178,7 +178,7 @@ class Scenario:
 
         self.multiconversion = multiconversion_dict
 
-        self.mode_dict = {i.name: [j for j in list(self.multiconversion[i.name].keys())] for i in self.process_set}
+        self.mode_dict = {i.name: list(self.multiconversion[i.name].keys()) for i in self.process_set}
 
         self.set_dict = {
             'resources': [i.name for i in self.resource_set],

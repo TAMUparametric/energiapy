@@ -5,7 +5,7 @@ scales = Temporal_scale(discretization_list=list(range(4)))
 
 def test_temporal_scale_list(scales):
     list_ = scales.list
-    assert list_ == [i for i in range(4)]
+    assert list_ == list(range(4))
 
 
 def test_temporal_scale_scale(scales):
