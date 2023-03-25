@@ -48,7 +48,7 @@ Model components are declared as energiapy objects. The suggested hierarchy is a
 
 ![alt text](https://github.com/TAMUparametric/energiapy/blob/main/docs/hierarchy.png?raw=true)
 
-1. **Temporal_scale:** The multiple temporal scales being considered
+1. **TemporalScale:** The multiple temporal scales being considered
 2. **Resource:** Resources can be in any quantifiable form such mass, energy, information
 3. **Material:** Infrastructural materials are required for establishing tasks, and require resources if produced 
 4. **Process:** Tasks/processes are set up by utilizing materials, and convert resources from on form to the other.
