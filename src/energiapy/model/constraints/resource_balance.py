@@ -221,7 +221,7 @@ def constraint_demand(instance: ConcreteModel, demand: Union[dict, float], deman
             discharge = sum(instance.S[location, resource, scale_] for scale_ in scale_iter if scale_[
                             :scheduling_scale_level+1] == scale_list)
 
-            if type(demand) is dict:
+            if isinstance(demand, dict):
                 demandtarget = demand[location][resource]
 
             else:

@@ -4,7 +4,6 @@
 [![PyPI](https://img.shields.io/pypi/v/energiapy.svg)](https://pypi.org/project/energiapy)
 [![Downloads](https://static.pepy.tech/personalized-badge/energiapy?period=total&units=international_system&left_color=grey&right_color=orange&left_text=Downloads)](https://pepy.tech/project/energiapy)
 
-
 energiapy is a tool for the multiscale modeling and optimization of energy systems. energiapy uses a resource task network (RTN) based approach to formulate mathematical programs as pyomo instances. Models can be solved using solvers, and the results can be analyzed within the energiapy framework. 
 Constituent functionalities have been built over the research conducted by the [Multiparameteric Optimization and Control (Pistikopoulos) Group](https://parametric.tamu.edu/).
 
@@ -95,6 +94,5 @@ Other (and optional) features include:
 2. generating dataframes with missing data fixed (weekends, public holidays) for time-series data such as resource price
 3. function to fetch weather data at an appropriate resolution from [NREL NSRDB](https://nsrdb.nrel.gov/) for any county in the US
 4. latex constraints writer for model documentation
-
 
 
