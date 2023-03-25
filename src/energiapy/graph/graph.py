@@ -13,7 +13,7 @@ from typing import Tuple
 import math
 
 
-def distance(u_x: float, u_y: float, v_x: float, v_y: float, method: str = 'euclidean'):
+def distance(u_x: float, u_y: float, v_x: float, v_y: float, method: str = 'euclidean') -> float:
     """Finds the distance: rectilinear/chebyshev/euclidean
     Args:
         u_x (float): x-coordinate of node a
@@ -27,7 +27,7 @@ def distance(u_x: float, u_y: float, v_x: float, v_y: float, method: str = 'eucl
     if method == 'rectilinear':
         return abs(u_x - v_x) + abs(u_y - v_y)
     elif method == 'chebyshev':
-        return max(abs(u_x - v_x) + abs(u_y - v_y))
+        return max(abs(u_x - v_x), abs(u_y - v_y))
     elif method == 'euclidean':
         return math.sqrt((u_x - v_x) ** 2 + (u_y - v_y) ** 2)
     else:
@@ -35,7 +35,7 @@ def distance(u_x: float, u_y: float, v_x: float, v_y: float, method: str = 'eucl
 
 
 def make_graph(n_sources: int, n_sinks: int, n_facilities: int, method: str = 'euclidean', random_seed: int = 12345) -> \
-Tuple[dict, dict, dict]:
+Tuple[dict, dict, dict, dict, dict]:
     """Creates a graph based on number of sources and sink location
     Location co-ordinates are assigned at random
     distance method needs to be specified: euclidean, rectilinear, chebyshev
