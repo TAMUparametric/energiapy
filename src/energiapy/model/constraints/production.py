@@ -15,7 +15,7 @@ from ...utils.latex_utils import constraint_latex_render
 from ...utils.scale_utils import scale_list
 
 
-def constraint_production_facility(instance: ConcreteModel, prod_max: dict, loc_pro_dict: dict = {}, network_scale_level: int = 0) -> Constraint:
+def constraint_production_facility(instance: ConcreteModel, prod_max: dict, loc_pro_dict: dict = None, network_scale_level: int = 0) -> Constraint:
     """Determines where production facility of certain capacity is inserted at location in network
 
     Args:
@@ -30,12 +30,16 @@ def constraint_production_facility(instance: ConcreteModel, prod_max: dict, loc_
     scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
 
     def production_facility_rule(instance, location, process, *scale_list):
-        if process in loc_pro_dict[location]:
-            return instance.Cap_P[location, process, scale_list[:network_scale_level+1]] <= prod_max[location][process][list(prod_max[location][process].keys())[-1:][0]] *\
-                instance.X_P[location, process,
-                             scale_list[:network_scale_level+1]]
+        if loc_pro_dict is not None:
+            if process in loc_pro_dict[location]:
+                return instance.Cap_P[location, process, scale_list[:network_scale_level+1]] <= prod_max[location][process][list(prod_max[location][process].keys())[-1:][0]] *\
+                    instance.X_P[location, process,
+                                scale_list[:network_scale_level+1]]
+            else:
+                return instance.Cap_P[location, process, scale_list[:network_scale_level+1]] == 0
         else:
-            return instance.Cap_P[location, process, scale_list[:network_scale_level+1]] == 0
+            return Constraint.Skip
+        
     instance.constraint_production_facility = Constraint(
         instance.locations, instance.processes, *scales, rule=production_facility_rule, doc='production facility sizing and location')
     constraint_latex_render(production_facility_rule)

@@ -1,12 +1,19 @@
+"""
+energiapy setup file
+"""
+
 from setuptools import setup, find_packages
-import os
-__version__ = "1.0.4"
+
+__version__ = "1.0.5"
 
 short_desc = (
     "Python-based energy systems modeling and optimization tool"
 )
 
 def setup_package():
+    """
+    sets up energiapy
+    """
     with open('README.md', encoding='utf-8') as f:
             long_description = f.read()
         
