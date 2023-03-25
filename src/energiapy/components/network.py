@@ -10,7 +10,6 @@ __maintainer__ = "Rahul Kakodkar"
 __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
-
 from dataclasses import dataclass, field
 from itertools import product
 from typing import List
@@ -61,7 +60,6 @@ class Network:
         self.transport_avail_dict = self.make_transport_avail_dict()
         self.locations = list(
             set(self.source_locations).union(set(self.sink_locations)))
-        
 
     def make_distance_dict(self) -> dict:
         """returns a dictionary of distances from sources to sinks
@@ -70,7 +68,8 @@ class Network:
             dict: a dictionary of distances from sources to sinks
         """
         distance_dict = {(self.source_locations[i].name, self.sink_locations[j].name):
-                         self.distance_matrix[i][j] for i, j in product(range(len(self.source_locations)), range(len(self.sink_locations)))}
+                             self.distance_matrix[i][j] for i, j in
+                         product(range(len(self.source_locations)), range(len(self.sink_locations)))}
         return distance_dict
 
     def make_transport_dict(self) -> dict:
@@ -80,7 +79,8 @@ class Network:
             dict: a dictionary of trasportation modes available between sources to sinks
         """
         transport_dict = {(self.source_locations[i].name, self.sink_locations[j].name):
-                          set(self.transport_matrix[i][j]) for i, j in product(range(len(self.source_locations)), range(len(self.sink_locations)))}
+                              set(self.transport_matrix[i][j]) for i, j in
+                          product(range(len(self.source_locations)), range(len(self.sink_locations)))}
         return transport_dict
 
     def make_transport_avail_dict(self) -> dict:

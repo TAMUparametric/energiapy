@@ -21,7 +21,6 @@ __status__ = "Production"
 # from enum import Enum, auto
 
 
-
 # def constraint_block_integer_cut(instance: ConcreteModel, network_scale_level: int, location: Location, block: 'str', number:int = 1) -> Constraint:
 #     """Ensures atleast n components in block are set
 

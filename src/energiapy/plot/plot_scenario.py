@@ -42,7 +42,7 @@ def capacity_factor(scenario: Scenario, process: Process, location: Location, fi
     ax = axis_formatter(axes=ax, xcord=x_, axis_labels='M')
     plt.title(f'Conversion factor for {process.label} in {location.label}')
     plt.ylabel("Normalized capacity factor")
-    plt.xlabel(f"Scheduling Horizon")
+    plt.xlabel("Scheduling Horizon")
     plt.grid(alpha=0.3)
     plt.rcdefaults()
     return
@@ -69,8 +69,8 @@ def cost_factor(scenario: Scenario, resource: Resource, location: Location, fig_
     ax.plot(x_, y_, linewidth=0.5, color=color)
     ax = axis_formatter(axes=ax, xcord=x_, axis_labels='M')
     plt.title(f'Cost factor for {resource.label} in {location.label}')
-    plt.ylabel(f"Normalized cost factor")
-    plt.xlabel(f"Scheduling Horizon")
+    plt.ylabel("Normalized cost factor")
+    plt.xlabel("Scheduling Horizon")
     plt.grid(alpha=0.3)
     plt.rcdefaults()
     return
@@ -98,8 +98,8 @@ def demand_factor(scenario: Scenario, resource: Resource, location: Location,
     ax.plot(x_, y_, linewidth=0.5, color=color)
     ax = axis_formatter(axes=ax, xcord=x_, axis_labels='M')
     plt.title(f'Demand factor for {resource.label} in {location.label}')
-    plt.ylabel(f"Normalized demand factor")
-    plt.xlabel(f"Scheduling Horizon")
+    plt.ylabel("Normalized demand factor")
+    plt.xlabel("Scheduling Horizon")
     plt.grid(alpha=0.3)
     plt.rcdefaults()
     return
