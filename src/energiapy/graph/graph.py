@@ -56,19 +56,19 @@ def make_graph(n_sources: int, n_sinks: int, n_facilities: int, method: str = 'e
     rng = np.random.default_rng(random_seed)
 
     # helper function to generate random weights/locations
-    make_locations = lambda: rng.random(len(sink_list)).tolist()
+    make_locations = lambda x: rng.random(len(x)).tolist()
 
     # locations sink location
-    loc_sink_x = make_locations()
-    loc_sink_y = make_locations()
+    loc_sink_x = make_locations(sink_list)
+    loc_sink_y = make_locations(sink_list)
 
     # locations source location
-    loc_source_x = make_locations()
-    loc_source_y = make_locations()
+    loc_source_x = make_locations(source_list)
+    loc_source_y = make_locations(source_list)
 
     # locations facility location
-    loc_facility_x = make_locations()
-    loc_facility_y = make_locations()
+    loc_facility_x = make_locations(facility_list)
+    loc_facility_y = make_locations(facility_list)
 
     # sets up the distance dictionary between all nodes
     distance_feed_dict = {i: {j: distance(
