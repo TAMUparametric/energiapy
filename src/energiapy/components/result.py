@@ -125,7 +125,7 @@ class Result:
         Returns:
             list: list of tuple indices
         """
-        return [i for i in self.output[var].keys()]
+        return list(self.output[var].keys())
 
     def model_summary(self):
         """Prints a summary of the model with number of variables of different types and constraints. 

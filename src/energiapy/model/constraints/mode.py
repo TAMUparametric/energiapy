@@ -28,17 +28,22 @@ def constraint_production_mode(instance: ConcreteModel, mode_dict: dict, schedul
     """
 
     scales = scale_list(instance=instance,
-                        scale_levels=scheduling_scale_level+1)
+                        scale_levels=scheduling_scale_level + 1)
 
     def production_mode_rule(instance, location, process, *scale_list):
-        return instance.P[location, process, scale_list[:scheduling_scale_level+1]] == sum(instance.P_m[location, process, mode, scale_list[:scheduling_scale_level+1]] for mode in mode_dict[process])
+        return instance.P[location, process, scale_list[:scheduling_scale_level + 1]] == sum(
+            instance.P_m[location, process, mode, scale_list[:scheduling_scale_level + 1]] for mode in
+            mode_dict[process])
+
     instance.constraint_production_mode = Constraint(
-        instance.locations, instance.processes, *scales, rule=production_mode_rule, doc='production mode sum constraint')
+        instance.locations, instance.processes, *scales, rule=production_mode_rule,
+        doc='production mode sum constraint')
     constraint_latex_render(production_mode_rule)
     return instance.constraint_production_mode
 
 
-def constraint_production_mode_facility(instance: ConcreteModel, prod_max: dict, loc_pro_dict: dict = None, scheduling_scale_level: int = 0) -> Constraint:
+def constraint_production_mode_facility(instance: ConcreteModel, prod_max: dict, loc_pro_dict: dict = None,
+                                        scheduling_scale_level: int = 0) -> Constraint:
     """Determines where production facility of certain capacity is mode for process at location in schedule
 
     Args:
@@ -55,25 +60,29 @@ def constraint_production_mode_facility(instance: ConcreteModel, prod_max: dict,
         loc_pro_dict = dict()
 
     scales = scale_list(instance=instance,
-                        scale_levels=scheduling_scale_level+1)
+                        scale_levels=scheduling_scale_level + 1)
 
     def production_mode_facility_rule(instance, location, process, mode, *scale_list):
         if process in loc_pro_dict[location]:
             if mode <= list(prod_max[location][process].keys())[-1:][0]:
-                return instance.Cap_P_m[location, process, mode, scale_list[:scheduling_scale_level+1]] <= prod_max[location][process][mode] *\
+                return instance.Cap_P_m[location, process, mode, scale_list[:scheduling_scale_level + 1]] <= \
+                    prod_max[location][process][mode] * \
                     instance.X_P_m[location, process, mode,
-                                   scale_list[:scheduling_scale_level+1]]
-            else:
-                return Constraint.Skip
-        else:
-            return instance.Cap_P_m[location, process, mode, scale_list[:scheduling_scale_level+1]] == 0
+                    scale_list[:scheduling_scale_level + 1]]
+
+            return Constraint.Skip
+
+        return instance.Cap_P_m[location, process, mode, scale_list[:scheduling_scale_level + 1]] == 0
+
     instance.constraint_production_mode_facility = Constraint(
-        instance.locations, instance.processes, instance.modes, *scales, rule=production_mode_facility_rule, doc='production facility sizing and location')
+        instance.locations, instance.processes, instance.modes, *scales, rule=production_mode_facility_rule,
+        doc='production facility sizing and location')
     constraint_latex_render(production_mode_facility_rule)
     return instance.constraint_production_mode_facility
 
 
-def constraint_production_mode_binary(instance: ConcreteModel, mode_dict: dict, scheduling_scale_level: int = 0, network_scale_level: int = 0) -> Constraint:
+def constraint_production_mode_binary(instance: ConcreteModel, mode_dict: dict, scheduling_scale_level: int = 0,
+                                      network_scale_level: int = 0) -> Constraint:
     """The sum of production through all modes equals production at scheduling scale
 
     Args:
@@ -87,11 +96,15 @@ def constraint_production_mode_binary(instance: ConcreteModel, mode_dict: dict, 
     """
 
     scales = scale_list(instance=instance,
-                        scale_levels=scheduling_scale_level+1)
+                        scale_levels=scheduling_scale_level + 1)
 
     def production_mode_binary_rule(instance, location, process, *scale_list):
-        return instance.X_P[location, process, scale_list[:network_scale_level+1]] == sum(instance.X_P_m[location, process, mode, scale_list[:scheduling_scale_level+1]] for mode in mode_dict[process])
+        return instance.X_P[location, process, scale_list[:network_scale_level + 1]] == sum(
+            instance.X_P_m[location, process, mode, scale_list[:scheduling_scale_level + 1]] for mode in
+            mode_dict[process])
+
     instance.constraint_production_mode_binary = Constraint(
-        instance.locations, instance.processes, *scales, rule=production_mode_binary_rule, doc='production mode binary sum constraint')
+        instance.locations, instance.processes, *scales, rule=production_mode_binary_rule,
+        doc='production mode binary sum constraint')
     constraint_latex_render(production_mode_binary_rule)
     return instance.constraint_production_mode_binary

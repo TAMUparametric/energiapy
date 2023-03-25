@@ -1,6 +1,6 @@
 from src.energiapy.components.temporal_scale import Temporal_scale
 
-scales = Temporal_scale(discretization_list=[i for i in range(4)])
+scales = Temporal_scale(discretization_list=list(range(4)))
 
 
 def test_temporal_scale_list(scales):
