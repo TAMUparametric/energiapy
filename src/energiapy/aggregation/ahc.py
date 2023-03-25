@@ -141,7 +141,7 @@ def agg_hierarchial(scales: TemporalScale, scale_level: int, periods: int, inclu
         nearest_centroid_array = NearestCentroid().fit(
             scaled_array, clustered_array).centroids_  # get the centroids of the clusters
         nearest_centroid_df = pandas.DataFrame(
-            data=nearest_centroid_array, columns=[col for col in scaled_df])
+            data=nearest_centroid_array, columns=list(scaled_df))
         # add cluster numbers to the dataset
         scaled_df['cluster_no'] = cluster_labels
         nearest_centroid_df['cluster_no'] = scaled_df['cluster_no'].unique()
@@ -168,7 +168,7 @@ def agg_hierarchial(scales: TemporalScale, scale_level: int, periods: int, inclu
         scaled_df['ED'] = euclidean_distance_list
         closest_to_centroid_df['period'] = (
             scaled_df['cluster_no'].value_counts().index.values)
-        cluster_wts = [i for i in scaled_df['cluster_no'].value_counts()]
+        cluster_wts = list(scaled_df['cluster_no'].value_counts())
         closest_to_centroid_df['cluster_wt'] = cluster_wts
 
         list_ = []

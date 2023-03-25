@@ -24,7 +24,7 @@ def scale_pyomo_set(instance: ConcreteModel, scale_level: int = 0):
         scale_level (int, optional): appropriate scale. Defaults to 0.
     """
     list_ = [instance.scales[i].data() for i in range(scale_level + 1)]
-    return Set(initialize=[i for i in product(*list_)])
+    return Set(initialize=list(product(*list_)))
 
 
 def scale_list(instance: ConcreteModel, scale_levels: int = 0):
@@ -45,7 +45,7 @@ def scale_tuple(instance: ConcreteModel, scale_levels: int = 0):
         scale_level (int, optional): appropriate scale. Defaults to 0.
     """
     data = [instance.scales[i].data() for i in range(scale_levels)]
-    list_ = [i for i in product(*data)]
+    list_ = list(product(*data))
     return list_
 
 

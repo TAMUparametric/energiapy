@@ -125,7 +125,7 @@ def make_f_purchase(location_list: list, day_list: list, hour_list: list, resour
     f_purchase_dict_ = {location.name: {resource.name: {day: {hour: {} for hour in hour_list}
                                                         for day in day_list} for resource in resource_list} for location in location_list}
     for location, resource, day, hour in product(location_list, resource_list, day_list, hour_list):
-        if resource.name in [col for col in varying_resource_df]:
+        if resource.name in varying_resource_df:
             f_purchase_dict_[location.name][resource.name][day][hour] = varying_resource_df[varying_resource_df['day']
                                                                                             == day][resource.name].values[0]  # use day of the year (doy)
         else:
@@ -165,7 +165,7 @@ def make_henry_price_df(file_name: str, year: int, stretch: bool = False,) -> pa
     df['doy'] = df['date'].dt.dayofyear
     df = df.sort_values(by=['doy'])
     df = df.drop(columns='date').dropna(axis='rows')
-    doy_list = [i for i in df['doy']]
+    doy_list = list(df['doy'])
 
     # fixes values for weekends and holidays to last active day
     for i in numpy.arange(1, 366):
