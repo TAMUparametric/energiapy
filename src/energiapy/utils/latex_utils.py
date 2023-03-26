@@ -29,6 +29,8 @@ def constraint_latex_render(constraint_rule, latex_alias_dict: dict = None) -> s
         latex_alias_dict = dict()
 
     general_dict = {
+        'product': '\prod',
+        'sum': '\sum',
         '**': '^',
         '*': '.',
         '==': '=',
@@ -76,7 +78,7 @@ def constraint_latex_render(constraint_rule, latex_alias_dict: dict = None) -> s
         'source': 'l^{source}',
         'sink': 'l^{sink}',
         'transport_': 't',
-        'transport': 't'
+        'transport': 't',
     }
 
     unsorted_dict_ = {**latex_alias_dict, **general_dict}
@@ -92,13 +94,13 @@ def constraint_latex_render(constraint_rule, latex_alias_dict: dict = None) -> s
         str_ = str_.replace(key, dict_[key])
 
     # str_ = '\begin{equation}'
-    # display(str_)
+
     print_ = str(constraint_rule)
     print_ = print_.split('<function ')[1]
     try:
         print_ = print_.split('.<locals>')[0]
-    except Exception:
-        print_ = print_.split(' at')[0]
+    except:
+        print_ = print_.split('at')[0]
     finally:
         print_ = print_
     print_ = print_.replace('_', ' ')
