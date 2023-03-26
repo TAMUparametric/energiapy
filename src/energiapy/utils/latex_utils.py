@@ -14,7 +14,7 @@ __status__ = "Production"
 import inspect
 
 
-def constraint_latex_render(constraint_rule, latex_alias_dict: dict = {}) -> str:
+def constraint_latex_render(constraint_rule, latex_alias_dict: dict = None) -> str:
     """renders a string for equation in latex format
 
     Args:
@@ -24,6 +24,10 @@ def constraint_latex_render(constraint_rule, latex_alias_dict: dict = {}) -> str
     Returns:
         str: string in latex format
     """
+
+    if latex_alias_dict is None:
+        latex_alias_dict = dict()
+
     general_dict = {
         '**': '^',
         '*': '.',
@@ -77,7 +81,7 @@ def constraint_latex_render(constraint_rule, latex_alias_dict: dict = {}) -> str
 
     unsorted_dict_ = {**latex_alias_dict, **general_dict}
 
-    list_ = [i for i in unsorted_dict_.keys()]
+    list_ = list(unsorted_dict_.keys())
     list_.sort(key=len)
     list_.reverse()
 
@@ -93,7 +97,7 @@ def constraint_latex_render(constraint_rule, latex_alias_dict: dict = {}) -> str
     print_ = print_.split('<function ')[1]
     try:
         print_ = print_.split('.<locals>')[0]
-    except:
+    except Exception:
         print_ = print_.split(' at')[0]
     finally:
         print_ = print_

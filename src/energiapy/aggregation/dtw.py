@@ -10,7 +10,6 @@ __maintainer__ = "Rahul Kakodkar"
 __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
-
 from itertools import product
 from typing import Union
 from enum import Enum, auto
@@ -49,12 +48,12 @@ def dynamic_warping_matrix(series1: list, series2: list):
         matrix: cost matrix for dtw
     """
     matrix = numpy.zeros((len(series1) + 1, len(series2) + 1))
-    for i, j in product(range(1, len(series1)+1), range(1, len(series2) + 1)):
+    for i, j in product(range(1, len(series1) + 1), range(1, len(series2) + 1)):
         matrix[i, j] = numpy.inf
     matrix[0, 0] = 0
-    for i, j in product(range(1, len(series1)+1), range(1, len(series2) + 1)):
-        cost = abs(series1[i-1] - series2[j-1])
-        prev = numpy.min([matrix[i-1, j], matrix[i, j-1], matrix[i-1, j-1]])
+    for i, j in product(range(1, len(series1) + 1), range(1, len(series2) + 1)):
+        cost = abs(series1[i - 1] - series2[j - 1])
+        prev = numpy.min([matrix[i - 1, j], matrix[i, j - 1], matrix[i - 1, j - 1]])
         matrix[i, j] = cost + prev
     return matrix
 
@@ -73,7 +72,7 @@ def dynamic_warping_path(matrix: numpy.ndarray) -> list:
     path.append([i, j])
     while i > 0 and j > 0:
         index_min = numpy.argmin(
-            [matrix[i-1, j], matrix[i, j-1], matrix[i-1, j-1]])
+            [matrix[i - 1, j], matrix[i, j - 1], matrix[i - 1, j - 1]])
         if index_min == 0:
             i = i - 1
         if index_min == 1:
@@ -86,7 +85,8 @@ def dynamic_warping_path(matrix: numpy.ndarray) -> list:
     return path
 
 
-def dynamic_warping(source_scenario: Scenario, target_scenario: Scenario, scale_level: int, include: list, aspect: Union[Resource, Process], reference_dict: dict = None):
+def dynamic_warping(source_scenario: Scenario, target_scenario: Scenario, scale_level: int, include: list,
+                    aspect: Union[Resource, Process], reference_dict: dict = None):
     """Dynamic time warping for scenario reconciliation
 
     Args:
@@ -100,7 +100,7 @@ def dynamic_warping(source_scenario: Scenario, target_scenario: Scenario, scale_
     Returns:
         _type_: _description_
     """
-    
+
     source_location = list(source_scenario.location_set)[0]
     target_location = list(target_scenario.location_set)[0]
 
@@ -165,7 +165,7 @@ def dynamic_warping(source_scenario: Scenario, target_scenario: Scenario, scale_
     reduced_scenario_scaleiter = [(i) for i in product(
         *[reduced_temporal_scale.scale[i] for i in reduced_temporal_scale.scale])]
 
-    counts = {j:  y_.count(i) for i, j in zip(i_list, j_list)}
+    counts = {j: y_.count(i) for i, j in zip(i_list, j_list)}
 
     rep_dict = {j: {'rep_period': reference_dict[j]['rep_period'],
                     'cluster_wt': counts[j[:scale_level]]} for j in reduced_scenario_scaleiter}

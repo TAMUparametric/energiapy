@@ -10,13 +10,14 @@ short_desc = (
     "Python-based energy systems modeling and optimization tool"
 )
 
+
 def setup_package():
     """
     sets up energiapy
     """
     with open('README.md', encoding='utf-8') as f:
-            long_description = f.read()
-        
+        long_description = f.read()
+
     setup(
         name='energiapy',
         version=__version__,
@@ -45,6 +46,7 @@ def setup_package():
         packages=find_packages(where='src'),
         package_dir={'': 'src'},
     )
-    
+
+
 if __name__ == '__main__':
     setup_package()

@@ -77,8 +77,8 @@ def schedule(results: Result, y_axis: str, component: str, location: str, fig_si
     title = f"Schedule for {results.components[component_type][component]['label']} in {results.components['locations'][location]['label']}"
     plt.title(title)
     plt.ylabel(results.components[component_type][component]['basis'])
-    plt.xlabel(f"Scheduling Horizon")
-    x_ = [i for i in range(len(y_))]
+    plt.xlabel("Scheduling Horizon")
+    x_ = list(range(len(y_)))
     ax.plot(x_, y_, linewidth=0.5, color=color)
     plt.grid(alpha=0.3)
     plt.rcdefaults()
@@ -144,7 +144,7 @@ def capacity_utilization(results: Result, location: str, process: str = None, fi
                   if location in i if process in i]
 
             title = f"Capacity utilization in {results.components['locations'][location]['label']}"
-            plt.ylabel(f"\%")
+            plt.ylabel("\%")
             # results.components['processes'][i[1]]['label']
             # x_ = [f"${i[1].split('_')[0]}_{{{i[1].split('_')[1]}}}$" for i in results.output[y_axis].keys() if location in i]
 
@@ -163,13 +163,14 @@ def capacity_utilization(results: Result, location: str, process: str = None, fi
               ['prod_max'] for i in results.output['Cap_P'].keys() if location in i]
 
         title = f"Capacity utilization in {results.components['locations'][location]['label']}"
-        plt.ylabel(f"\%")
+        plt.ylabel("\%")
         # results.components['processes'][i[1]]['label']
         # x_ = [f"${i[1].split('_')[0]}_{{{i[1].split('_')[1]}}}$" for i in results.output[y_axis].keys() if location in i]
         x_ = [i[1] for i in results.output['Cap_P'].keys() if location in i]
         ax.bar(x_, y_, linewidth=0.5, color=color)
         plt.xticks(rotation=90)
         plt.grid(alpha=0.3)
+        plt.title(title)
         plt.rcdefaults()
     return
 
@@ -203,8 +204,8 @@ def transport(results: Result, source: str, sink: str, resource: str, transport:
     y_ = [results.output['Trans_exp'][i] for i in results.output['Trans_exp'].keys(
     ) if list(i)[:4] == [source, sink, resource, transport]]
     plt.plot(y_)
-    plt.ylabel(f"Amount in unit basis")
-    plt.xlabel(f"Scheduling scale")
+    plt.ylabel("Amount in unit basis")
+    plt.xlabel("Scheduling scale")
     plt.title(
         f"Schedule for {resource} transported on {transport} from {source} to {sink}")
     plt.xticks(rotation=90)
@@ -261,8 +262,8 @@ def cost(results: Result, x: CostX, y: CostY, location: str = None, fig_size: tu
         ax.bar(x_, y_, width=bar_width, zorder=3)
         y_plot = ''.join(str(y).split('CostY.')[1])
         plt.title(f'Process-wise {y_plot} cost at {location}')
-        plt.ylabel(f'Unit Currency')
-        plt.xlabel(f'Processes')
+        plt.ylabel('Unit Currency')
+        plt.xlabel('Processes')
         plt.yscale('log')
         plt.grid(alpha=0.3, zorder=0)
         plt.rcdefaults()
@@ -292,8 +293,8 @@ def cost(results: Result, x: CostX, y: CostY, location: str = None, fig_size: tu
             bottom += weight_count
         y_plot = ''.join(str(y).split('CostY.')[1])
         plt.title(f'Location-wise {y_plot}')
-        plt.ylabel(f'Unit Currency')
-        plt.xlabel(f'Locations')
+        plt.ylabel('Unit Currency')
+        plt.xlabel('Locations')
         plt.yscale('log')
         plt.legend()
         plt.grid(alpha=0.3, zorder=0)
