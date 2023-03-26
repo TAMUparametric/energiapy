@@ -16,11 +16,12 @@ from ...utils.latex_utils import constraint_latex_render
 from ...utils.scale_utils import scale_list
 
 
-def constraint_nameplate_production_failure(instance: ConcreteModel, fail_factor: dict = {}, network_scale_level: int = 0, scheduling_scale_level: int = 0) -> Constraint:
+def constraint_nameplate_production_failure(instance: ConcreteModel, fail_factor: dict = None, network_scale_level: int = 0, scheduling_scale_level: int = 0) -> Constraint:
     """Determines production capacity utilization of facilities at location in network and capacity of facilities 
 
     Args:
         instance (ConcreteModel): pyomo instance
+        fail_factor (dict, optional): uncertain capacity availability training data. Defaults to {}.
         capacity_factor (dict, optional): uncertain capacity availability training data. Defaults to {}.
         network_scale_level (int, optional): scale of network decisions. Defaults to 0.
         scheduling_scale_level (int, optional): scale of scheduling decisions. Defaults to 0.
@@ -28,6 +29,10 @@ def constraint_nameplate_production_failure(instance: ConcreteModel, fail_factor
     Returns:
         Constraint: nameplate_production_failure
     """
+
+    if fail_factor is None:
+        fail_factor = dict()
+
     scales = scale_list(instance=instance,
                         scale_levels=instance.scales.__len__())
 

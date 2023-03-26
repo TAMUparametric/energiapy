@@ -15,7 +15,7 @@ from pyomo.environ import ConcreteModel, Var, NonNegativeReals
 from ...utils.scale_utils import scale_pyomo_set
 
 
-def generate_scheduling_vars(instance: ConcreteModel, scale_level: int = 0, mode_dict: dict = {}):
+def generate_scheduling_vars(instance: ConcreteModel, scale_level: int = 0, mode_dict: dict = None):
     """declares pyomo variables for scheduling at the chosen scales
 
 
@@ -23,6 +23,10 @@ def generate_scheduling_vars(instance: ConcreteModel, scale_level: int = 0, mode
         instance (ConcreteModel): pyomo instance
         scale_level (int, optional):  scale for scheduling variables. Defaults to 0.
     """
+
+    if mode_dict is None:
+        mode_dict = dict()
+
     instance.scales_scheduling = scale_pyomo_set(
         instance=instance, scale_level=scale_level)
     instance.P = Var(instance.locations, instance.processes_full,

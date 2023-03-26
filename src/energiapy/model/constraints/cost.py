@@ -63,19 +63,16 @@ def constraint_transport_imp_cost(instance: ConcreteModel, scheduling_scale_leve
     Returns:
         Constraint: transport_imp_cost
     """
-    scales = scale_list(instance=instance,
-                        scale_levels=scheduling_scale_level+1)
 
     def transport_imp_cost_rule(instance, sink, source, resource, transport, *scale_list):
         if trans_cost is None:
             return Constraint.Skip
-        elif distance_dict is None:
+
+        if distance_dict is None:
             return Constraint.Skip
-        else:
-            return instance.Trans_imp_cost[sink, source, resource, transport, scale_list[:scheduling_scale_level+1]] == trans_cost[transport]*distance_dict[(source, sink)]*instance.Trans_imp[sink, source, resource, transport, scale_list[:scheduling_scale_level+1]] 
-        
-        instance.constraint_transport_imp_cost = Constraint(instance.sinks, instance.sources, instance.resources_trans,
-                                                        instance.transports, *scales, rule=transport_imp_cost_rule, doc='import of resource from sink to source')
+
+        return instance.Trans_imp_cost[sink, source, resource, transport, scale_list[:scheduling_scale_level+1]] == trans_cost[transport]*distance_dict[(source, sink)]*instance.Trans_imp[sink, source, resource, transport, scale_list[:scheduling_scale_level+1]]
+
     constraint_latex_render(transport_imp_cost_rule)
     return instance.constraint_transport_imp_cost
 

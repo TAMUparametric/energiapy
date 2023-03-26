@@ -81,7 +81,7 @@ class Result:
             return component_set
 
         else:
-            if (type(condition[1]) == bool or str) and (condition[1] not in ['eq', 'ge', 'le', 'g', 'l']):
+            if isinstance(condition[1], (bool, str)) and (condition[1] not in ['eq', 'ge', 'le', 'g', 'l']):
                 specific_component_set = {i for i in self.components[component_type].keys()
                                           if self.components[component_type][i][condition[0]] == condition[1]}
 
@@ -125,7 +125,7 @@ class Result:
         Returns:
             list: list of tuple indices
         """
-        return [i for i in self.output[var].keys()]
+        return list(self.output[var].keys())
 
     def model_summary(self):
         """Prints a summary of the model with number of variables of different types and constraints. 
