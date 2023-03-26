@@ -1,5 +1,6 @@
 # energiapy
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/a3569243a7e24a3ebccbc4c1087d2906)](https://app.codacy.com/gh/TAMUparametric/energiapy?utm_source=github.com&utm_medium=referral&utm_content=TAMUparametric/energiapy&utm_campaign=Badge_Grade)
 [![Documentation Status](https://readthedocs.org/projects/energiapy/badge/)](https://energiapy.readthedocs.io/en/latest/)
 [![PyPI](https://img.shields.io/pypi/v/energiapy.svg)](https://pypi.org/project/energiapy)
 [![Downloads](https://static.pepy.tech/personalized-badge/energiapy?period=total&units=international_system&left_color=grey&right_color=orange&left_text=Downloads)](https://pepy.tech/project/energiapy)
