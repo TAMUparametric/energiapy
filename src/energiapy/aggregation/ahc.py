@@ -165,7 +165,7 @@ def agg_hierarchial(scales: TemporalScale, scale_level: int, periods: int, inclu
             centroid = centroid_array.tolist()[0]
             for cluster in cluster_array:
                 # finding euclidean distance from each data point to centroid
-                cluster_point = [cluster for cluster in cluster]
+                cluster_point = list(cluster)
                 euclidean_distance = find_euclidean_distance(
                     cluster_point, centroid)
                 euclidean_distance_list.append(euclidean_distance)
