@@ -128,7 +128,7 @@ class Location:
             return None
 
         resources_single = set().union(
-                *[set(i.conversion.keys()) for i in self.processes if i.processmode == ProcessMode.SINGLE])
+            *[set(i.conversion.keys()) for i in self.processes if i.processmode == ProcessMode.SINGLE])
         resources_multi = set()
         for i in [i for i in self.processes if i.processmode == ProcessMode.MULTI]:
             resources_multi = resources_multi.union(*[set(j.keys()) for j in list(i.conversion.values())])
@@ -170,11 +170,9 @@ class Location:
         if self.failure_processes == set():
             return None
 
-        scale_iter = list(product(
-                self.scales.scale[0], self.scales.scale[1], self.scales.scale[2]))
-        fail_factor = {process_.name: {(scale_): sample([0] * int(process_.p_fail * 100) + [1] * int(
-                (1 - process_.p_fail) * 100), 1)[0] for scale_ in scale_iter} for process_ in self.failure_processes}
-        return fail_factor
+        scale_iter = list(product(*self.scales))
+        return {process_.name: {(scale_): sample([0] * int(process_.p_fail * 100) + [1] * int(
+            (1 - process_.p_fail) * 100), 1)[0] for scale_ in scale_iter} for process_ in self.failure_processes}
 
     def get_prod_max(self) -> dict:
         """
