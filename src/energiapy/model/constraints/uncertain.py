@@ -11,7 +11,9 @@ __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
 from typing import Union
+
 from pyomo.environ import ConcreteModel, Constraint
+
 from ...utils.scale_utils import scale_tuple
 
 

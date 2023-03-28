@@ -11,14 +11,16 @@ __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
 from dataclasses import dataclass
-from typing import Union, Dict
-from pandas import DataFrame
+from typing import Dict, Union
+
 import numpy
-from ..components.network import Network
+from pandas import DataFrame
+
 from ..components.location import Location
-from ..components.temporal_scale import TemporalScale
+from ..components.network import Network
 from ..components.process import ProcessMode, VaryingProcess
 from ..components.resource import Resource, VaryingResource
+from ..components.temporal_scale import TemporalScale
 
 
 @dataclass

@@ -11,11 +11,12 @@ __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
 from dataclasses import dataclass
-from typing import Dict, Union
 from enum import Enum, auto
+from typing import Dict, Union
 from warnings import warn
-from ..components.resource import Resource
+
 from ..components.material import Material
+from ..components.resource import Resource
 from ..utils.resource_utils import create_storage_resource
 
 

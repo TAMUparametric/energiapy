@@ -11,8 +11,10 @@ __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
 from itertools import product
-from pyomo.environ import ConcreteModel, Set
+
 import pandas
+from pyomo.environ import ConcreteModel, Set
+
 from ..components.temporal_scale import TemporalScale
 
 

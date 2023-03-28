@@ -14,6 +14,7 @@ __status__ = "Production"
 from dataclasses import dataclass
 from itertools import product
 
+
 @dataclass
 class TemporalScale:
     """

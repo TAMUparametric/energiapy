@@ -12,6 +12,7 @@ __status__ = "Production"
 
 from dataclasses import dataclass
 from typing import Dict
+
 from ..components.resource import Resource
 
 

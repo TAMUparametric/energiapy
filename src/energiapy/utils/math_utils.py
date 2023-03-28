@@ -11,8 +11,8 @@ __maintainer__ = "Rahul Kakodkar"
 __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
-import pandas
 import numpy
+import pandas
 from sklearn.preprocessing import StandardScaler
 
 

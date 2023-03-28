@@ -10,13 +10,14 @@ __maintainer__ = "Rahul Kakodkar"
 __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
-from matplotlib import rc
 import matplotlib.pyplot as plt
-from ..utils.plot_utils import axis_formatter
+from matplotlib import rc
+
+from ..components.location import Location
 from ..components.process import Process
 from ..components.resource import Resource
-from ..components.location import Location
 from ..components.scenario import Scenario
+from ..utils.plot_utils import axis_formatter
 
 
 def capacity_factor(scenario: Scenario, process: Process, location: Location, fig_size: tuple = (12, 6), font_size: int = 16, color: str = 'blue', usetex: bool = False):

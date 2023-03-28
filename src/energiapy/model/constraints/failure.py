@@ -12,6 +12,7 @@ __status__ = "Production"
 
 
 from pyomo.environ import ConcreteModel, Constraint
+
 from ...utils.latex_utils import constraint_latex_render
 from ...utils.scale_utils import scale_list
 
