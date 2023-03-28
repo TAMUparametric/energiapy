@@ -1,4 +1,4 @@
-"""Model utilities  
+"""Model utilities
 """
 
 __author__ = "Rahul Kakodkar"
@@ -52,7 +52,7 @@ def scale_tuple(instance: ConcreteModel, scale_levels: int = 0):
 
 
 def scale_changer(input_dict: dict, scales: TemporalScale, scale_level: int) -> dict:
-    """changes the scales form datetime to tuples 
+    """changes the scales form datetime to tuples
     """
     df = pandas.concat([pandas.DataFrame(input_dict[list(input_dict.keys())[i]])
                         for i in range(len(input_dict.keys()))], axis=1)

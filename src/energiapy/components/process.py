@@ -1,4 +1,4 @@
-"""Process data class  
+"""Process data class
 """
 
 __author__ = "Rahul Kakodkar"
@@ -95,8 +95,8 @@ class Process:
         p_fail (float, optional): failure rate of process. Defaults to None.
         label(str, optional):Longer descriptive label if required. Defaults to ''
         storage(list, optional): Resource that can be stored in process.
-        store_max (float, optional): Maximum allowed storage of resource in process. Defaults to 0. 
-        store_min (float, optional): Minimum allowed storage of resource in process. Defaults to 0. 
+        store_max (float, optional): Maximum allowed storage of resource in process. Defaults to 0.
+        store_min (float, optional): Minimum allowed storage of resource in process. Defaults to 0.
 
     Examples:
         For processes with varying production capacity
@@ -146,7 +146,7 @@ class Process:
 
         Args:
             processmode (ProcessMode): Determines whether the model is single mode, multi mode, or storage type.
-            resource_storage (Resource):  Dummy resource which is stored in the Process. 
+            resource_storage (Resource):  Dummy resource which is stored in the Process.
             conversion_discharge (Dict[Resource, float]): Creates a dictionary with the discharge conversion values (considers storage loss).
             cost_dynamics (CostDynamics): Determines whether the cost scales linearly with the unit capacity, or is a piecewise-linear function.
         """

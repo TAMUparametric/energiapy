@@ -76,10 +76,10 @@ def constraint_transport_imp_cost(instance: ConcreteModel, scheduling_scale_leve
             return Constraint.Skip
 
         return instance.Trans_imp_cost[sink, source, resource, transport, scale_list[:scheduling_scale_level+1]] == trans_cost[transport]*distance_dict[(source, sink)]*instance.Trans_imp[sink, source, resource, transport, scale_list[:scheduling_scale_level+1]]
-    
+
     instance.constraint_transport_imp_cost = Constraint(instance.sinks, instance.sources, instance.resources_trans,
                                                         instance.transports, *scales, rule=transport_imp_cost_rule, doc='import of resource from sink to source')
-    
+
     constraint_latex_render(transport_imp_cost_rule)
     return instance.constraint_transport_imp_cost
 
@@ -135,7 +135,7 @@ def constraint_process_capex(instance: ConcreteModel, capex_dict: dict, network_
 
     Args:
         instance (ConcreteModel): pyomo instance
-        capex_dict (dict): capex at location 
+        capex_dict (dict): capex at location
         network_scale_level (int, optional): scale of network decisions. Defaults to 0.
         annualization_factor (float, optional): Annual depreciation of asset. Defaults to 1.
 

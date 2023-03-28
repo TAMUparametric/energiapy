@@ -38,7 +38,7 @@ def constraint_carbon_emission_location(instance: ConcreteModel, network_scale_l
 
 
 def constraint_carbon_emission(instance: ConcreteModel, carbon_bound: float,  network_scale_level: int = 0, carbon_reduction_percentage: float = 0.0) -> Constraint:
-    """Determines the total network-wide CO2_Vent 
+    """Determines the total network-wide CO2_Vent
 
     Args:
         instance (ConcreteModel): pyomo model instance
@@ -85,7 +85,7 @@ def constraint_global_warming_potential_material(instance: ConcreteModel, materi
 
     Args:
         instance (ConcreteModel): pyomo model instance
-        material_gwp_dict (dict): GWP associated with each material 
+        material_gwp_dict (dict): GWP associated with each material
         process_material_dict (dict): Material consumed by each process
         network_scale_level (int, optional): scale for network decisions. Defaults to 0.
 

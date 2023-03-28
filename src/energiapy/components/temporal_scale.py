@@ -60,7 +60,7 @@ class TemporalScale:
             scale_level (int): The level of the scale for which to generate.
 
         Returns:
-            List[tuple]: list of tuples with representing the scales 
+            List[tuple]: list of tuples with representing the scales
         """
         return list(product(*[self.scale[i] for i in self.scale][:scale_level+1]))
 

@@ -36,7 +36,7 @@ def solve(instance: ConcreteModel, solver: str, name: str, scenario: Scenario = 
             'resources': {i.name: i.__dict__ for i in scenario.resource_set},
             'materials': {i.name: i.__dict__ for i in scenario.material_set},
             'locations': {i.name: i.__dict__ for i in scenario.location_set},
-            'transports': {}
+            'transports': {},
         }
 
     if len(instance.locations) > 1:
@@ -52,7 +52,7 @@ def solve(instance: ConcreteModel, solver: str, name: str, scenario: Scenario = 
         'n_binvars': output['Problem'][0]['Number of binary variables'],
         'n_intvars': output['Problem'][0]['Number of integer variables'],
         'n_convars': output['Problem'][0]['Number of continuous variables'],
-        'n_nonzero': output['Problem'][0]['Number of nonzeros']
+        'n_nonzero': output['Problem'][0]['Number of nonzeros'],
     }
 
     if solution_dict['termination'] == 'optimal':
