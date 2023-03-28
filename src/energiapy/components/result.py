@@ -10,9 +10,9 @@ __maintainer__ = "Rahul Kakodkar"
 __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
-from dataclasses import dataclass
 import json
 import pickle
+from dataclasses import dataclass
 
 
 @dataclass

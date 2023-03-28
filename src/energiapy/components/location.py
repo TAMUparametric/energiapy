@@ -11,17 +11,19 @@ __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
 from dataclasses import dataclass
-from warnings import warn
-from random import sample
-from typing import Set, Dict, Union
 from itertools import product
+from random import sample
+from typing import Dict, Set, Union
+from warnings import warn
+
 from pandas import DataFrame
-from ..utils.process_utils import create_storage_process
-from ..utils.scale_utils import scale_changer
-from ..components.temporal_scale import TemporalScale
+
+from ..components.material import Material
 from ..components.process import Process, ProcessMode
 from ..components.resource import Resource
-from ..components.material import Material
+from ..components.temporal_scale import TemporalScale
+from ..utils.process_utils import create_storage_process
+from ..utils.scale_utils import scale_changer
 
 
 @dataclass

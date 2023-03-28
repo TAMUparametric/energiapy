@@ -11,10 +11,11 @@ __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
 from typing import Union
+
 from pyomo.environ import ConcreteModel, Constraint
+
 from ...utils.latex_utils import constraint_latex_render
-from ...utils.scale_utils import scale_list
-from ...utils.scale_utils import scale_tuple
+from ...utils.scale_utils import scale_list, scale_tuple
 
 
 def constraint_resource_consumption(instance: ConcreteModel, loc_res_dict: dict = None, cons_max: dict = None,

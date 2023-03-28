@@ -10,9 +10,11 @@ __maintainer__ = "Rahul Kakodkar"
 __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
-from itertools import product
 from enum import Enum, auto
+from itertools import product
+
 from pyomo.environ import ConcreteModel, Constraint
+
 from ...utils.latex_utils import constraint_latex_render
 from ...utils.scale_utils import scale_list, scale_tuple
 

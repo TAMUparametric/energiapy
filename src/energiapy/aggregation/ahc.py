@@ -13,14 +13,20 @@ __status__ = "Production"
 
 from enum import Enum, auto
 from typing import Tuple
+
+import matplotlib.pyplot as plt
+import numpy
+import pandas
 from sklearn.cluster import AgglomerativeClustering
 from sklearn.neighbors import NearestCentroid
-import matplotlib.pyplot as plt
-import pandas
-import numpy
-from ..utils.math_utils import scaler, generate_connectivity_matrix, find_euclidean_distance
+
 from ..components.scenario import Scenario
 from ..components.temporal_scale import TemporalScale
+from ..utils.math_utils import (
+    find_euclidean_distance,
+    generate_connectivity_matrix,
+    scaler,
+)
 
 
 class IncludeAHC(Enum):

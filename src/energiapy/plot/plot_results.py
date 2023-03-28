@@ -11,9 +11,11 @@ __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
 from enum import Enum, auto
-from matplotlib import rc
-from numpy import zeros, array
+
 import matplotlib.pyplot as plt
+from matplotlib import rc
+from numpy import array, zeros
+
 from ..components.result import Result
 
 

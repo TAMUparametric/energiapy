@@ -11,9 +11,10 @@ __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
 from dataclasses import dataclass
-from typing import Set, Dict
-from ..components.resource import Resource
+from typing import Dict, Set
+
 from ..components.material import Material
+from ..components.resource import Resource
 
 
 @dataclass

@@ -13,8 +13,9 @@ __status__ = "Production"
 from dataclasses import dataclass, field
 from itertools import product
 from typing import List
-from ..components.transport import Transport
+
 from ..components.location import Location
+from ..components.transport import Transport
 
 
 @dataclass

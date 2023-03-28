@@ -11,9 +11,15 @@ __maintainer__ = "Rahul Kakodkar"
 __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
-from pyomo.environ import ConcreteModel, SolverFactory, Var, Objective, Constraint
-from pyomo.util.infeasible import log_infeasible_constraints, log_infeasible_bounds, log_close_to_bounds
 import logging
+
+from pyomo.environ import ConcreteModel, Constraint, Objective, SolverFactory, Var
+from pyomo.util.infeasible import (
+    log_close_to_bounds,
+    log_infeasible_bounds,
+    log_infeasible_constraints,
+)
+
 from ..components.result import Result
 from ..components.scenario import Scenario
 
