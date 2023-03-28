@@ -1,4 +1,4 @@
-"""Formulates models from Scenario  
+"""Formulates models from Scenario
 """
 
 __author__ = "Rahul Kakodkar"
@@ -152,23 +152,23 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
 
     Args:
         scenario (Scenario): scenario to formulate model over
-        constraints (Set[Constraints], optional): constraints to include. Defaults to None 
-        objective (Objective, optional): objective. Defaults to None 
+        constraints (Set[Constraints], optional): constraints to include. Defaults to None
+        objective (Objective, optional): objective. Defaults to None
         write_lpfile (bool, False): write out a .LP file. Uses scenario.name as name.
-        demand (float, optional): demand level. Defaults to 0. 
+        demand (float, optional): demand level. Defaults to 0.
         land_restriction (float, optional): restrict land usage. Defaults to 10**9.
         model_class (ModelClass, optional): class of model [MIP, mpLP]. Defaults to ModelClass.MIP
 
     Constraints include:
-            Constraints.cost 
-            Constraints.emission 
-            Constraints.failure 
-            Constraints.inventory 
-            Constraints.land 
-            Constraints.production 
-            Constraints.resource_balance  
-            Constraints.transport 
-            Constraints.uncertain 
+            Constraints.cost
+            Constraints.emission
+            Constraints.failure
+            Constraints.inventory
+            Constraints.land
+            Constraints.production
+            Constraints.resource_balance
+            Constraints.transport
+            Constraints.uncertain
 
     Objectives include:
             Objectives.cost

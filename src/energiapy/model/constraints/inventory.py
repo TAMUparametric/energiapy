@@ -165,7 +165,7 @@ def constraint_min_storage_facility(instance: ConcreteModel, store_min: dict, lo
 
 def constraint_nameplate_inventory(instance: ConcreteModel, loc_res_dict: dict = None, network_scale_level: int = 0,
                                    scheduling_scale_level: int = 0) -> Constraint:
-    """Determines storage capacity utilization for resource at location in network and capacity of facilities 
+    """Determines storage capacity utilization for resource at location in network and capacity of facilities
 
     Args:
         instance (ConcreteModel): pyomo instance

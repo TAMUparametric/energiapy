@@ -20,7 +20,7 @@ from ...utils.scale_utils import scale_list, scale_tuple
 
 def constraint_resource_consumption(instance: ConcreteModel, loc_res_dict: dict = None, cons_max: dict = None,
                                     scheduling_scale_level: int = 0) -> Constraint:
-    """Determines consumption of resource at location in network 
+    """Determines consumption of resource at location in network
 
     Args:
         instance (ConcreteModel): pyomo instance
@@ -124,7 +124,7 @@ def constraint_inventory_balance(instance: ConcreteModel, scheduling_scale_level
         scheduling_scale_level (int, optional): scale of scheduling decisions. Defaults to 0.
         multiconversion (dict, optional): unit conversion of resource by production facility. Defaults to {}.
         mode_dict (dict, optional): dictionary with modes available. Defaults to {}.
-        cluster_wt (dict, optional): weight of cluster as determined through scenario aggregation. Defaults to None. 
+        cluster_wt (dict, optional): weight of cluster as determined through scenario aggregation. Defaults to None.
 
     Returns:
         Constraint: inventory_balance

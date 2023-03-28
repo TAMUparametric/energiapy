@@ -1,4 +1,4 @@
-"""Transport data class  
+"""Transport data class
 """
 
 __author__ = "Rahul Kakodkar"

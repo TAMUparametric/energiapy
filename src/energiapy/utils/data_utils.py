@@ -1,5 +1,5 @@
 # %%
-"""Data management utilities  
+"""Data management utilities
 """
 
 __author__ = "Rahul Kakodkar"
@@ -202,13 +202,13 @@ def make_henry_price_df(file_name: str, year: int, stretch: bool = False,) -> pa
 def make_nrel_cost_df(location: Location, nrel_cost_xlsx, pick_nrel_process_list: list, year_list: list, case: str, crpyears: float) -> pandas.DataFrame:
     """makes dataframe for nrel atb data
     processes should be specified based on NREL technology tags
-    classes for technology will be picked based on location 
+    classes for technology will be picked based on location
     list of cost metrics ('CAPEX', 'Fixed O&M', 'Variable O&M')
 
     Args:
         location (location): location object
-        nrel_cost_xlsx (.xlsx): excel file from NREL ATB 
-        pick_nrel_process_list (list): list of nrel defined processes 
+        nrel_cost_xlsx (.xlsx): excel file from NREL ATB
+        pick_nrel_process_list (list): list of nrel defined processes
         year_list (list): list of years
         case (str): Market or Research case
         crpyears (float): cost recovery period

@@ -1,4 +1,4 @@
-"""Material data class  
+"""Material data class
 """
 
 __author__ = "Rahul Kakodkar"
@@ -31,7 +31,7 @@ class Material:
         label (str, optional): Longer descriptive label if required. Defaults to ''
 
     Examples:
-        Materials can be declared using the resources they consume 
+        Materials can be declared using the resources they consume
 
         >>>  Steel = Material(name='Steel', gwp=0.8, resource_cons = {H2O: 3.94}, toxicity=40, basis= 'kg', label='Steel')
 

@@ -1,5 +1,5 @@
 
-"""Math utilities  
+"""Math utilities
 """
 
 __author__ = "Rahul Kakodkar"
@@ -22,7 +22,7 @@ def scaler(input_df: pandas.DataFrame, scale: list, child_scale: list = None) ->
     Args:
         input_df (pandas.DataFrame): df with values to be scaled
         parent_scale (list): scale to project into
-        child_scale (list): scale to project 
+        child_scale (list): scale to project
 
     Returns:
         pandas.DataFrame: scaled values
@@ -61,7 +61,7 @@ def find_euclidean_distance(cluster_node_a: list, cluster_node_b: list) -> float
         cluster_node_b (float): index tag for cluster node b
 
     Returns:
-        float: euclidean distance 
+        float: euclidean distance
     """
     euclidean_distance_ = [
         (a - b)**2 for a, b in zip(cluster_node_a, cluster_node_b)]

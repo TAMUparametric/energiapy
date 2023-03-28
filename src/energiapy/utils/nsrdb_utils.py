@@ -1,4 +1,4 @@
-"""pvlib utils  
+"""pvlib utils
 """
 
 __author__ = "Rahul Kakodkar"
@@ -20,7 +20,7 @@ from scipy.spatial import cKDTree
 
 def fetch_nsrdb_data(attrs: List[str], year: int, lat_lon: Tuple[float] = None, state: str = '',
                      county: str = '', resolution: str = '', get: str = 'max-population', save: str = None) -> Union[pandas.DataFrame, tuple]:
-    """fetches nsrdb data from nearest coordinates (latitude, longitude) 
+    """fetches nsrdb data from nearest coordinates (latitude, longitude)
     or from county in a state matching a particular 'get' metric
 
     Args:
@@ -30,7 +30,7 @@ def fetch_nsrdb_data(attrs: List[str], year: int, lat_lon: Tuple[float] = None, 
         state (str, optional): capitalized state name, e.g. 'Texas' . Defaults to ''.
         county (str, optional): capitalized county name, e.g. 'Brazos' . Defaults to ''.
         resolution (str, optional): choose from 'halfhourly', 'hourly', 'daily'. Defaults to ''.
-        get (str, optional): Defaults to 'max-population'. From within county choose the data point that matches one of the following. 'max-population', 'max-elevation', 'max-landcover' 'min-population', 'min-elevation', 'min-landcover' 
+        get (str, optional): Defaults to 'max-population'. From within county choose the data point that matches one of the following. 'max-population', 'max-elevation', 'max-landcover' 'min-population', 'min-elevation', 'min-landcover'
 
     Returns:
         pandas.DataFrame, tuple: Dataframe with data, (latitude, longitude)

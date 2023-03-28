@@ -206,7 +206,7 @@ def agg_hierarchial(scales: TemporalScale, scale_level: int, periods: int, inclu
     wcss_sum = sum(i for i in scaled_df['ED'])/periods
 
     numpy.info_dict = {
-        'wcss_sum': wcss_sum
+        'wcss_sum': wcss_sum,
     }
 
     return rep_dict_iter, reduced_temporal_scale, numpy.info_dict

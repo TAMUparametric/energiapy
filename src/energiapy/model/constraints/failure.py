@@ -18,7 +18,7 @@ from ...utils.scale_utils import scale_list
 
 
 def constraint_nameplate_production_failure(instance: ConcreteModel, fail_factor: dict = None, network_scale_level: int = 0, scheduling_scale_level: int = 0) -> Constraint:
-    """Determines production capacity utilization of facilities at location in network and capacity of facilities 
+    """Determines production capacity utilization of facilities at location in network and capacity of facilities
 
     Args:
         instance (ConcreteModel): pyomo instance

@@ -47,7 +47,7 @@ def constraint_uncertain_process_capacity(instance: ConcreteModel, capacity: dic
     """provides uncertainty to process capacity
 
     Args:
-        instance (ConcreteModel): model instance 
+        instance (ConcreteModel): model instance
         capacity (dict, optional): base capacity of the process. Defaults to float.
         network_scale_level (int, optional): network scales of the problem. Defaults to 0.
 

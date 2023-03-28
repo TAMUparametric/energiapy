@@ -176,7 +176,7 @@ def dynamic_warping(source_scenario: Scenario, target_scenario: Scenario, scale_
         'matrix': matrix,
         'path': path,
         'input_data': {'source': source_series, 'target': target_series},
-        'output_data': {'source': source_values, 'target': target_values}
+        'output_data': {'source': source_values, 'target': target_values},
     }
 
     return rep_dict, reduced_temporal_scale, info_dict
