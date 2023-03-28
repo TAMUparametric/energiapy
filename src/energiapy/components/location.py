@@ -170,7 +170,7 @@ class Location:
         if self.failure_processes == set():
             return None
 
-        scale_iter = list(product(*self.scales))
+        scale_iter = list(product(*self.scales.scale))
         return {process_.name: {(scale_): sample([0] * int(process_.p_fail * 100) + [1] * int(
             (1 - process_.p_fail) * 100), 1)[0] for scale_ in scale_iter} for process_ in self.failure_processes}
 
