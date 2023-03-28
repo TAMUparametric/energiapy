@@ -184,20 +184,20 @@ class Scenario:
 
         self.set_dict = {
             'resources': [i.name for i in self.resource_set],
-            'resources_nosell': [i.name for i in self.resource_set if i.sell == False],
-            'resources_sell': [i.name for i in self.resource_set if i.sell == True],
+            'resources_nosell': [i.name for i in self.resource_set if i.sell is False],
+            'resources_sell': [i.name for i in self.resource_set if i.sell is True],
             'resources_store': [i.name for i in self.resource_set if i.store_max > 0],
             'resources_purch': [i.name for i in self.resource_set if i.cons_max > 0],
             'resources_varying_demand': [i.name for i in self.resource_set if
                                          i.varying == VaryingResource.DETERMINISTIC_DEMAND],
             'resources_varying_price': [i.name for i in self.resource_set if
                                         i.varying == VaryingResource.DETERMINISTIC_PRICE],
-            'resources_demand': [i.name for i in self.resource_set if i.demand == True],
+            'resources_demand': [i.name for i in self.resource_set if i.demand is True],
             'resources_certain_price': [i.name for i in self.resource_set if (i.varying is None) and (i.cons_max > 0)],
             'resources_uncertain_price': [i.name for i in self.resource_set if
                                           i.varying == VaryingResource.UNCERTAIN_PRICE],
             'resources_certain_demand': [i.name for i in self.resource_set if
-                                         (i.varying is None) and (i.demand == True)],
+                                         (i.varying is None) and (i.demand is True)],
             'resources_uncertain_demand': [i.name for i in self.resource_set if
                                            i.varying == VaryingResource.UNCERTAIN_DEMAND],
             'processes': [i.name for i in self.process_set],

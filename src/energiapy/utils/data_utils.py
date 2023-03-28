@@ -186,7 +186,7 @@ def make_henry_price_df(file_name: str, year: int, stretch: bool = False,) -> pa
     df = df.reset_index(drop=True)
     df['CH4'] = df['CH4'] / 22.4  # convert from $/MMBtu to $/kg
     df = df[['CH4', 'doy']].rename(columns={'doy': 'day'})
-    if stretch == False:
+    if stretch is False:
         df = df
         df['scales'] = [(0, int(i - 1)) for i in df['day']]
 
