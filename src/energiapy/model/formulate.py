@@ -1,4 +1,4 @@
-"""Formulates models from Scenario  
+"""Formulates models from Scenario
 """
 
 __author__ = "Rahul Kakodkar"
@@ -10,77 +10,96 @@ __maintainer__ = "Rahul Kakodkar"
 __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
-from typing import Set
 from enum import Enum, auto
+from typing import Set
+
 from pyomo.environ import ConcreteModel
+
 from ..components.scenario import Scenario
+from .constraints.cost import (
+    constraint_location_capex,
+    constraint_location_fopex,
+    constraint_location_incidental,
+    constraint_location_land_cost,
+    constraint_location_vopex,
+    constraint_network_capex,
+    constraint_network_fopex,
+    constraint_network_incidental,
+    constraint_network_land_cost,
+    constraint_network_vopex,
+    constraint_process_capex,
+    constraint_process_fopex,
+    constraint_process_incidental,
+    constraint_process_land_cost,
+    constraint_process_vopex,
+    constraint_transport_cost,
+    constraint_transport_cost_network,
+    constraint_transport_imp_cost,
+)
+from .constraints.emission import (
+    constraint_global_warming_potential_location,
+    constraint_global_warming_potential_material,
+    constraint_global_warming_potential_network,
+    constraint_global_warming_potential_network_reduction,
+    constraint_global_warming_potential_process,
+    constraint_global_warming_potential_resource,
+)
+from .constraints.failure import constraint_nameplate_production_failure
+from .constraints.inventory import (
+    constraint_min_storage_facility,
+    constraint_nameplate_inventory,
+    constraint_storage_facility,
+)
+from .constraints.land import (
+    constraint_location_land,
+    constraint_location_land_restriction,
+    constraint_network_land,
+    constraint_process_land,
+)
+from .constraints.mode import (
+    constraint_production_mode,
+    constraint_production_mode_binary,
+    constraint_production_mode_facility,
+)
+from .constraints.production import (
+    constraint_min_production_facility,
+    constraint_nameplate_production,
+    constraint_production_facility,
+)
+from .constraints.resource_balance import (
+    constraint_demand,
+    constraint_inventory_balance,
+    constraint_location_consumption,
+    constraint_location_discharge,
+    constraint_location_production,
+    constraint_location_purchase,
+    constraint_network_consumption,
+    constraint_network_discharge,
+    constraint_network_production,
+    constraint_network_purchase,
+    constraint_resource_consumption,
+    constraint_resource_purchase,
+)
+from .constraints.transport import (
+    constraint_transport_balance,
+    constraint_transport_exp_UB,
+    constraint_transport_export,
+    constraint_transport_imp_UB,
+    constraint_transport_import,
+)
+from .constraints.uncertain import (
+    constraint_uncertain_process_capacity,
+    constraint_uncertain_resource_demand,
+)
+from .objectives import cost_objective, demand_objective
 from .sets import generate_sets
-from .variables.schedule import generate_scheduling_vars
-from .variables.network import generate_network_vars
 from .variables.binary import generate_network_binary_vars
 from .variables.cost import generate_costing_vars
+from .variables.mode import generate_mode_vars
+from .variables.network import generate_network_vars
+from .variables.schedule import generate_scheduling_vars
 from .variables.transport import generate_transport_vars
 from .variables.uncertain import generate_uncertainty_vars
-from .variables.mode import generate_mode_vars
-from .constraints.resource_balance import constraint_inventory_balance
-from .constraints.resource_balance import constraint_resource_consumption
-from .constraints.resource_balance import constraint_resource_purchase
-from .constraints.resource_balance import constraint_location_production
-from .constraints.resource_balance import constraint_location_discharge
-from .constraints.resource_balance import constraint_location_consumption
-from .constraints.resource_balance import constraint_location_purchase
-from .constraints.resource_balance import constraint_network_production
-from .constraints.resource_balance import constraint_network_discharge
-from .constraints.resource_balance import constraint_network_consumption
-from .constraints.resource_balance import constraint_network_purchase
-from .constraints.resource_balance import constraint_demand
-from .constraints.production import constraint_nameplate_production
-from .constraints.production import constraint_production_facility
-from .constraints.production import constraint_min_production_facility
-from .constraints.inventory import constraint_nameplate_inventory
-from .constraints.inventory import constraint_storage_facility
-from .constraints.inventory import constraint_min_storage_facility
-from .constraints.cost import constraint_process_capex
-from .constraints.cost import constraint_process_fopex
-from .constraints.cost import constraint_process_vopex
-from .constraints.cost import constraint_process_incidental
-from .constraints.cost import constraint_location_capex
-from .constraints.cost import constraint_location_fopex
-from .constraints.cost import constraint_location_vopex
-from .constraints.cost import constraint_location_incidental
-from .constraints.cost import constraint_network_capex
-from .constraints.cost import constraint_network_fopex
-from .constraints.cost import constraint_network_vopex
-from .constraints.cost import constraint_network_incidental
-from .constraints.cost import constraint_process_land_cost
-from .constraints.cost import constraint_location_land_cost
-from .constraints.cost import constraint_network_land_cost
-from .constraints.cost import constraint_transport_imp_cost
-from .constraints.cost import constraint_transport_cost
-from .constraints.cost import constraint_transport_cost_network
-from .constraints.land import constraint_process_land
-from .constraints.land import constraint_location_land
-from .constraints.land import constraint_network_land
-from .constraints.land import constraint_location_land_restriction
-from .constraints.emission import constraint_global_warming_potential_process
-from .constraints.emission import constraint_global_warming_potential_resource
-from .constraints.emission import constraint_global_warming_potential_material
-from .constraints.emission import constraint_global_warming_potential_location
-from .constraints.emission import constraint_global_warming_potential_network
-from .constraints.emission import constraint_global_warming_potential_network_reduction
-from .constraints.transport import constraint_transport_export
-from .constraints.transport import constraint_transport_import
-from .constraints.transport import constraint_transport_exp_UB
-from .constraints.transport import constraint_transport_imp_UB
-from .constraints.transport import constraint_transport_balance
-from .constraints.failure import constraint_nameplate_production_failure
-from .constraints.uncertain import constraint_uncertain_process_capacity
-from .constraints.uncertain import constraint_uncertain_resource_demand
-from .constraints.mode import constraint_production_mode
-from .constraints.mode import constraint_production_mode_facility
-from .constraints.mode import constraint_production_mode_binary
-from .objectives import cost_objective
-from .objectives import demand_objective
 
 
 class ModelClass(Enum):
@@ -133,23 +152,23 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
 
     Args:
         scenario (Scenario): scenario to formulate model over
-        constraints (Set[Constraints], optional): constraints to include. Defaults to None 
-        objective (Objective, optional): objective. Defaults to None 
+        constraints (Set[Constraints], optional): constraints to include. Defaults to None
+        objective (Objective, optional): objective. Defaults to None
         write_lpfile (bool, False): write out a .LP file. Uses scenario.name as name.
-        demand (float, optional): demand level. Defaults to 0. 
+        demand (float, optional): demand level. Defaults to 0.
         land_restriction (float, optional): restrict land usage. Defaults to 10**9.
         model_class (ModelClass, optional): class of model [MIP, mpLP]. Defaults to ModelClass.MIP
 
     Constraints include:
-            Constraints.cost 
-            Constraints.emission 
-            Constraints.failure 
-            Constraints.inventory 
-            Constraints.land 
-            Constraints.production 
-            Constraints.resource_balance  
-            Constraints.transport 
-            Constraints.uncertain 
+            Constraints.cost
+            Constraints.emission
+            Constraints.failure
+            Constraints.inventory
+            Constraints.land
+            Constraints.production
+            Constraints.resource_balance
+            Constraints.transport
+            Constraints.uncertain
 
     Objectives include:
             Objectives.cost
