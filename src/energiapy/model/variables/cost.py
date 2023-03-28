@@ -11,7 +11,7 @@ __maintainer__ = "Rahul Kakodkar"
 __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
-from pyomo.environ import ConcreteModel, Var, Binary
+from pyomo.environ import Binary, ConcreteModel, Var
 
 
 def generate_costing_vars(instance: ConcreteModel):

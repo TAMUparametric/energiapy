@@ -1,4 +1,4 @@
-"""Result data class  
+"""Result data class
 """
 
 __author__ = "Rahul Kakodkar"
@@ -10,14 +10,14 @@ __maintainer__ = "Rahul Kakodkar"
 __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
-from dataclasses import dataclass
 import json
 import pickle
+from dataclasses import dataclass
 
 
 @dataclass
 class Result:
-    """Results from solving a Scenario 
+    """Results from solving a Scenario
 
     Args:
        name (str): name of the material, short ones are better to deal with.
@@ -32,7 +32,7 @@ class Result:
     duals: dict
 
     def saveoutputs(self, file_name: str):
-        """Saves output with provide name. 
+        """Saves output with provide name.
 
         Args:
             file_name (str): Give a name to the file you want to save the results in. Be sure to mention extension [.pkl, .json, .txt]
@@ -57,7 +57,7 @@ class Result:
         """fetches components that meet a specific condition
 
         Args:
-            component_type (str): type of component: processses, resources, locations, materials, transports 
+            component_type (str): type of component: processses, resources, locations, materials, transports
             condition (tuple): condition to be met
             For bool:
             condition = ('attribute', True))
@@ -128,7 +128,7 @@ class Result:
         return list(self.output[var].keys())
 
     def model_summary(self):
-        """Prints a summary of the model with number of variables of different types and constraints. 
+        """Prints a summary of the model with number of variables of different types and constraints.
         """
         print(f"SUMMARY:\n\
             number of constraints: {self.output['n_cons']}\n\
