@@ -164,8 +164,8 @@ def dynamic_warping(source_scenario: Scenario, target_scenario: Scenario, scale_
 
     reduced_temporal_scale = target_scenario.scales
 
-    reduced_scenario_scaleiter = [(i) for i in product(
-        *[reduced_temporal_scale.scale[i] for i in reduced_temporal_scale.scale])]
+    reduced_scenario_scaleiter = list(product(
+        *[reduced_temporal_scale.scale[i] for i in reduced_temporal_scale.scale]))
 
     counts = {j: y_.count(i) for i, j in zip(i_list, j_list)}
 

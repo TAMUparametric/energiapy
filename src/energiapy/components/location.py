@@ -170,8 +170,8 @@ class Location:
             return None
 
         else:
-            scale_iter = [(i) for i in product(
-                self.scales.scale[0], self.scales.scale[1], self.scales.scale[2])]
+            scale_iter = list(product(
+                self.scales.scale[0], self.scales.scale[1], self.scales.scale[2]))
             fail_factor = {process_.name: {(scale_): sample([0]*int(process_.p_fail*100) + [1] * int(
                 (1 - process_.p_fail)*100), 1)[0] for scale_ in scale_iter} for process_ in self.failure_processes}
             return fail_factor

@@ -66,7 +66,7 @@ def cost_factor(scenario: Scenario, resource: Resource, location: Location, fig_
     rc('text', usetex=False)
     fig, ax = plt.subplots(figsize=fig_size)
     y_ = list(scenario.cost_factor[location.name][resource.name].values())
-    x_ = [i for i in range(len(y_))]
+    x_ = list(range(len(y_)))
     ax.plot(x_, y_, linewidth=0.5, color=color)
     ax = axis_formatter(axes=ax, xcord=x_, axis_labels='M')
     plt.title(f'Cost factor for {resource.label} in {location.label}')
@@ -95,7 +95,7 @@ def demand_factor(scenario: Scenario, resource: Resource, location: Location,
     rc('text', usetex=False)
     fig, ax = plt.subplots(figsize=fig_size)
     y_ = list(scenario.demand_factor[location.name][resource.name].values())
-    x_ = [i for i in range(len(y_))]
+    x_ = list(range(len(y_)))
     ax.plot(x_, y_, linewidth=0.5, color=color)
     ax = axis_formatter(axes=ax, xcord=x_, axis_labels='M')
     plt.title(f'Demand factor for {resource.label} in {location.label}')
