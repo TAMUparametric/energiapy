@@ -28,6 +28,7 @@ def constraint_latex_render(constraint_rule, latex_alias_dict: dict = None) -> s
     if latex_alias_dict is None:
         latex_alias_dict = dict()
 
+    # this should most likely be using raw strings e.g. r'...'
     general_dict = {
         'product': '\prod',
         'sum': '\sum',

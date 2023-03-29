@@ -13,14 +13,20 @@ __status__ = "Production"
 
 from enum import Enum, auto
 from typing import Tuple
+
+import matplotlib.pyplot as plt
+import numpy
+import pandas
 from sklearn.cluster import AgglomerativeClustering
 from sklearn.neighbors import NearestCentroid
-import matplotlib.pyplot as plt
-import pandas
-import numpy
-from ..utils.math_utils import scaler, generate_connectivity_matrix, find_euclidean_distance
+
 from ..components.scenario import Scenario
 from ..components.temporal_scale import TemporalScale
+from ..utils.math_utils import (
+    find_euclidean_distance,
+    generate_connectivity_matrix,
+    scaler,
+)
 
 
 class IncludeAHC(Enum):
@@ -159,7 +165,7 @@ def agg_hierarchial(scales: TemporalScale, scale_level: int, periods: int, inclu
             centroid = centroid_array.tolist()[0]
             for cluster in cluster_array:
                 # finding euclidean distance from each data point to centroid
-                cluster_point = [cluster for cluster in cluster]
+                cluster_point = list(cluster)
                 euclidean_distance = find_euclidean_distance(
                     cluster_point, centroid)
                 euclidean_distance_list.append(euclidean_distance)
@@ -200,7 +206,7 @@ def agg_hierarchial(scales: TemporalScale, scale_level: int, periods: int, inclu
     wcss_sum = sum(i for i in scaled_df['ED'])/periods
 
     numpy.info_dict = {
-        'wcss_sum': wcss_sum
+        'wcss_sum': wcss_sum,
     }
 
     return rep_dict_iter, reduced_temporal_scale, numpy.info_dict
