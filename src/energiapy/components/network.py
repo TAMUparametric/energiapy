@@ -1,4 +1,4 @@
-"""Linkage data class  
+"""Linkage data class
 """
 
 __author__ = "Rahul Kakodkar"
@@ -13,15 +13,16 @@ __status__ = "Production"
 from dataclasses import dataclass, field
 from itertools import product
 from typing import List
-from ..components.transport import Transport
+
 from ..components.location import Location
+from ..components.transport import Transport
 
 
 @dataclass
 class Network:
     """
     Networks link locations with Transports
-    
+
     Args:
         name (str): name of the network, short ones are better to deal with
         source_locations (List[location], optional): list of location dataclass objects of source locations
@@ -32,11 +33,11 @@ class Network:
 
     Examples:
         Networks object with to and from movement of resources using Transport. In the following example, Train and Pipeline can be set up from 'Goa' to 'Texas'
-        
-        >>> Move = Network(name= 'Network', source_locations= [Goa, Texas], sink_locations= [Texas, Goa], distance_matrix= [[0, 500],[500, 0]], transport_matrix= [[], [Train, Pipe]], [[Train, Pipe], []]], label = 'network for moving stuff') 
-        
+
+        >>> Move = Network(name= 'Network', source_locations= [Goa, Texas], sink_locations= [Texas, Goa], distance_matrix= [[0, 500],[500, 0]], transport_matrix= [[], [Train, Pipe]], [[Train, Pipe], []]], label = 'network for moving stuff')
+
         Networks can also have one way movement of resources. In the following example, a Pipeline is set up from Goa to Texas.
-        
+
         >>> BrainDrain = Network(name= 'BrainDrain', source_locations= [Goa], sink_locations= [Texas], distance_matrix= [[0, 500],[500, 0]], transport_matrix= [[], [Pipe]], [[], []]], label = 'The Pipeline') )
     """
     name: str
@@ -48,7 +49,7 @@ class Network:
 
     def __post_init__(self):
         """Makes handy dictionaries
-           
+
         Args:
             transport_dict (dict): dictionary with transportation modes available between sources and sinks
             distance_dict (dict): dictionary of distances from sources to sinks
@@ -87,7 +88,7 @@ class Network:
         """returns a dictionary with transportation modes available between sources and sinks
 
         Returns:
-            dict: a dictionary with transportation modes available between sources and sinks 
+            dict: a dictionary with transportation modes available between sources and sinks
         """
         transport_avail_dict = {
             i: {j.name for j in self.transport_dict[i]} for i in self.transport_dict.keys()}

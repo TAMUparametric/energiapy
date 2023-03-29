@@ -10,16 +10,18 @@ __maintainer__ = "Rahul Kakodkar"
 __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
+from enum import Enum, auto
 from itertools import product
 from typing import Union
-from enum import Enum, auto
+
 import numpy
-from ..components.scenario import Scenario
-from ..components.resource import Resource
-from ..components.process import Process
-from ..components.location import Location
+
 from ..aggregation.ahc import agg_hierarchial
 from ..aggregation.dtw import dynamic_warping
+from ..components.location import Location
+from ..components.process import Process
+from ..components.resource import Resource
+from ..components.scenario import Scenario
 
 
 class Clustermethod(Enum):
@@ -64,8 +66,8 @@ def reduce_scenario(scenario: Scenario, method: Clustermethod, include: list, sc
         rep_dict, reduced_temporal_scale, numpy.info_dict = dynamic_warping(
             source_scenario=source_scenario, target_scenario=target_scenario, include=include, aspect=aspect, scale_level=scale_level, reference_dict=reference_dict)
 
-    reduced_scenario_scaleiter = [(i) for i in product(
-        *[reduced_temporal_scale.scale[i] for i in reduced_temporal_scale.scale])]
+    reduced_scenario_scaleiter = list(product(
+        *[reduced_temporal_scale.scale[i] for i in reduced_temporal_scale.scale]))
 
     # cluster_wt = {scale: rep_dict[scale]['cluster_wt'] for scale in reduced_scenario_scaleiter}
 

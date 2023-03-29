@@ -8,9 +8,10 @@ __maintainer__ = "Rahul Kakodkar"
 __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
-import numpy as np
-from typing import Tuple
 import math
+from typing import Tuple
+
+import numpy as np
 
 
 def distance(u_x: float, u_y: float, v_x: float, v_y: float, method: str = 'euclidean') -> float:

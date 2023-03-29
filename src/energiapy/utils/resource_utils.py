@@ -1,4 +1,4 @@
-"""Model utilities  
+"""Model utilities
 """
 
 __author__ = "Rahul Kakodkar"

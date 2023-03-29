@@ -10,7 +10,8 @@ __maintainer__ = "Rahul Kakodkar"
 __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
-from pyomo.environ import ConcreteModel, Var, NonNegativeReals
+from pyomo.environ import ConcreteModel, NonNegativeReals, Var
+
 from ...utils.scale_utils import scale_pyomo_set
 
 
