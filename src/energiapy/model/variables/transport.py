@@ -10,7 +10,7 @@ __maintainer__ = "Rahul Kakodkar"
 __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
-from pyomo.environ import Var, ConcreteModel, NonNegativeReals, Binary
+from pyomo.environ import Binary, ConcreteModel, NonNegativeReals, Var
 
 
 def generate_transport_vars(instance: ConcreteModel):

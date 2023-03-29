@@ -41,7 +41,7 @@ class VaryingResource(Enum):
 class Resource:
     """
     Object with resource data
-    
+
     Args:
         name (str): Resource ID, long descriptive names can be set with label.
         cons_max (float, optional): Maximum allowed resource consumption in each time period of the scheduling scale. Defaults to 0.
@@ -59,18 +59,18 @@ class Resource:
         label (str, optional): Longer descriptive label if required. Defaults to ''.
         gwp (float, optional): Global Warming Potential per unit consumption of resource. Defaults to 0.
 
-        
+
     Examples:
         For a resource that cannot be consumed from outside the system.
-        
+
         >>> H2 = Resource(name='H2', basis='kg', label='Hydrogen', block='Resource')
-        
+
         For a resource that can be consumed from outside the system, and has a varying purchase price.
-        
+
         >>> CH4 = Resource(name='CH4', cons_max=1000, price=1, basis='kg', label='Natural gas', varying=  VaryingResource.deterministic_price)
-        
+
         For a resource that is produced and needs to meet a fixed demand.
-        
+
         >>> Power = Resource(name='Power', basis='MW', demand = True, label='Power generated', varying = VaryingResource.deterministic_demand)
 
 

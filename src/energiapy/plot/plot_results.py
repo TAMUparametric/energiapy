@@ -11,9 +11,11 @@ __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
 from enum import Enum, auto
-from matplotlib import rc
-from numpy import zeros, array
+
 import matplotlib.pyplot as plt
+from matplotlib import rc
+from numpy import array, zeros
+
 from ..components.result import Result
 
 
@@ -43,7 +45,7 @@ def schedule(results: Result, y_axis: str, component: str, location: str, fig_si
     """generates a plot for scheduling result
 
     Args:
-        result (dict): dictionary that can be taken from result object 
+        result (dict): dictionary that can be taken from result object
         y_axis (str): the y-axis, can be production (P), inventory (I), sales (S), consumption (C)
         component (str): resource or process name
         location (str): location name
@@ -89,7 +91,7 @@ def contribution(results: Result, y_axis: str, location: str, fig_size: tuple = 
     """generates a plot for scheduling result
 
     Args:
-        result (dict): dictionary that can be taken from result object 
+        result (dict): dictionary that can be taken from result object
         component (str): resource or process name
         location (str): location name
         font_size (int, optional): font size. Defaults to 16.
@@ -123,7 +125,7 @@ def capacity_utilization(results: Result, location: str, process: str = None, fi
     """generates a plot for scheduling result
 
     Args:
-        result (dict): dictionary that can be taken from result object 
+        result (dict): dictionary that can be taken from result object
         component (str): resource or process name
         location (str): location name
         font_size (int, optional): font size. Defaults to 16.
@@ -182,7 +184,7 @@ def transport(results: Result, source: str, sink: str, resource: str, transport:
         results (Result): results
         source (str): source location
         sink (str): sink location
-        resource (str): Resource that is being transported 
+        resource (str): Resource that is being transported
         transport (str): Transport being used
         fig_size (tuple, optional): Defaults to (12,6).
         font_size (int, optional): Defaults to 16.
@@ -191,7 +193,7 @@ def transport(results: Result, source: str, sink: str, resource: str, transport:
 
     Examples:
 
-        Plotting transport is fairly straight forward. This plots the export from source to sink. 
+        Plotting transport is fairly straight forward. This plots the export from source to sink.
 
         >>> plot.transport(results= results, source= 'Goa', sink= 'Texas', resource= 'PhDStudents', transport= 'GradSchool')
 
@@ -222,8 +224,8 @@ def cost(results: Result, x: CostX, y: CostY, location: str = None, fig_size: tu
     """Plots the cost of processes, such as capex, vopex, fopex, or total
 
     Args:
-        results (Result): results 
-        x (CostX): one of CostX.LOCATION_WISE, CostX.PROCESS_WISE 
+        results (Result): results
+        x (CostX): one of CostX.LOCATION_WISE, CostX.PROCESS_WISE
         y (CostY): one of CostY.TOTAL, CostY.CAPEX, CostY.FOPEX, CostY.VOPEX
         location (str, optional): location to plot for, applicable for CostX.PROCESS_WISE. Defaults to None.
         fig_size (tuple, optional): Defaults to (12,6).

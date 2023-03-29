@@ -33,7 +33,7 @@ __status__ = "Production"
 #     scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
 
 #     def block_integer_cut_rule(instance, location, *scale_list):
-#         return sum(instance.X_P[location, i, scale_list] for i in process_set) == number 
+#         return sum(instance.X_P[location, i, scale_list] for i in process_set) == number
 #     instance.constraint_block_integer_cut = Constraint(
 #         instance.locations, *scales, rule=block_integer_cut_rule, doc='block integer cut')
 #     constraint_latex_render(block_integer_cut_rule)

@@ -14,6 +14,7 @@ __status__ = "Production"
 from dataclasses import dataclass
 from itertools import product
 
+
 @dataclass
 class TemporalScale:
     """
@@ -59,9 +60,9 @@ class TemporalScale:
             scale_level (int): The level of the scale for which to generate.
 
         Returns:
-            List[tuple]: list of tuples with representing the scales 
+            List[tuple]: list of tuples with representing the scales
         """
-        return [i for i in product(*[self.scale[i] for i in self.scale][:scale_level+1])]
+        return list(product(*[self.scale[i] for i in self.scale][:scale_level+1]))
 
     def __repr__(self):
         return self.name
