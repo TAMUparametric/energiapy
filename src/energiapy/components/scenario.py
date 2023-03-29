@@ -1,4 +1,4 @@
-"""Cost scenario data class  
+"""Cost scenario data class
 """
 
 __author__ = "Rahul Kakodkar"
@@ -11,14 +11,16 @@ __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
 from dataclasses import dataclass
-from typing import Union, Dict
-from pandas import DataFrame
+from typing import Dict, Union
+
 import numpy
-from ..components.network import Network
+from pandas import DataFrame
+
 from ..components.location import Location
-from ..components.temporal_scale import TemporalScale
+from ..components.network import Network
 from ..components.process import ProcessMode, VaryingProcess
 from ..components.resource import Resource, VaryingResource
+from ..components.temporal_scale import TemporalScale
 
 
 @dataclass
@@ -28,22 +30,22 @@ class Scenario:
 
     Args:
         name (str): name of scenario, short ones are better to deal with.
-        scales (temporal_scale): scales of the problem 
+        scales (temporal_scale): scales of the problem
         network (Union[Network, Location]): network object with the locations, transport linakges, and processes (with resources and materials)
         expenditure_scale_level (int, optional): scale for resource purchase. Defaults to 0.
         scheduling_scale_level (int, optional): scale of production and inventory scheduling. Defaults to 0.
         network_scale_level (int, optional): scale for network decisions such as facility location. Defaults to 0.
         demand_scale_level (int, optional): scale for meeting specific demand for resource. Defaults to 0.
-        cluster_wt (dict): cluster weights as a dictionary. {scale: int}. Defaults to None. 
+        cluster_wt (dict): cluster weights as a dictionary. {scale: int}. Defaults to None.
         label (str, optional): Longer descriptive label if required. Defaults to ''
-        
+
     Example:
         The Scenario can be built over a single location. The network here is specified as a single Location. Considering scales (TemporalScale object for a year, [1, 365, 24]), scheduling, expenditure, and demand are met at an hourly level, and network at an annual level.
-        
+
         >>> Current = Scenario(name= 'current', network= Goa, scales= scales, expenditure_scale_level= 2, scheduling_scale_level= 2, network_scale_level= 0, demand_scale_level= 2, label= 'Current Scenario')
 
         A multilocation Scenario needs a Network to be provided. Here, expenditure (on resource purchase) is determined at a daily scale. cost_factor in the Location object needs to be commensurate in scale.
-        
+
         >>> Future = Scenario(name= 'Future', network= System, scales= scales, expenditure_scale_level= 1, scheduling_scale_level= 2, network_scale_level= 0, demand_scale_level= 2, label= 'Future Scenario )
     """
     name: str
@@ -76,7 +78,7 @@ class Scenario:
             resource_set (set): Set of all Resource objects.
             material_set (set): Set of all Material objects.
             conversion (dict): A dictionary with all conversion values for each Process.
-            conversion_discharge (dict): A dictionary with all discharge conversions for Process of storage (ProcessMode.STORAGE) type. 
+            conversion_discharge (dict): A dictionary with all discharge conversions for Process of storage (ProcessMode.STORAGE) type.
             prod_max (dict): A dictionary with maximum production capacity per timeperiod in the network scale for each Process at each Location.
             prod_min (dict): A dictionary with minimum production capacity per timeperiod in the network scale for each Process at each Location.
             cons_max (dict): A dictionary with maximum consumption per timeperiod in the scheduling scale for each Resource at each Location.
@@ -85,18 +87,18 @@ class Scenario:
             capacity_factor (dict): A dictionary with Location-wise capacity factors for varying Process objects.
             cost_factor (dict): A dictionary with Location-wise cost factors for varying purchase costs of Resource objects.
             demand_factor (dict): A dictionary with Location-wise demand factors for varying demands of Resource objects.
-            loc_res_dict (dict): A dictionary with Location-wise availability of Resource objects.   
+            loc_res_dict (dict): A dictionary with Location-wise availability of Resource objects.
             loc_pro_dict (dict): A dictionary with Location-wise availability of Process objects.
-            loc_mat_dict (dict): A dictionary with Location-wise availability of Material objects.  
-            price (dict): A dictionary with Location-wise cost of Resource objects  
-            capex_dict (dict): A dictionary with capital expenditure data for each Process.  
+            loc_mat_dict (dict): A dictionary with Location-wise availability of Material objects.
+            price (dict): A dictionary with Location-wise cost of Resource objects
+            capex_dict (dict): A dictionary with capital expenditure data for each Process.
             fopex_dict (dict): A dictionary with fixed operational expenditure data for each Process.
-            vopex_dict (dict): A dictionary with variable operational expenditure data for each Process.  
-            incidental_dict (dict): A dictionary with incidental expenditure data for each Process.  
+            vopex_dict (dict): A dictionary with variable operational expenditure data for each Process.
+            incidental_dict (dict): A dictionary with incidental expenditure data for each Process.
             land_dict (dict): A dictionary with land use data for each Process.
             material_gwp_dict (dict): A dictionary with global warming potential values for each Material object.
             resource_gwp_dict (dict): A dictionary with global warming potential values for each Resource object.
-            process_gwp_dict (dict): A dictionary with global warming potential values for each Process object.  
+            process_gwp_dict (dict): A dictionary with global warming potential values for each Process object.
             fail_factor (dict): A dictionary with fail factors for each Process object.
             process_resource_dict (dict): A dictionary with Resource required for each Process.
             process_material_dict (dict): A dictionary with Material required for each Process
@@ -182,20 +184,20 @@ class Scenario:
 
         self.set_dict = {
             'resources': [i.name for i in self.resource_set],
-            'resources_nosell': [i.name for i in self.resource_set if i.sell == False],
-            'resources_sell': [i.name for i in self.resource_set if i.sell == True],
+            'resources_nosell': [i.name for i in self.resource_set if i.sell is False],
+            'resources_sell': [i.name for i in self.resource_set if i.sell is True],
             'resources_store': [i.name for i in self.resource_set if i.store_max > 0],
             'resources_purch': [i.name for i in self.resource_set if i.cons_max > 0],
             'resources_varying_demand': [i.name for i in self.resource_set if
                                          i.varying == VaryingResource.DETERMINISTIC_DEMAND],
             'resources_varying_price': [i.name for i in self.resource_set if
                                         i.varying == VaryingResource.DETERMINISTIC_PRICE],
-            'resources_demand': [i.name for i in self.resource_set if i.demand == True],
+            'resources_demand': [i.name for i in self.resource_set if i.demand is True],
             'resources_certain_price': [i.name for i in self.resource_set if (i.varying is None) and (i.cons_max > 0)],
             'resources_uncertain_price': [i.name for i in self.resource_set if
                                           i.varying == VaryingResource.UNCERTAIN_PRICE],
             'resources_certain_demand': [i.name for i in self.resource_set if
-                                         (i.varying is None) and (i.demand == True)],
+                                         (i.varying is None) and (i.demand is True)],
             'resources_uncertain_demand': [i.name for i in self.resource_set if
                                            i.varying == VaryingResource.UNCERTAIN_DEMAND],
             'processes': [i.name for i in self.process_set],
@@ -212,7 +214,7 @@ class Scenario:
             'processes_uncertain_capacity': [i.name for i in self.process_set if
                                              i.varying == VaryingProcess.UNCERTAIN_CAPACITY],
             'locations': [i.name for i in self.location_set],
-            'materials': [i.name for i in self.material_set]
+            'materials': [i.name for i in self.material_set],
         }
 
         if self.source_locations is not None:
@@ -242,7 +244,7 @@ class Scenario:
 
     def matrix_form(self):
         """returns matrices for the scenario.
-        
+
         Returns:
             tuple: A, b, c, H, CRa, CRb, F
         """

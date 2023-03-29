@@ -10,13 +10,15 @@ __maintainer__ = "Rahul Kakodkar"
 __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
+from enum import Enum, auto
 from itertools import product
 from typing import Union
-from enum import Enum, auto
+
 import numpy
-from ..components.scenario import Scenario
-from ..components.resource import Resource
+
 from ..components.process import Process
+from ..components.resource import Resource
+from ..components.scenario import Scenario
 
 
 class IncludeDTW(Enum):
@@ -162,8 +164,8 @@ def dynamic_warping(source_scenario: Scenario, target_scenario: Scenario, scale_
 
     reduced_temporal_scale = target_scenario.scales
 
-    reduced_scenario_scaleiter = [(i) for i in product(
-        *[reduced_temporal_scale.scale[i] for i in reduced_temporal_scale.scale])]
+    reduced_scenario_scaleiter = list(product(
+        *[reduced_temporal_scale.scale[i] for i in reduced_temporal_scale.scale]))
 
     counts = {j: y_.count(i) for i, j in zip(i_list, j_list)}
 
@@ -174,7 +176,7 @@ def dynamic_warping(source_scenario: Scenario, target_scenario: Scenario, scale_
         'matrix': matrix,
         'path': path,
         'input_data': {'source': source_series, 'target': target_series},
-        'output_data': {'source': source_values, 'target': target_values}
+        'output_data': {'source': source_values, 'target': target_values},
     }
 
     return rep_dict, reduced_temporal_scale, info_dict
