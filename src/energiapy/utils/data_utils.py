@@ -1,4 +1,3 @@
-# %%
 """Data management utilities
 """
 
@@ -311,4 +310,17 @@ def remove_outliers(data: pandas.DataFrame, sd_cuttoff: int = 2) -> pandas.DataF
             data.iloc[i] = (data.iloc[i-1] + data.iloc[i+1])/2
     return data
 
-# %%
+def min_max(data: numpy.array) -> numpy.array:
+    """min max for data
+
+    Args:
+        data (numpy.array): time-series data 
+
+    Returns:
+        numpy.array: min-maxed data array
+    """
+    min_data = numpy.min(data)
+    max_data = numpy.max(data)
+    data = (data - numpy.min(data)) / (max_data - min_data)
+    
+    return data
