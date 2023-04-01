@@ -12,9 +12,12 @@ __status__ = "Production"
 
 import matplotlib.pyplot as plt
 from matplotlib import rc
+
 import pandas 
 import scipy
 import numpy
+
+from ..utils.data_utils import min_max
 
 
 def distribution(fit_summary: pandas.DataFrame, fit_type: 'str', fig_size: tuple = (8, 6), font_size: int = 16, color: str = 'steelblue'):
@@ -72,7 +75,24 @@ def distribution(fit_summary: pandas.DataFrame, fit_type: 'str', fig_size: tuple
     plt.rcdefaults()
     
     return
-    # fig, ax = plt.subplots(1,2, figsize = fig_size)
-    # ax[0].hist(data, edgecolor = 'black', color = color)
-    # ax[0].set_xlim([0,1])
-    # ax[0].set_title('Histogram')
+
+
+def histogram(data: numpy.ndarray, fig_size: tuple = (8, 6), font_size: int = 16, color: str = 'steelblue'): 
+    """Plots a histogram of time-series data
+
+    Args:
+        data (numpy.array): time-series data
+        fig_size (tuple, optional): Defaults to (8, 6).
+        font_size (int, optional): Defaults to 16.
+        color (str, optional): Defaults to 'steelblue'.
+    """
+    data = min_max(data)
+    rc('font', **{'family': 'serif', 'serif': ['Computer Modern'], 'size': font_size})
+    fig, ax = plt.subplots(figsize = fig_size)
+    ax.hist(data, edgecolor = 'black', color = color)
+    ax.set_title('Histogram')
+    plt.rcdefaults()
+
+    
+    return
+    
