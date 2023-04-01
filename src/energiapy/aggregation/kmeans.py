@@ -12,12 +12,9 @@ __status__ = "Production"
 
 
 from enum import Enum, auto
-from typing import Tuple
 from sklearn.cluster import KMeans
-import matplotlib.pyplot as plt
 import pandas
 import numpy
-from ..components.scenario import Scenario
 from ..components.temporal_scale import TemporalScale
 
 
