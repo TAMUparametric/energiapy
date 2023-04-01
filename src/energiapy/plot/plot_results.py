@@ -1,4 +1,4 @@
-"""plotting module
+"""results plotting module
 """
 
 __author__ = "Rahul Kakodkar"

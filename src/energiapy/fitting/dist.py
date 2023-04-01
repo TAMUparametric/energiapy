@@ -34,4 +34,6 @@ def fit(data:numpy.array) -> pandas.DataFrame:
     
     fit_summary = fit_summary.set_index('name')
     
+    print(f"The best fitting distribution is {fit_['model']}")
+    
     return fit_summary
