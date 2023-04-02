@@ -1,4 +1,3 @@
-# %%
 """Data management utilities
 """
 
@@ -199,78 +198,78 @@ def make_henry_price_df(file_name: str, year: int, stretch: bool = False,) -> pa
     return df
 
 
-def make_nrel_cost_df(location: Location, nrel_cost_xlsx, pick_nrel_process_list: list, year_list: list, case: str, crpyears: float) -> pandas.DataFrame:
-    """makes dataframe for nrel atb data
-    processes should be specified based on NREL technology tags
-    classes for technology will be picked based on location
-    list of cost metrics ('CAPEX', 'Fixed O&M', 'Variable O&M')
+# def make_nrel_cost_df(location: Location, nrel_cost_xlsx, pick_nrel_process_list: list, year_list: list, case: str, crpyears: float) -> pandas.DataFrame:
+#     """makes dataframe for nrel atb data
+#     processes should be specified based on NREL technology tags
+#     classes for technology will be picked based on location
+#     list of cost metrics ('CAPEX', 'Fixed O&M', 'Variable O&M')
 
-    Args:
-        location (location): location object
-        nrel_cost_xlsx (.xlsx): excel file from NREL ATB
-        pick_nrel_process_list (list): list of nrel defined processes
-        year_list (list): list of years
-        case (str): Market or Research case
-        crpyears (float): cost recovery period
+#     Args:
+#         location (location): location object
+#         nrel_cost_xlsx (.xlsx): excel file from NREL ATB
+#         pick_nrel_process_list (list): list of nrel defined processes
+#         year_list (list): list of years
+#         case (str): Market or Research case
+#         crpyears (float): cost recovery period
 
-    Returns:
-        pandas.DataFrame: with nrel costing data for the specified year
-    """
-    cost_metrics_list = ['CAPEX', 'Fixed O&M', 'Variable O&M', 'units']
+#     Returns:
+#         pandas.DataFrame: with nrel costing data for the specified year
+#     """
+#     cost_metrics_list = ['CAPEX', 'Fixed O&M', 'Variable O&M', 'units']
 
-    # import nrel atb cost dataset
-    nrel_cost_df_ = pandas.read_excel(nrel_cost_xlsx, sheet_name='cost')
-    nrel_cost_df_ = nrel_cost_df_[nrel_cost_df_['technology'].isin(
-        pick_nrel_process_list)]  # choose technologies
-    nrel_cost_df_ = nrel_cost_df_[nrel_cost_df_['core_metric_parameter'].isin(
-        cost_metrics_list)]  # choose costing data to import
-    nrel_cost_df_ = nrel_cost_df_[nrel_cost_df_[
-        'core_metric_case'].isin([case])]  # choose market case
-    nrel_cost_df_ = nrel_cost_df_[nrel_cost_df_['crpyears'].isin(
-        [crpyears])]  # choose cost recovery period of 20 year
-    nrel_cost_df_['technology'].replace({'LandbasedWind': 'WF', 'UtilityPV': 'PV', 'Utility-Scale Battery Storage': 'LiI_c',
-                                        'Pumped Storage Hydropower': 'PSH_c'}, inplace=True)  # replace names to process IDS
-    nrel_cost_df_ = nrel_cost_df_[((nrel_cost_df_['technology'] == 'PV') & (nrel_cost_df_['techdetail'] == location.PV_class)) |  # class 5 solar PV\
-                                  ((nrel_cost_df_['technology'] == 'WF') & (nrel_cost_df_[
-                                   'techdetail'] == location.WF_class))  # class 4 wind farms\
-                                  | ((nrel_cost_df_['technology'] == 'LiI_c') & (nrel_cost_df_['techdetail'] == location.LiI_class))  # 8hr battery cycle LiI\
-                                  | ((nrel_cost_df_['technology'] == 'PSH_c') & (nrel_cost_df_['techdetail'] == location.PSH_class))]  # class 3 PSH
-    year_list = [year_ + 2021 for year_ in year_list]
-    nrel_cost_df_ = nrel_cost_df_[nrel_cost_df_['core_metric_variable'].isin(
-        year_list)]  # get data for years in years_list
-    nrel_cost_df_ = nrel_cost_df_.drop(columns=['index', 'revision', 'atb_year', 'core_metric_key',
-                                       'core_metric_case', 'crpyears', 'techdetail'])  # drop unnecessary columns
-    nrel_cost_df_.columns = [
-        'metric', 'process', 'cost_scenario_list', 'year', 'units', 'cost']  # rename columns
-    nrel_cost_df_ = nrel_cost_df_.reset_index(drop=True)  # reset index
-    # change years to int list 0...
-    nrel_cost_df_['year'] = nrel_cost_df_['year'] - 2021
-    nrel_cost_df_['cost_scenario_list'] = nrel_cost_df_[
-        'cost_scenario_list'].str.lower()
+#     # import nrel atb cost dataset
+#     nrel_cost_df_ = pandas.read_excel(nrel_cost_xlsx, sheet_name='cost')
+#     nrel_cost_df_ = nrel_cost_df_[nrel_cost_df_['technology'].isin(
+#         pick_nrel_process_list)]  # choose technologies
+#     nrel_cost_df_ = nrel_cost_df_[nrel_cost_df_['core_metric_parameter'].isin(
+#         cost_metrics_list)]  # choose costing data to import
+#     nrel_cost_df_ = nrel_cost_df_[nrel_cost_df_[
+#         'core_metric_case'].isin([case])]  # choose market case
+#     nrel_cost_df_ = nrel_cost_df_[nrel_cost_df_['crpyears'].isin(
+#         [crpyears])]  # choose cost recovery period of 20 year
+#     nrel_cost_df_['technology'].replace({'LandbasedWind': 'WF', 'UtilityPV': 'PV', 'Utility-Scale Battery Storage': 'LiI_c',
+#                                         'Pumped Storage Hydropower': 'PSH_c'}, inplace=True)  # replace names to process IDS
+#     nrel_cost_df_ = nrel_cost_df_[((nrel_cost_df_['technology'] == 'PV') & (nrel_cost_df_['techdetail'] == location.PV_class)) |  # class 5 solar PV\
+#                                   ((nrel_cost_df_['technology'] == 'WF') & (nrel_cost_df_[
+#                                    'techdetail'] == location.WF_class))  # class 4 wind farms\
+#                                   | ((nrel_cost_df_['technology'] == 'LiI_c') & (nrel_cost_df_['techdetail'] == location.LiI_class))  # 8hr battery cycle LiI\
+#                                   | ((nrel_cost_df_['technology'] == 'PSH_c') & (nrel_cost_df_['techdetail'] == location.PSH_class))]  # class 3 PSH
+#     year_list = [year_ + 2021 for year_ in year_list]
+#     nrel_cost_df_ = nrel_cost_df_[nrel_cost_df_['core_metric_variable'].isin(
+#         year_list)]  # get data for years in years_list
+#     nrel_cost_df_ = nrel_cost_df_.drop(columns=['index', 'revision', 'atb_year', 'core_metric_key',
+#                                        'core_metric_case', 'crpyears', 'techdetail'])  # drop unnecessary columns
+#     nrel_cost_df_.columns = [
+#         'metric', 'process', 'cost_scenario_list', 'year', 'units', 'cost']  # rename columns
+#     nrel_cost_df_ = nrel_cost_df_.reset_index(drop=True)  # reset index
+#     # change years to int list 0...
+#     nrel_cost_df_['year'] = nrel_cost_df_['year'] - 2021
+#     nrel_cost_df_['cost_scenario_list'] = nrel_cost_df_[
+#         'cost_scenario_list'].str.lower()
 
-    # bring all units to $/MW
+#     # bring all units to $/MW
 
-    nrel_cost_df_.loc[nrel_cost_df_.units == '$/KW-yr', ['cost', 'units']] = 1000 * \
-        nrel_cost_df_.loc[nrel_cost_df_.units ==
-                          '$/KW-yr']['cost'].values[0], '$/MW'
-    nrel_cost_df_.loc[nrel_cost_df_.units == '$/kW', ['cost', 'units']] = 1000 * \
-        nrel_cost_df_.loc[nrel_cost_df_.units ==
-                          '$/kW']['cost'].values[0], '$/MW'
-    nrel_cost_df_.loc[nrel_cost_df_.units == '$/MWh', ['cost', 'units']] = 8760 * \
-        nrel_cost_df_.loc[nrel_cost_df_.units ==
-                          '$/MWh']['cost'].values[0], '$/MW'
+#     nrel_cost_df_.loc[nrel_cost_df_.units == '$/KW-yr', ['cost', 'units']] = 1000 * \
+#         nrel_cost_df_.loc[nrel_cost_df_.units ==
+#                           '$/KW-yr']['cost'].values[0], '$/MW'
+#     nrel_cost_df_.loc[nrel_cost_df_.units == '$/kW', ['cost', 'units']] = 1000 * \
+#         nrel_cost_df_.loc[nrel_cost_df_.units ==
+#                           '$/kW']['cost'].values[0], '$/MW'
+#     nrel_cost_df_.loc[nrel_cost_df_.units == '$/MWh', ['cost', 'units']] = 8760 * \
+#         nrel_cost_df_.loc[nrel_cost_df_.units ==
+#                           '$/MWh']['cost'].values[0], '$/MW'
 
-    # nrel_cost_df_['cost'][nrel_cost_df_['units']
-    #                       == '$/KW-yr'] = nrel_cost_df_['cost'][nrel_cost_df_['units'] == '$/KW-yr']*1000
-    # nrel_cost_df_['units'][nrel_cost_df_['units'] == '$/KW-yr'] = '$/MW'
-    # nrel_cost_df_['cost'][nrel_cost_df_['units']
-    #                       == '$/kW'] = nrel_cost_df_['cost'][nrel_cost_df_['units'] == '$/kW']*1000
-    # nrel_cost_df_['units'][nrel_cost_df_['units'] == '$/kW'] = '$/MW'
-    # nrel_cost_df_['cost'][nrel_cost_df_['units']
-    #                       == '$/MWh'] = nrel_cost_df_['cost'][nrel_cost_df_['units'] == '$/MWh']*8760
-    # nrel_cost_df_['units'][nrel_cost_df_['units'] == '$/MWh'] = '$/MW'
+#     # nrel_cost_df_['cost'][nrel_cost_df_['units']
+#     #                       == '$/KW-yr'] = nrel_cost_df_['cost'][nrel_cost_df_['units'] == '$/KW-yr']*1000
+#     # nrel_cost_df_['units'][nrel_cost_df_['units'] == '$/KW-yr'] = '$/MW'
+#     # nrel_cost_df_['cost'][nrel_cost_df_['units']
+#     #                       == '$/kW'] = nrel_cost_df_['cost'][nrel_cost_df_['units'] == '$/kW']*1000
+#     # nrel_cost_df_['units'][nrel_cost_df_['units'] == '$/kW'] = '$/MW'
+#     # nrel_cost_df_['cost'][nrel_cost_df_['units']
+#     #                       == '$/MWh'] = nrel_cost_df_['cost'][nrel_cost_df_['units'] == '$/MWh']*8760
+#     # nrel_cost_df_['units'][nrel_cost_df_['units'] == '$/MWh'] = '$/MW'
 
-    return nrel_cost_df_
+#     return nrel_cost_df_
 
 
 def load_results(filename: str) -> Result:
@@ -311,4 +310,17 @@ def remove_outliers(data: pandas.DataFrame, sd_cuttoff: int = 2) -> pandas.DataF
             data.iloc[i] = (data.iloc[i-1] + data.iloc[i+1])/2
     return data
 
-# %%
+def min_max(data: numpy.array) -> numpy.array:
+    """min max for data
+
+    Args:
+        data (numpy.array): time-series data 
+
+    Returns:
+        numpy.array: min-maxed data array
+    """
+    min_data = numpy.min(data)
+    max_data = numpy.max(data)
+    data = (data - numpy.min(data)) / (max_data - min_data)
+    
+    return data

@@ -38,10 +38,14 @@ class Location:
         demand (Dict[Resource, float]): demand for resources at location. Defaults to None.
         demand_factor (Union[float, Dict[Resource, DataFrame]), optional): Factor for varying demand, scale changer normalizes.Defaults to 1.0
         cost_factor (Union[float, Dict[Resource, DataFrame]), optional): Factor for varying cost, scale changer normalizes. Defaults to 1.0
-        capacity_factor (Union[float, Dict[Process, DataFrame]), optional):  Factor for varying capacity, scale changer normalizesDefaults to 1.0
-        demand_scale_level (int, optional): scale level for demand. Defaults to 1.0
-        cost_scale_level (int, optional): scale level for cost. Defaults to 1.0
-        capacity_scale_level(int, optional): scale level for capacity. Defaults to 1.0
+        capacity_factor (Union[float, Dict[Process, DataFrame]), optional):  Factor for varying capacity, scale changer normalizes.Defaults to 1.0
+        capex_factor (Union[float, Dict[Process, DataFrame]), optional):  Factor for varying capital expenditure, scale changer normalizes. Defaults to 1.0
+        vopex_factor (Union[float, Dict[Process, DataFrame]), optional):  Factor for varying variable operational expenditure, scale changer normalizes. Defaults to 1.0
+        fopex_factor (Union[float, Dict[Process, DataFrame]), optional):  Factor for varying fixed operational expenditure, scale changer normalizes. Defaults to 1.0
+        demand_scale_level (int, optional): scale level for demand (resource). Defaults to 1.0
+        cost_scale_level (int, optional): scale level for purchase cost (resource). Defaults to 1.0
+        capacity_scale_level(int, optional): scale level for capacity (process). Defaults to 1.0
+        expenditure_scale_level(int, optional): scale level for technology (process). Defaults to 1.0
         land_cost(float, optional): cost of land. Defaults to 0
         label(str, optional):Longer descriptive label if required. Defaults to ''
 
@@ -58,9 +62,13 @@ class Location:
     demand_factor: Union[float, Dict[Resource, float]] = None
     cost_factor: Union[float, Dict[Resource, float]] = None
     capacity_factor: Union[float, Dict[Process, float]] = None
+    capex_factor: Union[float, Dict[Process, float]] = None
+    vopex_factor: Union[float, Dict[Process, float]] = None
+    fopex_factor: Union[float, Dict[Process, float]] = None
     demand_scale_level: int = 0
     cost_scale_level: int = 0
     capacity_scale_level: int = 0
+    expenditure_scale_level:int = 0
     land_cost: float = 0
     label: str = ''
 
@@ -118,6 +126,33 @@ class Location:
         self.failure_processes = self.get_failure_processes()
         self.fail_factor = self.make_fail_factor()
 
+        if self.capex_factor is not None:
+            self.varying_capex = set(self.capex_factor.keys())
+            if isinstance(list(self.capex_factor.values())[0], DataFrame):
+                self.capex_factor = scale_changer(
+                    self.capex_factor, scales=self.scales, scale_level=self.expenditure_scale_level)
+            else:
+                warn(
+                    'Input should be a dict of a DataFrame, Dict[Resource, float]')
+
+        if self.vopex_factor is not None:
+            self.varying_vopex = set(self.vopex_factor.keys())
+            if isinstance(list(self.vopex_factor.values())[0], DataFrame):
+                self.vopex_factor = scale_changer(
+                    self.vopex_factor, scales=self.scales, scale_level=self.expenditure_scale_level)
+            else:
+                warn(
+                    'Input should be a dict of a DataFrame, Dict[Resource, float]')
+
+        if self.fopex_factor is not None:
+            self.varying_fopex = set(self.fopex_factor.keys())
+            if isinstance(list(self.fopex_factor.values())[0], DataFrame):
+                self.fopex_factor = scale_changer(
+                    self.fopex_factor, scales=self.scales, scale_level=self.expenditure_scale_level)
+            else:
+                warn(
+                    'Input should be a dict of a DataFrame, Dict[Resource, float]')
+
     def get_resources(self) -> Set[Resource]:
         """fetches required resources for processes introduced at locations
 
@@ -127,8 +162,7 @@ class Location:
         if len(self.processes) == 0:
             return None
 
-        resources_single = set().union(
-            *[set(i.conversion.keys()) for i in self.processes if i.processmode == ProcessMode.SINGLE])
+        resources_single = set().union(*[set(i.conversion.keys()) for i in self.processes if i.processmode == ProcessMode.SINGLE])
         resources_multi = set()
         for i in [i for i in self.processes if i.processmode == ProcessMode.MULTI]:
             resources_multi = resources_multi.union(*[set(j.keys()) for j in list(i.conversion.values())])
