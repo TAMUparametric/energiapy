@@ -244,14 +244,14 @@ def agg_hierarchial_elbow(scenario: Scenario, scale_level: int, include: list, r
         theta = numpy.polyfit(x=range_list,  y=wcss_list, deg=2)
         y_line = [theta[2] + theta[1] *
                   pow(x, 1) + theta[0] * pow(x, 2) for x in range_list]
-        y_slope = [theta[1] + 2*theta[0] * pow(x, 1) for x in range_list]
+        # y_slope = [theta[1] + 2*theta[0] * pow(x, 1) for x in range_list]
 
     if fit == Fit.POLY3:
         theta = numpy.polyfit(x=range_list,  y=wcss_list, deg=3)
         y_line = [theta[3] + theta[2] * pow(x, 1) + theta[1] * pow(
             x, 2) + theta[0] * pow(x, 3) for x in range_list]
-        y_slope = [theta[2] + 2*theta[1] *
-                   pow(x, 1) + 3*theta[0] * pow(x, 2) for x in range_list]
+        # y_slope = [theta[2] + 2*theta[1] *
+                #    pow(x, 1) + 3*theta[0] * pow(x, 2) for x in range_list]
 
     fig, ax = plt.subplots(figsize=(8, 6))
     x = range_list

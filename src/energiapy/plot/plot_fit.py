@@ -31,7 +31,7 @@ def distribution(fit_summary: pandas.DataFrame, fit_type: 'str', fig_size: tuple
         color (str, optional): Defaults to 'steelblue'.
     """
 
-    x = numpy.linspace (0, 1, 200) 
+    x = numpy.linspace (0, 1, 200)
 
     if fit_type == 'norm':
         y = scipy.stats.norm.pdf(x, loc= fit_summary['params'][fit_type][0], scale= fit_summary['params'][fit_type][1])
@@ -73,7 +73,7 @@ def distribution(fit_summary: pandas.DataFrame, fit_type: 'str', fig_size: tuple
     ax.set_title(f"{fit_type} distribution")
     plt.grid(alpha = 0.4)
     plt.rcdefaults()
-    
+
     return
 
 
@@ -93,6 +93,5 @@ def histogram(data: numpy.ndarray, fig_size: tuple = (8, 6), font_size: int = 16
     ax.set_title('Histogram')
     plt.rcdefaults()
 
-    
+
     return
-    
