@@ -11,11 +11,13 @@ __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
 from enum import Enum, auto
-from typing import Set
+from typing import Set, Dict
 
 from pyomo.environ import ConcreteModel
 
 from ..components.scenario import Scenario
+from ..components.resource import Resource
+
 from .constraints.cost import (
     constraint_location_capex,
     constraint_location_fopex,
@@ -130,7 +132,6 @@ class Constraints(Enum):
     MODE = auto()
     LIFECYCLE = auto()
 
-
 class Objective(Enum):
     """
     Objective type
@@ -223,11 +224,11 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
 
         if Constraints.COST in constraints:
             constraint_process_capex(instance=instance, capex_dict=scenario.capex_dict,
-                                     network_scale_level=scenario.network_scale_level)
+                                     network_scale_level=scenario.expenditure_scale_level, capex_factor=scenario.capex_factor)
             constraint_process_fopex(instance=instance, fopex_dict=scenario.fopex_dict,
-                                     network_scale_level=scenario.network_scale_level)
+                                     network_scale_level=scenario.expenditure_scale_level, fopex_factor=scenario.fopex_factor)
             constraint_process_vopex(instance=instance, vopex_dict=scenario.vopex_dict,
-                                     network_scale_level=scenario.network_scale_level)
+                                     network_scale_level=scenario.expenditure_scale_level, vopex_factor=scenario.vopex_factor)
 
             constraint_process_incidental(instance=instance, incidental_dict=scenario.incidental_dict,
                                           network_scale_level=scenario.network_scale_level)
@@ -329,10 +330,10 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
                                             cons_max=scenario.cons_max,
                                             scheduling_scale_level=scenario.scheduling_scale_level)
 
-            constraint_resource_purchase(instance=instance, cost_factor=scenario.cost_factor, price=scenario.price,
+            constraint_resource_purchase(instance=instance, price_factor=scenario.price_factor, price=scenario.price,
                                          loc_res_dict=scenario.loc_res_dict,
                                          scheduling_scale_level=scenario.scheduling_scale_level,
-                                         expenditure_scale_level=scenario.expenditure_scale_level)
+                                         purchase_scale_level=scenario.purchase_scale_level)
 
             constraint_location_production(
                 instance=instance, network_scale_level=scenario.network_scale_level, cluster_wt=scenario.cluster_wt)
