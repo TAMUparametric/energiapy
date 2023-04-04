@@ -54,7 +54,7 @@ class Costdynamics(Enum):
 
 
 def constraint_transport_imp_cost(instance: ConcreteModel, scheduling_scale_level: int = 0, trans_cost: dict = None, distance_dict: dict = None) -> Constraint:
-    """Calculates the expenditure on importing resource throught transport
+    """Calculates the expenditure on importing resource through transport
 
     Args:
         instance (ConcreteModel): pyomo instance
