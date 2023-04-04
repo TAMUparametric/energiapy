@@ -15,7 +15,7 @@ import pandas
 from distfit import distfit
 from ..utils.data_utils import min_max
 
-    
+
 def fit(data:numpy.array) -> pandas.DataFrame:
     """fit data to a probability distribution
 
@@ -29,11 +29,11 @@ def fit(data:numpy.array) -> pandas.DataFrame:
 
     dist = distfit()
     fit_ = dist.fit_transform(data)
-    
+
     fit_summary = fit_['summary']
-    
+
     fit_summary = fit_summary.set_index('name')
-    
+
     print(f"The best fitting distribution is {fit_['model']}")
-    
+
     return fit_summary
