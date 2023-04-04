@@ -55,17 +55,17 @@ def constraint_resource_consumption(instance: ConcreteModel, loc_res_dict: dict 
     return instance.constraint_resource_consumption
 
 
-def constraint_resource_purchase(instance: ConcreteModel, cost_factor: dict = None, price: dict = None,
+def constraint_resource_purchase(instance: ConcreteModel, price_factor: dict = None, price: dict = None,
                                  loc_res_dict: dict = None, scheduling_scale_level: int = 0,
-                                 expenditure_scale_level: int = 0) -> Constraint:
+                                 purchase_scale_level: int = 0) -> Constraint:
     """Determines expenditure on resource at location in network at the scheduling/expenditure scale
 
     Args:
         instance (ConcreteModel): pyomo instance
-        cost_factor (dict, optional): uncertain cost training data. Defaults to {}.
+        price_factor (dict, optional): uncertain cost training data. Defaults to {}.
         price (dict, optional): base price of resource. Defaults to {}.
         scheduling_scale_level (int, optional): scale of scheduling decisions. Defaults to 0.
-        expenditure_scale_level (int, optional): scale of resource purchase decisions. Defaults to 0.
+        purchase_scale_level (int, optional): scale of resource purchase decisions. Defaults to 0.
 
     Returns:
         Constraint: resource_purchase
@@ -74,8 +74,8 @@ def constraint_resource_purchase(instance: ConcreteModel, cost_factor: dict = No
     if loc_res_dict is None:
         loc_res_dict = dict()
 
-    if cost_factor is None:
-        cost_factor = dict()
+    if price_factor is None:
+        price_factor = dict()
 
     if price is None:
         price = dict()
@@ -87,7 +87,7 @@ def constraint_resource_purchase(instance: ConcreteModel, cost_factor: dict = No
         if resource in instance.resources_varying_price.intersection(loc_res_dict[location]):
             return instance.B[location, resource, scale_list[:scheduling_scale_level + 1]] == price[location][
                 resource] * \
-                cost_factor[location][resource][scale_list[:expenditure_scale_level + 1]] * \
+                price_factor[location][resource][scale_list[:purchase_scale_level + 1]] * \
                 instance.C[location, resource,
                 scale_list[:scheduling_scale_level + 1]]
         else:

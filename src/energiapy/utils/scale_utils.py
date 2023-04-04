@@ -13,6 +13,7 @@ __status__ = "Production"
 from itertools import product
 
 import pandas
+import math
 from pyomo.environ import ConcreteModel, Set
 
 from ..components.temporal_scale import TemporalScale
@@ -71,6 +72,6 @@ def scale_changer(input_dict: dict, scales: TemporalScale, scale_level: int) -> 
     df = df.set_index(['scales'])
     df.columns = [i.name for i in input_dict.keys()]
     df = df.apply(lambda x: x/x.max(), axis=0)
-    output_dict = {i: {j: df[i][j] for j in df.index} for i in df.columns}
+    output_dict = {i: {j: df[i][j] if math.isnan(df[i][j]) is False else 0.0 for j in df.index } for i in df.columns}
 
     return output_dict
