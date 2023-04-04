@@ -79,14 +79,14 @@ def kmeans(scales: TemporalScale, scale_level: int, periods: int, include: list,
                                 axis=1).reset_index(drop=True)
 
     data = combined_df.to_numpy()
-    
+
     if scale_level < scales.scale_levels:
         kmeans = KMeans(n_clusters = periods*scales.discretization_list[scale_level+1], random_state = 0, n_init = 'auto').fit(data)
-    
-    prediction = kmeans.predict(data)
-    
+
+    # prediction = kmeans.predict(data)
+
     cluster_centers = kmeans.cluster_centers_
-    
+
     kmeans_df = pandas.DataFrame(cluster_centers, columns= combined_df.columns)
     
     # scale = scales.scale[scale_level]
@@ -98,5 +98,5 @@ def kmeans(scales: TemporalScale, scale_level: int, periods: int, include: list,
 
     numpy.info_dict = {'a': None}
 
-    
-    return kmeans_df, reduced_temporal_scale, numpy.info_dict 
+
+    return kmeans_df, reduced_temporal_scale, numpy.info_dict

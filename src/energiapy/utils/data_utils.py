@@ -17,7 +17,6 @@ from itertools import product
 import numpy
 import pandas
 
-from ..components.location import Location
 from ..components.result import Result
 
 
@@ -287,6 +286,7 @@ def load_results(filename: str) -> Result:
         print('WARNING: Loading non-optimal results')
     results = Result(name=filename.split('.')[
                      0], output=results_dict['output'], components=results_dict['components'], duals=results_dict['duals'])
+
     return results
 
 
@@ -308,6 +308,7 @@ def remove_outliers(data: pandas.DataFrame, sd_cuttoff: int = 2) -> pandas.DataF
         x = data.iloc[i].values[0]
         if x < float(lower) or x > float(upper):
             data.iloc[i] = (data.iloc[i-1] + data.iloc[i+1])/2
+
     return data
 
 def min_max(data: numpy.array) -> numpy.array:
@@ -322,5 +323,5 @@ def min_max(data: numpy.array) -> numpy.array:
     min_data = numpy.min(data)
     max_data = numpy.max(data)
     data = (data - numpy.min(data)) / (max_data - min_data)
-    
+
     return data
