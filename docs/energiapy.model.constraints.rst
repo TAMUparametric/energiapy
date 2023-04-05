@@ -4,6 +4,14 @@ energiapy.model.constraints package
 Submodules
 ----------
 
+energiapy.model.constraints.chance module
+-----------------------------------------
+
+.. automodule:: energiapy.model.constraints.chance
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 energiapy.model.constraints.cost module
 ---------------------------------------
 
