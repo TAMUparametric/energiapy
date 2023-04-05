@@ -261,7 +261,7 @@ def cost(results: Result, x: CostX, y: CostY, location: str = None, fig_size: tu
            'serif': ['Computer Modern'], 'size': font_size})
         rc('text', usetex=usetex)
         fig, ax = plt.subplots(figsize=fig_size)
-        ax.bar(x_, y_, width=bar_width, zorder=3)
+        ax.bar(x_, y_, width=bar_width, zorder=3, color = color)
         y_plot = ''.join(str(y).split('CostY.')[1])
         plt.title(f'Process-wise {y_plot} cost at {location}')
         plt.ylabel('Unit Currency')

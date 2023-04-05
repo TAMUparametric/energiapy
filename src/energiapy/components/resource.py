@@ -14,7 +14,6 @@ from dataclasses import dataclass
 from enum import Enum, auto
 from typing import Union
 
-
 class VaryingResource(Enum):
     """
     Whether the demand or price are varying
@@ -35,7 +34,7 @@ class VaryingResource(Enum):
     """
     Utilize uncertainty variables for price
     """
-
+    
 
 @dataclass
 class Resource:
@@ -75,7 +74,7 @@ class Resource:
 
 
     """
-
+    
     name: str
     cons_max: float = 0
     loss: float = 0
@@ -86,7 +85,7 @@ class Resource:
     sell: bool = False
     demand: bool = False
     basis: str = 'unit'
-    block: Union[str, list, dict] = ''
+    block: Union[str,list,dict] = ''
     citation: str = 'citation needed'
     varying: VaryingResource = None
     label: str = ''
@@ -95,12 +94,12 @@ class Resource:
     def __post_init__(self):
         if self.demand is True:
             self.sell = True
-
+ 
     def __repr__(self):
         return self.name
-
+  
     def __hash__(self):
         return hash(self.name)
-
+  
     def __eq__(self, other):
         return self.name == other.name
