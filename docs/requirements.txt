@@ -10,3 +10,4 @@ h5pyd
 matplotlib
 sphinx-rtd-theme
 nbsphinx
+distfit
