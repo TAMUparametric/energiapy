@@ -11,3 +11,5 @@ matplotlib
 sphinx-rtd-theme
 nbsphinx
 distfit
+ipykernel
+ipython
