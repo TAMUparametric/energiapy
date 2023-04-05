@@ -13,3 +13,4 @@ nbsphinx
 distfit
 ipykernel
 ipython
+energiapy
