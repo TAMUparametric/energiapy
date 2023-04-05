@@ -40,4 +40,4 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 html_theme = 'sphinx_rtd_theme'
 html_static_path = ['static_']
 source_suffix = [".rst", ".md"]
-nbsphinx_allow_errors = True
+# nbsphinx_allow_errors = True
