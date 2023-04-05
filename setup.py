@@ -4,7 +4,7 @@ energiapy setup file
 
 from setuptools import setup, find_packages
 
-__version__ = "1.0.5"
+__version__ = "1.0.6"
 
 short_desc = (
     "Python-based energy systems modeling and optimization tool"
@@ -39,6 +39,7 @@ def setup_package():
             'openpyxl',
             'ppopt',
             'gurobipy',
+            'distfit'
         ],
         extras_require={
             'test': ['pytest'],
