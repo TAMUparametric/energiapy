@@ -37,22 +37,22 @@ class Location:
         scales (TemporalScale): temporal scales of the problem
         demand (Dict[Resource, float]): demand for resources at location. Defaults to None.
         demand_factor (Union[float, Dict[Resource, DataFrame]), optional): Factor for varying demand, scale changer normalizes.Defaults to 1.0
-        cost_factor (Union[float, Dict[Resource, DataFrame]), optional): Factor for varying cost, scale changer normalizes. Defaults to 1.0
+        price_factor (Union[float, Dict[Resource, DataFrame]), optional): Factor for varying cost, scale changer normalizes. Defaults to 1.0
         capacity_factor (Union[float, Dict[Process, DataFrame]), optional):  Factor for varying capacity, scale changer normalizes.Defaults to 1.0
         capex_factor (Union[float, Dict[Process, DataFrame]), optional):  Factor for varying capital expenditure, scale changer normalizes. Defaults to 1.0
         vopex_factor (Union[float, Dict[Process, DataFrame]), optional):  Factor for varying variable operational expenditure, scale changer normalizes. Defaults to 1.0
         fopex_factor (Union[float, Dict[Process, DataFrame]), optional):  Factor for varying fixed operational expenditure, scale changer normalizes. Defaults to 1.0
         demand_scale_level (int, optional): scale level for demand (resource). Defaults to 1.0
-        cost_scale_level (int, optional): scale level for purchase cost (resource). Defaults to 1.0
+        price_scale_level (int, optional): scale level for purchase cost (resource). Defaults to 1.0
         capacity_scale_level(int, optional): scale level for capacity (process). Defaults to 1.0
         expenditure_scale_level(int, optional): scale level for technology (process). Defaults to 1.0
         land_cost(float, optional): cost of land. Defaults to 0
         label(str, optional):Longer descriptive label if required. Defaults to ''
 
     Examples:
-        Locations need a set of processes and the scale levels for demand, capacity, and cost, and if applicable demand factors, cost_factors, capacity factors
+        Locations need a set of processes and the scale levels for demand, capacity, and cost, and if applicable demand factors, price_factors, capacity factors
 
-        >>> Goa= Location(name='Goa', processes= {Process1, Process2}, demand_scale_level=2, capacity_scale_level= 2, cost_scale_level= 1, demand_factor= {Resource1: DataFrame,}, cost_factor = {Resource2: DataFrame}, capacity_factor = {Process1: DataFrame}, scales= TemporalScale object, label='Home')
+        >>> Goa= Location(name='Goa', processes= {Process1, Process2}, demand_scale_level=2, capacity_scale_level= 2, price_scale_level= 1, demand_factor= {Resource1: DataFrame,}, price_factor = {Resource2: DataFrame}, capacity_factor = {Process1: DataFrame}, scales= TemporalScale object, label='Home')
     """
 
     name: str
@@ -60,13 +60,13 @@ class Location:
     scales: TemporalScale
     demand: Dict[Resource, float] = None
     demand_factor: Union[float, Dict[Resource, float]] = None
-    cost_factor: Union[float, Dict[Resource, float]] = None
+    price_factor: Union[float, Dict[Resource, float]] = None
     capacity_factor: Union[float, Dict[Process, float]] = None
     capex_factor: Union[float, Dict[Process, float]] = None
     vopex_factor: Union[float, Dict[Process, float]] = None
     fopex_factor: Union[float, Dict[Process, float]] = None
     demand_scale_level: int = 0
-    cost_scale_level: int = 0
+    price_scale_level: int = 0
     capacity_scale_level: int = 0
     expenditure_scale_level:int = 0
     land_cost: float = 0
@@ -104,11 +104,11 @@ class Location:
                 warn(
                     'Input should be a dict of a DataFrame, Dict[Process, float]')
 
-        if self.cost_factor is not None:
-            self.varying_cost = set(self.cost_factor.keys())
-            if isinstance(list(self.cost_factor.values())[0], DataFrame):
-                self.cost_factor = scale_changer(
-                    self.cost_factor, scales=self.scales, scale_level=self.cost_scale_level)
+        if self.price_factor is not None:
+            self.varying_cost = set(self.price_factor.keys())
+            if isinstance(list(self.price_factor.values())[0], DataFrame):
+                self.price_factor = scale_changer(
+                    self.price_factor, scales=self.scales, scale_level=self.price_scale_level)
             else:
                 warn(
                     'Input should be a dict of a DataFrame, Dict[Resource, float]')

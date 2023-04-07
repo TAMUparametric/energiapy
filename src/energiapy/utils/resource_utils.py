@@ -13,8 +13,8 @@ __status__ = "Production"
 from ..components.resource import Resource
 
 
-def create_storage_resource(process_name: str, resource: Resource, store_max: float = 0,
-                            store_min: float = 0) -> Resource:
+
+def create_storage_resource(process_name:str, resource: Resource, store_max: float = 0, store_min: float = 0) -> Resource:
     """Creates a dummy resource for storage, used if process is storage type
 
     Args:
@@ -25,8 +25,9 @@ def create_storage_resource(process_name: str, resource: Resource, store_max: fl
     Returns:
         Resource: Dummy resource for storage
     """
-    resource_dummy = Resource(name=f"{process_name}_{resource.name}_stored", loss=resource.loss, store_max=store_max,
-                              store_min=store_min, basis=resource.basis, block=resource.block + '(stored)',
-                              label=resource.label + f"{process_name}(stored)")
-
+    # print(resource.block)
+    # print(resource.name)
+    resource_dummy = Resource(name= f"{process_name}_{resource.name}_stored", loss= resource.loss, store_max= store_max, store_min= store_min, basis= resource.basis, block= resource.block, label= resource.label+f"{process_name}(stored)")
+    
     return resource_dummy
+

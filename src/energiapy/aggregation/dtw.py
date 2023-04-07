@@ -108,10 +108,10 @@ def dynamic_warping(source_scenario: Scenario, target_scenario: Scenario, scale_
 
     if IncludeDTW.COST in include:
         source_series = list(
-            source_scenario.cost_factor[source_location.name][aspect.name].values())
+            source_scenario.price_factor[source_location.name][aspect.name].values())
         target_series = list(
-            target_scenario.cost_factor[target_location.name][aspect.name].values())
-        reference_keys = target_scenario.cost_factor[target_location.name][aspect.name].keys(
+            target_scenario.price_factor[target_location.name][aspect.name].values())
+        reference_keys = target_scenario.price_factor[target_location.name][aspect.name].keys(
         )
 
     elif IncludeDTW.CAPACITY in include:
