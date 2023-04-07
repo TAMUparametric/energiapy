@@ -256,7 +256,7 @@ def agg_hierarchial_elbow(scenario: Scenario, scale_level: int, include: list, r
     fig, ax = plt.subplots(figsize=(8, 6))
     x = range_list
 
-    ax.plot(x, y_line, label='MARS fit', color='steelblue', alpha=0.6)
+    # ax.plot(x, y_line, label='MARS fit', color='steelblue', alpha=0.6)
 
     ax.scatter(x, wcss_list, color='indianred')
 

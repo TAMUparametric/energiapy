@@ -13,6 +13,7 @@ __status__ = "Production"
 import json
 import pickle
 from itertools import product
+from typing import Union
 
 import numpy
 import pandas
@@ -290,35 +291,37 @@ def load_results(filename: str) -> Result:
     return results
 
 
-def remove_outliers(data: pandas.DataFrame, sd_cuttoff: int = 2) -> pandas.DataFrame:
+def remove_outliers(data: pandas.DataFrame, sd_cuttoff: int = 2, mean_range: int = 1) -> pandas.DataFrame:
     """Removes outliers upto chosen standard deviations
-    fixes data as the mean of data around the point
+    fixes data as the mean of data points on both sides of the point
     Args:
         data (pandas.DataFrame): input data
         sd_cuttoff (int, optional): data upto integer number of standard deviations. Defaults to 2.
-
+        mean_range: (int, optional): number of data points on either sides to average over
     Returns:
         pandas.DataFrame: data sans outliers
     """
     data_mean, data_std = data.mean(), data.std()
     # identify outliers
-    cut_off = data_std * 3
+    cut_off = data_std * sd_cuttoff
     lower, upper = data_mean - cut_off, data_mean + cut_off
     for i in range(len(data)):
         x = data.iloc[i].values[0]
         if x < float(lower) or x > float(upper):
-            data.iloc[i] = (data.iloc[i-1] + data.iloc[i+1])/2
+            data.iloc[i] = (sum(data.iloc[i-(j+1)] for j in range(mean_range)) +
+                            sum(data.iloc[i+(j+1)] for j in range(mean_range)))/2*mean_range
 
     return data
 
-def min_max(data: numpy.array) -> numpy.array:
+
+def min_max(data: Union[numpy.array, pandas.DataFrame]) -> Union[numpy.array, pandas.DataFrame]:
     """min max for data
 
     Args:
         data (numpy.array): time-series data 
 
     Returns:
-        numpy.array: min-maxed data array
+        Union[numpy.array, pandas.DataFrame]: min-maxed data array
     """
     min_data = numpy.min(data)
     max_data = numpy.max(data)
