@@ -61,28 +61,28 @@ class Fit(Enum):
     """
 
 
-def agg_hierarchial(scales: TemporalScale, scale_level: int, periods: int, include: list, cost_factor: dict = None,
+def agg_hierarchial(scales: TemporalScale, scale_level: int, periods: int, include: list, price_factor: dict = None,
                     capacity_factor: dict = None, demand_factor: dict = None):
     """perform agglomerative hierarchial clustering over time-series data
 
     Args:
-        scales (TemporalScale): scales of the problme
+        scales (TemporalScale): scales of the problem
         scale_level (int): scale level to cluster at
         periods (int): number of clustering periods
-        cost_factor (dict, optional): factor for varying cost factors. Defaults to None.
+        price_factor (dict, optional): factor for varying cost factors. Defaults to None.
         capacity_factor (dict, optional): factor for varying production capacity. Defaults to None.
         demand_factor (dict, optional): factor for varying resource demand. Defaults to None.
 
     Returns:
-        _type_: _description_
+        Tuple[pandas.DataFrame, TemporalScale, dict]: representative days, reduced temporal scale, dictionary with information 
     """
 
     if IncludeAHC.COST in include:
-        # cost_factor_df = pandas.DataFrame(cost_factor)
-        cost_factor_df = pandas.concat(
-            [pandas.DataFrame(cost_factor[i]) for i in cost_factor.keys()], axis=1)
+        # price_factor_df = pandas.DataFrame(price_factor)
+        price_factor_df = pandas.concat(
+            [pandas.DataFrame(price_factor[i]) for i in price_factor.keys()], axis=1)
     else:
-        cost_factor_df = None
+        price_factor_df = None
 
     if IncludeAHC.CAPACITY in include:
         # capacity_factor_df = pandas.DataFrame(capacity_factor)
@@ -99,7 +99,7 @@ def agg_hierarchial(scales: TemporalScale, scale_level: int, periods: int, inclu
     else:
         demand_factor_df = None
 
-    combined_df = pandas.concat([cost_factor_df, capacity_factor_df, demand_factor_df],
+    combined_df = pandas.concat([price_factor_df, capacity_factor_df, demand_factor_df],
                                 axis=1).reset_index(drop=True)
     # makes a common data frame with all different data sets
     combined_df.columns = numpy.arange(len(combined_df.columns))
@@ -203,19 +203,19 @@ def agg_hierarchial(scales: TemporalScale, scale_level: int, periods: int, inclu
     # puts all relevant data in a dictionary
 
     # collects the error data
-    wcss_sum = sum(i for i in scaled_df['ED'])/periods
+    wcss_sum = sum(scaled_df['ED'])/periods
 
-    numpy.info_dict = {
+    info_dict = {
         'wcss_sum': wcss_sum,
     }
 
-    return rep_dict_iter, reduced_temporal_scale, numpy.info_dict
+    return rep_dict_iter, reduced_temporal_scale, info_dict
 
 # TODO - call methods as a function
 # TODO  - Handle multiple outputs
 
 
-def agg_hierarchial_elbow(scenario: Scenario, scale_level: int, include: list, range_list: list = None, fit: Fit = None) -> Tuple[list, int]:
+def agg_hierarchial_elbow(scenario: Scenario, scale_level: int, include: list, range_list: list = None, fit: Fit = None) -> list:
     """calculate the error of a particular clustering method over a range of different cluster periods
 
     Args:
@@ -226,7 +226,7 @@ def agg_hierarchial_elbow(scenario: Scenario, scale_level: int, include: list, r
         fit (Fit, optional): a polyfit curve of 2nd or 3rd degree. Defaults to None.
 
     Returns:
-        Tuple(list, int): error for each cluster period returned as a list
+        list : error for each cluster period returned as a list
     """
 
     if range_list is None:
@@ -235,28 +235,28 @@ def agg_hierarchial_elbow(scenario: Scenario, scale_level: int, include: list, r
         iter_ = range_list
     wcss_list = []
     for i in iter_:
-        rep_dict_iter, reduced_temporal_scale, numpy.info_dict = agg_hierarchial(scales=scenario.scales, scale_level=scale_level, periods=i,
-                                                                                 cost_factor=scenario.cost_factor, capacity_factor=scenario.capacity_factor,
+        rep_dict_iter, reduced_temporal_scale, info_dict = agg_hierarchial(scales=scenario.scales, scale_level=scale_level, periods=i,
+                                                                                 price_factor=scenario.price_factor, capacity_factor=scenario.capacity_factor,
                                                                                  demand_factor=scenario.demand_factor, include=include)
-        wcss_list.append(numpy.info_dict['wcss_sum'])
+        wcss_list.append(info_dict['wcss_sum'])
 
     if fit == Fit.POLY2:
         theta = numpy.polyfit(x=range_list,  y=wcss_list, deg=2)
         y_line = [theta[2] + theta[1] *
                   pow(x, 1) + theta[0] * pow(x, 2) for x in range_list]
-        y_slope = [theta[1] + 2*theta[0] * pow(x, 1) for x in range_list]
+        # y_slope = [theta[1] + 2*theta[0] * pow(x, 1) for x in range_list]
 
     if fit == Fit.POLY3:
         theta = numpy.polyfit(x=range_list,  y=wcss_list, deg=3)
         y_line = [theta[3] + theta[2] * pow(x, 1) + theta[1] * pow(
             x, 2) + theta[0] * pow(x, 3) for x in range_list]
-        y_slope = [theta[2] + 2*theta[1] *
-                   pow(x, 1) + 3*theta[0] * pow(x, 2) for x in range_list]
+        # y_slope = [theta[2] + 2*theta[1] *
+                #    pow(x, 1) + 3*theta[0] * pow(x, 2) for x in range_list]
 
     fig, ax = plt.subplots(figsize=(8, 6))
     x = range_list
 
-    ax.plot(x, y_line, label='MARS fit', color='steelblue', alpha=0.6)
+    # ax.plot(x, y_line, label='MARS fit', color='steelblue', alpha=0.6)
 
     ax.scatter(x, wcss_list, color='indianred')
 

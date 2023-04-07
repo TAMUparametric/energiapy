@@ -20,6 +20,14 @@ energiapy.aggregation.dtw module
    :undoc-members:
    :show-inheritance:
 
+energiapy.aggregation.kmeans module
+-----------------------------------
+
+.. automodule:: energiapy.aggregation.kmeans
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 energiapy.aggregation.reduce\_scenario module
 ---------------------------------------------
 

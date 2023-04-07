@@ -60,7 +60,7 @@ def reduce_scenario(scenario: Scenario, method: Clustermethod, include: list, sc
 
     if method is Clustermethod.AHC:
         rep_dict, reduced_temporal_scale, numpy.info_dict = agg_hierarchial(
-            scenario.scales, scale_level=scale_level, periods=periods, cost_factor=scenario.cost_factor, capacity_factor=scenario.capacity_factor, demand_factor=scenario.demand_factor, include=include)
+            scenario.scales, scale_level=scale_level, periods=periods, price_factor=scenario.price_factor, capacity_factor=scenario.capacity_factor, demand_factor=scenario.demand_factor, include=include)
 
     if method is Clustermethod.DTW:
         rep_dict, reduced_temporal_scale, numpy.info_dict = dynamic_warping(
@@ -71,15 +71,15 @@ def reduce_scenario(scenario: Scenario, method: Clustermethod, include: list, sc
 
     # cluster_wt = {scale: rep_dict[scale]['cluster_wt'] for scale in reduced_scenario_scaleiter}
 
-    reduced_scenario = Scenario(name=f"{scenario.name}_reduced", scales=reduced_temporal_scale, network=scenario.network, expenditure_scale_level=scenario.expenditure_scale_level,
+    reduced_scenario = Scenario(name=f"{scenario.name}_reduced", scales=reduced_temporal_scale, network=scenario.network, expenditure_scale_level=scenario.expenditure_scale_level, purchase_scale_level = scenario.purchase_scale_level,
                                 scheduling_scale_level=scenario.scheduling_scale_level, network_scale_level=scenario.network_scale_level, demand_scale_level=scenario.demand_scale_level, demand=scenario.demand, label=f"{scenario.label}(reduced)")
 
     for location in scenario.location_set:
-        if scenario.cost_factor[location.name] is not None:
+        if scenario.price_factor[location.name] is not None:
             len_ = len(
-                list(list(scenario.cost_factor[location.name].values())[0].keys())[0])
-            reduced_scenario.cost_factor[location.name] = {i: {j[:len_]: scenario.cost_factor[location.name][i][rep_dict[j]['rep_period'][:len_]] for j in list(
-                rep_dict.keys())} for i in list(scenario.cost_factor[location.name])}
+                list(list(scenario.price_factor[location.name].values())[0].keys())[0])
+            reduced_scenario.price_factor[location.name] = {i: {j[:len_]: scenario.price_factor[location.name][i][rep_dict[j]['rep_period'][:len_]] for j in list(
+                rep_dict.keys())} for i in list(scenario.price_factor[location.name])}
 
         if scenario.capacity_factor[location.name] is not None:
             len_ = len(

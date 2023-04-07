@@ -32,7 +32,8 @@ class Scenario:
         name (str): name of scenario, short ones are better to deal with.
         scales (temporal_scale): scales of the problem
         network (Union[Network, Location]): network object with the locations, transport linakges, and processes (with resources and materials)
-        expenditure_scale_level (int, optional): scale for resource purchase. Defaults to 0.
+        purchase_scale_level (int, optional): scale for resource purchase. Defaults to 0.
+        expenditure_scale_level (int, optional): scale for technology expenditure. Defaults to 0.
         scheduling_scale_level (int, optional): scale of production and inventory scheduling. Defaults to 0.
         network_scale_level (int, optional): scale for network decisions such as facility location. Defaults to 0.
         demand_scale_level (int, optional): scale for meeting specific demand for resource. Defaults to 0.
@@ -44,13 +45,14 @@ class Scenario:
 
         >>> Current = Scenario(name= 'current', network= Goa, scales= scales, expenditure_scale_level= 2, scheduling_scale_level= 2, network_scale_level= 0, demand_scale_level= 2, label= 'Current Scenario')
 
-        A multilocation Scenario needs a Network to be provided. Here, expenditure (on resource purchase) is determined at a daily scale. cost_factor in the Location object needs to be commensurate in scale.
+        A multilocation Scenario needs a Network to be provided. Here, expenditure (on resource purchase) is determined at a daily scale. price_factor in the Location object needs to be commensurate in scale.
 
         >>> Future = Scenario(name= 'Future', network= System, scales= scales, expenditure_scale_level= 1, scheduling_scale_level= 2, network_scale_level= 0, demand_scale_level= 2, label= 'Future Scenario )
     """
     name: str
     scales: TemporalScale
     network: Union[Network, Location] = None
+    purchase_scale_level: int = 0
     expenditure_scale_level: int = 0
     scheduling_scale_level: int = 0
     network_scale_level: int = 0
@@ -85,7 +87,7 @@ class Scenario:
             store_max (dict): A dictionary with maximum storage per timeperiod in the scheduling scale for each Resource at each Location.
             store_min (dict): A dictionary with minimum storage per timeperiod in the scheduling scale for each Resource at each Location.
             capacity_factor (dict): A dictionary with Location-wise capacity factors for varying Process objects.
-            cost_factor (dict): A dictionary with Location-wise cost factors for varying purchase costs of Resource objects.
+            price_factor (dict): A dictionary with Location-wise cost factors for varying purchase costs of Resource objects.
             demand_factor (dict): A dictionary with Location-wise demand factors for varying demands of Resource objects.
             loc_res_dict (dict): A dictionary with Location-wise availability of Resource objects.
             loc_pro_dict (dict): A dictionary with Location-wise availability of Process objects.
@@ -144,7 +146,7 @@ class Scenario:
         self.store_max = {i.name: {j.name: j.store_max for j in i.resources_full} for i in self.location_set}
         self.store_min = {i.name: {j.name: j.store_min for j in i.resources_full} for i in self.location_set}
         self.capacity_factor = {i.name: i.capacity_factor for i in self.location_set}
-        self.cost_factor = {i.name: i.cost_factor for i in self.location_set}
+        self.price_factor = {i.name: i.price_factor for i in self.location_set}
         self.demand_factor = {i.name: i.demand_factor for i in self.location_set}
         self.capex_factor = {i.name: i.capex_factor for i in self.location_set}
         self.vopex_factor = {i.name: i.vopex_factor for i in self.location_set}
@@ -242,7 +244,12 @@ class Scenario:
             self.set_dict['transports'] = []
             self.set_dict['resources_trans'] = []
 
-    def make_conversion_df(self):
+    def make_conversion_df(self) -> DataFrame:
+        """makes a DataFrame of the conversion values
+
+        Returns:
+            DataFrame: DataFrame of conversion values 
+        """
         return DataFrame.from_dict(self.conversion).transpose()
 
     def matrix_form(self):

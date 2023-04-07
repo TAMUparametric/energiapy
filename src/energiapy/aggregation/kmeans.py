@@ -37,7 +37,7 @@ class IncludeKmeans(Enum):
 
 
 
-def kmeans(scales: TemporalScale, scale_level: int, periods: int, include: list, cost_factor: dict = None,
+def kmeans(scales: TemporalScale, scale_level: int, periods: int, include: list, price_factor: dict = None,
                     capacity_factor: dict = None, demand_factor: dict = None):
     """perform agglomerative hierarchial clustering over time-series data
 
@@ -45,7 +45,7 @@ def kmeans(scales: TemporalScale, scale_level: int, periods: int, include: list,
         scales (TemporalScale): scales of the problme
         scale_level (int): scale level to cluster at
         periods (int): number of clustering periods
-        cost_factor (dict, optional): factor for varying cost factors. Defaults to None.
+        price_factor (dict, optional): factor for varying cost factors. Defaults to None.
         capacity_factor (dict, optional): factor for varying production capacity. Defaults to None.
         demand_factor (dict, optional): factor for varying resource demand. Defaults to None.
 
@@ -54,11 +54,11 @@ def kmeans(scales: TemporalScale, scale_level: int, periods: int, include: list,
     """
 
     if IncludeKmeans.COST in include:
-        # cost_factor_df = pandas.DataFrame(cost_factor)
-        cost_factor_df = pandas.concat(
-            [pandas.DataFrame(cost_factor[i]) for i in cost_factor.keys()], axis=1)
+        # price_factor_df = pandas.DataFrame(price_factor)
+        price_factor_df = pandas.concat(
+            [pandas.DataFrame(price_factor[i]) for i in price_factor.keys()], axis=1)
     else:
-        cost_factor_df = None
+        price_factor_df = None
 
     if IncludeKmeans.CAPACITY in include:
         # capacity_factor_df = pandas.DataFrame(capacity_factor)
@@ -75,18 +75,18 @@ def kmeans(scales: TemporalScale, scale_level: int, periods: int, include: list,
     else:
         demand_factor_df = None
 
-    combined_df = pandas.concat([cost_factor_df, capacity_factor_df, demand_factor_df],
+    combined_df = pandas.concat([price_factor_df, capacity_factor_df, demand_factor_df],
                                 axis=1).reset_index(drop=True)
 
     data = combined_df.to_numpy()
-    
+
     if scale_level < scales.scale_levels:
         kmeans = KMeans(n_clusters = periods*scales.discretization_list[scale_level+1], random_state = 0, n_init = 'auto').fit(data)
-    
-    prediction = kmeans.predict(data)
-    
+
+    # prediction = kmeans.predict(data)
+
     cluster_centers = kmeans.cluster_centers_
-    
+
     kmeans_df = pandas.DataFrame(cluster_centers, columns= combined_df.columns)
     
     # scale = scales.scale[scale_level]
@@ -98,5 +98,5 @@ def kmeans(scales: TemporalScale, scale_level: int, periods: int, include: list,
 
     numpy.info_dict = {'a': None}
 
-    
-    return kmeans_df, reduced_temporal_scale, numpy.info_dict 
+
+    return kmeans_df, reduced_temporal_scale, numpy.info_dict

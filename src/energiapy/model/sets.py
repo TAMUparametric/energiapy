@@ -10,11 +10,9 @@ __maintainer__ = "Rahul Kakodkar"
 __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
-from itertools import product
-
-from pyomo.environ import ConcreteModel, Set
-
 from ..components.scenario import Scenario
+from pyomo.environ import ConcreteModel, Set
+from itertools import product
 
 
 def generate_sets(instance: ConcreteModel, scenario: Scenario):
@@ -23,37 +21,37 @@ def generate_sets(instance: ConcreteModel, scenario: Scenario):
     Creates the following sets:
 
     processes: Set of all processes
-
+    
     processes_full: 'Set of all processes including dummy discharge'
-
+    
     resources: Set of all resources
 
     resources_nosell: Set of non-dischargeable resources
-
+    
     resources_sell: Set of dischargeable resources
-
+    
     resources_store: Set of storeable resources
-
-    resources_purch: Set of purchased resources
-
+    
+    resources_purch: Set of purchased resources  
+    
     resources_varying: Set of resources with varying purchase price
-
+    
     resources_demand: Set of resources with exact demand
 
     resources_transport: Set of resource which can be transported
-
+    
     processes_varying: Set of processes with varying capacity
-
+    
     processes_failure: Set of processes which can fail
-
+    
     processes_materials: Set of processes with material requirements
-
+    
     processes_storage: Set of storage process
-
+    
     processes_multim: Set of processes with multiple modes
-
+    
     processes_singlem: Set of processes with multiple modes
-
+    
     locations: Set of locations
 
     sources: Set of locations which act as sources
@@ -64,15 +62,15 @@ def generate_sets(instance: ConcreteModel, scenario: Scenario):
 
     transports: Set of transportation options
 
-
-
+    
+    
     scales: Set of scales
-
+    
 
     Args:
         instance (ConcreteModel): pyomo instance
         scenario (Scenario): scenario
-
+        
     """
 
     instance.scales = Set(scenario.scales.list, initialize=scenario.scales.scale, doc='set of scales')
@@ -109,8 +107,10 @@ def generate_sets(instance: ConcreteModel, scenario: Scenario):
                                                 doc='Set of processes with uncertain capacity')
 
     mode_lens = []
-    for i, j in product(scenario.process_set, scenario.location_set):
-        mode_lens.append(len(scenario.prod_max[j.name][i.name].keys()))
+    for j in scenario.location_set:
+        for i in scenario.process_set:
+            if i.name in scenario.loc_pro_dict[j.name]:
+                mode_lens.append(len(scenario.prod_max[j.name][i.name].keys()))
 
     instance.modes = Set(initialize=list(range(max(mode_lens))), doc='Set of process modes')
 
