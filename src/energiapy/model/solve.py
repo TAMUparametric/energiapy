@@ -70,7 +70,7 @@ def solve(instance: ConcreteModel, solver: str, name: str, scenario: Scenario = 
                       if i.ctype == Constraint]
 
         if solution_dict['n_binvars'] > 0:
-            duals_dict = {}
+            duals_dict = dict()
         else:
             index_dict = {c: list(c.index_set()) for c in model_cons}
             duals_dict = {cons.name: {index: instance.dual[cons[index]] for index
