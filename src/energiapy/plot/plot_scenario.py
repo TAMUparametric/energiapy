@@ -49,8 +49,8 @@ def capacity_factor(scenario: Scenario, process: Process, location: Location, fi
     return
 
 
-def cost_factor(scenario: Scenario, resource: Resource, location: Location, fig_size: tuple = (12, 6), font_size: int = 16, color: str = 'blue', usetex: bool = False):
-    """generates a plot for varying cost factor of resource
+def price_factor(scenario: Scenario, resource: Resource, location: Location, fig_size: tuple = (12, 6), font_size: int = 16, color: str = 'blue', usetex: bool = False):
+    """generates a plot for varying price factor for purchase of resource
 
     Args:
         scenario (Scenario): scenario energiapy object
@@ -65,7 +65,7 @@ def cost_factor(scenario: Scenario, resource: Resource, location: Location, fig_
        'serif': ['Computer Modern'], 'size': font_size})
     rc('text', usetex=False)
     fig, ax = plt.subplots(figsize=fig_size)
-    y_ = list(scenario.cost_factor[location.name][resource.name].values())
+    y_ = list(scenario.price_factor[location.name][resource.name].values())
     x_ = list(range(len(y_)))
     ax.plot(x_, y_, linewidth=0.5, color=color)
     ax = axis_formatter(axes=ax, xcord=x_, axis_labels='M')
