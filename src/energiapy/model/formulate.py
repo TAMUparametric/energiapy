@@ -50,7 +50,7 @@ from .constraints.failure import constraint_nameplate_production_failure
 from .constraints.inventory import (
     constraint_nameplate_inventory,
     constraint_storage_max,
-    constraint_storage_min,    
+    constraint_storage_min,
 )
 from .constraints.land import (
     constraint_location_land,
@@ -93,7 +93,7 @@ from .constraints.uncertain import (
     constraint_uncertain_process_capacity,
     constraint_uncertain_resource_demand,
 )
-from .constraints.network import(
+from .constraints.network import (
     constraint_storage_facility,
     constraint_production_facility,
     constraint_min_storage_facility,
@@ -138,6 +138,7 @@ class Constraints(Enum):
     MODE = auto()
     LIFECYCLE = auto()
     NETWORK = auto()
+
 
 class Objective(Enum):
     """
@@ -225,7 +226,6 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
                                      network_scale_level=scenario.expenditure_scale_level, fopex_factor=scenario.fopex_factor)
             constraint_process_vopex(instance=instance, vopex_dict=scenario.vopex_dict,
                                      network_scale_level=scenario.expenditure_scale_level, vopex_factor=scenario.vopex_factor)
-
             constraint_process_incidental(instance=instance, incidental_dict=scenario.incidental_dict,
                                           network_scale_level=scenario.network_scale_level)
 
@@ -278,30 +278,30 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
                                            scheduling_scale_level=scenario.scheduling_scale_level)
 
             constraint_storage_max(instance=instance, store_max=scenario.store_max,
-                                        loc_res_dict=scenario.loc_res_dict,
-                                        network_scale_level=scenario.network_scale_level)
+                                   loc_res_dict=scenario.loc_res_dict,
+                                   network_scale_level=scenario.network_scale_level)
 
             constraint_storage_min(instance=instance, store_min=scenario.store_min,
-                                            loc_res_dict=scenario.loc_res_dict,
-                                            network_scale_level=scenario.network_scale_level)
+                                   loc_res_dict=scenario.loc_res_dict,
+                                   network_scale_level=scenario.network_scale_level)
 
         if Constraints.PRODUCTION in constraints:
-            
+
             constraint_production_mode(instance=instance, mode_dict=scenario.mode_dict,
                                        scheduling_scale_level=scenario.scheduling_scale_level)
-            
+
             constraint_nameplate_production(instance=instance, capacity_factor=scenario.capacity_factor,
                                             loc_pro_dict=scenario.loc_pro_dict,
                                             network_scale_level=scenario.network_scale_level,
                                             scheduling_scale_level=scenario.scheduling_scale_level)
-            
+
             constraint_production_max(instance=instance, prod_max=scenario.prod_max,
-                                           loc_pro_dict=scenario.loc_pro_dict,
-                                           network_scale_level=scenario.network_scale_level)
-            
+                                      loc_pro_dict=scenario.loc_pro_dict,
+                                      network_scale_level=scenario.network_scale_level)
+
             constraint_production_min(instance=instance, prod_min=scenario.prod_min,
-                                               loc_pro_dict=scenario.loc_pro_dict,
-                                               network_scale_level=scenario.network_scale_level)
+                                      loc_pro_dict=scenario.loc_pro_dict,
+                                      network_scale_level=scenario.network_scale_level)
 
         if Constraints.LAND in constraints:
             constraint_process_land(instance=instance, land_dict=scenario.land_dict,
@@ -382,32 +382,31 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
 
         if Constraints.NETWORK in constraints:
             generate_network_binary_vars(
-            instance=instance, scale_level=scenario.network_scale_level)
-            
+                instance=instance, scale_level=scenario.network_scale_level)
+
             constraint_storage_facility(instance=instance, store_max=scenario.store_max,
                                         loc_res_dict=scenario.loc_res_dict,
                                         network_scale_level=scenario.network_scale_level)
-            
-                        
+
             constraint_production_facility(instance=instance, prod_max=scenario.prod_max,
                                            loc_pro_dict=scenario.loc_pro_dict,
                                            network_scale_level=scenario.network_scale_level)
-            
+
             constraint_min_production_facility(instance=instance, prod_min=scenario.prod_min,
                                                loc_pro_dict=scenario.loc_pro_dict,
                                                network_scale_level=scenario.network_scale_level)
-            
+
             constraint_min_storage_facility(instance=instance, store_min=scenario.store_min,
                                             loc_res_dict=scenario.loc_res_dict,
                                             network_scale_level=scenario.network_scale_level)
-            
+
             instance.del_component(instance.constraint_storage_min)
             instance.del_component(instance.constraint_production_min)
 
         if Constraints.MODE in constraints:
             generate_mode_vars(
                 instance=instance, scale_level=scenario.scheduling_scale_level, mode_dict=scenario.mode_dict)
-            
+
             constraint_production_mode_facility(instance=instance, prod_max=scenario.prod_max,
                                                 loc_pro_dict=scenario.loc_pro_dict,
                                                 scheduling_scale_level=scenario.scheduling_scale_level)
@@ -434,7 +433,7 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
 
         if write_lpfile is True:
             instance.write(f'{scenario.name}.lp')
-        
+
         instance.dual = Suffix(direction=Suffix.IMPORT_EXPORT)
 
         return instance
