@@ -94,6 +94,7 @@ class Location:
         self.processes_full = self.processes.union({create_storage_process(
             i) for i in self.processes if i.processmode == ProcessMode.STORAGE})
         self.prod_max = self.get_prod_max()
+        self.prod_min = self.get_prod_min()
 
         if self.capacity_factor is not None:
             self.varying_capacity = set(self.capacity_factor.keys())
@@ -220,6 +221,19 @@ class Location:
                 prod_max_dict[i.name] = {0: None}
                 prod_max_dict[i.name][0] = i.prod_max
         return prod_max_dict
+
+    def get_prod_min(self) -> dict:
+        """
+        make a dictionary with minimum production
+        """
+        prod_min_dict = {}
+        for i in self.processes_full:
+            if i.processmode == ProcessMode.MULTI:
+                prod_min_dict[i.name] = i.prod_min
+            else:
+                prod_min_dict[i.name] = {0: None}
+                prod_min_dict[i.name][0] = i.prod_min
+        return prod_min_dict
 
     def __repr__(self):
         return self.name
