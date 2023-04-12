@@ -16,7 +16,8 @@ from typing import Set, Dict
 from pyomo.environ import ConcreteModel, Suffix
 
 from ..components.scenario import Scenario
-from ..components.resource import Resource
+from ..components.scenario import Resource
+
 
 from .constraints.cost import (
     constraint_location_capex,
@@ -37,6 +38,7 @@ from .constraints.cost import (
     constraint_transport_cost,
     constraint_transport_cost_network,
     constraint_transport_imp_cost,
+    constraint_network_cost
 )
 from .constraints.emission import (
     constraint_global_warming_potential_location,
@@ -98,8 +100,9 @@ from .constraints.network import (
     constraint_production_facility,
     constraint_min_storage_facility,
     constraint_min_production_facility,
+    constraint_min_capacity_facility
 )
-from .objectives import cost_objective, demand_objective
+from .objectives import objective_cost, objective_discharge_max, objective_discharge_min
 from .sets import generate_sets
 from .variables.binary import generate_network_binary_vars
 from .variables.cost import generate_costing_vars
@@ -148,15 +151,19 @@ class Objective(Enum):
     """
     Minimize cost
     """
-    DEMAND = auto()
+    MIN_DISCHARGE = auto()
     """
-    Maximize demand
+    Minimize discharge of particular resource
+    """
+    MAX_DISCHARGE = auto()
+    """
+    Minimize discharge of particular resource
     """
 
 
 def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objective: Objective = None,
               write_lpfile: bool = False, gwp: float = None, land_restriction: float = None,
-              gwp_reduction_pct: float = None, model_class: ModelClass = ModelClass.MIP) -> ConcreteModel:
+              gwp_reduction_pct: float = None, model_class: ModelClass = ModelClass.MIP, objective_resource: Resource = None) -> ConcreteModel:
     """formulates a model. Constraints need to be declared in order
 
     Args:
@@ -185,7 +192,8 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
 
     Objectives include:
             Objectives.COST
-            Objectives.DEMAND
+            Objectives.MIN_DISCHARGE
+            Objectives.MAX_DISCHARGE
 
     Returns:
         ConcreteModel: pyomo instance
@@ -205,7 +213,7 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
             instance=instance, scale_level=scenario.scheduling_scale_level, mode_dict=scenario.mode_dict)
         generate_network_vars(
             instance=instance, scale_level=scenario.network_scale_level)
-        # generate_costing_vars(instance=instance)
+        generate_costing_vars(instance=instance)
 
         if Constraints.UNCERTAIN in constraints:
             generate_uncertainty_vars(
@@ -423,13 +431,33 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
             constraint_demand(instance=instance, demand_scale_level=scenario.demand_scale_level,
                               scheduling_scale_level=scenario.scheduling_scale_level, demand=demand,
                               demand_factor=scenario.demand_factor)
-
-            cost_objective(instance=instance,
+            
+            objective_cost(instance=instance,
                            network_scale_level=scenario.network_scale_level)
 
-        if objective == Objective.DEMAND:
-            demand_objective(instance=instance,
-                             network_scale_level=scenario.network_scale_level)
+        if objective == Objective.MIN_DISCHARGE:
+            constraint_demand(instance=instance, demand_scale_level=scenario.demand_scale_level,
+                              scheduling_scale_level=scenario.scheduling_scale_level, demand=demand,
+                              demand_factor=scenario.demand_factor)
+
+            constraint_network_cost(instance=instance, network_scale_level=scenario.network_scale_level)
+
+            objective_discharge_min(instance=instance, resource= objective_resource,
+                                    network_scale_level=scenario.network_scale_level)
+
+        if objective == Objective.MAX_DISCHARGE:
+            constraint_demand(instance=instance, demand_scale_level=scenario.demand_scale_level,
+                              scheduling_scale_level=scenario.scheduling_scale_level, demand=demand,
+                              demand_factor=scenario.demand_factor)
+
+            constraint_network_cost(instance=instance, network_scale_level=scenario.network_scale_level)
+
+            objective_discharge_max(instance=instance, resource= objective_resource,
+                                    network_scale_level=scenario.network_scale_level)
+
+        if scenario.capacity_bounds is not None:
+            constraint_min_capacity_facility(instance=instance, loc_pro_dict=scenario.loc_pro_dict,
+                                             network_scale_level=scenario.network_scale_level, capacity_bounds=scenario.capacity_bounds)
 
         if write_lpfile is True:
             instance.write(f'{scenario.name}.lp')
