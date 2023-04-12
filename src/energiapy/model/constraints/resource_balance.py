@@ -10,13 +10,13 @@ __maintainer__ = "Rahul Kakodkar"
 __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
-from typing import Union
+from typing import Union, Dict
 
 from pyomo.environ import ConcreteModel, Constraint
 
 from ...utils.latex_utils import constraint_latex_render
 from ...utils.scale_utils import scale_list, scale_tuple
-
+from ...components.resource import Resource
 
 def constraint_resource_consumption(instance: ConcreteModel, loc_res_dict: dict = None, cons_max: dict = None,
                                     scheduling_scale_level: int = 0) -> Constraint:
@@ -457,3 +457,28 @@ def constraint_network_purchase(instance: ConcreteModel, network_scale_level: in
         instance.resources_purch, *scales, rule=network_purchase_rule, doc='total purchase from network')
     constraint_latex_render(network_purchase_rule)
     return instance.constraint_network_purchase
+
+
+def constraint_specific_network_discharge(instance: ConcreteModel, bounds: Dict[Resource, float], network_scale_level: int = 0, ) -> Constraint:
+    """Determines total resource discharged across specific_network
+
+    Args:
+        instance (ConcreteModel): pyomo instance
+        specific_network_scale_level (int, optional): scale of specific_network decisions. Defaults to 0.
+
+    Returns:
+        Constraint: specific_network_discharge
+    """
+    scales = scale_list(instance=instance, scale_levels=network_scale_level + 1)
+    resource_list = [i.name for i in bounds.keys()]
+    bounds_dict = {i.name: bounds[i] for i in bounds.keys()}
+    def specific_network_discharge_rule(instance, resource, *scale_list):
+        if resource in resource_list:
+            return instance.S_network[resource, scale_list] <= bounds_dict[resource]
+        else:
+            return Constraint.Skip
+
+    instance.constraint_specific_network_discharge = Constraint(
+        instance.resources_sell, *scales, rule=specific_network_discharge_rule, doc='total discharge from specific_network')
+    constraint_latex_render(specific_network_discharge_rule)
+    return instance.constraint_specific_network_discharge

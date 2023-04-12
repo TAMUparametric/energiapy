@@ -2,7 +2,7 @@
 """
 
 __author__ = "Rahul Kakodkar"
-__copyright__ = "Copyright 2022, Multi-parametric Optimization & Control Lab"
+__copyright__ = "Copyright 2023, Multi-parametric Optimization & Control Lab"
 __credits__ = ["Rahul Kakodkar", "Efstratios N. Pistikopoulos"]
 __license__ = "MIT"
 __version__ = "1.0.5"
@@ -21,7 +21,7 @@ from ..components.network import Network
 from ..components.process import ProcessMode, VaryingProcess
 from ..components.resource import Resource, VaryingResource
 from ..components.temporal_scale import TemporalScale
-
+from ..model.bounds import CapacityBounds
 
 @dataclass
 class Scenario:
@@ -60,6 +60,7 @@ class Scenario:
     cluster_wt: dict = None
     demand: Union[Dict[Location, Dict[Resource, float]], float] = None
     label: str = ''
+    capacity_bounds: CapacityBounds = None
 
     def __post_init__(self):
         """
@@ -141,7 +142,7 @@ class Scenario:
             else 0 for j in self.resource_set} for i in self.process_set if i.conversion is not None}
 
         self.prod_max = {i.name: i.prod_max for i in self.location_set}
-        self.prod_min = {i.name: {j.name: j.prod_min for j in i.processes_full} for i in self.location_set}
+        self.prod_min = {i.name: i.prod_min for i in self.location_set}
         self.cons_max = {i.name: {j.name: j.cons_max for j in i.resources_full} for i in self.location_set}
         self.store_max = {i.name: {j.name: j.store_max for j in i.resources_full} for i in self.location_set}
         self.store_min = {i.name: {j.name: j.store_min for j in i.resources_full} for i in self.location_set}

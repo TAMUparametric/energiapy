@@ -140,6 +140,7 @@ class Process:
     storage_loss: float = 0
     store_max: float = 0
     store_min: float = 0
+    rate_max: Union[Dict[int, float], float] = None
 
     def __post_init__(self):
         """Determines the ProcessMode, CostDynamics, and kicks out dummy resources if process is stores resource
