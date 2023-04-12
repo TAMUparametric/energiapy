@@ -81,7 +81,7 @@ def constraint_storage_facility(instance: ConcreteModel, store_max: dict, loc_re
             return instance.Cap_S[location, resource, scale_list[:network_scale_level + 1]] == 0
 
     instance.constraint_storage_facility = Constraint(
-        instance.locations, instance.resources_store, 
+        instance.locations, instance.resources_store,
         scales, rule=storage_facility_rule,
         doc='storage facility sizing and location')
     constraint_latex_render(storage_facility_rule)
@@ -156,7 +156,7 @@ def constraint_min_production_facility(instance: ConcreteModel, prod_min: dict, 
             return Constraint.Skip
 
     instance.constraint_min_production_facility = Constraint(
-        instance.locations, instance.processes, 
+        instance.locations, instance.processes,
         scales, rule=min_production_facility_rule,
         doc='production facility sizing and location')
     constraint_latex_render(min_production_facility_rule)
