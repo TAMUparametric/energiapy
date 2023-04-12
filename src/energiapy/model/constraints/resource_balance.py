@@ -238,7 +238,7 @@ def constraint_demand(instance: ConcreteModel, demand: Union[dict, float], deman
             # TODO - doesn't meet demand in first timeperiod
             discharge = sum(instance.S[location, resource, scale_] for scale_ in scale_iter if scale_[
                                                                                                :scheduling_scale_level + 1] == scale_list)
-            
+
             if isinstance(demand, dict):
                 demandtarget = demand[location][resource]
             else:
@@ -249,7 +249,7 @@ def constraint_demand(instance: ConcreteModel, demand: Union[dict, float], deman
     if len(instance.locations) > 1:
         instance.constraint_demand = Constraint(
             instance.sinks, instance.resources_demand, *scales, rule=demand_rule, doc='specific demand for resources')
-        
+
     else:
         instance.constraint_demand = Constraint(
             instance.locations, instance.resources_demand, *scales, rule=demand_rule,

@@ -12,7 +12,6 @@ __status__ = "Production"
 
 
 from enum import Enum, auto
-from typing import Tuple
 
 import matplotlib.pyplot as plt
 import numpy
