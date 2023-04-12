@@ -11,10 +11,11 @@ __maintainer__ = "Rahul Kakodkar"
 __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
-from pyomo.environ import Binary, ConcreteModel, Var
+from pyomo.environ import Binary, ConcreteModel, Var, NonNegativeReals
 
 
 def generate_costing_vars(instance: ConcreteModel):
-    instance.cost_segments = Var(
-        instance.locations, instance.processes, within=Binary, doc='Segment for costing')
+    # instance.cost_segments = Var(
+    #     instance.locations, instance.processes, within=Binary, doc='Segment for costing')
+    instance.Cost = Var(within=NonNegativeReals, doc='Total cost')
     return

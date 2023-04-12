@@ -16,9 +16,10 @@ from pyomo.environ import ConcreteModel, Objective, maximize
 
 from ..utils.latex_utils import constraint_latex_render
 from ..utils.scale_utils import scale_tuple
+from ..components.resource import Resource
 
 
-def cost_objective(instance: ConcreteModel, network_scale_level: int = 0) -> Objective:
+def objective_cost(instance: ConcreteModel, network_scale_level: int = 0) -> Objective:
     """Objective to minimize total cost
 
     Args:
@@ -28,18 +29,21 @@ def cost_objective(instance: ConcreteModel, network_scale_level: int = 0) -> Obj
     Returns:
         Objective: cost objective
     """
-    scale_iter = scale_tuple(instance=instance, scale_levels=network_scale_level + 1)
+    scale_iter = scale_tuple(
+        instance=instance, scale_levels=network_scale_level + 1)
 
-    def cost_objective_rule(instance):
+    def objective_cost_rule(instance):
         capex = sum(instance.Capex_network[scale_] for scale_ in scale_iter)
         vopex = sum(instance.Vopex_network[scale_] for scale_ in scale_iter)
         fopex = sum(instance.Fopex_network[scale_] for scale_ in scale_iter)
-        incidental = sum(instance.Incidental_network[scale_] for scale_ in scale_iter)
+        incidental = sum(
+            instance.Incidental_network[scale_] for scale_ in scale_iter)
 
         cost_purch = sum(instance.B_network[resource_, scale_] for resource_, scale_ in
                          product(instance.resources_purch, scale_iter))
 
-        land_cost = sum(instance.Land_cost_network[scale_] for scale_ in scale_iter)
+        land_cost = sum(
+            instance.Land_cost_network[scale_] for scale_ in scale_iter)
 
         if len(instance.locations) > 1:
             cost_trans = sum(instance.Trans_cost_network[transport_, scale_] for transport_, scale_ in
@@ -48,12 +52,13 @@ def cost_objective(instance: ConcreteModel, network_scale_level: int = 0) -> Obj
             cost_trans = 0
         return capex + vopex + fopex + cost_purch + cost_trans + incidental + land_cost
 
-    instance.cost_objective = Objective(rule=cost_objective_rule, doc='total cost')
-    constraint_latex_render(cost_objective_rule)
-    return instance.cost_objective
+    instance.objective_cost = Objective(
+        rule=objective_cost_rule, doc='total cost')
+    constraint_latex_render(objective_cost_rule)
+    return instance.objective_cost
 
 
-def uncertainty_cost_objective(instance: ConcreteModel, penalty: float, network_scale_level: int = 0,
+def objective_uncertainty_cost(instance: ConcreteModel, penalty: float, network_scale_level: int = 0,
                                uncertainty_scale_level: int = 0) -> Objective:
     """Objective to minimize total cost
 
@@ -64,8 +69,10 @@ def uncertainty_cost_objective(instance: ConcreteModel, penalty: float, network_
     Returns:
         Objective: cost objective
     """
-    scale_iter = scale_tuple(instance=instance, scale_levels=network_scale_level + 1)
-    scale_iter_uncertainty = scale_tuple(instance=instance, scale_levels=uncertainty_scale_level + 1)
+    scale_iter = scale_tuple(
+        instance=instance, scale_levels=network_scale_level + 1)
+    scale_iter_uncertainty = scale_tuple(
+        instance=instance, scale_levels=uncertainty_scale_level + 1)
 
     def uncertainty_cost_objective_rule(instance):
         capex = sum(instance.Capex_network[scale_] for scale_ in scale_iter)
@@ -88,22 +95,66 @@ def uncertainty_cost_objective(instance: ConcreteModel, penalty: float, network_
     return instance.uncertainty_cost_objective
 
 
-def demand_objective(instance: ConcreteModel, network_scale_level: int = 0) -> Objective:
-    """Objective to maximize total discharge
+# def objective_discharge_max(instance: ConcreteModel, network_scale_level: int = 0) -> Objective:
+#     """Objective to maximize total discharge
+
+#     Args:
+#         instance (ConcreteModel): pyomo instance
+#         network_scale_level (int, optional): scale of network decisions. Defaults to 0.
+
+#     Returns:
+#         Objective: cost objective
+#     """
+#     scale_iter = scale_tuple(instance=instance, scale_levels=network_scale_level + 1)
+
+#     def demand_objective_rule(instance):
+#         return sum(instance.S_network[resource_, scale_] for resource_, scale_ in
+#                    product(instance.resources_demand, scale_iter))
+
+#     instance.demand_objective = Objective(rule=demand_objective_rule, doc='total purchase from network', sense=maximize)
+#     # constraint_latex_render(cost_objective_rule)
+#     return instance.demand_objective
+
+
+def objective_discharge_min(instance: ConcreteModel, resource: Resource, network_scale_level: int = 0, ) -> Objective:
+    """Minimize discharge of a particular resource
 
     Args:
         instance (ConcreteModel): pyomo instance
         network_scale_level (int, optional): scale of network decisions. Defaults to 0.
 
     Returns:
-        Objective: cost objective
+        Objective: objective_discharge_min
     """
-    scale_iter = scale_tuple(instance=instance, scale_levels=network_scale_level + 1)
+    scale_iter = scale_tuple(
+        instance=instance, scale_levels=network_scale_level + 1)
 
-    def demand_objective_rule(instance):
-        return sum(instance.S_network[resource_, scale_] for resource_, scale_ in
-                   product(instance.resources_demand, scale_iter))
+    def objective_discharge_min_rule(instance, *scale_list):
+        return sum(instance.S_network[resource.name, scale_] for scale_ in scale_iter)
 
-    instance.demand_objective = Objective(rule=demand_objective_rule, doc='total purchase from network', sense=maximize)
-    # constraint_latex_render(cost_objective_rule)
-    return instance.demand_objective
+    instance.objective_discharge_min = Objective(
+        rule=objective_discharge_min_rule, doc='minimize total discharge from specific_network')
+    constraint_latex_render(objective_discharge_min_rule)
+    return instance.objective_discharge_min
+
+
+def objective_discharge_max(instance: ConcreteModel, resource: Resource, network_scale_level: int = 0, ) -> Objective:
+    """Maximize discharge of a particular resource
+
+    Args:
+        instance (ConcreteModel): pyomo instance
+        network_scale_level (int, optional): scale of network decisions. Defaults to 0.
+
+    Returns:
+        Objective: objective_discharge_max
+    """
+    scale_iter = scale_tuple(
+        instance=instance, scale_levels=network_scale_level + 1)
+
+    def objective_discharge_max_rule(instance, *scale_list):
+        return sum(instance.S_network[resource.name, scale_] for scale_ in scale_iter)
+
+    instance.objective_discharge_max = Objective(
+        rule=objective_discharge_max_rule, sense=maximize, doc='maximize total discharge from specific_network')
+    constraint_latex_render(objective_discharge_max_rule)
+    return instance.objective_discharge_max
