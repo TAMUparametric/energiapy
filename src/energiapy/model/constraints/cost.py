@@ -462,3 +462,41 @@ def constraint_network_land_cost(instance: ConcreteModel, network_scale_level: i
         *scales, rule=network_land_cost_rule, doc='land cost for process')
     constraint_latex_render(network_land_cost_rule)
     return instance.constraint_network_land_cost
+
+def constraint_network_cost(instance: ConcreteModel, network_scale_level: int = 0) -> Constraint:
+    """Total network costs
+
+    Args:
+        instance (ConcreteModel): pyomo instance
+        network_scale_level (int, optional): scale of network decisions. Defaults to 0.
+
+    Returns:
+        Constraint: total network cost
+    """
+    scale_iter = scale_tuple(
+        instance=instance, scale_levels=network_scale_level + 1)
+
+    def constraint_network_cost_rule(instance):
+        capex = sum(instance.Capex_network[scale_] for scale_ in scale_iter)
+        vopex = sum(instance.Vopex_network[scale_] for scale_ in scale_iter)
+        fopex = sum(instance.Fopex_network[scale_] for scale_ in scale_iter)
+        incidental = sum(
+            instance.Incidental_network[scale_] for scale_ in scale_iter)
+
+        cost_purch = sum(instance.B_network[resource_, scale_] for resource_, scale_ in
+                         product(instance.resources_purch, scale_iter))
+
+        land_cost = sum(
+            instance.Land_cost_network[scale_] for scale_ in scale_iter)
+
+        if len(instance.locations) > 1:
+            cost_trans = sum(instance.Trans_cost_network[transport_, scale_] for transport_, scale_ in
+                             product(instance.transports, scale_iter))
+        else:
+            cost_trans = 0
+        return instance.Cost == capex + vopex + fopex + cost_purch + cost_trans + incidental + land_cost
+
+    instance.constraint_network_cost = Constraint(
+        rule=constraint_network_cost_rule, doc='total network cost')
+    constraint_latex_render(constraint_network_cost_rule)
+    return instance.constraint_network_cost
