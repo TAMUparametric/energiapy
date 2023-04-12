@@ -34,7 +34,6 @@ class VaryingResource(Enum):
     """
     Utilize uncertainty variables for price
     """
-    
 
 @dataclass
 class Resource:

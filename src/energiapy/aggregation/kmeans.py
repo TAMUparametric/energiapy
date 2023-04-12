@@ -88,7 +88,7 @@ def kmeans(scales: TemporalScale, scale_level: int, periods: int, include: list,
     cluster_centers = kmeans.cluster_centers_
 
     kmeans_df = pandas.DataFrame(cluster_centers, columns= combined_df.columns)
-    
+
     # scale = scales.scale[scale_level]
 
     # creates a new TemporalScale object on the reduced scale

@@ -114,7 +114,7 @@ def constraint_storage_min(instance: ConcreteModel, store_min: dict, loc_res_dic
     def storage_min_rule(instance, location, resource, *scale_list):
         if resource in loc_res_dict[location]:
             return instance.Cap_S[location, resource, scale_list[:network_scale_level + 1]] >= store_min[location][
-                resource] 
+                resource]
         else:
             return Constraint.Skip
 

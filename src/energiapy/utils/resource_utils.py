@@ -28,6 +28,5 @@ def create_storage_resource(process_name:str, resource: Resource, store_max: flo
     # print(resource.block)
     # print(resource.name)
     resource_dummy = Resource(name= f"{process_name}_{resource.name}_stored", loss= resource.loss, store_max= store_max, store_min= store_min, basis= resource.basis, block= resource.block, label= resource.label+f"{process_name}(stored)")
-    
-    return resource_dummy
 
+    return resource_dummy
