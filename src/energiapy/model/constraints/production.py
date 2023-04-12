@@ -199,7 +199,7 @@ def constraint_production_min(instance: ConcreteModel, prod_min: dict, loc_pro_d
                 return instance.Cap_P[location, process, scale_list[:network_scale_level + 1]] == 0
         else:
             return Constraint.Skip
-        
+
     instance.constraint_production_min = Constraint(
         instance.locations, instance.processes, *
         scales, rule=production_min_rule,

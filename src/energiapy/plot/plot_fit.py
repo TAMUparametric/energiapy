@@ -13,7 +13,7 @@ __status__ = "Production"
 import matplotlib.pyplot as plt
 from matplotlib import rc
 
-import pandas 
+import pandas
 import scipy
 import numpy
 
@@ -35,7 +35,7 @@ def distribution(fit_summary: pandas.DataFrame, fit_type: 'str', fig_size: tuple
 
     if fit_type == 'norm':
         y = scipy.stats.norm.pdf(x, loc= fit_summary['params'][fit_type][0], scale= fit_summary['params'][fit_type][1])
-        
+
     if fit_type == 'expon':
         y = scipy.stats.expon.pdf(x, loc= fit_summary['params'][fit_type][0], scale= fit_summary['params'][fit_type][1])
 
@@ -77,7 +77,7 @@ def distribution(fit_summary: pandas.DataFrame, fit_type: 'str', fig_size: tuple
     return
 
 
-def histogram(data: numpy.ndarray, fig_size: tuple = (8, 6), font_size: int = 16, color: str = 'steelblue'): 
+def histogram(data: numpy.ndarray, fig_size: tuple = (8, 6), font_size: int = 16, color: str = 'steelblue'):
     """Plots a histogram of time-series data
 
     Args:
