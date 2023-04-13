@@ -29,12 +29,14 @@ def constraint_credit_process(instance: ConcreteModel, credit_dict: dict, networ
     scales = scale_list(instance=instance, scale_levels=network_scale_level + 1)
 
     def credit_process_rule(instance, location, process, *scale_list):
-        if process in credit_dict[location]:
-            return instance.Credit_process[location, process, scale_list] == credit_dict[location][process] * instance.P_location[
-                location, process, scale_list]
-        else:
-            return Constraint.Skip
-
+        if credit_dict != {}:
+            if process in credit_dict[location]:
+                return instance.Credit_process[location, process, scale_list] == credit_dict[location][process] * instance.P_location[
+                    location, process, scale_list]
+            else:
+                return Constraint.Skip
+        return Constraint.Skip
+    
     instance.constraint_credit_process = Constraint(
         instance.locations, instance.processes, scales, rule=credit_process_rule, doc='credit generated for process')
     constraint_latex_render(credit_process_rule)
