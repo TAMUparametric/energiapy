@@ -20,6 +20,14 @@ energiapy.model.constraints.cost module
    :undoc-members:
    :show-inheritance:
 
+energiapy.model.constraints.credit module
+-----------------------------------------
+
+.. automodule:: energiapy.model.constraints.credit
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 energiapy.model.constraints.emission module
 -------------------------------------------
 
@@ -72,6 +80,14 @@ energiapy.model.constraints.mode module
 ---------------------------------------
 
 .. automodule:: energiapy.model.constraints.mode
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+energiapy.model.constraints.network module
+------------------------------------------
+
+.. automodule:: energiapy.model.constraints.network
    :members:
    :undoc-members:
    :show-inheritance:

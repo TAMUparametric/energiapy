@@ -43,14 +43,17 @@ def objective_cost(instance: ConcreteModel, network_scale_level: int = 0) -> Obj
                          product(instance.resources_purch, scale_iter))
 
         land_cost = sum(
-            instance.Land_cost_network[scale_] for scale_ in scale_iter)
+            instance.Land_network_cost[scale_] for scale_ in scale_iter)
+
+        credit = sum(
+            instance.Credit_network[scale_] for scale_ in scale_iter)
 
         if len(instance.locations) > 1:
             cost_trans = sum(instance.Trans_cost_network[transport_, scale_] for transport_, scale_ in
                              product(instance.transports, scale_iter))
         else:
             cost_trans = 0
-        return capex + vopex + fopex + cost_purch + cost_trans + incidental + land_cost
+        return capex + vopex + fopex + cost_purch + cost_trans + incidental + land_cost + credit
 
     instance.objective_cost = Objective(
         rule=objective_cost_rule, doc='total cost')

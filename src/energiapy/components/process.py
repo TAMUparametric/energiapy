@@ -83,7 +83,7 @@ class Process:
         material_cons (Dict[Material, float], optional): Materials consumed per unit basis of production capacity. Defaults to None.
         prod_max (float, optional): Maximum production capacity allowed in a time period of the scheduling scale. Defaults to 0.
         prod_min (float, optional): Minimum production capacity allowed in a time period of the scheduling scale. Defaults to 0.
-        carbon_credit (float, optional): Carbon Credit earned per unit basis of production. Defaults to 0.
+        credit (float, None): credit earned per unit basis of production. Defaults to None.
         basis(str, optional): base units for operation. Defaults to 'unit'.
         gwp (float, optional): global warming potential for settting up facility per unit basis. Defaults to 0.
         land (float, optional): land requirement per unit basis. Defaults to 0.
@@ -126,7 +126,7 @@ class Process:
     prod_max: Union[Dict[int, float], float] = 0
     prod_min: float = 0
     basis: str = 'unit'
-    carbon_credit: float = 0
+    credit: float = None
     gwp: float = 0
     land: float = 0
     trl: str = None

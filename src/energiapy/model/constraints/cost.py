@@ -402,7 +402,7 @@ def constraint_network_fopex(instance: ConcreteModel, network_scale_level: int =
     return instance.constraint_network_fopex
 
 
-def constraint_process_land_cost(instance: ConcreteModel, land_dict: dict, land_cost_dict: dict, network_scale_level: int = 0) -> Constraint:
+def constraint_land_process_cost(instance: ConcreteModel, land_dict: dict, land_cost_dict: dict, network_scale_level: int = 0) -> Constraint:
     """Land cost for each process at location in network
 
     Args:
@@ -412,19 +412,19 @@ def constraint_process_land_cost(instance: ConcreteModel, land_dict: dict, land_
         network_scale_level (int, optional): scale of network decisions. Defaults to 0.
 
     Returns:
-        Constraint: process_land
+        Constraint: land_process
     """
     scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
 
-    def process_land_cost_rule(instance, location, process, *scale_list):
+    def land_process_cost_rule(instance, location, process, *scale_list):
         return instance.Land_cost_process[location, process, scale_list] == land_cost_dict[location]*land_dict[process]*instance.Cap_P[location, process, scale_list]
-    instance.constraint_process_land_cost = Constraint(
-        instance.locations, instance.processes, *scales, rule=process_land_cost_rule, doc='land cost for process at location')
-    constraint_latex_render(process_land_cost_rule)
-    return instance.constraint_process_land_cost
+    instance.constraint_land_process_cost = Constraint(
+        instance.locations, instance.processes, *scales, rule=land_process_cost_rule, doc='land cost for process at location')
+    constraint_latex_render(land_process_cost_rule)
+    return instance.constraint_land_process_cost
 
 
-def constraint_location_land_cost(instance: ConcreteModel, network_scale_level: int = 0) -> Constraint:
+def constraint_land_location_cost(instance: ConcreteModel, network_scale_level: int = 0) -> Constraint:
     """Land cost each location in network
 
     Args:
@@ -432,19 +432,19 @@ def constraint_location_land_cost(instance: ConcreteModel, network_scale_level: 
         network_scale_level (int, optional): scale of network decisions. Defaults to 0.
 
     Returns:
-        Constraint: location_land_cost
+        Constraint: land_location_cost
     """
     scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
 
-    def location_land_cost_rule(instance, location, *scale_list):
+    def land_location_cost_rule(instance, location, *scale_list):
         return instance.Land_cost_location[location, scale_list] == sum(instance.Land_cost_process[location, process_, scale_list] for process_ in instance.processes)
-    instance.constraint_location_land_cost = Constraint(
-        instance.locations, *scales, rule=location_land_cost_rule, doc='land cost at location')
-    constraint_latex_render(location_land_cost_rule)
-    return instance.constraint_location_land_cost
+    instance.constraint_land_location_cost = Constraint(
+        instance.locations, *scales, rule=land_location_cost_rule, doc='land cost at location')
+    constraint_latex_render(land_location_cost_rule)
+    return instance.constraint_land_location_cost
 
 
-def constraint_network_land_cost(instance: ConcreteModel, network_scale_level: int = 0) -> Constraint:
+def constraint_land_network_cost(instance: ConcreteModel, network_scale_level: int = 0) -> Constraint:
     """Land cost by network
 
     Args:
@@ -452,16 +452,16 @@ def constraint_network_land_cost(instance: ConcreteModel, network_scale_level: i
         network_scale_level (int, optional): scale of network decisions. Defaults to 0.
 
     Returns:
-        Constraint: network_land_cost
+        Constraint: land_network_cost
     """
     scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
 
-    def network_land_cost_rule(instance, *scale_list):
+    def land_network_cost_rule(instance, *scale_list):
         return instance.Land_cost_network[scale_list] == sum(instance.Land_cost_location[location_, scale_list] for location_ in instance.locations)
-    instance.constraint_network_land_cost = Constraint(
-        *scales, rule=network_land_cost_rule, doc='land cost for process')
-    constraint_latex_render(network_land_cost_rule)
-    return instance.constraint_network_land_cost
+    instance.constraint_land_network_cost = Constraint(
+        *scales, rule=land_network_cost_rule, doc='land cost for process')
+    constraint_latex_render(land_network_cost_rule)
+    return instance.constraint_land_network_cost
 
 def constraint_network_cost(instance: ConcreteModel, network_scale_level: int = 0) -> Constraint:
     """Total network costs
@@ -487,14 +487,17 @@ def constraint_network_cost(instance: ConcreteModel, network_scale_level: int = 
                          product(instance.resources_purch, scale_iter))
 
         land_cost = sum(
-            instance.Land_cost_network[scale_] for scale_ in scale_iter)
+            instance.Land_network_cost[scale_] for scale_ in scale_iter)
 
+        credit = sum(
+            instance.Credit_network[scale_] for scale_ in scale_iter)
+        
         if len(instance.locations) > 1:
             cost_trans = sum(instance.Trans_cost_network[transport_, scale_] for transport_, scale_ in
                              product(instance.transports, scale_iter))
         else:
             cost_trans = 0
-        return instance.Cost == capex + vopex + fopex + cost_purch + cost_trans + incidental + land_cost
+        return instance.Cost == capex + vopex + fopex + cost_purch + cost_trans + incidental + land_cost + credit
 
     instance.constraint_network_cost = Constraint(
         rule=constraint_network_cost_rule, doc='total network cost')

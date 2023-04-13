@@ -23,6 +23,7 @@ def generate_scheduling_vars(instance: ConcreteModel, scale_level: int = 0, mode
     Args:
         instance (ConcreteModel): pyomo instance
         scale_level (int, optional):  scale for scheduling variables. Defaults to 0.
+        mode_dict (dict, optional): dictionary with mode information of processes. Defaults to None.
     """
 
     if mode_dict is None:
