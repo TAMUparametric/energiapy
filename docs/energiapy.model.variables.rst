@@ -20,6 +20,30 @@ energiapy.model.variables.cost module
    :undoc-members:
    :show-inheritance:
 
+energiapy.model.variables.credit module
+---------------------------------------
+
+.. automodule:: energiapy.model.variables.credit
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+energiapy.model.variables.emission module
+-----------------------------------------
+
+.. automodule:: energiapy.model.variables.emission
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+energiapy.model.variables.land module
+-------------------------------------
+
+.. automodule:: energiapy.model.variables.land
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 energiapy.model.variables.mode module
 -------------------------------------
 

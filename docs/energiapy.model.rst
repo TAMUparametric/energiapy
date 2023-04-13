@@ -13,6 +13,14 @@ Subpackages
 Submodules
 ----------
 
+energiapy.model.bounds module
+-----------------------------
+
+.. automodule:: energiapy.model.bounds
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 energiapy.model.formulate module
 --------------------------------
 
