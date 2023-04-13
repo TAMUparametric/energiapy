@@ -23,17 +23,17 @@ from .constraints.cost import (
     constraint_location_capex,
     constraint_location_fopex,
     constraint_location_incidental,
-    constraint_location_land_cost,
+    constraint_land_location_cost,
     constraint_location_vopex,
     constraint_network_capex,
     constraint_network_fopex,
     constraint_network_incidental,
-    constraint_network_land_cost,
+    constraint_land_network_cost,
     constraint_network_vopex,
     constraint_process_capex,
     constraint_process_fopex,
     constraint_process_incidental,
-    constraint_process_land_cost,
+    constraint_land_process_cost,
     constraint_process_vopex,
     constraint_transport_cost,
     constraint_transport_cost_network,
@@ -55,10 +55,10 @@ from .constraints.inventory import (
     constraint_storage_min,
 )
 from .constraints.land import (
-    constraint_location_land,
-    constraint_location_land_restriction,
-    constraint_network_land,
-    constraint_process_land,
+    constraint_land_location,
+    constraint_land_location_restriction,
+    constraint_land_network,
+    constraint_land_process,
 )
 from .constraints.mode import (
     constraint_production_mode,
@@ -102,6 +102,11 @@ from .constraints.network import (
     constraint_min_production_facility,
     constraint_min_capacity_facility
 )
+from .constraints.credit import (
+    constraint_credit_process,
+    constraint_credit_location,
+    constraint_credit_network
+)
 from .objectives import objective_cost, objective_discharge_max, objective_discharge_min
 from .sets import generate_sets
 from .variables.binary import generate_network_binary_vars
@@ -111,7 +116,9 @@ from .variables.network import generate_network_vars
 from .variables.schedule import generate_scheduling_vars
 from .variables.transport import generate_transport_vars
 from .variables.uncertain import generate_uncertainty_vars
-
+from .variables.credit import generate_credit_vars
+from .variables.land import generate_land_vars
+from .variables.emission import generate_emission_vars
 
 class ModelClass(Enum):
     """Class of model
@@ -141,6 +148,7 @@ class Constraints(Enum):
     MODE = auto()
     LIFECYCLE = auto()
     NETWORK = auto()
+    CREDIT = auto()
 
 
 class Objective(Enum):
@@ -189,6 +197,7 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
             Constraints.UNCERTAIN
             Constraints.NETWORK
             Constraints.MODE
+            Constraints.CREDIT
 
     Objectives include:
             Objectives.COST
@@ -257,6 +266,9 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
                 instance=instance, network_scale_level=scenario.network_scale_level)
 
         if Constraints.EMISSION in constraints:
+            generate_emission_vars(
+                instance=instance, scale_level=scenario.network_scale_level)
+
             constraint_global_warming_potential_process(
                 instance=instance, process_gwp_dict=scenario.process_gwp_dict,
                 network_scale_level=scenario.network_scale_level)
@@ -312,25 +324,40 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
                                       network_scale_level=scenario.network_scale_level)
 
         if Constraints.LAND in constraints:
-            constraint_process_land(instance=instance, land_dict=scenario.land_dict,
+            generate_land_vars(
+                instance=instance, scale_level=scenario.network_scale_level)
+
+            constraint_land_process(instance=instance, land_dict=scenario.land_dict,
                                     network_scale_level=scenario.network_scale_level)
-            constraint_location_land(
+            constraint_land_location(
                 instance=instance, network_scale_level=scenario.network_scale_level)
-            constraint_network_land(
+            constraint_land_network(
                 instance=instance, network_scale_level=scenario.network_scale_level)
 
-            constraint_process_land_cost(instance=instance, land_dict=scenario.land_dict,
+            constraint_land_process_cost(instance=instance, land_dict=scenario.land_dict,
                                          land_cost_dict=scenario.land_cost_dict,
                                          network_scale_level=scenario.network_scale_level)
-            constraint_location_land_cost(
+            constraint_land_location_cost(
                 instance=instance, network_scale_level=scenario.network_scale_level)
-            constraint_network_land_cost(
+            constraint_land_network_cost(
                 instance=instance, network_scale_level=scenario.network_scale_level)
 
             if land_restriction is not None:
-                constraint_location_land_restriction(
+                constraint_land_location_restriction(
                     instance=instance, network_scale_level=scenario.network_scale_level,
                     land_restriction=land_restriction)
+
+        if Constraints.CREDIT in constraints:
+            generate_credit_vars(
+                instance=instance, scale_level=scenario.network_scale_level)
+
+            constraint_credit_process(instance=instance, credit_dict=scenario.credit_dict,
+                                    network_scale_level=scenario.network_scale_level)
+            constraint_credit_location(
+                instance=instance, network_scale_level=scenario.network_scale_level)
+            constraint_credit_network(
+                instance=instance, network_scale_level=scenario.network_scale_level)
+
 
         if Constraints.RESOURCE_BALANCE in constraints:
             constraint_inventory_balance(instance=instance, scheduling_scale_level=scenario.scheduling_scale_level,
@@ -431,7 +458,7 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
             constraint_demand(instance=instance, demand_scale_level=scenario.demand_scale_level,
                               scheduling_scale_level=scenario.scheduling_scale_level, demand=demand,
                               demand_factor=scenario.demand_factor)
-            
+
             objective_cost(instance=instance,
                            network_scale_level=scenario.network_scale_level)
 
@@ -440,9 +467,10 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
                               scheduling_scale_level=scenario.scheduling_scale_level, demand=demand,
                               demand_factor=scenario.demand_factor)
 
-            constraint_network_cost(instance=instance, network_scale_level=scenario.network_scale_level)
+            constraint_network_cost(
+                instance=instance, network_scale_level=scenario.network_scale_level)
 
-            objective_discharge_min(instance=instance, resource= objective_resource,
+            objective_discharge_min(instance=instance, resource=objective_resource,
                                     network_scale_level=scenario.network_scale_level)
 
         if objective == Objective.MAX_DISCHARGE:
@@ -450,9 +478,10 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
                               scheduling_scale_level=scenario.scheduling_scale_level, demand=demand,
                               demand_factor=scenario.demand_factor)
 
-            constraint_network_cost(instance=instance, network_scale_level=scenario.network_scale_level)
+            constraint_network_cost(
+                instance=instance, network_scale_level=scenario.network_scale_level)
 
-            objective_discharge_max(instance=instance, resource= objective_resource,
+            objective_discharge_max(instance=instance, resource=objective_resource,
                                     network_scale_level=scenario.network_scale_level)
 
         if scenario.capacity_bounds is not None:
