@@ -119,7 +119,7 @@ def constraint_min_storage_facility(instance: ConcreteModel, store_min: dict, lo
             return Constraint.Skip
 
     instance.constraint_min_storage_facility = Constraint(
-        instance.locations, instance.resources_store, 
+        instance.locations, instance.resources_store,
         scales, rule=min_storage_facility_rule,
         doc='storage facility sizing and location')
     constraint_latex_render(min_storage_facility_rule)
