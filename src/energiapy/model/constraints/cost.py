@@ -12,11 +12,13 @@ __status__ = "Production"
 
 from enum import Enum, auto
 from itertools import product
+from typing import Set
 
 from pyomo.environ import ConcreteModel, Constraint
 
 from ...utils.latex_utils import constraint_latex_render
 from ...utils.scale_utils import scale_list, scale_tuple
+from .constraints import Constraints
 
 
 class Costdynamics(Enum):
@@ -463,7 +465,8 @@ def constraint_land_network_cost(instance: ConcreteModel, network_scale_level: i
     constraint_latex_render(land_network_cost_rule)
     return instance.constraint_land_network_cost
 
-def constraint_network_cost(instance: ConcreteModel, network_scale_level: int = 0) -> Constraint:
+
+def constraint_network_cost(instance: ConcreteModel, constraints=Set[Constraints], network_scale_level: int = 0) -> Constraint:
     """Total network costs
 
     Args:
@@ -486,12 +489,18 @@ def constraint_network_cost(instance: ConcreteModel, network_scale_level: int = 
         cost_purch = sum(instance.B_network[resource_, scale_] for resource_, scale_ in
                          product(instance.resources_purch, scale_iter))
 
-        land_cost = sum(
-            instance.Land_network_cost[scale_] for scale_ in scale_iter)
+        if Constraints.LAND in constraints:
+            land_cost = sum(
+                instance.Land_cost_network[scale_] for scale_ in scale_iter)
+        else:
+            land_cost = 0
 
-        credit = sum(
-            instance.Credit_network[scale_] for scale_ in scale_iter)
-        
+        if Constraints.CREDIT in constraints:
+            credit = sum(
+                instance.Credit_network[scale_] for scale_ in scale_iter)
+        else:
+            credit = 0
+
         if len(instance.locations) > 1:
             cost_trans = sum(instance.Trans_cost_network[transport_, scale_] for transport_, scale_ in
                              product(instance.transports, scale_iter))
