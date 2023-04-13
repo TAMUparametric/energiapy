@@ -114,7 +114,7 @@ def constraint_nameplate_production(instance: ConcreteModel, capacity_factor: di
         loc_pro_dict = dict()
 
     scales = scale_list(instance=instance,
-                        scale_levels=instance.scales.__len__())
+                        scale_levels=len(instance.scales))
 
     def nameplate_production_rule(instance, location, process, *scale_list):
 
