@@ -166,7 +166,7 @@ class Scenario:
         self.process_gwp_dict = {i.name: {j.name: j.gwp for j in self.process_set} for i in self.location_set}
         self.land_cost_dict = {i.name: i.land_cost for i in self.location_set}
         self.fail_factor = {i.name: i.fail_factor for i in self.location_set}
-        self.credit_dict = {i.name: {j.name: i.credit[j] for j in i.credit.keys()} for i in self.location_set}
+        self.credit_dict = {i.name: {j.name: i.credit[j] for j in i.credit.keys()} for i in self.location_set if i.credit is not None}
         self.process_resource_dict = {i.name: i.resource_req for i in self.process_set}
 
         self.process_material_dict = {i.name: {j.name: i.material_cons[j] for j in i.material_cons.keys()} for i in

@@ -17,7 +17,7 @@ from pyomo.environ import ConcreteModel, Suffix
 
 from ..components.scenario import Scenario
 from ..components.scenario import Resource
-
+from .constraints.constraints import Constraints
 
 from .constraints.cost import (
     constraint_location_capex,
@@ -120,6 +120,7 @@ from .variables.credit import generate_credit_vars
 from .variables.land import generate_land_vars
 from .variables.emission import generate_emission_vars
 
+
 class ModelClass(Enum):
     """Class of model
     """
@@ -132,23 +133,6 @@ class ModelClass(Enum):
     multi-parametric linear programming
     """
 
-
-class Constraints(Enum):
-    """Class of constraints
-    """
-    COST = auto()
-    EMISSION = auto()
-    FAILURE = auto()
-    INVENTORY = auto()
-    LAND = auto()
-    PRODUCTION = auto()
-    RESOURCE_BALANCE = auto()
-    TRANSPORT = auto()
-    UNCERTAIN = auto()
-    MODE = auto()
-    LIFECYCLE = auto()
-    NETWORK = auto()
-    CREDIT = auto()
 
 
 class Objective(Enum):
@@ -352,12 +336,11 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
                 instance=instance, scale_level=scenario.network_scale_level)
 
             constraint_credit_process(instance=instance, credit_dict=scenario.credit_dict,
-                                    network_scale_level=scenario.network_scale_level)
+                                      network_scale_level=scenario.network_scale_level)
             constraint_credit_location(
                 instance=instance, network_scale_level=scenario.network_scale_level)
             constraint_credit_network(
                 instance=instance, network_scale_level=scenario.network_scale_level)
-
 
         if Constraints.RESOURCE_BALANCE in constraints:
             constraint_inventory_balance(instance=instance, scheduling_scale_level=scenario.scheduling_scale_level,
@@ -459,8 +442,8 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
                               scheduling_scale_level=scenario.scheduling_scale_level, demand=demand,
                               demand_factor=scenario.demand_factor)
 
-            objective_cost(instance=instance,
-                           network_scale_level=scenario.network_scale_level)
+            objective_cost(
+                instance=instance, network_scale_level=scenario.network_scale_level, constraints=constraints)
 
         if objective == Objective.MIN_DISCHARGE:
             constraint_demand(instance=instance, demand_scale_level=scenario.demand_scale_level,
@@ -468,7 +451,7 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
                               demand_factor=scenario.demand_factor)
 
             constraint_network_cost(
-                instance=instance, network_scale_level=scenario.network_scale_level)
+                instance=instance, network_scale_level=scenario.network_scale_level, constraints=constraints)
 
             objective_discharge_min(instance=instance, resource=objective_resource,
                                     network_scale_level=scenario.network_scale_level)
@@ -479,7 +462,7 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
                               demand_factor=scenario.demand_factor)
 
             constraint_network_cost(
-                instance=instance, network_scale_level=scenario.network_scale_level)
+                instance=instance, network_scale_level=scenario.network_scale_level, constraints=constraints)
 
             objective_discharge_max(instance=instance, resource=objective_resource,
                                     network_scale_level=scenario.network_scale_level)
