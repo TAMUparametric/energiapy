@@ -29,20 +29,6 @@ def generate_network_vars(instance: ConcreteModel, scale_level: int = 0):
     instance.Cap_S = Var(instance.locations, instance.resources_store,
                          instance.scales_network, within=NonNegativeReals, doc='Storage Capacity')
 
-    instance.Land_process = Var(instance.locations, instance.processes,
-                                instance.scales_network, within=NonNegativeReals, doc='Land cost by Process')
-    instance.Land_location = Var(instance.locations, instance.scales_network,
-                                 within=NonNegativeReals, doc='Land used at location')
-    instance.Land_network = Var(
-        instance.scales_network, within=NonNegativeReals, doc='Land used at network')
-
-    instance.Land_cost_process = Var(instance.locations, instance.processes,
-                                     instance.scales_network, within=NonNegativeReals, doc='Land used by Process')
-    instance.Land_cost_location = Var(
-        instance.locations, instance.scales_network, within=NonNegativeReals, doc='Land cost at location')
-    instance.Land_cost_network = Var(
-        instance.scales_network, within=NonNegativeReals, doc='Land cost at network')
-
     instance.P_location = Var(instance.locations, instance.processes, instance.scales_network,
                               within=NonNegativeReals, doc='Total production at location')
     instance.S_location = Var(instance.locations, instance.resources_sell, instance.scales_network,
@@ -88,21 +74,4 @@ def generate_network_vars(instance: ConcreteModel, scale_level: int = 0):
         instance.scales_network, within=NonNegativeReals, doc='Capex at network scale')
     instance.Incidental_network = Var(
         instance.scales_network, within=NonNegativeReals, doc='Incidental at network scale')
-
-    instance.carbon_emission_network = Var(
-        instance.scales_network, within=NonNegativeReals, doc='Carbon emissions across network at network_scale')
-    instance.carbon_emission_location = Var(instance.locations, instance.scales_network,
-                                            within=NonNegativeReals, doc='Carbon emissions at location at network_scale')
-
-    instance.global_warming_potential_location = Var(
-        instance.locations, instance.scales_network, within=NonNegativeReals, doc='global warming potential caused at each location')
-    instance.global_warming_potential_network = Var(
-        instance.scales_network, within=NonNegativeReals, doc='global warming potential caused at network scale')
-    instance.global_warming_potential_process = Var(
-        instance.locations, instance.processes, instance.scales_network, within=NonNegativeReals, doc='global warming potential caused by each process')
-    instance.global_warming_potential_resource = Var(
-        instance.locations, instance.resources_purch, instance.scales_network, within=NonNegativeReals, doc='global warming potential caused by each resource')
-    instance.global_warming_potential_material = Var(instance.locations, instance.processes_materials,
-                                                     instance.scales_network, within=NonNegativeReals, doc='global warming potential caused by each material')
-
     return

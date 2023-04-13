@@ -44,9 +44,10 @@ class Location:
         fopex_factor (Union[float, Dict[Process, DataFrame]), optional):  Factor for varying fixed operational expenditure, scale changer normalizes. Defaults to 1.0
         demand_scale_level (int, optional): scale level for demand (resource). Defaults to 1.0
         price_scale_level (int, optional): scale level for purchase cost (resource). Defaults to 1.0
-        capacity_scale_level(int, optional): scale level for capacity (process). Defaults to 1.0
-        expenditure_scale_level(int, optional): scale level for technology (process). Defaults to 1.0
-        land_cost(float, optional): cost of land. Defaults to 0
+        capacity_scale_level (int, optional): scale level for capacity (process). Defaults to 1.0
+        expenditure_scale_level (int, optional): scale level for technology (process). Defaults to 1.0
+        land_cost (float, optional): cost of land. Defaults to 0
+        credit (Dict[Process, float], optional): credit earned by process per unit basis. Defaults to None.
         label(str, optional):Longer descriptive label if required. Defaults to ''
 
     Examples:
@@ -70,6 +71,7 @@ class Location:
     capacity_scale_level: int = 0
     expenditure_scale_level:int = 0
     land_cost: float = 0
+    credit: Dict[Process, float] = None
     label: str = ''
 
     def __post_init__(self):
@@ -95,7 +97,7 @@ class Location:
             i) for i in self.processes if i.processmode == ProcessMode.STORAGE})
         self.prod_max = self.get_prod_max()
         self.prod_min = self.get_prod_min()
-
+        
         if self.capacity_factor is not None:
             self.varying_capacity = set(self.capacity_factor.keys())
             if isinstance(list(self.capacity_factor.values())[0], DataFrame):
