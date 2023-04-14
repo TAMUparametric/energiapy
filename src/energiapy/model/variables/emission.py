@@ -24,7 +24,7 @@ def generate_emission_vars(instance: ConcreteModel, scale_level: int = 0):
     """
     instance.scales_emission_network = scale_pyomo_set(
         instance=instance, scale_level=scale_level)
-    
+
     instance.carbon_emission_network = Var(
         instance.scales_emission_network, within=NonNegativeReals, doc='Carbon emissions across network at network_scale')
     instance.carbon_emission_location = Var(instance.locations, instance.scales_emission_network,
