@@ -43,7 +43,7 @@ def objective_cost(instance: ConcreteModel, constraints: Set[Constraints], netwo
 
         cost_purch = sum(instance.B_network[resource_, scale_] for resource_, scale_ in
                          product(instance.resources_purch, scale_iter))
-        
+
         if Constraints.LAND in constraints:
             land_cost = sum(
                 instance.Land_cost_network[scale_] for scale_ in scale_iter)
