@@ -15,7 +15,7 @@ Tutorial
    :maxdepth: 2
    :caption: Overview:
 
-   notebooks/small
+   notebooks/small/small
    example_multiloc
    example_mpLP
    example_ahc
