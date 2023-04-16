@@ -69,7 +69,7 @@ def price_factor(scenario: Scenario, resource: Resource, location: Location, fig
     x_ = list(range(len(y_)))
     ax.plot(x_, y_, linewidth=0.5, color=color)
     ax = axis_formatter(axes=ax, xcord=x_, axis_labels='M')
-    plt.title(f'Cost factor for {resource.label} in {location.label}')
+    plt.title(f'Price factor for {resource.label} in {location.label}')
     plt.ylabel("Normalized cost factor")
     plt.xlabel("Scheduling Horizon")
     plt.grid(alpha=0.3)
@@ -105,8 +105,9 @@ def demand_factor(scenario: Scenario, resource: Resource, location: Location,
     plt.rcdefaults()
     return
 
+
 def capex_factor(scenario: Scenario, process: Process, location: Location,
-                  fig_size: tuple = (12, 6), font_size: int = 16, color: str = 'blue'):
+                 fig_size: tuple = (12, 6), font_size: int = 16, color: str = 'blue'):
     """generates a plot for varying technology capital expenditure
 
     Args:
@@ -133,8 +134,9 @@ def capex_factor(scenario: Scenario, process: Process, location: Location,
     plt.rcdefaults()
     return
 
+
 def vopex_factor(scenario: Scenario, process: Process, location: Location,
-                  fig_size: tuple = (12, 6), font_size: int = 16, color: str = 'blue'):
+                 fig_size: tuple = (12, 6), font_size: int = 16, color: str = 'blue'):
     """generates a plot for varying technology variable operational expenditure
 
     Args:
@@ -161,8 +163,9 @@ def vopex_factor(scenario: Scenario, process: Process, location: Location,
     plt.rcdefaults()
     return
 
+
 def fopex_factor(scenario: Scenario, process: Process, location: Location,
-                  fig_size: tuple = (12, 6), font_size: int = 16, color: str = 'blue'):
+                 fig_size: tuple = (12, 6), font_size: int = 16, color: str = 'blue'):
     """generates a plot for varying technology fixed operational expenditure
 
     Args:
