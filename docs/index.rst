@@ -13,9 +13,10 @@ Tutorial
 
 .. toctree::
    :maxdepth: 2
-   :caption: Overview:
+   :caption: Example Implementation:
 
    notebooks/small/small
+   notebooks/sl-sp-milp/sl-sp-milp
    example_multiloc
    example_mpLP
    example_ahc
@@ -25,7 +26,7 @@ API
 
 .. toctree::
     :maxdepth: 5
-    :caption: API
+    :caption: Package Structure:
 
     energiapy
 
