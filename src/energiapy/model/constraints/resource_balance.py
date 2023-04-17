@@ -1,4 +1,4 @@
-"""pyomo resource balance constraints
+"""resource balance constraints
 """
 
 __author__ = "Rahul Kakodkar"

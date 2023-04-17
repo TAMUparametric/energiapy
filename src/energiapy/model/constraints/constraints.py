@@ -1,4 +1,4 @@
-"""Formulates models from Scenario
+"""Available constraints
 """
 
 __author__ = "Rahul Kakodkar"
@@ -28,3 +28,4 @@ class Constraints(Enum):
     LIFECYCLE = auto()
     NETWORK = auto()
     CREDIT = auto()
+    MATERIAL = auto()

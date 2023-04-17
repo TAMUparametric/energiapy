@@ -1,4 +1,4 @@
-"""pyomo life cycle constraints
+"""life cycle constraints
 """
 
 __author__ = "Rahul Kakodkar"

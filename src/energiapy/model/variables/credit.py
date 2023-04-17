@@ -1,5 +1,5 @@
 
-"""Credit variables
+"""credit variables
 """
 
 __author__ = "Rahul Kakodkar"

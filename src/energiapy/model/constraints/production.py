@@ -1,4 +1,4 @@
-"""pyomo production constraints
+"""production constraints
 """
 
 __author__ = "Rahul Kakodkar"
