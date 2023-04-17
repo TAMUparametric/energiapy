@@ -1,4 +1,4 @@
-"""pyomo failure constraints
+"""failure constraints
 """
 
 __author__ = "Rahul Kakodkar"

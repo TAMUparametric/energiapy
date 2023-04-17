@@ -1,4 +1,4 @@
-"""pyomo transport constraints
+"""transport constraints
 """
 
 __author__ = "Rahul Kakodkar"

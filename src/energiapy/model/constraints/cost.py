@@ -1,4 +1,4 @@
-"""pyomo cost constraints
+"""cost constraints
 """
 
 __author__ = "Rahul Kakodkar"

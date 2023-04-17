@@ -151,6 +151,8 @@ class Process:
             conversion_discharge (Dict[Resource, float]): Creates a dictionary with the discharge conversion values (considers storage loss).
             cost_dynamics (CostDynamics): Determines whether the cost scales linearly with the unit capacity, or is a piecewise-linear function.
         """
+        if self.material_cons is None:
+            self.material_cons = {}
 
         if self.storage is not None:
             self.resource_storage = create_storage_resource(

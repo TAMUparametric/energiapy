@@ -1,4 +1,4 @@
-"""pyomo binary variables
+"""binary variables
 """
 
 __author__ = "Rahul Kakodkar"

@@ -1,4 +1,4 @@
-"""pyomo emission constraints
+"""emission constraints
 """
 
 __author__ = "Rahul Kakodkar"
@@ -95,7 +95,7 @@ def constraint_global_warming_potential_material(instance: ConcreteModel, materi
     scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
 
     def global_warming_potential_material_rule(instance, location, process,  *scale_list):
-        return instance.global_warming_potential_material[location, process, scale_list] == sum(process_material_dict[process][material]*material_gwp_dict[location][material] for material in process_material_dict[process].keys()) * instance.Cap_P[location, process, scale_list]
+        return instance.global_warming_potential_material[location, process, scale_list] == sum(process_material_dict[process][material]*material_gwp_dict[location][material] for material in instance.materials) * instance.Cap_P[location, process, scale_list]
     instance.constraint_global_warming_potential_material = Constraint(
         instance.locations, instance.processes_materials, *scales, rule=global_warming_potential_material_rule, doc='global warming potential for the each material')
     constraint_latex_render(global_warming_potential_material_rule)

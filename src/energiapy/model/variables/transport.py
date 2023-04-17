@@ -1,4 +1,4 @@
-"""pyomo transport variables
+"""transport variables
 """
 
 __author__ = "Rahul Kakodkar"

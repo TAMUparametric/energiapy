@@ -1,5 +1,5 @@
 
-"""Land variables
+"""land variables
 """
 
 __author__ = "Rahul Kakodkar"
