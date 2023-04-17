@@ -1,4 +1,4 @@
-"""pyomo chance constraints
+"""chance constraints
 """
 
 __author__ = "Rahul Kakodkar"

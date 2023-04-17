@@ -107,6 +107,11 @@ from .constraints.credit import (
     constraint_credit_location,
     constraint_credit_network
 )
+from .constraints.material import (
+    constraint_material_process,
+    constraint_material_location,
+    constraint_material_network
+)
 from .objectives import objective_cost, objective_discharge_max, objective_discharge_min
 from .sets import generate_sets
 from .variables.binary import generate_network_binary_vars
@@ -119,6 +124,7 @@ from .variables.uncertain import generate_uncertainty_vars
 from .variables.credit import generate_credit_vars
 from .variables.land import generate_land_vars
 from .variables.emission import generate_emission_vars
+from .variables.material import generate_material_vars
 
 
 class ModelClass(Enum):
@@ -132,7 +138,6 @@ class ModelClass(Enum):
     """
     multi-parametric linear programming
     """
-
 
 
 class Objective(Enum):
@@ -182,6 +187,7 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
             Constraints.NETWORK
             Constraints.MODE
             Constraints.CREDIT
+            Constraints.MATERIAL
 
     Objectives include:
             Objectives.COST
@@ -431,6 +437,17 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
             constraint_production_mode_binary(instance=instance, mode_dict=scenario.mode_dict,
                                               scheduling_scale_level=scenario.scheduling_scale_level,
                                               network_scale_level=scenario.network_scale_level)
+
+        if Constraints.MATERIAL in constraints:
+            generate_material_vars(
+                instance=instance, scale_level=scenario.network_scale_level)
+
+            constraint_material_process(
+                instance=instance, process_material_dict=scenario.process_material_dict, network_scale_level=scenario.network_scale_level)
+            constraint_material_location(
+                instance=instance, network_scale_level=scenario.network_scale_level)
+            constraint_material_network(
+                instance=instance, network_scale_level=scenario.network_scale_level)
 
         if gwp is not None:
             constraint_global_warming_potential_network_reduction(

@@ -17,6 +17,7 @@ Tutorial
 
    notebooks/small/small
    notebooks/sl-sp-milp/sl-sp-milp
+   notebooks/material/material
    example_multiloc
    example_mpLP
    example_ahc
