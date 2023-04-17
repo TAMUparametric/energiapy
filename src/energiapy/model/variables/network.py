@@ -1,4 +1,4 @@
-"""pyomo network variables
+"""network variables
 """
 
 __author__ = "Rahul Kakodkar"

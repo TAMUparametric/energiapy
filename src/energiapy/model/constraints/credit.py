@@ -1,4 +1,4 @@
-"""pyomo credit constraints
+"""credit constraints
 """
 
 __author__ = "Rahul Kakodkar"

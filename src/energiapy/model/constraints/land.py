@@ -1,4 +1,4 @@
-"""pyomo land constraints
+"""land constraints
 """
 
 __author__ = "Rahul Kakodkar"

@@ -191,9 +191,10 @@ class Scenario:
         self.process_resource_dict = {
             i.name: i.resource_req for i in self.process_set}
 
-        self.process_material_dict = {i.name: {j.name: i.material_cons[j] for j in i.material_cons.keys()} for i in
-                                      self.process_set if i.material_cons is not None}
-
+        # self.process_material_dict = {i.name: {j.name: i.material_cons[j] for j in i.material_cons.keys()} if i.material_cons is not None else None for i in
+        #                               self.process_set}
+        self.process_material_dict = {
+            i.name: {j.name: i.material_cons[j] if j in i.material_cons.keys() else 0 for j in self.material_set} for i in self.process_set}
         multiconversion_dict = dict()
         for i in self.process_set:
             if i.processmode == ProcessMode.MULTI:
@@ -277,6 +278,14 @@ class Scenario:
             DataFrame: DataFrame of conversion values 
         """
         return DataFrame.from_dict(self.conversion).transpose()
+
+    def make_material_df(self) -> DataFrame:
+        """makes a DataFrame of material consumption
+
+        Returns:
+            DataFrame: DataFrame of material consumption 
+        """
+        return DataFrame.from_dict(self.process_material_dict).transpose()
 
     def matrix_form(self):
         """returns matrices for the scenario.
