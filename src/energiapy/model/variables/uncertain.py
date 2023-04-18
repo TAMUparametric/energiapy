@@ -25,7 +25,7 @@ def generate_uncertainty_vars(instance: ConcreteModel, scale_level: int = 0):
     """
     instance.scales_uncertainty = scale_pyomo_set(
         instance, scale_level=scale_level)
-   
+
     instance.resource_demand_uncertainty = Var(instance.locations, instance.resources_uncertain_demand,
                                                instance.scales_uncertainty, within=NonNegativeReals, doc='resource demand uncertainty')
     instance.resource_price_uncertainty = Var(instance.locations, instance.resources_uncertain_price,
