@@ -215,35 +215,71 @@ class Scenario:
 
         self.set_dict = {
             'resources': [i.name for i in self.resource_set],
+
             'resources_nosell': [i.name for i in self.resource_set if i.sell is False],
             'resources_sell': [i.name for i in self.resource_set if i.sell is True],
+
             'resources_store': [i.name for i in self.resource_set if i.store_max > 0],
+
             'resources_purch': [i.name for i in self.resource_set if i.cons_max > 0],
-            'resources_varying_demand': [i.name for i in self.resource_set if 
+
+            'resources_varying_demand': [i.name for i in self.resource_set if
                                          VaryingResource.DETERMINISTIC_DEMAND in i.varying],
-            'resources_varying_price': [i.name for i in self.resource_set if
-                                        VaryingResource.DETERMINISTIC_PRICE in i.varying],
-            'resources_demand': [i.name for i in self.resource_set if i.demand is True],
-            'resources_certain_price': [i.name for i in self.resource_set if (i.varying == []) and (i.cons_max > 0)],
-            'resources_uncertain_price': [i.name for i in self.resource_set if
-                                          VaryingResource.UNCERTAIN_PRICE in i.varying],
-            'resources_certain_demand': [i.name for i in self.resource_set if
-                                         (i.varying == []) and (i.demand is True)],
+            'resources_certain_demand': [i.name for i in self.resource_set if VaryingResource.CERTAIN_DEMAND in i.varying],
             'resources_uncertain_demand': [i.name for i in self.resource_set if
                                            VaryingResource.UNCERTAIN_DEMAND in i.varying],
+
+
+            'resources_varying_price': [i.name for i in self.resource_set if
+                                        VaryingResource.DETERMINISTIC_PRICE in i.varying],
+            'resources_certain_price': [i.name for i in self.resource_set if VaryingResource.CERTAIN_PRICE in i.varying],
+            'resources_uncertain_price': [i.name for i in self.resource_set if VaryingResource.UNCERTAIN_PRICE in i.varying],
+
+            'resource_varying_availability': [i.name for i in self.resource_set if VaryingResource.DETERMINISTIC_AVAILABILITY in i.varying],
+            'resource_certain_availability': [i.name for i in self.resource_set if VaryingResource.CERTAIN_AVAILABILITY in i.varying],
+            'resource_uncertain_availability': [i.name for i in self.resource_set if
+                                                VaryingResource.UNCERTAIN_AVAILABILITY in i.varying],
+
+            'resources_demand': [i.name for i in self.resource_set if i.demand is True],
+
             'processes': [i.name for i in self.process_set],
+
             'processes_full': list(self.conversion.keys()),
-            'processes_varying': [i.name for i in self.process_set if
-                                  VaryingProcess.DETERMINISTIC_CAPACITY in i.varying],
+
             'processes_failure': [i.name for i in self.process_set if i.p_fail is not None],
+
             'processes_materials': [i.name for i in self.process_set if i.material_cons is not None],
+
             'processes_storage': [i.name for i in self.process_set if i.conversion_discharge is not None],
+
             'processes_multim': [i.name for i in self.process_set if i.processmode == ProcessMode.MULTI],
             'processes_singlem': [i.name for i in self.process_set if
                                   (i.processmode == ProcessMode.SINGLE) or (i.processmode == ProcessMode.STORAGE)],
-            'processes_certain_capacity': [i.name for i in self.process_set if i.varying == []],
+
+            'processes_certain_capacity': [i.name for i in self.process_set if VaryingProcess.CERTAIN_CAPACITY in i.varying],
+            'processes_varying_capacity': [i.name for i in self.process_set if
+                                  VaryingProcess.DETERMINISTIC_CAPACITY in i.varying],
             'processes_uncertain_capacity': [i.name for i in self.process_set if
                                              VaryingProcess.UNCERTAIN_CAPACITY in i.varying],
+            
+            'processes_certain_capex': [i.name for i in self.process_set if VaryingProcess.CERTAIN_CAPEX in i.varying],
+            'processes_varying_capex': [i.name for i in self.process_set if
+                                  VaryingProcess.DETERMINISTIC_CAPEX in i.varying],
+            'processes_uncertain_capex': [i.name for i in self.process_set if
+                                             VaryingProcess.UNCERTAIN_CAPEX in i.varying],
+            
+            'processes_certain_fopex': [i.name for i in self.process_set if VaryingProcess.CERTAIN_FOPEX in i.varying],
+            'processes_varying_fopex': [i.name for i in self.process_set if
+                                  VaryingProcess.DETERMINISTIC_FOPEX in i.varying],
+            'processes_uncertain_fopex': [i.name for i in self.process_set if
+                                             VaryingProcess.UNCERTAIN_FOPEX in i.varying],
+            
+            'processes_certain_vopex': [i.name for i in self.process_set if VaryingProcess.CERTAIN_VOPEX in i.varying],
+            'processes_varying_vopex': [i.name for i in self.process_set if
+                                  VaryingProcess.DETERMINISTIC_VOPEX in i.varying],
+            'processes_uncertain_vopex': [i.name for i in self.process_set if
+                                             VaryingProcess.UNCERTAIN_VOPEX in i.varying],
+            
             'locations': [i.name for i in self.location_set],
             'materials': [i.name for i in self.material_set],
         }
@@ -298,7 +334,7 @@ class Scenario:
             if isinstance(list(demand.keys())[0], Location):
                 self.demand = {i.name: {
                     j.name: demand[i][j] for j in demand[i].keys()} for i in demand.keys()}
-        print(demand)
+
         if len(self.location_set) > 1:
             print("can only do this for a single location scenario")
         else:
