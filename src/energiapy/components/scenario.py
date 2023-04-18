@@ -225,18 +225,22 @@ class Scenario:
 
             'resources_varying_demand': [i.name for i in self.resource_set if
                                          VaryingResource.DETERMINISTIC_DEMAND in i.varying],
-            'resources_certain_demand': [i.name for i in self.resource_set if VaryingResource.CERTAIN_DEMAND in i.varying],
+            'resources_certain_demand': [i.name for i in self.resource_set if 
+                                         VaryingResource.CERTAIN_DEMAND in i.varying],
             'resources_uncertain_demand': [i.name for i in self.resource_set if
                                            VaryingResource.UNCERTAIN_DEMAND in i.varying],
 
-
             'resources_varying_price': [i.name for i in self.resource_set if
                                         VaryingResource.DETERMINISTIC_PRICE in i.varying],
-            'resources_certain_price': [i.name for i in self.resource_set if VaryingResource.CERTAIN_PRICE in i.varying],
-            'resources_uncertain_price': [i.name for i in self.resource_set if VaryingResource.UNCERTAIN_PRICE in i.varying],
+            'resources_certain_price': [i.name for i in self.resource_set if 
+                                        VaryingResource.CERTAIN_PRICE in i.varying],
+            'resources_uncertain_price': [i.name for i in self.resource_set if 
+                                          VaryingResource.UNCERTAIN_PRICE in i.varying],
 
-            'resource_varying_availability': [i.name for i in self.resource_set if VaryingResource.DETERMINISTIC_AVAILABILITY in i.varying],
-            'resource_certain_availability': [i.name for i in self.resource_set if VaryingResource.CERTAIN_AVAILABILITY in i.varying],
+            'resource_varying_availability': [i.name for i in self.resource_set if 
+                                              VaryingResource.DETERMINISTIC_AVAILABILITY in i.varying],
+            'resource_certain_availability': [i.name for i in self.resource_set if 
+                                              VaryingResource.CERTAIN_AVAILABILITY in i.varying],
             'resource_uncertain_availability': [i.name for i in self.resource_set if
                                                 VaryingResource.UNCERTAIN_AVAILABILITY in i.varying],
 
@@ -256,29 +260,19 @@ class Scenario:
             'processes_singlem': [i.name for i in self.process_set if
                                   (i.processmode == ProcessMode.SINGLE) or (i.processmode == ProcessMode.STORAGE)],
 
-            'processes_certain_capacity': [i.name for i in self.process_set if VaryingProcess.CERTAIN_CAPACITY in i.varying],
+            'processes_certain_capacity': [i.name for i in self.process_set if 
+                                           VaryingProcess.CERTAIN_CAPACITY in i.varying],
             'processes_varying_capacity': [i.name for i in self.process_set if
-                                  VaryingProcess.DETERMINISTIC_CAPACITY in i.varying],
+                                           VaryingProcess.DETERMINISTIC_CAPACITY in i.varying],
             'processes_uncertain_capacity': [i.name for i in self.process_set if
                                              VaryingProcess.UNCERTAIN_CAPACITY in i.varying],
-            
-            'processes_certain_capex': [i.name for i in self.process_set if VaryingProcess.CERTAIN_CAPEX in i.varying],
-            'processes_varying_capex': [i.name for i in self.process_set if
-                                  VaryingProcess.DETERMINISTIC_CAPEX in i.varying],
-            'processes_uncertain_capex': [i.name for i in self.process_set if
-                                             VaryingProcess.UNCERTAIN_CAPEX in i.varying],
-            
-            'processes_certain_fopex': [i.name for i in self.process_set if VaryingProcess.CERTAIN_FOPEX in i.varying],
-            'processes_varying_fopex': [i.name for i in self.process_set if
-                                  VaryingProcess.DETERMINISTIC_FOPEX in i.varying],
-            'processes_uncertain_fopex': [i.name for i in self.process_set if
-                                             VaryingProcess.UNCERTAIN_FOPEX in i.varying],
-            
-            'processes_certain_vopex': [i.name for i in self.process_set if VaryingProcess.CERTAIN_VOPEX in i.varying],
-            'processes_varying_vopex': [i.name for i in self.process_set if
-                                  VaryingProcess.DETERMINISTIC_VOPEX in i.varying],
-            'processes_uncertain_vopex': [i.name for i in self.process_set if
-                                             VaryingProcess.UNCERTAIN_VOPEX in i.varying],
+
+            'processes_certain_expenditure': [i.name for i in self.process_set if 
+                                        VaryingProcess.CERTAIN_EXPENDITURE in i.varying],
+            'processes_varying_expenditure': [i.name for i in self.process_set if
+                                        VaryingProcess.DETERMINISTIC_EXPENDITURE in i.varying],
+            'processes_uncertain_expenditure': [i.name for i in self.process_set if
+                                          VaryingProcess.UNCERTAIN_EXPENDITURE in i.varying],
             
             'locations': [i.name for i in self.location_set],
             'materials': [i.name for i in self.material_set],
