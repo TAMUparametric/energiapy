@@ -219,31 +219,31 @@ class Scenario:
             'resources_sell': [i.name for i in self.resource_set if i.sell is True],
             'resources_store': [i.name for i in self.resource_set if i.store_max > 0],
             'resources_purch': [i.name for i in self.resource_set if i.cons_max > 0],
-            'resources_varying_demand': [i.name for i in self.resource_set if
-                                         i.varying == VaryingResource.DETERMINISTIC_DEMAND],
+            'resources_varying_demand': [i.name for i in self.resource_set if 
+                                         VaryingResource.DETERMINISTIC_DEMAND in i.varying],
             'resources_varying_price': [i.name for i in self.resource_set if
-                                        i.varying == VaryingResource.DETERMINISTIC_PRICE],
+                                        VaryingResource.DETERMINISTIC_PRICE in i.varying],
             'resources_demand': [i.name for i in self.resource_set if i.demand is True],
-            'resources_certain_price': [i.name for i in self.resource_set if (i.varying is None) and (i.cons_max > 0)],
+            'resources_certain_price': [i.name for i in self.resource_set if (i.varying == []) and (i.cons_max > 0)],
             'resources_uncertain_price': [i.name for i in self.resource_set if
-                                          i.varying == VaryingResource.UNCERTAIN_PRICE],
+                                          VaryingResource.UNCERTAIN_PRICE in i.varying],
             'resources_certain_demand': [i.name for i in self.resource_set if
-                                         (i.varying is None) and (i.demand is True)],
+                                         (i.varying == []) and (i.demand is True)],
             'resources_uncertain_demand': [i.name for i in self.resource_set if
-                                           i.varying == VaryingResource.UNCERTAIN_DEMAND],
+                                           VaryingResource.UNCERTAIN_DEMAND in i.varying],
             'processes': [i.name for i in self.process_set],
             'processes_full': list(self.conversion.keys()),
             'processes_varying': [i.name for i in self.process_set if
-                                  i.varying == VaryingProcess.DETERMINISTIC_CAPACITY],
+                                  VaryingProcess.DETERMINISTIC_CAPACITY in i.varying],
             'processes_failure': [i.name for i in self.process_set if i.p_fail is not None],
             'processes_materials': [i.name for i in self.process_set if i.material_cons is not None],
             'processes_storage': [i.name for i in self.process_set if i.conversion_discharge is not None],
             'processes_multim': [i.name for i in self.process_set if i.processmode == ProcessMode.MULTI],
             'processes_singlem': [i.name for i in self.process_set if
                                   (i.processmode == ProcessMode.SINGLE) or (i.processmode == ProcessMode.STORAGE)],
-            'processes_certain_capacity': [i.name for i in self.process_set if i.varying is None],
+            'processes_certain_capacity': [i.name for i in self.process_set if i.varying == []],
             'processes_uncertain_capacity': [i.name for i in self.process_set if
-                                             i.varying == VaryingProcess.UNCERTAIN_CAPACITY],
+                                             VaryingProcess.UNCERTAIN_CAPACITY in i.varying],
             'locations': [i.name for i in self.location_set],
             'materials': [i.name for i in self.material_set],
         }

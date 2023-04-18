@@ -11,8 +11,9 @@ __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
 from dataclasses import dataclass
+from warnings import warn
 from enum import Enum, auto
-from typing import Union
+from typing import Union, List
 
 
 class VaryingResource(Enum):
@@ -27,13 +28,21 @@ class VaryingResource(Enum):
     """
     Utilize deterministic price data
     """
+    DETERMINISTIC_AVAILABILITY = auto()
+    """
+    Utilize deterministic resource availability
+    """
     UNCERTAIN_DEMAND = auto()
     """
-    Utilize uncertainty variables for demand
+    Generate uncertainty variables for demand
     """
     UNCERTAIN_PRICE = auto()
     """
-    Utilize uncertainty variables for price
+    Generate uncertainty variables for price
+    """
+    UNCERTAIN_AVAILABILITY = auto()
+    """
+    Generate uncertainty variables for resource availability
     """
 
 
@@ -86,13 +95,19 @@ class Resource:
     basis: str = 'unit'
     block: Union[str, list, dict] = ''
     citation: str = 'citation needed'
-    varying: VaryingResource = None
+    varying: List[VaryingResource] = None
     label: str = ''
     gwp: float = 0
 
     def __post_init__(self):
         if self.demand is True:
             self.sell = True
+
+        if self.varying is None:
+            self.varying = []
+
+        if not isinstance(self.varying, list):
+            warn('Provide a list of VaryingResource enums')
 
     def __repr__(self):
         return self.name
