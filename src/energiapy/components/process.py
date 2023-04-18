@@ -60,50 +60,27 @@ class VaryingProcess(Enum):
     """
     Utilize deterministic data as parameters for capacity
     """
-    DETERMINISTIC_CAPEX = auto()
+    DETERMINISTIC_EXPENDITURE = auto()
     """
-    Utilize deterministic data as parameters for capex
-    """
-    DETERMINISTIC_FOPEX = auto()
-    """
-    Utilize deterministic data as parameters for fopex
-    """
-    DETERMINISTIC_VOPEX = auto()
-    """
-    Utilize deterministic data as parameters for vopex
+    Utilize deterministic data as parameters for expenditure
     """
     UNCERTAIN_CAPACITY = auto()
     """
     Generate uncertainty variables
     """
-    UNCERTAIN_CAPEX = auto()
+    UNCERTAIN_EXPENDITURE = auto()
     """
-    Generate uncertainty variables for capex
-    """
-    UNCERTAIN_FOPEX = auto()
-    """
-    Generate uncertainty variables for fopex
-    """
-    UNCERTAIN_VOPEX = auto()
-    """
-    Generate uncertainty variables for vopex
+    Generate uncertainty variables for expenditure
     """
     CERTAIN_CAPACITY = auto()
     """
     Use certain parameter for capacity
     """
-    CERTAIN_CAPEX = auto()
+    CERTAIN_EXPENDITURE = auto()
     """
-    Use certain parameter for capex
+    Use certain parameter for expenditure
     """
-    CERTAIN_FOPEX = auto()
-    """
-    Use certain parameter for fopex
-    """
-    CERTAIN_VOPEX = auto()
-    """
-    Use certain parameter for vopex
-    """
+
 
 
 @dataclass
@@ -194,12 +171,8 @@ class Process:
 
         if self.varying is None:
             self.varying = []
-            if self.capex is not None:
-                self.varying = self.varying + [VaryingProcess.CERTAIN_CAPEX]
-            if self.fopex is not None:
-                self.varying = self.varying + [VaryingProcess.CERTAIN_FOPEX]
-            if self.vopex is not None:
-                self.varying = self.varying + [VaryingProcess.CERTAIN_VOPEX]
+            if (self.capex is not None) or (self.fopex is not None) or (self.vopex is not None):
+                self.varying = self.varying + [VaryingProcess.CERTAIN_EXPENDITURE]
             if self.prod_max > 0:
                 self.varying = self.varying + [VaryingProcess.CERTAIN_CAPACITY]
 
