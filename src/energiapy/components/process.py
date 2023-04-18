@@ -12,7 +12,7 @@ __status__ = "Production"
 
 from dataclasses import dataclass
 from enum import Enum, auto
-from typing import Dict, Union
+from typing import Dict, Union, List
 from warnings import warn
 
 from ..components.material import Material
@@ -60,9 +60,33 @@ class VaryingProcess(Enum):
     """
     Utilize deterministic data
     """
+    DETERMINISTIC_CAPEX = auto()
+    """
+    Utilize deterministic data for capex
+    """
+    DETERMINISTIC_FOPEX = auto()
+    """
+    Utilize deterministic data for fopex
+    """
+    DETERMINISTIC_VOPEX = auto()
+    """
+    Utilize deterministic data for vopex
+    """
     UNCERTAIN_CAPACITY = auto()
     """
     Generate uncertainty variables
+    """
+    UNCERTAIN_CAPEX = auto()
+    """
+    Generate uncertainty variables for capex
+    """
+    UNCERTAIN_FOPEX = auto()
+    """
+    Generate uncertainty variables for fopex
+    """
+    UNCERTAIN_VOPEX = auto()
+    """
+    Generate uncertainty variables for vopex
     """
 
 
@@ -133,7 +157,7 @@ class Process:
     block: str = ''
     citation: str = 'citation needed'
     lifetime: int = None
-    varying: VaryingProcess = None
+    varying: List[VaryingProcess] = None
     p_fail: float = None
     label: str = ''
     storage: Resource = None
@@ -151,6 +175,13 @@ class Process:
             conversion_discharge (Dict[Resource, float]): Creates a dictionary with the discharge conversion values (considers storage loss).
             cost_dynamics (CostDynamics): Determines whether the cost scales linearly with the unit capacity, or is a piecewise-linear function.
         """
+
+        if self.varying is None:
+            self.varying = []
+
+        if not isinstance(self.varying, list):
+            warn('Provide a list of VaryingProcess enums')
+
         if self.material_cons is None:
             self.material_cons = {}
 
