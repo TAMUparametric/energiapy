@@ -1,5 +1,4 @@
-# %%
-"""pyomo_solve
+"""solve
 """
 
 __author__ = "Rahul Kakodkar"
@@ -12,7 +11,7 @@ __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
 import logging
-
+from warnings import warn
 from pyomo.environ import ConcreteModel, Constraint, Objective, SolverFactory, Var
 from pyomo.util.infeasible import (
     log_close_to_bounds,
@@ -24,9 +23,30 @@ from ..components.result import Result
 from ..components.scenario import Scenario
 
 
-def solve(instance: ConcreteModel, solver: str, name: str, scenario: Scenario = None, saveformat: str = None, print_solversteps: bool = True) -> Result:
-    output = SolverFactory(solver, solver_io='python').solve(
-        instance, tee=print_solversteps)
+def solve(instance: ConcreteModel, solver: str, name: str, interface: str = 'pyomo', scenario: Scenario = None, saveformat: str = None, print_solversteps: bool = True, log: bool = False) -> Result:
+    """solves a model instance, scenario needs to be provided
+
+    Args:
+        instance (ConcreteModel): Pyomo instance
+        solver (str): solver, e.g. gurobi, BARON, ANTIGONE, CPLEX
+        name (str): name for results
+        interface (str, optional): Currently, pyomo's native and gams is available. Defaults to 'pyomo'.
+        scenario (Scenario, optional): scenario. Defaults to None.
+        saveformat (str, optional): .pkl, .json, .txt. Defaults to None.
+        print_solversteps (bool, optional):. Defaults to True.
+        log (bool, optional): Log nearbounds in case of optimal, and violations if infeasible. Defaults to False
+
+    Returns:
+        Result: _description_
+    """
+    if interface == 'pyomo':
+        output = SolverFactory(solver, solver_io='python').solve(
+            instance, tee=print_solversteps)
+
+    if interface == 'gams':
+        warn('Ensure GAMS is installed on system and PATH is set')
+        output = SolverFactory('gams').solve(
+            instance, solver=solver, tee=print_solversteps)
 
     if scenario is None:
         components_dict = {}
@@ -76,19 +96,21 @@ def solve(instance: ConcreteModel, solver: str, name: str, scenario: Scenario = 
             duals_dict = {cons.name: {index: instance.dual[cons[index]] for index
                                       in index_dict[cons]} for cons in model_cons}
 
-        logging.basicConfig(
-            filename=f"{scenario.name}_nearbound.log", encoding='utf-8', level=logging.INFO)
-        log_close_to_bounds(instance)
+        if log is True:
+            logging.basicConfig(
+                filename=f"{scenario.name}_nearbound.log", encoding='utf-8', level=logging.INFO)
+            log_close_to_bounds(instance)
 
     else:
         output_dict = solution_dict
         duals_dict = {}
 
-        logging.basicConfig(
-            filename=f"{scenario.name}_infeasible.log", encoding='utf-8', level=logging.INFO)
-        log_infeasible_bounds(instance)
-        log_infeasible_constraints(instance)
-        log_close_to_bounds(instance)
+        if log is True:
+            logging.basicConfig(
+                filename=f"{scenario.name}_infeasible.log", encoding='utf-8', level=logging.INFO)
+            log_infeasible_bounds(instance)
+            log_infeasible_constraints(instance)
+            log_close_to_bounds(instance)
 
     results = Result(name=name, components=components_dict,
                      output=output_dict, duals=duals_dict)
@@ -97,8 +119,3 @@ def solve(instance: ConcreteModel, solver: str, name: str, scenario: Scenario = 
         results.saveoutputs(name + saveformat)
 
     return results
-
-# %%
-
-
-# %
