@@ -1,4 +1,4 @@
-"""pyomo uncertain constraints
+"""uncertain constraints
 """
 
 __author__ = "Rahul Kakodkar"

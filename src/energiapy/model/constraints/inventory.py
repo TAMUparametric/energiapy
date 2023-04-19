@@ -1,4 +1,4 @@
-"""pyomo inventory constraints
+"""inventory constraints
 """
 
 __author__ = "Rahul Kakodkar"

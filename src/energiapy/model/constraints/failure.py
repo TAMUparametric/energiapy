@@ -1,4 +1,4 @@
-"""pyomo failure constraints
+"""failure constraints
 """
 
 __author__ = "Rahul Kakodkar"
@@ -35,14 +35,12 @@ def constraint_nameplate_production_failure(instance: ConcreteModel, fail_factor
         fail_factor = dict()
 
     scales = scale_list(instance=instance,
-                        scale_levels=instance.scales.__len__())
+                        scale_levels=len(instance.scales))
 
     def nameplate_production_failure_rule(instance, location, process, *scale_list):
         if process in instance.processes_failure:
-            return instance.P[location, process, scale_list[:scheduling_scale_level+1]] <= \
-                fail_factor[location][process][scale_list[:scheduling_scale_level+1]] * \
-                instance.Cap_P[location, process,
-                               scale_list[:network_scale_level+1]]
+            return instance.P[location, process, scale_list[:scheduling_scale_level+1]] <= fail_factor[location][process][scale_list[:scheduling_scale_level+1]] * instance.Cap_P[location, process,
+                                                                                                                                                                                  scale_list[:network_scale_level+1]]
         else:
             return instance.P[location, process, scale_list[:scheduling_scale_level+1]] <= instance.Cap_P[location, process, scale_list[:network_scale_level+1]]
     instance.constraint_nameplate_production_failure = Constraint(

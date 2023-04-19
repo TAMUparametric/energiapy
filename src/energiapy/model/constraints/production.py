@@ -1,4 +1,4 @@
-"""pyomo production constraints
+"""production constraints
 """
 
 __author__ = "Rahul Kakodkar"
@@ -14,7 +14,6 @@ from pyomo.environ import ConcreteModel, Constraint
 
 from ...utils.latex_utils import constraint_latex_render
 from ...utils.scale_utils import scale_list
-
 
 
 def constraint_production_facility_affix(instance: ConcreteModel, affix_production_cap: dict, loc_pro_dict: dict = None,
@@ -40,8 +39,7 @@ def constraint_production_facility_affix(instance: ConcreteModel, affix_producti
     def production_facility_affix_rule(instance, location, process, *scale_list):
         if process in loc_pro_dict[location]:
             if affix_production_cap[location, process, scale_list[:network_scale_level + 1][0]] > 0.0:
-                return instance.Cap_P[location, process, scale_list[:network_scale_level + 1]] \
-                    == affix_production_cap[location, process, scale_list[:network_scale_level + 1][0]]
+                return instance.Cap_P[location, process, scale_list[:network_scale_level + 1]] == affix_production_cap[location, process, scale_list[:network_scale_level + 1][0]]
             else:
                 return instance.Cap_P[location, process, scale_list[:network_scale_level + 1]] >= 0.0
         else:
@@ -125,10 +123,8 @@ def constraint_nameplate_production(instance: ConcreteModel, capacity_factor: di
             return instance.P[location, process, scale_list[:scheduling_scale_level + 1]] <= instance.Cap_P[
                 location, process, scale_list[:network_scale_level + 1]]
 
-        return instance.P[location, process, scale_list[:scheduling_scale_level + 1]] <= \
-            capacity_factor[location][process][scale_list[:scheduling_scale_level + 1]] * \
-            instance.Cap_P[location, process,
-                           scale_list[:network_scale_level + 1]]
+        return instance.P[location, process, scale_list[:scheduling_scale_level + 1]] <= capacity_factor[location][process][scale_list[:scheduling_scale_level + 1]] * instance.Cap_P[location, process,
+                                                                                                                                                                                      scale_list[:network_scale_level + 1]]
 
     instance.constraint_nameplate_production = Constraint(
         instance.locations, instance.processes, *
@@ -171,7 +167,7 @@ def constraint_production_max(instance: ConcreteModel, prod_max: dict, loc_pro_d
 
 
 def constraint_production_min(instance: ConcreteModel, prod_min: dict, loc_pro_dict: dict = None,
-                                       network_scale_level: int = 0) -> Constraint:
+                              network_scale_level: int = 0) -> Constraint:
     """Restricts minimum capacity of production facility to prod_min
 
     Args:

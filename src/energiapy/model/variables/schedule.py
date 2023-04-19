@@ -1,5 +1,5 @@
 # %%.
-"""pyomo scheduling variables
+"""scheduling variables
 """
 
 __author__ = "Rahul Kakodkar"

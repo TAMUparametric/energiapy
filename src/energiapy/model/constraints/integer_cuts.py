@@ -1,4 +1,4 @@
-"""pyomo integer cuts
+"""integer cuts
 """
 
 __author__ = "Rahul Kakodkar"

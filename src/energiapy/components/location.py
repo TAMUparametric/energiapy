@@ -5,7 +5,7 @@ __author__ = "Rahul Kakodkar"
 __copyright__ = "Copyright 2022, Multi-parametric Optimization & Control Lab"
 __credits__ = ["Rahul Kakodkar", "Efstratios N. Pistikopoulos"]
 __license__ = "MIT"
-__version__ = "1.0.5"
+__version__ = "1.1.0"
 __maintainer__ = "Rahul Kakodkar"
 __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
@@ -24,7 +24,6 @@ from ..components.resource import Resource
 from ..components.temporal_scale import TemporalScale
 from ..utils.process_utils import create_storage_process
 from ..utils.scale_utils import scale_changer
-
 
 @dataclass
 class Location:
@@ -69,7 +68,7 @@ class Location:
     demand_scale_level: int = 0
     price_scale_level: int = 0
     capacity_scale_level: int = 0
-    expenditure_scale_level:int = 0
+    expenditure_scale_level: int = 0
     land_cost: float = 0
     credit: Dict[Process, float] = None
     label: str = ''
@@ -97,7 +96,7 @@ class Location:
             i) for i in self.processes if i.processmode == ProcessMode.STORAGE})
         self.prod_max = self.get_prod_max()
         self.prod_min = self.get_prod_min()
-        
+
         if self.capacity_factor is not None:
             self.varying_capacity = set(self.capacity_factor.keys())
             if isinstance(list(self.capacity_factor.values())[0], DataFrame):
@@ -165,10 +164,12 @@ class Location:
         if len(self.processes) == 0:
             return None
 
-        resources_single = set().union(*[set(i.conversion.keys()) for i in self.processes if i.processmode == ProcessMode.SINGLE])
+        resources_single = set().union(
+            *[set(i.conversion.keys()) for i in self.processes if i.processmode == ProcessMode.SINGLE])
         resources_multi = set()
         for i in [i for i in self.processes if i.processmode == ProcessMode.MULTI]:
-            resources_multi = resources_multi.union(*[set(j.keys()) for j in list(i.conversion.values())])
+            resources_multi = resources_multi.union(
+                *[set(j.keys()) for j in list(i.conversion.values())])
         return resources_single.union(resources_multi)
 
     def get_materials(self) -> Set[Material]:
@@ -220,8 +221,9 @@ class Location:
             if i.processmode == ProcessMode.MULTI:
                 prod_max_dict[i.name] = i.prod_max
             else:
-                prod_max_dict[i.name] = {0: None}
-                prod_max_dict[i.name][0] = i.prod_max
+                prod_max_dict[i.name] = {j: None for j in self.scales.scale[0]}
+                for j in self.scales.scale[0]:
+                    prod_max_dict[i.name][j] = i.prod_max
         return prod_max_dict
 
     def get_prod_min(self) -> dict:
