@@ -25,6 +25,7 @@ from ..components.temporal_scale import TemporalScale
 from ..utils.process_utils import create_storage_process
 from ..utils.scale_utils import scale_changer
 
+
 @dataclass
 class Location:
     """Location is essentially a set of processes. Factors for varying capacity, cost, and demand can be provided as dictionary.
@@ -35,16 +36,18 @@ class Location:
         processes (Set[Process]): set of processes (Process objects) to include at location
         scales (TemporalScale): temporal scales of the problem
         demand (Dict[Resource, float]): demand for resources at location. Defaults to None.
-        demand_factor (Union[float, Dict[Resource, DataFrame]), optional): Factor for varying demand, scale changer normalizes.Defaults to 1.0
-        price_factor (Union[float, Dict[Resource, DataFrame]), optional): Factor for varying cost, scale changer normalizes. Defaults to 1.0
-        capacity_factor (Union[float, Dict[Process, DataFrame]), optional):  Factor for varying capacity, scale changer normalizes.Defaults to 1.0
-        capex_factor (Union[float, Dict[Process, DataFrame]), optional):  Factor for varying capital expenditure, scale changer normalizes. Defaults to 1.0
-        vopex_factor (Union[float, Dict[Process, DataFrame]), optional):  Factor for varying variable operational expenditure, scale changer normalizes. Defaults to 1.0
-        fopex_factor (Union[float, Dict[Process, DataFrame]), optional):  Factor for varying fixed operational expenditure, scale changer normalizes. Defaults to 1.0
-        demand_scale_level (int, optional): scale level for demand (resource). Defaults to 1.0
-        price_scale_level (int, optional): scale level for purchase cost (resource). Defaults to 1.0
-        capacity_scale_level (int, optional): scale level for capacity (process). Defaults to 1.0
-        expenditure_scale_level (int, optional): scale level for technology (process). Defaults to 1.0
+        demand_factor (Union[float, Dict[Resource, DataFrame]), optional): Factor for varying demand, scale changer normalizes.Defaults to None
+        price_factor (Union[float, Dict[Resource, DataFrame]), optional): Factor for varying cost, scale changer normalizes. Defaults to None
+        capacity_factor (Union[float, Dict[Process, DataFrame]), optional):  Factor for varying capacity, scale changer normalizes.Defaults to None
+        capex_factor (Union[float, Dict[Process, DataFrame]), optional):  Factor for varying capital expenditure, scale changer normalizes. Defaults to None
+        vopex_factor (Union[float, Dict[Process, DataFrame]), optional):  Factor for varying variable operational expenditure, scale changer normalizes. Defaults to None
+        fopex_factor (Union[float, Dict[Process, DataFrame]), optional):  Factor for varying fixed operational expenditure, scale changer normalizes. Defaults to None
+        availability_factor (Union[float, Dict[Resource, DataFrame]), optional): Factor for varying resource availability, scale changer normalizes. Defaults to None
+        demand_scale_level (int, optional): scale level for demand (resource). Defaults to 0
+        price_scale_level (int, optional): scale level for purchase cost (resource). Defaults to 0
+        capacity_scale_level (int, optional): scale level for capacity (process). Defaults to 0
+        expenditure_scale_level (int, optional): scale level for technology (process). Defaults to 0
+        availability_scale_level (int, optional): scale level for availability (resource). Defaults to 0
         land_cost (float, optional): cost of land. Defaults to 0
         credit (Dict[Process, float], optional): credit earned by process per unit basis. Defaults to None.
         label(str, optional):Longer descriptive label if required. Defaults to ''
@@ -65,10 +68,12 @@ class Location:
     capex_factor: Union[float, Dict[Process, float]] = None
     vopex_factor: Union[float, Dict[Process, float]] = None
     fopex_factor: Union[float, Dict[Process, float]] = None
+    availability_factor: Union[float, Dict[Resource, float]] = None
     demand_scale_level: int = 0
     price_scale_level: int = 0
     capacity_scale_level: int = 0
     expenditure_scale_level: int = 0
+    availability_scale_level: int = 0
     land_cost: float = 0
     credit: Dict[Process, float] = None
     label: str = ''
@@ -120,6 +125,15 @@ class Location:
             if isinstance(list(self.demand_factor.values())[0], DataFrame):
                 self.demand_factor = scale_changer(
                     self.demand_factor, scales=self.scales, scale_level=self.demand_scale_level)
+            else:
+                warn(
+                    'Input should be a dict of a DataFrame, Dict[Resource, float]')
+
+        if self.availability_factor is not None:
+            self.varying_availability = set(self.availability_factor.keys())
+            if isinstance(list(self.availability_factor.values())[0], DataFrame):
+                self.availability_factor = scale_changer(
+                    self.availability_factor, scales=self.scales, scale_level=self.availability_scale_level)
             else:
                 warn(
                     'Input should be a dict of a DataFrame, Dict[Resource, float]')
