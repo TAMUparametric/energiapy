@@ -97,8 +97,8 @@ def generate_sets(instance: ConcreteModel, scenario: Scenario):
                                             doc='Set of resources with varying purchase price')
     instance.resources_demand = Set(
         initialize=sets['resources_demand'], doc='Set of resources with exact demand')
-    instance.processes_varying = Set(
-        initialize=sets['processes_varying'], doc='Set of processes with varying capacity')
+    instance.processes_varying_capacity = Set(
+        initialize=sets['processes_varying_capacity'], doc='Set of processes with varying capacity')
     instance.processes_failure = Set(
         initialize=sets['processes_failure'], doc='Set of processes which can fail')
     instance.processes_materials = Set(initialize=sets['processes_materials'],
