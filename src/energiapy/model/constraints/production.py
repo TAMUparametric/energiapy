@@ -119,7 +119,7 @@ def constraint_nameplate_production(instance: ConcreteModel, capacity_factor: di
         if process not in loc_pro_dict[location]:
             return Constraint.Skip
 
-        if process not in instance.processes_varying:
+        if process not in instance.processes_varying_capacity:
             return instance.P[location, process, scale_list[:scheduling_scale_level + 1]] <= instance.Cap_P[
                 location, process, scale_list[:network_scale_level + 1]]
 

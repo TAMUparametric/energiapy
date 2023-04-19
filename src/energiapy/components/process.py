@@ -58,36 +58,29 @@ class VaryingProcess(Enum):
     """
     DETERMINISTIC_CAPACITY = auto()
     """
-    Utilize deterministic data
+    Utilize deterministic data as parameters for capacity
     """
-    DETERMINISTIC_CAPEX = auto()
+    DETERMINISTIC_EXPENDITURE = auto()
     """
-    Utilize deterministic data for capex
-    """
-    DETERMINISTIC_FOPEX = auto()
-    """
-    Utilize deterministic data for fopex
-    """
-    DETERMINISTIC_VOPEX = auto()
-    """
-    Utilize deterministic data for vopex
+    Utilize deterministic data as parameters for expenditure
     """
     UNCERTAIN_CAPACITY = auto()
     """
     Generate uncertainty variables
     """
-    UNCERTAIN_CAPEX = auto()
+    UNCERTAIN_EXPENDITURE = auto()
     """
-    Generate uncertainty variables for capex
+    Generate uncertainty variables for expenditure
     """
-    UNCERTAIN_FOPEX = auto()
+    CERTAIN_CAPACITY = auto()
     """
-    Generate uncertainty variables for fopex
+    Use certain parameter for capacity
     """
-    UNCERTAIN_VOPEX = auto()
+    CERTAIN_EXPENDITURE = auto()
     """
-    Generate uncertainty variables for vopex
+    Use certain parameter for expenditure
     """
+
 
 
 @dataclass
@@ -178,6 +171,10 @@ class Process:
 
         if self.varying is None:
             self.varying = []
+            if (self.capex is not None) or (self.fopex is not None) or (self.vopex is not None):
+                self.varying = self.varying + [VaryingProcess.CERTAIN_EXPENDITURE]
+            if self.prod_max > 0:
+                self.varying = self.varying + [VaryingProcess.CERTAIN_CAPACITY]
 
         if not isinstance(self.varying, list):
             warn('Provide a list of VaryingProcess enums')
