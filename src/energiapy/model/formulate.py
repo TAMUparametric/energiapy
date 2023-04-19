@@ -267,15 +267,19 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
                 instance=instance, resource_gwp_dict=scenario.resource_gwp_dict,
                 network_scale_level=scenario.network_scale_level)
 
-            constraint_global_warming_potential_material(
-                instance=instance, material_gwp_dict=scenario.material_gwp_dict,
-                process_material_dict=scenario.process_material_dict, network_scale_level=scenario.network_scale_level)
-
             constraint_global_warming_potential_location(
                 instance=instance, network_scale_level=scenario.network_scale_level)
 
             constraint_global_warming_potential_network(
                 instance=instance, network_scale_level=scenario.network_scale_level)
+
+            if Constraints.MATERIAL in constraints:
+                generate_material_vars(
+                    instance=instance, scale_level=scenario.network_scale_level)
+
+                constraint_global_warming_potential_material(
+                    instance=instance, material_gwp_dict=scenario.material_gwp_dict,
+                    process_material_dict=scenario.process_material_dict, network_scale_level=scenario.network_scale_level)
 
         if Constraints.FAILURE in constraints:
             constraint_nameplate_production_failure(instance=instance, fail_factor=scenario.fail_factor,
@@ -354,7 +358,7 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
 
             constraint_resource_consumption(instance=instance, loc_res_dict=scenario.loc_res_dict,
                                             cons_max=scenario.cons_max,
-                                            scheduling_scale_level=scenario.scheduling_scale_level)
+                                            scheduling_scale_level=scenario.scheduling_scale_level, availability_factor=scenario.availability_factor)
 
             constraint_resource_purchase(instance=instance, price_factor=scenario.price_factor, price=scenario.price,
                                          loc_res_dict=scenario.loc_res_dict,
