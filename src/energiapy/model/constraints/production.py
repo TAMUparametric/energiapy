@@ -117,7 +117,7 @@ def constraint_nameplate_production(instance: ConcreteModel, capacity_factor: di
     def nameplate_production_rule(instance, location, process, *scale_list):
 
         if process not in loc_pro_dict[location]:
-            return Constraint.Skip
+            return instance.P[location, process, scale_list[:scheduling_scale_level + 1]] == 0
 
         else:
             if process not in instance.processes_varying_capacity:
