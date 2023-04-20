@@ -116,7 +116,8 @@ class Resource:
             self.varying = []
             if self.cons_max > 0:
                 self.varying = self.varying + \
-                    [VaryingResource.CERTAIN_AVAILABILITY, VaryingResource.CERTAIN_PRICE]
+                    [VaryingResource.CERTAIN_AVAILABILITY,
+                        VaryingResource.CERTAIN_PRICE]
             if self.demand is True:
                 self.varying = self.varying + \
                     [VaryingResource.CERTAIN_DEMAND]
