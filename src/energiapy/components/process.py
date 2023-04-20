@@ -82,7 +82,6 @@ class VaryingProcess(Enum):
     """
 
 
-
 @dataclass
 class Process:
     """
@@ -172,7 +171,8 @@ class Process:
         if self.varying is None:
             self.varying = []
             if (self.capex is not None) or (self.fopex is not None) or (self.vopex is not None):
-                self.varying = self.varying + [VaryingProcess.CERTAIN_EXPENDITURE]
+                self.varying = self.varying + \
+                    [VaryingProcess.CERTAIN_EXPENDITURE]
             if self.prod_max > 0:
                 self.varying = self.varying + [VaryingProcess.CERTAIN_CAPACITY]
 
