@@ -44,7 +44,7 @@ def constraint_resource_consumption(instance: ConcreteModel, loc_res_dict: dict 
 
     def resource_consumption_rule(instance, location, resource, *scale_list):
         if resource in loc_res_dict[location]:
-            if availability_factor is None:
+            if availability_factor[location] is None:
                 return instance.C[location, resource, scale_list[:scheduling_scale_level + 1]] <= cons_max[location][
                     resource]
             else:
