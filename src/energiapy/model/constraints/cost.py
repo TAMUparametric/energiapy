@@ -149,7 +149,10 @@ def constraint_process_capex(instance: ConcreteModel, capex_dict: dict, network_
     def process_capex_rule(instance, location, process, *scale_list):
         if capex_dict[process] is not None:
             if capex_factor[location] is not None:
-                return instance.Capex_process[location, process, scale_list] == annualization_factor*capex_factor[location][process][scale_list]*capex_dict[process]*instance.Cap_P[location, process, scale_list]
+                if process in list(capex_factor[location].keys()):
+                    return instance.Capex_process[location, process, scale_list] == annualization_factor*capex_factor[location][process][scale_list]*capex_dict[process]*instance.Cap_P[location, process, scale_list]
+                else:
+                    return instance.Capex_process[location, process, scale_list] == annualization_factor*capex_dict[process]*instance.Cap_P[location, process, scale_list]
             else:
                 return instance.Capex_process[location, process, scale_list] == annualization_factor*capex_dict[process]*instance.Cap_P[location, process, scale_list]
         else:
@@ -161,14 +164,13 @@ def constraint_process_capex(instance: ConcreteModel, capex_dict: dict, network_
     return instance.constraint_process_capex
 
 
-def constraint_process_incidental(instance: ConcreteModel, incidental_dict: dict, network_scale_level: int = 0, annualization_factor: float = 1, cost_dynamics: Costdynamics = Costdynamics.constant, loc_pro_dict: dict = None) -> Constraint:
+def constraint_process_incidental(instance: ConcreteModel, incidental_dict: dict, network_scale_level: int = 0, cost_dynamics: Costdynamics = Costdynamics.constant, loc_pro_dict: dict = None) -> Constraint:
     """Capital expenditure for each process at location in network
 
     Args:
         instance (ConcreteModel): pyomo instance
         capex_dict (dict): capex at location
         network_scale_level (int, optional): scale of network decisions. Defaults to 0.
-        annualization_factor (float, optional): Annual depreciation of asset. Defaults to 1.
 
     Returns:
         Constraint: process_capex
