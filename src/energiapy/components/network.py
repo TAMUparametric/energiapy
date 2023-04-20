@@ -1,11 +1,11 @@
-"""Linkage data class
+"""Network data class
 """
 
 __author__ = "Rahul Kakodkar"
-__copyright__ = "Copyright 2022, Multi-parametric Optimization & Control Lab"
+__copyright__ = "Copyright 2023, Multi-parametric Optimization & Control Lab"
 __credits__ = ["Rahul Kakodkar", "Efstratios N. Pistikopoulos"]
-__license__ = "Open"
-__version__ = "0.0.1"
+__license__ = "MIT"
+__version__ = "1.1.0"
 __maintainer__ = "Rahul Kakodkar"
 __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
@@ -32,6 +32,7 @@ class Network:
         label(str, optional):Longer descriptive label if required. Defaults to ''
 
     Examples:
+
         Networks object with to and from movement of resources using Transport. In the following example, Train and Pipeline can be set up from 'Goa' to 'Texas'
 
         >>> Move = Network(name= 'Network', source_locations= [Goa, Texas], sink_locations= [Texas, Goa], distance_matrix= [[0, 500],[500, 0]], transport_matrix= [[], [Train, Pipe]], [[Train, Pipe], []]], label = 'network for moving stuff')
@@ -39,6 +40,18 @@ class Network:
         Networks can also have one way movement of resources. In the following example, a Pipeline is set up from Goa to Texas.
 
         >>> BrainDrain = Network(name= 'BrainDrain', source_locations= [Goa], sink_locations= [Texas], distance_matrix= [[0, 500],[500, 0]], transport_matrix= [[], [Pipe]], [[], []]], label = 'The Pipeline') )
+
+        Declaring distance matrix: 
+        Consider a source (Goa), and two sinks (Texas, Macedonia) at a distance of 1000 and 500 units. The source will form the rows and sinks the columns. 
+        The distance matrix will look something like this:
+
+        >>> distance_matrix = [[1000, 500]]
+
+        Declaring transport matrix:
+        Similarly say, there is a ship (Ship) avaiable between only Goa and Macedonia, and a flight (Plane) available from Goa to both regions. 
+        The transport matrix can be stated as:
+
+        >>> transport_matrix = [[[Ship], [Ship, Plane]]]
     """
     name: str
     source_locations: List[Location] = field(default_factory=list)
@@ -69,7 +82,7 @@ class Network:
             dict: a dictionary of distances from sources to sinks
         """
         distance_dict = {(self.source_locations[i].name, self.sink_locations[j].name):
-                             self.distance_matrix[i][j] for i, j in
+                         self.distance_matrix[i][j] for i, j in
                          product(range(len(self.source_locations)), range(len(self.sink_locations)))}
         return distance_dict
 
@@ -80,7 +93,7 @@ class Network:
             dict: a dictionary of trasportation modes available between sources to sinks
         """
         transport_dict = {(self.source_locations[i].name, self.sink_locations[j].name):
-                              set(self.transport_matrix[i][j]) for i, j in
+                          set(self.transport_matrix[i][j]) for i, j in
                           product(range(len(self.source_locations)), range(len(self.sink_locations)))}
         return transport_dict
 
