@@ -20,7 +20,7 @@ from ...components.resource import Resource
 
 
 def constraint_resource_consumption(instance: ConcreteModel, loc_res_dict: dict = None, cons_max: dict = None,
-                                    scheduling_scale_level: int = 0) -> Constraint:
+                                    scheduling_scale_level: int = 0, availability_factor: dict = None) -> Constraint:
     """Determines consumption of resource at location in network
 
     Args:
@@ -40,12 +40,15 @@ def constraint_resource_consumption(instance: ConcreteModel, loc_res_dict: dict 
         cons_max = dict()
 
     scales = scale_list(instance=instance,
-                        scale_levels=instance.scales.__len__())
+                        scale_levels=len(instance.scales))
 
     def resource_consumption_rule(instance, location, resource, *scale_list):
         if resource in loc_res_dict[location]:
-            return instance.C[location, resource, scale_list[:scheduling_scale_level + 1]] <= cons_max[location][
-                resource]
+            if availability_factor[location] is None:
+                return instance.C[location, resource, scale_list[:scheduling_scale_level + 1]] <= cons_max[location][
+                    resource]
+            else:
+                return instance.C[location, resource, scale_list[:scheduling_scale_level + 1]] <= availability_factor[location][resource][scale_list[:scheduling_scale_level + 1]]*cons_max[location][resource]
         else:
             return instance.C[location, resource, scale_list[:scheduling_scale_level + 1]] <= 0
 
@@ -82,8 +85,7 @@ def constraint_resource_purchase(instance: ConcreteModel, price_factor: dict = N
     if price is None:
         price = dict()
 
-    scales = scale_list(instance=instance,
-                        scale_levels=instance.scales.__len__())
+    scales = scale_list(instance=instance, scale_levels=len(instance.scales))
 
     def resource_purchase_rule(instance, location, resource, *scale_list):
         if resource in instance.resources_varying_price.intersection(loc_res_dict[location]):

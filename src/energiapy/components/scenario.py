@@ -165,6 +165,7 @@ class Scenario:
         self.capex_factor = {i.name: i.capex_factor for i in self.location_set}
         self.vopex_factor = {i.name: i.vopex_factor for i in self.location_set}
         self.fopex_factor = {i.name: i.fopex_factor for i in self.location_set}
+        self.availability_factor = {i.name: i.availability_factor for i in self.location_set}
         self.loc_res_dict = {
             i.name: {j.name for j in i.resources_full} for i in self.location_set}
         self.loc_pro_dict = {
@@ -225,21 +226,21 @@ class Scenario:
 
             'resources_varying_demand': [i.name for i in self.resource_set if
                                          VaryingResource.DETERMINISTIC_DEMAND in i.varying],
-            'resources_certain_demand': [i.name for i in self.resource_set if 
+            'resources_certain_demand': [i.name for i in self.resource_set if
                                          VaryingResource.CERTAIN_DEMAND in i.varying],
             'resources_uncertain_demand': [i.name for i in self.resource_set if
                                            VaryingResource.UNCERTAIN_DEMAND in i.varying],
 
             'resources_varying_price': [i.name for i in self.resource_set if
                                         VaryingResource.DETERMINISTIC_PRICE in i.varying],
-            'resources_certain_price': [i.name for i in self.resource_set if 
+            'resources_certain_price': [i.name for i in self.resource_set if
                                         VaryingResource.CERTAIN_PRICE in i.varying],
-            'resources_uncertain_price': [i.name for i in self.resource_set if 
+            'resources_uncertain_price': [i.name for i in self.resource_set if
                                           VaryingResource.UNCERTAIN_PRICE in i.varying],
 
-            'resource_varying_availability': [i.name for i in self.resource_set if 
+            'resource_varying_availability': [i.name for i in self.resource_set if
                                               VaryingResource.DETERMINISTIC_AVAILABILITY in i.varying],
-            'resource_certain_availability': [i.name for i in self.resource_set if 
+            'resource_certain_availability': [i.name for i in self.resource_set if
                                               VaryingResource.CERTAIN_AVAILABILITY in i.varying],
             'resource_uncertain_availability': [i.name for i in self.resource_set if
                                                 VaryingResource.UNCERTAIN_AVAILABILITY in i.varying],
@@ -260,20 +261,20 @@ class Scenario:
             'processes_singlem': [i.name for i in self.process_set if
                                   (i.processmode == ProcessMode.SINGLE) or (i.processmode == ProcessMode.STORAGE)],
 
-            'processes_certain_capacity': [i.name for i in self.process_set if 
+            'processes_certain_capacity': [i.name for i in self.process_set if
                                            VaryingProcess.CERTAIN_CAPACITY in i.varying],
             'processes_varying_capacity': [i.name for i in self.process_set if
                                            VaryingProcess.DETERMINISTIC_CAPACITY in i.varying],
             'processes_uncertain_capacity': [i.name for i in self.process_set if
                                              VaryingProcess.UNCERTAIN_CAPACITY in i.varying],
 
-            'processes_certain_expenditure': [i.name for i in self.process_set if 
-                                        VaryingProcess.CERTAIN_EXPENDITURE in i.varying],
+            'processes_certain_expenditure': [i.name for i in self.process_set if
+                                              VaryingProcess.CERTAIN_EXPENDITURE in i.varying],
             'processes_varying_expenditure': [i.name for i in self.process_set if
-                                        VaryingProcess.DETERMINISTIC_EXPENDITURE in i.varying],
+                                              VaryingProcess.DETERMINISTIC_EXPENDITURE in i.varying],
             'processes_uncertain_expenditure': [i.name for i in self.process_set if
-                                          VaryingProcess.UNCERTAIN_EXPENDITURE in i.varying],
-            
+                                                VaryingProcess.UNCERTAIN_EXPENDITURE in i.varying],
+
             'locations': [i.name for i in self.location_set],
             'materials': [i.name for i in self.material_set],
         }
