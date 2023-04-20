@@ -274,8 +274,6 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
                 instance=instance, network_scale_level=scenario.network_scale_level)
 
             if Constraints.MATERIAL in constraints:
-                generate_material_vars(
-                    instance=instance, scale_level=scenario.network_scale_level)
 
                 constraint_global_warming_potential_material(
                     instance=instance, material_gwp_dict=scenario.material_gwp_dict,
