@@ -459,7 +459,7 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
         if objective == Objective.COST:
             constraint_demand(instance=instance, demand_scale_level=scenario.demand_scale_level,
                               scheduling_scale_level=scenario.scheduling_scale_level, demand=demand,
-                              demand_factor=scenario.demand_factor)
+                              demand_factor=scenario.demand_factor, loc_res_dict=scenario.loc_res_dict)
 
             objective_cost(
                 instance=instance, network_scale_level=scenario.network_scale_level, constraints=constraints)
@@ -467,7 +467,7 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
         if objective == Objective.MIN_DISCHARGE:
             constraint_demand(instance=instance, demand_scale_level=scenario.demand_scale_level,
                               scheduling_scale_level=scenario.scheduling_scale_level, demand=demand,
-                              demand_factor=scenario.demand_factor)
+                              demand_factor=scenario.demand_factor, loc_res_dict=scenario.loc_res_dict)
 
             constraint_network_cost(
                 instance=instance, network_scale_level=scenario.network_scale_level, constraints=constraints)
@@ -478,7 +478,7 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
         if objective == Objective.MAX_DISCHARGE:
             constraint_demand(instance=instance, demand_scale_level=scenario.demand_scale_level,
                               scheduling_scale_level=scenario.scheduling_scale_level, demand=demand,
-                              demand_factor=scenario.demand_factor)
+                              demand_factor=scenario.demand_factor, loc_res_dict=scenario.loc_res_dict)
 
             constraint_network_cost(
                 instance=instance, network_scale_level=scenario.network_scale_level, constraints=constraints)
