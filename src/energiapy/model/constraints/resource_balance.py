@@ -199,7 +199,7 @@ def constraint_inventory_balance(instance: ConcreteModel, scheduling_scale_level
 
 def constraint_demand(instance: ConcreteModel, demand: Union[dict, float], demand_factor: Union[dict, float],
                       demand_scale_level: int = 0, scheduling_scale_level: int = 0,
-                      cluster_wt: dict = None) -> Constraint:
+                      cluster_wt: dict = None, loc_res_dict: dict = None) -> Constraint:
     """Ensures that demand for resource is met at chosen temporal scale
 
     Args:
@@ -217,6 +217,9 @@ def constraint_demand(instance: ConcreteModel, demand: Union[dict, float], deman
     scale_iter = scale_tuple(
         instance=instance, scale_levels=scheduling_scale_level + 1)
 
+    if loc_res_dict is None:
+        loc_res_dict = dict()
+
     def demand_rule(instance, location, resource, *scale_list):
 
         if demand_factor[location] is not None:
@@ -228,12 +231,17 @@ def constraint_demand(instance: ConcreteModel, demand: Union[dict, float], deman
                     :scheduling_scale_level + 1] == scale_list)
 
             if isinstance(demand, dict):
-                demandtarget = demand[location][resource] * \
-                    demand_factor[location][resource][scale_list[:demand_scale_level + 1]]
+                if resource in loc_res_dict[location]:
+                    demandtarget = demand[location][resource] * \
+                        demand_factor[location][resource][scale_list[:demand_scale_level + 1]]
+                else:
+                    demandtarget = 0
             else:
-                demandtarget = demand * \
-                    demand_factor[location][resource][scale_list[:demand_scale_level + 1]]
-
+                if resource in loc_res_dict[location]:
+                    demandtarget = demand * \
+                        demand_factor[location][resource][scale_list[:demand_scale_level + 1]]
+                else:
+                    demandtarget = 0
         else:
             # TODO - doesn't meet demand in first timeperiod
             discharge = sum(instance.S[location, resource, scale_] for scale_ in scale_iter if scale_[
