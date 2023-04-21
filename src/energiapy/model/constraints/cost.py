@@ -73,11 +73,11 @@ def constraint_transport_imp_cost(instance: ConcreteModel, scheduling_scale_leve
     def transport_imp_cost_rule(instance, sink, source, resource, transport, *scale_list):
         if trans_cost is None:
             return Constraint.Skip
-
-        if distance_dict is None:
-            return Constraint.Skip
-
-        return instance.Trans_imp_cost[sink, source, resource, transport, scale_list[:scheduling_scale_level+1]] == trans_cost[transport]*distance_dict[(source, sink)]*instance.Trans_imp[sink, source, resource, transport, scale_list[:scheduling_scale_level+1]]
+        else:
+            if distance_dict is None:
+                return Constraint.Skip
+            else:
+                return instance.Trans_imp_cost[sink, source, resource, transport, scale_list[:scheduling_scale_level+1]] == trans_cost[transport]*distance_dict[(source, sink)]*instance.Trans_imp[sink, source, resource, transport, scale_list[:scheduling_scale_level+1]]
 
     instance.constraint_transport_imp_cost = Constraint(instance.sinks, instance.sources, instance.resources_trans,
                                                         instance.transports, *scales, rule=transport_imp_cost_rule, doc='import of resource from sink to source')
@@ -122,7 +122,7 @@ def constraint_transport_cost_network(instance: ConcreteModel, network_scale_lev
     """
     scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
     scale_iter = scale_tuple(
-        instance=instance, scale_levels=instance.scales.__len__())
+        instance=instance, scale_levels=len(instance.scales))
 
     def transport_cost_network_rule(instance, transport, *scale_list):
         return instance.Trans_cost_network[transport, scale_list] == sum(instance.Trans_cost[transport, scale_] for scale_ in scale_iter)
