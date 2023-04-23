@@ -39,6 +39,8 @@ def generate_scheduling_vars(instance: ConcreteModel, scale_level: int = 0, mode
                      instance.scales_scheduling, within=NonNegativeReals, doc='Resource Consumption')
     instance.S = Var(instance.locations, instance.resources_sell,
                      instance.scales_scheduling, within=NonNegativeReals, doc='Resource Dispensed/Sold')
+    instance.R = Var(instance.locations, instance.resources_sell,
+                     instance.scales_scheduling, within=NonNegativeReals, doc='Revenue from resource Sold')
     instance.Inv = Var(instance.locations, instance.resources_store,
                        instance.scales_scheduling, within=NonNegativeReals, doc='Resource Inventory')
     if len(instance.locations) > 1:

@@ -148,6 +148,10 @@ class Objective(Enum):
     """
     Minimize cost
     """
+    REVENUE = auto()
+    """
+    Maximize revenue
+    """
     MIN_DISCHARGE = auto()
     """
     Minimize discharge of particular resource
@@ -191,6 +195,7 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
 
     Objectives include:
             Objectives.COST
+            Objectives.REVENUE
             Objectives.MIN_DISCHARGE
             Objectives.MAX_DISCHARGE
 

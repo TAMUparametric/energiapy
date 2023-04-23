@@ -61,7 +61,7 @@ def objective_cost(instance: ConcreteModel, constraints: Set[Constraints], netwo
                              product(instance.transports, scale_iter))
         else:
             cost_trans = 0
-        return capex + vopex + fopex + cost_purch + cost_trans + incidental + land_cost + credit
+        return capex + vopex + fopex + cost_purch + cost_trans + incidental + land_cost - credit
 
     instance.objective_cost = Objective(
         rule=objective_cost_rule, doc='total cost')
@@ -171,9 +171,8 @@ def objective_discharge_max(instance: ConcreteModel, resource: Resource, network
     return instance.objective_discharge_max
 
 
-
 def objective_revenue(instance: ConcreteModel, constraints: Set[Constraints], network_scale_level: int = 0) -> Objective:
-    """Objective to minimize total revenue
+    """Objective to maximize total revenue
 
     Args:
         instance (ConcreteModel): pyomo instance
@@ -195,6 +194,9 @@ def objective_revenue(instance: ConcreteModel, constraints: Set[Constraints], ne
         cost_purch = sum(instance.B_network[resource_, scale_] for resource_, scale_ in
                          product(instance.resources_purch, scale_iter))
 
+        revenue = sum(instance.R_network[resource_, scale_] for resource_, scale_ in
+                      product(instance.resources_sell, scale_iter))
+
         if Constraints.LAND in constraints:
             land_cost = sum(
                 instance.Land_cost_network[scale_] for scale_ in scale_iter)
@@ -212,9 +214,9 @@ def objective_revenue(instance: ConcreteModel, constraints: Set[Constraints], ne
                              product(instance.transports, scale_iter))
         else:
             cost_trans = 0
-        return capex + vopex + fopex + cost_purch + cost_trans + incidental + land_cost + credit
+        return -(capex + vopex + fopex + cost_purch + cost_trans + incidental + land_cost) + credit + revenue
 
     instance.objective_revenue = Objective(
-        rule=objective_revenue_rule, doc='total revenue')
+        rule=objective_revenue_rule, sense=maximize, doc='total revenue')
     constraint_latex_render(objective_revenue_rule)
     return instance.objective_revenue

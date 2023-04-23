@@ -243,6 +243,13 @@ class Scenario:
             'resources_uncertain_price': [i.name for i in self.resource_set if
                                           VaryingResource.UNCERTAIN_PRICE in i.varying],
 
+            'resources_varying_revenue': [i.name for i in self.resource_set if
+                                          VaryingResource.DETERMINISTIC_REVENUE in i.varying],
+            'resources_certain_revenue': [i.name for i in self.resource_set if
+                                          VaryingResource.CERTAIN_REVENUE in i.varying],
+            'resources_uncertain_revenue': [i.name for i in self.resource_set if
+                                            VaryingResource.UNCERTAIN_REVENUE in i.varying],
+
             'resource_varying_availability': [i.name for i in self.resource_set if
                                               VaryingResource.DETERMINISTIC_AVAILABILITY in i.varying],
             'resource_certain_availability': [i.name for i in self.resource_set if
