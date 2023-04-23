@@ -385,8 +385,6 @@ def constraint_location_purchase(instance: ConcreteModel, cluster_wt: dict, netw
     return instance.constraint_location_purchase
 
 
-# *-------------------------Network scale mass balance calculation constraints--------------------------
-
 def constraint_network_production(instance: ConcreteModel, network_scale_level: int = 0) -> Constraint:
     """Determines total production utilization across network
 

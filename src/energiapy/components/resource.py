@@ -32,6 +32,10 @@ class VaryingResource(Enum):
     """
     Utilize deterministic resource availability as parameters
     """
+    DETERMINISTIC_REVENUE = auto()
+    """
+    Utilize deterministic resource revenues as parameters
+    """
     UNCERTAIN_DEMAND = auto()
     """
     Generate uncertainty variables for demand
@@ -44,6 +48,10 @@ class VaryingResource(Enum):
     """
     Generate uncertainty variables for resource availability
     """
+    UNCERTAIN_REVENUE = auto()
+    """
+    Generate uncertainty variables for resource revenue
+    """
     CERTAIN_DEMAND = auto()
     """Use exact parameter for demand 
     """
@@ -52,6 +60,9 @@ class VaryingResource(Enum):
     """
     CERTAIN_AVAILABILITY = auto()
     """Use exact parameter for availability
+    """
+    CERTAIN_REVENUE = auto()
+    """Use exact parameter for revenue
     """
 
 
@@ -121,6 +132,9 @@ class Resource:
             if self.demand is True:
                 self.varying = self.varying + \
                     [VaryingResource.CERTAIN_DEMAND]
+            if self.revenue is True:
+                self.varying = self.varying + \
+                    [VaryingResource.CERTAIN_REVENUE]
 
         if not isinstance(self.varying, list):
             warn('Provide a list of VaryingResource enums')

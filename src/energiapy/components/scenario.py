@@ -94,7 +94,8 @@ class Scenario:
             loc_res_dict (dict): A dictionary with Location-wise availability of Resource objects.
             loc_pro_dict (dict): A dictionary with Location-wise availability of Process objects.
             loc_mat_dict (dict): A dictionary with Location-wise availability of Material objects.
-            price (dict): A dictionary with Location-wise cost of Resource objects
+            price (dict): A dictionary with Location-wise purchase price of Resource objects
+            revenue (dict): A dictionary with Location-wise revenue from selling resource objects
             capex_dict (dict): A dictionary with capital expenditure data for each Process.
             fopex_dict (dict): A dictionary with fixed operational expenditure data for each Process.
             vopex_dict (dict): A dictionary with variable operational expenditure data for each Process.
@@ -165,7 +166,10 @@ class Scenario:
         self.capex_factor = {i.name: i.capex_factor for i in self.location_set}
         self.vopex_factor = {i.name: i.vopex_factor for i in self.location_set}
         self.fopex_factor = {i.name: i.fopex_factor for i in self.location_set}
-        self.availability_factor = {i.name: i.availability_factor for i in self.location_set}
+        self.availability_factor = {
+            i.name: i.availability_factor for i in self.location_set}
+        self.revenue_factor = {
+            i.name: i.revenue_factor for i in self.location_set}
         self.loc_res_dict = {
             i.name: {j.name for j in i.resources_full} for i in self.location_set}
         self.loc_pro_dict = {
@@ -174,6 +178,7 @@ class Scenario:
                              for i in self.location_set}
         # TODO change to be location wise
         self.price = {i.name: i.resource_price for i in self.location_set}
+        self.revenue = {i.name: i.resource_revenue for i in self.location_set}
         self.capex_dict = {i.name: i.capex for i in self.process_set}
         self.fopex_dict = {i.name: i.fopex for i in self.process_set}
         self.vopex_dict = {i.name: i.vopex for i in self.process_set}
