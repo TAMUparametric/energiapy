@@ -171,20 +171,20 @@ def objective_discharge_max(instance: ConcreteModel, resource: Resource, network
     return instance.objective_discharge_max
 
 
-def objective_revenue(instance: ConcreteModel, constraints: Set[Constraints], network_scale_level: int = 0) -> Objective:
-    """Objective to maximize total revenue
+def objective_profit(instance: ConcreteModel, constraints: Set[Constraints], network_scale_level: int = 0) -> Objective:
+    """Objective to maximize total profit
 
     Args:
         instance (ConcreteModel): pyomo instance
         network_scale_level (int, optional): scale of network decisions. Defaults to 0.
 
     Returns:
-        Objective: revenue objective
+        Objective: profit objective
     """
     scale_iter = scale_tuple(
         instance=instance, scale_levels=network_scale_level + 1)
 
-    def objective_revenue_rule(instance):
+    def objective_profit_rule(instance):
         capex = sum(instance.Capex_network[scale_] for scale_ in scale_iter)
         vopex = sum(instance.Vopex_network[scale_] for scale_ in scale_iter)
         fopex = sum(instance.Fopex_network[scale_] for scale_ in scale_iter)
@@ -216,7 +216,7 @@ def objective_revenue(instance: ConcreteModel, constraints: Set[Constraints], ne
             cost_trans = 0
         return -(capex + vopex + fopex + cost_purch + cost_trans + incidental + land_cost) + credit + revenue
 
-    instance.objective_revenue = Objective(
-        rule=objective_revenue_rule, sense=maximize, doc='total revenue')
-    constraint_latex_render(objective_revenue_rule)
-    return instance.objective_revenue
+    instance.objective_profit = Objective(
+        rule=objective_profit_rule, sense=maximize, doc='total profit')
+    constraint_latex_render(objective_profit_rule)
+    return instance.objective_profit
