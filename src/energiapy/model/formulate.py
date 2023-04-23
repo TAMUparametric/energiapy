@@ -74,15 +74,18 @@ from .constraints.resource_balance import (
     constraint_demand,
     constraint_inventory_balance,
     constraint_location_consumption,
+    constraint_location_revenue,
     constraint_location_discharge,
     constraint_location_production,
     constraint_location_purchase,
     constraint_network_consumption,
+    constraint_network_revenue,
     constraint_network_discharge,
     constraint_network_production,
     constraint_network_purchase,
     constraint_resource_consumption,
     constraint_resource_purchase,
+    constraint_resource_revenue
 )
 from .constraints.transport import (
     constraint_transport_balance,
@@ -112,7 +115,7 @@ from .constraints.material import (
     constraint_material_location,
     constraint_material_network
 )
-from .objectives import objective_cost, objective_discharge_max, objective_discharge_min
+from .objectives import objective_cost, objective_discharge_max, objective_discharge_min, objective_revenue
 from .sets import generate_sets
 from .variables.binary import generate_network_binary_vars
 from .variables.cost import generate_costing_vars
@@ -467,6 +470,16 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
                               demand_factor=scenario.demand_factor, loc_res_dict=scenario.loc_res_dict)
 
             objective_cost(
+                instance=instance, network_scale_level=scenario.network_scale_level, constraints=constraints)
+
+        if objective == Objective.REVENUE:
+            constraint_resource_revenue(instance=instance, loc_res_dict=scenario.loc_res_dict, revenue=scenario.revenue,
+                                        demand_scale_level=scenario.demand_scale_level, revenue_factor=scenario.revenue_factor)
+            constraint_location_revenue(
+                instance=instance, network_scale_level=scenario.network_scale_level, cluster_wt=scenario.cluster_wt)
+            constraint_network_revenue(
+                instance=instance, network_scale_level=scenario.network_scale_level)
+            objective_revenue(
                 instance=instance, network_scale_level=scenario.network_scale_level, constraints=constraints)
 
         if objective == Objective.MIN_DISCHARGE:
