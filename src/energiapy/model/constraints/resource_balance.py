@@ -133,7 +133,7 @@ def constraint_resource_revenue(instance: ConcreteModel, revenue_factor: dict = 
 
     def resource_revenue_rule(instance, location, resource, *scale_list):
         if resource in instance.resources_varying_revenue.intersection(loc_res_dict[location]):
-            return instance.R[location, resource, scale_list[:demand_scale_level + 1]] == revenue[location][resource]*revenue_factor[location][resource][scale_list[:revenue_scale_level + 1]] * instance.S[location, resource, scale_list[:demand_scale_level + 1]]
+            return instance.R[location, resource, scale_list[:demand_scale_level + 1]] == revenue[location][resource]*revenue_factor[location][resource][scale_list[:demand_scale_level + 1]] * instance.S[location, resource, scale_list[:demand_scale_level + 1]]
         else:
             if resource in instance.resources_purch.intersection(loc_res_dict[location]):
                 return instance.R[location, resource, scale_list[:demand_scale_level + 1]] == revenue[location][
