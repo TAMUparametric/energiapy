@@ -169,3 +169,52 @@ def objective_discharge_max(instance: ConcreteModel, resource: Resource, network
         rule=objective_discharge_max_rule, sense=maximize, doc='maximize total discharge from specific_network')
     constraint_latex_render(objective_discharge_max_rule)
     return instance.objective_discharge_max
+
+
+
+def objective_revenue(instance: ConcreteModel, constraints: Set[Constraints], network_scale_level: int = 0) -> Objective:
+    """Objective to minimize total revenue
+
+    Args:
+        instance (ConcreteModel): pyomo instance
+        network_scale_level (int, optional): scale of network decisions. Defaults to 0.
+
+    Returns:
+        Objective: revenue objective
+    """
+    scale_iter = scale_tuple(
+        instance=instance, scale_levels=network_scale_level + 1)
+
+    def objective_revenue_rule(instance):
+        capex = sum(instance.Capex_network[scale_] for scale_ in scale_iter)
+        vopex = sum(instance.Vopex_network[scale_] for scale_ in scale_iter)
+        fopex = sum(instance.Fopex_network[scale_] for scale_ in scale_iter)
+        incidental = sum(
+            instance.Incidental_network[scale_] for scale_ in scale_iter)
+
+        cost_purch = sum(instance.B_network[resource_, scale_] for resource_, scale_ in
+                         product(instance.resources_purch, scale_iter))
+
+        if Constraints.LAND in constraints:
+            land_cost = sum(
+                instance.Land_cost_network[scale_] for scale_ in scale_iter)
+        else:
+            land_cost = 0
+
+        if Constraints.CREDIT in constraints:
+            credit = sum(
+                instance.Credit_network[scale_] for scale_ in scale_iter)
+        else:
+            credit = 0
+
+        if len(instance.locations) > 1:
+            cost_trans = sum(instance.Trans_cost_network[transport_, scale_] for transport_, scale_ in
+                             product(instance.transports, scale_iter))
+        else:
+            cost_trans = 0
+        return capex + vopex + fopex + cost_purch + cost_trans + incidental + land_cost + credit
+
+    instance.objective_revenue = Objective(
+        rule=objective_revenue_rule, doc='total revenue')
+    constraint_latex_render(objective_revenue_rule)
+    return instance.objective_revenue
