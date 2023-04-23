@@ -106,16 +106,15 @@ def constraint_resource_purchase(instance: ConcreteModel, price_factor: dict = N
 
 
 def constraint_resource_revenue(instance: ConcreteModel, revenue_factor: dict = None, revenue: dict = None,
-                                loc_res_dict: dict = None, scheduling_scale_level: int = 0,
-                                revenue_scale_level: int = 0) -> Constraint:
+                                loc_res_dict: dict = None, demand_scale_level: int = 0) -> Constraint:
     """Determines revenue resource at location in network at the scheduling/expenditure scale
 
     Args:
         instance (ConcreteModel): pyomo instance
         revenue_factor (dict, optional): uncertain revenue training data. Defaults to {}.
         revenue (dict, optional): base revenue of resource. Defaults to {}.
-        scheduling_scale_level (int, optional): scale of scheduling decisions. Defaults to 0.
-        revenue_scale_level (int, optional): scale of resource revenue decisions. Defaults to 0.
+        demand_scale_level (int, optional): scale of scheduling decisions. Defaults to 0.
+
 
     Returns:
         Constraint: resource_revenue
@@ -134,13 +133,13 @@ def constraint_resource_revenue(instance: ConcreteModel, revenue_factor: dict = 
 
     def resource_revenue_rule(instance, location, resource, *scale_list):
         if resource in instance.resources_varying_revenue.intersection(loc_res_dict[location]):
-            return instance.R[location, resource, scale_list[:scheduling_scale_level + 1]] == revenue[location][resource]*revenue_factor[location][resource][scale_list[:revenue_scale_level + 1]] * instance.S[location, resource, scale_list[:scheduling_scale_level + 1]]
+            return instance.R[location, resource, scale_list[:demand_scale_level + 1]] == revenue[location][resource]*revenue_factor[location][resource][scale_list[:revenue_scale_level + 1]] * instance.S[location, resource, scale_list[:demand_scale_level + 1]]
         else:
             if resource in instance.resources_purch.intersection(loc_res_dict[location]):
-                return instance.R[location, resource, scale_list[:scheduling_scale_level + 1]] == revenue[location][
-                    resource] * instance.S[location, resource, scale_list[:scheduling_scale_level + 1]]
+                return instance.R[location, resource, scale_list[:demand_scale_level + 1]] == revenue[location][
+                    resource] * instance.S[location, resource, scale_list[:demand_scale_level + 1]]
             else:
-                return instance.R[location, resource, scale_list[:scheduling_scale_level + 1]] == 0
+                return instance.R[location, resource, scale_list[:demand_scale_level + 1]] == 0
 
     instance.constraint_resource_revenue = Constraint(
         instance.locations, instance.resources_sell, *
