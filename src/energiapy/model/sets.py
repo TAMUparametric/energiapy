@@ -93,6 +93,8 @@ def generate_sets(instance: ConcreteModel, scenario: Scenario):
         initialize=sets['resources_purch'], doc='Set of purchased resources')
     instance.resources_varying_price = Set(initialize=sets['resources_varying_price'],
                                            doc='Set of resources with varying purchase price')
+    instance.resources_varying_revenue = Set(initialize=sets['resources_varying_revenue'],
+                                           doc='Set of resources with varying purchase revenue')
     instance.resources_varying_demand = Set(initialize=sets['resources_varying_demand'],
                                             doc='Set of resources with varying purchase price')
     instance.resources_demand = Set(
@@ -116,6 +118,8 @@ def generate_sets(instance: ConcreteModel, scenario: Scenario):
 
     instance.resources_uncertain_price = Set(initialize=sets['resources_uncertain_price'],
                                              doc='Set of resources with uncertain purchase price')
+    instance.resources_uncertain_revenue = Set(initialize=sets['resources_uncertain_revenue'],
+                                            doc='Set of resources with uncertain purchase revenue')
     instance.resources_uncertain_demand = Set(initialize=sets['resources_uncertain_demand'],
                                               doc='Set of resources with uncertain demand')
     instance.processes_uncertain_capacity = Set(initialize=sets['processes_uncertain_capacity'],
