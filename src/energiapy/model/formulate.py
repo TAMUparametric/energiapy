@@ -115,7 +115,7 @@ from .constraints.material import (
     constraint_material_location,
     constraint_material_network
 )
-from .objectives import objective_cost, objective_discharge_max, objective_discharge_min, objective_revenue
+from .objectives import objective_cost, objective_discharge_max, objective_discharge_min, objective_profit
 from .sets import generate_sets
 from .variables.binary import generate_network_binary_vars
 from .variables.cost import generate_costing_vars
@@ -151,9 +151,9 @@ class Objective(Enum):
     """
     Minimize cost
     """
-    REVENUE = auto()
+    PROFIT = auto()
     """
-    Maximize revenue
+    Maximize profit
     """
     MIN_DISCHARGE = auto()
     """
@@ -198,7 +198,7 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
 
     Objectives include:
             Objectives.COST
-            Objectives.REVENUE
+            Objectives.PROFIT
             Objectives.MIN_DISCHARGE
             Objectives.MAX_DISCHARGE
 
@@ -472,14 +472,14 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
             objective_cost(
                 instance=instance, network_scale_level=scenario.network_scale_level, constraints=constraints)
 
-        if objective == Objective.REVENUE:
+        if objective == Objective.PROFIT:
             constraint_resource_revenue(instance=instance, loc_res_dict=scenario.loc_res_dict, revenue=scenario.revenue,
                                         demand_scale_level=scenario.demand_scale_level, revenue_factor=scenario.revenue_factor)
             constraint_location_revenue(
                 instance=instance, network_scale_level=scenario.network_scale_level, cluster_wt=scenario.cluster_wt)
             constraint_network_revenue(
                 instance=instance, network_scale_level=scenario.network_scale_level)
-            objective_revenue(
+            objective_profit(
                 instance=instance, network_scale_level=scenario.network_scale_level, constraints=constraints)
 
         if objective == Objective.MIN_DISCHARGE:
