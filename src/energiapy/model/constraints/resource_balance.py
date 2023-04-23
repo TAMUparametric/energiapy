@@ -17,6 +17,7 @@ from pyomo.environ import ConcreteModel, Constraint
 from ...utils.latex_utils import constraint_latex_render
 from ...utils.scale_utils import scale_list, scale_tuple
 from ...components.resource import Resource
+from ...components.location import Location
 
 
 def constraint_resource_consumption(instance: ConcreteModel, loc_res_dict: dict = None, cons_max: dict = None,
@@ -479,7 +480,7 @@ def constraint_network_purchase(instance: ConcreteModel, network_scale_level: in
 
 
 def constraint_specific_network_discharge(instance: ConcreteModel, bounds: Dict[Resource, float], network_scale_level: int = 0, ) -> Constraint:
-    """Determines total resource discharged across specific_network
+    """Determines total resource discharged across specificnetwork
 
     Args:
         instance (ConcreteModel): pyomo instance
@@ -500,4 +501,30 @@ def constraint_specific_network_discharge(instance: ConcreteModel, bounds: Dict[
             return Constraint.Skip
 
     constraint_latex_render(specific_network_discharge_rule)
-    return Constraint(instance.resources_sell, *scales, rule=specific_network_discharge_rule, doc='total discharge from specific_network')
+    return Constraint(instance.resources_sell, *scales, rule=specific_network_discharge_rule, doc='restrict discharge of resource at network level')
+
+
+def constraint_specific_location_discharge(instance: ConcreteModel, location: Location, bounds: Dict[Resource, float], network_scale_level: int = 0, ) -> Constraint:
+    """Determines total resource discharged across specific location
+
+    Args:
+        instance (ConcreteModel): pyomo instance
+        location (Location): location
+        specific_location_scale_level (int, optional): scale of specific_location decisions. Defaults to 0.
+
+    Returns:
+        Constraint: specific_location_discharge
+    """
+    scales = scale_list(instance=instance,
+                        scale_levels=network_scale_level + 1)
+    resource_list = [i.name for i in bounds.keys()]
+    bounds_dict = {i.name: bounds[i] for i in bounds.keys()}
+
+    def specific_location_discharge_rule(instance, resource, *scale_list):
+        if resource in resource_list:
+            return instance.S_location[location.name, resource, scale_list] <= bounds_dict[resource]
+        else:
+            return Constraint.Skip
+
+    constraint_latex_render(specific_location_discharge_rule)
+    return Constraint(instance.resources_sell, *scales, rule=specific_location_discharge_rule, doc='restrict discharge of resource at location level')
