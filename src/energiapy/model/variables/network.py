@@ -33,6 +33,8 @@ def generate_network_vars(instance: ConcreteModel, scale_level: int = 0):
                               within=NonNegativeReals, doc='Total production at location')
     instance.S_location = Var(instance.locations, instance.resources_sell, instance.scales_network,
                               within=NonNegativeReals, doc='Total resource discharge at location')
+    instance.R_location = Var(instance.locations, instance.resources_sell, instance.scales_network,
+                              within=NonNegativeReals, doc='Total revenue from resource discharge at location')
     instance.C_location = Var(instance.locations, instance.resources_purch, instance.scales_network,
                               within=NonNegativeReals, doc='Total resource consumption at location')
     instance.B_location = Var(instance.locations, instance.resources_purch, instance.scales_network,
@@ -41,6 +43,8 @@ def generate_network_vars(instance: ConcreteModel, scale_level: int = 0):
                              within=NonNegativeReals, doc='Total production from network')
     instance.S_network = Var(instance.resources_sell, instance.scales_network,
                              within=NonNegativeReals, doc='Total resource discharge from network')
+    instance.R_network = Var(instance.resources_sell, instance.scales_network,
+                             within=NonNegativeReals, doc='Total revenue from resource discharge from network')
     instance.C_network = Var(instance.resources_purch, instance.scales_network,
                              within=NonNegativeReals, doc='Total resource consumption from network')
     instance.B_network = Var(instance.resources_purch, instance.scales_network,

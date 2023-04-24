@@ -43,6 +43,7 @@ class Location:
         vopex_factor (Union[float, Dict[Process, DataFrame]), optional):  Factor for varying variable operational expenditure, scale changer normalizes. Defaults to None
         fopex_factor (Union[float, Dict[Process, DataFrame]), optional):  Factor for varying fixed operational expenditure, scale changer normalizes. Defaults to None
         availability_factor (Union[float, Dict[Resource, DataFrame]), optional): Factor for varying resource availability, scale changer normalizes. Defaults to None
+        revenue_factor (Union[float, Dict[Resource, DataFrame]), optional): Factor for varying resource revenue, scale changer normalizes. Defaults to None
         demand_scale_level (int, optional): scale level for demand (resource). Defaults to 0
         price_scale_level (int, optional): scale level for purchase cost (resource). Defaults to 0
         capacity_scale_level (int, optional): scale level for capacity (process). Defaults to 0
@@ -69,6 +70,7 @@ class Location:
     vopex_factor: Union[float, Dict[Process, float]] = None
     fopex_factor: Union[float, Dict[Process, float]] = None
     availability_factor: Union[float, Dict[Resource, float]] = None
+    revenue_factor: Union[float, Dict[Resource, float]] = None
     demand_scale_level: int = 0
     price_scale_level: int = 0
     capacity_scale_level: int = 0
@@ -101,6 +103,10 @@ class Location:
             i) for i in self.processes if i.processmode == ProcessMode.STORAGE})
         self.prod_max = self.get_prod_max()
         self.prod_min = self.get_prod_min()
+        self.resource_price = self.get_resource_price()
+        self.resource_revenue = self.get_resource_revenue()
+        self.failure_processes = self.get_failure_processes()
+        self.fail_factor = self.make_fail_factor()
 
         if self.capacity_factor is not None:
             self.varying_capacity = set(self.capacity_factor.keys())
@@ -138,9 +144,14 @@ class Location:
                 warn(
                     'Input should be a dict of a DataFrame, Dict[Resource, float]')
 
-        self.resource_price = self.get_resource_price()
-        self.failure_processes = self.get_failure_processes()
-        self.fail_factor = self.make_fail_factor()
+        if self.revenue_factor is not None:
+            self.varying_revenue = set(self.revenue_factor.keys())
+            if isinstance(list(self.revenue_factor.values())[0], DataFrame):
+                self.revenue_factor = scale_changer(
+                    self.revenue_factor, scales=self.scales, scale_level=self.demand_scale_level)
+            else:
+                warn(
+                    'Input should be a dict of a DataFrame, Dict[Resource, float]')
 
         if self.capex_factor is not None:
             self.varying_capex = set(self.capex_factor.keys())
@@ -197,13 +208,21 @@ class Location:
         else:
             return set().union(*[set(i.material_cons.keys()) for i in self.processes if i.material_cons is not None])
 
-    def get_resource_price(self):
+    def get_resource_price(self) -> dict:
         """gets resource prices for resources with non-varying costs
 
         Returns:
-            Set[Resource]: set of resources with non-varying cost factors
+            dict: with resource prices
         """
         return {i.name: i.price for i in self.resources}
+
+    def get_resource_revenue(self) -> dict:
+        """gets resource revenues for resources with non-varying costs
+
+        Returns:
+            dict: with resource revenues
+        """
+        return {i.name: i.revenue for i in self.resources}
 
     def get_failure_processes(self):
         """get processes with failure rates
