@@ -11,10 +11,10 @@ __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
 from ..components.resource import Resource
+from ..components.resource import VaryingResource
 
 
-
-def create_storage_resource(process_name:str, resource: Resource, store_max: float = 0, store_min: float = 0) -> Resource:
+def create_storage_resource(process_name: str, resource: Resource, store_max: float = 0, store_min: float = 0) -> Resource:
     """Creates a dummy resource for storage, used if process is storage type
 
     Args:
@@ -27,6 +27,7 @@ def create_storage_resource(process_name:str, resource: Resource, store_max: flo
     """
     # print(resource.block)
     # print(resource.name)
-    resource_dummy = Resource(name= f"{process_name}_{resource.name}_stored", loss= resource.loss, store_max= store_max, store_min= store_min, basis= resource.basis, block= resource.block, label= resource.label+f"{process_name}(stored)")
+    resource_dummy = Resource(name=f"{process_name}_{resource.name}_stored", loss=resource.loss, store_max=store_max, store_min=store_min,
+                              basis=resource.basis, block=resource.block, label=resource.label+f"{process_name}(stored)", varying=[VaryingResource.STORED])
 
     return resource_dummy

@@ -64,6 +64,12 @@ class VaryingResource(Enum):
     CERTAIN_REVENUE = auto()
     """Use exact parameter for revenue
     """
+    IMPLICIT = auto()
+    """Produced and utilized implicitly
+    """
+    STORED = auto()
+    """Implicitly generated stored resource
+    """
 
 
 @dataclass
@@ -129,13 +135,20 @@ class Resource:
                 self.varying = self.varying + \
                     [VaryingResource.CERTAIN_AVAILABILITY,
                         VaryingResource.CERTAIN_PRICE]
+
             if self.demand is True:
                 self.varying = self.varying + \
                     [VaryingResource.CERTAIN_DEMAND]
+            else:
+                if self.sell is True:
+                    self.varying = self.varying + \
+                        [VaryingResource.CERTAIN_DEMAND]
+
             if self.revenue is True:
                 self.varying = self.varying + \
                     [VaryingResource.CERTAIN_REVENUE]
-
+            if self.varying == []:
+                self.varying = [VaryingResource.IMPLICIT]
         if not isinstance(self.varying, list):
             warn('Provide a list of VaryingResource enums')
 
