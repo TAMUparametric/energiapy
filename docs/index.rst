@@ -19,7 +19,7 @@ Tutorial
    notebooks/sl-sp-milp/sl-sp-milp
    notebooks/ml-sp-milp/ml-sp-milp
    notebooks/material/material
-   notebooks/mplp/mplp
+   notebooks/mplp/mpLP
    example_ahc
 
 API
