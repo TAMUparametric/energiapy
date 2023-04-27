@@ -390,10 +390,10 @@ class Scenario:
             print('The problem has the following variables:')
             print(f"Resource inventory level (Inv) x {n_Inv}")
             print(f"Exact resource discharge (Sf) x {n_Sf}")
-            print(f"Exact resource availability (Af) x {n_Af}")
-            print(f"Exact process production (Pf) x {n_Pf}")
             print(f"Uncertain resource discharge (S) x {n_S}")
+            print(f"Exact resource availability (Af) x {n_Af}")
             print(f"Uncertain resource availability (A) x {n_A}")
+            print(f"Exact process production (Pf) x {n_Pf}")
             print(f"Uncertain process production (P) x {n_P}")
             print(
                 f" For a total of {n_vars} ({n_vars_fix} fixed, and {n_vars_theta} uncertain)")
@@ -426,12 +426,6 @@ class Scenario:
 
             A_nn = numpy.eye(n_vars)
 
-            print(A_bal.shape)
-            print(A_conv.shape)
-            print(A_diag.shape)
-            print(A_nn.shape)
-            print(A_conv)
-            print(A_bal)
             A = numpy.block(
                 [[numpy.block([A_bal, A_conv])], [A_diag], [-A_nn]])
 
