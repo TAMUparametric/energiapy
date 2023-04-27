@@ -219,7 +219,7 @@ class Scenario:
         self.mode_dict = {i.name: list(
             self.multiconversion[i.name].keys()) for i in self.process_set}
 
-        self.set_dict = {
+        set_dict = {
             'resources': [i.name for i in self.resource_set],
 
             'resources_nosell': [i.name for i in self.resource_set if i.sell is False],
@@ -294,27 +294,29 @@ class Scenario:
         }
 
         if self.source_locations is not None:
-            self.set_dict['sources'] = [i.name for i in self.source_locations]
+            set_dict['sources'] = [i.name for i in self.source_locations]
         else:
-            self.set_dict['sources'] = []
+            set_dict['sources'] = []
 
         if self.sink_locations is not None:
-            self.set_dict['sinks'] = [i.name for i in self.sink_locations]
+            set_dict['sinks'] = [i.name for i in self.sink_locations]
         else:
-            self.set_dict['sinks'] = []
+            set_dict['sinks'] = []
 
         if self.material_set is not None:
-            self.set_dict['materials'] = [i.name for i in self.material_set]
+            set_dict['materials'] = [i.name for i in self.material_set]
         else:
-            self.set_dict['materials'] = []
+            set_dict['materials'] = []
 
         if self.transport_set is not None:
-            self.set_dict['transports'] = [i.name for i in self.transport_set]
-            self.set_dict['resources_trans'] = [i.name for i in set().union(
+            set_dict['transports'] = [i.name for i in self.transport_set]
+            set_dict['resources_trans'] = [i.name for i in set().union(
                 *[i.resources for i in self.transport_set])]
         else:
-            self.set_dict['transports'] = []
-            self.set_dict['resources_trans'] = []
+            set_dict['transports'] = []
+            set_dict['resources_trans'] = []
+
+        self.set_dict = {x: sorted(set_dict[x]) for x in set_dict.keys()}
 
     def make_conversion_df(self) -> DataFrame:
         """makes a DataFrame of the conversion values
@@ -341,9 +343,11 @@ class Scenario:
         demand = self.demand
         if isinstance(demand, dict):
             if isinstance(list(demand.keys())[0], Location):
-                self.demand = {i.name: {
-                    j.name: demand[i][j] for j in demand[i].keys()} for i in demand.keys()}
-
+                try:
+                    self.demand = {i.name: {
+                        j.name: demand[i][j] for j in demand[i].keys()} for i in demand.keys()}
+                except:
+                    pass
         if len(self.location_set) > 1:
             print("can only do this for a single location scenario")
         else:
@@ -357,19 +361,32 @@ class Scenario:
             # P - Production
 
             n_Inv = len(self.set_dict['resources_store'])
+
             n_Sf = len(self.set_dict['resources_certain_demand'])
-            n_Cf = len(self.set_dict['resources_certain_price'])
-            n_Af = len(self.set_dict['resources_certain_availability'])
-            n_Pf = len(self.set_dict['processes_certain_capacity'])
             n_S = len(self.set_dict['resources_uncertain_demand'])
-            n_C = len(self.set_dict['resources_uncertain_price'])
+
+            n_Af = len(self.set_dict['resources_certain_availability'])
             n_A = len(self.set_dict['resources_uncertain_availability'])
+
+            n_Pf = len(self.set_dict['processes_certain_capacity'])
             n_P = len(self.set_dict['processes_uncertain_capacity'])
+
+            n_Cf = len(self.set_dict['resources_certain_price'])
+            n_C = len(self.set_dict['resources_uncertain_price'])
+
             n_I = len(self.set_dict['resources_implicit'])
+
             n_bal = n_P + n_Pf  # number of production processes for resource balance constraint
+
+            # used to balance implicitly made resources
+            n_bal2 = n_Inv + n_Sf + n_S + n_Af + n_A
+
             n_vars_fix = n_Inv + n_Sf + n_Af + n_Pf  # total number of fixed variables
+
             n_vars_theta = n_S + n_A + n_P  # total number of theta variables
+
             n_vars = n_vars_fix + n_vars_theta  # total number of variables
+
             print('The problem has the following variables:')
             print(f"Resource inventory level (Inv) x {n_Inv}")
             print(f"Exact resource discharge (Sf) x {n_Sf}")
@@ -381,94 +398,124 @@ class Scenario:
             print(
                 f" For a total of {n_vars} ({n_vars_fix} fixed, and {n_vars_theta} uncertain)")
 
+            # *--------------------------------A--------------------------------------
+            A_bal = numpy.diag(
+                [*[-1] * n_Inv, *[-1] * n_Sf, *[-1] * n_S,  *[1] * n_Af, *[1] * n_A])
+
+            if n_I > 0:  # if implict variables present, add 0 stacks to matrix
+
+                A_bal = numpy.vstack((A_bal, n_I*[[0]*(n_bal2)]))
+
+            conversion_list = self.set_dict['resources_store'] + self.set_dict['resources_certain_demand'] + \
+                self.set_dict['resources_uncertain_demand'] + \
+                self.set_dict['resources_certain_availability'] + \
+                self.set_dict['resources_uncertain_availability'] + \
+                self.set_dict['resources_implicit']
+            column_list = [*['Inv_' + i for i in self.set_dict['resources_store']] +
+                           ['Sf_' + i for i in self.set_dict['resources_certain_demand']] +
+                           ['S_' + i for i in self.set_dict['resources_uncertain_demand']] +
+                           ['Af_' + i for i in self.set_dict['resources_certain_availability']] +
+                           ['A_' + i for i in self.set_dict['resources_uncertain_availability']] +
+                           ['Pf_' + i for i in self.set_dict['processes_certain_capacity']] +
+                           ['P_' + i for i in self.set_dict['processes_uncertain_capacity']]]
+            A_conv = numpy.array([[self.conversion[i][j] for j in conversion_list] for i in
+                                  sorted(self.conversion.keys())]).transpose()
+
+            A_diag = numpy.diag(
+                [*[-1]*n_Inv, *[-1]*n_Sf, *[-1]*n_S,  *[1]*n_Af, *[1] * n_A, *[1]*n_Pf, *[1]*n_P])
+
+            A_nn = numpy.eye(n_vars)
+
+            print(A_bal.shape)
+            print(A_conv.shape)
+            print(A_diag.shape)
+            print(A_nn.shape)
+            print(A_conv)
+            print(A_bal)
+            A = numpy.block(
+                [[numpy.block([A_bal, A_conv])], [A_diag], [-A_nn]])
+
+            self.A_df = DataFrame(A, columns=column_list)
+
             # *-----------------------b matrix ------------------------------------------------
 
             # prod max has 0 because the default mode is 0
-            b_bal = numpy.zeros((n_bal, 1))
+            b_bal = numpy.zeros((n_bal2 + n_I, 1))
             b_Inv = numpy.array([[self.store_max[location][i]]
                                 for i in self.set_dict['resources_store']])  # fixed storage bound
             b_Sf = numpy.array([[-self.demand[location][i]]
                                 for i in self.set_dict['resources_certain_demand']])  # fixed demand bound
-            b_Af = numpy.array([[self.cons_max[location][i]]
-                                for i in self.set_dict['resources_certain_availability']])  # fixed availability bound
-            b_Pf = numpy.array([[self.prod_max[location][i][0]]
-                                for i in self.set_dict['processes_certain_capacity']])  # fixed production bound
             b_S = numpy.array([[-self.demand[location][i]]
                                for i in self.set_dict['resources_uncertain_demand']])  # uncertain demand
+            b_Af = numpy.array([[self.cons_max[location][i]]
+                                for i in self.set_dict['resources_certain_availability']])  # fixed availability bound
             b_A = numpy.array([[self.cons_max[location][i]]
                                for i in self.set_dict['resources_uncertain_availability']])  # uncertain availability
+
+            b_Pf = numpy.array([[self.prod_max[location][i][0]]
+                                for i in self.set_dict['processes_certain_capacity']])  # fixed production bound
             b_P = numpy.array([[self.prod_max[location][i][0]]
                                for i in self.set_dict['processes_uncertain_capacity']])  # uncertain production
 
             b_nn = numpy.zeros((n_vars, 1))  # non zero constraints
 
-            b_list = [b_bal, b_Inv, b_Sf, b_Af, b_Pf, b_S, b_A, b_P, b_nn]
+            b_list = [b_bal, b_Inv, b_Sf, b_S, b_Af, b_A, b_Pf, b_P, b_nn]
 
             b = numpy.block([[i]
                             for i in b_list if len(i) > 0])  # make b matrix
+            self.b_df = DataFrame(b, columns=['rhs'])
 
-            # make F matrix
+            # *------------------------------- F --------------------------------------
 
             F = numpy.zeros((len(b), n_vars_theta))  # make F matrix
 
+            n_bal3 = n_bal2 + n_I
             iter_ = 0
             for i in range(n_S):
-                F[n_bal + n_vars_fix +
+                n = n_Inv + n_Sf
+                F[n_bal3 + n +
                     iter_][i] = self.demand[location][self.set_dict['resources_uncertain_demand'][i]]
                 iter_ += 1
 
             iter_ = 0
             for i in range(n_A):
-                F[n_bal + n_vars_fix + n_S + iter_][n_S + i] = self.cons_max[location][
+                n = n_Inv + n_Sf + n_S + n_Af
+                F[n_bal3 + n + iter_][n_S + i] = self.cons_max[location][
                     self.set_dict['resources_uncertain_availability'][i]]
                 iter_ += 1
 
             iter_ = 0
             for i in range(n_P):
-                F[n_bal + n_vars_fix + n_S + n_A + iter_][n_S + n_A +
-                                                          i] = self.prod_max[location][self.set_dict['processes_uncertain_capacity'][i]][0]
+                n = n_Inv + n_Sf + n_S + n_Af + n_A + n_Pf
+                F[n_bal3 + n + iter_][n_S + n_A +
+                                      i] = self.prod_max[location][self.set_dict['processes_uncertain_capacity'][i]][0]
                 # defaults to 0 as mode, using P_m instead of P
                 iter_ += 1
 
-            # # make A matrix
-            A_bal = numpy.diag(
-                [*[-1] * n_Inv, *[-1] * n_Sf, *[1] * n_Af, *[-1] * n_S, *[1] * n_A,])
-            A_bal = numpy.block(
-                [[A_bal], [0]*(n_Inv + n_Sf + n_Af + n_S + n_A)])
-            conversion_list = self.set_dict['resources_store'] + self.set_dict['resources_certain_demand'] + \
-                self.set_dict['resources_certain_availability'] + \
-                self.set_dict['resources_uncertain_demand'] + \
-                self.set_dict['resources_uncertain_availability'] + \
-                self.set_dict['resources_implicit']
+            column_list = [*['Th_' + i for i in self.set_dict['resources_uncertain_demand']] + ['Th_' + i for i in
+                                                                                                self.set_dict['resources_uncertain_availability']] + ['Th_' + i for i in self.set_dict['processes_uncertain_capacity']]]
+            self.F_df = DataFrame(F, columns=column_list)
 
-            A_conv = numpy.array([[self.conversion[i][j] for j in conversion_list] for i in
-                                  sorted(self.conversion.keys())]).transpose()
-            A_diag = numpy.diag(
-                [*[-1] * n_Inv, *[-1] * n_Sf, *[1] * n_Af, *[1] * n_Pf, *[-1] * n_S, *[1] * n_A, *[1] * n_P])
-
-            A_nn = numpy.eye(n_vars)
-
-            A = numpy.block(
-                [[numpy.block([A_bal, A_conv])], [A_diag], [-A_nn]])
-
+            # *--------------------------------------c--------------------------------------
             c_Inv = numpy.zeros((n_Inv, 1))
             c_Sf = numpy.zeros((n_Sf, 1))
+            c_S = numpy.zeros((n_S, 1))
+
             c_Af = numpy.zeros((n_Af, 1))
+            c_A = numpy.zeros((n_A, 1))
+
             c_Pf = numpy.array([[self.capex_dict[i]]
                                 for i in self.set_dict['processes_certain_capacity']])
-
-            c_S = numpy.zeros((n_S, 1))
-            c_A = numpy.zeros((n_A, 1))
             c_P = numpy.array([[self.capex_dict[i]]
                                for i in self.set_dict['processes_uncertain_capacity']])
-            c_list = [c_Inv, c_Sf, c_Af, c_Pf, c_S, c_A, c_P]
+            c_list = [c_Inv, c_Sf,  c_S, c_Af,  c_A, c_Pf, c_P]
             c = numpy.block([[i] for i in c_list if len(i) > 0])
 
-            # make H matrix
+            # *-------------------------------------H----------------------------------------
 
             H = numpy.zeros((A.shape[1], F.shape[1]))
 
-            # make critical regions
+            # *----------------------------------critical regions---------------------------
 
             CRa = numpy.vstack(
                 (numpy.eye(n_vars_theta), -numpy.eye(n_vars_theta)))
