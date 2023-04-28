@@ -115,7 +115,14 @@ from .constraints.material import (
     constraint_material_location,
     constraint_material_network
 )
-from .objectives import objective_cost, objective_discharge_max, objective_discharge_min, objective_profit
+from .objectives import (
+    objective_cost,
+    objective_discharge_max,
+    objective_discharge_min,
+    objective_profit,
+    objective_gwp_min
+)
+
 from .sets import generate_sets
 from .variables.binary import generate_network_binary_vars
 from .variables.cost import generate_costing_vars
@@ -162,6 +169,10 @@ class Objective(Enum):
     MAX_DISCHARGE = auto()
     """
     Minimize discharge of particular resource
+    """
+    MIN_GWP = auto()
+    """
+    Minimize global warming potential across network (includes resource, material, process emissions)
     """
 
 
@@ -503,6 +514,17 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
 
             objective_discharge_max(instance=instance, resource=objective_resource,
                                     network_scale_level=scenario.network_scale_level)
+
+        if objective == Objective.MIN_GWP:
+            constraint_demand(instance=instance, demand_scale_level=scenario.demand_scale_level,
+                              scheduling_scale_level=scenario.scheduling_scale_level, demand=demand,
+                              demand_factor=scenario.demand_factor, loc_res_dict=scenario.loc_res_dict)
+
+            constraint_network_cost(
+                instance=instance, network_scale_level=scenario.network_scale_level, constraints=constraints)
+
+            objective_gwp_min(
+                instance=instance, network_scale_level=scenario.network_scale_level)
 
         if scenario.capacity_bounds is not None:
             constraint_min_capacity_facility(instance=instance, loc_pro_dict=scenario.loc_pro_dict,

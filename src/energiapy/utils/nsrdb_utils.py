@@ -33,7 +33,7 @@ def fetch_nsrdb_data(attrs: List[str], year: int, lat_lon: Tuple[float] = None, 
         get (str, optional): Defaults to 'max-population'. From within county choose the data point that matches one of the following. 'max-population', 'max-elevation', 'max-landcover' 'min-population', 'min-elevation', 'min-landcover'
 
     Returns:
-        pandas.DataFrame, tuple: Dataframe with data, (latitude, longitude)
+        pandas.DataFrame, tuple: Dataframe with output data, (latitude, longitude)
     """
 
     # fetches nsrdb data for the year
@@ -91,9 +91,9 @@ def fetch_nsrdb_data(attrs: List[str], year: int, lat_lon: Tuple[float] = None, 
         'daily': 48,  # averages over the day
     }
     averaged_output = pandas.DataFrame()
-    
-    psm_scale_dict = {attr: nsrdb_data[attr].attrs['psm_scale_factor'] for attr in attrs}
-        
+
+    psm_scale_dict = {
+        attr: nsrdb_data[attr].attrs['psm_scale_factor'] for attr in attrs}
 
     for attr in attrs:
         full_output = nsrdb_data[attr][:, idx]  # native data set at 30 mins
@@ -101,10 +101,10 @@ def fetch_nsrdb_data(attrs: List[str], year: int, lat_lon: Tuple[float] = None, 
             full_output.reshape(-1, timestep_dict[resolution]), axis=1)  # averages over resolution
     averaged_output = averaged_output.set_index(
         time_index[::timestep_dict[resolution]])
-    
+
     for attr in attrs:
         averaged_output[attr] = averaged_output[attr]/psm_scale_dict[attr]
-    
+
     if save is not None:
         averaged_output.to_csv(save + '.csv')
 
