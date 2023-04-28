@@ -108,4 +108,6 @@ Other (and optional) features include:
    in the US
 4. latex constraints writer for model documentation
 
+Direct any communication to Rahul Kakodkar (cacodcar@tamu.edu)  
+
 
