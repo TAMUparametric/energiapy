@@ -256,9 +256,9 @@ def constraint_demand(instance: ConcreteModel, demand: Union[dict, float], deman
     Returns:
         Constraint: demand
     """
-    # scales = scale_list(instance= instance, scale_levels = demand_scale_level+1)
-    scales = scale_list(instance=instance,
-                        scale_levels=len(instance.scales))
+    scales = scale_list(instance=instance, scale_levels=demand_scale_level+1)
+    # scales = scale_list(instance=instance,
+    #                     scale_levels=len(instance.scales))
     scale_iter = scale_tuple(
         instance=instance, scale_levels=scheduling_scale_level + 1)
 
@@ -273,7 +273,7 @@ def constraint_demand(instance: ConcreteModel, demand: Union[dict, float], deman
                                 resource_ in instance.resources_demand)
             else:
                 discharge = sum(instance.S[location, resource, scale_] for scale_ in scale_iter if scale_[
-                    :scheduling_scale_level + 1] == scale_list)
+                    :demand_scale_level + 1] == scale_list)
 
             if isinstance(demand, dict):
                 if resource in loc_res_dict[location]:
@@ -293,7 +293,7 @@ def constraint_demand(instance: ConcreteModel, demand: Union[dict, float], deman
         else:
             # TODO - doesn't meet demand in first timeperiod
             discharge = sum(instance.S[location, resource, scale_] for scale_ in scale_iter if scale_[
-                :scheduling_scale_level + 1] == scale_list)
+                :demand_scale_level + 1] == scale_list)
 
             if isinstance(demand, dict):
                 demandtarget = demand[location][resource]
