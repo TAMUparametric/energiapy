@@ -8,3 +8,5 @@ scikit-learn
 openpyxl
 ppopt
 distfit
+pvlib
+windpowerlib
