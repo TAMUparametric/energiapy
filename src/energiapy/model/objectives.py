@@ -220,3 +220,25 @@ def objective_profit(instance: ConcreteModel, constraints: Set[Constraints], net
         rule=objective_profit_rule, sense=maximize, doc='total profit')
     constraint_latex_render(objective_profit_rule)
     return instance.objective_profit
+
+
+def objective_gwp_min(instance: ConcreteModel, network_scale_level: int = 0, ) -> Objective:
+    """Minimize gwp at network level
+
+    Args:
+        instance (ConcreteModel): pyomo instance
+        network_scale_level (int, optional): scale of network decisions. Defaults to 0.
+
+    Returns:
+        Objective: objective_gwp_min
+    """
+    scale_iter = scale_tuple(
+        instance=instance, scale_levels=network_scale_level + 1)
+
+    def objective_gwp_min_rule(instance, *scale_list):
+        return sum(instance.global_warming_potential_network[scale_] for scale_ in scale_iter)
+
+    instance.objective_gwp_min = Objective(
+        rule=objective_gwp_min_rule, doc='minimize total gwp for network')
+    constraint_latex_render(objective_gwp_min_rule)
+    return instance.objective_gwp_min
