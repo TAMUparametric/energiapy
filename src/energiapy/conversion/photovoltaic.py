@@ -14,7 +14,6 @@ import pandas
 import numpy
 from pvlib.pvsystem import PVSystem, retrieve_sam
 from pvlib.temperature import TEMPERATURE_MODEL_PARAMETERS
-from pvlib.tracking import SingleAxisTracker
 from pvlib.modelchain import ModelChain as PVModelChain
 from pvlib.location import Location as PVLocation
 

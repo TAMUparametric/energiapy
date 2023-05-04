@@ -247,7 +247,7 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
 
         if Constraints.COST in constraints:
             constraint_process_capex(instance=instance, capex_dict=scenario.capex_dict,
-                                     network_scale_level=scenario.expenditure_scale_level, capex_factor=scenario.capex_factor)
+                                     network_scale_level=scenario.expenditure_scale_level, capex_factor=scenario.capex_factor, annualization_factor=scenario.annualization_factor)
             constraint_process_fopex(instance=instance, fopex_dict=scenario.fopex_dict,
                                      network_scale_level=scenario.expenditure_scale_level, fopex_factor=scenario.fopex_factor)
             constraint_process_vopex(instance=instance, vopex_dict=scenario.vopex_dict,

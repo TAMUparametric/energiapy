@@ -192,3 +192,24 @@ def constraint_global_warming_potential_network_reduction(instance: ConcreteMode
         *scales, rule=global_warming_potential_network_reduction_rule, doc='global warming potential for the whole network')
     constraint_latex_render(global_warming_potential_network_reduction_rule)
     return instance.constraint_global_warming_potential_network_reduction
+
+
+def constraint_global_warming_potential_network_bound(instance: ConcreteModel, gwp_bound: float, network_scale_level: int = 0) -> Constraint:
+    """Required bound in global warming potential at network level
+
+    Args:
+        instance (ConcreteModel): pyomo model instance
+        network_scale_level (int, optional): scale for network decisions. Defaults to 0.
+        gwp_bound_pct (float, optional): GWP bound required. Defaults to 0.
+        gwp (float, optional): Base Case (Current) GWP. Defaults to 0.
+
+    Returns:
+        Constraint: global_warming_potential_network_bound
+    """
+    scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
+
+    def global_warming_potential_network_bound_rule(instance, *scale_list):
+        return instance.global_warming_potential_network[scale_list] <= gwp_bound
+    constraint_latex_render(global_warming_potential_network_bound_rule)
+    return Constraint(
+        *scales, rule=global_warming_potential_network_bound_rule, doc='global warming potential bound for the whole network')
