@@ -9,6 +9,7 @@ Subpackages
 
    energiapy.aggregation
    energiapy.components
+   energiapy.conversion
    energiapy.fitting
    energiapy.graph
    energiapy.model
