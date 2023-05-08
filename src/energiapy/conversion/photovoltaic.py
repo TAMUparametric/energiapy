@@ -38,7 +38,7 @@ def solar_power_output(data: pandas.DataFrame, coord: tuple, sam: str = 'cecmod'
     Returns:
         output (DataFrame): a dataframe with hourly solar power outputs
     """
-    data = data.resample('H').mean()
+    # data = data.resample('H').mean()
 
     modules = retrieve_sam(sam)
     module_parameters = modules[module_params]
