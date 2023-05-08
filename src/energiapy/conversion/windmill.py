@@ -43,7 +43,7 @@ def wind_power_output(data: pandas.DataFrame, roughness_length: float = 0.1, tur
     data['temperature'] = data['air_temperature'] + 273.15
     data['roughness_length'] = roughness_length
 
-    data = data.resample('H').mean()
+    # data = data.resample('H').mean()
     data = pandas.DataFrame(data[['wind_speed', 'temperature', 'pressure', 'roughness_length']].to_numpy(),
                             index=data.index, columns=[numpy.array(['wind_speed', 'temperature', 'pressure', 'roughness_length']), numpy.array([observation_height, observation_height, observation_height, 0])])
     # specification of wind turbine where power curve is provided in the

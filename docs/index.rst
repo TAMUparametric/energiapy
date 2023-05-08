@@ -1,5 +1,5 @@
-.. energiapy documentation master file, created by Rahul Kakodkar
-   sphinx-quickstart on Wed Mar 15 15:20:31 2023.
+.. energiapy documentation master file, created by
+   sphinx-quickstart on Mon May  8 14:16:22 2023.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
@@ -21,13 +21,13 @@ Tutorial
    notebooks/material/material
    notebooks/mplp/mpLP
    example_ahc
-
+   
 API
 ---
 
 .. toctree::
     :maxdepth: 5
-    :caption: Package Structure:
+    :caption: API
 
     energiapy
 
