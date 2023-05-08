@@ -44,6 +44,14 @@ energiapy.model.variables.land module
    :undoc-members:
    :show-inheritance:
 
+energiapy.model.variables.material module
+-----------------------------------------
+
+.. automodule:: energiapy.model.variables.material
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 energiapy.model.variables.mode module
 -------------------------------------
 

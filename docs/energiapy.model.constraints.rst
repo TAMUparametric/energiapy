@@ -12,6 +12,14 @@ energiapy.model.constraints.chance module
    :undoc-members:
    :show-inheritance:
 
+energiapy.model.constraints.constraints module
+----------------------------------------------
+
+.. automodule:: energiapy.model.constraints.constraints
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 energiapy.model.constraints.cost module
 ---------------------------------------
 
@@ -72,6 +80,14 @@ energiapy.model.constraints.lifecyle module
 -------------------------------------------
 
 .. automodule:: energiapy.model.constraints.lifecyle
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+energiapy.model.constraints.material module
+-------------------------------------------
+
+.. automodule:: energiapy.model.constraints.material
    :members:
    :undoc-members:
    :show-inheritance:
