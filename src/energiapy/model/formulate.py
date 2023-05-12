@@ -11,12 +11,13 @@ __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
 from enum import Enum, auto
-from typing import Set
-
+from typing import Set, Dict, Tuple
 from pyomo.environ import ConcreteModel, Suffix
 
 from ..components.scenario import Scenario
-from ..components.scenario import Resource
+from ..components.resource import Resource
+from ..components.location import Location
+from ..components.process import Process
 from .constraints.constraints import Constraints
 
 from .constraints.cost import (
@@ -178,7 +179,7 @@ class Objective(Enum):
 
 def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objective: Objective = None,
               write_lpfile: bool = False, gwp: float = None, land_restriction: float = None,
-              gwp_reduction_pct: float = None, model_class: ModelClass = ModelClass.MIP, objective_resource: Resource = None) -> ConcreteModel:
+              gwp_reduction_pct: float = None, model_class: ModelClass = ModelClass.MIP, objective_resource: Resource = None, inventory_zero: Dict[Location, Dict[Tuple[Process, Resource], float]] = None) -> ConcreteModel:
     """formulates a model. Constraints need to be declared in order
 
     Args:
@@ -190,6 +191,7 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
         land_restriction (float, optional): restrict land usage. Defaults to 10**9.
         gwp_reduction_pct (float, optional): percentage reduction in gwp required. Defaults to None.
         model_class (ModelClass, optional): class of model [MIP, mpLP]. Defaults to ModelClass.MIP
+        inventory_zero (Dict[Location, Dict[Tuple[Process, Resource], float]], optional): inventory at the start of the scheduling horizon. Defaults to None.
 
 
     Constraints include:
@@ -371,7 +373,7 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
 
         if Constraints.RESOURCE_BALANCE in constraints:
             constraint_inventory_balance(instance=instance, scheduling_scale_level=scenario.scheduling_scale_level,
-                                         multiconversion=scenario.multiconversion, mode_dict=scenario.mode_dict)
+                                         multiconversion=scenario.multiconversion, mode_dict=scenario.mode_dict, inventory_zero=inventory_zero)
 
             constraint_resource_consumption(instance=instance, loc_res_dict=scenario.loc_res_dict,
                                             cons_max=scenario.cons_max,
@@ -484,6 +486,10 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
                 instance=instance, network_scale_level=scenario.network_scale_level, constraints=constraints)
 
         if objective == Objective.PROFIT:
+            constraint_demand(instance=instance, demand_scale_level=scenario.demand_scale_level,
+                              scheduling_scale_level=scenario.scheduling_scale_level, demand=demand,
+                              demand_factor=scenario.demand_factor, loc_res_dict=scenario.loc_res_dict)
+
             constraint_resource_revenue(instance=instance, loc_res_dict=scenario.loc_res_dict, revenue=scenario.revenue,
                                         demand_scale_level=scenario.demand_scale_level, revenue_factor=scenario.revenue_factor)
             constraint_location_revenue(

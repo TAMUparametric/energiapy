@@ -220,7 +220,7 @@ def transport(results: Result, source: str, sink: str, resource: str, transport:
 # TODO - make scenario comparison plots, perhaps use kwargs, allow n number of comparisons
 
 
-def cost(results: Result, x: CostX, y: CostY, location: str = None, fig_size: tuple = (12, 6), bar_width: float = 0.5, font_size: int = 16, color: str = 'blue', usetex: bool = False):
+def cost(results: Result, x: CostX, y: CostY, location: str = None, network_scale_period: int = 0, fig_size: tuple = (12, 6), bar_width: float = 0.5, font_size: int = 16, color: str = 'blue', usetex: bool = False):
     """Plots the cost of processes, such as capex, vopex, fopex, or total
 
     Args:
@@ -251,17 +251,18 @@ def cost(results: Result, x: CostX, y: CostY, location: str = None, fig_size: tu
         x_, y_, n_ = ([] for _ in range(3))
         for i in res_dict.keys():
             if i[0] == location:
-                if res_dict[i] > 0:
-                    y_.append(res_dict[i])
-                    x_.append(i[1])
-                else:
-                    n_.append(i[1])
+                if i[2] == network_scale_period:
+                    if res_dict[i] > 0:
+                        y_.append(res_dict[i])
+                        x_.append(i[1])
+                    else:
+                        n_.append(i[1])
 
         rc('font', **{'family': 'serif',
            'serif': ['Computer Modern'], 'size': font_size})
         rc('text', usetex=usetex)
         fig, ax = plt.subplots(figsize=fig_size)
-        ax.bar(x_, y_, width=bar_width, zorder=3, color = color)
+        ax.bar(x_, y_, width=bar_width, zorder=3, color=color)
         y_plot = ''.join(str(y).split('CostY.')[1])
         plt.title(f'Process-wise {y_plot} cost at {location}')
         plt.ylabel('Unit Currency')
@@ -280,7 +281,8 @@ def cost(results: Result, x: CostX, y: CostY, location: str = None, fig_size: tu
             vals = []
             for j in res_dict.keys():
                 if j[1] == i:
-                    vals.append(res_dict[j])
+                    if j[2] == network_scale_period:
+                        vals.append(res_dict[j])
             weight_counts[i] = array(vals)
 
         rc('font', **{'family': 'serif',
@@ -303,3 +305,40 @@ def cost(results: Result, x: CostX, y: CostY, location: str = None, fig_size: tu
         plt.rcdefaults()
         plt.plot()
     return
+
+
+#     for scenario_ in SCENARIO:
+#         fig = go.Figure(data=[go.Sankey(
+#             node = dict(
+#             pad = 15,
+#             thickness = 20,
+#             line = dict(color = "black", width = 0.5),
+#             label = ["Water", "Carbon dioxide (captured)", "Natural gas",\
+#                 "Hydrogen (Green)", "Hydrogen (Blue)",\
+#                 "Carbon dioxide (sequestered)", "Carbon dioxide (vented)",\
+#                     "Methanol", 'Enhanced Oil Recovery', 'Crude oil'],
+#             color = ['turquoise', 'darksalmon', 'darkslategrey', 'forestgreen', \
+#                 'cadetblue', 'sandybrown', 'darkred', 'seagreen', 'darkorange', 'dimgray']
+#             ),
+#             link = dict(
+#             source = [0, 1, 2, 2, 2, 3, 2, 8, 8, 0], # indices correspond to labels, eg A1, A2, A1, B1, ...
+#             target = [3, 7, 4, 5, 6, 7, 8, 9, 6, 4],
+#             color = ['mediumaquamarine', 'salmon', 'powderblue', 'peachpuff', 'red',\
+#                 'mediumseagreen', 'orange', 'lightgray', 'red', 'powderblue'],
+#             value =  [DATA_[scenario_][year_]['Net_P']['HO']['AKE']['P_annual']*dict_conversion['AKE']['H2_G'],\
+#                 DATA_[scenario_][year_]['Net_P']['HO']['MEFC']['P_annual']*dict_conversion['MEFC']['CH3OH'],\
+#                     DATA_[scenario_][year_]['Net_P']['HO']['SMRH']['P_annual']*dict_conversion['SMRH']['H2_B'],\
+#                         DATA_[scenario_][year_]['Net_P']['HO']['SMRH']['P_annual']*dict_conversion['SMRH']['CO2'],\
+#                             DATA_[scenario_][year_]['Net_P']['HO']['SMRH']['P_annual']*dict_conversion['SMRH']['CO2_Vent'],\
+#                                 DATA_[scenario_][year_]['Net_P']['HO']['DAC']['P_annual']*dict_conversion['DAC']['CO2_DAC']*-1,\
+#                                     DATA_[scenario_][year_]['Net_P']['HO']['EOR']['P_annual']*dict_conversion['EOR']['CO2']*-1,\
+#                                         DATA_[scenario_][year_]['Net_P']['HO']['EOR']['P_annual']*dict_conversion['EOR']['CO2_EOR']*136,\
+#                                             DATA_[scenario_][year_]['Net_P']['HO']['EOR']['P_annual']*dict_conversion['EOR']['CO2_Vent'],\
+#                                                 DATA_[scenario_][year_]['Net_P']['HO']['SMRH']['P_annual']*dict_conversion['SMRH']['H2O']*-1]
+#             # value = [10]*9
+#         ))])
+#         # fig.update_layout(title_text='Material flow for ' + str(2022+ year_) + ' under a ' + scenario_.lower() + ' cost scenario', font_size=14)
+#         # fig.savefig(, dpi = 300)
+#         pio.write_image(fig, 'MF_' + str(2022+year_) + '_' + scenario_.lower() + '.png',  scale=1)
+
+#         fig.show()
