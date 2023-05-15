@@ -228,6 +228,7 @@ def cost(results: Result, x: CostX, y: CostY, location: str = None, network_scal
         x (CostX): one of CostX.LOCATION_WISE, CostX.PROCESS_WISE
         y (CostY): one of CostY.TOTAL, CostY.CAPEX, CostY.FOPEX, CostY.VOPEX
         location (str, optional): location to plot for, applicable for CostX.PROCESS_WISE. Defaults to None.
+        network_scale_period (int, optional): period in the network scale to plot. Defaults to 0.
         fig_size (tuple, optional): Defaults to (12,6).
         bar_width (float, optional): Defaults to 0.5.
         font_size (int, optional): Defaults to 16.
