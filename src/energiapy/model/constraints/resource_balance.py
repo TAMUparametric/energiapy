@@ -10,7 +10,7 @@ __maintainer__ = "Rahul Kakodkar"
 __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
-from typing import Union, Dict
+from typing import Union, Dict, Tuple
 
 from pyomo.environ import ConcreteModel, Constraint
 
@@ -18,6 +18,7 @@ from ...utils.latex_utils import constraint_latex_render
 from ...utils.scale_utils import scale_list, scale_tuple
 from ...components.resource import Resource
 from ...components.location import Location
+from ...components.process import Process
 
 
 def constraint_resource_consumption(instance: ConcreteModel, loc_res_dict: dict = None, cons_max: dict = None,
@@ -106,14 +107,14 @@ def constraint_resource_purchase(instance: ConcreteModel, price_factor: dict = N
 
 
 def constraint_resource_revenue(instance: ConcreteModel, revenue_factor: dict = None, revenue: dict = None,
-                                loc_res_dict: dict = None, demand_scale_level: int = 0) -> Constraint:
+                                loc_res_dict: dict = None, scheduling_scale_level: int = 0) -> Constraint:
     """Determines revenue resource at location in network at the scheduling/expenditure scale
 
     Args:
         instance (ConcreteModel): pyomo instance
         revenue_factor (dict, optional): uncertain revenue training data. Defaults to {}.
         revenue (dict, optional): base revenue of resource. Defaults to {}.
-        demand_scale_level (int, optional): scale of scheduling decisions. Defaults to 0.
+        scheduling_scale_level  (int, optional): scale of scheduling decisions. Defaults to 0.
 
 
     Returns:
@@ -133,13 +134,13 @@ def constraint_resource_revenue(instance: ConcreteModel, revenue_factor: dict = 
 
     def resource_revenue_rule(instance, location, resource, *scale_list):
         if resource in instance.resources_varying_revenue.intersection(loc_res_dict[location]):
-            return instance.R[location, resource, scale_list[:demand_scale_level + 1]] == revenue[location][resource]*revenue_factor[location][resource][scale_list[:demand_scale_level + 1]] * instance.S[location, resource, scale_list[:demand_scale_level + 1]]
+            return instance.R[location, resource, scale_list[:scheduling_scale_level + 1]] == revenue[location][resource]*revenue_factor[location][resource][scale_list[:scheduling_scale_level + 1]] * instance.S[location, resource, scale_list[:scheduling_scale_level + 1]]
         else:
             if resource in instance.resources_sell.intersection(loc_res_dict[location]):
-                return instance.R[location, resource, scale_list[:demand_scale_level + 1]] == revenue[location][
-                    resource] * instance.S[location, resource, scale_list[:demand_scale_level + 1]]
+                return instance.R[location, resource, scale_list[:scheduling_scale_level + 1]] == revenue[location][
+                    resource] * instance.S[location, resource, scale_list[:scheduling_scale_level + 1]]
             else:
-                return instance.R[location, resource, scale_list[:demand_scale_level + 1]] == 0
+                return instance.R[location, resource, scale_list[:scheduling_scale_level + 1]] == 0
 
     instance.constraint_resource_revenue = Constraint(
         instance.locations, instance.resources_sell, *
@@ -151,7 +152,7 @@ def constraint_resource_revenue(instance: ConcreteModel, revenue_factor: dict = 
 
 def constraint_inventory_balance(instance: ConcreteModel, scheduling_scale_level: int = 0,
                                  multiconversion: dict = None, mode_dict: dict = None,
-                                 cluster_wt: dict = None) -> Constraint:
+                                 cluster_wt: dict = None, inventory_zero: Dict[Location, Dict[Tuple[Process, Resource], float]] = None) -> Constraint:
     """balances resource across the scheduling horizon
     Mass balance in any temporal discretization has the following within their respective sets:
     - consumption for resources that can be purchased
@@ -170,6 +171,7 @@ def constraint_inventory_balance(instance: ConcreteModel, scheduling_scale_level
         multiconversion (dict, optional): unit conversion of resource by production facility. Defaults to {}.
         mode_dict (dict, optional): dictionary with modes available. Defaults to {}.
         cluster_wt (dict, optional): weight of cluster as determined through scenario aggregation. Defaults to None.
+        inventory_zero (Dict[Location, Dict[Tuple[Process, Resource], float]], optional): inventory at the start of the scheduling horizon. Defaults to None.
 
     Returns:
         Constraint: inventory_balance
@@ -180,6 +182,20 @@ def constraint_inventory_balance(instance: ConcreteModel, scheduling_scale_level
 
     if mode_dict is None:
         mode_dict = dict()
+
+    if inventory_zero is None:
+        inventory_zero = {j: {i: 0 for i in instance.resources_store}
+                          for j in instance.locations}
+
+    else:
+        inventory_zero = {j.name: {(i[0].name, i[1].name): inventory_zero[j][i] for i in inventory_zero[j].keys(
+        )} for j in inventory_zero.keys()}
+
+        inventory_zero = {i: {f"{j[0]}_{j[1]}_stored": inventory_zero[i][(
+            j[0], j[1])] for j in inventory_zero[i]} for i in inventory_zero.keys()}
+
+        inventory_zero = {i: {
+            j: inventory_zero[i][j] if j in inventory_zero[i].keys() else 0 for j in instance.resources_store} for i in inventory_zero.keys()}
 
     scales = scale_list(instance=instance,
                         scale_levels=len(instance.scales))
@@ -200,7 +216,7 @@ def constraint_inventory_balance(instance: ConcreteModel, scheduling_scale_level
                         scale_list[:scheduling_scale_level + 1]) - 1]]
             else:
                 storage = instance.Inv[location, resource,
-                                       scale_list[:scheduling_scale_level + 1]]
+                                       scale_list[:scheduling_scale_level + 1]] - inventory_zero[location][resource]
         else:
             storage = 0
 
