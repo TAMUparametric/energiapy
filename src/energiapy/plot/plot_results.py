@@ -11,6 +11,7 @@ __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
 from enum import Enum, auto
+from typing import Union, List
 
 import matplotlib.pyplot as plt
 from matplotlib import rc
@@ -26,7 +27,14 @@ class CostX(Enum):
         Enum (_type_): location-wise or process-wise
     """
     LOCATION_WISE = auto()
+    """Compare locations
+    """
     PROCESS_WISE = auto()
+    """Compare processes
+    """
+    SCENARIO_WISE = auto()
+    """Compare scenarios
+    """
 
 
 class CostY(Enum):
@@ -220,11 +228,11 @@ def transport(results: Result, source: str, sink: str, resource: str, transport:
 # TODO - make scenario comparison plots, perhaps use kwargs, allow n number of comparisons
 
 
-def cost(results: Result, x: CostX, y: CostY, location: str = None, network_scale_period: int = 0, fig_size: tuple = (12, 6), bar_width: float = 0.5, font_size: int = 16, color: str = 'blue', usetex: bool = False):
+def cost(results: Union[Result, List[Result]], x: CostX, y: CostY, location: str = None, network_scale_period: int = 0, fig_size: tuple = (12, 6), bar_width: float = 0.5, font_size: int = 16, color: str = 'blue', usetex: bool = False):
     """Plots the cost of processes, such as capex, vopex, fopex, or total
 
     Args:
-        results (Result): results
+        results (Union[Result, List[Result]]): results or list of results (for scenario-wise)
         x (CostX): one of CostX.LOCATION_WISE, CostX.PROCESS_WISE
         y (CostY): one of CostY.TOTAL, CostY.CAPEX, CostY.FOPEX, CostY.VOPEX
         location (str, optional): location to plot for, applicable for CostX.PROCESS_WISE. Defaults to None.
@@ -235,17 +243,20 @@ def cost(results: Result, x: CostX, y: CostY, location: str = None, network_scal
         color (str, optional): Defaults to 'blue'.
         usetex (bool, optional): Defaults to False.
     """
-
-    if y is CostY.CAPEX:
-        res_dict = results.output['Capex_process']
-    if y is CostY.VOPEX:
-        res_dict = results.output['Vopex_process']
-    if y is CostY.FOPEX:
-        res_dict = results.output['Fopex_process']
-
-    if y is CostY.TOTAL:
-        res_dict = {i: results.output['Capex_process'][i] + results.output['Vopex_process'][i] +
-                    results.output['Fopex_process'][i] for i in results.output['Capex_process'].keys()}
+    
+    if isinstance(results, list):
+        pass
+    
+    else:
+        if y is CostY.CAPEX:
+            res_dict = results.output['Capex_process']
+        if y is CostY.VOPEX:
+            res_dict = results.output['Vopex_process']
+        if y is CostY.FOPEX:
+            res_dict = results.output['Fopex_process']
+        if y is CostY.TOTAL:
+            res_dict = {i: results.output['Capex_process'][i] + results.output['Vopex_process'][i] +
+                        results.output['Fopex_process'][i] for i in results.output['Capex_process'].keys()}
 
     if x == CostX.PROCESS_WISE:
 
@@ -305,6 +316,42 @@ def cost(results: Result, x: CostX, y: CostY, location: str = None, network_scal
         plt.grid(alpha=0.3, zorder=0)
         plt.rcdefaults()
         plt.plot()
+
+    if x == CostX.SCENARIO_WISE:
+
+        scenarios =  tuple([i.name for i in results])
+        
+        weight_counts = dict()
+
+        for i in list(results.components['processes'].keys()):
+            vals = []
+            for j in res_dict.keys():
+                if j[1] == i:
+                    if j[2] == network_scale_period:
+                        vals.append(res_dict[j])
+            weight_counts[i] = array(vals)
+
+        rc('font', **{'family': 'serif',
+           'serif': ['Computer Modern'], 'size': font_size})
+        rc('text', usetex=usetex)
+        fig, ax = plt.subplots(figsize=fig_size)
+        bottom = zeros(len(scenarios))
+
+        for boolean, weight_count in weight_counts.items():
+            p = ax.bar(scenarios, weight_count,  width=bar_width,
+                       label=boolean, bottom=bottom, zorder=3)
+            bottom += weight_count
+        y_plot = ''.join(str(y).split('CostY.')[1])
+        plt.title(f'Scenario-wise {y_plot}')
+        plt.ylabel('Unit Currency')
+        plt.xlabel('Scenario')
+        plt.yscale('log')
+        plt.legend()
+        plt.grid(alpha=0.3, zorder=0)
+        plt.rcdefaults()
+        plt.plot()
+
+        
     return
 
 

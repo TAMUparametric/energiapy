@@ -489,9 +489,10 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
             constraint_demand(instance=instance, demand_scale_level=scenario.demand_scale_level,
                               scheduling_scale_level=scenario.scheduling_scale_level, demand=demand,
                               demand_factor=scenario.demand_factor, loc_res_dict=scenario.loc_res_dict)
-
+            constraint_network_cost(
+                instance=instance, network_scale_level=scenario.network_scale_level, constraints=constraints)
             constraint_resource_revenue(instance=instance, loc_res_dict=scenario.loc_res_dict, revenue=scenario.revenue,
-                                        demand_scale_level=scenario.demand_scale_level, revenue_factor=scenario.revenue_factor)
+                                        scheduling_scale_level=scenario.scheduling_scale_level, revenue_factor=scenario.revenue_factor)
             constraint_location_revenue(
                 instance=instance, network_scale_level=scenario.network_scale_level, cluster_wt=scenario.cluster_wt)
             constraint_network_revenue(
