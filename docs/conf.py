@@ -28,7 +28,7 @@ release = '1.0.7'
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
 extensions = ['sphinx.ext.autodoc', 'sphinx_mdinclude',
-              'sphinx_rtd_theme', 'sphinx.ext.napoleon', 'nbsphinx', 'sphinx.ext.mathjax', 'nbsphinx.mathjax_enabled = True']
+              'sphinx_rtd_theme', 'sphinx.ext.napoleon', 'nbsphinx', 'sphinx.ext.mathjax']
 
 myst_enable_extensions = [
     "amsmath"
