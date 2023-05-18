@@ -40,6 +40,8 @@ class Scenario:
         demand_scale_level (int, optional): scale for meeting specific demand for resource. Defaults to 0.
         cluster_wt (dict): cluster weights as a dictionary. {scale: int}. Defaults to None.
         label (str, optional): Longer descriptive label if required. Defaults to ''
+        capacity_bounds (CapacityBounds, optional): bounds on the capacity, useful for multi-period formulations. Defaults to None.
+        annualization_factor (float, optional): the annualization factor for Capex. Defaults to 1.
 
     Example:
         The Scenario can be built over a single location. The network here is specified as a single Location. Considering scales (TemporalScale object for a year, [1, 365, 24]), scheduling, expenditure, and demand are met at an hourly level, and network at an annual level.
@@ -62,6 +64,7 @@ class Scenario:
     demand: Union[Dict[Location, Dict[Resource, float]], float] = None
     label: str = ''
     capacity_bounds: CapacityBounds = None
+    annualization_factor: float = 1
 
     def __post_init__(self):
         """

@@ -4,7 +4,7 @@ energiapy setup file
 
 from setuptools import setup, find_packages
 
-__version__ = "1.0.6"
+__version__ = "1.0.7"
 
 short_desc = (
     "Python-based energy systems modeling and optimization tool"

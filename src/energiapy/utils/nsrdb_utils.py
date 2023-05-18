@@ -109,3 +109,5 @@ def fetch_nsrdb_data(attrs: List[str], year: int, lat_lon: Tuple[float] = None, 
         averaged_output.to_csv(save + '.csv')
 
     return lat_lon, averaged_output
+
+

@@ -22,12 +22,17 @@ sys.setrecursionlimit(10000)
 project = 'energiapy'
 copyright = '2023, Rahul Kakodkar'
 author = 'Rahul Kakodkar'
-release = '1.0.5'
+release = '1.0.7'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-extensions = ['sphinx.ext.autodoc','sphinx_mdinclude','sphinx_rtd_theme','sphinx.ext.napoleon', 'nbsphinx']
+extensions = ['sphinx.ext.autodoc', 'sphinx_mdinclude',
+              'sphinx_rtd_theme', 'sphinx.ext.napoleon', 'nbsphinx', 'sphinx.ext.mathjax']
+
+myst_enable_extensions = [
+    "amsmath"
+]
 
 templates_path = ['_templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']

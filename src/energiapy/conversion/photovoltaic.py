@@ -14,7 +14,6 @@ import pandas
 import numpy
 from pvlib.pvsystem import PVSystem, retrieve_sam
 from pvlib.temperature import TEMPERATURE_MODEL_PARAMETERS
-from pvlib.tracking import SingleAxisTracker
 from pvlib.modelchain import ModelChain as PVModelChain
 from pvlib.location import Location as PVLocation
 
@@ -39,7 +38,7 @@ def solar_power_output(data: pandas.DataFrame, coord: tuple, sam: str = 'cecmod'
     Returns:
         output (DataFrame): a dataframe with hourly solar power outputs
     """
-    data = data.resample('H').mean()
+    # data = data.resample('H').mean()
 
     modules = retrieve_sam(sam)
     module_parameters = modules[module_params]
