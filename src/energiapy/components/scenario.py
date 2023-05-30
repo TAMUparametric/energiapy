@@ -79,7 +79,7 @@ class Scenario:
             transport_max (dict): A dictionary of the maximum amount of each resource that can be transported between sources and sinks.
             transport_loss (dict): A dictionary of the transport losses for each resource that can be transported between sources and sinks.
             transport_cost (dict): A dictionary of the transport cost for each resource that can be transported between sources and sinks.
-            transport_cost (dict): A dictionary of the transport emissions for each resource that can be transported between sources and sinks.
+            transport_emit (dict): A dictionary of the transport emissions for each resource that can be transported between sources and sinks.
             distance_dict (dict): A dictionary of distances between sources and sinks.
             process_set (set): Set of all Process objects.
             resource_set (set): Set of all Resource objects.
