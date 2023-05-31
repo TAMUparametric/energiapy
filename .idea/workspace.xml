@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="1b6c4ae9-874b-4acd-b13b-9d8b7ceba388" name="Changes" comment="Added case study files&#10;&#10;Working on error: KeyError: &quot;Index '('loc1', 'store10', 0)' is not valid for indexed component 'Capex_process'&quot;">
+    <list default="true" id="1b6c4ae9-874b-4acd-b13b-9d8b7ceba388" name="Changes" comment="Added case study files&#10;&#10;Working on error: KeyError: &quot;Index '('loc1', 'store10', 1, 0, 0)' is not valid for indexed component 'Cap_P_m'&quot;">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/notebooks/ivanov-model/IvanovCaseStudy.py" beforeDir="false" afterPath="$PROJECT_DIR$/docs/notebooks/ivanov-model/IvanovCaseStudy.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/energiapy/components/network.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/energiapy/components/network.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -112,7 +113,14 @@
       <option name="project" value="LOCAL" />
       <updated>1685476378874</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="Added case study files&#10;&#10;Working on error: KeyError: &quot;Index '('loc1', 'store10', 1, 0, 0)' is not valid for indexed component 'Cap_P_m'&quot;">
+      <created>1685549128523</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1685549128523</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -140,6 +148,7 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Added case study files&#10;&#10;Working on error: KeyError: &quot;Index '('loc1', 'store10', 0)' is not valid for indexed component 'Capex_process'&quot;" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added case study files&#10;&#10;Working on error: KeyError: &quot;Index '('loc1', 'store10', 0)' is not valid for indexed component 'Capex_process'&quot;" />
+    <MESSAGE value="Added case study files&#10;&#10;Working on error: KeyError: &quot;Index '('loc1', 'store10', 1, 0, 0)' is not valid for indexed component 'Cap_P_m'&quot;" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added case study files&#10;&#10;Working on error: KeyError: &quot;Index '('loc1', 'store10', 1, 0, 0)' is not valid for indexed component 'Cap_P_m'&quot;" />
   </component>
 </project>
