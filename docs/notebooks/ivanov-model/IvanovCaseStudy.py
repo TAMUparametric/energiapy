@@ -81,11 +81,11 @@ loc7 = Location(name='loc7', processes={store10}, label="Location 7", scales=sca
 # ======================================================================================================================
 # Declare transport/trucks
 # ======================================================================================================================
-truck20 = Transport(name='truck20', resources=[com1], trans_max=20, label='Truck with maximum capacity of 20 units')
-truck30 = Transport(name='truck30', resources=[com1], trans_max=30, label='Truck with maximum capacity of 30 units')
-truck40 = Transport(name='truck40', resources=[com1], trans_max=40, label='Truck with maximum capacity of 40 units')
-truck50 = Transport(name='truck50', resources=[com1], trans_max=50, label='Truck with maximum capacity of 50 units')
-truck100 = Transport(name='truck100', resources=[com1], trans_max=100, label='Truck with maximum capacity of 100 units')
+truck20 = Transport(name='truck20', resources=[com1], trans_max=20, label='Truck with maximum capacity of 20 units', trans_cost=0.02)
+truck30 = Transport(name='truck30', resources=[com1], trans_max=30, label='Truck with maximum capacity of 30 units', trans_cost=0.03)
+truck40 = Transport(name='truck40', resources=[com1], trans_max=40, label='Truck with maximum capacity of 40 units', trans_cost=0.04)
+truck50 = Transport(name='truck50', resources=[com1], trans_max=50, label='Truck with maximum capacity of 50 units', trans_cost=0.05)
+truck100 = Transport(name='truck100', resources=[com1], trans_max=100, label='Truck with maximum capacity of 100 units', trans_cost=0.1)
 
 transport_matrix = [
     [[],[truck50],[truck30],[],[],[],[]],                           #sink: location 1
@@ -118,7 +118,7 @@ network = Network(name='Network', source_locations=sources, sink_locations=sinks
 
 
 demand_dict = {i: {com1: 100} for i in locset if i == loc5}
-scenario = Scenario(name = 'scenario', scales = scales, scheduling_scale_level= 1, network_scale_level=1, network = network, demand = demand_dict, label= 'scenario')
+scenario = Scenario(name = 'scenario', scales = scales, scheduling_scale_level=1, network_scale_level=0, demand_scale_level=1, network = network, demand = demand_dict, label= 'scenario')
 
 problem = formulate(scenario= scenario, constraints= {Constraints.COST, Constraints.TRANSPORT, Constraints.MODE, Constraints.RESOURCE_BALANCE, Constraints.PRODUCTION, Constraints.INVENTORY, Constraints.NETWORK},
                      objective = Objective.COST)
