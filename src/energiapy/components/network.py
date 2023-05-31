@@ -87,10 +87,10 @@ class Network:
         return distance_dict
 
     def make_transport_dict(self) -> dict:
-        """returns a dictionary of trasportation modes available between sources to sinks
+        """returns a dictionary of transportation modes available between sources to sinks
 
         Returns:
-            dict: a dictionary of trasportation modes available between sources to sinks
+            dict: a dictionary of transportation modes available between sources to sinks
         """
         transport_dict = {(self.source_locations[i].name, self.sink_locations[j].name):
                           set(self.transport_matrix[i][j]) for i, j in
