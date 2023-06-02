@@ -641,3 +641,4 @@ def constraint_specific_location_discharge(instance: ConcreteModel, location: Lo
 
     constraint_latex_render(specific_location_discharge_rule)
     return Constraint(instance.resources_sell, *scales, rule=specific_location_discharge_rule, doc='restrict discharge of resource at location level')
+

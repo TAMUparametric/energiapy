@@ -38,7 +38,7 @@ def constraint_credit_process(instance: ConcreteModel, credit_dict: dict, networ
         return Constraint.Skip
     
     instance.constraint_credit_process = Constraint(
-        instance.locations, instance.processes, scales, rule=credit_process_rule, doc='credit generated for process')
+        instance.locations, instance.processes, *scales, rule=credit_process_rule, doc='credit generated for process')
     constraint_latex_render(credit_process_rule)
     return instance.constraint_credit_process
 
@@ -60,7 +60,7 @@ def constraint_credit_location(instance: ConcreteModel, network_scale_level: int
             instance.Credit_process[location, process_, scale_list] for process_ in instance.processes)
 
     instance.constraint_credit_location = Constraint(
-        instance.locations, scales, rule=credit_location_rule, doc='credit generated for process')
+        instance.locations, *scales, rule=credit_location_rule, doc='credit generated for process')
     constraint_latex_render(credit_location_rule)
     return instance.constraint_credit_location
 
@@ -82,6 +82,6 @@ def constraint_credit_network(instance: ConcreteModel, network_scale_level: int 
             instance.Credit_location[location_, scale_list] for location_ in instance.locations)
 
     instance.constraint_credit_network = Constraint(
-        scales, rule=credit_network_rule, doc='credit generated for process')
+        *scales, rule=credit_network_rule, doc='credit generated for process')
     constraint_latex_render(credit_network_rule)
     return instance.constraint_credit_network
