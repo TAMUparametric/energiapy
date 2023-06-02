@@ -18,7 +18,7 @@ from pandas import DataFrame
 
 from ..components.location import Location
 from ..components.network import Network
-from ..components.process import ProcessMode, VaryingProcess
+from ..components.process import ProcessMode, VaryingProcess, CostDynamics
 from ..components.resource import Resource, VaryingResource
 from ..components.temporal_scale import TemporalScale
 from ..model.bounds import CapacityBounds
@@ -291,6 +291,8 @@ class Scenario:
                                               VaryingProcess.DETERMINISTIC_EXPENDITURE in i.varying],
             'processes_uncertain_expenditure': [i.name for i in self.process_set if
                                                 VaryingProcess.UNCERTAIN_EXPENDITURE in i.varying],
+
+            'processes_segments': [i.name for i in self.process_set if i.cost_dynamics == CostDynamics.PWL],
 
             'locations': [i.name for i in self.location_set],
             'materials': [i.name for i in self.material_set],
