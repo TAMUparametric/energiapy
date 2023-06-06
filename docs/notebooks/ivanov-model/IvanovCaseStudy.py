@@ -133,7 +133,7 @@ demand_dict = {i: {com1: 100} for i in locset if i == loc5}
 scenario = Scenario(name='scenario', scales=scales, scheduling_scale_level=1, network_scale_level=0, expenditure_scale_level=0, purchase_scale_level=1,
                     demand_scale_level=1, network=network, demand=demand_dict, label='scenario')
 
-problem = formulate(scenario=scenario, constraints={Constraints.COST, Constraints.TRANSPORT, Constraints.MODE,
+problem = formulate(scenario=scenario, constraints={Constraints.COST, Constraints.TRANSPORT,
                                                     Constraints.RESOURCE_BALANCE, Constraints.PRODUCTION,
                                                     Constraints.INVENTORY, Constraints.NETWORK},
                     objective=Objective.COST)

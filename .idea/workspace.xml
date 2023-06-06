@@ -2,9 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="1b6c4ae9-874b-4acd-b13b-9d8b7ceba388" name="Changes" comment="Added case study files&#10;&#10;Working on error: KeyError: &quot;Index '('loc1', 'store10', 1, 0, 0)' is not valid for indexed component 'Cap_P_m'&quot;">
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_5_26_2023_10_24_AM__Changes_.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_5_26_2023_10_24_AM__Changes_.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/notebooks/ivanov-model/IvanovCaseStudy.py" beforeDir="false" afterPath="$PROJECT_DIR$/docs/notebooks/ivanov-model/IvanovCaseStudy.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/energiapy/components/network.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/energiapy/components/network.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
