@@ -195,7 +195,9 @@ class Location:
         for i in [i for i in self.processes if i.processmode == ProcessMode.MULTI]:
             resources_multi = resources_multi.union(
                 *[set(j.keys()) for j in list(i.conversion.values())])
-        return resources_single.union(resources_multi)
+        resources_storage = set(
+            [i.storage for i in self.processes if i.processmode == ProcessMode.STORAGE])
+        return resources_single.union(resources_multi).union(resources_storage)
 
     def get_materials(self) -> Set[Material]:
         """fetches required materials for processes introduced at locations

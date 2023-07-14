@@ -145,11 +145,11 @@ def make_f_purchase(location_list: list, day_list: list, hour_list: list, resour
 def make_henry_price_df(file_name: str, year: int, stretch: bool = False,) -> pandas.DataFrame:
     """makes a df from data with missing data filled using previous day values
     The costs are converted to $/kg from $/MMBtu using a factor of /22.4
-
+    Only works if there is an entire year of data (365). Converts form $/MMBtu to $/kg (x/22.4)
     Args:
         file_name (str): provide csv file with data
         year (int): import data from a particular year
-        stretch (bool): if True, streches the timescale from days (365) to hours (8760). Defaults to False.
+        stretch (bool): if True, streches the timescale from days (365) to hours (8760) by repetition. Defaults to False.
 
 
     Returns:
