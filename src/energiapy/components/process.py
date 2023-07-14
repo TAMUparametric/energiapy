@@ -198,10 +198,10 @@ class Process:
             else:
                 self.processmode = ProcessMode.SINGLE
 
-        if isinstance(self.capex, int):
-            self.cost_dynamics = CostDynamics.PWL
-        else:
+        if isinstance(self.capex, (int, float)):
             self.cost_dynamics = CostDynamics.CONSTANT
+        elif isinstance(self.capex, dict):
+            self.cost_dynamics = CostDynamics.PWL
 
         if self.processmode is ProcessMode.MULTI:
             self.resource_req = {
@@ -213,6 +213,10 @@ class Process:
             if list(self.prod_max.keys()) != list(self.conversion.keys()):
                 warn(
                     'The keys for prod_max and conversion need to match if ProcessMode.multi')
+
+        if self.cost_dynamics == CostDynamics.PWL:
+            self.capacity_segments = list(self.capex.keys())
+            self.capex_segements = list(self.capex.values())
 
     def __repr__(self):
         return self.name

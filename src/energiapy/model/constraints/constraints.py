@@ -12,6 +12,7 @@ __status__ = "Production"
 
 from enum import Enum, auto
 
+
 class Constraints(Enum):
     """Class of constraints
     """
@@ -29,5 +30,4 @@ class Constraints(Enum):
     NETWORK = auto()
     CREDIT = auto()
     MATERIAL = auto()
-
-
+    PRESERVE_NETWORK = auto()

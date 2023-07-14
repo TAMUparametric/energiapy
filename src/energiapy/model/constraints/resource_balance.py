@@ -198,9 +198,9 @@ def constraint_inventory_balance(instance: ConcreteModel, scheduling_scale_level
             j: inventory_zero[i][j] if j in inventory_zero[i].keys() else 0 for j in instance.resources_store} for i in inventory_zero.keys()}
 
     scales = scale_list(instance=instance,
-                        scale_levels=len(instance.scales))
+                        scale_levels=scheduling_scale_level + 1)
     scale_iter = scale_tuple(
-        instance=instance, scale_levels=len(instance.scales))
+        instance=instance, scale_levels=scheduling_scale_level + 1)
 
     def inventory_balance_rule(instance, location, resource, *scale_list):
         if resource in instance.resources_purch:
@@ -641,4 +641,3 @@ def constraint_specific_location_discharge(instance: ConcreteModel, location: Lo
 
     constraint_latex_render(specific_location_discharge_rule)
     return Constraint(instance.resources_sell, *scales, rule=specific_location_discharge_rule, doc='restrict discharge of resource at location level')
-

@@ -104,7 +104,8 @@ from .constraints.network import (
     constraint_production_facility,
     constraint_min_storage_facility,
     constraint_min_production_facility,
-    constraint_min_capacity_facility
+    constraint_min_capacity_facility,
+    constraint_preserve_capacity_facility
 )
 from .constraints.credit import (
     constraint_credit_process,
@@ -208,6 +209,7 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
             Constraints.MODE
             Constraints.CREDIT
             Constraints.MATERIAL
+            Constraints.PRESERVE_NETWORK
 
     Objectives include:
             Objectives.COST
@@ -449,6 +451,11 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
 
             instance.del_component(instance.constraint_storage_min)
             instance.del_component(instance.constraint_production_min)
+
+        if Constraints.PRESERVE_NETWORK in constraints:
+
+            constraint_preserve_capacity_facility(
+                instance=instance, loc_pro_dict=scenario.loc_pro_dict, network_scale_level=scenario.network_scale_level)
 
         if Constraints.MODE in constraints:
             generate_mode_vars(
