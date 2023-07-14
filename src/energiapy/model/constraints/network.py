@@ -13,7 +13,7 @@ __status__ = "Production"
 from pyomo.environ import ConcreteModel, Constraint
 
 from ...utils.latex_utils import constraint_latex_render
-from ...utils.scale_utils import scale_list
+from ...utils.scale_utils import scale_list, scale_tuple
 from ...model.bounds import CapacityBounds
 
 
@@ -112,7 +112,8 @@ def constraint_min_storage_facility(instance: ConcreteModel, store_min: dict, lo
             return Constraint.Skip
 
     instance.constraint_min_storage_facility = Constraint(
-        instance.locations, instance.resources_store, *scales, rule=min_storage_facility_rule,
+        instance.locations, instance.resources_store, *
+        scales, rule=min_storage_facility_rule,
         doc='storage facility sizing and location')
     constraint_latex_render(min_storage_facility_rule)
     return instance.constraint_min_storage_facility
@@ -148,7 +149,8 @@ def constraint_min_production_facility(instance: ConcreteModel, prod_min: dict, 
             return Constraint.Skip
 
     instance.constraint_min_production_facility = Constraint(
-        instance.locations, instance.processes, *scales, rule=min_production_facility_rule,
+        instance.locations, instance.processes, *
+        scales, rule=min_production_facility_rule,
         doc='production facility sizing and location')
     constraint_latex_render(min_production_facility_rule)
     return instance.constraint_min_production_facility
@@ -182,7 +184,51 @@ def constraint_min_capacity_facility(instance: ConcreteModel, loc_pro_dict: dict
             return Constraint.Skip
 
     instance.constraint_min_capacity_facility = Constraint(
-        instance.locations, instance.processes, *scales, rule=min_capacity_facility_rule,
+        instance.locations, instance.processes, *
+        scales, rule=min_capacity_facility_rule,
         doc='capacity facility sizing initialization')
     constraint_latex_render(min_capacity_facility_rule)
     return instance.constraint_min_capacity_facility
+
+
+def constraint_preserve_capacity_facility(instance: ConcreteModel, loc_pro_dict: dict = None, network_scale_level: int = 0) -> Constraint:
+    """Ensures that capacity over network scale is not reduced
+    Essentially, the capacity of a facility is preserved
+
+    Args:
+        instance (ConcreteModel): pyomo instance
+        loc_pro_dict (dict, optional): capacity facilities avaiable at location. Defaults to {}.
+        network_scale_level (int, optional): scale of network decisions. Defaults to 0.
+
+    Returns:
+        Constraint: preserve_capacity_facility
+    """
+
+    if loc_pro_dict is None:
+        loc_pro_dict = dict()
+
+    scales = scale_list(instance=instance,
+                        scale_levels=network_scale_level + 1)
+
+    scale_iter = scale_tuple(
+        instance=instance, scale_levels=network_scale_level + 1)
+
+    def preserve_capacity_facility_rule(instance, location, process, *scale_list):
+        if loc_pro_dict is not None:
+            if process in loc_pro_dict[location]:
+                if scale_list[:network_scale_level + 1] != scale_iter[0]:
+                    return instance.Cap_P[location, process, scale_list[:network_scale_level + 1]] >= instance.Cap_P[location, process, scale_iter[scale_iter.index(
+                        scale_list[:network_scale_level + 1]) - 1]]
+                else:
+                    return Constraint.Skip
+            else:
+                return instance.Cap_P[location, process, scale_list[:network_scale_level + 1]] == 0
+        else:
+            return Constraint.Skip
+
+    instance.constraint_preserve_capacity_facility = Constraint(
+        instance.locations, instance.processes, *
+        scales, rule=preserve_capacity_facility_rule,
+        doc='preserves the capacity over network scale')
+    constraint_latex_render(preserve_capacity_facility_rule)
+    return instance.constraint_preserve_capacity_facility
