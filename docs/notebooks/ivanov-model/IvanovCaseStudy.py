@@ -54,15 +54,17 @@ scales = TemporalScale(discretization_list=[_exec_scenarios, _time_intervals])
 # Declare resources/commodities
 # ======================================================================================================================
 
-com_cons = Resource(name='com_cons', cons_max=M, block={'imp': 1, 'urg': 1}, price=7.50, label='Commodity consumed from outside the system')
+com_cons = Resource(name='com_cons', cons_max=M, block={'imp': 1, 'urg': 1}, price=7.50,
+                    label='Commodity consumed from outside the system')
 
-com1 = Resource(name='com1', demand=True, sell=True, block={'imp': 1, 'urg': 1}, price=7.50, revenue=10.00,
+com1 = Resource(name='com1', demand=True, sell=True, block={'imp': 1, 'urg': 1}, revenue=10.00,
                 label='Commodity 1')
 
 # ======================================================================================================================
 # Declare processes/storage capacities
 # ======================================================================================================================
-procure = Process(name='procure', prod_max= M, conversion= {com_cons:-1, com1: 1}, capex = 0, vopex = 0, fopex = 0, label = 'Procure com1')
+procure = Process(name='procure', prod_max=M, conversion={com_cons: -1, com1: 1}, capex=0, vopex=0, fopex=0,
+                  label='Procure com1')
 
 store10 = Process(name='store10', storage=com1, store_max=10, prod_max=M, capex=1000,
                   vopex=10,
@@ -131,7 +133,6 @@ distance_matrix = [
 # ======================================================================================================================
 locset = {loc1, loc2, loc3, loc4, loc5, loc6, loc7}
 
-
 sources = list(locset)
 sinks = list(locset)
 
@@ -139,7 +140,7 @@ network = Network(name='Network', source_locations=sources, sink_locations=sinks
                   distance_matrix=distance_matrix)
 
 # demand_dict = {i: {com1: 100} for i in locset if i == loc5}
-demand_dict = {i : {com1: 100} if i == loc5 else {com1: 0} for i in locset}
+demand_dict = {i: {com1: 100} if i == loc5 else {com1: 0} for i in locset}
 # demand_dict = {loc4: {com1: 0}, loc6: {com1: 0}, loc3: {com1: 0}, loc7: {com1: 0}, loc1: {com1: 0}, loc5: {com1: 100},
 #                loc2: {com1: 0}}
 
@@ -153,5 +154,3 @@ problem = formulate(scenario=scenario, constraints={Constraints.COST, Constraint
                     objective=Objective.COST)
 
 results = solve(scenario=scenario, instance=problem, solver='gurobi', name='MILP')
-
-problem.Trans_exp.pprint()
