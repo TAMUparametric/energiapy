@@ -32,8 +32,11 @@ scales = TemporalScale(discretization_list=[_exec_scenarios, _time_intervals])
 com_cons = Resource(name='com_cons', cons_max=M, block={'imp': 1, 'urg': 1}, price=7.50,
                     label='Commodity consumed from outside the system')
 
-com1 = Resource(name='com1', demand=True, sell=True, block={'imp': 1, 'urg': 1}, revenue=10.00,
+com1 = Resource(name='com1', block={'imp': 1, 'urg': 1}, revenue=10.00,
                 label='Commodity 1')
+
+com2 = Resource(name='com2', demand=True, sell=True, block={'imp': 1, 'urg': 1}, revenue=10.00,
+                label='Commodity 2')
 
 # ======================================================================================================================
 # Declare processes/storage capacities
@@ -41,10 +44,11 @@ com1 = Resource(name='com1', demand=True, sell=True, block={'imp': 1, 'urg': 1},
 
 procure = Process(name='procure', prod_max=M, conversion={com_cons: -1, com1: 1}, capex=0, vopex=0, fopex=0,
                   label='Procure com1')
-
-store20 = Process(name='store20', storage=com1, store_max=20, prod_max=M, capex=2000, vopex=20,
+conv12 = Process(name="Conversion", prod_max=M, conversion={com1: -1, com2: 1}, capex=0, vopex=0, fopex=0,
+                 label="Dummy Process")
+store20 = Process(name='store20', storage=com1, store_max=20, prod_max=M, capex=2000, vopex=20, store_min=5,
                   label="Storage capacity of 20 units")
-store50 = Process(name='store50', storage=com1, store_max=50, prod_max=M, capex=5000, vopex=50,
+store50 = Process(name='store50', storage=com1, store_max=50, prod_max=M, capex=5000, vopex=50, store_min=10,
                   label="Storage capacity of 50 units")
 
 # ======================================================================================================================
@@ -52,7 +56,7 @@ store50 = Process(name='store50', storage=com1, store_max=50, prod_max=M, capex=
 # ======================================================================================================================
 loc1 = Location(name='loc1', processes={procure, store50}, label="Location 1", scales=scales, demand_scale_level=1,
                 capacity_scale_level=1, availability_scale_level=1)
-loc2 = Location(name='loc2', processes={store20}, label="Location 2", scales=scales, demand_scale_level=1,
+loc2 = Location(name='loc2', processes={conv12, store20}, label="Location 2", scales=scales, demand_scale_level=1,
                 capacity_scale_level=1, availability_scale_level=1)
 loc3 = Location(name='loc3', processes={store20}, label="Location 3", scales=scales, demand_scale_level=1,
                 capacity_scale_level=1, availability_scale_level=1)
@@ -60,7 +64,7 @@ loc3 = Location(name='loc3', processes={store20}, label="Location 3", scales=sca
 # ======================================================================================================================
 # Declare transport/trucks
 # ======================================================================================================================
-truck100 = Transport(name='truck100', resources=[com1], trans_max=100, label='Truck with maximum capacity of 100 units',
+truck100 = Transport(name='truck100', resources=[com1, com2], trans_max=100, label='Truck with maximum capacity of 100 units',
                      trans_cost=0.1)
 
 transport_matrix = [
@@ -70,9 +74,9 @@ transport_matrix = [
 ]
 
 distance_matrix = [
-    [0, 10, 0],
+    [0, 10, 70],
     [10, 0, 10],
-    [0, 10, 0]
+    [70, 10, 0]
 ]
 
 # ======================================================================================================================
@@ -89,7 +93,7 @@ network = Network(name='Network', source_locations=sources, sink_locations=sinks
 # ======================================================================================================================
 # Declare scenario
 # ======================================================================================================================
-demand_dict = {i: {com1: 75} if i == loc3 else {com1: 0} for i in locset}
+demand_dict = {i: {com2: 75} if i == loc3 else {com2: 0} for i in locset}
 
 scenario = Scenario(name='scenario', scales=scales, scheduling_scale_level=1, network_scale_level=0,
                     purchase_scale_level=1,
