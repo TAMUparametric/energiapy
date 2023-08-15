@@ -36,13 +36,14 @@ class Scenario:
         purchase_scale_level (int, optional): scale for resource purchase. Defaults to 0.
         expenditure_scale_level (int, optional): scale for technology expenditure. Defaults to 0.
         scheduling_scale_level (int, optional): scale of production and inventory scheduling. Defaults to 0.
+        availability_scale_level (int, optional): scale level for availability (resource). Defaults to 0
         network_scale_level (int, optional): scale for network decisions such as facility location. Defaults to 0.
         demand_scale_level (int, optional): scale for meeting specific demand for resource. Defaults to 0.
         cluster_wt (dict): cluster weights as a dictionary. {scale: int}. Defaults to None.
         label (str, optional): Longer descriptive label if required. Defaults to ''
         capacity_bounds (CapacityBounds, optional): bounds on the capacity, useful for multi-period formulations. Defaults to None.
         annualization_factor (float, optional): the annualization factor for Capex. Defaults to 1.
-
+        demand_penalty (Dict[Location, Dict[Resource, float]]): penalty for unmet demand at location for each resource. Defaults to None.
     Example:
         The Scenario can be built over a single location. The network here is specified as a single Location. Considering scales (TemporalScale object for a year, [1, 365, 24]), scheduling, expenditure, and demand are met at an hourly level, and network at an annual level.
 
@@ -66,6 +67,7 @@ class Scenario:
     label: str = ''
     capacity_bounds: CapacityBounds = None
     annualization_factor: float = 1
+    demand_penalty: Dict[Location, Dict[Resource, float]] = None
 
     def __post_init__(self):
         """
@@ -200,7 +202,6 @@ class Scenario:
         )} for i in self.location_set if i.credit is not None}
         self.process_resource_dict = {
             i.name: i.resource_req for i in self.process_set}
-
         # self.process_material_dict = {i.name: {j.name: i.material_cons[j] for j in i.material_cons.keys()} if i.material_cons is not None else None for i in
         #                               self.process_set}
         self.process_material_dict = {
@@ -222,6 +223,10 @@ class Scenario:
 
         self.mode_dict = {i.name: list(
             self.multiconversion[i.name].keys()) for i in self.process_set}
+
+        if self.demand_penalty is not None:
+            self.demand_penalty = {i.name: {j.name: self.demand_penalty[i][j] for j in self.demand_penalty[i].keys(
+            )} for i in self.demand_penalty.keys()}
 
         set_dict = {
             'resources': [i.name for i in self.resource_set],
