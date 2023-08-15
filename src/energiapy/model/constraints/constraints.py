@@ -31,3 +31,4 @@ class Constraints(Enum):
     CREDIT = auto()
     MATERIAL = auto()
     PRESERVE_NETWORK = auto()
+    DEMAND = auto()
