@@ -47,7 +47,7 @@ _exec_scenarios = 4  # Number of execution scenarios                     (chi)
 
 M = 1e7  # Big M
 
-availability_factor_com1 = pandas.DataFrame(data={'com_cons': [1,1,1,1]})
+availability_factor_com1 = pandas.DataFrame(data={'com_cons': [1,0.5,1,1]})
 
 # Define temporal scales
 scales = TemporalScale(discretization_list=[_exec_scenarios, _time_intervals])
@@ -141,7 +141,7 @@ network = Network(name='Network', source_locations=sources, sink_locations=sinks
 demand_dict = {i: {com1: 100} if i == loc5 else {com1: 0} for i in locset}
 
 scenario = Scenario(name='scenario', scales=scales, scheduling_scale_level=1, network_scale_level=0,
-                    purchase_scale_level=1,
+                    purchase_scale_level=1, availability_scale_level=0,
                     demand_scale_level=1, network=network, demand=demand_dict, label='scenario')
 
 problem = formulate(scenario=scenario, constraints={Constraints.COST, Constraints.TRANSPORT,
