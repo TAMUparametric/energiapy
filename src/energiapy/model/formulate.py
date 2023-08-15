@@ -126,7 +126,8 @@ from .objectives import (
     objective_discharge_min,
     objective_profit,
     objective_gwp_min,
-    objective_cost_w_demand_penalty
+    objective_cost_w_demand_penalty,
+    objective_profit_w_demand_penalty
 )
 
 from .sets import generate_sets
@@ -184,6 +185,10 @@ class Objective(Enum):
     COST_W_DEMAND_PENALTY = auto()
     """
     Minimize cost with penalty for unmet resource demand
+    """
+    PROFIT_W_DEMAND_PENALTY = auto()
+    """
+    Maximized profit with penalty for unmet resource demand
     """
 
 
@@ -504,6 +509,16 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
 
             objective_cost_w_demand_penalty(instance=instance, demand_penalty=scenario.demand_penalty,
                                             constraints=constraints, network_scale_level=scenario.network_scale_level, demand_scale_level=scenario.demand_scale_level)
+
+        elif objective == Objective.PROFIT_W_DEMAND_PENALTY:
+            generate_demand_vars(
+                instance=instance, scale_level=scenario.demand_scale_level)
+            constraint_demand_penalty(instance=instance, demand_scale_level=scenario.demand_scale_level,
+                                      scheduling_scale_level=scenario.scheduling_scale_level, demand=demand,
+                                      demand_factor=scenario.demand_factor, loc_res_dict=scenario.loc_res_dict)
+
+            objective_profit_w_demand_penalty(instance=instance, demand_penalty=scenario.demand_penalty,
+                                              constraints=constraints, network_scale_level=scenario.network_scale_level, demand_scale_level=scenario.demand_scale_level)
 
         else:
             if Constraints.DEMAND in constraints:
