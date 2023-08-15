@@ -379,7 +379,8 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
 
             constraint_resource_consumption(instance=instance, loc_res_dict=scenario.loc_res_dict,
                                             cons_max=scenario.cons_max,
-                                            scheduling_scale_level=scenario.scheduling_scale_level, availability_factor=scenario.availability_factor)
+                                            scheduling_scale_level=scenario.scheduling_scale_level, availability_scale_level=scenario.availability_scale_level,
+                                            availability_factor=scenario.availability_factor)
 
             constraint_resource_purchase(instance=instance, price_factor=scenario.price_factor, price=scenario.price,
                                          loc_res_dict=scenario.loc_res_dict,

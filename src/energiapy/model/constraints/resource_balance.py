@@ -22,7 +22,7 @@ from ...components.process import Process
 
 
 def constraint_resource_consumption(instance: ConcreteModel, loc_res_dict: dict = None, cons_max: dict = None,
-                                    scheduling_scale_level: int = 0, availability_factor: dict = None) -> Constraint:
+                                    scheduling_scale_level: int = 0, availability_scale_level: int = 0, availability_factor: dict = None) -> Constraint:
     """Determines consumption of resource at location in network
 
     Args:
@@ -30,7 +30,7 @@ def constraint_resource_consumption(instance: ConcreteModel, loc_res_dict: dict 
         loc_res_dict (dict, optional): storage facilities for resource available at location. Defaults to {}.
         cons_max (dict, optional): maximum allowed consumption of resource at location. Defaults to {}.
         scheduling_scale_level (int, optional): scale of scheduling decisions. Defaults to 0.
-
+        availability_factor (dict, optional): normalized factor for the availability of resource
     Returns:
         Constraint: resource_consumption
     """
@@ -49,7 +49,7 @@ def constraint_resource_consumption(instance: ConcreteModel, loc_res_dict: dict 
             if availability_factor[location] is None:
                 return instance.C[location, resource, scale_list[:scheduling_scale_level + 1]] <= cons_max[location][resource]
             else:
-                return instance.C[location, resource, scale_list[:scheduling_scale_level + 1]] <= availability_factor[location][resource][scale_list[:scheduling_scale_level + 1]]*cons_max[location][resource]
+                return instance.C[location, resource, scale_list[:scheduling_scale_level + 1]] <= availability_factor[location][resource][scale_list[:availability_scale_level + 1]]*cons_max[location][resource]
         else:
             return instance.C[location, resource, scale_list[:scheduling_scale_level + 1]] <= 0
 
