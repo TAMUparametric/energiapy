@@ -58,6 +58,7 @@ class Scenario:
     purchase_scale_level: int = 0
     expenditure_scale_level: int = 0
     scheduling_scale_level: int = 0
+    availability_scale_level: int = 0
     network_scale_level: int = 0
     demand_scale_level: int = 0
     cluster_wt: dict = None
