@@ -11,13 +11,14 @@ __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
 from itertools import product
-from typing import Set
+from typing import Set, Dict
 
 from pyomo.environ import ConcreteModel, Objective, maximize
 
 from ..utils.latex_utils import constraint_latex_render
 from ..utils.scale_utils import scale_tuple
 from ..components.resource import Resource
+from ..components.location import Location
 from ..model.constraints.constraints import Constraints
 
 
@@ -67,6 +68,60 @@ def objective_cost(instance: ConcreteModel, constraints: Set[Constraints], netwo
         rule=objective_cost_rule, doc='total cost')
     constraint_latex_render(objective_cost_rule)
     return instance.objective_cost
+
+
+def objective_cost_w_demand_penalty(instance: ConcreteModel, demand_penalty: Dict[Location, Dict[Resource, float]], constraints: Set[Constraints],
+                                    network_scale_level: int = 0, demand_scale_level: int = 0) -> Objective:
+    """Objective to minimize total cost with demand penalty
+
+    Args:
+        instance (ConcreteModel): pyomo instance
+        network_scale_level (int, optional): scale of network decisions. Defaults to 0.
+        demand_penalty (Dict[Location, Resource]): penalty for unmet demand for resource at each location
+
+    Returns:
+        Objective: cost objective
+    """
+    scale_iter = scale_tuple(
+        instance=instance, scale_levels=network_scale_level + 1)
+    scale_iter_penalty = scale_tuple(
+        instance=instance, scale_levels=demand_scale_level + 1)
+
+    def objective_cost_w_demand_penalty_rule(instance):
+        capex = sum(instance.Capex_network[scale_] for scale_ in scale_iter)
+        vopex = sum(instance.Vopex_network[scale_] for scale_ in scale_iter)
+        fopex = sum(instance.Fopex_network[scale_] for scale_ in scale_iter)
+        incidental = sum(
+            instance.Incidental_network[scale_] for scale_ in scale_iter)
+
+        cost_purch = sum(instance.B_network[resource_, scale_] for resource_, scale_ in
+                         product(instance.resources_purch, scale_iter))
+
+        if Constraints.LAND in constraints:
+            land_cost = sum(
+                instance.Land_cost_network[scale_] for scale_ in scale_iter)
+        else:
+            land_cost = 0
+
+        if Constraints.CREDIT in constraints:
+            credit = sum(
+                instance.Credit_network[scale_] for scale_ in scale_iter)
+        else:
+            credit = 0
+
+        if len(instance.locations) > 1:
+            cost_trans = sum(instance.Trans_cost_network[transport_, scale_] for transport_, scale_ in
+                             product(instance.transports, scale_iter))
+        else:
+            cost_trans = 0
+
+        penalty = sum(demand_penalty[location_][resource_]*instance.Demand_penalty[location_, resource_, scale_] for location_, resource_, scale_ in product(
+            instance.locations, instance.resources_demand, scale_iter_penalty))
+        return capex + vopex + fopex + cost_purch + cost_trans + incidental + land_cost - credit + penalty
+    instance.objective_cost_w_demand_penalty = Objective(
+        rule=objective_cost_w_demand_penalty_rule, doc='total cost with penalty for demand')
+    constraint_latex_render(objective_cost_w_demand_penalty_rule)
+    return instance.objective_cost_w_demand_penalty
 
 
 def objective_uncertainty_cost(instance: ConcreteModel, penalty: float, network_scale_level: int = 0,

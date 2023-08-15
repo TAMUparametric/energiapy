@@ -72,7 +72,6 @@ from .constraints.production import (
     constraint_production_min
 )
 from .constraints.resource_balance import (
-    constraint_demand,
     constraint_inventory_balance,
     constraint_location_consumption,
     constraint_location_revenue,
@@ -87,6 +86,10 @@ from .constraints.resource_balance import (
     constraint_resource_consumption,
     constraint_resource_purchase,
     constraint_resource_revenue
+)
+from .constraints.demand import (
+    constraint_demand,
+    constraint_demand_penalty
 )
 from .constraints.transport import (
     constraint_transport_balance,
@@ -122,7 +125,8 @@ from .objectives import (
     objective_discharge_max,
     objective_discharge_min,
     objective_profit,
-    objective_gwp_min
+    objective_gwp_min,
+    objective_cost_w_demand_penalty
 )
 
 from .sets import generate_sets
@@ -137,6 +141,7 @@ from .variables.credit import generate_credit_vars
 from .variables.land import generate_land_vars
 from .variables.emission import generate_emission_vars
 from .variables.material import generate_material_vars
+from .variables.demand import generate_demand_vars
 
 
 class ModelClass(Enum):
@@ -176,6 +181,10 @@ class Objective(Enum):
     """
     Minimize global warming potential across network (includes resource, material, process emissions)
     """
+    COST_W_DEMAND_PENALTY = auto()
+    """
+    Minimize cost with penalty for unmet resource demand
+    """
 
 
 def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objective: Objective = None,
@@ -210,6 +219,7 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
             Constraints.CREDIT
             Constraints.MATERIAL
             Constraints.PRESERVE_NETWORK
+            Constraints.DEMAND
 
     Objectives include:
             Objectives.COST
@@ -485,18 +495,29 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
                 instance=instance, network_scale_level=scenario.network_scale_level,
                 gwp_reduction_pct=gwp_reduction_pct, gwp=gwp)
 
+        if objective == Objective.COST_W_DEMAND_PENALTY:
+            generate_demand_vars(
+                instance=instance, scale_level=scenario.demand_scale_level)
+            constraint_demand_penalty(instance=instance, demand_scale_level=scenario.demand_scale_level,
+                                      scheduling_scale_level=scenario.scheduling_scale_level, demand=demand,
+                                      demand_factor=scenario.demand_factor, loc_res_dict=scenario.loc_res_dict)
+
+            objective_cost_w_demand_penalty(instance=instance, demand_penalty=scenario.demand_penalty,
+                                            constraints=constraints, network_scale_level=scenario.network_scale_level, demand_scale_level=scenario.demand_scale_level)
+
+        else:
+            if Constraints.DEMAND in constraints:
+                constraint_demand(instance=instance, demand_scale_level=scenario.demand_scale_level,
+                                  scheduling_scale_level=scenario.scheduling_scale_level, demand=demand,
+                                  demand_factor=scenario.demand_factor, loc_res_dict=scenario.loc_res_dict)
+
         if objective == Objective.COST:
-            constraint_demand(instance=instance, demand_scale_level=scenario.demand_scale_level,
-                              scheduling_scale_level=scenario.scheduling_scale_level, demand=demand,
-                              demand_factor=scenario.demand_factor, loc_res_dict=scenario.loc_res_dict)
 
             objective_cost(
                 instance=instance, network_scale_level=scenario.network_scale_level, constraints=constraints)
 
         if objective == Objective.PROFIT:
-            constraint_demand(instance=instance, demand_scale_level=scenario.demand_scale_level,
-                              scheduling_scale_level=scenario.scheduling_scale_level, demand=demand,
-                              demand_factor=scenario.demand_factor, loc_res_dict=scenario.loc_res_dict)
+
             constraint_network_cost(
                 instance=instance, network_scale_level=scenario.network_scale_level, constraints=constraints)
             constraint_resource_revenue(instance=instance, loc_res_dict=scenario.loc_res_dict, revenue=scenario.revenue,
@@ -509,9 +530,6 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
                 instance=instance, network_scale_level=scenario.network_scale_level, constraints=constraints)
 
         if objective == Objective.MIN_DISCHARGE:
-            constraint_demand(instance=instance, demand_scale_level=scenario.demand_scale_level,
-                              scheduling_scale_level=scenario.scheduling_scale_level, demand=demand,
-                              demand_factor=scenario.demand_factor, loc_res_dict=scenario.loc_res_dict)
 
             constraint_network_cost(
                 instance=instance, network_scale_level=scenario.network_scale_level, constraints=constraints)
@@ -520,9 +538,6 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
                                     network_scale_level=scenario.network_scale_level)
 
         if objective == Objective.MAX_DISCHARGE:
-            constraint_demand(instance=instance, demand_scale_level=scenario.demand_scale_level,
-                              scheduling_scale_level=scenario.scheduling_scale_level, demand=demand,
-                              demand_factor=scenario.demand_factor, loc_res_dict=scenario.loc_res_dict)
 
             constraint_network_cost(
                 instance=instance, network_scale_level=scenario.network_scale_level, constraints=constraints)
@@ -531,9 +546,6 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
                                     network_scale_level=scenario.network_scale_level)
 
         if objective == Objective.MIN_GWP:
-            constraint_demand(instance=instance, demand_scale_level=scenario.demand_scale_level,
-                              scheduling_scale_level=scenario.scheduling_scale_level, demand=demand,
-                              demand_factor=scenario.demand_factor, loc_res_dict=scenario.loc_res_dict)
 
             constraint_network_cost(
                 instance=instance, network_scale_level=scenario.network_scale_level, constraints=constraints)
