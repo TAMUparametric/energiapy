@@ -47,6 +47,8 @@ _exec_scenarios = 4  # Number of execution scenarios                     (chi)
 
 M = 1e7  # Big M
 
+availability_factor_com1 = pandas.DataFrame(data={'com_cons': [1,1,1,1]})
+
 # Define temporal scales
 scales = TemporalScale(discretization_list=[_exec_scenarios, _time_intervals])
 
@@ -55,7 +57,7 @@ scales = TemporalScale(discretization_list=[_exec_scenarios, _time_intervals])
 # ======================================================================================================================
 
 com_cons = Resource(name='com_cons', cons_max=M, block={'imp': 1, 'urg': 1}, price=7.50,
-                    label='Commodity consumed from outside the system')
+                    label='Commodity consumed from outside the system', varying=[VaryingResource.DETERMINISTIC_AVAILABILITY])
 
 com1 = Resource(name='com1', demand=True, sell=True, block={'imp': 1, 'urg': 1}, revenue=10.00,
                 label='Commodity 1')
@@ -66,21 +68,18 @@ com1 = Resource(name='com1', demand=True, sell=True, block={'imp': 1, 'urg': 1},
 procure = Process(name='procure', prod_max=M, conversion={com_cons: -1, com1: 1}, capex=0, vopex=0, fopex=0,
                   label='Procure com1')
 
-store10 = Process(name='store10', storage=com1, store_max=10, prod_max=M, capex=1000,
-                  vopex=10,
+store10 = Process(name='store10', storage=com1, store_max=10, prod_max=M, capex=1000, vopex=10,
                   label="Storage capacity of 10 units")
-store20 = Process(name='store20', storage=com1, store_max=20, prod_max=M, capex=2000,
-                  vopex=20,
+store20 = Process(name='store20', storage=com1, store_max=20, prod_max=M, capex=2000, vopex=20,
                   label="Storage capacity of 20 units")
-store50 = Process(name='store50', storage=com1, store_max=50, prod_max=M, capex=10000,
-                  vopex=50,
+store50 = Process(name='store50', storage=com1, store_max=50, prod_max=M, capex=10000, vopex=50,
                   label="Storage capacity of 50 units")
 
 # ======================================================================================================================
 # Declare locations/warehouses
 # ======================================================================================================================
 loc1 = Location(name='loc1', processes={procure, store20}, label="Location 1", scales=scales, demand_scale_level=1,
-                capacity_scale_level=0, availability_scale_level=0)
+                capacity_scale_level=0, availability_scale_level=0, availability_factor= {com_cons: availability_factor_com1})
 loc2 = Location(name='loc2', processes={store20}, label="Location 2", scales=scales, demand_scale_level=1,
                 capacity_scale_level=0, availability_scale_level=0)
 loc3 = Location(name='loc3', processes={store20}, label="Location 3", scales=scales, demand_scale_level=1,
@@ -139,10 +138,7 @@ sinks = list(locset)
 network = Network(name='Network', source_locations=sources, sink_locations=sinks, transport_matrix=transport_matrix,
                   distance_matrix=distance_matrix)
 
-# demand_dict = {i: {com1: 100} for i in locset if i == loc5}
 demand_dict = {i: {com1: 100} if i == loc5 else {com1: 0} for i in locset}
-# demand_dict = {loc4: {com1: 0}, loc6: {com1: 0}, loc3: {com1: 0}, loc7: {com1: 0}, loc1: {com1: 0}, loc5: {com1: 100},
-#                loc2: {com1: 0}}
 
 scenario = Scenario(name='scenario', scales=scales, scheduling_scale_level=1, network_scale_level=0,
                     purchase_scale_level=1,
