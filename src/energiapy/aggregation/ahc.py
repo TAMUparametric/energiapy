@@ -32,9 +32,9 @@ class IncludeAHC(Enum):
     """
     What to include in agglomerative hierarchial clustering
     """
-    COST = auto()
+    PRICE = auto()
     """
-    Include cost factors (varying resource price)
+    Include price factors (varying resource price)
     """
     DEMAND = auto()
     """
@@ -76,7 +76,7 @@ def agg_hierarchial(scales: TemporalScale, scale_level: int, periods: int, inclu
         Tuple[pandas.DataFrame, TemporalScale, dict]: representative days, reduced temporal scale, dictionary with information 
     """
 
-    if IncludeAHC.COST in include:
+    if IncludeAHC.PRICE in include:
         # price_factor_df = pandas.DataFrame(price_factor)
         price_factor_df = pandas.concat(
             [pandas.DataFrame(price_factor[i]) for i in price_factor.keys()], axis=1)
@@ -235,8 +235,8 @@ def agg_hierarchial_elbow(scenario: Scenario, scale_level: int, include: list, r
     wcss_list = []
     for i in iter_:
         rep_dict_iter, reduced_temporal_scale, info_dict = agg_hierarchial(scales=scenario.scales, scale_level=scale_level, periods=i,
-                                                                                 price_factor=scenario.price_factor, capacity_factor=scenario.capacity_factor,
-                                                                                 demand_factor=scenario.demand_factor, include=include)
+                                                                           price_factor=scenario.price_factor, capacity_factor=scenario.capacity_factor,
+                                                                           demand_factor=scenario.demand_factor, include=include)
         wcss_list.append(info_dict['wcss_sum'])
 
     if fit == Fit.POLY2:
@@ -250,7 +250,7 @@ def agg_hierarchial_elbow(scenario: Scenario, scale_level: int, include: list, r
         y_line = [theta[3] + theta[2] * pow(x, 1) + theta[1] * pow(
             x, 2) + theta[0] * pow(x, 3) for x in range_list]
         # y_slope = [theta[2] + 2*theta[1] *
-                #    pow(x, 1) + 3*theta[0] * pow(x, 2) for x in range_list]
+        #    pow(x, 1) + 3*theta[0] * pow(x, 2) for x in range_list]
 
     fig, ax = plt.subplots(figsize=(8, 6))
     x = range_list
