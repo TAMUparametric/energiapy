@@ -27,6 +27,6 @@ def generate_demand_vars(instance: ConcreteModel, scale_level: int = 0):
     instance.scales_demand = scale_pyomo_set(
         instance=instance, scale_level=scale_level)
     instance.Demand_penalty = Var(instance.locations, instance.resources_demand, instance.scales_demand,
-                                  within=NonNegativeReals, doc='penalty function for demand not being met')
+                                  within=NonNegativeReals, doc='penalty for demand not being met')
 
     return
