@@ -411,7 +411,7 @@ class Scenario:
 
             # *--------------------------------A--------------------------------------
             A_bal = numpy.diag(
-                [*[-1] * n_Inv, *[-1] * n_Sf, *[-1] * n_S,  *[1] * n_Af, *[1] * n_A])
+                [*[1] * n_Inv, *[-1] * n_Sf, *[-1] * n_S,  *[1] * n_Af, *[1] * n_A])
 
             if n_I > 0:  # if implict variables present, add 0 stacks to matrix
 
@@ -422,6 +422,7 @@ class Scenario:
                 self.set_dict['resources_certain_availability'] + \
                 self.set_dict['resources_uncertain_availability'] + \
                 self.set_dict['resources_implicit']
+
             column_list = [*['Inv_' + i for i in self.set_dict['resources_store']] +
                            ['Sf_' + i for i in self.set_dict['resources_certain_demand']] +
                            ['S_' + i for i in self.set_dict['resources_uncertain_demand']] +
@@ -429,20 +430,43 @@ class Scenario:
                            ['A_' + i for i in self.set_dict['resources_uncertain_availability']] +
                            ['Pf_' + i for i in self.set_dict['processes_certain_capacity']] +
                            ['P_' + i for i in self.set_dict['processes_uncertain_capacity']]]
+
             A_conv = numpy.array([[self.conversion[i][j] for j in conversion_list] for i in
                                   sorted(self.conversion.keys())]).transpose()
 
             A_diag = numpy.diag(
-                [*[-1]*n_Inv, *[-1]*n_Sf, *[-1]*n_S,  *[1]*n_Af, *[1] * n_A, *[1]*n_Pf, *[1]*n_P])
+                [*[1]*n_Inv, *[-1]*n_Sf, *[-1]*n_S,  *[1]*n_Af, *[1] * n_A, *[1]*n_Pf, *[1]*n_P])
 
+            row_diag = [*['Inv_' + i + '(<)' for i in self.set_dict['resources_store']] +
+                        ['Sf_' + i + '(>)' for i in self.set_dict['resources_certain_demand']] +
+                        ['S_' + i + '(>)' for i in self.set_dict['resources_uncertain_demand']] +
+                        ['Af_' + i + '(<)' for i in self.set_dict['resources_certain_availability']] +
+                        ['A_' + i + '(<)' for i in self.set_dict['resources_uncertain_availability']] +
+                        ['Pf_' + i + '(<)' for i in self.set_dict['processes_certain_capacity']] +
+                        ['P_' + i + '(<)' for i in self.set_dict['processes_uncertain_capacity']]]
+
+            row_NN = [*['NN_Inv_' + i + '(>)' for i in self.set_dict['resources_store']] +
+                      ['NN_Sf_' + i + '(>)' for i in self.set_dict['resources_certain_demand']] +
+                      ['NN_S_' + i + '(>)' for i in self.set_dict['resources_uncertain_demand']] +
+                      ['NN_Af_' + i + '(>)' for i in self.set_dict['resources_certain_availability']] +
+                      ['NN_A_' + i + '(>)' for i in self.set_dict['resources_uncertain_availability']] +
+                      ['NN_Pf_' + i + '(>)' for i in self.set_dict['processes_certain_capacity']] +
+                      ['NN_P_' + i + '(>)' for i in self.set_dict['processes_uncertain_capacity']]]
+
+            row_bal = ['MB_' + i + '(=)' for i in self.set_dict['resources']]
+
+            row_list = row_bal + row_diag + row_NN
+
+            # print(row_list)
             A_nn = numpy.eye(n_vars)
 
             A = numpy.block(
                 [[numpy.block([A_bal, A_conv])], [A_diag], [-A_nn]])
 
             self.A_df = DataFrame(A, columns=column_list)
+            self.A_df.index = row_list
 
-            # *-----------------------b matrix ------------------------------------------------
+            # *-----------------------b------------------------------------------------
 
             # prod max has 0 because the default mode is 0
             b_bal = numpy.zeros((n_bal2 + n_I, 1))
@@ -469,6 +493,7 @@ class Scenario:
             b = numpy.block([[i]
                             for i in b_list if len(i) > 0])  # make b matrix
             self.b_df = DataFrame(b, columns=['rhs'])
+            self.b_df.index = row_list
 
             # *------------------------------- F --------------------------------------
 
@@ -500,6 +525,7 @@ class Scenario:
             column_list = [*['Th_' + i for i in self.set_dict['resources_uncertain_demand']] + ['Th_' + i for i in
                                                                                                 self.set_dict['resources_uncertain_availability']] + ['Th_' + i for i in self.set_dict['processes_uncertain_capacity']]]
             self.F_df = DataFrame(F, columns=column_list)
+            self.F_df.index = row_list
 
             # *--------------------------------------c--------------------------------------
             c_Inv = numpy.zeros((n_Inv, 1))
