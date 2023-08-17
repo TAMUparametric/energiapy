@@ -408,7 +408,7 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
                                          purchase_scale_level=scenario.purchase_scale_level)
 
             constraint_location_production(
-                instance=instance, network_scale_level=scenario.network_scale_level, cluster_wt=scenario.cluster_wt)
+                instance=instance, network_scale_level=scenario.network_scale_level, cluster_wt=scenario.cluster_wt, scheduling_scale_level=scenario.scheduling_scale_level)
             constraint_location_discharge(
                 instance=instance, network_scale_level=scenario.network_scale_level, cluster_wt=scenario.cluster_wt, scheduling_scale_level=scenario.scheduling_scale_level)
             constraint_location_consumption(
