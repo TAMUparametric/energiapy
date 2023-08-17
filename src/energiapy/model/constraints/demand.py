@@ -23,7 +23,7 @@ from ...components.process import Process
 
 def constraint_demand(instance: ConcreteModel, demand: Union[dict, float], demand_factor: Union[dict, float],
                       demand_scale_level: int = 0, scheduling_scale_level: int = 0,
-                      cluster_wt: dict = None, loc_res_dict: dict = None) -> Constraint:
+                      cluster_wt: dict = None, loc_res_dict: dict = None, sign: str = 'geq') -> Constraint:
     """Ensures that demand for resource is met at chosen temporal scale
 
     Args:
@@ -34,6 +34,7 @@ def constraint_demand(instance: ConcreteModel, demand: Union[dict, float], deman
         scheduling_scale_level (int, optional): scale of scheduling decisions. Defaults to 0.
         cluster_wt (dict, optional): weight of each cluster if using clustering. Defaults to None.
         loc_res_dict (dict, optional): location resource map. Defaults to None. 
+        sign (str, optional): Should the supply be greater('geq')/lesser('leq')/equal('eq') to the demand. Defaults to 'geq'
 
     Returns:
         Constraint: demand
@@ -82,7 +83,14 @@ def constraint_demand(instance: ConcreteModel, demand: Union[dict, float], deman
             else:
                 demandtarget = demand
 
-        return discharge >= demandtarget
+        if sign == 'geq':
+            return discharge >= demandtarget
+
+        if sign == 'leq':
+            return discharge <= demandtarget
+
+        if sign == 'eq':
+            return discharge == demandtarget
 
     if len(instance.locations) > 1:
         instance.constraint_demand = Constraint(
@@ -98,7 +106,7 @@ def constraint_demand(instance: ConcreteModel, demand: Union[dict, float], deman
 
 def constraint_demand_penalty(instance: ConcreteModel, demand: Union[dict, float], demand_factor: Union[dict, float],
                               demand_scale_level: int = 0, scheduling_scale_level: int = 0,
-                              cluster_wt: dict = None, loc_res_dict: dict = None) -> Constraint:
+                              cluster_wt: dict = None, loc_res_dict: dict = None, sign: str = 'geq') -> Constraint:
     """Ensures that demand for resource is met at chosen temporal scale
 
     Args:
@@ -109,6 +117,7 @@ def constraint_demand_penalty(instance: ConcreteModel, demand: Union[dict, float
         scheduling_scale_level (int, optional): scale of scheduling decisions. Defaults to 0.
         cluster_wt (dict, optional): weight of each cluster if using clustering. Defaults to None.
         loc_res_dict (dict, optional): location resource map. Defaults to None. 
+        sign (str, optional): Should the supply be greater('geq')/lesser('leq')/equal('eq') to the demand. Defaults to 'geq'
 
     Returns:
         Constraint: demand
@@ -157,7 +166,14 @@ def constraint_demand_penalty(instance: ConcreteModel, demand: Union[dict, float
             else:
                 demandtarget = demand
 
-        return discharge >= demandtarget - instance.Demand_penalty[location, resource, scale_list[:demand_scale_level + 1]]
+        if sign == 'geq':
+            return discharge >= demandtarget - instance.Demand_penalty[location, resource, scale_list[:demand_scale_level + 1]]
+
+        if sign == 'leq':
+            return discharge <= demandtarget - instance.Demand_penalty[location, resource, scale_list[:demand_scale_level + 1]]
+
+        if sign == 'eq':
+            return discharge == demandtarget - instance.Demand_penalty[location, resource, scale_list[:demand_scale_level + 1]]
 
     if len(instance.locations) > 1:
         instance.constraint_demand_penalty = Constraint(
