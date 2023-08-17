@@ -39,7 +39,13 @@ from .constraints.cost import (
     constraint_transport_cost,
     constraint_transport_cost_network,
     constraint_transport_imp_cost,
-    constraint_network_cost
+    constraint_network_cost,
+    constraint_resource_purchase,
+    constraint_resource_revenue,
+    constraint_location_purchase,
+    constraint_location_revenue,
+    constraint_network_revenue,
+    constraint_network_purchase,
 )
 from .constraints.emission import (
     constraint_global_warming_potential_location,
@@ -74,19 +80,14 @@ from .constraints.production import (
 from .constraints.resource_balance import (
     constraint_inventory_balance,
     constraint_location_consumption,
-    constraint_location_revenue,
     constraint_location_discharge,
     constraint_location_production,
-    constraint_location_purchase,
     constraint_network_consumption,
-    constraint_network_revenue,
     constraint_network_discharge,
     constraint_network_production,
-    constraint_network_purchase,
     constraint_resource_consumption,
-    constraint_resource_purchase,
-    constraint_resource_revenue
 )
+
 from .constraints.demand import (
     constraint_demand,
     constraint_demand_penalty
@@ -194,7 +195,10 @@ class Objective(Enum):
 
 def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objective: Objective = None,
               write_lpfile: bool = False, gwp: float = None, land_restriction: float = None,
-              gwp_reduction_pct: float = None, model_class: ModelClass = ModelClass.MIP, objective_resource: Resource = None, inventory_zero: Dict[Location, Dict[Tuple[Process, Resource], float]] = None) -> ConcreteModel:
+              gwp_reduction_pct: float = None, model_class: ModelClass = ModelClass.MIP, objective_resource: Resource = None,
+              inventory_zero: Dict[Location,
+                                   Dict[Tuple[Process, Resource], float]] = None,
+              demand_sign: str = 'geq') -> ConcreteModel:
     """formulates a model. Constraints need to be declared in order
 
     Args:
@@ -206,8 +210,9 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
         land_restriction (float, optional): restrict land usage. Defaults to 10**9.
         gwp_reduction_pct (float, optional): percentage reduction in gwp required. Defaults to None.
         model_class (ModelClass, optional): class of model [MIP, mpLP]. Defaults to ModelClass.MIP
+        objective_resource (Resource, None): resource to feature in objective for maximization and such
         inventory_zero (Dict[Location, Dict[Tuple[Process, Resource], float]], optional): inventory at the start of the scheduling horizon. Defaults to None.
-
+        demand_sign (str, optional): Should the supply be greater('geq')/lesser('leq')/equal('eq') to the demand. Defaults to 'geq'
 
     Constraints include:
             Constraints.COST
@@ -409,7 +414,7 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
             constraint_location_consumption(
                 instance=instance, network_scale_level=scenario.network_scale_level, cluster_wt=scenario.cluster_wt)
             constraint_location_purchase(
-                instance=instance, network_scale_level=scenario.network_scale_level, cluster_wt=scenario.cluster_wt)
+                instance=instance, network_scale_level=scenario.network_scale_level, cluster_wt=scenario.cluster_wt, scheduling_scale_level=scenario.scheduling_scale_level)
 
             constraint_network_production(
                 instance=instance, network_scale_level=scenario.network_scale_level)
@@ -505,7 +510,7 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
                 instance=instance, scale_level=scenario.demand_scale_level)
             constraint_demand_penalty(instance=instance, demand_scale_level=scenario.demand_scale_level,
                                       scheduling_scale_level=scenario.scheduling_scale_level, demand=demand,
-                                      demand_factor=scenario.demand_factor, loc_res_dict=scenario.loc_res_dict)
+                                      demand_factor=scenario.demand_factor, loc_res_dict=scenario.loc_res_dict, sign=demand_sign)
 
             objective_cost_w_demand_penalty(instance=instance, demand_penalty=scenario.demand_penalty,
                                             constraints=constraints, network_scale_level=scenario.network_scale_level, demand_scale_level=scenario.demand_scale_level)
@@ -515,7 +520,7 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
                 instance=instance, scale_level=scenario.demand_scale_level)
             constraint_demand_penalty(instance=instance, demand_scale_level=scenario.demand_scale_level,
                                       scheduling_scale_level=scenario.scheduling_scale_level, demand=demand,
-                                      demand_factor=scenario.demand_factor, loc_res_dict=scenario.loc_res_dict)
+                                      demand_factor=scenario.demand_factor, loc_res_dict=scenario.loc_res_dict, sign=demand_sign)
             constraint_network_cost(
                 instance=instance, network_scale_level=scenario.network_scale_level, constraints=constraints)
             constraint_resource_revenue(instance=instance, loc_res_dict=scenario.loc_res_dict, revenue=scenario.revenue,
@@ -531,7 +536,7 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
             if Constraints.DEMAND in constraints:
                 constraint_demand(instance=instance, demand_scale_level=scenario.demand_scale_level,
                                   scheduling_scale_level=scenario.scheduling_scale_level, demand=demand,
-                                  demand_factor=scenario.demand_factor, loc_res_dict=scenario.loc_res_dict)
+                                  demand_factor=scenario.demand_factor, loc_res_dict=scenario.loc_res_dict, sign=demand_sign)
 
         if objective == Objective.COST:
 
