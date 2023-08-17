@@ -526,7 +526,7 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
             constraint_resource_revenue(instance=instance, loc_res_dict=scenario.loc_res_dict, revenue=scenario.revenue,
                                         scheduling_scale_level=scenario.scheduling_scale_level, revenue_factor=scenario.revenue_factor)
             constraint_location_revenue(
-                instance=instance, network_scale_level=scenario.network_scale_level, cluster_wt=scenario.cluster_wt)
+                instance=instance, network_scale_level=scenario.network_scale_level, cluster_wt=scenario.cluster_wt, scheduling_scale_level=scenario.scheduling_scale_level)
             constraint_network_revenue(
                 instance=instance, network_scale_level=scenario.network_scale_level)
             objective_profit_w_demand_penalty(instance=instance, demand_penalty=scenario.demand_penalty,
@@ -550,7 +550,7 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
             constraint_resource_revenue(instance=instance, loc_res_dict=scenario.loc_res_dict, revenue=scenario.revenue,
                                         scheduling_scale_level=scenario.scheduling_scale_level, revenue_factor=scenario.revenue_factor)
             constraint_location_revenue(
-                instance=instance, network_scale_level=scenario.network_scale_level, cluster_wt=scenario.cluster_wt)
+                instance=instance, network_scale_level=scenario.network_scale_level, cluster_wt=scenario.cluster_wt, scheduling_scale_level=scenario.scheduling_scale_level)
             constraint_network_revenue(
                 instance=instance, network_scale_level=scenario.network_scale_level)
             objective_profit(
