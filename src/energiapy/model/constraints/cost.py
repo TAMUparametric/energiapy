@@ -122,7 +122,8 @@ def constraint_location_purchase(instance: ConcreteModel, cluster_wt: dict, netw
         def weight(x): return 1 if cluster_wt is None else cluster_wt[x]
 
         return instance.B_location[location, resource, scale_list] == sum(
-            weight(scale_) * instance.B[location, resource, scale_[:scheduling_scale_level + 1]] for scale_ in scale_iter)
+            weight(scale_) * instance.B[location, resource,  scale_[:scheduling_scale_level + 1]] for scale_ in scale_iter
+            if scale_[:network_scale_level + 1] == scale_list)
 
     instance.constraint_location_purchase = Constraint(
         instance.locations, instance.resources_purch, *
@@ -223,7 +224,8 @@ def constraint_location_revenue(instance: ConcreteModel, cluster_wt: dict, netwo
         def weight(x): return 1 if cluster_wt is None else cluster_wt[x]
 
         return instance.R_location[location, resource, scale_list] == sum(
-            weight(scale_) * instance.R[location, resource, scale_[:scheduling_scale_level + 1]] for scale_ in scale_iter if scale_[:network_scale_level + 1] == scale_list)
+            weight(scale_) * instance.R[location, resource, scale_[:scheduling_scale_level + 1]] for scale_ in scale_iter 
+            if scale_[:network_scale_level + 1] == scale_list)
 
     instance.constraint_location_revenue = Constraint(
         instance.locations, instance.resources_sell, *
