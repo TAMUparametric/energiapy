@@ -379,4 +379,5 @@ def calculate_hourly(data: pandas.DataFrame, column_name: str, what: str = 'mean
                             'Highest Value': mean_value
                         })
     results = pandas.DataFrame(results)
+    results = results.drop(columns=['Date', 'Hour'])
     return results
