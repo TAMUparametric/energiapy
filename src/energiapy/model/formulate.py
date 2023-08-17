@@ -194,7 +194,10 @@ class Objective(Enum):
 
 def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objective: Objective = None,
               write_lpfile: bool = False, gwp: float = None, land_restriction: float = None,
-              gwp_reduction_pct: float = None, model_class: ModelClass = ModelClass.MIP, objective_resource: Resource = None, inventory_zero: Dict[Location, Dict[Tuple[Process, Resource], float]] = None) -> ConcreteModel:
+              gwp_reduction_pct: float = None, model_class: ModelClass = ModelClass.MIP, objective_resource: Resource = None,
+              inventory_zero: Dict[Location,
+                                   Dict[Tuple[Process, Resource], float]] = None,
+              demand_sign: str = 'geq') -> ConcreteModel:
     """formulates a model. Constraints need to be declared in order
 
     Args:
@@ -206,8 +209,9 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
         land_restriction (float, optional): restrict land usage. Defaults to 10**9.
         gwp_reduction_pct (float, optional): percentage reduction in gwp required. Defaults to None.
         model_class (ModelClass, optional): class of model [MIP, mpLP]. Defaults to ModelClass.MIP
+        objective_resource (Resource, None): resource to feature in objective for maximization and such
         inventory_zero (Dict[Location, Dict[Tuple[Process, Resource], float]], optional): inventory at the start of the scheduling horizon. Defaults to None.
-
+        demand_sign (str, optional): Should the supply be greater('geq')/lesser('leq')/equal('eq') to the demand. Defaults to 'geq'
 
     Constraints include:
             Constraints.COST
@@ -505,7 +509,7 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
                 instance=instance, scale_level=scenario.demand_scale_level)
             constraint_demand_penalty(instance=instance, demand_scale_level=scenario.demand_scale_level,
                                       scheduling_scale_level=scenario.scheduling_scale_level, demand=demand,
-                                      demand_factor=scenario.demand_factor, loc_res_dict=scenario.loc_res_dict)
+                                      demand_factor=scenario.demand_factor, loc_res_dict=scenario.loc_res_dict, sign=demand_sign)
 
             objective_cost_w_demand_penalty(instance=instance, demand_penalty=scenario.demand_penalty,
                                             constraints=constraints, network_scale_level=scenario.network_scale_level, demand_scale_level=scenario.demand_scale_level)
@@ -515,7 +519,7 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
                 instance=instance, scale_level=scenario.demand_scale_level)
             constraint_demand_penalty(instance=instance, demand_scale_level=scenario.demand_scale_level,
                                       scheduling_scale_level=scenario.scheduling_scale_level, demand=demand,
-                                      demand_factor=scenario.demand_factor, loc_res_dict=scenario.loc_res_dict)
+                                      demand_factor=scenario.demand_factor, loc_res_dict=scenario.loc_res_dict, sign=demand_sign)
             constraint_network_cost(
                 instance=instance, network_scale_level=scenario.network_scale_level, constraints=constraints)
             constraint_resource_revenue(instance=instance, loc_res_dict=scenario.loc_res_dict, revenue=scenario.revenue,
@@ -531,7 +535,7 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
             if Constraints.DEMAND in constraints:
                 constraint_demand(instance=instance, demand_scale_level=scenario.demand_scale_level,
                                   scheduling_scale_level=scenario.scheduling_scale_level, demand=demand,
-                                  demand_factor=scenario.demand_factor, loc_res_dict=scenario.loc_res_dict)
+                                  demand_factor=scenario.demand_factor, loc_res_dict=scenario.loc_res_dict, sign=demand_sign)
 
         if objective == Objective.COST:
 
