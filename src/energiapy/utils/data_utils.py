@@ -17,6 +17,7 @@ from typing import Union
 
 import numpy
 import pandas
+import copy
 
 from ..components.result import Result
 
@@ -328,3 +329,54 @@ def min_max(data: Union[numpy.array, pandas.DataFrame]) -> Union[numpy.array, pa
     data = (data - numpy.min(data)) / (max_data - min_data)
 
     return data
+
+
+def calculate_hourly(data: pandas.DataFrame, column_name: str, what: str = 'mean') -> pandas.DataFrame:
+    """Finds the mean, min, max for each hour of the year for multi-year data
+
+    Args:
+        data (pandas.DataFrame): Timeseries data with datetime index
+        column_name (str): name of value column
+        what (str, optional): 'mean', 'max', 'min'. Defaults to 'mean'.
+
+    Returns:
+        pandas.DataFrame: Output 
+    """
+    results = []
+    data_input = copy.deepcopy(data)
+    data_input['datetime'] = data_input.index
+    data_input['month'] = data_input['datetime'].dt.month
+    data_input['day'] = data_input['datetime'].dt.day
+    data_input['hour'] = data_input['datetime'].dt.hour
+
+    for month in range(1, 13):  # 12 months
+        for day in range(1, 32):  # 31 days (adjust if needed)
+            for hour in range(24):  # 24 hours
+                target_data_input = data_input[(data_input['month'] == month) & (
+                    data_input['day'] == day) & (data_input['hour'] == hour)]
+
+                if not target_data_input.empty:
+                    if what == 'max':
+                        max_value = target_data_input[column_name].max()
+                        results.append({
+                            'Date': f"{month}/{day}",
+                            'Hour': hour,
+                            'Highest Value': max_value
+                        })
+                    if what == 'min':
+                        min_value = target_data_input[column_name].min()
+                        results.append({
+                            'Date': f"{month}/{day}",
+                            'Hour': hour,
+                            'Highest Value': min_value
+                        })
+
+                    if what == 'mean':
+                        mean_value = target_data_input[column_name].mean()
+                        results.append({
+                            'Date': f"{month}/{day}",
+                            'Hour': hour,
+                            'Highest Value': mean_value
+                        })
+    results = pandas.DataFrame(results)
+    return results
