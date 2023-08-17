@@ -39,7 +39,13 @@ from .constraints.cost import (
     constraint_transport_cost,
     constraint_transport_cost_network,
     constraint_transport_imp_cost,
-    constraint_network_cost
+    constraint_network_cost,
+    constraint_resource_purchase,
+    constraint_resource_revenue,
+    constraint_location_purchase,
+    constraint_location_revenue,
+    constraint_network_revenue,
+    constraint_network_purchase,
 )
 from .constraints.emission import (
     constraint_global_warming_potential_location,
@@ -74,19 +80,14 @@ from .constraints.production import (
 from .constraints.resource_balance import (
     constraint_inventory_balance,
     constraint_location_consumption,
-    constraint_location_revenue,
     constraint_location_discharge,
     constraint_location_production,
-    constraint_location_purchase,
     constraint_network_consumption,
-    constraint_network_revenue,
     constraint_network_discharge,
     constraint_network_production,
-    constraint_network_purchase,
     constraint_resource_consumption,
-    constraint_resource_purchase,
-    constraint_resource_revenue
 )
+
 from .constraints.demand import (
     constraint_demand,
     constraint_demand_penalty
@@ -413,7 +414,7 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
             constraint_location_consumption(
                 instance=instance, network_scale_level=scenario.network_scale_level, cluster_wt=scenario.cluster_wt)
             constraint_location_purchase(
-                instance=instance, network_scale_level=scenario.network_scale_level, cluster_wt=scenario.cluster_wt)
+                instance=instance, network_scale_level=scenario.network_scale_level, cluster_wt=scenario.cluster_wt, scheduling_scale_level=scenario.scheduling_scale_level)
 
             constraint_network_production(
                 instance=instance, network_scale_level=scenario.network_scale_level)
