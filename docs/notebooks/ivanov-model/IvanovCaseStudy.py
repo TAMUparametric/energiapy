@@ -39,15 +39,13 @@ from energiapy.model.solve import solve
 # ======================================================================================================================
 # Initialize Case Study
 # ======================================================================================================================
-start_time = 0  # Start time of the analysis                        (t0)
-end_time = 1000  # End time of the analysis                          (tf)
 _time_intervals = 10  # Number of time intervals in a planning horizon    (L_chi)
 _commodities = 1  # Number of commodities                             (rho)
 _exec_scenarios = 4  # Number of execution scenarios                     (chi)
 
 M = 1e7  # Big M
 
-availability_factor_com1 = pandas.DataFrame(data={'com_cons': [1,0.5,1,1]})
+availability_factor_com1 = pandas.DataFrame(data={'com_cons': [1,1,1,1]})
 
 # Define temporal scales
 scales = TemporalScale(discretization_list=[_exec_scenarios, _time_intervals])
@@ -59,37 +57,42 @@ scales = TemporalScale(discretization_list=[_exec_scenarios, _time_intervals])
 com_cons = Resource(name='com_cons', cons_max=M, block={'imp': 1, 'urg': 1}, price=7.50,
                     label='Commodity consumed from outside the system', varying=[VaryingResource.DETERMINISTIC_AVAILABILITY])
 
-com1 = Resource(name='com1', demand=True, sell=True, block={'imp': 1, 'urg': 1}, revenue=10.00,
-                label='Commodity 1')
+com1 = Resource(name='com1', block={'imp': 1, 'urg': 1}, label='Commodity 1')
+
+com_sold = Resource(name='com_sold', cons_max=M, revenue=10.00, demand=True, sell=True, label='Commodity sold to outside the system')
 
 # ======================================================================================================================
 # Declare processes/storage capacities
 # ======================================================================================================================
 procure = Process(name='procure', prod_max=M, conversion={com_cons: -1, com1: 1}, capex=0, vopex=0, fopex=0,
                   label='Procure com1')
+sell = Process(name='sell', prod_max=M, conversion={com1: -1, com_sold: 1}, capex=0, vopex=0, fopex=0,
+                  label='Sell com1')
 
-store10 = Process(name='store10', storage=com1, store_max=10, prod_max=M, capex=1000, vopex=10,
+store10 = Process(name='store10', storage=com1, store_max=10, prod_max=200, capex=1000, vopex=100,
                   label="Storage capacity of 10 units")
-store20 = Process(name='store20', storage=com1, store_max=20, prod_max=M, capex=2000, vopex=20,
+store20 = Process(name='store20', storage=com1, store_max=20, prod_max=200, capex=2000, vopex=200,
                   label="Storage capacity of 20 units")
-store50 = Process(name='store50', storage=com1, store_max=50, prod_max=M, capex=10000, vopex=50,
+store50 = Process(name='store50', storage=com1, store_max=50, prod_max=200, capex=10000, vopex=500,
                   label="Storage capacity of 50 units")
+# storeM = Process(name="storeM", storage=com1, store_max=M, prod_max=M, capex=100000, vopex=5000,
+#                   label="Storage capacity of M units")
 
 # ======================================================================================================================
 # Declare locations/warehouses
 # ======================================================================================================================
 loc1 = Location(name='loc1', processes={procure, store20}, label="Location 1", scales=scales, demand_scale_level=1,
-                capacity_scale_level=0, availability_scale_level=0, availability_factor= {com_cons: availability_factor_com1})
+                capacity_scale_level=0, availability_scale_level=0, availability_factor={com_cons: availability_factor_com1})
 loc2 = Location(name='loc2', processes={store20}, label="Location 2", scales=scales, demand_scale_level=1,
                 capacity_scale_level=0, availability_scale_level=0)
 loc3 = Location(name='loc3', processes={store20}, label="Location 3", scales=scales, demand_scale_level=1,
                 capacity_scale_level=0, availability_scale_level=0)
 loc4 = Location(name='loc4', processes={store50}, label="Location 4", scales=scales, demand_scale_level=1,
                 capacity_scale_level=0, availability_scale_level=0)
-loc5 = Location(name='loc5', processes={store50}, label="Location 5", scales=scales, demand_scale_level=1,
+loc5 = Location(name='loc5', processes={store50, sell}, label="Location 5", scales=scales, demand_scale_level=1,
                 capacity_scale_level=0, availability_scale_level=0)
 loc6 = Location(name='loc6', processes={procure, store10}, label="Location 6", scales=scales, demand_scale_level=1,
-                capacity_scale_level=0, availability_scale_level=0)
+                capacity_scale_level=0, availability_scale_level=0, availability_factor={com_cons: availability_factor_com1})
 loc7 = Location(name='loc7', processes={store10}, label="Location 7", scales=scales, demand_scale_level=1,
                 capacity_scale_level=0, availability_scale_level=0)
 
@@ -138,15 +141,16 @@ sinks = list(locset)
 network = Network(name='Network', source_locations=sources, sink_locations=sinks, transport_matrix=transport_matrix,
                   distance_matrix=distance_matrix)
 
-demand_dict = {i: {com1: 100} if i == loc5 else {com1: 0} for i in locset}
+demand_dict = {i: {com_sold: 100} if i == loc5 else {com_sold: 0} for i in locset}
+demand_penalty_dict = {i: {com_sold: 75} if i == loc5 else {com_sold: 0} for i in locset}
 
 scenario = Scenario(name='scenario', scales=scales, scheduling_scale_level=1, network_scale_level=0,
-                    purchase_scale_level=1, availability_scale_level=0,
-                    demand_scale_level=1, network=network, demand=demand_dict, label='scenario')
+                    purchase_scale_level=1, availability_scale_level=0, demand_scale_level=1,
+                    network=network, demand=demand_dict, demand_penalty=demand_penalty_dict, label='scenario')
 
 problem = formulate(scenario=scenario, constraints={Constraints.COST, Constraints.TRANSPORT,
                                                     Constraints.RESOURCE_BALANCE, Constraints.PRODUCTION,
-                                                    Constraints.INVENTORY},
-                    objective=Objective.COST)
+                                                    Constraints.INVENTORY, Constraints.DEMAND},
+                    objective=Objective.PROFIT_W_DEMAND_PENALTY)
 
 results = solve(scenario=scenario, instance=problem, solver='gurobi', name='MILP')
