@@ -1,4 +1,4 @@
-"""plotting module
+"""plotting module for scenarios
 """
 
 __author__ = "Rahul Kakodkar"
