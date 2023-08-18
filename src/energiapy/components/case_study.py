@@ -13,17 +13,19 @@ __status__ = "Production"
 from dataclasses import dataclass
 from typing import Union, Set, Dict, Tuple
 import copy
+from warnings import warn
+
 from ..components.scenario import Scenario
 from ..components.process import Process
 from ..components.resource import Resource
 from ..components.location import Location
-from ..components.result import Result
+from ..components.result import Result, Results
 
 from ..model.formulate import formulate as formulate_casestudy
 from ..model.solve import solve as solve_casestudy
 from ..model.formulate import Objective, ModelClass
 from ..model.constraints.constraints import Constraints
-from pyomo.environ import ConcreteModel, Suffix
+from pyomo.environ import ConcreteModel
 
 
 @dataclass
@@ -35,12 +37,16 @@ class CaseStudy:
         scenarios: Can be a list of scenarios generated apriori or a single scenario that you want to vary
         vary (str, optional): if single scenario, what needs to be varied. e.g. demand. Defaults to None
         vary_as (str, optional): what values to assign while varying. Should be a list of values to take. Defaults to None
+        formulations_dict (dict, optional): dictionary with pyomo instances. Defaults to None 
+        results_dict (Results, optional): Results type object, has multiple Result objects embedded. Defaults to None
 
     """
     name: str
     scenarios: Union[list, Scenario]
     vary: str = None
     vary_as: list = None
+    formulations_dict: dict = None
+    results_dict: Results = None
 
     def __post_init__(self):
 
@@ -99,11 +105,15 @@ class CaseStudy:
         Returns:
             Result: result type object
         """
+        if self.formulations_dict is None:
+            warn('Instances have not been formulated yet, use .formulate() first')
+
         instances = list(self.formulations_dict.values())
         names = list(self.formulations_dict.keys())
 
-        self.results_dict = {names[i]: solve_casestudy(instance=instances[i], scenario=self.scenarios[i],
-                                                       solver=solver, name=names[i], interface=interface, saveformat=saveformat,
-                                                       print_solversteps=print_solversteps, log=log) for i in range(len(names))}
+        self.results_dict = Results(name=self.name + '_results', results={names[i]: solve_casestudy(instance=instances[i], scenario=self.scenarios[i],
+                                                                                                    solver=solver, name=names[
+            i], interface=interface, saveformat=saveformat,
+            print_solversteps=print_solversteps, log=log) for i in range(len(names))})
 
         return self.results_dict

@@ -13,6 +13,7 @@ __status__ = "Production"
 import json
 import pickle
 from dataclasses import dataclass
+from typing import Dict
 
 
 @dataclass
@@ -145,3 +146,14 @@ class Result:
 
     def __eq__(self, other):
         return self.name == other.name
+
+
+@dataclass
+class Results:
+    """Contains multiple Result objects
+    Args:
+        name: name of the results object, inherits from CaseStudy
+        results: dictionary of Result objects. 
+    """
+    name: str
+    results: Dict[str, Result]
