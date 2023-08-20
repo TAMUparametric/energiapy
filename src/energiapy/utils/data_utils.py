@@ -380,4 +380,6 @@ def calculate_hourly(data: pandas.DataFrame, column_name: str, what: str = 'mean
                         })
     results = pandas.DataFrame(results)
     results = results.drop(columns=['Date', 'Hour'])
+    # rename to original column names
+    results = results.rename(columns={results.columns[0]: data.columns[0]})
     return results

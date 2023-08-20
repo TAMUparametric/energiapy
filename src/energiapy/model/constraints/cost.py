@@ -332,7 +332,7 @@ def constraint_process_capex(instance: ConcreteModel, capex_dict: dict, network_
         instance (ConcreteModel): pyomo instance
         capex_dict (dict): capex at location
         network_scale_level (int, optional): scale of network decisions. Defaults to 0.
-        annualization_factor (float, optional): Annual depreciation of asset. Defaults to 1.
+        annualization_factor (float, optional): Annually incurred capital expenditure as a percentage. Defaults to 1.
 
     Returns:
         Constraint: process_capex
@@ -468,14 +468,13 @@ def constraint_network_vopex(instance: ConcreteModel, network_scale_level: int =
 # *-------------------------fopex costing constraints----------------------------
 
 
-def constraint_process_fopex(instance: ConcreteModel, fopex_dict: dict, network_scale_level: int = 0, fopex_factor: dict = None, annualization_factor: float = 1, loc_pro_dict: dict = None) -> Constraint:
+def constraint_process_fopex(instance: ConcreteModel, fopex_dict: dict, network_scale_level: int = 0, fopex_factor: dict = None, loc_pro_dict: dict = None) -> Constraint:
     """Fixed operational expenditure for each process at location in network
     Args:
         instance (ConcreteModel): pyomo instance
         fopex_dict (dict): fixed opex at location
         network_scale_level (int, optional): scale of network decisions. Defaults to 0.
-        annualization_factor (float, optional): Annual depreciation of asset. Defaults to 1.
-
+        
     Returns:
         Constraint: process_fopex
     """
@@ -484,9 +483,9 @@ def constraint_process_fopex(instance: ConcreteModel, fopex_dict: dict, network_
     def process_fopex_rule(instance, location, process, *scale_list):
         if fopex_dict[process] is not None:
             if fopex_factor[location] is not None:
-                return instance.Fopex_process[location, process, scale_list] == annualization_factor*fopex_factor[location][process][scale_list]*fopex_dict[process]*instance.Cap_P[location, process, scale_list]
+                return instance.Fopex_process[location, process, scale_list] == fopex_factor[location][process][scale_list]*fopex_dict[process]*instance.Cap_P[location, process, scale_list]
             else:
-                return instance.Fopex_process[location, process, scale_list] == annualization_factor*fopex_dict[process]*instance.Cap_P[location, process, scale_list]
+                return instance.Fopex_process[location, process, scale_list] == fopex_dict[process]*instance.Cap_P[location, process, scale_list]
         else:
             return instance.Fopex_process[location, process, scale_list] == 0
     instance.constraint_process_fopex = Constraint(
