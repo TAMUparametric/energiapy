@@ -91,8 +91,19 @@ def generate_sets(instance: ConcreteModel, scenario: Scenario):
         initialize=sets['resources_store'], doc='Set of storeable resources')
     instance.resources_purch = Set(
         initialize=sets['resources_purch'], doc='Set of purchased resources')
+
     instance.resources_varying_price = Set(initialize=sets['resources_varying_price'],
                                            doc='Set of resources with varying purchase price')
+
+    instance.resources_certain_price = Set(initialize=sets['resources_certain_price'],
+                                           doc='Set of resources with certain purchase price')
+
+    instance.resources_varying_availability = Set(initialize=sets['resources_varying_availability'],
+                                                  doc='Set of resources with varying purchase price')
+
+    instance.resources_certain_availability = Set(initialize=sets['resources_certain_availability'],
+                                                  doc='Set of resources with certain purchase price')
+
     instance.resources_varying_revenue = Set(initialize=sets['resources_varying_revenue'],
                                              doc='Set of resources with varying purchase revenue')
     instance.resources_varying_demand = Set(initialize=sets['resources_varying_demand'],
@@ -101,6 +112,8 @@ def generate_sets(instance: ConcreteModel, scenario: Scenario):
         initialize=sets['resources_demand'], doc='Set of resources with exact demand')
     instance.processes_varying_capacity = Set(
         initialize=sets['processes_varying_capacity'], doc='Set of processes with varying capacity')
+    instance.processes_certain_capacity = Set(
+        initialize=sets['processes_certain_capacity'], doc='Set of processes with certain capacity')
     instance.processes_varying_expenditure = Set(
         initialize=sets['processes_varying_expenditure'], doc='Set of processes with varying expenditure')
     instance.processes_failure = Set(

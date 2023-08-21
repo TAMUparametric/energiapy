@@ -32,37 +32,55 @@ class Cons(Enum):
     X_LEQ_Y = auto()
     X_EQ_Y = auto()
     X_GEQ_Y = auto()
+    X_EQ_SUM_Y = auto()
+    X_EQ_CY = auto()
+    X_EQ_C = auto()
 
 
 def make_constraint(instance: ConcreteModel, type_cons: Cons, variable_x: Var, location_set: Set, component_set: Set, b_max: dict = None,  loc_comp_dict: dict = None,
-                    b_factor: dict = None, a_scale_level: int = 0, b_scale_level: int = 0, variable_y: Var = None, label: str = None) -> Constraint:
+                    b_factor: dict = None, x_scale_level: int = 0, b_scale_level: int = 0, y_scale_level: int = 0, variable_y: Var = None, label: str = None, c_component: dict = None, c_factor: dict = None, c_scale_level: int = 0) -> Constraint:
 
     scales = scale_list(instance=instance,
-                        scale_levels=len(instance.scales))
+                        scale_levels=max(x_scale_level, y_scale_level, b_scale_level) + 1)
 
     def cons_rule(instance, location, component, *scale):
         x = getattr(instance, variable_x)[
-            location, component, scale[:a_scale_level + 1]]
+            location, component, scale[:x_scale_level + 1]]
 
         if b_max is not None:
-            bmax = b_max[location][component]
+            if isinstance(b_max[location][component], dict) is True:
+                bmax = b_max[location][component][list(
+                    b_max[location][component].keys())[-1:][0]]
+            else:
+                bmax = b_max[location][component]
+
         else:
             bmax = 1
 
-        if b_factor[location] is not None:
-            bfactor = b_factor[location][component][scale[:b_scale_level + 1]
-                                                    ]*b_max[location][component]
+        if c_component is not None:
+            c = c_component[component]
+            if c_factor[location] is not None:
+                c = c_factor[location][component][scale[:c_scale_level + 1]
+                                                  ]*c_component[component]
+
+        if b_factor is not None:
+            if b_factor[location] is not None:
+                bfactor = b_factor[location][component][scale[:b_scale_level + 1]
+                                                        ]
+            else:
+                bfactor = 1
         else:
             bfactor = 1
 
         b = bmax*bfactor
         if variable_y is not None:
             y = getattr(instance, variable_y)[
-                location, component, scale[:b_scale_level + 1]]
+                location, component, scale[:y_scale_level + 1]]
 
         if loc_comp_dict[location] is not None:
             if component in loc_comp_dict[location]:
                 if type_cons == Cons.X_LEQ_B:
+
                     return x <= b
                 if type_cons == Cons.X_EQ_B:
                     return x == b
@@ -80,14 +98,19 @@ def make_constraint(instance: ConcreteModel, type_cons: Cons, variable_x: Var, l
                     return x == y
                 if type_cons == Cons.X_GEQ_Y:
                     return x >= y
+                if type_cons == Cons.X_EQ_CY:
+                    return x == c*y
+                if type_cons == Cons.X_EQ_C:
+                    return x == c
             else:
                 return x == 0
 
+    # print(f'{variable_x} <= {variable_x}MAX')
     return Constraint(location_set, component_set, *scales, rule=cons_rule, doc=label)
 
 
 class Constraints(Enum):
-    """Class of b_traints
+    """Class of Constraints
     """
     COST = auto()
     EMISSION = auto()
