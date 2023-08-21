@@ -37,6 +37,7 @@ class Scenario:
         expenditure_scale_level (int, optional): scale for technology expenditure. Defaults to 0.
         scheduling_scale_level (int, optional): scale of production and inventory scheduling. Defaults to 0.
         availability_scale_level (int, optional): scale level for availability (resource). Defaults to 0
+        capacity_scale_level (int, optional): scale level for capacity (process). Defaults to 0
         network_scale_level (int, optional): scale for network decisions such as facility location. Defaults to 0.
         demand_scale_level (int, optional): scale for meeting specific demand for resource. Defaults to 0.
         cluster_wt (dict): cluster weights as a dictionary. {scale: int}. Defaults to None.
@@ -62,6 +63,7 @@ class Scenario:
     availability_scale_level: int = 0
     network_scale_level: int = 0
     demand_scale_level: int = 0
+    capacity_scale_level: int = 0
     cluster_wt: dict = None
     demand: Union[Dict[Location, Dict[Resource, float]], float] = None
     label: str = ''
@@ -172,6 +174,8 @@ class Scenario:
         self.capex_factor = {i.name: i.capex_factor for i in self.location_set}
         self.vopex_factor = {i.name: i.vopex_factor for i in self.location_set}
         self.fopex_factor = {i.name: i.fopex_factor for i in self.location_set}
+        self.incidental_factor = {
+            i.name: i.incidental_factor for i in self.location_set}
         self.availability_factor = {
             i.name: i.availability_factor for i in self.location_set}
         self.revenue_factor = {

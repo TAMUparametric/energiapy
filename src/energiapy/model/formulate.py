@@ -274,25 +274,25 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
             instance.constraint_process_capex = make_constraint(instance=instance, type_cons=Cons.X_EQ_CY, variable_x='Capex_process',
                                                                 location_set=instance.locations, component_set=instance.processes,  loc_comp_dict=scenario.loc_pro_dict,
                                                                 x_scale_level=scenario.network_scale_level,  variable_y='Cap_P', y_scale_level=scenario.network_scale_level,
-                                                                c_component=scenario.capex_dict, c_factor=scenario.capex_factor, c_scale_level=scenario.network_scale_level,
+                                                                c_component=scenario.capex_dict, c_factor=scenario.capex_factor, c_scale_level=scenario.expenditure_scale_level,
                                                                 label='calculates capex based on capacity of unit')
 
             instance.constraint_process_fopex = make_constraint(instance=instance, type_cons=Cons.X_EQ_CY, variable_x='Fopex_process',
                                                                 location_set=instance.locations, component_set=instance.processes,  loc_comp_dict=scenario.loc_pro_dict,
                                                                 x_scale_level=scenario.network_scale_level,  variable_y='Cap_P', y_scale_level=scenario.network_scale_level,
-                                                                c_component=scenario.fopex_dict, c_factor=scenario.fopex_factor, c_scale_level=scenario.network_scale_level,
+                                                                c_component=scenario.fopex_dict, c_factor=scenario.fopex_factor, c_scale_level=scenario.expenditure_scale_level,
                                                                 label='calculates fixed opex based on capacity of unit')
 
             instance.constraint_process_vopex = make_constraint(instance=instance, type_cons=Cons.X_EQ_CY, variable_x='Vopex_process',
                                                                 location_set=instance.locations, component_set=instance.processes,  loc_comp_dict=scenario.loc_pro_dict,
                                                                 x_scale_level=scenario.network_scale_level,  variable_y='P_location', y_scale_level=scenario.network_scale_level,
-                                                                c_component=scenario.vopex_dict, c_factor=scenario.vopex_factor, c_scale_level=scenario.network_scale_level,
+                                                                c_component=scenario.vopex_dict, c_factor=scenario.vopex_factor, c_scale_level=scenario.expenditure_scale_level,
                                                                 label='calculates variable opex based on capacity of unit')
 
             instance.constraint_process_incidental = make_constraint(instance=instance, type_cons=Cons.X_EQ_C, variable_x='Incidental_process',
                                                                      location_set=instance.locations, component_set=instance.processes,  loc_comp_dict=scenario.loc_pro_dict,
-                                                                     x_scale_level=scenario.network_scale_level, c_component=scenario.fopex_dict, c_factor=scenario.fopex_factor,
-                                                                     c_scale_level=scenario.network_scale_level, label='calculates incidental expenses for units')
+                                                                     x_scale_level=scenario.network_scale_level, c_component=scenario.incidental_dict, c_factor=scenario.incidental_factor,
+                                                                     c_scale_level=scenario.expenditure_scale_level, label='calculates incidental expenses for units')
 
             # *----------------------------------- sum costs over location ----------------------------------------------------------
             instance.constraint_location_capex = make_constraint(
@@ -414,7 +414,7 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
 
             instance.constraint_nameplate_production_varying_capacity = make_constraint(instance=instance, type_cons=Cons.X_LEQ_BY, variable_x='P',
                                                                                         location_set=instance.locations, component_set=instance.processes_varying_capacity,  loc_comp_dict=scenario.loc_pro_dict,
-                                                                                        b_factor=scenario.capacity_factor, x_scale_level=scenario.scheduling_scale_level, b_scale_level=scenario.scheduling_scale_level,
+                                                                                        b_factor=scenario.capacity_factor, x_scale_level=scenario.scheduling_scale_level, b_scale_level=scenario.capacity_scale_level,
                                                                                         y_scale_level=scenario.network_scale_level, variable_y='Cap_P', label='restricts production to varying nameplate capacity')
 
             # *----------------production capacity bounds---------------------------------------------
@@ -642,8 +642,7 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
                                       demand_factor=scenario.demand_factor, loc_res_dict=scenario.loc_res_dict, sign=demand_sign)
             constraint_network_cost(
                 instance=instance, network_scale_level=scenario.network_scale_level, constraints=constraints)
-            
-            
+
             constraint_resource_revenue(instance=instance, loc_res_dict=scenario.loc_res_dict, revenue=scenario.revenue,
                                         scheduling_scale_level=scenario.scheduling_scale_level, revenue_factor=scenario.revenue_factor)
             constraint_location_revenue(
@@ -668,6 +667,10 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
 
             constraint_network_cost(
                 instance=instance, network_scale_level=scenario.network_scale_level, constraints=constraints)
+
+            make_constraint(instance=instance, type_cons=Cons.X_EQ_BY, variable_x='R', x_scale_level=scenario.scheduling_scale_level, variable_y=scenario.scheduling_scale_level,
+                            y_scale_level=scenario.scheduling_scale_level, b_max=scenario.revenue, b_factor=scenario.revenue_factor, b_scale_level=scenario.scheduling_scale_level,
+                            location_set=instance.locations, component_set=instance.resources)
             constraint_resource_revenue(instance=instance, loc_res_dict=scenario.loc_res_dict, revenue=scenario.revenue,
                                         scheduling_scale_level=scenario.scheduling_scale_level, revenue_factor=scenario.revenue_factor)
             constraint_location_revenue(

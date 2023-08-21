@@ -134,10 +134,10 @@ class Process:
     retire: int = None
     conversion: Union[Dict[int, Dict[Resource, float]],
                       Dict[Resource, float]] = None
-    capex: Union[float, dict] = None
-    fopex: Union[float, dict] = None
-    vopex: Union[float, dict] = None
-    incidental: float = None
+    capex: Union[float, dict] = 0
+    fopex: Union[float, dict] = 0
+    vopex: Union[float, dict] = 0
+    incidental: Union[float, dict] = 0
     material_cons: Dict[Material, float] = None
     prod_max: Union[Dict[int, float], float] = 0
     prod_min: float = 0
