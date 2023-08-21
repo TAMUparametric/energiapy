@@ -21,51 +21,69 @@ from ...components.resource import Resource
 from ...components.location import Location
 from ...components.process import Process
 
-rom enum import  Enum, auto
-from energiapy.utils.scale_utils import scale_list
-from pyomo.environ import ConcreteModel, Var, Set, Constraint
 
 class Cons(Enum):
-    AX_LEQ_B = auto()
-    AX_EQ_B = auto()
-    AX_GEQ_B = auto()
-    AX_LEQ_BY = auto()
-    AX_GEQ_BY = auto()
-    AX_GEQ_BY = auto()
+    X_LEQ_B = auto()
+    X_EQ_B = auto()
+    X_GEQ_B = auto()
+    X_LEQ_BY = auto()
+    X_EQ_BY = auto()
+    X_GEQ_BY = auto()
+    X_LEQ_Y = auto()
+    X_EQ_Y = auto()
+    X_GEQ_Y = auto()
 
 
+def make_constraint(instance: ConcreteModel, type_cons: Cons, variable_x: Var, location_set: Set, component_set: Set, b_max: dict = None,  loc_comp_dict: dict = None,
+                    b_factor: dict = None, a_scale_level: int = 0, b_scale_level: int = 0, variable_y: Var = None, label: str = None) -> Constraint:
 
-
-def make_constraint(instance: ConcreteModel, type_cons: Cons, variable_x: Var, location_set: Set, component_set: Set, b_max: dict,
-                        b_factor: dict = None, a_scale_level: int = 0, b_scale_level: int = 0, variable_y: Var = None, label: str = None) -> Constraint:
     scales = scale_list(instance=instance,
-                            scale_levels=len(instance.scales))
+                        scale_levels=len(instance.scales))
 
     def cons_rule(instance, location, component, *scale):
-        x = getattr(instance, variable_x)[location, component, scale[:a_scale_level + 1]]
-        if b_factor is not None:
-            b = b_factor[location][component][scale[:b_scale_level + 1]]*b_max
+        x = getattr(instance, variable_x)[
+            location, component, scale[:a_scale_level + 1]]
+
+        if b_max is not None:
+            bmax = b_max[location][component]
         else:
-            b = b_max[location][component] 
+            bmax = 1
 
+        if b_factor[location] is not None:
+            bfactor = b_factor[location][component][scale[:b_scale_level + 1]
+                                                    ]*b_max[location][component]
+        else:
+            bfactor = 1
+
+        b = bmax*bfactor
         if variable_y is not None:
-            y = getattr(instance, variable_y)[location, component, scale[:b_scale_level + 1]]
+            y = getattr(instance, variable_y)[
+                location, component, scale[:b_scale_level + 1]]
 
-        if type_cons in [Cons.AX_LEQ_B]:
-            return x <= b
-        if type_cons in [Cons.AX_EQ_B]:
-            return x == b
-        if type_cons in [Cons.AX_GEQ_B]:
-            return x >= b
-        if type_cons in [Cons.AX_LEQ_BY]:
-            return x <= b*y
-        if type_cons in [Cons.AX_EQ_BY]:
-            return x == b*y
-        if type_cons in [Cons.AX_GEQ_BY]:
-            return x >= b*y
-        
-    return Constraint(location_set, component_set, *scales, rule= cons_rule, doc= label)
+        if loc_comp_dict[location] is not None:
+            if component in loc_comp_dict[location]:
+                if type_cons == Cons.X_LEQ_B:
+                    return x <= b
+                if type_cons == Cons.X_EQ_B:
+                    return x == b
+                if type_cons == Cons.X_GEQ_B:
+                    return x >= b
+                if type_cons == Cons.X_LEQ_BY:
+                    return x <= b*y
+                if type_cons == Cons.X_EQ_BY:
+                    return x == b*y
+                if type_cons == Cons.X_GEQ_BY:
+                    return x >= b*y
+                if type_cons == Cons.X_LEQ_Y:
+                    return x <= y
+                if type_cons == Cons.X_EQ_Y:
+                    return x == y
+                if type_cons == Cons.X_GEQ_Y:
+                    return x >= y
+            else:
+                return x == 0
 
+    return Constraint(location_set, component_set, *scales, rule=cons_rule, doc=label)
 
 
 class Constraints(Enum):

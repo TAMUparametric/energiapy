@@ -21,44 +21,44 @@ from ...components.location import Location
 from ...components.process import Process
 
 
-def constraint_resource_consumption(instance: ConcreteModel, loc_res_dict: dict = None, cons_max: dict = None,
-                                    scheduling_scale_level: int = 0, availability_scale_level: int = 0, availability_factor: dict = None) -> Constraint:
-    """Determines consumption of resource at location in network
+# def constraint_resource_consumption(instance: ConcreteModel, loc_res_dict: dict = None, cons_max: dict = None,
+#                                     scheduling_scale_level: int = 0, availability_scale_level: int = 0, availability_factor: dict = None) -> Constraint:
+#     """Determines consumption of resource at location in network
 
-    Args:
-        instance (ConcreteModel): pyomo instance
-        loc_res_dict (dict, optional): storage facilities for resource available at location. Defaults to {}.
-        cons_max (dict, optional): maximum allowed consumption of resource at location. Defaults to {}.
-        scheduling_scale_level (int, optional): scale of scheduling decisions. Defaults to 0.
-        availability_factor (dict, optional): normalized factor for the availability of resource
-    Returns:
-        Constraint: resource_consumption
-    """
+#     Args:
+#         instance (ConcreteModel): pyomo instance
+#         loc_res_dict (dict, optional): storage facilities for resource available at location. Defaults to {}.
+#         cons_max (dict, optional): maximum allowed consumption of resource at location. Defaults to {}.
+#         scheduling_scale_level (int, optional): scale of scheduling decisions. Defaults to 0.
+#         availability_factor (dict, optional): normalized factor for the availability of resource
+#     Returns:
+#         Constraint: resource_consumption
+#     """
 
-    if loc_res_dict is None:
-        loc_res_dict = dict()
+#     if loc_res_dict is None:
+#         loc_res_dict = dict()
 
-    if cons_max is None:
-        cons_max = dict()
+#     if cons_max is None:
+#         cons_max = dict()
 
-    scales = scale_list(instance=instance,
-                        scale_levels=len(instance.scales))
+#     scales = scale_list(instance=instance,
+#                         scale_levels=len(instance.scales))
 
-    def resource_consumption_rule(instance, location, resource, *scale_list):
-        if resource in loc_res_dict[location]:
-            if availability_factor[location] is None:
-                return instance.C[location, resource, scale_list[:scheduling_scale_level + 1]] <= cons_max[location][resource]
-            else:
-                return instance.C[location, resource, scale_list[:scheduling_scale_level + 1]] <= availability_factor[location][resource][scale_list[:availability_scale_level + 1]]*cons_max[location][resource]
-        else:
-            return instance.C[location, resource, scale_list[:scheduling_scale_level + 1]] <= 0
+#     def resource_consumption_rule(instance, location, resource, *scale_list):
+#         if resource in loc_res_dict[location]:
+#             if availability_factor[location] is None:
+#                 return instance.C[location, resource, scale_list[:scheduling_scale_level + 1]] <= cons_max[location][resource]
+#             else:
+#                 return instance.C[location, resource, scale_list[:scheduling_scale_level + 1]] <= availability_factor[location][resource][scale_list[:availability_scale_level + 1]]*cons_max[location][resource]
+#         else:
+#             return instance.C[location, resource, scale_list[:scheduling_scale_level + 1]] <= 0
 
-    instance.constraint_resource_consumption = Constraint(
-        instance.locations, instance.resources_purch, *
-        scales, rule=resource_consumption_rule,
-        doc='resource consumption')
-    constraint_latex_render(resource_consumption_rule)
-    return instance.constraint_resource_consumption
+#     instance.constraint_resource_consumption = Constraint(
+#         instance.locations, instance.resources_purch, *
+#         scales, rule=resource_consumption_rule,
+#         doc='resource consumption')
+#     constraint_latex_render(resource_consumption_rule)
+#     return instance.constraint_resource_consumption
 
 
 def constraint_inventory_balance(instance: ConcreteModel, scheduling_scale_level: int = 0,
