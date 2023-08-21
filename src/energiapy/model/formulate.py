@@ -392,8 +392,16 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
             generate_land_vars(
                 instance=instance, scale_level=scenario.network_scale_level)
 
-            constraint_land_process(instance=instance, land_dict=scenario.land_dict,
-                                    network_scale_level=scenario.network_scale_level)
+            # *----------------land use ---------------------------------------------
+
+            instance.constraint_land_process = make_constraint(instance=instance, type_cons=Cons.X_EQ_CY, variable_x='Land_process',
+                                                               location_set=instance.locations, component_set=instance.processes,  loc_comp_dict=scenario.loc_pro_dict,
+                                                               x_scale_level=scenario.network_scale_level,  variable_y='Cap_P', y_scale_level=scenario.network_scale_level,
+                                                               c_component=scenario.land_dict, c_scale_level=scenario.network_scale_level,
+                                                               label='calculates land use based on capacity of unit')
+
+            # constraint_land_process(instance=instance, land_dict=scenario.land_dict,
+            #                         network_scale_level=scenario.network_scale_level)
             constraint_land_location(
                 instance=instance, network_scale_level=scenario.network_scale_level)
             constraint_land_network(
@@ -448,8 +456,13 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
                 instance=instance, type_cons=Cons.X_EQ_BY, variable_x='B', variable_y='C', location_set=instance.locations, component_set=instance.resources_varying_price, b_max=scenario.price,
                 loc_comp_dict=scenario.loc_res_dict, b_factor=scenario.price_factor, x_scale_level=scenario.scheduling_scale_level, y_scale_level=scenario.scheduling_scale_level, b_scale_level=scenario.purchase_scale_level, label='calculates varying amount spent on resource consumption')
 
-            constraint_location_production(
-                instance=instance, network_scale_level=scenario.network_scale_level, cluster_wt=scenario.cluster_wt, scheduling_scale_level=scenario.scheduling_scale_level)
+            instance.constraint_location_production = make_constraint(
+                instance=instance, type_cons=Cons.X_EQ_SUMSCALE_Y, variable_x='P_location', variable_y='P', location_set=instance.locations, component_set=instance.processes,
+                loc_comp_dict=scenario.loc_pro_dict, x_scale_level=scenario.network_scale_level, y_scale_level=scenario.scheduling_scale_level, cluster_wt=scenario.cluster_wt,
+                label='sums up production from process over the temporal scale at location')
+
+            # constraint_location_production(
+            #     instance=instance, network_scale_level=scenario.network_scale_level, cluster_wt=scenario.cluster_wt, scheduling_scale_level=scenario.scheduling_scale_level)
             constraint_location_discharge(
                 instance=instance, network_scale_level=scenario.network_scale_level, cluster_wt=scenario.cluster_wt, scheduling_scale_level=scenario.scheduling_scale_level)
             constraint_location_consumption(
