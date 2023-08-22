@@ -43,9 +43,9 @@ _time_intervals = 10  # Number of time intervals in a planning horizon    (L_chi
 _commodities = 1  # Number of commodities                             (rho)
 _exec_scenarios = 4  # Number of execution scenarios                     (chi)
 
-M = 1e7  # Big M
+M = 1e5  # Big M
 
-availability_factor_com1 = pandas.DataFrame(data={'com_cons': [1,1,1,1]})
+availability_factor_com1 = pandas.DataFrame(data={'com_cons': [1,1,1,0]})
 
 # Define temporal scales
 scales = TemporalScale(discretization_list=[_exec_scenarios, _time_intervals])
@@ -54,12 +54,13 @@ scales = TemporalScale(discretization_list=[_exec_scenarios, _time_intervals])
 # Declare resources/commodities
 # ======================================================================================================================
 
-com_cons = Resource(name='com_cons', cons_max=M, block={'imp': 1, 'urg': 1}, price=7.50,
+com_cons = Resource(name='com_cons', cons_max=M, block={'imp': 1, 'urg': 1}, price=50,
                     label='Commodity consumed from outside the system', varying=[VaryingResource.DETERMINISTIC_AVAILABILITY])
 
 com1 = Resource(name='com1', block={'imp': 1, 'urg': 1}, label='Commodity 1')
 
-com_sold = Resource(name='com_sold', cons_max=M, revenue=10.00, demand=True, sell=True, label='Commodity sold to outside the system')
+com_sold = Resource(name='com_sold', revenue=100.00, demand=True, sell=True, label='Commodity sold to outside the system')
+
 
 # ======================================================================================================================
 # Declare processes/storage capacities
@@ -150,7 +151,9 @@ scenario = Scenario(name='scenario', scales=scales, scheduling_scale_level=1, ne
 
 problem = formulate(scenario=scenario, constraints={Constraints.COST, Constraints.TRANSPORT,
                                                     Constraints.RESOURCE_BALANCE, Constraints.PRODUCTION,
-                                                    Constraints.INVENTORY, Constraints.DEMAND},
+                                                    Constraints.INVENTORY, Constraints.DEMAND}, demand_sign='geq',
                     objective=Objective.PROFIT_W_DEMAND_PENALTY)
 
 results = solve(scenario=scenario, instance=problem, solver='gurobi', name='MILP')
+
+print([(key, value) for key, value in results.output['S'].items() if value != 0])
