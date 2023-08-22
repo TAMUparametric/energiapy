@@ -308,6 +308,12 @@ class Scenario:
             'materials': [i.name for i in self.material_set],
         }
 
+        self.varying_bounds_dict = {
+            'demand': {i.name: i.varying_bounds for i in self.resource_set if VaryingResource.UNCERTAIN_DEMAND in i.varying},
+            'availability': {i.name: i.varying_bounds for i in self.resource_set if VaryingResource.UNCERTAIN_AVAILABILITY in i.varying},
+            'capacity': {i.name: i.varying_bounds for i in self.process_set if VaryingProcess.UNCERTAIN_CAPACITY in i.varying}
+        }
+
         if self.source_locations is not None:
             set_dict['sources'] = [i.name for i in self.source_locations]
         else:
@@ -554,10 +560,18 @@ class Scenario:
 
             CRa = numpy.vstack(
                 (numpy.eye(n_vars_theta), -numpy.eye(n_vars_theta)))
-            CRb = numpy.array([*[1] * n_vars_theta, *[0] *
-                               n_vars_theta]).reshape(n_vars_theta * 2, 1)
 
-            return A, b, c, H, CRa, CRb, F
+            CRb_UB = [self.varying_bounds_dict['demand'][i][1] for i in self.set_dict['resources_uncertain_demand']] + [self.varying_bounds_dict['capacity'][i][1]
+                                                                                                                        for i in self.set_dict['processes_uncertain_capacity']] + [self.varying_bounds_dict['availability'][i][1] for i in self.set_dict['resources_uncertain_availability']]
+            CRb_LB = [self.varying_bounds_dict['demand'][i][0] for i in self.set_dict['resources_uncertain_demand']] + [self.varying_bounds_dict['capacity'][i][0]
+                                                                                                                        for i in self.set_dict['processes_uncertain_capacity']] + [self.varying_bounds_dict['availability'][i][0] for i in self.set_dict['resources_uncertain_availability']]
+
+            CRb = numpy.array([*CRb_UB, *CRb_LB]).reshape(n_vars_theta * 2, 1)
+
+            # CRb = numpy.array([*[1] * n_vars_theta, *[0] *
+            #                    n_vars_theta]).reshape(n_vars_theta * 2, 1)
+
+            return A, b, c, H, CRa, CRb, F, len(A_bal)
 
     def __repr__(self):
         return self.name

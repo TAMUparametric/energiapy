@@ -726,3 +726,4 @@ def constraint_network_cost(instance: ConcreteModel, constraints=Set[Constraints
         rule=constraint_network_cost_rule, doc='total network cost')
     constraint_latex_render(constraint_network_cost_rule)
     return instance.constraint_network_cost
+

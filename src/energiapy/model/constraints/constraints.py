@@ -44,6 +44,30 @@ class Cons(Enum):
 def make_constraint(instance: ConcreteModel, type_cons: Cons, variable_x: Var, location_set: Set, component_set: Set, b_max: dict = None,  loc_comp_dict: dict = None,
                     b_factor: dict = None, x_scale_level: int = 0, b_scale_level: int = 0, y_scale_level: int = 0, variable_y: Var = None, label: str = None,
                     c_component: dict = None, c_factor: dict = None, c_scale_level: int = 0, cluster_wt: dict = None) -> Constraint:
+    """makes constraints of different types 
+
+    Args:
+        instance (ConcreteModel): pyomo instance
+        type_cons (Cons): type of constraint from Cons enum class
+        variable_x (Var): LHS variable 
+        location_set (Set): pyomo set of locations
+        component_set (Set): pyomo set of component (resource, material, process)
+        b_max (dict, optional): RHS bound where b is of resolution (location, component, ..). Defaults to None.
+        loc_comp_dict (dict, optional): dict with components in location. Defaults to None.
+        b_factor (dict, optional): deterministic variability in RHS when using b. Defaults to None.
+        x_scale_level (int, optional): scale of LHS variable. Defaults to 0.
+        b_scale_level (int, optional): scale of determinstic variability in RHS when using b. Defaults to 0.
+        y_scale_level (int, optional): scale of RHS variable. Defaults to 0.
+        variable_y (Var, optional): RHS variable. Defaults to None.
+        label (str, optional): description of constraint. Defaults to None.
+        c_component (dict, optional): RHS bound where c is of resolution (component, ..) . Defaults to None.
+        c_factor (dict, optional): deterministic variability in RHS when using c. Defaults to None.
+        c_scale_level (int, optional): scale of deterministic variability in RHS when using c. Defaults to 0.
+        cluster_wt (dict, optional): weight of AHC cluster. Defaults to None.
+
+    Returns:
+        Constraint: _description_
+    """
 
     if type_cons in [Cons.X_EQ_SUMLOC_Y, Cons.X_EQ_SUMSCALE_Y, Cons.X_EQ_SUM_Y, Cons.X_EQ_SUMCOMP_Y]:
         scales = scale_list(instance=instance,

@@ -13,7 +13,7 @@ __status__ = "Production"
 from dataclasses import dataclass
 from warnings import warn
 from enum import Enum, auto
-from typing import Union, List
+from typing import Union, List, Tuple
 
 
 class VaryingResource(Enum):
@@ -93,6 +93,7 @@ class Resource:
         varying (bool, optional): If the cost of resource is varying/uncertain. Defaults to False.
         label (str, optional): Longer descriptive label if required. Defaults to ''.
         gwp (float, optional): Global Warming Potential per unit consumption of resource. Defaults to 0.
+        varying_bounds (float, optional): bounds for the variability. Defaults to (0,1)
 
 
     Examples:
@@ -124,6 +125,7 @@ class Resource:
     varying: List[VaryingResource] = None
     label: str = ''
     gwp: float = 0
+    varying_bounds: Tuple[float] = (0, 1)
 
     def __post_init__(self):
         if self.demand is True:

@@ -109,7 +109,6 @@ class Location:
         self.resource_revenue = self.get_resource_revenue()
         self.failure_processes = self.get_failure_processes()
         self.fail_factor = self.make_fail_factor()
-
         if self.capacity_factor is not None:
             self.varying_capacity = set(self.capacity_factor.keys())
             if isinstance(list(self.capacity_factor.values())[0], DataFrame):

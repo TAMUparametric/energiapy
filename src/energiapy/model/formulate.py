@@ -270,7 +270,9 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
             generate_transport_vars(instance=instance)
 
         if Constraints.COST in constraints:
+            
             # *-------------------------------------------costing constraints -------------------------------------------------
+            
             instance.constraint_process_capex = make_constraint(instance=instance, type_cons=Cons.X_EQ_CY, variable_x='Capex_process',
                                                                 location_set=instance.locations, component_set=instance.processes,  loc_comp_dict=scenario.loc_pro_dict,
                                                                 x_scale_level=scenario.network_scale_level,  variable_y='Cap_P', y_scale_level=scenario.network_scale_level,
@@ -315,15 +317,6 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
                 loc_comp_dict=scenario.loc_pro_dict, x_scale_level=scenario.network_scale_level, y_scale_level=scenario.scheduling_scale_level, cluster_wt=scenario.cluster_wt,
                 label='sums up fixed opex from process over the temporal scale at location')
 
-            # constraint_location_capex(
-            #     instance=instance, network_scale_level=scenario.network_scale_level)
-            # constraint_location_fopex(
-            #     instance=instance, network_scale_level=scenario.network_scale_level)
-            # constraint_location_vopex(
-            #     instance=instance, network_scale_level=scenario.network_scale_level)
-            # constraint_location_incidental(
-            #     instance=instance, network_scale_level=scenario.network_scale_level)
-
             # *----------------------------------- sum costs over location ----------------------------------------------------------
 
             instance.constraint_network_capex = make_constraint(
@@ -345,16 +338,6 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
                 instance=instance, type_cons=Cons.X_EQ_SUMCOST_Y, variable_x='Incidental_network', variable_y='Incidental_location', location_set=instance.locations, component_set=instance.processes,
                 loc_comp_dict=scenario.loc_pro_dict, x_scale_level=scenario.network_scale_level, y_scale_level=scenario.network_scale_level, cluster_wt=scenario.cluster_wt,
                 label='sums up fixed opex all locations over network')
-
-            # constraint_network_capex(
-            #     instance=instance, network_scale_level=scenario.network_scale_level)
-            # constraint_network_fopex(
-            #     instance=instance, network_scale_level=scenario.network_scale_level)
-            # constraint_network_vopex(
-            #     instance=instance, network_scale_level=scenario.network_scale_level)
-
-            # constraint_network_incidental(
-            #     instance=instance, network_scale_level=scenario.network_scale_level)
 
         if Constraints.EMISSION in constraints:
             generate_emission_vars(
@@ -632,7 +615,7 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
                                       demand_factor=scenario.demand_factor, loc_res_dict=scenario.loc_res_dict, sign=demand_sign)
 
             objective_cost_w_demand_penalty(instance=instance, demand_penalty=scenario.demand_penalty,
-                                            constraints=constraints, network_scale_level=scenario.network_scale_level, demand_scale_level=scenario.demand_scale_level)
+                                            constraints=constraints, network_scale_level=scenario.network_scale_level, demand_scale_level=scenario.demand_scale_level, annualization_factor=scenario.annualization_factor)
 
         elif objective == Objective.PROFIT_W_DEMAND_PENALTY:
             generate_demand_vars(
@@ -650,7 +633,7 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
             constraint_network_revenue(
                 instance=instance, network_scale_level=scenario.network_scale_level)
             objective_profit_w_demand_penalty(instance=instance, demand_penalty=scenario.demand_penalty,
-                                              constraints=constraints, network_scale_level=scenario.network_scale_level, demand_scale_level=scenario.demand_scale_level)
+                                              constraints=constraints, network_scale_level=scenario.network_scale_level, demand_scale_level=scenario.demand_scale_level, annualization_factor=scenario.annualization_factor)
 
         else:
             if Constraints.DEMAND in constraints:
@@ -661,7 +644,7 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
         if objective == Objective.COST:
 
             objective_cost(
-                instance=instance, network_scale_level=scenario.network_scale_level, constraints=constraints)
+                instance=instance, network_scale_level=scenario.network_scale_level, constraints=constraints, annualization_factor=scenario.annualization_factor)
 
         if objective == Objective.PROFIT:
 
@@ -678,7 +661,7 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
             constraint_network_revenue(
                 instance=instance, network_scale_level=scenario.network_scale_level)
             objective_profit(
-                instance=instance, network_scale_level=scenario.network_scale_level, constraints=constraints)
+                instance=instance, network_scale_level=scenario.network_scale_level, constraints=constraints, annualization_factor=scenario.annualization_factor)
 
         if objective == Objective.MIN_DISCHARGE:
 
@@ -716,9 +699,9 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
         return instance
 
     if model_class is ModelClass.MPLP:
-        A, b, c, H, CRa, CRb, F = scenario.matrix_form()
+        A, b, c, H, CRa, CRb, F, no_eq_cons = scenario.matrix_form()
 
         matrix_dict = {'A': A, 'b': b, 'c': c,
-                       'H': H, 'CRa': CRa, 'CRb': CRb, 'F': F}
+                       'H': H, 'CRa': CRa, 'CRb': CRb, 'F': F, 'no_eq_cons': no_eq_cons}
 
         return matrix_dict
