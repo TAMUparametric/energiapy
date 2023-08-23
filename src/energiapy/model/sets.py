@@ -105,7 +105,9 @@ def generate_sets(instance: ConcreteModel, scenario: Scenario):
                                                   doc='Set of resources with certain purchase price')
 
     instance.resources_varying_revenue = Set(initialize=sets['resources_varying_revenue'],
-                                             doc='Set of resources with varying purchase revenue')
+                                             doc='Set of resources with varying selling revenue')
+    instance.resources_certain_revenue = Set(initialize=sets['resources_certain_revenue'],
+                                             doc='Set of resources with certain selling revenue')
     instance.resources_varying_demand = Set(initialize=sets['resources_varying_demand'],
                                             doc='Set of resources with varying purchase price')
     instance.resources_demand = Set(

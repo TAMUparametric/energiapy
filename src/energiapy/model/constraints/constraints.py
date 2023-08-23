@@ -101,7 +101,7 @@ def make_constraint(instance: ConcreteModel, type_cons: Cons, variable_x: Var, l
 
         def weight(x): return 1 if cluster_wt is None else cluster_wt[x]
 
-        if b_max is not None:
+        if (b_max is not None) and (component in loc_comp_dict[location]):
             if isinstance(b_max[location][component], dict) is True:
                 bmax = b_max[location][component][list(
                     b_max[location][component].keys())[-1:][0]]
