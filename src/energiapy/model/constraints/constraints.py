@@ -41,6 +41,46 @@ class Cons(Enum):
     X_EQ_C = auto()
 
 
+def printer(variable_x: str, variable_y: str, type_cons, print_once):
+    if print_once:
+        if type_cons == Cons.X_LEQ_B:
+            print(f'{variable_x}<={variable_x}MAX')
+
+        if type_cons == Cons.X_EQ_B:
+            print(f'{variable_x}<=MAX')
+
+        if type_cons == Cons.X_GEQ_B:
+            print(f'{variable_x}>=MAX')
+
+        if type_cons == Cons.X_LEQ_BY:
+            print(f'{variable_x}<=(PARAM)*{variable_y}')
+
+        if type_cons == Cons.X_EQ_BY:
+
+            print(f'{variable_x}==(PARAM)*{variable_y}')
+
+        if type_cons == Cons.X_GEQ_BY:
+
+            print(f'{variable_x}>=(PARAM)*{variable_y}')
+
+        if type_cons == Cons.X_LEQ_Y:
+            print(f'{variable_x}<={variable_y}')
+
+        if type_cons == Cons.X_EQ_Y:
+            print(f'{variable_x}=={variable_y}')
+
+        if type_cons == Cons.X_GEQ_Y:
+            print(f'{variable_x}>={variable_y}')
+
+        # if type_cons == Cons.X_EQ_SUMSCALE_Y:
+        # if type_cons == Cons.X_EQ_SUMLOC_Y:
+        # if type_cons == Cons.X_EQ_SUMCOST_Y:
+        # if type_cons == Cons.X_EQ_SUM_Y:
+        # if type_cons == Cons.X_EQ_SUMCOMP_Y:
+        # if type_cons == Cons.X_EQ_CY:
+        # if type_cons == Cons.X_EQ_C:
+
+
 def make_constraint(instance: ConcreteModel, type_cons: Cons, variable_x: Var, location_set: Set, component_set: Set, b_max: dict = None,  loc_comp_dict: dict = None,
                     b_factor: dict = None, x_scale_level: int = 0, b_scale_level: int = 0, y_scale_level: int = 0, variable_y: Var = None, label: str = None,
                     c_component: dict = None, c_factor: dict = None, c_scale_level: int = 0, cluster_wt: dict = None) -> Constraint:
@@ -68,7 +108,6 @@ def make_constraint(instance: ConcreteModel, type_cons: Cons, variable_x: Var, l
     Returns:
         Constraint: _description_
     """
-
     if type_cons in [Cons.X_EQ_SUMLOC_Y, Cons.X_EQ_SUMSCALE_Y, Cons.X_EQ_SUM_Y, Cons.X_EQ_SUMCOMP_Y]:
         scales = scale_list(instance=instance,
                             scale_levels=x_scale_level + 1)
@@ -77,6 +116,10 @@ def make_constraint(instance: ConcreteModel, type_cons: Cons, variable_x: Var, l
     else:
         scales = scale_list(instance=instance,
                             scale_levels=max(x_scale_level, y_scale_level, b_scale_level) + 1)
+
+    # print_once = True
+    # printer(variable_x, variable_y, type_cons, print_once)
+    # print_once = False
 
     def cons_rule(instance, location, component, *scale):
         if type_cons == Cons.X_EQ_SUMLOC_Y:
@@ -105,9 +148,9 @@ def make_constraint(instance: ConcreteModel, type_cons: Cons, variable_x: Var, l
             if isinstance(b_max[location][component], dict) is True:
                 bmax = b_max[location][component][list(
                     b_max[location][component].keys())[-1:][0]]
+
             else:
                 bmax = b_max[location][component]
-
         else:
             bmax = 1
 
@@ -129,7 +172,6 @@ def make_constraint(instance: ConcreteModel, type_cons: Cons, variable_x: Var, l
         b = bmax*bfactor
 
         if variable_y is not None:
-
             if type_cons == Cons.X_EQ_SUMSCALE_Y:
                 d_sum = sum(weight(scale_)*getattr(instance, variable_y)[location, component, scale_[
                             :y_scale_level + 1]] for scale_ in scale_iter if scale_[:x_scale_level + 1] == scale)
@@ -154,7 +196,6 @@ def make_constraint(instance: ConcreteModel, type_cons: Cons, variable_x: Var, l
         if loc_comp_dict[location] is not None:
             if component in loc_comp_dict[location]:
                 if type_cons == Cons.X_LEQ_B:
-
                     return x <= b
                 if type_cons == Cons.X_EQ_B:
                     return x == b
@@ -181,7 +222,6 @@ def make_constraint(instance: ConcreteModel, type_cons: Cons, variable_x: Var, l
             else:
                 return x == 0
 
-    # print(f'{variable_x} <= {variable_x}MAX')
     return Constraint(location_set, component_set, *scales, rule=cons_rule, doc=label)
 
 

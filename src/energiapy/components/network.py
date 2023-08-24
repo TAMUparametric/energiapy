@@ -99,12 +99,14 @@ class Network:
 
     def make_transport_avail_dict(self) -> dict:
         """returns a dictionary with transportation modes available between sources and sinks
-
+            per resource
         Returns:
             dict: a dictionary with transportation modes available between sources and sinks
         """
         transport_avail_dict = {
-            i: {j.name for j in self.transport_dict[i]} for i in self.transport_dict.keys()}
+            i: {j.name: list(j.resources)[0].name for j in self.transport_dict[i]} for i in self.transport_dict.keys()}
+        transport_avail_dict = {i: {b: a for a, b in j.items()}
+                                for i, j in transport_avail_dict.items()}
         return transport_avail_dict
 
     def __repr__(self):

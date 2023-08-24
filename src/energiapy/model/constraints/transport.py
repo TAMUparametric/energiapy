@@ -36,9 +36,12 @@ def constraint_transport_export(instance: ConcreteModel, scheduling_scale_level:
                         scale_levels=scheduling_scale_level + 1)
 
     def transport_export_rule(instance, source, sink, resource, *scale_list):
-        return instance.Exp[source, sink, resource, scale_list[:scheduling_scale_level + 1]] == \
-            sum(instance.Trans_exp[source, sink, resource, transport_, scale_list[:scheduling_scale_level + 1]]
-                for transport_ in instance.transports.intersection(transport_avail_dict[(source, sink)]))
+        if resource in transport_avail_dict[(source, sink)].keys():
+            return instance.Exp[source, sink, resource, scale_list[:scheduling_scale_level + 1]] == \
+                sum(instance.Trans_exp[source, sink, resource, transport_, scale_list[:scheduling_scale_level + 1]]
+                    for transport_ in instance.transports.intersection(transport_avail_dict[(source, sink)][resource]))
+        else:
+            return Constraint.Skip
 
     instance.constraint_transport_export = Constraint(instance.sources, instance.sinks,
                                                       instance.resources_trans, *scales, rule=transport_export_rule,
@@ -67,9 +70,13 @@ def constraint_transport_import(instance: ConcreteModel, scheduling_scale_level:
                         scale_levels=scheduling_scale_level + 1)
 
     def transport_import_rule(instance, sink, source, resource, *scale_list):
-        return instance.Imp[sink, source, resource, scale_list[:scheduling_scale_level + 1]] == \
-            sum(instance.Trans_imp[sink, source, resource, transport_, scale_list[:scheduling_scale_level + 1]]
-                for transport_ in instance.transports.intersection(transport_avail_dict[(source, sink)]))
+        if resource in transport_avail_dict[(source, sink)].keys():
+
+            return instance.Imp[sink, source, resource, scale_list[:scheduling_scale_level + 1]] == \
+                sum(instance.Trans_imp[sink, source, resource, transport_, scale_list[:scheduling_scale_level + 1]]
+                    for transport_ in instance.transports.intersection(transport_avail_dict[(source, sink)][resource]))
+        else:
+            return Constraint.Skip
 
     instance.constraint_transport_import = Constraint(instance.sinks, instance.sources,
                                                       instance.resources_trans, *scales, rule=transport_import_rule,
@@ -126,11 +133,15 @@ def constraint_transport_exp_UB(instance: ConcreteModel, scheduling_scale_level:
                         scale_levels=scheduling_scale_level + 1)
 
     def transport_exp_UB_rule(instance, source, sink, resource, transport, *scale_list):
-        if transport in transport_avail_dict[(source, sink)]:
-            return instance.Trans_exp[source, sink, resource, transport, scale_list[:scheduling_scale_level + 1]] <= \
-                trans_max[transport] * instance.X_T[source, sink, transport, scale_list[:network_scale_level + 1]]
+        if resource in transport_avail_dict[(source, sink)].keys():
+            if transport in transport_avail_dict[(source, sink)][resource]:
+                return instance.Trans_exp[source, sink, resource, transport, scale_list[:scheduling_scale_level + 1]] <= \
+                    trans_max[transport] * instance.X_T[source, sink,
+                                                        transport, scale_list[:network_scale_level + 1]]
+            else:
+                return Constraint.Skip
         else:
-            return instance.Trans_exp[source, sink, resource, transport, scale_list[:scheduling_scale_level + 1]] <= 0
+            return Constraint.Skip
 
     instance.constraint_transport_exp_UB = Constraint(instance.sources, instance.sinks, instance.resources_trans,
                                                       instance.transports, *scales, rule=transport_exp_UB_rule,
@@ -163,12 +174,15 @@ def constraint_transport_imp_UB(instance: ConcreteModel, scheduling_scale_level:
                         scale_levels=scheduling_scale_level + 1)
 
     def transport_imp_UB_rule(instance, sink, source, resource, transport, *scale_list):
-        if transport in transport_avail_dict[(source, sink)]:
-            return instance.Trans_imp[sink, source, resource, transport, scale_list[:scheduling_scale_level + 1]] <= \
-                trans_max[transport] * instance.X_T[source, sink, transport, scale_list[:network_scale_level + 1]]
+        if resource in transport_avail_dict[(source, sink)].keys():
+            if transport in transport_avail_dict[(source, sink)][resource]:
+                return instance.Trans_imp[sink, source, resource, transport, scale_list[:scheduling_scale_level + 1]] <= \
+                    trans_max[transport] * instance.X_T[source, sink,
+                                                        transport, scale_list[:network_scale_level + 1]]
+            else:
+                return Constraint.Skip
         else:
-            return instance.Trans_imp[sink, source, resource, transport, scale_list[:scheduling_scale_level + 1]] <= 0
-
+            return Constraint.Skip
     instance.constraint_transport_imp_UB = Constraint(instance.sinks, instance.sources, instance.resources_trans,
                                                       instance.transports, *scales, rule=transport_imp_UB_rule,
                                                       doc='import of resource from sink to source')
