@@ -37,6 +37,7 @@ class Scenario:
         expenditure_scale_level (int, optional): scale for technology expenditure. Defaults to 0.
         scheduling_scale_level (int, optional): scale of production and inventory scheduling. Defaults to 0.
         availability_scale_level (int, optional): scale level for availability (resource). Defaults to 0
+        capacity_scale_level (int, optional): scale level for capacity (process). Defaults to 0
         network_scale_level (int, optional): scale for network decisions such as facility location. Defaults to 0.
         demand_scale_level (int, optional): scale for meeting specific demand for resource. Defaults to 0.
         cluster_wt (dict): cluster weights as a dictionary. {scale: int}. Defaults to None.
@@ -62,6 +63,7 @@ class Scenario:
     availability_scale_level: int = 0
     network_scale_level: int = 0
     demand_scale_level: int = 0
+    capacity_scale_level: int = 0
     cluster_wt: dict = None
     demand: Union[Dict[Location, Dict[Resource, float]], float] = None
     label: str = ''
@@ -172,6 +174,8 @@ class Scenario:
         self.capex_factor = {i.name: i.capex_factor for i in self.location_set}
         self.vopex_factor = {i.name: i.vopex_factor for i in self.location_set}
         self.fopex_factor = {i.name: i.fopex_factor for i in self.location_set}
+        self.incidental_factor = {
+            i.name: i.incidental_factor for i in self.location_set}
         self.availability_factor = {
             i.name: i.availability_factor for i in self.location_set}
         self.revenue_factor = {
@@ -302,6 +306,12 @@ class Scenario:
 
             'locations': [i.name for i in self.location_set],
             'materials': [i.name for i in self.material_set],
+        }
+
+        self.varying_bounds_dict = {
+            'demand': {i.name: i.varying_bounds for i in self.resource_set if VaryingResource.UNCERTAIN_DEMAND in i.varying},
+            'availability': {i.name: i.varying_bounds for i in self.resource_set if VaryingResource.UNCERTAIN_AVAILABILITY in i.varying},
+            'capacity': {i.name: i.varying_bounds for i in self.process_set if VaryingProcess.UNCERTAIN_CAPACITY in i.varying}
         }
 
         if self.source_locations is not None:
@@ -550,10 +560,18 @@ class Scenario:
 
             CRa = numpy.vstack(
                 (numpy.eye(n_vars_theta), -numpy.eye(n_vars_theta)))
-            CRb = numpy.array([*[1] * n_vars_theta, *[0] *
-                               n_vars_theta]).reshape(n_vars_theta * 2, 1)
 
-            return A, b, c, H, CRa, CRb, F
+            CRb_UB = [self.varying_bounds_dict['demand'][i][1] for i in self.set_dict['resources_uncertain_demand']] + [self.varying_bounds_dict['capacity'][i][1]
+                                                                                                                        for i in self.set_dict['processes_uncertain_capacity']] + [self.varying_bounds_dict['availability'][i][1] for i in self.set_dict['resources_uncertain_availability']]
+            CRb_LB = [self.varying_bounds_dict['demand'][i][0] for i in self.set_dict['resources_uncertain_demand']] + [self.varying_bounds_dict['capacity'][i][0]
+                                                                                                                        for i in self.set_dict['processes_uncertain_capacity']] + [self.varying_bounds_dict['availability'][i][0] for i in self.set_dict['resources_uncertain_availability']]
+
+            CRb = numpy.array([*CRb_UB, *CRb_LB]).reshape(n_vars_theta * 2, 1)
+
+            # CRb = numpy.array([*[1] * n_vars_theta, *[0] *
+            #                    n_vars_theta]).reshape(n_vars_theta * 2, 1)
+
+            return A, b, c, H, CRa, CRb, F, len(A_bal)
 
     def __repr__(self):
         return self.name

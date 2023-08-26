@@ -12,7 +12,7 @@ __status__ = "Production"
 
 from dataclasses import dataclass
 from enum import Enum, auto
-from typing import Dict, Union, List
+from typing import Dict, Union, List, Tuple
 from warnings import warn
 
 from ..components.material import Material
@@ -113,6 +113,7 @@ class Process:
         storage(list, optional): Resource that can be stored in process.
         store_max (float, optional): Maximum allowed storage of resource in process. Defaults to 0.
         store_min (float, optional): Minimum allowed storage of resource in process. Defaults to 0.
+        varying_bounds (float, optional): bounds for the variability. Defaults to (0,1)
 
     Examples:
         For processes with varying production capacity
@@ -134,10 +135,10 @@ class Process:
     retire: int = None
     conversion: Union[Dict[int, Dict[Resource, float]],
                       Dict[Resource, float]] = None
-    capex: Union[float, dict] = None
-    fopex: Union[float, dict] = None
-    vopex: Union[float, dict] = None
-    incidental: float = None
+    capex: Union[float, dict] = 0
+    fopex: Union[float, dict] = 0
+    vopex: Union[float, dict] = 0
+    incidental: Union[float, dict] = 0
     material_cons: Dict[Material, float] = None
     prod_max: Union[Dict[int, float], float] = 0
     prod_min: float = 0
@@ -157,6 +158,7 @@ class Process:
     store_max: float = 0
     store_min: float = 0
     rate_max: Union[Dict[int, float], float] = None
+    varying_bounds: Tuple[float] = (0, 1)
 
     def __post_init__(self):
         """Determines the ProcessMode, CostDynamics, and kicks out dummy resources if process is stores resource
