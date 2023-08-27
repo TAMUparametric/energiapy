@@ -418,7 +418,6 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
             constraint_network_purchase(
                 instance=instance, network_scale_level=scenario.network_scale_level)
 
-
             # *----------------resource consumption---------------------------------------------
 
             instance.constraint_resource_consumption_certain = make_constraint(
@@ -482,8 +481,6 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
             #     instance=instance, type_cons=Cons.X_EQ_SUMLOC_Y, variable_x='B_network', variable_y='B_location', location_set=instance.locations, component_set=instance.resources_purch,
             #     loc_comp_dict=scenario.loc_res_dict, x_scale_level=scenario.network_scale_level, y_scale_level=scenario.network_scale_level,
             #     label='sums up purchase expenditure of resource over all locations in network')
-
-
 
         if Constraints.TRANSPORT in constraints:
 
