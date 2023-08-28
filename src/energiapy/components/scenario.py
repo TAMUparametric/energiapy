@@ -147,7 +147,7 @@ class Scenario:
             self.trans_emit = {
                 j.name: j.trans_emit for j in self.transport_set}
             self.distance_dict = self.network.distance_dict
-
+            
         self.process_set = set().union(
             *[i.processes_full for i in self.location_set if i.processes_full is not None])
         self.resource_set = set().union(
