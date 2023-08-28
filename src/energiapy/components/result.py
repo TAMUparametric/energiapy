@@ -13,6 +13,7 @@ __status__ = "Production"
 import json
 import pickle
 from dataclasses import dataclass
+from typing import Dict
 
 
 @dataclass
@@ -116,6 +117,18 @@ class Result:
         value = self.output[var][index]/self.output['objective']
         return value
 
+    def divide_objective_by(self, var: str, index: tuple):
+        """divides variable at index
+
+        Args:
+            var (str): variable name
+            index (tuple): index for variable as tuple
+        Returns:
+            float: value
+        """
+        value = self.output['objective']/self.output[var][index]
+        return value
+
     def get_varindex(self, var: str):
         """gives the index of variable
 
@@ -145,3 +158,14 @@ class Result:
 
     def __eq__(self, other):
         return self.name == other.name
+
+
+@dataclass
+class Results:
+    """Contains multiple Result objects
+    Args:
+        name: name of the results object, inherits from CaseStudy
+        results: dictionary of Result objects. 
+    """
+    name: str
+    results: Dict[str, Result]
