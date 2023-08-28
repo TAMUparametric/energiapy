@@ -1,11 +1,11 @@
-"""plotting module for scenarios
+"""plotting module for location
 """
 
 __author__ = "Rahul Kakodkar"
 __copyright__ = "Copyright 2023, Multi-parametric Optimization & Control Lab"
 __credits__ = ["Rahul Kakodkar", "Efstratios N. Pistikopoulos"]
 __license__ = "MIT"
-__version__ = "1.0.5"
+__version__ = "1.0.8"
 __maintainer__ = "Rahul Kakodkar"
 __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
@@ -16,15 +16,15 @@ from matplotlib import rc
 from ..components.location import Location
 from ..components.process import Process
 from ..components.resource import Resource
+from ..components.case_study import CaseStudy
 from ..components.scenario import Scenario
 from ..utils.plot_utils import axis_formatter
 
 
-def capacity_factor(scenario: Scenario, process: Process, location: Location, fig_size: tuple = (12, 6), font_size: int = 16, color: str = 'blue', usetex: bool = False):
+def capacity_factor(location: Location, process: Process, fig_size: tuple = (12, 6), font_size: int = 16, color: str = 'blue', usetex: bool = False):
     """generates a plot for varying capacity factor of process
 
     Args:
-        scenario (Scenario): scenario energiapy object
         process (Process): process energiapy object
         location (Location): location energiapy object
         font_size (int, optional): font size. Defaults to 16.
@@ -37,7 +37,7 @@ def capacity_factor(scenario: Scenario, process: Process, location: Location, fi
        'serif': ['Computer Modern'], 'size': font_size})
     rc('text', usetex=False)
     fig, ax = plt.subplots(figsize=fig_size)
-    y_ = list(scenario.capacity_factor[location.name][process.name].values())
+    y_ = list(location.capacity_factor[process.name].values())
     x_ = list(range(len(y_)))
     ax.plot(x_, y_, linewidth=0.5, color=color)
     ax = axis_formatter(axes=ax, xcord=x_, axis_labels='M')
@@ -49,11 +49,10 @@ def capacity_factor(scenario: Scenario, process: Process, location: Location, fi
     return
 
 
-def price_factor(scenario: Scenario, resource: Resource, location: Location, fig_size: tuple = (12, 6), font_size: int = 16, color: str = 'blue', usetex: bool = False):
+def price_factor(resource: Resource, location: Location, fig_size: tuple = (12, 6), font_size: int = 16, color: str = 'blue', usetex: bool = False):
     """generates a plot for varying price factor for purchase of resource
 
     Args:
-        scenario (Scenario): scenario energiapy object
         resource (Resource): resource energiapy object
         location (Location): location energiapy object
         font_size (int, optional): font size. Defaults to 16.
@@ -65,7 +64,7 @@ def price_factor(scenario: Scenario, resource: Resource, location: Location, fig
        'serif': ['Computer Modern'], 'size': font_size})
     rc('text', usetex=False)
     fig, ax = plt.subplots(figsize=fig_size)
-    y_ = list(scenario.price_factor[location.name][resource.name].values())
+    y_ = list(location.price_factor[resource.name].values())
     x_ = list(range(len(y_)))
     ax.plot(x_, y_, linewidth=0.5, color=color)
     ax = axis_formatter(axes=ax, xcord=x_, axis_labels='M')
@@ -77,12 +76,11 @@ def price_factor(scenario: Scenario, resource: Resource, location: Location, fig
     return
 
 
-def demand_factor(scenario: Scenario, resource: Resource, location: Location,
+def demand_factor(resource: Resource, location: Location,
                   fig_size: tuple = (12, 6), font_size: int = 16, color: str = 'blue', usetex: bool = False):
     """generates a plot for varying demand factor of resource
 
     Args:
-        scenario (Scenario): scenario energiapy object
         resource (Resource): resource energiapy object
         location (Location): location energiapy object
         font_size (int, optional): font size. Defaults to 16.
@@ -94,7 +92,7 @@ def demand_factor(scenario: Scenario, resource: Resource, location: Location,
        'serif': ['Computer Modern'], 'size': font_size})
     rc('text', usetex=False)
     fig, ax = plt.subplots(figsize=fig_size)
-    y_ = list(scenario.demand_factor[location.name][resource.name].values())
+    y_ = list(location.demand_factor[resource.name].values())
     x_ = list(range(len(y_)))
     ax.plot(x_, y_, linewidth=0.5, color=color)
     ax = axis_formatter(axes=ax, xcord=x_, axis_labels='M')
@@ -106,12 +104,11 @@ def demand_factor(scenario: Scenario, resource: Resource, location: Location,
     return
 
 
-def capex_factor(scenario: Scenario, process: Process, location: Location,
+def capex_factor(process: Process, location: Location,
                  fig_size: tuple = (12, 6), font_size: int = 16, color: str = 'blue'):
     """generates a plot for varying technology capital expenditure
 
     Args:
-        scenario (Scenario): scenario energiapy object
         process (Process): process energiapy object
         location (Location): location energiapy object
         font_size (int, optional): font size. Defaults to 16.
@@ -123,7 +120,7 @@ def capex_factor(scenario: Scenario, process: Process, location: Location,
        'serif': ['Computer Modern'], 'size': font_size})
     rc('text', usetex=False)
     fig, ax = plt.subplots(figsize=fig_size)
-    y_ = list(scenario.capex_factor[location.name][process.name].values())
+    y_ = list(location.capex_factor[process.name].values())
     x_ = list(range(len(y_)))
     ax.plot(x_, y_, linewidth=0.5, color=color)
     ax = axis_formatter(axes=ax, xcord=x_, axis_labels='M')
@@ -135,12 +132,11 @@ def capex_factor(scenario: Scenario, process: Process, location: Location,
     return
 
 
-def vopex_factor(scenario: Scenario, process: Process, location: Location,
+def vopex_factor(process: Process, location: Location,
                  fig_size: tuple = (12, 6), font_size: int = 16, color: str = 'blue'):
     """generates a plot for varying technology variable operational expenditure
 
     Args:
-        scenario (Scenario): scenario energiapy object
         process (Process): process energiapy object
         location (Location): location energiapy object
         font_size (int, optional): font size. Defaults to 16.
@@ -152,7 +148,7 @@ def vopex_factor(scenario: Scenario, process: Process, location: Location,
        'serif': ['Computer Modern'], 'size': font_size})
     rc('text', usetex=False)
     fig, ax = plt.subplots(figsize=fig_size)
-    y_ = list(scenario.vopex_factor[location.name][process.name].values())
+    y_ = list(location.vopex_factor[process.name].values())
     x_ = list(range(len(y_)))
     ax.plot(x_, y_, linewidth=0.5, color=color)
     ax = axis_formatter(axes=ax, xcord=x_, axis_labels='M')
@@ -164,12 +160,11 @@ def vopex_factor(scenario: Scenario, process: Process, location: Location,
     return
 
 
-def fopex_factor(scenario: Scenario, process: Process, location: Location,
+def fopex_factor(process: Process, location: Location,
                  fig_size: tuple = (12, 6), font_size: int = 16, color: str = 'blue'):
     """generates a plot for varying technology fixed operational expenditure
 
     Args:
-        scenario (Scenario): scenario energiapy object
         process (Process): process energiapy object
         location (Location): location energiapy object
         font_size (int, optional): font size. Defaults to 16.
@@ -181,7 +176,7 @@ def fopex_factor(scenario: Scenario, process: Process, location: Location,
        'serif': ['Computer Modern'], 'size': font_size})
     rc('text', usetex=False)
     fig, ax = plt.subplots(figsize=fig_size)
-    y_ = list(scenario.fopex_factor[location.name][process.name].values())
+    y_ = list(location.fopex_factor[process.name].values())
     x_ = list(range(len(y_)))
     ax.plot(x_, y_, linewidth=0.5, color=color)
     ax = axis_formatter(axes=ax, xcord=x_, axis_labels='M')
@@ -193,12 +188,12 @@ def fopex_factor(scenario: Scenario, process: Process, location: Location,
     return
 
 
-def availability_factor(scenario: Scenario, resource: Resource, location: Location,
+def availability_factor(resource: Resource, location: Location,
                         fig_size: tuple = (12, 6), font_size: int = 16, color: str = 'blue', usetex: bool = False):
     """generates a plot for varying availability factor of resource
 
     Args:
-        scenario (Scenario): scenario energiapy object
+
         resource (Resource): resource energiapy object
         location (Location): location energiapy object
         font_size (int, optional): font size. Defaults to 16.
@@ -211,7 +206,7 @@ def availability_factor(scenario: Scenario, resource: Resource, location: Locati
     rc('text', usetex=False)
     fig, ax = plt.subplots(figsize=fig_size)
     y_ = list(
-        scenario.availability_factor[location.name][resource.name].values())
+        location.availability_factor[resource.name].values())
     x_ = list(range(len(y_)))
     ax.plot(x_, y_, linewidth=0.5, color=color)
     ax = axis_formatter(axes=ax, xcord=x_, axis_labels='M')
@@ -223,12 +218,12 @@ def availability_factor(scenario: Scenario, resource: Resource, location: Locati
     return
 
 
-def revenue_factor(scenario: Scenario, resource: Resource, location: Location,
+def revenue_factor(resource: Resource, location: Location,
                    fig_size: tuple = (12, 6), font_size: int = 16, color: str = 'blue', usetex: bool = False):
     """generates a plot for varying revenue factor of resource
 
     Args:
-        scenario (Scenario): scenario energiapy object
+
         resource (Resource): resource energiapy object
         location (Location): location energiapy object
         font_size (int, optional): font size. Defaults to 16.
@@ -241,7 +236,7 @@ def revenue_factor(scenario: Scenario, resource: Resource, location: Location,
     rc('text', usetex=False)
     fig, ax = plt.subplots(figsize=fig_size)
     y_ = list(
-        scenario.revenue_factor[location.name][resource.name].values())
+        location.revenue_factor[resource.name].values())
     x_ = list(range(len(y_)))
     ax.plot(x_, y_, linewidth=0.5, color=color)
     ax = axis_formatter(axes=ax, xcord=x_, axis_labels='M')

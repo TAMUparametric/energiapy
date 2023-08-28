@@ -37,7 +37,7 @@ def solve(instance: ConcreteModel, solver: str, name: str, interface: str = 'pyo
         log (bool, optional): Log nearbounds in case of optimal, and violations if infeasible. Defaults to False
 
     Returns:
-        Result: _description_
+        Result: result type object
     """
     if interface == 'pyomo':
         output = SolverFactory(solver, solver_io='python').solve(
