@@ -42,7 +42,7 @@ class CaseStudy:
 
     """
     name: str
-    scenarios: Union[list, Scenario]
+    scenarios: Union[list, Scenario] = None
     vary: str = None
     vary_as: list = None
     formulations_dict: dict = None
@@ -62,7 +62,7 @@ class CaseStudy:
                 counter += 1
             self.scenarios = scenario_list
 
-    def formulate(self, scenario: Scenario, constraints: Set[Constraints] = None, objective: Objective = None,
+    def formulate(self, constraints: Set[Constraints] = None, objective: Objective = None,
                   write_lpfile: bool = False, gwp: float = None, land_restriction: float = None,
                   gwp_reduction_pct: float = None, model_class: ModelClass = ModelClass.MIP, objective_resource: Resource = None,
                   inventory_zero: Dict[Location, Dict[Tuple[Process, Resource], float]] = None) -> Dict[str, ConcreteModel]:
