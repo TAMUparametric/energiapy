@@ -42,6 +42,7 @@ class Location:
         capex_factor (Union[float, Dict[Process, DataFrame]), optional):  Factor for varying capital expenditure, scale changer normalizes. Defaults to None
         vopex_factor (Union[float, Dict[Process, DataFrame]), optional):  Factor for varying variable operational expenditure, scale changer normalizes. Defaults to None
         fopex_factor (Union[float, Dict[Process, DataFrame]), optional):  Factor for varying fixed operational expenditure, scale changer normalizes. Defaults to None
+        incidental_factor (Union[float, Dict[Process, DataFrame]), optional):  Factor for varying incidental expenditure, scale changer normalizes. Defaults to None
         availability_factor (Union[float, Dict[Resource, DataFrame]), optional): Factor for varying resource availability, scale changer normalizes. Defaults to None
         revenue_factor (Union[float, Dict[Resource, DataFrame]), optional): Factor for varying resource revenue, scale changer normalizes. Defaults to None
         demand_scale_level (int, optional): scale level for demand (resource). Defaults to 0
@@ -69,6 +70,7 @@ class Location:
     capex_factor: Union[float, Dict[Process, float]] = None
     vopex_factor: Union[float, Dict[Process, float]] = None
     fopex_factor: Union[float, Dict[Process, float]] = None
+    incidental_factor: Union[float, Dict[Process, float]] = None
     availability_factor: Union[float, Dict[Resource, float]] = None
     revenue_factor: Union[float, Dict[Resource, float]] = None
     demand_scale_level: int = 0
@@ -107,7 +109,6 @@ class Location:
         self.resource_revenue = self.get_resource_revenue()
         self.failure_processes = self.get_failure_processes()
         self.fail_factor = self.make_fail_factor()
-
         if self.capacity_factor is not None:
             self.varying_capacity = set(self.capacity_factor.keys())
             if isinstance(list(self.capacity_factor.values())[0], DataFrame):
@@ -176,6 +177,15 @@ class Location:
             if isinstance(list(self.fopex_factor.values())[0], DataFrame):
                 self.fopex_factor = scale_changer(
                     self.fopex_factor, scales=self.scales, scale_level=self.expenditure_scale_level)
+            else:
+                warn(
+                    'Input should be a dict of a DataFrame, Dict[Resource, float]')
+
+        if self.incidental_factor is not None:
+            self.varying_incidental = set(self.incidental_factor.keys())
+            if isinstance(list(self.incidental_factor.values())[0], DataFrame):
+                self.incidental_factor = scale_changer(
+                    self.incidental_factor, scales=self.scales, scale_level=self.expenditure_scale_level)
             else:
                 warn(
                     'Input should be a dict of a DataFrame, Dict[Resource, float]')
