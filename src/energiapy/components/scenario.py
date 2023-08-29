@@ -144,10 +144,12 @@ class Scenario:
                 j.name: j.trans_loss for j in self.transport_set}
             self.trans_cost = {
                 j.name: j.trans_cost for j in self.transport_set}
+            self.trans_capex = {
+                j.name: j.trans_capex for j in self.transport_set}
             self.trans_emit = {
                 j.name: j.trans_emit for j in self.transport_set}
             self.distance_dict = self.network.distance_dict
-            
+
         self.process_set = set().union(
             *[i.processes_full for i in self.location_set if i.processes_full is not None])
         self.resource_set = set().union(
