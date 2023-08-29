@@ -495,8 +495,12 @@ class Scenario:
 
             b_Pf = numpy.array([[self.prod_max[location][i][0]]
                                 for i in self.set_dict['processes_certain_capacity']])  # fixed production bound
-            b_P = numpy.array([[self.prod_max[location][i][0]]
-                               for i in self.set_dict['processes_uncertain_capacity']])  # uncertain production
+            # b_P = numpy.array([[self.prod_max[location][i][0]]
+            #                    for i in self.set_dict['processes_uncertain_capacity']])  # uncertain production
+
+            # uncertain production
+            b_P = numpy.array(
+                [[0] for i in self.set_dict['processes_uncertain_capacity']])
 
             b_nn = numpy.zeros((n_vars, 1))  # non zero constraints
 
