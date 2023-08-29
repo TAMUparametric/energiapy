@@ -649,9 +649,9 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
         return instance
 
     if model_class is ModelClass.MPLP:
-        A, b, c, H, CRa, CRb, F = scenario.matrix_form()
+        A, b, c, H, CRa, CRb, F, no_eq_cons = scenario.matrix_form()
 
         matrix_dict = {'A': A, 'b': b, 'c': c,
-                       'H': H, 'CRa': CRa, 'CRb': CRb, 'F': F}
+                       'H': H, 'CRa': CRa, 'CRb': CRb, 'F': F, 'no_eq_cons': no_eq_cons}
 
         return matrix_dict
