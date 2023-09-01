@@ -80,6 +80,10 @@ class VaryingProcess(Enum):
     """
     Use certain parameter for expenditure
     """
+    MULTIMODE = auto()
+    """
+    Has multiple modes of operation
+    """
 
 
 @dataclass
@@ -175,8 +179,12 @@ class Process:
             if (self.capex is not None) or (self.fopex is not None) or (self.vopex is not None):
                 self.varying = self.varying + \
                     [VaryingProcess.CERTAIN_EXPENDITURE]
-            if self.prod_max > 0:
-                self.varying = self.varying + [VaryingProcess.CERTAIN_CAPACITY]
+            if isinstance(self.prod_max, dict):
+                self.varying = self.varying + [VaryingProcess.MULTIMODE]
+            else:
+                if self.prod_max > 0:
+                    self.varying = self.varying + \
+                        [VaryingProcess.CERTAIN_CAPACITY]
 
         if not isinstance(self.varying, list):
             warn('Provide a list of VaryingProcess enums')

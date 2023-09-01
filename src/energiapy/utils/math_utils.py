@@ -14,6 +14,7 @@ __status__ = "Production"
 import numpy
 import pandas
 from sklearn.preprocessing import StandardScaler
+from typing import Union
 
 
 def scaler(input_df: pandas.DataFrame, scale: list, child_scale: list = None) -> pandas.DataFrame:
@@ -88,3 +89,34 @@ def generate_connectivity_matrix(scale_len):
             connect_[i_, i_-1] = 1
             connect_[i_, i_+1] = 1
     return connect_
+
+
+def min_max(data: Union[numpy.array, pandas.DataFrame]) -> Union[numpy.array, pandas.DataFrame]:
+    """min max for data
+
+    Args:
+        data (numpy.array): time-series data 
+
+    Returns:
+        Union[numpy.array, pandas.DataFrame]: min-maxed data array
+    """
+    min_data = numpy.min(data)
+    max_data = numpy.max(data)
+    data = (data - numpy.min(data)) / (max_data - min_data)
+
+    return data
+
+
+def normalize(data: Union[numpy.array, pandas.DataFrame]) -> Union[numpy.array, pandas.DataFrame]:
+    """normalizes data
+
+    Args:
+        data (numpy.array): time-series data 
+
+    Returns:
+        Union[numpy.array, pandas.DataFrame]: min-maxed data array
+    """
+    max_data = numpy.max(data)
+    data = data / max_data
+
+    return data

@@ -13,7 +13,7 @@ __status__ = "Production"
 import numpy
 import pandas
 from distfit import distfit
-from ..utils.data_utils import min_max
+from ..utils.math_utils import min_max
 
 
 def fit(data:numpy.array) -> pandas.DataFrame:

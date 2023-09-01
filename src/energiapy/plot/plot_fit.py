@@ -17,7 +17,7 @@ import pandas
 import scipy
 import numpy
 
-from ..utils.data_utils import min_max
+from ..utils.math_utils import min_max
 
 
 def distribution(fit_summary: pandas.DataFrame, fit_type: 'str', fig_size: tuple = (8, 6), font_size: int = 16, color: str = 'steelblue'):
