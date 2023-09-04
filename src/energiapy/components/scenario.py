@@ -486,8 +486,10 @@ class Scenario:
                                 for i in self.set_dict['resources_store']])  # fixed storage bound
             b_Sf = numpy.array([[-self.demand[location][i]]
                                 for i in self.set_dict['resources_certain_demand']])  # fixed demand bound
-            b_S = numpy.array([[-self.demand[location][i]]
+            b_S = numpy.array([[0]
                                for i in self.set_dict['resources_uncertain_demand']])  # uncertain demand
+            # b_S = numpy.array([[-self.demand[location][i]]
+            #    for i in self.set_dict['resources_uncertain_demand']])  # uncertain demand
             b_Af = numpy.array([[self.cons_max[location][i]]
                                 for i in self.set_dict['resources_certain_availability']])  # fixed availability bound
             b_A = numpy.array([[self.cons_max[location][i]]
@@ -520,7 +522,7 @@ class Scenario:
             for i in range(n_S):
                 n = n_Inv + n_Sf
                 F[n_bal3 + n +
-                    iter_][i] = self.demand[location][self.set_dict['resources_uncertain_demand'][i]]
+                    iter_][i] = -self.demand[location][self.set_dict['resources_uncertain_demand'][i]]
                 iter_ += 1
 
             iter_ = 0
