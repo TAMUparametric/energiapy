@@ -30,3 +30,17 @@ def generate_demand_vars(instance: ConcreteModel, scale_level: int = 0):
                                   within=NonNegativeReals, doc='penalty for demand not being met')
 
     return
+
+
+def generate_demand_theta_vars(instance: ConcreteModel):
+    """multiparametric variable for demand 
+
+    Args:
+        instance (ConcreteModel): pyomo instance
+        scale_level (int, optional): scale at which credits are assigned. Defaults to 0.
+    """
+
+    instance.demand_theta = Var(instance.locations, instance.resources_demand, instance.scales_demand,
+                                within=NonNegativeReals, doc='multiparametric variable for demand')
+
+    return

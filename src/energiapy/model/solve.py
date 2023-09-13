@@ -49,8 +49,8 @@ def solve(solver: str, name: str, instance: ConcreteModel = None, matrix: dict =
                                 matrix['CRa'], matrix['CRb'], matrix['F'], equality_indices=list(range(matrix['no_eq_cons'])))
             prog.solver.solvers['lp'] = 'gurobi'
             # prog.warnings()
-            # prog.display_warnings()
-            # prog.process_constraints()
+            prog.display_warnings()
+            prog.process_constraints()
             results = solve_mpqp(prog, mpqp_algorithm.combinatorial)
 
     else:

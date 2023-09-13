@@ -102,7 +102,7 @@ class Scenario:
             loc_res_dict (dict): A dictionary with Location-wise availability of Resource objects.
             loc_pro_dict (dict): A dictionary with Location-wise availability of Process objects.
             loc_mat_dict (dict): A dictionary with Location-wise availability of Material objects.
-            price (dict): A dictionary with Location-wise purchase price of Resource objects
+            price_dict (dict): A dictionary with Location-wise purchase price of Resource objects
             revenue (dict): A dictionary with Location-wise revenue from selling resource objects
             capex_dict (dict): A dictionary with capital expenditure data for each Process.
             fopex_dict (dict): A dictionary with fixed operational expenditure data for each Process.
@@ -116,6 +116,7 @@ class Scenario:
             process_resource_dict (dict): A dictionary with Resource required for each Process.
             process_material_dict (dict): A dictionary with Material required for each Process
             mode_dict (dict): A dictionary with the multiple modes of each Process with ProcessMode.MULTI
+            cost_df (DataFrame): handy dataframe with cost parameters
         """
 
         if isinstance(self.network, Location):
@@ -189,7 +190,7 @@ class Scenario:
         self.loc_mat_dict = {i.name: {j.name for j in i.materials}
                              for i in self.location_set}
         # TODO change to be location wise
-        self.price = {i.name: i.resource_price for i in self.location_set}
+        self.price_dict = {i.name: i.resource_price for i in self.location_set}
         self.revenue = {i.name: i.resource_revenue for i in self.location_set}
         self.capex_dict = {i.name: i.capex for i in self.process_set}
         self.fopex_dict = {i.name: i.fopex for i in self.process_set}
@@ -233,6 +234,15 @@ class Scenario:
         if self.demand_penalty is not None:
             self.demand_penalty = {i.name: {j.name: self.demand_penalty[i][j] for j in self.demand_penalty[i].keys(
             )} for i in self.demand_penalty.keys()}
+
+        df_capex = DataFrame.from_dict(
+            self.capex_dict, orient='index', columns=['capex'])
+        df_vopex = DataFrame.from_dict(
+            self.vopex_dict, orient='index', columns=['vopex'])
+        df_fopex = DataFrame.from_dict(
+            self.fopex_dict, orient='index', columns=['fopex'])
+        self.cost_df = df_capex.merge(df_vopex, left_index=True, right_index=True, how='inner').merge(
+            df_fopex, left_index=True, right_index=True, how='inner')
 
         set_dict = {
             'resources': [i.name for i in self.resource_set],
@@ -416,6 +426,8 @@ class Scenario:
             print(f"Uncertain resource discharge (S) x {n_S}")
             print(f"Exact resource availability (Af) x {n_Af}")
             print(f"Uncertain resource availability (A) x {n_A}")
+            print(f"Exact resource price (Cf) x {n_Cf}")
+            print(f"Uncertain resource price (C) x {n_C}")
             print(f"Exact process production (Pf) x {n_Pf}")
             print(f"Uncertain process production (P) x {n_P}")
             print(
@@ -435,13 +447,13 @@ class Scenario:
                 self.set_dict['resources_uncertain_availability'] + \
                 self.set_dict['resources_implicit']
 
-            column_list = [*['Inv_' + i for i in self.set_dict['resources_store']] +
-                           ['Sf_' + i for i in self.set_dict['resources_certain_demand']] +
-                           ['S_' + i for i in self.set_dict['resources_uncertain_demand']] +
-                           ['Af_' + i for i in self.set_dict['resources_certain_availability']] +
-                           ['A_' + i for i in self.set_dict['resources_uncertain_availability']] +
-                           ['Pf_' + i for i in self.set_dict['processes_certain_capacity']] +
-                           ['P_' + i for i in self.set_dict['processes_uncertain_capacity']]]
+            column_list_vars = [*['Inv_' + i for i in self.set_dict['resources_store']] +
+                                ['Sf_' + i for i in self.set_dict['resources_certain_demand']] +
+                                ['S_' + i for i in self.set_dict['resources_uncertain_demand']] +
+                                ['Af_' + i for i in self.set_dict['resources_certain_availability']] +
+                                ['A_' + i for i in self.set_dict['resources_uncertain_availability']] +
+                                ['Pf_' + i for i in self.set_dict['processes_certain_capacity']] +
+                                ['P_' + i for i in self.set_dict['processes_uncertain_capacity']]]
 
             A_conv = numpy.array([[self.conversion[i][j] for j in conversion_list] for i in
                                   sorted(self.conversion.keys())]).transpose()
@@ -475,7 +487,7 @@ class Scenario:
             A = numpy.block(
                 [[numpy.block([A_bal, A_conv])], [A_diag], [-A_nn]])
 
-            self.A_df = DataFrame(A, columns=column_list)
+            self.A_df = DataFrame(A, columns=column_list_vars)
             self.A_df.index = row_list
 
             # *-----------------------b------------------------------------------------
@@ -540,9 +552,9 @@ class Scenario:
                 # defaults to 0 as mode, using P_m instead of P
                 iter_ += 1
 
-            column_list = [*['Th_' + i for i in self.set_dict['resources_uncertain_demand']] + ['Th_' + i for i in
-                                                                                                self.set_dict['resources_uncertain_availability']] + ['Th_' + i for i in self.set_dict['processes_uncertain_capacity']]]
-            self.F_df = DataFrame(F, columns=column_list)
+            column_list_theta = [*['Th_' + i for i in self.set_dict['resources_uncertain_demand']] + ['Th_' + i for i in
+                                                                                                      self.set_dict['resources_uncertain_availability']] + ['Th_' + i for i in self.set_dict['processes_uncertain_capacity']]]
+            self.F_df = DataFrame(F, columns=column_list_theta)
             self.F_df.index = row_list
 
             # *--------------------------------------c--------------------------------------
@@ -550,31 +562,48 @@ class Scenario:
             c_Sf = numpy.zeros((n_Sf, 1))
             c_S = numpy.zeros((n_S, 1))
 
-            c_Af = numpy.zeros((n_Af, 1))
-            c_A = numpy.zeros((n_A, 1))
+            # c_Af = numpy.zeros((n_Af, 1))
+            # c_A = numpy.zeros((n_A, 1))
 
-            c_Pf = numpy.array([[self.capex_dict[i]]
+            c_Cf = numpy.array([[self.price_dict[list(self.location_set)[0].name][i]]
+                               for i in self.set_dict['resources_certain_price']])
+            c_C = numpy.array([[self.price_dict[list(self.location_set)[0].name][i]]
+                              for i in self.set_dict['resources_uncertain_price']])
+
+            c_Pf = numpy.array([[self.vopex_dict[i]]
                                 for i in self.set_dict['processes_certain_capacity']])
-            c_P = numpy.array([[self.capex_dict[i]]
+            c_P = numpy.array([[self.vopex_dict[i]]
                                for i in self.set_dict['processes_uncertain_capacity']])
-            c_list = [c_Inv, c_Sf,  c_S, c_Af,  c_A, c_Pf, c_P]
+            c_list = [c_Inv, c_Sf,  c_S, c_Cf,  c_C, c_Pf, c_P]
             c = numpy.block([[i] for i in c_list if len(i) > 0])
 
+            self.c_df = DataFrame(c)
+            self.c_df.index = column_list_vars
             # *-------------------------------------H----------------------------------------
 
             H = numpy.zeros((A.shape[1], F.shape[1]))
 
+            self.H_df = DataFrame(H, columns=column_list_theta)
+            self.H_df.index = column_list_vars
             # *----------------------------------critical regions---------------------------
 
             CRa = numpy.vstack(
                 (numpy.eye(n_vars_theta), -numpy.eye(n_vars_theta)))
 
+            self.CRa_df = DataFrame(CRa, columns=column_list_theta)
+            self.CRa_df.index = [
+                'UB_' + i for i in column_list_theta] + ['LB_' + i for i in column_list_theta]
+
             CRb_UB = [self.varying_bounds_dict['demand'][i][1] for i in self.set_dict['resources_uncertain_demand']] + [self.varying_bounds_dict['capacity'][i][1]
                                                                                                                         for i in self.set_dict['processes_uncertain_capacity']] + [self.varying_bounds_dict['availability'][i][1] for i in self.set_dict['resources_uncertain_availability']]
-            CRb_LB = [self.varying_bounds_dict['demand'][i][0] for i in self.set_dict['resources_uncertain_demand']] + [self.varying_bounds_dict['capacity'][i][0]
-                                                                                                                        for i in self.set_dict['processes_uncertain_capacity']] + [self.varying_bounds_dict['availability'][i][0] for i in self.set_dict['resources_uncertain_availability']]
+            CRb_LB = [-self.varying_bounds_dict['demand'][i][0] for i in self.set_dict['resources_uncertain_demand']] + [self.varying_bounds_dict['capacity'][i][0]
+                                                                                                                         for i in self.set_dict['processes_uncertain_capacity']] + [self.varying_bounds_dict['availability'][i][0] for i in self.set_dict['resources_uncertain_availability']]
 
             CRb = numpy.array([*CRb_UB, *CRb_LB]).reshape(n_vars_theta * 2, 1)
+
+            self.CRb_df = DataFrame(CRb, columns=['Value'])
+            self.CRb_df.index = [
+                'UB_' + i for i in column_list_theta] + ['LB_' + i for i in column_list_theta]
 
             # CRb = numpy.array([*[1] * n_vars_theta, *[0] *
             #                    n_vars_theta]).reshape(n_vars_theta * 2, 1)

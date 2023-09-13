@@ -45,8 +45,8 @@ class CaseStudy:
     scenarios: Union[list, Scenario] = None
     vary: str = None
     vary_as: list = None
-    formulations_dict: dict = None
-    results_dict: Results = None
+    formulations: dict = None
+    results: Results = None
 
     def __post_init__(self):
 
@@ -85,12 +85,12 @@ class CaseStudy:
             Dict[str, ConcreteModel]: Dictionary of pyomo instance
         """
 
-        self.formulations_dict = {i.name: formulate_casestudy(scenario=i, constraints=constraints, objective=objective,
-                                                              write_lpfile=write_lpfile, gwp=gwp, land_restriction=land_restriction,
-                                                              gwp_reduction_pct=gwp_reduction_pct, model_class=model_class, objective_resource=objective_resource,
-                                                              inventory_zero=inventory_zero) for i in self.scenarios}
+        self.formulations = {i.name: formulate_casestudy(scenario=i, constraints=constraints, objective=objective,
+                                                         write_lpfile=write_lpfile, gwp=gwp, land_restriction=land_restriction,
+                                                         gwp_reduction_pct=gwp_reduction_pct, model_class=model_class, objective_resource=objective_resource,
+                                                         inventory_zero=inventory_zero) for i in self.scenarios}
 
-        return self.formulations_dict
+        return self.formulations
 
     def solve(self, solver: str, interface: str = 'pyomo', saveformat: str = None, print_solversteps: bool = True, log: bool = False) -> Dict[str, Result]:
         """solves all the instances in the case study
@@ -105,15 +105,15 @@ class CaseStudy:
         Returns:
             Result: result type object
         """
-        if self.formulations_dict is None:
+        if self.formulations is None:
             warn('Instances have not been formulated yet, use .formulate() first')
 
-        instances = list(self.formulations_dict.values())
-        names = list(self.formulations_dict.keys())
+        instances = list(self.formulations.values())
+        names = list(self.formulations.keys())
 
-        self.results_dict = Results(name=self.name + '_results', results={names[i]: solve_casestudy(instance=instances[i], scenario=self.scenarios[i],
-                                                                                                    solver=solver, name=names[
+        self.results = Results(name=self.name + '_results', results={names[i]: solve_casestudy(instance=instances[i], scenario=self.scenarios[i],
+                                                                                               solver=solver, name=names[
             i], interface=interface, saveformat=saveformat,
             print_solversteps=print_solversteps, log=log) for i in range(len(names))})
 
-        return self.results_dict
+        return self.results
