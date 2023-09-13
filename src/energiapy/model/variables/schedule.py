@@ -51,3 +51,17 @@ def generate_scheduling_vars(instance: ConcreteModel, scale_level: int = 0, mode
     instance.P_m = Var(instance.locations, [(i, j) for i in mode_dict.keys(
     ) for j in mode_dict[i]], instance.scales_scheduling, within=NonNegativeReals, doc='Production modes')
     return
+
+
+def generate_scheduling_theta_vars(instance: ConcreteModel):
+    """declares multiparametric pyomo variables for scheduling at the chosen scales
+
+
+    Args:
+        instance (ConcreteModel): pyomo instance
+    """
+
+    instance.C_theta = Var(instance.locations, instance.resources_purch,
+                           instance.scales_scheduling, within=NonNegativeReals, doc='Resource Consumption')
+
+    return
