@@ -242,10 +242,16 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
     """
 
     demand = scenario.demand
+    # if isinstance(demand, dict):
+    #     demand = {i.name: {j.name: demand[i][j]
+    #                        for j in demand[i].keys()} for i in demand.keys()}
     if isinstance(demand, dict):
-        demand = {i.name: {j.name: demand[i][j]
-                           for j in demand[i].keys()} for i in demand.keys()}
-
+        if isinstance(list(demand.keys())[0], Location):
+            try:
+                demand = {i.name: {
+                    j.name: demand[i][j] for j in demand[i].keys()} for i in demand.keys()}
+            except:
+                pass
     if model_class is ModelClass.MIP:
 
         instance = ConcreteModel()
@@ -431,11 +437,11 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
             # # *----------------resource purchase---------------------------------------------
 
             instance.constraint_resource_purchase_certain = make_constraint(
-                instance=instance, type_cons=Cons.X_EQ_BY, variable_x='B', variable_y='C', location_set=instance.locations, component_set=instance.resources_certain_price, b_max=scenario.price,
+                instance=instance, type_cons=Cons.X_EQ_BY, variable_x='B', variable_y='C', location_set=instance.locations, component_set=instance.resources_certain_price, b_max=scenario.price_dict,
                 loc_comp_dict=scenario.loc_res_dict,  x_scale_level=scenario.scheduling_scale_level, y_scale_level=scenario.scheduling_scale_level, label='calculates certain amount spent on resource consumption')
 
             instance.constraint_resource_purchase_varying = make_constraint(
-                instance=instance, type_cons=Cons.X_EQ_BY, variable_x='B', variable_y='C', location_set=instance.locations, component_set=instance.resources_varying_price, b_max=scenario.price,
+                instance=instance, type_cons=Cons.X_EQ_BY, variable_x='B', variable_y='C', location_set=instance.locations, component_set=instance.resources_varying_price, b_max=scenario.price_dict,
                 loc_comp_dict=scenario.loc_res_dict, b_factor=scenario.price_factor, x_scale_level=scenario.scheduling_scale_level, y_scale_level=scenario.scheduling_scale_level, b_scale_level=scenario.purchase_scale_level, label='calculates varying amount spent on resource consumption')
 
             # # *----------------sum P,S,C,B over location---------------------------------------------
@@ -580,7 +586,7 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
                                       demand_factor=scenario.demand_factor, loc_res_dict=scenario.loc_res_dict, sign=demand_sign)
             constraint_network_cost(
                 instance=instance, network_scale_level=scenario.network_scale_level, constraints=constraints)
-            constraint_resource_revenue(instance=instance, loc_res_dict=scenario.loc_res_dict, revenue=scenario.revenue,
+            constraint_resource_revenue(instance=instance, loc_res_dict=scenario.loc_res_dict, revenue=scenario.revenue_dict,
                                         scheduling_scale_level=scenario.scheduling_scale_level, revenue_factor=scenario.revenue_factor)
             constraint_location_revenue(
                 instance=instance, network_scale_level=scenario.network_scale_level, cluster_wt=scenario.cluster_wt, scheduling_scale_level=scenario.scheduling_scale_level)
@@ -604,7 +610,7 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
 
             constraint_network_cost(
                 instance=instance, network_scale_level=scenario.network_scale_level, constraints=constraints)
-            constraint_resource_revenue(instance=instance, loc_res_dict=scenario.loc_res_dict, revenue=scenario.revenue,
+            constraint_resource_revenue(instance=instance, loc_res_dict=scenario.loc_res_dict, revenue=scenario.revenue_dict,
                                         scheduling_scale_level=scenario.scheduling_scale_level, revenue_factor=scenario.revenue_factor)
             constraint_location_revenue(
                 instance=instance, network_scale_level=scenario.network_scale_level, cluster_wt=scenario.cluster_wt, scheduling_scale_level=scenario.scheduling_scale_level)
