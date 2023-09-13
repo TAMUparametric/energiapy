@@ -76,6 +76,8 @@ def price_factor(resource: Resource, location: Location, fig_size: tuple = (12, 
     return
 
 
+
+
 def demand_factor(resource: Resource, location: Location,
                   fig_size: tuple = (12, 6), font_size: int = 16, color: str = 'blue', usetex: bool = False):
     """generates a plot for varying demand factor of resource

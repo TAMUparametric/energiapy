@@ -75,8 +75,9 @@ def generate_sets(instance: ConcreteModel, scenario: Scenario):
     instance.scales = Set(scenario.scales.list,
                           initialize=scenario.scales.scale, doc='set of scales')
 
-    # instance.source_sink_pairs = Set(list(scenario.transport_avail_dict.keys()), initialize = scenario.transport_avail_dict)
-    
+    # instance.source_sink_pairs = Set(list(scenario.transport_avail_dict.keys(
+    # )), initialize={i: list(j) for i, j in scenario.transport_avail_dict.items()})
+
     sets = scenario.set_dict
 
     instance.processes = Set(
