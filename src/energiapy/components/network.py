@@ -69,11 +69,11 @@ class Network:
             transport_avail_dict (dict): transportation modes available between sources and sinks
             locations (list): list of locations, sinks + sources
         """
-        self.transport_dict = self.make_transport_dict()
-        self.distance_dict = self.make_distance_dict()
-        self.transport_avail_dict = self.make_transport_avail_dict()
+        self.transport_dict = self.make_transport_dict() # makes dictionary of available transport options between locations
+        self.distance_dict = self.make_distance_dict() # makes dictionary of distances between locations
+        self.transport_avail_dict = self.make_transport_avail_dict() # same as transport dict, I do not know why I made two, but now I am too scared to change it
         self.locations = list(
-            set(self.source_locations).union(set(self.sink_locations)))
+            set(self.source_locations).union(set(self.sink_locations))) # all locations in network
 
     def make_distance_dict(self) -> dict:
         """returns a dictionary of distances from sources to sinks
