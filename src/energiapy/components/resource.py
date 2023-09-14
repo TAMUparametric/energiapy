@@ -93,7 +93,7 @@ class Resource:
         varying (bool, optional): If the cost of resource is varying/uncertain. Defaults to False.
         label (str, optional): Longer descriptive label if required. Defaults to ''.
         gwp (float, optional): Global Warming Potential per unit consumption of resource. Defaults to 0.
-        varying_bounds (float, optional): bounds for the variability. Defaults to (0,1)
+        varying_bounds (float, optional): bounds for the variability in case of uncertain (for parametric formulation). Defaults to (0,1)
 
 
     Examples:
@@ -132,24 +132,24 @@ class Resource:
             self.sell = True
 
         if self.varying is None:
-            self.varying = []
+            self.varying = []  # if varying is none default to certain availability and price
             if self.cons_max > 0:
                 self.varying = self.varying + \
                     [VaryingResource.CERTAIN_AVAILABILITY,
                         VaryingResource.CERTAIN_PRICE]
 
-            if self.demand is True:
+            if self.demand is True:  # if varying is none, but demand is true, set certain demand
                 self.varying = self.varying + \
                     [VaryingResource.CERTAIN_DEMAND]
             else:
-                if self.sell is True:
+                if self.sell is True:  # sell and demand True, both only differ in the sense that demand sells at a fix rate
                     self.varying = self.varying + \
                         [VaryingResource.CERTAIN_DEMAND]
 
-            if self.revenue is True:
+            if self.revenue is True:  # if varying is none and revenue is True, default to certain revenue
                 self.varying = self.varying + \
                     [VaryingResource.CERTAIN_REVENUE]
-            if self.varying == []:
+            if self.varying == []:  # if none of these get filled. That means that the resource is only produced implicitly
                 self.varying = [VaryingResource.IMPLICIT]
         if not isinstance(self.varying, list):
             warn('Provide a list of VaryingResource enums')
