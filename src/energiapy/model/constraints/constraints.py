@@ -72,6 +72,7 @@ class Cons(Enum):
     X_EQ_SUMCOMP_Y = auto()
     X_EQ_CY = auto()
     X_EQ_C = auto()
+    X_EQ_SUMLOCCOST_Y = auto()
 
 
 def printer(variable_x: str, variable_y: str, type_cons, print_once):
@@ -163,6 +164,25 @@ def make_constraint(instance: ConcreteModel, type_cons: Cons, variable_x: Var, l
 
         return Constraint(component_set, *scales, rule=cons_rule, doc=label)
 
+    elif type_cons == Cons.X_EQ_SUMLOCCOST_Y:
+        def cons_rule(instance, location, *scale):
+            x = getattr(instance, variable_x)[
+                location, scale[:x_scale_level + 1]]
+            d_sum = sum(getattr(instance, variable_y)[location, component_, scale[
+                :y_scale_level + 1]] for component_ in component_set)
+            return x == d_sum
+
+        return Constraint(location_set, *scales, rule=cons_rule, doc=label)
+
+    elif type_cons == Cons.X_EQ_SUMCOST_Y:
+        def cons_rule(instance, *scale):
+            x = getattr(instance, variable_x)[scale[:x_scale_level + 1]]
+            d_sum = sum(getattr(instance, variable_y)[location_, scale[
+                :y_scale_level + 1]] for location_ in location_set)
+            return x == d_sum
+
+        return Constraint(*scales, rule=cons_rule, doc=label)
+
     else:
         def cons_rule(instance, location, component, *scale):
 
@@ -171,10 +191,10 @@ def make_constraint(instance: ConcreteModel, type_cons: Cons, variable_x: Var, l
                 x = getattr(instance, variable_x)[
                     location, scale[:x_scale_level + 1]]
 
-            elif type_cons == Cons.X_EQ_SUMCOST_Y:
+            # elif type_cons == Cons.X_EQ_SUMCOST_Y:
 
-                x = getattr(instance, variable_x)[
-                    scale[:x_scale_level + 1]]
+            #     x = getattr(instance, variable_x)[
+            #         scale[:x_scale_level + 1]]
 
             else:
 
