@@ -285,24 +285,67 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
             constraint_process_incidental(instance=instance, incidental_dict=scenario.incidental_dict,
                                           network_scale_level=scenario.network_scale_level)
 
-            constraint_location_capex(
-                instance=instance, network_scale_level=scenario.network_scale_level)
-            constraint_location_fopex(
-                instance=instance, network_scale_level=scenario.network_scale_level)
-            constraint_location_vopex(
-                instance=instance, network_scale_level=scenario.network_scale_level)
-            constraint_location_incidental(
-                instance=instance, network_scale_level=scenario.network_scale_level)
+            # constraint_location_capex(
+            #     instance=instance, network_scale_level=scenario.network_scale_level)
+            # constraint_location_fopex(
+            #     instance=instance, network_scale_level=scenario.network_scale_level)
+            # constraint_location_vopex(
+            #     instance=instance, network_scale_level=scenario.network_scale_level)
+            # constraint_location_incidental(
+            #     instance=instance, network_scale_level=scenario.network_scale_level)
 
-            constraint_network_capex(
-                instance=instance, network_scale_level=scenario.network_scale_level)
-            constraint_network_fopex(
-                instance=instance, network_scale_level=scenario.network_scale_level)
-            constraint_network_vopex(
-                instance=instance, network_scale_level=scenario.network_scale_level)
+            # *----------------sum capex, fopex, vopex, incidental costs over location ---------------------------------------------
 
-            constraint_network_incidental(
-                instance=instance, network_scale_level=scenario.network_scale_level)
+            instance.constraint_location_capex = make_constraint(
+                instance=instance, type_cons=Cons.X_EQ_SUMLOCCOST_Y, variable_x='Capex_location', variable_y='Capex_process', location_set=instance.locations, component_set=instance.processes,
+                loc_comp_dict=scenario.loc_pro_dict, x_scale_level=scenario.network_scale_level, y_scale_level=scenario.network_scale_level,
+                label='sums up capex from process over a location')
+
+            instance.constraint_location_fopex = make_constraint(
+                instance=instance, type_cons=Cons.X_EQ_SUMLOCCOST_Y, variable_x='Fopex_location', variable_y='Fopex_process', location_set=instance.locations, component_set=instance.processes,
+                loc_comp_dict=scenario.loc_pro_dict, x_scale_level=scenario.network_scale_level, y_scale_level=scenario.network_scale_level,
+                label='sums up fopex from process over a locations')
+
+            instance.constraint_location_vopex = make_constraint(
+                instance=instance, type_cons=Cons.X_EQ_SUMLOCCOST_Y, variable_x='Vopex_location', variable_y='Vopex_process', location_set=instance.locations, component_set=instance.processes,
+                loc_comp_dict=scenario.loc_pro_dict, x_scale_level=scenario.network_scale_level, y_scale_level=scenario.network_scale_level,
+                label='sums up vopex from process over a locations')
+
+            instance.constraint_location_incidental = make_constraint(
+                instance=instance, type_cons=Cons.X_EQ_SUMLOCCOST_Y, variable_x='Incidental_location', variable_y='Incidental_process', location_set=instance.locations, component_set=instance.processes,
+                loc_comp_dict=scenario.loc_pro_dict, x_scale_level=scenario.network_scale_level, y_scale_level=scenario.network_scale_level,
+                label='sums up incidental expenditure from process over a location')
+
+            # constraint_network_capex(
+            #     instance=instance, network_scale_level=scenario.network_scale_level)
+            # constraint_network_fopex(
+            #     instance=instance, network_scale_level=scenario.network_scale_level)
+            # constraint_network_vopex(
+            #     instance=instance, network_scale_level=scenario.network_scale_level)
+            # constraint_network_incidental(
+            #     instance=instance, network_scale_level=scenario.network_scale_level)
+
+            # *----------------sum capex, fopex, vopex, incidental costs over network ---------------------------------------------
+
+            instance.constraint_network_capex = make_constraint(
+                instance=instance, type_cons=Cons.X_EQ_SUMCOST_Y, variable_x='Capex_network', variable_y='Capex_location', location_set=instance.locations, component_set=instance.processes,
+                loc_comp_dict=scenario.loc_pro_dict, x_scale_level=scenario.network_scale_level, y_scale_level=scenario.network_scale_level,
+                label='sums up capex from process over all locations in network')
+
+            instance.constraint_network_fopex = make_constraint(
+                instance=instance, type_cons=Cons.X_EQ_SUMCOST_Y, variable_x='Fopex_network', variable_y='Fopex_location', location_set=instance.locations, component_set=instance.processes,
+                loc_comp_dict=scenario.loc_pro_dict, x_scale_level=scenario.network_scale_level, y_scale_level=scenario.network_scale_level,
+                label='sums up fopex from process over all locations in network')
+
+            instance.constraint_network_vopex = make_constraint(
+                instance=instance, type_cons=Cons.X_EQ_SUMCOST_Y, variable_x='Vopex_network', variable_y='Vopex_location', location_set=instance.locations, component_set=instance.processes,
+                loc_comp_dict=scenario.loc_pro_dict, x_scale_level=scenario.network_scale_level, y_scale_level=scenario.network_scale_level,
+                label='sums up vopex from process over all locations in network')
+
+            instance.constraint_network_incidental = make_constraint(
+                instance=instance, type_cons=Cons.X_EQ_SUMCOST_Y, variable_x='Incidental_network', variable_y='Incidental_location', location_set=instance.locations, component_set=instance.processes,
+                loc_comp_dict=scenario.loc_pro_dict, x_scale_level=scenario.network_scale_level, y_scale_level=scenario.network_scale_level,
+                label='sums up incidental expenditure from process over all locations in network')
 
         if Constraints.EMISSION in constraints:
             generate_emission_vars(
