@@ -207,6 +207,8 @@ class Scenario:
         self.fail_factor = {i.name: i.fail_factor for i in self.location_set}
         self.credit_dict = {i.name: {j.name: i.credit[j] for j in i.credit.keys(
         )} for i in self.location_set if i.credit is not None}
+        self.emission_dict = {
+            i.name: {j.name: {l.name: m for l, m in k.items()} for j, k in i.emission_dict.items()} for i in self.location_set}
         self.process_resource_dict = {
             i.name: i.resource_req for i in self.process_set}
         # self.process_material_dict = {i.name: {j.name: i.material_cons[j] for j in i.material_cons.keys()} if i.material_cons is not None else None for i in
