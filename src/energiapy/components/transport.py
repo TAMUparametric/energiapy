@@ -51,6 +51,7 @@ class Transport:
     trans_loss: float = 0
     trans_cost: float = 0
     trans_emit: float = 0
+    trans_capex: float = 0
     citation: str = 'citation needed'
     label: str = ''
 
@@ -62,3 +63,7 @@ class Transport:
 
     def __eq__(self, other):
         return self.name == other.name
+
+
+
+

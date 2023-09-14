@@ -15,6 +15,7 @@ from pyomo.environ import ConcreteModel, Constraint
 from ...utils.latex_utils import constraint_latex_render
 from ...utils.scale_utils import scale_list
 
+
 def constraint_credit_process(instance: ConcreteModel, credit_dict: dict, network_scale_level: int = 0) -> Constraint:
     """Credit generated for each process at location in network
 
@@ -26,7 +27,8 @@ def constraint_credit_process(instance: ConcreteModel, credit_dict: dict, networ
     Returns:
         Constraint: credit_process
     """
-    scales = scale_list(instance=instance, scale_levels=network_scale_level + 1)
+    scales = scale_list(instance=instance,
+                        scale_levels=network_scale_level + 1)
 
     def credit_process_rule(instance, location, process, *scale_list):
         if credit_dict != {}:
@@ -34,9 +36,9 @@ def constraint_credit_process(instance: ConcreteModel, credit_dict: dict, networ
                 return instance.Credit_process[location, process, scale_list] == credit_dict[location][process] * instance.P_location[
                     location, process, scale_list]
             else:
-                return Constraint.Skip
+                return instance.Credit_process[location, process, scale_list] == 0
         return Constraint.Skip
-    
+
     instance.constraint_credit_process = Constraint(
         instance.locations, instance.processes, *scales, rule=credit_process_rule, doc='credit generated for process')
     constraint_latex_render(credit_process_rule)
@@ -53,7 +55,8 @@ def constraint_credit_location(instance: ConcreteModel, network_scale_level: int
     Returns:
         Constraint: credit_location
     """
-    scales = scale_list(instance=instance, scale_levels=network_scale_level + 1)
+    scales = scale_list(instance=instance,
+                        scale_levels=network_scale_level + 1)
 
     def credit_location_rule(instance, location, *scale_list):
         return instance.Credit_location[location, scale_list] == sum(
@@ -75,7 +78,8 @@ def constraint_credit_network(instance: ConcreteModel, network_scale_level: int 
     Returns:
         Constraint: credit_network
     """
-    scales = scale_list(instance=instance, scale_levels=network_scale_level + 1)
+    scales = scale_list(instance=instance,
+                        scale_levels=network_scale_level + 1)
 
     def credit_network_rule(instance, *scale_list):
         return instance.Credit_network[scale_list] == sum(

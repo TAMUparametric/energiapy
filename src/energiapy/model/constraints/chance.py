@@ -17,7 +17,7 @@ __status__ = "Production"
 # from ...utils.latex_utils import constraint_latex_render
 # from ...utils.scale_utils import scale_list, scale_tuple
 # from ...fitting.dist import fit
-# from ...utils.data_utils import min_max
+# from ...utils.math_utils import min_max
 
 
 # def constraint_demand_chance(instance: ConcreteModel, demand_factor:dict, guarantee: float, dist:str = 'norm', demand_scale_level: int = 0, scheduling_scale_level: int = 0,loc_res_dict: dict = None, ) -> Constraint:

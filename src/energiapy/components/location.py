@@ -96,24 +96,28 @@ class Location:
             failure_processes (Set): set of processes with failure rates
             fail_factor (Dict[Process, float]): creates a dictionary with failure points on a temporal scale
         """
-        self.resources = self.get_resources()
+        self.resources = self.get_resources()  # fetch all resources required
         self.resources_full = self.resources.union(
-            {i.resource_storage for i in self.processes if i.resource_storage is not None})
-        self.materials = self.get_materials()
+            {i.resource_storage for i in self.processes if i.resource_storage is not None})  # includes storage resources
+        self.materials = self.get_materials()  # fetch all materials required
         self.scale_levels = self.scales.scale_levels
         self.processes_full = self.processes.union({create_storage_process(
             i) for i in self.processes if i.processmode == ProcessMode.STORAGE})
-        self.prod_max = self.get_prod_max()
-        self.prod_min = self.get_prod_min()
-        self.resource_price = self.get_resource_price()
+        self.prod_max = self.get_prod_max()  # dicitionary of maximum production
+        self.prod_min = self.get_prod_min()  # dictionary of minimum production
+        self.resource_price = self.get_resource_price()  # dictionary of resource prices
+        # dictionary of resource selling prices
         self.resource_revenue = self.get_resource_revenue()
+        # fetch all processes with failure rates set
         self.failure_processes = self.get_failure_processes()
         self.fail_factor = self.make_fail_factor()
+        self.emission_dict = {i: i.emission_dict for i in self.processes_full}
         if self.capacity_factor is not None:
+            # fetch all processes with varying capacities
             self.varying_capacity = set(self.capacity_factor.keys())
             if isinstance(list(self.capacity_factor.values())[0], DataFrame):
                 self.capacity_factor = scale_changer(
-                    self.capacity_factor, scales=self.scales, scale_level=self.capacity_scale_level)
+                    self.capacity_factor, scales=self.scales, scale_level=self.capacity_scale_level)  # changes the scales to tuple
             else:
                 warn(
                     'Input should be a dict of a DataFrame, Dict[Process, float]')
@@ -122,7 +126,7 @@ class Location:
             self.varying_cost = set(self.price_factor.keys())
             if isinstance(list(self.price_factor.values())[0], DataFrame):
                 self.price_factor = scale_changer(
-                    self.price_factor, scales=self.scales, scale_level=self.price_scale_level)
+                    self.price_factor, scales=self.scales, scale_level=self.price_scale_level)  # changes the scales to tuple
             else:
                 warn(
                     'Input should be a dict of a DataFrame, Dict[Resource, float]')
@@ -131,7 +135,7 @@ class Location:
             self.varying_demand = set(self.demand_factor.keys())
             if isinstance(list(self.demand_factor.values())[0], DataFrame):
                 self.demand_factor = scale_changer(
-                    self.demand_factor, scales=self.scales, scale_level=self.demand_scale_level)
+                    self.demand_factor, scales=self.scales, scale_level=self.demand_scale_level)  # changes the scales to tuple
             else:
                 warn(
                     'Input should be a dict of a DataFrame, Dict[Resource, float]')
@@ -140,7 +144,7 @@ class Location:
             self.varying_availability = set(self.availability_factor.keys())
             if isinstance(list(self.availability_factor.values())[0], DataFrame):
                 self.availability_factor = scale_changer(
-                    self.availability_factor, scales=self.scales, scale_level=self.availability_scale_level)
+                    self.availability_factor, scales=self.scales, scale_level=self.availability_scale_level)  # changes the scales to tuple
             else:
                 warn(
                     'Input should be a dict of a DataFrame, Dict[Resource, float]')
@@ -149,7 +153,7 @@ class Location:
             self.varying_revenue = set(self.revenue_factor.keys())
             if isinstance(list(self.revenue_factor.values())[0], DataFrame):
                 self.revenue_factor = scale_changer(
-                    self.revenue_factor, scales=self.scales, scale_level=self.demand_scale_level)
+                    self.revenue_factor, scales=self.scales, scale_level=self.demand_scale_level)  # changes the scales to tuple
             else:
                 warn(
                     'Input should be a dict of a DataFrame, Dict[Resource, float]')
@@ -158,7 +162,7 @@ class Location:
             self.varying_capex = set(self.capex_factor.keys())
             if isinstance(list(self.capex_factor.values())[0], DataFrame):
                 self.capex_factor = scale_changer(
-                    self.capex_factor, scales=self.scales, scale_level=self.expenditure_scale_level)
+                    self.capex_factor, scales=self.scales, scale_level=self.expenditure_scale_level)  # changes the scales to tuple
             else:
                 warn(
                     'Input should be a dict of a DataFrame, Dict[Resource, float]')
@@ -167,7 +171,7 @@ class Location:
             self.varying_vopex = set(self.vopex_factor.keys())
             if isinstance(list(self.vopex_factor.values())[0], DataFrame):
                 self.vopex_factor = scale_changer(
-                    self.vopex_factor, scales=self.scales, scale_level=self.expenditure_scale_level)
+                    self.vopex_factor, scales=self.scales, scale_level=self.expenditure_scale_level)  # changes the scales to tuple
             else:
                 warn(
                     'Input should be a dict of a DataFrame, Dict[Resource, float]')
@@ -176,7 +180,7 @@ class Location:
             self.varying_fopex = set(self.fopex_factor.keys())
             if isinstance(list(self.fopex_factor.values())[0], DataFrame):
                 self.fopex_factor = scale_changer(
-                    self.fopex_factor, scales=self.scales, scale_level=self.expenditure_scale_level)
+                    self.fopex_factor, scales=self.scales, scale_level=self.expenditure_scale_level)  # changes the scales to tuple
             else:
                 warn(
                     'Input should be a dict of a DataFrame, Dict[Resource, float]')
@@ -185,7 +189,7 @@ class Location:
             self.varying_incidental = set(self.incidental_factor.keys())
             if isinstance(list(self.incidental_factor.values())[0], DataFrame):
                 self.incidental_factor = scale_changer(
-                    self.incidental_factor, scales=self.scales, scale_level=self.expenditure_scale_level)
+                    self.incidental_factor, scales=self.scales, scale_level=self.expenditure_scale_level)  # changes the scales to tuple
             else:
                 warn(
                     'Input should be a dict of a DataFrame, Dict[Resource, float]')

@@ -97,7 +97,7 @@ def agg_hierarchial(scales: TemporalScale, scale_level: int, periods: int, inclu
         # demand_factor_df = pandas.DataFrame(demand_factor)
     else:
         demand_factor_df = None
-
+        
     combined_df = pandas.concat([price_factor_df, capacity_factor_df, demand_factor_df],
                                 axis=1).reset_index(drop=True)
     # makes a common data frame with all different data sets

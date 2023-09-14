@@ -315,20 +315,7 @@ def remove_outliers(data: pandas.DataFrame, sd_cuttoff: int = 2, mean_range: int
     return data
 
 
-def min_max(data: Union[numpy.array, pandas.DataFrame]) -> Union[numpy.array, pandas.DataFrame]:
-    """min max for data
 
-    Args:
-        data (numpy.array): time-series data 
-
-    Returns:
-        Union[numpy.array, pandas.DataFrame]: min-maxed data array
-    """
-    min_data = numpy.min(data)
-    max_data = numpy.max(data)
-    data = (data - numpy.min(data)) / (max_data - min_data)
-
-    return data
 
 
 def calculate_hourly(data: pandas.DataFrame, column_name: str, what: str = 'mean') -> pandas.DataFrame:
