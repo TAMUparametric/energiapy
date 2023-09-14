@@ -43,9 +43,9 @@ _time_intervals = 10  # Number of time intervals in a planning horizon    (L_chi
 _commodities = 1  # Number of commodities                             (rho)
 _exec_scenarios = 4  # Number of execution scenarios                     (chi)
 
-M = 1e5  # Big M
+M = 1e3  # Big M
 
-availability_factor_com1 = pandas.DataFrame(data={'com_cons': [1,1,1,0]})
+availability_factor = pandas.DataFrame(data={'com_cons': [1, 1, 1, 0.01]})
 
 # Define temporal scales
 scales = TemporalScale(discretization_list=[_exec_scenarios, _time_intervals])
@@ -83,7 +83,7 @@ store50 = Process(name='store50', storage=com1, store_max=50, prod_max=200, cape
 # Declare locations/warehouses
 # ======================================================================================================================
 loc1 = Location(name='loc1', processes={procure, store20}, label="Location 1", scales=scales, demand_scale_level=1,
-                capacity_scale_level=0, availability_scale_level=0, availability_factor={com_cons: availability_factor_com1})
+                capacity_scale_level=0, availability_scale_level=0, availability_factor={com_cons: availability_factor})
 loc2 = Location(name='loc2', processes={store20}, label="Location 2", scales=scales, demand_scale_level=1,
                 capacity_scale_level=0, availability_scale_level=0)
 loc3 = Location(name='loc3', processes={store20}, label="Location 3", scales=scales, demand_scale_level=1,
@@ -93,7 +93,7 @@ loc4 = Location(name='loc4', processes={store50}, label="Location 4", scales=sca
 loc5 = Location(name='loc5', processes={store50, sell}, label="Location 5", scales=scales, demand_scale_level=1,
                 capacity_scale_level=0, availability_scale_level=0)
 loc6 = Location(name='loc6', processes={procure, store10}, label="Location 6", scales=scales, demand_scale_level=1,
-                capacity_scale_level=0, availability_scale_level=0, availability_factor={com_cons: availability_factor_com1})
+                capacity_scale_level=0, availability_scale_level=0, availability_factor={com_cons: availability_factor})
 loc7 = Location(name='loc7', processes={store10}, label="Location 7", scales=scales, demand_scale_level=1,
                 capacity_scale_level=0, availability_scale_level=0)
 
@@ -146,14 +146,15 @@ demand_dict = {i: {com_sold: 100} if i == loc5 else {com_sold: 0} for i in locse
 demand_penalty_dict = {i: {com_sold: 75} if i == loc5 else {com_sold: 0} for i in locset}
 
 scenario = Scenario(name='scenario', scales=scales, scheduling_scale_level=1, network_scale_level=0,
-                    purchase_scale_level=1, availability_scale_level=0, demand_scale_level=1,
+                    purchase_scale_level=0, availability_scale_level=0, demand_scale_level=1,
                     network=network, demand=demand_dict, demand_penalty=demand_penalty_dict, label='scenario')
 
 problem = formulate(scenario=scenario, constraints={Constraints.COST, Constraints.TRANSPORT,
                                                     Constraints.RESOURCE_BALANCE, Constraints.PRODUCTION,
-                                                    Constraints.INVENTORY, Constraints.DEMAND}, demand_sign='geq',
+                                                    Constraints.INVENTORY, Constraints.DEMAND}, demand_sign='leq',
                     objective=Objective.PROFIT_W_DEMAND_PENALTY)
 
 results = solve(scenario=scenario, instance=problem, solver='gurobi', name='MILP')
 
+print(availability_factor)
 print([(key, value) for key, value in results.output['S'].items() if value != 0])
