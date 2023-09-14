@@ -175,12 +175,13 @@ class Process:
             cost_dynamics (CostDynamics): Determines whether the cost scales linearly with the unit capacity, or is a piecewise-linear function.
         """
 
-        if self.varying is None: # if nothing is varying, set defaults to CERTAIN_X
+        if self.varying is None:  # if nothing is varying, set defaults to CERTAIN_X
             self.varying = []
             if (self.capex is not None) or (self.fopex is not None) or (self.vopex is not None):
                 self.varying = self.varying + \
                     [VaryingProcess.CERTAIN_EXPENDITURE]
-            if isinstance(self.prod_max, dict): # if maximum production is dictionary, that means that the process uses multiple modes
+            # if maximum production is dictionary, that means that the process uses multiple modes
+            if isinstance(self.prod_max, dict):
                 self.varying = self.varying + [VaryingProcess.MULTIMODE]
             else:
                 if self.prod_max > 0:
@@ -195,28 +196,30 @@ class Process:
 
         if self.storage is not None:
             self.resource_storage = create_storage_resource(
-                process_name=self.name, resource=self.storage, store_max=self.store_max, store_min=self.store_min) # create a dummy resource if process is storage type. 
-            self.conversion = {self.storage: -1, self.resource_storage: 1} # efficiency of input to storage is 100 percent
-            self.conversion_discharge = { 
-                self.resource_storage: -1, self.storage: 1*(1 - self.storage_loss)} # the losses are all at the output (retrival)
+                process_name=self.name, resource=self.storage, store_max=self.store_max, store_min=self.store_min)  # create a dummy resource if process is storage type.
+            # efficiency of input to storage is 100 percent
+            self.conversion = {self.storage: -1, self.resource_storage: 1}
+            self.conversion_discharge = {
+                self.resource_storage: -1, self.storage: 1*(1 - self.storage_loss)}  # the losses are all at the output (retrival)
             self.processmode = ProcessMode.STORAGE
 
         else:
-            self.conversion_discharge = None 
+            self.conversion_discharge = None
             self.resource_storage = None
             if isinstance(list(self.conversion.keys())[0], int):
-                self.processmode = ProcessMode.MULTI 
+                self.processmode = ProcessMode.MULTI
             else:
                 self.processmode = ProcessMode.SINGLE
 
         if isinstance(self.capex, (int, float)):
             self.cost_dynamics = CostDynamics.CONSTANT
         elif isinstance(self.capex, dict):
-            self.cost_dynamics = CostDynamics.PWL # Capex dictionaries are only provided for piece-wise linear cost functions
+            # Capex dictionaries are only provided for piece-wise linear cost functions
+            self.cost_dynamics = CostDynamics.PWL
 
         if self.processmode is ProcessMode.MULTI:
             self.resource_req = {
-                i.name for i in self.conversion[list(self.conversion.keys())[0]].keys()} # the required resources are drawn from the conversion dict, this includes stored resource
+                i.name for i in self.conversion[list(self.conversion.keys())[0]].keys()}  # the required resources are drawn from the conversion dict, this includes stored resource
         else:
             self.resource_req = {i.name for i in self.conversion.keys()}
 
@@ -226,8 +229,10 @@ class Process:
                     'The keys for prod_max and conversion need to match if ProcessMode.multi')
 
         if self.cost_dynamics == CostDynamics.PWL:
-            self.capacity_segments = list(self.capex.keys()) 
+            self.capacity_segments = list(self.capex.keys())
             self.capex_segements = list(self.capex.values())
+
+        self.emission_dict = {i: i.emissions for i in self.conversion.keys()}
 
     def __repr__(self):
         return self.name
