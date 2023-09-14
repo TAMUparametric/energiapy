@@ -34,8 +34,8 @@ class TemporalScale:
         >>> scales = temporal_scale(discretization_list = [1, 365, 24], start_zero= 1993)
 
     """
-    discretization_list: list
-    start_zero: int = None
+    discretization_list: list 
+    start_zero: int = None 
 
     def __post_init__(self):
         """
@@ -48,7 +48,7 @@ class TemporalScale:
             scale_levels (int): levels of the scale.
         """
 
-        self.scale_levels = len(self.discretization_list)
+        self.scale_levels = len(self.discretization_list) 
         self.scale = {i: list(range(self.discretization_list[i])) for i in range(self.scale_levels)}
         self.list = list(range(len(self.discretization_list)))
         self.name = str(self.list)
