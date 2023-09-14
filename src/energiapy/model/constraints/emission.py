@@ -213,3 +213,25 @@ def constraint_global_warming_potential_network_bound(instance: ConcreteModel, g
     constraint_latex_render(global_warming_potential_network_bound_rule)
     return Constraint(
         *scales, rule=global_warming_potential_network_bound_rule, doc='global warming potential bound for the whole network')
+
+
+
+def constraint_global_warming_potential_20_resource(instance: ConcreteModel, emission_dict: dict, network_scale_level: int = 0) -> Constraint:
+    """calculates global warming potential for each process
+
+    Args:
+        instance (ConcreteModel): pyomo model instance
+        process_gwp_dict (dict): _description_
+        network_scale_level (int, optional): scale for network decisions. Defaults to 0.
+
+    Returns:
+        Constraint: global_warming_potential_process
+    """
+    scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
+
+    def global_warming_potential_process_rule(instance, location, process, resource, *scale_list):
+        return instance.global_warming_potential_20_resource[location, resource, scale_list] == emission_dict[location][process][resource]*instance.Cap_P[location, process, scale_list]
+    instance.constraint_global_warming_potential_process = Constraint(
+        instance.locations, instance.processes, *scales, rule=global_warming_potential_process_rule, doc='global warming potential for the each process')
+    constraint_latex_render(global_warming_potential_process_rule)
+    return instance.constraint_global_warming_potential_process
