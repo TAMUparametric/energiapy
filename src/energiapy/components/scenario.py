@@ -191,7 +191,8 @@ class Scenario:
                              for i in self.location_set}
         # TODO change to be location wise
         self.price_dict = {i.name: i.resource_price for i in self.location_set}
-        self.revenue = {i.name: i.resource_revenue for i in self.location_set}
+        self.revenue_dict = {
+            i.name: i.resource_revenue for i in self.location_set}
         self.capex_dict = {i.name: i.capex for i in self.process_set}
         self.fopex_dict = {i.name: i.fopex for i in self.process_set}
         self.vopex_dict = {i.name: i.vopex for i in self.process_set}
