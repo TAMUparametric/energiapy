@@ -5,45 +5,37 @@ __author__ = "Rahul Kakodkar"
 __copyright__ = "Copyright 2023, Multi-parametric Optimization & Control Lab"
 __credits__ = ["Rahul Kakodkar", "Efstratios N. Pistikopoulos"]
 __license__ = "MIT"
-__version__ = "1.0.5"
+__version__ = "2.0.0"
 __maintainer__ = "Rahul Kakodkar"
 __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
-# from typing import Union, Dict
-
-# from pyomo.environ import ConcreteModel, Constraint
-
-# from ...utils.latex_utils import constraint_latex_render
-# from ...utils.scale_utils import scale_list, scale_tuple
-# from ...fitting.dist import fit
-# from ...utils.math_utils import min_max
+from pyomo.environ import ConcreteModel, Constraint
+from ...utils.scale_utils import scale_list
+from ...utils.math_utils import norm_constant
 
 
-# def constraint_demand_chance(instance: ConcreteModel, demand_factor:dict, guarantee: float, dist:str = 'norm', demand_scale_level: int = 0, scheduling_scale_level: int = 0,loc_res_dict: dict = None, ) -> Constraint:
 
-#     # scales = scale_list(instance= instance, scale_levels = demand_scale_level+1)
-#     scales = scale_list(instance=instance,
-#                         scale_levels=len(instance.scales))
-#     scale_iter = scale_tuple(
-#         instance=instance, scale_levels=scheduling_scale_level + 1)
+def chance_normal(instance: ConcreteModel, a: str, b: float, b_factor: dict, mean: float, sd: float, compliance_list: list,  alpha: float) -> Constraint:
+    """Generates a chance constraint
 
-#     if loc_res_dict is None:
-#         loc_res_dict = dict()
+    Args:
+        instance (ConcreteModel): pyomo instance
+        a (str): variable 
+        b (float): maximum b
+        b_factor (dict): dictionary with varying b temporal data
+        mean (float): mean
+        sd (float): standard deviation
+        compliance_list (list): discretization to sample normal distribution at
+        alpha (float): level of compliance
 
-#     def norm_constant(p, mu, sigma):
-#         x = mu + erf(1 / sqrt(2) * p) * sigma * sqrt(2)
-#         return 1 / (sigma * sqrt(2 * pi)) * exp(-(x - mu)**2 / (2 * sigma**2))
+    Returns:
+        Constraint: chance constraint for normal demand of the form: a < b*b_factor*(mean - (1 - alpha*complaince[alpha])*sd)
+    """
+    c_dict = {p: norm_constant(p, mean, sd) for p in compliance_list}
+    scales = scale_list(instance=instance,
+                        scale_levels=2)
 
-#         data = demand_factor[location].to_numpy()
-#         data = min_max(data)
-#         fit_summary = fit(data)
-#         mu = fit_summary.loc[dist]['loc']
-#         sigma = fit_summary.loc[dist]['scale']
-#         c= norm_constant(guarantee, mu, sigma)
-
-
-#     def demand_chance_rule(instance, location, resource, *scale_list):
-
-#     constraint_latex_render(demand_chance_rule)
-#     return instance.constraint_demand
+    def chance_rule(instance, location, resource, *scales):
+        return getattr(instance, a)[location, resource, scales] >= b*b_factor[scales]*(mean - (1 - alpha*c_dict[alpha])*sd)
+    return Constraint(instance.locations, instance.resources_demand, *scales, rule=chance_rule)
