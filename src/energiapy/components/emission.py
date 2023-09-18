@@ -97,16 +97,3 @@ class Emission:
     def __eq__(self, other):
         return self.name == other.name
 
-# # Create instances of the data class
-# '''All global warming and global temperature potentials have been updated with the latest IPCC Annual Report 6'''
-# CO2 = Emission(name = 'CO2', gwp20 = 1, gwp100 = 1, gwp500 = 1, gtp20 = 1, gtp100 = 1, gtp500 = 1, ap = 0, ep = 0, pocp = 0, odp = 0, adpmm = 0, adpff = 0)
-# CH4 = Emission(name = 'CH4', gwp20 = 81.2, gwp100 = 27.9, gwp500 = 7.95)
-# N20 = Emission(name = 'N2O', gwp20 = 273, gwp100 = 273, gwp500 = 130)
-
-# # Access attributes
-# print(CO2.gwp100) 
-# print(CH4.gwp500)   
-
-# # __repr__ method?
-# print(N20)
-
