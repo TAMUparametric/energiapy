@@ -15,9 +15,8 @@ from ...utils.scale_utils import scale_list
 from ...utils.math_utils import norm_constant
 
 
-
-def chance_normal(instance: ConcreteModel, a: str, b: float, b_factor: dict, mean: float, sd: float, compliance_list: list,  alpha: float) -> Constraint:
-    """Generates a chance constraint
+def chance_normal(instance: ConcreteModel, a: str, b: float, b_factor: dict, mean: float, sd: float, compliance_list: list,  alpha: float, sign: str) -> Constraint:
+    """Generates a chance constraint for normal distribution 
 
     Args:
         instance (ConcreteModel): pyomo instance
@@ -28,6 +27,7 @@ def chance_normal(instance: ConcreteModel, a: str, b: float, b_factor: dict, mea
         sd (float): standard deviation
         compliance_list (list): discretization to sample normal distribution at
         alpha (float): level of compliance
+        sign (str): 'leq', 'eq', 'geq'
 
     Returns:
         Constraint: chance constraint for normal demand of the form: a < b*b_factor*(mean - (1 - alpha*complaince[alpha])*sd)
@@ -37,5 +37,12 @@ def chance_normal(instance: ConcreteModel, a: str, b: float, b_factor: dict, mea
                         scale_levels=2)
 
     def chance_rule(instance, location, resource, *scales):
-        return getattr(instance, a)[location, resource, scales] >= b*b_factor[scales]*(mean - (1 - alpha*c_dict[alpha])*sd)
+        lhs = getattr(instance, a)[location, resource, scales]
+        rhs = b*b_factor[scales]*(mean - (1 - alpha*c_dict[alpha])*sd)
+        if sign == 'leq':
+            return lhs <= rhs
+        if sign == 'eq':
+            return lhs == rhs
+        if sign == 'geq':
+            return lhs >= rhs
     return Constraint(instance.locations, instance.resources_demand, *scales, rule=chance_rule)
