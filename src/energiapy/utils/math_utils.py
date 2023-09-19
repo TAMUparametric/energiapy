@@ -15,6 +15,22 @@ import numpy
 import pandas
 from sklearn.preprocessing import StandardScaler
 from typing import Union
+from math import erf, sqrt, pi, exp
+
+
+def norm_constant(p, mu, sigma) -> float:
+    """Calculates the normal constant
+
+    Args:
+        p (float): level of complaince 
+        mu (float): mean 
+        sigma (float): standard deviation
+
+    Returns:
+        float: normal constant
+    """
+    x = mu + erf(1 / sqrt(2) * p) * sigma * sqrt(2)
+    return 1 / (sigma * sqrt(2 * pi)) * exp(-(x - mu)**2 / (2 * sigma**2))
 
 
 def scaler(input_df: pandas.DataFrame, scale: list, child_scale: list = None) -> pandas.DataFrame:
