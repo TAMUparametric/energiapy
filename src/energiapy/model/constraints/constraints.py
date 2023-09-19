@@ -11,7 +11,7 @@ __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
 from enum import Enum, auto
-from typing import Union, Dict, Tuple
+from typing import Dict, Tuple
 
 from pyomo.environ import ConcreteModel, Constraint, Var, Set
 
