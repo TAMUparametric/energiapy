@@ -48,6 +48,8 @@ class CostY(Enum):
     VOPEX = auto()
     FOPEX = auto()
 
+import matplotlib.pyplot as plt
+from matplotlib import rc
 
 def schedule(results: Result, y_axis: str, component: str, location: str, fig_size: tuple = (12, 6), font_size: int = 16, color: str = 'blue', usetex: bool = False):
     """generates a plot for scheduling result
@@ -243,10 +245,10 @@ def cost(results: Union[Result, List[Result]], x: CostX, y: CostY, location: str
         color (str, optional): Defaults to 'blue'.
         usetex (bool, optional): Defaults to False.
     """
-    
+
     if isinstance(results, list):
         pass
-    
+
     else:
         if y is CostY.CAPEX:
             res_dict = results.output['Capex_process']
@@ -320,7 +322,7 @@ def cost(results: Union[Result, List[Result]], x: CostX, y: CostY, location: str
     if x == CostX.SCENARIO_WISE:
 
         scenarios =  tuple([i.name for i in results])
-        
+
         weight_counts = dict()
 
         for i in list(results.components['processes'].keys()):
@@ -351,7 +353,7 @@ def cost(results: Union[Result, List[Result]], x: CostX, y: CostY, location: str
         plt.rcdefaults()
         plt.plot()
 
-        
+
     return
 
 
