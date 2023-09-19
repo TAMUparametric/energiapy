@@ -103,7 +103,7 @@ class Scenario:
             loc_pro_dict (dict): A dictionary with Location-wise availability of Process objects.
             loc_mat_dict (dict): A dictionary with Location-wise availability of Material objects.
             price_dict (dict): A dictionary with Location-wise purchase price of Resource objects
-            revenue (dict): A dictionary with Location-wise revenue from selling resource objects
+            revenue_dict (dict): A dictionary with Location-wise revenue from selling resource objects
             capex_dict (dict): A dictionary with capital expenditure data for each Process.
             fopex_dict (dict): A dictionary with fixed operational expenditure data for each Process.
             vopex_dict (dict): A dictionary with variable operational expenditure data for each Process.
@@ -208,8 +208,9 @@ class Scenario:
         self.fail_factor = {i.name: i.fail_factor for i in self.location_set}
         self.credit_dict = {i.name: {j.name: i.credit[j] for j in i.credit.keys(
         )} for i in self.location_set if i.credit is not None}
-        self.emission_dict = {
-            i.name: {j.name: {l.name: k[l] for l in k.keys()} for j, k in i.emission_dict.items()} for i in self.location_set}
+
+        self.emission_dict = {i.name: {j.name: {l.name: {n.name: o for n, o in m.items(
+        )} if m is not None else None for l, m in k.items()} for j, k in i.emission_dict.items()} for i in self.location_set}
         self.process_resource_dict = {
             i.name: i.resource_req for i in self.process_set}
         # self.process_material_dict = {i.name: {j.name: i.material_cons[j] for j in i.material_cons.keys()} if i.material_cons is not None else None for i in
