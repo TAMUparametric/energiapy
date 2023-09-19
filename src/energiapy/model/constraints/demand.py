@@ -10,15 +10,12 @@ __maintainer__ = "Rahul Kakodkar"
 __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
-from typing import Union, Dict, Tuple
+from typing import Union, Tuple
 
 from pyomo.environ import ConcreteModel, Constraint
 
 from ...utils.latex_utils import constraint_latex_render
 from ...utils.scale_utils import scale_list, scale_tuple
-from ...components.resource import Resource
-from ...components.location import Location
-from ...components.process import Process
 
 
 def constraint_demand(instance: ConcreteModel, demand: Union[dict, float], demand_factor: Union[dict, float],
