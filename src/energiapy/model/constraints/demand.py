@@ -18,6 +18,49 @@ from ...utils.latex_utils import constraint_latex_render
 from ...utils.scale_utils import scale_list, scale_tuple
 
 
+# def constraint_demand(instance: ConcreteModel, demand: Union[dict, float], demand_factor: Union[dict, float],
+#                       demand_scale_level: int = 0, scheduling_scale_level: int = 0,
+#                       cluster_wt: dict = None, loc_res_dict: dict = None, sign: str = 'geq'):
+
+#     scales = scale_list(instance=instance,
+#                         scale_levels=scheduling_scale_level + 1)
+#     scale_iter = scale_tuple(
+#         instance=instance, scale_levels=scheduling_scale_level + 1)
+#     if loc_res_dict is None:
+#         loc_res_dict = dict()
+
+#     def demand_rule(instance, location, resource, *scale_list):
+#         discharge = sum(instance.S[location, resource, scale_] for scale_ in scale_iter if scale_[
+#             :demand_scale_level + 1] == scale_list)
+
+#         if resource in instance.resources_varying_demand:
+#             demandtarget = demand[location][resource] * \
+#                 demand_factor[location][resource][scale_list[:scheduling_scale_level + 1]]
+#         else:
+#             demandtarget = demand[location][resource]
+
+#         if sign == 'geq':
+#             return discharge >= demandtarget
+
+#         if sign == 'leq':
+#             return discharge <= demandtarget
+
+#         if sign == 'eq':
+#             return discharge == demandtarget
+
+#     if len(instance.locations) > 1:
+#         instance.constraint_demand = Constraint(
+#             instance.sinks, instance.resources_demand, *scales, rule=demand_rule, doc='specific demand for resources')
+
+#     else:
+#         instance.constraint_demand = Constraint(
+#             instance.locations, instance.resources_demand, *scales, rule=demand_rule,
+#             doc='specific demand for resources')
+
+#     constraint_latex_render(demand_rule)
+#     return instance.constraint_demand
+
+
 def constraint_demand(instance: ConcreteModel, demand: Union[dict, float], demand_factor: Union[dict, float],
                       demand_scale_level: int = 0, scheduling_scale_level: int = 0,
                       cluster_wt: dict = None, loc_res_dict: dict = None, sign: str = 'geq') -> Constraint:
@@ -30,7 +73,7 @@ def constraint_demand(instance: ConcreteModel, demand: Union[dict, float], deman
         demand_scale_level (int, optional): scale of demand decisions. Defaults to 0.
         scheduling_scale_level (int, optional): scale of scheduling decisions. Defaults to 0.
         cluster_wt (dict, optional): weight of each cluster if using clustering. Defaults to None.
-        loc_res_dict (dict, optional): location resource map. Defaults to None. 
+        loc_res_dict (dict, optional): location resource map. Defaults to None.
         sign (str, optional): Should the supply be greater('geq')/lesser('leq')/equal('eq') to the demand. Defaults to 'geq'
 
     Returns:
@@ -51,6 +94,7 @@ def constraint_demand(instance: ConcreteModel, demand: Union[dict, float], deman
             if isinstance(demand_factor[location][list(demand_factor[location])[0]], (float, int)):
                 discharge = sum(instance.S[location, resource_, scale_list[:scheduling_scale_level + 1]] for
                                 resource_ in instance.resources_demand)
+
             else:
                 discharge = sum(instance.S[location, resource, scale_] for scale_ in scale_iter if scale_[
                     :demand_scale_level + 1] == scale_list)
@@ -97,6 +141,7 @@ def constraint_demand(instance: ConcreteModel, demand: Union[dict, float], deman
         instance.constraint_demand = Constraint(
             instance.locations, instance.resources_demand, *scales, rule=demand_rule,
             doc='specific demand for resources')
+
     constraint_latex_render(demand_rule)
     return instance.constraint_demand
 
