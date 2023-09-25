@@ -101,5 +101,6 @@ def reduce_scenario(scenario: Scenario, method: Clustermethod, include: list, sc
 
         reduced_scenario.cluster_wt = {
             scale: rep_dict[scale]['cluster_wt'] for scale in reduced_scenario_scaleiter}
-
-    return reduced_scenario, rep_dict, numpy.info_dict
+    reduced_scenario.rep_dict = rep_dict
+    reduced_scenario.error = numpy.info_dict['wcss_sum']
+    return reduced_scenario

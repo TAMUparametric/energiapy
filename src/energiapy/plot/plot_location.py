@@ -16,8 +16,6 @@ from matplotlib import rc
 from ..components.location import Location
 from ..components.process import Process
 from ..components.resource import Resource
-from ..components.case_study import CaseStudy
-from ..components.scenario import Scenario
 from ..utils.plot_utils import axis_formatter
 
 
