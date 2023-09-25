@@ -39,6 +39,7 @@ def chance_normal(instance: ConcreteModel, a: str, b: float, b_factor: dict, mea
     def chance_rule(instance, location, resource, *scales):
         lhs = getattr(instance, a)[location, resource, scales]
         rhs = b*b_factor[scales]*(mean - (1 - alpha*c_dict[alpha])*sd)
+        # rhs = mean - c_dict[alpha]*sd
         if sign == 'leq':
             return lhs <= rhs
         if sign == 'eq':

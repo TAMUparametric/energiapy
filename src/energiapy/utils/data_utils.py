@@ -13,7 +13,6 @@ __status__ = "Production"
 import json
 import pickle
 from itertools import product
-from typing import Union
 
 import numpy
 import pandas
