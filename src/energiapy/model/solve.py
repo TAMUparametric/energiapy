@@ -104,13 +104,15 @@ def solve(solver: str, name: str, instance: ConcreteModel = None, matrix: dict =
             model_cons = [i for i in instance.component_objects()
                           if i.ctype == Constraint]
 
-            if solution_dict['n_binvars'] > 0:
-                duals_dict = dict()
+            if solution_dict['n_binvars'] is not None:
+                if solution_dict['n_binvars'] > 0:
+                    duals_dict = dict()
+                else:
+                    index_dict = {c: list(c.index_set()) for c in model_cons}
+                    duals_dict = {cons.name: {index: instance.dual[cons[index]] for index
+                                              in index_dict[cons]} for cons in model_cons}
             else:
-                index_dict = {c: list(c.index_set()) for c in model_cons}
-                duals_dict = {cons.name: {index: instance.dual[cons[index]] for index
-                                          in index_dict[cons]} for cons in model_cons}
-
+                duals_dict = dict()
             if log is True:
                 logging.basicConfig(
                     filename=f"{scenario.name}_nearbound.log", encoding='utf-8', level=logging.INFO)
