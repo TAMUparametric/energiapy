@@ -45,6 +45,8 @@ class Scenario:
         capacity_bounds (CapacityBounds, optional): bounds on the capacity, useful for multi-period formulations. Defaults to None.
         annualization_factor (float, optional): the annualization factor for Capex. Defaults to 1.
         demand_penalty (Dict[Location, Dict[Resource, float]]): penalty for unmet demand at location for each resource. Defaults to None.
+        error (float): error introduced through scenario reduction
+        rep_days_dict (dict): dictionary of representative days
     Example:
         The Scenario can be built over a single location. The network here is specified as a single Location. Considering scales (TemporalScale object for a year, [1, 365, 24]), scheduling, expenditure, and demand are met at an hourly level, and network at an annual level.
 
@@ -70,6 +72,8 @@ class Scenario:
     capacity_bounds: CapacityBounds = None
     annualization_factor: float = 1
     demand_penalty: Dict[Location, Dict[Resource, float]] = None
+    error: float = None
+    rep_dict: dict = None
 
     def __post_init__(self):
         """
