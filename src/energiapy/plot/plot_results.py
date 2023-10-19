@@ -48,6 +48,8 @@ class CostY(Enum):
     VOPEX = auto()
     FOPEX = auto()
 
+import matplotlib.pyplot as plt
+from matplotlib import rc
 
 def schedule(results: Result, y_axis: str, component: str, location: str, fig_size: tuple = (12, 6), font_size: int = 16, color: str = 'blue', usetex: bool = False):
     """generates a plot for scheduling result
@@ -349,7 +351,6 @@ def cost(results: Union[Result, List[Result]], x: CostX, y: CostY, location: str
         plt.grid(alpha=0.3, zorder=0)
         plt.rcdefaults()
         plt.plot()
-
     return
 
 
