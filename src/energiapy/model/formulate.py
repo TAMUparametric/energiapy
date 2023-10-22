@@ -71,11 +71,16 @@ from .constraints.mode import (
     constraint_production_mode,
     constraint_production_mode_binary,
     constraint_production_mode_facility,
+    constraint_min_production_mode_facility,
+    constraint_production_rate1,
+    constraint_production_rate2,
+    constraint_production_mode_switch
+    
 )
 from .constraints.production import (
     constraint_nameplate_production,
     constraint_production_max,
-    constraint_production_min
+    constraint_production_min,
 )
 from .constraints.resource_balance import (
     constraint_inventory_balance,
@@ -591,10 +596,18 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
             constraint_production_mode_facility(instance=instance, prod_max=scenario.prod_max,
                                                 loc_pro_dict=scenario.loc_pro_dict,
                                                 scheduling_scale_level=scenario.scheduling_scale_level)
+            constraint_min_production_mode_facility(instance=instance, prod_min=scenario.prod_min,
+                                                loc_pro_dict=scenario.loc_pro_dict,
+                                                scheduling_scale_level=scenario.scheduling_scale_level)
             constraint_production_mode_binary(instance=instance, mode_dict=scenario.mode_dict,
                                               scheduling_scale_level=scenario.scheduling_scale_level,
                                               network_scale_level=scenario.network_scale_level)
-
+            constraint_production_rate1(instance = instance, rate_max_dict= scenario.rate_max_dict, 
+                                        scheduling_scale_level= scenario.scheduling_scale_level)
+            constraint_production_rate2(instance = instance, rate_max_dict= scenario.rate_max_dict, 
+                                        scheduling_scale_level= scenario.scheduling_scale_level)
+            constraint_production_mode_switch(instance = instance, mode_dict = scenario.mode_dict, scheduling_scale_level = scenario.scheduling_scale_level)
+            
         if Constraints.MATERIAL in constraints:
             generate_material_vars(
                 instance=instance, scale_level=scenario.network_scale_level)
