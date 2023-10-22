@@ -68,17 +68,17 @@ def fetch_nsrdb_data(attrs: List[str], year: int, lat_lon: Tuple[float] = None, 
 
         if get.split('-')[0] == 'min':
             latitude = float(
-                county_data['latitude'][county_data[get_metric] == min(county_data[get_metric])])
+                county_data['latitude'][county_data[get_metric] == min(county_data[get_metric])].iloc[0])
             longitude = float(
-                county_data['longitude'][county_data[get_metric] == min(county_data[get_metric])])
+                county_data['longitude'][county_data[get_metric] == min(county_data[get_metric])].iloc[0])
             loc_data = county_data.loc[(county_data['latitude'] == latitude) & (
                 county_data['longitude'] == longitude)]
 
         if get.split('-')[0] == 'max':
             latitude = float(
-                county_data['latitude'][county_data[get_metric] == max(county_data[get_metric])])
+                county_data['latitude'][county_data[get_metric] == max(county_data[get_metric])].iloc[0])
             longitude = float(
-                county_data['longitude'][county_data[get_metric] == max(county_data[get_metric])])
+                county_data['longitude'][county_data[get_metric] == max(county_data[get_metric])].iloc[0])
             loc_data = county_data.loc[(county_data['latitude'] == latitude) & (
                 county_data['longitude'] == longitude)]
 
@@ -109,5 +109,3 @@ def fetch_nsrdb_data(attrs: List[str], year: int, lat_lon: Tuple[float] = None, 
         averaged_output.to_csv(save + '.csv')
 
     return lat_lon, averaged_output
-
-

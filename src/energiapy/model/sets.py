@@ -79,7 +79,7 @@ def generate_sets(instance: ConcreteModel, scenario: Scenario):
     # )), initialize={i: list(j) for i, j in scenario.transport_avail_dict.items()})
 
     sets = scenario.set_dict
-
+    
     instance.processes = Set(
         initialize=sets['processes'], doc='Set of processes')
     instance.processes_full = Set(initialize=sets['processes_full'],
@@ -113,6 +113,8 @@ def generate_sets(instance: ConcreteModel, scenario: Scenario):
                                              doc='Set of resources with certain selling revenue')
     instance.resources_varying_demand = Set(initialize=sets['resources_varying_demand'],
                                             doc='Set of resources with varying purchase price')
+    instance.resources_certain_demand = Set(initialize=sets['resources_certain_demand'],
+                                            doc='Set of resources with certain purchase price')
     instance.resources_demand = Set(
         initialize=sets['resources_demand'], doc='Set of resources with exact demand')
     instance.processes_varying_capacity = Set(
