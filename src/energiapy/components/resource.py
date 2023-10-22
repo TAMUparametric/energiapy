@@ -14,7 +14,7 @@ from dataclasses import dataclass
 from warnings import warn
 from enum import Enum, auto
 from typing import Union, List, Tuple, Dict
-from ..components.emission import Emission
+# from ..components.emission import Emission
 
 
 class VaryingResource(Enum):
@@ -127,7 +127,7 @@ class Resource:
     label: str = ''
     gwp: float = 0
     varying_bounds: Tuple[float] = (0, 1)
-    emissions: (Dict[Emission, float]) = None
+    # emissions: (Dict[Emission, float]) = None
 
     def __post_init__(self):
         if self.demand is True:
