@@ -111,7 +111,7 @@ class Location:
         # fetch all processes with failure rates set
         self.failure_processes = self.get_failure_processes()
         self.fail_factor = self.make_fail_factor()
-        self.emission_dict = {i: i.emission_dict for i in self.processes_full}
+        # self.emission_dict = {i: i.emission_dict for i in self.processes_full}
         if self.capacity_factor is not None:
             # fetch all processes with varying capacities
             self.varying_capacity = set(self.capacity_factor.keys())

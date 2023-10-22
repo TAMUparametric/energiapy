@@ -34,7 +34,7 @@ def solve(solver: str, name: str, instance: ConcreteModel = None, matrix: dict =
         name (str): name for results
         instance (ConcreteModel, optional): Pyomo instance. Defaults to None. 
         matrix (dict, optional): generated from formulate (ModelClass.MPLP). Defaults to None
-        interface (str, optional): Currently, pyomo, native, and gams is available. Defaults to 'pyomo'.
+        interface (str, optional): Currently, pyomo, native, and GAMS is available. Defaults to 'pyomo'.
         scenario (Scenario, optional): scenario. Defaults to None.
         saveformat (str, optional): .pkl, .json, .txt. Defaults to None.
         print_solversteps (bool, optional):. Defaults to True.
@@ -58,7 +58,7 @@ def solve(solver: str, name: str, instance: ConcreteModel = None, matrix: dict =
             output = SolverFactory(solver, solver_io='python').solve(
                 instance, tee=print_solversteps)
 
-        if interface == 'gams':
+        if interface == 'GAMS':
             warn('Ensure GAMS is installed on system and PATH is set')
             output = SolverFactory('gams').solve(
                 instance, solver=solver, tee=print_solversteps)

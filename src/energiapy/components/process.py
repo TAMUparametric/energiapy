@@ -118,7 +118,8 @@ class Process:
         store_max (float, optional): Maximum allowed storage of resource in process. Defaults to 0.
         store_min (float, optional): Minimum allowed storage of resource in process. Defaults to 0.
         rate_max (Union[Dict[int, float], float]): maximum ramping rates 
-        varying_bounds (float, optional): bounds for the variability. Defaults to (0,1)
+        varying_bounds (float, optional): bounds for the variability. Defaults to (0,1).
+        mode_ramp (Dict[tuple, int], optional): ramping rates between mode switches. Defaults to None.
 
     Examples:
         For processes with varying production capacity
@@ -164,6 +165,7 @@ class Process:
     store_min: float = 0
     rate_max: Union[Dict[int, float], float] = None
     varying_bounds: Tuple[float] = (0, 1)
+    mode_ramp: Dict[tuple, int] = None
 
     def __post_init__(self):
         """Determines the ProcessMode, CostDynamics, and kicks out dummy resources if process is stores resource
@@ -232,7 +234,7 @@ class Process:
             self.capacity_segments = list(self.capex.keys())
             self.capex_segements = list(self.capex.values())
 
-        self.emission_dict = {i: i.emissions for i in self.conversion.keys()}
+        # self.emission_dict = {i: i.emissions for i in self.conversion.keys()}
 
     def __repr__(self):
         return self.name
