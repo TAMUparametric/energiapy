@@ -480,7 +480,7 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
 
             instance.constraint_resource_consumption_varying = make_constraint(
                 instance=instance, type_cons=Cons.X_LEQ_B, variable_x='C', location_set=instance.locations, component_set=instance.resources_varying_availability, b_max=scenario.cons_max,
-                loc_comp_dict=scenario.loc_res_dict, b_factor=scenario.availability_factor, x_scale_level=scenario.scheduling_scale_level, b_scale_level=scenario.purchase_scale_level, label='restricts resource consumption to varying availablity')
+                loc_comp_dict=scenario.loc_res_dict, b_factor=scenario.availability_factor, x_scale_level=scenario.scheduling_scale_level, b_scale_level=scenario.availability_scale_level, label='restricts resource consumption to varying availablity')
 
             # # *----------------resource purchase---------------------------------------------
 
