@@ -31,14 +31,17 @@ class Transport:
         trans_max (float, optional): maximum capacity of material that can be transported. Defaults to 0.
         trans_loss (float, optional): transport losses per unit basis of Raterial per timeperiod in scheduling scale. Defaults to 0.
         trans_cost (float, optional): cost per unit distance per unit basis of Resource. Defaults to 0.
-        trans_emit (float, optional): carbon emissions per unit distance per unit basis of Resource. Defaults to 0.
+        emission (float, optional): emissions per unit distance of transportation. Defaults to 0.
+        capex (float, optional): capital expenditure on a per unit distance unit capacity basis. Defaults to 0.
+        vopex (float, optional): variable operational expenditure on a per unit distance unit capacity basis. Defaults to 0.
+        fopex (float, optional): fixed operational expenditure on a per unit distance unit capacity basis. Defaults to 0.
         citation (str, optional): cite data source. Defaults to 'citation needed'.
         label (str, optional): Longer descriptive label if required. Defaults to ''.
 
     Examples:
         Transport objects can be anything from Trains to Pipelines
 
-        >>> Train = Transport(name= 'Train', resources= {H2}, materials_cons = {Steel: 100}, trans_max= 10000, trans_loss= 0.001, trans_cost= 0.002, label = 'Railine for Hydrogen)
+        >>> Train = Transport(name= 'Train', resources= {H2}, materials_cons = {Steel: 100}, trans_max= 10000, trans_loss= 0.001, capex= 300, label = 'Railine for Hydrogen)
 
 
     """
@@ -49,9 +52,10 @@ class Transport:
     retire: int = None
     trans_max: float = 0
     trans_loss: float = 0
-    trans_cost: float = 0
-    trans_emit: float = 0
-    trans_capex: float = 0
+    emission: float = 0
+    capex: float = 0
+    vopex: float = 0
+    fopex: float = 0
     citation: str = 'citation needed'
     label: str = ''
 

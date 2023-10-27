@@ -131,8 +131,10 @@ class Scenario:
             self.transport_avail_dict = None
             self.trans_max = None
             self.trans_loss = None
-            self.trans_cost = None
-            self.trans_emit = None
+            self.trans_capex = None
+            self.trans_fopex = None
+            self.trans_vopex = None
+            self.trans_emission = None
             self.distance_dict = None
             self.location_set = {self.network}
 
@@ -150,9 +152,13 @@ class Scenario:
             self.trans_cost = {
                 j.name: j.trans_cost for j in self.transport_set}
             self.trans_capex = {
-                j.name: j.trans_capex for j in self.transport_set}
-            self.trans_emit = {
-                j.name: j.trans_emit for j in self.transport_set}
+                j.name: j.capex for j in self.transport_set}
+            self.trans_vopex = {
+                j.name: j.vopex for j in self.transport_set}
+            self.trans_fopex = {
+                j.name: j.fopex for j in self.transport_set}
+            self.trans_emission = {
+                j.name: j.emission for j in self.transport_set}
             self.distance_dict = self.network.distance_dict
 
         self.process_set = set().union(
