@@ -140,7 +140,7 @@ def constraint_inventory_balance(instance: ConcreteModel, scheduling_scale_level
         if len(instance.locations) > 1:
             if resource in instance.resources_trans:
                 transport = sum(
-                    instance.Imp[location, source_, resource, scale_list[:scheduling_scale_level + 1]] for source_ in
+                    instance.Exp[source_, location, resource, scale_list[:scheduling_scale_level + 1]] for source_ in
                     instance.sources if source_ != location if location in instance.sinks) \
                     - sum(
                     instance.Exp[location, sink_, resource, scale_list[:scheduling_scale_level + 1]] for sink_ in
