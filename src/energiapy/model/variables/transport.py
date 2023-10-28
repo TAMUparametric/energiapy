@@ -19,16 +19,23 @@ def generate_transport_vars(instance: ConcreteModel):
     Args:
         instance (ConcreteModel): pyomo instance
     """
-    instance.Trans_imp = Var(instance.sinks, instance.sources, instance.resources_trans, instance.transports,
-                             instance.scales_scheduling, within=NonNegativeReals, doc='Resource imported through transport mode')
-    instance.Trans_exp = Var(instance.sources, instance.sinks, instance.resources_trans, instance.transports,
-                             instance.scales_scheduling, within=NonNegativeReals, doc='Resource exported through transport mode')
-    instance.Trans_imp_cost = Var(instance.sinks, instance.sources, instance.resources_trans, instance.transports,
-                                  instance.scales_scheduling, within=NonNegativeReals, doc='Resource imported through transport mode')
-    instance.Trans_exp_cost = Var(instance.sources, instance.sinks, instance.resources_trans, instance.transports,
-                                  instance.scales_scheduling, within=NonNegativeReals, doc='Resource exported through transport mode')
-    instance.Trans_cost = Var(instance.transports, instance.scales_scheduling,
-                              within=NonNegativeReals, doc='cost of transportation for transport mode')
-    instance.X_T = Var(instance.sources, instance.sinks, instance.transports,
+    # instance.Trans_imp = Var(instance.sinks, instance.sources, instance.resources_trans, instance.transports,
+    #                          instance.scales_scheduling, within=NonNegativeReals, doc='Resource imported through transport mode')
+    # instance.Trans_exp = Var(instance.sources, instance.sinks, instance.resources_trans, instance.transports,
+    #                          instance.scales_scheduling, within=NonNegativeReals, doc='Resource exported through transport mode')
+    # instance.Trans_imp_cost = Var(instance.sinks, instance.sources, instance.resources_trans, instance.transports,
+    #                               instance.scales_scheduling, within=NonNegativeReals, doc='Resource imported through transport mode')
+    # instance.Trans_exp_cost = Var(instance.sources, instance.sinks, instance.resources_trans, instance.transports,
+    #                               instance.scales_scheduling, within=NonNegativeReals, doc='Resource exported through transport mode')
+    # instance.Trans_cost = Var(instance.transports, instance.scales_scheduling,
+    #                           within=NonNegativeReals, doc='cost of transportation for transport mode')
+    instance.X_F = Var(instance.sources, instance.sinks, instance.transports,
                        instance.scales_network, within=Binary, doc='binaries for transports being set up')
+    instance.Cap_F = Var(instance.sources, instance.sinks, instance.transports,
+                         instance.scales_network, within=NonNegativeReals, doc='established capacity of transport mode')
+    instance.Exp_F = Var(instance.sources, instance.sinks, instance.transports, instance.resources_trans,
+                         instance.scales_scheduling, within=NonNegativeReals, doc='resource transported through mode between locations')
+    instance.Exp = Var(instance.sources, instance.sinks, instance.resources_trans,
+                       instance.scales_scheduling, within=NonNegativeReals, doc='total resource transported between locations')
+
     return
