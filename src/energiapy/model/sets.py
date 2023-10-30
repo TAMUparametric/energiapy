@@ -79,7 +79,7 @@ def generate_sets(instance: ConcreteModel, scenario: Scenario):
     # )), initialize={i: list(j) for i, j in scenario.transport_avail_dict.items()})
 
     sets = scenario.set_dict
-
+    
     instance.processes = Set(
         initialize=sets['processes'], doc='Set of processes')
     instance.processes_full = Set(initialize=sets['processes_full'],
@@ -113,6 +113,8 @@ def generate_sets(instance: ConcreteModel, scenario: Scenario):
                                              doc='Set of resources with certain selling revenue')
     instance.resources_varying_demand = Set(initialize=sets['resources_varying_demand'],
                                             doc='Set of resources with varying purchase price')
+    instance.resources_certain_demand = Set(initialize=sets['resources_certain_demand'],
+                                            doc='Set of resources with certain purchase price')
     instance.resources_demand = Set(
         initialize=sets['resources_demand'], doc='Set of resources with exact demand')
     instance.processes_varying_capacity = Set(
@@ -145,6 +147,23 @@ def generate_sets(instance: ConcreteModel, scenario: Scenario):
     instance.processes_segments = Set(
         initialize=sets['processes_segments'], doc='Set of processes with PWL process segments')
 
+    if len(instance.locations) > 1:
+        
+        instance.transports_varying_capacity = Set(initialize=sets['transports_varying_capacity'], doc = 'Set of transports with varying capacity')
+        instance.transports_varying_capex = Set(initialize=sets['transports_varying_capex'], doc = 'Set of transports with varying capex')
+        instance.transports_varying_fopex = Set(initialize=sets['transports_varying_fopex'], doc = 'Set of transports with varying fopex')
+        instance.transports_varying_vopex = Set(initialize=sets['transports_varying_vopex'], doc = 'Set of transports with varying vopex')
+        
+        instance.transports_certain_capacity = Set(initialize=sets['transports_certain_capacity'], doc = 'Set of transports with certain capacity')
+        instance.transports_certain_capex = Set(initialize=sets['transports_certain_capex'], doc = 'Set of transports with certain capex')
+        instance.transports_certain_fopex = Set(initialize=sets['transports_certain_fopex'], doc = 'Set of transports with certain fopex')
+        instance.transports_certain_vopex = Set(initialize=sets['transports_certain_vopex'], doc = 'Set of transports with certain vopex')
+        
+        instance.transports_uncertain_capacity = Set(initialize=sets['transports_uncertain_capacity'], doc = 'Set of transports with uncertain capacity')
+        instance.transports_uncertain_capex = Set(initialize=sets['transports_uncertain_capex'], doc = 'Set of transports with uncertain capex')
+        instance.transports_uncertain_fopex = Set(initialize=sets['transports_uncertain_fopex'], doc = 'Set of transports with uncertain fopex')
+        instance.transports_uncertain_vopex = Set(initialize=sets['transports_uncertain_vopex'], doc = 'Set of transports with uncertain vopex')
+        
     mode_lens = []
     for j in scenario.location_set:
         for i in scenario.process_set:
