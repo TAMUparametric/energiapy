@@ -105,8 +105,16 @@ from .constraints.transport import (
     # constraint_transport_import,
     constraint_transport_export,
     constraint_resource_export,
+    constraint_export,
     constraint_transport_capacity_LB,
-    constraint_transport_capacity_UB
+    constraint_transport_capacity_UB,
+    constraint_transport_capex,
+    constraint_transport_network_capex,
+    constraint_transport_export_network,
+    constraint_transport_vopex,
+    constraint_transport_network_vopex,
+    constraint_transport_fopex,
+    constraint_transport_network_fopex
 )
 from .constraints.uncertain import (
     constraint_uncertain_process_capacity,
@@ -543,15 +551,35 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
         if Constraints.TRANSPORT in constraints:
 
             if len(scenario.location_set) > 1:
-                constraint_transport_export(instance=instance, scheduling_scale_level=scenario.scheduling_scale_level,
-                                            transport_avail_dict=scenario.transport_avail_dict, resource_tranport_dict=scenario.resource_tranport_dict)
                 constraint_resource_export(instance=instance, scheduling_scale_level=scenario.scheduling_scale_level,
-                                           network_scale_level=scenario.network_scale_level, transport_resource_dict=scenario.transport_resource_dict,
-                                           transport_capacity_factor=scenario.transport_capacity_factor, transport_capacity_scale_level=scenario.transport_capacity_scale_level)
+                                           transport_avail_dict=scenario.transport_avail_dict, resource_transport_dict=scenario.resource_transport_dict)
+                constraint_transport_export(instance=instance, scheduling_scale_level=scenario.scheduling_scale_level,
+                                            transport_avail_dict=scenario.transport_avail_dict, transport_resource_dict=scenario.transport_resource_dict)
+                constraint_export(instance=instance, scheduling_scale_level=scenario.scheduling_scale_level,
+                                  network_scale_level=scenario.network_scale_level, location_transport_resource_dict=scenario.location_transport_resource_dict,
+                                  transport_capacity_factor=scenario.transport_capacity_factor, transport_capacity_scale_level=scenario.transport_capacity_scale_level)
                 constraint_transport_capacity_UB(instance=instance, network_scale_level=scenario.network_scale_level,
                                                  transport_avail_dict=scenario.transport_avail_dict, trans_max=scenario.trans_max)
                 constraint_transport_capacity_LB(instance=instance, network_scale_level=scenario.network_scale_level,
                                                  transport_avail_dict=scenario.transport_avail_dict, trans_min=scenario.trans_min)
+
+                constraint_transport_capex(instance=instance, trans_capex=scenario.trans_capex, distance_dict=scenario.distance_dict,
+                                           transport_avail_dict=scenario.transport_avail_dict, network_scale_level=scenario.network_scale_level)
+
+                constraint_transport_network_capex(
+                    instance=instance, network_scale_level=scenario.network_scale_level)
+                constraint_transport_export_network(instance=instance, scheduling_scale_level=scenario.scheduling_scale_level, network_scale_level=scenario.network_scale_level,
+                                                    transport_avail_dict=scenario.transport_avail_dict)
+                constraint_transport_vopex(instance=instance, trans_vopex=scenario.trans_vopex, distance_dict=scenario.distance_dict,
+                                           transport_avail_dict=scenario.transport_avail_dict, network_scale_level=scenario.network_scale_level)
+
+                constraint_transport_network_vopex(
+                    instance=instance, network_scale_level=scenario.network_scale_level)
+
+                constraint_transport_fopex(instance=instance, trans_fopex=scenario.trans_fopex, distance_dict=scenario.distance_dict,
+                                           transport_avail_dict=scenario.transport_avail_dict, network_scale_level=scenario.network_scale_level)
+                constraint_transport_network_fopex(
+                    instance=instance, network_scale_level=scenario.network_scale_level)
                 # constraint_transport_import(instance=instance, scheduling_scale_level=scenario.scheduling_scale_level,
                 #                             transport_avail_dict=scenario.transport_avail_dict)
                 # constraint_transport_exp_UB(instance=instance, scheduling_scale_level=scenario.scheduling_scale_level,
