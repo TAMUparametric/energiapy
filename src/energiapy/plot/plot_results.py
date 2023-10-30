@@ -212,7 +212,7 @@ def transport(results: Result, source: str, sink: str, resource: str, transport:
        'serif': ['Computer Modern'], 'size': font_size})
     rc('text', usetex=usetex)
     fig, ax = plt.subplots(figsize=fig_size)
-    y_ = [results.output['Exp_F'][i] for i in results.output['Exp_F'].keys(
+    y_ = [results.output['Exp'][i] for i in results.output['Exp'].keys(
     ) if list(i)[:4] == [source, sink, transport, resource]]
     plt.plot(y_)
     plt.ylabel("Amount in unit basis")
