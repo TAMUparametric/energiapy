@@ -33,9 +33,25 @@ def generate_transport_vars(instance: ConcreteModel):
                        instance.scales_network, within=Binary, doc='binaries for transports being set up')
     instance.Cap_F = Var(instance.sources, instance.sinks, instance.transports,
                          instance.scales_network, within=NonNegativeReals, doc='established capacity of transport mode')
-    instance.Exp_F = Var(instance.sources, instance.sinks, instance.transports, instance.resources_trans,
-                         instance.scales_scheduling, within=NonNegativeReals, doc='resource transported through mode between locations')
-    instance.Exp = Var(instance.sources, instance.sinks, instance.resources_trans,
-                       instance.scales_scheduling, within=NonNegativeReals, doc='total resource transported between locations')
+    instance.Exp_R = Var(instance.sources, instance.sinks, instance.resources_trans,
+                         instance.scales_scheduling, within=NonNegativeReals, doc='resource transported through between locations')
+    instance.Exp_F = Var(instance.sources, instance.sinks, instance.transports,
+                         instance.scales_scheduling, within=NonNegativeReals, doc='total resources transported mode through between locations')
+    instance.Exp_F_network = Var(instance.sources, instance.sinks, instance.transports,
+                                 instance.scales_network, within=NonNegativeReals, doc='total resources transported mode through between locations over network scale')
+    instance.Exp = Var(instance.sources, instance.sinks, instance.transports, instance.resources_trans,
+                       instance.scales_scheduling, within=NonNegativeReals, doc='resource transported through mode between locations')
+    instance.Capex_transport = Var(instance.sources, instance.sinks, instance.transports,
+                                   instance.scales_network, within=NonNegativeReals, doc='capex to set up transport mode between sink and source')
+    instance.Vopex_transport = Var(instance.sources, instance.sinks, instance.transports,
+                                   instance.scales_network, within=NonNegativeReals, doc='vopex of transport mode between sink and source')
+    instance.Fopex_transport = Var(instance.sources, instance.sinks, instance.transports,
+                                   instance.scales_network, within=NonNegativeReals, doc='fopex of transport mode between sink and source')
+    instance.Capex_transport_network = Var(
+        instance.scales_network, within=NonNegativeReals, doc='overall capex for transport at the network level')
+    instance.Vopex_transport_network = Var(
+        instance.scales_network, within=NonNegativeReals, doc='overall vopex for transport at the network level')
+    instance.Fopex_transport_network = Var(
+        instance.scales_network, within=NonNegativeReals, doc='overall fopex for transport at the network level')
 
     return

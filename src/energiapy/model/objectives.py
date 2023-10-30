@@ -59,8 +59,10 @@ def objective_cost(instance: ConcreteModel, constraints: Set[Constraints], netwo
             credit = 0
 
         if len(instance.locations) > 1:
-            cost_trans = sum(instance.Trans_cost_network[transport_, scale_] for transport_, scale_ in
-                             product(instance.transports, scale_iter))
+            cost_trans = sum(
+                instance.Capex_transport_network[scale_] for scale_ in scale_iter) + sum(
+                instance.Vopex_transport_network[scale_] for scale_ in scale_iter) + sum(
+                instance.Fopex_transport_network[scale_] for scale_ in scale_iter)
         else:
             cost_trans = 0
         return annualization_factor*capex + vopex + fopex + cost_purch + cost_trans + incidental + land_cost - credit
@@ -113,8 +115,10 @@ def objective_cost_w_demand_penalty(instance: ConcreteModel, demand_penalty: Dic
             credit = 0
 
         if len(instance.locations) > 1:
-            cost_trans = sum(instance.Trans_cost_network[transport_, scale_] for transport_, scale_ in
-                             product(instance.transports, scale_iter))
+            cost_trans = sum(
+                instance.Capex_transport_network[scale_] for scale_ in scale_iter) + sum(
+                instance.Vopex_transport_network[scale_] for scale_ in scale_iter) + sum(
+                instance.Fopex_transport_network[scale_] for scale_ in scale_iter)
         else:
             cost_trans = 0
 
@@ -154,8 +158,10 @@ def objective_uncertainty_cost(instance: ConcreteModel, penalty: float, network_
         cap_penalty = penalty * sum(instance.Demand_slack[location_, scale_] for location_, scale_ in
                                     product(instance.locations, scale_iter_uncertainty))
         if len(instance.locations) > 1:
-            cost_trans = sum(instance.Trans_cost_network[transport_, scale_] for transport_, scale_ in
-                             product(instance.transports, scale_iter))
+            cost_trans = sum(
+                instance.Capex_transport_network[scale_] for scale_ in scale_iter) + sum(
+                instance.Vopex_transport_network[scale_] for scale_ in scale_iter) + sum(
+                instance.Fopex_transport_network[scale_] for scale_ in scale_iter)
         else:
             cost_trans = 0
         return annualization_factor*capex + vopex + fopex + cost_purch + cost_trans + cap_penalty
@@ -272,8 +278,10 @@ def objective_profit(instance: ConcreteModel, constraints: Set[Constraints], net
             credit = 0
 
         if len(instance.locations) > 1:
-            cost_trans = sum(instance.Trans_cost_network[transport_, scale_] for transport_, scale_ in
-                             product(instance.transports, scale_iter))
+            cost_trans = sum(
+                instance.Capex_transport_network[scale_] for scale_ in scale_iter) + sum(
+                instance.Vopex_transport_network[scale_] for scale_ in scale_iter) + sum(
+                instance.Fopex_transport_network[scale_] for scale_ in scale_iter)
         else:
             cost_trans = 0
         return -(annualization_factor*capex + vopex + fopex + cost_purch + cost_trans + incidental + land_cost) + credit + revenue
@@ -327,8 +335,10 @@ def objective_profit_w_demand_penalty(instance: ConcreteModel, demand_penalty: D
             credit = 0
 
         if len(instance.locations) > 1:
-            cost_trans = sum(instance.Trans_cost_network[transport_, scale_] for transport_, scale_ in
-                             product(instance.transports, scale_iter))
+            cost_trans = sum(
+                instance.Capex_transport_network[scale_] for scale_ in scale_iter) + sum(
+                instance.Vopex_transport_network[scale_] for scale_ in scale_iter) + sum(
+                instance.Fopex_transport_network[scale_] for scale_ in scale_iter)
         else:
             cost_trans = 0
 
