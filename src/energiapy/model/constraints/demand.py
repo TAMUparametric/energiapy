@@ -20,14 +20,14 @@ from ...utils.scale_utils import scale_list, scale_tuple
 
 # def constraint_demand(instance: ConcreteModel, demand: Union[dict, float], demand_factor: Union[dict, float],
 #                       demand_scale_level: int = 0, scheduling_scale_level: int = 0,
-#                       cluster_wt: dict = None, loc_res_dict: dict = None, sign: str = 'geq'):
+#                       cluster_wt: dict = None, location_resource_dict: dict = None, sign: str = 'geq'):
 
 #     scales = scale_list(instance=instance,
 #                         scale_levels=scheduling_scale_level + 1)
 #     scale_iter = scale_tuple(
 #         instance=instance, scale_levels=scheduling_scale_level + 1)
-#     if loc_res_dict is None:
-#         loc_res_dict = dict()
+#     if location_resource_dict is None:
+#         location_resource_dict = dict()
 
 #     def demand_rule(instance, location, resource, *scale_list):
 #         discharge = sum(instance.S[location, resource, scale_] for scale_ in scale_iter if scale_[
@@ -63,7 +63,7 @@ from ...utils.scale_utils import scale_list, scale_tuple
 
 def constraint_demand(instance: ConcreteModel, demand: Union[dict, float], demand_factor: Union[dict, float],
                       demand_scale_level: int = 0, scheduling_scale_level: int = 0,
-                      cluster_wt: dict = None, loc_res_dict: dict = None, sign: str = 'geq') -> Constraint:
+                      cluster_wt: dict = None, location_resource_dict: dict = None, sign: str = 'geq') -> Constraint:
     """Ensures that demand for resource is met at chosen temporal scale
 
     Args:
@@ -73,7 +73,7 @@ def constraint_demand(instance: ConcreteModel, demand: Union[dict, float], deman
         demand_scale_level (int, optional): scale of demand decisions. Defaults to 0.
         scheduling_scale_level (int, optional): scale of scheduling decisions. Defaults to 0.
         cluster_wt (dict, optional): weight of each cluster if using clustering. Defaults to None.
-        loc_res_dict (dict, optional): location resource map. Defaults to None.
+        location_resource_dict (dict, optional): location resource map. Defaults to None.
         sign (str, optional): Should the supply be greater('geq')/lesser('leq')/equal('eq') to the demand. Defaults to 'geq'
 
     Returns:
@@ -85,8 +85,8 @@ def constraint_demand(instance: ConcreteModel, demand: Union[dict, float], deman
     scale_iter = scale_tuple(
         instance=instance, scale_levels=scheduling_scale_level + 1)
 
-    if loc_res_dict is None:
-        loc_res_dict = dict()
+    if location_resource_dict is None:
+        location_resource_dict = dict()
 
     def demand_rule(instance, location, resource, *scale_list):
 
@@ -100,7 +100,7 @@ def constraint_demand(instance: ConcreteModel, demand: Union[dict, float], deman
                     :demand_scale_level + 1] == scale_list)
 
             if isinstance(demand, dict):
-                if resource in loc_res_dict[location]:
+                if resource in location_resource_dict[location]:
                     if resource in demand_factor[location].keys():
                         demandtarget = demand[location][resource] * \
                             demand_factor[location][resource][scale_list[:demand_scale_level + 1]]
@@ -109,7 +109,7 @@ def constraint_demand(instance: ConcreteModel, demand: Union[dict, float], deman
                 else:
                     demandtarget = 0
             else:
-                if resource in loc_res_dict[location]:
+                if resource in location_resource_dict[location]:
                     demandtarget = demand * \
                         demand_factor[location][resource][scale_list[:demand_scale_level + 1]]
                 else:
@@ -148,7 +148,7 @@ def constraint_demand(instance: ConcreteModel, demand: Union[dict, float], deman
 
 def constraint_demand_penalty(instance: ConcreteModel, demand: Union[dict, float], demand_factor: Union[dict, float],
                               demand_scale_level: int = 0, scheduling_scale_level: int = 0,
-                              cluster_wt: dict = None, loc_res_dict: dict = None, sign: str = 'geq') -> Constraint:
+                              cluster_wt: dict = None, location_resource_dict: dict = None, sign: str = 'geq') -> Constraint:
     """Ensures that demand for resource is met at chosen temporal scale
 
     Args:
@@ -158,7 +158,7 @@ def constraint_demand_penalty(instance: ConcreteModel, demand: Union[dict, float
         demand_scale_level (int, optional): scale of demand decisions. Defaults to 0.
         scheduling_scale_level (int, optional): scale of scheduling decisions. Defaults to 0.
         cluster_wt (dict, optional): weight of each cluster if using clustering. Defaults to None.
-        loc_res_dict (dict, optional): location resource map. Defaults to None. 
+        location_resource_dict (dict, optional): location resource map. Defaults to None. 
         sign (str, optional): Should the supply be greater('geq')/lesser('leq')/equal('eq') to the demand. Defaults to 'geq'
 
     Returns:
@@ -170,8 +170,8 @@ def constraint_demand_penalty(instance: ConcreteModel, demand: Union[dict, float
     scale_iter = scale_tuple(
         instance=instance, scale_levels=scheduling_scale_level + 1)
 
-    if loc_res_dict is None:
-        loc_res_dict = dict()
+    if location_resource_dict is None:
+        location_resource_dict = dict()
 
     def demand_penalty_rule(instance, location, resource, *scale_list):
 
@@ -184,7 +184,7 @@ def constraint_demand_penalty(instance: ConcreteModel, demand: Union[dict, float
                     :demand_scale_level + 1] == scale_list)
 
             if isinstance(demand, dict):
-                if resource in loc_res_dict[location]:
+                if resource in location_resource_dict[location]:
                     if resource in demand_factor[location].keys():
                         demandtarget = demand[location][resource] * \
                             demand_factor[location][resource][scale_list[:demand_scale_level + 1]]
@@ -193,7 +193,7 @@ def constraint_demand_penalty(instance: ConcreteModel, demand: Union[dict, float
                 else:
                     demandtarget = 0
             else:
-                if resource in loc_res_dict[location]:
+                if resource in location_resource_dict[location]:
                     demandtarget = demand * \
                         demand_factor[location][resource][scale_list[:demand_scale_level + 1]]
                 else:
@@ -313,7 +313,7 @@ def constraint_demand2(instance: ConcreteModel, demand: Union[dict, float], dema
 
 def constraint_demand_theta(instance: ConcreteModel, demand: Union[dict, float], demand_factor: Union[dict, float],
                             demand_scale_level: int = 0, scheduling_scale_level: int = 0,
-                            cluster_wt: dict = None, loc_res_dict: dict = None, sign: str = 'geq') -> Constraint:
+                            cluster_wt: dict = None, location_resource_dict: dict = None, sign: str = 'geq') -> Constraint:
     """Ensures that demand for resource is met at chosen temporal scale with the demand being multiplied by a
     multiparametric theta variable 
 
@@ -324,7 +324,7 @@ def constraint_demand_theta(instance: ConcreteModel, demand: Union[dict, float],
         demand_scale_level (int, optional): scale of demand decisions. Defaults to 0.
         scheduling_scale_level (int, optional): scale of scheduling decisions. Defaults to 0.
         cluster_wt (dict, optional): weight of each cluster if using clustering. Defaults to None.
-        loc_res_dict (dict, optional): location resource map. Defaults to None. 
+        location_resource_dict (dict, optional): location resource map. Defaults to None. 
         sign (str, optional): Should the supply be greater('geq')/lesser('leq')/equal('eq') to the demand. Defaults to 'geq'
 
     Returns:
@@ -336,8 +336,8 @@ def constraint_demand_theta(instance: ConcreteModel, demand: Union[dict, float],
     scale_iter = scale_tuple(
         instance=instance, scale_levels=scheduling_scale_level + 1)
 
-    if loc_res_dict is None:
-        loc_res_dict = dict()
+    if location_resource_dict is None:
+        location_resource_dict = dict()
 
     def demand_rule(instance, location, resource, *scale_list):
 
@@ -350,7 +350,7 @@ def constraint_demand_theta(instance: ConcreteModel, demand: Union[dict, float],
                     :demand_scale_level + 1] == scale_list)
 
             if isinstance(demand, dict):
-                if resource in loc_res_dict[location]:
+                if resource in location_resource_dict[location]:
                     if resource in demand_factor[location].keys():
                         demandtarget = demand[location][resource] * \
                             demand_factor[location][resource][scale_list[:demand_scale_level + 1]]
@@ -359,7 +359,7 @@ def constraint_demand_theta(instance: ConcreteModel, demand: Union[dict, float],
                 else:
                     demandtarget = 0
             else:
-                if resource in loc_res_dict[location]:
+                if resource in location_resource_dict[location]:
                     demandtarget = demand * \
                         demand_factor[location][resource][scale_list[:demand_scale_level + 1]]
                 else:
