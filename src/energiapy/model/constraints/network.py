@@ -17,14 +17,14 @@ from ...utils.scale_utils import scale_list, scale_tuple
 from ...model.bounds import CapacityBounds
 
 
-def constraint_production_facility(instance: ConcreteModel, prod_max: dict, loc_pro_dict: dict = None,
+def constraint_production_facility(instance: ConcreteModel, prod_max: dict, location_process_dict: dict = None,
                                    network_scale_level: int = 0) -> Constraint:
     """Determines where production facility of certain capacity is inserted at location in network
 
     Args:
         instance (ConcreteModel): pyomo instance
         prod_max (dict): maximum production of process at location
-        loc_pro_dict (dict, optional): production facilities avaiable at location. Defaults to {}.
+        location_process_dict (dict, optional): production facilities avaiable at location. Defaults to {}.
         network_scale_level (int, optional): scale of network decisions. Defaults to 0.
 
     Returns:
@@ -34,8 +34,8 @@ def constraint_production_facility(instance: ConcreteModel, prod_max: dict, loc_
                         scale_levels=network_scale_level + 1)
 
     def production_facility_rule(instance, location, process, *scale_list):
-        if loc_pro_dict is not None:
-            if process in loc_pro_dict[location]:
+        if location_process_dict is not None:
+            if process in location_process_dict[location]:
                 return instance.Cap_P[location, process, scale_list[:network_scale_level + 1]] <= prod_max[location][process][list(prod_max[location][process].keys())[-1:][0]]*instance.X_P[location, process, scale_list[:network_scale_level + 1]]
             else:
                 return instance.Cap_P[location, process, scale_list[:network_scale_level + 1]] == 0
@@ -49,28 +49,28 @@ def constraint_production_facility(instance: ConcreteModel, prod_max: dict, loc_
     return instance.constraint_production_facility
 
 
-def constraint_storage_facility(instance: ConcreteModel, store_max: dict, loc_res_dict: dict = None,
+def constraint_storage_facility(instance: ConcreteModel, store_max: dict, location_resource_dict: dict = None,
                                 network_scale_level: int = 0) -> Constraint:
     """Determines where storage facility of certain capacity is inserted at location in network
 
     Args:
         instance (ConcreteModel): pyomo instance
         store_max (dict): maximum storage capacity of resource at location
-        loc_res_dict (dict, optional): storage facilities for resource available at location. Defaults to {}.
+        location_resource_dict (dict, optional): storage facilities for resource available at location. Defaults to {}.
         network_scale_level (int, optional): scale of network decisions. Defaults to 0.
 
     Returns:
         Constraint: storage_facility
     """
 
-    if loc_res_dict is None:
-        loc_res_dict = dict()
+    if location_resource_dict is None:
+        location_resource_dict = dict()
 
     scales = scale_list(instance=instance,
                         scale_levels=network_scale_level + 1)
 
     def storage_facility_rule(instance, location, resource, *scale_list):
-        if resource in loc_res_dict[location]:
+        if resource in location_resource_dict[location]:
             return instance.Cap_S[location, resource, scale_list[:network_scale_level + 1]] <= store_max[location][
                 resource]*instance.X_S[location, resource,
                                        scale_list[:network_scale_level + 1]]
@@ -83,14 +83,14 @@ def constraint_storage_facility(instance: ConcreteModel, store_max: dict, loc_re
     return instance.constraint_storage_facility
 
 
-def constraint_min_storage_facility(instance: ConcreteModel, store_min: dict, loc_res_dict: dict = None,
+def constraint_min_storage_facility(instance: ConcreteModel, store_min: dict, location_resource_dict: dict = None,
                                     network_scale_level: int = 0) -> Constraint:
     """Determines where storage facility of certain capacity is inserted at location in network
 
     Args:
         instance (ConcreteModel): pyomo instance
         store_max (dict): maximum storage capacity of resource at location
-        loc_res_dict (dict, optional): storage facilities for resource available at location. Defaults to {}.
+        location_resource_dict (dict, optional): storage facilities for resource available at location. Defaults to {}.
         network_scale_level (int, optional): scale of network decisions. Defaults to 0.
 
 
@@ -98,14 +98,14 @@ def constraint_min_storage_facility(instance: ConcreteModel, store_min: dict, lo
         Constraint: min_storage_facility
     """
 
-    if loc_res_dict is None:
-        loc_res_dict = dict()
+    if location_resource_dict is None:
+        location_resource_dict = dict()
 
     scales = scale_list(instance=instance,
                         scale_levels=network_scale_level + 1)
 
     def min_storage_facility_rule(instance, location, resource, *scale_list):
-        if resource in loc_res_dict[location]:
+        if resource in location_resource_dict[location]:
             return instance.Cap_S[location, resource, scale_list[:network_scale_level + 1]] >= store_min[location][
                 resource] * instance.X_S[location, resource, scale_list[:network_scale_level + 1]]
         else:
@@ -119,29 +119,29 @@ def constraint_min_storage_facility(instance: ConcreteModel, store_min: dict, lo
     return instance.constraint_min_storage_facility
 
 
-def constraint_min_production_facility(instance: ConcreteModel, prod_min: dict, loc_pro_dict: dict = None,
+def constraint_min_production_facility(instance: ConcreteModel, prod_min: dict, location_process_dict: dict = None,
                                        network_scale_level: int = 0) -> Constraint:
     """Determines where production facility of certain capacity is inserted at location in network
 
     Args:
         instance (ConcreteModel): pyomo instance
         prod_min (dict): minimum production of process at location
-        loc_pro_dict (dict, optional): production facilities avaiable at location. Defaults to {}.
+        location_process_dict (dict, optional): production facilities avaiable at location. Defaults to {}.
         network_scale_level (int, optional): scale of network decisions. Defaults to 0.
 
     Returns:
         Constraint: min_production_facility
     """
 
-    if loc_pro_dict is None:
-        loc_pro_dict = dict()
+    if location_process_dict is None:
+        location_process_dict = dict()
 
     scales = scale_list(instance=instance,
                         scale_levels=network_scale_level + 1)
 
     def min_production_facility_rule(instance, location, process, *scale_list):
-        if loc_pro_dict is not None:
-            if process in loc_pro_dict[location]:
+        if location_process_dict is not None:
+            if process in location_process_dict[location]:
                 return instance.Cap_P[location, process, scale_list[:network_scale_level + 1]] >= prod_min[location][process][list(prod_min[location][process].keys())[:1][0]] * instance.X_P[location, process, scale_list[:network_scale_level + 1]]
             else:
                 return instance.Cap_P[location, process, scale_list[:network_scale_level + 1]] == 0
@@ -156,27 +156,27 @@ def constraint_min_production_facility(instance: ConcreteModel, prod_min: dict, 
     return instance.constraint_min_production_facility
 
 
-def constraint_min_capacity_facility(instance: ConcreteModel, loc_pro_dict: dict = None, network_scale_level: int = 0, capacity_bounds: CapacityBounds = None) -> Constraint:
+def constraint_min_capacity_facility(instance: ConcreteModel, location_process_dict: dict = None, network_scale_level: int = 0, capacity_bounds: CapacityBounds = None) -> Constraint:
     """Minimum capacity recieved from CapacityBounds object
 
     Args:
         instance (ConcreteModel): pyomo instance
-        loc_pro_dict (dict, optional): capacity facilities avaiable at location. Defaults to {}.
+        location_process_dict (dict, optional): capacity facilities avaiable at location. Defaults to {}.
         network_scale_level (int, optional): scale of network decisions. Defaults to 0.
 
     Returns:
         Constraint: min_capacity_facility
     """
 
-    if loc_pro_dict is None:
-        loc_pro_dict = dict()
+    if location_process_dict is None:
+        location_process_dict = dict()
 
     scales = scale_list(instance=instance,
                         scale_levels=network_scale_level + 1)
 
     def min_capacity_facility_rule(instance, location, process, *scale_list):
-        if loc_pro_dict is not None:
-            if process in loc_pro_dict[location]:
+        if location_process_dict is not None:
+            if process in location_process_dict[location]:
                 return instance.Cap_P[location, process, scale_list[:network_scale_level + 1]] >= capacity_bounds.Cap_P_min[location, process, scale_list[:network_scale_level + 1][0]]
             else:
                 return instance.Cap_P[location, process, scale_list[:network_scale_level + 1]] == 0
@@ -191,21 +191,21 @@ def constraint_min_capacity_facility(instance: ConcreteModel, loc_pro_dict: dict
     return instance.constraint_min_capacity_facility
 
 
-def constraint_preserve_capacity_facility(instance: ConcreteModel, loc_pro_dict: dict = None, network_scale_level: int = 0) -> Constraint:
+def constraint_preserve_capacity_facility(instance: ConcreteModel, location_process_dict: dict = None, network_scale_level: int = 0) -> Constraint:
     """Ensures that capacity over network scale is not reduced
     Essentially, the capacity of a facility is preserved
 
     Args:
         instance (ConcreteModel): pyomo instance
-        loc_pro_dict (dict, optional): capacity facilities avaiable at location. Defaults to {}.
+        location_process_dict (dict, optional): capacity facilities avaiable at location. Defaults to {}.
         network_scale_level (int, optional): scale of network decisions. Defaults to 0.
 
     Returns:
         Constraint: preserve_capacity_facility
     """
 
-    if loc_pro_dict is None:
-        loc_pro_dict = dict()
+    if location_process_dict is None:
+        location_process_dict = dict()
 
     scales = scale_list(instance=instance,
                         scale_levels=network_scale_level + 1)
@@ -214,8 +214,8 @@ def constraint_preserve_capacity_facility(instance: ConcreteModel, loc_pro_dict:
         instance=instance, scale_levels=network_scale_level + 1)
 
     def preserve_capacity_facility_rule(instance, location, process, *scale_list):
-        if loc_pro_dict is not None:
-            if process in loc_pro_dict[location]:
+        if location_process_dict is not None:
+            if process in location_process_dict[location]:
                 if scale_list[:network_scale_level + 1] != scale_iter[0]:
                     return instance.Cap_P[location, process, scale_list[:network_scale_level + 1]] >= instance.Cap_P[location, process, scale_iter[scale_iter.index(
                         scale_list[:network_scale_level + 1]) - 1]]

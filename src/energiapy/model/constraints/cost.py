@@ -59,7 +59,7 @@ class Costdynamics(Enum):
 
 
 def constraint_resource_purchase(instance: ConcreteModel, price_factor: dict = None, price: dict = None,
-                                 loc_res_dict: dict = None, scheduling_scale_level: int = 0,
+                                 location_resource_dict: dict = None, scheduling_scale_level: int = 0,
                                  purchase_scale_level: int = 0) -> Constraint:
     """Determines expenditure on resource at location in network at the scheduling/expenditure scale
 
@@ -74,8 +74,8 @@ def constraint_resource_purchase(instance: ConcreteModel, price_factor: dict = N
         Constraint: resource_purchase
     """
 
-    if loc_res_dict is None:
-        loc_res_dict = dict()
+    if location_resource_dict is None:
+        location_resource_dict = dict()
 
     if price_factor is None:
         price_factor = dict()
@@ -86,10 +86,10 @@ def constraint_resource_purchase(instance: ConcreteModel, price_factor: dict = N
     scales = scale_list(instance=instance, scale_levels=len(instance.scales))
 
     def resource_purchase_rule(instance, location, resource, *scale_list):
-        if resource in instance.resources_varying_price.intersection(loc_res_dict[location]):
+        if resource in instance.resources_varying_price.intersection(location_resource_dict[location]):
             return instance.B[location, resource, scale_list[:scheduling_scale_level + 1]] == price[location][resource]*price_factor[location][resource][scale_list[:purchase_scale_level + 1]] * instance.C[location, resource, scale_list[:scheduling_scale_level + 1]]
         else:
-            if resource in instance.resources_purch.intersection(loc_res_dict[location]):
+            if resource in instance.resources_purch.intersection(location_resource_dict[location]):
                 return instance.B[location, resource, scale_list[:scheduling_scale_level + 1]] == price[location][
                     resource] * instance.C[location, resource, scale_list[:scheduling_scale_level + 1]]
             else:
@@ -160,7 +160,7 @@ def constraint_network_purchase(instance: ConcreteModel, network_scale_level: in
 
 
 def constraint_resource_revenue(instance: ConcreteModel, revenue_factor: dict = None, revenue: dict = None,
-                                loc_res_dict: dict = None, scheduling_scale_level: int = 0) -> Constraint:
+                                location_resource_dict: dict = None, scheduling_scale_level: int = 0) -> Constraint:
     """Determines revenue resource at location in network at the scheduling/expenditure scale
 
     Args:
@@ -174,8 +174,8 @@ def constraint_resource_revenue(instance: ConcreteModel, revenue_factor: dict = 
         Constraint: resource_revenue
     """
 
-    if loc_res_dict is None:
-        loc_res_dict = dict()
+    if location_resource_dict is None:
+        location_resource_dict = dict()
 
     if revenue_factor is None:
         revenue_factor = dict()
@@ -186,10 +186,10 @@ def constraint_resource_revenue(instance: ConcreteModel, revenue_factor: dict = 
     scales = scale_list(instance=instance, scale_levels=len(instance.scales))
 
     def resource_revenue_rule(instance, location, resource, *scale_list):
-        if resource in instance.resources_varying_revenue.intersection(loc_res_dict[location]):
+        if resource in instance.resources_varying_revenue.intersection(location_resource_dict[location]):
             return instance.R[location, resource, scale_list[:scheduling_scale_level + 1]] == revenue[location][resource]*revenue_factor[location][resource][scale_list[:scheduling_scale_level + 1]] * instance.S[location, resource, scale_list[:scheduling_scale_level + 1]]
         else:
-            if resource in instance.resources_sell.intersection(loc_res_dict[location]):
+            if resource in instance.resources_sell.intersection(location_resource_dict[location]):
                 return instance.R[location, resource, scale_list[:scheduling_scale_level + 1]] == revenue[location][
                     resource] * instance.S[location, resource, scale_list[:scheduling_scale_level + 1]]
             else:
@@ -224,7 +224,7 @@ def constraint_location_revenue(instance: ConcreteModel, cluster_wt: dict, netwo
         def weight(x): return 1 if cluster_wt is None else cluster_wt[x]
 
         return instance.R_location[location, resource, scale_list] == sum(
-            weight(scale_) * instance.R[location, resource, scale_[:scheduling_scale_level + 1]] for scale_ in scale_iter 
+            weight(scale_) * instance.R[location, resource, scale_[:scheduling_scale_level + 1]] for scale_ in scale_iter
             if scale_[:network_scale_level + 1] == scale_list)
 
     instance.constraint_location_revenue = Constraint(
@@ -325,7 +325,7 @@ def constraint_land_network_cost(instance: ConcreteModel, network_scale_level: i
 # *-------------------------capex costing constraints----------------------------
 
 
-def constraint_process_capex(instance: ConcreteModel, capex_dict: dict, network_scale_level: int = 0, annualization_factor: float = 1, capex_factor: dict = None, cost_dynamics: Costdynamics = Costdynamics.constant, loc_pro_dict: dict = None) -> Constraint:
+def constraint_process_capex(instance: ConcreteModel, capex_dict: dict, network_scale_level: int = 0, annualization_factor: float = 1, capex_factor: dict = None, cost_dynamics: Costdynamics = Costdynamics.constant, location_process_dict: dict = None) -> Constraint:
     """Capital expenditure for each process at location in network
 
     Args:
@@ -399,7 +399,7 @@ def constraint_network_capex(instance: ConcreteModel, network_scale_level: int =
 # *-------------------------vopex costing constraints----------------------------
 
 
-def constraint_process_vopex(instance: ConcreteModel, vopex_dict: dict, network_scale_level: int = 0, vopex_factor: dict = None, loc_pro_dict: dict = None) -> Constraint:
+def constraint_process_vopex(instance: ConcreteModel, vopex_dict: dict, network_scale_level: int = 0, vopex_factor: dict = None, location_process_dict: dict = None) -> Constraint:
     """Fixed operational expenditure for each process at location in network
 
     Args:
@@ -468,7 +468,7 @@ def constraint_network_vopex(instance: ConcreteModel, network_scale_level: int =
 # *-------------------------fopex costing constraints----------------------------
 
 
-def constraint_process_fopex(instance: ConcreteModel, fopex_dict: dict, network_scale_level: int = 0, fopex_factor: dict = None, annualization_factor: float = 1, loc_pro_dict: dict = None) -> Constraint:
+def constraint_process_fopex(instance: ConcreteModel, fopex_dict: dict, network_scale_level: int = 0, fopex_factor: dict = None, annualization_factor: float = 1, location_process_dict: dict = None) -> Constraint:
     """Fixed operational expenditure for each process at location in network
     Args:
         instance (ConcreteModel): pyomo instance
@@ -614,7 +614,7 @@ def constraint_transport_cost_network(instance: ConcreteModel, network_scale_lev
 
 # *-------------------------Incidental costing constraints--------------------------
 
-def constraint_process_incidental(instance: ConcreteModel, incidental_dict: dict, network_scale_level: int = 0, cost_dynamics: Costdynamics = Costdynamics.constant, loc_pro_dict: dict = None) -> Constraint:
+def constraint_process_incidental(instance: ConcreteModel, incidental_dict: dict, network_scale_level: int = 0, cost_dynamics: Costdynamics = Costdynamics.constant, location_process_dict: dict = None) -> Constraint:
     """Capital expenditure for each process at location in network
 
     Args:

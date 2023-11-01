@@ -104,9 +104,9 @@ class Scenario:
             capacity_factor (dict): A dictionary with Location-wise capacity factors for varying Process objects.
             price_factor (dict): A dictionary with Location-wise cost factors for varying purchase costs of Resource objects.
             demand_factor (dict): A dictionary with Location-wise demand factors for varying demands of Resource objects.
-            loc_res_dict (dict): A dictionary with Location-wise availability of Resource objects.
-            loc_pro_dict (dict): A dictionary with Location-wise availability of Process objects.
-            loc_mat_dict (dict): A dictionary with Location-wise availability of Material objects.
+            location_resource_dict (dict): A dictionary with Location-wise availability of Resource objects.
+            location_process_dict (dict): A dictionary with Location-wise availability of Process objects.
+            location_material_dict (dict): A dictionary with Location-wise availability of Material objects.
             price_dict (dict): A dictionary with Location-wise purchase price of Resource objects
             revenue_dict (dict): A dictionary with Location-wise revenue from selling resource objects
             capex_dict (dict): A dictionary with capital expenditure data for each Process.
@@ -229,12 +229,12 @@ class Scenario:
             i.name: i.availability_factor for i in self.location_set}
         self.revenue_factor = {
             i.name: i.revenue_factor for i in self.location_set}
-        self.loc_res_dict = {
+        self.location_resource_dict = {
             i.name: {j.name for j in i.resources_full} for i in self.location_set}
-        self.loc_pro_dict = {
+        self.location_process_dict = {
             i.name: {j.name for j in i.processes_full} for i in self.location_set}
-        self.loc_mat_dict = {i.name: {j.name for j in i.materials}
-                             for i in self.location_set}
+        self.location_material_dict = {i.name: {j.name for j in i.materials}
+                                       for i in self.location_set}
         # TODO change to be location wise
         self.price_dict = {i.name: i.resource_price for i in self.location_set}
         self.revenue_dict = {
