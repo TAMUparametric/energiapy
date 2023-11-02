@@ -43,31 +43,31 @@ def constraint_production_mode(instance: ConcreteModel, mode_dict: dict, schedul
     return instance.constraint_production_mode
 
 
-def constraint_production_mode_facility(instance: ConcreteModel, prod_max: dict, loc_pro_dict: dict = None,
+def constraint_production_mode_facility(instance: ConcreteModel, prod_max: dict, location_process_dict: dict = None,
                                         scheduling_scale_level: int = 0) -> Constraint:
     """Constraints production to maximum in mode
 
     Args:
         instance (ConcreteModel): pyomo instance
         prod_max (dict): maximum production of process at location
-        loc_pro_dict (dict, optional): production facilities avaiable at location. Defaults to {}.
+        location_process_dict (dict, optional): production facilities avaiable at location. Defaults to {}.
         scheduling_scale_level (int, optional): scale of scheduling decisions. Defaults to 0.
 
     Returns:
         Constraint: production_facility_mode
     """
 
-    if loc_pro_dict is None:
-        loc_pro_dict = dict()
+    if location_process_dict is None:
+        location_process_dict = dict()
 
     scales = scale_list(instance=instance,
                         scale_levels=scheduling_scale_level + 1)
 
     def production_mode_facility_rule(instance, location, process, mode, *scale_list):
-        if process in loc_pro_dict[location]:
+        if process in location_process_dict[location]:
             if mode <= list(prod_max[location][process].keys())[-1:][0]:
                 return instance.P_m[location, process, mode, scale_list[:scheduling_scale_level + 1]] <= prod_max[location][process][mode] * instance.X_P_m[location, process, mode,
-                                                                                                                                                                scale_list[:scheduling_scale_level + 1]]
+                                                                                                                                                            scale_list[:scheduling_scale_level + 1]]
             else:
                 return Constraint.Skip
         else:
@@ -81,29 +81,28 @@ def constraint_production_mode_facility(instance: ConcreteModel, prod_max: dict,
     return instance.constraint_production_mode_facility
 
 
-
-def constraint_min_production_mode_facility(instance: ConcreteModel, prod_min: dict, loc_pro_dict: dict = None,
-                                        scheduling_scale_level: int = 0) -> Constraint:
+def constraint_min_production_mode_facility(instance: ConcreteModel, prod_min: dict, location_process_dict: dict = None,
+                                            scheduling_scale_level: int = 0) -> Constraint:
     """Constraints production to minimum in mode
 
     Args:
         instance (ConcreteModel): pyomo instance
         prod_min (dict): minimum production of process at location
-        loc_pro_dict (dict, optional): production facilities avaiable at location. Defaults to {}.
+        location_process_dict (dict, optional): production facilities avaiable at location. Defaults to {}.
         scheduling_scale_level (int, optional): scale of scheduling decisions. Defaults to 0.
 
     Returns:
         Constraint: production_facility_mode
     """
 
-    if loc_pro_dict is None:
-        loc_pro_dict = dict()
+    if location_process_dict is None:
+        location_process_dict = dict()
 
     scales = scale_list(instance=instance,
                         scale_levels=scheduling_scale_level + 1)
 
     def min_production_mode_facility_rule(instance, location, process, mode, *scale_list):
-        if process in loc_pro_dict[location]:
+        if process in location_process_dict[location]:
             if mode <= list(prod_min[location][process].keys())[-1:][0]:
                 return instance.Cap_P_m[location, process, mode, scale_list[:scheduling_scale_level + 1]] >= prod_min[location][process][mode] * instance.X_P_m[location, process, mode,
                                                                                                                                                                 scale_list[:scheduling_scale_level + 1]]
@@ -118,7 +117,6 @@ def constraint_min_production_mode_facility(instance: ConcreteModel, prod_min: d
         doc='production facility sizing and location')
     constraint_latex_render(min_production_mode_facility_rule)
     return instance.constraint_min_production_mode_facility
-
 
 
 def constraint_production_mode_binary(instance: ConcreteModel, mode_dict: dict, scheduling_scale_level: int = 0,
@@ -151,8 +149,6 @@ def constraint_production_mode_binary(instance: ConcreteModel, mode_dict: dict, 
     return instance.constraint_production_mode_binary
 
 
-
-
 def constraint_production_rate1(instance: ConcreteModel, rate_max_dict: dict, scheduling_scale_level: int = 0) -> Constraint:
     """Manages the production rate in mode along with constraint_production_rate2
 
@@ -172,12 +168,13 @@ def constraint_production_rate1(instance: ConcreteModel, rate_max_dict: dict, sc
 
     def production_rate_rule1(instance, location, process, mode, *scale_list):
         if rate_max_dict[process] is not None:
-            return instance.P_m[location, process, mode, scale_list[:scheduling_scale_level + 1]] - instance.P_m[location, process, mode, scale_iter[scale_iter.index(scale_list[:scheduling_scale_level + 1]) - 1]] >= - rate_max_dict[process][mode]-  max(rate_max_dict['PEM'].values())*(2 - instance.X_P_m[location, process, mode, scale_list[:scheduling_scale_level + 1]]- instance.X_P_m[location, process, mode,scale_iter[scale_iter.index(scale_list[:scheduling_scale_level + 1]) - 1] ])
+            return instance.P_m[location, process, mode, scale_list[:scheduling_scale_level + 1]] - instance.P_m[location, process, mode, scale_iter[scale_iter.index(scale_list[:scheduling_scale_level + 1]) - 1]] >= - rate_max_dict[process][mode] - max(rate_max_dict['PEM'].values())*(2 - instance.X_P_m[location, process, mode, scale_list[:scheduling_scale_level + 1]] - instance.X_P_m[location, process, mode, scale_iter[scale_iter.index(scale_list[:scheduling_scale_level + 1]) - 1]])
         else:
             return Constraint.Skip
 
     instance.constraint_production_rate1 = Constraint(
-        instance.locations, instance.processes, instance.modes, *scales, rule=production_rate_rule1,
+        instance.locations, instance.processes, instance.modes, *
+        scales, rule=production_rate_rule1,
         doc='production mode rate 1')
     constraint_latex_render(production_rate_rule1)
     return instance.constraint_production_rate1
@@ -202,15 +199,18 @@ def constraint_production_rate2(instance: ConcreteModel, rate_max_dict: dict, sc
 
     def production_rate_rule2(instance, location, process, mode, *scale_list):
         if rate_max_dict[process] is not None:
-            lhs = instance.P_m[location, process, mode, scale_list[:scheduling_scale_level + 1]] - instance.P_m[location, process, mode, scale_iter[scale_iter.index(scale_list[:scheduling_scale_level + 1]) - 1]] 
-            
-            rhs = rate_max_dict[process][mode] +  max(rate_max_dict['PEM'].values())*(2 - instance.X_P_m[location, process, mode, scale_list[:scheduling_scale_level + 1]]- instance.X_P_m[location, process, mode,scale_iter[scale_iter.index(scale_list[:scheduling_scale_level + 1]) - 1] ])
+            lhs = instance.P_m[location, process, mode, scale_list[:scheduling_scale_level + 1]] - instance.P_m[location,
+                                                                                                                process, mode, scale_iter[scale_iter.index(scale_list[:scheduling_scale_level + 1]) - 1]]
+
+            rhs = rate_max_dict[process][mode] + max(rate_max_dict['PEM'].values())*(2 - instance.X_P_m[location, process, mode, scale_list[:scheduling_scale_level + 1]
+                                                                                                        ] - instance.X_P_m[location, process, mode, scale_iter[scale_iter.index(scale_list[:scheduling_scale_level + 1]) - 1]])
             return lhs <= rhs
         else:
             return Constraint.Skip
 
     instance.constraint_production_rate2 = Constraint(
-        instance.locations, instance.processes, instance.modes, *scales, rule=production_rate_rule2,
+        instance.locations, instance.processes, instance.modes, *
+        scales, rule=production_rate_rule2,
         doc='production mode rate 1')
     constraint_latex_render(production_rate_rule2)
     return instance.constraint_production_rate2
@@ -234,16 +234,20 @@ def constraint_production_mode_switch(instance: ConcreteModel, mode_dict: dict, 
 
     def production_mode_switch_rule(instance, location, process, mode, *scale_list):
         if len(mode_dict[process]) > 1:
-            lhs =  sum(instance.X_P_mm[location, process, mode_, mode, scale_list[:scheduling_scale_level+1]] for mode_ in instance.modes) -  sum(instance.X_P_mm[location, process, mode, mode_, scale_list[:scheduling_scale_level+1]] for mode_ in instance.modes)
+            lhs = sum(instance.X_P_mm[location, process, mode_, mode, scale_list[:scheduling_scale_level+1]] for mode_ in instance.modes) - sum(
+                instance.X_P_mm[location, process, mode, mode_, scale_list[:scheduling_scale_level+1]] for mode_ in instance.modes)
 
-            rhs = instance.X_P_m[location, process, mode, scale_list[:scheduling_scale_level + 1]] - instance.X_P_m[location, process, mode, scale_iter[scale_iter.index(scale_list[:scheduling_scale_level + 1]) - 1]] 
-            
+            rhs = instance.X_P_m[location, process, mode, scale_list[:scheduling_scale_level + 1]] - \
+                instance.X_P_m[location, process, mode, scale_iter[scale_iter.index(
+                    scale_list[:scheduling_scale_level + 1]) - 1]]
+
             return lhs == rhs
         else:
             return Constraint.Skip
-        
+
     instance.production_mode_switch = Constraint(
-        instance.locations, instance.processes, instance.modes, *scales, rule=production_mode_switch_rule,
+        instance.locations, instance.processes, instance.modes, *
+        scales, rule=production_mode_switch_rule,
         doc='production mode switch')
     constraint_latex_render(production_mode_switch_rule)
     return instance.production_mode_switch

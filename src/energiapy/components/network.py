@@ -12,10 +12,15 @@ __status__ = "Production"
 
 from dataclasses import dataclass, field
 from itertools import product
-from typing import List
+from typing import List, Dict, Union, Tuple
+
+from pandas import DataFrame
 
 from ..components.location import Location
 from ..components.transport import Transport
+from ..components.temporal_scale import TemporalScale
+from ..utils.scale_utils import scale_changer
+from warnings import warn
 
 
 @dataclass
@@ -54,10 +59,24 @@ class Network:
         >>> transport_matrix = [[[Ship], [Ship, Plane]]]
     """
     name: str
+    scales: TemporalScale
     source_locations: List[Location] = field(default_factory=list)
     sink_locations: List[Location] = field(default_factory=list)
     distance_matrix: List[List[float]] = field(default_factory=list)
     transport_matrix: List[List[Transport]] = field(default_factory=list)
+    transport_capacity_factor: Union[float,
+                                     Dict[Tuple[Location, Location], Dict[Transport, float]]] = None
+    transport_capex_factor: Union[float, Dict[Tuple[Location,
+                                                    Location], Dict[Transport, float]]] = None
+    transport_vopex_factor: Union[float, Dict[Tuple[Location,
+                                                    Location], Dict[Transport, float]]] = None
+    transport_fopex_factor: Union[float, Dict[Tuple[Location,
+                                                    Location], Dict[Transport, float]]] = None
+    transport_capacity_scale_level: int = 0
+    transport_capex_scale_level: int = 0
+    transport_vopex_scale_level: int = 0
+    transport_fopex_scale_level: int = 0
+
     label: str = ''
 
     def __post_init__(self):
@@ -69,11 +88,47 @@ class Network:
             transport_avail_dict (dict): transportation modes available between sources and sinks
             locations (list): list of locations, sinks + sources
         """
-        self.transport_dict = self.make_transport_dict() # makes dictionary of available transport options between locations
-        self.distance_dict = self.make_distance_dict() # makes dictionary of distances between locations
-        self.transport_avail_dict = self.make_transport_avail_dict() # same as transport dict, I do not know why I made two, but now I am too scared to change it
+        self.transport_dict = self.make_transport_dict(
+        )  # makes dictionary of available transport options between locations
+        # makes dictionary of distances between locations
+        self.distance_dict = self.make_distance_dict()
+        # same as transport dict, I do not know why I made two, but now I am too scared to change it
+        self.transport_avail_dict = self.make_transport_avail_dict()
         self.locations = list(
-            set(self.source_locations).union(set(self.sink_locations))) # all locations in network
+            set(self.source_locations).union(set(self.sink_locations)))  # all locations in network
+        self.source_sink_resource_dict = self.make_source_sink_resource_dict()
+
+        if self.transport_capacity_factor is not None:
+            if isinstance(list(self.transport_capacity_factor[list(self.transport_capacity_factor.keys())[0]].values())[0], DataFrame):
+                self.transport_capacity_factor = {tuple([m.name for m in list(i)]): scale_changer(
+                    j, scales=self.scales, scale_level=self.transport_capacity_scale_level) for i, j in self.transport_capacity_factor.items()}
+            else:
+                warn(
+                    'Input should be a dict of a dict of a DataFrame, Dict[Tuple[Location, Location], Dict[Transport, float]]')
+
+        if self.transport_capex_factor is not None:
+            if isinstance(list(self.transport_capex_factor[list(self.transport_capex_factor.keys())[0]].values())[0], DataFrame):
+                self.transport_capex_factor = {(m.name for m in i): scale_changer(
+                    j, scales=self.scales, scale_level=self.transport_capex_scale_level) for i, j in self.transport_capex_factor.items()}
+            else:
+                warn(
+                    'Input should be a dict of a dict of a DataFrame, Dict[Tuple[Location, Location], Dict[Transport, float]]')
+
+        if self.transport_fopex_factor is not None:
+            if isinstance(list(self.transport_fopex_factor[list(self.transport_fopex_factor.keys())[0]].values())[0], DataFrame):
+                self.transport_fopex_factor = {i: scale_changer(
+                    j, scales=self.scales, scale_level=self.transport_fopex_scale_level) for i, j in self.transport_fopex_factor.items()}
+            else:
+                warn(
+                    'Input should be a dict of a dict of a DataFrame, Dict[Tuple[Location, Location], Dict[Transport, float]]')
+
+        if self.transport_vopex_factor is not None:
+            if isinstance(list(self.transport_vopex_factor[list(self.transport_vopex_factor.keys())[0]].values())[0], DataFrame):
+                self.transport_vopex_factor = {i: scale_changer(
+                    j, scales=self.scales, scale_level=self.transport_vopex_scale_level) for i, j in self.transport_vopex_factor.items()}
+            else:
+                warn(
+                    'Input should be a dict of a dict of a DataFrame, Dict[Tuple[Location, Location], Dict[Transport, float]]')
 
     def make_distance_dict(self) -> dict:
         """returns a dictionary of distances from sources to sinks
@@ -106,6 +161,17 @@ class Network:
         transport_avail_dict = {
             i: {j.name for j in self.transport_dict[i]} for i in self.transport_dict.keys()}
         return transport_avail_dict
+
+    def make_source_sink_resource_dict(self) -> dict:
+
+        source_sink_resource_dict = {
+            i: None for i in self.transport_dict.keys()}
+        for i in self.transport_dict.keys():
+            resources = set()
+            for j in self.transport_dict[i]:
+                resources = resources.union({k.name for k in j.resources})
+            source_sink_resource_dict[i] = resources
+        return source_sink_resource_dict
 
     def __repr__(self):
         return self.name
