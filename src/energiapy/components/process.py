@@ -12,7 +12,7 @@ __status__ = "Production"
 
 from dataclasses import dataclass
 from enum import Enum, auto
-from typing import Dict, Union, List
+from typing import Dict, Union, List, Tuple
 from warnings import warn
 
 from ..components.material import Material
@@ -80,6 +80,10 @@ class VaryingProcess(Enum):
     """
     Use certain parameter for expenditure
     """
+    MULTIMODE = auto()
+    """
+    Has multiple modes of operation
+    """
 
 
 @dataclass
@@ -113,6 +117,10 @@ class Process:
         storage(list, optional): Resource that can be stored in process.
         store_max (float, optional): Maximum allowed storage of resource in process. Defaults to 0.
         store_min (float, optional): Minimum allowed storage of resource in process. Defaults to 0.
+        rate_max (Union[Dict[int, float], float]): maximum ramping rates 
+        varying_bounds (float, optional): bounds for the variability. Defaults to (0,1).
+        mode_ramp (Dict[tuple, int], optional): ramping rates between mode switches. Defaults to None.
+        storage_penalty: (float, optional). penalty for mainting inventory per time period in the scheduling scale. Defaults to 0.
 
     Examples:
         For processes with varying production capacity
@@ -134,10 +142,10 @@ class Process:
     retire: int = None
     conversion: Union[Dict[int, Dict[Resource, float]],
                       Dict[Resource, float]] = None
-    capex: Union[float, dict] = None
-    fopex: Union[float, dict] = None
-    vopex: Union[float, dict] = None
-    incidental: float = None
+    capex: Union[float, dict] = 0
+    fopex: Union[float, dict] = 0
+    vopex: Union[float, dict] = 0
+    incidental: Union[float, dict] = 0
     material_cons: Dict[Material, float] = None
     prod_max: Union[Dict[int, float], float] = 0
     prod_min: float = 0
@@ -157,6 +165,9 @@ class Process:
     store_max: float = 0
     store_min: float = 0
     rate_max: Union[Dict[int, float], float] = None
+    varying_bounds: Tuple[float] = (0, 1)
+    mode_ramp: Dict[tuple, int] = None
+    storage_penalty: float = 0
 
     def __post_init__(self):
         """Determines the ProcessMode, CostDynamics, and kicks out dummy resources if process is stores resource
@@ -168,13 +179,18 @@ class Process:
             cost_dynamics (CostDynamics): Determines whether the cost scales linearly with the unit capacity, or is a piecewise-linear function.
         """
 
-        if self.varying is None:
+        if self.varying is None:  # if nothing is varying, set defaults to CERTAIN_X
             self.varying = []
             if (self.capex is not None) or (self.fopex is not None) or (self.vopex is not None):
                 self.varying = self.varying + \
                     [VaryingProcess.CERTAIN_EXPENDITURE]
-            if self.prod_max > 0:
-                self.varying = self.varying + [VaryingProcess.CERTAIN_CAPACITY]
+            # if maximum production is dictionary, that means that the process uses multiple modes
+            if isinstance(self.prod_max, dict):
+                self.varying = self.varying + [VaryingProcess.MULTIMODE]
+            else:
+                if self.prod_max > 0:
+                    self.varying = self.varying + \
+                        [VaryingProcess.CERTAIN_CAPACITY]
 
         if not isinstance(self.varying, list):
             warn('Provide a list of VaryingProcess enums')
@@ -184,10 +200,11 @@ class Process:
 
         if self.storage is not None:
             self.resource_storage = create_storage_resource(
-                process_name=self.name, resource=self.storage, store_max=self.store_max, store_min=self.store_min)
+                process_name=self.name, resource=self.storage, store_max=self.store_max, store_min=self.store_min)  # create a dummy resource if process is storage type.
+            # efficiency of input to storage is 100 percent
             self.conversion = {self.storage: -1, self.resource_storage: 1}
             self.conversion_discharge = {
-                self.resource_storage: -1, self.storage: 1*(1 - self.storage_loss)}
+                self.resource_storage: -1, self.storage: 1*(1 - self.storage_loss)}  # the losses are all at the output (retrival)
             self.processmode = ProcessMode.STORAGE
 
         else:
@@ -198,14 +215,15 @@ class Process:
             else:
                 self.processmode = ProcessMode.SINGLE
 
-        if isinstance(self.capex, int):
-            self.cost_dynamics = CostDynamics.PWL
-        else:
+        if isinstance(self.capex, (int, float)):
             self.cost_dynamics = CostDynamics.CONSTANT
+        elif isinstance(self.capex, dict):
+            # Capex dictionaries are only provided for piece-wise linear cost functions
+            self.cost_dynamics = CostDynamics.PWL
 
         if self.processmode is ProcessMode.MULTI:
             self.resource_req = {
-                i.name for i in self.conversion[list(self.conversion.keys())[0]].keys()}
+                i.name for i in self.conversion[list(self.conversion.keys())[0]].keys()}  # the required resources are drawn from the conversion dict, this includes stored resource
         else:
             self.resource_req = {i.name for i in self.conversion.keys()}
 
@@ -213,6 +231,12 @@ class Process:
             if list(self.prod_max.keys()) != list(self.conversion.keys()):
                 warn(
                     'The keys for prod_max and conversion need to match if ProcessMode.multi')
+
+        if self.cost_dynamics == CostDynamics.PWL:
+            self.capacity_segments = list(self.capex.keys())
+            self.capex_segements = list(self.capex.values())
+
+        # self.emission_dict = {i: i.emissions for i in self.conversion.keys()}
 
     def __repr__(self):
         return self.name

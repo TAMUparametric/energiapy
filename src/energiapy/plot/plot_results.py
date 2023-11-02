@@ -83,7 +83,6 @@ def schedule(results: Result, y_axis: str, component: str, location: str, fig_si
     for i in results.__dict__['components'].keys():
         if component in results.__dict__['components'][i]:
             component_type = i
-
     title = f"Schedule for {results.components[component_type][component]['label']} in {results.components['locations'][location]['label']}"
     plt.title(title)
     plt.ylabel(results.components[component_type][component]['basis'])
@@ -211,8 +210,8 @@ def transport(results: Result, source: str, sink: str, resource: str, transport:
        'serif': ['Computer Modern'], 'size': font_size})
     rc('text', usetex=usetex)
     fig, ax = plt.subplots(figsize=fig_size)
-    y_ = [results.output['Trans_exp'][i] for i in results.output['Trans_exp'].keys(
-    ) if list(i)[:4] == [source, sink, resource, transport]]
+    y_ = [results.output['Exp'][i] for i in results.output['Exp'].keys(
+    ) if list(i)[:4] == [source, sink, transport, resource]]
     plt.plot(y_)
     plt.ylabel("Amount in unit basis")
     plt.xlabel("Scheduling scale")
@@ -243,10 +242,10 @@ def cost(results: Union[Result, List[Result]], x: CostX, y: CostY, location: str
         color (str, optional): Defaults to 'blue'.
         usetex (bool, optional): Defaults to False.
     """
-    
+
     if isinstance(results, list):
         pass
-    
+
     else:
         if y is CostY.CAPEX:
             res_dict = results.output['Capex_process']
@@ -319,8 +318,8 @@ def cost(results: Union[Result, List[Result]], x: CostX, y: CostY, location: str
 
     if x == CostX.SCENARIO_WISE:
 
-        scenarios =  tuple([i.name for i in results])
-        
+        scenarios = tuple([i.name for i in results])
+
         weight_counts = dict()
 
         for i in list(results.components['processes'].keys()):
@@ -350,8 +349,6 @@ def cost(results: Union[Result, List[Result]], x: CostX, y: CostY, location: str
         plt.grid(alpha=0.3, zorder=0)
         plt.rcdefaults()
         plt.plot()
-
-        
     return
 
 

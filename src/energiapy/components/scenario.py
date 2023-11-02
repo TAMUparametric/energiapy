@@ -16,9 +16,10 @@ from typing import Dict, Union
 import numpy
 from pandas import DataFrame
 
+from ..components.transport import VaryingTransport
 from ..components.location import Location
 from ..components.network import Network
-from ..components.process import ProcessMode, VaryingProcess
+from ..components.process import ProcessMode, VaryingProcess, CostDynamics
 from ..components.resource import Resource, VaryingResource
 from ..components.temporal_scale import TemporalScale
 from ..model.bounds import CapacityBounds
@@ -36,13 +37,17 @@ class Scenario:
         purchase_scale_level (int, optional): scale for resource purchase. Defaults to 0.
         expenditure_scale_level (int, optional): scale for technology expenditure. Defaults to 0.
         scheduling_scale_level (int, optional): scale of production and inventory scheduling. Defaults to 0.
+        availability_scale_level (int, optional): scale level for availability (resource). Defaults to 0
+        capacity_scale_level (int, optional): scale level for capacity (process). Defaults to 0
         network_scale_level (int, optional): scale for network decisions such as facility location. Defaults to 0.
         demand_scale_level (int, optional): scale for meeting specific demand for resource. Defaults to 0.
         cluster_wt (dict): cluster weights as a dictionary. {scale: int}. Defaults to None.
         label (str, optional): Longer descriptive label if required. Defaults to ''
         capacity_bounds (CapacityBounds, optional): bounds on the capacity, useful for multi-period formulations. Defaults to None.
         annualization_factor (float, optional): the annualization factor for Capex. Defaults to 1.
-
+        demand_penalty (Dict[Location, Dict[Resource, float]]): penalty for unmet demand at location for each resource. Defaults to None.
+        error (float): error introduced through scenario reduction
+        rep_days_dict (dict): dictionary of representative days
     Example:
         The Scenario can be built over a single location. The network here is specified as a single Location. Considering scales (TemporalScale object for a year, [1, 365, 24]), scheduling, expenditure, and demand are met at an hourly level, and network at an annual level.
 
@@ -50,7 +55,7 @@ class Scenario:
 
         A multilocation Scenario needs a Network to be provided. Here, expenditure (on resource purchase) is determined at a daily scale. price_factor in the Location object needs to be commensurate in scale.
 
-        >>> Future = Scenario(name= 'Future', network= System, scales= scales, expenditure_scale_level= 1, scheduling_scale_level= 2, network_scale_level= 0, demand_scale_level= 2, label= 'Future Scenario )
+        >>> Future = Scenario(name= 'Future', network= System, scales= scales, expenditure_scale_level= 1, scheduling_scale_level= 2, network_scale_level= 0, demand_scale_level= 2, label= 'Future Scenario' )
     """
     name: str
     scales: TemporalScale
@@ -58,13 +63,18 @@ class Scenario:
     purchase_scale_level: int = 0
     expenditure_scale_level: int = 0
     scheduling_scale_level: int = 0
+    availability_scale_level: int = 0
     network_scale_level: int = 0
     demand_scale_level: int = 0
+    capacity_scale_level: int = 0
     cluster_wt: dict = None
     demand: Union[Dict[Location, Dict[Resource, float]], float] = None
     label: str = ''
     capacity_bounds: CapacityBounds = None
     annualization_factor: float = 1
+    demand_penalty: Dict[Location, Dict[Resource, float]] = None
+    error: float = None
+    rep_dict: dict = None
 
     def __post_init__(self):
         """
@@ -94,11 +104,11 @@ class Scenario:
             capacity_factor (dict): A dictionary with Location-wise capacity factors for varying Process objects.
             price_factor (dict): A dictionary with Location-wise cost factors for varying purchase costs of Resource objects.
             demand_factor (dict): A dictionary with Location-wise demand factors for varying demands of Resource objects.
-            loc_res_dict (dict): A dictionary with Location-wise availability of Resource objects.
-            loc_pro_dict (dict): A dictionary with Location-wise availability of Process objects.
-            loc_mat_dict (dict): A dictionary with Location-wise availability of Material objects.
-            price (dict): A dictionary with Location-wise purchase price of Resource objects
-            revenue (dict): A dictionary with Location-wise revenue from selling resource objects
+            location_resource_dict (dict): A dictionary with Location-wise availability of Resource objects.
+            location_process_dict (dict): A dictionary with Location-wise availability of Process objects.
+            location_material_dict (dict): A dictionary with Location-wise availability of Material objects.
+            price_dict (dict): A dictionary with Location-wise purchase price of Resource objects
+            revenue_dict (dict): A dictionary with Location-wise revenue from selling resource objects
             capex_dict (dict): A dictionary with capital expenditure data for each Process.
             fopex_dict (dict): A dictionary with fixed operational expenditure data for each Process.
             vopex_dict (dict): A dictionary with variable operational expenditure data for each Process.
@@ -111,6 +121,7 @@ class Scenario:
             process_resource_dict (dict): A dictionary with Resource required for each Process.
             process_material_dict (dict): A dictionary with Material required for each Process
             mode_dict (dict): A dictionary with the multiple modes of each Process with ProcessMode.MULTI
+            cost_df (DataFrame): handy dataframe with cost parameters
         """
 
         if isinstance(self.network, Location):
@@ -121,11 +132,21 @@ class Scenario:
             self.transport_avail_dict = None
             self.trans_max = None
             self.trans_loss = None
-            self.trans_cost = None
-            self.trans_emit = None
+            self.trans_capex = None
+            self.trans_fopex = None
+            self.trans_vopex = None
+            self.trans_emission = None
             self.distance_dict = None
             self.location_set = {self.network}
-
+            self.transport_capacity_factor = None
+            self.transport_capex_factor = None
+            self.transport_vopex_factor = None
+            self.transport_fopex_factor = None
+            self.transport_capacity_scale_level = None
+            self.transport_capex_scale_level = None
+            self.transport_vopex_scale_level = None
+            self.transport_fopex_scale_level = None
+            self.source_sink_resource_dict = None
         else:
             self.transport_set = set().union(*self.network.transport_dict.values())
             self.source_locations = self.network.source_locations
@@ -135,13 +156,47 @@ class Scenario:
             self.location_set = set(
                 self.source_locations + self.sink_locations)
             self.trans_max = {j.name: j.trans_max for j in self.transport_set}
+            self.trans_min = {j.name: j.trans_min for j in self.transport_set}
             self.trans_loss = {
                 j.name: j.trans_loss for j in self.transport_set}
-            self.trans_cost = {
-                j.name: j.trans_cost for j in self.transport_set}
-            self.trans_emit = {
-                j.name: j.trans_emit for j in self.transport_set}
+            self.trans_capex = {
+                j.name: j.capex for j in self.transport_set}
+            self.trans_vopex = {
+                j.name: j.vopex for j in self.transport_set}
+            self.trans_fopex = {
+                j.name: j.fopex for j in self.transport_set}
+            self.trans_emission = {
+                j.name: j.emission for j in self.transport_set}
             self.distance_dict = self.network.distance_dict
+            # self.transport_resource_dict = {i: None for i in self.transport_dict.keys()}
+            self.location_transport_resource_dict = {i: {k.name: {
+                l.name for l in k.resources} for k in j} for i, j in self.transport_dict.items()}
+            self.resource_transport_dict = {}
+            for key, value in {i.name: i.resources for i in self.transport_set}.items():
+                for item in value:
+                    if item in self.resource_transport_dict:
+                        self.resource_transport_dict[item].append(key)
+                    else:
+                        self.resource_transport_dict[item] = [key]
+            self.resource_transport_dict = {
+                i.name: j for i, j in self.resource_transport_dict.items()}
+            self.transport_resource_dict = {
+                i.name: {j.name for j in i.resources} for i in self.transport_set}
+            # for i,j in self.transport_dict.items():
+            #     set_ = set()
+            #     for k in j:
+            #         set_ = set_.union(k.resources)
+            #     self.transport_resource_dict[i] = {i.name for i in set_}
+
+            self.transport_capacity_factor = self.network.transport_capacity_factor
+            self.transport_capex_factor = self.network.transport_capex_factor
+            self.transport_vopex_factor = self.network.transport_vopex_factor
+            self.transport_fopex_factor = self.network.transport_fopex_factor
+            self.transport_capacity_scale_level = self.network.transport_capacity_scale_level
+            self.transport_capex_scale_level = self.network.transport_capex_scale_level
+            self.transport_vopex_scale_level = self.network.transport_vopex_scale_level
+            self.transport_fopex_scale_level = self.network.transport_fopex_scale_level
+            self.source_sink_resource_dict = self.network.source_sink_resource_dict
 
         self.process_set = set().union(
             *[i.processes_full for i in self.location_set if i.processes_full is not None])
@@ -169,19 +224,22 @@ class Scenario:
         self.capex_factor = {i.name: i.capex_factor for i in self.location_set}
         self.vopex_factor = {i.name: i.vopex_factor for i in self.location_set}
         self.fopex_factor = {i.name: i.fopex_factor for i in self.location_set}
+        self.incidental_factor = {
+            i.name: i.incidental_factor for i in self.location_set}
         self.availability_factor = {
             i.name: i.availability_factor for i in self.location_set}
         self.revenue_factor = {
             i.name: i.revenue_factor for i in self.location_set}
-        self.loc_res_dict = {
+        self.location_resource_dict = {
             i.name: {j.name for j in i.resources_full} for i in self.location_set}
-        self.loc_pro_dict = {
+        self.location_process_dict = {
             i.name: {j.name for j in i.processes_full} for i in self.location_set}
-        self.loc_mat_dict = {i.name: {j.name for j in i.materials}
-                             for i in self.location_set}
+        self.location_material_dict = {i.name: {j.name for j in i.materials}
+                                       for i in self.location_set}
         # TODO change to be location wise
-        self.price = {i.name: i.resource_price for i in self.location_set}
-        self.revenue = {i.name: i.resource_revenue for i in self.location_set}
+        self.price_dict = {i.name: i.resource_price for i in self.location_set}
+        self.revenue_dict = {
+            i.name: i.resource_revenue for i in self.location_set}
         self.capex_dict = {i.name: i.capex for i in self.process_set}
         self.fopex_dict = {i.name: i.fopex for i in self.process_set}
         self.vopex_dict = {i.name: i.vopex for i in self.process_set}
@@ -197,9 +255,11 @@ class Scenario:
         self.fail_factor = {i.name: i.fail_factor for i in self.location_set}
         self.credit_dict = {i.name: {j.name: i.credit[j] for j in i.credit.keys(
         )} for i in self.location_set if i.credit is not None}
+
+        # self.emission_dict = {i.name: {j.name: {l.name: {n.name: o for n, o in m.items(
+        # )} if m is not None else None for l, m in k.items()} for j, k in i.emission_dict.items()} for i in self.location_set}
         self.process_resource_dict = {
             i.name: i.resource_req for i in self.process_set}
-
         # self.process_material_dict = {i.name: {j.name: i.material_cons[j] for j in i.material_cons.keys()} if i.material_cons is not None else None for i in
         #                               self.process_set}
         self.process_material_dict = {
@@ -222,6 +282,25 @@ class Scenario:
         self.mode_dict = {i.name: list(
             self.multiconversion[i.name].keys()) for i in self.process_set}
 
+        if self.demand_penalty is not None:
+            self.demand_penalty = {i.name: {j.name: self.demand_penalty[i][j] for j in self.demand_penalty[i].keys(
+            )} for i in self.demand_penalty.keys()}
+
+        df_capex = DataFrame.from_dict(
+            self.capex_dict, orient='index', columns=['capex'])
+        df_vopex = DataFrame.from_dict(
+            self.vopex_dict, orient='index', columns=['vopex'])
+        df_fopex = DataFrame.from_dict(
+            self.fopex_dict, orient='index', columns=['fopex'])
+        self.cost_df = df_capex.merge(df_vopex, left_index=True, right_index=True, how='inner').merge(
+            df_fopex, left_index=True, right_index=True, how='inner')
+
+        self.rate_max_dict = {i.name: i.rate_max for i in self.process_set}
+
+        self.mode_ramp_dict = {i.name: i.mode_ramp for i in self.process_set}
+
+        self.storage_penalty_dict = {
+            i.name: i.storage_penalty_dict for i in self.location_set}
         set_dict = {
             'resources': [i.name for i in self.resource_set],
 
@@ -292,8 +371,31 @@ class Scenario:
             'processes_uncertain_expenditure': [i.name for i in self.process_set if
                                                 VaryingProcess.UNCERTAIN_EXPENDITURE in i.varying],
 
+            'processes_segments': [i.name for i in self.process_set if i.cost_dynamics == CostDynamics.PWL],
+
             'locations': [i.name for i in self.location_set],
             'materials': [i.name for i in self.material_set],
+
+            'transports_certain_capacity': [i.name for i in self.transport_set if VaryingTransport.CERTAIN_CAPACITY in i.varying],
+            'transports_certain_capex': [i.name for i in self.transport_set if VaryingTransport.CERTAIN_CAPEX in i.varying],
+            'transports_certain_vopex': [i.name for i in self.transport_set if VaryingTransport.CERTAIN_VOPEX in i.varying],
+            'transports_certain_fopex': [i.name for i in self.transport_set if VaryingTransport.CERTAIN_FOPEX in i.varying],
+
+            'transports_uncertain_capacity': [i.name for i in self.transport_set if VaryingTransport.UNCERTAIN_CAPACITY in i.varying],
+            'transports_uncertain_capex': [i.name for i in self.transport_set if VaryingTransport.UNCERTAIN_CAPEX in i.varying],
+            'transports_uncertain_vopex': [i.name for i in self.transport_set if VaryingTransport.UNCERTAIN_VOPEX in i.varying],
+            'transports_uncertain_fopex': [i.name for i in self.transport_set if VaryingTransport.UNCERTAIN_FOPEX in i.varying],
+
+            'transports_varying_capacity': [i.name for i in self.transport_set if VaryingTransport.DETERMINISTIC_CAPACITY in i.varying],
+            'transports_varying_capex': [i.name for i in self.transport_set if VaryingTransport.DETERMINISTIC_CAPEX in i.varying],
+            'transports_varying_vopex': [i.name for i in self.transport_set if VaryingTransport.DETERMINISTIC_VOPEX in i.varying],
+            'transports_varying_fopex': [i.name for i in self.transport_set if VaryingTransport.DETERMINISTIC_FOPEX in i.varying],
+
+        }
+        self.varying_bounds_dict = {
+            'demand': {i.name: i.varying_bounds for i in self.resource_set if VaryingResource.UNCERTAIN_DEMAND in i.varying},
+            'availability': {i.name: i.varying_bounds for i in self.resource_set if VaryingResource.UNCERTAIN_AVAILABILITY in i.varying},
+            'capacity': {i.name: i.varying_bounds for i in self.process_set if VaryingProcess.UNCERTAIN_CAPACITY in i.varying}
         }
 
         if self.source_locations is not None:
@@ -396,6 +498,8 @@ class Scenario:
             print(f"Uncertain resource discharge (S) x {n_S}")
             print(f"Exact resource availability (Af) x {n_Af}")
             print(f"Uncertain resource availability (A) x {n_A}")
+            print(f"Exact resource price (Cf) x {n_Cf}")
+            print(f"Uncertain resource price (C) x {n_C}")
             print(f"Exact process production (Pf) x {n_Pf}")
             print(f"Uncertain process production (P) x {n_P}")
             print(
@@ -403,7 +507,7 @@ class Scenario:
 
             # *--------------------------------A--------------------------------------
             A_bal = numpy.diag(
-                [*[-1] * n_Inv, *[-1] * n_Sf, *[-1] * n_S,  *[1] * n_Af, *[1] * n_A])
+                [*[1] * n_Inv, *[-1] * n_Sf, *[-1] * n_S,  *[1] * n_Af, *[1] * n_A])
 
             if n_I > 0:  # if implict variables present, add 0 stacks to matrix
 
@@ -414,27 +518,51 @@ class Scenario:
                 self.set_dict['resources_certain_availability'] + \
                 self.set_dict['resources_uncertain_availability'] + \
                 self.set_dict['resources_implicit']
-            column_list = [*['Inv_' + i for i in self.set_dict['resources_store']] +
-                           ['Sf_' + i for i in self.set_dict['resources_certain_demand']] +
-                           ['S_' + i for i in self.set_dict['resources_uncertain_demand']] +
-                           ['Af_' + i for i in self.set_dict['resources_certain_availability']] +
-                           ['A_' + i for i in self.set_dict['resources_uncertain_availability']] +
-                           ['Pf_' + i for i in self.set_dict['processes_certain_capacity']] +
-                           ['P_' + i for i in self.set_dict['processes_uncertain_capacity']]]
+
+            column_list_vars = [*['Inv_' + i for i in self.set_dict['resources_store']] +
+                                ['Sf_' + i for i in self.set_dict['resources_certain_demand']] +
+                                ['S_' + i for i in self.set_dict['resources_uncertain_demand']] +
+                                ['Af_' + i for i in self.set_dict['resources_certain_availability']] +
+                                ['A_' + i for i in self.set_dict['resources_uncertain_availability']] +
+                                ['Pf_' + i for i in self.set_dict['processes_certain_capacity']] +
+                                ['P_' + i for i in self.set_dict['processes_uncertain_capacity']]]
+
             A_conv = numpy.array([[self.conversion[i][j] for j in conversion_list] for i in
                                   sorted(self.conversion.keys())]).transpose()
 
             A_diag = numpy.diag(
-                [*[-1]*n_Inv, *[-1]*n_Sf, *[-1]*n_S,  *[1]*n_Af, *[1] * n_A, *[1]*n_Pf, *[1]*n_P])
+                [*[1]*n_Inv, *[-1]*n_Sf, *[-1]*n_S,  *[1]*n_Af, *[1] * n_A, *[1]*n_Pf, *[1]*n_P])
 
+            row_diag = [*['Inv_' + i + '(<)' for i in self.set_dict['resources_store']] +
+                        ['Sf_' + i + '(>)' for i in self.set_dict['resources_certain_demand']] +
+                        ['S_' + i + '(>)' for i in self.set_dict['resources_uncertain_demand']] +
+                        ['Af_' + i + '(<)' for i in self.set_dict['resources_certain_availability']] +
+                        ['A_' + i + '(<)' for i in self.set_dict['resources_uncertain_availability']] +
+                        ['Pf_' + i + '(<)' for i in self.set_dict['processes_certain_capacity']] +
+                        ['P_' + i + '(<)' for i in self.set_dict['processes_uncertain_capacity']]]
+
+            row_NN = [*['NN_Inv_' + i + '(>)' for i in self.set_dict['resources_store']] +
+                      ['NN_Sf_' + i + '(>)' for i in self.set_dict['resources_certain_demand']] +
+                      ['NN_S_' + i + '(>)' for i in self.set_dict['resources_uncertain_demand']] +
+                      ['NN_Af_' + i + '(>)' for i in self.set_dict['resources_certain_availability']] +
+                      ['NN_A_' + i + '(>)' for i in self.set_dict['resources_uncertain_availability']] +
+                      ['NN_Pf_' + i + '(>)' for i in self.set_dict['processes_certain_capacity']] +
+                      ['NN_P_' + i + '(>)' for i in self.set_dict['processes_uncertain_capacity']]]
+
+            row_bal = ['MB_' + i + '(=)' for i in self.set_dict['resources']]
+
+            row_list = row_bal + row_diag + row_NN
+
+            # print(row_list)
             A_nn = numpy.eye(n_vars)
 
             A = numpy.block(
                 [[numpy.block([A_bal, A_conv])], [A_diag], [-A_nn]])
 
-            self.A_df = DataFrame(A, columns=column_list)
+            self.A_df = DataFrame(A, columns=column_list_vars)
+            self.A_df.index = row_list
 
-            # *-----------------------b matrix ------------------------------------------------
+            # *-----------------------b------------------------------------------------
 
             # prod max has 0 because the default mode is 0
             b_bal = numpy.zeros((n_bal2 + n_I, 1))
@@ -442,8 +570,10 @@ class Scenario:
                                 for i in self.set_dict['resources_store']])  # fixed storage bound
             b_Sf = numpy.array([[-self.demand[location][i]]
                                 for i in self.set_dict['resources_certain_demand']])  # fixed demand bound
-            b_S = numpy.array([[-self.demand[location][i]]
+            b_S = numpy.array([[0]
                                for i in self.set_dict['resources_uncertain_demand']])  # uncertain demand
+            # b_S = numpy.array([[-self.demand[location][i]]
+            #    for i in self.set_dict['resources_uncertain_demand']])  # uncertain demand
             b_Af = numpy.array([[self.cons_max[location][i]]
                                 for i in self.set_dict['resources_certain_availability']])  # fixed availability bound
             b_A = numpy.array([[self.cons_max[location][i]]
@@ -451,8 +581,12 @@ class Scenario:
 
             b_Pf = numpy.array([[self.prod_max[location][i][0]]
                                 for i in self.set_dict['processes_certain_capacity']])  # fixed production bound
-            b_P = numpy.array([[self.prod_max[location][i][0]]
-                               for i in self.set_dict['processes_uncertain_capacity']])  # uncertain production
+            # b_P = numpy.array([[self.prod_max[location][i][0]]
+            #                    for i in self.set_dict['processes_uncertain_capacity']])  # uncertain production
+
+            # uncertain production
+            b_P = numpy.array(
+                [[0] for i in self.set_dict['processes_uncertain_capacity']])
 
             b_nn = numpy.zeros((n_vars, 1))  # non zero constraints
 
@@ -461,6 +595,7 @@ class Scenario:
             b = numpy.block([[i]
                             for i in b_list if len(i) > 0])  # make b matrix
             self.b_df = DataFrame(b, columns=['rhs'])
+            self.b_df.index = row_list
 
             # *------------------------------- F --------------------------------------
 
@@ -471,7 +606,7 @@ class Scenario:
             for i in range(n_S):
                 n = n_Inv + n_Sf
                 F[n_bal3 + n +
-                    iter_][i] = self.demand[location][self.set_dict['resources_uncertain_demand'][i]]
+                    iter_][i] = -self.demand[location][self.set_dict['resources_uncertain_demand'][i]]
                 iter_ += 1
 
             iter_ = 0
@@ -489,37 +624,63 @@ class Scenario:
                 # defaults to 0 as mode, using P_m instead of P
                 iter_ += 1
 
-            column_list = [*['Th_' + i for i in self.set_dict['resources_uncertain_demand']] + ['Th_' + i for i in
-                                                                                                self.set_dict['resources_uncertain_availability']] + ['Th_' + i for i in self.set_dict['processes_uncertain_capacity']]]
-            self.F_df = DataFrame(F, columns=column_list)
+            column_list_theta = [*['Th_' + i for i in self.set_dict['resources_uncertain_demand']] + ['Th_' + i for i in
+                                                                                                      self.set_dict['resources_uncertain_availability']] + ['Th_' + i for i in self.set_dict['processes_uncertain_capacity']]]
+            self.F_df = DataFrame(F, columns=column_list_theta)
+            self.F_df.index = row_list
 
             # *--------------------------------------c--------------------------------------
             c_Inv = numpy.zeros((n_Inv, 1))
             c_Sf = numpy.zeros((n_Sf, 1))
             c_S = numpy.zeros((n_S, 1))
 
-            c_Af = numpy.zeros((n_Af, 1))
-            c_A = numpy.zeros((n_A, 1))
+            # c_Af = numpy.zeros((n_Af, 1))
+            # c_A = numpy.zeros((n_A, 1))
 
-            c_Pf = numpy.array([[self.capex_dict[i]]
+            c_Cf = numpy.array([[self.price_dict[list(self.location_set)[0].name][i]]
+                               for i in self.set_dict['resources_certain_price']])
+            c_C = numpy.array([[self.price_dict[list(self.location_set)[0].name][i]]
+                              for i in self.set_dict['resources_uncertain_price']])
+
+            c_Pf = numpy.array([[self.vopex_dict[i]]
                                 for i in self.set_dict['processes_certain_capacity']])
-            c_P = numpy.array([[self.capex_dict[i]]
+            c_P = numpy.array([[self.vopex_dict[i]]
                                for i in self.set_dict['processes_uncertain_capacity']])
-            c_list = [c_Inv, c_Sf,  c_S, c_Af,  c_A, c_Pf, c_P]
+            c_list = [c_Inv, c_Sf,  c_S, c_Cf,  c_C, c_Pf, c_P]
             c = numpy.block([[i] for i in c_list if len(i) > 0])
 
+            self.c_df = DataFrame(c)
+            self.c_df.index = column_list_vars
             # *-------------------------------------H----------------------------------------
 
             H = numpy.zeros((A.shape[1], F.shape[1]))
 
+            self.H_df = DataFrame(H, columns=column_list_theta)
+            self.H_df.index = column_list_vars
             # *----------------------------------critical regions---------------------------
 
             CRa = numpy.vstack(
                 (numpy.eye(n_vars_theta), -numpy.eye(n_vars_theta)))
-            CRb = numpy.array([*[1] * n_vars_theta, *[0] *
-                               n_vars_theta]).reshape(n_vars_theta * 2, 1)
 
-            return A, b, c, H, CRa, CRb, F
+            self.CRa_df = DataFrame(CRa, columns=column_list_theta)
+            self.CRa_df.index = [
+                'UB_' + i for i in column_list_theta] + ['LB_' + i for i in column_list_theta]
+
+            CRb_UB = [self.varying_bounds_dict['demand'][i][1] for i in self.set_dict['resources_uncertain_demand']] + [self.varying_bounds_dict['capacity'][i][1]
+                                                                                                                        for i in self.set_dict['processes_uncertain_capacity']] + [self.varying_bounds_dict['availability'][i][1] for i in self.set_dict['resources_uncertain_availability']]
+            CRb_LB = [-self.varying_bounds_dict['demand'][i][0] for i in self.set_dict['resources_uncertain_demand']] + [self.varying_bounds_dict['capacity'][i][0]
+                                                                                                                         for i in self.set_dict['processes_uncertain_capacity']] + [self.varying_bounds_dict['availability'][i][0] for i in self.set_dict['resources_uncertain_availability']]
+
+            CRb = numpy.array([*CRb_UB, *CRb_LB]).reshape(n_vars_theta * 2, 1)
+
+            self.CRb_df = DataFrame(CRb, columns=['Value'])
+            self.CRb_df.index = [
+                'UB_' + i for i in column_list_theta] + ['LB_' + i for i in column_list_theta]
+
+            # CRb = numpy.array([*[1] * n_vars_theta, *[0] *
+            #                    n_vars_theta]).reshape(n_vars_theta * 2, 1)
+
+            return A, b, c, H, CRa, CRb, F, len(A_bal)
 
     def __repr__(self):
         return self.name

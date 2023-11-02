@@ -71,8 +71,8 @@ def reduce_scenario(scenario: Scenario, method: Clustermethod, include: list, sc
 
     # cluster_wt = {scale: rep_dict[scale]['cluster_wt'] for scale in reduced_scenario_scaleiter}
 
-    reduced_scenario = Scenario(name=f"{scenario.name}_reduced", scales=reduced_temporal_scale, network=scenario.network, expenditure_scale_level=scenario.expenditure_scale_level, purchase_scale_level = scenario.purchase_scale_level,
-                                scheduling_scale_level=scenario.scheduling_scale_level, network_scale_level=scenario.network_scale_level, demand_scale_level=scenario.demand_scale_level, demand=scenario.demand, label=f"{scenario.label}(reduced)")
+    reduced_scenario = Scenario(name=f"{scenario.name}_reduced", scales=reduced_temporal_scale, network=scenario.network, expenditure_scale_level=scenario.expenditure_scale_level, purchase_scale_level=scenario.purchase_scale_level,
+                                scheduling_scale_level=scenario.scheduling_scale_level, network_scale_level=scenario.network_scale_level, capacity_scale_level=scenario.capacity_scale_level, demand_scale_level=scenario.demand_scale_level, demand=scenario.demand, label=f"{scenario.label}(reduced)")
 
     for location in scenario.location_set:
         if scenario.price_factor[location.name] is not None:
@@ -101,5 +101,6 @@ def reduce_scenario(scenario: Scenario, method: Clustermethod, include: list, sc
 
         reduced_scenario.cluster_wt = {
             scale: rep_dict[scale]['cluster_wt'] for scale in reduced_scenario_scaleiter}
-
-    return reduced_scenario, rep_dict, numpy.info_dict
+    reduced_scenario.rep_dict = rep_dict
+    reduced_scenario.error = numpy.info_dict['wcss_sum']
+    return reduced_scenario

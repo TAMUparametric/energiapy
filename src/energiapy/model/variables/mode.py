@@ -38,4 +38,5 @@ def generate_mode_vars(instance: ConcreteModel, scale_level: int = 0, mode_dict:
     ) for j in mode_dict[i]], instance.scales_scheduling, within=NonNegativeReals, doc='Production mode capacity')
     instance.X_P_mm = Var(instance.locations, [(i, j) for i in mode_dict.keys() for j in product(
         mode_dict[i], mode_dict[i])], instance.scales_scheduling, within=Binary, doc="Production mode transition binaries")
+
     return

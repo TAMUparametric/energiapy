@@ -43,11 +43,25 @@ def generate_scheduling_vars(instance: ConcreteModel, scale_level: int = 0, mode
                      instance.scales_scheduling, within=NonNegativeReals, doc='Revenue from resource Sold')
     instance.Inv = Var(instance.locations, instance.resources_store,
                        instance.scales_scheduling, within=NonNegativeReals, doc='Resource Inventory')
-    if len(instance.locations) > 1:
-        instance.Imp = Var(instance.sinks, instance.sources, instance.resources_trans,
-                           instance.scales_scheduling, within=NonNegativeReals, doc='Resource import')
-        instance.Exp = Var(instance.sources, instance.sinks, instance.resources_trans,
-                           instance.scales_scheduling, within=NonNegativeReals, doc='Resource export')
+    # if len(instance.locations) > 1:
+    #     instance.Imp = Var(instance.sinks, instance.sources, instance.resources_trans,
+    #                        instance.scales_scheduling, within=NonNegativeReals, doc='Resource import')
+    #     instance.Exp = Var(instance.sources, instance.sinks, instance.resources_trans,
+    #                        instance.scales_scheduling, within=NonNegativeReals, doc='Resource export')
     instance.P_m = Var(instance.locations, [(i, j) for i in mode_dict.keys(
     ) for j in mode_dict[i]], instance.scales_scheduling, within=NonNegativeReals, doc='Production modes')
+    return
+
+
+def generate_scheduling_theta_vars(instance: ConcreteModel):
+    """declares multiparametric pyomo variables for scheduling at the chosen scales
+
+
+    Args:
+        instance (ConcreteModel): pyomo instance
+    """
+
+    instance.C_theta = Var(instance.locations, instance.resources_purch,
+                           instance.scales_scheduling, within=NonNegativeReals, doc='Resource Consumption')
+
     return

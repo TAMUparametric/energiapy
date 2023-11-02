@@ -78,4 +78,19 @@ def generate_network_vars(instance: ConcreteModel, scale_level: int = 0):
         instance.scales_network, within=NonNegativeReals, doc='Capex at network scale')
     instance.Incidental_network = Var(
         instance.scales_network, within=NonNegativeReals, doc='Incidental at network scale')
+    instance.Inv_network = Var(instance.locations, instance.resources_store,
+                               instance.scales_network, doc='Total inventory stored at location for resource')
+    return
+
+
+def generate_network_theta_vars(instance: ConcreteModel):
+    """declares multiparametric variable for network location at the chosen scale
+
+    Args:
+        instance (ConcreteModel): pyomo instance
+        scale_level (int, optional):  scale for network variables. Defaults to 0.
+    """
+    instance.Cap_P_theta = Var(instance.locations, instance.processes,
+                               instance.scales_network, within=NonNegativeReals, doc='Process Capacity')
+
     return

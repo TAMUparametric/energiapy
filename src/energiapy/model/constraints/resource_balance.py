@@ -21,22 +21,22 @@ from ...components.location import Location
 from ...components.process import Process
 
 
-def constraint_resource_consumption(instance: ConcreteModel, loc_res_dict: dict = None, cons_max: dict = None,
-                                    scheduling_scale_level: int = 0, availability_factor: dict = None) -> Constraint:
+def constraint_resource_consumption(instance: ConcreteModel, location_resource_dict: dict = None, cons_max: dict = None,
+                                    scheduling_scale_level: int = 0, availability_scale_level: int = 0, availability_factor: dict = None) -> Constraint:
     """Determines consumption of resource at location in network
 
     Args:
         instance (ConcreteModel): pyomo instance
-        loc_res_dict (dict, optional): storage facilities for resource available at location. Defaults to {}.
+        location_resource_dict (dict, optional): storage facilities for resource available at location. Defaults to {}.
         cons_max (dict, optional): maximum allowed consumption of resource at location. Defaults to {}.
         scheduling_scale_level (int, optional): scale of scheduling decisions. Defaults to 0.
-
+        availability_factor (dict, optional): normalized factor for the availability of resource
     Returns:
         Constraint: resource_consumption
     """
 
-    if loc_res_dict is None:
-        loc_res_dict = dict()
+    if location_resource_dict is None:
+        location_resource_dict = dict()
 
     if cons_max is None:
         cons_max = dict()
@@ -45,11 +45,11 @@ def constraint_resource_consumption(instance: ConcreteModel, loc_res_dict: dict 
                         scale_levels=len(instance.scales))
 
     def resource_consumption_rule(instance, location, resource, *scale_list):
-        if resource in loc_res_dict[location]:
+        if resource in location_resource_dict[location]:
             if availability_factor[location] is None:
                 return instance.C[location, resource, scale_list[:scheduling_scale_level + 1]] <= cons_max[location][resource]
             else:
-                return instance.C[location, resource, scale_list[:scheduling_scale_level + 1]] <= availability_factor[location][resource][scale_list[:scheduling_scale_level + 1]]*cons_max[location][resource]
+                return instance.C[location, resource, scale_list[:scheduling_scale_level + 1]] <= availability_factor[location][resource][scale_list[:availability_scale_level + 1]]*cons_max[location][resource]
         else:
             return instance.C[location, resource, scale_list[:scheduling_scale_level + 1]] <= 0
 
@@ -61,98 +61,10 @@ def constraint_resource_consumption(instance: ConcreteModel, loc_res_dict: dict 
     return instance.constraint_resource_consumption
 
 
-def constraint_resource_purchase(instance: ConcreteModel, price_factor: dict = None, price: dict = None,
-                                 loc_res_dict: dict = None, scheduling_scale_level: int = 0,
-                                 purchase_scale_level: int = 0) -> Constraint:
-    """Determines expenditure on resource at location in network at the scheduling/expenditure scale
-
-    Args:
-        instance (ConcreteModel): pyomo instance
-        price_factor (dict, optional): uncertain cost training data. Defaults to {}.
-        price (dict, optional): base price of resource. Defaults to {}.
-        scheduling_scale_level (int, optional): scale of scheduling decisions. Defaults to 0.
-        purchase_scale_level (int, optional): scale of resource purchase decisions. Defaults to 0.
-
-    Returns:
-        Constraint: resource_purchase
-    """
-
-    if loc_res_dict is None:
-        loc_res_dict = dict()
-
-    if price_factor is None:
-        price_factor = dict()
-
-    if price is None:
-        price = dict()
-
-    scales = scale_list(instance=instance, scale_levels=len(instance.scales))
-
-    def resource_purchase_rule(instance, location, resource, *scale_list):
-        if resource in instance.resources_varying_price.intersection(loc_res_dict[location]):
-            return instance.B[location, resource, scale_list[:scheduling_scale_level + 1]] == price[location][resource]*price_factor[location][resource][scale_list[:purchase_scale_level + 1]] * instance.C[location, resource, scale_list[:scheduling_scale_level + 1]]
-        else:
-            if resource in instance.resources_purch.intersection(loc_res_dict[location]):
-                return instance.B[location, resource, scale_list[:scheduling_scale_level + 1]] == price[location][
-                    resource] * instance.C[location, resource, scale_list[:scheduling_scale_level + 1]]
-            else:
-                return instance.B[location, resource, scale_list[:scheduling_scale_level + 1]] == 0
-
-    instance.constraint_resource_purchase = Constraint(
-        instance.locations, instance.resources_purch, *
-        scales, rule=resource_purchase_rule,
-        doc='expenditure on purchase of resource')
-    constraint_latex_render(resource_purchase_rule)
-    return instance.constraint_resource_purchase
-
-
-def constraint_resource_revenue(instance: ConcreteModel, revenue_factor: dict = None, revenue: dict = None,
-                                loc_res_dict: dict = None, scheduling_scale_level: int = 0) -> Constraint:
-    """Determines revenue resource at location in network at the scheduling/expenditure scale
-
-    Args:
-        instance (ConcreteModel): pyomo instance
-        revenue_factor (dict, optional): uncertain revenue training data. Defaults to {}.
-        revenue (dict, optional): base revenue of resource. Defaults to {}.
-        scheduling_scale_level  (int, optional): scale of scheduling decisions. Defaults to 0.
-
-
-    Returns:
-        Constraint: resource_revenue
-    """
-
-    if loc_res_dict is None:
-        loc_res_dict = dict()
-
-    if revenue_factor is None:
-        revenue_factor = dict()
-
-    if revenue is None:
-        revenue = dict()
-
-    scales = scale_list(instance=instance, scale_levels=len(instance.scales))
-
-    def resource_revenue_rule(instance, location, resource, *scale_list):
-        if resource in instance.resources_varying_revenue.intersection(loc_res_dict[location]):
-            return instance.R[location, resource, scale_list[:scheduling_scale_level + 1]] == revenue[location][resource]*revenue_factor[location][resource][scale_list[:scheduling_scale_level + 1]] * instance.S[location, resource, scale_list[:scheduling_scale_level + 1]]
-        else:
-            if resource in instance.resources_sell.intersection(loc_res_dict[location]):
-                return instance.R[location, resource, scale_list[:scheduling_scale_level + 1]] == revenue[location][
-                    resource] * instance.S[location, resource, scale_list[:scheduling_scale_level + 1]]
-            else:
-                return instance.R[location, resource, scale_list[:scheduling_scale_level + 1]] == 0
-
-    instance.constraint_resource_revenue = Constraint(
-        instance.locations, instance.resources_sell, *
-        scales, rule=resource_revenue_rule,
-        doc='revenue of resource')
-    constraint_latex_render(resource_revenue_rule)
-    return instance.constraint_resource_revenue
-
-
 def constraint_inventory_balance(instance: ConcreteModel, scheduling_scale_level: int = 0,
                                  multiconversion: dict = None, mode_dict: dict = None,
-                                 cluster_wt: dict = None, inventory_zero: Dict[Location, Dict[Tuple[Process, Resource], float]] = None) -> Constraint:
+                                 cluster_wt: dict = None, inventory_zero: Dict[Location, Dict[Tuple[Process, Resource], float]] = None,
+                                 location_resource_dict: dict = None) -> Constraint:
     """balances resource across the scheduling horizon
     Mass balance in any temporal discretization has the following within their respective sets:
     - consumption for resources that can be purchased
@@ -172,7 +84,7 @@ def constraint_inventory_balance(instance: ConcreteModel, scheduling_scale_level
         mode_dict (dict, optional): dictionary with modes available. Defaults to {}.
         cluster_wt (dict, optional): weight of cluster as determined through scenario aggregation. Defaults to None.
         inventory_zero (Dict[Location, Dict[Tuple[Process, Resource], float]], optional): inventory at the start of the scheduling horizon. Defaults to None.
-
+        location_resource_dict (dict, optional): dict with resources in locations. Defaults to None.
     Returns:
         Constraint: inventory_balance
     """
@@ -198,9 +110,9 @@ def constraint_inventory_balance(instance: ConcreteModel, scheduling_scale_level
             j: inventory_zero[i][j] if j in inventory_zero[i].keys() else 0 for j in instance.resources_store} for i in inventory_zero.keys()}
 
     scales = scale_list(instance=instance,
-                        scale_levels=len(instance.scales))
+                        scale_levels=scheduling_scale_level + 1)
     scale_iter = scale_tuple(
-        instance=instance, scale_levels=len(instance.scales))
+        instance=instance, scale_levels=scheduling_scale_level + 1)
 
     def inventory_balance_rule(instance, location, resource, *scale_list):
         if resource in instance.resources_purch:
@@ -228,12 +140,15 @@ def constraint_inventory_balance(instance: ConcreteModel, scheduling_scale_level
 
         if len(instance.locations) > 1:
             if resource in instance.resources_trans:
-                transport = sum(
-                    instance.Imp[location, source_, resource, scale_list[:scheduling_scale_level + 1]] for source_ in
-                    instance.sources if source_ != location if location in instance.sinks) \
-                    - sum(
-                    instance.Exp[location, sink_, resource, scale_list[:scheduling_scale_level + 1]] for sink_ in
-                    instance.sinks if sink_ != location if location in instance.sources)
+                if resource in location_resource_dict[location]:
+                    transport = sum(
+                        instance.Exp_R[source_, location, resource, scale_list[:scheduling_scale_level + 1]] for source_ in
+                        instance.sources if source_ != location if location in instance.sinks) \
+                        - sum(
+                        instance.Exp_R[location, sink_, resource, scale_list[:scheduling_scale_level + 1]] for sink_ in
+                        instance.sinks if sink_ != location if location in instance.sources)
+                else:
+                    transport = 0
             else:
                 transport = 0
         else:
@@ -258,86 +173,14 @@ def constraint_inventory_balance(instance: ConcreteModel, scheduling_scale_level
     return instance.constraint_inventory_balance
 
 
-def constraint_demand(instance: ConcreteModel, demand: Union[dict, float], demand_factor: Union[dict, float],
-                      demand_scale_level: int = 0, scheduling_scale_level: int = 0,
-                      cluster_wt: dict = None, loc_res_dict: dict = None) -> Constraint:
-    """Ensures that demand for resource is met at chosen temporal scale
-
-    Args:
-        instance (ConcreteModel): pyomo instance
-        demand_scale_level (int, optional): scale of demand decisions. Defaults to 0.
-        scheduling_scale_level (int, optional): scale of scheduling decisions. Defaults to 0.
-        demand_dict (dict, optional): demand at location. Defaults to {}.
-
-    Returns:
-        Constraint: demand
-    """
-    scales = scale_list(instance=instance, scale_levels=demand_scale_level+1)
-    # scales = scale_list(instance=instance,
-    #                     scale_levels=len(instance.scales))
-    scale_iter = scale_tuple(
-        instance=instance, scale_levels=scheduling_scale_level + 1)
-
-    if loc_res_dict is None:
-        loc_res_dict = dict()
-
-    def demand_rule(instance, location, resource, *scale_list):
-
-        if demand_factor[location] is not None:
-            if isinstance(demand_factor[location][list(demand_factor[location])[0]], (float, int)):
-                discharge = sum(instance.S[location, resource_, scale_list[:scheduling_scale_level + 1]] for
-                                resource_ in instance.resources_demand)
-            else:
-                discharge = sum(instance.S[location, resource, scale_] for scale_ in scale_iter if scale_[
-                    :demand_scale_level + 1] == scale_list)
-
-            if isinstance(demand, dict):
-                if resource in loc_res_dict[location]:
-                    if resource in demand_factor[location].keys():
-                        demandtarget = demand[location][resource] * \
-                            demand_factor[location][resource][scale_list[:demand_scale_level + 1]]
-                    else:
-                        demandtarget = demand[location][resource]
-                else:
-                    demandtarget = 0
-            else:
-                if resource in loc_res_dict[location]:
-                    demandtarget = demand * \
-                        demand_factor[location][resource][scale_list[:demand_scale_level + 1]]
-                else:
-                    demandtarget = 0
-        else:
-            # TODO - doesn't meet demand in first timeperiod
-            discharge = sum(instance.S[location, resource, scale_] for scale_ in scale_iter if scale_[
-                :demand_scale_level + 1] == scale_list)
-
-            if isinstance(demand, dict):
-                demandtarget = demand[location][resource]
-            else:
-                demandtarget = demand
-
-        return discharge >= demandtarget
-
-    if len(instance.locations) > 1:
-        instance.constraint_demand = Constraint(
-            instance.sinks, instance.resources_demand, *scales, rule=demand_rule, doc='specific demand for resources')
-
-    else:
-        instance.constraint_demand = Constraint(
-            instance.locations, instance.resources_demand, *scales, rule=demand_rule,
-            doc='specific demand for resources')
-    constraint_latex_render(demand_rule)
-    return instance.constraint_demand
-
-
 def constraint_location_production(instance: ConcreteModel, cluster_wt: dict,
-                                   network_scale_level: int = 0) -> Constraint:
+                                   network_scale_level: int = 0, scheduling_scale_level: int = 0) -> Constraint:
     """Determines total production capacity utilization at location
 
     Args:
         instance (ConcreteModel): pyomo instance
         network_scale_level (int, optional): scale of network decisions. Defaults to 0.
-
+        scheduling_scale_level (int, optional): scale of scheduling decisions. Defaults to 0.
     Returns:
         Constraint: location_production
     """
@@ -345,12 +188,12 @@ def constraint_location_production(instance: ConcreteModel, cluster_wt: dict,
     scales = scale_list(instance=instance,
                         scale_levels=network_scale_level + 1)
     scale_iter = scale_tuple(
-        instance=instance, scale_levels=len(instance.scales))
+        instance=instance, scale_levels=scheduling_scale_level+1)
 
     def location_production_rule(instance, location, process, *scale_list):
         def weight(x): return 1 if cluster_wt is None else cluster_wt[x]
         return instance.P_location[location, process, scale_list] == sum(
-            weight(scale_) * instance.P[location, process, scale_] for scale_ in scale_iter)
+            weight(scale_) * instance.P[location, process, scale_[:scheduling_scale_level + 1]] for scale_ in scale_iter if scale_[:network_scale_level + 1] == scale_list)
 
     instance.constraint_location_production = Constraint(
         instance.locations, instance.processes, *scales, rule=location_production_rule,
@@ -360,13 +203,13 @@ def constraint_location_production(instance: ConcreteModel, cluster_wt: dict,
 
 
 def constraint_location_discharge(instance: ConcreteModel, cluster_wt: dict,
-                                  network_scale_level: int = 0) -> Constraint:
+                                  network_scale_level: int = 0, scheduling_scale_level: int = 0) -> Constraint:
     """Determines total resource discharged/sold at locations in network
 
     Args:
         instance (ConcreteModel): pyomo instance
         network_scale_level (int, optional): scale of network decisions. Defaults to 0.
-
+        scheduling_scale_level (int, optional): scale of scheduling decisions. Defaults to 0.
     Returns:
         Constraint: location_discharge
     """
@@ -379,7 +222,8 @@ def constraint_location_discharge(instance: ConcreteModel, cluster_wt: dict,
         def weight(x): return 1 if cluster_wt is None else cluster_wt[x]
 
         return instance.S_location[location, resource, scale_list] == sum(
-            weight(scale_) * instance.S[location, resource, scale_] for scale_ in scale_iter)
+            weight(scale_) * instance.S[location, resource, scale_[:scheduling_scale_level + 1]] for scale_ in scale_iter
+            if scale_[:network_scale_level + 1] == scale_list)
 
     instance.constraint_location_discharge = Constraint(
         instance.locations, instance.resources_sell, *
@@ -390,12 +234,13 @@ def constraint_location_discharge(instance: ConcreteModel, cluster_wt: dict,
 
 
 def constraint_location_consumption(instance: ConcreteModel, cluster_wt: dict,
-                                    network_scale_level: int = 0) -> Constraint:
+                                    network_scale_level: int = 0, scheduling_scale_level: int = 0) -> Constraint:
     """Determines total resource consumed at locations in network
 
     Args:
         instance (ConcreteModel): pyomo instance
         network_scale_level (int, optional): scale of network decisions. Defaults to 0.
+        scheduling_scale_level (int, optional): scale of scheduling decisions. Defaults to 0.
 
     Returns:
         Constraint: location_consumption
@@ -409,7 +254,8 @@ def constraint_location_consumption(instance: ConcreteModel, cluster_wt: dict,
         def weight(x): return 1 if cluster_wt is None else cluster_wt[x]
 
         return instance.C_location[location, resource, scale_list] == sum(
-            weight(scale_) * instance.C[location, resource, scale_] for scale_ in scale_iter)
+            weight(scale_) * instance.C[location, resource, scale_[:scheduling_scale_level + 1]] for scale_ in scale_iter
+            if scale_[:network_scale_level + 1] == scale_list)
 
     instance.constraint_location_consumption = Constraint(
         instance.locations, instance.resources_purch, *
@@ -417,64 +263,6 @@ def constraint_location_consumption(instance: ConcreteModel, cluster_wt: dict,
         doc='total consumption at location')
     constraint_latex_render(location_consumption_rule)
     return instance.constraint_location_consumption
-
-
-def constraint_location_purchase(instance: ConcreteModel, cluster_wt: dict, network_scale_level: int = 0) -> Constraint:
-    """Determines total resource purchase expenditure at locations in network
-
-    Args:
-        instance (ConcreteModel): pyomo instance
-        network_scale_level (int, optional): scale of network decisions. Defaults to 0.
-
-    Returns:
-        Constraint: location_purchase
-    """
-    scales = scale_list(instance=instance,
-                        scale_levels=network_scale_level + 1)
-    scale_iter = scale_tuple(
-        instance=instance, scale_levels=len(instance.scales))
-
-    def location_purchase_rule(instance, location, resource, *scale_list):
-        def weight(x): return 1 if cluster_wt is None else cluster_wt[x]
-
-        return instance.B_location[location, resource, scale_list] == sum(
-            weight(scale_) * instance.B[location, resource, scale_] for scale_ in scale_iter)
-
-    instance.constraint_location_purchase = Constraint(
-        instance.locations, instance.resources_purch, *
-        scales, rule=location_purchase_rule,
-        doc='total purchase at location')
-    constraint_latex_render(location_purchase_rule)
-    return instance.constraint_location_purchase
-
-
-def constraint_location_revenue(instance: ConcreteModel, cluster_wt: dict, network_scale_level: int = 0) -> Constraint:
-    """Determines total resource revenue at locations in network
-
-    Args:
-        instance (ConcreteModel): pyomo instance
-        network_scale_level (int, optional): scale of network decisions. Defaults to 0.
-
-    Returns:
-        Constraint: location_revenue
-    """
-    scales = scale_list(instance=instance,
-                        scale_levels=network_scale_level + 1)
-    scale_iter = scale_tuple(
-        instance=instance, scale_levels=len(instance.scales))
-
-    def location_revenue_rule(instance, location, resource, *scale_list):
-        def weight(x): return 1 if cluster_wt is None else cluster_wt[x]
-
-        return instance.R_location[location, resource, scale_list] == sum(
-            weight(scale_) * instance.R[location, resource, scale_] for scale_ in scale_iter)
-
-    instance.constraint_location_revenue = Constraint(
-        instance.locations, instance.resources_sell, *
-        scales, rule=location_revenue_rule,
-        doc='total revenue at location')
-    constraint_latex_render(location_revenue_rule)
-    return instance.constraint_location_revenue
 
 
 def constraint_network_production(instance: ConcreteModel, network_scale_level: int = 0) -> Constraint:
@@ -546,52 +334,6 @@ def constraint_network_consumption(instance: ConcreteModel, network_scale_level:
     return instance.constraint_network_consumption
 
 
-def constraint_network_purchase(instance: ConcreteModel, network_scale_level: int = 0) -> Constraint:
-    """Determines total purchase expenditure on resource across network
-
-    Args:
-        instance (ConcreteModel): pyomo instance
-        network_scale_level (int, optional): scale of network decisions. Defaults to 0.
-
-    Returns:
-        Constraint: network_purchase
-    """
-    scales = scale_list(instance=instance,
-                        scale_levels=network_scale_level + 1)
-
-    def network_purchase_rule(instance, resource, *scale_list):
-        return instance.B_network[resource, scale_list] == sum(
-            instance.B_location[location_, resource, scale_list] for location_ in instance.locations)
-
-    instance.constraint_network_purchase = Constraint(
-        instance.resources_purch, *scales, rule=network_purchase_rule, doc='total purchase from network')
-    constraint_latex_render(network_purchase_rule)
-    return instance.constraint_network_purchase
-
-
-def constraint_network_revenue(instance: ConcreteModel, network_scale_level: int = 0) -> Constraint:
-    """Determines total revenue expenditure on resource across network
-
-    Args:
-        instance (ConcreteModel): pyomo instance
-        network_scale_level (int, optional): scale of network decisions. Defaults to 0.
-
-    Returns:
-        Constraint: network_revenue
-    """
-    scales = scale_list(instance=instance,
-                        scale_levels=network_scale_level + 1)
-
-    def network_revenue_rule(instance, resource, *scale_list):
-        return instance.R_network[resource, scale_list] == sum(
-            instance.R_location[location_, resource, scale_list] for location_ in instance.locations)
-
-    instance.constraint_network_revenue = Constraint(
-        instance.resources_sell, *scales, rule=network_revenue_rule, doc='total revenue from network')
-    constraint_latex_render(network_revenue_rule)
-    return instance.constraint_network_revenue
-
-
 def constraint_specific_network_discharge(instance: ConcreteModel, bounds: Dict[Resource, float], network_scale_level: int = 0, ) -> Constraint:
     """Determines total resource discharged across specificnetwork
 
@@ -641,3 +383,31 @@ def constraint_specific_location_discharge(instance: ConcreteModel, location: Lo
 
     constraint_latex_render(specific_location_discharge_rule)
     return Constraint(instance.resources_sell, *scales, rule=specific_location_discharge_rule, doc='restrict discharge of resource at location level')
+
+
+def constraint_inventory_network(instance: ConcreteModel, network_scale_level: int = 0, scheduling_scale_level: int = 0) -> Constraint:
+    """calculates total inventory stored over the network scale
+
+    Args:
+        instance (ConcreteModel): pyomo instance
+        network_scale_level (int, optional): scale of network decisions. Defaults to 0.
+        scheduling_scale_level (int, optional): scale of scheduling decisions. Defaults to 0.
+
+    Returns:
+        Constraint: _description_
+    """
+
+    scales = scale_list(instance=instance,
+                        scale_levels=network_scale_level + 1)
+
+    scale_iter = scale_tuple(
+        instance=instance, scale_levels=scheduling_scale_level + 1)
+
+    def inventory_network_rule(instance, location, resource, *scale_list):
+        return instance.Inv_network[location, resource, scale_list[:network_scale_level + 1]] == sum(instance.Inv[location, resource, scale_] for scale_ in scale_iter if scale_[:network_scale_level + 1] == scale_list)
+
+    instance.constraint_inventory_network = Constraint(
+        instance.locations, instance.resources_store, *scales, rule=inventory_network_rule, doc='total inventory at network')
+    constraint_latex_render(inventory_network_rule)
+
+    return instance.constraint_inventory_network
