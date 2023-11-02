@@ -16,6 +16,7 @@ from typing import Dict, Union
 import numpy
 from pandas import DataFrame
 
+from ..components.transport import VaryingTransport
 from ..components.location import Location
 from ..components.network import Network
 from ..components.process import ProcessMode, VaryingProcess, CostDynamics
@@ -103,9 +104,9 @@ class Scenario:
             capacity_factor (dict): A dictionary with Location-wise capacity factors for varying Process objects.
             price_factor (dict): A dictionary with Location-wise cost factors for varying purchase costs of Resource objects.
             demand_factor (dict): A dictionary with Location-wise demand factors for varying demands of Resource objects.
-            loc_res_dict (dict): A dictionary with Location-wise availability of Resource objects.
-            loc_pro_dict (dict): A dictionary with Location-wise availability of Process objects.
-            loc_mat_dict (dict): A dictionary with Location-wise availability of Material objects.
+            location_resource_dict (dict): A dictionary with Location-wise availability of Resource objects.
+            location_process_dict (dict): A dictionary with Location-wise availability of Process objects.
+            location_material_dict (dict): A dictionary with Location-wise availability of Material objects.
             price_dict (dict): A dictionary with Location-wise purchase price of Resource objects
             revenue_dict (dict): A dictionary with Location-wise revenue from selling resource objects
             capex_dict (dict): A dictionary with capital expenditure data for each Process.
@@ -131,11 +132,21 @@ class Scenario:
             self.transport_avail_dict = None
             self.trans_max = None
             self.trans_loss = None
-            self.trans_cost = None
-            self.trans_emit = None
+            self.trans_capex = None
+            self.trans_fopex = None
+            self.trans_vopex = None
+            self.trans_emission = None
             self.distance_dict = None
             self.location_set = {self.network}
-
+            self.transport_capacity_factor = None
+            self.transport_capex_factor = None
+            self.transport_vopex_factor = None
+            self.transport_fopex_factor = None
+            self.transport_capacity_scale_level = None
+            self.transport_capex_scale_level = None
+            self.transport_vopex_scale_level = None
+            self.transport_fopex_scale_level = None
+            self.source_sink_resource_dict = None
         else:
             self.transport_set = set().union(*self.network.transport_dict.values())
             self.source_locations = self.network.source_locations
@@ -145,15 +156,47 @@ class Scenario:
             self.location_set = set(
                 self.source_locations + self.sink_locations)
             self.trans_max = {j.name: j.trans_max for j in self.transport_set}
+            self.trans_min = {j.name: j.trans_min for j in self.transport_set}
             self.trans_loss = {
                 j.name: j.trans_loss for j in self.transport_set}
-            self.trans_cost = {
-                j.name: j.trans_cost for j in self.transport_set}
             self.trans_capex = {
-                j.name: j.trans_capex for j in self.transport_set}
-            self.trans_emit = {
-                j.name: j.trans_emit for j in self.transport_set}
+                j.name: j.capex for j in self.transport_set}
+            self.trans_vopex = {
+                j.name: j.vopex for j in self.transport_set}
+            self.trans_fopex = {
+                j.name: j.fopex for j in self.transport_set}
+            self.trans_emission = {
+                j.name: j.emission for j in self.transport_set}
             self.distance_dict = self.network.distance_dict
+            # self.transport_resource_dict = {i: None for i in self.transport_dict.keys()}
+            self.location_transport_resource_dict = {i: {k.name: {
+                l.name for l in k.resources} for k in j} for i, j in self.transport_dict.items()}
+            self.resource_transport_dict = {}
+            for key, value in {i.name: i.resources for i in self.transport_set}.items():
+                for item in value:
+                    if item in self.resource_transport_dict:
+                        self.resource_transport_dict[item].append(key)
+                    else:
+                        self.resource_transport_dict[item] = [key]
+            self.resource_transport_dict = {
+                i.name: j for i, j in self.resource_transport_dict.items()}
+            self.transport_resource_dict = {
+                i.name: {j.name for j in i.resources} for i in self.transport_set}
+            # for i,j in self.transport_dict.items():
+            #     set_ = set()
+            #     for k in j:
+            #         set_ = set_.union(k.resources)
+            #     self.transport_resource_dict[i] = {i.name for i in set_}
+
+            self.transport_capacity_factor = self.network.transport_capacity_factor
+            self.transport_capex_factor = self.network.transport_capex_factor
+            self.transport_vopex_factor = self.network.transport_vopex_factor
+            self.transport_fopex_factor = self.network.transport_fopex_factor
+            self.transport_capacity_scale_level = self.network.transport_capacity_scale_level
+            self.transport_capex_scale_level = self.network.transport_capex_scale_level
+            self.transport_vopex_scale_level = self.network.transport_vopex_scale_level
+            self.transport_fopex_scale_level = self.network.transport_fopex_scale_level
+            self.source_sink_resource_dict = self.network.source_sink_resource_dict
 
         self.process_set = set().union(
             *[i.processes_full for i in self.location_set if i.processes_full is not None])
@@ -187,12 +230,12 @@ class Scenario:
             i.name: i.availability_factor for i in self.location_set}
         self.revenue_factor = {
             i.name: i.revenue_factor for i in self.location_set}
-        self.loc_res_dict = {
+        self.location_resource_dict = {
             i.name: {j.name for j in i.resources_full} for i in self.location_set}
-        self.loc_pro_dict = {
+        self.location_process_dict = {
             i.name: {j.name for j in i.processes_full} for i in self.location_set}
-        self.loc_mat_dict = {i.name: {j.name for j in i.materials}
-                             for i in self.location_set}
+        self.location_material_dict = {i.name: {j.name for j in i.materials}
+                                       for i in self.location_set}
         # TODO change to be location wise
         self.price_dict = {i.name: i.resource_price for i in self.location_set}
         self.revenue_dict = {
@@ -251,12 +294,13 @@ class Scenario:
             self.fopex_dict, orient='index', columns=['fopex'])
         self.cost_df = df_capex.merge(df_vopex, left_index=True, right_index=True, how='inner').merge(
             df_fopex, left_index=True, right_index=True, how='inner')
-        
-        self.rate_max_dict = {i.name: i.rate_max for i in self.process_set}
-        
-        self.mode_ramp_dict = {i.name: i.mode_ramp for i in self.process_set}
-        
 
+        self.rate_max_dict = {i.name: i.rate_max for i in self.process_set}
+
+        self.mode_ramp_dict = {i.name: i.mode_ramp for i in self.process_set}
+
+        self.storage_penalty_dict = {
+            i.name: i.storage_penalty_dict for i in self.location_set}
         set_dict = {
             'resources': [i.name for i in self.resource_set],
 
@@ -331,8 +375,23 @@ class Scenario:
 
             'locations': [i.name for i in self.location_set],
             'materials': [i.name for i in self.material_set],
-        }
 
+            'transports_certain_capacity': [i.name for i in self.transport_set if VaryingTransport.CERTAIN_CAPACITY in i.varying],
+            'transports_certain_capex': [i.name for i in self.transport_set if VaryingTransport.CERTAIN_CAPEX in i.varying],
+            'transports_certain_vopex': [i.name for i in self.transport_set if VaryingTransport.CERTAIN_VOPEX in i.varying],
+            'transports_certain_fopex': [i.name for i in self.transport_set if VaryingTransport.CERTAIN_FOPEX in i.varying],
+
+            'transports_uncertain_capacity': [i.name for i in self.transport_set if VaryingTransport.UNCERTAIN_CAPACITY in i.varying],
+            'transports_uncertain_capex': [i.name for i in self.transport_set if VaryingTransport.UNCERTAIN_CAPEX in i.varying],
+            'transports_uncertain_vopex': [i.name for i in self.transport_set if VaryingTransport.UNCERTAIN_VOPEX in i.varying],
+            'transports_uncertain_fopex': [i.name for i in self.transport_set if VaryingTransport.UNCERTAIN_FOPEX in i.varying],
+
+            'transports_varying_capacity': [i.name for i in self.transport_set if VaryingTransport.DETERMINISTIC_CAPACITY in i.varying],
+            'transports_varying_capex': [i.name for i in self.transport_set if VaryingTransport.DETERMINISTIC_CAPEX in i.varying],
+            'transports_varying_vopex': [i.name for i in self.transport_set if VaryingTransport.DETERMINISTIC_VOPEX in i.varying],
+            'transports_varying_fopex': [i.name for i in self.transport_set if VaryingTransport.DETERMINISTIC_FOPEX in i.varying],
+
+        }
         self.varying_bounds_dict = {
             'demand': {i.name: i.varying_bounds for i in self.resource_set if VaryingResource.UNCERTAIN_DEMAND in i.varying},
             'availability': {i.name: i.varying_bounds for i in self.resource_set if VaryingResource.UNCERTAIN_AVAILABILITY in i.varying},
