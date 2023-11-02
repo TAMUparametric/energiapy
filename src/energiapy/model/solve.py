@@ -104,6 +104,7 @@ def solve(solver: str, name: str, instance: ConcreteModel = None, matrix: dict =
             model_cons = [i for i in instance.component_objects()
                           if i.ctype == Constraint]
 
+
             if solution_dict['n_binvars'] is not None:
                 if solution_dict['n_binvars'] > 0:
                     duals_dict = dict()
@@ -118,6 +119,7 @@ def solve(solver: str, name: str, instance: ConcreteModel = None, matrix: dict =
                     filename=f"{scenario.name}_nearbound.log", encoding='utf-8', level=logging.INFO)
                 log_close_to_bounds(instance)
 
+
         else:
             output_dict = solution_dict
             duals_dict = {}
@@ -129,10 +131,12 @@ def solve(solver: str, name: str, instance: ConcreteModel = None, matrix: dict =
                 log_infeasible_constraints(instance)
                 log_close_to_bounds(instance)
 
+
         results = Result(name=name, components=components_dict,
                          output=output_dict, duals=duals_dict)
 
         if saveformat is not None:
             results.saveoutputs(name + saveformat)
+
 
     return results
