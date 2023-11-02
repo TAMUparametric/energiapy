@@ -146,7 +146,7 @@ class Scenario:
             self.transport_capex_scale_level = None
             self.transport_vopex_scale_level = None
             self.transport_fopex_scale_level = None
-
+            self.source_sink_resource_dict = None
         else:
             self.transport_set = set().union(*self.network.transport_dict.values())
             self.source_locations = self.network.source_locations
@@ -196,6 +196,7 @@ class Scenario:
             self.transport_capex_scale_level = self.network.transport_capex_scale_level
             self.transport_vopex_scale_level = self.network.transport_vopex_scale_level
             self.transport_fopex_scale_level = self.network.transport_fopex_scale_level
+            self.source_sink_resource_dict = self.network.source_sink_resource_dict
 
         self.process_set = set().union(
             *[i.processes_full for i in self.location_set if i.processes_full is not None])
@@ -298,6 +299,8 @@ class Scenario:
 
         self.mode_ramp_dict = {i.name: i.mode_ramp for i in self.process_set}
 
+        self.storage_penalty_dict = {
+            i.name: i.storage_penalty_dict for i in self.location_set}
         set_dict = {
             'resources': [i.name for i in self.resource_set],
 
