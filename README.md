@@ -1,6 +1,6 @@
 # energiapy
 <h1 align="center">
-<img src="[https://raw.githubusercontent.com/numpy/numpy/main/branding/logo/primary/numpylogo.svg](https://github.com/TAMUparametric/energiapy/blob/main/docs/logo2.jpg)" width="300">
+<img src="https://github.com/TAMUparametric/energiapy/blob/main/docs/logo2.jpg" width="300">
 </h1><br>
 
 
