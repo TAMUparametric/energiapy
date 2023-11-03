@@ -1,6 +1,5 @@
-<h1 align="center">
-<img src="docs/logo.jpg" width="600">
-</h1><br>
+
+![alt text](https://github.com/TAMUparametric/energiapy/blob/main/docs/logo.jpg?raw=true)
 
 
 [![Documentation Status](https://readthedocs.org/projects/energiapy/badge/)](https://energiapy.readthedocs.io/en/latest/)
