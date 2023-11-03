@@ -18,7 +18,8 @@ from ...utils.scale_utils import scale_list, scale_tuple
 
 
 def constraint_resource_export(instance: ConcreteModel, scheduling_scale_level: int = 0,
-                               transport_avail_dict: dict = None, resource_transport_dict: dict = None) -> Constraint:
+                               transport_avail_dict: dict = None, resource_transport_dict: dict = None,
+                               source_sink_resource_dict: dict = None) -> Constraint:
     """Total resource exported equals amount transported through all modes
 
     Args:
@@ -37,11 +38,12 @@ def constraint_resource_export(instance: ConcreteModel, scheduling_scale_level: 
                         scale_levels=scheduling_scale_level + 1)
 
     def resource_export_rule(instance, source, sink, resource, *scale_list):
-
-        return instance.Exp_R[source, sink, resource, scale_list[:scheduling_scale_level + 1]] == \
-            sum(instance.Exp[source, sink, transport_, resource, scale_list[:scheduling_scale_level + 1]]
-                for transport_ in transport_avail_dict[(source, sink)] if transport_ in resource_transport_dict[resource])
-
+        if resource in source_sink_resource_dict[(source, sink)]:
+            return instance.Exp_R[source, sink, resource, scale_list[:scheduling_scale_level + 1]] == \
+                sum(instance.Exp[source, sink, transport_, resource, scale_list[:scheduling_scale_level + 1]]
+                    for transport_ in transport_avail_dict[(source, sink)] if transport_ in resource_transport_dict[resource])
+        else:
+            return instance.Exp_R[source, sink, resource, scale_list[:scheduling_scale_level + 1]] == 0
     instance.constraint_resource_export = Constraint(instance.sources, instance.sinks,
                                                      instance.resources_trans, *scales, rule=resource_export_rule,
                                                      doc='export of resource from source to sink')
@@ -143,7 +145,7 @@ def constraint_export(instance: ConcreteModel, scheduling_scale_level: int = 0, 
             else:
                 return instance.Exp_F[source, sink, transport, scale_list[:scheduling_scale_level + 1]] <= instance.Cap_F[source, sink, transport, scale_list[:network_scale_level + 1]]
         else:
-            return Constraint.Skip
+            return instance.Exp_F[source, sink, transport, scale_list[:scheduling_scale_level + 1]] == 0
     # in instance.resources_trans if resource_
     instance.constraint_export = Constraint(instance.sources, instance.sinks,
                                             instance.transports, *scales, rule=export_rule,
@@ -284,7 +286,6 @@ def constraint_transport_fopex(instance: ConcreteModel, trans_fopex: dict, dista
     return instance.constraint_transport_fopex
 
 
-
 def constraint_transport_vopex(instance: ConcreteModel, trans_vopex: dict, distance_dict: dict, transport_avail_dict: dict, network_scale_level: int = 0):
     """_summary_
 
@@ -337,6 +338,7 @@ def constraint_transport_network_capex(instance: ConcreteModel, network_scale_le
 
     constraint_latex_render(transport_network_capex_rule)
     return instance.constraint_transport_network_capex
+
 
 def constraint_transport_network_fopex(instance: ConcreteModel, network_scale_level: int = 0):
     """_summary_
