@@ -299,8 +299,8 @@ class Scenario:
 
         self.mode_ramp_dict = {i.name: i.mode_ramp for i in self.process_set}
 
-        self.storage_penalty_dict = {
-            i.name: i.storage_penalty_dict for i in self.location_set}
+        self.storage_cost_dict = {
+            i.name: i.storage_cost_dict for i in self.location_set}
         set_dict = {
             'resources': [i.name for i in self.resource_set],
 
