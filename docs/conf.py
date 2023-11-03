@@ -43,7 +43,7 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
 html_theme = 'sphinx_rtd_theme'
 html_static_path = ['static_']
-html_logo = "logo2.jpg"
+html_logo = "logo2.png"
 html_theme_options = {
     'logo_only': True,
     'display_version': False,
