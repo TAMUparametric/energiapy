@@ -46,9 +46,9 @@ from .constraints.cost import (
     constraint_location_revenue,
     constraint_network_revenue,
     constraint_network_purchase,
-    constraint_inventory_penalty,
-    constraint_inventory_penalty_location,
-    constraint_inventory_penalty_network,
+    constraint_storage_cost,
+    constraint_storage_cost_location,
+    constraint_storage_cost_network,
 )
 from .constraints.emission import (
     constraint_global_warming_potential_location,
@@ -368,13 +368,13 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
                 loc_comp_dict=scenario.location_process_dict, x_scale_level=scenario.network_scale_level, y_scale_level=scenario.network_scale_level,
                 label='sums up incidental expenditure from process over all locations in network')
 
-            instance.constraint_inventory_penalty = constraint_inventory_penalty(
-                instance=instance, location_resource_dict=scenario.location_resource_dict, storage_penalty_dict=scenario.storage_penalty_dict, network_scale_level=scenario.network_scale_level)
+            instance.constraint_storage_cost = constraint_storage_cost(
+                instance=instance, location_resource_dict=scenario.location_resource_dict, storage_cost_dict=scenario.storage_cost_dict, network_scale_level=scenario.network_scale_level)
 
-            instance.constraint_inventory_penalty_location = constraint_inventory_penalty_location(
+            instance.constraint_storage_cost_location = constraint_storage_cost_location(
                 instance=instance, network_scale_level=scenario.network_scale_level)
 
-            instance.constraint_inventory_penalty_network = constraint_inventory_penalty_network(
+            instance.constraint_storage_cost_network = constraint_storage_cost_network(
                 instance=instance, network_scale_level=scenario.network_scale_level)
 
         if Constraints.EMISSION in constraints:
