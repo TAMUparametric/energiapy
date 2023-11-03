@@ -96,6 +96,7 @@ class Network:
         self.transport_avail_dict = self.make_transport_avail_dict()
         self.locations = list(
             set(self.source_locations).union(set(self.sink_locations)))  # all locations in network
+        self.source_sink_resource_dict = self.make_source_sink_resource_dict()
 
         if self.transport_capacity_factor is not None:
             if isinstance(list(self.transport_capacity_factor[list(self.transport_capacity_factor.keys())[0]].values())[0], DataFrame):
@@ -160,6 +161,17 @@ class Network:
         transport_avail_dict = {
             i: {j.name for j in self.transport_dict[i]} for i in self.transport_dict.keys()}
         return transport_avail_dict
+
+    def make_source_sink_resource_dict(self) -> dict:
+
+        source_sink_resource_dict = {
+            i: None for i in self.transport_dict.keys()}
+        for i in self.transport_dict.keys():
+            resources = set()
+            for j in self.transport_dict[i]:
+                resources = resources.union({k.name for k in j.resources})
+            source_sink_resource_dict[i] = resources
+        return source_sink_resource_dict
 
     def __repr__(self):
         return self.name
