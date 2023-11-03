@@ -1,4 +1,8 @@
 # energiapy
+<h1 align="center">
+<img src="https://github.com/TAMUparametric/energiapy/blob/main/docs/logo2.jpg" width="300">
+</h1><br>
+
 
 [![Documentation Status](https://readthedocs.org/projects/energiapy/badge/)](https://energiapy.readthedocs.io/en/latest/)
 [![PyPI](https://img.shields.io/pypi/v/energiapy.svg)](https://pypi.org/project/energiapy)
