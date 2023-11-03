@@ -1,5 +1,5 @@
 <h1 align="center">
-<img src="https://github.com/TAMUparametric/energiapy/blob/main/docs/logo.jpg" width="600">
+<img src="docs/logo.jpg" width="600">
 </h1><br>
 
 
