@@ -46,6 +46,9 @@ from .constraints.cost import (
     constraint_location_revenue,
     constraint_network_revenue,
     constraint_network_purchase,
+    constraint_storage_cost,
+    constraint_storage_cost_location,
+    constraint_storage_cost_network,
 )
 from .constraints.emission import (
     constraint_global_warming_potential_location,
@@ -91,6 +94,7 @@ from .constraints.resource_balance import (
     constraint_network_discharge,
     constraint_network_production,
     constraint_resource_consumption,
+    constraint_inventory_network
 )
 
 from .constraints.demand import (
@@ -364,6 +368,15 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
                 loc_comp_dict=scenario.location_process_dict, x_scale_level=scenario.network_scale_level, y_scale_level=scenario.network_scale_level,
                 label='sums up incidental expenditure from process over all locations in network')
 
+            instance.constraint_storage_cost = constraint_storage_cost(
+                instance=instance, location_resource_dict=scenario.location_resource_dict, storage_cost_dict=scenario.storage_cost_dict, network_scale_level=scenario.network_scale_level)
+
+            instance.constraint_storage_cost_location = constraint_storage_cost_location(
+                instance=instance, network_scale_level=scenario.network_scale_level)
+
+            instance.constraint_storage_cost_network = constraint_storage_cost_network(
+                instance=instance, network_scale_level=scenario.network_scale_level)
+
         if Constraints.EMISSION in constraints:
             generate_emission_vars(
                 instance=instance, scale_level=scenario.network_scale_level)
@@ -549,11 +562,14 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
                 loc_comp_dict=scenario.location_resource_dict, x_scale_level=scenario.network_scale_level, y_scale_level=scenario.network_scale_level,
                 label='sums up purchase expenditure of resource over all locations in network')
 
+            instance.constraint_inventory_network = constraint_inventory_network(
+                instance=instance, network_scale_level=scenario.network_scale_level, scheduling_scale_level=scenario.scheduling_scale_level)
         if Constraints.TRANSPORT in constraints:
 
             if len(scenario.location_set) > 1:
                 constraint_resource_export(instance=instance, scheduling_scale_level=scenario.scheduling_scale_level,
-                                           transport_avail_dict=scenario.transport_avail_dict, resource_transport_dict=scenario.resource_transport_dict)
+                                           transport_avail_dict=scenario.transport_avail_dict, resource_transport_dict=scenario.resource_transport_dict,
+                                           source_sink_resource_dict=scenario.source_sink_resource_dict)
                 constraint_transport_export(instance=instance, scheduling_scale_level=scenario.scheduling_scale_level,
                                             transport_avail_dict=scenario.transport_avail_dict, transport_resource_dict=scenario.transport_resource_dict)
                 constraint_export(instance=instance, scheduling_scale_level=scenario.scheduling_scale_level,

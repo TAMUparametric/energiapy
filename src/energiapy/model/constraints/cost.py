@@ -727,3 +727,80 @@ def constraint_network_cost(instance: ConcreteModel, constraints=Set[Constraints
         rule=constraint_network_cost_rule, doc='total network cost')
     constraint_latex_render(constraint_network_cost_rule)
     return instance.constraint_network_cost
+
+# *-------------------------Inventory penalty --------------------------
+
+
+def constraint_storage_cost(instance: ConcreteModel, location_resource_dict: dict, storage_cost_dict: dict, network_scale_level: int = 0) -> Constraint:
+    """Inventory penalty incurred at the network scale
+
+    Args:
+        instance (ConcreteModel): pyomo instance
+        location_resource_dict (dict): dictionary with resources available at locations.
+        storage_cost_dict (dict): dictionary with storage penalty at location.
+        network_scale_level (int, optional): scale of network decisions. Defaults to 0.
+
+    Returns:
+        Constraint: total network cost
+    """
+    scales = scale_list(instance=instance,
+                        scale_levels=network_scale_level + 1)
+
+    def storage_cost_rule(instance, location, resource, *scale_list):
+        if resource in location_resource_dict[location]:
+            return instance.Inv_cost[location, resource, scale_list[:network_scale_level + 1]] == storage_cost_dict[location][resource]*instance.Inv_network[location, resource, scale_list[:network_scale_level + 1]]
+        else:
+            return instance.Inv_cost[location, resource, scale_list] == 0
+    instance.constraint_storage_cost = Constraint(
+        instance.locations, instance.resources_store, *
+        scales, rule=storage_cost_rule,
+        doc='penalty for stored resources')
+    constraint_latex_render(storage_cost_rule)
+    return instance.constraint_storage_cost
+
+
+def constraint_storage_cost_location(instance: ConcreteModel, network_scale_level: int = 0) -> Constraint:
+    """Inventory penalty incurred at the network scale across location
+
+    Args:
+        instance (ConcreteModel): pyomo instance
+
+        storage_cost_dict (dict): dictionary with storage penalty at location.
+        network_scale_level (int, optional): scale of network decisions. Defaults to 0.
+
+    Returns:
+        Constraint: total network cost
+    """
+    scales = scale_list(instance=instance,
+                        scale_levels=network_scale_level + 1)
+
+    def storage_cost_location_rule(instance, location, *scale_list):
+        return instance.Inv_cost_location[location, scale_list[:network_scale_level + 1]] == sum(instance.Inv_cost[location, resource_, scale_list[:network_scale_level + 1]] for resource_ in instance.resources_store)
+    instance.constraint_storage_cost_location = Constraint(
+        instance.locations, *scales, rule=storage_cost_location_rule,
+        doc='penalty for stored resources across location')
+    constraint_latex_render(storage_cost_location_rule)
+    return instance.constraint_storage_cost_location
+
+
+def constraint_storage_cost_network(instance: ConcreteModel, network_scale_level: int = 0) -> Constraint:
+    """Inventory penalty incurred at the network scale across network
+
+    Args:
+        instance (ConcreteModel): pyomo instance
+
+        storage_cost_dict (dict): dictionary with storage penalty at network.
+        network_scale_level (int, optional): scale of network decisions. Defaults to 0.
+
+    Returns:
+        Constraint: total network cost
+    """
+    scales = scale_list(instance=instance,
+                        scale_levels=network_scale_level + 1)
+
+    def storage_cost_network_rule(instance, *scale_list):
+        return instance.Inv_cost_network[scale_list[:network_scale_level + 1]] == sum(instance.Inv_cost_location[location_, scale_list[:network_scale_level + 1]] for location_ in instance.locations)
+    instance.constraint_storage_cost_network = Constraint(*scales, rule=storage_cost_network_rule,
+                                                          doc='penalty for stored resources across network')
+    constraint_latex_render(storage_cost_network_rule)
+    return instance.constraint_storage_cost_network

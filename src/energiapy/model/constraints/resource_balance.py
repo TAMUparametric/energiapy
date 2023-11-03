@@ -84,7 +84,7 @@ def constraint_inventory_balance(instance: ConcreteModel, scheduling_scale_level
         mode_dict (dict, optional): dictionary with modes available. Defaults to {}.
         cluster_wt (dict, optional): weight of cluster as determined through scenario aggregation. Defaults to None.
         inventory_zero (Dict[Location, Dict[Tuple[Process, Resource], float]], optional): inventory at the start of the scheduling horizon. Defaults to None.
-
+        location_resource_dict (dict, optional): dict with resources in locations. Defaults to None.
     Returns:
         Constraint: inventory_balance
     """
@@ -383,3 +383,31 @@ def constraint_specific_location_discharge(instance: ConcreteModel, location: Lo
 
     constraint_latex_render(specific_location_discharge_rule)
     return Constraint(instance.resources_sell, *scales, rule=specific_location_discharge_rule, doc='restrict discharge of resource at location level')
+
+
+def constraint_inventory_network(instance: ConcreteModel, network_scale_level: int = 0, scheduling_scale_level: int = 0) -> Constraint:
+    """calculates total inventory stored over the network scale
+
+    Args:
+        instance (ConcreteModel): pyomo instance
+        network_scale_level (int, optional): scale of network decisions. Defaults to 0.
+        scheduling_scale_level (int, optional): scale of scheduling decisions. Defaults to 0.
+
+    Returns:
+        Constraint: _description_
+    """
+
+    scales = scale_list(instance=instance,
+                        scale_levels=network_scale_level + 1)
+
+    scale_iter = scale_tuple(
+        instance=instance, scale_levels=scheduling_scale_level + 1)
+
+    def inventory_network_rule(instance, location, resource, *scale_list):
+        return instance.Inv_network[location, resource, scale_list[:network_scale_level + 1]] == sum(instance.Inv[location, resource, scale_] for scale_ in scale_iter if scale_[:network_scale_level + 1] == scale_list)
+
+    instance.constraint_inventory_network = Constraint(
+        instance.locations, instance.resources_store, *scales, rule=inventory_network_rule, doc='total inventory at network')
+    constraint_latex_render(inventory_network_rule)
+
+    return instance.constraint_inventory_network

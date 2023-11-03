@@ -120,6 +120,7 @@ class Process:
         rate_max (Union[Dict[int, float], float]): maximum ramping rates 
         varying_bounds (float, optional): bounds for the variability. Defaults to (0,1).
         mode_ramp (Dict[tuple, int], optional): ramping rates between mode switches. Defaults to None.
+        storage_cost: (float, optional). penalty for mainting inventory per time period in the scheduling scale. Defaults to 0.
 
     Examples:
         For processes with varying production capacity
@@ -166,6 +167,7 @@ class Process:
     rate_max: Union[Dict[int, float], float] = None
     varying_bounds: Tuple[float] = (0, 1)
     mode_ramp: Dict[tuple, int] = None
+    storage_cost: float = 0
 
     def __post_init__(self):
         """Determines the ProcessMode, CostDynamics, and kicks out dummy resources if process is stores resource
