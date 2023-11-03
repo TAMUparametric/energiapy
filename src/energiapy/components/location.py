@@ -112,8 +112,8 @@ class Location:
         self.failure_processes = self.get_failure_processes()
         self.fail_factor = self.make_fail_factor()
         # self.emission_dict = {i: i.emission_dict for i in self.processes_full}
-        self.storage_penalty_dict = {
-            i.resource_storage.name: i.storage_penalty for i in self.processes_full if i.resource_storage is not None}
+        self.storage_cost_dict = {
+            i.resource_storage.name: i.storage_cost for i in self.processes_full if i.resource_storage is not None}
         if self.capacity_factor is not None:
             # fetch all processes with varying capacities
             self.varying_capacity = set(self.capacity_factor.keys())
