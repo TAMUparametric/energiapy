@@ -42,7 +42,8 @@ def objective_cost(instance: ConcreteModel, constraints: Set[Constraints], netwo
         fopex = sum(instance.Fopex_network[scale_] for scale_ in scale_iter)
         incidental = sum(
             instance.Incidental_network[scale_] for scale_ in scale_iter)
-
+        storage_cost = sum(
+            instance.Inv_cost_network[scale_] for scale_ in scale_iter)
         cost_purch = sum(instance.B_network[resource_, scale_] for resource_, scale_ in
                          product(instance.resources_purch, scale_iter))
 
@@ -65,7 +66,7 @@ def objective_cost(instance: ConcreteModel, constraints: Set[Constraints], netwo
                 instance.Fopex_transport_network[scale_] for scale_ in scale_iter)
         else:
             cost_trans = 0
-        return annualization_factor*capex + vopex + fopex + cost_purch + cost_trans + incidental + land_cost - credit
+        return annualization_factor*capex + vopex + fopex + cost_purch + cost_trans + incidental + land_cost - credit + storage_cost
 
     instance.objective_cost = Objective(
         rule=objective_cost_rule, doc='total cost')
