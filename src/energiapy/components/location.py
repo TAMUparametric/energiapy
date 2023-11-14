@@ -19,7 +19,7 @@ from warnings import warn
 from pandas import DataFrame
 
 from ..components.material import Material
-from ..components.process import Process, ProcessMode
+from ..components.process import Process, ProcessMode, MaterialMode
 from ..components.resource import Resource
 from ..components.temporal_scale import TemporalScale
 from ..utils.process_utils import create_storage_process
@@ -224,8 +224,16 @@ class Location:
         if len(self.processes) == 0:
             return None
         else:
-            return set().union(*[set(i.material_cons.keys()) for i in self.processes if i.material_cons is not None])
-
+            materials = set()
+            for i in self.processes:
+                if i.material_cons is not None:
+                    if isinstance(i.material_cons, dict):
+                        for j in i.material_cons.keys():
+                            materials = materials.union(set(i.material_cons[j].keys()))             
+                    else:
+                        materials = materials.union(set(i.material_cons.keys()))
+                        # return set().union(*[set(i.material_cons.keys()) for i in self.processes if i.material_cons is not None])
+            return materials
     def get_resource_price(self) -> dict:
         """gets resource prices for resources with non-varying costs
 
@@ -269,12 +277,17 @@ class Location:
         """
         prod_max_dict = {}
         for i in self.processes_full:
-            if i.processmode == ProcessMode.MULTI:
-                prod_max_dict[i.name] = i.prod_max
-            else:
+            if i.materialmode == MaterialMode.MULTI:
                 prod_max_dict[i.name] = {j: None for j in self.scales.scale[0]}
                 for j in self.scales.scale[0]:
                     prod_max_dict[i.name][j] = i.prod_max
+            else:
+                if i.processmode == ProcessMode.MULTI:
+                    prod_max_dict[i.name] = i.prod_max
+                else:
+                    prod_max_dict[i.name] = {j: None for j in self.scales.scale[0]}
+                    for j in self.scales.scale[0]:
+                        prod_max_dict[i.name][j] = i.prod_max
         return prod_max_dict
 
     def get_prod_min(self) -> dict:
@@ -283,12 +296,31 @@ class Location:
         """
         prod_min_dict = {}
         for i in self.processes_full:
-            if i.processmode == ProcessMode.MULTI:
-                prod_min_dict[i.name] = i.prod_min
+            if i.materialmode == MaterialMode.MULTI:
+                prod_min_dict[i.name] = {j: None for j in self.scales.scale[0]}
+                for j in self.scales.scale[0]:
+                    prod_min_dict[i.name][j] = i.prod_min
             else:
-                prod_min_dict[i.name] = {0: None}
-                prod_min_dict[i.name][0] = i.prod_min
+                if i.processmode == ProcessMode.MULTI:
+                    prod_min_dict[i.name] = i.prod_min
+                else:
+                    prod_min_dict[i.name] = {j: None for j in self.scales.scale[0]}
+                    for j in self.scales.scale[0]:
+                        prod_min_dict[i.name][j] = i.prod_min
         return prod_min_dict
+
+    # def get_prod_min(self) -> dict:
+    #     """
+    #     make a dictionary with minimum production
+    #     """
+    #     prod_min_dict = {}
+    #     for i in self.processes_full:
+    #         if i.processmode == ProcessMode.MULTI:
+    #             prod_min_dict[i.name] = i.prod_min
+    #         else:
+    #             prod_min_dict[i.name] = {0: None}
+    #             prod_min_dict[i.name][0] = i.prod_min
+    #     return prod_min_dict
 
     def __repr__(self):
         return self.name

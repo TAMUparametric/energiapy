@@ -264,6 +264,8 @@ class Scenario:
         #                               self.process_set}
         self.process_material_dict = {
             i.name: {j.name: i.material_cons[j] if j in i.material_cons.keys() else 0 for j in self.material_set} for i in self.process_set}
+        
+        self.process_material_mode_material_dict = {i.name: {j:{l.name: m for l,m in k.items() } for j,k in i.material_cons.items()} for i in self.process_set}
         multiconversion_dict = dict()
         for i in self.process_set:
             if i.processmode == ProcessMode.MULTI:
@@ -301,6 +303,16 @@ class Scenario:
 
         self.storage_cost_dict = {
             i.name: i.storage_cost_dict for i in self.location_set}
+        
+        process_material_modes = []
+        for i in self.process_set:
+            if i.material_cons is not None:
+                process_material_modes = process_material_modes + [(i.name, j) for j in list(i.material_cons.keys())]
+        
+        self.process_material_modes = process_material_modes
+        
+        self.process_material_modes_dict = {i.name: i.material_modes for i in self.process_set}
+        
         set_dict = {
             'resources': [i.name for i in self.resource_set],
 
@@ -375,9 +387,11 @@ class Scenario:
 
             'locations': [i.name for i in self.location_set],
             'materials': [i.name for i in self.material_set],
-
+            
+            'process_material_modes': process_material_modes,
+            
+            'material_modes': [element for dictionary in list(i.material_modes for i in self.process_set) for element in dictionary]
         }
-
         if isinstance(self.network, Network):
             transport_set_dict = {
                 'transports_certain_capacity': [i.name for i in self.transport_set if VaryingTransport.CERTAIN_CAPACITY in i.varying],
