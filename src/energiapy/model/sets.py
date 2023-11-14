@@ -147,6 +147,10 @@ def generate_sets(instance: ConcreteModel, scenario: Scenario):
     instance.processes_segments = Set(
         initialize=sets['processes_segments'], doc='Set of processes with PWL process segments')
 
+    instance.process_material_modes = Set(initialize= sets['process_material_modes'], doc = 'Set of process and material combinations')
+    
+    instance.material_modes = Set(initialize= sets['material_modes'], doc = 'Set of material modes')
+    
     if len(instance.locations) > 1:
 
         instance.transports_varying_capacity = Set(

@@ -24,5 +24,5 @@ def create_storage_process(process) -> Process:
     """
     process_dummy = Process(name=process.name+'_discharge', conversion=process.conversion_discharge, prod_min=process.prod_min,
                             prod_max=process.prod_max, introduce=process.introduce, retire=process.retire, capex=0, vopex=0, fopex=0,
-                            lifetime=process.lifetime, label=process.label + '_storage')
+                            lifetime=process.lifetime, label=process.label + '_storage', material_cons= None)
     return process_dummy

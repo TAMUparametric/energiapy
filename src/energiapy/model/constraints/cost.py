@@ -18,6 +18,7 @@ from pyomo.environ import ConcreteModel, Constraint
 
 from ...utils.latex_utils import constraint_latex_render
 from ...utils.scale_utils import scale_list, scale_tuple
+from ...utils.data_utils import get_depth
 from .constraints import Constraints
 
 
@@ -340,21 +341,46 @@ def constraint_process_capex(instance: ConcreteModel, capex_dict: dict, network_
     scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
 
     def process_capex_rule(instance, location, process, *scale_list):
+        
+        # if capex_dict[process] is not None:
+        #     if capex_factor[location] is not None:
+        #         if process in list(capex_factor[location].keys()):
+        #             return instance.Capex_process[location, process, scale_list] == annualization_factor*capex_factor[location][process][scale_list]*capex_dict[process]*instance.Cap_P[location, process, scale_list]
+        #         else:
+        #             return instance.Capex_process[location, process, scale_list] == annualization_factor*capex_dict[process]*instance.Cap_P[location, process, scale_list]
+        #     else:
+        #         return instance.Capex_process[location, process, scale_list] == annualization_factor*capex_dict[process]*instance.Cap_P[location, process, scale_list]
+        # else:
+        #     return instance.Capex_process[location, process, scale_list] == 0
+        
         if capex_dict[process] is not None:
-            if capex_factor[location] is not None:
-                if process in list(capex_factor[location].keys()):
-                    return instance.Capex_process[location, process, scale_list] == annualization_factor*capex_factor[location][process][scale_list]*capex_dict[process]*instance.Cap_P[location, process, scale_list]
-                else:
-                    return instance.Capex_process[location, process, scale_list] == annualization_factor*capex_dict[process]*instance.Cap_P[location, process, scale_list]
-            else:
-                return instance.Capex_process[location, process, scale_list] == annualization_factor*capex_dict[process]*instance.Cap_P[location, process, scale_list]
+            Cap_P = instance.Cap_P[location, process, scale_list]
         else:
-            return instance.Capex_process[location, process, scale_list] == 0
+            Cap_P = 0
+            
+        if capex_factor[location] is not None:
+            if process in list(capex_factor[location].keys()):
+                capex_fact = capex_factor[location][process][scale_list]
+            else:
+                capex_fact = 1
+        else:
+            capex_fact = 1
+        
+        if get_depth(capex_dict) == 1:
+            return instance.Capex_process[location, process, scale_list] == annualization_factor*capex_fact*capex_dict[process]*Cap_P
+        else:
+            if hasattr(instance, 'X_M') is True:
+                return instance.Capex_process[location, process, scale_list] == sum(annualization_factor*capex_fact*capex_dict[i[0]][i[1]]*Cap_P for i in instance.process_material_modes if i[0] == process)
+            if hasattr(instance, 'X_P_m') is True:
+                return instance.Capex_process[location, process, scale_list] == sum(annualization_factor*capex_fact*capex_dict[i[0]][i[1]]*Cap_P for i in instance.process_material_modes if i[0] == process)
     instance.constraint_process_capex = Constraint(
         instance.locations, instance.processes, *scales, rule=process_capex_rule, doc='capex for process')
 
     constraint_latex_render(process_capex_rule)
     return instance.constraint_process_capex
+
+
+
 
 
 def constraint_location_capex(instance: ConcreteModel, network_scale_level: int = 0) -> Constraint:
@@ -399,12 +425,40 @@ def constraint_network_capex(instance: ConcreteModel, network_scale_level: int =
 # *-------------------------vopex costing constraints----------------------------
 
 
-def constraint_process_vopex(instance: ConcreteModel, vopex_dict: dict, network_scale_level: int = 0, vopex_factor: dict = None, location_process_dict: dict = None) -> Constraint:
-    """Fixed operational expenditure for each process at location in network
+# def constraint_process_vopex(instance: ConcreteModel, vopex_dict: dict, network_scale_level: int = 0, vopex_factor: dict = None, location_process_dict: dict = None) -> Constraint:
+#     """Fixed operational expenditure for each process at location in network
+
+#     Args:
+#         instance (ConcreteModel): pyomo instance
+#         network_scale_level (int, optional): scale of network decisions. Defaults to 0.
+
+#     Returns:
+#         Constraint: process_vopex
+#     """
+#     scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
+
+#     def process_vopex_rule(instance, location, process, *scale_list):
+#         if vopex_dict[process] is not None:
+#             if vopex_factor[location] is not None:
+#                 return instance.Vopex_process[location, process, scale_list] == vopex_factor[location][process][scale_list]*vopex_dict[process]*instance.P_location[location, process, scale_list]
+#             else:
+#                 return instance.Vopex_process[location, process, scale_list] == vopex_dict[process]*instance.P_location[location, process, scale_list]
+#         else:
+#             return instance.Vopex_process[location, process, scale_list] == 0
+#     instance.constraint_process_vopex = Constraint(
+#         instance.locations, instance.processes, *scales, rule=process_vopex_rule, doc='total vopex from network')
+#     constraint_latex_render(process_vopex_rule)
+#     return instance.constraint_process_vopex
+
+
+def constraint_process_vopex(instance: ConcreteModel, vopex_dict: dict, network_scale_level: int = 0, annualization_factor: float = 1, vopex_factor: dict = None, cost_dynamics: Costdynamics = Costdynamics.constant, location_process_dict: dict = None) -> Constraint:
+    """Capital expenditure for each process at location in network
 
     Args:
         instance (ConcreteModel): pyomo instance
+        vopex_dict (dict): vopex at location
         network_scale_level (int, optional): scale of network decisions. Defaults to 0.
+        annualization_factor (float, optional): Annual depreciation of asset. Defaults to 1.
 
     Returns:
         Constraint: process_vopex
@@ -412,15 +466,30 @@ def constraint_process_vopex(instance: ConcreteModel, vopex_dict: dict, network_
     scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
 
     def process_vopex_rule(instance, location, process, *scale_list):
+        
         if vopex_dict[process] is not None:
-            if vopex_factor[location] is not None:
-                return instance.Vopex_process[location, process, scale_list] == vopex_factor[location][process][scale_list]*vopex_dict[process]*instance.P_location[location, process, scale_list]
-            else:
-                return instance.Vopex_process[location, process, scale_list] == vopex_dict[process]*instance.P_location[location, process, scale_list]
+            P_location = instance.P_location[location, process, scale_list]
         else:
-            return instance.Vopex_process[location, process, scale_list] == 0
+            P_location = 0
+            
+        if vopex_factor[location] is not None:
+            if process in list(vopex_factor[location].keys()):
+                vopex_fact = vopex_factor[location][process][scale_list]
+            else:
+                vopex_fact = 1
+        else:
+            vopex_fact = 1
+        
+        if get_depth(vopex_dict) == 1:
+            return instance.Vopex_process[location, process, scale_list] == annualization_factor*vopex_fact*vopex_dict[process]*P_location
+        else:
+            if hasattr(instance, 'X_M') is True:
+                return instance.Vopex_process[location, process, scale_list] == sum(annualization_factor*vopex_fact*vopex_dict[i[0]][i[1]]*P_location for i in instance.process_material_modes if i[0] == process)
+            if hasattr(instance, 'X_P_m') is True:
+                return instance.Vopex_process[location, process, scale_list] == sum(annualization_factor*vopex_fact*vopex_dict[i[0]][i[1]]*P_location for i in instance.process_material_modes if i[0] == process)
     instance.constraint_process_vopex = Constraint(
-        instance.locations, instance.processes, *scales, rule=process_vopex_rule, doc='total vopex from network')
+        instance.locations, instance.processes, *scales, rule=process_vopex_rule, doc='vopex for process')
+
     constraint_latex_render(process_vopex_rule)
     return instance.constraint_process_vopex
 
@@ -468,11 +537,13 @@ def constraint_network_vopex(instance: ConcreteModel, network_scale_level: int =
 # *-------------------------fopex costing constraints----------------------------
 
 
-def constraint_process_fopex(instance: ConcreteModel, fopex_dict: dict, network_scale_level: int = 0, fopex_factor: dict = None, annualization_factor: float = 1, location_process_dict: dict = None) -> Constraint:
-    """Fixed operational expenditure for each process at location in network
+
+def constraint_process_fopex(instance: ConcreteModel, fopex_dict: dict, network_scale_level: int = 0, annualization_factor: float = 1, fopex_factor: dict = None, cost_dynamics: Costdynamics = Costdynamics.constant, location_process_dict: dict = None) -> Constraint:
+    """Capital expenditure for each process at location in network
+
     Args:
         instance (ConcreteModel): pyomo instance
-        fopex_dict (dict): fixed opex at location
+        fopex_dict (dict): fopex at location
         network_scale_level (int, optional): scale of network decisions. Defaults to 0.
         annualization_factor (float, optional): Annual depreciation of asset. Defaults to 1.
 
@@ -482,17 +553,59 @@ def constraint_process_fopex(instance: ConcreteModel, fopex_dict: dict, network_
     scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
 
     def process_fopex_rule(instance, location, process, *scale_list):
+
+        
         if fopex_dict[process] is not None:
-            if fopex_factor[location] is not None:
-                return instance.Fopex_process[location, process, scale_list] == annualization_factor*fopex_factor[location][process][scale_list]*fopex_dict[process]*instance.Cap_P[location, process, scale_list]
-            else:
-                return instance.Fopex_process[location, process, scale_list] == annualization_factor*fopex_dict[process]*instance.Cap_P[location, process, scale_list]
+            Cap_P = instance.Cap_P[location, process, scale_list]
         else:
-            return instance.Fopex_process[location, process, scale_list] == 0
+            Cap_P = 0
+            
+        if fopex_factor[location] is not None:
+            if process in list(fopex_factor[location].keys()):
+                fopex_fact = fopex_factor[location][process][scale_list]
+            else:
+                fopex_fact = 1
+        else:
+            fopex_fact = 1
+        
+        if get_depth(fopex_dict) == 1:
+            return instance.Fopex_process[location, process, scale_list] == annualization_factor*fopex_fact*fopex_dict[process]*Cap_P
+        else:
+            if hasattr(instance, 'X_M') is True:
+                return instance.Fopex_process[location, process, scale_list] == sum(annualization_factor*fopex_fact*fopex_dict[i[0]][i[1]]*Cap_P for i in instance.process_material_modes if i[0] == process)
+            if hasattr(instance, 'X_P_m') is True:
+                return instance.Fopex_process[location, process, scale_list] == sum(annualization_factor*fopex_fact*fopex_dict[i[0]][i[1]]*Cap_P for i in instance.process_material_modes if i[0] == process)
     instance.constraint_process_fopex = Constraint(
         instance.locations, instance.processes, *scales, rule=process_fopex_rule, doc='fopex for process')
+
     constraint_latex_render(process_fopex_rule)
     return instance.constraint_process_fopex
+
+# def constraint_process_fopex(instance: ConcreteModel, fopex_dict: dict, network_scale_level: int = 0, fopex_factor: dict = None, annualization_factor: float = 1, location_process_dict: dict = None) -> Constraint:
+#     """Fixed operational expenditure for each process at location in network
+#     Args:
+#         instance (ConcreteModel): pyomo instance
+#         fopex_dict (dict): fixed opex at location
+#         network_scale_level (int, optional): scale of network decisions. Defaults to 0.
+#         annualization_factor (float, optional): Annual depreciation of asset. Defaults to 1.
+
+#     Returns:
+#         Constraint: process_fopex
+#     """
+#     scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
+
+#     def process_fopex_rule(instance, location, process, *scale_list):
+#         if fopex_dict[process] is not None:
+#             if fopex_factor[location] is not None:
+#                 return instance.Fopex_process[location, process, scale_list] == annualization_factor*fopex_factor[location][process][scale_list]*fopex_dict[process]*instance.Cap_P[location, process, scale_list]
+#             else:
+#                 return instance.Fopex_process[location, process, scale_list] == annualization_factor*fopex_dict[process]*instance.Cap_P[location, process, scale_list]
+#         else:
+#             return instance.Fopex_process[location, process, scale_list] == 0
+#     instance.constraint_process_fopex = Constraint(
+#         instance.locations, instance.processes, *scales, rule=process_fopex_rule, doc='fopex for process')
+#     constraint_latex_render(process_fopex_rule)
+#     return instance.constraint_process_fopex
 
 
 def constraint_location_fopex(instance: ConcreteModel, network_scale_level: int = 0) -> Constraint:
@@ -748,7 +861,10 @@ def constraint_storage_cost(instance: ConcreteModel, location_resource_dict: dic
 
     def storage_cost_rule(instance, location, resource, *scale_list):
         if resource in location_resource_dict[location]:
-            return instance.Inv_cost[location, resource, scale_list[:network_scale_level + 1]] == storage_cost_dict[location][resource]*instance.Inv_network[location, resource, scale_list[:network_scale_level + 1]]
+            if resource in storage_cost_dict[location]:
+                return instance.Inv_cost[location, resource, scale_list[:network_scale_level + 1]] == storage_cost_dict[location][resource]*instance.Inv_network[location, resource, scale_list[:network_scale_level + 1]]
+            else:
+                return instance.Inv_cost[location, resource, scale_list[:network_scale_level + 1]] == 0
         else:
             return instance.Inv_cost[location, resource, scale_list] == 0
     instance.constraint_storage_cost = Constraint(
