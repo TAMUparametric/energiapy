@@ -288,10 +288,9 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
         generate_network_vars(
             instance=instance, scale_level=scenario.network_scale_level)
         generate_costing_vars(instance=instance)
-        
-        generate_material_vars(
-                instance=instance, scale_level=scenario.network_scale_level)
 
+        generate_material_vars(
+            instance=instance, scale_level=scenario.network_scale_level)
 
         if Constraints.UNCERTAIN in constraints:
             generate_uncertainty_vars(
@@ -682,15 +681,18 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
                 instance=instance, network_scale_level=scenario.network_scale_level)
             constraint_material_network(
                 instance=instance, network_scale_level=scenario.network_scale_level)
-            constraint_production_facility_material_mode(instance = instance, network_scale_level= scenario.network_scale_level, location_process_dict = scenario.location_process_dict)
-            constraint_production_facility_material_mode_binary(instance = instance, network_scale_level= scenario.network_scale_level, location_process_dict = scenario.location_process_dict)
+            constraint_production_facility_material_mode(
+                instance=instance, network_scale_level=scenario.network_scale_level, location_process_dict=scenario.location_process_dict)
+            constraint_production_facility_material_mode_binary(
+                instance=instance, network_scale_level=scenario.network_scale_level, location_process_dict=scenario.location_process_dict)
 
-            constraint_production_facility_material(instance= instance, prod_max= scenario.prod_max, location_process_dict= scenario.location_process_dict,
-                                   network_scale_level= scenario.network_scale_level, process_material_modes_dict= scenario.process_material_modes_dict)
-            constraint_min_production_facility_material(instance= instance, prod_min= scenario.prod_min, location_process_dict= scenario.location_process_dict,
-                                   network_scale_level= scenario.network_scale_level, process_material_modes_dict= scenario.process_material_modes_dict)
-            constraint_material_mode_process(instance= instance, process_material_mode_material_dict= scenario.process_material_mode_material_dict, network_scale_level= scenario.network_scale_level)
-        
+            constraint_production_facility_material(instance=instance, prod_max=scenario.prod_max, location_process_dict=scenario.location_process_dict,
+                                                    network_scale_level=scenario.network_scale_level, process_material_modes_dict=scenario.process_material_modes_dict)
+            constraint_min_production_facility_material(instance=instance, prod_min=scenario.prod_min, location_process_dict=scenario.location_process_dict,
+                                                        network_scale_level=scenario.network_scale_level, process_material_modes_dict=scenario.process_material_modes_dict)
+            constraint_material_mode_process(
+                instance=instance, process_material_mode_material_dict=scenario.process_material_mode_material_dict, network_scale_level=scenario.network_scale_level)
+
         if gwp is not None:
             constraint_global_warming_potential_network_reduction(
                 instance=instance, network_scale_level=scenario.network_scale_level,
