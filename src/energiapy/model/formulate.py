@@ -53,6 +53,7 @@ from .constraints.cost import (
 from .constraints.emission import (
     constraint_global_warming_potential_location,
     constraint_global_warming_potential_material,
+    constraint_global_warming_potential_material_mode,
     constraint_global_warming_potential_network,
     constraint_global_warming_potential_network_reduction,
     constraint_global_warming_potential_process,
@@ -406,8 +407,11 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
             if Constraints.MATERIAL in constraints:
 
                 constraint_global_warming_potential_material(
-                    instance=instance, material_gwp_dict=scenario.material_gwp_dict,
-                    process_material_dict=scenario.process_material_dict, network_scale_level=scenario.network_scale_level)
+                    instance=instance, network_scale_level=scenario.network_scale_level)
+
+                constraint_global_warming_potential_material_mode(instance=instance, material_gwp_dict=scenario.material_gwp_dict,
+                                                                  process_material_mode_material_dict=scenario.process_material_mode_material_dict,
+                                                                  network_scale_level=scenario.network_scale_level)
 
         if Constraints.FAILURE in constraints:
             constraint_nameplate_production_failure(instance=instance, fail_factor=scenario.fail_factor,
