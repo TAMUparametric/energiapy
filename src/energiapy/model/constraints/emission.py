@@ -80,7 +80,34 @@ def constraint_global_warming_potential_process(instance: ConcreteModel, process
     return instance.constraint_global_warming_potential_process
 
 
-def constraint_global_warming_potential_material(instance: ConcreteModel, material_gwp_dict: dict, process_material_dict: dict, network_scale_level: int = 0) -> Constraint:
+def constraint_global_warming_potential_material_mode(instance: ConcreteModel, material_gwp_dict: dict, process_material_mode_material_dict: dict, network_scale_level: int = 0) -> Constraint:
+    """Calculates the global warming potential arising from the use of materials for processes
+
+    Args:
+        instance (ConcreteModel): pyomo model instance
+        material_gwp_dict (dict): GWP associated with each material
+        process_material_mode_dict (dict): Material consumed by each process
+        network_scale_level (int, optional): scale for network decisions. Defaults to 0.
+
+    Returns:
+        Constraint: global_warming_potential_material_mode
+    """
+    scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
+
+    def global_warming_potential_material_mode_rule(instance, location, process, material_mode, *scale_list):
+        if material_mode in process_material_mode_material_dict[process]:
+            return instance.global_warming_potential_material_mode[location, process, material_mode, scale_list] == \
+                sum(process_material_mode_material_dict[process][material_mode][material]*material_gwp_dict[location][material]
+                    for material in instance.materials if material in process_material_mode_material_dict[process][material_mode]) * instance.Cap_P_M[location, process, material_mode, scale_list]
+        else:
+            return Constraint.Skip
+    instance.constraint_global_warming_potential_material_mode = Constraint(
+        instance.locations, instance.processes_materials, instance.material_modes, *scales, rule=global_warming_potential_material_mode_rule, doc='global warming potential for the each material')
+    constraint_latex_render(global_warming_potential_material_mode_rule)
+    return instance.constraint_global_warming_potential_material_mode
+
+
+def constraint_global_warming_potential_material(instance: ConcreteModel, network_scale_level: int = 0) -> Constraint:
     """Calculates the global warming potential arising from the use of materials for processes
 
     Args:
@@ -95,7 +122,7 @@ def constraint_global_warming_potential_material(instance: ConcreteModel, materi
     scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
 
     def global_warming_potential_material_rule(instance, location, process,  *scale_list):
-        return instance.global_warming_potential_material[location, process, scale_list] == sum(process_material_dict[process][material]*material_gwp_dict[location][material] for material in instance.materials) * instance.Cap_P[location, process, scale_list]
+        return instance.global_warming_potential_material[location, process, scale_list] == sum(instance.global_warming_potential_material_mode[location, process, material_mode_, scale_list] for material_mode_ in instance.material_modes)
     instance.constraint_global_warming_potential_material = Constraint(
         instance.locations, instance.processes_materials, *scales, rule=global_warming_potential_material_rule, doc='global warming potential for the each material')
     constraint_latex_render(global_warming_potential_material_rule)
@@ -213,7 +240,6 @@ def constraint_global_warming_potential_network_bound(instance: ConcreteModel, g
     constraint_latex_render(global_warming_potential_network_bound_rule)
     return Constraint(
         *scales, rule=global_warming_potential_network_bound_rule, doc='global warming potential bound for the whole network')
-
 
 
 def constraint_global_warming_potential_20_resource(instance: ConcreteModel, emission_dict: dict, network_scale_level: int = 0) -> Constraint:
