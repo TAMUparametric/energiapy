@@ -194,7 +194,7 @@ def objective_uncertainty_cost(instance: ConcreteModel, penalty: float, network_
 #     return instance.demand_objective
 
 
-def objective_discharge_min(instance: ConcreteModel, resource: Resource, network_scale_level: int = 0, ) -> Objective:
+def objective_discharge_min(instance: ConcreteModel, resource: Resource, network_scale_level: int = 0 ) -> Objective:
     """Minimize discharge of a particular resource
 
     Args:
@@ -216,7 +216,7 @@ def objective_discharge_min(instance: ConcreteModel, resource: Resource, network
     return instance.objective_discharge_min
 
 
-def objective_discharge_max(instance: ConcreteModel, resource: Resource, network_scale_level: int = 0, ) -> Objective:
+def objective_discharge_max(instance: ConcreteModel, resource: Resource, network_scale_level: int = 0 ) -> Objective:
     """Maximize discharge of a particular resource
 
     Args:
@@ -236,6 +236,25 @@ def objective_discharge_max(instance: ConcreteModel, resource: Resource, network
         rule=objective_discharge_max_rule, sense=maximize, doc='maximize total discharge from specific_network')
     constraint_latex_render(objective_discharge_max_rule)
     return instance.objective_discharge_max
+
+# def objective_max_service_level(instance: ConcreteModel, resource: Resource, scheduling_scale_level: int = 0) -> Objective:
+#     """
+#     Maximize the minimum guaranteed discharge of a particular resource over the scheduling scale
+#
+#     Args:
+#         instance (ConcreteModel): pyomo instance
+#         resource: Resource for which service level has to be maximized
+#         scheduling_scale_level (int, optional): scale of scheduling decisions. Defaults to 0
+#     """
+#     scale_iter = scale_tuple(instance=instance, scale_levels=scheduling_scale_level+1)
+#
+#     def objective_max_service_level_rule(instance, *scale_list):
+#         return min(instance.S[resource.name, scale_] for scale_ in scale_iter)
+#
+#     instance.objective_max_service_level = Objective(rule=objective_max_service_level_rule, sense=maximize,
+#                                                          doc='maximize minimum guaranteed discharge over the scheduling scale')
+#     constraint_latex_render(objective_max_service_level_rule)
+#     return instance.objective_max_service_level
 
 
 def objective_profit(instance: ConcreteModel, constraints: Set[Constraints], network_scale_level: int = 0, annualization_factor: float = 1) -> Objective:

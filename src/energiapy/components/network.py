@@ -88,8 +88,9 @@ class Network:
             transport_avail_dict (dict): transportation modes available between sources and sinks
             locations (list): list of locations, sinks + sources
         """
-        self.transport_dict = self.make_transport_dict(
-        )  # makes dictionary of available transport options between locations
+
+
+        self.transport_dict = self.make_transport_dict()  # makes dictionary of available transport options between locations
         # makes dictionary of distances between locations
         self.distance_dict = self.make_distance_dict()
         # same as transport dict, I do not know why I made two, but now I am too scared to change it

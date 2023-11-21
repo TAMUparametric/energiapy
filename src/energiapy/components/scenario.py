@@ -301,7 +301,7 @@ class Scenario:
 
         self.storage_cost_dict = {
             i.name: i.storage_cost_dict for i in self.location_set}
-        set_dict = {
+        self.set_dict = {
             'resources': [i.name for i in self.resource_set],
 
             'resources_nosell': [i.name for i in self.resource_set if i.sell is False],
@@ -404,29 +404,29 @@ class Scenario:
         }
 
         if self.source_locations is not None:
-            set_dict['sources'] = [i.name for i in self.source_locations]
+            self.set_dict['sources'] = [i.name for i in self.source_locations]
         else:
-            set_dict['sources'] = []
+            self.set_dict['sources'] = []
 
         if self.sink_locations is not None:
-            set_dict['sinks'] = [i.name for i in self.sink_locations]
+            self.set_dict['sinks'] = [i.name for i in self.sink_locations]
         else:
-            set_dict['sinks'] = []
+            self.set_dict['sinks'] = []
 
         if self.material_set is not None:
-            set_dict['materials'] = [i.name for i in self.material_set]
+            self.set_dict['materials'] = [i.name for i in self.material_set]
         else:
-            set_dict['materials'] = []
+            self.set_dict['materials'] = []
 
         if self.transport_set is not None:
-            set_dict['transports'] = [i.name for i in self.transport_set]
-            set_dict['resources_trans'] = [i.name for i in set().union(
+            self.set_dict['transports'] = [i.name for i in self.transport_set]
+            self.set_dict['resources_trans'] = [i.name for i in set().union(
                 *[i.resources for i in self.transport_set])]
         else:
-            set_dict['transports'] = []
-            set_dict['resources_trans'] = []
+            self.set_dict['transports'] = []
+            self.set_dict['resources_trans'] = []
 
-        self.set_dict = {x: sorted(set_dict[x]) for x in set_dict.keys()}
+        self.set_dict = {x: sorted(self.set_dict[x]) for x in self.set_dict.keys()}
 
     def make_conversion_df(self) -> DataFrame:
         """makes a DataFrame of the conversion values
