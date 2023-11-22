@@ -202,6 +202,62 @@ def constraint_location_production(instance: ConcreteModel, cluster_wt: dict,
     return instance.constraint_location_production
 
 
+def constraint_location_production_material_mode_sum(instance: ConcreteModel, process_material_mode_material_dict: dict, network_scale_level: int = 0) -> Constraint:
+    """Determines total production capacity utilization at location
+
+    Args:
+        instance (ConcreteModel): pyomo instance
+        network_scale_level (int, optional): scale of network decisions. Defaults to 0.
+        scheduling_scale_level (int, optional): scale of scheduling decisions. Defaults to 0.
+    Returns:
+        Constraint: location_production_material_mode_sum
+    """
+
+    scales = scale_list(instance=instance,
+                        scale_levels=network_scale_level + 1)
+
+    def location_production_material_mode_sum_rule(instance, location, process, *scale_list):
+        return instance.P_location[location, process, scale_list] == sum(
+            instance.P_location_material_m[location, process, material_mode_, scale_list] for material_mode_ in instance.material_modes if material_mode_ in process_material_mode_material_dict[process].keys())
+
+    instance.constraint_location_production_material_mode_sum = Constraint(
+        instance.locations, instance.processes, *
+        scales, rule=location_production_material_mode_sum_rule,
+        doc='total production at location')
+    constraint_latex_render(location_production_material_mode_sum_rule)
+    return instance.constraint_location_production_material_mode_sum
+
+
+def constraint_location_production_material_mode(instance: ConcreteModel, cluster_wt: dict,
+                                                 network_scale_level: int = 0, scheduling_scale_level: int = 0) -> Constraint:
+    """Determines total production capacity utilization at location
+
+    Args:
+        instance (ConcreteModel): pyomo instance
+        network_scale_level (int, optional): scale of network decisions. Defaults to 0.
+        scheduling_scale_level (int, optional): scale of scheduling decisions. Defaults to 0.
+    Returns:
+        Constraint: location_production_material_mode
+    """
+
+    scales = scale_list(instance=instance,
+                        scale_levels=network_scale_level + 1)
+    scale_iter = scale_tuple(
+        instance=instance, scale_levels=scheduling_scale_level+1)
+
+    def location_production_material_mode_rule(instance, location, process, material_mode,  *scale_list):
+        def weight(x): return 1 if cluster_wt is None else cluster_wt[x]
+        return instance.P_location_material_m[location, process, material_mode, scale_list] == sum(
+            weight(scale_) * instance.P_material_m[location, process, material_mode, scale_[:scheduling_scale_level + 1]] for scale_ in scale_iter if scale_[:network_scale_level + 1] == scale_list)
+
+    instance.constraint_location_production_material_mode = Constraint(
+        instance.locations, instance.processes, instance.material_modes, *
+        scales, rule=location_production_material_mode_rule,
+        doc='total production at location')
+    constraint_latex_render(location_production_material_mode_rule)
+    return instance.constraint_location_production_material_mode
+
+
 def constraint_location_discharge(instance: ConcreteModel, cluster_wt: dict,
                                   network_scale_level: int = 0, scheduling_scale_level: int = 0) -> Constraint:
     """Determines total resource discharged/sold at locations in network

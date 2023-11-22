@@ -36,6 +36,6 @@ def generate_material_vars(instance: ConcreteModel, scale_level: int = 0):
                                         within=NonNegativeReals, doc='materials utilized at network scale')
         instance.X_M = Var(instance.locations, instance.process_material_modes,
                            instance.scales_material_network, within=Binary, doc='binaries process material combinations')
-        instance.Cap_P_M = Var(instance.locations, instance.process_material_modes, instance.scales_material_network,
+        instance.Cap_P_M = Var(instance.locations, instance.processes, instance.material_modes, instance.scales_material_network,
                                within=NonNegativeReals, doc='capacity for process material combinations')
     return

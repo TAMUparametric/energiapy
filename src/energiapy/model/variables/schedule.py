@@ -50,6 +50,8 @@ def generate_scheduling_vars(instance: ConcreteModel, scale_level: int = 0, mode
     #                        instance.scales_scheduling, within=NonNegativeReals, doc='Resource export')
     instance.P_m = Var(instance.locations, [(i, j) for i in mode_dict.keys(
     ) for j in mode_dict[i]], instance.scales_scheduling, within=NonNegativeReals, doc='Production modes')
+    instance.P_material_m = Var(instance.locations, instance.processes, instance.material_modes,
+                                instance.scales_scheduling, within=NonNegativeReals, doc='Production in material modes')
     return
 
 
