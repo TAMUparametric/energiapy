@@ -81,12 +81,12 @@ def constraint_global_warming_potential_process(instance: ConcreteModel, process
 
 
 def constraint_global_warming_potential_material_mode(instance: ConcreteModel, material_gwp_dict: dict, process_material_mode_material_dict: dict, network_scale_level: int = 0) -> Constraint:
-    """Calculates the global warming potential arising from the use of materials for processes
+    """Calculates the global warming potential arising from the use of materials for processes in each material mode
 
     Args:
         instance (ConcreteModel): pyomo model instance
         material_gwp_dict (dict): GWP associated with each material
-        process_material_mode_dict (dict): Material consumed by each process
+        process_material_mode_material_dict (dict): Material consumed by each process for each material mode
         network_scale_level (int, optional): scale for network decisions. Defaults to 0.
 
     Returns:
@@ -108,12 +108,10 @@ def constraint_global_warming_potential_material_mode(instance: ConcreteModel, m
 
 
 def constraint_global_warming_potential_material(instance: ConcreteModel, network_scale_level: int = 0) -> Constraint:
-    """Calculates the global warming potential arising from the use of materials for processes
+    """Calculates the global warming potential arising from the use of materials for processes across all material modes
 
     Args:
         instance (ConcreteModel): pyomo model instance
-        material_gwp_dict (dict): GWP associated with each material
-        process_material_dict (dict): Material consumed by each process
         network_scale_level (int, optional): scale for network decisions. Defaults to 0.
 
     Returns:

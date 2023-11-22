@@ -85,6 +85,7 @@ from .constraints.production import (
     constraint_nameplate_production,
     constraint_production_max,
     constraint_production_min,
+    constraint_nameplate_production_material_mode
 )
 from .constraints.resource_balance import (
     constraint_inventory_balance,
@@ -95,7 +96,9 @@ from .constraints.resource_balance import (
     constraint_network_discharge,
     constraint_network_production,
     constraint_resource_consumption,
-    constraint_inventory_network
+    constraint_inventory_network,
+    constraint_location_production_material_mode,
+    constraint_location_production_material_mode_sum
 )
 
 from .constraints.demand import (
@@ -696,6 +699,15 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
                                                         network_scale_level=scenario.network_scale_level, process_material_modes_dict=scenario.process_material_modes_dict)
             constraint_material_mode_process(
                 instance=instance, process_material_mode_material_dict=scenario.process_material_mode_material_dict, network_scale_level=scenario.network_scale_level)
+
+            constraint_nameplate_production_material_mode(instance=instance, capacity_factor=scenario.capacity_factor, location_process_dict=scenario.location_process_dict,
+                                                          network_scale_level=scenario.network_scale_level, scheduling_scale_level=scenario.scheduling_scale_level)
+
+            constraint_location_production_material_mode(instance=instance, cluster_wt=scenario.cluster_wt,
+                                                         network_scale_level=scenario.network_scale_level, scheduling_scale_level=scenario.scheduling_scale_level)
+
+            constraint_location_production_material_mode_sum(
+                instance=instance, network_scale_level=scenario.network_scale_level,  process_material_mode_material_dict=scenario.process_material_mode_material_dict)
 
         if gwp is not None:
             constraint_global_warming_potential_network_reduction(
