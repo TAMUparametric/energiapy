@@ -17,10 +17,12 @@ from ..components.location import Location
 from ..components.process import Process
 from ..components.resource import Resource
 from ..components.scenario import Scenario
+from ..components.transport import Transport
 from ..utils.plot_utils import axis_formatter
 
 
-def capacity_factor(scenario: Scenario, process: Process, location: Location, fig_size: tuple = (12, 6), font_size: int = 16, color: str = 'blue', usetex: bool = False):
+def capacity_factor(scenario: Scenario, process: Process, location: Location, fig_size: tuple = (12, 6),
+                    font_size: int = 16, color: str = 'blue', usetex: bool = False):
     """generates a plot for varying capacity factor of process
 
     Args:
@@ -34,7 +36,7 @@ def capacity_factor(scenario: Scenario, process: Process, location: Location, fi
     """
 
     rc('font', **{'family': 'serif',
-       'serif': ['Computer Modern'], 'size': font_size})
+                  'serif': ['Computer Modern'], 'size': font_size})
     rc('text', usetex=False)
     fig, ax = plt.subplots(figsize=fig_size)
     y_ = list(scenario.capacity_factor[location.name][process.name].values())
@@ -49,7 +51,8 @@ def capacity_factor(scenario: Scenario, process: Process, location: Location, fi
     return
 
 
-def price_factor(scenario: Scenario, resource: Resource, location: Location, fig_size: tuple = (12, 6), font_size: int = 16, color: str = 'blue', usetex: bool = False):
+def price_factor(scenario: Scenario, resource: Resource, location: Location, fig_size: tuple = (12, 6),
+                 font_size: int = 16, color: str = 'blue', usetex: bool = False):
     """generates a plot for varying price factor for purchase of resource
 
     Args:
@@ -62,7 +65,7 @@ def price_factor(scenario: Scenario, resource: Resource, location: Location, fig
         usetex (bool, optional): False, if using latex font, need Tex set up (prone to errors). Defaults to 'False'.
     """
     rc('font', **{'family': 'serif',
-       'serif': ['Computer Modern'], 'size': font_size})
+                  'serif': ['Computer Modern'], 'size': font_size})
     rc('text', usetex=False)
     fig, ax = plt.subplots(figsize=fig_size)
     y_ = list(scenario.price_factor[location.name][resource.name].values())
@@ -91,7 +94,7 @@ def demand_factor(scenario: Scenario, resource: Resource, location: Location,
         usetex (bool, optional): False, if using latex font, need Tex set up (prone to errors). Defaults to 'False'.
     """
     rc('font', **{'family': 'serif',
-       'serif': ['Computer Modern'], 'size': font_size})
+                  'serif': ['Computer Modern'], 'size': font_size})
     rc('text', usetex=False)
     fig, ax = plt.subplots(figsize=fig_size)
     y_ = list(scenario.demand_factor[location.name][resource.name].values())
@@ -120,7 +123,7 @@ def capex_factor(scenario: Scenario, process: Process, location: Location,
         usetex (bool, optional): False, if using latex font, need Tex set up (prone to errors). Defaults to 'False'.
     """
     rc('font', **{'family': 'serif',
-       'serif': ['Computer Modern'], 'size': font_size})
+                  'serif': ['Computer Modern'], 'size': font_size})
     rc('text', usetex=False)
     fig, ax = plt.subplots(figsize=fig_size)
     y_ = list(scenario.capex_factor[location.name][process.name].values())
@@ -149,7 +152,7 @@ def vopex_factor(scenario: Scenario, process: Process, location: Location,
         usetex (bool, optional): False, if using latex font, need Tex set up (prone to errors). Defaults to 'False'.
     """
     rc('font', **{'family': 'serif',
-       'serif': ['Computer Modern'], 'size': font_size})
+                  'serif': ['Computer Modern'], 'size': font_size})
     rc('text', usetex=False)
     fig, ax = plt.subplots(figsize=fig_size)
     y_ = list(scenario.vopex_factor[location.name][process.name].values())
@@ -178,7 +181,7 @@ def fopex_factor(scenario: Scenario, process: Process, location: Location,
         usetex (bool, optional): False, if using latex font, need Tex set up (prone to errors). Defaults to 'False'.
     """
     rc('font', **{'family': 'serif',
-       'serif': ['Computer Modern'], 'size': font_size})
+                  'serif': ['Computer Modern'], 'size': font_size})
     rc('text', usetex=False)
     fig, ax = plt.subplots(figsize=fig_size)
     y_ = list(scenario.fopex_factor[location.name][process.name].values())
@@ -207,7 +210,7 @@ def availability_factor(scenario: Scenario, resource: Resource, location: Locati
         usetex (bool, optional): False, if using latex font, need Tex set up (prone to errors). Defaults to 'False'.
     """
     rc('font', **{'family': 'serif',
-       'serif': ['Computer Modern'], 'size': font_size})
+                  'serif': ['Computer Modern'], 'size': font_size})
     rc('text', usetex=False)
     fig, ax = plt.subplots(figsize=fig_size)
     y_ = list(
@@ -237,7 +240,7 @@ def revenue_factor(scenario: Scenario, resource: Resource, location: Location,
         usetex (bool, optional): False, if using latex font, need Tex set up (prone to errors). Defaults to 'False'.
     """
     rc('font', **{'family': 'serif',
-       'serif': ['Computer Modern'], 'size': font_size})
+                  'serif': ['Computer Modern'], 'size': font_size})
     rc('text', usetex=False)
     fig, ax = plt.subplots(figsize=fig_size)
     y_ = list(
@@ -246,6 +249,39 @@ def revenue_factor(scenario: Scenario, resource: Resource, location: Location,
     ax.plot(x_, y_, linewidth=0.5, color=color)
     ax = axis_formatter(axes=ax, xcord=x_, axis_labels='M')
     plt.title(f'Demand factor for {resource.label} in {location.label}')
+    plt.ylabel("Normalized revenue factor")
+    plt.xlabel("Scheduling Horizon")
+    plt.grid(alpha=0.3)
+    plt.rcdefaults()
+    return
+
+
+def transport_capacity_factor(scenario: Scenario, source: Location, sink: Location, transport: Transport,
+                              fig_size: tuple = (12, 6), font_size: int = 16, color: str = 'blue',
+                              usetex: bool = False):
+    """generates a plot for varying transport capacity factor between locations
+
+    Args:
+        scenario (Scenario): scenario energiapy object
+        source (Location): location energiapy object
+        sink (Location): location energiapy object
+        transport (Transport): transport energiapy object
+        font_size (int, optional): font size. Defaults to 16.
+        fig_size (tuple, optional): figure size. Defaults to (12,6).
+        color (str, optional): color of plot. Defaults to 'blue'.
+        usetex (bool, optional): False, if using latex font, need Tex set up (prone to errors). Defaults to 'False'.
+    """
+    rc('font', **{'family': 'serif',
+                  'serif': ['Computer Modern'], 'size': font_size})
+    rc('text', usetex=False)
+    fig, ax = plt.subplots(figsize=fig_size)
+    y_ = list(
+        scenario.transport_capacity_factor[(source.name, sink.name)][transport.name].values()
+    )
+    x_ = list(range(len(y_)))
+    ax.plot(x_, y_, linewidth=0.5, color=color)
+    ax = axis_formatter(axes=ax, xcord=x_, axis_labels='M')
+    plt.title(f'Demand factor for {transport.label} from {source.label} to {sink.label}')
     plt.ylabel("Normalized revenue factor")
     plt.xlabel("Scheduling Horizon")
     plt.grid(alpha=0.3)
