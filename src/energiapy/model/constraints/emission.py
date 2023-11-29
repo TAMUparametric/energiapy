@@ -127,7 +127,28 @@ def constraint_global_warming_potential_material(instance: ConcreteModel, networ
     return instance.constraint_global_warming_potential_material
 
 
-def constraint_global_warming_potential_resource(instance: ConcreteModel, resource_gwp_dict: dict, network_scale_level: int = 0) -> Constraint:
+def constraint_global_warming_potential_resource_consumption(instance: ConcreteModel, resource_gwp_dict: dict, network_scale_level: int = 0) -> Constraint:
+    """Calculates the global warming potential from each resource consumed
+
+    Args:
+        instance (ConcreteModel): pyomo model instance
+        resource_gwp_dict (dict): GWP associated with each resource
+        network_scale_level (int, optional): scale for network decisions. Defaults to 0.
+
+    Returns:
+        Constraint: global_warming_potential_resource
+    """
+    scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
+
+    def global_warming_potential_resource_consumption_rule(instance, location, resource,  *scale_list):
+        return instance.global_warming_potential_resource_consumption[location, resource, scale_list] == resource_gwp_dict[location][resource]*instance.C_location[location, resource, scale_list] 
+    instance.constraint_global_warming_potential_resource_consumption = Constraint(
+        instance.locations, instance.resources_purch, *scales, rule=global_warming_potential_resource_consumption_rule, doc='global warming potential for the each resource consumed')
+    constraint_latex_render(global_warming_potential_resource_consumption_rule)
+    return instance.constraint_global_warming_potential_resource_consumption
+
+
+def constraint_global_warming_potential_resource_discharge(instance: ConcreteModel, resource_gwp_dict: dict, network_scale_level: int = 0) -> Constraint:
     """Calculates the global warming potential from each resource
 
     Args:
@@ -140,10 +161,44 @@ def constraint_global_warming_potential_resource(instance: ConcreteModel, resour
     """
     scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
 
+    def global_warming_potential_resource_discharge_rule(instance, location, resource,  *scale_list):
+        return instance.global_warming_potential_resource_discharge[location, resource, scale_list] == resource_gwp_dict[location][resource]*instance.S_location[location, resource, scale_list] 
+    instance.constraint_global_warming_potential_resource_discharge = Constraint(
+        instance.locations, instance.resources_sell, *scales, rule=global_warming_potential_resource_discharge_rule, doc='global warming potential for the each resource discharged')
+    constraint_latex_render(global_warming_potential_resource_discharge_rule)
+    return instance.constraint_global_warming_potential_resource_discharge
+
+
+def constraint_global_warming_potential_resource(instance: ConcreteModel, network_scale_level: int = 0) -> Constraint:
+    """Calculates the global warming potential from each resource
+
+    Args:
+        instance (ConcreteModel): pyomo model instance
+        network_scale_level (int, optional): scale for network decisions. Defaults to 0.
+
+    Returns:
+        Constraint: global_warming_potential_resource
+    """
+    scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
+
     def global_warming_potential_resource_rule(instance, location, resource,  *scale_list):
-        return instance.global_warming_potential_resource[location, resource, scale_list] == resource_gwp_dict[location][resource]*instance.C_location[location, resource, scale_list]
+        # if (resource in instance.resources_sell) or (resource in instance.resources_purch):
+        if resource in instance.resources_sell:
+            sales = instance.global_warming_potential_resource_discharge[location, resource, scale_list]
+        else:
+            sales = 0
+            
+        if resource in instance.resources_purch:
+            purch = instance.global_warming_potential_resource_consumption[location, resource, scale_list]
+        
+        else:
+            purch = 0
+        return instance.global_warming_potential_resource[location, resource, scale_list] == sales + purch
+
+        # else:
+        #     return Constraint.Skip
     instance.constraint_global_warming_potential_resource = Constraint(
-        instance.locations, instance.resources_purch, *scales, rule=global_warming_potential_resource_rule, doc='global warming potential for the each resource')
+        instance.locations, instance.resources, *scales, rule=global_warming_potential_resource_rule, doc='global warming potential for the each resource')
     constraint_latex_render(global_warming_potential_resource_rule)
     return instance.constraint_global_warming_potential_resource
 
@@ -164,7 +219,7 @@ def constraint_global_warming_potential_location(instance: ConcreteModel, networ
         gwp_process = sum(
             instance.global_warming_potential_process[location, process_, scale_list] for process_ in instance.processes)
         gwp_resource = sum(
-            instance.global_warming_potential_resource[location, resource_, scale_list] for resource_ in instance.resources_purch)
+            instance.global_warming_potential_resource[location, resource_, scale_list] for resource_ in instance.resources)
         gwp_material = sum(
             instance.global_warming_potential_material[location, material_, scale_list] for material_ in instance.processes_materials)
 
