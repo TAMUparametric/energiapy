@@ -58,6 +58,9 @@ from .constraints.emission import (
     constraint_global_warming_potential_network_reduction,
     constraint_global_warming_potential_process,
     constraint_global_warming_potential_resource,
+    constraint_global_warming_potential_resource_consumption,
+    constraint_global_warming_potential_resource_discharge
+    
 )
 from .constraints.failure import constraint_nameplate_production_failure
 from .constraints.inventory import (
@@ -398,6 +401,13 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
                 network_scale_level=scenario.network_scale_level)
 
             constraint_global_warming_potential_resource(
+                instance=instance, network_scale_level=scenario.network_scale_level)
+            
+            constraint_global_warming_potential_resource_consumption(
+                instance=instance, resource_gwp_dict=scenario.resource_gwp_dict,
+                network_scale_level=scenario.network_scale_level)
+            
+            constraint_global_warming_potential_resource_discharge(
                 instance=instance, resource_gwp_dict=scenario.resource_gwp_dict,
                 network_scale_level=scenario.network_scale_level)
 
