@@ -807,3 +807,4 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
                        'H': H, 'CRa': CRa, 'CRb': CRb, 'F': F, 'no_eq_cons': no_eq_cons}
 
         return matrix_dict
+
