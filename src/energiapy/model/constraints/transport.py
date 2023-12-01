@@ -306,7 +306,7 @@ def constraint_transport_capacity_UB_no_bin(instance: ConcreteModel, network_sca
     return instance.constraint_transport_capacity_UB_no_bin
 
 
-def constraint_transport_capex(instance: ConcreteModel, trans_capex: dict, distance_dict: dict, transport_avail_dict: dict, network_scale_level: int = 0):
+def constraint_transport_capex(instance: ConcreteModel, trans_capex: dict, distance_dict: dict, transport_avail_dict: dict, network_scale_level: int = 0, annualization_factor:float = 1):
     """_summary_
 
     Args:
@@ -315,7 +315,7 @@ def constraint_transport_capex(instance: ConcreteModel, trans_capex: dict, dista
         distance_dict (dict): _description_
         transport_avail_dict (dict): _description_
         network_scale_level (int, optional): _description_. Defaults to 0.
-
+        annualization_factor (float, optional): 
     Returns:
         _type_: _description_
     """
@@ -324,7 +324,7 @@ def constraint_transport_capex(instance: ConcreteModel, trans_capex: dict, dista
 
     def transport_capex_rule(instance, source, sink, transport, *scale_list):
         if transport in transport_avail_dict[(source, sink)]:
-            return instance.Capex_transport[source, sink, transport, scale_list[:network_scale_level + 1]] == distance_dict[(source, sink)]*trans_capex[transport]*instance.Cap_F[source, sink, transport, scale_list[:network_scale_level + 1]]
+            return instance.Capex_transport[source, sink, transport, scale_list[:network_scale_level + 1]] == annualization_factor*distance_dict[(source, sink)]*trans_capex[transport]*instance.Cap_F[source, sink, transport, scale_list[:network_scale_level + 1]]
         else:
             return instance.Capex_transport[source, sink, transport, scale_list[:network_scale_level + 1]] == 0
     instance.constraint_transport_capex = Constraint(

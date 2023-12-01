@@ -604,7 +604,7 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
                                   transport_capacity_factor=scenario.transport_capacity_factor, transport_capacity_scale_level=scenario.transport_capacity_scale_level)
 
                 constraint_transport_capex(instance=instance, trans_capex=scenario.trans_capex, distance_dict=scenario.distance_dict,
-                                           transport_avail_dict=scenario.transport_avail_dict, network_scale_level=scenario.network_scale_level)
+                                           transport_avail_dict=scenario.transport_avail_dict, network_scale_level=scenario.network_scale_level, annualization_factor=scenario.annualization_factor)
 
                 constraint_transport_network_capex(
                     instance=instance, network_scale_level=scenario.network_scale_level)
