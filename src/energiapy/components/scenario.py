@@ -301,6 +301,16 @@ class Scenario:
 
         self.storage_cost_dict = {
             i.name: i.storage_cost_dict for i in self.location_set}
+
+        process_material_modes = []
+        for i in self.process_set:
+            if i.material_cons is not None:
+                process_material_modes = process_material_modes + [(i.name, j) for j in list(i.material_cons.keys())]
+
+        self.process_material_modes = process_material_modes
+
+        self.process_material_modes_dict = {i.name: i.material_modes for i in self.process_set}
+
         self.set_dict = {
             'resources': [i.name for i in self.resource_set],
 
@@ -425,6 +435,37 @@ class Scenario:
         else:
             self.set_dict['transports'] = []
             self.set_dict['resources_trans'] = []
+
+        if isinstance(self.network, Network):
+            transport_set_dict = {
+                'transports_certain_capacity': [i.name for i in self.transport_set if
+                                                VaryingTransport.CERTAIN_CAPACITY in i.varying],
+                'transports_certain_capex': [i.name for i in self.transport_set if
+                                             VaryingTransport.CERTAIN_CAPEX in i.varying],
+                'transports_certain_vopex': [i.name for i in self.transport_set if
+                                             VaryingTransport.CERTAIN_VOPEX in i.varying],
+                'transports_certain_fopex': [i.name for i in self.transport_set if
+                                             VaryingTransport.CERTAIN_FOPEX in i.varying],
+
+                'transports_uncertain_capacity': [i.name for i in self.transport_set if
+                                                  VaryingTransport.UNCERTAIN_CAPACITY in i.varying],
+                'transports_uncertain_capex': [i.name for i in self.transport_set if
+                                               VaryingTransport.UNCERTAIN_CAPEX in i.varying],
+                'transports_uncertain_vopex': [i.name for i in self.transport_set if
+                                               VaryingTransport.UNCERTAIN_VOPEX in i.varying],
+                'transports_uncertain_fopex': [i.name for i in self.transport_set if
+                                               VaryingTransport.UNCERTAIN_FOPEX in i.varying],
+
+                'transports_varying_capacity': [i.name for i in self.transport_set if
+                                                VaryingTransport.DETERMINISTIC_CAPACITY in i.varying],
+                'transports_varying_capex': [i.name for i in self.transport_set if
+                                             VaryingTransport.DETERMINISTIC_CAPEX in i.varying],
+                'transports_varying_vopex': [i.name for i in self.transport_set if
+                                             VaryingTransport.DETERMINISTIC_VOPEX in i.varying],
+                'transports_varying_fopex': [i.name for i in self.transport_set if
+                                             VaryingTransport.DETERMINISTIC_FOPEX in i.varying],
+            }
+            self.set_dict = {**self.set_dict, **transport_set_dict}
 
         self.set_dict = {x: sorted(self.set_dict[x]) for x in self.set_dict.keys()}
 
