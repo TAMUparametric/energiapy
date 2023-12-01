@@ -118,7 +118,9 @@ from .constraints.transport import (
     constraint_transport_vopex,
     constraint_transport_network_vopex,
     constraint_transport_fopex,
-    constraint_transport_network_fopex
+    constraint_transport_network_fopex,
+    constraint_transport_capacity_UB_no_bin,
+    constraint_transport_capacity_LB_no_bin
 )
 from .constraints.uncertain import (
     constraint_uncertain_process_capacity,
@@ -575,10 +577,6 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
                 constraint_export(instance=instance, scheduling_scale_level=scenario.scheduling_scale_level,
                                   network_scale_level=scenario.network_scale_level, location_transport_resource_dict=scenario.location_transport_resource_dict,
                                   transport_capacity_factor=scenario.transport_capacity_factor, transport_capacity_scale_level=scenario.transport_capacity_scale_level)
-                constraint_transport_capacity_UB(instance=instance, network_scale_level=scenario.network_scale_level,
-                                                 transport_avail_dict=scenario.transport_avail_dict, trans_max=scenario.trans_max)
-                constraint_transport_capacity_LB(instance=instance, network_scale_level=scenario.network_scale_level,
-                                                 transport_avail_dict=scenario.transport_avail_dict, trans_min=scenario.trans_min)
 
                 constraint_transport_capex(instance=instance, trans_capex=scenario.trans_capex, distance_dict=scenario.distance_dict,
                                            transport_avail_dict=scenario.transport_avail_dict, network_scale_level=scenario.network_scale_level)
@@ -597,6 +595,11 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
                                            transport_avail_dict=scenario.transport_avail_dict, network_scale_level=scenario.network_scale_level)
                 constraint_transport_network_fopex(
                     instance=instance, network_scale_level=scenario.network_scale_level)
+                
+                constraint_transport_capacity_UB_no_bin(instance=instance, network_scale_level=scenario.network_scale_level,
+                                                 transport_avail_dict=scenario.transport_avail_dict, trans_max=scenario.trans_max)
+                constraint_transport_capacity_LB_no_bin(instance=instance, network_scale_level=scenario.network_scale_level,
+                                                 transport_avail_dict=scenario.transport_avail_dict, trans_min=scenario.trans_min)
                 # constraint_transport_import(instance=instance, scheduling_scale_level=scenario.scheduling_scale_level,
                 #                             transport_avail_dict=scenario.transport_avail_dict)
                 # constraint_transport_exp_UB(instance=instance, scheduling_scale_level=scenario.scheduling_scale_level,
@@ -639,7 +642,16 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
 
             instance.del_component(instance.constraint_storage_min)
             instance.del_component(instance.constraint_production_min)
+            
+            
+            if len(scenario.location_set) > 1:
+                constraint_transport_capacity_UB(instance=instance, network_scale_level=scenario.network_scale_level,
+                                                 transport_avail_dict=scenario.transport_avail_dict, trans_max=scenario.trans_max)
+                constraint_transport_capacity_LB(instance=instance, network_scale_level=scenario.network_scale_level,
+                                                 transport_avail_dict=scenario.transport_avail_dict, trans_min=scenario.trans_min)
 
+                instance.del_component(instance.constraint_transport_capacity_UB_no_bin)
+                instance.del_component(instance.constraint_transport_capacity_LB_no_bin)
         if Constraints.PRESERVE_NETWORK in constraints:
 
             constraint_preserve_capacity_facility(
