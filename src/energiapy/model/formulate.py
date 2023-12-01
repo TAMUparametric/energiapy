@@ -571,7 +571,41 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
                 constraint_global_warming_potential_material_mode(instance=instance, material_gwp_dict=scenario.material_gwp_dict,
                                                                   process_material_mode_material_dict=scenario.process_material_mode_material_dict,
                                                                   network_scale_level=scenario.network_scale_level)
+                
+                constraint_ozone_depletion_potential_material(
+                    instance=instance, network_scale_level=scenario.network_scale_level)
 
+                constraint_ozone_depletion_potential_material_mode(instance=instance, material_odp_dict=scenario.material_odp_dict,
+                                                                  process_material_mode_material_dict=scenario.process_material_mode_material_dict,
+                                                                  network_scale_level=scenario.network_scale_level)
+                
+                constraint_acidification_potential_material(
+                    instance=instance, network_scale_level=scenario.network_scale_level)
+
+                constraint_acidification_potential_material_mode(instance=instance, material_acid_dict=scenario.material_acid_dict,
+                                                                  process_material_mode_material_dict=scenario.process_material_mode_material_dict,
+                                                                  network_scale_level=scenario.network_scale_level)
+                
+                constraint_terrestrial_eutrophication_potential_material(
+                    instance=instance, network_scale_level=scenario.network_scale_level)
+
+                constraint_terrestrial_eutrophication_potential_material_mode(instance=instance, material_eutt_dict=scenario.material_eutt_dict,
+                                                                  process_material_mode_material_dict=scenario.process_material_mode_material_dict,
+                                                                  network_scale_level=scenario.network_scale_level)
+                
+                constraint_freshwater_eutrophication_potential_material(
+                    instance=instance, network_scale_level=scenario.network_scale_level)
+
+                constraint_freshwater_eutrophication_potential_material_mode(instance=instance, material_eutf_dict=scenario.material_eutf_dict,
+                                                                  process_material_mode_material_dict=scenario.process_material_mode_material_dict,
+                                                                  network_scale_level=scenario.network_scale_level)
+
+                constraint_marine_eutrophication_potential_material(
+                    instance=instance, network_scale_level=scenario.network_scale_level)
+
+                constraint_marine_eutrophication_potential_material_mode(instance=instance, material_eutm_dict=scenario.material_eutm_dict,
+                                                                  process_material_mode_material_dict=scenario.process_material_mode_material_dict,
+                                                                  network_scale_level=scenario.network_scale_level)
         if Constraints.FAILURE in constraints:
             constraint_nameplate_production_failure(instance=instance, fail_factor=scenario.fail_factor,
                                                     network_scale_level=scenario.network_scale_level,
