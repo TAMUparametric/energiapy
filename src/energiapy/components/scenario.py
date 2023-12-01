@@ -247,10 +247,40 @@ class Scenario:
         self.land_dict = {i.name: i.land for i in self.process_set}
         self.material_gwp_dict = {
             i.name: {j.name: j.gwp for j in self.material_set} for i in self.location_set}
+        self.material_odp_dict = {
+            i.name: {j.name: j.odp for j in self.material_set} for i in self.location_set}
+        self.material_acid_dict = {
+            i.name: {j.name: j.acid for j in self.material_set} for i in self.location_set}
+        self.material_eutt_dict = {
+            i.name: {j.name: j.eutt for j in self.material_set} for i in self.location_set}
+        self.material_eutf_dict = {
+            i.name: {j.name: j.eutf for j in self.material_set} for i in self.location_set}
+        self.material_eutm_dict = {
+            i.name: {j.name: j.eutm for j in self.material_set} for i in self.location_set}
         self.resource_gwp_dict = {
             i.name: {j.name: j.gwp for j in self.resource_set} for i in self.location_set}
+        self.resource_odp_dict = {
+            i.name: {j.name: j.odp for j in self.resource_set} for i in self.location_set}
+        self.resource_acid_dict = {
+            i.name: {j.name: j.acid for j in self.resource_set} for i in self.location_set}
+        self.resource_eutt_dict = {
+            i.name: {j.name: j.eutt for j in self.resource_set} for i in self.location_set}
+        self.resource_eutf_dict = {
+            i.name: {j.name: j.eutf for j in self.resource_set} for i in self.location_set}
+        self.resource_eutm_dict = {
+            i.name: {j.name: j.eutm for j in self.resource_set} for i in self.location_set}
         self.process_gwp_dict = {
             i.name: {j.name: j.gwp for j in self.process_set} for i in self.location_set}
+        self.process_odp_dict = {
+            i.name: {j.name: j.odp for j in self.process_set} for i in self.location_set}
+        self.process_acid_dict = {
+            i.name: {j.name: j.acid for j in self.process_set} for i in self.location_set}
+        self.process_eutt_dict = {
+            i.name: {j.name: j.eutt for j in self.process_set} for i in self.location_set}
+        self.process_eutf_dict = {
+            i.name: {j.name: j.eutf for j in self.process_set} for i in self.location_set}
+        self.process_eutm_dict = {
+            i.name: {j.name: j.eutm for j in self.process_set} for i in self.location_set}
         self.land_cost_dict = {i.name: i.land_cost for i in self.location_set}
         self.fail_factor = {i.name: i.fail_factor for i in self.location_set}
         self.credit_dict = {i.name: {j.name: i.credit[j] for j in i.credit.keys(

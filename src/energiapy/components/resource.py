@@ -94,6 +94,11 @@ class Resource:
         varying (bool, optional): If the cost of resource is varying/uncertain. Defaults to False.
         label (str, optional): Longer descriptive label if required. Defaults to ''.
         gwp (float, optional): Global Warming Potential per unit consumption of resource. Defaults to 0.
+        odp (float, optional): ozone depletion potential per unit basis of Resource produced. Defaults to 0.
+        acid (float, optional): acidification potential per unit basis of Resource produced. Defaults to 0.
+        eutt (float, optional): terrestrial eutrophication potential per unit basis of Resource produced. Defaults to 0.
+        eutf (float, optional): fresh water eutrophication potential per unit basis of Resource produced. Defaults to 0.
+        eutm (float, optional): marine eutrophication potential per unit basis of Resource produced. Defaults to 0.
         varying_bounds (float, optional): bounds for the variability in case of uncertain (for parametric formulation). Defaults to (0,1)
 
 
@@ -126,6 +131,11 @@ class Resource:
     varying: List[VaryingResource] = None
     label: str = ''
     gwp: float = 0
+    odp: float = 0
+    acid: float = 0
+    eutt: float = 0
+    eutf: float = 0
+    eutm: float = 0
     varying_bounds: Tuple[float] = (0, 1)
     # emissions: (Dict[Emission, float]) = None
 
