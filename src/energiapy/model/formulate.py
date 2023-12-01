@@ -53,10 +53,14 @@ from .constraints.cost import (
 from .constraints.emission import (
     constraint_global_warming_potential_location,
     constraint_global_warming_potential_material,
+    constraint_global_warming_potential_material_mode,
     constraint_global_warming_potential_network,
     constraint_global_warming_potential_network_reduction,
     constraint_global_warming_potential_process,
     constraint_global_warming_potential_resource,
+    constraint_global_warming_potential_resource_consumption,
+    constraint_global_warming_potential_resource_discharge
+    
 )
 from .constraints.failure import constraint_nameplate_production_failure
 from .constraints.inventory import (
@@ -84,6 +88,7 @@ from .constraints.production import (
     constraint_nameplate_production,
     constraint_production_max,
     constraint_production_min,
+    constraint_nameplate_production_material_mode
 )
 from .constraints.resource_balance import (
     constraint_inventory_balance,
@@ -94,7 +99,9 @@ from .constraints.resource_balance import (
     constraint_network_discharge,
     constraint_network_production,
     constraint_resource_consumption,
-    constraint_inventory_network
+    constraint_inventory_network,
+    constraint_location_production_material_mode,
+    constraint_location_production_material_mode_sum
 )
 
 from .constraints.demand import (
@@ -142,7 +149,12 @@ from .constraints.credit import (
 from .constraints.material import (
     constraint_material_process,
     constraint_material_location,
-    constraint_material_network
+    constraint_material_network,
+    constraint_production_facility_material_mode_binary,
+    constraint_production_facility_material_mode,
+    constraint_production_facility_material,
+    constraint_min_production_facility_material,
+    constraint_material_mode_process
 )
 from .objectives import (
     objective_cost,
@@ -286,6 +298,9 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
             instance=instance, scale_level=scenario.network_scale_level)
         generate_costing_vars(instance=instance)
 
+        generate_material_vars(
+            instance=instance, scale_level=scenario.network_scale_level)
+
         if Constraints.UNCERTAIN in constraints:
             generate_uncertainty_vars(
                 instance=instance, scale_level=scenario.scheduling_scale_level)
@@ -388,6 +403,13 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
                 network_scale_level=scenario.network_scale_level)
 
             constraint_global_warming_potential_resource(
+                instance=instance, network_scale_level=scenario.network_scale_level)
+            
+            constraint_global_warming_potential_resource_consumption(
+                instance=instance, resource_gwp_dict=scenario.resource_gwp_dict,
+                network_scale_level=scenario.network_scale_level)
+            
+            constraint_global_warming_potential_resource_discharge(
                 instance=instance, resource_gwp_dict=scenario.resource_gwp_dict,
                 network_scale_level=scenario.network_scale_level)
 
@@ -400,8 +422,11 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
             if Constraints.MATERIAL in constraints:
 
                 constraint_global_warming_potential_material(
-                    instance=instance, material_gwp_dict=scenario.material_gwp_dict,
-                    process_material_dict=scenario.process_material_dict, network_scale_level=scenario.network_scale_level)
+                    instance=instance, network_scale_level=scenario.network_scale_level)
+
+                constraint_global_warming_potential_material_mode(instance=instance, material_gwp_dict=scenario.material_gwp_dict,
+                                                                  process_material_mode_material_dict=scenario.process_material_mode_material_dict,
+                                                                  network_scale_level=scenario.network_scale_level)
 
         if Constraints.FAILURE in constraints:
             constraint_nameplate_production_failure(instance=instance, fail_factor=scenario.fail_factor,
@@ -678,8 +703,6 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
                 instance=instance, mode_dict=scenario.mode_dict, scheduling_scale_level=scenario.scheduling_scale_level)
 
         if Constraints.MATERIAL in constraints:
-            generate_material_vars(
-                instance=instance, scale_level=scenario.network_scale_level)
 
             constraint_material_process(
                 instance=instance, process_material_dict=scenario.process_material_dict, network_scale_level=scenario.network_scale_level)
@@ -687,6 +710,26 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
                 instance=instance, network_scale_level=scenario.network_scale_level)
             constraint_material_network(
                 instance=instance, network_scale_level=scenario.network_scale_level)
+            constraint_production_facility_material_mode(
+                instance=instance, network_scale_level=scenario.network_scale_level, location_process_dict=scenario.location_process_dict)
+            constraint_production_facility_material_mode_binary(
+                instance=instance, network_scale_level=scenario.network_scale_level, location_process_dict=scenario.location_process_dict)
+
+            constraint_production_facility_material(instance=instance, prod_max=scenario.prod_max, location_process_dict=scenario.location_process_dict,
+                                                    network_scale_level=scenario.network_scale_level, process_material_modes_dict=scenario.process_material_modes_dict)
+            constraint_min_production_facility_material(instance=instance, prod_min=scenario.prod_min, location_process_dict=scenario.location_process_dict,
+                                                        network_scale_level=scenario.network_scale_level, process_material_modes_dict=scenario.process_material_modes_dict)
+            constraint_material_mode_process(
+                instance=instance, process_material_mode_material_dict=scenario.process_material_mode_material_dict, network_scale_level=scenario.network_scale_level)
+
+            constraint_nameplate_production_material_mode(instance=instance, capacity_factor=scenario.capacity_factor, location_process_dict=scenario.location_process_dict,
+                                                          network_scale_level=scenario.network_scale_level, scheduling_scale_level=scenario.scheduling_scale_level)
+
+            constraint_location_production_material_mode(instance=instance, cluster_wt=scenario.cluster_wt,
+                                                         network_scale_level=scenario.network_scale_level, scheduling_scale_level=scenario.scheduling_scale_level)
+
+            constraint_location_production_material_mode_sum(
+                instance=instance, network_scale_level=scenario.network_scale_level,  process_material_mode_material_dict=scenario.process_material_mode_material_dict)
 
         if gwp is not None:
             constraint_global_warming_potential_network_reduction(
@@ -786,3 +829,4 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
                        'H': H, 'CRa': CRa, 'CRb': CRb, 'F': F, 'no_eq_cons': no_eq_cons}
 
         return matrix_dict
+

@@ -51,6 +51,19 @@ class ProcessMode(Enum):
     Storage type process
     """
 
+class MaterialMode(Enum):
+    """
+    Mode for materials 
+    """
+    SINGLE = auto()
+    """
+    Allows only single material 
+    """
+    MULTI = auto()
+    """
+    Can use multiple material combinations 
+    """
+
 
 class VaryingProcess(Enum):
     """
@@ -85,7 +98,6 @@ class VaryingProcess(Enum):
     Has multiple modes of operation
     """
 
-
 @dataclass
 class Process:
     """
@@ -93,14 +105,14 @@ class Process:
 
     Args:
         name (str): name of process, short ones are better to deal with.
-        conversion (Union[Dict[int,Dict[Resource, float]], Dict[Resource, float]], optional): conversion data (Dict[Resource, float]]), if multimode the of form Dict[int,Dict[Resource, float]]. Defaults to None.
+        conversion (Union[Dict[Union[int, str],Dict[Resource, float]], Dict[Resource, float]], optional): conversion data (Dict[Resource, float]]), if multimode the of form Dict[int,Dict[Resource, float]]. Defaults to None.
         introduce (int, optional): Time period in the network scale when introduced. Defaults to 0.
         retire (int, optional): Time period in the network scale when retired. Defaults to None.
         capex (Union[float, dict], None): Capital expenditure per unit basis, can be scaled with capacity. Defaults to None.
         fopex (Union[float, dict], None): Fixed operational expenditure per unit basis, can be scaled with capacity. Defaults to None.
         vopex (Union[float, dict], None): Variable operational expenditure per unit basis, can be scaled with capacity. Defaults to None.
         incidental (float, None): Incidental expenditure. Defaults to None.
-        material_cons (Dict[Material, float], optional): Materials consumed per unit basis of production capacity. Defaults to None.
+        material_cons (Union[Dict[Union[int, str], Dict[Material, float]],Dict[Material, float]], optional): Materials consumed per unit basis of production capacity. Defaults to None.
         prod_max (float, optional): Maximum production capacity allowed in a time period of the scheduling scale. Defaults to 0.
         prod_min (float, optional): Minimum production capacity allowed in a time period of the scheduling scale. Defaults to 0.
         credit (float, None): credit earned per unit basis of production. Defaults to None.
@@ -140,13 +152,13 @@ class Process:
     name: str
     introduce: int = 0
     retire: int = None
-    conversion: Union[Dict[int, Dict[Resource, float]],
+    conversion: Union[Dict[Union[int, str], Dict[Resource, float]],
                       Dict[Resource, float]] = None
     capex: Union[float, dict] = 0
     fopex: Union[float, dict] = 0
     vopex: Union[float, dict] = 0
     incidental: Union[float, dict] = 0
-    material_cons: Dict[Material, float] = None
+    material_cons: Union[Dict[Union[int, str], Dict[Material, float]],Dict[Material, float]] = None
     prod_max: Union[Dict[int, float], float] = 0
     prod_min: float = 0
     basis: str = 'unit'
@@ -168,6 +180,8 @@ class Process:
     varying_bounds: Tuple[float] = (0, 1)
     mode_ramp: Dict[tuple, int] = None
     storage_cost: float = 0
+    processmode: ProcessMode = None
+    materialmode: MaterialMode = None
 
     def __post_init__(self):
         """Determines the ProcessMode, CostDynamics, and kicks out dummy resources if process is stores resource
@@ -191,12 +205,10 @@ class Process:
                 if self.prod_max > 0:
                     self.varying = self.varying + \
                         [VaryingProcess.CERTAIN_CAPACITY]
-
+                        
         if not isinstance(self.varying, list):
             warn('Provide a list of VaryingProcess enums')
 
-        if self.material_cons is None:
-            self.material_cons = {}
 
         if self.storage is not None:
             self.resource_storage = create_storage_resource(
@@ -210,10 +222,18 @@ class Process:
         else:
             self.conversion_discharge = None
             self.resource_storage = None
-            if isinstance(list(self.conversion.keys())[0], int):
+            if isinstance(list(self.conversion.keys())[0], (int, str)):
                 self.processmode = ProcessMode.MULTI
             else:
                 self.processmode = ProcessMode.SINGLE
+                
+        if self.material_cons is not None:                
+            if isinstance(list(self.material_cons.keys())[0], (int, str)):
+                self.materialmode = MaterialMode.MULTI
+            else:
+                self.materialmode = MaterialMode.SINGLE  
+        else:
+            self.material_cons = {} 
 
         if isinstance(self.capex, (int, float)):
             self.cost_dynamics = CostDynamics.CONSTANT
@@ -221,21 +241,26 @@ class Process:
             # Capex dictionaries are only provided for piece-wise linear cost functions
             self.cost_dynamics = CostDynamics.PWL
 
-        if self.processmode is ProcessMode.MULTI:
-            self.resource_req = {
-                i.name for i in self.conversion[list(self.conversion.keys())[0]].keys()}  # the required resources are drawn from the conversion dict, this includes stored resource
+        if (self.processmode is ProcessMode.MULTI) or (self.materialmode is MaterialMode.MULTI):
+            if self.processmode is ProcessMode.STORAGE:
+                self.resource_req = {i.name for i in self.conversion.keys()}
+            else:    
+                self.resource_req = {
+                    i.name for i in self.conversion[list(self.conversion.keys())[0]].keys()}  # the required resources are drawn from the conversion dict, this includes stored resource
         else:
             self.resource_req = {i.name for i in self.conversion.keys()}
 
         if self.processmode == ProcessMode.MULTI:
-            if list(self.prod_max.keys()) != list(self.conversion.keys()):
-                warn(
-                    'The keys for prod_max and conversion need to match if ProcessMode.multi')
+            if isinstance(self.prod_max, dict):
+                if list(self.prod_max.keys()) != list(self.conversion.keys()):
+                    warn(
+                        'The keys for prod_max and conversion need to match if ProcessMode.multi')
 
         if self.cost_dynamics == CostDynamics.PWL:
             self.capacity_segments = list(self.capex.keys())
             self.capex_segements = list(self.capex.values())
-
+        
+        self.material_modes = set(self.material_cons.keys())
         # self.emission_dict = {i: i.emissions for i in self.conversion.keys()}
 
     def __repr__(self):

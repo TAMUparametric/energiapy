@@ -55,5 +55,5 @@ def solar_power_output(data: pandas.DataFrame, coord: tuple, sam: str = 'cecmod'
     mc.run_model(weather=data)
     output = pandas.DataFrame(numpy.maximum(0, numpy.nan_to_num(
         numpy.array(mc.results.ac))), index=data.index)
-    output.columns = ['PV_Power']
+    output.columns = ['Value']
     return output

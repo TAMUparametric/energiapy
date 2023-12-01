@@ -35,9 +35,15 @@ def generate_emission_vars(instance: ConcreteModel, scale_level: int = 0):
         instance.scales_emission_network, within=NonNegativeReals, doc='global warming potential caused at network scale')
     instance.global_warming_potential_process = Var(
         instance.locations, instance.processes, instance.scales_emission_network, within=NonNegativeReals, doc='global warming potential caused by each process')
+    instance.global_warming_potential_resource_consumption = Var(
+        instance.locations, instance.resources_purch, instance.scales_emission_network, within=NonNegativeReals, doc='global warming potential caused by each resource at consumption')
+    instance.global_warming_potential_resource_discharge = Var(
+        instance.locations, instance.resources_sell, instance.scales_emission_network, within=NonNegativeReals, doc='global warming potential caused by each resource at consumption')
     instance.global_warming_potential_resource = Var(
-        instance.locations, instance.resources_purch, instance.scales_emission_network, within=NonNegativeReals, doc='global warming potential caused by each resource')
+        instance.locations, instance.resources, instance.scales_emission_network, within=NonNegativeReals, doc='global warming potential caused by each resource')
     instance.global_warming_potential_material = Var(instance.locations, instance.processes_materials,
                                                      instance.scales_emission_network, within=NonNegativeReals, doc='global warming potential caused by each material')
+    instance.global_warming_potential_material_mode = Var(instance.locations, instance.processes_materials, instance.material_modes,
+                                                          instance.scales_emission_network, within=NonNegativeReals, doc='global warming potential caused by each material')
 
     return
