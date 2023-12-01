@@ -306,10 +306,9 @@ class Scenario:
         for i in self.process_set:
             if i.material_cons is not None:
                 process_material_modes = process_material_modes + [(i.name, j) for j in list(i.material_cons.keys())]
-
-        self.process_material_modes = process_material_modes
-
-        self.process_material_modes_dict = {i.name: i.material_modes for i in self.process_set}
+                if i.material_cons != {}:
+                    self.process_material_modes = process_material_modes
+                    self.process_material_modes_dict = {i.name: i.material_modes for i in self.process_set}
 
         self.set_dict = {
             'resources': [i.name for i in self.resource_set],

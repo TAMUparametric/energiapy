@@ -60,13 +60,18 @@ def objective_cost(instance: ConcreteModel, constraints: Set[Constraints], netwo
             credit = 0
 
         if len(instance.locations) > 1:
-            cost_trans = sum(
-                instance.Capex_transport_network[scale_] for scale_ in scale_iter) + sum(
-                instance.Vopex_transport_network[scale_] for scale_ in scale_iter) + sum(
+            cost_trans_capex = sum(
+                instance.Capex_transport_network[scale_] for scale_ in scale_iter)
+            cost_trans_vopex = sum(
+                instance.Vopex_transport_network[scale_] for scale_ in scale_iter)
+            cost_trans_fopex = sum(
                 instance.Fopex_transport_network[scale_] for scale_ in scale_iter)
         else:
-            cost_trans = 0
-        return annualization_factor*capex + vopex + fopex + cost_purch + cost_trans + incidental + land_cost - credit + storage_cost
+            cost_trans_capex = 0
+            cost_trans_vopex = 0
+            cost_trans_fopex = 0
+
+        return annualization_factor*(capex + cost_trans_capex ) + vopex + fopex + cost_purch + cost_trans_vopex + cost_trans_fopex + incidental + land_cost - credit + storage_cost
 
     instance.objective_cost = Objective(
         rule=objective_cost_rule, doc='total cost')
@@ -116,16 +121,20 @@ def objective_cost_w_demand_penalty(instance: ConcreteModel, demand_penalty: Dic
             credit = 0
 
         if len(instance.locations) > 1:
-            cost_trans = sum(
-                instance.Capex_transport_network[scale_] for scale_ in scale_iter) + sum(
-                instance.Vopex_transport_network[scale_] for scale_ in scale_iter) + sum(
+            cost_trans_capex = sum(
+                instance.Capex_transport_network[scale_] for scale_ in scale_iter)
+            cost_trans_vopex = sum(
+                instance.Vopex_transport_network[scale_] for scale_ in scale_iter)
+            cost_trans_fopex = sum(
                 instance.Fopex_transport_network[scale_] for scale_ in scale_iter)
         else:
-            cost_trans = 0
+            cost_trans_capex = 0
+            cost_trans_vopex = 0
+            cost_trans_fopex = 0
 
         penalty = sum(demand_penalty[location_][resource_]*instance.Demand_penalty[location_, resource_, scale_] for location_, resource_, scale_ in product(
             instance.locations, instance.resources_demand, scale_iter_penalty))
-        return annualization_factor*capex + vopex + fopex + cost_purch + cost_trans + incidental + land_cost - credit + penalty
+        return annualization_factor*(capex + cost_trans_capex) + vopex + fopex + cost_purch + cost_trans_vopex + cost_trans_fopex + incidental + land_cost - credit + penalty
     instance.objective_cost_w_demand_penalty = Objective(
         rule=objective_cost_w_demand_penalty_rule, doc='total cost with penalty for demand')
     constraint_latex_render(objective_cost_w_demand_penalty_rule)
@@ -159,13 +168,17 @@ def objective_uncertainty_cost(instance: ConcreteModel, penalty: float, network_
         cap_penalty = penalty * sum(instance.Demand_slack[location_, scale_] for location_, scale_ in
                                     product(instance.locations, scale_iter_uncertainty))
         if len(instance.locations) > 1:
-            cost_trans = sum(
-                instance.Capex_transport_network[scale_] for scale_ in scale_iter) + sum(
-                instance.Vopex_transport_network[scale_] for scale_ in scale_iter) + sum(
+            cost_trans_capex = sum(
+                instance.Capex_transport_network[scale_] for scale_ in scale_iter)
+            cost_trans_vopex = sum(
+                instance.Vopex_transport_network[scale_] for scale_ in scale_iter)
+            cost_trans_fopex = sum(
                 instance.Fopex_transport_network[scale_] for scale_ in scale_iter)
         else:
-            cost_trans = 0
-        return annualization_factor*capex + vopex + fopex + cost_purch + cost_trans + cap_penalty
+            cost_trans_capex = 0
+            cost_trans_vopex = 0
+            cost_trans_fopex = 0
+        return annualization_factor*(capex + cost_trans_capex ) + vopex + fopex + cost_purch + cost_trans_vopex + cost_trans_fopex + cap_penalty
 
     instance.uncertainty_cost_objective = Objective(rule=uncertainty_cost_objective_rule,
                                                     doc='total purchase from network')
@@ -194,7 +207,7 @@ def objective_uncertainty_cost(instance: ConcreteModel, penalty: float, network_
 #     return instance.demand_objective
 
 
-def objective_discharge_min(instance: ConcreteModel, resource: Resource, network_scale_level: int = 0 ) -> Objective:
+def objective_discharge_min(instance: ConcreteModel, resource: Resource, network_scale_level: int = 0, ) -> Objective:
     """Minimize discharge of a particular resource
 
     Args:
@@ -216,7 +229,7 @@ def objective_discharge_min(instance: ConcreteModel, resource: Resource, network
     return instance.objective_discharge_min
 
 
-def objective_discharge_max(instance: ConcreteModel, resource: Resource, network_scale_level: int = 0 ) -> Objective:
+def objective_discharge_max(instance: ConcreteModel, resource: Resource, network_scale_level: int = 0, ) -> Objective:
     """Maximize discharge of a particular resource
 
     Args:
@@ -236,25 +249,6 @@ def objective_discharge_max(instance: ConcreteModel, resource: Resource, network
         rule=objective_discharge_max_rule, sense=maximize, doc='maximize total discharge from specific_network')
     constraint_latex_render(objective_discharge_max_rule)
     return instance.objective_discharge_max
-
-# def objective_max_service_level(instance: ConcreteModel, resource: Resource, scheduling_scale_level: int = 0) -> Objective:
-#     """
-#     Maximize the minimum guaranteed discharge of a particular resource over the scheduling scale
-#
-#     Args:
-#         instance (ConcreteModel): pyomo instance
-#         resource: Resource for which service level has to be maximized
-#         scheduling_scale_level (int, optional): scale of scheduling decisions. Defaults to 0
-#     """
-#     scale_iter = scale_tuple(instance=instance, scale_levels=scheduling_scale_level+1)
-#
-#     def objective_max_service_level_rule(instance, *scale_list):
-#         return min(instance.S[resource.name, scale_] for scale_ in scale_iter)
-#
-#     instance.objective_max_service_level = Objective(rule=objective_max_service_level_rule, sense=maximize,
-#                                                          doc='maximize minimum guaranteed discharge over the scheduling scale')
-#     constraint_latex_render(objective_max_service_level_rule)
-#     return instance.objective_max_service_level
 
 
 def objective_profit(instance: ConcreteModel, constraints: Set[Constraints], network_scale_level: int = 0, annualization_factor: float = 1) -> Objective:
@@ -298,13 +292,17 @@ def objective_profit(instance: ConcreteModel, constraints: Set[Constraints], net
             credit = 0
 
         if len(instance.locations) > 1:
-            cost_trans = sum(
-                instance.Capex_transport_network[scale_] for scale_ in scale_iter) + sum(
-                instance.Vopex_transport_network[scale_] for scale_ in scale_iter) + sum(
+            cost_trans_capex = sum(
+                instance.Capex_transport_network[scale_] for scale_ in scale_iter)
+            cost_trans_vopex = sum(
+                instance.Vopex_transport_network[scale_] for scale_ in scale_iter)
+            cost_trans_fopex = sum(
                 instance.Fopex_transport_network[scale_] for scale_ in scale_iter)
         else:
-            cost_trans = 0
-        return -(annualization_factor*capex + vopex + fopex + cost_purch + cost_trans + incidental + land_cost) + credit + revenue
+            cost_trans_capex = 0
+            cost_trans_vopex = 0
+            cost_trans_fopex = 0
+        return -(annualization_factor*(capex + cost_trans_capex ) + vopex + fopex + cost_purch + cost_trans_vopex + cost_trans_fopex + incidental + land_cost) + credit + revenue
 
     instance.objective_profit = Objective(
         rule=objective_profit_rule, sense=maximize, doc='total profit')
@@ -355,16 +353,20 @@ def objective_profit_w_demand_penalty(instance: ConcreteModel, demand_penalty: D
             credit = 0
 
         if len(instance.locations) > 1:
-            cost_trans = sum(
-                instance.Capex_transport_network[scale_] for scale_ in scale_iter) + sum(
-                instance.Vopex_transport_network[scale_] for scale_ in scale_iter) + sum(
+            cost_trans_capex = sum(
+                instance.Capex_transport_network[scale_] for scale_ in scale_iter)
+            cost_trans_vopex = sum(
+                instance.Vopex_transport_network[scale_] for scale_ in scale_iter)
+            cost_trans_fopex = sum(
                 instance.Fopex_transport_network[scale_] for scale_ in scale_iter)
         else:
-            cost_trans = 0
+            cost_trans_capex = 0
+            cost_trans_vopex = 0
+            cost_trans_fopex = 0
 
         penalty = sum(demand_penalty[location_][resource_]*instance.Demand_penalty[location_, resource_, scale_] for location_, resource_, scale_ in product(
             instance.locations, instance.resources_demand, scale_iter_penalty))
-        return -(annualization_factor*capex + vopex + fopex + cost_purch + cost_trans + incidental + land_cost + penalty) + credit + revenue
+        return -(annualization_factor*(capex + cost_trans_capex ) + vopex + fopex + cost_purch + cost_trans_vopex + cost_trans_fopex + incidental + land_cost + penalty) + credit + revenue
 
     instance.objective_profit_w_demand_penalty = Objective(
         rule=objective_profit_w_demand_penalty_rule, sense=maximize, doc='total profit w demand_penalty')
