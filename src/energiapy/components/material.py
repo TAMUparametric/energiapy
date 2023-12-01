@@ -26,6 +26,11 @@ class Material:
         resource_cons (Dict[Resource, float], optional): Resources consumed per unit basis of Material. Defaults to 0.
         basis (str, optional): Unit basis for material. Defaults to 'unit.
         gwp (float, optional): global warming potential per unit basis of Material produced. Defaults to 0.
+        odp (float, optional): ozone depletion potential per unit basis of Material produced. Defaults to 0.
+        acid (float, optional): acidification potential per unit basis of Material produced. Defaults to 0.
+        eutt (float, optional): terrestrial eutrophication potential per unit basis of Material produced. Defaults to 0.
+        eutf (float, optional): fresh water eutrophication potential per unit basis of Material produced. Defaults to 0.
+        eutm (float, optional): marine eutrophication potential per unit basis of Material produced. Defaults to 0.
         toxicity (float, optional): toxicity potential per unit basis of Material produced. Defaults to 0.
         citation (str, optional): Add citation. Defaults to 'citation needed'.
         label (str, optional): Longer descriptive label if required. Defaults to ''
@@ -39,7 +44,12 @@ class Material:
 
     name: str
     resource_cons: Dict[Resource, float] = None
-    gwp: float = None
+    gwp: float = 0
+    odp: float = 0
+    acid: float = 0
+    eutt: float = 0
+    eutf: float = 0
+    eutm: float = 0
     toxicity: float = None
     basis: str = 'unit'
     citation: str = 'citation needed'

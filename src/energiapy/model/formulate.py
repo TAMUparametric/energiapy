@@ -59,8 +59,47 @@ from .constraints.emission import (
     constraint_global_warming_potential_process,
     constraint_global_warming_potential_resource,
     constraint_global_warming_potential_resource_consumption,
-    constraint_global_warming_potential_resource_discharge
-    
+    constraint_global_warming_potential_resource_discharge,
+    constraint_acidification_potential_location,
+    constraint_acidification_potential_material,
+    constraint_acidification_potential_material_mode,
+    constraint_acidification_potential_network,
+    constraint_acidification_potential_process,
+    constraint_acidification_potential_resource,
+    constraint_acidification_potential_resource_consumption,
+    constraint_acidification_potential_resource_discharge,
+    constraint_ozone_depletion_potential_location,
+    constraint_ozone_depletion_potential_material,
+    constraint_ozone_depletion_potential_material_mode,
+    constraint_ozone_depletion_potential_network,
+    constraint_ozone_depletion_potential_process,
+    constraint_ozone_depletion_potential_resource,
+    constraint_ozone_depletion_potential_resource_consumption,
+    constraint_ozone_depletion_potential_resource_discharge,
+    constraint_terrestrial_eutrophication_potential_location,
+    constraint_terrestrial_eutrophication_potential_material,
+    constraint_terrestrial_eutrophication_potential_material_mode,
+    constraint_terrestrial_eutrophication_potential_network,
+    constraint_terrestrial_eutrophication_potential_process,
+    constraint_terrestrial_eutrophication_potential_resource,
+    constraint_terrestrial_eutrophication_potential_resource_consumption,
+    constraint_terrestrial_eutrophication_potential_resource_discharge,
+    constraint_freshwater_eutrophication_potential_location,
+    constraint_freshwater_eutrophication_potential_material,
+    constraint_freshwater_eutrophication_potential_material_mode,
+    constraint_freshwater_eutrophication_potential_network,
+    constraint_freshwater_eutrophication_potential_process,
+    constraint_freshwater_eutrophication_potential_resource,
+    constraint_freshwater_eutrophication_potential_resource_consumption,
+    constraint_freshwater_eutrophication_potential_resource_discharge,
+    constraint_marine_eutrophication_potential_location,
+    constraint_marine_eutrophication_potential_material,
+    constraint_marine_eutrophication_potential_material_mode,
+    constraint_marine_eutrophication_potential_network,
+    constraint_marine_eutrophication_potential_process,
+    constraint_marine_eutrophication_potential_resource,
+    constraint_marine_eutrophication_potential_resource_consumption,
+    constraint_marine_eutrophication_potential_resource_discharge,
 )
 from .constraints.failure import constraint_nameplate_production_failure
 from .constraints.inventory import (
@@ -417,6 +456,111 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
                 instance=instance, network_scale_level=scenario.network_scale_level)
 
             constraint_global_warming_potential_network(
+                instance=instance, network_scale_level=scenario.network_scale_level)
+            
+            constraint_ozone_depletion_potential_process(
+                instance=instance, process_odp_dict=scenario.process_odp_dict,
+                network_scale_level=scenario.network_scale_level)
+
+            constraint_ozone_depletion_potential_resource(
+                instance=instance, network_scale_level=scenario.network_scale_level)
+            
+            constraint_ozone_depletion_potential_resource_consumption(
+                instance=instance, resource_odp_dict=scenario.resource_odp_dict,
+                network_scale_level=scenario.network_scale_level)
+            
+            constraint_ozone_depletion_potential_resource_discharge(
+                instance=instance, resource_odp_dict=scenario.resource_odp_dict,
+                network_scale_level=scenario.network_scale_level)
+
+            constraint_ozone_depletion_potential_location(
+                instance=instance, network_scale_level=scenario.network_scale_level)
+
+            constraint_ozone_depletion_potential_network(
+                instance=instance, network_scale_level=scenario.network_scale_level)
+
+            constraint_acidification_potential_process(
+                instance=instance, process_acid_dict=scenario.process_acid_dict,
+                network_scale_level=scenario.network_scale_level)
+
+            constraint_acidification_potential_resource(
+                instance=instance, network_scale_level=scenario.network_scale_level)
+            
+            constraint_acidification_potential_resource_consumption(
+                instance=instance, resource_acid_dict=scenario.resource_acid_dict,
+                network_scale_level=scenario.network_scale_level)
+            
+            constraint_acidification_potential_resource_discharge(
+                instance=instance, resource_acid_dict=scenario.resource_acid_dict,
+                network_scale_level=scenario.network_scale_level)
+
+            constraint_acidification_potential_location(
+                instance=instance, network_scale_level=scenario.network_scale_level)
+
+            constraint_acidification_potential_network(
+                instance=instance, network_scale_level=scenario.network_scale_level)
+            
+            constraint_terrestrial_eutrophication_potential_process(
+                instance=instance, process_eutt_dict=scenario.process_eutt_dict,
+                network_scale_level=scenario.network_scale_level)
+
+            constraint_terrestrial_eutrophication_potential_resource(
+                instance=instance, network_scale_level=scenario.network_scale_level)
+            
+            constraint_terrestrial_eutrophication_potential_resource_consumption(
+                instance=instance, resource_eutt_dict=scenario.resource_eutt_dict,
+                network_scale_level=scenario.network_scale_level)
+            
+            constraint_terrestrial_eutrophication_potential_resource_discharge(
+                instance=instance, resource_eutt_dict=scenario.resource_eutt_dict,
+                network_scale_level=scenario.network_scale_level)
+
+            constraint_terrestrial_eutrophication_potential_location(
+                instance=instance, network_scale_level=scenario.network_scale_level)
+
+            constraint_terrestrial_eutrophication_potential_network(
+                instance=instance, network_scale_level=scenario.network_scale_level)
+            
+            constraint_freshwater_eutrophication_potential_process(
+                instance=instance, process_eutf_dict=scenario.process_eutf_dict,
+                network_scale_level=scenario.network_scale_level)
+
+            constraint_freshwater_eutrophication_potential_resource(
+                instance=instance, network_scale_level=scenario.network_scale_level)
+            
+            constraint_freshwater_eutrophication_potential_resource_consumption(
+                instance=instance, resource_eutf_dict=scenario.resource_eutf_dict,
+                network_scale_level=scenario.network_scale_level)
+            
+            constraint_freshwater_eutrophication_potential_resource_discharge(
+                instance=instance, resource_eutf_dict=scenario.resource_eutf_dict,
+                network_scale_level=scenario.network_scale_level)
+
+            constraint_freshwater_eutrophication_potential_location(
+                instance=instance, network_scale_level=scenario.network_scale_level)
+
+            constraint_freshwater_eutrophication_potential_network(
+                instance=instance, network_scale_level=scenario.network_scale_level)
+            
+            constraint_marine_eutrophication_potential_process(
+                instance=instance, process_eutm_dict=scenario.process_eutm_dict,
+                network_scale_level=scenario.network_scale_level)
+
+            constraint_marine_eutrophication_potential_resource(
+                instance=instance, network_scale_level=scenario.network_scale_level)
+            
+            constraint_marine_eutrophication_potential_resource_consumption(
+                instance=instance, resource_eutm_dict=scenario.resource_eutm_dict,
+                network_scale_level=scenario.network_scale_level)
+            
+            constraint_marine_eutrophication_potential_resource_discharge(
+                instance=instance, resource_eutm_dict=scenario.resource_eutm_dict,
+                network_scale_level=scenario.network_scale_level)
+
+            constraint_marine_eutrophication_potential_location(
+                instance=instance, network_scale_level=scenario.network_scale_level)
+
+            constraint_marine_eutrophication_potential_network(
                 instance=instance, network_scale_level=scenario.network_scale_level)
 
             if Constraints.MATERIAL in constraints:
