@@ -140,6 +140,8 @@ class Resource:
     # emissions: (Dict[Emission, float]) = None
 
     def __post_init__(self):
+        
+        self.emission_potentials_dict = {'gwp': self.gwp, 'odp': self.odp, 'acid': self.acid, 'eutt': self.eutt, 'eutf': self.eutf, 'eutm': self.eutm}
         if self.demand is True:
             self.sell = True
 
