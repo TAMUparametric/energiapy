@@ -202,7 +202,8 @@ from .objectives import (
     objective_profit,
     objective_gwp_min,
     objective_cost_w_demand_penalty,
-    objective_profit_w_demand_penalty
+    objective_profit_w_demand_penalty,
+    objective_emission_min
 )
 
 from .sets import generate_sets
@@ -264,6 +265,10 @@ class Objective(Enum):
     PROFIT_W_DEMAND_PENALTY = auto()
     """
     Maximized profit with penalty for unmet resource demand
+    """
+    EMISSION = auto()
+    """
+    Minimize emission using weighted sum method
     """
 
 
@@ -989,6 +994,11 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
             objective_gwp_min(
                 instance=instance, network_scale_level=scenario.network_scale_level)
 
+        if objective == Objective.EMISSION:
+            
+            objective_emission_min(instance = instance, network_scale_level = scenario.network_scale_level, gwp_w = scenario.emission_weights.gwp, odp_w= scenario.emission_weights.odp, acid_w = scenario.emission_weights.acid, 
+                           eutt_w= scenario.emission_weights.eutt, eutf_w = scenario.emission_weights.eutf, eutm_w = scenario.emission_weights.eutm) 
+        
         if scenario.capacity_bounds is not None:
             constraint_min_capacity_facility(instance=instance, location_process_dict=scenario.location_process_dict,
                                              network_scale_level=scenario.network_scale_level, capacity_bounds=scenario.capacity_bounds)
