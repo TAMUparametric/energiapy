@@ -53,10 +53,14 @@ from .constraints.cost import (
 from .constraints.emission import (
     constraint_global_warming_potential_location,
     constraint_global_warming_potential_material,
+    constraint_global_warming_potential_material_mode,
     constraint_global_warming_potential_network,
     constraint_global_warming_potential_network_reduction,
     constraint_global_warming_potential_process,
     constraint_global_warming_potential_resource,
+    constraint_global_warming_potential_resource_consumption,
+    constraint_global_warming_potential_resource_discharge
+
 )
 from .constraints.failure import constraint_nameplate_production_failure
 from .constraints.inventory import (
@@ -84,6 +88,7 @@ from .constraints.production import (
     constraint_nameplate_production,
     constraint_production_max,
     constraint_production_min,
+    constraint_nameplate_production_material_mode
 )
 from .constraints.resource_balance import (
     constraint_inventory_balance,
@@ -94,7 +99,9 @@ from .constraints.resource_balance import (
     constraint_network_discharge,
     constraint_network_production,
     constraint_resource_consumption,
-    constraint_inventory_network
+    constraint_inventory_network,
+    constraint_location_production_material_mode,
+    constraint_location_production_material_mode_sum
 )
 
 from .constraints.demand import (
@@ -142,7 +149,12 @@ from .constraints.credit import (
 from .constraints.material import (
     constraint_material_process,
     constraint_material_location,
-    constraint_material_network
+    constraint_material_network,
+    constraint_production_facility_material_mode_binary,
+    constraint_production_facility_material_mode,
+    constraint_production_facility_material,
+    constraint_min_production_facility_material,
+    constraint_material_mode_process
 )
 from .objectives import (
     objective_cost,
@@ -218,9 +230,10 @@ class Objective(Enum):
 
 def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objective: Objective = None,
               write_lpfile: bool = False, gwp: float = None, land_restriction: float = None,
-              gwp_reduction_pct: float = None, model_class: ModelClass = ModelClass.MIP, objective_resource: Resource = None,
+              gwp_reduction_pct: float = None, model_class: ModelClass = ModelClass.MIP,
+              objective_resource: Resource = None,
               inventory_zero: Dict[Location,
-                                   Dict[Tuple[Process, Resource], float]] = None,
+              Dict[Tuple[Process, Resource], float]] = None,
               demand_sign: str = 'geq') -> ConcreteModel:
     """formulates a model. Constraints need to be declared in order
 
@@ -286,6 +299,10 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
             instance=instance, scale_level=scenario.network_scale_level)
         generate_costing_vars(instance=instance)
 
+        if len(scenario.material_set) > 0:
+            generate_material_vars(
+                instance=instance, scale_level=scenario.network_scale_level)
+
         if Constraints.UNCERTAIN in constraints:
             generate_uncertainty_vars(
                 instance=instance, scale_level=scenario.scheduling_scale_level)
@@ -300,11 +317,15 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
 
         if Constraints.COST in constraints:
             constraint_process_capex(instance=instance, capex_dict=scenario.capex_dict,
-                                     network_scale_level=scenario.expenditure_scale_level, capex_factor=scenario.capex_factor, annualization_factor=scenario.annualization_factor)
+                                     network_scale_level=scenario.expenditure_scale_level,
+                                     capex_factor=scenario.capex_factor,
+                                     annualization_factor=scenario.annualization_factor)
             constraint_process_fopex(instance=instance, fopex_dict=scenario.fopex_dict,
-                                     network_scale_level=scenario.expenditure_scale_level, fopex_factor=scenario.fopex_factor)
+                                     network_scale_level=scenario.expenditure_scale_level,
+                                     fopex_factor=scenario.fopex_factor)
             constraint_process_vopex(instance=instance, vopex_dict=scenario.vopex_dict,
-                                     network_scale_level=scenario.expenditure_scale_level, vopex_factor=scenario.vopex_factor)
+                                     network_scale_level=scenario.expenditure_scale_level,
+                                     vopex_factor=scenario.vopex_factor)
             constraint_process_incidental(instance=instance, incidental_dict=scenario.incidental_dict,
                                           network_scale_level=scenario.network_scale_level)
 
@@ -320,23 +341,31 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
             # *----------------sum capex, fopex, vopex, incidental costs over location ---------------------------------------------
 
             instance.constraint_location_capex = make_constraint(
-                instance=instance, type_cons=Cons.X_EQ_SUMLOCCOST_Y, variable_x='Capex_location', variable_y='Capex_process', location_set=instance.locations, component_set=instance.processes,
-                loc_comp_dict=scenario.location_process_dict, x_scale_level=scenario.network_scale_level, y_scale_level=scenario.network_scale_level,
+                instance=instance, type_cons=Cons.X_EQ_SUMLOCCOST_Y, variable_x='Capex_location',
+                variable_y='Capex_process', location_set=instance.locations, component_set=instance.processes,
+                loc_comp_dict=scenario.location_process_dict, x_scale_level=scenario.network_scale_level,
+                y_scale_level=scenario.network_scale_level,
                 label='sums up capex from process over a location')
 
             instance.constraint_location_fopex = make_constraint(
-                instance=instance, type_cons=Cons.X_EQ_SUMLOCCOST_Y, variable_x='Fopex_location', variable_y='Fopex_process', location_set=instance.locations, component_set=instance.processes,
-                loc_comp_dict=scenario.location_process_dict, x_scale_level=scenario.network_scale_level, y_scale_level=scenario.network_scale_level,
+                instance=instance, type_cons=Cons.X_EQ_SUMLOCCOST_Y, variable_x='Fopex_location',
+                variable_y='Fopex_process', location_set=instance.locations, component_set=instance.processes,
+                loc_comp_dict=scenario.location_process_dict, x_scale_level=scenario.network_scale_level,
+                y_scale_level=scenario.network_scale_level,
                 label='sums up fopex from process over a locations')
 
             instance.constraint_location_vopex = make_constraint(
-                instance=instance, type_cons=Cons.X_EQ_SUMLOCCOST_Y, variable_x='Vopex_location', variable_y='Vopex_process', location_set=instance.locations, component_set=instance.processes,
-                loc_comp_dict=scenario.location_process_dict, x_scale_level=scenario.network_scale_level, y_scale_level=scenario.network_scale_level,
+                instance=instance, type_cons=Cons.X_EQ_SUMLOCCOST_Y, variable_x='Vopex_location',
+                variable_y='Vopex_process', location_set=instance.locations, component_set=instance.processes,
+                loc_comp_dict=scenario.location_process_dict, x_scale_level=scenario.network_scale_level,
+                y_scale_level=scenario.network_scale_level,
                 label='sums up vopex from process over a locations')
 
             instance.constraint_location_incidental = make_constraint(
-                instance=instance, type_cons=Cons.X_EQ_SUMLOCCOST_Y, variable_x='Incidental_location', variable_y='Incidental_process', location_set=instance.locations, component_set=instance.processes,
-                loc_comp_dict=scenario.location_process_dict, x_scale_level=scenario.network_scale_level, y_scale_level=scenario.network_scale_level,
+                instance=instance, type_cons=Cons.X_EQ_SUMLOCCOST_Y, variable_x='Incidental_location',
+                variable_y='Incidental_process', location_set=instance.locations, component_set=instance.processes,
+                loc_comp_dict=scenario.location_process_dict, x_scale_level=scenario.network_scale_level,
+                y_scale_level=scenario.network_scale_level,
                 label='sums up incidental expenditure from process over a location')
 
             # constraint_network_capex(
@@ -351,27 +380,36 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
             # *----------------sum capex, fopex, vopex, incidental costs over network ---------------------------------------------
 
             instance.constraint_network_capex = make_constraint(
-                instance=instance, type_cons=Cons.X_EQ_SUMCOST_Y, variable_x='Capex_network', variable_y='Capex_location', location_set=instance.locations, component_set=instance.processes,
-                loc_comp_dict=scenario.location_process_dict, x_scale_level=scenario.network_scale_level, y_scale_level=scenario.network_scale_level,
+                instance=instance, type_cons=Cons.X_EQ_SUMCOST_Y, variable_x='Capex_network',
+                variable_y='Capex_location', location_set=instance.locations, component_set=instance.processes,
+                loc_comp_dict=scenario.location_process_dict, x_scale_level=scenario.network_scale_level,
+                y_scale_level=scenario.network_scale_level,
                 label='sums up capex from process over all locations in network')
 
             instance.constraint_network_fopex = make_constraint(
-                instance=instance, type_cons=Cons.X_EQ_SUMCOST_Y, variable_x='Fopex_network', variable_y='Fopex_location', location_set=instance.locations, component_set=instance.processes,
-                loc_comp_dict=scenario.location_process_dict, x_scale_level=scenario.network_scale_level, y_scale_level=scenario.network_scale_level,
+                instance=instance, type_cons=Cons.X_EQ_SUMCOST_Y, variable_x='Fopex_network',
+                variable_y='Fopex_location', location_set=instance.locations, component_set=instance.processes,
+                loc_comp_dict=scenario.location_process_dict, x_scale_level=scenario.network_scale_level,
+                y_scale_level=scenario.network_scale_level,
                 label='sums up fopex from process over all locations in network')
 
             instance.constraint_network_vopex = make_constraint(
-                instance=instance, type_cons=Cons.X_EQ_SUMCOST_Y, variable_x='Vopex_network', variable_y='Vopex_location', location_set=instance.locations, component_set=instance.processes,
-                loc_comp_dict=scenario.location_process_dict, x_scale_level=scenario.network_scale_level, y_scale_level=scenario.network_scale_level,
+                instance=instance, type_cons=Cons.X_EQ_SUMCOST_Y, variable_x='Vopex_network',
+                variable_y='Vopex_location', location_set=instance.locations, component_set=instance.processes,
+                loc_comp_dict=scenario.location_process_dict, x_scale_level=scenario.network_scale_level,
+                y_scale_level=scenario.network_scale_level,
                 label='sums up vopex from process over all locations in network')
 
             instance.constraint_network_incidental = make_constraint(
-                instance=instance, type_cons=Cons.X_EQ_SUMCOST_Y, variable_x='Incidental_network', variable_y='Incidental_location', location_set=instance.locations, component_set=instance.processes,
-                loc_comp_dict=scenario.location_process_dict, x_scale_level=scenario.network_scale_level, y_scale_level=scenario.network_scale_level,
+                instance=instance, type_cons=Cons.X_EQ_SUMCOST_Y, variable_x='Incidental_network',
+                variable_y='Incidental_location', location_set=instance.locations, component_set=instance.processes,
+                loc_comp_dict=scenario.location_process_dict, x_scale_level=scenario.network_scale_level,
+                y_scale_level=scenario.network_scale_level,
                 label='sums up incidental expenditure from process over all locations in network')
 
             instance.constraint_storage_cost = constraint_storage_cost(
-                instance=instance, location_resource_dict=scenario.location_resource_dict, storage_cost_dict=scenario.storage_cost_dict, network_scale_level=scenario.network_scale_level)
+                instance=instance, location_resource_dict=scenario.location_resource_dict,
+                storage_cost_dict=scenario.storage_cost_dict, network_scale_level=scenario.network_scale_level)
 
             instance.constraint_storage_cost_location = constraint_storage_cost_location(
                 instance=instance, network_scale_level=scenario.network_scale_level)
@@ -388,6 +426,13 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
                 network_scale_level=scenario.network_scale_level)
 
             constraint_global_warming_potential_resource(
+                instance=instance, network_scale_level=scenario.network_scale_level)
+
+            constraint_global_warming_potential_resource_consumption(
+                instance=instance, resource_gwp_dict=scenario.resource_gwp_dict,
+                network_scale_level=scenario.network_scale_level)
+
+            constraint_global_warming_potential_resource_discharge(
                 instance=instance, resource_gwp_dict=scenario.resource_gwp_dict,
                 network_scale_level=scenario.network_scale_level)
 
@@ -398,10 +443,13 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
                 instance=instance, network_scale_level=scenario.network_scale_level)
 
             if Constraints.MATERIAL in constraints:
-
                 constraint_global_warming_potential_material(
-                    instance=instance, material_gwp_dict=scenario.material_gwp_dict,
-                    process_material_dict=scenario.process_material_dict, network_scale_level=scenario.network_scale_level)
+                    instance=instance, network_scale_level=scenario.network_scale_level)
+
+                constraint_global_warming_potential_material_mode(instance=instance,
+                                                                  material_gwp_dict=scenario.material_gwp_dict,
+                                                                  process_material_mode_material_dict=scenario.process_material_mode_material_dict,
+                                                                  network_scale_level=scenario.network_scale_level)
 
         if Constraints.FAILURE in constraints:
             constraint_nameplate_production_failure(instance=instance, fail_factor=scenario.fail_factor,
@@ -409,33 +457,63 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
                                                     scheduling_scale_level=scenario.scheduling_scale_level)
 
         if Constraints.INVENTORY in constraints:
-            instance.constraint_nameplate_inventory = make_constraint(instance=instance, type_cons=Cons.X_LEQ_Y, variable_x='Inv',
-                                                                      location_set=instance.locations, component_set=instance.resources_store,  loc_comp_dict=scenario.location_resource_dict,
-                                                                      x_scale_level=scenario.scheduling_scale_level, y_scale_level=scenario.network_scale_level, variable_y='Cap_S', label='restricts inventory to certain nameplate capacity')
+            instance.constraint_nameplate_inventory = make_constraint(instance=instance, type_cons=Cons.X_LEQ_Y,
+                                                                      variable_x='Inv',
+                                                                      location_set=instance.locations,
+                                                                      component_set=instance.resources_store,
+                                                                      loc_comp_dict=scenario.location_resource_dict,
+                                                                      x_scale_level=scenario.scheduling_scale_level,
+                                                                      y_scale_level=scenario.network_scale_level,
+                                                                      variable_y='Cap_S',
+                                                                      label='restricts inventory to certain nameplate capacity')
 
             # *----------------inventory bounds ---------------------------------------------
 
-            instance.constraint_storage_max = make_constraint(instance=instance, type_cons=Cons.X_LEQ_B, variable_x='Cap_S', b_max=scenario.store_max, location_set=instance.locations, component_set=instance.resources_store,
-                                                              loc_comp_dict=scenario.location_resource_dict, x_scale_level=scenario.network_scale_level, label='restricts nameplate inventory to some UB')
+            instance.constraint_storage_max = make_constraint(instance=instance, type_cons=Cons.X_LEQ_B,
+                                                              variable_x='Cap_S', b_max=scenario.store_max,
+                                                              location_set=instance.locations,
+                                                              component_set=instance.resources_store,
+                                                              loc_comp_dict=scenario.location_resource_dict,
+                                                              x_scale_level=scenario.network_scale_level,
+                                                              label='restricts nameplate inventory to some UB')
 
-            instance.constraint_storage_min = make_constraint(instance=instance, type_cons=Cons.X_GEQ_B, variable_x='Cap_S', b_max=scenario.store_min, location_set=instance.locations, component_set=instance.resources_store,
-                                                              loc_comp_dict=scenario.location_resource_dict, x_scale_level=scenario.network_scale_level, label='restricts nameplate inventory to some LB')
+            instance.constraint_storage_min = make_constraint(instance=instance, type_cons=Cons.X_GEQ_B,
+                                                              variable_x='Cap_S', b_max=scenario.store_min,
+                                                              location_set=instance.locations,
+                                                              component_set=instance.resources_store,
+                                                              loc_comp_dict=scenario.location_resource_dict,
+                                                              x_scale_level=scenario.network_scale_level,
+                                                              label='restricts nameplate inventory to some LB')
 
         if Constraints.PRODUCTION in constraints:
-
             constraint_production_mode(instance=instance, mode_dict=scenario.mode_dict,
                                        scheduling_scale_level=scenario.scheduling_scale_level)
 
             # *----------------nameplate production capacity---------------------------------------------
 
-            instance.constraint_nameplate_production_certain_capacity = make_constraint(instance=instance, type_cons=Cons.X_LEQ_Y, variable_x='P',
-                                                                                        location_set=instance.locations, component_set=instance.processes_certain_capacity,  loc_comp_dict=scenario.location_process_dict,
-                                                                                        x_scale_level=scenario.scheduling_scale_level, y_scale_level=scenario.network_scale_level, variable_y='Cap_P', label='restricts production to certain nameplate capacity')
+            instance.constraint_nameplate_production_certain_capacity = make_constraint(instance=instance,
+                                                                                        type_cons=Cons.X_LEQ_Y,
+                                                                                        variable_x='P',
+                                                                                        location_set=instance.locations,
+                                                                                        component_set=instance.processes_certain_capacity,
+                                                                                        loc_comp_dict=scenario.location_process_dict,
+                                                                                        x_scale_level=scenario.scheduling_scale_level,
+                                                                                        y_scale_level=scenario.network_scale_level,
+                                                                                        variable_y='Cap_P',
+                                                                                        label='restricts production to certain nameplate capacity')
 
-            instance.constraint_nameplate_production_varying_capacity = make_constraint(instance=instance, type_cons=Cons.X_LEQ_BY, variable_x='P',
-                                                                                        location_set=instance.locations, component_set=instance.processes_varying_capacity,  loc_comp_dict=scenario.location_process_dict,
-                                                                                        b_factor=scenario.capacity_factor, x_scale_level=scenario.scheduling_scale_level, b_scale_level=scenario.capacity_scale_level,
-                                                                                        y_scale_level=scenario.network_scale_level, variable_y='Cap_P', label='restricts production to varying nameplate capacity')
+            instance.constraint_nameplate_production_varying_capacity = make_constraint(instance=instance,
+                                                                                        type_cons=Cons.X_LEQ_BY,
+                                                                                        variable_x='P',
+                                                                                        location_set=instance.locations,
+                                                                                        component_set=instance.processes_varying_capacity,
+                                                                                        loc_comp_dict=scenario.location_process_dict,
+                                                                                        b_factor=scenario.capacity_factor,
+                                                                                        x_scale_level=scenario.scheduling_scale_level,
+                                                                                        b_scale_level=scenario.capacity_scale_level,
+                                                                                        y_scale_level=scenario.network_scale_level,
+                                                                                        variable_y='Cap_P',
+                                                                                        label='restricts production to varying nameplate capacity')
 
             # *----------------production capacity bounds---------------------------------------------
 
@@ -445,11 +523,21 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
             # instance.constraint_production_min = make_constraint(instance=instance, type_cons=Cons.X_GEQ_BY, variable_x='Cap_P', variable_y='X_P', b_max=scenario.prod_min, location_set=instance.locations, component_set=instance.processes,
             #                                                      loc_comp_dict=scenario.location_process_dict, x_scale_level=scenario.network_scale_level, y_scale_level=scenario.network_scale_level, label='restricts nameplate capacity to some LB')
 
-            instance.constraint_production_max = make_constraint(instance=instance, type_cons=Cons.X_LEQ_B, variable_x='Cap_P', b_max=scenario.prod_max, location_set=instance.locations, component_set=instance.processes,
-                                                                 loc_comp_dict=scenario.location_process_dict, x_scale_level=scenario.network_scale_level, label='restricts nameplate capacity to some UB')
+            instance.constraint_production_max = make_constraint(instance=instance, type_cons=Cons.X_LEQ_B,
+                                                                 variable_x='Cap_P', b_max=scenario.prod_max,
+                                                                 location_set=instance.locations,
+                                                                 component_set=instance.processes,
+                                                                 loc_comp_dict=scenario.location_process_dict,
+                                                                 x_scale_level=scenario.network_scale_level,
+                                                                 label='restricts nameplate capacity to some UB')
 
-            instance.constraint_production_min = make_constraint(instance=instance, type_cons=Cons.X_GEQ_B, variable_x='Cap_P', b_max=scenario.prod_min, location_set=instance.locations, component_set=instance.processes,
-                                                                 loc_comp_dict=scenario.location_process_dict, x_scale_level=scenario.network_scale_level, label='restricts nameplate capacity to some LB')
+            instance.constraint_production_min = make_constraint(instance=instance, type_cons=Cons.X_GEQ_B,
+                                                                 variable_x='Cap_P', b_max=scenario.prod_min,
+                                                                 location_set=instance.locations,
+                                                                 component_set=instance.processes,
+                                                                 loc_comp_dict=scenario.location_process_dict,
+                                                                 x_scale_level=scenario.network_scale_level,
+                                                                 label='restricts nameplate capacity to some LB')
 
         if Constraints.LAND in constraints:
             generate_land_vars(
@@ -488,7 +576,8 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
 
         if Constraints.RESOURCE_BALANCE in constraints:
             constraint_inventory_balance(instance=instance, scheduling_scale_level=scenario.scheduling_scale_level,
-                                         multiconversion=scenario.multiconversion, mode_dict=scenario.mode_dict, inventory_zero=inventory_zero,
+                                         multiconversion=scenario.multiconversion, mode_dict=scenario.mode_dict,
+                                         inventory_zero=inventory_zero,
                                          location_resource_dict=scenario.location_resource_dict)
 
             # constraint_network_production(
@@ -503,103 +592,151 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
             # *----------------resource consumption---------------------------------------------
 
             instance.constraint_resource_consumption_certain = make_constraint(
-                instance=instance, type_cons=Cons.X_LEQ_B, variable_x='C', location_set=instance.locations, component_set=instance.resources_certain_availability, b_max=scenario.cons_max,
-                loc_comp_dict=scenario.location_resource_dict, x_scale_level=scenario.scheduling_scale_level, label='restricts resource consumption to certain availablity')
+                instance=instance, type_cons=Cons.X_LEQ_B, variable_x='C', location_set=instance.locations,
+                component_set=instance.resources_certain_availability, b_max=scenario.cons_max,
+                loc_comp_dict=scenario.location_resource_dict, x_scale_level=scenario.scheduling_scale_level,
+                label='restricts resource consumption to certain availablity')
 
             instance.constraint_resource_consumption_varying = make_constraint(
-                instance=instance, type_cons=Cons.X_LEQ_B, variable_x='C', location_set=instance.locations, component_set=instance.resources_varying_availability, b_max=scenario.cons_max,
-                loc_comp_dict=scenario.location_resource_dict, b_factor=scenario.availability_factor, x_scale_level=scenario.scheduling_scale_level, b_scale_level=scenario.availability_scale_level, label='restricts resource consumption to varying availablity')
+                instance=instance, type_cons=Cons.X_LEQ_B, variable_x='C', location_set=instance.locations,
+                component_set=instance.resources_varying_availability, b_max=scenario.cons_max,
+                loc_comp_dict=scenario.location_resource_dict, b_factor=scenario.availability_factor,
+                x_scale_level=scenario.scheduling_scale_level, b_scale_level=scenario.availability_scale_level,
+                label='restricts resource consumption to varying availablity')
 
             # # *----------------resource purchase---------------------------------------------
 
             instance.constraint_resource_purchase_certain = make_constraint(
-                instance=instance, type_cons=Cons.X_EQ_BY, variable_x='B', variable_y='C', location_set=instance.locations, component_set=instance.resources_certain_price, b_max=scenario.price_dict,
-                loc_comp_dict=scenario.location_resource_dict,  x_scale_level=scenario.scheduling_scale_level, y_scale_level=scenario.scheduling_scale_level, label='calculates certain amount spent on resource consumption')
+                instance=instance, type_cons=Cons.X_EQ_BY, variable_x='B', variable_y='C',
+                location_set=instance.locations, component_set=instance.resources_certain_price,
+                b_max=scenario.price_dict,
+                loc_comp_dict=scenario.location_resource_dict, x_scale_level=scenario.scheduling_scale_level,
+                y_scale_level=scenario.scheduling_scale_level,
+                label='calculates certain amount spent on resource consumption')
 
             instance.constraint_resource_purchase_varying = make_constraint(
-                instance=instance, type_cons=Cons.X_EQ_BY, variable_x='B', variable_y='C', location_set=instance.locations, component_set=instance.resources_varying_price, b_max=scenario.price_dict,
-                loc_comp_dict=scenario.location_resource_dict, b_factor=scenario.price_factor, x_scale_level=scenario.scheduling_scale_level, y_scale_level=scenario.scheduling_scale_level, b_scale_level=scenario.purchase_scale_level, label='calculates varying amount spent on resource consumption')
+                instance=instance, type_cons=Cons.X_EQ_BY, variable_x='B', variable_y='C',
+                location_set=instance.locations, component_set=instance.resources_varying_price,
+                b_max=scenario.price_dict,
+                loc_comp_dict=scenario.location_resource_dict, b_factor=scenario.price_factor,
+                x_scale_level=scenario.scheduling_scale_level, y_scale_level=scenario.scheduling_scale_level,
+                b_scale_level=scenario.purchase_scale_level,
+                label='calculates varying amount spent on resource consumption')
 
             # # *----------------sum P,S,C,B over location---------------------------------------------
 
             instance.constraint_location_production = make_constraint(
-                instance=instance, type_cons=Cons.X_EQ_SUMSCALE_Y, variable_x='P_location', variable_y='P', location_set=instance.locations, component_set=instance.processes,
-                loc_comp_dict=scenario.location_process_dict, x_scale_level=scenario.network_scale_level, y_scale_level=scenario.scheduling_scale_level, cluster_wt=scenario.cluster_wt,
+                instance=instance, type_cons=Cons.X_EQ_SUMSCALE_Y, variable_x='P_location', variable_y='P',
+                location_set=instance.locations, component_set=instance.processes,
+                loc_comp_dict=scenario.location_process_dict, x_scale_level=scenario.network_scale_level,
+                y_scale_level=scenario.scheduling_scale_level, cluster_wt=scenario.cluster_wt,
                 label='sums up production from process over the temporal scale at location')
 
             instance.constraint_location_discharge = make_constraint(
-                instance=instance, type_cons=Cons.X_EQ_SUMSCALE_Y, variable_x='S_location', variable_y='S', location_set=instance.locations, component_set=instance.resources_sell,
-                loc_comp_dict=scenario.location_resource_dict, x_scale_level=scenario.network_scale_level, y_scale_level=scenario.scheduling_scale_level, cluster_wt=scenario.cluster_wt,
+                instance=instance, type_cons=Cons.X_EQ_SUMSCALE_Y, variable_x='S_location', variable_y='S',
+                location_set=instance.locations, component_set=instance.resources_sell,
+                loc_comp_dict=scenario.location_resource_dict, x_scale_level=scenario.network_scale_level,
+                y_scale_level=scenario.scheduling_scale_level, cluster_wt=scenario.cluster_wt,
                 label='sums up discharge of resource over the temporal scale at location')
 
             instance.constraint_location_consumption = make_constraint(
-                instance=instance, type_cons=Cons.X_EQ_SUMSCALE_Y, variable_x='C_location', variable_y='C', location_set=instance.locations, component_set=instance.resources_purch,
-                loc_comp_dict=scenario.location_resource_dict, x_scale_level=scenario.network_scale_level, y_scale_level=scenario.scheduling_scale_level, cluster_wt=scenario.cluster_wt,
+                instance=instance, type_cons=Cons.X_EQ_SUMSCALE_Y, variable_x='C_location', variable_y='C',
+                location_set=instance.locations, component_set=instance.resources_purch,
+                loc_comp_dict=scenario.location_resource_dict, x_scale_level=scenario.network_scale_level,
+                y_scale_level=scenario.scheduling_scale_level, cluster_wt=scenario.cluster_wt,
                 label='sums up consumption of resource over the temporal scale at location')
 
             instance.constraint_location_purchase = make_constraint(
-                instance=instance, type_cons=Cons.X_EQ_SUMSCALE_Y, variable_x='B_location', variable_y='B', location_set=instance.locations, component_set=instance.resources_purch,
-                loc_comp_dict=scenario.location_resource_dict, x_scale_level=scenario.network_scale_level, y_scale_level=scenario.scheduling_scale_level, cluster_wt=scenario.cluster_wt,
+                instance=instance, type_cons=Cons.X_EQ_SUMSCALE_Y, variable_x='B_location', variable_y='B',
+                location_set=instance.locations, component_set=instance.resources_purch,
+                loc_comp_dict=scenario.location_resource_dict, x_scale_level=scenario.network_scale_level,
+                y_scale_level=scenario.scheduling_scale_level, cluster_wt=scenario.cluster_wt,
                 label='sums up purchase expenditure of resource over the temporal scale at location')
 
             # # *----------------sum P,S,C,B over network ---------------------------------------------
 
             instance.constraint_network_production = make_constraint(
-                instance=instance, type_cons=Cons.X_EQ_SUMLOC_Y, variable_x='P_network', variable_y='P_location', location_set=instance.locations, component_set=instance.processes,
-                loc_comp_dict=scenario.location_process_dict, x_scale_level=scenario.network_scale_level, y_scale_level=scenario.network_scale_level,
+                instance=instance, type_cons=Cons.X_EQ_SUMLOC_Y, variable_x='P_network', variable_y='P_location',
+                location_set=instance.locations, component_set=instance.processes,
+                loc_comp_dict=scenario.location_process_dict, x_scale_level=scenario.network_scale_level,
+                y_scale_level=scenario.network_scale_level,
                 label='sums up production from process over all locations in network')
 
             instance.constraint_network_discharge = make_constraint(
-                instance=instance, type_cons=Cons.X_EQ_SUMLOC_Y, variable_x='S_network', variable_y='S_location', location_set=instance.locations, component_set=instance.resources_sell,
-                loc_comp_dict=scenario.location_resource_dict, x_scale_level=scenario.network_scale_level, y_scale_level=scenario.network_scale_level,
+                instance=instance, type_cons=Cons.X_EQ_SUMLOC_Y, variable_x='S_network', variable_y='S_location',
+                location_set=instance.locations, component_set=instance.resources_sell,
+                loc_comp_dict=scenario.location_resource_dict, x_scale_level=scenario.network_scale_level,
+                y_scale_level=scenario.network_scale_level,
                 label='sums up discharge of resource over all locations in network')
 
             instance.constraint_network_consumption = make_constraint(
-                instance=instance, type_cons=Cons.X_EQ_SUMLOC_Y, variable_x='C_network', variable_y='C_location', location_set=instance.locations, component_set=instance.resources_purch,
-                loc_comp_dict=scenario.location_resource_dict, x_scale_level=scenario.network_scale_level, y_scale_level=scenario.network_scale_level,
+                instance=instance, type_cons=Cons.X_EQ_SUMLOC_Y, variable_x='C_network', variable_y='C_location',
+                location_set=instance.locations, component_set=instance.resources_purch,
+                loc_comp_dict=scenario.location_resource_dict, x_scale_level=scenario.network_scale_level,
+                y_scale_level=scenario.network_scale_level,
                 label='sums up consumption of resource over all locations in network')
 
             instance.constraint_network_purchase = make_constraint(
-                instance=instance, type_cons=Cons.X_EQ_SUMLOC_Y, variable_x='B_network', variable_y='B_location', location_set=instance.locations, component_set=instance.resources_purch,
-                loc_comp_dict=scenario.location_resource_dict, x_scale_level=scenario.network_scale_level, y_scale_level=scenario.network_scale_level,
+                instance=instance, type_cons=Cons.X_EQ_SUMLOC_Y, variable_x='B_network', variable_y='B_location',
+                location_set=instance.locations, component_set=instance.resources_purch,
+                loc_comp_dict=scenario.location_resource_dict, x_scale_level=scenario.network_scale_level,
+                y_scale_level=scenario.network_scale_level,
                 label='sums up purchase expenditure of resource over all locations in network')
 
             instance.constraint_inventory_network = constraint_inventory_network(
-                instance=instance, network_scale_level=scenario.network_scale_level, scheduling_scale_level=scenario.scheduling_scale_level)
+                instance=instance, network_scale_level=scenario.network_scale_level,
+                scheduling_scale_level=scenario.scheduling_scale_level)
         if Constraints.TRANSPORT in constraints:
 
             if len(scenario.location_set) > 1:
                 constraint_resource_export(instance=instance, scheduling_scale_level=scenario.scheduling_scale_level,
-                                           transport_avail_dict=scenario.transport_avail_dict, resource_transport_dict=scenario.resource_transport_dict,
+                                           transport_avail_dict=scenario.transport_avail_dict,
+                                           resource_transport_dict=scenario.resource_transport_dict,
                                            source_sink_resource_dict=scenario.source_sink_resource_dict)
                 constraint_transport_export(instance=instance, scheduling_scale_level=scenario.scheduling_scale_level,
-                                            transport_avail_dict=scenario.transport_avail_dict, transport_resource_dict=scenario.transport_resource_dict)
+                                            transport_avail_dict=scenario.transport_avail_dict,
+                                            transport_resource_dict=scenario.transport_resource_dict)
                 constraint_export(instance=instance, scheduling_scale_level=scenario.scheduling_scale_level,
-                                  network_scale_level=scenario.network_scale_level, location_transport_resource_dict=scenario.location_transport_resource_dict,
-                                  transport_capacity_factor=scenario.transport_capacity_factor, transport_capacity_scale_level=scenario.transport_capacity_scale_level)
+                                  network_scale_level=scenario.network_scale_level,
+                                  location_transport_resource_dict=scenario.location_transport_resource_dict,
+                                  transport_capacity_factor=scenario.transport_capacity_factor,
+                                  transport_capacity_scale_level=scenario.transport_capacity_scale_level)
 
-                constraint_transport_capex(instance=instance, trans_capex=scenario.trans_capex, distance_dict=scenario.distance_dict,
-                                           transport_avail_dict=scenario.transport_avail_dict, network_scale_level=scenario.network_scale_level)
+                constraint_transport_capex(instance=instance, trans_capex=scenario.trans_capex,
+                                           distance_dict=scenario.distance_dict,
+                                           transport_avail_dict=scenario.transport_avail_dict,
+                                           network_scale_level=scenario.network_scale_level,
+                                           annualization_factor=scenario.annualization_factor)
 
                 constraint_transport_network_capex(
                     instance=instance, network_scale_level=scenario.network_scale_level)
-                constraint_transport_export_network(instance=instance, scheduling_scale_level=scenario.scheduling_scale_level, network_scale_level=scenario.network_scale_level,
+                constraint_transport_export_network(instance=instance,
+                                                    scheduling_scale_level=scenario.scheduling_scale_level,
+                                                    network_scale_level=scenario.network_scale_level,
                                                     transport_avail_dict=scenario.transport_avail_dict)
-                constraint_transport_vopex(instance=instance, trans_vopex=scenario.trans_vopex, distance_dict=scenario.distance_dict,
-                                           transport_avail_dict=scenario.transport_avail_dict, network_scale_level=scenario.network_scale_level)
+                constraint_transport_vopex(instance=instance, trans_vopex=scenario.trans_vopex,
+                                           distance_dict=scenario.distance_dict,
+                                           transport_avail_dict=scenario.transport_avail_dict,
+                                           network_scale_level=scenario.network_scale_level)
 
                 constraint_transport_network_vopex(
                     instance=instance, network_scale_level=scenario.network_scale_level)
 
-                constraint_transport_fopex(instance=instance, trans_fopex=scenario.trans_fopex, distance_dict=scenario.distance_dict,
-                                           transport_avail_dict=scenario.transport_avail_dict, network_scale_level=scenario.network_scale_level)
+                constraint_transport_fopex(instance=instance, trans_fopex=scenario.trans_fopex,
+                                           distance_dict=scenario.distance_dict,
+                                           transport_avail_dict=scenario.transport_avail_dict,
+                                           network_scale_level=scenario.network_scale_level)
                 constraint_transport_network_fopex(
                     instance=instance, network_scale_level=scenario.network_scale_level)
-                
-                constraint_transport_capacity_UB_no_bin(instance=instance, network_scale_level=scenario.network_scale_level,
-                                                 transport_avail_dict=scenario.transport_avail_dict, trans_max=scenario.trans_max)
-                constraint_transport_capacity_LB_no_bin(instance=instance, network_scale_level=scenario.network_scale_level,
-                                                 transport_avail_dict=scenario.transport_avail_dict, trans_min=scenario.trans_min)
+
+                constraint_transport_capacity_UB_no_bin(instance=instance,
+                                                        network_scale_level=scenario.network_scale_level,
+                                                        transport_avail_dict=scenario.transport_avail_dict,
+                                                        trans_max=scenario.trans_max)
+                constraint_transport_capacity_LB_no_bin(instance=instance,
+                                                        network_scale_level=scenario.network_scale_level,
+                                                        transport_avail_dict=scenario.transport_avail_dict,
+                                                        trans_min=scenario.trans_min)
                 # constraint_transport_import(instance=instance, scheduling_scale_level=scenario.scheduling_scale_level,
                 #                             transport_avail_dict=scenario.transport_avail_dict)
                 # constraint_transport_exp_UB(instance=instance, scheduling_scale_level=scenario.scheduling_scale_level,
@@ -642,20 +779,21 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
 
             instance.del_component(instance.constraint_storage_min)
             instance.del_component(instance.constraint_production_min)
-            
-            
+
             if len(scenario.location_set) > 1:
                 constraint_transport_capacity_UB(instance=instance, network_scale_level=scenario.network_scale_level,
-                                                 transport_avail_dict=scenario.transport_avail_dict, trans_max=scenario.trans_max)
+                                                 transport_avail_dict=scenario.transport_avail_dict,
+                                                 trans_max=scenario.trans_max)
                 constraint_transport_capacity_LB(instance=instance, network_scale_level=scenario.network_scale_level,
-                                                 transport_avail_dict=scenario.transport_avail_dict, trans_min=scenario.trans_min)
+                                                 transport_avail_dict=scenario.transport_avail_dict,
+                                                 trans_min=scenario.trans_min)
 
                 instance.del_component(instance.constraint_transport_capacity_UB_no_bin)
                 instance.del_component(instance.constraint_transport_capacity_LB_no_bin)
         if Constraints.PRESERVE_NETWORK in constraints:
-
             constraint_preserve_capacity_facility(
-                instance=instance, location_process_dict=scenario.location_process_dict, network_scale_level=scenario.network_scale_level)
+                instance=instance, location_process_dict=scenario.location_process_dict,
+                network_scale_level=scenario.network_scale_level)
 
         if Constraints.MODE in constraints:
             generate_mode_vars(
@@ -678,15 +816,44 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
                 instance=instance, mode_dict=scenario.mode_dict, scheduling_scale_level=scenario.scheduling_scale_level)
 
         if Constraints.MATERIAL in constraints:
-            generate_material_vars(
-                instance=instance, scale_level=scenario.network_scale_level)
-
             constraint_material_process(
-                instance=instance, process_material_dict=scenario.process_material_dict, network_scale_level=scenario.network_scale_level)
+                instance=instance, process_material_dict=scenario.process_material_dict,
+                network_scale_level=scenario.network_scale_level)
             constraint_material_location(
                 instance=instance, network_scale_level=scenario.network_scale_level)
             constraint_material_network(
                 instance=instance, network_scale_level=scenario.network_scale_level)
+            constraint_production_facility_material_mode(
+                instance=instance, network_scale_level=scenario.network_scale_level,
+                location_process_dict=scenario.location_process_dict)
+            constraint_production_facility_material_mode_binary(
+                instance=instance, network_scale_level=scenario.network_scale_level,
+                location_process_dict=scenario.location_process_dict)
+
+            constraint_production_facility_material(instance=instance, prod_max=scenario.prod_max,
+                                                    location_process_dict=scenario.location_process_dict,
+                                                    network_scale_level=scenario.network_scale_level,
+                                                    process_material_modes_dict=scenario.process_material_modes_dict)
+            constraint_min_production_facility_material(instance=instance, prod_min=scenario.prod_min,
+                                                        location_process_dict=scenario.location_process_dict,
+                                                        network_scale_level=scenario.network_scale_level,
+                                                        process_material_modes_dict=scenario.process_material_modes_dict)
+            constraint_material_mode_process(
+                instance=instance, process_material_mode_material_dict=scenario.process_material_mode_material_dict,
+                network_scale_level=scenario.network_scale_level)
+
+            constraint_nameplate_production_material_mode(instance=instance, capacity_factor=scenario.capacity_factor,
+                                                          location_process_dict=scenario.location_process_dict,
+                                                          network_scale_level=scenario.network_scale_level,
+                                                          scheduling_scale_level=scenario.scheduling_scale_level)
+
+            constraint_location_production_material_mode(instance=instance, cluster_wt=scenario.cluster_wt,
+                                                         network_scale_level=scenario.network_scale_level,
+                                                         scheduling_scale_level=scenario.scheduling_scale_level)
+
+            constraint_location_production_material_mode_sum(
+                instance=instance, network_scale_level=scenario.network_scale_level,
+                process_material_mode_material_dict=scenario.process_material_mode_material_dict)
 
         if gwp is not None:
             constraint_global_warming_potential_network_reduction(
@@ -698,54 +865,62 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
                 instance=instance, scale_level=scenario.demand_scale_level)
             constraint_demand_penalty(instance=instance, demand_scale_level=scenario.demand_scale_level,
                                       scheduling_scale_level=scenario.scheduling_scale_level, demand=demand,
-                                      demand_factor=scenario.demand_factor, location_resource_dict=scenario.location_resource_dict, sign=demand_sign)
+                                      demand_factor=scenario.demand_factor,
+                                      location_resource_dict=scenario.location_resource_dict, sign=demand_sign)
 
             objective_cost_w_demand_penalty(instance=instance, demand_penalty=scenario.demand_penalty,
-                                            constraints=constraints, network_scale_level=scenario.network_scale_level, demand_scale_level=scenario.demand_scale_level)
+                                            constraints=constraints, network_scale_level=scenario.network_scale_level,
+                                            demand_scale_level=scenario.demand_scale_level)
 
         elif objective == Objective.PROFIT_W_DEMAND_PENALTY:
             generate_demand_vars(
                 instance=instance, scale_level=scenario.demand_scale_level)
             constraint_demand_penalty(instance=instance, demand_scale_level=scenario.demand_scale_level,
                                       scheduling_scale_level=scenario.scheduling_scale_level, demand=demand,
-                                      demand_factor=scenario.demand_factor, location_resource_dict=scenario.location_resource_dict, sign=demand_sign)
+                                      demand_factor=scenario.demand_factor,
+                                      location_resource_dict=scenario.location_resource_dict, sign=demand_sign)
             constraint_network_cost(
                 instance=instance, network_scale_level=scenario.network_scale_level, constraints=constraints)
-            constraint_resource_revenue(instance=instance, location_resource_dict=scenario.location_resource_dict, revenue=scenario.revenue_dict,
-                                        scheduling_scale_level=scenario.scheduling_scale_level, revenue_factor=scenario.revenue_factor)
+            constraint_resource_revenue(instance=instance, location_resource_dict=scenario.location_resource_dict,
+                                        revenue=scenario.revenue_dict,
+                                        scheduling_scale_level=scenario.scheduling_scale_level,
+                                        revenue_factor=scenario.revenue_factor)
             constraint_location_revenue(
-                instance=instance, network_scale_level=scenario.network_scale_level, cluster_wt=scenario.cluster_wt, scheduling_scale_level=scenario.scheduling_scale_level)
+                instance=instance, network_scale_level=scenario.network_scale_level, cluster_wt=scenario.cluster_wt,
+                scheduling_scale_level=scenario.scheduling_scale_level)
             constraint_network_revenue(
                 instance=instance, network_scale_level=scenario.network_scale_level)
             objective_profit_w_demand_penalty(instance=instance, demand_penalty=scenario.demand_penalty,
-                                              constraints=constraints, network_scale_level=scenario.network_scale_level, demand_scale_level=scenario.demand_scale_level)
+                                              constraints=constraints, network_scale_level=scenario.network_scale_level,
+                                              demand_scale_level=scenario.demand_scale_level)
 
         else:
             if Constraints.DEMAND in constraints:
                 constraint_demand(instance=instance, demand_scale_level=scenario.demand_scale_level,
                                   scheduling_scale_level=scenario.scheduling_scale_level, demand=demand,
-                                  demand_factor=scenario.demand_factor, location_resource_dict=scenario.location_resource_dict, sign=demand_sign)
+                                  demand_factor=scenario.demand_factor,
+                                  location_resource_dict=scenario.location_resource_dict, sign=demand_sign)
 
         if objective == Objective.COST:
-
             objective_cost(
                 instance=instance, network_scale_level=scenario.network_scale_level, constraints=constraints)
 
         if objective == Objective.PROFIT:
-
             constraint_network_cost(
                 instance=instance, network_scale_level=scenario.network_scale_level, constraints=constraints)
-            constraint_resource_revenue(instance=instance, location_resource_dict=scenario.location_resource_dict, revenue=scenario.revenue_dict,
-                                        scheduling_scale_level=scenario.scheduling_scale_level, revenue_factor=scenario.revenue_factor)
+            constraint_resource_revenue(instance=instance, location_resource_dict=scenario.location_resource_dict,
+                                        revenue=scenario.revenue_dict,
+                                        scheduling_scale_level=scenario.scheduling_scale_level,
+                                        revenue_factor=scenario.revenue_factor)
             constraint_location_revenue(
-                instance=instance, network_scale_level=scenario.network_scale_level, cluster_wt=scenario.cluster_wt, scheduling_scale_level=scenario.scheduling_scale_level)
+                instance=instance, network_scale_level=scenario.network_scale_level, cluster_wt=scenario.cluster_wt,
+                scheduling_scale_level=scenario.scheduling_scale_level)
             constraint_network_revenue(
                 instance=instance, network_scale_level=scenario.network_scale_level)
             objective_profit(
                 instance=instance, network_scale_level=scenario.network_scale_level, constraints=constraints)
 
         if objective == Objective.MIN_DISCHARGE:
-
             constraint_network_cost(
                 instance=instance, network_scale_level=scenario.network_scale_level, constraints=constraints)
 
@@ -753,7 +928,6 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
                                     network_scale_level=scenario.network_scale_level)
 
         if objective == Objective.MAX_DISCHARGE:
-
             constraint_network_cost(
                 instance=instance, network_scale_level=scenario.network_scale_level, constraints=constraints)
 
@@ -761,7 +935,6 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
                                     network_scale_level=scenario.network_scale_level)
 
         if objective == Objective.MIN_GWP:
-
             constraint_network_cost(
                 instance=instance, network_scale_level=scenario.network_scale_level, constraints=constraints)
 
@@ -770,7 +943,8 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
 
         if scenario.capacity_bounds is not None:
             constraint_min_capacity_facility(instance=instance, location_process_dict=scenario.location_process_dict,
-                                             network_scale_level=scenario.network_scale_level, capacity_bounds=scenario.capacity_bounds)
+                                             network_scale_level=scenario.network_scale_level,
+                                             capacity_bounds=scenario.capacity_bounds)
 
         if write_lpfile is True:
             instance.write(f'{scenario.name}.lp')

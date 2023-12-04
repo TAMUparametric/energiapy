@@ -135,6 +135,51 @@ def constraint_nameplate_production(instance: ConcreteModel, capacity_factor: di
     return instance.constraint_nameplate_production
 
 
+def constraint_nameplate_production_material_mode(instance: ConcreteModel, capacity_factor: dict = None, location_process_dict: dict = None,
+                                                  network_scale_level: int = 0, scheduling_scale_level: int = 0) -> Constraint:
+    """Determines production capacity utilization of facilities at location in network and capacity of facilities
+
+    Args:
+        instance (ConcreteModel): pyomo instance
+        capacity_factor (dict, optional): uncertain capacity availability training data. Defaults to {}.
+        location_process_dict (dict, optional): production facilities avaiable at location. Defaults to {}.
+        network_scale_level (int, optional): scale of network decisions. Defaults to 0.
+        scheduling_scale_level (int, optional): scale of scheduling decisions. Defaults to 0.
+
+    Returns:
+        Constraint: nameplate_production_material_mode
+    """
+
+    if capacity_factor is None:
+        capacity_factor = dict()
+
+    if location_process_dict is None:
+        location_process_dict = dict()
+
+    scales = scale_list(instance=instance,
+                        scale_levels=len(instance.scales))
+
+    def nameplate_production_material_mode_rule(instance, location, process, material_mode, *scale_list):
+
+        if process not in location_process_dict[location]:
+            return instance.P_material_m[location, process, material_mode, scale_list[:scheduling_scale_level + 1]] == 0
+
+        else:
+            if process not in instance.processes_varying_capacity:
+                return instance.P_material_m[location, process, material_mode, scale_list[:scheduling_scale_level + 1]] <= instance.Cap_P_M[
+                    location, process, material_mode, scale_list[:network_scale_level + 1]]
+            else:
+                return instance.P_material_m[location, process, material_mode, scale_list[:scheduling_scale_level + 1]] <= capacity_factor[location][process][scale_list[:scheduling_scale_level + 1]] * instance.Cap_P_M[location, process, material_mode,
+                                                                                                                                                                                                                          scale_list[:network_scale_level + 1]]
+
+    instance.constraint_nameplate_production_material_mode = Constraint(
+        instance.locations, instance.processes, instance.material_modes, *
+        scales, rule=nameplate_production_material_mode_rule,
+        doc='nameplate production capacity constraint for material mode')
+    constraint_latex_render(nameplate_production_material_mode_rule)
+    return instance.constraint_nameplate_production_material_mode
+
+
 def constraint_production_max(instance: ConcreteModel, prod_max: dict, location_process_dict: dict = None,
                               network_scale_level: int = 0) -> Constraint:
     """Restricts maximum capacity realized to cap_max, binary network constraints can override
