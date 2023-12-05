@@ -624,7 +624,7 @@ class Scenario:
                                 for i in self.set_dict['resources_store']])  # fixed storage bound
             b_Sf = numpy.array([[-self.demand[location][i]]
                                 for i in self.set_dict['resources_certain_demand']])  # fixed demand bound
-            b_S = numpy.array([[0]
+            b_S = numpy.array([[-self.demand[location][i]]
                                for i in self.set_dict['resources_uncertain_demand']])  # uncertain demand
             # b_S = numpy.array([[-self.demand[location][i]]
             #    for i in self.set_dict['resources_uncertain_demand']])  # uncertain demand
@@ -640,7 +640,7 @@ class Scenario:
 
             # uncertain production
             b_P = numpy.array(
-                [[0] for i in self.set_dict['processes_uncertain_capacity']])
+                [[self.prod_max[location][i][0]] for i in self.set_dict['processes_uncertain_capacity']])
 
             b_nn = numpy.zeros((n_vars, 1))  # non zero constraints
 
@@ -660,7 +660,7 @@ class Scenario:
             for i in range(n_S):
                 n = n_Inv + n_Sf
                 F[n_bal3 + n +
-                    iter_][i] = -self.demand[location][self.set_dict['resources_uncertain_demand'][i]]
+                    iter_][i] = 1#self.demand[location][self.set_dict['resources_uncertain_demand'][i]]
                 iter_ += 1
 
             iter_ = 0
@@ -674,7 +674,7 @@ class Scenario:
             for i in range(n_P):
                 n = n_Inv + n_Sf + n_S + n_Af + n_A + n_Pf
                 F[n_bal3 + n + iter_][n_S + n_A +
-                                      i] = self.prod_max[location][self.set_dict['processes_uncertain_capacity'][i]][0]
+                                      i] = -1#self.prod_max[location][self.set_dict['processes_uncertain_capacity'][i]][0]
                 # defaults to 0 as mode, using P_m instead of P
                 iter_ += 1
 
