@@ -99,16 +99,16 @@ def constraint_inventory_balance(instance: ConcreteModel, scheduling_scale_level
         inventory_zero = {j: {i: 0 for i in instance.resources_store}
                           for j in instance.locations}
 
-    else:
-        inventory_zero = {j.name: {(i[0].name, i[1].name): inventory_zero[j][i] for i in inventory_zero[j].keys(
-        )} for j in inventory_zero.keys()}
-
-        inventory_zero = {i: {f"{j[0]}_{j[1]}_stored": inventory_zero[i][(
-            j[0], j[1])] for j in inventory_zero[i]} for i in inventory_zero.keys()}
-
-        inventory_zero = {i: {
-            j: inventory_zero[i][j] if j in inventory_zero[i].keys() else 0 for j in instance.resources_store} for i in inventory_zero.keys()}
-
+    # else:
+        # inventory_zero = {j.name: {(i[0].name, i[1].name): inventory_zero[j][i] for i in inventory_zero[j].keys(
+        # )} for j in inventory_zero.keys()}
+        #
+        # inventory_zero = {i: {f"{j[0]}_{j[1]}_stored": inventory_zero[i][(
+        #     j[0], j[1])] for j in inventory_zero[i]} for i in inventory_zero.keys()}
+        #
+        # inventory_zero = {i: {
+        #     j: inventory_zero[i][j] if j in inventory_zero[i].keys() else 0 for j in instance.resources_store} for i in inventory_zero.keys()}
+    # print(inventory_zero)
     scales = scale_list(instance=instance,
                         scale_levels=scheduling_scale_level + 1)
     scale_iter = scale_tuple(
