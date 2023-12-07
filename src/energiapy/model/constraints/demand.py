@@ -291,6 +291,8 @@ def constraint_demand_penalty(instance: ConcreteModel, demand: Union[dict, float
             else:
                 demandtarget = demand
 
+        # print(location, resource, demandtarget)
+
         if sign == 'geq':
             return discharge >= demandtarget - instance.Demand_penalty[location, resource, scale_list[:demand_scale_level + 1]]
 

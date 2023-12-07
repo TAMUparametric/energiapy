@@ -29,8 +29,8 @@ def generate_transport_vars(instance: ConcreteModel):
     #                               instance.scales_scheduling, within=NonNegativeReals, doc='Resource exported through transport mode')
     # instance.Trans_cost = Var(instance.transports, instance.scales_scheduling,
     #                           within=NonNegativeReals, doc='cost of transportation for transport mode')
-    instance.X_F = Var(instance.sources, instance.sinks, instance.transports,
-                       instance.scales_network, within=Binary, doc='binaries for transports being set up')
+    # instance.X_F = Var(instance.sources, instance.sinks, instance.transports,
+    #                    instance.scales_network, within=Binary, doc='binaries for transports being set up')
     instance.Cap_F = Var(instance.sources, instance.sinks, instance.transports,
                          instance.scales_network, within=NonNegativeReals, doc='established capacity of transport mode')
     instance.Exp_R = Var(instance.sources, instance.sinks, instance.resources_trans,
