@@ -862,7 +862,7 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
 
         if objective == Objective.COST_W_DEMAND_PENALTY:
             generate_demand_vars(
-                instance=instance, scale_level=scenario.demand_scale_level)
+                instance=instance, scale_level= scenario.demand_scale_level)
             constraint_demand_penalty(instance=instance, demand_scale_level=scenario.demand_scale_level,
                                       scheduling_scale_level=scenario.scheduling_scale_level, demand=demand,
                                       demand_factor=scenario.demand_factor,

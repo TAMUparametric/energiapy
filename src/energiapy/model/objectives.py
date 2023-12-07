@@ -106,6 +106,8 @@ def objective_cost_w_demand_penalty(instance: ConcreteModel, demand_penalty: Dic
         cost_purch = sum(instance.B_network[resource_, scale_] for resource_, scale_ in
                          product(instance.resources_purch, scale_iter))
 
+        storage_cost = sum(instance.Inv_cost_network[scale_] for scale_ in scale_iter)
+
         if Constraints.LAND in constraints:
             land_cost = sum(
                 instance.Land_cost_network[scale_] for scale_ in scale_iter)
@@ -133,7 +135,7 @@ def objective_cost_w_demand_penalty(instance: ConcreteModel, demand_penalty: Dic
         penalty = sum(demand_penalty[location_][resource_] * instance.Demand_penalty[location_, resource_, scale_] for
                       location_, resource_, scale_ in product(
             instance.locations, instance.resources_demand, scale_iter_penalty))
-        return capex + cost_trans_capex + vopex + fopex + cost_purch + cost_trans_vopex + cost_trans_fopex + incidental + land_cost - credit + penalty
+        return capex + cost_trans_capex + vopex + fopex + cost_purch + cost_trans_vopex + cost_trans_fopex + incidental + land_cost - credit + penalty + storage_cost
 
     instance.objective_cost_w_demand_penalty = Objective(
         rule=objective_cost_w_demand_penalty_rule, doc='total cost with penalty for demand')
@@ -275,6 +277,8 @@ def objective_profit(instance: ConcreteModel, constraints: Set[Constraints], net
         revenue = sum(instance.R_network[resource_, scale_] for resource_, scale_ in
                       product(instance.resources_sell, scale_iter))
 
+        storage_cost = sum(instance.Inv_cost_network[scale_] for scale_ in scale_iter)
+
         if Constraints.LAND in constraints:
             land_cost = sum(
                 instance.Land_cost_network[scale_] for scale_ in scale_iter)
@@ -299,7 +303,7 @@ def objective_profit(instance: ConcreteModel, constraints: Set[Constraints], net
             cost_trans_vopex = 0
             cost_trans_fopex = 0
         return -(
-                    capex + cost_trans_capex + vopex + fopex + cost_purch + cost_trans_vopex + cost_trans_fopex + incidental + land_cost) + credit + revenue
+                    capex + cost_trans_capex + vopex + fopex + cost_purch + cost_trans_vopex + cost_trans_fopex + incidental + storage_cost) + credit + revenue
 
     instance.objective_profit = Objective(
         rule=objective_profit_rule, sense=maximize, doc='total profit')
@@ -337,6 +341,8 @@ def objective_profit_w_demand_penalty(instance: ConcreteModel, demand_penalty: D
         revenue = sum(instance.R_network[resource_, scale_] for resource_, scale_ in
                       product(instance.resources_sell, scale_iter))
 
+        storage_cost = sum(instance.Inv_cost_network[scale_] for scale_ in scale_iter)
+
         if Constraints.LAND in constraints:
             land_cost = sum(
                 instance.Land_cost_network[scale_] for scale_ in scale_iter)
@@ -365,7 +371,7 @@ def objective_profit_w_demand_penalty(instance: ConcreteModel, demand_penalty: D
                       location_, resource_, scale_ in product(
             instance.locations, instance.resources_demand, scale_iter_penalty))
         return -(
-                    capex + cost_trans_capex + vopex + fopex + cost_purch + cost_trans_vopex + cost_trans_fopex + incidental + land_cost + penalty) + credit + revenue
+                    capex + cost_trans_capex + vopex + fopex + cost_purch + cost_trans_vopex + cost_trans_fopex + incidental + land_cost + penalty + storage_cost) + credit + revenue
 
     instance.objective_profit_w_demand_penalty = Objective(
         rule=objective_profit_w_demand_penalty_rule, sense=maximize, doc='total profit w demand_penalty')
