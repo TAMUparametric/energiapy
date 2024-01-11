@@ -28,7 +28,7 @@ class EmissionWeights:
         eutm (float): marine eutrophication potential
     """
 
-    gwp: floats
+    gwp: float
     odp: float
     acid: float
     eutt: float
