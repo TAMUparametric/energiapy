@@ -10,7 +10,7 @@ __maintainer__ = "Rahul Kakodkar"
 __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
-from pyomo.environ import ConcreteModel, NonNegativeReals, Var
+from pyomo.environ import ConcreteModel, NonNegativeReals, Var, Reals
 
 from ...utils.scale_utils import scale_pyomo_set
 
@@ -38,6 +38,8 @@ def generate_emission_vars(instance: ConcreteModel, scale_level: int = 0):
         instance.locations, instance.processes, instance.scales_emission_network, within=NonNegativeReals, doc='global warming potential caused by each process')
     instance.global_warming_potential_resource_consumption = Var(
         instance.locations, instance.resources_purch, instance.scales_emission_network, within=NonNegativeReals, doc='global warming potential caused by each resource at consumption')
+    # instance.global_warming_potential_resource_consumption_negative = Var(
+    #     instance.locations, instance.resources_purch, instance.scales_emission_network, within=NonNegativeReals, doc='global warming potential caused by each resource at consumption')
     instance.global_warming_potential_resource_discharge = Var(
         instance.locations, instance.resources_sell, instance.scales_emission_network, within=NonNegativeReals, doc='global warming potential caused by each resource at consumption')
     instance.global_warming_potential_resource = Var(
@@ -133,3 +135,5 @@ def generate_emission_vars(instance: ConcreteModel, scale_level: int = 0):
                                                           instance.scales_emission_network, within=NonNegativeReals, doc='marine eutrophication potential caused by each material')
 
     return
+
+

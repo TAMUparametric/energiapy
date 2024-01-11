@@ -18,7 +18,7 @@ from warnings import warn
 @dataclass
 class EmissionWeights:
     """Weights for emission objective 
-    
+
     Args:
         gwp (float): global warming potential 
         odp (float): ozone depletion potential
@@ -27,17 +27,17 @@ class EmissionWeights:
         eutf (float): freshwater eutrophication potential
         eutm (float): marine eutrophication potential
     """
-    
-    gwp: float
+
+    gwp: floats
     odp: float
     acid: float
     eutt: float
     eutf: float
     eutm: float
-    
+
     def __post_init__(self):
 
-        self.total = self.gwp + self.odp + self.acid + self.eutt + self.eutf + self.eutm 
+        self.total = self.gwp + self.odp + self.acid + self.eutt + self.eutf + self.eutm
 
         if isclose(self.total, 1, abs_tol=1e-2) is not True:
             warn('Total of weights should be equal to 1, check self.total')
