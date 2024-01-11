@@ -142,7 +142,7 @@ def constraint_global_warming_potential_resource_consumption(instance: ConcreteM
 
     def global_warming_potential_resource_consumption_rule(instance, location, resource,  *scale_list):
         # if resource_gwp_dict[location][resource] > 0:
-        return instance.global_warming_potential_resource_consumption[location, resource, scale_list] == resource_gwp_dict[location][resource]*instance.C_location[location, resource, scale_list] 
+        return instance.global_warming_potential_resource_consumption[location, resource, scale_list] == resource_gwp_dict[location][resource]*instance.C_location[location, resource, scale_list]
         # else:
         #     return instance.global_warming_potential_resource_consumption[location, resource, scale_list] == 0
     instance.constraint_global_warming_potential_resource_consumption = Constraint(
@@ -167,7 +167,7 @@ def constraint_global_warming_potential_resource_consumption(instance: ConcreteM
 #         if resource_gwp_dict[location][resource] > 0:
 #             return instance.global_warming_potential_resource_consumption_negative[location, resource, scale_list] == 0
 #         else:
-#             return instance.global_warming_potential_resource_consumption_negative[location, resource, scale_list] == -1*resource_gwp_dict[location][resource]*instance.C_location[location, resource, scale_list] 
+#             return instance.global_warming_potential_resource_consumption_negative[location, resource, scale_list] == -1*resource_gwp_dict[location][resource]*instance.C_location[location, resource, scale_list]
 #     instance.constraint_global_warming_potential_resource_consumption_negative = Constraint(
 #         instance.locations, instance.resources_purch, *scales, rule=global_warming_potential_resource_consumption_negative_rule, doc='global warming potential for the each resource consumed')
 #     constraint_latex_render(global_warming_potential_resource_consumption_negative_rule)
@@ -188,7 +188,7 @@ def constraint_global_warming_potential_resource_discharge(instance: ConcreteMod
     scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
 
     def global_warming_potential_resource_discharge_rule(instance, location, resource,  *scale_list):
-        return instance.global_warming_potential_resource_discharge[location, resource, scale_list] == resource_gwp_dict[location][resource]*instance.S_location[location, resource, scale_list] 
+        return instance.global_warming_potential_resource_discharge[location, resource, scale_list] == resource_gwp_dict[location][resource]*instance.S_location[location, resource, scale_list]
     instance.constraint_global_warming_potential_resource_discharge = Constraint(
         instance.locations, instance.resources_sell, *scales, rule=global_warming_potential_resource_discharge_rule, doc='global warming potential for the each resource discharged')
     constraint_latex_render(global_warming_potential_resource_discharge_rule)
@@ -210,13 +210,15 @@ def constraint_global_warming_potential_resource(instance: ConcreteModel, networ
     def global_warming_potential_resource_rule(instance, location, resource,  *scale_list):
         # if (resource in instance.resources_sell) or (resource in instance.resources_purch):
         if resource in instance.resources_sell:
-            sales = instance.global_warming_potential_resource_discharge[location, resource, scale_list]
+            sales = instance.global_warming_potential_resource_discharge[location,
+                                                                         resource, scale_list]
         else:
             sales = 0
-            
+
         if resource in instance.resources_purch:
-            purch = instance.global_warming_potential_resource_consumption[location, resource, scale_list]
-        
+            purch = instance.global_warming_potential_resource_consumption[
+                location, resource, scale_list]
+
         else:
             purch = 0
         return instance.global_warming_potential_resource[location, resource, scale_list] == sales + purch
@@ -276,7 +278,6 @@ def constraint_global_warming_potential_network(instance: ConcreteModel, network
         *scales, rule=global_warming_potential_network_rule, doc='global warming potential for the whole network')
     constraint_latex_render(global_warming_potential_network_rule)
     return instance.constraint_global_warming_potential_network
-
 
 
 def constraint_global_warming_potential_network_reduction(instance: ConcreteModel, network_scale_level: int = 0, gwp_reduction_pct: float = 0, gwp: float = 0) -> Constraint:
@@ -342,7 +343,7 @@ def constraint_global_warming_potential_20_resource(instance: ConcreteModel, emi
     constraint_latex_render(global_warming_potential_process_rule)
     return instance.constraint_global_warming_potential_process
 
-#*--------------------Ozone Depletion Potential-------------------------------------------------------
+# *--------------------Ozone Depletion Potential-------------------------------------------------------
 
 
 def constraint_ozone_depletion_potential_process(instance: ConcreteModel, process_odp_dict: dict, network_scale_level: int = 0) -> Constraint:
@@ -427,10 +428,11 @@ def constraint_ozone_depletion_potential_resource_consumption(instance: Concrete
     scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
 
     def ozone_depletion_potential_resource_consumption_rule(instance, location, resource,  *scale_list):
-        return instance.ozone_depletion_potential_resource_consumption[location, resource, scale_list] == resource_odp_dict[location][resource]*instance.C_location[location, resource, scale_list] 
+        return instance.ozone_depletion_potential_resource_consumption[location, resource, scale_list] == resource_odp_dict[location][resource]*instance.C_location[location, resource, scale_list]
     instance.constraint_ozone_depletion_potential_resource_consumption = Constraint(
         instance.locations, instance.resources_purch, *scales, rule=ozone_depletion_potential_resource_consumption_rule, doc='ozone depletion potential for the each resource consumed')
-    constraint_latex_render(ozone_depletion_potential_resource_consumption_rule)
+    constraint_latex_render(
+        ozone_depletion_potential_resource_consumption_rule)
     return instance.constraint_ozone_depletion_potential_resource_consumption
 
 
@@ -448,7 +450,7 @@ def constraint_ozone_depletion_potential_resource_discharge(instance: ConcreteMo
     scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
 
     def ozone_depletion_potential_resource_discharge_rule(instance, location, resource,  *scale_list):
-        return instance.ozone_depletion_potential_resource_discharge[location, resource, scale_list] == resource_odp_dict[location][resource]*instance.S_location[location, resource, scale_list] 
+        return instance.ozone_depletion_potential_resource_discharge[location, resource, scale_list] == resource_odp_dict[location][resource]*instance.S_location[location, resource, scale_list]
     instance.constraint_ozone_depletion_potential_resource_discharge = Constraint(
         instance.locations, instance.resources_sell, *scales, rule=ozone_depletion_potential_resource_discharge_rule, doc='ozone depletion potential for the each resource discharged')
     constraint_latex_render(ozone_depletion_potential_resource_discharge_rule)
@@ -470,13 +472,15 @@ def constraint_ozone_depletion_potential_resource(instance: ConcreteModel, netwo
     def ozone_depletion_potential_resource_rule(instance, location, resource,  *scale_list):
         # if (resource in instance.resources_sell) or (resource in instance.resources_purch):
         if resource in instance.resources_sell:
-            sales = instance.ozone_depletion_potential_resource_discharge[location, resource, scale_list]
+            sales = instance.ozone_depletion_potential_resource_discharge[
+                location, resource, scale_list]
         else:
             sales = 0
-            
+
         if resource in instance.resources_purch:
-            purch = instance.ozone_depletion_potential_resource_consumption[location, resource, scale_list]
-        
+            purch = instance.ozone_depletion_potential_resource_consumption[
+                location, resource, scale_list]
+
         else:
             purch = 0
         return instance.ozone_depletion_potential_resource[location, resource, scale_list] == sales + purch
@@ -537,7 +541,7 @@ def constraint_ozone_depletion_potential_network(instance: ConcreteModel, networ
     constraint_latex_render(ozone_depletion_potential_network_rule)
     return instance.constraint_ozone_depletion_potential_network
 
-#*-------------------------------------Acidification Potential------------------------------------------------
+# *-------------------------------------Acidification Potential------------------------------------------------
 
 
 def constraint_acidification_potential_process(instance: ConcreteModel, process_acid_dict: dict, network_scale_level: int = 0) -> Constraint:
@@ -559,6 +563,7 @@ def constraint_acidification_potential_process(instance: ConcreteModel, process_
         instance.locations, instance.processes, *scales, rule=acidification_potential_process_rule, doc='acidification potential for the each process')
     constraint_latex_render(acidification_potential_process_rule)
     return instance.constraint_acidification_potential_process
+
 
 def constraint_acidification_potential_material_mode(instance: ConcreteModel, material_acid_dict: dict, process_material_mode_material_dict: dict, network_scale_level: int = 0) -> Constraint:
     """Calculates the acidification potential arising from the use of materials for processes in each material mode
@@ -621,7 +626,7 @@ def constraint_acidification_potential_resource_consumption(instance: ConcreteMo
     scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
 
     def acidification_potential_resource_consumption_rule(instance, location, resource,  *scale_list):
-        return instance.acidification_potential_resource_consumption[location, resource, scale_list] == resource_acid_dict[location][resource]*instance.C_location[location, resource, scale_list] 
+        return instance.acidification_potential_resource_consumption[location, resource, scale_list] == resource_acid_dict[location][resource]*instance.C_location[location, resource, scale_list]
     instance.constraint_acidification_potential_resource_consumption = Constraint(
         instance.locations, instance.resources_purch, *scales, rule=acidification_potential_resource_consumption_rule, doc='acidification potential for the each resource consumed')
     constraint_latex_render(acidification_potential_resource_consumption_rule)
@@ -642,7 +647,7 @@ def constraint_acidification_potential_resource_discharge(instance: ConcreteMode
     scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
 
     def acidification_potential_resource_discharge_rule(instance, location, resource,  *scale_list):
-        return instance.acidification_potential_resource_discharge[location, resource, scale_list] == resource_acid_dict[location][resource]*instance.S_location[location, resource, scale_list] 
+        return instance.acidification_potential_resource_discharge[location, resource, scale_list] == resource_acid_dict[location][resource]*instance.S_location[location, resource, scale_list]
     instance.constraint_acidification_potential_resource_discharge = Constraint(
         instance.locations, instance.resources_sell, *scales, rule=acidification_potential_resource_discharge_rule, doc='acidification potential for the each resource discharged')
     constraint_latex_render(acidification_potential_resource_discharge_rule)
@@ -664,13 +669,15 @@ def constraint_acidification_potential_resource(instance: ConcreteModel, network
     def acidification_potential_resource_rule(instance, location, resource,  *scale_list):
         # if (resource in instance.resources_sell) or (resource in instance.resources_purch):
         if resource in instance.resources_sell:
-            sales = instance.acidification_potential_resource_discharge[location, resource, scale_list]
+            sales = instance.acidification_potential_resource_discharge[location,
+                                                                        resource, scale_list]
         else:
             sales = 0
-            
+
         if resource in instance.resources_purch:
-            purch = instance.acidification_potential_resource_consumption[location, resource, scale_list]
-        
+            purch = instance.acidification_potential_resource_consumption[
+                location, resource, scale_list]
+
         else:
             purch = 0
         return instance.acidification_potential_resource[location, resource, scale_list] == sales + purch
@@ -731,7 +738,8 @@ def constraint_acidification_potential_network(instance: ConcreteModel, network_
     constraint_latex_render(acidification_potential_network_rule)
     return instance.constraint_acidification_potential_network
 
-#*-------------------Terrestrial Eutrophication Potential-------------------------------------------------------------
+# *-------------------Terrestrial Eutrophication Potential-------------------------------------------------------------
+
 
 def constraint_terrestrial_eutrophication_potential_process(instance: ConcreteModel, process_eutt_dict: dict, network_scale_level: int = 0) -> Constraint:
     """calculates terrestrial eutrophication potential for each process
@@ -752,6 +760,7 @@ def constraint_terrestrial_eutrophication_potential_process(instance: ConcreteMo
         instance.locations, instance.processes, *scales, rule=terrestrial_eutrophication_potential_process_rule, doc='terrestrial eutrophication potential for the each process')
     constraint_latex_render(terrestrial_eutrophication_potential_process_rule)
     return instance.constraint_terrestrial_eutrophication_potential_process
+
 
 def constraint_terrestrial_eutrophication_potential_material_mode(instance: ConcreteModel, material_eutt_dict: dict, process_material_mode_material_dict: dict, network_scale_level: int = 0) -> Constraint:
     """Calculates the terrestrial eutrophication potential arising from the use of materials for processes in each material mode
@@ -776,7 +785,8 @@ def constraint_terrestrial_eutrophication_potential_material_mode(instance: Conc
             return Constraint.Skip
     instance.constraint_terrestrial_eutrophication_potential_material_mode = Constraint(
         instance.locations, instance.processes_materials, instance.material_modes, *scales, rule=terrestrial_eutrophication_potential_material_mode_rule, doc='terrestrial eutrophication potential for the each material')
-    constraint_latex_render(terrestrial_eutrophication_potential_material_mode_rule)
+    constraint_latex_render(
+        terrestrial_eutrophication_potential_material_mode_rule)
     return instance.constraint_terrestrial_eutrophication_potential_material_mode
 
 
@@ -814,10 +824,11 @@ def constraint_terrestrial_eutrophication_potential_resource_consumption(instanc
     scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
 
     def terrestrial_eutrophication_potential_resource_consumption_rule(instance, location, resource,  *scale_list):
-        return instance.terrestrial_eutrophication_potential_resource_consumption[location, resource, scale_list] == resource_eutt_dict[location][resource]*instance.C_location[location, resource, scale_list] 
+        return instance.terrestrial_eutrophication_potential_resource_consumption[location, resource, scale_list] == resource_eutt_dict[location][resource]*instance.C_location[location, resource, scale_list]
     instance.constraint_terrestrial_eutrophication_potential_resource_consumption = Constraint(
         instance.locations, instance.resources_purch, *scales, rule=terrestrial_eutrophication_potential_resource_consumption_rule, doc='terrestrial eutrophication potential for the each resource consumed')
-    constraint_latex_render(terrestrial_eutrophication_potential_resource_consumption_rule)
+    constraint_latex_render(
+        terrestrial_eutrophication_potential_resource_consumption_rule)
     return instance.constraint_terrestrial_eutrophication_potential_resource_consumption
 
 
@@ -835,10 +846,11 @@ def constraint_terrestrial_eutrophication_potential_resource_discharge(instance:
     scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
 
     def terrestrial_eutrophication_potential_resource_discharge_rule(instance, location, resource,  *scale_list):
-        return instance.terrestrial_eutrophication_potential_resource_discharge[location, resource, scale_list] == resource_eutt_dict[location][resource]*instance.S_location[location, resource, scale_list] 
+        return instance.terrestrial_eutrophication_potential_resource_discharge[location, resource, scale_list] == resource_eutt_dict[location][resource]*instance.S_location[location, resource, scale_list]
     instance.constraint_terrestrial_eutrophication_potential_resource_discharge = Constraint(
         instance.locations, instance.resources_sell, *scales, rule=terrestrial_eutrophication_potential_resource_discharge_rule, doc='terrestrial eutrophication potential for the each resource discharged')
-    constraint_latex_render(terrestrial_eutrophication_potential_resource_discharge_rule)
+    constraint_latex_render(
+        terrestrial_eutrophication_potential_resource_discharge_rule)
     return instance.constraint_terrestrial_eutrophication_potential_resource_discharge
 
 
@@ -857,13 +869,15 @@ def constraint_terrestrial_eutrophication_potential_resource(instance: ConcreteM
     def terrestrial_eutrophication_potential_resource_rule(instance, location, resource,  *scale_list):
         # if (resource in instance.resources_sell) or (resource in instance.resources_purch):
         if resource in instance.resources_sell:
-            sales = instance.terrestrial_eutrophication_potential_resource_discharge[location, resource, scale_list]
+            sales = instance.terrestrial_eutrophication_potential_resource_discharge[
+                location, resource, scale_list]
         else:
             sales = 0
-            
+
         if resource in instance.resources_purch:
-            purch = instance.terrestrial_eutrophication_potential_resource_consumption[location, resource, scale_list]
-        
+            purch = instance.terrestrial_eutrophication_potential_resource_consumption[
+                location, resource, scale_list]
+
         else:
             purch = 0
         return instance.terrestrial_eutrophication_potential_resource[location, resource, scale_list] == sales + purch
@@ -924,7 +938,7 @@ def constraint_terrestrial_eutrophication_potential_network(instance: ConcreteMo
     constraint_latex_render(terrestrial_eutrophication_potential_network_rule)
     return instance.constraint_terrestrial_eutrophication_potential_network
 
-#*-------------------Freshwater Eutrophication Potential-------------------------------------------------------------
+# *-------------------Freshwater Eutrophication Potential-------------------------------------------------------------
 
 
 def constraint_freshwater_eutrophication_potential_process(instance: ConcreteModel, process_eutf_dict: dict, network_scale_level: int = 0) -> Constraint:
@@ -946,6 +960,7 @@ def constraint_freshwater_eutrophication_potential_process(instance: ConcreteMod
         instance.locations, instance.processes, *scales, rule=freshwater_eutrophication_potential_process_rule, doc='freshwater eutrophication potential for the each process')
     constraint_latex_render(freshwater_eutrophication_potential_process_rule)
     return instance.constraint_freshwater_eutrophication_potential_process
+
 
 def constraint_freshwater_eutrophication_potential_material_mode(instance: ConcreteModel, material_eutf_dict: dict, process_material_mode_material_dict: dict, network_scale_level: int = 0) -> Constraint:
     """Calculates the freshwater eutrophication potential arising from the use of materials for processes in each material mode
@@ -970,7 +985,8 @@ def constraint_freshwater_eutrophication_potential_material_mode(instance: Concr
             return Constraint.Skip
     instance.constraint_freshwater_eutrophication_potential_material_mode = Constraint(
         instance.locations, instance.processes_materials, instance.material_modes, *scales, rule=freshwater_eutrophication_potential_material_mode_rule, doc='freshwater eutrophication potential for the each material')
-    constraint_latex_render(freshwater_eutrophication_potential_material_mode_rule)
+    constraint_latex_render(
+        freshwater_eutrophication_potential_material_mode_rule)
     return instance.constraint_freshwater_eutrophication_potential_material_mode
 
 
@@ -1008,10 +1024,11 @@ def constraint_freshwater_eutrophication_potential_resource_consumption(instance
     scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
 
     def freshwater_eutrophication_potential_resource_consumption_rule(instance, location, resource,  *scale_list):
-        return instance.freshwater_eutrophication_potential_resource_consumption[location, resource, scale_list] == resource_eutf_dict[location][resource]*instance.C_location[location, resource, scale_list] 
+        return instance.freshwater_eutrophication_potential_resource_consumption[location, resource, scale_list] == resource_eutf_dict[location][resource]*instance.C_location[location, resource, scale_list]
     instance.constraint_freshwater_eutrophication_potential_resource_consumption = Constraint(
         instance.locations, instance.resources_purch, *scales, rule=freshwater_eutrophication_potential_resource_consumption_rule, doc='freshwater eutrophication potential for the each resource consumed')
-    constraint_latex_render(freshwater_eutrophication_potential_resource_consumption_rule)
+    constraint_latex_render(
+        freshwater_eutrophication_potential_resource_consumption_rule)
     return instance.constraint_freshwater_eutrophication_potential_resource_consumption
 
 
@@ -1029,10 +1046,11 @@ def constraint_freshwater_eutrophication_potential_resource_discharge(instance: 
     scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
 
     def freshwater_eutrophication_potential_resource_discharge_rule(instance, location, resource,  *scale_list):
-        return instance.freshwater_eutrophication_potential_resource_discharge[location, resource, scale_list] == resource_eutf_dict[location][resource]*instance.S_location[location, resource, scale_list] 
+        return instance.freshwater_eutrophication_potential_resource_discharge[location, resource, scale_list] == resource_eutf_dict[location][resource]*instance.S_location[location, resource, scale_list]
     instance.constraint_freshwater_eutrophication_potential_resource_discharge = Constraint(
         instance.locations, instance.resources_sell, *scales, rule=freshwater_eutrophication_potential_resource_discharge_rule, doc='freshwater eutrophication potential for the each resource discharged')
-    constraint_latex_render(freshwater_eutrophication_potential_resource_discharge_rule)
+    constraint_latex_render(
+        freshwater_eutrophication_potential_resource_discharge_rule)
     return instance.constraint_freshwater_eutrophication_potential_resource_discharge
 
 
@@ -1051,13 +1069,15 @@ def constraint_freshwater_eutrophication_potential_resource(instance: ConcreteMo
     def freshwater_eutrophication_potential_resource_rule(instance, location, resource,  *scale_list):
         # if (resource in instance.resources_sell) or (resource in instance.resources_purch):
         if resource in instance.resources_sell:
-            sales = instance.freshwater_eutrophication_potential_resource_discharge[location, resource, scale_list]
+            sales = instance.freshwater_eutrophication_potential_resource_discharge[
+                location, resource, scale_list]
         else:
             sales = 0
-            
+
         if resource in instance.resources_purch:
-            purch = instance.freshwater_eutrophication_potential_resource_consumption[location, resource, scale_list]
-        
+            purch = instance.freshwater_eutrophication_potential_resource_consumption[
+                location, resource, scale_list]
+
         else:
             purch = 0
         return instance.freshwater_eutrophication_potential_resource[location, resource, scale_list] == sales + purch
@@ -1118,7 +1138,8 @@ def constraint_freshwater_eutrophication_potential_network(instance: ConcreteMod
     constraint_latex_render(freshwater_eutrophication_potential_network_rule)
     return instance.constraint_freshwater_eutrophication_potential_network
 
-#*-------------------Marine Eutrophication Potential-------------------------------------------------------------
+# *-------------------Marine Eutrophication Potential-------------------------------------------------------------
+
 
 def constraint_marine_eutrophication_potential_process(instance: ConcreteModel, process_eutm_dict: dict, network_scale_level: int = 0) -> Constraint:
     """calculates marine eutrophication potential for each process
@@ -1139,6 +1160,7 @@ def constraint_marine_eutrophication_potential_process(instance: ConcreteModel, 
         instance.locations, instance.processes, *scales, rule=marine_eutrophication_potential_process_rule, doc='marine eutrophication potential for the each process')
     constraint_latex_render(marine_eutrophication_potential_process_rule)
     return instance.constraint_marine_eutrophication_potential_process
+
 
 def constraint_marine_eutrophication_potential_material_mode(instance: ConcreteModel, material_eutm_dict: dict, process_material_mode_material_dict: dict, network_scale_level: int = 0) -> Constraint:
     """Calculates the marine eutrophication potential arising from the use of materials for processes in each material mode
@@ -1201,10 +1223,11 @@ def constraint_marine_eutrophication_potential_resource_consumption(instance: Co
     scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
 
     def marine_eutrophication_potential_resource_consumption_rule(instance, location, resource,  *scale_list):
-        return instance.marine_eutrophication_potential_resource_consumption[location, resource, scale_list] == resource_eutm_dict[location][resource]*instance.C_location[location, resource, scale_list] 
+        return instance.marine_eutrophication_potential_resource_consumption[location, resource, scale_list] == resource_eutm_dict[location][resource]*instance.C_location[location, resource, scale_list]
     instance.constraint_marine_eutrophication_potential_resource_consumption = Constraint(
         instance.locations, instance.resources_purch, *scales, rule=marine_eutrophication_potential_resource_consumption_rule, doc='marine eutrophication potential for the each resource consumed')
-    constraint_latex_render(marine_eutrophication_potential_resource_consumption_rule)
+    constraint_latex_render(
+        marine_eutrophication_potential_resource_consumption_rule)
     return instance.constraint_marine_eutrophication_potential_resource_consumption
 
 
@@ -1222,10 +1245,11 @@ def constraint_marine_eutrophication_potential_resource_discharge(instance: Conc
     scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
 
     def marine_eutrophication_potential_resource_discharge_rule(instance, location, resource,  *scale_list):
-        return instance.marine_eutrophication_potential_resource_discharge[location, resource, scale_list] == resource_eutm_dict[location][resource]*instance.S_location[location, resource, scale_list] 
+        return instance.marine_eutrophication_potential_resource_discharge[location, resource, scale_list] == resource_eutm_dict[location][resource]*instance.S_location[location, resource, scale_list]
     instance.constraint_marine_eutrophication_potential_resource_discharge = Constraint(
         instance.locations, instance.resources_sell, *scales, rule=marine_eutrophication_potential_resource_discharge_rule, doc='marine eutrophication potential for the each resource discharged')
-    constraint_latex_render(marine_eutrophication_potential_resource_discharge_rule)
+    constraint_latex_render(
+        marine_eutrophication_potential_resource_discharge_rule)
     return instance.constraint_marine_eutrophication_potential_resource_discharge
 
 
@@ -1244,13 +1268,15 @@ def constraint_marine_eutrophication_potential_resource(instance: ConcreteModel,
     def marine_eutrophication_potential_resource_rule(instance, location, resource,  *scale_list):
         # if (resource in instance.resources_sell) or (resource in instance.resources_purch):
         if resource in instance.resources_sell:
-            sales = instance.marine_eutrophication_potential_resource_discharge[location, resource, scale_list]
+            sales = instance.marine_eutrophication_potential_resource_discharge[
+                location, resource, scale_list]
         else:
             sales = 0
-            
+
         if resource in instance.resources_purch:
-            purch = instance.marine_eutrophication_potential_resource_consumption[location, resource, scale_list]
-        
+            purch = instance.marine_eutrophication_potential_resource_consumption[
+                location, resource, scale_list]
+
         else:
             purch = 0
         return instance.marine_eutrophication_potential_resource[location, resource, scale_list] == sales + purch
