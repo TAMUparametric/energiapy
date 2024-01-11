@@ -56,8 +56,9 @@ class Material:
     label: str = ''
 
     def __post_init__(self):
-        self.emission_potentials_dict = {'gwp': self.gwp, 'odp': self.odp, 'acid': self.acid, 'eutt': self.eutt, 'eutf': self.eutf, 'eutm': self.eutm}
-        
+        self.emission_potentials_dict = {'gwp': self.gwp, 'odp': self.odp,
+                                         'acid': self.acid, 'eutt': self.eutt, 'eutf': self.eutf, 'eutm': self.eutm}
+
     def __repr__(self):
         return self.name
 
