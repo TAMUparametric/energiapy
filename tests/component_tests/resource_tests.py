@@ -4,7 +4,7 @@ from src.energiapy.components.resource import Resource
 def test_resource():
     cons_resource = Resource(name='test_resource', cons_max= 100)
     
-        name: str
+    name: str
     cons_max: float = 0
     loss: float = 0
     revenue: float = 0
