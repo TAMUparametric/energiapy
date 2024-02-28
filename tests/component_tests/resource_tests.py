@@ -1,3 +1,1 @@
-from tests.test_fixtures import resource_uncertain_availability, resource_uncertain_demand, resource_uncertain_price, resource_uncertain_revenue
-
-def test_
+from tests.test_fixtures import resource_deterministic_availability, resource_deterministic_demand, resource_deterministic_price, resource_deterministic_revenue
