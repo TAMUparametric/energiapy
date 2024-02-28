@@ -1,4 +1,5 @@
 import pandas
+import pytest
 from src.energiapy.components.resource import Resource, VaryingResource
 from src.energiapy.components.temporal_scale import TemporalScale
 from src.energiapy.components.process import Process, VaryingProcess
@@ -10,7 +11,7 @@ from src.energiapy.model.solve import solve
 
 @pytest.fixture()
 def temporal_scale():
-    """Test temporal scale with 1 main period and 4 sub periods""""
+    """Test temporal scale with 1 main period and 4 sub periods"""
     return TemporalScale(discretization_list=[1, 4])
 
 
