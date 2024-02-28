@@ -19,7 +19,19 @@ def temporal_scale():
 def process_material_modes():
     """Process with material modes"""
     
+    Resource1 = Resource(name='Resource 1', cons_max=1000)
+    Resource2 = Resource(name='Resource 2')
     
+    Material1 = Material(name ='Material 1', gwp= 100)
+
+    Material2 = Material(name = 'Material 2', gwp = 200)
+
+    Process1 = Process(name='PV', conversion={'Mo':{Solar: -5, Power: 1}, 'Po': {Solar: -6.67, Power: 1}}, 
+              capex= {'Mo': 1210000 , 'Po': 1000000}, fopex= {'Mo': 3354, 'Po': 3354}, vopex= {'Mo': 4953, 'Po': 4953}
+              , material_cons={'Mo': {Glass: 70, Steel: 56, Concrete: 48, Aluminium: 19, Silicon: 7, Copper: 7}, 
+                               'Po': {Glass: 70, Steel: 56, Concrete: 48, Aluminium: 19, Silicon: 7, Copper: 7}},
+                 prod_min=smallM, prod_max=bigM, varying=[VaryingProcess.DETERMINISTIC_CAPACITY], label='Solar PV', basis='MW', block = 'power')
+# WIND OPTIONS
 @pytest.fixture()
 def process_multiple_modes():
     """Process with multiple modes and ramping rates"""
