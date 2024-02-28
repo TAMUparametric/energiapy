@@ -51,6 +51,7 @@ class ProcessMode(Enum):
     Storage type process
     """
 
+
 class MaterialMode(Enum):
     """
     Mode for materials 
@@ -97,6 +98,7 @@ class VaryingProcess(Enum):
     """
     Has multiple modes of operation
     """
+
 
 @dataclass
 class Process:
@@ -158,7 +160,8 @@ class Process:
     fopex: Union[float, dict] = 0
     vopex: Union[float, dict] = 0
     incidental: Union[float, dict] = 0
-    material_cons: Union[Dict[Union[int, str], Dict[Material, float]],Dict[Material, float]] = None
+    material_cons: Union[Dict[Union[int, str],
+                              Dict[Material, float]], Dict[Material, float]] = None
     prod_max: Union[Dict[int, float], float] = 0
     prod_min: float = 0
     basis: str = 'unit'
@@ -205,10 +208,9 @@ class Process:
                 if self.prod_max > 0:
                     self.varying = self.varying + \
                         [VaryingProcess.CERTAIN_CAPACITY]
-                        
+
         if not isinstance(self.varying, list):
             warn('Provide a list of VaryingProcess enums')
-
 
         if self.storage is not None:
             self.resource_storage = create_storage_resource(
@@ -226,14 +228,14 @@ class Process:
                 self.processmode = ProcessMode.MULTI
             else:
                 self.processmode = ProcessMode.SINGLE
-                
-        if self.material_cons is not None:                
+
+        if self.material_cons is not None:
             if isinstance(list(self.material_cons.keys())[0], (int, str)):
                 self.materialmode = MaterialMode.MULTI
             else:
-                self.materialmode = MaterialMode.SINGLE  
+                self.materialmode = MaterialMode.SINGLE
         else:
-            self.material_cons = {} 
+            self.material_cons = {}
 
         if isinstance(self.capex, (int, float)):
             self.cost_dynamics = CostDynamics.CONSTANT
@@ -244,7 +246,7 @@ class Process:
         if (self.processmode is ProcessMode.MULTI) or (self.materialmode is MaterialMode.MULTI):
             if self.processmode is ProcessMode.STORAGE:
                 self.resource_req = {i.name for i in self.conversion.keys()}
-            else:    
+            else:
                 self.resource_req = {
                     i.name for i in self.conversion[list(self.conversion.keys())[0]].keys()}  # the required resources are drawn from the conversion dict, this includes stored resource
         else:
@@ -258,11 +260,11 @@ class Process:
 
         if self.cost_dynamics == CostDynamics.PWL:
             self.capacity_segments = list(self.capex.keys())
-            self.capex_segements = list(self.capex.values())
-        
-        self.material_modes = set(self.material_cons.keys())
-        # self.emission_dict = {i: i.emissions for i in self.conversion.keys()}
+            self.capex_segments = list(self.capex.values())
 
+        self.material_modes = set(self.material_cons.keys())
+        # self.emission_dict = {i: i.emissions for i in self.conversion.keys()
+        
     def __repr__(self):
         return self.name
 
@@ -271,4 +273,3 @@ class Process:
 
     def __eq__(self, other):
         return self.name == other.name
-

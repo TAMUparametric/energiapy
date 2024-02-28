@@ -156,6 +156,12 @@ class Resource:
         if not isinstance(self.varying, list):
             warn('Provide a list of VaryingResource enums')
 
+        if (VaryingResource.DETERMINISTIC_PRICE in self.varying) and (self.price == 0):
+            warn('Varying prices are normalized, provide non-zero price')
+
+        if (VaryingResource.DETERMINISTIC_AVAILABILITY in self.varying) and (self.cons_max == 0):
+            warn('Varying availability is normalized, provide non-zero cons_max')
+
     def __repr__(self):
         return self.name
 
