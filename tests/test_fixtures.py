@@ -11,11 +11,20 @@ from src.energiapy.model.solve import solve
 
 @pytest.fixture()
 def temporal_scale():
-    """Test temporal scale with 1 main period and 4 sub periods"""
+    """Temporal scale with 1 main period and 4 sub periods"""
     return TemporalScale(discretization_list=[1, 4])
 
 
-@pytest.fixture
+@pytest.fixture()
+def process_material_modes():
+    """Process with material modes"""
+    
+    
+@pytest.fixture()
+def process_multiple_modes():
+    """Process with multiple modes and ramping rates"""
+    
+
 
 # @pytest.fixture()
 # def resource_deterministic_availability():
