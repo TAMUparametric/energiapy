@@ -9,7 +9,7 @@ from src.energiapy.components.material import Material
 from src.energiapy.model.formulate import formulate, Constraints, Objective
 from src.energiapy.model.solve import solve
 
-
+####
 @pytest.fixture()
 def temporal_scale():
     """Temporal scale with 1 main period and 4 sub periods"""
