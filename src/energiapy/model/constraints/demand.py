@@ -102,8 +102,10 @@ def constraint_demand(instance: ConcreteModel, demand: Union[dict, float], deman
             if isinstance(demand, dict):
                 if resource in location_resource_dict[location]:
                     if resource in demand_factor[location].keys():
+                        print(scale_list)
                         demandtarget = demand[location][resource] * \
                             demand_factor[location][resource][scale_list[:demand_scale_level + 1]]
+                        print(demandtarget)
                     else:
                         demandtarget = demand[location][resource]
                 else:
