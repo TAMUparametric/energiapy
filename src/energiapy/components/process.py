@@ -277,6 +277,10 @@ class Process:
         self.emission_potentials_dict = {'gwp': self.gwp, 'odp': self.odp,
                                          'acid': self.acid, 'eutt': self.eutt, 'eutf': self.eutf, 'eutm': self.eutm}
 
+
+        self.material_modes = set(self.material_cons.keys())
+        # self.emission_dict = {i: i.emissions for i in self.conversion.keys()
+        
     def __repr__(self):
         return self.name
 

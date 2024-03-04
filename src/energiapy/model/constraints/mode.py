@@ -168,7 +168,7 @@ def constraint_production_rate1(instance: ConcreteModel, rate_max_dict: dict, sc
 
     def production_rate_rule1(instance, location, process, mode, *scale_list):
         if rate_max_dict[process] is not None:
-            return instance.P_m[location, process, mode, scale_list[:scheduling_scale_level + 1]] - instance.P_m[location, process, mode, scale_iter[scale_iter.index(scale_list[:scheduling_scale_level + 1]) - 1]] >= - rate_max_dict[process][mode] - max(rate_max_dict['PEM'].values())*(2 - instance.X_P_m[location, process, mode, scale_list[:scheduling_scale_level + 1]] - instance.X_P_m[location, process, mode, scale_iter[scale_iter.index(scale_list[:scheduling_scale_level + 1]) - 1]])
+            return instance.P_m[location, process, mode, scale_list[:scheduling_scale_level + 1]] - instance.P_m[location, process, mode, scale_iter[scale_iter.index(scale_list[:scheduling_scale_level + 1]) - 1]] >= - rate_max_dict[process][mode] - max(rate_max_dict[process].values())*(2 - instance.X_P_m[location, process, mode, scale_list[:scheduling_scale_level + 1]] - instance.X_P_m[location, process, mode, scale_iter[scale_iter.index(scale_list[:scheduling_scale_level + 1]) - 1]])
         else:
             return Constraint.Skip
 
@@ -202,8 +202,8 @@ def constraint_production_rate2(instance: ConcreteModel, rate_max_dict: dict, sc
             lhs = instance.P_m[location, process, mode, scale_list[:scheduling_scale_level + 1]] - instance.P_m[location,
                                                                                                                 process, mode, scale_iter[scale_iter.index(scale_list[:scheduling_scale_level + 1]) - 1]]
 
-            rhs = rate_max_dict[process][mode] + max(rate_max_dict['PEM'].values())*(2 - instance.X_P_m[location, process, mode, scale_list[:scheduling_scale_level + 1]
-                                                                                                        ] - instance.X_P_m[location, process, mode, scale_iter[scale_iter.index(scale_list[:scheduling_scale_level + 1]) - 1]])
+            rhs = rate_max_dict[process][mode] + max(rate_max_dict[process].values())*(2 - instance.X_P_m[location, process, mode, scale_list[:scheduling_scale_level + 1]
+                                                                                                          ] - instance.X_P_m[location, process, mode, scale_iter[scale_iter.index(scale_list[:scheduling_scale_level + 1]) - 1]])
             return lhs <= rhs
         else:
             return Constraint.Skip
