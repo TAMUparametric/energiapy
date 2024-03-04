@@ -270,7 +270,7 @@ class Process:
 
         if self.cost_dynamics == CostDynamics.PWL:
             self.capacity_segments = list(self.capex.keys())
-            self.capex_segements = list(self.capex.values())
+            self.capex_segments = list(self.capex.values())
 
         self.material_modes = set(self.material_cons.keys())
         # self.emission_dict = {i: i.emissions for i in self.conversion.keys()}
