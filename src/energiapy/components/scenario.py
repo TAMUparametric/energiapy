@@ -23,6 +23,7 @@ from ..components.process import ProcessMode, VaryingProcess, CostDynamics
 from ..components.resource import Resource, VaryingResource
 from ..components.temporal_scale import TemporalScale
 from ..model.bounds import CapacityBounds
+from ..model.weights import EmissionWeights
 
 
 @dataclass
@@ -46,8 +47,9 @@ class Scenario:
         capacity_bounds (CapacityBounds, optional): bounds on the capacity, useful for multi-period formulations. Defaults to None.
         annualization_factor (float, optional): the annualization factor for Capex. Defaults to 1.
         demand_penalty (Dict[Location, Dict[Resource, float]]): penalty for unmet demand at location for each resource. Defaults to None.
-        error (float): error introduced through scenario reduction
-        rep_days_dict (dict): dictionary of representative days
+        error (float, optional): error introduced through scenario reduction. Defaults to None.
+        rep_days_dict (dict, optional): dictionary of representative days. Defaults to None.
+        emission_weights (EmissionWeights): dataclass with weights for different emission objectives. Defaults to None. 
     Example:
         The Scenario can be built over a single location. The network here is specified as a single Location. Considering scales (TemporalScale object for a year, [1, 365, 24]), scheduling, expenditure, and demand are met at an hourly level, and network at an annual level.
 
@@ -75,6 +77,7 @@ class Scenario:
     demand_penalty: Dict[Location, Dict[Resource, float]] = None
     error: float = None
     rep_dict: dict = None
+    emission_weights: EmissionWeights = None
 
     def __post_init__(self):
         """
@@ -247,10 +250,40 @@ class Scenario:
         self.land_dict = {i.name: i.land for i in self.process_set}
         self.material_gwp_dict = {
             i.name: {j.name: j.gwp for j in self.material_set} for i in self.location_set}
+        self.material_odp_dict = {
+            i.name: {j.name: j.odp for j in self.material_set} for i in self.location_set}
+        self.material_acid_dict = {
+            i.name: {j.name: j.acid for j in self.material_set} for i in self.location_set}
+        self.material_eutt_dict = {
+            i.name: {j.name: j.eutt for j in self.material_set} for i in self.location_set}
+        self.material_eutf_dict = {
+            i.name: {j.name: j.eutf for j in self.material_set} for i in self.location_set}
+        self.material_eutm_dict = {
+            i.name: {j.name: j.eutm for j in self.material_set} for i in self.location_set}
         self.resource_gwp_dict = {
             i.name: {j.name: j.gwp for j in self.resource_set} for i in self.location_set}
+        self.resource_odp_dict = {
+            i.name: {j.name: j.odp for j in self.resource_set} for i in self.location_set}
+        self.resource_acid_dict = {
+            i.name: {j.name: j.acid for j in self.resource_set} for i in self.location_set}
+        self.resource_eutt_dict = {
+            i.name: {j.name: j.eutt for j in self.resource_set} for i in self.location_set}
+        self.resource_eutf_dict = {
+            i.name: {j.name: j.eutf for j in self.resource_set} for i in self.location_set}
+        self.resource_eutm_dict = {
+            i.name: {j.name: j.eutm for j in self.resource_set} for i in self.location_set}
         self.process_gwp_dict = {
             i.name: {j.name: j.gwp for j in self.process_set} for i in self.location_set}
+        self.process_odp_dict = {
+            i.name: {j.name: j.odp for j in self.process_set} for i in self.location_set}
+        self.process_acid_dict = {
+            i.name: {j.name: j.acid for j in self.process_set} for i in self.location_set}
+        self.process_eutt_dict = {
+            i.name: {j.name: j.eutt for j in self.process_set} for i in self.location_set}
+        self.process_eutf_dict = {
+            i.name: {j.name: j.eutf for j in self.process_set} for i in self.location_set}
+        self.process_eutm_dict = {
+            i.name: {j.name: j.eutm for j in self.process_set} for i in self.location_set}
         self.land_cost_dict = {i.name: i.land_cost for i in self.location_set}
         self.fail_factor = {i.name: i.fail_factor for i in self.location_set}
         self.credit_dict = {i.name: {j.name: i.credit[j] for j in i.credit.keys(
@@ -264,8 +297,9 @@ class Scenario:
         #                               self.process_set}
         self.process_material_dict = {
             i.name: {j.name: i.material_cons[j] if j in i.material_cons.keys() else 0 for j in self.material_set} for i in self.process_set}
-        
-        self.process_material_mode_material_dict = {i.name: {j:{l.name: m for l,m in k.items() } for j,k in i.material_cons.items()} for i in self.process_set}
+
+        self.process_material_mode_material_dict = {i.name: {j: {l.name: m for l, m in k.items(
+        )} for j, k in i.material_cons.items()} for i in self.process_set}
         multiconversion_dict = dict()
         for i in self.process_set:
             if i.processmode == ProcessMode.MULTI:
@@ -303,17 +337,19 @@ class Scenario:
 
         self.storage_cost_dict = {
             i.name: i.storage_cost_dict for i in self.location_set}
-        
+
         process_material_modes = []
         for i in self.process_set:
             if i.material_cons is not None:
 
-                process_material_modes = process_material_modes + [(i.name, j) for j in list(i.material_cons.keys())]
+                process_material_modes = process_material_modes + \
+                    [(i.name, j) for j in list(i.material_cons.keys())]
                 if i.material_cons != {}:
                     self.process_material_modes = process_material_modes
-                    
-                    self.process_material_modes_dict = {i.name: i.material_modes for i in self.process_set}
-                    
+
+                    self.process_material_modes_dict = {
+                        i.name: i.material_modes for i in self.process_set}
+
         set_dict = {
             'resources': [i.name for i in self.resource_set],
 
@@ -388,9 +424,9 @@ class Scenario:
 
             'locations': [i.name for i in self.location_set],
             'materials': [i.name for i in self.material_set],
-            
+
             'process_material_modes': process_material_modes,
-            
+
             'material_modes': [element for dictionary in list(i.material_modes for i in self.process_set) for element in dictionary]
         }
 
@@ -424,7 +460,7 @@ class Scenario:
             set_dict['resources_trans'] = []
 
         self.set_dict = {x: sorted(set_dict[x]) for x in set_dict.keys()}
-        
+
         if isinstance(self.network, Network):
             transport_set_dict = {
                 'transports_certain_capacity': [i.name for i in self.transport_set if VaryingTransport.CERTAIN_CAPACITY in i.varying],

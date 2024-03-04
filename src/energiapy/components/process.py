@@ -120,6 +120,11 @@ class Process:
         credit (float, None): credit earned per unit basis of production. Defaults to None.
         basis(str, optional): base units for operation. Defaults to 'unit'.
         gwp (float, optional): global warming potential for settting up facility per unit basis. Defaults to 0.
+        odp (float, optional): ozone depletion potential for settting up facility per unit basis. Defaults to 0.
+        acid (float, optional): acidification potential for settting up facility per unit basis. Defaults to 0.
+        eutt (float, optional): terrestrial eutrophication potential for settting up facility per unit basis. Defaults to 0.
+        eutf (float, optional): fresh water eutrophication potential for settting up facility per unit basis. Defaults to 0.
+        eutm (float, optional): marine eutrophication potential for settting up facility per unit basis. Defaults to 0.
         land (float, optional): land requirement per unit basis. Defaults to 0.
         trl (str, optional): technology readiness level. Defaults to None.
         block (str, optional): define block for convenience. Defaults to None.
@@ -167,6 +172,11 @@ class Process:
     basis: str = 'unit'
     credit: float = None
     gwp: float = 0
+    odp: float = 0
+    acid: float = 0
+    eutt: float = 0
+    eutf: float = 0
+    eutm: float = 0
     land: float = 0
     trl: str = None
     block: str = ''
@@ -261,6 +271,12 @@ class Process:
         if self.cost_dynamics == CostDynamics.PWL:
             self.capacity_segments = list(self.capex.keys())
             self.capex_segments = list(self.capex.values())
+
+        self.material_modes = set(self.material_cons.keys())
+        # self.emission_dict = {i: i.emissions for i in self.conversion.keys()}
+        self.emission_potentials_dict = {'gwp': self.gwp, 'odp': self.odp,
+                                         'acid': self.acid, 'eutt': self.eutt, 'eutf': self.eutf, 'eutm': self.eutm}
+
 
         self.material_modes = set(self.material_cons.keys())
         # self.emission_dict = {i: i.emissions for i in self.conversion.keys()
