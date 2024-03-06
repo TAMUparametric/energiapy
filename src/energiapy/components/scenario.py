@@ -526,7 +526,8 @@ class Scenario:
 
             n_Sf = len(self.set_dict['resources_certain_demand'])
             n_S = len(self.set_dict['resources_uncertain_demand'])
-
+            n_Snd = len([i for i in self.set_dict['resources_sell']
+                         if i not in self.set_dict['resources_demand']])
             n_Af = len(self.set_dict['resources_certain_availability'])
             n_A = len(self.set_dict['resources_uncertain_availability'])
 
@@ -541,9 +542,10 @@ class Scenario:
             n_bal = n_P + n_Pf  # number of production processes for resource balance constraint
 
             # used to balance implicitly made resources
-            n_bal2 = n_Inv + n_Sf + n_S + n_Af + n_A
+            n_bal2 = n_Inv + n_Sf + n_S + n_Snd + n_Af + n_A
 
-            n_vars_fix = n_Inv + n_Sf + n_Af + n_Pf  # total number of fixed variables
+            n_vars_fix = n_Inv + n_Sf + n_Snd + n_Af + \
+                n_Pf  # total number of fixed variables
 
             n_vars_theta = n_S + n_A + n_P  # total number of theta variables
 
@@ -553,8 +555,10 @@ class Scenario:
             print(f"Resource inventory level (Inv) x {n_Inv}")
             print(f"Exact resource discharge (Sf) x {n_Sf}")
             print(f"Uncertain resource discharge (S) x {n_S}")
+            print(f"Resources discharge no demand (Snd) x {n_Snd}")
             print(f"Exact resource availability (Af) x {n_Af}")
             print(f"Uncertain resource availability (A) x {n_A}")
+            print(f"Implicit resource (I) x {n_I}")
             print(f"Exact resource price (Cf) x {n_Cf}")
             print(f"Uncertain resource price (C) x {n_C}")
             print(f"Exact process production (Pf) x {n_Pf}")
@@ -564,7 +568,7 @@ class Scenario:
 
             # *--------------------------------A--------------------------------------
             A_bal = numpy.diag(
-                [*[1] * n_Inv, *[-1] * n_Sf, *[-1] * n_S,  *[1] * n_Af, *[1] * n_A])
+                [*[1] * n_Inv, *[-1] * n_Sf, *[-1] * n_S, *[-1]*n_Snd, *[1] * n_Af, *[1] * n_A])
 
             if n_I > 0:  # if implict variables present, add 0 stacks to matrix
 
@@ -572,6 +576,7 @@ class Scenario:
 
             conversion_list = self.set_dict['resources_store'] + self.set_dict['resources_certain_demand'] + \
                 self.set_dict['resources_uncertain_demand'] + \
+                [i for i in self.set_dict['resources_sell'] if i not in self.set_dict['resources_demand']] + \
                 self.set_dict['resources_certain_availability'] + \
                 self.set_dict['resources_uncertain_availability'] + \
                 self.set_dict['resources_implicit']
@@ -579,6 +584,7 @@ class Scenario:
             column_list_vars = [*['Inv_' + i for i in self.set_dict['resources_store']] +
                                 ['Sf_' + i for i in self.set_dict['resources_certain_demand']] +
                                 ['S_' + i for i in self.set_dict['resources_uncertain_demand']] +
+                                ['Snd_' + i for i in [i for i in self.set_dict['resources_sell'] if i not in self.set_dict['resources_demand']]] +
                                 ['Af_' + i for i in self.set_dict['resources_certain_availability']] +
                                 ['A_' + i for i in self.set_dict['resources_uncertain_availability']] +
                                 ['Pf_' + i for i in self.set_dict['processes_certain_capacity']] +
@@ -588,11 +594,12 @@ class Scenario:
                                   sorted(self.conversion.keys())]).transpose()
 
             A_diag = numpy.diag(
-                [*[1]*n_Inv, *[-1]*n_Sf, *[-1]*n_S,  *[1]*n_Af, *[1] * n_A, *[1]*n_Pf, *[1]*n_P])
+                [*[1]*n_Inv, *[-1]*n_Sf, *[-1]*n_S, *[-1]*n_Snd,  *[1]*n_Af, *[1] * n_A, *[1]*n_Pf, *[1]*n_P])
 
             row_diag = [*['Inv_' + i + '(<)' for i in self.set_dict['resources_store']] +
                         ['Sf_' + i + '(>)' for i in self.set_dict['resources_certain_demand']] +
                         ['S_' + i + '(>)' for i in self.set_dict['resources_uncertain_demand']] +
+                        ['Snd_' + i + '(>)' for i in [i for i in self.set_dict['resources_sell'] if i not in self.set_dict['resources_demand']]] +
                         ['Af_' + i + '(<)' for i in self.set_dict['resources_certain_availability']] +
                         ['A_' + i + '(<)' for i in self.set_dict['resources_uncertain_availability']] +
                         ['Pf_' + i + '(<)' for i in self.set_dict['processes_certain_capacity']] +
@@ -601,12 +608,20 @@ class Scenario:
             row_NN = [*['NN_Inv_' + i + '(>)' for i in self.set_dict['resources_store']] +
                       ['NN_Sf_' + i + '(>)' for i in self.set_dict['resources_certain_demand']] +
                       ['NN_S_' + i + '(>)' for i in self.set_dict['resources_uncertain_demand']] +
+                      ['NN_Snd_' + i + '(>)' for i in [i for i in self.set_dict['resources_sell'] if i not in self.set_dict['resources_demand']]] +
                       ['NN_Af_' + i + '(>)' for i in self.set_dict['resources_certain_availability']] +
                       ['NN_A_' + i + '(>)' for i in self.set_dict['resources_uncertain_availability']] +
                       ['NN_Pf_' + i + '(>)' for i in self.set_dict['processes_certain_capacity']] +
                       ['NN_P_' + i + '(>)' for i in self.set_dict['processes_uncertain_capacity']]]
 
-            row_bal = ['MB_' + i + '(=)' for i in self.set_dict['resources']]
+            row_bal = ['MB_' + i + '(=)' for i in self.set_dict['resources_store']
+                       + self.set_dict['resources_certain_demand']
+                       + self.set_dict['resources_uncertain_demand']
+                       + [i for i in self.set_dict['resources_sell']
+                          if i not in self.set_dict['resources_demand']]
+                       + self.set_dict['resources_certain_availability']
+                       + self.set_dict['resources_uncertain_availability']
+                       + self.set_dict['resources_implicit']]
 
             row_list = row_bal + row_diag + row_NN
 
@@ -629,6 +644,8 @@ class Scenario:
                                 for i in self.set_dict['resources_certain_demand']])  # fixed demand bound
             b_S = numpy.array([[0]
                                for i in self.set_dict['resources_uncertain_demand']])  # uncertain demand
+            b_Snd = numpy.array([[0]
+                                 for i in [i for i in self.set_dict['resources_sell'] if i not in self.set_dict['resources_demand']]])  # sell but no demand
             # b_S = numpy.array([[-self.demand[location][i]]
             #    for i in self.set_dict['resources_uncertain_demand']])  # uncertain demand
             b_Af = numpy.array([[self.cons_max[location][i]]
@@ -647,7 +664,8 @@ class Scenario:
 
             b_nn = numpy.zeros((n_vars, 1))  # non zero constraints
 
-            b_list = [b_bal, b_Inv, b_Sf, b_S, b_Af, b_A, b_Pf, b_P, b_nn]
+            b_list = [b_bal, b_Inv, b_Sf, b_S,
+                      b_Snd, b_Af, b_A, b_Pf, b_P, b_nn]
 
             b = numpy.block([[i]
                             for i in b_list if len(i) > 0])  # make b matrix
@@ -668,14 +686,14 @@ class Scenario:
 
             iter_ = 0
             for i in range(n_A):
-                n = n_Inv + n_Sf + n_S + n_Af
+                n = n_Inv + n_Sf + n_S + n_Snd + n_Af
                 F[n_bal3 + n + iter_][n_S + i] = self.cons_max[location][
                     self.set_dict['resources_uncertain_availability'][i]]
                 iter_ += 1
 
             iter_ = 0
             for i in range(n_P):
-                n = n_Inv + n_Sf + n_S + n_Af + n_A + n_Pf
+                n = n_Inv + n_Sf + n_S + n_Snd + n_Af + n_A + n_Pf
                 F[n_bal3 + n + iter_][n_S + n_A +
                                       i] = self.prod_max[location][self.set_dict['processes_uncertain_capacity'][i]][0]
                 # defaults to 0 as mode, using P_m instead of P
@@ -690,6 +708,7 @@ class Scenario:
             c_Inv = numpy.zeros((n_Inv, 1))
             c_Sf = numpy.zeros((n_Sf, 1))
             c_S = numpy.zeros((n_S, 1))
+            c_Snd = numpy.zeros((n_Snd, 1))
 
             # c_Af = numpy.zeros((n_Af, 1))
             # c_A = numpy.zeros((n_A, 1))
@@ -703,7 +722,7 @@ class Scenario:
                                 for i in self.set_dict['processes_certain_capacity']])
             c_P = numpy.array([[self.vopex_dict[i]]
                                for i in self.set_dict['processes_uncertain_capacity']])
-            c_list = [c_Inv, c_Sf,  c_S, c_Cf,  c_C, c_Pf, c_P]
+            c_list = [c_Inv, c_Sf,  c_S, c_Snd, c_Cf, c_C, c_Pf, c_P]
             c = numpy.block([[i] for i in c_list if len(i) > 0])
 
             self.c_df = DataFrame(c)

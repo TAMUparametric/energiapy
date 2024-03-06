@@ -148,48 +148,53 @@ class Resource:
 
         if self.varying is None:
             self.varying = []  # if varying is none default to certain availability and price
-            if self.cons_max > 0:
+        if self.cons_max > 0:
+            if (VaryingResource.UNCERTAIN_AVAILABILITY not in self.varying) and (VaryingResource.DETERMINISTIC_AVAILABILITY not in self.varying):
                 self.varying = self.varying + \
-                    [VaryingResource.CERTAIN_AVAILABILITY,
-                        VaryingResource.CERTAIN_PRICE]
+                    [VaryingResource.CERTAIN_AVAILABILITY]
 
-            if self.demand is True:  # if varying is none, but demand is true, set certain demand
+            if (VaryingResource.UNCERTAIN_PRICE not in self.varying) and (VaryingResource.DETERMINISTIC_PRICE not in self.varying):
                 self.varying = self.varying + \
-                    [VaryingResource.CERTAIN_DEMAND,
-                        VaryingResource.CERTAIN_REVENUE]
-            else:
-                if self.sell is True:  # sell and demand True, both only differ in the sense that demand sells at a fix rate
-                    self.varying = self.varying + \
-                        [VaryingResource.CERTAIN_REVENUE]
-            # if self.revenue is True:  # if varying is none and revenue is True, default to certain revenue
-            #     self.varying = self.varying + \
-            #         [VaryingResource.CERTAIN_REVENUE]
-            if self.varying == []:  # if none of these get filled. That means that the resource is only produced implicitly
-                self.varying = [VaryingResource.IMPLICIT]
+                    [VaryingResource.CERTAIN_PRICE]
 
+        if self.demand is True:  # if varying is none, but demand is true, set certain demand
+            if (VaryingResource.UNCERTAIN_DEMAND not in self.varying) and (VaryingResource.DETERMINISTIC_DEMAND not in self.varying):
+                self.varying = self.varying + \
+                    [VaryingResource.CERTAIN_DEMAND]
         else:
-
-            if self.cons_max > 0:
-                if VaryingResource.DETERMINISTIC_AVAILABILITY not in self.varying:
-                    self.varying = self.varying + \
-                        [VaryingResource.CERTAIN_AVAILABILITY]
-
-                if VaryingResource.DETERMINISTIC_PRICE not in self.varying:
-                    self.varying = self.varying + \
-                        [VaryingResource.CERTAIN_PRICE]
-
-            if self.demand is True:
-                if VaryingResource.DETERMINISTIC_DEMAND not in self.varying:
-                    self.varying = self.varying + \
-                        [VaryingResource.CERTAIN_DEMAND]
-                if VaryingResource.DETERMINISTIC_REVENUE not in self.varying:
+            if self.sell is True:  # sell and demand True, both only differ in the sense that demand sells at a fix rate
+                if (VaryingResource.UNCERTAIN_REVENUE not in self.varying) and (VaryingResource.DETERMINISTIC_REVENUE not in self.varying):
                     self.varying = self.varying + \
                         [VaryingResource.CERTAIN_REVENUE]
-            else:
-                if self.sell is True:
-                    if VaryingResource.DETERMINISTIC_REVENUE not in self.varying:
-                        self.varying = self.varying + \
-                            [VaryingResource.CERTAIN_REVENUE]
+        # if self.revenue is True:  # if varying is none and revenue is True, default to certain revenue
+        #     self.varying = self.varying + \
+        #         [VaryingResource.CERTAIN_REVENUE]
+        if self.varying == []:  # if none of these get filled. That means that the resource is only produced implicitly
+            self.varying = [VaryingResource.IMPLICIT]
+
+        # else:
+
+        #     if self.cons_max > 0:
+        #         if VaryingResource.DETERMINISTIC_AVAILABILITY not in self.varying:
+        #             self.varying = self.varying + \
+        #                 [VaryingResource.CERTAIN_AVAILABILITY]
+
+        #         if VaryingResource.DETERMINISTIC_PRICE not in self.varying:
+        #             self.varying = self.varying + \
+        #                 [VaryingResource.CERTAIN_PRICE]
+
+        #     if self.demand is True:
+        #         if VaryingResource.DETERMINISTIC_DEMAND not in self.varying:
+        #             self.varying = self.varying + \
+        #                 [VaryingResource.CERTAIN_DEMAND]
+        #         if VaryingResource.DETERMINISTIC_REVENUE not in self.varying:
+        #             self.varying = self.varying + \
+        #                 [VaryingResource.CERTAIN_REVENUE]
+        #     else:
+        #         if self.sell is True:
+        #             if VaryingResource.DETERMINISTIC_REVENUE not in self.varying:
+        #                 self.varying = self.varying + \
+        #                     [VaryingResource.CERTAIN_REVENUE]
 
         if not isinstance(self.varying, list):
             warn('Provide a list of VaryingResource enums')
