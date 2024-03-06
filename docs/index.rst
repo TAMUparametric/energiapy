@@ -21,7 +21,7 @@ Tutorial
    notebooks/material/material
    notebooks/mplp/mpLP
    example_ahc
-   notebooks/fetch_nsrdb/fetch_nsrdb
+   notebooks/fetch_nsrdb/fetch_nsrdb_data
    
 API
 ---
