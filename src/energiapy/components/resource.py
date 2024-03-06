@@ -161,6 +161,9 @@ class Resource:
             if (VaryingResource.UNCERTAIN_DEMAND not in self.varying) and (VaryingResource.DETERMINISTIC_DEMAND not in self.varying):
                 self.varying = self.varying + \
                     [VaryingResource.CERTAIN_DEMAND]
+            if (VaryingResource.UNCERTAIN_REVENUE not in self.varying) and (VaryingResource.DETERMINISTIC_REVENUE not in self.varying):
+                self.varying = self.varying + \
+                    [VaryingResource.CERTAIN_REVENUE]
         else:
             if self.sell is True:  # sell and demand True, both only differ in the sense that demand sells at a fix rate
                 if (VaryingResource.UNCERTAIN_REVENUE not in self.varying) and (VaryingResource.DETERMINISTIC_REVENUE not in self.varying):
