@@ -116,8 +116,10 @@ from .constraints.land import (
 from .constraints.mode import (
     constraint_production_mode,
     constraint_production_mode_binary,
+    constraint_production_mode_wo_binary,
     constraint_production_mode_facility,
     constraint_min_production_mode_facility,
+    constraint_nameplate_production_mode,
     constraint_production_rate1,
     constraint_production_rate2,
     constraint_production_mode_switch
@@ -876,9 +878,19 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
             constraint_min_production_mode_facility(instance=instance, prod_min=scenario.prod_min,
                                                     location_process_dict=scenario.location_process_dict,
                                                     scheduling_scale_level=scenario.scheduling_scale_level)
-            constraint_production_mode_binary(instance=instance, mode_dict=scenario.mode_dict,
-                                              scheduling_scale_level=scenario.scheduling_scale_level,
-                                              network_scale_level=scenario.network_scale_level)
+            constraint_nameplate_production_mode(instance=instance, prod_max=scenario.prod_max,
+                                                 location_process_dict=scenario.location_process_dict,
+                                                 capacity_factor=scenario.capacity_factor,
+                                                 scheduling_scale_level=scenario.scheduling_scale_level)
+
+            if Constraints.NETWORK in constraints:
+                constraint_production_mode_binary(instance=instance, mode_dict=scenario.mode_dict,
+                                                  scheduling_scale_level=scenario.scheduling_scale_level,
+                                                  network_scale_level=scenario.network_scale_level)
+            else:
+                constraint_production_mode_wo_binary(instance=instance, mode_dict=scenario.mode_dict,
+                                                     scheduling_scale_level=scenario.scheduling_scale_level)
+
             constraint_production_rate1(instance=instance, rate_max_dict=scenario.rate_max_dict,
                                         scheduling_scale_level=scenario.scheduling_scale_level)
             constraint_production_rate2(instance=instance, rate_max_dict=scenario.rate_max_dict,

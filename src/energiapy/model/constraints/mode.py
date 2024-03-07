@@ -66,12 +66,13 @@ def constraint_production_mode_facility(instance: ConcreteModel, prod_max: dict,
     def production_mode_facility_rule(instance, location, process, mode, *scale_list):
         if process in location_process_dict[location]:
             if mode <= list(prod_max[location][process].keys())[-1:][0]:
-                return instance.P_m[location, process, mode, scale_list[:scheduling_scale_level + 1]] <= prod_max[location][process][mode] * instance.X_P_m[location, process, mode,
+                return instance.Cap_P_m[location, process, mode, scale_list[:scheduling_scale_level + 1]] <= prod_max[location][process][mode] * instance.X_P_m[location, process, mode,
                                                                                                                                                             scale_list[:scheduling_scale_level + 1]]
             else:
                 return Constraint.Skip
         else:
-            return instance.Cap_P_m[location, process, mode, scale_list[:scheduling_scale_level + 1]] == 0
+            # return instance.Cap_P_m[location, process, mode, scale_list[:scheduling_scale_level + 1]] == 0
+            return Constraint.Skip
 
     instance.constraint_production_mode_facility = Constraint(
         instance.locations, instance.processes, instance.modes, *
@@ -109,7 +110,8 @@ def constraint_min_production_mode_facility(instance: ConcreteModel, prod_min: d
             else:
                 return Constraint.Skip
         else:
-            return instance.Cap_P_m[location, process, mode, scale_list[:scheduling_scale_level + 1]] == 0
+            # return instance.Cap_P_m[location, process, mode, scale_list[:scheduling_scale_level + 1]] == 0
+            return Constraint.Skip
 
     instance.constraint_min_production_mode_facility = Constraint(
         instance.locations, instance.processes, instance.modes, *
@@ -148,6 +150,76 @@ def constraint_production_mode_binary(instance: ConcreteModel, mode_dict: dict, 
     constraint_latex_render(production_mode_binary_rule)
     return instance.constraint_production_mode_binary
 
+def constraint_production_mode_wo_binary(instance: ConcreteModel, mode_dict: dict, scheduling_scale_level: int = 0
+                                         ) -> Constraint:
+    """Production facility can function only in one mode without network binary variables
+
+    Args:
+        instance (ConcreteModel): pyomo model instance
+        mode_dict (dict): dictionary with modes available for process
+        scheduling_scale_level (int, optional): scale for scheduling decisions. Defaults to 0.
+
+    Returns:
+        Constraint: production_mode_wo_binary
+    """
+
+    scales = scale_list(instance=instance,
+                        scale_levels=scheduling_scale_level + 1)
+
+    def production_mode_wo_binary_rule(instance, location, process, *scale_list):
+        return 1 >= sum(
+            instance.X_P_m[location, process, mode, scale_list[:scheduling_scale_level + 1]] for mode in
+            mode_dict[process])
+
+    instance.constraint_production_mode_wo_binary = Constraint(
+        instance.locations, instance.processes, *
+        scales, rule=production_mode_wo_binary_rule,
+        doc='production mode without binary sum constraint')
+    constraint_latex_render(production_mode_wo_binary_rule)
+    return instance.constraint_production_mode_wo_binary
+
+
+def constraint_nameplate_production_mode(instance: ConcreteModel, prod_max: dict, location_process_dict: dict = None,
+                                         capacity_factor: dict = None, scheduling_scale_level: int = 0) -> Constraint:
+    """
+    Determines production capacity utilization of facility modes at location in network and capacity of facilities
+
+    Args:
+        instance (ConcreteModel): pyomo model instance
+        mode_dict (dict): dictionary with modes available for process
+        scheduling_scale_level (int, optional): scale for scheduling decisions. Defaults to 0.
+
+    Returns:
+        Constraint: nameplate_production_mode
+    """
+
+    if capacity_factor is None:
+        capacity_factor = dict()
+
+    if location_process_dict is None:
+        location_process_dict = dict()
+
+    scales = scale_list(instance=instance, scale_levels=scheduling_scale_level+1)
+
+    def nameplate_production_mode_rule(instance, location, process, mode, *scale_list):
+        if process not in location_process_dict[location]:
+            return Constraint.Skip
+        else:
+            if mode <= list(prod_max[location][process].keys())[-1:][0]:
+                if process not in instance.processes_varying_capacity:
+                    return (instance.P_m[location, process, mode, scale_list[:scheduling_scale_level+1]] <=
+                            instance.Cap_P_m[location, process, mode, scale_list[:scheduling_scale_level + 1]])
+                else:
+                    return (instance.P_m[location, process, mode, scale_list[:scheduling_scale_level+1]] <= capacity_factor[location][process][scale_list[:scheduling_scale_level + 1]] *
+                            instance.Cap_P_m[location, process, mode, scale_list[:scheduling_scale_level+1]])
+            else:
+                return Constraint.Skip
+
+    instance.constraint_nameplate_production_mode = Constraint(instance.locations, instance.processes, instance.modes,
+                                                               *scales, rule=nameplate_production_mode_rule,
+                                                               doc='mode nameplate production capacity constraint')
+    constraint_latex_render(nameplate_production_mode_rule)
+    return instance.constraint_nameplate_production_mode
 
 def constraint_production_rate1(instance: ConcreteModel, rate_max_dict: dict, scheduling_scale_level: int = 0) -> Constraint:
     """Manages the production rate in mode along with constraint_production_rate2
