@@ -146,11 +146,13 @@ def generate_sets(instance: ConcreteModel, scenario: Scenario):
                                                 doc='Set of processes with uncertain capacity')
     instance.processes_segments = Set(
         initialize=sets['processes_segments'], doc='Set of processes with PWL process segments')
+    
+    instance.process_material_modes = Set(
+        initialize=sets['process_material_modes'], doc='Set of process and material combinations')
 
-    instance.process_material_modes = Set(initialize= sets['process_material_modes'], doc = 'Set of process and material combinations')
-    
-    instance.material_modes = Set(initialize= sets['material_modes'], doc = 'Set of material modes')
-    
+    instance.material_modes = Set(
+        initialize=sets['material_modes'], doc='Set of material modes')
+
     if len(instance.locations) > 1:
 
         instance.transports_varying_capacity = Set(
@@ -184,7 +186,7 @@ def generate_sets(instance: ConcreteModel, scenario: Scenario):
     for j in scenario.location_set:
         for i in scenario.process_set:
             if i.name in scenario.location_process_dict[j.name]:
-                mode_lens.append(len(scenario.prod_max[j.name][i.name].keys()))
+                mode_lens.append(len(scenario.cap_max[j.name][i.name].keys()))
 
     instance.modes = Set(initialize=list(
         range(max(mode_lens))), doc='Set of process modes')

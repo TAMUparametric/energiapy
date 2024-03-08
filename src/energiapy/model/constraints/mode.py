@@ -43,13 +43,13 @@ def constraint_production_mode(instance: ConcreteModel, mode_dict: dict, schedul
     return instance.constraint_production_mode
 
 
-def constraint_production_mode_facility(instance: ConcreteModel, prod_max: dict, location_process_dict: dict = None,
+def constraint_production_mode_facility(instance: ConcreteModel, cap_max: dict, location_process_dict: dict = None,
                                         scheduling_scale_level: int = 0) -> Constraint:
     """Constraints production to maximum in mode
 
     Args:
         instance (ConcreteModel): pyomo instance
-        prod_max (dict): maximum production of process at location
+        cap_max (dict): maximum production of process at location
         location_process_dict (dict, optional): production facilities avaiable at location. Defaults to {}.
         scheduling_scale_level (int, optional): scale of scheduling decisions. Defaults to 0.
 
@@ -65,9 +65,9 @@ def constraint_production_mode_facility(instance: ConcreteModel, prod_max: dict,
 
     def production_mode_facility_rule(instance, location, process, mode, *scale_list):
         if process in location_process_dict[location]:
-            if mode <= list(prod_max[location][process].keys())[-1:][0]:
-                return instance.P_m[location, process, mode, scale_list[:scheduling_scale_level + 1]] <= prod_max[location][process][mode] * instance.X_P_m[location, process, mode,
-                                                                                                                                                            scale_list[:scheduling_scale_level + 1]]
+            if mode <= list(cap_max[location][process].keys())[-1:][0]:
+                return instance.P_m[location, process, mode, scale_list[:scheduling_scale_level + 1]] <= cap_max[location][process][mode] * instance.X_P_m[location, process, mode,
+                                                                                                                                                           scale_list[:scheduling_scale_level + 1]]
             else:
                 return Constraint.Skip
         else:
@@ -81,13 +81,13 @@ def constraint_production_mode_facility(instance: ConcreteModel, prod_max: dict,
     return instance.constraint_production_mode_facility
 
 
-def constraint_min_production_mode_facility(instance: ConcreteModel, prod_min: dict, location_process_dict: dict = None,
+def constraint_min_production_mode_facility(instance: ConcreteModel, cap_min: dict, location_process_dict: dict = None,
                                             scheduling_scale_level: int = 0) -> Constraint:
     """Constraints production to minimum in mode
 
     Args:
         instance (ConcreteModel): pyomo instance
-        prod_min (dict): minimum production of process at location
+        cap_min (dict): minimum production of process at location
         location_process_dict (dict, optional): production facilities avaiable at location. Defaults to {}.
         scheduling_scale_level (int, optional): scale of scheduling decisions. Defaults to 0.
 
@@ -103,9 +103,9 @@ def constraint_min_production_mode_facility(instance: ConcreteModel, prod_min: d
 
     def min_production_mode_facility_rule(instance, location, process, mode, *scale_list):
         if process in location_process_dict[location]:
-            if mode <= list(prod_min[location][process].keys())[-1:][0]:
-                return instance.Cap_P_m[location, process, mode, scale_list[:scheduling_scale_level + 1]] >= prod_min[location][process][mode] * instance.X_P_m[location, process, mode,
-                                                                                                                                                                scale_list[:scheduling_scale_level + 1]]
+            if mode <= list(cap_min[location][process].keys())[-1:][0]:
+                return instance.Cap_P_m[location, process, mode, scale_list[:scheduling_scale_level + 1]] >= cap_min[location][process][mode] * instance.X_P_m[location, process, mode,
+                                                                                                                                                               scale_list[:scheduling_scale_level + 1]]
             else:
                 return Constraint.Skip
         else:
