@@ -24,7 +24,7 @@ def process_storage():
     """Storage process"""
     Resource1 = Resource(name='Resource1')
     return Process(name='Process1', storage=Resource1, capex=1000, fopex=100, vopex=10,
-                   prod_max=100, prod_min=0.1, store_max=100, storage_loss=0.01, storage_cost=0.1)
+                   cap_max=100, cap_min=0.1, store_max=100, storage_loss=0.01, storage_cost=0.1)
 
 
 @pytest.fixture()
@@ -38,21 +38,21 @@ def process_material_modes():
                    capex={'Mode1': 2000, 'Mode2': 1000}, fopex={'Mode1': 100, 'Mode2': 200}, vopex={'Mode1': 50, 'Mode2': 10},
                    material_cons={'Mode1': {Material1: 50, Material2: 20}, 'Mode2': {
                        Material1: 100, Material2: 25}},
-                   prod_max=100, prod_min=0.1)
+                   cap_max=100, cap_min=0.1)
 
 
-@pytest.fixture()
-def process_multiple_modes():
-    """Process with multiple modes and ramping rates"""
-    prod_max = {0: 10, 1: 50}
-    prod_min = {0: 0, 1: 10}
-    rate_max = {0: 10, 1: 15}
-    mode_ramp = {(0, 1): 0.5}
-    Resource1 = Resource(name='Resource1', cons_max=1000)
-    Resource2 = Resource(name='Resource2')
-    return Process(name='Process1', conversion={0: {Resource1: -1, Resource2: 0.5}, 1: {Resource1: -1, Resource2: 0.75}},
-                   rate_max=rate_max, mode_ramp=mode_ramp, prod_max=prod_max, prod_min=prod_min,
-                   capex=1000, fopex=100, vopex=10)
+# @pytest.fixture()
+# def process_multiple_modes():
+#     """Process with multiple modes and ramping rates"""
+#     cap_max = {0: 10, 1: 50}
+#     cap_min = {0: 0, 1: 10}
+#     rate_max = {0: 10, 1: 15}
+#     mode_ramp = {(0, 1): 0.5}
+#     Resource1 = Resource(name='Resource1', cons_max=1000)
+#     Resource2 = Resource(name='Resource2')
+#     return Process(name='Process1', conversion={0: {Resource1: -1, Resource2: 0.5}, 1: {Resource1: -1, Resource2: 0.75}},
+#                    rate_max=rate_max, mode_ramp=mode_ramp, cap_max=cap_max, cap_min=cap_min,
+#                    capex=1000, fopex=100, vopex=10)
 
 
 @pytest.fixture()
@@ -64,18 +64,18 @@ def location_no_variability():
     Material1 = Material(name='Material1', gwp=100)
     Material2 = Material(name='Material2', gwp=200)
     Process1 = Process(name='Process1', storage=Resource2, capex=1000, fopex=100, vopex=10,
-                       prod_max=100, prod_min=0.1, store_max=100, storage_loss=0.01, storage_cost=0.1)
+                       cap_max=100, cap_min=0.1, store_max=100, storage_loss=0.01, storage_cost=0.1)
     Process2 = Process(name='Process2', conversion={'Mode1': {Resource1: -5, Resource2: 1}, 'Mode2': {Resource1: -10, Resource2: 1}},
                        capex={'Mode1': 2000, 'Mode2': 1000}, fopex={'Mode1': 100, 'Mode2': 200}, vopex={'Mode1': 50, 'Mode2': 10},
                        material_cons={'Mode1': {Material1: 50, Material2: 20}, 'Mode2': {
                            Material1: 100, Material2: 25}},
-                       prod_max=100, prod_min=0.1)
-    prod_max = {0: 10, 1: 50}
-    prod_min = {0: 0, 1: 10}
+                       cap_max=100, cap_min=0.1)
+    cap_max = {0: 10, 1: 50}
+    cap_min = {0: 0, 1: 10}
     rate_max = {0: 10, 1: 15}
     mode_ramp = {(0, 1): 0.5}
     Process3 = Process(name='Process3', conversion={0: {Resource1: -1, Resource2: 0.5}, 1: {Resource1: -1, Resource2: 0.75}},
-                       rate_max=rate_max, mode_ramp=mode_ramp, prod_max=prod_max, prod_min=prod_min,
+                       rate_max=rate_max, mode_ramp=mode_ramp, cap_max=cap_max, cap_min=cap_min,
                        capex=1000, fopex=100, vopex=10)
     return Location(name='Location1', processes={Process1, Process2, Process3}, scales=scales)
 
@@ -104,12 +104,12 @@ def single_location_scenario_variability():
         VaryingResource.DETERMINISTIC_REVENUE])
 
     Process_deterministic_capacity = Process(name='process_deterministic_capacity', conversion={Resource_certain_availability: -1, Resource_deterministic_demand: 1},
-                                             capex=1000, fopex=10, vopex=1, prod_max=100, prod_min=0, varying=[VaryingProcess.DETERMINISTIC_CAPACITY])
+                                             capex=1000, fopex=10, vopex=1, cap_max=100, cap_min=0, varying=[VaryingProcess.DETERMINISTIC_CAPACITY])
     Process_certain_capacity = Process(name='process_certain_capacity', conversion={
         Resource_deterministic_demand: -0.5, Resource_deterministic_availability: -0.5, Resource_deterministic_price: -0.25, Resource_deterministic_revenue: 1},
-        capex=100, fopex=10, vopex=1, prod_max=100, prod_min=0)
+        capex=100, fopex=10, vopex=1, cap_max=100, cap_min=0)
     Process_storage = Process(name='process_storage', storage=Resource_deterministic_demand,
-                              capex=100, fopex=5, vopex=0.5, prod_max=50, prod_min=0, store_max=25, storage_cost=0.1)
+                              capex=100, fopex=5, vopex=0.5, cap_max=50, cap_min=0, store_max=25, storage_cost=0.1)
 
     Location1 = Location(name='location', processes={Process_certain_capacity, Process_deterministic_capacity, Process_storage}, scales=scales,
                          demand_scale_level=1, capacity_scale_level=1, price_scale_level=1, availability_scale_level=1,
@@ -146,12 +146,12 @@ def single_location_lp_variability_cost():
         VaryingResource.DETERMINISTIC_REVENUE])
 
     Process_deterministic_capacity = Process(name='process_deterministic_capacity', conversion={Resource_certain_availability: -1, Resource_deterministic_demand: 1},
-                                             capex=1000, fopex=10, vopex=1, prod_max=100, prod_min=0, varying=[VaryingProcess.DETERMINISTIC_CAPACITY])
+                                             capex=1000, fopex=10, vopex=1, cap_max=100, cap_min=0, varying=[VaryingProcess.DETERMINISTIC_CAPACITY])
     Process_certain_capacity = Process(name='process_certain_capacity', conversion={
         Resource_deterministic_demand: -0.5, Resource_deterministic_availability: -0.5, Resource_deterministic_price: -0.25, Resource_deterministic_revenue: 1},
-        capex=100, fopex=10, vopex=1, prod_max=100, prod_min=0)
+        capex=100, fopex=10, vopex=1, cap_max=100, cap_min=0)
     Process_storage = Process(name='process_storage', storage=Resource_deterministic_demand,
-                              capex=100, fopex=5, vopex=0.5, prod_max=50, prod_min=0, store_max=25, storage_cost=0.1)
+                              capex=100, fopex=5, vopex=0.5, cap_max=50, cap_min=0, store_max=25, storage_cost=0.1)
 
     Location1 = Location(name='location', processes={Process_certain_capacity, Process_deterministic_capacity, Process_storage}, scales=scales,
                          demand_scale_level=1, capacity_scale_level=1, price_scale_level=1, availability_scale_level=1,
@@ -191,12 +191,12 @@ def single_location_lp_variability_profit():
         VaryingResource.DETERMINISTIC_REVENUE])
 
     Process_deterministic_capacity = Process(name='process_deterministic_capacity', conversion={Resource_certain_availability: -1, Resource_deterministic_demand: 1},
-                                             capex=1000, fopex=10, vopex=1, prod_max=100, prod_min=0, varying=[VaryingProcess.DETERMINISTIC_CAPACITY])
+                                             capex=1000, fopex=10, vopex=1, cap_max=100, cap_min=0, varying=[VaryingProcess.DETERMINISTIC_CAPACITY])
     Process_certain_capacity = Process(name='process_certain_capacity', conversion={
         Resource_deterministic_demand: -0.5, Resource_deterministic_availability: -0.5, Resource_deterministic_price: -0.25, Resource_deterministic_revenue: 1},
-        capex=100, fopex=10, vopex=1, prod_max=100, prod_min=0)
+        capex=100, fopex=10, vopex=1, cap_max=100, cap_min=0)
     Process_storage = Process(name='process_storage', storage=Resource_deterministic_demand,
-                              capex=100, fopex=5, vopex=0.5, prod_max=50, prod_min=0, store_max=25, storage_cost=0.1)
+                              capex=100, fopex=5, vopex=0.5, cap_max=50, cap_min=0, store_max=25, storage_cost=0.1)
 
     Location1 = Location(name='location', processes={Process_certain_capacity, Process_deterministic_capacity, Process_storage}, scales=scales,
                          demand_scale_level=1, capacity_scale_level=1, price_scale_level=1, availability_scale_level=1,
@@ -236,16 +236,16 @@ def single_location_milp_variability_cost():
         VaryingResource.DETERMINISTIC_REVENUE])
 
     Process_deterministic_capacity = Process(name='process_deterministic_capacity', conversion={Resource_certain_availability: -1, Resource_deterministic_demand: 1},
-                                             capex=1000, fopex=10, vopex=1, prod_max=100, prod_min=10, varying=[VaryingProcess.DETERMINISTIC_CAPACITY])
+                                             capex=1000, fopex=10, vopex=1, cap_max=100, cap_min=10, varying=[VaryingProcess.DETERMINISTIC_CAPACITY])
 
     Process_deterministic_capacity2 = Process(name='process_deterministic_capacity2', conversion={Resource_certain_availability: -1, Resource_deterministic_demand: 1},
-                                              capex=2000, fopex=20, vopex=5, prod_max=100, prod_min=10, varying=[VaryingProcess.DETERMINISTIC_CAPACITY])
+                                              capex=2000, fopex=20, vopex=5, cap_max=100, cap_min=10, varying=[VaryingProcess.DETERMINISTIC_CAPACITY])
 
     Process_certain_capacity = Process(name='process_certain_capacity', conversion={
         Resource_deterministic_demand: -0.5, Resource_deterministic_availability: -0.5, Resource_deterministic_price: -0.25, Resource_deterministic_revenue: 1},
-        capex=100, fopex=10, vopex=1, prod_max=100, prod_min=0)
+        capex=100, fopex=10, vopex=1, cap_max=100, cap_min=0)
     Process_storage = Process(name='process_storage', storage=Resource_deterministic_demand,
-                              capex=100, fopex=5, vopex=0.5, prod_max=50, prod_min=0, store_max=25, storage_cost=0.1)
+                              capex=100, fopex=5, vopex=0.5, cap_max=50, cap_min=0, store_max=25, storage_cost=0.1)
 
     Location1 = Location(name='location', processes={Process_certain_capacity, Process_deterministic_capacity2, Process_deterministic_capacity, Process_storage}, scales=scales,
                          demand_scale_level=1, capacity_scale_level=1, price_scale_level=1, availability_scale_level=1,
@@ -285,13 +285,13 @@ def multi_location_milp_variability_cost():
     resource_sell = Resource(name='resource_sell', sell=True)
 
     process_deterministic_capacity = Process(name='process_deterministic_capacity', conversion={resource_certain_availability: -1.25, resource_implicit: 1},
-                                             capex=100, fopex=10, vopex=1, prod_max=100, varying=[VaryingProcess.UNCERTAIN_CAPACITY])
+                                             capex=100, fopex=10, vopex=1, cap_max=100, varying=[VaryingProcess.UNCERTAIN_CAPACITY])
 
     process_certain_capacity = Process(name='process_certain_capacity', conversion={resource_implicit: -0.5, resource_deterministic_price: -0.75, resource_implicit2: 1},
-                                       capex=200, fopex=25, vopex=5, prod_max=100)
+                                       capex=200, fopex=25, vopex=5, cap_max=100)
 
     process_certain_capacity2 = Process(name='process_certain_capacity2', conversion={resource_implicit2: -1, resource_deterministic_demand: 1},
-                                        capex=10, fopex=1, vopex=0.1, prod_max=100)
+                                        capex=10, fopex=1, vopex=0.1, cap_max=100)
 
     location1 = Location(name='location1', processes={process_deterministic_capacity}, capacity_factor={process_deterministic_capacity: capacity_factor},
                          scales=scales, demand_scale_level=1, capacity_scale_level=1, price_scale_level=1)

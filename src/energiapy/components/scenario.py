@@ -99,8 +99,8 @@ class Scenario:
             material_set (set): Set of all Material objects.
             conversion (dict): A dictionary with all conversion values for each Process.
             conversion_discharge (dict): A dictionary with all discharge conversions for Process of storage (ProcessMode.STORAGE) type.
-            prod_max (dict): A dictionary with maximum production capacity per timeperiod in the network scale for each Process at each Location.
-            prod_min (dict): A dictionary with minimum production capacity per timeperiod in the network scale for each Process at each Location.
+            cap_max (dict): A dictionary with maximum production capacity per timeperiod in the network scale for each Process at each Location.
+            cap_min (dict): A dictionary with minimum production capacity per timeperiod in the network scale for each Process at each Location.
             cons_max (dict): A dictionary with maximum consumption per timeperiod in the scheduling scale for each Resource at each Location.
             store_max (dict): A dictionary with maximum storage per timeperiod in the scheduling scale for each Resource at each Location.
             store_min (dict): A dictionary with minimum storage per timeperiod in the scheduling scale for each Resource at each Location.
@@ -211,8 +211,8 @@ class Scenario:
         self.conversion = {i.name: {j.name: i.conversion[j] if j in i.conversion.keys(
         ) else 0 for j in self.resource_set} for i in self.process_set if i.conversion is not None}
 
-        self.prod_max = {i.name: i.prod_max for i in self.location_set}
-        self.prod_min = {i.name: i.prod_min for i in self.location_set}
+        self.cap_max = {i.name: i.cap_max for i in self.location_set}
+        self.cap_min = {i.name: i.cap_min for i in self.location_set}
         self.cons_max = {i.name: {
             j.name: j.cons_max for j in i.resources_full} for i in self.location_set}
         self.store_max = {i.name: {
@@ -331,9 +331,9 @@ class Scenario:
         self.cost_df = df_capex.merge(df_vopex, left_index=True, right_index=True, how='inner').merge(
             df_fopex, left_index=True, right_index=True, how='inner')
 
-        self.rate_max_dict = {i.name: i.rate_max for i in self.process_set}
+        # self.rate_max_dict = {i.name: i.rate_max for i in self.process_set}
 
-        self.mode_ramp_dict = {i.name: i.mode_ramp for i in self.process_set}
+        # self.mode_ramp_dict = {i.name: i.mode_ramp for i in self.process_set}
 
         self.storage_cost_dict = {
             i.name: i.storage_cost_dict for i in self.location_set}
@@ -427,7 +427,9 @@ class Scenario:
 
             'process_material_modes': process_material_modes,
 
-            'material_modes': [element for dictionary in list(i.material_modes for i in self.process_set) for element in dictionary]
+            'material_modes': [element for dictionary in list(i.material_modes for i in self.process_set) for element in dictionary],
+
+            'process_modes': [(j[0], i) for j in [(i.name, i.modes) for i in self.process_set if i.processmode is ProcessMode.MULTI] for i in j[1]]
         }
 
         self.varying_bounds_dict = {
@@ -653,9 +655,9 @@ class Scenario:
             b_A = numpy.array([[self.cons_max[location][i]]
                                for i in self.set_dict['resources_uncertain_availability']])  # uncertain availability
 
-            b_Pf = numpy.array([[self.prod_max[location][i][0]]
+            b_Pf = numpy.array([[self.cap_max[location][i][0]]
                                 for i in self.set_dict['processes_certain_capacity']])  # fixed production bound
-            # b_P = numpy.array([[self.prod_max[location][i][0]]
+            # b_P = numpy.array([[self.cap_max[location][i][0]]
             #                    for i in self.set_dict['processes_uncertain_capacity']])  # uncertain production
 
             # uncertain production
@@ -695,7 +697,7 @@ class Scenario:
             for i in range(n_P):
                 n = n_Inv + n_Sf + n_S + n_Snd + n_Af + n_A + n_Pf
                 F[n_bal3 + n + iter_][n_S + n_A +
-                                      i] = self.prod_max[location][self.set_dict['processes_uncertain_capacity'][i]][0]
+                                      i] = self.cap_max[location][self.set_dict['processes_uncertain_capacity'][i]][0]
                 # defaults to 0 as mode, using P_m instead of P
                 iter_ += 1
 

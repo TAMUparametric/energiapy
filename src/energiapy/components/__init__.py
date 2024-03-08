@@ -15,7 +15,7 @@ from .emission import Emission
 from .location import Location
 from .material import Material
 from .network import Network
-from .process import Process, VaryingProcess
+from .process import Process, VaryingProcess, ProcessRamp
 from .resource import Resource, VaryingResource
 from .result import Result
 from .scenario import Scenario

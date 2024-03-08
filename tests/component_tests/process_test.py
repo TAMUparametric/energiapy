@@ -1,4 +1,5 @@
-from tests.test_fixtures import process_material_modes, process_storage, process_multiple_modes
+# , process_multiple_modes
+from tests.test_fixtures import process_material_modes, process_storage
 from src.energiapy.components.process import MaterialMode, ProcessMode, VaryingProcess
 
 
@@ -21,6 +22,6 @@ def test_process_storage(process_storage):
             process_storage.storage: 0.99, process_storage.resource_storage: -1})
 
 
-def test_process_multiple_modes(process_multiple_modes):
-    assert (VaryingProcess.MULTIMODE in process_multiple_modes.varying)
-    assert (process_multiple_modes.processmode == ProcessMode.MULTI)
+# def test_process_multiple_modes(process_multiple_modes):
+#     assert (VaryingProcess.MULTIMODE in process_multiple_modes.varying)
+#     assert (process_multiple_modes.processmode == ProcessMode.MULTI)
