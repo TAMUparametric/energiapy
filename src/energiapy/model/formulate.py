@@ -350,7 +350,7 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
                 instance=instance, scale_level=scenario.scheduling_scale_level)
 
             constraint_uncertain_process_capacity(
-                instance=instance, capacity=scenario.prod_max, network_scale_level=scenario.network_scale_level)
+                instance=instance, capacity=scenario.cap_max, network_scale_level=scenario.network_scale_level)
             constraint_uncertain_resource_demand(
                 instance=instance, demand=demand, scheduling_scale_level=scenario.scheduling_scale_level)
 
@@ -647,16 +647,16 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
 
             # *----------------production capacity bounds---------------------------------------------
 
-            # instance.constraint_production_max = make_constraint(instance=instance, type_cons=Cons.X_LEQ_BY, variable_x='Cap_P', variable_y='X_P', b_max=scenario.prod_max, location_set=instance.locations, component_set=instance.processes,
+            # instance.constraint_production_max = make_constraint(instance=instance, type_cons=Cons.X_LEQ_BY, variable_x='Cap_P', variable_y='X_P', b_max=scenario.cap_max, location_set=instance.locations, component_set=instance.processes,
             #                                                      loc_comp_dict=scenario.location_process_dict, x_scale_level=scenario.network_scale_level, y_scale_level=scenario.network_scale_level, label='restricts nameplate capacity to some UB')
 
-            # instance.constraint_production_min = make_constraint(instance=instance, type_cons=Cons.X_GEQ_BY, variable_x='Cap_P', variable_y='X_P', b_max=scenario.prod_min, location_set=instance.locations, component_set=instance.processes,
+            # instance.constraint_production_min = make_constraint(instance=instance, type_cons=Cons.X_GEQ_BY, variable_x='Cap_P', variable_y='X_P', b_max=scenario.cap_min, location_set=instance.locations, component_set=instance.processes,
             #                                                      loc_comp_dict=scenario.location_process_dict, x_scale_level=scenario.network_scale_level, y_scale_level=scenario.network_scale_level, label='restricts nameplate capacity to some LB')
 
-            instance.constraint_production_max = make_constraint(instance=instance, type_cons=Cons.X_LEQ_B, variable_x='Cap_P', b_max=scenario.prod_max, location_set=instance.locations, component_set=instance.processes,
+            instance.constraint_production_max = make_constraint(instance=instance, type_cons=Cons.X_LEQ_B, variable_x='Cap_P', b_max=scenario.cap_max, location_set=instance.locations, component_set=instance.processes,
                                                                  loc_comp_dict=scenario.location_process_dict, x_scale_level=scenario.network_scale_level, label='restricts nameplate capacity to some UB')
 
-            instance.constraint_production_min = make_constraint(instance=instance, type_cons=Cons.X_GEQ_B, variable_x='Cap_P', b_max=scenario.prod_min, location_set=instance.locations, component_set=instance.processes,
+            instance.constraint_production_min = make_constraint(instance=instance, type_cons=Cons.X_GEQ_B, variable_x='Cap_P', b_max=scenario.cap_min, location_set=instance.locations, component_set=instance.processes,
                                                                  loc_comp_dict=scenario.location_process_dict, x_scale_level=scenario.network_scale_level, label='restricts nameplate capacity to some LB')
 
         if Constraints.LAND in constraints:
@@ -836,11 +836,11 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
                                         location_resource_dict=scenario.location_resource_dict,
                                         network_scale_level=scenario.network_scale_level)
 
-            constraint_production_facility(instance=instance, prod_max=scenario.prod_max,
+            constraint_production_facility(instance=instance, cap_max=scenario.cap_max,
                                            location_process_dict=scenario.location_process_dict,
                                            network_scale_level=scenario.network_scale_level)
 
-            constraint_min_production_facility(instance=instance, prod_min=scenario.prod_min,
+            constraint_min_production_facility(instance=instance, cap_min=scenario.cap_min,
                                                location_process_dict=scenario.location_process_dict,
                                                network_scale_level=scenario.network_scale_level)
 
@@ -870,10 +870,10 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
             generate_mode_vars(
                 instance=instance, scale_level=scenario.scheduling_scale_level, mode_dict=scenario.mode_dict)
 
-            constraint_production_mode_facility(instance=instance, prod_max=scenario.prod_max,
+            constraint_production_mode_facility(instance=instance, cap_max=scenario.cap_max,
                                                 location_process_dict=scenario.location_process_dict,
                                                 scheduling_scale_level=scenario.scheduling_scale_level)
-            constraint_min_production_mode_facility(instance=instance, prod_min=scenario.prod_min,
+            constraint_min_production_mode_facility(instance=instance, cap_min=scenario.cap_min,
                                                     location_process_dict=scenario.location_process_dict,
                                                     scheduling_scale_level=scenario.scheduling_scale_level)
             constraint_production_mode_binary(instance=instance, mode_dict=scenario.mode_dict,
@@ -899,9 +899,9 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
             constraint_production_facility_material_mode_binary(
                 instance=instance, network_scale_level=scenario.network_scale_level, location_process_dict=scenario.location_process_dict)
 
-            constraint_production_facility_material(instance=instance, prod_max=scenario.prod_max, location_process_dict=scenario.location_process_dict,
+            constraint_production_facility_material(instance=instance, cap_max=scenario.cap_max, location_process_dict=scenario.location_process_dict,
                                                     network_scale_level=scenario.network_scale_level, process_material_modes_dict=scenario.process_material_modes_dict)
-            constraint_min_production_facility_material(instance=instance, prod_min=scenario.prod_min, location_process_dict=scenario.location_process_dict,
+            constraint_min_production_facility_material(instance=instance, cap_min=scenario.cap_min, location_process_dict=scenario.location_process_dict,
                                                         network_scale_level=scenario.network_scale_level, process_material_modes_dict=scenario.process_material_modes_dict)
             constraint_material_mode_process(
                 instance=instance, process_material_mode_material_dict=scenario.process_material_mode_material_dict, network_scale_level=scenario.network_scale_level)

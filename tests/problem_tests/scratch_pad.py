@@ -3,18 +3,17 @@
 # %%
 # # %%
 
+from src.energiapy.model.solve import solve
+from src.energiapy.model.formulate import formulate, Constraints, Objective
+from src.energiapy.components.scenario import Scenario
+from src.energiapy.components.location import Location
+from src.energiapy.components.material import Material
+from src.energiapy.components.process import Process, VaryingProcess
+from src.energiapy.components.temporal_scale import TemporalScale
+from src.energiapy.components.resource import Resource, VaryingResource
+import pandas
 import sys
 sys.path.append('../../')
-import pandas
-from src.energiapy.components.resource import Resource, VaryingResource
-from src.energiapy.components.temporal_scale import TemporalScale
-from src.energiapy.components.process import Process, VaryingProcess
-from src.energiapy.components.material import Material
-from src.energiapy.components.location import Location
-from src.energiapy.components.scenario import Scenario
-from src.energiapy.model.formulate import formulate, Constraints, Objective
-from src.energiapy.model.solve import solve
-
 
 
 # #%%
@@ -40,12 +39,12 @@ Resource_deterministic_revenue = Resource(name='resource_deterministic_revenue',
                                           VaryingResource.DETERMINISTIC_REVENUE])
 
 Process_deterministic_capacity = Process(name='process_deterministic_capacity', conversion={Resource_certain_availability: -1, Resource_deterministic_demand: 1},
-                                         capex=1000, fopex=10, vopex=1, prod_max=100, prod_min=0, varying=[VaryingProcess.DETERMINISTIC_CAPACITY])
+                                         capex=1000, fopex=10, vopex=1, cap_max=100, cap_min=0, varying=[VaryingProcess.DETERMINISTIC_CAPACITY])
 Process_certain_capacity = Process(name='process_certain_capacity', conversion={
                                    Resource_deterministic_demand: -0.5, Resource_deterministic_availability: -0.5, Resource_deterministic_price: -0.25, Resource_deterministic_revenue: 1},
-                                   capex=100, fopex=10, vopex=1, prod_max=100, prod_min=0)
+                                   capex=100, fopex=10, vopex=1, cap_max=100, cap_min=0)
 Process_storage = Process(name='process_storage', storage=Resource_deterministic_demand,
-                          capex=100, fopex=5, vopex=0.5, prod_max=50, prod_min=0, store_max=25, storage_cost=0.1)
+                          capex=100, fopex=5, vopex=0.5, cap_max=50, cap_min=0, store_max=25, storage_cost=0.1)
 
 Place = Location(name='location', processes={Process_certain_capacity, Process_deterministic_capacity, Process_storage}, scales=scales,
                  demand_scale_level=1, capacity_scale_level=1, price_scale_level=1, availability_scale_level=1,
@@ -89,16 +88,16 @@ Resource_deterministic_revenue = Resource(name='resource_deterministic_revenue',
                                           VaryingResource.DETERMINISTIC_REVENUE])
 
 Process_deterministic_capacity = Process(name='process_deterministic_capacity', conversion={Resource_certain_availability: -1, Resource_deterministic_demand: 1},
-                                         capex=1000, fopex=10, vopex=1, prod_max=100, prod_min=10, varying=[VaryingProcess.DETERMINISTIC_CAPACITY])
+                                         capex=1000, fopex=10, vopex=1, cap_max=100, cap_min=10, varying=[VaryingProcess.DETERMINISTIC_CAPACITY])
 
 Process_deterministic_capacity2 = Process(name='process_deterministic_capacity2', conversion={Resource_certain_availability: -1, Resource_deterministic_demand: 1},
-                                         capex=2000, fopex=20, vopex=5, prod_max=100, prod_min=10, varying=[VaryingProcess.DETERMINISTIC_CAPACITY])
+                                          capex=2000, fopex=20, vopex=5, cap_max=100, cap_min=10, varying=[VaryingProcess.DETERMINISTIC_CAPACITY])
 
 Process_certain_capacity = Process(name='process_certain_capacity', conversion={
                                    Resource_deterministic_demand: -0.5, Resource_deterministic_availability: -0.5, Resource_deterministic_price: -0.25, Resource_deterministic_revenue: 1},
-                                   capex=100, fopex=10, vopex=1, prod_max=100, prod_min=0)
+                                   capex=100, fopex=10, vopex=1, cap_max=100, cap_min=0)
 Process_storage = Process(name='process_storage', storage=Resource_deterministic_demand,
-                          capex=100, fopex=5, vopex=0.5, prod_max=50, prod_min=0, store_max=25, storage_cost=0.1)
+                          capex=100, fopex=5, vopex=0.5, cap_max=50, cap_min=0, store_max=25, storage_cost=0.1)
 
 Place = Location(name='location', processes={Process_certain_capacity, Process_deterministic_capacity2, Process_deterministic_capacity, Process_storage}, scales=scales,
                  demand_scale_level=1, capacity_scale_level=1, price_scale_level=1, availability_scale_level=1,
@@ -113,9 +112,10 @@ Occurance = Scenario(name='scenario', scales=scales, network=Place, demand_scale
 # LP = formulate(scenario=Occurance, constraints={Constraints.COST, Constraints.INVENTORY,
 #                Constraints.PRODUCTION, Constraints.RESOURCE_BALANCE, Constraints.DEMAND}, objective=Objective.COST)
 MILP = formulate(scenario=Occurance, constraints={Constraints.COST, Constraints.NETWORK, Constraints.INVENTORY,
-               Constraints.PRODUCTION, Constraints.RESOURCE_BALANCE}, objective=Objective.PROFIT)
+                                                  Constraints.PRODUCTION, Constraints.RESOURCE_BALANCE}, objective=Objective.PROFIT)
 
-results = solve(scenario=Occurance, instance=MILP, solver='gurobi', name='MILP')
+results = solve(scenario=Occurance, instance=MILP,
+                solver='gurobi', name='MILP')
 
 # %%
 
@@ -142,16 +142,16 @@ Resource_deterministic_revenue = Resource(name='resource_deterministic_revenue',
                                           VaryingResource.DETERMINISTIC_REVENUE])
 
 Process_deterministic_capacity = Process(name='process_deterministic_capacity', conversion={Resource_certain_availability: -1, Resource_deterministic_demand: 1},
-                                         capex=1000, fopex=10, vopex=1, prod_max=100, prod_min=10, varying=[VaryingProcess.DETERMINISTIC_CAPACITY])
+                                         capex=1000, fopex=10, vopex=1, cap_max=100, cap_min=10, varying=[VaryingProcess.DETERMINISTIC_CAPACITY])
 
 Process_deterministic_capacity2 = Process(name='process_deterministic_capacity2', conversion={Resource_certain_availability: -1, Resource_deterministic_demand: 1},
-                                         capex=2000, fopex=20, vopex=5, prod_max=100, prod_min=10, varying=[VaryingProcess.DETERMINISTIC_CAPACITY])
+                                          capex=2000, fopex=20, vopex=5, cap_max=100, cap_min=10, varying=[VaryingProcess.DETERMINISTIC_CAPACITY])
 
 Process_certain_capacity = Process(name='process_certain_capacity', conversion={
                                    Resource_deterministic_demand: -0.5, Resource_deterministic_availability: -0.5, Resource_deterministic_price: -0.25, Resource_deterministic_revenue: 1},
-                                   capex=100, fopex=10, vopex=1, prod_max=100, prod_min=0)
+                                   capex=100, fopex=10, vopex=1, cap_max=100, cap_min=0)
 Process_storage = Process(name='process_storage', storage=Resource_deterministic_demand,
-                          capex=100, fopex=5, vopex=0.5, prod_max=50, prod_min=0, store_max=25, storage_cost=0.1)
+                          capex=100, fopex=5, vopex=0.5, cap_max=50, cap_min=0, store_max=25, storage_cost=0.1)
 
 Place = Location(name='location', processes={Process_certain_capacity, Process_deterministic_capacity2, Process_deterministic_capacity, Process_storage}, scales=scales,
                  demand_scale_level=1, capacity_scale_level=1, price_scale_level=1, availability_scale_level=1,
@@ -166,8 +166,9 @@ Occurance = Scenario(name='scenario', scales=scales, network=Place, demand_scale
 # LP = formulate(scenario=Occurance, constraints={Constraints.COST, Constraints.INVENTORY,
 #                Constraints.PRODUCTION, Constraints.RESOURCE_BALANCE, Constraints.DEMAND}, objective=Objective.COST)
 MILP = formulate(scenario=Occurance, constraints={Constraints.COST, Constraints.NETWORK, Constraints.INVENTORY,
-               Constraints.PRODUCTION, Constraints.RESOURCE_BALANCE, Constraints.DEMAND}, objective=Objective.COST)
+                                                  Constraints.PRODUCTION, Constraints.RESOURCE_BALANCE, Constraints.DEMAND}, objective=Objective.COST)
 
-results = solve(scenario=Occurance, instance=MILP, solver='gurobi', name='MILP')
+results = solve(scenario=Occurance, instance=MILP,
+                solver='gurobi', name='MILP')
 
 # %%
