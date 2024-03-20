@@ -337,7 +337,7 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
         generate_sets(instance=instance, scenario=scenario)
 
         generate_scheduling_vars(
-            instance=instance, scale_level=scenario.scheduling_scale_level, mode_dict=scenario.mode_dict)
+            instance=instance, scale_level=scenario.scheduling_scale_level, mode_dict=scenario.mode_dict, scenario=scenario)
         generate_network_vars(
             instance=instance, scale_level=scenario.network_scale_level)
         generate_costing_vars(instance=instance)

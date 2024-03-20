@@ -317,6 +317,9 @@ class Scenario:
 
         self.mode_dict = {i.name: list(
             self.multiconversion[i.name].keys()) for i in self.process_set}
+        # self.mode_dict = {i: [(k,) for k in j]for i,j in self.mode_dict.items()}
+        
+        self.modes_dict = {i: i.modes_dict for i in self.location_set}
 
         if self.demand_penalty is not None:
             self.demand_penalty = {i.name: {j.name: self.demand_penalty[i][j] for j in self.demand_penalty[i].keys(
