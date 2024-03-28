@@ -171,22 +171,28 @@ def constraint_inventory_balance(instance: ConcreteModel, scheduling_scale_level
         # produced = sum(conversion[process][resource]*instance.P[location, process, scale_list[:scheduling_scale_level+1]] for process in instance.processes_singlem) \
         #     + sum(instance.P[location, process, scale_list[:scheduling_scale_level+1]] for process in instance.processes_multim)
 
+        # produced = sum(sum(multiconversion[process][mode][resource] * instance.P_m[location, process, mode,
+        #                                                                            scale_list[:scheduling_scale_level + 1]] for mode in mode_dict[process]) for process in
+        #                instance.processes_full if process in location_process_dict[location])  # includes processes + discharge
+        produced = 0
         for process in instance.processes_full:
             if process in location_process_dict[location]:
                 for mode in mode_dict[process]:
-                    if multiconversion[process][mode][resource] == 0:
-                        return Constraint.Skip
-
+                    if multiconversion[process][mode][resource]:
+                        produced = produced + multiconversion[process][mode][resource] * instance.P_m[location, process, mode,
+                                                                                                      scale_list[:scheduling_scale_level + 1]]
                     else:
-                        produced = sum(sum(multiconversion[process][mode][resource] * instance.P_m[location, process, mode,
-                                                                                                   scale_list[:scheduling_scale_level + 1]] for mode in mode_dict[process]) for process in
-                                       instance.processes_full if process in location_process_dict[location])  # includes processes + discharge
+                        produced = produced + 0
 
-                        def weight(
-                            x): return 1 if cluster_wt is None else cluster_wt[x]
+        def weight(x): return 1 if cluster_wt is None else cluster_wt[x]
 
-                        return weight(scale_list[:scheduling_scale_level + 1]) * (
-                            consumption + produced - discharge + transport) == storage
+        if isinstance(produced, int):
+            if produced == 0:  # slightly unecessary
+                return Constraint.Skip
+
+        else:
+            return weight(scale_list[:scheduling_scale_level + 1]) * (
+                consumption + produced - discharge + transport) == storage
 
     instance.constraint_inventory_balance = Constraint(
         instance.locations, instance.resources, *scales, rule=inventory_balance_rule,
