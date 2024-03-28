@@ -35,11 +35,17 @@ def generate_scheduling_vars(instance: ConcreteModel, scenario: Scenario, scale_
                      instance.scales_scheduling, within=NonNegativeReals, doc='Production')
     # instance.P = Var(instance.locations, instance.processes_full,
     #                  instance.scales_scheduling, within=NonNegativeReals, doc='Production')
-    instance.B = Var(instance.locations, instance.resources_purch,
+    # instance.B = Var(instance.locations, instance.resources_purch,
+    #  instance.scales_scheduling, within=NonNegativeReals, doc='Purchase Expenditure')
+    instance.B = Var(Set(initialize=[(i, j) for i in scenario.location_resource_purch_dict for j in scenario.location_resource_purch_dict[i]]),
                      instance.scales_scheduling, within=NonNegativeReals, doc='Purchase Expenditure')
-    instance.C = Var(instance.locations, instance.resources_purch,
-                     instance.scales_scheduling, within=NonNegativeReals, doc='Resource Consumption')
-    instance.S = Var(instance.locations, instance.resources_sell,
+    # instance.C = Var(instance.locations, instance.resources_purch,
+    #  instance.scales_scheduling, within=NonNegativeReals, doc='Resource Consumption')
+    instance.C = Var(Set(initialize=[(i, j) for i in scenario.location_resource_purch_dict for j in scenario.location_resource_purch_dict[i]]),
+                     instance.scales_scheduling, within=NonNegativeReals, doc='Purchase Consumption')
+    # instance.S = Var(instance.locations, instance.resources_sell,
+    #  instance.scales_scheduling, within=NonNegativeReals, doc='Resource Dispensed/Sold')
+    instance.S = Var(Set(initialize=[(i, j) for i in scenario.location_resource_sell_dict for j in scenario.location_resource_sell_dict[i]]),
                      instance.scales_scheduling, within=NonNegativeReals, doc='Resource Dispensed/Sold')
     instance.R = Var(instance.locations, instance.resources_sell,
                      instance.scales_scheduling, within=NonNegativeReals, doc='Revenue from resource Sold')

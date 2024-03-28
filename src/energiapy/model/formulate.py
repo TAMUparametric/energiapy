@@ -697,7 +697,9 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
         if Constraints.RESOURCE_BALANCE in constraints:
             constraint_inventory_balance(instance=instance, scheduling_scale_level=scenario.scheduling_scale_level,
                                          multiconversion=scenario.multiconversion, mode_dict=scenario.mode_dict, inventory_zero=inventory_zero,
-                                         location_resource_dict=scenario.location_resource_dict, location_process_dict=scenario.location_process_dict)
+                                         location_resource_dict=scenario.location_resource_dict, location_process_dict=scenario.location_process_dict,
+                                         location_resource_purch_dict=scenario.location_resource_purch_dict, location_resource_sell_dict=scenario.location_resource_sell_dict,
+                                         location_resource_store_dict=scenario.location_resource_store_dict)
 
             # constraint_network_production(
             #     instance=instance, network_scale_level=scenario.network_scale_level)
@@ -951,7 +953,7 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
             if Constraints.DEMAND in constraints:
                 constraint_demand(instance=instance, demand_scale_level=scenario.demand_scale_level,
                                   scheduling_scale_level=scenario.scheduling_scale_level, demand=demand,
-                                  demand_factor=scenario.demand_factor, location_resource_dict=scenario.location_resource_dict, sign=demand_sign)
+                                  demand_factor=scenario.demand_factor, location_resource_dict=scenario.location_resource_sell_dict, sign=demand_sign)
 
         if objective == Objective.COST:
 

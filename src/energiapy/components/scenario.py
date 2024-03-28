@@ -235,6 +235,12 @@ class Scenario:
             i.name: i.revenue_factor for i in self.location_set}
         self.location_resource_dict = {
             i.name: {j.name for j in i.resources_full} for i in self.location_set}
+        self.location_resource_sell_dict = {
+            i.name: {j.name for j in i.resources_full if j.sell is True} for i in self.location_set}
+        self.location_resource_purch_dict = {
+            i.name: {j.name for j in i.resources_full if j.cons_max > 0} for i in self.location_set}
+        self.location_resource_store_dict = {
+            i.name: {j.name for j in i.resources_full if j.store_max > 0} for i in self.location_set}
         self.location_process_dict = {
             i.name: {j.name for j in i.processes_full} for i in self.location_set}
         self.location_material_dict = {i.name: {j.name for j in i.materials}
@@ -318,7 +324,7 @@ class Scenario:
         self.mode_dict = {i.name: list(
             self.multiconversion[i.name].keys()) for i in self.process_set}
         # self.mode_dict = {i: [(k,) for k in j]for i,j in self.mode_dict.items()}
-        
+
         self.modes_dict = {i: i.modes_dict for i in self.location_set}
 
         if self.demand_penalty is not None:
