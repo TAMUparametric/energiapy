@@ -146,7 +146,10 @@ def generate_sets(instance: ConcreteModel, scenario: Scenario):
                                                 doc='Set of processes with uncertain capacity')
     instance.processes_segments = Set(
         initialize=sets['processes_segments'], doc='Set of processes with PWL process segments')
-    
+
+    instance.process_modes = Set(
+        scenario.set_dict['processes_full'], initialize=scenario.mode_dict, doc='Set of processes and thier modes')
+
     instance.process_material_modes = Set(
         initialize=sets['process_material_modes'], doc='Set of process and material combinations')
 
@@ -182,14 +185,15 @@ def generate_sets(instance: ConcreteModel, scenario: Scenario):
         instance.transports_uncertain_vopex = Set(
             initialize=sets['transports_uncertain_vopex'], doc='Set of transports with uncertain vopex')
 
-    mode_lens = []
-    for j in scenario.location_set:
-        for i in scenario.process_set:
-            if i.name in scenario.location_process_dict[j.name]:
-                mode_lens.append(len(scenario.cap_max[j.name][i.name].keys()))
+    # mode_lens = []
+    # for j in scenario.location_set:
+    #     for i in scenario.process_set:
+    #         if i.name in scenario.location_process_dict[j.name]:
+    #             if isinstance(scenario.cap_max[j.name][i.name], dict) is True:
+    #                 mode_lens.append(len(scenario.cap_max[j.name][i.name].keys()))
 
-    instance.modes = Set(initialize=list(
-        range(max(mode_lens))), doc='Set of process modes')
+    # instance.modes = Set(initialize=list(
+    #     range(max(mode_lens))), doc='Set of process modes')
 
     if scenario.source_locations is not None:
         instance.sources = Set(
