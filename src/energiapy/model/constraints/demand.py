@@ -122,10 +122,13 @@ def constraint_demand(instance: ConcreteModel, demand: Union[dict, float], deman
             else:
                 discharge = 0
 
-            if isinstance(demand, dict):
-                demandtarget = demand[location][resource]
+            if resource in location_resource_dict[location]:
+                if isinstance(demand, dict):
+                    demandtarget = demand[location][resource]
+                else:
+                    demandtarget = demand
             else:
-                demandtarget = demand
+                demandtarget = 0
 
         if resource in location_resource_dict[location]:
             if sign == 'geq':
