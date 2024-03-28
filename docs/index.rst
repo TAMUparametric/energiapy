@@ -22,6 +22,7 @@ Tutorial
    notebooks/mplp/mpLP
    example_ahc
    notebooks/fetch_nsrdb/fetch_nsrdb_data
+   notebooks/sl-mp-milp/sl-mp-milp
    
 API
 ---
