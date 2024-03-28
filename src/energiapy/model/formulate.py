@@ -631,7 +631,7 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
 
         if Constraints.PRODUCTION in constraints:
 
-            constraint_production_mode(instance=instance, mode_dict=scenario.mode_dict,
+            constraint_production_mode(instance=instance, location_process_dict=scenario.location_process_dict, mode_dict=scenario.mode_dict,
                                        scheduling_scale_level=scenario.scheduling_scale_level)
 
             # *----------------nameplate production capacity---------------------------------------------
@@ -697,7 +697,7 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
         if Constraints.RESOURCE_BALANCE in constraints:
             constraint_inventory_balance(instance=instance, scheduling_scale_level=scenario.scheduling_scale_level,
                                          multiconversion=scenario.multiconversion, mode_dict=scenario.mode_dict, inventory_zero=inventory_zero,
-                                         location_resource_dict=scenario.location_resource_dict)
+                                         location_resource_dict=scenario.location_resource_dict, location_process_dict=scenario.location_process_dict)
 
             # constraint_network_production(
             #     instance=instance, network_scale_level=scenario.network_scale_level)

@@ -64,7 +64,7 @@ def constraint_resource_consumption(instance: ConcreteModel, location_resource_d
 def constraint_inventory_balance(instance: ConcreteModel, scheduling_scale_level: int = 0,
                                  multiconversion: dict = None, mode_dict: dict = None,
                                  cluster_wt: dict = None, inventory_zero: Dict[Location, Dict[Tuple[Process, Resource], float]] = None,
-                                 location_resource_dict: dict = None) -> Constraint:
+                                 location_resource_dict: dict = None, location_process_dict: dict = None) -> Constraint:
     """balances resource across the scheduling horizon
     Mass balance in any temporal discretization has the following within their respective sets:
     - consumption for resources that can be purchased
@@ -85,6 +85,7 @@ def constraint_inventory_balance(instance: ConcreteModel, scheduling_scale_level
         cluster_wt (dict, optional): weight of cluster as determined through scenario aggregation. Defaults to None.
         inventory_zero (Dict[Location, Dict[Tuple[Process, Resource], float]], optional): inventory at the start of the scheduling horizon. Defaults to None.
         location_resource_dict (dict, optional): dict with resources in locations. Defaults to None.
+        location_process_dict (dict, optional): dict with processes in locations. Defaults to None.
     Returns:
         Constraint: inventory_balance
     """
@@ -159,7 +160,7 @@ def constraint_inventory_balance(instance: ConcreteModel, scheduling_scale_level
 
         produced = sum(sum(multiconversion[process][mode][resource] * instance.P_m[location, process, mode,
                                                                                    scale_list[:scheduling_scale_level + 1]] for mode in mode_dict[process]) for process in
-                       instance.processes_full)  # includes processes + discharge
+                       instance.processes_full if process in location_process_dict[location])  # includes processes + discharge
 
         def weight(x): return 1 if cluster_wt is None else cluster_wt[x]
 
