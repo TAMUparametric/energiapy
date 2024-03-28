@@ -103,8 +103,21 @@ class Location:
         self.scale_levels = self.scales.scale_levels
         self.processes_full = self.processes.union({create_storage_process(
             i) for i in self.processes if i.processmode == ProcessMode.STORAGE})
-        self.prod_max = self.get_prod_max()  # dicitionary of maximum production
-        self.prod_min = self.get_prod_min()  # dictionary of minimum production
+        self.cap_max = self.get_cap_max()  # dicitionary of maximum production
+        self.cap_min = self.get_cap_min()  # dictionary of minimum production
+        # gets the modes for all processes
+        self.modes_dict = {p: p.modes for p in self.processes_full if p.modes}
+        # gets the ramp_rates for all processes
+        self.ramp_rates_dict = {p: p.ramp_rates for p in self.processes_full}
+        # gets the cap_pwl for all processes
+        self.cap_pwl_dict = {p: p.cap_pwl for p in self.processes_full}
+        # gets the ramp sequences for all processes
+        self.ramp_sequence_dict = {
+            p: p.ramp_sequence for p in self.processes_full}
+        self.modes_all_dict = {p: {'modes': self.modes_dict[p], 'ramp_rates': self.ramp_rates_dict[p],
+                                   'cap_pwl': self.cap_pwl_dict[p], 'ramp_sequence': self.ramp_sequence_dict[p]} if p.processmode == ProcessMode.MULTI else {'modes': None, 'ramp_rates': None,
+                                                                                                                                                             'cap_pwl': None, 'ramp_sequence': None} for p in self.processes_full}
+
         self.resource_price = self.get_resource_price()  # dictionary of resource prices
         # dictionary of resource selling prices
         self.resource_revenue = self.get_resource_revenue()
@@ -229,11 +242,14 @@ class Location:
                 if i.material_cons is not None:
                     if isinstance(i.material_cons, dict):
                         for j in i.material_cons.keys():
-                            materials = materials.union(set(i.material_cons[j].keys()))             
+                            materials = materials.union(
+                                set(i.material_cons[j].keys()))
                     else:
-                        materials = materials.union(set(i.material_cons.keys()))
+                        materials = materials.union(
+                            set(i.material_cons.keys()))
                         # return set().union(*[set(i.material_cons.keys()) for i in self.processes if i.material_cons is not None])
             return materials
+
     def get_resource_price(self) -> dict:
         """gets resource prices for resources with non-varying costs
 
@@ -271,56 +287,58 @@ class Location:
         return {process_.name: {(scale_): sample([0] * int(process_.p_fail * 100) + [1] * int(
             (1 - process_.p_fail) * 100), 1)[0] for scale_ in scale_iter} for process_ in self.failure_processes}
 
-    def get_prod_max(self) -> dict:
+    def get_cap_max(self) -> dict:
         """
         make a dictionary with maximum production
         """
-        prod_max_dict = {}
+        cap_max_dict = {}
         for i in self.processes_full:
             if i.materialmode == MaterialMode.MULTI:
-                prod_max_dict[i.name] = {j: None for j in self.scales.scale[0]}
+                cap_max_dict[i.name] = {j: None for j in self.scales.scale[0]}
                 for j in self.scales.scale[0]:
-                    prod_max_dict[i.name][j] = i.prod_max
+                    cap_max_dict[i.name][j] = i.cap_max
             else:
                 if i.processmode == ProcessMode.MULTI:
-                    prod_max_dict[i.name] = i.prod_max
+                    cap_max_dict[i.name] = i.cap_max
                 else:
-                    prod_max_dict[i.name] = {j: None for j in self.scales.scale[0]}
+                    cap_max_dict[i.name] = {
+                        j: None for j in self.scales.scale[0]}
                     for j in self.scales.scale[0]:
-                        prod_max_dict[i.name][j] = i.prod_max
-        return prod_max_dict
+                        cap_max_dict[i.name][j] = i.cap_max
+        return cap_max_dict
 
-    def get_prod_min(self) -> dict:
+    def get_cap_min(self) -> dict:
         """
         make a dictionary with minimum production
         """
-        prod_min_dict = {}
+        cap_min_dict = {}
         for i in self.processes_full:
             if i.materialmode == MaterialMode.MULTI:
-                prod_min_dict[i.name] = {j: None for j in self.scales.scale[0]}
+                cap_min_dict[i.name] = {j: None for j in self.scales.scale[0]}
                 for j in self.scales.scale[0]:
-                    prod_min_dict[i.name][j] = i.prod_min
+                    cap_min_dict[i.name][j] = i.cap_min
             else:
                 if i.processmode == ProcessMode.MULTI:
-                    prod_min_dict[i.name] = i.prod_min
+                    cap_min_dict[i.name] = i.cap_min
                 else:
-                    prod_min_dict[i.name] = {j: None for j in self.scales.scale[0]}
+                    cap_min_dict[i.name] = {
+                        j: None for j in self.scales.scale[0]}
                     for j in self.scales.scale[0]:
-                        prod_min_dict[i.name][j] = i.prod_min
-        return prod_min_dict
+                        cap_min_dict[i.name][j] = i.cap_min
+        return cap_min_dict
 
-    # def get_prod_min(self) -> dict:
+    # def get_cap_min(self) -> dict:
     #     """
     #     make a dictionary with minimum production
     #     """
-    #     prod_min_dict = {}
+    #     cap_min_dict = {}
     #     for i in self.processes_full:
     #         if i.processmode == ProcessMode.MULTI:
-    #             prod_min_dict[i.name] = i.prod_min
+    #             cap_min_dict[i.name] = i.cap_min
     #         else:
-    #             prod_min_dict[i.name] = {0: None}
-    #             prod_min_dict[i.name][0] = i.prod_min
-    #     return prod_min_dict
+    #             cap_min_dict[i.name] = {0: None}
+    #             cap_min_dict[i.name][0] = i.cap_min
+    #     return cap_min_dict
 
     def __repr__(self):
         return self.name
