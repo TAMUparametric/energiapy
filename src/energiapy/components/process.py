@@ -168,7 +168,7 @@ class Process:
     material_cons: Union[Dict[Union[int, str],
                               Dict[Material, float]], Dict[Material, float]] = None
     prod_max: Union[Dict[int, float], float] = 0
-    prod_min: float = 0
+    prod_min: Union[Dict[int, float], float] = 0
     basis: str = 'unit'
     credit: float = None
     gwp: float = 0

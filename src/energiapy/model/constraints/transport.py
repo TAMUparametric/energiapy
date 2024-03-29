@@ -294,8 +294,7 @@ def constraint_transport_capacity_UB_no_bin(instance: ConcreteModel, network_sca
     def transport_capacity_UB_no_bin_rule(instance, source, sink, transport, *scale_list):
         if transport in transport_avail_dict[(source, sink)]:
             return instance.Cap_F[source, sink, transport, scale_list[:network_scale_level + 1]] <= \
-                trans_max[transport] * instance.X_F[source, sink,
-                                                    transport, scale_list[:network_scale_level + 1]]
+                trans_max[transport]
         else:
             return instance.Cap_F[source, sink, transport, scale_list[:network_scale_level + 1]] == 0
 

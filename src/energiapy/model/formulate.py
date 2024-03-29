@@ -634,7 +634,7 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
 
         if Constraints.PRODUCTION in constraints:
 
-            constraint_production_mode(instance=instance, mode_dict=scenario.mode_dict,
+            constraint_production_mode(instance=instance, mode_dict=scenario.mode_dict, location_process_dict=scenario.location_process_dict,
                                        scheduling_scale_level=scenario.scheduling_scale_level)
 
             # *----------------nameplate production capacity---------------------------------------------
@@ -659,7 +659,7 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
             instance.constraint_production_max = make_constraint(instance=instance, type_cons=Cons.X_LEQ_B, variable_x='Cap_P', b_max=scenario.prod_max, location_set=instance.locations, component_set=instance.processes,
                                                                  loc_comp_dict=scenario.location_process_dict, x_scale_level=scenario.network_scale_level, label='restricts nameplate capacity to some UB')
 
-            instance.constraint_production_min = make_constraint(instance=instance, type_cons=Cons.X_GEQ_B, variable_x='Cap_P', b_max=scenario.prod_min, location_set=instance.locations, component_set=instance.processes,
+            instance.constraint_production_min = make_constraint(instance=instance, type_cons=Cons.X_GEQ_B, variable_x='Cap_P', b_max=scenario.prod_max, location_set=instance.locations, component_set=instance.processes,
                                                                  loc_comp_dict=scenario.location_process_dict, x_scale_level=scenario.network_scale_level, label='restricts nameplate capacity to some LB')
 
         if Constraints.LAND in constraints:
@@ -873,21 +873,16 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
             generate_mode_vars(
                 instance=instance, scale_level=scenario.scheduling_scale_level, mode_dict=scenario.mode_dict)
 
-            constraint_production_mode_facility(instance=instance, prod_max=scenario.prod_max,
-                                                location_process_dict=scenario.location_process_dict,
-                                                scheduling_scale_level=scenario.scheduling_scale_level)
-            constraint_min_production_mode_facility(instance=instance, prod_min=scenario.prod_min,
-                                                    location_process_dict=scenario.location_process_dict,
-                                                    scheduling_scale_level=scenario.scheduling_scale_level)
-            # constraint_nameplate_production_mode(instance=instance, prod_max=scenario.prod_max,
-            #                                      location_process_dict=scenario.location_process_dict,
-            #                                      capacity_factor=scenario.capacity_factor,
-            #                                      scheduling_scale_level=scenario.scheduling_scale_level,
-            #                                      capacity_scale_level=scenario.capacity_scale_level)
-            constraint_fixed_nameplate_min_production_mode(instance=instance, prod_min=scenario.prod_min,
+            # constraint_production_mode_facility(instance=instance, prod_max=scenario.prod_max,
+            #                                     location_process_dict=scenario.location_process_dict,
+            #                                     scheduling_scale_level=scenario.scheduling_scale_level)
+            # constraint_min_production_mode_facility(instance=instance, prod_min=scenario.prod_min,
+            #                                         location_process_dict=scenario.location_process_dict,
+            #                                         scheduling_scale_level=scenario.scheduling_scale_level)
+            constraint_fixed_nameplate_min_production_mode(instance=instance, prod_min=scenario.prod_min, mode_dict=scenario.mode_dict,
                                                            location_process_dict=scenario.location_process_dict,
                                                            scheduling_scale_level=scenario.scheduling_scale_level)
-            constraint_fixed_nameplate_max_production_mode(instance=instance, prod_max=scenario.prod_max,
+            constraint_fixed_nameplate_max_production_mode(instance=instance, prod_max=scenario.prod_max, mode_dict=scenario.mode_dict,
                                                            location_process_dict=scenario.location_process_dict,
                                                            scheduling_scale_level=scenario.scheduling_scale_level)
 

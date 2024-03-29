@@ -184,7 +184,11 @@ def generate_sets(instance: ConcreteModel, scenario: Scenario):
     for j in scenario.location_set:
         for i in scenario.process_set:
             if i.name in scenario.location_process_dict[j.name]:
-                mode_lens.append(len(scenario.prod_max[j.name][i.name].keys()))
+                if isinstance(scenario.prod_max[j.name][i.name], dict):
+                    mode_lens.append(len(scenario.prod_max[j.name][i.name].keys()))
+                else:
+                    mode_lens.append(0)
+    # print(mode_lens)
 
     instance.modes = Set(initialize=list(
         range(max(mode_lens))), doc='Set of process modes')
