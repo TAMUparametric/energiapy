@@ -16,7 +16,7 @@ Tutorial
    :caption: Example Implementation:
 
    notebooks/small/small
-   notebooks/supermaket/supermaket
+   notebooks/supermarket/supermarket
    notebooks/sl-sp-milp/sl-sp-milp
    notebooks/ml-sp-milp/ml-sp-milp
    notebooks/material/material
