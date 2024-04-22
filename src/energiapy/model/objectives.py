@@ -22,13 +22,12 @@ from ..components.location import Location
 from ..model.constraints.constraints import Constraints
 
 
-def objective_cost(instance: ConcreteModel, constraints: Set[Constraints], network_scale_level: int = 0, annualization_factor: float = 1) -> Objective:
+def objective_cost(instance: ConcreteModel, constraints: Set[Constraints], network_scale_level: int = 0) -> Objective:
     """Objective to minimize total cost
 
     Args:
         instance (ConcreteModel): pyomo instance
         network_scale_level (int, optional): scale of network decisions. Defaults to 0.
-        annualization_factor (float, optional): fraction of capital expenditure incurred on an annual basis
 
     Returns:
         Objective: cost objective
@@ -60,13 +59,18 @@ def objective_cost(instance: ConcreteModel, constraints: Set[Constraints], netwo
             credit = 0
 
         if len(instance.locations) > 1:
-            cost_trans = sum(
-                instance.Capex_transport_network[scale_] for scale_ in scale_iter) + sum(
-                instance.Vopex_transport_network[scale_] for scale_ in scale_iter) + sum(
+            cost_trans_capex = sum(
+                instance.Capex_transport_network[scale_] for scale_ in scale_iter)
+            cost_trans_vopex = sum(
+                instance.Vopex_transport_network[scale_] for scale_ in scale_iter)
+            cost_trans_fopex = sum(
                 instance.Fopex_transport_network[scale_] for scale_ in scale_iter)
         else:
-            cost_trans = 0
-        return annualization_factor*capex + vopex + fopex + cost_purch + cost_trans + incidental + land_cost - credit + storage_cost
+            cost_trans_capex = 0
+            cost_trans_vopex = 0
+            cost_trans_fopex = 0
+
+        return capex + cost_trans_capex + vopex + fopex + cost_purch + cost_trans_vopex + cost_trans_fopex + incidental + land_cost - credit + storage_cost
 
     instance.objective_cost = Objective(
         rule=objective_cost_rule, doc='total cost')
@@ -75,15 +79,13 @@ def objective_cost(instance: ConcreteModel, constraints: Set[Constraints], netwo
 
 
 def objective_cost_w_demand_penalty(instance: ConcreteModel, demand_penalty: Dict[Location, Dict[Resource, float]], constraints: Set[Constraints],
-                                    network_scale_level: int = 0, demand_scale_level: int = 0, annualization_factor: float = 1) -> Objective:
+                                    network_scale_level: int = 0, demand_scale_level: int = 0) -> Objective:
     """Objective to minimize total cost with demand penalty
 
     Args:
         instance (ConcreteModel): pyomo instance
         network_scale_level (int, optional): scale of network decisions. Defaults to 0.
         demand_penalty (Dict[Location, Resource]): penalty for unmet demand for resource at each location
-        annualization_factor (float, optional): fraction of capital expenditure incurred on an annual basis
-
 
     Returns:
         Objective: cost objective
@@ -116,16 +118,20 @@ def objective_cost_w_demand_penalty(instance: ConcreteModel, demand_penalty: Dic
             credit = 0
 
         if len(instance.locations) > 1:
-            cost_trans = sum(
-                instance.Capex_transport_network[scale_] for scale_ in scale_iter) + sum(
-                instance.Vopex_transport_network[scale_] for scale_ in scale_iter) + sum(
+            cost_trans_capex = sum(
+                instance.Capex_transport_network[scale_] for scale_ in scale_iter)
+            cost_trans_vopex = sum(
+                instance.Vopex_transport_network[scale_] for scale_ in scale_iter)
+            cost_trans_fopex = sum(
                 instance.Fopex_transport_network[scale_] for scale_ in scale_iter)
         else:
-            cost_trans = 0
+            cost_trans_capex = 0
+            cost_trans_vopex = 0
+            cost_trans_fopex = 0
 
         penalty = sum(demand_penalty[location_][resource_]*instance.Demand_penalty[location_, resource_, scale_] for location_, resource_, scale_ in product(
             instance.locations, instance.resources_demand, scale_iter_penalty))
-        return annualization_factor*capex + vopex + fopex + cost_purch + cost_trans + incidental + land_cost - credit + penalty
+        return capex + cost_trans_capex + vopex + fopex + cost_purch + cost_trans_vopex + cost_trans_fopex + incidental + land_cost - credit + penalty
     instance.objective_cost_w_demand_penalty = Objective(
         rule=objective_cost_w_demand_penalty_rule, doc='total cost with penalty for demand')
     constraint_latex_render(objective_cost_w_demand_penalty_rule)
@@ -133,14 +139,12 @@ def objective_cost_w_demand_penalty(instance: ConcreteModel, demand_penalty: Dic
 
 
 def objective_uncertainty_cost(instance: ConcreteModel, penalty: float, network_scale_level: int = 0,
-                               uncertainty_scale_level: int = 0, annualization_factor: float = 1) -> Objective:
+                               uncertainty_scale_level: int = 0) -> Objective:
     """Objective to minimize total cost
 
     Args:
         instance (ConcreteModel): pyomo instance
         network_scale_level (int, optional): scale of network decisions. Defaults to 0.
-        annualization_factor (float, optional): fraction of capital expenditure incurred on an annual basis
-
 
     Returns:
         Objective: cost objective
@@ -159,13 +163,17 @@ def objective_uncertainty_cost(instance: ConcreteModel, penalty: float, network_
         cap_penalty = penalty * sum(instance.Demand_slack[location_, scale_] for location_, scale_ in
                                     product(instance.locations, scale_iter_uncertainty))
         if len(instance.locations) > 1:
-            cost_trans = sum(
-                instance.Capex_transport_network[scale_] for scale_ in scale_iter) + sum(
-                instance.Vopex_transport_network[scale_] for scale_ in scale_iter) + sum(
+            cost_trans_capex = sum(
+                instance.Capex_transport_network[scale_] for scale_ in scale_iter)
+            cost_trans_vopex = sum(
+                instance.Vopex_transport_network[scale_] for scale_ in scale_iter)
+            cost_trans_fopex = sum(
                 instance.Fopex_transport_network[scale_] for scale_ in scale_iter)
         else:
-            cost_trans = 0
-        return annualization_factor*capex + vopex + fopex + cost_purch + cost_trans + cap_penalty
+            cost_trans_capex = 0
+            cost_trans_vopex = 0
+            cost_trans_fopex = 0
+        return capex + cost_trans_capex + vopex + fopex + cost_purch + cost_trans_vopex + cost_trans_fopex + cap_penalty
 
     instance.uncertainty_cost_objective = Objective(rule=uncertainty_cost_objective_rule,
                                                     doc='total purchase from network')
@@ -238,14 +246,12 @@ def objective_discharge_max(instance: ConcreteModel, resource: Resource, network
     return instance.objective_discharge_max
 
 
-def objective_profit(instance: ConcreteModel, constraints: Set[Constraints], network_scale_level: int = 0, annualization_factor: float = 1) -> Objective:
+def objective_profit(instance: ConcreteModel, constraints: Set[Constraints], network_scale_level: int = 0) -> Objective:
     """Objective to maximize total profit
 
     Args:
         instance (ConcreteModel): pyomo instance
         network_scale_level (int, optional): scale of network decisions. Defaults to 0.
-        annualization_factor (float, optional): fraction of capital expenditure incurred on an annual basis
-
 
     Returns:
         Objective: profit objective
@@ -279,13 +285,17 @@ def objective_profit(instance: ConcreteModel, constraints: Set[Constraints], net
             credit = 0
 
         if len(instance.locations) > 1:
-            cost_trans = sum(
-                instance.Capex_transport_network[scale_] for scale_ in scale_iter) + sum(
-                instance.Vopex_transport_network[scale_] for scale_ in scale_iter) + sum(
+            cost_trans_capex = sum(
+                instance.Capex_transport_network[scale_] for scale_ in scale_iter)
+            cost_trans_vopex = sum(
+                instance.Vopex_transport_network[scale_] for scale_ in scale_iter)
+            cost_trans_fopex = sum(
                 instance.Fopex_transport_network[scale_] for scale_ in scale_iter)
         else:
-            cost_trans = 0
-        return -(annualization_factor*capex + vopex + fopex + cost_purch + cost_trans + incidental + land_cost) + credit + revenue
+            cost_trans_capex = 0
+            cost_trans_vopex = 0
+            cost_trans_fopex = 0
+        return -(capex + cost_trans_capex + vopex + fopex + cost_purch + cost_trans_vopex + cost_trans_fopex + incidental + land_cost) + credit + revenue
 
     instance.objective_profit = Objective(
         rule=objective_profit_rule, sense=maximize, doc='total profit')
@@ -294,13 +304,12 @@ def objective_profit(instance: ConcreteModel, constraints: Set[Constraints], net
 
 
 def objective_profit_w_demand_penalty(instance: ConcreteModel, demand_penalty: Dict[Location, Dict[Resource, float]], constraints: Set[Constraints],
-                                      network_scale_level: int = 0, demand_scale_level: int = 0, annualization_factor: float = 1) -> Objective:
+                                      network_scale_level: int = 0, demand_scale_level: int = 0) -> Objective:
     """Objective to maximize total profit with a penalty for unmet demand
 
     Args:
         instance (ConcreteModel): pyomo instance
         network_scale_level (int, optional): scale of network decisions. Defaults to 0.
-        annualization_factor (float, optional): fraction of capital expenditure incurred on an annual basis
 
     Returns:
         Objective: profit objective
@@ -336,16 +345,20 @@ def objective_profit_w_demand_penalty(instance: ConcreteModel, demand_penalty: D
             credit = 0
 
         if len(instance.locations) > 1:
-            cost_trans = sum(
-                instance.Capex_transport_network[scale_] for scale_ in scale_iter) + sum(
-                instance.Vopex_transport_network[scale_] for scale_ in scale_iter) + sum(
+            cost_trans_capex = sum(
+                instance.Capex_transport_network[scale_] for scale_ in scale_iter)
+            cost_trans_vopex = sum(
+                instance.Vopex_transport_network[scale_] for scale_ in scale_iter)
+            cost_trans_fopex = sum(
                 instance.Fopex_transport_network[scale_] for scale_ in scale_iter)
         else:
-            cost_trans = 0
+            cost_trans_capex = 0
+            cost_trans_vopex = 0
+            cost_trans_fopex = 0
 
         penalty = sum(demand_penalty[location_][resource_]*instance.Demand_penalty[location_, resource_, scale_] for location_, resource_, scale_ in product(
             instance.locations, instance.resources_demand, scale_iter_penalty))
-        return -(annualization_factor*capex + vopex + fopex + cost_purch + cost_trans + incidental + land_cost + penalty) + credit + revenue
+        return -(capex + cost_trans_capex + vopex + fopex + cost_purch + cost_trans_vopex + cost_trans_fopex + incidental + land_cost + penalty) + credit + revenue
 
     instance.objective_profit_w_demand_penalty = Objective(
         rule=objective_profit_w_demand_penalty_rule, sense=maximize, doc='total profit w demand_penalty')
@@ -373,3 +386,29 @@ def objective_gwp_min(instance: ConcreteModel, network_scale_level: int = 0, ) -
         rule=objective_gwp_min_rule, doc='minimize total gwp for network')
     constraint_latex_render(objective_gwp_min_rule)
     return instance.objective_gwp_min
+
+
+def objective_emission_min(instance: ConcreteModel, network_scale_level: int = 0, gwp_w: float = 0, odp_w: float = 0, acid_w: float = 0,
+                           eutt_w: float = 0, eutf_w: float = 0, eutm_w: float = 0) -> Objective:
+    """Minimize emission at network level using weighted sum method
+
+    Args:
+        instance (ConcreteModel): pyomo instance
+        network_scale_level (int, optional): scale of network decisions. Defaults to 0.
+
+    Returns:
+        Objective: objective_emission_min
+    """
+    scale_iter = scale_tuple(
+        instance=instance, scale_levels=network_scale_level + 1)
+
+    def objective_emission_min_rule(instance, *scale_list):
+        return gwp_w*sum(instance.global_warming_potential_network[scale_] for scale_ in scale_iter) + odp_w*sum(instance.ozone_depletion_potential_network[scale_] for scale_ in scale_iter) + \
+            acid_w*sum(instance.acidification_potential_network[scale_] for scale_ in scale_iter) + eutt_w*sum(instance.terrestrial_eutrophication_potential_network[scale_] for scale_ in scale_iter) + \
+            eutf_w*sum(instance.freshwater_eutrophication_potential_network[scale_] for scale_ in scale_iter) + eutm_w*sum(
+                instance.marine_eutrophication_potential_network[scale_] for scale_ in scale_iter)
+
+    instance.objective_emission_min = Objective(
+        rule=objective_emission_min_rule, doc='minimize total emission for network')
+    constraint_latex_render(objective_emission_min_rule)
+    return instance.objective_emission_min

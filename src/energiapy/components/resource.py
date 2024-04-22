@@ -94,6 +94,11 @@ class Resource:
         varying (bool, optional): If the cost of resource is varying/uncertain. Defaults to False.
         label (str, optional): Longer descriptive label if required. Defaults to ''.
         gwp (float, optional): Global Warming Potential per unit consumption of resource. Defaults to 0.
+        odp (float, optional): ozone depletion potential per unit basis of Resource produced. Defaults to 0.
+        acid (float, optional): acidification potential per unit basis of Resource produced. Defaults to 0.
+        eutt (float, optional): terrestrial eutrophication potential per unit basis of Resource produced. Defaults to 0.
+        eutf (float, optional): fresh water eutrophication potential per unit basis of Resource produced. Defaults to 0.
+        eutm (float, optional): marine eutrophication potential per unit basis of Resource produced. Defaults to 0.
         varying_bounds (float, optional): bounds for the variability in case of uncertain (for parametric formulation). Defaults to (0,1)
 
 
@@ -126,35 +131,82 @@ class Resource:
     varying: List[VaryingResource] = None
     label: str = ''
     gwp: float = 0
+    odp: float = 0
+    acid: float = 0
+    eutt: float = 0
+    eutf: float = 0
+    eutm: float = 0
     varying_bounds: Tuple[float] = (0, 1)
     # emissions: (Dict[Emission, float]) = None
 
     def __post_init__(self):
+
+        self.emission_potentials_dict = {'gwp': self.gwp, 'odp': self.odp,
+                                         'acid': self.acid, 'eutt': self.eutt, 'eutf': self.eutf, 'eutm': self.eutm}
         if self.demand is True:
             self.sell = True
 
         if self.varying is None:
             self.varying = []  # if varying is none default to certain availability and price
-            if self.cons_max > 0:
+        if self.cons_max > 0:
+            if (VaryingResource.UNCERTAIN_AVAILABILITY not in self.varying) and (VaryingResource.DETERMINISTIC_AVAILABILITY not in self.varying):
                 self.varying = self.varying + \
-                    [VaryingResource.CERTAIN_AVAILABILITY,
-                        VaryingResource.CERTAIN_PRICE]
+                    [VaryingResource.CERTAIN_AVAILABILITY]
 
-            if self.demand is True:  # if varying is none, but demand is true, set certain demand
+            if (VaryingResource.UNCERTAIN_PRICE not in self.varying) and (VaryingResource.DETERMINISTIC_PRICE not in self.varying):
+                self.varying = self.varying + \
+                    [VaryingResource.CERTAIN_PRICE]
+
+        if self.demand is True:  # if varying is none, but demand is true, set certain demand
+            if (VaryingResource.UNCERTAIN_DEMAND not in self.varying) and (VaryingResource.DETERMINISTIC_DEMAND not in self.varying):
                 self.varying = self.varying + \
                     [VaryingResource.CERTAIN_DEMAND]
-            else:
-                if self.sell is True:  # sell and demand True, both only differ in the sense that demand sells at a fix rate
-                    self.varying = self.varying + \
-                        [VaryingResource.CERTAIN_DEMAND]
-
-            if self.revenue is True:  # if varying is none and revenue is True, default to certain revenue
+            if (VaryingResource.UNCERTAIN_REVENUE not in self.varying) and (VaryingResource.DETERMINISTIC_REVENUE not in self.varying):
                 self.varying = self.varying + \
                     [VaryingResource.CERTAIN_REVENUE]
-            if self.varying == []:  # if none of these get filled. That means that the resource is only produced implicitly
-                self.varying = [VaryingResource.IMPLICIT]
+        else:
+            if self.sell is True:  # sell and demand True, both only differ in the sense that demand sells at a fix rate
+                if (VaryingResource.UNCERTAIN_REVENUE not in self.varying) and (VaryingResource.DETERMINISTIC_REVENUE not in self.varying):
+                    self.varying = self.varying + \
+                        [VaryingResource.CERTAIN_REVENUE]
+        # if self.revenue is True:  # if varying is none and revenue is True, default to certain revenue
+        #     self.varying = self.varying + \
+        #         [VaryingResource.CERTAIN_REVENUE]
+        if self.varying == []:  # if none of these get filled. That means that the resource is only produced implicitly
+            self.varying = [VaryingResource.IMPLICIT]
+
+        # else:
+
+        #     if self.cons_max > 0:
+        #         if VaryingResource.DETERMINISTIC_AVAILABILITY not in self.varying:
+        #             self.varying = self.varying + \
+        #                 [VaryingResource.CERTAIN_AVAILABILITY]
+
+        #         if VaryingResource.DETERMINISTIC_PRICE not in self.varying:
+        #             self.varying = self.varying + \
+        #                 [VaryingResource.CERTAIN_PRICE]
+
+        #     if self.demand is True:
+        #         if VaryingResource.DETERMINISTIC_DEMAND not in self.varying:
+        #             self.varying = self.varying + \
+        #                 [VaryingResource.CERTAIN_DEMAND]
+        #         if VaryingResource.DETERMINISTIC_REVENUE not in self.varying:
+        #             self.varying = self.varying + \
+        #                 [VaryingResource.CERTAIN_REVENUE]
+        #     else:
+        #         if self.sell is True:
+        #             if VaryingResource.DETERMINISTIC_REVENUE not in self.varying:
+        #                 self.varying = self.varying + \
+        #                     [VaryingResource.CERTAIN_REVENUE]
+
         if not isinstance(self.varying, list):
             warn('Provide a list of VaryingResource enums')
+
+        if (VaryingResource.DETERMINISTIC_PRICE in self.varying) and (self.price == 0):
+            warn('Varying prices are normalized, provide non-zero price')
+
+        if (VaryingResource.DETERMINISTIC_AVAILABILITY in self.varying) and (self.cons_max == 0):
+            warn('Varying availability is normalized, provide non-zero cons_max')
 
     def __repr__(self):
         return self.name

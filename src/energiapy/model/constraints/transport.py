@@ -230,7 +230,83 @@ def constraint_transport_capacity_UB(instance: ConcreteModel, network_scale_leve
     return instance.constraint_transport_capacity_UB
 
 
-def constraint_transport_capex(instance: ConcreteModel, trans_capex: dict, distance_dict: dict, transport_avail_dict: dict, network_scale_level: int = 0):
+
+def constraint_transport_capacity_LB_no_bin(instance: ConcreteModel, network_scale_level: int = 0,
+                                     trans_min: dict = None, transport_avail_dict: dict = None) -> Constraint:
+    """Minimum capacity bound for transport mode
+
+    Args:
+        instance (ConcreteModel): pyomo model instance
+        network_scale_level (int, optional): scale of network decisions. Defaults to 0.
+        trans_max (dict, optional): Maximum allowed transportation. Defaults to {}.
+        transport_avail_dict (dict, optional): Modes of transportation available between locations. Defaults to {}.
+
+    Returns:
+        Constraint: transport_capacity_LB_no_bin
+    """
+
+    if trans_min is None:
+        trans_min = dict()
+
+    if transport_avail_dict is None:
+        transport_avail_dict = dict()
+
+    scales = scale_list(instance=instance,
+                        scale_levels=network_scale_level + 1)
+
+    def transport_capacity_LB_no_bin_rule(instance, source, sink,  transport, *scale_list):
+        if transport in transport_avail_dict[(source, sink)]:
+            return instance.Cap_F[source, sink, transport, scale_list[:network_scale_level + 1]] >= \
+                trans_min[transport] 
+        else:
+            return instance.Cap_F[source, sink, transport, scale_list[:network_scale_level + 1]] == 0
+
+    instance.constraint_transport_capacity_LB_no_bin = Constraint(instance.sources, instance.sinks,
+                                                           instance.transports, *scales, rule=transport_capacity_LB_no_bin_rule,
+                                                           doc='LB_no_bin for transport capacity')
+    constraint_latex_render(transport_capacity_LB_no_bin_rule)
+    return instance.constraint_transport_capacity_LB_no_bin
+
+
+def constraint_transport_capacity_UB_no_bin(instance: ConcreteModel, network_scale_level: int = 0,
+                                     trans_max: dict = None, transport_avail_dict: dict = None) -> Constraint:
+    """Maximum capacity bound for transport mode
+
+    Args:
+        instance (ConcreteModel): pyomo model instance
+        network_scale_level (int, optional): scale of network decisions. Defaults to 0.
+        trans_max (dict, optional): Maximum allowed transportation. Defaults to {}.
+        transport_avail_dict (dict, optional): Modes of transportation available between locations. Defaults to {}.
+
+    Returns:
+        Constraint: transport_capacity_UB_no_bin
+    """
+
+    if trans_max is None:
+        trans_max = dict()
+
+    if transport_avail_dict is None:
+        transport_avail_dict = dict()
+
+    scales = scale_list(instance=instance,
+                        scale_levels=network_scale_level + 1)
+
+    def transport_capacity_UB_no_bin_rule(instance, source, sink, transport, *scale_list):
+        if transport in transport_avail_dict[(source, sink)]:
+            return instance.Cap_F[source, sink, transport, scale_list[:network_scale_level + 1]] <= \
+                trans_max[transport] * instance.X_F[source, sink,
+                                                    transport, scale_list[:network_scale_level + 1]]
+        else:
+            return instance.Cap_F[source, sink, transport, scale_list[:network_scale_level + 1]] == 0
+
+    instance.constraint_transport_capacity_UB_no_bin = Constraint(instance.sources, instance.sinks,
+                                                           instance.transports, *scales, rule=transport_capacity_UB_no_bin_rule,
+                                                           doc='UB_no_bin for transport capacity')
+    constraint_latex_render(transport_capacity_UB_no_bin_rule)
+    return instance.constraint_transport_capacity_UB_no_bin
+
+
+def constraint_transport_capex(instance: ConcreteModel, trans_capex: dict, distance_dict: dict, transport_avail_dict: dict, network_scale_level: int = 0, annualization_factor:float = 1):
     """_summary_
 
     Args:
@@ -239,7 +315,7 @@ def constraint_transport_capex(instance: ConcreteModel, trans_capex: dict, dista
         distance_dict (dict): _description_
         transport_avail_dict (dict): _description_
         network_scale_level (int, optional): _description_. Defaults to 0.
-
+        annualization_factor (float, optional): 
     Returns:
         _type_: _description_
     """
@@ -248,7 +324,7 @@ def constraint_transport_capex(instance: ConcreteModel, trans_capex: dict, dista
 
     def transport_capex_rule(instance, source, sink, transport, *scale_list):
         if transport in transport_avail_dict[(source, sink)]:
-            return instance.Capex_transport[source, sink, transport, scale_list[:network_scale_level + 1]] == distance_dict[(source, sink)]*trans_capex[transport]*instance.Cap_F[source, sink, transport, scale_list[:network_scale_level + 1]]
+            return instance.Capex_transport[source, sink, transport, scale_list[:network_scale_level + 1]] == annualization_factor*distance_dict[(source, sink)]*trans_capex[transport]*instance.Cap_F[source, sink, transport, scale_list[:network_scale_level + 1]]
         else:
             return instance.Capex_transport[source, sink, transport, scale_list[:network_scale_level + 1]] == 0
     instance.constraint_transport_capex = Constraint(

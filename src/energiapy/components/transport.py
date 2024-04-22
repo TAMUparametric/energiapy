@@ -83,9 +83,9 @@ class Transport:
         material_cons (Dict[Material, float], optional): Materials consumed per unit distance of Transport. Defaults to None.
         introduce (int, optional): when transportation mode is introduced. Defaults to 0.
         retire (int, optional): when transportation mode is retired. Defaults to None
-        trans_max (float, optional): maximum capacity of material that can be transported. Defaults to 0.
+        trans_max (float, optional): maximum capacity of transport that can be set up. Defaults to 0.
+        trans_min (float, optional): minimum capacity of transport that needs to be set up. Defaults to 0.
         trans_loss (float, optional): transport losses per unit basis of Raterial per timeperiod in scheduling scale. Defaults to 0.
-        trans_cost (float, optional): cost per unit distance per unit basis of Resource. Defaults to 0.
         emission (float, optional): emissions per unit distance of transportation. Defaults to 0.
         capex (float, optional): capital expenditure on a per unit distance unit capacity basis. Defaults to 0.
         vopex (float, optional): variable operational expenditure on a per unit distance unit capacity basis. Defaults to 0.

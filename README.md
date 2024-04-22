@@ -1,4 +1,6 @@
-# energiapy
+
+![alt text](https://github.com/TAMUparametric/energiapy/blob/main/docs/logo.jpg?raw=true)
+
 
 [![Documentation Status](https://readthedocs.org/projects/energiapy/badge/)](https://energiapy.readthedocs.io/en/latest/)
 [![PyPI](https://img.shields.io/pypi/v/energiapy.svg)](https://pypi.org/project/energiapy)

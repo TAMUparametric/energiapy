@@ -31,6 +31,10 @@ def generate_network_vars(instance: ConcreteModel, scale_level: int = 0):
 
     instance.P_location = Var(instance.locations, instance.processes, instance.scales_network,
                               within=NonNegativeReals, doc='Total production at location')
+
+    instance.P_location_material_m = Var(instance.locations, instance.processes, instance.material_modes, instance.scales_network,
+                                         within=NonNegativeReals, doc='Total production at location in material mode')
+
     instance.S_location = Var(instance.locations, instance.resources_sell, instance.scales_network,
                               within=NonNegativeReals, doc='Total resource discharge at location')
     instance.R_location = Var(instance.locations, instance.resources_sell, instance.scales_network,

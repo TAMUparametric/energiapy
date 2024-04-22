@@ -74,4 +74,5 @@ def wind_power_output(data: pandas.DataFrame, roughness_length: float = 0.1, tur
     mc_turbine = WModelChain(turbine, **modelchain_data).run_model(data)
     # write power output time series to WindTurbine object
     output = pandas.DataFrame(mc_turbine.power_output)
+    output.columns = ['Value']
     return output

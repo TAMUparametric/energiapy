@@ -116,22 +116,31 @@ def constraint_demand(instance: ConcreteModel, demand: Union[dict, float], deman
                     demandtarget = 0
         else:
             # TODO - doesn't meet demand in first timeperiod
-            discharge = sum(instance.S[location, resource, scale_] for scale_ in scale_iter if scale_[
-                :demand_scale_level + 1] == scale_list)
-
-            if isinstance(demand, dict):
-                demandtarget = demand[location][resource]
+            if resource in location_resource_dict[location]:
+                discharge = sum(instance.S[location, resource, scale_] for scale_ in scale_iter if scale_[
+                    :demand_scale_level + 1] == scale_list)
             else:
-                demandtarget = demand
+                discharge = 0
 
-        if sign == 'geq':
-            return discharge >= demandtarget
+            if resource in location_resource_dict[location]:
+                if isinstance(demand, dict):
+                    demandtarget = demand[location][resource]
+                else:
+                    demandtarget = demand
+            else:
+                demandtarget = 0
 
-        if sign == 'leq':
-            return discharge <= demandtarget
+        if resource in location_resource_dict[location]:
+            if sign == 'geq':
+                return discharge >= demandtarget
 
-        if sign == 'eq':
-            return discharge == demandtarget
+            if sign == 'leq':
+                return discharge <= demandtarget
+
+            if sign == 'eq':
+                return discharge == demandtarget
+        else:
+            return Constraint.Skip
 
     if len(instance.locations) > 1:
         instance.constraint_demand = Constraint(
