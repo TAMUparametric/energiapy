@@ -495,3 +495,4 @@ def constraint_inventory_network(instance: ConcreteModel, network_scale_level: i
     constraint_latex_render(inventory_network_rule)
 
     return instance.constraint_inventory_network
+

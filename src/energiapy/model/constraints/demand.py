@@ -209,8 +209,11 @@ def constraint_demand_penalty(instance: ConcreteModel, demand: Union[dict, float
                     demandtarget = 0
         else:
             # TODO - doesn't meet demand in first timeperiod
-            discharge = sum(instance.S[location, resource, scale_] for scale_ in scale_iter if scale_[
-                :demand_scale_level + 1] == scale_list)
+            if resource in location_resource_dict[location]:
+                discharge = sum(instance.S[location, resource, scale_] for scale_ in scale_iter if scale_[
+                    :demand_scale_level + 1] == scale_list)
+            else:
+                discharge = 0
 
             if isinstance(demand, dict):
                 demandtarget = demand[location][resource]
