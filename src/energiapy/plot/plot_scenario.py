@@ -41,7 +41,7 @@ def capacity_factor(scenario: Scenario, process: Process, location: Location, fi
     x_ = list(range(len(y_)))
     ax.plot(x_, y_, linewidth=0.5, color=color)
     ax = axis_formatter(axes=ax, xcord=x_, axis_labels='M')
-    plt.title(f'Conversion factor for {process.label} in {location.label}')
+    plt.title(f'Capacity factor for {process.label} in {location.label}')
     plt.ylabel("Normalized capacity factor")
     plt.xlabel("Scheduling Horizon")
     plt.grid(alpha=0.3)

@@ -376,14 +376,16 @@ def constraint_production_rate1(instance: ConcreteModel, rate_max_dict: dict, sc
 
     scales = scale_list(instance=instance,
                         scale_levels=scheduling_scale_level + 1)
-    scale_iter = scale_tuple(
-        instance=instance, scale_levels=scheduling_scale_level + 1)
+    scale_iter = scale_tuple(instance=instance,
+                              scale_levels=scheduling_scale_level + 1)
+
+    # loc_list = [loc.name for loc in scenario.location_set if loc.capacity_factor is not None]
 
     def production_rate_rule1(instance, location, process, mode, *scale_list):
         if rate_max_dict[process] is not None:
             if all(e==0 for e in scale_list):
                 return Constraint.Skip
-            if scale_list[1]==1 and scale_list[2]==0 and location=='loc6':
+            if scale_list[1]==4 and scale_list[2]==0 and location=='loc6':
                 return Constraint.Skip
             else:
                 lhs = instance.P[location, process, scale_list[:scheduling_scale_level + 1]] - instance.P[location, process,  scale_iter[scale_iter.index(scale_list[:scheduling_scale_level + 1]) - 1]]
@@ -421,7 +423,7 @@ def constraint_production_rate2(instance: ConcreteModel, rate_max_dict: dict, sc
         if rate_max_dict[process] is not None:
             if all(e==0 for e in scale_list):
                 return Constraint.Skip
-            if scale_list[1]==1 and scale_list[2]==0 and location=='loc6':
+            if scale_list[1]==4 and scale_list[2]==0 and location=='loc6':
                 return Constraint.Skip
             else:
                 lhs = instance.P[location, process, scale_list[:scheduling_scale_level + 1]] - instance.P[location, process, scale_iter[scale_iter.index(scale_list[:scheduling_scale_level + 1]) - 1]]
