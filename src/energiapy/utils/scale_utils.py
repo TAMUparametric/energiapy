@@ -71,7 +71,8 @@ def scale_changer(input_dict: dict, scales: TemporalScale, scale_level: int) -> 
     df['scales'] = scales.scale_iter(scale_level=scale_level)
     df = df.set_index(['scales'])
     df.columns = [i.name for i in input_dict.keys()]
-    df = df.apply(lambda x: x/x.max(), axis=0)
+    # df = df.apply(lambda x: x/x.max(), axis=0)
+    df = df.apply(lambda x: x, axis=0)
     output_dict = {i: {j: df[i][j] if math.isnan(df[i][j]) is False else 0.0 for j in df.index } for i in df.columns}
 
     return output_dict
