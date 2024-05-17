@@ -153,8 +153,74 @@ def constraint_production_mode_binary(instance: ConcreteModel, mode_dict: dict, 
     return instance.constraint_production_mode_binary
 
 
+# def constraint_production_rate1(instance: ConcreteModel, rate_max_dict: dict, scheduling_scale_level: int = 0) -> Constraint:
+#     """Manages the production rate in mode along with constraint_production_rate2
+#
+#     Args:
+#         instance (ConcreteModel): pyomo model instance
+#         rate_max_dict (dict): dictionary with max rates within modes available for process
+#         scheduling_scale_level (int, optional): scale for scheduling decisions. Defaults to 0.
+#
+#     Returns:
+#         Constraint: production_mode_rate1
+#     """
+#
+#     scales = scale_list(instance=instance,
+#                         scale_levels=scheduling_scale_level + 1)
+#     scale_iter = scale_tuple(
+#         instance=instance, scale_levels=scheduling_scale_level + 1)
+#
+#     def production_rate_rule1(instance, location, process, mode, *scale_list):
+#         if rate_max_dict[process] is not None:
+#             return instance.P_m[location, process, mode, scale_list[:scheduling_scale_level + 1]] - instance.P_m[location, process, mode, scale_iter[scale_iter.index(scale_list[:scheduling_scale_level + 1]) - 1]] >= - rate_max_dict[process][mode] - max(rate_max_dict[process].values())*(2 - instance.X_P_m[location, process, mode, scale_list[:scheduling_scale_level + 1]] - instance.X_P_m[location, process, mode, scale_iter[scale_iter.index(scale_list[:scheduling_scale_level + 1]) - 1]])
+#         else:
+#             return Constraint.Skip
+#
+#     instance.constraint_production_rate1 = Constraint(
+#         instance.locations, instance.processes, instance.modes, *
+#         scales, rule=production_rate_rule1,
+#         doc='production mode rate 1')
+#     constraint_latex_render(production_rate_rule1)
+#     return instance.constraint_production_rate1
+#
+#
+# def constraint_production_rate2(instance: ConcreteModel, rate_max_dict: dict, scheduling_scale_level: int = 0) -> Constraint:
+#     """Manages the production rate in mode along with constraint_production_rate1
+#
+#     Args:
+#         instance (ConcreteModel): pyomo model instance
+#         rate_max_dict (dict): dictionary with max rates within modes available for process
+#         scheduling_scale_level (int, optional): scale for scheduling decisions. Defaults to 0.
+#
+#     Returns:
+#         Constraint: production_mode_rate2
+#     """
+#
+#     scales = scale_list(instance=instance,
+#                         scale_levels=scheduling_scale_level + 1)
+#     scale_iter = scale_tuple(
+#         instance=instance, scale_levels=scheduling_scale_level + 1)
+#
+#     def production_rate_rule2(instance, location, process, mode, *scale_list):
+#         if rate_max_dict[process] is not None:
+#             lhs = instance.P_m[location, process, mode, scale_list[:scheduling_scale_level + 1]] - instance.P_m[location,
+#                                                                                                                 process, mode, scale_iter[scale_iter.index(scale_list[:scheduling_scale_level + 1]) - 1]]
+#
+#             rhs = rate_max_dict[process][mode] + max(rate_max_dict[process].values())*(2 - instance.X_P_m[location, process, mode, scale_list[:scheduling_scale_level + 1]
+#                                                                                                           ] - instance.X_P_m[location, process, mode, scale_iter[scale_iter.index(scale_list[:scheduling_scale_level + 1]) - 1]])
+#             return lhs <= rhs
+#         else:
+#             return Constraint.Skip
+#
+#     instance.constraint_production_rate2 = Constraint(
+#         instance.locations, instance.processes, instance.modes, *
+#         scales, rule=production_rate_rule2,
+#         doc='production mode rate 1')
+#     constraint_latex_render(production_rate_rule2)
+#     return instance.constraint_production_rate2
+
 def constraint_production_rate1(instance: ConcreteModel, rate_max_dict: dict, scheduling_scale_level: int = 0) -> Constraint:
-    """Manages the production rate in mode along with constraint_production_rate2
+    """Manages the production rate in mode along with constraint_production_rate1
 
     Args:
         instance (ConcreteModel): pyomo model instance
@@ -167,12 +233,21 @@ def constraint_production_rate1(instance: ConcreteModel, rate_max_dict: dict, sc
 
     scales = scale_list(instance=instance,
                         scale_levels=scheduling_scale_level + 1)
-    scale_iter = scale_tuple(
-        instance=instance, scale_levels=scheduling_scale_level + 1)
+    scale_iter = scale_tuple(instance=instance,
+                              scale_levels=scheduling_scale_level + 1)
+
+    # loc_list = [loc.name for loc in scenario.location_set if loc.capacity_factor is not None]
 
     def production_rate_rule1(instance, location, process, mode, *scale_list):
         if rate_max_dict[process] is not None:
-            return instance.P_m[location, process, mode, scale_list[:scheduling_scale_level + 1]] - instance.P_m[location, process, mode, scale_iter[scale_iter.index(scale_list[:scheduling_scale_level + 1]) - 1]] >= - rate_max_dict[process][mode] - max(rate_max_dict[process].values())*(2 - instance.X_P_m[location, process, mode, scale_list[:scheduling_scale_level + 1]] - instance.X_P_m[location, process, mode, scale_iter[scale_iter.index(scale_list[:scheduling_scale_level + 1]) - 1]])
+            if all(e==0 for e in scale_list):
+                return Constraint.Skip
+            # if scale_list[1]==24 and scale_list[2]==0 and location=='loc6':
+            #     return Constraint.Skip
+            else:
+                lhs = instance.P[location, process, scale_list[:scheduling_scale_level + 1]] - instance.P[location, process,  scale_iter[scale_iter.index(scale_list[:scheduling_scale_level + 1]) - 1]]
+                rhs = sum(rate_max_dict[process][mode]*instance.X_P_m[location, process, mode, scale_list[:scheduling_scale_level + 1]] for mode in instance.modes)
+            return lhs <= rhs
         else:
             return Constraint.Skip
 
@@ -203,19 +278,21 @@ def constraint_production_rate2(instance: ConcreteModel, rate_max_dict: dict, sc
 
     def production_rate_rule2(instance, location, process, mode, *scale_list):
         if rate_max_dict[process] is not None:
-            lhs = instance.P_m[location, process, mode, scale_list[:scheduling_scale_level + 1]] - instance.P_m[location,
-                                                                                                                process, mode, scale_iter[scale_iter.index(scale_list[:scheduling_scale_level + 1]) - 1]]
-
-            rhs = rate_max_dict[process][mode] + max(rate_max_dict[process].values())*(2 - instance.X_P_m[location, process, mode, scale_list[:scheduling_scale_level + 1]
-                                                                                                          ] - instance.X_P_m[location, process, mode, scale_iter[scale_iter.index(scale_list[:scheduling_scale_level + 1]) - 1]])
-            return lhs <= rhs
+            if all(e==0 for e in scale_list):
+                return Constraint.Skip
+            # if scale_list[1]==24 and scale_list[2]==0 and location=='loc6':
+            #     return Constraint.Skip
+            else:
+                lhs = instance.P[location, process, scale_list[:scheduling_scale_level + 1]] - instance.P[location, process, scale_iter[scale_iter.index(scale_list[:scheduling_scale_level + 1]) - 1]]
+                rhs = -sum(rate_max_dict[process][mode]*instance.X_P_m[location, process, mode, scale_list[:scheduling_scale_level + 1]] for mode in instance.modes)
+            return lhs >= rhs
         else:
             return Constraint.Skip
 
     instance.constraint_production_rate2 = Constraint(
         instance.locations, instance.processes, instance.modes, *
         scales, rule=production_rate_rule2,
-        doc='production mode rate 1')
+        doc='production mode rate 2')
     constraint_latex_render(production_rate_rule2)
     return instance.constraint_production_rate2
 
