@@ -340,7 +340,7 @@ class Scenario:
         self.cost_df = df_capex.merge(df_vopex, left_index=True, right_index=True, how='inner').merge(
             df_fopex, left_index=True, right_index=True, how='inner')
 
-        # self.rate_max_dict = {i.name: i.rate_max for i in self.process_set}
+        self.rate_max_dict = {i.name: i.rate_max for i in self.process_set}
 
         # self.mode_ramp_dict = {i.name: i.mode_ramp for i in self.process_set}
 
