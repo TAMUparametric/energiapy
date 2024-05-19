@@ -107,6 +107,7 @@ class Location:
         self.cap_min = self.get_cap_min()  # dictionary of minimum production
         # gets the modes for all processes
         self.modes_dict = {p: p.modes for p in self.processes_full if p.modes}
+        print(self.modes_dict)
         # gets the ramp_rates for all processes
         self.ramp_rates_dict = {p: p.ramp_rates for p in self.processes_full}
         # gets the cap_pwl for all processes
