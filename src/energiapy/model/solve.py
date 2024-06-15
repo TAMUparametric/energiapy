@@ -26,7 +26,7 @@ from ppopt.mp_solvers.solve_mpqp import solve_mpqp, mpqp_algorithm
 from ppopt.mplp_program import MPLP_Program
 
 
-def solve(solver: str, name: str, instance: ConcreteModel = None, matrix: dict = None, interface: str = 'pyomo', scenario: Scenario = None, saveformat: str = None, print_solversteps: bool = True, log: bool = False) -> Result:
+def solve(solver: str, name: str, instance: ConcreteModel = None, matrix: dict = None, interface: str = 'pyomo', scenario: Scenario = None, saveformat: str = None, print_solversteps: bool = True, log: bool = False, get_duals: bool = False) -> Result:
     """solves a model instance, scenario needs to be provided
 
     Args:
@@ -39,6 +39,7 @@ def solve(solver: str, name: str, instance: ConcreteModel = None, matrix: dict =
         saveformat (str, optional): .pkl, .json, .txt. Defaults to None.
         print_solversteps (bool, optional):. Defaults to True.
         log (bool, optional): Log nearbounds in case of optimal, and violations if infeasible. Defaults to False
+        get_duals (bool, optional): get and save the duals in the results 
 
     Returns:
         Result: result type object
@@ -104,15 +105,21 @@ def solve(solver: str, name: str, instance: ConcreteModel = None, matrix: dict =
             model_cons = [i for i in instance.component_objects()
                           if i.ctype == Constraint]
 
-            if solution_dict['n_binvars'] is not None:
-                if solution_dict['n_binvars'] > 0:
-                    duals_dict = dict()
+            if get_duals is True:
+                if solution_dict['n_binvars'] is not None:
+                    if solution_dict['n_binvars'] > 0:
+                        duals_dict = dict()
+                    else:
+                        index_dict = {c: list(c.index_set())
+                                      for c in model_cons}
+                        duals_dict = {cons.name: {index: instance.dual[cons[index]] for index
+                                                  in index_dict[cons] if index in cons.keys()} for cons in model_cons}
+
                 else:
-                    index_dict = {c: list(c.index_set()) for c in model_cons}
-                    duals_dict = {cons.name: {index: instance.dual[cons[index]] for index
-                                              in index_dict[cons]} for cons in model_cons}
+                    duals_dict = dict()
             else:
                 duals_dict = dict()
+
             if log is True:
                 logging.basicConfig(
                     filename=f"{scenario.name}_nearbound.log", encoding='utf-8', level=logging.INFO)

@@ -13,11 +13,12 @@ __status__ = "Production"
 from pyomo.environ import Binary, ConcreteModel, NonNegativeReals, Var
 
 
-def generate_transport_vars(instance: ConcreteModel):
+def generate_transport_vars(instance: ConcreteModel, generate_transport_binaries: bool):
     """declares pyomo variables for network location at the chosen scale
 
     Args:
         instance (ConcreteModel): pyomo instance
+        generate_transport_binaries (bool): whether to generate transport binaries
     """
     # instance.Trans_imp = Var(instance.sinks, instance.sources, instance.resources_trans, instance.transports,
     #                          instance.scales_scheduling, within=NonNegativeReals, doc='Resource imported through transport mode')
@@ -29,8 +30,10 @@ def generate_transport_vars(instance: ConcreteModel):
     #                               instance.scales_scheduling, within=NonNegativeReals, doc='Resource exported through transport mode')
     # instance.Trans_cost = Var(instance.transports, instance.scales_scheduling,
     #                           within=NonNegativeReals, doc='cost of transportation for transport mode')
-    instance.X_F = Var(instance.sources, instance.sinks, instance.transports,
-                       instance.scales_network, within=Binary, doc='binaries for transports being set up')
+    if generate_transport_binaries is True:
+        instance.X_F = Var(instance.sources, instance.sinks, instance.transports,
+                           instance.scales_network, within=Binary, doc='binaries for transports being set up')
+
     instance.Cap_F = Var(instance.sources, instance.sinks, instance.transports,
                          instance.scales_network, within=NonNegativeReals, doc='established capacity of transport mode')
     instance.Exp_R = Var(instance.sources, instance.sinks, instance.resources_trans,
