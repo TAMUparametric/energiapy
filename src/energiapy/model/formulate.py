@@ -355,7 +355,14 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
                 instance=instance, demand=demand, scheduling_scale_level=scenario.scheduling_scale_level)
 
         if len(scenario.location_set) > 1:
-            generate_transport_vars(instance=instance)
+            if Constraints.NETWORK in constraints:
+                generate_transport_binaries = True
+
+            else:
+                generate_transport_binaries = False
+
+            generate_transport_vars(
+                instance=instance, generate_transport_binaries=generate_transport_binaries)
 
         if Constraints.COST in constraints:
             constraint_process_capex(instance=instance, capex_dict=scenario.capex_dict,

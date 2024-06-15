@@ -92,7 +92,7 @@ class CaseStudy:
 
         return self.formulations
 
-    def solve(self, solver: str, interface: str = 'pyomo', saveformat: str = None, print_solversteps: bool = True, log: bool = False) -> Dict[str, Result]:
+    def solve(self, solver: str, interface: str = 'pyomo', saveformat: str = None, print_solversteps: bool = True, log: bool = False, get_duals: bool = False) -> Dict[str, Result]:
         """solves all the instances in the case study
 
         Args:
@@ -101,6 +101,7 @@ class CaseStudy:
             saveformat (str, optional): .pkl, .json, .txt. Defaults to None.
             print_solversteps (bool, optional):. Defaults to True.
             log (bool, optional): Log nearbounds in case of optimal, and violations if infeasible. Defaults to False
+            get_duals (bool, optional): get and save the duals in the results
 
         Returns:
             Result: result type object
@@ -113,7 +114,7 @@ class CaseStudy:
 
         self.results = Results(name=self.name + '_results', results={names[i]: solve_casestudy(instance=instances[i], scenario=self.scenarios[i],
                                                                                                solver=solver, name=names[
-            i], interface=interface, saveformat=saveformat,
-            print_solversteps=print_solversteps, log=log) for i in range(len(names))})
+                                                                                                   i], interface=interface, saveformat=saveformat,
+                                                                                               print_solversteps=print_solversteps, log=log, get_duals=get_duals) for i in range(len(names))})
 
         return self.results
