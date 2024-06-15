@@ -17,7 +17,7 @@ from pyomo.environ import ConcreteModel, Var, NonNegativeReals
 def generate_costing_vars(instance: ConcreteModel):
     # instance.cost_segments = Var(
     #     instance.locations, instance.processes, within=Binary, doc='Segment for costing')
-    instance.Cost = Var(within=NonNegativeReals, doc='Total cost')
+    instance.Cost_network = Var(within=NonNegativeReals, doc='Total network cost')
     instance.Inv_cost = Var(instance.locations, instance.resources_store, instance.scales_network,
                             within=NonNegativeReals, doc='penalty incurred for storing resources')
     instance.Inv_cost_location = Var(instance.locations, instance.scales_network,
