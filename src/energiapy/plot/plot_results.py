@@ -169,7 +169,7 @@ def capacity_utilization(results: Result, location: str, process: str = None, fi
         rc('text', usetex=usetex)
         fig, ax = plt.subplots(figsize=fig_size)
         y_ = [100*results.output['Cap_P'][i]/results.components['processes'][i[1]]
-              ['prod_max'] for i in results.output['Cap_P'].keys() if location in i]
+              ['cap_max'] for i in results.output['Cap_P'].keys() if location in i]
 
         title = f"Capacity utilization in {results.components['locations'][location]['label']}"
         plt.ylabel("\%")

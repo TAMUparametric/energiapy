@@ -19,15 +19,16 @@ from pyomo.environ import ConcreteModel, Set
 from ..components.temporal_scale import TemporalScale
 
 
-def scale_pyomo_set(instance: ConcreteModel, scale_level: int = 0):
+def scale_pyomo_set(instance: ConcreteModel, scale_level: int = 0, doc:str = None):
     """returns a set with appropropriate scale(s)
 
     Args:
         instance (ConcreteModel): pyomo instance
         scale_level (int, optional): appropriate scale. Defaults to 0.
+        doc (str, optional): name of set
     """
     list_ = [instance.scales[i].data() for i in range(scale_level + 1)]
-    return Set(initialize=list(product(*list_)))
+    return Set(initialize=list(product(*list_)), doc = doc)
 
 
 def scale_list(instance: ConcreteModel, scale_levels: int = 0):

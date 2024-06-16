@@ -13,7 +13,7 @@ __status__ = "Production"
 
 import numpy
 import pandas
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from typing import Union
 from math import erf, sqrt, pi, exp
 
@@ -132,7 +132,10 @@ def normalize(data: Union[numpy.array, pandas.DataFrame]) -> Union[numpy.array, 
     Returns:
         Union[numpy.array, pandas.DataFrame]: min-maxed data array
     """
-    max_data = numpy.max(data)
-    data = data / max_data
+    scaler = MinMaxScaler()
+    data = numpy.array(data).reshape(-1, 1)
+    data = scaler.fit_transform(data)
+    # max_data = numpy.max(data)
+    # data = data / max_data
 
     return data

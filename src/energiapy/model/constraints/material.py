@@ -181,13 +181,13 @@ def constraint_production_facility_material_mode_binary(instance: ConcreteModel,
     return instance.constraint_production_facility_material_mode_binary
 
 
-def constraint_production_facility_material(instance: ConcreteModel, prod_max: dict, location_process_dict: dict = None,
+def constraint_production_facility_material(instance: ConcreteModel, cap_max: dict, location_process_dict: dict = None,
                                             network_scale_level: int = 0, process_material_modes_dict: dict = None) -> Constraint:
     """Determines where production facility of certain capacity is inserted at location in network
 
     Args:
         instance (ConcreteModel): pyomo instance
-        prod_max (dict): maximum production of process at location
+        cap_max (dict): maximum production of process at location
         location_process_dict (dict, optional): production facilities avaiable at location. Defaults to {}.
         network_scale_level (int, optional): scale of network decisions. Defaults to 0.
         process_material_modes_dict (dict, optional): material modes available for processes
@@ -202,7 +202,7 @@ def constraint_production_facility_material(instance: ConcreteModel, prod_max: d
         if location_process_dict is not None:
             if process in location_process_dict[location]:
                 if material_mode in process_material_modes_dict[process]:
-                    return instance.Cap_P_M[location, process, material_mode, scale_list[:network_scale_level + 1]] <= prod_max[location][process][list(prod_max[location][process].keys())[-1:][0]]*instance.X_M[location, process, material_mode, scale_list[:network_scale_level + 1]]
+                    return instance.Cap_P_M[location, process, material_mode, scale_list[:network_scale_level + 1]] <= cap_max[location][process][list(cap_max[location][process].keys())[-1:][0]]*instance.X_M[location, process, material_mode, scale_list[:network_scale_level + 1]]
                 else:
                     return Constraint.Skip
             else:
@@ -218,13 +218,13 @@ def constraint_production_facility_material(instance: ConcreteModel, prod_max: d
     return instance.constraint_production_facility_material
 
 
-def constraint_min_production_facility_material(instance: ConcreteModel, prod_min: dict, location_process_dict: dict = None,
+def constraint_min_production_facility_material(instance: ConcreteModel, cap_min: dict, location_process_dict: dict = None,
                                                 network_scale_level: int = 0, process_material_modes_dict: dict = None) -> Constraint:
     """Determines where production facility of certain capacity is inserted at location in network
 
     Args:
         instance (ConcreteModel): pyomo instance
-        prod_min (dict): minimum production of process at location
+        cap_min (dict): minimum production of process at location
         location_process_dict (dict, optional): production facilities avaiable at location. Defaults to {}.
         network_scale_level (int, optional): scale of network decisions. Defaults to 0.
         process_material_modes_dict (dict, optional): material modes available for processes
@@ -243,7 +243,7 @@ def constraint_min_production_facility_material(instance: ConcreteModel, prod_mi
         if location_process_dict is not None:
             if process in location_process_dict[location]:
                 if material_mode in process_material_modes_dict[process]:
-                    return instance.Cap_P_M[location, process, material_mode, scale_list[:network_scale_level + 1]] >= prod_min[location][process][list(prod_min[location][process].keys())[:1][0]] * instance.X_M[location, process, material_mode, scale_list[:network_scale_level + 1]]
+                    return instance.Cap_P_M[location, process, material_mode, scale_list[:network_scale_level + 1]] >= cap_min[location][process][list(cap_min[location][process].keys())[:1][0]] * instance.X_M[location, process, material_mode, scale_list[:network_scale_level + 1]]
                 else:
                     return Constraint.Skip
             else:

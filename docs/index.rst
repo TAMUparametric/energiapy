@@ -16,11 +16,14 @@ Tutorial
    :caption: Example Implementation:
 
    notebooks/small/small
+   notebooks/supermarket/supermarket
    notebooks/sl-sp-milp/sl-sp-milp
    notebooks/ml-sp-milp/ml-sp-milp
    notebooks/material/material
    notebooks/mplp/mpLP
    example_ahc
+   notebooks/fetch_nsrdb/fetch_nsrdb_data
+   notebooks/sl-mp-milp/sl-mp-milp
    
 API
 ---

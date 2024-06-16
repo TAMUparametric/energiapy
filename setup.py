@@ -39,7 +39,9 @@ def setup_package():
             'openpyxl',
             'ppopt',
             'gurobipy',
-            'distfit'
+            'distfit',
+            'pvlib',
+            'windpowerlib'
         ],
         extras_require={
             'test': ['pytest'],
