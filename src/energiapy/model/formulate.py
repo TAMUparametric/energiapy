@@ -12,13 +12,13 @@ __status__ = "Production"
 
 from enum import Enum, auto
 from typing import Set, Dict, Tuple
-from pyomo.environ import ConcreteModel, Suffix
+from pyomo.environ import ConcreteModel, Suffix, Constraint
 
 from ..components.scenario import Scenario
 from ..components.resource import Resource
 from ..components.location import Location
 from ..components.process import Process
-from .constraints.constraints import Constraints, make_constraint, Cons
+from .constraints.constraints import Constraints, make_constraint, Cons, constraint_sum_total
 
 from .constraints.cost import (
     constraint_land_location_cost,
@@ -31,7 +31,7 @@ from .constraints.cost import (
     constraint_transport_cost,
     constraint_transport_cost_network,
     constraint_transport_imp_cost,
-    constraint_network_cost,
+    constraint_total_cost,
     constraint_resource_revenue,
     constraint_location_revenue,
     constraint_network_revenue,
@@ -454,7 +454,43 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
 
             # *----------------total cost over network ---------------------------------------------
 
-            constraint_network_cost(
+            instance.constraint_total_capex = constraint_sum_total(
+                instance=instance, var_total='Capex_total', var='Capex_network', network_scale_level=scenario.network_scale_level, label='calculates total capital expenditure')
+
+            instance.constraint_total_vopex = constraint_sum_total(
+                instance=instance, var_total='Vopex_total', var='Vopex_network', network_scale_level=scenario.network_scale_level, label='calculates total capital expenditure')
+
+            instance.constraint_total_capex = constraint_sum_total(
+                instance=instance, var_total='Capex_total', var='Capex_network', network_scale_level=scenario.network_scale_level, label='calculates total capital expenditure')
+
+            instance.constraint_total_capex = constraint_sum_total(
+                instance=instance, var_total='Capex_total', var='Capex_network', network_scale_level=scenario.network_scale_level, label='calculates total capital expenditure')
+
+            instance.constraint_total_capex = constraint_sum_total(
+                instance=instance, var_total='Capex_total', var='Capex_network', network_scale_level=scenario.network_scale_level, label='calculates total capital expenditure')
+
+            instance.constraint_total_capex = constraint_sum_total(
+                instance=instance, var_total='Capex_total', var='Capex_network', network_scale_level=scenario.network_scale_level, label='calculates total capital expenditure')
+
+            instance.constraint_total_capex = constraint_sum_total(
+                instance=instance, var_total='Capex_total', var='Capex_network', network_scale_level=scenario.network_scale_level, label='calculates total capital expenditure')
+
+            instance.constraint_total_capex = constraint_sum_total(
+                instance=instance, var_total='Capex_total', var='Capex_network', network_scale_level=scenario.network_scale_level, label='calculates total capital expenditure')
+
+            instance.constraint_total_capex = constraint_sum_total(
+                instance=instance, var_total='Capex_total', var='Capex_network', network_scale_level=scenario.network_scale_level, label='calculates total capital expenditure')
+
+            instance.constraint_total_capex = constraint_sum_total(
+                instance=instance, var_total='Capex_total', var='Capex_network', network_scale_level=scenario.network_scale_level, label='calculates total capital expenditure')
+
+            instance.constraint_total_capex = constraint_sum_total(
+                instance=instance, var_total='Capex_total', var='Capex_network', network_scale_level=scenario.network_scale_level, label='calculates total capital expenditure')
+
+            instance.constraint_total_capex = constraint_sum_total(
+                instance=instance, var_total='Capex_total', var='Capex_network', network_scale_level=scenario.network_scale_level, label='calculates total capital expenditure')
+
+            instance.constraint_total_cost = constraint_total_cost(
                 instance=instance, network_scale_level=scenario.network_scale_level, constraints=constraints)
 
         if Constraints.EMISSION in constraints:
@@ -860,7 +896,7 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
 
         if Constraints.MODE in constraints:
             generate_mode_vars(
-                instance=instance, scale_level=scenario.scheduling_scale_level, mode_dict=scenario.mode_dict)
+                instance=instance, mode_dict=scenario.mode_dict)
 
             constraint_production_mode_facility(instance=instance, cap_max=scenario.cap_max,
                                                 location_process_dict=scenario.location_process_dict,
@@ -991,6 +1027,13 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
             instance.write(f'{scenario.name}.lp')
 
         instance.dual = Suffix(direction=Suffix.IMPORT_EXPORT)
+
+        cons_list = list(
+            map(str, [i for i in instance.component_objects() if i.ctype == Constraint]))
+        cons_list = [i.replace('_', ' ') for i in cons_list]
+
+        for i in cons_list:
+            print(i)
 
         return instance
 

@@ -1,18 +1,4 @@
-"""production mode constraints
-"""
-
-__author__ = "Rahul Kakodkar"
-__copyright__ = "Copyright 2022, Multi-parametric Optimization & Control Lab"
-__credits__ = ["Rahul Kakodkar", "Efstratios N. Pistikopoulos"]
-__license__ = "MIT"
-__version__ = "1.0.5"
-__maintainer__ = "Rahul Kakodkar"
-__email__ = "cacodcar@tamu.edu"
-__status__ = "Production"
-
 from pyomo.environ import ConcreteModel, Constraint
-
-from ...utils.latex_utils import constraint_latex_render
 from ...utils.scale_utils import scale_list, scale_tuple
 
 
@@ -43,7 +29,6 @@ def constraint_production_mode(instance: ConcreteModel, mode_dict: dict, locatio
     instance.constraint_production_mode = Constraint(
         instance.locations, instance.processes, *scales, rule=production_mode_rule,
         doc='production mode sum constraint')
-    constraint_latex_render(production_mode_rule)
     return instance.constraint_production_mode
 
 
@@ -81,7 +66,6 @@ def constraint_production_mode_facility(instance: ConcreteModel, cap_max: dict, 
         instance.locations, instance.processes, instance.modes, *
         scales, rule=production_mode_facility_rule,
         doc='production facility sizing and location')
-    constraint_latex_render(production_mode_facility_rule)
     return instance.constraint_production_mode_facility
 
 
@@ -119,7 +103,6 @@ def constraint_min_production_mode_facility(instance: ConcreteModel, cap_min: di
         instance.locations, instance.processes, instance.modes, *
         scales, rule=min_production_mode_facility_rule,
         doc='production facility sizing and location')
-    constraint_latex_render(min_production_mode_facility_rule)
     return instance.constraint_min_production_mode_facility
 
 
@@ -149,7 +132,6 @@ def constraint_production_mode_binary(instance: ConcreteModel, mode_dict: dict, 
         instance.locations, instance.processes, *
         scales, rule=production_mode_binary_rule,
         doc='production mode binary sum constraint')
-    constraint_latex_render(production_mode_binary_rule)
     return instance.constraint_production_mode_binary
 
 
@@ -180,7 +162,6 @@ def constraint_production_rate1(instance: ConcreteModel, rate_max_dict: dict, sc
         instance.locations, instance.processes, instance.modes, *
         scales, rule=production_rate_rule1,
         doc='production mode rate 1')
-    constraint_latex_render(production_rate_rule1)
     return instance.constraint_production_rate1
 
 
@@ -216,7 +197,6 @@ def constraint_production_rate2(instance: ConcreteModel, rate_max_dict: dict, sc
         instance.locations, instance.processes, instance.modes, *
         scales, rule=production_rate_rule2,
         doc='production mode rate 1')
-    constraint_latex_render(production_rate_rule2)
     return instance.constraint_production_rate2
 
 
@@ -253,5 +233,4 @@ def constraint_production_mode_switch(instance: ConcreteModel, mode_dict: dict, 
         instance.locations, instance.processes, instance.modes, *
         scales, rule=production_mode_switch_rule,
         doc='production mode switch')
-    constraint_latex_render(production_mode_switch_rule)
     return instance.production_mode_switch

@@ -1,18 +1,4 @@
-"""production constraints
-"""
-
-__author__ = "Rahul Kakodkar"
-__copyright__ = "Copyright 2023, Multi-parametric Optimization & Control Lab"
-__credits__ = ["Rahul Kakodkar", "Efstratios N. Pistikopoulos"]
-__license__ = "MIT"
-__version__ = "1.0.5"
-__maintainer__ = "Rahul Kakodkar"
-__email__ = "cacodcar@tamu.edu"
-__status__ = "Production"
-
 from pyomo.environ import ConcreteModel, Constraint
-
-from ...utils.latex_utils import constraint_latex_render
 from ...utils.scale_utils import scale_list
 
 
@@ -49,7 +35,6 @@ def constraint_production_facility_affix(instance: ConcreteModel, affix_producti
         instance.locations, instance.processes, *
         scales, rule=production_facility_affix_rule,
         doc='production facility sizing and location')
-    constraint_latex_render(production_facility_affix_rule)
     return instance.constraint_production_facility_affix
 
 
@@ -86,7 +71,6 @@ def constraint_production_facility_fix(instance: ConcreteModel, cap_max: dict, p
         instance.locations, instance.processes, *
         scales, rule=production_facility_fix_rule,
         doc='production facility sizing and location')
-    constraint_latex_render(production_facility_fix_rule)
     return instance.constraint_production_facility_fix
 
 
@@ -131,5 +115,4 @@ def constraint_nameplate_production_material_mode(instance: ConcreteModel, capac
         instance.locations, instance.processes, instance.material_modes, *
         scales, rule=nameplate_production_material_mode_rule,
         doc='nameplate production capacity constraint for material mode')
-    constraint_latex_render(nameplate_production_material_mode_rule)
     return instance.constraint_nameplate_production_material_mode

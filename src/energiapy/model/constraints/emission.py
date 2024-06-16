@@ -1,18 +1,4 @@
-"""emission constraints
-"""
-
-__author__ = "Rahul Kakodkar"
-__copyright__ = "Copyright 2023, Multi-parametric Optimization & Control Lab"
-__credits__ = ["Rahul Kakodkar", "Efstratios N. Pistikopoulos"]
-__license__ = "MIT"
-__version__ = "1.0.5"
-__maintainer__ = "Rahul Kakodkar"
-__email__ = "cacodcar@tamu.edu"
-__status__ = "Production"
-
 from pyomo.environ import ConcreteModel, Constraint
-
-from ...utils.latex_utils import constraint_latex_render
 from ...utils.scale_utils import scale_list
 
 
@@ -32,8 +18,6 @@ def constraint_carbon_emission_location(instance: ConcreteModel, network_scale_l
         return instance.carbon_emission_location[location, scale_list] == instance.S_location[location, 'CO2_Vent', scale_list]
     instance.constraint_carbon_emission_location = Constraint(
         instance.locations, *scales, rule=carbon_emission_location_rule, doc='carbon_emission_location_process')
-
-    constraint_latex_render(carbon_emission_location_rule)
     return instance.constraint_carbon_emission_location
 
 
@@ -55,7 +39,6 @@ def constraint_carbon_emission(instance: ConcreteModel, carbon_bound: float,  ne
         return instance.S_location[location, 'CO2_Vent', scale_list] <= (100.0 - carbon_reduction_percentage)*carbon_bound/100.0
     instance.constraint_carbon_emission = Constraint(
         instance.locations, *scales, rule=carbon_emission_rule, doc='carbon_emission_process')
-    constraint_latex_render(carbon_emission_rule)
     return instance.constraint_carbon_emission
 
 
@@ -76,7 +59,6 @@ def constraint_global_warming_potential_process(instance: ConcreteModel, process
         return instance.global_warming_potential_process[location, process, scale_list] == process_gwp_dict[location][process]*instance.Cap_P[location, process, scale_list]
     instance.constraint_global_warming_potential_process = Constraint(
         instance.locations, instance.processes, *scales, rule=global_warming_potential_process_rule, doc='global warming potential for the each process')
-    constraint_latex_render(global_warming_potential_process_rule)
     return instance.constraint_global_warming_potential_process
 
 
@@ -103,7 +85,6 @@ def constraint_global_warming_potential_material_mode(instance: ConcreteModel, m
             return Constraint.Skip
     instance.constraint_global_warming_potential_material_mode = Constraint(
         instance.locations, instance.processes_materials, instance.material_modes, *scales, rule=global_warming_potential_material_mode_rule, doc='global warming potential for the each material')
-    constraint_latex_render(global_warming_potential_material_mode_rule)
     return instance.constraint_global_warming_potential_material_mode
 
 
@@ -123,7 +104,6 @@ def constraint_global_warming_potential_material(instance: ConcreteModel, networ
         return instance.global_warming_potential_material[location, process, scale_list] == sum(instance.global_warming_potential_material_mode[location, process, material_mode_, scale_list] for material_mode_ in instance.material_modes)
     instance.constraint_global_warming_potential_material = Constraint(
         instance.locations, instance.processes_materials, *scales, rule=global_warming_potential_material_rule, doc='global warming potential for the each material')
-    constraint_latex_render(global_warming_potential_material_rule)
     return instance.constraint_global_warming_potential_material
 
 
@@ -147,7 +127,6 @@ def constraint_global_warming_potential_resource_consumption(instance: ConcreteM
         #     return instance.global_warming_potential_resource_consumption[location, resource, scale_list] == 0
     instance.constraint_global_warming_potential_resource_consumption = Constraint(
         instance.locations, instance.resources_purch, *scales, rule=global_warming_potential_resource_consumption_rule, doc='global warming potential for the each resource consumed')
-    constraint_latex_render(global_warming_potential_resource_consumption_rule)
     return instance.constraint_global_warming_potential_resource_consumption
 
 # def constraint_global_warming_potential_resource_consumption_negative(instance: ConcreteModel, resource_gwp_dict: dict, network_scale_level: int = 0) -> Constraint:
@@ -170,7 +149,6 @@ def constraint_global_warming_potential_resource_consumption(instance: ConcreteM
 #             return instance.global_warming_potential_resource_consumption_negative[location, resource, scale_list] == -1*resource_gwp_dict[location][resource]*instance.C_location[location, resource, scale_list]
 #     instance.constraint_global_warming_potential_resource_consumption_negative = Constraint(
 #         instance.locations, instance.resources_purch, *scales, rule=global_warming_potential_resource_consumption_negative_rule, doc='global warming potential for the each resource consumed')
-#     constraint_latex_render(global_warming_potential_resource_consumption_negative_rule)
 #     return instance.constraint_global_warming_potential_resource_consumption_negative
 
 
@@ -191,7 +169,6 @@ def constraint_global_warming_potential_resource_discharge(instance: ConcreteMod
         return instance.global_warming_potential_resource_discharge[location, resource, scale_list] == resource_gwp_dict[location][resource]*instance.S_location[location, resource, scale_list]
     instance.constraint_global_warming_potential_resource_discharge = Constraint(
         instance.locations, instance.resources_sell, *scales, rule=global_warming_potential_resource_discharge_rule, doc='global warming potential for the each resource discharged')
-    constraint_latex_render(global_warming_potential_resource_discharge_rule)
     return instance.constraint_global_warming_potential_resource_discharge
 
 
@@ -227,7 +204,6 @@ def constraint_global_warming_potential_resource(instance: ConcreteModel, networ
         #     return Constraint.Skip
     instance.constraint_global_warming_potential_resource = Constraint(
         instance.locations, instance.resources, *scales, rule=global_warming_potential_resource_rule, doc='global warming potential for the each resource')
-    constraint_latex_render(global_warming_potential_resource_rule)
     return instance.constraint_global_warming_potential_resource
 
 
@@ -254,7 +230,6 @@ def constraint_global_warming_potential_location(instance: ConcreteModel, networ
         return instance.global_warming_potential_location[location, scale_list] == gwp_process + gwp_resource + gwp_material
     instance.constraint_global_warming_potential_location = Constraint(
         instance.locations, *scales, rule=global_warming_potential_location_rule, doc='global warming potential for the each location')
-    constraint_latex_render(global_warming_potential_location_rule)
     return instance.constraint_global_warming_potential_location
 
 
@@ -276,7 +251,6 @@ def constraint_global_warming_potential_network(instance: ConcreteModel, network
                 scale_list] for location_ in instance.locations)
     instance.constraint_global_warming_potential_network = Constraint(
         *scales, rule=global_warming_potential_network_rule, doc='global warming potential for the whole network')
-    constraint_latex_render(global_warming_potential_network_rule)
     return instance.constraint_global_warming_potential_network
 
 
@@ -298,7 +272,6 @@ def constraint_global_warming_potential_network_reduction(instance: ConcreteMode
         return instance.global_warming_potential_network[scale_list] <= gwp*(1 - gwp_reduction_pct/100)
     instance.constraint_global_warming_potential_network_reduction = Constraint(
         *scales, rule=global_warming_potential_network_reduction_rule, doc='global warming potential for the whole network')
-    constraint_latex_render(global_warming_potential_network_reduction_rule)
     return instance.constraint_global_warming_potential_network_reduction
 
 
@@ -318,7 +291,6 @@ def constraint_global_warming_potential_network_bound(instance: ConcreteModel, g
 
     def global_warming_potential_network_bound_rule(instance, *scale_list):
         return instance.global_warming_potential_network[scale_list] <= gwp_bound
-    constraint_latex_render(global_warming_potential_network_bound_rule)
     return Constraint(
         *scales, rule=global_warming_potential_network_bound_rule, doc='global warming potential bound for the whole network')
 
@@ -340,7 +312,6 @@ def constraint_global_warming_potential_20_resource(instance: ConcreteModel, emi
         return instance.global_warming_potential_20_resource[location, resource, scale_list] == emission_dict[location][process][resource]*instance.Cap_P[location, process, scale_list]
     instance.constraint_global_warming_potential_process = Constraint(
         instance.locations, instance.processes, *scales, rule=global_warming_potential_process_rule, doc='global warming potential for the each process')
-    constraint_latex_render(global_warming_potential_process_rule)
     return instance.constraint_global_warming_potential_process
 
 # *--------------------Ozone Depletion Potential-------------------------------------------------------
@@ -363,7 +334,6 @@ def constraint_ozone_depletion_potential_process(instance: ConcreteModel, proces
         return instance.ozone_depletion_potential_process[location, process, scale_list] == process_odp_dict[location][process]*instance.Cap_P[location, process, scale_list]
     instance.constraint_ozone_depletion_potential_process = Constraint(
         instance.locations, instance.processes, *scales, rule=ozone_depletion_potential_process_rule, doc='ozone depletion potential for the each process')
-    constraint_latex_render(ozone_depletion_potential_process_rule)
     return instance.constraint_ozone_depletion_potential_process
 
 
@@ -390,7 +360,6 @@ def constraint_ozone_depletion_potential_material_mode(instance: ConcreteModel, 
             return Constraint.Skip
     instance.constraint_ozone_depletion_potential_material_mode = Constraint(
         instance.locations, instance.processes_materials, instance.material_modes, *scales, rule=ozone_depletion_potential_material_mode_rule, doc='ozone depletion potential for the each material')
-    constraint_latex_render(ozone_depletion_potential_material_mode_rule)
     return instance.constraint_ozone_depletion_potential_material_mode
 
 
@@ -410,7 +379,6 @@ def constraint_ozone_depletion_potential_material(instance: ConcreteModel, netwo
         return instance.ozone_depletion_potential_material[location, process, scale_list] == sum(instance.ozone_depletion_potential_material_mode[location, process, material_mode_, scale_list] for material_mode_ in instance.material_modes)
     instance.constraint_ozone_depletion_potential_material = Constraint(
         instance.locations, instance.processes_materials, *scales, rule=ozone_depletion_potential_material_rule, doc='ozone depletion potential for the each material')
-    constraint_latex_render(ozone_depletion_potential_material_rule)
     return instance.constraint_ozone_depletion_potential_material
 
 
@@ -431,8 +399,6 @@ def constraint_ozone_depletion_potential_resource_consumption(instance: Concrete
         return instance.ozone_depletion_potential_resource_consumption[location, resource, scale_list] == resource_odp_dict[location][resource]*instance.C_location[location, resource, scale_list]
     instance.constraint_ozone_depletion_potential_resource_consumption = Constraint(
         instance.locations, instance.resources_purch, *scales, rule=ozone_depletion_potential_resource_consumption_rule, doc='ozone depletion potential for the each resource consumed')
-    constraint_latex_render(
-        ozone_depletion_potential_resource_consumption_rule)
     return instance.constraint_ozone_depletion_potential_resource_consumption
 
 
@@ -453,7 +419,6 @@ def constraint_ozone_depletion_potential_resource_discharge(instance: ConcreteMo
         return instance.ozone_depletion_potential_resource_discharge[location, resource, scale_list] == resource_odp_dict[location][resource]*instance.S_location[location, resource, scale_list]
     instance.constraint_ozone_depletion_potential_resource_discharge = Constraint(
         instance.locations, instance.resources_sell, *scales, rule=ozone_depletion_potential_resource_discharge_rule, doc='ozone depletion potential for the each resource discharged')
-    constraint_latex_render(ozone_depletion_potential_resource_discharge_rule)
     return instance.constraint_ozone_depletion_potential_resource_discharge
 
 
@@ -489,7 +454,6 @@ def constraint_ozone_depletion_potential_resource(instance: ConcreteModel, netwo
         #     return Constraint.Skip
     instance.constraint_ozone_depletion_potential_resource = Constraint(
         instance.locations, instance.resources, *scales, rule=ozone_depletion_potential_resource_rule, doc='ozone depletion potential for the each resource')
-    constraint_latex_render(ozone_depletion_potential_resource_rule)
     return instance.constraint_ozone_depletion_potential_resource
 
 
@@ -516,7 +480,6 @@ def constraint_ozone_depletion_potential_location(instance: ConcreteModel, netwo
         return instance.ozone_depletion_potential_location[location, scale_list] == odp_process + odp_resource + odp_material
     instance.constraint_ozone_depletion_potential_location = Constraint(
         instance.locations, *scales, rule=ozone_depletion_potential_location_rule, doc='ozone depletion potential for the each location')
-    constraint_latex_render(ozone_depletion_potential_location_rule)
     return instance.constraint_ozone_depletion_potential_location
 
 
@@ -538,7 +501,6 @@ def constraint_ozone_depletion_potential_network(instance: ConcreteModel, networ
                 scale_list] for location_ in instance.locations)
     instance.constraint_ozone_depletion_potential_network = Constraint(
         *scales, rule=ozone_depletion_potential_network_rule, doc='ozone depletion potential for the whole network')
-    constraint_latex_render(ozone_depletion_potential_network_rule)
     return instance.constraint_ozone_depletion_potential_network
 
 # *-------------------------------------Acidification Potential------------------------------------------------
@@ -561,7 +523,6 @@ def constraint_acidification_potential_process(instance: ConcreteModel, process_
         return instance.acidification_potential_process[location, process, scale_list] == process_acid_dict[location][process]*instance.Cap_P[location, process, scale_list]
     instance.constraint_acidification_potential_process = Constraint(
         instance.locations, instance.processes, *scales, rule=acidification_potential_process_rule, doc='acidification potential for the each process')
-    constraint_latex_render(acidification_potential_process_rule)
     return instance.constraint_acidification_potential_process
 
 
@@ -588,7 +549,6 @@ def constraint_acidification_potential_material_mode(instance: ConcreteModel, ma
             return Constraint.Skip
     instance.constraint_acidification_potential_material_mode = Constraint(
         instance.locations, instance.processes_materials, instance.material_modes, *scales, rule=acidification_potential_material_mode_rule, doc='acidification potential for the each material')
-    constraint_latex_render(acidification_potential_material_mode_rule)
     return instance.constraint_acidification_potential_material_mode
 
 
@@ -608,7 +568,6 @@ def constraint_acidification_potential_material(instance: ConcreteModel, network
         return instance.acidification_potential_material[location, process, scale_list] == sum(instance.acidification_potential_material_mode[location, process, material_mode_, scale_list] for material_mode_ in instance.material_modes)
     instance.constraint_acidification_potential_material = Constraint(
         instance.locations, instance.processes_materials, *scales, rule=acidification_potential_material_rule, doc='acidification potential for the each material')
-    constraint_latex_render(acidification_potential_material_rule)
     return instance.constraint_acidification_potential_material
 
 
@@ -629,7 +588,6 @@ def constraint_acidification_potential_resource_consumption(instance: ConcreteMo
         return instance.acidification_potential_resource_consumption[location, resource, scale_list] == resource_acid_dict[location][resource]*instance.C_location[location, resource, scale_list]
     instance.constraint_acidification_potential_resource_consumption = Constraint(
         instance.locations, instance.resources_purch, *scales, rule=acidification_potential_resource_consumption_rule, doc='acidification potential for the each resource consumed')
-    constraint_latex_render(acidification_potential_resource_consumption_rule)
     return instance.constraint_acidification_potential_resource_consumption
 
 
@@ -650,7 +608,6 @@ def constraint_acidification_potential_resource_discharge(instance: ConcreteMode
         return instance.acidification_potential_resource_discharge[location, resource, scale_list] == resource_acid_dict[location][resource]*instance.S_location[location, resource, scale_list]
     instance.constraint_acidification_potential_resource_discharge = Constraint(
         instance.locations, instance.resources_sell, *scales, rule=acidification_potential_resource_discharge_rule, doc='acidification potential for the each resource discharged')
-    constraint_latex_render(acidification_potential_resource_discharge_rule)
     return instance.constraint_acidification_potential_resource_discharge
 
 
@@ -686,7 +643,6 @@ def constraint_acidification_potential_resource(instance: ConcreteModel, network
         #     return Constraint.Skip
     instance.constraint_acidification_potential_resource = Constraint(
         instance.locations, instance.resources, *scales, rule=acidification_potential_resource_rule, doc='acidification potential for the each resource')
-    constraint_latex_render(acidification_potential_resource_rule)
     return instance.constraint_acidification_potential_resource
 
 
@@ -713,7 +669,6 @@ def constraint_acidification_potential_location(instance: ConcreteModel, network
         return instance.acidification_potential_location[location, scale_list] == acid_process + acid_resource + acid_material
     instance.constraint_acidification_potential_location = Constraint(
         instance.locations, *scales, rule=acidification_potential_location_rule, doc='acidification potential for the each location')
-    constraint_latex_render(acidification_potential_location_rule)
     return instance.constraint_acidification_potential_location
 
 

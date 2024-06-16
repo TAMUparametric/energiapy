@@ -1,26 +1,6 @@
-"""Available b_traints
-"""
-
-__author__ = "Rahul Kakodkar"
-__copyright__ = "Copyright 2022, Multi-parametric Optimization & Control Lab"
-__credits__ = ["Rahul Kakodkar", "Efstratios N. Pistikopoulos"]
-__license__ = "MIT"
-__version__ = "1.0.5"
-__maintainer__ = "Rahul Kakodkar"
-__email__ = "cacodcar@tamu.edu"
-__status__ = "Production"
-
 from enum import Enum, auto
-from typing import Dict, Tuple
-
 from pyomo.environ import ConcreteModel, Constraint, Var, Set
-
-# from ...utils.latex_utils import co_traint_latex_render
 from ...utils.scale_utils import scale_list, scale_tuple
-# from ...components.resource import Resource
-# from ...components.location import Location
-# from ...components.process import Process
-
 
 class Cons(Enum):
     X_LEQ_B = auto()
@@ -288,6 +268,28 @@ def make_constraint(instance: ConcreteModel, type_cons: Cons, variable_x: Var, l
                     return Constraint.Skip
 
         return Constraint(location_set, component_set, *scales, rule=cons_rule, doc=label)
+
+
+def constraint_sum_total(instance: ConcreteModel, var_total: str, var: str, network_scale_level: int = 0, label: str = None):
+    """Find total cost across network and planning horizon
+
+    Args:
+        instance (ConcreteModel): pyomo instance
+        network_scale_level (int, optional): scale of network decisions. Defaults to 0.
+        label (str, None): doc string for constraint
+    """
+    scale_iter = scale_tuple(
+        instance=instance, scale_levels=network_scale_level + 1)
+
+    if label is None:
+        label = ''
+
+    def constraint_sum_total_rule(instance):
+        x_ = getattr(instance, var_total)
+        y_sum = sum(getattr(instance, var)[scale_] for scale_ in scale_iter)
+        return x_ == y_sum
+
+    return Constraint(rule=constraint_sum_total_rule, doc=label)
 
 
 class Constraints(Enum):

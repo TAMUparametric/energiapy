@@ -71,5 +71,38 @@ def generate_costing_vars(instance: ConcreteModel, scenario: Scenario):
     instance.Inv_cost_network = Var(instance.scales_network,
                                     within=NonNegativeReals, doc='penalty incurred for storing resources at network')
 
-    instance.Cost_network = Var(
-        within=NonNegativeReals, doc='Total network cost')
+    instance.Capex_total = Var(
+        within=NonNegativeReals, doc='Total capital expenditure on processes')
+
+    instance.Capex_transport_total = Var(
+        within=NonNegativeReals, doc='Total capital expenditure on transports')
+
+    instance.Vopex_total = Var(
+        within=NonNegativeReals, doc='Total variable expenditure on processes')
+
+    instance.Fopex_total = Var(
+        within=NonNegativeReals, doc='Total fixed expenditure on processes')
+
+    instance.B_total = Var(
+        within=NonNegativeReals, doc='Total expenditure on resource purchase')
+
+    instance.Vopex_transport_total = Var(
+        within=NonNegativeReals, doc='Total variable expenditure on transports')
+
+    instance.Fopex_transport_total = Var(
+        within=NonNegativeReals, doc='Total fixed expenditure on transports')
+
+    instance.Incidental_total = Var(
+        within=NonNegativeReals, doc='Total incidental expenditure on processes')
+
+    instance.Land_cost_total = Var(
+        within=NonNegativeReals, doc='Total expenditure on land')
+
+    instance.Credit_total = Var(
+        within=NonNegativeReals, doc='Total expenditure on credit')
+
+    instance.Inv_cost_total = Var(
+        within=NonNegativeReals, doc='Total expenditure on resource storage')
+
+    instance.Cost_total = Var(
+        within=NonNegativeReals, doc='Total expenditure')

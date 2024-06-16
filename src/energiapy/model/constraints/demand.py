@@ -1,20 +1,5 @@
-"""resource demand constraints
-"""
-
-__author__ = "Rahul Kakodkar"
-__copyright__ = "Copyright 2022, Multi-parametric Optimization & Control Lab"
-__credits__ = ["Rahul Kakodkar", "Efstratios N. Pistikopoulos"]
-__license__ = "MIT"
-__version__ = "1.0.7"
-__maintainer__ = "Rahul Kakodkar"
-__email__ = "cacodcar@tamu.edu"
-__status__ = "Production"
-
-from typing import Union, Tuple
-
+from typing import Union
 from pyomo.environ import ConcreteModel, Constraint
-
-from ...utils.latex_utils import constraint_latex_render
 from ...utils.scale_utils import scale_list, scale_tuple
 
 
@@ -56,8 +41,6 @@ from ...utils.scale_utils import scale_list, scale_tuple
 #         instance.constraint_demand = Constraint(
 #             instance.locations, instance.resources_demand, *scales, rule=demand_rule,
 #             doc='specific demand for resources')
-
-#     constraint_latex_render(demand_rule)
 #     return instance.constraint_demand
 
 
@@ -150,8 +133,6 @@ def constraint_demand(instance: ConcreteModel, demand: Union[dict, float], deman
         instance.constraint_demand = Constraint(
             instance.locations, instance.resources_demand, *scales, rule=demand_rule,
             doc='specific demand for resources')
-
-    constraint_latex_render(demand_rule)
     return instance.constraint_demand
 
 
@@ -237,7 +218,6 @@ def constraint_demand_penalty(instance: ConcreteModel, demand: Union[dict, float
         instance.constraint_demand_penalty = Constraint(
             instance.locations, instance.resources_demand, *scales, rule=demand_penalty_rule,
             doc='specific demand for resources with penalty')
-    constraint_latex_render(demand_penalty_rule)
     return instance.constraint_demand_penalty
 
 
@@ -321,5 +301,4 @@ def constraint_demand_theta(instance: ConcreteModel, demand: Union[dict, float],
         instance.constraint_demand = Constraint(
             instance.locations, instance.resources_demand, *scales, rule=demand_rule,
             doc='specific demand for resources')
-    constraint_latex_render(demand_rule)
     return instance.constraint_demand

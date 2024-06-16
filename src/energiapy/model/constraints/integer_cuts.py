@@ -1,17 +1,4 @@
-"""integer cuts
-"""
-
-__author__ = "Rahul Kakodkar"
-__copyright__ = "Copyright 2023, Multi-parametric Optimization & Control Lab"
-__credits__ = ["Rahul Kakodkar", "Efstratios N. Pistikopoulos"]
-__license__ = "Open"
-__version__ = "0.0.1"
-__maintainer__ = "Rahul Kakodkar"
-__email__ = "cacodcar@tamu.edu"
-__status__ = "Production"
-
 from pyomo.environ import ConcreteModel, Constraint
-from ...utils.latex_utils import constraint_latex_render
 from ...utils.scale_utils import scale_list
 from ...components.location import Location
 
@@ -34,8 +21,6 @@ def constraint_block_integer_cut_max(instance: ConcreteModel, network_scale_leve
 
     def block_integer_cut_max_rule(instance, *scale_list):
         return sum(instance.X_P[location.name, i.name, scale_list] for i in process_set if i.block == block) <= number
-    constraint_latex_render(block_integer_cut_max_rule)
-
     return Constraint(*scales, rule=block_integer_cut_max_rule, doc=f'block integer cut for {block}')
 
 
@@ -57,8 +42,6 @@ def constraint_block_integer_cut_min(instance: ConcreteModel, network_scale_leve
 
     def block_integer_cut_min_rule(instance, *scale_list):
         return sum(instance.X_P[location.name, i.name, scale_list] for i in process_set if i.block == block) >= number
-    constraint_latex_render(block_integer_cut_min_rule)
-
     return Constraint(*scales, rule=block_integer_cut_min_rule, doc=f'block integer cut for {block}')
 
 
@@ -80,6 +63,4 @@ def constraint_block_integer_cut(instance: ConcreteModel, network_scale_level: i
 
     def block_integer_cut_rule(instance, *scale_list):
         return sum(instance.X_P[location.name, i.name, scale_list] for i in process_set if i.block == block) == number
-    constraint_latex_render(block_integer_cut_rule)
-
     return Constraint(*scales, rule=block_integer_cut_rule, doc=f'block integer cut for {block}')

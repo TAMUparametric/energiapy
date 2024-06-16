@@ -1,18 +1,4 @@
-"""material constraints
-"""
-
-__author__ = "Rahul Kakodkar"
-__copyright__ = "Copyright 2023, Multi-parametric Optimization & Control Lab"
-__credits__ = ["Rahul Kakodkar", "Efstratios N. Pistikopoulos"]
-__license__ = "MIT"
-__version__ = "1.0.5"
-__maintainer__ = "Rahul Kakodkar"
-__email__ = "cacodcar@tamu.edu"
-__status__ = "Production"
-
 from pyomo.environ import ConcreteModel, Constraint
-
-from ...utils.latex_utils import constraint_latex_render
 from ...utils.scale_utils import scale_list
 
 
@@ -39,7 +25,6 @@ def constraint_material_mode_process(instance: ConcreteModel, process_material_m
             return instance.material_mode_process[location, process, material_mode, material, scale_list] == 0
     instance.constraint_material_mode_process = Constraint(
         instance.locations, instance.processes, instance.material_modes, instance.materials, *scales, rule=material_mode_process_rule, doc='material utilization for each process')
-    constraint_latex_render(material_mode_process_rule)
     return instance.constraint_material_mode_process
 
 
@@ -63,7 +48,6 @@ def constraint_material_process(instance: ConcreteModel, process_material_dict: 
             return instance.material_process[location, process, material, scale_list] == 0
     instance.constraint_material_process = Constraint(
         instance.locations, instance.processes, instance.materials, *scales, rule=material_process_rule, doc='material utilization for each process')
-    constraint_latex_render(material_process_rule)
     return instance.constraint_material_process
 
 
@@ -87,7 +71,6 @@ def constraint_material_process(instance: ConcreteModel, process_material_dict: 
 #             return Constraint.Skip
 #     instance.constraint_material_process = Constraint(
 #         instance.locations, instance.processes, instance.materials, *scales, rule=material_process_rule, doc='material utilization for each process')
-#     constraint_latex_render(material_process_rule)
 #     return instance.constraint_material_process
 
 
@@ -107,7 +90,6 @@ def constraint_material_location(instance: ConcreteModel, network_scale_level: i
         return instance.material_location[location, material, scale_list] == sum(instance.material_process[location, process_, material, scale_list] for process_ in instance.processes)
     instance.constraint_material_location = Constraint(
         instance.locations, instance.materials, *scales, rule=material_location_rule, doc='material utilization for each location')
-    constraint_latex_render(material_location_rule)
     return instance.constraint_material_location
 
 
@@ -127,7 +109,6 @@ def constraint_material_network(instance: ConcreteModel, network_scale_level: in
         return instance.material_network[material, scale_list] == sum(instance.material_location[location_, material, scale_list] for location_ in instance.locations)
     instance.constraint_material_network = Constraint(
         instance.materials, *scales, rule=material_network_rule, doc='material utilization for the whole network')
-    constraint_latex_render(material_network_rule)
     return instance.constraint_material_network
 
 
@@ -151,8 +132,6 @@ def constraint_production_facility_material_mode(instance: ConcreteModel, networ
             return Constraint.Skip
     instance.constraint_production_facility_material_mode = Constraint(
         instance.locations, instance.processes, *scales, rule=production_facility_material_mode_rule, doc='capacity of process under different material modes')
-
-    constraint_latex_render(production_facility_material_mode_rule)
     return instance.constraint_production_facility_material_mode
 
 
@@ -176,8 +155,6 @@ def constraint_production_facility_material_mode_binary(instance: ConcreteModel,
             return Constraint.Skip
     instance.constraint_production_facility_material_mode_binary = Constraint(
         instance.locations, instance.processes, *scales, rule=production_facility_material_mode_binary_rule, doc='capacity of process under different material modes')
-
-    constraint_latex_render(production_facility_material_mode_binary_rule)
     return instance.constraint_production_facility_material_mode_binary
 
 
@@ -214,7 +191,6 @@ def constraint_production_facility_material(instance: ConcreteModel, cap_max: di
         instance.locations, instance.processes,  instance.material_modes, *
         scales, rule=production_facility_material_rule,
         doc='production facility sizing and location for material mode')
-    constraint_latex_render(production_facility_material_rule)
     return instance.constraint_production_facility_material
 
 
@@ -255,5 +231,4 @@ def constraint_min_production_facility_material(instance: ConcreteModel, cap_min
         instance.locations, instance.processes, instance.material_modes, *
         scales, rule=min_production_facility_material_rule,
         doc='production facility sizing and location for material mode')
-    constraint_latex_render(min_production_facility_material_rule)
     return instance.constraint_min_production_facility_material

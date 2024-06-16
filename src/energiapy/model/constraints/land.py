@@ -1,18 +1,4 @@
-"""land constraints
-"""
-
-__author__ = "Rahul Kakodkar"
-__copyright__ = "Copyright 2022, Multi-parametric Optimization & Control Lab"
-__credits__ = ["Rahul Kakodkar", "Efstratios N. Pistikopoulos"]
-__license__ = "MIT"
-__version__ = "1.0.5"
-__maintainer__ = "Rahul Kakodkar"
-__email__ = "cacodcar@tamu.edu"
-__status__ = "Production"
-
 from pyomo.environ import ConcreteModel, Constraint
-
-from ...utils.latex_utils import constraint_latex_render
 from ...utils.scale_utils import scale_list
 
 
@@ -35,7 +21,6 @@ def constraint_land_process(instance: ConcreteModel, land_dict: dict, network_sc
 
     instance.constraint_land_process = Constraint(
         instance.locations, instance.processes, *scales, rule=land_process_rule, doc='land required for process')
-    constraint_latex_render(land_process_rule)
     return instance.constraint_land_process
 
 
@@ -57,7 +42,6 @@ def constraint_land_location(instance: ConcreteModel, network_scale_level: int =
 
     instance.constraint_land_location = Constraint(
         instance.locations, *scales, rule=land_location_rule, doc='land required for process')
-    constraint_latex_render(land_location_rule)
     return instance.constraint_land_location
 
 
@@ -79,7 +63,6 @@ def constraint_land_network(instance: ConcreteModel, network_scale_level: int = 
 
     instance.constraint_land_network = Constraint(
         *scales, rule=land_network_rule, doc='land required for process')
-    constraint_latex_render(land_network_rule)
     return instance.constraint_land_network
 
 
@@ -101,5 +84,4 @@ def constraint_land_location_restriction(instance: ConcreteModel, network_scale_
 
     instance.constraint_land_location_restriction = Constraint(
         instance.locations, *scales, rule=land_location_restriction_rule, doc='land required for process')
-    constraint_latex_render(land_location_restriction_rule)
     return instance.constraint_land_location_restriction

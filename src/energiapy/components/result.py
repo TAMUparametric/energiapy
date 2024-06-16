@@ -24,12 +24,14 @@ class Result:
        name (str): name of the material, short ones are better to deal with.
        components (dict): input data relating to components
        output (dict): results from analysis
+       model_elements (dict): model sets, variables, constraints, objective
        duals (dict): duals if not MIP.
 
     """
     name: str
     components: dict
     output: dict
+    model_elements: dict
     duals: dict
 
     def saveoutputs(self, file_name: str):

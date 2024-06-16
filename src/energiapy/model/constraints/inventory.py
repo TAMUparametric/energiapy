@@ -1,18 +1,4 @@
-"""inventory constraints
-"""
-
-__author__ = "Rahul Kakodkar"
-__copyright__ = "Copyright 2022, Multi-parametric Optimization & Control Lab"
-__credits__ = ["Rahul Kakodkar", "Efstratios N. Pistikopoulos"]
-__license__ = "MIT"
-__version__ = "1.0.5"
-__maintainer__ = "Rahul Kakodkar"
-__email__ = "cacodcar@tamu.edu"
-__status__ = "Production"
-
 from pyomo.environ import ConcreteModel, Constraint
-
-from ...utils.latex_utils import constraint_latex_render
 from ...utils.scale_utils import scale_list
 
 
@@ -50,7 +36,6 @@ def constraint_storage_facility_affix(instance: ConcreteModel, affix_storage_cap
         instance.locations, instance.resources_store, *
         scales, rule=storage_facility_affix_rule,
         doc='storage facility sizing and location')
-    constraint_latex_render(storage_facility_affix_rule)
     return instance.constraint_storage_facility_affix
 
 
@@ -88,5 +73,4 @@ def constraint_storage_facility_fix(instance: ConcreteModel, store_max: dict, st
         instance.locations, instance.resources_store, *
         scales, rule=storage_facility_fix_rule,
         doc='storage facility sizing and location')
-    constraint_latex_render(storage_facility_fix_rule)
     return instance.constraint_storage_facility_fix

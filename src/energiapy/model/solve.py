@@ -1,18 +1,6 @@
-"""solve
-"""
-
-__author__ = "Rahul Kakodkar"
-__copyright__ = "Copyright 2022, Multi-parametric Optimization & Control Lab"
-__credits__ = ["Rahul Kakodkar", "Efstratios N. Pistikopoulos"]
-__license__ = "Open"
-__version__ = "0.0.1"
-__maintainer__ = "Rahul Kakodkar"
-__email__ = "cacodcar@tamu.edu"
-__status__ = "Production"
-
 import logging
 from warnings import warn
-from pyomo.environ import ConcreteModel, Constraint, Objective, SolverFactory, Var
+from pyomo.environ import ConcreteModel, Constraint, Objective, SolverFactory, Var, Set
 from pyomo.util.infeasible import (
     log_close_to_bounds,
     log_infeasible_bounds,
@@ -91,19 +79,41 @@ def solve(solver: str, name: str, instance: ConcreteModel = None, matrix: dict =
             'n_nonzero': output['Problem'][0]['Number of nonzeros'],
         }
 
+        model_sets = [i for i in instance.component_objects()
+                      if i.ctype == Set]
+
+        model_vars = [i for i in instance.component_objects()
+                      if i.ctype == Var]
+
+        model_cons = [i for i in instance.component_objects()
+                      if i.ctype == Constraint]
+
+        model_obj = [i for i in instance.component_objects()
+                     if i.ctype == Objective]
+
+        sets_list = [str(i) for i in model_sets if 'index' not in str(i)]
+
+        vars_list = list(map(str, model_vars))
+
+        cons_list = list(map(str, model_cons))
+
+        obj = str(list(model_obj)[0])
+
+        model_dict = {'sets': sets_list, 'variables': vars_list,
+                      'constraints': cons_list, 'objective': obj}
+
         if solution_dict['termination'] == 'optimal':
 
-            model_vars = instance.component_map(ctype=Var)
-            vars_dict = {i: model_vars[i].extract_values()
-                         for i in model_vars.keys()}
+            vars_cmap = instance.component_map(ctype=Var)
 
-            model_obj = instance.component_map(ctype=Objective)
-            obj_dict = {'objective': model_obj[i]() for i in model_obj.keys()}
+            vars_dict = {i: vars_cmap[i].extract_values()
+                         for i in vars_cmap.keys()}
+            vars_list = list(vars_dict.keys())
+
+            obj_cmap = instance.component_map(ctype=Objective)
+            obj_dict = {'objective': obj_cmap[i]() for i in obj_cmap.keys()}
 
             output_dict = {**solution_dict, **vars_dict, **obj_dict}
-
-            model_cons = [i for i in instance.component_objects()
-                          if i.ctype == Constraint]
 
             if get_duals is True:
                 if solution_dict['n_binvars'] is not None:
@@ -137,7 +147,7 @@ def solve(solver: str, name: str, instance: ConcreteModel = None, matrix: dict =
                 log_close_to_bounds(instance)
 
         results = Result(name=name, components=components_dict,
-                         output=output_dict, duals=duals_dict)
+                         output=output_dict, model_elements=model_dict, duals=duals_dict)
 
         if saveformat is not None:
             results.saveoutputs(name + saveformat)

@@ -1,20 +1,5 @@
-"""resource balance constraints
-"""
-
-__author__ = "Rahul Kakodkar"
-__copyright__ = "Copyright 2022, Multi-parametric Optimization & Control Lab"
-__credits__ = ["Rahul Kakodkar", "Efstratios N. Pistikopoulos"]
-__license__ = "MIT"
-__version__ = "1.0.5"
-__maintainer__ = "Rahul Kakodkar"
-__email__ = "cacodcar@tamu.edu"
-__status__ = "Production"
-
 from typing import Union, Dict, Tuple
-
 from pyomo.environ import ConcreteModel, Constraint
-
-from ...utils.latex_utils import constraint_latex_render
 from ...utils.scale_utils import scale_list, scale_tuple
 from ...components.resource import Resource
 from ...components.location import Location
@@ -157,8 +142,8 @@ def constraint_inventory_balance(instance: ConcreteModel, scheduling_scale_level
     instance.constraint_inventory_balance = Constraint(
         instance.locations, instance.resources, *scales, rule=inventory_balance_rule,
         doc='mass balance across scheduling scale')
-    constraint_latex_render(inventory_balance_rule)
     return instance.constraint_inventory_balance
+
 
 def constraint_location_production_material_mode_sum(instance: ConcreteModel, process_material_mode_material_dict: dict, network_scale_level: int = 0) -> Constraint:
     """Determines total production capacity utilization at location
@@ -182,7 +167,6 @@ def constraint_location_production_material_mode_sum(instance: ConcreteModel, pr
         instance.locations, instance.processes, *
         scales, rule=location_production_material_mode_sum_rule,
         doc='total production at location')
-    constraint_latex_render(location_production_material_mode_sum_rule)
     return instance.constraint_location_production_material_mode_sum
 
 
@@ -212,7 +196,6 @@ def constraint_location_production_material_mode(instance: ConcreteModel, cluste
         instance.locations, instance.processes, instance.material_modes, *
         scales, rule=location_production_material_mode_rule,
         doc='total production at location')
-    constraint_latex_render(location_production_material_mode_rule)
     return instance.constraint_location_production_material_mode
 
 
@@ -236,8 +219,6 @@ def constraint_specific_network_discharge(instance: ConcreteModel, bounds: Dict[
             return instance.S_network[resource, scale_list] <= bounds_dict[resource]
         else:
             return Constraint.Skip
-
-    constraint_latex_render(specific_network_discharge_rule)
     return Constraint(instance.resources_sell, *scales, rule=specific_network_discharge_rule, doc='restrict discharge of resource at network level')
 
 
@@ -262,8 +243,6 @@ def constraint_specific_location_discharge(instance: ConcreteModel, location: Lo
             return instance.S_location[location.name, resource, scale_list] <= bounds_dict[resource]
         else:
             return Constraint.Skip
-
-    constraint_latex_render(specific_location_discharge_rule)
     return Constraint(instance.resources_sell, *scales, rule=specific_location_discharge_rule, doc='restrict discharge of resource at location level')
 
 
@@ -290,6 +269,4 @@ def constraint_inventory_network(instance: ConcreteModel, network_scale_level: i
 
     instance.constraint_inventory_network = Constraint(
         instance.locations, instance.resources_store, *scales, rule=inventory_network_rule, doc='total inventory at network')
-    constraint_latex_render(inventory_network_rule)
-
     return instance.constraint_inventory_network

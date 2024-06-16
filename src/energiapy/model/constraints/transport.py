@@ -1,19 +1,5 @@
-"""transport constraints
-"""
-
-__author__ = "Rahul Kakodkar"
-__copyright__ = "Copyright 2022, Multi-parametric Optimization & Control Lab"
-__credits__ = ["Rahul Kakodkar", "Efstratios N. Pistikopoulos"]
-__license__ = "MIT"
-__version__ = "1.0.5"
-__maintainer__ = "Rahul Kakodkar"
-__email__ = "cacodcar@tamu.edu"
-__status__ = "Production"
-
 from pyomo.environ import ConcreteModel, Constraint
 from itertools import product
-
-from ...utils.latex_utils import constraint_latex_render
 from ...utils.scale_utils import scale_list, scale_tuple
 
 
@@ -47,7 +33,6 @@ def constraint_resource_export(instance: ConcreteModel, scheduling_scale_level: 
     instance.constraint_resource_export = Constraint(instance.sources, instance.sinks,
                                                      instance.resources_trans, *scales, rule=resource_export_rule,
                                                      doc='export of resource from source to sink')
-    constraint_latex_render(resource_export_rule)
     return instance.constraint_resource_export
 
 
@@ -80,7 +65,6 @@ def constraint_transport_export(instance: ConcreteModel, scheduling_scale_level:
     instance.constraint_transport_export = Constraint(instance.sources, instance.sinks,
                                                       instance.transports, *scales, rule=transport_export_rule,
                                                       doc='export of resource from source to sink')
-    constraint_latex_render(transport_export_rule)
     return instance.constraint_transport_export
 
 
@@ -116,7 +100,6 @@ def constraint_transport_export_network(instance: ConcreteModel, scheduling_scal
     instance.constraint_transport_export_network = Constraint(instance.sources, instance.sinks,
                                                               instance.transports, *scales, rule=transport_export_network_rule,
                                                               doc='total export from transport mode from source to sink')
-    constraint_latex_render(transport_export_network_rule)
     return instance.constraint_transport_export_network
 
 
@@ -150,7 +133,6 @@ def constraint_export(instance: ConcreteModel, scheduling_scale_level: int = 0, 
     instance.constraint_export = Constraint(instance.sources, instance.sinks,
                                             instance.transports, *scales, rule=export_rule,
                                             doc='capacity bound export of resource from source to sink')
-    constraint_latex_render(export_rule)
     return instance.constraint_export
 
 
@@ -188,7 +170,6 @@ def constraint_transport_capacity_LB(instance: ConcreteModel, network_scale_leve
     instance.constraint_transport_capacity_LB = Constraint(instance.sources, instance.sinks,
                                                            instance.transports, *scales, rule=transport_capacity_LB_rule,
                                                            doc='LB for transport capacity')
-    constraint_latex_render(transport_capacity_LB_rule)
     return instance.constraint_transport_capacity_LB
 
 
@@ -226,7 +207,6 @@ def constraint_transport_capacity_UB(instance: ConcreteModel, network_scale_leve
     instance.constraint_transport_capacity_UB = Constraint(instance.sources, instance.sinks,
                                                            instance.transports, *scales, rule=transport_capacity_UB_rule,
                                                            doc='UB for transport capacity')
-    constraint_latex_render(transport_capacity_UB_rule)
     return instance.constraint_transport_capacity_UB
 
 
@@ -263,7 +243,6 @@ def constraint_transport_capacity_LB_no_bin(instance: ConcreteModel, network_sca
     instance.constraint_transport_capacity_LB_no_bin = Constraint(instance.sources, instance.sinks,
                                                                   instance.transports, *scales, rule=transport_capacity_LB_no_bin_rule,
                                                                   doc='LB_no_bin for transport capacity')
-    constraint_latex_render(transport_capacity_LB_no_bin_rule)
     return instance.constraint_transport_capacity_LB_no_bin
 
 
@@ -299,7 +278,6 @@ def constraint_transport_capacity_UB_no_bin(instance: ConcreteModel, network_sca
     instance.constraint_transport_capacity_UB_no_bin = Constraint(instance.sources, instance.sinks,
                                                                   instance.transports, *scales, rule=transport_capacity_UB_no_bin_rule,
                                                                   doc='UB_no_bin for transport capacity')
-    constraint_latex_render(transport_capacity_UB_no_bin_rule)
     return instance.constraint_transport_capacity_UB_no_bin
 
 
@@ -326,8 +304,6 @@ def constraint_transport_capex(instance: ConcreteModel, trans_capex: dict, dista
             return instance.Capex_transport[source, sink, transport, scale_list[:network_scale_level + 1]] == 0
     instance.constraint_transport_capex = Constraint(
         instance.sources, instance.sinks, instance.transports, *scales, rule=transport_capex_rule, doc='transport capex calculation')
-
-    constraint_latex_render(transport_capex_rule)
     return instance.constraint_transport_capex
 
 
@@ -354,8 +330,6 @@ def constraint_transport_fopex(instance: ConcreteModel, trans_fopex: dict, dista
             return instance.Fopex_transport[source, sink, transport, scale_list[:network_scale_level + 1]] == 0
     instance.constraint_transport_fopex = Constraint(
         instance.sources, instance.sinks, instance.transports, *scales, rule=transport_fopex_rule, doc='transport fopex calculation')
-
-    constraint_latex_render(transport_fopex_rule)
     return instance.constraint_transport_fopex
 
 
@@ -382,8 +356,6 @@ def constraint_transport_vopex(instance: ConcreteModel, trans_vopex: dict, dista
             return instance.Vopex_transport[source, sink, transport, scale_list[:network_scale_level + 1]] == 0
     instance.constraint_transport_vopex = Constraint(
         instance.sources, instance.sinks, instance.transports, *scales, rule=transport_vopex_rule, doc='transport capex calculation')
-
-    constraint_latex_render(transport_vopex_rule)
     return instance.constraint_transport_vopex
 
 
@@ -408,8 +380,6 @@ def constraint_transport_network_capex(instance: ConcreteModel, network_scale_le
                                                                                              for source_, sink_, transport_ in product(instance.sources, instance.sinks, instance.transports))
     instance.constraint_transport_network_capex = Constraint(
         *scales, rule=transport_network_capex_rule, doc='transport capex calculation for network')
-
-    constraint_latex_render(transport_network_capex_rule)
     return instance.constraint_transport_network_capex
 
 
@@ -434,8 +404,6 @@ def constraint_transport_network_fopex(instance: ConcreteModel, network_scale_le
                                                                                              for source_, sink_, transport_ in product(instance.sources, instance.sinks, instance.transports))
     instance.constraint_transport_network_fopex = Constraint(
         *scales, rule=transport_network_fopex_rule, doc='transport fopex calculation for network')
-
-    constraint_latex_render(transport_network_fopex_rule)
     return instance.constraint_transport_network_fopex
 
 
@@ -460,8 +428,6 @@ def constraint_transport_network_vopex(instance: ConcreteModel, network_scale_le
                                                                                              for source_, sink_, transport_ in product(instance.sources, instance.sinks, instance.transports))
     instance.constraint_transport_network_vopex = Constraint(
         *scales, rule=transport_network_vopex_rule, doc='transport vopex calculation for network')
-
-    constraint_latex_render(transport_network_vopex_rule)
     return instance.constraint_transport_network_vopex
 
 
@@ -492,7 +458,6 @@ def constraint_transport_network_vopex(instance: ConcreteModel, network_scale_le
 #     instance.constraint_transport_import = Constraint(instance.sinks, instance.sources,
 #                                                       instance.resources_trans, *scales, rule=transport_import_rule,
 #                                                       doc='import of resource from sink to source')
-#     constraint_latex_render(transport_import_rule)
 #     return instance.constraint_transport_import
 
 
@@ -516,7 +481,6 @@ def constraint_transport_network_vopex(instance: ConcreteModel, network_scale_le
 #     instance.constraint_transport_balance = Constraint(instance.sinks, instance.sources,
 #                                                        instance.resources_trans, *scales, rule=transport_balance_rule,
 #                                                        doc='balances import and export from source to sinks')
-#     constraint_latex_render(transport_balance_rule)
 #     return instance.constraint_transport_balance
 
 
@@ -553,5 +517,4 @@ def constraint_transport_network_vopex(instance: ConcreteModel, network_scale_le
 #     instance.constraint_transport_imp_UB = Constraint(instance.sinks, instance.sources, instance.resources_trans,
 #                                                       instance.transports, *scales, rule=transport_imp_UB_rule,
 #                                                       doc='import of resource from sink to source')
-#     constraint_latex_render(transport_imp_UB_rule)
 #     return instance.constraint_transport_imp_UB
