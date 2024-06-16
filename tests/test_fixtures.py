@@ -112,13 +112,12 @@ def single_location_scenario_variability():
                               capex=100, fopex=5, vopex=0.5, cap_max=50, cap_min=0, store_max=25, storage_cost=0.1)
 
     Location1 = Location(name='location', processes={Process_certain_capacity, Process_deterministic_capacity, Process_storage}, scales=scales,
-                         demand_scale_level=1, capacity_scale_level=1, price_scale_level=1, availability_scale_level=1,
+                         demand_factor_scale_level=1, capacity_factor_scale_level=1, price_factor_scale_level=1, availability_factor_scale_level=1, revenue_factor_scale_level=1,
                          demand_factor={Resource_deterministic_demand: demand_factor}, capacity_factor={Process_deterministic_capacity: capacity_factor},
                          price_factor={Resource_deterministic_price: price_factor}, availability_factor={Resource_deterministic_availability: availability_factor},
                          revenue_factor={Resource_deterministic_revenue: revenue_factor})
 
     return Scenario(name='scenario', scales=scales, network=Location1, demand_scale_level=1, network_scale_level=0, scheduling_scale_level=1,
-                    capacity_scale_level=1, purchase_scale_level=1, availability_scale_level=1,
                     demand={Location1: {Resource_deterministic_demand: 25, Resource_deterministic_revenue: 25}})
 
 
@@ -154,13 +153,12 @@ def single_location_lp_variability_cost():
                               capex=100, fopex=5, vopex=0.5, cap_max=50, cap_min=0, store_max=25, storage_cost=0.1)
 
     Location1 = Location(name='location', processes={Process_certain_capacity, Process_deterministic_capacity, Process_storage}, scales=scales,
-                         demand_scale_level=1, capacity_scale_level=1, price_scale_level=1, availability_scale_level=1,
+                         demand_factor_scale_level=1, capacity_factor_scale_level=1, price_factor_scale_level=1, availability_factor_scale_level=1, revenue_factor_scale_level=1,
                          demand_factor={Resource_deterministic_demand: demand_factor}, capacity_factor={Process_deterministic_capacity: capacity_factor},
                          price_factor={Resource_deterministic_price: price_factor}, availability_factor={Resource_deterministic_availability: availability_factor},
                          revenue_factor={Resource_deterministic_revenue: revenue_factor})
 
     Scenario1 = Scenario(name='scenario', scales=scales, network=Location1, demand_scale_level=1, network_scale_level=0, scheduling_scale_level=1,
-                         capacity_scale_level=1, purchase_scale_level=1, availability_scale_level=1,
                          demand={Location1: {Resource_deterministic_demand: 25, Resource_deterministic_revenue: 25}})
 
     return formulate(scenario=Scenario1, constraints={Constraints.COST, Constraints.INVENTORY,
@@ -199,13 +197,12 @@ def single_location_lp_variability_profit():
                               capex=100, fopex=5, vopex=0.5, cap_max=50, cap_min=0, store_max=25, storage_cost=0.1)
 
     Location1 = Location(name='location', processes={Process_certain_capacity, Process_deterministic_capacity, Process_storage}, scales=scales,
-                         demand_scale_level=1, capacity_scale_level=1, price_scale_level=1, availability_scale_level=1,
+                         demand_factor_scale_level=1, capacity_factor_scale_level=1, price_factor_scale_level=1, availability_factor_scale_level=1, revenue_factor_scale_level=1,
                          demand_factor={Resource_deterministic_demand: demand_factor}, capacity_factor={Process_deterministic_capacity: capacity_factor},
                          price_factor={Resource_deterministic_price: price_factor}, availability_factor={Resource_deterministic_availability: availability_factor},
                          revenue_factor={Resource_deterministic_revenue: revenue_factor})
 
     Scenario1 = Scenario(name='scenario', scales=scales, network=Location1, demand_scale_level=1, network_scale_level=0, scheduling_scale_level=1,
-                         capacity_scale_level=1, purchase_scale_level=1, availability_scale_level=1,
                          demand={Location1: {Resource_deterministic_demand: 25, Resource_deterministic_revenue: 25}})
 
     return formulate(scenario=Scenario1, constraints={Constraints.COST, Constraints.INVENTORY,
@@ -248,13 +245,12 @@ def single_location_milp_variability_cost():
                               capex=100, fopex=5, vopex=0.5, cap_max=50, cap_min=0, store_max=25, storage_cost=0.1)
 
     Location1 = Location(name='location', processes={Process_certain_capacity, Process_deterministic_capacity2, Process_deterministic_capacity, Process_storage}, scales=scales,
-                         demand_scale_level=1, capacity_scale_level=1, price_scale_level=1, availability_scale_level=1,
+                         demand_factor_scale_level=1, capacity_factor_scale_level=1, price_factor_scale_level=1, availability_factor_scale_level=1, revenue_factor_scale_level=1,
                          demand_factor={Resource_deterministic_demand: demand_factor}, capacity_factor={Process_deterministic_capacity: capacity_factor, Process_deterministic_capacity2: capacity_factor2},
                          price_factor={Resource_deterministic_price: price_factor}, availability_factor={Resource_deterministic_availability: availability_factor},
                          revenue_factor={Resource_deterministic_revenue: revenue_factor})
 
     Scenario1 = Scenario(name='scenario', scales=scales, network=Location1, demand_scale_level=1, network_scale_level=0, scheduling_scale_level=1,
-                         capacity_scale_level=1, purchase_scale_level=1, availability_scale_level=1,
                          demand={Location1: {Resource_deterministic_demand: 25, Resource_deterministic_revenue: 25}})
 
     return Scenario1, formulate(scenario=Scenario1, constraints={Constraints.COST, Constraints.NETWORK, Constraints.INVENTORY,
@@ -294,13 +290,13 @@ def multi_location_milp_variability_cost():
                                         capex=10, fopex=1, vopex=0.1, cap_max=100)
 
     location1 = Location(name='location1', processes={process_deterministic_capacity}, capacity_factor={process_deterministic_capacity: capacity_factor},
-                         scales=scales, demand_scale_level=1, capacity_scale_level=1, price_scale_level=1)
+                         scales=scales, capacity_factor_scale_level=1)
 
     location2 = Location(name='location2', processes={process_certain_capacity}, price_factor={resource_deterministic_price: price_factor},
-                         scales=scales, demand_scale_level=1, capacity_scale_level=1, price_scale_level=1)
+                         scales=scales, price_factor_scale_level=1)
 
     location3 = Location(name='location3', processes={process_certain_capacity2}, demand_factor={resource_deterministic_demand: demand_factor}, scales=scales,
-                         demand_scale_level=1, capacity_scale_level=1, price_scale_level=1)
+                         demand_factor_scale_level=1)
     transport = Transport(name='transport', resources={
                           resource_implicit}, trans_max=100, trans_loss=0.1, capex=40, vopex=1)
     transport2 = Transport(name='transport2', resources={
@@ -320,7 +316,7 @@ def multi_location_milp_variability_cost():
                       distance_matrix=distance_matrix, transport_matrix=transport_matrix, scales=scales)
 
     scenario = Scenario(name='scenario', network=network, scales=scales, scheduling_scale_level=1,
-                        network_scale_level=0, demand_scale_level=1, purchase_scale_level=1, capacity_scale_level=1, demand={l: {resource_deterministic_demand: 50} if l == location3 else {resource_deterministic_demand: 0} for l in network.locations})
+                        network_scale_level=0, demand_scale_level=1, demand={l: {resource_deterministic_demand: 50} if l == location3 else {resource_deterministic_demand: 0} for l in network.locations})
     casestudy = CaseStudy(name='casestudy', scenarios=[scenario])
 
     casestudy.formulate(constraints={Constraints.COST, Constraints.INVENTORY, Constraints.PRODUCTION,

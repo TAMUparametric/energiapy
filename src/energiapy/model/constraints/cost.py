@@ -31,132 +31,6 @@ class Costdynamics(Enum):
     solar = auto()
 
 
-# def constraint_transport_exp_cost(instance: ConcreteModel, scheduling_scale_level: int = 0, trans_cost: dict = {}, distance_dict: dict = {}) -> Constraint:
-#     """Calculates the expenditure on exporting resource throught transport
-
-#     Args:
-#         instance (ConcreteModel): pyomo instance
-#         scheduling_scale_level (int, optional): scheduling scale level. Defaults to 0.
-#         trans_cost (dict, optional): dictionary with transport costs. Defaults to {}.
-#         distance_dict (dict, optional): dictionary with distances. Defaults to {}.
-
-#     Returns:
-#         Constraint: transport_exp_cost
-#     """
-#     scales = scale_list(instance=instance,
-#                         scale_levels=scheduling_scale_level+1)
-
-#     def transport_exp_cost_rule(instance, source, sink, resource, transport, *scale_list):
-#         return instance.Trans_exp_cost[source, sink, resource, transport, scale_list[:scheduling_scale_level+1]] == \
-#             trans_cost[transport]*distance_dict[(source, sink)]*instance.Trans_exp[source,
-#                                                                                    sink, resource, transport, scale_list[:scheduling_scale_level+1]]
-#     instance.constraint_transport_exp_cost = Constraint(instance.sources, instance.sinks, instance.resources_trans,
-#                                                         instance.transports, *scales, rule=transport_exp_cost_rule, doc='import of resource from sink to source')
-#     constraint_latex_render(transport_exp_cost_rule)
-#     return instance.constraint_transport_exp_cost
-
-
-# *-------------------------purchase costing constraints-------------------------
-
-
-def constraint_resource_purchase(instance: ConcreteModel, price_factor: dict = None, price: dict = None,
-                                 location_resource_dict: dict = None, scheduling_scale_level: int = 0,
-                                 purchase_scale_level: int = 0) -> Constraint:
-    """Determines expenditure on resource at location in network at the scheduling/expenditure scale
-
-    Args:
-        instance (ConcreteModel): pyomo instance
-        price_factor (dict, optional): uncertain cost training data. Defaults to {}.
-        price (dict, optional): base price of resource. Defaults to {}.
-        scheduling_scale_level (int, optional): scale of scheduling decisions. Defaults to 0.
-        purchase_scale_level (int, optional): scale of resource purchase decisions. Defaults to 0.
-
-    Returns:
-        Constraint: resource_purchase
-    """
-
-    if location_resource_dict is None:
-        location_resource_dict = dict()
-
-    if price_factor is None:
-        price_factor = dict()
-
-    if price is None:
-        price = dict()
-
-    scales = scale_list(instance=instance, scale_levels=len(instance.scales))
-
-    def resource_purchase_rule(instance, location, resource, *scale_list):
-        if resource in instance.resources_varying_price.intersection(location_resource_dict[location]):
-            return instance.B[location, resource, scale_list[:scheduling_scale_level + 1]] == price[location][resource]*price_factor[location][resource][scale_list[:purchase_scale_level + 1]] * instance.C[location, resource, scale_list[:scheduling_scale_level + 1]]
-        else:
-            if resource in instance.resources_purch.intersection(location_resource_dict[location]):
-                return instance.B[location, resource, scale_list[:scheduling_scale_level + 1]] == price[location][
-                    resource] * instance.C[location, resource, scale_list[:scheduling_scale_level + 1]]
-            else:
-                return instance.B[location, resource, scale_list[:scheduling_scale_level + 1]] == 0
-
-    instance.constraint_resource_purchase = Constraint(
-        instance.locations, instance.resources_purch, *
-        scales, rule=resource_purchase_rule,
-        doc='expenditure on purchase of resource')
-    constraint_latex_render(resource_purchase_rule)
-    return instance.constraint_resource_purchase
-
-
-def constraint_location_purchase(instance: ConcreteModel, cluster_wt: dict, network_scale_level: int = 0, scheduling_scale_level: int = 0) -> Constraint:
-    """Determines total resource purchase expenditure at locations in network
-
-    Args:
-        instance (ConcreteModel): pyomo instance
-        network_scale_level (int, optional): scale of network decisions. Defaults to 0.
-
-    Returns:
-        Constraint: location_purchase
-    """
-    scales = scale_list(instance=instance,
-                        scale_levels=network_scale_level + 1)
-    scale_iter = scale_tuple(
-        instance=instance, scale_levels=scheduling_scale_level + 1)
-
-    def location_purchase_rule(instance, location, resource, *scale_list):
-        def weight(x): return 1 if cluster_wt is None else cluster_wt[x]
-
-        return instance.B_location[location, resource, scale_list] == sum(
-            weight(scale_) * instance.B[location, resource,  scale_[:scheduling_scale_level + 1]] for scale_ in scale_iter
-            if scale_[:network_scale_level + 1] == scale_list)
-
-    instance.constraint_location_purchase = Constraint(
-        instance.locations, instance.resources_purch, *
-        scales, rule=location_purchase_rule,
-        doc='total purchase at location')
-    constraint_latex_render(location_purchase_rule)
-    return instance.constraint_location_purchase
-
-
-def constraint_network_purchase(instance: ConcreteModel, network_scale_level: int = 0) -> Constraint:
-    """Determines total purchase expenditure on resource across network
-
-    Args:
-        instance (ConcreteModel): pyomo instance
-        network_scale_level (int, optional): scale of network decisions. Defaults to 0.
-
-    Returns:
-        Constraint: network_purchase
-    """
-    scales = scale_list(instance=instance,
-                        scale_levels=network_scale_level + 1)
-
-    def network_purchase_rule(instance, resource, *scale_list):
-        return instance.B_network[resource, scale_list] == sum(
-            instance.B_location[location_, resource, scale_list] for location_ in instance.locations)
-
-    instance.constraint_network_purchase = Constraint(
-        instance.resources_purch, *scales, rule=network_purchase_rule, doc='total purchase from network')
-    constraint_latex_render(network_purchase_rule)
-    return instance.constraint_network_purchase
-
-
 # *-------------------------revenue costing constraints--------------------------
 
 
@@ -282,6 +156,8 @@ def constraint_land_process_cost(instance: ConcreteModel, land_dict: dict, land_
     constraint_latex_render(land_process_cost_rule)
     return instance.constraint_land_process_cost
 
+###
+
 
 def constraint_land_location_cost(instance: ConcreteModel, network_scale_level: int = 0) -> Constraint:
     """Land cost each location in network
@@ -301,6 +177,8 @@ def constraint_land_location_cost(instance: ConcreteModel, network_scale_level: 
         instance.locations, *scales, rule=land_location_cost_rule, doc='land cost at location')
     constraint_latex_render(land_location_cost_rule)
     return instance.constraint_land_location_cost
+
+###
 
 
 def constraint_land_network_cost(instance: ConcreteModel, network_scale_level: int = 0) -> Constraint:
@@ -368,45 +246,7 @@ def constraint_process_capex(instance: ConcreteModel, capex_dict: dict, network_
     constraint_latex_render(process_capex_rule)
     return instance.constraint_process_capex
 
-
-def constraint_location_capex(instance: ConcreteModel, network_scale_level: int = 0) -> Constraint:
-    """Capital expenditure for each process at location in network
-
-    Args:
-        instance (ConcreteModel): pyomo instance
-        network_scale_level (int, optional): scale of network decisions. Defaults to 0.
-
-    Returns:
-        Constraint: location_capex
-    """
-    scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
-
-    def location_capex_rule(instance, location, *scale_list):
-        return instance.Capex_location[location, scale_list] == sum(instance.Capex_process[location, process_, scale_list] for process_ in instance.processes)
-    instance.constraint_location_capex = Constraint(
-        instance.locations, *scales, rule=location_capex_rule, doc='total location cost from network')
-    constraint_latex_render(location_capex_rule)
-    return instance.constraint_location_capex
-
-
-def constraint_network_capex(instance: ConcreteModel, network_scale_level: int = 0) -> Constraint:
-    """Capital expenditure for each process at location in network
-
-    Args:
-        instance (ConcreteModel): pyomo instance
-        network_scale_level (int, optional): scale of network decisions. Defaults to 0.
-
-    Returns:
-        Constraint: network_capex
-    """
-    scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
-
-    def network_capex_rule(instance, *scale_list):
-        return instance.Capex_network[scale_list] == sum(instance.Capex_location[location_, scale_list] for location_ in instance.locations)
-    instance.constraint_network_capex = Constraint(
-        *scales, rule=network_capex_rule, doc='total capex from network')
-    constraint_latex_render(network_capex_rule)
-    return instance.constraint_network_capex
+# *-------------------------vopex costing constraints----------------------------
 
 
 def constraint_process_vopex(instance: ConcreteModel, vopex_dict: dict, network_scale_level: int = 0, vopex_factor: dict = None, cost_dynamics: Costdynamics = Costdynamics.constant, location_process_dict: dict = None) -> Constraint:
@@ -449,46 +289,6 @@ def constraint_process_vopex(instance: ConcreteModel, vopex_dict: dict, network_
 
     constraint_latex_render(process_vopex_rule)
     return instance.constraint_process_vopex
-
-
-def constraint_location_vopex(instance: ConcreteModel, network_scale_level: int = 0) -> Constraint:
-    """Fixed operational expenditure for each process at location in network
-
-    Args:
-        instance (ConcreteModel): pyomo instance
-        network_scale_level (int, optional): scale of network decisions. Defaults to 0.
-
-    Returns:
-        Constraint: location_vopex
-    """
-    scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
-
-    def location_vopex_rule(instance, location, *scale_list):
-        return instance.Vopex_location[location, scale_list] == sum(instance.Vopex_process[location, process_, scale_list] for process_ in instance.processes)
-    instance.constraint_location_vopex = Constraint(
-        instance.locations, *scales, rule=location_vopex_rule, doc='total vopex from location')
-    constraint_latex_render(location_vopex_rule)
-    return instance.constraint_location_vopex
-
-
-def constraint_network_vopex(instance: ConcreteModel, network_scale_level: int = 0) -> Constraint:
-    """Variable operational expenditure for each process at location in network
-
-    Args:
-        instance (ConcreteModel): pyomo instance
-        network_scale_level (int, optional): scale of network decisions. Defaults to 0.
-
-    Returns:
-        Constraint: network_vopex
-    """
-    scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
-
-    def network_vopex_rule(instance, *scale_list):
-        return instance.Vopex_network[scale_list] == sum(instance.Vopex_location[location_, scale_list] for location_ in instance.locations)
-    instance.constraint_network_vopex = Constraint(
-        *scales, rule=network_vopex_rule, doc='total vopex from network')
-    constraint_latex_render(network_vopex_rule)
-    return instance.constraint_network_vopex
 
 
 # *-------------------------fopex costing constraints----------------------------
@@ -536,47 +336,34 @@ def constraint_process_fopex(instance: ConcreteModel, fopex_dict: dict, network_
     return instance.constraint_process_fopex
 
 
-def constraint_location_fopex(instance: ConcreteModel, network_scale_level: int = 0) -> Constraint:
-    """Fixed operational expenditure for each process at location in network
+# *-------------------------Incidental costing constraints--------------------------
+
+def constraint_process_incidental(instance: ConcreteModel, incidental_dict: dict, network_scale_level: int = 0, incidental_factor: dict = None, cost_dynamics: Costdynamics = Costdynamics.constant, location_process_dict: dict = None) -> Constraint:
+    """Capital expenditure for each process at location in network
 
     Args:
         instance (ConcreteModel): pyomo instance
+        incidental_dict (dict): incidental at location
         network_scale_level (int, optional): scale of network decisions. Defaults to 0.
 
     Returns:
-        Constraint: location_fopex
+        Constraint: process_incidental
     """
     scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
 
-    def location_fopex_rule(instance, location, *scale_list):
-        return instance.Fopex_location[location, scale_list] == sum(instance.Fopex_process[location, process_, scale_list] for process_ in instance.processes)
-    instance.constraint_location_fopex = Constraint(
-        instance.locations, *scales, rule=location_fopex_rule, doc='total fopex from network')
-    constraint_latex_render(location_fopex_rule)
-    return instance.constraint_location_fopex
+    def process_incidental_rule(instance, location, process, *scale_list):
+        if incidental_dict[process] is not None:
+            return instance.Incidental_process[location, process, scale_list] == incidental_dict[process]
+        else:
+            return instance.Incidental_process[location, process, scale_list] == 0
+    instance.constraint_process_incidental = Constraint(
+        instance.locations, instance.processes, *scales, rule=process_incidental_rule, doc='total incidental costs from processes')
 
-
-def constraint_network_fopex(instance: ConcreteModel, network_scale_level: int = 0) -> Constraint:
-    """Fixed operational for each process at location in network
-
-    Args:
-        instance (ConcreteModel): pyomo instance
-        network_scale_level (int, optional): scale of network decisions. Defaults to 0.
-
-    Returns:
-        Constraint: network_fopex
-    """
-    scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
-
-    def network_fopex_rule(instance, *scale_list):
-        return instance.Fopex_network[scale_list] == sum(instance.Fopex_location[location_, scale_list] for location_ in instance.locations)
-    instance.constraint_network_fopex = Constraint(
-        *scales, rule=network_fopex_rule, doc='total fopex from network')
-    constraint_latex_render(network_fopex_rule)
-    return instance.constraint_network_fopex
-
+    constraint_latex_render(process_incidental_rule)
+    return instance.constraint_process_incidental
 
 # *-------------------------Transport costing constraints--------------------------
+
 
 def constraint_transport_imp_cost(instance: ConcreteModel, scheduling_scale_level: int = 0, trans_cost: dict = None, distance_dict: dict = None) -> Constraint:
     """Calculates the expenditure on importing resource through transport
@@ -652,72 +439,6 @@ def constraint_transport_cost_network(instance: ConcreteModel, network_scale_lev
     constraint_latex_render(transport_cost_network_rule)
     return instance.constraint_transport_cost_network
 
-
-# *-------------------------Incidental costing constraints--------------------------
-
-def constraint_process_incidental(instance: ConcreteModel, incidental_dict: dict, network_scale_level: int = 0, cost_dynamics: Costdynamics = Costdynamics.constant, location_process_dict: dict = None) -> Constraint:
-    """Capital expenditure for each process at location in network
-
-    Args:
-        instance (ConcreteModel): pyomo instance
-        incidental_dict (dict): incidental at location
-        network_scale_level (int, optional): scale of network decisions. Defaults to 0.
-
-    Returns:
-        Constraint: process_incidental
-    """
-    scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
-
-    def process_incidental_rule(instance, location, process, *scale_list):
-        if incidental_dict[process] is not None:
-            return instance.Incidental_process[location, process, scale_list] == incidental_dict[process]
-        else:
-            return instance.Incidental_process[location, process, scale_list] == 0
-    instance.constraint_process_incidental = Constraint(
-        instance.locations, instance.processes, *scales, rule=process_incidental_rule, doc='total incidental costs from processes')
-
-    constraint_latex_render(process_incidental_rule)
-    return instance.constraint_process_incidental
-
-
-def constraint_location_incidental(instance: ConcreteModel, network_scale_level: int = 0) -> Constraint:
-    """Capital expenditure for each process at location in network
-
-    Args:
-        instance (ConcreteModel): pyomo instance
-        network_scale_level (int, optional): scale of network decisions. Defaults to 0.
-
-    Returns:
-        Constraint: location_incidental
-    """
-    scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
-
-    def location_incidental_rule(instance, location, *scale_list):
-        return instance.Incidental_location[location, scale_list] == sum(instance.Incidental_process[location, process_, scale_list] for process_ in instance.processes)
-    instance.constraint_location_incidental = Constraint(
-        instance.locations, *scales, rule=location_incidental_rule, doc='total incidental cost from network')
-    constraint_latex_render(location_incidental_rule)
-    return instance.constraint_location_incidental
-
-
-def constraint_network_incidental(instance: ConcreteModel, network_scale_level: int = 0) -> Constraint:
-    """Capital expenditure for each process at location in network
-
-    Args:
-        instance (ConcreteModel): pyomo instance
-        network_scale_level (int, optional): scale of network decisions. Defaults to 0.
-
-    Returns:
-        Constraint: network_incidental
-    """
-    scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
-
-    def network_incidental_rule(instance, *scale_list):
-        return instance.Incidental_network[scale_list] == sum(instance.Incidental_location[location_, scale_list] for location_ in instance.locations)
-    instance.constraint_network_incidental = Constraint(
-        *scales, rule=network_incidental_rule, doc='total incidental costs from network')
-    constraint_latex_render(network_incidental_rule)
-    return instance.constraint_network_incidental
 
 # *-------------------------Inventory penalty --------------------------
 
