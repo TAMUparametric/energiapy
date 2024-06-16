@@ -29,7 +29,6 @@ def generate_demand_vars(instance: ConcreteModel, scale_level: int = 0):
     instance.Demand_penalty = Var(instance.locations, instance.resources_demand, instance.scales_demand,
                                   within=NonNegativeReals, doc='penalty for demand not being met')
 
-    return
 
 
 def generate_demand_theta_vars(instance: ConcreteModel):
@@ -43,4 +42,3 @@ def generate_demand_theta_vars(instance: ConcreteModel):
     instance.demand_theta = Var(instance.locations, instance.resources_demand, instance.scales_demand,
                                 within=NonNegativeReals, doc='multiparametric variable for demand')
 
-    return

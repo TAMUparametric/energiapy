@@ -45,11 +45,12 @@ class Location:
         incidental_factor (Union[float, Dict[Process, DataFrame]), optional):  Factor for varying incidental expenditure, scale changer normalizes. Defaults to None
         availability_factor (Union[float, Dict[Resource, DataFrame]), optional): Factor for varying resource availability, scale changer normalizes. Defaults to None
         revenue_factor (Union[float, Dict[Resource, DataFrame]), optional): Factor for varying resource revenue, scale changer normalizes. Defaults to None
-        demand_scale_level (int, optional): scale level for demand (resource). Defaults to 0
-        price_scale_level (int, optional): scale level for purchase cost (resource). Defaults to 0
-        capacity_scale_level (int, optional): scale level for capacity (process). Defaults to 0
-        expenditure_scale_level (int, optional): scale level for technology (process). Defaults to 0
-        availability_scale_level (int, optional): scale level for availability (resource). Defaults to 0
+        demand_factor_scale_level (int, optional): scale level for demand variance (resource). Defaults to 0
+        price_factor_scale_level (int, optional): scale level for purchase cost variance(resource). Defaults to 0
+        capacity_factor_scale_level (int, optional): scale level for capacity variance(process). Defaults to 0
+        expenditure_factor_scale_level (int, optional): scale level for technology cost variance (process). Defaults to 0
+        availability_factor_scale_level (int, optional): scale level for availability varriance (resource). Defaults to 0
+        revenue_factor_scale_level (int, optional): scale level for revenue varriance (resource). Defaults to 0
         land_cost (float, optional): cost of land. Defaults to 0
         credit (Dict[Process, float], optional): credit earned by process per unit basis. Defaults to None.
         label(str, optional):Longer descriptive label if required. Defaults to ''
@@ -73,11 +74,12 @@ class Location:
     incidental_factor: Union[float, Dict[Process, float]] = None
     availability_factor: Union[float, Dict[Resource, float]] = None
     revenue_factor: Union[float, Dict[Resource, float]] = None
-    demand_scale_level: int = 0
-    price_scale_level: int = 0
-    capacity_scale_level: int = 0
-    expenditure_scale_level: int = 0
-    availability_scale_level: int = 0
+    demand_factor_scale_level: int = None
+    price_factor_scale_level: int = None
+    capacity_factor_scale_level: int = None
+    expenditure_factor_scale_level: int = None
+    availability_factor_scale_level: int = None
+    revenue_factor_scale_level: int = None
     land_cost: float = 0
     credit: Dict[Process, float] = None
     label: str = ''
@@ -90,7 +92,7 @@ class Location:
             materials (Set[Resource]): set of materials. Get materials fetches these using the processes
             scale_levels (int): the levels of scales involved
             varying_capacity (Set): processes with varying capacities
-            varying_cost (Set): resources with varying costs
+            varying_price (Set): resources with varying purchase price
             varying_demand (Set): resources with varying demands
             resource_price (Dict): dictionary with the purchase cost of resources.
             failure_processes (Set): set of processes with failure rates
@@ -103,8 +105,8 @@ class Location:
         self.scale_levels = self.scales.scale_levels
         self.processes_full = self.processes.union({create_storage_process(
             i) for i in self.processes if i.processmode == ProcessMode.STORAGE})
-        self.cap_max = self.get_cap_max()  # dicitionary of maximum production
-        self.cap_min = self.get_cap_min()  # dictionary of minimum production
+        # dicitionary of capacity bounds
+        self.cap_max, self.cap_min = self.get_cap_bounds()
         # gets the modes for all processes
         self.modes_dict = {p: p.modes for p in self.processes_full if p.modes}
         # gets the ramp_rates for all processes
@@ -118,96 +120,40 @@ class Location:
                                    'cap_pwl': self.cap_pwl_dict[p], 'ramp_sequence': self.ramp_sequence_dict[p]} if p.processmode == ProcessMode.MULTI else {'modes': None, 'ramp_rates': None,
                                                                                                                                                              'cap_pwl': None, 'ramp_sequence': None} for p in self.processes_full}
 
-        self.resource_price = self.get_resource_price()  # dictionary of resource prices
-        # dictionary of resource selling prices
-        self.resource_revenue = self.get_resource_revenue()
+        self.resource_price, self.resource_revenue = self.get_resource_prices()
         # fetch all processes with failure rates set
         self.failure_processes = self.get_failure_processes()
         self.fail_factor = self.make_fail_factor()
         # self.emission_dict = {i: i.emission_dict for i in self.processes_full}
         self.storage_cost_dict = {
             i.resource_storage.name: i.storage_cost for i in self.processes_full if i.resource_storage is not None}
-        if self.capacity_factor is not None:
-            # fetch all processes with varying capacities
-            self.varying_capacity = set(self.capacity_factor.keys())
-            if isinstance(list(self.capacity_factor.values())[0], DataFrame):
-                self.capacity_factor = scale_changer(
-                    self.capacity_factor, scales=self.scales, scale_level=self.capacity_scale_level)  # changes the scales to tuple
-            else:
-                warn(
-                    'Input should be a dict of a DataFrame, Dict[Process, float]')
 
-        if self.price_factor is not None:
-            self.varying_cost = set(self.price_factor.keys())
-            if isinstance(list(self.price_factor.values())[0], DataFrame):
-                self.price_factor = scale_changer(
-                    self.price_factor, scales=self.scales, scale_level=self.price_scale_level)  # changes the scales to tuple
-            else:
-                warn(
-                    'Input should be a dict of a DataFrame, Dict[Resource, float]')
+        self.factor_handler(
+            factor_name='capacity_factor', factor_scale_name='capacity_factor_scale_level', varying_set_name='varying_capacity')
 
-        if self.demand_factor is not None:
-            self.varying_demand = set(self.demand_factor.keys())
-            if isinstance(list(self.demand_factor.values())[0], DataFrame):
-                self.demand_factor = scale_changer(
-                    self.demand_factor, scales=self.scales, scale_level=self.demand_scale_level)  # changes the scales to tuple
-            else:
-                warn(
-                    'Input should be a dict of a DataFrame, Dict[Resource, float]')
+        self.factor_handler(
+            factor_name='price_factor', factor_scale_name='price_factor_scale_level', varying_set_name='varying_price')
 
-        if self.availability_factor is not None:
-            self.varying_availability = set(self.availability_factor.keys())
-            if isinstance(list(self.availability_factor.values())[0], DataFrame):
-                self.availability_factor = scale_changer(
-                    self.availability_factor, scales=self.scales, scale_level=self.availability_scale_level)  # changes the scales to tuple
-            else:
-                warn(
-                    'Input should be a dict of a DataFrame, Dict[Resource, float]')
+        self.factor_handler(
+            factor_name='demand_factor', factor_scale_name='demand_factor_scale_level', varying_set_name='varying_demand')
 
-        if self.revenue_factor is not None:
-            self.varying_revenue = set(self.revenue_factor.keys())
-            if isinstance(list(self.revenue_factor.values())[0], DataFrame):
-                self.revenue_factor = scale_changer(
-                    self.revenue_factor, scales=self.scales, scale_level=self.demand_scale_level)  # changes the scales to tuple
-            else:
-                warn(
-                    'Input should be a dict of a DataFrame, Dict[Resource, float]')
+        self.factor_handler(
+            factor_name='availability_factor', factor_scale_name='availability_factor_scale_level', varying_set_name='varying_availability')
 
-        if self.capex_factor is not None:
-            self.varying_capex = set(self.capex_factor.keys())
-            if isinstance(list(self.capex_factor.values())[0], DataFrame):
-                self.capex_factor = scale_changer(
-                    self.capex_factor, scales=self.scales, scale_level=self.expenditure_scale_level)  # changes the scales to tuple
-            else:
-                warn(
-                    'Input should be a dict of a DataFrame, Dict[Resource, float]')
+        self.factor_handler(
+            factor_name='revenue_factor', factor_scale_name='revenue_factor_scale_level', varying_set_name='varying_revenue')
 
-        if self.vopex_factor is not None:
-            self.varying_vopex = set(self.vopex_factor.keys())
-            if isinstance(list(self.vopex_factor.values())[0], DataFrame):
-                self.vopex_factor = scale_changer(
-                    self.vopex_factor, scales=self.scales, scale_level=self.expenditure_scale_level)  # changes the scales to tuple
-            else:
-                warn(
-                    'Input should be a dict of a DataFrame, Dict[Resource, float]')
+        self.factor_handler(
+            factor_name='capex_factor', factor_scale_name='expenditure_factor_scale_level', varying_set_name='varying_capex')
 
-        if self.fopex_factor is not None:
-            self.varying_fopex = set(self.fopex_factor.keys())
-            if isinstance(list(self.fopex_factor.values())[0], DataFrame):
-                self.fopex_factor = scale_changer(
-                    self.fopex_factor, scales=self.scales, scale_level=self.expenditure_scale_level)  # changes the scales to tuple
-            else:
-                warn(
-                    'Input should be a dict of a DataFrame, Dict[Resource, float]')
+        self.factor_handler(
+            factor_name='fopex_factor', factor_scale_name='expenditure_factor_scale_level', varying_set_name='varying_fopex')
 
-        if self.incidental_factor is not None:
-            self.varying_incidental = set(self.incidental_factor.keys())
-            if isinstance(list(self.incidental_factor.values())[0], DataFrame):
-                self.incidental_factor = scale_changer(
-                    self.incidental_factor, scales=self.scales, scale_level=self.expenditure_scale_level)  # changes the scales to tuple
-            else:
-                warn(
-                    'Input should be a dict of a DataFrame, Dict[Resource, float]')
+        self.factor_handler(
+            factor_name='vopex_factor', factor_scale_name='expenditure_factor_scale_level', varying_set_name='varying_vopex')
+
+        self.factor_handler(
+            factor_name='incidental_factor', factor_scale_name='expenditure_factor_scale_level', varying_set_name='varying_incidental')
 
     def get_resources(self) -> Set[Resource]:
         """fetches required resources for processes introduced at locations
@@ -250,21 +196,45 @@ class Location:
                         # return set().union(*[set(i.material_cons.keys()) for i in self.processes if i.material_cons is not None])
             return materials
 
-    def get_resource_price(self) -> dict:
-        """gets resource prices for resources with non-varying costs
+    def factor_handler(self, factor_name: str, factor_scale_name: str, varying_set_name: str):
+        """1. creates self.varying_x as a set of varying components
+           2. changes the scale of the varying factor dictionary to tuple
+
+        Args:
+            factor_name (str): name of factor 
+            factor_scale (str): name of the scale of the factor
+            varying_set_name (str): set with varying components
 
         Returns:
-            dict: with resource prices
+            Union[set, set]: (varying factor with scales updated, contains components that vary)
         """
-        return {i.name: i.price for i in self.resources}
+        factor = getattr(self, factor_name)
+        factor_scale = getattr(self, factor_scale_name)
+        if factor is not None:
+            if factor_scale is None:
+                warn(
+                    f'[{self.name}]: Mention {factor_scale_name} for the {factor_name}')
+            varying_set = set(factor.keys())
+            if isinstance(list(factor.values())[0], DataFrame):
+                factor = scale_changer(
+                    factor, scales=self.scales, scale_level=factor_scale)  # changes the scales to tuple
+            else:
+                warn(
+                    f'[{self.name}]: {factor_name} should be a dict of a DataFrame, Dict[Process, float]')
+            setattr(self, factor_name, factor)
+            setattr(self, varying_set_name, varying_set)
+        else:
+            if factor_scale is not None:
+                warn(
+                    f'[{self.name}]: Do not give {factor_scale_name} without a {factor_name}')
 
-    def get_resource_revenue(self) -> dict:
-        """gets resource revenues for resources with non-varying costs
+    def get_resource_prices(self) -> Union[dict, dict]:
+        """gets resource purchase and selling prices
 
         Returns:
-            dict: with resource revenues
+            Union[dict,dict]: (dict with purchase prices, dict with selling prices)
         """
-        return {i.name: i.revenue for i in self.resources}
+        return {i.name: i.price for i in self.resources}, {i.name: i.revenue for i in self.resources}
 
     def get_failure_processes(self):
         """get processes with failure rates
@@ -287,58 +257,33 @@ class Location:
         return {process_.name: {(scale_): sample([0] * int(process_.p_fail * 100) + [1] * int(
             (1 - process_.p_fail) * 100), 1)[0] for scale_ in scale_iter} for process_ in self.failure_processes}
 
-    def get_cap_max(self) -> dict:
+    def get_cap_bounds(self) -> Union[dict, dict]:
         """
-        make a dictionary with maximum production
+        makes dictionaries with maximum and minimum capacity bounds
         """
         cap_max_dict = {}
-        for i in self.processes_full:
-            if i.materialmode == MaterialMode.MULTI:
-                cap_max_dict[i.name] = {j: None for j in self.scales.scale[0]}
-                for j in self.scales.scale[0]:
-                    cap_max_dict[i.name][j] = i.cap_max
-            else:
-                if i.processmode == ProcessMode.MULTI:
-                    cap_max_dict[i.name] = i.cap_max
-                else:
-                    cap_max_dict[i.name] = {
-                        j: None for j in self.scales.scale[0]}
-                    for j in self.scales.scale[0]:
-                        cap_max_dict[i.name][j] = i.cap_max
-        return cap_max_dict
-
-    def get_cap_min(self) -> dict:
-        """
-        make a dictionary with minimum production
-        """
         cap_min_dict = {}
         for i in self.processes_full:
             if i.materialmode == MaterialMode.MULTI:
+                cap_max_dict[i.name] = {j: None for j in self.scales.scale[0]}
                 cap_min_dict[i.name] = {j: None for j in self.scales.scale[0]}
                 for j in self.scales.scale[0]:
+                    cap_max_dict[i.name][j] = i.cap_max
                     cap_min_dict[i.name][j] = i.cap_min
             else:
                 if i.processmode == ProcessMode.MULTI:
+                    cap_max_dict[i.name] = i.cap_max
                     cap_min_dict[i.name] = i.cap_min
                 else:
+                    cap_max_dict[i.name] = {
+                        j: None for j in self.scales.scale[0]}
                     cap_min_dict[i.name] = {
                         j: None for j in self.scales.scale[0]}
-                    for j in self.scales.scale[0]:
-                        cap_min_dict[i.name][j] = i.cap_min
-        return cap_min_dict
 
-    # def get_cap_min(self) -> dict:
-    #     """
-    #     make a dictionary with minimum production
-    #     """
-    #     cap_min_dict = {}
-    #     for i in self.processes_full:
-    #         if i.processmode == ProcessMode.MULTI:
-    #             cap_min_dict[i.name] = i.cap_min
-    #         else:
-    #             cap_min_dict[i.name] = {0: None}
-    #             cap_min_dict[i.name][0] = i.cap_min
-    #     return cap_min_dict
+                    for j in self.scales.scale[0]:
+                        cap_max_dict[i.name][j] = i.cap_max
+                        cap_min_dict[i.name][j] = i.cap_min
+        return cap_max_dict, cap_min_dict
 
     def __repr__(self):
         return self.name

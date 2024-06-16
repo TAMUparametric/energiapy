@@ -12,7 +12,7 @@ __status__ = "Production"
 
 from dataclasses import dataclass
 from typing import Dict, Union
-
+from warnings import warn
 import numpy
 from pandas import DataFrame
 
@@ -35,13 +35,10 @@ class Scenario:
         name (str): name of scenario, short ones are better to deal with.
         scales (temporal_scale): scales of the problem
         network (Union[Network, Location]): network object with the locations, transport linakges, and processes (with resources and materials)
-        purchase_scale_level (int, optional): scale for resource purchase. Defaults to 0.
-        expenditure_scale_level (int, optional): scale for technology expenditure. Defaults to 0.
         scheduling_scale_level (int, optional): scale of production and inventory scheduling. Defaults to 0.
-        availability_scale_level (int, optional): scale level for availability (resource). Defaults to 0
-        capacity_scale_level (int, optional): scale level for capacity (process). Defaults to 0
         network_scale_level (int, optional): scale for network decisions such as facility location. Defaults to 0.
         demand_scale_level (int, optional): scale for meeting specific demand for resource. Defaults to 0.
+        revenue_scale_level (int, optional): scale for revenue from resource. Defaults to 0. 
         cluster_wt (dict): cluster weights as a dictionary. {scale: int}. Defaults to None.
         label (str, optional): Longer descriptive label if required. Defaults to ''
         capacity_bounds (CapacityBounds, optional): bounds on the capacity, useful for multi-period formulations. Defaults to None.
@@ -53,22 +50,18 @@ class Scenario:
     Example:
         The Scenario can be built over a single location. The network here is specified as a single Location. Considering scales (TemporalScale object for a year, [1, 365, 24]), scheduling, expenditure, and demand are met at an hourly level, and network at an annual level.
 
-        >>> Current = Scenario(name= 'current', network= Goa, scales= scales, expenditure_scale_level= 2, scheduling_scale_level= 2, network_scale_level= 0, demand_scale_level= 2, label= 'Current Scenario')
+        >>> Current = Scenario(name= 'current', network= Goa, scales= scales, scheduling_scale_level= 2, network_scale_level= 0, demand_scale_level= 2, label= 'Current Scenario')
 
         A multilocation Scenario needs a Network to be provided. Here, expenditure (on resource purchase) is determined at a daily scale. price_factor in the Location object needs to be commensurate in scale.
 
-        >>> Future = Scenario(name= 'Future', network= System, scales= scales, expenditure_scale_level= 1, scheduling_scale_level= 2, network_scale_level= 0, demand_scale_level= 2, label= 'Future Scenario' )
+        >>> Future = Scenario(name= 'Future', network= System, scales= scales, scheduling_scale_level= 2, network_scale_level= 0, demand_scale_level= 2, label= 'Future Scenario' )
     """
     name: str
     scales: TemporalScale
     network: Union[Network, Location] = None
-    purchase_scale_level: int = 0
-    expenditure_scale_level: int = 0
-    scheduling_scale_level: int = 0
-    availability_scale_level: int = 0
     network_scale_level: int = 0
+    scheduling_scale_level: int = 0
     demand_scale_level: int = 0
-    capacity_scale_level: int = 0
     cluster_wt: dict = None
     demand: Union[Dict[Location, Dict[Resource, float]], float] = None
     label: str = ''
@@ -94,6 +87,12 @@ class Scenario:
             transport_cost (dict): A dictionary of the transport cost for each resource that can be transported between sources and sinks.
             transport_cost (dict): A dictionary of the transport emissions for each resource that can be transported between sources and sinks.
             distance_dict (dict): A dictionary of distances between sources and sinks.
+            demand_factor_scale_level (int, optional): scale level for demand variance (resource). Defaults to 0
+            price_factor_scale_level (int, optional): scale level for purchase cost variance(resource). Defaults to 0
+            capacity_factor_scale_level (int, optional): scale level for capacity variance(process). Defaults to 0
+            expenditure_factor_scale_level (int, optional): scale level for technology cost variance (process). Defaults to 0
+            availability_factor_scale_level (int, optional): scale level for availability varriance (resource). Defaults to 0
+            revenue_factor_scale_level (int, optional): scale level for revenue varriance (resource). Defaults to 0
             process_set (set): Set of all Process objects.
             resource_set (set): Set of all Resource objects.
             material_set (set): Set of all Material objects.
@@ -190,7 +189,6 @@ class Scenario:
             #     for k in j:
             #         set_ = set_.union(k.resources)
             #     self.transport_resource_dict[i] = {i.name for i in set_}
-
             self.transport_capacity_factor = self.network.transport_capacity_factor
             self.transport_capex_factor = self.network.transport_capex_factor
             self.transport_vopex_factor = self.network.transport_vopex_factor
@@ -200,6 +198,19 @@ class Scenario:
             self.transport_vopex_scale_level = self.network.transport_vopex_scale_level
             self.transport_fopex_scale_level = self.network.transport_fopex_scale_level
             self.source_sink_resource_dict = self.network.source_sink_resource_dict
+
+        self.capacity_factor_scale_level = self.factor_scale_getter(
+            'capacity_factor_scale_level')
+        self.price_factor_scale_level = self.factor_scale_getter(
+            'price_factor_scale_level')
+        self.demand_factor_scale_level = self.factor_scale_getter(
+            'demand_factor_scale_level')
+        self.availability_factor_scale_level = self.factor_scale_getter(
+            'availability_factor_scale_level')
+        self.expenditure_factor_scale_level = self.factor_scale_getter(
+            'expenditure_factor_scale_level')
+        self.revenue_factor_scale_level = self.factor_scale_getter(
+            'revenue_factor_scale_level')
 
         self.process_set = set().union(
             *[i.processes_full for i in self.location_set if i.processes_full is not None])
@@ -362,7 +373,6 @@ class Scenario:
         set_dict = {
             'resources': [i.name for i in self.resource_set],
 
-            'resources_nosell': [i.name for i in self.resource_set if i.sell is False],
             'resources_sell': [i.name for i in self.resource_set if i.sell is True],
 
             'resources_store': [i.name for i in self.resource_set if i.store_max > 0],
@@ -490,6 +500,24 @@ class Scenario:
                 'transports_varying_fopex': [i.name for i in self.transport_set if VaryingTransport.DETERMINISTIC_FOPEX in i.varying],
             }
             self.set_dict = {**self.set_dict, **transport_set_dict}
+
+    def factor_scale_getter(self, factor_scale_level: str) -> int:
+        """returns scale level for varying factor, checks consistency
+
+        Args:
+            factor_scale_level (str): self explanatory
+
+        Returns:
+            int: scale level of varying factor 
+        """
+        factor_scale_level_set = {getattr(i, factor_scale_level) for i in self.location_set if getattr(
+            i, factor_scale_level) is not None}
+        if len(factor_scale_level_set) == 0:
+            return None
+        if len(factor_scale_level_set) == 1:
+            return int(list(factor_scale_level_set)[0])
+        if len(factor_scale_level_set) > 1:
+            warn(f'{factor_scale_level} needs to be consistent across locations')
 
     def make_conversion_df(self) -> DataFrame:
         """makes a DataFrame of the conversion values

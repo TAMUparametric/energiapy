@@ -1,22 +1,7 @@
-# %%.
-"""scheduling variables
-"""
-
-__author__ = "Rahul Kakodkar"
-__copyright__ = "Copyright 2022, Multi-parametric Optimization & Control Lab"
-__credits__ = ["Rahul Kakodkar", "Efstratios N. Pistikopoulos"]
-__license__ = "MIT"
-__version__ = "1.0.5"
-__maintainer__ = "Rahul Kakodkar"
-__email__ = "cacodcar@tamu.edu"
-__status__ = "Production"
-
 from pyomo.environ import ConcreteModel, NonNegativeReals, Var, Set
 from ...components.scenario import Scenario
-from ...utils.scale_utils import scale_pyomo_set
 
-
-def generate_scheduling_vars(instance: ConcreteModel, scenario: Scenario, scale_level: int = 0, mode_dict: dict = None):
+def generate_scheduling_vars(instance: ConcreteModel, scenario: Scenario, mode_dict: dict = None):
     """declares pyomo variables for scheduling at the chosen scales
 
 
@@ -29,28 +14,18 @@ def generate_scheduling_vars(instance: ConcreteModel, scenario: Scenario, scale_
     if mode_dict is None:
         mode_dict = dict()
 
-    instance.scales_scheduling = scale_pyomo_set(
-        instance=instance, scale_level=scale_level)
     instance.P = Var(Set(initialize=[(i, j) for i in scenario.location_process_dict for j in scenario.location_process_dict[i]]),
                      instance.scales_scheduling, within=NonNegativeReals, doc='Production')
-    # instance.P = Var(instance.locations, instance.processes_full,
-    #                  instance.scales_scheduling, within=NonNegativeReals, doc='Production')
-    # instance.B = Var(instance.locations, instance.resources_purch,
-    #  instance.scales_scheduling, within=NonNegativeReals, doc='Purchase Expenditure')
-    instance.B = Var(Set(initialize=[(i, j) for i in scenario.location_resource_purch_dict for j in scenario.location_resource_purch_dict[i]]),
-                     instance.scales_scheduling, within=NonNegativeReals, doc='Purchase Expenditure')
-    # instance.C = Var(instance.locations, instance.resources_purch,
-    #  instance.scales_scheduling, within=NonNegativeReals, doc='Resource Consumption')
+
     instance.C = Var(Set(initialize=[(i, j) for i in scenario.location_resource_purch_dict for j in scenario.location_resource_purch_dict[i]]),
                      instance.scales_scheduling, within=NonNegativeReals, doc='Purchase Consumption')
-    # instance.S = Var(instance.locations, instance.resources_sell,
-    #  instance.scales_scheduling, within=NonNegativeReals, doc='Resource Dispensed/Sold')
+
     instance.S = Var(Set(initialize=[(i, j) for i in scenario.location_resource_sell_dict for j in scenario.location_resource_sell_dict[i]]),
                      instance.scales_scheduling, within=NonNegativeReals, doc='Resource Dispensed/Sold')
-    instance.R = Var(instance.locations, instance.resources_sell,
-                     instance.scales_scheduling, within=NonNegativeReals, doc='Revenue from resource Sold')
+
     instance.Inv = Var(instance.locations, instance.resources_store,
                        instance.scales_scheduling, within=NonNegativeReals, doc='Resource Inventory')
+
     # if len(instance.locations) > 1:
     #     instance.Imp = Var(instance.sinks, instance.sources, instance.resources_trans,
     #                        instance.scales_scheduling, within=NonNegativeReals, doc='Resource import')
@@ -58,6 +33,9 @@ def generate_scheduling_vars(instance: ConcreteModel, scenario: Scenario, scale_
     #                        instance.scales_scheduling, within=NonNegativeReals, doc='Resource export')
     # instance.P_m = Var(instance.locations, [(i, j) for i in mode_dict.keys(
     # ) for j in mode_dict[i]], instance.scales_scheduling, within=NonNegativeReals, doc='Production modes')
+    
+    
+    
     instance.P_m = Var(Set(initialize=[(i, j, k) for i in scenario.location_process_dict for j in scenario.location_process_dict[i]
                        for k in mode_dict[j]]), instance.scales_scheduling, within=NonNegativeReals, doc='Production modes')
     # instance.P_m = Var(Set(initialize=[(instance.locations, [(i, j) for i in mode_dict.keys(
@@ -65,7 +43,6 @@ def generate_scheduling_vars(instance: ConcreteModel, scenario: Scenario, scale_
 
     instance.P_material_m = Var(instance.locations, instance.processes, instance.material_modes,
                                 instance.scales_scheduling, within=NonNegativeReals, doc='Production in material modes')
-    return
 
 
 def generate_scheduling_theta_vars(instance: ConcreteModel):
@@ -78,5 +55,3 @@ def generate_scheduling_theta_vars(instance: ConcreteModel):
 
     instance.C_theta = Var(instance.locations, instance.resources_purch,
                            instance.scales_scheduling, within=NonNegativeReals, doc='Resource Consumption')
-
-    return

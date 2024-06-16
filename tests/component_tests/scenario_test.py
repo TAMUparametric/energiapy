@@ -4,8 +4,6 @@ from tests.test_fixtures import single_location_scenario_variability
 def test_single_location_scenario_variability_sets(single_location_scenario_variability):
     assert (single_location_scenario_variability.set_dict['resources'] == ['process_storage_resource_deterministic_demand_stored', 'resource_certain_availability',
             'resource_deterministic_availability', 'resource_deterministic_demand', 'resource_deterministic_price', 'resource_deterministic_revenue'])
-    assert (single_location_scenario_variability.set_dict['resources_nosell'] == [
-            'process_storage_resource_deterministic_demand_stored', 'resource_certain_availability', 'resource_deterministic_availability', 'resource_deterministic_price'])
     assert (single_location_scenario_variability.set_dict['resources_sell'] == [
             'resource_deterministic_demand', 'resource_deterministic_revenue'])
     assert (single_location_scenario_variability.set_dict['resources_store'] == [

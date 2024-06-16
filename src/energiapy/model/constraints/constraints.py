@@ -142,6 +142,9 @@ def make_constraint(instance: ConcreteModel, type_cons: Cons, variable_x: Var, l
     Returns:
         Constraint: _description_
     """
+    if b_scale_level is None:
+        b_scale_level = 0
+
     if type_cons in [Cons.X_EQ_SUMLOC_Y, Cons.X_EQ_SUMSCALE_Y, Cons.X_EQ_SUM_Y, Cons.X_EQ_SUMCOMP_Y]:
         scales = scale_list(instance=instance,
                             scale_levels=x_scale_level + 1)
