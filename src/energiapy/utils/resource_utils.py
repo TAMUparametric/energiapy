@@ -18,6 +18,7 @@ def create_storage_resource(process_name: str, resource: Resource, store_max: fl
     """Creates a dummy resource for storage, used if process is storage type
 
     Args:
+        process_name(str): Name of storage process
         resource (Resource): Dummy resource name derived from stored resource
         store_max (float, optional): Maximum amount of resource that can be stored. Defaults to 0.
         store_min (float, optional): Minimum amount of resource that can be stored. Defaults to 0.

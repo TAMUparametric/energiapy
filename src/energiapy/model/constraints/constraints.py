@@ -2,6 +2,7 @@ from enum import Enum, auto
 from pyomo.environ import ConcreteModel, Constraint, Var, Set
 from ...utils.scale_utils import scale_list, scale_tuple
 
+
 class Cons(Enum):
     X_LEQ_B = auto()
     """
@@ -299,6 +300,7 @@ class Constraints(Enum):
     EMISSION = auto()
     FAILURE = auto()
     INVENTORY = auto()
+    INVENTORY_COST = auto()
     LAND = auto()
     PRODUCTION = auto()
     RESOURCE_BALANCE = auto()

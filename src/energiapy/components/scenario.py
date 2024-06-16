@@ -355,6 +355,11 @@ class Scenario:
 
         # self.mode_ramp_dict = {i.name: i.mode_ramp for i in self.process_set}
 
+        if list({i.storage_cost for i in self.process_set})[0] is not None:
+            self.consider_storage_cost = True
+        else:
+            self.consider_storage_cost = False
+
         self.storage_cost_dict = {
             i.name: i.storage_cost_dict for i in self.location_set}
 

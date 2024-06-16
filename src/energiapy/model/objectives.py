@@ -35,9 +35,7 @@ def objective_cost(instance: ConcreteModel) -> Objective:
 
         return instance.Cost_total
 
-    instance.objective_cost = Objective(
-        rule=objective_cost_rule, doc='total cost')
-    return instance.objective_cost
+    return Objective(rule=objective_cost_rule, doc='total cost')
 
 
 def objective_cost_w_demand_penalty(instance: ConcreteModel, demand_penalty: Dict[Location, Dict[Resource, float]], demand_scale_level: int = 0) -> Objective:
@@ -58,9 +56,7 @@ def objective_cost_w_demand_penalty(instance: ConcreteModel, demand_penalty: Dic
         penalty = sum(demand_penalty[location_][resource_]*instance.Demand_penalty[location_, resource_, scale_] for location_, resource_, scale_ in product(
             instance.locations, instance.resources_demand, scale_iter_penalty))
         return instance.Cost_total + penalty
-    instance.objective_cost_w_demand_penalty = Objective(
-        rule=objective_cost_w_demand_penalty_rule, doc='total cost with penalty for demand')
-    return instance.objective_cost_w_demand_penalty
+    return Objective(rule=objective_cost_w_demand_penalty_rule, doc='total cost with penalty for demand')
 
 
 def objective_profit(instance: ConcreteModel, network_scale_level: int = 0) -> Objective:
@@ -77,13 +73,9 @@ def objective_profit(instance: ConcreteModel, network_scale_level: int = 0) -> O
         instance=instance, scale_levels=network_scale_level + 1)
 
     def objective_profit_rule(instance):
-        revenue = sum(instance.R_network[resource_, scale_] for resource_, scale_ in
-                      product(instance.resources_sell, scale_iter))
-        return -instance.Cost_total + revenue
+        return -instance.Cost_total + instance.R_total
 
-    instance.objective_profit = Objective(
-        rule=objective_profit_rule, sense=maximize, doc='total profit')
-    return instance.objective_profit
+    return Objective(rule=objective_profit_rule, sense=maximize, doc='total profit')
 
 
 def objective_profit_w_demand_penalty(instance: ConcreteModel, demand_penalty: Dict[Location, Dict[Resource, float]],
@@ -104,17 +96,10 @@ def objective_profit_w_demand_penalty(instance: ConcreteModel, demand_penalty: D
         instance=instance, scale_levels=demand_scale_level + 1)
 
     def objective_profit_w_demand_penalty_rule(instance):
-
-        revenue = sum(instance.R_network[resource_, scale_] for resource_, scale_ in
-                      product(instance.resources_sell, scale_iter))
-
         penalty = sum(demand_penalty[location_][resource_]*instance.Demand_penalty[location_, resource_, scale_] for location_, resource_, scale_ in product(
             instance.locations, instance.resources_demand, scale_iter_penalty))
-        return -instance.Cost_total - penalty + revenue
-
-    instance.objective_profit_w_demand_penalty = Objective(
-        rule=objective_profit_w_demand_penalty_rule, sense=maximize, doc='total profit w demand_penalty')
-    return instance.objective_profit_w_demand_penalty
+        return -instance.Cost_total - penalty + instance.R_total
+    return Objective(rule=objective_profit_w_demand_penalty_rule, sense=maximize, doc='total profit w demand_penalty')
 
 # *------------------------------------------Discharge Objectives----------------------------------------------------
 
@@ -135,9 +120,7 @@ def objective_discharge_min(instance: ConcreteModel, resource: Resource, network
     def objective_discharge_min_rule(instance, *scale_list):
         return sum(instance.S_network[resource.name, scale_] for scale_ in scale_iter)
 
-    instance.objective_discharge_min = Objective(
-        rule=objective_discharge_min_rule, doc='minimize total discharge from specific_network')
-    return instance.objective_discharge_min
+    return Objective(rule=objective_discharge_min_rule, doc='minimize total discharge from specific_network')
 
 
 def objective_discharge_max(instance: ConcreteModel, resource: Resource, network_scale_level: int = 0, ) -> Objective:
@@ -156,9 +139,7 @@ def objective_discharge_max(instance: ConcreteModel, resource: Resource, network
     def objective_discharge_max_rule(instance, *scale_list):
         return sum(instance.S_network[resource.name, scale_] for scale_ in scale_iter)
 
-    instance.objective_discharge_max = Objective(
-        rule=objective_discharge_max_rule, sense=maximize, doc='maximize total discharge from specific_network')
-    return instance.objective_discharge_max
+    return Objective(rule=objective_discharge_max_rule, sense=maximize, doc='maximize total discharge from specific_network')
 
 
 # *------------------------------------------Emission Objectives----------------------------------------------------
@@ -179,9 +160,7 @@ def objective_gwp_min(instance: ConcreteModel, network_scale_level: int = 0, ) -
     def objective_gwp_min_rule(instance, *scale_list):
         return sum(instance.global_warming_potential_network[scale_] for scale_ in scale_iter)
 
-    instance.objective_gwp_min = Objective(
-        rule=objective_gwp_min_rule, doc='minimize total gwp for network')
-    return instance.objective_gwp_min
+    return Objective(rule=objective_gwp_min_rule, doc='minimize total gwp for network')
 
 
 def objective_emission_min(instance: ConcreteModel, network_scale_level: int = 0, gwp_w: float = 0, odp_w: float = 0, acid_w: float = 0,
@@ -203,7 +182,4 @@ def objective_emission_min(instance: ConcreteModel, network_scale_level: int = 0
             acid_w*sum(instance.acidification_potential_network[scale_] for scale_ in scale_iter) + eutt_w*sum(instance.terrestrial_eutrophication_potential_network[scale_] for scale_ in scale_iter) + \
             eutf_w*sum(instance.freshwater_eutrophication_potential_network[scale_] for scale_ in scale_iter) + eutm_w*sum(
                 instance.marine_eutrophication_potential_network[scale_] for scale_ in scale_iter)
-
-    instance.objective_emission_min = Objective(
-        rule=objective_emission_min_rule, doc='minimize total emission for network')
-    return instance.objective_emission_min
+    return Objective(rule=objective_emission_min_rule, doc='minimize total emission for network')

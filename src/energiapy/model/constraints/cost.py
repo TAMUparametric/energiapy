@@ -16,108 +16,54 @@ class Costdynamics(Enum):
     solar = auto()
 
 
+# *-------------------------resource purchase costing constraint------------------
+
+def constraint_total_purchase(instance: ConcreteModel, network_scale_level: int = 0) -> Constraint:
+    """Determines total purchase expenditure
+
+    Args:
+        instance (ConcreteModel): pyomo instance
+        network_scale_level (int, optional): scale of network decisions. Defaults to 0.
+
+    Returns:
+        Constraint: total_purchase
+    """
+    scale_iter = scale_tuple(
+        instance=instance, scale_levels=network_scale_level + 1)
+
+    def total_purchase_rule(instance):
+        return instance.B_total == sum(instance.B_network[resource_, scale_] for resource_, scale_ in
+                                       product(instance.resources_purch, scale_iter))
+
+    return Constraint(
+        rule=total_purchase_rule, doc='calculates total purchase expenditure')
+
+
 # *-------------------------revenue costing constraints--------------------------
 
-
-def constraint_resource_revenue(instance: ConcreteModel, revenue_factor: dict = None, revenue: dict = None,
-                                location_resource_dict: dict = None, scheduling_scale_level: int = 0) -> Constraint:
-    """Determines revenue resource at location in network at the scheduling/expenditure scale
-
-    Args:
-        instance (ConcreteModel): pyomo instance
-        revenue_factor (dict, optional): uncertain revenue training data. Defaults to {}.
-        revenue (dict, optional): base revenue of resource. Defaults to {}.
-        scheduling_scale_level  (int, optional): scale of scheduling decisions. Defaults to 0.
-
-
-    Returns:
-        Constraint: resource_revenue
-    """
-
-    if location_resource_dict is None:
-        location_resource_dict = dict()
-
-    if revenue_factor is None:
-        revenue_factor = dict()
-
-    if revenue is None:
-        revenue = dict()
-
-    scales = scale_list(instance=instance, scale_levels=len(instance.scales))
-
-    def resource_revenue_rule(instance, location, resource, *scale_list):
-        if resource in instance.resources_varying_revenue.intersection(location_resource_dict[location]):
-            return instance.R[location, resource, scale_list[:scheduling_scale_level + 1]] == revenue[location][resource]*revenue_factor[location][resource][scale_list[:scheduling_scale_level + 1]] * instance.S[location, resource, scale_list[:scheduling_scale_level + 1]]
-        else:
-            if resource in instance.resources_sell.intersection(location_resource_dict[location]):
-                return instance.R[location, resource, scale_list[:scheduling_scale_level + 1]] == revenue[location][
-                    resource] * instance.S[location, resource, scale_list[:scheduling_scale_level + 1]]
-            else:
-                return instance.R[location, resource, scale_list[:scheduling_scale_level + 1]] == 0
-
-    instance.constraint_resource_revenue = Constraint(
-        instance.locations, instance.resources_sell, *
-        scales, rule=resource_revenue_rule,
-        doc='revenue from resource')
-    return instance.constraint_resource_revenue
-
-
-def constraint_location_revenue(instance: ConcreteModel, cluster_wt: dict, network_scale_level: int = 0, scheduling_scale_level: int = 0) -> Constraint:
-    """Determines total resource revenue at locations in network
+def constraint_total_revenue(instance: ConcreteModel, network_scale_level: int = 0) -> Constraint:
+    """Determines total revenue expenditure
 
     Args:
         instance (ConcreteModel): pyomo instance
         network_scale_level (int, optional): scale of network decisions. Defaults to 0.
-        scheduling_scale_level (int, optional): scale of scheduling decisions. Defaults to 0.
-
 
     Returns:
-        Constraint: location_revenue
+        Constraint: total_revenue
     """
-    scales = scale_list(instance=instance,
-                        scale_levels=network_scale_level + 1)
     scale_iter = scale_tuple(
-        instance=instance, scale_levels=scheduling_scale_level + 1)
+        instance=instance, scale_levels=network_scale_level + 1)
 
-    def location_revenue_rule(instance, location, resource, *scale_list):
-        def weight(x): return 1 if cluster_wt is None else cluster_wt[x]
+    def total_revenue_rule(instance):
+        return instance.R_total == sum(instance.R_network[resource_, scale_] for resource_, scale_ in
+                                       product(instance.resources_sell, scale_iter))
 
-        return instance.R_location[location, resource, scale_list] == sum(
-            weight(scale_) * instance.R[location, resource, scale_[:scheduling_scale_level + 1]] for scale_ in scale_iter
-            if scale_[:network_scale_level + 1] == scale_list)
-
-    instance.constraint_location_revenue = Constraint(
-        instance.locations, instance.resources_sell, *
-        scales, rule=location_revenue_rule,
-        doc='total revenue at location')
-    return instance.constraint_location_revenue
-
-
-def constraint_network_revenue(instance: ConcreteModel, network_scale_level: int = 0) -> Constraint:
-    """Determines total revenue expenditure on resource across network
-
-    Args:
-        instance (ConcreteModel): pyomo instance
-        network_scale_level (int, optional): scale of network decisions. Defaults to 0.
-
-    Returns:
-        Constraint: network_revenue
-    """
-    scales = scale_list(instance=instance,
-                        scale_levels=network_scale_level + 1)
-
-    def network_revenue_rule(instance, resource, *scale_list):
-        return instance.R_network[resource, scale_list] == sum(
-            instance.R_location[location_, resource, scale_list] for location_ in instance.locations)
-
-    instance.constraint_network_revenue = Constraint(
-        instance.resources_sell, *scales, rule=network_revenue_rule, doc='total revenue from network')
-    return instance.constraint_network_revenue
-
+    return Constraint(rule=total_revenue_rule, doc='calculates total revenue earned')
 
 # *-------------------------land costing constraints-----------------------------
 
-def constraint_land_process_cost(instance: ConcreteModel, land_dict: dict, land_cost_dict: dict, network_scale_level: int = 0) -> Constraint:
+
+def constraint_process_land_cost(instance: ConcreteModel, land_dict: dict, land_cost_dict: dict, network_scale_level: int = 0) -> Constraint:
     """Land cost for each process at location in network
 
     Args:
@@ -133,14 +79,14 @@ def constraint_land_process_cost(instance: ConcreteModel, land_dict: dict, land_
 
     def land_process_cost_rule(instance, location, process, *scale_list):
         return instance.Land_cost_process[location, process, scale_list] == land_cost_dict[location]*land_dict[process]*instance.Cap_P[location, process, scale_list]
-    instance.constraint_land_process_cost = Constraint(
+    instance.constraint_process_land_cost = Constraint(
         instance.locations, instance.processes, *scales, rule=land_process_cost_rule, doc='land cost for process at location')
-    return instance.constraint_land_process_cost
+    return instance.constraint_process_land_cost
 
 ###
 
 
-def constraint_land_location_cost(instance: ConcreteModel, network_scale_level: int = 0) -> Constraint:
+def constraint_location_land_cost(instance: ConcreteModel, network_scale_level: int = 0) -> Constraint:
     """Land cost each location in network
 
     Args:
@@ -154,14 +100,14 @@ def constraint_land_location_cost(instance: ConcreteModel, network_scale_level: 
 
     def land_location_cost_rule(instance, location, *scale_list):
         return instance.Land_cost_location[location, scale_list] == sum(instance.Land_cost_process[location, process_, scale_list] for process_ in instance.processes)
-    instance.constraint_land_location_cost = Constraint(
+    instance.constraint_location_land_cost = Constraint(
         instance.locations, *scales, rule=land_location_cost_rule, doc='land cost at location')
-    return instance.constraint_land_location_cost
+    return instance.constraint_location_land_cost
 
 ###
 
 
-def constraint_land_network_cost(instance: ConcreteModel, network_scale_level: int = 0) -> Constraint:
+def constraint_network_land_cost(instance: ConcreteModel, network_scale_level: int = 0) -> Constraint:
     """Land cost by network
 
     Args:
@@ -175,9 +121,9 @@ def constraint_land_network_cost(instance: ConcreteModel, network_scale_level: i
 
     def land_network_cost_rule(instance, *scale_list):
         return instance.Land_cost_network[scale_list] == sum(instance.Land_cost_location[location_, scale_list] for location_ in instance.locations)
-    instance.constraint_land_network_cost = Constraint(
+    instance.constraint_network_land_cost = Constraint(
         *scales, rule=land_network_cost_rule, doc='land cost for process')
-    return instance.constraint_land_network_cost
+    return instance.constraint_network_land_cost
 
 
 # *-------------------------capex costing constraints----------------------------
@@ -440,7 +386,7 @@ def constraint_storage_cost(instance: ConcreteModel, location_resource_dict: dic
     return instance.constraint_storage_cost
 
 
-def constraint_storage_cost_location(instance: ConcreteModel, network_scale_level: int = 0) -> Constraint:
+def constraint_location_storage_cost(instance: ConcreteModel, network_scale_level: int = 0) -> Constraint:
     """Inventory penalty incurred at the network scale across location
 
     Args:
@@ -457,13 +403,13 @@ def constraint_storage_cost_location(instance: ConcreteModel, network_scale_leve
 
     def storage_cost_location_rule(instance, location, *scale_list):
         return instance.Inv_cost_location[location, scale_list[:network_scale_level + 1]] == sum(instance.Inv_cost[location, resource_, scale_list[:network_scale_level + 1]] for resource_ in instance.resources_store)
-    instance.constraint_storage_cost_location = Constraint(
+    instance.constraint_location_storage_cost = Constraint(
         instance.locations, *scales, rule=storage_cost_location_rule,
         doc='penalty for stored resources across location')
-    return instance.constraint_storage_cost_location
+    return instance.constraint_location_storage_cost
 
 
-def constraint_storage_cost_network(instance: ConcreteModel, network_scale_level: int = 0) -> Constraint:
+def constraint_network_storage_cost(instance: ConcreteModel, network_scale_level: int = 0) -> Constraint:
     """Inventory penalty incurred at the network scale across network
 
     Args:
@@ -480,15 +426,15 @@ def constraint_storage_cost_network(instance: ConcreteModel, network_scale_level
 
     def storage_cost_network_rule(instance, *scale_list):
         return instance.Inv_cost_network[scale_list[:network_scale_level + 1]] == sum(instance.Inv_cost_location[location_, scale_list[:network_scale_level + 1]] for location_ in instance.locations)
-    instance.constraint_storage_cost_network = Constraint(*scales, rule=storage_cost_network_rule,
+    instance.constraint_network_storage_cost = Constraint(*scales, rule=storage_cost_network_rule,
                                                           doc='penalty for stored resources across network')
-    return instance.constraint_storage_cost_network
+    return instance.constraint_network_storage_cost
 
 
 # *-------------------------Total network cost--------------------------
 
 
-def constraint_total_cost(instance: ConcreteModel, constraints=Set[Constraints], network_scale_level: int = 0) -> Constraint:
+def constraint_total_cost(instance: ConcreteModel, constraints=Set[Constraints]) -> Constraint:
     """Total cost
 
     Args:
@@ -498,39 +444,32 @@ def constraint_total_cost(instance: ConcreteModel, constraints=Set[Constraints],
     Returns:
         Constraint: total network cost
     """
-    scale_iter = scale_tuple(
-        instance=instance, scale_levels=network_scale_level + 1)
-
     def constraint_total_cost_rule(instance):
-        capex = sum(instance.Capex_network[scale_] for scale_ in scale_iter)
-        vopex = sum(instance.Vopex_network[scale_] for scale_ in scale_iter)
-        fopex = sum(instance.Fopex_network[scale_] for scale_ in scale_iter)
-        incidental = sum(
-            instance.Incidental_network[scale_] for scale_ in scale_iter)
-        storage_cost = sum(
-            instance.Inv_cost_network[scale_] for scale_ in scale_iter)
-        cost_purch = sum(instance.B_network[resource_, scale_] for resource_, scale_ in
-                         product(instance.resources_purch, scale_iter))
+        capex = instance.Capex_total
+        vopex = instance.Vopex_total
+        fopex = instance.Vopex_total
+        incidental = instance.Incidental_total
+        cost_purch = instance.B_total
+
+        if Constraints.INVENTORY_COST in constraints:
+            storage_cost = instance.Inv_cost_total
+        else:
+            storage_cost = 0
 
         if Constraints.LAND in constraints:
-            land_cost = sum(
-                instance.Land_cost_network[scale_] for scale_ in scale_iter)
+            land_cost = instance.Land_cost_total
         else:
             land_cost = 0
 
         if Constraints.CREDIT in constraints:
-            credit = sum(
-                instance.Credit_network[scale_] for scale_ in scale_iter)
+            credit = instance.Credit_total
         else:
             credit = 0
 
         if len(instance.locations) > 1:
-            cost_trans_capex = sum(
-                instance.Capex_transport_network[scale_] for scale_ in scale_iter)
-            cost_trans_vopex = sum(
-                instance.Vopex_transport_network[scale_] for scale_ in scale_iter)
-            cost_trans_fopex = sum(
-                instance.Fopex_transport_network[scale_] for scale_ in scale_iter)
+            cost_trans_capex = instance.Capex_transport_total
+            cost_trans_vopex = instance.Vopex_transport_total
+            cost_trans_fopex = instance.Fopex_transport_total
         else:
             cost_trans_capex = 0
             cost_trans_vopex = 0

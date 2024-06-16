@@ -1,3 +1,4 @@
+import time
 import logging
 from warnings import warn
 from pyomo.environ import ConcreteModel, Constraint, Objective, SolverFactory, Var, Set
@@ -6,10 +7,8 @@ from pyomo.util.infeasible import (
     log_infeasible_bounds,
     log_infeasible_constraints,
 )
-
 from ..components.result import Result
 from ..components.scenario import Scenario
-
 from ppopt.mp_solvers.solve_mpqp import solve_mpqp, mpqp_algorithm
 from ppopt.mplp_program import MPLP_Program
 
@@ -32,6 +31,7 @@ def solve(solver: str, name: str, instance: ConcreteModel = None, matrix: dict =
     Returns:
         Result: result type object
     """
+    start = time.time()
     if interface == 'native':
         if solver == 'ppopt':
             prog = MPLP_Program(matrix['A'], matrix['b'], matrix['c'], matrix['H'],
@@ -41,16 +41,21 @@ def solve(solver: str, name: str, instance: ConcreteModel = None, matrix: dict =
             prog.display_warnings()
             # prog.process_constraints()
             results = solve_mpqp(prog, mpqp_algorithm.combinatorial)
-
     else:
         if interface == 'pyomo':
             output = SolverFactory(solver, solver_io='python').solve(
                 instance, tee=print_solversteps)
+            time_sol = output['Solver'][0]['Wallclock time']
 
         if interface == 'GAMS':
             warn('Ensure GAMS is installed on system and PATH is set')
             output = SolverFactory('gams').solve(
                 instance, solver=solver, tee=print_solversteps)
+            time_sol = output.SolverFactory.time
+
+        print()
+        print(f'The model took {time_sol} seconds to solve')
+        print()
 
         if scenario is None:
             components_dict = {}
@@ -69,6 +74,7 @@ def solve(solver: str, name: str, instance: ConcreteModel = None, matrix: dict =
 
         solution_dict = {
             'termination': str(output['Solver'][0]['Termination condition']),
+            'solution_time': time_sol,
             'LB': output['Problem'][0]['Lower bound'],
             'UB': output['Problem'][0]['Upper bound'],
             'n_cons': output['Problem'][0]['Number of constraints'],
@@ -120,10 +126,17 @@ def solve(solver: str, name: str, instance: ConcreteModel = None, matrix: dict =
                     if solution_dict['n_binvars'] > 0:
                         duals_dict = dict()
                     else:
+                        start_duals = time.time()
                         index_dict = {c: list(c.index_set())
                                       for c in model_cons}
                         duals_dict = {cons.name: {index: instance.dual[cons[index]] for index
                                                   in index_dict[cons] if index in cons.keys()} for cons in model_cons}
+                        end_duals = time.time()
+                        time_duals = end_duals - start_duals
+                        print()
+                        print(
+                            f'It took {time_duals} seconds to generate duals')
+                        print()
 
                 else:
                     duals_dict = dict()
@@ -131,25 +144,49 @@ def solve(solver: str, name: str, instance: ConcreteModel = None, matrix: dict =
                 duals_dict = dict()
 
             if log is True:
+                start_log = time.time()
                 logging.basicConfig(
                     filename=f"{scenario.name}_nearbound.log", encoding='utf-8', level=logging.INFO)
                 log_close_to_bounds(instance)
-
+                end_log = time.time()
+                time_log = end_log - start_log
+                print()
+                print(
+                    f'It took {time_log} seconds to create a log')
+                print()
         else:
             output_dict = solution_dict
             duals_dict = {}
 
             if log is True:
+                start_log = time.time()
                 logging.basicConfig(
                     filename=f"{scenario.name}_infeasible.log", encoding='utf-8', level=logging.INFO)
                 log_infeasible_bounds(instance)
                 log_infeasible_constraints(instance)
                 log_close_to_bounds(instance)
-
+                end_log = time.time()
+                time_log = end_log - start_log
+                print()
+                print(
+                    f'It took {time_log} seconds to create a log')
+                print()
+        
         results = Result(name=name, components=components_dict,
                          output=output_dict, model_elements=model_dict, duals=duals_dict)
 
         if saveformat is not None:
+            start_save = time.time()
             results.saveoutputs(name + saveformat)
-
+            end_save = time.time()
+            time_save = end_save - start_save
+            print()
+            print(
+                f'It took {time_save} seconds to save the results as a {saveformat} file')
+            print()
+    end = time.time()
+    time_total = end - start
+    print()
+    print(f'Total time needed to generate result was {time_total} seconds')
+    print()
     return results

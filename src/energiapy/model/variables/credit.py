@@ -14,3 +14,5 @@ def generate_credit_vars(instance: ConcreteModel, scale_level: int = 0):
                                    instance.scales_network, within=NonNegativeReals, doc='credit earned at each location')
     instance.Credit_network = Var(instance.scales_network,
                                   within=NonNegativeReals, doc='credit earned at network level')
+    instance.Credit_total = Var(
+        within=NonNegativeReals, doc='Total expenditure on credit')

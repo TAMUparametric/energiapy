@@ -22,3 +22,5 @@ def generate_land_vars(instance: ConcreteModel, scale_level: int = 0):
         instance.locations, instance.scales_network, within=NonNegativeReals, doc='Land cost at location')
     instance.Land_cost_network = Var(
         instance.scales_network, within=NonNegativeReals, doc='Land cost at network')
+    instance.Land_cost_total = Var(
+        within=NonNegativeReals, doc='Total expenditure on land')

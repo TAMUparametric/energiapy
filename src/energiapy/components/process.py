@@ -224,7 +224,7 @@ class Process:
     # rate_max: Union[Dict[int, float], float] = None
     varying_bounds: Tuple[float] = (0, 1)
     # mode_ramp: Dict[tuple, int] = None
-    storage_cost: float = 0
+    storage_cost: float = None
     processmode: ProcessMode = None
     materialmode: MaterialMode = None
 

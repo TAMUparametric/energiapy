@@ -26,6 +26,8 @@ class Result:
        output (dict): results from analysis
        model_elements (dict): model sets, variables, constraints, objective
        duals (dict): duals if not MIP.
+       solve_time (float): solution time
+       cost_summary (dict): summary of the contributing costs
 
     """
     name: str
@@ -152,6 +154,10 @@ class Result:
             number of integer variables: {self.output['n_intvars']}\n\
             number of continuous variables: {self.output['n_convars']}")
 
+    def cost_summary(self):
+        """Makes a summary of contributing costs
+        """
+
     def __repr__(self):
         return self.name
 
@@ -171,3 +177,23 @@ class Results:
     """
     name: str
     results: Dict[str, Result]
+
+    # capex = instance.Capex_total
+    # vopex = instance.Vopex_total
+    # fopex = instance.Vopex_total
+    # incidental = instance.Incidental_total
+    # storage_cost = instance.Inv_cost_total
+    # cost_purch = instance.B_total
+    # land_cost = instance.Land_cost_total
+    # credit = instance.Credit_total
+    # else:
+    #     credit = 0
+
+    # if len(instance.locations) > 1:
+    #     cost_trans_capex = instance.Capex_transport_total
+    #     cost_trans_vopex = instance.Vopex_transport_total
+    #     cost_trans_fopex = instance.Fopex_transport_total
+    # else:
+    #     cost_trans_capex = 0
+    #     cost_trans_vopex = 0
+    #     cost_trans_fopex = 0
