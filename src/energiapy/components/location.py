@@ -1,15 +1,3 @@
-"""Location data class
-"""
-
-__author__ = "Rahul Kakodkar"
-__copyright__ = "Copyright 2023, Multi-parametric Optimization & Control Lab"
-__credits__ = ["Rahul Kakodkar", "Efstratios N. Pistikopoulos"]
-__license__ = "MIT"
-__version__ = "1.1.0"
-__maintainer__ = "Rahul Kakodkar"
-__email__ = "cacodcar@tamu.edu"
-__status__ = "Production"
-
 from dataclasses import dataclass
 from itertools import product
 from random import sample
@@ -17,12 +5,10 @@ from typing import Dict, Set, Union
 from warnings import warn
 
 from pandas import DataFrame
-
 from ..components.material import Material
 from ..components.process import Process, ProcessMode, MaterialMode
 from ..components.resource import Resource
 from ..components.temporal_scale import TemporalScale
-from ..utils.process_utils import create_storage_process
 from ..utils.scale_utils import scale_changer
 
 
@@ -103,7 +89,7 @@ class Location:
             {i.resource_storage for i in self.processes if i.resource_storage is not None})  # includes storage resources
         self.materials = self.get_materials()  # fetch all materials required
         self.scale_levels = self.scales.scale_levels
-        self.processes_full = self.processes.union({create_storage_process(
+        self.processes_full = self.processes.union({self.create_storage_process(
             i) for i in self.processes if i.processmode == ProcessMode.STORAGE})
         # dicitionary of capacity bounds
         self.cap_max, self.cap_min = self.get_cap_bounds()
@@ -284,6 +270,18 @@ class Location:
                         cap_max_dict[i.name][j] = i.cap_max
                         cap_min_dict[i.name][j] = i.cap_min
         return cap_max_dict, cap_min_dict
+
+    def create_storage_process(self, process) -> Process:
+        """Creates a dummy process for discharge of stored resource
+
+        Args:
+            process (Process): Dummy process name derived from storage process
+        Returns:
+            Process: Dummy process for storage
+        """
+        return Process(name=process.name+'_discharge', conversion=process.conversion_discharge, cap_min=process.cap_min,
+                       cap_max=process.cap_max, introduce=process.introduce, retire=process.retire, capex=0, vopex=0, fopex=0,
+                       lifetime=process.lifetime, label=process.label + '_storage', material_cons=None)
 
     def __repr__(self):
         return self.name

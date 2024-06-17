@@ -1,23 +1,10 @@
-"""Process data class
-"""
-
-__author__ = "Rahul Kakodkar"
-__copyright__ = "Copyright 2023, Multi-parametric Optimization & Control Lab"
-__credits__ = ["Rahul Kakodkar", "Efstratios N. Pistikopoulos"]
-__license__ = "Open"
-__version__ = "0.0.1"
-__maintainer__ = "Rahul Kakodkar"
-__email__ = "cacodcar@tamu.edu"
-__status__ = "Production"
-
 from dataclasses import dataclass
 from enum import Enum, auto
 from typing import Dict, Union, List, Tuple
 from warnings import warn
 from itertools import product
 from ..components.material import Material
-from ..components.resource import Resource
-from ..utils.resource_utils import create_storage_resource
+from ..components.resource import Resource, VaryingResource
 
 
 class CostDynamics(Enum):
@@ -192,23 +179,23 @@ class Process:
     retire: int = None
     conversion: Union[Dict[Union[int, str], Dict[Resource, float]],
                       Dict[Resource, float]] = None
-    capex: Union[float, dict] = 0
-    fopex: Union[float, dict] = 0
-    vopex: Union[float, dict] = 0
-    incidental: Union[float, dict] = 0
+    capex: Union[float, dict] = None
+    fopex: Union[float, dict] = None
+    vopex: Union[float, dict] = None
+    incidental: Union[float, dict] = None
+    storage_cost: float = None
+    land: float = None
     material_cons: Union[Dict[Union[int, str],
                               Dict[Material, float]], Dict[Material, float]] = None
     cap_max: Union[Dict[int, float], float] = 0
     cap_min: float = 0
     basis: str = 'unit'
-    credit: float = None
     gwp: float = 0
     odp: float = 0
     acid: float = 0
     eutt: float = 0
     eutf: float = 0
     eutm: float = 0
-    land: float = 0
     trl: str = None
     block: str = ''
     citation: str = 'citation needed'
@@ -224,7 +211,6 @@ class Process:
     # rate_max: Union[Dict[int, float], float] = None
     varying_bounds: Tuple[float] = (0, 1)
     # mode_ramp: Dict[tuple, int] = None
-    storage_cost: float = None
     processmode: ProcessMode = None
     materialmode: MaterialMode = None
 
@@ -270,8 +256,9 @@ class Process:
             warn('Provide a list of VaryingProcess enums')
 
         if self.storage is not None:
-            self.resource_storage = create_storage_resource(
-                process_name=self.name, resource=self.storage, store_max=self.store_max, store_min=self.store_min)  # create a dummy resource if process is storage type.
+            # create a dummy resource if process is storage type.
+            self.resource_storage = self.create_storage_resource(
+                resource=self.storage, store_max=self.store_max, store_min=self.store_min)
             # efficiency of input to storage is 100 percent
             self.conversion = {self.storage: -1, self.resource_storage: 1}
             self.conversion_discharge = {
@@ -326,6 +313,22 @@ class Process:
 
         self.material_modes = set(self.material_cons.keys())
         # self.emission_dict = {i: i.emissions for i in self.conversion.keys()
+
+    def create_storage_resource(self, resource: Resource, store_max: float = 0, store_min: float = 0) -> Resource:
+        """Creates a dummy resource for storage, used if process is storage type
+
+        Args:
+            process_name(str): Name of storage process
+            resource (Resource): Dummy resource name derived from stored resource
+            store_max (float, optional): Maximum amount of resource that can be stored. Defaults to 0.
+            store_min (float, optional): Minimum amount of resource that can be stored. Defaults to 0.
+
+        Returns:
+            Resource: resource object for storage in process
+        """
+
+        return Resource(name=f"{self.name}_{resource.name}_stored", loss=resource.loss, store_max=store_max, store_min=store_min,
+                        basis=resource.basis, block=resource.block, label=resource.label+f"{self.name}(stored)", varying=[VaryingResource.STORED])
 
     def __repr__(self):
         return self.name

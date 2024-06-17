@@ -4,6 +4,7 @@ from typing import Set
 from pyomo.environ import ConcreteModel, Constraint
 from ...utils.scale_utils import scale_list, scale_tuple
 from ...utils.data_utils import get_depth
+from ...components.scenario import Scenario
 from .constraints import Constraints
 
 
@@ -374,11 +375,11 @@ def constraint_storage_cost(instance: ConcreteModel, location_resource_dict: dic
     def storage_cost_rule(instance, location, resource, *scale_list):
         if resource in location_resource_dict[location]:
             if resource in storage_cost_dict[location]:
-                return instance.Inv_cost[location, resource, scale_list[:network_scale_level + 1]] == storage_cost_dict[location][resource]*instance.Inv_network[location, resource, scale_list[:network_scale_level + 1]]
+                return instance.Inv_cost_resource[location, resource, scale_list[:network_scale_level + 1]] == storage_cost_dict[location][resource]*instance.Inv_network[location, resource, scale_list[:network_scale_level + 1]]
             else:
-                return instance.Inv_cost[location, resource, scale_list[:network_scale_level + 1]] == 0
+                return instance.Inv_cost_resource[location, resource, scale_list[:network_scale_level + 1]] == 0
         else:
-            return instance.Inv_cost[location, resource, scale_list] == 0
+            return instance.Inv_cost_resource[location, resource, scale_list] == 0
     instance.constraint_storage_cost = Constraint(
         instance.locations, instance.resources_store, *
         scales, rule=storage_cost_rule,
@@ -402,7 +403,7 @@ def constraint_location_storage_cost(instance: ConcreteModel, network_scale_leve
                         scale_levels=network_scale_level + 1)
 
     def storage_cost_location_rule(instance, location, *scale_list):
-        return instance.Inv_cost_location[location, scale_list[:network_scale_level + 1]] == sum(instance.Inv_cost[location, resource_, scale_list[:network_scale_level + 1]] for resource_ in instance.resources_store)
+        return instance.Inv_cost_location[location, scale_list[:network_scale_level + 1]] == sum(instance.Inv_cost_resource[location, resource_, scale_list[:network_scale_level + 1]] for resource_ in instance.resources_store)
     instance.constraint_location_storage_cost = Constraint(
         instance.locations, *scales, rule=storage_cost_location_rule,
         doc='penalty for stored resources across location')
@@ -434,24 +435,40 @@ def constraint_network_storage_cost(instance: ConcreteModel, network_scale_level
 # *-------------------------Total network cost--------------------------
 
 
-def constraint_total_cost(instance: ConcreteModel, constraints=Set[Constraints]) -> Constraint:
+def constraint_total_cost(instance: ConcreteModel, constraints: Set[Constraints], scenario: Scenario) -> Constraint:
     """Total cost
 
     Args:
         instance (ConcreteModel): pyomo instance
-        network_scale_level (int, optional): scale of network decisions. Defaults to 0.
-
+        constraints (Set[Constraints]): list of constraint blocks to consider
+        scenario (Scenario): self explanatory
     Returns:
-        Constraint: total network cost
+        Constraint: total cost
     """
     def constraint_total_cost_rule(instance):
-        capex = instance.Capex_total
-        vopex = instance.Vopex_total
-        fopex = instance.Vopex_total
-        incidental = instance.Incidental_total
+        if scenario.consider_capex is True:
+            capex = instance.Capex_total
+        else:
+            capex = 0
+
+        if scenario.consider_fopex is True:
+            fopex = instance.Fopex_total
+        else:
+            fopex = 0
+
+        if scenario.consider_vopex is True:
+            vopex = instance.Vopex_total
+        else:
+            vopex = 0
+
+        if scenario.consider_incidental is True:
+            incidental = instance.Incidental_total
+        else:
+            incidental = 0
+
         cost_purch = instance.B_total
 
-        if Constraints.INVENTORY_COST in constraints:
+        if scenario.consider_storage_cost is True:
             storage_cost = instance.Inv_cost_total
         else:
             storage_cost = 0

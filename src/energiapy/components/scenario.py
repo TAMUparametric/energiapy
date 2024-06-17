@@ -1,20 +1,9 @@
-"""Cost scenario data class
-"""
-
-__author__ = "Rahul Kakodkar"
-__copyright__ = "Copyright 2023, Multi-parametric Optimization & Control Lab"
-__credits__ = ["Rahul Kakodkar", "Efstratios N. Pistikopoulos"]
-__license__ = "MIT"
-__version__ = "1.0.5"
-__maintainer__ = "Rahul Kakodkar"
-__email__ = "cacodcar@tamu.edu"
-__status__ = "Production"
-
 from dataclasses import dataclass
 from typing import Dict, Union
 from warnings import warn
 import numpy
 from pandas import DataFrame
+from enum import Enum, auto
 
 from ..components.transport import VaryingTransport
 from ..components.location import Location
@@ -24,6 +13,17 @@ from ..components.resource import Resource, VaryingResource
 from ..components.temporal_scale import TemporalScale
 from ..model.bounds import CapacityBounds
 from ..model.weights import EmissionWeights
+
+
+class ScenarioType(Enum):
+    """
+    Single location
+    """
+    SINGLE_LOCATION = auto()
+    """
+    Multi-location
+    """
+    MULTI_LOCATION = auto()
 
 
 @dataclass
@@ -127,29 +127,31 @@ class Scenario:
         """
 
         if isinstance(self.network, Location):
-            self.transport_set = None
-            self.source_locations = None
-            self.sink_locations = None
-            self.transport_dict = None
-            self.transport_avail_dict = None
-            self.trans_max = None
-            self.trans_loss = None
-            self.trans_capex = None
-            self.trans_fopex = None
-            self.trans_vopex = None
-            self.trans_emission = None
-            self.distance_dict = None
-            self.location_set = {self.network}
-            self.transport_capacity_factor = None
-            self.transport_capex_factor = None
-            self.transport_vopex_factor = None
-            self.transport_fopex_factor = None
-            self.transport_capacity_scale_level = None
-            self.transport_capex_scale_level = None
-            self.transport_vopex_scale_level = None
-            self.transport_fopex_scale_level = None
-            self.source_sink_resource_dict = None
+            self.scenario_type = ScenarioType.SINGLE_LOCATION
+            # self.transport_set = None
+            # self.source_locations = None
+            # self.sink_locations = None
+            # self.transport_dict = None
+            # self.transport_avail_dict = None
+            # self.trans_max = None
+            # self.trans_loss = None
+            # self.trans_capex = None
+            # self.trans_fopex = None
+            # self.trans_vopex = None
+            # self.trans_emission = None
+            # self.distance_dict = None
+            # self.location_set = {self.network}
+            # self.transport_capacity_factor = None
+            # self.transport_capex_factor = None
+            # self.transport_vopex_factor = None
+            # self.transport_fopex_factor = None
+            # self.transport_capacity_scale_level = None
+            # self.transport_capex_scale_level = None
+            # self.transport_vopex_scale_level = None
+            # self.transport_fopex_scale_level = None
+            # self.source_sink_resource_dict = None
         else:
+            self.scenario_type = ScenarioType.MULTI_LOCATION
             self.transport_set = set().union(*self.network.transport_dict.values())
             self.source_locations = self.network.source_locations
             self.sink_locations = self.network.sink_locations
@@ -226,12 +228,15 @@ class Scenario:
         self.cap_min = {i.name: i.cap_min for i in self.location_set}
         self.cons_max = {i.name: {
             j.name: j.cons_max for j in i.resources_full} for i in self.location_set}
+        
         self.store_max = {i.name: {
             j.name: j.store_max for j in i.resources_full} for i in self.location_set}
         self.store_min = {i.name: {
             j.name: j.store_min for j in i.resources_full} for i in self.location_set}
+        
         self.capacity_factor = {
             i.name: i.capacity_factor for i in self.location_set}
+        
         self.price_factor = {i.name: i.price_factor for i in self.location_set}
         self.demand_factor = {
             i.name: i.demand_factor for i in self.location_set}
@@ -244,6 +249,7 @@ class Scenario:
             i.name: i.availability_factor for i in self.location_set}
         self.revenue_factor = {
             i.name: i.revenue_factor for i in self.location_set}
+        
         self.location_resource_dict = {
             i.name: {j.name for j in i.resources_full} for i in self.location_set}
         self.location_resource_sell_dict = {
@@ -254,17 +260,33 @@ class Scenario:
             i.name: {j.name for j in i.resources_full if j.store_max > 0} for i in self.location_set}
         self.location_process_dict = {
             i.name: {j.name for j in i.processes_full} for i in self.location_set}
+        
+        
         self.location_material_dict = {i.name: {j.name for j in i.materials}
                                        for i in self.location_set}
         # TODO change to be location wise
         self.price_dict = {i.name: i.resource_price for i in self.location_set}
         self.revenue_dict = {
             i.name: i.resource_revenue for i in self.location_set}
-        self.capex_dict = {i.name: i.capex for i in self.process_set}
-        self.fopex_dict = {i.name: i.fopex for i in self.process_set}
-        self.vopex_dict = {i.name: i.vopex for i in self.process_set}
-        self.incidental_dict = {i.name: i.incidental for i in self.process_set}
-        self.land_dict = {i.name: i.land for i in self.process_set}
+
+        # self.capex_dict = {i.name: i.capex for i in self.process_set}
+        # self.fopex_dict = {i.name: i.fopex for i in self.process_set}
+        # self.vopex_dict = {i.name: i.vopex for i in self.process_set}
+        # self.land_dict = {i.name: i.land for i in self.process_set}
+
+        for i in ['capex', 'fopex', 'vopex', 'incidental', 'storage_cost', 'land']:
+            self.create_attr_dict(i, self.process_set)
+
+        # df_capex = DataFrame.from_dict(
+        #     self.capex_dict, orient='index', columns=['capex'])
+        # df_vopex = DataFrame.from_dict(
+        #     self.vopex_dict, orient='index', columns=['vopex'])
+        # df_fopex = DataFrame.from_dict(
+        #     self.fopex_dict, orient='index', columns=['fopex'])
+
+        # self.cost_df = df_capex.merge(df_vopex, left_index=True, right_index=True, how='inner').merge(
+        #     df_fopex, left_index=True, right_index=True, how='inner')
+
         self.material_gwp_dict = {
             i.name: {j.name: j.gwp for j in self.material_set} for i in self.location_set}
         self.material_odp_dict = {
@@ -303,6 +325,7 @@ class Scenario:
             i.name: {j.name: j.eutm for j in self.process_set} for i in self.location_set}
         self.land_cost_dict = {i.name: i.land_cost for i in self.location_set}
         self.fail_factor = {i.name: i.fail_factor for i in self.location_set}
+
         self.credit_dict = {i.name: {j.name: i.credit[j] for j in i.credit.keys(
         )} for i in self.location_set if i.credit is not None}
 
@@ -342,26 +365,9 @@ class Scenario:
             self.demand_penalty = {i.name: {j.name: self.demand_penalty[i][j] for j in self.demand_penalty[i].keys(
             )} for i in self.demand_penalty.keys()}
 
-        df_capex = DataFrame.from_dict(
-            self.capex_dict, orient='index', columns=['capex'])
-        df_vopex = DataFrame.from_dict(
-            self.vopex_dict, orient='index', columns=['vopex'])
-        df_fopex = DataFrame.from_dict(
-            self.fopex_dict, orient='index', columns=['fopex'])
-        self.cost_df = df_capex.merge(df_vopex, left_index=True, right_index=True, how='inner').merge(
-            df_fopex, left_index=True, right_index=True, how='inner')
-
         # self.rate_max_dict = {i.name: i.rate_max for i in self.process_set}
 
         # self.mode_ramp_dict = {i.name: i.mode_ramp for i in self.process_set}
-
-        if list({i.storage_cost for i in self.process_set})[0] is not None:
-            self.consider_storage_cost = True
-        else:
-            self.consider_storage_cost = False
-
-        self.storage_cost_dict = {
-            i.name: i.storage_cost_dict for i in self.location_set}
 
         process_material_modes = []
         for i in self.process_set:
@@ -523,6 +529,21 @@ class Scenario:
             return int(list(factor_scale_level_set)[0])
         if len(factor_scale_level_set) > 1:
             warn(f'{factor_scale_level} needs to be consistent across locations')
+
+    def create_attr_dict(self, attr: str, component_set: set):
+        """Checks whether atleast one component in set has attribute not None
+        If True, create a dict to save said attribute
+        And, sets consider_attr to True. Else False
+        Args:
+            attr (str): component attribute
+            component_set (set): self explanatory
+        """
+        if list({getattr(i, attr) for i in component_set})[0] is not None:
+            setattr(self, f'consider_{attr}', True)
+            setattr(self, f'{attr}_dict',
+                    {i.name: getattr(i, attr) for i in component_set})
+        else:
+            setattr(self, f'consider_{attr}', False)
 
     def make_conversion_df(self) -> DataFrame:
         """makes a DataFrame of the conversion values

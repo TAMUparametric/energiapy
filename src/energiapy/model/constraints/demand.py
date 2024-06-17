@@ -126,14 +126,11 @@ def constraint_demand(instance: ConcreteModel, demand: Union[dict, float], deman
             return Constraint.Skip
 
     if len(instance.locations) > 1:
-        instance.constraint_demand = Constraint(
+        return Constraint(
             instance.sinks, instance.resources_demand, *scales, rule=demand_rule, doc='specific demand for resources')
-
     else:
-        instance.constraint_demand = Constraint(
-            instance.locations, instance.resources_demand, *scales, rule=demand_rule,
-            doc='specific demand for resources')
-    return instance.constraint_demand
+        return Constraint(instance.locations, instance.resources_demand, *scales, rule=demand_rule, doc='specific demand for resources')
+     
 
 
 def constraint_demand_penalty(instance: ConcreteModel, demand: Union[dict, float], demand_factor: Union[dict, float],

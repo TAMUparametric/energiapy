@@ -1,26 +1,15 @@
-from pyomo.environ import ConcreteModel, Var, NonNegativeReals
+from pyomo.environ import ConcreteModel
+from .variables import generate_var_loc_com_scn
 
 
-def generate_land_vars(instance: ConcreteModel, scale_level: int = 0):
+def generate_land_vars(instance: ConcreteModel):
     """variables for land usage and costs
 
     Args:
         instance (ConcreteModel): pyomo instance
-        scale_level (int, optional): scale at which credits are assigned. Defaults to 0.
     """
+    generate_var_loc_com_scn(instance=instance, var_name='Land',
+                             tag='process', component_set='processes', label='Land use ')
 
-    instance.Land_process = Var(instance.locations, instance.processes,
-                                instance.scales_network, within=NonNegativeReals, doc='Land cost by Process')
-    instance.Land_location = Var(instance.locations, instance.scales_network,
-                                 within=NonNegativeReals, doc='Land used at location')
-    instance.Land_network = Var(
-        instance.scales_network, within=NonNegativeReals, doc='Land used at network')
-
-    instance.Land_cost_process = Var(instance.locations, instance.processes,
-                                     instance.scales_network, within=NonNegativeReals, doc='Land used by Process')
-    instance.Land_cost_location = Var(
-        instance.locations, instance.scales_network, within=NonNegativeReals, doc='Land cost at location')
-    instance.Land_cost_network = Var(
-        instance.scales_network, within=NonNegativeReals, doc='Land cost at network')
-    instance.Land_cost_total = Var(
-        within=NonNegativeReals, doc='Total expenditure on land')
+    generate_var_loc_com_scn(instance=instance, var_name='Land_cost',
+                             tag='process', component_set='processes', label='Land expenditure')
