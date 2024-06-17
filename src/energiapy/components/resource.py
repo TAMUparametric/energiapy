@@ -1,15 +1,3 @@
-"""Resource data class
-"""
-
-__author__ = "Rahul Kakodkar"
-__copyright__ = "Copyright 2023, Multi-parametric Optimization & Control Lab"
-__credits__ = ["Rahul Kakodkar", "Efstratios N. Pistikopoulos"]
-__license__ = "Open"
-__version__ = "0.0.1"
-__maintainer__ = "Rahul Kakodkar"
-__email__ = "cacodcar@tamu.edu"
-__status__ = "Production"
-
 from dataclasses import dataclass
 from warnings import warn
 from enum import Enum, auto
@@ -117,14 +105,14 @@ class Resource:
     """
 
     name: str
-    cons_max: float = 0
-    loss: float = 0
-    revenue: float = 0
-    price: float = 0
-    store_max: float = 0
-    store_min: float = 0
-    sell: bool = False
-    demand: bool = False
+    cons_max: float = None
+    loss: float = None
+    revenue: float = None
+    price: float = None
+    store_max: float = None
+    store_min: float = None
+    sell: bool = None
+    demand: bool = None
     basis: str = 'unit'
     block: Union[str, list, dict] = ''
     citation: str = 'citation needed'
@@ -141,6 +129,12 @@ class Resource:
 
     def __post_init__(self):
 
+        if self.cons_max is not None:
+            if self.price is None:
+                warn(
+                    f'purchase price not provide for consumable resource {self.name}; setting to 0')
+                self.price = 0
+
         self.emission_potentials_dict = {'gwp': self.gwp, 'odp': self.odp,
                                          'acid': self.acid, 'eutt': self.eutt, 'eutf': self.eutf, 'eutm': self.eutm}
         if self.demand is True:
@@ -148,7 +142,7 @@ class Resource:
 
         if self.varying is None:
             self.varying = []  # if varying is none default to certain availability and price
-        if self.cons_max > 0:
+        if self.cons_max is not None:
             if (VaryingResource.UNCERTAIN_AVAILABILITY not in self.varying) and (VaryingResource.DETERMINISTIC_AVAILABILITY not in self.varying):
                 self.varying = self.varying + \
                     [VaryingResource.CERTAIN_AVAILABILITY]

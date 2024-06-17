@@ -150,14 +150,11 @@ def constraint_process_capex(instance: ConcreteModel, capex_dict: dict, network_
             Cap_P = instance.Cap_P[location, process, scale_list]
         else:
             Cap_P = 0
-
-        if capex_factor[location] is not None:
-            if process in list(capex_factor[location].keys()):
-                capex_fact = capex_factor[location][process][scale_list]
-            else:
-                capex_fact = 1
-        else:
-            capex_fact = 1
+        capex_fact = 1
+        if capex_factor is not None:
+            if capex_factor[location] is not None:
+                if process in list(capex_factor[location].keys()):
+                    capex_fact = capex_factor[location][process][scale_list]
 
         if get_depth(capex_dict) == 1:
             return instance.Capex_process[location, process, scale_list] == annualization_factor*capex_fact*capex_dict[process]*Cap_P
@@ -193,13 +190,11 @@ def constraint_process_vopex(instance: ConcreteModel, vopex_dict: dict, network_
         else:
             P_location = 0
 
-        if vopex_factor[location] is not None:
-            if process in list(vopex_factor[location].keys()):
-                vopex_fact = vopex_factor[location][process][scale_list]
-            else:
-                vopex_fact = 1
-        else:
-            vopex_fact = 1
+        vopex_fact = 1
+        if vopex_factor is not None:
+            if vopex_factor[location] is not None:
+                if process in list(vopex_factor[location].keys()):
+                    vopex_fact = vopex_factor[location][process][scale_list]
 
         if get_depth(vopex_dict) == 1:
             return instance.Vopex_process[location, process, scale_list] == vopex_fact*vopex_dict[process]*P_location
@@ -235,14 +230,11 @@ def constraint_process_fopex(instance: ConcreteModel, fopex_dict: dict, network_
             Cap_P = instance.Cap_P[location, process, scale_list]
         else:
             Cap_P = 0
-
-        if fopex_factor[location] is not None:
-            if process in list(fopex_factor[location].keys()):
-                fopex_fact = fopex_factor[location][process][scale_list]
-            else:
-                fopex_fact = 1
-        else:
-            fopex_fact = 1
+        fopex_fact = 1
+        if fopex_factor is not None:
+            if fopex_factor[location] is not None:
+                if process in list(fopex_factor[location].keys()):
+                    fopex_fact = fopex_factor[location][process][scale_list]
 
         if get_depth(fopex_dict) == 1:
             return instance.Fopex_process[location, process, scale_list] == fopex_fact*fopex_dict[process]*Cap_P

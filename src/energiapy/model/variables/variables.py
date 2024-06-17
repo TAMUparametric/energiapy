@@ -67,7 +67,7 @@ def generate_var_loc_com_scn(instance: ConcreteModel, var_name: str, tag: str, c
     setattr(instance, f'{var_name}_total', Var(within=nn,
             doc=f'Total {label} for all locations summed over network scale'))
 
-    # setattr(instance, f'{var_name}', Var(Set)
+    # setattr(instance, f'{var_name}', Var(Set
     # instance.B = Var(Set(initialize=[(i, j) for i in scenario.location_resource_purch_dict for j in scenario.location_resource_purch_dict[i]]),
     #                  instance.scales_scheduling, within=NonNegativeReals, doc='Purchase Expenditure')
     # instance.B_location = Var(instance.locations, instance.resources_purch, instance.scales_network,

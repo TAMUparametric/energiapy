@@ -448,11 +448,11 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
                 instance=instance, scenario=scenario)
 
             instance.constraint_resource_purchase_certain = make_constraint(
-                instance=instance, type_cons=Cons.X_EQ_BY, variable_x='B', variable_y='C', location_set=instance.locations, component_set=instance.resources_certain_price, b_max=scenario.price_dict,
+                instance=instance, type_cons=Cons.X_EQ_BY, variable_x='B', variable_y='C', location_set=instance.locations, component_set=instance.resources_certain_price, b_max=scenario.price,
                 loc_comp_dict=scenario.location_resource_dict,  x_scale_level=scenario.scheduling_scale_level, y_scale_level=scenario.scheduling_scale_level, label='calculates certain amount spent on resource consumption')
 
             instance.constraint_resource_purchase_varying = make_constraint(
-                instance=instance, type_cons=Cons.X_EQ_BY, variable_x='B', variable_y='C', location_set=instance.locations, component_set=instance.resources_varying_price, b_max=scenario.price_dict,
+                instance=instance, type_cons=Cons.X_EQ_BY, variable_x='B', variable_y='C', location_set=instance.locations, component_set=instance.resources_varying_price, b_max=scenario.price,
                 loc_comp_dict=scenario.location_resource_dict, b_factor=scenario.price_factor, x_scale_level=scenario.scheduling_scale_level, y_scale_level=scenario.scheduling_scale_level, b_scale_level=scenario.price_factor_scale_level, label='calculates varying amount spent on resource consumption')
 
             instance.constraint_location_resource_purchase = make_constraint(
@@ -951,14 +951,15 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
 
         if (objective == Objective.PROFIT) or (objective == Objective.PROFIT_W_DEMAND_PENALTY):
 
-            generate_revenue_vars(instance=instance, scenario=scenario)
+            generate_resource_revenue_vars(
+                instance=instance, scenario=scenario)
 
             instance.constraint_resource_revenue_certain = make_constraint(
-                instance=instance, type_cons=Cons.X_EQ_BY, variable_x='R', variable_y='S', location_set=instance.locations, component_set=instance.resources_certain_revenue, b_max=scenario.revenue_dict,
+                instance=instance, type_cons=Cons.X_EQ_BY, variable_x='R', variable_y='S', location_set=instance.locations, component_set=instance.resources_certain_revenue, b_max=scenario.resource_revenue,
                 loc_comp_dict=scenario.location_resource_dict,  x_scale_level=scenario.scheduling_scale_level, y_scale_level=scenario.scheduling_scale_level, label='revenue earned from selling resource')
 
             instance.constraint_resource_revenue_varying = make_constraint(
-                instance=instance, type_cons=Cons.X_EQ_BY, variable_x='R', variable_y='S', location_set=instance.locations, component_set=instance.resources_varying_revenue, b_max=scenario.revenue_dict,
+                instance=instance, type_cons=Cons.X_EQ_BY, variable_x='R', variable_y='S', location_set=instance.locations, component_set=instance.resources_varying_revenue, b_max=scenario.resource_revenue,
                 loc_comp_dict=scenario.location_resource_dict, b_factor=scenario.revenue_factor, x_scale_level=scenario.scheduling_scale_level, y_scale_level=scenario.scheduling_scale_level, b_scale_level=scenario.revenue_factor_scale_level, label='revenue earned from selling resource at varying price')
 
             instance.constraint_location_revenue = make_constraint(

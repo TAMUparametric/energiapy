@@ -128,6 +128,8 @@ class Scenario:
 
         if isinstance(self.network, Location):
             self.scenario_type = ScenarioType.SINGLE_LOCATION
+            self.location_set = {self.network}
+
             # self.transport_set = None
             # self.source_locations = None
             # self.sink_locations = None
@@ -140,7 +142,6 @@ class Scenario:
             # self.trans_vopex = None
             # self.trans_emission = None
             # self.distance_dict = None
-            # self.location_set = {self.network}
             # self.transport_capacity_factor = None
             # self.transport_capex_factor = None
             # self.transport_vopex_factor = None
@@ -224,55 +225,21 @@ class Scenario:
         self.conversion = {i.name: {j.name: i.conversion[j] if j in i.conversion.keys(
         ) else 0 for j in self.resource_set} for i in self.process_set if i.conversion is not None}
 
-        self.cap_max = {i.name: i.cap_max for i in self.location_set}
-        self.cap_min = {i.name: i.cap_min for i in self.location_set}
-        self.cons_max = {i.name: {
-            j.name: j.cons_max for j in i.resources_full} for i in self.location_set}
-        
-        self.store_max = {i.name: {
-            j.name: j.store_max for j in i.resources_full} for i in self.location_set}
-        self.store_min = {i.name: {
-            j.name: j.store_min for j in i.resources_full} for i in self.location_set}
-        
-        self.capacity_factor = {
-            i.name: i.capacity_factor for i in self.location_set}
-        
-        self.price_factor = {i.name: i.price_factor for i in self.location_set}
-        self.demand_factor = {
-            i.name: i.demand_factor for i in self.location_set}
-        self.capex_factor = {i.name: i.capex_factor for i in self.location_set}
-        self.vopex_factor = {i.name: i.vopex_factor for i in self.location_set}
-        self.fopex_factor = {i.name: i.fopex_factor for i in self.location_set}
-        self.incidental_factor = {
-            i.name: i.incidental_factor for i in self.location_set}
-        self.availability_factor = {
-            i.name: i.availability_factor for i in self.location_set}
-        self.revenue_factor = {
-            i.name: i.revenue_factor for i in self.location_set}
-        
-        self.location_resource_dict = {
-            i.name: {j.name for j in i.resources_full} for i in self.location_set}
-        self.location_resource_sell_dict = {
-            i.name: {j.name for j in i.resources_full if j.sell is True} for i in self.location_set}
-        self.location_resource_purch_dict = {
-            i.name: {j.name for j in i.resources_full if j.cons_max > 0} for i in self.location_set}
-        self.location_resource_store_dict = {
-            i.name: {j.name for j in i.resources_full if j.store_max > 0} for i in self.location_set}
-        self.location_process_dict = {
-            i.name: {j.name for j in i.processes_full} for i in self.location_set}
-        
-        
+        for i in ['cap_max', 'cap_min', 'price', 'revenue', 'cons_max', 'store_max', 'store_min', 'capacity_factor', 'price_factor', 'demand_factor', 'capex_factor',
+                  'fopex_factor', 'vopex_factor', 'incidental_factor', 'availability_factor', 'revenue_factor']:
+            self.loc_comp_attr_dict(attr=i)
+
         self.location_material_dict = {i.name: {j.name for j in i.materials}
                                        for i in self.location_set}
-        # TODO change to be location wise
-        self.price_dict = {i.name: i.resource_price for i in self.location_set}
-        self.revenue_dict = {
-            i.name: i.resource_revenue for i in self.location_set}
 
-        # self.capex_dict = {i.name: i.capex for i in self.process_set}
-        # self.fopex_dict = {i.name: i.fopex for i in self.process_set}
-        # self.vopex_dict = {i.name: i.vopex for i in self.process_set}
-        # self.land_dict = {i.name: i.land for i in self.process_set}
+        self.loc_comp_dict(attr='resources_full', attr_tag='resource')
+        self.loc_comp_dict(attr='processes_full', attr_tag='process')
+        self.loc_comp_dict(
+            attr='resources_sell', attr_tag='resource_sell')
+        self.loc_comp_dict(
+            attr='resources_purch', attr_tag='resource_purch')
+        self.loc_comp_dict(
+            attr='resources_store', attr_tag='resource_store')
 
         for i in ['capex', 'fopex', 'vopex', 'incidental', 'storage_cost', 'land']:
             self.create_attr_dict(i, self.process_set)
@@ -386,9 +353,9 @@ class Scenario:
 
             'resources_sell': [i.name for i in self.resource_set if i.sell is True],
 
-            'resources_store': [i.name for i in self.resource_set if i.store_max > 0],
+            'resources_store': [i.name for i in self.resource_set if i.store_max is not None],
 
-            'resources_purch': [i.name for i in self.resource_set if i.cons_max > 0],
+            'resources_purch': [i.name for i in self.resource_set if i.cons_max is not None],
 
             'resources_varying_demand': [i.name for i in self.resource_set if
                                          VaryingResource.DETERMINISTIC_DEMAND in i.varying],
@@ -511,6 +478,28 @@ class Scenario:
                 'transports_varying_fopex': [i.name for i in self.transport_set if VaryingTransport.DETERMINISTIC_FOPEX in i.varying],
             }
             self.set_dict = {**self.set_dict, **transport_set_dict}
+
+    def loc_comp_attr_dict(self, attr: str):
+        """creates a dict of type {loc: {comp: attribute_dict}}
+        Args:
+            attr (str): attribute
+        """
+        check_set = {getattr(i, attr) if isinstance(
+            getattr(i, attr), dict) is False else 1 for i in getattr(self, 'location_set')}
+        if list(set(check_set))[0] is not None:
+            setattr(self, f'{attr}', {getattr(i, 'name'): getattr(
+                i, attr) for i in getattr(self, 'location_set')})
+        else:
+            setattr(self, f'{attr}', None)
+
+    def loc_comp_dict(self, attr: str, attr_tag: str):
+        """creates dict of the type {loc: {comp subset}}
+        Args:
+            attr (str): location attribute to select
+            attr_tag (str): what should the dict be tagged as
+        """
+        setattr(self, f'location_{attr_tag}_dict',
+                {getattr(i, 'name'): {getattr(j, 'name') for j in getattr(i, attr)} for i in getattr(self, 'location_set')})
 
     def factor_scale_getter(self, factor_scale_level: str) -> int:
         """returns scale level for varying factor, checks consistency

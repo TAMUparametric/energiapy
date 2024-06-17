@@ -72,31 +72,32 @@ def constraint_demand(instance: ConcreteModel, demand: Union[dict, float], deman
         location_resource_dict = dict()
 
     def demand_rule(instance, location, resource, *scale_list):
+        if demand_factor is not None:
+            if demand_factor[location] is not None:
+                if isinstance(demand_factor[location][list(demand_factor[location])[0]], (float, int)):
+                    discharge = sum(instance.S[location, resource_, scale_list[:scheduling_scale_level + 1]] for
+                                    resource_ in instance.resources_demand)
 
-        if demand_factor[location] is not None:
-            if isinstance(demand_factor[location][list(demand_factor[location])[0]], (float, int)):
-                discharge = sum(instance.S[location, resource_, scale_list[:scheduling_scale_level + 1]] for
-                                resource_ in instance.resources_demand)
+                else:
+                    discharge = sum(instance.S[location, resource, scale_] for scale_ in scale_iter if scale_[
+                        :demand_scale_level + 1] == scale_list)
 
-            else:
-                discharge = sum(instance.S[location, resource, scale_] for scale_ in scale_iter if scale_[
-                    :demand_scale_level + 1] == scale_list)
-
-            if isinstance(demand, dict):
-                if resource in location_resource_dict[location]:
-                    if resource in demand_factor[location].keys():
-                        demandtarget = demand[location][resource] * \
+                if isinstance(demand, dict):
+                    if resource in location_resource_dict[location]:
+                        if resource in demand_factor[location].keys():
+                            demandtarget = demand[location][resource] * \
+                                demand_factor[location][resource][scale_list[:demand_scale_level + 1]]
+                        else:
+                            demandtarget = demand[location][resource]
+                    else:
+                        demandtarget = 0
+                else:
+                    if resource in location_resource_dict[location]:
+                        demandtarget = demand * \
                             demand_factor[location][resource][scale_list[:demand_scale_level + 1]]
                     else:
-                        demandtarget = demand[location][resource]
-                else:
-                    demandtarget = 0
-            else:
-                if resource in location_resource_dict[location]:
-                    demandtarget = demand * \
-                        demand_factor[location][resource][scale_list[:demand_scale_level + 1]]
-                else:
-                    demandtarget = 0
+                        demandtarget = 0
+
         else:
             # TODO - doesn't meet demand in first timeperiod
             if resource in location_resource_dict[location]:
@@ -130,7 +131,6 @@ def constraint_demand(instance: ConcreteModel, demand: Union[dict, float], deman
             instance.sinks, instance.resources_demand, *scales, rule=demand_rule, doc='specific demand for resources')
     else:
         return Constraint(instance.locations, instance.resources_demand, *scales, rule=demand_rule, doc='specific demand for resources')
-     
 
 
 def constraint_demand_penalty(instance: ConcreteModel, demand: Union[dict, float], demand_factor: Union[dict, float],

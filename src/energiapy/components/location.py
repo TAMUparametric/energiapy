@@ -80,7 +80,7 @@ class Location:
             varying_capacity (Set): processes with varying capacities
             varying_price (Set): resources with varying purchase price
             varying_demand (Set): resources with varying demands
-            resource_price (Dict): dictionary with the purchase cost of resources.
+            price (Dict): dictionary with the purchase cost of resources.
             failure_processes (Set): set of processes with failure rates
             fail_factor (Dict[Process, float]): creates a dictionary with failure points on a temporal scale
         """
@@ -106,7 +106,16 @@ class Location:
                                    'cap_pwl': self.cap_pwl_dict[p], 'ramp_sequence': self.ramp_sequence_dict[p]} if p.processmode == ProcessMode.MULTI else {'modes': None, 'ramp_rates': None,
                                                                                                                                                              'cap_pwl': None, 'ramp_sequence': None} for p in self.processes_full}
 
-        self.resource_price, self.resource_revenue = self.get_resource_prices()
+        for i in ['price', 'revenue', 'cons_max', 'store_max', 'store_min']:
+            self.comp_attr_dict(attr=i, component_set='resources_full')
+
+        self.comp_attr_set(
+            attr='sell', component_set='resources_full', tag='resources_sell')
+        self.comp_attr_set(
+            attr='cons_max', component_set='resources_full', tag='resources_purch')
+        self.comp_attr_set(
+            attr='store_max', component_set='resources_full', tag='resources_store')
+
         # fetch all processes with failure rates set
         self.failure_processes = self.get_failure_processes()
         self.fail_factor = self.make_fail_factor()
@@ -114,32 +123,40 @@ class Location:
         self.storage_cost_dict = {
             i.resource_storage.name: i.storage_cost for i in self.processes_full if i.resource_storage is not None}
 
-        self.factor_handler(
-            factor_name='capacity_factor', factor_scale_name='capacity_factor_scale_level', varying_set_name='varying_capacity')
+        for i in ['capacity', 'price', 'demand', 'availability', 'revenue']:
+            self.factor_handler(
+                factor_name=f'{i}_factor', factor_scale_name=f'{i}_factor_scale_level', varying_set_name=f'varying_{i}')
 
-        self.factor_handler(
-            factor_name='price_factor', factor_scale_name='price_factor_scale_level', varying_set_name='varying_price')
+        for i in ['capex', 'fopex', 'vopex', 'incidental']:
+            self.factor_handler(
+                factor_name=f'{i}_factor', factor_scale_name=f'expenditure_factor_scale_level', varying_set_name=f'varying_{i}')
 
-        self.factor_handler(
-            factor_name='demand_factor', factor_scale_name='demand_factor_scale_level', varying_set_name='varying_demand')
+        # self.factor_handler(
+        #     factor_name='capacity_factor', factor_scale_name='capacity_factor_scale_level', varying_set_name='varying_capacity')
 
-        self.factor_handler(
-            factor_name='availability_factor', factor_scale_name='availability_factor_scale_level', varying_set_name='varying_availability')
+        # self.factor_handler(
+        #     factor_name='price_factor', factor_scale_name='price_factor_scale_level', varying_set_name='varying_price')
 
-        self.factor_handler(
-            factor_name='revenue_factor', factor_scale_name='revenue_factor_scale_level', varying_set_name='varying_revenue')
+        # self.factor_handler(
+        #     factor_name='demand_factor', factor_scale_name='demand_factor_scale_level', varying_set_name='varying_demand')
 
-        self.factor_handler(
-            factor_name='capex_factor', factor_scale_name='expenditure_factor_scale_level', varying_set_name='varying_capex')
+        # self.factor_handler(
+        #     factor_name='availability_factor', factor_scale_name='availability_factor_scale_level', varying_set_name='varying_availability')
 
-        self.factor_handler(
-            factor_name='fopex_factor', factor_scale_name='expenditure_factor_scale_level', varying_set_name='varying_fopex')
+        # self.factor_handler(
+        #     factor_name='revenue_factor', factor_scale_name='revenue_factor_scale_level', varying_set_name='varying_revenue')
 
-        self.factor_handler(
-            factor_name='vopex_factor', factor_scale_name='expenditure_factor_scale_level', varying_set_name='varying_vopex')
+        # self.factor_handler(
+        #     factor_name='capex_factor', factor_scale_name='expenditure_factor_scale_level', varying_set_name='varying_capex')
 
-        self.factor_handler(
-            factor_name='incidental_factor', factor_scale_name='expenditure_factor_scale_level', varying_set_name='varying_incidental')
+        # self.factor_handler(
+        #     factor_name='fopex_factor', factor_scale_name='expenditure_factor_scale_level', varying_set_name='varying_fopex')
+
+        # self.factor_handler(
+        #     factor_name='vopex_factor', factor_scale_name='expenditure_factor_scale_level', varying_set_name='varying_vopex')
+
+        # self.factor_handler(
+        #     factor_name='incidental_factor', factor_scale_name='expenditure_factor_scale_level', varying_set_name='varying_incidental')
 
     def get_resources(self) -> Set[Resource]:
         """fetches required resources for processes introduced at locations
@@ -214,13 +231,26 @@ class Location:
                 warn(
                     f'[{self.name}]: Do not give {factor_scale_name} without a {factor_name}')
 
-    def get_resource_prices(self) -> Union[dict, dict]:
-        """gets resource purchase and selling prices
+    def comp_attr_dict(self, attr: str, component_set: str):
+        """makes a dict of the type {comp: attr}
 
-        Returns:
-            Union[dict,dict]: (dict with purchase prices, dict with selling prices)
+        Args:
+            attr (str): attribute
+            component_set (str): components such as resources
         """
-        return {i.name: i.price for i in self.resources}, {i.name: i.revenue for i in self.resources}
+        setattr(self, attr, {getattr(i, 'name'): getattr(i, attr) for i in getattr(
+            self, component_set) if getattr(i, attr) is not None})
+
+    def comp_attr_set(self, attr: str, component_set: str, tag: str):
+        """makes a dict of the type {comp: attr}
+
+        Args:
+            attr (str): attribute
+            component_set (str): components such as resources
+            tag (str) : what to call the new location attribute
+        """
+        setattr(self, tag, {i for i in getattr(
+            self, component_set) if getattr(i, attr) is not None})
 
     def get_failure_processes(self):
         """get processes with failure rates
