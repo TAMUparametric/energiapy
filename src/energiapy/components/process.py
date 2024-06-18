@@ -4,7 +4,7 @@ from typing import Dict, Union, List, Tuple
 from warnings import warn
 from itertools import product
 from ..components.material import Material
-from ..components.resource import Resource, VaryingResource
+from ..components.resource import Resource
 
 
 class CostDynamics(Enum):
@@ -36,6 +36,10 @@ class ProcessMode(Enum):
     STORAGE = auto()
     """
     Storage type process
+    """
+    STORAGE_REQ = auto()
+    """
+    Storage type process, but storage itself consumes another resource. 
     """
 
 

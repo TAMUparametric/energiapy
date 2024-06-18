@@ -1,9 +1,17 @@
+""" Need to do here:
+
+    figure out scale of factors
+    whether specific demand is met for a resource that can be sold at this location
+    Add localization factors for prices and such 
+"""
+
+
 from dataclasses import dataclass
 from itertools import product
 from random import sample
 from typing import Dict, Set, Union
 from warnings import warn
-
+import uuid
 from pandas import DataFrame
 from ..components.material import Material
 from ..components.process import Process, ProcessMode, MaterialMode
@@ -47,9 +55,9 @@ class Location:
         >>> Goa= Location(name='Goa', processes= {Process1, Process2}, demand_scale_level=2, capacity_scale_level= 2, price_scale_level= 1, demand_factor= {Resource1: DataFrame,}, price_factor = {Resource2: DataFrame}, capacity_factor = {Process1: DataFrame}, scales= TemporalScale object, label='Home')
     """
 
-    name: str
     processes: Set[Process]
     scales: TemporalScale
+    name: str = None
     demand: Dict[Resource, float] = None
     demand_factor: Union[float, Dict[Resource, float]] = None
     price_factor: Union[float, Dict[Resource, float]] = None
@@ -131,6 +139,8 @@ class Location:
             self.factor_handler(
                 factor_name=f'{i}_factor', factor_scale_name=f'expenditure_factor_scale_level', varying_set_name=f'varying_{i}')
 
+        if self.name is None:
+            self.name = f"Location_{uuid.uuid4().hex}"
         # self.factor_handler(
         #     factor_name='capacity_factor', factor_scale_name='capacity_factor_scale_level', varying_set_name='varying_capacity')
 

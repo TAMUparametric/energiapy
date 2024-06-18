@@ -14,6 +14,7 @@ import json
 import pickle
 from dataclasses import dataclass
 from typing import Dict
+import uuid
 
 
 @dataclass
@@ -30,11 +31,16 @@ class Result:
        cost_summary (dict): summary of the contributing costs
 
     """
-    name: str
     components: dict
     output: dict
     model_elements: dict
     duals: dict
+    name: str = None 
+    
+    
+    def __post_init__(self):
+        if self.name is None:
+            self.name = f"Result_{uuid.uuid4().hex}"
 
     def saveoutputs(self, file_name: str):
         """Saves output with provide name.

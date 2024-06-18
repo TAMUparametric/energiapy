@@ -12,8 +12,8 @@ __status__ = "Production"
 
 from dataclasses import dataclass
 from typing import Dict
-
 from ..components.resource import Resource
+import uuid
 
 
 @dataclass
@@ -42,7 +42,7 @@ class Material:
 
     """
 
-    name: str
+    name: str = None
     resource_cons: Dict[Resource, float] = None
     gwp: float = 0
     odp: float = 0
@@ -58,6 +58,9 @@ class Material:
     def __post_init__(self):
         self.emission_potentials_dict = {'gwp': self.gwp, 'odp': self.odp,
                                          'acid': self.acid, 'eutt': self.eutt, 'eutf': self.eutf, 'eutm': self.eutm}
+
+        if self.name is None:
+            self.name = f"Material_{uuid.uuid4().hex}"
 
     def __repr__(self):
         return self.name

@@ -15,7 +15,7 @@ from typing import Dict, Set, List
 
 from ..components.material import Material
 from ..components.resource import Resource
-
+import uuid
 from enum import Enum, auto
 
 
@@ -101,8 +101,8 @@ class Transport:
 
 
     """
-    name: str
     resources: Set[Resource]
+    name: str = None
     material_cons: Dict[Material, float] = None
     introduce: int = 0
     retire: int = None
@@ -132,6 +132,9 @@ class Transport:
 
         if (VaryingTransport.DETERMINISTIC_VOPEX not in self.varying) and (VaryingTransport.UNCERTAIN_VOPEX not in self.varying):
             self.varying = self.varying + [VaryingTransport.CERTAIN_VOPEX]
+
+        if self.name is None:
+            self.name = f"Transport_{uuid.uuid4().hex}"
 
     def __repr__(self):
         return self.name

@@ -64,3 +64,5 @@ def scale_changer(input_dict: dict, scales: TemporalScale, scale_level: int) -> 
     output_dict = {i: {j: df[i][j] if math.isnan(df[i][j]) is False else 0.0 for j in df.index } for i in df.columns}
 
     return output_dict
+
+

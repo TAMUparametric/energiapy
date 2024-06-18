@@ -14,9 +14,27 @@ from src.energiapy.model.solve import solve
 
 
 @pytest.fixture()
-def temporal_scale():
-    """Temporal scale with 1 main period and 4 sub periods"""
+def single_level_scale():
+    """Single scale with 4 discertizations"""
+    return TemporalScale(discretization_list=[4])
+
+
+@pytest.fixture()
+def scheduling_single_level_scale():
+    """Strictly scheduling with single scale with 4 discertizations"""
+    return TemporalScale(discretization_list=[4], scheduling_scale=0)
+
+
+@pytest.fixture()
+def multi_two_level_scale():
+    """Two scales with diff discertizations"""
     return TemporalScale(discretization_list=[1, 4])
+
+
+@pytest.fixture()
+def multi_three_level_scale():
+    """Three scales with diff discertizations"""
+    return TemporalScale(discretization_list=[1, 7, 24])
 
 
 @pytest.fixture()

@@ -9,7 +9,7 @@ from ..components.transport import VaryingTransport
 from ..components.location import Location
 from ..components.network import Network
 from ..components.process import ProcessMode, VaryingProcess, CostDynamics
-from ..components.resource import Resource, VaryingResource
+from ..components.resource import Resource
 from ..components.temporal_scale import TemporalScale
 from ..model.bounds import CapacityBounds
 from ..model.weights import EmissionWeights
@@ -125,6 +125,9 @@ class Scenario:
             mode_dict (dict): A dictionary with the multiple modes of each Process with ProcessMode.MULTI
             cost_df (DataFrame): handy dataframe with cost parameters
         """
+
+        self.design_scale = self.scales.desing_scale
+        self.scheduling_scale = self.scales.scheduling_scale
 
         if isinstance(self.network, Location):
             self.scenario_type = ScenarioType.SINGLE_LOCATION
@@ -348,135 +351,136 @@ class Scenario:
                     self.process_material_modes_dict = {
                         i.name: i.material_modes for i in self.process_set}
 
-        set_dict = {
-            'resources': [i.name for i in self.resource_set],
+        # set_dict = {
+        #     'resources': [i.name for i in self.resource_set],
 
-            'resources_sell': [i.name for i in self.resource_set if i.sell is True],
+        #     'resources_sell': [i.name for i in self.resource_set if i.sell is True],
 
-            'resources_store': [i.name for i in self.resource_set if i.store_max is not None],
+        #     'resources_store': [i.name for i in self.resource_set if i.store_max is not None],
 
-            'resources_purch': [i.name for i in self.resource_set if i.cons_max is not None],
+        #     'resources_purch': [i.name for i in self.resource_set if i.cons_max is not None],
 
-            'resources_varying_demand': [i.name for i in self.resource_set if
-                                         VaryingResource.DETERMINISTIC_DEMAND in i.varying],
-            'resources_certain_demand': [i.name for i in self.resource_set if
-                                         VaryingResource.CERTAIN_DEMAND in i.varying],
-            'resources_uncertain_demand': [i.name for i in self.resource_set if
-                                           VaryingResource.UNCERTAIN_DEMAND in i.varying],
+        #     'resources_varying_demand': [i.name for i in self.resource_set if
+        #                                  VaryingResource.DETERMINISTIC_DEMAND in i.varying],
+        #     'resources_certain_demand': [i.name for i in self.resource_set if
+        #                                  VaryingResource.CERTAIN_DEMAND in i.varying],
+        #     'resources_uncertain_demand': [i.name for i in self.resource_set if
+        #                                    VaryingResource.UNCERTAIN_DEMAND in i.varying],
 
-            'resources_varying_price': [i.name for i in self.resource_set if
-                                        VaryingResource.DETERMINISTIC_PRICE in i.varying],
-            'resources_certain_price': [i.name for i in self.resource_set if
-                                        VaryingResource.CERTAIN_PRICE in i.varying],
-            'resources_uncertain_price': [i.name for i in self.resource_set if
-                                          VaryingResource.UNCERTAIN_PRICE in i.varying],
+        #     'resources_varying_price': [i.name for i in self.resource_set if
+        #                                 VaryingResource.DETERMINISTIC_PRICE in i.varying],
+        #     'resources_certain_price': [i.name for i in self.resource_set if
+        #                                 VaryingResource.CERTAIN_PRICE in i.varying],
+        #     'resources_uncertain_price': [i.name for i in self.resource_set if
+        #                                   VaryingResource.UNCERTAIN_PRICE in i.varying],
 
-            'resources_varying_revenue': [i.name for i in self.resource_set if
-                                          VaryingResource.DETERMINISTIC_REVENUE in i.varying],
-            'resources_certain_revenue': [i.name for i in self.resource_set if
-                                          VaryingResource.CERTAIN_REVENUE in i.varying],
-            'resources_uncertain_revenue': [i.name for i in self.resource_set if
-                                            VaryingResource.UNCERTAIN_REVENUE in i.varying],
+        #     'resources_varying_revenue': [i.name for i in self.resource_set if
+        #                                   VaryingResource.DETERMINISTIC_REVENUE in i.varying],
+        #     'resources_certain_revenue': [i.name for i in self.resource_set if
+        #                                   VaryingResource.CERTAIN_REVENUE in i.varying],
+        #     'resources_uncertain_revenue': [i.name for i in self.resource_set if
+        #                                     VaryingResource.UNCERTAIN_REVENUE in i.varying],
 
-            'resources_varying_availability': [i.name for i in self.resource_set if
-                                               VaryingResource.DETERMINISTIC_AVAILABILITY in i.varying],
-            'resources_certain_availability': [i.name for i in self.resource_set if
-                                               VaryingResource.CERTAIN_AVAILABILITY in i.varying],
-            'resources_uncertain_availability': [i.name for i in self.resource_set if
-                                                 VaryingResource.UNCERTAIN_AVAILABILITY in i.varying],
+        #     'resources_varying_availability': [i.name for i in self.resource_set if
+        #                                        VaryingResource.DETERMINISTIC_AVAILABILITY in i.varying],
+        #     'resources_certain_availability': [i.name for i in self.resource_set if
+        #                                        VaryingResource.CERTAIN_AVAILABILITY in i.varying],
+        #     'resources_uncertain_availability': [i.name for i in self.resource_set if
+        #                                          VaryingResource.UNCERTAIN_AVAILABILITY in i.varying],
 
-            'resources_demand': [i.name for i in self.resource_set if i.demand is True],
+        #     'resources_demand': [i.name for i in self.resource_set if i.demand is True],
 
-            'resources_implicit': [i.name for i in self.resource_set if VaryingResource.IMPLICIT in i.varying],
+        #     'resources_implicit': [i.name for i in self.resource_set if VaryingResource.IMPLICIT in i.varying],
 
-            'processes': [i.name for i in self.process_set],
+        #     'processes': [i.name for i in self.process_set],
 
-            'processes_full': list(self.conversion.keys()),
+        #     'processes_full': list(self.conversion.keys()),
 
-            'processes_failure': [i.name for i in self.process_set if i.p_fail is not None],
+        #     'processes_failure': [i.name for i in self.process_set if i.p_fail is not None],
 
-            'processes_materials': [i.name for i in self.process_set if i.material_cons is not None],
+        #     'processes_materials': [i.name for i in self.process_set if i.material_cons is not None],
 
-            'processes_storage': [i.name for i in self.process_set if i.conversion_discharge is not None],
+        #     'processes_storage': [i.name for i in self.process_set if i.conversion_discharge is not None],
 
-            'processes_multim': [i.name for i in self.process_set if i.processmode == ProcessMode.MULTI],
-            'processes_singlem': [i.name for i in self.process_set if
-                                  (i.processmode == ProcessMode.SINGLE) or (i.processmode == ProcessMode.STORAGE)],
+        #     'processes_multim': [i.name for i in self.process_set if i.processmode == ProcessMode.MULTI],
+        #     'processes_singlem': [i.name for i in self.process_set if
+        #                           (i.processmode == ProcessMode.SINGLE) or (i.processmode == ProcessMode.STORAGE)],
 
-            'processes_certain_capacity': [i.name for i in self.process_set if
-                                           VaryingProcess.CERTAIN_CAPACITY in i.varying],
-            'processes_varying_capacity': [i.name for i in self.process_set if
-                                           VaryingProcess.DETERMINISTIC_CAPACITY in i.varying],
-            'processes_uncertain_capacity': [i.name for i in self.process_set if
-                                             VaryingProcess.UNCERTAIN_CAPACITY in i.varying],
+        #     'processes_certain_capacity': [i.name for i in self.process_set if
+        #                                    VaryingProcess.CERTAIN_CAPACITY in i.varying],
+        #     'processes_varying_capacity': [i.name for i in self.process_set if
+        #                                    VaryingProcess.DETERMINISTIC_CAPACITY in i.varying],
+        #     'processes_uncertain_capacity': [i.name for i in self.process_set if
+        #                                      VaryingProcess.UNCERTAIN_CAPACITY in i.varying],
 
-            'processes_certain_expenditure': [i.name for i in self.process_set if
-                                              VaryingProcess.CERTAIN_EXPENDITURE in i.varying],
-            'processes_varying_expenditure': [i.name for i in self.process_set if
-                                              VaryingProcess.DETERMINISTIC_EXPENDITURE in i.varying],
-            'processes_uncertain_expenditure': [i.name for i in self.process_set if
-                                                VaryingProcess.UNCERTAIN_EXPENDITURE in i.varying],
+        #     'processes_certain_expenditure': [i.name for i in self.process_set if
+        #                                       VaryingProcess.CERTAIN_EXPENDITURE in i.varying],
+        #     'processes_varying_expenditure': [i.name for i in self.process_set if
+        #                                       VaryingProcess.DETERMINISTIC_EXPENDITURE in i.varying],
+        #     'processes_uncertain_expenditure': [i.name for i in self.process_set if
+        #                                         VaryingProcess.UNCERTAIN_EXPENDITURE in i.varying],
 
-            'processes_segments': [i.name for i in self.process_set if i.cost_dynamics == CostDynamics.PWL],
+        #     'processes_segments': [i.name for i in self.process_set if i.cost_dynamics == CostDynamics.PWL],
 
-            'locations': [i.name for i in self.location_set],
-            'materials': [i.name for i in self.material_set],
+        #     'locations': [i.name for i in self.location_set],
+        #     'materials': [i.name for i in self.material_set],
 
-            'process_material_modes': process_material_modes,
+        #     'process_material_modes': process_material_modes,
 
-            'material_modes': [element for dictionary in list(i.material_modes for i in self.process_set) for element in dictionary],
+        #     'material_modes': [element for dictionary in list(i.material_modes for i in self.process_set) for element in dictionary],
 
-            'process_modes': [(j[0], i) for j in [(i.name, i.modes) for i in self.process_set if i.processmode is ProcessMode.MULTI] for i in j[1]]
-        }
+        #     'process_modes': [(j[0], i) for j in [(i.name, i.modes) for i in self.process_set if i.processmode is ProcessMode.MULTI] for i in j[1]]
+        # }
 
-        self.varying_bounds_dict = {
-            'demand': {i.name: i.varying_bounds for i in self.resource_set if VaryingResource.UNCERTAIN_DEMAND in i.varying},
-            'availability': {i.name: i.varying_bounds for i in self.resource_set if VaryingResource.UNCERTAIN_AVAILABILITY in i.varying},
-            'capacity': {i.name: i.varying_bounds for i in self.process_set if VaryingProcess.UNCERTAIN_CAPACITY in i.varying}
-        }
+        # self.varying_bounds_dict = {
+        #     'demand': {i.name: i.varying_bounds for i in self.resource_set if VaryingResource.UNCERTAIN_DEMAND in i.varying},
+        #     'availability': {i.name: i.varying_bounds for i in self.resource_set if VaryingResource.UNCERTAIN_AVAILABILITY in i.varying},
+        #     'capacity': {i.name: i.varying_bounds for i in self.process_set if VaryingProcess.UNCERTAIN_CAPACITY in i.varying}
+        # }
 
-        if self.source_locations is not None:
-            set_dict['sources'] = [i.name for i in self.source_locations]
-        else:
-            set_dict['sources'] = []
+        # if self.source_locations is not None:
+        #     set_dict['sources'] = [i.name for i in self.source_locations]
+        # else:
+        #     set_dict['sources'] = []
 
-        if self.sink_locations is not None:
-            set_dict['sinks'] = [i.name for i in self.sink_locations]
-        else:
-            set_dict['sinks'] = []
+        # if self.sink_locations is not None:
+        #     set_dict['sinks'] = [i.name for i in self.sink_locations]
+        # else:
+        #     set_dict['sinks'] = []
 
-        if self.material_set is not None:
-            set_dict['materials'] = [i.name for i in self.material_set]
-        else:
-            set_dict['materials'] = []
+        # if self.material_set is not None:
+        #     set_dict['materials'] = [i.name for i in self.material_set]
+        # else:
+        #     set_dict['materials'] = []
 
-        if self.transport_set is not None:
-            set_dict['transports'] = [i.name for i in self.transport_set]
-            set_dict['resources_trans'] = [i.name for i in set().union(
-                *[i.resources for i in self.transport_set])]
-        else:
-            set_dict['transports'] = []
-            set_dict['resources_trans'] = []
+        # if self.transport_set is not None:
+        #     set_dict['transports'] = [i.name for i in self.transport_set]
+        #     set_dict['resources_trans'] = [i.name for i in set().union(
+        #         *[i.resources for i in self.transport_set])]
+        # else:
+        #     set_dict['transports'] = []
+        #     set_dict['resources_trans'] = []
 
-        self.set_dict = {x: sorted(set_dict[x]) for x in set_dict.keys()}
+        # self.set_dict = {x: sorted(set_dict[x]) for x in set_dict.keys()}
 
-        if isinstance(self.network, Network):
-            transport_set_dict = {
-                'transports_certain_capacity': [i.name for i in self.transport_set if VaryingTransport.CERTAIN_CAPACITY in i.varying],
-                'transports_certain_capex': [i.name for i in self.transport_set if VaryingTransport.CERTAIN_CAPEX in i.varying],
-                'transports_certain_vopex': [i.name for i in self.transport_set if VaryingTransport.CERTAIN_VOPEX in i.varying],
-                'transports_certain_fopex': [i.name for i in self.transport_set if VaryingTransport.CERTAIN_FOPEX in i.varying],
+        # if isinstance(self.network, Network):
+        #     transport_set_dict = {
+        #         'transports_certain_capacity': [i.name for i in self.transport_set if VaryingTransport.CERTAIN_CAPACITY in i.varying],
+        #         'transports_certain_capex': [i.name for i in self.transport_set if VaryingTransport.CERTAIN_CAPEX in i.varying],
+        #         'transports_certain_vopex': [i.name for i in self.transport_set if VaryingTransport.CERTAIN_VOPEX in i.varying],
+        #         'transports_certain_fopex': [i.name for i in self.transport_set if VaryingTransport.CERTAIN_FOPEX in i.varying],
 
-                'transports_uncertain_capacity': [i.name for i in self.transport_set if VaryingTransport.UNCERTAIN_CAPACITY in i.varying],
-                'transports_uncertain_capex': [i.name for i in self.transport_set if VaryingTransport.UNCERTAIN_CAPEX in i.varying],
-                'transports_uncertain_vopex': [i.name for i in self.transport_set if VaryingTransport.UNCERTAIN_VOPEX in i.varying],
-                'transports_uncertain_fopex': [i.name for i in self.transport_set if VaryingTransport.UNCERTAIN_FOPEX in i.varying],
+        #         'transports_uncertain_capacity': [i.name for i in self.transport_set if VaryingTransport.UNCERTAIN_CAPACITY in i.varying],
+        #         'transports_uncertain_capex': [i.name for i in self.transport_set if VaryingTransport.UNCERTAIN_CAPEX in i.varying],
+        #         'transports_uncertain_vopex': [i.name for i in self.transport_set if VaryingTransport.UNCERTAIN_VOPEX in i.varying],
+        #         'transports_uncertain_fopex': [i.name for i in self.transport_set if VaryingTransport.UNCERTAIN_FOPEX in i.varying],
 
-                'transports_varying_capacity': [i.name for i in self.transport_set if VaryingTransport.DETERMINISTIC_CAPACITY in i.varying],
-                'transports_varying_capex': [i.name for i in self.transport_set if VaryingTransport.DETERMINISTIC_CAPEX in i.varying],
-                'transports_varying_vopex': [i.name for i in self.transport_set if VaryingTransport.DETERMINISTIC_VOPEX in i.varying],
-                'transports_varying_fopex': [i.name for i in self.transport_set if VaryingTransport.DETERMINISTIC_FOPEX in i.varying],
-            }
+        #         'transports_varying_capacity': [i.name for i in self.transport_set if VaryingTransport.DETERMINISTIC_CAPACITY in i.varying],
+        #         'transports_varying_capex': [i.name for i in self.transport_set if VaryingTransport.DETERMINISTIC_CAPEX in i.varying],
+        #         'transports_varying_vopex': [i.name for i in self.transport_set if VaryingTransport.DETERMINISTIC_VOPEX in i.varying],
+        #         'transports_varying_fopex': [i.name for i in self.transport_set if VaryingTransport.DETERMINISTIC_FOPEX in i.varying],
+        #     }
+            self.set_dict = {}
             self.set_dict = {**self.set_dict, **transport_set_dict}
 
     def loc_comp_attr_dict(self, attr: str):
