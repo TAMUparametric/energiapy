@@ -3,8 +3,9 @@
     figure out scale of factors
     whether specific demand is met for a resource that can be sold at this location
     Add localization factors for prices and such 
+    DEMAND var for resource
+    EXP Var for process 
 """
-
 
 from dataclasses import dataclass
 from itertools import product
@@ -14,10 +15,11 @@ from warnings import warn
 import uuid
 from pandas import DataFrame
 from ..components.material import Material
-from ..components.process import Process, ProcessMode, MaterialMode
+from ..components.process import Process
 from ..components.resource import Resource
 from ..components.temporal_scale import TemporalScale
 from ..utils.scale_utils import scale_changer
+from .comptype import ProcessType
 
 
 @dataclass
@@ -92,27 +94,26 @@ class Location:
             failure_processes (Set): set of processes with failure rates
             fail_factor (Dict[Process, float]): creates a dictionary with failure points on a temporal scale
         """
-        self.resources = self.get_resources()  # fetch all resources required
-        self.resources_full = self.resources.union(
-            {i.resource_storage for i in self.processes if i.resource_storage is not None})  # includes storage resources
-        self.materials = self.get_materials()  # fetch all materials required
+
+        self.processes = self.processes.union({self.create_storage_process(
+            i) for i in self.processes if ProcessType.STORAGE in i.ctype})
+        self.resources = set.union(*[i.resource_req for i in self.processes])
+        # self.materials = set.union(
+        #     *[i.material_req for i in self.processes if ProcessType.HAS_MATMODE in i.ctype])
+
+        self.capacity_segments = {
+            i.capacity_segments for i in self.processes if ProcessType.PWL_CAPEX in i.ctype}
+        self.capex_segments = {
+            i.capex_segments for i in self.processes if ProcessType.PWL_CAPEX in i.ctype}
+
         self.scale_levels = self.scales.scale_levels
-        self.processes_full = self.processes.union({self.create_storage_process(
-            i) for i in self.processes if i.processmode == ProcessMode.STORAGE})
         # dicitionary of capacity bounds
+
         self.cap_max, self.cap_min = self.get_cap_bounds()
+
         # gets the modes for all processes
-        self.modes_dict = {p: p.modes for p in self.processes_full if p.modes}
-        # gets the ramp_rates for all processes
-        self.ramp_rates_dict = {p: p.ramp_rates for p in self.processes_full}
-        # gets the cap_pwl for all processes
-        self.cap_pwl_dict = {p: p.cap_pwl for p in self.processes_full}
-        # gets the ramp sequences for all processes
-        self.ramp_sequence_dict = {
-            p: p.ramp_sequence for p in self.processes_full}
-        self.modes_all_dict = {p: {'modes': self.modes_dict[p], 'ramp_rates': self.ramp_rates_dict[p],
-                                   'cap_pwl': self.cap_pwl_dict[p], 'ramp_sequence': self.ramp_sequence_dict[p]} if p.processmode == ProcessMode.MULTI else {'modes': None, 'ramp_rates': None,
-                                                                                                                                                             'cap_pwl': None, 'ramp_sequence': None} for p in self.processes_full}
+        self.prod_modes = {
+            i: i.prod_modes for i in self.processes if ProcessType.MULTI_PRODMODE in i.ctype}
 
         for i in ['price', 'revenue', 'cons_max', 'store_max', 'store_min']:
             self.comp_attr_dict(attr=i, component_set='resources_full')
@@ -129,7 +130,10 @@ class Location:
         self.fail_factor = self.make_fail_factor()
         # self.emission_dict = {i: i.emission_dict for i in self.processes_full}
         self.storage_cost_dict = {
-            i.resource_storage.name: i.storage_cost for i in self.processes_full if i.resource_storage is not None}
+            i.resource_storage.name: i.storage_cost for i in self.processes if ProcessType.STORAGE in i.ctype}
+
+        # scales.index_n_list.index(len(solar_houston_mean[:8760*horizon])) to set scale level of factor
+        # two use keys of factor to determine varying components. Add ParameterType.DETERMINISTIC to thier ctype
 
         for i in ['capacity', 'price', 'demand', 'availability', 'revenue']:
             self.factor_handler(
@@ -141,73 +145,6 @@ class Location:
 
         if self.name is None:
             self.name = f"Location_{uuid.uuid4().hex}"
-        # self.factor_handler(
-        #     factor_name='capacity_factor', factor_scale_name='capacity_factor_scale_level', varying_set_name='varying_capacity')
-
-        # self.factor_handler(
-        #     factor_name='price_factor', factor_scale_name='price_factor_scale_level', varying_set_name='varying_price')
-
-        # self.factor_handler(
-        #     factor_name='demand_factor', factor_scale_name='demand_factor_scale_level', varying_set_name='varying_demand')
-
-        # self.factor_handler(
-        #     factor_name='availability_factor', factor_scale_name='availability_factor_scale_level', varying_set_name='varying_availability')
-
-        # self.factor_handler(
-        #     factor_name='revenue_factor', factor_scale_name='revenue_factor_scale_level', varying_set_name='varying_revenue')
-
-        # self.factor_handler(
-        #     factor_name='capex_factor', factor_scale_name='expenditure_factor_scale_level', varying_set_name='varying_capex')
-
-        # self.factor_handler(
-        #     factor_name='fopex_factor', factor_scale_name='expenditure_factor_scale_level', varying_set_name='varying_fopex')
-
-        # self.factor_handler(
-        #     factor_name='vopex_factor', factor_scale_name='expenditure_factor_scale_level', varying_set_name='varying_vopex')
-
-        # self.factor_handler(
-        #     factor_name='incidental_factor', factor_scale_name='expenditure_factor_scale_level', varying_set_name='varying_incidental')
-
-    def get_resources(self) -> Set[Resource]:
-        """fetches required resources for processes introduced at locations
-
-        Returns:
-            Set[Resource]: set of resources
-        """
-        if len(self.processes) == 0:
-            return None
-
-        resources_single = set().union(
-            *[set(i.conversion.keys()) for i in self.processes if i.processmode == ProcessMode.SINGLE])
-        resources_multi = set()
-        for i in [i for i in self.processes if i.processmode == ProcessMode.MULTI]:
-            resources_multi = resources_multi.union(
-                *[set(j.keys()) for j in list(i.conversion.values())])
-        resources_storage = set(
-            [i.storage for i in self.processes if i.processmode == ProcessMode.STORAGE])
-        return resources_single.union(resources_multi).union(resources_storage)
-
-    def get_materials(self) -> Set[Material]:
-        """fetches required materials for processes introduced at locations
-
-        Returns:
-            Set[Material]: set of materials
-        """
-        if len(self.processes) == 0:
-            return None
-        else:
-            materials = set()
-            for i in self.processes:
-                if i.material_cons is not None:
-                    if isinstance(i.material_cons, dict):
-                        for j in i.material_cons.keys():
-                            materials = materials.union(
-                                set(i.material_cons[j].keys()))
-                    else:
-                        materials = materials.union(
-                            set(i.material_cons.keys()))
-                        # return set().union(*[set(i.material_cons.keys()) for i in self.processes if i.material_cons is not None])
-            return materials
 
     def factor_handler(self, factor_name: str, factor_scale_name: str, varying_set_name: str):
         """1. creates self.varying_x as a set of varying components

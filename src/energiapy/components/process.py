@@ -1,125 +1,13 @@
+"""energiapy.Process - converts one Resource to another Resource, Or stores Resource  
+"""
 from dataclasses import dataclass
-from enum import Enum, auto
 from typing import Dict, Union, List, Tuple
 from warnings import warn
-from itertools import product
-from ..components.material import Material
-from ..components.resource import Resource
-
-
-class CostDynamics(Enum):
-    """
-    To consider the dynamics of CAPEX
-    """
-    CONSTANT = auto()
-    """
-    Consider constance CAPEX
-    """
-    PWL = auto()
-    """
-    Use piece-wise linear CAPEX
-    """
-
-
-class ProcessMode(Enum):
-    """
-    Mode for process
-    """
-    SINGLE = auto()
-    """
-    Only allows one mode
-    """
-    MULTI = auto()
-    """
-    Allows multiple modes
-    """
-    STORAGE = auto()
-    """
-    Storage type process
-    """
-    STORAGE_REQ = auto()
-    """
-    Storage type process, but storage itself consumes another resource. 
-    """
-
-
-class MaterialMode(Enum):
-    """
-    Mode for materials 
-    """
-    SINGLE = auto()
-    """
-    Allows only single material 
-    """
-    MULTI = auto()
-    """
-    Can use multiple material combinations 
-    """
-
-
-class VaryingProcess(Enum):
-    """
-    The type of process capacity variability
-    """
-    DETERMINISTIC_CAPACITY = auto()
-    """
-    Utilize deterministic data as parameters for capacity
-    """
-    DETERMINISTIC_EXPENDITURE = auto()
-    """
-    Utilize deterministic data as parameters for expenditure
-    """
-    UNCERTAIN_CAPACITY = auto()
-    """
-    Generate uncertainty variables
-    """
-    UNCERTAIN_EXPENDITURE = auto()
-    """
-    Generate uncertainty variables for expenditure
-    """
-    CERTAIN_CAPACITY = auto()
-    """
-    Use certain parameter for capacity
-    """
-    CERTAIN_EXPENDITURE = auto()
-    """
-    Use certain parameter for expenditure
-    """
-    MULTIMODE = auto()
-    """
-    Has multiple modes of operation
-    """
-
-
-@dataclass
-class ProcessRamp:
-    modes: list
-    cap_pwl: Dict
-    rates: Dict
-    sequence: Dict
-
-    def __post_init__(self):
-        sequence_fix = {i: False for i in [
-            k for k in product(self.modes, self.modes)]}
-        rates_fix = {i: 0 for i in [
-            k for k in product(self.modes, self.modes)]}
-
-        for i in sequence_fix.keys():
-            if i in self.sequence.keys():
-                sequence_fix[i[::-1]] = self.sequence[i]
-                sequence_fix[i] = self.sequence[i]
-            if i[0] == i[1]:
-                sequence_fix[i] = True
-        self.sequence = sequence_fix
-
-        for i in rates_fix.keys():
-            if i in self.rates.keys():
-                rates_fix[i] = self.rates[i]
-        self.rates = rates_fix
-
-        if list(self.cap_pwl.keys()) != self.modes:
-            warn(
-                'The Piece Wise Linear bounds for capacities should match the declared modes')
+import uuid
+from .material import Material
+from .resource import Resource
+from .comptype import ParameterType, Th, ProcessRamp, ProcessType, ResourceType
+from ..utils.data_utils import get_depth
 
 
 @dataclass
@@ -178,45 +66,40 @@ class Process:
 
     """
 
-    name: str
-    introduce: int = 0
+    name: str = None
+    introduce: int = None
     retire: int = None
     conversion: Union[Dict[Union[int, str], Dict[Resource, float]],
                       Dict[Resource, float]] = None
     capex: Union[float, dict] = None
-    fopex: Union[float, dict] = None
-    vopex: Union[float, dict] = None
-    incidental: Union[float, dict] = None
+    fopex: float = None
+    vopex: float = None
+    incidental: float = None
     storage_cost: float = None
     land: float = None
     material_cons: Union[Dict[Union[int, str],
                               Dict[Material, float]], Dict[Material, float]] = None
-    cap_max: Union[Dict[int, float], float] = 0
-    cap_min: float = 0
-    basis: str = 'unit'
-    gwp: float = 0
-    odp: float = 0
-    acid: float = 0
-    eutt: float = 0
-    eutf: float = 0
-    eutm: float = 0
+    cap_max: float = None
+    cap_min: float = None
+    basis: str = None
+    gwp: float = None
+    odp: float = None
+    acid: float = None
+    eutt: float = None
+    eutf: float = None
+    eutm: float = None
     trl: str = None
-    block: str = ''
-    citation: str = 'citation needed'
+    block: str = None
+    citation: str = None
     lifetime: int = None
-    varying: List[VaryingProcess] = None
     p_fail: float = None
-    label: str = ''
+    label: str = None
     storage: Resource = None
-    storage_loss: float = 0
-    store_max: float = 0
-    store_min: float = 0
-    ramp: ProcessRamp = None
-    # rate_max: Union[Dict[int, float], float] = None
-    varying_bounds: Tuple[float] = (0, 1)
-    # mode_ramp: Dict[tuple, int] = None
-    processmode: ProcessMode = None
-    materialmode: MaterialMode = None
+    store_loss: float = None
+    store_max: float = None
+    store_min: float = None
+    ctype: List[ProcessType] = None
+    ptype: List[ParameterType] = None
 
     def __post_init__(self):
         """Determines the ProcessMode, CostDynamics, and kicks out dummy resources if process is stores resource
@@ -227,96 +110,62 @@ class Process:
             conversion_discharge (Dict[Resource, float]): Creates a dictionary with the discharge conversion values (considers storage loss).
             cost_dynamics (CostDynamics): Determines whether the cost scales linearly with the unit capacity, or is a piecewise-linear function.
         """
-        if self.processmode is None:
-            self.processmode = ProcessMode.SINGLE
+        if self.ctype is None:
+            self.ctype = []
 
-        if self.ramp is not None:
-            self.modes = self.ramp.modes
-            self.cap_pwl = self.ramp.cap_pwl
-            self.ramp_rates = self.ramp.rates
-            self.ramp_sequence = self.ramp.sequence
-            self.processmode = ProcessMode.MULTI
+        if self.ptype is None:
+            self.ptype = []
+
+        if self.capex is not None:
+            self.ctype.append(ProcessType.EXPENDITURE)
+            if isinstance(self.capex, dict):
+                self.ctype.append(ProcessType.PWL_CAPEX)
+                self.capacity_segments = list(self.capex.keys())
+                self.capex_segments = list(self.capex.values())
+            else:
+                self.ctype.append(ProcessType.LINEAR_CAPEX)
+
+        if self.cap_max is not None:
+            self.ctype.append(ProcessType.CAPACITY)
+
+        if self.conversion is not None:
+            if get_depth(self.conversion) > 1:
+                self.ctype.append(ProcessType.MULTI_PRODMODE)
+                self.prod_modes = set(self.conversion.keys())
+                self.resource_req = set.union(
+                    *[set(self.conversion[i].keys()) for i in self.prod_modes])
+            else:
+                self.ctype.append(ProcessType.SINGLE_PRODMODE)
+                self.resource_req = set(self.conversion.keys())
+
+        if self.material_cons is not None:
+            if isinstance(self.material_cons, dict):
+                self.ctype.append(ProcessType.HAS_MATMODE)
+                self.material_modes = set(self.material_cons.keys())
+                self.material_req = set.union(
+                    *[set(self.material_cons[i].keys()) for i in self.material_modes])
 
         else:
-            self.modes = None
-            self.cap_pwl = None
-            self.ramp_rates = None
-            self.ramp_sequence = None
-
-        if self.varying is None:  # if nothing is varying, set defaults to CERTAIN_X
-            self.varying = []
-            if (self.capex is not None) or (self.fopex is not None) or (self.vopex is not None):
-                self.varying = self.varying + \
-                    [VaryingProcess.CERTAIN_EXPENDITURE]
-            # if maximum production is dictionary, that means that the process uses multiple modes
-            if isinstance(self.cap_max, dict):
-                self.varying = self.varying + [VaryingProcess.MULTIMODE]
-            else:
-                if self.cap_max > 0:
-                    self.varying = self.varying + \
-                        [VaryingProcess.CERTAIN_CAPACITY]
-
-        if not isinstance(self.varying, list):
-            warn('Provide a list of VaryingProcess enums')
+            self.ctype.append(ProcessType.NO_MATMODE)
 
         if self.storage is not None:
+            self.ctype.append(ProcessType.STORAGE)
+            if self.store_loss is None:
+                self.store_loss = 0
             # create a dummy resource if process is storage type.
             self.resource_storage = self.create_storage_resource(
                 resource=self.storage, store_max=self.store_max, store_min=self.store_min)
             # efficiency of input to storage is 100 percent
             self.conversion = {self.storage: -1, self.resource_storage: 1}
             self.conversion_discharge = {
-                self.resource_storage: -1, self.storage: 1*(1 - self.storage_loss)}  # the losses are all at the output (retrival)
-            self.processmode = ProcessMode.STORAGE
+                self.resource_storage: -1, self.storage: 1*(1 - self.store_loss)}  # the losses are all at the output (retrival)
+            self.resource_req = set(self.conversion.keys())
 
-        else:
-            self.conversion_discharge = None
-            self.resource_storage = None
-            if isinstance(list(self.conversion.keys())[0], (int, str)):
-                self.processmode = ProcessMode.MULTI
-            else:
-                self.processmode = ProcessMode.SINGLE
-
-        if self.material_cons is not None:
-            if isinstance(list(self.material_cons.keys())[0], (int, str)):
-                self.materialmode = MaterialMode.MULTI
-            else:
-                self.materialmode = MaterialMode.SINGLE
-        else:
-            self.material_cons = {}
-
-        if isinstance(self.capex, (int, float)):
-            self.cost_dynamics = CostDynamics.CONSTANT
-        elif isinstance(self.capex, dict):
-            # Capex dictionaries are only provided for piece-wise linear cost functions
-            self.cost_dynamics = CostDynamics.PWL
-
-        if (self.processmode is ProcessMode.MULTI) or (self.materialmode is MaterialMode.MULTI):
-            if self.processmode is ProcessMode.STORAGE:
-                self.resource_req = {i.name for i in self.conversion.keys()}
-            else:
-                self.resource_req = {
-                    i.name for i in self.conversion[list(self.conversion.keys())[0]].keys()}  # the required resources are drawn from the conversion dict, this includes stored resource
-        else:
-            self.resource_req = {i.name for i in self.conversion.keys()}
-
-        if self.processmode == ProcessMode.MULTI:
-            if isinstance(self.cap_max, dict):
-                if list(self.cap_max.keys()) != list(self.conversion.keys()):
-                    warn(
-                        'The keys for cap_max and conversion need to match if ProcessMode.multi')
-
-        if self.cost_dynamics == CostDynamics.PWL:
-            self.capacity_segments = list(self.capex.keys())
-            self.capex_segments = list(self.capex.values())
-
-        self.material_modes = set(self.material_cons.keys())
-        # self.emission_dict = {i: i.emissions for i in self.conversion.keys()}
         self.emission_potentials_dict = {'gwp': self.gwp, 'odp': self.odp,
                                          'acid': self.acid, 'eutt': self.eutt, 'eutf': self.eutf, 'eutm': self.eutm}
 
-        self.material_modes = set(self.material_cons.keys())
-        # self.emission_dict = {i: i.emissions for i in self.conversion.keys()
+        if self.name is None:
+            self.name = f"Process_{uuid.uuid4().hex}"
 
     def create_storage_resource(self, resource: Resource, store_max: float = 0, store_min: float = 0) -> Resource:
         """Creates a dummy resource for storage, used if process is storage type
@@ -325,14 +174,14 @@ class Process:
             process_name(str): Name of storage process
             resource (Resource): Dummy resource name derived from stored resource
             store_max (float, optional): Maximum amount of resource that can be stored. Defaults to 0.
-            store_min (float, optional): Minimum amount of resource that can be stored. Defaults to 0.
+            store_min (float, optional): Minimum amount of resource that can be stored. Defaults to 0.\
 
         Returns:
             Resource: resource object for storage in process
         """
 
-        return Resource(name=f"{self.name}_{resource.name}_stored", loss=resource.loss, store_max=store_max, store_min=store_min,
-                        basis=resource.basis, block=resource.block, label=resource.label+f"{self.name}(stored)", varying=[VaryingResource.STORED])
+        return Resource(name=f"{self.name}_{resource.name}_stored", store_loss=resource.store_loss, store_max=store_max, store_min=store_min,
+                        basis=resource.basis, block=resource.block, label=resource.label+f"{self.name}(stored)", ctype=[ResourceType.STORE])
 
     def __repr__(self):
         return self.name

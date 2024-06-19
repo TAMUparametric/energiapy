@@ -21,12 +21,18 @@ class Resource:
         price (Union[float, Tuple[float], Th], optional): purchase price.Defaults to None
         store_max (float, optional): maximum amount that can be stored in inventory. Defaults to None
         store_min (float, optional): minimum amount of that is need to setup inventory. Defaults to None
-        storage_loss (float, optional): amount lost in inventory per time period of the scheduling scale. Defaults to None
+        store_loss (float, optional): amount lost in inventory per time period of the scheduling scale. Defaults to None
         basis (str, optional): unit in which resource is measured. Defaults to None 
         block (Union[str, list, dict], optional): block to which it belong. Convinient to set up integer cuts. Defaults to None
         citation (str, optional): can provide citations for your data sources. Defaults to None
         demand (bool, optional): if a specific demand needs to be met, also determined if a demand is specified at Location. Defaults to None
         transport (bool, optional): if can be transported, also determined if mentioned while defining Transport. Defaults to None
+        gwp (float, optional): global warming potential. Defaults to None.
+        odp (float, optional): ozone depletion potential. Defaults to None.
+        acid (float, optional): acidification potential. Defaults to None.
+        eutt (float, optional): terrestrial eutrophication potential. Defaults to None.
+        eutf (float, optional): fresh water eutrophication potential. Defaults to None.
+        eutm (float, optional): marine eutrophication potential. Defaults to None.
         label (str, optional): used while generating plots. Defaults to None
         ctype (List[ResourceType], optional): List of resource types. Defaults to None
         ptype (List[ParameterType], optional): List of parameter types. Defaults to None
@@ -53,11 +59,11 @@ class Resource:
 
             >>> H2 = Resource(name='H2', basis = 'tons', label = 'Hydrogen', block= 'DEC', citation = 'Kakodkar, et. al (2024)')
 
-            [7] A storage process can be declared here. Or a resource can be given to a storage type Process which generates a stored resource
+            [6] A storage process can be declared here. Or a resource can be given to a storage type Process which generates a stored resource
 
-            >>> Money= Resource(name='Poishe', basis = 'Rupees'. store_max= 2, store_min = 0, loss = 0.01)
+            >>> Money= Resource(name='Poishe', basis = 'Rupees'. store_max= 2, store_min = 0, store_loss = 0.01)
 
-            [6] Uncertainty in resource parameters for revenue, availability, and price can be handled by either:
+            [7] Uncertainty in resource parameters for revenue, availability, and price can be handled by either:
 
             1. Providing deterministic dataset for variablity at the Location level 
 
@@ -78,6 +84,10 @@ class Resource:
 
             >>> Water = Resource(name='H2O', cons_max= Th((0, 45)), price= Th((0, 3))) 
 
+            [8] Environmental impact potentials can also be declared for resources
+
+            >>> NaturalGas = Resource(name = 'NG', cons_max = 1000, gwp = 30, odp = 50, acid = 20, eutt = 5, eutf = 60, eutm = 10)
+
     """
 
     name: str = None
@@ -87,7 +97,7 @@ class Resource:
     price: Union[float, Tuple[float], Th] = None
     store_max: float = None
     store_min: float = None
-    loss: float = None
+    store_loss: float = None
     basis: str = None
     block: Union[str, list, dict] = None
     citation: str = 'citation needed'
@@ -96,13 +106,12 @@ class Resource:
     ctype: List[ResourceType] = None
     ptype: List[ParameterType] = None
     label: str = None
-
-    # gwp: float = 0
-    # odp: float = 0
-    # acid: float = 0
-    # eutt: float = 0
-    # eutf: float = 0
-    # eutm: float = 0
+    gwp: float = None
+    odp: float = None
+    acid: float = None
+    eutt: float = None
+    eutf: float = None
+    eutm: float = None
 
     def __post_init__(self):
 
@@ -146,7 +155,7 @@ class Resource:
             self.sell = True
 
         if self.name is None:
-            self.name = f"Process_{uuid.uuid4().hex}"
+            self.name = f"Resource_{uuid.uuid4().hex}"
 
     def __repr__(self):
         return self.name

@@ -8,7 +8,6 @@ from enum import Enum, auto
 from ..components.transport import VaryingTransport
 from ..components.location import Location
 from ..components.network import Network
-from ..components.process import ProcessMode, VaryingProcess, CostDynamics
 from ..components.resource import Resource
 from ..components.temporal_scale import TemporalScale
 from ..model.bounds import CapacityBounds
@@ -126,7 +125,7 @@ class Scenario:
             cost_df (DataFrame): handy dataframe with cost parameters
         """
 
-        self.design_scale = self.scales.desing_scale
+        self.design_scale = self.scales.design_scale
         self.scheduling_scale = self.scales.scheduling_scale
 
         if isinstance(self.network, Location):
@@ -311,17 +310,17 @@ class Scenario:
         self.process_material_mode_material_dict = {i.name: {j: {l.name: m for l, m in k.items(
         )} for j, k in i.material_cons.items()} for i in self.process_set}
         multiconversion_dict = dict()
-        for i in self.process_set:
-            if i.processmode == ProcessMode.MULTI:
-                multiconversion_dict[i.name] = {
-                    j: None for j in i.conversion.keys()}
-                for k in list(multiconversion_dict[i.name].keys()):
-                    multiconversion_dict[i.name][k] = {j.name: i.conversion[k][j] if j in i.conversion[k].keys() else 0
-                                                       for j in self.resource_set}
-            else:
-                multiconversion_dict[i.name] = {0: None}
-                multiconversion_dict[i.name][0] = {j.name: i.conversion[j] if j in i.conversion.keys() else 0 for j in
-                                                   self.resource_set}
+        # for i in self.process_set:
+        #     if i.processmode == ProcessMode.MULTI:
+        #         multiconversion_dict[i.name] = {
+        #             j: None for j in i.conversion.keys()}
+        #         for k in list(multiconversion_dict[i.name].keys()):
+        #             multiconversion_dict[i.name][k] = {j.name: i.conversion[k][j] if j in i.conversion[k].keys() else 0
+        #                                                for j in self.resource_set}
+        #     else:
+        #         multiconversion_dict[i.name] = {0: None}
+        #         multiconversion_dict[i.name][0] = {j.name: i.conversion[j] if j in i.conversion.keys() else 0 for j in
+        #                                            self.resource_set}
 
         self.multiconversion = multiconversion_dict
 
