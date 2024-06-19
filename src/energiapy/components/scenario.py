@@ -4,7 +4,7 @@ from warnings import warn
 import numpy
 from pandas import DataFrame
 from enum import Enum, auto
-from .comptype import ProcessType, ResourceType, ParameterType
+from .comptype import ProcessType, ResourceType, ParameterType, LocationType, ScenarioType
 from .transport import VaryingTransport
 from .location import Location
 from .network import Network
@@ -12,17 +12,6 @@ from .resource import Resource
 from .temporal_scale import TemporalScale
 from ..model.bounds import CapacityBounds
 from ..model.weights import EmissionWeights
-
-
-class ScenarioType(Enum):
-    """
-    Single location
-    """
-    SINGLE_LOCATION = auto()
-    """
-    Multi-location
-    """
-    MULTI_LOCATION = auto()
 
 
 @dataclass
@@ -66,6 +55,7 @@ class Scenario:
     error: float = None
     rep_dict: dict = None
     emission_weights: EmissionWeights = None
+    ctype: ScenarioType = None
 
     def __post_init__(self):
         """
@@ -125,7 +115,7 @@ class Scenario:
         self.scheduling_scale = self.scales.scheduling_scale
 
         if isinstance(self.network, Location):
-            self.scenario_type = ScenarioType.SINGLE_LOCATION
+            self.ctype = ScenarioType.SINGLE_LOCATION
             self.location_set = {self.network}
 
             # self.transport_set = None
@@ -150,7 +140,7 @@ class Scenario:
             # self.transport_fopex_scale_level = None
             # self.source_sink_resource_dict = None
         else:
-            self.scenario_type = ScenarioType.MULTI_LOCATION
+            self.ctype = ScenarioType.MULTI_LOCATION
             self.transport_set = set().union(*self.network.transport_dict.values())
             self.source_locations = self.network.source_locations
             self.sink_locations = self.network.sink_locations
@@ -321,7 +311,7 @@ class Scenario:
 
         # self.mode_ramp_dict = {i.name: i.mode_ramp for i in self.process_set}
 
-        process_material_modes = []
+        self.process_material_modes = []
         for i in self.process_set:
             if i.material_cons is not None:
 
@@ -347,122 +337,50 @@ class Scenario:
             self.resource_subsets[f'resources_{i}'] = [
                 i.name for i in getattr(self, f'resources_{i}')]
 
-        # self.resource_subsets['resources_varying_demand'] = [
-        #     i.name for i in getattr(self, 'resources_demand') if i.ptype[ResourceType.DEMAND] == ParameterType.DETERMINISTIC_DATA]
+        for j in ['demand', 'purchase', 'sell', 'consume']:
+            self.resource_subsets[f'resources_varying_{j}'] = [i.name for i in getattr(
+                self, f'resources_{j}') if i.ptype[getattr(ResourceType, j.upper())] == ParameterType.DETERMINISTIC_DATA]
 
-        # set_dict = {
-        #     'resources': [i.name for i in self.resource_set],
+            self.resource_subsets[f'resources_certain_{j}'] = [i.name for i in getattr(
+                self, f'resources_{j}') if i.ptype[getattr(ResourceType, j.upper())] == ParameterType.CERTAIN]
 
-        #     'resources_sell': [i.name for i in self.resource_set if i.sell is True],
+            self.resource_subsets[f'resources_uncertain_{j}'] = [i.name for i in getattr(
+                self, f'resources_{j}') if i.ptype[getattr(ResourceType, j.upper())] == ParameterType.UNCERTAIN]
 
-        #     'resources_store': [i.name for i in self.resource_set if i.store_max is not None],
+        self.resource_subsets['resources_transport'] = [
+            i.name for i in self.resource_set if ResourceType.TRANSPORT in i.ctype]
 
-        #     'resources_purch': [i.name for i in self.resource_set if i.cons_max is not None],
+        self.process_subsets = dict()
 
-        #     'resources_varying_demand': [i.name for i in self.resource_set if
-        #                                  VaryingResource.DETERMINISTIC_DEMAND in i.varying],
-        #     'resources_certain_demand': [i.name for i in self.resource_set if
-        #                                  VaryingResource.CERTAIN_DEMAND in i.varying],
-        #     'resources_uncertain_demand': [i.name for i in self.resource_set if
-        #                                    VaryingResource.UNCERTAIN_DEMAND in i.varying],
+        for j in ['capacity', 'capex', 'fopex', 'vopex', 'incidental']:
 
-        #     'resources_varying_price': [i.name for i in self.resource_set if
-        #                                 VaryingResource.DETERMINISTIC_PRICE in i.varying],
-        #     'resources_certain_price': [i.name for i in self.resource_set if
-        #                                 VaryingResource.CERTAIN_PRICE in i.varying],
-        #     'resources_uncertain_price': [i.name for i in self.resource_set if
-        #                                   VaryingResource.UNCERTAIN_PRICE in i.varying],
+            self.process_subsets[f'processes_varing_{j}'] = [i.name for i in self.process_set if getattr(ProcessType, j.upper(
+            )) in i.ptype.keys() if i.ptype[getattr(ProcessType, j.upper())] == ParameterType.DETERMINISTIC_DATA]
 
-        #     'resources_varying_revenue': [i.name for i in self.resource_set if
-        #                                   VaryingResource.DETERMINISTIC_REVENUE in i.varying],
-        #     'resources_certain_revenue': [i.name for i in self.resource_set if
-        #                                   VaryingResource.CERTAIN_REVENUE in i.varying],
-        #     'resources_uncertain_revenue': [i.name for i in self.resource_set if
-        #                                     VaryingResource.UNCERTAIN_REVENUE in i.varying],
+            self.process_subsets[f'processes_certain_{j}'] = [i.name for i in self.process_set if getattr(ProcessType, j.upper(
+            )) in i.ptype.keys() if i.ptype[getattr(ProcessType, j.upper())] == ParameterType.CERTAIN]
 
-        #     'resources_varying_availability': [i.name for i in self.resource_set if
-        #                                        VaryingResource.DETERMINISTIC_AVAILABILITY in i.varying],
-        #     'resources_certain_availability': [i.name for i in self.resource_set if
-        #                                        VaryingResource.CERTAIN_AVAILABILITY in i.varying],
-        #     'resources_uncertain_availability': [i.name for i in self.resource_set if
-        #                                          VaryingResource.UNCERTAIN_AVAILABILITY in i.varying],
+            self.process_subsets[f'processes_uncertain_{j}'] = [i.name for i in self.process_set if getattr(ProcessType, j.upper(
+            )) in i.ptype.keys() if i.ptype[getattr(ProcessType, j.upper())] == ParameterType.UNCERTAIN]
 
-        #     'resources_demand': [i.name for i in self.resource_set if i.demand is True],
+        for j in ['single_prodmode', 'multi_prodmode', 'no_matmode', 'has_matmode', 'storage', 'storage_req', 'linear_capex', 'pwl_capex']:
+            self.process_subsets[f'processes_{j}'] = [
+                i.name for i in self.process_set if getattr(ProcessType, j.upper()) in i.ctype]
 
-        #     'resources_implicit': [i.name for i in self.resource_set if VaryingResource.IMPLICIT in i.varying],
+        self.process_subsets['processes_failure'] = [
+            i.name for i in self.process_set if i.p_fail is not None]
 
-        #     'processes': [i.name for i in self.process_set],
+        self.location_subsets = dict()
 
-        #     'processes': list(self.conversion.keys()),
-
-        #     'processes_failure': [i.name for i in self.process_set if i.p_fail is not None],
-
-        #     'processes_materials': [i.name for i in self.process_set if i.material_cons is not None],
-
-        #     'processes_storage': [i.name for i in self.process_set if i.conversion_discharge is not None],
-
-        #     'processes_multim': [i.name for i in self.process_set if i.processmode == ProcessMode.MULTI],
-        #     'processes_singlem': [i.name for i in self.process_set if
-        #                           (i.processmode == ProcessMode.SINGLE) or (i.processmode == ProcessMode.STORAGE)],
-
-        #     'processes_certain_capacity': [i.name for i in self.process_set if
-        #                                    VaryingProcess.CERTAIN_CAPACITY in i.varying],
-        #     'processes_varying_capacity': [i.name for i in self.process_set if
-        #                                    VaryingProcess.DETERMINISTIC_CAPACITY in i.varying],
-        #     'processes_uncertain_capacity': [i.name for i in self.process_set if
-        #                                      VaryingProcess.UNCERTAIN_CAPACITY in i.varying],
-
-        #     'processes_certain_expenditure': [i.name for i in self.process_set if
-        #                                       VaryingProcess.CERTAIN_EXPENDITURE in i.varying],
-        #     'processes_varying_expenditure': [i.name for i in self.process_set if
-        #                                       VaryingProcess.DETERMINISTIC_EXPENDITURE in i.varying],
-        #     'processes_uncertain_expenditure': [i.name for i in self.process_set if
-        #                                         VaryingProcess.UNCERTAIN_EXPENDITURE in i.varying],
-
-        #     'processes_segments': [i.name for i in self.process_set if i.cost_dynamics == CostDynamics.PWL],
-
-        #     'locations': [i.name for i in self.location_set],
-        #     'materials': [i.name for i in self.material_set],
-
-        #     'process_material_modes': process_material_modes,
-
-        #     'material_modes': [element for dictionary in list(i.material_modes for i in self.process_set) for element in dictionary],
-
-        #     'process_modes': [(j[0], i) for j in [(i.name, i.modes) for i in self.process_set if i.processmode is ProcessMode.MULTI] for i in j[1]]
-        # }
-
-        # self.varying_bounds_dict = {
-        #     'demand': {i.name: i.varying_bounds for i in self.resource_set if VaryingResource.UNCERTAIN_DEMAND in i.varying},
-        #     'availability': {i.name: i.varying_bounds for i in self.resource_set if VaryingResource.UNCERTAIN_AVAILABILITY in i.varying},
-        #     'capacity': {i.name: i.varying_bounds for i in self.process_set if VaryingProcess.UNCERTAIN_CAPACITY in i.varying}
-        # }
-
-        # if self.source_locations is not None:
-        #     set_dict['sources'] = [i.name for i in self.source_locations]
-        # else:
-        #     set_dict['sources'] = []
-
-        # if self.sink_locations is not None:
-        #     set_dict['sinks'] = [i.name for i in self.sink_locations]
-        # else:
-        #     set_dict['sinks'] = []
-
-        # if self.material_set is not None:
-        #     set_dict['materials'] = [i.name for i in self.material_set]
-        # else:
-        #     set_dict['materials'] = []
-
-        # if self.transport_set is not None:
-        #     set_dict['transports'] = [i.name for i in self.transport_set]
-        #     set_dict['resources_trans'] = [i.name for i in set().union(
-        #         *[i.resources for i in self.transport_set])]
-        # else:
-        #     set_dict['transports'] = []
-        #     set_dict['resources_trans'] = []
+        self.location_subsets['sources'] = [
+            i.name for i in self.location_set if LocationType.SOURCE in i.ctype]
+        self.location_subsets['sinks'] = [
+            i.name for i in self.location_set if LocationType.SINK in i.ctype]
 
         # self.set_dict = {x: sorted(set_dict[x]) for x in set_dict.keys()}
 
-        # if isinstance(self.network, Network):
+        # if self.ctype == ScenarioType.MULTI_LOCATION:
+            
         #     transport_set_dict = {
         #         'transports_certain_capacity': [i.name for i in self.transport_set if VaryingTransport.CERTAIN_CAPACITY in i.varying],
         #         'transports_certain_capex': [i.name for i in self.transport_set if VaryingTransport.CERTAIN_CAPEX in i.varying],
@@ -481,6 +399,20 @@ class Scenario:
         #     }
         #     self.set_dict = {}
         #     self.set_dict = {**self.set_dict, **transport_set_dict}
+
+        # self.mode_sets = dict()
+
+        # self.mode_sets['processes_material_modes'] = self.process_material_modes
+        # self.mode_sets['material_modes'] = [element for dictionary in list(
+        #     i.material_modes for i in self.process_set) for element in dictionary]
+        # self.mode_sets['process_modes'] = [(j[0], i) for j in [(
+        #     i.name, i.modes) for i in self.process_set if ProcessType.MULTI_PRODMODE in i.ctype] for i in j[1]]
+
+        # self.varying_bounds_dict = {
+        #     'demand': {i.name: i.varying_bounds for i in self.resource_set if VaryingResource.UNCERTAIN_DEMAND in i.varying},
+        #     'availability': {i.name: i.varying_bounds for i in self.resource_set if VaryingResource.UNCERTAIN_AVAILABILITY in i.varying},
+        #     'capacity': {i.name: i.varying_bounds for i in self.process_set if VaryingProcess.UNCERTAIN_CAPACITY in i.varying}
+        # }
 
     def loc_comp_attr_dict(self, attr: str):
         """creates a dict of type {loc: {comp: attribute_dict}}

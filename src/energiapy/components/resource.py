@@ -36,7 +36,6 @@ class Resource:
         eutm (float, optional): marine eutrophication potential. Defaults to None.
         label (str, optional): used while generating plots. Defaults to None
         ctype (List[ResourceType], optional): List of resource types. Defaults to None
-        ptype (List[ParameterType], optional): List of parameter types. Defaults to None
 
         Examples:
 
@@ -105,7 +104,6 @@ class Resource:
     demand: bool = None
     transport: bool = None
     ctype: List[ResourceType] = None
-    ptype: Dict[ResourceType, ParameterType] = None
     label: str = None
     gwp: float = None
     odp: float = None

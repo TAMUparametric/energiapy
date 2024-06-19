@@ -209,3 +209,37 @@ class ProcessRamp:
         if list(self.cap_pwl.keys()) != self.modes:
             warn(
                 'The Piece Wise Linear bounds for capacities should match the declared modes')
+
+# *------------------------------Location-------------------------------------------------
+
+
+class LocationType(Enum):
+    """Whether a location is a source or a sink
+    """
+    SOURCE = auto()
+    SINK = auto()
+
+
+# *------------------------------Transport-------------------------------------------------
+
+class TransportType(Enum):
+    """
+    """
+    CAPACITY = auto()
+    CAPEX = auto()
+    FOPEX = auto()
+    VOPEX = auto()
+    INCIDENTAL = auto()
+
+# *------------------------------Scenario-------------------------------------------------
+
+
+class ScenarioType(Enum):
+    """
+    Single location
+    """
+    SINGLE_LOCATION = auto()
+    """
+    Multi-location
+    """
+    MULTI_LOCATION = auto()

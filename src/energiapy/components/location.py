@@ -10,7 +10,7 @@
 from dataclasses import dataclass
 from itertools import product
 from random import sample
-from typing import Dict, Set, Union
+from typing import Dict, Set, Union, List
 from warnings import warn
 import uuid
 from pandas import DataFrame
@@ -19,7 +19,7 @@ from .process import Process
 from .resource import Resource
 from .temporal_scale import TemporalScale
 from .factor import Factor
-from .comptype import ProcessType, ResourceType, FactorType, ParameterType
+from .comptype import ProcessType, ResourceType, FactorType, ParameterType, LocationType
 from ..utils.scale_utils import scale_changer
 
 
@@ -67,6 +67,7 @@ class Location:
     sell_price_factor: Union[float, Dict[Resource, float]] = None
     land_cost: float = 0
     credit: Dict[Process, float] = None
+    ctype: List[LocationType] = None
     label: str = ''
 
     def __post_init__(self):
@@ -83,6 +84,8 @@ class Location:
             failure_processes (Set): set of processes with failure rates
             fail_factor (Dict[Process, float]): creates a dictionary with failure points on a temporal scale
         """
+        if self.ctype is None:
+            self.ctype = []
 
         self.processes = self.processes.union({self.create_storage_process(
             i) for i in self.processes if ProcessType.STORAGE in i.ctype})
@@ -114,6 +117,7 @@ class Location:
         if self.demand is not None:
             for i in self.demand.keys():
                 i.ctype.append(ResourceType.DEMAND)
+                i.ptype[ResourceType.DEMAND] = ParameterType.CERTAIN
 
         for i in ['purchase_price', 'sell_price', 'cons_max', 'store_max', 'store_min']:
             self.comp_attr_dict(attr=i, component_set='resources')

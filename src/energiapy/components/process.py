@@ -99,7 +99,6 @@ class Process:
     store_max: float = None
     store_min: float = None
     ctype: List[ProcessType] = None
-    ptype: Dict[ProcessType, ParameterType] = None
 
     def __post_init__(self):
         """Determines the ProcessMode, CostDynamics, and kicks out dummy resources if process is stores resource
@@ -176,9 +175,10 @@ class Process:
                 self.material_modes = set(self.material_cons.keys())
                 self.material_req = set.union(
                     *[set(self.material_cons[i].keys()) for i in self.material_modes])
-
         else:
             self.ctype.append(ProcessType.NO_MATMODE)
+            self.material_modes = None
+            self.material_req = None
 
         if self.storage is not None:
             self.ctype.append(ProcessType.STORAGE)
