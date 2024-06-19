@@ -14,12 +14,13 @@ from typing import Dict, Set, Union
 from warnings import warn
 import uuid
 from pandas import DataFrame
-from ..components.material import Material
-from ..components.process import Process
-from ..components.resource import Resource
-from ..components.temporal_scale import TemporalScale
+from .material import Material
+from .process import Process
+from .resource import Resource
+from .temporal_scale import TemporalScale
+from .factor import Factor
+from .comptype import ProcessType, ResourceType, FactorType, ParameterType
 from ..utils.scale_utils import scale_changer
-from .comptype import ProcessType
 
 
 @dataclass
@@ -33,20 +34,14 @@ class Location:
         scales (TemporalScale): temporal scales of the problem
         demand (Dict[Resource, float]): demand for resources at location. Defaults to None.
         demand_factor (Union[float, Dict[Resource, DataFrame]), optional): Factor for varying demand, scale changer normalizes.Defaults to None
-        price_factor (Union[float, Dict[Resource, DataFrame]), optional): Factor for varying cost, scale changer normalizes. Defaults to None
+        purchase_price_factor (Union[float, Dict[Resource, DataFrame]), optional): Factor for varying cost, scale changer normalizes. Defaults to None
         capacity_factor (Union[float, Dict[Process, DataFrame]), optional):  Factor for varying capacity, scale changer normalizes.Defaults to None
         capex_factor (Union[float, Dict[Process, DataFrame]), optional):  Factor for varying capital expenditure, scale changer normalizes. Defaults to None
         vopex_factor (Union[float, Dict[Process, DataFrame]), optional):  Factor for varying variable operational expenditure, scale changer normalizes. Defaults to None
         fopex_factor (Union[float, Dict[Process, DataFrame]), optional):  Factor for varying fixed operational expenditure, scale changer normalizes. Defaults to None
         incidental_factor (Union[float, Dict[Process, DataFrame]), optional):  Factor for varying incidental expenditure, scale changer normalizes. Defaults to None
         availability_factor (Union[float, Dict[Resource, DataFrame]), optional): Factor for varying resource availability, scale changer normalizes. Defaults to None
-        revenue_factor (Union[float, Dict[Resource, DataFrame]), optional): Factor for varying resource revenue, scale changer normalizes. Defaults to None
-        demand_factor_scale_level (int, optional): scale level for demand variance (resource). Defaults to 0
-        price_factor_scale_level (int, optional): scale level for purchase cost variance(resource). Defaults to 0
-        capacity_factor_scale_level (int, optional): scale level for capacity variance(process). Defaults to 0
-        expenditure_factor_scale_level (int, optional): scale level for technology cost variance (process). Defaults to 0
-        availability_factor_scale_level (int, optional): scale level for availability varriance (resource). Defaults to 0
-        revenue_factor_scale_level (int, optional): scale level for revenue varriance (resource). Defaults to 0
+        sell_price_factor (Union[float, Dict[Resource, DataFrame]), optional): Factor for varying resource revenue, scale changer normalizes. Defaults to None
         land_cost (float, optional): cost of land. Defaults to 0
         credit (Dict[Process, float], optional): credit earned by process per unit basis. Defaults to None.
         label(str, optional):Longer descriptive label if required. Defaults to ''
@@ -62,20 +57,14 @@ class Location:
     name: str = None
     demand: Dict[Resource, float] = None
     demand_factor: Union[float, Dict[Resource, float]] = None
-    price_factor: Union[float, Dict[Resource, float]] = None
+    purchase_price_factor: Union[float, Dict[Resource, float]] = None
     capacity_factor: Union[float, Dict[Process, float]] = None
     capex_factor: Union[float, Dict[Process, float]] = None
     vopex_factor: Union[float, Dict[Process, float]] = None
     fopex_factor: Union[float, Dict[Process, float]] = None
     incidental_factor: Union[float, Dict[Process, float]] = None
     availability_factor: Union[float, Dict[Resource, float]] = None
-    revenue_factor: Union[float, Dict[Resource, float]] = None
-    demand_factor_scale_level: int = None
-    price_factor_scale_level: int = None
-    capacity_factor_scale_level: int = None
-    expenditure_factor_scale_level: int = None
-    availability_factor_scale_level: int = None
-    revenue_factor_scale_level: int = None
+    sell_price_factor: Union[float, Dict[Resource, float]] = None
     land_cost: float = 0
     credit: Dict[Process, float] = None
     label: str = ''
@@ -97,9 +86,9 @@ class Location:
 
         self.processes = self.processes.union({self.create_storage_process(
             i) for i in self.processes if ProcessType.STORAGE in i.ctype})
-        self.resources = set.union(*[i.resource_req for i in self.processes])
-        # self.materials = set.union(
-        #     *[i.material_req for i in self.processes if ProcessType.HAS_MATMODE in i.ctype])
+        self.resources = set().union(*[i.resource_req for i in self.processes])
+        self.materials = set().union(
+            *[i.material_req for i in self.processes if ProcessType.HAS_MATMODE in i.ctype])
 
         self.capacity_segments = {
             i.capacity_segments for i in self.processes if ProcessType.PWL_CAPEX in i.ctype}
@@ -115,68 +104,46 @@ class Location:
         self.prod_modes = {
             i: i.prod_modes for i in self.processes if ProcessType.MULTI_PRODMODE in i.ctype}
 
-        for i in ['price', 'revenue', 'cons_max', 'store_max', 'store_min']:
-            self.comp_attr_dict(attr=i, component_set='resources_full')
-
-        self.comp_attr_set(
-            attr='sell', component_set='resources_full', tag='resources_sell')
-        self.comp_attr_set(
-            attr='cons_max', component_set='resources_full', tag='resources_purch')
-        self.comp_attr_set(
-            attr='store_max', component_set='resources_full', tag='resources_store')
-
         # fetch all processes with failure rates set
         self.failure_processes = self.get_failure_processes()
         self.fail_factor = self.make_fail_factor()
-        # self.emission_dict = {i: i.emission_dict for i in self.processes_full}
+        # self.emission_dict = {i: i.emission_dict for i in self.processes}
         self.storage_cost_dict = {
             i.resource_storage.name: i.storage_cost for i in self.processes if ProcessType.STORAGE in i.ctype}
 
-        # scales.index_n_list.index(len(solar_houston_mean[:8760*horizon])) to set scale level of factor
-        # two use keys of factor to determine varying components. Add ParameterType.DETERMINISTIC to thier ctype
+        if self.demand is not None:
+            for i in self.demand.keys():
+                i.ctype.append(ResourceType.DEMAND)
 
-        for i in ['capacity', 'price', 'demand', 'availability', 'revenue']:
-            self.factor_handler(
-                factor_name=f'{i}_factor', factor_scale_name=f'{i}_factor_scale_level', varying_set_name=f'varying_{i}')
+        for i in ['purchase_price', 'sell_price', 'cons_max', 'store_max', 'store_min']:
+            self.comp_attr_dict(attr=i, component_set='resources')
 
-        for i in ['capex', 'fopex', 'vopex', 'incidental']:
-            self.factor_handler(
-                factor_name=f'{i}_factor', factor_scale_name=f'expenditure_factor_scale_level', varying_set_name=f'varying_{i}')
+        for i in ['STORE', 'PRODUCE', 'IMPLICIT', 'DISCHARGE', 'SELL', 'CONSUME', 'PURCHASE', 'DEMAND']:
+            self.comp_attr_set(comp_type=getattr(
+                ResourceType, i), component_set='resources', tag=f'resources_{i.lower()}')
+
+        for i in ['capacity', 'fopex', 'vopex', 'incidental', 'purchase_price', 'demand', 'availability', 'sell_price']:
+            self.handle_factor(i)
 
         if self.name is None:
             self.name = f"Location_{uuid.uuid4().hex}"
 
-    def factor_handler(self, factor_name: str, factor_scale_name: str, varying_set_name: str):
-        """1. creates self.varying_x as a set of varying components
-           2. changes the scale of the varying factor dictionary to tuple
+    def handle_factor(self, factor_name):
+        type_dict = {'capacity': (ProcessType.CAPACITY, FactorType.CAPACITY),
+                     'fopex': (ProcessType.FOPEX, FactorType.FOPEX),
+                     'vopex': (ProcessType.VOPEX, FactorType.VOPEX),
+                     'incidental': (ProcessType.INCIDENTAL, FactorType.INCIDENTAL),
+                     'purchase_price': (ResourceType.PURCHASE, FactorType.PURCHASE_PRICE),
+                     'demand': (ResourceType.DEMAND, FactorType.DEMAND),
+                     'availability': (ResourceType.CONSUME, FactorType.AVAILABILITY),
+                     'sell_price': (ResourceType.SELL, FactorType.SELL_PRICE)}
 
-        Args:
-            factor_name (str): name of factor 
-            factor_scale (str): name of the scale of the factor
-            varying_set_name (str): set with varying components
-
-        Returns:
-            Union[set, set]: (varying factor with scales updated, contains components that vary)
-        """
-        factor = getattr(self, factor_name)
-        factor_scale = getattr(self, factor_scale_name)
-        if factor is not None:
-            if factor_scale is None:
-                warn(
-                    f'[{self.name}]: Mention {factor_scale_name} for the {factor_name}')
-            varying_set = set(factor.keys())
-            if isinstance(list(factor.values())[0], DataFrame):
-                factor = scale_changer(
-                    factor, scales=self.scales, scale_level=factor_scale)  # changes the scales to tuple
-            else:
-                warn(
-                    f'[{self.name}]: {factor_name} should be a dict of a DataFrame, Dict[Process, float]')
-            setattr(self, factor_name, factor)
-            setattr(self, varying_set_name, varying_set)
-        else:
-            if factor_scale is not None:
-                warn(
-                    f'[{self.name}]: Do not give {factor_scale_name} without a {factor_name}')
+        if getattr(self, f'{factor_name}_factor') is not None:
+            for j in getattr(self, f'{factor_name}_factor'):
+                j.ptype[type_dict[factor_name][0]
+                        ] = ParameterType.DETERMINISTIC_DATA
+                getattr(self, f'{factor_name}_factor')[j] = Factor(component=j, data=getattr(self, f'{factor_name}_factor')[
+                    j], ctype=type_dict[factor_name][1], scales=self.scales)
 
     def comp_attr_dict(self, attr: str, component_set: str):
         """makes a dict of the type {comp: attr}
@@ -188,7 +155,7 @@ class Location:
         setattr(self, attr, {getattr(i, 'name'): getattr(i, attr) for i in getattr(
             self, component_set) if getattr(i, attr) is not None})
 
-    def comp_attr_set(self, attr: str, component_set: str, tag: str):
+    def comp_attr_set(self, comp_type: Union[ProcessType, ResourceType], component_set: str, tag: str):
         """makes a dict of the type {comp: attr}
 
         Args:
@@ -197,7 +164,7 @@ class Location:
             tag (str) : what to call the new location attribute
         """
         setattr(self, tag, {i for i in getattr(
-            self, component_set) if getattr(i, attr) is not None})
+            self, component_set) if comp_type in i.ctype})
 
     def get_failure_processes(self):
         """get processes with failure rates
@@ -226,15 +193,15 @@ class Location:
         """
         cap_max_dict = {}
         cap_min_dict = {}
-        for i in self.processes_full:
-            if i.materialmode == MaterialMode.MULTI:
+        for i in self.processes:
+            if ProcessType.HAS_MATMODE in i.ctype:
                 cap_max_dict[i.name] = {j: None for j in self.scales.scale[0]}
                 cap_min_dict[i.name] = {j: None for j in self.scales.scale[0]}
                 for j in self.scales.scale[0]:
                     cap_max_dict[i.name][j] = i.cap_max
                     cap_min_dict[i.name][j] = i.cap_min
             else:
-                if i.processmode == ProcessMode.MULTI:
+                if ProcessType.MULTI_PRODMODE in i.ctype:
                     cap_max_dict[i.name] = i.cap_max
                     cap_min_dict[i.name] = i.cap_min
                 else:
@@ -242,7 +209,6 @@ class Location:
                         j: None for j in self.scales.scale[0]}
                     cap_min_dict[i.name] = {
                         j: None for j in self.scales.scale[0]}
-
                     for j in self.scales.scale[0]:
                         cap_max_dict[i.name][j] = i.cap_max
                         cap_min_dict[i.name][j] = i.cap_min

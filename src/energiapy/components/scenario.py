@@ -4,12 +4,12 @@ from warnings import warn
 import numpy
 from pandas import DataFrame
 from enum import Enum, auto
-
-from ..components.transport import VaryingTransport
-from ..components.location import Location
-from ..components.network import Network
-from ..components.resource import Resource
-from ..components.temporal_scale import TemporalScale
+from .comptype import ProcessType, ResourceType, ParameterType
+from .transport import VaryingTransport
+from .location import Location
+from .network import Network
+from .resource import Resource
+from .temporal_scale import TemporalScale
 from ..model.bounds import CapacityBounds
 from ..model.weights import EmissionWeights
 
@@ -58,11 +58,7 @@ class Scenario:
     name: str
     scales: TemporalScale
     network: Union[Network, Location] = None
-    network_scale_level: int = 0
-    scheduling_scale_level: int = 0
-    demand_scale_level: int = 0
     cluster_wt: dict = None
-    demand: Union[Dict[Location, Dict[Resource, float]], float] = None
     label: str = ''
     capacity_bounds: CapacityBounds = None
     annualization_factor: float = 1
@@ -204,44 +200,40 @@ class Scenario:
             self.transport_fopex_scale_level = self.network.transport_fopex_scale_level
             self.source_sink_resource_dict = self.network.source_sink_resource_dict
 
-        self.capacity_factor_scale_level = self.factor_scale_getter(
-            'capacity_factor_scale_level')
-        self.price_factor_scale_level = self.factor_scale_getter(
-            'price_factor_scale_level')
-        self.demand_factor_scale_level = self.factor_scale_getter(
-            'demand_factor_scale_level')
-        self.availability_factor_scale_level = self.factor_scale_getter(
-            'availability_factor_scale_level')
-        self.expenditure_factor_scale_level = self.factor_scale_getter(
-            'expenditure_factor_scale_level')
-        self.revenue_factor_scale_level = self.factor_scale_getter(
-            'revenue_factor_scale_level')
-
         self.process_set = set().union(
-            *[i.processes_full for i in self.location_set if i.processes_full is not None])
+            *[i.processes for i in self.location_set if i.processes is not None])
         self.resource_set = set().union(
-            *[i.resources_full for i in self.location_set if i.resources is not None])
+            *[i.resources for i in self.location_set if i.resources is not None])
         self.material_set = set().union(
             *[i.materials for i in self.location_set if i.materials is not None])
-
+        self.demand = {i: i.demand for i in self.location_set}
         self.conversion = {i.name: {j.name: i.conversion[j] if j in i.conversion.keys(
         ) else 0 for j in self.resource_set} for i in self.process_set if i.conversion is not None}
 
-        for i in ['cap_max', 'cap_min', 'price', 'revenue', 'cons_max', 'store_max', 'store_min', 'capacity_factor', 'price_factor', 'demand_factor', 'capex_factor',
-                  'fopex_factor', 'vopex_factor', 'incidental_factor', 'availability_factor', 'revenue_factor']:
+        self.process_resources = {
+            i: i.resource_req for i in self.process_set}
+
+        self.process_materials = {
+            i: {j: i.material_cons[j] if j in i.material_cons.keys() else 0 for j in self.material_set} for i in self.process_set}
+
+        self.location_resources = {i: {j for j in i.resources}
+                                   for i in self.location_set}
+
+        self.location_processes = {i: {j for j in i.processes}
+                                   for i in self.location_set}
+
+        self.location_materials = {i: {j for j in i.materials}
+                                   for i in self.location_set}
+
+        for i in ['cap_max', 'cap_min', 'purchase_price', 'sell_price', 'cons_max', 'store_max', 'store_min', 'capacity_factor', 'purchase_price_factor', 'demand_factor', 'capex_factor',
+                  'fopex_factor', 'vopex_factor', 'incidental_factor', 'availability_factor', 'sell_price_factor']:
             self.loc_comp_attr_dict(attr=i)
 
-        self.location_material_dict = {i.name: {j.name for j in i.materials}
-                                       for i in self.location_set}
-
-        self.loc_comp_dict(attr='resources_full', attr_tag='resource')
-        self.loc_comp_dict(attr='processes_full', attr_tag='process')
-        self.loc_comp_dict(
-            attr='resources_sell', attr_tag='resource_sell')
-        self.loc_comp_dict(
-            attr='resources_purch', attr_tag='resource_purch')
-        self.loc_comp_dict(
-            attr='resources_store', attr_tag='resource_store')
+        for i in ['store', 'produce', 'implicit', 'discharge', 'sell', 'consume', 'purchase', 'demand']:
+            setattr(self, f'location_resources_{i}', {j: getattr(
+                j, f'resources_{i}') for j in self.location_set})
+            setattr(self, f'resources_{i}', set().union(
+                *[getattr(j, f'resources_{i}') for j in self.location_set]))
 
         for i in ['capex', 'fopex', 'vopex', 'incidental', 'storage_cost', 'land']:
             self.create_attr_dict(i, self.process_set)
@@ -298,37 +290,28 @@ class Scenario:
         self.credit_dict = {i.name: {j.name: i.credit[j] for j in i.credit.keys(
         )} for i in self.location_set if i.credit is not None}
 
-        # self.emission_dict = {i.name: {j.name: {l.name: {n.name: o for n, o in m.items(
-        # )} if m is not None else None for l, m in k.items()} for j, k in i.emission_dict.items()} for i in self.location_set}
-        self.process_resource_dict = {
-            i.name: i.resource_req for i in self.process_set}
-        # self.process_material_dict = {i.name: {j.name: i.material_cons[j] for j in i.material_cons.keys()} if i.material_cons is not None else None for i in
-        #                               self.process_set}
-        self.process_material_dict = {
-            i.name: {j.name: i.material_cons[j] if j in i.material_cons.keys() else 0 for j in self.material_set} for i in self.process_set}
-
         self.process_material_mode_material_dict = {i.name: {j: {l.name: m for l, m in k.items(
-        )} for j, k in i.material_cons.items()} for i in self.process_set}
+        )} for j, k in i.material_cons.items()} for i in self.process_set if ProcessType.HAS_MATMODE in i.ctype}
         multiconversion_dict = dict()
-        # for i in self.process_set:
-        #     if i.processmode == ProcessMode.MULTI:
-        #         multiconversion_dict[i.name] = {
-        #             j: None for j in i.conversion.keys()}
-        #         for k in list(multiconversion_dict[i.name].keys()):
-        #             multiconversion_dict[i.name][k] = {j.name: i.conversion[k][j] if j in i.conversion[k].keys() else 0
-        #                                                for j in self.resource_set}
-        #     else:
-        #         multiconversion_dict[i.name] = {0: None}
-        #         multiconversion_dict[i.name][0] = {j.name: i.conversion[j] if j in i.conversion.keys() else 0 for j in
-        #                                            self.resource_set}
+        for i in self.process_set:
+            if ProcessType.MULTI_PRODMODE in i.ctype:
+                multiconversion_dict[i.name] = {
+                    j: None for j in i.conversion.keys()}
+                for k in list(multiconversion_dict[i.name].keys()):
+                    multiconversion_dict[i.name][k] = {j.name: i.conversion[k][j] if j in i.conversion[k].keys() else 0
+                                                       for j in self.resource_set}
+            else:
+                multiconversion_dict[i.name] = {0: None}
+                multiconversion_dict[i.name][0] = {j.name: i.conversion[j] if j in i.conversion.keys() else 0 for j in
+                                                   self.resource_set}
 
         self.multiconversion = multiconversion_dict
 
         self.mode_dict = {i.name: list(
-            self.multiconversion[i.name].keys()) for i in self.process_set}
+            self.multiconversion[i.name].keys()) for i in self.process_set if ProcessType.MULTI_PRODMODE in i.ctype}
         # self.mode_dict = {i: [(k,) for k in j]for i,j in self.mode_dict.items()}
 
-        self.modes_dict = {i: i.modes_dict for i in self.location_set}
+        # self.modes_dict = {i: i.modes_dict for i in self.location_set}
 
         if self.demand_penalty is not None:
             self.demand_penalty = {i.name: {j.name: self.demand_penalty[i][j] for j in self.demand_penalty[i].keys(
@@ -349,6 +332,23 @@ class Scenario:
 
                     self.process_material_modes_dict = {
                         i.name: i.material_modes for i in self.process_set}
+
+        self.component_sets = {
+            'resources': [i.name for i in self.resource_set],
+            'processes': [i.name for i in self.process_set],
+            'materials': [i.name for i in self.material_set],
+            'locations': [i.name for i in self.location_set],
+            'transports': [i.name for i in self.transport_set]
+        }
+
+        self.resource_subsets = dict()
+
+        for i in ['store', 'produce', 'implicit', 'discharge', 'sell', 'consume', 'purchase', 'demand']:
+            self.resource_subsets[f'resources_{i}'] = [
+                i.name for i in getattr(self, f'resources_{i}')]
+
+        # self.resource_subsets['resources_varying_demand'] = [
+        #     i.name for i in getattr(self, 'resources_demand') if i.ptype[ResourceType.DEMAND] == ParameterType.DETERMINISTIC_DATA]
 
         # set_dict = {
         #     'resources': [i.name for i in self.resource_set],
@@ -393,7 +393,7 @@ class Scenario:
 
         #     'processes': [i.name for i in self.process_set],
 
-        #     'processes_full': list(self.conversion.keys()),
+        #     'processes': list(self.conversion.keys()),
 
         #     'processes_failure': [i.name for i in self.process_set if i.p_fail is not None],
 
@@ -479,8 +479,8 @@ class Scenario:
         #         'transports_varying_vopex': [i.name for i in self.transport_set if VaryingTransport.DETERMINISTIC_VOPEX in i.varying],
         #         'transports_varying_fopex': [i.name for i in self.transport_set if VaryingTransport.DETERMINISTIC_FOPEX in i.varying],
         #     }
-            self.set_dict = {}
-            self.set_dict = {**self.set_dict, **transport_set_dict}
+        #     self.set_dict = {}
+        #     self.set_dict = {**self.set_dict, **transport_set_dict}
 
     def loc_comp_attr_dict(self, attr: str):
         """creates a dict of type {loc: {comp: attribute_dict}}
@@ -490,7 +490,7 @@ class Scenario:
         check_set = {getattr(i, attr) if isinstance(
             getattr(i, attr), dict) is False else 1 for i in getattr(self, 'location_set')}
         if list(set(check_set))[0] is not None:
-            setattr(self, f'{attr}', {getattr(i, 'name'): getattr(
+            setattr(self, f'{attr}', {i: getattr(
                 i, attr) for i in getattr(self, 'location_set')})
         else:
             setattr(self, f'{attr}', None)
@@ -503,24 +503,6 @@ class Scenario:
         """
         setattr(self, f'location_{attr_tag}_dict',
                 {getattr(i, 'name'): {getattr(j, 'name') for j in getattr(i, attr)} for i in getattr(self, 'location_set')})
-
-    def factor_scale_getter(self, factor_scale_level: str) -> int:
-        """returns scale level for varying factor, checks consistency
-
-        Args:
-            factor_scale_level (str): self explanatory
-
-        Returns:
-            int: scale level of varying factor 
-        """
-        factor_scale_level_set = {getattr(i, factor_scale_level) for i in self.location_set if getattr(
-            i, factor_scale_level) is not None}
-        if len(factor_scale_level_set) == 0:
-            return None
-        if len(factor_scale_level_set) == 1:
-            return int(list(factor_scale_level_set)[0])
-        if len(factor_scale_level_set) > 1:
-            warn(f'{factor_scale_level} needs to be consistent across locations')
 
     def create_attr_dict(self, attr: str, component_set: set):
         """Checks whether atleast one component in set has attribute not None

@@ -253,7 +253,7 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
               gwp_reduction_pct: float = None, model_class: ModelClass = ModelClass.MIP, objective_resource: Resource = None,
               inventory_zero: Dict[Location,
                                    Dict[Tuple[Process, Resource], float]] = None,
-              demand_sign: str = 'geq') -> ConcreteModel:
+              demand_sign: str = 'geq', meet_demand_scale: int = None) -> ConcreteModel:
     """formulates a model. Constraints need to be declared in order
 
     Args:
@@ -300,6 +300,9 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
     """
     start = time.time()
     demand = scenario.demand
+    if meet_demand_scale is None:
+        meet_demand_scale = scenario.scales.scheduling_scale
+        
     # if isinstance(demand, dict):
     #     demand = {i.name: {j.name: demand[i][j]
     #                        for j in demand[i].keys()} for i in demand.keys()}

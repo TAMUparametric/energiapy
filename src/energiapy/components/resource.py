@@ -1,9 +1,10 @@
 """energiapy.Resource - Resource as refined in the RT(M)N framework  
 """
 from dataclasses import dataclass
-from typing import Union, List, Tuple
+from typing import Union, List, Tuple, Dict
 import uuid
 from .comptype import ResourceType, ParameterType, Th
+from warnings import warn
 
 
 @dataclass
@@ -91,10 +92,10 @@ class Resource:
     """
 
     name: str = None
-    sell: bool = None
-    revenue: Union[float, Tuple[float], Th] = None
+    discharge: bool = None
+    sell_price: Union[float, Tuple[float], Th] = None
     cons_max: Union[float, Tuple[float], Th] = None
-    price: Union[float, Tuple[float], Th] = None
+    purchase_price: Union[float, Tuple[float], Th] = None
     store_max: float = None
     store_min: float = None
     store_loss: float = None
@@ -104,7 +105,7 @@ class Resource:
     demand: bool = None
     transport: bool = None
     ctype: List[ResourceType] = None
-    ptype: List[ParameterType] = None
+    ptype: Dict[ResourceType, ParameterType] = None
     label: str = None
     gwp: float = None
     odp: float = None
@@ -118,41 +119,53 @@ class Resource:
         if self.ctype is None:
             self.ctype = []
 
-        if self.ptype is None:
-            self.ptype = []
+        # *-----------------Set ctype---------------------------------
 
-        if self.sell is not None:
-            self.ctype.append(ResourceType.DISCHARGE)
-
-        if self.revenue is not None:
+        if self.sell_price is not None:
             self.ctype.append(ResourceType.SELL)
-            if isinstance(self.revenue, (tuple, Th)):
-                self.ptype.append(ParameterType.UNCERTAIN)
+            self.discharge = True
+            warn(f'{self.name}: discharge set to True, since sell_price is given')
+
+        if self.discharge is not None:
+            self.ctype.append(ResourceType.DISCHARGE)
 
         if self.cons_max is not None:
             self.ctype.append(ResourceType.CONSUME)
-            if isinstance(self.cons_max, (tuple, Th)):
-                self.ptype.append(ParameterType.UNCERTAIN)
         else:
             # if it is not consumed from outside the system, it has to be made in the system
             self.ctype.append(ResourceType.PRODUCE)
-            if (self.sell is None):
+            if self.discharge is None:
                 # is not discharged or consumed. Produced and used within the system captively
                 self.ctype.append(ResourceType.IMPLICIT)
 
-        if self.price is not None:
+        if self.purchase_price is not None:
             self.ctype.append(ResourceType.PURCHASE)
-            if isinstance(self.price, (tuple, Th)):
-                self.ptype.append(ParameterType.UNCERTAIN)
+            if self.cons_max is None:
+                warn(f'{self.name}: Price given, suggest providing cons_max as well')
 
         if self.store_max is not None:
             self.ctype.append(ResourceType.STORE)
+
+        # *-----------------Set ptype---------------------------------
+        self.ptype = {i: ParameterType.CERTAIN for i in self.ctype}
+
+        if self.sell_price is not None:
+            if isinstance(self.sell_price, (tuple, Th)):
+                self.ptype[ResourceType.SELL] = ParameterType.UNCERTAIN
+
+        if self.cons_max is not None:
+            if isinstance(self.cons_max, (tuple, Th)):
+                self.ptype[ResourceType.CONSUME] = ParameterType.UNCERTAIN
+
+        if self.purchase_price is not None:
+            if isinstance(self.purchase_price, (tuple, Th)):
+                self.ptype[ResourceType.PURCHASE] = ParameterType.UNCERTAIN
 
         # self.emission_potentials_dict = {'gwp': self.gwp, 'odp': self.odp,
         #                                  'acid': self.acid, 'eutt': self.eutt, 'eutf': self.eutf, 'eutm': self.eutm}
 
         if self.demand is True:  # if somebody sets the demand to be true, sell will need to updated here
-            self.sell = True
+            self.discharge = True
 
         if self.name is None:
             self.name = f"Resource_{uuid.uuid4().hex}"

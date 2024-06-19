@@ -13,7 +13,7 @@ class ParameterType(Enum):
     CERTAIN = auto()
     """Is certain. Does not change over the design or scheduling scale
     """
-    DETERMINISTIC = auto()
+    DETERMINISTIC_DATA = auto()
     """Data is provided for the variance as a factor
     """
     UNCERTAIN = auto()
@@ -29,6 +29,7 @@ class Th:
 
 
 # *-----------------------TemporalScale------------------------------------------------
+
 class ProblemType(Enum):
     """Problem type
     """
@@ -87,10 +88,30 @@ class ResourceType(Enum):
     """transported
     """
 
+
+# *-----------------------Factor------------------------------------------------
+
+class FactorType(Enum):
+    """ Type of deterministic data factor
+    """
+    """ For resources
+    """
+    DEMAND = auto()
+    PURCHASE_PRICE = auto()
+    AVAILABILITY = auto()
+    SELL_PRICE = auto()
+    """ For processes
+    """
+    CAPACITY = auto()
+    CAPEX = auto()
+    FOPEX = auto()
+    VOPEX = auto()
+    INCIDENTAL = auto()
+
+
 # *-----------------------Emission Metric--------------------------------------
 
 
-@dataclass
 class EmissionType(Enum):
     """Type of emission being considered
     """
@@ -151,42 +172,12 @@ class ProcessType(Enum):
     CAPACITY = auto()
     """Has a capacity 
     """
-    EXPENDITURE = auto()
-    """Costs to set up
+    CAPEX = auto()
+    FOPEX = auto()
+    VOPEX = auto()
+    INCIDENTAL = auto()
+    """ Technology costs to set up processes
     """
-
-# class VaryingProcess(Enum):
-#     """
-#     The type of process capacity variability
-#     """
-#     DETERMINISTIC_CAPACITY = auto()
-#     """
-#     Utilize deterministic data as parameters for capacity
-#     """
-#     DETERMINISTIC_EXPENDITURE = auto()
-#     """
-#     Utilize deterministic data as parameters for expenditure
-#     """
-#     UNCERTAIN_CAPACITY = auto()
-#     """
-#     Generate uncertainty variables
-#     """
-#     UNCERTAIN_EXPENDITURE = auto()
-#     """
-#     Generate uncertainty variables for expenditure
-#     """
-#     CERTAIN_CAPACITY = auto()
-#     """
-#     Use certain parameter for capacity
-#     """
-#     CERTAIN_EXPENDITURE = auto()
-#     """
-#     Use certain parameter for expenditure
-#     """
-#     MULTIMODE = auto()
-#     """
-#     Has multiple modes of operation
-#     """
 
 
 @dataclass

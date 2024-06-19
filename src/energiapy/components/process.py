@@ -6,7 +6,7 @@ from warnings import warn
 import uuid
 from .material import Material
 from .resource import Resource
-from .comptype import ParameterType, Th, ProcessRamp, ProcessType, ResourceType
+from .comptype import ParameterType, Th, ProcessRamp, ProcessType, ResourceType, FactorType
 from ..utils.data_utils import get_depth
 
 
@@ -71,16 +71,16 @@ class Process:
     retire: int = None
     conversion: Union[Dict[Union[int, str], Dict[Resource, float]],
                       Dict[Resource, float]] = None
-    capex: Union[float, dict] = None
-    fopex: float = None
-    vopex: float = None
-    incidental: float = None
+    capex: Union[float, dict, Tuple[float], Th] = None
+    fopex: Union[float, dict, Tuple[float], Th] = None
+    vopex: Union[float, dict, Tuple[float], Th] = None
+    incidental: Union[float, dict, Tuple[float], Th] = None
     storage_cost: float = None
     land: float = None
     material_cons: Union[Dict[Union[int, str],
                               Dict[Material, float]], Dict[Material, float]] = None
-    cap_max: float = None
-    cap_min: float = None
+    cap_max: Union[float, dict] = None
+    cap_min: Union[float, dict] = None
     basis: str = None
     gwp: float = None
     odp: float = None
@@ -99,7 +99,7 @@ class Process:
     store_max: float = None
     store_min: float = None
     ctype: List[ProcessType] = None
-    ptype: List[ParameterType] = None
+    ptype: Dict[ProcessType, ParameterType] = None
 
     def __post_init__(self):
         """Determines the ProcessMode, CostDynamics, and kicks out dummy resources if process is stores resource
@@ -113,11 +113,13 @@ class Process:
         if self.ctype is None:
             self.ctype = []
 
-        if self.ptype is None:
-            self.ptype = []
+        # *-----------------Set ctype---------------------------------
+
+        if self.cap_max is not None:
+            self.ctype.append(ProcessType.CAPACITY)
 
         if self.capex is not None:
-            self.ctype.append(ProcessType.EXPENDITURE)
+            self.ctype.append(ProcessType.CAPEX)
             if isinstance(self.capex, dict):
                 self.ctype.append(ProcessType.PWL_CAPEX)
                 self.capacity_segments = list(self.capex.keys())
@@ -125,8 +127,38 @@ class Process:
             else:
                 self.ctype.append(ProcessType.LINEAR_CAPEX)
 
+        if self.fopex is not None:
+            self.ctype.append(ProcessType.FOPEX)
+
+        if self.vopex is not None:
+            self.ctype.append(ProcessType.VOPEX)
+
+        if self.incidental is not None:
+            self.ctype.append(ProcessType.INCIDENTAL)
+
+        # *-----------------Set ctype---------------------------------
+
+        self.ptype = {i: ParameterType.CERTAIN for i in self.ctype}
+
         if self.cap_max is not None:
-            self.ctype.append(ProcessType.CAPACITY)
+            if isinstance(self.cap_max, (tuple, Th)):
+                self.ptype[ProcessType.CAPACITY] = ParameterType.UNCERTAIN
+
+        if self.capex is not None:
+            if isinstance(self.capex, (tuple, Th)):
+                self.ptype[ProcessType.CAPEX] = ParameterType.UNCERTAIN
+
+        if self.fopex is not None:
+            if isinstance(self.fopex, (tuple, Th)):
+                self.ptype[ProcessType.FOPEX] = ParameterType.UNCERTAIN
+
+        if self.vopex is not None:
+            if isinstance(self.vopex, (tuple, Th)):
+                self.ptype[ProcessType.VOPEX] = ParameterType.UNCERTAIN
+
+        if self.incidental is not None:
+            if isinstance(self.incidental, (tuple, Th)):
+                self.ptype[ProcessType.INCIDENTAL] = ParameterType.UNCERTAIN
 
         if self.conversion is not None:
             if get_depth(self.conversion) > 1:
@@ -181,7 +213,7 @@ class Process:
         """
 
         return Resource(name=f"{self.name}_{resource.name}_stored", store_loss=resource.store_loss, store_max=store_max, store_min=store_min,
-                        basis=resource.basis, block=resource.block, label=resource.label+f"{self.name}(stored)", ctype=[ResourceType.STORE])
+                        basis=resource.basis, block=resource.block, label=resource.label+f"{self.name}(stored)")
 
     def __repr__(self):
         return self.name
