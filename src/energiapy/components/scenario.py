@@ -380,7 +380,7 @@ class Scenario:
         # self.set_dict = {x: sorted(set_dict[x]) for x in set_dict.keys()}
 
         # if self.ctype == ScenarioType.MULTI_LOCATION:
-            
+
         #     transport_set_dict = {
         #         'transports_certain_capacity': [i.name for i in self.transport_set if VaryingTransport.CERTAIN_CAPACITY in i.varying],
         #         'transports_certain_capex': [i.name for i in self.transport_set if VaryingTransport.CERTAIN_CAPEX in i.varying],
