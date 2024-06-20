@@ -12,27 +12,19 @@ class Result:
     """Results from solving a Scenario
 
     Args:
-       name (str): name of the material, short ones are better to deal with.
+       name (str): name of the Result. 
        components (dict): input data relating to components
        output (dict): results from analysis
        model_elements (dict): model sets, variables, constraints, objective
        duals (dict): duals if not MIP.
-       solve_time (float): solution time
        cost_summary (dict): summary of the contributing costs
 
     """
+    name: str
     components: dict
     output: dict
     model_elements: dict
     duals: dict
-    name: str = None 
-    
-    
-    def __post_init__(self):
-        
-        if self.name is None:
-            warn(f'{self.name}: random name has been set, this can be cumbersome')
-            self.name = f"Result_{uuid.uuid4().hex}"
 
     def saveoutputs(self, file_name: str):
         """Saves output with provide name.

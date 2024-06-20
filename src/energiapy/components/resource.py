@@ -3,7 +3,7 @@
 from dataclasses import dataclass
 from typing import Union, List, Tuple, Dict
 import uuid
-from .comptype import ResourceType, ParameterType, Th, EmissionType, VaryingResource
+from .comptype import ResourceType, ParameterType, Th, EmissionType
 from warnings import warn
 
 
@@ -12,10 +12,10 @@ class Resource:
     """Object with resource data that can be consumed (purchased if consumed at a price), discharged (sold if revenue is generated), 
     stored, used or made by process, transported.
 
-    The resource can 
+    The emission potentials [gwp, odp, acid, eutt, eutf, eutm] can also be provided 
 
     Args:
-        name (str, optional): name of resource. Defaults to None
+        name (str): name of resource. Enter None to randomly assign a name.
         discharge (bool, optional): if can be discharged or sold. Defaults to None
         sell_price (Union[float, Tuple[float], Th], optional): revenue if generated on selling. Defaults to None
         cons_max (Union[float, Tuple[float], Th], optional): maximum amount that can be consumed. Defaults to None
@@ -90,7 +90,7 @@ class Resource:
 
     """
 
-    name: str = None
+    name: str
     discharge: bool = None
     sell_price: Union[float, Tuple[float], Th] = None
     cons_max: Union[float, Tuple[float], Th] = None
@@ -112,10 +112,12 @@ class Resource:
     eutf: float = None
     eutm: float = None
     # Depreciated
-    sell:bool = None 
-    demand: bool = None 
-    varying: list = None 
-    
+    sell: bool = None
+    demand: bool = None
+    varying: list = None
+    price: float = None
+    revenue: float = None
+
     def __post_init__(self):
 
         if self.ctype is None:
@@ -163,29 +165,37 @@ class Resource:
         if self.purchase_price is not None:
             if isinstance(self.purchase_price, (tuple, Th)):
                 self.ptype[ResourceType.PURCHASE] = ParameterType.UNCERTAIN
-          
+
         # *-----------------Set etype (Emission)---------------------------------
-              
-        self.etype = [] 
+
+        self.etype = []
         self.emissions = dict()
         for i in ['gwp', 'odp', 'acid', 'eutt', 'eutf', 'eutm']:
             if getattr(self, i) is not None:
                 self.etype.append(getattr(EmissionType, i.upper()))
                 self.emissions[i] = getattr(self, i)
-                
+
+        # *-----------------Random name ---------------------------------
+
+        if self.name is None:
+            self.name = f"Resource_{uuid.uuid4().hex}"
+
         # *----------------- Warnings---------------------------------
-        
-        if self.demand is not None:  
+
+        if self.demand is not None:
             warn(f'{self.name}: demand has been depreciated and will be intepreted in energiapy.Location, use discharge = True')
         if self.sell is not None:
-            warn(f'{self.name}: sell has been depreciated')
+            warn(
+                f'{self.name}: sell has been depreciated. set discharge = True and specify selling_price if needed')
         if self.varying is not None:
             warn(f'{self.name}: varying has been depreciated. Variability will be intepreted based on data provided to energiapy.Location')
-        
-        if self.name is None:
-            warn(f'{self.name}: random name has been set, this can be cumbersome')
-            self.name = f"Resource_{uuid.uuid4().hex}"
-    
+        if self.price is not None:
+            warn(
+                f'{self.name}: price has been depreciated. Please use purchase_price instead')
+        if self.revenue is not None:
+            warn(
+                f'{self.name}: revenue has been depreciated. Please use sell_price instead')
+
     def __repr__(self):
         return self.name
 

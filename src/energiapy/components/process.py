@@ -15,12 +15,12 @@ class Process:
 
     """
     Processes can be of produce or store resources 
-    
+
     For production process:
         conversion needs to be specified
         production modes and material modes can be declared using nested dictionaries. See examples []
         piece wise linear capex curves can be declared using a dictionary. See examples []
-    
+
     For storage process:
     storage = energiapy.Resource is needed. See examples []
     a resource_storage with the name {process name}_{resource name}_stored is created, which features in the resource balance 
@@ -30,7 +30,7 @@ class Process:
     The expenditures (capex, fopex, vopex, incidental) are set to 0 if provided, None otherwise
 
     Args:
-        name (str): name of process, short ones are better to deal with.
+        name (str): name of process. Enter None to randomly assign a name.
         cap_max (Union[float, dict], optional): Maximum production capacity allowed in a time period of the scheduling scale. Defaults to None.
         cap_min (Union[float, dict], optional): Minimum production capacity allowed in a time period of the scheduling scale. Defaults to None.
         conversion (Union[Dict[Union[int, str],Dict[Resource, float]], Dict[Resource, float]], optional): conversion data (Dict[Resource, float]]), if multimode the of form Dict[int,Dict[Resource, float]]. Defaults to None.
@@ -55,7 +55,7 @@ class Process:
         store_max (float, optional): Maximum allowed storage of resource in process. Defaults to None.
         store_min (float, optional): Minimum allowed storage of resource in process. Defaults to None.
         storage_cost: (float, optional): penalty for mainting inventory per time period in the scheduling scale. Defaults to None.
-        storage_lost: (float, optional): resource loss on the scheduling scale
+        store_loss: (float, optional): resource loss on the scheduling scale
         block (str, optional): define block for convenience. Defaults to None.
         citation (str, optional): citation for data. Defaults to 'citation needed'.
         label(str, optional):Longer descriptive label if required. Defaults to None
@@ -79,7 +79,7 @@ class Process:
 
     """
 
-    name: str = None
+    name: str
     cap_max: Union[float, dict] = None
     cap_min: Union[float, dict] = None
     conversion: Union[Dict[Union[int, str], Dict[Resource, float]],
@@ -113,15 +113,13 @@ class Process:
     block: str = None
     citation: str = None
     label: str = None
-    # depreciated 
-    varying: list = None 
-    prod_max: float = None 
+    # depreciated
+    varying: list = None
+    prod_max: float = None
     prod_min: float = None
-    
-    
 
     def __post_init__(self):
-        
+
         if self.ctype is None:
             self.ctype = []
 
@@ -139,7 +137,7 @@ class Process:
             else:
                 self.ctype.append(ProcessType.LINEAR_CAPEX)
 
-        for i in ['fopex', 'vopex', 'incidental', 'land']:            
+        for i in ['fopex', 'vopex', 'incidental', 'land']:
             if getattr(self, i) is not None:
                 getattr(self, 'ctype').append(getattr(ProcessType, i.upper()))
 
@@ -152,12 +150,12 @@ class Process:
             else:
                 self.ctype.append(ProcessType.SINGLE_PRODMODE)
                 self.resource_req = set(self.conversion.keys())
-                
+
         if self.material_cons is None:
             self.ctype.append(ProcessType.NO_MATMODE)
 
         else:
-            if get_depth(self.material_cons)> 1:
+            if get_depth(self.material_cons) > 1:
                 self.ctype.append(ProcessType.MULTI_MATMODE)
                 self.material_modes = set(self.material_cons.keys())
                 self.material_req = set().union(
@@ -178,7 +176,7 @@ class Process:
             self.conversion_discharge = {
                 self.resource_storage: -1, self.storage: 1*(1 - self.store_loss)}  # the losses are all at the output (retrival)
             self.resource_req = set(self.conversion.keys())
-        
+
         # *-----------------Set ptype (Parameter)---------------------------------
 
         self.ptype = {i: ParameterType.CERTAIN for i in self.ctype}
@@ -186,12 +184,13 @@ class Process:
         if self.cap_max is not None:
             if isinstance(self.cap_max, (tuple, Th)):
                 self.ptype[ProcessType.CAPACITY] = ParameterType.UNCERTAIN
-                
+
         for i in ['capex', 'fopex', 'vopex', 'incidental', 'land']:
             if getattr(self, i) is not None:
-                if isinstance(getattr(self,i), (tuple, Th)):
-                    getattr(self, 'ptype')[getattr(ProcessType, i.upper())] = ParameterType.UNCERTAIN
-        
+                if isinstance(getattr(self, i), (tuple, Th)):
+                    getattr(self, 'ptype')[
+                        getattr(ProcessType, i.upper())] = ParameterType.UNCERTAIN
+
         # *-----------------Set etype (Emission)---------------------------------
 
         self.etype = []
@@ -200,19 +199,22 @@ class Process:
             if getattr(self, i) is not None:
                 self.etype.append(getattr(EmissionType, i.upper()))
                 self.emissions[i] = getattr(self, i)
+                
+        if self.name is None:
+            self.name = f"Process_{uuid.uuid4().hex}"
 
         # *----------------- Warnings---------------------------------
-        
+
         if self.prod_max is not None:
-            warn(f'{self.name}: prod_max has been depreciated. Please use cap_max instead')
+            warn(
+                f'{self.name}: prod_max has been depreciated. Please use cap_max instead')
         if self.prod_min is not None:
-            warn(f'{self.name}: prod_min has been depreciated. Please use cap_min instead')
+            warn(
+                f'{self.name}: prod_min has been depreciated. Please use cap_min instead')
         if self.varying is not None:
             warn(f'{self.name}: varying has been depreciated. Variability will be intepreted based on data provided to energiapy.Location')
-        
-        if self.name is None:
-            warn(f'{self.name}: random name has been set, this can be cumbersome')
-            self.name = f"Process_{uuid.uuid4().hex}"
+
+
 
     def create_storage_resource(self, resource: Resource, store_max: float = None, store_min: float = None) -> Resource:
         """Creates a dummy resource for storage, used if process is storage type

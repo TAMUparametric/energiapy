@@ -21,7 +21,7 @@ class Material:
     Materials are needed to set up processes. 
 
     Args:
-        name (str): name of the material, short ones are better to deal with
+        name (str): name of the material. Enter None to randomly assign a name.
         gwp (float, optional): global warming potential per unit basis of Material produced. Defaults to None.
         odp (float, optional): ozone depletion potential per unit basis of Material produced. Defaults to None.
         acid (float, optional): acidification potential per unit basis of Material produced. Defaults to None.
@@ -38,7 +38,7 @@ class Material:
         >>>  Steel = Material(name='Steel', gwp=0.8, basis= 'kg', label='Steel')
 
     """
-    name: str = None
+    name: str
     gwp: float = None
     odp: float = None
     acid: float = None
@@ -61,7 +61,6 @@ class Material:
                 self.emissions[i] = getattr(self, i)
 
         if self.name is None:
-            warn(f'{self.name}: random name has been set, this can be cumbersome')
             self.name = f"Material_{uuid.uuid4().hex}"
 
     def __repr__(self):

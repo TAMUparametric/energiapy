@@ -1,9 +1,8 @@
 from dataclasses import dataclass
 from typing import Dict, Union
-from warnings import warn
 import numpy
 from pandas import DataFrame
-from enum import Enum, auto
+import uuid
 from .comptype import ProcessType, ResourceType, ParameterType, LocationType, ScenarioType
 from .location import Location
 from .network import Network
@@ -19,7 +18,7 @@ class Scenario:
     Scenario contains the network between location and all the data within.
 
     Args:
-        name (str): name of scenario, short ones are better to deal with.
+        name (str): name of scenario. Enter None to randomly assign a name.
         scales (temporal_scale): scales of the problem
         network (Union[Network, Location]): network object with the locations, transport linakges, and processes (with resources and materials)
         scheduling_scale_level (int, optional): scale of production and inventory scheduling. Defaults to 0.
@@ -273,7 +272,7 @@ class Scenario:
             i.name: {j.name: j.eutf for j in self.process_set} for i in self.location_set}
         self.process_eutm_dict = {
             i.name: {j.name: j.eutm for j in self.process_set} for i in self.location_set}
-        
+
         self.fail_factor = {i.name: i.fail_factor for i in self.location_set}
 
         self.process_material_mode_material_dict = {i.name: {j: {l.name: m for l, m in k.items(
@@ -365,7 +364,6 @@ class Scenario:
 
         self.process_subsets['processes_failure'] = [
             i.name for i in self.process_set if i.p_fail is not None]
-        
 
         self.location_subsets = dict()
 
@@ -373,18 +371,24 @@ class Scenario:
             i.name for i in self.location_set if LocationType.SOURCE in i.ctype]
         self.location_subsets['sinks'] = [
             i.name for i in self.location_set if LocationType.SINK in i.ctype]
-        self.location_subsets['location_land_cost'] = [i.name for i in self.location_set if LocationType.LAND_COST in i.ctype]
-        
-        self.land_cost_dict = {i.name: i.land_cost for i in self.location_set if LocationType.LAND_COST in i.ctype}
-        
-        for i in self.location_subsets['location_land_cost']:
-            if i.land_cost_factor is not None:
-                i.ptype[LocationType.LAND_COST] = ParameterType.DETERMINISTIC_DATA
-                self.land_cost_factor[i] = Factor(component = i, data = i.land_cost_factor, ctype = FactorType.LAND_COST, scales = self.scales)
+        self.location_subsets['locations_land_cost'] = [
+            i.name for i in self.location_set if LocationType.LAND_COST in i.ctype]
 
-        self.credit_dict = {i.name: {j.name: i.credit[j] for j in i.credit.keys()} for i in self.location_set if i.credit is not None}
-        
-        
+        self.location_subsets['locations_varying_land_cost'] = [i.name for i in self.location_set if LocationType.LAND_COST in i.ptype.keys(
+        ) if i.ptype[LocationType.LAND_COST] == ParameterType.DETERMINISTIC_DATA]
+        self.location_subsets['locations_certain_land_cost'] = [
+            i.name for i in self.location_set if LocationType.LAND_COST in i.ptype.keys() if i.ptype[LocationType.LAND_COST] == ParameterType.CERTAIN]
+        self.location_subsets['locations_uncertain_land_cost'] = [
+            i.name for i in self.location_set if LocationType.LAND_COST in i.ptype.keys() if i.ptype[LocationType.LAND_COST] == ParameterType.UNCERTAIN]
+
+        self.location_land_cost_factor = {
+            i: i.land_cost_factor for i in self.location_subsets['locations_varying_land_cost']}
+
+        self.land_cost_dict = {
+            i.name: i.land_cost for i in self.location_set if LocationType.LAND_COST in i.ctype}
+
+        self.credit_dict = {i.name: {j.name: i.credit[j] for j in i.credit.keys(
+        )} for i in self.location_set if i.credit is not None}
 
         # self.set_dict = {x: sorted(set_dict[x]) for x in set_dict.keys()}
 
@@ -422,6 +426,9 @@ class Scenario:
         #     'availability': {i.name: i.varying_bounds for i in self.resource_set if VaryingResource.UNCERTAIN_AVAILABILITY in i.varying},
         #     'capacity': {i.name: i.varying_bounds for i in self.process_set if VaryingProcess.UNCERTAIN_CAPACITY in i.varying}
         # }
+        
+        if self.name is None:
+            self.name = f"Sceanrio_{uuid.uuid4().hex}"
 
     def loc_comp_attr_dict(self, attr: str):
         """creates a dict of type {loc: {comp: attribute_dict}}

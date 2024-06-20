@@ -1,15 +1,6 @@
 """Data management utilities
 """
 
-__author__ = "Rahul Kakodkar"
-__copyright__ = "Copyright 2022, Multi-parametric Optimization & Control Lab"
-__credits__ = ["Rahul Kakodkar", "Efstratios N. Pistikopoulos"]
-__license__ = "MIT"
-__version__ = "1.0.5"
-__maintainer__ = "Rahul Kakodkar"
-__email__ = "cacodcar@tamu.edu"
-__status__ = "Production"
-
 import json
 import pickle
 from itertools import product
@@ -285,10 +276,7 @@ def load_results(filename: str) -> Result:
     results_dict = pickle.load(file_)
     if results_dict['output']['termination'] != 'optimal':
         print('WARNING: Loading non-optimal results')
-    results = Result(name=filename.split('.')[
-                     0], output=results_dict['output'], components=results_dict['components'], duals=results_dict['duals'])
-
-    return results
+    return Result(name=filename.split('.')[0], output=results_dict['output'], components=results_dict['components'], duals=results_dict['duals'], model_elements=results_dict['model_elements'])
 
 
 def remove_outliers(data: pandas.DataFrame, sd_cuttoff: int = 2, mean_range: int = 1) -> pandas.DataFrame:
@@ -307,14 +295,10 @@ def remove_outliers(data: pandas.DataFrame, sd_cuttoff: int = 2, mean_range: int
     lower, upper = data_mean - cut_off, data_mean + cut_off
     for i in range(len(data)):
         x = data.iloc[i].values[0]
-        if x < float(lower) or x > float(upper):
+        if x < float(lower.iloc[0]) or x > float(upper.iloc[0]):
             data.iloc[i] = (sum(data.iloc[i-(j+1)] for j in range(mean_range)) +
                             sum(data.iloc[i+(j+1)] for j in range(mean_range)))/2*mean_range
-
     return data
-
-
-
 
 
 def calculate_hourly(data: pandas.DataFrame, column_name: str, what: str = 'mean') -> pandas.DataFrame:
@@ -371,7 +355,7 @@ def calculate_hourly(data: pandas.DataFrame, column_name: str, what: str = 'mean
 
 def get_depth(dictionary: dict) -> int:
     """ finds depth of dictionary
-    
+
     Args:
         dictionary (dict): dictionary
 
@@ -381,9 +365,9 @@ def get_depth(dictionary: dict) -> int:
     if not isinstance(dictionary, dict) or not dictionary:
         # If the input is not a dictionary or is an empty dictionary, return 0
         return 0
-    
+
     # Recursively find the maximum depth of nested dictionaries
     max_depth = max(get_depth(value) for value in dictionary.values())
-    
+
     # Return one more than the maximum depth found
     return 1 + max_depth

@@ -49,8 +49,8 @@ class Transport:
 
 
     """
+    name: str 
     resources: Set[Resource]
-    name: str = None
     material_cons: Dict[Material, float] = None
     introduce: int = 0
     retire: int = None

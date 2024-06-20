@@ -32,6 +32,10 @@ class TemporalScale:
         design_scale (int, optional): scale level for design decisions. Defaults to None.
         scheduling_scale (int, optional): scale level of scheduling (operational) decisions. Defaults to None.
         start_zero (int): which year the scale starts. Defaults to None.
+        scale_factors_max (bool, optional): whether deterministic data factors need to be scaled to max. Defaults to True. Can be set to False or overidden in Factor.
+        scale_factors_min_max (bool, optional): whether deterministic data factors need to be scaled min-max. Defaults to None. Can be overidden in Factor.
+        scale_factors_standard (bool, optional): whether deterministic data factors need to be standard scaled. Defaults to None. Can be overidden in Factor.
+
     Examples:
 
         [1] For a design and scheduling problem where decisions are taken for every day of the week:
@@ -128,6 +132,9 @@ class TemporalScale:
     design_scale: int = None
     scheduling_scale: int = None
     start_zero: int = None
+    scale_factors_max: bool = True
+    scale_factors_min_max: bool = None
+    scale_factors_standard: bool = None
 
     def __post_init__(self):
         """
@@ -164,11 +171,12 @@ class TemporalScale:
                     f'The problem is multiscale. Both scales need to be specified. Defaulting scheduling scale to {self.scale_levels - 1}')
 
         self.index_list = [self.scale_iter(i)
-                           for i in range(self.scale_levels)] # list with each scale index as a list of tuples 
+                           for i in range(self.scale_levels)]  # list with each scale index as a list of tuples
 
-        self.index_n_list = [len(i) for i in self.index_list] # length of each scale index 
+        # length of each scale index
+        self.index_n_list = [len(i) for i in self.index_list]
 
-        self.design_index = self.index_list[self.design_scale] 
+        self.design_index = self.index_list[self.design_scale]
 
         self.scheduling_index = self.index_list[self.scheduling_scale]
 
@@ -179,6 +187,9 @@ class TemporalScale:
                 self.problem_type = ProblemType.DESIGN_AND_SCHEDULING
         else:
             self.problem_type = ProblemType.SCHEDULING
+
+        if (self.scale_factors_standard is True) or (self.scale_factors_min_max is True):
+            self.scale_factors_max = False
 
     def scale_iter(self, scale_level):
         """Generates a list of tuples as a representation of the scales

@@ -14,7 +14,7 @@ from dataclasses import dataclass
 from typing import Union, Set, Dict, Tuple
 import copy
 from warnings import warn
-
+import uuid
 from .scenario import Scenario
 from .process import Process
 from .resource import Resource
@@ -33,7 +33,7 @@ class CaseStudy:
     """Case studies are a collection of scenarios that can be analyzed 
 
     Args:
-        name (str): name of the case study
+        name (str): name of the case study. Enter None to randomly assign a name.
         scenarios: Can be a list of scenarios generated apriori or a single scenario that you want to vary
         vary (str, optional): if single scenario, what needs to be varied. e.g. demand. Defaults to None
         vary_as (str, optional): what values to assign while varying. Should be a list of values to take. Defaults to None
@@ -61,6 +61,9 @@ class CaseStudy:
                 scenario_list.append(scenario)
                 counter += 1
             self.scenarios = scenario_list
+
+        if self.name is None:
+            self.name = f"CaseStudy_{uuid.uuid4().hex}"
 
     def formulate(self, constraints: Set[Constraints] = None, objective: Objective = None,
                   write_lpfile: bool = False, gwp: float = None, land_restriction: float = None,
@@ -113,8 +116,7 @@ class CaseStudy:
         names = list(self.formulations.keys())
 
         self.results = Results(name=self.name + '_results', results={names[i]: solve_casestudy(instance=instances[i], scenario=self.scenarios[i],
-                                                                                               solver=solver, name=names[
-                                                                                                   i], interface=interface, saveformat=saveformat,
+                                                                                               solver=solver, interface=interface, saveformat=saveformat,
                                                                                                print_solversteps=print_solversteps, log=log, get_duals=get_duals) for i in range(len(names))})
 
         return self.results

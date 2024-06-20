@@ -13,12 +13,11 @@ from ppopt.mp_solvers.solve_mpqp import solve_mpqp, mpqp_algorithm
 from ppopt.mplp_program import MPLP_Program
 
 
-def solve(solver: str, name: str, instance: ConcreteModel = None, matrix: dict = None, interface: str = 'pyomo', scenario: Scenario = None, saveformat: str = None, print_solversteps: bool = True, log: bool = False, get_duals: bool = False) -> Result:
+def solve(solver: str, instance: ConcreteModel = None, matrix: dict = None, interface: str = 'pyomo', scenario: Scenario = None, saveformat: str = None, print_solversteps: bool = True, log: bool = False, get_duals: bool = False) -> Result:
     """solves a model instance, scenario needs to be provided
 
     Args:
         solver (str): solver, e.g. gurobi, BARON, ANTIGONE, CPLEX
-        name (str): name for results
         instance (ConcreteModel, optional): Pyomo instance. Defaults to None. 
         matrix (dict, optional): generated from formulate (ModelClass.MPLP). Defaults to None
         interface (str, optional): Currently, pyomo, native, and GAMS is available. Defaults to 'pyomo'.
@@ -172,12 +171,12 @@ def solve(solver: str, name: str, instance: ConcreteModel = None, matrix: dict =
                     f'It took {time_log} seconds to create a log')
                 print()
         
-        results = Result(name=name, components=components_dict,
+        results = Result(name=scenario.name, components=components_dict,
                          output=output_dict, model_elements=model_dict, duals=duals_dict)
 
         if saveformat is not None:
             start_save = time.time()
-            results.saveoutputs(name + saveformat)
+            results.saveoutputs(scenario.name + saveformat)
             end_save = time.time()
             time_save = end_save - start_save
             print()
