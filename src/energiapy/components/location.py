@@ -4,7 +4,9 @@
     whether specific demand is met for a resource that can be sold at this location
     Add localization factors for prices and such 
     DEMAND var for resource
-    EXP Var for process 
+    EXP Var for process
+    
+    
 """
 
 from dataclasses import dataclass
@@ -25,6 +27,8 @@ from .comptype import ProcessType, ResourceType, FactorType, ParameterType, Loca
 class Location:
     """Location is essentially a set of processes. Factors for varying capacity, cost, and demand can be provided as dictionary.
     The scale levels of capacity, cost, and demand need to be provided as well
+    
+    The besides accounting for variance, the factors can also be used for localizing parameters. 
 
     Args:
         processes (Set[Process]): set of processes (Process objects) to include at location
