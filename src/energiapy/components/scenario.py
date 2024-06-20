@@ -5,7 +5,6 @@ import numpy
 from pandas import DataFrame
 from enum import Enum, auto
 from .comptype import ProcessType, ResourceType, ParameterType, LocationType, ScenarioType
-from .transport import VaryingTransport
 from .location import Location
 from .network import Network
 from .resource import Resource
@@ -274,14 +273,11 @@ class Scenario:
             i.name: {j.name: j.eutf for j in self.process_set} for i in self.location_set}
         self.process_eutm_dict = {
             i.name: {j.name: j.eutm for j in self.process_set} for i in self.location_set}
-        self.land_cost_dict = {i.name: i.land_cost for i in self.location_set}
+        
         self.fail_factor = {i.name: i.fail_factor for i in self.location_set}
 
-        self.credit_dict = {i.name: {j.name: i.credit[j] for j in i.credit.keys(
-        )} for i in self.location_set if i.credit is not None}
-
         self.process_material_mode_material_dict = {i.name: {j: {l.name: m for l, m in k.items(
-        )} for j, k in i.material_cons.items()} for i in self.process_set if ProcessType.HAS_MATMODE in i.ctype}
+        )} for j, k in i.material_cons.items()} for i in self.process_set if ProcessType.MULTI_MATMODE in i.ctype}
         multiconversion_dict = dict()
         for i in self.process_set:
             if ProcessType.MULTI_PRODMODE in i.ctype:
@@ -363,12 +359,13 @@ class Scenario:
             self.process_subsets[f'processes_uncertain_{j}'] = [i.name for i in self.process_set if getattr(ProcessType, j.upper(
             )) in i.ptype.keys() if i.ptype[getattr(ProcessType, j.upper())] == ParameterType.UNCERTAIN]
 
-        for j in ['single_prodmode', 'multi_prodmode', 'no_matmode', 'has_matmode', 'storage', 'storage_req', 'linear_capex', 'pwl_capex']:
+        for j in ['single_prodmode', 'multi_prodmode', 'no_matmode', 'has_matmode', 'storage', 'storage_req', 'linear_capex', 'pwl_capex', 'land']:
             self.process_subsets[f'processes_{j}'] = [
                 i.name for i in self.process_set if getattr(ProcessType, j.upper()) in i.ctype]
 
         self.process_subsets['processes_failure'] = [
             i.name for i in self.process_set if i.p_fail is not None]
+        
 
         self.location_subsets = dict()
 
@@ -376,6 +373,18 @@ class Scenario:
             i.name for i in self.location_set if LocationType.SOURCE in i.ctype]
         self.location_subsets['sinks'] = [
             i.name for i in self.location_set if LocationType.SINK in i.ctype]
+        self.location_subsets['location_land_cost'] = [i.name for i in self.location_set if LocationType.LAND_COST in i.ctype]
+        
+        self.land_cost_dict = {i.name: i.land_cost for i in self.location_set if LocationType.LAND_COST in i.ctype}
+        
+        for i in self.location_subsets['location_land_cost']:
+            if i.land_cost_factor is not None:
+                i.ptype[LocationType.LAND_COST] = ParameterType.DETERMINISTIC_DATA
+                self.land_cost_factor[i] = Factor(component = i, data = i.land_cost_factor, ctype = FactorType.LAND_COST, scales = self.scales)
+
+        self.credit_dict = {i.name: {j.name: i.credit[j] for j in i.credit.keys()} for i in self.location_set if i.credit is not None}
+        
+        
 
         # self.set_dict = {x: sorted(set_dict[x]) for x in set_dict.keys()}
 

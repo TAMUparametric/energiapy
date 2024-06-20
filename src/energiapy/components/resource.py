@@ -3,7 +3,7 @@
 from dataclasses import dataclass
 from typing import Union, List, Tuple, Dict
 import uuid
-from .comptype import ResourceType, ParameterType, Th
+from .comptype import ResourceType, ParameterType, Th, EmissionType, VaryingResource
 from warnings import warn
 
 
@@ -16,10 +16,10 @@ class Resource:
 
     Args:
         name (str, optional): name of resource. Defaults to None
-        sell (bool, optional): if can be discharged or sold. Defaults to None
-        revenue (Union[float, Tuple[float], Th], optional): revenue if generated on selling. Defaults to None
+        discharge (bool, optional): if can be discharged or sold. Defaults to None
+        sell_price (Union[float, Tuple[float], Th], optional): revenue if generated on selling. Defaults to None
         cons_max (Union[float, Tuple[float], Th], optional): maximum amount that can be consumed. Defaults to None
-        price (Union[float, Tuple[float], Th], optional): purchase price.Defaults to None
+        purchase_price (Union[float, Tuple[float], Th], optional): purchase price.Defaults to None
         store_max (float, optional): maximum amount that can be stored in inventory. Defaults to None
         store_min (float, optional): minimum amount of that is need to setup inventory. Defaults to None
         store_loss (float, optional): amount lost in inventory per time period of the scheduling scale. Defaults to None
@@ -41,29 +41,29 @@ class Resource:
 
             [1] A resource that can be consumed is declared by setting a cons_max 
 
-            >>> Solar = Resource(name='Solar', cons_max= '100')
+            >>> Solar = Resource(name='Solar', cons_max= 100)
 
             [2] A resource that can be purchase need a price to be set, besides cons_max.
 
-            >>> Water = Resource(name='H2O', cons_max= 100, price= 20)
+            >>> Water = Resource(name='H2O', cons_max= 100, purchase_price= 20)
 
             [3] If the resource can be discharged.
 
-            >>> CO2 = Resource(name='CO2', sell = True)
+            >>> CO2 = Resource(name='CO2', discharge = True)
 
             [4] If the resource can be sold. A selling price is set along with sell = True.
 
-            >>> Power = Resource(name='Power', sell = True, revenue = 0.2)
+            >>> Power = Resource(name='Power', discharge = True, sell_price = 0.2)
 
             [5] Additional attributes can be added. Note that this resource is only used implicitly in the system. 
 
             >>> H2 = Resource(name='H2', basis = 'tons', label = 'Hydrogen', block= 'DEC', citation = 'Kakodkar, et. al (2024)')
 
-            [6] A storage process can be declared here. Or a resource can be given to a storage type Process which generates a stored resource
+            [6] A storage resource can be declared here. Or a resource can be given to a storage type Process which generates a stored resource
 
-            >>> Money= Resource(name='Poishe', basis = 'Rupees'. store_max= 2, store_min = 0, store_loss = 0.01)
+            >>> Money= Resource(name='Poishe', basis = 'Rupees', store_max= 2, store_min = 0, store_loss = 0.01)
 
-            [7] Uncertainty in resource parameters for revenue, availability, and price can be handled by either:
+            [7] Uncertainty in resource parameters for selling price, availability, and purchase price can be handled by either:
 
             1. Providing deterministic dataset for variablity at the Location level 
 
@@ -74,15 +74,15 @@ class Resource:
 
             For example, if the availability of water is uncertain:
 
-            >>>  H2 = Resource(name='H2', sell = True, revenue = (0, 10)) 
+            >>>  H2 = Resource(name='H2', discharge = True, sell_price = (0, 10)) 
 
             or 
 
-            >>> H2 = Resource(name='H2', sell = True, revenue = Th(bounds = (0, 10)))
+            >>> H2 = Resource(name='H2', discharge = True, sell_price = Th(bounds = (0, 10)))
 
             Multiple parameters of a resource can also be uncertain. As shown here, where water has both uncertain availability as well as price.
 
-            >>> Water = Resource(name='H2O', cons_max= Th((0, 45)), price= Th((0, 3))) 
+            >>> Water = Resource(name='H2O', cons_max= Th((0, 45)), purchase_price= Th((0, 3))) 
 
             [8] Environmental impact potentials can also be declared for resources
 
@@ -100,10 +100,10 @@ class Resource:
     store_loss: float = None
     basis: str = None
     block: Union[str, list, dict] = None
-    citation: str = 'citation needed'
-    demand: bool = None
+    citation: str = None
     transport: bool = None
     ctype: List[ResourceType] = None
+    ptype: Dict[ResourceType, ParameterType] = None
     label: str = None
     gwp: float = None
     odp: float = None
@@ -111,18 +111,23 @@ class Resource:
     eutt: float = None
     eutf: float = None
     eutm: float = None
-
+    # Depreciated
+    sell:bool = None 
+    demand: bool = None 
+    varying: list = None 
+    
     def __post_init__(self):
 
         if self.ctype is None:
             self.ctype = []
 
-        # *-----------------Set ctype---------------------------------
+        # *-----------------Set ctype (Component)---------------------------------
 
         if self.sell_price is not None:
             self.ctype.append(ResourceType.SELL)
-            self.discharge = True
-            warn(f'{self.name}: discharge set to True, since sell_price is given')
+            if self.discharge is None:
+                self.discharge = True
+                warn(f'{self.name}: discharge set to True, since sell_price is given')
 
         if self.discharge is not None:
             self.ctype.append(ResourceType.DISCHARGE)
@@ -144,7 +149,7 @@ class Resource:
         if self.store_max is not None:
             self.ctype.append(ResourceType.STORE)
 
-        # *-----------------Set ptype---------------------------------
+        # *-----------------Set ptype (Parameter) ---------------------------------
         self.ptype = {i: ParameterType.CERTAIN for i in self.ctype}
 
         if self.sell_price is not None:
@@ -158,16 +163,29 @@ class Resource:
         if self.purchase_price is not None:
             if isinstance(self.purchase_price, (tuple, Th)):
                 self.ptype[ResourceType.PURCHASE] = ParameterType.UNCERTAIN
-
-        # self.emission_potentials_dict = {'gwp': self.gwp, 'odp': self.odp,
-        #                                  'acid': self.acid, 'eutt': self.eutt, 'eutf': self.eutf, 'eutm': self.eutm}
-
-        if self.demand is True:  # if somebody sets the demand to be true, sell will need to updated here
-            self.discharge = True
-
+          
+        # *-----------------Set etype (Emission)---------------------------------
+              
+        self.etype = [] 
+        self.emissions = dict()
+        for i in ['gwp', 'odp', 'acid', 'eutt', 'eutf', 'eutm']:
+            if getattr(self, i) is not None:
+                self.etype.append(getattr(EmissionType, i.upper()))
+                self.emissions[i] = getattr(self, i)
+                
+        # *----------------- Warnings---------------------------------
+        
+        if self.demand is not None:  
+            warn(f'{self.name}: demand has been depreciated and will be intepreted in energiapy.Location, use discharge = True')
+        if self.sell is not None:
+            warn(f'{self.name}: sell has been depreciated')
+        if self.varying is not None:
+            warn(f'{self.name}: varying has been depreciated. Variability will be intepreted based on data provided to energiapy.Location')
+        
         if self.name is None:
+            warn(f'{self.name}: random name has been set, this can be cumbersome')
             self.name = f"Resource_{uuid.uuid4().hex}"
-
+    
     def __repr__(self):
         return self.name
 

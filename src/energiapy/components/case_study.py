@@ -15,11 +15,11 @@ from typing import Union, Set, Dict, Tuple
 import copy
 from warnings import warn
 
-from ..components.scenario import Scenario
-from ..components.process import Process
-from ..components.resource import Resource
-from ..components.location import Location
-from ..components.result import Result, Results
+from .scenario import Scenario
+from .process import Process
+from .resource import Resource
+from .location import Location
+from .result import Result, Results
 
 from ..model.formulate import formulate as formulate_casestudy
 from ..model.solve import solve as solve_casestudy

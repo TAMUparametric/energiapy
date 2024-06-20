@@ -164,11 +164,11 @@ class TemporalScale:
                     f'The problem is multiscale. Both scales need to be specified. Defaulting scheduling scale to {self.scale_levels - 1}')
 
         self.index_list = [self.scale_iter(i)
-                           for i in range(self.scale_levels)]
+                           for i in range(self.scale_levels)] # list with each scale index as a list of tuples 
 
-        self.index_n_list = [len(i) for i in self.index_list]
+        self.index_n_list = [len(i) for i in self.index_list] # length of each scale index 
 
-        self.design_index = self.index_list[self.design_scale]
+        self.design_index = self.index_list[self.design_scale] 
 
         self.scheduling_index = self.index_list[self.scheduling_scale]
 

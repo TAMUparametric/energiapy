@@ -6,50 +6,63 @@ from warnings import warn
 import uuid
 from .material import Material
 from .resource import Resource
-from .comptype import ParameterType, Th, ProcessRamp, ProcessType, ResourceType, FactorType
+from .comptype import ParameterType, Th, ProcessRamp, ProcessType, ResourceType, FactorType, EmissionType, VaryingProcess
 from ..utils.data_utils import get_depth
 
 
 @dataclass
 class Process:
+
     """
-    Processes convert resources into other resources
+    Processes can be of produce or store resources 
+    
+    For production process:
+        conversion needs to be specified
+        production modes and material modes can be declared using nested dictionaries. See examples []
+        piece wise linear capex curves can be declared using a dictionary. See examples []
+    
+    For storage process:
+    storage = energiapy.Resource is needed. See examples []
+    a resource_storage with the name {process name}_{resource name}_stored is created, which features in the resource balance 
+    This new resource will inherit the store_max and store_min from Process even if it was specified for Resource
+    cap_max and cap_min in this case will bound the maximum rate of charging and discharging 
+    Further, when provided to a Location, a discharge Process is also created
+    The expenditures (capex, fopex, vopex, incidental) are set to 0 if provided, None otherwise
 
     Args:
         name (str): name of process, short ones are better to deal with.
+        cap_max (Union[float, dict], optional): Maximum production capacity allowed in a time period of the scheduling scale. Defaults to None.
+        cap_min (Union[float, dict], optional): Minimum production capacity allowed in a time period of the scheduling scale. Defaults to None.
         conversion (Union[Dict[Union[int, str],Dict[Resource, float]], Dict[Resource, float]], optional): conversion data (Dict[Resource, float]]), if multimode the of form Dict[int,Dict[Resource, float]]. Defaults to None.
-        introduce (int, optional): Time period in the network scale when introduced. Defaults to 0.
-        retire (int, optional): Time period in the network scale when retired. Defaults to None.
-        capex (Union[float, dict], None): Capital expenditure per unit basis, can be scaled with capacity. Defaults to None.
-        fopex (Union[float, dict], None): Fixed operational expenditure per unit basis, can be scaled with capacity. Defaults to None.
-        vopex (Union[float, dict], None): Variable operational expenditure per unit basis, can be scaled with capacity. Defaults to None.
-        incidental (float, None): Incidental expenditure. Defaults to None.
         material_cons (Union[Dict[Union[int, str], Dict[Material, float]],Dict[Material, float]], optional): Materials consumed per unit basis of production capacity. Defaults to None.
-        cap_max (float, optional): Maximum production capacity allowed in a time period of the scheduling scale. Defaults to 0.
-        cap_min (float, optional): Minimum production capacity allowed in a time period of the scheduling scale. Defaults to 0.
-        credit (float, None): credit earned per unit basis of production. Defaults to None.
-        basis(str, optional): base units for operation. Defaults to 'unit'.
-        gwp (float, optional): global warming potential for settting up facility per unit basis. Defaults to 0.
-        odp (float, optional): ozone depletion potential for settting up facility per unit basis. Defaults to 0.
-        acid (float, optional): acidification potential for settting up facility per unit basis. Defaults to 0.
-        eutt (float, optional): terrestrial eutrophication potential for settting up facility per unit basis. Defaults to 0.
-        eutf (float, optional): fresh water eutrophication potential for settting up facility per unit basis. Defaults to 0.
-        eutm (float, optional): marine eutrophication potential for settting up facility per unit basis. Defaults to 0.
-        land (float, optional): land requirement per unit basis. Defaults to 0.
+        land (Union[float, Tuple[float], Th], optional): land requirement per unit basis. Defaults to None.
+        capex (Union[float, dict, Tuple[float], Th], None): Capital expenditure per unit basis, can be scaled with capacity. Defaults to None.
+        fopex (Union[float, Tuple[float], Th], None): Fixed operational expenditure per unit basis, can be scaled with capacity. Defaults to None.
+        vopex (Union[float, Tuple[float], Th], None): Variable operational expenditure per unit basis, can be scaled with capacity. Defaults to None.
+        incidental (Union[float, Tuple[float], Th], None): Incidental expenditure. Defaults to None.
+        gwp (float, optional): global warming potential for settting up facility per unit basis. Defaults to None.
+        odp (float, optional): ozone depletion potential for settting up facility per unit basis. Defaults to None.
+        acid (float, optional): acidification potential for settting up facility per unit basis. Defaults to None.
+        eutt (float, optional): terrestrial eutrophication potential for settting up facility per unit basis. Defaults to None.
+        eutf (float, optional): fresh water eutrophication potential for settting up facility per unit basis. Defaults to None.
+        eutm (float, optional): marine eutrophication potential for settting up facility per unit basis. Defaults to None.
+        introduce (int, optional): Time period in the network scale when introduced. Defaults to None.
+        lifetime (float, optional): the expected lifetime of process. Defaults to None.
+        retire (int, optional): Time period in the network scale when retired. Defaults to None.
         trl (str, optional): technology readiness level. Defaults to None.
+        p_fail (float, optional): failure rate of process. Defaults to None.
+        storage(Resource, optional): Resource that can be stored in process. Defaults to None.
+        store_max (float, optional): Maximum allowed storage of resource in process. Defaults to None.
+        store_min (float, optional): Minimum allowed storage of resource in process. Defaults to None.
+        storage_cost: (float, optional): penalty for mainting inventory per time period in the scheduling scale. Defaults to None.
+        storage_lost: (float, optional): resource loss on the scheduling scale
         block (str, optional): define block for convenience. Defaults to None.
         citation (str, optional): citation for data. Defaults to 'citation needed'.
-        lifetime (float, optional): the expected lifetime of process. Defaults to None.
-        varying (VaryingProcess, optional): whether process is subject to uncertainty. Defaults to False.
-        p_fail (float, optional): failure rate of process. Defaults to None.
-        label(str, optional):Longer descriptive label if required. Defaults to ''
-        storage(list, optional): Resource that can be stored in process.
-        store_max (float, optional): Maximum allowed storage of resource in process. Defaults to 0.
-        store_min (float, optional): Minimum allowed storage of resource in process. Defaults to 0.
-        rate_max (Union[Dict[int, float], float]): maximum ramping rates 
-        varying_bounds (float, optional): bounds for the variability. Defaults to (0,1).
-        mode_ramp (Dict[tuple, int], optional): ramping rates between mode switches. Defaults to None.
-        storage_cost: (float, optional). penalty for mainting inventory per time period in the scheduling scale. Defaults to 0.
+        label(str, optional):Longer descriptive label if required. Defaults to None
+        basis(str, optional): base units for operation. Defaults to 'unit'.
+        ctype (List[ProcessType], optional): process type. Defaults to None
+        ptype (Dict[ProcessType, ParameterType], optional): paramater type of declared values . Defaults to None
+
 
     Examples:
         For processes with varying production capacity
@@ -67,52 +80,52 @@ class Process:
     """
 
     name: str = None
-    introduce: int = None
-    retire: int = None
-    conversion: Union[Dict[Union[int, str], Dict[Resource, float]],
-                      Dict[Resource, float]] = None
-    capex: Union[float, dict, Tuple[float], Th] = None
-    fopex: Union[float, dict, Tuple[float], Th] = None
-    vopex: Union[float, dict, Tuple[float], Th] = None
-    incidental: Union[float, dict, Tuple[float], Th] = None
-    storage_cost: float = None
-    land: float = None
-    material_cons: Union[Dict[Union[int, str],
-                              Dict[Material, float]], Dict[Material, float]] = None
     cap_max: Union[float, dict] = None
     cap_min: Union[float, dict] = None
-    basis: str = None
+    conversion: Union[Dict[Union[int, str], Dict[Resource, float]],
+                      Dict[Resource, float]] = None
+    material_cons: Union[Dict[Union[int, str],
+                              Dict[Material, float]], Dict[Material, float]] = None
+    land: Union[float, Tuple[float], Th] = None
+    capex: Union[float, dict, Tuple[float], Th] = None
+    fopex: Union[float, Tuple[float], Th] = None
+    vopex: Union[float, Tuple[float], Th] = None
+    incidental: Union[float, Tuple[float], Th] = None
     gwp: float = None
     odp: float = None
     acid: float = None
     eutt: float = None
     eutf: float = None
     eutm: float = None
-    trl: str = None
-    block: str = None
-    citation: str = None
+    introduce: int = None
+    retire: int = None
     lifetime: int = None
+    trl: str = None
     p_fail: float = None
-    label: str = None
     storage: Resource = None
-    store_loss: float = None
     store_max: float = None
     store_min: float = None
+    storage_cost: float = None
+    store_loss: float = None
     ctype: List[ProcessType] = None
+    ptype: Dict[ProcessType, ParameterType] = None
+    basis: str = None
+    block: str = None
+    citation: str = None
+    label: str = None
+    # depreciated 
+    varying: list = None 
+    prod_max: float = None 
+    prod_min: float = None
+    
+    
 
     def __post_init__(self):
-        """Determines the ProcessMode, CostDynamics, and kicks out dummy resources if process is stores resource
-
-        Args:
-            processmode (ProcessMode): Determines whether the model is single mode, multi mode, or storage type.
-            resource_storage (Resource):  Dummy resource which is stored in the Process.
-            conversion_discharge (Dict[Resource, float]): Creates a dictionary with the discharge conversion values (considers storage loss).
-            cost_dynamics (CostDynamics): Determines whether the cost scales linearly with the unit capacity, or is a piecewise-linear function.
-        """
+        
         if self.ctype is None:
             self.ctype = []
 
-        # *-----------------Set ctype---------------------------------
+        # *-----------------Set ctype (Component)---------------------------------
 
         if self.cap_max is not None:
             self.ctype.append(ProcessType.CAPACITY)
@@ -126,59 +139,32 @@ class Process:
             else:
                 self.ctype.append(ProcessType.LINEAR_CAPEX)
 
-        if self.fopex is not None:
-            self.ctype.append(ProcessType.FOPEX)
-
-        if self.vopex is not None:
-            self.ctype.append(ProcessType.VOPEX)
-
-        if self.incidental is not None:
-            self.ctype.append(ProcessType.INCIDENTAL)
-
-        # *-----------------Set ctype---------------------------------
-
-        self.ptype = {i: ParameterType.CERTAIN for i in self.ctype}
-
-        if self.cap_max is not None:
-            if isinstance(self.cap_max, (tuple, Th)):
-                self.ptype[ProcessType.CAPACITY] = ParameterType.UNCERTAIN
-
-        if self.capex is not None:
-            if isinstance(self.capex, (tuple, Th)):
-                self.ptype[ProcessType.CAPEX] = ParameterType.UNCERTAIN
-
-        if self.fopex is not None:
-            if isinstance(self.fopex, (tuple, Th)):
-                self.ptype[ProcessType.FOPEX] = ParameterType.UNCERTAIN
-
-        if self.vopex is not None:
-            if isinstance(self.vopex, (tuple, Th)):
-                self.ptype[ProcessType.VOPEX] = ParameterType.UNCERTAIN
-
-        if self.incidental is not None:
-            if isinstance(self.incidental, (tuple, Th)):
-                self.ptype[ProcessType.INCIDENTAL] = ParameterType.UNCERTAIN
+        for i in ['fopex', 'vopex', 'incidental', 'land']:            
+            if getattr(self, i) is not None:
+                getattr(self, 'ctype').append(getattr(ProcessType, i.upper()))
 
         if self.conversion is not None:
             if get_depth(self.conversion) > 1:
                 self.ctype.append(ProcessType.MULTI_PRODMODE)
                 self.prod_modes = set(self.conversion.keys())
-                self.resource_req = set.union(
+                self.resource_req = set().union(
                     *[set(self.conversion[i].keys()) for i in self.prod_modes])
             else:
                 self.ctype.append(ProcessType.SINGLE_PRODMODE)
                 self.resource_req = set(self.conversion.keys())
-
-        if self.material_cons is not None:
-            if isinstance(self.material_cons, dict):
-                self.ctype.append(ProcessType.HAS_MATMODE)
-                self.material_modes = set(self.material_cons.keys())
-                self.material_req = set.union(
-                    *[set(self.material_cons[i].keys()) for i in self.material_modes])
-        else:
+                
+        if self.material_cons is None:
             self.ctype.append(ProcessType.NO_MATMODE)
-            self.material_modes = None
-            self.material_req = None
+
+        else:
+            if get_depth(self.material_cons)> 1:
+                self.ctype.append(ProcessType.MULTI_MATMODE)
+                self.material_modes = set(self.material_cons.keys())
+                self.material_req = set().union(
+                    *[set(self.material_cons[i].keys()) for i in self.material_modes])
+            else:
+                self.ctype.append(ProcessType.SINGLE_MATMODE)
+                self.material_req = set(self.material_cons.keys())
 
         if self.storage is not None:
             self.ctype.append(ProcessType.STORAGE)
@@ -192,28 +178,57 @@ class Process:
             self.conversion_discharge = {
                 self.resource_storage: -1, self.storage: 1*(1 - self.store_loss)}  # the losses are all at the output (retrival)
             self.resource_req = set(self.conversion.keys())
+        
+        # *-----------------Set ptype (Parameter)---------------------------------
 
-        self.emission_potentials_dict = {'gwp': self.gwp, 'odp': self.odp,
-                                         'acid': self.acid, 'eutt': self.eutt, 'eutf': self.eutf, 'eutm': self.eutm}
+        self.ptype = {i: ParameterType.CERTAIN for i in self.ctype}
 
+        if self.cap_max is not None:
+            if isinstance(self.cap_max, (tuple, Th)):
+                self.ptype[ProcessType.CAPACITY] = ParameterType.UNCERTAIN
+                
+        for i in ['capex', 'fopex', 'vopex', 'incidental', 'land']:
+            if getattr(self, i) is not None:
+                if isinstance(getattr(self,i), (tuple, Th)):
+                    getattr(self, 'ptype')[getattr(ProcessType, i.upper())] = ParameterType.UNCERTAIN
+        
+        # *-----------------Set etype (Emission)---------------------------------
+
+        self.etype = []
+        self.emissions = dict()
+        for i in ['gwp', 'odp', 'acid', 'eutt', 'eutf', 'eutm']:
+            if getattr(self, i) is not None:
+                self.etype.append(getattr(EmissionType, i.upper()))
+                self.emissions[i] = getattr(self, i)
+
+        # *----------------- Warnings---------------------------------
+        
+        if self.prod_max is not None:
+            warn(f'{self.name}: prod_max has been depreciated. Please use cap_max instead')
+        if self.prod_min is not None:
+            warn(f'{self.name}: prod_min has been depreciated. Please use cap_min instead')
+        if self.varying is not None:
+            warn(f'{self.name}: varying has been depreciated. Variability will be intepreted based on data provided to energiapy.Location')
+        
         if self.name is None:
+            warn(f'{self.name}: random name has been set, this can be cumbersome')
             self.name = f"Process_{uuid.uuid4().hex}"
 
-    def create_storage_resource(self, resource: Resource, store_max: float = 0, store_min: float = 0) -> Resource:
+    def create_storage_resource(self, resource: Resource, store_max: float = None, store_min: float = None) -> Resource:
         """Creates a dummy resource for storage, used if process is storage type
 
         Args:
             process_name(str): Name of storage process
             resource (Resource): Dummy resource name derived from stored resource
             store_max (float, optional): Maximum amount of resource that can be stored. Defaults to 0.
-            store_min (float, optional): Minimum amount of resource that can be stored. Defaults to 0.\
+            store_min (float, optional): Minimum amount of resource that can be stored. Defaults to 0.
 
         Returns:
             Resource: resource object for storage in process
         """
 
-        return Resource(name=f"{self.name}_{resource.name}_stored", store_loss=resource.store_loss, store_max=store_max, store_min=store_min,
-                        basis=resource.basis, block=resource.block, label=resource.label+f"{self.name}(stored)")
+        return Resource(name=f"{self.name}_{resource.name}_stored", store_loss=self.store_loss, store_max=self.store_max, store_min=self.store_min,
+                        label=f'{resource.label}_{self.name}_stored')
 
     def __repr__(self):
         return self.name

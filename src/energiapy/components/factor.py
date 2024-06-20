@@ -10,13 +10,13 @@ from .temporal_scale import TemporalScale
 
 @dataclass
 class Factor:
-    component: Union[Resource, Process]
+    component: Union[Process, Resource, 'Location']
     data: dict
     ctype: FactorType
     scales: TemporalScale
 
     def __post_init__(self):
-        self.name = f'{self.component.name}_{str(self.ctype)}_FACTOR'.replace(
+        self.name = f'{self.component.name}_{str(self.ctype).lower()}_factor'.replace(
             'FactorType.', '')
         self.scale_level = self.scales.index_n_list.index(len(self.data))
         self.data.index = self.scales.index_list[self.scale_level]

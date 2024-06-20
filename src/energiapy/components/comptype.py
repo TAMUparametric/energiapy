@@ -94,22 +94,28 @@ class ResourceType(Enum):
 class FactorType(Enum):
     """ Type of deterministic data factor
     """
-    """ For resources
+    """ For Resources
     """
     DEMAND = auto()
     PURCHASE_PRICE = auto()
     AVAILABILITY = auto()
     SELL_PRICE = auto()
-    """ For processes
+    """ For Processes
     """
     CAPACITY = auto()
     CAPEX = auto()
     FOPEX = auto()
     VOPEX = auto()
     INCIDENTAL = auto()
+    """ For Location
+    """
+    LAND_COST = auto()
+    """ For Process at Location
+    """
+    CREDIT = auto()
 
 
-# *-----------------------Emission Metric--------------------------------------
+# *-----------------------Emission--------------------------------------
 
 
 class EmissionType(Enum):
@@ -121,10 +127,10 @@ class EmissionType(Enum):
     ODP = auto()
     """Ozone Depletion Potential
     """
-    ACD = auto()
+    ACID = auto()
     """Acidification Potential
     """
-    EUTR = auto()
+    EUTT = auto()
     """Terrestrial Eutrophication Potential
     """
     EUTF = auto()
@@ -148,9 +154,12 @@ class ProcessType(Enum):
     """Allows multiple modes
     """
     NO_MATMODE = auto()
+    """Does not use materials
+    """
+    SINGLE_MATMODE = auto()
     """Has a single material modes
     """
-    HAS_MATMODE = auto()
+    MULTI_MATMODE = auto()
     """Has multiple material modes
     """
     STORAGE = auto()
@@ -177,6 +186,12 @@ class ProcessType(Enum):
     VOPEX = auto()
     INCIDENTAL = auto()
     """ Technology costs to set up processes
+    """
+    CREDIT = auto()
+    """If the process is eligible for credit 
+    """
+    LAND = auto()
+    """If the process requires land 
     """
 
 
@@ -218,6 +233,7 @@ class LocationType(Enum):
     """
     SOURCE = auto()
     SINK = auto()
+    LAND_COST = auto()
 
 
 # *------------------------------Transport-------------------------------------------------
@@ -243,3 +259,194 @@ class ScenarioType(Enum):
     Multi-location
     """
     MULTI_LOCATION = auto()
+    
+
+# *------------------------------Depreciated -------------------------------------------------
+
+class VaryingResource(Enum):
+    """
+    Whether the demand or price are varying
+    """
+    DETERMINISTIC_DEMAND = auto()
+    """
+    Utilize deterministic demand data as parameters
+    """
+    DETERMINISTIC_PRICE = auto()
+    """
+    Utilize deterministic price data as parameters
+    """
+    DETERMINISTIC_AVAILABILITY = auto()
+    """
+    Utilize deterministic resource availability as parameters
+    """
+    DETERMINISTIC_REVENUE = auto()
+    """
+    Utilize deterministic resource revenues as parameters
+    """
+    UNCERTAIN_DEMAND = auto()
+    """
+    Generate uncertainty variables for demand
+    """
+    UNCERTAIN_PRICE = auto()
+    """
+    Generate uncertainty variables for price
+    """
+    UNCERTAIN_AVAILABILITY = auto()
+    """
+    Generate uncertainty variables for resource availability
+    """
+    UNCERTAIN_REVENUE = auto()
+    """
+    Generate uncertainty variables for resource revenue
+    """
+    CERTAIN_DEMAND = auto()
+    """Use exact parameter for demand 
+    """
+    CERTAIN_PRICE = auto()
+    """Use exact parameter for price
+    """
+    CERTAIN_AVAILABILITY = auto()
+    """Use exact parameter for availability
+    """
+    CERTAIN_REVENUE = auto()
+    """Use exact parameter for revenue
+    """
+    IMPLICIT = auto()
+    """Produced and utilized implicitly
+    """
+    STORED = auto()
+    """Implicitly generated stored resource
+    """
+
+
+class CostDynamics(Enum):
+    """
+    To consider the dynamics of CAPEX
+    """
+    CONSTANT = auto()
+    """
+    Consider constance CAPEX
+    """
+    PWL = auto()
+    """
+    Use piece-wise linear CAPEX
+    """
+
+
+class ProcessMode(Enum):
+    """
+    Mode for process
+    """
+    SINGLE = auto()
+    """
+    Only allows one mode
+    """
+    MULTI = auto()
+    """
+    Allows multiple modes
+    """
+    STORAGE = auto()
+    """
+    Storage type process
+    """
+
+
+class MaterialMode(Enum):
+    """
+    Mode for materials 
+    """
+    SINGLE = auto()
+    """
+    Allows only single material 
+    """
+    MULTI = auto()
+    """
+    Can use multiple material combinations 
+    """
+
+
+class VaryingProcess(Enum):
+    """
+    The type of process capacity variability
+    """
+    DETERMINISTIC_CAPACITY = auto()
+    """
+    Utilize deterministic data as parameters for capacity
+    """
+    DETERMINISTIC_EXPENDITURE = auto()
+    """
+    Utilize deterministic data as parameters for expenditure
+    """
+    UNCERTAIN_CAPACITY = auto()
+    """
+    Generate uncertainty variables
+    """
+    UNCERTAIN_EXPENDITURE = auto()
+    """
+    Generate uncertainty variables for expenditure
+    """
+    CERTAIN_CAPACITY = auto()
+    """
+    Use certain parameter for capacity
+    """
+    CERTAIN_EXPENDITURE = auto()
+    """
+    Use certain parameter for expenditure
+    """
+    MULTIMODE = auto()
+    """
+    Has multiple modes of operation
+    """
+
+
+class VaryingTransport(Enum):
+    """whether the Transport capacity and costs are varying or certain
+    """
+    DETERMINISTIC_CAPACITY = auto()
+    """
+    Utilize deterministic data as parameters for capacity
+    """
+    CERTAIN_CAPACITY = auto()
+    """
+    Use certain parameter for capacity
+    """
+    UNCERTAIN_CAPACITY = auto()
+    """
+    Use uncertain parameter for capacity
+    """
+    DETERMINISTIC_CAPEX = auto()
+    """
+    Utilize deterministic data as parameters for capex
+    """
+    CERTAIN_CAPEX = auto()
+    """
+    Use certain parameter for capex
+    """
+    UNCERTAIN_CAPEX = auto()
+    """
+    Use uncertain parameter for capex
+    """
+    DETERMINISTIC_VOPEX = auto()
+    """
+    Utilize deterministic data as parameters for vopex
+    """
+    CERTAIN_VOPEX = auto()
+    """
+    Use certain parameter for vopex
+    """
+    UNCERTAIN_VOPEX = auto()
+    """
+    Use uncertain parameter for vopex
+    """
+    DETERMINISTIC_FOPEX = auto()
+    """
+    Utilize deterministic data as parameters for fopex
+    """
+    CERTAIN_FOPEX = auto()
+    """
+    Use certain parameter for fopex
+    """
+    UNCERTAIN_FOPEX = auto()
+    """
+    Use uncertain parameter for fopex
+    """

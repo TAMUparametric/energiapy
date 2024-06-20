@@ -1,15 +1,5 @@
 """Result data class
 """
-
-__author__ = "Rahul Kakodkar"
-__copyright__ = "Copyright 2023, Multi-parametric Optimization & Control Lab"
-__credits__ = ["Rahul Kakodkar", "Efstratios N. Pistikopoulos"]
-__license__ = "Open"
-__version__ = "0.0.1"
-__maintainer__ = "Rahul Kakodkar"
-__email__ = "cacodcar@tamu.edu"
-__status__ = "Production"
-
 import json
 import pickle
 from dataclasses import dataclass
@@ -39,7 +29,9 @@ class Result:
     
     
     def __post_init__(self):
+        
         if self.name is None:
+            warn(f'{self.name}: random name has been set, this can be cumbersome')
             self.name = f"Result_{uuid.uuid4().hex}"
 
     def saveoutputs(self, file_name: str):

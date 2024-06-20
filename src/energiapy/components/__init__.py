@@ -4,6 +4,7 @@
 from .comptype import *
 from .case_study import CaseStudy
 from .emission import Emission
+from .factor import Factor
 from .location import Location
 from .material import Material
 from .network import Network

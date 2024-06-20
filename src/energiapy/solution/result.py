@@ -25,7 +25,9 @@ class Result:
     name: str = None 
     
     def __post_init__(self):
+        
         if self.name is None:
+            warn(f'{self.name}: random name has been set, this can be cumbersome')
             self.name = f"Result_{uuid.uuid4().hex}"
 
     def saveoutputs(self, file_name: str):

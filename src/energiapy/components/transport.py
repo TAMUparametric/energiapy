@@ -15,7 +15,7 @@ from typing import Dict, Set, List, Union, Tuple
 
 from .material import Material
 from .resource import Resource
-from .comptype import ResourceType, ParameterType, TransportType, Th
+from .comptype import ResourceType, ParameterType, TransportType, Th, VaryingTransport
 import uuid
 from enum import Enum, auto
 
@@ -65,6 +65,7 @@ class Transport:
     citation: str = None
     label: str = None
     ctype: List[TransportType] = None
+    ptype: Dict[TransportType, ParameterType] = None
 
     def __post_init__(self):
 
@@ -114,8 +115,9 @@ class Transport:
         if self.incidental is not None:
             if isinstance(self.incidental, (tuple, Th)):
                 self.ptype[TransportType.INCIDENTAL] = ParameterType.UNCERTAIN
-
+        
         if self.name is None:
+            warn(f'{self.name}: random name has been set, this can be cumbersome')
             self.name = f"Transport_{uuid.uuid4().hex}"
 
     def __repr__(self):

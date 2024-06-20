@@ -10,7 +10,7 @@
 from dataclasses import dataclass
 from itertools import product
 from random import sample
-from typing import Dict, Set, Union, List
+from typing import Dict, Set, Union, List, Tuple
 from warnings import warn
 import uuid
 from pandas import DataFrame
@@ -19,9 +19,7 @@ from .process import Process
 from .resource import Resource
 from .temporal_scale import TemporalScale
 from .factor import Factor
-from .comptype import ProcessType, ResourceType, FactorType, ParameterType, LocationType
-from ..utils.scale_utils import scale_changer
-
+from .comptype import ProcessType, ResourceType, FactorType, ParameterType, LocationType, Th
 
 @dataclass
 class Location:
@@ -29,22 +27,26 @@ class Location:
     The scale levels of capacity, cost, and demand need to be provided as well
 
     Args:
-        name (str): name of the location, short ones are better to deal with.
         processes (Set[Process]): set of processes (Process objects) to include at location
         scales (TemporalScale): temporal scales of the problem
+        name (str): name of the location, short ones are better to deal with.
         demand (Dict[Resource, float]): demand for resources at location. Defaults to None.
         demand_factor (Union[float, Dict[Resource, DataFrame]), optional): Factor for varying demand, scale changer normalizes.Defaults to None
         purchase_price_factor (Union[float, Dict[Resource, DataFrame]), optional): Factor for varying cost, scale changer normalizes. Defaults to None
+        availability_factor (Union[float, Dict[Resource, DataFrame]), optional): Factor for varying resource availability, scale changer normalizes. Defaults to None
+        sell_price_factor (Union[float, Dict[Resource, DataFrame]), optional): Factor for varying resource revenue, scale changer normalizes. Defaults to None
         capacity_factor (Union[float, Dict[Process, DataFrame]), optional):  Factor for varying capacity, scale changer normalizes.Defaults to None
         capex_factor (Union[float, Dict[Process, DataFrame]), optional):  Factor for varying capital expenditure, scale changer normalizes. Defaults to None
         vopex_factor (Union[float, Dict[Process, DataFrame]), optional):  Factor for varying variable operational expenditure, scale changer normalizes. Defaults to None
         fopex_factor (Union[float, Dict[Process, DataFrame]), optional):  Factor for varying fixed operational expenditure, scale changer normalizes. Defaults to None
         incidental_factor (Union[float, Dict[Process, DataFrame]), optional):  Factor for varying incidental expenditure, scale changer normalizes. Defaults to None
-        availability_factor (Union[float, Dict[Resource, DataFrame]), optional): Factor for varying resource availability, scale changer normalizes. Defaults to None
-        sell_price_factor (Union[float, Dict[Resource, DataFrame]), optional): Factor for varying resource revenue, scale changer normalizes. Defaults to None
         land_cost (float, optional): cost of land. Defaults to 0
+        land_cost_factor (DataFrame, optional): factor for changing land cost. Defaults to None. 
         credit (Dict[Process, float], optional): credit earned by process per unit basis. Defaults to None.
-        label(str, optional):Longer descriptive label if required. Defaults to ''
+        credit_factor (Dict[Process, DataFrame], optional): factor for credit. Defaults to None.
+        ctype (List[LandType], optional): land type. Defaults to None
+        ptype (Dict[LandType, ParameterType], optional): paramater type of declared values . Defaults to None
+        label(str, optional):Longer descriptive label if required. Defaults to None
 
     Examples:
         Locations need a set of processes and the scale levels for demand, capacity, and cost, and if applicable demand factors, price_factors, capacity factors
@@ -57,18 +59,21 @@ class Location:
     name: str = None
     demand: Dict[Resource, float] = None
     demand_factor: Union[float, Dict[Resource, float]] = None
-    purchase_price_factor: Union[float, Dict[Resource, float]] = None
-    capacity_factor: Union[float, Dict[Process, float]] = None
-    capex_factor: Union[float, Dict[Process, float]] = None
-    vopex_factor: Union[float, Dict[Process, float]] = None
-    fopex_factor: Union[float, Dict[Process, float]] = None
-    incidental_factor: Union[float, Dict[Process, float]] = None
-    availability_factor: Union[float, Dict[Resource, float]] = None
-    sell_price_factor: Union[float, Dict[Resource, float]] = None
-    land_cost: float = 0
-    credit: Dict[Process, float] = None
+    purchase_price_factor: Union[float, Dict[Resource, DataFrame]] = None
+    availability_factor: Union[float, Dict[Resource, DataFrame]] = None
+    sell_price_factor: Union[float, Dict[Resource, DataFrame]] = None
+    capacity_factor: Union[float, Dict[Process, DataFrame]] = None
+    capex_factor: Union[float, Dict[Process, DataFrame]] = None
+    vopex_factor: Union[float, Dict[Process, DataFrame]] = None
+    fopex_factor: Union[float, Dict[Process, DataFrame]] = None
+    incidental_factor: Union[float, Dict[Process, DataFrame]] = None
+    land_cost: Union[float, Tuple[float], Th] = None
+    land_cost_factor: DataFrame = None
+    credit: Dict[Process, Union[float, Tuple[float], Th]] = None 
+    credit_factor: Dict[Process, DataFrame] = None
     ctype: List[LocationType] = None
-    label: str = ''
+    ptype: Dict[LocationType, ParameterType] = None
+    label: str = None
 
     def __post_init__(self):
         """Sets and stuff generated insitu
@@ -86,7 +91,15 @@ class Location:
         """
         if self.ctype is None:
             self.ctype = []
-
+        self.ptype = dict()
+        
+        if self.land_cost is not None:
+            self.ctype.append(LocationType.LAND_COST)
+            if isinstance(self.landcost, (Tuple[float], Th)): 
+                self.ptype[LocationType.LAND_COST] = ParameterType.UNCERTAIN
+            else:
+                self.ptype[LocationType.LAND_COST] = ParameterType.CERTAIN
+        
         self.processes = self.processes.union({self.create_storage_process(
             i) for i in self.processes if ProcessType.STORAGE in i.ctype})
         self.resources = set().union(*[i.resource_req for i in self.processes])
@@ -128,8 +141,22 @@ class Location:
 
         for i in ['capacity', 'fopex', 'vopex', 'incidental', 'purchase_price', 'demand', 'availability', 'sell_price']:
             self.handle_factor(i)
+            
+        if self.credit is not None:
+            self.processes_credit = set(self.credit.keys())
+        
+        for i in self.process_credit:
+            i.ctype.append(ProcessType.CREDIT)
+            i.ptype[ProcessType.CREDIT] = ParameterType.CERTAIN
+            if isinstance(self.credit[i], (Tuple[float], Th)):
+                i.ptype[ProcessType.CREDIT] = ParameterType.UNCERTAIN
+            else:
+                if i in self.credit_factor.keys():
+                    self.credit_factor[i] = Factor(component = i, data = self.credit_factor[i], ctype = FactorType.CREDIT, scales = scales )
+            
 
         if self.name is None:
+            warn(f'{self.name}: random name has been set, this can be cumbersome')
             self.name = f"Location_{uuid.uuid4().hex}"
 
     def handle_factor(self, factor_name):
@@ -198,7 +225,7 @@ class Location:
         cap_max_dict = {}
         cap_min_dict = {}
         for i in self.processes:
-            if ProcessType.HAS_MATMODE in i.ctype:
+            if ProcessType.MULTI_MATMODE in i.ctype:
                 cap_max_dict[i.name] = {j: None for j in self.scales.scale[0]}
                 cap_min_dict[i.name] = {j: None for j in self.scales.scale[0]}
                 for j in self.scales.scale[0]:
@@ -226,9 +253,26 @@ class Location:
         Returns:
             Process: Dummy process for storage
         """
+        if process.capex is None:
+            capex = None 
+        else: 
+            capex = 0
+        if process.fopex is None:
+            fopex = None 
+        else: 
+            fopex = 0
+        if process.vopex is None:
+            vopex = None 
+        else: 
+            vopex = 0
+        if process.incidental is None:
+            incidental = None 
+        else: 
+            incidental = 0
+            
         return Process(name=process.name+'_discharge', conversion=process.conversion_discharge, cap_min=process.cap_min,
-                       cap_max=process.cap_max, introduce=process.introduce, retire=process.retire, capex=0, vopex=0, fopex=0,
-                       lifetime=process.lifetime, label=process.label + '_storage', material_cons=None)
+                       cap_max=process.cap_max, introduce=process.introduce, retire=process.retire, capex=capex, vopex=vopex, fopex=fopex,
+                       incidental= incidental, lifetime=process.lifetime, label=process.label + '_storage', material_cons=None)
 
     def __repr__(self):
         return self.name
