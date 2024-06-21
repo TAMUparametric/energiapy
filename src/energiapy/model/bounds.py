@@ -11,6 +11,7 @@ __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
 from dataclasses import dataclass
+
 from ..components.result import Result
 
 

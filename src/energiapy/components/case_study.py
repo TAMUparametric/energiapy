@@ -10,22 +10,23 @@ __maintainer__ = "Rahul Kakodkar"
 __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
-from dataclasses import dataclass
-from typing import Union, Set, Dict, Tuple
 import copy
-from warnings import warn
 import uuid
-from .scenario import Scenario
-from .process import Process
-from .resource import Resource
-from .location import Location
-from .result import Result, Results
+from dataclasses import dataclass
+from typing import Dict, Set, Tuple, Union
+from warnings import warn
 
+from pyomo.environ import ConcreteModel
+
+from ..model.constraints.constraints import Constraints
+from ..model.formulate import ModelClass, Objective
 from ..model.formulate import formulate as formulate_casestudy
 from ..model.solve import solve as solve_casestudy
-from ..model.formulate import Objective, ModelClass
-from ..model.constraints.constraints import Constraints
-from pyomo.environ import ConcreteModel
+from .location import Location
+from .process import Process
+from .resource import Resource
+from .result import Result, Results
+from .scenario import Scenario
 
 
 @dataclass
@@ -63,7 +64,7 @@ class CaseStudy:
             self.scenarios = scenario_list
 
         if self.name is None:
-            self.name = f"CaseStudy_{uuid.uuid4().hex}"
+            self.name = f'{self.__class__.__name__}_{uuid.uuid4().hex}'
 
     def formulate(self, constraints: Set[Constraints] = None, objective: Objective = None,
                   write_lpfile: bool = False, gwp: float = None, land_restriction: float = None,

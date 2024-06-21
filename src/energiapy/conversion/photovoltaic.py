@@ -10,12 +10,12 @@ __maintainer__ = "Rahul Kakodkar"
 __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
-import pandas
 import numpy
+import pandas
+from pvlib.location import Location as PVLocation
+from pvlib.modelchain import ModelChain as PVModelChain
 from pvlib.pvsystem import PVSystem, retrieve_sam
 from pvlib.temperature import TEMPERATURE_MODEL_PARAMETERS
-from pvlib.modelchain import ModelChain as PVModelChain
-from pvlib.location import Location as PVLocation
 
 
 def solar_power_output(data: pandas.DataFrame, coord: tuple, sam: str = 'cecmod', module_params: str = 'Canadian_Solar_Inc__CS5P_220M', inverter: str = 'cecinverter', inverter_params: str = 'ABB__MICRO_0_25_I_OUTD_US_208__208V_', temperature_params: str = 'open_rack_glass_glass', aoi_model: str = 'no_loss', ac_model: str = 'sandia', spectral_model: str = 'no_loss'):

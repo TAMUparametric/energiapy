@@ -1,6 +1,7 @@
 from pyomo.environ import ConcreteModel, Constraint
-from ...utils.scale_utils import scale_list, scale_tuple
+
 from ...model.bounds import CapacityBounds
+from ...utils.scale_utils import scale_list, scale_tuple
 
 
 def constraint_production_facility(instance: ConcreteModel, cap_max: dict, location_process_dict: dict = None,

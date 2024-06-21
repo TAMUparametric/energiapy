@@ -1,4 +1,5 @@
 from pyomo.environ import ConcreteModel
+
 from .variables import generate_var_loc_com_scn
 
 

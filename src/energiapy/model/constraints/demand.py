@@ -1,7 +1,8 @@
 from typing import Union
-from pyomo.environ import ConcreteModel, Constraint
-from ...utils.scale_utils import scale_list, scale_tuple
 
+from pyomo.environ import ConcreteModel, Constraint
+
+from ...utils.scale_utils import scale_list, scale_tuple
 
 # def constraint_demand(instance: ConcreteModel, demand: Union[dict, float], demand_factor: Union[dict, float],
 #                       demand_scale_level: int = 0, scheduling_scale_level: int = 0,

@@ -10,14 +10,17 @@ __maintainer__ = "Rahul Kakodkar"
 __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
-from dataclasses import dataclass
-from typing import Dict, Set, List, Union, Tuple
-
-from .material import Material
-from .resource import Resource
-from .comptype import ResourceType, ParameterType, TransportType, Th, VaryingTransport
 import uuid
+from dataclasses import dataclass
 from enum import Enum, auto
+from typing import Dict, List, Set, Tuple, Union
+
+from .comptype import ResourceType, TransportType, VaryingTransport
+from .material import Material
+from .parameters.factor import Factor
+from .parameters.mpvar import Theta, create_mpvar
+from .parameters.paratype import FactorType, MPVarType, ParameterType
+from .resource import Resource
 
 
 @dataclass
@@ -49,7 +52,7 @@ class Transport:
 
 
     """
-    name: str 
+    name: str
     resources: Set[Resource]
     material_cons: Dict[Material, float] = None
     introduce: int = 0
@@ -58,10 +61,10 @@ class Transport:
     cap_min: float = None
     trans_loss: float = None
     emission: float = None
-    capex: Union[float, dict, Tuple[float], Th] = None
-    vopex: Union[float, dict, Tuple[float], Th] = None
-    fopex: Union[float, dict, Tuple[float], Th] = None
-    incidental: Union[float, dict, Tuple[float], Th] = None
+    capex: Union[float, dict, Tuple[float], Theta] = None
+    vopex: Union[float, dict, Tuple[float], Theta] = None
+    fopex: Union[float, dict, Tuple[float], Theta] = None
+    incidental: Union[float, dict, Tuple[float], Theta] = None
     citation: str = None
     label: str = None
     ctype: List[TransportType] = None
@@ -97,28 +100,27 @@ class Transport:
         self.ptype = {i: ParameterType.CERTAIN for i in self.ctype}
 
         if self.cap_max is not None:
-            if isinstance(self.cap_max, (tuple, Th)):
+            if isinstance(self.cap_max, (tuple, Theta)):
                 self.ptype[TransportType.CAPACITY] = ParameterType.UNCERTAIN
 
         if self.capex is not None:
-            if isinstance(self.capex, (tuple, Th)):
+            if isinstance(self.capex, (tuple, Theta)):
                 self.ptype[TransportType.CAPEX] = ParameterType.UNCERTAIN
 
         if self.fopex is not None:
-            if isinstance(self.fopex, (tuple, Th)):
+            if isinstance(self.fopex, (tuple, Theta)):
                 self.ptype[TransportType.FOPEX] = ParameterType.UNCERTAIN
 
         if self.vopex is not None:
-            if isinstance(self.vopex, (tuple, Th)):
+            if isinstance(self.vopex, (tuple, Theta)):
                 self.ptype[TransportType.VOPEX] = ParameterType.UNCERTAIN
 
         if self.incidental is not None:
-            if isinstance(self.incidental, (tuple, Th)):
+            if isinstance(self.incidental, (tuple, Theta)):
                 self.ptype[TransportType.INCIDENTAL] = ParameterType.UNCERTAIN
-        
+
         if self.name is None:
-            warn(f'{self.name}: random name has been set, this can be cumbersome')
-            self.name = f"Transport_{uuid.uuid4().hex}"
+            self.name = f'{self.__class__.__name__}_{uuid.uuid4().hex}'
 
     def __repr__(self):
         return self.name

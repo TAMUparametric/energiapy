@@ -13,6 +13,7 @@ __status__ = "Production"
 import numpy
 import pandas
 from distfit import distfit
+
 from ..utils.math_utils import min_max
 
 

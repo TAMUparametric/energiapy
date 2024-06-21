@@ -1,4 +1,5 @@
 from itertools import product
+
 from pyomo.environ import Binary, ConcreteModel, NonNegativeReals, Var
 
 

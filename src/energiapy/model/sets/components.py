@@ -1,6 +1,7 @@
+from pyomo.environ import ConcreteModel, Set
+
 from ...components.scenario import Scenario
 from ...utils.scale_utils import scale_pyomo_set
-from pyomo.environ import ConcreteModel, Set
 
 
 def generate_component_sets(instance: ConcreteModel, scenario: Scenario):

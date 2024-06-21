@@ -1,9 +1,11 @@
-from typing import Union, Dict, Tuple
+from typing import Dict, Tuple, Union
+
 from pyomo.environ import ConcreteModel, Constraint
-from ...utils.scale_utils import scale_list, scale_tuple
-from ...components.resource import Resource
+
 from ...components.location import Location
 from ...components.process import Process
+from ...components.resource import Resource
+from ...utils.scale_utils import scale_list, scale_tuple
 
 
 def constraint_inventory_balance(instance: ConcreteModel, scheduling_scale_level: int = 0,

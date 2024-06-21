@@ -1,15 +1,18 @@
+import uuid
 from dataclasses import dataclass
 from typing import Dict, Union
+
 import numpy
 from pandas import DataFrame
-import uuid
-from .comptype import ProcessType, ResourceType, ParameterType, LocationType, ScenarioType
-from .location import Location
-from .network import Network
-from .resource import Resource
-from .temporal_scale import TemporalScale
+
 from ..model.bounds import CapacityBounds
 from ..model.weights import EmissionWeights
+from .comptype import LocationType, ProcessType, ResourceType, ScenarioType
+from .location import Location
+from .network import Network
+from .parameters.paratype import ParameterType
+from .resource import Resource
+from .temporal_scale import TemporalScale
 
 
 @dataclass
@@ -146,47 +149,47 @@ class Scenario:
             self.transport_avail_dict = self.network.transport_avail_dict
             self.location_set = set(
                 self.source_locations + self.sink_locations)
-            self.trans_max = {j.name: j.trans_max for j in self.transport_set}
-            self.trans_min = {j.name: j.trans_min for j in self.transport_set}
-            self.trans_loss = {
-                j.name: j.trans_loss for j in self.transport_set}
-            self.trans_capex = {
-                j.name: j.capex for j in self.transport_set}
-            self.trans_vopex = {
-                j.name: j.vopex for j in self.transport_set}
-            self.trans_fopex = {
-                j.name: j.fopex for j in self.transport_set}
-            self.trans_emission = {
-                j.name: j.emission for j in self.transport_set}
-            self.distance_dict = self.network.distance_dict
-            # self.transport_resource_dict = {i: None for i in self.transport_dict.keys()}
-            self.location_transport_resource_dict = {i: {k.name: {
-                l.name for l in k.resources} for k in j} for i, j in self.transport_dict.items()}
-            self.resource_transport_dict = {}
-            for key, value in {i.name: i.resources for i in self.transport_set}.items():
-                for item in value:
-                    if item in self.resource_transport_dict:
-                        self.resource_transport_dict[item].append(key)
-                    else:
-                        self.resource_transport_dict[item] = [key]
-            self.resource_transport_dict = {
-                i.name: j for i, j in self.resource_transport_dict.items()}
-            self.transport_resource_dict = {
-                i.name: {j.name for j in i.resources} for i in self.transport_set}
-            # for i,j in self.transport_dict.items():
-            #     set_ = set()
-            #     for k in j:
-            #         set_ = set_.union(k.resources)
-            #     self.transport_resource_dict[i] = {i.name for i in set_}
-            self.transport_capacity_factor = self.network.transport_capacity_factor
-            self.transport_capex_factor = self.network.transport_capex_factor
-            self.transport_vopex_factor = self.network.transport_vopex_factor
-            self.transport_fopex_factor = self.network.transport_fopex_factor
-            self.transport_capacity_scale_level = self.network.transport_capacity_scale_level
-            self.transport_capex_scale_level = self.network.transport_capex_scale_level
-            self.transport_vopex_scale_level = self.network.transport_vopex_scale_level
-            self.transport_fopex_scale_level = self.network.transport_fopex_scale_level
-            self.source_sink_resource_dict = self.network.source_sink_resource_dict
+            # self.trans_max = {j.name: j.trans_max for j in self.transport_set}
+            # self.trans_min = {j.name: j.trans_min for j in self.transport_set}
+            # self.trans_loss = {
+            #     j.name: j.trans_loss for j in self.transport_set}
+            # self.trans_capex = {
+            #     j.name: j.capex for j in self.transport_set}
+            # self.trans_vopex = {
+            #     j.name: j.vopex for j in self.transport_set}
+            # self.trans_fopex = {
+            #     j.name: j.fopex for j in self.transport_set}
+            # self.trans_emission = {
+            #     j.name: j.emission for j in self.transport_set}
+            # self.distance_dict = self.network.distance_dict
+            # # self.transport_resource_dict = {i: None for i in self.transport_dict.keys()}
+            # self.location_transport_resource_dict = {i: {k.name: {
+            #     l.name for l in k.resources} for k in j} for i, j in self.transport_dict.items()}
+            # self.resource_transport_dict = {}
+            # for key, value in {i.name: i.resources for i in self.transport_set}.items():
+            #     for item in value:
+            #         if item in self.resource_transport_dict:
+            #             self.resource_transport_dict[item].append(key)
+            #         else:
+            #             self.resource_transport_dict[item] = [key]
+            # self.resource_transport_dict = {
+            #     i.name: j for i, j in self.resource_transport_dict.items()}
+            # self.transport_resource_dict = {
+            #     i.name: {j.name for j in i.resources} for i in self.transport_set}
+            # # for i,j in self.transport_dict.items():
+            # #     set_ = set()
+            # #     for k in j:
+            # #         set_ = set_.union(k.resources)
+            # #     self.transport_resource_dict[i] = {i.name for i in set_}
+            # self.transport_capacity_factor = self.network.transport_capacity_factor
+            # self.transport_capex_factor = self.network.transport_capex_factor
+            # self.transport_vopex_factor = self.network.transport_vopex_factor
+            # self.transport_fopex_factor = self.network.transport_fopex_factor
+            # self.transport_capacity_scale_level = self.network.transport_capacity_scale_level
+            # self.transport_capex_scale_level = self.network.transport_capex_scale_level
+            # self.transport_vopex_scale_level = self.network.transport_vopex_scale_level
+            # self.transport_fopex_scale_level = self.network.transport_fopex_scale_level
+            # self.source_sink_resource_dict = self.network.source_sink_resource_dict
 
         self.process_set = set().union(
             *[i.processes for i in self.location_set if i.processes is not None])
@@ -333,8 +336,9 @@ class Scenario:
                 i.name for i in getattr(self, f'resources_{i}')]
 
         for j in ['demand', 'purchase', 'sell', 'consume']:
+            # TODO - location specific factor and localization sets
             self.resource_subsets[f'resources_varying_{j}'] = [i.name for i in getattr(
-                self, f'resources_{j}') if i.ptype[getattr(ResourceType, j.upper())] == ParameterType.DETERMINISTIC_DATA]
+                self, f'resources_{j}') if i.ptype[getattr(ResourceType, j.upper())] == ParameterType.FACTOR]
 
             self.resource_subsets[f'resources_certain_{j}'] = [i.name for i in getattr(
                 self, f'resources_{j}') if i.ptype[getattr(ResourceType, j.upper())] == ParameterType.CERTAIN]
@@ -348,9 +352,10 @@ class Scenario:
         self.process_subsets = dict()
 
         for j in ['capacity', 'capex', 'fopex', 'vopex', 'incidental']:
+            # TODO - location specific factor and localization sets
 
             self.process_subsets[f'processes_varing_{j}'] = [i.name for i in self.process_set if getattr(ProcessType, j.upper(
-            )) in i.ptype.keys() if i.ptype[getattr(ProcessType, j.upper())] == ParameterType.DETERMINISTIC_DATA]
+            )) in i.ptype.keys() if i.ptype[getattr(ProcessType, j.upper())] == ParameterType.FACTOR]
 
             self.process_subsets[f'processes_certain_{j}'] = [i.name for i in self.process_set if getattr(ProcessType, j.upper(
             )) in i.ptype.keys() if i.ptype[getattr(ProcessType, j.upper())] == ParameterType.CERTAIN]
@@ -358,7 +363,7 @@ class Scenario:
             self.process_subsets[f'processes_uncertain_{j}'] = [i.name for i in self.process_set if getattr(ProcessType, j.upper(
             )) in i.ptype.keys() if i.ptype[getattr(ProcessType, j.upper())] == ParameterType.UNCERTAIN]
 
-        for j in ['single_prodmode', 'multi_prodmode', 'no_matmode', 'has_matmode', 'storage', 'storage_req', 'linear_capex', 'pwl_capex', 'land']:
+        for j in ['single_prodmode', 'multi_prodmode', 'no_matmode', 'multi_matmode', 'single_matmode', 'storage', 'storage_req', 'linear_capex', 'pwl_capex', 'land']:
             self.process_subsets[f'processes_{j}'] = [
                 i.name for i in self.process_set if getattr(ProcessType, j.upper()) in i.ctype]
 
@@ -374,21 +379,28 @@ class Scenario:
         self.location_subsets['locations_land_cost'] = [
             i.name for i in self.location_set if LocationType.LAND_COST in i.ctype]
 
-        self.location_subsets['locations_varying_land_cost'] = [i.name for i in self.location_set if LocationType.LAND_COST in i.ptype.keys(
-        ) if i.ptype[LocationType.LAND_COST] == ParameterType.DETERMINISTIC_DATA]
-        self.location_subsets['locations_certain_land_cost'] = [
-            i.name for i in self.location_set if LocationType.LAND_COST in i.ptype.keys() if i.ptype[LocationType.LAND_COST] == ParameterType.CERTAIN]
-        self.location_subsets['locations_uncertain_land_cost'] = [
-            i.name for i in self.location_set if LocationType.LAND_COST in i.ptype.keys() if i.ptype[LocationType.LAND_COST] == ParameterType.UNCERTAIN]
+        # self.location_subsets['locations_varying_land_cost'] = [i.name for i in self.location_set if LocationType.LAND_COST in i.ptype.keys(
+        # ) if i.ptype[LocationType.LAND_COST] == ParameterType.FACTOR]
+        # self.location_subsets['locations_certain_land_cost'] = [
+        #     i.name for i in self.location_set if LocationType.LAND_COST in i.ptype.keys() if i.ptype[LocationType.LAND_COST] == ParameterType.CERTAIN]
+        # self.location_subsets['locations_uncertain_land_cost'] = [
+        #     i.name for i in self.location_set if LocationType.LAND_COST in i.ptype.keys() if i.ptype[LocationType.LAND_COST] == ParameterType.UNCERTAIN]
 
-        self.location_land_cost_factor = {
-            i: i.land_cost_factor for i in self.location_subsets['locations_varying_land_cost']}
+        # self.location_land_cost_factor = {
+        #     i: i.land_cost_factor for i in self.location_subsets['locations_varying_land_cost']}
 
-        self.land_cost_dict = {
-            i.name: i.land_cost for i in self.location_set if LocationType.LAND_COST in i.ctype}
+        # self.land_cost_dict = {
+        #     i.name: i.land_cost for i in self.location_set if LocationType.LAND_COST in i.ctype}
 
-        self.credit_dict = {i.name: {j.name: i.credit[j] for j in i.credit.keys(
-        )} for i in self.location_set if i.credit is not None}
+        # self.credit_dict = {i.name: {j.name: i.credit[j] for j in i.credit.keys(
+        # )} for i in self.location_set if i.credit is not None}
+        
+        
+        
+        
+        
+        
+        
 
         # self.set_dict = {x: sorted(set_dict[x]) for x in set_dict.keys()}
 
@@ -426,9 +438,9 @@ class Scenario:
         #     'availability': {i.name: i.varying_bounds for i in self.resource_set if VaryingResource.UNCERTAIN_AVAILABILITY in i.varying},
         #     'capacity': {i.name: i.varying_bounds for i in self.process_set if VaryingProcess.UNCERTAIN_CAPACITY in i.varying}
         # }
-        
+
         if self.name is None:
-            self.name = f"Sceanrio_{uuid.uuid4().hex}"
+            self.name = f'{self.__class__.__name__}_{uuid.uuid4().hex}'
 
     def loc_comp_attr_dict(self, attr: str):
         """creates a dict of type {loc: {comp: attribute_dict}}

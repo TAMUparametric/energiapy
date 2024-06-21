@@ -1,5 +1,7 @@
-from pyomo.environ import ConcreteModel, NonNegativeReals, Var, Set
+from pyomo.environ import ConcreteModel, NonNegativeReals, Set, Var
+
 from ...components.scenario import Scenario
+
 
 def generate_scheduling_vars(instance: ConcreteModel, scenario: Scenario, mode_dict: dict = None):
     """declares pyomo variables for scheduling at the chosen scales

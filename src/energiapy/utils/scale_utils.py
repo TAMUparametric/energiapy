@@ -1,7 +1,7 @@
+import math
 from itertools import product
 
 import pandas
-import math
 from pyomo.environ import ConcreteModel, Set
 
 from ..components.temporal_scale import TemporalScale

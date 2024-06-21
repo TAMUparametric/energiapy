@@ -10,20 +10,22 @@ __maintainer__ = "Rahul Kakodkar"
 __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
+import uuid
 from dataclasses import dataclass, field
 from itertools import product
-from typing import List, Dict, Union, Tuple
-import uuid
+from typing import Dict, List, Tuple, Union
+from warnings import warn
 
 from pandas import DataFrame
 
-from .location import Location
-from .transport import Transport
-from .factor import Factor
-from .temporal_scale import TemporalScale
-from .comptype import LocationType, TransportType, ParameterType, FactorType
 from ..utils.scale_utils import scale_changer
-from warnings import warn
+from .comptype import LocationType, TransportType
+from .location import Location
+from .parameters.factor import Factor
+from .parameters.mpvar import Theta, create_mpvar
+from .parameters.paratype import FactorType, MPVarType, ParameterType
+from .temporal_scale import TemporalScale
+from .transport import Transport
 
 
 @dataclass
@@ -115,9 +117,9 @@ class Network:
                 for i, j in getattr(self, f'{m}_factor').items():
                     for k, l in j.items():
                         k.ptype[getattr(TransportType, f'{m}'.upper(
-                        ))] = ParameterType.DETERMINISTIC_DATA
+                        ))] = ParameterType.FACTOR
                         getattr(self, f'{m}_factor')[i][k] = Factor(
-                            component=k, data=l, ctype=FactorType.CAPACITY, scales=self.scales)
+                            component=k, data=l, ptype=getattr(FactorType, f'TRANS_{m}'.upper()), scales=self.scales, location=i)
 
         # if self.capacity_factor is not None:
         #     if isinstance(list(self.capacity_factor[list(self.capacity_factor.keys())[0]].values())[0], DataFrame):
@@ -160,7 +162,7 @@ class Network:
         #             'Input should be a dict of a dict of a DataFrame, Dict[Tuple[Location, Location], Dict[Transport, float]]')
 
         if self.name is None:
-            self.name = f"Network_{uuid.uuid4().hex}"
+            self.name = f'{self.__class__.__name__}_{uuid.uuid4().hex}'
 
     def make_distance_dict(self) -> dict:
         """returns a dictionary of distances from sources to sinks

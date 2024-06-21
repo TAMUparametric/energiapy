@@ -1,13 +1,13 @@
 """Data management utilities
 """
 
+import copy
 import json
 import pickle
 from itertools import product
 
 import numpy
 import pandas
-import copy
 
 from ..components.result import Result
 

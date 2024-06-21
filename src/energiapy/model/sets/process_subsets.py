@@ -1,6 +1,8 @@
+from pyomo.environ import ConcreteModel, Set
+
 from ...components.scenario import Scenario
 from ...utils.scale_utils import scale_pyomo_set
-from pyomo.environ import ConcreteModel, Set
+
 
 def generate_process_subsets(instance: ConcreteModel, scenario: Scenario):
     """generates process subsets

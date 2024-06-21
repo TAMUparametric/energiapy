@@ -10,9 +10,9 @@ __maintainer__ = "Rahul Kakodkar"
 __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
+import uuid
 from dataclasses import dataclass
 from typing import Dict
-import uuid
 
 
 @dataclass
@@ -61,7 +61,7 @@ class Material:
                 self.emissions[i] = getattr(self, i)
 
         if self.name is None:
-            self.name = f"Material_{uuid.uuid4().hex}"
+            self.name = f'{self.__class__.__name__}_{uuid.uuid4().hex}'
 
     def __repr__(self):
         return self.name

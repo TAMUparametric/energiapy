@@ -1,32 +1,52 @@
 import time
 from enum import Enum, auto
-from typing import Set, Dict, Tuple
-from pyomo.environ import ConcreteModel, Suffix, Constraint
-from pyomo.environ import Objective as Objective_pyomo
+from typing import Dict, Set, Tuple
 from warnings import warn
-from ..components.scenario import Scenario, ScenarioType
-from ..components.resource import Resource
+
+from pyomo.environ import ConcreteModel, Constraint
+from pyomo.environ import Objective as Objective_pyomo
+from pyomo.environ import Suffix
+
 from ..components.location import Location
 from ..components.process import Process
-from .constraints.constraints import Constraints, make_constraint, Cons, constraint_sum_total
-
-from .constraints.cost import (
-    constraint_location_land_cost,
-    constraint_network_land_cost,
-    constraint_process_capex,
-    constraint_process_fopex,
-    constraint_process_incidental,
-    constraint_process_land_cost,
-    constraint_process_vopex,
-    constraint_transport_imp_cost,
-    constraint_total_cost,
-    constraint_storage_cost,
-    constraint_total_purchase,
-    constraint_total_revenue,
-    constraint_location_storage_cost,
-    constraint_network_storage_cost,
-)
+from ..components.resource import Resource
+from ..components.scenario import Scenario, ScenarioType
+from .constraints.constraints import (Cons, Constraints, constraint_sum_total,
+                                      make_constraint)
+from .constraints.cost import (constraint_location_land_cost,
+                               constraint_location_storage_cost,
+                               constraint_network_land_cost,
+                               constraint_network_storage_cost,
+                               constraint_process_capex,
+                               constraint_process_fopex,
+                               constraint_process_incidental,
+                               constraint_process_land_cost,
+                               constraint_process_vopex,
+                               constraint_storage_cost, constraint_total_cost,
+                               constraint_total_purchase,
+                               constraint_total_revenue,
+                               constraint_transport_imp_cost)
+from .constraints.credit import (constraint_location_credit,
+                                 constraint_network_credit,
+                                 constraint_process_credit)
+from .constraints.demand import constraint_demand, constraint_demand_penalty
 from .constraints.emission import (
+    constraint_acidification_potential_location,
+    constraint_acidification_potential_material,
+    constraint_acidification_potential_material_mode,
+    constraint_acidification_potential_network,
+    constraint_acidification_potential_process,
+    constraint_acidification_potential_resource,
+    constraint_acidification_potential_resource_consumption,
+    constraint_acidification_potential_resource_discharge,
+    constraint_freshwater_eutrophication_potential_location,
+    constraint_freshwater_eutrophication_potential_material,
+    constraint_freshwater_eutrophication_potential_material_mode,
+    constraint_freshwater_eutrophication_potential_network,
+    constraint_freshwater_eutrophication_potential_process,
+    constraint_freshwater_eutrophication_potential_resource,
+    constraint_freshwater_eutrophication_potential_resource_consumption,
+    constraint_freshwater_eutrophication_potential_resource_discharge,
     constraint_global_warming_potential_location,
     constraint_global_warming_potential_material,
     constraint_global_warming_potential_material_mode,
@@ -36,14 +56,14 @@ from .constraints.emission import (
     constraint_global_warming_potential_resource,
     constraint_global_warming_potential_resource_consumption,
     constraint_global_warming_potential_resource_discharge,
-    constraint_acidification_potential_location,
-    constraint_acidification_potential_material,
-    constraint_acidification_potential_material_mode,
-    constraint_acidification_potential_network,
-    constraint_acidification_potential_process,
-    constraint_acidification_potential_resource,
-    constraint_acidification_potential_resource_consumption,
-    constraint_acidification_potential_resource_discharge,
+    constraint_marine_eutrophication_potential_location,
+    constraint_marine_eutrophication_potential_material,
+    constraint_marine_eutrophication_potential_material_mode,
+    constraint_marine_eutrophication_potential_network,
+    constraint_marine_eutrophication_potential_process,
+    constraint_marine_eutrophication_potential_resource,
+    constraint_marine_eutrophication_potential_resource_consumption,
+    constraint_marine_eutrophication_potential_resource_discharge,
     constraint_ozone_depletion_potential_location,
     constraint_ozone_depletion_potential_material,
     constraint_ozone_depletion_potential_material_mode,
@@ -59,142 +79,76 @@ from .constraints.emission import (
     constraint_terrestrial_eutrophication_potential_process,
     constraint_terrestrial_eutrophication_potential_resource,
     constraint_terrestrial_eutrophication_potential_resource_consumption,
-    constraint_terrestrial_eutrophication_potential_resource_discharge,
-    constraint_freshwater_eutrophication_potential_location,
-    constraint_freshwater_eutrophication_potential_material,
-    constraint_freshwater_eutrophication_potential_material_mode,
-    constraint_freshwater_eutrophication_potential_network,
-    constraint_freshwater_eutrophication_potential_process,
-    constraint_freshwater_eutrophication_potential_resource,
-    constraint_freshwater_eutrophication_potential_resource_consumption,
-    constraint_freshwater_eutrophication_potential_resource_discharge,
-    constraint_marine_eutrophication_potential_location,
-    constraint_marine_eutrophication_potential_material,
-    constraint_marine_eutrophication_potential_material_mode,
-    constraint_marine_eutrophication_potential_network,
-    constraint_marine_eutrophication_potential_process,
-    constraint_marine_eutrophication_potential_resource,
-    constraint_marine_eutrophication_potential_resource_consumption,
-    constraint_marine_eutrophication_potential_resource_discharge,
-)
+    constraint_terrestrial_eutrophication_potential_resource_discharge)
 from .constraints.failure import constraint_nameplate_production_failure
-
-from .constraints.land import (
-    constraint_location_land,
-    constraint_location_land_restriction,
-    constraint_network_land,
-    constraint_procss_land,
-)
-from .constraints.mode import (
-    constraint_production_mode,
-    constraint_production_mode_binary,
-    constraint_production_mode_facility,
-    constraint_min_production_mode_facility,
-    constraint_production_rate1,
-    constraint_production_rate2,
-    constraint_production_mode_switch
-
-)
-from .constraints.production import (
-    constraint_nameplate_production_material_mode
-)
-from .constraints.resource_balance import (
-    constraint_inventory_balance,
-    constraint_inventory_network,
-    constraint_location_production_material_mode,
-    constraint_location_production_material_mode_sum
-)
-
-from .constraints.demand import (
-    constraint_demand,
-    constraint_demand_penalty
-)
-from .constraints.transport import (
-    # constraint_transport_balance,
-    # constraint_transport_exp_UB,
-    # constraint_transport_export,
-    # constraint_transport_imp_UB,
-    # constraint_transport_import,
-    constraint_transport_export,
-    constraint_resource_export,
-    constraint_export,
-    constraint_transport_capacity_LB,
-    constraint_transport_capacity_UB,
-    constraint_transport_capex,
-    constraint_transport_network_capex,
-    constraint_transport_export_network,
-    constraint_transport_vopex,
-    constraint_transport_network_vopex,
-    constraint_transport_fopex,
-    constraint_transport_network_fopex,
-    constraint_transport_capacity_UB_no_bin,
-    constraint_transport_capacity_LB_no_bin
-)
-from .constraints.uncertain import (
-    constraint_uncertain_process_capacity,
-    constraint_uncertain_resource_demand,
-)
-from .constraints.network import (
-    constraint_storage_facility,
-    constraint_production_facility,
-    constraint_min_storage_facility,
-    constraint_min_production_facility,
-    constraint_min_capacity_facility,
-    constraint_preserve_capacity_facility
-)
-from .constraints.credit import (
-    constraint_process_credit,
-    constraint_location_credit,
-    constraint_network_credit
-)
+from .constraints.land import (constraint_location_land,
+                               constraint_location_land_restriction,
+                               constraint_network_land, constraint_procss_land)
 from .constraints.material import (
-    constraint_material_process,
-    constraint_material_location,
-    constraint_material_network,
-    constraint_production_facility_material_mode_binary,
-    constraint_production_facility_material_mode,
-    constraint_production_facility_material,
+    constraint_material_location, constraint_material_mode_process,
+    constraint_material_network, constraint_material_process,
     constraint_min_production_facility_material,
-    constraint_material_mode_process
-)
-from .objectives import (
-    objective_cost,
-    objective_discharge_max,
-    objective_discharge_min,
-    objective_profit,
-    objective_gwp_min,
-    objective_cost_w_demand_penalty,
-    objective_profit_w_demand_penalty,
-    objective_emission_min
-)
-
-from .sets.temporal import generate_temporal_sets
+    constraint_production_facility_material,
+    constraint_production_facility_material_mode,
+    constraint_production_facility_material_mode_binary)
+from .constraints.mode import (constraint_min_production_mode_facility,
+                               constraint_production_mode,
+                               constraint_production_mode_binary,
+                               constraint_production_mode_facility,
+                               constraint_production_mode_switch,
+                               constraint_production_rate1,
+                               constraint_production_rate2)
+from .constraints.network import (constraint_min_capacity_facility,
+                                  constraint_min_production_facility,
+                                  constraint_min_storage_facility,
+                                  constraint_preserve_capacity_facility,
+                                  constraint_production_facility,
+                                  constraint_storage_facility)
+from .constraints.production import \
+    constraint_nameplate_production_material_mode
+from .constraints.resource_balance import (
+    constraint_inventory_balance, constraint_inventory_network,
+    constraint_location_production_material_mode,
+    constraint_location_production_material_mode_sum)
+from .constraints.transport import (  # constraint_transport_balance,; constraint_transport_exp_UB,; constraint_transport_export,; constraint_transport_imp_UB,; constraint_transport_import,
+    constraint_export, constraint_resource_export,
+    constraint_transport_capacity_LB, constraint_transport_capacity_LB_no_bin,
+    constraint_transport_capacity_UB, constraint_transport_capacity_UB_no_bin,
+    constraint_transport_capex, constraint_transport_export,
+    constraint_transport_export_network, constraint_transport_fopex,
+    constraint_transport_network_capex, constraint_transport_network_fopex,
+    constraint_transport_network_vopex, constraint_transport_vopex)
+from .constraints.uncertain import (constraint_uncertain_process_capacity,
+                                    constraint_uncertain_resource_demand)
+from .objectives import (objective_cost, objective_cost_w_demand_penalty,
+                         objective_discharge_max, objective_discharge_min,
+                         objective_emission_min, objective_gwp_min,
+                         objective_profit, objective_profit_w_demand_penalty)
 from .sets.components import generate_component_sets
-from .sets.resource_subsets import generate_resource_subsets
-from .sets.process_subsets import generate_process_subsets
 from .sets.location_subsets import generate_location_subsets
+from .sets.modes import (generate_material_mode_sets,
+                         generate_production_mode_sets)
+from .sets.process_subsets import generate_process_subsets
+from .sets.resource_subsets import generate_resource_subsets
+from .sets.temporal import generate_temporal_sets
 from .sets.transport_subsets import generate_transport_subsets
-from .sets.modes import generate_material_mode_sets, generate_production_mode_sets
-
-from .variables.economic import (
-    generate_total_cost_var,
-    generate_process_expenditure_vars,
-    generate_process_credit_vars,
-    generate_resource_expenditure_vars,
-    generate_transport_expenditure_vars,
-    generate_resource_revenue_vars
-)
-
 from .variables.binary import generate_network_binary_vars
+from .variables.demand import generate_demand_vars
+from .variables.economic import (generate_process_credit_vars,
+                                 generate_process_expenditure_vars,
+                                 generate_resource_expenditure_vars,
+                                 generate_resource_revenue_vars,
+                                 generate_total_cost_var,
+                                 generate_transport_expenditure_vars)
+from .variables.emission import generate_emission_vars
+from .variables.land import generate_land_vars
+from .variables.material import generate_material_vars
 from .variables.mode import generate_mode_vars
 from .variables.network import generate_network_vars
 from .variables.schedule import generate_scheduling_vars
-from .variables.transport import generate_transport_resource_vars, generate_transport_network_binaries
+from .variables.transport import (generate_transport_network_binaries,
+                                  generate_transport_resource_vars)
 from .variables.uncertain import generate_uncertainty_vars
-from .variables.land import generate_land_vars
-from .variables.emission import generate_emission_vars
-from .variables.material import generate_material_vars
-from .variables.demand import generate_demand_vars
 
 
 class ModelClass(Enum):

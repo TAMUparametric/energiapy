@@ -1,4 +1,4 @@
-from pyomo.environ import ConcreteModel, NonNegativeReals, Var, Binary
+from pyomo.environ import Binary, ConcreteModel, NonNegativeReals, Var
 
 
 def generate_material_vars(instance: ConcreteModel):

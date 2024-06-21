@@ -2,26 +2,32 @@
 
     figure out scale of factors
     whether specific demand is met for a resource that can be sold at this location
-    Add localization factors for prices and such 
+    Add local factors for prices and such 
     DEMAND var for resource
     EXP Var for process
     
     
 """
 
+import uuid
 from dataclasses import dataclass
 from itertools import product
 from random import sample
-from typing import Dict, Set, Union, List, Tuple
+from typing import Dict, List, Set, Tuple, Union
 from warnings import warn
-import uuid
+
 from pandas import DataFrame
+
+from .comptype import LocationType, ProcessType, ResourceType
 from .material import Material
+from .parameters.factor import Factor
+from .parameters.localize import Localize
+from .parameters.mpvar import Theta, create_mpvar
+from .parameters.paratype import (FactorType, LocalizeType, MPVarType,
+                                  ParameterType)
 from .process import Process
 from .resource import Resource
 from .temporal_scale import TemporalScale
-from .factor import Factor
-from .comptype import ProcessType, ResourceType, FactorType, ParameterType, LocationType, Th
 
 
 @dataclass
@@ -36,16 +42,25 @@ class Location:
         processes (Set[Process]): set of processes (Process objects) to include at location
         scales (TemporalScale): temporal scales of the problem
         demand (Dict[Resource, float]): demand for resources at location. Defaults to None.
-        demand_factor (Union[float, Dict[Resource, DataFrame]), optional): Factor for varying demand, scale changer normalizes.Defaults to None
-        purchase_price_factor (Union[float, Dict[Resource, DataFrame]), optional): Factor for varying cost, scale changer normalizes. Defaults to None
-        availability_factor (Union[float, Dict[Resource, DataFrame]), optional): Factor for varying resource availability, scale changer normalizes. Defaults to None
-        sell_price_factor (Union[float, Dict[Resource, DataFrame]), optional): Factor for varying resource revenue, scale changer normalizes. Defaults to None
-        capacity_factor (Union[float, Dict[Process, DataFrame]), optional):  Factor for varying capacity, scale changer normalizes.Defaults to None
-        capex_factor (Union[float, Dict[Process, DataFrame]), optional):  Factor for varying capital expenditure, scale changer normalizes. Defaults to None
-        vopex_factor (Union[float, Dict[Process, DataFrame]), optional):  Factor for varying variable operational expenditure, scale changer normalizes. Defaults to None
-        fopex_factor (Union[float, Dict[Process, DataFrame]), optional):  Factor for varying fixed operational expenditure, scale changer normalizes. Defaults to None
-        incidental_factor (Union[float, Dict[Process, DataFrame]), optional):  Factor for varying incidental expenditure, scale changer normalizes. Defaults to None
-        land_cost (float, optional): cost of land. Defaults to 0
+        demand_factor (Dict[Resource, DataFrame], optional): Factor for varying demand, scale changer normalizes.Defaults to None
+        purchase_price_factor (Dict[Resource, DataFrame], optional): Factor for varying cost, scale changer normalizes. Defaults to None
+        availability_factor (Dict[Resource, DataFrame], optional): Factor for varying resource availability, scale changer normalizes. Defaults to None
+        sell_price_factor (Dict[Resource, DataFrame], optional): Factor for varying resource revenue, scale changer normalizes. Defaults to None
+        capacity_factor (Dict[Process, DataFrame], optional):  Factor for varying capacity, scale changer normalizes.Defaults to None
+        capex_factor (Dict[Process, DataFrame], optional):  Factor for varying capital expenditure, scale changer normalizes. Defaults to None
+        vopex_factor (Dict[Process, DataFrame], optional):  Factor for varying variable operational expenditure, scale changer normalizes. Defaults to None
+        fopex_factor (Dict[Process, DataFrame], optional):  Factor for varying fixed operational expenditure, scale changer normalizes. Defaults to None
+        incidental_factor (Dict[Process, DataFrame], optional):  Factor for varying incidental expenditure, scale changer normalizes. Defaults to None
+        purchase_price_localize (Dict[Resource, Tuple[float, int]] , optional): Localization factor for purchase price. Defaults to None
+        cons_max_localize (Dict[Resource, Tuple[float, int]] , optional): Localization factor for availability. Defaults to None
+        sell_price_localize (Dict[Resource, Tuple[float, int]] , optional): Localization factor for selling price. Defaults to None
+        cap_max_localize (Dict[Process, Tuple[float, int]] , optional): Localization factor for maximum capacity. Defaults to None
+        cap_min_localize (Dict[Process, Tuple[float, int]] , optional): Localization factor for minimum capacity. Defaults to None
+        capex_localize (Dict[Process, Tuple[float, int]] , optional): Localization factor for capex. Defaults to None
+        vopex_localize (Dict[Process, Tuple[float, int]] , optional): Localization factor for vopex. Defaults to None
+        fopex_localize (Dict[Process, Tuple[float, int]] , optional): Localization factor for fopex. Defaults to None
+        incidental_localize(Dict[Process, Tuple[float, int]] , optional): Localization factor for incidental. Defaults to None
+        land_cost (Union[float, Tuple[float], Theta], optional): cost of land. Defaults to 0
         land_cost_factor (DataFrame, optional): factor for changing land cost. Defaults to None. 
         credit (Dict[Process, float], optional): credit earned by process per unit basis. Defaults to None.
         credit_factor (Dict[Process, DataFrame], optional): factor for credit. Defaults to None.
@@ -62,18 +77,27 @@ class Location:
     processes: Set[Process]
     scales: TemporalScale
     demand: Dict[Resource, float] = None
-    demand_factor: Union[float, Dict[Resource, float]] = None
-    purchase_price_factor: Union[float, Dict[Resource, DataFrame]] = None
-    availability_factor: Union[float, Dict[Resource, DataFrame]] = None
-    sell_price_factor: Union[float, Dict[Resource, DataFrame]] = None
-    capacity_factor: Union[float, Dict[Process, DataFrame]] = None
-    capex_factor: Union[float, Dict[Process, DataFrame]] = None
-    vopex_factor: Union[float, Dict[Process, DataFrame]] = None
-    fopex_factor: Union[float, Dict[Process, DataFrame]] = None
-    incidental_factor: Union[float, Dict[Process, DataFrame]] = None
-    land_cost: Union[float, Tuple[float], Th] = None
+    demand_factor: Dict[Resource, DataFrame] = None
+    purchase_price_factor: Dict[Resource, DataFrame] = None
+    availability_factor: Dict[Resource, DataFrame] = None
+    sell_price_factor: Dict[Resource, DataFrame] = None
+    capacity_factor: Dict[Process, DataFrame] = None
+    capex_factor: Dict[Process, DataFrame] = None
+    vopex_factor: Dict[Process, DataFrame] = None
+    fopex_factor: Dict[Process, DataFrame] = None
+    incidental_factor: Dict[Process, DataFrame] = None
+    purchase_price_localize: Dict[Resource, Tuple[float, int]] = None
+    cons_max_localize: Dict[Resource, Tuple[float, int]] = None
+    sell_price_localize: Dict[Resource, Tuple[float, int]] = None
+    cap_max_localize: Dict[Process, Tuple[float, int]] = None
+    cap_min_localize: Dict[Process, Tuple[float, int]] = None
+    capex_localize: Dict[Process, Tuple[float, int]] = None
+    vopex_localize: Dict[Process, Tuple[float, int]] = None
+    fopex_localize: Dict[Process, Tuple[float, int]] = None
+    incidental_localize: Dict[Process, Tuple[float, int]] = None
+    land_cost: Union[float, Tuple[float], Theta] = None
     land_cost_factor: DataFrame = None
-    credit: Dict[Process, Union[float, Tuple[float], Th]] = None
+    credit: Dict[Process, Union[float, Tuple[float], Theta]] = None
     credit_factor: Dict[Process, DataFrame] = None
     ctype: List[LocationType] = None
     ptype: Dict[LocationType, ParameterType] = None
@@ -108,13 +132,14 @@ class Location:
         # might be needed to be moved to scenario. The component given to the factor, could be uninitialized
         if self.land_cost is not None:
             self.ctype.append(LocationType.LAND_COST)
-            if isinstance(self.land_cost, (tuple, Th)):
+            if isinstance(self.land_cost, (tuple, Theta)):
                 self.ptype[LocationType.LAND_COST] = ParameterType.UNCERTAIN
+
             else:
                 if self.land_cost_factor is not None:
-                    self.ptype[LocationType.LAND_COST] = ParameterType.DETERMINISTIC_DATA
+                    self.ptype[LocationType.LAND_COST] = ParameterType.FACTOR
                     self.land_cost_factor = Factor(
-                        component=self, data=self.land_cost_factor, ctype=FactorType.LAND_COST, scales=self.scales)
+                        component=self, data=self.land_cost_factor, ptype=FactorType.LAND_COST, scales=self.scales, location=self)
                 else:
                     self.ptype[LocationType.LAND_COST] = ParameterType.CERTAIN
 
@@ -149,6 +174,7 @@ class Location:
             for i in self.demand.keys():
                 i.ctype.append(ResourceType.DEMAND)
                 i.ptype[ResourceType.DEMAND] = ParameterType.CERTAIN
+                i.p_factors[ResourceType.DEMAND] = []
 
         for i in ['purchase_price', 'sell_price', 'cons_max', 'store_max', 'store_min']:
             self.comp_attr_dict(attr=i, component_set='resources')
@@ -165,16 +191,46 @@ class Location:
             for i in self.processes_credit:
                 i.ctype.append(ProcessType.CREDIT)
                 i.ptype[ProcessType.CREDIT] = ParameterType.CERTAIN
-                if isinstance(self.credit[i], (tuple, Th)):
+                i.p_factors[ProcessType.CREDIT] = []
+                if isinstance(self.credit[i], (tuple, Theta)):
                     i.ptype[ProcessType.CREDIT] = ParameterType.UNCERTAIN
                 else:
                     if i in self.credit_factor.keys():
-                        i.ptype[ProcessType.CREDIT] = ParameterType.DETERMINISTIC_DATA
+                        if isinstance(i.ptype[ProcessType.CREDIT], list):
+                            i.ptype[ProcessType.CREDIT].append(
+                                (self, ParameterType.FACTOR))
+                        else:
+                            i.ptype[ProcessType.CREDIT] = [
+                                (self, ParameterType.FACTOR)]
                         self.credit_factor[i] = Factor(
-                            component=i, data=self.credit_factor[i], ctype=FactorType.CREDIT, scales=self.scales)
+                            component=i, data=self.credit_factor[i], ptype=FactorType.CREDIT, scales=self.scales, location=self)
+                        i.p_factors[ProcessType.CREDIT].append(
+                            (self, self.credit_factor[i]))
+
+        dict_res_localize = {
+            'sell_price': 'SELL', 'cons_max': 'CONSUME', 'purchase_price': 'PURCHASE'}
+
+        for i in ['purchase_price', 'cons_max', 'sell_price', 'cap_max', 'cap_min', 'capex', 'fopex', 'vopex', 'incidental']:
+            if getattr(self, f'{i}_localize') is not None:
+                for j in getattr(self, f'{i}_localize').keys():
+                    getattr(self, f'{i}_localize')[j] = Localize(value=getattr(
+                        self, f'{i}_localize')[j], component=j, ptype=getattr(LocalizeType, i.upper()), location=self)
+                    if i in ['purchase_price', 'cons_max', 'sell_price']:
+                        j.ltype[getattr(ResourceType, dict_res_localize[i])].append((self, getattr(
+                            LocalizeType, i.upper())))
+                        j.l_factors[getattr(ResourceType, dict_res_localize[i])].append(
+                            (self, getattr(self, f'{i}_localize')[j]))
+
+                    else:
+                        j.ltype[getattr(ProcessType, i.upper())].append((self, getattr(
+                            LocalizeType, i.upper())))
+                        j.l_factors[getattr(ResourceType, dict_res_localize[i])].append(
+                            (self, getattr(self, f'{i}_localize')[j]))
+
+        # *----------------- Random name generator------------------------
 
         if self.name is None:
-            self.name = f"Location_{uuid.uuid4().hex}"
+            self.name = f'{self.__class__.__name__}_{uuid.uuid4().hex}'
 
         # *----------------- Warnings---------------------------------
 
@@ -212,10 +268,18 @@ class Location:
 
         if getattr(self, f'{factor_name}_factor') is not None:
             for j in getattr(self, f'{factor_name}_factor'):
-                j.ptype[type_dict[factor_name][0]
-                        ] = ParameterType.DETERMINISTIC_DATA
+                if isinstance(j.ptype[type_dict[factor_name][0]], list):
+                    j.ptype[type_dict[factor_name][0]].append(
+                        (self, ParameterType.FACTOR))
+                else:
+                    j.ptype[type_dict[factor_name][0]] = [
+                        (self, ParameterType.FACTOR)]
+
                 getattr(self, f'{factor_name}_factor')[j] = Factor(component=j, data=getattr(self, f'{factor_name}_factor')[
-                    j], ctype=type_dict[factor_name][1], scales=self.scales)
+                    j], ptype=type_dict[factor_name][1], scales=self.scales, location=self)
+
+                j.p_factors[type_dict[factor_name][0]].append(
+                    (self, getattr(self, f'{factor_name}_factor')[j]))
 
     def comp_attr_dict(self, attr: str, component_set: str):
         """makes a dict of the type {comp: attr}

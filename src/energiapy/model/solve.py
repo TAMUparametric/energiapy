@@ -1,16 +1,16 @@
-import time
 import logging
+import time
 from warnings import warn
-from pyomo.environ import ConcreteModel, Constraint, Objective, SolverFactory, Var, Set
-from pyomo.util.infeasible import (
-    log_close_to_bounds,
-    log_infeasible_bounds,
-    log_infeasible_constraints,
-)
+
+from ppopt.mp_solvers.solve_mpqp import mpqp_algorithm, solve_mpqp
+from ppopt.mplp_program import MPLP_Program
+from pyomo.environ import (ConcreteModel, Constraint, Objective, Set,
+                           SolverFactory, Var)
+from pyomo.util.infeasible import (log_close_to_bounds, log_infeasible_bounds,
+                                   log_infeasible_constraints)
+
 from ..components.result import Result
 from ..components.scenario import Scenario
-from ppopt.mp_solvers.solve_mpqp import solve_mpqp, mpqp_algorithm
-from ppopt.mplp_program import MPLP_Program
 
 
 def solve(solver: str, instance: ConcreteModel = None, matrix: dict = None, interface: str = 'pyomo', scenario: Scenario = None, saveformat: str = None, print_solversteps: bool = True, log: bool = False, get_duals: bool = False) -> Result:

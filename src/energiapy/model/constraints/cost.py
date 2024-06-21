@@ -1,10 +1,12 @@
 from enum import Enum, auto
 from itertools import product
 from typing import Set
+
 from pyomo.environ import ConcreteModel, Constraint
-from ...utils.scale_utils import scale_list, scale_tuple
-from ...utils.data_utils import get_depth
+
 from ...components.scenario import Scenario
+from ...utils.data_utils import get_depth
+from ...utils.scale_utils import scale_list, scale_tuple
 from .constraints import Constraints
 
 

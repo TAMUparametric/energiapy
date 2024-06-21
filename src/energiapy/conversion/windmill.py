@@ -10,10 +10,10 @@ __maintainer__ = "Rahul Kakodkar"
 __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
-import pandas
 import numpy
-from windpowerlib import WindTurbine
+import pandas
 from windpowerlib import ModelChain as WModelChain
+from windpowerlib import WindTurbine
 
 
 def wind_power_output(data: pandas.DataFrame, roughness_length: float = 0.1, turbine_type: str = 'V100/1800', hub_height: float = 92, wind_speed_model: str = 'logarithmic', density_model: str = 'ideal_gas', temperature_model: str = 'linear_gradient', power_output_model: str = 'power_coefficient_curve', density_correction: bool = True, obstacle_height: float = 0, observation_height: float = 10):

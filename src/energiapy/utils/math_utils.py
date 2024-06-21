@@ -11,11 +11,12 @@ __maintainer__ = "Rahul Kakodkar"
 __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
+from math import erf, exp, pi, sqrt
+from typing import Union
+
 import numpy
 import pandas
-from sklearn.preprocessing import StandardScaler, MinMaxScaler
-from typing import Union
-from math import erf, sqrt, pi, exp
+from sklearn.preprocessing import MinMaxScaler, StandardScaler
 
 
 def norm_constant(p, mu, sigma) -> float:

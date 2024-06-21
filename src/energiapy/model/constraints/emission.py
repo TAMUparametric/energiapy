@@ -1,4 +1,5 @@
 from pyomo.environ import ConcreteModel, Constraint
+
 from ...utils.scale_utils import scale_list
 
 

@@ -11,11 +11,10 @@ __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
 import matplotlib.pyplot as plt
-from matplotlib import rc
-
+import numpy
 import pandas
 import scipy
-import numpy
+from matplotlib import rc
 
 from ..utils.math_utils import min_max
 

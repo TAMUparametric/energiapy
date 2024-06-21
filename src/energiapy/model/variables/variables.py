@@ -7,7 +7,7 @@ scn: network scale (temporal)
 scs: scheduling scale (temporal)
 """
 
-from pyomo.environ import ConcreteModel, NonNegativeReals, Var, Set
+from pyomo.environ import ConcreteModel, NonNegativeReals, Set, Var
 
 
 def generate_var_loc_com_scn(instance: ConcreteModel, var_name: str, tag: str, component_set: str, label: str):

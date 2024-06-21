@@ -2,9 +2,9 @@
 """
 import json
 import pickle
+import uuid
 from dataclasses import dataclass
 from typing import Dict
-import uuid
 
 
 @dataclass

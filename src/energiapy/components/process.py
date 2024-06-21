@@ -1,13 +1,19 @@
 """energiapy.Process - converts one Resource to another Resource, Or stores Resource  
 """
-from dataclasses import dataclass
-from typing import Dict, Union, List, Tuple
-from warnings import warn
+
 import uuid
-from .material import Material
-from .resource import Resource
-from .comptype import ParameterType, Th, ProcessRamp, ProcessType, ResourceType, FactorType, EmissionType, VaryingProcess
+from dataclasses import dataclass
+from typing import Dict, List, Tuple, Union
+from warnings import warn
+
 from ..utils.data_utils import get_depth
+from .comptype import EmissionType, ProcessType, ResourceType
+from .material import Material
+from .parameters.factor import Factor
+from .parameters.mpvar import Theta, create_mpvar
+from .parameters.paratype import (FactorType, LocalizeType, MPVarType,
+                                  ParameterType)
+from .resource import Resource
 
 
 @dataclass
@@ -29,17 +35,21 @@ class Process:
     Further, when provided to a Location, a discharge Process is also created
     The expenditures (capex, fopex, vopex, incidental) are set to 0 if provided, None otherwise
 
+    Given that maximum and minimum capacity (cap_max and cap_min), and expenditure (capex, fopex, vopex, incidental) can vary by location,
+    localization can be achieved by providing the cap_max_localize, cap_min_localize, capex_localize, fopex_localize, vopex_localize, incidental_localize
+    at Location level
+
     Args:
         name (str): name of process. Enter None to randomly assign a name.
         cap_max (Union[float, dict], optional): Maximum production capacity allowed in a time period of the scheduling scale. Defaults to None.
         cap_min (Union[float, dict], optional): Minimum production capacity allowed in a time period of the scheduling scale. Defaults to None.
         conversion (Union[Dict[Union[int, str],Dict[Resource, float]], Dict[Resource, float]], optional): conversion data (Dict[Resource, float]]), if multimode the of form Dict[int,Dict[Resource, float]]. Defaults to None.
         material_cons (Union[Dict[Union[int, str], Dict[Material, float]],Dict[Material, float]], optional): Materials consumed per unit basis of production capacity. Defaults to None.
-        land (Union[float, Tuple[float], Th], optional): land requirement per unit basis. Defaults to None.
-        capex (Union[float, dict, Tuple[float], Th], None): Capital expenditure per unit basis, can be scaled with capacity. Defaults to None.
-        fopex (Union[float, Tuple[float], Th], None): Fixed operational expenditure per unit basis, can be scaled with capacity. Defaults to None.
-        vopex (Union[float, Tuple[float], Th], None): Variable operational expenditure per unit basis, can be scaled with capacity. Defaults to None.
-        incidental (Union[float, Tuple[float], Th], None): Incidental expenditure. Defaults to None.
+        land (Union[float, Tuple[float], Theta], optional): land requirement per unit basis. Defaults to None.
+        capex (Union[float, dict, Tuple[float], Theta], None): Capital expenditure per unit basis, can be scaled with capacity. Defaults to None.
+        fopex (Union[float, Tuple[float], Theta], None): Fixed operational expenditure per unit basis, can be scaled with capacity. Defaults to None.
+        vopex (Union[float, Tuple[float], Theta], None): Variable operational expenditure per unit basis, can be scaled with capacity. Defaults to None.
+        incidental (Union[float, Tuple[float], Theta], None): Incidental expenditure. Defaults to None.
         gwp (float, optional): global warming potential for settting up facility per unit basis. Defaults to None.
         odp (float, optional): ozone depletion potential for settting up facility per unit basis. Defaults to None.
         acid (float, optional): acidification potential for settting up facility per unit basis. Defaults to None.
@@ -62,6 +72,7 @@ class Process:
         basis(str, optional): base units for operation. Defaults to 'unit'.
         ctype (List[ProcessType], optional): process type. Defaults to None
         ptype (Dict[ProcessType, ParameterType], optional): paramater type of declared values . Defaults to None
+        ltype (List[LocalizeType], optional): which parameters are localized. Defaults to None.
 
 
     Examples:
@@ -80,17 +91,17 @@ class Process:
     """
 
     name: str
-    cap_max: Union[float, dict] = None
+    cap_max: Union[float, Tuple[float], Theta] = None
     cap_min: Union[float, dict] = None
     conversion: Union[Dict[Union[int, str], Dict[Resource, float]],
                       Dict[Resource, float]] = None
     material_cons: Union[Dict[Union[int, str],
                               Dict[Material, float]], Dict[Material, float]] = None
-    land: Union[float, Tuple[float], Th] = None
-    capex: Union[float, dict, Tuple[float], Th] = None
-    fopex: Union[float, Tuple[float], Th] = None
-    vopex: Union[float, Tuple[float], Th] = None
-    incidental: Union[float, Tuple[float], Th] = None
+    land: Union[float, Tuple[float], Theta] = None
+    capex: Union[float, dict, Tuple[float], Theta] = None
+    fopex: Union[float, Tuple[float], Theta] = None
+    vopex: Union[float, Tuple[float], Theta] = None
+    incidental: Union[float, Tuple[float], Theta] = None
     gwp: float = None
     odp: float = None
     acid: float = None
@@ -109,6 +120,7 @@ class Process:
     store_loss: float = None
     ctype: List[ProcessType] = None
     ptype: Dict[ProcessType, ParameterType] = None
+    ltype: List[LocalizeType] = None
     basis: str = None
     block: str = None
     citation: str = None
@@ -127,6 +139,10 @@ class Process:
 
         if self.cap_max is not None:
             self.ctype.append(ProcessType.CAPACITY)
+            self.ctype.append(ProcessType.CAP_MAX)
+
+        if self.cap_min is not None:
+            self.ctype.append(ProcessType.CAP_MIN)
 
         if self.capex is not None:
             self.ctype.append(ProcessType.CAPEX)
@@ -182,14 +198,18 @@ class Process:
         self.ptype = {i: ParameterType.CERTAIN for i in self.ctype}
 
         if self.cap_max is not None:
-            if isinstance(self.cap_max, (tuple, Th)):
+            if isinstance(self.cap_max, (tuple, Theta)):
                 self.ptype[ProcessType.CAPACITY] = ParameterType.UNCERTAIN
+                self.cap_max = create_mpvar(
+                    value=self.cap_max, component=self, ptype=MPVarType.CAPACITY)
 
         for i in ['capex', 'fopex', 'vopex', 'incidental', 'land']:
             if getattr(self, i) is not None:
-                if isinstance(getattr(self, i), (tuple, Th)):
-                    getattr(self, 'ptype')[
-                        getattr(ProcessType, i.upper())] = ParameterType.UNCERTAIN
+                if isinstance(getattr(self, i), (tuple, Theta)):
+                    self.ptype[getattr(ProcessType, i.upper())
+                               ] = ParameterType.UNCERTAIN
+                    setattr(self, i, create_mpvar(value=getattr(self, i),
+                            component=self, ptype=getattr(MPVarType, i.upper())))
 
         # *-----------------Set etype (Emission)---------------------------------
 
@@ -199,9 +219,19 @@ class Process:
             if getattr(self, i) is not None:
                 self.etype.append(getattr(EmissionType, i.upper()))
                 self.emissions[i] = getattr(self, i)
-                
+
+        # *-----------------Factors and Localization dicts ---------------------------------
+        self.ltype = {getattr(ProcessType, i.upper()): [] for i in [
+            'cap_max', 'cap_min', 'capex', 'fopex', 'vopex', 'incidental'] if getattr(ProcessType, i.upper()) in self.ctype}
+        self.p_factors = {getattr(ProcessType, i.upper()): [] for i in [
+            'capacity', 'capex', 'fopex', 'vopex', 'incidental'] if getattr(ProcessType, i.upper()) in self.ctype}
+        self.l_factors = {getattr(ProcessType, i.upper()): [] for i in [
+            'cap_max', 'cap_min', 'capex', 'fopex', 'vopex', 'incidental'] if getattr(ProcessType, i.upper()) in self.ctype}
+
+        # *----------------- Generate Random Name---------------------------------
+
         if self.name is None:
-            self.name = f"Process_{uuid.uuid4().hex}"
+            self.name = f'{self.__class__.__name__}_{uuid.uuid4().hex}'
 
         # *----------------- Warnings---------------------------------
 
@@ -213,8 +243,6 @@ class Process:
                 f'{self.name}: prod_min has been depreciated. Please use cap_min instead')
         if self.varying is not None:
             warn(f'{self.name}: varying has been depreciated. Variability will be intepreted based on data provided to energiapy.Location')
-
-
 
     def create_storage_resource(self, resource: Resource, store_max: float = None, store_min: float = None) -> Resource:
         """Creates a dummy resource for storage, used if process is storage type

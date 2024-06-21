@@ -1,5 +1,7 @@
 from enum import Enum, auto
-from pyomo.environ import ConcreteModel, Constraint, Var, Set
+
+from pyomo.environ import ConcreteModel, Constraint, Set, Var
+
 from ...utils.scale_utils import scale_list, scale_tuple
 
 

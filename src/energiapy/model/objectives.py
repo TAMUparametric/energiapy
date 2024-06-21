@@ -11,14 +11,14 @@ __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
 from itertools import product
-from typing import Set, Dict
+from typing import Dict, Set
 
 from pyomo.environ import ConcreteModel, Objective, maximize
-from ..utils.scale_utils import scale_tuple
-from ..components.resource import Resource
-from ..components.location import Location
-from ..model.constraints.constraints import Constraints
 
+from ..components.location import Location
+from ..components.resource import Resource
+from ..model.constraints.constraints import Constraints
+from ..utils.scale_utils import scale_tuple
 
 # *------------------------------------------Economic Objectives----------------------------------------------------
 

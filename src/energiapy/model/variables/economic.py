@@ -1,4 +1,5 @@
-from pyomo.environ import ConcreteModel, Var, NonNegativeReals, Set
+from pyomo.environ import ConcreteModel, NonNegativeReals, Set, Var
+
 from .variables import generate_var_loc_com_scn
 
 

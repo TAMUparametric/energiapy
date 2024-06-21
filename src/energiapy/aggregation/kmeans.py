@@ -12,9 +12,11 @@ __status__ = "Production"
 
 
 from enum import Enum, auto
-from sklearn.cluster import KMeans
-import pandas
+
 import numpy
+import pandas
+from sklearn.cluster import KMeans
+
 from ..components.temporal_scale import TemporalScale
 
 

@@ -1,6 +1,7 @@
 from pyomo.environ import ConcreteModel, Constraint
-from ...utils.scale_utils import scale_list
+
 from ...components.location import Location
+from ...utils.scale_utils import scale_list
 
 
 def constraint_block_integer_cut_max(instance: ConcreteModel, network_scale_level: int, location: Location, block: 'str', process_set: set, number: int = 1) -> Constraint:

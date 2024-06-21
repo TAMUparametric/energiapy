@@ -1,34 +1,11 @@
-from enum import Enum, auto
 from dataclasses import dataclass
+from enum import Enum, auto
+from itertools import product
 from typing import Dict
 from warnings import warn
-from itertools import product
-
-# *-----------------------Parameter-------------------------------------------------
-
-
-class ParameterType(Enum):
-    """How does a component parameter vary?
-    """
-    CERTAIN = auto()
-    """Is certain. Does not change over the design or scheduling scale
-    """
-    DETERMINISTIC_DATA = auto()
-    """Data is provided for the variance as a factor
-    """
-    UNCERTAIN = auto()
-    """Limited data. Need to solve parametrically may be
-    """
-
-
-@dataclass
-class Th:
-    """Just a convinient way to declare parametric variables
-    """
-    bounds: tuple
-
 
 # *-----------------------TemporalScale------------------------------------------------
+
 
 class ProblemType(Enum):
     """Problem type
@@ -87,32 +64,6 @@ class ResourceType(Enum):
     TRANSPORT = auto()
     """transported
     """
-
-
-# *-----------------------Factor------------------------------------------------
-
-class FactorType(Enum):
-    """ Type of deterministic data factor
-    """
-    """ For Resources
-    """
-    DEMAND = auto()
-    PURCHASE_PRICE = auto()
-    AVAILABILITY = auto()
-    SELL_PRICE = auto()
-    """ For Processes
-    """
-    CAPACITY = auto()
-    CAPEX = auto()
-    FOPEX = auto()
-    VOPEX = auto()
-    INCIDENTAL = auto()
-    """ For Location
-    """
-    LAND_COST = auto()
-    """ For Process at Location
-    """
-    CREDIT = auto()
 
 
 # *-----------------------Emission--------------------------------------
@@ -179,6 +130,8 @@ class ProcessType(Enum):
     Use piece-wise linear CAPEX
     """
     CAPACITY = auto()
+    CAP_MAX = auto()
+    CAP_MIN = auto()
     """Has a capacity 
     """
     CAPEX = auto()
@@ -259,7 +212,7 @@ class ScenarioType(Enum):
     Multi-location
     """
     MULTI_LOCATION = auto()
-    
+
 
 # *------------------------------Depreciated -------------------------------------------------
 

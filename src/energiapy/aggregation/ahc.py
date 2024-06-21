@@ -21,11 +21,8 @@ from sklearn.neighbors import NearestCentroid
 
 from ..components.scenario import Scenario
 from ..components.temporal_scale import TemporalScale
-from ..utils.math_utils import (
-    find_euclidean_distance,
-    generate_connectivity_matrix,
-    scaler,
-)
+from ..utils.math_utils import (find_euclidean_distance,
+                                generate_connectivity_matrix, scaler)
 
 
 class IncludeAHC(Enum):

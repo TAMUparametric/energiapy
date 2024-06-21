@@ -1,5 +1,7 @@
-from pyomo.environ import ConcreteModel, Constraint
 from itertools import product
+
+from pyomo.environ import ConcreteModel, Constraint
+
 from ...utils.scale_utils import scale_list, scale_tuple
 
 

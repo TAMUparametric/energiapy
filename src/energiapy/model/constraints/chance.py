@@ -11,8 +11,9 @@ __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
 from pyomo.environ import ConcreteModel, Constraint
-from ...utils.scale_utils import scale_list
+
 from ...utils.math_utils import norm_constant
+from ...utils.scale_utils import scale_list
 
 
 def chance_normal(instance: ConcreteModel, a: str, b: float, b_factor: dict, mean: float, sd: float, compliance_list: list,  alpha: float, sign: str) -> Constraint:
