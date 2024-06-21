@@ -196,9 +196,9 @@ class Resource:
         # *-----------------Factors and Localization dicts ---------------------------------
         self.ltype = {getattr(ResourceType, i):  [] for i in [
             'PURCHASE', 'SELL', 'CONSUME'] if getattr(ResourceType, i) in self.ctype}
-        self.l_factors = {getattr(ResourceType, i):  [] for i in [
+        self.localize_factors = {getattr(ResourceType, i):  [] for i in [
             'PURCHASE', 'SELL', 'CONSUME'] if getattr(ResourceType, i) in self.ctype}
-        self.p_factors = {getattr(ResourceType, i):  [] for i in [
+        self.param_factors = {getattr(ResourceType, i):  [] for i in [
             'PURCHASE', 'SELL', 'CONSUME'] if getattr(ResourceType, i) in self.ctype}
 
         # *-----------------Random name ---------------------------------

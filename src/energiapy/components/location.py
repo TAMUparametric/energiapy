@@ -174,7 +174,7 @@ class Location:
             for i in self.demand.keys():
                 i.ctype.append(ResourceType.DEMAND)
                 i.ptype[ResourceType.DEMAND] = ParameterType.CERTAIN
-                i.p_factors[ResourceType.DEMAND] = []
+                i.param_factors[ResourceType.DEMAND] = []
 
         for i in ['purchase_price', 'sell_price', 'cons_max', 'store_max', 'store_min']:
             self.comp_attr_dict(attr=i, component_set='resources')
@@ -191,7 +191,7 @@ class Location:
             for i in self.processes_credit:
                 i.ctype.append(ProcessType.CREDIT)
                 i.ptype[ProcessType.CREDIT] = ParameterType.CERTAIN
-                i.p_factors[ProcessType.CREDIT] = []
+                i.param_factors[ProcessType.CREDIT] = []
                 if isinstance(self.credit[i], (tuple, Theta)):
                     i.ptype[ProcessType.CREDIT] = ParameterType.UNCERTAIN
                 else:
@@ -204,7 +204,7 @@ class Location:
                                 (self, ParameterType.FACTOR)]
                         self.credit_factor[i] = Factor(
                             component=i, data=self.credit_factor[i], ptype=FactorType.CREDIT, scales=self.scales, location=self)
-                        i.p_factors[ProcessType.CREDIT].append(
+                        i.param_factors[ProcessType.CREDIT].append(
                             (self, self.credit_factor[i]))
 
         dict_res_localize = {
@@ -218,13 +218,13 @@ class Location:
                     if i in ['purchase_price', 'cons_max', 'sell_price']:
                         j.ltype[getattr(ResourceType, dict_res_localize[i])].append((self, getattr(
                             LocalizeType, i.upper())))
-                        j.l_factors[getattr(ResourceType, dict_res_localize[i])].append(
+                        j.localize_factors[getattr(ResourceType, dict_res_localize[i])].append(
                             (self, getattr(self, f'{i}_localize')[j]))
 
                     else:
                         j.ltype[getattr(ProcessType, i.upper())].append((self, getattr(
                             LocalizeType, i.upper())))
-                        j.l_factors[getattr(ResourceType, dict_res_localize[i])].append(
+                        j.localize_factors[getattr(ResourceType, dict_res_localize[i])].append(
                             (self, getattr(self, f'{i}_localize')[j]))
 
         # *----------------- Random name generator------------------------
@@ -278,7 +278,7 @@ class Location:
                 getattr(self, f'{factor_name}_factor')[j] = Factor(component=j, data=getattr(self, f'{factor_name}_factor')[
                     j], ptype=type_dict[factor_name][1], scales=self.scales, location=self)
 
-                j.p_factors[type_dict[factor_name][0]].append(
+                j.param_factors[type_dict[factor_name][0]].append(
                     (self, getattr(self, f'{factor_name}_factor')[j]))
 
     def comp_attr_dict(self, attr: str, component_set: str):

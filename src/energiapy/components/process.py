@@ -223,9 +223,9 @@ class Process:
         # *-----------------Factors and Localization dicts ---------------------------------
         self.ltype = {getattr(ProcessType, i.upper()): [] for i in [
             'cap_max', 'cap_min', 'capex', 'fopex', 'vopex', 'incidental'] if getattr(ProcessType, i.upper()) in self.ctype}
-        self.p_factors = {getattr(ProcessType, i.upper()): [] for i in [
+        self.param_factors = {getattr(ProcessType, i.upper()): [] for i in [
             'capacity', 'capex', 'fopex', 'vopex', 'incidental'] if getattr(ProcessType, i.upper()) in self.ctype}
-        self.l_factors = {getattr(ProcessType, i.upper()): [] for i in [
+        self.localize_factors = {getattr(ProcessType, i.upper()): [] for i in [
             'cap_max', 'cap_min', 'capex', 'fopex', 'vopex', 'incidental'] if getattr(ProcessType, i.upper()) in self.ctype}
 
         # *----------------- Generate Random Name---------------------------------
