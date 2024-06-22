@@ -56,16 +56,16 @@ class Location:
         land_cost_factor (DataFrame, optional): factor for changing land cost. Defaults to None. 
         demand (Dict[Resource, Union[float, Tuple[float], Theta]]): demand for resources at location. Defaults to None.
         credit (Dict[Process, float], optional): credit earned by process per unit basis. Defaults to None.
-        demand_factor (Dict[Resource, DataFrame], optional): Factor for varying demand, scale changer normalizes.Defaults to None.
+        demand_factor (Dict[Resource, DataFrame], optional): Factor for varying demand. Defaults to None.
         credit_factor (Dict[Process, DataFrame], optional): factor for credit. Defaults to None.
-        purchase_price_factor (Dict[Resource, DataFrame], optional): Factor for varying cost, scale changer normalizes. Defaults to None.
-        availability_factor (Dict[Resource, DataFrame], optional): Factor for varying resource availability, scale changer normalizes. Defaults to None.
-        sell_price_factor (Dict[Resource, DataFrame], optional): Factor for varying resource revenue, scale changer normalizes. Defaults to None.
-        capacity_factor (Dict[Process, DataFrame], optional):  Factor for varying capacity, scale changer normalizes.Defaults to None.
-        capex_factor (Dict[Process, DataFrame], optional):  Factor for varying capital expenditure, scale changer normalizes. Defaults to None.
-        vopex_factor (Dict[Process, DataFrame], optional):  Factor for varying variable operational expenditure, scale changer normalizes. Defaults to None.
-        fopex_factor (Dict[Process, DataFrame], optional):  Factor for varying fixed operational expenditure, scale changer normalizes. Defaults to None.
-        incidental_factor (Dict[Process, DataFrame], optional):  Factor for varying incidental expenditure, scale changer normalizes. Defaults to None.
+        purchase_price_factor (Dict[Resource, DataFrame], optional): Factor for varying cost. Defaults to None.
+        availability_factor (Dict[Resource, DataFrame], optional): Factor for varying resource availability. Defaults to None.
+        sell_price_factor (Dict[Resource, DataFrame], optional): Factor for varying resource revenue. Defaults to None.
+        capacity_factor (Dict[Process, DataFrame], optional):  Factor for varying capacity.Defaults to None.
+        capex_factor (Dict[Process, DataFrame], optional):  Factor for varying capital expenditure. Defaults to None.
+        vopex_factor (Dict[Process, DataFrame], optional):  Factor for varying variable operational expenditure. Defaults to None.
+        fopex_factor (Dict[Process, DataFrame], optional):  Factor for varying fixed operational expenditure. Defaults to None.
+        incidental_factor (Dict[Process, DataFrame], optional):  Factor for varying incidental expenditure. Defaults to None.
         purchase_price_localize (Dict[Resource, Tuple[float, int]] , optional): Localization factor for purchase price. Defaults to None.
         cons_max_localize (Dict[Resource, Tuple[float, int]] , optional): Localization factor for availability. Defaults to None.
         sell_price_localize (Dict[Resource, Tuple[float, int]] , optional): Localization factor for selling price. Defaults to None.
@@ -79,7 +79,7 @@ class Location:
         block (Union[str, list, dict], optional): block to which it belong. Convinient to set up integer cuts. Defaults to None.
         label (str, optional): used while generating plots. Defaults to None.
         citation (str, optional): can provide citations for your data sources. Defaults to None.
-        ctype (List[LandType], optional): Location type type. Defaults to None.
+        ctype (List[LandType], optional): Location type. Defaults to None.
         ptype (Dict[LandType, ParameterType], optional): paramater type of declared values. Defaults to None.
         ftype (Dict[LandType, FactorType], optional): factor type of declared factors. Defaults to None.
 
@@ -140,16 +140,11 @@ class Location:
 
     def __post_init__(self):
 
-        # *-----------------------scale levels of the problem -------------------------------------
-        self.scale_levels = self.scales.scale_levels
-
-        # *-----------------Set ctype (LocationType) and ptype (ParameterType) ------------
-
+        # *----------------- Update Location parameters and factors ---------------------------------
+        
         if self.ctype is None:
             self.ctype = []
         self.ptype, self.ftype = dict(), dict()
-
-        # *----------------- Update Location parameters and factors ---------------------------------
 
         # Currently only includes land_cost, land_max
         # If MPVar Theta or a tuple is provided as bounds ptype UNCERTAIN
@@ -257,7 +252,7 @@ class Location:
         if self.name is None:
             self.name = f'{self.__class__.__name__}_{uuid.uuid4().hex}'
 
-        # *----------------- Depreciation Warnings---------------------------------
+        # *----------------- Depreciation Warnings-----------------------------
 
         if self.demand_scale_level is not None:
             raise ValueError(

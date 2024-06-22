@@ -6,9 +6,9 @@ import uuid
 from dataclasses import dataclass
 from typing import Dict, List, Set, Tuple, Union
 
-from .comptype import ResourceType, TransportType, EmissionType
-from .material import Material
+from .comptype import EmissionType, ResourceType, TransportType
 from .location import Location
+from .material import Material
 from .parameters.mpvar import Theta, create_mpvar
 from .parameters.paratype import FactorType, MPVarType, ParameterType
 from .resource import Resource

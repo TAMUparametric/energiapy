@@ -194,7 +194,7 @@ class LocationType(Enum):
 # *------------------------------Transport-------------------------------------------------
 
 class TransportType(Enum):
-    """
+    """Transport Parameters
     """
     CAPACITY = auto()
     CAP_MAX = auto()
@@ -203,6 +203,14 @@ class TransportType(Enum):
     FOPEX = auto()
     VOPEX = auto()
     INCIDENTAL = auto()
+    
+# *------------------------------Network-------------------------------------------------
+
+class NetworkType(Enum):
+    """Network Parameters
+    """
+    LAND_MAX = auto()
+
 
 # *------------------------------Scenario-------------------------------------------------
 
