@@ -27,7 +27,7 @@ def generate_component_sets(instance: ConcreteModel, scenario: Scenario):
     instance.processes_full = Set(initialize=sets['processes_full'],
                                   doc='Set of all processes including dummy discharge')
 
-    if len(scenario.material_set) > 0:
+    if len(scenario.materials) > 0:
         instance.materials = Set(
             initialize=sets['materials'], doc='Set of materials')
 

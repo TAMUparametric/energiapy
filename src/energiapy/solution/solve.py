@@ -60,10 +60,10 @@ def solve(scenario, solver: str, name: str, instance: ConcreteModel = None, matr
             components_dict = {}
         else:
             components_dict = {
-                'processes': {i.name: i.__dict__ for i in scenario.process_set},
-                'resources': {i.name: i.__dict__ for i in scenario.resource_set},
-                'materials': {i.name: i.__dict__ for i in scenario.material_set},
-                'locations': {i.name: i.__dict__ for i in scenario.location_set},
+                'processes': {i.name: i.__dict__ for i in scenario.processes},
+                'resources': {i.name: i.__dict__ for i in scenario.resources},
+                'materials': {i.name: i.__dict__ for i in scenario.materials},
+                'locations': {i.name: i.__dict__ for i in scenario.locations},
                 'transports': {},
             }
 

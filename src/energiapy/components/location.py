@@ -241,6 +241,7 @@ class Location:
         for i in ['purchase_price', 'cons_max', 'sell_price', 'cap_max', 'cap_min', 'capex', 'fopex', 'vopex', 'incidental']:
             self.update_comp_localize(i)
 
+        #TODO - does this need to be here ? can this be aggregated at the scenario level?
         # * ---------------- Collect Emission Data ------------------------------------------
         # Get emission data from components
         for i in ['resources', 'materials', 'processes']:

@@ -1,18 +1,6 @@
-"""Material data class
-"""
-
-__author__ = "Rahul Kakodkar"
-__copyright__ = "Copyright 2022, Multi-parametric Optimization & Control Lab"
-__credits__ = ["Rahul Kakodkar", "Efstratios N. Pistikopoulos"]
-__license__ = "Open"
-__version__ = "0.0.1"
-__maintainer__ = "Rahul Kakodkar"
-__email__ = "cacodcar@tamu.edu"
-__status__ = "Production"
-
 import uuid
 from dataclasses import dataclass
-from typing import Dict
+from .comptype import EmissionType
 
 
 @dataclass
@@ -31,7 +19,7 @@ class Material:
         basis (str, optional): Unit basis for material. Defaults to None.
         citation (str, optional): Add citation. Defaults to None.
         label (str, optional): Longer descriptive label if required. Defaults to None.
-        
+
     Examples:
         Materials can be declared using the resources they consume
 
@@ -50,7 +38,7 @@ class Material:
     label: str = None
 
     def __post_init__(self):
-        
+
         # *-----------------Set etype (Emission)---------------------------------
 
         self.etype = []

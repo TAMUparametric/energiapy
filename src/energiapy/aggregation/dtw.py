@@ -55,7 +55,8 @@ def dynamic_warping_matrix(series1: list, series2: list):
     matrix[0, 0] = 0
     for i, j in product(range(1, len(series1) + 1), range(1, len(series2) + 1)):
         cost = abs(series1[i - 1] - series2[j - 1])
-        prev = numpy.min([matrix[i - 1, j], matrix[i, j - 1], matrix[i - 1, j - 1]])
+        prev = numpy.min(
+            [matrix[i - 1, j], matrix[i, j - 1], matrix[i - 1, j - 1]])
         matrix[i, j] = cost + prev
     return matrix
 
@@ -103,8 +104,8 @@ def dynamic_warping(source_scenario: Scenario, target_scenario: Scenario, scale_
         _type_: _description_
     """
 
-    source_location = list(source_scenario.location_set)[0]
-    target_location = list(target_scenario.location_set)[0]
+    source_location = list(source_scenario.locations)[0]
+    target_location = list(target_scenario.locations)[0]
 
     if IncludeDTW.COST in include:
         source_series = list(

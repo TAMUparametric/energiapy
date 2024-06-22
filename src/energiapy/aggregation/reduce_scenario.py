@@ -74,7 +74,7 @@ def reduce_scenario(scenario: Scenario, method: Clustermethod, include: list, sc
     reduced_scenario = Scenario(name=f"{scenario.name}_reduced", scales=reduced_temporal_scale, network=scenario.network, expenditure_scale_level=scenario.expenditure_scale_level, purchase_scale_level=scenario.purchase_scale_level,
                                 scheduling_scale_level=scenario.scheduling_scale_level, network_scale_level=scenario.network_scale_level, capacity_scale_level=scenario.capacity_scale_level, demand_scale_level=scenario.demand_scale_level, demand=scenario.demand, label=f"{scenario.label}(reduced)")
 
-    for location in scenario.location_set:
+    for location in scenario.locations:
         if scenario.price_factor[location.name] is not None:
             len_ = len(
                 list(list(scenario.price_factor[location.name].values())[0].keys())[0])

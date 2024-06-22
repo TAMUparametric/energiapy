@@ -60,10 +60,10 @@ def solve(solver: str, instance: ConcreteModel = None, matrix: dict = None, inte
             components_dict = {}
         else:
             components_dict = {
-                'processes': {i.name: i.__dict__ for i in scenario.process_set},
-                'resources': {i.name: i.__dict__ for i in scenario.resource_set},
-                'materials': {i.name: i.__dict__ for i in scenario.material_set},
-                'locations': {i.name: i.__dict__ for i in scenario.location_set},
+                'processes': {i.name: i.__dict__ for i in scenario.processes},
+                'resources': {i.name: i.__dict__ for i in scenario.resources},
+                'materials': {i.name: i.__dict__ for i in scenario.materials},
+                'locations': {i.name: i.__dict__ for i in scenario.locations},
                 'transports': {},
             }
 
@@ -170,7 +170,7 @@ def solve(solver: str, instance: ConcreteModel = None, matrix: dict = None, inte
                 print(
                     f'It took {time_log} seconds to create a log')
                 print()
-        
+
         results = Result(name=scenario.name, components=components_dict,
                          output=output_dict, model_elements=model_dict, duals=duals_dict)
 
