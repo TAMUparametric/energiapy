@@ -10,15 +10,9 @@ class ParameterType(Enum):
     CERTAIN = auto()
     """Is certain. Does not change over the design or scheduling scale
     """
-    FACTOR = auto()
-    """Data is provided using deterministic data sets
-    """
     UNCERTAIN = auto()
     """Declared as a parametric variable (energiapy.components.parameters.mpvars.Theta)
     or provided as a range using tuple
-    """
-    LOCALIZE = auto()
-    """If a particular Resource or Process parameter is localized
     """
 
 # *-----------------------Factor------------------------------------------------
@@ -46,6 +40,7 @@ class FactorType(Enum):
     """ For Processes (provided at Location level)
     """
     LAND_COST = auto()
+    LAND_MAX = auto()
     """ For Locations
     """
     TRANS_CAPACITY = auto()
@@ -102,6 +97,7 @@ class MPVarType(Enum):
     """ For Processes (provided at Location level)
     """
     LAND_COST = auto()
+    LAND_MAX = auto()
     """ For Locations
     """
     TRANS_CAPACITY = auto()

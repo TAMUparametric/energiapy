@@ -1,8 +1,7 @@
-"""Factor of deterministic data 
+"""Factor of deterministic data ftype
 """
 from dataclasses import dataclass
 from typing import Tuple, Union
-from warnings import warn
 
 from pandas import DataFrame
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
@@ -25,7 +24,7 @@ class Factor:
         scales (TemporalScale): The planning horizon 
         component (Union[Process, Resource, Location, Transport], optional): energiapy component that experiences variability. Do not define for user defined factors. Defaults to None.
         location (Union['Location', Tuple['Location', 'Location']], optional): Location or tuple of locations for transport factors
-        ptype (FactorType): check energiapy.components.comptype 
+        ftype (FactorType): type of factor 
         apply_min_max_scaler (bool, optional): This is inherited form the scales object if not provided, where it defaults to True.
         apply_standard_scaler (bool, optional): This is inherited form the scales object if not provided, where it defaults to False.
     """
@@ -34,7 +33,7 @@ class Factor:
     scales: TemporalScale
     component: Union['Process', 'Resource', 'Location', 'Transport'] = None
     location: Union['Location', Tuple['Location', 'Location']] = None
-    ptype: FactorType = None
+    ftype: FactorType = None
     apply_max_scaler: bool = None
     apply_min_max_scaler: bool = None
     apply_standard_scaler: bool = None
@@ -49,27 +48,28 @@ class Factor:
             self.scaled = self.data.scaled
             self.data = self.data.data
             if isinstance(self.location, tuple):
-                self.name = f'{self.component.name}_({self.location[0].name},{self.location[1].name})_{str(self.ptype).lower()}_factor'.replace(
+                self.name = f'{self.component.name}_({self.location[0].name},{self.location[1].name})_{str(self.ftype).lower()}_factor'.replace(
                     'factortype.', '')
             else:
-                self.name = f'{self.component.name}_{self.location.name}_{str(self.ptype).lower()}_factor'.replace(
+                self.name = f'{self.component.name}_{self.location.name}_{str(self.ftype).lower()}_factor'.replace(
                     'factortype.', '')
 
         else:
             if self.component is not None:
                 if isinstance(self.data, DataFrame) is False:
-                    warn(
-                        f'{str(self.ptype).lower()} factor for {self.component.name}: please provide DataFrame')
+                    raise ValueError(
+                        f'{str(self.ftype).lower()} factor for {self.component.name}: please provide DataFrame')
 
                 if isinstance(self.location, tuple):
-                    self.name = f'{self.component.name}_({self.location[0].name},{self.location[1].name})_{str(self.ptype).lower()}_factor'.replace(
+                    self.name = f'{self.component.name}_({self.location[0].name},{self.location[1].name})_{str(self.ftype).lower()}_factor'.replace(
                         'factortype.', '')
                 else:
-                    self.name = f'{self.component.name}_{self.location.name}_{str(self.ptype).lower()}_factor'.replace(
+                    self.name = f'{self.component.name}_{self.location.name}_{str(self.ftype).lower()}_factor'.replace(
                         'factortype.', '')
             else:
                 if isinstance(self.data, DataFrame) is False:
-                    warn(f'{str(self.ptype).lower()}: please provide DataFrame')
+                    raise ValueError(
+                        f'{str(self.ftype).lower()}: please provide DataFrame')
                 self.dont_redef = True
 
             if len(self.data) in self.scales.index_n_list:
@@ -108,7 +108,7 @@ class Factor:
                     self.data = self.data.to_dict()[self.data.columns[0]]
 
             else:
-                warn(f'{str(self.ptype).lower()} factor for {self.component.name}: length of data does not match any scale index'.replace(
+                raise ValueError(f'{str(self.ftype).lower()} factor for {self.component.name}: length of data does not match any scale index'.replace(
                     'factortype.', ''))
 
     def __repr__(self):

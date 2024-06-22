@@ -17,17 +17,17 @@ class Localize:
     Args:
         value (Tuple[float, int]): numeric value to be multiplied by Resource or Process parameter
         component (Union['Process', 'Resource']): self explanatory
-        ptype (LocalizeType): type of localization. see energiapy.components.parameters.paratype
+        ltype (LocalizeType): type of localization. see energiapy.components.parameters.paratype
         location (Location): provide the Location
     """
 
     value: Tuple[float, int]
     component: Union['Process', 'Resource']
-    ptype: LocalizeType
+    ltype: LocalizeType
     location: Optional['Location']
 
     def __post_init__(self):
-        self.name = f'{self.location.name}_{self.component.name}_{str(self.ptype).lower()}'.replace(
+        self.name = f'{self.location.name}_{self.component.name}_{str(self.ltype).lower()}'.replace(
             'localizetype.', '')
 
     def __repr__(self):

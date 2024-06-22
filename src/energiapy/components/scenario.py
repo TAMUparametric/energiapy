@@ -1,3 +1,7 @@
+"""energiapy.Scenario - defined through a Network or a single Location 
+"""
+#TODO set depreciation warnings
+#TODO new way to make subsets 
 import uuid
 from dataclasses import dataclass
 from typing import Dict, Union
@@ -57,7 +61,16 @@ class Scenario:
     rep_dict: dict = None
     emission_weights: EmissionWeights = None
     ctype: ScenarioType = None
-
+    #Depriciated
+    purchase_scale_level: int = None
+    expenditure_scale_level: int = None
+    scheduling_scale_level: int = None
+    availability_scale_level: int = None
+    network_scale_level: int = None
+    demand_scale_level: int = None
+    capacity_scale_level: int = None
+    demand: dict = None
+    
     def __post_init__(self):
         """
         Determines a bunch of handy sets
@@ -216,7 +229,7 @@ class Scenario:
         self.location_materials = {i: {j for j in i.materials}
                                    for i in self.location_set}
 
-        for i in ['cap_max', 'cap_min', 'purchase_price', 'sell_price', 'cons_max', 'store_max', 'store_min', 'capacity_factor', 'purchase_price_factor', 'demand_factor', 'capex_factor',
+        for i in ['cap_max', 'cap_min', 'purchase_price', 'sell_price', 'cons_max', 'store_max', 'store_min', 'storage_cost','capacity_factor', 'purchase_price_factor', 'demand_factor', 'capex_factor',
                   'fopex_factor', 'vopex_factor', 'incidental_factor', 'availability_factor', 'sell_price_factor']:
             self.loc_comp_attr_dict(attr=i)
 
@@ -226,7 +239,7 @@ class Scenario:
             setattr(self, f'resources_{i}', set().union(
                 *[getattr(j, f'resources_{i}') for j in self.location_set]))
 
-        for i in ['capex', 'fopex', 'vopex', 'incidental', 'storage_cost', 'land']:
+        for i in ['capex', 'fopex', 'vopex', 'incidental', 'land']:
             self.create_attr_dict(i, self.process_set)
 
         # df_capex = DataFrame.from_dict(
@@ -450,7 +463,7 @@ class Scenario:
         check_set = {getattr(i, attr) if isinstance(
             getattr(i, attr), dict) is False else 1 for i in getattr(self, 'location_set')}
         if list(set(check_set))[0] is not None:
-            setattr(self, f'{attr}', {i: getattr(
+            setattr(self, attr, {i: getattr(
                 i, attr) for i in getattr(self, 'location_set')})
         else:
             setattr(self, f'{attr}', None)

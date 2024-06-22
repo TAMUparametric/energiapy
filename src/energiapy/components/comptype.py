@@ -114,6 +114,7 @@ class ProcessType(Enum):
     """Has multiple material modes
     """
     STORAGE = auto()
+    STORAGE_DISCHARGE = auto()
     """
     Storage type process
     """
@@ -187,6 +188,7 @@ class LocationType(Enum):
     SOURCE = auto()
     SINK = auto()
     LAND_COST = auto()
+    LAND_MAX = auto()
 
 
 # *------------------------------Transport-------------------------------------------------
@@ -195,6 +197,8 @@ class TransportType(Enum):
     """
     """
     CAPACITY = auto()
+    CAP_MAX = auto()
+    CAP_MIN = auto()
     CAPEX = auto()
     FOPEX = auto()
     VOPEX = auto()

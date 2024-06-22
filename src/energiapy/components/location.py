@@ -1,20 +1,14 @@
-""" Need to do here:
-
-    figure out scale of factors
-    whether specific demand is met for a resource that can be sold at this location
-    Add local factors for prices and such 
-    DEMAND var for resource
-    EXP Var for process
-    
-    
+""" energiapy.Location - A set of Processes create a Location, required Resources and Materials are inferred 
 """
+# TODO - Land MAX constraints
+# TODO - Handle materials
+
 
 import uuid
 from dataclasses import dataclass
 from itertools import product
 from random import sample
 from typing import Dict, List, Set, Tuple, Union
-from warnings import warn
 
 from pandas import DataFrame
 
@@ -32,17 +26,38 @@ from .temporal_scale import TemporalScale
 
 @dataclass
 class Location:
-    """Location is essentially a set of processes. Factors for varying capacity, cost, and demand can be provided as dictionary.
-    The scale levels of capacity, cost, and demand need to be provided as well
+    """Location is essentially a set of processes. 
 
-    The besides accounting for variance, the factors can also be used for localizing parameters. 
+    If using deterministic data to account for variability in Process, Resource, or Location parameters
+    appropriate factors can be provided. A Factor object is created which set the scale by matching the length to an available scale type 
+
+    Resources which have a specific demand at Location can also be provided as a dict {Resource: float}
+
+    Factors for Resource include: demand, purchase_price, sell_price, availability (varies cons_max)
+                Process include: capacity, expenditures (capex, fopex, vopex, incidental), credit 
+                Location include: land_cost
+
+    For a multiscale problem capacity_factor will be applied to the decision variable Cap_P (capacity of Process)
+
+    Localizations can be also be provided for all the parameters above. Note that for capacity, cap_max and cap_min are are different
+
+    Land cost can also be provided, as well as a factor to vary it
+
+    Credits earned by Process based on the production can be provided as {Process: float}. Be careful to use the emission Resource as the basis
+    A credit factor can also be provided 
 
     Args:
         name (str): name of the location. Enter None to randomly assign a name.
         processes (Set[Process]): set of processes (Process objects) to include at location
         scales (TemporalScale): temporal scales of the problem
-        demand (Dict[Resource, float]): demand for resources at location. Defaults to None.
+        land_max (Union[float, Tuple[float], Theta], optional): land available. Defaults to 0
+        land_cost (Union[float, Tuple[float], Theta], optional): cost of land. Defaults to 0
+        land_max_factor (DataFrame, optional): factor for changing land availability. Defaults to None. 
+        land_cost_factor (DataFrame, optional): factor for changing land cost. Defaults to None. 
+        demand (Dict[Resource, Union[float, Tuple[float], Theta]]): demand for resources at location. Defaults to None.
+        credit (Dict[Process, float], optional): credit earned by process per unit basis. Defaults to None.
         demand_factor (Dict[Resource, DataFrame], optional): Factor for varying demand, scale changer normalizes.Defaults to None
+        credit_factor (Dict[Process, DataFrame], optional): factor for credit. Defaults to None.
         purchase_price_factor (Dict[Resource, DataFrame], optional): Factor for varying cost, scale changer normalizes. Defaults to None
         availability_factor (Dict[Resource, DataFrame], optional): Factor for varying resource availability, scale changer normalizes. Defaults to None
         sell_price_factor (Dict[Resource, DataFrame], optional): Factor for varying resource revenue, scale changer normalizes. Defaults to None
@@ -60,13 +75,13 @@ class Location:
         vopex_localize (Dict[Process, Tuple[float, int]] , optional): Localization factor for vopex. Defaults to None
         fopex_localize (Dict[Process, Tuple[float, int]] , optional): Localization factor for fopex. Defaults to None
         incidental_localize(Dict[Process, Tuple[float, int]] , optional): Localization factor for incidental. Defaults to None
-        land_cost (Union[float, Tuple[float], Theta], optional): cost of land. Defaults to 0
-        land_cost_factor (DataFrame, optional): factor for changing land cost. Defaults to None. 
-        credit (Dict[Process, float], optional): credit earned by process per unit basis. Defaults to None.
-        credit_factor (Dict[Process, DataFrame], optional): factor for credit. Defaults to None.
+        basis (str, optional): unit in which land area is measured. Defaults to None 
+        block (Union[str, list, dict], optional): block to which it belong. Convinient to set up integer cuts. Defaults to None
+        label (str, optional): used while generating plots. Defaults to None
+        citation (str, optional): can provide citations for your data sources. Defaults to None
         ctype (List[LandType], optional): land type. Defaults to None
-        ptype (Dict[LandType, ParameterType], optional): paramater type of declared values . Defaults to None
-        label(str, optional):Longer descriptive label if required. Defaults to None
+        ptype (Dict[LandType, ParameterType], optional): paramater type of declared values. Defaults to None
+        ftype (Dict[LandType, FactorType], optional): factor type of declared factors. Defaults to None 
 
     Examples:
         Locations need a set of processes and the scale levels for demand, capacity, and cost, and if applicable demand factors, price_factors, capacity factors
@@ -74,10 +89,19 @@ class Location:
         >>> Goa= Location(name='Goa', processes= {Process1, Process2}, demand_scale_level=2, capacity_scale_level= 2, price_scale_level= 1, demand_factor= {Resource1: DataFrame,}, price_factor = {Resource2: DataFrame}, capacity_factor = {Process1: DataFrame}, scales= TemporalScale object, label='Home')
     """
     name: str
+    # Primary attributes
     processes: Set[Process]
     scales: TemporalScale
-    demand: Dict[Resource, float] = None
+    land_max: Union[float, Tuple[float], Theta] = None
+    land_cost: Union[float, Tuple[float], Theta] = None
+    land_max_factor: DataFrame = None
+    land_cost_factor: DataFrame = None
+    # Component parameters declared at Location
+    demand: Dict[Resource, Union[float, Tuple[float], Theta]] = None
+    credit: Dict[Process, Union[float, Tuple[float], Theta]] = None
+    # Factors for component parameter variability
     demand_factor: Dict[Resource, DataFrame] = None
+    credit_factor: Dict[Process, DataFrame] = None
     purchase_price_factor: Dict[Resource, DataFrame] = None
     availability_factor: Dict[Resource, DataFrame] = None
     sell_price_factor: Dict[Resource, DataFrame] = None
@@ -86,6 +110,7 @@ class Location:
     vopex_factor: Dict[Process, DataFrame] = None
     fopex_factor: Dict[Process, DataFrame] = None
     incidental_factor: Dict[Process, DataFrame] = None
+    # Localizations for paramters provided at component level
     purchase_price_localize: Dict[Resource, Tuple[float, int]] = None
     cons_max_localize: Dict[Resource, Tuple[float, int]] = None
     sell_price_localize: Dict[Resource, Tuple[float, int]] = None
@@ -95,14 +120,16 @@ class Location:
     vopex_localize: Dict[Process, Tuple[float, int]] = None
     fopex_localize: Dict[Process, Tuple[float, int]] = None
     incidental_localize: Dict[Process, Tuple[float, int]] = None
-    land_cost: Union[float, Tuple[float], Theta] = None
-    land_cost_factor: DataFrame = None
-    credit: Dict[Process, Union[float, Tuple[float], Theta]] = None
-    credit_factor: Dict[Process, DataFrame] = None
+    # Details
+    basis: str = None
+    block: str = None
+    label: str = None
+    citation: str = None
+    # Types
     ctype: List[LocationType] = None
     ptype: Dict[LocationType, ParameterType] = None
-    label: str = None
-    # depreciated
+    ftype: Dict[LocationType, FactorType] = None
+    # Depreciated
     demand_scale_level: int = None
     price_scale_level: int = None
     capacity_scale_level: int = None
@@ -112,36 +139,27 @@ class Location:
     revenue_factor: dict = None
 
     def __post_init__(self):
-        """Sets and stuff generated insitu
 
-        Args:
-            resources (Set[Resource]): set of resources. Get resources fetches these using the processes
-            materials (Set[Resource]): set of materials. Get materials fetches these using the processes
-            scale_levels (int): the levels of scales involved
-            varying_capacity (Set): processes with varying capacities
-            varying_price (Set): resources with varying purchase price
-            varying_demand (Set): resources with varying demands
-            price (Dict): dictionary with the purchase cost of resources.
-            failure_processes (Set): set of processes with failure rates
-            fail_factor (Dict[Process, float]): creates a dictionary with failure points on a temporal scale
-        """
+        # *-----------------------scale levels of the problem -------------------------------------
+        self.scale_levels = self.scales.scale_levels
+
+        # *-----------------Set ctype (LocationType) and ptype (ParameterType) ------------
+
         if self.ctype is None:
             self.ctype = []
-        self.ptype = dict()
+        self.ptype, self.ftype = dict(), dict()
 
-        # might be needed to be moved to scenario. The component given to the factor, could be uninitialized
-        if self.land_cost is not None:
-            self.ctype.append(LocationType.LAND_COST)
-            if isinstance(self.land_cost, (tuple, Theta)):
-                self.ptype[LocationType.LAND_COST] = ParameterType.UNCERTAIN
+        # *----------------- Update Location parameters and factors ---------------------------------
 
-            else:
-                if self.land_cost_factor is not None:
-                    self.ptype[LocationType.LAND_COST] = ParameterType.FACTOR
-                    self.land_cost_factor = Factor(
-                        component=self, data=self.land_cost_factor, ptype=FactorType.LAND_COST, scales=self.scales, location=self)
-                else:
-                    self.ptype[LocationType.LAND_COST] = ParameterType.CERTAIN
+        # Currently only includes land_cost, land_max
+        # If MPVar Theta or a tuple is provided as bounds ptype UNCERTAIN
+        # if factors are provided a Factor is generated and ftype is updated
+        # or else, parameter is treated as CERTAIN parameter
+        for i in ['land_cost', 'land_max']:
+            self.update_location_params_and_factors(i)
+
+        # * ---------------Collect Componets (Processes, Resources, Materials) -----------------------
+        # Resources and Materials are collected based on Process(es) provided
 
         self.processes = self.processes.union({self.create_storage_process(
             i) for i in self.processes if ProcessType.STORAGE in i.ctype})
@@ -149,158 +167,304 @@ class Location:
         self.materials = set().union(
             *[i.material_req for i in self.processes if (ProcessType.SINGLE_MATMODE in i.ctype) or (ProcessType.MULTI_MATMODE in i.ctype)])
 
-        self.capacity_segments = {
-            i.capacity_segments for i in self.processes if ProcessType.PWL_CAPEX in i.ctype}
-        self.capex_segments = {
-            i.capex_segments for i in self.processes if ProcessType.PWL_CAPEX in i.ctype}
+        # * -------------------------- Handle Processes ----------------------------------------
+        # checks if new process parameters have been declared
+        # Sets new attributes:
+        #   subsets based on Process.ctype
+        #   dictionaries with prod_modes, material_modes, etc.
 
-        self.scale_levels = self.scales.scale_levels
+        # Update Process parameters provided at Location level
+        for i in ['credit']:
+            self.update_comp_params_declared_at_location(
+                parameter=i, component_type=ProcessType)
+
+        # set Process subsets as Location attributes
+        for i in ['SINGLE_PRODMODE', 'MULTI_PRODMODE', 'NO_MATMODE', 'SINGLE_MATMODE', 'MULTI_MATMODE',
+                  'STORAGE', 'STORAGE_REQ', 'LINEAR_CAPEX', 'PWL_CAPEX', 'CAPACITY', 'CAP_MAX', 'CAP_MIN',
+                  'CAPEX', 'FOPEX', 'VOPEX', 'INCIDENTAL', 'CREDIT', 'LAND']:
+            self.make_component_subset(ctype=getattr(
+                ProcessType, i), component_set='processes', tag=f'processes_{i.lower()}')
+
+        # collect Process parameters and set dicts as Location attrs
+        for i in ['cap_max', 'cap_min', 'introduce', 'retire', 'lifetime', 'trl', 'p_fail',  'capex', 'fopex', 'vopex', 'incidental', 'land']:
+            self.make_parameter_dict(parameter=i, component_set='processes')
+
+        # Collect capacity and capex segments for each Process with PWL capex
+        if getattr(self, 'processes_pwl_capex') is not None:
+            self.capacity_segments = {i:
+                                      i.capacity_segments for i in getattr(self, 'processes_pwl_capex')}
+            self.capex_segments = {i:
+                                   i.capex_segments for i in getattr(self, 'processes_pwl_capex')}
+
+        # TODO ------ This adds a dummy mode to cap_max ------ See if can be avoided -----------
         # dicitionary of capacity bounds
+        # self.cap_max, self.cap_min = self.get_cap_bounds()
 
-        self.cap_max, self.cap_min = self.get_cap_bounds()
+        # gets the production modes
+        if getattr(self, 'processes_multi_prodmode') is not None:
+            self.prod_modes = {
+                i: i.prod_modes for i in getattr(self, 'processes_multi_prodmode')}
 
-        # gets the modes for all processes
-        self.prod_modes = {
-            i: i.prod_modes for i in self.processes if ProcessType.MULTI_PRODMODE in i.ctype}
+        # gets the material modes
+        if getattr(self, 'processes_multi_matmode') is not None:
+            self.material_modes = {
+                i: i.material_modes for i in getattr(self, 'processes_multi_matmode')}
 
         # fetch all processes with failure rates set
         self.failure_processes = self.get_failure_processes()
         self.fail_factor = self.make_fail_factor()
-        # self.emission_dict = {i: i.emission_dict for i in self.processes}
-        self.storage_cost_dict = {
-            i.resource_storage.name: i.storage_cost for i in self.processes if ProcessType.STORAGE in i.ctype}
 
-        if self.demand is not None:
-            for i in self.demand.keys():
-                i.ctype.append(ResourceType.DEMAND)
-                i.ptype[ResourceType.DEMAND] = ParameterType.CERTAIN
-                i.param_factors[ResourceType.DEMAND] = []
+        # * -------------------------- Handle Resources ----------------------------------------
+        # check if new resource parameters have been declared
+        # Sets new attributes:
+        #   subsets based on Resource.ctype
+        #   dictionaries with parameter values
 
-        for i in ['purchase_price', 'sell_price', 'cons_max', 'store_max', 'store_min']:
-            self.comp_attr_dict(attr=i, component_set='resources')
+        # Update Resource parameters provided at Location level
+        for i in ['demand']:
+            self.update_comp_params_declared_at_location(
+                parameter=i, component_type=ResourceType)
 
+        # set Resource subsets as Location attributes
         for i in ['STORE', 'PRODUCE', 'IMPLICIT', 'DISCHARGE', 'SELL', 'CONSUME', 'PURCHASE', 'DEMAND']:
-            self.comp_attr_set(comp_type=getattr(
+            self.make_component_subset(ctype=getattr(
                 ResourceType, i), component_set='resources', tag=f'resources_{i.lower()}')
 
-        for i in ['capacity', 'fopex', 'vopex', 'incidental', 'purchase_price', 'demand', 'availability', 'sell_price']:
-            self.handle_factor(i)
+        # collect Resource parameters and set dicts as Location attrs
+        for i in ['purchase_price', 'sell_price', 'cons_max', 'store_max', 'store_min', 'storage_cost']:
+            self.make_parameter_dict(parameter=i, component_set='resources')
 
-        if self.credit is not None:
-            self.processes_credit = set(self.credit.keys())
-            for i in self.processes_credit:
-                i.ctype.append(ProcessType.CREDIT)
-                i.ptype[ProcessType.CREDIT] = ParameterType.CERTAIN
-                i.param_factors[ProcessType.CREDIT] = []
-                if isinstance(self.credit[i], (tuple, Theta)):
-                    i.ptype[ProcessType.CREDIT] = ParameterType.UNCERTAIN
-                else:
-                    if i in self.credit_factor.keys():
-                        if isinstance(i.ptype[ProcessType.CREDIT], list):
-                            i.ptype[ProcessType.CREDIT].append(
-                                (self, ParameterType.FACTOR))
-                        else:
-                            i.ptype[ProcessType.CREDIT] = [
-                                (self, ParameterType.FACTOR)]
-                        self.credit_factor[i] = Factor(
-                            component=i, data=self.credit_factor[i], ptype=FactorType.CREDIT, scales=self.scales, location=self)
-                        i.param_factors[ProcessType.CREDIT].append(
-                            (self, self.credit_factor[i]))
+        # * -------- Update Component (Resource and Process) Factors and Localizations -------------
 
-        dict_res_localize = {
-            'sell_price': 'SELL', 'cons_max': 'CONSUME', 'purchase_price': 'PURCHASE'}
+        # Create Factors from DataFrame
+        # Update Component.ptype and Component.factors
+        for i in ['capacity', 'fopex', 'vopex', 'incidental',  'credit', 'purchase_price', 'demand', 'availability', 'sell_price']:
+            self.update_comp_factor(i)
 
+        # Create Localize from data
+        # Update Component.ltype and Component.localizations
         for i in ['purchase_price', 'cons_max', 'sell_price', 'cap_max', 'cap_min', 'capex', 'fopex', 'vopex', 'incidental']:
-            if getattr(self, f'{i}_localize') is not None:
-                for j in getattr(self, f'{i}_localize').keys():
-                    getattr(self, f'{i}_localize')[j] = Localize(value=getattr(
-                        self, f'{i}_localize')[j], component=j, ptype=getattr(LocalizeType, i.upper()), location=self)
-                    if i in ['purchase_price', 'cons_max', 'sell_price']:
-                        j.ltype[getattr(ResourceType, dict_res_localize[i])].append((self, getattr(
-                            LocalizeType, i.upper())))
-                        j.localize_factors[getattr(ResourceType, dict_res_localize[i])].append(
-                            (self, getattr(self, f'{i}_localize')[j]))
+            self.update_comp_localize(i)
 
-                    else:
-                        j.ltype[getattr(ProcessType, i.upper())].append((self, getattr(
-                            LocalizeType, i.upper())))
-                        j.localize_factors[getattr(ResourceType, dict_res_localize[i])].append(
-                            (self, getattr(self, f'{i}_localize')[j]))
+        # * ---------------- Collect Emission Data ------------------------------------------
+        # Get emission data from components
+        for i in ['resources', 'materials', 'processes']:
+            setattr(self, f'{i}_emissions', {
+                    j: j.emissions for j in getattr(self, i)})
 
-        # *----------------- Random name generator------------------------
-
+        # *----------------- Generate Random Name ------------------------
+        # A random name is generated if self.name = None
         if self.name is None:
             self.name = f'{self.__class__.__name__}_{uuid.uuid4().hex}'
 
-        # *----------------- Warnings---------------------------------
+        # *----------------- Depreciation Warnings---------------------------------
 
         if self.demand_scale_level is not None:
-            warn(
+            raise ValueError(
                 f'{self.name}: demand_scale_level is depreciated. scale for meeting demand can be provided in formulate')
         if self.price_scale_level is not None:
-            warn(
-                f'{self.name}: price_scale_level is depreciated. scale levels determined from data now')
+            raise ValueError(
+                f'{self.name}: price_scale_level is depreciated. scale levels determined from factor data now')
         if self.capacity_scale_level is not None:
-            warn(
-                f'{self.name}: capacity_scale_level is depreciated. scale levels determined from data now')
+            raise ValueError(
+                f'{self.name}: capacity_scale_level is depreciated. scale levels determined from factor data now')
         if self.expenditure_scale_level is not None:
-            warn(
-                f'{self.name}: expenditure_scale_level is depreciated. scale levels determined from data now')
+            raise ValueError(
+                f'{self.name}: expenditure_scale_level is depreciated. scale levels determined from factor data now')
         if self.availability_scale_level is not None:
-            warn(
-                f'{self.name}: availability_scale_level is depreciated. scale levels determined from data now')
+            raise ValueError(
+                f'{self.name}: availability_scale_level is depreciated. scale levels determined from factor data now')
         if self.price_factor is not None:
-            warn(
+            raise ValueError(
                 f'{self.name}: price_factor is depreciated, use purchase_price_factor instead')
         if self.revenue_factor is not None:
-            warn(
+            raise ValueError(
                 f'{self.name}: revenue_factor_scale_level is depreciated, use sell_price_factor instead')
 
-    def handle_factor(self, factor_name):
+    # *----------------- Functions-------------------------------------
+
+    def update_location_params_and_factors(self, parameter: str):
+        """Updated ctype based on type of parameter provide.
+        Creates MPVar if Theta or tuple of bounds
+        also updates ftype if factors provides and puts Factor in place of DataFrame
+
+        Args:
+            parameter (str): land parameters
+        """
+
+        if getattr(self, parameter) is not None:
+            # Update ctype
+            ctype_ = getattr(LocationType, parameter.upper())
+            self.ctype.append(ctype_)
+            # Update ptype
+            if isinstance(getattr(self, parameter), (tuple, Theta)):
+                self.ptype[ctype_] = ParameterType.UNCERTAIN
+                mpvar_ = create_mpvar(value=getattr(
+                    self, parameter), component=self, ptype=getattr(MPVarType, parameter.upper()))
+                setattr(self, parameter, mpvar_)
+            else:
+                self.ptype[ctype_] = ParameterType.CERTAIN
+
+        if getattr(self, f'{parameter}_factor') is not None:
+            # Update ftype
+            ftype_ = getattr(FactorType, parameter.upper())
+            self.ftype[ctype_] = ftype_
+            factor_ = Factor(component=self, data=getattr(
+                self, f'{parameter}_factor'), ftype=ftype_, scales=self.scales, location=self)
+            setattr(self, f'{parameter}_factor', factor_)
+
+    def update_comp_params_declared_at_location(self, parameter: str, component_type: Union[ResourceType, ProcessType]):
+        """Update the ctype and ptype of component if parameters declared at Location
+        Note that the ptype and ctype are updated with a tuples, i.e (Location, ____)
+        Args:
+            parameter (str): new paramter that has been declared 
+            component_type (Union[ResourceType, ProcessType]): Type of component
+        """
+        if getattr(self, parameter) is not None:
+            for i in getattr(self, parameter):
+                ctype_ = getattr(component_type, parameter.upper())
+                i.ctype.append((self, ctype_))
+                if isinstance(getattr(self, parameter)[i], (tuple, Theta)):
+                    ptype_ = (self, ParameterType.UNCERTAIN)
+                    mpvar_ = create_mpvar(value=getattr(self, parameter)[
+                                          i], component=i, ptype=getattr(MPVarType, parameter.upper()))
+                    getattr(self, parameter)[i] = mpvar_
+                else:
+                    ptype_ = (self, ParameterType.CERTAIN)
+                if ctype_ in i.ptype:  # check if already exists, if yes append
+                    i.ptype[ctype_].append(ptype_)
+                else:  # or create new list with tuple
+                    i.ptype[ctype_] = [ptype_]
+
+    def update_comp_factor(self, factor_name: str):
+        """Checks if a factor for a component has been provided
+        Creates a Factor from DataFrame data
+        Updates Componet.factors and Component.ftype
+
+        Args:
+            factor_name (str): name of the factor without '_factor'
+        """
+
+        # This dictionary has a combination of paramter type for each comp and thier related variable factor
         type_dict = {'capacity': (ProcessType.CAPACITY, FactorType.CAPACITY),
                      'fopex': (ProcessType.FOPEX, FactorType.FOPEX),
                      'vopex': (ProcessType.VOPEX, FactorType.VOPEX),
                      'incidental': (ProcessType.INCIDENTAL, FactorType.INCIDENTAL),
+                     'credit': (ProcessType.CREDIT, FactorType.CREDIT),
                      'purchase_price': (ResourceType.PURCHASE, FactorType.PURCHASE_PRICE),
                      'demand': (ResourceType.DEMAND, FactorType.DEMAND),
                      'availability': (ResourceType.CONSUME, FactorType.AVAILABILITY),
                      'sell_price': (ResourceType.SELL, FactorType.SELL_PRICE)}
 
+        # if factor defined at location
         if getattr(self, f'{factor_name}_factor') is not None:
+            # for each component provided
             for j in getattr(self, f'{factor_name}_factor'):
-                if isinstance(j.ptype[type_dict[factor_name][0]], list):
-                    j.ptype[type_dict[factor_name][0]].append(
-                        (self, ParameterType.FACTOR))
+                # component type, basically what parameter
+                ctype_ = type_dict[factor_name][0]
+                # factor related to the parameter
+                ftype_ = type_dict[factor_name][1]
+
+                # create the factor
+                factor_ = Factor(component=j, data=getattr(self, f'{factor_name}_factor')[
+                    j], ftype=ftype_, scales=self.scales, location=self)
+
+                # replace the DataFrame with a Factor
+                getattr(self, f'{factor_name}_factor')[j] = factor_
+
+                # component.ftype and .factors are declared as dict().
+                # if encountering for the first time, create key and list with the tuple (Location, FactorType/Factor)
+                if not j.ftype:
+                    j.ftype[ctype_] = [(self, ftype_)]
+                    j.factors[ctype_] = [(self, factor_)]
+                # if a particular factor for the same component has been declared in another location, then append [(Loc1, ..), (Loc2, ..)]
                 else:
-                    j.ptype[type_dict[factor_name][0]] = [
-                        (self, ParameterType.FACTOR)]
+                    if ctype_ in j.ftype:
+                        j.ftype[ctype_].append((self, ftype_))
+                        j.factors[ctype_].append((self, factor_))
+                    # if this is a new ctype_ being considered, create key and list with tuple (Location, FactorType/Factor)
+                    else:
+                        j.ftype[ctype_] = [(self, ftype_)]
+                        j.factors[ctype_] = [(self, factor_)]
 
-                getattr(self, f'{factor_name}_factor')[j] = Factor(component=j, data=getattr(self, f'{factor_name}_factor')[
-                    j], ptype=type_dict[factor_name][1], scales=self.scales, location=self)
-
-                j.param_factors[type_dict[factor_name][0]].append(
-                    (self, getattr(self, f'{factor_name}_factor')[j]))
-
-    def comp_attr_dict(self, attr: str, component_set: str):
-        """makes a dict of the type {comp: attr}
+    def update_comp_localize(self, localize_name: str):
+        """Check if a localization has been provided
+        Creates Localize from data 
+        Updates Component.ltype and Component.localizations
 
         Args:
-            attr (str): attribute
-            component_set (str): components such as resources
+            localize_name (str): name of what localization provided     
         """
-        setattr(self, attr, {getattr(i, 'name'): getattr(i, attr) for i in getattr(
-            self, component_set) if getattr(i, attr) is not None})
 
-    def comp_attr_set(self, comp_type: Union[ProcessType, ResourceType], component_set: str, tag: str):
-        """makes a dict of the type {comp: attr}
+        type_dict = {'sell_price': 'SELL',
+                     'cons_max': 'CONSUME', 'purchase_price': 'PURCHASE'}
+
+        # if localize defined at location
+        if getattr(self, f'{localize_name}_localize') is not None:
+            # for each component provided
+            for j in getattr(self, f'{localize_name}_localize'):
+                # find component parameter type
+                if localize_name in ['purchase_price', 'cons_max', 'sell_price']:
+                    ctype_ = getattr(ResourceType, type_dict[localize_name])
+                else:
+                    ctype_ = getattr(ProcessType, localize_name.upper())
+                # find LocalizeType
+                ltype_ = getattr(LocalizeType, localize_name.upper())
+
+                # calculate localize from data
+                localize_ = Localize(value=getattr(
+                    self, f'{localize_name}_localize')[j], component=j, ltype=ltype_, location=self)
+
+                # replace value with Localize object
+                getattr(self, f'{localize_name}_localize')[j] = localize_
+                # component.ltype and .localizations are declared as dict()
+                # if encountering for the first time, create key and list with the tuple (Location, FactorType/Factor)
+                if not j.ltype:
+                    j.ltype[ctype_] = [(self, ltype_)]
+                    j.localizations[ctype_] = [(self, localize_)]
+                # if a particular factor for the same component has been declared in another location, then append [(Loc1, ..), (Loc2, ..)]
+                else:
+                    if ctype_ in j.ltype:
+                        j.ltype[ctype_].append((self, ltype_))
+                        j.localizations[ctype_].append((self, localize_))
+                    # if this is a new ctype_ being considered, create key and list with tuple (Location, FactorType/Factor)
+                    else:
+                        j.ltype[ctype_] = [(self, ltype_)]
+                        j.localizations[ctype_] = [(self, localize_)]
+
+    def make_parameter_dict(self, parameter: str, component_set: str):
+        """Makes a dict with components and thier paramter values
+        set the dictionary as an attribute
+        if parameter undefined then sets None
 
         Args:
-            attr (str): attribute
-            component_set (str): components such as resources
+            parameter (str): what parameters 
+            component_set (str): component set of Resource or Process
+        """
+        param_dict_ = {i: getattr(i, parameter) for i in getattr(
+            self, component_set) if getattr(i, parameter) is not None}
+
+        if param_dict_:
+            setattr(self, parameter, param_dict_)
+        else:
+            setattr(self, parameter, None)
+
+    def make_component_subset(self, ctype: Union[ProcessType, ResourceType], component_set: str, tag: str):
+        """makes a subset of component based on provided ctype
+        sets the subset as an attribute of the location
+        if empty set, sets None
+
+        Args:
+            ctype (str): component type 
+            component_set (str): set of Processes or Resources
             tag (str) : what to call the new location attribute
         """
-        setattr(self, tag, {i for i in getattr(
-            self, component_set) if comp_type in i.ctype})
+        subset_ = {i for i in getattr(
+            self, component_set) if ctype in i.ctype}
+        if subset_:
+            setattr(self, tag, subset_)
+        else:
+            setattr(self, tag, None)
 
     def get_failure_processes(self):
         """get processes with failure rates
@@ -351,12 +515,12 @@ class Location:
         return cap_max_dict, cap_min_dict
 
     def create_storage_process(self, process) -> Process:
-        """Creates a dummy process for discharge of stored resource
+        """Creates a discharge process for discharge of stored resource
 
         Args:
-            process (Process): Dummy process name derived from storage process
+            process (Process): STORAGE type process
         Returns:
-            Process: Dummy process for storage
+            Process: Discharge Process 
         """
         if process.capex is None:
             capex = None
@@ -377,7 +541,7 @@ class Location:
 
         return Process(name=process.name+'_discharge', conversion=process.conversion_discharge, cap_min=process.cap_min,
                        cap_max=process.cap_max, introduce=process.introduce, retire=process.retire, capex=capex, vopex=vopex, fopex=fopex,
-                       incidental=incidental, lifetime=process.lifetime, label=process.label + '_storage', material_cons=None)
+                       incidental=incidental, lifetime=process.lifetime, label=f'{process.label} (Discharge)', material_cons=None, ctype=[ProcessType.STORAGE_DISCHARGE])
 
     def __repr__(self):
         return self.name

@@ -351,13 +351,13 @@ def constraint_transport_cost_network(instance: ConcreteModel, network_scale_lev
 # *-------------------------Inventory penalty --------------------------
 
 
-def constraint_storage_cost(instance: ConcreteModel, location_resource_dict: dict, storage_cost_dict: dict, network_scale_level: int = 0) -> Constraint:
+def constraint_storage_cost(instance: ConcreteModel, location_resource_dict: dict, storage_cost: dict, network_scale_level: int = 0) -> Constraint:
     """Inventory penalty incurred at the network scale
 
     Args:
         instance (ConcreteModel): pyomo instance
         location_resource_dict (dict): dictionary with resources available at locations.
-        storage_cost_dict (dict): dictionary with storage penalty at location.
+        storage_cost (dict): dictionary with storage penalty at location.
         network_scale_level (int, optional): scale of network decisions. Defaults to 0.
 
     Returns:
@@ -368,8 +368,8 @@ def constraint_storage_cost(instance: ConcreteModel, location_resource_dict: dic
 
     def storage_cost_rule(instance, location, resource, *scale_list):
         if resource in location_resource_dict[location]:
-            if resource in storage_cost_dict[location]:
-                return instance.Inv_cost_resource[location, resource, scale_list[:network_scale_level + 1]] == storage_cost_dict[location][resource]*instance.Inv_network[location, resource, scale_list[:network_scale_level + 1]]
+            if resource in storage_cost[location]:
+                return instance.Inv_cost_resource[location, resource, scale_list[:network_scale_level + 1]] == storage_cost[location][resource]*instance.Inv_network[location, resource, scale_list[:network_scale_level + 1]]
             else:
                 return instance.Inv_cost_resource[location, resource, scale_list[:network_scale_level + 1]] == 0
         else:
@@ -387,7 +387,7 @@ def constraint_location_storage_cost(instance: ConcreteModel, network_scale_leve
     Args:
         instance (ConcreteModel): pyomo instance
 
-        storage_cost_dict (dict): dictionary with storage penalty at location.
+        storage_cost (dict): dictionary with storage penalty at location.
         network_scale_level (int, optional): scale of network decisions. Defaults to 0.
 
     Returns:
@@ -410,7 +410,7 @@ def constraint_network_storage_cost(instance: ConcreteModel, network_scale_level
     Args:
         instance (ConcreteModel): pyomo instance
 
-        storage_cost_dict (dict): dictionary with storage penalty at network.
+        storage_cost (dict): dictionary with storage penalty at network.
         network_scale_level (int, optional): scale of network decisions. Defaults to 0.
 
     Returns:

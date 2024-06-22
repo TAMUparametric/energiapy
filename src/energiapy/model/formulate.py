@@ -431,7 +431,7 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
                 # *----------------storage costs network ---------------------------------------------
 
                 constraint_storage_cost(instance=instance, location_resource_dict=scenario.location_resource_dict,
-                                        storage_cost_dict=scenario.storage_cost_dict, network_scale_level=scenario.network_scale_level)
+                                        storage_cost=scenario.storage_cost, network_scale_level=scenario.network_scale_level)
 
                 constraint_location_storage_cost(
                     instance=instance, network_scale_level=scenario.network_scale_level)

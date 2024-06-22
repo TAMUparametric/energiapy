@@ -65,6 +65,7 @@ class Network:
     """
     name: str
     scales: TemporalScale
+    land_max: float = None
     source_locations: List[Location] = field(default_factory=list)
     sink_locations: List[Location] = field(default_factory=list)
     distance_matrix: List[List[float]] = field(default_factory=list)
@@ -80,7 +81,6 @@ class Network:
     incidental_factor: Dict[Tuple[Location, Location],
                             Dict[Transport, DataFrame]] = None
     label: str = None
-
     # depreciated
     capacity_scale_level: int = 0
     capex_scale_level: int = 0
@@ -119,7 +119,7 @@ class Network:
                         k.ptype[getattr(TransportType, f'{m}'.upper(
                         ))] = ParameterType.FACTOR
                         getattr(self, f'{m}_factor')[i][k] = Factor(
-                            component=k, data=l, ptype=getattr(FactorType, f'TRANS_{m}'.upper()), scales=self.scales, location=i)
+                            component=k, data=l, ftype=getattr(FactorType, f'TRANS_{m}'.upper()), scales=self.scales, location=i)
 
         # if self.capacity_factor is not None:
         #     if isinstance(list(self.capacity_factor[list(self.capacity_factor.keys())[0]].values())[0], DataFrame):

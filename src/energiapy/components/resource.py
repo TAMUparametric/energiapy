@@ -6,9 +6,9 @@ from typing import Dict, List, Tuple, Union
 from warnings import warn
 
 from .comptype import EmissionType, ResourceType
-from .parameters.factor import Factor
 from .parameters.mpvar import Theta, create_mpvar
-from .parameters.paratype import LocalizeType, MPVarType, ParameterType
+from .parameters.paratype import (FactorType, LocalizeType, MPVarType,
+                                  ParameterType)
 
 
 @dataclass
@@ -21,30 +21,33 @@ class Resource:
     localization can be achieved by providing the cons_max_localize, purchase_price_localize, and sell_price_localize
     at Location level
 
+    Demand needs to be declared at Location
+
     Args:
         name (str): name of resource. Enter None to randomly assign a name.
         discharge (bool, optional): if can be discharged or sold. Defaults to None
         sell_price (Union[float, Tuple[float], Theta], optional): revenue if generated on selling. Defaults to None
         cons_max (Union[float, Tuple[float], Theta], optional): maximum amount that can be consumed. Defaults to None
         purchase_price (Union[float, Tuple[float], Theta], optional): purchase price.Defaults to None
+        transport (bool, optional): if can be transported, also determined if mentioned while defining Transport. Defaults to None
         store_max (float, optional): maximum amount that can be stored in inventory. Defaults to None
         store_min (float, optional): minimum amount of that is need to setup inventory. Defaults to None
         store_loss (float, optional): amount lost in inventory per time period of the scheduling scale. Defaults to None
-        basis (str, optional): unit in which resource is measured. Defaults to None 
-        block (Union[str, list, dict], optional): block to which it belong. Convinient to set up integer cuts. Defaults to None
-        citation (str, optional): can provide citations for your data sources. Defaults to None
-        demand (bool, optional): if a specific demand needs to be met, also determined if a demand is specified at Location. Defaults to None
-        transport (bool, optional): if can be transported, also determined if mentioned while defining Transport. Defaults to None
+        storage_cost: (float, optional): penalty for mainting inventory per time period in the scheduling scale. Defaults to None.
         gwp (float, optional): global warming potential. Defaults to None.
         odp (float, optional): ozone depletion potential. Defaults to None.
         acid (float, optional): acidification potential. Defaults to None.
         eutt (float, optional): terrestrial eutrophication potential. Defaults to None.
         eutf (float, optional): fresh water eutrophication potential. Defaults to None.
         eutm (float, optional): marine eutrophication potential. Defaults to None.
+        basis (str, optional): unit in which resource is measured. Defaults to None 
+        block (Union[str, list, dict], optional): block to which it belong. Convinient to set up integer cuts. Defaults to None
         label (str, optional): used while generating plots. Defaults to None
+        citation (str, optional): can provide citations for your data sources. Defaults to None
         ctype (List[ResourceType], optional): List of resource types. Defaults to None
         ptype (Dict[ResourceType, ParameterType], optional): dict with parameters declared and thier types. Defaults to None.
-        ltype (List[LocalizeType], optional): which parameters are localized. Defaults to None.
+        ltype (Dict[ResourceType, List[Tuple['Location', LocalizeType]]], optional): which parameters are localized at Location. Defaults to None.
+        ftype (Dict[ResourceType, List[Tuple['Location', ParameterType]]], optional): which parameters are provided with factors at Location. Defaults to None
 
     Examples:
 
@@ -100,27 +103,34 @@ class Resource:
     """
 
     name: str
+    # Primary attributes
     discharge: bool = None
     sell_price: Union[float, Tuple[float], Theta] = None
     cons_max: Union[float, Tuple[float], Theta] = None
     purchase_price: Union[float, Tuple[float], Theta] = None
+    transport: bool = None
+    # Inventory params, can be provided to STORE type Process
     store_max: float = None
     store_min: float = None
     store_loss: float = None
-    basis: str = None
-    block: Union[str, list, dict] = None
-    citation: str = None
-    transport: bool = None
+    storage_cost: float = None
+    # Emissions
     gwp: float = None
     odp: float = None
     acid: float = None
     eutt: float = None
     eutf: float = None
     eutm: float = None
+    # Details
+    basis: str = None
+    block: Union[str, list, dict] = None
     label: str = None
+    citation: str = None
+    # Types
     ctype: List[ResourceType] = None
     ptype: Dict[ResourceType, ParameterType] = None
-    ltype: List[LocalizeType] = None
+    ltype: Dict[ResourceType, List[Tuple['Location', LocalizeType]]] = None
+    ftype: Dict[ResourceType, List[Tuple['Location', FactorType]]] = None
     # Depreciated
     sell: bool = None
     demand: bool = None
@@ -130,10 +140,20 @@ class Resource:
 
     def __post_init__(self):
 
+        # *-----------------Set ctype (ResourceType)---------------------------------
+        # .DISCHARGE allows the resource to be discharged (cons_max > 0)
+        # .SELL is when a Resource generated revenue (has a sell_price)
+        # .DEMAND is set if a specific demand for resource is declared at Location
+        # .CONSUME is when a Resource can be consumed
+        # .PURCHASE is when a consumed Resource has a purchase_price
+        # .IMPLICIT is when a Resource only exists insitu (not discharged or consumed)
+        # .PRODUCED is when a Resource is produced by a Process
+        # .SELL and .DEMAND imply that .DISCHARGE is True
+        # .STORE is set if a store_max is given
+        # storage resources are also generated implicitly if a Resource is provided to a Process as storage
+
         if self.ctype is None:
             self.ctype = []
-
-        # *-----------------Set ctype (Component)---------------------------------
 
         if self.sell_price is not None:
             self.ctype.append(ResourceType.SELL)
@@ -161,7 +181,12 @@ class Resource:
         if self.store_max is not None:
             self.ctype.append(ResourceType.STORE)
 
-        # *-----------------Set ptype (Parameter) ---------------------------------
+        # *-----------------Set ptype (ParameterType) ---------------------------------
+        # The parameter types (ptypes) are set to .CERTAIN initially
+        # They are replaced by .UNCERTAIN if a MPVar Theta or a tuple of bounds is provided
+        # If empty Theta is provided, the bounds default to (0, 1)
+        # They are replaced by a list of (Location, .FactorType) if factors are declared at Location
+
         self.ptype = {i: ParameterType.CERTAIN for i in self.ctype}
 
         if self.sell_price is not None:
@@ -182,9 +207,8 @@ class Resource:
                 self.cons_max = create_mpvar(
                     value=self.cons_max, component=self, ptype=getattr(MPVarType, 'AVAILABILITY'))
 
-        # *-----------------Set ltype (Localization) ---------------------------------
-
         # *-----------------Set etype (Emission)---------------------------------
+        # Types of emission accounted for are declared here and EmissionTypes are set
 
         self.etype = []
         self.emissions = dict()
@@ -193,33 +217,45 @@ class Resource:
                 self.etype.append(getattr(EmissionType, i.upper()))
                 self.emissions[i] = getattr(self, i)
 
-        # *-----------------Factors and Localization dicts ---------------------------------
-        self.ltype = {getattr(ResourceType, i):  [] for i in [
-            'PURCHASE', 'SELL', 'CONSUME'] if getattr(ResourceType, i) in self.ctype}
-        self.localize_factors = {getattr(ResourceType, i):  [] for i in [
-            'PURCHASE', 'SELL', 'CONSUME'] if getattr(ResourceType, i) in self.ctype}
-        self.param_factors = {getattr(ResourceType, i):  [] for i in [
-            'PURCHASE', 'SELL', 'CONSUME'] if getattr(ResourceType, i) in self.ctype}
+        # *----------------- Parameter localizations populated at Location ---------------------------------
+        # Localization factors can be provided for parameters at Location
+        # These include purchase_price, sell_price and cons_max (if declared), and demand if provided at location
+        # ltype is a Dict[ResourceType, List[Tuple['Location', LocalizeType]]]
+        # localizations a Dict[ResourceType, List[Tuple['Location', Localize]]]
+
+        self.ltype, self.localizations = dict(), dict()
+
+        # *------------ Parameter factors populated at Location -----------
+        # Factors can be provided for parameters at Location
+        # Thes are filled in at Location and save localizations and parameter factors
+        # These include purchase_price, sell_price and cons_max (if declared), and demand if provided at location
+        # ftype is a Dict[ResourceType, List[Tuple['Location', FactorType]]]
+        # factors a Dict[ResourceType, List[Tuple['Location', Factor]]]
+
+        self.ftype, self.factors = dict(), dict()
 
         # *-----------------Random name ---------------------------------
+        # A random name is generated if self.name = None
 
         if self.name is None:
             self.name = f'{self.__class__.__name__}_{uuid.uuid4().hex}'
 
-        # *----------------- Warnings---------------------------------
+        # *----------------- Depreciation Warnings---------------------------------
 
         if self.demand is not None:
-            warn(f'{self.name}: demand has been depreciated and will be intepreted in energiapy.Location, use discharge = True')
+            raise ValueError(
+                f'{self.name}: demand has been depreciated and will be intepreted in energiapy.Location, use discharge = True')
         if self.sell is not None:
-            warn(
+            raise ValueError(
                 f'{self.name}: sell has been depreciated. set discharge = True and specify selling_price if needed')
         if self.varying is not None:
-            warn(f'{self.name}: varying has been depreciated. Variability will be intepreted based on data provided to energiapy.Location')
+            raise ValueError(
+                f'{self.name}: varying has been depreciated. Variability will be intepreted based on data provided to energiapy.Location factors')
         if self.price is not None:
-            warn(
+            raise ValueError(
                 f'{self.name}: price has been depreciated. Please use purchase_price instead')
         if self.revenue is not None:
-            warn(
+            raise ValueError(
                 f'{self.name}: revenue has been depreciated. Please use sell_price instead')
 
     def __repr__(self):
