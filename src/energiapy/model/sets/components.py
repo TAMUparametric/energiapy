@@ -34,6 +34,6 @@ def generate_component_sets(instance: ConcreteModel, scenario: Scenario):
     instance.locations = Set(
         initialize=sets['locations'], doc='Set of locations')
 
-    if scenario.transport_set is not None:
+    if scenario.transports is not None:
         instance.transports = Set(
             initialize=sets['transports'], doc='Set of transports')

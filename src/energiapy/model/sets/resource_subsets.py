@@ -44,7 +44,7 @@ def generate_resource_subsets(instance: ConcreteModel, scenario: Scenario):
     instance.resources_demand = Set(
         initialize=sets['resources_demand'], doc='Set of resources with exact demand')
 
-    if scenario.transport_set is not None:
+    if scenario.transports is not None:
         instance.resources_trans = Set(
             initialize=sets['resources_trans'], doc='Set of transportable resources')
 

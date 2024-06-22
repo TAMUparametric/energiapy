@@ -48,9 +48,10 @@ class FactorType(Enum):
     TRANS_FOPEX = auto()
     TRANS_VOPEX = auto()
     TRANS_INCIDENTAL = auto()
-    """ For Transportations
+    """ For Transportations (all updated at Network)
     """
     NETWORK_LAND_MAX = auto()
+    
 # *-----------------------Localization ------------------------------------------------
 
 
@@ -105,7 +106,7 @@ class MPVarType(Enum):
     TRANS_FOPEX = auto()
     TRANS_VOPEX = auto()
     TRANS_INCIDENTAL = auto()
-    """ For Transports
+    """ For Transports 
     """
     NETWORK_LAND_MAX = auto()
     """ For NETWORK

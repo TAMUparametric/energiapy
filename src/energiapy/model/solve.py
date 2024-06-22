@@ -69,7 +69,7 @@ def solve(solver: str, instance: ConcreteModel = None, matrix: dict = None, inte
 
         if len(instance.locations) > 1:
             components_dict['transports'] = {
-                i.name: i.__dict__ for i in scenario.transport_set}
+                i.name: i.__dict__ for i in scenario.transports}
 
         solution_dict = {
             'termination': str(output['Solver'][0]['Termination condition']),
