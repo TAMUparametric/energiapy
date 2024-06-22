@@ -270,7 +270,7 @@ class Process:
         if self.name is None:
             self.name = f'{self.__class__.__name__}_{uuid.uuid4().hex}'
 
-        # *----------------- Depreciation Warnings---------------------------------------------
+        # *----------------- Depreciation Warnings------------------------------------
 
         if self.prod_max is not None:
             raise ValueError(
