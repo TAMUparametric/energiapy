@@ -27,13 +27,13 @@ class Resource:
         name (str): name of resource. Enter None to randomly assign a name.
         discharge (bool, optional): if can be discharged or sold. Defaults to None
         sell_price (Union[float, Tuple[float], Theta], optional): revenue if generated on selling. Defaults to None
-        cons_max (Union[float, Tuple[float], Theta], optional): maximum amount that can be consumed. Defaults to None
         purchase_price (Union[float, Tuple[float], Theta], optional): purchase price.Defaults to None
-        transport (bool, optional): if can be transported, also determined if mentioned while defining Transport. Defaults to None
+        cons_max (Union[float, Tuple[float], Theta], optional): maximum amount that can be consumed. Defaults to None
         store_max (float, optional): maximum amount that can be stored in inventory. Defaults to None
         store_min (float, optional): minimum amount of that is need to setup inventory. Defaults to None
         store_loss (float, optional): amount lost in inventory per time period of the scheduling scale. Defaults to None
         storage_cost: (float, optional): penalty for mainting inventory per time period in the scheduling scale. Defaults to None.
+        transport (bool, optional): if can be transported, also determined if mentioned while defining Transport. Defaults to None
         gwp (float, optional): global warming potential. Defaults to None.
         odp (float, optional): ozone depletion potential. Defaults to None.
         acid (float, optional): acidification potential. Defaults to None.
@@ -106,14 +106,15 @@ class Resource:
     # Primary attributes
     discharge: bool = None
     sell_price: Union[float, Tuple[float], Theta] = None
-    cons_max: Union[float, Tuple[float], Theta] = None
     purchase_price: Union[float, Tuple[float], Theta] = None
-    transport: bool = None
+    cons_max: Union[float, Tuple[float], Theta] = None
     # Inventory params, can be provided to STORE type Process
     store_max: float = None
     store_min: float = None
     store_loss: float = None
     storage_cost: float = None
+    # Transportation
+    transport: bool = None
     # Emissions
     gwp: float = None
     odp: float = None
@@ -139,6 +140,8 @@ class Resource:
     revenue: float = None
 
     def __post_init__(self):
+
+        self.availability = self.cons_max  # An alias for cons_max
 
         # *-----------------Set ctype (ResourceType)---------------------------------
         # .DISCHARGE allows the resource to be discharged (cons_max > 0)
@@ -242,9 +245,9 @@ class Resource:
 
         # *----------------- Depreciation Warnings---------------------------------
 
-        if self.demand is not None:
+        if self.demand is True:
             raise ValueError(
-                f'{self.name}: demand has been depreciated and will be intepreted in energiapy.Location, use discharge = True')
+                f'{self.name}: demand will be intepreted in energiapy.Location. Set discharge = True and set Location.demand = {{Resource: demand}}')
         if self.sell is not None:
             raise ValueError(
                 f'{self.name}: sell has been depreciated. set discharge = True and specify selling_price if needed')

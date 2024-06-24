@@ -26,8 +26,8 @@ class Network:
 
     Args:
         name (str): name of the network. Enter None to randomly assign a name.
-        source_locations (List[location], optional): list of location dataclass objects of source locations
-        sink_locations (List[location], optional): list of location dataclass objects of sink locations
+        sources (List[location], optional): list of location dataclass objects of source locations
+        sinks (List[location], optional): list of location dataclass objects of sink locations
         distance_matrix (List[List[float]], optional): matrix with distances between sources and sinks, needs to be ordered
         transport_matrix (List[List[float]], optional): matrix with distances between sources and sinks, needs to be ordered
         land_max (Union[float, Tuple[float], Theta], optional): land available. Defaults to None.
@@ -47,11 +47,11 @@ class Network:
 
         Networks object with to and from movement of resources using Transport. In the following example, Train and Pipeline can be set up from 'Goa' to 'Texas'
 
-        >>> Move = Network(name= 'Network', source_locations= [Goa, Texas], sink_locations= [Texas, Goa], distance_matrix= [[0, 500],[500, 0]], transport_matrix= [[], [Train, Pipe]], [[Train, Pipe], []]], label = 'network for moving stuff')
+        >>> Move = Network(name= 'Network', sources= [Goa, Texas], sinks= [Texas, Goa], distance_matrix= [[0, 500],[500, 0]], transport_matrix= [[], [Train, Pipe]], [[Train, Pipe], []]], label = 'network for moving stuff')
 
         Networks can also have one way movement of resources. In the following example, a Pipeline is set up from Goa to Texas.
 
-        >>> BrainDrain = Network(name= 'BrainDrain', source_locations= [Goa], sink_locations= [Texas], distance_matrix= [[0, 500],[500, 0]], transport_matrix= [[], [Pipe]], [[], []]], label = 'The Pipeline') )
+        >>> BrainDrain = Network(name= 'BrainDrain', sources= [Goa], sinks= [Texas], distance_matrix= [[0, 500],[500, 0]], transport_matrix= [[], [Pipe]], [[], []]], label = 'The Pipeline') )
 
         Declaring distance matrix:
         Consider a source (Goa), and two sinks (Texas, Macedonia) at a distance of 1000 and 500 units. The source will form the rows and sinks the columns.
@@ -70,8 +70,8 @@ class Network:
     name: str
     # Primary attributes
     scales: TemporalScale
-    source_locations: List[Location] = field(default_factory=list)
-    sink_locations: List[Location] = field(default_factory=list)
+    sources: List[Location] = field(default_factory=list)
+    sinks: List[Location] = field(default_factory=list)
     distance_matrix: List[List[float]] = field(default_factory=list)
     transport_matrix: List[List[Transport]] = field(default_factory=list)
     # Network parameters
@@ -117,10 +117,10 @@ class Network:
 
         # * ------------------------- Update Locations Factors and Parameters ----------------------
 
-        for i in self.source_locations:
+        for i in self.sources:
             i.ctype.append(LocationType.SOURCE)
             i.ptype[LocationType.SOURCE] = ParameterType.CERTAIN
-        for i in self.sink_locations:
+        for i in self.sinks:
             i.ctype.append(LocationType.SINK)
             i.ptype[LocationType.SINK] = ParameterType.CERTAIN
 
@@ -132,7 +132,7 @@ class Network:
         self.transport_avail_dict = self.make_transport_avail_dict()
 
         self.locations = list(
-            set(self.source_locations).union(set(self.sink_locations)))  # all locations in network
+            set(self.sources).union(set(self.sinks)))  # all locations in network
 
         self.source_sink_resource_dict = self.make_source_sink_resource_dict()
 
@@ -235,9 +235,9 @@ class Network:
         Returns:
             dict: a dictionary of distances from sources to sinks
         """
-        distance_dict = {(self.source_locations[i].name, self.sink_locations[j].name):
+        distance_dict = {(self.sources[i].name, self.sinks[j].name):
                          self.distance_matrix[i][j] for i, j in
-                         product(range(len(self.source_locations)), range(len(self.sink_locations)))}
+                         product(range(len(self.sources)), range(len(self.sinks)))}
         return distance_dict
 
     def make_transport_dict(self) -> dict:
@@ -246,9 +246,9 @@ class Network:
         Returns:
             dict: a dictionary of transportation modes available between sources to sinks
         """
-        transport_dict = {(self.source_locations[i].name, self.sink_locations[j].name):
+        transport_dict = {(self.sources[i].name, self.sinks[j].name):
                           set(self.transport_matrix[i][j]) for i, j in
-                          product(range(len(self.source_locations)), range(len(self.sink_locations)))}
+                          product(range(len(self.sources)), range(len(self.sinks)))}
         return transport_dict
 
     def make_transport_avail_dict(self) -> dict:

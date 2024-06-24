@@ -1,5 +1,6 @@
 import uuid
 from dataclasses import dataclass
+
 from .comptype import EmissionType
 
 

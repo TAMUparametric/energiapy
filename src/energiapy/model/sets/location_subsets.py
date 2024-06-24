@@ -14,9 +14,9 @@ def generate_location_subsets(instance: ConcreteModel, scenario: Scenario):
 
     sets = scenario.set_dict
 
-    if scenario.source_locations is not None:
+    if scenario.sources is not None:
         instance.sources = Set(
             initialize=sets['sources'], doc='Set of sources')
 
-    if scenario.sink_locations is not None:
+    if scenario.sinks is not None:
         instance.sinks = Set(initialize=sets['sinks'], doc='Set of sinks')

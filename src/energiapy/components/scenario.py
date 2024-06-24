@@ -3,7 +3,7 @@
 # TODO set depreciation warnings
 # TODO new way to make subsets
 # TODO send set and subset creation outside scenario
-# TODO send creation of matrix outside 
+# TODO send creation of matrix outside
 
 import uuid
 from dataclasses import dataclass
@@ -80,8 +80,8 @@ class Scenario:
 
         Args:
             transports (set): Set of transport options.
-            source_locations (set): Set of source locations.
-            sink_locations (set): Set of sink locations.
+            sources (set): Set of source locations.
+            sinks (set): Set of sink locations.
             transport_dict (dict): A dictionary of trasportation modes available between sources to sinks
             transport_avail_dict (dict): A dictionary of available trasportation modes available between sources to sinks.
             transport_max (dict): A dictionary of the maximum amount of each resource that can be transported between sources and sinks.
@@ -136,8 +136,8 @@ class Scenario:
             self.locations = {self.network}
 
             # self.transports = None
-            # self.source_locations = None
-            # self.sink_locations = None
+            # self.sources = None
+            # self.sinks = None
             # self.transport_dict = None
             # self.transport_avail_dict = None
             # self.trans_max = None
@@ -155,12 +155,12 @@ class Scenario:
         else:
             self.ctype = ScenarioType.MULTI_LOCATION
             self.transports = set().union(*self.network.transport_dict.values())
-            self.source_locations = self.network.source_locations
-            self.sink_locations = self.network.sink_locations
+            self.sources = self.network.sources
+            self.sinks = self.network.sinks
             self.transport_dict = self.network.transport_dict
             self.transport_avail_dict = self.network.transport_avail_dict
             self.locations = set(
-                self.source_locations + self.sink_locations)
+                self.sources + self.sinks)
             # self.trans_max = {j.name: j.trans_max for j in self.transports}
             # self.trans_min = {j.name: j.trans_min for j in self.transports}
             # self.trans_loss = {
@@ -232,7 +232,7 @@ class Scenario:
             setattr(self, f'location_resources_{i}', {j: getattr(
                 j, f'resources_{i}') for j in self.locations})
             setattr(self, f'resources_{i}', set().union(
-                *[getattr(j, f'resources_{i}') for j in self.locations]))
+                *[getattr(j, f'resources_{i}') for j in self.locations if getattr(j, f'resources_{i}') is not None]))
 
         for i in ['capex', 'fopex', 'vopex', 'incidental', 'land']:
             self.create_attr_dict(i, self.processes)
@@ -252,43 +252,6 @@ class Scenario:
         for i in ['resources', 'materials', 'processes', 'transports']:
             setattr(self, f'{i}_emissions', {
                     j: j.emissions for j in getattr(self, i)})
-
-        # self.material_gwp_dict = {
-        #     i.name: {j.name: j.gwp for j in self.materials} for i in self.locations}
-        # self.material_odp_dict = {
-        #     i.name: {j.name: j.odp for j in self.materials} for i in self.locations}
-        # self.material_acid_dict = {
-        #     i.name: {j.name: j.acid for j in self.materials} for i in self.locations}
-        # self.material_eutt_dict = {
-        #     i.name: {j.name: j.eutt for j in self.materials} for i in self.locations}
-        # self.material_eutf_dict = {
-        #     i.name: {j.name: j.eutf for j in self.materials} for i in self.locations}
-        # self.material_eutm_dict = {
-        #     i.name: {j.name: j.eutm for j in self.materials} for i in self.locations}
-        # self.resource_gwp_dict = {
-        #     i.name: {j.name: j.gwp for j in self.resources} for i in self.locations}
-        # self.resource_odp_dict = {
-        #     i.name: {j.name: j.odp for j in self.resources} for i in self.locations}
-        # self.resource_acid_dict = {
-        #     i.name: {j.name: j.acid for j in self.resources} for i in self.locations}
-        # self.resource_eutt_dict = {
-        #     i.name: {j.name: j.eutt for j in self.resources} for i in self.locations}
-        # self.resource_eutf_dict = {
-        #     i.name: {j.name: j.eutf for j in self.resources} for i in self.locations}
-        # self.resource_eutm_dict = {
-        #     i.name: {j.name: j.eutm for j in self.resources} for i in self.locations}
-        # self.process_gwp_dict = {
-        #     i.name: {j.name: j.gwp for j in self.processes} for i in self.locations}
-        # self.process_odp_dict = {
-        #     i.name: {j.name: j.odp for j in self.processes} for i in self.locations}
-        # self.process_acid_dict = {
-        #     i.name: {j.name: j.acid for j in self.processes} for i in self.locations}
-        # self.process_eutt_dict = {
-        #     i.name: {j.name: j.eutt for j in self.processes} for i in self.locations}
-        # self.process_eutf_dict = {
-        #     i.name: {j.name: j.eutf for j in self.processes} for i in self.locations}
-        # self.process_eutm_dict = {
-        #     i.name: {j.name: j.eutm for j in self.processes} for i in self.locations}
 
         self.fail_factor = {i.name: i.fail_factor for i in self.locations}
 
@@ -351,8 +314,8 @@ class Scenario:
 
         for j in ['demand', 'purchase', 'sell', 'consume']:
             # TODO - location specific factor and localization sets
-            self.resource_subsets[f'resources_varying_{j}'] = [i.name for i in getattr(
-                self, f'resources_{j}') if i.ptype[getattr(ResourceType, j.upper())] == ParameterType.FACTOR]
+            # self.resource_subsets[f'resources_varying_{j}'] = [i.name for i in getattr(
+            #     self, f'resources_{j}') if i.ptype[getattr(ResourceType, j.upper())] == ParameterType.FACTOR]
 
             self.resource_subsets[f'resources_certain_{j}'] = [i.name for i in getattr(
                 self, f'resources_{j}') if i.ptype[getattr(ResourceType, j.upper())] == ParameterType.CERTAIN]
@@ -368,8 +331,8 @@ class Scenario:
         for j in ['capacity', 'capex', 'fopex', 'vopex', 'incidental']:
             # TODO - location specific factor and localization sets
 
-            self.process_subsets[f'processes_varing_{j}'] = [i.name for i in self.processes if getattr(ProcessType, j.upper(
-            )) in i.ptype.keys() if i.ptype[getattr(ProcessType, j.upper())] == ParameterType.FACTOR]
+            # self.process_subsets[f'processes_varing_{j}'] = [i.name for i in self.processes if getattr(ProcessType, j.upper(
+            # )) in i.ptype.keys() if i.ptype[getattr(ProcessType, j.upper())] == ParameterType.FACTOR]
 
             self.process_subsets[f'processes_certain_{j}'] = [i.name for i in self.processes if getattr(ProcessType, j.upper(
             )) in i.ptype.keys() if i.ptype[getattr(ProcessType, j.upper())] == ParameterType.CERTAIN]

@@ -1,5 +1,7 @@
-from dataclasses import dataclass
+"""energiapy.components.parameters.paratype - Type of paramter, factor, multiparameteric variable, localization
+"""
 from enum import Enum, auto
+from typing import List
 
 # *-----------------------Parameter-------------------------------------------------
 
@@ -14,6 +16,9 @@ class ParameterType(Enum):
     """Declared as a parametric variable (energiapy.components.parameters.mpvars.Theta)
     or provided as a range using tuple
     """
+    CLASSIFICATION = auto()
+    """Component attribute declaration helps classify the component   
+    """
 
 # *-----------------------Factor------------------------------------------------
 
@@ -21,9 +26,9 @@ class ParameterType(Enum):
 class FactorType(Enum):
     """ Type of deterministic data factor
     """
+    SELL_PRICE = auto()
     PURCHASE_PRICE = auto()
     AVAILABILITY = auto()
-    SELL_PRICE = auto()
     """ For Resources
     """
     DEMAND = auto()
@@ -51,7 +56,38 @@ class FactorType(Enum):
     """ For Transportations (all updated at Network)
     """
     NETWORK_LAND_MAX = auto()
-    
+
+    @classmethod
+    def resource(cls) -> List[str]:
+        """Resource factors
+        """
+        return ['PURCHASE_PRICE', 'AVAILABILITY', 'SELL_PRICE', 'DEMAND']
+
+    @classmethod
+    def process(cls) -> List[str]:
+        """Process factors
+        """
+        return ['CAPACITY', 'CAPEX', 'FOPEX', 'VOPEX', 'INCIDENTAL', 'CREDIT']
+
+    @classmethod
+    def location(cls) -> List[str]:
+        """Location factors
+        """
+        return ['LAND_COST', 'LAND_MAX']
+
+    @classmethod
+    def transport(cls) -> List[str]:
+        """Transport factors
+        """
+        return ['TRANS_CAPACITY', 'TRANS_CAPEX', 'TRANS_FOPEX', 'TRANS_VOPEX', 'TRANS_INCIDENTAL']
+
+    @classmethod
+    def network(cls) -> List[str]:
+        """Network factors
+        """
+        return ['NETWORK_LAND_MAX']
+
+
 # *-----------------------Localization ------------------------------------------------
 
 
@@ -72,6 +108,18 @@ class LocalizeType(Enum):
     """ For Processes
     """
 
+    @classmethod
+    def resource(cls) -> List[str]:
+        """Resource localizations
+        """
+        return ['PURCHASE_PRICE', 'AVAILABILITY', 'SELL_PRICE']
+
+    @classmethod
+    def process(cls) -> List[str]:
+        """Process localizations
+        """
+        return ['CAP_MAX', 'CAP_MIN', 'CAPEX', 'FOPEX', 'VOPEX', 'INCIDENTAL', 'CREDIT']
+
 
 # *-----------------------Multiparametric Var-----------------------------------------------
 
@@ -86,7 +134,8 @@ class MPVarType(Enum):
     DEMAND = auto()
     """ For Resources (declared at Location level)
     """
-    CAPACITY = auto()
+    CAP_MAX = auto()
+    CAP_MIN = auto()
     CAPEX = auto()
     FOPEX = auto()
     VOPEX = auto()
@@ -111,3 +160,33 @@ class MPVarType(Enum):
     NETWORK_LAND_MAX = auto()
     """ For NETWORK
     """
+
+    @classmethod
+    def resource(cls) -> List[str]:
+        """Resource parameters
+        """
+        return ['PURCHASE_PRICE', 'AVAILABILITY', 'SELL_PRICE', 'DEMAND']
+
+    @classmethod
+    def process(cls) -> List[str]:
+        """Process parameters
+        """
+        return ['CAP_MAX', 'CAP_MIN', 'CAPEX', 'FOPEX', 'VOPEX', 'INCIDENTAL', 'LAND', 'CREDIT']
+
+    @classmethod
+    def location(cls) -> List[str]:
+        """Location parameters
+        """
+        return ['LAND_COST', 'LAND_MAX']
+
+    @classmethod
+    def transport(cls) -> List[str]:
+        """Transport parameters
+        """
+        return ['TRANS_CAPACITY', 'TRANS_CAPEX', 'TRANS_FOPEX', 'TRANS_VOPEX', 'TRANS_INCIDENTAL']
+
+    @classmethod
+    def network(cls) -> List[str]:
+        """Network parameters
+        """
+        return ['NETWORK_LAND_MAX']

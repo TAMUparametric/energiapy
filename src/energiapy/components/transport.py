@@ -1,6 +1,8 @@
 """energiapy.Transport - moves Resources between Locations
 """
 # TODO ---- apply material constraints
+# TODO --- trans_loss, retire, introduce, land, land_cost (could be between location.. will need to check)
+
 
 import uuid
 from dataclasses import dataclass

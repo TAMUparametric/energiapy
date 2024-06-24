@@ -330,7 +330,7 @@ def multi_location_milp_variability_cost():
         [[], [transport2]],
     ]
 
-    network = Network(name='network', source_locations=[location1, location2], sink_locations=[location2, location3],
+    network = Network(name='network', sources=[location1, location2], sinks=[location2, location3],
                       distance_matrix=distance_matrix, transport_matrix=transport_matrix, scales=scales)
 
     scenario = Scenario(name='scenario', network=network, scales=scales, scheduling_scale_level=1,

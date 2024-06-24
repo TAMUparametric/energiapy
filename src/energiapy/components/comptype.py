@@ -1,7 +1,9 @@
+""" energiapy.components.comptype - type of component (TemporalScale, Problem, Resource, Emission, Process, Location, Transport, Network, Scenario)
+"""
 from dataclasses import dataclass
 from enum import Enum, auto
 from itertools import product
-from typing import Dict
+from typing import Dict, List
 from warnings import warn
 
 # *-----------------------TemporalScale------------------------------------------------
@@ -35,8 +37,9 @@ class ScaleType(Enum):
 
 
 class ResourceType(Enum):
-    """Can the resource be _____ ? (and varies in terms of)
+    """What class a Resource fits into or if a particular parameter is defined 
     """
+    # * -------------------- Classifications--------------------------------------
     STORE = auto()
     """stored in inventory 
     """
@@ -58,12 +61,111 @@ class ResourceType(Enum):
     PURCHASE = auto()
     """bought for a price (price)
     """
-    DEMAND = auto()
+    MEET_DEMAND = auto()
     """used to meet a particular set demand at location (demand)
     """
     TRANSPORT = auto()
     """transported
     """
+    # * ----------------------Parameters------------------------------------------------
+    SELL_PRICE = auto()
+    """Revenue generated
+    """
+    PURCHASE_PRICE = auto()
+    """Amount spend to consume
+    """
+    AVAILABILITY = auto()
+    """Alias for cons_max, i.e. maximum consumption allowed
+    """
+    DEMAND = auto()
+    """Demand to be met at Location
+    """
+    STORE_MAX = auto()
+    STORE_MIN = auto()
+    STORE_LOSS = auto()
+    STORAGE_COST = auto()
+    """Inventory parameters 
+    """
+
+    # * -------------------------- Classmethods ----------------------------------------
+    # Need to define what are parameters, the rest are set to classifications
+    # Need to define what is set at the location level and transport level. The rest is calculated
+
+    # * Update this
+
+    @classmethod
+    def parameters(cls) -> List[str]:
+        """All parameters
+        """
+        return ['SELL_PRICE', 'PURCHASE_PRICE', 'AVAILABILITY', 'DEMAND', 'STORE_MAX', 'STORE_MIN', 'STORE_LOSS', 'STORAGE_COST']
+
+    @classmethod
+    def location_level(cls) -> List[str]:
+        """Set when Location is declared
+        """
+        return ['DEMAND', 'HAS_DEMAND']
+
+    @classmethod
+    def transport_level(cls) -> List[str]:
+        """Set when Transport is declared
+        """
+        return ['TRANSPORT']
+
+    # * Automated below this
+
+    @classmethod
+    def all(cls) -> List[str]:
+        """All Resource paramters and classifications
+        """
+        return [i.name for i in cls]
+
+    @classmethod
+    def classifications(cls) -> List[str]:
+        """All classifications
+        """
+        return list(set(cls.all()) - set(cls.parameters()))
+
+    @classmethod
+    def resource_level(cls) -> List[str]:
+        """Set when Resource is declared
+        """
+        return list(set(cls.all()) - set(cls.location_level()) - set(cls.transport_level()))
+
+    @classmethod
+    def resource_level_parameters(cls) -> List[str]:
+        """Set when Resource is declared, and are associated with actual values, i.e. are non classifiers 
+        """
+        return list(set(cls.resource_level()) & set(cls.parameters()))
+
+    @classmethod
+    def resource_level_classifications(cls) -> List[str]:
+        """Set when Resource is declared, and are classifications
+        """
+        return list(set(cls.resource_level()) & set(cls.classifications()))
+
+    @classmethod
+    def location_level_classifications(cls) -> List[str]:
+        """Set at Location level, and are classifications
+        """
+        return list(set(cls.location_level()) & set(cls.classifications()))
+
+    @classmethod
+    def location_level_parameters(cls) -> List[str]:
+        """Set at Location level and are parameters 
+        """
+        return list(set(cls.location_level()) & set(cls.parameters()))
+
+    @classmethod
+    def transport_level_classifications(cls) -> List[str]:
+        """Set at Transport level, and are classifications
+        """
+        return list(set(cls.transport_level()) & set(cls.classifications()))
+
+    @classmethod
+    def transport_level_parameters(cls) -> List[str]:
+        """Set at Transport level and are parameters 
+        """
+        return list(set(cls.transport_level()) & set(cls.parameters()))
 
 
 # *-----------------------Emission--------------------------------------
@@ -96,8 +198,9 @@ class EmissionType(Enum):
 
 
 class ProcessType(Enum):
-    """Whether a process is production or storage type
+    """What class a Process fits into or if a particular parameter is defined 
     """
+    # * -------------------- Classifications--------------------------------------
     SINGLE_PRODMODE = auto()
     """Only allows one mode
     """
@@ -115,39 +218,312 @@ class ProcessType(Enum):
     """
     STORAGE = auto()
     STORAGE_DISCHARGE = auto()
-    """
-    Storage type process
+    """Storage type process
     """
     STORAGE_REQ = auto()
-    """
-    Storage type process, but storage itself consumes another resource. 
+    """Storage type process, but storage itself consumes another resource. 
     """
     LINEAR_CAPEX = auto()
-    """
-    Consider constant CAPEX
+    """Consider constant CAPEX
     """
     PWL_CAPEX = auto()
-    """
-    Use piece-wise linear CAPEX
+    """Use piece-wise linear CAPEX
     """
     CAPACITY = auto()
+    """Has a capacity 
+    """
+    # * -------------------- Parameters--------------------------------------
     CAP_MAX = auto()
     CAP_MIN = auto()
-    """Has a capacity 
+    """Bounds to capacity expansion
     """
     CAPEX = auto()
     FOPEX = auto()
     VOPEX = auto()
     INCIDENTAL = auto()
-    """ Technology costs to set up processes
+    """Technology costs to set up processes
     """
-    CREDIT = auto()
-    """If the process is eligible for credit 
+    INTRODUCE = auto()
+    RETIRE = auto()
+    LIFETIME = auto()
+    TRL = auto()
+    P_FAIL = auto()
+    """Temporal behavior
     """
     LAND = auto()
     """If the process requires land 
     """
+    CREDIT = auto()
+    """If the process is eligible for credit 
+    """
 
+    # * -------------------------- Classmethods ----------------------------------------
+    # Need to define what are parameters, the rest are set to classifications
+    # Need to define what is set at the location level. The rest is calculated
+
+    # * Update this
+
+    @classmethod
+    def parameters(cls) -> List[str]:
+        """All parameters
+        """
+        return ['CAP_MAX', 'CAP_MIN', 'CAPEX', 'FOPEX', 'VOPEX', 'INCIDENTAL',
+                'INTRODUCE', 'RETIRE', 'LIFETIME', 'TRL', 'P_FAIL', 'LAND', 'CREDIT']
+
+    @classmethod
+    def location_level(cls) -> List[str]:
+        """Set when Location is declared
+        """
+        return ['CREDIT', 'STORAGE_DISCHARGE']
+
+    # * Automated below this
+
+    @classmethod
+    def all(cls) -> List[str]:
+        """All Process paramters and classifications
+        """
+        return [i.name for i in cls]
+
+    @classmethod
+    def classifications(cls) -> List[str]:
+        """All classifications
+        """
+        return list(set(cls.all()) - set(cls.parameters()))
+
+    @classmethod
+    def process_level(cls) -> List[str]:
+        """Set when Process is declared
+        """
+        return list(set(cls.all()) - set(cls.location_level()))
+
+    @classmethod
+    def process_level_parameters(cls) -> List[str]:
+        """Set when Process is declared, and are associated with actual values, i.e. are non classifiers 
+        """
+        return list(set(cls.process_level()) & set(cls.parameters()))
+
+    @classmethod
+    def process_level_classifications(cls) -> List[str]:
+        """Set when Process is declared, and are classifications
+        """
+        return list(set(cls.process_level()) & set(cls.classifications()))
+
+    @classmethod
+    def location_level_classifications(cls) -> List[str]:
+        """Set when Process is declared, and are classifications
+        """
+        return list(set(cls.location_level()) & set(cls.classifications()))
+
+    @classmethod
+    def location_level_parameters(cls) -> List[str]:
+        """Set at Location level and are parameters 
+        """
+        return list(set(cls.location_level()) & set(cls.parameters()))
+
+
+# *------------------------------Location-------------------------------------------------
+
+
+class LocationType(Enum):
+    """Whether a location is a source or a sink
+    """
+    SOURCE = auto()
+    SINK = auto()
+    """Location parameters
+    """
+    LAND_COST = auto()
+    LAND_MAX = auto()
+
+    # * -------------------------- Classmethods ----------------------------------------
+    # Need to define what are parameters, the rest are set to classifications
+    # Need to define what is set at the network level. The rest is calculated
+
+    # * Update this
+
+    @classmethod
+    def parameters(cls) -> List[str]:
+        """All parameters
+        """
+        return ['LAND_COST', 'LAND_MAX']
+
+    @classmethod
+    def network_level(cls) -> List[str]:
+        """Set at Network level
+        """
+        return ['SOURCE', 'SINK']
+
+    # * Automated below this
+
+    @classmethod
+    def all(cls) -> List[str]:
+        """All Location paramters and classifications
+        """
+        return [i.name for i in cls]
+
+    @classmethod
+    def classifications(cls) -> List[str]:
+        """All classifications
+        """
+        return list(set(cls.all()) - set(cls.parameters()))
+
+    @classmethod
+    def location_level(cls) -> List[str]:
+        """Set when Location is declared
+        """
+        return list(set(cls.all()) - set(cls.network_level()))
+
+    @classmethod
+    def location_level_parameters(cls) -> List[str]:
+        """Set when Location is declared and are parameters
+        """
+        return list(set(cls.location_level()) & set(cls.parameters()))
+
+    @classmethod
+    def location_level_classifications(cls) -> List[str]:
+        """Set when Location is declared and are locations
+        """
+        return list(set(cls.location_level()) & set(cls.classifications()))
+
+    @classmethod
+    def network_level_parameters(cls) -> List[str]:
+        """Set at Network level and are parameters
+        """
+        return list(set(cls.network_level()) & set(cls.parameters()))
+
+    @classmethod
+    def network_level_classifications(cls) -> List[str]:
+        """Set at Network level and are classifications
+        """
+        return list(set(cls.network_level()) & set(cls.classifications()))
+
+
+# *------------------------------Transport-------------------------------------------------
+
+class TransportType(Enum):
+    """Transport classification
+    """
+    CAPACITY = auto()
+    """Transport parameters
+    """
+    CAP_MAX = auto()
+    CAP_MIN = auto()
+    CAPEX = auto()
+    FOPEX = auto()
+    VOPEX = auto()
+    INCIDENTAL = auto()
+
+    # * -------------------------- Classmethods ----------------------------------------
+    # Need to define what are classification, the rest are set to parameters
+    # Need to define what is set at the network level. The rest is calculated
+
+    # * Update this
+
+    @classmethod
+    def classifications(cls) -> List[str]:
+        """All classifications
+        """
+        return ['CAPACITY']
+
+    @classmethod
+    def network_level(cls) -> List[str]:
+        """Set at Network level
+        """
+        return []
+
+    # * Automated below this
+
+    @classmethod
+    def all(cls) -> List[str]:
+        """All Transport paramters and classifications
+        """
+        return [i.name for i in cls]
+
+    @classmethod
+    def parameters(cls) -> List[str]:
+        """All parameters
+        """
+        return list(set(cls.all()) - set(cls.classifications()))
+
+    @classmethod
+    def network_level_parameters(cls) -> List[str]:
+        """Set at Network level and are parameters
+        """
+        return list(set(cls.network_level()) & set(cls.parameters()))
+
+    @classmethod
+    def network_level_classifications(cls) -> List[str]:
+        """Set at Network level and are locations
+        """
+        return list(set(cls.network_level()) & set(cls.classifications()))
+
+    @classmethod
+    def transport_level(cls) -> List[str]:
+        """Set when Location is declared
+        """
+        return list(set(cls.all()) - set(cls.network_level()))
+
+    @classmethod
+    def transport_level_parameters(cls) -> List[str]:
+        """Set when Location is declared and are parameters
+        """
+        return list(set(cls.transport_level()) & set(cls.parameters()))
+
+    @classmethod
+    def transport_level_classifications(cls) -> List[str]:
+        """Set when Location is declared and are classifications
+        """
+        return list(set(cls.transport_level()) & set(cls.classifications()))
+
+
+# *------------------------------Network-------------------------------------------------
+
+
+class NetworkType(Enum):
+    """Network Parameters
+    """
+    LAND_MAX = auto()
+
+    # * -------------------------- Classmethods ----------------------------------------
+    # Need to define what are classification, the rest are set to parameters
+
+    # * Update this
+
+    @classmethod
+    def parameters(cls) -> List[str]:
+        """All parameters
+        """
+        return ['LAND_MAX']
+
+    # * Automated below this
+
+    @classmethod
+    def all(cls) -> List[str]:
+        """All Network paramters and classifications
+        """
+        return [i.name for i in cls]
+
+    @classmethod
+    def classifications(cls) -> List[str]:
+        """All classifications
+        """
+        return list(set(cls.all()) - set(cls.parameters()))
+
+
+# *------------------------------Scenario-------------------------------------------------
+
+
+class ScenarioType(Enum):
+    """
+    Single location
+    """
+    SINGLE_LOCATION = auto()
+    """
+    Multi-location
+    """
+    MULTI_LOCATION = auto()
+
+
+# *----------------------------TBD---------------------------------------------
 
 @dataclass
 class ProcessRamp:
@@ -178,52 +554,6 @@ class ProcessRamp:
         if list(self.cap_pwl.keys()) != self.modes:
             warn(
                 'The Piece Wise Linear bounds for capacities should match the declared modes')
-
-# *------------------------------Location-------------------------------------------------
-
-
-class LocationType(Enum):
-    """Whether a location is a source or a sink
-    """
-    SOURCE = auto()
-    SINK = auto()
-    LAND_COST = auto()
-    LAND_MAX = auto()
-
-
-# *------------------------------Transport-------------------------------------------------
-
-class TransportType(Enum):
-    """Transport Parameters
-    """
-    CAPACITY = auto()
-    CAP_MAX = auto()
-    CAP_MIN = auto()
-    CAPEX = auto()
-    FOPEX = auto()
-    VOPEX = auto()
-    INCIDENTAL = auto()
-    
-# *------------------------------Network-------------------------------------------------
-
-class NetworkType(Enum):
-    """Network Parameters
-    """
-    LAND_MAX = auto()
-
-
-# *------------------------------Scenario-------------------------------------------------
-
-
-class ScenarioType(Enum):
-    """
-    Single location
-    """
-    SINGLE_LOCATION = auto()
-    """
-    Multi-location
-    """
-    MULTI_LOCATION = auto()
 
 
 # *------------------------------Depreciated -------------------------------------------------

@@ -1,5 +1,6 @@
 """energiapy.Process - converts one Resource to another Resource, Or stores Resource  
 """
+# TODO - diff between storage_loss and conversion efficiency
 
 import uuid
 from dataclasses import dataclass
@@ -40,8 +41,8 @@ class Process:
 
     Args:
         name (str): name of process. Enter None to randomly assign a name.
-        cap_max (Union[float, dict], optional): Maximum production capacity allowed in a time period of the scheduling scale. Defaults to None.
-        cap_min (Union[float, dict], optional): Minimum production capacity allowed in a time period of the scheduling scale. Defaults to None.
+        cap_max (Union[float, dict, Tuple[float], Theta], optional): Maximum production capacity allowed in a time period of the scheduling scale. Defaults to None.
+        cap_min (Union[float, dict, Tuple[float], Theta], optional): Minimum production capacity allowed in a time period of the scheduling scale. Defaults to None.
         land (Union[float, Tuple[float], Theta], optional): land requirement per unit basis. Defaults to None.
         conversion (Union[Dict[Union[int, str],Dict[Resource, float]], Dict[Resource, float]], optional): conversion data (Dict[Resource, float]]), if multimode the of form Dict[int,Dict[Resource, float]]. Defaults to None.
         material_cons (Union[Dict[Union[int, str], Dict[Material, float]],Dict[Material, float]], optional): Materials consumed per unit basis of production capacity. Defaults to None.
@@ -64,15 +65,15 @@ class Process:
         store_max (float, optional): Maximum allowed storage of resource in process. Defaults to None.
         store_min (float, optional): Minimum allowed storage of resource in process. Defaults to None.
         storage_cost: (float, optional): penalty for mainting inventory per time period in the scheduling scale. Defaults to None.
-        store_loss: (float, optional): resource loss on the scheduling scale
-        block (str, optional): define block for convenience. Defaults to None.
-        citation (str, optional): citation for data. Defaults to 'citation needed'.
-        label(str, optional):Longer descriptive label if required. Defaults to None
+        store_loss: (float, optional): resource loss on the scheduling scale. Defaults to None. 
         basis(str, optional): base units for operation. Defaults to 'unit'.
+        block (str, optional): define block for convenience. Defaults to None.
+        label(str, optional):Longer descriptive label if required. Defaults to None.
+        citation (str, optional): citation for data. Defaults to 'citation needed'.
         ctype (List[ProcessType], optional): process type. Defaults to None
         ptype (Dict[ProcessType, List[Tuple['Location', ParameterType]]], optional): paramater type of declared values . Defaults to None
         ltype (Dict[ProcessType, List[Tuple['Location', LocalizeType]]], optional): which parameters are localized. Defaults to None.
-        ftype ()
+        ftype (Dict[ProcessType, List[Tuple['Location',FactorType]]], optional): which parameters are provided with factors at Location. Defaults to None
 
 
     Examples:
@@ -92,8 +93,8 @@ class Process:
 
     name: str
     # Design parameters
-    cap_max: Union[float, Tuple[float], Theta] = None
-    cap_min: Union[float, dict] = None
+    cap_max: Union[float, dict, Tuple[float], Theta] = None
+    cap_min: Union[float, dict, Tuple[float], Theta] = None
     land: Union[float, Tuple[float], Theta] = None
     conversion: Union[Dict[Union[int, str], Dict[Resource, float]],
                       Dict[Resource, float]] = None
@@ -138,6 +139,8 @@ class Process:
     prod_max: float = None
     prod_min: float = None
 
+    # Update ProcessType, FactorType, LocalizeType, EmissionType as necessary if adding attributes
+
     def __post_init__(self):
 
         # *-----------------Set ctype (ProcessType)---------------------------------
@@ -145,28 +148,22 @@ class Process:
         if self.ctype is None:
             self.ctype = []
 
+        for i in self.parameters_declared_here():
+            if getattr(self, i) is not None:
+                self.ctype.append(getattr(ProcessType, i.upper()))
+
         if self.cap_max is not None:
             self.ctype.append(ProcessType.CAPACITY)
-            self.ctype.append(ProcessType.CAP_MAX)
-
-        if self.cap_min is not None:
-            self.ctype.append(ProcessType.CAP_MIN)
 
         # CAPEX can be linear (LINEAR_CAPEX) or piecewise linear (PWL_CAPEX)
         # if PWL, capex needs to be provide as a dict {capacity_segment: capex_segement}
-
         if self.capex is not None:
-            self.ctype.append(ProcessType.CAPEX)
             if isinstance(self.capex, dict):
                 self.ctype.append(ProcessType.PWL_CAPEX)
                 self.capacity_segments = list(self.capex.keys())
                 self.capex_segments = list(self.capex.values())
             else:
                 self.ctype.append(ProcessType.LINEAR_CAPEX)
-
-        for i in ['fopex', 'vopex', 'incidental', 'land']:
-            if getattr(self, i) is not None:
-                getattr(self, 'ctype').append(getattr(ProcessType, i.upper()))
 
         # conversion can be single mode (SINGLE_PRODMODE) or multimode (MULTI_PRODMODE)
         # For MULTI_PRODMODE, a dict of type {'mode' (str, int) : {Resource: float}} needs to be provided
@@ -222,28 +219,37 @@ class Process:
         # If empty Theta is provided, the bounds default to (0, 1)
         # They are replaced by a list of (Location, .FactorType) if factors are declared at Location
 
-        self.ptype = {i: ParameterType.CERTAIN for i in self.ctype}
+        # self.ptype = {i: ParameterType.CERTAIN for i in self.ctype}
 
-        if self.cap_max is not None:
-            if isinstance(self.cap_max, (tuple, Theta)):
-                self.ptype[ProcessType.CAPACITY] = ParameterType.UNCERTAIN
-                self.cap_max = create_mpvar(
-                    value=self.cap_max, component=self, ptype=MPVarType.CAPACITY)
+        self.ptype = dict()
 
-        for i in ['capex', 'fopex', 'vopex', 'incidental', 'land']:
-            if getattr(self, i) is not None:
-                if isinstance(getattr(self, i), (tuple, Theta)):
-                    self.ptype[getattr(ProcessType, i.upper())
-                               ] = ParameterType.UNCERTAIN
-                    setattr(self, i, create_mpvar(value=getattr(self, i),
-                            component=self, ptype=getattr(MPVarType, i.upper())))
+        for i in self.classifications_declared_here():
+            ctype_ = getattr(ProcessType, i.upper())
+            if ctype_ in self.ctype:
+                self.ptype[ctype_] = ParameterType.CLASSIFICATION
+
+        # for i in self.parameters_declared_here():
+        #     if getattr(self, i) is not None:
+        #         ctype_ = getattr(ProcessType, i.upper())
+        #         if i in self.mpvar_parameters():
+
+        # for i in list(set(self.parameters_declared_here()) & set(self.mpvar_parameters())):
+        #     if getattr(self, i) is not None:
+        #         ctype_ = getattr(ProcessType, i.upper())
+        #         if isinstance(getattr(self, i), (tuple, Theta)):
+        #             self.ptype[ctype_] = ParameterType.UNCERTAIN
+        #             mpvar_ = create_mpvar(value=getattr(self, i),
+        #                                   component=self, ptype=getattr(MPVarType, i.upper()))
+        #             setattr(self, i, mpvar_)
+        #         else:
+        #             self.ptype[ctype_] = ParameterType.CERTAIN
 
         # *-----------------Set etype (Emission)---------------------------------
         # Types of emission accounted for are declared here and EmissionTypes are set
 
         self.etype = []
         self.emissions = dict()
-        for i in ['gwp', 'odp', 'acid', 'eutt', 'eutf', 'eutm']:
+        for i in self.etypes():
             if getattr(self, i) is not None:
                 self.etype.append(getattr(EmissionType, i.upper()))
                 self.emissions[i] = getattr(self, i)
@@ -281,6 +287,62 @@ class Process:
         if self.varying is not None:
             raise ValueError(
                 f'{self.name}: varying has been depreciated. Variability will be intepreted based on data provided to energiapy.Location factors')
+
+    # *----------------- Class Methods ---------------------------------------------
+
+    @classmethod
+    def parameters_declared_here(cls) -> List[str]:
+        """Parameters declared at Process level
+        """
+        return [i.lower() for i in ProcessType.process_level_parameter()]
+
+    @classmethod
+    def parameters_declared_at_location(cls) -> List[str]:
+        """Parameters declared at Location level
+        """
+        return [i.lower() for i in ProcessType.location_level()]
+
+    @classmethod
+    def mpvar_parameters(cls) -> List[str]:
+        """Uncertain parameters for Process 
+        """
+        return [i.lower() for i in MPVarType.process()]
+
+    @classmethod
+    def classifications_declared_here(cls) -> List[str]:
+        """Classifications decided at Process level
+        """
+        return [i.lower() for i in ProcessType.process_level_classification()]
+
+    @classmethod
+    def classifications_declared_at_location(cls) -> List[str]:
+        """Classifications decided at Location level
+        """
+        return [i.lower() for i in ProcessType.location_level_classification()]
+
+    @classmethod
+    def ctypes(cls) -> List[str]:
+        """Process Types
+        """
+        return [member.name.lower() for member in ProcessType]
+
+    @classmethod
+    def ftypes(cls) -> List[str]:
+        """Factor types
+        """
+        return [i.lower() for i in FactorType.process()]
+
+    @classmethod
+    def ltypes(cls) -> List[str]:
+        """Localization types
+        """
+        return [i.lower() for i in LocalizeType.process()]
+
+    @classmethod
+    def etypes(cls) -> List[str]:
+        """Emission types
+        """
+        return [member.name.lower() for member in EmissionType]
 
     # *----------------- Functions ---------------------------------------------
 

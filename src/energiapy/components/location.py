@@ -23,6 +23,16 @@ from .process import Process
 from .resource import Resource
 from .temporal_scale import TemporalScale
 
+# process_params_declared_at_process = Process._params_declared_here
+
+# process_types =
+# print(process_types)
+
+# process_parameters_declared_at_location =
+
+# resource_parameters_declared_at_process =
+
+# resource_parameters_declared_at_location =
 
 @dataclass
 class Location:
@@ -141,7 +151,7 @@ class Location:
     def __post_init__(self):
 
         # *----------------- Update Location parameters and factors ---------------------------------
-        
+
         if self.ctype is None:
             self.ctype = []
         self.ptype, self.ftype = dict(), dict()
@@ -216,12 +226,12 @@ class Location:
         #   dictionaries with parameter values
 
         # Update Resource parameters provided at Location level
-        for i in ['demand']:
+        for i in ['has_demand']:
             self.update_comp_params_declared_at_location(
                 parameter=i, component_type=ResourceType)
 
         # set Resource subsets as Location attributes
-        for i in ['STORE', 'PRODUCE', 'IMPLICIT', 'DISCHARGE', 'SELL', 'CONSUME', 'PURCHASE', 'DEMAND']:
+        for i in ['STORE', 'PRODUCE', 'IMPLICIT', 'DISCHARGE', 'SELL', 'CONSUME', 'PURCHASE', 'HAS_DEMAND']:
             self.make_component_subset(ctype=getattr(
                 ResourceType, i), component_set='resources', tag=f'resources_{i.lower()}')
 
@@ -232,7 +242,7 @@ class Location:
         # * -------- Update Component (Resource and Process) Factors and Localizations -------------
 
         # Create Factors from DataFrame
-        # Update Component.ptype and Component.factors
+        # Update Component.ftype and Component.factors
         for i in ['capacity', 'fopex', 'vopex', 'incidental',  'credit', 'purchase_price', 'demand', 'availability', 'sell_price']:
             self.update_comp_factor(i)
 
@@ -241,7 +251,7 @@ class Location:
         for i in ['purchase_price', 'cons_max', 'sell_price', 'cap_max', 'cap_min', 'capex', 'fopex', 'vopex', 'incidental']:
             self.update_comp_localize(i)
 
-        #TODO - does this need to be here ? can this be aggregated at the scenario level?
+        # TODO - does this need to be here ? can this be aggregated at the scenario level?
         # * ---------------- Collect Emission Data ------------------------------------------
         # Get emission data from components
         for i in ['resources', 'materials', 'processes']:
@@ -460,7 +470,12 @@ class Location:
         if subset_:
             setattr(self, tag, subset_)
         else:
-            setattr(self, tag, None)
+            subset_ = {i for i in getattr(
+                self, component_set) if ctype in [j[1] for j in i.ctype if (isinstance(j, tuple)) and (j[0] == self)]}
+            if subset_:
+                setattr(self, tag, subset_)
+            else:
+                setattr(self, tag, None)
 
     def get_failure_processes(self):
         """get processes with failure rates
