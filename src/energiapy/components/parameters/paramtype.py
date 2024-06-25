@@ -84,6 +84,7 @@ class FactorType(Enum):
 for i in factors:
     setattr(FactorType, i, i)
 
+
 # *-----------------------Localization ------------------------------------------------
 
 resource_localizations = [
@@ -117,6 +118,7 @@ class LocalizationType(Enum):
 
 for i in localizations:
     setattr(LocalizationType, i, i)
+
 
 # *-----------------------Multiparametric Var-----------------------------------------------
 

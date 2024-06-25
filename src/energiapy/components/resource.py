@@ -142,10 +142,6 @@ class Resource:
 
     def __post_init__(self):
 
-        # *-----------------Declared at location---------------------------------
-        # Dict['Location', Union[float, Tuple[float], Theta]]. Declared at Location
-        self.demand = None
-
         # *-----------------Set ctype (ResourceType)---------------------------------
         # .DISCHARGE allows the resource to be discharged (cons_max > 0)
         # .SELL is when a Resource generated revenue (has a sell_price)
@@ -215,37 +211,41 @@ class Resource:
 
         self.etype = []
         self.emissions = dict()
-        for i in ['gwp', 'odp', 'acid', 'eutt', 'eutf', 'eutm']:
-            if getattr(self, i) is not None:
-                self.etype.append(getattr(EmissionType, i.upper()))
-                self.emissions[i] = getattr(self, i)
+        for i in self.etypes():
+            attr_ = getattr(self, i.lower())
+            etype_ = getattr(EmissionType, i)
+            if attr_ is not None:
+                self.etype.append(etype_)
+                self.emissions[i.lower()] = attr_
 
-        # *----------------- Parameter localizations populated at Location ---------------------------------
+        # *----------------- Parameter localizations populated at Location -----------
         # Localization factors can be provided for parameters at Location
-        # These include purchase_price, sell_price and cons_max (if declared), and demand if provided at location
-        # ltype is a Dict[ResourceType, List[Tuple['Location', LocalizationType]]]
-        # localizations a Dict[ResourceType, List[Tuple['Location', Localize]]]
+        # ltype is a Dict[ProcessParamType, List[Tuple['Location', LocalizationType]]]
+        # localizations are Dict[ProcessParamType, List[Tuple['Location', Localization]]]
 
         self.ltype, self.localizations = dict(), dict()
 
         # *------------ Parameter factors populated at Location -----------
         # Factors can be provided for parameters at Location
-        # Thes are filled in at Location and save localizations and parameter factors
-        # These include purchase_price, sell_price and cons_max (if declared), and demand if provided at location
-        # ftype is a Dict[ResourceType, List[Tuple['Location', FactorType]]]
-        # factors a Dict[ResourceType, List[Tuple['Location', Factor]]]
+        # ftype is a Dict[ProcessParamType, List[Tuple['Location', FactorType]]]
+        # factors are Dict[ProcessParamType, List[Tuple['Location', Factor]]]
 
         self.ftype, self.factors = dict(), dict()
+
+        # *-----------------Set Parameters Declared at Location to None-------------
+
+        for i in self.location_level_parameters():
+            setattr(self, i.lower(), None)
 
         # *-----------------Random name ---------------------------------
         # A random name is generated if self.name = None
 
         if self.name is None:
-            self.name = f'{self.__class__.__name__}_{uuid.uuid4().hex}'
+            self.name = f'{self.class_name()}_{uuid.uuid4().hex}'
 
         # *----------------- Depreciation Warnings---------------------------------
 
-        if self.demand is True:
+        if getattr(self, 'demand') is True:
             raise ValueError(
                 f'{self.name}: demand will be intepreted in energiapy.Location. Set discharge = True and set Location.demand = {{Resource: demand}}')
         if self.sell is not None:
@@ -277,8 +277,8 @@ class Resource:
         """
         return cls.__name__
 
-    #* parameter types
-    
+    # * parameter types
+
     @classmethod
     def ptypes(cls) -> List[str]:
         """All Resource paramters
@@ -315,14 +315,8 @@ class Resource:
         """
         return ResourceParamType.uncertain_factor()
 
-    @classmethod
-    def localize_parameters(cls) -> List[str]:
-        """Resource parameters than can be localized 
-        """
-        return ResourceParamType.localize()
+    # * component class types
 
-    #* component class types
-    
     @classmethod
     def ctypes(cls) -> List[str]:
         """All Resource paramters
@@ -347,15 +341,31 @@ class Resource:
         """
         return ResourceType.transport_level()
 
-    #* emission types
+    # * localization types
+
+    @classmethod
+    def ltypes(cls) -> List[str]:
+        """Resource parameters than can be localized 
+        """
+        return ResourceParamType.localize()
+
+    # * factor types
+
+    @classmethod
+    def ftypes(cls) -> List[str]:
+        """Factor types
+        """
+        return ResourceParamType.uncertain_factor()
+
+    # * emission types
 
     @classmethod
     def etypes(cls) -> List[str]:
         """Emission types
         """
         return EmissionType.all()
-    
-    #* 
+
+    # *----------- Hashing --------------------------------
 
     def __repr__(self):
         return self.name

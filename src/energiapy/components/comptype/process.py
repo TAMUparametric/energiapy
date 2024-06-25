@@ -44,16 +44,11 @@ class ProcessType(Enum):
     LAND = auto()
     """If the process requires land 
     """
-    CAPEX = auto()
-    FOPEX = auto()
-    VOPEX = auto()
-    INCIDENTAL = auto()
-    """What Technology costs have been specified 
+    EXPENDITURE = auto()
+    """Whether it incurs expenditure [capex, fopex, vopex, incidental] 
     """
-    INTRODUCE = auto()
-    RETIRE = auto()
-    LIFETIME = auto()
-    """What Temporal behaviour has been specified 
+    READINESS = auto()
+    """Whether the temporal behavior has been defined [introduce, retire, lifetime]
     """
     FAILURE = auto()
     """If a p_fail is provided 

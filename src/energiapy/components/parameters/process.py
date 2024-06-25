@@ -36,10 +36,16 @@ class ProcessParamType(Enum):
     # *---------------------- Update this -----------------------------------------
 
     @classmethod
-    def temporal(cls) -> List[str]:
+    def readiness(cls) -> List[str]:
         """These define the temporal aspects of establishing processes. Factors not provided for these. 
         """
         return ['INTRODUCE', 'RETIRE', 'LIFETIME', 'P_FAIL']
+
+    @classmethod
+    def failure(cls) -> List[str]:
+        """if this process can fail
+        """
+        return ['P_FAIL']
 
     @classmethod
     def process_level_resource(cls) -> List[str]:
@@ -63,7 +69,7 @@ class ProcessParamType(Enum):
         2. By using factors of deterministic data and via multiperiod scenario analysis 
         """
         exclude_ = ['CAP_MIN']
-        return list(set(cls.all()) - set(cls.temporal()) - set(cls.process_level_resource()) - set(exclude_))
+        return list(set(cls.all()) - set(cls.readiness()) - set(cls.failure()) - set(cls.process_level_resource()) - set(exclude_))
 
     @classmethod
     def uncertain_factor(cls) -> List[str]:
@@ -102,4 +108,4 @@ class ProcessParamType(Enum):
     def localize(cls) -> List[str]:
         """Process parameters than can be localized 
         """
-        return list(set(cls.process_level()) - set(cls.temporal()) - set(cls.process_level_resource()))
+        return list(set(cls.process_level()) - set(cls.readiness()) - set(cls.failure()) - set(cls.process_level_resource()))
