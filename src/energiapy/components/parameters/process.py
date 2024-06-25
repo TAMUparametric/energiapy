@@ -65,6 +65,25 @@ class ProcessParamType(Enum):
         exclude_ = ['CAP_MIN']
         return list(set(cls.all()) - set(cls.temporal()) - set(cls.process_level_resource()) - set(exclude_))
 
+    @classmethod
+    def uncertain_factor(cls) -> List[str]:
+        """Uncertain parameters for which factors are defined
+        """
+        exclude_ = ['LAND']
+        return list(set(cls.uncertain()) - set(exclude_))
+
+    @classmethod
+    def process_level_uncertain(cls) -> List[str]:
+        """Uncertain parameters at Process level
+        """
+        return list(set(cls.uncertain()) & set(cls.process_level()))
+
+    @classmethod
+    def location_level_uncertain(cls) -> List[str]:
+        """Uncertain parameters at Location level
+        """
+        return list(set(cls.uncertain()) & set(cls.location_level()))
+
     # *------------------ Automated below this------------------------
 
     @classmethod
@@ -78,7 +97,7 @@ class ProcessParamType(Enum):
         """Set when Process is declared
         """
         return list(set(cls.all()) - set(cls.location_level()))
-    
+
     @classmethod
     def localize(cls) -> List[str]:
         """Process parameters than can be localized 

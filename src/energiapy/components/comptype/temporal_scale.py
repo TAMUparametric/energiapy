@@ -2,7 +2,6 @@ from enum import Enum, auto
 from typing import List
 
 
-
 class ScaleType(Enum):
     """Classifies problem as having multiple or single scales  for decision making
     """

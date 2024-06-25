@@ -7,8 +7,8 @@ Also:
 
 from dataclasses import dataclass
 from itertools import product
-from warnings import warn
 from typing import List
+from warnings import warn
 
 from .comptype.problem import ProblemType
 from .comptype.temporal_scale import ScaleType

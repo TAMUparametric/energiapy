@@ -11,7 +11,7 @@ from .comptype.emission import EmissionType
 from .comptype.process import ProcessType
 from .material import Material
 from .parameters.mpvar import Theta, create_mpvar
-from .parameters.paramtype import (FactorType, LocalizeType, MPVarType,
+from .parameters.paramtype import (FactorType, LocalizationType, MPVarType,
                                    ParameterType)
 from .parameters.process import ProcessParamType
 from .resource import Resource
@@ -74,7 +74,7 @@ class Process:
         trl (str, optional): technology readiness level. Defaults to None.
         ctype (List[ProcessType], optional): process type. Defaults to None
         ptype (Dict[ProcessType, List[Tuple['Location', ParameterType]]], optional): paramater type of declared values . Defaults to None
-        ltype (Dict[ProcessType, List[Tuple['Location', LocalizeType]]], optional): which parameters are localized. Defaults to None.
+        ltype (Dict[ProcessType, List[Tuple['Location', LocalizationType]]], optional): which parameters are localized. Defaults to None.
         ftype (Dict[ProcessType, List[Tuple['Location',FactorType]]], optional): which parameters are provided with factors at Location. Defaults to None
 
 
@@ -97,7 +97,7 @@ class Process:
     # Design parameters
     cap_max: Union[float, dict, Tuple[float], Theta]
     cap_min: Union[float, dict, Tuple[float], Theta] = None
-    land: Union[float, Tuple[float], Theta] = None
+    land: float = None  # Union[float, Tuple[float], Theta]
     conversion: Union[Dict[Union[int, str], Dict[Resource, float]],
                       Dict[Resource, float]] = None
     material_cons: Union[Dict[Union[int, str],
@@ -128,7 +128,7 @@ class Process:
     # Types
     ctype: List[ProcessType] = None
     ptype: Dict[ProcessType, ParameterType] = None
-    ltype: Dict[ProcessType, List[Tuple['Location', LocalizeType]]] = None
+    ltype: Dict[ProcessType, List[Tuple['Location', LocalizationType]]] = None
     ftype: Dict[ProcessType, List[Tuple['Location', FactorType]]] = None
     # Details
     basis: str = None
@@ -141,7 +141,7 @@ class Process:
     prod_max: float = None
     prod_min: float = None
 
-    # Update ProcessType, FactorType, LocalizeType, EmissionType as necessary if adding attributes
+    # Update ProcessType, FactorType, LocalizationType, EmissionType as necessary if adding attributes
 
     def __post_init__(self):
 
@@ -261,7 +261,7 @@ class Process:
         # *----------------- Set ltype ---------------------------------
         # Localization factors can be provided for parameters at Location
         # These include 'cap_max', 'cap_min', 'capex', 'fopex', 'vopex', 'incidental' (if declared)
-        # ltype is a Dict[ProcessType, List[Tuple['Location', LocalizeType]]]
+        # ltype is a Dict[ProcessType, List[Tuple['Location', LocalizationType]]]
         # localizations a Dict[ProcessType, List[Tuple['Location', Localize]]]
 
         self.ltype, self.localizations = dict(), dict()
@@ -331,6 +331,24 @@ class Process:
         return ProcessParamType.uncertain()
 
     @classmethod
+    def uncertain_factors(cls) -> List[str]:
+        """Uncertain parameters for which factors are defined
+        """
+        return ProcessParamType.uncertain_factor()
+
+    @classmethod
+    def process_level_uncertain_parameters(cls) -> List[str]:
+        """Uncertain parameters set a Process level
+        """
+        return ProcessParamType.process_level_uncertain()
+
+    @classmethod
+    def location_level_uncertain_parameters(cls) -> List[str]:
+        """Uncertain parameters set a Location level
+        """
+        return ProcessParamType.location_level_uncertain()
+
+    @classmethod
     def localize_parameters(cls) -> List[str]:
         """Process parameters than can be localized 
         """
@@ -364,7 +382,7 @@ class Process:
     # def ltypes(cls) -> List[str]:
     #     """Localization types
     #     """
-    #     return [i.lower() for i in LocalizeType.process()]
+    #     return [i.lower() for i in LocalizationType.process()]
 
     @classmethod
     def etypes(cls) -> List[str]:

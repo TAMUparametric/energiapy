@@ -25,6 +25,13 @@ class LocationParamType(Enum):
         exclude_ = []
         return list(set(cls.all()) - set(exclude_))
 
+    @classmethod
+    def uncertain_factor(cls) -> List[str]:
+        """Uncertain parameters for which factors are defined
+        """
+        exclude_ = []
+        return list(set(cls.uncertain()) - set(exclude_))
+
     # * -------------------------- Automated below this ----------------------------------------
 
     @classmethod

@@ -47,6 +47,13 @@ class ResourceParamType(Enum):
         exclude_ = ['STORE_MIN']
         return list(set(cls.all()) - set(exclude_))
 
+    @classmethod
+    def uncertain_factor(cls) -> List[str]:
+        """Uncertain parameters for which factors are defined
+        """
+        exclude_ = []
+        return list(set(cls.uncertain()) - set(exclude_))
+
     # * -------------------------- Automated below this ----------------------------------------
 
     @classmethod
@@ -60,7 +67,7 @@ class ResourceParamType(Enum):
         """Set when Resource is declared
         """
         return list(set(cls.all()) - set(cls.location_level()) - set(cls.transport_level()))
-    
+
     @classmethod
     def localize(cls) -> List[str]:
         """Resource parameters than can be localized 

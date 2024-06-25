@@ -13,6 +13,7 @@ class TransportParamType(Enum):
     INCIDENTAL = auto()
     CAPACITY = auto()
     TRANS_LOSS = auto()
+    LAND = auto()
     INTRODUCE = auto()
     RETIRE = auto()
     LIFETIME = auto()
@@ -46,6 +47,13 @@ class TransportParamType(Enum):
         """
         exclude_ = ['CAP_MIN']
         return list(set(cls.all()) - set(cls.temporal()) - set(exclude_))
+
+    @classmethod
+    def uncertain_factor(cls) -> List[str]:
+        """Uncertain parameters for which factors are defined
+        """
+        exclude_ = ['TRANS_LOSS', 'LAND']
+        return list(set(cls.uncertain()) - set(exclude_))
 
     # * -------------------------- Automated below this ----------------------------------------
 

@@ -8,7 +8,7 @@ from warnings import warn
 from .comptype.emission import EmissionType
 from .comptype.resource import ResourceType
 from .parameters.mpvar import Theta, create_mpvar
-from .parameters.paramtype import (FactorType, LocalizeType, MPVarType,
+from .parameters.paramtype import (FactorType, LocalizationType, MPVarType,
                                    ParameterType)
 from .parameters.resource import ResourceParamType
 
@@ -48,7 +48,7 @@ class Resource:
         citation (str, optional): can provide citations for your data sources. Defaults to None
         ctype (List[ResourceType], optional): List of resource types. Defaults to None
         ptype (Dict[ResourceType, ParameterType], optional): dict with parameters declared and thier types. Defaults to None.
-        ltype (Dict[ResourceType, List[Tuple['Location', LocalizeType]]], optional): which parameters are localized at Location. Defaults to None.
+        ltype (Dict[ResourceType, List[Tuple['Location', LocalizationType]]], optional): which parameters are localized at Location. Defaults to None.
         ftype (Dict[ResourceType, List[Tuple['Location', ParameterType]]], optional): which parameters are provided with factors at Location. Defaults to None
 
     Examples:
@@ -133,7 +133,7 @@ class Resource:
     # Types
     ctype: List[ResourceType] = None
     ptype: Dict[ResourceType, ParameterType] = None
-    ltype: Dict[ResourceType, List[Tuple['Location', LocalizeType]]] = None
+    ltype: Dict[ResourceType, List[Tuple['Location', LocalizationType]]] = None
     ftype: Dict[ResourceType, List[Tuple['Location', FactorType]]] = None
     # Depreciated
     sell: bool = None
@@ -146,8 +146,6 @@ class Resource:
         # *-----------------Declared at location---------------------------------
         # Dict['Location', Union[float, Tuple[float], Theta]]. Declared at Location
         self.demand = None
-
-        self.availability = self.cons_max  # An alias for cons_max
 
         # *-----------------Set ctype (ResourceType)---------------------------------
         # .DISCHARGE allows the resource to be discharged (cons_max > 0)
@@ -229,7 +227,7 @@ class Resource:
         # *----------------- Parameter localizations populated at Location ---------------------------------
         # Localization factors can be provided for parameters at Location
         # These include purchase_price, sell_price and cons_max (if declared), and demand if provided at location
-        # ltype is a Dict[ResourceType, List[Tuple['Location', LocalizeType]]]
+        # ltype is a Dict[ResourceType, List[Tuple['Location', LocalizationType]]]
         # localizations a Dict[ResourceType, List[Tuple['Location', Localize]]]
 
         self.ltype, self.localizations = dict(), dict()
@@ -267,8 +265,16 @@ class Resource:
             raise ValueError(
                 f'{self.name}: revenue has been depreciated. Please use sell_price instead')
 
+    # *----------------- Properties ---------------------------------
+
+    @property
+    def availability(self):
+        """Sets alias for cons_max
+        """
+        return self.cons_max
+
     # *----------------- Class Methods ---------------------------------
-    
+
     @classmethod
     def parameters(cls) -> List[str]:
         """All Resource paramters
@@ -280,7 +286,7 @@ class Resource:
         """Set when Resource is declared
         """
         return ResourceParamType.resource_level()
-   
+
     @classmethod
     def location_level_parameters(cls) -> List[str]:
         """Set when Location is declared
@@ -300,11 +306,17 @@ class Resource:
         return ResourceParamType.uncertain()
 
     @classmethod
+    def uncertain_factors(cls) -> List[str]:
+        """Uncertain parameters for which factors are defined
+        """
+        return ResourceParamType.uncertain_factor()
+
+    @classmethod
     def localize_parameters(cls) -> List[str]:
         """Resource parameters than can be localized 
         """
         return ResourceParamType.localize()
-    
+
     @classmethod
     def classifications(cls) -> List[str]:
         """All Resource paramters
@@ -316,7 +328,7 @@ class Resource:
         """Set when Resource is declared
         """
         return ResourceType.resource_level()
-   
+
     @classmethod
     def location_level_classifications(cls) -> List[str]:
         """Set when Location is declared
@@ -328,14 +340,13 @@ class Resource:
         """Set when Transport is declared
         """
         return ResourceType.transport_level()
-    
 
     @classmethod
     def etypes(cls) -> List[str]:
         """Emission types
         """
         return EmissionType.all()
-    
+
     def __repr__(self):
         return self.name
 

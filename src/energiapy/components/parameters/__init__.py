@@ -2,9 +2,10 @@
 """
 
 from .factor import Factor
-from .mpvar import Theta
-from .resource import ResourceParamType
-from .process import ProcessParamType
 from .location import LocationParamType
-from .transport import TransportParamType
+from .mpvar import Theta
 from .network import NetworkParamType
+from .paramtype import FactorType, LocalizationType, MPVarType, ParameterType
+from .process import ProcessParamType
+from .resource import ResourceParamType
+from .transport import TransportParamType

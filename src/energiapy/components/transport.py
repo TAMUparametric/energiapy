@@ -11,13 +11,11 @@ from typing import Dict, List, Set, Tuple, Union
 from .comptype.emission import EmissionType
 from .comptype.resource import ResourceType
 from .comptype.transport import TransportType
-
-from .parameters.transport import TransportParamType
-
 from .location import Location
 from .material import Material
 from .parameters.mpvar import Theta, create_mpvar
 from .parameters.paramtype import FactorType, MPVarType, ParameterType
+from .parameters.transport import TransportParamType
 from .resource import Resource
 
 
@@ -68,8 +66,8 @@ class Transport:
     cap_max: Union[float, Tuple[float], Theta]
     # Design Parameters
     cap_min: Union[float, Tuple[float], Theta] = None
-    land: Union[float, Tuple[float], Theta] = None
-    trans_loss: Union[float, Tuple[float], Theta] = None
+    land: float = None  # Union[float, Tuple[float], Theta]
+    trans_loss: float = None  # Union[float, Tuple[float], Theta]
     material_cons: Dict[Material, float] = None
     # Expenditure
     capex: Union[float, dict, Tuple[float], Theta] = None
@@ -196,6 +194,12 @@ class Transport:
         """Uncertain parameters
         """
         return TransportParamType.uncertain()
+
+    @classmethod
+    def uncertain_factors(cls) -> List[str]:
+        """Uncertain parameters for which factors are defined
+        """
+        return TransportParamType.uncertain_factor()
 
     @classmethod
     def transport_level_temporal_parameters(cls) -> List[str]:

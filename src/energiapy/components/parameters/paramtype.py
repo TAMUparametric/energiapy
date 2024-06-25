@@ -2,18 +2,12 @@
 """
 from enum import Enum, auto
 from typing import List
-# from ..comptype import ResourceType, ProcessType
 
-
-# bla = ProcessType.parameters() + ResourceType.parameters()
-
-
-# class Testa(Enum):
-#     pass
-
-
-# for i in bla:
-#     setattr(Testa, i, auto())
+from .location import LocationParamType
+from .network import NetworkParamType
+from .process import ProcessParamType
+from .resource import ResourceParamType
+from .transport import TransportParamType
 
 
 # *-----------------------Parameter-------------------------------------------------
@@ -30,173 +24,158 @@ class ParameterType(Enum):
     or provided as a range using tuple
     """
 
-# *-----------------------Factor------------------------------------------------
+# # *-----------------------Factor------------------------------------------------
+
+
+resource_factors = [
+    f'RESOURCE_{i}' for i in ResourceParamType.uncertain_factor()]
+process_factors = [f'PROCESS_{i}' for i in ProcessParamType.uncertain_factor()]
+location_factors = [
+    f'LOCATION_{i}' for i in LocationParamType.uncertain_factor()]
+transport_factors = [
+    f'TRANSPORT_{i}' for i in TransportParamType.uncertain_factor()]
+network_factors = [f'NETWORK_{i}' for i in NetworkParamType.uncertain_factor()]
+
+factors = resource_factors + process_factors + \
+    location_factors + transport_factors + network_factors
 
 
 class FactorType(Enum):
-    """ Type of deterministic data factor
+    """Type of factor declared to account for uncertainty in Component parameter
     """
-    SELL_PRICE = auto()
-    PURCHASE_PRICE = auto()
-    AVAILABILITY = auto()
-    """ For Resources
-    """
-    DEMAND = auto()
-    """ For Resources (declared at Location level)
-    """
-    CAPACITY = auto()
-    CAPEX = auto()
-    FOPEX = auto()
-    VOPEX = auto()
-    INCIDENTAL = auto()
-    """ For Processes
-    """
-    CREDIT = auto()
-    """ For Processes (provided at Location level)
-    """
-    LAND_COST = auto()
-    LAND_MAX = auto()
-    """ For Locations
-    """
-    TRANS_CAPACITY = auto()
-    TRANS_CAPEX = auto()
-    TRANS_FOPEX = auto()
-    TRANS_VOPEX = auto()
-    TRANS_INCIDENTAL = auto()
-    """ For Transportations (all updated at Network)
-    """
-    NETWORK_LAND_MAX = auto()
 
     @classmethod
-    def resource(cls) -> List[str]:
+    def all(cls) -> List[str]:
+        """All factors
+        """
+        return factors
+
+    @classmethod
+    def resource_factors(cls) -> List[str]:
         """Resource factors
         """
-        return ['PURCHASE_PRICE', 'AVAILABILITY', 'SELL_PRICE', 'DEMAND']
+        return resource_factors
 
     @classmethod
-    def process(cls) -> List[str]:
+    def process_factors(cls) -> List[str]:
         """Process factors
         """
-        return ['CAPACITY', 'CAPEX', 'FOPEX', 'VOPEX', 'INCIDENTAL', 'CREDIT']
+        return process_factors
 
     @classmethod
-    def location(cls) -> List[str]:
+    def location_factors(cls) -> List[str]:
         """Location factors
         """
-        return ['LAND_COST', 'LAND_MAX']
+        return location_factors
 
     @classmethod
-    def transport(cls) -> List[str]:
+    def transport_factors(cls) -> List[str]:
         """Transport factors
         """
-        return ['TRANS_CAPACITY', 'TRANS_CAPEX', 'TRANS_FOPEX', 'TRANS_VOPEX', 'TRANS_INCIDENTAL']
+        return transport_factors
 
     @classmethod
-    def network(cls) -> List[str]:
+    def network_factors(cls) -> List[str]:
         """Network factors
         """
-        return ['NETWORK_LAND_MAX']
+        return network_factors
 
+
+for i in factors:
+    setattr(FactorType, i, auto())
 
 # *-----------------------Localization ------------------------------------------------
 
+resource_localizations = [
+    f'RESOURCE_{i}' for i in ResourceParamType.localize()]
+process_localizations = [f'PROCESS_{i}' for i in ProcessParamType.localize()]
 
-class LocalizeType(Enum):
-    """Localization factor for parameter values declared at Resource or Process level
+localizations = resource_localizations + process_localizations
+
+
+class LocalizationType(Enum):
+    """Localization factor for  Resource and Process provided at Location
     """
-    PURCHASE_PRICE = auto()
-    CONS_MAX = auto()
-    SELL_PRICE = auto()
-    """ For Resources
-    """
-    CAP_MAX = auto()
-    CAP_MIN = auto()
-    CAPEX = auto()
-    FOPEX = auto()
-    VOPEX = auto()
-    INCIDENTAL = auto()
-    """ For Processes
-    """
+    @classmethod
+    def all(cls) -> List[str]:
+        """All localizations
+        """
+        return localizations
 
     @classmethod
-    def resource(cls) -> List[str]:
+    def resource_localizations(cls) -> List[str]:
         """Resource localizations
         """
-        return ['PURCHASE_PRICE', 'AVAILABILITY', 'SELL_PRICE']
+        return resource_localizations
 
     @classmethod
-    def process(cls) -> List[str]:
+    def process_localizations(cls) -> List[str]:
         """Process localizations
         """
-        return ['CAP_MAX', 'CAP_MIN', 'CAPEX', 'FOPEX', 'VOPEX', 'INCIDENTAL', 'CREDIT']
+        return process_localizations
 
+
+for i in localizations:
+    setattr(LocalizationType, i, auto())
 
 # *-----------------------Multiparametric Var-----------------------------------------------
 
+
+resource_uncertain_params = [
+    f'RESOURCE_{i}' for i in ResourceParamType.uncertain()]
+process_uncertain_params = [
+    f'PROCESS_{i}' for i in ProcessParamType.uncertain()]
+location_uncertain_params = [
+    f'LOCATION_{i}' for i in LocationParamType.uncertain()]
+transport_uncertain_params = [
+    f'TRANSPORT_{i}' for i in TransportParamType.uncertain()]
+network_uncertain_params = [
+    f'NETWORK_{i}' for i in NetworkParamType.uncertain()]
+
+uncertain_params = resource_uncertain_params + process_uncertain_params + \
+    location_uncertain_params + transport_uncertain_params + network_uncertain_params
+
+
 class MPVarType(Enum):
-    """ Type of deterministic data factor
-    """
-    PURCHASE_PRICE = auto()
-    AVAILABILITY = auto()
-    SELL_PRICE = auto()
-    """ For Resources
-    """
-    DEMAND = auto()
-    """ For Resources (declared at Location level)
-    """
-    CAP_MAX = auto()
-    CAP_MIN = auto()
-    CAPEX = auto()
-    FOPEX = auto()
-    VOPEX = auto()
-    INCIDENTAL = auto()
-    LAND = auto()
-    """ For Processes
-    """
-    CREDIT = auto()
-    """ For Processes (provided at Location level)
-    """
-    LAND_COST = auto()
-    LAND_MAX = auto()
-    """ For Locations
-    """
-    TRANS_CAPACITY = auto()
-    TRANS_CAPEX = auto()
-    TRANS_FOPEX = auto()
-    TRANS_VOPEX = auto()
-    TRANS_INCIDENTAL = auto()
-    """ For Transports 
-    """
-    NETWORK_LAND_MAX = auto()
-    """ For NETWORK
+    """ Type of multiparametric variable created
     """
 
     @classmethod
-    def resource(cls) -> List[str]:
-        """Resource parameters
+    def all(cls) -> List[str]:
+        """All uncertain parameters
         """
-        return ['PURCHASE_PRICE', 'AVAILABILITY', 'SELL_PRICE', 'DEMAND']
+        return uncertain_params
 
     @classmethod
-    def process(cls) -> List[str]:
-        """Process parameters
+    def resource_uncertain_params(cls) -> List[str]:
+        """Resource uncertain parameters
         """
-        return ['CAP_MAX', 'CAP_MIN', 'CAPEX', 'FOPEX', 'VOPEX', 'INCIDENTAL', 'LAND', 'CREDIT']
+        return resource_uncertain_params
 
     @classmethod
-    def location(cls) -> List[str]:
-        """Location parameters
+    def process_uncertain_params(cls) -> List[str]:
+        """Process uncertain parameters
         """
-        return ['LAND_COST', 'LAND_MAX']
+        return process_uncertain_params
 
     @classmethod
-    def transport(cls) -> List[str]:
-        """Transport parameters
+    def location_uncertain_params(cls) -> List[str]:
+        """Location uncertain parameters
         """
-        return ['TRANS_CAPACITY', 'TRANS_CAPEX', 'TRANS_FOPEX', 'TRANS_VOPEX', 'TRANS_INCIDENTAL']
+        return location_uncertain_params
 
     @classmethod
-    def network(cls) -> List[str]:
-        """Network parameters
+    def transport_uncertain_params(cls) -> List[str]:
+        """Transport uncertain parameters
         """
-        return ['NETWORK_LAND_MAX']
+        return transport_uncertain_params
+
+    @classmethod
+    def network_uncertain_params(cls) -> List[str]:
+        """Network uncertain parameters
+        """
+        return network_uncertain_params
+
+
+for i in uncertain_params:
+    setattr(MPVarType, i, auto())

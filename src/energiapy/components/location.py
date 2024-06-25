@@ -15,31 +15,19 @@ from pandas import DataFrame
 from .comptype.resource import ResourceType
 from .comptype.process import ProcessType
 from .comptype.location import LocationType
-from .comptype.emission import EmissionType
 
 
 from .material import Material
 from .parameters.factor import Factor
-from .parameters.localize import Localize
+from .parameters.localization import Localization
 from .parameters.mpvar import Theta, create_mpvar
-from .parameters.paramtype import (FactorType, LocalizeType, MPVarType,
+from .parameters.paramtype import (FactorType, LocalizationType, MPVarType,
                                    ParameterType)
 from .parameters.location import LocationParamType
 
 from .process import Process
 from .resource import Resource
 from .temporal_scale import TemporalScale
-
-# process_params_declared_at_process = Process._params_declared_here
-
-# process_types =
-# print(process_types)
-
-# process_parameters_declared_at_location =
-
-# resource_parameters_declared_at_process =
-
-# resource_parameters_declared_at_location =
 
 
 @dataclass
@@ -75,7 +63,7 @@ class Location:
         demand (Dict[Resource, Union[float, Tuple[float], Theta]]): demand for resources at location. Defaults to None.
         sell_price_factor (Dict[Resource, DataFrame], optional): Factor for varying resource revenue. Defaults to None.
         purchase_price_factor (Dict[Resource, DataFrame], optional): Factor for varying cost. Defaults to None.
-        availability_factor (Dict[Resource, DataFrame], optional): Factor for varying resource availability. Defaults to None.
+        cons_max_factor (Dict[Resource, DataFrame], optional): Factor for varying resource availability. Defaults to None.
         demand_factor (Dict[Resource, DataFrame], optional): Factor for varying demand. Defaults to None.
         store_max_factor (Dict[Resource, DataFrame], optional): Factor for maximum inventory capacity. Defaults to None.
         store_loss_factor (Dict[Resource, DataFrame], optional): Factor for loss of resource in inventory. Defaults to None.
@@ -128,7 +116,7 @@ class Location:
     # Factors for Resource parameter variability
     sell_price_factor: Dict[Resource, DataFrame] = None
     purchase_price_factor: Dict[Resource, DataFrame] = None
-    availability_factor: Dict[Resource, DataFrame] = None
+    cons_max_factor: Dict[Resource, DataFrame] = None
     demand_factor: Dict[Resource, DataFrame] = None
     store_max_factor: Dict[Resource, DataFrame] = None
     store_loss_factor: Dict[Resource, DataFrame] = None
@@ -180,9 +168,6 @@ class Location:
     revenue_factor: dict = None
 
     def __post_init__(self):
-
-        # *----------------- Aliases ---------------------------------
-        self.availability_localize = self.cons_max_localize
 
         # *----------------- Update Location parameters and factors ---------------------------------
 
@@ -283,7 +268,7 @@ class Location:
         # Create Localize from data
         # Update Component.ltype and Component.localizations
         for i in ['purchase_price', 'cons_max', 'sell_price', 'cap_max', 'cap_min', 'capex', 'fopex', 'vopex', 'incidental']:
-            self.update_comp_localize(i)
+            self.update_comp_localization(i)
 
         # TODO - does this need to be here ? can this be aggregated at the scenario level?
         # * ---------------- Collect Emission Data ------------------------------------------
@@ -321,6 +306,14 @@ class Location:
             raise ValueError(
                 f'{self.name}: revenue_factor_scale_level is depreciated, use sell_price_factor instead')
 
+    # *----------------- Properties ---------------------------------
+
+    @property
+    def availability_factor(self):
+        """Sets alias for cons_max_factor
+        """
+        return self.cons_max_factor
+
     # *----------------- Class Methods -------------------------------------
 
     @classmethod
@@ -340,6 +333,12 @@ class Location:
         """Uncertain parameters
         """
         return LocationParamType.uncertain()
+
+    @classmethod
+    def uncertain_factors(cls) -> List[str]:
+        """Uncertain parameters for which factors are defined
+        """
+        return LocationParamType.uncertain_factor()
 
     @classmethod
     def network_level_parameters(cls) -> List[str]:
@@ -471,7 +470,7 @@ class Location:
                         j.ftype[ctype_] = [(self, ftype_)]
                         j.factors[ctype_] = [(self, factor_)]
 
-    def update_comp_localize(self, localize_name: str):
+    def update_comp_localization(self, localize_name: str):
         """Check if a localization has been provided
         Creates Localize from data 
         Updates Component.ltype and Component.localizations
@@ -492,29 +491,29 @@ class Location:
                     ctype_ = getattr(ResourceType, type_dict[localize_name])
                 else:
                     ctype_ = getattr(ProcessType, localize_name.upper())
-                # find LocalizeType
-                ltype_ = getattr(LocalizeType, localize_name.upper())
+                # find LocalizationType
+                ltype_ = getattr(LocalizationType, localize_name.upper())
 
                 # calculate localize from data
-                localize_ = Localize(value=getattr(
+                localization_ = Localization(value=getattr(
                     self, f'{localize_name}_localize')[j], component=j, ltype=ltype_, location=self)
 
                 # replace value with Localize object
-                getattr(self, f'{localize_name}_localize')[j] = localize_
+                getattr(self, f'{localize_name}_localize')[j] = localization_
                 # component.ltype and .localizations are declared as dict()
                 # if encountering for the first time, create key and list with the tuple (Location, FactorType/Factor)
                 if not j.ltype:
                     j.ltype[ctype_] = [(self, ltype_)]
-                    j.localizations[ctype_] = [(self, localize_)]
+                    j.localizations[ctype_] = [(self, localization_)]
                 # if a particular factor for the same component has been declared in another location, then append [(Loc1, ..), (Loc2, ..)]
                 else:
                     if ctype_ in j.ltype:
                         j.ltype[ctype_].append((self, ltype_))
-                        j.localizations[ctype_].append((self, localize_))
+                        j.localizations[ctype_].append((self, localization_))
                     # if this is a new ctype_ being considered, create key and list with tuple (Location, FactorType/Factor)
                     else:
                         j.ltype[ctype_] = [(self, ltype_)]
-                        j.localizations[ctype_] = [(self, localize_)]
+                        j.localizations[ctype_] = [(self, localization_)]
 
     def make_parameter_dict(self, parameter: str, component_set: str):
         """Makes a dict with components and thier paramter values

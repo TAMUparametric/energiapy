@@ -11,15 +11,15 @@ from typing import Dict, List, Tuple, Union
 from pandas import DataFrame
 
 from .comptype.location import LocationType
-from .comptype.transport import TransportType
 from .comptype.network import NetworkType
+from .comptype.transport import TransportType
 from .location import Location
 from .parameters.factor import Factor
 from .parameters.mpvar import Theta, create_mpvar
+from .parameters.network import NetworkParamType
 from .parameters.paramtype import FactorType, MPVarType, ParameterType
 from .temporal_scale import TemporalScale
 from .transport import Transport
-from .parameters.network import NetworkParamType
 
 
 @dataclass
@@ -36,6 +36,7 @@ class Network:
         transport_matrix (List[List[float]], optional): matrix with distances between sources and sinks, needs to be ordered
         land_max (Union[float, Tuple[float], Theta], optional): land available. Defaults to None.
         land_max_factor (DataFrame, optional): factor for changing land availability. Defaults to None. 
+        cap_max_factor (Dict[Tuple[Location, Location], Dict[Transport, DataFrame]], optional):  Factor for capacity expansion of Transport between Locations. Defaults to None.
         capacity_factor (Dict[Tuple[Location, Location], Dict[Transport, DataFrame]], optional):  Factor for varying capacity for Transport between Locations. Defaults to None.
         capex_factor (Dict[Tuple[Location, Location], Dict[Transport, DataFrame]], optional):  Factor for varying capital expenditure for Transport between Locations. Defaults to None.
         vopex_factor (Dict[Tuple[Location, Location], Dict[Transport, DataFrame]], optional):  Factor for varying variable operational expenditure for Transport between Locations. Defaults to None.
@@ -82,6 +83,8 @@ class Network:
     land_max: Union[float, Tuple[float], Theta] = None
     land_max_factor: DataFrame = None
     # Factors for Transport
+    cap_max_factor: Dict[Tuple[Location, Location],
+                         Dict[Transport, DataFrame]] = None
     capacity_factor: Dict[Tuple[Location, Location],
                           Dict[Transport, DataFrame]] = None
     capex_factor: Dict[Tuple[Location, Location],
@@ -178,6 +181,12 @@ class Network:
         """Uncertain parameters
         """
         return NetworkParamType.uncertain()
+
+    @classmethod
+    def uncertain_factors(cls) -> List[str]:
+        """Uncertain parameters for which factors are defined
+        """
+        return NetworkParamType.uncertain_factor()
 
     @classmethod
     def classifications(cls) -> List[str]:
