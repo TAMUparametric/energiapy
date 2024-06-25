@@ -5,7 +5,8 @@ from dataclasses import dataclass
 from typing import Dict, List, Tuple, Union
 from warnings import warn
 
-from .comptype import EmissionType, ResourceType
+from .comptype.emission import EmissionType
+from .comptype.resource import ResourceType
 from .parameters.mpvar import Theta, create_mpvar
 from .parameters.paramtype import (FactorType, LocalizeType, MPVarType,
                                    ParameterType)

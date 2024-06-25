@@ -1,6 +1,7 @@
 """energiapy.Network - links Locations through Transports
 """
 # TODO - check transport avail (only has transport name) and transport dict (has transport object)
+# TODO - add CAP_MAX and TRANS_LOSS factors for Transport
 
 import uuid
 from dataclasses import dataclass, field
@@ -9,7 +10,9 @@ from typing import Dict, List, Tuple, Union
 
 from pandas import DataFrame
 
-from .comptype import LocationType, NetworkType, TransportType
+from .comptype.location import LocationType
+from .comptype.transport import NetworkType
+from .comptype.network import TransportType
 from .location import Location
 from .parameters.factor import Factor
 from .parameters.mpvar import Theta, create_mpvar

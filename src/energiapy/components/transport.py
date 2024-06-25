@@ -2,7 +2,7 @@
 """
 # TODO ---- apply material constraints
 # TODO --- trans_loss, retire, introduce, land, land_cost (could be between location.. will need to check)
-
+# TODO -- PWL CAPEX
 
 import uuid
 from dataclasses import dataclass
@@ -24,13 +24,13 @@ class Transport:
     Args:
         name(str): name of transport, short ones are better to deal with .
         resources(Set[Resource]): specific resources transported through mode.
+        cap_max(Union[float, Tuple[float], Theta]): maximum capacity that can be set up.
+        cap_min(Union[float, Tuple[float], Theta], optional): minimum capacity required to set up. Defaults to None.
+        trans_loss(Union[float, Tuple[float], Theta], optional): transport losses per unit basis of Resource for timeperiod in scheduling scale. Defaults to 0.
         material_cons(Dict[Material, float], optional): Materials consumed per unit distance of Transport. Defaults to None.
-        cap_max(float, optional): maximum capacity that can be set up. Defaults to None.
-        cap_min(float, optional): minimum capacity required to set up. Defaults to None.
-        trans_loss(float, optional): transport losses per unit basis of Resource for timeperiod in scheduling scale. Defaults to 0.
-        capex(float, optional): capital expenditure on a per unit distance unit capacity basis. Defaults to None.
-        vopex(float, optional): variable operational expenditure on a per unit distance unit capacity basis. Defaults to None.
-        fopex(float, optional): fixed operational expenditure on a per unit distance unit capacity basis. Defaults to None.
+        capex(Union[float, Tuple[float], Theta], optional): capital expenditure on a per unit distance unit capacity basis. Defaults to None.
+        vopex(Union[float, Tuple[float], Theta], optional): variable operational expenditure on a per unit distance unit capacity basis. Defaults to None.
+        fopex(Union[float, Tuple[float], Theta], optional): fixed operational expenditure on a per unit distance unit capacity basis. Defaults to None.
         incidental(float, optional): incidental expenditure on a per unit distance unit capacity basis. Defaults to None.
         gwp (Union[float, Tuple[float], Theta], optional): global warming potential for settting up transportation per unit distance. Defaults to None.
         odp (Union[float, Tuple[float], Theta], optional): ozone depletion potential for settting up transportation per unit distance. Defaults to None.
@@ -59,15 +59,15 @@ class Transport:
     name: str
     # Primary attributes
     resources: Set[Resource]
-    material_cons: Dict[Material, float] = None
+    cap_max: Union[float, Tuple[float], Theta]
     # Design Parameters
-    cap_max: float = None
-    cap_min: float = None
-    trans_loss: float = None
+    cap_min: Union[float, Tuple[float], Theta] = None
+    trans_loss: Union[float, Tuple[float], Theta] = None
+    material_cons: Dict[Material, float] = None
     # Expenditure
     capex: Union[float, dict, Tuple[float], Theta] = None
-    vopex: Union[float, dict, Tuple[float], Theta] = None
-    fopex: Union[float, dict, Tuple[float], Theta] = None
+    vopex: Union[float, Tuple[float], Theta] = None
+    fopex: Union[float, Tuple[float], Theta] = None
     incidental: Union[float, dict, Tuple[float], Theta] = None
     # Emissions
     gwp: Union[float, Tuple[float], Theta] = None

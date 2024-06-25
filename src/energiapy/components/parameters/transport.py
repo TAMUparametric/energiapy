@@ -1,0 +1,56 @@
+from enum import Enum, auto
+from typing import List
+
+
+class TransportParamType(Enum):
+    """Transport parameters
+    """
+    CAP_MAX = auto()
+    CAP_MIN = auto()
+    CAPEX = auto()
+    FOPEX = auto()
+    VOPEX = auto()
+    INCIDENTAL = auto()
+    CAPACITY = auto()
+    TRANS_LOSS = auto()
+    INTRODUCE = auto()
+    RETIRE = auto()
+    LIFETIME = auto()
+    """Temporal behaviour 
+    """
+    # * -------------------------- Update this ----------------------------------------
+
+    @classmethod
+    def all(cls) -> List[str]:
+        """All Transport paramters
+        """
+        return [i.name for i in cls]
+
+    @classmethod
+    def network_level(cls) -> List[str]:
+        """Set at Network level
+        """
+        return ['CAPACITY']
+
+    @classmethod
+    def temporal(cls) -> List[str]:
+        """These define the temporal aspects of establishing processes. Factors not provided for these. 
+        """
+        return ['INTRODUCE', 'RETIRE', 'LIFETIME']
+
+    @classmethod
+    def uncertain(cls) -> List[str]:
+        """Uncertain parameters, can be handled: 
+        1. Multiparametrically by defining as multiparametric variables (energiapy.components.parameters.mpvar.MPVar)
+        2. By using factors of deterministic data and via multiperiod scenario analysis 
+        """
+        exclude_ = ['CAP_MIN']
+        return list(set(cls.all()) - set(cls.temporal()) - set(exclude_))
+
+    # * -------------------------- Automated below this ----------------------------------------
+
+    @classmethod
+    def transport_level(cls) -> List[str]:
+        """Set when Location is declared
+        """
+        return list(set(cls.all()) - set(cls.network_level()))

@@ -14,7 +14,11 @@ from pandas import DataFrame
 
 from ..model.bounds import CapacityBounds
 from ..model.weights import EmissionWeights
-from .comptype import LocationType, ProcessType, ResourceType, ScenarioType
+from .comptype.resource import ResourceType
+from .comptype.process import ProcessType
+from .comptype.location import LocationType
+from .comptype.scenario import ScenarioType
+
 from .location import Location
 from .network import Network
 from .parameters.paramtype import ParameterType

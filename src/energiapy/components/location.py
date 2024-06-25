@@ -12,7 +12,10 @@ from typing import Dict, List, Set, Tuple, Union
 
 from pandas import DataFrame
 
-from .comptype import LocationType, ProcessType, ResourceType
+from .comptype.resource import ResourceType
+from .comptype.process import ProcessType
+from .comptype.location import LocationType
+
 from .material import Material
 from .parameters.factor import Factor
 from .parameters.localize import Localize
@@ -377,7 +380,7 @@ class Location:
         """
 
         # This dictionary has a combination of paramter type for each comp and thier related variable factor
-        type_dict = {'capacity': (ProcessType.CAPACITY, FactorType.CAPACITY),
+        type_dict = {'capacity': (ProcessType.INTERMITTENT, FactorType.CAPACITY),
                      'fopex': (ProcessType.FOPEX, FactorType.FOPEX),
                      'vopex': (ProcessType.VOPEX, FactorType.VOPEX),
                      'incidental': (ProcessType.INCIDENTAL, FactorType.INCIDENTAL),

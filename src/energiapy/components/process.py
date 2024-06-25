@@ -7,7 +7,8 @@ from dataclasses import dataclass
 from typing import Dict, List, Tuple, Union
 
 from ..utils.data_utils import get_depth
-from .comptype import EmissionType, ProcessType
+from .comptype.emission import EmissionType
+from .comptype.process import ProcessType
 from .material import Material
 from .parameters.mpvar import Theta, create_mpvar
 from .parameters.paramtype import (FactorType, LocalizeType, MPVarType,
@@ -41,7 +42,7 @@ class Process:
 
     Args:
         name (str): name of process. Enter None to randomly assign a name.
-        cap_max (Union[float, dict, Tuple[float], Theta], optional): Maximum production capacity allowed in a time period of the scheduling scale. Defaults to None.
+        cap_max (Union[float, dict, Tuple[float], Theta]): Maximum production capacity allowed in a time period of the scheduling scale.
         cap_min (Union[float, dict, Tuple[float], Theta], optional): Minimum production capacity allowed in a time period of the scheduling scale. Defaults to None.
         land (Union[float, Tuple[float], Theta], optional): land requirement per unit basis. Defaults to None.
         conversion (Union[Dict[Union[int, str],Dict[Resource, float]], Dict[Resource, float]], optional): conversion data (Dict[Resource, float]]), if multimode the of form Dict[int,Dict[Resource, float]]. Defaults to None.
@@ -93,7 +94,7 @@ class Process:
 
     name: str
     # Design parameters
-    cap_max: Union[float, dict, Tuple[float], Theta] = None
+    cap_max: Union[float, dict, Tuple[float], Theta]
     cap_min: Union[float, dict, Tuple[float], Theta] = None
     land: Union[float, Tuple[float], Theta] = None
     conversion: Union[Dict[Union[int, str], Dict[Resource, float]],
@@ -230,10 +231,6 @@ class Process:
 
         self.ptype = dict()
 
-        for i in self.classifications_declared_here():
-            ctype_ = getattr(ProcessType, i.upper())
-            if ctype_ in self.ctype:
-                self.ptype[ctype_] = ParameterType.CLASSIFICATION
 
         # for i in self.parameters_declared_here():
         #     if getattr(self, i) is not None:
@@ -296,36 +293,6 @@ class Process:
                 f'{self.name}: varying has been depreciated. Variability will be intepreted based on data provided to energiapy.Location factors')
 
     # *----------------- Class Methods ---------------------------------------------
-
-    @classmethod
-    def parameters_declared_here(cls) -> List[str]:
-        """Parameters declared at Process level
-        """
-        return [i.lower() for i in ProcessType.process_level_parameter()]
-
-    @classmethod
-    def parameters_declared_at_location(cls) -> List[str]:
-        """Parameters declared at Location level
-        """
-        return [i.lower() for i in ProcessType.location_level()]
-
-    @classmethod
-    def mpvar_parameters(cls) -> List[str]:
-        """Uncertain parameters for Process 
-        """
-        return [i.lower() for i in MPVarType.process()]
-
-    @classmethod
-    def classifications_declared_here(cls) -> List[str]:
-        """Classifications decided at Process level
-        """
-        return [i.lower() for i in ProcessType.process_level_classification()]
-
-    @classmethod
-    def classifications_declared_at_location(cls) -> List[str]:
-        """Classifications decided at Location level
-        """
-        return [i.lower() for i in ProcessType.location_level_classification()]
 
     @classmethod
     def ctypes(cls) -> List[str]:
