@@ -11,6 +11,8 @@ from .parameters.mpvar import Theta, create_mpvar
 from .parameters.paramtype import (FactorType, LocalizationType, MPVarType,
                                    ParameterType)
 from .parameters.resource import ResourceParamType
+from .parameters.factor import Factor
+from .parameters.localization import Localization
 
 
 @dataclass
@@ -50,6 +52,8 @@ class Resource:
         ptype (Dict[ResourceType, ParameterType], optional): dict with parameters declared and thier types. Defaults to None.
         ltype (Dict[ResourceType, List[Tuple['Location', LocalizationType]]], optional): which parameters are localized at Location. Defaults to None.
         ftype (Dict[ResourceType, List[Tuple['Location', ParameterType]]], optional): which parameters are provided with factors at Location. Defaults to None
+        localizations (Dict[ResourceParamType, List[Tuple['Location', Localization]]], optional): collects localizations when defined at Location. Defaults to None.
+        factors (Dict[ResourceParamType, List[Tuple['Location', Factor]]], optional): collects factors when defined at Location. Defaults to None.
 
     Examples:
 
@@ -134,6 +138,10 @@ class Resource:
     ptype: Dict[ResourceType, ParameterType] = None
     ltype: Dict[ResourceType, List[Tuple['Location', LocalizationType]]] = None
     ftype: Dict[ResourceType, List[Tuple['Location', FactorType]]] = None
+    # Collections
+    localizations: Dict[ResourceParamType,
+                        List[Tuple['Location', Localization]]] = None
+    factors: Dict[ResourceParamType, List[Tuple['Location', Factor]]] = None
     # Depreciated
     sell: bool = None
     varying: list = None
@@ -193,18 +201,7 @@ class Resource:
         self.ptype = dict()
 
         for i in self.resource_level_parameters():
-            attr_ = getattr(self, i.lower())
-            if attr_ is not None:
-                ptype_ = getattr(ResourceParamType,
-                                 f'{i}')
-
-                if isinstance(attr_, (tuple, Theta)):
-                    self.ptype[ptype_] = ParameterType.UNCERTAIN
-                    mpvar_ = create_mpvar(
-                        value=attr_, component=self, ptype=getattr(MPVarType, f'{self.class_name()}_{i}'.upper()))
-                    setattr(self, i.lower(), mpvar_)
-                else:
-                    self.ptype[ptype_] = ParameterType.CERTAIN
+            self.update_resource_level_parameter(parameter=i)
 
         # *-----------------Set etype (Emission)---------------------------------
         # Types of emission accounted for are declared here and EmissionTypes are set
@@ -217,20 +214,6 @@ class Resource:
             if attr_ is not None:
                 self.etype.append(etype_)
                 self.emissions[i.lower()] = attr_
-
-        # *----------------- Parameter localizations populated at Location -----------
-        # Localization factors can be provided for parameters at Location
-        # ltype is a Dict[ProcessParamType, List[Tuple['Location', LocalizationType]]]
-        # localizations are Dict[ProcessParamType, List[Tuple['Location', Localization]]]
-
-        self.ltype, self.localizations = dict(), dict()
-
-        # *------------ Parameter factors populated at Location -----------
-        # Factors can be provided for parameters at Location
-        # ftype is a Dict[ProcessParamType, List[Tuple['Location', FactorType]]]
-        # factors are Dict[ProcessParamType, List[Tuple['Location', Factor]]]
-
-        self.ftype, self.factors = dict(), dict()
 
         # *-----------------Set Parameters Declared at Location to None-------------
 
@@ -364,6 +347,25 @@ class Resource:
         """Emission types
         """
         return EmissionType.all()
+
+    # *----------------- Functions ---------------------------------------------
+    def update_resource_level_parameter(self, parameter: str):
+        """updates parameter, sets ptype
+
+        Args:
+            parameter (str): parameter to update 
+        """
+        attr_ = getattr(self, parameter.lower())
+        if attr_ is not None:
+            ptype_ = getattr(ResourceParamType, parameter)
+
+            if isinstance(attr_, (tuple, Theta)):
+                self.ptype[ptype_] = ParameterType.UNCERTAIN
+                mpvar_ = create_mpvar(
+                    value=attr_, component=self, ptype=getattr(MPVarType, f'{self.class_name()}_{parameter}'.upper()))
+                setattr(self, parameter.lower(), mpvar_)
+            else:
+                self.ptype[ptype_] = ParameterType.CERTAIN
 
     # *----------- Hashing --------------------------------
 

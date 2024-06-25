@@ -23,6 +23,8 @@ from .parameters.localization import Localization
 from .parameters.mpvar import Theta, create_mpvar
 from .parameters.paramtype import (FactorType, LocalizationType, MPVarType,
                                    ParameterType)
+from .parameters.resource import ResourceParamType
+from .parameters.process import ProcessParamType
 from .parameters.location import LocationParamType
 
 from .process import Process
@@ -131,7 +133,7 @@ class Location:
     fopex_factor: Dict[Process, DataFrame] = None
     incidental_factor: Dict[Process, DataFrame] = None
     credit_factor: Dict[Process, DataFrame] = None
-    # Localizations for Resource parameters. 
+    # Localizations for Resource parameters.
     sell_price_localize: Dict[Resource, Tuple[float, int]] = None
     purchase_price_localize: Dict[Resource, Tuple[float, int]] = None
     cons_max_localize: Dict[Resource, Tuple[float, int]] = None
@@ -168,20 +170,33 @@ class Location:
 
     def __post_init__(self):
 
-        # *----------------- Update Location parameters and factors ---------------------------------
+        # *-----------------Set ctype (LocationType)---------------------------------
 
         if self.ctype is None:
             self.ctype = []
-        self.ptype, self.ftype = dict(), dict()
 
-        # Currently only includes land_cost, land_max
-        # If MPVar Theta or a tuple is provided as bounds ptype UNCERTAIN
-        # if factors are provided a Factor is generated and ftype is updated
-        # or else, parameter is treated as CERTAIN parameter
-        for i in ['land_cost', 'land_max']:
-            self.update_location_params_and_factors(i)
+        # update ctype if land aspects are defined
+        if any([self.land_max, self.land_cost]):
+            self.ctype.append(LocationType.LAND)
 
-        # * ---------------Collect Componets (Processes, Resources, Materials) -----------------------
+        # *-----------------Set ptype (ParameterType) ---------------------------------
+        # ptypes of declared parameters are set to .UNCERTAIN if a MPVar Theta or a tuple of bounds is provided,
+        # .CERTAIN otherwise
+        # If empty Theta is provided, the bounds default to (0, 1)
+
+        self.ptype = dict()
+
+        for i in self.location_level_parameters():
+            self.update_location_level_parameter(parameter=i)
+
+        # *-----------------Set ftype (FactorType) ---------------------------------
+
+        self.ftype, self.factors = dict(), dict()
+
+        for i in self.uncertain_factors():
+            self.update_location_level_factor(parameter=i)
+
+        # * ---------------Collect Components (Processes, Resources, Materials) -----------------------
         # Resources and Materials are collected based on Process(es) provided
 
         self.processes = self.processes.union({self.create_storage_process(
@@ -190,27 +205,34 @@ class Location:
         self.materials = set().union(
             *[i.material_req for i in self.processes if (ProcessType.SINGLE_MATMODE in i.ctype) or (ProcessType.MULTI_MATMODE in i.ctype)])
 
-        # * -------------------------- Handle Processes ----------------------------------------
+        # * -------------------------- Update Processes ----------------------------------------
         # checks if new process parameters have been declared
         # Sets new attributes:
         #   subsets based on Process.ctype
         #   dictionaries with prod_modes, material_modes, etc.
 
         # Update Process parameters provided at Location level
-        for i in ['credit']:
-            self.update_comp_params_declared_at_location(
-                parameter=i, component_type=ProcessType)
+        if self.credit is not None:
+            for i in self.credit:
+                i.ctype.append((self, ProcessType.CREDIT))
+
+        if self.capacity_factor is not None:
+            for i in self.capacity_factor:
+                i.ctype.append((self, ProcessType.INTERMITTENT))
+
+        for i in self.location_level_process_parameters():
+            self.update_component_parameter_declared_at_location(
+                parameter=i, parameter_type=ProcessParamType)
 
         # set Process subsets as Location attributes
-        for i in ['SINGLE_PRODMODE', 'MULTI_PRODMODE', 'NO_MATMODE', 'SINGLE_MATMODE', 'MULTI_MATMODE',
-                  'STORAGE', 'STORAGE_REQ', 'LINEAR_CAPEX', 'PWL_CAPEX', 'CAPACITY', 'CAP_MAX', 'CAP_MIN',
-                  'CAPEX', 'FOPEX', 'VOPEX', 'INCIDENTAL', 'CREDIT', 'LAND']:
+        for i in self.process_classifications():
             self.make_component_subset(ctype=getattr(
                 ProcessType, i), component_set='processes', tag=f'processes_{i.lower()}')
 
         # collect Process parameters and set dicts as Location attrs
-        for i in ['cap_max', 'cap_min', 'introduce', 'retire', 'lifetime', 'trl', 'p_fail',  'capex', 'fopex', 'vopex', 'incidental', 'land']:
-            self.make_parameter_dict(parameter=i, component_set='processes')
+        for i in self.process_parameters():
+            self.make_parameter_dict(
+                parameter=i.lower(), component_set='processes')
 
         # Collect capacity and capex segments for each Process with PWL capex
         if getattr(self, 'processes_pwl_capex') is not None:
@@ -237,51 +259,58 @@ class Location:
         self.failure_processes = self.get_failure_processes()
         self.fail_factor = self.make_fail_factor()
 
-        # * -------------------------- Handle Resources ----------------------------------------
+        # update process factors
+        for i in self.process_factors():
+            self.update_component_factor(i, ProcessParamType)
+
+        # update process localizations
+        for i in self.process_localizations():
+            self.update_component_localization(i, ProcessParamType)
+
+        # * -------------------------- Update Resources ----------------------------------------
         # check if new resource parameters have been declared
         # Sets new attributes:
         #   subsets based on Resource.ctype
         #   dictionaries with parameter values
 
-        # Update Resource parameters provided at Location level
-        for i in ['has_demand']:
-            self.update_comp_params_declared_at_location(
-                parameter=i, component_type=ResourceType)
+        if self.demand is not None:
+            for i in self.demand:
+                i.ctype.append((self, ResourceType.DEMAND))
+
+        for i in self.location_level_resource_parameters():
+            self.update_component_parameter_declared_at_location(
+                parameter=i, parameter_type=ResourceParamType)
 
         # set Resource subsets as Location attributes
-        for i in ['STORE', 'PRODUCE', 'IMPLICIT', 'DISCHARGE', 'SELL', 'CONSUME', 'PURCHASE', 'HAS_DEMAND']:
+        for i in self.resource_classifications():
             self.make_component_subset(ctype=getattr(
                 ResourceType, i), component_set='resources', tag=f'resources_{i.lower()}')
 
         # collect Resource parameters and set dicts as Location attrs
-        for i in ['purchase_price', 'sell_price', 'cons_max', 'store_max', 'store_min', 'storage_cost']:
-            self.make_parameter_dict(parameter=i, component_set='resources')
+        for i in self.resource_parameters():
+            self.make_parameter_dict(
+                parameter=i.lower(), component_set='resources')
 
-        # * -------- Update Component (Resource and Process) Factors and Localizations -------------
+        # update resource factors
+        for i in self.resource_factors():
+            self.update_component_factor(i, ResourceParamType)
 
-        # Create Factors from DataFrame
-        # Update Component.ftype and Component.factors
-        for i in ['capacity', 'fopex', 'vopex', 'incidental',  'credit', 'purchase_price', 'demand', 'availability', 'sell_price']:
-            self.update_comp_factor(i)
+        # update resource localizations
+        for i in self.resource_localizations():
+            self.update_component_localization(i, ResourceParamType)
 
-        # Create Localize from data
-        # Update Component.ltype and Component.localizations
-        for i in ['purchase_price', 'cons_max', 'sell_price', 'cap_max', 'cap_min', 'capex', 'fopex', 'vopex', 'incidental']:
-            self.update_comp_localization(i)
-
-        # TODO - does this need to be here ? can this be aggregated at the scenario level?
         # * ---------------- Collect Emission Data ------------------------------------------
         # Get emission data from components
         for i in ['resources', 'materials', 'processes']:
             setattr(self, f'{i}_emissions', {
                     j: j.emissions for j in getattr(self, i)})
 
-        # *----------------- Generate Random Name ------------------------
+        # *----------------- Generate Random Name -------------------------------------------
         # A random name is generated if self.name = None
         if self.name is None:
-            self.name = f'{self.__class__.__name__}_{uuid.uuid4().hex}'
+            self.name = f'{self.class_name()}_{uuid.uuid4().hex}'
 
-        # *----------------- Depreciation Warnings-----------------------------
+        # *----------------- Depreciation Warnings------------------------------------------
 
         if self.demand_scale_level is not None:
             raise ValueError(
@@ -313,13 +342,37 @@ class Location:
         """
         return self.cons_max_factor
 
+    @property
+    def availability_localize(self):
+        """Sets alias for cons_max_localize
+        """
+        return self.cons_max_localize
+
     # *----------------- Class Methods -------------------------------------
+
+    @classmethod
+    def class_name(cls) -> List[str]:
+        """Returns class name 
+        """
+        return cls.__name__
 
     @classmethod
     def parameters(cls) -> List[str]:
         """All Location paramters
         """
         return LocationParamType.all()
+
+    @classmethod
+    def resource_parameters(cls) -> List[str]:
+        """All Resource paramters
+        """
+        return ResourceParamType.all()
+
+    @classmethod
+    def process_parameters(cls) -> List[str]:
+        """All Process paramters
+        """
+        return ProcessParamType.all()
 
     @classmethod
     def location_level_parameters(cls) -> List[str]:
@@ -347,9 +400,21 @@ class Location:
 
     @classmethod
     def classifications(cls) -> List[str]:
-        """All Location paramters
+        """All Location classes
         """
         return LocationType.all()
+
+    @classmethod
+    def resource_classifications(cls) -> List[str]:
+        """All Resource classes
+        """
+        return ResourceType.all()
+
+    @classmethod
+    def process_classifications(cls) -> List[str]:
+        """All Process classes
+        """
+        return ProcessType.all()
 
     @classmethod
     def location_level_classifications(cls) -> List[str]:
@@ -363,156 +428,182 @@ class Location:
         """
         return LocationType.network_level()
 
+    @classmethod
+    def location_level_process_parameters(cls) -> List[str]:
+        """Process parameters updated at Location
+        """
+        return ProcessParamType.location_level()
+
+    @classmethod
+    def location_level_resource_parameters(cls) -> List[str]:
+        """Resource parameters updated at Location
+        """
+        return ResourceParamType.location_level()
+
+    @classmethod
+    def process_factors(cls) -> List[str]:
+        """Process factors updated at Location
+        """
+        return ProcessParamType.uncertain_factor()
+
+    @classmethod
+    def resource_factors(cls) -> List[str]:
+        """Resource factors updated at Location
+        """
+        return ResourceParamType.uncertain_factor()
+
+    @classmethod
+    def process_localizations(cls) -> List[str]:
+        """Process localizations 
+        """
+        return ProcessParamType.localize()
+
+    @classmethod
+    def resource_localizations(cls) -> List[str]:
+        """Resource localizations 
+        """
+        return ResourceParamType.localize()
+
     # *----------------- Functions-------------------------------------
 
-    def update_location_params_and_factors(self, parameter: str):
-        """Updated ctype based on type of parameter provide.
-        Creates MPVar if Theta or tuple of bounds
-        also updates ftype if factors provides and puts Factor in place of DataFrame
+    def update_location_level_parameter(self, parameter: str):
+        """updates parameter, sets ptype
 
         Args:
-            parameter (str): land parameters
+            parameter (str): parameter to update 
         """
-
-        if getattr(self, parameter) is not None:
-            # Update ctype
-            ctype_ = getattr(LocationType, parameter.upper())
-            self.ctype.append(ctype_)
-            # Update ptype
-            if isinstance(getattr(self, parameter), (tuple, Theta)):
-                self.ptype[ctype_] = ParameterType.UNCERTAIN
-                mpvar_ = create_mpvar(value=getattr(
-                    self, parameter), component=self, ptype=getattr(MPVarType, parameter.upper()))
-                setattr(self, parameter, mpvar_)
+        attr_ = getattr(self, parameter.lower())
+        if attr_ is not None:
+            ptype_ = getattr(LocationParamType, parameter)
+            if isinstance(attr_, (tuple, Theta)):
+                self.ptype[ptype_] = ParameterType.UNCERTAIN
+                mpvar_ = create_mpvar(value=attr_, component=self, ptype=getattr(
+                    MPVarType, f'{self.class_name()}_{parameter}'.upper()))
+                setattr(self, parameter.lower(), mpvar_)
             else:
-                self.ptype[ctype_] = ParameterType.CERTAIN
+                self.ptype[ptype_] = ParameterType.CERTAIN
 
-        if getattr(self, f'{parameter}_factor') is not None:
-            # Update ftype
-            ftype_ = getattr(FactorType, parameter.upper())
-            self.ftype[ctype_] = ftype_
-            factor_ = Factor(component=self, data=getattr(
-                self, f'{parameter}_factor'), ftype=ftype_, scales=self.scales, location=self)
+    def update_location_level_factor(self, parameter: str):
+        """updates factor, sets ftype
+
+        Args:
+            parameter (str): parameter to update 
+        """
+        attr_ = getattr(self, f'{parameter}_factor'.lower())
+        if attr_ is not None:
+            ptype_ = getattr(LocationParamType, parameter)
+            ftype_ = getattr(
+                FactorType, f'{self.class_name()}_{parameter}'.upper())
+            self.ftype[ptype_] = ftype_
+            factor_ = Factor(component=self, data=attr_,
+                             ftype=ftype_, scales=self.scales, location=self)
             setattr(self, f'{parameter}_factor', factor_)
 
-    def update_comp_params_declared_at_location(self, parameter: str, component_type: Union[ResourceType, ProcessType]):
+    def update_component_parameter_declared_at_location(self, parameter: str, parameter_type: Union[ResourceParamType, ProcessParamType]):
         """Update the ctype and ptype of component if parameters declared at Location
         Note that the ptype and ctype are updated with a tuples, i.e (Location, ____)
         Args:
             parameter (str): new paramter that has been declared 
             component_type (Union[ResourceType, ProcessType]): Type of component
         """
-        if getattr(self, parameter) is not None:
-            for i in getattr(self, parameter):
-                ctype_ = getattr(component_type, parameter.upper())
-                i.ctype.append((self, ctype_))
-                if isinstance(getattr(self, parameter)[i], (tuple, Theta)):
-                    ptype_ = (self, ParameterType.UNCERTAIN)
-                    mpvar_ = create_mpvar(value=getattr(self, parameter)[
-                                          i], component=i, ptype=getattr(MPVarType, parameter.upper()))
-                    getattr(self, parameter)[i] = mpvar_
+        attr_ = getattr(self, parameter.lower())
+        if attr_ is not None:
+            for i in attr_:  # for each component
+                ptype_ = getattr(parameter_type, parameter)
+                if isinstance(attr_[i], (tuple, Theta)):
+                    append_ = (self, ParameterType.UNCERTAIN)
+                    mpvar_ = create_mpvar(value=attr_[
+                                          i], component=i, ptype=getattr(MPVarType, f'{i.class_name()}_{parameter}'.upper()))
+                    attr_[i] = mpvar_
                 else:
-                    ptype_ = (self, ParameterType.CERTAIN)
-                if ctype_ in i.ptype:  # check if already exists, if yes append
-                    i.ptype[ctype_].append(ptype_)
+                    append_ = (self, ParameterType.CERTAIN)
+                if ptype_ in i.ptype:  # check if already exists, if yes append
+                    i.ptype[ptype_].append(append_)
                 else:  # or create new list with tuple
-                    i.ptype[ctype_] = [ptype_]
+                    i.ptype[ptype_] = [append_]
 
-    def update_comp_factor(self, factor_name: str):
+    def update_component_factor(self, parameter: str, parameter_type: Union[ResourceParamType, ProcessParamType]):
         """Checks if a factor for a component has been provided
         Creates a Factor from DataFrame data
         Updates Componet.factors and Component.ftype
 
         Args:
-            factor_name (str): name of the factor without '_factor'
+            parameter (str): name of parameter
+            parameter_type (Union[ResourceParamType, ProcessParamType]): Component parameter type
         """
 
-        # This dictionary has a combination of paramter type for each comp and thier related variable factor
-        type_dict = {'capacity': (ProcessType.INTERMITTENT, FactorType.CAPACITY),
-                     'fopex': (ProcessType.FOPEX, FactorType.FOPEX),
-                     'vopex': (ProcessType.VOPEX, FactorType.VOPEX),
-                     'incidental': (ProcessType.INCIDENTAL, FactorType.INCIDENTAL),
-                     'credit': (ProcessType.CREDIT, FactorType.CREDIT),
-                     'purchase_price': (ResourceType.PURCHASE, FactorType.PURCHASE_PRICE),
-                     'demand': (ResourceType.DEMAND, FactorType.DEMAND),
-                     'availability': (ResourceType.CONSUME, FactorType.AVAILABILITY),
-                     'sell_price': (ResourceType.SELL, FactorType.SELL_PRICE)}
+        attr_ = getattr(self, f'{parameter}_factor'.lower())
 
         # if factor defined at location
-        if getattr(self, f'{factor_name}_factor') is not None:
+        if attr_ is not None:
             # for each component provided
-            for j in getattr(self, f'{factor_name}_factor'):
-                # component type, basically what parameter
-                ctype_ = type_dict[factor_name][0]
-                # factor related to the parameter
-                ftype_ = type_dict[factor_name][1]
-
+            ptype_ = getattr(parameter_type, parameter)
+            for j in attr_:
+                ftype_ = getattr(
+                    FactorType, f'{j.class_name()}_{parameter}'.upper())
                 # create the factor
-                factor_ = Factor(component=j, data=getattr(self, f'{factor_name}_factor')[
+                factor_ = Factor(component=j, data=attr_[
                     j], ftype=ftype_, scales=self.scales, location=self)
 
                 # replace the DataFrame with a Factor
-                getattr(self, f'{factor_name}_factor')[j] = factor_
-
+                attr_[j] = factor_
                 # component.ftype and .factors are declared as dict().
                 # if encountering for the first time, create key and list with the tuple (Location, FactorType/Factor)
                 if not j.ftype:
-                    j.ftype[ctype_] = [(self, ftype_)]
-                    j.factors[ctype_] = [(self, factor_)]
+                    j.ftype, j.factors = dict(), dict()
+                    j.ftype[ptype_] = [(self, ftype_)]
+                    j.factors[ptype_] = [(self, factor_)]
                 # if a particular factor for the same component has been declared in another location, then append [(Loc1, ..), (Loc2, ..)]
                 else:
-                    if ctype_ in j.ftype:
-                        j.ftype[ctype_].append((self, ftype_))
-                        j.factors[ctype_].append((self, factor_))
+                    if ptype_ in j.ftype:
+                        j.ftype[ptype_].append((self, ftype_))
+                        j.factors[ptype_].append((self, factor_))
                     # if this is a new ctype_ being considered, create key and list with tuple (Location, FactorType/Factor)
                     else:
-                        j.ftype[ctype_] = [(self, ftype_)]
-                        j.factors[ctype_] = [(self, factor_)]
+                        j.ftype[ptype_] = [(self, ftype_)]
+                        j.factors[ptype_] = [(self, factor_)]
 
-    def update_comp_localization(self, localize_name: str):
+    def update_component_localization(self,  parameter: str, parameter_type: Union[ResourceParamType, ProcessParamType]):
         """Check if a localization has been provided
         Creates Localize from data 
         Updates Component.ltype and Component.localizations
 
         Args:
-            localize_name (str): name of what localization provided     
+            parameter (str): name of parameter
+            parameter_type (Union[ResourceParamType, ProcessParamType]): Component parameter type
         """
-
-        type_dict = {'sell_price': 'SELL',
-                     'cons_max': 'CONSUME', 'purchase_price': 'PURCHASE'}
-
+        attr_ = getattr(self, f'{parameter}_localize'.lower())
         # if localize defined at location
-        if getattr(self, f'{localize_name}_localize') is not None:
+        if attr_ is not None:
+            ptype_ = getattr(parameter_type, parameter)
             # for each component provided
-            for j in getattr(self, f'{localize_name}_localize'):
-                # find component parameter type
-                if localize_name in ['purchase_price', 'cons_max', 'sell_price']:
-                    ctype_ = getattr(ResourceType, type_dict[localize_name])
-                else:
-                    ctype_ = getattr(ProcessType, localize_name.upper())
-                # find LocalizationType
-                ltype_ = getattr(LocalizationType, localize_name.upper())
+            for j in attr_:
+                ltype_ = getattr(LocalizationType,
+                                 f'{j.class_name()}_{parameter}'.upper())
 
                 # calculate localize from data
-                localization_ = Localization(value=getattr(
-                    self, f'{localize_name}_localize')[j], component=j, ltype=ltype_, location=self)
+                localization_ = Localization(
+                    attr_[j], component=j, ltype=ltype_, location=self)
 
                 # replace value with Localize object
-                getattr(self, f'{localize_name}_localize')[j] = localization_
+                attr_[j] = localization_
+
                 # component.ltype and .localizations are declared as dict()
                 # if encountering for the first time, create key and list with the tuple (Location, FactorType/Factor)
                 if not j.ltype:
-                    j.ltype[ctype_] = [(self, ltype_)]
-                    j.localizations[ctype_] = [(self, localization_)]
+                    j.ltype, j.localizations = dict(), dict()
+                    j.ltype = dict()
+                    j.ltype[ptype_] = [(self, ltype_)]
+                    j.localizations[ptype_] = [(self, localization_)]
                 # if a particular factor for the same component has been declared in another location, then append [(Loc1, ..), (Loc2, ..)]
                 else:
-                    if ctype_ in j.ltype:
-                        j.ltype[ctype_].append((self, ltype_))
-                        j.localizations[ctype_].append((self, localization_))
+                    if ptype_ in j.ltype:
+                        j.ltype[ptype_].append((self, ltype_))
+                        j.localizations[ptype_].append((self, localization_))
                     # if this is a new ctype_ being considered, create key and list with tuple (Location, FactorType/Factor)
                     else:
-                        j.ltype[ctype_] = [(self, ltype_)]
-                        j.localizations[ctype_] = [(self, localization_)]
+                        j.ltype[ptype_] = [(self, ltype_)]
+                        j.localizations[ptype_] = [(self, localization_)]
 
     def make_parameter_dict(self, parameter: str, component_set: str):
         """Makes a dict with components and thier paramter values

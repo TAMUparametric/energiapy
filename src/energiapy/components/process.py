@@ -11,6 +11,8 @@ from .comptype.emission import EmissionType
 from .comptype.process import ProcessType
 from .material import Material
 from .parameters.mpvar import Theta, create_mpvar
+from .parameters.factor import Factor
+from .parameters.localization import Localization
 from .parameters.paramtype import (FactorType, LocalizationType, MPVarType,
                                    ParameterType)
 from .parameters.process import ProcessParamType
@@ -73,10 +75,11 @@ class Process:
         citation (str, optional): citation for data. Defaults to 'citation needed'.
         trl (str, optional): technology readiness level. Defaults to None.
         ctype (List[ProcessType], optional): process type. Defaults to None
-        ptype (Dict[ProcessType, List[Tuple['Location', ParameterType]]], optional): paramater type of declared values . Defaults to None
-        ltype (Dict[ProcessType, List[Tuple['Location', LocalizationType]]], optional): which parameters are localized. Defaults to None.
-        ftype (Dict[ProcessType, List[Tuple['Location',FactorType]]], optional): which parameters are provided with factors at Location. Defaults to None
-
+        ptype (Dict[ProcessParamType, List[Tuple['Location', ParameterType]]], optional): paramater type of declared values . Defaults to None
+        ltype (Dict[ProcessParamType, List[Tuple['Location', LocalizationType]]], optional): which parameters are localized. Defaults to None.
+        ftype (Dict[ProcessParamType, List[Tuple['Location',FactorType]]], optional): which parameters are provided with factors at Location. Defaults to None
+        localizations (Dict[ProcessParamType, List[Tuple['Location', Localization]]], optional): collects localizations when defined at Location. Defaults to None.
+        factors (Dict[ProcessParamType, List[Tuple['Location', Factor]]], optional): collects factors when defined at Location. Defaults to None.
 
     Examples:
         For processes with varying production capacity
@@ -95,8 +98,8 @@ class Process:
 
     name: str
     # Design parameters
-    cap_max: Union[float, dict, Tuple[float], Theta] = None
-    cap_min: Union[float, dict, Tuple[float], Theta] = None
+    cap_max: Union[float, dict, Tuple[float], Theta]
+    cap_min: float = None
     land: float = None  # Union[float, Tuple[float], Theta]
     conversion: Union[Dict[Union[int, str], Dict[Resource, float]],
                       Dict[Resource, float]] = None
@@ -114,7 +117,7 @@ class Process:
     eutt: Union[float, Tuple[float], Theta] = None
     eutf: Union[float, Tuple[float], Theta] = None
     eutm: Union[float, Tuple[float], Theta] = None
-    # Temporal
+    # Readiness
     introduce: Union[float, Tuple[float], Theta] = None
     retire: Union[float, Tuple[float], Theta] = None
     lifetime: Union[float, Tuple[float], Theta] = None
@@ -127,9 +130,14 @@ class Process:
     store_loss: Union[float, Tuple[float], Theta] = None
     # Types
     ctype: List[ProcessType] = None
-    ptype: Dict[ProcessType, ParameterType] = None
-    ltype: Dict[ProcessType, List[Tuple['Location', LocalizationType]]] = None
-    ftype: Dict[ProcessType, List[Tuple['Location', FactorType]]] = None
+    ptype: Dict[ProcessParamType, ParameterType] = None
+    ltype: Dict[ProcessParamType,
+                List[Tuple['Location', LocalizationType]]] = None
+    ftype: Dict[ProcessParamType, List[Tuple['Location', FactorType]]] = None
+    # Collections
+    localizations: Dict[ProcessParamType,
+                        List[Tuple['Location', Localization]]] = None
+    factors: Dict[ProcessParamType, List[Tuple['Location', Factor]]] = None
     # Details
     basis: str = None
     block: str = None
@@ -231,16 +239,7 @@ class Process:
         self.ptype = dict()
 
         for i in self.process_level_parameters():
-            attr_ = getattr(self, i.lower())
-            if attr_ is not None:
-                ptype_ = getattr(ProcessParamType, f'{i}')
-                if isinstance(attr_, (tuple, Theta)):
-                    self.ptype[ptype_] = ParameterType.UNCERTAIN
-                    mpvar_ = create_mpvar(
-                        value=attr_, component=self, ptype=getattr(MPVarType, f'{self.class_name()}_{i}'.upper()))
-                    setattr(self, i.lower(), mpvar_)
-                else:
-                    self.ptype[ptype_] = ParameterType.CERTAIN
+            self.update_process_level_parameter(parameter=i)
 
         # *-----------------Set etype (Emission)---------------------------------
         # Types of emission accounted for are declared here and EmissionTypes are set
@@ -253,20 +252,6 @@ class Process:
             if attr_ is not None:
                 self.etype.append(etype_)
                 self.emissions[i.lower()] = attr_
-
-        # *----------------- Parameter localizations populated at Location -----------
-        # Localization factors can be provided for parameters at Location
-        # ltype is a Dict[ResourceParamType, List[Tuple['Location', LocalizationType]]]
-        # localizations are Dict[ResourceParamType, List[Tuple['Location', Localization]]]
-
-        self.ltype, self.localizations = dict(), dict()
-
-        # *------------ Parameter factors populated at Location -----------
-        # Factors can be provided for parameters at Location
-        # ftype is a Dict[ResourceParamType, List[Tuple['Location', FactorType]]]
-        # factors are Dict[ResourceParamType, List[Tuple['Location', Factor]]]
-
-        self.ftype, self.factors = dict(), dict()
 
         # *-----------------Set Parameters Declared at Location to None-------------
         for i in self.location_level_parameters():
@@ -289,6 +274,15 @@ class Process:
         if self.varying is not None:
             raise ValueError(
                 f'{self.name}: varying has been depreciated. Variability will be intepreted based on data provided to energiapy.Location factors')
+
+    # *----------------- Properties ---------------------------------
+
+    @property
+    def capacity(self):
+        """Sets capacity
+        """
+        if self.cap_max is not None:
+            return True
 
     # *----------------- Class Methods ---------------------------------
 
@@ -405,6 +399,23 @@ class Process:
         return EmissionType.all()
 
     # *----------------- Functions ---------------------------------------------
+
+    def update_process_level_parameter(self, parameter: str):
+        """updates parameter, sets ptype
+
+        Args:
+            parameter (str): parameter to update 
+        """
+        attr_ = getattr(self, parameter.lower())
+        if attr_ is not None:
+            ptype_ = getattr(ProcessParamType, parameter)
+            if isinstance(attr_, (tuple, Theta)):
+                self.ptype[ptype_] = ParameterType.UNCERTAIN
+                mpvar_ = create_mpvar(
+                    value=attr_, component=self, ptype=getattr(MPVarType, f'{self.class_name()}_{parameter}'.upper()))
+                setattr(self, parameter.lower(), mpvar_)
+            else:
+                self.ptype[ptype_] = ParameterType.CERTAIN
 
     def create_storage_resource(self, resource: Resource) -> Resource:
         """Creates a resource for storage, used if ProcessType is STORAGE

@@ -7,15 +7,19 @@ class LocationType(Enum):
     """
     SOURCE = auto()
     SINK = auto()
+    """Whether this is a source or sink
+    """
+    LAND = auto()
+    """Whether land max or land cost has been defined
+    """
 
     # * -------------------------- Update this ----------------------------------------
 
     @classmethod
-    def network_level(cls) -> List[str]:
-        """Set at Network level
+    def location_level(cls) -> List[str]:
+        """Set when Location is declared
         """
-        return []
-
+        return ['LAND']
 
     # * -------------------------- Automated below this ----------------------------------------
 
@@ -26,7 +30,7 @@ class LocationType(Enum):
         return [i.name for i in cls]
 
     @classmethod
-    def location_level(cls) -> List[str]:
-        """Set when Location is declared
+    def network_level(cls) -> List[str]:
+        """Set at Network level
         """
-        return list(set(cls.all()) - set(cls.network_level()))
+        return list(set(cls.all()) - set(cls.location_level()))

@@ -60,7 +60,7 @@ class ProcessParamType(Enum):
         """Set when Location is declared
         STORAGE_DISCHARGE is assigned when Discharge Process is created at Location level for a STORAGE PROCESS
         """
-        return ['CREDIT', 'CAPACITY']
+        return ['CREDIT']
 
     @classmethod
     def uncertain(cls) -> List[str]:
@@ -79,6 +79,15 @@ class ProcessParamType(Enum):
         return list(set(cls.uncertain()) - set(exclude_))
 
     @classmethod
+    def localize(cls) -> List[str]:
+        """Process parameters than can be localized 
+        """
+        exclude_ = ['CAPACITY']
+        return list(set(cls.process_level()) - set(cls.readiness()) - set(cls.failure()) - set(cls.process_level_resource()) - set(exclude_))
+
+    # *------------------ Automated below this------------------------
+
+    @classmethod
     def process_level_uncertain(cls) -> List[str]:
         """Uncertain parameters at Process level
         """
@@ -89,8 +98,6 @@ class ProcessParamType(Enum):
         """Uncertain parameters at Location level
         """
         return list(set(cls.uncertain()) & set(cls.location_level()))
-
-    # *------------------ Automated below this------------------------
 
     @classmethod
     def all(cls) -> List[str]:
@@ -103,9 +110,3 @@ class ProcessParamType(Enum):
         """Set when Process is declared
         """
         return list(set(cls.all()) - set(cls.location_level()))
-
-    @classmethod
-    def localize(cls) -> List[str]:
-        """Process parameters than can be localized 
-        """
-        return list(set(cls.process_level()) - set(cls.readiness()) - set(cls.failure()) - set(cls.process_level_resource()))
