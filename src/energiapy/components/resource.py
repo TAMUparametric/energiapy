@@ -281,7 +281,7 @@ class Resource:
         """
         return ResourceParamType.resource_level()
    
-   @classmethod
+    @classmethod
     def location_level_parameters(cls) -> List[str]:
         """Set when Location is declared
         """
@@ -317,7 +317,7 @@ class Resource:
         """
         return ResourceType.resource_level()
    
-   @classmethod
+    @classmethod
     def location_level_classifications(cls) -> List[str]:
         """Set when Location is declared
         """
