@@ -113,7 +113,7 @@ class Location:
     land_cost_factor: DataFrame = None
     # Resource parameters declared at Location
     demand: Dict[Resource, Union[float, Tuple[float], Theta]] = None
-    # Factors for Resource parameter variability
+    # Factors for Resource parameter variability. cons_max_factor has alias availability_factor
     sell_price_factor: Dict[Resource, DataFrame] = None
     purchase_price_factor: Dict[Resource, DataFrame] = None
     cons_max_factor: Dict[Resource, DataFrame] = None
@@ -131,10 +131,9 @@ class Location:
     fopex_factor: Dict[Process, DataFrame] = None
     incidental_factor: Dict[Process, DataFrame] = None
     credit_factor: Dict[Process, DataFrame] = None
-    # Localizations for Resource parameters
+    # Localizations for Resource parameters. 
     sell_price_localize: Dict[Resource, Tuple[float, int]] = None
     purchase_price_localize: Dict[Resource, Tuple[float, int]] = None
-    # gets an alias (availability_localize)
     cons_max_localize: Dict[Resource, Tuple[float, int]] = None
     store_max_localize: Dict[Resource, Tuple[float, int]] = None
     store_min_localize: Dict[Resource, Tuple[float, int]] = None

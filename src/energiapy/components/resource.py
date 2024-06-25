@@ -105,11 +105,10 @@ class Resource:
     """
 
     name: str
-    # Primary attributes
+    # Primary attributes. cons_max has alias availability
     discharge: bool = None
     sell_price: Union[float, Tuple[float], Theta] = None
     purchase_price: Union[float, Tuple[float], Theta] = None
-    # gets an alias (availability)
     cons_max: Union[float, Tuple[float], Theta] = None
     # Inventory params, can be provided to STORE type Process
     store_max: Union[float, Tuple[float], Theta] = None
@@ -150,13 +149,14 @@ class Resource:
         # *-----------------Set ctype (ResourceType)---------------------------------
         # .DISCHARGE allows the resource to be discharged (cons_max > 0)
         # .SELL is when a Resource generated revenue (has a sell_price)
-        # .DEMAND is set if a specific demand for resource is declared at Location
         # .CONSUME is when a Resource can be consumed
         # .PURCHASE is when a consumed Resource has a purchase_price
         # .IMPLICIT is when a Resource only exists insitu (not discharged or consumed)
         # .PRODUCED is when a Resource is produced by a Process
         # .SELL and .DEMAND imply that .DISCHARGE is True
         # .STORE is set if a store_max is given
+        # .DEMAND is set if a specific demand for resource is declared at Location
+        # .TRANSPORT is set if a Resource is in the set Transport.resources
         # storage resources are also generated implicitly if a Resource is provided to a Process as storage
 
         if self.ctype is None:
@@ -189,30 +189,26 @@ class Resource:
             self.ctype.append(ResourceType.STORE)
 
         # *-----------------Set ptype (ParameterType) ---------------------------------
-        # The parameter types (ptypes) are set to .CERTAIN initially
-        # They are replaced by .UNCERTAIN if a MPVar Theta or a tuple of bounds is provided
+        # ptypes of declared parameters are set to .UNCERTAIN if a MPVar Theta or a tuple of bounds is provided,
+        # .CERTAIN otherwise
         # If empty Theta is provided, the bounds default to (0, 1)
-        # They are replaced by a list of (Location, .FactorType) if factors are declared at Location
+        # Factors can be declared at Location (Location, DataFrame), gets converted to  (Location, Factor)
 
-        self.ptype = {i: ParameterType.CERTAIN for i in self.ctype}
+        self.ptype = dict()
 
-        if self.sell_price is not None:
-            if isinstance(self.sell_price, (tuple, Theta)):
-                self.ptype[ResourceType.SELL] = ParameterType.UNCERTAIN
-                self.sell_price = create_mpvar(
-                    value=self.sell_price, component=self, ptype=getattr(MPVarType, 'SELL_PRICE'))
+        for i in self.resource_level_parameters():
+            attr_ = getattr(self, i.lower())
+            if attr_ is not None:
+                ptype_ = getattr(ResourceParamType,
+                                 f'{i}')
 
-        if self.purchase_price is not None:
-            if isinstance(self.purchase_price, (tuple, Theta)):
-                self.ptype[ResourceType.PURCHASE] = ParameterType.UNCERTAIN
-                self.purchase_price = create_mpvar(
-                    value=self.purchase_price, component=self, ptype=getattr(MPVarType, 'PURCHASE_PRICE'))
-
-        if self.cons_max is not None:
-            if isinstance(self.cons_max, (tuple, Theta)):
-                self.ptype[ResourceType.CONSUME] = ParameterType.UNCERTAIN
-                self.cons_max = create_mpvar(
-                    value=self.cons_max, component=self, ptype=getattr(MPVarType, 'AVAILABILITY'))
+                if isinstance(attr_, (tuple, Theta)):
+                    self.ptype[ptype_] = ParameterType.UNCERTAIN
+                    mpvar_ = create_mpvar(
+                        value=attr_, component=self, ptype=getattr(MPVarType, f'{self.class_name()}_{i}'.upper()))
+                    setattr(self, i.lower(), mpvar_)
+                else:
+                    self.ptype[ptype_] = ParameterType.CERTAIN
 
         # *-----------------Set etype (Emission)---------------------------------
         # Types of emission accounted for are declared here and EmissionTypes are set
@@ -276,7 +272,15 @@ class Resource:
     # *----------------- Class Methods ---------------------------------
 
     @classmethod
-    def parameters(cls) -> List[str]:
+    def class_name(cls) -> List[str]:
+        """Returns class name 
+        """
+        return cls.__name__
+
+    #* parameter types
+    
+    @classmethod
+    def ptypes(cls) -> List[str]:
         """All Resource paramters
         """
         return ResourceParamType.all()
@@ -317,8 +321,10 @@ class Resource:
         """
         return ResourceParamType.localize()
 
+    #* component class types
+    
     @classmethod
-    def classifications(cls) -> List[str]:
+    def ctypes(cls) -> List[str]:
         """All Resource paramters
         """
         return ResourceType.all()
@@ -341,11 +347,15 @@ class Resource:
         """
         return ResourceType.transport_level()
 
+    #* emission types
+
     @classmethod
     def etypes(cls) -> List[str]:
         """Emission types
         """
         return EmissionType.all()
+    
+    #* 
 
     def __repr__(self):
         return self.name

@@ -51,38 +51,38 @@ class FactorType(Enum):
         return factors
 
     @classmethod
-    def resource_factors(cls) -> List[str]:
+    def resource(cls) -> List[str]:
         """Resource factors
         """
         return resource_factors
 
     @classmethod
-    def process_factors(cls) -> List[str]:
+    def process(cls) -> List[str]:
         """Process factors
         """
         return process_factors
 
     @classmethod
-    def location_factors(cls) -> List[str]:
+    def location(cls) -> List[str]:
         """Location factors
         """
         return location_factors
 
     @classmethod
-    def transport_factors(cls) -> List[str]:
+    def transport(cls) -> List[str]:
         """Transport factors
         """
         return transport_factors
 
     @classmethod
-    def network_factors(cls) -> List[str]:
+    def network(cls) -> List[str]:
         """Network factors
         """
         return network_factors
 
 
 for i in factors:
-    setattr(FactorType, i, auto())
+    setattr(FactorType, i, i)
 
 # *-----------------------Localization ------------------------------------------------
 
@@ -103,20 +103,20 @@ class LocalizationType(Enum):
         return localizations
 
     @classmethod
-    def resource_localizations(cls) -> List[str]:
+    def resource(cls) -> List[str]:
         """Resource localizations
         """
         return resource_localizations
 
     @classmethod
-    def process_localizations(cls) -> List[str]:
+    def process(cls) -> List[str]:
         """Process localizations
         """
         return process_localizations
 
 
 for i in localizations:
-    setattr(LocalizationType, i, auto())
+    setattr(LocalizationType, i, i)
 
 # *-----------------------Multiparametric Var-----------------------------------------------
 
@@ -147,35 +147,35 @@ class MPVarType(Enum):
         return uncertain_params
 
     @classmethod
-    def resource_uncertain_params(cls) -> List[str]:
+    def resource(cls) -> List[str]:
         """Resource uncertain parameters
         """
         return resource_uncertain_params
 
     @classmethod
-    def process_uncertain_params(cls) -> List[str]:
+    def process(cls) -> List[str]:
         """Process uncertain parameters
         """
         return process_uncertain_params
 
     @classmethod
-    def location_uncertain_params(cls) -> List[str]:
+    def location(cls) -> List[str]:
         """Location uncertain parameters
         """
         return location_uncertain_params
 
     @classmethod
-    def transport_uncertain_params(cls) -> List[str]:
+    def transport(cls) -> List[str]:
         """Transport uncertain parameters
         """
         return transport_uncertain_params
 
     @classmethod
-    def network_uncertain_params(cls) -> List[str]:
+    def network(cls) -> List[str]:
         """Network uncertain parameters
         """
         return network_uncertain_params
 
 
 for i in uncertain_params:
-    setattr(MPVarType, i, auto())
+    setattr(MPVarType, i, i)

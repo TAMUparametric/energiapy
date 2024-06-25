@@ -58,6 +58,7 @@ class Theta:
             self.bounds = (0, 1)
 
         if self.ptype is not None:
+            print()
             self.name = f'{self.component.name}_{str(self.ptype).lower()}'.replace(
                 'mpvartype.', '')
         else:
