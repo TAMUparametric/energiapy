@@ -15,6 +15,8 @@ from pandas import DataFrame
 from .comptype.resource import ResourceType
 from .comptype.process import ProcessType
 from .comptype.location import LocationType
+from .comptype.emission import EmissionType
+
 
 from .material import Material
 from .parameters.factor import Factor
@@ -22,6 +24,8 @@ from .parameters.localize import Localize
 from .parameters.mpvar import Theta, create_mpvar
 from .parameters.paramtype import (FactorType, LocalizeType, MPVarType,
                                    ParameterType)
+from .parameters.location import LocationParamType
+
 from .process import Process
 from .resource import Resource
 from .temporal_scale import TemporalScale
@@ -317,7 +321,49 @@ class Location:
             raise ValueError(
                 f'{self.name}: revenue_factor_scale_level is depreciated, use sell_price_factor instead')
 
-    # *----------------- Class Method -------------------------------------
+    # *----------------- Class Methods -------------------------------------
+
+    @classmethod
+    def parameters(cls) -> List[str]:
+        """All Location paramters
+        """
+        return LocationParamType.all()
+
+    @classmethod
+    def location_level_parameters(cls) -> List[str]:
+        """Set when Location is declared
+        """
+        return LocationParamType.location_level()
+
+    @classmethod
+    def uncertain_parameters(cls) -> List[str]:
+        """Uncertain parameters
+        """
+        return LocationParamType.uncertain()
+
+    @classmethod
+    def network_level_parameters(cls) -> List[str]:
+        """Set when Location is declared
+        """
+        return LocationParamType.network_level()
+
+    @classmethod
+    def classifications(cls) -> List[str]:
+        """All Location paramters
+        """
+        return LocationType.all()
+
+    @classmethod
+    def location_level_classifications(cls) -> List[str]:
+        """Set when Location is declared
+        """
+        return LocationType.location_level()
+
+    @classmethod
+    def network_level_classifications(cls) -> List[str]:
+        """Set when Location is declared
+        """
+        return LocationType.network_level()
 
     # *----------------- Functions-------------------------------------
 

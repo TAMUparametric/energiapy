@@ -11,7 +11,7 @@ from typing import Dict, List, Tuple, Union
 from pandas import DataFrame
 
 from .comptype.location import LocationType
-from .comptype.transport import TransportType 
+from .comptype.transport import TransportType
 from .comptype.network import NetworkType
 from .location import Location
 from .parameters.factor import Factor
@@ -19,6 +19,7 @@ from .parameters.mpvar import Theta, create_mpvar
 from .parameters.paramtype import FactorType, MPVarType, ParameterType
 from .temporal_scale import TemporalScale
 from .transport import Transport
+from .parameters.network import NetworkParamType
 
 
 @dataclass
@@ -164,6 +165,25 @@ class Network:
         if self.vopex_scale_level is not None:
             raise ValueError(
                 f'{self.name}: vopex_scale_level is depreciated. scale levels determined from factor data now')
+    #  *----------------- Class Methods ---------------------------------------------
+
+    @classmethod
+    def parameters(cls) -> List[str]:
+        """All Network paramters
+        """
+        return NetworkParamType.all()
+
+    @classmethod
+    def uncertain_parameters(cls) -> List[str]:
+        """Uncertain parameters
+        """
+        return NetworkParamType.uncertain()
+
+    @classmethod
+    def classifications(cls) -> List[str]:
+        """All Network classifications
+        """
+        return NetworkType.all()
 
     # *----------------- Functions-------------------------------------
 

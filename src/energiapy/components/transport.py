@@ -8,7 +8,12 @@ import uuid
 from dataclasses import dataclass
 from typing import Dict, List, Set, Tuple, Union
 
-from .comptype import EmissionType, ResourceType, TransportType
+from .comptype.emission import EmissionType
+from .comptype.resource import ResourceType
+from .comptype.transport import TransportType
+
+from .parameters.transport import TransportParamType
+
 from .location import Location
 from .material import Material
 from .parameters.mpvar import Theta, create_mpvar
@@ -165,6 +170,74 @@ class Transport:
 
         if self.name is None:
             self.name = f'{self.__class__.__name__}_{uuid.uuid4().hex}'
+
+    # *----------------- Class Methods -------------------------------------
+
+    @classmethod
+    def parameters(cls) -> List[str]:
+        """All Transport paramters
+        """
+        return TransportParamType.all()
+
+    @classmethod
+    def transport_level_parameters(cls) -> List[str]:
+        """Set when Transport is declared
+        """
+        return TransportParamType.transport_level()
+
+    @classmethod
+    def network_level_parameters(cls) -> List[str]:
+        """Set when Network is declared
+        """
+        return TransportParamType.network_level()
+
+    @classmethod
+    def uncertain_parameters(cls) -> List[str]:
+        """Uncertain parameters
+        """
+        return TransportParamType.uncertain()
+
+    @classmethod
+    def transport_level_temporal_parameters(cls) -> List[str]:
+        """Set when Transport are declared
+        """
+        return TransportParamType.temporal()
+
+    @classmethod
+    def transport_level_uncertain_parameters(cls) -> List[str]:
+        """Set when Transport is declared
+        """
+        return TransportParamType.transport_level_uncertain()
+
+    @classmethod
+    def network_level_uncertain_parameters(cls) -> List[str]:
+        """Set when Transport is declared
+        """
+        return TransportParamType.network_level_uncertain()
+
+    @classmethod
+    def classifications(cls) -> List[str]:
+        """All Transport paramters
+        """
+        return TransportType.all()
+
+    @classmethod
+    def transport_level_classifications(cls) -> List[str]:
+        """Set when Transport is declared
+        """
+        return TransportType.transport_level()
+
+    @classmethod
+    def network_level_classifications(cls) -> List[str]:
+        """Set when Network is declared
+        """
+        return TransportType.network_level()
+
+    @classmethod
+    def etypes(cls) -> List[str]:
+        """Emission types
+        """
+        return EmissionType.all()
 
     def __repr__(self):
         return self.name

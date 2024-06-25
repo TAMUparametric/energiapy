@@ -1,4 +1,4 @@
-"""energiapy.Scenario - defined through a Network or a single Location 
+"""energiapy.Scenario - defined through a Network or a single Location
 """
 # TODO set depreciation warnings
 # TODO new way to make subsets
@@ -7,7 +7,7 @@
 
 import uuid
 from dataclasses import dataclass
-from typing import Dict, Union
+from typing import Dict, Union, List
 
 import numpy
 from pandas import DataFrame
@@ -18,6 +18,8 @@ from .comptype.resource import ResourceType
 from .comptype.process import ProcessType
 from .comptype.location import LocationType
 from .comptype.scenario import ScenarioType
+from .comptype.emission import EmissionType
+
 
 from .location import Location
 from .network import Network
@@ -38,7 +40,7 @@ class Scenario:
         scheduling_scale_level (int, optional): scale of production and inventory scheduling. Defaults to 0.
         network_scale_level (int, optional): scale for network decisions such as facility location. Defaults to 0.
         demand_scale_level (int, optional): scale for meeting specific demand for resource. Defaults to 0.
-        revenue_scale_level (int, optional): scale for revenue from resource. Defaults to 0. 
+        revenue_scale_level (int, optional): scale for revenue from resource. Defaults to 0.
         cluster_wt (dict): cluster weights as a dictionary. {scale: int}. Defaults to None.
         label (str, optional): Longer descriptive label if required. Defaults to ''
         capacity_bounds (CapacityBounds, optional): bounds on the capacity, useful for multi-period formulations. Defaults to None.
@@ -46,7 +48,7 @@ class Scenario:
         demand_penalty (Dict[Location, Dict[Resource, float]]): penalty for unmet demand at location for each resource. Defaults to None.
         error (float, optional): error introduced through scenario reduction. Defaults to None.
         rep_days_dict (dict, optional): dictionary of representative days. Defaults to None.
-        emission_weights (EmissionWeights): dataclass with weights for different emission objectives. Defaults to None. 
+        emission_weights (EmissionWeights): dataclass with weights for different emission objectives. Defaults to None.
     Example:
         The Scenario can be built over a single location. The network here is specified as a single Location. Considering scales (TemporalScale object for a year, [1, 365, 24]), scheduling, expenditure, and demand are met at an hourly level, and network at an annual level.
 
@@ -415,6 +417,22 @@ class Scenario:
 
         if self.name is None:
             self.name = f'{self.__class__.__name__}_{uuid.uuid4().hex}'
+
+    #  *----------------- Class Methods ---------------------------------------------
+
+    @classmethod
+    def classifications(cls) -> List[str]:
+        """All Scenario classifications
+        """
+        return ScenarioType.all()
+
+    @classmethod
+    def etypes(cls) -> List[str]:
+        """Emission types
+        """
+        return EmissionType.all()
+
+    # *----------------- Functions-------------------------------------
 
     def loc_comp_attr_dict(self, attr: str):
         """creates a dict of type {loc: {comp: attribute_dict}}

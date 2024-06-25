@@ -14,7 +14,6 @@ from .parameters.mpvar import Theta, create_mpvar
 from .parameters.paramtype import (FactorType, LocalizeType, MPVarType,
                                    ParameterType)
 from .parameters.process import ProcessParamType
-from .comptype.process import ProcessType
 from .resource import Resource
 
 
