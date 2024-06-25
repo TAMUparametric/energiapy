@@ -13,6 +13,8 @@ from .material import Material
 from .parameters.mpvar import Theta, create_mpvar
 from .parameters.paramtype import (FactorType, LocalizeType, MPVarType,
                                    ParameterType)
+from .parameters.process import ProcessParamType
+from .comptype.process import ProcessType
 from .resource import Resource
 
 
@@ -294,29 +296,82 @@ class Process:
     # *----------------- Class Methods ---------------------------------------------
 
     @classmethod
-    def ctypes(cls) -> List[str]:
-        """Process Types
+    def parameters(cls) -> List[str]:
+        """All Process paramters
         """
-        return [member.name.lower() for member in ProcessType]
+        return ProcessParamType.all()
 
     @classmethod
-    def ftypes(cls) -> List[str]:
-        """Factor types
+    def process_level_parameters(cls) -> List[str]:
+        """Set when Process is declared
         """
-        return [i.lower() for i in FactorType.process()]
+        return ProcessParamType.process_level()
 
     @classmethod
-    def ltypes(cls) -> List[str]:
-        """Localization types
+    def process_level_resource_parameters(cls) -> List[str]:
+        """Resource parameters set when Process is declared
         """
-        return [i.lower() for i in LocalizeType.process()]
+        return ProcessParamType.process_level_resource()
+
+    @classmethod
+    def location_level_parameters(cls) -> List[str]:
+        """Set when Location is declared
+        """
+        return ProcessParamType.location_level()
+
+    @classmethod
+    def process_level_temporal_parameters(cls) -> List[str]:
+        """Set when Process are declared
+        """
+        return ProcessParamType.temporal()
+
+    @classmethod
+    def uncertain_parameters(cls) -> List[str]:
+        """Uncertain parameters
+        """
+        return ProcessParamType.uncertain()
+
+    @classmethod
+    def localize_parameters(cls) -> List[str]:
+        """Process parameters than can be localized 
+        """
+        return ProcessParamType.localize()
+
+    @classmethod
+    def classifications(cls) -> List[str]:
+        """All Process paramters
+        """
+        return ProcessType.all()
+
+    @classmethod
+    def process_level_classifications(cls) -> List[str]:
+        """Set when Process is declared
+        """
+        return ProcessType.process_level()
+
+    @classmethod
+    def location_level_classifications(cls) -> List[str]:
+        """Set when Location is declared
+        """
+        return ProcessType.location_level()
+
+    # @classmethod
+    # def ftypes(cls) -> List[str]:
+    #     """Factor types
+    #     """
+    #     return [i.lower() for i in FactorType.process()]
+
+    # @classmethod
+    # def ltypes(cls) -> List[str]:
+    #     """Localization types
+    #     """
+    #     return [i.lower() for i in LocalizeType.process()]
 
     @classmethod
     def etypes(cls) -> List[str]:
         """Emission types
         """
-        return [member.name.lower() for member in EmissionType]
-
+        return EmissionType.all()
     # *----------------- Functions ---------------------------------------------
 
     def create_storage_resource(self, resource: Resource) -> Resource:

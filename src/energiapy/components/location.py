@@ -317,6 +317,8 @@ class Location:
             raise ValueError(
                 f'{self.name}: revenue_factor_scale_level is depreciated, use sell_price_factor instead')
 
+    # *----------------- Class Method -------------------------------------
+
     # *----------------- Functions-------------------------------------
 
     def update_location_params_and_factors(self, parameter: str):

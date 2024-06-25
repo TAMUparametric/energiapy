@@ -2,7 +2,7 @@
 """
 from enum import Enum, auto
 from typing import List
-from ..comptype import ResourceType, ProcessType
+# from ..comptype import ResourceType, ProcessType
 
 
 # bla = ProcessType.parameters() + ResourceType.parameters()

@@ -329,6 +329,13 @@ class Resource:
         """
         return ResourceType.transport_level()
     
+
+    @classmethod
+    def etypes(cls) -> List[str]:
+        """Emission types
+        """
+        return EmissionType.all()
+    
     def __repr__(self):
         return self.name
 

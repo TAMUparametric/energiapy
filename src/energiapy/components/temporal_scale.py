@@ -8,6 +8,7 @@ Also:
 from dataclasses import dataclass
 from itertools import product
 from warnings import warn
+from typing import List
 
 from .comptype.problem import ProblemType
 from .comptype.temporal_scale import ScaleType
@@ -192,6 +193,21 @@ class TemporalScale:
 
         if (self.scale_factors_standard is True) or (self.scale_factors_min_max is True):
             self.scale_factors_max = False
+
+    # * -----------------------Class Methods-----------------------------------------
+    @classmethod
+    def classifications(cls) -> List[str]:
+        """All TemporalScale classifications
+        """
+        return ScaleType.all()
+
+    @classmethod
+    def problem_classifications(cls) -> List[str]:
+        """All Problem classifications
+        """
+        return ProblemType.all()
+
+    # * -----------------------Functions---------------------------------------------
 
     def scale_iter(self, scale_level):
         """Generates a list of tuples as a representation of the scales

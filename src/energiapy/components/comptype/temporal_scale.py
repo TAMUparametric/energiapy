@@ -1,4 +1,6 @@
 from enum import Enum, auto
+from typing import List
+
 
 
 class ScaleType(Enum):
@@ -10,3 +12,9 @@ class ScaleType(Enum):
     SINGLE = auto()
     """Problem has a single scale  
     """
+
+    @classmethod
+    def all(cls) -> List[str]:
+        """All Temporal classifications
+        """
+        return [i.name for i in cls]

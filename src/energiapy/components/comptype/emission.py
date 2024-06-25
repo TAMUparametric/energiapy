@@ -1,4 +1,6 @@
 from enum import Enum, auto
+from typing import List
+
 
 class EmissionType(Enum):
     """Type of emission being considered
@@ -21,3 +23,9 @@ class EmissionType(Enum):
     EUTM = auto()
     """Marine Eutrophication Potential
     """
+
+    @classmethod
+    def all(cls) -> List[str]:
+        """All Emissions classifications
+        """
+        return [i.name for i in cls]
