@@ -17,7 +17,7 @@ from ..model.weights import EmissionWeights
 from .comptype import LocationType, ProcessType, ResourceType, ScenarioType
 from .location import Location
 from .network import Network
-from .parameters.paratype import ParameterType
+from .parameters.paramtype import ParameterType
 from .resource import Resource
 from .temporal_scale import TemporalScale
 

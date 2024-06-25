@@ -13,7 +13,7 @@ from .comptype import LocationType, NetworkType, TransportType
 from .location import Location
 from .parameters.factor import Factor
 from .parameters.mpvar import Theta, create_mpvar
-from .parameters.paratype import FactorType, MPVarType, ParameterType
+from .parameters.paramtype import FactorType, MPVarType, ParameterType
 from .temporal_scale import TemporalScale
 from .transport import Transport
 

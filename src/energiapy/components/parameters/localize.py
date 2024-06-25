@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from enum import Enum, auto
 from typing import Optional, Tuple, Union
 
-from .paratype import LocalizeType
+from .paramtype import LocalizeType
 
 
 @dataclass
@@ -17,7 +17,7 @@ class Localize:
     Args:
         value (Tuple[float, int]): numeric value to be multiplied by Resource or Process parameter
         component (Union['Process', 'Resource']): self explanatory
-        ltype (LocalizeType): type of localization. see energiapy.components.parameters.paratype
+        ltype (LocalizeType): type of localization. see energiapy.components.parameters.paramtype
         location (Location): provide the Location
     """
 

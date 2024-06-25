@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from typing import Union
 from warnings import warn
 
-from .paratype import MPVarType
+from .paramtype import MPVarType
 
 
 @dataclass
@@ -73,7 +73,7 @@ class Theta:
         return self.name == other.name
 
 
-def create_mpvar(value: Union[Theta, tuple], component: Union['Resource', 'Process', 'Location', 'Transport', 'Network', 'Scenario'], ptype: MPVarType) -> Theta :
+def create_mpvar(value: Union[Theta, tuple], component: Union['Resource', 'Process', 'Location', 'Transport', 'Network', 'Scenario'], ptype: MPVarType) -> Theta:
     """Creates a parametric variable
 
     Args:

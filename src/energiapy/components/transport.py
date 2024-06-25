@@ -12,7 +12,7 @@ from .comptype import EmissionType, ResourceType, TransportType
 from .location import Location
 from .material import Material
 from .parameters.mpvar import Theta, create_mpvar
-from .parameters.paratype import FactorType, MPVarType, ParameterType
+from .parameters.paramtype import FactorType, MPVarType, ParameterType
 from .resource import Resource
 
 
@@ -32,12 +32,12 @@ class Transport:
         vopex(float, optional): variable operational expenditure on a per unit distance unit capacity basis. Defaults to None.
         fopex(float, optional): fixed operational expenditure on a per unit distance unit capacity basis. Defaults to None.
         incidental(float, optional): incidental expenditure on a per unit distance unit capacity basis. Defaults to None.
-        gwp (float, optional): global warming potential for settting up transportation per unit distance. Defaults to None.
-        odp (float, optional): ozone depletion potential for settting up transportation per unit distance. Defaults to None.
-        acid (float, optional): acidification potential for settting up transportation per unit distance. Defaults to None.
-        eutt (float, optional): terrestrial eutrophication potential for settting up transportation per unit distance. Defaults to None.
-        eutf (float, optional): fresh water eutrophication potential for settting up transportation per unit distance. Defaults to None.
-        eutm (float, optional): marine eutrophication potential for settting up transportation per unit distance. Defaults to None.
+        gwp (Union[float, Tuple[float], Theta], optional): global warming potential for settting up transportation per unit distance. Defaults to None.
+        odp (Union[float, Tuple[float], Theta], optional): ozone depletion potential for settting up transportation per unit distance. Defaults to None.
+        acid (Union[float, Tuple[float], Theta], optional): acidification potential for settting up transportation per unit distance. Defaults to None.
+        eutt (Union[float, Tuple[float], Theta], optional): terrestrial eutrophication potential for settting up transportation per unit distance. Defaults to None.
+        eutf (Union[float, Tuple[float], Theta], optional): fresh water eutrophication potential for settting up transportation per unit distance. Defaults to None.
+        eutm (Union[float, Tuple[float], Theta], optional): marine eutrophication potential for settting up transportation per unit distance. Defaults to None.
         introduce(int, optional): when transportation mode is introduced. Defaults to None.
         retire(int, optional): when transportation mode is retired. Defaults to None.
         basis (str, optional): unit for measuring cost and distance. Defaults to None .
@@ -70,12 +70,12 @@ class Transport:
     fopex: Union[float, dict, Tuple[float], Theta] = None
     incidental: Union[float, dict, Tuple[float], Theta] = None
     # Emissions
-    gwp: float = None
-    odp: float = None
-    acid: float = None
-    eutt: float = None
-    eutf: float = None
-    eutm: float = None
+    gwp: Union[float, Tuple[float], Theta] = None
+    odp: Union[float, Tuple[float], Theta] = None
+    acid: Union[float, Tuple[float], Theta] = None
+    eutt: Union[float, Tuple[float], Theta] = None
+    eutf: Union[float, Tuple[float], Theta] = None
+    eutm: Union[float, Tuple[float], Theta] = None
     # Temporal
     introduce: int = 0
     retire: int = None

@@ -7,8 +7,8 @@ from warnings import warn
 
 from .comptype import EmissionType, ResourceType
 from .parameters.mpvar import Theta, create_mpvar
-from .parameters.paratype import (FactorType, LocalizeType, MPVarType,
-                                  ParameterType)
+from .parameters.paramtype import (FactorType, LocalizeType, MPVarType,
+                                   ParameterType)
 
 
 @dataclass
@@ -34,12 +34,12 @@ class Resource:
         store_loss (float, optional): amount lost in inventory per time period of the scheduling scale. Defaults to None
         storage_cost: (float, optional): penalty for mainting inventory per time period in the scheduling scale. Defaults to None.
         transport (bool, optional): if can be transported, also determined if mentioned while defining Transport. Defaults to None
-        gwp (float, optional): global warming potential. Defaults to None.
-        odp (float, optional): ozone depletion potential. Defaults to None.
-        acid (float, optional): acidification potential. Defaults to None.
-        eutt (float, optional): terrestrial eutrophication potential. Defaults to None.
-        eutf (float, optional): fresh water eutrophication potential. Defaults to None.
-        eutm (float, optional): marine eutrophication potential. Defaults to None.
+        gwp (Union[float, Tuple[float], Theta], optional): global warming potential. Defaults to None.
+        odp (Union[float, Tuple[float], Theta], optional): ozone depletion potential. Defaults to None.
+        acid (Union[float, Tuple[float], Theta], optional): acidification potential. Defaults to None.
+        eutt (Union[float, Tuple[float], Theta], optional): terrestrial eutrophication potential. Defaults to None.
+        eutf (Union[float, Tuple[float], Theta], optional): fresh water eutrophication potential. Defaults to None.
+        eutm (Union[float, Tuple[float], Theta], optional): marine eutrophication potential. Defaults to None.
         basis (str, optional): unit in which resource is measured. Defaults to None 
         block (Union[str, list, dict], optional): block to which it belong. Convinient to set up integer cuts. Defaults to None
         label (str, optional): used while generating plots. Defaults to None
@@ -107,21 +107,22 @@ class Resource:
     discharge: bool = None
     sell_price: Union[float, Tuple[float], Theta] = None
     purchase_price: Union[float, Tuple[float], Theta] = None
+    # gets an alias (availability)
     cons_max: Union[float, Tuple[float], Theta] = None
     # Inventory params, can be provided to STORE type Process
-    store_max: float = None
+    store_max: Union[float, Tuple[float], Theta] = None
     store_min: float = None
-    store_loss: float = None
-    storage_cost: float = None
+    store_loss: Union[float, Tuple[float], Theta] = None
+    storage_cost: Union[float, Tuple[float], Theta] = None
     # Transportation
     transport: bool = None
     # Emissions
-    gwp: float = None
-    odp: float = None
-    acid: float = None
-    eutt: float = None
-    eutf: float = None
-    eutm: float = None
+    gwp: Union[float, Tuple[float], Theta] = None
+    odp: Union[float, Tuple[float], Theta] = None
+    acid: Union[float, Tuple[float], Theta] = None
+    eutt: Union[float, Tuple[float], Theta] = None
+    eutf: Union[float, Tuple[float], Theta] = None
+    eutm: Union[float, Tuple[float], Theta] = None
     # Details
     basis: str = None
     block: Union[str, list, dict] = None
@@ -134,12 +135,15 @@ class Resource:
     ftype: Dict[ResourceType, List[Tuple['Location', FactorType]]] = None
     # Depreciated
     sell: bool = None
-    demand: bool = None
     varying: list = None
     price: float = None
     revenue: float = None
 
     def __post_init__(self):
+
+        # *-----------------Declared at location---------------------------------
+        # Dict['Location', Union[float, Tuple[float], Theta]]. Declared at Location
+        self.demand = None
 
         self.availability = self.cons_max  # An alias for cons_max
 

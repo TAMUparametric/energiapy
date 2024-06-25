@@ -10,8 +10,8 @@ from ..utils.data_utils import get_depth
 from .comptype import EmissionType, ProcessType
 from .material import Material
 from .parameters.mpvar import Theta, create_mpvar
-from .parameters.paratype import (FactorType, LocalizeType, MPVarType,
-                                  ParameterType)
+from .parameters.paramtype import (FactorType, LocalizeType, MPVarType,
+                                   ParameterType)
 from .resource import Resource
 
 
@@ -50,26 +50,26 @@ class Process:
         fopex (Union[float, Tuple[float], Theta], None): Fixed operational expenditure per unit basis, can be scaled with capacity. Defaults to None.
         vopex (Union[float, Tuple[float], Theta], None): Variable operational expenditure per unit basis, can be scaled with capacity. Defaults to None.
         incidental (Union[float, Tuple[float], Theta], None): Incidental expenditure. Defaults to None.
-        gwp (float, optional): global warming potential for settting up facility per unit basis. Defaults to None.
-        odp (float, optional): ozone depletion potential for settting up facility per unit basis. Defaults to None.
-        acid (float, optional): acidification potential for settting up facility per unit basis. Defaults to None.
-        eutt (float, optional): terrestrial eutrophication potential for settting up facility per unit basis. Defaults to None.
-        eutf (float, optional): fresh water eutrophication potential for settting up facility per unit basis. Defaults to None.
-        eutm (float, optional): marine eutrophication potential for settting up facility per unit basis. Defaults to None.
+        gwp (Union[float, Tuple[float], Theta], optional): global warming potential for settting up facility per unit basis. Defaults to None.
+        odp (Union[float, Tuple[float], Theta], optional): ozone depletion potential for settting up facility per unit basis. Defaults to None.
+        acid (Union[float, Tuple[float], Theta], optional): acidification potential for settting up facility per unit basis. Defaults to None.
+        eutt (Union[float, Tuple[float], Theta], optional): terrestrial eutrophication potential for settting up facility per unit basis. Defaults to None.
+        eutf (Union[float, Tuple[float], Theta], optional): fresh water eutrophication potential for settting up facility per unit basis. Defaults to None.
+        eutm (Union[float, Tuple[float], Theta], optional): marine eutrophication potential for settting up facility per unit basis. Defaults to None.
         introduce (int, optional): Time period in the network scale when introduced. Defaults to None.
-        lifetime (float, optional): the expected lifetime of process. Defaults to None.
+        lifetime (Union[float, Tuple[float], Theta] = None, optional): the expected lifetime of process. Defaults to None.
         retire (int, optional): Time period in the network scale when retired. Defaults to None.
-        trl (str, optional): technology readiness level. Defaults to None.
-        p_fail (float, optional): failure rate of process. Defaults to None.
+        p_fail (Union[float, Tuple[float], Theta] = None, optional): failure rate of process. Defaults to None.
         storage(Resource, optional): Resource that can be stored in process. Defaults to None.
-        store_max (float, optional): Maximum allowed storage of resource in process. Defaults to None.
-        store_min (float, optional): Minimum allowed storage of resource in process. Defaults to None.
-        storage_cost: (float, optional): penalty for mainting inventory per time period in the scheduling scale. Defaults to None.
-        store_loss: (float, optional): resource loss on the scheduling scale. Defaults to None. 
+        store_max (Union[float, Tuple[float], Theta] = None, optional): Maximum allowed storage of resource in process. Defaults to None.
+        store_min (Union[float, Tuple[float], Theta] = None, optional): Minimum allowed storage of resource in process. Defaults to None.
+        storage_cost: (Union[float, Tuple[float], Theta] = None, optional): penalty for mainting inventory per time period in the scheduling scale. Defaults to None.
+        store_loss: (Union[float, Tuple[float], Theta] = None, optional): resource loss on the scheduling scale. Defaults to None. 
         basis(str, optional): base units for operation. Defaults to 'unit'.
         block (str, optional): define block for convenience. Defaults to None.
         label(str, optional):Longer descriptive label if required. Defaults to None.
         citation (str, optional): citation for data. Defaults to 'citation needed'.
+        trl (str, optional): technology readiness level. Defaults to None.
         ctype (List[ProcessType], optional): process type. Defaults to None
         ptype (Dict[ProcessType, List[Tuple['Location', ParameterType]]], optional): paramater type of declared values . Defaults to None
         ltype (Dict[ProcessType, List[Tuple['Location', LocalizeType]]], optional): which parameters are localized. Defaults to None.
@@ -106,24 +106,23 @@ class Process:
     vopex: Union[float, Tuple[float], Theta] = None
     incidental: Union[float, Tuple[float], Theta] = None
     # Emission
-    gwp: float = None
-    odp: float = None
-    acid: float = None
-    eutt: float = None
-    eutf: float = None
-    eutm: float = None
+    gwp: Union[float, Tuple[float], Theta] = None
+    odp: Union[float, Tuple[float], Theta] = None
+    acid: Union[float, Tuple[float], Theta] = None
+    eutt: Union[float, Tuple[float], Theta] = None
+    eutf: Union[float, Tuple[float], Theta] = None
+    eutm: Union[float, Tuple[float], Theta] = None
     # Temporal
-    introduce: int = None
-    retire: int = None
-    lifetime: int = None
-    trl: str = None
-    p_fail: float = None
+    introduce: Union[float, Tuple[float], Theta] = None
+    retire: Union[float, Tuple[float], Theta] = None
+    lifetime: Union[float, Tuple[float], Theta] = None
+    p_fail: Union[float, Tuple[float], Theta] = None
     # These go to storage_resource defined in STORAGE Process
     storage: Resource = None
-    store_max: float = None
-    store_min: float = None
-    storage_cost: float = None
-    store_loss: float = None
+    store_max: Union[float, Tuple[float], Theta] = None
+    store_min: Union[float, Tuple[float], Theta] = None
+    storage_cost: Union[float, Tuple[float], Theta] = None
+    store_loss: Union[float, Tuple[float], Theta] = None
     # Types
     ctype: List[ProcessType] = None
     ptype: Dict[ProcessType, ParameterType] = None
@@ -134,6 +133,7 @@ class Process:
     block: str = None
     citation: str = None
     label: str = None
+    trl: str = None
     # Depreciated
     varying: list = None
     prod_max: float = None
@@ -143,17 +143,24 @@ class Process:
 
     def __post_init__(self):
 
+        # *-----------------Declared at location---------------------------------
+
+        # Dict['Location', Union[float, Tuple[float], Theta]]. Declared at Location
+        self.credit = None  # credits inclured by Process
+        self.capacity = None  # maximum !established! capacity that can be utilized
+
         # *-----------------Set ctype (ProcessType)---------------------------------
 
         if self.ctype is None:
             self.ctype = []
 
-        for i in self.parameters_declared_here():
-            if getattr(self, i) is not None:
-                self.ctype.append(getattr(ProcessType, i.upper()))
+        # for i in self.parameters_declared_here():
+        #     if getattr(self, i) is not None:
+        #         self.ctype.append(getattr(ProcessType, i.upper()))
 
-        if self.cap_max is not None:
-            self.ctype.append(ProcessType.CAPACITY)
+        # if self.cap_max is not None:
+        #     # This is for variability of capacity that can be utilized (scheduling level)and not capacity expansion (design level)
+        #     self.ctype.append(ProcessType.CAPACITY)
 
         # CAPEX can be linear (LINEAR_CAPEX) or piecewise linear (PWL_CAPEX)
         # if PWL, capex needs to be provide as a dict {capacity_segment: capex_segement}

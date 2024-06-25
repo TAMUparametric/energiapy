@@ -7,7 +7,7 @@ from pandas import DataFrame
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 
 from ..temporal_scale import TemporalScale
-from .paratype import FactorType
+from .paramtype import FactorType
 
 
 @dataclass

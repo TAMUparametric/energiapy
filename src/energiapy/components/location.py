@@ -17,8 +17,8 @@ from .material import Material
 from .parameters.factor import Factor
 from .parameters.localize import Localize
 from .parameters.mpvar import Theta, create_mpvar
-from .parameters.paratype import (FactorType, LocalizeType, MPVarType,
-                                  ParameterType)
+from .parameters.paramtype import (FactorType, LocalizeType, MPVarType,
+                                   ParameterType)
 from .process import Process
 from .resource import Resource
 from .temporal_scale import TemporalScale
@@ -33,6 +33,7 @@ from .temporal_scale import TemporalScale
 # resource_parameters_declared_at_process =
 
 # resource_parameters_declared_at_location =
+
 
 @dataclass
 class Location:
@@ -65,20 +66,28 @@ class Location:
         land_max_factor (DataFrame, optional): factor for changing land availability. Defaults to None. 
         land_cost_factor (DataFrame, optional): factor for changing land cost. Defaults to None. 
         demand (Dict[Resource, Union[float, Tuple[float], Theta]]): demand for resources at location. Defaults to None.
-        credit (Dict[Process, float], optional): credit earned by process per unit basis. Defaults to None.
-        demand_factor (Dict[Resource, DataFrame], optional): Factor for varying demand. Defaults to None.
-        credit_factor (Dict[Process, DataFrame], optional): factor for credit. Defaults to None.
+        sell_price_factor (Dict[Resource, DataFrame], optional): Factor for varying resource revenue. Defaults to None.
         purchase_price_factor (Dict[Resource, DataFrame], optional): Factor for varying cost. Defaults to None.
         availability_factor (Dict[Resource, DataFrame], optional): Factor for varying resource availability. Defaults to None.
-        sell_price_factor (Dict[Resource, DataFrame], optional): Factor for varying resource revenue. Defaults to None.
-        capacity_factor (Dict[Process, DataFrame], optional):  Factor for varying capacity.Defaults to None.
+        demand_factor (Dict[Resource, DataFrame], optional): Factor for varying demand. Defaults to None.
+        store_max_factor (Dict[Resource, DataFrame], optional): Factor for maximum inventory capacity. Defaults to None.
+        store_loss_factor (Dict[Resource, DataFrame], optional): Factor for loss of resource in inventory. Defaults to None.
+        storage_cost_factor (Dict[Resource, DataFrame], optional): Factor for cost of maintaining inventory. Defaults to None.
+        credit (Dict[Process, float], optional): credit earned by process per unit basis. Defaults to None.
+        capacity_factor (Dict[Process, DataFrame], optional):  Factor for varying capacity in schedule.Defaults to None.
+        cap_max_factor (Dict[Process, DataFrame], optional):  Factor for maximum allowed capacity expansion.Defaults to None.
         capex_factor (Dict[Process, DataFrame], optional):  Factor for varying capital expenditure. Defaults to None.
         vopex_factor (Dict[Process, DataFrame], optional):  Factor for varying variable operational expenditure. Defaults to None.
         fopex_factor (Dict[Process, DataFrame], optional):  Factor for varying fixed operational expenditure. Defaults to None.
         incidental_factor (Dict[Process, DataFrame], optional):  Factor for varying incidental expenditure. Defaults to None.
+        credit_factor (Dict[Process, DataFrame], optional): factor for credit. Defaults to None.        
+        sell_price_localize (Dict[Resource, Tuple[float, int]] , optional): Localization factor for selling price. Defaults to None.
         purchase_price_localize (Dict[Resource, Tuple[float, int]] , optional): Localization factor for purchase price. Defaults to None.
         cons_max_localize (Dict[Resource, Tuple[float, int]] , optional): Localization factor for availability. Defaults to None.
-        sell_price_localize (Dict[Resource, Tuple[float, int]] , optional): Localization factor for selling price. Defaults to None.
+        store_max_localize (Dict[Resource, DataFrame], optional): Localization factor for maximum inventory capacity. Defaults to None.
+        store_min_localize (Dict[Resource, DataFrame], optional): Localization factor for minimum inventory capacity. Defaults to None.
+        store_loss_localize (Dict[Resource, DataFrame], optional): Localization factor for loss of resource in inventory. Defaults to None.
+        storage_cost_localize (Dict[Resource, DataFrame], optional): Localization factor for cost of maintaining inventory. Defaults to None.
         cap_max_localize (Dict[Process, Tuple[float, int]] , optional): Localization factor for maximum capacity. Defaults to None.
         cap_min_localize (Dict[Process, Tuple[float, int]] , optional): Localization factor for minimum capacity. Defaults to None.
         capex_localize (Dict[Process, Tuple[float, int]] , optional): Localization factor for capex. Defaults to None.
@@ -106,30 +115,43 @@ class Location:
     land_cost: Union[float, Tuple[float], Theta] = None
     land_max_factor: DataFrame = None
     land_cost_factor: DataFrame = None
-    # Component parameters declared at Location
+    # Resource parameters declared at Location
     demand: Dict[Resource, Union[float, Tuple[float], Theta]] = None
-    credit: Dict[Process, Union[float, Tuple[float], Theta]] = None
-    # Factors for component parameter variability
-    demand_factor: Dict[Resource, DataFrame] = None
-    credit_factor: Dict[Process, DataFrame] = None
+    # Factors for Resource parameter variability
+    sell_price_factor: Dict[Resource, DataFrame] = None
     purchase_price_factor: Dict[Resource, DataFrame] = None
     availability_factor: Dict[Resource, DataFrame] = None
-    sell_price_factor: Dict[Resource, DataFrame] = None
+    demand_factor: Dict[Resource, DataFrame] = None
+    store_max_factor: Dict[Resource, DataFrame] = None
+    store_loss_factor: Dict[Resource, DataFrame] = None
+    storage_cost_factor: Dict[Resource, DataFrame] = None
+    # Process parameters declared at Location
+    credit: Dict[Process, Union[float, Tuple[float], Theta]] = None
+    # Factors for Process parameter variability
     capacity_factor: Dict[Process, DataFrame] = None
+    cap_max_factor: Dict[Process, DataFrame] = None
     capex_factor: Dict[Process, DataFrame] = None
     vopex_factor: Dict[Process, DataFrame] = None
     fopex_factor: Dict[Process, DataFrame] = None
     incidental_factor: Dict[Process, DataFrame] = None
-    # Localizations for paramters provided at component level
-    purchase_price_localize: Dict[Resource, Tuple[float, int]] = None
-    cons_max_localize: Dict[Resource, Tuple[float, int]] = None
+    credit_factor: Dict[Process, DataFrame] = None
+    # Localizations for Resource parameters
     sell_price_localize: Dict[Resource, Tuple[float, int]] = None
+    purchase_price_localize: Dict[Resource, Tuple[float, int]] = None
+    # gets an alias (availability_localize)
+    cons_max_localize: Dict[Resource, Tuple[float, int]] = None
+    store_max_localize: Dict[Resource, Tuple[float, int]] = None
+    store_min_localize: Dict[Resource, Tuple[float, int]] = None
+    store_loss_localize: Dict[Resource, Tuple[float, int]] = None
+    storage_cost_localize: Dict[Resource, Tuple[float, int]] = None
+    # Localizations for Process parameters
     cap_max_localize: Dict[Process, Tuple[float, int]] = None
     cap_min_localize: Dict[Process, Tuple[float, int]] = None
     capex_localize: Dict[Process, Tuple[float, int]] = None
     vopex_localize: Dict[Process, Tuple[float, int]] = None
     fopex_localize: Dict[Process, Tuple[float, int]] = None
     incidental_localize: Dict[Process, Tuple[float, int]] = None
+
     # Details
     basis: str = None
     block: str = None
@@ -149,6 +171,9 @@ class Location:
     revenue_factor: dict = None
 
     def __post_init__(self):
+
+        # *----------------- Aliases ---------------------------------
+        self.availability_localize = self.cons_max_localize
 
         # *----------------- Update Location parameters and factors ---------------------------------
 

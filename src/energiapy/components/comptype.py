@@ -111,6 +111,15 @@ class ResourceType(Enum):
         """
         return ['TRANSPORT']
 
+    @classmethod
+    def uncertain(cls) -> List[str]:
+        """Uncertain parameters, can be handled: 
+        1. Multiparametrically by defining as multiparametric variables (energiapy.components.parameters.mpvar.MPVar)
+        2. By using factors of deterministic data and via multiperiod scenario analysis 
+        """
+        exclude_ = ['STORE_MIN']
+        return list(set(cls.parameters()) - set(exclude_))
+
     # * Automated below this
 
     @classmethod
@@ -229,13 +238,16 @@ class ProcessType(Enum):
     PWL_CAPEX = auto()
     """Use piece-wise linear CAPEX
     """
-    CAPACITY = auto()
-    """Has a capacity 
+    INTERMITTENT = auto()
+    """Not strictly intermittent, but experiences some type of variability 
     """
     # * -------------------- Parameters--------------------------------------
     CAP_MAX = auto()
     CAP_MIN = auto()
     """Bounds to capacity expansion
+    """
+    LAND = auto()
+    """If the process requires land 
     """
     CAPEX = auto()
     FOPEX = auto()
@@ -243,18 +255,19 @@ class ProcessType(Enum):
     INCIDENTAL = auto()
     """Technology costs to set up processes
     """
-    INTRODUCE = auto()
-    RETIRE = auto()
-    LIFETIME = auto()
-    TRL = auto()
-    P_FAIL = auto()
-    """Temporal behavior
-    """
-    LAND = auto()
-    """If the process requires land 
+    CAPACITY = auto()
+    """Amount of the established capacity that can be exercised for production
     """
     CREDIT = auto()
     """If the process is eligible for credit 
+    """
+    INTRODUCE = auto()
+    RETIRE = auto()
+    LIFETIME = auto()
+    """Temporal behaviour 
+    """
+    P_FAIL = auto()
+    """Probability of failure 
     """
 
     # * -------------------------- Classmethods ----------------------------------------
@@ -267,14 +280,37 @@ class ProcessType(Enum):
     def parameters(cls) -> List[str]:
         """All parameters
         """
-        return ['CAP_MAX', 'CAP_MIN', 'CAPEX', 'FOPEX', 'VOPEX', 'INCIDENTAL',
-                'INTRODUCE', 'RETIRE', 'LIFETIME', 'TRL', 'P_FAIL', 'LAND', 'CREDIT']
+        return ['CAP_MAX', 'CAP_MIN', 'CAPEX', 'FOPEX', 'VOPEX', 'INCIDENTAL', 'LAND', 'CREDIT', 'CAPACITY', 'INTRODUCE', 'RETIRE', 'LIFETIME', 'P_FAIL']
+
+    @classmethod
+    def temporal_parameters(cls) -> List[str]:
+        """These define the temporal aspects of establishing processes. Factors not provided for these. 
+        """
+        return ['INTRODUCE', 'RETIRE', 'LIFETIME', 'P_FAIL']
+
+    @classmethod
+    def process_level_resource_parameters(cls) -> List[str]:
+        """Resource parameters that can be declared at Process level
+        Do not treat these as Process parameters. 
+        In the current list, all of these will be assigned to a STORE type Resource
+        """
+        return ['STORE_MAX', 'STORE_MIN', 'STORAGE_COST', 'STORE_LOSS']
 
     @classmethod
     def location_level(cls) -> List[str]:
         """Set when Location is declared
+        STORAGE_DISCHARGE is assigned when Discharge Process is created at Location level for a STORAGE PROCESS
         """
-        return ['CREDIT', 'STORAGE_DISCHARGE']
+        return ['CREDIT', 'STORAGE_DISCHARGE', 'INTERMITTENT', 'CAPACITY']
+
+    @classmethod
+    def uncertain(cls) -> List[str]:
+        """Uncertain parameters, can be handled: 
+        1. Multiparametrically by defining as multiparametric variables (energiapy.components.parameters.mpvar.MPVar)
+        2. By using factors of deterministic data and via multiperiod scenario analysis 
+        """
+        exclude_ = ['CAP_MIN']
+        return list(set(cls.parameters()) - set(cls.temporal_parameters()) - set(cls.process_level_resource_parameters()) - set(exclude_))
 
     # * Automated below this
 
