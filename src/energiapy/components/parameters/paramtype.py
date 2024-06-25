@@ -29,9 +29,6 @@ class ParameterType(Enum):
     """Declared as a parametric variable (energiapy.components.parameters.mpvars.Theta)
     or provided as a range using tuple
     """
-    CLASSIFICATION = auto()
-    """Component attribute declaration helps classify the component   
-    """
 
 # *-----------------------Factor------------------------------------------------
 

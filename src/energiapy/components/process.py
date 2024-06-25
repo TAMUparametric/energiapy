@@ -231,7 +231,6 @@ class Process:
 
         self.ptype = dict()
 
-
         # for i in self.parameters_declared_here():
         #     if getattr(self, i) is not None:
         #         ctype_ = getattr(ProcessType, i.upper())
