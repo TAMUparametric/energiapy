@@ -26,6 +26,7 @@ class Transport:
         resources(Set[Resource]): specific resources transported through mode.
         cap_max(Union[float, Tuple[float], Theta]): maximum capacity that can be set up.
         cap_min(Union[float, Tuple[float], Theta], optional): minimum capacity required to set up. Defaults to None.
+        land(Union[float, Tuple[float], Theta], optional): land required to set up transport. Defaults to None.
         trans_loss(Union[float, Tuple[float], Theta], optional): transport losses per unit basis of Resource for timeperiod in scheduling scale. Defaults to 0.
         material_cons(Dict[Material, float], optional): Materials consumed per unit distance of Transport. Defaults to None.
         capex(Union[float, Tuple[float], Theta], optional): capital expenditure on a per unit distance unit capacity basis. Defaults to None.
@@ -62,6 +63,7 @@ class Transport:
     cap_max: Union[float, Tuple[float], Theta]
     # Design Parameters
     cap_min: Union[float, Tuple[float], Theta] = None
+    land: Union[float, Tuple[float], Theta] = None
     trans_loss: Union[float, Tuple[float], Theta] = None
     material_cons: Dict[Material, float] = None
     # Expenditure

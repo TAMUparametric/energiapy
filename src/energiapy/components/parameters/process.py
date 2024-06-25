@@ -78,3 +78,9 @@ class ProcessParamType(Enum):
         """Set when Process is declared
         """
         return list(set(cls.all()) - set(cls.location_level()))
+    
+    @classmethod
+    def localize(cls) -> List[str]:
+        """Process parameters than can be localized 
+        """
+        return list(set(cls.process_level()) - set(cls.temporal()) - set(cls.process_level_resource()))

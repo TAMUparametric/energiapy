@@ -10,7 +10,7 @@ from .network import Network
 from .parameters.factor import Factor
 from .parameters.localize import Localize
 from .parameters.mpvar import Theta, create_mpvar
-from .parameters.paramtype import *
+from .parameters import *
 from .process import Process
 from .resource import Resource
 from .result import Result

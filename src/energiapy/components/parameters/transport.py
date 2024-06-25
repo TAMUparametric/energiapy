@@ -51,6 +51,18 @@ class TransportParamType(Enum):
 
     @classmethod
     def transport_level(cls) -> List[str]:
-        """Set when Location is declared
+        """Set when Transport is declared
         """
         return list(set(cls.all()) - set(cls.network_level()))
+
+    @classmethod
+    def transport_level_uncertain(cls) -> List[str]:
+        """Set when Transport is declared
+        """
+        return list(set(cls.uncertain()) - set(cls.network_level()))
+
+    @classmethod
+    def network_level_uncertain(cls) -> List[str]:
+        """Set when Network is declared
+        """
+        return list(set(cls.uncertain()) - set(cls.transport_level()))

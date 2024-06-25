@@ -5,15 +5,15 @@ from typing import List
 from ..comptype import ResourceType, ProcessType
 
 
-bla = ProcessType.parameters() + ResourceType.parameters()
+# bla = ProcessType.parameters() + ResourceType.parameters()
 
 
-class Testa(Enum):
-    pass
+# class Testa(Enum):
+#     pass
 
 
-for i in bla:
-    setattr(Testa, i, auto())
+# for i in bla:
+#     setattr(Testa, i, auto())
 
 
 # *-----------------------Parameter-------------------------------------------------

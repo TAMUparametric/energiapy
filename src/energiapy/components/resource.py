@@ -10,6 +10,7 @@ from .comptype.resource import ResourceType
 from .parameters.mpvar import Theta, create_mpvar
 from .parameters.paramtype import (FactorType, LocalizeType, MPVarType,
                                    ParameterType)
+from .parameters.resource import ResourceParamType
 
 
 @dataclass
@@ -266,6 +267,68 @@ class Resource:
             raise ValueError(
                 f'{self.name}: revenue has been depreciated. Please use sell_price instead')
 
+    # *----------------- Class Methods ---------------------------------
+    
+    @classmethod
+    def parameters(cls) -> List[str]:
+        """All Resource paramters
+        """
+        return ResourceParamType.all()
+
+    @classmethod
+    def resource_level_parameters(cls) -> List[str]:
+        """Set when Resource is declared
+        """
+        return ResourceParamType.resource_level()
+   
+   @classmethod
+    def location_level_parameters(cls) -> List[str]:
+        """Set when Location is declared
+        """
+        return ResourceParamType.location_level()
+
+    @classmethod
+    def transport_level_parameters(cls) -> List[str]:
+        """Set when Transport is declared
+        """
+        return ResourceParamType.transport_level()
+
+    @classmethod
+    def uncertain_parameters(cls) -> List[str]:
+        """Uncertain parameters
+        """
+        return ResourceParamType.uncertain()
+
+    @classmethod
+    def localize_parameters(cls) -> List[str]:
+        """Resource parameters than can be localized 
+        """
+        return ResourceParamType.localize()
+    
+    @classmethod
+    def classifications(cls) -> List[str]:
+        """All Resource paramters
+        """
+        return ResourceType.all()
+
+    @classmethod
+    def resource_level_classifications(cls) -> List[str]:
+        """Set when Resource is declared
+        """
+        return ResourceType.resource_level()
+   
+   @classmethod
+    def location_level_classifications(cls) -> List[str]:
+        """Set when Location is declared
+        """
+        return ResourceType.location_level()
+
+    @classmethod
+    def transport_level_classifications(cls) -> List[str]:
+        """Set when Transport is declared
+        """
+        return ResourceType.transport_level()
+    
     def __repr__(self):
         return self.name
 

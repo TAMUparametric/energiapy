@@ -97,6 +97,7 @@ class Location:
         vopex_localize (Dict[Process, Tuple[float, int]] , optional): Localization factor for vopex. Defaults to None.
         fopex_localize (Dict[Process, Tuple[float, int]] , optional): Localization factor for fopex. Defaults to None.
         incidental_localize(Dict[Process, Tuple[float, int]] , optional): Localization factor for incidental. Defaults to None.
+        incidental_localize(Dict[Process, Tuple[float, int]] , optional): Localization factor for land. Defaults to None.
         basis (str, optional): unit in which land area is measured. Defaults to None .
         block (Union[str, list, dict], optional): block to which it belong. Convinient to set up integer cuts. Defaults to None.
         label (str, optional): used while generating plots. Defaults to None.
@@ -154,6 +155,7 @@ class Location:
     vopex_localize: Dict[Process, Tuple[float, int]] = None
     fopex_localize: Dict[Process, Tuple[float, int]] = None
     incidental_localize: Dict[Process, Tuple[float, int]] = None
+    land_localize: Dict[Process, Tuple[float, int]] = None
 
     # Details
     basis: str = None

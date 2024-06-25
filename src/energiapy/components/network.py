@@ -11,8 +11,8 @@ from typing import Dict, List, Tuple, Union
 from pandas import DataFrame
 
 from .comptype.location import LocationType
-from .comptype.transport import NetworkType
-from .comptype.network import TransportType
+from .comptype.transport import TransportType 
+from .comptype.network import NetworkType
 from .location import Location
 from .parameters.factor import Factor
 from .parameters.mpvar import Theta, create_mpvar

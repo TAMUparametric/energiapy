@@ -51,7 +51,7 @@ class ResourceParamType(Enum):
 
     @classmethod
     def all(cls) -> List[str]:
-        """All Resource paramters and classifications
+        """All Resource paramters
         """
         return [i.name for i in cls]
 
@@ -60,3 +60,9 @@ class ResourceParamType(Enum):
         """Set when Resource is declared
         """
         return list(set(cls.all()) - set(cls.location_level()) - set(cls.transport_level()))
+    
+    @classmethod
+    def localize(cls) -> List[str]:
+        """Resource parameters than can be localized 
+        """
+        return list(set(cls.resource_level()))
