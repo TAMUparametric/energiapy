@@ -2,6 +2,7 @@
 """
 # TODO - check transport avail (only has transport name) and transport dict (has transport object)
 # TODO - add CAP_MAX and TRANS_LOSS factors for Transport
+# TODO - do we need transport_avail_dict???
 
 import uuid
 from dataclasses import dataclass, field
@@ -159,7 +160,7 @@ class Network:
                 for k in j:
                     self.transports.add(k)
 
-        self.locations = set(self.sources) | set(self.sinks) 
+        self.locations = set(self.sources) | set(self.sinks)
 
         self.source_sink_resource_dict = self.make_source_sink_resource_dict()
 
@@ -284,7 +285,7 @@ class Network:
             self.ftype[ptype_] = ftype_
             factor_ = Factor(component=self, data=attr_,
                              ftype=ftype_, scales=self.scales)
-            setattr(self, f'{parameter}_factor', factor_)
+            setattr(self, f'{parameter}_factor'.lower(), factor_)
             self.factors[f'{parameter}_factor'.lower()] = factor_
 
     def update_transport_factor(self, parameter: str):
@@ -313,7 +314,7 @@ class Network:
                         transport.factors[factor_name_] = dict()
                         transport.factors[factor_name_][location_tuple] = factor_
                     else:
-                        if ptype_ in transport.ftype_:
+                        if ptype_ in transport.ftype:
                             transport.ftype[ptype_].append(
                                 (location_tuple, ftype_))
                             transport.factors[factor_name_][location_tuple] = factor_
@@ -330,7 +331,7 @@ class Network:
         Returns:
             dict: a dictionary of distances from sources to sinks
         """
-        distance_dict = {(self.sources[i].name, self.sinks[j].name):
+        distance_dict = {(self.sources[i], self.sinks[j]):
                          self.distance_matrix[i][j] for i, j in
                          product(range(len(self.sources)), range(len(self.sinks)))}
         return distance_dict
@@ -341,7 +342,7 @@ class Network:
         Returns:
             dict: a dictionary of transportation modes available between sources to sinks
         """
-        transport_dict = {(self.sources[i].name, self.sinks[j].name):
+        transport_dict = {(self.sources[i], self.sinks[j]):
                           set(self.transport_matrix[i][j]) for i, j in
                           product(range(len(self.sources)), range(len(self.sinks)))}
         return transport_dict

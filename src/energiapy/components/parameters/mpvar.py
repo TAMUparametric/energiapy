@@ -1,7 +1,7 @@
 """Parametric variable 
 """
 from dataclasses import dataclass
-from typing import Union, Optional
+from typing import Optional, Union
 from warnings import warn
 
 from .paramtype import MPVarType
@@ -61,11 +61,11 @@ class Theta:
 
         if self.ptype is not None:
             if self.location is not None:
-                self.name = f'{self.component.name}_{self.location.name}_{str(self.ptype).lower()}'.replace(
-                    'mpvartype.', '')
+                self.name = f'Theta({self.component.name},{self.location.name},{str(self.ptype).lower()})'.replace(
+                    'mpvartype.', '').replace(f'{self.component.class_name()}_'.lower(), '')
             else:
-                self.name = f'{self.component.name}_{str(self.ptype).lower()}'.replace(
-                    'mpvartype.', '')
+                self.name = f'Theta({self.component.name},{str(self.ptype).lower()})'.replace(
+                    'mpvartype.', '').replace(f'{self.component.class_name()}_'.lower(), '')
         else:
             self.name = f'{self.__class__.__name__}({self.bounds})'
 

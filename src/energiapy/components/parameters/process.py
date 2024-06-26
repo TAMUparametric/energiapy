@@ -85,6 +85,19 @@ class ProcessParamType(Enum):
         exclude_ = ['CAPACITY']
         return list(set(cls.process_level()) - set(cls.readiness()) - set(cls.failure()) - set(cls.process_level_resource()) - set(exclude_))
 
+    @classmethod
+    def include_at_scenario(cls) -> List[str]:
+        """Additional parameters to include at scenario
+        """
+        return {'CONVERSION', 'MATERIAL_CONS'} 
+    
+    @classmethod
+    def exclude_at_scenario(cls) -> List[str]:
+        """Parameters to exclude at scenario
+        """
+        return {'CAPACITY'}
+
+    
     # *------------------ Automated below this------------------------
 
     @classmethod

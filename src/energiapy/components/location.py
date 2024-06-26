@@ -6,13 +6,13 @@
 # TODO - fix param dict and comp subset
 
 
+import operator
 import uuid
 from dataclasses import dataclass
+from functools import reduce
 from itertools import product
 from random import sample
 from typing import Dict, List, Set, Tuple, Union
-from functools import reduce
-import operator
 
 from pandas import DataFrame
 
@@ -449,7 +449,7 @@ class Location:
             self.ftype[ptype_] = ftype_
             factor_ = Factor(component=self, data=attr_,
                              ftype=ftype_, scales=self.scales)
-            setattr(self, f'{parameter}_factor', factor_)
+            setattr(self, f'{parameter}_factor'.lower(), factor_)
             self.factors[f'{parameter}_factor'.lower()] = factor_
 
     def update_component_parameter_declared_at_location(self, parameter: str, parameter_type: Union[ResourceParamType, ProcessParamType]):
@@ -571,8 +571,8 @@ class Location:
                     # if this is a new ctype_ being considered, create key and list with tuple (Location, FactorType/Factor)
                     else:
                         j.ltype[ptype_] = [(self, ltype_)]
-                        if factor_name_ not in j.localizations:
-                            j.localizations[factor_name_] = dict()
+                        if localization_name_ not in j.localizations:
+                            j.localizations[localization_name_] = dict()
                         j.localizations[localization_name_][self] = localization_ 
 
 

@@ -6,11 +6,11 @@
 # TODO send creation of matrix outside
 # TODO update docstring
 
+import operator
 import uuid
 from dataclasses import dataclass
-from typing import Dict, List, Union
 from functools import reduce
-import operator
+from typing import Dict, List, Union
 
 import numpy
 from pandas import DataFrame
@@ -24,7 +24,13 @@ from .comptype.resource import ResourceType
 from .comptype.scenario import ScenarioType
 from .location import Location
 from .network import Network
-from .parameters.paramtype import ParameterType
+from .parameters.location import LocationParamType
+from .parameters.network import NetworkParamType
+from .parameters.paramtype import (FactorType, LocalizationType, MPVarType,
+                                   ParameterType)
+from .parameters.process import ProcessParamType
+from .parameters.resource import ResourceParamType
+from .parameters.transport import TransportParamType
 from .resource import Resource
 from .temporal_scale import TemporalScale
 
@@ -137,34 +143,90 @@ class Scenario:
 
         self.design_scale = self.scales.design_scale
         self.scheduling_scale = self.scales.scheduling_scale
-        
+
         if not self.ctype:
             self.ctype = list()
-            
+
         if self.cluster_wt:
             self.ctype.append(ScenarioType.REDUCED)
 
+        # * ---------- Collect component sets, Update ctype------------------------
+
         if isinstance(self.network, Location):
             self.ctype.append(ScenarioType.SINGLE_LOCATION)
-            self.locations = {self.network}
+            self.locations = set(self.network)
+
         else:
             self.ctype.append(ScenarioType.MULTI_LOCATION)
             self.transports = self.network.transports
             self.locations = self.network.locations
-            
-            ### Try to get all of this from general classifications
+            self.defined_ptypes_network = {i.name for i in set(
+                self.network.ptype)} | self.network_parameters_include()
+            # Try to get all of this from general classifications
             self.sources = self.network.sources
             self.sinks = self.network.sinks
             self.transport_dict = self.network.transport_dict
             self.transport_avail_dict = self.network.transport_avail_dict
-        
-        for comp_ in ['resources', 'processes', 'materials']:
-            component_set = reduce(operator.or_, (getattr(loc_, comp_) for loc_ in getattr(self, 'locations')), set())
-            setattr(self, comp_, component_set)
-            
 
-        
-    
+        for comp_ in ['resources', 'processes', 'materials']:
+            component_set = reduce(operator.or_, (getattr(
+                loc_, comp_) for loc_ in getattr(self, 'locations')), set())
+            setattr(self, comp_, component_set)
+
+        consider_transports = list()
+        if hasattr(self, 'transports'):
+            consider_transports.append('transports')
+
+        # * ---------- Collect component parameter declarations------------------------
+
+        for comp_ in ['resources', 'processes', 'locations'] + consider_transports:
+            comp_set_ = getattr(self, comp_)
+            ptypes_ = reduce(operator.or_, (set(i.ptype)
+                             for i in comp_set_), set())
+            ptype_names_ = {i.name for i in ptypes_}
+            setattr(self, f'defined_ptypes_{comp_}', ptype_names_)
+
+        # update Process and Transport parameters to collect
+        processes_ptypes_ = getattr(self, 'defined_ptypes_processes')
+        processes_ptypes_ = processes_ptypes_ - \
+            self.process_parameters_exclude() | self.process_parameters_include()
+        setattr(self, 'defined_ptypes_processes', processes_ptypes_)
+
+        if consider_transports:
+            transports_ptypes_ = getattr(self, 'defined_ptypes_transports')
+            transports_ptypes_ = transports_ptypes_ - \
+                self.transport_parameters_exclude() | self.transport_parameters_include()
+            setattr(self, 'defined_ptypes_transports', transports_ptypes_)
+
+        # * ---------- Collect data from components based on defined ptypes------------------------
+
+        for comp_ in ['resources', 'processes', 'locations', 'transports']:
+            if hasattr(self, f'{comp_}'):  # if parameters
+                comp_set_ = getattr(self, comp_)
+                comp_ptypes_ = getattr(self, f'defined_ptypes_{comp_}')
+                data_ = dict()
+                for i in comp_set_:
+                    comp_data_ = dict()
+                    for j in comp_ptypes_:
+                        if hasattr(i, j.lower()):
+                            comp_param_data_ = getattr(i, j.lower())
+                            if comp_param_data_:
+                                comp_data_[j.lower()] = comp_param_data_
+                    if comp_data_:
+                        data_[i] = comp_data_
+                setattr(self, f'data_{comp_}', data_)
+
+        if hasattr(self, 'defined_ptypes_network'):
+            network_data_ = {i.lower(): getattr(self.network, i.lower(
+            )) for i in self.defined_ptypes_network}
+            setattr(self, 'data_network', network_data_)
+
+        # self.resource_ptypes =
+
+        # self.resource_parameters = {i: {j.lower(): getattr(i, j.lower(
+        # )) for j in self.resource_parameters() if getattr(i, j.lower(
+        # )) is not None} for i in getattr(self, 'resources')}
+
         # self.demand = {i: i.demand for i in self.locations}
         # self.conversion = {i.name: {j.name: i.conversion[j] if j in i.conversion.keys(
         # ) else 0 for j in self.resources} for i in self.processes if i.conversion is not None}
@@ -381,7 +443,7 @@ class Scenario:
         """Returns class name 
         """
         return cls.__name__
-    
+
     @classmethod
     def ctypes(cls) -> List[str]:
         """All Scenario classifications
@@ -393,6 +455,68 @@ class Scenario:
         """Emission types
         """
         return EmissionType.all()
+
+    # * component parameters
+
+    @classmethod
+    def resource_parameters(cls) -> List[str]:
+        """Resource parameters to pull at Scenario
+        """
+        return ResourceParamType.all()
+
+    @classmethod
+    def process_parameters(cls) -> List[str]:
+        """Process parameters to pull at Scenario
+        """
+        return ProcessParamType.all()
+
+    @classmethod
+    def process_parameters_exclude(cls) -> List[str]:
+        """Process parameters to exclude at Scenario
+        """
+        return ProcessParamType.exclude_at_scenario()
+
+    @classmethod
+    def process_parameters_include(cls) -> List[str]:
+        """Process parameters to include at Scenario
+        """
+        return ProcessParamType.include_at_scenario()
+
+    @classmethod
+    def location_parameters(cls) -> List[str]:
+        """Location parameters to pull at Scenario
+        """
+        return LocationParamType.all()
+
+    @classmethod
+    def transport_parameters(cls) -> List[str]:
+        """Transport parameters to pull at Scenario
+        """
+        return TransportParamType.all()
+
+    @classmethod
+    def transport_parameters_exclude(cls) -> List[str]:
+        """Transport parameters to exclude at Scenario
+        """
+        return TransportParamType.exclude_at_scenario()
+
+    @classmethod
+    def transport_parameters_include(cls) -> List[str]:
+        """Transport parameters to include at Scenario
+        """
+        return TransportParamType.include_at_scenario()
+
+    @classmethod
+    def network_parameters(cls) -> List[str]:
+        """Network parameters to pull at Scenario
+        """
+        return NetworkParamType.all()
+
+    @classmethod
+    def network_parameters_include(cls) -> List[str]:
+        """Network parameters to include at Scenario
+        """
+        return NetworkParamType.include_at_scenario()
 
     # *----------------- Functions-------------------------------------
 

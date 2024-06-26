@@ -4,11 +4,11 @@
 # TODO --- trans_loss, retire, introduce, land, land_cost (could be between location.. will need to check)
 # TODO -- PWL CAPEX
 
+import operator
 import uuid
 from dataclasses import dataclass
-from typing import Dict, List, Set, Tuple, Union
 from functools import reduce
-import operator
+from typing import Dict, List, Set, Tuple, Union
 
 from ..utils.data_utils import get_depth
 from .comptype.emission import EmissionType

@@ -27,8 +27,8 @@ class Localization:
     location: Optional['Location']
 
     def __post_init__(self):
-        self.name = f'{self.location.name}_{self.component.name}_{str(self.ltype).lower()}'.replace(
-            'localizationtype.', '')
+        self.name = f'Localize({self.component.name},{self.location.name},{str(self.ltype).lower()})'.replace(
+            'localizationtype.', '').replace(f'{self.component.class_name()}_'.lower(), '')
 
     def __repr__(self):
         return self.name

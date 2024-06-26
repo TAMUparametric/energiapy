@@ -61,6 +61,19 @@ class TransportParamType(Enum):
         """
         exclude_ = ['TRANS_LOSS', 'LAND']
         return list(set(cls.uncertain()) - set(exclude_))
+    
+    
+    @classmethod
+    def include_at_scenario(cls) -> List[str]:
+        """Additional parameters to include at scenario
+        """
+        return {'RESOURCES', 'MATERIAL_CONS'} 
+    
+    @classmethod
+    def exclude_at_scenario(cls) -> List[str]:
+        """Parameters to exclude at scenario
+        """
+        return {'CAPACITY'}
 
     # * -------------------------- Automated below this ----------------------------------------
 
@@ -69,5 +82,3 @@ class TransportParamType(Enum):
         """All Transport paramters
         """
         return [i.name for i in cls]
-
-

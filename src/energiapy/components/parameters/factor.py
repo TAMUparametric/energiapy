@@ -48,15 +48,15 @@ class Factor:
             self.scaled = self.data.scaled
             self.data = self.data.data
             if isinstance(self.location, tuple):
-                self.name = f'{self.component.name}_({self.location[0].name},{self.location[1].name})_{str(self.ftype).lower()}_factor'.replace(
-                    'factortype.', '')
+                self.name = f'Factor({self.component.name},({self.location[0].name},{self.location[1].name}),{str(self.ftype).lower()})'.replace(
+                    'factortype.', '').replace(f'{self.component.class_name()}_'.lower(), '')
             else:
                 if self.location is None:  # defined for location or network
-                    self.name = f'{self.component.name}_{str(self.ftype).lower()}_factor'.replace(
-                        'factortype.', '')
+                    self.name = f'Factor({self.component.name},{str(self.ftype).lower()})'.replace(
+                        'factortype.', '').replace(f'{self.component.class_name()}_'.lower(), '')
                 else:
-                    self.name = f'{self.component.name}_{self.location.name}_{str(self.ftype).lower()}_factor'.replace(
-                        'factortype.', '')
+                    self.name = f'Factor({self.component.name},{self.location.name},{str(self.ftype).lower()})'.replace(
+                        'factortype.', '').replace(f'{self.component.class_name()}_'.lower(), '')
 
         else:
             if self.component is not None:
@@ -65,15 +65,15 @@ class Factor:
                         f'{str(self.ftype).lower()} factor for {self.component.name}: please provide DataFrame')
 
                 if isinstance(self.location, tuple):
-                    self.name = f'{self.component.name}_({self.location[0].name},{self.location[1].name})_{str(self.ftype).lower()}_factor'.replace(
-                        'factortype.', '')
+                    self.name = f'Factor({self.component.name},({self.location[0].name},{self.location[1].name}),{str(self.ftype).lower()})'.replace(
+                        'factortype.', '').replace(f'{self.component.class_name()}_'.lower(), '')
                 else:
                     if self.location is None:  # defined for location or network
-                        self.name = f'{self.component.name}_{str(self.ftype).lower()}_factor'.replace(
-                            'factortype.', '')
+                        self.name = f'Factor({self.component.name},{str(self.ftype).lower()})'.replace(
+                            'factortype.', '').replace(f'{self.component.class_name()}_'.lower(), '')
                     else:
-                        self.name = f'{self.component.name}_{self.location.name}_{str(self.ftype).lower()}_factor'.replace(
-                            'factortype.', '')
+                        self.name = f'Factor({self.component.name},{self.location.name},{str(self.ftype).lower()})'.replace(
+                            'factortype.', '').replace(f'{self.component.class_name()}_'.lower(), '')
             else:
                 if isinstance(self.data, DataFrame) is False:
                     raise ValueError(

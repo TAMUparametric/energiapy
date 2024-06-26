@@ -2,11 +2,11 @@
 """
 # TODO - diff between storage_loss and conversion efficiency
 
+import operator
 import uuid
 from dataclasses import dataclass
+from functools import reduce
 from typing import Dict, List, Tuple, Union
-from functools import reduce 
-import operator
 
 from ..utils.data_utils import get_depth
 from .comptype.emission import EmissionType
