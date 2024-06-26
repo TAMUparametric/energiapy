@@ -54,6 +54,13 @@ class ResourceParamType(Enum):
         exclude_ = []
         return list(set(cls.uncertain()) - set(exclude_))
 
+    @classmethod
+    def localize(cls) -> List[str]:
+        """Resource parameters than can be localized 
+        """
+        exclude_ = []
+        return list(set(cls.resource_level()) - set(exclude_))
+
     # * -------------------------- Automated below this ----------------------------------------
 
     @classmethod
@@ -67,9 +74,3 @@ class ResourceParamType(Enum):
         """Set when Resource is declared
         """
         return list(set(cls.all()) - set(cls.location_level()) - set(cls.transport_level()))
-
-    @classmethod
-    def localize(cls) -> List[str]:
-        """Resource parameters than can be localized 
-        """
-        return list(set(cls.resource_level()))

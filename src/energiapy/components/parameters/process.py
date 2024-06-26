@@ -3,20 +3,20 @@ from typing import List
 
 
 class ProcessParamType(Enum):
-    """What class a Procss parameter fit in 
+    """Process parameters
     """
     CAP_MAX = auto()
     CAP_MIN = auto()
     """Bounds to capacity expansion
     """
     LAND = auto()
-    """If the process requires land 
+    """If the Process requires land 
     """
     CAPEX = auto()
     FOPEX = auto()
     VOPEX = auto()
     INCIDENTAL = auto()
-    """Technology costs to set up processes
+    """Technology costs to set up Processes
     """
     CAPACITY = auto()
     """Amount of the established capacity that can be exercised for production
@@ -27,7 +27,7 @@ class ProcessParamType(Enum):
     INTRODUCE = auto()
     RETIRE = auto()
     LIFETIME = auto()
-    """Temporal behaviour 
+    """Readiness 
     """
     P_FAIL = auto()
     """Probability of failure 
@@ -39,11 +39,11 @@ class ProcessParamType(Enum):
     def readiness(cls) -> List[str]:
         """These define the temporal aspects of establishing processes. Factors not provided for these. 
         """
-        return ['INTRODUCE', 'RETIRE', 'LIFETIME', 'P_FAIL']
+        return ['INTRODUCE', 'RETIRE', 'LIFETIME']
 
     @classmethod
     def failure(cls) -> List[str]:
-        """if this process can fail
+        """if this Process can fail
         """
         return ['P_FAIL']
 

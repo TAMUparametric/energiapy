@@ -9,7 +9,6 @@ from .process import ProcessParamType
 from .resource import ResourceParamType
 from .transport import TransportParamType
 
-
 # *-----------------------Parameter-------------------------------------------------
 
 

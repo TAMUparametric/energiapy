@@ -75,10 +75,11 @@ class Network:
     name: str
     # Primary attributes
     scales: TemporalScale
-    sources: List[Location] = field(default_factory=list)
-    sinks: List[Location] = field(default_factory=list)
-    distance_matrix: List[List[float]] = field(default_factory=list)
-    transport_matrix: List[List[Transport]] = field(default_factory=list)
+    sources: List[Location] = None
+    sinks: List[Location] = None
+    distance_matrix: List[List[float]] = None
+    transport_matrix: List[List[Transport]] = None
+    land_cost_matrix: List[List[Transport]] = None ##################
     # Network parameters
     land_max: Union[float, Tuple[float], Theta] = None
     land_max_factor: DataFrame = None

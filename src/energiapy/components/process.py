@@ -10,9 +10,9 @@ from ..utils.data_utils import get_depth
 from .comptype.emission import EmissionType
 from .comptype.process import ProcessType
 from .material import Material
-from .parameters.mpvar import Theta, create_mpvar
 from .parameters.factor import Factor
 from .parameters.localization import Localization
+from .parameters.mpvar import Theta, create_mpvar
 from .parameters.paramtype import (FactorType, LocalizationType, MPVarType,
                                    ParameterType)
 from .parameters.process import ProcessParamType
@@ -61,9 +61,9 @@ class Process:
         eutf (Union[float, Tuple[float], Theta], optional): fresh water eutrophication potential for settting up facility per unit basis. Defaults to None.
         eutm (Union[float, Tuple[float], Theta], optional): marine eutrophication potential for settting up facility per unit basis. Defaults to None.
         introduce (int, optional): Time period in the network scale when introduced. Defaults to None.
-        lifetime (Union[float, Tuple[float], Theta] = None, optional): the expected lifetime of process. Defaults to None.
+        lifetime (Union[float, Tuple[float], Theta] = None, optional): the expected lifetime of Process. Defaults to None.
         retire (int, optional): Time period in the network scale when retired. Defaults to None.
-        p_fail (Union[float, Tuple[float], Theta] = None, optional): failure rate of process. Defaults to None.
+        p_fail (Union[float, Tuple[float], Theta] = None, optional): failure rate of Process. Defaults to None.
         storage(Resource, optional): Resource that can be stored in process. Defaults to None.
         store_max (Union[float, Tuple[float], Theta] = None, optional): Maximum allowed storage of resource in process. Defaults to None.
         store_min (Union[float, Tuple[float], Theta] = None, optional): Minimum allowed storage of resource in process. Defaults to None.
@@ -78,8 +78,10 @@ class Process:
         ptype (Dict[ProcessParamType, List[Tuple['Location', ParameterType]]], optional): paramater type of declared values . Defaults to None
         ltype (Dict[ProcessParamType, List[Tuple['Location', LocalizationType]]], optional): which parameters are localized. Defaults to None.
         ftype (Dict[ProcessParamType, List[Tuple['Location',FactorType]]], optional): which parameters are provided with factors at Location. Defaults to None
+        etype (List[EmissionType], optional): list of emission types defined. Defaults to None
         localizations (Dict[ProcessParamType, List[Tuple['Location', Localization]]], optional): collects localizations when defined at Location. Defaults to None.
         factors (Dict[ProcessParamType, List[Tuple['Location', Factor]]], optional): collects factors when defined at Location. Defaults to None.
+        emissions (Dict[str, float], optional): collects emission data. Defaults to None.
 
     Examples:
         For processes with varying production capacity
@@ -134,10 +136,12 @@ class Process:
     ltype: Dict[ProcessParamType,
                 List[Tuple['Location', LocalizationType]]] = None
     ftype: Dict[ProcessParamType, List[Tuple['Location', FactorType]]] = None
+    etype: List[EmissionType] = None
     # Collections
     localizations: Dict[ProcessParamType,
                         List[Tuple['Location', Localization]]] = None
     factors: Dict[ProcessParamType, List[Tuple['Location', Factor]]] = None
+    emissions: Dict[str, float] = None
     # Details
     basis: str = None
     block: str = None
@@ -244,12 +248,14 @@ class Process:
         # *-----------------Set etype (Emission)---------------------------------
         # Types of emission accounted for are declared here and EmissionTypes are set
 
-        self.etype = []
-        self.emissions = dict()
         for i in self.etypes():
             attr_ = getattr(self, i.lower())
             etype_ = getattr(EmissionType, i)
             if attr_ is not None:
+                if not self.etype:  # if etype is not yet defined
+                    self.etype = []
+                    self.emissions = dict()
+                    self.ctype.append(ProcessType.EMISSION)
                 self.etype.append(etype_)
                 self.emissions[i.lower()] = attr_
 

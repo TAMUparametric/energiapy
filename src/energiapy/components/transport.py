@@ -8,11 +8,13 @@ import uuid
 from dataclasses import dataclass
 from typing import Dict, List, Set, Tuple, Union
 
+from ..utils.data_utils import get_depth
 from .comptype.emission import EmissionType
 from .comptype.resource import ResourceType
 from .comptype.transport import TransportType
 from .location import Location
 from .material import Material
+from .parameters.factor import Factor
 from .parameters.mpvar import Theta, create_mpvar
 from .parameters.paramtype import FactorType, MPVarType, ParameterType
 from .parameters.transport import TransportParamType
@@ -42,8 +44,10 @@ class Transport:
         eutt (Union[float, Tuple[float], Theta], optional): terrestrial eutrophication potential for settting up transportation per unit distance. Defaults to None.
         eutf (Union[float, Tuple[float], Theta], optional): fresh water eutrophication potential for settting up transportation per unit distance. Defaults to None.
         eutm (Union[float, Tuple[float], Theta], optional): marine eutrophication potential for settting up transportation per unit distance. Defaults to None.
-        introduce(int, optional): when transportation mode is introduced. Defaults to None.
-        retire(int, optional): when transportation mode is retired. Defaults to None.
+        introduce (int, optional): Time period in the network scale when introduced. Defaults to None.
+        lifetime (Union[float, Tuple[float], Theta] = None, optional): the expected lifetime of Transport. Defaults to None.
+        retire (int, optional): Time period in the network scale when retired. Defaults to None.
+        p_fail (Union[float, Tuple[float], Theta] = None, optional): failure rate of Transport. Defaults to None.
         basis (str, optional): unit for measuring cost and distance. Defaults to None .
         block (Union[str, list, dict], optional): block to which it belong. Convinient to set up integer cuts. Defaults to None.
         label (str, optional): used while generating plots. Defaults to None.
@@ -51,6 +55,9 @@ class Transport:
         ctype (List[LandType], optional): Transport type. Defaults to None.
         ptype (Dict[LandType, ParameterType], optional): paramater type of declared values. Defaults to None.
         ftype (Dict[TransportType, Tuple[Tuple[Location, Location], FactorType]], optional): factor type of declared factors. Defaults to None. 
+        etype (List[EmissionType], optional): list of emission types defined. Defaults to None
+        factors (Dict[TransportParamType, Tuple[Tuple[Location, Location], Factor]], optional): collects factors when defined at Network. Defaults to None.
+        emissions (Dict[str, float], optional): collects emission data. Defaults to None.
 
     Examples:
 
@@ -81,9 +88,11 @@ class Transport:
     eutt: Union[float, Tuple[float], Theta] = None
     eutf: Union[float, Tuple[float], Theta] = None
     eutm: Union[float, Tuple[float], Theta] = None
-    # Temporal
-    introduce: int = 0
-    retire: int = None
+    # Readiness
+    introduce: Union[float, Tuple[float], Theta] = None
+    retire: Union[float, Tuple[float], Theta] = None
+    lifetime: Union[float, Tuple[float], Theta] = None
+    p_fail: Union[float, Tuple[float], Theta] = None
     # Details
     basis: str = None
     block: str = None
@@ -91,9 +100,14 @@ class Transport:
     citation: str = None
     # Type
     ctype: List[TransportType] = None
-    ptype: Dict[TransportType, ParameterType] = None
-    ftype: Dict[TransportType,
+    ptype: Dict[TransportParamType, ParameterType] = None
+    ftype: Dict[TransportParamType,
                 Tuple[Tuple[Location, Location], FactorType]] = None
+    etype: List[EmissionType] = None
+    # Collections
+    factors: Dict[TransportParamType,
+                  Tuple[Tuple[Location, Location], Factor]] = None
+    emissions: Dict[str, float] = None
     # Depricated
     trans_max: float = None
     trans_min: float = None
@@ -102,49 +116,84 @@ class Transport:
 
     def __post_init__(self):
 
-        # *-----------------Set ctype---------------------------------
+        # *-----------------Set ctype (TransportType)---------------------------------
+
         if self.ctype is None:
             self.ctype = []
 
         for i in self.resources:  # update Resource if transported
             i.ctype.append(ResourceType.TRANSPORT)
-            i.ptype[ResourceType.TRANSPORT] = ParameterType.CERTAIN
 
-        if self.cap_max is not None:
-            self.ctype.append(TransportType.CAPACITY)
+        # Materials are not necessarily consumed (NO_MATMODE), if material_cons is None
+        # If consumed, there could be multiple modes of consumption (MULTI_MATMODE) or one (SINGLE_MATMODE)
+        # for MULTI_MATMODE, provide a dict of type ('material_mode' (str, int): {Material: float})
 
-        for i in ['cap_max', 'cap_min', 'capex', 'fopex', 'vopex', 'incidental']:
-            if getattr(self, i) is not None:
-                self.ctype.append(getattr(TransportType, i.upper()))
+        if self.material_cons is None:
+            self.ctype.append(TransportType.NO_MATMODE)
+
+        else:
+            if get_depth(self.material_cons) > 1:
+                self.ctype.append(TransportType.MULTI_MATMODE)
+                self.material_modes = set(self.material_cons.keys())
+                self.material_req = set().union(
+                    *[set(self.material_cons[i].keys()) for i in self.material_modes])
+            else:
+                self.ctype.append(TransportType.SINGLE_MATMODE)
+                self.material_req = set(self.material_cons.keys())
+
+        # capex can be linear (LINEAR_CAPEX) or piecewise linear (PWL_CAPEX)
+        # if PWL, capex needs to be provide as a dict {capacity_segment: capex_segement}
+        if self.capex is not None:
+            if isinstance(self.capex, dict):
+                self.ctype.append(TransportType.PWL_CAPEX)
+                self.capacity_segments = list(self.capex.keys())
+                self.capex_segments = list(self.capex.values())
+            else:
+                self.ctype.append(TransportType.LINEAR_CAPEX)
+
+        # if any expenditure is incurred
+        if any([self.capex, self.fopex, self.vopex, self.incidental]):
+            self.ctype.append(TransportType.EXPENDITURE)
+
+        # if it requires land to set up
+        if self.land is not None:
+            self.ctype.append(TransportType.LAND)
+
+        # if this process fails
+        if self.p_fail is not None:
+            self.ctype.append(TransportType.FAILURE)
+
+        # if this process has some readiness aspects defined
+        if any([self.introduce, self.retire, self.lifetime]):
+            self.ctype.append(TransportType.READINESS)
 
         # *-----------------Set ptype---------------------------------
         # If parameter provided as Theta or tuple bounds are provided - makes MPVar
 
-        self.ptype = {i: ParameterType.CERTAIN for i in self.ctype}
+        self.ptype = dict()
 
-        for i in ['cap_max', 'capex', 'fopex', 'vopex', 'incidental']:
-            if getattr(self, i) is not None:
-                if isinstance(getattr(self, i), (tuple, Theta)):
-                    self.ptype[getattr(TransportType, i.upper())
-                               ] = ParameterType.UNCERTAIN
-                    mpvar_ = create_mpvar(value=getattr(
-                        self, i), component=self, ptype=getattr(MPVarType, i.upper()))
-                    setattr(self, i, mpvar_)
-
-        # * ---------- Collect factors -------------------------------
-        # This will be done at Network level
-
-        self.ftype, self.factors = dict(), dict()
+        for i in self.transport_level_parameters():
+            self.update_transport_level_parameter(parameter=i)
 
         # *-----------------Set etype (Emission)---------------------------------
         # Types of emission accounted for are declared here and EmissionTypes are set
 
-        self.etype = []
-        self.emissions = dict()
-        for i in ['gwp', 'odp', 'acid', 'eutt', 'eutf', 'eutm']:
-            if getattr(self, i) is not None:
-                self.etype.append(getattr(EmissionType, i.upper()))
-                self.emissions[i] = getattr(self, i)
+        for i in self.etypes():
+            attr_ = getattr(self, i.lower())
+            etype_ = getattr(EmissionType, i)
+            if attr_ is not None:
+                if not self.etype:  # if etype is not yet defined
+                    self.etype = []
+                    self.emissions = dict()
+                    self.ctype.append(TransportType.EMISSION)
+                self.etype.append(etype_)
+                self.emissions[i.lower()] = attr_
+
+        # *----------------- Generate Random Name---------------------------------
+        # A random name is generated if self.name = None
+
+        if self.name is None:
+            self.name = f'{self.class_name()}_{uuid.uuid4().hex}'
 
         # *----------------- Depreciation Warnings------------------------------------
         if self.trans_max is not None:
@@ -163,16 +212,27 @@ class Transport:
             raise ValueError(
                 f'{self.name}: emission has been depreciated. Please provide individual emissions (gwp, odp, acid, eutt, eutf, eutm) instead')
 
-        # *----------------- Generate Random Name---------------------------------
-        # A random name is generated if self.name = None
+    # *----------------- Properties ---------------------------------
 
-        if self.name is None:
-            self.name = f'{self.__class__.__name__}_{uuid.uuid4().hex}'
+    @property
+    def capacity(self):
+        """Sets capacity
+        """
+        if self.cap_max is not None:
+            return True
 
     # *----------------- Class Methods -------------------------------------
 
     @classmethod
-    def parameters(cls) -> List[str]:
+    def class_name(cls) -> List[str]:
+        """Returns class name 
+        """
+        return cls.__name__
+
+    # * parameter types
+
+    @classmethod
+    def ptypes(cls) -> List[str]:
         """All Transport paramters
         """
         return TransportParamType.all()
@@ -202,10 +262,16 @@ class Transport:
         return TransportParamType.uncertain_factor()
 
     @classmethod
-    def transport_level_temporal_parameters(cls) -> List[str]:
+    def transport_level_readiness_parameters(cls) -> List[str]:
         """Set when Transport are declared
         """
-        return TransportParamType.temporal()
+        return TransportParamType.readiness()
+
+    @classmethod
+    def transport_level_failure_parameters(cls) -> List[str]:
+        """Set when Transport are declared
+        """
+        return TransportParamType.failure()
 
     @classmethod
     def transport_level_uncertain_parameters(cls) -> List[str]:
@@ -219,8 +285,10 @@ class Transport:
         """
         return TransportParamType.network_level_uncertain()
 
+    # * component class types
+
     @classmethod
-    def classifications(cls) -> List[str]:
+    def ctypes(cls) -> List[str]:
         """All Transport paramters
         """
         return TransportType.all()
@@ -237,11 +305,40 @@ class Transport:
         """
         return TransportType.network_level()
 
+    # * factor types
+
+    @classmethod
+    def ftypes(cls) -> List[str]:
+        """Factor types
+        """
+        return TransportParamType.uncertain_factor()
+
+    # * emission types
+
     @classmethod
     def etypes(cls) -> List[str]:
         """Emission types
         """
         return EmissionType.all()
+
+    # *----------------- Functions ---------------------------------------------
+
+    def update_transport_level_parameter(self, parameter: str):
+        """updates parameter, sets ptype
+
+        Args:
+            parameter (str): parameter to update 
+        """
+        attr_ = getattr(self, parameter.lower())
+        if attr_ is not None:
+            ptype_ = getattr(TransportParamType, parameter)
+            if isinstance(attr_, (tuple, Theta)):
+                self.ptype[ptype_] = ParameterType.UNCERTAIN
+                mpvar_ = create_mpvar(
+                    value=attr_, component=self, ptype=getattr(MPVarType, f'{self.class_name()}_{parameter}'.upper()))
+                setattr(self, parameter.lower(), mpvar_)
+            else:
+                self.ptype[ptype_] = ParameterType.CERTAIN
 
     def __repr__(self):
         return self.name

@@ -33,6 +33,9 @@ class ResourceType(Enum):
     TRANSPORT = auto()
     """transported
     """
+    EMISSION = auto()
+    """Emits 
+    """
 
     # * ----------------------------------Update this ------------------------------------------
 

@@ -86,19 +86,19 @@ class Factor:
                 if self.apply_max_scaler is None:
                     self.apply_max_scaler = self.scales.scale_factors_max
 
-                if self.apply_min_max_scaler is True:
+                if self.apply_min_max_scaler:
                     scaler = MinMaxScaler()
                     self.scaled = 'min_max'
                     self.data = DataFrame(scaler.fit_transform(self.data), columns=self.data.columns).to_dict()[
                         self.data.columns[0]]
 
-                elif self.apply_standard_scaler is True:
+                elif self.apply_standard_scaler:
                     scaler = StandardScaler()
                     self.scaled = 'standard'
                     self.data = DataFrame(scaler.fit_transform(self.data), columns=self.data.columns).to_dict()[
                         self.data.columns[0]]
 
-                elif self.apply_max_scaler is True:
+                elif self.apply_max_scaler:
                     self.scaled = 'max'
                     self.data = self.data/self.data.max()
                     self.data = self.data.to_dict()[self.data.columns[0]]

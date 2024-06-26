@@ -17,7 +17,7 @@ class ProcessType(Enum):
     """Does not use materials
     """
     SINGLE_MATMODE = auto()
-    """Has a single material modes
+    """Has a single material mode
     """
     MULTI_MATMODE = auto()
     """Has multiple material modes
@@ -53,6 +53,9 @@ class ProcessType(Enum):
     FAILURE = auto()
     """If a p_fail is provided 
     """
+    EMISSION = auto()
+    """Emits 
+    """ 
 
     # *------------------------- Update this ----------------------------------------
 

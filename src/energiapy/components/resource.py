@@ -7,12 +7,12 @@ from warnings import warn
 
 from .comptype.emission import EmissionType
 from .comptype.resource import ResourceType
+from .parameters.factor import Factor
+from .parameters.localization import Localization
 from .parameters.mpvar import Theta, create_mpvar
 from .parameters.paramtype import (FactorType, LocalizationType, MPVarType,
                                    ParameterType)
 from .parameters.resource import ResourceParamType
-from .parameters.factor import Factor
-from .parameters.localization import Localization
 
 
 @dataclass
@@ -49,11 +49,13 @@ class Resource:
         label (str, optional): used while generating plots. Defaults to None
         citation (str, optional): can provide citations for your data sources. Defaults to None
         ctype (List[ResourceType], optional): List of resource types. Defaults to None
-        ptype (Dict[ResourceType, ParameterType], optional): dict with parameters declared and thier types. Defaults to None.
-        ltype (Dict[ResourceType, List[Tuple['Location', LocalizationType]]], optional): which parameters are localized at Location. Defaults to None.
-        ftype (Dict[ResourceType, List[Tuple['Location', ParameterType]]], optional): which parameters are provided with factors at Location. Defaults to None
+        ptype (Dict[ResourceParamType, ParameterType], optional): dict with parameters declared and thier types. Defaults to None.
+        ltype (Dict[ResourceParamType, List[Tuple['Location', LocalizationType]]], optional): which parameters are localized at Location. Defaults to None.
+        ftype (Dict[ResourceParamType, List[Tuple['Location', ParameterType]]], optional): which parameters are provided with factors at Location. Defaults to None
+        etype (List[EmissionType], optional): list of emission types defined. Defaults to None
         localizations (Dict[ResourceParamType, List[Tuple['Location', Localization]]], optional): collects localizations when defined at Location. Defaults to None.
         factors (Dict[ResourceParamType, List[Tuple['Location', Factor]]], optional): collects factors when defined at Location. Defaults to None.
+        emissions (Dict[str, float], optional): collects emission data. Defaults to None.
 
     Examples:
 
@@ -135,13 +137,16 @@ class Resource:
     citation: str = None
     # Types
     ctype: List[ResourceType] = None
-    ptype: Dict[ResourceType, ParameterType] = None
-    ltype: Dict[ResourceType, List[Tuple['Location', LocalizationType]]] = None
-    ftype: Dict[ResourceType, List[Tuple['Location', FactorType]]] = None
+    ptype: Dict[ResourceParamType, ParameterType] = None
+    ltype: Dict[ResourceParamType,
+                List[Tuple['Location', LocalizationType]]] = None
+    ftype: Dict[ResourceParamType, List[Tuple['Location', FactorType]]] = None
+    etype: List[EmissionType] = None
     # Collections
     localizations: Dict[ResourceParamType,
                         List[Tuple['Location', Localization]]] = None
     factors: Dict[ResourceParamType, List[Tuple['Location', Factor]]] = None
+    emissions: Dict[str, float] = None
     # Depreciated
     sell: bool = None
     varying: list = None
@@ -206,12 +211,14 @@ class Resource:
         # *-----------------Set etype (Emission)---------------------------------
         # Types of emission accounted for are declared here and EmissionTypes are set
 
-        self.etype = []
-        self.emissions = dict()
         for i in self.etypes():
             attr_ = getattr(self, i.lower())
             etype_ = getattr(EmissionType, i)
             if attr_ is not None:
+                if not self.etype:  # if etype is not yet defined
+                    self.etype = []
+                    self.emissions = dict()
+                    self.ctype.append(ResourceType.EMISSION)
                 self.etype.append(etype_)
                 self.emissions[i.lower()] = attr_
 

@@ -1182,8 +1182,6 @@ def constraint_marine_eutrophication_potential_resource_consumption(instance: Co
         return instance.marine_eutrophication_potential_resource_consumption[location, resource, scale_list] == resource_eutm_dict[location][resource]*instance.C_location[location, resource, scale_list]
     instance.constraint_marine_eutrophication_potential_resource_consumption = Constraint(
         instance.locations, instance.resources_purch, *scales, rule=marine_eutrophication_potential_resource_consumption_rule, doc='marine eutrophication potential for the each resource consumed')
-    constraint_latex_render(
-        marine_eutrophication_potential_resource_consumption_rule)
     return instance.constraint_marine_eutrophication_potential_resource_consumption
 
 
@@ -1241,7 +1239,6 @@ def constraint_marine_eutrophication_potential_resource(instance: ConcreteModel,
         #     return Constraint.Skip
     instance.constraint_marine_eutrophication_potential_resource = Constraint(
         instance.locations, instance.resources, *scales, rule=marine_eutrophication_potential_resource_rule, doc='marine eutrophication potential for the each resource')
-    constraint_latex_render(marine_eutrophication_potential_resource_rule)
     return instance.constraint_marine_eutrophication_potential_resource
 
 
@@ -1268,7 +1265,6 @@ def constraint_marine_eutrophication_potential_location(instance: ConcreteModel,
         return instance.marine_eutrophication_potential_location[location, scale_list] == eutm_process + eutm_resource + eutm_material
     instance.constraint_marine_eutrophication_potential_location = Constraint(
         instance.locations, *scales, rule=marine_eutrophication_potential_location_rule, doc='marine eutrophication potential for the each location')
-    constraint_latex_render(marine_eutrophication_potential_location_rule)
     return instance.constraint_marine_eutrophication_potential_location
 
 
@@ -1290,5 +1286,4 @@ def constraint_marine_eutrophication_potential_network(instance: ConcreteModel, 
                 scale_list] for location_ in instance.locations)
     instance.constraint_marine_eutrophication_potential_network = Constraint(
         *scales, rule=marine_eutrophication_potential_network_rule, doc='marine eutrophication potential for the whole network')
-    constraint_latex_render(marine_eutrophication_potential_network_rule)
     return instance.constraint_marine_eutrophication_potential_network

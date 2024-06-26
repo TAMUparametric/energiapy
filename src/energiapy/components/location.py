@@ -12,21 +12,18 @@ from typing import Dict, List, Set, Tuple, Union
 
 from pandas import DataFrame
 
-from .comptype.resource import ResourceType
-from .comptype.process import ProcessType
 from .comptype.location import LocationType
-
-
+from .comptype.process import ProcessType
+from .comptype.resource import ResourceType
 from .material import Material
 from .parameters.factor import Factor
 from .parameters.localization import Localization
+from .parameters.location import LocationParamType
 from .parameters.mpvar import Theta, create_mpvar
 from .parameters.paramtype import (FactorType, LocalizationType, MPVarType,
                                    ParameterType)
-from .parameters.resource import ResourceParamType
 from .parameters.process import ProcessParamType
-from .parameters.location import LocationParamType
-
+from .parameters.resource import ResourceParamType
 from .process import Process
 from .resource import Resource
 from .temporal_scale import TemporalScale
@@ -97,8 +94,9 @@ class Location:
         label (str, optional): used while generating plots. Defaults to None.
         citation (str, optional): can provide citations for your data sources. Defaults to None.
         ctype (List[LandType], optional): Location type. Defaults to None.
-        ptype (Dict[LandType, ParameterType], optional): paramater type of declared values. Defaults to None.
-        ftype (Dict[LandType, FactorType], optional): factor type of declared factors. Defaults to None.
+        ptype (Dict[LandParamType, ParameterType], optional): paramater type of declared values. Defaults to None.
+        ftype (Dict[LandParamType, FactorType], optional): factor type of declared factors. Defaults to None.
+        factor (Dict[LandParamType, Factor], optional): collection of factors defined at location level. Defaults to None.
 
     Examples:
         Locations need a set of processes and the scale levels for demand, capacity, and cost, and if applicable demand factors, price_factors, capacity factors
@@ -149,7 +147,6 @@ class Location:
     fopex_localize: Dict[Process, Tuple[float, int]] = None
     incidental_localize: Dict[Process, Tuple[float, int]] = None
     land_localize: Dict[Process, Tuple[float, int]] = None
-
     # Details
     basis: str = None
     block: str = None
@@ -157,8 +154,10 @@ class Location:
     citation: str = None
     # Types
     ctype: List[LocationType] = None
-    ptype: Dict[LocationType, ParameterType] = None
-    ftype: Dict[LocationType, FactorType] = None
+    ptype: Dict[LocationParamType, ParameterType] = None
+    ftype: Dict[LocationParamType, FactorType] = None
+    # Collections
+    factor: Dict[LocationParamType, Factor] = None
     # Depreciated
     demand_scale_level: int = None
     price_scale_level: int = None
@@ -498,6 +497,7 @@ class Location:
             factor_ = Factor(component=self, data=attr_,
                              ftype=ftype_, scales=self.scales, location=self)
             setattr(self, f'{parameter}_factor', factor_)
+            self.factors[ptype_] = factor_
 
     def update_component_parameter_declared_at_location(self, parameter: str, parameter_type: Union[ResourceParamType, ProcessParamType]):
         """Update the ctype and ptype of component if parameters declared at Location
@@ -556,8 +556,11 @@ class Location:
                 # if a particular factor for the same component has been declared in another location, then append [(Loc1, ..), (Loc2, ..)]
                 else:
                     if ptype_ in j.ftype:
-                        j.ftype[ptype_].append((self, ftype_))
-                        j.factors[ptype_].append((self, factor_))
+                        # the if statements are to avoid multiple entries if people run the location again
+                        if (self, ftype_) not in j.ftype[ptype_]:
+                            j.ftype[ptype_].append((self, ftype_))
+                        if (self, factor_) not in j.factors[ptype_]:
+                            j.factors[ptype_].append((self, factor_))
                     # if this is a new ctype_ being considered, create key and list with tuple (Location, FactorType/Factor)
                     else:
                         j.ftype[ptype_] = [(self, ftype_)]
@@ -598,8 +601,12 @@ class Location:
                 # if a particular factor for the same component has been declared in another location, then append [(Loc1, ..), (Loc2, ..)]
                 else:
                     if ptype_ in j.ltype:
-                        j.ltype[ptype_].append((self, ltype_))
-                        j.localizations[ptype_].append((self, localization_))
+                        # the if statements are to avoid multiple entries if people run the location again
+                        if (self, ltype_) not in j.ltype[ptype_]:
+                            j.ltype[ptype_].append((self, ltype_))
+                        if (self, localization_) not in j.localizations[ptype_]:
+                            j.localizations[ptype_].append(
+                                (self, localization_))
                     # if this is a new ctype_ being considered, create key and list with tuple (Location, FactorType/Factor)
                     else:
                         j.ltype[ptype_] = [(self, ltype_)]
@@ -720,6 +727,8 @@ class Location:
         return Process(name=process.name+'_discharge', conversion=process.conversion_discharge, cap_min=process.cap_min,
                        cap_max=process.cap_max, introduce=process.introduce, retire=process.retire, capex=capex, vopex=vopex, fopex=fopex,
                        incidental=incidental, lifetime=process.lifetime, label=f'{process.label} (Discharge)', material_cons=None, ctype=[ProcessType.STORAGE_DISCHARGE])
+
+    # *----------- Hashing --------------------------------
 
     def __repr__(self):
         return self.name
