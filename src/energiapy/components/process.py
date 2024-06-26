@@ -5,6 +5,8 @@
 import uuid
 from dataclasses import dataclass
 from typing import Dict, List, Tuple, Union
+from functools import reduce 
+import operator
 
 from ..utils.data_utils import get_depth
 from .comptype.emission import EmissionType
@@ -157,8 +159,8 @@ class Process:
 
         # *-----------------Set ctype (ProcessType)---------------------------------
 
-        if self.ctype is None:
-            self.ctype = []
+        if not self.ctype:
+            self.ctype = list()
 
         # conversion can be single mode (SINGLE_PRODMODE) or multimode (MULTI_PRODMODE)
         # For MULTI_PRODMODE, a dict of type {'mode' (str, int) : {Resource: float}} needs to be provided
@@ -166,29 +168,28 @@ class Process:
         if self.conversion is not None:
             if get_depth(self.conversion) > 1:
                 self.ctype.append(ProcessType.MULTI_PRODMODE)
-                self.prod_modes = set(self.conversion.keys())
-                self.resource_req = set().union(
-                    *[set(self.conversion[i].keys()) for i in self.prod_modes])
+                self.prod_modes = set(self.conversion)
+                self.resources = reduce(operator.or_, (set(self.conversion[i]) for i in self.prod_modes), set())
             else:
                 self.ctype.append(ProcessType.SINGLE_PRODMODE)
-                self.resource_req = set(self.conversion.keys())
-
+                self.resources = set(self.conversion)
+                
         # Materials are not necessarily consumed (NO_MATMODE), if material_cons is None
         # If consumed, there could be multiple modes of consumption (MULTI_MATMODE) or one (SINGLE_MATMODE)
         # for MULTI_MATMODE, provide a dict of type ('material_mode' (str, int): {Material: float})
 
         if self.material_cons is None:
             self.ctype.append(ProcessType.NO_MATMODE)
+            self.materials = set()
 
         else:
             if get_depth(self.material_cons) > 1:
                 self.ctype.append(ProcessType.MULTI_MATMODE)
-                self.material_modes = set(self.material_cons.keys())
-                self.material_req = set().union(
-                    *[set(self.material_cons[i].keys()) for i in self.material_modes])
+                self.material_modes = set(self.material_cons)
+                self.materials = reduce(operator.or_, (set(self.material_cons[i]) for i in self.material_modes), set())
             else:
                 self.ctype.append(ProcessType.SINGLE_MATMODE)
-                self.material_req = set(self.material_cons.keys())
+                self.materials = set(self.material_cons)
 
         # If a Resource is provide for self.storage, a storage resource is created
         # This resource has the name Process_Resource_stored
@@ -206,14 +207,14 @@ class Process:
             self.conversion = {self.storage: -1, self.resource_storage: 1}
             self.conversion_discharge = {
                 self.resource_storage: -1, self.storage: 1*(1 - self.store_loss)}  # the losses are all at the output (retrival)
-            self.resource_req = set(self.conversion.keys())
+            self.resources = set(self.conversion)
 
         # capex can be linear (LINEAR_CAPEX) or piecewise linear (PWL_CAPEX)
         # if PWL, capex needs to be provide as a dict {capacity_segment: capex_segement}
         if self.capex is not None:
             if isinstance(self.capex, dict):
                 self.ctype.append(ProcessType.PWL_CAPEX)
-                self.capacity_segments = list(self.capex.keys())
+                self.capacity_segments = list(self.capex)
                 self.capex_segments = list(self.capex.values())
             else:
                 self.ctype.append(ProcessType.LINEAR_CAPEX)

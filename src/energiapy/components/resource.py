@@ -169,8 +169,8 @@ class Resource:
         # .TRANSPORT is set if a Resource is in the set Transport.resources
         # storage resources are also generated implicitly if a Resource is provided to a Process as storage
 
-        if self.ctype is None:
-            self.ctype = []
+        if not self.ctype:
+            self.ctype = list()
 
         if self.sell_price:
             self.ctype.append(ResourceType.SELL)

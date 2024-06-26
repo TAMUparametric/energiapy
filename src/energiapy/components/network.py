@@ -127,8 +127,8 @@ class Network:
 
         # *-------------------------- Set ctype (NetworkType) -----------------
 
-        if self.ctype is None:
-            self.ctype = []
+        if not self.ctype:
+            self.ctype = list()
 
         if self.land_max is not None:
             self.ctype.append(NetworkType.LAND)
@@ -159,8 +159,7 @@ class Network:
                 for k in j:
                     self.transports.add(k)
 
-        self.locations = list(
-            set(self.sources).union(set(self.sinks)))  # all locations in network
+        self.locations = set(self.sources) | set(self.sinks) 
 
         self.source_sink_resource_dict = self.make_source_sink_resource_dict()
 
@@ -354,14 +353,14 @@ class Network:
             dict: a dictionary with transportation modes available between sources and sinks
         """
         transport_avail_dict = {
-            i: {j.name for j in self.transport_dict[i]} for i in self.transport_dict.keys()}
+            i: {j.name for j in self.transport_dict[i]} for i in self.transport_dict}
         return transport_avail_dict
 
     def make_source_sink_resource_dict(self) -> dict:
 
         source_sink_resource_dict = {
             i: None for i in self.transport_dict.keys()}
-        for i in self.transport_dict.keys():
+        for i in self.transport_dict:
             resources = set()
             for j in self.transport_dict[i]:
                 resources = resources.union({k.name for k in j.resources})

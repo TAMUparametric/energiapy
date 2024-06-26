@@ -11,6 +11,8 @@ from dataclasses import dataclass
 from itertools import product
 from random import sample
 from typing import Dict, List, Set, Tuple, Union
+from functools import reduce
+import operator
 
 from pandas import DataFrame
 
@@ -174,9 +176,9 @@ class Location:
 
         # *-----------------Set ctype (LocationType)---------------------------------
 
-        if self.ctype is None:
-            self.ctype = []
-
+        if not self.ctype:
+            self.ctype = list()
+            
         # update ctype if land aspects are defined
         if any([self.land_max, self.land_cost]):
             self.ctype.append(LocationType.LAND)
@@ -203,10 +205,11 @@ class Location:
 
         self.processes = self.processes.union({self.create_storage_process(
             i) for i in self.processes if ProcessType.STORAGE in i.ctype})
-        self.resources = set().union(*[i.resource_req for i in self.processes])
-        self.materials = set().union(
-            *[i.material_req for i in self.processes if (ProcessType.SINGLE_MATMODE in i.ctype) or (ProcessType.MULTI_MATMODE in i.ctype)])
-
+        
+        self.resources = reduce(operator.or_, (i.resources for i in self.processes), set())
+        
+        self.materials = reduce(operator.or_, (i.materials for i in self.processes), set())
+        
         # * -------------------------- Update Processes ----------------------------------------
         # checks if new process parameters have been declared
         # Sets new attributes:

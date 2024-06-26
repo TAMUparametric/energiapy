@@ -3,14 +3,15 @@ from typing import List
 
 
 class ScenarioType(Enum):
+    SINGLE_LOCATION = auto()
     """
     Single location
     """
-    SINGLE_LOCATION = auto()
+    MULTI_LOCATION = auto()
     """
     Multi-location
     """
-    MULTI_LOCATION = auto()
+    REDUCED = auto()
 
     @classmethod
     def all(cls) -> List[str]:

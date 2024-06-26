@@ -149,7 +149,7 @@ class TemporalScale:
         self.name = str(self.list)
         
         if not self.ctype:
-            self.ctype = []
+            self.ctype = list()
 
         if self.scale_levels > 1:
             self.ctype.append(ScaleType.MULTI)

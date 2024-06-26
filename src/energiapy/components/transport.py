@@ -7,6 +7,8 @@
 import uuid
 from dataclasses import dataclass
 from typing import Dict, List, Set, Tuple, Union
+from functools import reduce
+import operator
 
 from ..utils.data_utils import get_depth
 from .comptype.emission import EmissionType
@@ -119,8 +121,8 @@ class Transport:
 
         # *-----------------Set ctype (TransportType)---------------------------------
 
-        if self.ctype is None:
-            self.ctype = []
+        if not self.ctype:
+            self.ctype = list()
 
         for i in self.resources:  # update Resource if transported
             i.ctype.append(ResourceType.TRANSPORT)
@@ -131,23 +133,24 @@ class Transport:
 
         if self.material_cons is None:
             self.ctype.append(TransportType.NO_MATMODE)
+            self.materials = set()
 
         else:
             if get_depth(self.material_cons) > 1:
                 self.ctype.append(TransportType.MULTI_MATMODE)
-                self.material_modes = set(self.material_cons.keys())
-                self.material_req = set().union(
-                    *[set(self.material_cons[i].keys()) for i in self.material_modes])
+                self.material_modes = set(self.material_cons)
+                self.materials = reduce(operator.or_, (set(self.material_cons[i]) for i in self.material_modes), set())
+                
             else:
                 self.ctype.append(TransportType.SINGLE_MATMODE)
-                self.material_req = set(self.material_cons.keys())
+                self.materials = set(self.material_cons)
 
         # capex can be linear (LINEAR_CAPEX) or piecewise linear (PWL_CAPEX)
         # if PWL, capex needs to be provide as a dict {capacity_segment: capex_segement}
         if self.capex is not None:
             if isinstance(self.capex, dict):
                 self.ctype.append(TransportType.PWL_CAPEX)
-                self.capacity_segments = list(self.capex.keys())
+                self.capacity_segments = list(self.capex)
                 self.capex_segments = list(self.capex.values())
             else:
                 self.ctype.append(TransportType.LINEAR_CAPEX)

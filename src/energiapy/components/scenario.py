@@ -4,10 +4,13 @@
 # TODO new way to make subsets
 # TODO send set and subset creation outside scenario
 # TODO send creation of matrix outside
+# TODO update docstring
 
 import uuid
 from dataclasses import dataclass
 from typing import Dict, List, Union
+from functools import reduce
+import operator
 
 import numpy
 from pandas import DataFrame
@@ -62,12 +65,12 @@ class Scenario:
     cluster_wt: dict = None
     label: str = ''
     capacity_bounds: CapacityBounds = None
-    annualization_factor: float = 1
+    annualization_factor: float = None
     demand_penalty: Dict[Location, Dict[Resource, float]] = None
     error: float = None
     rep_dict: dict = None
     emission_weights: EmissionWeights = None
-    ctype: ScenarioType = None
+    ctype: List[ScenarioType] = None
     # Depriciated
     purchase_scale_level: int = None
     expenditure_scale_level: int = None
@@ -134,231 +137,184 @@ class Scenario:
 
         self.design_scale = self.scales.design_scale
         self.scheduling_scale = self.scales.scheduling_scale
+        
+        if not self.ctype:
+            self.ctype = list()
+            
+        if self.cluster_wt:
+            self.ctype.append(ScenarioType.REDUCED)
 
         if isinstance(self.network, Location):
-            self.ctype = ScenarioType.SINGLE_LOCATION
+            self.ctype.append(ScenarioType.SINGLE_LOCATION)
             self.locations = {self.network}
-
-            # self.transports = None
-            # self.sources = None
-            # self.sinks = None
-            # self.transport_dict = None
-            # self.transport_avail_dict = None
-            # self.trans_max = None
-            # self.trans_loss = None
-            # self.trans_capex = None
-            # self.trans_fopex = None
-            # self.trans_vopex = None
-            # self.trans_emission = None
-            # self.distance_dict = None
-            # self.transport_capacity_factor = None
-            # self.transport_capex_factor = None
-            # self.transport_vopex_factor = None
-            # self.transport_fopex_factor = None
-            # self.source_sink_resource_dict = None
         else:
-            self.ctype = ScenarioType.MULTI_LOCATION
-            self.transports = set().union(*self.network.transport_dict.values())
+            self.ctype.append(ScenarioType.MULTI_LOCATION)
+            self.transports = self.network.transports
+            self.locations = self.network.locations
+            
+            ### Try to get all of this from general classifications
             self.sources = self.network.sources
             self.sinks = self.network.sinks
             self.transport_dict = self.network.transport_dict
             self.transport_avail_dict = self.network.transport_avail_dict
-            self.locations = set(
-                self.sources + self.sinks)
-            # self.trans_max = {j.name: j.trans_max for j in self.transports}
-            # self.trans_min = {j.name: j.trans_min for j in self.transports}
-            # self.trans_loss = {
-            #     j.name: j.trans_loss for j in self.transports}
-            # self.trans_capex = {
-            #     j.name: j.capex for j in self.transports}
-            # self.trans_vopex = {
-            #     j.name: j.vopex for j in self.transports}
-            # self.trans_fopex = {
-            #     j.name: j.fopex for j in self.transports}
-            # self.trans_emission = {
-            #     j.name: j.emission for j in self.transports}
-            # self.distance_dict = self.network.distance_dict
-            # # self.transport_resource_dict = {i: None for i in self.transport_dict.keys()}
-            # self.location_transport_resource_dict = {i: {k.name: {
-            #     l.name for l in k.resources} for k in j} for i, j in self.transport_dict.items()}
-            # self.resource_transport_dict = {}
-            # for key, value in {i.name: i.resources for i in self.transports}.items():
-            #     for item in value:
-            #         if item in self.resource_transport_dict:
-            #             self.resource_transport_dict[item].append(key)
-            #         else:
-            #             self.resource_transport_dict[item] = [key]
-            # self.resource_transport_dict = {
-            #     i.name: j for i, j in self.resource_transport_dict.items()}
-            # self.transport_resource_dict = {
-            #     i.name: {j.name for j in i.resources} for i in self.transports}
-            # # for i,j in self.transport_dict.items():
-            # #     set_ = set()
-            # #     for k in j:
-            # #         set_ = set_.union(k.resources)
-            # #     self.transport_resource_dict[i] = {i.name for i in set_}
-            # self.transport_capacity_factor = self.network.transport_capacity_factor
-            # self.transport_capex_factor = self.network.transport_capex_factor
-            # self.transport_vopex_factor = self.network.transport_vopex_factor
-            # self.transport_fopex_factor = self.network.transport_fopex_factor
-            # self.source_sink_resource_dict = self.network.source_sink_resource_dict
+        
+        for comp_ in ['resources', 'processes', 'materials']:
+            component_set = reduce(operator.or_, (getattr(loc_, comp_) for loc_ in getattr(self, 'locations')), set())
+            setattr(self, comp_, component_set)
+            
 
-        self.processes = set().union(
-            *[i.processes for i in self.locations if i.processes is not None])
-        self.resources = set().union(
-            *[i.resources for i in self.locations if i.resources is not None])
-        self.materials = set().union(
-            *[i.materials for i in self.locations if i.materials is not None])
-        self.demand = {i: i.demand for i in self.locations}
-        self.conversion = {i.name: {j.name: i.conversion[j] if j in i.conversion.keys(
-        ) else 0 for j in self.resources} for i in self.processes if i.conversion is not None}
+        
+    
+        # self.demand = {i: i.demand for i in self.locations}
+        # self.conversion = {i.name: {j.name: i.conversion[j] if j in i.conversion.keys(
+        # ) else 0 for j in self.resources} for i in self.processes if i.conversion is not None}
 
-        self.process_resources = {
-            i: i.resource_req for i in self.processes}
+        # self.process_resources = {
+        #     i: i.resource_req for i in self.processes}
 
-        self.process_materials = {
-            i: {j: i.material_cons[j] if j in i.material_cons.keys() else 0 for j in self.materials} for i in self.processes}
+        # self.process_materials = {
+        #     i: {j: i.material_cons[j] if j in i.material_cons.keys() else 0 for j in self.materials} for i in self.processes}
 
-        self.location_resources = {i: {j for j in i.resources}
-                                   for i in self.locations}
+        # self.location_resources = {i: {j for j in i.resources}
+        #                            for i in self.locations}
 
-        self.location_processes = {i: {j for j in i.processes}
-                                   for i in self.locations}
+        # self.location_processes = {i: {j for j in i.processes}
+        #                            for i in self.locations}
 
-        self.location_materials = {i: {j for j in i.materials}
-                                   for i in self.locations}
+        # self.location_materials = {i: {j for j in i.materials}
+        #                            for i in self.locations}
 
-        for i in ['cap_max', 'cap_min', 'purchase_price', 'sell_price', 'cons_max', 'store_max', 'store_min', 'storage_cost', 'capacity_factor', 'purchase_price_factor', 'demand_factor', 'capex_factor',
-                  'fopex_factor', 'vopex_factor', 'incidental_factor', 'availability_factor', 'sell_price_factor']:
-            self.loc_comp_attr_dict(attr=i)
+        # for i in ['cap_max', 'cap_min', 'purchase_price', 'sell_price', 'cons_max', 'store_max', 'store_min', 'storage_cost', 'capacity_factor', 'purchase_price_factor', 'demand_factor', 'capex_factor',
+        #           'fopex_factor', 'vopex_factor', 'incidental_factor', 'availability_factor', 'sell_price_factor']:
+        #     self.loc_comp_attr_dict(attr=i)
 
-        for i in ['store', 'produce', 'implicit', 'discharge', 'sell', 'consume', 'purchase', 'demand']:
-            setattr(self, f'location_resources_{i}', {j: getattr(
-                j, f'resources_{i}') for j in self.locations})
-            setattr(self, f'resources_{i}', set().union(
-                *[getattr(j, f'resources_{i}') for j in self.locations if getattr(j, f'resources_{i}') is not None]))
+        # for i in ['store', 'produce', 'implicit', 'discharge', 'sell', 'consume', 'purchase', 'demand']:
+        #     setattr(self, f'location_resources_{i}', {j: getattr(
+        #         j, f'resources_{i}') for j in self.locations})
+        #     setattr(self, f'resources_{i}', set().union(
+        #         *[getattr(j, f'resources_{i}') for j in self.locations if getattr(j, f'resources_{i}') is not None]))
 
-        for i in ['capex', 'fopex', 'vopex', 'incidental', 'land']:
-            self.create_attr_dict(i, self.processes)
+        # for i in ['capex', 'fopex', 'vopex', 'incidental', 'land']:
+        #     self.create_attr_dict(i, self.processes)
 
-        # df_capex = DataFrame.from_dict(
-        #     self.capex_dict, orient='index', columns=['capex'])
-        # df_vopex = DataFrame.from_dict(
-        #     self.vopex_dict, orient='index', columns=['vopex'])
-        # df_fopex = DataFrame.from_dict(
-        #     self.fopex_dict, orient='index', columns=['fopex'])
+        # # df_capex = DataFrame.from_dict(
+        # #     self.capex_dict, orient='index', columns=['capex'])
+        # # df_vopex = DataFrame.from_dict(
+        # #     self.vopex_dict, orient='index', columns=['vopex'])
+        # # df_fopex = DataFrame.from_dict(
+        # #     self.fopex_dict, orient='index', columns=['fopex'])
 
-        # self.cost_df = df_capex.merge(df_vopex, left_index=True, right_index=True, how='inner').merge(
-        #     df_fopex, left_index=True, right_index=True, how='inner')
+        # # self.cost_df = df_capex.merge(df_vopex, left_index=True, right_index=True, how='inner').merge(
+        # #     df_fopex, left_index=True, right_index=True, how='inner')
 
-        # * ---------------- Collect Emission Data ------------------------------------------
-        # Get emission data from components
-        for i in ['resources', 'materials', 'processes', 'transports']:
-            setattr(self, f'{i}_emissions', {
-                    j: j.emissions for j in getattr(self, i)})
+        # # * ---------------- Collect Emission Data ------------------------------------------
+        # # Get emission data from components
+        # for i in ['resources', 'materials', 'processes', 'transports']:
+        #     setattr(self, f'{i}_emissions', {
+        #             j: j.emissions for j in getattr(self, i)})
 
-        self.fail_factor = {i.name: i.fail_factor for i in self.locations}
+        # self.fail_factor = {i.name: i.fail_factor for i in self.locations}
 
-        self.process_material_mode_material_dict = {i.name: {j: {l.name: m for l, m in k.items(
-        )} for j, k in i.material_cons.items()} for i in self.processes if ProcessType.MULTI_MATMODE in i.ctype}
-        multiconversion_dict = dict()
-        for i in self.processes:
-            if ProcessType.MULTI_PRODMODE in i.ctype:
-                multiconversion_dict[i.name] = {
-                    j: None for j in i.conversion.keys()}
-                for k in list(multiconversion_dict[i.name].keys()):
-                    multiconversion_dict[i.name][k] = {j.name: i.conversion[k][j] if j in i.conversion[k].keys() else 0
-                                                       for j in self.resources}
-            else:
-                multiconversion_dict[i.name] = {0: None}
-                multiconversion_dict[i.name][0] = {j.name: i.conversion[j] if j in i.conversion.keys() else 0 for j in
-                                                   self.resources}
+        # self.process_material_mode_material_dict = {i.name: {j: {l.name: m for l, m in k.items(
+        # )} for j, k in i.material_cons.items()} for i in self.processes if ProcessType.MULTI_MATMODE in i.ctype}
+        # multiconversion_dict = dict()
+        # for i in self.processes:
+        #     if ProcessType.MULTI_PRODMODE in i.ctype:
+        #         multiconversion_dict[i.name] = {
+        #             j: None for j in i.conversion.keys()}
+        #         for k in list(multiconversion_dict[i.name].keys()):
+        #             multiconversion_dict[i.name][k] = {j.name: i.conversion[k][j] if j in i.conversion[k].keys() else 0
+        #                                                for j in self.resources}
+        #     else:
+        #         multiconversion_dict[i.name] = {0: None}
+        #         multiconversion_dict[i.name][0] = {j.name: i.conversion[j] if j in i.conversion.keys() else 0 for j in
+        #                                            self.resources}
 
-        self.multiconversion = multiconversion_dict
+        # self.multiconversion = multiconversion_dict
 
-        self.mode_dict = {i.name: list(
-            self.multiconversion[i.name].keys()) for i in self.processes if ProcessType.MULTI_PRODMODE in i.ctype}
-        # self.mode_dict = {i: [(k,) for k in j]for i,j in self.mode_dict.items()}
+        # self.mode_dict = {i.name: list(
+        #     self.multiconversion[i.name].keys()) for i in self.processes if ProcessType.MULTI_PRODMODE in i.ctype}
+        # # self.mode_dict = {i: [(k,) for k in j]for i,j in self.mode_dict.items()}
 
-        # self.modes_dict = {i: i.modes_dict for i in self.locations}
+        # # self.modes_dict = {i: i.modes_dict for i in self.locations}
 
-        if self.demand_penalty is not None:
-            self.demand_penalty = {i.name: {j.name: self.demand_penalty[i][j] for j in self.demand_penalty[i].keys(
-            )} for i in self.demand_penalty.keys()}
+        # if self.demand_penalty is not None:
+        #     self.demand_penalty = {i.name: {j.name: self.demand_penalty[i][j] for j in self.demand_penalty[i].keys(
+        #     )} for i in self.demand_penalty.keys()}
 
-        # self.rate_max_dict = {i.name: i.rate_max for i in self.processes}
+        # # self.rate_max_dict = {i.name: i.rate_max for i in self.processes}
 
-        # self.mode_ramp_dict = {i.name: i.mode_ramp for i in self.processes}
+        # # self.mode_ramp_dict = {i.name: i.mode_ramp for i in self.processes}
 
-        self.process_material_modes = []
-        for i in self.processes:
-            if i.material_cons is not None:
+        # self.process_material_modes = []
+        # for i in self.processes:
+        #     if i.material_cons is not None:
 
-                process_material_modes = process_material_modes + \
-                    [(i.name, j) for j in list(i.material_cons.keys())]
-                if i.material_cons != {}:
-                    self.process_material_modes = process_material_modes
+        #         process_material_modes = process_material_modes + \
+        #             [(i.name, j) for j in list(i.material_cons.keys())]
+        #         if i.material_cons != {}:
+        #             self.process_material_modes = process_material_modes
 
-                    self.process_material_modes_dict = {
-                        i.name: i.material_modes for i in self.processes}
+        #             self.process_material_modes_dict = {
+        #                 i.name: i.material_modes for i in self.processes}
 
-        self.component_sets = {
-            'resources': [i.name for i in self.resources],
-            'processes': [i.name for i in self.processes],
-            'materials': [i.name for i in self.materials],
-            'locations': [i.name for i in self.locations],
-            'transports': [i.name for i in self.transports]
-        }
+        # self.component_sets = {
+        #     'resources': [i.name for i in self.resources],
+        #     'processes': [i.name for i in self.processes],
+        #     'materials': [i.name for i in self.materials],
+        #     'locations': [i.name for i in self.locations],
+        #     'transports': [i.name for i in self.transports]
+        # }
 
-        self.resource_subsets = dict()
+        # self.resource_subsets = dict()
 
-        for i in ['store', 'produce', 'implicit', 'discharge', 'sell', 'consume', 'purchase', 'demand']:
-            self.resource_subsets[f'resources_{i}'] = [
-                i.name for i in getattr(self, f'resources_{i}')]
+        # for i in ['store', 'produce', 'implicit', 'discharge', 'sell', 'consume', 'purchase', 'demand']:
+        #     self.resource_subsets[f'resources_{i}'] = [
+        #         i.name for i in getattr(self, f'resources_{i}')]
 
-        for j in ['demand', 'purchase', 'sell', 'consume']:
-            # TODO - location specific factor and localization sets
-            # self.resource_subsets[f'resources_varying_{j}'] = [i.name for i in getattr(
-            #     self, f'resources_{j}') if i.ptype[getattr(ResourceType, j.upper())] == ParameterType.FACTOR]
+        # for j in ['demand', 'purchase', 'sell', 'consume']:
+        #     # TODO - location specific factor and localization sets
+        #     # self.resource_subsets[f'resources_varying_{j}'] = [i.name for i in getattr(
+        #     #     self, f'resources_{j}') if i.ptype[getattr(ResourceType, j.upper())] == ParameterType.FACTOR]
 
-            self.resource_subsets[f'resources_certain_{j}'] = [i.name for i in getattr(
-                self, f'resources_{j}') if i.ptype[getattr(ResourceType, j.upper())] == ParameterType.CERTAIN]
+        #     self.resource_subsets[f'resources_certain_{j}'] = [i.name for i in getattr(
+        #         self, f'resources_{j}') if i.ptype[getattr(ResourceType, j.upper())] == ParameterType.CERTAIN]
 
-            self.resource_subsets[f'resources_uncertain_{j}'] = [i.name for i in getattr(
-                self, f'resources_{j}') if i.ptype[getattr(ResourceType, j.upper())] == ParameterType.UNCERTAIN]
+        #     self.resource_subsets[f'resources_uncertain_{j}'] = [i.name for i in getattr(
+        #         self, f'resources_{j}') if i.ptype[getattr(ResourceType, j.upper())] == ParameterType.UNCERTAIN]
 
-        self.resource_subsets['resources_transport'] = [
-            i.name for i in self.resources if ResourceType.TRANSPORT in i.ctype]
+        # self.resource_subsets['resources_transport'] = [
+        #     i.name for i in self.resources if ResourceType.TRANSPORT in i.ctype]
 
-        self.process_subsets = dict()
+        # self.process_subsets = dict()
 
-        for j in ['capacity', 'capex', 'fopex', 'vopex', 'incidental']:
-            # TODO - location specific factor and localization sets
+        # for j in ['capacity', 'capex', 'fopex', 'vopex', 'incidental']:
+        #     # TODO - location specific factor and localization sets
 
-            # self.process_subsets[f'processes_varing_{j}'] = [i.name for i in self.processes if getattr(ProcessType, j.upper(
-            # )) in i.ptype.keys() if i.ptype[getattr(ProcessType, j.upper())] == ParameterType.FACTOR]
+        #     # self.process_subsets[f'processes_varing_{j}'] = [i.name for i in self.processes if getattr(ProcessType, j.upper(
+        #     # )) in i.ptype.keys() if i.ptype[getattr(ProcessType, j.upper())] == ParameterType.FACTOR]
 
-            self.process_subsets[f'processes_certain_{j}'] = [i.name for i in self.processes if getattr(ProcessType, j.upper(
-            )) in i.ptype.keys() if i.ptype[getattr(ProcessType, j.upper())] == ParameterType.CERTAIN]
+        #     self.process_subsets[f'processes_certain_{j}'] = [i.name for i in self.processes if getattr(ProcessType, j.upper(
+        #     )) in i.ptype.keys() if i.ptype[getattr(ProcessType, j.upper())] == ParameterType.CERTAIN]
 
-            self.process_subsets[f'processes_uncertain_{j}'] = [i.name for i in self.processes if getattr(ProcessType, j.upper(
-            )) in i.ptype.keys() if i.ptype[getattr(ProcessType, j.upper())] == ParameterType.UNCERTAIN]
+        #     self.process_subsets[f'processes_uncertain_{j}'] = [i.name for i in self.processes if getattr(ProcessType, j.upper(
+        #     )) in i.ptype.keys() if i.ptype[getattr(ProcessType, j.upper())] == ParameterType.UNCERTAIN]
 
-        for j in ['single_prodmode', 'multi_prodmode', 'no_matmode', 'multi_matmode', 'single_matmode', 'storage', 'storage_req', 'linear_capex', 'pwl_capex', 'land']:
-            self.process_subsets[f'processes_{j}'] = [
-                i.name for i in self.processes if getattr(ProcessType, j.upper()) in i.ctype]
+        # for j in ['single_prodmode', 'multi_prodmode', 'no_matmode', 'multi_matmode', 'single_matmode', 'storage', 'storage_req', 'linear_capex', 'pwl_capex', 'land']:
+        #     self.process_subsets[f'processes_{j}'] = [
+        #         i.name for i in self.processes if getattr(ProcessType, j.upper()) in i.ctype]
 
-        self.process_subsets['processes_failure'] = [
-            i.name for i in self.processes if i.p_fail is not None]
+        # self.process_subsets['processes_failure'] = [
+        #     i.name for i in self.processes if i.p_fail is not None]
 
-        self.location_subsets = dict()
+        # self.location_subsets = dict()
 
-        self.location_subsets['sources'] = [
-            i.name for i in self.locations if LocationType.SOURCE in i.ctype]
-        self.location_subsets['sinks'] = [
-            i.name for i in self.locations if LocationType.SINK in i.ctype]
-        self.location_subsets['locations_land_cost'] = [
-            i.name for i in self.locations if LocationType.LAND_COST in i.ctype]
+        # self.location_subsets['sources'] = [
+        #     i.name for i in self.locations if LocationType.SOURCE in i.ctype]
+        # self.location_subsets['sinks'] = [
+        #     i.name for i in self.locations if LocationType.SINK in i.ctype]
+        # self.location_subsets['locations_land_cost'] = [
+        #     i.name for i in self.locations if LocationType.LAND_COST in i.ctype]
 
         # self.location_subsets['locations_varying_land_cost'] = [i.name for i in self.locations if LocationType.LAND_COST in i.ptype.keys(
         # ) if i.ptype[LocationType.LAND_COST] == ParameterType.FACTOR]
@@ -413,13 +369,21 @@ class Scenario:
         #     'capacity': {i.name: i.varying_bounds for i in self.processes if VaryingProcess.UNCERTAIN_CAPACITY in i.varying}
         # }
 
+        # *----------------- Generate Random Name -------------------------------------------
+
         if self.name is None:
-            self.name = f'{self.__class__.__name__}_{uuid.uuid4().hex}'
+            self.name = f'{self.class_name()}_{uuid.uuid4().hex}'
 
     #  *----------------- Class Methods ---------------------------------------------
 
     @classmethod
-    def classifications(cls) -> List[str]:
+    def class_name(cls) -> List[str]:
+        """Returns class name 
+        """
+        return cls.__name__
+    
+    @classmethod
+    def ctypes(cls) -> List[str]:
         """All Scenario classifications
         """
         return ScenarioType.all()
