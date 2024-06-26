@@ -286,7 +286,7 @@ class Network:
             factor_ = Factor(component=self, data=attr_,
                              ftype=ftype_, scales=self.scales)
             setattr(self, f'{parameter}_factor', factor_)
-            self.factors[ptype_] = factor_
+            self.factors[f'{parameter}_factor'.lower()] = factor_
 
     def update_transport_factor(self, parameter: str):
         """Updates Transport factor data to Factor and updates ftype and factors
@@ -294,14 +294,13 @@ class Network:
         Args:
             parameter (str): Transport parameter factor to update
         """
-        attr_ = getattr(self, f'{parameter}_factor'.lower())
-
+        factor_name_ = f'{parameter}_factor'.lower()
+        attr_ = getattr(self, factor_name_)
         # if factor is defined at network
         if attr_ is not None:
-            ptype_ = getattr(TransportParamType, parameter.upper())
+            ptype_ = getattr(TransportParamType, parameter)
             for location_tuple, transport_and_data in attr_.items():
                 for transport, data in transport_and_data.items():
-
                     ftype_ = getattr(
                         FactorType, f'{transport.class_name()}_{parameter}'.upper())
 
@@ -312,19 +311,19 @@ class Network:
                         transport.ftype, transport.factors = dict(), dict()
                         transport.ftype[ptype_] = [
                             (location_tuple, ftype_)]
-                        transport.factors[ptype_] = [
-                            (location_tuple, factor_)]
+                        transport.factors[factor_name_] = dict()
+                        transport.factors[factor_name_][location_tuple] = factor_
                     else:
                         if ptype_ in transport.ftype_:
                             transport.ftype[ptype_].append(
                                 (location_tuple, ftype_))
-                            transport.factors[ptype_].append(
-                                (location_tuple, factor_))
+                            transport.factors[factor_name_][location_tuple] = factor_
                         else:
                             transport.ftype[ptype_] = [
                                 (location_tuple, ftype_)]
-                            transport.factors[ptype_] = [
-                                (location_tuple, factor_)]
+                            if factor_name_ not in transport.factors:
+                                transport.factors[factor_name_] = dict()
+                            transport.factors[factor_name_][location_tuple] = factor_
 
     def make_distance_dict(self) -> dict:
         """returns a dictionary of distances from sources to sinks

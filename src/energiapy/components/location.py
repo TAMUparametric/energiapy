@@ -447,7 +447,7 @@ class Location:
             factor_ = Factor(component=self, data=attr_,
                              ftype=ftype_, scales=self.scales)
             setattr(self, f'{parameter}_factor', factor_)
-            self.factors[ptype_] = factor_
+            self.factors[f'{parameter}_factor'.lower()] = factor_
 
     def update_component_parameter_declared_at_location(self, parameter: str, parameter_type: Union[ResourceParamType, ProcessParamType]):
         """Update the ctype and ptype of component if parameters declared at Location
@@ -487,8 +487,8 @@ class Location:
             parameter_type (Union[ResourceParamType, ProcessParamType]): Component parameter type
         """
 
-        attr_ = getattr(self, f'{parameter}_factor'.lower())
-
+        factor_name_ = f'{parameter}_factor'.lower()
+        attr_ = getattr(self, factor_name_)
         # if factor defined at location
         if attr_ is not None:
             # for each component provided
@@ -499,27 +499,29 @@ class Location:
                 # create the factor
                 factor_ = Factor(component=j, data=attr_[
                     j], ftype=ftype_, scales=self.scales, location=self)
-
                 # replace the DataFrame with a Factor
                 attr_[j] = factor_
                 # component.ftype and .factors are declared as dict().
                 # if encountering for the first time, create key and list with the tuple (Location, FactorType/Factor)
                 if not j.ftype:
                     j.ftype, j.factors = dict(), dict()
-                    j.ftype[ptype_] = [(self, ftype_)]
-                    j.factors[ptype_] = [(self, factor_)]
+                    j.ftype[ptype_] = [(self, ftype_)] 
+                    j.factors[factor_name_] = dict()
+                    j.factors[factor_name_][self] = factor_
                 # if a particular factor for the same component has been declared in another location, then append [(Loc1, ..), (Loc2, ..)]
                 else:
                     if ptype_ in j.ftype:
                         # the if statements are to avoid multiple entries if people run the location again
                         if (self, ftype_) not in j.ftype[ptype_]:
                             j.ftype[ptype_].append((self, ftype_))
-                        if (self, factor_) not in j.factors[ptype_]:
-                            j.factors[ptype_].append((self, factor_))
+                        j.factors[factor_name_][self] = factor_
                     # if this is a new ctype_ being considered, create key and list with tuple (Location, FactorType/Factor)
                     else:
                         j.ftype[ptype_] = [(self, ftype_)]
-                        j.factors[ptype_] = [(self, factor_)]
+                        if factor_name_ not in j.factors:  
+                            j.factors[factor_name_] = dict()
+                        j.factors[factor_name_][self] = factor_
+                    
 
     def update_component_localization(self,  parameter: str, parameter_type: Union[ResourceParamType, ProcessParamType]):
         """Check if a localization has been provided
