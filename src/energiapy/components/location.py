@@ -228,13 +228,8 @@ class Location:
 
         # set Process subsets as Location attributes
         for i in self.process_classifications():
-            self.make_component_subset(ctype=getattr(
-                ProcessType, i), component_set='processes', tag=f'processes_{i.lower()}')
+            self.make_component_subset(parameter= i, parameter_type=ProcessType, component_set= 'processes')
 
-        # collect Process parameters and set dicts as Location attrs
-        for i in self.process_parameters():
-            self.make_parameter_dict(
-                parameter=i, component_set='processes')
 
         # TODO ------  Can the below just be done at the scenario level????
         # TODO ------ This adds a dummy mode to cap_max ------ See if can be avoided -----------
@@ -279,27 +274,16 @@ class Location:
         #   dictionaries with parameter values
 
         if self.demand is not None:
-            print(self, self.demand)
             for i in self.demand:
                 i.ctype.append((self, ResourceType.DEMAND))
-            print(self, self.demand)
 
         for i in self.location_level_resource_parameters():
             self.update_component_parameter_declared_at_location(
                 parameter=i, parameter_type=ResourceParamType)
-            print(self, self.demand)
 
         # set Resource subsets as Location attributes
         for i in self.resource_classifications():
-            self.make_component_subset(ctype=getattr(
-                ResourceType, i), component_set='resources', tag=f'resources_{i.lower()}')
-
-        print(self, self.demand)
-
-        # collect Resource parameters and set dicts as Location attrs
-        for i in self.resource_parameters():
-            self.make_parameter_dict(
-                parameter=i, component_set='resources')
+            self.make_component_subset(parameter= i, parameter_type=ResourceType, component_set= 'resources')
 
         # update resource factors
         for i in self.resource_factors():
@@ -613,43 +597,28 @@ class Location:
                         j.ltype[ptype_] = [(self, ltype_)]
                         j.localizations[ptype_] = [(self, localization_)]
 
-    def make_parameter_dict(self, parameter: str, component_set: str):
-        """Makes a dict with components and thier paramter values
-        set the dictionary as an attribute
-        if parameter undefined then sets None
 
-        Args:
-            parameter (str): what parameters 
-            component_set (str): component set of Resource or Process
-        """
-        param_dict_ = {i: getattr(i, parameter.lower()) for i in getattr(
-            self, component_set) if getattr(i, parameter.lower()) is not None}
-        if param_dict_:
-            setattr(self, f'{component_set}_{parameter}'.lower(), param_dict_)
-        else:
-            setattr(self, f'{component_set}_{parameter}'.lower(), None)
-
-    def make_component_subset(self, ctype: Union[ProcessType, ResourceType], component_set: str, tag: str):
+    def make_component_subset(self, parameter: str, parameter_type: Union[ProcessType, ResourceType], component_set: str):
         """makes a subset of component based on provided ctype
         sets the subset as an attribute of the location
         if empty set, sets None
 
         Args:
-            ctype (str): component type 
+            parameter (str): component type 
+            parameter_type (Union[ProcessType, ResourceType]): component classification
             component_set (str): set of Processes or Resources
-            tag (str) : what to call the new location attribute
         """
-        subset_ = {i for i in getattr(
-            self, component_set) if ctype in i.ctype}
+        ctype_ = getattr(parameter_type, parameter)
+        component_set_ = getattr(self, component_set)
+        subset_ = {i for i in component_set_ if ctype_ in i.ctype}
         if subset_:
-            setattr(self, tag, subset_)
+            setattr(self, f'{component_set}_{parameter}'.lower(), subset_)
         else:
-            subset_ = {i for i in getattr(
-                self, component_set) if ctype in [j[1] for j in i.ctype if (isinstance(j, tuple)) and (j[0] == self)]}
+            subset_ = {i for i in component_set_ if ctype_ in [j[1] for j in i.ctype if (isinstance(j, tuple)) and (j[0] == self)]}
             if subset_:
-                setattr(self, tag, subset_)
+                setattr(self, f'{component_set}_{parameter}'.lower(), subset_)
             else:
-                setattr(self, tag, None)
+                setattr(self, f'{component_set}_{parameter}'.lower(), None)
 
     def get_failure_processes(self):
         """get processes with failure rates
