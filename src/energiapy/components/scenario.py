@@ -220,6 +220,13 @@ class Scenario:
             network_data_ = {i.lower(): getattr(self.network, i.lower(
             )) for i in self.defined_ptypes_network}
             setattr(self, 'data_network', network_data_)
+            
+        # * ---------- make subsets based on classifications------------------------
+        
+        # * ---------- make subsets based on classifications------------------------
+        
+            
+        
 
         # self.resource_ptypes =
 

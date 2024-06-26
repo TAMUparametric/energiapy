@@ -178,7 +178,7 @@ class Location:
 
         if not self.ctype:
             self.ctype = list()
-            
+
         # update ctype if land aspects are defined
         if any([self.land_max, self.land_cost]):
             self.ctype.append(LocationType.LAND)
@@ -205,11 +205,13 @@ class Location:
 
         self.processes = self.processes.union({self.create_storage_process(
             i) for i in self.processes if ProcessType.STORAGE in i.ctype})
-        
-        self.resources = reduce(operator.or_, (i.resources for i in self.processes), set())
-        
-        self.materials = reduce(operator.or_, (i.materials for i in self.processes), set())
-        
+
+        self.resources = reduce(
+            operator.or_, (i.resources for i in self.processes), set())
+
+        self.materials = reduce(
+            operator.or_, (i.materials for i in self.processes), set())
+
         # * -------------------------- Update Processes ----------------------------------------
         # checks if new process parameters have been declared
         # Sets new attributes:
@@ -231,7 +233,8 @@ class Location:
 
         # set Process subsets as Location attributes
         for i in self.process_classifications():
-            self.make_component_subset(parameter= i, parameter_type=ProcessType, component_set= 'processes')
+            self.make_component_subset(
+                parameter=i, parameter_type=ProcessType, component_set='processes')
 
         # update process factors
         for i in self.process_factors():
@@ -257,7 +260,8 @@ class Location:
 
         # set Resource subsets as Location attributes
         for i in self.resource_classifications():
-            self.make_component_subset(parameter= i, parameter_type=ResourceType, component_set= 'resources')
+            self.make_component_subset(
+                parameter=i, parameter_type=ResourceType, component_set='resources')
 
         # update resource factors
         for i in self.resource_factors():
@@ -462,7 +466,8 @@ class Location:
         attr_ = getattr(self, parameter.lower())
         if attr_ is not None:
             for i in attr_:  # for each component
-                if not hasattr(i, parameter.lower()): # make new attribute in componet to collect data defined at location
+                # make new attribute in componet to collect data defined at location
+                if not hasattr(i, parameter.lower()):
                     setattr(i, parameter.lower(), dict())
                 comp_attr_ = getattr(i, parameter.lower())
                 ptype_ = getattr(parameter_type, parameter)
@@ -508,7 +513,7 @@ class Location:
                 # if encountering for the first time, create key and list with the tuple (Location, FactorType/Factor)
                 if not j.ftype:
                     j.ftype, j.factors = dict(), dict()
-                    j.ftype[ptype_] = [(self, ftype_)] 
+                    j.ftype[ptype_] = [(self, ftype_)]
                     j.factors[factor_name_] = dict()
                     j.factors[factor_name_][self] = factor_
                 # if a particular factor for the same component has been declared in another location, then append [(Loc1, ..), (Loc2, ..)]
@@ -521,10 +526,9 @@ class Location:
                     # if this is a new ctype_ being considered, create key and list with tuple (Location, FactorType/Factor)
                     else:
                         j.ftype[ptype_] = [(self, ftype_)]
-                        if factor_name_ not in j.factors:  
+                        if factor_name_ not in j.factors:
                             j.factors[factor_name_] = dict()
                         j.factors[factor_name_][self] = factor_
-                    
 
     def update_component_localization(self,  parameter: str, parameter_type: Union[ResourceParamType, ProcessParamType]):
         """Check if a localization has been provided
@@ -566,15 +570,14 @@ class Location:
                         # the if statements are to avoid multiple entries if people run the location again
                         if (self, ltype_) not in j.ltype[ptype_]:
                             j.ltype[ptype_].append((self, ltype_))
-                        j.localizations[localization_name_][self] = localization_  
-                
+                        j.localizations[localization_name_][self] = localization_
+
                     # if this is a new ctype_ being considered, create key and list with tuple (Location, FactorType/Factor)
                     else:
                         j.ltype[ptype_] = [(self, ltype_)]
                         if localization_name_ not in j.localizations:
                             j.localizations[localization_name_] = dict()
-                        j.localizations[localization_name_][self] = localization_ 
-
+                        j.localizations[localization_name_][self] = localization_
 
     def make_component_subset(self, parameter: str, parameter_type: Union[ProcessType, ResourceType], component_set: str):
         """makes a subset of component based on provided ctype
@@ -592,12 +595,12 @@ class Location:
         if subset_:
             setattr(self, f'{component_set}_{parameter}'.lower(), subset_)
         else:
-            subset_ = {i for i in component_set_ if ctype_ in [j[1] for j in i.ctype if (isinstance(j, tuple)) and (j[0] == self)]}
+            subset_ = {i for i in component_set_ if ctype_ in [
+                j[1] for j in i.ctype if (isinstance(j, tuple)) and (j[0] == self)]}
             if subset_:
                 setattr(self, f'{component_set}_{parameter}'.lower(), subset_)
             else:
                 setattr(self, f'{component_set}_{parameter}'.lower(), None)
-
 
     def get_cap_bounds(self) -> Union[dict, dict]:
         """
