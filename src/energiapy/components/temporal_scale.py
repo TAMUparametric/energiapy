@@ -10,7 +10,6 @@ from itertools import product
 from typing import List, Union
 from warnings import warn
 
-from .comptype.problem import ProblemType
 from .comptype.temporal_scale import ScaleType
 
 
@@ -38,7 +37,7 @@ class TemporalScale:
         scale_factors_max (bool, optional): whether deterministic data factors need to be scaled to max. Defaults to True. Can be set to False or overidden in Factor.
         scale_factors_min_max (bool, optional): whether deterministic data factors need to be scaled min-max. Defaults to None. Can be overidden in Factor.
         scale_factors_standard (bool, optional): whether deterministic data factors need to be standard scaled. Defaults to None. Can be overidden in Factor.
-
+        ctype (List[ScaleType], optional): list of ScaleTypes. Defaults to None.
     Examples:
 
         [1] For a design and scheduling problem where decisions are taken for every day of the week:
@@ -138,7 +137,7 @@ class TemporalScale:
     scale_factors_max: bool = True
     scale_factors_min_max: bool = None
     scale_factors_standard: bool = None
-    ctype: List[Union[ScaleType, ProblemType]] = None
+    ctype: List[ScaleType] = None
 
     def __post_init__(self):
 
@@ -148,14 +147,16 @@ class TemporalScale:
             i: list(range(self.discretization_list[i])) for i in range(self.scale_levels)}
         self.list = list(range(len(self.discretization_list)))
         self.name = str(self.list)
-                    
+        
+        if not self.ctype:
+            self.ctype = []
 
         if self.scale_levels > 1:
-            self.ctype = ScaleType.MULTI
+            self.ctype.append(ScaleType.MULTI)
         else:
-            self.ctype= ScaleType.SINGLE
+            self.ctype.append(ScaleType.SINGLE)
 
-        if self.ctype == ScaleType.SINGLE:
+        if ScaleType.SINGLE in self.ctype:
 
             if (self.design_scale is None) and (self.scheduling_scale is None):
                 warn(
@@ -185,28 +186,23 @@ class TemporalScale:
 
         if self.design_scale is not None:
             if self.scheduling_scale is None:
-                self.problem_ctype = ProblemType.DESIGN
+                self.ctype.append(ScaleType.DESIGN)
             else:
-                self.problem_ctype = ProblemType.DESIGN_AND_SCHEDULING
+                self.ctype.append(ScaleType.DESIGN_AND_SCHEDULING)
         else:
-            self.problem_ctype = ProblemType.SCHEDULING
+            self.ctype.append(ScaleType.SCHEDULING)
 
-        if (self.scale_factors_standard is True) or (self.scale_factors_min_max is True):
+        if any([self.scale_factors_standard, self.scale_factors_min_max]):
             self.scale_factors_max = False
 
     # * -----------------------Class Methods-----------------------------------------
+    
     @classmethod
     def ctypes(cls) -> List[str]:
         """All TemporalScale classifications
         """
         return ScaleType.all()
-
-    @classmethod
-    def problem_ctypes(cls) -> List[str]:
-        """All Problem classifications
-        """
-        return ProblemType.all()
-
+    
     # * -----------------------Functions---------------------------------------------
 
     def scale_iter(self, scale_level):
@@ -222,6 +218,8 @@ class TemporalScale:
             return list(product(*[self.scale[i] for i in self.scale][:scale_level+1]))
         else:
             return None
+
+    # * -----------------------Hashing---------------------------------------------
 
     def __repr__(self):
         return self.name

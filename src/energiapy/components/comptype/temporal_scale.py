@@ -11,7 +11,16 @@ class ScaleType(Enum):
     SINGLE = auto()
     """Problem has a single scale  
     """
-
+    DESIGN = auto()
+    """Only design decisions are taken 
+    """
+    SCHEDULING = auto()
+    """Only scheduling decisions are taken 
+    """
+    DESIGN_AND_SCHEDULING = auto()
+    """Design and scheduling decisions are taken simultaneously 
+    """
+    
     @classmethod
     def all(cls) -> List[str]:
         """All Temporal classifications

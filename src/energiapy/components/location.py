@@ -532,7 +532,8 @@ class Location:
             parameter (str): name of parameter
             parameter_type (Union[ResourceParamType, ProcessParamType]): Component parameter type
         """
-        attr_ = getattr(self, f'{parameter}_localize'.lower())
+        localization_name_ = f'{parameter}_localize'.lower()
+        attr_ = getattr(self, localization_name_)
         # if localize defined at location
         if attr_ is not None:
             ptype_ = getattr(parameter_type, parameter)
@@ -554,20 +555,22 @@ class Location:
                     j.ltype, j.localizations = dict(), dict()
                     j.ltype = dict()
                     j.ltype[ptype_] = [(self, ltype_)]
-                    j.localizations[ptype_] = [(self, localization_)]
+                    j.localizations[localization_name_] = dict()
+                    j.localizations[localization_name_][self] = localization_
                 # if a particular factor for the same component has been declared in another location, then append [(Loc1, ..), (Loc2, ..)]
                 else:
                     if ptype_ in j.ltype:
                         # the if statements are to avoid multiple entries if people run the location again
                         if (self, ltype_) not in j.ltype[ptype_]:
                             j.ltype[ptype_].append((self, ltype_))
-                        if (self, localization_) not in j.localizations[ptype_]:
-                            j.localizations[ptype_].append(
-                                (self, localization_))
+                        j.localizations[localization_name_][self] = localization_  
+                
                     # if this is a new ctype_ being considered, create key and list with tuple (Location, FactorType/Factor)
                     else:
                         j.ltype[ptype_] = [(self, ltype_)]
-                        j.localizations[ptype_] = [(self, localization_)]
+                        if factor_name_ not in j.localizations:
+                            j.localizations[factor_name_] = dict()
+                        j.localizations[localization_name_][self] = localization_ 
 
 
     def make_component_subset(self, parameter: str, parameter_type: Union[ProcessType, ResourceType], component_set: str):

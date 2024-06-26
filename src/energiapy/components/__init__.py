@@ -12,7 +12,6 @@ from .case_study import CaseStudy
 from .comptype.emission import EmissionType
 from .comptype.location import LocationType
 from .comptype.network import NetworkType
-from .comptype.problem import ProblemType
 from .comptype.process import ProcessType
 from .comptype.resource import ResourceType
 from .comptype.scenario import ScenarioType

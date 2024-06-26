@@ -1,7 +1,6 @@
 from .emission import EmissionType
 from .location import LocationType
 from .network import NetworkType
-from .problem import ProblemType
 from .process import ProcessType
 from .resource import ResourceType
 from .scenario import ScenarioType
