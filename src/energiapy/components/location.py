@@ -89,20 +89,21 @@ class Location:
         fopex_localize (Dict[Process, Tuple[float, int]] , optional): Localization factor for fopex. Defaults to None.
         incidental_localize(Dict[Process, Tuple[float, int]] , optional): Localization factor for incidental. Defaults to None.
         incidental_localize(Dict[Process, Tuple[float, int]] , optional): Localization factor for land. Defaults to None.
-        basis (str, optional): unit in which land area is measured. Defaults to None .
+        basis (str, optional): unit in which land area is measured. Defaults to None.
         block (Union[str, list, dict], optional): block to which it belong. Convinient to set up integer cuts. Defaults to None.
         label (str, optional): used while generating plots. Defaults to None.
         citation (str, optional): can provide citations for your data sources. Defaults to None.
-        ctype (List[LandType], optional): Location type. Defaults to None.
-        ptype (Dict[LandParamType, ParameterType], optional): paramater type of declared values. Defaults to None.
-        ftype (Dict[LandParamType, FactorType], optional): factor type of declared factors. Defaults to None.
-        factor (Dict[LandParamType, Factor], optional): collection of factors defined at location level. Defaults to None.
+        ctype (List[LocationType], optional): Location type. Defaults to None.
+        ptype (Dict[LocationParamType, ParameterType], optional): paramater type of declared values. Defaults to None.
+        ftype (Dict[LocationParamType, FactorType], optional): factor type of declared factors. Defaults to None.
+        factors (Dict[LocationParamType, Factor], optional): collection of factors defined at Location. Defaults to None.
 
     Examples:
         Locations need a set of processes and the scale levels for demand, capacity, and cost, and if applicable demand factors, price_factors, capacity factors
 
         >>> Goa= Location(name='Goa', processes= {Process1, Process2}, demand_scale_level=2, capacity_scale_level= 2, price_scale_level= 1, demand_factor= {Resource1: DataFrame,}, price_factor = {Resource2: DataFrame}, capacity_factor = {Process1: DataFrame}, scales= TemporalScale object, label='Home')
     """
+
     name: str
     # Primary attributes
     processes: Set[Process]
@@ -157,7 +158,7 @@ class Location:
     ptype: Dict[LocationParamType, ParameterType] = None
     ftype: Dict[LocationParamType, FactorType] = None
     # Collections
-    factor: Dict[LocationParamType, Factor] = None
+    factors: Dict[LocationParamType, Factor] = None
     # Depreciated
     demand_scale_level: int = None
     price_scale_level: int = None
@@ -185,14 +186,14 @@ class Location:
 
         self.ptype = dict()
 
-        for i in self.location_level_parameters():
+        for i in self.ptypes():
             self.update_location_level_parameter(parameter=i)
 
         # *-----------------Set ftype (FactorType) ---------------------------------
 
         self.ftype, self.factors = dict(), dict()
 
-        for i in self.uncertain_factors():
+        for i in self.ptypes():
             self.update_location_level_factor(parameter=i)
 
         # * ---------------Collect Components (Processes, Resources, Materials) -----------------------
@@ -232,6 +233,11 @@ class Location:
         for i in self.process_parameters():
             self.make_parameter_dict(
                 parameter=i.lower(), component_set='processes')
+            
+        # TODO ------  Can the below just be done at the scenario level????
+        # TODO ------ This adds a dummy mode to cap_max ------ See if can be avoided -----------
+        # TODO ------ Process Materials Modes -----------
+    
 
         # Collect capacity and capex segments for each Process with PWL capex
         if getattr(self, 'processes_pwl_capex') is not None:
@@ -240,7 +246,6 @@ class Location:
             self.capex_segments = {i:
                                    i.capex_segments for i in getattr(self, 'processes_pwl_capex')}
 
-        # TODO ------ This adds a dummy mode to cap_max ------ See if can be avoided -----------
         # dicitionary of capacity bounds
         # self.cap_max, self.cap_min = self.get_cap_bounds()
 
@@ -355,65 +360,21 @@ class Location:
         """
         return cls.__name__
 
+    # * Location parameters
+
     @classmethod
-    def parameters(cls) -> List[str]:
+    def ptypes(cls) -> List[str]:
         """All Location paramters
         """
         return LocationParamType.all()
 
-    @classmethod
-    def resource_parameters(cls) -> List[str]:
-        """All Resource paramters
-        """
-        return ResourceParamType.all()
+    # * Location classifications
 
     @classmethod
-    def process_parameters(cls) -> List[str]:
-        """All Process paramters
-        """
-        return ProcessParamType.all()
-
-    @classmethod
-    def location_level_parameters(cls) -> List[str]:
-        """Set when Location is declared
-        """
-        return LocationParamType.location_level()
-
-    @classmethod
-    def uncertain_parameters(cls) -> List[str]:
-        """Uncertain parameters
-        """
-        return LocationParamType.uncertain()
-
-    @classmethod
-    def uncertain_factors(cls) -> List[str]:
-        """Uncertain parameters for which factors are defined
-        """
-        return LocationParamType.uncertain_factor()
-
-    @classmethod
-    def network_level_parameters(cls) -> List[str]:
-        """Set when Location is declared
-        """
-        return LocationParamType.network_level()
-
-    @classmethod
-    def classifications(cls) -> List[str]:
+    def ctypes(cls) -> List[str]:
         """All Location classes
         """
         return LocationType.all()
-
-    @classmethod
-    def resource_classifications(cls) -> List[str]:
-        """All Resource classes
-        """
-        return ResourceType.all()
-
-    @classmethod
-    def process_classifications(cls) -> List[str]:
-        """All Process classes
-        """
-        return ProcessType.all()
 
     @classmethod
     def location_level_classifications(cls) -> List[str]:
@@ -427,6 +388,36 @@ class Location:
         """
         return LocationType.network_level()
 
+    # * Component Parameters
+
+    @classmethod
+    def resource_parameters(cls) -> List[str]:
+        """All Resource paramters
+        """
+        return ResourceParamType.all()
+
+    @classmethod
+    def process_parameters(cls) -> List[str]:
+        """All Process paramters
+        """
+        return ProcessParamType.all()
+
+    # * Location level component classifications
+
+    @classmethod
+    def resource_classifications(cls) -> List[str]:
+        """All Resource classes
+        """
+        return ResourceType.all()
+
+    @classmethod
+    def process_classifications(cls) -> List[str]:
+        """All Process classes
+        """
+        return ProcessType.all()
+
+    # * Location level component parameters
+
     @classmethod
     def location_level_process_parameters(cls) -> List[str]:
         """Process parameters updated at Location
@@ -439,6 +430,8 @@ class Location:
         """
         return ResourceParamType.location_level()
 
+    # * component factors
+
     @classmethod
     def process_factors(cls) -> List[str]:
         """Process factors updated at Location
@@ -450,6 +443,8 @@ class Location:
         """Resource factors updated at Location
         """
         return ResourceParamType.uncertain_factor()
+
+    # * component localizations
 
     @classmethod
     def process_localizations(cls) -> List[str]:

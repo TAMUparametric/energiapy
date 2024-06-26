@@ -5,7 +5,7 @@ from typing import List
 class NetworkType(Enum):
     """Network classifications
     """
-    LAND_MAX = auto()
+    LAND = auto()
 
     @classmethod
     def all(cls) -> List[str]:

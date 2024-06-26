@@ -15,9 +15,11 @@ from .comptype.network import NetworkType
 from .comptype.transport import TransportType
 from .location import Location
 from .parameters.factor import Factor
+from .parameters.location import LocationParamType
 from .parameters.mpvar import Theta, create_mpvar
 from .parameters.network import NetworkParamType
 from .parameters.paramtype import FactorType, MPVarType, ParameterType
+from .parameters.transport import TransportParamType
 from .temporal_scale import TemporalScale
 from .transport import Transport
 
@@ -30,10 +32,10 @@ class Network:
 
     Args:
         name (str): name of the network. Enter None to randomly assign a name.
-        sources (List[location], optional): list of location dataclass objects of source locations
-        sinks (List[location], optional): list of location dataclass objects of sink locations
-        distance_matrix (List[List[float]], optional): matrix with distances between sources and sinks, needs to be ordered
-        transport_matrix (List[List[float]], optional): matrix with distances between sources and sinks, needs to be ordered
+        sources (List[location]): list of location dataclass objects of source locations.
+        sinks (List[location]): list of location dataclass objects of sink locations.
+        distance_matrix (List[List[float]]): matrix with distances between sources and sinks, needs to be ordered.
+        transport_matrix (List[List[Transport]]): matrix with distances between sources and sinks, needs to be ordered.
         land_max (Union[float, Tuple[float], Theta], optional): land available. Defaults to None.
         land_max_factor (DataFrame, optional): factor for changing land availability. Defaults to None. 
         cap_max_factor (Dict[Tuple[Location, Location], Dict[Transport, DataFrame]], optional):  Factor for capacity expansion of Transport between Locations. Defaults to None.
@@ -42,11 +44,13 @@ class Network:
         vopex_factor (Dict[Tuple[Location, Location], Dict[Transport, DataFrame]], optional):  Factor for varying variable operational expenditure for Transport between Locations. Defaults to None.
         fopex_factor (Dict[Tuple[Location, Location], Dict[Transport, DataFrame]], optional):  Factor for varying fixed operational expenditure for Transport between Locations. Defaults to None.
         incidental_factor (Dict[Tuple[Location, Location], Dict[Transport, DataFrame]], optional):  Factor for varying incidental expenditure for Transport between Locations. Defaults to None.
-        citation (str, optional): can provide citations for your data sources. Defaults to None.
+        basis (str, optional): unit in which land area is measured. Defaults to None.
         label (str, optional): used while generating plots. Defaults to None.
-        ctype (List[LandType], optional): Network type type. Defaults to None.
-        ptype (Dict[LandType, ParameterType], optional): paramater type of declared values. Defaults to None.
-        ftype (Dict[LandType, FactorType], optional): factor type of declared factors. Defaults to None.
+        citation (str, optional): can provide citations for your data sources. Defaults to None.
+        ctype (List[NetworkType], optional): Network type type. Defaults to None.
+        ptype (Dict[NetworkParamType, ParameterType], optional): paramater type of declared values. Defaults to None.
+        ftype (Dict[NetworkParamType, FactorType], optional): factor type of declared factors. Defaults to None.
+        factors (Dict[LocationParamType, Factor], optional): collection of factors defined at Network. Defaults to None.
 
     Examples:
 
@@ -75,12 +79,10 @@ class Network:
     name: str
     # Primary attributes
     scales: TemporalScale
-    sources: List[Location] = None
-    sinks: List[Location] = None
-    distance_matrix: List[List[float]] = None
-    transport_matrix: List[List[Transport]] = None
-    land_cost_matrix: List[List[Transport]] = None ##################
-    # Network parameters
+    sources: List[Location]
+    sinks: List[Location]
+    distance_matrix: List[List[float]]
+    transport_matrix: List[List[Transport]]
     land_max: Union[float, Tuple[float], Theta] = None
     land_max_factor: DataFrame = None
     # Factors for Transport
@@ -97,12 +99,15 @@ class Network:
     incidental_factor: Dict[Tuple[Location, Location],
                             Dict[Transport, DataFrame]] = None
     # Details
-    citation: str = None
+    basis: str = None
     label: str = None
+    citation: str = None
     # Types
     ctype: List[NetworkType] = None
-    ptype: Dict[NetworkType, ParameterType] = None
-    ftype: Dict[NetworkType, FactorType] = None
+    ptype: Dict[NetworkParamType, ParameterType] = None
+    ftype: Dict[NetworkParamType, FactorType] = None
+    # Collections
+    factors: Dict[NetworkParamType, Factor] = None
     # Depreciated
     capacity_scale_level: int = None
     capex_scale_level: int = None
@@ -111,26 +116,7 @@ class Network:
 
     def __post_init__(self):
 
-        # *-------------------------- Update Network Factors and Parameters -----------------
-
-        if self.ctype is None:
-            self.ctype = []
-        self.ptype, self.ftype = dict(), dict()
-        # Currently limited to land_max
-        # If MPVar Theta or a tuple is provided as bounds ptype UNCERTAIN
-        # if factors are provided a Factor is generated and ftype is updated
-        # or else, parameter is treated as CERTAIN parameter
-        for i in ['land_max']:
-            self.update_network_params_and_factors(i)
-
-        # * ------------------------- Update Locations Factors and Parameters ----------------------
-
-        for i in self.sources:
-            i.ctype.append(LocationType.SOURCE)
-            i.ptype[LocationType.SOURCE] = ParameterType.CERTAIN
-        for i in self.sinks:
-            i.ctype.append(LocationType.SINK)
-            i.ptype[LocationType.SINK] = ParameterType.CERTAIN
+        # *-------------------------- Preprocess data -----------------
 
         # makes dictionary of available transport options between locations
         self.transport_dict = self.make_transport_dict()
@@ -139,18 +125,66 @@ class Network:
         # same as transport dict, I do not know why I made two, but now I am too scared to change it
         self.transport_avail_dict = self.make_transport_avail_dict()
 
+        # *-------------------------- Set ctype (NetworkType) -----------------
+
+        if self.ctype is None:
+            self.ctype = []
+
+        if self.land_max is not None:
+            self.ctype.append(NetworkType.LAND)
+
+        # *-----------------Set ptype (ParameterType) ---------------------------------
+        # ptypes of declared parameters are set to .UNCERTAIN if a MPVar Theta or a tuple of bounds is provided,
+        # .CERTAIN otherwise
+        # If empty Theta is provided, the bounds default to (0, 1)
+
+        self.ptype = dict()
+
+        for i in self.ptypes():
+            self.update_network_level_parameter(parameter=i)
+
+        # *-----------------Set ftype (FactorType) ---------------------------------
+
+        self.ftype, self.factors = dict(), dict()
+
+        for i in self.ptypes():
+            self.update_network_level_factor(parameter=i)
+
+        # * ---------------Collect Components (Transport, Locations) -----------------------
+
+        self.transports = set()
+
+        for i in self.transport_matrix:
+            for j in i:
+                for k in j:
+                    self.transports.add(k)
+
         self.locations = list(
             set(self.sources).union(set(self.sinks)))  # all locations in network
 
         self.source_sink_resource_dict = self.make_source_sink_resource_dict()
 
-        for i in ['capacity', 'capex', 'fopex', 'vopex', 'incidental']:
-            self.update_transport_factors(parameter=i)
+        # * -------------------------- Update Transports ----------------------------------------
+
+        if self.capacity_factor is not None:
+            for i, j in self.capacity_factor.items():
+                for k in j:
+                    k.ctype.append((i, TransportType.INTERMITTENT))
+
+        for i in self.transport_factors():
+            self.update_transport_factor(parameter=i)
+
+        # * ------------------------- Update Locations----------------------
+
+        for i in self.sources:
+            i.ctype.append(LocationType.SOURCE)
+        for i in self.sinks:
+            i.ctype.append(LocationType.SINK)
 
         # *----------------- Generate Random Name ------------------------
 
         if self.name is None:
-            self.name = f'{self.__class__.__name__}_{uuid.uuid4().hex}'
+            self.name = f'{self.class_name()}_{uuid.uuid4().hex}'
 
         # *----------------- Depreciation Warnings-----------------------------
 
@@ -169,97 +203,127 @@ class Network:
         if self.vopex_scale_level is not None:
             raise ValueError(
                 f'{self.name}: vopex_scale_level is depreciated. scale levels determined from factor data now')
+
     #  *----------------- Class Methods ---------------------------------------------
 
     @classmethod
-    def parameters(cls) -> List[str]:
+    def class_name(cls) -> List[str]:
+        """Returns class name 
+        """
+        return cls.__name__
+
+    # * Network parameters
+
+    @classmethod
+    def ptypes(cls) -> List[str]:
         """All Network paramters
         """
         return NetworkParamType.all()
 
-    @classmethod
-    def uncertain_parameters(cls) -> List[str]:
-        """Uncertain parameters
-        """
-        return NetworkParamType.uncertain()
+    # * Network classifications
 
     @classmethod
-    def uncertain_factors(cls) -> List[str]:
-        """Uncertain parameters for which factors are defined
-        """
-        return NetworkParamType.uncertain_factor()
-
-    @classmethod
-    def classifications(cls) -> List[str]:
+    def ctypes(cls) -> List[str]:
         """All Network classifications
         """
         return NetworkType.all()
 
+    # * Network level Transport classifications
+
+    @classmethod
+    def network_level_transport_classifications(cls) -> List[str]:
+        """Set when Network is declared
+        """
+        return TransportType.network_level()
+
+    # * Network level Location classifications
+
+    @classmethod
+    def network_level_location_classifications(cls) -> List[str]:
+        """Set when Network is declared
+        """
+        return LocationType.network_level()
+
+    # * Transport factors
+
+    @classmethod
+    def transport_factors(cls) -> List[str]:
+        """Transport factors updated at Network
+        """
+        return TransportParamType.uncertain_factor()
+
     # *----------------- Functions-------------------------------------
 
-    def update_network_params_and_factors(self, parameter: str):
-        """Updated ctype based on type of parameter provide.
-        Creates MPVar if Theta or tuple of bounds
-        also updates ftype if factors provides and puts Factor in place of DataFrame
+    def update_network_level_parameter(self, parameter: str):
+        """updates parameter, sets ptype
 
         Args:
-            parameter (str): land parameters
+            parameter (str): parameter to update 
         """
-
-        if getattr(self, parameter) is not None:
-            # Update ctype
-            ctype_ = getattr(NetworkType, parameter.upper())
-            self.ctype.append(ctype_)
-            # Update ptype
-            if isinstance(getattr(self, parameter), (tuple, Theta)):
-                self.ptype[ctype_] = ParameterType.UNCERTAIN
-                mpvar_ = create_mpvar(value=getattr(
-                    self, parameter), component=self, ptype=getattr(MPVarType, f'network_{parameter}'.upper()))
-                setattr(self, parameter, mpvar_)
+        attr_ = getattr(self, parameter.lower())
+        if attr_ is not None:
+            ptype_ = getattr(NetworkParamType, parameter)
+            if isinstance(attr_, (tuple, Theta)):
+                self.ptype[ptype_] = ParameterType.UNCERTAIN
+                mpvar_ = create_mpvar(value=attr_, component=self, ptype=getattr(
+                    MPVarType, f'{self.class_name()}_{parameter}'.upper()))
+                setattr(self, parameter.lower(), mpvar_)
             else:
-                self.ptype[ctype_] = ParameterType.CERTAIN
+                self.ptype[ptype_] = ParameterType.CERTAIN
 
-        if getattr(self, f'{parameter}_factor') is not None:
-            # Update ftype
-            ftype_ = getattr(FactorType, f'network_{parameter}'.upper())
-            self.ftype[ctype_] = ftype_
-            factor_ = Factor(component=self, data=getattr(
-                self, f'{parameter}_factor'), ftype=ftype_, scales=self.scales, location=self)
+    def update_network_level_factor(self, parameter: str):
+        """updates factor, sets ftype
+
+        Args:
+            parameter (str): parameter to update 
+        """
+        attr_ = getattr(self, f'{parameter}_factor'.lower())
+        if attr_ is not None:
+            ptype_ = getattr(NetworkParamType, parameter)
+            ftype_ = getattr(
+                FactorType, f'{self.class_name()}_{parameter}'.upper())
+            self.ftype[ptype_] = ftype_
+            factor_ = Factor(component=self, data=attr_,
+                             ftype=ftype_, scales=self.scales, location=self)
             setattr(self, f'{parameter}_factor', factor_)
+            self.factors[ptype_] = factor_
 
-    def update_transport_factors(self, parameter: str):
+    def update_transport_factor(self, parameter: str):
         """Updates Transport factor data to Factor and updates ftype and factors
-
+        This is similar to Location.update_component_factor
         Args:
             parameter (str): Transport parameter factor to update
         """
-        if getattr(self, f'{parameter}_factor') is not None:
-            for location_tuple, transport_n_data in getattr(self, f'{parameter}_factor').items():
-                for transport, data in transport_n_data.items():
-                    ctype_ = getattr(TransportType, parameter.upper())
+        attr_ = getattr(self, f'{parameter}_factor'.lower())
+
+        # if factor is defined at network
+        if attr_ is not None:
+            ptype_ = getattr(TransportParamType, parameter.upper())
+            for location_tuple, transport_and_data in attr_.items():
+                for transport, data in transport_and_data.items():
+
                     ftype_ = getattr(
-                        FactorType, f'trans_{parameter}'.upper())
+                        FactorType, f'{transport.class_name()}_{parameter}'.upper())
+
                     factor_ = Factor(component=transport, data=data, ftype=ftype_,
                                      scales=self.scales, location=location_tuple)
-
-                    getattr(self, f'{parameter}_factor')[
-                        location_tuple][transport] = factor_
-
+                    attr_[location_tuple][transport] = factor_
                     if not transport.ftype:
-                        transport.ftype[ctype_] = [
+                        transport.ftype, transport.factors = dict(), dict()
+                        transport.ftype[ptype_] = [
                             (location_tuple, ftype_)]
-                        transport.factors[ctype_] = [
+                        transport.factors[ptype_] = [
                             (location_tuple, factor_)]
                     else:
-                        if ctype_ in transport.ftype_:
-                            transport.ftype[ctype_].append(
+                        if ptype_ in transport.ftype_:
+                            transport.ftype[ptype_].append(
                                 (location_tuple, ftype_))
-                            transport.factors[ctype_].append(
+                            transport.factors[ptype_].append(
                                 (location_tuple, factor_))
                         else:
-                            transport.ftype[ctype_] = [
+                            transport.ftype[ptype_] = [
                                 (location_tuple, ftype_)]
-                            transport.factors[ctype_] = [
+                            transport.factors[ptype_] = [
                                 (location_tuple, factor_)]
 
     def make_distance_dict(self) -> dict:

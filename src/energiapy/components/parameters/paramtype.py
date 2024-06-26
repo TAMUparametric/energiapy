@@ -30,10 +30,10 @@ resource_factors = [
     f'RESOURCE_{i}' for i in ResourceParamType.uncertain_factor()]
 process_factors = [f'PROCESS_{i}' for i in ProcessParamType.uncertain_factor()]
 location_factors = [
-    f'LOCATION_{i}' for i in LocationParamType.uncertain_factor()]
+    f'LOCATION_{i}' for i in LocationParamType.all()]
 transport_factors = [
     f'TRANSPORT_{i}' for i in TransportParamType.uncertain_factor()]
-network_factors = [f'NETWORK_{i}' for i in NetworkParamType.uncertain_factor()]
+network_factors = [f'NETWORK_{i}' for i in NetworkParamType.all()]
 
 factors = resource_factors + process_factors + \
     location_factors + transport_factors + network_factors
@@ -127,11 +127,11 @@ resource_uncertain_params = [
 process_uncertain_params = [
     f'PROCESS_{i}' for i in ProcessParamType.uncertain()]
 location_uncertain_params = [
-    f'LOCATION_{i}' for i in LocationParamType.uncertain()]
+    f'LOCATION_{i}' for i in LocationParamType.all()]
 transport_uncertain_params = [
     f'TRANSPORT_{i}' for i in TransportParamType.uncertain()]
 network_uncertain_params = [
-    f'NETWORK_{i}' for i in NetworkParamType.uncertain()]
+    f'NETWORK_{i}' for i in NetworkParamType.all()]
 
 uncertain_params = resource_uncertain_params + process_uncertain_params + \
     location_uncertain_params + transport_uncertain_params + network_uncertain_params

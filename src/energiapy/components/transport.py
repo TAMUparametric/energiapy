@@ -73,8 +73,8 @@ class Transport:
     cap_max: Union[float, Tuple[float], Theta]
     # Design Parameters
     cap_min: Union[float, Tuple[float], Theta] = None
-    land: float = None  # Union[float, Tuple[float], Theta]
-    trans_loss: float = None  # Union[float, Tuple[float], Theta]
+    land: Union[float, Tuple[float], Theta] = None
+    trans_loss: Union[float, Tuple[float], Theta] = None
     material_cons: Dict[Material, float] = None
     # Expenditure
     capex: Union[float, dict, Tuple[float], Theta] = None
@@ -108,6 +108,7 @@ class Transport:
     factors: Dict[TransportParamType,
                   Tuple[Tuple[Location, Location], Factor]] = None
     emissions: Dict[str, float] = None
+
     # Depricated
     trans_max: float = None
     trans_min: float = None
@@ -172,7 +173,7 @@ class Transport:
 
         self.ptype = dict()
 
-        for i in self.transport_level_parameters():
+        for i in self.ptypes():
             self.update_transport_level_parameter(parameter=i)
 
         # *-----------------Set etype (Emission)---------------------------------
@@ -229,25 +230,13 @@ class Transport:
         """
         return cls.__name__
 
-    # * parameter types
+    # * Transport parameters
 
     @classmethod
     def ptypes(cls) -> List[str]:
         """All Transport paramters
         """
         return TransportParamType.all()
-
-    @classmethod
-    def transport_level_parameters(cls) -> List[str]:
-        """Set when Transport is declared
-        """
-        return TransportParamType.transport_level()
-
-    @classmethod
-    def network_level_parameters(cls) -> List[str]:
-        """Set when Network is declared
-        """
-        return TransportParamType.network_level()
 
     @classmethod
     def uncertain_parameters(cls) -> List[str]:
@@ -273,19 +262,8 @@ class Transport:
         """
         return TransportParamType.failure()
 
-    @classmethod
-    def transport_level_uncertain_parameters(cls) -> List[str]:
-        """Set when Transport is declared
-        """
-        return TransportParamType.transport_level_uncertain()
 
-    @classmethod
-    def network_level_uncertain_parameters(cls) -> List[str]:
-        """Set when Transport is declared
-        """
-        return TransportParamType.network_level_uncertain()
-
-    # * component class types
+    # * Transport classifications
 
     @classmethod
     def ctypes(cls) -> List[str]:

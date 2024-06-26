@@ -47,12 +47,6 @@ class TransportParamType(Enum):
         return ['P_FAIL']
 
     @classmethod
-    def network_level(cls) -> List[str]:
-        """Set at Network level
-        """
-        return []
-
-    @classmethod
     def uncertain(cls) -> List[str]:
         """Uncertain parameters, can be handled: 
         1. Multiparametrically by defining as multiparametric variables (energiapy.components.parameters.mpvar.MPVar)
@@ -71,25 +65,9 @@ class TransportParamType(Enum):
     # * -------------------------- Automated below this ----------------------------------------
 
     @classmethod
-    def transport_level_uncertain(cls) -> List[str]:
-        """Set when Transport is declared
-        """
-        return list(set(cls.uncertain()) - set(cls.network_level()))
-
-    @classmethod
-    def network_level_uncertain(cls) -> List[str]:
-        """Set when Network is declared
-        """
-        return list(set(cls.uncertain()) - set(cls.transport_level()))
-
-    @classmethod
     def all(cls) -> List[str]:
         """All Transport paramters
         """
         return [i.name for i in cls]
 
-    @classmethod
-    def transport_level(cls) -> List[str]:
-        """Set when Transport is declared
-        """
-        return list(set(cls.all()) - set(cls.network_level()))
+
