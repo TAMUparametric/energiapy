@@ -7,7 +7,7 @@ Also:
 
 from dataclasses import dataclass
 from itertools import product
-from typing import List
+from typing import List, Union
 from warnings import warn
 
 from .comptype.problem import ProblemType
@@ -138,24 +138,24 @@ class TemporalScale:
     scale_factors_max: bool = True
     scale_factors_min_max: bool = None
     scale_factors_standard: bool = None
+    ctype: List[Union[ScaleType, ProblemType]] = None
 
     def __post_init__(self):
-        """
-        The Problem and Scale type are set here. 
-        """
+
 
         self.scale_levels = len(self.discretization_list)
         self.scale = {
             i: list(range(self.discretization_list[i])) for i in range(self.scale_levels)}
         self.list = list(range(len(self.discretization_list)))
         self.name = str(self.list)
+                    
 
         if self.scale_levels > 1:
-            self.scale_type = ScaleType.MULTI
+            self.ctype = ScaleType.MULTI
         else:
-            self.scale_type = ScaleType.SINGLE
+            self.ctype= ScaleType.SINGLE
 
-        if self.scale_type == ScaleType.SINGLE:
+        if self.ctype == ScaleType.SINGLE:
 
             if (self.design_scale is None) and (self.scheduling_scale is None):
                 warn(
@@ -185,24 +185,24 @@ class TemporalScale:
 
         if self.design_scale is not None:
             if self.scheduling_scale is None:
-                self.problem_type = ProblemType.DESIGN
+                self.problem_ctype = ProblemType.DESIGN
             else:
-                self.problem_type = ProblemType.DESIGN_AND_SCHEDULING
+                self.problem_ctype = ProblemType.DESIGN_AND_SCHEDULING
         else:
-            self.problem_type = ProblemType.SCHEDULING
+            self.problem_ctype = ProblemType.SCHEDULING
 
         if (self.scale_factors_standard is True) or (self.scale_factors_min_max is True):
             self.scale_factors_max = False
 
     # * -----------------------Class Methods-----------------------------------------
     @classmethod
-    def classifications(cls) -> List[str]:
+    def ctypes(cls) -> List[str]:
         """All TemporalScale classifications
         """
         return ScaleType.all()
 
     @classmethod
-    def problem_classifications(cls) -> List[str]:
+    def problem_ctypes(cls) -> List[str]:
         """All Problem classifications
         """
         return ProblemType.all()

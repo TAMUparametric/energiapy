@@ -149,9 +149,10 @@ class Resource:
     emissions: Dict[str, float] = None
     # Depreciated
     sell: bool = None
-    varying: list = None
-    price: float = None
-    revenue: float = None
+    varying: bool = None
+    price: bool = None
+    revenue: bool = None
+
 
     def __post_init__(self):
 
@@ -171,30 +172,30 @@ class Resource:
         if self.ctype is None:
             self.ctype = []
 
-        if self.sell_price is not None:
+        if self.sell_price:
             self.ctype.append(ResourceType.SELL)
             if self.discharge is None:
                 self.discharge = True
                 warn(f'{self.name}: discharge set to True, since sell_price is given')
 
-        if self.discharge is not None:
+        if self.discharge:
             self.ctype.append(ResourceType.DISCHARGE)
 
-        if self.cons_max is not None:
+        if self.cons_max:
             self.ctype.append(ResourceType.CONSUME)
         else:
             # if it is not consumed from outside the system, it has to be made in the system
             self.ctype.append(ResourceType.PRODUCE)
-            if self.discharge is None:
+            if not self.discharge:
                 # is not discharged or consumed. Produced and used within the system captively
                 self.ctype.append(ResourceType.IMPLICIT)
 
-        if self.purchase_price is not None:
+        if self.purchase_price:
             self.ctype.append(ResourceType.PURCHASE)
-            if self.cons_max is None:
+            if not self.cons_max:
                 warn(f'{self.name}: Price given, suggest providing cons_max as well')
 
-        if self.store_max is not None:
+        if self.store_max:
             self.ctype.append(ResourceType.STORE)
 
         # *-----------------Set ptype (ParameterType) ---------------------------------
@@ -222,11 +223,6 @@ class Resource:
                 self.etype.append(etype_)
                 self.emissions[i.lower()] = attr_
 
-        # *-----------------Set Parameters Declared at Location to None-------------
-
-        for i in self.location_level_parameters():
-            setattr(self, i.lower(), None)
-
         # *-----------------Random name ---------------------------------
         # A random name is generated if self.name = None
 
@@ -235,19 +231,16 @@ class Resource:
 
         # *----------------- Depreciation Warnings---------------------------------
 
-        if getattr(self, 'demand') is True:
-            raise ValueError(
-                f'{self.name}: demand will be intepreted in energiapy.Location. Set discharge = True and set Location.demand = {{Resource: demand}}')
-        if self.sell is not None:
+        if self.sell:
             raise ValueError(
                 f'{self.name}: sell has been depreciated. set discharge = True and specify selling_price if needed')
-        if self.varying is not None:
+        if self.varying:
             raise ValueError(
                 f'{self.name}: varying has been depreciated. Variability will be intepreted based on data provided to energiapy.Location factors')
-        if self.price is not None:
+        if self.price:
             raise ValueError(
                 f'{self.name}: price has been depreciated. Please use purchase_price instead')
-        if self.revenue is not None:
+        if self.revenue:
             raise ValueError(
                 f'{self.name}: revenue has been depreciated. Please use sell_price instead')
 

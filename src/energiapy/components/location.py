@@ -230,35 +230,6 @@ class Location:
         for i in self.process_classifications():
             self.make_component_subset(parameter= i, parameter_type=ProcessType, component_set= 'processes')
 
-
-        # TODO ------  Can the below just be done at the scenario level????
-        # TODO ------ This adds a dummy mode to cap_max ------ See if can be avoided -----------
-        # TODO ------ Process Materials Modes -----------
-
-        # Collect capacity and capex segments for each Process with PWL capex
-        if getattr(self, 'processes_pwl_capex') is not None:
-            self.capacity_segments = {i:
-                                      i.capacity_segments for i in getattr(self, 'processes_pwl_capex')}
-            self.capex_segments = {i:
-                                   i.capex_segments for i in getattr(self, 'processes_pwl_capex')}
-
-        # dicitionary of capacity bounds
-        # self.cap_max, self.cap_min = self.get_cap_bounds()
-
-        # gets the production modes
-        if getattr(self, 'processes_multi_prodmode') is not None:
-            self.prod_modes = {
-                i: i.prod_modes for i in getattr(self, 'processes_multi_prodmode')}
-
-        # gets the material modes
-        if getattr(self, 'processes_multi_matmode') is not None:
-            self.material_modes = {
-                i: i.material_modes for i in getattr(self, 'processes_multi_matmode')}
-
-        # fetch all processes with failure rates set
-        self.failure_processes = self.get_failure_processes()
-        self.fail_factor = self.make_fail_factor()
-
         # update process factors
         for i in self.process_factors():
             self.update_component_factor(i, ProcessParamType)
@@ -292,12 +263,6 @@ class Location:
         # update resource localizations
         for i in self.resource_localizations():
             self.update_component_localization(i, ResourceParamType)
-
-        # * ---------------- Collect Emission Data ------------------------------------------
-        # Get emission data from components
-        for i in ['resources', 'materials', 'processes']:
-            setattr(self, f'{i}_emissions', {
-                    j: j.emissions for j in getattr(self, i)})
 
         # *----------------- Generate Random Name -------------------------------------------
         # A random name is generated if self.name = None
@@ -494,14 +459,19 @@ class Location:
         attr_ = getattr(self, parameter.lower())
         if attr_ is not None:
             for i in attr_:  # for each component
+                if not hasattr(i, parameter.lower()): # make new attribute in componet to collect data defined at location
+                    setattr(i, parameter.lower(), dict())
+                comp_attr_ = getattr(i, parameter.lower())
                 ptype_ = getattr(parameter_type, parameter)
                 if isinstance(attr_[i], (tuple, Theta)):
                     append_ = (self, ParameterType.UNCERTAIN)
                     mpvar_ = create_mpvar(value=attr_[
                                           i], component=i, ptype=getattr(MPVarType, f'{i.class_name()}_{parameter}'.upper()), location=self)
                     attr_[i] = mpvar_
+                    comp_attr_[self] = mpvar_
                 else:
                     append_ = (self, ParameterType.CERTAIN)
+                    comp_attr_[self] = attr_[i]
                 if ptype_ in i.ptype:  # check if already exists, if yes append
                     i.ptype[ptype_].append(append_)
                 else:  # or create new list with tuple
@@ -620,26 +590,6 @@ class Location:
             else:
                 setattr(self, f'{component_set}_{parameter}'.lower(), None)
 
-    def get_failure_processes(self):
-        """get processes with failure rates
-
-        Returns:
-            Set[Process]: set of resources with failure rates
-        """
-        return {i for i in self.processes if i.p_fail is not None}
-
-    def make_fail_factor(self) -> dict:
-        """samples randomly from a probablity distribution to generate timeperiods in the scheduling scale that fail
-
-        Returns:
-            dict: temporal horizon with certain days at the scheduling level failing
-        """
-        if self.failure_processes == set():
-            return None
-
-        scale_iter = list(product(*self.scales.scale))
-        return {process_.name: {(scale_): sample([0] * int(process_.p_fail * 100) + [1] * int(
-            (1 - process_.p_fail) * 100), 1)[0] for scale_ in scale_iter} for process_ in self.failure_processes}
 
     def get_cap_bounds(self) -> Union[dict, dict]:
         """

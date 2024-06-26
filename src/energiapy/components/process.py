@@ -243,7 +243,7 @@ class Process:
         self.ptype = dict()
 
         for i in self.process_level_parameters():
-            self.update_process_level_parameter(parameter=i)
+            self.update_process_parameter(parameter=i)
 
         # *-----------------Set etype (Emission)---------------------------------
         # Types of emission accounted for are declared here and EmissionTypes are set
@@ -258,10 +258,6 @@ class Process:
                     self.ctype.append(ProcessType.EMISSION)
                 self.etype.append(etype_)
                 self.emissions[i.lower()] = attr_
-
-        # *-----------------Set Parameters Declared at Location to None-------------
-        for i in self.location_level_parameters():
-            setattr(self, i.lower(), None)
 
         # *----------------- Generate Random Name---------------------------------
         # A random name is generated if self.name = None
@@ -406,7 +402,7 @@ class Process:
 
     # *----------------- Functions ---------------------------------------------
 
-    def update_process_level_parameter(self, parameter: str):
+    def update_process_parameter(self, parameter: str):
         """updates parameter, sets ptype
 
         Args:
