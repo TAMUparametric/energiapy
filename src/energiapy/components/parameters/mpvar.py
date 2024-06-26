@@ -1,7 +1,7 @@
 """Parametric variable 
 """
 from dataclasses import dataclass
-from typing import Union
+from typing import Union, Optional
 from warnings import warn
 
 from .paramtype import MPVarType
@@ -14,7 +14,8 @@ class Theta:
     Args:
         bounds (tuple, optional): (lower, upper) bound. If not provided, defaults to (0, 1)
         component (energiapy.component, optional): Assigned when used as a parameter value for a component. Defaults to None.
-        parameter (str, optional): To what parameter of the component is this assigned. Defaults to None. 
+        location (Location, optional): Location at which this is being set. Defaults to None.
+        ptype (str, optional): Type of MPVar. Defaults to None. 
 
     Examples:
 
@@ -47,6 +48,7 @@ class Theta:
     bounds: tuple = None
     component: Union['Resource', 'Process', 'Location',
                      'Transport', 'Network', 'Scenario'] = None
+    location: Optional['Location'] = None
     ptype: MPVarType = None
 
     def __post_init__(self):
@@ -58,9 +60,12 @@ class Theta:
             self.bounds = (0, 1)
 
         if self.ptype is not None:
-            print()
-            self.name = f'{self.component.name}_{str(self.ptype).lower()}'.replace(
-                'mpvartype.', '')
+            if self.location is not None:
+                self.name = f'{self.component.name}_{self.location.name}_{str(self.ptype).lower()}'.replace(
+                    'mpvartype.', '')
+            else:
+                self.name = f'{self.component.name}_{str(self.ptype).lower()}'.replace(
+                    'mpvartype.', '')
         else:
             self.name = f'{self.__class__.__name__}({self.bounds})'
 
@@ -74,14 +79,14 @@ class Theta:
         return self.name == other.name
 
 
-def create_mpvar(value: Union[Theta, tuple], component: Union['Resource', 'Process', 'Location', 'Transport', 'Network', 'Scenario'], ptype: MPVarType) -> Theta:
+def create_mpvar(value: Union[Theta, tuple], component: Union['Resource', 'Process', 'Location', 'Transport', 'Network', 'Scenario'], ptype: MPVarType, location: str = None) -> Theta:
     """Creates a parametric variable
 
     Args:
         value (Union[Theta, tuple]): _description_
         component (Union[energiapy.components]): components such Resource, Process, Location, Transport, Network, Scenario
         ptype (MPVarType): type of parametric variable. Check energiapy.components.parameters
-
+        location (Location, optional): Location where this is being defined. Defaults to None
     Returns:
         Theta: parametric variable 
     """
@@ -91,4 +96,4 @@ def create_mpvar(value: Union[Theta, tuple], component: Union['Resource', 'Proce
     else:
         bounds = value
 
-    return Theta(bounds=bounds, component=component, ptype=ptype)
+    return Theta(bounds=bounds, component=component, ptype=ptype, location=location)

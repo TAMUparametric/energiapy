@@ -51,8 +51,12 @@ class Factor:
                 self.name = f'{self.component.name}_({self.location[0].name},{self.location[1].name})_{str(self.ftype).lower()}_factor'.replace(
                     'factortype.', '')
             else:
-                self.name = f'{self.component.name}_{self.location.name}_{str(self.ftype).lower()}_factor'.replace(
-                    'factortype.', '')
+                if self.location is None:  # defined for location or network
+                    self.name = f'{self.component.name}_{str(self.ftype).lower()}_factor'.replace(
+                        'factortype.', '')
+                else:
+                    self.name = f'{self.component.name}_{self.location.name}_{str(self.ftype).lower()}_factor'.replace(
+                        'factortype.', '')
 
         else:
             if self.component is not None:
@@ -64,8 +68,12 @@ class Factor:
                     self.name = f'{self.component.name}_({self.location[0].name},{self.location[1].name})_{str(self.ftype).lower()}_factor'.replace(
                         'factortype.', '')
                 else:
-                    self.name = f'{self.component.name}_{self.location.name}_{str(self.ftype).lower()}_factor'.replace(
-                        'factortype.', '')
+                    if self.location is None:  # defined for location or network
+                        self.name = f'{self.component.name}_{str(self.ftype).lower()}_factor'.replace(
+                            'factortype.', '')
+                    else:
+                        self.name = f'{self.component.name}_{self.location.name}_{str(self.ftype).lower()}_factor'.replace(
+                            'factortype.', '')
             else:
                 if isinstance(self.data, DataFrame) is False:
                     raise ValueError(

@@ -3,6 +3,8 @@
 # TODO - Land MAX constraints
 # TODO - Handle materials
 
+# TODO - fix param dict and comp subset
+
 
 import uuid
 from dataclasses import dataclass
@@ -187,14 +189,14 @@ class Location:
         self.ptype = dict()
 
         for i in self.ptypes():
-            self.update_location_level_parameter(parameter=i)
+            self.update_location_parameter(parameter=i)
 
         # *-----------------Set ftype (FactorType) ---------------------------------
 
         self.ftype, self.factors = dict(), dict()
 
         for i in self.ptypes():
-            self.update_location_level_factor(parameter=i)
+            self.update_location_factor(parameter=i)
 
         # * ---------------Collect Components (Processes, Resources, Materials) -----------------------
         # Resources and Materials are collected based on Process(es) provided
@@ -232,12 +234,11 @@ class Location:
         # collect Process parameters and set dicts as Location attrs
         for i in self.process_parameters():
             self.make_parameter_dict(
-                parameter=i.lower(), component_set='processes')
-            
+                parameter=i, component_set='processes')
+
         # TODO ------  Can the below just be done at the scenario level????
         # TODO ------ This adds a dummy mode to cap_max ------ See if can be avoided -----------
         # TODO ------ Process Materials Modes -----------
-    
 
         # Collect capacity and capex segments for each Process with PWL capex
         if getattr(self, 'processes_pwl_capex') is not None:
@@ -278,22 +279,27 @@ class Location:
         #   dictionaries with parameter values
 
         if self.demand is not None:
+            print(self, self.demand)
             for i in self.demand:
                 i.ctype.append((self, ResourceType.DEMAND))
+            print(self, self.demand)
 
         for i in self.location_level_resource_parameters():
             self.update_component_parameter_declared_at_location(
                 parameter=i, parameter_type=ResourceParamType)
+            print(self, self.demand)
 
         # set Resource subsets as Location attributes
         for i in self.resource_classifications():
             self.make_component_subset(ctype=getattr(
                 ResourceType, i), component_set='resources', tag=f'resources_{i.lower()}')
 
+        print(self, self.demand)
+
         # collect Resource parameters and set dicts as Location attrs
         for i in self.resource_parameters():
             self.make_parameter_dict(
-                parameter=i.lower(), component_set='resources')
+                parameter=i, component_set='resources')
 
         # update resource factors
         for i in self.resource_factors():
@@ -460,7 +466,7 @@ class Location:
 
     # *----------------- Functions-------------------------------------
 
-    def update_location_level_parameter(self, parameter: str):
+    def update_location_parameter(self, parameter: str):
         """updates parameter, sets ptype
 
         Args:
@@ -477,7 +483,7 @@ class Location:
             else:
                 self.ptype[ptype_] = ParameterType.CERTAIN
 
-    def update_location_level_factor(self, parameter: str):
+    def update_location_factor(self, parameter: str):
         """updates factor, sets ftype
 
         Args:
@@ -490,7 +496,7 @@ class Location:
                 FactorType, f'{self.class_name()}_{parameter}'.upper())
             self.ftype[ptype_] = ftype_
             factor_ = Factor(component=self, data=attr_,
-                             ftype=ftype_, scales=self.scales, location=self)
+                             ftype=ftype_, scales=self.scales)
             setattr(self, f'{parameter}_factor', factor_)
             self.factors[ptype_] = factor_
 
@@ -508,7 +514,7 @@ class Location:
                 if isinstance(attr_[i], (tuple, Theta)):
                     append_ = (self, ParameterType.UNCERTAIN)
                     mpvar_ = create_mpvar(value=attr_[
-                                          i], component=i, ptype=getattr(MPVarType, f'{i.class_name()}_{parameter}'.upper()))
+                                          i], component=i, ptype=getattr(MPVarType, f'{i.class_name()}_{parameter}'.upper()), location=self)
                     attr_[i] = mpvar_
                 else:
                     append_ = (self, ParameterType.CERTAIN)
@@ -616,13 +622,12 @@ class Location:
             parameter (str): what parameters 
             component_set (str): component set of Resource or Process
         """
-        param_dict_ = {i: getattr(i, parameter) for i in getattr(
-            self, component_set) if getattr(i, parameter) is not None}
-
+        param_dict_ = {i: getattr(i, parameter.lower()) for i in getattr(
+            self, component_set) if getattr(i, parameter.lower()) is not None}
         if param_dict_:
-            setattr(self, parameter, param_dict_)
+            setattr(self, f'{component_set}_{parameter}'.lower(), param_dict_)
         else:
-            setattr(self, parameter, None)
+            setattr(self, f'{component_set}_{parameter}'.lower(), None)
 
     def make_component_subset(self, ctype: Union[ProcessType, ResourceType], component_set: str, tag: str):
         """makes a subset of component based on provided ctype

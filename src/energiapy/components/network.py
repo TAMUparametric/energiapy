@@ -141,14 +141,14 @@ class Network:
         self.ptype = dict()
 
         for i in self.ptypes():
-            self.update_network_level_parameter(parameter=i)
+            self.update_network_parameter(parameter=i)
 
         # *-----------------Set ftype (FactorType) ---------------------------------
 
         self.ftype, self.factors = dict(), dict()
 
         for i in self.ptypes():
-            self.update_network_level_factor(parameter=i)
+            self.update_network_factor(parameter=i)
 
         # * ---------------Collect Components (Transport, Locations) -----------------------
 
@@ -254,7 +254,7 @@ class Network:
 
     # *----------------- Functions-------------------------------------
 
-    def update_network_level_parameter(self, parameter: str):
+    def update_network_parameter(self, parameter: str):
         """updates parameter, sets ptype
 
         Args:
@@ -271,7 +271,7 @@ class Network:
             else:
                 self.ptype[ptype_] = ParameterType.CERTAIN
 
-    def update_network_level_factor(self, parameter: str):
+    def update_network_factor(self, parameter: str):
         """updates factor, sets ftype
 
         Args:
@@ -284,7 +284,7 @@ class Network:
                 FactorType, f'{self.class_name()}_{parameter}'.upper())
             self.ftype[ptype_] = ftype_
             factor_ = Factor(component=self, data=attr_,
-                             ftype=ftype_, scales=self.scales, location=self)
+                             ftype=ftype_, scales=self.scales)
             setattr(self, f'{parameter}_factor', factor_)
             self.factors[ptype_] = factor_
 
