@@ -101,7 +101,7 @@ class Location:
         ptype (Dict[LocationParamType, ParameterType], optional): paramater type of declared values. Defaults to None.
         ftype (Dict[LocationParamType, FactorType], optional): factor type of declared factors. Defaults to None.
         factors (Dict[LocationParamType, Factor], optional): collection of factors defined at Location. Defaults to None.
-
+        make_subsets (bool, optional): makes subsets based on Resource and Process ctypes and sets them as attributes [components_ctype]. Defaults to None. 
     Examples:
         Locations need a set of processes and the scale levels for demand, capacity, and cost, and if applicable demand factors, price_factors, capacity factors
 
@@ -163,6 +163,8 @@ class Location:
     ftype: Dict[LocationParamType, FactorType] = None
     # Collections
     factors: Dict[LocationParamType, Factor] = None
+    # Optional 
+    make_subsets: bool = None
     # Depreciated
     demand_scale_level: int = None
     price_scale_level: int = None
@@ -225,11 +227,6 @@ class Location:
             self.update_component_parameter_declared_at_location(
                 parameter=i, parameter_type=ProcessParamType)
 
-        # set Process subsets as Location attributes
-        for i in self.process_classifications():
-            self.make_component_subset(
-                parameter=i, parameter_type=ProcessType, component_set='processes')
-
         # update process factors
         for i in self.process_factors():
             self.update_component_factor(parameter=i)
@@ -237,6 +234,12 @@ class Location:
         # update process localizations
         for i in self.process_localizations():
             self.update_component_localization(i)
+            
+        # set Process subsets as Location attributes
+        if self.make_subsets:
+            for i in self.process_classifications():
+                self.make_component_subset(
+                    parameter=i, parameter_type=ProcessType, component_set='processes')
 
         # * -------------------------- Update Resources ----------------------------------------
         # check if new resource parameters have been declared
@@ -252,11 +255,6 @@ class Location:
             self.update_component_parameter_declared_at_location(
                 parameter=i, parameter_type=ResourceParamType)
 
-        # set Resource subsets as Location attributes
-        for i in self.resource_classifications():
-            self.make_component_subset(
-                parameter=i, parameter_type=ResourceType, component_set='resources')
-
         # update resource factors
         for i in self.resource_factors():
             self.update_component_factor(parameter=i)
@@ -265,6 +263,12 @@ class Location:
         for i in self.resource_localizations():
             self.update_component_localization(i)
 
+        # set Resource subsets as Location attributes
+        if self.make_subsets:
+            for i in self.resource_classifications():
+                self.make_component_subset(
+                    parameter=i, parameter_type=ResourceType, component_set='resources')
+                
         # *----------------- Generate Random Name -------------------------------------------
         # A random name is generated if self.name = None
         if not self.name:

@@ -10,7 +10,8 @@ import operator
 import uuid
 from dataclasses import dataclass
 from functools import reduce
-from typing import Dict, List, Set, Union
+from typing import Dict, List, Set, Union, Literal
+from warnings import warn 
 
 import numpy
 from pandas import DataFrame
@@ -57,7 +58,10 @@ class Scenario:
         demand_penalty (Dict[Location, Dict[Resource, float]]): penalty for unmet demand at location for each resource. Defaults to None.
         error (float, optional): error introduced through scenario reduction. Defaults to None.
         rep_days_dict (dict, optional): dictionary of representative days. Defaults to None.
-        emission_weights (EmissionWeights): dataclass with weights for different emission objectives. Defaults to None.
+        emission_weights (EmissionWeights, optional): dataclass with weights for different emission objectives. Defaults to None.
+        ctype (List[ScenarioType], optional): Scenario component type. Defaults to None.
+        collect (List[Literal['parameters', 'factors', 'localizations', 'types']], optional): whether to collect parameters, factors, localizations, types (ctype, ptype, ftype, ltype). Sets attributes x_components. Defaults to None.
+    
     Example:
         The Scenario can be built over a single location. The network here is specified as a single Location. Considering scales (TemporalScale object for a year, [1, 365, 24]), scheduling, expenditure, and demand are met at an hourly level, and network at an annual level.
 
@@ -79,6 +83,7 @@ class Scenario:
     rep_dict: dict = None
     emission_weights: EmissionWeights = None
     ctype: List[ScenarioType] = None
+    collect: List[Literal['parameters', 'factors', 'localizations', 'types']] = None 
     # Depriciated
     purchase_scale_level: int = None
     expenditure_scale_level: int = None
@@ -90,59 +95,10 @@ class Scenario:
     demand: dict = None
 
     def __post_init__(self):
-        """
-        Determines a bunch of handy sets
-
-        Args:
-            transports (set): Set of transport options.
-            sources (set): Set of source locations.
-            sinks (set): Set of sink locations.
-            transport_dict (dict): A dictionary of trasportation modes available between sources to sinks
-            transport_avail_dict (dict): A dictionary of available trasportation modes available between sources to sinks.
-            transport_max (dict): A dictionary of the maximum amount of each resource that can be transported between sources and sinks.
-            transport_loss (dict): A dictionary of the transport losses for each resource that can be transported between sources and sinks.
-            transport_cost (dict): A dictionary of the transport cost for each resource that can be transported between sources and sinks.
-            transport_cost (dict): A dictionary of the transport emissions for each resource that can be transported between sources and sinks.
-            distance_dict (dict): A dictionary of distances between sources and sinks.
-            demand_factor_scale_level (int, optional): scale level for demand variance (resource). Defaults to 0
-            price_factor_scale_level (int, optional): scale level for purchase cost variance(resource). Defaults to 0
-            capacity_factor_scale_level (int, optional): scale level for capacity variance(process). Defaults to 0
-            expenditure_factor_scale_level (int, optional): scale level for technology cost variance (process). Defaults to 0
-            availability_factor_scale_level (int, optional): scale level for availability varriance (resource). Defaults to 0
-            revenue_factor_scale_level (int, optional): scale level for revenue varriance (resource). Defaults to 0
-            processes (set): Set of all Process objects.
-            resources (set): Set of all Resource objects.
-            materials (set): Set of all Material objects.
-            conversion (dict): A dictionary with all conversion values for each Process.
-            conversion_discharge (dict): A dictionary with all discharge conversions for Process of storage (ProcessMode.STORAGE) type.
-            cap_max (dict): A dictionary with maximum production capacity per timeperiod in the network scale for each Process at each Location.
-            cap_min (dict): A dictionary with minimum production capacity per timeperiod in the network scale for each Process at each Location.
-            cons_max (dict): A dictionary with maximum consumption per timeperiod in the scheduling scale for each Resource at each Location.
-            store_max (dict): A dictionary with maximum storage per timeperiod in the scheduling scale for each Resource at each Location.
-            store_min (dict): A dictionary with minimum storage per timeperiod in the scheduling scale for each Resource at each Location.
-            capacity_factor (dict): A dictionary with Location-wise capacity factors for varying Process objects.
-            price_factor (dict): A dictionary with Location-wise cost factors for varying purchase costs of Resource objects.
-            demand_factor (dict): A dictionary with Location-wise demand factors for varying demands of Resource objects.
-            location_resource_dict (dict): A dictionary with Location-wise availability of Resource objects.
-            location_process_dict (dict): A dictionary with Location-wise availability of Process objects.
-            location_material_dict (dict): A dictionary with Location-wise availability of Material objects.
-            price_dict (dict): A dictionary with Location-wise purchase price of Resource objects
-            revenue_dict (dict): A dictionary with Location-wise revenue from selling resource objects
-            capex_dict (dict): A dictionary with capital expenditure data for each Process.
-            fopex_dict (dict): A dictionary with fixed operational expenditure data for each Process.
-            vopex_dict (dict): A dictionary with variable operational expenditure data for each Process.
-            incidental_dict (dict): A dictionary with incidental expenditure data for each Process.
-            land_dict (dict): A dictionary with land use data for each Process.
-            material_gwp_dict (dict): A dictionary with global warming potential values for each Material object.
-            resource_gwp_dict (dict): A dictionary with global warming potential values for each Resource object.
-            process_gwp_dict (dict): A dictionary with global warming potential values for each Process object.
-            fail_factor (dict): A dictionary with fail factors for each Process object.
-            process_resource_dict (dict): A dictionary with Resource required for each Process.
-            process_material_dict (dict): A dictionary with Material required for each Process
-            mode_dict (dict): A dictionary with the multiple modes of each Process with ProcessMode.MULTI
-            cost_df (DataFrame): handy dataframe with cost parameters
-        """
-
+        
+        if not self.collect:
+            self.collect = list() 
+            
         self.design_scale = self.scales.design_scale
         self.scheduling_scale = self.scales.scheduling_scale
 
@@ -172,23 +128,7 @@ class Scenario:
                 loc_, comp_) for loc_ in getattr(self, 'locations')), set())
             setattr(self, comp_, component_set)
 
-        # * ---------- Collect component data ------------------------
-
-        self.data_resources = {i: {j.lower(): getattr(i, j.lower()) for j in self.resource_parameters(
-        ) if hasattr(i, j.lower()) and getattr(i, j.lower())} for i in getattr(self, 'resources') if i.ptype}
-
-        self.data_processes = {i: {j.lower(): getattr(i, j.lower()) for j in self.process_parameters(
-        ) if hasattr(i, j.lower()) and getattr(i, j.lower())} for i in getattr(self, 'processes') if i.ptype}
-
-        self.data_locations = {i: {j.lower(): getattr(i, j.lower()) for j in self.location_parameters(
-        ) if hasattr(i, j.lower()) and getattr(i, j.lower())} for i in getattr(self, 'locations') if i.ptype}
-
-        if hasattr(self, 'transports'):
-            self.data_transports = {i: {j.lower(): getattr(i, j.lower()) for j in self.transport_parameters(
-            ) if hasattr(i, j.lower()) and getattr(i, j.lower())} for i in getattr(self, 'transports') if i.ptype}
-
-            self.data_network = {j.lower(): getattr(self.network, j.lower()) for j in self.network_parameters(
-            ) if hasattr(self.network, j.lower()) and getattr(self.network, j.lower())}
+      
 
         # * ---------- make subsets based on classifications------------------------
 
@@ -210,30 +150,50 @@ class Scenario:
                 self.make_component_subset(
                     parameter=i, parameter_type=TransportType, component_set='transports')
 
+        # * ---------- Collect component data ------------------------
+
+        if self.collect_component_parameters:
+            
+            self.parameters_resources = self.parameters('resource')
+
+            self.parameters_processes = self.parameters('process')
+
+            self.parameters_locations = self.parameters('location')
+            
+            if hasattr(self, 'transports'):
+                self.parameters_transports = self.parameters('transport')
+                
+                self.parameters_network = self.parameters('network')
+
         # * ---------- collect Factors and Localizations and types------------------------
 
-        for comp_ in ['resources', 'processes', 'locations', 'transports']:
-            if not hasattr(self, comp_):
-                break
-            setattr(self, f'ftype_{comp_}', {
-                    i: i.ftype for i in getattr(self, comp_) if i.ftype})
-            setattr(self, f'ctype_{comp_}', {
-                    i: i.ctype for i in getattr(self, comp_) if i.ctype})
-            setattr(self, f'ptype_{comp_}', {
-                    i: i.ptype for i in getattr(self, comp_) if i.ptype})
-            setattr(self, f'factors_{comp_}', {
-                    i: i.factors for i in getattr(self, comp_) if i.factors})
+        if self.collect_component_factors:
+            for comp_ in ['resources', 'processes', 'locations', 'transports']:
+                if not hasattr(self, comp_):
+                    break
+                setattr(self, f'factors_{comp_}', {
+                        i: i.factors for i in getattr(self, comp_) if i.factors})
+                
+            setattr(self, 'factors_network', self.network.factors)
+            
+        if self.collect_component_types:
+            for comp_ in ['resources', 'processes', 'locations', 'transports']:
+                if not hasattr(self, comp_):
+                    break
+                setattr(self, f'ftype_{comp_}', self.types(component = comp_, xtype = 'ftype'))
+                setattr(self, f'ctype_{comp_}', self.types(component = comp_, xtype = 'ctype'))
+                setattr(self, f'ptype_{comp_}', self.types(component = comp_, xtype = 'ptype'))
+                
+            setattr(self, 'ftype_network', self.network.ftype)
+            setattr(self, 'ctype_network', self.network.ctype)
+            setattr(self, 'ptype_network', self.network.ptype)
+            
+            for comp_ in ['resources', 'processes']:
+                setattr(self, f'ltype_{comp_}', self.types(component = comp_, xtype = 'ltype'))
 
-        setattr(self, 'ftype_network', self.network.ftype)
-        setattr(self, 'ctype_network', self.network.ctype)
-        setattr(self, 'ptype_network', self.network.ptype)
-        setattr(self, 'factors_network', self.network.factors)
-
-        for comp_ in ['resources', 'processes']:
-            setattr(self, f'ltype_{comp_}', {
-                    i: i.ltype for i in getattr(self, comp_) if i.ltype})
-            setattr(self, f'localizations_{comp_}', {
-                    i: i.localizations for i in getattr(self, comp_) if i.localizations})
+        if self.collect_component_localizations:
+            for comp_ in ['resources', 'processes']:
+                setattr(self, f'localizations_{comp_}', self.localizations(component = comp_))
 
         # self.resource_ptypes =
 
@@ -449,7 +409,37 @@ class Scenario:
 
         if not self.name:
             self.name = f'{self.class_name()}_{uuid.uuid4().hex}'
-
+            
+    #  *----------------- Properties ---------------------------------------------
+ 
+    @property
+    def collect_component_factors(self):
+        """True if factors need to be collected
+        """
+        if 'factors' in self.collect:
+            return True
+        
+    @property
+    def collect_component_types(self):
+        """True if types need to be collected
+        """
+        if 'types' in self.collect:
+            return True
+        
+    @property
+    def collect_component_localizations(self):
+        """True if localizations need to be collected
+        """
+        if 'localizations' in self.collect:
+            return True
+        
+    @property
+    def collect_component_parameters(self):
+        """True if data need to be collected
+        """
+        if 'parameters' in self.collect:
+            return True
+    
     #  *----------------- Class Methods ---------------------------------------------
 
     @classmethod
@@ -587,6 +577,98 @@ class Scenario:
         return LocalizationType.process()
 
     # *----------------- Functions-------------------------------------
+    
+    def parameters(self, component: Literal['resources', 'processes', 'locations', 'transports', 'network']) -> dict:
+        """Gives a dictionary of parameter values for a chosen componet 
+
+        Args:
+            component (Literal['resources', 'processes', 'locations', 'transports', 'network']): choice of component
+
+        Returns:
+            dict: dictionary with parameter values 
+        """
+
+        if component == 'resources':
+            return {i: {j.lower(): getattr(i, j.lower()) for j in self.resource_parameters(
+                ) if hasattr(i, j.lower()) and getattr(i, j.lower())} for i in getattr(self, 'resources') if i.ptype}
+
+        if component == 'processes':
+            return {i: {j.lower(): getattr(i, j.lower()) for j in self.process_parameters(
+                ) if hasattr(i, j.lower()) and getattr(i, j.lower())} for i in getattr(self, 'processes') if i.ptype}
+
+        if component == 'locations':
+            return {i: {j.lower(): getattr(i, j.lower()) for j in self.location_parameters(
+                ) if hasattr(i, j.lower()) and getattr(i, j.lower())} for i in getattr(self, 'locations') if i.ptype}
+
+        if component == 'transports':
+            if hasattr(self, 'transports'):
+                return {i: {j.lower(): getattr(i, j.lower()) for j in self.transport_parameters(
+                    ) if hasattr(i, j.lower()) and getattr(i, j.lower())} for i in getattr(self, 'transports') if i.ptype}
+            else:
+                warn('Transports not defined')
+
+        if component == 'network':
+            if not isinstance(self.network, Location):
+                return {j.lower(): getattr(self.network, j.lower()) for j in self.network_parameters(
+                    ) if hasattr(self.network, j.lower()) and getattr(self.network, j.lower())}
+            else:
+                warn('Network not defined')
+                
+    
+    
+    def factors(self, component: Literal['resources', 'processes', 'locations', 'transports', 'network']) -> dict:
+        """Provides a dict of factors for the chosen compoenent
+        
+        Args:
+            component (Literal['resources', 'processes', 'locations', 'transports', 'network']): choice of component
+
+        Returns:
+            dict: dictionary with factors 
+        """
+        if hasattr(self, component):
+            if component == 'network':
+                return self.network.factors
+            else:
+                return {i: i.factors for i in getattr(self, component) if i.factors}
+        
+        else:
+            warn(f'{component.capitalize()} not defined')
+
+    def types(self, component: Literal['resources', 'processes', 'locations', 'transports', 'network'], xtype: Literal['ctype', 'ftype', 'ptype', 'ltype']) -> dict: 
+        """Returns a dictionary with summary of chosen type for chosen component
+
+        Args:
+            component (Literal['resources', 'processes', 'locations', 'transports', 'network']): choice of component
+            xtype (Literal['ctype', 'ftype', 'ptype', 'ltype']): choice of type
+
+        Returns:
+            dict: summary of type for chosen component
+        """
+        if hasattr(self, component):
+            if (xtype == 'ltype') and (component not in ['resources', 'processes']):
+                warn('ltype only defined for Process and Resource')
+                return 
+            if component == 'network':
+                return getattr(self.network, xtype)
+            else:
+                return {i: getattr(i, xtype) for i in getattr(self, component) if getattr(i, xtype)}
+        else:
+            warn(f'{component.capitalize()} not defined')
+            
+    def localizations(self, component: Literal['resources', 'processes']) -> dict:
+        """Returns a dictionary with localizations for chosen component 
+
+        Args:
+            component (Literal[resources', 'processes']): choice of component
+
+        Returns:
+            dict: dictionary with localizations for choice of component
+        """
+        if component in ['resources', 'processes']:
+            return {i: i.localizations for i in getattr(self, component) if i.localizations}
+        else:
+            warn('localizations only defined for Process and Resource')
+            
 
     def make_component_subset(self, parameter: str, parameter_type: Union[ResourceType, ProcessType, LocationType, TransportType], component_set: str):
         """makes a subset of component based on provided ctype
