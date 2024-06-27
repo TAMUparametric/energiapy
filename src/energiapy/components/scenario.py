@@ -128,7 +128,6 @@ class Scenario:
                 loc_, comp_) for loc_ in getattr(self, 'locations')), set())
             setattr(self, comp_, component_set)
 
-      
 
         # * ---------- make subsets based on classifications------------------------
 
@@ -195,7 +194,7 @@ class Scenario:
             for comp_ in ['resources', 'processes']:
                 setattr(self, f'localizations_{comp_}', self.localizations(component = comp_))
 
-        # self.resource_ptypes =
+
 
         # self.resource_parameters = {i: {j.lower(): getattr(i, j.lower(
         # )) for j in self.resource_parameters() if getattr(i, j.lower(
@@ -684,13 +683,33 @@ class Scenario:
         component_set_ = getattr(self, component_set)
         subset_ = {i for i in component_set_ if ctype_ in i.ctype}
         if subset_:
-            setattr(self, f'{component_set}_{parameter}'.lower(), subset_)
+            setattr(self, f'{component_set}_{parameter}'.lower(), subset_)  
+            self.make_component_location_subset(component_subset = f'{component_set}_{parameter}'.lower())     
         else:
             subset_ = {i for i in component_set_ if ctype_ in [
                 list(j)[0] for j in i.ctype if (isinstance(j, dict))]}
             if subset_:
                 setattr(self, f'{component_set}_{parameter}'.lower(), subset_)
+                self.make_component_location_subset(component_subset = f'{component_set}_{parameter}'.lower())
+    #TODO - self.make_component_location_subset, keep seperate?
+    def make_component_location_subset(self, component_subset: str):
+        """makes a subset of component based on provided ctype
+        sets the subset as an attribute of the location
+        if empty set, sets None
 
+        Args:
+            component_set (str): set of components
+        """
+     
+        comp_loc_dict = {comp_: {loc_ for loc_ in getattr(self, 'locations') if hasattr(loc_, component_subset) 
+                     and comp_ in getattr(loc_, component_subset)} for comp_ in getattr(self, component_subset)}
+        name_ = component_subset.split('_')
+        setattr(self, f'{name_[0]}_locations_{name_[1]}', comp_loc_dict)
+    #TODO - makes ordered dict 
+    # def make_
+    #     comp_loc_ordered_set = [(i.name, j.name) for i in comp_loc_dict for j in comp_loc_dict[i]]
+        
+    
     def loc_comp_attr_dict(self, attr: str):
         """creates a dict of type {loc: {comp: attribute_dict}}
         Args:

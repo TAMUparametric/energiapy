@@ -164,7 +164,7 @@ class Location:
     # Collections
     factors: Dict[LocationParamType, Factor] = None
     # Optional 
-    make_subsets: bool = None
+    make_subsets: bool = True
     # Depreciated
     demand_scale_level: int = None
     price_scale_level: int = None
