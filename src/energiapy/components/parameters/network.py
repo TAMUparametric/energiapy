@@ -1,5 +1,5 @@
 from enum import Enum, auto
-from typing import List
+from typing import Set
 
 
 class NetworkParamType(Enum):
@@ -8,14 +8,14 @@ class NetworkParamType(Enum):
     LAND_MAX = auto()
 
     @classmethod
-    def all(cls) -> List[str]:
+    def all(cls) -> Set[str]:
         """All Network paramters
         """
-        return [i.name for i in cls]
+        return {i.name for i in cls}
 
     @classmethod
-    def at_scenario(cls) -> List[str]:
+    def at_scenario(cls) -> Set[str]:
         """Additional parameters to include at scenario
         """
         include_ = {'TRANSPORT_DICT', 'DISTANCE_DICT'}
-        return list(set(cls.all()) | include_)
+        return cls.all() | include_

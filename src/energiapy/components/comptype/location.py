@@ -1,5 +1,5 @@
 from enum import Enum, auto
-from typing import List
+from typing import Set
 
 
 class LocationType(Enum):
@@ -16,21 +16,21 @@ class LocationType(Enum):
     # * -------------------------- Update this ----------------------------------------
 
     @classmethod
-    def location_level(cls) -> List[str]:
+    def location_level(cls) -> Set[str]:
         """Set when Location is declared
         """
-        return ['LAND']
+        return {'LAND'}
 
     # * -------------------------- Automated below this ----------------------------------------
 
     @classmethod
-    def all(cls) -> List[str]:
+    def all(cls) -> Set[str]:
         """All Location classifications
         """
-        return [i.name for i in cls]
+        return {i.name for i in cls}
 
     @classmethod
-    def network_level(cls) -> List[str]:
+    def network_level(cls) -> Set[str]:
         """Set at Network level
         """
-        return list(set(cls.all()) - set(cls.location_level()))
+        return cls.all() - cls.location_level()

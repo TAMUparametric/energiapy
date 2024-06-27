@@ -1,5 +1,5 @@
 from enum import Enum, auto
-from typing import List
+from typing import Set
 
 
 class ResourceParamType(Enum):
@@ -27,50 +27,50 @@ class ResourceParamType(Enum):
     # * -------------------------- Update this ----------------------------------------
 
     @classmethod
-    def location_level(cls) -> List[str]:
+    def location_level(cls) -> Set[str]:
         """Set when Location is declared
         """
-        return ['DEMAND']
+        return {'DEMAND'}
 
     @classmethod
-    def transport_level(cls) -> List[str]:
+    def transport_level(cls) -> Set[str]:
         """Set when Transport is declared
         """
-        return []
+        return set()
 
     @classmethod
-    def uncertain(cls) -> List[str]:
+    def uncertain(cls) -> Set[str]:
         """Uncertain parameters, can be handled: 
         1. Multiparametrically by defining as multiparametric variables (energiapy.components.parameters.mpvar.MPVar)
         2. By using factors of deterministic data and via multiperiod scenario analysis 
         """
-        exclude_ = ['STORE_MIN']
-        return list(set(cls.all()) - set(exclude_))
+        exclude_ = {'STORE_MIN'}
+        return cls.all() - set(exclude_)
 
     @classmethod
-    def uncertain_factor(cls) -> List[str]:
+    def uncertain_factor(cls) -> Set[str]:
         """Uncertain parameters for which factors are defined
         """
-        exclude_ = []
-        return list(set(cls.uncertain()) - set(exclude_))
+        exclude_ = set()
+        return cls.uncertain() - set(exclude_)
 
     @classmethod
-    def localize(cls) -> List[str]:
+    def localize(cls) -> Set[str]:
         """Resource parameters than can be localized 
         """
-        exclude_ = []
-        return list(set(cls.resource_level()) - set(exclude_))
+        exclude_ = set()
+        return cls.resource_level() - set(exclude_)
 
     # * -------------------------- Automated below this ----------------------------------------
 
     @classmethod
-    def all(cls) -> List[str]:
+    def all(cls) -> Set[str]:
         """All Resource paramters
         """
-        return [i.name for i in cls]
+        return {i.name for i in cls}
 
     @classmethod
-    def resource_level(cls) -> List[str]:
+    def resource_level(cls) -> Set[str]:
         """Set when Resource is declared
         """
-        return list(set(cls.all()) - set(cls.location_level()) - set(cls.transport_level()))
+        return cls.all() - cls.location_level() - cls.transport_level()

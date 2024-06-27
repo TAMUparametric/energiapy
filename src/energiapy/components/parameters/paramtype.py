@@ -1,7 +1,7 @@
 """energiapy.components.parameters.paramtype - Type of paramter, factor, multiparameteric variable, localization
 """
 from enum import Enum, auto
-from typing import List
+from typing import Set
 
 from .location import LocationParamType
 from .network import NetworkParamType
@@ -26,17 +26,17 @@ class ParameterType(Enum):
 # # *-----------------------Factor------------------------------------------------
 
 
-resource_factors = [
-    f'RESOURCE_{i}' for i in ResourceParamType.uncertain_factor()]
-process_factors = [f'PROCESS_{i}' for i in ProcessParamType.uncertain_factor()]
-location_factors = [
-    f'LOCATION_{i}' for i in LocationParamType.all()]
-transport_factors = [
-    f'TRANSPORT_{i}' for i in TransportParamType.uncertain_factor()]
-network_factors = [f'NETWORK_{i}' for i in NetworkParamType.all()]
+resource_factors = {
+    f'RESOURCE_{i}' for i in ResourceParamType.uncertain_factor()}
+process_factors = {f'PROCESS_{i}' for i in ProcessParamType.uncertain_factor()}
+location_factors = {
+    f'LOCATION_{i}' for i in LocationParamType.all()}
+transport_factors = {
+    f'TRANSPORT_{i}' for i in TransportParamType.uncertain_factor()}
+network_factors = {f'NETWORK_{i}' for i in NetworkParamType.all()}
 
-factors = resource_factors + process_factors + \
-    location_factors + transport_factors + network_factors
+factors = resource_factors | process_factors | \
+    location_factors | transport_factors | network_factors
 
 
 class FactorType(Enum):
@@ -44,37 +44,37 @@ class FactorType(Enum):
     """
 
     @classmethod
-    def all(cls) -> List[str]:
+    def all(cls) -> Set[str]:
         """All factors
         """
         return factors
 
     @classmethod
-    def resource(cls) -> List[str]:
+    def resource(cls) -> Set[str]:
         """Resource factors
         """
         return resource_factors
 
     @classmethod
-    def process(cls) -> List[str]:
+    def process(cls) -> Set[str]:
         """Process factors
         """
         return process_factors
 
     @classmethod
-    def location(cls) -> List[str]:
+    def location(cls) -> Set[str]:
         """Location factors
         """
         return location_factors
 
     @classmethod
-    def transport(cls) -> List[str]:
+    def transport(cls) -> Set[str]:
         """Transport factors
         """
         return transport_factors
 
     @classmethod
-    def network(cls) -> List[str]:
+    def network(cls) -> Set[str]:
         """Network factors
         """
         return network_factors
@@ -86,30 +86,30 @@ for i in factors:
 
 # *-----------------------Localization ------------------------------------------------
 
-resource_localizations = [
-    f'RESOURCE_{i}' for i in ResourceParamType.localize()]
-process_localizations = [f'PROCESS_{i}' for i in ProcessParamType.localize()]
+resource_localizations = {
+    f'RESOURCE_{i}' for i in ResourceParamType.localize()}
+process_localizations = {f'PROCESS_{i}' for i in ProcessParamType.localize()}
 
-localizations = resource_localizations + process_localizations
+localizations = resource_localizations | process_localizations
 
 
 class LocalizationType(Enum):
     """Localization factor for  Resource and Process provided at Location
     """
     @classmethod
-    def all(cls) -> List[str]:
+    def all(cls) -> Set[str]:
         """All localizations
         """
         return localizations
 
     @classmethod
-    def resource(cls) -> List[str]:
+    def resource(cls) -> Set[str]:
         """Resource localizations
         """
         return resource_localizations
 
     @classmethod
-    def process(cls) -> List[str]:
+    def process(cls) -> Set[str]:
         """Process localizations
         """
         return process_localizations
@@ -122,19 +122,19 @@ for i in localizations:
 # *-----------------------Multiparametric Var-----------------------------------------------
 
 
-resource_uncertain_params = [
-    f'RESOURCE_{i}' for i in ResourceParamType.uncertain()]
-process_uncertain_params = [
-    f'PROCESS_{i}' for i in ProcessParamType.uncertain()]
-location_uncertain_params = [
-    f'LOCATION_{i}' for i in LocationParamType.all()]
-transport_uncertain_params = [
-    f'TRANSPORT_{i}' for i in TransportParamType.uncertain()]
-network_uncertain_params = [
-    f'NETWORK_{i}' for i in NetworkParamType.all()]
+resource_uncertain_params = {
+    f'RESOURCE_{i}' for i in ResourceParamType.uncertain()}
+process_uncertain_params = {
+    f'PROCESS_{i}' for i in ProcessParamType.uncertain()}
+location_uncertain_params = {
+    f'LOCATION_{i}' for i in LocationParamType.all()}
+transport_uncertain_params = {
+    f'TRANSPORT_{i}' for i in TransportParamType.uncertain()}
+network_uncertain_params = {
+    f'NETWORK_{i}' for i in NetworkParamType.all()}
 
-uncertain_params = resource_uncertain_params + process_uncertain_params + \
-    location_uncertain_params + transport_uncertain_params + network_uncertain_params
+uncertain_params = resource_uncertain_params | process_uncertain_params | \
+    location_uncertain_params | transport_uncertain_params | network_uncertain_params
 
 
 class MPVarType(Enum):
@@ -142,37 +142,37 @@ class MPVarType(Enum):
     """
 
     @classmethod
-    def all(cls) -> List[str]:
+    def all(cls) -> Set[str]:
         """All uncertain parameters
         """
         return uncertain_params
 
     @classmethod
-    def resource(cls) -> List[str]:
+    def resource(cls) -> Set[str]:
         """Resource uncertain parameters
         """
         return resource_uncertain_params
 
     @classmethod
-    def process(cls) -> List[str]:
+    def process(cls) -> Set[str]:
         """Process uncertain parameters
         """
         return process_uncertain_params
 
     @classmethod
-    def location(cls) -> List[str]:
+    def location(cls) -> Set[str]:
         """Location uncertain parameters
         """
         return location_uncertain_params
 
     @classmethod
-    def transport(cls) -> List[str]:
+    def transport(cls) -> Set[str]:
         """Transport uncertain parameters
         """
         return transport_uncertain_params
 
     @classmethod
-    def network(cls) -> List[str]:
+    def network(cls) -> Set[str]:
         """Network uncertain parameters
         """
         return network_uncertain_params

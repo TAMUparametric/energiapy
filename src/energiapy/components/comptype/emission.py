@@ -1,5 +1,5 @@
 from enum import Enum, auto
-from typing import List
+from typing import Set
 
 
 class EmissionType(Enum):
@@ -25,7 +25,7 @@ class EmissionType(Enum):
     """
 
     @classmethod
-    def all(cls) -> List[str]:
+    def all(cls) -> Set[str]:
         """All Emissions classifications
         """
-        return [i.name for i in cls]
+        return {i.name for i in cls}

@@ -1,6 +1,6 @@
 
 from enum import Enum, auto
-from typing import List
+from typing import Set
 
 
 class ResourceType(Enum):
@@ -40,27 +40,27 @@ class ResourceType(Enum):
     # * ----------------------------------Update this ------------------------------------------
 
     @classmethod
-    def location_level(cls) -> List[str]:
+    def location_level(cls) -> Set[str]:
         """Set when Location is declared
         """
-        return ['DEMAND']
+        return {'DEMAND'}
 
     @classmethod
-    def transport_level(cls) -> List[str]:
+    def transport_level(cls) -> Set[str]:
         """Set when Transport is declared
         """
-        return ['TRANSPORT']
+        return {'TRANSPORT'}
 
     # * ---------------------------- Automated below this --------------------------------------
 
     @classmethod
-    def all(cls) -> List[str]:
+    def all(cls) -> Set[str]:
         """All Resource classifications
         """
-        return [i.name for i in cls]
+        return {i.name for i in cls}
 
     @classmethod
-    def resource_level(cls) -> List[str]:
+    def resource_level(cls) -> Set[str]:
         """Set when Resource is declared
         """
-        return list(set(cls.all()) - set(cls.location_level()) - set(cls.transport_level()))
+        return cls.all() - cls.location_level() - cls.transport_level()

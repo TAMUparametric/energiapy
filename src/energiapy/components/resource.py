@@ -255,7 +255,7 @@ class Resource:
     # *----------------- Class Methods ---------------------------------
 
     @classmethod
-    def class_name(cls) -> List[str]:
+    def class_name(cls) -> str:
         """Returns class name 
         """
         return cls.__name__
@@ -263,37 +263,37 @@ class Resource:
     # * parameter types
 
     @classmethod
-    def ptypes(cls) -> List[str]:
+    def ptypes(cls) -> Set[str]:
         """All Resource paramters
         """
         return ResourceParamType.all()
 
     @classmethod
-    def resource_level_parameters(cls) -> List[str]:
+    def resource_level_parameters(cls) -> Set[str]:
         """Set when Resource is declared
         """
         return ResourceParamType.resource_level()
 
     @classmethod
-    def location_level_parameters(cls) -> List[str]:
+    def location_level_parameters(cls) -> Set[str]:
         """Set when Location is declared
         """
         return ResourceParamType.location_level()
 
     @classmethod
-    def transport_level_parameters(cls) -> List[str]:
+    def transport_level_parameters(cls) -> Set[str]:
         """Set when Transport is declared
         """
         return ResourceParamType.transport_level()
 
     @classmethod
-    def uncertain_parameters(cls) -> List[str]:
+    def uncertain_parameters(cls) -> Set[str]:
         """Uncertain parameters
         """
         return ResourceParamType.uncertain()
 
     @classmethod
-    def uncertain_factors(cls) -> List[str]:
+    def uncertain_factors(cls) -> Set[str]:
         """Uncertain parameters for which factors are defined
         """
         return ResourceParamType.uncertain_factor()
@@ -301,25 +301,25 @@ class Resource:
     # * component class types
 
     @classmethod
-    def ctypes(cls) -> List[str]:
+    def ctypes(cls) -> Set[str]:
         """All Resource paramters
         """
         return ResourceType.all()
 
     @classmethod
-    def resource_level_classifications(cls) -> List[str]:
+    def resource_level_classifications(cls) -> Set[str]:
         """Set when Resource is declared
         """
         return ResourceType.resource_level()
 
     @classmethod
-    def location_level_classifications(cls) -> List[str]:
+    def location_level_classifications(cls) -> Set[str]:
         """Set when Location is declared
         """
         return ResourceType.location_level()
 
     @classmethod
-    def transport_level_classifications(cls) -> List[str]:
+    def transport_level_classifications(cls) -> Set[str]:
         """Set when Transport is declared
         """
         return ResourceType.transport_level()
@@ -327,7 +327,7 @@ class Resource:
     # * localization types
 
     @classmethod
-    def ltypes(cls) -> List[str]:
+    def ltypes(cls) -> Set[str]:
         """Resource parameters than can be localized 
         """
         return ResourceParamType.localize()
@@ -335,7 +335,7 @@ class Resource:
     # * factor types
 
     @classmethod
-    def ftypes(cls) -> List[str]:
+    def ftypes(cls) -> Set[str]:
         """Factor types
         """
         return ResourceParamType.uncertain_factor()
@@ -343,7 +343,7 @@ class Resource:
     # * emission types
 
     @classmethod
-    def etypes(cls) -> List[str]:
+    def etypes(cls) -> Set[str]:
         """Emission types
         """
         return EmissionType.all()

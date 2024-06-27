@@ -1,5 +1,5 @@
 from enum import Enum, auto
-from typing import List
+from typing import Set
 
 
 class TransportParamType(Enum):
@@ -35,50 +35,43 @@ class TransportParamType(Enum):
     # * -------------------------- Update this ----------------------------------------
 
     @classmethod
-    def readiness(cls) -> List[str]:
+    def readiness(cls) -> Set[str]:
         """These define the temporal aspects of establishing Transport. Factors not provided for these. 
         """
-        return ['INTRODUCE', 'RETIRE', 'LIFETIME']
+        return {'INTRODUCE', 'RETIRE', 'LIFETIME'}
 
     @classmethod
-    def failure(cls) -> List[str]:
+    def failure(cls) -> Set[str]:
         """if this Transport can fail
         """
-        return ['P_FAIL']
+        return {'P_FAIL'}
 
     @classmethod
-    def uncertain(cls) -> List[str]:
+    def uncertain(cls) -> Set[str]:
         """Uncertain parameters, can be handled: 
         1. Multiparametrically by defining as multiparametric variables (energiapy.components.parameters.mpvar.MPVar)
         2. By using factors of deterministic data and via multiperiod scenario analysis 
         """
-        exclude_ = ['CAP_MIN']
-        return list(set(cls.all()) - set(cls.readiness()) - set(cls.failure()) - set(exclude_))
+        exclude_ = {'CAP_MIN'}
+        return cls.all() - cls.readiness() - cls.failure() - exclude_
 
     @classmethod
-    def uncertain_factor(cls) -> List[str]:
+    def uncertain_factor(cls) -> Set[str]:
         """Uncertain parameters for which factors are defined
         """
-        exclude_ = ['TRANS_LOSS', 'LAND']
-        return list(set(cls.uncertain()) - set(exclude_))
-    
-    
+        exclude_ = {'TRANS_LOSS', 'LAND'}
+        return cls.uncertain() - exclude_
+
     @classmethod
-    def include_at_scenario(cls) -> List[str]:
+    def at_scenario(cls) -> Set[str]:
         """Additional parameters to include at scenario
         """
-        return {'RESOURCES', 'MATERIAL_CONS'} 
-    
-    @classmethod
-    def exclude_at_scenario(cls) -> List[str]:
-        """Parameters to exclude at scenario
-        """
-        return {'CAPACITY'}
+        return cls.all() - {'CAPACITY'} | {'RESOURCES', 'MATERIAL_CONS'}
 
     # * -------------------------- Automated below this ----------------------------------------
 
     @classmethod
-    def all(cls) -> List[str]:
+    def all(cls) -> Set[str]:
         """All Transport paramters
         """
-        return [i.name for i in cls]
+        return {i.name for i in cls}

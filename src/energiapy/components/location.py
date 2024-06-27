@@ -311,7 +311,7 @@ class Location:
     # *----------------- Class Methods -------------------------------------
 
     @classmethod
-    def class_name(cls) -> List[str]:
+    def class_name(cls) -> str:
         """Returns class name 
         """
         return cls.__name__
@@ -319,7 +319,7 @@ class Location:
     # * Location parameters
 
     @classmethod
-    def ptypes(cls) -> List[str]:
+    def ptypes(cls) -> Set[str]:
         """All Location paramters
         """
         return LocationParamType.all()
@@ -327,19 +327,19 @@ class Location:
     # * Location classifications
 
     @classmethod
-    def ctypes(cls) -> List[str]:
+    def ctypes(cls) -> Set[str]:
         """All Location classes
         """
         return LocationType.all()
 
     @classmethod
-    def location_level_classifications(cls) -> List[str]:
+    def location_level_classifications(cls) -> Set[str]:
         """Set when Location is declared
         """
         return LocationType.location_level()
 
     @classmethod
-    def network_level_classifications(cls) -> List[str]:
+    def network_level_classifications(cls) -> Set[str]:
         """Set when Location is declared
         """
         return LocationType.network_level()
@@ -347,13 +347,13 @@ class Location:
     # * Component Parameters
 
     @classmethod
-    def resource_parameters(cls) -> List[str]:
+    def resource_parameters(cls) -> Set[str]:
         """All Resource paramters
         """
         return ResourceParamType.all()
 
     @classmethod
-    def process_parameters(cls) -> List[str]:
+    def process_parameters(cls) -> Set[str]:
         """All Process paramters
         """
         return ProcessParamType.all()
@@ -361,13 +361,13 @@ class Location:
     # * Location level component classifications
 
     @classmethod
-    def resource_classifications(cls) -> List[str]:
+    def resource_classifications(cls) -> Set[str]:
         """All Resource classes
         """
-        return ResourceType.resource_level() + ResourceType.location_level()
+        return ResourceType.resource_level() | ResourceType.location_level()
 
     @classmethod
-    def process_classifications(cls) -> List[str]:
+    def process_classifications(cls) -> Set[str]:
         """All Process classes
         """
         return ProcessType.all()
@@ -375,13 +375,13 @@ class Location:
     # * Location level component parameters
 
     @classmethod
-    def location_level_process_parameters(cls) -> List[str]:
+    def location_level_process_parameters(cls) -> Set[str]:
         """Process parameters updated at Location
         """
         return ProcessParamType.location_level()
 
     @classmethod
-    def location_level_resource_parameters(cls) -> List[str]:
+    def location_level_resource_parameters(cls) -> Set[str]:
         """Resource parameters updated at Location
         """
         return ResourceParamType.location_level()
@@ -389,13 +389,13 @@ class Location:
     # * component factors
 
     @classmethod
-    def process_factors(cls) -> List[str]:
+    def process_factors(cls) -> Set[str]:
         """Process factors updated at Location
         """
         return ProcessParamType.uncertain_factor()
 
     @classmethod
-    def resource_factors(cls) -> List[str]:
+    def resource_factors(cls) -> Set[str]:
         """Resource factors updated at Location
         """
         return ResourceParamType.uncertain_factor()
@@ -403,13 +403,13 @@ class Location:
     # * component localizations
 
     @classmethod
-    def process_localizations(cls) -> List[str]:
+    def process_localizations(cls) -> Set[str]:
         """Process localizations 
         """
         return ProcessParamType.localize()
 
     @classmethod
-    def resource_localizations(cls) -> List[str]:
+    def resource_localizations(cls) -> Set[str]:
         """Resource localizations 
         """
         return ResourceParamType.localize()

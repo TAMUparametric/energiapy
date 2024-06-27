@@ -233,7 +233,7 @@ class Transport:
     # *----------------- Class Methods -------------------------------------
 
     @classmethod
-    def class_name(cls) -> List[str]:
+    def class_name(cls) -> str:
         """Returns class name 
         """
         return cls.__name__
@@ -241,31 +241,31 @@ class Transport:
     # * Transport parameters
 
     @classmethod
-    def ptypes(cls) -> List[str]:
+    def ptypes(cls) -> Set[str]:
         """All Transport paramters
         """
         return TransportParamType.all()
 
     @classmethod
-    def uncertain_parameters(cls) -> List[str]:
+    def uncertain_parameters(cls) -> Set[str]:
         """Uncertain parameters
         """
         return TransportParamType.uncertain()
 
     @classmethod
-    def uncertain_factors(cls) -> List[str]:
+    def uncertain_factors(cls) -> Set[str]:
         """Uncertain parameters for which factors are defined
         """
         return TransportParamType.uncertain_factor()
 
     @classmethod
-    def transport_level_readiness_parameters(cls) -> List[str]:
+    def transport_level_readiness_parameters(cls) -> Set[str]:
         """Set when Transport are declared
         """
         return TransportParamType.readiness()
 
     @classmethod
-    def transport_level_failure_parameters(cls) -> List[str]:
+    def transport_level_failure_parameters(cls) -> Set[str]:
         """Set when Transport are declared
         """
         return TransportParamType.failure()
@@ -273,19 +273,19 @@ class Transport:
     # * Transport classifications
 
     @classmethod
-    def ctypes(cls) -> List[str]:
+    def ctypes(cls) -> Set[str]:
         """All Transport paramters
         """
         return TransportType.all()
 
     @classmethod
-    def transport_level_classifications(cls) -> List[str]:
+    def transport_level_classifications(cls) -> Set[str]:
         """Set when Transport is declared
         """
         return TransportType.transport_level()
 
     @classmethod
-    def network_level_classifications(cls) -> List[str]:
+    def network_level_classifications(cls) -> Set[str]:
         """Set when Network is declared
         """
         return TransportType.network_level()
@@ -293,7 +293,7 @@ class Transport:
     # * factor types
 
     @classmethod
-    def ftypes(cls) -> List[str]:
+    def ftypes(cls) -> Set[str]:
         """Factor types
         """
         return TransportParamType.uncertain_factor()
@@ -301,7 +301,7 @@ class Transport:
     # * emission types
 
     @classmethod
-    def etypes(cls) -> List[str]:
+    def etypes(cls) -> Set[str]:
         """Emission types
         """
         return EmissionType.all()

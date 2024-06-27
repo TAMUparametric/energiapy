@@ -1,5 +1,5 @@
 from enum import Enum, auto
-from typing import List
+from typing import Set
 
 
 class NetworkType(Enum):
@@ -8,7 +8,7 @@ class NetworkType(Enum):
     LAND = auto()
 
     @classmethod
-    def all(cls) -> List[str]:
+    def all(cls) -> Set[str]:
         """All Network classifications
         """
-        return [i.name for i in cls]
+        return {i.name for i in cls}

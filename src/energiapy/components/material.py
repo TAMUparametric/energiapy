@@ -50,7 +50,13 @@ class Material:
                 self.emissions[i] = getattr(self, i)
 
         if not self.name:
-            self.name = f'{self.__class__.__name__}_{uuid.uuid4().hex}'
+            self.name = f'{self.class_name()}_{uuid.uuid4().hex}'
+
+    @classmethod
+    def class_name(cls) -> str:
+        """Returns class name 
+        """
+        return cls.__name__
 
     def __repr__(self):
         return self.name

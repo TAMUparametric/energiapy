@@ -1,5 +1,5 @@
 from enum import Enum, auto
-from typing import List
+from typing import Set
 
 
 class LocationParamType(Enum):
@@ -9,9 +9,9 @@ class LocationParamType(Enum):
     LAND_MAX = auto()
 
     @classmethod
-    def all(cls) -> List[str]:
+    def all(cls) -> Set[str]:
         """All Location paramters
         """
-        return [i.name for i in cls]
+        return {i.name for i in cls}
 
 

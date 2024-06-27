@@ -1,5 +1,5 @@
 from enum import Enum, auto
-from typing import List
+from typing import Set
 
 
 class TransportType(Enum):
@@ -42,21 +42,21 @@ class TransportType(Enum):
     # * -------------------------- Update this ----------------------------------------
 
     @classmethod
-    def network_level(cls) -> List[str]:
+    def network_level(cls) -> Set[str]:
         """Set at Network level
         """
-        return ['INTERMITTENT']
+        return {'INTERMITTENT'}
 
     # * -------------------------- Automated below this ----------------------------------------
 
     @classmethod
-    def all(cls) -> List[str]:
+    def all(cls) -> Set[str]:
         """All Transport classifications
         """
-        return [i.name for i in cls]
+        return {i.name for i in cls}
 
     @classmethod
-    def transport_level(cls) -> List[str]:
+    def transport_level(cls) -> Set[str]:
         """Set when Transport is declared
         """
-        return list(set(cls.all()) - set(cls.network_level()))
+        return cls.all() - cls.network_level()

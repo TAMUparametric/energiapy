@@ -291,7 +291,7 @@ class Process:
     # *----------------- Class Methods ---------------------------------
 
     @classmethod
-    def class_name(cls) -> List[str]:
+    def class_name(cls) -> str:
         """Returns class name 
         """
         return cls.__name__
@@ -299,61 +299,61 @@ class Process:
     # * parameter types
 
     @classmethod
-    def ptypes(cls) -> List[str]:
+    def ptypes(cls) -> Set[str]:
         """All Process paramters
         """
         return ProcessParamType.all()
 
     @classmethod
-    def process_level_parameters(cls) -> List[str]:
+    def process_level_parameters(cls) -> Set[str]:
         """Set when Process is declared
         """
         return ProcessParamType.process_level()
 
     @classmethod
-    def process_level_resource_parameters(cls) -> List[str]:
+    def process_level_resource_parameters(cls) -> Set[str]:
         """Resource parameters set when Process is declared
         """
         return ProcessParamType.process_level_resource()
 
     @classmethod
-    def location_level_parameters(cls) -> List[str]:
+    def location_level_parameters(cls) -> Set[str]:
         """Set when Location is declared
         """
         return ProcessParamType.location_level()
 
     @classmethod
-    def process_level_readiness_parameters(cls) -> List[str]:
+    def process_level_readiness_parameters(cls) -> Set[str]:
         """Set when Process are declared
         """
         return ProcessParamType.readiness()
 
     @classmethod
-    def process_level_failure_parameters(cls) -> List[str]:
+    def process_level_failure_parameters(cls) -> Set[str]:
         """Set when Process are declared
         """
         return ProcessParamType.failure()
 
     @classmethod
-    def uncertain_parameters(cls) -> List[str]:
+    def uncertain_parameters(cls) -> Set[str]:
         """Uncertain parameters
         """
         return ProcessParamType.uncertain()
 
     @classmethod
-    def uncertain_factors(cls) -> List[str]:
+    def uncertain_factors(cls) -> Set[str]:
         """Uncertain parameters for which factors are defined
         """
         return ProcessParamType.uncertain_factor()
 
     @classmethod
-    def process_level_uncertain_parameters(cls) -> List[str]:
+    def process_level_uncertain_parameters(cls) -> Set[str]:
         """Uncertain parameters set a Process level
         """
         return ProcessParamType.process_level_uncertain()
 
     @classmethod
-    def location_level_uncertain_parameters(cls) -> List[str]:
+    def location_level_uncertain_parameters(cls) -> Set[str]:
         """Uncertain parameters set a Location level
         """
         return ProcessParamType.location_level_uncertain()
@@ -361,19 +361,19 @@ class Process:
     # * component class types
 
     @classmethod
-    def ctypes(cls) -> List[str]:
+    def ctypes(cls) -> Set[str]:
         """All Process paramters
         """
         return ProcessType.all()
 
     @classmethod
-    def process_level_classifications(cls) -> List[str]:
+    def process_level_classifications(cls) -> Set[str]:
         """Set when Process is declared
         """
         return ProcessType.process_level()
 
     @classmethod
-    def location_level_classifications(cls) -> List[str]:
+    def location_level_classifications(cls) -> Set[str]:
         """Set when Location is declared
         """
         return ProcessType.location_level()
@@ -381,7 +381,7 @@ class Process:
     # * localization types
 
     @classmethod
-    def ltypes(cls) -> List[str]:
+    def ltypes(cls) -> Set[str]:
         """Process parameters than can be localized 
         """
         return ProcessParamType.localize()
@@ -389,7 +389,7 @@ class Process:
     # * factor types
 
     @classmethod
-    def ftypes(cls) -> List[str]:
+    def ftypes(cls) -> Set[str]:
         """Factor types
         """
         return ProcessParamType.uncertain_factor()
@@ -397,7 +397,7 @@ class Process:
     # * emission types
 
     @classmethod
-    def etypes(cls) -> List[str]:
+    def etypes(cls) -> Set[str]:
         """Emission types
         """
         return EmissionType.all()

@@ -7,7 +7,7 @@
 import uuid
 from dataclasses import dataclass, field
 from itertools import product
-from typing import Dict, List, Tuple, Union
+from typing import Dict, List, Tuple, Union, Set
 
 from pandas import DataFrame
 
@@ -218,7 +218,7 @@ class Network:
     # * Network parameters
 
     @classmethod
-    def ptypes(cls) -> List[str]:
+    def ptypes(cls) -> Set[str]:
         """All Network paramters
         """
         return NetworkParamType.all()
@@ -226,7 +226,7 @@ class Network:
     # * Network classifications
 
     @classmethod
-    def ctypes(cls) -> List[str]:
+    def ctypes(cls) -> Set[str]:
         """All Network classifications
         """
         return NetworkType.all()
@@ -234,7 +234,7 @@ class Network:
     # * Network level Transport classifications
 
     @classmethod
-    def network_level_transport_classifications(cls) -> List[str]:
+    def network_level_transport_classifications(cls) -> Set[str]:
         """Set when Network is declared
         """
         return TransportType.network_level()
@@ -242,7 +242,7 @@ class Network:
     # * Network level Location classifications
 
     @classmethod
-    def network_level_location_classifications(cls) -> List[str]:
+    def network_level_location_classifications(cls) -> Set[str]:
         """Set when Network is declared
         """
         return LocationType.network_level()
@@ -250,7 +250,7 @@ class Network:
     # * Transport factors
 
     @classmethod
-    def transport_factors(cls) -> List[str]:
+    def transport_factors(cls) -> Set[str]:
         """Transport factors updated at Network
         """
         return TransportParamType.uncertain_factor()

@@ -1,5 +1,5 @@
 from enum import Enum, auto
-from typing import List
+from typing import Set
 
 
 class ScaleType(Enum):
@@ -20,9 +20,9 @@ class ScaleType(Enum):
     DESIGN_AND_SCHEDULING = auto()
     """Design and scheduling decisions are taken simultaneously 
     """
-    
+
     @classmethod
-    def all(cls) -> List[str]:
+    def all(cls) -> Set[str]:
         """All Temporal classifications
         """
-        return [i.name for i in cls]
+        return {i.name for i in cls}

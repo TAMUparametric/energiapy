@@ -7,7 +7,7 @@ Also:
 
 from dataclasses import dataclass
 from itertools import product
-from typing import List, Union
+from typing import List, Set
 from warnings import warn
 
 from .comptype.temporal_scale import ScaleType
@@ -141,13 +141,12 @@ class TemporalScale:
 
     def __post_init__(self):
 
-
         self.scale_levels = len(self.discretization_list)
         self.scale = {
             i: list(range(self.discretization_list[i])) for i in range(self.scale_levels)}
         self.list = list(range(len(self.discretization_list)))
         self.name = str(self.list)
-        
+
         if not self.ctype:
             self.ctype = list()
 
@@ -196,13 +195,13 @@ class TemporalScale:
             self.scale_factors_max = False
 
     # * -----------------------Class Methods-----------------------------------------
-    
+
     @classmethod
-    def ctypes(cls) -> List[str]:
+    def ctypes(cls) -> Set[str]:
         """All TemporalScale classifications
         """
         return ScaleType.all()
-    
+
     # * -----------------------Functions---------------------------------------------
 
     def scale_iter(self, scale_level):
