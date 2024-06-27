@@ -10,7 +10,7 @@ import operator
 import uuid
 from dataclasses import dataclass
 from functools import reduce
-from typing import Dict, List, Union, Set
+from typing import Dict, List, Set, Union
 
 import numpy
 from pandas import DataFrame
@@ -210,24 +210,24 @@ class Scenario:
                 self.make_component_subset(
                     parameter=i, parameter_type=TransportType, component_set='transports')
 
-        # * ---------- collect Factors and Localizations------------------------
+        # * ---------- collect Factors and Localizations and types------------------------
 
         for comp_ in ['resources', 'processes', 'locations', 'transports']:
             if not hasattr(self, comp_):
                 break
             setattr(self, f'ftype_{comp_}', {
                     i: i.ftype for i in getattr(self, comp_) if i.ftype})
-            setattr(self, f'factors_{comp_}', {
-                    i: i.factors for i in getattr(self, comp_) if i.factors})
             setattr(self, f'ctype_{comp_}', {
                     i: i.ctype for i in getattr(self, comp_) if i.ctype})
             setattr(self, f'ptype_{comp_}', {
                     i: i.ptype for i in getattr(self, comp_) if i.ptype})
+            setattr(self, f'factors_{comp_}', {
+                    i: i.factors for i in getattr(self, comp_) if i.factors})
 
         setattr(self, 'ftype_network', self.network.ftype)
-        setattr(self, 'factors_network', self.network.factors)
         setattr(self, 'ctype_network', self.network.ctype)
         setattr(self, 'ptype_network', self.network.ptype)
+        setattr(self, 'factors_network', self.network.factors)
 
         for comp_ in ['resources', 'processes']:
             setattr(self, f'ltype_{comp_}', {

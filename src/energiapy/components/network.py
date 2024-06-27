@@ -7,7 +7,7 @@
 import uuid
 from dataclasses import dataclass, field
 from itertools import product
-from typing import Dict, List, Tuple, Union, Set
+from typing import Dict, List, Set, Tuple, Union
 
 from pandas import DataFrame
 
