@@ -6,7 +6,7 @@ import operator
 import uuid
 from dataclasses import dataclass
 from functools import reduce
-from typing import Dict, List, Tuple, Union
+from typing import Dict, List, Tuple, Union, Set
 
 from ..utils.data_utils import get_depth
 from .comptype.emission import EmissionType
@@ -76,7 +76,7 @@ class Process:
         label(str, optional):Longer descriptive label if required. Defaults to None.
         citation (str, optional): citation for data. Defaults to 'citation needed'.
         trl (str, optional): technology readiness level. Defaults to None.
-        ctype (List[ProcessType], optional): process type. Defaults to None
+        ctype (List[Union[ProcessType, Dict[ProcessType, Set['Location']]]], optional): list of process ctypes. Defaults to None
         ptype (Dict[ProcessParamType, List[Tuple['Location', ParameterType]]], optional): paramater type of declared values . Defaults to None
         ltype (Dict[ProcessParamType, List[Tuple['Location', LocalizationType]]], optional): which parameters are localized. Defaults to None.
         ftype (Dict[ProcessParamType, List[Tuple['Location',FactorType]]], optional): which parameters are provided with factors at Location. Defaults to None
@@ -133,7 +133,7 @@ class Process:
     storage_cost: Union[float, Tuple[float], Theta] = None
     store_loss: Union[float, Tuple[float], Theta] = None
     # Types
-    ctype: List[ProcessType] = None
+    ctype: List[Union[ProcessType, Dict[ProcessType, Set['Location']]]] = None
     ptype: Dict[ProcessParamType, ParameterType] = None
     ltype: Dict[ProcessParamType,
                 List[Tuple['Location', LocalizationType]]] = None
@@ -165,15 +165,16 @@ class Process:
         # conversion can be single mode (SINGLE_PRODMODE) or multimode (MULTI_PRODMODE)
         # For MULTI_PRODMODE, a dict of type {'mode' (str, int) : {Resource: float}} needs to be provided
 
-        if self.conversion is not None:
+        if self.conversion:
             if get_depth(self.conversion) > 1:
                 self.ctype.append(ProcessType.MULTI_PRODMODE)
                 self.prod_modes = set(self.conversion)
-                self.resources = reduce(operator.or_, (set(self.conversion[i]) for i in self.prod_modes), set())
+                self.resources = reduce(
+                    operator.or_, (set(self.conversion[i]) for i in self.prod_modes), set())
             else:
                 self.ctype.append(ProcessType.SINGLE_PRODMODE)
                 self.resources = set(self.conversion)
-                
+
         # Materials are not necessarily consumed (NO_MATMODE), if material_cons is None
         # If consumed, there could be multiple modes of consumption (MULTI_MATMODE) or one (SINGLE_MATMODE)
         # for MULTI_MATMODE, provide a dict of type ('material_mode' (str, int): {Material: float})
@@ -186,7 +187,8 @@ class Process:
             if get_depth(self.material_cons) > 1:
                 self.ctype.append(ProcessType.MULTI_MATMODE)
                 self.material_modes = set(self.material_cons)
-                self.materials = reduce(operator.or_, (set(self.material_cons[i]) for i in self.material_modes), set())
+                self.materials = reduce(
+                    operator.or_, (set(self.material_cons[i]) for i in self.material_modes), set())
             else:
                 self.ctype.append(ProcessType.SINGLE_MATMODE)
                 self.materials = set(self.material_cons)
@@ -196,7 +198,7 @@ class Process:
         # conversion_discharge is created while accounting for storage_loss
         # Do not provide a conversion if declaring a .STORAGE type Process
 
-        if self.storage is not None:
+        if self.storage:
             self.ctype.append(ProcessType.STORAGE)
             if self.store_loss is None:
                 self.store_loss = 0
@@ -211,7 +213,7 @@ class Process:
 
         # capex can be linear (LINEAR_CAPEX) or piecewise linear (PWL_CAPEX)
         # if PWL, capex needs to be provide as a dict {capacity_segment: capex_segement}
-        if self.capex is not None:
+        if self.capex:
             if isinstance(self.capex, dict):
                 self.ctype.append(ProcessType.PWL_CAPEX)
                 self.capacity_segments = list(self.capex)
@@ -224,11 +226,11 @@ class Process:
             self.ctype.append(ProcessType.EXPENDITURE)
 
         # if it requires land to set up
-        if self.land is not None:
+        if self.land:
             self.ctype.append(ProcessType.LAND)
 
         # if this process fails
-        if self.p_fail is not None:
+        if self.p_fail:
             self.ctype.append(ProcessType.FAILURE)
 
         # if this process has some readiness aspects defined
@@ -252,7 +254,7 @@ class Process:
         for i in self.etypes():
             attr_ = getattr(self, i.lower())
             etype_ = getattr(EmissionType, i)
-            if attr_ is not None:
+            if attr_:
                 if not self.etype:  # if etype is not yet defined
                     self.etype = []
                     self.emissions = dict()
@@ -268,13 +270,13 @@ class Process:
 
         # *----------------- Depreciation Warnings------------------------------------
 
-        if self.prod_max is not None:
+        if self.prod_max:
             raise ValueError(
                 f'{self.name}: prod_max has been depreciated. Please use cap_max instead')
-        if self.prod_min is not None:
+        if self.prod_min:
             raise ValueError(
                 f'{self.name}: prod_min has been depreciated. Please use cap_min instead')
-        if self.varying is not None:
+        if self.varying:
             raise ValueError(
                 f'{self.name}: varying has been depreciated. Variability will be intepreted based on data provided to energiapy.Location factors')
 
@@ -284,7 +286,7 @@ class Process:
     def capacity(self):
         """Sets capacity
         """
-        if self.cap_max is not None:
+        if self.cap_max:
             return True
 
     # *----------------- Class Methods ---------------------------------
@@ -410,7 +412,7 @@ class Process:
             parameter (str): parameter to update 
         """
         attr_ = getattr(self, parameter.lower())
-        if attr_ is not None:
+        if attr_:
             ptype_ = getattr(ProcessParamType, parameter)
             if isinstance(attr_, (tuple, Theta)):
                 self.ptype[ptype_] = ParameterType.UNCERTAIN

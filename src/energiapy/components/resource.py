@@ -2,7 +2,7 @@
 """
 import uuid
 from dataclasses import dataclass
-from typing import Dict, List, Tuple, Union
+from typing import Dict, List, Tuple, Union, Set
 from warnings import warn
 
 from .comptype.emission import EmissionType
@@ -48,7 +48,7 @@ class Resource:
         block (Union[str, list, dict], optional): block to which it belong. Convinient to set up integer cuts. Defaults to None
         label (str, optional): used while generating plots. Defaults to None
         citation (str, optional): can provide citations for your data sources. Defaults to None
-        ctype (List[ResourceType], optional): List of resource types. Defaults to None
+        ctype (List[Union[ResourceType, Dict[ResourceType, Set['Location']]]], optional): List of resource ctypes. Defaults to None
         ptype (Dict[ResourceParamType, ParameterType], optional): dict with parameters declared and thier types. Defaults to None.
         ltype (Dict[ResourceParamType, List[Tuple['Location', LocalizationType]]], optional): which parameters are localized at Location. Defaults to None.
         ftype (Dict[ResourceParamType, List[Tuple['Location', ParameterType]]], optional): which parameters are provided with factors at Location. Defaults to None
@@ -136,7 +136,7 @@ class Resource:
     label: str = None
     citation: str = None
     # Types
-    ctype: List[ResourceType] = None
+    ctype: List[Union[ResourceType, Dict[ResourceType, Set['Location']]]] = None
     ptype: Dict[ResourceParamType, ParameterType] = None
     ltype: Dict[ResourceParamType,
                 List[Tuple['Location', LocalizationType]]] = None
@@ -152,7 +152,6 @@ class Resource:
     varying: bool = None
     price: bool = None
     revenue: bool = None
-
 
     def __post_init__(self):
 
@@ -215,7 +214,7 @@ class Resource:
         for i in self.etypes():
             attr_ = getattr(self, i.lower())
             etype_ = getattr(EmissionType, i)
-            if attr_ is not None:
+            if attr_:
                 if not self.etype:  # if etype is not yet defined
                     self.etype = []
                     self.emissions = dict()
@@ -356,7 +355,7 @@ class Resource:
             parameter (str): parameter to update 
         """
         attr_ = getattr(self, parameter.lower())
-        if attr_ is not None:
+        if attr_:
             ptype_ = getattr(ResourceParamType, parameter)
 
             if isinstance(attr_, (tuple, Theta)):

@@ -557,7 +557,7 @@ class Scenario:
             attr (str): component attribute
             component_set (set): self explanatory
         """
-        if list({getattr(i, attr) for i in component_set})[0] is not None:
+        if list({getattr(i, attr) for i in component_set})[0]:
             setattr(self, f'consider_{attr}', True)
             setattr(self, f'{attr}_dict',
                     {i.name: getattr(i, attr) for i in component_set})

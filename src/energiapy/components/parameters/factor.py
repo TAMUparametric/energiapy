@@ -2,7 +2,7 @@
 """
 from dataclasses import dataclass
 from typing import Tuple, Union
-
+from warnings import warn
 from pandas import DataFrame
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 
@@ -59,7 +59,7 @@ class Factor:
                         'factortype.', '').replace(f'{self.component.class_name()}_'.lower(), '')
 
         else:
-            if self.component is not None:
+            if self.component:
                 if isinstance(self.data, DataFrame) is False:
                     raise ValueError(
                         f'{str(self.ftype).lower()} factor for {self.component.name}: please provide DataFrame')

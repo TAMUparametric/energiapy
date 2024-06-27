@@ -131,7 +131,7 @@ class Network:
         if not self.ctype:
             self.ctype = list()
 
-        if self.land_max is not None:
+        if self.land_max:
             self.ctype.append(NetworkType.LAND)
 
         # *-----------------Set ptype (ParameterType) ---------------------------------
@@ -146,7 +146,7 @@ class Network:
 
         # *-----------------Set ftype (FactorType) ---------------------------------
 
-        self.ftype, self.factors = dict(), dict()
+        self.ftype, self.factors = list(), dict()
 
         for i in self.ptypes():
             self.update_network_factor(parameter=i)
@@ -166,10 +166,18 @@ class Network:
 
         # * -------------------------- Update Transports ----------------------------------------
 
-        if self.capacity_factor is not None:
-            for i, j in self.capacity_factor.items():
-                for k in j:
-                    k.ctype.append((i, TransportType.INTERMITTENT))
+        if self.capacity_factor:
+            for location_tuple, transport_and_data in self.capacity_factor.items():
+                for transport in transport_and_data:
+                    ctype_intt = [ctype_ for ctype_ in transport.ctype if isinstance(
+                        ctype_, dict) and list(ctype_)[0] == TransportType.INTERMITTENT]  # get a list of ctypes that are dictionaries and match
+                    # if already defined, add (Location, Location)
+                    if ctype_intt:
+                        ctype_intt[0][TransportType.INTERMITTENT] = ctype_intt[0][TransportType.INTERMITTENT] | {
+                            location_tuple}
+                    else:  # else, make a new dictionary for the ctype
+                        transport.ctype.append(
+                            {TransportType.INTERMITTENT: {location_tuple}})
 
         for i in self.transport_factors():
             self.update_transport_factor(parameter=i)
@@ -188,19 +196,19 @@ class Network:
 
         # *----------------- Depreciation Warnings-----------------------------
 
-        if self.capacity_scale_level is not None:
+        if self.capacity_scale_level:
             raise ValueError(
                 f'{self.name}: capacity_scale_level is depreciated. scale levels determined from factor data now')
 
-        if self.capex_scale_level is not None:
+        if self.capex_scale_level:
             raise ValueError(
                 f'{self.name}: capex_scale_level is depreciated. scale levels determined from factor data now')
 
-        if self.fopex_scale_level is not None:
+        if self.fopex_scale_level:
             raise ValueError(
                 f'{self.name}: fopex_scale_level is depreciated. scale levels determined from factor data now')
 
-        if self.vopex_scale_level is not None:
+        if self.vopex_scale_level:
             raise ValueError(
                 f'{self.name}: vopex_scale_level is depreciated. scale levels determined from factor data now')
 
@@ -261,7 +269,7 @@ class Network:
             parameter (str): parameter to update 
         """
         attr_ = getattr(self, parameter.lower())
-        if attr_ is not None:
+        if attr_:
             ptype_ = getattr(NetworkParamType, parameter)
             if isinstance(attr_, (tuple, Theta)):
                 self.ptype[ptype_] = ParameterType.UNCERTAIN
@@ -279,14 +287,13 @@ class Network:
         """
         attr_ = getattr(self, f'{parameter}_factor'.lower())
         if attr_ is not None:
-            ptype_ = getattr(NetworkParamType, parameter)
             ftype_ = getattr(
                 FactorType, f'{self.class_name()}_{parameter}'.upper())
-            self.ftype[ptype_] = ftype_
+            self.ftype.append(ftype_)
             factor_ = Factor(component=self, data=attr_,
                              ftype=ftype_, scales=self.scales)
             setattr(self, f'{parameter}_factor'.lower(), factor_)
-            self.factors[f'{parameter}_factor'.lower()] = factor_
+            self.factors[ftype_] = factor_
 
     def update_transport_factor(self, parameter: str):
         """Updates Transport factor data to Factor and updates ftype and factors
@@ -297,33 +304,29 @@ class Network:
         factor_name_ = f'{parameter}_factor'.lower()
         attr_ = getattr(self, factor_name_)
         # if factor is defined at network
-        if attr_ is not None:
-            ptype_ = getattr(TransportParamType, parameter)
+        if attr_:
+
             for location_tuple, transport_and_data in attr_.items():
                 for transport, data in transport_and_data.items():
                     ftype_ = getattr(
                         FactorType, f'{transport.class_name()}_{parameter}'.upper())
-
                     factor_ = Factor(component=transport, data=data, ftype=ftype_,
                                      scales=self.scales, location=location_tuple)
                     attr_[location_tuple][transport] = factor_
                     if not transport.ftype:
                         transport.ftype, transport.factors = dict(), dict()
-                        transport.ftype[ptype_] = [
-                            (location_tuple, ftype_)]
-                        transport.factors[factor_name_] = dict()
-                        transport.factors[factor_name_][location_tuple] = factor_
+                        transport.ftype[ftype_] = [location_tuple]
+                        transport.factors[ftype_] = dict()
+                        transport.factors[ftype_][location_tuple] = factor_
                     else:
-                        if ptype_ in transport.ftype:
-                            transport.ftype[ptype_].append(
-                                (location_tuple, ftype_))
-                            transport.factors[factor_name_][location_tuple] = factor_
+                        if ftype_ in transport.ftype:
+                            transport.ftype[ftype_].append(location_tuple)
+                            transport.factors[ftype_][location_tuple] = factor_
                         else:
-                            transport.ftype[ptype_] = [
-                                (location_tuple, ftype_)]
-                            if factor_name_ not in transport.factors:
-                                transport.factors[factor_name_] = dict()
-                            transport.factors[factor_name_][location_tuple] = factor_
+                            transport.ftype[ftype_] = [location_tuple]
+                            if ftype_ not in transport.factors:
+                                transport.factors[ftype_] = dict()
+                            transport.factors[ftype_][location_tuple] = factor_
 
     def make_distance_dict(self) -> dict:
         """returns a dictionary of distances from sources to sinks
@@ -376,5 +379,3 @@ class Network:
 
     def __eq__(self, other):
         return self.name == other.name
-
-

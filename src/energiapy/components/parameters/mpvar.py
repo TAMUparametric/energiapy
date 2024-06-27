@@ -1,7 +1,7 @@
 """Parametric variable 
 """
 from dataclasses import dataclass
-from typing import Optional, Union
+from typing import Optional, Union, List
 from warnings import warn
 
 from .paramtype import MPVarType
@@ -59,15 +59,26 @@ class Theta:
         if self.bounds is None:
             self.bounds = (0, 1)
 
-        if self.ptype is not None:
-            if self.location is not None:
+        if self.ptype:
+            if self.location:
                 self.name = f'Theta({self.component.name},{self.location.name},{str(self.ptype).lower()})'.replace(
                     'mpvartype.', '').replace(f'{self.component.class_name()}_'.lower(), '')
             else:
                 self.name = f'Theta({self.component.name},{str(self.ptype).lower()})'.replace(
                     'mpvartype.', '').replace(f'{self.component.class_name()}_'.lower(), '')
         else:
-            self.name = f'{self.__class__.__name__}({self.bounds})'
+            self.name = f'{self.class_name()}({self.bounds})'
+
+    #  *----------------- Class Methods ---------------------------------------------
+    
+    @classmethod
+    def class_name(cls) -> List[str]:
+        """Returns class name 
+        """
+        return cls.__name__
+    
+    #  *----------------- Hashing ---------------------------------------------
+    
 
     def __repr__(self):
         return self.name
@@ -77,6 +88,8 @@ class Theta:
 
     def __eq__(self, other):
         return self.name == other.name
+
+
 
 
 def create_mpvar(value: Union[Theta, tuple], component: Union['Resource', 'Process', 'Location', 'Transport', 'Network', 'Scenario'], ptype: MPVarType, location: str = None) -> Theta:

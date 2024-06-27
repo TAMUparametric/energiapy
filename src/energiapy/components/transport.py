@@ -54,7 +54,7 @@ class Transport:
         block (Union[str, list, dict], optional): block to which it belong. Convinient to set up integer cuts. Defaults to None.
         label (str, optional): used while generating plots. Defaults to None.
         citation (str, optional): can provide citations for your data sources. Defaults to None.
-        ctype (List[LandType], optional): Transport type. Defaults to None.
+        ctype (List[Union[TransportType, Dict[TransportType, Set[Tuple[Location, Location]]]]], optional): list of Transport ctypes. Defaults to None.
         ptype (Dict[LandType, ParameterType], optional): paramater type of declared values. Defaults to None.
         ftype (Dict[TransportType, Tuple[Tuple[Location, Location], FactorType]], optional): factor type of declared factors. Defaults to None. 
         etype (List[EmissionType], optional): list of emission types defined. Defaults to None
@@ -101,7 +101,8 @@ class Transport:
     label: str = None
     citation: str = None
     # Type
-    ctype: List[TransportType] = None
+    ctype: List[Union[TransportType,
+                      Dict[TransportType, Set[Tuple[Location, Location]]]]] = None
     ptype: Dict[TransportParamType, ParameterType] = None
     ftype: Dict[TransportParamType,
                 Tuple[Tuple[Location, Location], FactorType]] = None
@@ -139,15 +140,16 @@ class Transport:
             if get_depth(self.material_cons) > 1:
                 self.ctype.append(TransportType.MULTI_MATMODE)
                 self.material_modes = set(self.material_cons)
-                self.materials = reduce(operator.or_, (set(self.material_cons[i]) for i in self.material_modes), set())
-                
+                self.materials = reduce(
+                    operator.or_, (set(self.material_cons[i]) for i in self.material_modes), set())
+
             else:
                 self.ctype.append(TransportType.SINGLE_MATMODE)
                 self.materials = set(self.material_cons)
 
         # capex can be linear (LINEAR_CAPEX) or piecewise linear (PWL_CAPEX)
         # if PWL, capex needs to be provide as a dict {capacity_segment: capex_segement}
-        if self.capex is not None:
+        if self.capex:
             if isinstance(self.capex, dict):
                 self.ctype.append(TransportType.PWL_CAPEX)
                 self.capacity_segments = list(self.capex)
@@ -160,11 +162,11 @@ class Transport:
             self.ctype.append(TransportType.EXPENDITURE)
 
         # if it requires land to set up
-        if self.land is not None:
+        if self.land:
             self.ctype.append(TransportType.LAND)
 
         # if this process fails
-        if self.p_fail is not None:
+        if self.p_fail:
             self.ctype.append(TransportType.FAILURE)
 
         # if this process has some readiness aspects defined
@@ -185,7 +187,7 @@ class Transport:
         for i in self.etypes():
             attr_ = getattr(self, i.lower())
             etype_ = getattr(EmissionType, i)
-            if attr_ is not None:
+            if attr_:
                 if not self.etype:  # if etype is not yet defined
                     self.etype = []
                     self.emissions = dict()
@@ -200,19 +202,19 @@ class Transport:
             self.name = f'{self.class_name()}_{uuid.uuid4().hex}'
 
         # *----------------- Depreciation Warnings------------------------------------
-        if self.trans_max is not None:
+        if self.trans_max:
             raise ValueError(
                 f'{self.name}: trans_max has been depreciated. Please use cap_max instead')
 
-        if self.trans_min is not None:
+        if self.trans_min:
             raise ValueError(
                 f'{self.name}: trans_max has been depreciated. Please use cap_min instead')
 
-        if self.varying is not None:
+        if self.varying:
             raise ValueError(
                 f'{self.name}: varying has been depreciated. Variability will be determined from factors provided to Network')
 
-        if self.emission is not None:
+        if self.emission:
             raise ValueError(
                 f'{self.name}: emission has been depreciated. Please provide individual emissions (gwp, odp, acid, eutt, eutf, eutm) instead')
 
@@ -222,7 +224,7 @@ class Transport:
     def capacity(self):
         """Sets capacity
         """
-        if self.cap_max is not None:
+        if self.cap_max:
             return True
 
     # *----------------- Class Methods -------------------------------------
@@ -264,7 +266,6 @@ class Transport:
         """Set when Transport are declared
         """
         return TransportParamType.failure()
-
 
     # * Transport classifications
 
@@ -311,7 +312,7 @@ class Transport:
             parameter (str): parameter to update 
         """
         attr_ = getattr(self, parameter.lower())
-        if attr_ is not None:
+        if attr_:
             ptype_ = getattr(TransportParamType, parameter)
             if isinstance(attr_, (tuple, Theta)):
                 self.ptype[ptype_] = ParameterType.UNCERTAIN

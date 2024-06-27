@@ -184,7 +184,7 @@ class TemporalScale:
 
         self.scheduling_index = self.index_list[self.scheduling_scale]
 
-        if self.design_scale is not None:
+        if self.design_scale:
             if self.scheduling_scale is None:
                 self.ctype.append(ScaleType.DESIGN)
             else:

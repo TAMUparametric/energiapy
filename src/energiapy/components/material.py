@@ -45,7 +45,7 @@ class Material:
         self.etype = []
         self.emissions = dict()
         for i in ['gwp', 'odp', 'acid', 'eutt', 'eutf', 'eutm']:
-            if getattr(self, i) is not None:
+            if getattr(self, i):
                 self.etype.append(getattr(EmissionType, i.upper()))
                 self.emissions[i] = getattr(self, i)
 
