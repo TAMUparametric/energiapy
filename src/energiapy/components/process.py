@@ -6,7 +6,7 @@ import operator
 import uuid
 from dataclasses import dataclass
 from functools import reduce
-from typing import Dict, List, Tuple, Union, Set
+from typing import Dict, List, Set, Tuple, Union
 
 from ..utils.data_utils import get_depth
 from .comptype.emission import EmissionType
@@ -77,7 +77,7 @@ class Process:
         citation (str, optional): citation for data. Defaults to 'citation needed'.
         trl (str, optional): technology readiness level. Defaults to None.
         ctype (List[Union[ProcessType, Dict[ProcessType, Set['Location']]]], optional): list of process ctypes. Defaults to None
-        ptype (Dict[ProcessParamType, List[Tuple['Location', ParameterType]]], optional): paramater type of declared values . Defaults to None
+        ptype (Dict[ProcessParamType, Union[ParameterType, Dict['Location', ParameterType]]], optional): paramater type of declared values . Defaults to None
         ltype (Dict[ProcessParamType, List[Tuple['Location', LocalizationType]]], optional): which parameters are localized. Defaults to None.
         ftype (Dict[ProcessParamType, List[Tuple['Location',FactorType]]], optional): which parameters are provided with factors at Location. Defaults to None
         etype (List[EmissionType], optional): list of emission types defined. Defaults to None
@@ -134,7 +134,8 @@ class Process:
     store_loss: Union[float, Tuple[float], Theta] = None
     # Types
     ctype: List[Union[ProcessType, Dict[ProcessType, Set['Location']]]] = None
-    ptype: Dict[ProcessParamType, ParameterType] = None
+    ptype: Dict[ProcessParamType, Union[ParameterType,
+                                        Dict['Location', ParameterType]]] = None
     ltype: Dict[ProcessParamType,
                 List[Tuple['Location', LocalizationType]]] = None
     ftype: Dict[ProcessParamType, List[Tuple['Location', FactorType]]] = None
@@ -243,8 +244,6 @@ class Process:
         # If empty Theta is provided, the bounds default to (0, 1)
         # Factors can be declared at Location (Location, DataFrame), gets converted to  (Location, Factor)
 
-        self.ptype = dict()
-
         for i in self.process_level_parameters():
             self.update_process_parameter(parameter=i)
 
@@ -265,7 +264,7 @@ class Process:
         # *----------------- Generate Random Name---------------------------------
         # A random name is generated if self.name = None
 
-        if self.name is None:
+        if not self.name:
             self.name = f'{self.class_name()}_{uuid.uuid4().hex}'
 
         # *----------------- Depreciation Warnings------------------------------------
@@ -414,6 +413,9 @@ class Process:
         attr_ = getattr(self, parameter.lower())
         if attr_:
             ptype_ = getattr(ProcessParamType, parameter)
+
+            if not self.ptype:
+                self.ptype = dict()
             if isinstance(attr_, (tuple, Theta)):
                 self.ptype[ptype_] = ParameterType.UNCERTAIN
                 mpvar_ = create_mpvar(

@@ -2,7 +2,7 @@
 """
 import uuid
 from dataclasses import dataclass
-from typing import Dict, List, Tuple, Union, Set
+from typing import Dict, List, Set, Tuple, Union
 from warnings import warn
 
 from .comptype.emission import EmissionType
@@ -49,7 +49,7 @@ class Resource:
         label (str, optional): used while generating plots. Defaults to None
         citation (str, optional): can provide citations for your data sources. Defaults to None
         ctype (List[Union[ResourceType, Dict[ResourceType, Set['Location']]]], optional): List of resource ctypes. Defaults to None
-        ptype (Dict[ResourceParamType, ParameterType], optional): dict with parameters declared and thier types. Defaults to None.
+        ptype (Dict[ResourceParamType, Union[ParameterType, Dict['Location', ParameterType]]], optional): dict with parameters declared and thier types. Defaults to None.
         ltype (Dict[ResourceParamType, List[Tuple['Location', LocalizationType]]], optional): which parameters are localized at Location. Defaults to None.
         ftype (Dict[ResourceParamType, List[Tuple['Location', ParameterType]]], optional): which parameters are provided with factors at Location. Defaults to None
         etype (List[EmissionType], optional): list of emission types defined. Defaults to None
@@ -122,7 +122,7 @@ class Resource:
     store_loss: Union[float, Tuple[float], Theta] = None
     storage_cost: Union[float, Tuple[float], Theta] = None
     # Transportation
-    transport: bool = None
+    transport: Set['Transport'] = None
     # Emissions
     gwp: Union[float, Tuple[float], Theta] = None
     odp: Union[float, Tuple[float], Theta] = None
@@ -137,7 +137,8 @@ class Resource:
     citation: str = None
     # Types
     ctype: List[Union[ResourceType, Dict[ResourceType, Set['Location']]]] = None
-    ptype: Dict[ResourceParamType, ParameterType] = None
+    ptype: Dict[ResourceParamType, Union[ParameterType,
+                                         Dict['Location', ParameterType]]] = None
     ltype: Dict[ResourceParamType,
                 List[Tuple['Location', LocalizationType]]] = None
     ftype: Dict[ResourceParamType, List[Tuple['Location', FactorType]]] = None
@@ -203,7 +204,7 @@ class Resource:
         # If empty Theta is provided, the bounds default to (0, 1)
         # Factors can be declared at Location (Location, DataFrame), gets converted to  (Location, Factor)
 
-        self.ptype = dict()
+        # self.ptype = dict()
 
         for i in self.resource_level_parameters():
             self.update_resource_level_parameter(parameter=i)
@@ -225,7 +226,7 @@ class Resource:
         # *-----------------Random name ---------------------------------
         # A random name is generated if self.name = None
 
-        if self.name is None:
+        if not self.name:
             self.name = f'{self.class_name()}_{uuid.uuid4().hex}'
 
         # *----------------- Depreciation Warnings---------------------------------
@@ -357,6 +358,9 @@ class Resource:
         attr_ = getattr(self, parameter.lower())
         if attr_:
             ptype_ = getattr(ResourceParamType, parameter)
+
+            if not self.ptype:
+                self.ptype = dict()
 
             if isinstance(attr_, (tuple, Theta)):
                 self.ptype[ptype_] = ParameterType.UNCERTAIN

@@ -3,6 +3,7 @@
 from dataclasses import dataclass
 from typing import Tuple, Union
 from warnings import warn
+
 from pandas import DataFrame
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 

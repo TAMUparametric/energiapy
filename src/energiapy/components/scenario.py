@@ -19,9 +19,11 @@ from ..model.bounds import CapacityBounds
 from ..model.weights import EmissionWeights
 from .comptype.emission import EmissionType
 from .comptype.location import LocationType
+from .comptype.network import NetworkType
 from .comptype.process import ProcessType
 from .comptype.resource import ResourceType
 from .comptype.scenario import ScenarioType
+from .comptype.transport import TransportType
 from .location import Location
 from .network import Network
 from .parameters.location import LocationParamType
@@ -182,7 +184,7 @@ class Scenario:
         for comp_ in ['resources', 'processes', 'locations'] + consider_transports:
             comp_set_ = getattr(self, comp_)
             ptypes_ = reduce(operator.or_, (set(i.ptype)
-                             for i in comp_set_), set())
+                             for i in comp_set_ if i.ptype), set())
             ptype_names_ = {i.name for i in ptypes_}
             setattr(self, f'defined_ptypes_{comp_}', ptype_names_)
 
@@ -220,12 +222,31 @@ class Scenario:
             network_data_ = {i.lower(): getattr(self.network, i.lower(
             )) for i in self.defined_ptypes_network}
             setattr(self, 'data_network', network_data_)
-            
+
         # * ---------- make subsets based on classifications------------------------
+
+        for i in self.resource_classifications():
+            self.make_component_subset(
+                parameter=i, parameter_type=ResourceType, component_set='resources')
+
+        for i in self.process_classifications():
+            self.make_component_subset(
+                parameter=i, parameter_type=ProcessType, component_set='processes')
+
+        for i in self.location_classifications():
+            self.make_component_subset(
+                parameter=i, parameter_type=LocationType, component_set='locations')
+
+        if hasattr(self, 'transports'):
+
+            for i in self.transport_classifications():
+                self.make_component_subset(
+                    parameter=i, parameter_type=TransportType, component_set='transports')
+                
+                
+        # * ---------- collect ------------------------
         
-        # * ---------- make subsets based on classifications------------------------
         
-            
         
 
         # self.resource_ptypes =
@@ -440,7 +461,7 @@ class Scenario:
 
         # *----------------- Generate Random Name -------------------------------------------
 
-        if self.name is None:
+        if not self.name:
             self.name = f'{self.class_name()}_{uuid.uuid4().hex}'
 
     #  *----------------- Class Methods ---------------------------------------------
@@ -525,7 +546,58 @@ class Scenario:
         """
         return NetworkParamType.include_at_scenario()
 
+    @classmethod
+    def resource_classifications(cls) -> List[str]:
+        """Resource classifications to pull at Scenario
+        """
+        return ResourceType.all()
+
+    @classmethod
+    def process_classifications(cls) -> List[str]:
+        """Process classifications to pull at Scenario
+        """
+        return ProcessType.all()
+
+    @classmethod
+    def location_classifications(cls) -> List[str]:
+        """Location classifications to pull at Scenario
+        """
+        return LocationType.all()
+
+    @classmethod
+    def transport_classifications(cls) -> List[str]:
+        """Transport classifications to pull at Scenario
+        """
+        return TransportType.all()
+
+    @classmethod
+    def network_classifications(cls) -> List[str]:
+        """Network classifications to pull at Scenario
+        """
+        return NetworkType.all()
+
     # *----------------- Functions-------------------------------------
+
+    def make_component_subset(self, parameter: str, parameter_type: Union[ResourceType, ProcessType, LocationType, TransportType], component_set: str):
+        """makes a subset of component based on provided ctype
+        sets the subset as an attribute of the location
+        if empty set, sets None
+
+        Args:
+            parameter (str): component type 
+            parameter_type (Union[ResourceType, ProcessType, LocationType, TransportType]): component classification
+            component_set (str): set of components
+        """
+        ctype_ = getattr(parameter_type, parameter)
+        component_set_ = getattr(self, component_set)
+        subset_ = {i for i in component_set_ if ctype_ in i.ctype}
+        if subset_:
+            setattr(self, f'{component_set}_{parameter}'.lower(), subset_)
+        else:
+            subset_ = {i for i in component_set_ if ctype_ in [
+                list(j)[0] for j in i.ctype if (isinstance(j, dict))]}
+            if subset_:
+                setattr(self, f'{component_set}_{parameter}'.lower(), subset_)
 
     def loc_comp_attr_dict(self, attr: str):
         """creates a dict of type {loc: {comp: attribute_dict}}

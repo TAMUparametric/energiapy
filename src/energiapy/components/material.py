@@ -49,7 +49,7 @@ class Material:
                 self.etype.append(getattr(EmissionType, i.upper()))
                 self.emissions[i] = getattr(self, i)
 
-        if self.name is None:
+        if not self.name:
             self.name = f'{self.__class__.__name__}_{uuid.uuid4().hex}'
 
     def __repr__(self):

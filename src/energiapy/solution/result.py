@@ -23,11 +23,11 @@ class Result:
     output: dict
     model_elements: dict
     duals: dict
-    name: str = None 
-    
+    name: str = None
+
     def __post_init__(self):
-        
-        if self.name is None:
+
+        if not self.name:
             warn(f'{self.name}: random name has been set, this can be cumbersome')
             self.name = f"Result_{uuid.uuid4().hex}"
 

@@ -1,7 +1,7 @@
 """Parametric variable 
 """
 from dataclasses import dataclass
-from typing import Optional, Union, List
+from typing import List, Optional, Union
 from warnings import warn
 
 from .paramtype import MPVarType

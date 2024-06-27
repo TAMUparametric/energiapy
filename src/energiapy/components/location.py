@@ -188,14 +188,10 @@ class Location:
         # .CERTAIN otherwise
         # If empty Theta is provided, the bounds default to (0, 1)
 
-        self.ptype = dict()
-
         for i in self.ptypes():
             self.update_location_parameter(parameter=i)
 
         # *-----------------Set ftype (FactorType) ---------------------------------
-
-        self.ftype, self.factors = list(), dict()
 
         for i in self.ptypes():
             self.update_location_factor(parameter=i)
@@ -271,7 +267,7 @@ class Location:
 
         # *----------------- Generate Random Name -------------------------------------------
         # A random name is generated if self.name = None
-        if self.name is None:
+        if not self.name:
             self.name = f'{self.class_name()}_{uuid.uuid4().hex}'
 
         # *----------------- Depreciation Warnings------------------------------------------
@@ -368,7 +364,7 @@ class Location:
     def resource_classifications(cls) -> List[str]:
         """All Resource classes
         """
-        return ResourceType.all()
+        return ResourceType.resource_level() + ResourceType.location_level()
 
     @classmethod
     def process_classifications(cls) -> List[str]:
@@ -429,6 +425,8 @@ class Location:
         attr_ = getattr(self, parameter.lower())
         if attr_:
             ptype_ = getattr(LocationParamType, parameter)
+            if not self.ptype:
+                self.ptype = dict()
             if isinstance(attr_, (tuple, Theta)):
                 self.ptype[ptype_] = ParameterType.UNCERTAIN
                 mpvar_ = create_mpvar(value=attr_, component=self, ptype=getattr(
@@ -448,7 +446,12 @@ class Location:
             # ptype_ = getattr(LocationParamType, parameter)
             ftype_ = getattr(
                 FactorType, f'{self.class_name()}_{parameter}'.upper())
-            self.ftype.append(ftype_)
+
+            if not self.ftype:
+                self.ftype = set()
+                self.factors = dict()
+
+            self.ftype.add(ftype_)
             factor_ = Factor(component=self, data=attr_,
                              ftype=ftype_, scales=self.scales)
             setattr(self, f'{parameter}_factor'.lower(), factor_)
@@ -461,27 +464,29 @@ class Location:
             parameter (str): new paramter that has been declared 
             component_type (Union[ResourceType, ProcessType]): Type of component
         """
-        attr_ = getattr(self, parameter.lower())
-        if attr_:
-            for i in attr_:  # for each component
+        location_attr = getattr(self, parameter.lower())
+        if location_attr:
+            for component in location_attr:  # for each component
                 # make new attribute in componet to collect data defined at location
-                if not hasattr(i, parameter.lower()):
-                    setattr(i, parameter.lower(), dict())
-                comp_attr_ = getattr(i, parameter.lower())
+                if not hasattr(component, parameter.lower()):
+                    setattr(component, parameter.lower(), dict())
+                comp_location_attr = getattr(component, parameter.lower())
                 ptype_ = getattr(parameter_type, parameter)
-                if isinstance(attr_[i], (tuple, Theta)):
-                    append_ = (self, ParameterType.UNCERTAIN)
-                    mpvar_ = create_mpvar(value=attr_[
-                                          i], component=i, ptype=getattr(MPVarType, f'{i.class_name()}_{parameter}'.upper()), location=self)
-                    attr_[i] = mpvar_
-                    comp_attr_[self] = mpvar_
+                if isinstance(location_attr[component], (tuple, Theta)):
+                    append_ = {self: ParameterType.UNCERTAIN}
+                    mpvar_ = create_mpvar(value=location_attr[
+                                          component], component=component, ptype=getattr(MPVarType, f'{component.class_name()}_{parameter}'.upper()), location=self)
+                    location_attr[component] = mpvar_
+                    comp_location_attr[self] = mpvar_
                 else:
-                    append_ = (self, ParameterType.CERTAIN)
-                    comp_attr_[self] = attr_[i]
-                if ptype_ in i.ptype:  # check if already exists, if yes append
-                    i.ptype[ptype_].append(append_)
+                    append_ = {self: ParameterType.UNCERTAIN}
+                    comp_location_attr[self] = location_attr[component]
+                if not component.ptype:
+                    component.ptype = dict()
+                if ptype_ in component.ptype:  # check if already exists, if yes append
+                    component.ptype[ptype_].update(append_)
                 else:  # or create new list with tuple
-                    i.ptype[ptype_] = [append_]
+                    component.ptype[ptype_] = append_
 
     def update_component_ctype_at_location(self, attr: str, ctype: Union[ResourceType, ProcessType]):
         """updates ctypes of components based on parameters or factors declared at location
@@ -528,7 +533,7 @@ class Location:
                 # if encountering for the first time, create key and list with the tuple (Location, FactorType/Factor)
                 if not j.ftype:
                     j.ftype, j.factors = dict(), dict()
-                    j.ftype[ftype_] = [self]
+                    j.ftype[ftype_] = {self}
                     j.factors[ftype_] = dict()
                     j.factors[ftype_][self] = factor_
                 # if a particular factor for the same component has been declared in another location, then append [(Loc1, ..), (Loc2, ..)]
@@ -536,11 +541,11 @@ class Location:
                     if ftype_ in j.ftype:
                         # the if statements are to avoid multiple entries if people run the location again
                         if self not in j.ftype:
-                            j.ftype[ftype_].append(self)
+                            j.ftype[ftype_].add(self)
                         j.factors[ftype_][self] = factor_
                     # if this is a new ctype_ being considered, create key and list with tuple (Location, FactorType/Factor)
                     else:
-                        j.ftype[ftype_] = [self]
+                        j.ftype[ftype_] = {self}
                         if ftype_ not in j.factors:
                             j.factors[ftype_] = dict()
                         j.factors[ftype_][self] = factor_
@@ -575,7 +580,7 @@ class Location:
                 if not j.ltype:
                     j.ltype, j.localizations = dict(), dict()
                     j.ltype = dict()
-                    j.ltype[ltype_] = [self]
+                    j.ltype[ltype_] = {self}
                     j.localizations[ltype_] = dict()
                     j.localizations[ltype_][self] = localization_
                 # if a particular factor for the same component has been declared in another location, then append [(Loc1, ..), (Loc2, ..)]
@@ -583,24 +588,24 @@ class Location:
                     if ltype_ in j.ltype:
                         # the if statements are to avoid multiple entries if people run the location again
                         if self not in j.ltype:
-                            j.ltype[ltype_].append(self)
+                            j.ltype[ltype_].add(self)
                         j.localizations[ltype_][self] = localization_
 
                     # if this is a new ctype_ being considered, create key and list with tuple (Location, FactorType/Factor)
                     else:
-                        j.ltype[ltype_] = [self]
+                        j.ltype[ltype_] = {self}
                         if ltype_ not in j.localizations:
                             j.localizations[ltype_] = dict()
                         j.localizations[ltype_][self] = localization_
 
-    def make_component_subset(self, parameter: str, parameter_type: Union[ProcessType, ResourceType], component_set: str):
+    def make_component_subset(self, parameter: str, parameter_type: Union[ResourceType, ProcessType], component_set: str):
         """makes a subset of component based on provided ctype
         sets the subset as an attribute of the location
         if empty set, sets None
 
         Args:
             parameter (str): component type 
-            parameter_type (Union[ProcessType, ResourceType]): component classification
+            parameter_type (Union[ResourceType, ProcessType]): component classification
             component_set (str): set of Processes or Resources
         """
         ctype_ = getattr(parameter_type, parameter)
@@ -610,11 +615,9 @@ class Location:
             setattr(self, f'{component_set}_{parameter}'.lower(), subset_)
         else:
             subset_ = {i for i in component_set_ if ctype_ in [
-                j[1] for j in i.ctype if (isinstance(j, tuple)) and (j[0] == self)]}
+                list(j)[0] for j in i.ctype if (isinstance(j, dict))]}
             if subset_:
                 setattr(self, f'{component_set}_{parameter}'.lower(), subset_)
-            else:
-                setattr(self, f'{component_set}_{parameter}'.lower(), None)
 
     def get_cap_bounds(self) -> Union[dict, dict]:
         """

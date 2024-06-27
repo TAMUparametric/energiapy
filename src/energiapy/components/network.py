@@ -128,10 +128,9 @@ class Network:
 
         # *-------------------------- Set ctype (NetworkType) -----------------
 
-        if not self.ctype:
-            self.ctype = list()
-
         if self.land_max:
+            if not self.ctype:
+                self.ctype = list()
             self.ctype.append(NetworkType.LAND)
 
         # *-----------------Set ptype (ParameterType) ---------------------------------
@@ -139,14 +138,10 @@ class Network:
         # .CERTAIN otherwise
         # If empty Theta is provided, the bounds default to (0, 1)
 
-        self.ptype = dict()
-
         for i in self.ptypes():
             self.update_network_parameter(parameter=i)
 
         # *-----------------Set ftype (FactorType) ---------------------------------
-
-        self.ftype, self.factors = list(), dict()
 
         for i in self.ptypes():
             self.update_network_factor(parameter=i)
@@ -191,7 +186,7 @@ class Network:
 
         # *----------------- Generate Random Name ------------------------
 
-        if self.name is None:
+        if not self.name:
             self.name = f'{self.class_name()}_{uuid.uuid4().hex}'
 
         # *----------------- Depreciation Warnings-----------------------------
@@ -271,6 +266,10 @@ class Network:
         attr_ = getattr(self, parameter.lower())
         if attr_:
             ptype_ = getattr(NetworkParamType, parameter)
+
+            if not self.ptype:
+                self.ptype = dict()
+
             if isinstance(attr_, (tuple, Theta)):
                 self.ptype[ptype_] = ParameterType.UNCERTAIN
                 mpvar_ = create_mpvar(value=attr_, component=self, ptype=getattr(
@@ -289,7 +288,12 @@ class Network:
         if attr_ is not None:
             ftype_ = getattr(
                 FactorType, f'{self.class_name()}_{parameter}'.upper())
-            self.ftype.append(ftype_)
+
+            if not self.ftype:
+                self.ftype = set()
+                self.factors = dict()
+
+            self.ftype.add(ftype_)
             factor_ = Factor(component=self, data=attr_,
                              ftype=ftype_, scales=self.scales)
             setattr(self, f'{parameter}_factor'.lower(), factor_)
@@ -315,15 +319,15 @@ class Network:
                     attr_[location_tuple][transport] = factor_
                     if not transport.ftype:
                         transport.ftype, transport.factors = dict(), dict()
-                        transport.ftype[ftype_] = [location_tuple]
+                        transport.ftype[ftype_] = {location_tuple}
                         transport.factors[ftype_] = dict()
                         transport.factors[ftype_][location_tuple] = factor_
                     else:
                         if ftype_ in transport.ftype:
-                            transport.ftype[ftype_].append(location_tuple)
+                            transport.ftype[ftype_].add(location_tuple)
                             transport.factors[ftype_][location_tuple] = factor_
                         else:
-                            transport.ftype[ftype_] = [location_tuple]
+                            transport.ftype[ftype_] = {location_tuple}
                             if ftype_ not in transport.factors:
                                 transport.factors[ftype_] = dict()
                             transport.factors[ftype_][location_tuple] = factor_

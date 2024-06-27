@@ -63,7 +63,7 @@ class CaseStudy:
                 counter += 1
             self.scenarios = scenario_list
 
-        if self.name is None:
+        if not self.name:
             self.name = f'{self.__class__.__name__}_{uuid.uuid4().hex}'
 
     def formulate(self, constraints: Set[Constraints] = None, objective: Objective = None,

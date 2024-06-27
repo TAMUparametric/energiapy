@@ -127,6 +127,9 @@ class Transport:
 
         for i in self.resources:  # update Resource if transported
             i.ctype.append(ResourceType.TRANSPORT)
+            if not i.transport:
+                i.transport = set()
+            i.transport.add(self)
 
         # Materials are not necessarily consumed (NO_MATMODE), if material_cons is None
         # If consumed, there could be multiple modes of consumption (MULTI_MATMODE) or one (SINGLE_MATMODE)
@@ -198,7 +201,7 @@ class Transport:
         # *----------------- Generate Random Name---------------------------------
         # A random name is generated if self.name = None
 
-        if self.name is None:
+        if not self.name:
             self.name = f'{self.class_name()}_{uuid.uuid4().hex}'
 
         # *----------------- Depreciation Warnings------------------------------------

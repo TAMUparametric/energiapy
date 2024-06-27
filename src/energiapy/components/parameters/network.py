@@ -14,7 +14,8 @@ class NetworkParamType(Enum):
         return [i.name for i in cls]
 
     @classmethod
-    def include_at_scenario(cls) -> List[str]:
+    def at_scenario(cls) -> List[str]:
         """Additional parameters to include at scenario
         """
-        return {'TRANSPORT_DICT', 'DISTANCE_DICT'}
+        include_ = {'TRANSPORT_DICT', 'DISTANCE_DICT'}
+        return list(set(cls.all()) | include_)
