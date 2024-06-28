@@ -18,7 +18,7 @@ from .parameters.mpvar import Theta, create_mpvar
 from .parameters.paramtype import (FactorType, LocalizationType, MPVarType,
                                    ParameterType)
 from .parameters.process import ProcessParamType
-from .parameters.special import Big, BigM, CouldBe, CouldBeVar
+from .parameters.special import BigM, CouldBeVar
 from .resource import Resource
 
 
@@ -421,11 +421,11 @@ class Process:
                 mpvar_ = create_mpvar(
                     value=attr_, component=self, ptype=getattr(MPVarType, f'{self.class_name()}_{parameter}'.upper()))
                 setattr(self, parameter.lower(), mpvar_)
-            elif isinstance(attr_, Big) or attr_ is True:
+            elif hasattr(attr_, 'bigm') or attr_ is True:
                 self.ptype[ptype_] = ParameterType.UNBOUNDED
                 if attr_ is True:
                     setattr(self, parameter.lower(), BigM)
-            elif isinstance(attr_, CouldBe):
+            elif hasattr(attr_, 'couldbevar'):
                 self.ptype[ptype_] = ParameterType.UNDECIDED
             else:
                 self.ptype[ptype_] = ParameterType.CERTAIN

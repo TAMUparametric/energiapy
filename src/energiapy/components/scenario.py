@@ -131,23 +131,23 @@ class Scenario:
 
         # * ---------- make subsets based on classifications------------------------
 
-        for i in self.resource_classifications():
-            self.make_component_subset(
-                parameter=i, parameter_type=ResourceType, component_set='resources')
+        # for i in self.resource_classifications():
+        #     self.make_component_subset(
+        #         parameter=i, parameter_type=ResourceType, component_set='resources')
 
-        for i in self.process_classifications():
-            self.make_component_subset(
-                parameter=i, parameter_type=ProcessType, component_set='processes')
+        # for i in self.process_classifications():
+        #     self.make_component_subset(
+        #         parameter=i, parameter_type=ProcessType, component_set='processes')
 
-        for i in self.location_classifications():
-            self.make_component_subset(
-                parameter=i, parameter_type=LocationType, component_set='locations')
+        # for i in self.location_classifications():
+        #     self.make_component_subset(
+        #         parameter=i, parameter_type=LocationType, component_set='locations')
 
-        if hasattr(self, 'transports'):
+        # if hasattr(self, 'transports'):
 
-            for i in self.transport_classifications():
-                self.make_component_subset(
-                    parameter=i, parameter_type=TransportType, component_set='transports')
+        #     for i in self.transport_classifications():
+        #         self.make_component_subset(
+        #             parameter=i, parameter_type=TransportType, component_set='transports')
 
         # * ---------- Collect component data ------------------------
 
@@ -668,8 +668,8 @@ class Scenario:
             return {i: i.localizations for i in getattr(self, component) if i.localizations}
         else:
             warn('localizations only defined for Process and Resource')
-
-    def make_component_subset(self, parameter: str, parameter_type: Union[ResourceType, ProcessType, LocationType, TransportType], component_set: str):
+    #TODO - FIX
+    def make_resource_and_process_component_subset(self, parameter: str, parameter_type: Union[ResourceType, ProcessType], component_set: str):
         """makes a subset of component based on provided ctype
         sets the subset as an attribute of the location
         if empty set, sets None
@@ -685,34 +685,71 @@ class Scenario:
         if component_subset:
             # setattr(self, f'{component_set}_{parameter}'.lower(), subset_)
             # self.make_component_location_subset(component_subset = f'{component_set}_{parameter}'.lower())
-            component_location_dict = {component: {location for location in getattr(self, 'locations') if hasattr(location, component_subset)
-                                                   and component in getattr(location, component_subset)} for component in getattr(self, component_subset)}
+            component_location_dict = {component: {location for location in getattr(self, 'locations') if component_subset
+                                                   and component in component_subset} for component in component_subset}
+            print(component_location_dict)
         else:
-            component_subset = {i for i in component_set_ if ctype_ in [
+            component_subset = {i for i in component_set if ctype_ in [
                 list(j)[0] for j in i.ctype if (isinstance(j, dict))]}
             if component_subset:
-                setattr(self, f'{component_set}_{parameter}'.lower(), subset_)
-                self.make_component_location_subset(
-                    component_subset=f'{component_set}_{parameter}'.lower())
+                
+                # setattr(self, f'{component_set}_{parameter}'.lower(), subset_)
+                # self.make_component_location_subset(
+                #     component_subset=f'{component_set}_{parameter}'.lower())
+                component_location_dict = {component: {location for location in getattr(self, 'locations') if component_subset
+                                                   and component in component_subset} for component in component_subset}
+                print(component_location_dict)
+    #TODO - FIX
 
-    # TODO - self.make_component_location_subset, keep seperate?
+    # def make_component_subset(self, parameter: str, parameter_type: Union[ResourceType, ProcessType, LocationType, TransportType], component_set: str):
+    #     """makes a subset of component based on provided ctype
+    #     sets the subset as an attribute of the location
+    #     if empty set, sets None
 
-    def make_component_location_subset(self, component_subset: str):
-        """makes a subset of component based on provided ctype
-        sets the subset as an attribute of the location
-        if empty set, sets None
+    #     Args:
+    #         parameter (str): component type 
+    #         parameter_type (Union[ResourceType, ProcessType, LocationType, TransportType]): component classification
+    #         component_set (str): set of components
+    #     """
+    #     ctype_ = getattr(parameter_type, parameter)
+    #     component_set = getattr(self, component_set)
+    #     component_subset = {i for i in component_set if ctype_ in i.ctype}
+    #     if component_subset:
+    #         setattr(self, f'{component_set}_{parameter}'.lower(), subset_)
+    #         self.make_component_location_subset(component_subset = f'{component_set}_{parameter}'.lower())
+    #         component_location_dict = {component: {location for location in getattr(self, 'locations') if component_subset
+    #                                                and component in component_subset} for component in component_subset}
+    #         print(component_location_dict)
+    #     else:
+    #         component_subset = {i for i in component_set if ctype_ in [
+    #             list(j)[0] for j in i.ctype if (isinstance(j, dict))]}
+    #         if component_subset:
+                
+    #             # setattr(self, f'{component_set}_{parameter}'.lower(), subset_)
+    #             # self.make_component_location_subset(
+    #             #     component_subset=f'{component_set}_{parameter}'.lower())
+    #             component_location_dict = {component: {location for location in getattr(self, 'locations') if component_subset
+    #                                                and component in component_subset} for component in component_subset}
+    #             # print(component_location_dict)
 
-        Args:
-            component_set (str): set of components
-        """
+    # # TODO - self.make_component_location_subset, keep seperate?
 
-        comp_loc_dict = {comp_: {loc_ for loc_ in getattr(self, 'locations') if hasattr(loc_, component_subset)
-                                 and comp_ in getattr(loc_, component_subset)} for comp_ in getattr(self, component_subset)}
-        name_ = component_subset.split('_')
-        setattr(self, f'{name_[0]}_locations_{name_[1]}', comp_loc_dict)
-    # TODO - makes ordered dict
-    # def make_
-    #     comp_loc_ordered_set = [(i.name, j.name) for i in comp_loc_dict for j in comp_loc_dict[i]]
+    # def make_component_location_subset(self, component_subset: str):
+    #     """makes a subset of component based on provided ctype
+    #     sets the subset as an attribute of the location
+    #     if empty set, sets None
+
+    #     Args:
+    #         component_set (str): set of components
+    #     """
+
+    #     comp_loc_dict = {comp_: {loc_ for loc_ in getattr(self, 'locations') if hasattr(loc_, component_subset)
+    #                              and comp_ in getattr(loc_, component_subset)} for comp_ in getattr(self, component_subset)}
+    #     name_ = component_subset.split('_')
+    #     setattr(self, f'{name_[0]}_locations_{name_[1]}', comp_loc_dict)
+    # # TODO - makes ordered dict
+    # # def make_
+    # #     comp_loc_ordered_set = [(i.name, j.name) for i in comp_loc_dict for j in comp_loc_dict[i]]
 
     def loc_comp_attr_dict(self, attr: str):
         """creates a dict of type {loc: {comp: attribute_dict}}

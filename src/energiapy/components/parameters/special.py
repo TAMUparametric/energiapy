@@ -9,6 +9,7 @@ class Big:
     Unlike the money in my bank account
     """
     name: str
+    bigm: bool = True
     
     def __repr__(self):
         return self.name
@@ -29,6 +30,7 @@ class CouldBe:
     depending on how the problem is modeled
     """
     name: str
+    couldbevar: bool = True 
     
     def __repr__(self):
         return self.name
