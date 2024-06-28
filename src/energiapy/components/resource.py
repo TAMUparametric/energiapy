@@ -8,12 +8,12 @@ from warnings import warn
 from .comptype.emission import EmissionType
 from .comptype.resource import ResourceType
 from .parameters.factor import Factor
-from .parameters.special import BigM, CouldBeVar, Big, CouldBe
 from .parameters.localization import Localization
 from .parameters.mpvar import Theta, create_mpvar
 from .parameters.paramtype import (FactorType, LocalizationType, MPVarType,
                                    ParameterType)
 from .parameters.resource import ResourceParamType
+from .parameters.special import Big, BigM, CouldBe, CouldBeVar
 
 
 @dataclass

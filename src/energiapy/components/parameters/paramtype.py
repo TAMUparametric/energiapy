@@ -1,8 +1,8 @@
 """energiapy.components.parameters.paramtype - Type of paramter, factor, multiparameteric variable, localization
 """
+from dataclasses import dataclass
 from enum import Enum, auto
 from typing import Set
-from dataclasses import dataclass
 
 from .location import LocationParamType
 from .network import NetworkParamType

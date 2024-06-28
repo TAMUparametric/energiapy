@@ -13,7 +13,7 @@ from functools import reduce
 from itertools import product
 from random import sample
 from typing import Dict, List, Set, Tuple, Union
-from .parameters.special import BigM, CouldBeVar, Big, CouldBe
+
 from pandas import DataFrame
 
 from .comptype.location import LocationType
@@ -28,6 +28,7 @@ from .parameters.paramtype import (FactorType, LocalizationType, MPVarType,
                                    ParameterType)
 from .parameters.process import ProcessParamType
 from .parameters.resource import ResourceParamType
+from .parameters.special import Big, BigM, CouldBe, CouldBeVar
 from .process import Process
 from .resource import Resource
 from .temporal_scale import TemporalScale

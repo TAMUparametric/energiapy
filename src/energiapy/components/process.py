@@ -7,7 +7,6 @@ import uuid
 from dataclasses import dataclass
 from functools import reduce
 from typing import Dict, List, Set, Tuple, Union
-from .parameters.special import BigM, CouldBeVar, Big, CouldBe
 
 from ..utils.data_utils import get_depth
 from .comptype.emission import EmissionType
@@ -19,6 +18,7 @@ from .parameters.mpvar import Theta, create_mpvar
 from .parameters.paramtype import (FactorType, LocalizationType, MPVarType,
                                    ParameterType)
 from .parameters.process import ProcessParamType
+from .parameters.special import Big, BigM, CouldBe, CouldBeVar
 from .resource import Resource
 
 

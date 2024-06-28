@@ -19,9 +19,9 @@ from .material import Material
 from .parameters.factor import Factor
 from .parameters.mpvar import Theta, create_mpvar
 from .parameters.paramtype import FactorType, MPVarType, ParameterType
+from .parameters.special import Big, BigM, CouldBe, CouldBeVar
 from .parameters.transport import TransportParamType
 from .resource import Resource
-from .parameters.special import BigM, CouldBeVar, Big, CouldBe
 
 
 @dataclass

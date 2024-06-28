@@ -11,9 +11,9 @@ from typing import Dict, List, Set, Tuple, Union
 
 from pandas import DataFrame
 
-from .comptype.resource import ResourceType
 from .comptype.location import LocationType
 from .comptype.network import NetworkType
+from .comptype.resource import ResourceType
 from .comptype.transport import TransportType
 from .location import Location
 from .parameters.factor import Factor
@@ -21,10 +21,10 @@ from .parameters.location import LocationParamType
 from .parameters.mpvar import Theta, create_mpvar
 from .parameters.network import NetworkParamType
 from .parameters.paramtype import FactorType, MPVarType, ParameterType
+from .parameters.special import Big, BigM, CouldBe, CouldBeVar
 from .parameters.transport import TransportParamType
 from .temporal_scale import TemporalScale
 from .transport import Transport
-from .parameters.special import BigM, CouldBeVar, Big, CouldBe
 
 
 @dataclass

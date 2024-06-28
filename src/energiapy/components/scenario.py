@@ -10,7 +10,7 @@ import operator
 import uuid
 from dataclasses import dataclass
 from functools import reduce
-from typing import Dict, List, Set, Union, Literal
+from typing import Dict, List, Literal, Set, Union
 from warnings import warn
 
 import numpy
