@@ -11,7 +11,7 @@ from .paramtype import LocalizationType
 @dataclass
 class Localization:
     """Localizes parameters declared at the Resource or Process level
-    limited to purchase_price, cons_max, sell_price for Resource
+    limited to purchase_price, consume, sell_price for Resource
     and cap_max, cap_min, capex, fopex, vopex, incidental for Process
 
     Args:

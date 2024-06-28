@@ -7,6 +7,7 @@ import uuid
 from dataclasses import dataclass
 from functools import reduce
 from typing import Dict, List, Set, Tuple, Union
+from .parameters.special import BigM, CouldBeVar, Big, CouldBe
 
 from ..utils.data_utils import get_depth
 from .comptype.emission import EmissionType
@@ -47,7 +48,7 @@ class Process:
 
     Args:
         name (str): name of process. Enter None to randomly assign a name.
-        cap_max (Union[float, dict, Tuple[float], Theta]): Maximum production capacity allowed in a time period of the scheduling scale.
+        cap_max (Union[float, Tuple[float], Theta, bool, 'Big']): Maximum production capacity allowed in a time period of the scheduling scale.
         cap_min (Union[float, dict, Tuple[float], Theta], optional): Minimum production capacity allowed in a time period of the scheduling scale. Defaults to None.
         land (Union[float, Tuple[float], Theta], optional): land requirement per unit basis. Defaults to None.
         conversion (Union[Dict[Union[int, str],Dict[Resource, float]], Dict[Resource, float]], optional): conversion data (Dict[Resource, float]]), if multimode the of form Dict[int,Dict[Resource, float]]. Defaults to None.
@@ -102,7 +103,7 @@ class Process:
 
     name: str
     # Design parameters
-    cap_max: Union[float, dict, Tuple[float], Theta]
+    cap_max: Union[float, Tuple[float], Theta, bool, 'Big']
     cap_min: float = None
     land: float = None  # Union[float, Tuple[float], Theta]
     conversion: Union[Dict[Union[int, str], Dict[Resource, float]],
@@ -128,8 +129,8 @@ class Process:
     p_fail: Union[float, Tuple[float], Theta] = None
     # These go to storage_resource defined in STORAGE Process
     storage: Resource = None
-    store_max: Union[float, Tuple[float], Theta] = None
-    store_min: Union[float, Tuple[float], Theta] = None
+    store_max: Union[float, Tuple[float], Theta, bool, 'Big'] = None
+    store_min: float = None
     storage_cost: Union[float, Tuple[float], Theta] = None
     store_loss: Union[float, Tuple[float], Theta] = None
     # Types
@@ -286,7 +287,7 @@ class Process:
         """Sets capacity
         """
         if self.cap_max:
-            return True
+            return CouldBeVar
 
     # *----------------- Class Methods ---------------------------------
 
@@ -413,7 +414,6 @@ class Process:
         attr_ = getattr(self, parameter.lower())
         if attr_:
             ptype_ = getattr(ProcessParamType, parameter)
-
             if not self.ptype:
                 self.ptype = dict()
             if isinstance(attr_, (tuple, Theta)):
@@ -421,6 +421,12 @@ class Process:
                 mpvar_ = create_mpvar(
                     value=attr_, component=self, ptype=getattr(MPVarType, f'{self.class_name()}_{parameter}'.upper()))
                 setattr(self, parameter.lower(), mpvar_)
+            elif isinstance(attr_, Big) or attr_ is True:
+                self.ptype[ptype_] = ParameterType.UNBOUNDED
+                if attr_ is True:
+                    setattr(self, parameter.lower(), BigM)
+            elif isinstance(attr_, CouldBe):
+                self.ptype[ptype_] = ParameterType.UNDECIDED
             else:
                 self.ptype[ptype_] = ParameterType.CERTAIN
 

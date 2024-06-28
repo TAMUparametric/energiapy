@@ -11,7 +11,7 @@ import uuid
 from dataclasses import dataclass
 from functools import reduce
 from typing import Dict, List, Set, Union, Literal
-from warnings import warn 
+from warnings import warn
 
 import numpy
 from pandas import DataFrame
@@ -61,7 +61,7 @@ class Scenario:
         emission_weights (EmissionWeights, optional): dataclass with weights for different emission objectives. Defaults to None.
         ctype (List[ScenarioType], optional): Scenario component type. Defaults to None.
         collect (List[Literal['parameters', 'factors', 'localizations', 'types']], optional): whether to collect parameters, factors, localizations, types (ctype, ptype, ftype, ltype). Sets attributes x_components. Defaults to None.
-    
+
     Example:
         The Scenario can be built over a single location. The network here is specified as a single Location. Considering scales (TemporalScale object for a year, [1, 365, 24]), scheduling, expenditure, and demand are met at an hourly level, and network at an annual level.
 
@@ -83,7 +83,8 @@ class Scenario:
     rep_dict: dict = None
     emission_weights: EmissionWeights = None
     ctype: List[ScenarioType] = None
-    collect: List[Literal['parameters', 'factors', 'localizations', 'types']] = None 
+    collect: List[Literal['parameters', 'factors',
+                          'localizations', 'types']] = None
     # Depriciated
     purchase_scale_level: int = None
     expenditure_scale_level: int = None
@@ -95,10 +96,10 @@ class Scenario:
     demand: dict = None
 
     def __post_init__(self):
-        
+
         if not self.collect:
-            self.collect = list() 
-            
+            self.collect = list()
+
         self.design_scale = self.scales.design_scale
         self.scheduling_scale = self.scales.scheduling_scale
 
@@ -128,7 +129,6 @@ class Scenario:
                 loc_, comp_) for loc_ in getattr(self, 'locations')), set())
             setattr(self, comp_, component_set)
 
-
         # * ---------- make subsets based on classifications------------------------
 
         for i in self.resource_classifications():
@@ -152,16 +152,16 @@ class Scenario:
         # * ---------- Collect component data ------------------------
 
         if self.collect_component_parameters:
-            
+
             self.parameters_resources = self.parameters('resource')
 
             self.parameters_processes = self.parameters('process')
 
             self.parameters_locations = self.parameters('location')
-            
+
             if hasattr(self, 'transports'):
                 self.parameters_transports = self.parameters('transport')
-                
+
                 self.parameters_network = self.parameters('network')
 
         # * ---------- collect Factors and Localizations and types------------------------
@@ -172,29 +172,32 @@ class Scenario:
                     break
                 setattr(self, f'factors_{comp_}', {
                         i: i.factors for i in getattr(self, comp_) if i.factors})
-                
+
             setattr(self, 'factors_network', self.network.factors)
-            
+
         if self.collect_component_types:
             for comp_ in ['resources', 'processes', 'locations', 'transports']:
                 if not hasattr(self, comp_):
                     break
-                setattr(self, f'ftype_{comp_}', self.types(component = comp_, xtype = 'ftype'))
-                setattr(self, f'ctype_{comp_}', self.types(component = comp_, xtype = 'ctype'))
-                setattr(self, f'ptype_{comp_}', self.types(component = comp_, xtype = 'ptype'))
-                
+                setattr(self, f'ftype_{comp_}', self.types(
+                    component=comp_, xtype='ftype'))
+                setattr(self, f'ctype_{comp_}', self.types(
+                    component=comp_, xtype='ctype'))
+                setattr(self, f'ptype_{comp_}', self.types(
+                    component=comp_, xtype='ptype'))
+
             setattr(self, 'ftype_network', self.network.ftype)
             setattr(self, 'ctype_network', self.network.ctype)
             setattr(self, 'ptype_network', self.network.ptype)
-            
+
             for comp_ in ['resources', 'processes']:
-                setattr(self, f'ltype_{comp_}', self.types(component = comp_, xtype = 'ltype'))
+                setattr(self, f'ltype_{comp_}', self.types(
+                    component=comp_, xtype='ltype'))
 
         if self.collect_component_localizations:
             for comp_ in ['resources', 'processes']:
-                setattr(self, f'localizations_{comp_}', self.localizations(component = comp_))
-
-
+                setattr(self, f'localizations_{comp_}',
+                        self.localizations(component=comp_))
 
         # self.resource_parameters = {i: {j.lower(): getattr(i, j.lower(
         # )) for j in self.resource_parameters() if getattr(i, j.lower(
@@ -219,7 +222,7 @@ class Scenario:
         # self.location_materials = {i: {j for j in i.materials}
         #                            for i in self.locations}
 
-        # for i in ['cap_max', 'cap_min', 'purchase_price', 'sell_price', 'cons_max', 'store_max', 'store_min', 'storage_cost', 'capacity_factor', 'purchase_price_factor', 'demand_factor', 'capex_factor',
+        # for i in ['cap_max', 'cap_min', 'purchase_price', 'sell_price', 'consume', 'store_max', 'store_min', 'storage_cost', 'capacity_factor', 'purchase_price_factor', 'demand_factor', 'capex_factor',
         #           'fopex_factor', 'vopex_factor', 'incidental_factor', 'availability_factor', 'sell_price_factor']:
         #     self.loc_comp_attr_dict(attr=i)
 
@@ -408,37 +411,37 @@ class Scenario:
 
         if not self.name:
             self.name = f'{self.class_name()}_{uuid.uuid4().hex}'
-            
+
     #  *----------------- Properties ---------------------------------------------
- 
+
     @property
     def collect_component_factors(self):
         """True if factors need to be collected
         """
         if 'factors' in self.collect:
             return True
-        
+
     @property
     def collect_component_types(self):
         """True if types need to be collected
         """
         if 'types' in self.collect:
             return True
-        
+
     @property
     def collect_component_localizations(self):
         """True if localizations need to be collected
         """
         if 'localizations' in self.collect:
             return True
-        
+
     @property
     def collect_component_parameters(self):
         """True if data need to be collected
         """
         if 'parameters' in self.collect:
             return True
-    
+
     #  *----------------- Class Methods ---------------------------------------------
 
     @classmethod
@@ -576,7 +579,7 @@ class Scenario:
         return LocalizationType.process()
 
     # *----------------- Functions-------------------------------------
-    
+
     def parameters(self, component: Literal['resources', 'processes', 'locations', 'transports', 'network']) -> dict:
         """Gives a dictionary of parameter values for a chosen componet 
 
@@ -589,35 +592,33 @@ class Scenario:
 
         if component == 'resources':
             return {i: {j.lower(): getattr(i, j.lower()) for j in self.resource_parameters(
-                ) if hasattr(i, j.lower()) and getattr(i, j.lower())} for i in getattr(self, 'resources') if i.ptype}
+            ) if hasattr(i, j.lower()) and getattr(i, j.lower())} for i in getattr(self, 'resources') if i.ptype}
 
         if component == 'processes':
             return {i: {j.lower(): getattr(i, j.lower()) for j in self.process_parameters(
-                ) if hasattr(i, j.lower()) and getattr(i, j.lower())} for i in getattr(self, 'processes') if i.ptype}
+            ) if hasattr(i, j.lower()) and getattr(i, j.lower())} for i in getattr(self, 'processes') if i.ptype}
 
         if component == 'locations':
             return {i: {j.lower(): getattr(i, j.lower()) for j in self.location_parameters(
-                ) if hasattr(i, j.lower()) and getattr(i, j.lower())} for i in getattr(self, 'locations') if i.ptype}
+            ) if hasattr(i, j.lower()) and getattr(i, j.lower())} for i in getattr(self, 'locations') if i.ptype}
 
         if component == 'transports':
             if hasattr(self, 'transports'):
                 return {i: {j.lower(): getattr(i, j.lower()) for j in self.transport_parameters(
-                    ) if hasattr(i, j.lower()) and getattr(i, j.lower())} for i in getattr(self, 'transports') if i.ptype}
+                ) if hasattr(i, j.lower()) and getattr(i, j.lower())} for i in getattr(self, 'transports') if i.ptype}
             else:
                 warn('Transports not defined')
 
         if component == 'network':
             if not isinstance(self.network, Location):
                 return {j.lower(): getattr(self.network, j.lower()) for j in self.network_parameters(
-                    ) if hasattr(self.network, j.lower()) and getattr(self.network, j.lower())}
+                ) if hasattr(self.network, j.lower()) and getattr(self.network, j.lower())}
             else:
                 warn('Network not defined')
-                
-    
-    
+
     def factors(self, component: Literal['resources', 'processes', 'locations', 'transports', 'network']) -> dict:
         """Provides a dict of factors for the chosen compoenent
-        
+
         Args:
             component (Literal['resources', 'processes', 'locations', 'transports', 'network']): choice of component
 
@@ -629,11 +630,11 @@ class Scenario:
                 return self.network.factors
             else:
                 return {i: i.factors for i in getattr(self, component) if i.factors}
-        
+
         else:
             warn(f'{component.capitalize()} not defined')
 
-    def types(self, component: Literal['resources', 'processes', 'locations', 'transports', 'network'], xtype: Literal['ctype', 'ftype', 'ptype', 'ltype']) -> dict: 
+    def types(self, component: Literal['resources', 'processes', 'locations', 'transports', 'network'], xtype: Literal['ctype', 'ftype', 'ptype', 'ltype']) -> dict:
         """Returns a dictionary with summary of chosen type for chosen component
 
         Args:
@@ -646,14 +647,14 @@ class Scenario:
         if hasattr(self, component):
             if (xtype == 'ltype') and (component not in ['resources', 'processes']):
                 warn('ltype only defined for Process and Resource')
-                return 
+                return
             if component == 'network':
                 return getattr(self.network, xtype)
             else:
                 return {i: getattr(i, xtype) for i in getattr(self, component) if getattr(i, xtype)}
         else:
             warn(f'{component.capitalize()} not defined')
-            
+
     def localizations(self, component: Literal['resources', 'processes']) -> dict:
         """Returns a dictionary with localizations for chosen component 
 
@@ -667,7 +668,6 @@ class Scenario:
             return {i: i.localizations for i in getattr(self, component) if i.localizations}
         else:
             warn('localizations only defined for Process and Resource')
-            
 
     def make_component_subset(self, parameter: str, parameter_type: Union[ResourceType, ProcessType, LocationType, TransportType], component_set: str):
         """makes a subset of component based on provided ctype
@@ -683,22 +683,20 @@ class Scenario:
         component_set = getattr(self, component_set)
         component_subset = {i for i in component_set if ctype_ in i.ctype}
         if component_subset:
-            # setattr(self, f'{component_set}_{parameter}'.lower(), subset_)  
-            # self.make_component_location_subset(component_subset = f'{component_set}_{parameter}'.lower())     
-            component_location_dict = {component: {location for location in getattr(self, 'locations') if hasattr(location, component_subset) 
-                     and component in getattr(location, component_subset)} for component in getattr(self, component_subset)}
+            # setattr(self, f'{component_set}_{parameter}'.lower(), subset_)
+            # self.make_component_location_subset(component_subset = f'{component_set}_{parameter}'.lower())
+            component_location_dict = {component: {location for location in getattr(self, 'locations') if hasattr(location, component_subset)
+                                                   and component in getattr(location, component_subset)} for component in getattr(self, component_subset)}
         else:
             component_subset = {i for i in component_set_ if ctype_ in [
                 list(j)[0] for j in i.ctype if (isinstance(j, dict))]}
             if component_subset:
                 setattr(self, f'{component_set}_{parameter}'.lower(), subset_)
-                self.make_component_location_subset(component_subset = f'{component_set}_{parameter}'.lower())
-                
-    
-    
-    
-                
-    #TODO - self.make_component_location_subset, keep seperate?
+                self.make_component_location_subset(
+                    component_subset=f'{component_set}_{parameter}'.lower())
+
+    # TODO - self.make_component_location_subset, keep seperate?
+
     def make_component_location_subset(self, component_subset: str):
         """makes a subset of component based on provided ctype
         sets the subset as an attribute of the location
@@ -707,16 +705,15 @@ class Scenario:
         Args:
             component_set (str): set of components
         """
-     
-        comp_loc_dict = {comp_: {loc_ for loc_ in getattr(self, 'locations') if hasattr(loc_, component_subset) 
-                     and comp_ in getattr(loc_, component_subset)} for comp_ in getattr(self, component_subset)}
+
+        comp_loc_dict = {comp_: {loc_ for loc_ in getattr(self, 'locations') if hasattr(loc_, component_subset)
+                                 and comp_ in getattr(loc_, component_subset)} for comp_ in getattr(self, component_subset)}
         name_ = component_subset.split('_')
         setattr(self, f'{name_[0]}_locations_{name_[1]}', comp_loc_dict)
-    #TODO - makes ordered dict 
+    # TODO - makes ordered dict
     # def make_
     #     comp_loc_ordered_set = [(i.name, j.name) for i in comp_loc_dict for j in comp_loc_dict[i]]
-        
-    
+
     def loc_comp_attr_dict(self, attr: str):
         """creates a dict of type {loc: {comp: attribute_dict}}
         Args:
@@ -922,9 +919,9 @@ class Scenario:
                                  for i in [i for i in self.set_dict['resources_sell'] if i not in self.set_dict['resources_demand']]])  # sell but no demand
             # b_S = numpy.array([[-self.demand[location][i]]
             #    for i in self.set_dict['resources_uncertain_demand']])  # uncertain demand
-            b_Af = numpy.array([[self.cons_max[location][i]]
+            b_Af = numpy.array([[self.consume[location][i]]
                                 for i in self.set_dict['resources_certain_availability']])  # fixed availability bound
-            b_A = numpy.array([[self.cons_max[location][i]]
+            b_A = numpy.array([[self.consume[location][i]]
                                for i in self.set_dict['resources_uncertain_availability']])  # uncertain availability
 
             b_Pf = numpy.array([[self.cap_max[location][i][0]]
@@ -961,7 +958,7 @@ class Scenario:
             iter_ = 0
             for i in range(n_A):
                 n = n_Inv + n_Sf + n_S + n_Snd + n_Af
-                F[n_bal3 + n + iter_][n_S + i] = self.cons_max[location][
+                F[n_bal3 + n + iter_][n_S + i] = self.consume[location][
                     self.set_dict['resources_uncertain_availability'][i]]
                 iter_ += 1
 

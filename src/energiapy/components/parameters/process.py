@@ -76,7 +76,7 @@ class ProcessParamType(Enum):
         """Uncertain parameters for which factors are defined
         """
         exclude_ = {'LAND'}
-        return cls.uncertain() - exclude_
+        return cls.uncertain()  - exclude_
 
     @classmethod
     def localize(cls) -> Set[str]:

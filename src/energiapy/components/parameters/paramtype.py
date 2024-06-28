@@ -2,6 +2,7 @@
 """
 from enum import Enum, auto
 from typing import Set
+from dataclasses import dataclass
 
 from .location import LocationParamType
 from .network import NetworkParamType
@@ -13,7 +14,7 @@ from .transport import TransportParamType
 
 
 class ParameterType(Enum):
-    """How does a component parameter vary?
+    """Type of parameter
     """
     CERTAIN = auto()
     """Is certain. Does not change over the design or scheduling scale
@@ -21,6 +22,12 @@ class ParameterType(Enum):
     UNCERTAIN = auto()
     """Declared as a parametric variable (energiapy.components.parameters.mpvars.Theta)
     or provided as a range using tuple
+    """
+    UNBOUNDED = auto()
+    """Unbounded
+    """
+    UNDECIDED = auto()
+    """Depends on how the problem is modeled
     """
 
 # # *-----------------------Factor------------------------------------------------
@@ -180,3 +187,5 @@ class MPVarType(Enum):
 
 for i in uncertain_params:
     setattr(MPVarType, i, i)
+
+

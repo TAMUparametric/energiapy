@@ -8,6 +8,7 @@ from warnings import warn
 from .comptype.emission import EmissionType
 from .comptype.resource import ResourceType
 from .parameters.factor import Factor
+from .parameters.special import BigM, CouldBeVar, Big, CouldBe
 from .parameters.localization import Localization
 from .parameters.mpvar import Theta, create_mpvar
 from .parameters.paramtype import (FactorType, LocalizationType, MPVarType,
@@ -21,19 +22,19 @@ class Resource:
     stored, used or made by process, transported.
 
     The emission potentials [gwp, odp, acid, eutt, eutf, eutm] can also be provided
-    Given that maximum consumption (cons_max), purchase price, and sell price can vary by location,
-    localization can be achieved by providing the cons_max_localize, purchase_price_localize, and sell_price_localize
+    Given that maximum consumption (consume), purchase price, and sell price can vary by location,
+    localization can be achieved by providing the consume_localize, purchase_price_localize, and sell_price_localize
     at Location level
 
     Demand needs to be declared at Location
 
     Args:
         name (str): name of resource. Enter None to randomly assign a name.
-        discharge (bool, optional): if can be discharged or sold. Defaults to None
+        discharge (Union[float, Tuple[float], Theta, bool, 'Big'], optional): if can be discharged or sold. Defaults to None
         sell_price (Union[float, Tuple[float], Theta], optional): revenue if generated on selling. Defaults to None
         purchase_price (Union[float, Tuple[float], Theta], optional): purchase price.Defaults to None
-        cons_max (Union[float, Tuple[float], Theta], optional): maximum amount that can be consumed. Defaults to None
-        store_max (float, optional): maximum amount that can be stored in inventory. Defaults to None
+        consume (Union[float, Tuple[float], Theta, bool, 'Big'], optional): maximum amount that can be consumed. Defaults to None
+        store_max (Union[float, Tuple[float], Theta, bool, 'Big'], optional): maximum amount that can be stored in inventory. Defaults to None
         store_min (float, optional): minimum amount of that is need to setup inventory. Defaults to None
         store_loss (float, optional): amount lost in inventory per time period of the scheduling scale. Defaults to None
         storage_cost: (float, optional): penalty for mainting inventory per time period in the scheduling scale. Defaults to None.
@@ -59,13 +60,13 @@ class Resource:
 
     Examples:
 
-        [1] A resource that can be consumed is declared by setting a cons_max 
+        [1] A resource that can be consumed is declared by setting a consume 
 
-        >>> Solar = Resource(name='Solar', cons_max= 100)
+        >>> Solar = Resource(name='Solar', consume= 100)
 
-        [2] A resource that can be purchase need a price to be set, besides cons_max.
+        [2] A resource that can be purchase need a price to be set, besides consume.
 
-        >>> Water = Resource(name='H2O', cons_max= 100, purchase_price= 20)
+        >>> Water = Resource(name='H2O', consume= 100, purchase_price= 20)
 
         [3] If the resource can be discharged.
 
@@ -102,22 +103,22 @@ class Resource:
 
         Multiple parameters of a resource can also be uncertain. As shown here, where water has both uncertain availability as well as price.
 
-        >>> Water = Resource(name='H2O', cons_max= Theta((0, 45)), purchase_price= Theta((0, 3))) 
+        >>> Water = Resource(name='H2O', consume= Theta((0, 45)), purchase_price= Theta((0, 3))) 
 
         [8] Environmental impact potentials can also be declared for resources
 
-        >>> NaturalGas = Resource(name = 'NG', cons_max = 1000, gwp = 30, odp = 50, acid = 20, eutt = 5, eutf = 60, eutm = 10)
+        >>> NaturalGas = Resource(name = 'NG', consume = 1000, gwp = 30, odp = 50, acid = 20, eutt = 5, eutf = 60, eutm = 10)
 
     """
 
     name: str
-    # Primary attributes. cons_max has alias availability
-    discharge: bool = None
+    # Primary attributes. consume has alias availability
+    discharge: Union[float, Tuple[float], Theta, bool, 'Big'] = None
     sell_price: Union[float, Tuple[float], Theta] = None
     purchase_price: Union[float, Tuple[float], Theta] = None
-    cons_max: Union[float, Tuple[float], Theta] = None
+    consume: Union[float, Tuple[float], Theta, bool, 'Big'] = None
     # Inventory params, can be provided to STORE type Process
-    store_max: Union[float, Tuple[float], Theta] = None
+    store_max: Union[float, Tuple[float], Theta, bool, 'Big'] = None
     store_min: float = None
     store_loss: Union[float, Tuple[float], Theta] = None
     storage_cost: Union[float, Tuple[float], Theta] = None
@@ -153,11 +154,12 @@ class Resource:
     varying: bool = None
     price: bool = None
     revenue: bool = None
+    cons_max: bool = None
 
     def __post_init__(self):
 
         # *-----------------Set ctype (ResourceType)---------------------------------
-        # .DISCHARGE allows the resource to be discharged (cons_max > 0)
+        # .DISCHARGE allows the resource to be discharged (consume > 0)
         # .SELL is when a Resource generated revenue (has a sell_price)
         # .CONSUME is when a Resource can be consumed
         # .PURCHASE is when a consumed Resource has a purchase_price
@@ -174,14 +176,13 @@ class Resource:
 
         if self.sell_price:
             self.ctype.append(ResourceType.SELL)
-            if self.discharge is None:
+            if not self.discharge:
                 self.discharge = True
-                warn(f'{self.name}: discharge set to True, since sell_price is given')
 
         if self.discharge:
             self.ctype.append(ResourceType.DISCHARGE)
 
-        if self.cons_max:
+        if self.consume:
             self.ctype.append(ResourceType.CONSUME)
         else:
             # if it is not consumed from outside the system, it has to be made in the system
@@ -192,8 +193,8 @@ class Resource:
 
         if self.purchase_price:
             self.ctype.append(ResourceType.PURCHASE)
-            if not self.cons_max:
-                warn(f'{self.name}: Price given, suggest providing cons_max as well')
+            if not self.consume:
+                self.consume = True
 
         if self.store_max:
             self.ctype.append(ResourceType.STORE)
@@ -243,14 +244,17 @@ class Resource:
         if self.revenue:
             raise ValueError(
                 f'{self.name}: revenue has been depreciated. Please use sell_price instead')
+        if self.revenue:
+            raise ValueError(
+                f'{self.name}: cons_max has been depreciated. Please use consume instead')
 
     # *----------------- Properties ---------------------------------
 
     @property
     def availability(self):
-        """Sets alias for cons_max
+        """Sets alias for consume
         """
-        return self.cons_max
+        return self.consume
 
     # *----------------- Class Methods ---------------------------------
 
@@ -367,6 +371,10 @@ class Resource:
                 mpvar_ = create_mpvar(
                     value=attr_, component=self, ptype=getattr(MPVarType, f'{self.class_name()}_{parameter}'.upper()))
                 setattr(self, parameter.lower(), mpvar_)
+            elif isinstance(attr_, Big) or attr_ is True:
+                self.ptype[ptype_] = ParameterType.UNBOUNDED
+                if attr_ is True:
+                    setattr(self, parameter.lower(), BigM)
             else:
                 self.ptype[ptype_] = ParameterType.CERTAIN
 

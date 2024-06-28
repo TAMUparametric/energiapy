@@ -25,6 +25,7 @@ from .parameters.factor import Factor
 from .parameters.localization import Localization
 from .parameters.location import LocationParamType
 from .parameters.mpvar import Theta, create_mpvar
+from .parameters.special import BigM
 from .parameters.network import NetworkParamType
 from .parameters.paramtype import (FactorType, LocalizationType, MPVarType,
                                    ParameterType)
@@ -37,4 +38,3 @@ from .result import Result
 from .scenario import Scenario
 from .temporal_scale import TemporalScale
 from .transport import Transport
-

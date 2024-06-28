@@ -11,8 +11,11 @@ class ResourceParamType(Enum):
     PURCHASE_PRICE = auto()
     """Amount spend to consume
     """
-    AVAILABILITY = auto()
-    """Alias for cons_max, i.e. maximum consumption allowed
+    CONSUME = auto()
+    """Alias for consume, i.e. maximum consumption allowed
+    """
+    DISCHARGE = auto()
+    """Discharge i.e. maximum discharge allowed
     """
     DEMAND = auto()
     """Demand to be met at Location

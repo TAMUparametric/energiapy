@@ -4,6 +4,7 @@
 from .factor import Factor
 from .location import LocationParamType
 from .mpvar import Theta
+from .special import BigM
 from .network import NetworkParamType
 from .paramtype import FactorType, LocalizationType, MPVarType, ParameterType
 from .process import ProcessParamType

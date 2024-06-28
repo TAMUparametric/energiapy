@@ -27,13 +27,13 @@ revenue_factor = pandas.DataFrame(data={'Value': [0.25, 1, 0.25, 0.5]})
 scales = TemporalScale(discretization_list=[1, 4])
 
 Resource_certain_availability = Resource(
-    name='resource_certain_availability', cons_max=100, price=2)
+    name='resource_certain_availability', consume=100, price=2)
 
-Resource_deterministic_availability = Resource(name='resource_deterministic_availability', cons_max=100, price=5, varying=[
+Resource_deterministic_availability = Resource(name='resource_deterministic_availability', consume=100, price=5, varying=[
                                                VaryingResource.DETERMINISTIC_AVAILABILITY])
 Resource_deterministic_demand = Resource(name='resource_deterministic_demand', demand=True, varying=[
                                          VaryingResource.DETERMINISTIC_DEMAND])
-Resource_deterministic_price = Resource(name='resource_deterministic_price', cons_max=100, price=10, varying=[
+Resource_deterministic_price = Resource(name='resource_deterministic_price', consume=100, price=10, varying=[
                                         VaryingResource.DETERMINISTIC_PRICE])
 Resource_deterministic_revenue = Resource(name='resource_deterministic_revenue', demand=True, revenue=500, varying=[
                                           VaryingResource.DETERMINISTIC_REVENUE])
@@ -76,13 +76,13 @@ revenue_factor = pandas.DataFrame(data={'Value': [0.25, 1, 0.25, 0.5]})
 scales = TemporalScale(discretization_list=[1, 4])
 
 Resource_certain_availability = Resource(
-    name='resource_certain_availability', cons_max=100, price=2)
+    name='resource_certain_availability', consume=100, price=2)
 
-Resource_deterministic_availability = Resource(name='resource_deterministic_availability', cons_max=100, price=5, varying=[
+Resource_deterministic_availability = Resource(name='resource_deterministic_availability', consume=100, price=5, varying=[
                                                VaryingResource.DETERMINISTIC_AVAILABILITY])
 Resource_deterministic_demand = Resource(name='resource_deterministic_demand', demand=True, varying=[
                                          VaryingResource.DETERMINISTIC_DEMAND])
-Resource_deterministic_price = Resource(name='resource_deterministic_price', cons_max=100, price=10, varying=[
+Resource_deterministic_price = Resource(name='resource_deterministic_price', consume=100, price=10, varying=[
                                         VaryingResource.DETERMINISTIC_PRICE])
 Resource_deterministic_revenue = Resource(name='resource_deterministic_revenue', demand=True, revenue=500, varying=[
                                           VaryingResource.DETERMINISTIC_REVENUE])
@@ -130,13 +130,13 @@ revenue_factor = pandas.DataFrame(data={'Value': [0.25, 1, 0.25, 0.5]})
 scales = TemporalScale(discretization_list=[1, 4])
 
 Resource_certain_availability = Resource(
-    name='resource_certain_availability', cons_max=100, price=2)
+    name='resource_certain_availability', consume=100, price=2)
 
-Resource_deterministic_availability = Resource(name='resource_deterministic_availability', cons_max=100, price=5, varying=[
+Resource_deterministic_availability = Resource(name='resource_deterministic_availability', consume=100, price=5, varying=[
                                                VaryingResource.DETERMINISTIC_AVAILABILITY])
 Resource_deterministic_demand = Resource(name='resource_deterministic_demand', demand=True, varying=[
                                          VaryingResource.DETERMINISTIC_DEMAND])
-Resource_deterministic_price = Resource(name='resource_deterministic_price', cons_max=100, price=10, varying=[
+Resource_deterministic_price = Resource(name='resource_deterministic_price', consume=100, price=10, varying=[
                                         VaryingResource.DETERMINISTIC_PRICE])
 Resource_deterministic_revenue = Resource(name='resource_deterministic_revenue', demand=True, revenue=500, varying=[
                                           VaryingResource.DETERMINISTIC_REVENUE])

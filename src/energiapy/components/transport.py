@@ -21,6 +21,7 @@ from .parameters.mpvar import Theta, create_mpvar
 from .parameters.paramtype import FactorType, MPVarType, ParameterType
 from .parameters.transport import TransportParamType
 from .resource import Resource
+from .parameters.special import BigM, CouldBeVar, Big, CouldBe
 
 
 @dataclass
@@ -31,7 +32,7 @@ class Transport:
     Args:
         name(str): name of transport, short ones are better to deal with .
         resources(Set[Resource]): specific resources transported through mode.
-        cap_max(Union[float, Tuple[float], Theta]): maximum capacity that can be set up.
+        cap_max(Union[float, Tuple[float], Theta, bool, 'Big']): maximum capacity that can be set up.
         cap_min(Union[float, Tuple[float], Theta], optional): minimum capacity required to set up. Defaults to None.
         land(Union[float, Tuple[float], Theta], optional): land required to set up transport. Defaults to None.
         trans_loss(Union[float, Tuple[float], Theta], optional): transport losses per unit basis of Resource for timeperiod in scheduling scale. Defaults to 0.
@@ -72,7 +73,7 @@ class Transport:
     name: str
     # Primary attributes
     resources: Set[Resource]
-    cap_max: Union[float, Tuple[float], Theta]
+    cap_max: Union[float, Tuple[float], Theta, bool, 'Big']
     # Design Parameters
     cap_min: Union[float, Tuple[float], Theta] = None
     land: Union[float, Tuple[float], Theta] = None
@@ -127,6 +128,8 @@ class Transport:
 
         for i in self.resources:  # update Resource if transported
             i.ctype.append(ResourceType.TRANSPORT)
+            if ResourceType.IMPLICIT in i.ctype:
+                i.ctype.remove(ResourceType.IMPLICIT)
             if not i.transport:
                 i.transport = set()
             i.transport.add(self)
@@ -228,7 +231,7 @@ class Transport:
         """Sets capacity
         """
         if self.cap_max:
-            return True
+            return CouldBeVar
 
     # *----------------- Class Methods -------------------------------------
 
@@ -322,6 +325,12 @@ class Transport:
                 mpvar_ = create_mpvar(
                     value=attr_, component=self, ptype=getattr(MPVarType, f'{self.class_name()}_{parameter}'.upper()))
                 setattr(self, parameter.lower(), mpvar_)
+            elif isinstance(attr_, Big) or attr_ is True:
+                self.ptype[ptype_] = ParameterType.UNBOUNDED
+                if attr_ is True:
+                    setattr(self, parameter.lower(), BigM)
+            elif isinstance(attr_, CouldBe):
+                self.ptype[ptype_] = ParameterType.UNDECIDED
             else:
                 self.ptype[ptype_] = ParameterType.CERTAIN
 

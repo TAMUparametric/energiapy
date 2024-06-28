@@ -48,7 +48,7 @@ def process_storage():
 @pytest.fixture()
 def process_material_modes():
     """Process with material modes"""
-    Resource1 = Resource(name='Resource1', cons_max=1000)
+    Resource1 = Resource(name='Resource1', consume=1000)
     Resource2 = Resource(name='Resource2')
     Material1 = Material(name='Material1', gwp=100)
     Material2 = Material(name='Material2', gwp=200)
@@ -66,7 +66,7 @@ def process_material_modes():
 #     cap_min = {0: 0, 1: 10}
 #     rate_max = {0: 10, 1: 15}
 #     mode_ramp = {(0, 1): 0.5}
-#     Resource1 = Resource(name='Resource1', cons_max=1000)
+#     Resource1 = Resource(name='Resource1', consume=1000)
 #     Resource2 = Resource(name='Resource2')
 #     return Process(name='Process1', conversion={0: {Resource1: -1, Resource2: 0.5}, 1: {Resource1: -1, Resource2: 0.75}},
 #                    rate_max=rate_max, mode_ramp=mode_ramp, cap_max=cap_max, cap_min=cap_min,
@@ -77,7 +77,7 @@ def process_material_modes():
 def location_no_variability():
     """Location with no variability"""
     scales = TemporalScale(discretization_list=[1, 4])
-    Resource1 = Resource(name='Resource1', cons_max=1000)
+    Resource1 = Resource(name='Resource1', consume=1000)
     Resource2 = Resource(name='Resource2')
     Material1 = Material(name='Material1', gwp=100)
     Material2 = Material(name='Material2', gwp=200)
@@ -110,13 +110,13 @@ def single_location_scenario_variability():
     scales = TemporalScale(discretization_list=[1, 4])
 
     Resource_certain_availability = Resource(
-        name='resource_certain_availability', cons_max=100, price=2)
+        name='resource_certain_availability', consume=100, price=2)
 
-    Resource_deterministic_availability = Resource(name='resource_deterministic_availability', cons_max=100, price=5, varying=[
+    Resource_deterministic_availability = Resource(name='resource_deterministic_availability', consume=100, price=5, varying=[
         VaryingResource.DETERMINISTIC_AVAILABILITY])
     Resource_deterministic_demand = Resource(name='resource_deterministic_demand', demand=True, varying=[
         VaryingResource.DETERMINISTIC_DEMAND])
-    Resource_deterministic_price = Resource(name='resource_deterministic_price', cons_max=100, price=10, varying=[
+    Resource_deterministic_price = Resource(name='resource_deterministic_price', consume=100, price=10, varying=[
                                             VaryingResource.DETERMINISTIC_PRICE])
     Resource_deterministic_revenue = Resource(name='resource_deterministic_revenue', demand=True, revenue=20, varying=[
         VaryingResource.DETERMINISTIC_REVENUE])
@@ -151,13 +151,13 @@ def single_location_lp_variability_cost():
     scales = TemporalScale(discretization_list=[1, 4])
 
     Resource_certain_availability = Resource(
-        name='resource_certain_availability', cons_max=100, price=2)
+        name='resource_certain_availability', consume=100, price=2)
 
-    Resource_deterministic_availability = Resource(name='resource_deterministic_availability', cons_max=100, price=5, varying=[
+    Resource_deterministic_availability = Resource(name='resource_deterministic_availability', consume=100, price=5, varying=[
         VaryingResource.DETERMINISTIC_AVAILABILITY])
     Resource_deterministic_demand = Resource(name='resource_deterministic_demand', demand=True, varying=[
         VaryingResource.DETERMINISTIC_DEMAND])
-    Resource_deterministic_price = Resource(name='resource_deterministic_price', cons_max=100, price=10, varying=[
+    Resource_deterministic_price = Resource(name='resource_deterministic_price', consume=100, price=10, varying=[
                                             VaryingResource.DETERMINISTIC_PRICE])
     Resource_deterministic_revenue = Resource(name='resource_deterministic_revenue', demand=True, revenue=500, varying=[
         VaryingResource.DETERMINISTIC_REVENUE])
@@ -195,13 +195,13 @@ def single_location_lp_variability_profit():
     scales = TemporalScale(discretization_list=[1, 4])
 
     Resource_certain_availability = Resource(
-        name='resource_certain_availability', cons_max=100, price=2)
+        name='resource_certain_availability', consume=100, price=2)
 
-    Resource_deterministic_availability = Resource(name='resource_deterministic_availability', cons_max=100, price=5, varying=[
+    Resource_deterministic_availability = Resource(name='resource_deterministic_availability', consume=100, price=5, varying=[
         VaryingResource.DETERMINISTIC_AVAILABILITY])
     Resource_deterministic_demand = Resource(name='resource_deterministic_demand', demand=True, varying=[
         VaryingResource.DETERMINISTIC_DEMAND])
-    Resource_deterministic_price = Resource(name='resource_deterministic_price', cons_max=100, price=10, varying=[
+    Resource_deterministic_price = Resource(name='resource_deterministic_price', consume=100, price=10, varying=[
                                             VaryingResource.DETERMINISTIC_PRICE])
     Resource_deterministic_revenue = Resource(name='resource_deterministic_revenue', demand=True, revenue=500, varying=[
         VaryingResource.DETERMINISTIC_REVENUE])
@@ -239,13 +239,13 @@ def single_location_milp_variability_cost():
     scales = TemporalScale(discretization_list=[1, 4])
 
     Resource_certain_availability = Resource(
-        name='resource_certain_availability', cons_max=100, price=2)
+        name='resource_certain_availability', consume=100, price=2)
 
-    Resource_deterministic_availability = Resource(name='resource_deterministic_availability', cons_max=100, price=5, varying=[
+    Resource_deterministic_availability = Resource(name='resource_deterministic_availability', consume=100, price=5, varying=[
         VaryingResource.DETERMINISTIC_AVAILABILITY])
     Resource_deterministic_demand = Resource(name='resource_deterministic_demand', demand=True, varying=[
         VaryingResource.DETERMINISTIC_DEMAND])
-    Resource_deterministic_price = Resource(name='resource_deterministic_price', cons_max=100, price=10, varying=[
+    Resource_deterministic_price = Resource(name='resource_deterministic_price', consume=100, price=10, varying=[
                                             VaryingResource.DETERMINISTIC_PRICE])
     Resource_deterministic_revenue = Resource(name='resource_deterministic_revenue', demand=True, revenue=500, varying=[
         VaryingResource.DETERMINISTIC_REVENUE])
@@ -284,7 +284,7 @@ def multi_location_milp_variability_cost():
     scales = TemporalScale(discretization_list=[1, 4])
 
     resource_certain_availability = Resource(
-        name='resource_certain_availability', cons_max=100)
+        name='resource_certain_availability', consume=100)
 
     resource_implicit = Resource(name='resource_implicit')
 
@@ -293,7 +293,7 @@ def multi_location_milp_variability_cost():
     resource_deterministic_demand = Resource(
         name='resource_deterministic_demand', demand=True, revenue=2000)
 
-    resource_deterministic_price = Resource(name='resource_deterministic_price', cons_max=100, price=3.00, varying=[
+    resource_deterministic_price = Resource(name='resource_deterministic_price', consume=100, price=3.00, varying=[
                                             VaryingResource.DETERMINISTIC_PRICE])
 
     resource_sell = Resource(name='resource_sell', sell=True)

@@ -11,6 +11,7 @@ from typing import Dict, List, Set, Tuple, Union
 
 from pandas import DataFrame
 
+from .comptype.resource import ResourceType
 from .comptype.location import LocationType
 from .comptype.network import NetworkType
 from .comptype.transport import TransportType
@@ -23,6 +24,7 @@ from .parameters.paramtype import FactorType, MPVarType, ParameterType
 from .parameters.transport import TransportParamType
 from .temporal_scale import TemporalScale
 from .transport import Transport
+from .parameters.special import BigM, CouldBeVar, Big, CouldBe
 
 
 @dataclass
@@ -37,7 +39,7 @@ class Network:
         sinks (List[location]): list of location dataclass objects of sink locations.
         distance_matrix (List[List[float]]): matrix with distances between sources and sinks, needs to be ordered.
         transport_matrix (List[List[Transport]]): matrix with distances between sources and sinks, needs to be ordered.
-        land_max (Union[float, Tuple[float], Theta], optional): land available. Defaults to None.
+        land_max (Union[float, Tuple[float], Theta, bool, 'Big'], optional): land available. Defaults to None.
         land_max_factor (DataFrame, optional): factor for changing land availability. Defaults to None. 
         cap_max_factor (Dict[Tuple[Location, Location], Dict[Transport, DataFrame]], optional):  Factor for capacity expansion of Transport between Locations. Defaults to None.
         capacity_factor (Dict[Tuple[Location, Location], Dict[Transport, DataFrame]], optional):  Factor for varying capacity for Transport between Locations. Defaults to None.
@@ -84,7 +86,7 @@ class Network:
     sinks: List[Location]
     distance_matrix: List[List[float]]
     transport_matrix: List[List[Transport]]
-    land_max: Union[float, Tuple[float], Theta] = None
+    land_max: Union[float, Tuple[float], Theta, bool, 'Big'] = None
     land_max_factor: DataFrame = None
     # Factors for Transport
     cap_max_factor: Dict[Tuple[Location, Location],
@@ -275,6 +277,10 @@ class Network:
                 mpvar_ = create_mpvar(value=attr_, component=self, ptype=getattr(
                     MPVarType, f'{self.class_name()}_{parameter}'.upper()))
                 setattr(self, parameter.lower(), mpvar_)
+            elif isinstance(attr_, Big) or attr_ is True:
+                self.ptype[ptype_] = ParameterType.UNBOUNDED
+                if attr_ is True:
+                    setattr(self, parameter.lower(), BigM)
             else:
                 self.ptype[ptype_] = ParameterType.CERTAIN
 
@@ -292,7 +298,6 @@ class Network:
             if not self.ftype:
                 self.ftype = set()
                 self.factors = dict()
-
             self.ftype.add(ftype_)
             factor_ = Factor(component=self, data=attr_,
                              ftype=ftype_, scales=self.scales)

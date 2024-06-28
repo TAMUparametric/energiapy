@@ -13,7 +13,7 @@ from functools import reduce
 from itertools import product
 from random import sample
 from typing import Dict, List, Set, Tuple, Union
-
+from .parameters.special import BigM, CouldBeVar, Big, CouldBe
 from pandas import DataFrame
 
 from .comptype.location import LocationType
@@ -42,7 +42,7 @@ class Location:
 
     Resources which have a specific demand at Location can also be provided as a dict {Resource: float}
 
-    Factors for Resource include: demand, purchase_price, sell_price, availability (varies cons_max)
+    Factors for Resource include: demand, purchase_price, sell_price, availability (varies consume)
                 Process include: capacity, expenditures (capex, fopex, vopex, incidental), credit 
                 Location include: land_cost
 
@@ -59,14 +59,15 @@ class Location:
         name (str): name of the location. Enter None to randomly assign a name.
         processes (Set[Process]): set of processes (Process objects) to include at location
         scales (TemporalScale): temporal scales of the problem
-        land_max (Union[float, Tuple[float], Theta], optional): land available. Defaults to None.
+        land_max (Union[float, Tuple[float], Theta, bool, 'Big'], optional): land available. Defaults to None.
         land_cost (Union[float, Tuple[float], Theta], optional): cost of land. Defaults to None.
         land_max_factor (DataFrame, optional): factor for changing land availability. Defaults to None. 
         land_cost_factor (DataFrame, optional): factor for changing land cost. Defaults to None. 
         demand (Dict[Resource, Union[float, Tuple[float], Theta]]): demand for resources at location. Defaults to None.
         sell_price_factor (Dict[Resource, DataFrame], optional): Factor for varying resource revenue. Defaults to None.
         purchase_price_factor (Dict[Resource, DataFrame], optional): Factor for varying cost. Defaults to None.
-        cons_max_factor (Dict[Resource, DataFrame], optional): Factor for varying resource availability. Defaults to None.
+        consume_factor (Dict[Resource, DataFrame], optional): Factor for varying resource availability. Defaults to None.
+        discharge_factor (Dict[Resource, DataFrame], optional): Factor for varying resource discharge. Defaults to None.
         demand_factor (Dict[Resource, DataFrame], optional): Factor for varying demand. Defaults to None.
         store_max_factor (Dict[Resource, DataFrame], optional): Factor for maximum inventory capacity. Defaults to None.
         store_loss_factor (Dict[Resource, DataFrame], optional): Factor for loss of resource in inventory. Defaults to None.
@@ -81,7 +82,8 @@ class Location:
         credit_factor (Dict[Process, DataFrame], optional): factor for credit. Defaults to None.        
         sell_price_localize (Dict[Resource, Tuple[float, int]] , optional): Localization factor for selling price. Defaults to None.
         purchase_price_localize (Dict[Resource, Tuple[float, int]] , optional): Localization factor for purchase price. Defaults to None.
-        cons_max_localize (Dict[Resource, Tuple[float, int]] , optional): Localization factor for availability. Defaults to None.
+        consume_localize (Dict[Resource, Tuple[float, int]] , optional): Localization factor for availability. Defaults to None.
+        discharge_localize (Dict[Resource, Tuple[float, int]] , optional): Localization factor for discharge. Defaults to None.
         store_max_localize (Dict[Resource, DataFrame], optional): Localization factor for maximum inventory capacity. Defaults to None.
         store_min_localize (Dict[Resource, DataFrame], optional): Localization factor for minimum inventory capacity. Defaults to None.
         store_loss_localize (Dict[Resource, DataFrame], optional): Localization factor for loss of resource in inventory. Defaults to None.
@@ -112,16 +114,17 @@ class Location:
     # Primary attributes
     processes: Set[Process]
     scales: TemporalScale
-    land_max: Union[float, Tuple[float], Theta] = None
+    land_max: Union[float, Tuple[float], Theta, bool, 'Big'] = None
     land_cost: Union[float, Tuple[float], Theta] = None
     land_max_factor: DataFrame = None
     land_cost_factor: DataFrame = None
     # Resource parameters declared at Location
     demand: Dict[Resource, Union[float, Tuple[float], Theta]] = None
-    # Factors for Resource parameter variability. cons_max_factor has alias availability_factor
+    # Factors for Resource parameter variability. consume_factor has alias availability_factor
     sell_price_factor: Dict[Resource, DataFrame] = None
     purchase_price_factor: Dict[Resource, DataFrame] = None
-    cons_max_factor: Dict[Resource, DataFrame] = None
+    consume_factor: Dict[Resource, DataFrame] = None
+    discharge_factor: Dict[Resource, DataFrame] = None
     demand_factor: Dict[Resource, DataFrame] = None
     store_max_factor: Dict[Resource, DataFrame] = None
     store_loss_factor: Dict[Resource, DataFrame] = None
@@ -139,7 +142,8 @@ class Location:
     # Localizations for Resource parameters.
     sell_price_localize: Dict[Resource, Tuple[float, int]] = None
     purchase_price_localize: Dict[Resource, Tuple[float, int]] = None
-    cons_max_localize: Dict[Resource, Tuple[float, int]] = None
+    consume_localize: Dict[Resource, Tuple[float, int]] = None
+    discharge_localize: Dict[Resource, Tuple[float, int]] = None
     store_max_localize: Dict[Resource, Tuple[float, int]] = None
     store_min_localize: Dict[Resource, Tuple[float, int]] = None
     store_loss_localize: Dict[Resource, Tuple[float, int]] = None
@@ -163,7 +167,7 @@ class Location:
     ftype: Dict[LocationParamType, FactorType] = None
     # Collections
     factors: Dict[LocationParamType, Factor] = None
-    # Optional 
+    # Optional
     make_subsets: bool = True
     # Depreciated
     demand_scale_level: int = None
@@ -234,7 +238,7 @@ class Location:
         # update process localizations
         for i in self.process_localizations():
             self.update_component_localization(i)
-            
+
         # set Process subsets as Location attributes
         if self.make_subsets:
             for i in self.process_classifications():
@@ -250,6 +254,10 @@ class Location:
         # Update Resource ctypes based on information provided at Location
         self.update_component_ctype_at_location(
             attr='demand', ctype=ResourceType.DEMAND)
+        if self.demand:
+            for i in self.demand:
+                if ResourceType.DISCHARGE not in i.ctype:
+                    i.ctype.append(ResourceType.DISCHARGE)
 
         for i in self.location_level_resource_parameters():
             self.update_component_parameter_declared_at_location(
@@ -268,7 +276,7 @@ class Location:
             for i in self.resource_classifications():
                 self.make_component_subset(
                     parameter=i, parameter_type=ResourceType, component_set='resources')
-                
+
         # *----------------- Generate Random Name -------------------------------------------
         # A random name is generated if self.name = None
         if not self.name:
@@ -302,15 +310,15 @@ class Location:
 
     @property
     def availability_factor(self):
-        """Sets alias for cons_max_factor
+        """Sets alias for consume_factor
         """
-        return self.cons_max_factor
+        return self.consume_factor
 
     @property
     def availability_localize(self):
-        """Sets alias for cons_max_localize
+        """Sets alias for consume_localize
         """
-        return self.cons_max_localize
+        return self.consume_localize
 
     # *----------------- Class Methods -------------------------------------
 
@@ -436,6 +444,10 @@ class Location:
                 mpvar_ = create_mpvar(value=attr_, component=self, ptype=getattr(
                     MPVarType, f'{self.class_name()}_{parameter}'.upper()))
                 setattr(self, parameter.lower(), mpvar_)
+            elif isinstance(attr_, Big) or attr_ is True:
+                self.ptype[ptype_] = ParameterType.UNBOUNDED
+                if attr_ is True:
+                    setattr(self, parameter.lower(), BigM)
             else:
                 self.ptype[ptype_] = ParameterType.CERTAIN
 

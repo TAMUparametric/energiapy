@@ -207,7 +207,7 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
               gwp_reduction_pct: float = None, model_class: ModelClass = ModelClass.MIP, objective_resource: Resource = None,
               inventory_zero: Dict[Location,
                                    Dict[Tuple[Process, Resource], float]] = None,
-              demand_sign: str = 'geq', meet_demand_scale: int = None) -> ConcreteModel:
+              demand_sign: str = 'geq', demand_scale: int = None, discharge_scale: int = None, consume_scale: int = None) -> ConcreteModel:
     """formulates a model. Constraints need to be declared in order
 
     Args:
@@ -753,11 +753,11 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
             # *----------------resource consumption---------------------------------------------
 
             instance.constraint_resource_consumption_certain = make_constraint(
-                instance=instance, type_cons=Cons.X_LEQ_B, variable_x='C', locations=instance.locations, component_set=instance.resources_certain_availability, b_max=scenario.cons_max,
+                instance=instance, type_cons=Cons.X_LEQ_B, variable_x='C', locations=instance.locations, component_set=instance.resources_certain_availability, b_max=scenario.consume,
                 loc_comp_dict=scenario.location_resource_dict, x_scale_level=scenario.scheduling_scale_level, label='restricts resource consumption to certain availablity')
 
             instance.constraint_resource_consumption_varying = make_constraint(
-                instance=instance, type_cons=Cons.X_LEQ_B, variable_x='C', locations=instance.locations, component_set=instance.resources_varying_availability, b_max=scenario.cons_max,
+                instance=instance, type_cons=Cons.X_LEQ_B, variable_x='C', locations=instance.locations, component_set=instance.resources_varying_availability, b_max=scenario.consume,
                 loc_comp_dict=scenario.location_resource_dict, b_factor=scenario.availability_factor, x_scale_level=scenario.scheduling_scale_level, b_scale_level=scenario.availability_factor_scale_level, label='restricts resource consumption to varying availablity')
 
             # # *----------------sum P,S,C,B over location---------------------------------------------

@@ -48,7 +48,7 @@ def constraint_latex_render(constraint_rule, latex_alias_dict: dict = None) -> s
         'scale_list[:network_scale_level+1]': 'y',
         'scale_list[:expenditure_scale_level+1]': 'y,d',
         '[location][resource]': '(l,r)',
-        'cons_max': 'C^{max}',
+        'consume': 'C^{max}',
         'price': 'R^{base}',
         'process': 'p',
         'P_location': 'P^{l}',
