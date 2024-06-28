@@ -680,17 +680,24 @@ class Scenario:
             component_set (str): set of components
         """
         ctype_ = getattr(parameter_type, parameter)
-        component_set_ = getattr(self, component_set)
-        subset_ = {i for i in component_set_ if ctype_ in i.ctype}
-        if subset_:
-            setattr(self, f'{component_set}_{parameter}'.lower(), subset_)  
-            self.make_component_location_subset(component_subset = f'{component_set}_{parameter}'.lower())     
+        component_set = getattr(self, component_set)
+        component_subset = {i for i in component_set if ctype_ in i.ctype}
+        if component_subset:
+            # setattr(self, f'{component_set}_{parameter}'.lower(), subset_)  
+            # self.make_component_location_subset(component_subset = f'{component_set}_{parameter}'.lower())     
+            component_location_dict = {component: {location for location in getattr(self, 'locations') if hasattr(location, component_subset) 
+                     and component in getattr(location, component_subset)} for component in getattr(self, component_subset)}
         else:
-            subset_ = {i for i in component_set_ if ctype_ in [
+            component_subset = {i for i in component_set_ if ctype_ in [
                 list(j)[0] for j in i.ctype if (isinstance(j, dict))]}
-            if subset_:
+            if component_subset:
                 setattr(self, f'{component_set}_{parameter}'.lower(), subset_)
                 self.make_component_location_subset(component_subset = f'{component_set}_{parameter}'.lower())
+                
+    
+    
+    
+                
     #TODO - self.make_component_location_subset, keep seperate?
     def make_component_location_subset(self, component_subset: str):
         """makes a subset of component based on provided ctype

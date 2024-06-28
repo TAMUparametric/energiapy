@@ -15,7 +15,7 @@ from .paramtype import FactorType
 class Factor:
     """Deterministic data factor given to account for temporal variability in parameter. 
     changes data to a dictionary with keys being the scale index that matches the length of data 
-    sets appropriate scale_level
+    sets appropriate scale
 
     A Factor can also be defined externally and passed instead of a DataFrame. 
     In this case, only provide data, scales, and whether to apply any scaler [max, min_max, standard]
@@ -45,7 +45,7 @@ class Factor:
 
         if hasattr(self.data, 'dont_redef'):
             self.component = self.component
-            self.scale_level = self.data.scale_level
+            self.scale = self.data.scale
             self.scaled = self.data.scaled
             self.data = self.data.data
             if isinstance(self.location, tuple):
@@ -82,9 +82,9 @@ class Factor:
                 self.dont_redef = True
 
             if len(self.data) in self.scales.index_n_list:
-                self.scale_level = self.scales.index_n_list.index(
+                self.scale = self.scales.index_n_list.index(
                     len(self.data))
-                self.data.index = self.scales.index_list[self.scale_level]
+                self.data.index = self.scales.index_list[self.scale]
 
                 if self.apply_min_max_scaler is None:
                     self.apply_min_max_scaler = self.scales.scale_factors_min_max
