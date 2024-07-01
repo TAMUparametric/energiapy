@@ -23,6 +23,25 @@ class Big:
 
 BigM = Big('BigM')
 
+@dataclass
+class Small:
+    """Small like my expectations
+    """
+    name: str
+    small: bool = True
+    
+    def __repr__(self):
+        return self.name
+
+    def __hash__(self):
+        return hash(self.name)
+
+    def __eq__(self, other):
+        return self.name == other.name
+
+
+SmallM = Small('SmallM')
+
 
 @dataclass
 class CouldBe:
@@ -43,3 +62,4 @@ class CouldBe:
 
 
 CouldBeVar = CouldBe('CouldBeVar')
+

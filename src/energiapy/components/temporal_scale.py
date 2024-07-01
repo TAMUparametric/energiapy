@@ -140,7 +140,8 @@ class TemporalScale:
     ctype: List[ScaleType] = None
 
     def __post_init__(self):
-
+        
+        
         self.scale_levels = len(self.discretization_list)
         self.scale = {
             i: list(range(self.discretization_list[i])) for i in range(self.scale_levels)}
