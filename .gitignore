@@ -11,3 +11,6 @@ __pycache__/
 *.coverage
 .coverage
 .hypothesis/
+*.lp
+*.pkl
+*.log
