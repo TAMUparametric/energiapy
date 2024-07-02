@@ -34,6 +34,7 @@ class Factor:
     scales: TemporalScale
     component: Union['Process', 'Resource', 'Location', 'Transport'] = None
     location: Union['Location', Tuple['Location', 'Location']] = None
+    nominal: float = None
     ftype: FactorType = None
     apply_max_scaler: bool = None
     apply_min_max_scaler: bool = None

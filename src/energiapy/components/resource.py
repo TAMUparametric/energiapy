@@ -5,13 +5,15 @@ from dataclasses import dataclass
 from typing import Dict, List, Set, Tuple, Union
 from warnings import warn
 
-from .comptype.emission import EmissionType
+from pandas import DataFrame
+
 from .comptype.resource import ResourceType
+from .parameter import Paramter
+from .temporal_scale import TemporalScale
 from .parameters.factor import Factor
 from .parameters.localization import Localization
 from .parameters.mpvar import Theta, create_mpvar
-from .parameters.paramtype import (FactorType, LocalizationType, MPVarType,
-                                   ParameterType)
+from .parameters.paramtype import ParameterType, SpatialDisposition, TemporalDisposition, VariabilityType
 from .parameters.resource import ResourceParamType
 from .parameters.special import Big, BigM, CouldBe, CouldBeVar
 
@@ -112,19 +114,25 @@ class Resource:
     """
 
     name: str
-    # Primary attributes. consume has alias availability
-    discharge: Union[float, Tuple[float], Theta, bool, 'Big'] = None
-    consume: Union[float, Tuple[float], Theta, bool, 'Big'] = None
-    # Inventory params, can be provided to STORE type Process
-    store_max: Union[float, Tuple[float], Theta, bool, 'Big'] = None
-    store_min: float = None
+    # Temporal scale
+    scale: TemporalScale = None # not needed if no deterministic data or parameter scale is provided
+    # LimitType
+    discharge: Union[float, bool, 'BigM', List[float], List[float, 'BigM'], DataFrame, Tuple[float, DataFrame], Tuple[float, Factor], Tuple[float], Theta] = None
+    discharge_scale: int = None
+    consume: Union[float, bool, 'BigM', List[float], List[float, 'BigM'], DataFrame, Tuple[float, DataFrame], Tuple[float, Factor], Tuple[float], Theta] = None
+    consume_scale: int = None
+    store: Union[float, bool, 'BigM', List[float], List[float, 'BigM'], DataFrame, Tuple[float, DataFrame], Tuple[float, Factor], Tuple[float], Theta] = None
+    store_scale: int = None
+    # LossType 
     store_loss: Union[float, Tuple[float], Theta] = None
-    sell_price: Union[float, Tuple[float], Theta] = None
-    purchase_price: Union[float, Tuple[float], Theta] = None
-    storage_cost: Union[float, Tuple[float], Theta] = None
-    # Transportation
-    transport: Set['Transport'] = None
-    # Emissions
+    store_loss_scale: int = None
+    # CashFlowType
+    sell_price: Union[float, Tuple[float], Theta, DataFrame, Tuple[float, DataFrame], Tuple[float, Factor]] = None
+    purchase_price: Union[float, Tuple[float], Theta, DataFrame, Tuple[float, DataFrame], Tuple[float, Factor]] = None
+    storage_cost: Union[float, Tuple[float], Theta, DataFrame, Tuple[float, DataFrame], Tuple[float, Factor]] = None
+    credit: Union[float, Tuple[float], Theta, DataFrame, Tuple[float, DataFrame], Tuple[float, Factor]] = None
+    penalty: Union[float, Tuple[float], Theta, DataFrame, Tuple[float, DataFrame], Tuple[float, Factor]] = None
+    # EmissionType
     gwp: Union[float, Tuple[float], Theta] = None
     odp: Union[float, Tuple[float], Theta] = None
     acid: Union[float, Tuple[float], Theta] = None
@@ -137,18 +145,7 @@ class Resource:
     label: str = None
     citation: str = None
     # Types
-    ctype: List[Union[ResourceType, Dict[ResourceType, Set['Location']]]] = None
-    ptype: Dict[ResourceParamType, Union[ParameterType,
-                                         Dict['Location', ParameterType]]] = None
-    ltype: Dict[ResourceParamType,
-                List[Tuple['Location', LocalizationType]]] = None
-    ftype: Dict[ResourceParamType, List[Tuple['Location', FactorType]]] = None
-    etype: List[EmissionType] = None
-    # Collections
-    localizations: Dict[ResourceParamType,
-                        List[Tuple['Location', Localization]]] = None
-    factors: Dict[ResourceParamType, List[Tuple['Location', Factor]]] = None
-    emissions: Dict[str, float] = None
+    ctype: List[ResourceType] = None
     # Depreciated
     sell: bool = None
     varying: bool = None

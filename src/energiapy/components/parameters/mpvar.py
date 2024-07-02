@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from typing import List, Optional, Union
 from warnings import warn
 
-from .paramtype import MPVarType
+from .paramtype import SpecialParamterType, LimitType, CashFlowType, LandType, EmissionType, LifeType, LossType, SpatialDisp, TemporalDisp
 
 
 @dataclass
@@ -48,10 +48,14 @@ class Theta:
     bounds: tuple = None
     component: Union['Resource', 'Process', 'Location',
                      'Transport', 'Network', 'Scenario'] = None
-    location: Optional['Location'] = None
-    ptype: MPVarType = None
-
+    spatial: SpatialDisp = None
+    temporal: TemporalDisp = None
+    psubtype: Union[LimitType, CashFlowType, LandType, EmissionType, LifeType, LossType]
+    
+    
     def __post_init__(self):
+
+        self.ptype = SpecialParamterType.MPVar
 
         if len(self.bounds) != 2:
             warn('bounds need be a tuple of length 2, e.g. (0, 29)')
@@ -59,26 +63,25 @@ class Theta:
         if self.bounds is None:
             self.bounds = (0, 1)
 
-        if self.ptype:
-            if self.location:
-                self.name = f'Theta({self.component.name},{self.location.name},{str(self.ptype).lower()})'.replace(
-                    'mpvartype.', '').replace(f'{self.component.class_name()}_'.lower(), '')
-            else:
-                self.name = f'Theta({self.component.name},{str(self.ptype).lower()})'.replace(
-                    'mpvartype.', '').replace(f'{self.component.class_name()}_'.lower(), '')
-        else:
-            self.name = f'{self.class_name()}({self.bounds})'
+        # if self.ptype:
+        #     if self.location:
+        #         self.name = f'Theta({self.component.name},{self.location.name},{str(self.ptype).lower()})'.replace(
+        #             'mpvartype.', '').replace(f'{self.component.class_name()}_'.lower(), '')
+        #     else:
+        #         self.name = f'Theta({self.component.name},{str(self.ptype).lower()})'.replace(
+        #             'mpvartype.', '').replace(f'{self.component.class_name()}_'.lower(), '')
+        # else:
+        #     self.name = f'{self.class_name()}({self.bounds})'
 
     #  *----------------- Class Methods ---------------------------------------------
-    
+
     @classmethod
     def class_name(cls) -> List[str]:
         """Returns class name 
         """
         return cls.__name__
-    
+
     #  *----------------- Hashing ---------------------------------------------
-    
 
     def __repr__(self):
         return self.name
@@ -88,8 +91,6 @@ class Theta:
 
     def __eq__(self, other):
         return self.name == other.name
-
-
 
 
 def create_mpvar(value: Union[Theta, tuple], component: Union['Resource', 'Process', 'Location', 'Transport', 'Network', 'Scenario'], ptype: MPVarType, location: str = None) -> Theta:
