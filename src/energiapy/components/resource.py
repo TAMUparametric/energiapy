@@ -114,13 +114,13 @@ class Resource:
     name: str
     # Primary attributes. consume has alias availability
     discharge: Union[float, Tuple[float], Theta, bool, 'Big'] = None
-    sell_price: Union[float, Tuple[float], Theta] = None
-    purchase_price: Union[float, Tuple[float], Theta] = None
     consume: Union[float, Tuple[float], Theta, bool, 'Big'] = None
     # Inventory params, can be provided to STORE type Process
     store_max: Union[float, Tuple[float], Theta, bool, 'Big'] = None
     store_min: float = None
     store_loss: Union[float, Tuple[float], Theta] = None
+    sell_price: Union[float, Tuple[float], Theta] = None
+    purchase_price: Union[float, Tuple[float], Theta] = None
     storage_cost: Union[float, Tuple[float], Theta] = None
     # Transportation
     transport: Set['Transport'] = None
@@ -155,6 +155,8 @@ class Resource:
     price: bool = None
     revenue: bool = None
     cons_max: bool = None
+    store_max: bool = None
+    store_min: bool = None
 
     def __post_init__(self):
 

@@ -10,28 +10,189 @@ from .process import ProcessParamType
 from .resource import ResourceParamType
 from .transport import TransportParamType
 
-# *-----------------------Parameter-------------------------------------------------
+
+    
+class SpatialDisposition(Enum):
+    """What spatial scale describes the parameter
+    Infered from the Component in which the resource
+    parameter is declared
+    """
+    NETWORK = auto()
+    LINKAGE = auto()
+    TRANSPORT = auto()
+    LOCATION = auto()
+    PROCESS = auto()
 
 
-class ParameterType(Enum):
-    """Type of parameter
+class TemporalDisposition(Enum):
+    """What temporal scale describes the parameter
+    Either inferred from length of deterministic data 
+    or needs to be provided
+    """
+    HORIZON = auto()
+    ABOVEDESIGN = auto()
+    DESIGN = auto()
+    ABOVESCHEDULING = auto()
+    SCHEDULING = auto()
+    BELOWSCHEDULING = auto()
+
+
+class VariabilityType(Enum):
+    """How is the parameter variability accounted for.
     """
     CERTAIN = auto()
-    """Is certain. Does not change over the design or scheduling scale
+    """we know either the exact value or the exact bounds. Subclassed in CertaintyType
     """
     UNCERTAIN = auto()
-    """Declared as a parametric variable (energiapy.components.parameters.mpvars.Theta)
-    or provided as a range using tuple
+    """(float, float)/Theta i.e. MPVar. Parameteric variable
+    """
+    DETERMINISTIC = auto()
+    """(float, DataFrame)/DataFrame. Uncertain but estimated using a dataset.
+    DataFrames are converted to a Factor. A Factor can be provided directly as well. 
+    """
+
+
+class CertaintyType(Enum):
+    """subclass of ParameterType.Bound
+    """
+    BOUNDED = auto()
+    """ [float, float]. Has a certain upper and lower bound 
+    """
+    LOWERBOUND = auto()
+    """ [float, BigM]. Has a certain lower bound 
+    """
+    UPPERBOUND = auto()
+    """ [0, float]. Has a certain upper bound 
     """
     UNBOUNDED = auto()
-    """Unbounded
+    """ [0, BigM]. Has no restricted upper bound
     """
-    UNDECIDED = auto()
-    """Depends on how the problem is modeled
+    EXACT = auto()
+    """ float. Has a exact value 
     """
+
+
+class ParamterType(Enum):
+    """What kind of behaviour does the parameter describe
+    All of these have subclasses
+    """
+    LIMIT = auto()
+    """Helps create boundaries for the problem 
+    by setting a min/max or exact limit for flow of resource.
+    """
+    CASHFLOW = auto()
+    """Expenditure/Revenue.
+    """
+    LAND = auto()
+    """Describes land use and such
+    """
+    EMISSION = auto()
+    """Is an emission.
+    """ 
+    LIFE = auto()
+    """Describes earliest introduction, retirement, lifetime and such
+    """
+    
+    
+class LimitType(Enum):
+    """What Resource flow is being limited 
+    at some spatiotemporal disposition 
+    """ 
+    DISCHARGE = auto()
+    """Outflow 
+    """ 
+    CONSUME = auto()
+    """Inflow 
+    """ 
+    STORE = auto()
+    """Inventory size 
+    """ 
+    CAPACITY = auto()
+    """Production capacity 
+    """ 
+    TRANSPORT = auto()
+    """Export capacity
+    """
+
+class CashFlowType(Enum):
+    """Money going towards or being made from
+    """
+    SELL_PRICE = auto()
+    """Revenue per unit basis of Resource sold
+    """
+    PURCHASE_PRICE = auto()
+    """Expenditure per unit basis of Resource consumed
+    """
+    STORAGE_COST = auto()
+    """Cost of maintaining Resource inventory
+    """ 
+    CREDIT = auto()
+    """Credit earned from production of Resource
+    """     
+    CAPEX = auto()
+    FOPEX = auto()
+    """Capital and fixed operational expenditure. Scales by Process capacity
+    """    
+    VOPEX = auto()
+    """Variable operational expenditure. Scales by total production from Process
+    """
+    INCIDENTAL = auto()
+    """Needs to be spent irrespective of process capacity
+    """
+    LAND_COST = auto()
+    """Expenditure on acquiring land
+    """
+
+class LandType(Enum):
+    """Land use or available at spatial scale 
+    """
+    USE = auto()
+    AVAILABLE = auto()
+
+
+class EmissionType(Enum):
+    """Type of emission being considered
+    """
+    GWP = auto()
+    """Global Warming Potential
+    """
+    ODP = auto()
+    """Ozone Depletion Potential
+    """
+    ACID = auto()
+    """Acidification Potential
+    """
+    EUTT = auto()
+    """Terrestrial Eutrophication Potential
+    """
+    EUTF = auto()
+    """Freshwater Eutrophication Potential
+    """
+    EUTM = auto()
+    """Marine Eutrophication Potential
+    """
+
+
+class LifeType(Enum):
+    """Constrictes the life of a Process or Transport 
+    """ 
+    INTRODUCE = auto()
+    """Earliest setup 
+    """
+    RETIRE = auto()
+    """Threshold on keeping active
+    """ 
+    LIFETIME = auto()
+    """Length of use
+    """    
+    PFAIL = auto()
+    """Chance of failure
+    """ 
+
+
+
 
 # # *-----------------------Factor------------------------------------------------
-
 
 resource_factors = {
     f'RESOURCE_{i}' for i in ResourceParamType.uncertain_factor()}
@@ -187,5 +348,3 @@ class MPVarType(Enum):
 
 for i in uncertain_params:
     setattr(MPVarType, i, i)
-
-
