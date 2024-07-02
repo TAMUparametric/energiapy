@@ -24,8 +24,7 @@ from .parameters.factor import Factor
 from .parameters.localization import Localization
 from .parameters.location import LocationParamType
 from .parameters.mpvar import Theta, create_mpvar
-from .parameters.paramtype import (FactorType, LocalizationType, MPVarType,
-                                   ParameterType)
+from .parameters.paramtype import *
 from .parameters.process import ProcessParamType
 from .parameters.resource import ResourceParamType
 from .parameters.special import Big, BigM, CouldBe, CouldBeVar

@@ -8,12 +8,12 @@ from warnings import warn
 from pandas import DataFrame
 
 from .comptype.resource import ResourceType
-from .parameter import Paramter
+from .parameter import Parameter
 from .temporal_scale import TemporalScale
 from .parameters.factor import Factor
 from .parameters.localization import Localization
 from .parameters.mpvar import Theta, create_mpvar
-from .parameters.paramtype import ParameterType, SpatialDisposition, TemporalDisposition, VariabilityType
+from .parameters.paramtype import *
 from .parameters.resource import ResourceParamType
 from .parameters.special import Big, BigM, CouldBe, CouldBeVar
 
@@ -115,23 +115,23 @@ class Resource:
 
     name: str
     # Temporal scale
-    scale: TemporalScale = None # not needed if no deterministic data or parameter scale is provided
+    scales: TemporalScale = None # not needed if no deterministic data or parameter scale is provided
     # LimitType
-    discharge: Union[float, bool, 'BigM', List[float], List[float, 'BigM'], DataFrame, Tuple[float, DataFrame], Tuple[float, Factor], Tuple[float], Theta] = None
+    discharge: Union[float, bool, 'BigM', List[Union[float, 'BigM']], DataFrame, Tuple[Union[float, DataFrame, Factor]], Theta] = None
     discharge_scale: int = None
-    consume: Union[float, bool, 'BigM', List[float], List[float, 'BigM'], DataFrame, Tuple[float, DataFrame], Tuple[float, Factor], Tuple[float], Theta] = None
+    consume: Union[float, bool, 'BigM', List[Union[float, 'BigM']], DataFrame, Tuple[Union[float, DataFrame, Factor]], Theta] = None
     consume_scale: int = None
-    store: Union[float, bool, 'BigM', List[float], List[float, 'BigM'], DataFrame, Tuple[float, DataFrame], Tuple[float, Factor], Tuple[float], Theta] = None
+    store: Union[float, bool, 'BigM', List[Union[float, 'BigM']], DataFrame, Tuple[Union[float, DataFrame, Factor]], Theta] = None
     store_scale: int = None
     # LossType 
     store_loss: Union[float, Tuple[float], Theta] = None
     store_loss_scale: int = None
     # CashFlowType
-    sell_price: Union[float, Tuple[float], Theta, DataFrame, Tuple[float, DataFrame], Tuple[float, Factor]] = None
-    purchase_price: Union[float, Tuple[float], Theta, DataFrame, Tuple[float, DataFrame], Tuple[float, Factor]] = None
-    storage_cost: Union[float, Tuple[float], Theta, DataFrame, Tuple[float, DataFrame], Tuple[float, Factor]] = None
-    credit: Union[float, Tuple[float], Theta, DataFrame, Tuple[float, DataFrame], Tuple[float, Factor]] = None
-    penalty: Union[float, Tuple[float], Theta, DataFrame, Tuple[float, DataFrame], Tuple[float, Factor]] = None
+    sell_price: Union[float, Theta, DataFrame, Tuple[Union[float, DataFrame, Factor]]] = None
+    purchase_price: Union[float, Theta, DataFrame, Tuple[Union[float, DataFrame, Factor]]] = None
+    storage_cost: Union[float, Theta, DataFrame, Tuple[Union[float, DataFrame, Factor]]] = None
+    credit: Union[float, Theta, DataFrame, Tuple[Union[float, DataFrame, Factor]]] = None
+    penalty: Union[float, Theta, DataFrame, Tuple[Union[float, DataFrame, Factor]]] = None
     # EmissionType
     gwp: Union[float, Tuple[float], Theta] = None
     odp: Union[float, Tuple[float], Theta] = None
@@ -176,7 +176,7 @@ class Resource:
         if self.sell_price:
             self.ctype.append(ResourceType.SELL)
             if not self.discharge:
-                self.discharge = True
+                self.discharge = BigM
 
         if self.discharge:
             self.ctype.append(ResourceType.DISCHARGE)
@@ -193,9 +193,9 @@ class Resource:
         if self.purchase_price:
             self.ctype.append(ResourceType.PURCHASE)
             if not self.consume:
-                self.consume = True
+                self.consume = BigM
 
-        if self.store_max:
+        if self.store:
             self.ctype.append(ResourceType.STORE)
 
         # *-----------------Set ptype (ParameterType) ---------------------------------
@@ -205,23 +205,33 @@ class Resource:
         # Factors can be declared at Location (Location, DataFrame), gets converted to  (Location, Factor)
 
         # self.ptype = dict()
-
-        for i in self.resource_level_parameters():
-            self.update_resource_level_parameter(parameter=i)
+        
+        for i in self.limits():
+            if getattr(self, i.lower()):
+                param_ = Parameter(value = getattr(self, i.lower()), ptype = ParameterType.LIMIT, spatial = SpatialDisp.NETWORK,
+                                   temporal = getattr(self, f'{i.lower()}_scale'), psubtype = getattr(Limit, i), component = self,
+                                   scales = self.scales)
+                setattr(self, i.lower(), param_)
+                
+        for i in self.cashflows():
+            if getattr(self, i.lower()):
+                param_ = Parameter(value = getattr(self, i.lower()), ptype = ParameterType.CASHFLOW, spatial = SpatialDisp.NETWORK,
+                                   temporal = None, psubtype = getattr(CashFlow, i), component = self, scales = self.scales)
+                setattr(self, i.lower(), param_)
+            
+            
+        
+        # for i in self.resource_level_parameters():
+        #     self.update_resource_level_parameter(parameter=i)
 
         # *-----------------Set etype (Emission)---------------------------------
         # Types of emission accounted for are declared here and EmissionTypes are set
 
-        for i in self.etypes():
-            attr_ = getattr(self, i.lower())
-            etype_ = getattr(EmissionType, i)
-            if attr_:
-                if not self.etype:  # if etype is not yet defined
-                    self.etype = []
-                    self.emissions = dict()
-                    self.ctype.append(ResourceType.EMISSION)
-                self.etype.append(etype_)
-                self.emissions[i.lower()] = attr_
+        for i in self.emissions():
+            if getattr(self, i.lower()):
+                param_ = Parameter(getattr(self, i.lower()), ptype= ParameterType.EMISSION, psubtype = getattr(Emission, i),
+                                   spatial = SpatialDisp, temporal = None, component = self)
+                setattr(self, i.lower(), param_)
 
         # *-----------------Random name ---------------------------------
         # A random name is generated if self.name = None
@@ -264,68 +274,80 @@ class Resource:
         return cls.__name__
 
     # * parameter types
-
+    
+    @classmethod 
+    def limits(cls) -> List[str]:
+        return Limit.resource()
+    
     @classmethod
-    def ptypes(cls) -> Set[str]:
-        """All Resource paramters
-        """
-        return ResourceParamType.all()
-
+    def cashflows(cls) -> List[str]:
+        return CashFlow.resource()
+    
     @classmethod
-    def resource_level_parameters(cls) -> Set[str]:
-        """Set when Resource is declared
-        """
-        return ResourceParamType.resource_level()
+    def emissions(cls) -> List[str]:
+        return Emission.all()
+    
+    # @classmethod
+    # def ptypes(cls) -> Set[str]:
+    #     """All Resource paramters
+    #     """
+    #     return ResourceParamType.all()
 
-    @classmethod
-    def location_level_parameters(cls) -> Set[str]:
-        """Set when Location is declared
-        """
-        return ResourceParamType.location_level()
+    # @classmethod
+    # def resource_level_parameters(cls) -> Set[str]:
+    #     """Set when Resource is declared
+    #     """
+    #     return ResourceParamType.resource_level()
 
-    @classmethod
-    def transport_level_parameters(cls) -> Set[str]:
-        """Set when Transport is declared
-        """
-        return ResourceParamType.transport_level()
+    # @classmethod
+    # def location_level_parameters(cls) -> Set[str]:
+    #     """Set when Location is declared
+    #     """
+    #     return ResourceParamType.location_level()
 
-    @classmethod
-    def uncertain_parameters(cls) -> Set[str]:
-        """Uncertain parameters
-        """
-        return ResourceParamType.uncertain()
+    # @classmethod
+    # def transport_level_parameters(cls) -> Set[str]:
+    #     """Set when Transport is declared
+    #     """
+    #     return ResourceParamType.transport_level()
 
-    @classmethod
-    def uncertain_factors(cls) -> Set[str]:
-        """Uncertain parameters for which factors are defined
-        """
-        return ResourceParamType.uncertain_factor()
+    # @classmethod
+    # def uncertain_parameters(cls) -> Set[str]:
+    #     """Uncertain parameters
+    #     """
+    #     return ResourceParamType.uncertain()
 
-    # * component class types
+    # @classmethod
+    # def uncertain_factors(cls) -> Set[str]:
+    #     """Uncertain parameters for which factors are defined
+    #     """
+    #     return ResourceParamType.uncertain_factor()
 
-    @classmethod
-    def ctypes(cls) -> Set[str]:
-        """All Resource paramters
-        """
-        return ResourceType.all()
+    # # * component class types
 
-    @classmethod
-    def resource_level_classifications(cls) -> Set[str]:
-        """Set when Resource is declared
-        """
-        return ResourceType.resource_level()
+    # @classmethod
+    # def ctypes(cls) -> Set[str]:
+    #     """All Resource paramters
+    #     """
+    #     return ResourceType.all()
 
-    @classmethod
-    def location_level_classifications(cls) -> Set[str]:
-        """Set when Location is declared
-        """
-        return ResourceType.location_level()
+    # @classmethod
+    # def resource_level_classifications(cls) -> Set[str]:
+    #     """Set when Resource is declared
+    #     """
+    #     return ResourceType.resource_level()
 
-    @classmethod
-    def transport_level_classifications(cls) -> Set[str]:
-        """Set when Transport is declared
-        """
-        return ResourceType.transport_level()
+    # @classmethod
+    # def location_level_classifications(cls) -> Set[str]:
+    #     """Set when Location is declared
+    #     """
+    #     return ResourceType.location_level()
+
+    # @classmethod
+    # def transport_level_classifications(cls) -> Set[str]:
+    #     """Set when Transport is declared
+    #     """
+    #     return ResourceType.transport_level()
 
     # * localization types
 

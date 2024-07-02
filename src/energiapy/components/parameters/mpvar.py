@@ -45,9 +45,8 @@ class Theta:
 
 
     """
-
-    psubtype: Union[Limit, CashFlow, Land, Emission, Life, Loss] = None
     bounds: tuple = None
+    psubtype: Union[Limit, CashFlow, Land, Emission, Life, Loss] = None
     component: Union['Resource', 'Process', 'Location',
                      'Transport', 'Network', 'Scenario'] = None
     spatial: SpatialDisp = None
@@ -57,7 +56,7 @@ class Theta:
 
     def __post_init__(self):
 
-        self.ptype = SpecialParamterType.MPVar
+        self.ptype = SpecialParameterType.MPVar
 
         if len(self.bounds) != 2:
             warn('bounds need be a tuple of length 2, e.g. (0, 29)')
@@ -66,7 +65,7 @@ class Theta:
             self.bounds = (0, 1)
 
         if self.psubtype:
-            self.name = f'Theta({self.psubtype.lower()}{self.component},{self.declared_at})'
+            self.name = f'Theta({self.psubtype.name.lower()}{self.component},{self.declared_at})'
 
         else:
             self.name = f'Theta({self.bounds})'

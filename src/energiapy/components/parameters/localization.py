@@ -5,9 +5,6 @@ from dataclasses import dataclass
 from enum import Enum, auto
 from typing import Optional, Tuple, Union
 
-from .paramtype import LocalizationType
-
-
 @dataclass
 class Localization:
     """Localizes parameters declared at the Resource or Process level
@@ -20,21 +17,22 @@ class Localization:
         ltype (LocalizationType): type of localization. see energiapy.components.parameters.paramtype
         location (Location): provide the Location
     """
+    pass
 
-    value: Tuple[float, int]
-    component: Union['Process', 'Resource']
-    ltype: LocalizationType
-    location: Optional['Location']
+    # value: Tuple[float, int]
+    # component: Union['Process', 'Resource']
+    # ltype: LocalizationType
+    # location: Optional['Location']
 
-    def __post_init__(self):
-        self.name = f'Localize({self.component.name},{self.location.name},{str(self.ltype).lower()})'.replace(
-            'localizationtype.', '').replace(f'{self.component.class_name()}_'.lower(), '')
+    # def __post_init__(self):
+    #     self.name = f'Localize({self.component.name},{self.location.name},{str(self.ltype).lower()})'.replace(
+    #         'localizationtype.', '').replace(f'{self.component.class_name()}_'.lower(), '')
 
-    def __repr__(self):
-        return self.name
+    # def __repr__(self):
+    #     return self.name
 
-    def __hash__(self):
-        return hash(self.name)
+    # def __hash__(self):
+    #     return hash(self.name)
 
-    def __eq__(self, other):
-        return self.name == other.name
+    # def __eq__(self, other):
+    #     return self.name == other.name

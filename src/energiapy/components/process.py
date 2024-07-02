@@ -9,14 +9,12 @@ from functools import reduce
 from typing import Dict, List, Set, Tuple, Union
 
 from ..utils.data_utils import get_depth
-from .comptype.emission import EmissionType
 from .comptype.process import ProcessType
 from .material import Material
 from .parameters.factor import Factor
 from .parameters.localization import Localization
 from .parameters.mpvar import Theta, create_mpvar
-from .parameters.paramtype import (FactorType, LocalizationType, MPVarType,
-                                   ParameterType)
+from .parameters.paramtype import *
 from .parameters.process import ProcessParamType
 from .parameters.special import BigM, CouldBeVar
 from .resource import Resource

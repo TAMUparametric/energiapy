@@ -18,7 +18,7 @@ ptype: ParameterType describes what the parameter models. There are subtypes for
 """
 
 from enum import Enum, auto
-# from typing import Set
+from typing import List 
 
 # from .location import LocationParamType
 # from .network import NetworkParamType
@@ -107,7 +107,7 @@ class UncertaintyType(Enum):
 #*-----Special------------------
 
 
-class SpecialParamterType(Enum):
+class SpecialParameterType(Enum):
     """Some special types of parameters
     Generally handled internally. But,
     Can be created externally and given as paramter values
@@ -125,10 +125,10 @@ class SpecialParamterType(Enum):
     """Created when uncertainty is handle using a parametric variable 
     """
 
-#*-----Paramter types and subtypes------------------
+#*-----Parameter types and subtypes------------------
 
 
-class ParamterType(Enum):
+class ParameterType(Enum):
     """What kind of behaviour does the parameter describe
     All of these have subclasses
     These are predetermined by me, Rahul Kakodkar. 
@@ -178,6 +178,22 @@ class Limit(Enum):
     Set at Transport
     """
 
+    @classmethod
+    def all(cls) -> List[str]:
+        return [i.name for i in cls]
+    
+    @classmethod
+    def resource(cls) -> List[str]:
+        return list(set(cls.all()) - set(['CAPACITY', 'TRANSPORT']))
+    
+    @classmethod
+    def process(cls) -> List[str]:
+        return ['CAPACITY']
+    
+    @classmethod
+    def transport(cls) -> List[str]:
+        return ['TRANSPORT']
+
 
 class CashFlow(Enum):
     """Money going towards or being made from
@@ -210,7 +226,28 @@ class CashFlow(Enum):
     LAND_COST = auto()
     """Expenditure on acquiring land
     """
-
+    
+    @classmethod 
+    def resource(cls) -> List[str]:
+        return ['SELL_PRICE', 'PURCHASE_PRICE', 'STORAGE_COST', 'CREDIT', 'PENALTY']
+    
+    @classmethod
+    def process(cls) -> List[str]:
+        return ['CAPEX', 'FOPEX', 'VOPEX', 'INCIDENTAL']
+    
+    @classmethod 
+    def transport(cls) -> List[str]:
+        return cls.process()
+    
+    @classmethod
+    def location(cls) -> List[str]:
+        return ['LAND_COST']
+    
+    @classmethod
+    def network(cls) -> List[str]:
+        return cls.location()
+    
+    
 
 class Land(Enum):
     """Land use or available at spatial scale 
@@ -221,6 +258,23 @@ class Land(Enum):
     AVAILABLE = auto()
     """Upper bound 
     """
+    
+    @classmethod
+    def process(cls) -> List[str]:
+        return ['USE']
+    
+    @classmethod 
+    def transport(cls) -> List[str]:
+        return cls.process()
+    
+    @classmethod
+    def location(cls) -> List[str]:
+        return ['AVAILABLE']
+    
+    @classmethod
+    def network(cls) -> List[str]:
+        return cls.location()
+    
 
 
 class Emission(Enum):
@@ -244,6 +298,11 @@ class Emission(Enum):
     EUTM = auto()
     """Marine Eutrophication Potential
     """
+    
+    @classmethod
+    def all(cls) -> List[str]:
+        return [i.name for i in cls]
+
 
 
 class Life(Enum):
@@ -261,12 +320,30 @@ class Life(Enum):
     PFAIL = auto()
     """Chance of failure
     """
+    
+    @classmethod
+    def process(cls) -> List[str]:
+        return [i.name for i in cls]
+    
+    @classmethod 
+    def transport(cls) -> List[str]:
+        return [i.name for i in cls]
+
 
 class Loss(Enum):
     """Resource lost during?
     """
     STORAGE = auto()
     TRANSPORT = auto()
+    
+    @classmethod
+    def resource(cls) -> List[str]:
+        return ['STORAGE']
+    
+    @classmethod 
+    def transport(cls) -> List[str]:
+        return ['TRANSPORT']
+    
 
 # # # *-----------------------Factor------------------------------------------------
 

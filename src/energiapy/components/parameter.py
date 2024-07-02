@@ -5,20 +5,19 @@ from .parameters.factor import Factor
 from pandas import DataFrame
 from .parameters.paramtype import *
 from .parameters.special import Big, BigM
-from ..components import *
-
+from .temporal_scale import TemporalScale 
 
 @dataclass
-class Paramter:
-    value: Union[float, bool, 'BigM', List[float], List[float, 'BigM'],
+class Parameter:
+    value: Union[float, bool, 'BigM', List[float], List[Union[float, 'BigM']],
                  DataFrame, Dict[float, DataFrame], Dict[float, Factor], Tuple[float], Theta]
-    ptype: ParamterType
-    psubtype: Union[Limit, CashFlow,
-                    Land, Emission, Life, Loss]
+    ptype: ParameterType
     spatial: SpatialDisp
     temporal: TemporalDisp
-    component: Union[Resource, Process, Location, Transport, Network]
-    declared_at: Union[Process, Location, Transport, Network] = None
+    component: Union['Resource', 'Process', 'Location', 'Transport', 'Network']
+    psubtype: Union[Limit, CashFlow,
+                    Land, Life, Loss] = None
+    declared_at: Union['Process', 'Location', 'Transport', 'Network'] = None
     scales: TemporalScale = None
 
     def __post_init__(self):
@@ -79,12 +78,13 @@ class Paramter:
             factor_ = Factor(data=self.value, scales=self.scales, component=self.component, declared_at=self.declared_at, psubtype=self.psubtype,
                              spatial=self.spatial, temporal=self.temporal)
             self.value = factor_
+            #TODO Set temporal disposition 
 
         dec_at = ''
         if self.declared_at:
             dec_at = f',{self.declared_at.name}'
 
-        self.name = f'{self.psubtype.lower()}({self.component.name}{dec_at})'
+        self.name = f'{self.psubtype.name.lower()}({self.component.name}{dec_at})'
 
     def __repr__(self):
         return self.name
