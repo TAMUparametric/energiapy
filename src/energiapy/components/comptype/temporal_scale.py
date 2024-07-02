@@ -2,7 +2,7 @@ from enum import Enum, auto
 from typing import Set
 
 
-class TemporalScaleType(Enum):
+class ScaleType(Enum):
     """Classifies problem as having multiple or single scales  for decision making
     """
     MULTI = auto()

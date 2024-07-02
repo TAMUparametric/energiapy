@@ -1,4 +1,3 @@
-from .emission import EmissionType
 from .location import LocationType
 from .network import NetworkType
 from .process import ProcessType

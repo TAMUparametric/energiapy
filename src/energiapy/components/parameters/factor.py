@@ -8,7 +8,7 @@ from pandas import DataFrame
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 
 from ..temporal_scale import TemporalScale
-from .paramtype import FactorType
+from .paramtype import *
 
 
 @dataclass
@@ -32,10 +32,15 @@ class Factor:
 
     data: DataFrame
     scales: TemporalScale
-    component: Union['Process', 'Resource', 'Location', 'Transport'] = None
-    location: Union['Location', Tuple['Location', 'Location']] = None
     nominal: float = None
-    ftype: FactorType = None
+    psubtype: Union[Limit, CashFlow, Land, Emission, Life, Loss] = None
+    bounds: tuple = None
+    component: Union['Resource', 'Process', 'Location',
+                     'Transport', 'Network', 'Scenario'] = None
+    spatial: SpatialDisp = None
+    temporal: TemporalDisp = None
+    declared_at: Union['Process', 'Location',
+                       'Transport', 'Network', 'Scenario'] = None
     apply_max_scaler: bool = None
     apply_min_max_scaler: bool = None
     apply_standard_scaler: bool = None
@@ -49,37 +54,37 @@ class Factor:
             self.scale = self.data.scale
             self.scaled = self.data.scaled
             self.data = self.data.data
-            if isinstance(self.location, tuple):
-                self.name = f'Factor({self.component.name},({self.location[0].name},{self.location[1].name}),{str(self.ftype).lower()})'.replace(
+            if isinstance(self.declared_at, tuple):
+                self.name = f'Factor({self.component.name},({self.declared_at[0].name},{self.declared_at[1].name}),{str(self.psubtype).lower()})'.replace(
                     'factortype.', '').replace(f'{self.component.class_name()}_'.lower(), '')
             else:
-                if self.location is None:  # defined for location or network
-                    self.name = f'Factor({self.component.name},{str(self.ftype).lower()})'.replace(
+                if self.declared_at is None:  # defined for location or network
+                    self.name = f'Factor({self.component.name},{str(self.psubtype).lower()})'.replace(
                         'factortype.', '').replace(f'{self.component.class_name()}_'.lower(), '')
                 else:
-                    self.name = f'Factor({self.component.name},{self.location.name},{str(self.ftype).lower()})'.replace(
+                    self.name = f'Factor({self.component.name},{self.declared_at.name},{str(self.psubtype).lower()})'.replace(
                         'factortype.', '').replace(f'{self.component.class_name()}_'.lower(), '')
 
         else:
             if self.component:
                 if isinstance(self.data, DataFrame) is False:
                     raise ValueError(
-                        f'{str(self.ftype).lower()} factor for {self.component.name}: please provide DataFrame')
+                        f'{str(self.psubtype).lower()} factor for {self.component.name}: please provide DataFrame')
 
-                if isinstance(self.location, tuple):
-                    self.name = f'Factor({self.component.name},({self.location[0].name},{self.location[1].name}),{str(self.ftype).lower()})'.replace(
+                if isinstance(self.declared_at, tuple):
+                    self.name = f'Factor({self.component.name},({self.declared_at[0].name},{self.declared_at[1].name}),{str(self.psubtype).lower()})'.replace(
                         'factortype.', '').replace(f'{self.component.class_name()}_'.lower(), '')
                 else:
-                    if self.location is None:  # defined for location or network
-                        self.name = f'Factor({self.component.name},{str(self.ftype).lower()})'.replace(
+                    if self.declared_at is None:  # defined for location or network
+                        self.name = f'Factor({self.component.name},{str(self.psubtype).lower()})'.replace(
                             'factortype.', '').replace(f'{self.component.class_name()}_'.lower(), '')
                     else:
-                        self.name = f'Factor({self.component.name},{self.location.name},{str(self.ftype).lower()})'.replace(
+                        self.name = f'Factor({self.component.name},{self.declared_at.name},{str(self.psubtype).lower()})'.replace(
                             'factortype.', '').replace(f'{self.component.class_name()}_'.lower(), '')
             else:
                 if isinstance(self.data, DataFrame) is False:
                     raise ValueError(
-                        f'{str(self.ftype).lower()}: please provide DataFrame')
+                        f'{str(self.psubtype).lower()}: please provide DataFrame')
                 self.dont_redef = True
 
             if len(self.data) in self.scales.index_n_list:
@@ -118,7 +123,7 @@ class Factor:
                     self.data = self.data.to_dict()[self.data.columns[0]]
 
             else:
-                raise ValueError(f'{str(self.ftype).lower()} factor for {self.component.name}: length of data does not match any scale index'.replace(
+                raise ValueError(f'{str(self.psubtype).lower()} factor for {self.component.name}: length of data does not match any scale index'.replace(
                     'factortype.', ''))
 
     def __repr__(self):

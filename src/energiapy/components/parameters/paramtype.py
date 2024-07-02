@@ -155,7 +155,7 @@ class ParamterType(Enum):
     """
 
 
-class LimitType(Enum):
+class Limit(Enum):
     """What Resource flow is being limited 
     at some spatiotemporal disposition 
     """
@@ -179,7 +179,7 @@ class LimitType(Enum):
     """
 
 
-class CashFlowType(Enum):
+class CashFlow(Enum):
     """Money going towards or being made from
     """
     SELL_PRICE = auto()
@@ -212,7 +212,7 @@ class CashFlowType(Enum):
     """
 
 
-class LandType(Enum):
+class Land(Enum):
     """Land use or available at spatial scale 
     """
     USE = auto()
@@ -223,7 +223,7 @@ class LandType(Enum):
     """
 
 
-class EmissionType(Enum):
+class Emission(Enum):
     """Type of emission being considered
     """
     GWP = auto()
@@ -246,7 +246,7 @@ class EmissionType(Enum):
     """
 
 
-class LifeType(Enum):
+class Life(Enum):
     """Constrictes the life of a Process or Transport 
     """
     INTRODUCE = auto()
@@ -262,7 +262,7 @@ class LifeType(Enum):
     """Chance of failure
     """
 
-class LossType(Enum):
+class Loss(Enum):
     """Resource lost during?
     """
     STORAGE = auto()
