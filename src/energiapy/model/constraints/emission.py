@@ -343,6 +343,493 @@ def constraint_global_warming_potential_20_resource(instance: ConcreteModel, emi
     constraint_latex_render(global_warming_potential_process_rule)
     return instance.constraint_global_warming_potential_process
 
+# Marco's code begins here
+
+def constraint_global_warming_potential_process_scope1(instance: ConcreteModel, process_gwp_dict: dict, network_scale_level: int = 0) -> Constraint:
+    """calculates scope 1 global warming potential for each process
+
+    Args:
+        instance (ConcreteModel): pyomo model instance
+        process_gwp_dict (dict): _description_
+        network_scale_level (int, optional): scale for network decisions. Defaults to 0.
+
+    Returns:
+        Constraint: global_warming_potential_process
+    """
+    scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
+
+    def global_warming_potential_process_rule_scope1(instance, location, process,  *scale_list):
+        return instance.global_warming_potential_process_scope1[location, process, scale_list] == process_gwp_dict[location][process]*instance.Cap_P[location, process, scale_list]
+    instance.constraint_global_warming_potential_process_scope1 = Constraint(
+        instance.locations, instance.processes, *scales, rule=global_warming_potential_process_rule_scope1, doc='scope 1 global warming potential for the each process')
+    constraint_latex_render(global_warming_potential_process_rule_scope1)
+    return instance.constraint_global_warming_potential_process_scope1
+
+
+def constraint_global_warming_potential_material_mode_scope1(instance: ConcreteModel, material_gwp_dict: dict, process_material_mode_material_dict: dict, network_scale_level: int = 0) -> Constraint:
+    """Calculates the scope 1 global warming potential arising from the use of materials for processes in each material mode
+
+    Args:
+        instance (ConcreteModel): pyomo model instance
+        material_gwp_dict (dict): GWP associated with each material
+        process_material_mode_material_dict (dict): Material consumed by each process for each material mode
+        network_scale_level (int, optional): scale for network decisions. Defaults to 0.
+
+    Returns:
+        Constraint: global_warming_potential_material_mode
+    """
+    scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
+
+    def global_warming_potential_material_mode_rule_scope1(instance, location, process, material_mode, *scale_list):
+        if material_mode in process_material_mode_material_dict[process]:
+            return instance.global_warming_potential_material_mode_scope1[location, process, material_mode, scale_list] == \
+                sum(process_material_mode_material_dict[process][material_mode][material]*material_gwp_dict[location][material]
+                    for material in instance.materials if material in process_material_mode_material_dict[process][material_mode]) * instance.Cap_P_M[location, process, material_mode, scale_list]
+        else:
+            return Constraint.Skip
+    instance.constraint_global_warming_potential_material_mode_scope1 = Constraint(
+        instance.locations, instance.processes_materials, instance.material_modes, *scales, rule=global_warming_potential_material_mode_rule_scope1, doc='global warming potential for the each material')
+    constraint_latex_render(global_warming_potential_material_mode_rule_scope1)
+    return instance.constraint_global_warming_potential_material_mode_scope1
+
+
+def constraint_global_warming_potential_material_scope1(instance: ConcreteModel, network_scale_level: int = 0) -> Constraint:
+    """Calculates the scope 1 global warming potential arising from the use of materials for processes across all material modes
+
+    Args:
+        instance (ConcreteModel): pyomo model instance
+        network_scale_level (int, optional): scale for network decisions. Defaults to 0.
+
+    Returns:
+        Constraint: global_warming_potential_material
+    """
+    scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
+
+    def global_warming_potential_material_rule_scope1(instance, location, process,  *scale_list):
+        return instance.global_warming_potential_material_scope1[location, process, scale_list] == sum(instance.global_warming_potential_material_mode_scope1[location, process, material_mode_, scale_list] for material_mode_ in instance.material_modes)
+    instance.constraint_global_warming_potential_material_scope1 = Constraint(
+        instance.locations, instance.processes_materials, *scales, rule=global_warming_potential_material_rule_scope1, doc='scope 1 global warming potential for the each material')
+    constraint_latex_render(global_warming_potential_material_rule_scope1)
+    return instance.constraint_global_warming_potential_material_scope1
+
+
+def constraint_global_warming_potential_resource_consumption_scope1(instance: ConcreteModel, resource_gwp_dict: dict, network_scale_level: int = 0) -> Constraint:
+    """Calculates the scope 1 global warming potential from each resource consumed
+
+    Args:
+        instance (ConcreteModel): pyomo model instance
+        resource_gwp_dict (dict): GWP associated with each resource
+        network_scale_level (int, optional): scale for network decisions. Defaults to 0.
+
+    Returns:
+        Constraint: global_warming_potential_resource
+    """
+    scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
+
+    def global_warming_potential_resource_consumption_rule_scope1(instance, location, resource,  *scale_list):
+        # if resource_gwp_dict[location][resource] > 0:
+        return instance.global_warming_potential_resource_consumption_scope1[location, resource, scale_list] == resource_gwp_dict[location][resource]*instance.C_location[location, resource, scale_list]
+        # else:
+        #     return instance.global_warming_potential_resource_consumption[location, resource, scale_list] == 0
+    instance.constraint_global_warming_potential_resource_consumption_scope1 = Constraint(
+        instance.locations, instance.resources_purch_scope1, *scales, rule=global_warming_potential_resource_consumption_rule_scope1, doc='scope 1 global warming potential for the each resource consumed')
+    constraint_latex_render(global_warming_potential_resource_consumption_rule_scope1)
+    return instance.constraint_global_warming_potential_resource_consumption_scope1
+
+def constraint_global_warming_potential_resource_discharge_scope1(instance: ConcreteModel, resource_gwp_dict: dict, network_scale_level: int = 0) -> Constraint:
+    """Calculates the scope 1 global warming potential from each resource
+
+    Args:
+        instance (ConcreteModel): pyomo model instance
+        resource_gwp_dict (dict): GWP associated with each resource
+        network_scale_level (int, optional): scale for network decisions. Defaults to 0.
+
+    Returns:
+        Constraint: global_warming_potential_resource
+    """
+    scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
+
+    def global_warming_potential_resource_discharge_rule_scope1(instance, location, resource,  *scale_list):
+        return instance.global_warming_potential_resource_discharge_scope1[location, resource, scale_list] == resource_gwp_dict[location][resource]*instance.S_location[location, resource, scale_list]
+    instance.constraint_global_warming_potential_resource_discharge_scope1 = Constraint(
+        instance.locations, instance.resources_sell_scope1, *scales, rule=global_warming_potential_resource_discharge_rule_scope1, doc='global warming potential for the each resource discharged')
+    constraint_latex_render(global_warming_potential_resource_discharge_rule_scope1)
+    return instance.constraint_global_warming_potential_resource_discharge_scope1
+
+
+def constraint_global_warming_potential_resource_scope1(instance: ConcreteModel, network_scale_level: int = 0) -> Constraint:
+    """Calculates the scope 1 global warming potential from each resource
+
+    Args:
+        instance (ConcreteModel): pyomo model instance
+        network_scale_level (int, optional): scale for network decisions. Defaults to 0.
+
+    Returns:
+        Constraint: global_warming_potential_resource
+    """
+    scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
+
+    def global_warming_potential_resource_rule_scope1(instance, location, resource,  *scale_list):
+        # if (resource in instance.resources_sell) or (resource in instance.resources_purch):
+        if resource in instance.resources_sell_scope1:
+            sales = instance.global_warming_potential_resource_discharge_scope1[location,
+                                                                         resource, scale_list]
+        else:
+            sales = 0
+
+        if resource in instance.resources_purch_scope1:
+            purch = instance.global_warming_potential_resource_consumption_scope1[
+                location, resource, scale_list]
+
+        else:
+            purch = 0
+        return instance.global_warming_potential_resource_scope1[location, resource, scale_list] == sales + purch
+
+        # else:
+        #     return Constraint.Skip
+    instance.constraint_global_warming_potential_resource_scope1 = Constraint(
+        instance.locations, instance.resources, *scales, rule=global_warming_potential_resource_rule_scope1, doc='scope 1 global warming potential for the each resource')
+    constraint_latex_render(global_warming_potential_resource_rule_scope1)
+    return instance.constraint_global_warming_potential_resource_scope1
+
+
+def constraint_global_warming_potential_location_scope1(instance: ConcreteModel, network_scale_level: int = 0) -> Constraint:
+    """Calculates the scope 1 global warming potential at each location
+
+    Args:
+        instance (ConcreteModel): pyomo model instance
+        network_scale_level (int, optional): scale for network decisions. Defaults to 0.
+
+    Returns:
+        Constraint: global_warming_potential_location
+    """
+    scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
+
+    def global_warming_potential_location_rule_scope1(instance, location, *scale_list):
+        gwp_process_scope1 = sum(
+            instance.global_warming_potential_process_scope1[location, process_, scale_list] for process_ in instance.processes)
+        gwp_resource_scope1 = sum(
+            instance.global_warming_potential_resource_scope1[location, resource_, scale_list] for resource_ in instance.resources)
+        gwp_material_scope1 = sum(
+            instance.global_warming_potential_material_scope1[location, material_, scale_list] for material_ in instance.processes_materials)
+
+        return instance.global_warming_potential_location_scope1[location, scale_list] == gwp_process_scope1 + gwp_resource_scope1 + gwp_material_scope1
+    instance.constraint_global_warming_potential_location_scope1 = Constraint(
+        instance.locations, *scales, rule=global_warming_potential_location_rule_scope1, doc='scope 1 global warming potential for the each location')
+    constraint_latex_render(global_warming_potential_location_rule_scope1)
+    return instance.constraint_global_warming_potential_location_scope1
+
+
+def constraint_global_warming_potential_network_scope1(instance: ConcreteModel, network_scale_level: int = 0) -> Constraint:
+    """ scope 1 global warming potential for the whole network
+
+    Args:
+        instance (ConcreteModel): pyomo model instance
+        network_scale_level (int, optional): scale for network decisions. Defaults to 0.
+
+    Returns:
+        Constraint: global_warming_potential_network
+    """
+    scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
+
+    def global_warming_potential_network_rule_scope1(instance, *scale_list):
+        return instance.global_warming_potential_network_scope1[scale_list] == \
+            sum(instance.global_warming_potential_location_scope1[location_,
+                scale_list] for location_ in instance.locations)
+    instance.constraint_global_warming_potential_network_scope1 = Constraint(
+        *scales, rule=global_warming_potential_network_rule_scope1, doc='scope 1 global warming potential for the whole network')
+    constraint_latex_render(global_warming_potential_network_rule_scope1)
+    return instance.constraint_global_warming_potential_network_scope1
+
+
+def constraint_global_warming_potential_network_reduction_scope1(instance: ConcreteModel, network_scale_level: int = 0, gwp_reduction_pct: float = 0, gwp: float = 0) -> Constraint:
+    """Required reduction in scope 1 global warming potential at network level
+
+    Args:
+        instance (ConcreteModel): pyomo model instance
+        network_scale_level (int, optional): scale for network decisions. Defaults to 0.
+        gwp_reduction_pct (float, optional): GWP reduction required. Defaults to 0.
+        gwp (float, optional): Base Case (Current) GWP. Defaults to 0.
+
+    Returns:
+        Constraint: global_warming_potential_network_reduction
+    """
+    scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
+
+    def global_warming_potential_network_reduction_rule_scope1(instance, *scale_list):
+        return instance.global_warming_potential_network_scope1[scale_list] <= gwp*(1 - gwp_reduction_pct/100)
+    instance.constraint_global_warming_potential_network_reduction_scope1 = Constraint(
+        *scales, rule=global_warming_potential_network_reduction_rule_scope1, doc='scope 1 global warming potential for the whole network')
+    constraint_latex_render(global_warming_potential_network_reduction_rule_scope1)
+    return instance.constraint_global_warming_potential_network_reduction_scope1
+
+
+def constraint_global_warming_potential_network_bound_scope1(instance: ConcreteModel, gwp_bound: float, network_scale_level: int = 0) -> Constraint:
+    """Required bound in scope 1 global warming potential at network level
+
+    Args:
+        instance (ConcreteModel): pyomo model instance
+        network_scale_level (int, optional): scale for network decisions. Defaults to 0.
+        gwp_bound_pct (float, optional): GWP bound required. Defaults to 0.
+        gwp (float, optional): Base Case (Current) GWP. Defaults to 0.
+
+    Returns:
+        Constraint: global_warming_potential_network_bound
+    """
+    scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
+
+    def global_warming_potential_network_bound_rule_scope1(instance, *scale_list):
+        return instance.global_warming_potential_network_scope1[scale_list] <= gwp_bound
+    constraint_latex_render(global_warming_potential_network_bound_rule_scope1)
+    return Constraint(
+        *scales, rule=global_warming_potential_network_bound_rule_scope1, doc='scope 1 global warming potential bound for the whole network')
+
+#Marco's code ends here
+
+# Marco's code begins here
+
+def constraint_global_warming_potential_process_scope2(instance: ConcreteModel, process_gwp_dict: dict, network_scale_level: int = 0) -> Constraint:
+    """calculates scope 2 global warming potential for each process
+
+    Args:
+        instance (ConcreteModel): pyomo model instance
+        process_gwp_dict (dict): _description_
+        network_scale_level (int, optional): scale for network decisions. Defaults to 0.
+
+    Returns:
+        Constraint: global_warming_potential_process
+    """
+    scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
+
+    def global_warming_potential_process_rule_scope2(instance, location, process,  *scale_list):
+        return instance.global_warming_potential_process_scope2[location, process, scale_list] == process_gwp_dict[location][process]*instance.Cap_P[location, process, scale_list]
+    instance.constraint_global_warming_potential_process_scope2 = Constraint(
+        instance.locations, instance.processes, *scales, rule=global_warming_potential_process_rule_scope2, doc='scope 2 global warming potential for the each process')
+    constraint_latex_render(global_warming_potential_process_rule_scope2)
+    return instance.constraint_global_warming_potential_process_scope2
+
+
+def constraint_global_warming_potential_material_mode_scope2(instance: ConcreteModel, material_gwp_dict: dict, process_material_mode_material_dict: dict, network_scale_level: int = 0) -> Constraint:
+    """Calculates the scope 2 global warming potential arising from the use of materials for processes in each material mode
+
+    Args:
+        instance (ConcreteModel): pyomo model instance
+        material_gwp_dict (dict): GWP associated with each material
+        process_material_mode_material_dict (dict): Material consumed by each process for each material mode
+        network_scale_level (int, optional): scale for network decisions. Defaults to 0.
+
+    Returns:
+        Constraint: global_warming_potential_material_mode
+    """
+    scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
+
+    def global_warming_potential_material_mode_rule_scope2(instance, location, process, material_mode, *scale_list):
+        if material_mode in process_material_mode_material_dict[process]:
+            return instance.global_warming_potential_material_mode_scope2[location, process, material_mode, scale_list] == \
+                sum(process_material_mode_material_dict[process][material_mode][material]*material_gwp_dict[location][material]
+                    for material in instance.materials if material in process_material_mode_material_dict[process][material_mode]) * instance.Cap_P_M[location, process, material_mode, scale_list]
+        else:
+            return Constraint.Skip
+    instance.constraint_global_warming_potential_material_mode_scope2 = Constraint(
+        instance.locations, instance.processes_materials, instance.material_modes, *scales, rule=global_warming_potential_material_mode_rule_scope2, doc='scope 2 global warming potential for the each material')
+    constraint_latex_render(global_warming_potential_material_mode_rule_scope2)
+    return instance.constraint_global_warming_potential_material_mode_scope2
+
+
+def constraint_global_warming_potential_material_scope2(instance: ConcreteModel, network_scale_level: int = 0) -> Constraint:
+    """Calculates the scope 2 global warming potential arising from the use of materials for processes across all material modes
+
+    Args:
+        instance (ConcreteModel): pyomo model instance
+        network_scale_level (int, optional): scale for network decisions. Defaults to 0.
+
+    Returns:
+        Constraint: global_warming_potential_material
+    """
+    scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
+
+    def global_warming_potential_material_rule_scope2(instance, location, process,  *scale_list):
+        return instance.global_warming_potential_material_scope2[location, process, scale_list] == sum(instance.global_warming_potential_material_mode_scope2[location, process, material_mode_, scale_list] for material_mode_ in instance.material_modes)
+    instance.constraint_global_warming_potential_material_scope2 = Constraint(
+        instance.locations, instance.processes_materials, *scales, rule=global_warming_potential_material_rule_scope2, doc='scope 2 global warming potential for the each material')
+    constraint_latex_render(global_warming_potential_material_rule_scope2)
+    return instance.constraint_global_warming_potential_material_scope2
+
+
+def constraint_global_warming_potential_resource_consumption_scope2(instance: ConcreteModel, resource_gwp_dict: dict, network_scale_level: int = 0) -> Constraint:
+    """Calculates the scope 2 global warming potential from each resource consumed
+
+    Args:
+        instance (ConcreteModel): pyomo model instance
+        resource_gwp_dict (dict): GWP associated with each resource
+        network_scale_level (int, optional): scale for network decisions. Defaults to 0.
+
+    Returns:
+        Constraint: global_warming_potential_resource
+    """
+    scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
+
+    def global_warming_potential_resource_consumption_rule_scope2(instance, location, resource,  *scale_list):
+        # if resource_gwp_dict[location][resource] > 0:
+        return instance.global_warming_potential_resource_consumption_scope2[location, resource, scale_list] == resource_gwp_dict[location][resource]*instance.C_location[location, resource, scale_list]
+        # else:
+        #     return instance.global_warming_potential_resource_consumption[location, resource, scale_list] == 0
+    instance.constraint_global_warming_potential_resource_consumption_scope2 = Constraint(
+        instance.locations, instance.resources_purch_scope2, *scales, rule=global_warming_potential_resource_consumption_rule_scope2, doc='scope 1 global warming potential for the each resource consumed')
+    constraint_latex_render(global_warming_potential_resource_consumption_rule_scope2)
+    return instance.constraint_global_warming_potential_resource_consumption_scope2
+
+def constraint_global_warming_potential_resource_discharge_scope2(instance: ConcreteModel, resource_gwp_dict: dict, network_scale_level: int = 0) -> Constraint:
+    """Calculates the scope 2 global warming potential from each resource being discharged
+
+    Args:
+        instance (ConcreteModel): pyomo model instance
+        resource_gwp_dict (dict): GWP associated with each resource
+        network_scale_level (int, optional): scale for network decisions. Defaults to 0.
+
+    Returns:
+        Constraint: global_warming_potential_resource
+    """
+    scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
+
+    def global_warming_potential_resource_discharge_rule_scope2(instance, location, resource,  *scale_list):
+        return instance.global_warming_potential_resource_discharge_scope2[location, resource, scale_list] == resource_gwp_dict[location][resource]*instance.S_location[location, resource, scale_list]
+    instance.constraint_global_warming_potential_resource_discharge_scope2 = Constraint(
+        instance.locations, instance.resources_sell_scope2, *scales, rule=global_warming_potential_resource_discharge_rule_scope2, doc='scope 2 global warming potential for the each resource discharged')
+    constraint_latex_render(global_warming_potential_resource_discharge_rule_scope2)
+    return instance.constraint_global_warming_potential_resource_discharge_scope2
+
+
+def constraint_global_warming_potential_resource_scope2(instance: ConcreteModel, network_scale_level: int = 0) -> Constraint:
+    """Calculates the scope 2 global warming potential from each resource
+
+    Args:
+        instance (ConcreteModel): pyomo model instance
+        network_scale_level (int, optional): scale for network decisions. Defaults to 0.
+
+    Returns:
+        Constraint: global_warming_potential_resource
+    """
+    scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
+
+    def global_warming_potential_resource_rule_scope2(instance, location, resource,  *scale_list):
+        # if (resource in instance.resources_sell) or (resource in instance.resources_purch):
+        if resource in instance.resources_sell_scope2:
+            sales = instance.global_warming_potential_resource_discharge_scope2[location,
+                                                                         resource, scale_list]
+        else:
+            sales = 0
+
+        if resource in instance.resources_purch_scope2:
+            purch = instance.global_warming_potential_resource_consumption_scope2[
+                location, resource, scale_list]
+
+        else:
+            purch = 0
+        return instance.global_warming_potential_resource_scope2[location, resource, scale_list] == sales + purch
+
+        # else:
+        #     return Constraint.Skip
+    instance.constraint_global_warming_potential_resource_scope2 = Constraint(
+        instance.locations, instance.resources, *scales, rule=global_warming_potential_resource_rule_scope2, doc='scope 2 global warming potential for the each resource')
+    constraint_latex_render(global_warming_potential_resource_rule_scope2)
+    return instance.constraint_global_warming_potential_resource_scope2
+
+
+def constraint_global_warming_potential_location_scope2(instance: ConcreteModel, network_scale_level: int = 0) -> Constraint:
+    """Calculates the scope 2 global warming potential at each location
+
+    Args:
+        instance (ConcreteModel): pyomo model instance
+        network_scale_level (int, optional): scale for network decisions. Defaults to 0.
+
+    Returns:
+        Constraint: global_warming_potential_location
+    """
+    scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
+
+    def global_warming_potential_location_rule_scope2(instance, location, *scale_list):
+        gwp_process_scope2 = sum(
+            instance.global_warming_potential_process_scope2[location, process_, scale_list] for process_ in instance.processes)
+        gwp_resource_scope2 = sum(
+            instance.global_warming_potential_resource_scope2[location, resource_, scale_list] for resource_ in instance.resources)
+        gwp_material_scope2 = sum(
+            instance.global_warming_potential_material_scope2[location, material_, scale_list] for material_ in instance.processes_materials)
+
+        return instance.global_warming_potential_location_scope2[location, scale_list] == gwp_process_scope2 + gwp_resource_scope2 + gwp_material_scope2
+    instance.constraint_global_warming_potential_location_scope2 = Constraint(
+        instance.locations, *scales, rule=global_warming_potential_location_rule_scope2, doc='scope 2 global warming potential for the each location')
+    constraint_latex_render(global_warming_potential_location_rule_scope2)
+    return instance.constraint_global_warming_potential_location_scope2
+
+
+def constraint_global_warming_potential_network_scope2(instance: ConcreteModel, network_scale_level: int = 0) -> Constraint:
+    """ scope 2 global warming potential for the whole network
+
+    Args:
+        instance (ConcreteModel): pyomo model instance
+        network_scale_level (int, optional): scale for network decisions. Defaults to 0.
+
+    Returns:
+        Constraint: global_warming_potential_network
+    """
+    scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
+
+    def global_warming_potential_network_rule_scope2(instance, *scale_list):
+        return instance.global_warming_potential_network_scope2[scale_list] == \
+            sum(instance.global_warming_potential_location_scope2[location_,
+                scale_list] for location_ in instance.locations)
+    instance.constraint_global_warming_potential_network_scope2 = Constraint(
+        *scales, rule=global_warming_potential_network_rule_scope2, doc='scope 2 global warming potential for the whole network')
+    constraint_latex_render(global_warming_potential_network_rule_scope2)
+    return instance.constraint_global_warming_potential_network_scope2
+
+
+def constraint_global_warming_potential_network_reduction_scope2(instance: ConcreteModel, network_scale_level: int = 0, gwp_reduction_pct: float = 0, gwp: float = 0) -> Constraint:
+    """Required reduction in scope 2 global warming potential at network level
+
+    Args:
+        instance (ConcreteModel): pyomo model instance
+        network_scale_level (int, optional): scale for network decisions. Defaults to 0.
+        gwp_reduction_pct (float, optional): GWP reduction required. Defaults to 0.
+        gwp (float, optional): Base Case (Current) GWP. Defaults to 0.
+
+    Returns:
+        Constraint: global_warming_potential_network_reduction
+    """
+    scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
+
+    def global_warming_potential_network_reduction_rule_scope2(instance, *scale_list):
+        return instance.global_warming_potential_network_scope2[scale_list] <= gwp*(1 - gwp_reduction_pct/100)
+    instance.constraint_global_warming_potential_network_reduction_scope2 = Constraint(
+        *scales, rule=global_warming_potential_network_reduction_rule_scope2, doc='global warming potential for the whole network')
+    constraint_latex_render(global_warming_potential_network_reduction_rule_scope2)
+    return instance.constraint_global_warming_potential_network_reduction_scope2
+
+
+def constraint_global_warming_potential_network_bound_scope2(instance: ConcreteModel, gwp_bound: float, network_scale_level: int = 0) -> Constraint:
+    """Required bound in scope 2 global warming potential at network level
+
+    Args:
+        instance (ConcreteModel): pyomo model instance
+        network_scale_level (int, optional): scale for network decisions. Defaults to 0.
+        gwp_bound_pct (float, optional): GWP bound required. Defaults to 0.
+        gwp (float, optional): Base Case (Current) GWP. Defaults to 0.
+
+    Returns:
+        Constraint: global_warming_potential_network_bound
+    """
+    scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
+
+    def global_warming_potential_network_bound_rule_scope2(instance, *scale_list):
+        return instance.global_warming_potential_network_scope2[scale_list] <= gwp_bound
+    constraint_latex_render(global_warming_potential_network_bound_rule_scope2)
+    return Constraint(
+        *scales, rule=global_warming_potential_network_bound_rule_scope2, doc='scope 2 global warming potential bound for the whole network')
+
+#Marco's code ends here
+
+
 # *--------------------Ozone Depletion Potential-------------------------------------------------------
 
 

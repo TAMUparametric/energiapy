@@ -17,6 +17,7 @@ from typing import Union, List, Tuple, Dict
 # from ..components.emission import Emission
 
 
+
 class VaryingResource(Enum):
     """
     Whether the demand or price are varying
@@ -29,6 +30,7 @@ class VaryingResource(Enum):
     """
     Utilize deterministic price data as parameters
     """
+
     DETERMINISTIC_AVAILABILITY = auto()
     """
     Utilize deterministic resource availability as parameters
@@ -72,7 +74,28 @@ class VaryingResource(Enum):
     """Implicitly generated stored resource
     """
 
+class Scope(Enum):
+    """
+    The following divides the resource as a Scope 1, 2 or 3 emission
+    """
+    ONE = auto()
+    """
+    Whether the resource is defined as a scope 1 emission
+    """
+    TWO = auto()
+    """
+    Whether the resource is defined as a scope 2 emission
+    """
+    THREE = auto()
+    """
+    Whether the resource is defined as a scope 3 emission
+    """
 
+# class VaryingEmission(Enum):
+#     DETERMINISTIC_GWP = auto()
+#     """
+#     Utilize deterministic gwp data as parameters
+#     """
 @dataclass
 class Resource:
     """
@@ -100,6 +123,7 @@ class Resource:
         eutf (float, optional): fresh water eutrophication potential per unit basis of Resource produced. Defaults to 0.
         eutm (float, optional): marine eutrophication potential per unit basis of Resource produced. Defaults to 0.
         varying_bounds (float, optional): bounds for the variability in case of uncertain (for parametric formulation). Defaults to (0,1)
+        scope (Scope, optional): Defines what scope of emission is the resource. Defaults to None
 
 
     Examples:
@@ -111,10 +135,15 @@ class Resource:
 
         >>> CH4 = Resource(name='CH4', cons_max=1000, price=1, basis='kg', label='Natural gas', varying=  VaryingResource.deterministic_price)
 
+        For a resource that is defined as a scope 1 emission.
+
+        >>> CO2 = Resource(name='CO2', basis='kg', label='carbon dioxide', sell = True, scope = Scope.ONE)
+    
         For a resource that is produced and needs to meet a fixed demand.
 
         >>> Power = Resource(name='Power', basis='MW', demand = True, label='Power generated', varying = VaryingResource.deterministic_demand)
-    """
+        
+        """
 
     name: str
     cons_max: float = 0
@@ -129,6 +158,8 @@ class Resource:
     block: Union[str, list, dict] = ''
     citation: str = 'citation needed'
     varying: List[VaryingResource] = None
+    # varyinggwp: List[VaryingEmission] = None
+    scope: Scope = None
     label: str = ''
     gwp: float = 0
     odp: float = 0

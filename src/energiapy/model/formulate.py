@@ -60,6 +60,21 @@ from .constraints.emission import (
     constraint_global_warming_potential_resource,
     constraint_global_warming_potential_resource_consumption,
     constraint_global_warming_potential_resource_discharge,
+    # constraint_global_warming_potential_material_scope1,
+    # constraint_global_warming_potential_material_mode_scope1,
+    # constraint_global_warming_potential_network_reduction_scope1,
+    constraint_global_warming_potential_location_scope1,
+    constraint_global_warming_potential_network_scope1,
+    constraint_global_warming_potential_process_scope1,
+    constraint_global_warming_potential_resource_scope1,
+    constraint_global_warming_potential_resource_consumption_scope1,
+    constraint_global_warming_potential_resource_discharge_scope1,
+    constraint_global_warming_potential_location_scope2,
+    constraint_global_warming_potential_network_scope2,
+    constraint_global_warming_potential_process_scope2,
+    constraint_global_warming_potential_resource_scope2,
+    constraint_global_warming_potential_resource_consumption_scope2,
+    constraint_global_warming_potential_resource_discharge_scope2,
     constraint_acidification_potential_location,
     constraint_acidification_potential_material,
     constraint_acidification_potential_material_mode,
@@ -201,6 +216,8 @@ from .objectives import (
     objective_discharge_min,
     objective_profit,
     objective_gwp_min,
+    objective_gwp_scope1_min,
+    objective_gwp_scope2_min,
     objective_cost_w_demand_penalty,
     objective_profit_w_demand_penalty,
     objective_emission_min
@@ -257,6 +274,14 @@ class Objective(Enum):
     MIN_GWP = auto()
     """
     Minimize global warming potential across network (includes resource, material, process emissions)
+    """
+    MIN_ScopeONE_GWP = auto()
+    """
+    Minimize scope 1 emissions across network (includes resource, material, process emissions)
+    """
+    MIN_ScopeTWO_GWP = auto()
+    """
+    Minimize scope 2 emissions across network (includes resource, material, process emissions)
     """
     COST_W_DEMAND_PENALTY = auto()
     """
@@ -568,6 +593,75 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
             constraint_marine_eutrophication_potential_network(
                 instance=instance, network_scale_level=scenario.network_scale_level)
 
+#Marco Code 
+        if Constraints.SCOPEONE in constraints:
+            generate_emission_vars(
+                instance=instance, scale_level=scenario.network_scale_level)
+
+            constraint_global_warming_potential_process_scope1(
+                instance=instance, process_gwp_dict=scenario.process_gwp_dict,
+                network_scale_level=scenario.network_scale_level)
+
+            constraint_global_warming_potential_resource_scope1(
+                instance=instance, network_scale_level=scenario.network_scale_level)
+
+            constraint_global_warming_potential_resource_consumption_scope1(
+                instance=instance, resource_gwp_dict=scenario.resource_gwp_dict,
+                network_scale_level=scenario.network_scale_level)
+
+            constraint_global_warming_potential_resource_discharge_scope1(
+                instance=instance, resource_gwp_dict=scenario.resource_gwp_dict,
+                network_scale_level=scenario.network_scale_level)
+
+            constraint_global_warming_potential_location_scope1(
+                instance=instance, network_scale_level=scenario.network_scale_level)
+
+            constraint_global_warming_potential_network_scope1(
+                instance=instance, network_scale_level=scenario.network_scale_level)
+
+
+        if Constraints.SCOPETWO in constraints:
+            generate_emission_vars(
+                instance=instance, scale_level=scenario.network_scale_level)
+
+            constraint_global_warming_potential_process_scope2(
+                instance=instance, process_gwp_dict=scenario.process_gwp_dict,
+                network_scale_level=scenario.network_scale_level)
+
+            constraint_global_warming_potential_resource_scope2(
+                instance=instance, network_scale_level=scenario.network_scale_level)
+
+            constraint_global_warming_potential_resource_consumption_scope2(
+                instance=instance, resource_gwp_dict=scenario.resource_gwp_dict,
+                network_scale_level=scenario.network_scale_level)
+
+            constraint_global_warming_potential_resource_discharge_scope2(
+                instance=instance, resource_gwp_dict=scenario.resource_gwp_dict,
+                network_scale_level=scenario.network_scale_level)
+
+            constraint_global_warming_potential_location_scope2(
+                instance=instance, network_scale_level=scenario.network_scale_level)
+
+            constraint_global_warming_potential_network_scope2(
+                instance=instance, network_scale_level=scenario.network_scale_level)
+            
+            # if Constraints.MATERIAL in constraints:
+
+            #     constraint_global_warming_potential_material(
+            #         instance=instance, network_scale_level=scenario.network_scale_level)
+
+            #     constraint_global_warming_potential_material_mode(instance=instance, material_gwp_dict=scenario.material_gwp_dict,
+            #                                                       process_material_mode_material_dict=scenario.process_material_mode_material_dict,
+            #                                                       network_scale_level=scenario.network_scale_level)
+
+            #     constraint_ozone_depletion_potential_material(
+            #         instance=instance, network_scale_level=scenario.network_scale_level)
+
+            #     constraint_ozone_depletion_potential_material_mode(instance=instance, material_odp_dict=scenario.material_odp_dict,
+            #                                                        process_material_mode_material_dict=scenario.process_material_mode_material_dict,
+            #                                                        network_scale_level=scenario.network_scale_level)
+
+#Marco code end
             if Constraints.MATERIAL in constraints:
 
                 constraint_global_warming_potential_material(
@@ -994,6 +1088,26 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
 
             objective_gwp_min(
                 instance=instance, network_scale_level=scenario.network_scale_level)
+
+#Marco begin
+        if objective == Objective.MIN_ScopeONE_GWP:
+
+            constraint_network_cost(
+                instance=instance, network_scale_level=scenario.network_scale_level, constraints=constraints)
+
+            objective_gwp_scope1_min(
+                instance=instance, network_scale_level=scenario.network_scale_level)
+            
+        if objective == Objective.MIN_ScopeTWO_GWP:
+
+            constraint_network_cost(
+                instance=instance, network_scale_level=scenario.network_scale_level, constraints=constraints)
+
+            objective_gwp_scope2_min(
+                instance=instance, network_scale_level=scenario.network_scale_level)
+#Marco ends
+
+
 
         if objective == Objective.EMISSION:
 

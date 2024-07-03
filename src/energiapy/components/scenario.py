@@ -20,7 +20,8 @@ from ..components.transport import VaryingTransport
 from ..components.location import Location
 from ..components.network import Network
 from ..components.process import ProcessMode, VaryingProcess, CostDynamics
-from ..components.resource import Resource, VaryingResource
+from ..components.resource import Resource, VaryingResource, Scope
+# , VaryingEmission
 from ..components.temporal_scale import TemporalScale
 from ..model.bounds import CapacityBounds
 from ..model.weights import EmissionWeights
@@ -355,10 +356,18 @@ class Scenario:
 
             'resources_nosell': [i.name for i in self.resource_set if i.sell is False],
             'resources_sell': [i.name for i in self.resource_set if i.sell is True],
+            
+            'resources_sell_scope1': [i.name for i in self.resource_set if i.sell is True if i.scope == Scope.ONE],
+
+            'resources_sell_scope2': [i.name for i in self.resource_set if i.sell is True if i.scope == Scope.TWO],
 
             'resources_store': [i.name for i in self.resource_set if i.store_max > 0],
 
             'resources_purch': [i.name for i in self.resource_set if i.cons_max > 0],
+
+            'resources_purch_scope1' : [i.name for i in self.resource_set if i.cons_max > 0 if i.scope == Scope.ONE],
+            
+            'resources_purch_scope2' : [i.name for i in self.resource_set if i.cons_max > 0 if i.scope == Scope.TWO],
 
             'resources_varying_demand': [i.name for i in self.resource_set if
                                          VaryingResource.DETERMINISTIC_DEMAND in i.varying],
@@ -366,6 +375,9 @@ class Scenario:
                                          VaryingResource.CERTAIN_DEMAND in i.varying],
             'resources_uncertain_demand': [i.name for i in self.resource_set if
                                            VaryingResource.UNCERTAIN_DEMAND in i.varying],
+
+            # 'resources_varying_gwp': [i.name for i in self.resource_set if
+            #                             VaryingEmission.DETERMINISTIC_GWP in i.varyinggwp],
 
             'resources_varying_price': [i.name for i in self.resource_set if
                                         VaryingResource.DETERMINISTIC_PRICE in i.varying],
