@@ -1,7 +1,7 @@
 """Factor of deterministic data ftype
 """
 from dataclasses import dataclass
-from typing import Tuple, Union
+from typing import Tuple, Union, Dict
 
 from pandas import DataFrame
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
@@ -32,7 +32,7 @@ class Factor:
         apply_standard_scaler (bool, optional): This is inherited form the scales object if not provided, where it defaults to False.
     """
 
-    data: DataFrame
+    data: Union[DataFrame, Dict[float, DataFrame]]
     scales: TemporalScale
     ptype: Property = None
     psubtype: Union[Limit, CashFlow, Land, Emission, Life, Loss] = None
@@ -52,11 +52,11 @@ class Factor:
 
         self.special = SpecialParameter.FACTOR
 
-        self.nominal = 1 
-        
+        self.nominal = 1
+
         if isinstance(self.data, dict):
-            self.nominal = list(self.value)[0]
-            self.data = self.value[self.nominal]
+            self.nominal = list(self.data)[0]
+            self.data = self.data[self.nominal]
 
         if isinstance(self.data, Factor):
             self.component = self.component
@@ -65,15 +65,12 @@ class Factor:
             self.data = self.data.data
 
         elif isinstance(self.data, DataFrame):
-
             if len(self.data) in self.scales.index_n_list:
                 self.scale = self.scales.index_n_list.index(
                     len(self.data))
             else:
-                raise ValueError(f'{str(self.psubtype).lower()} factor for {self.component.name}: length of data does not match any scale index'.replace(
-                    'factortype.', '')) 
-            
-
+                raise ValueError(
+                    f'{str(self.psubtype).lower()} factor for {self.component.name}: length of data does not match any scale index')
 
             self.data.index = self.scales.index_list[self.scale]
 
@@ -107,26 +104,35 @@ class Factor:
                 self.scaled = 'no'
                 self.data = self.data.to_dict()[self.data.columns[0]]
 
-        else: 
-            raise ValueError(f'{str(self.psubtype.name).lower()} factor for {self.component.name}: please provide DataFrame')
-        
+        else:
+            raise ValueError(
+                f'{str(self.psubtype.name).lower()} factor for {self.component.name}: please provide DataFrame')
+
         temporal_disps = TemporalDisp.all()
 
         if self.scale < 11:
             self.temporal = temporal_disps[self.scale]
         else:
-            self.temporal = TemporalDisp.ABOVETEN
-    
-        comp, dec_at, pst= ('' for _ in range(3))
-        
+            self.temporal = TemporalDisp.T10PLUS
+
+        comp, dec_at, pst, temp = ('' for _ in range(4))
+
         if self.component:
             comp = f'{self.component.name}'
+
         if self.declared_at:
             dec_at = f',{self.declared_at.name}'
+
+        elif self.spatial:
+            dec_at = f',{self.spatial.name.lower()}'
+
         if self.psubtype:
-            pst = f',{self.psubtype.name.lower()}'
-        
-        self.name = f'Factor({comp}{dec_at}{pst})'
+            pst = f'{self.psubtype.name.lower().capitalize()}'
+
+        if self.temporal:
+            temp = f',{self.temporal.name.lower()}'
+
+        self.name = f'{pst}_f({comp}{dec_at}{temp})'
 
     def __repr__(self):
         return self.name

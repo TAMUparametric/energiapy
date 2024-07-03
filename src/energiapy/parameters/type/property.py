@@ -6,7 +6,7 @@ Each parameter has a spatiotemporal disposition
 spatial: SpatialDisposition is determined from the Component where the parameter is defined
 temporal: TemporalDisposition needs to be provided using the _scale attributes
 
-The parameter could either certain or uncertain (vtype: VariabilityType)
+The parameter could either certain or uncertain (vtype: Variability)
 vtypes have substypes:
 Certainty subtypes are either some combination of bounds or an exact value
 Uncertainty subtypes are parametric, deterministic, stochastic

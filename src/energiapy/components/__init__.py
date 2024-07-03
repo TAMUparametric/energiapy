@@ -9,13 +9,13 @@
 # ComponentParameter types come from .parameters.component
 
 # from .case_study import CaseStudy
-# from .comptype.location import LocationType
-# from .comptype.network import NetworkType
-# from .comptype.process import ProcessType
-# from .comptype.resource import ResourceType
-# from .comptype.scenario import ScenarioType
-# from .comptype.temporal_scale import ScaleType
-# from .comptype.transport import TransportType
+# from .type.location import LocationType
+# from .type.network import NetworkType
+# from .type.process import ProcessType
+# from .type.resource import ResourceType
+# from .type.scenario import ScenarioType
+# from .type.temporal_scale import ScaleType
+# from .type.transport import TransportType
 # from .location import Location
 # from .material import Material
 # from .network import Network

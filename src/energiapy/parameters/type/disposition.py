@@ -19,18 +19,18 @@ class TemporalDisp(Enum):
     Either inferred from length of deterministic data 
     or needs to be provided
     """
-    HORIZON = auto()
-    ONE = auto()
-    TWO = auto()
-    THREE = auto()
-    FOUR = auto()
-    FIVE = auto()
-    SIX = auto()
-    SEVEN = auto()
-    EIGHT = auto()
-    NINE = auto()
-    TEN = auto()
-    ABOVETEN = auto()
+    T0 = auto()
+    T1 = auto()
+    T2 = auto()
+    T3 = auto()
+    T4 = auto()
+    T5 = auto()
+    T6 = auto()
+    T7 = auto()
+    T8 = auto()
+    T9 = auto()
+    T10 = auto()
+    T10PLUS = auto()
 
     @classmethod
     def all(cls) -> List[str]:

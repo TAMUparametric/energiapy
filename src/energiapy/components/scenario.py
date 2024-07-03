@@ -18,13 +18,13 @@ from pandas import DataFrame
 
 from ..model.bounds import CapacityBounds
 from ..model.weights import EmissionWeights
-from .comptype.emission import EmissionType
-from .comptype.location import LocationType
-from .comptype.network import NetworkType
-from .comptype.process import ProcessType
-from .comptype.resource import ResourceType
-from .comptype.scenario import ScenarioType
-from .comptype.transport import TransportType
+from .type.emission import EmissionType
+from .type.location import LocationType
+from .type.network import NetworkType
+from .type.process import ProcessType
+from .type.resource import ResourceType
+from .type.scenario import ScenarioType
+from .type.transport import TransportType
 from .location import Location
 from .network import Network
 from .parameters.location import LocationParamType
@@ -668,7 +668,8 @@ class Scenario:
             return {i: i.localizations for i in getattr(self, component) if i.localizations}
         else:
             warn('localizations only defined for Process and Resource')
-    #TODO - FIX
+    # TODO - FIX
+
     def make_resource_and_process_component_subset(self, parameter: str, parameter_type: Union[ResourceType, ProcessType], component_set: str):
         """makes a subset of component based on provided ctype
         sets the subset as an attribute of the location
@@ -692,14 +693,14 @@ class Scenario:
             component_subset = {i for i in component_set if ctype_ in [
                 list(j)[0] for j in i.ctype if (isinstance(j, dict))]}
             if component_subset:
-                
+
                 # setattr(self, f'{component_set}_{parameter}'.lower(), subset_)
                 # self.make_component_location_subset(
                 #     component_subset=f'{component_set}_{parameter}'.lower())
                 component_location_dict = {component: {location for location in getattr(self, 'locations') if component_subset
-                                                   and component in component_subset} for component in component_subset}
+                                                       and component in component_subset} for component in component_subset}
                 print(component_location_dict)
-    #TODO - FIX
+    # TODO - FIX
 
     # def make_component_subset(self, parameter: str, parameter_type: Union[ResourceType, ProcessType, LocationType, TransportType], component_set: str):
     #     """makes a subset of component based on provided ctype
@@ -707,7 +708,7 @@ class Scenario:
     #     if empty set, sets None
 
     #     Args:
-    #         parameter (str): component type 
+    #         parameter (str): component type
     #         parameter_type (Union[ResourceType, ProcessType, LocationType, TransportType]): component classification
     #         component_set (str): set of components
     #     """
@@ -724,7 +725,7 @@ class Scenario:
     #         component_subset = {i for i in component_set if ctype_ in [
     #             list(j)[0] for j in i.ctype if (isinstance(j, dict))]}
     #         if component_subset:
-                
+
     #             # setattr(self, f'{component_set}_{parameter}'.lower(), subset_)
     #             # self.make_component_location_subset(
     #             #     component_subset=f'{component_set}_{parameter}'.lower())

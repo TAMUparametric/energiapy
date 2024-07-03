@@ -11,9 +11,9 @@ from functools import reduce
 from typing import Dict, List, Set, Tuple, Union
 
 from ..utils.data_utils import get_depth
-from .comptype.emission import EmissionType
-from .comptype.resource import ResourceType
-from .comptype.transport import TransportType
+from .type.emission import EmissionType
+from .type.resource import ResourceType
+from .type.transport import TransportType
 from .location import Location
 from .material import Material
 from .parameters.factor import Factor
@@ -127,8 +127,8 @@ class Transport:
             self.ctype = list()
 
         for i in self.resources:  # update Resource if transported
-            #TODO - FIX
-            
+            # TODO - FIX
+
             i.ctype.append(ResourceType.TRANSPORT)
             if ResourceType.IMPLICIT in i.ctype:
                 i.ctype.remove(ResourceType.IMPLICIT)
@@ -328,7 +328,7 @@ class Transport:
                     value=attr_, component=self, ptype=getattr(MPVarType, f'{self.class_name()}_{parameter}'.upper()))
                 setattr(self, parameter.lower(), mpvar_)
             elif hasattr(attr_, 'bigm') or attr_ is True:
-                self.ptype[ptype_] = ParameterType.UNBOUNDED
+                self.ptype[ptype_] = ParameterType.BIGM
                 if attr_ is True:
                     setattr(self, parameter.lower(), BigM)
             elif hasattr(attr_, 'couldbevar'):

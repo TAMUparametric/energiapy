@@ -11,10 +11,10 @@ from typing import Dict, List, Set, Tuple, Union
 
 from pandas import DataFrame
 
-from .comptype.location import LocationType
-from .comptype.network import NetworkType
-from .comptype.resource import ResourceType
-from .comptype.transport import TransportType
+from .type.location import LocationType
+from .type.network import NetworkType
+from .type.resource import ResourceType
+from .type.transport import TransportType
 from .location import Location
 from .parameters.factor import Factor
 from .parameters.location import LocationParamType
@@ -278,7 +278,7 @@ class Network:
                     MPVarType, f'{self.class_name()}_{parameter}'.upper()))
                 setattr(self, parameter.lower(), mpvar_)
             elif isinstance(attr_, Big) or attr_ is True:
-                self.ptype[ptype_] = ParameterType.UNBOUNDED
+                self.ptype[ptype_] = ParameterType.BIGM
                 if attr_ is True:
                     setattr(self, parameter.lower(), BigM)
             else:

@@ -7,9 +7,9 @@ from ..components.temporal_scale import TemporalScale
 from .bound import Big, BigM
 from .factor import Factor
 from .mpvar import Theta, create_mpvar
-# from .type.parameter import (CashFlow, CertaintyType, Land, Life, Limit, Loss,
+# from .type.parameter import (CashFlow, Bound, Land, Life, Limit, Loss,
 #                              ParameterType, SpatialDisp, TemporalDisp,
-#                              UncertaintyType, VariabilityType)
+#                              Uncertain, Variability)
 
 from .type.disposition import *
 from .type.property import *
@@ -37,72 +37,103 @@ class Parameter:
             self.spatial = SpatialDisp.NETWORK
 
         if not self.temporal:
-            self.temporal = TemporalDisp.HORIZON
+            self.temporal = TemporalDisp.T0
 
         else:
             temporal_disps = TemporalDisp.all()
             if self.temporal < 11:
                 self.temporal = temporal_disps[self.temporal]
             else:
-                self.temporal = TemporalDisp.ABOVETEN
+                self.temporal = TemporalDisp.T10PLUS
+
+        if isinstance(self.psubtype, Limit):
+            if self.psubtype == Limit.DISCHARGE:
+                self.btype = Bound.LOWER
+            else:
+                self.btype = Bound.UPPER
+        elif self.psubtype in [Land.AVAILABLE, Life.LIFETIME]:
+            self.btype = Bound.UPPER
+        else:
+            self.btype = Bound.EXACT
 
         if isinstance(self.value, (float, int)):
-            self.vtype = VariabilityType.CERTAIN
-
-            if isinstance(self.psubtype, Limit):
-                if self.psubtype == Limit.DISCHARGE:
-                    self.vsubstype = CertaintyType.LOWERBOUND
-                else:
-                    self.vsubstype = CertaintyType.UPPERBOUND
-
-            elif self.psubtype in [Land.AVAILABLE, Life.LIFETIME]:
-                self.vsubstype = CertaintyType.UPPERBOUND
-
-            else:
-                self.vsubstype = CertaintyType.EXACT
+            self.vtype = Variability.CERTAIN
+            self.lb, self.ub = self.value, self.value
 
         if isinstance(self.value, Big) or self.value is True:
-            self.vtype = VariabilityType.CERTAIN
-            self.vsubstype = CertaintyType.UNBOUNDED
+            self.vtype = Variability.CERTAIN
+            self.btype = Bound.BIGM
             if self.value is True:
                 self.value = BigM
             self.special = SpecialParameter.BIGM
+            self.lb, self.ub = 0, BigM
 
         if isinstance(self.value, list):
-            self.vtype = VariabilityType.CERTAIN
-
+            self.vtype = Variability.CERTAIN
             if all(isinstance(i, float) for i in self.value):
-                self.vsubstype = CertaintyType.BOUNDED
+                self.btype = Bound.BOTH
                 self.value = sorted(self.value)
 
             if any(isinstance(i, Big) for i in self.value):
-                self.vsubstype = CertaintyType.LOWERBOUND
+                self.btype = Bound.LOWER
 
+            self.lb, self.ub = self.value
+
+        th = ['', '']
         if isinstance(self.value, (tuple, Theta)):
-            self.vtype = VariabilityType.UNCERTAIN
-            self.vsubstype = UncertaintyType.PARAMETRIC
-
+            self.vtype = Variability.UNCERTAIN
+            self.vsubtype = Uncertain.PARAMETRIC
             mpvar_ = create_mpvar(
                 value=self.value, component=self.component, declared_at=self.declared_at, psubtype=self.psubtype,
                 spatial=self.spatial, temporal=self.temporal)
             self.value = mpvar_
             self.special = SpecialParameter.MPVar
+            self.lb, self.ub = mpvar_.bounds
+            th = ['Th[', ']']
 
+        nml = ''
         if isinstance(self.value, (dict, DataFrame, Factor)):
-            self.vtype = VariabilityType.UNCERTAIN
-            self.vsubstype = UncertaintyType.DETERMINISTIC
+            self.vtype = Variability.UNCERTAIN
+            self.vsubtype = Uncertain.DATA
             factor_ = Factor(data=self.value, scales=self.scales, component=self.component, declared_at=self.declared_at,
                              ptype=self.ptype, psubtype=self.psubtype, spatial=self.spatial)
             self.value = factor_
             self.special = SpecialParameter.FACTOR
             self.temporal = factor_.temporal
-            # TODO Set temporal disposition
+            if self.btype == Bound.LOWER:
+                self.lb, self.ub = self.value, BigM
+            if self.btype == Bound.UPPER:
+                self.lb, self.ub = 0, self.value
+            if self.btype == Bound.EXACT:
+                self.lb, self.ub = self.value, self.value
+            if factor_.nominal != 1:
+                nml = f'{factor_.nominal}.'
 
-        dec_at = ''
+        comp, dec_at, pst, temp = ('' for _ in range(4))
+
+        if self.component:
+            comp = f'{self.component.name}'
+
         if self.declared_at:
             dec_at = f',{self.declared_at.name}'
+        else:
+            dec_at = f',{self.spatial.name.lower()}'
 
-        self.name = f'{self.psubtype.name.lower()}({self.component.name}{dec_at})'
+        if self.psubtype:
+            pst = f'{self.psubtype.name.lower()}'
+
+        if self.temporal:
+            temp = f',{self.temporal.name.lower()}'
+
+        if self.btype == Bound.EXACT:
+            bnd = ['', f'={nml}{self.ub}']
+        else:
+            lb = ''
+            if self.lb > 0:
+                lb = f'{self.lb}<='
+            bnd = [lb, f'<={nml}{self.ub}']
+
+        self.name = f'{bnd[0]}{th[0]}{pst}{th[1]}({comp}{dec_at}{temp}){bnd[1]}'
 
     def __repr__(self):
         return self.name
@@ -112,4 +143,3 @@ class Parameter:
 
     def __eq__(self, other):
         return self.name == other.name
-        # set special parameter types

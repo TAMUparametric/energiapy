@@ -16,9 +16,9 @@ from typing import Dict, List, Set, Tuple, Union
 
 from pandas import DataFrame
 
-from .comptype.location import LocationType
-from .comptype.process import ProcessType
-from .comptype.resource import ResourceType
+from .type.location import LocationType
+from .type.process import ProcessType
+from .type.resource import ResourceType
 from .material import Material
 from .parameters.factor import Factor
 from .parameters.localization import Localization
@@ -445,7 +445,7 @@ class Location:
                     MPVarType, f'{self.class_name()}_{parameter}'.upper()))
                 setattr(self, parameter.lower(), mpvar_)
             elif isinstance(attr_, Big) or attr_ is True:
-                self.ptype[ptype_] = ParameterType.UNBOUNDED
+                self.ptype[ptype_] = ParameterType.BIGM
                 if attr_ is True:
                     setattr(self, parameter.lower(), BigM)
             else:

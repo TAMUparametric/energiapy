@@ -69,26 +69,19 @@ class Theta:
             self.bounds = (0, 1)
 
         if self.psubtype:
+            pst = f'{self.psubtype.name.lower()}'
+
             if self.declared_at:
                 dec_at = f',{self.declared_at}'
             else:
-                dec_at = ''
-            self.name = f'Theta({self.component}{dec_at},{self.psubtype.name.lower()})'
+                dec_at = f',{self.spatial.name.lower()}'
+
+            self.name = f'Th[{pst}]({self.component}{dec_at},{self.temporal.name.lower()})'
 
         else:
-            self.name = f'Theta{self.bounds}'
+            self.name = f'Th{self.bounds}'
 
-            # if self.ptype:
-            #     if self.location:
-            #         self.name = f'Theta({self.component.name},{self.location.name},{str(self.ptype).lower()})'.replace(
-            #             'mpvartype.', '').replace(f'{self.component.class_name()}_'.lower(), '')
-            #     else:
-            #         self.name = f'Theta({self.component.name},{str(self.ptype).lower()})'.replace(
-            #             'mpvartype.', '').replace(f'{self.component.class_name()}_'.lower(), '')
-            # else:
-            #     self.name = f'{self.class_name()}({self.bounds})'
-
-            #  *----------------- Class Methods ---------------------------------------------
+    #  *----------------- Class Methods ---------------------------------------------
 
     @classmethod
     def class_name(cls) -> List[str]:

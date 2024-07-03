@@ -9,12 +9,11 @@ from functools import reduce
 from typing import Dict, List, Set, Tuple, Union
 
 from ..utils.data_utils import get_depth
-from .comptype.process import ProcessType
+from .type.process import ProcessType
 from .material import Material
-from .parameters.factor import Factor
-from .parameters.localization import Localization
-from .parameters.mpvar import Theta, create_mpvar
-from .parameters.paramtype import *
+from ..parameters.factor import Factor
+from ..parameters.mpvar import Theta, create_mpvar
+from ..parameters.type import *
 from .parameters.process import ProcessParamType
 from .parameters.special import BigM, CouldBeVar
 from .resource import Resource
@@ -420,7 +419,7 @@ class Process:
                     value=attr_, component=self, ptype=getattr(MPVarType, f'{self.class_name()}_{parameter}'.upper()))
                 setattr(self, parameter.lower(), mpvar_)
             elif hasattr(attr_, 'bigm') or attr_ is True:
-                self.ptype[ptype_] = ParameterType.UNBOUNDED
+                self.ptype[ptype_] = ParameterType.BIGM
                 if attr_ is True:
                     setattr(self, parameter.lower(), BigM)
             elif hasattr(attr_, 'couldbevar'):

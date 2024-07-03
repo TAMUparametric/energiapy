@@ -10,7 +10,7 @@ from itertools import product
 from typing import List, Set
 from warnings import warn
 
-from .comptype.temporal_scale import ScaleType
+from .type.temporal_scale import ScaleType
 
 
 @dataclass
@@ -140,8 +140,7 @@ class TemporalScale:
     ctype: List[ScaleType] = None
 
     def __post_init__(self):
-        
-        
+        self.discretization_list.insert(0,1)
         self.scale_levels = len(self.discretization_list)
         self.scale = {
             i: list(range(self.discretization_list[i])) for i in range(self.scale_levels)}
@@ -167,12 +166,12 @@ class TemporalScale:
         else:
             if self.design_scale is None:
                 self.design_scale = 0
-                warn(
-                    'The problem is multiscale. Both scales need to be specified. Defaulting design_scale to 0')
+                # warn(
+                #     'The problem is multiscale. Both scales need to be specified. Defaulting design_scale to 0')
             if self.scheduling_scale is None:
                 self.scheduling_scale = self.scale_levels - 1
-                warn(
-                    f'The problem is multiscale. Both scales need to be specified. Defaulting scheduling scale to {self.scale_levels - 1}')
+                # warn(
+                #     f'The problem is multiscale. Both scales need to be specified. Defaulting scheduling scale to {self.scale_levels - 1}')
 
         self.index_list = [self.scale_iter(i)
                            for i in range(self.scale_levels)]  # list with each scale index as a list of tuples

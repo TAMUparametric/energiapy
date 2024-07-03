@@ -2,20 +2,18 @@
 """
 import uuid
 from dataclasses import dataclass
-from typing import Dict, List, Set, Tuple, Union
-from warnings import warn
+from typing import List, Tuple, Union
 
 from pandas import DataFrame
 
-from .comptype.resource import ResourceType
-from .parameter import Parameter
+from ..parameters.bound import Big, BigM
+from ..parameters.factor import Factor
+from ..parameters.mpvar import Theta
+from ..parameters.parameter import Parameter
+from ..parameters.type.property import *
+from ..parameters.type.disposition import *
 from .temporal_scale import TemporalScale
-from .parameters.factor import Factor
-from .parameters.localization import Localization
-from .parameters.mpvar import Theta, create_mpvar
-from .parameters.paramtype import *
-from .parameters.resource import ResourceParamType
-from .parameters.special import Big, BigM, CouldBe, CouldBeVar
+from .type.resource import ResourceType
 
 
 @dataclass
@@ -52,9 +50,9 @@ class Resource:
         label (str, optional): used while generating plots. Defaults to None
         citation (str, optional): can provide citations for your data sources. Defaults to None
         ctype (List[Union[ResourceType, Dict[ResourceType, Set['Location']]]], optional): List of resource ctypes. Defaults to None
-        ptype (Dict[ResourceParamType, Union[ParameterType, Dict['Location', ParameterType]]], optional): dict with parameters declared and thier types. Defaults to None.
+        ptype (Dict[ResourceParamType, Union[Property, Dict['Location', Property]]], optional): dict with parameters declared and thier types. Defaults to None.
         ltype (Dict[ResourceParamType, List[Tuple['Location', LocalizationType]]], optional): which parameters are localized at Location. Defaults to None.
-        ftype (Dict[ResourceParamType, List[Tuple['Location', ParameterType]]], optional): which parameters are provided with factors at Location. Defaults to None
+        ftype (Dict[ResourceParamType, List[Tuple['Location', Property]]], optional): which parameters are provided with factors at Location. Defaults to None
         etype (List[EmissionType], optional): list of emission types defined. Defaults to None
         localizations (Dict[ResourceParamType, List[Tuple['Location', Localization]]], optional): collects localizations when defined at Location. Defaults to None.
         factors (Dict[ResourceParamType, List[Tuple['Location', Factor]]], optional): collects factors when defined at Location. Defaults to None.
@@ -115,23 +113,32 @@ class Resource:
 
     name: str
     # Temporal scale
-    scales: TemporalScale = None # not needed if no deterministic data or parameter scale is provided
+    # not needed if no deterministic data or parameter scale is provided
+    scales: TemporalScale = None
     # LimitType
-    discharge: Union[float, bool, 'BigM', List[Union[float, 'BigM']], DataFrame, Tuple[Union[float, DataFrame, Factor]], Theta] = None
+    discharge: Union[float, bool, 'BigM', List[Union[float, 'BigM']],
+                     DataFrame, Tuple[Union[float, DataFrame, Factor]], Theta] = None
     discharge_scale: int = None
-    consume: Union[float, bool, 'BigM', List[Union[float, 'BigM']], DataFrame, Tuple[Union[float, DataFrame, Factor]], Theta] = None
+    consume: Union[float, bool, 'BigM', List[Union[float, 'BigM']],
+                   DataFrame, Tuple[Union[float, DataFrame, Factor]], Theta] = None
     consume_scale: int = None
-    store: Union[float, bool, 'BigM', List[Union[float, 'BigM']], DataFrame, Tuple[Union[float, DataFrame, Factor]], Theta] = None
+    store: Union[float, bool, 'BigM', List[Union[float, 'BigM']],
+                 DataFrame, Tuple[Union[float, DataFrame, Factor]], Theta] = None
     store_scale: int = None
-    # LossType 
+    # LossType
     store_loss: Union[float, Tuple[float], Theta] = None
     store_loss_scale: int = None
     # CashFlowType
-    sell_price: Union[float, Theta, DataFrame, Tuple[Union[float, DataFrame, Factor]]] = None
-    purchase_price: Union[float, Theta, DataFrame, Tuple[Union[float, DataFrame, Factor]]] = None
-    storage_cost: Union[float, Theta, DataFrame, Tuple[Union[float, DataFrame, Factor]]] = None
-    credit: Union[float, Theta, DataFrame, Tuple[Union[float, DataFrame, Factor]]] = None
-    penalty: Union[float, Theta, DataFrame, Tuple[Union[float, DataFrame, Factor]]] = None
+    sell_price: Union[float, Theta, DataFrame,
+                      Tuple[Union[float, DataFrame, Factor]]] = None
+    purchase_price: Union[float, Theta, DataFrame,
+                          Tuple[Union[float, DataFrame, Factor]]] = None
+    storage_cost: Union[float, Theta, DataFrame,
+                        Tuple[Union[float, DataFrame, Factor]]] = None
+    credit: Union[float, Theta, DataFrame,
+                  Tuple[Union[float, DataFrame, Factor]]] = None
+    penalty: Union[float, Theta, DataFrame,
+                   Tuple[Union[float, DataFrame, Factor]]] = None
     # EmissionType
     gwp: Union[float, Tuple[float], Theta] = None
     odp: Union[float, Tuple[float], Theta] = None
@@ -173,64 +180,50 @@ class Resource:
         if not self.ctype:
             self.ctype = list()
 
-        if self.sell_price:
+        if self.sell_price is not None:
             self.ctype.append(ResourceType.SELL)
-            if not self.discharge:
+            if self.discharge is None:
                 self.discharge = BigM
 
-        if self.discharge:
+        if self.discharge is not None:
             self.ctype.append(ResourceType.DISCHARGE)
 
-        if self.consume:
+        if self.consume is not None:
             self.ctype.append(ResourceType.CONSUME)
         else:
             # if it is not consumed from outside the system, it has to be made in the system
             self.ctype.append(ResourceType.PRODUCE)
-            if not self.discharge:
+            if self.discharge is None:
                 # is not discharged or consumed. Produced and used within the system captively
                 self.ctype.append(ResourceType.IMPLICIT)
 
         if self.purchase_price:
             self.ctype.append(ResourceType.PURCHASE)
-            if not self.consume:
+            if self.consume is None:
                 self.consume = BigM
 
-        if self.store:
+        if self.store is not None:
             self.ctype.append(ResourceType.STORE)
 
-        # *-----------------Set ptype (ParameterType) ---------------------------------
-        # ptypes of declared parameters are set to .UNCERTAIN if a MPVar Theta or a tuple of bounds is provided,
-        # .CERTAIN otherwise
-        # If empty Theta is provided, the bounds default to (0, 1)
-        # Factors can be declared at Location (Location, DataFrame), gets converted to  (Location, Factor)
+        # *----------------- Update parameters ---------------------------------
 
-        # self.ptype = dict()
-        
         for i in self.limits():
-            if getattr(self, i.lower()):
-                param_ = Parameter(value = getattr(self, i.lower()), ptype = ParameterType.LIMIT, spatial = SpatialDisp.NETWORK,
-                                   temporal = getattr(self, f'{i.lower()}_scale'), psubtype = getattr(Limit, i), component = self,
-                                   scales = self.scales)
+            if getattr(self, i.lower()) is not None:
+                param_ = Parameter(value=getattr(self, i.lower()), ptype=Property.LIMIT, spatial=SpatialDisp.NETWORK,
+                                   temporal=getattr(self, f'{i.lower()}_scale'), psubtype=getattr(Limit, i), component=self,
+                                   scales=self.scales)
                 setattr(self, i.lower(), param_)
-                
-        for i in self.cashflows():
-            if getattr(self, i.lower()):
-                param_ = Parameter(value = getattr(self, i.lower()), ptype = ParameterType.CASHFLOW, spatial = SpatialDisp.NETWORK,
-                                   temporal = None, psubtype = getattr(CashFlow, i), component = self, scales = self.scales)
-                setattr(self, i.lower(), param_)
-            
-            
-        
-        # for i in self.resource_level_parameters():
-        #     self.update_resource_level_parameter(parameter=i)
 
-        # *-----------------Set etype (Emission)---------------------------------
-        # Types of emission accounted for are declared here and EmissionTypes are set
+        for i in self.cashflows():
+            if getattr(self, i.lower()) is not None:
+                param_ = Parameter(value=getattr(self, i.lower()), ptype=Property.CASHFLOW, spatial=SpatialDisp.NETWORK,
+                                   temporal=None, psubtype=getattr(CashFlow, i), component=self, scales=self.scales)
+                setattr(self, i.lower(), param_)
 
         for i in self.emissions():
-            if getattr(self, i.lower()):
-                param_ = Parameter(getattr(self, i.lower()), ptype= ParameterType.EMISSION, psubtype = getattr(Emission, i),
-                                   spatial = SpatialDisp, temporal = None, component = self)
+            if getattr(self, i.lower()) is not None:
+                param_ = Parameter(getattr(self, i.lower()), ptype=Property.EMISSION, psubtype=getattr(Emission, i),
+                                   spatial=SpatialDisp.NETWORK, temporal=None, component=self)
                 setattr(self, i.lower(), param_)
 
         # *-----------------Random name ---------------------------------
@@ -241,6 +234,15 @@ class Resource:
 
         # *----------------- Depreciation Warnings---------------------------------
 
+        if self.store_max:
+            raise ValueError(
+                f'{self.name}: store_max is depreciated. Please use store instead')
+        if self.store_min:
+            raise ValueError(
+                f'{self.name}: store_min is depreciated. Please use store instead')
+        if self.cons_max:
+            raise ValueError(
+                f'{self.name}: cons_max is depreciated. Please use consume instead')
         if self.sell:
             raise ValueError(
                 f'{self.name}: sell has been depreciated. set discharge = True and specify selling_price if needed')
@@ -257,14 +259,6 @@ class Resource:
             raise ValueError(
                 f'{self.name}: cons_max has been depreciated. Please use consume instead')
 
-    # *----------------- Properties ---------------------------------
-
-    @property
-    def availability(self):
-        """Sets alias for consume
-        """
-        return self.consume
-
     # *----------------- Class Methods ---------------------------------
 
     @classmethod
@@ -274,130 +268,18 @@ class Resource:
         return cls.__name__
 
     # * parameter types
-    
-    @classmethod 
+
+    @classmethod
     def limits(cls) -> List[str]:
         return Limit.resource()
-    
+
     @classmethod
     def cashflows(cls) -> List[str]:
         return CashFlow.resource()
-    
+
     @classmethod
     def emissions(cls) -> List[str]:
         return Emission.all()
-    
-    # @classmethod
-    # def ptypes(cls) -> Set[str]:
-    #     """All Resource paramters
-    #     """
-    #     return ResourceParamType.all()
-
-    # @classmethod
-    # def resource_level_parameters(cls) -> Set[str]:
-    #     """Set when Resource is declared
-    #     """
-    #     return ResourceParamType.resource_level()
-
-    # @classmethod
-    # def location_level_parameters(cls) -> Set[str]:
-    #     """Set when Location is declared
-    #     """
-    #     return ResourceParamType.location_level()
-
-    # @classmethod
-    # def transport_level_parameters(cls) -> Set[str]:
-    #     """Set when Transport is declared
-    #     """
-    #     return ResourceParamType.transport_level()
-
-    # @classmethod
-    # def uncertain_parameters(cls) -> Set[str]:
-    #     """Uncertain parameters
-    #     """
-    #     return ResourceParamType.uncertain()
-
-    # @classmethod
-    # def uncertain_factors(cls) -> Set[str]:
-    #     """Uncertain parameters for which factors are defined
-    #     """
-    #     return ResourceParamType.uncertain_factor()
-
-    # # * component class types
-
-    # @classmethod
-    # def ctypes(cls) -> Set[str]:
-    #     """All Resource paramters
-    #     """
-    #     return ResourceType.all()
-
-    # @classmethod
-    # def resource_level_classifications(cls) -> Set[str]:
-    #     """Set when Resource is declared
-    #     """
-    #     return ResourceType.resource_level()
-
-    # @classmethod
-    # def location_level_classifications(cls) -> Set[str]:
-    #     """Set when Location is declared
-    #     """
-    #     return ResourceType.location_level()
-
-    # @classmethod
-    # def transport_level_classifications(cls) -> Set[str]:
-    #     """Set when Transport is declared
-    #     """
-    #     return ResourceType.transport_level()
-
-    # * localization types
-
-    @classmethod
-    def ltypes(cls) -> Set[str]:
-        """Resource parameters than can be localized 
-        """
-        return ResourceParamType.localize()
-
-    # * factor types
-
-    @classmethod
-    def ftypes(cls) -> Set[str]:
-        """Factor types
-        """
-        return ResourceParamType.uncertain_factor()
-
-    # * emission types
-
-    @classmethod
-    def etypes(cls) -> Set[str]:
-        """Emission types
-        """
-        return EmissionType.all()
-
-    # *----------------- Functions ---------------------------------------------
-    def update_resource_level_parameter(self, parameter: str):
-        """updates parameter, sets ptype
-
-        Args:
-            parameter (str): parameter to update 
-        """
-        attr_ = getattr(self, parameter.lower())
-        if attr_:
-            ptype_ = getattr(ResourceParamType, parameter)
-
-            if not self.ptype:
-                self.ptype = dict()
-
-            if isinstance(attr_, (tuple, Theta)):
-                self.ptype[ptype_] = ParameterType.UNCERTAIN
-                mpvar_ = create_mpvar(
-                    value=attr_, component=self, ptype=getattr(MPVarType, f'{self.class_name()}_{parameter}'.upper()))
-                setattr(self, parameter.lower(), mpvar_)
-            elif isinstance(attr_, Big) or attr_ is True:
-                self.ptype[ptype_] = ParameterType.UNBOUNDED
-                if attr_ is True:
-                    setattr(self, parameter.lower(), BigM)
-            else:
-                self.ptype[ptype_] = ParameterType.CERTAIN
 
     # *----------- Hashing --------------------------------
 
