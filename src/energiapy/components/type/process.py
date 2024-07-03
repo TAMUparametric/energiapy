@@ -1,0 +1,81 @@
+
+from enum import Enum, auto
+from typing import Set
+
+
+class ProcessType(Enum):
+    """What class a Process fits into or if a particular parameter is defined
+    """
+    # * -------------------- Classifications--------------------------------------
+    SINGLE_PRODMODE = auto()
+    """Only allows one mode
+    """
+    MULTI_PRODMODE = auto()
+    """Allows multiple modes
+    """
+    NO_MATMODE = auto()
+    """Does not use materials
+    """
+    SINGLE_MATMODE = auto()
+    """Has a single material mode
+    """
+    MULTI_MATMODE = auto()
+    """Has multiple material modes
+    """
+    STORAGE = auto()
+    STORAGE_DISCHARGE = auto()
+    """Storage type process
+    """
+    STORAGE_REQ = auto()
+    """Storage type process, but storage itself consumes another resource.
+    """
+    LINEAR_CAPEX = auto()
+    """Consider constant CAPEX
+    """
+    PWL_CAPEX = auto()
+    """Use piece-wise linear CAPEX
+    """
+    INTERMITTENT = auto()
+    """Not strictly intermittent, but experiences some type of variability
+    """
+    CREDIT = auto()
+    """Incurs credits
+    """
+    LAND = auto()
+    """If the process requires land
+    """
+    EXPENDITURE = auto()
+    """Whether it incurs expenditure [capex, fopex, vopex, incidental]
+    """
+    READINESS = auto()
+    """Whether the temporal behavior has been defined [introduce, retire, lifetime]
+    """
+    FAILURE = auto()
+    """If a p_fail is provided
+    """
+    EMISSION = auto()
+    """Emits
+    """
+
+    # *------------------------- Update this ----------------------------------------
+
+    @classmethod
+    def location_level(cls) -> Set[str]:
+        """Set when Location is declared
+        STORAGE_DISCHARGE is assigned when Discharge Process is created at Location level for a STORAGE PROCESS
+        """
+        return {'CREDIT', 'STORAGE_DISCHARGE', 'INTERMITTENT'}
+
+    # *--------------------------- Automated below this -----------------------------------------
+
+    @ classmethod
+    def all(cls) -> Set[str]:
+        """All Process classifications
+        """
+        return {i.name for i in cls}
+
+    @ classmethod
+    def process_level(cls) -> Set[str]:
+        """Set when Process is declared
+        """
+        return cls.all() - cls.location_level()
