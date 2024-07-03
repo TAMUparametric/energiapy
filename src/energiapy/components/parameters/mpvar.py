@@ -65,10 +65,14 @@ class Theta:
             self.bounds = (0, 1)
 
         if self.psubtype:
-            self.name = f'Theta({self.psubtype.name.lower()}{self.component},{self.declared_at})'
+            if self.declared_at:
+                dec_at = f',{self.declared_at}'
+            else: 
+                dec_at = ''
+            self.name = f'Theta({self.component}{dec_at},{self.psubtype.name.lower()})'
 
         else:
-            self.name = f'Theta({self.bounds})'
+            self.name = f'Theta{self.bounds}'
 
             # if self.ptype:
             #     if self.location:
