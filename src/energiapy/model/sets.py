@@ -95,6 +95,21 @@ def generate_sets(instance: ConcreteModel, scenario: Scenario):
     instance.resources_purch = Set(
         initialize=sets['resources_purch'], doc='Set of purchased resources')
 
+#Marco Begin
+
+    instance.resources_purch_scope1 = Set(
+        initialize = sets['resources_purch_scope1'], doc = 'Set of purchased resources that contribute to scope 1 emissions ')
+    
+    instance.resources_sell_scope1 = Set(
+        initialize = sets['resources_sell_scope1'], doc = 'Set of discharged resources that contribute to scope 1 emissions ')
+
+    instance.resources_purch_scope2 = Set(
+        initialize = sets['resources_purch_scope2'], doc = 'Set of purchased resources that contribute to scope 2 emissions ')
+    
+    instance.resources_sell_scope2 = Set(
+        initialize = sets['resources_sell_scope2'], doc = 'Set of discharged resources that contribute to scope 2 emissions ')
+
+#Marco End    
     instance.resources_varying_price = Set(initialize=sets['resources_varying_price'],
                                            doc='Set of resources with varying purchase price')
 

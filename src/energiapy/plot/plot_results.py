@@ -88,6 +88,7 @@ def schedule(results: Result, y_axis: str, component: str, location: str, fig_si
     plt.ylabel(results.components[component_type][component]['basis'])
     plt.xlabel("Scheduling Horizon")
     x_ = list(range(len(y_)))
+    print(y_)
     ax.plot(x_, y_, linewidth=0.5, color=color)
     plt.grid(alpha=0.3)
     plt.rcdefaults()

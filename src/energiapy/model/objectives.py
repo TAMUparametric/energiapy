@@ -387,6 +387,49 @@ def objective_gwp_min(instance: ConcreteModel, network_scale_level: int = 0, ) -
     constraint_latex_render(objective_gwp_min_rule)
     return instance.objective_gwp_min
 
+#Marco code
+def objective_gwp_scope1_min(instance: ConcreteModel, network_scale_level: int = 0, ) -> Objective:
+    """Minimize scope 1 emissions at network level
+
+    Args:
+        instance (ConcreteModel): pyomo instance
+        network_scale_level (int, optional): scale of network decisions. Defaults to 0.
+
+    Returns:
+        Objective: objective_gwp_scope1_min
+    """
+    scale_iter = scale_tuple(
+        instance=instance, scale_levels=network_scale_level + 1)
+
+    def objective_gwp_scope1_min_rule(instance, *scale_list):
+        return sum(instance.global_warming_potential_network_scope1[scale_] for scale_ in scale_iter)
+
+    instance.objective_gwp_scope1_min = Objective(
+        rule=objective_gwp_scope1_min_rule, doc='minimize scope 1 gwp for network')
+    constraint_latex_render(objective_gwp_scope1_min_rule)
+    return instance.objective_gwp_scope1_min
+
+def objective_gwp_scope2_min(instance: ConcreteModel, network_scale_level: int = 0, ) -> Objective:
+    """Minimize scope 2 emissions at network level
+
+    Args:
+        instance (ConcreteModel): pyomo instance
+        network_scale_level (int, optional): scale of network decisions. Defaults to 0.
+
+    Returns:
+        Objective: objective_gwp_scope2_min
+    """
+    scale_iter = scale_tuple(
+        instance=instance, scale_levels=network_scale_level + 1)
+
+    def objective_gwp_scope2_min_rule(instance, *scale_list):
+        return sum(instance.global_warming_potential_network_scope2[scale_] for scale_ in scale_iter)
+
+    instance.objective_gwp_scope2_min = Objective(
+        rule=objective_gwp_scope2_min_rule, doc='minimize scope 1 gwp for network')
+    constraint_latex_render(objective_gwp_scope2_min_rule)
+    return instance.objective_gwp_scope2_min
+#Marco code ends
 
 def objective_emission_min(instance: ConcreteModel, network_scale_level: int = 0, gwp_w: float = 0, odp_w: float = 0, acid_w: float = 0,
                            eutt_w: float = 0, eutf_w: float = 0, eutm_w: float = 0) -> Objective:

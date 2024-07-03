@@ -30,6 +30,7 @@ def generate_emission_vars(instance: ConcreteModel, scale_level: int = 0):
     instance.carbon_emission_location = Var(instance.locations, instance.scales_emission_network,
                                             within=NonNegativeReals, doc='Carbon emissions at location at network_scale')
 
+#Global warming potential section
     instance.global_warming_potential_location = Var(
         instance.locations, instance.scales_emission_network, within=NonNegativeReals, doc='global warming potential caused at each location')
     instance.global_warming_potential_network = Var(
@@ -38,10 +39,10 @@ def generate_emission_vars(instance: ConcreteModel, scale_level: int = 0):
         instance.locations, instance.processes, instance.scales_emission_network, within=NonNegativeReals, doc='global warming potential caused by each process')
     instance.global_warming_potential_resource_consumption = Var(
         instance.locations, instance.resources_purch, instance.scales_emission_network, within=NonNegativeReals, doc='global warming potential caused by each resource at consumption')
-    # instance.global_warming_potential_resource_consumption_negative = Var(
+        # instance.global_warming_potential_resource_consumption_negative = Var(
     #     instance.locations, instance.resources_purch, instance.scales_emission_network, within=NonNegativeReals, doc='global warming potential caused by each resource at consumption')
     instance.global_warming_potential_resource_discharge = Var(
-        instance.locations, instance.resources_sell, instance.scales_emission_network, within=NonNegativeReals, doc='global warming potential caused by each resource at consumption')
+        instance.locations, instance.resources_sell, instance.scales_emission_network, within=NonNegativeReals, doc='Scope 1 emissions caused by each resource at consumption')
     instance.global_warming_potential_resource = Var(
         instance.locations, instance.resources, instance.scales_emission_network, within=NonNegativeReals, doc='global warming potential caused by each resource')
     instance.global_warming_potential_material = Var(instance.locations, instance.processes_materials,
@@ -49,6 +50,44 @@ def generate_emission_vars(instance: ConcreteModel, scale_level: int = 0):
     instance.global_warming_potential_material_mode = Var(instance.locations, instance.processes_materials, instance.material_modes,
                                                           instance.scales_emission_network, within=NonNegativeReals, doc='global warming potential caused by each material')
 
+#Scope 1 emissions calculation - Marco Added
+    instance.global_warming_potential_location_scope1 = Var(
+        instance.locations, instance.scales_emission_network, within=NonNegativeReals, doc='Scope 1 emissions caused at each location')
+    instance.global_warming_potential_network_scope1 = Var(
+        instance.scales_emission_network, within=NonNegativeReals, doc='Scope 1 emissions caused at network scale')
+    instance.global_warming_potential_process_scope1 = Var(
+        instance.locations, instance.processes, instance.scales_emission_network, within=NonNegativeReals, doc='Scope 1 emissions caused by each process')
+    instance.global_warming_potential_resource_consumption_scope1 = Var(
+        instance.locations, instance.resources_purch_scope1, instance.scales_emission_network, within=NonNegativeReals, doc='Scope 1 emissions caused by each resource at consumption')
+    instance.global_warming_potential_resource_discharge_scope1 = Var(
+        instance.locations, instance.resources_sell_scope1, instance.scales_emission_network, within=NonNegativeReals, doc='Scope 1 emissions caused by each resource at consumption')
+    instance.global_warming_potential_resource_scope1 = Var(
+        instance.locations, instance.resources, instance.scales_emission_network, within=NonNegativeReals, doc='Scope 1 emissions caused by each resource')
+    instance.global_warming_potential_material_scope1 = Var(instance.locations, instance.processes_materials,
+                                                     instance.scales_emission_network, within=NonNegativeReals, doc='Scope 1 emissions caused by each material')
+    instance.global_warming_potential_material_mode_scope1 = Var(instance.locations, instance.processes_materials, instance.material_modes,
+                                                          instance.scales_emission_network, within=NonNegativeReals, doc='Scope 1 emissions caused by each material')
+
+#Scope 2 emissions calculation - Marco Added
+    instance.global_warming_potential_location_scope2 = Var(
+        instance.locations, instance.scales_emission_network, within=NonNegativeReals, doc='Scope 2 emissions caused at each location')
+    instance.global_warming_potential_network_scope2 = Var(
+        instance.scales_emission_network, within=NonNegativeReals, doc='Scope 2 emissions caused at network scale')
+    instance.global_warming_potential_process_scope2 = Var(
+        instance.locations, instance.processes, instance.scales_emission_network, within=NonNegativeReals, doc='Scope 2 emissions caused by each process')
+    instance.global_warming_potential_resource_consumption_scope2 = Var(
+        instance.locations, instance.resources_purch_scope2, instance.scales_emission_network, within=NonNegativeReals, doc='Scope 2 emissions caused by each resource at consumption')
+    instance.global_warming_potential_resource_discharge_scope2 = Var(
+        instance.locations, instance.resources_sell_scope2, instance.scales_emission_network, within=NonNegativeReals, doc='Scope 2 emissions caused by each resource at consumption')
+    instance.global_warming_potential_resource_scope2 = Var(
+        instance.locations, instance.resources, instance.scales_emission_network, within=NonNegativeReals, doc='Scope 2 emissions caused by each resource')
+    instance.global_warming_potential_material_scope2 = Var(instance.locations, instance.processes_materials,
+                                                     instance.scales_emission_network, within=NonNegativeReals, doc='Scope 2 emissions caused by each material')
+    instance.global_warming_potential_material_mode_scope2 = Var(instance.locations, instance.processes_materials, instance.material_modes,
+                                                          instance.scales_emission_network, within=NonNegativeReals, doc='Scope 2 emissions caused by each material')
+
+
+#Ozone depletion potention segment
     instance.ozone_depletion_potential_location = Var(
         instance.locations, instance.scales_emission_network, within=NonNegativeReals, doc='ozone depletion potential caused at each location')
     instance.ozone_depletion_potential_network = Var(
