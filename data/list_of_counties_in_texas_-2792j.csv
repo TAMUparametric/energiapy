@@ -1,0 +1,514 @@
+﻿S.No.,County,FIPS code,County seat,Area,Population,Established Year,Origin
+1,Anderson County,001,Palestine,"1,071 sq mi
+(2,774 km)","58,402",1846,Houston County
+2,Andrews County,003,Andrews,"1,501 sq mi
+(3,888 km)","18,440",1876,Bexar County
+3,Angelina County,005,Lufkin,"802 sq mi
+(2,077 km)","86,506",1846,Nacogdoches County
+4,Aransas County,007,Rockport,"252 sq mi
+(653 km)","24,510",1871,Refugio County
+5,Archer County,009,Archer City,"910 sq mi
+(2,357 km)","8,681",1858,Fannin County
+6,Armstrong County,011,Claude,"914 sq mi
+(2,367 km)","1,839",1876,Bexar County
+7,Atascosa County,013,Jourdanton,"1,232 sq mi
+(3,191 km)","49,939",1856,Bexar County
+8,Austin County,015,Bellville,"653 sq mi
+(1,691 km)","30,380",1836,One of the original 23 counties
+9,Bailey County,017,Muleshoe,"827 sq mi
+(2,142 km)","6,835",1876,Bexar County
+10,Bandera County,019,Bandera,"792 sq mi
+(2,051 km)","21,565",1856,Bexar County
+11,Bastrop County,021,Bastrop,"888 sq mi
+(2,300 km)","102,058",1836,One of the original 23 counties
+12,Baylor County,023,Seymour,"871 sq mi
+(2,256 km)","3,477",1858,Fannin County
+13,Bee County,025,Beeville,"880 sq mi
+(2,279 km)","30,924",1857,"San Patricio County, Goliad County, Refugio County, Live Oak County, and Karnes County"
+14,Bell County,027,Belton,"1,059 sq mi
+(2,743 km)","379,617",1850,Milam County
+15,Bexar County,029,San Antonio,"1,247 sq mi
+(3,230 km)","2,028,236",1836,One of the original 23 counties
+16,Blanco County,031,Johnson City,"711 sq mi
+(1,841 km)","11,886",1858,"Burnet County, Comal County, Gillespie County and Hays County"
+17,Borden County,033,Gail,"899 sq mi
+(2,328 km)",617,1876,Bexar County
+18,Bosque County,035,Meridian,"989 sq mi
+(2,561 km)","18,503",1854,McLennan County
+19,Bowie County,037,New Boston,"888 sq mi
+(2,300 km)","92,581",1840,Red River County
+20,Brazoria County,039,Angleton,"1,387 sq mi
+(3,592 km)","379,689",1836,One of the original 23 counties
+21,Brazos County,041,Bryan,"586 sq mi
+(1,518 km)","237,032",1841,Washington County. Named Navasota County until 1842
+22,Brewster County,043,Alpine,"6,193 sq mi
+(16,040 km)","9,450",1887,Presidio County
+23,Briscoe County,045,Silverton,"900 sq mi
+(2,331 km)","1,403",1876,Bexar County
+24,Brooks County,047,Falfurrias,"943 sq mi
+(2,442 km)","6,994",1911,Starr County
+25,Brown County,049,Brownwood,"944 sq mi
+(2,445 km)","38,192",1856,Comanche County and Travis County
+26,Burleson County,051,Caldwell,"666 sq mi
+(1,725 km)","18,051",1846,Milam County
+27,Burnet County,053,Burnet,"995 sq mi
+(2,577 km)","50,954",1852,"Bell County, Travis County and Williamson County"
+28,Caldwell County,055,Lockhart,"546 sq mi
+(1,414 km)","46,791",1848,Bastrop County and Gonzales County
+29,Calhoun County,057,Port Lavaca,"512 sq mi
+(1,326 km)","19,727",1846,"Jackson County, Matagorda County and Victoria County"
+30,Callahan County,059,Baird,"899 sq mi
+(2,328 km)","14,115",1858,"Bexar County, Bosque County, and Travis County"
+31,Cameron County,061,Brownsville,"906 sq mi
+(2,347 km)","423,029",1848,Nueces County and lands ceded by Mexico
+32,Camp County,063,Pittsburg,"198 sq mi
+(513 km)","12,616",1874,Upshur County
+33,Carson County,065,Panhandle,"923 sq mi
+(2,391 km)","5,746",1876,Bexar County
+34,Cass County,067,Linden,"938 sq mi
+(2,429 km)","28,560",1846,Bowie County
+35,Castro County,069,Dimmitt,"898 sq mi
+(2,326 km)","7,374",1876,Bexar County
+36,Chambers County,071,Anahuac,"599 sq mi
+(1,551 km)","48,865",1858,Jefferson County and Liberty County
+37,Cherokee County,073,Rusk,"1,052 sq mi
+(2,725 km)","51,097",1846,Nacogdoches County
+38,Childress County,075,Childress,"710 sq mi
+(1,839 km)","6,736",1876,Bexar County
+39,Clay County,077,Henrietta,"1,098 sq mi
+(2,844 km)","10,263",1857,Cooke County
+40,Cochran County,079,Morton,"775 sq mi
+(2,007 km)","2,516",1876,Bexar County
+41,Coke County,081,Robert Lee,"899 sq mi
+(2,328 km)","3,321",1889,Tom Green County
+42,Coleman County,083,Coleman,"1,273 sq mi
+(3,297 km)","7,735",1858,Brown County and Travis County
+43,Collin County,085,McKinney,"848 sq mi
+(2,196 km)","1,109,462",1846,Fannin County
+44,Collingsworth County,087,Wellington,"919 sq mi
+(2,380 km)","2,615",1876,Bexar County
+45,Colorado County,089,Columbus,"963 sq mi
+(2,494 km)","20,630",1836,One of the original 23 counties
+46,Comal County,091,New Braunfels,"562 sq mi
+(1,456 km)","174,986",1846,Bexar County
+47,Comanche County,093,Comanche,"938 sq mi
+(2,429 km)","13,775",1856,Bosque County and Coryell County
+48,Concho County,095,Paint Rock,"992 sq mi
+(2,569 km)","3,341",1858,Bexar County
+49,Cooke County,097,Gainesville,"874 sq mi
+(2,264 km)","42,244",1848,Fannin County
+50,Coryell County,099,Gatesville,"1,052 sq mi
+(2,725 km)","84,232",1854,Bell County
+51,Cottle County,101,Paducah,"901 sq mi
+(2,334 km)","1,381",1876,Fannin County
+52,Crane County,103,Crane,"786 sq mi
+(2,036 km)","4,680",1887,Tom Green County
+53,Crockett County,105,Ozona,"2,808 sq mi
+(7,273 km)","3,068",1875,Bexar County
+54,Crosby County,107,Crosbyton,"900 sq mi
+(2,331 km)","5,106",1876,Bexar County
+55,Culberson County,109,Van Horn,"3,813 sq mi
+(9,876 km)","2,193",1911,El Paso County
+56,Dallam County,111,Dalhart,"1,505 sq mi
+(3,898 km)","7,172",1876,Bexar County
+57,Dallas County,113,Dallas,"880 sq mi
+(2,279 km)","2,586,050",1846,Nacogdoches County and Robertson County
+58,Dawson County,115,Lamesa,"902 sq mi
+(2,336 km)","12,413",1876,Bexar County
+59,Deaf Smith County,117,Hereford,"1,497 sq mi
+(3,877 km)","18,329",1876,Bexar County
+60,Delta County,119,Cooper,"277 sq mi
+(717 km)","5,392",1870,Hopkins County and Lamar County
+61,Denton County,121,Denton,"888 sq mi
+(2,300 km)","941,647",1846,Fannin County
+62,DeWitt County,123,Cuero,"909 sq mi
+(2,354 km)","19,918",1846,"Goliad County, Gonzales County and Victoria County"
+63,Dickens County,125,Dickens,"904 sq mi
+(2,341 km)","1,740",1876,Bexar County
+64,Dimmit County,127,Carrizo Springs,"1,331 sq mi
+(3,447 km)","8,473",1858,"Bexar County, Maverick County, Uvalde County and Webb County"
+65,Donley County,129,Clarendon,"930 sq mi
+(2,409 km)","3,268",1876,Bexar County
+66,Duval County,131,San Diego,"1,793 sq mi
+(4,644 km)","9,756",1858,"Live Oak County, Nueces County and Starr County"
+67,Eastland County,133,Eastland,"926 sq mi
+(2,398 km)","17,864",1858,"Bosque County, Coryell County and Travis County"
+68,Ector County,135,Odessa,"901 sq mi
+(2,334 km)","161,091",1887,Tom Green County
+69,Edwards County,137,Rocksprings,"2,120 sq mi
+(5,491 km)","1,438",1858,Bexar County
+70,Ellis County,139,Waxahachie,"940 sq mi
+(2,435 km)","202,678",1849,Navarro County
+71,El Paso County,141,El Paso,"1,013 sq mi
+(2,624 km)","867,947",1848,Santa Fe County
+72,Erath County,143,Stephenville,"1,086 sq mi
+(2,813 km)","43,378",1856,Bosque County and Coryell County
+73,Falls County,145,Marlin,"769 sq mi
+(1,992 km)","17,313",1850,Limestone County and Milam County
+74,Fannin County,147,Bonham,"892 sq mi
+(2,310 km)","36,569",1837,Red River County
+75,Fayette County,149,La Grange,"950 sq mi
+(2,460 km)","24,687",1837,Bastrop County
+76,Fisher County,151,Roby,"901 sq mi
+(2,334 km)","3,706",1876,Bexar County
+77,Floyd County,153,Floydada,"992 sq mi
+(2,569 km)","5,350",1876,Bexar County
+78,Foard County,155,Crowell,"707 sq mi
+(1,831 km)","1,080",1891,"Cottle County, Hardeman County, King County and Knox County"
+79,Fort Bend County,157,Richmond,"875 sq mi
+(2,266 km)","858,527",1837,"Austin County, Brazoria County and Harris County"
+80,Franklin County,159,Mount Vernon,"286 sq mi
+(741 km)","10,464",1875,Titus County
+81,Freestone County,161,Fairfield,"885 sq mi
+(2,292 km)","19,774",1850,Limestone County
+82,Frio County,163,Pearsall,"1,133 sq mi
+(2,934 km)","18,436",1858,"Atascosa County, Bexar County and Uvalde County"
+83,Gaines County,165,Seminole,"1,502 sq mi
+(3,890 km)","21,895",1876,Bexar County
+84,Galveston County,167,Galveston,"399 sq mi
+(1,033 km)","355,062",1838,"Brazoria County, Harris County and Liberty County"
+85,Garza County,169,Post,"896 sq mi
+(2,321 km)","5,863",1876,Bexar County
+86,Gillespie County,171,Fredericksburg,"1,061 sq mi
+(2,748 km)","27,297",1848,Bexar County and Travis County
+87,Glasscock County,173,Garden City,"901 sq mi
+(2,334 km)","1,149",1887,Tom Green County
+88,Goliad County,175,Goliad,"854 sq mi
+(2,212 km)","7,163",1836,One of the original 23 counties
+89,Gonzales County,177,Gonzales,"1,068 sq mi
+(2,766 km)","19,641",1836,One of the original 23 counties
+90,Gray County,179,Pampa,"928 sq mi
+(2,404 km)","21,030",1876,Bexar County
+91,Grayson County,181,Sherman,"934 sq mi
+(2,419 km)","139,336",1846,Fannin County
+92,Gregg County,183,Longview,"274 sq mi
+(710 km)","124,201",1873,Upshur County
+93,Grimes County,185,Anderson,"794 sq mi
+(2,056 km)","30,287",1846,Montgomery County
+94,Guadalupe County,187,Seguin,"711 sq mi
+(1,841 km)","177,036",1846,Bexar County and Gonzales County
+95,Hale County,189,Plainview,"1,005 sq mi
+(2,603 km)","32,220",1876,Bexar County
+96,Hall County,191,Memphis,"903 sq mi
+(2,339 km)","2,845",1876,Bexar County
+97,Hamilton County,193,Hamilton,"836 sq mi
+(2,165 km)","8,229",1856,"Bosque County, Comanche County and Lampasas County"
+98,Hansford County,195,Spearman,"920 sq mi
+(2,383 km)","5,159",1876,Bexar County
+99,Hardeman County,197,Quanah,"695 sq mi
+(1,800 km)","3,552",1858,Fannin County
+100,Hardin County,199,Kountze,"894 sq mi
+(2,315 km)","56,973",1858,Jefferson County and Liberty County
+101,Harris County,201,Houston,"1,729 sq mi
+(4,478 km)","4,728,030",1836,One of the original 23 counties
+102,Harrison County,203,Marshall,"899 sq mi
+(2,328 km)","69,150",1839,Shelby County
+103,Hartley County,205,Channing,"1,462 sq mi
+(3,787 km)","5,397",1876,Bexar County
+104,Haskell County,207,Haskell,"903 sq mi
+(2,339 km)","5,411",1858,Fannin County and Milam County
+105,Hays County,209,San Marcos,"678 sq mi
+(1,756 km)","255,397",1848,Travis County
+106,Hemphill County,211,Canadian,"910 sq mi
+(2,357 km)","3,271",1876,Bexar County
+107,Henderson County,213,Athens,"874 sq mi
+(2,264 km)","83,667",1846,Houston County and Nacogdoches County
+108,Hidalgo County,215,Edinburg,"1,569 sq mi
+(4,064 km)","880,356",1852,Cameron County
+109,Hill County,217,Hillsboro,"962 sq mi
+(2,492 km)","36,471",1853,Navarro County
+110,Hockley County,219,Levelland,"908 sq mi
+(2,352 km)","21,363",1876,Bexar County
+111,Hood County,221,Granbury,"422 sq mi
+(1,093 km)","64,222",1866,Johnson County
+112,Hopkins County,223,Sulphur Springs,"785 sq mi
+(2,033 km)","37,211",1846,Lamar County and Nacogdoches County
+113,Houston County,225,Crockett,"1,231 sq mi
+(3,188 km)","22,241",1837,Nacogdoches County
+114,Howard County,227,Big Spring,"903 sq mi
+(2,339 km)","34,128",1876,Bexar County
+115,Hudspeth County,229,Sierra Blanca,"4,571 sq mi
+(11,839 km)","3,287",1917,El Paso County
+116,Hunt County,231,Greenville,"841 sq mi
+(2,178 km)","103,394",1846,Fannin County and Nacogdoches County
+117,Hutchinson County,233,Stinnett,"887 sq mi
+(2,297 km)","20,495",1876,Bexar County
+118,Irion County,235,Mertzon,"1,052 sq mi
+(2,725 km)","1,552",1889,Tom Green County
+119,Jack County,237,Jacksboro,"917 sq mi
+(2,375 km)","8,712",1856,Cooke County
+120,Jackson County,239,Edna,"830 sq mi
+(2,150 km)","15,121",1836,One of the original 23 counties
+121,Jasper County,241,Jasper,"938 sq mi
+(2,429 km)","32,975",1836,One of the original 23 counties
+122,Jeff Davis County,243,Fort Davis,"2,265 sq mi
+(5,866 km)","1,949",1887,Presidio County
+123,Jefferson County,245,Beaumont,"904 sq mi
+(2,341 km)","253,704",1836,One of the original 23 counties
+124,Jim Hogg County,247,Hebbronville,"1,136 sq mi
+(2,942 km)","4,801",1913,Brooks County and Duval County
+125,Jim Wells County,249,Alice,"865 sq mi
+(2,240 km)","38,847",1911,Nueces County
+126,Johnson County,251,Cleburne,"729 sq mi
+(1,888 km)","187,280",1854,"Ellis County, Hill County and Navarro County"
+127,Jones County,253,Anson,"931 sq mi
+(2,411 km)","19,873",1854,Bexar County and Bosque County
+128,Karnes County,255,Karnes City,"750 sq mi
+(1,942 km)","14,754",1854,"Bexar County, DeWitt County, Goliad County, Gonzales County and San Patricio County"
+129,Kaufman County,257,Kaufman,"786 sq mi
+(2,036 km)","157,768",1848,Henderson County
+130,Kendall County,259,Boerne,"662 sq mi
+(1,715 km)","46,788",1862,Blanco County and Kerr County
+131,Kenedy County,261,Sarita,"1,457 sq mi
+(3,774 km)",340,1921,Hidalgo County and Willacy County (Due to a reorganization of Willacy County)
+132,Kent County,263,Jayton,"902 sq mi
+(2,336 km)",749,1876,Bexar County
+133,Kerr County,265,Kerrville,"1,106 sq mi
+(2,865 km)","53,161",1856,Bexar County
+134,Kimble County,267,Junction,"1,251 sq mi
+(3,240 km)","4,365",1858,Bexar County
+135,King County,269,Guthrie,"912 sq mi
+(2,362 km)",258,1876,Bexar County
+136,Kinney County,271,Brackettville,"1,364 sq mi
+(3,533 km)","3,130",1850,Bexar County
+137,Kleberg County,273,Kingsville,"871 sq mi
+(2,256 km)","30,635",1913,Nueces County
+138,Knox County,275,Benjamin,"854 sq mi
+(2,212 km)","3,351",1858,Bexar County
+139,Lamar County,277,Paris,"917 sq mi
+(2,375 km)","50,098",1840,Red River County
+140,Lamb County,279,Littlefield,"1,016 sq mi
+(2,631 km)","12,898",1876,Bexar County
+141,Lampasas County,281,Lampasas,"712 sq mi
+(1,844 km)","22,252",1856,"Bell County, Coryell County and Travis County"
+142,La Salle County,283,Cotulla,"1,489 sq mi
+(3,856 km)","6,670",1858,Bexar County
+143,Lavaca County,285,Hallettsville,"970 sq mi
+(2,512 km)","20,544",1842,"Colorado County, Fayette County, Gonzales County, Jackson County and Victoria County
+Named La Buca County until 1846"
+144,Lee County,287,Giddings,"629 sq mi
+(1,629 km)","17,706",1874,"Bastrop County, Burleson County, Fayette County and Washington County"
+145,Leon County,289,Centerville,"1,072 sq mi
+(2,776 km)","15,959",1846,Robertson County
+146,Liberty County,291,Liberty,"1,160 sq mi
+(3,004 km)","97,621",1836,One of the original 23 counties
+147,Limestone County,293,Groesbeck,"909 sq mi
+(2,354 km)","22,119",1846,Robertson County
+148,Lipscomb County,295,Lipscomb,"932 sq mi
+(2,414 km)","2,931",1876,Bexar County
+149,Live Oak County,297,George West,"1,036 sq mi
+(2,683 km)","11,377",1856,Nueces County and San Patricio County
+150,Llano County,299,Llano,"935 sq mi
+(2,422 km)","21,978",1856,"Bexar County, Gillespie County"
+151,Loving County,301,Mentone,"673 sq mi
+(1,743 km)",57,1887,"Tom Green County (1891)
+Reeves County (1931)"
+152,Lubbock County,303,Lubbock,"900 sq mi
+(2,331 km)","314,451",1876,Bexar County
+153,Lynn County,305,Tahoka,"892 sq mi
+(2,310 km)","5,688",1876,Bexar County
+154,McCulloch County,307,Brady,"1,069 sq mi
+(2,769 km)","7,533",1856,Bexar County
+155,McLennan County,309,Waco,"1,042 sq mi
+(2,699 km)","263,115",1850,Limestone County and Milam County
+156,McMullen County,311,Tilden,"1,113 sq mi
+(2,883 km)",608,1858,"Atascosa County, Bexar County and Live Oak County"
+157,Madison County,313,Madisonville,"470 sq mi
+(1,217 km)","13,718",1853,"Grimes County, Leon County and Walker County"
+158,Marion County,315,Jefferson,"381 sq mi
+(987 km)","9,645",1860,Cass County
+159,Martin County,317,Stanton,"915 sq mi
+(2,370 km)","5,211",1876,Bexar County
+160,Mason County,319,Mason,"932 sq mi
+(2,414 km)","3,943",1858,Gillespie County
+161,Matagorda County,321,Bay City,"1,114 sq mi
+(2,885 km)","36,344",1836,One of the original 23 counties
+162,Maverick County,323,Eagle Pass,"1,280 sq mi
+(3,315 km)","58,056",1856,Kinney County
+163,Medina County,325,Hondo,"1,328 sq mi
+(3,440 km)","51,981",1848,Bexar County
+164,Menard County,327,Menard,"902 sq mi
+(2,336 km)","1,982",1858,Bexar County
+165,Midland County,329,Midland,"900 sq mi
+(2,331 km)","167,969",1885,Tom Green County
+166,Milam County,331,Cameron,"1,017 sq mi
+(2,634 km)","25,106",1836,One of the original 23 counties
+167,Mills County,333,Goldthwaite,"748 sq mi
+(1,937 km)","4,480",1887,"Brown County, Comanche County, Hamilton County and Lampasas County"
+168,Mitchell County,335,Colorado City,"910 sq mi
+(2,357 km)","9,070",1876,Bexar County
+169,Montague County,337,Montague,"931 sq mi
+(2,411 km)","20,409",1857,Cooke County
+170,Montgomery County,339,Conroe,"1,044 sq mi
+(2,704 km)","648,886",1837,Washington County
+171,Moore County,341,Dumas,"900 sq mi
+(2,331 km)","21,118",1876,Bexar County
+172,Morris County,343,Daingerfield,"254 sq mi
+(658 km)","12,030",1875,Titus County
+173,Motley County,345,Matador,"989 sq mi
+(2,561 km)","1,067",1876,Bexar County
+174,Nacogdoches County,347,Nacogdoches,"947 sq mi
+(2,453 km)","64,668",1836,One of the original 23 counties
+175,Navarro County,349,Corsicana,"1,071 sq mi
+(2,774 km)","53,591",1846,Robertson County
+176,Newton County,351,Newton,"933 sq mi
+(2,416 km)","12,241",1846,Jasper County
+177,Nolan County,353,Sweetwater,"912 sq mi
+(2,362 km)","14,597",1876,Bexar County
+178,Nueces County,355,Corpus Christi,"836 sq mi
+(2,165 km)","353,079",1846,San Patricio County
+179,Ochiltree County,357,Perryton,"918 sq mi
+(2,378 km)","9,782",1876,Bexar County
+180,Oldham County,359,Vega,"1,501 sq mi
+(3,888 km)","1,717",1876,Bexar County
+181,Orange County,361,Orange,"356 sq mi
+(922 km)","84,742",1852,Jefferson County
+182,Palo Pinto County,363,Palo Pinto,"953 sq mi
+(2,468 km)","28,686",1856,Bosque County and Navarro County
+183,Panola County,365,Carthage,"801 sq mi
+(2,075 km)","22,675",1846,Harrison County and Shelby County
+184,Parker County,367,Weatherford,"904 sq mi
+(2,341 km)","156,764",1855,Bosque County and Navarro County
+185,Parmer County,369,Farwell,"882 sq mi
+(2,284 km)","9,813",1876,Bexar County
+186,Pecos County,371,Fort Stockton,"4,764 sq mi
+(12,339 km)","15,118",1871,Presidio County
+187,Polk County,373,Livingston,"1,057 sq mi
+(2,738 km)","51,899",1846,Liberty County
+188,Potter County,375,Amarillo,"909 sq mi
+(2,354 km)","116,547",1876,Bexar County
+189,Presidio County,377,Marfa,"3,856 sq mi
+(9,987 km)","6,140",1850,Santa Fe County
+190,Rains County,379,Emory,"259 sq mi
+(671 km)","12,509",1870,"Hopkins County, Hunt County and Wood County"
+191,Randall County,381,Canyon,"914 sq mi
+(2,367 km)","143,854",1876,Bexar County
+192,Reagan County,383,Big Lake,"1,175 sq mi
+(3,043 km)","3,253",1903,Tom Green County
+193,Real County,385,Leakey,"700 sq mi
+(1,813 km)","2,826",1913,"Bandera County, Edwards County and Kerr County"
+194,Red River County,387,Clarksville,"1,050 sq mi
+(2,719 km)","11,555",1836,One of the original 23 counties
+195,Reeves County,389,Pecos,"2,636 sq mi
+(6,827 km)","14,487",1883,Pecos County
+196,Refugio County,391,Refugio,"770 sq mi
+(1,994 km)","6,756",1836,One of the original 23 counties
+197,Roberts County,393,Miami,"924 sq mi
+(2,393 km)",797,1876,Bexar County
+198,Robertson County,395,Franklin,"855 sq mi
+(2,214 km)","16,958",1837,"Bexar County, Milam County and Nacogdoches County"
+199,Rockwall County,397,Rockwall,"149 sq mi
+(386 km)","116,381",1873,Kaufman County
+200,Runnels County,399,Ballinger,"1,054 sq mi
+(2,730 km)","9,943",1858,Bexar County and Travis County
+201,Rusk County,401,Henderson,"924 sq mi
+(2,393 km)","52,743",1843,Nacogdoches County
+202,Sabine County,403,Hemphill,"490 sq mi
+(1,269 km)","10,039",1836,One of the original 23 counties
+203,San Augustine County,405,San Augustine,"528 sq mi
+(1,368 km)","7,922",1836,One of the original 23 counties
+204,San Jacinto County,407,Coldspring,"571 sq mi
+(1,479 km)","27,878",1870,"Liberty County, Montgomery County, Polk County and Walker County"
+205,San Patricio County,409,Sinton,"692 sq mi
+(1,792 km)","69,699",1836,One of the original 23 counties
+206,San Saba County,411,San Saba,"1,134 sq mi
+(2,937 km)","5,827",1856,Bexar County
+207,Schleicher County,413,Eldorado,"1,311 sq mi
+(3,395 km)","2,429",1887,Crockett County
+208,Scurry County,415,Snyder,"903 sq mi
+(2,339 km)","16,824",1876,Bexar County
+209,Shackelford County,417,Albany,"914 sq mi
+(2,367 km)","3,212",1858,Bosque County
+210,Shelby County,419,Center,"794 sq mi
+(2,056 km)","23,939",1836,One of the original 23 counties
+211,Sherman County,421,Stratford,"923 sq mi
+(2,391 km)","2,798",1876,Bexar County
+212,Smith County,423,Tyler,"928 sq mi
+(2,404 km)","237,186",1846,Nacogdoches County
+213,Somervell County,425,Glen Rose,"187 sq mi
+(484 km)","9,469",1875,Hood County
+214,Starr County,427,Rio Grande City,"1,223 sq mi
+(3,168 km)","66,049",1848,Nueces County
+215,Stephens County,429,Breckenridge,"895 sq mi
+(2,318 km)","9,173",1858,"Bosque County
+Named Buchanan County until 1861"
+216,Sterling County,431,Sterling City,"923 sq mi
+(2,391 km)","1,381",1891,Tom Green County
+217,Stonewall County,433,Aspermont,"919 sq mi
+(2,380 km)","1,217",1876,Bexar County
+218,Sutton County,435,Sonora,"1,454 sq mi
+(3,766 km)","3,319",1887,Crockett County
+219,Swisher County,437,Tulia,"900 sq mi
+(2,331 km)","7,008",1876,Bexar County
+220,Tarrant County,439,Fort Worth,"864 sq mi
+(2,238 km)","2,126,477",1849,Navarro County
+221,Taylor County,441,Abilene,"916 sq mi
+(2,372 km)","143,326",1858,Bexar County and Travis County
+222,Terrell County,443,Sanderson,"2,358 sq mi
+(6,107 km)",724,1905,Pecos County
+223,Terry County,445,Brownfield,"890 sq mi
+(2,305 km)","11,754",1876,Bexar County
+224,Throckmorton County,447,Throckmorton,"912 sq mi
+(2,362 km)","1,495",1858,Fannin County
+225,Titus County,449,Mount Pleasant,"411 sq mi
+(1,064 km)","31,183",1846,Bowie County
+226,Tom Green County,451,San Angelo,"1,522 sq mi
+(3,942 km)","119,411",1874,Bexar County
+227,Travis County,453,Austin,"989 sq mi
+(2,561 km)","1,305,154",1840,Bastrop County
+228,Trinity County,455,Groveton,"693 sq mi
+(1,795 km)","13,827",1850,Houston County
+229,Tyler County,457,Woodville,"923 sq mi
+(2,391 km)","20,077",1846,Liberty County
+230,Upshur County,459,Gilmer,"588 sq mi
+(1,523 km)","41,774",1846,Harrison County
+231,Upton County,461,Rankin,"1,242 sq mi
+(3,217 km)","3,265",1887,Tom Green County
+232,Uvalde County,463,Uvalde,"1,557 sq mi
+(4,033 km)","24,729",1850,Bexar County
+233,Val Verde County,465,Del Rio,"3,171 sq mi
+(8,213 km)","47,564",1885,"Crockett County, Kinney County and Pecos County"
+234,Van Zandt County,467,Canton,"849 sq mi
+(2,199 km)","61,275",1848,Henderson County
+235,Victoria County,469,Victoria,"883 sq mi
+(2,287 km)","90,964",1836,One of the original 23 counties
+236,Walker County,471,Huntsville,"788 sq mi
+(2,041 km)","77,977",1846,Montgomery County
+237,Waller County,473,Hempstead,"514 sq mi
+(1,331 km)","59,781",1873,Austin County and Grimes County
+238,Ward County,475,Monahans,"836 sq mi
+(2,165 km)","11,194",1887,Tom Green County
+239,Washington County,477,Brenham,"609 sq mi
+(1,577 km)","35,891",1836,One of the original 23 counties
+240,Webb County,479,Laredo,"3,357 sq mi
+(8,695 km)","267,945",1848,Nueces County
+241,Wharton County,481,Wharton,"1,090 sq mi
+(2,823 km)","41,721",1846,"Colorado County, Jackson County and Matagorda County"
+242,Wheeler County,483,Wheeler,"914 sq mi
+(2,367 km)","4,927",1876,Bexar County
+243,Wichita County,485,Wichita Falls,"628 sq mi
+(1,627 km)","130,069",1858,Cooke County
+244,Wilbarger County,487,Vernon,"971 sq mi
+(2,515 km)","12,731",1858,Bexar County
+245,Willacy County,489,Raymondville,"597 sq mi
+(1,546 km)","20,316",1911,Cameron County and Hidalgo County
+246,Williamson County,491,Georgetown,"1,124 sq mi
+(2,911 km)","643,026",1848,Milam County
+247,Wilson County,493,Floresville,"807 sq mi
+(2,090 km)","51,257",1860,"Bexar County, Guadalupe County and Karnes County"
+248,Winkler County,495,Kermit,"841 sq mi
+(2,178 km)","7,415",1887,Tom Green County
+249,Wise County,497,Decatur,"905 sq mi
+(2,344 km)","71,714",1856,Cooke County
+250,Wood County,499,Quitman,"650 sq mi
+(1,683 km)","45,875",1850,Van Zandt County
+251,Yoakum County,501,Plains,"800 sq mi
+(2,072 km)","7,607",1876,Bexar County
+252,Young County,503,Graham,"922 sq mi
+(2,388 km)","17,977",1856,Bosque County and Fannin County
+253,Zapata County,505,Zapata,"997 sq mi
+(2,582 km)","13,908",1858,Starr County and Webb County
+254,Zavala County,507,Crystal City,"1,299 sq mi
+(3,364 km)","9,534",1846,Maverick County
+,,,,,,,
+https://www.downloadexcelfiles.com/,,,,,,,
