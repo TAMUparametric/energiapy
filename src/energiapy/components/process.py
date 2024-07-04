@@ -17,6 +17,7 @@ from ..parameters.bound import Big, BigM
 from ..parameters.factor import Factor
 from ..parameters.mpvar import Theta
 from ..parameters.parameter import Parameter, Parameters
+from ..parameters.conversion import Conversion
 from ..parameters.type.property import *
 from ..parameters.type.disposition import *
 from .temporal_scale import TemporalScale
@@ -132,7 +133,7 @@ class Process:
     introduce: Union[float, Tuple[float], Theta] = None
     retire: Union[float, Tuple[float], Theta] = None
     lifetime: Union[float, Tuple[float], Theta] = None
-    p_fail: Union[float, Tuple[float], Theta] = None
+    pfail: Union[float, Tuple[float], Theta] = None
     # These go to storage_resource defined in STORAGE Process
     # Temporal scale
     # not needed if no deterministic data or parameter scale is provided
@@ -185,14 +186,19 @@ class Process:
         # For MULTI_PRODMODE, a dict of type {'mode' (str, int) : {Resource: float}} needs to be provided
 
         if self.conversion:
-            if get_depth(self.conversion) > 2:
+            self.conversion = Conversion(
+                conversion=self.conversion, process=self)
+            self.produce = self.conversion.produce
+            self.base = self.conversion.base
+            self.modes = self.conversion.modes
+            self.n_modes = self.conversion.n_modes
+
+            if self.n_modes > 1:
                 self.ctype.append(ProcessType.MULTI_PRODMODE)
-                self.prod_modes = set(self.conversion)
-                self.resources = reduce(
-                    operator.or_, (set(self.conversion[i]) for i in self.prod_modes), set())
-            else:
+            elif self.n_modes == 1:
                 self.ctype.append(ProcessType.SINGLE_PRODMODE)
-                self.resources = set(self.conversion)
+            elif self.n_modes == 0:
+                self.ctype.append(ProcessType.STORAGE)
 
         # Materials are not necessarily consumed (NO_MATMODE), if material_cons is None
         # If consumed, there could be multiple modes of consumption (MULTI_MATMODE) or one (SINGLE_MATMODE)
@@ -248,7 +254,7 @@ class Process:
             self.ctype.append(ProcessType.LAND)
 
         # if this process fails
-        if self.p_fail:
+        if self.pfail:
             self.ctype.append(ProcessType.FAILURE)
 
         # if this process has some readiness aspects defined
@@ -283,6 +289,16 @@ class Process:
 
         # *----------------- Update Resource parameters ---------------------------------
 
+        for i in self.process_limits():
+            if getattr(self, i.lower()) is not None:
+                attr = getattr(self, i.lower())
+                temporal, ptype, psubtype = getattr(
+                    self, f'{i.lower()}_scale'), Property.LIMIT, getattr(Limit, i)
+
+                param = Parameter(value=attr, ptype=ptype, spatial=SpatialDisp.PROCESS,
+                                  temporal=temporal, psubtype=psubtype, component=self.base, declared_at=self, scales=self.scales)
+                setattr(self, i.lower(), Parameters(param))
+
         for i in self.resource_limits() + self.resource_cashflows() + self.resource_losses():
             if getattr(self, i.lower()) is not None:
                 attr = getattr(self, i.lower())
@@ -296,13 +312,12 @@ class Process:
                     temporal, ptype, psubtype = getattr(
                         self, f'{i.lower()}_scale'), Property.LOSS, getattr(Loss, i)
 
-                for j in list(attr):
-                    param = Parameter(value=attr[j], ptype=ptype, spatial=SpatialDisp.NETWORK,
-                                      temporal=temporal, psubtype=psubtype, component=j, declared_at=self, scales=self.scales)
-                    if hasattr(j, i.lower()):
-                        getattr(j, i.lower()).add(param)
-                    else:
-                        setattr(j, i.lower(), Parameters(param))
+                param = Parameter(value=attr, ptype=ptype, spatial=SpatialDisp.PROCESS,
+                                  temporal=temporal, psubtype=psubtype, component=self.base, declared_at=self, scales=self.scales)
+                if getattr(self.base, i.lower()) is not None:
+                    getattr(self.base, i.lower()).add(param)
+                else:
+                    setattr(self.base, i.lower(), Parameters(param))
 
         # for i in self.process_level_parameters():
         #     self.update_process_parameter(parameter=i)
@@ -352,7 +367,11 @@ class Process:
 
     @classmethod
     def resource_limits(cls) -> List[str]:
-        return Limit.resource() + Limit.process()
+        return Limit.resource()
+
+    @classmethod
+    def process_limits(cls) -> List[str]:
+        return Limit.process()
 
     @classmethod
     def resource_cashflows(cls) -> List[str]:
@@ -381,18 +400,6 @@ class Process:
         return ProcessType.location_level()
 
     # *----------------- Functions ---------------------------------------------
-
-    # def create_storage_resource(self, resource: Resource) -> Resource:
-    #     """Creates a resource for storage, used if ProcessType is STORAGE
-
-    #     Args:
-    #         resource (Resource): Resource to be stored
-    #     Returns:
-    #         Resource: of ResourceType.STORE, named Process.name_Resource.name_stored
-    #     """
-
-    #     return Resource(name=f"{self.name}_{resource.name}_stored", store_loss=self.store_loss, store_max=self.sto, store_min=self.store_min,
-    #                     storage_cost=self.storage_cost, label=f'{resource.label} stored in {self.label}')
 
     # *----------- Hashing --------------------------------
 

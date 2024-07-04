@@ -51,7 +51,7 @@ class Parameter:
                 self.btype = Bound.LOWER
             else:
                 self.btype = Bound.UPPER
-        elif self.psubtype in [Land.AVAILABLE, Life.LIFETIME]:
+        elif self.psubtype in [Land.LAND, Life.LIFETIME]:
             self.btype = Bound.UPPER
         else:
             self.btype = Bound.EXACT
@@ -115,7 +115,11 @@ class Parameter:
             comp = f'{self.component.name}'
 
         if self.declared_at:
-            dec_at = (f'{i.name}' for i in (self.declared_at))
+            if isinstance(self.declared_at, tuple):
+                dec_at = (f'{i.name}' for i in self.declared_at)
+            else:
+                dec_at = f'{self.declared_at.name}'
+            print(dec_at)
             # f'{self.declared_at.name}'
         else:
             dec_at = f'{self.spatial.name.lower()}'
