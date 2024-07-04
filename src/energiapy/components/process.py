@@ -193,6 +193,7 @@ class Process:
     varying_bounds: Tuple[float] = (0, 1)
     mode_ramp: Dict[tuple, int] = None
     storage_cost: float = 0
+    storage_capex: float = 0
     processmode: ProcessMode = None
     materialmode: MaterialMode = None
 
@@ -230,6 +231,7 @@ class Process:
             self.conversion_discharge = {
                 self.resource_storage: -1, self.storage: 1*(1 - self.storage_loss)}  # the losses are all at the output (retrival)
             self.processmode = ProcessMode.STORAGE
+
 
         else:
             self.conversion_discharge = None

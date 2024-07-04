@@ -115,6 +115,7 @@ class Scenario:
             capex_dict (dict): A dictionary with capital expenditure data for each Process.
             fopex_dict (dict): A dictionary with fixed operational expenditure data for each Process.
             vopex_dict (dict): A dictionary with variable operational expenditure data for each Process.
+            storage_dict (dict): A dictionary with capital expenditure data for each storage facility.
             incidental_dict (dict): A dictionary with incidental expenditure data for each Process.
             land_dict (dict): A dictionary with land use data for each Process.
             material_gwp_dict (dict): A dictionary with global warming potential values for each Material object.
@@ -246,6 +247,8 @@ class Scenario:
         self.capex_dict = {i.name: i.capex for i in self.process_set}
         self.fopex_dict = {i.name: i.fopex for i in self.process_set}
         self.vopex_dict = {i.name: i.vopex for i in self.process_set}
+        # self.storage_capex_dict = {i.resource_storage: i.storage_capex for i in self.process_set if i.resource_storage is not None}
+        self.storage_capex_dict = {i.name: i.storage_capex_dict for i in self.location_set}
         self.incidental_dict = {i.name: i.incidental for i in self.process_set}
         self.land_dict = {i.name: i.land for i in self.process_set}
         self.material_gwp_dict = {
@@ -319,8 +322,7 @@ class Scenario:
             self.multiconversion[i.name].keys()) for i in self.process_set}
 
         if self.demand_penalty is not None:
-            self.demand_penalty = {i.name: {j.name: self.demand_penalty[i][j] for j in self.demand_penalty[i].keys(
-            )} for i in self.demand_penalty.keys()}
+            self.demand_penalty = {i.name: {j.name: self.demand_penalty[i][j] for j in self.demand_penalty[i].keys()} for i in self.demand_penalty.keys()}
 
         df_capex = DataFrame.from_dict(
             self.capex_dict, orient='index', columns=['capex'])
@@ -328,6 +330,8 @@ class Scenario:
             self.vopex_dict, orient='index', columns=['vopex'])
         df_fopex = DataFrame.from_dict(
             self.fopex_dict, orient='index', columns=['fopex'])
+        df_storage_capex = DataFrame.from_dict(
+            self.storage_capex_dict, orient='index', columns=['storage_capex'])
         self.cost_df = df_capex.merge(df_vopex, left_index=True, right_index=True, how='inner').merge(
             df_fopex, left_index=True, right_index=True, how='inner')
 

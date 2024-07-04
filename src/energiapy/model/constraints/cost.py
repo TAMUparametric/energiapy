@@ -20,6 +20,7 @@ from ...utils.latex_utils import constraint_latex_render
 from ...utils.scale_utils import scale_list, scale_tuple
 from ...utils.data_utils import get_depth
 from .constraints import Constraints
+from ...components.process import ProcessMode
 
 
 class Costdynamics(Enum):
@@ -379,6 +380,58 @@ def constraint_process_capex(instance: ConcreteModel, capex_dict: dict, network_
     constraint_latex_render(process_capex_rule)
     return instance.constraint_process_capex
 
+def constraint_storage_capex(instance: ConcreteModel, location_resource_dict: dict, storage_capex_dict: dict, network_scale_level: int = 0, annualization_factor: float = 1) -> Constraint:
+    """Capital expenditure for each storgae process at location in network
+
+    Args:
+        instance (ConcreteModel): pyomo instance
+        capex_dict (dict): capex at location
+        network_scale_level (int, optional): scale of network decisions. Defaults to 0.
+        annualization_factor (float, optional): Annual depreciation of asset. Defaults to 1.
+
+    Returns:
+        Constraint: process_capex
+    """
+    scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
+
+    def storage_capex_rule(instance, location, resource_store, *scale_list):
+
+        if storage_capex_dict is not None:
+            Cap_S = instance.Cap_S[location, resource_store, scale_list]
+        else:
+            Cap_S = 0
+
+        if (resource_store in location_resource_dict[location]) and (resource_store in storage_capex_dict[location]):
+                return instance.Capex_storage[location, resource_store, scale_list[:network_scale_level + 1]] == annualization_factor * Cap_S * storage_capex_dict[location][resource_store]
+        else:
+            return instance.Capex_storage[location, resource_store, scale_list[:network_scale_level + 1]] == 0
+
+
+    instance.constraint_storage_capex = Constraint(
+        instance.locations, instance.resources_store, *scales, rule=storage_capex_rule, doc='capex for storage')
+
+    constraint_latex_render(storage_capex_rule)
+    return instance.constraint_storage_capex
+
+
+# def constraint_location_capex(instance: ConcreteModel, network_scale_level: int = 0) -> Constraint:
+#     """Capital expenditure for each process at location in network
+#
+#     Args:
+#         instance (ConcreteModel): pyomo instance
+#         network_scale_level (int, optional): scale of network decisions. Defaults to 0.
+#
+#     Returns:
+#         Constraint: location_capex
+#     """
+#     scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
+#
+#     def location_capex_rule(instance, location, *scale_list):
+#         return instance.Capex_location[location, scale_list] == sum(instance.Capex_process[location, process_, scale_list] for process_ in instance.processes)
+#     instance.constraint_location_capex = Constraint(
+#         instance.locations, *scales, rule=location_capex_rule, doc='total location cost from network')
+#     constraint_latex_render(location_capex_rule)
+#     return instance.constraint_location_capex
 
 def constraint_location_capex(instance: ConcreteModel, network_scale_level: int = 0) -> Constraint:
     """Capital expenditure for each process at location in network
@@ -393,7 +446,7 @@ def constraint_location_capex(instance: ConcreteModel, network_scale_level: int 
     scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
 
     def location_capex_rule(instance, location, *scale_list):
-        return instance.Capex_location[location, scale_list] == sum(instance.Capex_process[location, process_, scale_list] for process_ in instance.processes)
+        return instance.Capex_location[location, scale_list] == sum(instance.Capex_process[location, process_, scale_list] for process_ in instance.processes) + sum(instance.Capex_storage[location, resource_store_, scale_list] for resource_store_ in instance.resources_store)
     instance.constraint_location_capex = Constraint(
         instance.locations, *scales, rule=location_capex_rule, doc='total location cost from network')
     constraint_latex_render(location_capex_rule)

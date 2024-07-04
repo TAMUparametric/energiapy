@@ -49,6 +49,7 @@ from .constraints.cost import (
     constraint_storage_cost,
     constraint_storage_cost_location,
     constraint_storage_cost_network,
+    constraint_storage_capex
 )
 from .constraints.emission import (
     constraint_global_warming_potential_location,
@@ -370,8 +371,8 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
             constraint_process_incidental(instance=instance, incidental_dict=scenario.incidental_dict,
                                           network_scale_level=scenario.network_scale_level)
 
-            # constraint_location_capex(
-            #     instance=instance, network_scale_level=scenario.network_scale_level)
+            constraint_location_capex(
+                instance=instance, network_scale_level=scenario.network_scale_level)
             # constraint_location_fopex(
             #     instance=instance, network_scale_level=scenario.network_scale_level)
             # constraint_location_vopex(
@@ -381,10 +382,10 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
 
             # *----------------sum capex, fopex, vopex, incidental costs over location ---------------------------------------------
 
-            instance.constraint_location_capex = make_constraint(
-                instance=instance, type_cons=Cons.X_EQ_SUMLOCCOST_Y, variable_x='Capex_location', variable_y='Capex_process', location_set=instance.locations, component_set=instance.processes,
-                loc_comp_dict=scenario.location_process_dict, x_scale_level=scenario.network_scale_level, y_scale_level=scenario.network_scale_level,
-                label='sums up capex from process over a location')
+            # instance.constraint_location_capex = make_constraint(
+            #     instance=instance, type_cons=Cons.X_EQ_SUMLOCCOST_Y, variable_x='Capex_location', variable_y='Capex_process', location_set=instance.locations, component_set=instance.processes,
+            #     loc_comp_dict=scenario.location_process_dict, x_scale_level=scenario.network_scale_level, y_scale_level=scenario.network_scale_level,
+            #     label='sums up capex from process over a location')
 
             instance.constraint_location_fopex = make_constraint(
                 instance=instance, type_cons=Cons.X_EQ_SUMLOCCOST_Y, variable_x='Fopex_location', variable_y='Fopex_process', location_set=instance.locations, component_set=instance.processes,
@@ -434,6 +435,9 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
 
             instance.constraint_storage_cost = constraint_storage_cost(
                 instance=instance, location_resource_dict=scenario.location_resource_dict, storage_cost_dict=scenario.storage_cost_dict, network_scale_level=scenario.network_scale_level)
+
+            instance.constraint_storage_capex = constraint_storage_capex(
+                instance=instance, location_resource_dict=scenario.location_resource_dict, storage_capex_dict=scenario.storage_capex_dict, network_scale_level=scenario.network_scale_level)
 
             instance.constraint_storage_cost_location = constraint_storage_cost_location(
                 instance=instance, network_scale_level=scenario.network_scale_level)

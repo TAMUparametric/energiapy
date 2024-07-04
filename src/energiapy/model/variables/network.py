@@ -64,6 +64,8 @@ def generate_network_vars(instance: ConcreteModel, scale_level: int = 0):
                                  instance.scales_network, within=NonNegativeReals, doc='Capex for process')
     instance.Incidental_process = Var(instance.locations, instance.processes,
                                       instance.scales_network, within=NonNegativeReals, doc='Incidentals for process')
+    instance.Capex_storage = Var(instance.locations, instance.resources_store, instance.scales_network,
+                                 within= NonNegativeReals, doc='Capex for storage process')
 
     instance.Fopex_location = Var(instance.locations, instance.scales_network,
                                   within=NonNegativeReals, doc='Fixed Opex at location scale')

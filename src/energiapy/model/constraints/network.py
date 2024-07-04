@@ -157,11 +157,11 @@ def constraint_min_production_facility(instance: ConcreteModel, prod_min: dict, 
 
 
 def constraint_min_capacity_facility(instance: ConcreteModel, location_process_dict: dict = None, network_scale_level: int = 0, capacity_bounds: CapacityBounds = None) -> Constraint:
-    """Minimum capacity recieved from CapacityBounds object
+    """Minimum capacity received from CapacityBounds object
 
     Args:
         instance (ConcreteModel): pyomo instance
-        location_process_dict (dict, optional): capacity facilities avaiable at location. Defaults to {}.
+        location_process_dict (dict, optional): capacity facilities available at location. Defaults to {}.
         network_scale_level (int, optional): scale of network decisions. Defaults to 0.
 
     Returns:
