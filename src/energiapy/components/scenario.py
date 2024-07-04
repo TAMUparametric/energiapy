@@ -222,8 +222,8 @@ class Scenario:
         # self.location_materials = {i: {j for j in i.materials}
         #                            for i in self.locations}
 
-        # for i in ['cap_max', 'cap_min', 'purchase_price', 'sell_price', 'consume', 'store_max', 'store_min', 'storage_cost', 'capacity_factor', 'purchase_price_factor', 'demand_factor', 'capex_factor',
-        #           'fopex_factor', 'vopex_factor', 'incidental_factor', 'availability_factor', 'sell_price_factor']:
+        # for i in ['cap_max', 'cap_min', 'purchase_cost', 'sell_cost', 'consume', 'store_max', 'store_min', 'storage_cost', 'capacity_factor', 'purchase_cost_factor', 'demand_factor', 'capex_factor',
+        #           'fopex_factor', 'vopex_factor', 'incidental_factor', 'availability_factor', 'sell_cost_factor']:
         #     self.loc_comp_attr_dict(attr=i)
 
         # for i in ['store', 'produce', 'implicit', 'discharge', 'sell', 'consume', 'purchase', 'demand']:

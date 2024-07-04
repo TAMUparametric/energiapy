@@ -23,7 +23,7 @@ class Resource:
 
     The emission potentials [gwp, odp, acid, eutt, eutf, eutm] can also be provided
     Given that maximum consumption (consume), purchase price, and sell price can vary by location,
-    localization can be achieved by providing the consume_localize, purchase_price_localize, and sell_price_localize
+    localization can be achieved by providing the consume_localize, purchase_cost_localize, and sell_cost_localize
     at Location level
 
     Demand needs to be declared at Location
@@ -31,8 +31,8 @@ class Resource:
     Args:
         name (str): name of resource. Enter None to randomly assign a name.
         discharge (Union[float, Tuple[float], Theta, bool, 'Big'], optional): if can be discharged or sold. Defaults to None
-        sell_price (Union[float, Tuple[float], Theta], optional): revenue if generated on selling. Defaults to None
-        purchase_price (Union[float, Tuple[float], Theta], optional): purchase price.Defaults to None
+        sell_cost (Union[float, Tuple[float], Theta], optional): revenue if generated on selling. Defaults to None
+        purchase_cost (Union[float, Tuple[float], Theta], optional): purchase price.Defaults to None
         consume (Union[float, Tuple[float], Theta, bool, 'Big'], optional): maximum amount that can be consumed. Defaults to None
         store_max (Union[float, Tuple[float], Theta, bool, 'Big'], optional): maximum amount that can be stored in inventory. Defaults to None
         store_min (float, optional): minimum amount of that is need to setup inventory. Defaults to None
@@ -66,7 +66,7 @@ class Resource:
 
         [2] A resource that can be purchase need a price to be set, besides consume.
 
-        >>> Water = Resource(name='H2O', consume= 100, purchase_price= 20)
+        >>> Water = Resource(name='H2O', consume= 100, purchase_cost= 20)
 
         [3] If the resource can be discharged.
 
@@ -74,7 +74,7 @@ class Resource:
 
         [4] If the resource can be sold. A selling price is set along with sell = True.
 
-        >>> Power = Resource(name='Power', discharge = True, sell_price = 0.2)
+        >>> Power = Resource(name='Power', discharge = True, sell_cost = 0.2)
 
         [5] Additional attributes can be added. Note that this resource is only used implicitly in the system. 
 
@@ -95,15 +95,15 @@ class Resource:
 
         For example, if the availability of water is uncertain:
 
-        >>>  H2 = Resource(name='H2', discharge = True, sell_price = (0, 10)) 
+        >>>  H2 = Resource(name='H2', discharge = True, sell_cost = (0, 10)) 
 
         or 
 
-        >>> H2 = Resource(name='H2', discharge = True, sell_price = Theta(bounds = (0, 10)))
+        >>> H2 = Resource(name='H2', discharge = True, sell_cost = Theta(bounds = (0, 10)))
 
         Multiple parameters of a resource can also be uncertain. As shown here, where water has both uncertain availability as well as price.
 
-        >>> Water = Resource(name='H2O', consume= Theta((0, 45)), purchase_price= Theta((0, 3))) 
+        >>> Water = Resource(name='H2O', consume= Theta((0, 45)), purchase_cost= Theta((0, 3))) 
 
         [8] Environmental impact potentials can also be declared for resources
 
@@ -136,10 +136,10 @@ class Resource:
     store_loss: Union[float, Tuple[float], Theta] = None
     store_loss_scale: int = None
     # CashFlowType
-    sell_price: Union[float, Theta, DataFrame,
-                      Tuple[Union[float, DataFrame, Factor]]] = None
-    purchase_price: Union[float, Theta, DataFrame,
-                          Tuple[Union[float, DataFrame, Factor]]] = None
+    sell_cost: Union[float, Theta, DataFrame,
+                     Tuple[Union[float, DataFrame, Factor]]] = None
+    purchase_cost: Union[float, Theta, DataFrame,
+                         Tuple[Union[float, DataFrame, Factor]]] = None
     store_cost: Union[float, Theta, DataFrame,
                       Tuple[Union[float, DataFrame, Factor]]] = None
     credit: Union[float, Theta, DataFrame,
@@ -160,6 +160,8 @@ class Resource:
     citation: str = None
     # Types
     ctype: List[ResourceType] = None
+
+    eqn_list: List[str] = None
     # Depreciated
     sell: bool = None
     varying: bool = None
@@ -171,11 +173,13 @@ class Resource:
 
     def __post_init__(self):
 
+        if not self.eqn_list:
+            self.eqn_list = list()
         # *-----------------Set ctype (ResourceType)---------------------------------
         # .DISCHARGE allows the resource to be discharged (consume > 0)
-        # .SELL is when a Resource generated revenue (has a sell_price)
+        # .SELL is when a Resource generated revenue (has a sell_cost)
         # .CONSUME is when a Resource can be consumed
-        # .PURCHASE is when a consumed Resource has a purchase_price
+        # .PURCHASE is when a consumed Resource has a purchase_cost
         # .IMPLICIT is when a Resource only exists insitu (not discharged or consumed)
         # .PRODUCED is when a Resource is produced by a Process
         # .SELL and .DEMAND imply that .DISCHARGE is True
@@ -187,7 +191,7 @@ class Resource:
         if not self.ctype:
             self.ctype = list()
 
-        if self.sell_price is not None:
+        if self.sell_cost is not None:
             self.ctype.append(ResourceType.SELL)
             if self.discharge is None:
                 self.discharge = BigM
@@ -204,7 +208,7 @@ class Resource:
                 # is not discharged or consumed. Produced and used within the system captively
                 self.ctype.append(ResourceType.IMPLICIT)
 
-        if self.purchase_price:
+        if self.purchase_cost:
             self.ctype.append(ResourceType.PURCHASE)
             if self.consume is None:
                 self.consume = BigM
@@ -261,18 +265,22 @@ class Resource:
                 f'{self.name}: varying has been depreciated. Variability will be intepreted based on data provided to energiapy.Location factors')
         if self.price:
             raise ValueError(
-                f'{self.name}: price has been depreciated. Please use purchase_price instead')
+                f'{self.name}: price has been depreciated. Please use purchase_cost instead')
         if self.revenue:
             raise ValueError(
-                f'{self.name}: revenue has been depreciated. Please use sell_price instead')
+                f'{self.name}: revenue has been depreciated. Please use sell_cost instead')
         if self.revenue:
             raise ValueError(
                 f'{self.name}: cons_max has been depreciated. Please use consume instead')
-    
+
+    def __setattr__(self, name, value):
+        super().__setattr__(name, value)
+        if hasattr(getattr(self, name), 'eqn_list'):
+            self.eqn_list.extend(getattr(self, name).eqn_list)
+
     def eqns(self):
-        for i in self.all():
-            if getattr(self, i.lower()) is not None:
-                [print(j) for j in getattr(self, i.lower()).eqn_list]
+        for j in self.eqn_list:
+            print(j)
 
     # *----------------- Class Methods ---------------------------------
 
@@ -287,7 +295,7 @@ class Resource:
     @classmethod
     def limits(cls) -> List[str]:
         return Limit.resource()
-    
+
     @classmethod
     def limits_all(cls) -> List[str]:
         return Limit.all()

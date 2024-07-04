@@ -34,11 +34,11 @@ class Theta:
 
         Then th_h2 can be provided when declaring the Resource Hydrogen
 
-        >>> Hydrogen = Resource(name='H2', discharge = True, sell_price = th_h2)
+        >>> Hydrogen = Resource(name='H2', discharge = True, sell_cost = th_h2)
 
         This can be done in one step as:
 
-        >>> Hydrogen = Resource(name='H2', discharge = True, sell_price = Theta((0, 10)))
+        >>> Hydrogen = Resource(name='H2', discharge = True, sell_cost = Theta((0, 10)))
 
         Providing the same Theta to different parameters or different components will create unique parametric variables internally.
 

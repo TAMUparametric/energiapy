@@ -152,10 +152,10 @@ class Process:
     store_loss: Union[float, Tuple[float], Theta] = None
     store_loss_scale: int = None
     # CashFlowType
-    sell_price: Union[float, Theta, DataFrame,
-                      Tuple[Union[float, DataFrame, Factor]]] = None
-    purchase_price: Union[float, Theta, DataFrame,
-                          Tuple[Union[float, DataFrame, Factor]]] = None
+    sell_cost: Union[float, Theta, DataFrame,
+                     Tuple[Union[float, DataFrame, Factor]]] = None
+    purchase_cost: Union[float, Theta, DataFrame,
+                         Tuple[Union[float, DataFrame, Factor]]] = None
     store_cost: Union[float, Theta, DataFrame,
                       Tuple[Union[float, DataFrame, Factor]]] = None
     credit: Union[float, Theta, DataFrame,
@@ -164,6 +164,8 @@ class Process:
                    Tuple[Union[float, DataFrame, Factor]]] = None
     # Types
     ctype: List[Union[ProcessType, Dict[ProcessType, Set['Location']]]] = None
+
+    eqn_list: List[str] = None
     # Details
     basis: str = None
     block: str = None
@@ -177,6 +179,8 @@ class Process:
 
     def __post_init__(self):
 
+        if not self.eqn_list:
+            self.eqn_list = list()
         # *-----------------Set ctype (ProcessType)---------------------------------
 
         if not self.ctype:
@@ -192,12 +196,12 @@ class Process:
         self.modes = self.conversion.modes
         self.n_modes = self.conversion.n_modes
 
-        if not isinstance(self.purchase_price, dict):
+        if not isinstance(self.purchase_cost, dict):
             ValueError(
-                f'{self.name}: purchase_price needs to be provided as a dictionary of input Resources')
+                f'{self.name}: purchase_cost needs to be provided as a dictionary of input Resources')
 
         # set resource parameters to base if not given as dictionary.
-        for i in list(set(self.resource_all()) - set(['PURCHASE_PRICE'])) + self.resource_scales():
+        for i in list(set(self.resource_all()) - set(['PURCHASE_COST'])) + self.resource_scales():
             if getattr(self, i.lower()) is not None and not isinstance(getattr(self, i.lower()), dict):
                 setattr(self, i.lower(), {self.base: getattr(self, i.lower())})
 
@@ -351,10 +355,14 @@ class Process:
             raise ValueError(
                 f'{self.name}: varying has been depreciated. Variability will be intepreted based on data provided to energiapy.Location factors')
 
+    def __setattr__(self, name, value):
+        super().__setattr__(name, value)
+        if hasattr(getattr(self, name), 'eqn_list'):
+            self.eqn_list.extend(getattr(self, name).eqn_list)
+
     def eqns(self):
-        for i in self.all():
-            if getattr(self, i.lower()) is not None:
-                [print(j) for j in getattr(self, i.lower()).eqn_list]
+        for j in self.eqn_list:
+            print(j)
 
     # *----------------- Class Methods -----------------------------------------
     # * component class types

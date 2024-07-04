@@ -91,10 +91,10 @@ class Limit(Enum):
 class CashFlow(Enum):
     """Money going towards or being made from
     """
-    SELL_PRICE = auto()
+    SELL_COST = auto()
     """Revenue per unit basis of Resource sold
     """
-    PURCHASE_PRICE = auto()
+    PURCHASE_COST = auto()
     """Expenditure per unit basis of Resource consumed
     """
     STORE_COST = auto()
@@ -121,8 +121,20 @@ class CashFlow(Enum):
     """
 
     @classmethod
+    def variables_res(cls) -> List[str]:
+        return {'SELL_COST': 'DISCHARGE', 'PURCHASE_COST': 'CONSUME', 'STORE_COST': 'STORE', 'CREDIT': 'DISCHARGE', 'PENALTY': 'DISCHARGE'}
+
+    @classmethod
+    def variables_res_pro(cls) -> List[str]:
+        return {'VOPEX': 'DISCHARGE', 'CAPEX': 'CAPACITY', 'FOPEX': 'CAPACITY', 'INCIDENTAL': None}
+
+    @classmethod
+    def variables_pro(cls) -> List[str]:
+        return {'LAND_COST': 'LAND'}
+
+    @classmethod
     def resource(cls) -> List[str]:
-        return ['SELL_PRICE', 'PURCHASE_PRICE', 'STORE_COST', 'CREDIT', 'PENALTY']
+        return ['SELL_COST', 'PURCHASE_COST', 'STORE_COST', 'CREDIT', 'PENALTY']
 
     @classmethod
     def process(cls) -> List[str]:
@@ -189,6 +201,14 @@ class Emission(Enum):
     EUTM = auto()
     """Marine Eutrophication Potential
     """
+
+    @classmethod
+    def resource_variables(cls) -> List[str]:
+        return ['CONSUME', 'DISCHARGE']
+
+    @classmethod
+    def process_variables(cls) -> List[str]:
+        return ['CAPACITY']
 
     @classmethod
     def all(cls) -> List[str]:

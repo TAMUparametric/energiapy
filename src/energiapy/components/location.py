@@ -42,7 +42,7 @@ class Location:
 
     Resources which have a specific demand at Location can also be provided as a dict {Resource: float}
 
-    Factors for Resource include: demand, purchase_price, sell_price, availability (varies consume)
+    Factors for Resource include: demand, purchase_cost, sell_cost, availability (varies consume)
                 Process include: capacity, expenditures (capex, fopex, vopex, incidental), credit 
                 Location include: land_cost
 
@@ -64,8 +64,8 @@ class Location:
         land_max_factor (DataFrame, optional): factor for changing land availability. Defaults to None. 
         land_cost_factor (DataFrame, optional): factor for changing land cost. Defaults to None. 
         demand (Dict[Resource, Union[float, Tuple[float], Theta]]): demand for resources at location. Defaults to None.
-        sell_price_factor (Dict[Resource, DataFrame], optional): Factor for varying resource revenue. Defaults to None.
-        purchase_price_factor (Dict[Resource, DataFrame], optional): Factor for varying cost. Defaults to None.
+        sell_cost_factor (Dict[Resource, DataFrame], optional): Factor for varying resource revenue. Defaults to None.
+        purchase_cost_factor (Dict[Resource, DataFrame], optional): Factor for varying cost. Defaults to None.
         consume_factor (Dict[Resource, DataFrame], optional): Factor for varying resource availability. Defaults to None.
         discharge_factor (Dict[Resource, DataFrame], optional): Factor for varying resource discharge. Defaults to None.
         demand_factor (Dict[Resource, DataFrame], optional): Factor for varying demand. Defaults to None.
@@ -80,8 +80,8 @@ class Location:
         fopex_factor (Dict[Process, DataFrame], optional):  Factor for varying fixed operational expenditure. Defaults to None.
         incidental_factor (Dict[Process, DataFrame], optional):  Factor for varying incidental expenditure. Defaults to None.
         credit_factor (Dict[Process, DataFrame], optional): factor for credit. Defaults to None.        
-        sell_price_localize (Dict[Resource, Tuple[float, int]] , optional): Localization factor for selling price. Defaults to None.
-        purchase_price_localize (Dict[Resource, Tuple[float, int]] , optional): Localization factor for purchase price. Defaults to None.
+        sell_cost_localize (Dict[Resource, Tuple[float, int]] , optional): Localization factor for selling price. Defaults to None.
+        purchase_cost_localize (Dict[Resource, Tuple[float, int]] , optional): Localization factor for purchase price. Defaults to None.
         consume_localize (Dict[Resource, Tuple[float, int]] , optional): Localization factor for availability. Defaults to None.
         discharge_localize (Dict[Resource, Tuple[float, int]] , optional): Localization factor for discharge. Defaults to None.
         store_max_localize (Dict[Resource, DataFrame], optional): Localization factor for maximum inventory capacity. Defaults to None.
@@ -121,8 +121,8 @@ class Location:
     # Resource parameters declared at Location
     demand: Dict[Resource, Union[float, Tuple[float], Theta]] = None
     # Factors for Resource parameter variability. consume_factor has alias availability_factor
-    sell_price_factor: Dict[Resource, DataFrame] = None
-    purchase_price_factor: Dict[Resource, DataFrame] = None
+    sell_cost_factor: Dict[Resource, DataFrame] = None
+    purchase_cost_factor: Dict[Resource, DataFrame] = None
     consume_factor: Dict[Resource, DataFrame] = None
     discharge_factor: Dict[Resource, DataFrame] = None
     demand_factor: Dict[Resource, DataFrame] = None
@@ -140,8 +140,8 @@ class Location:
     incidental_factor: Dict[Process, DataFrame] = None
     credit_factor: Dict[Process, DataFrame] = None
     # Localizations for Resource parameters.
-    sell_price_localize: Dict[Resource, Tuple[float, int]] = None
-    purchase_price_localize: Dict[Resource, Tuple[float, int]] = None
+    sell_cost_localize: Dict[Resource, Tuple[float, int]] = None
+    purchase_cost_localize: Dict[Resource, Tuple[float, int]] = None
     consume_localize: Dict[Resource, Tuple[float, int]] = None
     discharge_localize: Dict[Resource, Tuple[float, int]] = None
     store_max_localize: Dict[Resource, Tuple[float, int]] = None
@@ -301,10 +301,10 @@ class Location:
                 f'{self.name}: availability_scale_level is depreciated. scale levels determined from factor data now')
         if self.price_factor:
             raise ValueError(
-                f'{self.name}: price_factor is depreciated, use purchase_price_factor instead')
+                f'{self.name}: price_factor is depreciated, use purchase_cost_factor instead')
         if self.revenue_factor:
             raise ValueError(
-                f'{self.name}: revenue_factor_scale_level is depreciated, use sell_price_factor instead')
+                f'{self.name}: revenue_factor_scale_level is depreciated, use sell_cost_factor instead')
 
     # *----------------- Properties ---------------------------------
 

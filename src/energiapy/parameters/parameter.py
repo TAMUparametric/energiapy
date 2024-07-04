@@ -26,7 +26,7 @@ class Parameter:
     temporal: TemporalDisp
     component: Union['Resource', 'Process', 'Location', 'Transport', 'Network']
     psubtype: Union[Limit, CashFlow,
-                    Land, Life, Loss] = None
+                    Land, Life, Loss]
     declared_at: Union['Process', 'Location', 'Transport', 'Network'] = None
     scales: TemporalScale = None
     special: SpecialParameter = None
@@ -84,7 +84,7 @@ class Parameter:
 
             self.lb, self.ub = self.value
 
-        th = ['', '']
+        th = None
         if isinstance(self.value, (tuple, Theta)):
             self.vtype = Variability.UNCERTAIN
             self.vsubtype = Uncertain.PARAMETRIC
@@ -124,30 +124,76 @@ class Parameter:
                 dec_at = (f'{i.name}' for i in self.declared_at)
             else:
                 dec_at = f'{self.declared_at.name}'
-                
+
         else:
             dec_at = f'{self.spatial.name.lower()}'
 
-        if self.psubtype:
-            pst = f'{self.psubtype.name.lower().capitalize()}'
+        pst = f'{self.psubtype.name.lower().capitalize()}'
 
         if self.temporal:
             temp = f'{self.temporal.name.lower()}'
 
-        if self.btype == Bound.EXACT:
-            bnd = ['', f'={nml}{self.ub}']
+        index = f'({comp},{dec_at},{temp})'
+
+        self.name = f'{pst}{index}'
+
+        var2, dom, res = ('' for _ in range(3))
+
+        if hasattr(self.component, 'base'):
+            res = getattr(self.component, 'base').name
+            index = f'({res},{comp},{dec_at},{temp})'
+
+        var = f'{pst.lower()}{index}'
+
+        if isinstance(self.psubtype, CashFlow):
+            var2 = self.variables()[self.psubtype.name]
+            var2 = f'.{var2.lower()}{index}'
+            var = var.replace('_cost ', '_exp')
+
+        if th:
+            par = f'Th'
+            dom = f', Th in ({self.lb},{self.ub})'
+            bnd = ['', '<=']
         else:
-            lb = ''
-            if self.lb > 0:
-                lb = f'{self.lb}<='
-            bnd = [lb, f'<={nml}{self.ub}']
+            bnd = [f'{self.lb}<=', f'<={nml}{self.ub}']
+            par = f'{nml}{self.ub}'
 
-        self.name = f'{pst}({comp},{dec_at},{temp})'
+        if self.btype == Bound.EXACT:
+            self.eqn = f'{var}={par}{var2}{dom}'
+        else:
+            self.eqn = f'{bnd[0]}{var}{bnd[1]}{dom}'
 
-        self.eqn = f'{bnd[0]}{th[0]}{pst}{th[1]}({comp},{dec_at},{temp}){bnd[1]}'
+        # self.eqn = f'{bnd[0]}<={pst}({res}{comp},{dec_at},{temp})<={bnd[1]}'
+
+        # if th:
+        #     self.eqn = f'{pst}({res}{comp},{dec_at},{temp}) = Th[{pst.capitalize}]({res}{comp},{dec_at},{temp}).{var.lower()}({res}{comp},{dec_at},{temp}), Th in ({bnd[0]},{bnd[1]})'
+        # else:
+        #     self.eqn = f'{pst}({res}{comp},{dec_at},{temp})={par}.{var.lower()}({res}{comp},{dec_at},{temp})'
+
+        # else:
+        #     if par:
+        #         self.eqn = f'{pst}({comp},{dec_at},{temp})={par}'
+        #     else:
+        #         self.eqn = f'{bnd[0]}<={pst}({comp},{dec_at},{temp})<={bnd[1]}'
 
         self.disposition = ((self.spatial), self.temporal)
         self.index = (comp, dec_at, temp)
+
+    @classmethod
+    def variables_res(cls) -> List[str]:
+        return CashFlow.variables_res()
+
+    @classmethod
+    def variables_res_pro(cls) -> List[str]:
+        return CashFlow.variables_res_pro()
+
+    @classmethod
+    def variables_pro(cls) -> List[str]:
+        return CashFlow.variables_res_pro()
+
+    @classmethod
+    def variables(cls) -> List[str]:
+        return {**cls.variables_res(), **cls.variables_res_pro(), **cls.variables_pro()}
 
     def __repr__(self):
         return self.name
@@ -183,7 +229,8 @@ class Parameters:
         self.eqn_list.append(parameter.eqn)
 
     def eqns(self):
-        [print(i) for i in self.eqn_list]
+        for eqn in self.eqn_list:
+            print(eqn)
 
     def __repr__(self):
         return self.name
