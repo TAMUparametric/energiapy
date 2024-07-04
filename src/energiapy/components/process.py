@@ -106,14 +106,14 @@ class Process:
     """
 
     name: str
+    conversion: Union[Dict[Union[int, str], Dict[Resource, float]],
+                      Dict[Resource, float]]
     # Design parameters
     capacity: Union[float, bool, 'BigM', List[Union[float, 'BigM']],
-                    DataFrame, Tuple[Union[float, DataFrame, Factor]], Theta] = None
+                    DataFrame, Tuple[Union[float, DataFrame, Factor]], Theta]
     capacity_scale: int = None
     land_use: float = None  # Union[float, Tuple[float], Theta]
     land_use_scale: int = None
-    conversion: Union[Dict[Union[int, str], Dict[Resource, float]],
-                      Dict[Resource, float]] = None
     material_cons: Union[Dict[Union[int, str],
                               Dict[Material, float]], Dict[Material, float]] = None
     # Expenditure
@@ -156,8 +156,8 @@ class Process:
                       Tuple[Union[float, DataFrame, Factor]]] = None
     purchase_price: Union[float, Theta, DataFrame,
                           Tuple[Union[float, DataFrame, Factor]]] = None
-    storage_cost: Union[float, Theta, DataFrame,
-                        Tuple[Union[float, DataFrame, Factor]]] = None
+    store_cost: Union[float, Theta, DataFrame,
+                      Tuple[Union[float, DataFrame, Factor]]] = None
     credit: Union[float, Theta, DataFrame,
                   Tuple[Union[float, DataFrame, Factor]]] = None
     penalty: Union[float, Theta, DataFrame,
@@ -185,20 +185,28 @@ class Process:
         # conversion can be single mode (SINGLE_PRODMODE) or multimode (MULTI_PRODMODE)
         # For MULTI_PRODMODE, a dict of type {'mode' (str, int) : {Resource: float}} needs to be provided
 
-        if self.conversion:
-            self.conversion = Conversion(
-                conversion=self.conversion, process=self)
-            self.produce = self.conversion.produce
-            self.base = self.conversion.base
-            self.modes = self.conversion.modes
-            self.n_modes = self.conversion.n_modes
+        self.conversion = Conversion(
+            conversion=self.conversion, process=self)
+        self.involve = self.conversion.involve
+        self.base = self.conversion.base
+        self.modes = self.conversion.modes
+        self.n_modes = self.conversion.n_modes
 
-            if self.n_modes > 1:
-                self.ctype.append(ProcessType.MULTI_PRODMODE)
-            elif self.n_modes == 1:
-                self.ctype.append(ProcessType.SINGLE_PRODMODE)
-            elif self.n_modes == 0:
-                self.ctype.append(ProcessType.STORAGE)
+        if not isinstance(self.purchase_price, dict):
+            ValueError(
+                f'{self.name}: purchase_price needs to be provided as a dictionary of input Resources')
+
+        # set resource parameters to base if not given as dictionary.
+        for i in list(set(self.resource_all()) - set(['PURCHASE_PRICE'])) + self.resource_scales():
+            if getattr(self, i.lower()) is not None and not isinstance(getattr(self, i.lower()), dict):
+                setattr(self, i.lower(), {self.base: getattr(self, i.lower())})
+
+        if self.n_modes > 1:
+            self.ctype.append(ProcessType.MULTI_PRODMODE)
+        elif self.n_modes == 1:
+            self.ctype.append(ProcessType.SINGLE_PRODMODE)
+        elif self.n_modes == 0:
+            self.ctype.append(ProcessType.STORAGE)
 
         # Materials are not necessarily consumed (NO_MATMODE), if material_cons is None
         # If consumed, there could be multiple modes of consumption (MULTI_MATMODE) or one (SINGLE_MATMODE)
@@ -289,17 +297,17 @@ class Process:
 
         # *----------------- Update Resource parameters ---------------------------------
 
-        for i in self.process_limits():
-            if getattr(self, i.lower()) is not None:
-                attr = getattr(self, i.lower())
-                temporal, ptype, psubtype = getattr(
-                    self, f'{i.lower()}_scale'), Property.LIMIT, getattr(Limit, i)
+        # for i in self.process_limits():
+        #     if getattr(self, i.lower()) is not None:
+        #         attr = getattr(self, i.lower())
+        #         temporal, ptype, psubtype = getattr(
+        #             self, f'{i.lower()}_scale'), Property.LIMIT, getattr(Limit, i)
 
-                param = Parameter(value=attr, ptype=ptype, spatial=SpatialDisp.PROCESS,
-                                  temporal=temporal, psubtype=psubtype, component=self.base, declared_at=self, scales=self.scales)
-                setattr(self, i.lower(), Parameters(param))
+        #         param = Parameter(value=attr, ptype=ptype, spatial=SpatialDisp.PROCESS,
+        #                           temporal=temporal, psubtype=psubtype, component=self.base, declared_at=self, scales=self.scales)
+        #         setattr(self, i.lower(), Parameters(param))
 
-        for i in self.resource_limits() + self.resource_cashflows() + self.resource_losses():
+        for i in self.resource_all():
             if getattr(self, i.lower()) is not None:
                 attr = getattr(self, i.lower())
                 if i in self.resource_limits():
@@ -311,13 +319,16 @@ class Process:
                 if i in self.resource_losses():
                     temporal, ptype, psubtype = getattr(
                         self, f'{i.lower()}_scale'), Property.LOSS, getattr(Loss, i)
-
-                param = Parameter(value=attr, ptype=ptype, spatial=SpatialDisp.PROCESS,
-                                  temporal=temporal, psubtype=psubtype, component=self.base, declared_at=self, scales=self.scales)
-                if getattr(self.base, i.lower()) is not None:
-                    getattr(self.base, i.lower()).add(param)
-                else:
-                    setattr(self.base, i.lower(), Parameters(param))
+                for j in attr:
+                    temporal_scale = None
+                    if temporal:
+                        temporal_scale = temporal[j]
+                    param = Parameter(value=attr[j], ptype=ptype, spatial=SpatialDisp.PROCESS,
+                                      temporal=temporal_scale, psubtype=psubtype, component=j, declared_at=self, scales=self.scales)
+                    if getattr(j, i.lower()) is not None:
+                        getattr(j, i.lower()).add(param)
+                    else:
+                        setattr(j, i.lower(), Parameters(param))
 
         # for i in self.process_level_parameters():
         #     self.update_process_parameter(parameter=i)
@@ -339,6 +350,11 @@ class Process:
         if self.varying:
             raise ValueError(
                 f'{self.name}: varying has been depreciated. Variability will be intepreted based on data provided to energiapy.Location factors')
+
+    def eqns(self):
+        for i in self.all():
+            if getattr(self, i.lower()) is not None:
+                [print(j) for j in getattr(self, i.lower()).eqn_list]
 
     # *----------------- Class Methods -----------------------------------------
     # * component class types
@@ -366,12 +382,12 @@ class Process:
         return Life.process()
 
     @classmethod
-    def resource_limits(cls) -> List[str]:
-        return Limit.resource()
+    def all(cls) -> List[str]:
+        return cls.cashflows() + cls.emissions() + cls.lands() + cls.lifes()
 
     @classmethod
-    def process_limits(cls) -> List[str]:
-        return Limit.process()
+    def resource_limits(cls) -> List[str]:
+        return Limit.resource() + Limit.process()
 
     @classmethod
     def resource_cashflows(cls) -> List[str]:
@@ -380,6 +396,14 @@ class Process:
     @classmethod
     def resource_losses(cls) -> List[str]:
         return Loss.resource()
+
+    @classmethod
+    def resource_all(cls) -> List[str]:
+        return cls.resource_limits() + cls.resource_cashflows() + cls.resource_losses()
+
+    @classmethod
+    def resource_scales(cls) -> List[str]:
+        return [f'{i}_SCALE' for i in cls.resource_limits() + cls.resource_losses()]
 
     @classmethod
     def ctypes(cls) -> Set[str]:

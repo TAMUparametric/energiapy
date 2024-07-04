@@ -97,7 +97,7 @@ class CashFlow(Enum):
     PURCHASE_PRICE = auto()
     """Expenditure per unit basis of Resource consumed
     """
-    STORAGE_COST = auto()
+    STORE_COST = auto()
     """Cost of maintaining Resource inventory
     """
     CREDIT = auto()
@@ -122,7 +122,7 @@ class CashFlow(Enum):
 
     @classmethod
     def resource(cls) -> List[str]:
-        return ['SELL_PRICE', 'PURCHASE_PRICE', 'STORAGE_COST', 'CREDIT', 'PENALTY']
+        return ['SELL_PRICE', 'PURCHASE_PRICE', 'STORE_COST', 'CREDIT', 'PENALTY']
 
     @classmethod
     def process(cls) -> List[str]:

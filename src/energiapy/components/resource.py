@@ -125,6 +125,13 @@ class Resource:
     store: Union[float, bool, 'BigM', List[Union[float, 'BigM']],
                  DataFrame, Tuple[Union[float, DataFrame, Factor]], Theta] = None
     store_scale: int = None
+    # LimitType Set Later
+    capacity: Union[float, bool, 'BigM', List[Union[float, 'BigM']],
+                    DataFrame, Tuple[Union[float, DataFrame, Factor]], Theta] = None
+    capacity_scale: int = None
+    transport:  Union[float, bool, 'BigM', List[Union[float, 'BigM']],
+                      DataFrame, Tuple[Union[float, DataFrame, Factor]], Theta] = None
+    transport_scale: int = None
     # LossType
     store_loss: Union[float, Tuple[float], Theta] = None
     store_loss_scale: int = None
@@ -133,8 +140,8 @@ class Resource:
                       Tuple[Union[float, DataFrame, Factor]]] = None
     purchase_price: Union[float, Theta, DataFrame,
                           Tuple[Union[float, DataFrame, Factor]]] = None
-    storage_cost: Union[float, Theta, DataFrame,
-                        Tuple[Union[float, DataFrame, Factor]]] = None
+    store_cost: Union[float, Theta, DataFrame,
+                      Tuple[Union[float, DataFrame, Factor]]] = None
     credit: Union[float, Theta, DataFrame,
                   Tuple[Union[float, DataFrame, Factor]]] = None
     penalty: Union[float, Theta, DataFrame,
@@ -209,22 +216,26 @@ class Resource:
 
         for i in self.limits() + self.cashflows() + self.losses() + self.emissions():
             if getattr(self, i.lower()) is not None:
-                attr = getattr(self, i.lower())      
+                attr = getattr(self, i.lower())
                 if i in self.limits():
-                    temporal, ptype, psubtype = getattr(self, f'{i.lower()}_scale'), Property.LIMIT, getattr(Limit, i)
-                if i in self.cashflows(): 
-                    temporal, ptype, psubtype = None, Property.CASHFLOW, getattr(CashFlow, i)
+                    temporal, ptype, psubtype = getattr(
+                        self, f'{i.lower()}_scale'), Property.LIMIT, getattr(Limit, i)
+                if i in self.cashflows():
+                    temporal, ptype, psubtype = None, Property.CASHFLOW, getattr(
+                        CashFlow, i)
 
                 if i in self.emissions():
-                    temporal, ptype, psubtype  = None, Property.EMISSION, getattr(Emission, i)
+                    temporal, ptype, psubtype = None, Property.EMISSION, getattr(
+                        Emission, i)
                 if i in self.losses():
-                    temporal, ptype, psubtype  = getattr(self, f'{i.lower()}_scale'), Property.LOSS, getattr(Loss, i)
-                
+                    temporal, ptype, psubtype = getattr(
+                        self, f'{i.lower()}_scale'), Property.LOSS, getattr(Loss, i)
+
                 param = Parameter(value=attr, ptype=ptype, spatial=SpatialDisp.NETWORK,
-                                   temporal=temporal, psubtype=psubtype, component=self,
-                                   scales=self.scales)
+                                  temporal=temporal, psubtype=psubtype, component=self,
+                                  scales=self.scales)
                 setattr(self, i.lower(), Parameters(param))
-                
+
         # *-----------------Random name ---------------------------------
         # A random name is generated if self.name = None
 
@@ -257,6 +268,11 @@ class Resource:
         if self.revenue:
             raise ValueError(
                 f'{self.name}: cons_max has been depreciated. Please use consume instead')
+    
+    def eqns(self):
+        for i in self.all():
+            if getattr(self, i.lower()) is not None:
+                [print(j) for j in getattr(self, i.lower()).eqn_list]
 
     # *----------------- Class Methods ---------------------------------
 
@@ -271,6 +287,10 @@ class Resource:
     @classmethod
     def limits(cls) -> List[str]:
         return Limit.resource()
+    
+    @classmethod
+    def limits_all(cls) -> List[str]:
+        return Limit.all()
 
     @classmethod
     def cashflows(cls) -> List[str]:
@@ -279,11 +299,14 @@ class Resource:
     @classmethod
     def emissions(cls) -> List[str]:
         return Emission.all()
-    
+
     @classmethod
     def losses(cls) -> List[str]:
         return Loss.resource()
 
+    @classmethod
+    def all(cls) -> List[str]:
+        return cls.limits_all() + cls.cashflows() + cls.emissions() + cls.losses()
     # *----------- Hashing --------------------------------
 
     def __repr__(self):

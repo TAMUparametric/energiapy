@@ -58,7 +58,12 @@ class Parameter:
 
         if isinstance(self.value, (float, int)):
             self.vtype = Variability.CERTAIN
-            self.lb, self.ub = self.value, self.value
+            if self.btype == Bound.LOWER:
+                self.lb, self.ub = self.value, BigM
+            if self.btype == Bound.UPPER:
+                self.lb, self.ub = 0, self.value
+            if self.btype == Bound.EXACT:
+                self.lb, self.ub = self.value, self.value
 
         if isinstance(self.value, Big) or self.value is True:
             self.vtype = Variability.CERTAIN
@@ -119,8 +124,7 @@ class Parameter:
                 dec_at = (f'{i.name}' for i in self.declared_at)
             else:
                 dec_at = f'{self.declared_at.name}'
-            print(dec_at)
-            # f'{self.declared_at.name}'
+                
         else:
             dec_at = f'{self.spatial.name.lower()}'
 
