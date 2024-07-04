@@ -207,25 +207,24 @@ class Resource:
 
         # *----------------- Update parameters ---------------------------------
 
-        for i in self.limits():
+        for i in self.limits() + self.cashflows() + self.losses() + self.emissions():
             if getattr(self, i.lower()) is not None:
-                param_ = Parameter(value=getattr(self, i.lower()), ptype=Property.LIMIT, spatial=SpatialDisp.NETWORK,
-                                   temporal=getattr(self, f'{i.lower()}_scale'), psubtype=getattr(Limit, i), component=self,
+                attr = getattr(self, i.lower())      
+                if i in self.limits():
+                    temporal, ptype, psubtype = getattr(self, f'{i.lower()}_scale'), Property.LIMIT, getattr(Limit, i)
+                if i in self.cashflows(): 
+                    temporal, ptype, psubtype = None, Property.CASHFLOW, getattr(CashFlow, i)
+
+                if i in self.emissions():
+                    temporal, ptype, psubtype  = None, Property.EMISSION, getattr(Emission, i)
+                if i in self.losses():
+                    temporal, ptype, psubtype  = getattr(self, f'{i.lower()}_scale'), Property.LOSS, getattr(Loss, i)
+                
+                param = Parameter(value=attr, ptype=ptype, spatial=SpatialDisp.NETWORK,
+                                   temporal=temporal, psubtype=psubtype, component=self,
                                    scales=self.scales)
-                setattr(self, i.lower(), Parameters(param_))
-
-        for i in self.cashflows():
-            if getattr(self, i.lower()) is not None:
-                param_ = Parameter(value=getattr(self, i.lower()), ptype=Property.CASHFLOW, spatial=SpatialDisp.NETWORK,
-                                   temporal=None, psubtype=getattr(CashFlow, i), component=self, scales=self.scales)
-                setattr(self, i.lower(), Parameters(param_))
-
-        for i in self.emissions():
-            if getattr(self, i.lower()) is not None:
-                param_ = Parameter(getattr(self, i.lower()), ptype=Property.EMISSION, psubtype=getattr(Emission, i),
-                                   spatial=SpatialDisp.NETWORK, temporal=None, component=self)
-                setattr(self, i.lower(), Parameters(param_))
-
+                setattr(self, i.lower(), Parameters(param))
+                
         # *-----------------Random name ---------------------------------
         # A random name is generated if self.name = None
 
@@ -280,6 +279,10 @@ class Resource:
     @classmethod
     def emissions(cls) -> List[str]:
         return Emission.all()
+    
+    @classmethod
+    def losses(cls) -> List[str]:
+        return Loss.resource()
 
     # *----------- Hashing --------------------------------
 

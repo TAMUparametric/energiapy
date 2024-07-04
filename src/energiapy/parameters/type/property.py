@@ -144,16 +144,16 @@ class CashFlow(Enum):
 class Land(Enum):
     """Land use or available at spatial scale 
     """
-    USE = auto()
+    LAND_USE = auto()
     """Exact
     """
-    AVAILABLE = auto()
+    LAND = auto()
     """Upper bound 
     """
 
     @classmethod
     def process(cls) -> List[str]:
-        return ['USE']
+        return ['LAND_USE']
 
     @classmethod
     def transport(cls) -> List[str]:
@@ -161,7 +161,7 @@ class Land(Enum):
 
     @classmethod
     def location(cls) -> List[str]:
-        return ['AVAILABLE']
+        return ['LAND']
 
     @classmethod
     def network(cls) -> List[str]:
@@ -223,13 +223,13 @@ class Life(Enum):
 class Loss(Enum):
     """Resource lost during?
     """
-    STORAGE = auto()
-    TRANSPORT = auto()
+    STORE_LOSS = auto()
+    TRANSPORT_LOSS = auto()
 
     @classmethod
     def resource(cls) -> List[str]:
-        return ['STORAGE']
+        return ['STORE_LOSS']
 
     @classmethod
     def transport(cls) -> List[str]:
-        return ['TRANSPORT']
+        return ['TRANSPORT_LOSS']

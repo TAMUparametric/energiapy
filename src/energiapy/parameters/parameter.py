@@ -172,7 +172,7 @@ class Parameters:
         self.params.append(parameter)
         self.dispositions.append(parameter.disposition)
         self.indices.append(parameter.index)
-        self.eqns.append(parameter.eqn)
+        self.eqn_list.append(parameter.eqn)
 
     def eqns(self):
         [print(i) for i in self.eqn_list]

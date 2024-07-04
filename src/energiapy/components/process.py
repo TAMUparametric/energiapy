@@ -16,7 +16,7 @@ from .material import Material
 from ..parameters.bound import Big, BigM
 from ..parameters.factor import Factor
 from ..parameters.mpvar import Theta
-from ..parameters.parameter import Parameter
+from ..parameters.parameter import Parameter, Parameters
 from ..parameters.type.property import *
 from ..parameters.type.disposition import *
 from .temporal_scale import TemporalScale
@@ -108,13 +108,16 @@ class Process:
     # Design parameters
     capacity: Union[float, bool, 'BigM', List[Union[float, 'BigM']],
                     DataFrame, Tuple[Union[float, DataFrame, Factor]], Theta] = None
-    land: float = None  # Union[float, Tuple[float], Theta]
+    capacity_scale: int = None
+    land_use: float = None  # Union[float, Tuple[float], Theta]
+    land_use_scale: int = None
     conversion: Union[Dict[Union[int, str], Dict[Resource, float]],
                       Dict[Resource, float]] = None
     material_cons: Union[Dict[Union[int, str],
                               Dict[Material, float]], Dict[Material, float]] = None
     # Expenditure
     capex: Union[float, dict, Tuple[float], Theta] = None
+    pwl: dict = None  # piece wise linear capex
     fopex: Union[float, Tuple[float], Theta] = None
     vopex: Union[float, Tuple[float], Theta] = None
     incidental: Union[float, Tuple[float], Theta] = None
@@ -160,8 +163,6 @@ class Process:
                    Tuple[Union[float, DataFrame, Factor]]] = None
     # Types
     ctype: List[Union[ProcessType, Dict[ProcessType, Set['Location']]]] = None
-    # Collections
-    emissions: Dict[str, float] = None
     # Details
     basis: str = None
     block: str = None
@@ -184,7 +185,7 @@ class Process:
         # For MULTI_PRODMODE, a dict of type {'mode' (str, int) : {Resource: float}} needs to be provided
 
         if self.conversion:
-            if get_depth(self.conversion) > 1:
+            if get_depth(self.conversion) > 2:
                 self.ctype.append(ProcessType.MULTI_PRODMODE)
                 self.prod_modes = set(self.conversion)
                 self.resources = reduce(
@@ -216,35 +217,34 @@ class Process:
         # conversion_discharge is created while accounting for storage_loss
         # Do not provide a conversion if declaring a .STORAGE type Process
 
-        if self.storage:
-            self.ctype.append(ProcessType.STORAGE)
-            if self.store_loss is None:
-                self.store_loss = 0
-            # create a dummy resource if process is storage type.
-            self.resource_storage = self.create_storage_resource(
-                resource=self.storage)
-            # efficiency of input to storage is 100 percent
-            self.conversion = {self.storage: -1, self.resource_storage: 1}
-            self.conversion_discharge = {
-                self.resource_storage: -1, self.storage: 1*(1 - self.store_loss)}  # the losses are all at the output (retrival)
-            self.resources = set(self.conversion)
+        # if self.store:
+        #     self.ctype.append(ProcessType.STORAGE)
+        #     if self.store_loss is None:
+        #         self.store_loss = 0
+        #     # create a dummy resource if process is storage type.
+        #     self.resource_storage = self.create_storage_resource(
+        #         resource=self.storage)
+        #     # efficiency of input to storage is 100 percent
+        #     self.conversion = {self.storage: -1, self.resource_storage: 1}
+        #     self.conversion_discharge = {
+        #         self.resource_storage: -1, self.storage: 1*(1 - self.store_loss)}  # the losses are all at the output (retrival)
+        #     self.resources = set(self.conversion)
 
         # capex can be linear (LINEAR_CAPEX) or piecewise linear (PWL_CAPEX)
         # if PWL, capex needs to be provide as a dict {capacity_segment: capex_segement}
-        if self.capex:
-            if isinstance(self.capex, dict):
-                self.ctype.append(ProcessType.PWL_CAPEX)
-                self.capacity_segments = list(self.capex)
-                self.capex_segments = list(self.capex.values())
-            else:
-                self.ctype.append(ProcessType.LINEAR_CAPEX)
+        if self.pwl:
+            self.ctype.append(ProcessType.PWL_CAPEX)
+            self.capacity_segments = list(self.pwl)
+            self.capex_segments = list(self.pwl.values())
+        else:
+            self.ctype.append(ProcessType.LINEAR_CAPEX)
 
         # if any expenditure is incurred
         if any([self.capex, self.fopex, self.vopex, self.incidental]):
             self.ctype.append(ProcessType.EXPENDITURE)
 
         # if it requires land to set up
-        if self.land:
+        if self.land_use:
             self.ctype.append(ProcessType.LAND)
 
         # if this process fails
@@ -261,8 +261,51 @@ class Process:
         # If empty Theta is provided, the bounds default to (0, 1)
         # Factors can be declared at Location (Location, DataFrame), gets converted to  (Location, Factor)
 
-        for i in self.process_level_parameters():
-            self.update_process_parameter(parameter=i)
+        for i in self.cashflows() + self.emissions() + self.lands() + self.lifes():
+            if getattr(self, i.lower()) is not None:
+                attr = getattr(self, i.lower())
+                if i in self.cashflows():
+                    temporal, ptype, psubtype = None, Property.CASHFLOW, getattr(
+                        CashFlow, i)
+                if i in self.emissions():
+                    temporal, ptype, psubtype = None, Property.EMISSION, getattr(
+                        Emission, i)
+                if i in self.lands():
+                    temporal, ptype, psubtype = getattr(
+                        self, f'{i.lower()}_scale'), Property.LAND, getattr(Land, i)
+                if i in self.lifes():
+                    temporal, ptype, psubtype = None, Property.LOSS, getattr(
+                        Loss, i)
+
+                param = Parameter(value=attr, ptype=ptype, spatial=SpatialDisp.PROCESS,
+                                  temporal=temporal, psubtype=psubtype, component=self, scales=self.scales)
+                setattr(self, i.lower(), Parameters(param))
+
+        # *----------------- Update Resource parameters ---------------------------------
+
+        for i in self.resource_limits() + self.resource_cashflows() + self.resource_losses():
+            if getattr(self, i.lower()) is not None:
+                attr = getattr(self, i.lower())
+                if i in self.resource_limits():
+                    temporal, ptype, psubtype = getattr(
+                        self, f'{i.lower()}_scale'), Property.LIMIT, getattr(Limit, i)
+                if i in self.resource_cashflows():
+                    temporal, ptype, psubtype = None, Property.CASHFLOW, getattr(
+                        CashFlow, i)
+                if i in self.resource_losses():
+                    temporal, ptype, psubtype = getattr(
+                        self, f'{i.lower()}_scale'), Property.LOSS, getattr(Loss, i)
+
+                for j in list(attr):
+                    param = Parameter(value=attr[j], ptype=ptype, spatial=SpatialDisp.NETWORK,
+                                      temporal=temporal, psubtype=psubtype, component=j, declared_at=self, scales=self.scales)
+                    if hasattr(j, i.lower()):
+                        getattr(j, i.lower()).add(param)
+                    else:
+                        setattr(j, i.lower(), Parameters(param))
+
+        # for i in self.process_level_parameters():
+        #     self.update_process_parameter(parameter=i)
 
         # *----------------- Generate Random Name---------------------------------
         # A random name is generated if self.name = None
@@ -286,16 +329,10 @@ class Process:
     # * component class types
 
     @classmethod
-    def resource_limits(cls) -> List[str]:
-        return Limit.resource()
-
-    @classmethod
-    def resource_cashflows(cls) -> List[str]:
-        return CashFlow.resource()
-
-    @classmethod
-    def limits(cls) -> List[str]:
-        return Limit.process()
+    def class_name(cls) -> str:
+        """Returns class name 
+        """
+        return cls.__name__
 
     @classmethod
     def cashflows(cls) -> List[str]:
@@ -304,6 +341,26 @@ class Process:
     @classmethod
     def emissions(cls) -> List[str]:
         return Emission.all()
+
+    @classmethod
+    def lands(cls) -> List[str]:
+        return Land.process()
+
+    @classmethod
+    def lifes(cls) -> List[str]:
+        return Life.process()
+
+    @classmethod
+    def resource_limits(cls) -> List[str]:
+        return Limit.resource() + Limit.process()
+
+    @classmethod
+    def resource_cashflows(cls) -> List[str]:
+        return CashFlow.resource()
+
+    @classmethod
+    def resource_losses(cls) -> List[str]:
+        return Loss.resource()
 
     @classmethod
     def ctypes(cls) -> Set[str]:
@@ -325,42 +382,17 @@ class Process:
 
     # *----------------- Functions ---------------------------------------------
 
-    def update_process_parameter(self, parameter: str):
-        """updates parameter, sets ptype
+    # def create_storage_resource(self, resource: Resource) -> Resource:
+    #     """Creates a resource for storage, used if ProcessType is STORAGE
 
-        Args:
-            parameter (str): parameter to update 
-        """
-        attr_ = getattr(self, parameter.lower())
-        if attr_:
-            ptype_ = getattr(ProcessParamType, parameter)
-            if not self.ptype:
-                self.ptype = dict()
-            if isinstance(attr_, (tuple, Theta)):
-                self.ptype[ptype_] = ParameterType.UNCERTAIN
-                mpvar_ = create_mpvar(
-                    value=attr_, component=self, ptype=getattr(MPVarType, f'{self.class_name()}_{parameter}'.upper()))
-                setattr(self, parameter.lower(), mpvar_)
-            elif hasattr(attr_, 'bigm') or attr_ is True:
-                self.ptype[ptype_] = ParameterType.BIGM
-                if attr_ is True:
-                    setattr(self, parameter.lower(), BigM)
-            elif hasattr(attr_, 'couldbevar'):
-                self.ptype[ptype_] = ParameterType.UNDECIDED
-            else:
-                self.ptype[ptype_] = ParameterType.CERTAIN
+    #     Args:
+    #         resource (Resource): Resource to be stored
+    #     Returns:
+    #         Resource: of ResourceType.STORE, named Process.name_Resource.name_stored
+    #     """
 
-    def create_storage_resource(self, resource: Resource) -> Resource:
-        """Creates a resource for storage, used if ProcessType is STORAGE
-
-        Args:
-            resource (Resource): Resource to be stored
-        Returns:
-            Resource: of ResourceType.STORE, named Process.name_Resource.name_stored
-        """
-
-        return Resource(name=f"{self.name}_{resource.name}_stored", store_loss=self.store_loss, store_max=self.store_max, store_min=self.store_min,
-                        storage_cost=self.storage_cost, label=f'{resource.label} stored in {self.label}')
+    #     return Resource(name=f"{self.name}_{resource.name}_stored", store_loss=self.store_loss, store_max=self.sto, store_min=self.store_min,
+    #                     storage_cost=self.storage_cost, label=f'{resource.label} stored in {self.label}')
 
     # *----------- Hashing --------------------------------
 
