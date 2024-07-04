@@ -22,7 +22,7 @@ class Parameter:
     value: Union[float, bool, 'BigM', List[float], List[Union[float, 'BigM']],
                  DataFrame, Dict[float, DataFrame], Dict[float, Factor], Tuple[float], Theta]
     ptype: Property
-    spatial: SpatialDisp
+    spatial: Union[SpatialDisp, Tuple[SpatialDisp]]
     temporal: TemporalDisp
     component: Union['Resource', 'Process', 'Location', 'Transport', 'Network']
     psubtype: Union[Limit, CashFlow,
@@ -115,15 +115,16 @@ class Parameter:
             comp = f'{self.component.name}'
 
         if self.declared_at:
-            dec_at = f',{self.declared_at.name}'
+            dec_at = (f'{i.name}' for i in (self.declared_at))
+            # f'{self.declared_at.name}'
         else:
-            dec_at = f',{self.spatial.name.lower()}'
+            dec_at = f'{self.spatial.name.lower()}'
 
         if self.psubtype:
-            pst = f'{self.psubtype.name.lower()}'
+            pst = f'{self.psubtype.name.lower().capitalize()}'
 
         if self.temporal:
-            temp = f',{self.temporal.name.lower()}'
+            temp = f'{self.temporal.name.lower()}'
 
         if self.btype == Bound.EXACT:
             bnd = ['', f'={nml}{self.ub}']
@@ -133,7 +134,48 @@ class Parameter:
                 lb = f'{self.lb}<='
             bnd = [lb, f'<={nml}{self.ub}']
 
-        self.name = f'{bnd[0]}{th[0]}{pst}{th[1]}({comp}{dec_at}{temp}){bnd[1]}'
+        self.name = f'{pst}({comp},{dec_at},{temp})'
+
+        self.eqn = f'{bnd[0]}{th[0]}{pst}{th[1]}({comp},{dec_at},{temp}){bnd[1]}'
+
+        self.disposition = ((self.spatial), self.temporal)
+        self.index = (comp, dec_at, temp)
+
+    def __repr__(self):
+        return self.name
+
+    def __hash__(self):
+        return hash(self.name)
+
+    def __eq__(self, other):
+        return self.name == other.name
+
+
+@dataclass
+class Parameters:
+    params: Parameter
+
+    def __post_init__(self):
+
+        self.component = self.params.component
+        self.ptye = self.params.ptype
+        self.psubtype = self.params.psubtype
+        self.name = f'{self.psubtype.name.lower().capitalize()}({self.component.name})'
+
+        self.dispositions = [self.params.disposition]
+        self.indices = [self.params.index]
+        self.eqn_list = [self.params.eqn]
+
+        self.params = [self.params]
+
+    def add(self, parameter):
+        self.params.append(parameter)
+        self.dispositions.append(parameter.disposition)
+        self.indices.append(parameter.index)
+        self.eqns.append(parameter.eqn)
+
+    def eqns(self):
+        [print(i) for i in self.eqn_list]
 
     def __repr__(self):
         return self.name

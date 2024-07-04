@@ -132,7 +132,7 @@ class Factor:
         if self.temporal:
             temp = f',{self.temporal.name.lower()}'
 
-        self.name = f'{pst}_f({comp}{dec_at}{temp})'
+        self.name = f'{pst}({comp}{dec_at}{temp})'
 
     def __repr__(self):
         return self.name

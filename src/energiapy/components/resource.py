@@ -9,7 +9,7 @@ from pandas import DataFrame
 from ..parameters.bound import Big, BigM
 from ..parameters.factor import Factor
 from ..parameters.mpvar import Theta
-from ..parameters.parameter import Parameter
+from ..parameters.parameter import Parameter, Parameters
 from ..parameters.type.property import *
 from ..parameters.type.disposition import *
 from .temporal_scale import TemporalScale
@@ -212,19 +212,19 @@ class Resource:
                 param_ = Parameter(value=getattr(self, i.lower()), ptype=Property.LIMIT, spatial=SpatialDisp.NETWORK,
                                    temporal=getattr(self, f'{i.lower()}_scale'), psubtype=getattr(Limit, i), component=self,
                                    scales=self.scales)
-                setattr(self, i.lower(), param_)
+                setattr(self, i.lower(), Parameters(param_))
 
         for i in self.cashflows():
             if getattr(self, i.lower()) is not None:
                 param_ = Parameter(value=getattr(self, i.lower()), ptype=Property.CASHFLOW, spatial=SpatialDisp.NETWORK,
                                    temporal=None, psubtype=getattr(CashFlow, i), component=self, scales=self.scales)
-                setattr(self, i.lower(), param_)
+                setattr(self, i.lower(), Parameters(param_))
 
         for i in self.emissions():
             if getattr(self, i.lower()) is not None:
                 param_ = Parameter(getattr(self, i.lower()), ptype=Property.EMISSION, psubtype=getattr(Emission, i),
                                    spatial=SpatialDisp.NETWORK, temporal=None, component=self)
-                setattr(self, i.lower(), param_)
+                setattr(self, i.lower(), Parameters(param_))
 
         # *-----------------Random name ---------------------------------
         # A random name is generated if self.name = None

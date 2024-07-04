@@ -8,14 +8,20 @@ from dataclasses import dataclass
 from functools import reduce
 from typing import Dict, List, Set, Tuple, Union
 
+from pandas import DataFrame
+
 from ..utils.data_utils import get_depth
 from .type.process import ProcessType
 from .material import Material
+from ..parameters.bound import Big, BigM
 from ..parameters.factor import Factor
-from ..parameters.mpvar import Theta, create_mpvar
-from ..parameters.type import *
-from .parameters.process import ProcessParamType
-from .parameters.special import BigM, CouldBeVar
+from ..parameters.mpvar import Theta
+from ..parameters.parameter import Parameter
+from ..parameters.type.property import *
+from ..parameters.type.disposition import *
+from .temporal_scale import TemporalScale
+from .type.resource import ResourceType
+from .type.process import ProcessType
 from .resource import Resource
 
 
@@ -100,8 +106,8 @@ class Process:
 
     name: str
     # Design parameters
-    cap_max: Union[float, Tuple[float], Theta, bool, 'Big']
-    cap_min: float = None
+    capacity: Union[float, bool, 'BigM', List[Union[float, 'BigM']],
+                    DataFrame, Tuple[Union[float, DataFrame, Factor]], Theta] = None
     land: float = None  # Union[float, Tuple[float], Theta]
     conversion: Union[Dict[Union[int, str], Dict[Resource, float]],
                       Dict[Resource, float]] = None
@@ -125,23 +131,36 @@ class Process:
     lifetime: Union[float, Tuple[float], Theta] = None
     p_fail: Union[float, Tuple[float], Theta] = None
     # These go to storage_resource defined in STORAGE Process
-    storage: Resource = None
-    store_max: Union[float, Tuple[float], Theta, bool, 'Big'] = None
-    store_min: float = None
-    storage_cost: Union[float, Tuple[float], Theta] = None
+    # Temporal scale
+    # not needed if no deterministic data or parameter scale is provided
+    scales: TemporalScale = None
+    # LimitType
+    discharge: Union[float, bool, 'BigM', List[Union[float, 'BigM']],
+                     DataFrame, Tuple[Union[float, DataFrame, Factor]], Theta] = None
+    discharge_scale: int = None
+    consume: Union[float, bool, 'BigM', List[Union[float, 'BigM']],
+                   DataFrame, Tuple[Union[float, DataFrame, Factor]], Theta] = None
+    consume_scale: int = None
+    store: Union[float, bool, 'BigM', List[Union[float, 'BigM']],
+                 DataFrame, Tuple[Union[float, DataFrame, Factor]], Theta] = None
+    store_scale: int = None
+    # LossType
     store_loss: Union[float, Tuple[float], Theta] = None
+    store_loss_scale: int = None
+    # CashFlowType
+    sell_price: Union[float, Theta, DataFrame,
+                      Tuple[Union[float, DataFrame, Factor]]] = None
+    purchase_price: Union[float, Theta, DataFrame,
+                          Tuple[Union[float, DataFrame, Factor]]] = None
+    storage_cost: Union[float, Theta, DataFrame,
+                        Tuple[Union[float, DataFrame, Factor]]] = None
+    credit: Union[float, Theta, DataFrame,
+                  Tuple[Union[float, DataFrame, Factor]]] = None
+    penalty: Union[float, Theta, DataFrame,
+                   Tuple[Union[float, DataFrame, Factor]]] = None
     # Types
     ctype: List[Union[ProcessType, Dict[ProcessType, Set['Location']]]] = None
-    ptype: Dict[ProcessParamType, Union[ParameterType,
-                                        Dict['Location', ParameterType]]] = None
-    ltype: Dict[ProcessParamType,
-                List[Tuple['Location', LocalizationType]]] = None
-    ftype: Dict[ProcessParamType, List[Tuple['Location', FactorType]]] = None
-    etype: List[EmissionType] = None
     # Collections
-    localizations: Dict[ProcessParamType,
-                        List[Tuple['Location', Localization]]] = None
-    factors: Dict[ProcessParamType, List[Tuple['Location', Factor]]] = None
     emissions: Dict[str, float] = None
     # Details
     basis: str = None
@@ -245,20 +264,6 @@ class Process:
         for i in self.process_level_parameters():
             self.update_process_parameter(parameter=i)
 
-        # *-----------------Set etype (Emission)---------------------------------
-        # Types of emission accounted for are declared here and EmissionTypes are set
-
-        for i in self.etypes():
-            attr_ = getattr(self, i.lower())
-            etype_ = getattr(EmissionType, i)
-            if attr_:
-                if not self.etype:  # if etype is not yet defined
-                    self.etype = []
-                    self.emissions = dict()
-                    self.ctype.append(ProcessType.EMISSION)
-                self.etype.append(etype_)
-                self.emissions[i.lower()] = attr_
-
         # *----------------- Generate Random Name---------------------------------
         # A random name is generated if self.name = None
 
@@ -277,86 +282,28 @@ class Process:
             raise ValueError(
                 f'{self.name}: varying has been depreciated. Variability will be intepreted based on data provided to energiapy.Location factors')
 
-    # *----------------- Properties ---------------------------------
-
-    @property
-    def capacity(self):
-        """Sets capacity
-        """
-        if self.cap_max:
-            return CouldBeVar
-
-    # *----------------- Class Methods ---------------------------------
-
-    @classmethod
-    def class_name(cls) -> str:
-        """Returns class name 
-        """
-        return cls.__name__
-
-    # * parameter types
-
-    @classmethod
-    def ptypes(cls) -> Set[str]:
-        """All Process paramters
-        """
-        return ProcessParamType.all()
-
-    @classmethod
-    def process_level_parameters(cls) -> Set[str]:
-        """Set when Process is declared
-        """
-        return ProcessParamType.process_level()
-
-    @classmethod
-    def process_level_resource_parameters(cls) -> Set[str]:
-        """Resource parameters set when Process is declared
-        """
-        return ProcessParamType.process_level_resource()
-
-    @classmethod
-    def location_level_parameters(cls) -> Set[str]:
-        """Set when Location is declared
-        """
-        return ProcessParamType.location_level()
-
-    @classmethod
-    def process_level_readiness_parameters(cls) -> Set[str]:
-        """Set when Process are declared
-        """
-        return ProcessParamType.readiness()
-
-    @classmethod
-    def process_level_failure_parameters(cls) -> Set[str]:
-        """Set when Process are declared
-        """
-        return ProcessParamType.failure()
-
-    @classmethod
-    def uncertain_parameters(cls) -> Set[str]:
-        """Uncertain parameters
-        """
-        return ProcessParamType.uncertain()
-
-    @classmethod
-    def uncertain_factors(cls) -> Set[str]:
-        """Uncertain parameters for which factors are defined
-        """
-        return ProcessParamType.uncertain_factor()
-
-    @classmethod
-    def process_level_uncertain_parameters(cls) -> Set[str]:
-        """Uncertain parameters set a Process level
-        """
-        return ProcessParamType.process_level_uncertain()
-
-    @classmethod
-    def location_level_uncertain_parameters(cls) -> Set[str]:
-        """Uncertain parameters set a Location level
-        """
-        return ProcessParamType.location_level_uncertain()
-
+    # *----------------- Class Methods -----------------------------------------
     # * component class types
+
+    @classmethod
+    def resource_limits(cls) -> List[str]:
+        return Limit.resource()
+
+    @classmethod
+    def resource_cashflows(cls) -> List[str]:
+        return CashFlow.resource()
+
+    @classmethod
+    def limits(cls) -> List[str]:
+        return Limit.process()
+
+    @classmethod
+    def cashflows(cls) -> List[str]:
+        return CashFlow.process()
+
+    @classmethod
+    def emissions(cls) -> List[str]:
+        return Emission.all()
 
     @classmethod
     def ctypes(cls) -> Set[str]:
@@ -375,30 +322,6 @@ class Process:
         """Set when Location is declared
         """
         return ProcessType.location_level()
-
-    # * localization types
-
-    @classmethod
-    def ltypes(cls) -> Set[str]:
-        """Process parameters than can be localized 
-        """
-        return ProcessParamType.localize()
-
-    # * factor types
-
-    @classmethod
-    def ftypes(cls) -> Set[str]:
-        """Factor types
-        """
-        return ProcessParamType.uncertain_factor()
-
-    # * emission types
-
-    @classmethod
-    def etypes(cls) -> Set[str]:
-        """Emission types
-        """
-        return EmissionType.all()
 
     # *----------------- Functions ---------------------------------------------
 
