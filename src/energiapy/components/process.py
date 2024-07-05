@@ -151,7 +151,6 @@ class Process:
     discharge_scale: int = None
     consume_scale: int = None
     store_scale: int = None
-    produce_scale: int = None
     store_loss_scale: int = None
     # CashFlowType
     sell_cost: Union[float, Theta, DataFrame,
@@ -186,6 +185,11 @@ class Process:
 
         if not self.ctype:
             self.ctype = list()
+            
+        self.produce_scale = None 
+        
+        if self.produce is None:
+            self.produce = 1
 
         # conversion can be single mode (SINGLE_PRODMODE) or multimode (MULTI_PRODMODE)
         # For MULTI_PRODMODE, a dict of type {'mode' (str, int) : {Resource: float}} needs to be provided

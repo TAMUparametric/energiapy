@@ -174,8 +174,6 @@ class Parameter:
 
         self.disposition = ((self.spatial), self.temporal)
 
-
-
         self.name = f'{pst.capitalize()}{index}'
 
     @classmethod
