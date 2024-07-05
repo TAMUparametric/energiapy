@@ -112,48 +112,52 @@ class Parameter:
             if self.btype == Bound.EXACT:
                 self.lb, self.ub = self.value, self.value
             if factor_.nominal != 1:
-                nml = f'{factor_.nominal}.'
+                nml = f'{factor_.nominal}*'
 
         comp, dec_at, pst, temp = ('' for _ in range(4))
 
         if self.component:
-            comp = f'{self.component.name},'
+            comp = f'{self.component.name}'
 
-        if self.declared_at == self.component:
-            dec_at = ''
-
-        elif isinstance(self.declared_at, tuple):
+        if isinstance(self.declared_at, tuple):
             dec_at = (f'{i.name},' for i in self.declared_at)
 
         else:
-            dec_at = f'{self.declared_at.name},'
+            dec_at = f'{self.declared_at.name}'
 
         pst = f'{self.psubtype.name.lower()}'
 
         if self.temporal:
             temp = f'{self.temporal.name.lower()}'
 
-        index = f'({comp}{dec_at}{temp})'
-
+        if comp == dec_at:
+            index = f'({comp},{temp})'
+            self.index = (comp, temp)
+        else:
+            index = f'({comp},{dec_at},{temp})'
+            self.index = (comp, dec_at, temp)
+        
         var2, dom = ('' for _ in range(2))
 
         var = f'{pst}{index}'
 
-        # if self.psubtype in self.limits_capacity_bounds():
-
-        #     [i.temporal for i in self.declared_at.capacity.params if i.component == self.declared_at]
-
+        if self.psubtype in self.limits_capacity_bounds():
+            if self.declared_at != self.component:
+                # if limited by capacity at Process or Transport 
+                capacity_index = [i.temporal.name.lower() for i in self.declared_at.capacity.params if i.component == self.declared_at][0]
+                nml = f'capacity({dec_at},{capacity_index})*'
+                
         if isinstance(self.psubtype, CashFlow):
             var = var.replace('_cost', '_exp')
             var2 = self.variables_cash()[self.psubtype.name]
             if var2 is not None:
-                var2 = f'.{var2.lower()}{index}'
+                var2 = f'*{var2.lower()}{index}'
             else:
                 var2 = ''
 
         if isinstance(self.psubtype, Land):
             var2 = self.variables_land()[self.psubtype.name]
-            var2 = f'.{var2.lower()}{index}'
+            var2 = f'*{var2.lower()}{index}'
 
         if th:
             par = 'Th'
@@ -170,7 +174,7 @@ class Parameter:
 
         self.disposition = ((self.spatial), self.temporal)
 
-        self.index = (comp, dec_at, temp)
+
 
         self.name = f'{pst.capitalize()}{index}'
 
@@ -214,13 +218,11 @@ class Parameters:
         self.ptye = self.params.ptype
         self.psubtype = self.params.psubtype
         self.name = f'{self.psubtype.name.lower().capitalize()}({self.declared_at.name})'
-
         self.dispositions = [self.params.disposition]
         self.indices = [self.params.index]
         self.eqn_list = [self.params.eqn]
-
         self.params = [self.params]
-
+        
     def add(self, parameter):
         self.params.append(parameter)
         self.dispositions.append(parameter.disposition)
