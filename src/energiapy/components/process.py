@@ -104,16 +104,13 @@ class Process:
         >>> CoolCar = Process(name = 'CoolCar', conversion = {1: {Power: -1, Mile: 1}, 2: {H2: -1, Mile:2}, cap_max= 50, capex = 70, label = 'CoolCar')
 
     """
-
     name: str
     conversion: Union[Dict[Union[int, str], Dict[Resource, float]],
                       Dict[Resource, float]]
     # Design parameters
     capacity: Union[float, bool, 'BigM', List[Union[float, 'BigM']],
                     DataFrame, Tuple[Union[float, DataFrame, Factor]], Theta]
-    capacity_scale: int = None
     land_use: float = None  # Union[float, Tuple[float], Theta]
-    land_use_scale: int = None
     material_cons: Union[Dict[Union[int, str],
                               Dict[Material, float]], Dict[Material, float]] = None
     # Expenditure
@@ -141,15 +138,20 @@ class Process:
     # LimitType
     discharge: Union[float, bool, 'BigM', List[Union[float, 'BigM']],
                      DataFrame, Tuple[Union[float, DataFrame, Factor]], Theta] = None
-    discharge_scale: int = None
     consume: Union[float, bool, 'BigM', List[Union[float, 'BigM']],
                    DataFrame, Tuple[Union[float, DataFrame, Factor]], Theta] = None
-    consume_scale: int = None
     store: Union[float, bool, 'BigM', List[Union[float, 'BigM']],
                  DataFrame, Tuple[Union[float, DataFrame, Factor]], Theta] = None
-    store_scale: int = None
+    produce: Union[float, bool, 'BigM', List[Union[float, 'BigM']],
+                   DataFrame, Tuple[Union[float, DataFrame, Factor]], Theta] = None
     # LossType
     store_loss: Union[float, Tuple[float], Theta] = None
+    # Temporal Scale over which limit is set
+    # or loss is incurred
+    discharge_scale: int = None
+    consume_scale: int = None
+    store_scale: int = None
+    produce_scale: int = None
     store_loss_scale: int = None
     # CashFlowType
     sell_cost: Union[float, Theta, DataFrame,
@@ -164,7 +166,6 @@ class Process:
                    Tuple[Union[float, DataFrame, Factor]]] = None
     # Types
     ctype: List[Union[ProcessType, Dict[ProcessType, Set['Location']]]] = None
-
     eqn_list: List[str] = None
     # Details
     basis: str = None
@@ -195,15 +196,6 @@ class Process:
         self.base = self.conversion.base
         self.modes = self.conversion.modes
         self.n_modes = self.conversion.n_modes
-
-        if not isinstance(self.purchase_cost, dict):
-            ValueError(
-                f'{self.name}: purchase_cost needs to be provided as a dictionary of input Resources')
-
-        # set resource parameters to base if not given as dictionary.
-        for i in list(set(self.resource_all()) - set(['PURCHASE_COST'])) + self.resource_scales():
-            if getattr(self, i.lower()) is not None and not isinstance(getattr(self, i.lower()), dict):
-                setattr(self, i.lower(), {self.base: getattr(self, i.lower())})
 
         if self.n_modes > 1:
             self.ctype.append(ProcessType.MULTI_PRODMODE)
@@ -250,6 +242,7 @@ class Process:
 
         # capex can be linear (LINEAR_CAPEX) or piecewise linear (PWL_CAPEX)
         # if PWL, capex needs to be provide as a dict {capacity_segment: capex_segement}
+
         if self.pwl:
             self.ctype.append(ProcessType.PWL_CAPEX)
             self.capacity_segments = list(self.pwl)
@@ -279,37 +272,41 @@ class Process:
         # If empty Theta is provided, the bounds default to (0, 1)
         # Factors can be declared at Location (Location, DataFrame), gets converted to  (Location, Factor)
 
-        for i in self.cashflows() + self.emissions() + self.lands() + self.lifes():
+        for i in self.all():
             if getattr(self, i.lower()) is not None:
                 attr = getattr(self, i.lower())
                 if i in self.cashflows():
-                    temporal, ptype, psubtype = None, Property.CASHFLOW, getattr(
+                    ptype, psubtype = Property.CASHFLOW, getattr(
                         CashFlow, i)
                 if i in self.emissions():
-                    temporal, ptype, psubtype = None, Property.EMISSION, getattr(
+                    ptype, psubtype = Property.EMISSION, getattr(
                         Emission, i)
                 if i in self.lands():
-                    temporal, ptype, psubtype = getattr(
-                        self, f'{i.lower()}_scale'), Property.LAND, getattr(Land, i)
+                    ptype, psubtype = Property.LAND, getattr(Land, i)
                 if i in self.lifes():
-                    temporal, ptype, psubtype = None, Property.LOSS, getattr(
+                    ptype, psubtype = Property.LOSS, getattr(
                         Loss, i)
+                if i in self.limits():
+                    ptype, psubtype = Property.LIMIT, getattr(
+                        Limit, i)
 
                 param = Parameter(value=attr, ptype=ptype, spatial=SpatialDisp.PROCESS,
-                                  temporal=temporal, psubtype=psubtype, component=self, scales=self.scales)
+                                  temporal=None, psubtype=psubtype, component=self, declared_at=self, scales=self.scales)
                 setattr(self, i.lower(), Parameters(param))
 
         # *----------------- Update Resource parameters ---------------------------------
 
-        # for i in self.process_limits():
-        #     if getattr(self, i.lower()) is not None:
-        #         attr = getattr(self, i.lower())
-        #         temporal, ptype, psubtype = getattr(
-        #             self, f'{i.lower()}_scale'), Property.LIMIT, getattr(Limit, i)
+        input_resource_params = ['PURCHASE_COST', 'CONSUME', 'CONSUME_SCALE']
 
-        #         param = Parameter(value=attr, ptype=ptype, spatial=SpatialDisp.PROCESS,
-        #                           temporal=temporal, psubtype=psubtype, component=self.base, declared_at=self, scales=self.scales)
-        #         setattr(self, i.lower(), Parameters(param))
+        # set resource parameters to base if not given as dictionary.
+        for i in list(set(self.resource_all() + self.resource_scales()) - set(input_resource_params)):
+            if getattr(self, i.lower()) is not None and not isinstance(getattr(self, i.lower()), dict):
+                if i in input_resource_params:
+                    raise ValueError(
+                        f'{self.name}: {i.lower()} needs to be provided as a dict of input Resources')
+                else:
+                    setattr(self, i.lower(), {
+                            self.base: getattr(self, i.lower())})
 
         for i in self.resource_all():
             if getattr(self, i.lower()) is not None:
@@ -329,14 +326,16 @@ class Process:
                         temporal_scale = temporal[j]
                     param = Parameter(value=attr[j], ptype=ptype, spatial=SpatialDisp.PROCESS,
                                       temporal=temporal_scale, psubtype=psubtype, component=j, declared_at=self, scales=self.scales)
+                    
                     if getattr(j, i.lower()) is not None:
                         getattr(j, i.lower()).add(param)
                     else:
                         setattr(j, i.lower(), Parameters(param))
-
-        # for i in self.process_level_parameters():
-        #     self.update_process_parameter(parameter=i)
-
+                        
+                    if isinstance(getattr(self, i.lower()), Parameters):
+                        getattr(self, i.lower()).add(param)
+                    else:        
+                        setattr(self, i.lower(), Parameters(param))    
         # *----------------- Generate Random Name---------------------------------
         # A random name is generated if self.name = None
 
@@ -357,9 +356,9 @@ class Process:
 
     def __setattr__(self, name, value):
         super().__setattr__(name, value)
-        if hasattr(getattr(self, name), 'eqn_list'):
+        if hasattr(getattr(self, name), 'eqn_list') and name != 'base':     
             self.eqn_list.extend(getattr(self, name).eqn_list)
-
+    
     def eqns(self):
         for j in self.eqn_list:
             print(j)
@@ -390,12 +389,16 @@ class Process:
         return Life.process()
 
     @classmethod
+    def limits(cls) -> List[str]:
+        return Limit.process()
+
+    @classmethod
     def all(cls) -> List[str]:
-        return cls.cashflows() + cls.emissions() + cls.lands() + cls.lifes()
+        return cls.cashflows() + cls.emissions() + cls.lands() + cls.lifes() + cls.limits()
 
     @classmethod
     def resource_limits(cls) -> List[str]:
-        return Limit.resource() + Limit.process()
+        return Limit.resource_process()
 
     @classmethod
     def resource_cashflows(cls) -> List[str]:
@@ -430,8 +433,6 @@ class Process:
         """Set when Location is declared
         """
         return ProcessType.location_level()
-
-    # *----------------- Functions ---------------------------------------------
 
     # *----------- Hashing --------------------------------
 

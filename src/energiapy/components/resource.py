@@ -118,22 +118,24 @@ class Resource:
     # LimitType
     discharge: Union[float, bool, 'BigM', List[Union[float, 'BigM']],
                      DataFrame, Tuple[Union[float, DataFrame, Factor]], Theta] = None
-    discharge_scale: int = None
     consume: Union[float, bool, 'BigM', List[Union[float, 'BigM']],
                    DataFrame, Tuple[Union[float, DataFrame, Factor]], Theta] = None
-    consume_scale: int = None
     store: Union[float, bool, 'BigM', List[Union[float, 'BigM']],
                  DataFrame, Tuple[Union[float, DataFrame, Factor]], Theta] = None
-    store_scale: int = None
-    # LimitType Set Later
-    capacity: Union[float, bool, 'BigM', List[Union[float, 'BigM']],
-                    DataFrame, Tuple[Union[float, DataFrame, Factor]], Theta] = None
-    capacity_scale: int = None
+    # LimitType that are set to capacities
+    produce: Union[float, bool, 'BigM', List[Union[float, 'BigM']],
+                   DataFrame, Tuple[Union[float, DataFrame, Factor]], Theta] = None
     transport:  Union[float, bool, 'BigM', List[Union[float, 'BigM']],
                       DataFrame, Tuple[Union[float, DataFrame, Factor]], Theta] = None
-    transport_scale: int = None
     # LossType
     store_loss: Union[float, Tuple[float], Theta] = None
+    # Temporal Scale over which limit is set
+    # or loss is incurred 
+    discharge_scale: int = None
+    consume_scale: int = None
+    store_scale: int = None
+    produce_scale: int = None
+    transport_scale: int = None
     store_loss_scale: int = None
     # CashFlowType
     sell_cost: Union[float, Theta, DataFrame,
@@ -227,7 +229,6 @@ class Resource:
                 if i in self.cashflows():
                     temporal, ptype, psubtype = None, Property.CASHFLOW, getattr(
                         CashFlow, i)
-
                 if i in self.emissions():
                     temporal, ptype, psubtype = None, Property.EMISSION, getattr(
                         Emission, i)
@@ -237,7 +238,7 @@ class Resource:
 
                 param = Parameter(value=attr, ptype=ptype, spatial=SpatialDisp.NETWORK,
                                   temporal=temporal, psubtype=psubtype, component=self,
-                                  scales=self.scales)
+                                  scales=self.scales, declared_at=self)
                 setattr(self, i.lower(), Parameters(param))
 
         # *-----------------Random name ---------------------------------

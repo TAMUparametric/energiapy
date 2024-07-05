@@ -65,12 +65,16 @@ class Factor:
             self.data = self.data.data
 
         elif isinstance(self.data, DataFrame):
+            if not self.scales:
+                raise ValueError(
+                    f'{str(self.psubtype).lower()} for {self.component.name}: please provide scales = TemporalScale')
+            
             if len(self.data) in self.scales.index_n_list:
                 self.scale = self.scales.index_n_list.index(
                     len(self.data))
             else:
                 raise ValueError(
-                    f'{str(self.psubtype).lower()} factor for {self.component.name}: length of data does not match any scale index')
+                    f'{str(self.psubtype).lower()} for {self.component.name}: length of data does not match any scale index')
 
             self.data.index = self.scales.index_list[self.scale]
 

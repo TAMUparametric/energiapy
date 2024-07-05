@@ -62,22 +62,35 @@ class Limit(Enum):
     STORE = auto()
     """Inventory size 
     """
-    CAPACITY = auto()
-    """Production capacity
-    Set at Process
+    PRODUCE = auto()
+    """Resource production
+    pegged to Process capacity
+    if declared at Process
     """
     TRANSPORT = auto()
-    """Export capacity
-    Set at Transport
+    """Resource export
+    pegged to Transport capacity
+    if declared at Transport
     """
-
+    CAPACITY = auto()
+    """Process or Transport capacity
+    """
+    
     @classmethod
     def all(cls) -> List[str]:
         return [i.name for i in cls]
 
     @classmethod
     def resource(cls) -> List[str]:
+        return list(set(cls.all()) - set(['CAPACITY']))
+    
+    @classmethod
+    def resource_process(cls) -> List[str]:
         return list(set(cls.all()) - set(['CAPACITY', 'TRANSPORT']))
+
+    @classmethod
+    def resource_transport(cls) -> List[str]:
+        return list(set(cls.all()) - set(['CAPACITY', 'PRODUCE']))
 
     @classmethod
     def process(cls) -> List[str]:
@@ -85,8 +98,11 @@ class Limit(Enum):
 
     @classmethod
     def transport(cls) -> List[str]:
-        return ['TRANSPORT']
-
+        return ['CAPACITY']
+    
+    @classmethod
+    def capacity_bound(cls) -> List[str]:
+        return [i for i in cls if i not in ['TRANSPORT', 'PRODUCE']]
 
 class CashFlow(Enum):
     """Money going towards or being made from
@@ -125,12 +141,12 @@ class CashFlow(Enum):
         return {'SELL_COST': 'DISCHARGE', 'PURCHASE_COST': 'CONSUME', 'STORE_COST': 'STORE', 'CREDIT': 'DISCHARGE', 'PENALTY': 'DISCHARGE'}
 
     @classmethod
-    def variables_res_pro(cls) -> List[str]:
+    def variables_pro(cls) -> List[str]:
         return {'VOPEX': 'DISCHARGE', 'CAPEX': 'CAPACITY', 'FOPEX': 'CAPACITY', 'INCIDENTAL': None}
 
     @classmethod
-    def variables_pro(cls) -> List[str]:
-        return {'LAND_COST': 'LAND'}
+    def variables_loc(cls) -> List[str]:
+        return {'LAND_COST': 'LAND_USE'}
 
     @classmethod
     def resource(cls) -> List[str]:
@@ -163,6 +179,15 @@ class Land(Enum):
     """Upper bound 
     """
 
+    @classmethod
+    def variables_pro(cls) -> List[str]:
+        return {'LAND_USE': 'CAPACITY'}
+
+    @classmethod
+    def variables_loc(cls) -> List[str]:
+        return {'LAND': 'LAND_USE'}
+
+    
     @classmethod
     def process(cls) -> List[str]:
         return ['LAND_USE']

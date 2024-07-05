@@ -25,9 +25,10 @@ class Parameter:
     spatial: Union[SpatialDisp, Tuple[SpatialDisp]]
     temporal: TemporalDisp
     component: Union['Resource', 'Process', 'Location', 'Transport', 'Network']
+    declared_at: Union['Resource', 'Process',
+                       'Location', 'Transport', 'Network']
     psubtype: Union[Limit, CashFlow,
                     Land, Life, Loss]
-    declared_at: Union['Process', 'Location', 'Transport', 'Network'] = None
     scales: TemporalScale = None
     special: SpecialParameter = None
 
@@ -38,7 +39,6 @@ class Parameter:
 
         if not self.temporal:
             self.temporal = TemporalDisp.T0
-
         else:
             temporal_disps = TemporalDisp.all()
             if self.temporal < 11:
@@ -117,41 +117,46 @@ class Parameter:
         comp, dec_at, pst, temp = ('' for _ in range(4))
 
         if self.component:
-            comp = f'{self.component.name}'
+            comp = f'{self.component.name},'
 
-        if self.declared_at:
-            if isinstance(self.declared_at, tuple):
-                dec_at = (f'{i.name}' for i in self.declared_at)
-            else:
-                dec_at = f'{self.declared_at.name}'
+        if self.declared_at == self.component:
+            dec_at = ''
+
+        elif isinstance(self.declared_at, tuple):
+            dec_at = (f'{i.name},' for i in self.declared_at)
 
         else:
-            dec_at = f'{self.spatial.name.lower()}'
+            dec_at = f'{self.declared_at.name},'
 
-        pst = f'{self.psubtype.name.lower().capitalize()}'
+        pst = f'{self.psubtype.name.lower()}'
 
         if self.temporal:
             temp = f'{self.temporal.name.lower()}'
 
-        index = f'({comp},{dec_at},{temp})'
+        index = f'({comp}{dec_at}{temp})'
 
-        self.name = f'{pst}{index}'
+        var2, dom = ('' for _ in range(2))
 
-        var2, dom, res = ('' for _ in range(3))
+        var = f'{pst}{index}'
 
-        if hasattr(self.component, 'base'):
-            res = getattr(self.component, 'base').name
-            index = f'({res},{comp},{dec_at},{temp})'
+        # if self.psubtype in self.limits_capacity_bounds():
 
-        var = f'{pst.lower()}{index}'
+        #     [i.temporal for i in self.declared_at.capacity.params if i.component == self.declared_at]
 
         if isinstance(self.psubtype, CashFlow):
-            var2 = self.variables()[self.psubtype.name]
+            var = var.replace('_cost', '_exp')
+            var2 = self.variables_cash()[self.psubtype.name]
+            if var2 is not None:
+                var2 = f'.{var2.lower()}{index}'
+            else:
+                var2 = ''
+
+        if isinstance(self.psubtype, Land):
+            var2 = self.variables_land()[self.psubtype.name]
             var2 = f'.{var2.lower()}{index}'
-            var = var.replace('_cost ', '_exp')
 
         if th:
-            par = f'Th'
+            par = 'Th'
             dom = f', Th in ({self.lb},{self.ub})'
             bnd = ['', '<=']
         else:
@@ -163,37 +168,31 @@ class Parameter:
         else:
             self.eqn = f'{bnd[0]}{var}{bnd[1]}{dom}'
 
-        # self.eqn = f'{bnd[0]}<={pst}({res}{comp},{dec_at},{temp})<={bnd[1]}'
-
-        # if th:
-        #     self.eqn = f'{pst}({res}{comp},{dec_at},{temp}) = Th[{pst.capitalize}]({res}{comp},{dec_at},{temp}).{var.lower()}({res}{comp},{dec_at},{temp}), Th in ({bnd[0]},{bnd[1]})'
-        # else:
-        #     self.eqn = f'{pst}({res}{comp},{dec_at},{temp})={par}.{var.lower()}({res}{comp},{dec_at},{temp})'
-
-        # else:
-        #     if par:
-        #         self.eqn = f'{pst}({comp},{dec_at},{temp})={par}'
-        #     else:
-        #         self.eqn = f'{bnd[0]}<={pst}({comp},{dec_at},{temp})<={bnd[1]}'
-
         self.disposition = ((self.spatial), self.temporal)
+
         self.index = (comp, dec_at, temp)
 
+        self.name = f'{pst.capitalize()}{index}'
+
     @classmethod
-    def variables_res(cls) -> List[str]:
+    def variables_cash_res(cls) -> List[str]:
         return CashFlow.variables_res()
 
     @classmethod
-    def variables_res_pro(cls) -> List[str]:
-        return CashFlow.variables_res_pro()
+    def variables_cash_pro(cls) -> List[str]:
+        return CashFlow.variables_pro()
 
     @classmethod
-    def variables_pro(cls) -> List[str]:
-        return CashFlow.variables_res_pro()
+    def variables_cash(cls) -> List[str]:
+        return {**cls.variables_cash_res(), **cls.variables_cash_pro()}
 
     @classmethod
-    def variables(cls) -> List[str]:
-        return {**cls.variables_res(), **cls.variables_res_pro(), **cls.variables_pro()}
+    def variables_land(cls) -> List[str]:
+        return {**Land.variables_pro(), **Land.variables_loc()}
+
+    @classmethod
+    def limits_capacity_bounds(cls) -> List[str]:
+        return Limit.capacity_bound()
 
     def __repr__(self):
         return self.name
@@ -211,10 +210,10 @@ class Parameters:
 
     def __post_init__(self):
 
-        self.component = self.params.component
+        self.declared_at = self.params.declared_at
         self.ptye = self.params.ptype
         self.psubtype = self.params.psubtype
-        self.name = f'{self.psubtype.name.lower().capitalize()}({self.component.name})'
+        self.name = f'{self.psubtype.name.lower().capitalize()}({self.declared_at.name})'
 
         self.dispositions = [self.params.disposition]
         self.indices = [self.params.index]

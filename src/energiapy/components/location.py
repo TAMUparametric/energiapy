@@ -114,48 +114,47 @@ class Location:
     # Primary attributes
     processes: Set[Process]
     scales: TemporalScale
-    land_max: Union[float, Tuple[float], Theta, bool, 'Big'] = None
+    land: Union[float, Tuple[float], Theta, bool, 'Big'] = None
     land_cost: Union[float, Tuple[float], Theta] = None
-    land_max_factor: DataFrame = None
-    land_cost_factor: DataFrame = None
     # Resource parameters declared at Location
-    demand: Dict[Resource, Union[float, Tuple[float], Theta]] = None
-    # Factors for Resource parameter variability. consume_factor has alias availability_factor
-    sell_cost_factor: Dict[Resource, DataFrame] = None
-    purchase_cost_factor: Dict[Resource, DataFrame] = None
-    consume_factor: Dict[Resource, DataFrame] = None
-    discharge_factor: Dict[Resource, DataFrame] = None
-    demand_factor: Dict[Resource, DataFrame] = None
-    store_max_factor: Dict[Resource, DataFrame] = None
-    store_loss_factor: Dict[Resource, DataFrame] = None
-    storage_cost_factor: Dict[Resource, DataFrame] = None
-    # Process parameters declared at Location
-    credit: Dict[Process, Union[float, Tuple[float], Theta]] = None
-    # Factors for Process parameter variability
-    capacity_factor: Dict[Process, DataFrame] = None
-    cap_max_factor: Dict[Process, DataFrame] = None
-    capex_factor: Dict[Process, DataFrame] = None
-    vopex_factor: Dict[Process, DataFrame] = None
-    fopex_factor: Dict[Process, DataFrame] = None
-    incidental_factor: Dict[Process, DataFrame] = None
-    credit_factor: Dict[Process, DataFrame] = None
-    # Localizations for Resource parameters.
-    sell_cost_localize: Dict[Resource, Tuple[float, int]] = None
-    purchase_cost_localize: Dict[Resource, Tuple[float, int]] = None
-    consume_localize: Dict[Resource, Tuple[float, int]] = None
-    discharge_localize: Dict[Resource, Tuple[float, int]] = None
-    store_max_localize: Dict[Resource, Tuple[float, int]] = None
-    store_min_localize: Dict[Resource, Tuple[float, int]] = None
-    store_loss_localize: Dict[Resource, Tuple[float, int]] = None
-    storage_cost_localize: Dict[Resource, Tuple[float, int]] = None
-    # Localizations for Process parameters
-    cap_max_localize: Dict[Process, Tuple[float, int]] = None
-    cap_min_localize: Dict[Process, Tuple[float, int]] = None
-    capex_localize: Dict[Process, Tuple[float, int]] = None
-    vopex_localize: Dict[Process, Tuple[float, int]] = None
-    fopex_localize: Dict[Process, Tuple[float, int]] = None
-    incidental_localize: Dict[Process, Tuple[float, int]] = None
-    land_localize: Dict[Process, Tuple[float, int]] = None
+    discharge: Union[float, bool, 'BigM', List[Union[float, 'BigM']],
+                     DataFrame, Tuple[Union[float, DataFrame, Factor]], Theta] = None
+    discharge_scale: int = None
+    consume: Union[float, bool, 'BigM', List[Union[float, 'BigM']],
+                   DataFrame, Tuple[Union[float, DataFrame, Factor]], Theta] = None
+    consume_scale: int = None
+    store: Union[float, bool, 'BigM', List[Union[float, 'BigM']],
+                 DataFrame, Tuple[Union[float, DataFrame, Factor]], Theta] = None
+    store_scale: int = None
+    store_loss: Union[float, Tuple[float], Theta] = None
+    store_loss_scale: int = None
+    capacity: Union[float, bool, 'BigM', List[Union[float, 'BigM']],
+                    DataFrame, Tuple[Union[float, DataFrame, Factor]], Theta] = None
+    transport:  Union[float, bool, 'BigM', List[Union[float, 'BigM']],
+                      DataFrame, Tuple[Union[float, DataFrame, Factor]], Theta] = None
+    transport_scale: int = None
+    # CashFlowType
+    sell_cost: Union[float, Theta, DataFrame,
+                     Tuple[Union[float, DataFrame, Factor]]] = None
+    purchase_cost: Union[float, Theta, DataFrame,
+                         Tuple[Union[float, DataFrame, Factor]]] = None
+    store_cost: Union[float, Theta, DataFrame,
+                      Tuple[Union[float, DataFrame, Factor]]] = None
+    credit: Union[float, Theta, DataFrame,
+                  Tuple[Union[float, DataFrame, Factor]]] = None
+    penalty: Union[float, Theta, DataFrame,
+                   Tuple[Union[float, DataFrame, Factor]]] = None
+    # Process Parameters 
+    conversion: Union[Dict[Union[int, str], Dict[Resource, float]],
+                      Dict[Resource, float]] = None
+    material_cons: Union[Dict[Union[int, str],
+                              Dict[Material, float]], Dict[Material, float]] = None
+    capex: Union[float, dict, Tuple[float], Theta] = None
+    pwl: dict = None  # piece wise linear capex
+    fopex: Union[float, Tuple[float], Theta] = None
+    vopex: Union[float, Tuple[float], Theta] = None
+    incidental: Union[float, Tuple[float], Theta] = None
+    land_use: float = None  # Union[float, Tuple[float], Theta]
     # Details
     basis: str = None
     block: str = None
@@ -163,10 +162,6 @@ class Location:
     citation: str = None
     # Types
     ctype: List[LocationType] = None
-    ptype: Dict[LocationParamType, ParameterType] = None
-    ftype: Dict[LocationParamType, FactorType] = None
-    # Collections
-    factors: Dict[LocationParamType, Factor] = None
     # Optional
     make_subsets: bool = True
     # Depreciated
@@ -186,14 +181,16 @@ class Location:
             self.ctype = list()
 
         # update ctype if land aspects are defined
-        if any([self.land_max, self.land_cost]):
+        if any([self.land, self.land_cost]):
             self.ctype.append(LocationType.LAND)
+        
 
         # *-----------------Set ptype (ParameterType) ---------------------------------
         # ptypes of declared parameters are set to .UNCERTAIN if a MPVar Theta or a tuple of bounds is provided,
         # .CERTAIN otherwise
         # If empty Theta is provided, the bounds default to (0, 1)
 
+        for i in self
         for i in self.ptypes():
             self.update_location_parameter(parameter=i)
 
@@ -219,12 +216,6 @@ class Location:
         # Sets new attributes:
         #   subsets based on Process.ctype
         #   dictionaries with prod_modes, material_modes, etc.
-
-        # Update Process ctypes based on information provided at Location
-        self.update_component_ctype_at_location(
-            attr='credit', ctype=ProcessType.CREDIT)
-        self.update_component_ctype_at_location(
-            attr='capacity_factor', ctype=ProcessType.INTERMITTENT)
 
         # Update Process parameters provided at Location level
         for i in self.location_level_process_parameters():
@@ -252,12 +243,6 @@ class Location:
         #   dictionaries with parameter values
 
         # Update Resource ctypes based on information provided at Location
-        self.update_component_ctype_at_location(
-            attr='demand', ctype=ResourceType.DEMAND)
-        if self.demand:
-            for i in self.demand:
-                if ResourceType.DISCHARGE not in i.ctype:
-                    i.ctype.append(ResourceType.DISCHARGE)
 
         for i in self.location_level_resource_parameters():
             self.update_component_parameter_declared_at_location(
@@ -306,19 +291,6 @@ class Location:
             raise ValueError(
                 f'{self.name}: revenue_factor_scale_level is depreciated, use sell_cost_factor instead')
 
-    # *----------------- Properties ---------------------------------
-
-    @property
-    def availability_factor(self):
-        """Sets alias for consume_factor
-        """
-        return self.consume_factor
-
-    @property
-    def availability_localize(self):
-        """Sets alias for consume_localize
-        """
-        return self.consume_localize
 
     # *----------------- Class Methods -------------------------------------
 
