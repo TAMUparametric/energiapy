@@ -6,12 +6,13 @@ from typing import List, Tuple, Union
 
 from pandas import DataFrame
 
-from ..parameters.bound import Big, BigM
-from ..parameters.factor import Factor
-from ..parameters.mpvar import Theta
-from ..parameters.parameter import Parameter, Parameters
-from ..parameters.type.property import *
-from ..parameters.type.disposition import *
+from ..model.bound import Big, BigM
+from ..model.factor import Factor
+from ..model.theta import Theta
+from ..model.parameter import Parameter
+from ..model.aspect import Aspect
+from ..model.type.aspect import Limit, CashFlow, Emission, Loss
+from ..model.type.disposition import SpatialDisp, TemporalDisp
 from .temporal_scale import TemporalScale
 from .type.resource import ResourceType
 
@@ -50,9 +51,9 @@ class Resource:
         label (str, optional): used while generating plots. Defaults to None
         citation (str, optional): can provide citations for your data sources. Defaults to None
         ctype (List[Union[ResourceType, Dict[ResourceType, Set['Location']]]], optional): List of resource ctypes. Defaults to None
-        ptype (Dict[ResourceParamType, Union[Property, Dict['Location', Property]]], optional): dict with parameters declared and thier types. Defaults to None.
+        aspect (Dict[ResourceParamType, Union[Aspect, Dict['Location', Aspect]]], optional): dict with parameters declared and thier types. Defaults to None.
         ltype (Dict[ResourceParamType, List[Tuple['Location', LocalizationType]]], optional): which parameters are localized at Location. Defaults to None.
-        ftype (Dict[ResourceParamType, List[Tuple['Location', Property]]], optional): which parameters are provided with factors at Location. Defaults to None
+        ftype (Dict[ResourceParamType, List[Tuple['Location', Aspect]]], optional): which parameters are provided with factors at Location. Defaults to None
         etype (List[EmissionType], optional): list of emission types defined. Defaults to None
         localizations (Dict[ResourceParamType, List[Tuple['Location', Localization]]], optional): collects localizations when defined at Location. Defaults to None.
         factors (Dict[ResourceParamType, List[Tuple['Location', Factor]]], optional): collects factors when defined at Location. Defaults to None.
@@ -122,21 +123,17 @@ class Resource:
                    DataFrame, Tuple[Union[float, DataFrame, Factor]], Theta] = None
     store: Union[float, bool, 'BigM', List[Union[float, 'BigM']],
                  DataFrame, Tuple[Union[float, DataFrame, Factor]], Theta] = None
-    # LimitType that are set to capacities
-    produce: Union[float, bool, 'BigM', List[Union[float, 'BigM']],
-                   DataFrame, Tuple[Union[float, DataFrame, Factor]], Theta] = None
     transport:  Union[float, bool, 'BigM', List[Union[float, 'BigM']],
                       DataFrame, Tuple[Union[float, DataFrame, Factor]], Theta] = None
     # LossType
     store_loss: Union[float, Tuple[float], Theta] = None
     # Temporal Scale over which limit is set
-    # or loss is incurred 
-    discharge_scale: int = None
-    consume_scale: int = None
-    store_scale: int = None
-    produce_scale: int = None
-    transport_scale: int = None
-    store_loss_scale: int = None
+    # or loss is incurred
+    discharge_limitover: int = None
+    consume_limitover: int = None
+    store_limitover: int = None
+    transport_limitover: int = None
+    store_loss_every: int = None
     # CashFlowType
     sell_cost: Union[float, Theta, DataFrame,
                      Tuple[Union[float, DataFrame, Factor]]] = None
@@ -218,28 +215,24 @@ class Resource:
         if self.store is not None:
             self.ctype.append(ResourceType.STORE)
 
-        # *----------------- Update parameters ---------------------------------
+        # *----------------- Update Aspect ---------------------------------
 
-        for i in self.limits() + self.cashflows() + self.losses() + self.emissions():
-            if getattr(self, i.lower()) is not None:
-                attr = getattr(self, i.lower())
+        for i in self.all():  # iter over all aspects
+            asp_ = i.name  # get name of aspect
+            if getattr(self, asp_.lower()) is not None:
+                attr = getattr(self, asp_.lower())
                 if i in self.limits():
-                    temporal, ptype, psubtype = getattr(
-                        self, f'{i.lower()}_scale'), Property.LIMIT, getattr(Limit, i)
-                if i in self.cashflows():
-                    temporal, ptype, psubtype = None, Property.CASHFLOW, getattr(
-                        CashFlow, i)
-                if i in self.emissions():
-                    temporal, ptype, psubtype = None, Property.EMISSION, getattr(
-                        Emission, i)
+                    temporal = getattr(self, f'{asp_.lower()}_limitover')
                 if i in self.losses():
-                    temporal, ptype, psubtype = getattr(
-                        self, f'{i.lower()}_scale'), Property.LOSS, getattr(Loss, i)
+                    temporal = getattr(
+                        self, f'{asp_.lower()}_every')
 
-                param = Parameter(value=attr, ptype=ptype, spatial=SpatialDisp.NETWORK,
-                                  temporal=temporal, psubtype=psubtype, component=self,
-                                  scales=self.scales, declared_at=self)
-                setattr(self, i.lower(), Parameters(param))
+                aspect = Aspect(aspect=i, component=self)
+
+                aspect.add(value=attr, aspect=i, temporal=temporal, component=self,
+                           scales=self.scales, declared_at=self)
+
+                setattr(self, asp_.lower(), aspect)
 
         # *-----------------Random name ---------------------------------
         # A random name is generated if self.name = None
@@ -298,10 +291,6 @@ class Resource:
         return Limit.resource()
 
     @classmethod
-    def limits_all(cls) -> List[str]:
-        return Limit.all()
-
-    @classmethod
     def cashflows(cls) -> List[str]:
         return CashFlow.resource()
 
@@ -315,7 +304,8 @@ class Resource:
 
     @classmethod
     def all(cls) -> List[str]:
-        return cls.limits_all() + cls.cashflows() + cls.emissions() + cls.losses()
+        return cls.limits() + cls.cashflows() + cls.emissions() + cls.losses()
+
     # *----------- Hashing --------------------------------
 
     def __repr__(self):

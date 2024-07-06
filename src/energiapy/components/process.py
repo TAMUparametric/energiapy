@@ -13,13 +13,13 @@ from pandas import DataFrame
 from ..utils.data_utils import get_depth
 from .type.process import ProcessType
 from .material import Material
-from ..parameters.bound import Big, BigM
-from ..parameters.factor import Factor
-from ..parameters.mpvar import Theta
-from ..parameters.parameter import Parameter, Parameters
-from ..parameters.conversion import Conversion
-from ..parameters.type.property import *
-from ..parameters.type.disposition import *
+from ..model.bound import Big, BigM
+from ..model.factor import Factor
+from ..model.theta import Theta
+from ..model.parameter import Parameter, Parameters
+from ..model.conversion import Conversion
+from ..model.type.aspect import Limit, CashFlow, Land, Emission, Life, Loss
+from ..model.type.disposition import *
 from .temporal_scale import TemporalScale
 from .type.resource import ResourceType
 from .type.process import ProcessType
@@ -82,7 +82,7 @@ class Process:
         citation (str, optional): citation for data. Defaults to 'citation needed'.
         trl (str, optional): technology readiness level. Defaults to None.
         ctype (List[Union[ProcessType, Dict[ProcessType, Set['Location']]]], optional): list of process ctypes. Defaults to None
-        ptype (Dict[ProcessParamType, Union[ParameterType, Dict['Location', ParameterType]]], optional): paramater type of declared values . Defaults to None
+        aspect (Dict[ProcessParamType, Union[ParameterType, Dict['Location', ParameterType]]], optional): paramater type of declared values . Defaults to None
         ltype (Dict[ProcessParamType, List[Tuple['Location', LocalizationType]]], optional): which parameters are localized. Defaults to None.
         ftype (Dict[ProcessParamType, List[Tuple['Location',FactorType]]], optional): which parameters are provided with factors at Location. Defaults to None
         etype (List[EmissionType], optional): list of emission types defined. Defaults to None
@@ -110,6 +110,7 @@ class Process:
     # Design parameters
     capacity: Union[float, bool, 'BigM', List[Union[float, 'BigM']],
                     DataFrame, Tuple[Union[float, DataFrame, Factor]], Theta]
+    capacity_scale: int = None
     land_use: float = None  # Union[float, Tuple[float], Theta]
     material_cons: Union[Dict[Union[int, str],
                               Dict[Material, float]], Dict[Material, float]] = None
@@ -148,10 +149,10 @@ class Process:
     store_loss: Union[float, Tuple[float], Theta] = None
     # Temporal Scale over which limit is set
     # or loss is incurred
-    discharge_scale: int = None
-    consume_scale: int = None
-    store_scale: int = None
-    store_loss_scale: int = None
+    discharge_limitover: int = None
+    consume_limitover: int = None
+    store_limitover: int = None
+    store_loss_every: int = None
     # CashFlowType
     sell_cost: Union[float, Theta, DataFrame,
                      Tuple[Union[float, DataFrame, Factor]]] = None
@@ -185,11 +186,6 @@ class Process:
 
         if not self.ctype:
             self.ctype = list()
-            
-        self.produce_scale = None 
-        
-        if self.produce is None:
-            self.produce = 1
 
         # conversion can be single mode (SINGLE_PRODMODE) or multimode (MULTI_PRODMODE)
         # For MULTI_PRODMODE, a dict of type {'mode' (str, int) : {Resource: float}} needs to be provided
@@ -270,32 +266,32 @@ class Process:
         if any([self.introduce, self.retire, self.lifetime]):
             self.ctype.append(ProcessType.READINESS)
 
-        # *-----------------Set ptype (Parameter)---------------------------------
-        # ptypes of declared parameters are set to .UNCERTAIN if a MPVar Theta or a tuple of bounds is provided,
+        # *-----------------Set aspect (Parameter)---------------------------------
+        # aspects of declared parameters are set to .UNCERTAIN if a MPVar Theta or a tuple of bounds is provided,
         # .CERTAIN otherwise
         # If empty Theta is provided, the bounds default to (0, 1)
         # Factors can be declared at Location (Location, DataFrame), gets converted to  (Location, Factor)
 
         for i in self.all():
             if getattr(self, i.lower()) is not None:
+                temporal = None
                 attr = getattr(self, i.lower())
                 if i in self.cashflows():
-                    ptype, psubtype = Property.CASHFLOW, getattr(
+                    aspect = getattr(
                         CashFlow, i)
                 if i in self.emissions():
-                    ptype, psubtype = Property.EMISSION, getattr(
+                    aspect = getattr(
                         Emission, i)
                 if i in self.lands():
-                    ptype, psubtype = Property.LAND, getattr(Land, i)
+                    aspect = getattr(Land, i)
                 if i in self.lifes():
-                    ptype, psubtype = Property.LOSS, getattr(
+                    aspect = getattr(
                         Loss, i)
                 if i in self.limits():
-                    ptype, psubtype = Property.LIMIT, getattr(
-                        Limit, i)
-
-                param = Parameter(value=attr, ptype=ptype, spatial=SpatialDisp.PROCESS,
-                                  temporal=None, psubtype=psubtype, component=self, declared_at=self, scales=self.scales)
+                    aspect = getattr(Limit, i)
+                    temporal = getattr(self, f'{i.lower()}_scale')
+                param = Parameter(value=attr, aspect=aspect, spatial=SpatialDisp.PROCESS,
+                                  temporal=temporal, component=self, declared_at=self, scales=self.scales)
                 setattr(self, i.lower(), Parameters(param))
 
         # *----------------- Update Resource parameters ---------------------------------
@@ -316,30 +312,30 @@ class Process:
             if getattr(self, i.lower()) is not None:
                 attr = getattr(self, i.lower())
                 if i in self.resource_limits():
-                    temporal, ptype, psubtype = getattr(
-                        self, f'{i.lower()}_scale'), Property.LIMIT, getattr(Limit, i)
+                    temporal, aspect, aspect = getattr(
+                        self, f'{i.lower()}_scale'), Aspect.LIMIT, getattr(Limit, i)
                 if i in self.resource_cashflows():
-                    temporal, ptype, psubtype = None, Property.CASHFLOW, getattr(
+                    temporal, aspect, aspect = None, Aspect.CASHFLOW, getattr(
                         CashFlow, i)
                 if i in self.resource_losses():
-                    temporal, ptype, psubtype = getattr(
-                        self, f'{i.lower()}_scale'), Property.LOSS, getattr(Loss, i)
+                    temporal, aspect, aspect = getattr(
+                        self, f'{i.lower()}_scale'), Aspect.LOSS, getattr(Loss, i)
                 for j in attr:
                     temporal_scale = None
                     if temporal:
                         temporal_scale = temporal[j]
-                    param = Parameter(value=attr[j], ptype=ptype, spatial=SpatialDisp.PROCESS,
-                                      temporal=temporal_scale, psubtype=psubtype, component=j, declared_at=self, scales=self.scales)
-                    
+                    param = Parameter(value=attr[j], aspect=aspect, spatial=SpatialDisp.PROCESS,
+                                      temporal=temporal_scale, aspect=aspect, component=j, declared_at=self, scales=self.scales)
+
                     if getattr(j, i.lower()) is not None:
                         getattr(j, i.lower()).add(param)
                     else:
                         setattr(j, i.lower(), Parameters(param))
-                        
+
                     if isinstance(getattr(self, i.lower()), Parameters):
                         getattr(self, i.lower()).add(param)
-                    else:        
-                        setattr(self, i.lower(), Parameters(param))    
+                    else:
+                        setattr(self, i.lower(), Parameters(param))
         # *----------------- Generate Random Name---------------------------------
         # A random name is generated if self.name = None
 
@@ -360,9 +356,9 @@ class Process:
 
     def __setattr__(self, name, value):
         super().__setattr__(name, value)
-        if hasattr(getattr(self, name), 'eqn_list') and name != 'base':     
+        if hasattr(getattr(self, name), 'eqn_list') and name != 'base':
             self.eqn_list.extend(getattr(self, name).eqn_list)
-    
+
     def eqns(self):
         for j in self.eqn_list:
             print(j)

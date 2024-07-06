@@ -20,14 +20,14 @@ from .type.location import LocationType
 from .type.process import ProcessType
 from .type.resource import ResourceType
 from .material import Material
-from .parameters.factor import Factor
-from .parameters.localization import Localization
-from .parameters.location import LocationParamType
-from .parameters.mpvar import Theta, create_mpvar
-from .parameters.paramtype import *
-from .parameters.process import ProcessParamType
-from .parameters.resource import ResourceParamType
-from .parameters.special import Big, BigM, CouldBe, CouldBeVar
+from .model.factor import Factor
+from .model.localization import Localization
+from .model.location import LocationParamType
+from .model.theta import Theta, birth_theta
+from .model.paramtype import *
+from .model.process import ProcessParamType
+from .model.resource import ResourceParamType
+from .model.special import Big, BigM, CouldBe, CouldBeVar
 from .process import Process
 from .resource import Resource
 from .temporal_scale import TemporalScale
@@ -100,7 +100,7 @@ class Location:
         label (str, optional): used while generating plots. Defaults to None.
         citation (str, optional): can provide citations for your data sources. Defaults to None.
         ctype (List[LocationType], optional): Location type. Defaults to None.
-        ptype (Dict[LocationParamType, ParameterType], optional): paramater type of declared values. Defaults to None.
+        aspect (Dict[LocationParamType, ParameterType], optional): paramater type of declared values. Defaults to None.
         ftype (Dict[LocationParamType, FactorType], optional): factor type of declared factors. Defaults to None.
         factors (Dict[LocationParamType, Factor], optional): collection of factors defined at Location. Defaults to None.
         make_subsets (bool, optional): makes subsets based on Resource and Process ctypes and sets them as attributes [components_ctype]. Defaults to None. 
@@ -119,20 +119,20 @@ class Location:
     # Resource parameters declared at Location
     discharge: Union[float, bool, 'BigM', List[Union[float, 'BigM']],
                      DataFrame, Tuple[Union[float, DataFrame, Factor]], Theta] = None
-    discharge_scale: int = None
+    discharge_limitover: int = None
     consume: Union[float, bool, 'BigM', List[Union[float, 'BigM']],
                    DataFrame, Tuple[Union[float, DataFrame, Factor]], Theta] = None
-    consume_scale: int = None
+    consume_limitover: int = None
     store: Union[float, bool, 'BigM', List[Union[float, 'BigM']],
                  DataFrame, Tuple[Union[float, DataFrame, Factor]], Theta] = None
-    store_scale: int = None
+    store_limitover: int = None
     store_loss: Union[float, Tuple[float], Theta] = None
-    store_loss_scale: int = None
+    store_loss_every: int = None
     capacity: Union[float, bool, 'BigM', List[Union[float, 'BigM']],
                     DataFrame, Tuple[Union[float, DataFrame, Factor]], Theta] = None
     transport:  Union[float, bool, 'BigM', List[Union[float, 'BigM']],
                       DataFrame, Tuple[Union[float, DataFrame, Factor]], Theta] = None
-    transport_scale: int = None
+    transport_limitover: int = None
     # CashFlowType
     sell_cost: Union[float, Theta, DataFrame,
                      Tuple[Union[float, DataFrame, Factor]]] = None
@@ -144,7 +144,7 @@ class Location:
                   Tuple[Union[float, DataFrame, Factor]]] = None
     penalty: Union[float, Theta, DataFrame,
                    Tuple[Union[float, DataFrame, Factor]]] = None
-    # Process Parameters 
+    # Process Parameters
     conversion: Union[Dict[Union[int, str], Dict[Resource, float]],
                       Dict[Resource, float]] = None
     material_cons: Union[Dict[Union[int, str],
@@ -183,20 +183,19 @@ class Location:
         # update ctype if land aspects are defined
         if any([self.land, self.land_cost]):
             self.ctype.append(LocationType.LAND)
-        
 
-        # *-----------------Set ptype (ParameterType) ---------------------------------
-        # ptypes of declared parameters are set to .UNCERTAIN if a MPVar Theta or a tuple of bounds is provided,
+        # *-----------------Set aspect (ParameterType) ---------------------------------
+        # aspects of declared parameters are set to .UNCERTAIN if a MPVar Theta or a tuple of bounds is provided,
         # .CERTAIN otherwise
         # If empty Theta is provided, the bounds default to (0, 1)
 
         for i in self
-        for i in self.ptypes():
+        for i in self.aspects():
             self.update_location_parameter(parameter=i)
 
         # *-----------------Set ftype (FactorType) ---------------------------------
 
-        for i in self.ptypes():
+        for i in self.aspects():
             self.update_location_factor(parameter=i)
 
         # * ---------------Collect Components (Processes, Resources, Materials) -----------------------
@@ -291,7 +290,6 @@ class Location:
             raise ValueError(
                 f'{self.name}: revenue_factor_scale_level is depreciated, use sell_cost_factor instead')
 
-
     # *----------------- Class Methods -------------------------------------
 
     @classmethod
@@ -303,7 +301,7 @@ class Location:
     # * Location parameters
 
     @classmethod
-    def ptypes(cls) -> Set[str]:
+    def aspects(cls) -> Set[str]:
         """All Location paramters
         """
         return LocationParamType.all()
@@ -401,27 +399,27 @@ class Location:
     # *----------------- Functions-------------------------------------
 
     def update_location_parameter(self, parameter: str):
-        """updates parameter, sets ptype
+        """updates parameter, sets aspect
 
         Args:
             parameter (str): parameter to update 
         """
         attr_ = getattr(self, parameter.lower())
         if attr_:
-            ptype_ = getattr(LocationParamType, parameter)
-            if not self.ptype:
-                self.ptype = dict()
+            aspect_ = getattr(LocationParamType, parameter)
+            if not self.aspect:
+                self.aspect = dict()
             if isinstance(attr_, (tuple, Theta)):
-                self.ptype[ptype_] = ParameterType.UNCERTAIN
-                mpvar_ = create_mpvar(value=attr_, component=self, ptype=getattr(
+                self.aspect[aspect_] = ParameterType.UNCERTAIN
+                theta_ = birth_theta(value=attr_, component=self, aspect=getattr(
                     MPVarType, f'{self.class_name()}_{parameter}'.upper()))
-                setattr(self, parameter.lower(), mpvar_)
+                setattr(self, parameter.lower(), theta_)
             elif isinstance(attr_, Big) or attr_ is True:
-                self.ptype[ptype_] = ParameterType.BIGM
+                self.aspect[aspect_] = ParameterType.BIGM
                 if attr_ is True:
                     setattr(self, parameter.lower(), BigM)
             else:
-                self.ptype[ptype_] = ParameterType.CERTAIN
+                self.aspect[aspect_] = ParameterType.CERTAIN
 
     def update_location_factor(self, parameter: str):
         """updates factor, sets ftype
@@ -431,7 +429,7 @@ class Location:
         """
         attr_ = getattr(self, f'{parameter}_factor'.lower())
         if attr_ is not None:
-            # ptype_ = getattr(LocationParamType, parameter)
+            # aspect_ = getattr(LocationParamType, parameter)
             ftype_ = getattr(
                 FactorType, f'{self.class_name()}_{parameter}'.upper())
 
@@ -446,8 +444,8 @@ class Location:
             self.factors[ftype_] = factor_
 
     def update_component_parameter_declared_at_location(self, parameter: str, parameter_type: Union[ResourceParamType, ProcessParamType]):
-        """Update the ctype and ptype of component if parameters declared at Location
-        Note that the ptype and ctype are updated with a tuples, i.e (Location, ____)
+        """Update the ctype and aspect of component if parameters declared at Location
+        Note that the aspect and ctype are updated with a tuples, i.e (Location, ____)
         Args:
             parameter (str): new paramter that has been declared 
             component_type (Union[ResourceType, ProcessType]): Type of component
@@ -459,22 +457,22 @@ class Location:
                 if not hasattr(component, parameter.lower()):
                     setattr(component, parameter.lower(), dict())
                 comp_location_attr = getattr(component, parameter.lower())
-                ptype_ = getattr(parameter_type, parameter)
+                aspect_ = getattr(parameter_type, parameter)
                 if isinstance(location_attr[component], (tuple, Theta)):
                     append_ = {self: ParameterType.UNCERTAIN}
-                    mpvar_ = create_mpvar(value=location_attr[
-                                          component], component=component, ptype=getattr(MPVarType, f'{component.class_name()}_{parameter}'.upper()), location=self)
-                    location_attr[component] = mpvar_
-                    comp_location_attr[self] = mpvar_
+                    theta_ = birth_theta(value=location_attr[
+                        component], component=component, aspect=getattr(MPVarType, f'{component.class_name()}_{parameter}'.upper()), location=self)
+                    location_attr[component] = theta_
+                    comp_location_attr[self] = theta_
                 else:
                     append_ = {self: ParameterType.UNCERTAIN}
                     comp_location_attr[self] = location_attr[component]
-                if not component.ptype:
-                    component.ptype = dict()
-                if ptype_ in component.ptype:  # check if already exists, if yes append
-                    component.ptype[ptype_].update(append_)
+                if not component.aspect:
+                    component.aspect = dict()
+                if aspect_ in component.aspect:  # check if already exists, if yes append
+                    component.aspect[aspect_].update(append_)
                 else:  # or create new list with tuple
-                    component.ptype[ptype_] = append_
+                    component.aspect[aspect_] = append_
 
     def update_component_ctype_at_location(self, attr: str, ctype: Union[ResourceType, ProcessType]):
         """updates ctypes of components based on parameters or factors declared at location

@@ -16,13 +16,13 @@ from .type.network import NetworkType
 from .type.resource import ResourceType
 from .type.transport import TransportType
 from .location import Location
-from .parameters.factor import Factor
-from .parameters.location import LocationParamType
-from .parameters.mpvar import Theta, create_mpvar
-from .parameters.network import NetworkParamType
-from .parameters.paramtype import FactorType, MPVarType, ParameterType
-from .parameters.special import Big, BigM, CouldBe, CouldBeVar
-from .parameters.transport import TransportParamType
+from .model.factor import Factor
+from .model.location import LocationParamType
+from .model.theta import Theta, birth_theta
+from .model.network import NetworkParamType
+from .model.paramtype import FactorType, MPVarType, ParameterType
+from .model.special import Big, BigM, CouldBe, CouldBeVar
+from .model.transport import TransportParamType
 from .temporal_scale import TemporalScale
 from .transport import Transport
 
@@ -51,7 +51,7 @@ class Network:
         label (str, optional): used while generating plots. Defaults to None.
         citation (str, optional): can provide citations for your data sources. Defaults to None.
         ctype (List[NetworkType], optional): Network type type. Defaults to None.
-        ptype (Dict[NetworkParamType, ParameterType], optional): paramater type of declared values. Defaults to None.
+        aspect (Dict[NetworkParamType, ParameterType], optional): paramater type of declared values. Defaults to None.
         ftype (Dict[NetworkParamType, FactorType], optional): factor type of declared factors. Defaults to None.
         factors (Dict[LocationParamType, Factor], optional): collection of factors defined at Network. Defaults to None.
 
@@ -107,7 +107,7 @@ class Network:
     citation: str = None
     # Types
     ctype: List[NetworkType] = None
-    ptype: Dict[NetworkParamType, ParameterType] = None
+    aspect: Dict[NetworkParamType, ParameterType] = None
     ftype: Dict[NetworkParamType, FactorType] = None
     # Collections
     factors: Dict[NetworkParamType, Factor] = None
@@ -135,17 +135,17 @@ class Network:
                 self.ctype = list()
             self.ctype.append(NetworkType.LAND)
 
-        # *-----------------Set ptype (ParameterType) ---------------------------------
-        # ptypes of declared parameters are set to .UNCERTAIN if a MPVar Theta or a tuple of bounds is provided,
+        # *-----------------Set aspect (ParameterType) ---------------------------------
+        # aspects of declared parameters are set to .UNCERTAIN if a MPVar Theta or a tuple of bounds is provided,
         # .CERTAIN otherwise
         # If empty Theta is provided, the bounds default to (0, 1)
 
-        for i in self.ptypes():
+        for i in self.aspects():
             self.update_network_parameter(parameter=i)
 
         # *-----------------Set ftype (FactorType) ---------------------------------
 
-        for i in self.ptypes():
+        for i in self.aspects():
             self.update_network_factor(parameter=i)
 
         # * ---------------Collect Components (Transport, Locations) -----------------------
@@ -220,7 +220,7 @@ class Network:
     # * Network parameters
 
     @classmethod
-    def ptypes(cls) -> Set[str]:
+    def aspects(cls) -> Set[str]:
         """All Network paramters
         """
         return NetworkParamType.all()
@@ -260,29 +260,29 @@ class Network:
     # *----------------- Functions-------------------------------------
 
     def update_network_parameter(self, parameter: str):
-        """updates parameter, sets ptype
+        """updates parameter, sets aspect
 
         Args:
             parameter (str): parameter to update 
         """
         attr_ = getattr(self, parameter.lower())
         if attr_:
-            ptype_ = getattr(NetworkParamType, parameter)
+            aspect_ = getattr(NetworkParamType, parameter)
 
-            if not self.ptype:
-                self.ptype = dict()
+            if not self.aspect:
+                self.aspect = dict()
 
             if isinstance(attr_, (tuple, Theta)):
-                self.ptype[ptype_] = ParameterType.UNCERTAIN
-                mpvar_ = create_mpvar(value=attr_, component=self, ptype=getattr(
+                self.aspect[aspect_] = ParameterType.UNCERTAIN
+                theta_ = birth_theta(value=attr_, component=self, aspect=getattr(
                     MPVarType, f'{self.class_name()}_{parameter}'.upper()))
-                setattr(self, parameter.lower(), mpvar_)
+                setattr(self, parameter.lower(), theta_)
             elif isinstance(attr_, Big) or attr_ is True:
-                self.ptype[ptype_] = ParameterType.BIGM
+                self.aspect[aspect_] = ParameterType.BIGM
                 if attr_ is True:
                     setattr(self, parameter.lower(), BigM)
             else:
-                self.ptype[ptype_] = ParameterType.CERTAIN
+                self.aspect[aspect_] = ParameterType.CERTAIN
 
     def update_network_factor(self, parameter: str):
         """updates factor, sets ftype

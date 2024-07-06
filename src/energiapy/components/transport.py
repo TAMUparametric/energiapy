@@ -16,11 +16,11 @@ from .type.resource import ResourceType
 from .type.transport import TransportType
 from .location import Location
 from .material import Material
-from .parameters.factor import Factor
-from .parameters.mpvar import Theta, create_mpvar
-from .parameters.paramtype import FactorType, MPVarType, ParameterType
-from .parameters.special import BigM, CouldBeVar
-from .parameters.transport import TransportParamType
+from .model.factor import Factor
+from .model.theta import Theta, birth_theta
+from .model.paramtype import FactorType, MPVarType, ParameterType
+from .model.special import BigM, CouldBeVar
+from .model.transport import TransportParamType
 from .resource import Resource
 
 
@@ -56,7 +56,7 @@ class Transport:
         label (str, optional): used while generating plots. Defaults to None.
         citation (str, optional): can provide citations for your data sources. Defaults to None.
         ctype (List[Union[TransportType, Dict[TransportType, Set[Tuple[Location, Location]]]]], optional): list of Transport ctypes. Defaults to None.
-        ptype (Dict[LandType, ParameterType], optional): paramater type of declared values. Defaults to None.
+        aspect (Dict[LandType, ParameterType], optional): paramater type of declared values. Defaults to None.
         ftype (Dict[TransportType, Tuple[Tuple[Location, Location], FactorType]], optional): factor type of declared factors. Defaults to None. 
         etype (List[EmissionType], optional): list of emission types defined. Defaults to None
         factors (Dict[TransportParamType, Tuple[Tuple[Location, Location], Factor]], optional): collects factors when defined at Network. Defaults to None.
@@ -104,7 +104,7 @@ class Transport:
     # Type
     ctype: List[Union[TransportType,
                       Dict[TransportType, Set[Tuple[Location, Location]]]]] = None
-    ptype: Dict[TransportParamType, ParameterType] = None
+    aspect: Dict[TransportParamType, ParameterType] = None
     ftype: Dict[TransportParamType,
                 Tuple[Tuple[Location, Location], FactorType]] = None
     etype: List[EmissionType] = None
@@ -181,12 +181,12 @@ class Transport:
         if any([self.introduce, self.retire, self.lifetime]):
             self.ctype.append(TransportType.READINESS)
 
-        # *-----------------Set ptype---------------------------------
+        # *-----------------Set aspect---------------------------------
         # If parameter provided as Theta or tuple bounds are provided - makes MPVar
 
-        self.ptype = dict()
+        self.aspect = dict()
 
-        for i in self.ptypes():
+        for i in self.aspects():
             self.update_transport_level_parameter(parameter=i)
 
         # *-----------------Set etype (Emission)---------------------------------
@@ -246,7 +246,7 @@ class Transport:
     # * Transport parameters
 
     @classmethod
-    def ptypes(cls) -> Set[str]:
+    def aspects(cls) -> Set[str]:
         """All Transport paramters
         """
         return TransportParamType.all()
@@ -314,27 +314,27 @@ class Transport:
     # *----------------- Functions ---------------------------------------------
 
     def update_transport_level_parameter(self, parameter: str):
-        """updates parameter, sets ptype
+        """updates parameter, sets aspect
 
         Args:
             parameter (str): parameter to update 
         """
         attr_ = getattr(self, parameter.lower())
         if attr_:
-            ptype_ = getattr(TransportParamType, parameter)
+            aspect_ = getattr(TransportParamType, parameter)
             if isinstance(attr_, (tuple, Theta)):
-                self.ptype[ptype_] = ParameterType.UNCERTAIN
-                mpvar_ = create_mpvar(
-                    value=attr_, component=self, ptype=getattr(MPVarType, f'{self.class_name()}_{parameter}'.upper()))
-                setattr(self, parameter.lower(), mpvar_)
+                self.aspect[aspect_] = ParameterType.UNCERTAIN
+                theta_ = birth_theta(
+                    value=attr_, component=self, aspect=getattr(MPVarType, f'{self.class_name()}_{parameter}'.upper()))
+                setattr(self, parameter.lower(), theta_)
             elif hasattr(attr_, 'bigm') or attr_ is True:
-                self.ptype[ptype_] = ParameterType.BIGM
+                self.aspect[aspect_] = ParameterType.BIGM
                 if attr_ is True:
                     setattr(self, parameter.lower(), BigM)
             elif hasattr(attr_, 'couldbevar'):
-                self.ptype[ptype_] = ParameterType.UNDECIDED
+                self.aspect[aspect_] = ParameterType.UNDECIDED
             else:
-                self.ptype[ptype_] = ParameterType.CERTAIN
+                self.aspect[aspect_] = ParameterType.CERTAIN
 
     def __repr__(self):
         return self.name

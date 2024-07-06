@@ -27,13 +27,13 @@ from .type.scenario import ScenarioType
 from .type.transport import TransportType
 from .location import Location
 from .network import Network
-from .parameters.location import LocationParamType
-from .parameters.network import NetworkParamType
-from .parameters.paramtype import (FactorType, LocalizationType, MPVarType,
-                                   ParameterType)
-from .parameters.process import ProcessParamType
-from .parameters.resource import ResourceParamType
-from .parameters.transport import TransportParamType
+from .model.location import LocationParamType
+from .model.network import NetworkParamType
+from .model.paramtype import (FactorType, LocalizationType, MPVarType,
+                              ParameterType)
+from .model.process import ProcessParamType
+from .model.resource import ResourceParamType
+from .model.transport import TransportParamType
 from .resource import Resource
 from .temporal_scale import TemporalScale
 
@@ -60,7 +60,7 @@ class Scenario:
         rep_days_dict (dict, optional): dictionary of representative days. Defaults to None.
         emission_weights (EmissionWeights, optional): dataclass with weights for different emission objectives. Defaults to None.
         ctype (List[ScenarioType], optional): Scenario component type. Defaults to None.
-        collect (List[Literal['parameters', 'factors', 'localizations', 'types']], optional): whether to collect parameters, factors, localizations, types (ctype, ptype, ftype, ltype). Sets attributes x_components. Defaults to None.
+        collect (List[Literal['parameters', 'factors', 'localizations', 'types']], optional): whether to collect parameters, factors, localizations, types (ctype, aspect, ftype, ltype). Sets attributes x_components. Defaults to None.
 
     Example:
         The Scenario can be built over a single location. The network here is specified as a single Location. Considering scales (TemporalScale object for a year, [1, 365, 24]), scheduling, expenditure, and demand are met at an hourly level, and network at an annual level.
@@ -183,12 +183,12 @@ class Scenario:
                     component=comp_, xtype='ftype'))
                 setattr(self, f'ctype_{comp_}', self.types(
                     component=comp_, xtype='ctype'))
-                setattr(self, f'ptype_{comp_}', self.types(
-                    component=comp_, xtype='ptype'))
+                setattr(self, f'aspect_{comp_}', self.types(
+                    component=comp_, xtype='aspect'))
 
             setattr(self, 'ftype_network', self.network.ftype)
             setattr(self, 'ctype_network', self.network.ctype)
-            setattr(self, 'ptype_network', self.network.ptype)
+            setattr(self, 'aspect_network', self.network.aspect)
 
             for comp_ in ['resources', 'processes']:
                 setattr(self, f'ltype_{comp_}', self.types(
@@ -313,13 +313,13 @@ class Scenario:
         # for j in ['demand', 'purchase', 'sell', 'consume']:
         #     # TODO - location specific factor and localization sets
         #     # self.resource_subsets[f'resources_varying_{j}'] = [i.name for i in getattr(
-        #     #     self, f'resources_{j}') if i.ptype[getattr(ResourceType, j.upper())] == ParameterType.FACTOR]
+        #     #     self, f'resources_{j}') if i.aspect[getattr(ResourceType, j.upper())] == ParameterType.FACTOR]
 
         #     self.resource_subsets[f'resources_certain_{j}'] = [i.name for i in getattr(
-        #         self, f'resources_{j}') if i.ptype[getattr(ResourceType, j.upper())] == ParameterType.CERTAIN]
+        #         self, f'resources_{j}') if i.aspect[getattr(ResourceType, j.upper())] == ParameterType.CERTAIN]
 
         #     self.resource_subsets[f'resources_uncertain_{j}'] = [i.name for i in getattr(
-        #         self, f'resources_{j}') if i.ptype[getattr(ResourceType, j.upper())] == ParameterType.UNCERTAIN]
+        #         self, f'resources_{j}') if i.aspect[getattr(ResourceType, j.upper())] == ParameterType.UNCERTAIN]
 
         # self.resource_subsets['resources_transport'] = [
         #     i.name for i in self.resources if ResourceType.TRANSPORT in i.ctype]
@@ -330,13 +330,13 @@ class Scenario:
         #     # TODO - location specific factor and localization sets
 
         #     # self.process_subsets[f'processes_varing_{j}'] = [i.name for i in self.processes if getattr(ProcessType, j.upper(
-        #     # )) in i.ptype.keys() if i.ptype[getattr(ProcessType, j.upper())] == ParameterType.FACTOR]
+        #     # )) in i.aspect.keys() if i.aspect[getattr(ProcessType, j.upper())] == ParameterType.FACTOR]
 
         #     self.process_subsets[f'processes_certain_{j}'] = [i.name for i in self.processes if getattr(ProcessType, j.upper(
-        #     )) in i.ptype.keys() if i.ptype[getattr(ProcessType, j.upper())] == ParameterType.CERTAIN]
+        #     )) in i.aspect.keys() if i.aspect[getattr(ProcessType, j.upper())] == ParameterType.CERTAIN]
 
         #     self.process_subsets[f'processes_uncertain_{j}'] = [i.name for i in self.processes if getattr(ProcessType, j.upper(
-        #     )) in i.ptype.keys() if i.ptype[getattr(ProcessType, j.upper())] == ParameterType.UNCERTAIN]
+        #     )) in i.aspect.keys() if i.aspect[getattr(ProcessType, j.upper())] == ParameterType.UNCERTAIN]
 
         # for j in ['single_prodmode', 'multi_prodmode', 'no_matmode', 'multi_matmode', 'single_matmode', 'storage', 'storage_req', 'linear_capex', 'pwl_capex', 'land']:
         #     self.process_subsets[f'processes_{j}'] = [
@@ -354,12 +354,12 @@ class Scenario:
         # self.location_subsets['locations_land_cost'] = [
         #     i.name for i in self.locations if LocationType.LAND_COST in i.ctype]
 
-        # self.location_subsets['locations_varying_land_cost'] = [i.name for i in self.locations if LocationType.LAND_COST in i.ptype.keys(
-        # ) if i.ptype[LocationType.LAND_COST] == ParameterType.FACTOR]
+        # self.location_subsets['locations_varying_land_cost'] = [i.name for i in self.locations if LocationType.LAND_COST in i.aspect.keys(
+        # ) if i.aspect[LocationType.LAND_COST] == ParameterType.FACTOR]
         # self.location_subsets['locations_certain_land_cost'] = [
-        #     i.name for i in self.locations if LocationType.LAND_COST in i.ptype.keys() if i.ptype[LocationType.LAND_COST] == ParameterType.CERTAIN]
+        #     i.name for i in self.locations if LocationType.LAND_COST in i.aspect.keys() if i.aspect[LocationType.LAND_COST] == ParameterType.CERTAIN]
         # self.location_subsets['locations_uncertain_land_cost'] = [
-        #     i.name for i in self.locations if LocationType.LAND_COST in i.ptype.keys() if i.ptype[LocationType.LAND_COST] == ParameterType.UNCERTAIN]
+        #     i.name for i in self.locations if LocationType.LAND_COST in i.aspect.keys() if i.aspect[LocationType.LAND_COST] == ParameterType.UNCERTAIN]
 
         # self.location_land_cost_factor = {
         #     i: i.land_cost_factor for i in self.location_subsets['locations_varying_land_cost']}
@@ -592,20 +592,20 @@ class Scenario:
 
         if component == 'resources':
             return {i: {j.lower(): getattr(i, j.lower()) for j in self.resource_parameters(
-            ) if hasattr(i, j.lower()) and getattr(i, j.lower())} for i in getattr(self, 'resources') if i.ptype}
+            ) if hasattr(i, j.lower()) and getattr(i, j.lower())} for i in getattr(self, 'resources') if i.aspect}
 
         if component == 'processes':
             return {i: {j.lower(): getattr(i, j.lower()) for j in self.process_parameters(
-            ) if hasattr(i, j.lower()) and getattr(i, j.lower())} for i in getattr(self, 'processes') if i.ptype}
+            ) if hasattr(i, j.lower()) and getattr(i, j.lower())} for i in getattr(self, 'processes') if i.aspect}
 
         if component == 'locations':
             return {i: {j.lower(): getattr(i, j.lower()) for j in self.location_parameters(
-            ) if hasattr(i, j.lower()) and getattr(i, j.lower())} for i in getattr(self, 'locations') if i.ptype}
+            ) if hasattr(i, j.lower()) and getattr(i, j.lower())} for i in getattr(self, 'locations') if i.aspect}
 
         if component == 'transports':
             if hasattr(self, 'transports'):
                 return {i: {j.lower(): getattr(i, j.lower()) for j in self.transport_parameters(
-                ) if hasattr(i, j.lower()) and getattr(i, j.lower())} for i in getattr(self, 'transports') if i.ptype}
+                ) if hasattr(i, j.lower()) and getattr(i, j.lower())} for i in getattr(self, 'transports') if i.aspect}
             else:
                 warn('Transports not defined')
 
@@ -634,12 +634,12 @@ class Scenario:
         else:
             warn(f'{component.capitalize()} not defined')
 
-    def types(self, component: Literal['resources', 'processes', 'locations', 'transports', 'network'], xtype: Literal['ctype', 'ftype', 'ptype', 'ltype']) -> dict:
+    def types(self, component: Literal['resources', 'processes', 'locations', 'transports', 'network'], xtype: Literal['ctype', 'ftype', 'aspect', 'ltype']) -> dict:
         """Returns a dictionary with summary of chosen type for chosen component
 
         Args:
             component (Literal['resources', 'processes', 'locations', 'transports', 'network']): choice of component
-            xtype (Literal['ctype', 'ftype', 'ptype', 'ltype']): choice of type
+            xtype (Literal['ctype', 'ftype', 'aspect', 'ltype']): choice of type
 
         Returns:
             dict: summary of type for chosen component
