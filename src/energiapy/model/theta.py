@@ -6,7 +6,8 @@ from warnings import warn
 from .type.disposition import *
 from .type.aspect import *
 from .type.special import SpecialParameter
-from .type.variability import *
+from .type.variability import Variability, Uncertain
+from .type.bound import Bound
 
 
 @dataclass
@@ -87,7 +88,7 @@ class Theta:
             temp = f'{self.temporal.name.lower()}'
 
             self.index = tuple(dict.fromkeys([comp, dec_at, temp]).keys())
-            self.name = f'Th_{par}{self.index}]'
+            self.name = f'Th[{par}{self.index}]'
 
         else:
             self.name = f'Th{self.bounds}'

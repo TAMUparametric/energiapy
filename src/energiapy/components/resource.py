@@ -10,7 +10,7 @@ from ..model.bound import Big, BigM
 from ..model.factor import Factor
 from ..model.theta import Theta
 from ..model.parameter import Parameter
-from ..model.aspect import Aspect
+from ..model.aspect import Aspect, AspectOver
 from ..model.type.aspect import Limit, CashFlow, Emission, Loss
 from ..model.type.disposition import SpatialDisp, TemporalDisp
 from .temporal_scale import TemporalScale
@@ -129,11 +129,11 @@ class Resource:
     store_loss: Union[float, Tuple[float], Theta] = None
     # Temporal Scale over which limit is set
     # or loss is incurred
-    discharge_limitover: int = None
-    consume_limitover: int = None
-    store_limitover: int = None
-    transport_limitover: int = None
-    store_loss_every: int = None
+    discharge_over: int = None
+    consume_over: int = None
+    store_over: int = None
+    transport_over: int = None
+    store_loss_over : int = None
     # CashFlowType
     sell_cost: Union[float, Theta, DataFrame,
                      Tuple[Union[float, DataFrame, Factor]]] = None
@@ -160,7 +160,7 @@ class Resource:
     # Types
     ctype: List[ResourceType] = None
 
-    eqn_list: List[str] = None
+    constraints: List[str] = None
     # Depreciated
     sell: bool = None
     varying: bool = None
@@ -172,8 +172,8 @@ class Resource:
 
     def __post_init__(self):
 
-        if not self.eqn_list:
-            self.eqn_list = list()
+        if not self.constraints:
+            self.constraints = list()
         # *-----------------Set ctype (ResourceType)---------------------------------
         # .DISCHARGE allows the resource to be discharged (consume > 0)
         # .SELL is when a Resource generated revenue (has a sell_cost)
@@ -218,21 +218,21 @@ class Resource:
         # *----------------- Update Aspect ---------------------------------
 
         for i in self.all():  # iter over all aspects
-            asp_ = i.name  # get name of aspect
-            if getattr(self, asp_.lower()) is not None:
-                attr = getattr(self, asp_.lower())
-                if i in self.limits():
-                    temporal = getattr(self, f'{asp_.lower()}_limitover')
-                if i in self.losses():
-                    temporal = getattr(
-                        self, f'{asp_.lower()}_every')
+            asp_ = i.name.lower()  # get name of aspect            
+            if getattr(self, asp_) is not None:
+                attr = getattr(self, asp_)
+                temporal = None
+                if i in self.limits() + self.losses():
+                    temporal = getattr(self, f'{asp_}_over')
 
                 aspect = Aspect(aspect=i, component=self)
-
                 aspect.add(value=attr, aspect=i, temporal=temporal, component=self,
                            scales=self.scales, declared_at=self)
-
-                setattr(self, asp_.lower(), aspect)
+                setattr(self, asp_, aspect)
+                
+                if i in self.limits() + self.losses():
+                    setattr(self, f'{asp_}_over', AspectOver(aspect=i, temporal=aspect.temporal))
+                
 
         # *-----------------Random name ---------------------------------
         # A random name is generated if self.name = None
@@ -269,11 +269,11 @@ class Resource:
 
     def __setattr__(self, name, value):
         super().__setattr__(name, value)
-        if hasattr(getattr(self, name), 'eqn_list'):
-            self.eqn_list.extend(getattr(self, name).eqn_list)
+        if hasattr(getattr(self, name), 'constraints'):
+            self.constraints.extend(getattr(self, name).constraints)
 
-    def eqns(self):
-        for j in self.eqn_list:
+    def cons(self):
+        for j in self.constraints:
             print(j)
 
     # *----------------- Class Methods ---------------------------------
@@ -283,8 +283,6 @@ class Resource:
         """Returns class name 
         """
         return cls.__name__
-
-    # * parameter types
 
     @classmethod
     def limits(cls) -> List[str]:

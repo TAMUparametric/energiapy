@@ -16,7 +16,7 @@ from .material import Material
 from ..model.bound import Big, BigM
 from ..model.factor import Factor
 from ..model.theta import Theta
-from ..model.parameter import Parameter, Parameters
+from ..model.aspect import Aspect
 from ..model.conversion import Conversion
 from ..model.type.aspect import Limit, CashFlow, Land, Emission, Life, Loss
 from ..model.type.disposition import *
@@ -110,7 +110,7 @@ class Process:
     # Design parameters
     capacity: Union[float, bool, 'BigM', List[Union[float, 'BigM']],
                     DataFrame, Tuple[Union[float, DataFrame, Factor]], Theta]
-    capacity_scale: int = None
+    capacity_over: int = None
     land_use: float = None  # Union[float, Tuple[float], Theta]
     material_cons: Union[Dict[Union[int, str],
                               Dict[Material, float]], Dict[Material, float]] = None
@@ -149,10 +149,10 @@ class Process:
     store_loss: Union[float, Tuple[float], Theta] = None
     # Temporal Scale over which limit is set
     # or loss is incurred
-    discharge_limitover: int = None
-    consume_limitover: int = None
-    store_limitover: int = None
-    store_loss_every: int = None
+    discharge_over: int = None
+    consume_over: int = None
+    store_over: int = None
+    store_loss_over: int = None
     # CashFlowType
     sell_cost: Union[float, Theta, DataFrame,
                      Tuple[Union[float, DataFrame, Factor]]] = None
@@ -166,7 +166,7 @@ class Process:
                    Tuple[Union[float, DataFrame, Factor]]] = None
     # Types
     ctype: List[Union[ProcessType, Dict[ProcessType, Set['Location']]]] = None
-    eqn_list: List[str] = None
+    constraints: List[str] = None
     # Details
     basis: str = None
     block: str = None
@@ -180,8 +180,8 @@ class Process:
 
     def __post_init__(self):
 
-        if not self.eqn_list:
-            self.eqn_list = list()
+        if not self.constraints:
+            self.constraints = list()
         # *-----------------Set ctype (ProcessType)---------------------------------
 
         if not self.ctype:
@@ -273,69 +273,62 @@ class Process:
         # Factors can be declared at Location (Location, DataFrame), gets converted to  (Location, Factor)
 
         for i in self.all():
-            if getattr(self, i.lower()) is not None:
-                temporal = None
-                attr = getattr(self, i.lower())
-                if i in self.cashflows():
-                    aspect = getattr(
-                        CashFlow, i)
-                if i in self.emissions():
-                    aspect = getattr(
-                        Emission, i)
-                if i in self.lands():
-                    aspect = getattr(Land, i)
-                if i in self.lifes():
-                    aspect = getattr(
-                        Loss, i)
+            asp_ = i.name 
+            if getattr(self, asp_.lower()) is not None:
+                attr = getattr(self, asp_.lower())
+                temporal = None 
                 if i in self.limits():
-                    aspect = getattr(Limit, i)
-                    temporal = getattr(self, f'{i.lower()}_scale')
-                param = Parameter(value=attr, aspect=aspect, spatial=SpatialDisp.PROCESS,
-                                  temporal=temporal, component=self, declared_at=self, scales=self.scales)
-                setattr(self, i.lower(), Parameters(param))
+                    temporal = getattr(self, f'{i.lower()}_over')
+                
+                aspect = Aspect(aspect=i, component=self)
+                
+                aspect.add(value=attr, aspect=i, component=self, declared_at=self, temporal=temporal, scales=self.scales)   
+
+                setattr(self, asp_.lower(), aspect)
 
         # *----------------- Update Resource parameters ---------------------------------
 
-        input_resource_params = ['PURCHASE_COST', 'CONSUME', 'CONSUME_SCALE']
-
         # set resource parameters to base if not given as dictionary.
-        for i in list(set(self.resource_all() + self.resource_scales()) - set(input_resource_params)):
-            if getattr(self, i.lower()) is not None and not isinstance(getattr(self, i.lower()), dict):
-                if i in input_resource_params:
+        for i in self.all():
+            asp_ = i.name 
+            if getattr(self, asp_.lower()) is not None and not isinstance(getattr(self, asp_.lower()), dict):
+                if i in self.resource_inputs():
                     raise ValueError(
-                        f'{self.name}: {i.lower()} needs to be provided as a dict of input Resources')
+                        f'{self.name}: {asp_.lower()} needs to be provided as a dict of input Resources')
                 else:
-                    setattr(self, i.lower(), {
-                            self.base: getattr(self, i.lower())})
+                    setattr(self, asp_.lower(), {
+                            self.base: getattr(self, asp_.lower())})
 
         for i in self.resource_all():
-            if getattr(self, i.lower()) is not None:
-                attr = getattr(self, i.lower())
-                if i in self.resource_limits():
-                    temporal, aspect, aspect = getattr(
-                        self, f'{i.lower()}_scale'), Aspect.LIMIT, getattr(Limit, i)
-                if i in self.resource_cashflows():
-                    temporal, aspect, aspect = None, Aspect.CASHFLOW, getattr(
-                        CashFlow, i)
-                if i in self.resource_losses():
-                    temporal, aspect, aspect = getattr(
-                        self, f'{i.lower()}_scale'), Aspect.LOSS, getattr(Loss, i)
+            asp_ = i.name.lower()
+            if getattr(self, asp_) is not None and not isinstance(getattr(self, asp_), dict):
+                if len(self.conversion.discharge) == 1:
+                    setattr(self, asp_, {self.base: getattr(self, asp_)})
+                    
+                elif len(self.conversion.consume) == 1:
+                    setattr(self, asp_, {self.conversion.consume[0]: getattr(self, asp_)})
+                else:
+                    raise ValueError(f'{self.name}: {asp_} needs to be provided as a dict of Resources given that 
+                                     there are multiple involved')
+                            
+                attr = getattr(self, asp_)
+                temporal = None
+
+                if i in self.resource_limits() + self.resource_losses():
+                    temporal = getattr(self, f'{asp_}_over')
+                
                 for j in attr:
-                    temporal_scale = None
                     if temporal:
-                        temporal_scale = temporal[j]
-                    param = Parameter(value=attr[j], aspect=aspect, spatial=SpatialDisp.PROCESS,
-                                      temporal=temporal_scale, aspect=aspect, component=j, declared_at=self, scales=self.scales)
-
-                    if getattr(j, i.lower()) is not None:
-                        getattr(j, i.lower()).add(param)
+                        temporal_ = temporal[j]
+                    if not isinstance(attr[j], Aspect):
+                        aspect = Aspect(aspect=i, component=j)
                     else:
-                        setattr(j, i.lower(), Parameters(param))
-
-                    if isinstance(getattr(self, i.lower()), Parameters):
-                        getattr(self, i.lower()).add(param)
-                    else:
-                        setattr(self, i.lower(), Parameters(param))
+                        aspect = attr[j]
+            
+                    aspect.add(value=attr[j], aspect=i, component=j, declared_at=self, temporal=temporal_, scales=self.scales)
+                    
+                    setattr(j, asp_, aspect)
+                    
         # *----------------- Generate Random Name---------------------------------
         # A random name is generated if self.name = None
 
@@ -356,11 +349,11 @@ class Process:
 
     def __setattr__(self, name, value):
         super().__setattr__(name, value)
-        if hasattr(getattr(self, name), 'eqn_list') and name != 'base':
-            self.eqn_list.extend(getattr(self, name).eqn_list)
+        if hasattr(getattr(self, name), 'constraints') and name != 'base':
+            self.constraints.extend(getattr(self, name).constraints)
 
-    def eqns(self):
-        for j in self.eqn_list:
+    def cons(self):
+        for j in self.constraints:
             print(j)
 
     # *----------------- Class Methods -----------------------------------------
@@ -397,25 +390,21 @@ class Process:
         return cls.cashflows() + cls.emissions() + cls.lands() + cls.lifes() + cls.limits()
 
     @classmethod
-    def resource_limits(cls) -> List[str]:
-        return Limit.resource_process()
-
-    @classmethod
-    def resource_cashflows(cls) -> List[str]:
-        return CashFlow.resource()
-
-    @classmethod
-    def resource_losses(cls) -> List[str]:
-        return Loss.resource()
-
+    def resource_inputs(cls) -> List[str]:
+        return [CashFlow.PURCHASE_COST, Limit.CONSUME]
+    
     @classmethod
     def resource_all(cls) -> List[str]:
-        return cls.resource_limits() + cls.resource_cashflows() + cls.resource_losses()
-
+        return Resource.all()
+   
     @classmethod
-    def resource_scales(cls) -> List[str]:
-        return [f'{i}_SCALE' for i in cls.resource_limits() + cls.resource_losses()]
-
+    def resource_limits(cls) -> List[str]:
+        return Resource.limits()
+   
+    @classmethod
+    def resource_losses(cls) -> List[str]:
+        return Resource.losses()
+   
     @classmethod
     def ctypes(cls) -> Set[str]:
         """All Process paramters

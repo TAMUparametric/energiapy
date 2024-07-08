@@ -3,7 +3,8 @@ from typing import Tuple, Union
 from .type.disposition import SpatialDisp, TemporalDisp
 from .type.aspect import Limit, CashFlow, Land, Life, Loss
 from .type.special import SpecialParameter
-from .type.variability import Variability, Bound, Uncertain
+from .type.variability import Variability, Uncertain
+from .type.bound import Bound
 from ..components.temporal_scale import TemporalScale
 
 

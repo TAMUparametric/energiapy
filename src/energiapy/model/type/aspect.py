@@ -21,7 +21,7 @@ from enum import Enum, auto
 from typing import List
 
 
-class Aspect(Enum):
+class AspectType(Enum):
     """What kind of behaviour does the parameter describe
     All of these have subclasses
     These are predetermined by me, Rahul Kakodkar. 

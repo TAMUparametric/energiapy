@@ -20,17 +20,29 @@ class Conversion:
             self.n_modes = len(self.conversion[self.base])
             self.modes = list(self.conversion[self.base])
             self.involve = reduce(
-                operator.or_, (set(self.conversion[self.base][i]) for i in self.modes), set())
+                operator.or_, (list(self.conversion[self.base][i]) for i in self.modes), list())
+            self.discharge = [self.base] + [i for i in self.conversion[self.base][mode] for mode in self.modes if self.conversion[self.base][mode][i] > 0]
+            self.consume = [i for i in self.conversion[self.base][mode] for mode in self.modes if self.conversion[self.base][mode][i] < 0]
+                
         elif get_depth(self.conversion) == 2:
             self.n_modes = 1
             self.modes = None
-            self.involve = set(self.conversion[self.base])
+            self.involve = list(self.conversion[self.base])
+            
+            self.discharge = [self.base] + [i for i in self.conversion[self.base] if self.conversion[self.base][i] > 0]
+            self.consume = [i for i in self.conversion[self.base] if self.conversion[self.base][i] < 0]
+            
         elif get_depth(self.conversion) == 1:
             self.n_modes = 1
             self.modes = None
             self.involve = self.create_storage_resource()
             self.conversion = {self.involve: {
                 self.base: self.conversion[self.base]}}
+            self.discharge = [self.base]
+            self.consume = [self.base]
+            
+        
+        
 
         self.name = f'Conv({self.base.name},{self.process.name})'
 
@@ -44,8 +56,8 @@ class Conversion:
         """
 
         return Resource(name=f"{self.process.name}_{self.base.name}_stored", store_loss=self.process.store_loss, store=self.process.store,
-                        store_cost=self.process.store_cost, store_loss_every=self.base.store_loss_every,
-                        store_limitover=self.base.store_loss_every, label=f'{self.base.label} stored in {self.process.label}')
+                        store_cost=self.process.store_cost, store_loss_over=self.base.store_loss_over,
+                        store_over=self.base.store_loss_over, label=f'{self.base.label} stored in {self.process.label}')
 
     def __repr__(self):
         return self.name

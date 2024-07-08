@@ -24,9 +24,10 @@ class Aspect:
         self.parameters= list()
         self.variables= list()
         self.constraints= list()
-        self.dispositions = list()
-        self.indices = list()
-
+        self.index = None
+        self.spatial = None
+        self.temporal = None
+        self.disposition = None
     
     
     def add(self, value: Union[float, bool, 'BigM', List[float], List[Union[float, 'BigM']],
@@ -34,26 +35,59 @@ class Aspect:
             component: Union['Resource', 'Process', 'Location', 'Transport', 'Network'], 
             declared_at: Union['Resource', 'Process', 'Location', 'Transport', Tuple['Location'], 'Network'], 
             temporal: Union[TemporalDisp, int] = 0, scales: TemporalScale = None):
-        
+
         parameter = Parameter(value=value, aspect=aspect, temporal=temporal, component=component,
-                                  scales=scales, declared_at=declared_at)
+                            scales=scales, declared_at=declared_at)
         
-        self.parameters.append(parameter)
+        for i in ['index', 'temporal', 'spatial', 'disposition']:
+            setattr(self, i, getattr(parameter, i))
+        
+        if parameter not in self.parameters:
+            self.parameters.append(parameter)
         
         for i in matches.find(aspect):
-            variable, associated = None, None
+            variable_, associated_, parameter_, bound_, lb_, ub_ = (None for _ in range(6))
+                    
+            bound_ = parameter.bound
+            
             if i.variable:
-                variable = Variable(aspect=aspect, component=component, declared_at=declared_at, spatial=parameter.spatial, temporal=parameter.temporal, disposition=parameter.disposition, index=parameter.index)
-                self.variables.append(variable)
+                variable_ = Variable(aspect=aspect, component=component, declared_at=declared_at, spatial=parameter.spatial, temporal=parameter.temporal, disposition=parameter.disposition, index=parameter.index)
+                if variable_ not in self.variables:    
+                    self.variables.append(variable_)
 
             if i.associated:
-                associated = Variable(aspect=i.associated, component=component, declared_at=declared_at, spatial=parameter.spatial, temporal=parameter.temporal, disposition=parameter.disposition, index=parameter.index)
+                associated_ = Variable(aspect=i.associated, component=component, declared_at=declared_at, spatial=parameter.spatial, temporal=parameter.temporal, disposition=parameter.disposition, index=parameter.index)
             
-            constraint =  Constraint(condition=i.condition, variable=variable, associated=associated, parameter=parameter, bound=parameter.bound, lb=parameter.lb, ub= parameter.ub)
+            if i.parameter:
+                parameter_ = parameter
+                lb_ = parameter.lb
+                ub_ = parameter.ub
             
-            self.constraints.append(constraint)
+            
+            constraint_ =  Constraint(condition=i.condition, variable=variable_, associated=associated_, parameter=parameter_, bound=bound_, lb=lb_, ub= ub_)
+            
+            # print(i, variable_, associated_, parameter_, constraint_)
+            if constraint_ not in self.constraints:
+                self.constraints.append(constraint_)
     
+
+    def __repr__(self):
+        return self.name
+
+    def __hash__(self):
+        return hash(self.name)
+
+    def __eq__(self, other):
+        return self.name == other.name
     
+
+@dataclass
+class AspectOver:
+    aspect: Union[Limit, Loss] 
+    temporal: TemporalDisp
+    
+    def __post_init__(self):
+        self.name = f'{self.aspect.name.lower()}_over:{self.temporal.name.lower()}'
 
     def __repr__(self):
         return self.name

@@ -119,20 +119,20 @@ class Location:
     # Resource parameters declared at Location
     discharge: Union[float, bool, 'BigM', List[Union[float, 'BigM']],
                      DataFrame, Tuple[Union[float, DataFrame, Factor]], Theta] = None
-    discharge_limitover: int = None
+    discharge_over: int = None
     consume: Union[float, bool, 'BigM', List[Union[float, 'BigM']],
                    DataFrame, Tuple[Union[float, DataFrame, Factor]], Theta] = None
-    consume_limitover: int = None
+    consume_over: int = None
     store: Union[float, bool, 'BigM', List[Union[float, 'BigM']],
                  DataFrame, Tuple[Union[float, DataFrame, Factor]], Theta] = None
-    store_limitover: int = None
+    store_over: int = None
     store_loss: Union[float, Tuple[float], Theta] = None
-    store_loss_every: int = None
+    store_loss_over: int = None
     capacity: Union[float, bool, 'BigM', List[Union[float, 'BigM']],
                     DataFrame, Tuple[Union[float, DataFrame, Factor]], Theta] = None
     transport:  Union[float, bool, 'BigM', List[Union[float, 'BigM']],
                       DataFrame, Tuple[Union[float, DataFrame, Factor]], Theta] = None
-    transport_limitover: int = None
+    transport_over: int = None
     # CashFlowType
     sell_cost: Union[float, Theta, DataFrame,
                      Tuple[Union[float, DataFrame, Factor]]] = None

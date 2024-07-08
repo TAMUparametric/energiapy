@@ -10,7 +10,8 @@ from .theta import Theta, birth_theta
 from .type.disposition import SpatialDisp, TemporalDisp
 from .type.aspect import Limit, CashFlow, Land, Life, Loss, Emission
 from .type.special import SpecialParameter
-from .type.variability import Variability, Bound, Uncertain
+from .type.variability import Variability, Uncertain
+from .type.bound import Bound
 
 
 @dataclass
@@ -47,28 +48,14 @@ class Parameter:
 
         self.disposition = ((self.spatial), self.temporal)
 
-        if isinstance(self.aspect, Limit):
-            if self.aspect == Limit.DISCHARGE:
-                self.bound = Bound.LOWER
-            else:
-                self.bound = Bound.UPPER
-        elif self.aspect in [Land.LAND, Life.LIFETIME]:
-            self.bound = Bound.UPPER
-        else:
-            self.bound = Bound.EXACT
-
         if isinstance(self.value, (float, int)):
             self.vtype = Variability.CERTAIN
-            # if self.bound == Bound.LOWER:
-            #     self.lb, self.ub = self.value, BigM
-            # if self.bound == Bound.UPPER:
-            #     self.lb, self.ub = 0, self.value
-            # if self.bound == Bound.EXACT:
-            #     self.lb, self.ub = self.value, self.value
+            self.bound = Bound.EXACT
+            self.lb, self.ub = self.value, self.value
 
         if isinstance(self.value, Big) or self.value is True:
             self.vtype = Variability.CERTAIN
-            self.bound = Bound.BIGM
+            self.bound = Bound.UPPER
             if self.value is True:
                 self.value = BigM
             self.special = SpecialParameter.BIGM
@@ -76,12 +63,11 @@ class Parameter:
 
         if isinstance(self.value, list):
             self.vtype = Variability.CERTAIN
-            if all(isinstance(i, float) for i in self.value):
+            if all(isinstance(i, (float, int)) for i in self.value):
                 self.bound = Bound.BOTH
                 self.value = sorted(self.value)
             if any(isinstance(i, Big) for i in self.value):
                 self.bound = Bound.LOWER
-
             self.lb, self.ub = self.value
 
         if isinstance(self.value, (tuple, Theta)):
@@ -90,16 +76,14 @@ class Parameter:
             theta_ = birth_theta(
                 value=self.value, component=self.component, declared_at=self.declared_at, aspect=self.aspect,
                 temporal=self.temporal)
+            self.bound = Bound.EXACT
             self.value = theta_
+            self.lb, self.ub = self.value, self.value
+            self.theta_bounds = theta_.bounds
             for i in ['special', 'name', 'index']:
                 setattr(self, i, getattr(theta_, i))
-
-            # if self.bound == Bound.LOWER:
-            #     self.lb, self.ub = self.value, BigM
-            # if self.bound == Bound.UPPER:
-            #     self.lb, self.ub = 0, self.value
-            # if self.bound == Bound.EXACT:
-            #     self.lb, self.ub = self.value, self.value
+            
+            
 
         if isinstance(self.value, (dict, DataFrame, Factor)):
             self.vtype = Variability.UNCERTAIN
@@ -109,25 +93,27 @@ class Parameter:
             self.value = factor_
             for i in ['special', 'temporal', 'name', 'nominal', 'index', 'disposition']:
                 setattr(self, i, getattr(factor_, i))
-            # if self.bound == Bound.LOWER:
-            #     self.lb, self.ub = self.value, BigM
-            # if self.bound == Bound.UPPER:
-            #     self.lb, self.ub = 0, self.value
-            # if self.bound == Bound.EXACT:
-            #     self.lb, self.ub = self.value, self.value
-
-        if not hasattr(self, 'lb') and not hasattr(self, 'ub'):
-            if self.bound == Bound.LOWER:
-                self.lb, self.ub = self.value, BigM
-            if self.bound == Bound.UPPER:
+            
+        
+        if not hasattr(self, 'bound'):
+            if isinstance(self.aspect, Limit):
+                if self.aspect == Limit.DISCHARGE:
+                    self.bound = Bound.LOWER
+                    self.lb, self.ub = self.value, BigM
+                else:
+                    self.bound = Bound.UPPER
+                    self.lb, self.ub = 0, self.value
+            elif self.aspect in [Land.LAND, Life.LIFETIME]:
+                self.bound = Bound.UPPER
                 self.lb, self.ub = 0, self.value
-            if self.bound == Bound.EXACT:
+            else:
+                self.bound = Bound.EXACT
                 self.lb, self.ub = self.value, self.value
 
         par = f'{self.aspect.name.lower().capitalize()}'
         comp = f'{self.component.name}'
         dec_at = f'{self.declared_at.name}'
-        temp = f',{self.temporal.name.lower()}'
+        temp = f'{self.temporal.name.lower()}'
 
         if not hasattr(self, 'name'):
             self.index = tuple(dict.fromkeys([comp, dec_at, temp]).keys())
