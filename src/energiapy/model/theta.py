@@ -6,7 +6,7 @@ from warnings import warn
 from .type.disposition import *
 from .type.aspect import *
 from .type.special import SpecialParameter
-from .type.variability import Variability, Uncertain
+from .type.variability import Certainty, Approach
 from .type.bound import Bound
 
 

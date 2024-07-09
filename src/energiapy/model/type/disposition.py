@@ -33,5 +33,9 @@ class TemporalDisp(Enum):
     T10PLUS = auto()
 
     @classmethod
+    def get_tdisp(cls, scale_name: str):
+        return [i for i in cls.all() if i.name == scale_name.upper()][0]
+
+    @classmethod
     def all(cls) -> List[str]:
         return [i for i in cls]

@@ -6,8 +6,8 @@ from typing import List, Tuple, Union
 
 from pandas import DataFrame
 
-from ..model.bound import Big, BigM
-from ..model.factor import Factor
+from ..model.unbound import Unbound, BigM
+from ..model.data import Data
 from ..model.theta import Theta
 from ..model.parameter import Parameter
 from ..model.aspect import Aspect, AspectOver
@@ -56,7 +56,7 @@ class Resource:
         ftype (Dict[ResourceParamType, List[Tuple['Location', Aspect]]], optional): which parameters are provided with factors at Location. Defaults to None
         etype (List[EmissionType], optional): list of emission types defined. Defaults to None
         localizations (Dict[ResourceParamType, List[Tuple['Location', Localization]]], optional): collects localizations when defined at Location. Defaults to None.
-        factors (Dict[ResourceParamType, List[Tuple['Location', Factor]]], optional): collects factors when defined at Location. Defaults to None.
+        factors (Dict[ResourceParamType, List[Tuple['Location', Data]]], optional): collects factors when defined at Location. Defaults to None.
         emissions (Dict[str, float], optional): collects emission data. Defaults to None.
 
     Examples:
@@ -118,13 +118,13 @@ class Resource:
     scales: TemporalScale = None
     # LimitType
     discharge: Union[float, bool, 'BigM', List[Union[float, 'BigM']],
-                     DataFrame, Tuple[Union[float, DataFrame, Factor]], Theta] = None
+                     DataFrame, Tuple[Union[float, DataFrame, Data]], Theta] = None
     consume: Union[float, bool, 'BigM', List[Union[float, 'BigM']],
-                   DataFrame, Tuple[Union[float, DataFrame, Factor]], Theta] = None
+                   DataFrame, Tuple[Union[float, DataFrame, Data]], Theta] = None
     store: Union[float, bool, 'BigM', List[Union[float, 'BigM']],
-                 DataFrame, Tuple[Union[float, DataFrame, Factor]], Theta] = None
+                 DataFrame, Tuple[Union[float, DataFrame, Data]], Theta] = None
     transport:  Union[float, bool, 'BigM', List[Union[float, 'BigM']],
-                      DataFrame, Tuple[Union[float, DataFrame, Factor]], Theta] = None
+                      DataFrame, Tuple[Union[float, DataFrame, Data]], Theta] = None
     # LossType
     store_loss: Union[float, Tuple[float], Theta] = None
     # Temporal Scale over which limit is set
@@ -136,15 +136,15 @@ class Resource:
     store_loss_over : int = None
     # CashFlowType
     sell_cost: Union[float, Theta, DataFrame,
-                     Tuple[Union[float, DataFrame, Factor]]] = None
+                     Tuple[Union[float, DataFrame, Data]]] = None
     purchase_cost: Union[float, Theta, DataFrame,
-                         Tuple[Union[float, DataFrame, Factor]]] = None
+                         Tuple[Union[float, DataFrame, Data]]] = None
     store_cost: Union[float, Theta, DataFrame,
-                      Tuple[Union[float, DataFrame, Factor]]] = None
+                      Tuple[Union[float, DataFrame, Data]]] = None
     credit: Union[float, Theta, DataFrame,
-                  Tuple[Union[float, DataFrame, Factor]]] = None
+                  Tuple[Union[float, DataFrame, Data]]] = None
     penalty: Union[float, Theta, DataFrame,
-                   Tuple[Union[float, DataFrame, Factor]]] = None
+                   Tuple[Union[float, DataFrame, Data]]] = None
     # EmissionType
     gwp: Union[float, Tuple[float], Theta] = None
     odp: Union[float, Tuple[float], Theta] = None
@@ -221,19 +221,12 @@ class Resource:
             asp_ = i.name.lower()  # get name of aspect            
             if getattr(self, asp_) is not None:
                 attr = getattr(self, asp_)
-                temporal = None
-                if i in self.limits() + self.losses():
-                    temporal = getattr(self, f'{asp_}_over')
-
+                
                 aspect = Aspect(aspect=i, component=self)
-                aspect.add(value=attr, aspect=i, temporal=temporal, component=self,
+                aspect.add(value=attr, aspect=i, component=self,
                            scales=self.scales, declared_at=self)
                 setattr(self, asp_, aspect)
-                
-                if i in self.limits() + self.losses():
-                    setattr(self, f'{asp_}_over', AspectOver(aspect=i, temporal=aspect.temporal))
-                
-
+  
         # *-----------------Random name ---------------------------------
         # A random name is generated if self.name = None
 

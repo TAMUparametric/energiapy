@@ -7,11 +7,8 @@ class SpecialParameter(Enum):
     Generally handled internally. But,
     Can be created externally and given as paramter values
     """
-    BIGM = auto()
+    UNBOUND = auto()
     """When a certain parameter is unbounded
-    """
-    SMALLM = auto()
-    """Used to prevent solution values from blowing up
     """
     FACTOR = auto()
     """Created when deterministic data is provided to handle variability

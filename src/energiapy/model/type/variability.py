@@ -1,8 +1,8 @@
 from enum import Enum, auto
 
 
-class Variability(Enum):
-    """How is the parameter variability accounted for.
+class Certainty(Enum):
+    """How is the parameter variability.
     """
     CERTAIN = auto()
     """we know either the exact value or the exact bounds. 
@@ -13,7 +13,7 @@ class Variability(Enum):
     Subclassed in Uncertain
     """
 
-class Uncertain(Enum):
+class Approach(Enum):
     """How uncertainty in parameter is handled
     """
     PARAMETRIC = auto()

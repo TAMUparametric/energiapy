@@ -11,6 +11,7 @@ from typing import List, Set
 from warnings import warn
 
 from .type.temporal_scale import ScaleType
+from ..model.type.disposition import TemporalDisp
 
 
 @dataclass
@@ -134,16 +135,18 @@ class TemporalScale:
     design_scale: int = None
     scheduling_scale: int = None
     start_zero: int = None
-    scale_factors_max: bool = True
+    scale_factors_max: bool = None
     scale_factors_min_max: bool = None
     scale_factors_standard: bool = None
     ctype: List[ScaleType] = None
 
     def __post_init__(self):
-        self.discretization_list.insert(0,1)
+
+        self.discretization_list.insert(0, 1)
         self.scale_levels = len(self.discretization_list)
-        self.scale = {
-            i: list(range(self.discretization_list[i])) for i in range(self.scale_levels)}
+        self.scales_dict = {
+            TemporalDisp.all()[i].name.lower(): list(range(self.discretization_list[i])) for i in range(self.scale_levels)}
+        self.scales = list(self.scales_dict)
         self.list = list(range(len(self.discretization_list)))
         self.name = str(self.list)
 
@@ -191,9 +194,6 @@ class TemporalScale:
         else:
             self.ctype.append(ScaleType.SCHEDULING)
 
-        if any([self.scale_factors_standard, self.scale_factors_min_max]):
-            self.scale_factors_max = False
-
     # * -----------------------Class Methods-----------------------------------------
 
     @classmethod
@@ -214,7 +214,7 @@ class TemporalScale:
             List[tuple]: list of tuples with representing the scales
         """
         if scale_level is not None:
-            return list(product(*[self.scale[i] for i in self.scale][:scale_level+1]))
+            return list(product(*[self.scales_dict[i] for i in self.scales_dict][:scale_level+1]))
         else:
             return None
 
