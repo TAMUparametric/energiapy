@@ -1,9 +1,10 @@
-from dataclasses import dataclass
-from ..components.resource import Resource
-from typing import Dict, Union
-from ..utils.data_utils import get_depth
-from functools import reduce
 import operator
+from dataclasses import dataclass
+from functools import reduce
+from typing import Dict, Union
+
+from ..components.resource import Resource
+from ..utils.data_utils import get_depth
 from .type.disposition import SpatialDisp
 
 

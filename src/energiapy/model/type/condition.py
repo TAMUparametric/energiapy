@@ -9,6 +9,9 @@ class Condition(Enum):
     """Binds a variable to parameter bounds
     var <= ub or var >= lb 
     """
+    CAPACITATE = auto()
+    """Limits variable to capacity of Process or Transport
+    """
     CALCULATE = auto()
     """Finds variable value by multiplying a parameter with another variable
     var = param * var2
@@ -21,7 +24,7 @@ class Condition(Enum):
     var1(c,s,t) + var2(c,s,t) - var3(c,s,t) = 0 
     """
 
-class LeftHandSide(Enum):
+class RightHandSide(Enum):
     """Binds a variable to a(n)
     Can be multiplicative, e.g.: var <= param * var2 
     """

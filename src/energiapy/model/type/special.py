@@ -8,9 +8,9 @@ class SpecialParameter(Enum):
     Can be created externally and given as paramter values
     """
     UNBOUND = auto()
-    """When a certain parameter is unbounded
+    """When a certain parameter is unbounded (BigM, Smallm)
     """
-    FACTOR = auto()
+    DATASET = auto()
     """Created when deterministic data is provided to handle variability
     """
     MPVAR = auto()

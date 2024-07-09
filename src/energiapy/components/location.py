@@ -16,21 +16,21 @@ from typing import Dict, List, Set, Tuple, Union
 
 from pandas import DataFrame
 
-from .type.location import LocationType
-from .type.process import ProcessType
-from .type.resource import ResourceType
 from .material import Material
 from .model.factor import Factor
 from .model.localization import Localization
 from .model.location import LocationParamType
-from .model.theta import Theta, birth_theta
 from .model.paramtype import *
 from .model.process import ProcessParamType
 from .model.resource import ResourceParamType
 from .model.special import Big, BigM, CouldBe, CouldBeVar
+from .model.theta import Theta, birth_theta
 from .process import Process
 from .resource import Resource
 from .temporal_scale import TemporalScale
+from .type.location import LocationType
+from .type.process import ProcessType
+from .type.resource import ResourceType
 
 
 @dataclass

@@ -11,20 +11,20 @@ from typing import Dict, List, Set, Tuple, Union
 
 from pandas import DataFrame
 
+from .location import Location
+from .model.factor import Factor
+from .model.location import LocationParamType
+from .model.network import NetworkParamType
+from .model.paramtype import FactorType, MPVarType, ParameterType
+from .model.special import Big, BigM, CouldBe, CouldBeVar
+from .model.theta import Theta, birth_theta
+from .model.transport import TransportParamType
+from .temporal_scale import TemporalScale
+from .transport import Transport
 from .type.location import LocationType
 from .type.network import NetworkType
 from .type.resource import ResourceType
 from .type.transport import TransportType
-from .location import Location
-from .model.factor import Factor
-from .model.location import LocationParamType
-from .model.theta import Theta, birth_theta
-from .model.network import NetworkParamType
-from .model.paramtype import FactorType, MPVarType, ParameterType
-from .model.special import Big, BigM, CouldBe, CouldBeVar
-from .model.transport import TransportParamType
-from .temporal_scale import TemporalScale
-from .transport import Transport
 
 
 @dataclass

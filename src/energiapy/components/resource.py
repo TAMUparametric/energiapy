@@ -6,13 +6,11 @@ from typing import List, Tuple, Union
 
 from pandas import DataFrame
 
-from ..model.unbound import Unbound, BigM
+from ..model.aspect import Aspect
 from ..model.data import Data
 from ..model.theta import Theta
-from ..model.parameter import Parameter
-from ..model.aspect import Aspect, AspectOver
-from ..model.type.aspect import Limit, CashFlow, Emission, Loss
-from ..model.type.disposition import SpatialDisp, TemporalDisp
+from ..model.type.aspect import CashFlow, Emission, Limit, Loss
+from ..model.unbound import BigM
 from .temporal_scale import TemporalScale
 from .type.resource import ResourceType
 
@@ -127,13 +125,6 @@ class Resource:
                       DataFrame, Tuple[Union[float, DataFrame, Data]], Theta] = None
     # LossType
     store_loss: Union[float, Tuple[float], Theta] = None
-    # Temporal Scale over which limit is set
-    # or loss is incurred
-    discharge_over: int = None
-    consume_over: int = None
-    store_over: int = None
-    transport_over: int = None
-    store_loss_over : int = None
     # CashFlowType
     sell_cost: Union[float, Theta, DataFrame,
                      Tuple[Union[float, DataFrame, Data]]] = None
@@ -159,8 +150,6 @@ class Resource:
     citation: str = None
     # Types
     ctype: List[ResourceType] = None
-
-    constraints: List[str] = None
     # Depreciated
     sell: bool = None
     varying: bool = None
@@ -172,8 +161,9 @@ class Resource:
 
     def __post_init__(self):
 
-        if not self.constraints:
-            self.constraints = list()
+        for i in ['parameters', 'variables', 'constraints']:
+            setattr(self, i, list())
+
         # *-----------------Set ctype (ResourceType)---------------------------------
         # .DISCHARGE allows the resource to be discharged (consume > 0)
         # .SELL is when a Resource generated revenue (has a sell_cost)
@@ -218,15 +208,15 @@ class Resource:
         # *----------------- Update Aspect ---------------------------------
 
         for i in self.all():  # iter over all aspects
-            asp_ = i.name.lower()  # get name of aspect            
+            asp_ = i.name.lower()  # get name of aspect
             if getattr(self, asp_) is not None:
                 attr = getattr(self, asp_)
-                
+
                 aspect = Aspect(aspect=i, component=self)
                 aspect.add(value=attr, aspect=i, component=self,
                            scales=self.scales, declared_at=self)
                 setattr(self, asp_, aspect)
-  
+
         # *-----------------Random name ---------------------------------
         # A random name is generated if self.name = None
 
@@ -262,12 +252,27 @@ class Resource:
 
     def __setattr__(self, name, value):
         super().__setattr__(name, value)
-        if hasattr(getattr(self, name), 'constraints'):
-            self.constraints.extend(getattr(self, name).constraints)
+        for i in ['parameters', 'variables', 'constraints']:
+            if hasattr(getattr(self, name), i):
+                getattr(self, i).extend(getattr(getattr(self, name), i))
+
+    def params(self):
+        """prints parameters
+        """
+        for i in getattr(self, 'parameters'):
+            print(i)
+
+    def vars(self):
+        """prints variables
+        """
+        for i in getattr(self, 'variables'):
+            print(i)
 
     def cons(self):
-        for j in self.constraints:
-            print(j)
+        """prints constraints
+        """
+        for i in getattr(self, 'constraints'):
+            print(i)
 
     # *----------------- Class Methods ---------------------------------
 
@@ -298,6 +303,12 @@ class Resource:
         return cls.limits() + cls.cashflows() + cls.emissions() + cls.losses()
 
     # *----------- Hashing --------------------------------
+    
+    def __lt__(self, other):
+        return self.name < other.name
+
+    def __gt__(self, other):
+        return self.name > other.name
 
     def __repr__(self):
         return self.name

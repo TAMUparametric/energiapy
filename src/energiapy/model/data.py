@@ -1,17 +1,16 @@
-"""Factor of deterministic data ftype
+"""Deterministic data set ftype
 """
 from dataclasses import dataclass
-from typing import Tuple, Union, Dict
+from typing import Union
 
 from pandas import DataFrame
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 
 from ..components.temporal_scale import TemporalScale
-from .type.disposition import SpatialDisp, TemporalDisp
-from .type.aspect import Limit, CashFlow, Land, Emission, Life, Loss
-from .type.special import SpecialParameter
-from .type.variability import Certainty, Approach
+from .type.aspect import CashFlow, Emission, Land, Life, Limit, Loss
 from .type.bound import Bound
+from .type.disposition import SpatialDisp, TemporalDisp
+from .type.special import SpecialParameter
 
 
 @dataclass
@@ -33,7 +32,7 @@ class Data:
         apply_standard_scaler (bool, optional): This is inherited form the scales object if not provided, where it defaults to False.
     """
 
-    data: Union[DataFrame, Dict[float, DataFrame]]
+    data: Union[DataFrame, 'Data']
     scales: TemporalScale
     aspect: Union[Limit, CashFlow, Land, Emission, Life, Loss] = None
     bound: Bound = None
@@ -49,15 +48,12 @@ class Data:
 
         self.name = None
 
-        if isinstance(self.data, dict):
-            self.nominal = list(self.data)[0]
-            self.data = self.data[self.nominal]
+        self.special = SpecialParameter.DATASET
 
         if isinstance(self.data, Data):
-            self.scale = self.data.scale
             self.scaled = self.data.scaled
-            self.data = self.data.data
             self.temporal = self.data.temporal
+            self.data = self.data.data
 
         elif isinstance(self.data, DataFrame):
 
@@ -145,10 +141,10 @@ class Data:
                 bnd = ''
 
             self.index = tuple(dict.fromkeys([comp, dec_at, temp]).keys())
-            self.name = f'{par}{bnd}{self.index}'
+            self.name = f'Data|{par}{bnd}{self.index}|'
 
         else:
-            self.name = f'Data({temp})'
+            self.name = f'Data|{temp}|'
 
     def __lt__(self, other):
         if isinstance(other, (int, float)) and self.bound == Bound.UPPER:

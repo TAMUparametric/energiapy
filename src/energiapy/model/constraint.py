@@ -1,58 +1,56 @@
 from dataclasses import dataclass
-from typing import Tuple, Union, List
-from .type.condition import Condition, LeftHandSide, SumOver
-from .type.disposition import SpatialDisp, TemporalDisp
-from .type.aspect import Limit, CashFlow, Land, Life, Loss
-from .type.special import SpecialParameter
-from .type.variability import Certainty, Approach
-from .type.bound import Bound
+from typing import List, Tuple, Union
+
 from ..components.temporal_scale import TemporalScale
-from .parameter import Parameter
-from .variable import Variable
 from .data import Data
+from .parameter import Parameter
+from .type.aspect import CashFlow, Land, Life, Limit, Loss
+from .type.bound import Bound
+from .type.condition import Condition, RightHandSide, SumOver
+from .type.disposition import SpatialDisp, TemporalDisp
+from .type.special import SpecialParameter
+from .type.certainty import Approach, Certainty
+from .variable import Variable
 
 
 @dataclass
 class Constraint:
     condition: Condition
-    variable: Variable = None
+    variable: Variable
+    rhs: List[RightHandSide]
     associated: Variable = None
     parameter: Parameter = None
     balance: List[Variable] = None
     bound: Bound = None
-    lb: Union[float, SpecialParameter, Data] = None
-    ub: Union[float, SpecialParameter, Data] = None
-    lhs: List[LeftHandSide] = None
     sumover: SumOver = None
 
     def __post_init__(self):
 
-        variable, associated, parameter, multip, theta_bounds = (
-            '' for _ in range(5))
+        associated, parameter, multip, theta_bounds = (
+            '' for _ in range(4))
 
-        if self.variable:
-            variable = self.variable.name
-            for i in ['index', 'temporal', 'spatial', 'disposition']:
-                setattr(self, i, getattr(self.variable, i))
+        variable = self.variable.name
+        for i in ['index', 'temporal', 'spatial', 'disposition']:
+            setattr(self, i, getattr(self.variable, i))
 
         if self.associated:
             associated = self.associated.name
-            
+
         if self.parameter:
             parameter = self.parameter.value
 
         if all([self.associated, self.parameter]):
             multip = '*'
-        
+
         if hasattr(self.parameter, 'theta_bounds'):
-            theta_bounds = f', Th in {self.parameter.theta_bounds}'
+            theta_bounds = f', Th in {list(self.parameter.theta_bounds)}'
 
         if self.condition == Condition.CALCULATE:
-            constraint = f'{variable}={parameter}{multip}{associated}'
+            constraint = f'{variable}={parameter}{multip}{associated}{theta_bounds}'
 
         if self.condition == Condition.BIND:
             if self.bound == Bound.LOWER:
-                constraint = f'{parameter}{multip}{associated}<={variable}'
+                constraint = f'{variable}>={parameter}{multip}{associated}'
             if self.bound in [Bound.UPPER, Bound.UNBOUNDED]:
                 constraint = f'{variable}<={parameter}{multip}{associated}'
             if self.bound == Bound.EXACT:
@@ -60,7 +58,16 @@ class Constraint:
             if self.bound == Bound.PARAMETRIC:
                 constraint = f'{variable}={parameter}{multip}{associated}{theta_bounds}'
 
+        if self.condition == Condition.CAPACITATE:
+            constraint = f'{variable}<={parameter}{multip}{associated}'
+
         self.name = constraint
+
+    def __lt__(self, other):
+        return self.name < other.name
+
+    def __gt__(self, other):
+        return self.name > other.name
 
     def __repr__(self):
         return self.name

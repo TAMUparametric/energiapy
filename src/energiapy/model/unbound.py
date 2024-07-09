@@ -1,9 +1,11 @@
 """For unbounded parameters
 """
 from dataclasses import dataclass
-from .type.special import SpecialParameter
-from .data import Data
+
 from pandas import DataFrame
+
+from .data import Data
+from .type.special import SpecialParameter
 
 
 @dataclass(frozen=True)

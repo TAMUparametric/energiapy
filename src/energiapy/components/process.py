@@ -10,20 +10,19 @@ from typing import Dict, List, Set, Tuple, Union
 
 from pandas import DataFrame
 
-from ..utils.data_utils import get_depth
-from .type.process import ProcessType
-from .material import Material
+from ..model.aspect import Aspect
 from ..model.bound import Big, BigM
+from ..model.conversion import Conversion
 from ..model.factor import Factor
 from ..model.theta import Theta
-from ..model.aspect import Aspect
-from ..model.conversion import Conversion
-from ..model.type.aspect import Limit, CashFlow, Land, Emission, Life, Loss
+from ..model.type.aspect import CashFlow, Emission, Land, Life, Limit, Loss
 from ..model.type.disposition import *
-from .temporal_scale import TemporalScale
-from .type.resource import ResourceType
-from .type.process import ProcessType
+from ..utils.data_utils import get_depth
+from .material import Material
 from .resource import Resource
+from .temporal_scale import TemporalScale
+from .type.process import ProcessType
+from .type.resource import ResourceType
 
 
 @dataclass

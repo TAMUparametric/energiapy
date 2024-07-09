@@ -10,8 +10,8 @@ from itertools import product
 from typing import List, Set
 from warnings import warn
 
-from .type.temporal_scale import ScaleType
 from ..model.type.disposition import TemporalDisp
+from .type.temporal_scale import ScaleType
 
 
 @dataclass

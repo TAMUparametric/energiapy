@@ -1,24 +1,26 @@
 
 from dataclasses import dataclass
 from typing import Dict, List, Tuple, Union
-from .parameter import Parameter
-from .variable import Variable
-from .constraint import Constraint
-from .type.aspect import Limit, CashFlow, Land, Life, Loss, Emission
-from ..components.temporal_scale import TemporalScale
+
 from pandas import DataFrame
+
+from ..components.temporal_scale import TemporalScale
+from .constraint import Constraint
 from .data import Data
+from .parameter import Parameter
 from .theta import Theta
-from .type.disposition import SpatialDisp, TemporalDisp
-from .type.variability import Certainty, Approach
-from .type.match import matches
+from .type.aspect import CashFlow, Emission, Land, Life, Limit, Loss
 from .type.bound import Bound
-from .unbound import Unbound, BigM, smallm
+from .type.condition import Condition
+from .type.disposition import TemporalDisp
+from .rulebook import rulebook
+from .type.certainty import Approach, Certainty
+from .unbound import BigM, Unbound
+from .variable import Variable
 
 
 @dataclass
 class Aspect:
-
     aspect: Union[Limit, CashFlow, Land, Life, Loss, Emission]
     component: Union['Resource', 'Process', 'Location', 'Transport', 'Network']
 
@@ -34,14 +36,17 @@ class Aspect:
             declared_at: Union['Resource', 'Process', 'Location', 'Transport', Tuple['Location'], 'Network'], scales: TemporalScale = None):
 
         if isinstance(value, dict):
-            for i in list(value):
-                if i not in [j.name.lower() for j in TemporalDisp.all()]:
-                    raise ValueError(
-                        f'{self.name}: keys for dict must be a TemporalScale.scales')
+            if scales is None:
+                raise ValueError(
+                    f'{self.name}: please provide {component}.scales = scales, where scales is a TemporalScale object')
+            elif not all(i in scales.scales for i in value):
+                raise ValueError(
+                    f'{self.name}: keys for dict must be within scales.scales, where scales is a TemporalScale object')
+
         else:
             value = {'t0': value}
 
-        for tempd_, value_ in value.items():
+        for tempd, value_ in value.items():
 
             bound, certainty, approach = ([None, None] for _ in range(3))
 
@@ -51,25 +56,23 @@ class Aspect:
                     certainty[0], approach[0] = Certainty.UNCERTAIN, Approach.DATA
                 else:
                     certainty[0], approach[0] = Certainty.CERTAIN, None
-                value_ = [value_]
 
             elif isinstance(value_, (Unbound, bool)):
                 bound[0], certainty[0], approach[0] = Bound.UNBOUNDED, Certainty.CERTAIN, None
                 if value_ is True:
                     value_ = BigM
-                value_ = [value_]
-                
+
             elif isinstance(value_, (tuple, Theta)):
                 bound[0], certainty[0], approach[0] = Bound.PARAMETRIC, Certainty.UNCERTAIN, Approach.PARAMETRIC
-                value_ = [value_]
 
             elif isinstance(value_, list):
+
                 if len(value_) > 2:
                     raise ValueError(
                         f'{self.name}: value_s must be a scalar, a tuple, or a list of length 2 or 1')
 
                 if len(value_) == 1:
-                    value_ = [0] + value_[0]
+                    value_ = [0] + value_
 
                 if len(value_) == 2:
                     low_or_up = {0: Bound.LOWER, 1: Bound.UPPER}
@@ -85,81 +88,62 @@ class Aspect:
                         elif isinstance(value_[i], Data):
                             bound[i], certainty[i], approach[i] = low_or_up[i], Certainty.UNCERTAIN, Approach.DATA
 
-            for i,j in enumerate(list(value_)):
-                
-                parameter = Parameter(value=j, aspect=aspect, component=component, declared_at=declared_at, scales=scales,
-                                      bound=bound[i], certainty=certainty[i], approach=approach[i], temporal=TemporalDisp.get_tdisp(tempd_))
-                if parameter not in self.parameters:
-                    self.parameters.append(parameter)
-                    
-    
-                for i in matches.find(aspect):
-                    
+            if not isinstance(value_, list):
+                value_ = [value_]
+
+            for i, j in enumerate(list(value_)):
+
+                for rule in rulebook.find(aspect):
+
+                    parameter_, associated_, bound_ = (None for _ in range(3))
+
+                    parameter = Parameter(value=j, aspect=aspect, component=component, declared_at=declared_at, scales=scales,
+                                          bound=bound[i], certainty=certainty[i], approach=approach[i], temporal=TemporalDisp.get_tdisp(tempd))
+
                     variable = Variable(aspect=aspect, component=component, declared_at=declared_at, spatial=parameter.spatial,
-                                         temporal=parameter.temporal, disposition=parameter.disposition, index=parameter.index)
-                
-                    if variable not in self.variables:
-                        self.variables.append(variable)
-                        
-                    if i.associated:
-                        associated = Variable(aspect=i.associated, component=component, declared_at=declared_at, spatial=parameter.spatial,
-                                            temporal=parameter.temporal, disposition=parameter.disposition, index=parameter.index)
+                                        temporal=parameter.temporal, disposition=parameter.disposition, index=parameter.index)
+
+                    self.parameters = sorted(
+                        list(set(self.parameters) | {parameter}))
+                    self.variables = sorted(
+                        list(set(self.variables) | {variable}))
+
+                    if rule.associated:
+                        associated_ = Variable(aspect=rule.associated, component=component, declared_at=declared_at, spatial=parameter.spatial,
+                                               temporal=parameter.temporal, disposition=parameter.disposition, index=parameter.index)
+                    if rule.parameter:
+                        parameter_ = parameter
+
+                    if rule.condition == Condition.BIND:
+                        bound_ = parameter.bound
+
+
+                    if rule.declared_at and declared_at.class_name() != rule.declared_at:
+                        continue
                     else:
-                        associated = None
-                        
-                    constraint = Constraint(condition=i.condition, variable=variable,
-                                         associated=associated, parameter=parameter, bound=parameter.bound)
-                    
-                    if constraint not in self.constraints:
-                        self.constraints.append(constraint)
-                    
-                
+                        constraint = Constraint(condition=rule.condition, variable=variable,
+                                                associated=associated_, parameter=parameter_, bound=bound_, rhs=rule.rhs)
 
-        # for parameter in self.parameters:
-        #     aspect = parameter.aspect
-        #     for i in matches.find(aspect):
-        #         variable_, associated_, parameter_, bound_= (
-        #             None for _ in range(4))
+                        self.constraints = sorted(list(
+                            set(self.constraints) | {constraint}))
 
-                # bound_ = parameter.bound
-                # print(bound_)
+    def params(self):
+        """prints parameters
+        """
+        for i in getattr(self, 'parameters'):
+            print(i)
 
-                # if i.variable:
-                #     variable_ = Variable(aspect=aspect, component=component, declared_at=declared_at, spatial=parameter.spatial,
-                #                          temporal=parameter.temporal, disposition=parameter.disposition, index=parameter.index)
-                #     if variable_ not in self.variables:
-                #         self.variables.append(variable_)
+    def vars(self):
+        """prints variables
+        """
+        for i in getattr(self, 'variables'):
+            print(i)
 
-                # if i.associated:
-                #     associated_ = Variable(aspect=i.associated, component=component, declared_at=declared_at, spatial=parameter.spatial,
-                #                            temporal=parameter.temporal, disposition=parameter.disposition, index=parameter.index)
-
-                # if i.parameter:
-                #     parameter_ = parameter
-
-                # constraint_ = Constraint(condition=i.condition, variable=variable_,
-                #                          associated=associated_, parameter=parameter_, bound=bound_)
-
-                # if constraint_ not in self.constraints:
-                #     self.constraints.append(constraint_)
-
-    def __repr__(self):
-        return self.name
-
-    def __hash__(self):
-        return hash(self.name)
-
-    def __eq__(self, other):
-        return self.name == other.name
-
-
-@dataclass
-class AspectOver:
-    aspect: Union[Limit, Loss]
-    temporal: TemporalDisp
-
-    def __post_init__(self):
-        self.name = f'{self.aspect.name.lower()}_over:{self.temporal.name.lower()}'
+    def cons(self):
+        """prints constraints
+        """
+        for i in getattr(self, 'constraints'):
+            print(i)
 
     def __repr__(self):
         return self.name

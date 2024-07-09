@@ -18,15 +18,7 @@ from pandas import DataFrame
 
 from ..model.bounds import CapacityBounds
 from ..model.weights import EmissionWeights
-from .type.emission import EmissionType
-from .type.location import LocationType
-from .type.network import NetworkType
-from .type.process import ProcessType
-from .type.resource import ResourceType
-from .type.scenario import ScenarioType
-from .type.transport import TransportType
 from .location import Location
-from .network import Network
 from .model.location import LocationParamType
 from .model.network import NetworkParamType
 from .model.paramtype import (FactorType, LocalizationType, MPVarType,
@@ -34,8 +26,16 @@ from .model.paramtype import (FactorType, LocalizationType, MPVarType,
 from .model.process import ProcessParamType
 from .model.resource import ResourceParamType
 from .model.transport import TransportParamType
+from .network import Network
 from .resource import Resource
 from .temporal_scale import TemporalScale
+from .type.emission import EmissionType
+from .type.location import LocationType
+from .type.network import NetworkType
+from .type.process import ProcessType
+from .type.resource import ResourceType
+from .type.scenario import ScenarioType
+from .type.transport import TransportType
 
 
 @dataclass

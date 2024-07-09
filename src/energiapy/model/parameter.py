@@ -6,10 +6,10 @@ from pandas import DataFrame
 from ..components.temporal_scale import TemporalScale
 from .data import Data
 from .theta import Theta, birth_theta
-from .type.disposition import SpatialDisp, TemporalDisp
-from .type.aspect import Limit, CashFlow, Land, Life, Loss, Emission
-from .type.variability import Certainty, Approach
+from .type.aspect import CashFlow, Emission, Land, Life, Limit, Loss
 from .type.bound import Bound
+from .type.disposition import SpatialDisp, TemporalDisp
+from .type.certainty import Approach, Certainty
 
 
 @dataclass
@@ -28,7 +28,7 @@ class Parameter:
     scales: TemporalScale = None
 
     def __post_init__(self):
-        
+
         if isinstance(self.value, (tuple, Theta)):
             theta_ = birth_theta(
                 value=self.value, component=self.component, declared_at=self.declared_at, aspect=self.aspect,
@@ -40,13 +40,13 @@ class Parameter:
 
         if isinstance(self.value, (DataFrame, Data)):
             data_ = Data(data=self.value, scales=self.scales, component=self.component, declared_at=self.declared_at,
-                             aspect=self.aspect)
+                         aspect=self.aspect)
             self.value = data_
-            for i in ['temporal', 'name', 'nominal', 'index', 'disposition']:
+            for i in ['temporal', 'name', 'index', 'disposition']:
                 setattr(self, i, getattr(data_, i))
-        
+
         if self.declared_at.class_name() in ['Process', 'Location', 'Linkage']:
-            if self.declared_at.class_name()!= self.component.class_name():
+            if self.declared_at.class_name() != self.component.class_name():
                 self.spatial = (getattr(SpatialDisp, self.component.class_name(
                 ).upper()), getattr(SpatialDisp, self.declared_at.class_name().upper()))
             else:
@@ -61,18 +61,24 @@ class Parameter:
         comp = f'{self.component.name}'
         dec_at = f'{self.declared_at.name}'
         temp = f'{self.temporal.name.lower()}'
-        
+
         if self.bound == Bound.LOWER:
             bnd = '_lb'
         elif self.bound == Bound.UPPER:
             bnd = '_ub'
         else:
             bnd = ''
-            
+
         if not hasattr(self, 'name'):
             self.index = tuple(dict.fromkeys([comp, dec_at, temp]).keys())
             self.name = f'{par}{bnd}{self.index}'
-
+    
+    def __lt__(self, other):
+        return self.name < other.name
+    
+    def __gt__(self, other):
+        return self.name > other.name
+    
     def __repr__(self):
         return self.name
 

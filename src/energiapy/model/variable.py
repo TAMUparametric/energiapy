@@ -1,11 +1,12 @@
 from dataclasses import dataclass
 from typing import Tuple, Union
-from .type.disposition import SpatialDisp, TemporalDisp
-from .type.aspect import Limit, CashFlow, Land, Life, Loss
-from .type.special import SpecialParameter
-from .type.variability import Certainty, Approach
-from .type.bound import Bound
+
 from ..components.temporal_scale import TemporalScale
+from .type.aspect import CashFlow, Land, Life, Limit, Loss
+from .type.bound import Bound
+from .type.disposition import SpatialDisp, TemporalDisp
+from .type.special import SpecialParameter
+from .type.certainty import Approach, Certainty
 
 
 @dataclass
@@ -31,7 +32,13 @@ class Variable:
 
         self.index = tuple(dict.fromkeys([comp, dec_at, temp]).keys())
         self.name = f'{var}{self.index}'
-
+        
+    def __lt__(self, other):
+        return self.name < other.name
+    
+    def __gt__(self, other):
+        return self.name > other.name
+    
     def __repr__(self):
         return self.name
 
