@@ -104,7 +104,7 @@ class Resource:
 
     """
 
-    name: str
+    name: str = None
     # Temporal scale
     # not needed if no deterministic data or parameter scale is provided
     scales: TemporalScale = None
@@ -192,15 +192,15 @@ class Resource:
 
         # *----------------- Update Aspect ---------------------------------
 
-        for i in self.all():  # iter over all aspects
-            asp_ = i.name.lower()  # get name of aspect
-            if getattr(self, asp_) is not None:
-                attr = getattr(self, asp_)
+        # for i in self.all():  # iter over all aspects
+        #     asp_ = i.name.lower()  # get name of aspect
+        #     if getattr(self, asp_) is not None:
+        #         attr = getattr(self, asp_)
 
-                aspect = Aspect(aspect=i, component=self)
-                aspect.add(value=attr, aspect=i, component=self,
-                           scales=self.scales, declared_at=self)
-                setattr(self, asp_, aspect)
+        #         aspect = Aspect(aspect=i, component=self)
+        #         aspect.add(value=attr, aspect=i, component=self,
+        #                    scales=self.scales, declared_at=self)
+        #         setattr(self, asp_, aspect)
 
         # *-----------------Random name ---------------------------------
         # A random name is generated if self.name = None
@@ -236,7 +236,18 @@ class Resource:
                 f'{self.name}: cons_max has been depreciated. Please use consume instead')
 
     def __setattr__(self, name, value):
+        
         super().__setattr__(name, value)
+
+        if getattr(self, name) is not None:
+            attr = getattr(self, name)
+            aspect_match = {i.name.lower(): i for i in Limit.all()}
+
+            aspect = Aspect(aspect=aspect_match[name], component=self)
+            aspect.add(value=attr, aspect=aspect_match[name], component=self,
+                       scales=self.scales, declared_at=self)
+            setattr(self, name, aspect)
+
         for i in ['parameters', 'variables', 'constraints']:
             if hasattr(getattr(self, name), i):
                 getattr(self, i).extend(getattr(getattr(self, name), i))
@@ -288,7 +299,7 @@ class Resource:
         return cls.limits() + cls.cashflows() + cls.emissions() + cls.losses()
 
     # *----------- Hashing --------------------------------
-    
+
     def __lt__(self, other):
         return self.name < other.name
 

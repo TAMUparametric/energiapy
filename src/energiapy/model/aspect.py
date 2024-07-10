@@ -26,6 +26,7 @@ class Aspect:
 
     def __post_init__(self):
         self.name = f'{self.aspect.name.lower().capitalize()}({self.component.name})'
+        # self.name = f'{self.aspect.name.lower().capitalize()}({self.component.name})'
         self.parameters = list()
         self.variables = list()
         self.constraints = list()
@@ -34,7 +35,8 @@ class Aspect:
                                DataFrame, Dict[int, DataFrame], Dict[int, Data], Tuple[float], Theta], aspect: Union[Limit, CashFlow, Land, Life, Loss, Emission],
             component: Union['Resource', 'Process', 'Location', 'Transport', 'Network'],
             declared_at: Union['Resource', 'Process', 'Location', 'Transport', Tuple['Location'], 'Network'], scales: TemporalScale = None):
-
+        print(scales)
+        print(component.name)
         if isinstance(value, dict):
             if scales is None:
                 raise ValueError(

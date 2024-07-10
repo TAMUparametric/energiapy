@@ -103,12 +103,12 @@ class Process:
         >>> CoolCar = Process(name = 'CoolCar', conversion = {1: {Power: -1, Mile: 1}, 2: {H2: -1, Mile:2}, cap_max= 50, capex = 70, label = 'CoolCar')
 
     """
-    name: str
     conversion: Union[Dict[Union[int, str], Dict[Resource, float]],
                       Dict[Resource, float]]
     # Design parameters
     capacity: Union[float, bool, 'BigM', List[Union[float, 'BigM']],
                     DataFrame, Tuple[Union[float, DataFrame, Factor]], Theta]
+    name: str = None
     land_use: float = None  # Union[float, Tuple[float], Theta]
     material_cons: Union[Dict[Union[int, str],
                               Dict[Material, float]], Dict[Material, float]] = None
@@ -420,6 +420,10 @@ class Process:
         """Set when Location is declared
         """
         return ProcessType.location_level()
+    
+    @property
+    def comptype(self)->str:
+        return self.__class__.__name__
 
     # *----------- Hashing --------------------------------
 

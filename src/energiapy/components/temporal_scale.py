@@ -203,7 +203,15 @@ class TemporalScale:
         """All TemporalScale classifications
         """
         return ScaleType.all()
+    
+    @classmethod
+    def class_name(cls) -> str:
+        return cls.__name__
 
+    @property
+    def comptype(self)->str:
+        return self.__class__.__name__
+    
     # * -----------------------Functions---------------------------------------------
 
     def scale_iter(self, scale_level):
