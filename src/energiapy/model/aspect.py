@@ -8,13 +8,13 @@ from ..components.temporal_scale import TemporalScale
 from .constraint import Constraint
 from .data import Data
 from .parameter import Parameter
+from .rulebook import rulebook
 from .theta import Theta
 from .type.aspect import CashFlow, Emission, Land, Life, Limit, Loss
 from .type.bound import Bound
+from .type.certainty import Approach, Certainty
 from .type.condition import Condition
 from .type.disposition import TemporalDisp
-from .rulebook import rulebook
-from .type.certainty import Approach, Certainty
 from .unbound import BigM, Unbound
 from .variable import Variable
 
@@ -64,29 +64,37 @@ class Aspect:
 
             elif isinstance(value_, (tuple, Theta)):
                 bound[0], certainty[0], approach[0] = Bound.PARAMETRIC, Certainty.UNCERTAIN, Approach.PARAMETRIC
+                if len(value_) != 2:
+                    raise ValueError(
+                        f'{self.name}: values must a tuple of length 2')
+                low_or_up = {0: Bound.LOWER, 1: Bound.UPPER}
+                value_ = tuple([Data(data=j, scales=scales, bound=low_or_up[i],
+                                     aspect=aspect, declared_at=declared_at,
+                                     component=component) if isinstance(
+                    j, (Data, DataFrame)) else j for i, j in enumerate(value_)])
 
             elif isinstance(value_, list):
 
                 if len(value_) > 2:
                     raise ValueError(
-                        f'{self.name}: value_s must be a scalar, a tuple, or a list of length 2 or 1')
+                        f'{self.name}: list can be of length 2 [lb, ub] or 1 [ub]')
 
                 if len(value_) == 1:
                     value_ = [0] + value_
 
-                if len(value_) == 2:
-                    low_or_up = {0: Bound.LOWER, 1: Bound.UPPER}
-                    value_ = [BigM if i is True else i for i in value_]
-                    value_ = [Data(data=j, scales=scales, bound=low_or_up[i]) if isinstance(
-                        j, (DataFrame, dict)) else j for i, j in enumerate(value_)]
-                    value_ = sorted(value_)
-                    for i in range(2):
-                        if isinstance(value_[i], (float, int)):
-                            bound[i], certainty[i], approach[i] = low_or_up[i], Certainty.CERTAIN, None
-                        elif isinstance(value_[i], Unbound):
-                            bound[i], certainty[i], approach[i] = Bound.UNBOUNDED, Certainty.CERTAIN, None
-                        elif isinstance(value_[i], Data):
-                            bound[i], certainty[i], approach[i] = low_or_up[i], Certainty.UNCERTAIN, Approach.DATA
+                low_or_up = {0: Bound.LOWER, 1: Bound.UPPER}
+                value_ = [BigM if i is True else i for i in value_]
+                value_ = [Data(data=j, scales=scales, bound=low_or_up[i]) if isinstance(
+                    j, (DataFrame, Data)) else j for i, j in enumerate(value_)]
+                value_ = sorted(value_)
+
+                for i in range(2):
+                    if isinstance(value_[i], (float, int)):
+                        bound[i], certainty[i], approach[i] = low_or_up[i], Certainty.CERTAIN, None
+                    elif isinstance(value_[i], Unbound):
+                        bound[i], certainty[i], approach[i] = Bound.UNBOUNDED, Certainty.CERTAIN, None
+                    elif isinstance(value_[i], Data):
+                        bound[i], certainty[i], approach[i] = low_or_up[i], Certainty.UNCERTAIN, Approach.DATA
 
             if not isinstance(value_, list):
                 value_ = [value_]
@@ -99,7 +107,11 @@ class Aspect:
 
                     parameter = Parameter(value=j, aspect=aspect, component=component, declared_at=declared_at, scales=scales,
                                           bound=bound[i], certainty=certainty[i], approach=approach[i], temporal=TemporalDisp.get_tdisp(tempd))
-
+                    
+                    if isinstance(parameter.value, (Data, Theta)) and len(parameter.value) != scales.index_n_dict[tempd]:
+                        raise ValueError(
+                            f'{self.name}: length of data does not match scale index')
+                    
                     variable = Variable(aspect=aspect, component=component, declared_at=declared_at, spatial=parameter.spatial,
                                         temporal=parameter.temporal, disposition=parameter.disposition, index=parameter.index)
 
@@ -116,7 +128,6 @@ class Aspect:
 
                     if rule.condition == Condition.BIND:
                         bound_ = parameter.bound
-
 
                     if rule.declared_at and declared_at.class_name() != rule.declared_at:
                         continue

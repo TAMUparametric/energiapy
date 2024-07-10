@@ -8,8 +8,8 @@ from .data import Data
 from .theta import Theta, birth_theta
 from .type.aspect import CashFlow, Emission, Land, Life, Limit, Loss
 from .type.bound import Bound
-from .type.disposition import SpatialDisp, TemporalDisp
 from .type.certainty import Approach, Certainty
+from .type.disposition import SpatialDisp, TemporalDisp
 
 
 @dataclass
@@ -40,7 +40,7 @@ class Parameter:
 
         if isinstance(self.value, (DataFrame, Data)):
             data_ = Data(data=self.value, scales=self.scales, component=self.component, declared_at=self.declared_at,
-                         aspect=self.aspect)
+                         aspect=self.aspect, bound=self.bound)
             self.value = data_
             for i in ['temporal', 'name', 'index', 'disposition']:
                 setattr(self, i, getattr(data_, i))

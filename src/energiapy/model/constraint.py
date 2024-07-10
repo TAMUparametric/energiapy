@@ -6,10 +6,10 @@ from .data import Data
 from .parameter import Parameter
 from .type.aspect import CashFlow, Land, Life, Limit, Loss
 from .type.bound import Bound
+from .type.certainty import Approach, Certainty
 from .type.condition import Condition, RightHandSide, SumOver
 from .type.disposition import SpatialDisp, TemporalDisp
 from .type.special import SpecialParameter
-from .type.certainty import Approach, Certainty
 from .variable import Variable
 
 

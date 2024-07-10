@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from typing import List, Union
+
 from .type.aspect import CashFlow, Emission, Land, Life, Limit, Loss
 from .type.condition import Condition, RightHandSide, SumOver
 

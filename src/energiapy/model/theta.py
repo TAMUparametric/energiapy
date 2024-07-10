@@ -3,12 +3,13 @@
 from dataclasses import dataclass
 from typing import List, Optional, Union
 from warnings import warn
-
+from pandas import DataFrame
+from .data import Data
 from .type.aspect import *
 from .type.bound import Bound
+from .type.certainty import Approach, Certainty
 from .type.disposition import *
 from .type.special import SpecialParameter
-from .type.certainty import Approach, Certainty
 
 
 @dataclass
@@ -103,6 +104,9 @@ class Theta:
         return cls.__name__
 
     #  *----------------- Hashing ---------------------------------------------
+
+    def __len__(self):
+        return max([len(i) if isinstance(i, (DataFrame, Data)) else 1 for i in self.bounds])
 
     def __repr__(self):
         return self.name

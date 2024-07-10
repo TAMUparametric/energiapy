@@ -2,15 +2,9 @@
 """
 import uuid
 from dataclasses import dataclass
-from typing import List, Tuple, Union
-
-from pandas import DataFrame
-
+from typing import List, Union
 from ..model.aspect import Aspect
-from ..model.data import Data
-from ..model.theta import Theta
 from ..model.type.aspect import CashFlow, Emission, Limit, Loss
-from ..model.unbound import BigM
 from .temporal_scale import TemporalScale
 from .type.resource import ResourceType
 
@@ -114,35 +108,26 @@ class Resource:
     # Temporal scale
     # not needed if no deterministic data or parameter scale is provided
     scales: TemporalScale = None
-    # LimitType
-    discharge: Union[float, bool, 'BigM', List[Union[float, 'BigM']],
-                     DataFrame, Tuple[Union[float, DataFrame, Data]], Theta] = None
-    consume: Union[float, bool, 'BigM', List[Union[float, 'BigM']],
-                   DataFrame, Tuple[Union[float, DataFrame, Data]], Theta] = None
-    store: Union[float, bool, 'BigM', List[Union[float, 'BigM']],
-                 DataFrame, Tuple[Union[float, DataFrame, Data]], Theta] = None
-    transport:  Union[float, bool, 'BigM', List[Union[float, 'BigM']],
-                      DataFrame, Tuple[Union[float, DataFrame, Data]], Theta] = None
+    # Limit Aspect
+    discharge: Limit.types() = None
+    consume: Limit.types() = None
+    store: Limit.types() = None
+    transport:  Limit.types() = None
     # LossType
-    store_loss: Union[float, Tuple[float], Theta] = None
+    store_loss: Loss.types() = None
     # CashFlowType
-    sell_cost: Union[float, Theta, DataFrame,
-                     Tuple[Union[float, DataFrame, Data]]] = None
-    purchase_cost: Union[float, Theta, DataFrame,
-                         Tuple[Union[float, DataFrame, Data]]] = None
-    store_cost: Union[float, Theta, DataFrame,
-                      Tuple[Union[float, DataFrame, Data]]] = None
-    credit: Union[float, Theta, DataFrame,
-                  Tuple[Union[float, DataFrame, Data]]] = None
-    penalty: Union[float, Theta, DataFrame,
-                   Tuple[Union[float, DataFrame, Data]]] = None
+    sell_cost: CashFlow.types() = None
+    purchase_cost: CashFlow.types() = None
+    store_cost: CashFlow.types() = None
+    credit: CashFlow.types() = None
+    penalty: CashFlow.types() = None
     # EmissionType
-    gwp: Union[float, Tuple[float], Theta] = None
-    odp: Union[float, Tuple[float], Theta] = None
-    acid: Union[float, Tuple[float], Theta] = None
-    eutt: Union[float, Tuple[float], Theta] = None
-    eutf: Union[float, Tuple[float], Theta] = None
-    eutm: Union[float, Tuple[float], Theta] = None
+    gwp: Emission.types() = None
+    odp: Emission.types() = None
+    acid: Emission.types() = None
+    eutt: Emission.types() = None
+    eutf: Emission.types() = None
+    eutm: Emission.types() = None
     # Details
     basis: str = None
     block: Union[str, list, dict] = None
@@ -183,7 +168,7 @@ class Resource:
         if self.sell_cost is not None:
             self.ctype.append(ResourceType.SELL)
             if self.discharge is None:
-                self.discharge = BigM
+                self.discharge = True
 
         if self.discharge is not None:
             self.ctype.append(ResourceType.DISCHARGE)
@@ -200,7 +185,7 @@ class Resource:
         if self.purchase_cost:
             self.ctype.append(ResourceType.PURCHASE)
             if self.consume is None:
-                self.consume = BigM
+                self.consume = True
 
         if self.store is not None:
             self.ctype.append(ResourceType.STORE)

@@ -145,7 +145,10 @@ class Data:
 
         else:
             self.name = f'Data|{temp}|'
-
+            
+    def __len__(self):
+        return len(self.data)
+    
     def __lt__(self, other):
         if isinstance(other, (int, float)) and self.bound == Bound.UPPER:
             return False

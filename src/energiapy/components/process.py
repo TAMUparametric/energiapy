@@ -109,7 +109,6 @@ class Process:
     # Design parameters
     capacity: Union[float, bool, 'BigM', List[Union[float, 'BigM']],
                     DataFrame, Tuple[Union[float, DataFrame, Factor]], Theta]
-    capacity_over: int = None
     land_use: float = None  # Union[float, Tuple[float], Theta]
     material_cons: Union[Dict[Union[int, str],
                               Dict[Material, float]], Dict[Material, float]] = None

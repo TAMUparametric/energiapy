@@ -18,7 +18,19 @@ aspect: ParameterType describes what the parameter models. There are subtypes fo
 """
 
 from enum import Enum, auto
-from typing import List
+from typing import List, TypeVar, Union, Dict
+from pandas import DataFrame
+
+Big = TypeVar('Big', bound='BigM')
+
+exact = Union[float, int]
+unbound = Union[bool, 'BigM']
+parametric = Union[tuple, 'Theta']
+dataset = Union[DataFrame, 'DataSet']
+
+direct = Union[exact, unbound, parametric, dataset]
+bounds = List[Union[exact, unbound, dataset]]
+dict_data = Dict[str, Union[direct, bounds]]
 
 
 class AspectType(Enum):
@@ -75,7 +87,7 @@ class Limit(Enum):
     CAPACITY = auto()
     """Process or Transport capacity
     """
-    
+
     @classmethod
     def class_name(cls) -> str:
         """Returns class name 
@@ -97,6 +109,10 @@ class Limit(Enum):
     @classmethod
     def transport(cls) -> List[str]:
         return [Limit.CAPACITY]
+
+    @classmethod
+    def types(cls) -> List:
+        return Union[direct, bounds, dict_data]
 
 
 class CashFlow(Enum):
@@ -130,7 +146,7 @@ class CashFlow(Enum):
     LAND_COST = auto()
     """Expenditure on acquiring land
     """
-    
+
     @classmethod
     def class_name(cls) -> str:
         """Returns class name 
@@ -157,6 +173,10 @@ class CashFlow(Enum):
     def network(cls) -> List[str]:
         return cls.location()
 
+    @classmethod
+    def types(cls) -> List:
+        return Union[direct, dict_data]
+
 
 class Land(Enum):
     """Land use or available at spatial scale 
@@ -167,7 +187,7 @@ class Land(Enum):
     LAND = auto()
     """Upper bound 
     """
-    
+
     @classmethod
     def class_name(cls) -> str:
         """Returns class name 
@@ -189,6 +209,10 @@ class Land(Enum):
     @classmethod
     def network(cls) -> List[str]:
         return cls.location()
+
+    @classmethod
+    def types(cls) -> List:
+        return Union[direct, dict_data]
 
 
 class Emission(Enum):
@@ -222,6 +246,10 @@ class Emission(Enum):
     def all(cls) -> List[str]:
         return [i for i in cls]
 
+    @classmethod
+    def types(cls) -> List:
+        return Union[direct, dict_data]
+
 
 class Life(Enum):
     """Constrictes the life of a Process or Transport 
@@ -238,16 +266,20 @@ class Life(Enum):
     PFAIL = auto()
     """Chance of failure
     """
-    
+
     @classmethod
     def class_name(cls) -> str:
         """Returns class name 
         """
         return cls.__name__
-    
+
     @classmethod
     def all(cls) -> List[str]:
         return [i for i in cls]
+
+    @classmethod
+    def types(cls) -> List:
+        return Union[direct, dict_data]
 
 
 class Loss(Enum):
@@ -255,7 +287,7 @@ class Loss(Enum):
     """
     STORE_LOSS = auto()
     TRANSPORT_LOSS = auto()
-    
+
     @classmethod
     def class_name(cls) -> str:
         """Returns class name 
@@ -269,3 +301,7 @@ class Loss(Enum):
     @classmethod
     def transport(cls) -> List[str]:
         return [Loss.TRANSPORT_LOSS]
+
+    @classmethod
+    def types(cls) -> List:
+        return Union[direct, dict_data]

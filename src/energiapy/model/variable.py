@@ -4,9 +4,9 @@ from typing import Tuple, Union
 from ..components.temporal_scale import TemporalScale
 from .type.aspect import CashFlow, Land, Life, Limit, Loss
 from .type.bound import Bound
+from .type.certainty import Approach, Certainty
 from .type.disposition import SpatialDisp, TemporalDisp
 from .type.special import SpecialParameter
-from .type.certainty import Approach, Certainty
 
 
 @dataclass

@@ -182,6 +182,8 @@ class TemporalScale:
         # length of each scale index
         self.index_n_list = [len(i) for i in self.index_list]
 
+        self.index_n_dict = {self.scales[i]: self.index_n_list[i] for i in range(len(self.index_list)) }
+        
         self.design_index = self.index_list[self.design_scale]
 
         self.scheduling_index = self.index_list[self.scheduling_scale]
