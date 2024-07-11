@@ -186,10 +186,6 @@ class Network:
         for i in self.sinks:
             i.ctype.append(LocationType.SINK)
 
-        # *----------------- Generate Random Name ------------------------
-
-        if not self.name:
-            self.name = f'{self.class_name()}_{uuid.uuid4().hex}'
 
         # *----------------- Depreciation Warnings-----------------------------
 

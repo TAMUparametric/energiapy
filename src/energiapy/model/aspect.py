@@ -4,7 +4,7 @@ from typing import Dict, List, Tuple, Union
 
 from pandas import DataFrame
 
-# from ..components.temporal_scale import TemporalScale
+from ..components.temporal_scale import TemporalScale
 from ..components.horizon import Horizon
 from .constraint import Constraint
 from .dataset import DataSet
@@ -27,7 +27,6 @@ class Aspect:
 
     def __post_init__(self):
         self.name = f'{self.aspect.name.lower().capitalize()}({self.component.name})'
-        # self.name = f'{self.aspect.name.lower().capitalize()}({self.component.name})'
         self.parameters = list()
         self.variables = list()
         self.constraints = list()
@@ -36,20 +35,21 @@ class Aspect:
                                DataFrame, Dict[int, DataFrame], Dict[int, DataSet], Tuple[float], Theta], aspect: Union[Limit, CashFlow, Land, Life, Loss, Emission],
             component: Union['Resource', 'Process', 'Location', 'Transport', 'Network'],
             declared_at: Union['Resource', 'Process', 'Location', 'Transport', Tuple['Location'], 'Network'], horizon: Horizon = None):
-        # print(horizon)
-        # print(component.name)
-        # if isinstance(value, dict):
-        #     if horizon is None:
-        #         raise ValueError(
-        #             f'{self.name}: please provide {component}.scales = scales, where scales is a TemporalScale object')
-        #     elif not all(i in scales.scales for i in value):
-        #         raise ValueError(
-        #             f'{self.name}: keys for dict must be within scales.scales, where scales is a TemporalScale object')
 
-        # else:
-        #     value = {'t0': value}
+        if not isinstance(value, dict):
+            value = {horizon.scales[0]: value}
 
         for tempd, value_ in value.items():
+
+            if tempd == horizon.scales[0]:
+                if isinstance(value_, (DataFrame, DataSet, Theta)):
+                    if len(value_) in horizon.n_indices:
+                        tempd = horizon.scales[horizon.n_indices.index(
+                            len(value_))]
+                        print(tempd)
+                    else:
+                        raise ValueError(
+                            f'{self.name}: length of data must match atleast one scale')
 
             bound, certainty, approach = ([None, None] for _ in range(3))
 
@@ -67,14 +67,16 @@ class Aspect:
 
             elif isinstance(value_, (tuple, Theta)):
                 bound[0], certainty[0], approach[0] = Bound.PARAMETRIC, Certainty.UNCERTAIN, Approach.PARAMETRIC
-                if len(value_) != 2:
+
+                if isinstance(value_, tuple) and len(value_) == 2:
+                    low_or_up = {0: Bound.LOWER, 1: Bound.UPPER}
+                    value_ = tuple([DataSet(data=j, horizon=horizon, bound=low_or_up[i],
+                                            aspect=aspect, declared_at=declared_at,
+                                            component=component) if isinstance(
+                        j, (DataSet, DataFrame)) else j for i, j in enumerate(value_)])
+                else:
                     raise ValueError(
-                        f'{self.name}: values must a tuple of length 2')
-                low_or_up = {0: Bound.LOWER, 1: Bound.UPPER}
-                value_ = tuple([DataSet(data=j, horizon=horizon, bound=low_or_up[i],
-                                        aspect=aspect, declared_at=declared_at,
-                                        component=component) if isinstance(
-                    j, (DataSet, DataFrame)) else j for i, j in enumerate(value_)])
+                        f'{self.name}: tuple must be of length 2')
 
             elif isinstance(value_, list):
 
@@ -109,11 +111,7 @@ class Aspect:
                     parameter_, associated_, bound_ = (None for _ in range(3))
 
                     parameter = Parameter(value=j, aspect=aspect, component=component, declared_at=declared_at, horizon=horizon,
-                                          bound=bound[i], certainty=certainty[i], approach=approach[i], temporal=TemporalDisp.get_tdisp(tempd))
-
-                    if isinstance(parameter.value, (DataSet, Theta)) and len(parameter.value) != horizon.index_n_dict[tempd]:
-                        raise ValueError(
-                            f'{self.name}: length of data does not match scale index')
+                                          bound=bound[i], certainty=certainty[i], approach=approach[i], temporal=tempd)
 
                     variable = Variable(aspect=aspect, component=component, declared_at=declared_at, spatial=parameter.spatial,
                                         temporal=parameter.temporal, disposition=parameter.disposition, index=parameter.index)
@@ -131,13 +129,11 @@ class Aspect:
 
                     if rule.condition == Condition.BIND:
                         bound_ = parameter.bound
-
-                    if rule.declared_at and declared_at.class_name() != rule.declared_at:
+                    if rule.declared_at and declared_at.cname() != rule.declared_at:
                         continue
                     else:
                         constraint = Constraint(condition=rule.condition, variable=variable,
                                                 associated=associated_, parameter=parameter_, bound=bound_, rhs=rule.rhs)
-
                         self.constraints = sorted(list(
                             set(self.constraints) | {constraint}))
 

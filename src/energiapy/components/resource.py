@@ -48,9 +48,9 @@ class Resource:
     store_min: bool = None
 
     def __post_init__(self):
-        
-        self.name, self.horizon = None, None 
-    
+
+        self.name, self.horizon = None, None
+
         for i in ['parameters', 'variables', 'constraints']:
             setattr(self, i, list())
 
@@ -97,21 +97,15 @@ class Resource:
 
         # *----------------- Update Aspect ---------------------------------
 
-        # for i in self.all():  # iter over all aspects
-        #     asp_ = i.name.lower()  # get name of aspect
-        #     if getattr(self, asp_) is not None:
-        #         attr = getattr(self, asp_)
-
-        #         aspect = Aspect(aspect=i, component=self)
-        #         aspect.add(value=attr, aspect=i, component=self,
-        #                    scales=self.scales, declared_at=self)
-        #         setattr(self, asp_, aspect)
-
-        # *-----------------Random name ---------------------------------
-        # A random name is generated if self.name = None
-
-        if not self.name:
-            self.name = f'{self.class_name()}_{uuid.uuid4().hex}'
+        # for i in self.aspects():  # iter over all aspects
+        #     if self.name:
+        #         asp_ = i.name.lower()  # get name of aspect
+        #         if getattr(self, asp_) is not None:
+        #             attr = getattr(self, asp_)
+        #             aspect = Aspect(aspect=i, component=self)
+        #             aspect.add(value=attr, aspect=i, component=self,
+        #                         horizon=self.horizon, declared_at=self)
+        #             setattr(self, asp_, aspect)
 
         # *----------------- Depreciation Warnings---------------------------------
 
@@ -141,17 +135,17 @@ class Resource:
                 f'{self.name}: cons_max has been depreciated. Please use consume instead')
 
     def __setattr__(self, name, value):
-        
         super().__setattr__(name, value)
 
-        if getattr(self, name) is not None:
-            attr = getattr(self, name)
-            aspect_match = {i.name.lower(): i for i in Limit.all()}
-
-            aspect = Aspect(aspect=aspect_match[name], component=self)
-            aspect.add(value=attr, aspect=aspect_match[name], component=self,
-                       scales=self.scales, declared_at=self)
-            setattr(self, name, aspect)
+        for i in self.aspects():  # iter over all aspects
+            if hasattr(self, 'name') and self.name and hasattr(self, 'horizon') and self.horizon:
+                asp_ = i.name.lower()  # get name of aspect
+                attr = getattr(self, asp_)
+                if attr is not None and not isinstance(attr, Aspect):
+                    aspect = Aspect(aspect=i, component=self)
+                    aspect.add(value=attr, aspect=i, component=self,
+                               horizon=self.horizon, declared_at=self)
+                    setattr(self, asp_, aspect)
 
         for i in ['parameters', 'variables', 'constraints']:
             if hasattr(getattr(self, name), i):
@@ -175,35 +169,19 @@ class Resource:
         for i in getattr(self, 'constraints'):
             print(i)
 
-    # *----------------- Class Methods ---------------------------------
+    # *-----------------Methods--------------------
 
-    @classmethod
-    def class_name(cls) -> str:
-        """Returns class name 
-        """
-        return cls.__name__
+    @staticmethod
+    def aspects() -> list:
+        """Returns Resource aspects"""
+        return Limit.resource() + CashFlow.resource() + Emission.all() + Loss.resource()
 
-    @classmethod
-    def limits(cls) -> List[str]:
-        return Limit.resource()
+    @staticmethod
+    def cname() -> str:
+        """Returns class name"""
+        return 'Resource'
 
-    @classmethod
-    def cashflows(cls) -> List[str]:
-        return CashFlow.resource()
-
-    @classmethod
-    def emissions(cls) -> List[str]:
-        return Emission.all()
-
-    @classmethod
-    def losses(cls) -> List[str]:
-        return Loss.resource()
-
-    @classmethod
-    def all(cls) -> List[str]:
-        return cls.limits() + cls.cashflows() + cls.emissions() + cls.losses()
-
-    # *----------- Hashing --------------------------------
+    # *-----------------Magics--------------------
 
     def __lt__(self, other):
         return self.name < other.name
@@ -211,8 +189,10 @@ class Resource:
     def __gt__(self, other):
         return self.name > other.name
 
+    # *----------- Dunders------------------------
+
     def __repr__(self):
-        return self.name
+        return str(self.name)
 
     def __hash__(self):
         return hash(self.name)

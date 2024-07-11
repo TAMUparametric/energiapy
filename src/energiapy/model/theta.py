@@ -72,13 +72,13 @@ class Theta:
 
         if self.aspect:
 
-            if self.declared_at.class_name() in ['Process', 'Location', 'Linkage']:
-                if self.declared_at.class_name() != self.component.class_name():
+            if self.declared_at.cname() in ['Process', 'Location', 'Linkage']:
+                if self.declared_at.cname() != self.component.cname():
                     self.spatial = (getattr(SpatialDisp, self.component.class_name(
-                    ).upper()), getattr(SpatialDisp, self.declared_at.class_name().upper()))
+                    ).upper()), getattr(SpatialDisp, self.declared_at.cname().upper()))
                 else:
                     self.spatial = getattr(
-                        SpatialDisp, self.declared_at.class_name().upper())
+                        SpatialDisp, self.declared_at.cname().upper())
             else:
                 self.spatial = SpatialDisp.NETWORK
 
@@ -106,7 +106,7 @@ class Theta:
     #  *----------------- Hashing ---------------------------------------------
 
     def __len__(self):
-        return max([len(i) if isinstance(i, (DataFrame, Data)) else 1 for i in self.bounds])
+        return max([len(i) if isinstance(i, (DataFrame, DataSet)) else 1 for i in self.bounds])
 
     def __repr__(self):
         return self.name
@@ -121,7 +121,7 @@ class Theta:
 def birth_theta(value: Union[Theta, tuple], component: Union['Resource', 'Process', 'Location', 'Transport', 'Network', 'Scenario'] = None,
                 declared_at: Union['Process', 'Location',
                                    'Transport', 'Network', 'Scenario'] = None,
-                aspect: Union[Limit, CashFlow, Land, Emission, Life, Loss] = None, spatial: SpatialDisp = None, temporal: TemporalDisp = None) -> Theta:
+                aspect: Union[Limit, CashFlow, Land, Emission, Life, Loss] = None, temporal: TemporalDisp = None) -> Theta:
     """Creates a parametric variable
 
     Args:

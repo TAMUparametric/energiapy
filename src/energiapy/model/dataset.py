@@ -41,9 +41,9 @@ class DataSet:
                      'Transport', 'Network', 'Scenario'] = None
     declared_at: Union['Process', 'Location',
                        'Transport', 'Network', 'Scenario'] = None
-    apply_max_scaler: bool = None
-    apply_min_max_scaler: bool = None
-    apply_standard_scaler: bool = None
+    scaling_max: bool = None
+    scaling_min_max: bool = None
+    scaling_standard: bool = None
 
     def __post_init__(self):
 
@@ -65,42 +65,29 @@ class DataSet:
             if len(self.data) in self.horizon.n_indices:
                 index = self.horizon.n_indices.index(len(self.data))
                 self.temporal = self.horizon.scales[index]
-
-                self.data.index = self.horizon.index_list[self.temporal]
-
-                temporal_disps = TemporalDisp.all()
-
-                if self.temporal < 11:
-                    self.temporal = temporal_disps[self.temporal]
-                else:
-                    self.temporal = TemporalDisp.T10PLUS
+                self.data.index = self.horizon.indices[self.temporal]
 
             else:
                 raise ValueError(
                     f'{str(self.aspect).lower()} for {self.component.name}: length of data does not match any scale index')
 
-            if self.apply_min_max_scaler is None:
-                self.apply_min_max_scaler = self.horizon.scale_factors_min_max
+            for i in ['scaling_max', 'scaling_min_max', 'scaling_standard']:
+                if getattr(self, i) is None:
+                    setattr(self, i, getattr(self.horizon, i))
 
-            if self.apply_standard_scaler is None:
-                self.apply_standard_scaler = self.horizon.scale_factors_standard
-
-            if self.apply_max_scaler is None:
-                self.apply_max_scaler = self.horizon.scale_factors_max
-
-            if self.apply_min_max_scaler:
+            if self.scaling_min_max:
                 scaler = MinMaxScaler()
                 self.scaled = 'min_max'
                 self.data = DataFrame(scaler.fit_transform(self.data), columns=self.data.columns).to_dict()[
                     self.data.columns[0]]
 
-            elif self.apply_standard_scaler:
+            elif self.scaling_standard:
                 scaler = StandardScaler()
                 self.scaled = 'standard'
                 self.data = DataFrame(scaler.fit_transform(self.data), columns=self.data.columns).to_dict()[
                     self.data.columns[0]]
 
-            elif self.apply_max_scaler:
+            elif self.scaling_max:
                 self.scaled = 'max'
                 self.data = self.data/self.data.max()
                 self.data = self.data.to_dict()[self.data.columns[0]]
@@ -114,13 +101,13 @@ class DataSet:
                 f'{str(self.aspect.name).lower()} factor for {self.component.name}: please provide DataFrame, DataSet, or a dict of either with the nominal value as key')
 
         if self.aspect:
-            if self.declared_at.class_name() in ['Process', 'Location', 'Linkage']:
-                if self.declared_at.class_name() != self.component.class_name():
+            if self.declared_at.cname() in ['Process', 'Location', 'Linkage']:
+                if self.declared_at.cname() != self.component.cname():
                     self.spatial = (getattr(SpatialDisp, self.component.class_name(
-                    ).upper()), getattr(SpatialDisp, self.declared_at.class_name().upper()))
+                    ).upper()), getattr(SpatialDisp, self.declared_at.cname().upper()))
                 else:
                     self.spatial = getattr(
-                        SpatialDisp, self.declared_at.class_name().upper())
+                        SpatialDisp, self.declared_at.cname().upper())
             else:
                 self.spatial = SpatialDisp.NETWORK
 

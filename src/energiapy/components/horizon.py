@@ -27,47 +27,47 @@ class Horizon:
     Examples:
 
         Import required components:
-        >>> from energiapy.components import System, Horizon
+        >>> from energiapy.components import Scenario, Horizon
 
         A system must be created first:
-        >>> e = System(name='pse')
+        >>> s = Scenario(name='pse')
 
         The planning horizon of the problem can be declared as follows:
-        >>> e.h = Horizon(discretizations=[4])
+        >>> s.h = Horizon(discretizations=[4])
 
         This creates two scales, t0 and t1, with 1 and 4 discretizations respectively.
-        >>> e.h.scales
+        >>> s.h.scales
         [t0, t1]
-        e.t0, e.t1 are TemporalScale objects with an index attribute. 
+        s.t0, s.t1 are TemporalScale objects with an index attributs. 
         t0 always represents the entire planning horizon, and tn represents the nth scale of the horizon.
 
         Consider the example where you want to consider 2 years, with 4 quarters each year.
 
         If nested is True, which is the default: 
-        >>> e.h = Horizon(discretizations=[2, 4])
-        >>> e.t0.index, 
+        >>> s.h = Horizon(discretizations=[2, 4])
+        >>> s.t0.index, 
         [(0,)]
-        >>> e.t1.index
+        >>> s.t1.index
         [(0, 0), (0, 1)]
-        >>> e.t2.index
+        >>> s.t2.index
         [(0, 0, 0), (0, 0, 1), (0, 0, 2), (0, 0, 3), (0, 1, 0), (0, 1, 1), (0, 1, 2), (0, 1, 3)]
 
         If nested is False:
         The total number of discretizations for each scale must be provided in ascending order,
-        and must be divisible by the most granular scale.
-        >>> e.h = Horizon(discretizations=[2, 8], nested=False)
-        >>> e.t0.index, 
+        and must be divisible by the most granular scals.
+        >>> s.h = Horizon(discretizations=[2, 8], nested=False)
+        >>> s.t0.index, 
         [(0,0)]
-        >>> e.t1.index
+        >>> s.t1.index
         [(0, 0), (0, 4)]
-        >>> e.t2.index
+        >>> s.t2.index
         [(0, 0), (0, 1), (0, 2), (0, 3), (0, 4), (0, 5), (0, 6), (0, 7)]
 
         so for a 365 days and 24 hours, the following can be done:
         either 
-        >>> e.h = Horizon(discretizations=[365, 24])
+        >>> s.h = Horizon(discretizations=[365, 24])
         or 
-        >>> e.h = Horizon(discretizations=[365, 8760], nested=False)
+        >>> s.h = Horizon(discretizations=[365, 8760], nested=False)
 
     """
     # divides the horizon into n discretizations. Creates a TemporalScale
@@ -94,7 +94,7 @@ class Horizon:
             self.scales.append(TemporalScale(name=TemporalDisp.all()[
                                i].name.lower(), index=self.make_index(postiion=i, nested=self.nested)))
 
-        self.indices = {i.name: i.index for i in self.scales}
+        self.indices = {i: i.index for i in self.scales}
 
         self.n_indices = [i.n_index for i in self.scales]
 
@@ -105,10 +105,10 @@ class Horizon:
         """HorizonTypes"""
         return HorizonType.all()
 
-    @property
-    def cname(self) -> str:
+    @staticmethod
+    def cname() -> str:
         """Returns class name"""
-        return self.__class__.__name__
+        return 'Horizon'
 
     @property
     def n_scales(self) -> int:

@@ -25,13 +25,13 @@ class TemporalScale:
     """
     name: str
     index: List[tuple]
-        
+
     # * ---------Methods-----------------
 
-    @property
+    @staticmethod
     def cname(self) -> str:
         """Returns class name"""
-        return self.__class__.__name__
+        return 'TemporalScale'
 
     @property
     def n_index(self) -> int:

@@ -46,13 +46,13 @@ class Parameter:
             for i in ['temporal', 'name', 'index', 'disposition']:
                 setattr(self, i, getattr(data_, i))
 
-        if self.declared_at.class_name() in ['Process', 'Location', 'Linkage']:
-            if self.declared_at.class_name() != self.component.class_name():
+        if self.declared_at.cname() in ['Process', 'Location', 'Linkage']:
+            if self.declared_at.cname() != self.component.cname():
                 self.spatial = (getattr(SpatialDisp, self.component.class_name(
-                ).upper()), getattr(SpatialDisp, self.declared_at.class_name().upper()))
+                ).upper()), getattr(SpatialDisp, self.declared_at.cname().upper()))
             else:
                 self.spatial = getattr(
-                    SpatialDisp, self.declared_at.class_name().upper())
+                    SpatialDisp, self.declared_at.cname().upper())
         else:
             self.spatial = SpatialDisp.NETWORK
 

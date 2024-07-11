@@ -203,11 +203,6 @@ class Transport:
                 self.etype.append(etype_)
                 self.emissions[i.lower()] = attr_
 
-        # *----------------- Generate Random Name---------------------------------
-        # A random name is generated if self.name = None
-
-        if not self.name:
-            self.name = f'{self.class_name()}_{uuid.uuid4().hex}'
 
         # *----------------- Depreciation Warnings------------------------------------
         if self.trans_max:
@@ -325,7 +320,7 @@ class Transport:
             if isinstance(attr_, (tuple, Theta)):
                 self.aspect[aspect_] = ParameterType.UNCERTAIN
                 theta_ = birth_theta(
-                    value=attr_, component=self, aspect=getattr(MPVarType, f'{self.class_name()}_{parameter}'.upper()))
+                    value=attr_, component=self, aspect=getattr(MPVarType, f'{self.cname}_{parameter}'.upper()))
                 setattr(self, parameter.lower(), theta_)
             elif hasattr(attr_, 'bigm') or attr_ is True:
                 self.aspect[aspect_] = ParameterType.BIGM

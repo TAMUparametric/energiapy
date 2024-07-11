@@ -27,7 +27,7 @@ class Variable:
         temp = f'{self.temporal.name.lower()}'
 
         # capacity has no resource index and is a Process or Transport property
-        if self.declared_at.class_name() in ['Process', 'Transport'] and self.aspect == Limit.CAPACITY:
+        if self.declared_at.cname() in ['Process', 'Transport'] and self.aspect == Limit.CAPACITY:
             comp = ''
 
         self.index = tuple(dict.fromkeys([comp, dec_at, temp]).keys())

@@ -271,16 +271,17 @@ class Process:
         # Factors can be declared at Location (Location, DataFrame), gets converted to  (Location, Factor)
 
         for i in self.all():
-            asp_ = i.name 
+            asp_ = i.name
             if getattr(self, asp_.lower()) is not None:
                 attr = getattr(self, asp_.lower())
-                temporal = None 
+                temporal = None
                 if i in self.limits():
                     temporal = getattr(self, f'{i.lower()}_over')
-                
+
                 aspect = Aspect(aspect=i, component=self)
-                
-                aspect.add(value=attr, aspect=i, component=self, declared_at=self, temporal=temporal, scales=self.scales)   
+
+                aspect.add(value=attr, aspect=i, component=self,
+                           declared_at=self, temporal=temporal, horizon=self.horizon)
 
                 setattr(self, asp_.lower(), aspect)
 
@@ -288,7 +289,7 @@ class Process:
 
         # set resource parameters to base if not given as dictionary.
         for i in self.all():
-            asp_ = i.name 
+            asp_ = i.name
             if getattr(self, asp_.lower()) is not None and not isinstance(getattr(self, asp_.lower()), dict):
                 if i in self.resource_inputs():
                     raise ValueError(
@@ -302,19 +303,20 @@ class Process:
             if getattr(self, asp_) is not None and not isinstance(getattr(self, asp_), dict):
                 if len(self.conversion.discharge) == 1:
                     setattr(self, asp_, {self.base: getattr(self, asp_)})
-                    
+
                 elif len(self.conversion.consume) == 1:
-                    setattr(self, asp_, {self.conversion.consume[0]: getattr(self, asp_)})
+                    setattr(self, asp_, {
+                            self.conversion.consume[0]: getattr(self, asp_)})
                 else:
-                    raise ValueError(f'{self.name}: {asp_} needs to be provided as a dict of Resources given that 
-                                     there are multiple involved')
-                            
+                    raise ValueError(
+                        f'{self.name}: {asp_} needs to be provided as a dict of Resources given that there are multiple involved')
+
                 attr = getattr(self, asp_)
                 temporal = None
 
                 if i in self.resource_limits() + self.resource_losses():
                     temporal = getattr(self, f'{asp_}_over')
-                
+
                 for j in attr:
                     if temporal:
                         temporal_ = temporal[j]
@@ -322,16 +324,11 @@ class Process:
                         aspect = Aspect(aspect=i, component=j)
                     else:
                         aspect = attr[j]
-            
-                    aspect.add(value=attr[j], aspect=i, component=j, declared_at=self, temporal=temporal_, scales=self.scales)
-                    
-                    setattr(j, asp_, aspect)
-                    
-        # *----------------- Generate Random Name---------------------------------
-        # A random name is generated if self.name = None
 
-        if not self.name:
-            self.name = f'{self.class_name()}_{uuid.uuid4().hex}'
+                    aspect.add(value=attr[j], aspect=i, component=j,
+                               declared_at=self, temporal=temporal_, scales=self.scales)
+
+                    setattr(j, asp_, aspect)
 
         # *----------------- Depreciation Warnings------------------------------------
 
@@ -357,11 +354,10 @@ class Process:
     # *----------------- Class Methods -----------------------------------------
     # * component class types
 
-    @classmethod
-    def class_name(cls) -> str:
-        """Returns class name 
-        """
-        return cls.__name__
+    @staticmethod
+    def cname() -> str:
+        """Returns class name"""
+        return 'Process'
 
     @classmethod
     def cashflows(cls) -> List[str]:
@@ -390,19 +386,19 @@ class Process:
     @classmethod
     def resource_inputs(cls) -> List[str]:
         return [CashFlow.PURCHASE_COST, Limit.CONSUME]
-    
+
     @classmethod
     def resource_all(cls) -> List[str]:
         return Resource.all()
-   
+
     @classmethod
     def resource_limits(cls) -> List[str]:
         return Resource.limits()
-   
+
     @classmethod
     def resource_losses(cls) -> List[str]:
         return Resource.losses()
-   
+
     @classmethod
     def ctypes(cls) -> Set[str]:
         """All Process paramters
@@ -420,9 +416,9 @@ class Process:
         """Set when Location is declared
         """
         return ProcessType.location_level()
-    
+
     @property
-    def comptype(self)->str:
+    def comptype(self) -> str:
         return self.__class__.__name__
 
     # *----------- Hashing --------------------------------
