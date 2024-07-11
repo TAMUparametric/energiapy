@@ -137,14 +137,14 @@ class Resource:
     def __setattr__(self, name, value):
         super().__setattr__(name, value)
 
-        for i in self.aspects():  # iter over all aspects
-            if hasattr(self, 'name') and self.name and hasattr(self, 'horizon') and self.horizon:
+        if hasattr(self, 'name') and self.name and hasattr(self, 'horizon') and self.horizon:
+            for i in self.aspects():  # iter over all aspects
                 asp_ = i.name.lower()  # get name of aspect
                 attr = getattr(self, asp_)
                 if attr is not None and not isinstance(attr, Aspect):
                     aspect = Aspect(aspect=i, component=self)
                     aspect.add(value=attr, aspect=i, component=self,
-                               horizon=self.horizon, declared_at=self)
+                                horizon=self.horizon, declared_at=self)
                     setattr(self, asp_, aspect)
 
         for i in ['parameters', 'variables', 'constraints']:
