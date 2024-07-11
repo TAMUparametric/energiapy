@@ -1,8 +1,6 @@
 from dataclasses import dataclass
 from itertools import product
-from typing import List, Set
-from warnings import warn
-
+from typing import List
 from ..model.type.disposition import TemporalDisp
 from .type.horizon import HorizonType
 from .temporal_scale import TemporalScale
@@ -24,14 +22,15 @@ class Horizon:
         scales (List[TemporalScale]): list of TemporalScale objects, generated post-initialization.
         n_scales (int): number of scales, generated post-initialization.
         indices (dict): dictionary of indices, generated post-initialization.
-        n_indices (dict): dictionary of number of indices, generated post-initialization.
+        n_indices (list): list of number of indices, generated post-initialization.
 
     Examples:
+
         Import required components:
-        >>> from energiapy.components import EnergySystem, Horizon
+        >>> from energiapy.components import System, Horizon
 
         A system must be created first:
-        >>> e = EnergySystem(name='pse')
+        >>> e = System(name='pse')
 
         The planning horizon of the problem can be declared as follows:
         >>> e.h = Horizon(discretizations=[4])
@@ -97,7 +96,7 @@ class Horizon:
 
         self.indices = {i.name: i.index for i in self.scales}
 
-        self.n_indices = {i.name: i.n_index for i in self.scales}
+        self.n_indices = [i.n_index for i in self.scales]
 
     # * ---------Methods-----------------
 
@@ -133,8 +132,8 @@ class Horizon:
 
     # * ---------Dunders-----------------
 
-    def __repr__(self):
-        return self.name
+    def __repr__(self) -> str:
+        return str(self.name)
 
     def __hash__(self):
         return hash(self.name)

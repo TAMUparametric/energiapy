@@ -6,7 +6,7 @@ from typing import Union
 from pandas import DataFrame
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 
-from ..components.temporal_scale import TemporalScale
+from ..components.horizon import Horizon
 from .type.aspect import CashFlow, Emission, Land, Life, Limit, Loss
 from .type.bound import Bound
 from .type.disposition import SpatialDisp, TemporalDisp
@@ -34,7 +34,7 @@ class DataSet:
     """
 
     data: Union[DataFrame, 'DataSet']
-    scales: TemporalScale
+    horizon: Horizon
     aspect: Union[Limit, CashFlow, Land, Emission, Life, Loss] = None
     bound: Bound = None
     component: Union['Resource', 'Process', 'Location',
@@ -58,15 +58,15 @@ class DataSet:
 
         elif isinstance(self.data, DataFrame):
 
-            if not self.scales:
+            if not self.horizon:
                 raise ValueError(
                     f'{str(self.aspect).lower()} for {self.component.name}: please provide scales = TemporalScale')
 
-            if len(self.data) in self.scales.index_n_list:
-                self.temporal = self.scales.index_n_list.index(
-                    len(self.data))
+            if len(self.data) in self.horizon.n_indices:
+                index = self.horizon.n_indices.index(len(self.data))
+                self.temporal = self.horizon.scales[index]
 
-                self.data.index = self.scales.index_list[self.temporal]
+                self.data.index = self.horizon.index_list[self.temporal]
 
                 temporal_disps = TemporalDisp.all()
 
@@ -80,13 +80,13 @@ class DataSet:
                     f'{str(self.aspect).lower()} for {self.component.name}: length of data does not match any scale index')
 
             if self.apply_min_max_scaler is None:
-                self.apply_min_max_scaler = self.scales.scale_factors_min_max
+                self.apply_min_max_scaler = self.horizon.scale_factors_min_max
 
             if self.apply_standard_scaler is None:
-                self.apply_standard_scaler = self.scales.scale_factors_standard
+                self.apply_standard_scaler = self.horizon.scale_factors_standard
 
             if self.apply_max_scaler is None:
-                self.apply_max_scaler = self.scales.scale_factors_max
+                self.apply_max_scaler = self.horizon.scale_factors_max
 
             if self.apply_min_max_scaler:
                 scaler = MinMaxScaler()

@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import List, Tuple, Union
 
 from ..components.temporal_scale import TemporalScale
-from .data import Data
+from .dataset import DataSet
 from .parameter import Parameter
 from .type.aspect import CashFlow, Land, Life, Limit, Loss
 from .type.bound import Bound

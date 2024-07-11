@@ -5,12 +5,11 @@ from .horizon import Horizon
 # from .location import Location
 # from .temporal_scale import TemporalScale
 
-
 from dataclasses import dataclass
 
 
 @dataclass
-class EnergySystem:
+class System:
     """
     The main object of the energy system model. It collects all the components of the model.
 
@@ -29,8 +28,8 @@ class EnergySystem:
 
         There is not much to this class, it is just a container for the components of the model.
 
-        >>> from energiapy.components import EnergySystem
-        >>> es = EnergySystem(name='es')
+        >>> from energiapy.components import System
+        >>> es = System(name='es')
 
     """
 

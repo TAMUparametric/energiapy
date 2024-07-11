@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 from pandas import DataFrame
 
-from .data import Data
+from .dataset import DataSet
 from .type.special import SpecialParameter
 
 

@@ -4,9 +4,10 @@ from typing import Dict, List, Tuple, Union
 
 from pandas import DataFrame
 
-from ..components.temporal_scale import TemporalScale
+# from ..components.temporal_scale import TemporalScale
+from ..components.horizon import Horizon
 from .constraint import Constraint
-from .data import Data
+from .dataset import DataSet
 from .parameter import Parameter
 from .rulebook import rulebook
 from .theta import Theta
@@ -32,29 +33,29 @@ class Aspect:
         self.constraints = list()
 
     def add(self, value: Union[float, bool, 'BigM', List[float], List[Union[float, 'BigM']],
-                               DataFrame, Dict[int, DataFrame], Dict[int, Data], Tuple[float], Theta], aspect: Union[Limit, CashFlow, Land, Life, Loss, Emission],
+                               DataFrame, Dict[int, DataFrame], Dict[int, DataSet], Tuple[float], Theta], aspect: Union[Limit, CashFlow, Land, Life, Loss, Emission],
             component: Union['Resource', 'Process', 'Location', 'Transport', 'Network'],
-            declared_at: Union['Resource', 'Process', 'Location', 'Transport', Tuple['Location'], 'Network'], scales: TemporalScale = None):
-        print(scales)
-        print(component.name)
-        if isinstance(value, dict):
-            if scales is None:
-                raise ValueError(
-                    f'{self.name}: please provide {component}.scales = scales, where scales is a TemporalScale object')
-            elif not all(i in scales.scales for i in value):
-                raise ValueError(
-                    f'{self.name}: keys for dict must be within scales.scales, where scales is a TemporalScale object')
+            declared_at: Union['Resource', 'Process', 'Location', 'Transport', Tuple['Location'], 'Network'], horizon: Horizon = None):
+        # print(horizon)
+        # print(component.name)
+        # if isinstance(value, dict):
+        #     if horizon is None:
+        #         raise ValueError(
+        #             f'{self.name}: please provide {component}.scales = scales, where scales is a TemporalScale object')
+        #     elif not all(i in scales.scales for i in value):
+        #         raise ValueError(
+        #             f'{self.name}: keys for dict must be within scales.scales, where scales is a TemporalScale object')
 
-        else:
-            value = {'t0': value}
+        # else:
+        #     value = {'t0': value}
 
         for tempd, value_ in value.items():
 
             bound, certainty, approach = ([None, None] for _ in range(3))
 
-            if isinstance(value_, (float, int, DataFrame, Data)) and not isinstance(value_, bool):
+            if isinstance(value_, (float, int, DataFrame, DataSet)) and not isinstance(value_, bool):
                 bound[0] = Bound.EXACT
-                if isinstance(value_, (DataFrame, dict, Data)):
+                if isinstance(value_, (DataFrame, dict, DataSet)):
                     certainty[0], approach[0] = Certainty.UNCERTAIN, Approach.DATA
                 else:
                     certainty[0], approach[0] = Certainty.CERTAIN, None
@@ -70,10 +71,10 @@ class Aspect:
                     raise ValueError(
                         f'{self.name}: values must a tuple of length 2')
                 low_or_up = {0: Bound.LOWER, 1: Bound.UPPER}
-                value_ = tuple([Data(data=j, scales=scales, bound=low_or_up[i],
-                                     aspect=aspect, declared_at=declared_at,
-                                     component=component) if isinstance(
-                    j, (Data, DataFrame)) else j for i, j in enumerate(value_)])
+                value_ = tuple([DataSet(data=j, horizon=horizon, bound=low_or_up[i],
+                                        aspect=aspect, declared_at=declared_at,
+                                        component=component) if isinstance(
+                    j, (DataSet, DataFrame)) else j for i, j in enumerate(value_)])
 
             elif isinstance(value_, list):
 
@@ -86,8 +87,8 @@ class Aspect:
 
                 low_or_up = {0: Bound.LOWER, 1: Bound.UPPER}
                 value_ = [BigM if i is True else i for i in value_]
-                value_ = [Data(data=j, scales=scales, bound=low_or_up[i]) if isinstance(
-                    j, (DataFrame, Data)) else j for i, j in enumerate(value_)]
+                value_ = [DataSet(data=j, horizon=horizon, bound=low_or_up[i]) if isinstance(
+                    j, (DataFrame, DataSet)) else j for i, j in enumerate(value_)]
                 value_ = sorted(value_)
 
                 for i in range(2):
@@ -95,7 +96,7 @@ class Aspect:
                         bound[i], certainty[i], approach[i] = low_or_up[i], Certainty.CERTAIN, None
                     elif isinstance(value_[i], Unbound):
                         bound[i], certainty[i], approach[i] = Bound.UNBOUNDED, Certainty.CERTAIN, None
-                    elif isinstance(value_[i], Data):
+                    elif isinstance(value_[i], DataSet):
                         bound[i], certainty[i], approach[i] = low_or_up[i], Certainty.UNCERTAIN, Approach.DATA
 
             if not isinstance(value_, list):
@@ -107,13 +108,13 @@ class Aspect:
 
                     parameter_, associated_, bound_ = (None for _ in range(3))
 
-                    parameter = Parameter(value=j, aspect=aspect, component=component, declared_at=declared_at, scales=scales,
+                    parameter = Parameter(value=j, aspect=aspect, component=component, declared_at=declared_at, horizon=horizon,
                                           bound=bound[i], certainty=certainty[i], approach=approach[i], temporal=TemporalDisp.get_tdisp(tempd))
-                    
-                    if isinstance(parameter.value, (Data, Theta)) and len(parameter.value) != scales.index_n_dict[tempd]:
+
+                    if isinstance(parameter.value, (DataSet, Theta)) and len(parameter.value) != horizon.index_n_dict[tempd]:
                         raise ValueError(
                             f'{self.name}: length of data does not match scale index')
-                    
+
                     variable = Variable(aspect=aspect, component=component, declared_at=declared_at, spatial=parameter.spatial,
                                         temporal=parameter.temporal, disposition=parameter.disposition, index=parameter.index)
 

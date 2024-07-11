@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from typing import List, Optional, Union
 from warnings import warn
 from pandas import DataFrame
-from .data import Data
+from .dataset import DataSet
 from .type.aspect import *
 from .type.bound import Bound
 from .type.certainty import Approach, Certainty
