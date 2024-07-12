@@ -192,6 +192,9 @@ class Process:
         if not self.produce:
             self.produce = {self.conversion.produce: 1}
 
+        if hasattr(self.conversion, 'stored_resource'):
+            self.stored_resource = self.conversion.stored_resource
+
         for i in ['discharge', 'consume']:
             if not getattr(self, i):
                 setattr(

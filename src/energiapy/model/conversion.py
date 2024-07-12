@@ -44,23 +44,26 @@ class Conversion:
             self.n_modes = 1
             self.modes = None
             # TODO: Create Storage Resource and Process
+            self.stored_resource = list(self.conversion)[0]
+            self.produce = Resource(
+                label=f'{self.stored_resource.label} stored in {self.process.label}')
+            self.involve = [self.stored_resource, self.produce]
 
-            self.discharged_resource = list(self.conversion)[0]
-            self.stored_resource = Resource(
-                label=f'{self.discharged_resource.label} stored in {self.process.label}')
-            for i in ['store', 'store_loss', 'store_cost']:
-                setattr(self.stored_resource, i, getattr(self.process, i))
-            self.conversion = {self.stored_resource: {
-                self.discharged_resource: self.conversion[self.discharged_resource]}}
+            # setattr(self.produce, 'horizon', self.stored_resource.horizon)
+            # setattr(self.produce, 'name', f'{self.stored_resource.name}_in_{self.process.name}')
 
-            self.conversion_discharge = {
-                self.discharged_resource: {self.stored_resource: 1}}
+            # for i in ['store', 'store_loss', 'store_cost']:
+            #     setattr(self.produce, i, getattr(self.process, i))
 
-            self.conversion = {self.produce: {
-                self.produce: self.conversion[self.produce]}}
+            # self.conversion = {self.produce: {
+            #     self.stored_resource: self.conversion[self.stored_resource]}}
+            # self.conversion_discharge = {
+            #     self.stored_resource: {self.produce: 1}}
+
+            # self.conversion = {self.produce: {
+            #     self.produce: self.conversion[self.produce]}}
             self.discharge = [self.produce]
-            self.discharge = [self.produce]
-            self.consume = [self.produce]
+            self.consume = [self.stored_resource]
 
         self.name = f'Conv({self.produce.name},{self.process.name})'
 

@@ -58,10 +58,27 @@ class Scenario:
                     setattr(self, i.name, i)
 
         if isinstance(value, (Resource, Process)):
+
+            if hasattr(value, 'stored_resource'):
+                r_naav = f'{value.stored_resource.name}_in_{value.name}'
+                setattr(self, r_naav, value.produce)
+                p_naav = f'{value.name}_d'
+
+                setattr(self, p_naav, Process(
+                    conversion={value.stored_resource: {i: -j for i, j in value.produce.items()}}, capacity=True))
+
+                for i in ['store', 'store_loss', 'store_cost']:
+                    setattr(getattr(self, p_naav), i, {
+                            getattr(self, r_naav): getattr(value, i)})
+
+                setattr(getattr(getattr(self, name), 'conversion'), 'conversion',  {value.produce: {
+                        value.stored_resource: value.conversion.conversion[value.stored_resource]}})
+
             if not value.named:
                 value.namer(name=name, horizon=self.horizon)
             getattr(self, f'{value.cname().lower()}s'.replace(
                 'sss', 'sses')).append(value)
+
             for i in ['parameters', 'variables', 'constraints']:
                 if hasattr(value, i):
                     getattr(self, i).extend(getattr(value, i))
