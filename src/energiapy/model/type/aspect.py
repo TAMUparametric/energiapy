@@ -20,6 +20,7 @@ aspect: ParameterType describes what the parameter models. There are subtypes fo
 from enum import Enum, auto
 from typing import List, TypeVar, Union, Dict
 from pandas import DataFrame
+from dataclasses import dataclass
 
 Big = TypeVar('Big', bound='BigM')
 
@@ -33,38 +34,6 @@ bounds = List[Union[exact, unbound, dataset]]
 dict_data = Dict[str, Union[direct, bounds]]
 
 
-class AspectType(Enum):
-    """What kind of behaviour does the parameter describe
-    All of these have subclasses
-    These are predetermined by me, Rahul Kakodkar. 
-    The BDFO of energiapy
-    """
-    LIMIT = auto()
-    """Helps create boundaries for the problem 
-    by setting a min/max or exact limit for flow of Resource.
-    """
-    CASHFLOW = auto()
-    """Expenditure/Revenue.
-    """
-    LAND = auto()
-    """Describes land use and such
-    """
-    EMISSION = auto()
-    """Is an emission.
-    """
-    LIFE = auto()
-    """Describes earliest introduction, retirement, lifetime and such
-    """
-    LOSS = auto()
-    """Amount lost during storage or transport
-    """
-    @classmethod
-    def class_name(cls) -> str:
-        """Returns class name 
-        """
-        return cls.__name__
-
-
 class Limit(Enum):
     """What Resource flow is being limited 
     at some spatiotemporal disposition 
@@ -76,43 +45,69 @@ class Limit(Enum):
     CONSUME = auto()
     """Inflow 
     """
-    STORE = auto()
-    """Inventory size 
-    """
-    TRANSPORT = auto()
-    """Resource export
-    pegged to Transport capacity
-    if declared at Transport
-    """
     CAPACITY = auto()
     """Process or Transport capacity
     """
 
-    @classmethod
-    def class_name(cls) -> str:
-        """Returns class name 
+    @staticmethod
+    def tname() -> str:
+        """Returns the name of the Enum
         """
-        return cls.__name__
+        return 'Limit'
+
+    @classmethod
+    def all(cls) -> str:
+        return [i for i in cls]
+
+    @classmethod
+    def resource(cls) -> str:
+        return [Limit.DISCHARGE, Limit.CONSUME]
+
+    @classmethod
+    def process(cls) -> str:
+        return [Limit.CAPACITY]
+
+    @classmethod
+    def transport(cls) -> str:
+        return [Limit.CAPACITY]
+
+    @classmethod
+    def types(cls) -> List:
+        return Union[direct, bounds, dict_data]
+
+
+class Capacity(Enum):
+    """These are capacitated by the realized capacities
+    of the component where the Resource is declared
+    """
+    PRODUCE = auto()
+    """Production capacitated by Process capacity
+    """
+    STORE = auto()
+    """Amount stored capacitated by Process capacity
+    """
+    TRANSPORT = auto()
+    """Export capacitated by Transport capacity
+    if declared at Transport
+    """
+
+    @staticmethod
+    def tname() -> str:
+        """Returns the name of the Enum
+        """
+        return 'Capacity'
 
     @classmethod
     def all(cls) -> List[str]:
         return [i for i in cls]
 
     @classmethod
-    def resource(cls) -> List[str]:
-        return list(set(cls.all()) - set([Limit.CAPACITY]))
+    def process(cls) -> str:
+        return [Capacity.PRODUCE, Capacity.STORE]
 
     @classmethod
-    def process(cls) -> List[str]:
-        return [Limit.CAPACITY]
-
-    @classmethod
-    def transport(cls) -> List[str]:
-        return [Limit.CAPACITY]
-
-    @classmethod
-    def types(cls) -> List:
-        return Union[direct, bounds, dict_data]
+    def transport(cls) -> str:
+        return [Capacity.TRANSPORT]
 
 
 class CashFlow(Enum):
@@ -147,11 +142,13 @@ class CashFlow(Enum):
     """Expenditure on acquiring land
     """
 
+    @staticmethod
+    def tname() -> str:
+        return 'CashFlow'
+
     @classmethod
-    def class_name(cls) -> str:
-        """Returns class name 
-        """
-        return cls.__name__
+    def all(cls) -> List[str]:
+        return [i for i in cls]
 
     @classmethod
     def resource(cls) -> List[str]:
@@ -188,11 +185,15 @@ class Land(Enum):
     """Upper bound 
     """
 
-    @classmethod
-    def class_name(cls) -> str:
-        """Returns class name 
+    @staticmethod
+    def tname() -> str:
+        """Returns the name of the Enum
         """
-        return cls.__name__
+        return 'Land'
+
+    @classmethod
+    def all(cls) -> List[str]:
+        return [i for i in cls]
 
     @classmethod
     def process(cls) -> List[str]:
@@ -236,11 +237,11 @@ class Emission(Enum):
     EUTM = auto()
     """Marine Eutrophication Potential
     """
-    @classmethod
-    def class_name(cls) -> str:
-        """Returns class name 
+    @staticmethod
+    def tname() -> str:
+        """Returns the name of the Enum
         """
-        return cls.__name__
+        return 'Emission'
 
     @classmethod
     def all(cls) -> List[str]:
@@ -267,11 +268,11 @@ class Life(Enum):
     """Chance of failure
     """
 
-    @classmethod
-    def class_name(cls) -> str:
-        """Returns class name 
+    @staticmethod
+    def tname() -> str:
+        """Returns the name of the Enum
         """
-        return cls.__name__
+        return 'Life'
 
     @classmethod
     def all(cls) -> List[str]:
@@ -288,14 +289,18 @@ class Loss(Enum):
     STORE_LOSS = auto()
     TRANSPORT_LOSS = auto()
 
-    @classmethod
-    def class_name(cls) -> str:
-        """Returns class name 
+    @staticmethod
+    def tname() -> str:
+        """Returns the name of the Enum
         """
-        return cls.__name__
+        return 'Loss'
 
     @classmethod
-    def resource(cls) -> List[str]:
+    def all(cls) -> List[str]:
+        return [i for i in cls]
+
+    @classmethod
+    def process(cls) -> List[str]:
         return [Loss.STORE_LOSS]
 
     @classmethod
@@ -305,3 +310,56 @@ class Loss(Enum):
     @classmethod
     def types(cls) -> List:
         return Union[direct, dict_data]
+
+
+class AspectType(Enum):
+    """What kind of behaviour does the parameter describe
+    All of these have subclasses
+    These are predetermined by me, Rahul Kakodkar. 
+    The BDFO of energiapy
+    """
+    LIMIT = Limit
+    """Helps create boundaries for the problem 
+    by setting a min/max or exact limit for flow of Resource.
+    """
+    CASHFLOW = CashFlow
+    """Expenditure/Revenue.
+    """
+    LAND = Land
+    """Describes land use and such
+    """
+    EMISSION = Emission
+    """Is an emission.
+    """
+    LIFE = Life
+    """Describes earliest introduction, retirement, lifetime and such
+    """
+    LOSS = Loss
+    """Amount lost during storage or transport
+    """
+    CAPACITY = Capacity
+    """How much of the capacity can be accessed
+    """
+
+    @staticmethod
+    def tname() -> str:
+        """Returns the name of the Enum
+        """
+        return 'AspectType'
+
+    @classmethod
+    def all(cls) -> list:
+        return [i.value for i in cls]
+
+    @classmethod
+    def matches(cls) -> dict:
+        d_ = {i: [j.name.lower() for j in i.all()] for i in cls.all()}
+        return {k: getattr(i, k.upper()) for i, j in d_.items() for k in j}
+
+    @classmethod
+    def aspects(cls) -> list:
+        return list(cls.matches())
+
+    @classmethod
+    def match(cls, value: str):
+        return cls.matches()[value]

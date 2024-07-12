@@ -1,7 +1,7 @@
 
 from .horizon import Horizon
 from .resource import Resource
-# from .process import Process
+from .process import Process
 # from .location import Location
 # from .temporal_scale import TemporalScale
 
@@ -43,6 +43,9 @@ class Scenario:
         for comps in ['resources', 'processes', 'locations', 'transports', 'linkages']:
             setattr(self, comps, list())
 
+        for mod in ['parameters', 'variables', 'constraints']:
+            setattr(self, mod, list())
+
     def __setattr__(self, name, value):
         super().__setattr__(name, value)
         if isinstance(value, Horizon):
@@ -54,20 +57,43 @@ class Scenario:
                 for i in value.scales:
                     setattr(self, i.name, i)
 
-        if isinstance(value, Resource):
-            if not value.name:
-                setattr(value, 'name', name)
-                setattr(value, 'horizon', self.horizon)
-            getattr(self, 'resources').append(value)
+        if isinstance(value, (Resource, Process)):
+            if not value.named:
+                value.namer(name=name, horizon=self.horizon)
+            getattr(self, f'{value.cname().lower()}s'.replace(
+                'sss', 'sses')).append(value)
+            for i in ['parameters', 'variables', 'constraints']:
+                if hasattr(value, i):
+                    getattr(self, i).extend(getattr(value, i))
 
-        #     # if getattr(self, name).scales is None:
-            # getattr(self, name).scales = self.scales
-            # self.resources.append(getattr(self, name))
-        # if isinstance(getattr(self, name), Process):
-        #     setattr(getattr(self, name), 'name', name)
-        #     self.processes.append(getattr(self, name))
+        # if isinstance(value, Process):
+        #     if not value.name:
+        #         setattr(value, 'name', name)
+        #         setattr(value, 'horizon', self.horizon)
+        #     getattr(self, 'processes').append(value)
+        #     for i in ['parameters', 'variables', 'constraints']:
+        #         if hasattr(value, i):
+        #             getattr(self, i).extend(getattr(value, i))
 
     # * ---------Methods-----------------
+
+    def params(self):
+        """prints parameters
+        """
+        for i in getattr(self, 'parameters'):
+            print(i)
+
+    def vars(self):
+        """prints variables
+        """
+        for i in getattr(self, 'variables'):
+            print(i)
+
+    def cons(self):
+        """prints constraints
+        """
+        for i in getattr(self, 'constraints'):
+            print(i)
 
     @staticmethod
     def cname() -> str:

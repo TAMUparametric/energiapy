@@ -107,7 +107,7 @@ class Aspect:
             for i, j in enumerate(list(value_)):
 
                 for rule in rulebook.find(aspect):
-
+                    print(rule)
                     parameter_, associated_, bound_ = (None for _ in range(3))
 
                     parameter = Parameter(value=j, aspect=aspect, component=component, declared_at=declared_at, horizon=horizon,

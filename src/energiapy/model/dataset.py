@@ -101,17 +101,11 @@ class DataSet:
                 f'{str(self.aspect.name).lower()} factor for {self.component.name}: please provide DataFrame, DataSet, or a dict of either with the nominal value as key')
 
         if self.aspect:
-            if self.declared_at.cname() in ['Process', 'Location', 'Linkage']:
-                if self.declared_at.cname() != self.component.cname():
-                    self.spatial = (getattr(SpatialDisp, self.component.class_name(
-                    ).upper()), getattr(SpatialDisp, self.declared_at.cname().upper()))
-                else:
-                    self.spatial = getattr(
-                        SpatialDisp, self.declared_at.cname().upper())
-            else:
-                self.spatial = SpatialDisp.NETWORK
 
-            self.disposition = ((self.spatial), self.temporal)
+            self.spatial, self.disposition = None, (self.temporal,)
+            if self.declared_at.cname() != 'Resource':
+                self.spatial = self.declared_at
+                self.disposition = ((self.spatial), self.temporal)
 
             self.index = Index(component=self.component, declared_at=self.declared_at, temporal=self.temporal,
                                spatial=self.spatial, disposition=self.disposition, length=len(self.data))

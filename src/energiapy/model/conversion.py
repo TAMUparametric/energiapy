@@ -15,50 +15,54 @@ class Conversion:
 
     def __post_init__(self):
 
-        self.base = list(self.conversion)[0]
+        self.name = f'Conv|{self.process.name}|'
 
         if get_depth(self.conversion) > 2:
-            self.n_modes = len(self.conversion[self.base])
-            self.modes = list(self.conversion[self.base])
-            self.involve = reduce(
-                operator.or_, (list(self.conversion[self.base][i]) for i in self.modes), list())
-            self.discharge = [self.base] + [i for i in self.conversion[self.base][mode] for mode in self.modes if self.conversion[self.base][mode][i] > 0]
-            self.consume = [i for i in self.conversion[self.base][mode] for mode in self.modes if self.conversion[self.base][mode][i] < 0]
-                
+            self.produce = list(self.conversion)[0]
+            self.n_modes = len(self.conversion[self.produce])
+            self.modes = list(self.conversion[self.produce])
+            self.involve = list(reduce(
+                operator.or_, (set(self.conversion[self.produce][i]) for i in self.modes), set()))
+
+            self.discharge = list(reduce(
+                operator.or_, (set(j for j, k in self.conversion[self.produce][i].items() if k > 0) for i in self.modes), set()))
+            self.consume = list(reduce(
+                operator.or_, (set(j for j, k in self.conversion[self.produce][i].items() if k < 0) for i in self.modes), set()))
+
         elif get_depth(self.conversion) == 2:
+            self.produce = list(self.conversion)[0]
             self.n_modes = 1
             self.modes = None
-            self.involve = list(self.conversion[self.base])
-            
-            self.discharge = [self.base] + [i for i in self.conversion[self.base] if self.conversion[self.base][i] > 0]
-            self.consume = [i for i in self.conversion[self.base] if self.conversion[self.base][i] < 0]
-            
+            self.involve = list(self.conversion[self.produce])
+
+            self.discharge = [
+                self.produce] + [i for i in self.conversion[self.produce] if self.conversion[self.produce][i] > 0]
+            self.consume = [i for i in self.conversion[self.produce]
+                            if self.conversion[self.produce][i] < 0]
+
         elif get_depth(self.conversion) == 1:
             self.n_modes = 1
             self.modes = None
-            self.involve = self.create_storage_resource()
-            self.conversion = {self.involve: {
-                self.base: self.conversion[self.base]}}
-            self.discharge = [self.base]
-            self.consume = [self.base]
-            
-        
-        
+            # TODO: Create Storage Resource and Process
 
-        self.name = f'Conv({self.base.name},{self.process.name})'
+            self.discharged_resource = list(self.conversion)[0]
+            self.stored_resource = Resource(
+                label=f'{self.discharged_resource.label} stored in {self.process.label}')
+            for i in ['store', 'store_loss', 'store_cost']:
+                setattr(self.stored_resource, i, getattr(self.process, i))
+            self.conversion = {self.stored_resource: {
+                self.discharged_resource: self.conversion[self.discharged_resource]}}
 
-    def create_storage_resource(self) -> Resource:
-        """Creates a resource for storage, used if ProcessType is STORAGE
+            self.conversion_discharge = {
+                self.discharged_resource: {self.stored_resource: 1}}
 
-        Args:
-            resource (Resource): Resource to be stored
-        Returns:
-            Resource: of ResourceType.STORE, named Process.name_Resource.name_stored
-        """
+            self.conversion = {self.produce: {
+                self.produce: self.conversion[self.produce]}}
+            self.discharge = [self.produce]
+            self.discharge = [self.produce]
+            self.consume = [self.produce]
 
-        return Resource(name=f"{self.process.name}_{self.base.name}_stored", store_loss=self.process.store_loss, store=self.process.store,
-                        store_cost=self.process.store_cost, store_loss_over=self.base.store_loss_over,
-                        store_over=self.base.store_loss_over, label=f'{self.base.label} stored in {self.process.label}')
+        self.name = f'Conv({self.produce.name},{self.process.name})'
 
     def __repr__(self):
         return self.name

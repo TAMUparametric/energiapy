@@ -18,7 +18,7 @@ class Unbound:
     special = SpecialParameter.UNBOUND
 
     def __gt__(self, other):
-        if isinstance(other, (int, float, Data, DataFrame, dict)):
+        if isinstance(other, (int, float, DataSet, DataFrame, dict)):
             # BigM is always greater than any number
             return self.greater
         if isinstance(other, Unbound):
@@ -27,7 +27,7 @@ class Unbound:
         return NotImplemented
 
     def __lt__(self, other):
-        if isinstance(other, (int, float, Data, DataFrame, dict)):
+        if isinstance(other, (int, float, DataSet, DataFrame, dict)):
             # BigM is always greater than any number
             return not self.greater
         if isinstance(other, Unbound):

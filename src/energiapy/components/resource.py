@@ -1,11 +1,9 @@
 """energiapy.Resource - Resource as refined in the RT(M)N framework  
 """
-import uuid
 from dataclasses import dataclass
-from typing import List, Union
+from typing import Union
 from ..model.aspect import Aspect
-from ..model.type.aspect import CashFlow, Emission, Limit, Loss
-from .temporal_scale import TemporalScale
+from ..model.type.aspect import CashFlow, Emission, Limit, AspectType
 from .type.resource import ResourceType
 
 
@@ -14,14 +12,9 @@ class Resource:
     # Limit Aspect
     discharge: Limit.types() = None
     consume: Limit.types() = None
-    store: Limit.types() = None
-    transport:  Limit.types() = None
-    # LossType
-    store_loss: Loss.types() = None
     # CashFlowType
     sell_cost: CashFlow.types() = None
     purchase_cost: CashFlow.types() = None
-    store_cost: CashFlow.types() = None
     credit: CashFlow.types() = None
     penalty: CashFlow.types() = None
     # EmissionType
@@ -36,8 +29,6 @@ class Resource:
     block: Union[str, list, dict] = None
     label: str = None
     citation: str = None
-    # Types
-    ctype: List[ResourceType] = None
     # Depreciated
     sell: bool = None
     varying: bool = None
@@ -49,10 +40,12 @@ class Resource:
 
     def __post_init__(self):
 
-        self.name, self.horizon = None, None
+        self.named, self.name, self.horizon = (None for _ in range(3))
 
-        for i in ['parameters', 'variables', 'constraints']:
-            setattr(self, i, list())
+        self.parameters, self.variables, self.constraints = (
+            list() for _ in range(3))
+
+        self.declared_at = self
 
         # *-----------------Set ctype (ResourceType)---------------------------------
         # .DISCHARGE allows the resource to be discharged (consume > 0)
@@ -67,7 +60,7 @@ class Resource:
         # .TRANSPORT is set if a Resource is in the set Transport.resources
         # storage resources are also generated implicitly if a Resource is provided to a Process as storage
 
-        if not self.ctype:
+        if not hasattr(self, 'ctype'):
             self.ctype = list()
 
         if self.sell_cost is not None:
@@ -80,32 +73,12 @@ class Resource:
 
         if self.consume is not None:
             self.ctype.append(ResourceType.CONSUME)
-        else:
-            # if it is not consumed from outside the system, it has to be made in the system
-            self.ctype.append(ResourceType.PRODUCE)
-            if self.discharge is None:
-                # is not discharged or consumed. Produced and used within the system captively
-                self.ctype.append(ResourceType.IMPLICIT)
 
         if self.purchase_cost:
             self.ctype.append(ResourceType.PURCHASE)
             if self.consume is None:
                 self.consume = True
-
-        if self.store is not None:
-            self.ctype.append(ResourceType.STORE)
-
-        # *----------------- Update Aspect ---------------------------------
-
-        # for i in self.aspects():  # iter over all aspects
-        #     if self.name:
-        #         asp_ = i.name.lower()  # get name of aspect
-        #         if getattr(self, asp_) is not None:
-        #             attr = getattr(self, asp_)
-        #             aspect = Aspect(aspect=i, component=self)
-        #             aspect.add(value=attr, aspect=i, component=self,
-        #                         horizon=self.horizon, declared_at=self)
-        #             setattr(self, asp_, aspect)
+        # TODO update store, produce, transport
 
         # *----------------- Depreciation Warnings---------------------------------
 
@@ -136,50 +109,62 @@ class Resource:
 
     def __setattr__(self, name, value):
         super().__setattr__(name, value)
+        if hasattr(self, 'named') and self.named and name in AspectType.aspects() and value is not None:
+            current_value = getattr(self, name)
 
-        if hasattr(self, 'name') and self.name and hasattr(self, 'horizon') and self.horizon:
-            for i in self.aspects():  # iter over all aspects
-                asp_ = i.name.lower()  # get name of aspect
-                attr = getattr(self, asp_)
-                if attr is not None and not isinstance(attr, Aspect):
-                    aspect = Aspect(aspect=i, component=self)
-                    aspect.add(value=attr, aspect=i, component=self,
-                                horizon=self.horizon, declared_at=self)
-                    setattr(self, asp_, aspect)
+            if not isinstance(current_value, Aspect):
+                new_value = Aspect(
+                    aspect=AspectType.match(name), component=self)
+            else:
+                new_value = current_value
 
-        for i in ['parameters', 'variables', 'constraints']:
-            if hasattr(getattr(self, name), i):
-                getattr(self, i).extend(getattr(getattr(self, name), i))
+            if not isinstance(value, Aspect):
+                new_value.add(value=value, aspect=AspectType.match(name), component=self,
+                              horizon=self.horizon, declared_at=self.declared_at)
+                setattr(self, name, new_value)
+
+                for i in ['parameters', 'variables', 'constraints']:
+                    if hasattr(new_value, i):
+                        getattr(self, i).extend(getattr(new_value, i))
+
+    def namer(self, name, horizon):
+        self.name = name
+        self.horizon = horizon
+        self.named = True
+
+        for i in AspectType.aspects():
+            if hasattr(self, i) and getattr(self, i) is not None:
+                setattr(self, i, getattr(self, i))
 
     def params(self):
         """prints parameters
         """
-        for i in getattr(self, 'parameters'):
+        for i in self.parameters:
             print(i)
 
     def vars(self):
         """prints variables
         """
-        for i in getattr(self, 'variables'):
+        for i in self.variables:
             print(i)
 
     def cons(self):
         """prints constraints
         """
-        for i in getattr(self, 'constraints'):
+        for i in self.constraints:
             print(i)
 
     # *-----------------Methods--------------------
 
     @staticmethod
-    def aspects() -> list:
-        """Returns Resource aspects"""
-        return Limit.resource() + CashFlow.resource() + Emission.all() + Loss.resource()
-
-    @staticmethod
     def cname() -> str:
         """Returns class name"""
         return 'Resource'
+
+    @staticmethod
+    def aspects() -> list:
+        """Returns Resource aspects"""
+        return Limit.resource() + CashFlow.resource() + Emission.all()
 
     # *-----------------Magics--------------------
 

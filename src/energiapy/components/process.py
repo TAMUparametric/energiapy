@@ -11,12 +11,12 @@ from typing import Dict, List, Set, Tuple, Union
 from pandas import DataFrame
 
 from ..model.aspect import Aspect
-from ..model.bound import Big, BigM
+from ..model.unbound import BigM
 from ..model.conversion import Conversion
-from ..model.factor import Factor
+from ..model.dataset import DataSet
 from ..model.theta import Theta
-from ..model.type.aspect import CashFlow, Emission, Land, Life, Limit, Loss
-from ..model.type.disposition import *
+from ..model.type.aspect import CashFlow, Emission, Land, Life, Limit, Loss, AspectType, Capacity
+from ..model.type.disposition import TemporalDisp, SpatialDisp
 from ..utils.data_utils import get_depth
 from .material import Material
 from .resource import Resource
@@ -86,7 +86,7 @@ class Process:
         ftype (Dict[ProcessParamType, List[Tuple['Location',FactorType]]], optional): which parameters are provided with factors at Location. Defaults to None
         etype (List[EmissionType], optional): list of emission types defined. Defaults to None
         localizations (Dict[ProcessParamType, List[Tuple['Location', Localization]]], optional): collects localizations when defined at Location. Defaults to None.
-        factors (Dict[ProcessParamType, List[Tuple['Location', Factor]]], optional): collects factors when defined at Location. Defaults to None.
+        factors (Dict[ProcessParamType, List[Tuple['Location', DataSet]]], optional): collects factors when defined at Location. Defaults to None.
         emissions (Dict[str, float], optional): collects emission data. Defaults to None.
 
     Examples:
@@ -107,8 +107,9 @@ class Process:
                       Dict[Resource, float]]
     # Design parameters
     capacity: Union[float, bool, 'BigM', List[Union[float, 'BigM']],
-                    DataFrame, Tuple[Union[float, DataFrame, Factor]], Theta]
-    name: str = None
+                    DataFrame, Tuple[Union[float, DataFrame, DataSet]], Theta]
+    produce: Union[float, bool, 'BigM',
+                   List[Union[float, 'BigM']]] = None
     land_use: float = None  # Union[float, Tuple[float], Theta]
     material_cons: Union[Dict[Union[int, str],
                               Dict[Material, float]], Dict[Material, float]] = None
@@ -131,40 +132,28 @@ class Process:
     lifetime: Union[float, Tuple[float], Theta] = None
     pfail: Union[float, Tuple[float], Theta] = None
     # These go to storage_resource defined in STORAGE Process
-    # Temporal scale
-    # not needed if no deterministic data or parameter scale is provided
-    scales: TemporalScale = None
     # LimitType
     discharge: Union[float, bool, 'BigM', List[Union[float, 'BigM']],
-                     DataFrame, Tuple[Union[float, DataFrame, Factor]], Theta] = None
+                     DataFrame, Tuple[Union[float, DataFrame, DataSet]], Theta] = None
     consume: Union[float, bool, 'BigM', List[Union[float, 'BigM']],
-                   DataFrame, Tuple[Union[float, DataFrame, Factor]], Theta] = None
+                   DataFrame, Tuple[Union[float, DataFrame, DataSet]], Theta] = None
     store: Union[float, bool, 'BigM', List[Union[float, 'BigM']],
-                 DataFrame, Tuple[Union[float, DataFrame, Factor]], Theta] = None
+                 DataFrame, Tuple[Union[float, DataFrame, DataSet]], Theta] = None
     produce: Union[float, bool, 'BigM', List[Union[float, 'BigM']],
-                   DataFrame, Tuple[Union[float, DataFrame, Factor]], Theta] = None
+                   DataFrame, Tuple[Union[float, DataFrame, DataSet]], Theta] = None
     # LossType
     store_loss: Union[float, Tuple[float], Theta] = None
-    # Temporal Scale over which limit is set
-    # or loss is incurred
-    discharge_over: int = None
-    consume_over: int = None
-    store_over: int = None
-    store_loss_over: int = None
     # CashFlowType
     sell_cost: Union[float, Theta, DataFrame,
-                     Tuple[Union[float, DataFrame, Factor]]] = None
+                     Tuple[Union[float, DataFrame, DataSet]]] = None
     purchase_cost: Union[float, Theta, DataFrame,
-                         Tuple[Union[float, DataFrame, Factor]]] = None
+                         Tuple[Union[float, DataFrame, DataSet]]] = None
     store_cost: Union[float, Theta, DataFrame,
-                      Tuple[Union[float, DataFrame, Factor]]] = None
+                      Tuple[Union[float, DataFrame, DataSet]]] = None
     credit: Union[float, Theta, DataFrame,
-                  Tuple[Union[float, DataFrame, Factor]]] = None
+                  Tuple[Union[float, DataFrame, DataSet]]] = None
     penalty: Union[float, Theta, DataFrame,
-                   Tuple[Union[float, DataFrame, Factor]]] = None
-    # Types
-    ctype: List[Union[ProcessType, Dict[ProcessType, Set['Location']]]] = None
-    constraints: List[str] = None
+                   Tuple[Union[float, DataFrame, DataSet]]] = None
     # Details
     basis: str = None
     block: str = None
@@ -178,11 +167,19 @@ class Process:
 
     def __post_init__(self):
 
-        if not self.constraints:
-            self.constraints = list()
+        self.named, self.name, self.horizon = (None for _ in range(3))
+
+        self.parameters, self.variables, self.constraints = (
+            list() for _ in range(3))
+
+        self.declared_at = self
+
+        for i in ['produce', 'store', 'store_loss', 'store_cost', 'transport', 'transport_loss', 'transport_cost']:
+            setattr(self, i, None)
+
         # *-----------------Set ctype (ProcessType)---------------------------------
 
-        if not self.ctype:
+        if not hasattr(self, 'ctype'):
             self.ctype = list()
 
         # conversion can be single mode (SINGLE_PRODMODE) or multimode (MULTI_PRODMODE)
@@ -191,7 +188,22 @@ class Process:
         self.conversion = Conversion(
             conversion=self.conversion, process=self)
         self.involve = self.conversion.involve
-        self.base = self.conversion.base
+
+        if not self.produce:
+            self.produce = {self.conversion.produce: 1}
+
+        for i in ['discharge', 'consume']:
+            if not getattr(self, i):
+                setattr(
+                    self, i, {r: True for r in getattr(self.conversion, i)})
+            elif getattr(self, i) and isinstance(getattr(self, i), dict):
+                dict_ = getattr(self, i)
+                setattr(self, i, {r: dict_.get(r, True)
+                        for r in getattr(self.conversion, i)})
+            else:
+                raise ValueError(
+                    f'{i} should be a dictionary of some or all resources in conversion.{i}')
+
         self.modes = self.conversion.modes
         self.n_modes = self.conversion.n_modes
 
@@ -264,71 +276,7 @@ class Process:
         if any([self.introduce, self.retire, self.lifetime]):
             self.ctype.append(ProcessType.READINESS)
 
-        # *-----------------Set aspect (Parameter)---------------------------------
-        # aspects of declared parameters are set to .UNCERTAIN if a MPVar Theta or a tuple of bounds is provided,
-        # .CERTAIN otherwise
-        # If empty Theta is provided, the bounds default to (0, 1)
-        # Factors can be declared at Location (Location, DataFrame), gets converted to  (Location, Factor)
-
-        for i in self.all():
-            asp_ = i.name
-            if getattr(self, asp_.lower()) is not None:
-                attr = getattr(self, asp_.lower())
-                temporal = None
-                if i in self.limits():
-                    temporal = getattr(self, f'{i.lower()}_over')
-
-                aspect = Aspect(aspect=i, component=self)
-
-                aspect.add(value=attr, aspect=i, component=self,
-                           declared_at=self, temporal=temporal, horizon=self.horizon)
-
-                setattr(self, asp_.lower(), aspect)
-
-        # *----------------- Update Resource parameters ---------------------------------
-
-        # set resource parameters to base if not given as dictionary.
-        for i in self.all():
-            asp_ = i.name
-            if getattr(self, asp_.lower()) is not None and not isinstance(getattr(self, asp_.lower()), dict):
-                if i in self.resource_inputs():
-                    raise ValueError(
-                        f'{self.name}: {asp_.lower()} needs to be provided as a dict of input Resources')
-                else:
-                    setattr(self, asp_.lower(), {
-                            self.base: getattr(self, asp_.lower())})
-
-        for i in self.resource_all():
-            asp_ = i.name.lower()
-            if getattr(self, asp_) is not None and not isinstance(getattr(self, asp_), dict):
-                if len(self.conversion.discharge) == 1:
-                    setattr(self, asp_, {self.base: getattr(self, asp_)})
-
-                elif len(self.conversion.consume) == 1:
-                    setattr(self, asp_, {
-                            self.conversion.consume[0]: getattr(self, asp_)})
-                else:
-                    raise ValueError(
-                        f'{self.name}: {asp_} needs to be provided as a dict of Resources given that there are multiple involved')
-
-                attr = getattr(self, asp_)
-                temporal = None
-
-                if i in self.resource_limits() + self.resource_losses():
-                    temporal = getattr(self, f'{asp_}_over')
-
-                for j in attr:
-                    if temporal:
-                        temporal_ = temporal[j]
-                    if not isinstance(attr[j], Aspect):
-                        aspect = Aspect(aspect=i, component=j)
-                    else:
-                        aspect = attr[j]
-
-                    aspect.add(value=attr[j], aspect=i, component=j,
-                               declared_at=self, temporal=temporal_, scales=self.scales)
-
-                    setattr(j, asp_, aspect)
+        # *----------------- Update Resource Parameters ------------------
 
         # *----------------- Depreciation Warnings------------------------------------
 
@@ -344,12 +292,54 @@ class Process:
 
     def __setattr__(self, name, value):
         super().__setattr__(name, value)
-        if hasattr(getattr(self, name), 'constraints') and name != 'base':
-            self.constraints.extend(getattr(self, name).constraints)
+        if hasattr(self, 'named') and self.named and name in AspectType.aspects() and value is not None:
+            current_value = getattr(self, name)
+            if AspectType.match(name) in self.aspects():
+                if not isinstance(current_value, Aspect):
+                    new_value = Aspect(
+                        aspect=AspectType.match(name), component=self)
+                else:
+                    new_value = current_value
+                if not isinstance(value, Aspect):
+                    new_value.add(value=value, aspect=AspectType.match(name), component=self,
+                                  horizon=self.horizon, declared_at=self.declared_at)
+                    setattr(self, name, new_value)
+
+                    for i in ['parameters', 'variables', 'constraints']:
+                        if hasattr(new_value, i):
+                            getattr(self, i).extend(getattr(new_value, i))
+
+            elif AspectType.match(name) in self.resource_aspects():
+                for j in current_value:
+                    j.declared_at = self
+                    setattr(j, name, current_value[j])
+
+    def namer(self, name, horizon):
+        self.name = name
+        self.horizon = horizon
+        self.named = True
+
+        for i in AspectType.aspects():
+            if hasattr(self, i) and getattr(self, i) is not None:
+                setattr(self, i, getattr(self, i))
+
+    def params(self):
+        """prints parameters
+        """
+        for i in getattr(self, 'parameters'):
+            print(i)
+
+    def vars(self):
+        """prints variables
+        """
+        for i in getattr(self, 'variables'):
+            print(i)
 
     def cons(self):
-        for j in self.constraints:
-            print(j)
+        """prints constraints
+        """
+        for i in getattr(self, 'constraints'):
+            print(i)
 
     # *----------------- Class Methods -----------------------------------------
     # * component class types
@@ -359,51 +349,27 @@ class Process:
         """Returns class name"""
         return 'Process'
 
-    @classmethod
-    def cashflows(cls) -> List[str]:
-        return CashFlow.process()
+    @staticmethod
+    def aspects() -> list:
+        """Returns Process aspects"""
+        return CashFlow.process() + Land.process() + Limit.process() + Life.all() + Emission.all()
 
-    @classmethod
-    def emissions(cls) -> List[str]:
-        return Emission.all()
-
-    @classmethod
-    def lands(cls) -> List[str]:
-        return Land.process()
-
-    @classmethod
-    def lifes(cls) -> List[str]:
-        return Life.process()
-
-    @classmethod
-    def limits(cls) -> List[str]:
-        return Limit.process()
-
-    @classmethod
-    def all(cls) -> List[str]:
-        return cls.cashflows() + cls.emissions() + cls.lands() + cls.lifes() + cls.limits()
-
-    @classmethod
-    def resource_inputs(cls) -> List[str]:
-        return [CashFlow.PURCHASE_COST, Limit.CONSUME]
-
-    @classmethod
-    def resource_all(cls) -> List[str]:
-        return Resource.all()
-
-    @classmethod
-    def resource_limits(cls) -> List[str]:
-        return Resource.limits()
-
-    @classmethod
-    def resource_losses(cls) -> List[str]:
-        return Resource.losses()
+    @staticmethod
+    def resource_aspects() -> list:
+        """Returns Resource aspects at Process level"""
+        return CashFlow.resource() + Limit.resource() + Loss.process() + Capacity.process()
 
     @classmethod
     def ctypes(cls) -> Set[str]:
         """All Process paramters
         """
         return ProcessType.all()
+
+    @staticmethod
+    def resource_inputs() -> list:
+        """Aspects that are for input resources
+        """
+        return [CashFlow.PURCHASE_COST, Limit.CONSUME]
 
     @classmethod
     def process_level_classifications(cls) -> Set[str]:
@@ -417,14 +383,10 @@ class Process:
         """
         return ProcessType.location_level()
 
-    @property
-    def comptype(self) -> str:
-        return self.__class__.__name__
-
     # *----------- Hashing --------------------------------
 
     def __repr__(self):
-        return self.name
+        return str(self.name)
 
     def __hash__(self):
         return hash(self.name)
