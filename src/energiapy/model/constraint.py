@@ -60,9 +60,9 @@ class Constraint:
 
         if self.condition == Condition.CAPACITATE:
             constraint = f'{variable}<={parameter}{multip}{associated}'
-        
+
         self.name = constraint
-        print(constraint)
+
     def __lt__(self, other):
         return self.name < other.name
 

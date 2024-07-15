@@ -18,6 +18,7 @@ from .type.condition import Condition
 from .type.disposition import TemporalDisp
 from .unbound import BigM, Unbound
 from .variable import Variable
+from ..components.funcs.print import printer
 
 
 @dataclass
@@ -46,7 +47,6 @@ class Aspect:
                     if len(value_) in horizon.n_indices:
                         tempd = horizon.scales[horizon.n_indices.index(
                             len(value_))]
-                        print(tempd)
                     else:
                         raise ValueError(
                             f'{self.name}: length of data must match atleast one scale')
@@ -107,7 +107,6 @@ class Aspect:
             for i, j in enumerate(list(value_)):
 
                 for rule in rulebook.find(aspect):
-                    print(rule)
                     parameter_, associated_, bound_ = (None for _ in range(3))
 
                     parameter = Parameter(value=j, aspect=aspect, component=component, declared_at=declared_at, horizon=horizon,
@@ -138,22 +137,13 @@ class Aspect:
                             set(self.constraints) | {constraint}))
 
     def params(self):
-        """prints parameters
-        """
-        for i in getattr(self, 'parameters'):
-            print(i)
+        printer(component=self, print_collection='paramters')
 
     def vars(self):
-        """prints variables
-        """
-        for i in getattr(self, 'variables'):
-            print(i)
+        printer(component=self, print_collection='variables')
 
     def cons(self):
-        """prints constraints
-        """
-        for i in getattr(self, 'constraints'):
-            print(i)
+        printer(component=self, print_collection='constraints')
 
     def __repr__(self):
         return self.name

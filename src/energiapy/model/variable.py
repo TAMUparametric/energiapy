@@ -32,13 +32,13 @@ class Variable:
 
         self.index = tuple(dict.fromkeys([comp, dec_at, temp]).keys())
         self.name = f'{var}{self.index}'
-        
+
     def __lt__(self, other):
         return self.name < other.name
-    
+
     def __gt__(self, other):
         return self.name > other.name
-    
+
     def __repr__(self):
         return self.name
 

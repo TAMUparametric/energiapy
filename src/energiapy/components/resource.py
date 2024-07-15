@@ -1,10 +1,13 @@
-"""energiapy.Resource - Resource as refined in the RT(M)N framework  
+"""energiapy.Resource - Resource as refined in the RT(M)N framework
 """
 from dataclasses import dataclass
 from typing import Union
 from ..model.aspect import Aspect
 from ..model.type.aspect import CashFlow, Emission, Limit, AspectType
 from .type.resource import ResourceType
+from .funcs.name import namer
+from .funcs.aspect import aspecter, is_aspect_ready
+from .funcs.print import printer
 
 
 @dataclass
@@ -107,61 +110,52 @@ class Resource:
             raise ValueError(
                 f'{self.name}: cons_max has been depreciated. Please use consume instead')
 
+    # def __setattr__(self, name, value):
+    #     super().__setattr__(name, value)
+    #     if hasattr(self, 'named') and self.named and name in AspectType.aspects() and value is not None:
+
+    #         current_value = getattr(self, name)
+
+    #         if not isinstance(current_value, Aspect):
+    #             new_value = Aspect(
+    #                 aspect=AspectType.match(name), component=self)
+    #         else:
+    #             new_value = current_value
+
+    #         if not isinstance(value, Aspect):
+    #             new_value.add(value=value, aspect=AspectType.match(name), component=self,
+    #                           horizon=self.horizon, declared_at=self.declared_at)
+    #             setattr(self, name, new_value)
+
+    #             for i in ['parameters', 'variables', 'constraints']:
+    #                 if hasattr(new_value, i):
+    #                     getattr(self, i).extend(getattr(new_value, i))
+
     def __setattr__(self, name, value):
         super().__setattr__(name, value)
-        if hasattr(self, 'named') and self.named and name in AspectType.aspects() and value is not None:
-            current_value = getattr(self, name)
+        if is_aspect_ready(component=self, attr_name=name, attr_value=value):
+            aspecter(component=self, attr_name=name, attr_value=value)
 
-            if not isinstance(current_value, Aspect):
-                new_value = Aspect(
-                    aspect=AspectType.match(name), component=self)
-            else:
-                new_value = current_value
-
-            if not isinstance(value, Aspect):
-                new_value.add(value=value, aspect=AspectType.match(name), component=self,
-                              horizon=self.horizon, declared_at=self.declared_at)
-                setattr(self, name, new_value)
-
-                for i in ['parameters', 'variables', 'constraints']:
-                    if hasattr(new_value, i):
-                        getattr(self, i).extend(getattr(new_value, i))
-
-    def namer(self, name, horizon):
-        self.name = name
-        self.horizon = horizon
-        self.named = True
-
-        for i in AspectType.aspects():
-            if hasattr(self, i) and getattr(self, i) is not None:
-                setattr(self, i, getattr(self, i))
+    def make_named(self, name, horizon):
+        namer(component=self, name=name, horizon=horizon)
 
     def params(self):
-        """prints parameters
-        """
-        for i in self.parameters:
-            print(i)
+        printer(component=self, print_collection='paramters')
 
     def vars(self):
-        """prints variables
-        """
-        for i in self.variables:
-            print(i)
+        printer(component=self, print_collection='variables')
 
     def cons(self):
-        """prints constraints
-        """
-        for i in self.constraints:
-            print(i)
+        printer(component=self, print_collection='constraints')
 
     # *-----------------Methods--------------------
 
-    @staticmethod
+    @ staticmethod
     def cname() -> str:
         """Returns class name"""
         return 'Resource'
 
-    @staticmethod
+    @ staticmethod
     def aspects() -> list:
         """Returns Resource aspects"""
         return Limit.resource() + CashFlow.resource() + Emission.all()

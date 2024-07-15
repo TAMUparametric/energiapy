@@ -6,6 +6,7 @@ from .process import Process
 # from .temporal_scale import TemporalScale
 
 from dataclasses import dataclass
+from .funcs.print import printer
 
 
 @dataclass
@@ -47,15 +48,21 @@ class Scenario:
             setattr(self, mod, list())
 
     def __setattr__(self, name, value):
+        # *Would avoid making a general function to update components for the sake of clarity
         super().__setattr__(name, value)
+
         if isinstance(value, Horizon):
-            if not value.name:
+
+            if not value.name:  # this assigns the name of component to one declared by user
                 setattr(value, 'name', name)
+
             if not self.horizon:
                 setattr(self, 'horizon', value)
                 setattr(self, 'scales', value.scales)
                 for i in value.scales:
                     setattr(self, i.name, i)
+
+        # if isinstance(value, Resource):
 
         if isinstance(value, (Resource, Process)):
 
@@ -75,7 +82,7 @@ class Scenario:
                         value.stored_resource: value.conversion.conversion[value.stored_resource]}})
 
             if not value.named:
-                value.namer(name=name, horizon=self.horizon)
+                value.make_named(name=name, horizon=self.horizon)
             getattr(self, f'{value.cname().lower()}s'.replace(
                 'sss', 'sses')).append(value)
 
@@ -95,22 +102,13 @@ class Scenario:
     # * ---------Methods-----------------
 
     def params(self):
-        """prints parameters
-        """
-        for i in getattr(self, 'parameters'):
-            print(i)
+        printer(component=self, print_collection='paramters')
 
     def vars(self):
-        """prints variables
-        """
-        for i in getattr(self, 'variables'):
-            print(i)
+        printer(component=self, print_collection='variables')
 
     def cons(self):
-        """prints constraints
-        """
-        for i in getattr(self, 'constraints'):
-            print(i)
+        printer(component=self, print_collection='constraints')
 
     @staticmethod
     def cname() -> str:

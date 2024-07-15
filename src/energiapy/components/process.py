@@ -24,6 +24,10 @@ from .temporal_scale import TemporalScale
 from .type.process import ProcessType
 from .type.resource import ResourceType
 
+from .funcs.name import namer
+from .funcs.aspect import aspecter, is_aspect_ready
+from .funcs.print import printer
+
 
 @dataclass
 class Process:
@@ -295,54 +299,27 @@ class Process:
 
     def __setattr__(self, name, value):
         super().__setattr__(name, value)
-        if hasattr(self, 'named') and self.named and name in AspectType.aspects() and value is not None:
-            current_value = getattr(self, name)
+        if is_aspect_ready(component=self, attr_name=name, attr_value=value):
             if AspectType.match(name) in self.aspects():
-                if not isinstance(current_value, Aspect):
-                    new_value = Aspect(
-                        aspect=AspectType.match(name), component=self)
-                else:
-                    new_value = current_value
-                if not isinstance(value, Aspect):
-                    new_value.add(value=value, aspect=AspectType.match(name), component=self,
-                                  horizon=self.horizon, declared_at=self.declared_at)
-                    setattr(self, name, new_value)
-
-                    for i in ['parameters', 'variables', 'constraints']:
-                        if hasattr(new_value, i):
-                            getattr(self, i).extend(getattr(new_value, i))
+                aspecter(component=self, attr_name=name, attr_value=value)
 
             elif AspectType.match(name) in self.resource_aspects():
+                current_value = getattr(self, name)
                 for j in current_value:
                     j.declared_at = self
                     setattr(j, name, current_value[j])
 
-    def namer(self, name, horizon):
-        self.name = name
-        self.horizon = horizon
-        self.named = True
-
-        for i in AspectType.aspects():
-            if hasattr(self, i) and getattr(self, i) is not None:
-                setattr(self, i, getattr(self, i))
+    def make_named(self, name, horizon):
+        namer(component=self, name=name, horizon=horizon)
 
     def params(self):
-        """prints parameters
-        """
-        for i in getattr(self, 'parameters'):
-            print(i)
+        printer(component=self, print_collection='paramters')
 
     def vars(self):
-        """prints variables
-        """
-        for i in getattr(self, 'variables'):
-            print(i)
+        printer(component=self, print_collection='variables')
 
     def cons(self):
-        """prints constraints
-        """
-        for i in getattr(self, 'constraints'):
-            print(i)
+        printer(component=self, print_collection='constraints')
 
     # *----------------- Class Methods -----------------------------------------
     # * component class types
