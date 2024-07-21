@@ -18,7 +18,7 @@ from .type.condition import Condition
 from .type.disposition import TemporalDisp
 from .unbound import BigM, Unbound
 from .variable import Variable
-from ..components.funcs.print import printer
+from ..funcs.print import printer
 
 
 @dataclass

@@ -1,4 +1,4 @@
-from ...model.type.aspect import AspectType
+from ..model.type.aspect import AspectType
 
 
 def namer(component, name, horizon):

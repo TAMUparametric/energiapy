@@ -24,9 +24,9 @@ from .temporal_scale import TemporalScale
 from .type.process import ProcessType
 from .type.resource import ResourceType
 
-from .funcs.name import namer
-from .funcs.aspect import aspecter, is_aspect_ready
-from .funcs.print import printer
+from ..funcs.name import namer
+from ..funcs.aspect import aspecter, is_aspect_ready
+from ..funcs.print import printer
 
 
 @dataclass
@@ -178,7 +178,7 @@ class Process:
 
         self.declared_at = self
 
-        for i in ['produce', 'store', 'store_loss', 'store_cost', 'transport', 'transport_loss', 'transport_cost']:
+        for i in ['produce', 'store', 'transport', 'transport_loss', 'transport_cost']:
             setattr(self, i, None)
 
         # *-----------------Set ctype (ProcessType)---------------------------------
@@ -198,6 +198,9 @@ class Process:
 
         if hasattr(self.conversion, 'stored_resource'):
             self.stored_resource = self.conversion.stored_resource
+            for i in ['store', 'store_loss', 'store_cost']:
+                setattr(
+                    self, i, {self.conversion.stored_resource: getattr(self, i)})
 
         for i in ['discharge', 'consume']:
             if not getattr(self, i):

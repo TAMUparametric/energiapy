@@ -48,7 +48,7 @@ class Conversion:
             self.produce = Resource(
                 label=f'{self.stored_resource.label} stored in {self.process.label}')
             self.involve = [self.stored_resource, self.produce]
-
+            
             # setattr(self.produce, 'horizon', self.stored_resource.horizon)
             # setattr(self.produce, 'name', f'{self.stored_resource.name}_in_{self.process.name}')
 

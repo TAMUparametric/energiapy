@@ -5,9 +5,9 @@ from typing import Union
 from ..model.aspect import Aspect
 from ..model.type.aspect import CashFlow, Emission, Limit, AspectType
 from .type.resource import ResourceType
-from .funcs.name import namer
-from .funcs.aspect import aspecter, is_aspect_ready
-from .funcs.print import printer
+from ..funcs.name import namer
+from ..funcs.aspect import aspecter, is_aspect_ready
+from ..funcs.print import printer
 
 
 @dataclass

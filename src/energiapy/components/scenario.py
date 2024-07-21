@@ -6,7 +6,7 @@ from .process import Process
 # from .temporal_scale import TemporalScale
 
 from dataclasses import dataclass
-from .funcs.print import printer
+from ..funcs.print import printer
 
 
 @dataclass
@@ -52,7 +52,6 @@ class Scenario:
         super().__setattr__(name, value)
 
         if isinstance(value, Horizon):
-
             if not value.name:  # this assigns the name of component to one declared by user
                 setattr(value, 'name', name)
 
@@ -62,13 +61,17 @@ class Scenario:
                 for i in value.scales:
                     setattr(self, i.name, i)
 
-        # if isinstance(value, Resource):
+        if hasattr(value, 'named') and not value.named:
+            value.make_named(name=name, horizon=self.horizon)
 
-        if isinstance(value, (Resource, Process)):
+        if isinstance(value, Resource):
+            getattr(self, 'resources').append(value)
+
+        if isinstance(value, Process):
 
             if hasattr(value, 'stored_resource'):
                 r_naav = f'{value.stored_resource.name}_in_{value.name}'
-                setattr(self, r_naav, value.produce)
+                setattr(self, r_naav, value.conversion.produce)
                 p_naav = f'{value.name}_d'
 
                 setattr(self, p_naav, Process(
@@ -78,26 +81,14 @@ class Scenario:
                     setattr(getattr(self, p_naav), i, {
                             getattr(self, r_naav): getattr(value, i)})
 
-                setattr(getattr(getattr(self, name), 'conversion'), 'conversion',  {value.produce: {
+                setattr(getattr(getattr(self, name), 'conversion'), 'conversion',  {value.conversion.produce: {
                         value.stored_resource: value.conversion.conversion[value.stored_resource]}})
 
-            if not value.named:
-                value.make_named(name=name, horizon=self.horizon)
-            getattr(self, f'{value.cname().lower()}s'.replace(
-                'sss', 'sses')).append(value)
+            getattr(self, 'processes').append(value)
 
-            for i in ['parameters', 'variables', 'constraints']:
-                if hasattr(value, i):
-                    getattr(self, i).extend(getattr(value, i))
-
-        # if isinstance(value, Process):
-        #     if not value.name:
-        #         setattr(value, 'name', name)
-        #         setattr(value, 'horizon', self.horizon)
-        #     getattr(self, 'processes').append(value)
-        #     for i in ['parameters', 'variables', 'constraints']:
-        #         if hasattr(value, i):
-        #             getattr(self, i).extend(getattr(value, i))
+        for i in ['parameters', 'variables', 'constraints']:
+            if hasattr(value, i):
+                getattr(self, i).extend(getattr(value, i))
 
     # * ---------Methods-----------------
 
