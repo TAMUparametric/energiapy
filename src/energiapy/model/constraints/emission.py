@@ -609,6 +609,7 @@ def constraint_global_warming_potential_process_scope2(instance: ConcreteModel, 
     return instance.constraint_global_warming_potential_process_scope2
 
 
+
 def constraint_global_warming_potential_material_mode_scope2(instance: ConcreteModel, material_gwp_dict: dict, process_material_mode_material_dict: dict, network_scale_level: int = 0) -> Constraint:
     """Calculates the scope 2 global warming potential arising from the use of materials for processes in each material mode
 
