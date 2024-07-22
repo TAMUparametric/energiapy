@@ -22,7 +22,8 @@ from ...components.process import Process
 
 
 def constraint_resource_consumption(instance: ConcreteModel, location_resource_dict: dict = None, cons_max: dict = None,
-                                    scheduling_scale_level: int = 0, availability_scale_level: int = 0, availability_factor: dict = None) -> Constraint:
+                                    scheduling_scale_level: int = 0, availability_scale_level: int = 0,
+                                    availability_factor: dict = None) -> Constraint:
     """Determines consumption of resource at location in network
 
     Args:
@@ -47,9 +48,12 @@ def constraint_resource_consumption(instance: ConcreteModel, location_resource_d
     def resource_consumption_rule(instance, location, resource, *scale_list):
         if resource in location_resource_dict[location]:
             if availability_factor[location] is None:
-                return instance.C[location, resource, scale_list[:scheduling_scale_level + 1]] <= cons_max[location][resource]
+                return instance.C[location, resource, scale_list[:scheduling_scale_level + 1]] <= cons_max[location][
+                    resource]
             else:
-                return instance.C[location, resource, scale_list[:scheduling_scale_level + 1]] <= availability_factor[location][resource][scale_list[:availability_scale_level + 1]]*cons_max[location][resource]
+                return instance.C[location, resource, scale_list[:scheduling_scale_level + 1]] <= \
+                    availability_factor[location][resource][scale_list[:availability_scale_level + 1]] * \
+                    cons_max[location][resource]
         else:
             return instance.C[location, resource, scale_list[:scheduling_scale_level + 1]] <= 0
 
@@ -63,7 +67,8 @@ def constraint_resource_consumption(instance: ConcreteModel, location_resource_d
 
 def constraint_inventory_balance(instance: ConcreteModel, scheduling_scale_level: int = 0,
                                  multiconversion: dict = None, mode_dict: dict = None,
-                                 cluster_wt: dict = None, inventory_zero: Dict[Location, Dict[Tuple[Process, Resource], float]] = None,
+                                 cluster_wt: dict = None,
+                                 inventory_zero: Dict[Location, Dict[Tuple[Process, Resource], float]] = None,
                                  location_resource_dict: dict = None) -> Constraint:
     """balances resource across the scheduling horizon
     Mass balance in any temporal discretization has the following within their respective sets:
@@ -107,7 +112,8 @@ def constraint_inventory_balance(instance: ConcreteModel, scheduling_scale_level
             j[0], j[1])] for j in inventory_zero[i]} for i in inventory_zero.keys()}
 
         inventory_zero = {i: {
-            j: inventory_zero[i][j] if j in inventory_zero[i].keys() else 0 for j in instance.resources_store} for i in inventory_zero.keys()}
+            j: inventory_zero[i][j] if j in inventory_zero[i].keys() else 0 for j in instance.resources_store} for i in
+            inventory_zero.keys()}
 
     scales = scale_list(instance=instance,
                         scale_levels=scheduling_scale_level + 1)
@@ -117,24 +123,24 @@ def constraint_inventory_balance(instance: ConcreteModel, scheduling_scale_level
     def inventory_balance_rule(instance, location, resource, *scale_list):
         if resource in instance.resources_purch:
             consumption = instance.C[location, resource,
-                                     scale_list[:scheduling_scale_level + 1]]
+            scale_list[:scheduling_scale_level + 1]]
         else:
             consumption = 0
 
         if resource in instance.resources_store:
             if scale_list[:scheduling_scale_level + 1] != scale_iter[0]:
                 storage = instance.Inv[location, resource, scale_list[:scheduling_scale_level + 1]] \
-                    - instance.Inv[location, resource, scale_iter[scale_iter.index(
-                        scale_list[:scheduling_scale_level + 1]) - 1]]
+                          - instance.Inv[location, resource, scale_iter[scale_iter.index(
+                    scale_list[:scheduling_scale_level + 1]) - 1]]
             else:
                 storage = instance.Inv[location, resource,
-                                       scale_list[:scheduling_scale_level + 1]] - inventory_zero[location][resource]
+                scale_list[:scheduling_scale_level + 1]] - inventory_zero[location][resource]
         else:
             storage = 0
 
         if resource in instance.resources_sell:
             discharge = instance.S[location, resource,
-                                   scale_list[:scheduling_scale_level + 1]]
+            scale_list[:scheduling_scale_level + 1]]
         else:
             discharge = 0
 
@@ -142,9 +148,10 @@ def constraint_inventory_balance(instance: ConcreteModel, scheduling_scale_level
             if resource in instance.resources_trans:
                 if resource in location_resource_dict[location]:
                     transport = sum(
-                        instance.Exp_R[source_, location, resource, scale_list[:scheduling_scale_level + 1]] for source_ in
+                        instance.Exp_R[source_, location, resource, scale_list[:scheduling_scale_level + 1]] for source_
+                        in
                         instance.sources if source_ != location if location in instance.sinks) \
-                        - sum(
+                                - sum(
                         instance.Exp_R[location, sink_, resource, scale_list[:scheduling_scale_level + 1]] for sink_ in
                         instance.sinks if sink_ != location if location in instance.sources)
                 else:
@@ -158,13 +165,14 @@ def constraint_inventory_balance(instance: ConcreteModel, scheduling_scale_level
         #     + sum(instance.P[location, process, scale_list[:scheduling_scale_level+1]] for process in instance.processes_multim)
 
         produced = sum(sum(multiconversion[process][mode][resource] * instance.P_m[location, process, mode,
-                                                                                   scale_list[:scheduling_scale_level + 1]] for mode in mode_dict[process]) for process in
+        scale_list[:scheduling_scale_level + 1]] for mode in mode_dict[process]) for process in
                        instance.processes_full)  # includes processes + discharge
 
-        def weight(x): return 1 if cluster_wt is None else cluster_wt[x]
+        def weight(x):
+            return 1 if cluster_wt is None else cluster_wt[x]
 
         return weight(scale_list[:scheduling_scale_level + 1]) * (
-            consumption + produced - discharge + transport) == storage
+                consumption + produced - discharge + transport) == storage
 
     instance.constraint_inventory_balance = Constraint(
         instance.locations, instance.resources, *scales, rule=inventory_balance_rule,
@@ -188,12 +196,14 @@ def constraint_location_production(instance: ConcreteModel, cluster_wt: dict,
     scales = scale_list(instance=instance,
                         scale_levels=network_scale_level + 1)
     scale_iter = scale_tuple(
-        instance=instance, scale_levels=scheduling_scale_level+1)
+        instance=instance, scale_levels=scheduling_scale_level + 1)
 
     def location_production_rule(instance, location, process, *scale_list):
         def weight(x): return 1 if cluster_wt is None else cluster_wt[x]
+
         return instance.P_location[location, process, scale_list] == sum(
-            weight(scale_) * instance.P[location, process, scale_[:scheduling_scale_level + 1]] for scale_ in scale_iter if scale_[:network_scale_level + 1] == scale_list)
+            weight(scale_) * instance.P[location, process, scale_[:scheduling_scale_level + 1]] for scale_ in scale_iter
+            if scale_[:network_scale_level + 1] == scale_list)
 
     instance.constraint_location_production = Constraint(
         instance.locations, instance.processes, *scales, rule=location_production_rule,
@@ -202,7 +212,8 @@ def constraint_location_production(instance: ConcreteModel, cluster_wt: dict,
     return instance.constraint_location_production
 
 
-def constraint_location_production_material_mode_sum(instance: ConcreteModel, process_material_mode_material_dict: dict, network_scale_level: int = 0) -> Constraint:
+def constraint_location_production_material_mode_sum(instance: ConcreteModel, process_material_mode_material_dict: dict,
+                                                     network_scale_level: int = 0) -> Constraint:
     """Determines total production capacity utilization at location
 
     Args:
@@ -218,7 +229,8 @@ def constraint_location_production_material_mode_sum(instance: ConcreteModel, pr
 
     def location_production_material_mode_sum_rule(instance, location, process, *scale_list):
         return instance.P_location[location, process, scale_list] == sum(
-            instance.P_location_material_m[location, process, material_mode_, scale_list] for material_mode_ in instance.material_modes if material_mode_ in process_material_mode_material_dict[process].keys())
+            instance.P_location_material_m[location, process, material_mode_, scale_list] for material_mode_ in
+            instance.material_modes if material_mode_ in process_material_mode_material_dict[process].keys())
 
     instance.constraint_location_production_material_mode_sum = Constraint(
         instance.locations, instance.processes, *
@@ -229,7 +241,8 @@ def constraint_location_production_material_mode_sum(instance: ConcreteModel, pr
 
 
 def constraint_location_production_material_mode(instance: ConcreteModel, cluster_wt: dict,
-                                                 network_scale_level: int = 0, scheduling_scale_level: int = 0) -> Constraint:
+                                                 network_scale_level: int = 0,
+                                                 scheduling_scale_level: int = 0) -> Constraint:
     """Determines total production capacity utilization at location
 
     Args:
@@ -243,12 +256,15 @@ def constraint_location_production_material_mode(instance: ConcreteModel, cluste
     scales = scale_list(instance=instance,
                         scale_levels=network_scale_level + 1)
     scale_iter = scale_tuple(
-        instance=instance, scale_levels=scheduling_scale_level+1)
+        instance=instance, scale_levels=scheduling_scale_level + 1)
 
-    def location_production_material_mode_rule(instance, location, process, material_mode,  *scale_list):
+    def location_production_material_mode_rule(instance, location, process, material_mode, *scale_list):
         def weight(x): return 1 if cluster_wt is None else cluster_wt[x]
+
         return instance.P_location_material_m[location, process, material_mode, scale_list] == sum(
-            weight(scale_) * instance.P_material_m[location, process, material_mode, scale_[:scheduling_scale_level + 1]] for scale_ in scale_iter if scale_[:network_scale_level + 1] == scale_list)
+            weight(scale_) * instance.P_material_m[
+                location, process, material_mode, scale_[:scheduling_scale_level + 1]] for scale_ in scale_iter if
+            scale_[:network_scale_level + 1] == scale_list)
 
     instance.constraint_location_production_material_mode = Constraint(
         instance.locations, instance.processes, instance.material_modes, *
@@ -278,7 +294,8 @@ def constraint_location_discharge(instance: ConcreteModel, cluster_wt: dict,
         def weight(x): return 1 if cluster_wt is None else cluster_wt[x]
 
         return instance.S_location[location, resource, scale_list] == sum(
-            weight(scale_) * instance.S[location, resource, scale_[:scheduling_scale_level + 1]] for scale_ in scale_iter
+            weight(scale_) * instance.S[location, resource, scale_[:scheduling_scale_level + 1]] for scale_ in
+            scale_iter
             if scale_[:network_scale_level + 1] == scale_list)
 
     instance.constraint_location_discharge = Constraint(
@@ -310,7 +327,8 @@ def constraint_location_consumption(instance: ConcreteModel, cluster_wt: dict,
         def weight(x): return 1 if cluster_wt is None else cluster_wt[x]
 
         return instance.C_location[location, resource, scale_list] == sum(
-            weight(scale_) * instance.C[location, resource, scale_[:scheduling_scale_level + 1]] for scale_ in scale_iter
+            weight(scale_) * instance.C[location, resource, scale_[:scheduling_scale_level + 1]] for scale_ in
+            scale_iter
             if scale_[:network_scale_level + 1] == scale_list)
 
     instance.constraint_location_consumption = Constraint(
@@ -390,7 +408,8 @@ def constraint_network_consumption(instance: ConcreteModel, network_scale_level:
     return instance.constraint_network_consumption
 
 
-def constraint_specific_network_discharge(instance: ConcreteModel, bounds: Dict[Resource, float], network_scale_level: int = 0, ) -> Constraint:
+def constraint_specific_network_discharge(instance: ConcreteModel, bounds: Dict[Resource, float],
+                                          network_scale_level: int = 0, ) -> Constraint:
     """Determines total resource discharged across specificnetwork
 
     Args:
@@ -412,10 +431,12 @@ def constraint_specific_network_discharge(instance: ConcreteModel, bounds: Dict[
             return Constraint.Skip
 
     constraint_latex_render(specific_network_discharge_rule)
-    return Constraint(instance.resources_sell, *scales, rule=specific_network_discharge_rule, doc='restrict discharge of resource at network level')
+    return Constraint(instance.resources_sell, *scales, rule=specific_network_discharge_rule,
+                      doc='restrict discharge of resource at network level')
 
 
-def constraint_specific_location_discharge(instance: ConcreteModel, location: Location, bounds: Dict[Resource, float], network_scale_level: int = 0, ) -> Constraint:
+def constraint_specific_location_discharge(instance: ConcreteModel, location: Location, bounds: Dict[Resource, float],
+                                           network_scale_level: int = 0, ) -> Constraint:
     """Determines total resource discharged across specific location
 
     Args:
@@ -438,10 +459,12 @@ def constraint_specific_location_discharge(instance: ConcreteModel, location: Lo
             return Constraint.Skip
 
     constraint_latex_render(specific_location_discharge_rule)
-    return Constraint(instance.resources_sell, *scales, rule=specific_location_discharge_rule, doc='restrict discharge of resource at location level')
+    return Constraint(instance.resources_sell, *scales, rule=specific_location_discharge_rule,
+                      doc='restrict discharge of resource at location level')
 
 
-def constraint_inventory_network(instance: ConcreteModel, network_scale_level: int = 0, scheduling_scale_level: int = 0) -> Constraint:
+def constraint_inventory_network(instance: ConcreteModel, network_scale_level: int = 0,
+                                 scheduling_scale_level: int = 0) -> Constraint:
     """calculates total inventory stored over the network scale
 
     Args:
@@ -460,10 +483,13 @@ def constraint_inventory_network(instance: ConcreteModel, network_scale_level: i
         instance=instance, scale_levels=scheduling_scale_level + 1)
 
     def inventory_network_rule(instance, location, resource, *scale_list):
-        return instance.Inv_network[location, resource, scale_list[:network_scale_level + 1]] == sum(instance.Inv[location, resource, scale_] for scale_ in scale_iter if scale_[:network_scale_level + 1] == scale_list)
+        return instance.Inv_network[location, resource, scale_list[:network_scale_level + 1]] == sum(
+            instance.Inv[location, resource, scale_] for scale_ in scale_iter if
+            scale_[:network_scale_level + 1] == scale_list)
 
     instance.constraint_inventory_network = Constraint(
-        instance.locations, instance.resources_store, *scales, rule=inventory_network_rule, doc='total inventory at network')
+        instance.locations, instance.resources_store, *scales, rule=inventory_network_rule,
+        doc='total inventory at network')
     constraint_latex_render(inventory_network_rule)
 
     return instance.constraint_inventory_network

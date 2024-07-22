@@ -342,18 +342,6 @@ def constraint_process_capex(instance: ConcreteModel, capex_dict: dict, network_
     scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
 
     def process_capex_rule(instance, location, process, *scale_list):
-
-        # if capex_dict[process] is not None:
-        #     if capex_factor[location] is not None:
-        #         if process in list(capex_factor[location].keys()):
-        #             return instance.Capex_process[location, process, scale_list] == annualization_factor*capex_factor[location][process][scale_list]*capex_dict[process]*instance.Cap_P[location, process, scale_list]
-        #         else:
-        #             return instance.Capex_process[location, process, scale_list] == annualization_factor*capex_dict[process]*instance.Cap_P[location, process, scale_list]
-        #     else:
-        #         return instance.Capex_process[location, process, scale_list] == annualization_factor*capex_dict[process]*instance.Cap_P[location, process, scale_list]
-        # else:
-        #     return instance.Capex_process[location, process, scale_list] == 0
-
         if capex_dict[process] is not None:
             Cap_P = instance.Cap_P[location, process, scale_list]
         else:

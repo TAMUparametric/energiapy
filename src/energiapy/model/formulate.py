@@ -149,7 +149,12 @@ from .constraints.resource_balance import (
 
 from .constraints.demand import (
     constraint_demand,
-    constraint_demand_penalty
+    constraint_demand_penalty,
+    constraint_demand_penalty_location,
+    constraint_demand_penalty_network,
+    constraint_demand_penalty_cost,
+    constraint_demand_penalty_cost_location,
+    constraint_demand_penalty_cost_network
 )
 from .constraints.transport import (
     # constraint_transport_balance,
@@ -946,6 +951,19 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
                                       scheduling_scale_level=scenario.scheduling_scale_level, demand=demand,
                                       demand_factor=scenario.demand_factor, location_resource_dict=scenario.location_resource_dict, sign=demand_sign)
 
+            constraint_demand_penalty_location(
+                instance=instance, cluster_wt=scenario.cluster_wt, network_scale_level=scenario.network_scale_level,
+                demand_scale_level=scenario.demand_scale_level)
+
+            constraint_demand_penalty_network(instance=instance, network_scale_level=scenario.network_scale_level)
+
+            constraint_demand_penalty_cost(instance=instance, demand_scale_level=scenario.demand_scale_level, demand_penalty_dict=scenario.demand_penalty)
+
+            constraint_demand_penalty_cost_location(instance=instance, demand_scale_level=scenario.demand_scale_level,
+                                                    network_scale_level=scenario.network_scale_level)
+
+            constraint_demand_penalty_cost_network(instance=instance, network_scale_level=scenario.network_scale_level)
+
             objective_cost_w_demand_penalty(instance=instance, demand_penalty=scenario.demand_penalty,
                                             constraints=constraints, network_scale_level=scenario.network_scale_level, demand_scale_level=scenario.demand_scale_level)
 
@@ -955,6 +973,19 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
             constraint_demand_penalty(instance=instance, demand_scale_level=scenario.demand_scale_level,
                                       scheduling_scale_level=scenario.scheduling_scale_level, demand=demand,
                                       demand_factor=scenario.demand_factor, location_resource_dict=scenario.location_resource_dict, sign=demand_sign)
+            constraint_demand_penalty_location(
+                instance=instance, cluster_wt=scenario.cluster_wt, network_scale_level=scenario.network_scale_level,
+                demand_scale_level=scenario.demand_scale_level)
+
+            constraint_demand_penalty_network(instance=instance, network_scale_level=scenario.network_scale_level)
+
+            constraint_demand_penalty_cost(instance=instance, demand_scale_level=scenario.demand_scale_level, demand_penalty_dict=scenario.demand_penalty)
+
+            constraint_demand_penalty_cost_location(instance=instance, demand_scale_level=scenario.demand_scale_level,
+                                                    network_scale_level=scenario.network_scale_level)
+
+            constraint_demand_penalty_cost_network(instance=instance, network_scale_level=scenario.network_scale_level)
+
             constraint_network_cost(
                 instance=instance, network_scale_level=scenario.network_scale_level, constraints=constraints)
             constraint_resource_revenue(instance=instance, location_resource_dict=scenario.location_resource_dict, revenue=scenario.revenue_dict,

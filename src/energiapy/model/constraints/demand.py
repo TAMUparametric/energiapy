@@ -313,6 +313,138 @@ def constraint_demand_penalty(instance: ConcreteModel, demand: Union[dict, float
     constraint_latex_render(demand_penalty_rule)
     return instance.constraint_demand_penalty
 
+def constraint_demand_penalty_location(instance: ConcreteModel, cluster_wt: dict,
+                                       network_scale_level: int = 0, demand_scale_level: int = 0) -> Constraint:
+    """
+
+    Args:
+        instance (ConcreteModel): pyomo instance
+        cluster_wt:
+        network_scale_level:
+
+    Returns:
+        Constraint: _description_
+    """
+
+    scales = scale_list(instance=instance, scale_levels=network_scale_level + 1)
+    scale_iter = scale_tuple(instance=instance, scale_levels=len(instance.scales))
+
+    def location_demand_penalty_rule(instance, location, resource_demand, *scale_list):
+        def weight(x): return 1 if cluster_wt is None else cluster_wt[x]
+
+        return instance.Demand_penalty_location[location, resource_demand, scale_list] == sum(
+            weight(scale_) * instance.Demand_penalty[location, resource_demand, scale_[:demand_scale_level + 1]]
+            for scale_ in scale_iter if scale_[:network_scale_level + 1] == scale_list)
+
+    instance.constraint_demand_penalty_location = Constraint(instance.locations, instance.resources_demand, *scales,
+                                                             rule=location_demand_penalty_rule,
+                                                             doc='total unmet demand at a location')
+    constraint_latex_render(location_demand_penalty_rule)
+    return instance.constraint_demand_penalty_location
+
+def constraint_demand_penalty_network(instance: ConcreteModel, network_scale_level: int = 0) -> Constraint:
+    """
+
+    Args:
+        instance:
+        network_scale_level:
+
+    Returns:
+
+    """
+
+    scales = scale_list(instance=instance, scale_levels=network_scale_level + 1)
+
+    def demand_penalty_network_rule(instance, resource_demand, *scale_list):
+        return instance.Demand_penalty_network[resource_demand, scale_list] == sum(
+            instance.Demand_penalty_location[location_, resource_demand, scale_list] for location_ in instance.locations)
+
+    instance.constraint_demand_penalty_network = Constraint(
+        instance.resources_demand, *scales, rule=demand_penalty_network_rule, doc='total unmet demand from network')
+    constraint_latex_render(demand_penalty_network_rule)
+    return instance.constraint_demand_penalty_network
+
+def constraint_demand_penalty_cost(instance: ConcreteModel, demand_penalty_dict: dict, demand_scale_level: int):
+    '''
+
+    Args:
+        instance:
+        demand_penalty_dict:
+        network_scale_level:
+
+    Returns:
+
+    '''
+
+    scales = scale_list(instance=instance, scale_levels=demand_scale_level + 1)
+
+    # scale_iter = scale_tuple(instance=instance, scale_levels=len(instance.scales))
+
+    def demand_penalty_cost_rule(instance, location, resource_demand, *scale_list):
+        if demand_penalty_dict[location][resource_demand] is not None:
+            Demand_penalty = instance.Demand_penalty[location, resource_demand, scale_list]
+        else:
+            Demand_penalty = 0
+
+        return (instance.Demand_penalty_cost[location, resource_demand, scale_list] ==
+                demand_penalty_dict[location][resource_demand] * Demand_penalty)
+
+    instance.constraint_demand_penalty_cost = Constraint(instance.locations, instance.resources_demand, *scales,
+                                                         rule=demand_penalty_cost_rule, doc='Demand penalty cost')
+    constraint_latex_render(demand_penalty_cost_rule)
+    return instance.constraint_demand_penalty_cost
+
+
+def constraint_demand_penalty_cost_location(instance: ConcreteModel, demand_scale_level: int = 0,
+                                            network_scale_level: int = 0):
+    '''
+
+    Args:
+        instance:
+        demand_scale_level:
+        network_scale_level:
+
+    Returns:
+
+    '''
+    scales = scale_list(instance=instance, scale_levels=network_scale_level + 1)
+    scale_iter = scale_tuple(instance=instance, scale_levels=len(instance.scales))
+
+    def location_demand_penalty_cost_rule(instance, location, resource_demand, *scale_list):
+        return instance.Demand_penalty_cost_location[location, resource_demand, scale_list] == sum(
+            instance.Demand_penalty_cost[location, resource_demand, scale_[:demand_scale_level + 1]]
+            for scale_ in scale_iter if scale_[:network_scale_level + 1] == scale_list)
+
+    instance.constraint_demand_penalty_cost_location = Constraint(instance.locations, instance.resources_demand,
+                                                                  *scales, rule=location_demand_penalty_cost_rule,
+                                                                  doc='Total demand penalty cost at a location')
+    constraint_latex_render(location_demand_penalty_cost_rule)
+    return instance.constraint_demand_penalty_cost_location
+
+
+def constraint_demand_penalty_cost_network(instance: ConcreteModel, network_scale_level: int = 0):
+    """
+
+    Args:
+        instance:
+        network_scale_level:
+
+    Returns:
+
+    """
+
+    scales = scale_list(instance=instance, scale_levels=network_scale_level + 1)
+
+    def network_demand_penalty_cost_rule(instance, resource_demand, *scale_list):
+        return instance.Demand_penalty_cost_network[resource_demand, scale_list] == sum(
+            instance.Demand_penalty_cost_location[location_, resource_demand, scale_list]
+            for location_ in instance.locations)
+
+    instance.constraint_demand_penalty_cost_network = Constraint(instance.resources_demand, *scales,
+                                                                 rule=network_demand_penalty_cost_rule,
+                                                                 doc='Total demand penalty cost for the network')
+    constraint_latex_render(network_demand_penalty_cost_rule)
+    return instance.constraint_demand_penalty_cost_network
 
 def constraint_demand_theta(instance: ConcreteModel, demand: Union[dict, float], demand_factor: Union[dict, float],
                             demand_scale_level: int = 0, scheduling_scale_level: int = 0,
