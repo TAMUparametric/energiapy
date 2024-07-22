@@ -1,12 +1,10 @@
 
-from .horizon import Horizon
-from .resource import Resource
-from .process import Process
-# from .location import Location
-# from .temporal_scale import TemporalScale
-
 from dataclasses import dataclass
+
 from ..funcs.print import printer
+from .horizon import Horizon
+from .process import Process
+from .resource import Resource
 
 
 @dataclass
@@ -93,7 +91,7 @@ class Scenario:
     # * ---------Methods-----------------
 
     def params(self):
-        printer(component=self, print_collection='paramters')
+        printer(component=self, print_collection='parameters')
 
     def vars(self):
         printer(component=self, print_collection='variables')

@@ -1,9 +1,10 @@
 from dataclasses import dataclass
 from itertools import product
 from typing import List
+
 from ..model.type.disposition import TemporalDisp
-from .type.horizon import HorizonType
 from .temporal_scale import TemporalScale
+from .type.horizon import HorizonType
 
 
 @dataclass
@@ -81,24 +82,46 @@ class Horizon:
 
     def __post_init__(self):
 
+        self.ctype = list()
+
         self.name, self.scales = None, list()
         # insert 1 at the beginning, this is the horizon itself
         self.discretizations.insert(0, 1)
 
         if self.n_scales > 1:
-            setattr(self, 'ctype', HorizonType.MULTI)
+            self.ctype.append(HorizonType.MULTISCALE)
         else:
-            setattr(self, 'ctype', HorizonType.SINGLE)
+            self.ctype.append(HorizonType.SINGLESCALE)
+
+        if self.nested:
+            self.ctype.append(HorizonType.NESTED)
+        else:
+            self.ctype.append(HorizonType.NOT_NESTED)
 
         for i in range(self.n_scales):
             self.scales.append(TemporalScale(name=TemporalDisp.all()[
-                               i].name.lower(), index=self.make_index(postiion=i, nested=self.nested)))
+                               i].name.lower(), index=self.make_index(position=i, nested=self.nested)))
 
         self.indices = {i: i.index for i in self.scales}
 
         self.n_indices = [i.n_index for i in self.scales]
 
     # * ---------Methods-----------------
+
+    def make_index(self, position: int, nested: bool = True):
+        """makes an index for TemporalScale"""
+        if nested:
+            lists = [list(range(i)) for i in self.discretizations]
+            return list(product(*lists[:position+1]))
+        else:
+            if not self.discretizations == sorted(self.discretizations):
+                raise ValueError(
+                    'Discretizations need to be in ascending order')
+            if not all(max(self.discretizations) % i == 0 for i in self.discretizations):
+                raise ValueError(
+                    'Discretizations need to be divisible by the most granular scale')
+            lists = [(0, i) for i in range(max(self.discretizations))]
+            return lists[::max(self.discretizations)//self.discretizations[position]]
 
     @staticmethod
     def ctypes() -> List[HorizonType]:
@@ -114,21 +137,6 @@ class Horizon:
     def n_scales(self) -> int:
         """Returns number of scales"""
         return len(self.discretizations)
-
-    def make_index(self, postiion: int, nested: bool = True):
-        """makes an index for TemporalScale"""
-        if nested:
-            lists = [list(range(i)) for i in self.discretizations]
-            return list(product(*lists[:postiion+1]))
-        else:
-            if not self.discretizations == sorted(self.discretizations):
-                raise ValueError(
-                    'Discretizations need to be in ascending order')
-            if not all(max(self.discretizations) % i == 0 for i in self.discretizations):
-                raise ValueError(
-                    'Discretizations need to be divisible by the most granular scale')
-            lists = [(0, i) for i in range(max(self.discretizations))]
-            return lists[::max(self.discretizations)//self.discretizations[postiion]]
 
     # * ---------Dunders-----------------
 

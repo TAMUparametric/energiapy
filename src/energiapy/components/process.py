@@ -1,112 +1,36 @@
 """energiapy.Process - converts one Resource to another Resource, Or stores Resource  
 """
-# TODO - diff between storage_loss and conversion efficiency
+
+from __future__ import annotations
 
 import operator
-import uuid
 from dataclasses import dataclass
 from functools import reduce
-from typing import Dict, List, Set, Tuple, Union
+from typing import TYPE_CHECKING, Dict, List, Tuple, Union
 
 from pandas import DataFrame
 
-from ..model.aspect import Aspect
-from ..model.unbound import BigM
+from ..funcs.aspect import aspecter, is_aspect_ready
+from ..funcs.name import namer
+from ..funcs.print import printer
 from ..model.conversion import Conversion
 from ..model.dataset import DataSet
 from ..model.theta import Theta
-from ..model.type.aspect import CashFlow, Emission, Land, Life, Limit, Loss, AspectType, Capacity
-from ..model.type.disposition import TemporalDisp, SpatialDisp
+from ..model.type.aspect import (AspectType, Capacity, CashFlow, Emission,
+                                 Land, Life, Limit, Loss)
+from ..model.unbound import BigM
 from ..utils.data_utils import get_depth
-from .material import Material
-from .resource import Resource
-from .temporal_scale import TemporalScale
 from .type.process import ProcessType
-from .type.resource import ResourceType
 
-from ..funcs.name import namer
-from ..funcs.aspect import aspecter, is_aspect_ready
-from ..funcs.print import printer
+if TYPE_CHECKING:
+    from .horizon import Horizon
+    from .material import Material
+    from .resource import Resource
 
 
 @dataclass
 class Process:
-    """
-    A Process can produce or store Resource(s) 
 
-    For production process:
-        conversion needs to be specified
-        production modes and material modes can be declared using nested dictionaries. See examples []
-        piece wise linear capex curves can be declared using a dictionary. See examples []
-
-    For storage process:
-    storage = energiapy.Resource is needed. See examples []
-    a resource_storage with the name {process name}_{resource name}_stored is created, which features in the resource balance 
-    This new resource will inherit the store_max and store_min from Process even if it was specified for Resource
-    cap_max and cap_min in this case will bound the maximum rate of charging and discharging 
-    Further, when provided to a Location, a discharge Process is also created
-    The expenditures (capex, fopex, vopex, incidental) are set to 0 if provided, None otherwise
-
-    Given that maximum and minimum capacity (cap_max and cap_min), and expenditure (capex, fopex, vopex, incidental) can vary by location,
-    localization can be achieved by providing the cap_max_localize, cap_min_localize, capex_localize, fopex_localize, vopex_localize, incidental_localize
-    at Location level
-
-    Credits need to be provided at Location
-
-    Args:
-        name (str): name of process. Enter None to randomly assign a name.
-        cap_max (Union[float, Tuple[float], Theta, bool, 'Big']): Maximum production capacity allowed in a time period of the scheduling scale.
-        cap_min (Union[float, dict, Tuple[float], Theta], optional): Minimum production capacity allowed in a time period of the scheduling scale. Defaults to None.
-        land (Union[float, Tuple[float], Theta], optional): land requirement per unit basis. Defaults to None.
-        conversion (Union[Dict[Union[int, str],Dict[Resource, float]], Dict[Resource, float]], optional): conversion data (Dict[Resource, float]]), if multimode the of form Dict[int,Dict[Resource, float]]. Defaults to None.
-        material_cons (Union[Dict[Union[int, str], Dict[Material, float]],Dict[Material, float]], optional): Materials consumed per unit basis of production capacity. Defaults to None.
-        capex (Union[float, dict, Tuple[float], Theta], None): Capital expenditure per unit basis, can be scaled with capacity. Defaults to None.
-        fopex (Union[float, Tuple[float], Theta], None): Fixed operational expenditure per unit basis, can be scaled with capacity. Defaults to None.
-        vopex (Union[float, Tuple[float], Theta], None): Variable operational expenditure per unit basis, can be scaled with capacity. Defaults to None.
-        incidental (Union[float, Tuple[float], Theta], None): Incidental expenditure. Defaults to None.
-        gwp (Union[float, Tuple[float], Theta], optional): global warming potential for settting up facility per unit basis. Defaults to None.
-        odp (Union[float, Tuple[float], Theta], optional): ozone depletion potential for settting up facility per unit basis. Defaults to None.
-        acid (Union[float, Tuple[float], Theta], optional): acidification potential for settting up facility per unit basis. Defaults to None.
-        eutt (Union[float, Tuple[float], Theta], optional): terrestrial eutrophication potential for settting up facility per unit basis. Defaults to None.
-        eutf (Union[float, Tuple[float], Theta], optional): fresh water eutrophication potential for settting up facility per unit basis. Defaults to None.
-        eutm (Union[float, Tuple[float], Theta], optional): marine eutrophication potential for settting up facility per unit basis. Defaults to None.
-        introduce (int, optional): Time period in the network scale when introduced. Defaults to None.
-        lifetime (Union[float, Tuple[float], Theta] = None, optional): the expected lifetime of Process. Defaults to None.
-        retire (int, optional): Time period in the network scale when retired. Defaults to None.
-        p_fail (Union[float, Tuple[float], Theta] = None, optional): failure rate of Process. Defaults to None.
-        storage(Resource, optional): Resource that can be stored in process. Defaults to None.
-        store_max (Union[float, Tuple[float], Theta] = None, optional): Maximum allowed storage of resource in process. Defaults to None.
-        store_min (Union[float, Tuple[float], Theta] = None, optional): Minimum allowed storage of resource in process. Defaults to None.
-        storage_cost: (Union[float, Tuple[float], Theta] = None, optional): penalty for mainting inventory per time period in the scheduling scale. Defaults to None.
-        store_loss: (Union[float, Tuple[float], Theta] = None, optional): resource loss on the scheduling scale. Defaults to None. 
-        basis(str, optional): base units for operation. Defaults to 'unit'.
-        block (str, optional): define block for convenience. Defaults to None.
-        label(str, optional):Longer descriptive label if required. Defaults to None.
-        citation (str, optional): citation for data. Defaults to 'citation needed'.
-        trl (str, optional): technology readiness level. Defaults to None.
-        ctype (List[Union[ProcessType, Dict[ProcessType, Set['Location']]]], optional): list of process ctypes. Defaults to None
-        aspect (Dict[ProcessParamType, Union[ParameterType, Dict['Location', ParameterType]]], optional): paramater type of declared values . Defaults to None
-        ltype (Dict[ProcessParamType, List[Tuple['Location', LocalizationType]]], optional): which parameters are localized. Defaults to None.
-        ftype (Dict[ProcessParamType, List[Tuple['Location',FactorType]]], optional): which parameters are provided with factors at Location. Defaults to None
-        etype (List[EmissionType], optional): list of emission types defined. Defaults to None
-        localizations (Dict[ProcessParamType, List[Tuple['Location', Localization]]], optional): collects localizations when defined at Location. Defaults to None.
-        factors (Dict[ProcessParamType, List[Tuple['Location', DataSet]]], optional): collects factors when defined at Location. Defaults to None.
-        emissions (Dict[str, float], optional): collects emission data. Defaults to None.
-
-    Examples:
-        For processes with varying production capacity
-
-        >>> WF = Process(name='WF', conversion={Wind: -1, Power: 1}, capex= 100, Fopex= 10, Vopex= 1,cap_max=100, gwp=52700, land= 90, basis = 'MW', block='power', label='Wind mill array')
-
-        For process with multiple modes of operation
-
-        >>> PEM = Process(name = 'PEM', conversion = {1: {Power: -1, H2: 19.474, O2: 763.2, H2O: -175.266}, 2: {Power: -1, H2: 1.2*19.474, O2: 1.2*763.2, H2O: 1.2*-175.266}, cap_max= 100, capex = 784000, label = 'PEM Electrolysis')
-
-        For process with multiple resource inputs
-
-        >>> CoolCar = Process(name = 'CoolCar', conversion = {1: {Power: -1, Mile: 1}, 2: {H2: -1, Mile:2}, cap_max= 50, capex = 70, label = 'CoolCar')
-
-    """
     conversion: Union[Dict[Union[int, str], Dict[Resource, float]],
                       Dict[Resource, float]]
     # Design parameters
@@ -286,8 +210,6 @@ class Process:
         if any([self.introduce, self.retire, self.lifetime]):
             self.ctype.append(ProcessType.READINESS)
 
-        # *----------------- Update Resource Parameters ------------------
-
         # *----------------- Depreciation Warnings------------------------------------
 
         if self.prod_max:
@@ -312,20 +234,33 @@ class Process:
                     j.declared_at = self
                     setattr(j, name, current_value[j])
 
-    def make_named(self, name, horizon):
+    # *----------------- Methods --------------------------------------
+
+    def make_named(self, name: str, horizon: Horizon):
+        """names and adds horizon to the Process
+
+        Args:
+            name (str): name given as Scenario.name = Process(...)
+            horizon (Horizon): temporal horizon
+        """
         namer(component=self, name=name, horizon=horizon)
 
     def params(self):
-        printer(component=self, print_collection='paramters')
+        """prints parameters of the Process
+        """
+        printer(component=self, print_collection='parameters')
 
     def vars(self):
+        """prints variables of the Process
+        """
         printer(component=self, print_collection='variables')
 
     def cons(self):
+        """prints constraints of the Process
+        """
         printer(component=self, print_collection='constraints')
 
-    # *----------------- Class Methods -----------------------------------------
-    # * component class types
+    # *----------------- Class Methods --------------------------------------
 
     @staticmethod
     def cname() -> str:
@@ -342,31 +277,15 @@ class Process:
         """Returns Resource aspects at Process level"""
         return CashFlow.resource() + Limit.resource() + Loss.process() + Capacity.process()
 
-    @classmethod
-    def ctypes(cls) -> Set[str]:
-        """All Process paramters
-        """
-        return ProcessType.all()
+    # *-----------------Magics--------------------
 
-    @staticmethod
-    def resource_inputs() -> list:
-        """Aspects that are for input resources
-        """
-        return [CashFlow.PURCHASE_COST, Limit.CONSUME]
+    def __lt__(self, other):
+        return self.name < other.name
 
-    @classmethod
-    def process_level_classifications(cls) -> Set[str]:
-        """Set when Process is declared
-        """
-        return ProcessType.process_level()
+    def __gt__(self, other):
+        return self.name > other.name
 
-    @classmethod
-    def location_level_classifications(cls) -> Set[str]:
-        """Set when Location is declared
-        """
-        return ProcessType.location_level()
-
-    # *----------- Hashing --------------------------------
+    # *----------- Dunders------------------------
 
     def __repr__(self):
         return str(self.name)

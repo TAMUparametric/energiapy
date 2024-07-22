@@ -1,16 +1,9 @@
 """
-energiapy.TemporalScale - Planning horizon of the problem. 
-Also:
-    classifies the problem type (design, scheduling, simultaneous)
-    determines the scale type (multiscale, single scale)
+energiapy.TemporalScale - A bespoke discretization of the planning horizon (Horizon) of the problem. 
 """
 
 from dataclasses import dataclass
-from itertools import product
-from typing import List, Set
-from warnings import warn
-
-from ..model.type.disposition import TemporalDisp
+from typing import List
 
 
 @dataclass
@@ -29,7 +22,7 @@ class TemporalScale:
     # * ---------Methods-----------------
 
     @staticmethod
-    def cname(self) -> str:
+    def cname() -> str:
         """Returns class name"""
         return 'TemporalScale'
 

@@ -186,7 +186,6 @@ class Network:
         for i in self.sinks:
             i.ctype.append(LocationType.SINK)
 
-
         # *----------------- Depreciation Warnings-----------------------------
 
         if self.capacity_scale_level:
@@ -217,7 +216,7 @@ class Network:
 
     @classmethod
     def aspects(cls) -> Set[str]:
-        """All Network paramters
+        """All Network parameters
         """
         return NetworkParamType.all()
 

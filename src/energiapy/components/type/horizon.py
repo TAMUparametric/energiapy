@@ -1,19 +1,24 @@
 from enum import Enum, auto
-from typing import List
 
 
-class HorizonType(Enum):
+class HorizonT(Enum):
     """Classifies Horizon as having multiple or single scales 
     """
-    MULTI = auto()
+    MULTISCALE = auto()
     """Problem has multiple scales 
     """
-    SINGLE = auto()
+    SINGLESCALE = auto()
     """Problem has a single scale  
+    """
+    NESTED = auto()
+    """Disctretizations are nested
+    """
+    UNNESTED = auto()
+    """Discretizations are not nested
     """
 
     @classmethod
-    def all(cls) -> List['HorizonType']:
+    def all(cls) -> list:
         """All HorizonTypes
         """
         return [i for i in cls]

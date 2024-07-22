@@ -6,46 +6,45 @@ from typing import Set
 class ResourceType(Enum):
     """Class of resource
     """
-    STORE = auto()
-    """stored in inventory 
+    DISCHARGE = auto()
+    """can be dispensed
     """
-    PRODUCE = auto()
-    """Produced 
+    CONSUME = auto()
+    """can be consumed
+    """
+    SELL = auto()
+    """has a selling price
+    """
+    PURCHASE = auto()
+    """has for a purchase cost (price)
     """
     IMPLICIT = auto()
     """Does not enter or leave the system
     """
-    DISCHARGE = auto()
-    """just dispensed
+    PRODUCE = auto()
+    """Produced, updated at the Process level
     """
-    SELL = auto()
-    """sold to generate revenue (revenue)
+    STORE = auto()
+    """stored in inventory, updated at the Storage level
     """
-    CONSUME = auto()
-    """taken for free (availability)
-    """
-    PURCHASE = auto()
-    """bought for a price (price)
-    """
-    DEMAND = auto()
-    """used to meet a particular set demand at location (demand)
+    SILO = auto()
+    """has to pass through a silo, updated at the Storage level
     """
     TRANSPORT = auto()
-    """transported
+    """can be transported
     """
-    EMISSION = auto()
-    """Emits 
-    """
+    
+
 
     # * ----------------------------------Update this ------------------------------------------
 
-    @classmethod
-    def location_level(cls) -> Set[str]:
+    @staticmethod
+    def location_level() -> list:
         """Set when Location is declared
         """
-        return {'DEMAND'}
+        return 
 
-    @classmethod
+    @staticmethod
     def transport_level(cls) -> Set[str]:
         """Set when Transport is declared
         """

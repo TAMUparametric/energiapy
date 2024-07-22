@@ -203,7 +203,6 @@ class Transport:
                 self.etype.append(etype_)
                 self.emissions[i.lower()] = attr_
 
-
         # *----------------- Depreciation Warnings------------------------------------
         if self.trans_max:
             raise ValueError(
@@ -242,7 +241,7 @@ class Transport:
 
     @classmethod
     def aspects(cls) -> Set[str]:
-        """All Transport paramters
+        """All Transport parameters
         """
         return TransportParamType.all()
 
@@ -274,7 +273,7 @@ class Transport:
 
     @classmethod
     def ctypes(cls) -> Set[str]:
-        """All Transport paramters
+        """All Transport parameters
         """
         return TransportType.all()
 

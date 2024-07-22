@@ -1,13 +1,18 @@
 """energiapy.Resource - Resource as refined in the RT(M)N framework
 """
+from __future__ import annotations
+
 from dataclasses import dataclass
-from typing import Union
-from ..model.aspect import Aspect
-from ..model.type.aspect import CashFlow, Emission, Limit, AspectType
-from .type.resource import ResourceType
-from ..funcs.name import namer
+from typing import TYPE_CHECKING, Union
+
 from ..funcs.aspect import aspecter, is_aspect_ready
+from ..funcs.name import namer
 from ..funcs.print import printer
+from ..model.type.aspect import CashFlow, Emission, Limit
+from .type.resource import ResourceType
+
+if TYPE_CHECKING:
+    from .horizon import Horizon
 
 
 @dataclass
@@ -51,18 +56,7 @@ class Resource:
         self.declared_at = self
 
         # *-----------------Set ctype (ResourceType)---------------------------------
-        # .DISCHARGE allows the resource to be discharged (consume > 0)
-        # .SELL is when a Resource generated revenue (has a sell_cost)
-        # .CONSUME is when a Resource can be consumed
-        # .PURCHASE is when a consumed Resource has a purchase_cost
-        # .IMPLICIT is when a Resource only exists insitu (not discharged or consumed)
-        # .PRODUCED is when a Resource is produced by a Process
-        # .SELL and .DEMAND imply that .DISCHARGE is True
-        # .STORE is set if a store_max is given
-        # .DEMAND is set if a specific demand for resource is declared at Location
-        # .TRANSPORT is set if a Resource is in the set Transport.resources
-        # storage resources are also generated implicitly if a Resource is provided to a Process as storage
-
+        
         if not hasattr(self, 'ctype'):
             self.ctype = list()
 
@@ -110,42 +104,35 @@ class Resource:
             raise ValueError(
                 f'{self.name}: cons_max has been depreciated. Please use consume instead')
 
-    # def __setattr__(self, name, value):
-    #     super().__setattr__(name, value)
-    #     if hasattr(self, 'named') and self.named and name in AspectType.aspects() and value is not None:
-
-    #         current_value = getattr(self, name)
-
-    #         if not isinstance(current_value, Aspect):
-    #             new_value = Aspect(
-    #                 aspect=AspectType.match(name), component=self)
-    #         else:
-    #             new_value = current_value
-
-    #         if not isinstance(value, Aspect):
-    #             new_value.add(value=value, aspect=AspectType.match(name), component=self,
-    #                           horizon=self.horizon, declared_at=self.declared_at)
-    #             setattr(self, name, new_value)
-
-    #             for i in ['parameters', 'variables', 'constraints']:
-    #                 if hasattr(new_value, i):
-    #                     getattr(self, i).extend(getattr(new_value, i))
-
     def __setattr__(self, name, value):
         super().__setattr__(name, value)
         if is_aspect_ready(component=self, attr_name=name, attr_value=value):
             aspecter(component=self, attr_name=name, attr_value=value)
 
-    def make_named(self, name, horizon):
+    # *----------------- Methods --------------------------------------
+
+    def make_named(self, name: str, horizon: Horizon):
+        """names and adds horizon to the Resource
+
+        Args:
+            name (str): name given as Scenario.name = Resource(...)
+            horizon (Horizon): temporal horizon
+        """
         namer(component=self, name=name, horizon=horizon)
 
     def params(self):
-        printer(component=self, print_collection='paramters')
+        """prints parameters of the Resource
+        """
+        printer(component=self, print_collection='parameters')
 
     def vars(self):
+        """prints variables of the Resource
+        """
         printer(component=self, print_collection='variables')
 
     def cons(self):
+        """prints constraints of the Resource
+        """
         printer(component=self, print_collection='constraints')
 
     # *-----------------Methods--------------------

@@ -261,7 +261,6 @@ class Location:
                 self.make_component_subset(
                     parameter=i, parameter_type=ResourceType, component_set='resources')
 
-
         # *----------------- Depreciation Warnings------------------------------------------
 
         if self.demand_scale_level:
@@ -298,7 +297,7 @@ class Location:
 
     @classmethod
     def aspects(cls) -> Set[str]:
-        """All Location paramters
+        """All Location parameters
         """
         return LocationParamType.all()
 
@@ -326,13 +325,13 @@ class Location:
 
     @classmethod
     def resource_parameters(cls) -> Set[str]:
-        """All Resource paramters
+        """All Resource parameters
         """
         return ResourceParamType.all()
 
     @classmethod
     def process_parameters(cls) -> Set[str]:
-        """All Process paramters
+        """All Process parameters
         """
         return ProcessParamType.all()
 
