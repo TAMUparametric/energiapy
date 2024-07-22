@@ -1,6 +1,7 @@
 from dataclasses import dataclass
-from .type.disposition import SpatialDisp, TemporalDisp
 from typing import Tuple, Union
+
+from .type.disposition import SpatialDisp, TemporalDisp
 
 
 @dataclass

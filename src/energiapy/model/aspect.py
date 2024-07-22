@@ -1,24 +1,29 @@
 
 from dataclasses import dataclass
-from typing import Dict, List, Tuple, Union
+from typing import TYPE_CHECKING, Dict, List, Tuple, Union
 
 from pandas import DataFrame
 
-from ..components.temporal_scale import TemporalScale
 from ..components.horizon import Horizon
+from ..funcs.print import printer
 from .constraint import Constraint
-from .dataset import DataSet
 from .parameter import Parameter
+from .parameters.dataset import DataSet
+from .parameters.theta import Theta
+from .parameters.unbound import BigM, Unbound
 from .rulebook import rulebook
-from .theta import Theta
 from .type.aspect import CashFlow, Emission, Land, Life, Limit, Loss
 from .type.bound import Bound
 from .type.certainty import Approach, Certainty
 from .type.condition import Condition
-from .type.disposition import TemporalDisp
-from .unbound import BigM, Unbound
 from .variable import Variable
-from ..funcs.print import printer
+
+if TYPE_CHECKING:
+    from ..components.linkage import Linkage
+    from ..components.location import Location
+    from ..components.process import Process
+    from ..components.resource import Resource
+    from ..components.transport import Transport
 
 
 @dataclass
@@ -137,7 +142,7 @@ class Aspect:
                             set(self.constraints) | {constraint}))
 
     def params(self):
-        printer(component=self, print_collection='paramters')
+        printer(component=self, print_collection='parameters')
 
     def vars(self):
         printer(component=self, print_collection='variables')

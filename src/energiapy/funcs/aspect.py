@@ -1,5 +1,5 @@
-from ..model.type.aspect import AspectType
 from ..model.aspect import Aspect
+from ..model.type.aspect import AspectType
 
 
 def is_aspect_ready(component, attr_name, attr_value) -> bool:

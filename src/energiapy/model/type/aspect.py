@@ -17,10 +17,11 @@ Finally,
 aspect: ParameterType describes what the parameter models. There are subtypes for each type.
 """
 
-from enum import Enum, auto
-from typing import List, TypeVar, Union, Dict
-from pandas import DataFrame
 from dataclasses import dataclass
+from enum import Enum, auto
+from typing import Dict, List, TypeVar, Union
+
+from pandas import DataFrame
 
 Big = TypeVar('Big', bound='BigM')
 
