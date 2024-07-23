@@ -6,23 +6,21 @@ from __future__ import annotations
 import operator
 from dataclasses import dataclass
 from functools import reduce
-from typing import TYPE_CHECKING, Dict, List, Tuple, Union
-
-from pandas import DataFrame
+from typing import TYPE_CHECKING
 
 from ..funcs.aspect import aspecter, is_aspect_ready
 from ..funcs.name import namer
 from ..funcs.print import printer
 from ..model.specialparams.conversion import Conversion
-from ..model.specialparams.dataset import DataSet
-from ..model.specialparams.theta import Theta
-from ..model.specialparams.unbound import BigM
 from ..model.type.aspect import (AspectType, CapBound, CashFlow, Emission,
                                  Land, Life, Limit, Loss)
 from ..utils.data_utils import get_depth
 from .type.process import ProcessType
 
 if TYPE_CHECKING:
+    from ..model.type.aliases import (IsCapBound, IsCashFlow, IsConversion,
+                                      IsEmission, IsLand, IsLife, IsLimit,
+                                      IsLoss, IsMatCons)
     from .horizon import Horizon
     from .material import Material
     from .resource import Resource
@@ -31,57 +29,44 @@ if TYPE_CHECKING:
 @dataclass
 class Process:
 
-    conversion: Union[Dict[Union[int, str], Dict[Resource, float]],
-                      Dict[Resource, float]]
+    conversion: IsConversion
     # Design parameters
-    capacity: Union[float, bool, 'BigM', List[Union[float, 'BigM']],
-                    DataFrame, Tuple[Union[float, DataFrame, DataSet]], Theta]
-    produce: Union[float, bool, 'BigM',
-                   List[Union[float, 'BigM']]] = None
-    land_use: float = None  # Union[float, Tuple[float], Theta]
-    material_cons: Union[Dict[Union[int, str],
-                              Dict[Material, float]], Dict[Material, float]] = None
+    capacity: IsLimit
+    produce: IsCapBound
+    land_use: IsLand = None
+    material_cons: IsMatCons = None
     # Expenditure
-    capex: Union[float, dict, Tuple[float], Theta] = None
+    capex: IsCashFlow = None
     pwl: dict = None  # piece wise linear capex
-    fopex: Union[float, Tuple[float], Theta] = None
-    vopex: Union[float, Tuple[float], Theta] = None
-    incidental: Union[float, Tuple[float], Theta] = None
+    fopex: IsCashFlow = None
+    vopex: IsCashFlow = None
+    incidental: IsCashFlow = None
     # Emission
-    gwp: Union[float, Tuple[float], Theta] = None
-    odp: Union[float, Tuple[float], Theta] = None
-    acid: Union[float, Tuple[float], Theta] = None
-    eutt: Union[float, Tuple[float], Theta] = None
-    eutf: Union[float, Tuple[float], Theta] = None
-    eutm: Union[float, Tuple[float], Theta] = None
+    gwp: IsEmission = None
+    odp: IsEmission = None
+    acid: IsEmission = None
+    eutt: IsEmission = None
+    eutf: IsEmission = None
+    eutm: IsEmission = None
     # Readiness
-    introduce: Union[float, Tuple[float], Theta] = None
-    retire: Union[float, Tuple[float], Theta] = None
-    lifetime: Union[float, Tuple[float], Theta] = None
-    pfail: Union[float, Tuple[float], Theta] = None
+    introduce: IsLife = None
+    retire: IsLife = None
+    lifetime: IsLife = None
+    pfail: IsLife = None
     # These go to storage_resource defined in STORAGE Process
     # LimitType
-    discharge: Union[float, bool, 'BigM', List[Union[float, 'BigM']],
-                     DataFrame, Tuple[Union[float, DataFrame, DataSet]], Theta] = None
-    consume: Union[float, bool, 'BigM', List[Union[float, 'BigM']],
-                   DataFrame, Tuple[Union[float, DataFrame, DataSet]], Theta] = None
-    store: Union[float, bool, 'BigM', List[Union[float, 'BigM']],
-                 DataFrame, Tuple[Union[float, DataFrame, DataSet]], Theta] = None
-    produce: Union[float, bool, 'BigM', List[Union[float, 'BigM']],
-                   DataFrame, Tuple[Union[float, DataFrame, DataSet]], Theta] = None
+    discharge: IsLimit = None
+    consume: IsLimit = None
+    store: IsCapBound = None
+    produce: IsCapBound = None
     # LossType
-    store_loss: Union[float, Tuple[float], Theta] = None
+    store_loss: IsLoss = None
     # CashFlowType
-    sell_cost: Union[float, Theta, DataFrame,
-                     Tuple[Union[float, DataFrame, DataSet]]] = None
-    purchase_cost: Union[float, Theta, DataFrame,
-                         Tuple[Union[float, DataFrame, DataSet]]] = None
-    store_cost: Union[float, Theta, DataFrame,
-                      Tuple[Union[float, DataFrame, DataSet]]] = None
-    credit: Union[float, Theta, DataFrame,
-                  Tuple[Union[float, DataFrame, DataSet]]] = None
-    penalty: Union[float, Theta, DataFrame,
-                   Tuple[Union[float, DataFrame, DataSet]]] = None
+    sell_cost: IsCashFlow = None
+    purchase_cost: IsCashFlow = None
+    store_cost: IsCashFlow = None
+    credit: IsCashFlow = None
+    penalty: IsCashFlow = None
     # Details
     basis: str = None
     block: str = None

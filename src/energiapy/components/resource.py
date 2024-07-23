@@ -12,26 +12,27 @@ from ..model.type.aspect import CashFlow, Emission, Limit
 from .type.resource import ResourceType
 
 if TYPE_CHECKING:
+    from ..model.type.aliases import IsCashFlow, IsEmission, IsLimit
     from .horizon import Horizon
 
 
 @dataclass
 class Resource:
     # Limit Aspect
-    discharge: Limit.types() = None
-    consume: Limit.types() = None
+    discharge: IsLimit = None
+    consume: IsLimit = None
     # CashFlowType
-    sell_cost: CashFlow.types() = None
-    purchase_cost: CashFlow.types() = None
-    credit: CashFlow.types() = None
-    penalty: CashFlow.types() = None
+    sell_cost: IsCashFlow = None
+    purchase_cost: IsCashFlow = None
+    credit: IsCashFlow = None
+    penalty: IsCashFlow = None
     # EmissionType
-    gwp: Emission.types() = None
-    odp: Emission.types() = None
-    acid: Emission.types() = None
-    eutt: Emission.types() = None
-    eutf: Emission.types() = None
-    eutm: Emission.types() = None
+    gwp: IsEmission = None
+    odp: IsEmission = None
+    acid: IsEmission = None
+    eutt: IsEmission = None
+    eutf: IsEmission = None
+    eutm: IsEmission = None
     # Details
     basis: str = None
     block: Union[str, list, dict] = None
@@ -56,7 +57,7 @@ class Resource:
         self.declared_at = self
 
         # *-----------------Set ctype (ResourceType)---------------------------------
-        
+
         if not hasattr(self, 'ctype'):
             self.ctype = list()
 
@@ -166,30 +167,27 @@ class Resource:
     def __eq__(self, other):
         return self.name == other.name
 
-@dataclass
-class ResourceStored(Resource):
-    capacity: float 
-    land_use: float = None  # Union[float, Tuple[float], Theta]
-    material_cons: Union[Dict[Union[int, str],
-                              Dict[Material, float]], Dict[Material, float]] = None
-    # Expenditure
-    capex: Union[float, dict, Tuple[float], Theta] = None
-    pwl: dict = None  # piece wise linear capex
-    fopex: Union[float, Tuple[float], Theta] = None
-    vopex: Union[float, Tuple[float], Theta] = None
-    incidental: Union[float, Tuple[float], Theta] = None
-    # Emission
-    gwp: Union[float, Tuple[float], Theta] = None
-    odp: Union[float, Tuple[float], Theta] = None
-    acid: Union[float, Tuple[float], Theta] = None
-    eutt: Union[float, Tuple[float], Theta] = None
-    eutf: Union[float, Tuple[float], Theta] = None
-    eutm: Union[float, Tuple[float], Theta] = None
-    # Readiness
-    introduce: Union[float, Tuple[float], Theta] = None
-    retire: Union[float, Tuple[float], Theta] = None
-    lifetime: Union[float, Tuple[float], Theta] = None
-    pfail: Union[float, Tuple[float], Theta] = None
-
-    
-    
+# @dataclass
+# class ResourceStored(Resource):
+#     capacity: float
+#     land_use: float = None  # Union[float, Tuple[float], Theta]
+#     material_cons: Union[Dict[Union[int, str],
+#                               Dict[Material, float]], Dict[Material, float]] = None
+#     # Expenditure
+#     capex: Union[float, dict, Tuple[float], Theta] = None
+#     pwl: dict = None  # piece wise linear capex
+#     fopex: Union[float, Tuple[float], Theta] = None
+#     vopex: Union[float, Tuple[float], Theta] = None
+#     incidental: Union[float, Tuple[float], Theta] = None
+#     # Emission
+#     gwp: Union[float, Tuple[float], Theta] = None
+#     odp: Union[float, Tuple[float], Theta] = None
+#     acid: Union[float, Tuple[float], Theta] = None
+#     eutt: Union[float, Tuple[float], Theta] = None
+#     eutf: Union[float, Tuple[float], Theta] = None
+#     eutm: Union[float, Tuple[float], Theta] = None
+#     # Readiness
+#     introduce: Union[float, Tuple[float], Theta] = None
+#     retire: Union[float, Tuple[float], Theta] = None
+#     lifetime: Union[float, Tuple[float], Theta] = None
+#     pfail: Union[float, Tuple[float], Theta] = None

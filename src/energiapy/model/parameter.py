@@ -1,21 +1,22 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Dict, List, Tuple, Union, TYPE_CHECKING
+from typing import TYPE_CHECKING, Dict, List, Tuple, Union
 
 from pandas import DataFrame
 
 # from ..components.temporal_scale import TemporalScale
 from ..components.horizon import Horizon
 from ..funcs.birth import birth_theta
+from .index import Index
 from .specialparams.dataset import DataSet
 from .specialparams.theta import Theta
 from .type.bound import Bound
 from .type.certainty import Approach, Certainty
-from .index import Index
 
 if TYPE_CHECKING:
-    from .type.aliases import IsAspect, IsComponent, IsTemporal, IsParameter, IsDeclaredAt
+    from .type.aliases import (IsAspect, IsComponent, IsDeclaredAt,
+                               IsParameter, IsTemporal)
 
 
 @dataclass

@@ -1,5 +1,12 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from ..model.specialparams.theta import Theta
-from ..model.type.aliases import IsAspect, IsComponent, IsTemporal, ParVar
+
+if TYPE_CHECKING:
+    from ..model.type.aliases import (IsAspect, IsComponent, IsDeclaredAt,
+                                      IsTemporal, ParVar)
 
 
 def birth_theta(value: ParVar, component: IsComponent = None,

@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from typing import List
+
 from .parameter import Parameter
 from .type.bound import Bound
 from .type.condition import Condition, RightHandSide, SumOver

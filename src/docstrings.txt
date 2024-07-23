@@ -187,3 +187,79 @@ Resource
         apply_min_max_scaler (bool, optional): This is inherited form the scales object if not provided, where it defaults to True.
         apply_standard_scaler (bool, optional): This is inherited form the scales object if not provided, where it defaults to False.
     """
+
+
+        """Location is essentially a set of processes. 
+
+    If using deterministic data to account for variability in Process, Resource, or Location parameters
+    appropriate factors can be provided. A Factor object is created which set the scale by matching the length to an available scale type 
+
+    Resources which have a specific demand at Location can also be provided as a dict {Resource: float}
+
+    Factors for Resource include: demand, purchase_cost, sell_cost, availability (varies consume)
+                Process include: capacity, expenditures (capex, fopex, vopex, incidental), credit 
+                Location include: land_cost
+
+    For a multiscale problem capacity_factor will be applied to the decision variable Cap_P (capacity of Process)
+
+    Localizations can be also be provided for all the parameters above. Note that for capacity, cap_max and cap_min are are different
+
+    Land cost can also be provided, as well as a factor to vary it
+
+    Credits earned by Process based on the production can be provided as {Process: float}. Be careful to use the emission Resource as the basis
+    A credit factor can also be provided 
+
+    Args:
+        name (str): name of the location. Enter None to randomly assign a name.
+        processes (Set[Process]): set of processes (Process objects) to include at location
+        scales (TemporalScale): temporal scales of the problem
+        land_max (Union[float, Tuple[float], Theta, bool, 'Big'], optional): land available. Defaults to None.
+        land_cost (Union[float, Tuple[float], Theta], optional): cost of land. Defaults to None.
+        land_max_factor (DataFrame, optional): factor for changing land availability. Defaults to None. 
+        land_cost_factor (DataFrame, optional): factor for changing land cost. Defaults to None. 
+        demand (Dict[Resource, Union[float, Tuple[float], Theta]]): demand for resources at location. Defaults to None.
+        sell_cost_factor (Dict[Resource, DataFrame], optional): Factor for varying resource revenue. Defaults to None.
+        purchase_cost_factor (Dict[Resource, DataFrame], optional): Factor for varying cost. Defaults to None.
+        consume_factor (Dict[Resource, DataFrame], optional): Factor for varying resource availability. Defaults to None.
+        discharge_factor (Dict[Resource, DataFrame], optional): Factor for varying resource discharge. Defaults to None.
+        demand_factor (Dict[Resource, DataFrame], optional): Factor for varying demand. Defaults to None.
+        store_max_factor (Dict[Resource, DataFrame], optional): Factor for maximum inventory capacity. Defaults to None.
+        store_loss_factor (Dict[Resource, DataFrame], optional): Factor for loss of resource in inventory. Defaults to None.
+        storage_cost_factor (Dict[Resource, DataFrame], optional): Factor for cost of maintaining inventory. Defaults to None.
+        credit (Dict[Process, float], optional): credit earned by process per unit basis. Defaults to None.
+        capacity_factor (Dict[Process, DataFrame], optional):  Factor for varying capacity in schedule.Defaults to None.
+        cap_max_factor (Dict[Process, DataFrame], optional):  Factor for maximum allowed capacity expansion.Defaults to None.
+        capex_factor (Dict[Process, DataFrame], optional):  Factor for varying capital expenditure. Defaults to None.
+        vopex_factor (Dict[Process, DataFrame], optional):  Factor for varying variable operational expenditure. Defaults to None.
+        fopex_factor (Dict[Process, DataFrame], optional):  Factor for varying fixed operational expenditure. Defaults to None.
+        incidental_factor (Dict[Process, DataFrame], optional):  Factor for varying incidental expenditure. Defaults to None.
+        credit_factor (Dict[Process, DataFrame], optional): factor for credit. Defaults to None.        
+        sell_cost_localize (Dict[Resource, Tuple[float, int]] , optional): Localization factor for selling price. Defaults to None.
+        purchase_cost_localize (Dict[Resource, Tuple[float, int]] , optional): Localization factor for purchase price. Defaults to None.
+        consume_localize (Dict[Resource, Tuple[float, int]] , optional): Localization factor for availability. Defaults to None.
+        discharge_localize (Dict[Resource, Tuple[float, int]] , optional): Localization factor for discharge. Defaults to None.
+        store_max_localize (Dict[Resource, DataFrame], optional): Localization factor for maximum inventory capacity. Defaults to None.
+        store_min_localize (Dict[Resource, DataFrame], optional): Localization factor for minimum inventory capacity. Defaults to None.
+        store_loss_localize (Dict[Resource, DataFrame], optional): Localization factor for loss of resource in inventory. Defaults to None.
+        storage_cost_localize (Dict[Resource, DataFrame], optional): Localization factor for cost of maintaining inventory. Defaults to None.
+        cap_max_localize (Dict[Process, Tuple[float, int]] , optional): Localization factor for maximum capacity. Defaults to None.
+        cap_min_localize (Dict[Process, Tuple[float, int]] , optional): Localization factor for minimum capacity. Defaults to None.
+        capex_localize (Dict[Process, Tuple[float, int]] , optional): Localization factor for capex. Defaults to None.
+        vopex_localize (Dict[Process, Tuple[float, int]] , optional): Localization factor for vopex. Defaults to None.
+        fopex_localize (Dict[Process, Tuple[float, int]] , optional): Localization factor for fopex. Defaults to None.
+        incidental_localize(Dict[Process, Tuple[float, int]] , optional): Localization factor for incidental. Defaults to None.
+        incidental_localize(Dict[Process, Tuple[float, int]] , optional): Localization factor for land. Defaults to None.
+        basis (str, optional): unit in which land area is measured. Defaults to None.
+        block (Union[str, list, dict], optional): block to which it belong. Convinient to set up integer cuts. Defaults to None.
+        label (str, optional): used while generating plots. Defaults to None.
+        citation (str, optional): can provide citations for your data sources. Defaults to None.
+        ctype (List[LocationType], optional): Location type. Defaults to None.
+        aspect (Dict[LocationParamType, ParameterType], optional): paramater type of declared values. Defaults to None.
+        ftype (Dict[LocationParamType, FactorType], optional): factor type of declared factors. Defaults to None.
+        factors (Dict[LocationParamType, Factor], optional): collection of factors defined at Location. Defaults to None.
+        make_subsets (bool, optional): makes subsets based on Resource and Process ctypes and sets them as attributes [components_ctype]. Defaults to None. 
+    Examples:
+        Locations need a set of processes and the scale levels for demand, capacity, and cost, and if applicable demand factors, price_factors, capacity factors
+
+        >>> Goa= Location(name='Goa', processes= {Process1, Process2}, demand_scale_level=2, capacity_scale_level= 2, price_scale_level= 1, demand_factor= {Resource1: DataFrame,}, price_factor = {Resource2: DataFrame}, capacity_factor = {Process1: DataFrame}, scales= TemporalScale object, label='Home')
+    """

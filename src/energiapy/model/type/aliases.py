@@ -6,6 +6,7 @@ from pandas import DataFrame
 
 from ...components.linkage import Linkage
 from ...components.location import Location
+from ...components.material import Material
 from ...components.process import Process
 from ...components.resource import Resource
 from ...components.temporal_scale import TemporalScale
@@ -28,7 +29,7 @@ IsParVar = Union[Tuple[Union[IsNumeric, IsData],
 
 # *Compound types
 # as an exact value (equality constraint)
-IsExact = Union[IsNumeric, IsUnbound, IsData, IsParVar]
+IsExact = Union[IsNumeric, IsData, IsParVar]
 # as a list of bounds [lower, upper] (inequality constraints)
 IsBound = List[IsExact, IsExact]
 # as a dictionary of exact values or bounds, with keys being the temporal scale
@@ -38,7 +39,7 @@ IsParameter = Union[IsExact, IsBound, IsTempDict]
 
 # *Specific Aspect types
 IsTemporal = TemporalScale
-IsLimit = Union[IsExact, IsBound, IsTempDict]
+IsLimit = Union[IsExact, IsUnbound, IsBound, IsTempDict]
 IsCapBound = Union[IsExact, IsBound]
 IsCashFlow, IsLand, IsEmission, IsLife, IsLoss = (IsExact for _ in range(5))
 
@@ -47,3 +48,15 @@ IsAspect = Union[CashFlow, Emission, Land, Life, Limit, Loss]
 IsComponent = Union[Resource, Process, Location, Transport, Linkage]
 IsSpatialPair = Union[Tuple[Process, Location], Tuple[Transport, Linkage]]
 IsDeclaredAt = Union[IsSpatialPair, IsComponent]
+
+# *Conversion
+# can be multimode or single mode
+IsSingleConv = Dict[Resource, IsNumeric]
+IsMultiConv = Dict[Union[IsNumeric, str], IsSingleConv]
+IsConversion = Dict[Resource, Union[IsSingleConv, IsMultiConv]]
+
+# *Material
+# can be multimode or single mode
+IsSingleMat = Dict[Material, IsNumeric]
+IsMultiMat = Dict[Union[IsNumeric, str], IsSingleMat]
+IsMatCons = Union[IsSingleMat, IsMultiMat]
