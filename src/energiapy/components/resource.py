@@ -165,3 +165,31 @@ class Resource:
 
     def __eq__(self, other):
         return self.name == other.name
+
+@dataclass
+class ResourceStored(Resource):
+    capacity: float 
+    land_use: float = None  # Union[float, Tuple[float], Theta]
+    material_cons: Union[Dict[Union[int, str],
+                              Dict[Material, float]], Dict[Material, float]] = None
+    # Expenditure
+    capex: Union[float, dict, Tuple[float], Theta] = None
+    pwl: dict = None  # piece wise linear capex
+    fopex: Union[float, Tuple[float], Theta] = None
+    vopex: Union[float, Tuple[float], Theta] = None
+    incidental: Union[float, Tuple[float], Theta] = None
+    # Emission
+    gwp: Union[float, Tuple[float], Theta] = None
+    odp: Union[float, Tuple[float], Theta] = None
+    acid: Union[float, Tuple[float], Theta] = None
+    eutt: Union[float, Tuple[float], Theta] = None
+    eutf: Union[float, Tuple[float], Theta] = None
+    eutm: Union[float, Tuple[float], Theta] = None
+    # Readiness
+    introduce: Union[float, Tuple[float], Theta] = None
+    retire: Union[float, Tuple[float], Theta] = None
+    lifetime: Union[float, Tuple[float], Theta] = None
+    pfail: Union[float, Tuple[float], Theta] = None
+
+    
+    

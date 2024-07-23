@@ -1,15 +1,8 @@
 from dataclasses import dataclass
-from typing import List, Tuple, Union
-
-from ..components.temporal_scale import TemporalScale
-from .dataset import DataSet
+from typing import List
 from .parameter import Parameter
-from .type.aspect import CashFlow, Land, Life, Limit, Loss
 from .type.bound import Bound
-from .type.certainty import Approach, Certainty
 from .type.condition import Condition, RightHandSide, SumOver
-from .type.disposition import SpatialDisp, TemporalDisp
-from .type.special import SpecialParameter
 from .variable import Variable
 
 
@@ -30,7 +23,7 @@ class Constraint:
             '' for _ in range(4))
 
         variable = self.variable.name
-        for i in ['index', 'temporal', 'spatial', 'disposition']:
+        for i in ['index', 'temporal']:
             setattr(self, i, getattr(self.variable, i))
 
         if self.associated:

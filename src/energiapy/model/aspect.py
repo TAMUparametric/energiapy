@@ -8,10 +8,10 @@ from ..components.horizon import Horizon
 from ..funcs.print import printer
 from .constraint import Constraint
 from .parameter import Parameter
-from .parameters.dataset import DataSet
-from .parameters.theta import Theta
-from .parameters.unbound import BigM, Unbound
 from .rulebook import rulebook
+from .specialparams.dataset import DataSet
+from .specialparams.theta import Theta
+from .specialparams.unbound import BigM, Unbound
 from .type.aspect import CashFlow, Emission, Land, Life, Limit, Loss
 from .type.bound import Bound
 from .type.certainty import Approach, Certainty
@@ -117,8 +117,8 @@ class Aspect:
                     parameter = Parameter(value=j, aspect=aspect, component=component, declared_at=declared_at, horizon=horizon,
                                           bound=bound[i], certainty=certainty[i], approach=approach[i], temporal=tempd)
 
-                    variable = Variable(aspect=aspect, component=component, declared_at=declared_at, spatial=parameter.spatial,
-                                        temporal=parameter.temporal, disposition=parameter.disposition, index=parameter.index)
+                    variable = Variable(aspect=aspect, component=component,
+                                        declared_at=declared_at, temporal=parameter.temporal)
 
                     self.parameters = sorted(
                         list(set(self.parameters) | {parameter}))
@@ -126,8 +126,9 @@ class Aspect:
                         list(set(self.variables) | {variable}))
 
                     if rule.associated:
-                        associated_ = Variable(aspect=rule.associated, component=component, declared_at=declared_at, spatial=parameter.spatial,
-                                               temporal=parameter.temporal, disposition=parameter.disposition, index=parameter.index)
+                        associated_ = Variable(
+                            aspect=rule.associated, component=component, declared_at=declared_at, temporal=parameter.temporal)
+
                     if rule.parameter:
                         parameter_ = parameter
 

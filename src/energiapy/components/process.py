@@ -13,12 +13,12 @@ from pandas import DataFrame
 from ..funcs.aspect import aspecter, is_aspect_ready
 from ..funcs.name import namer
 from ..funcs.print import printer
-from ..model.conversion import Conversion
-from ..model.dataset import DataSet
-from ..model.theta import Theta
-from ..model.type.aspect import (AspectType, Capacity, CashFlow, Emission,
+from ..model.specialparams.conversion import Conversion
+from ..model.specialparams.dataset import DataSet
+from ..model.specialparams.theta import Theta
+from ..model.specialparams.unbound import BigM
+from ..model.type.aspect import (AspectType, CapBound, CashFlow, Emission,
                                  Land, Life, Limit, Loss)
-from ..model.unbound import BigM
 from ..utils.data_utils import get_depth
 from .type.process import ProcessType
 
@@ -166,27 +166,6 @@ class Process:
                 self.ctype.append(ProcessType.SINGLE_MATMODE)
                 self.materials = set(self.material_cons)
 
-        # If a Resource is provide for self.storage, a storage resource is created
-        # This resource has the name Process_Resource_stored
-        # conversion_discharge is created while accounting for storage_loss
-        # Do not provide a conversion if declaring a .STORAGE type Process
-
-        # if self.store:
-        #     self.ctype.append(ProcessType.STORAGE)
-        #     if self.store_loss is None:
-        #         self.store_loss = 0
-        #     # create a dummy resource if process is storage type.
-        #     self.resource_storage = self.create_storage_resource(
-        #         resource=self.storage)
-        #     # efficiency of input to storage is 100 percent
-        #     self.conversion = {self.storage: -1, self.resource_storage: 1}
-        #     self.conversion_discharge = {
-        #         self.resource_storage: -1, self.storage: 1*(1 - self.store_loss)}  # the losses are all at the output (retrival)
-        #     self.resources = set(self.conversion)
-
-        # capex can be linear (LINEAR_CAPEX) or piecewise linear (PWL_CAPEX)
-        # if PWL, capex needs to be provide as a dict {capacity_segment: capex_segement}
-
         if self.pwl:
             self.ctype.append(ProcessType.PWL_CAPEX)
             self.capacity_segments = list(self.pwl)
@@ -275,7 +254,7 @@ class Process:
     @staticmethod
     def resource_aspects() -> list:
         """Returns Resource aspects at Process level"""
-        return CashFlow.resource() + Limit.resource() + Loss.process() + Capacity.process()
+        return CashFlow.resource() + Limit.resource() + Loss.process() + CapBound.process()
 
     # *-----------------Magics--------------------
 

@@ -5,7 +5,6 @@ from dataclasses import dataclass
 from pandas import DataFrame
 
 from .dataset import DataSet
-from .type.special import SpecialParameter
 
 
 @dataclass(frozen=True)
@@ -15,7 +14,6 @@ class Unbound:
     """
     name: str
     greater: bool
-    special = SpecialParameter.UNBOUND
 
     def __gt__(self, other):
         if isinstance(other, (int, float, DataSet, DataFrame, dict)):

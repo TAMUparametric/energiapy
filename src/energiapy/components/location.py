@@ -189,7 +189,6 @@ class Location:
         # .CERTAIN otherwise
         # If empty Theta is provided, the bounds default to (0, 1)
 
-        for i in self
         for i in self.aspects():
             self.update_location_parameter(parameter=i)
 

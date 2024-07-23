@@ -169,3 +169,21 @@ Resource
         >>> CoolCar = Process(name = 'CoolCar', conversion = {1: {Power: -1, Mile: 1}, 2: {H2: -1, Mile:2}, cap_max= 50, capex = 70, label = 'CoolCar')
 
     """
+
+
+        """Deterministic data given to account for temporal variability in parameter. 
+    changes data to a dictionary with keys being the scale index that matches the length of data 
+    sets appropriate scale
+
+    DataSet can also be defined externally and passed instead of a DataFrame. 
+    In this case, only provide data, scales, and whether to apply any scaler [max, min_max, standard]
+
+    Args:
+        data (DataFrame): varying data. The length of data needs to match one of the scale indices. Check TemporalScale.index_n_list
+        scales (TemporalScale): The planning horizon 
+        component (Union[Process, Resource, Location, Transport], optional): energiapy component that experiences variability. Do not define for user defined factors. Defaults to None.
+        location (Union['Location', Tuple['Location', 'Location']], optional): Location or tuple of locations for transport factors
+        ftype (FactorType): type of factor 
+        apply_min_max_scaler (bool, optional): This is inherited form the scales object if not provided, where it defaults to True.
+        apply_standard_scaler (bool, optional): This is inherited form the scales object if not provided, where it defaults to False.
+    """

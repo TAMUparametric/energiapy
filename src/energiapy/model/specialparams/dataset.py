@@ -1,46 +1,41 @@
-"""Deterministic data set ftype
+"""DataSet is a deterministic data given to account for temporal variability in parameter.
 """
+from __future__ import annotations
+
 from dataclasses import dataclass
-from typing import Union
+from typing import TYPE_CHECKING
 
 from pandas import DataFrame
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 
-from ..components.horizon import Horizon
-from .index import Index
-from .type.aspect import CashFlow, Emission, Land, Life, Limit, Loss
-from .type.bound import Bound
-from .type.disposition import SpatialDisp, TemporalDisp
-from .type.special import SpecialParameter
+from ...components.horizon import Horizon
+from ..index import Index
+from ..type.bound import Bound
+
+if TYPE_CHECKING:
+    from ..type.aliases import IsAspect, IsComponent, IsData, IsDeclaredAt
 
 
 @dataclass
 class DataSet:
-    """Deterministic data given to account for temporal variability in parameter. 
-    changes data to a dictionary with keys being the scale index that matches the length of data 
-    sets appropriate scale
-
-    DataSet can also be defined externally and passed instead of a DataFrame. 
-    In this case, only provide data, scales, and whether to apply any scaler [max, min_max, standard]
-
-    Args:
-        data (DataFrame): varying data. The length of data needs to match one of the scale indices. Check TemporalScale.index_n_list
-        scales (TemporalScale): The planning horizon 
-        component (Union[Process, Resource, Location, Transport], optional): energiapy component that experiences variability. Do not define for user defined factors. Defaults to None.
-        location (Union['Location', Tuple['Location', 'Location']], optional): Location or tuple of locations for transport factors
-        ftype (FactorType): type of factor 
-        apply_min_max_scaler (bool, optional): This is inherited form the scales object if not provided, where it defaults to True.
-        apply_standard_scaler (bool, optional): This is inherited form the scales object if not provided, where it defaults to False.
     """
-
-    data: Union[DataFrame, 'DataSet']
+    Args:
+        data (IsData): Data to be used
+        horizon (Horizon): Horizon of the data
+        aspect (IsAspect, optional): Aspect of the data. Defaults to None.
+        bound (Bound, optional): Bound of the data. Defaults to None.
+        component (IsComponent, optional): Component of the data. Defaults to None.
+        declared_at (IsComponent, optional): Component where the data is declared. Defaults to None.
+        scaling_max (bool, optional): Scale the data to maximum value. Defaults to None.
+        scaling_min_max (bool, optional): Scale the data to minimum and maximum value. Defaults to None.
+        scaling_standard (bool, optional): Scale the data to standard value. Defaults to None.
+    """
+    data: IsData
     horizon: Horizon
-    aspect: Union[Limit, CashFlow, Land, Emission, Life, Loss] = None
+    aspect: IsAspect = None
     bound: Bound = None
-    component: Union['Resource', 'Process', 'Location',
-                     'Transport', 'Network', 'Scenario'] = None
-    declared_at: Union['Process', 'Location',
-                       'Transport', 'Network', 'Scenario'] = None
+    component: IsComponent = None
+    declared_at: IsDeclaredAt = None
     scaling_max: bool = None
     scaling_min_max: bool = None
     scaling_standard: bool = None
@@ -48,8 +43,6 @@ class DataSet:
     def __post_init__(self):
 
         self.name = None
-
-        self.special = SpecialParameter.DATASET
 
         if isinstance(self.data, DataSet):
             self.scaled = self.data.scaled
@@ -78,14 +71,18 @@ class DataSet:
             if self.scaling_min_max:
                 scaler = MinMaxScaler()
                 self.scaled = 'min_max'
-                self.data = DataFrame(scaler.fit_transform(self.data), columns=self.data.columns).to_dict()[
-                    self.data.columns[0]]
+                data_array = scaler.fit_transform(self.data)
+                data_list = [i for j in data_array.tolist() for i in j]
+                self.data = {list(self.data.index)[
+                    i]: j for i, j in enumerate(data_list)}
 
             elif self.scaling_standard:
                 scaler = StandardScaler()
                 self.scaled = 'standard'
-                self.data = DataFrame(scaler.fit_transform(self.data), columns=self.data.columns).to_dict()[
-                    self.data.columns[0]]
+                data_array = scaler.fit_transform(self.data)
+                data_list = [i for j in data_array.tolist() for i in j]
+                self.data = {list(self.data.index)[
+                    i]: j for i, j in enumerate(data_list)}
 
             elif self.scaling_max:
                 self.scaled = 'max'
@@ -102,24 +99,10 @@ class DataSet:
 
         if self.aspect:
 
-            self.spatial, self.disposition = None, (self.temporal,)
-            if self.declared_at.cname() != 'Resource':
-                self.spatial = self.declared_at
-                self.disposition = ((self.spatial), self.temporal)
+            self.index = Index(
+                component=self.component, declared_at=self.declared_at, temporal=self.temporal)
 
-            self.index = Index(component=self.component, declared_at=self.declared_at, temporal=self.temporal,
-                               spatial=self.spatial, disposition=self.disposition, length=len(self.data))
-
-            par = f'{self.aspect.name.lower().capitalize()}'
-
-            if self.bound == Bound.LOWER:
-                bnd = '_lb'
-            elif self.bound == Bound.UPPER:
-                bnd = '_ub'
-            else:
-                bnd = ''
-
-            self.name = f'DSet|{par}{bnd}{self.index.name}|'
+            self.name = f'DSet|{self.aspect.pnamer()}{self.bound.namer()}{self.index.name}|'
 
         else:
             temp = f'{self.temporal.name.lower()}'
@@ -127,7 +110,7 @@ class DataSet:
 
     def __len__(self):
         if hasattr(self, 'index'):
-            return self.index.length
+            return len(self.index)
         else:
             return len(self.data)
 

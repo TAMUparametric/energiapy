@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import List, Union
 
-from .type.aspect import Capacity, CashFlow, Emission, Land, Life, Limit, Loss
+from .type.aspect import CapBound, CashFlow, Emission, Land, Life, Limit, Loss
 from .type.condition import Condition, RightHandSide, SumOver
 
 
@@ -75,14 +75,14 @@ rulebook = RuleBook()
 rulebook.add(Rule(variable=CashFlow.PURCHASE_COST, associated=Limit.CONSUME,
                   parameter=CashFlow.PURCHASE_COST, condition=Condition.CALCULATE))
 
-rulebook.add(Rule(variable=CashFlow.STORE_COST, associated=Capacity.STORE,
+rulebook.add(Rule(variable=CashFlow.STORE_COST, associated=CapBound.STORE,
                   parameter=CashFlow.STORE_COST, condition=Condition.CALCULATE))
 
 for i in [CashFlow.SELL_COST, CashFlow.CREDIT, CashFlow.PENALTY]:
     rulebook.add(Rule(variable=i, associated=Limit.DISCHARGE,
                       parameter=i, condition=Condition.CALCULATE))
 
-rulebook.add(Rule(variable=CashFlow.VOPEX, associated=Capacity.PRODUCE,
+rulebook.add(Rule(variable=CashFlow.VOPEX, associated=CapBound.PRODUCE,
                   parameter=CashFlow.VOPEX, condition=Condition.CALCULATE))
 
 rulebook.add(Rule(variable=CashFlow.CAPEX, associated=Limit.CAPACITY,
@@ -95,9 +95,9 @@ rulebook.add(Rule(variable=CashFlow.INCIDENTAL, associated=None,
                   parameter=CashFlow.INCIDENTAL, condition=Condition.CALCULATE))
 
 
-rulebook.add(Rule(variable=Loss.STORE_LOSS, associated=Capacity.STORE,
+rulebook.add(Rule(variable=Loss.STORE_LOSS, associated=CapBound.STORE,
                   parameter=Loss.STORE_LOSS, condition=Condition.CALCULATE))
-rulebook.add(Rule(variable=Loss.TRANSPORT_LOSS, associated=Capacity.TRANSPORT,
+rulebook.add(Rule(variable=Loss.TRANSPORT_LOSS, associated=CapBound.TRANSPORT,
                   parameter=Loss.TRANSPORT_LOSS, condition=Condition.CALCULATE))
 
 rulebook.add(Rule(variable=Land.LAND, associated=Land.LAND_USE,
@@ -115,14 +115,13 @@ for i in Limit.all():
     rulebook.add(Rule(variable=i, parameter=i, condition=Condition.BIND))
 
 
-
-rulebook.add(Rule(variable=Capacity.STORE, associated=Limit.CAPACITY,
+rulebook.add(Rule(variable=CapBound.STORE, associated=Limit.CAPACITY,
                   condition=Condition.CAPACITATE, declared_at='Process'))
 
-rulebook.add(Rule(variable=Capacity.PRODUCE, associated=Limit.CAPACITY,
+rulebook.add(Rule(variable=CapBound.PRODUCE, associated=Limit.CAPACITY,
                   condition=Condition.CAPACITATE, declared_at='Process'))
 
-rulebook.add(Rule(variable=Capacity.TRANSPORT, associated=Limit.CAPACITY,
+rulebook.add(Rule(variable=CapBound.TRANSPORT, associated=Limit.CAPACITY,
                   condition=Condition.CAPACITATE, declared_at='Transport'))
 
 

@@ -2,7 +2,7 @@ from enum import Enum, auto
 
 
 class Bound(Enum):
-    """Type of boundon parameter
+    """Type of bound on parameter
     """
     UNBOUNDED = auto()
     """[SmallM, BigM]. Is unbounded  
@@ -19,3 +19,13 @@ class Bound(Enum):
     PARAMETRIC = auto()
     """lies in a range (number, number) or is a Theta object
     """
+
+    def namer(self):
+        """gives out a string to put in the name of the parameter
+        """
+        if self == Bound.LOWER:
+            return '_lb'
+        elif self == Bound.UPPER:
+            return '_ub'
+        else:
+            return ''

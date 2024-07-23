@@ -96,7 +96,7 @@ class Horizon:
         if self.nested:
             self.ctype.append(HorizonType.NESTED)
         else:
-            self.ctype.append(HorizonType.NOT_NESTED)
+            self.ctype.append(HorizonType.UNNESTED)
 
         for i in range(self.n_scales):
             self.scales.append(TemporalScale(name=TemporalDisp.all()[

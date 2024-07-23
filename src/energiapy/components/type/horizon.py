@@ -1,7 +1,7 @@
 from enum import Enum, auto
 
 
-class HorizonT(Enum):
+class HorizonType(Enum):
     """Classifies Horizon as having multiple or single scales 
     """
     MULTISCALE = auto()

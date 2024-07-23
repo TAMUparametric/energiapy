@@ -8,8 +8,8 @@ temporal: TemporalDisposition needs to be provided using the _scale attributes
 
 The parameter could either certain or uncertain (vtype: Variability)
 vtypes have substypes:
-Certainty subtypes are either some combination of bounds or an exact value
-Uncertainty subtypes are parametric, deterministic, stochastic
+Certainty subtypes are either some combination of Bounds or an Exact value
+Uncertainty subtypes are Parametric, deterministic, stochastic
 
 Special parameters are actual dataclasses: BigM, SmallM, Factor, MPVar/Theta
 
@@ -17,22 +17,7 @@ Finally,
 aspect: ParameterType describes what the parameter models. There are subtypes for each type.
 """
 
-from dataclasses import dataclass
 from enum import Enum, auto
-from typing import Dict, List, TypeVar, Union
-
-from pandas import DataFrame
-
-Big = TypeVar('Big', bound='BigM')
-
-exact = Union[float, int]
-unbound = Union[bool, 'BigM']
-parametric = Union[tuple, 'Theta']
-dataset = Union[DataFrame, 'DataSet']
-
-direct = Union[exact, unbound, parametric, dataset]
-bounds = List[Union[exact, unbound, dataset]]
-dict_data = Dict[str, Union[direct, bounds]]
 
 
 class Limit(Enum):
@@ -50,6 +35,14 @@ class Limit(Enum):
     """Process or Transport capacity
     """
 
+    def pnamer(self):
+        """parameter name generator"""
+        return self.name.lower().capitalize()
+
+    def vnamer(self):
+        """variable name generator"""
+        return self.name.lower()
+
     @staticmethod
     def tname() -> str:
         """Returns the name of the Enum
@@ -58,6 +51,7 @@ class Limit(Enum):
 
     @classmethod
     def all(cls) -> str:
+        """all members of the Enum"""
         return [i for i in cls]
 
     @classmethod
@@ -72,12 +66,8 @@ class Limit(Enum):
     def transport(cls) -> str:
         return [Limit.CAPACITY]
 
-    @classmethod
-    def types(cls) -> List:
-        return Union[direct, bounds, dict_data]
 
-
-class Capacity(Enum):
+class CapBound(Enum):
     """These are capacitated by the realized capacities
     of the component where the Resource is declared
     """
@@ -92,23 +82,32 @@ class Capacity(Enum):
     if declared at Transport
     """
 
+    def pnamer(self):
+        """parameter name generator"""
+        return self.name.lower().capitalize()
+
+    def vnamer(self):
+        """variable name generator"""
+        return self.name.lower()
+
     @staticmethod
     def tname() -> str:
         """Returns the name of the Enum
         """
-        return 'Capacity'
+        return 'CapBound'
 
     @classmethod
-    def all(cls) -> List[str]:
+    def all(cls) -> str:
+        """all members of the Enum"""
         return [i for i in cls]
 
     @classmethod
     def process(cls) -> str:
-        return [Capacity.PRODUCE, Capacity.STORE]
+        return [CapBound.PRODUCE, CapBound.STORE]
 
     @classmethod
     def transport(cls) -> str:
-        return [Capacity.TRANSPORT]
+        return [CapBound.TRANSPORT]
 
 
 class CashFlow(Enum):
@@ -143,37 +142,42 @@ class CashFlow(Enum):
     """Expenditure on acquiring land
     """
 
+    def pnamer(self):
+        """parameter name generator"""
+        return self.name.lower().capitalize()
+
+    def vnamer(self):
+        """variable name generator"""
+        return self.name.lower()
+
     @staticmethod
     def tname() -> str:
         return 'CashFlow'
 
     @classmethod
-    def all(cls) -> List[str]:
+    def all(cls) -> str:
+        """all members of the Enum"""
         return [i for i in cls]
 
     @classmethod
-    def resource(cls) -> List[str]:
+    def resource(cls) -> list:
         return [getattr(CashFlow, i) for i in ['SELL_COST', 'PURCHASE_COST', 'STORE_COST', 'CREDIT', 'PENALTY']]
 
     @classmethod
-    def process(cls) -> List[str]:
+    def process(cls) -> list:
         return [getattr(CashFlow, i) for i in ['CAPEX', 'FOPEX', 'VOPEX', 'INCIDENTAL']]
 
     @classmethod
-    def transport(cls) -> List[str]:
+    def transport(cls) -> list:
         return cls.process()
 
     @classmethod
-    def location(cls) -> List[str]:
+    def location(cls) -> list:
         return [CashFlow.LAND_COST]
 
     @classmethod
-    def network(cls) -> List[str]:
+    def network(cls) -> list:
         return cls.location()
-
-    @classmethod
-    def types(cls) -> List:
-        return Union[direct, dict_data]
 
 
 class Land(Enum):
@@ -186,6 +190,14 @@ class Land(Enum):
     """Upper bound 
     """
 
+    def pnamer(self):
+        """parameter name generator"""
+        return self.name.lower().capitalize()
+
+    def vnamer(self):
+        """variable name generator"""
+        return self.name.lower()
+
     @staticmethod
     def tname() -> str:
         """Returns the name of the Enum
@@ -193,28 +205,25 @@ class Land(Enum):
         return 'Land'
 
     @classmethod
-    def all(cls) -> List[str]:
+    def all(cls) -> str:
+        """all members of the Enum"""
         return [i for i in cls]
 
     @classmethod
-    def process(cls) -> List[str]:
+    def process(cls) -> list:
         return [Land.LAND_USE]
 
     @classmethod
-    def transport(cls) -> List[str]:
+    def transport(cls) -> list:
         return cls.process()
 
     @classmethod
-    def location(cls) -> List[str]:
+    def location(cls) -> list:
         return [Land.LAND]
 
     @classmethod
-    def network(cls) -> List[str]:
+    def network(cls) -> list:
         return cls.location()
-
-    @classmethod
-    def types(cls) -> List:
-        return Union[direct, dict_data]
 
 
 class Emission(Enum):
@@ -238,6 +247,15 @@ class Emission(Enum):
     EUTM = auto()
     """Marine Eutrophication Potential
     """
+
+    def pnamer(self):
+        """parameter name generator"""
+        return self.name.lower().capitalize()
+
+    def vnamer(self):
+        """variable name generator"""
+        return self.name.lower()
+
     @staticmethod
     def tname() -> str:
         """Returns the name of the Enum
@@ -245,12 +263,9 @@ class Emission(Enum):
         return 'Emission'
 
     @classmethod
-    def all(cls) -> List[str]:
+    def all(cls) -> str:
+        """all members of the Enum"""
         return [i for i in cls]
-
-    @classmethod
-    def types(cls) -> List:
-        return Union[direct, dict_data]
 
 
 class Life(Enum):
@@ -269,6 +284,14 @@ class Life(Enum):
     """Chance of failure
     """
 
+    def pnamer(self):
+        """parameter name generator"""
+        return self.name.lower().capitalize()
+
+    def vnamer(self):
+        """variable name generator"""
+        return self.name.lower()
+
     @staticmethod
     def tname() -> str:
         """Returns the name of the Enum
@@ -276,12 +299,9 @@ class Life(Enum):
         return 'Life'
 
     @classmethod
-    def all(cls) -> List[str]:
+    def all(cls) -> str:
+        """all members of the Enum"""
         return [i for i in cls]
-
-    @classmethod
-    def types(cls) -> List:
-        return Union[direct, dict_data]
 
 
 class Loss(Enum):
@@ -290,6 +310,14 @@ class Loss(Enum):
     STORE_LOSS = auto()
     TRANSPORT_LOSS = auto()
 
+    def pnamer(self):
+        """parameter name generator"""
+        return self.name.lower().capitalize()
+
+    def vnamer(self):
+        """variable name generator"""
+        return self.name.lower()
+
     @staticmethod
     def tname() -> str:
         """Returns the name of the Enum
@@ -297,20 +325,17 @@ class Loss(Enum):
         return 'Loss'
 
     @classmethod
-    def all(cls) -> List[str]:
+    def all(cls) -> str:
+        """all members of the Enum"""
         return [i for i in cls]
 
     @classmethod
-    def process(cls) -> List[str]:
+    def process(cls) -> list:
         return [Loss.STORE_LOSS]
 
     @classmethod
-    def transport(cls) -> List[str]:
+    def transport(cls) -> list:
         return [Loss.TRANSPORT_LOSS]
-
-    @classmethod
-    def types(cls) -> List:
-        return Union[direct, dict_data]
 
 
 class AspectType(Enum):
@@ -321,7 +346,7 @@ class AspectType(Enum):
     """
     LIMIT = Limit
     """Helps create boundaries for the problem 
-    by setting a min/max or exact limit for flow of Resource.
+    by setting a min/max or Exact limit for flow of Resource.
     """
     CASHFLOW = CashFlow
     """Expenditure/Revenue.
@@ -338,7 +363,7 @@ class AspectType(Enum):
     LOSS = Loss
     """Amount lost during storage or transport
     """
-    CAPACITY = Capacity
+    CAPACITY = CapBound
     """How much of the capacity can be accessed
     """
 
@@ -349,7 +374,8 @@ class AspectType(Enum):
         return 'AspectType'
 
     @classmethod
-    def all(cls) -> list:
+    def all(cls) -> str:
+        """all members of the Enum"""
         return [i.value for i in cls]
 
     @classmethod
