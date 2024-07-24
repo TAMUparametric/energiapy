@@ -5,6 +5,9 @@ from ..funcs.print import printer
 from .horizon import Horizon
 from .process import Process
 from .resource import Resource
+from ..model.type.alias import IsComponent
+
+from warnings import warn
 
 
 @dataclass
@@ -32,7 +35,7 @@ class Scenario:
 
     """
 
-    name: str = 'energia'
+    name: str = r'\m/>'
 
     def __post_init__(self):
 
@@ -63,7 +66,7 @@ class Scenario:
             value.make_named(name=name, horizon=self.horizon)
 
         if isinstance(value, Resource):
-            getattr(self, 'resources').append(value)
+            self.update_component_list(list_attr='resources', component=value)
 
         if isinstance(value, Process):
 
@@ -82,7 +85,8 @@ class Scenario:
                 setattr(getattr(getattr(self, name), 'conversion'), 'conversion',  {value.conversion.produce: {
                         value.stored_resource: value.conversion.conversion[value.stored_resource]}})
 
-            getattr(self, 'processes').append(value)
+            setattr(self, 'resources', list(
+                set(getattr(self, 'resources')) | {value}))
 
         for i in ['parameters', 'variables', 'constraints']:
             if hasattr(value, i):
@@ -99,7 +103,27 @@ class Scenario:
     def cons(self):
         printer(component=self, print_collection='constraints')
 
-    @staticmethod
+    def update_component_list(self, list_attr, component: IsComponent):
+        """Updates the lists of components in the scenario.
+
+        Args:
+            list_attr (str): The name of the attribute representing the list of components.
+            component (IsComponent): The component to be added to the list.
+
+        Returns:
+            None
+
+        Raises:
+            None
+
+        """
+        list_curr = getattr(self, list_attr)
+        if component in list_curr:
+            warn(f'{component.name} is being replaced in Scenario')
+        # add component to list
+        setattr(self, list_attr, list(set(list_curr) | {component}))
+
+    @ staticmethod
     def cname() -> str:
         """Returns class name"""
         return 'Scenario'

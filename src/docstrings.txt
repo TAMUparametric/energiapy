@@ -263,3 +263,47 @@ Resource
 
         >>> Goa= Location(name='Goa', processes= {Process1, Process2}, demand_scale_level=2, capacity_scale_level= 2, price_scale_level= 1, demand_factor= {Resource1: DataFrame,}, price_factor = {Resource2: DataFrame}, capacity_factor = {Process1: DataFrame}, scales= TemporalScale object, label='Home')
     """
+
+    """
+    Transports move Resource from one Location to Another 
+
+    Args:
+        name(str): name of transport, short ones are better to deal with .
+        resources(Set[Resource]): specific resources transported through mode.
+        cap_max(Union[float, Tuple[float], Theta, bool, 'Big']): maximum capacity that can be set up.
+        cap_min(Union[float, Tuple[float], Theta], optional): minimum capacity required to set up. Defaults to None.
+        land(Union[float, Tuple[float], Theta], optional): land required to set up transport. Defaults to None.
+        trans_loss(Union[float, Tuple[float], Theta], optional): transport losses per unit basis of Resource for timeperiod in scheduling scale. Defaults to 0.
+        material_cons(Dict[Material, float], optional): Materials consumed per unit distance of Transport. Defaults to None.
+        capex(Union[float, Tuple[float], Theta], optional): capital expenditure on a per unit distance unit capacity basis. Defaults to None.
+        vopex(Union[float, Tuple[float], Theta], optional): variable operational expenditure on a per unit distance unit capacity basis. Defaults to None.
+        fopex(Union[float, Tuple[float], Theta], optional): fixed operational expenditure on a per unit distance unit capacity basis. Defaults to None.
+        incidental(float, optional): incidental expenditure on a per unit distance unit capacity basis. Defaults to None.
+        gwp (Union[float, Tuple[float], Theta], optional): global warming potential for settting up transportation per unit distance. Defaults to None.
+        odp (Union[float, Tuple[float], Theta], optional): ozone depletion potential for settting up transportation per unit distance. Defaults to None.
+        acid (Union[float, Tuple[float], Theta], optional): acidification potential for settting up transportation per unit distance. Defaults to None.
+        eutt (Union[float, Tuple[float], Theta], optional): terrestrial eutrophication potential for settting up transportation per unit distance. Defaults to None.
+        eutf (Union[float, Tuple[float], Theta], optional): fresh water eutrophication potential for settting up transportation per unit distance. Defaults to None.
+        eutm (Union[float, Tuple[float], Theta], optional): marine eutrophication potential for settting up transportation per unit distance. Defaults to None.
+        introduce (int, optional): Time period in the network scale when introduced. Defaults to None.
+        lifetime (Union[float, Tuple[float], Theta] = None, optional): the expected lifetime of Transport. Defaults to None.
+        retire (int, optional): Time period in the network scale when retired. Defaults to None.
+        p_fail (Union[float, Tuple[float], Theta] = None, optional): failure rate of Transport. Defaults to None.
+        basis (str, optional): unit for measuring cost and distance. Defaults to None .
+        block (Union[str, list, dict], optional): block to which it belong. Convinient to set up integer cuts. Defaults to None.
+        label (str, optional): used while generating plots. Defaults to None.
+        citation (str, optional): can provide citations for your data sources. Defaults to None.
+        ctype (List[Union[TransportType, Dict[TransportType, Set[Tuple[Location, Location]]]]], optional): list of Transport ctypes. Defaults to None.
+        aspect (Dict[LandType, ParameterType], optional): paramater type of declared values. Defaults to None.
+        ftype (Dict[TransportType, Tuple[Tuple[Location, Location], FactorType]], optional): factor type of declared factors. Defaults to None. 
+        etype (List[EmissionType], optional): list of emission types defined. Defaults to None
+        factors (Dict[TransportParamType, Tuple[Tuple[Location, Location], Factor]], optional): collects factors when defined at Network. Defaults to None.
+        emissions (Dict[str, float], optional): collects emission data. Defaults to None.
+
+    Examples:
+
+        Transport objects can be anything from Trains to Pipelines
+
+        >>> Train = Transport(name='Train', resources={H2}, materials_cons={Steel: 100}, trans_max=10000, trans_loss=0.001, capex=300, label= 'Railine for Hydrogen)
+
+    """

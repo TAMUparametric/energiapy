@@ -11,6 +11,7 @@ from typing import TYPE_CHECKING
 from ..funcs.aspect import aspecter
 from ..funcs.name import namer, is_named
 from ..funcs.print import printer
+from ..funcs.conversion import conversioner
 from ..model.specialparams.conversion import Conversion
 from ..model.type.aspect import (CapBound, CashFlow, Emission, Land,
                                  Life, Limit, Loss, Aspects)
@@ -21,7 +22,7 @@ from ..model.type.input import Input
 if TYPE_CHECKING:
     from ..model.type.alias import (IsCapBound, IsCashFlow, IsConv,
                                     IsEmission, IsLand, IsLife, IsLimit,
-                                    IsLoss, IsMatCons, IsPWL)
+                                    IsLoss, IsMatCons, IsPWL, IsDetail, IsDepreciated)
     from .horizon import Horizon
     from .material import Material
     from .resource import Resource
@@ -36,7 +37,6 @@ class Process:
     land_use: IsLand = None
     material_cons: IsMatCons = None
     # CapBoundType
-    store: IsCapBound = None
     produce: IsCapBound = None
     # Expenditure
     capex: IsCashFlow = None
@@ -89,51 +89,10 @@ class Process:
 
         self.declared_at = self
 
-        for i in ['produce', 'store', 'transport', 'transport_loss', 'transport_cost']:
-            setattr(self, i, None)
-
         # *-----------------Set ctype (ProcessType)---------------------------------
 
         if not hasattr(self, 'ctype'):
             self.ctype = list()
-
-        # conversion can be single mode (SINGLE_PRODMODE) or multimode (MULTI_PRODMODE)
-        # For MULTI_PRODMODE, a dict of type {'mode' (str, int) : {Resource: float}} needs to be provided
-
-        self.conversion = Conversion(
-            conversion=self.conversion, process=self)
-        self.involve = self.conversion.involve
-
-        if not self.produce:
-            self.produce = {self.conversion.produce: 1}
-
-        self.modes = self.conversion.modes
-        self.n_modes = self.conversion.n_modes
-
-        if hasattr(self.conversion, 'stored_resource'):
-            self.stored_resource = self.conversion.stored_resource
-            for i in ['store', 'store_loss', 'store_cost']:
-                setattr(
-                    self, i, {self.conversion.stored_resource: getattr(self, i)})
-
-        for i in ['discharge', 'consume']:
-            if not getattr(self, i):
-                setattr(
-                    self, i, {r: True for r in getattr(self.conversion, i)})
-            elif getattr(self, i) and isinstance(getattr(self, i), dict):
-                dict_ = getattr(self, i)
-                setattr(self, i, {r: dict_.get(r, True)
-                        for r in getattr(self.conversion, i)})
-            else:
-                raise ValueError(
-                    f'{i} should be a dictionary of some or all resources in conversion.{i}')
-
-        if self.n_modes > 1:
-            self.ctype.append(ProcessType.MULTI_PRODMODE)
-        elif self.n_modes == 1:
-            self.ctype.append(ProcessType.SINGLE_PRODMODE)
-        elif self.n_modes == 0:
-            self.ctype.append(ProcessType.STORAGE)
 
         # Materials are not necessarily consumed (NO_MATMODE), if material_cons is None
         # If consumed, there could be multiple modes of consumption (MULTI_MATMODE) or one (SINGLE_MATMODE)
@@ -194,10 +153,14 @@ class Process:
             if Input.match(name) in self.aspects():
                 aspecter(component=self, attr_name=name, attr_value=value)
 
+            elif name == 'conversion':
+                conversioner(process=self)
+
             elif Input.match(name) in self.resource_aspects():
                 current_value = getattr(self, name)
                 for j in current_value:
                     j.declared_at = self
+                    print(name, j, current_value)
                     setattr(j, name, current_value[j])
 
     # *----------------- Methods --------------------------------------
@@ -236,12 +199,12 @@ class Process:
     @staticmethod
     def aspects() -> list:
         """Returns Process aspects"""
-        return CashFlow.process() + Land.process() + Limit.process() + Life.all() + Emission.all()
+        return CashFlow.process() + Land.process() + Limit.process() + Life.all() + Emission.all() + CapBound.process()
 
     @staticmethod
     def resource_aspects() -> list:
         """Returns Resource aspects at Process level"""
-        return CashFlow.resource() + Limit.resource() + Loss.process() + CapBound.process()
+        return CashFlow.resource() + Limit.resource()
 
     # *-----------------Magics--------------------
 

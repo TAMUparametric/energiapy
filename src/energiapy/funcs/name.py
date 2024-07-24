@@ -22,6 +22,7 @@ def namer(component: IsComponent, name: str, horizon: Horizon):
 
     for i in Input.inputs():
         if hasattr(component, i) and getattr(component, i) is not None:
+            print(component, i)
             setattr(component, i, getattr(component, i))
 
 
