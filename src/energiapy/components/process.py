@@ -150,11 +150,12 @@ class Process:
     def __setattr__(self, name, value):
         super().__setattr__(name, value)
         if is_named(component=self, attr_value=value):
-            if Input.match(name) in self.aspects():
-                aspecter(component=self, attr_name=name, attr_value=value)
 
-            elif name == 'conversion':
+            if name == 'conversion':
                 conversioner(process=self)
+
+            elif Input.match(name) in self.aspects():
+                aspecter(component=self, attr_name=name, attr_value=value)
 
             elif Input.match(name) in self.resource_aspects():
                 current_value = getattr(self, name)
