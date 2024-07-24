@@ -15,13 +15,13 @@ from .type.bound import Bound
 from .type.certainty import Approach, Certainty
 
 if TYPE_CHECKING:
-    from .type.aliases import (IsAspect, IsComponent, IsDeclaredAt,
-                               IsParameter, IsTemporal)
+    from .type.alias import (IsAspect, IsComponent, IsDeclaredAt,
+                             IsValue, IsTemporal)
 
 
 @dataclass
 class Parameter:
-    value: IsParameter
+    value: IsValue
     aspect: IsAspect
     component: IsComponent
     declared_at: IsDeclaredAt

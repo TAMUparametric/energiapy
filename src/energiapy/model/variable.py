@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 from .index import Index
 
 if TYPE_CHECKING:
-    from .type.aliases import IsAspect, IsComponent, IsDeclaredAt, IsTemporal
+    from .type.alias import IsAspect, IsComponent, IsDeclaredAt, IsTemporal
 
 
 @dataclass
@@ -15,7 +15,7 @@ class Variable:
     component: IsComponent
     declared_at: IsDeclaredAt
     temporal: IsTemporal
-    
+
     def __post_init__(self):
 
         self.index = Index(component=self.component,

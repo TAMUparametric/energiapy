@@ -13,7 +13,7 @@ class Horizon:
     Planning horizon of the problem. 
     Need to specify how many periods the parent scale t0 with 1 discretization is divided into.
 
-    Attributes:
+    Input:
         discretizations (list): divides the horizon into n discretizations. Creates a TemporalScale for each discretization.
         nested (bool, optional): if nested the discretizes based on previous scale. Defaults to True.
         scaling_max (bool, optional): apply max scaling to DataSet. Defaults to None.

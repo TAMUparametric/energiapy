@@ -18,6 +18,7 @@ aspect: ParameterType describes what the parameter models. There are subtypes fo
 """
 
 from enum import Enum, auto
+from dataclasses import dataclass
 
 
 class Limit(Enum):
@@ -36,11 +37,13 @@ class Limit(Enum):
     """
 
     def pnamer(self):
-        """parameter name generator"""
+        """parameter name generator
+        """
         return self.name.lower().capitalize()
 
     def vnamer(self):
-        """variable name generator"""
+        """variable name generator
+        """
         return self.name.lower()
 
     @staticmethod
@@ -49,22 +52,23 @@ class Limit(Enum):
         """
         return 'Limit'
 
-    @classmethod
-    def all(cls) -> str:
-        """all members of the Enum"""
-        return [i for i in cls]
-
-    @classmethod
-    def resource(cls) -> str:
+    @staticmethod
+    def resource() -> str:
         return [Limit.DISCHARGE, Limit.CONSUME]
 
-    @classmethod
-    def process(cls) -> str:
+    @staticmethod
+    def process() -> str:
+        return [Limit.CAPACITY]
+
+    @staticmethod
+    def transport() -> str:
         return [Limit.CAPACITY]
 
     @classmethod
-    def transport(cls) -> str:
-        return [Limit.CAPACITY]
+    def all(cls) -> str:
+        """all members of the Enum
+        """
+        return [i for i in cls]
 
 
 class CapBound(Enum):
@@ -83,12 +87,20 @@ class CapBound(Enum):
     """
 
     def pnamer(self):
-        """parameter name generator"""
+        """parameter name generator
+        """
         return self.name.lower().capitalize()
 
     def vnamer(self):
-        """variable name generator"""
+        """variable name generator
+        """
         return self.name.lower()
+
+    @classmethod
+    def all(cls) -> str:
+        """all members of the Enum
+        """
+        return [i for i in cls]
 
     @staticmethod
     def tname() -> str:
@@ -96,17 +108,12 @@ class CapBound(Enum):
         """
         return 'CapBound'
 
-    @classmethod
-    def all(cls) -> str:
-        """all members of the Enum"""
-        return [i for i in cls]
-
-    @classmethod
-    def process(cls) -> str:
+    @staticmethod
+    def process() -> str:
         return [CapBound.PRODUCE, CapBound.STORE]
 
-    @classmethod
-    def transport(cls) -> str:
+    @staticmethod
+    def transport() -> str:
         return [CapBound.TRANSPORT]
 
 
@@ -143,41 +150,40 @@ class CashFlow(Enum):
     """
 
     def pnamer(self):
-        """parameter name generator"""
+        """parameter name generator
+        """
         return self.name.lower().capitalize()
 
     def vnamer(self):
-        """variable name generator"""
+        """variable name generator
+        """
         return self.name.lower()
 
     @staticmethod
     def tname() -> str:
         return 'CashFlow'
 
-    @classmethod
-    def all(cls) -> str:
-        """all members of the Enum"""
-        return [i for i in cls]
-
-    @classmethod
-    def resource(cls) -> list:
+    @staticmethod
+    def resource() -> list:
         return [getattr(CashFlow, i) for i in ['SELL_COST', 'PURCHASE_COST', 'STORE_COST', 'CREDIT', 'PENALTY']]
 
-    @classmethod
-    def process(cls) -> list:
+    @staticmethod
+    def process() -> list:
         return [getattr(CashFlow, i) for i in ['CAPEX', 'FOPEX', 'VOPEX', 'INCIDENTAL']]
 
-    @classmethod
-    def transport(cls) -> list:
-        return cls.process()
+    @staticmethod
+    def transport() -> list:
+        return [getattr(CashFlow, i) for i in ['CAPEX', 'FOPEX', 'VOPEX', 'INCIDENTAL']]
 
-    @classmethod
-    def location(cls) -> list:
+    @staticmethod
+    def location() -> list:
         return [CashFlow.LAND_COST]
 
     @classmethod
-    def network(cls) -> list:
-        return cls.location()
+    def all(cls) -> str:
+        """all members of the Enum
+        """
+        return [i for i in cls]
 
 
 class Land(Enum):
@@ -191,11 +197,13 @@ class Land(Enum):
     """
 
     def pnamer(self):
-        """parameter name generator"""
+        """parameter name generator
+        """
         return self.name.lower().capitalize()
 
     def vnamer(self):
-        """variable name generator"""
+        """variable name generator
+        """
         return self.name.lower()
 
     @staticmethod
@@ -204,26 +212,27 @@ class Land(Enum):
         """
         return 'Land'
 
-    @classmethod
-    def all(cls) -> str:
-        """all members of the Enum"""
-        return [i for i in cls]
-
-    @classmethod
-    def process(cls) -> list:
+    @staticmethod
+    def process() -> list:
         return [Land.LAND_USE]
 
-    @classmethod
-    def transport(cls) -> list:
-        return cls.process()
+    @staticmethod
+    def transport() -> list:
+        return [Land.LAND_USE]
 
-    @classmethod
-    def location(cls) -> list:
+    @staticmethod
+    def location() -> list:
+        return [Land.LAND]
+
+    @staticmethod
+    def network() -> list:
         return [Land.LAND]
 
     @classmethod
-    def network(cls) -> list:
-        return cls.location()
+    def all(cls) -> str:
+        """all members of the Enum
+        """
+        return [i for i in cls]
 
 
 class Emission(Enum):
@@ -249,11 +258,13 @@ class Emission(Enum):
     """
 
     def pnamer(self):
-        """parameter name generator"""
+        """parameter name generator
+        """
         return self.name.lower().capitalize()
 
     def vnamer(self):
-        """variable name generator"""
+        """variable name generator
+        """
         return self.name.lower()
 
     @staticmethod
@@ -264,7 +275,8 @@ class Emission(Enum):
 
     @classmethod
     def all(cls) -> str:
-        """all members of the Enum"""
+        """all members of the Enum
+        """
         return [i for i in cls]
 
 
@@ -283,13 +295,18 @@ class Life(Enum):
     PFAIL = auto()
     """Chance of failure
     """
+    TRL = auto()
+    """Technology Readiness Level
+    """
 
     def pnamer(self):
-        """parameter name generator"""
+        """parameter name generator
+        """
         return self.name.lower().capitalize()
 
     def vnamer(self):
-        """variable name generator"""
+        """variable name generator
+        """
         return self.name.lower()
 
     @staticmethod
@@ -300,7 +317,8 @@ class Life(Enum):
 
     @classmethod
     def all(cls) -> str:
-        """all members of the Enum"""
+        """all members of the Enum
+        """
         return [i for i in cls]
 
 
@@ -311,11 +329,13 @@ class Loss(Enum):
     TRANSPORT_LOSS = auto()
 
     def pnamer(self):
-        """parameter name generator"""
+        """parameter name generator
+        """
         return self.name.lower().capitalize()
 
     def vnamer(self):
-        """variable name generator"""
+        """variable name generator
+        """
         return self.name.lower()
 
     @staticmethod
@@ -324,69 +344,27 @@ class Loss(Enum):
         """
         return 'Loss'
 
-    @classmethod
-    def all(cls) -> str:
-        """all members of the Enum"""
-        return [i for i in cls]
-
-    @classmethod
-    def process(cls) -> list:
+    @staticmethod
+    def process() -> list:
         return [Loss.STORE_LOSS]
 
-    @classmethod
-    def transport(cls) -> list:
-        return [Loss.TRANSPORT_LOSS]
-
-
-class AspectType(Enum):
-    """What kind of behaviour does the parameter describe
-    All of these have subclasses
-    These are predetermined by me, Rahul Kakodkar. 
-    The BDFO of energiapy
-    """
-    LIMIT = Limit
-    """Helps create boundaries for the problem 
-    by setting a min/max or Exact limit for flow of Resource.
-    """
-    CASHFLOW = CashFlow
-    """Expenditure/Revenue.
-    """
-    LAND = Land
-    """Describes land use and such
-    """
-    EMISSION = Emission
-    """Is an emission.
-    """
-    LIFE = Life
-    """Describes earliest introduction, retirement, lifetime and such
-    """
-    LOSS = Loss
-    """Amount lost during storage or transport
-    """
-    CAPACITY = CapBound
-    """How much of the capacity can be accessed
-    """
-
     @staticmethod
-    def tname() -> str:
-        """Returns the name of the Enum
-        """
-        return 'AspectType'
+    def transport() -> list:
+        return [Loss.TRANSPORT_LOSS]
 
     @classmethod
     def all(cls) -> str:
-        """all members of the Enum"""
-        return [i.value for i in cls]
+        """all members of the Enum
+        """
+        return [i for i in cls]
 
-    @classmethod
-    def matches(cls) -> dict:
-        d_ = {i: [j.name.lower() for j in i.all()] for i in cls.all()}
-        return {k: getattr(i, k.upper()) for i, j in d_.items() for k in j}
 
-    @classmethod
-    def aspects(cls) -> list:
-        return list(cls.matches())
-
-    @classmethod
-    def match(cls, value: str):
-        return cls.matches()[value]
+@dataclass(frozen=True)
+class Aspects:
+    resource = Limit.resource() + CashFlow.resource() + Emission.all()
+    process = CapBound.process() + CashFlow.process() + Land.process() + \
+        Limit.process() + Life.all() + Loss.process() + Emission.all()
+    transport = Limit.transport() + CapBound.transport() + CashFlow.transport() + \
+        Land.transport() + Loss.transport() + Emission.all() + Life.all()
+    location = Land.location() + CashFlow.location()
+    network = Land.network()

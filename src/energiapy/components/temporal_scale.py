@@ -11,7 +11,7 @@ class TemporalScale:
     """
     A single temporal scale of the planning horizon (Horizon).
 
-    Attributes:
+    Input:
         name(str): name. 
         index(List[tuple]): index as a list of tuples
         n_index(int): number of indices, generated post-initialization.

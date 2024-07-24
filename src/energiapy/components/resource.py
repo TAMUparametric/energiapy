@@ -3,16 +3,16 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Union
-
-from ..funcs.aspect import aspecter, is_aspect_ready
-from ..funcs.name import namer
+from typing import TYPE_CHECKING
+from ..model.type.input import Input
+from ..funcs.aspect import aspecter
+from ..funcs.name import namer, is_named
 from ..funcs.print import printer
-from ..model.type.aspect import CashFlow, Emission, Limit
+from ..model.type.aspect import CashFlow, Emission, Limit, Aspects
 from .type.resource import ResourceType
 
 if TYPE_CHECKING:
-    from ..model.type.aliases import IsCashFlow, IsEmission, IsLimit
+    from ..model.type.alias import IsCashFlow, IsEmission, IsLimit, IsDepreciated, IsDetail
     from .horizon import Horizon
 
 
@@ -34,18 +34,18 @@ class Resource:
     eutf: IsEmission = None
     eutm: IsEmission = None
     # Details
-    basis: str = None
-    block: Union[str, list, dict] = None
-    label: str = None
-    citation: str = None
+    basis: IsDetail = None
+    block: IsDetail = None
+    label: IsDetail = None
+    citation: IsDetail = None
     # Depreciated
-    sell: bool = None
-    varying: bool = None
-    price: bool = None
-    revenue: bool = None
-    cons_max: bool = None
-    store_max: bool = None
-    store_min: bool = None
+    sell: IsDepreciated = None
+    varying: IsDepreciated = None
+    price: IsDepreciated = None
+    revenue: IsDepreciated = None
+    cons_max: IsDepreciated = None
+    store_max: IsDepreciated = None
+    store_min: IsDepreciated = None
 
     def __post_init__(self):
 
@@ -107,8 +107,9 @@ class Resource:
 
     def __setattr__(self, name, value):
         super().__setattr__(name, value)
-        if is_aspect_ready(component=self, attr_name=name, attr_value=value):
-            aspecter(component=self, attr_name=name, attr_value=value)
+        if is_named(component=self, attr_value=value):
+            if Input.match(name) in Aspects.resource:
+                aspecter(component=self, attr_name=name, attr_value=value)
 
     # *----------------- Methods --------------------------------------
 

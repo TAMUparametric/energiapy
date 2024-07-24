@@ -1,27 +1,5 @@
 from ..model.aspect import Aspect
-from ..model.type.aspect import AspectType
-
-
-def is_aspect_ready(component, attr_name, attr_value) -> bool:
-    """Checks if attribute is ready to be made into an Aspect
-
-    Args:
-        component (energiapy.components): Resource, Process, Location, Transport, Linkage
-        attr_name (str): name of attribute
-        attr_value (): value assigned to aspect attribute
-
-    Returns:
-        bool: True if attribute is ready to be aspected
-    """
-    # TODO - write value types
-    cndtn_named = hasattr(component, 'named') and getattr(component, 'named')
-    cndtn_is_aspect = attr_name in AspectType.aspects()
-    cndtn_value = attr_value is not None
-
-    if cndtn_named and cndtn_is_aspect and cndtn_value:
-        return True
-    else:
-        return False
+from ..model.type.input import Input
 
 
 def aspecter(component, attr_name, attr_value):
@@ -36,12 +14,12 @@ def aspecter(component, attr_name, attr_value):
 
     if not isinstance(current_value, Aspect):
         new_value = Aspect(
-            aspect=AspectType.match(attr_name), component=component)
+            aspect=Input.match(attr_name), component=component)
     else:
         new_value = current_value
 
     if not isinstance(attr_value, Aspect):
-        new_value.add(value=attr_value, aspect=AspectType.match(attr_name), component=component,
+        new_value.add(value=attr_value, aspect=Input.match(attr_name), component=component,
                       horizon=component.horizon, declared_at=component.declared_at)
         setattr(component, attr_name, new_value)
 

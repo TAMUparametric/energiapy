@@ -5,8 +5,8 @@ from typing import TYPE_CHECKING
 from ..model.specialparams.theta import Theta
 
 if TYPE_CHECKING:
-    from ..model.type.aliases import (IsAspect, IsComponent, IsDeclaredAt,
-                                      IsTemporal, ParVar)
+    from ..model.type.alias import (IsAspect, IsComponent, IsDeclaredAt,
+                                    IsTemporal, ParVar)
 
 
 def birth_theta(value: ParVar, component: IsComponent = None,

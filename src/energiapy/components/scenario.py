@@ -12,7 +12,7 @@ class Scenario:
     """
     A scenario for a considered system. It collects all the components of the model.
 
-    Attributes:
+    Input:
         name (str, optional): Name. Defaults to 'energia'.
         horizon (Horizon): Planning horizon of the problem, generated post-initialization.
         scales (List[TemporalScales]): List of TemporalScale objects, generated post-initialization.

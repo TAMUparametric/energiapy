@@ -13,7 +13,7 @@ from ..index import Index
 from ..type.bound import Bound
 
 if TYPE_CHECKING:
-    from ..type.aliases import IsAspect, IsComponent, IsData, IsDeclaredAt
+    from ..type.alias import IsAspect, IsComponent, IsData, IsDeclaredAt
 
 
 @dataclass

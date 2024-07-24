@@ -1,10 +1,10 @@
+from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Dict, List, Tuple, Union
+from typing import TYPE_CHECKING
 
 from pandas import DataFrame
 
-from ..components.horizon import Horizon
 from ..funcs.print import printer
 from .constraint import Constraint
 from .parameter import Parameter
@@ -12,35 +12,28 @@ from .rulebook import rulebook
 from .specialparams.dataset import DataSet
 from .specialparams.theta import Theta
 from .specialparams.unbound import BigM, Unbound
-from .type.aspect import CashFlow, Emission, Land, Life, Limit, Loss
 from .type.bound import Bound
 from .type.certainty import Approach, Certainty
 from .type.condition import Condition
 from .variable import Variable
 
 if TYPE_CHECKING:
-    from ..components.linkage import Linkage
-    from ..components.location import Location
-    from ..components.process import Process
-    from ..components.resource import Resource
-    from ..components.transport import Transport
+    from ..components.horizon import Horizon
+    from .type.alias import (IsAspect, IsComponent, IsDeclaredAt,
+                             IsValue, IsTemporal)
 
 
 @dataclass
 class Aspect:
-    aspect: Union[Limit, CashFlow, Land, Life, Loss, Emission]
-    component: Union['Resource', 'Process', 'Location', 'Transport', 'Network']
+    aspect: IsAspect
+    component: IsComponent
 
     def __post_init__(self):
-        self.name = f'{self.aspect.name.lower().capitalize()}({self.component.name})'
-        self.parameters = list()
-        self.variables = list()
-        self.constraints = list()
+        self.name = f'{self.aspect.name.lower()}({self.component.name})'
+        self.parameters, self.variables, self.constraints = (
+            list() for _ in range(3))
 
-    def add(self, value: Union[float, bool, 'BigM', List[float], List[Union[float, 'BigM']],
-                               DataFrame, Dict[int, DataFrame], Dict[int, DataSet], Tuple[float], Theta], aspect: Union[Limit, CashFlow, Land, Life, Loss, Emission],
-            component: Union['Resource', 'Process', 'Location', 'Transport', 'Network'],
-            declared_at: Union['Resource', 'Process', 'Location', 'Transport', Tuple['Location'], 'Network'], horizon: Horizon = None):
+    def add(self, value: IsValue, aspect: IsAspect, component: IsComponent, declared_at: IsDeclaredAt, horizon: Horizon = None):
 
         if not isinstance(value, dict):
             value = {horizon.scales[0]: value}

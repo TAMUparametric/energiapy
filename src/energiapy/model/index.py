@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from .type.aliases import IsAspect, IsComponent, IsDeclaredAt, IsTemporal
+    from .type.alias import IsAspect, IsComponent, IsDeclaredAt, IsTemporal
 
 
 @dataclass

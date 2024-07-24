@@ -19,7 +19,7 @@ def constraint_latex_render(constraint_rule, latex_alias_dict: dict = None) -> s
 
     Args:
         constraint_rule (function, optional): constraint definition rule. Defaults to {}
-        latex_alias_dict (dict): aliases for vaiables, sets, and symbols
+        latex_alias_dict (dict): alias for vaiables, sets, and symbols
 
     Returns:
         str: string in latex format

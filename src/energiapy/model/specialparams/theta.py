@@ -12,7 +12,7 @@ from ..index import Index
 from .dataset import DataSet
 
 if TYPE_CHECKING:
-    from ..type.aliases import IsAspect, IsComponent, IsDeclaredAt, IsTemporal
+    from ..type.alias import IsAspect, IsComponent, IsDeclaredAt, IsTemporal
 
 
 @dataclass

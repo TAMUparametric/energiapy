@@ -8,19 +8,20 @@ from dataclasses import dataclass
 from functools import reduce
 from typing import TYPE_CHECKING
 
-from ..funcs.aspect import aspecter, is_aspect_ready
-from ..funcs.name import namer
+from ..funcs.aspect import aspecter
+from ..funcs.name import namer, is_named
 from ..funcs.print import printer
 from ..model.specialparams.conversion import Conversion
-from ..model.type.aspect import (AspectType, CapBound, CashFlow, Emission,
-                                 Land, Life, Limit, Loss)
+from ..model.type.aspect import (CapBound, CashFlow, Emission, Land,
+                                 Life, Limit, Loss, Aspects)
 from ..utils.data_utils import get_depth
 from .type.process import ProcessType
+from ..model.type.input import Input
 
 if TYPE_CHECKING:
-    from ..model.type.aliases import (IsCapBound, IsCashFlow, IsConversion,
-                                      IsEmission, IsLand, IsLife, IsLimit,
-                                      IsLoss, IsMatCons)
+    from ..model.type.alias import (IsCapBound, IsCashFlow, IsConv,
+                                    IsEmission, IsLand, IsLife, IsLimit,
+                                    IsLoss, IsMatCons, IsPWL)
     from .horizon import Horizon
     from .material import Material
     from .resource import Resource
@@ -29,18 +30,21 @@ if TYPE_CHECKING:
 @dataclass
 class Process:
 
-    conversion: IsConversion
+    conversion: IsConv
     # Design parameters
     capacity: IsLimit
-    produce: IsCapBound
     land_use: IsLand = None
     material_cons: IsMatCons = None
+    # CapBoundType
+    store: IsCapBound = None
+    produce: IsCapBound = None
     # Expenditure
     capex: IsCashFlow = None
-    pwl: dict = None  # piece wise linear capex
     fopex: IsCashFlow = None
     vopex: IsCashFlow = None
     incidental: IsCashFlow = None
+    # piece wise linear capex
+    capex_pwl: IsPWL = None
     # Emission
     gwp: IsEmission = None
     odp: IsEmission = None
@@ -53,12 +57,11 @@ class Process:
     retire: IsLife = None
     lifetime: IsLife = None
     pfail: IsLife = None
+    trl: IsLife = None
     # These go to storage_resource defined in STORAGE Process
     # LimitType
     discharge: IsLimit = None
     consume: IsLimit = None
-    store: IsCapBound = None
-    produce: IsCapBound = None
     # LossType
     store_loss: IsLoss = None
     # CashFlowType
@@ -68,15 +71,14 @@ class Process:
     credit: IsCashFlow = None
     penalty: IsCashFlow = None
     # Details
-    basis: str = None
-    block: str = None
-    citation: str = None
-    label: str = None
-    trl: str = None
+    basis: IsDetail = None
+    block: IsDetail = None
+    citation: IsDetail = None
+    label: IsDetail = None
     # Depreciated
-    varying: list = None
-    prod_max: float = None
-    prod_min: float = None
+    varying: IsDepreciated = None
+    prod_max: IsDepreciated = None
+    prod_min: IsDepreciated = None
 
     def __post_init__(self):
 
@@ -105,6 +107,9 @@ class Process:
         if not self.produce:
             self.produce = {self.conversion.produce: 1}
 
+        self.modes = self.conversion.modes
+        self.n_modes = self.conversion.n_modes
+
         if hasattr(self.conversion, 'stored_resource'):
             self.stored_resource = self.conversion.stored_resource
             for i in ['store', 'store_loss', 'store_cost']:
@@ -122,9 +127,6 @@ class Process:
             else:
                 raise ValueError(
                     f'{i} should be a dictionary of some or all resources in conversion.{i}')
-
-        self.modes = self.conversion.modes
-        self.n_modes = self.conversion.n_modes
 
         if self.n_modes > 1:
             self.ctype.append(ProcessType.MULTI_PRODMODE)
@@ -151,10 +153,10 @@ class Process:
                 self.ctype.append(ProcessType.SINGLE_MATMODE)
                 self.materials = set(self.material_cons)
 
-        if self.pwl:
+        if self.capex_pwl:
             self.ctype.append(ProcessType.PWL_CAPEX)
-            self.capacity_segments = list(self.pwl)
-            self.capex_segments = list(self.pwl.values())
+            self.capacity_segments = list(self.capex_pwl)
+            self.capex_segments = list(self.capex_pwl.values())
         else:
             self.ctype.append(ProcessType.LINEAR_CAPEX)
 
@@ -188,11 +190,11 @@ class Process:
 
     def __setattr__(self, name, value):
         super().__setattr__(name, value)
-        if is_aspect_ready(component=self, attr_name=name, attr_value=value):
-            if AspectType.match(name) in self.aspects():
+        if is_named(component=self, attr_value=value):
+            if Input.match(name) in self.aspects():
                 aspecter(component=self, attr_name=name, attr_value=value)
 
-            elif AspectType.match(name) in self.resource_aspects():
+            elif Input.match(name) in self.resource_aspects():
                 current_value = getattr(self, name)
                 for j in current_value:
                     j.declared_at = self

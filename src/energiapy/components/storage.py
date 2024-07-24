@@ -1,12 +1,12 @@
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Dict, List, Tuple, Union
 
-from ..funcs.aspect import aspecter, is_aspect_ready
+from ..funcs.aspect import aspecter, is_named
 from ..model.specialparams.conversion import Conversion
 from ..model.specialparams.dataset import DataSet
 from ..model.specialparams.theta import Theta
 from ..model.specialparams.unbound import BigM
-from ..model.type.aspect import AspectType
+from ..model.type.aspect import Input
 
 if TYPE_CHECKING:
     from pandas import DataFrame
@@ -87,8 +87,8 @@ class Storage:
 
     def __setattr__(self, name, value):
         super().__setattr__(name, value)
-        if is_aspect_ready(component=self, attr_name=name, attr_value=value):
-            if AspectType.match(name) in self.aspects():
+        if is_named(component=self, attr_name=name, attr_value=value):
+            if Input.match(name) in self.aspects():
                 aspecter(component=self, attr_name=name, attr_value=value)
 
     # *----------------- Class Methods --------------------------------------
