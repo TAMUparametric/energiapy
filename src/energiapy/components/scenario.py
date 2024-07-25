@@ -1,13 +1,12 @@
 
 from dataclasses import dataclass
+from warnings import warn
 
 from ..funcs.print import printer
+from ..model.type.alias import IsComponent
 from .horizon import Horizon
 from .process import Process
 from .resource import Resource
-from ..model.type.alias import IsComponent
-
-from warnings import warn
 
 
 @dataclass
@@ -69,28 +68,30 @@ class Scenario:
             self.update_component_list(list_attr='resources', component=value)
 
         if isinstance(value, Process):
+            self.update_component_list(list_attr='processes', component=value)
 
-            if hasattr(value, 'stored_resource'):
-                r_naav = f'{value.stored_resource.name}_in_{value.name}'
-                setattr(self, r_naav, value.conversion.produce)
-                p_naav = f'{value.name}_d'
+            # if hasattr(value, 'stored_resource'):
+            #     r_naav = f'{value.stored_resource.name}_in_{value.name}'
+            #     setattr(self, r_naav, value.conversion.produce)
+            #     p_naav = f'{value.name}_d'
 
-                setattr(self, p_naav, Process(
-                    conversion={value.stored_resource: {i: -j for i, j in value.produce.items()}}, capacity=True))
+            #     setattr(self, p_naav, Process(
+            #         conversion={value.stored_resource: {i: -j for i, j in value.produce.items()}}, capacity=True))
 
-                for i in ['store', 'store_loss', 'store_cost']:
-                    setattr(getattr(self, p_naav), i, {
-                            getattr(self, r_naav): getattr(value, i)})
+            #     for i in ['store', 'store_loss', 'store_cost']:
+            #         setattr(getattr(self, p_naav), i, {
+            #                 getattr(self, r_naav): getattr(value, i)})
 
-                setattr(getattr(getattr(self, name), 'conversion'), 'conversion',  {value.conversion.produce: {
-                        value.stored_resource: value.conversion.conversion[value.stored_resource]}})
+            #     setattr(getattr(getattr(self, name), 'conversion'), 'conversion',  {value.conversion.produce: {
+            #             value.stored_resource: value.conversion.conversion[value.stored_resource]}})
 
-            setattr(self, 'resources', list(
-                set(getattr(self, 'resources')) | {value}))
+            # setattr(self, 'resources', list(
+            #     set(getattr(self, 'resources')) | {value}))
 
         for i in ['parameters', 'variables', 'constraints']:
             if hasattr(value, i):
-                getattr(self, i).extend(getattr(value, i))
+                setattr(self, i, sorted(getattr(self, i) + getattr(value, i)))
+                # getattr(self, i).extend(getattr(value, i))
 
     # * ---------Methods-----------------
 

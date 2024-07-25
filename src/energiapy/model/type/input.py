@@ -1,6 +1,6 @@
 from enum import Enum
 
-from .aspect import CashFlow, Emission, Land, Life, Limit, Loss, CapBound
+from .aspect import CapBound, CashFlow, Emission, Land, Life, Limit, Loss
 from .balance import Conv, MatCons
 from .detail import Detail
 

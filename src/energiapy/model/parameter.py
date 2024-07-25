@@ -15,8 +15,8 @@ from .type.bound import Bound
 from .type.certainty import Approach, Certainty
 
 if TYPE_CHECKING:
-    from .type.alias import (IsAspect, IsComponent, IsDeclaredAt,
-                             IsValue, IsTemporal)
+    from .type.alias import (IsAspect, IsComponent, IsDeclaredAt, IsTemporal,
+                             IsValue)
 
 
 @dataclass

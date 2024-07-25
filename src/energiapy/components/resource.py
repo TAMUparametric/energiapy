@@ -4,15 +4,17 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
-from ..model.type.input import Input
+
 from ..funcs.aspect import aspecter
-from ..funcs.name import namer, is_named
+from ..funcs.name import is_named, namer
 from ..funcs.print import printer
-from ..model.type.aspect import CashFlow, Emission, Limit, Aspects
+from ..model.type.aspect import Aspects
+from ..model.type.input import Input
 from .type.resource import ResourceType
 
 if TYPE_CHECKING:
-    from ..model.type.alias import IsCashFlow, IsEmission, IsLimit, IsDepreciated, IsDetail
+    from ..model.type.alias import (IsCashFlow, IsDepreciated, IsDetail,
+                                    IsEmission, IsLimit)
     from .horizon import Horizon
 
 
@@ -108,7 +110,7 @@ class Resource:
     def __setattr__(self, name, value):
         super().__setattr__(name, value)
         if is_named(component=self, attr_value=value):
-            if Input.match(name) in Aspects.resource:
+            if Input.match(name) in self.aspects():
                 aspecter(component=self, attr_name=name, attr_value=value)
 
     # *----------------- Methods --------------------------------------
@@ -141,13 +143,15 @@ class Resource:
 
     @ staticmethod
     def cname() -> str:
-        """Returns class name"""
+        """Returns class name
+        """
         return 'Resource'
 
     @ staticmethod
     def aspects() -> list:
-        """Returns Resource aspects"""
-        return Limit.resource() + CashFlow.resource() + Emission.all()
+        """Returns Resource aspects
+        """
+        return Aspects.resource
 
     # *-----------------Magics--------------------
 

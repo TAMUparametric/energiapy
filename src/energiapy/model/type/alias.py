@@ -48,6 +48,7 @@ IsCashFlow, IsLand, IsEmission, IsLife, IsLoss = (IsExact for _ in range(5))
 IsAspect = Union[CashFlow, Emission, Land, Life, Limit, Loss]
 IsComponent = Union[Resource, Process, Material,
                     Storage, Location, Transport, Linkage]
+IsAspectDict = Dict[IsComponent, IsAspect]
 IsSpatialPair = Union[Tuple[Process, Location], Tuple[Transport, Linkage]]
 IsDeclaredAt = Union[IsSpatialPair, IsComponent]
 

@@ -1,19 +1,25 @@
-from dataclasses import dataclass
-from typing import List, Union
+from __future__ import annotations
 
-from .type.aspect import CapBound, CashFlow, Emission, Land, Life, Limit, Loss
+from dataclasses import dataclass
+from typing import TYPE_CHECKING, List
+
+from .type.aspect import (CapBound, CashFlow, Emission, Land, Limit,  # Life,
+                          Loss)
 from .type.condition import Condition, RightHandSide, SumOver
+
+if TYPE_CHECKING:
+    from .type.alias import IsAspect, IsComponent, IsDeclaredAt
 
 
 @dataclass
 class Rule:
     condition: Condition
-    variable: Union[Limit, CashFlow, Land, Life, Loss]
-    associated: Union[Limit, CashFlow, Land, Life, Loss] = None
-    balance: List[Union[Limit, CashFlow, Land, Life, Loss]] = None
-    parameter: Union[Limit, CashFlow, Land, Life, Loss] = None
+    variable: IsAspect
+    associated: IsAspect = None
+    balance: IsAspect = None
+    parameter: IsAspect = None
     sumover: SumOver = None
-    declared_at: Union['Process', 'Location', 'Transport', 'Linkage'] = None
+    declared_at: IsComponent = None
 
     def __post_init__(self):
 
@@ -55,7 +61,7 @@ class RuleBook:
     def add(self, rule: Rule):
         self.rules.append(rule)
 
-    def find(self, variable: Union[Limit, CashFlow, Land, Life, Loss]):
+    def find(self, variable: IsAspect):
 
         return [rule for rule in self.rules if rule.variable == variable]
 
@@ -115,11 +121,11 @@ for i in Limit.all():
     rulebook.add(Rule(variable=i, parameter=i, condition=Condition.BIND))
 
 
-rulebook.add(Rule(variable=CapBound.STORE, associated=Limit.CAPACITY,
-                  condition=Condition.CAPACITATE, declared_at='Process'))
-
 rulebook.add(Rule(variable=CapBound.PRODUCE, associated=Limit.CAPACITY,
                   condition=Condition.CAPACITATE, declared_at='Process'))
+
+rulebook.add(Rule(variable=CapBound.STORE, associated=Limit.CAPACITY,
+                  condition=Condition.CAPACITATE, declared_at='Storage'))
 
 rulebook.add(Rule(variable=CapBound.TRANSPORT, associated=Limit.CAPACITY,
                   condition=Condition.CAPACITATE, declared_at='Transport'))

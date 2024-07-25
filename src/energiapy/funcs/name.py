@@ -1,10 +1,11 @@
 from __future__ import annotations
+
+from dataclasses import fields
 from typing import TYPE_CHECKING
-from ..model.type.input import Input
 
 if TYPE_CHECKING:
-    from ..model.type.alias import IsValue, IsComponent
     from ..components.horizon import Horizon
+    from ..model.type.alias import IsComponent, IsValue
 
 
 def namer(component: IsComponent, name: str, horizon: Horizon):
@@ -20,10 +21,10 @@ def namer(component: IsComponent, name: str, horizon: Horizon):
     setattr(component, 'horizon', horizon)
     setattr(component, 'named', True)
 
-    for i in Input.inputs():
-        if hasattr(component, i) and getattr(component, i) is not None:
-            print(component, i)
-            setattr(component, i, getattr(component, i))
+    for i in fields(component):
+        attr = i.name.lower()
+        if hasattr(component, attr) and getattr(component, attr) is not None:
+            setattr(component, attr, getattr(component, attr))
 
 
 def is_named(component: IsComponent, attr_value: IsValue) -> bool:

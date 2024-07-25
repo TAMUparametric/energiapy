@@ -19,8 +19,8 @@ from .variable import Variable
 
 if TYPE_CHECKING:
     from ..components.horizon import Horizon
-    from .type.alias import (IsAspect, IsComponent, IsDeclaredAt,
-                             IsValue, IsTemporal)
+    from .type.alias import (IsAspect, IsAspectDict, IsComponent, IsDeclaredAt,
+                             IsTemporal, IsValue)
 
 
 @dataclass
@@ -134,6 +134,39 @@ class Aspect:
                                                 associated=associated_, parameter=parameter_, bound=bound_, rhs=rule.rhs)
                         self.constraints = sorted(list(
                             set(self.constraints) | {constraint}))
+
+    def params(self):
+        printer(component=self, print_collection='parameters')
+
+    def vars(self):
+        printer(component=self, print_collection='variables')
+
+    def cons(self):
+        printer(component=self, print_collection='constraints')
+
+    def __repr__(self):
+        return self.name
+
+    def __hash__(self):
+        return hash(self.name)
+
+    def __eq__(self, other):
+        return self.name == other.name
+
+
+@dataclass
+class AspectDict:
+    aspect: IsAspect
+    component: IsComponent
+    aspects: IsAspectDict
+
+    def __post_init__(self):
+        self.name = f'{self.aspect.name.lower()}({self.component.name})'
+        self.parameters, self.variables, self.constraints = (
+            list() for _ in range(3))
+        for i in ['parameters', 'variables', 'constraints']:
+            setattr(
+                self, i, [mod for comp in self.aspects for mod in getattr(comp, i)])
 
     def params(self):
         printer(component=self, print_collection='parameters')

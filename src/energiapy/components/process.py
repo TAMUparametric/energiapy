@@ -4,25 +4,24 @@
 from __future__ import annotations
 
 import operator
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from functools import reduce
 from typing import TYPE_CHECKING
 
-from ..funcs.aspect import aspecter
-from ..funcs.name import namer, is_named
-from ..funcs.print import printer
+from ..funcs.aspect import aspectdicter, aspecter
 from ..funcs.conversion import conversioner
-from ..model.specialparams.conversion import Conversion
-from ..model.type.aspect import (CapBound, CashFlow, Emission, Land,
-                                 Life, Limit, Loss, Aspects)
+from ..funcs.name import is_named, namer
+from ..funcs.print import printer
+from ..model.type.aspect import Aspects, CapBound, CashFlow, Limit
+from ..model.type.input import Input
 from ..utils.data_utils import get_depth
 from .type.process import ProcessType
-from ..model.type.input import Input
 
 if TYPE_CHECKING:
     from ..model.type.alias import (IsCapBound, IsCashFlow, IsConv,
-                                    IsEmission, IsLand, IsLife, IsLimit,
-                                    IsLoss, IsMatCons, IsPWL, IsDetail, IsDepreciated)
+                                    IsDepreciated, IsDetail, IsEmission,
+                                    IsLand, IsLife, IsLimit, IsLoss, IsMatCons,
+                                    IsPWL)
     from .horizon import Horizon
     from .material import Material
     from .resource import Resource
@@ -34,51 +33,51 @@ class Process:
     conversion: IsConv
     # Design parameters
     capacity: IsLimit
-    land_use: IsLand = None
-    material_cons: IsMatCons = None
+    land_use: IsLand = field(default=None)
+    material_cons: IsMatCons = field(default=None)
     # CapBoundType
-    produce: IsCapBound = None
+    produce: IsCapBound = field(default=None)
     # Expenditure
-    capex: IsCashFlow = None
-    fopex: IsCashFlow = None
-    vopex: IsCashFlow = None
-    incidental: IsCashFlow = None
+    capex: IsCashFlow = field(default=None)
+    fopex: IsCashFlow = field(default=None)
+    vopex: IsCashFlow = field(default=None)
+    incidental: IsCashFlow = field(default=None)
     # piece wise linear capex
-    capex_pwl: IsPWL = None
+    capex_pwl: IsPWL = field(default=None)
     # Emission
-    gwp: IsEmission = None
-    odp: IsEmission = None
-    acid: IsEmission = None
-    eutt: IsEmission = None
-    eutf: IsEmission = None
-    eutm: IsEmission = None
+    gwp: IsEmission = field(default=None)
+    odp: IsEmission = field(default=None)
+    acid: IsEmission = field(default=None)
+    eutt: IsEmission = field(default=None)
+    eutf: IsEmission = field(default=None)
+    eutm: IsEmission = field(default=None)
     # Readiness
-    introduce: IsLife = None
-    retire: IsLife = None
-    lifetime: IsLife = None
-    pfail: IsLife = None
-    trl: IsLife = None
+    introduce: IsLife = field(default=None)
+    retire: IsLife = field(default=None)
+    lifetime: IsLife = field(default=None)
+    pfail: IsLife = field(default=None)
+    trl: IsLife = field(default=None)
     # These go to storage_resource defined in STORAGE Process
     # LimitType
-    discharge: IsLimit = None
-    consume: IsLimit = None
+    discharge: IsLimit = field(default=None)
+    consume: IsLimit = field(default=None)
     # LossType
-    store_loss: IsLoss = None
+    store_loss: IsLoss = field(default=None)
     # CashFlowType
-    sell_cost: IsCashFlow = None
-    purchase_cost: IsCashFlow = None
-    store_cost: IsCashFlow = None
-    credit: IsCashFlow = None
-    penalty: IsCashFlow = None
+    sell_cost: IsCashFlow = field(default=None)
+    purchase_cost: IsCashFlow = field(default=None)
+    store_cost: IsCashFlow = field(default=None)
+    credit: IsCashFlow = field(default=None)
+    penalty: IsCashFlow = field(default=None)
     # Details
-    basis: IsDetail = None
-    block: IsDetail = None
-    citation: IsDetail = None
-    label: IsDetail = None
+    basis: IsDetail = field(default=None)
+    block: IsDetail = field(default=None)
+    citation: IsDetail = field(default=None)
+    label: IsDetail = field(default=None)
     # Depreciated
-    varying: IsDepreciated = None
-    prod_max: IsDepreciated = None
-    prod_min: IsDepreciated = None
+    varying: IsDepreciated = field(default=None)
+    prod_max: IsDepreciated = field(default=None)
+    prod_min: IsDepreciated = field(default=None)
 
     def __post_init__(self):
 
@@ -148,21 +147,25 @@ class Process:
                 f'{self.name}: varying has been depreciated. Variability will be intepreted based on data provided to energiapy.Location factors')
 
     def __setattr__(self, name, value):
-        super().__setattr__(name, value)
-        if is_named(component=self, attr_value=value):
 
+        super().__setattr__(name, value)
+
+        if is_named(component=self, attr_value=value):
             if name == 'conversion':
                 conversioner(process=self)
-
-            elif Input.match(name) in self.aspects():
+            elif Input.match(name) in self.process_aspects():
                 aspecter(component=self, attr_name=name, attr_value=value)
 
             elif Input.match(name) in self.resource_aspects():
                 current_value = getattr(self, name)
-                for j in current_value:
-                    j.declared_at = self
-                    print(name, j, current_value)
-                    setattr(j, name, current_value[j])
+                print(current_value)
+                if isinstance(current_value, dict):
+                    for j in current_value:
+                        j.declared_at = self
+                        setattr(j, name, current_value[j])
+
+                    aspectdicter(component=self, attr_name=name, attr_value={
+                        j: getattr(j, name)for j in getattr(self, name)})
 
     # *----------------- Methods --------------------------------------
 
@@ -194,18 +197,27 @@ class Process:
 
     @staticmethod
     def cname() -> str:
-        """Returns class name"""
+        """Returns class name
+        """
         return 'Process'
 
     @staticmethod
-    def aspects() -> list:
-        """Returns Process aspects"""
-        return CashFlow.process() + Land.process() + Limit.process() + Life.all() + Emission.all() + CapBound.process()
+    def process_aspects() -> list:
+        """Returns Process aspects
+        """
+        return Aspects.process
 
     @staticmethod
     def resource_aspects() -> list:
-        """Returns Resource aspects at Process level"""
-        return CashFlow.resource() + Limit.resource()
+        """Returns Resource aspects at Process level
+        """
+        return Limit.resource() + CashFlow.resource() + CapBound.process()
+
+    @classmethod
+    def aspects(cls) -> list:
+        """Returns all aspects at Process level
+        """
+        return cls.process_aspects() + cls.resource_aspects()
 
     # *-----------------Magics--------------------
 

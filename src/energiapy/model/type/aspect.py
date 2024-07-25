@@ -17,8 +17,8 @@ Finally,
 aspect: ParameterType describes what the parameter models. There are subtypes for each type.
 """
 
-from enum import Enum, auto
 from dataclasses import dataclass
+from enum import Enum, auto
 
 
 class Limit(Enum):
@@ -97,7 +97,7 @@ class CapBound(Enum):
         return self.name.lower()
 
     @classmethod
-    def all(cls) -> str:
+    def all(cls):
         """all members of the Enum
         """
         return [i for i in cls]
@@ -109,11 +109,15 @@ class CapBound(Enum):
         return 'CapBound'
 
     @staticmethod
-    def process() -> str:
-        return [CapBound.PRODUCE, CapBound.STORE]
+    def process():
+        return [CapBound.PRODUCE]
 
     @staticmethod
-    def transport() -> str:
+    def storage():
+        return [CapBound.STORE]
+
+    @staticmethod
+    def transport():
         return [CapBound.TRANSPORT]
 
 
@@ -345,7 +349,7 @@ class Loss(Enum):
         return 'Loss'
 
     @staticmethod
-    def process() -> list:
+    def storage() -> list:
         return [Loss.STORE_LOSS]
 
     @staticmethod
@@ -361,10 +365,11 @@ class Loss(Enum):
 
 @dataclass(frozen=True)
 class Aspects:
-    resource = Limit.resource() + CashFlow.resource() + Emission.all()
-    process = CapBound.process() + CashFlow.process() + Land.process() + \
-        Limit.process() + Life.all() + Loss.process() + Emission.all()
-    transport = Limit.transport() + CapBound.transport() + CashFlow.transport() + \
+    resource = Limit.resource() + CashFlow.resource() + \
+        Emission.all() + CapBound.all()
+    process = Limit.process() + Land.process() + CashFlow.process() + Emission.all() + Life.all()
+    storage = Loss.storage()
+    transport = Limit.transport() + CashFlow.transport() + \
         Land.transport() + Loss.transport() + Emission.all() + Life.all()
     location = Land.location() + CashFlow.location()
     network = Land.network()
