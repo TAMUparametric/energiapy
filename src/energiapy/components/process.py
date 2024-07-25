@@ -151,21 +151,15 @@ class Process:
         super().__setattr__(name, value)
 
         if is_named(component=self, attr_value=value):
+
             if name == 'conversion':
                 conversioner(process=self)
+
             elif Input.match(name) in self.process_aspects():
                 aspecter(component=self, attr_name=name, attr_value=value)
 
             elif Input.match(name) in self.resource_aspects():
-                current_value = getattr(self, name)
-                print(current_value)
-                if isinstance(current_value, dict):
-                    for j in current_value:
-                        j.declared_at = self
-                        setattr(j, name, current_value[j])
-
-                    aspectdicter(component=self, attr_name=name, attr_value={
-                        j: getattr(j, name)for j in getattr(self, name)})
+                aspectdicter(component=self, attr_name=name)
 
     # *----------------- Methods --------------------------------------
 

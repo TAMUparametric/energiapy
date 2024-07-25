@@ -4,6 +4,7 @@ from warnings import warn
 
 from ..funcs.print import printer
 from ..model.type.alias import IsComponent
+from ..funcs.model import model_updater
 from .horizon import Horizon
 from .process import Process
 from .resource import Resource
@@ -87,21 +88,23 @@ class Scenario:
 
             # setattr(self, 'resources', list(
             #     set(getattr(self, 'resources')) | {value}))
-
-        for i in ['parameters', 'variables', 'constraints']:
-            if hasattr(value, i):
-                setattr(self, i, sorted(getattr(self, i) + getattr(value, i)))
-                # getattr(self, i).extend(getattr(value, i))
+        model_updater(component=self, aspect=value)
 
     # * ---------Methods-----------------
 
     def params(self):
+        """prints parameters
+        """
         printer(component=self, print_collection='parameters')
 
     def vars(self):
+        """prints variables
+        """
         printer(component=self, print_collection='variables')
 
     def cons(self):
+        """prints constraints
+        """
         printer(component=self, print_collection='constraints')
 
     def update_component_list(self, list_attr, component: IsComponent):

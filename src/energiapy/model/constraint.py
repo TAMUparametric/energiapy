@@ -1,10 +1,15 @@
+from __future__ import annotations
+
 from dataclasses import dataclass
-from typing import List
+from typing import List, TYPE_CHECKING
 
 from .parameter import Parameter
 from .type.bound import Bound
 from .type.condition import Condition, RightHandSide, SumOver
 from .variable import Variable
+
+if TYPE_CHECKING:
+    from .type.alias import IsComponent
 
 
 @dataclass
@@ -12,6 +17,7 @@ class Constraint:
     condition: Condition
     variable: Variable
     rhs: List[RightHandSide]
+    declared_at: IsComponent
     associated: Variable = None
     parameter: Parameter = None
     balance: List[Variable] = None

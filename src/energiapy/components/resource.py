@@ -53,6 +53,8 @@ class Resource:
 
         self.named, self.name, self.horizon = (None for _ in range(3))
 
+        self.produce, self.store, self.transport = (None for _ in range(3))
+
         self.parameters, self.variables, self.constraints = (
             list() for _ in range(3))
 

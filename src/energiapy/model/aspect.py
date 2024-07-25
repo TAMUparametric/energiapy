@@ -131,17 +131,23 @@ class Aspect:
                         continue
                     else:
                         constraint = Constraint(condition=rule.condition, variable=variable,
-                                                associated=associated_, parameter=parameter_, bound=bound_, rhs=rule.rhs)
+                                                associated=associated_, declared_at=declared_at, parameter=parameter_, bound=bound_, rhs=rule.rhs)
                         self.constraints = sorted(list(
                             set(self.constraints) | {constraint}))
 
     def params(self):
+        """prints parameters
+        """
         printer(component=self, print_collection='parameters')
 
     def vars(self):
+        """prints variables
+        """
         printer(component=self, print_collection='variables')
 
     def cons(self):
+        """prints constraints
+        """
         printer(component=self, print_collection='constraints')
 
     def __repr__(self):
@@ -161,20 +167,28 @@ class AspectDict:
     aspects: IsAspectDict
 
     def __post_init__(self):
+
         self.name = f'{self.aspect.name.lower()}({self.component.name})'
         self.parameters, self.variables, self.constraints = (
             list() for _ in range(3))
+
         for i in ['parameters', 'variables', 'constraints']:
             setattr(
-                self, i, [mod for comp in self.aspects for mod in getattr(comp, i)])
+                self, i, [mod for comp in self.aspects for mod in getattr(comp, i) if mod.declared_at == self.component])
 
     def params(self):
+        """prints parameters
+        """
         printer(component=self, print_collection='parameters')
 
     def vars(self):
+        """prints variables
+        """
         printer(component=self, print_collection='variables')
 
     def cons(self):
+        """prints constraints
+        """
         printer(component=self, print_collection='constraints')
 
     def __repr__(self):
