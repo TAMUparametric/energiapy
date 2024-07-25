@@ -1,0 +1,28 @@
+"X_P[loc1, com1_loc1_send, 0]",0
+"X_P[loc1, com1_process, 0]",1
+"X_P[loc1, com1_store10, 0]",1
+"X_P[loc1, com1_store10_discharge, 0]",1
+"X_P[loc1, com1_store20, 0]",1
+"X_P[loc1, com1_store20_discharge, 0]",1
+"X_P[loc1, com1_store50, 0]",1
+"X_P[loc1, com1_store50_discharge, 0]",1
+"X_P[loc1, procure com1, 0]",1
+"X_P[loc1, procure optional com1, 0]",1
+"X_P[loc1, sell com1, 0]",1
+"Cap_P[loc1, com1_loc1_send, 0]",0
+"Cap_P[loc1, com1_process, 0]",100
+"Cap_P[loc1, com1_store10, 0]",0.47619047619047616
+"Cap_P[loc1, com1_store10_discharge, 0]",150
+"Cap_P[loc1, com1_store20, 0]",0.9523809523809523
+"Cap_P[loc1, com1_store20_discharge, 0]",150
+"Cap_P[loc1, com1_store50, 0]",2.380952380952381
+"Cap_P[loc1, com1_store50_discharge, 0]",150
+"Cap_P[loc1, procure com1, 0]",103.80952380952381
+"Cap_P[loc1, procure optional com1, 0]",75
+"Cap_P[loc1, sell com1, 0]",100
+"X_S[loc1, com1_store10_com1_in_stored, 0]",1
+"X_S[loc1, com1_store20_com1_in_stored, 0]",1
+"X_S[loc1, com1_store50_com1_in_stored, 0]",1
+"Cap_S[loc1, com1_store10_com1_in_stored, 0]",40
+"Cap_S[loc1, com1_store20_com1_in_stored, 0]",80
+"Cap_S[loc1, com1_store50_com1_in_stored, 0]",200
