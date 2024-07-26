@@ -4,10 +4,11 @@ energiapy.TemporalScale - A bespoke discretization of the planning horizon (Hori
 
 from dataclasses import dataclass
 from typing import List
+from .component import Dunders, Classer
 
 
 @dataclass
-class TemporalScale:
+class TemporalScale(Dunders, Classer):
     """
     A single temporal scale of the planning horizon (Horizon).
 
@@ -19,25 +20,7 @@ class TemporalScale:
     name: str
     index: List[tuple]
 
-    # * ---------Methods-----------------
-
-    @staticmethod
-    def cname() -> str:
-        """Returns class name"""
-        return 'TemporalScale'
-
     @property
     def n_index(self) -> int:
         """Returns number of indices"""
         return len(self.index)
-
-    # * ---------Dunders-----------------
-
-    def __repr__(self):
-        return self.name
-
-    def __hash__(self):
-        return hash(self.name)
-
-    def __eq__(self, other):
-        return self.name == other.name

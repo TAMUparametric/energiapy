@@ -18,9 +18,9 @@ def conversioner(process):
             setattr(process, i, getattr(process.conversion, i))
 
         if process.n_modes > 1:
-            process.ctype.append(ProcessType.MULTI_PRODMODE)
+            process.ctypes.append(ProcessType.MULTI_PRODMODE)
         elif process.n_modes == 1:
-            process.ctype.append(ProcessType.SINGLE_PRODMODE)
+            process.ctypes.append(ProcessType.SINGLE_PRODMODE)
 
         if process.produce is not None:
             setattr(process, 'produce', {

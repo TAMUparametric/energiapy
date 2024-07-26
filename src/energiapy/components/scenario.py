@@ -2,17 +2,16 @@
 from dataclasses import dataclass
 from warnings import warn
 
-from ..funcs.print import printer
 from ..model.type.alias import IsComponent
 from ..funcs.model import model_updater
 from .horizon import Horizon
 from .process import Process
 from .resource import Resource
-# from .component?
+from .component import Printer, Classer, Dunders, Collector
 
 
 @dataclass
-class Scenario:
+class Scenario(Collector, Classer, Dunders, Printer):
     """
     A scenario for a considered system. It collects all the components of the model.
 
@@ -39,15 +38,12 @@ class Scenario:
     name: str = r'\m/>'
 
     def __post_init__(self):
-
+        super().__post_init__()
         # create empty attributes to collect components
         self.horizon, self.network = None, None
 
-        for comps in ['resources', 'processes', 'locations', 'transports', 'linkages']:
+        for comps in ['resources', 'processes', 'storages', 'locations', 'transports', 'linkages']:
             setattr(self, comps, list())
-
-        for mod in ['parameters', 'variables', 'constraints']:
-            setattr(self, mod, list())
 
     def __setattr__(self, name, value):
         # *Would avoid making a general function to update components for the sake of clarity
@@ -63,7 +59,7 @@ class Scenario:
                 for i in value.scales:
                     setattr(self, i.name, i)
 
-        if hasattr(value, 'named') and not value.named:
+        if hasattr(value, '_named') and not value._named:
             value.make_named(name=name, horizon=self.horizon)
 
         if isinstance(value, Resource):
@@ -89,24 +85,10 @@ class Scenario:
 
             # setattr(self, 'resources', list(
             #     set(getattr(self, 'resources')) | {value}))
+
         model_updater(component=self, aspect=value)
 
     # * ---------Methods-----------------
-
-    def params(self):
-        """prints parameters
-        """
-        printer(component=self, print_collection='parameters')
-
-    def vars(self):
-        """prints variables
-        """
-        printer(component=self, print_collection='variables')
-
-    def cons(self):
-        """prints constraints
-        """
-        printer(component=self, print_collection='constraints')
 
     def update_component_list(self, list_attr, component: IsComponent):
         """Updates the lists of components in the scenario.
@@ -127,19 +109,3 @@ class Scenario:
             warn(f'{component.name} is being replaced in Scenario')
         # add component to list
         setattr(self, list_attr, list(set(list_curr) | {component}))
-
-    @ staticmethod
-    def cname() -> str:
-        """Returns class name"""
-        return 'Scenario'
-
-    # * ---------Dunders-----------------
-
-    def __repr__(self):
-        return self.name
-
-    def __hash__(self):
-        return hash(self.name)
-
-    def __eq__(self, other):
-        return self.name == other.name

@@ -8,12 +8,12 @@ from typing import TYPE_CHECKING
 from pandas import DataFrame
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 
-from ...components.horizon import Horizon
 from ..index import Index
 from ..type.bound import Bound
 
 if TYPE_CHECKING:
     from ..type.alias import IsAspect, IsComponent, IsData, IsDeclaredAt
+    from ...components.horizon import Horizon
 
 
 @dataclass

@@ -5,7 +5,6 @@ from typing import TYPE_CHECKING
 
 from pandas import DataFrame
 
-from ..funcs.print import printer
 from .constraint import Constraint
 from .parameter import Parameter
 from .rulebook import rulebook
@@ -16,6 +15,7 @@ from .type.bound import Bound
 from .type.certainty import Approach, Certainty
 from .type.condition import Condition
 from .variable import Variable
+from ..funcs.general import Dunders, Printer, Collector, Classer
 
 if TYPE_CHECKING:
     from ..components.horizon import Horizon
@@ -24,14 +24,13 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class Aspect:
+class Aspect(Dunders, Printer, Collector, Classer):
     aspect: IsAspect
     component: IsComponent
 
     def __post_init__(self):
+        super().__post_init__()
         self.name = f'{self.aspect.name.lower()}({self.component.name})'
-        self.parameters, self.variables, self.constraints = (
-            list() for _ in range(3))
 
     def add(self, value: IsValue, aspect: IsAspect, component: IsComponent, declared_at: IsDeclaredAt, horizon: Horizon = None):
 
@@ -135,33 +134,9 @@ class Aspect:
                         self.constraints = sorted(list(
                             set(self.constraints) | {constraint}))
 
-    def params(self):
-        """prints parameters
-        """
-        printer(component=self, print_collection='parameters')
-
-    def vars(self):
-        """prints variables
-        """
-        printer(component=self, print_collection='variables')
-
-    def cons(self):
-        """prints constraints
-        """
-        printer(component=self, print_collection='constraints')
-
-    def __repr__(self):
-        return self.name
-
-    def __hash__(self):
-        return hash(self.name)
-
-    def __eq__(self, other):
-        return self.name == other.name
-
 
 @dataclass
-class AspectDict:
+class AspectDict(Dunders, Printer, Classer):
     aspect: IsAspect
     component: IsComponent
     aspects: IsAspectDict
@@ -175,27 +150,3 @@ class AspectDict:
         for i in ['parameters', 'variables', 'constraints']:
             setattr(
                 self, i, [mod for comp in self.aspects for mod in getattr(comp, i) if mod.declared_at == self.component])
-
-    def params(self):
-        """prints parameters
-        """
-        printer(component=self, print_collection='parameters')
-
-    def vars(self):
-        """prints variables
-        """
-        printer(component=self, print_collection='variables')
-
-    def cons(self):
-        """prints constraints
-        """
-        printer(component=self, print_collection='constraints')
-
-    def __repr__(self):
-        return self.name
-
-    def __hash__(self):
-        return hash(self.name)
-
-    def __eq__(self, other):
-        return self.name == other.name

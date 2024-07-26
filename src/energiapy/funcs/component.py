@@ -1,3 +1,6 @@
+"""functions for Components 
+"""
+
 from __future__ import annotations
 
 from dataclasses import fields
@@ -5,7 +8,24 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from ..components.horizon import Horizon
-    from ..model.type.alias import IsComponent, IsValue
+    from ..model.type.alias import IsComponent, IsValue, IsAspect
+
+
+def initializer(component: IsComponent):
+    """sets some common attributes of a component to None or empty list
+
+    Args:
+        component (IsComponent): energiapy Component
+    """
+
+    for i in ['_named', 'name', 'horizon']:
+        setattr(component, i, None)
+
+    setattr(component, 'declared_at', component)
+
+    if not hasattr(component, 'ctypes'):
+        setattr(component, 'ctypes', list())
+
 
 
 def namer(component: IsComponent, name: str, horizon: Horizon):
@@ -19,7 +39,7 @@ def namer(component: IsComponent, name: str, horizon: Horizon):
     """
     setattr(component, 'name', name)
     setattr(component, 'horizon', horizon)
-    setattr(component, 'named', True)
+    setattr(component, '_named', True)
 
     for i in fields(component):
         attr = i.name.lower()
@@ -27,20 +47,4 @@ def namer(component: IsComponent, name: str, horizon: Horizon):
             setattr(component, attr, getattr(component, attr))
 
 
-def is_named(component: IsComponent, attr_value: IsValue) -> bool:
-    """Checks if attribute is ready to be made into an Aspect
 
-    Args:
-        component (IsComponent): energiapy component
-        attr_value (IsValue): value assigned to aspect attribute
-
-    Returns:
-        bool: True if component is ready and value is assigned
-    """
-    cndtn_named = hasattr(component, 'named') and getattr(component, 'named')
-    cndtn_value = attr_value is not None
-
-    if cndtn_named and cndtn_value:
-        return True
-    else:
-        return False

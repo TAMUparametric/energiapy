@@ -4,11 +4,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
-
-from ..funcs.aspect import aspecter
-from ..funcs.name import is_named, namer
-from ..funcs.component import initializer
-from ..funcs.print import printer
 from .component import Component
 from ..model.type.aspect import Aspects
 from ..model.type.input import Input
@@ -52,30 +47,26 @@ class Resource(Component):
     store_min: IsDepreciated = field(default=None)
 
     def __post_init__(self):
-
-        initializer(component=self)
+        super().__post_init__()
 
         # set at Process, Storage, Transport respectively
         self.produce, self.store, self.transport = (None for _ in range(3))
 
         # *-----------------Set ctype (ResourceType)---------------------------------
 
-        if not hasattr(self, 'ctype'):
-            self.ctype = list()
-
         if self.sell_cost is not None:
-            self.ctype.append(ResourceType.SELL)
+            getattr(self, 'ctypes').append(ResourceType.SELL)
             if self.discharge is None:
                 self.discharge = True
 
         if self.discharge is not None:
-            self.ctype.append(ResourceType.DISCHARGE)
+            getattr(self, 'ctypes').append(ResourceType.DISCHARGE)
 
         if self.consume is not None:
-            self.ctype.append(ResourceType.CONSUME)
+            getattr(self, 'ctypes').append(ResourceType.CONSUME)
 
         if self.purchase_cost:
-            self.ctype.append(ResourceType.PURCHASE)
+            getattr(self, 'ctypes').append(ResourceType.PURCHASE)
             if self.consume is None:
                 self.consume = True
         # TODO update store, produce, transport
@@ -92,72 +83,15 @@ class Resource(Component):
 
     def __setattr__(self, name, value):
         super().__setattr__(name, value)
-        if is_named(component=self, attr_value=value):
+        if self.is_ready(attr_value=value):
             if Input.match(name) in self.aspects():
-                aspecter(component=self, attr_name=name, attr_value=value)
-
-    # # *----------------- Methods --------------------------------------
-
-    # def make_named(self, name: str, horizon: Horizon):
-    #     """names and adds horizon to the Resource
-
-    #     Args:
-    #         name (str): name given as Scenario.name = Resource(...)
-    #         horizon (Horizon): temporal horizon
-    #     """
-    #     namer(component=self, name=name, horizon=horizon)
-
-    # def params(self):
-    #     """prints parameters of the Resource
-    #     """
-    #     printer(component=self, print_collection='parameters')
-
-    # def vars(self):
-    #     """prints variables of the Resource
-    #     """
-    #     printer(component=self, print_collection='variables')
-
-    # def cons(self):
-    #     """prints constraints of the Resource
-    #     """
-    #     printer(component=self, print_collection='constraints')
-
-    # *-----------------Methods--------------------
-
-    # @ staticmethod
-    # def cname() -> str:
-    #     """Returns class name
-    #     """
-    #     return 'Resource'
+                self.make_aspect(attr_name=name, attr_value=value)
 
     @ staticmethod
     def aspects() -> list:
         """Returns Resource aspects
         """
         return Aspects.resource
-
-    # __hash__ = Component.__hash__
-    # __eq__ = Component.__eq__
-    # __repr__ = Component.__repr__
-
-    # # *-----------------Magics--------------------
-
-    # def __lt__(self, other):
-    #     return getattr(self, 'name') < other.name
-
-    # def __gt__(self, other):
-    #     return getattr(self, 'name') > other.name
-
-    # # *----------- Dunders------------------------
-
-    # def __repr__(self):
-    #     return str(getattr(self, 'name'))
-
-    # def __hash__(self):
-    #     return hash(getattr(self, 'name'))
-
-    # def __eq__(self, other):
-    #     return getattr(self, 'name') == other.name
 
 # @dataclass
 # class ResourceStored(Resource):

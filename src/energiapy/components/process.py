@@ -8,15 +8,11 @@ from dataclasses import dataclass, field
 from functools import reduce
 from typing import TYPE_CHECKING
 
-from ..funcs.aspect import aspectdicter, aspecter
-from ..funcs.conversion import conversioner
-from ..funcs.name import is_named, namer
-from ..funcs.component import initializer
-from ..funcs.print import printer
 from ..model.type.aspect import Aspects, CapBound, CashFlow, Limit
 from ..model.type.input import Input
 from ..utils.data_utils import get_depth
 from .type.process import ProcessType
+from .component import Component, ProcessChotu
 
 if TYPE_CHECKING:
     from ..model.type.alias import (IsCapBound, IsCashFlow, IsConv,
@@ -29,7 +25,7 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class Process:
+class Process(Component, ProcessChotu):
 
     conversion: IsConv
     # Design parameters
@@ -58,7 +54,6 @@ class Process:
     lifetime: IsLife = field(default=None)
     pfail: IsLife = field(default=None)
     trl: IsLife = field(default=None)
-    # These go to storage_resource defined in STORAGE Process
     # LimitType
     discharge: IsLimit = field(default=None)
     consume: IsLimit = field(default=None)
@@ -81,121 +76,77 @@ class Process:
     prod_min: IsDepreciated = field(default=None)
 
     def __post_init__(self):
-
-        initializer(component=self)
-
-        # self.named, self.name, self.horizon = (None for _ in range(3))
-        # self.parameters, self.variables, self.constraints = (
-        #     list() for _ in range(3))
-
-        # self.declared_at = self
+        super().__post_init__()
 
         # *-----------------Set ctype (ProcessType)---------------------------------
-
-        if not hasattr(self, 'ctype'):
-            self.ctype = list()
 
         # Materials are not necessarily consumed (NO_MATMODE), if material_cons is None
         # If consumed, there could be multiple modes of consumption (MULTI_MATMODE) or one (SINGLE_MATMODE)
         # for MULTI_MATMODE, provide a dict of type ('material_mode' (str, int): {Material: float})
 
         if self.material_cons is None:
-            self.ctype.append(ProcessType.NO_MATMODE)
-            self.materials = set()
+            getattr(self, 'ctypes').append(ProcessType.NO_MATMODE)
 
         else:
             if get_depth(self.material_cons) > 1:
-                self.ctype.append(ProcessType.MULTI_MATMODE)
-                self.material_modes = set(self.material_cons)
-                self.materials = reduce(
-                    operator.or_, (set(self.material_cons[i]) for i in self.material_modes), set())
+                getattr(self, 'ctypes').append(ProcessType.MULTI_MATMODE)
+                self.material_modes = list(self.material_cons)
+                self.materials = list(reduce(
+                    operator.or_, (set(self.material_cons[i]) for i in self.material_modes), set()))
             else:
-                self.ctype.append(ProcessType.SINGLE_MATMODE)
-                self.materials = set(self.material_cons)
+                getattr(self, 'ctypes').append(ProcessType.SINGLE_MATMODE)
+                self.materials = list(self.material_cons)
 
         if self.capex_pwl:
-            self.ctype.append(ProcessType.PWL_CAPEX)
+            getattr(self, 'ctypes').append(ProcessType.PWL_CAPEX)
             self.capacity_segments = list(self.capex_pwl)
             self.capex_segments = list(self.capex_pwl.values())
         else:
-            self.ctype.append(ProcessType.LINEAR_CAPEX)
+            getattr(self, 'ctypes').append(ProcessType.LINEAR_CAPEX)
 
         # if any expenditure is incurred
         if any([self.capex, self.fopex, self.vopex, self.incidental]):
-            self.ctype.append(ProcessType.EXPENDITURE)
+            getattr(self, 'ctypes').append(ProcessType.EXPENDITURE)
 
         # if it requires land to set up
         if self.land_use:
-            self.ctype.append(ProcessType.LAND)
+            getattr(self, 'ctypes').append(ProcessType.LAND)
 
         # if this process fails
         if self.pfail:
-            self.ctype.append(ProcessType.FAILURE)
+            getattr(self, 'ctypes').append(ProcessType.FAILURE)
 
         # if this process has some readiness aspects defined
         if any([self.introduce, self.retire, self.lifetime]):
-            self.ctype.append(ProcessType.READINESS)
+            getattr(self, 'ctypes').append(ProcessType.READINESS)
 
         # *----------------- Depreciation Warnings------------------------------------
-        
+
         _name = getattr(self, 'name', None)
-        
+
         _changed = {'prod_max': 'cap_max', 'prod_min': 'cap_min'}
-        
+
         for i, j in _changed.items():
             if getattr(self, i):
                 raise ValueError(
                     f'{_name}: {i} is depreciated. Please use {j} instead')
 
-
     def __setattr__(self, name, value):
 
         super().__setattr__(name, value)
 
-        if is_named(component=self, attr_value=value):
+        if self.is_ready(attr_value=value):
 
             if name == 'conversion':
-                conversioner(process=self)
+                self.make_conversion()
 
             elif Input.match(name) in self.process_aspects():
-                aspecter(component=self, attr_name=name, attr_value=value)
+                self.make_aspect(attr_name=name, attr_value=value)
 
             elif Input.match(name) in self.resource_aspects():
-                aspectdicter(component=self, attr_name=name)
-
-    # *----------------- Methods --------------------------------------
-
-    def make_named(self, name: str, horizon: Horizon):
-        """names and adds horizon to the Process
-
-        Args:
-            name (str): name given as Scenario.name = Process(...)
-            horizon (Horizon): temporal horizon
-        """
-        namer(component=self, name=name, horizon=horizon)
-
-    def params(self):
-        """prints parameters of the Process
-        """
-        printer(component=self, print_collection='parameters')
-
-    def vars(self):
-        """prints variables of the Process
-        """
-        printer(component=self, print_collection='variables')
-
-    def cons(self):
-        """prints constraints of the Process
-        """
-        printer(component=self, print_collection='constraints')
+                self.make_aspectdict(attr_name=name)
 
     # *----------------- Class Methods --------------------------------------
-
-    @staticmethod
-    def cname() -> str:
-        """Returns class name
-        """
-        return 'Process'
 
     @staticmethod
     def process_aspects() -> list:
@@ -214,22 +165,3 @@ class Process:
         """Returns all aspects at Process level
         """
         return cls.process_aspects() + cls.resource_aspects()
-
-    # *-----------------Magics--------------------
-
-    def __lt__(self, other):
-        return getattr(self, 'name') < other.name
-
-    def __gt__(self, other):
-        return getattr(self, 'name') > other.name
-
-    # *----------- Dunders------------------------
-
-    def __repr__(self):
-        return str(getattr(self, 'name'))
-
-    def __hash__(self):
-        return hash(getattr(self, 'name'))
-
-    def __eq__(self, other):
-        return getattr(self, 'name') == other.name

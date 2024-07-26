@@ -1,14 +1,16 @@
-from dataclasses import dataclass
+"""Horizon is the planning period of the problem
+"""
+from dataclasses import dataclass, field
 from itertools import product
-from typing import List
 
+from .component import Dunders, Classer
 from ..model.type.disposition import TemporalDisp
 from .temporal_scale import TemporalScale
 from .type.horizon import HorizonType
 
 
 @dataclass
-class Horizon:
+class Horizon(Dunders, Classer):
     """
     Planning horizon of the problem. 
     Need to specify how many periods the parent scale t0 with 1 discretization is divided into.
@@ -74,42 +76,41 @@ class Horizon:
     # divides the horizon into n discretizations. Creates a TemporalScale
     discretizations: list
     # if nested the discretizes based on previous scale
-    nested: bool = True
-    # apply scaling
-    scaling_max: bool = None
-    scaling_min_max: bool = None
-    scaling_standard: bool = None
+    nested: bool = field(default=True)
+    # apply scalings
+    scaling_max: bool = field(default=None)
+    scaling_min_max: bool = field(default=None)
+    scaling_standard: bool = field(default=None)
 
     def __post_init__(self):
 
-        self.ctype = list()
-
-        self.name, self.scales = None, list()
-        # insert 1 at the beginning, this is the horizon itself
+        self.name, self.scales, self.ctypes = None, list(), list()
+        # # insert 1 at the beginning, this is the horizon itself
         self.discretizations.insert(0, 1)
 
         if self.n_scales > 1:
-            self.ctype.append(HorizonType.MULTISCALE)
+            getattr(self, 'ctypes').append(HorizonType.MULTISCALE)
         else:
-            self.ctype.append(HorizonType.SINGLESCALE)
+            getattr(self, 'ctypes').append(HorizonType.SINGLESCALE)
 
         if self.nested:
-            self.ctype.append(HorizonType.NESTED)
+            getattr(self, 'ctypes').append(HorizonType.NESTED)
         else:
-            self.ctype.append(HorizonType.UNNESTED)
+            getattr(self, 'ctypes').append(HorizonType.UNNESTED)
 
         for i in range(self.n_scales):
-            self.scales.append(TemporalScale(name=TemporalDisp.all()[
-                               i].name.lower(), index=self.make_index(position=i, nested=self.nested)))
+            getattr(self, 'scales').append(TemporalScale(name=TemporalDisp.all()[
+                i].name.lower(), index=self.make_index(position=i, nested=self.nested)))
 
-        self.indices = {i: i.index for i in self.scales}
+        self.indices = {i: i.index for i in getattr(self, 'scales')}
 
-        self.n_indices = [i.n_index for i in self.scales]
+        self.n_indices = [i.n_index for i in getattr(self, 'scales')]
 
     # * ---------Methods-----------------
 
     def make_index(self, position: int, nested: bool = True):
-        """makes an index for TemporalScale"""
+        """makes an index for TemporalScale
+        """
         if nested:
             lists = [list(range(i)) for i in self.discretizations]
             return list(product(*lists[:position+1]))
@@ -123,28 +124,8 @@ class Horizon:
             lists = [(0, i) for i in range(max(self.discretizations))]
             return lists[::max(self.discretizations)//self.discretizations[position]]
 
-    @staticmethod
-    def ctypes() -> List[HorizonType]:
-        """HorizonTypes"""
-        return HorizonType.all()
-
-    @staticmethod
-    def cname() -> str:
-        """Returns class name"""
-        return 'Horizon'
-
     @property
     def n_scales(self) -> int:
-        """Returns number of scales"""
+        """Returns number of scales
+        """
         return len(self.discretizations)
-
-    # * ---------Dunders-----------------
-
-    def __repr__(self) -> str:
-        return str(self.name)
-
-    def __hash__(self):
-        return hash(self.name)
-
-    def __eq__(self, other):
-        return self.name == other.name
