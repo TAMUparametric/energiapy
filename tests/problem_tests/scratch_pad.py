@@ -9,7 +9,7 @@ from src.energiapy.components.scenario import Scenario
 from src.energiapy.components.location import Location
 from src.energiapy.components.material import Material
 from src.energiapy.components.process import Process, VaryingProcess
-from src.energiapy.components.temporal_scale import TemporalScale
+from src.energiapy.components.temporal_scale import Scale
 from src.energiapy.components.resource import Resource, VaryingResource
 import pandas
 import sys
@@ -24,7 +24,7 @@ availability_factor = pandas.DataFrame(data={'Value': [1, 1, 0.5, 0.5]})
 price_factor = pandas.DataFrame(data={'Value': [0.25, 1, 0.5, 0.75]})
 revenue_factor = pandas.DataFrame(data={'Value': [0.25, 1, 0.25, 0.5]})
 
-scales = TemporalScale(discretization_list=[1, 4])
+scales = Scale(discretization_list=[1, 4])
 
 Resource_certain_availability = Resource(
     name='resource_certain_availability', consume=100, price=2)
@@ -73,7 +73,7 @@ availability_factor = pandas.DataFrame(data={'Value': [1, 1, 0.5, 0.5]})
 price_factor = pandas.DataFrame(data={'Value': [0.25, 1, 0.5, 0.75]})
 revenue_factor = pandas.DataFrame(data={'Value': [0.25, 1, 0.25, 0.5]})
 
-scales = TemporalScale(discretization_list=[1, 4])
+scales = Scale(discretization_list=[1, 4])
 
 Resource_certain_availability = Resource(
     name='resource_certain_availability', consume=100, price=2)
@@ -127,7 +127,7 @@ availability_factor = pandas.DataFrame(data={'Value': [1, 1, 0.5, 0.5]})
 price_factor = pandas.DataFrame(data={'Value': [0.25, 1, 0.5, 0.75]})
 revenue_factor = pandas.DataFrame(data={'Value': [0.25, 1, 0.25, 0.5]})
 
-scales = TemporalScale(discretization_list=[1, 4])
+scales = Scale(discretization_list=[1, 4])
 
 Resource_certain_availability = Resource(
     name='resource_certain_availability', consume=100, price=2)

@@ -1,3 +1,6 @@
+"""Result data class
+"""
+# TODO - create cost summary
 import json
 import pickle
 import uuid
@@ -10,26 +13,19 @@ class Result:
     """Results from solving a Scenario
 
     Args:
-       name (str): name of the material, short ones are better to deal with.
+       name (str): name of the Result. 
        components (dict): input data relating to components
        output (dict): results from analysis
        model_elements (dict): model sets, variables, constraints, objective
        duals (dict): duals if not MIP.
-       solve_time (float): solution time
        cost_summary (dict): summary of the contributing costs
 
     """
+    name: str
     components: dict
     output: dict
     model_elements: dict
     duals: dict
-    name: str = None
-
-    def __post_init__(self):
-
-        if not self.name:
-            warn(f'{self.name}: random name has been set, this can be cumbersome')
-            self.name = f"Result_{uuid.uuid4().hex}"
 
     def saveoutputs(self, file_name: str):
         """Saves output with provide name.
@@ -172,23 +168,12 @@ class Results:
     """
     name: str
     results: Dict[str, Result]
+    
+    def __repr__(self):
+        return self.name
 
-    # capex = instance.Capex_total
-    # vopex = instance.Vopex_total
-    # fopex = instance.Vopex_total
-    # incidental = instance.Incidental_total
-    # storage_cost = instance.Inv_cost_total
-    # cost_purch = instance.B_total
-    # land_cost = instance.Land_cost_total
-    # credit = instance.Credit_total
-    # else:
-    #     credit = 0
+    def __hash__(self):
+        return hash(self.name)
 
-    # if len(instance.locations) > 1:
-    #     cost_trans_capex = instance.Capex_transport_total
-    #     cost_trans_vopex = instance.Vopex_transport_total
-    #     cost_trans_fopex = instance.Fopex_transport_total
-    # else:
-    #     cost_trans_capex = 0
-    #     cost_trans_vopex = 0
-    #     cost_trans_fopex = 0
+    def __eq__(self, other):
+        return self.name == other.name

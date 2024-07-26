@@ -9,9 +9,9 @@ from warnings import warn
 from ..core.general import ClassName, Dunders
 from ..core.onset import ElementCols
 from ..funcs.model import model_updater
-from .horizon import Horizon
-from .process import Process
-from .resource import Resource
+from .temporal.horizon import Horizon
+from .operation.process import Process
+from .commodity.resource import Resource
 
 if TYPE_CHECKING:
     from ..type.alias import IsComponent
@@ -25,7 +25,7 @@ class Scenario(ElementCols, Dunders, ClassName):
     Input:
         name (str, optional): Name. Defaults to 'energia'.
         horizon (Horizon): Planning horizon of the problem, generated post-initialization.
-        scales (List[TemporalScales]): List of TemporalScale objects, generated post-initialization.
+        scales (List[Scale]): List of Scale objects, generated post-initialization.
         resources (List[Resource]): List of Resource objects, generated post-initialization.
         processes (List[Process]): List of Process objects, generated post-initialization.
         locations (List[Location]): List of Location objects, generated post-initialization.

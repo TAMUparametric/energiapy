@@ -4,10 +4,10 @@ from itertools import product
 import pandas
 from pyomo.environ import ConcreteModel, Set
 
-from ..components.temporal_scale import TemporalScale
+from ..components.scale import Scale
 
 
-def scale_pyomo_set(instance: ConcreteModel, scale_level: int = 0, doc:str = None):
+def scale_pyomo_set(instance: ConcreteModel, scale_level: int = 0, doc: str = None):
     """returns a set with appropropriate scale(s)
 
     Args:
@@ -16,7 +16,7 @@ def scale_pyomo_set(instance: ConcreteModel, scale_level: int = 0, doc:str = Non
         doc (str, optional): name of set
     """
     list_ = [instance.scales[i].data() for i in range(scale_level + 1)]
-    return Set(initialize=list(product(*list_)), doc = doc)
+    return Set(initialize=list(product(*list_)), doc=doc)
 
 
 def scale_list(instance: ConcreteModel, scale_levels: int = 0):
@@ -41,10 +41,10 @@ def scale_tuple(instance: ConcreteModel, scale_levels: int = 0):
     return list_
 
 
-def scale_changer(input_dict: dict, scales: TemporalScale, scale_level: int) -> dict:
+def scale_changer(input_dict: dict, scales: Scale, scale_level: int) -> dict:
     """changes the scales form datetime to tuples
     """
-    df = pandas.concat([pandas.DataFrame(input_dict[list(input_dict.keys())[i]]).reset_index(drop = True)
+    df = pandas.concat([pandas.DataFrame(input_dict[list(input_dict.keys())[i]]).reset_index(drop=True)
                         for i in range(len(input_dict.keys()))], axis=1)
     # df['hour'] = pandas.to_datetime(df.index, errors='coerce').strftime("%H")
     # df['day'] = pandas.to_datetime(df.index, errors='coerce').strftime("%j")
@@ -61,8 +61,7 @@ def scale_changer(input_dict: dict, scales: TemporalScale, scale_level: int) -> 
     df = df.set_index(['scales'])
     df.columns = [i.name for i in input_dict.keys()]
     df = df.apply(lambda x: x/x.max(), axis=0)
-    output_dict = {i: {j: df[i][j] if math.isnan(df[i][j]) is False else 0.0 for j in df.index } for i in df.columns}
+    output_dict = {i: {j: df[i][j] if math.isnan(
+        df[i][j]) is False else 0.0 for j in df.index} for i in df.columns}
 
     return output_dict
-
-

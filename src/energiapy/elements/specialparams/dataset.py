@@ -54,7 +54,7 @@ class DataSet(Dunders):
 
             if not self.horizon:
                 raise ValueError(
-                    f'{str(self.aspect).lower()} for {self.component.name}: please provide scales = TemporalScale')
+                    f'{str(self.aspect).lower()} for {self.component.name}: please provide scales = Scale')
 
             if len(self.data) in self.horizon.n_indices:
                 index = self.horizon.n_indices.index(len(self.data))

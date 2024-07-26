@@ -22,7 +22,7 @@ class Input(Enum):
     """Describes land use and such
     """
     EMISSION = Emission
-    """Is an emission.
+    """Is an environmental impact
     """
     LIFE = Life
     """Describes earliest introduction, retirement, lifetime and such

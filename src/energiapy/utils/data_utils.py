@@ -9,7 +9,7 @@ from itertools import product
 import numpy
 import pandas
 
-from ..components.result import Result
+from ..solution.result import Result
 
 
 def get_data(file_name: str) -> dict:

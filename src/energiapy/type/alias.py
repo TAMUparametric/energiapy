@@ -4,14 +4,14 @@ from typing import Dict, List, Tuple, Union
 
 from pandas import DataFrame
 
-from ..components.linkage import Linkage
-from ..components.location import Location
-from ..components.material import Material
-from ..components.process import Process
-from ..components.resource import Resource
-from ..components.storage import Storage
-from ..components.temporal_scale import TemporalScale
-from ..components.transport import Transport
+from ..components.space.linkage import Linkage
+from ..components.space.location import Location
+from ..components.commodity.material import Material
+from ..components.operation.process import Process
+from ..components.commodity.resource import Resource
+from ..components.operation.storage import Storage
+from ..components.temporal.scale import Scale
+from ..components.operation.transport import Transport
 from ..elements.specialparams.dataset import DataSet
 from ..elements.specialparams.theta import Theta
 from ..elements.specialparams.unbound import Unbound
@@ -34,15 +34,18 @@ IsExact = Union[IsNumeric, IsData, IsParVar]
 # as a list of bounds [lower, upper] (inequality constraints)
 IsBound = List[IsExact]
 # as a dictionary of exact values or bounds, with keys being the temporal scale
-IsTempDict = Dict[TemporalScale, Union[IsExact, IsBound]]
+IsTempDict = Dict[Scale, Union[IsExact, IsBound]]
 
 IsValue = Union[IsExact, IsBound, IsTempDict]
 
 # *Specific Aspect types
-IsTemporal = TemporalScale
+IsTemporal = Scale
 IsLimit = Union[IsExact, IsUnbound, IsBound, IsTempDict]
 IsCapBound = Union[IsExact, IsBound]
-IsCashFlow, IsLand, IsEmission, IsLife, IsLoss = (IsExact for _ in range(5))
+
+IsCashFlow, IsLandUse, IsEmission, IsLife, IsLoss = (IsExact for _ in range(5))
+IsLandCap, IsEmissionCap = (IsBound for _ in range(2))
+
 
 # *Classes and Enums
 IsAspect = Union[CashFlow, Emission, Land, Life, Limit, Loss]
