@@ -2,12 +2,14 @@
 """
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 from ..funcs.aspect import aspecter
 from ..funcs.name import is_named, namer
+from ..funcs.component import initializer
 from ..funcs.print import printer
+from .component import Component
 from ..model.type.aspect import Aspects
 from ..model.type.input import Input
 from .type.resource import ResourceType
@@ -19,46 +21,42 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class Resource:
+class Resource(Component):
     # Limit Aspect
-    discharge: IsLimit = None
-    consume: IsLimit = None
+    discharge: IsLimit = field(default=None)
+    consume: IsLimit = field(default=None)
     # CashFlowType
-    sell_cost: IsCashFlow = None
-    purchase_cost: IsCashFlow = None
-    credit: IsCashFlow = None
-    penalty: IsCashFlow = None
+    sell_cost: IsCashFlow = field(default=None)
+    purchase_cost: IsCashFlow = field(default=None)
+    credit: IsCashFlow = field(default=None)
+    penalty: IsCashFlow = field(default=None)
     # EmissionType
-    gwp: IsEmission = None
-    odp: IsEmission = None
-    acid: IsEmission = None
-    eutt: IsEmission = None
-    eutf: IsEmission = None
-    eutm: IsEmission = None
+    gwp: IsEmission = field(default=None)
+    odp: IsEmission = field(default=None)
+    acid: IsEmission = field(default=None)
+    eutt: IsEmission = field(default=None)
+    eutf: IsEmission = field(default=None)
+    eutm: IsEmission = field(default=None)
     # Details
-    basis: IsDetail = None
-    block: IsDetail = None
-    label: IsDetail = None
-    citation: IsDetail = None
+    basis: IsDetail = field(default=None)
+    block: IsDetail = field(default=None)
+    label: IsDetail = field(default=None)
+    citation: IsDetail = field(default=None)
     # Depreciated
-    sell: IsDepreciated = None
-    varying: IsDepreciated = None
-    price: IsDepreciated = None
-    revenue: IsDepreciated = None
-    cons_max: IsDepreciated = None
-    store_max: IsDepreciated = None
-    store_min: IsDepreciated = None
+    sell: IsDepreciated = field(default=None)
+    varying: IsDepreciated = field(default=None)
+    price: IsDepreciated = field(default=None)
+    revenue: IsDepreciated = field(default=None)
+    cons_max: IsDepreciated = field(default=None)
+    store_max: IsDepreciated = field(default=None)
+    store_min: IsDepreciated = field(default=None)
 
     def __post_init__(self):
 
-        self.named, self.name, self.horizon = (None for _ in range(3))
+        initializer(component=self)
 
+        # set at Process, Storage, Transport respectively
         self.produce, self.store, self.transport = (None for _ in range(3))
-
-        self.parameters, self.variables, self.constraints = (
-            list() for _ in range(3))
-
-        self.declared_at = self
 
         # *-----------------Set ctype (ResourceType)---------------------------------
 
@@ -83,31 +81,14 @@ class Resource:
         # TODO update store, produce, transport
 
         # *----------------- Depreciation Warnings---------------------------------
+        _name = getattr(self, 'name', None)
+        _changed = {'store_max': 'store', 'store_min': 'store', 'cons_max': 'consume',
+                    'sell': 'discharge and sell_cost', 'price': 'purchase_cost', 'revenue': 'sell_cost'}
 
-        if self.store_max:
-            raise ValueError(
-                f'{self.name}: store_max is depreciated. Please use store instead')
-        if self.store_min:
-            raise ValueError(
-                f'{self.name}: store_min is depreciated. Please use store instead')
-        if self.cons_max:
-            raise ValueError(
-                f'{self.name}: cons_max is depreciated. Please use consume instead')
-        if self.sell:
-            raise ValueError(
-                f'{self.name}: sell has been depreciated. set discharge = True and specify selling_price if needed')
-        if self.varying:
-            raise ValueError(
-                f'{self.name}: varying has been depreciated. Variability will be intepreted based on data provided to energiapy.Location factors')
-        if self.price:
-            raise ValueError(
-                f'{self.name}: price has been depreciated. Please use purchase_cost instead')
-        if self.revenue:
-            raise ValueError(
-                f'{self.name}: revenue has been depreciated. Please use sell_cost instead')
-        if self.revenue:
-            raise ValueError(
-                f'{self.name}: cons_max has been depreciated. Please use consume instead')
+        for i, j in _changed.items():
+            if getattr(self, i):
+                raise ValueError(
+                    f'{_name}: {i} is depreciated. Please use {j} instead')
 
     def __setattr__(self, name, value):
         super().__setattr__(name, value)
@@ -115,39 +96,39 @@ class Resource:
             if Input.match(name) in self.aspects():
                 aspecter(component=self, attr_name=name, attr_value=value)
 
-    # *----------------- Methods --------------------------------------
+    # # *----------------- Methods --------------------------------------
 
-    def make_named(self, name: str, horizon: Horizon):
-        """names and adds horizon to the Resource
+    # def make_named(self, name: str, horizon: Horizon):
+    #     """names and adds horizon to the Resource
 
-        Args:
-            name (str): name given as Scenario.name = Resource(...)
-            horizon (Horizon): temporal horizon
-        """
-        namer(component=self, name=name, horizon=horizon)
+    #     Args:
+    #         name (str): name given as Scenario.name = Resource(...)
+    #         horizon (Horizon): temporal horizon
+    #     """
+    #     namer(component=self, name=name, horizon=horizon)
 
-    def params(self):
-        """prints parameters of the Resource
-        """
-        printer(component=self, print_collection='parameters')
+    # def params(self):
+    #     """prints parameters of the Resource
+    #     """
+    #     printer(component=self, print_collection='parameters')
 
-    def vars(self):
-        """prints variables of the Resource
-        """
-        printer(component=self, print_collection='variables')
+    # def vars(self):
+    #     """prints variables of the Resource
+    #     """
+    #     printer(component=self, print_collection='variables')
 
-    def cons(self):
-        """prints constraints of the Resource
-        """
-        printer(component=self, print_collection='constraints')
+    # def cons(self):
+    #     """prints constraints of the Resource
+    #     """
+    #     printer(component=self, print_collection='constraints')
 
     # *-----------------Methods--------------------
 
-    @ staticmethod
-    def cname() -> str:
-        """Returns class name
-        """
-        return 'Resource'
+    # @ staticmethod
+    # def cname() -> str:
+    #     """Returns class name
+    #     """
+    #     return 'Resource'
 
     @ staticmethod
     def aspects() -> list:
@@ -155,24 +136,28 @@ class Resource:
         """
         return Aspects.resource
 
-    # *-----------------Magics--------------------
+    # __hash__ = Component.__hash__
+    # __eq__ = Component.__eq__
+    # __repr__ = Component.__repr__
 
-    def __lt__(self, other):
-        return self.name < other.name
+    # # *-----------------Magics--------------------
 
-    def __gt__(self, other):
-        return self.name > other.name
+    # def __lt__(self, other):
+    #     return getattr(self, 'name') < other.name
 
-    # *----------- Dunders------------------------
+    # def __gt__(self, other):
+    #     return getattr(self, 'name') > other.name
 
-    def __repr__(self):
-        return str(self.name)
+    # # *----------- Dunders------------------------
 
-    def __hash__(self):
-        return hash(self.name)
+    # def __repr__(self):
+    #     return str(getattr(self, 'name'))
 
-    def __eq__(self, other):
-        return self.name == other.name
+    # def __hash__(self):
+    #     return hash(getattr(self, 'name'))
+
+    # def __eq__(self, other):
+    #     return getattr(self, 'name') == other.name
 
 # @dataclass
 # class ResourceStored(Resource):

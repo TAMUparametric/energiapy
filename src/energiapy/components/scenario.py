@@ -8,6 +8,7 @@ from ..funcs.model import model_updater
 from .horizon import Horizon
 from .process import Process
 from .resource import Resource
+# from .component?
 
 
 @dataclass
@@ -53,7 +54,7 @@ class Scenario:
         super().__setattr__(name, value)
 
         if isinstance(value, Horizon):
-            if not value.name:  # this assigns the name of component to one declared by user
+            if not value.name:  # this assigns the name of Horizon
                 setattr(value, 'name', name)
 
             if not self.horizon:

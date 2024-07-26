@@ -46,7 +46,7 @@ def aspectdicter(component: IsComponent, attr_name: str) -> IsAspectDict:
         attr_value: value of the attribute 
 
     Returns:
-        IsAspectDict: Aspect dictionary
+        IsAspectDict: AspectDict (a dictionary of Aspects)
     """
 
     current_value = getattr(component, attr_name)

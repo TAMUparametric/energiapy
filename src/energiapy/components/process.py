@@ -11,6 +11,7 @@ from typing import TYPE_CHECKING
 from ..funcs.aspect import aspectdicter, aspecter
 from ..funcs.conversion import conversioner
 from ..funcs.name import is_named, namer
+from ..funcs.component import initializer
 from ..funcs.print import printer
 from ..model.type.aspect import Aspects, CapBound, CashFlow, Limit
 from ..model.type.input import Input
@@ -81,12 +82,13 @@ class Process:
 
     def __post_init__(self):
 
-        self.named, self.name, self.horizon = (None for _ in range(3))
+        initializer(component=self)
 
-        self.parameters, self.variables, self.constraints = (
-            list() for _ in range(3))
+        # self.named, self.name, self.horizon = (None for _ in range(3))
+        # self.parameters, self.variables, self.constraints = (
+        #     list() for _ in range(3))
 
-        self.declared_at = self
+        # self.declared_at = self
 
         # *-----------------Set ctype (ProcessType)---------------------------------
 
@@ -135,16 +137,16 @@ class Process:
             self.ctype.append(ProcessType.READINESS)
 
         # *----------------- Depreciation Warnings------------------------------------
+        
+        _name = getattr(self, 'name', None)
+        
+        _changed = {'prod_max': 'cap_max', 'prod_min': 'cap_min'}
+        
+        for i, j in _changed.items():
+            if getattr(self, i):
+                raise ValueError(
+                    f'{_name}: {i} is depreciated. Please use {j} instead')
 
-        if self.prod_max:
-            raise ValueError(
-                f'{self.name}: prod_max has been depreciated. Please use cap_max instead')
-        if self.prod_min:
-            raise ValueError(
-                f'{self.name}: prod_min has been depreciated. Please use cap_min instead')
-        if self.varying:
-            raise ValueError(
-                f'{self.name}: varying has been depreciated. Variability will be intepreted based on data provided to energiapy.Location factors')
 
     def __setattr__(self, name, value):
 
@@ -216,18 +218,18 @@ class Process:
     # *-----------------Magics--------------------
 
     def __lt__(self, other):
-        return self.name < other.name
+        return getattr(self, 'name') < other.name
 
     def __gt__(self, other):
-        return self.name > other.name
+        return getattr(self, 'name') > other.name
 
     # *----------- Dunders------------------------
 
     def __repr__(self):
-        return str(self.name)
+        return str(getattr(self, 'name'))
 
     def __hash__(self):
-        return hash(self.name)
+        return hash(getattr(self, 'name'))
 
     def __eq__(self, other):
-        return self.name == other.name
+        return getattr(self, 'name') == other.name

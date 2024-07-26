@@ -7,7 +7,6 @@ def conversioner(process):
 
     Args:
         process: energiapy Process
-
     """
 
     if not isinstance(process.conversion, Conversion):
