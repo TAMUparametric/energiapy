@@ -98,13 +98,13 @@ class ScenarioOld:
     def __post_init__(self):
 
         if not self.collect:
-            self.collect = list()
+            self.collect = []
 
         self.design_scale = self.scales.design_scale
         self.scheduling_scale = self.scales.scheduling_scale
 
         if not self.ctype:
-            self.ctype = list()
+            self.ctype = []
 
         if self.cluster_wt:
             self.ctype.append(ScenarioType.REDUCED)

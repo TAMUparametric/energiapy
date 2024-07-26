@@ -3,6 +3,7 @@
 from typing import Dict, List, Tuple, Union
 
 from pandas import DataFrame
+
 from ...components.linkage import Linkage
 from ...components.location import Location
 from ...components.material import Material
@@ -15,7 +16,6 @@ from ..specialparams.dataset import DataSet
 from ..specialparams.theta import Theta
 from ..specialparams.unbound import Unbound
 from .aspect import CashFlow, Emission, Land, Life, Limit, Loss
-
 
 # *Base types
 # aspect is given as a numeric value

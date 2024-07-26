@@ -132,7 +132,7 @@ class Network:
 
         if self.land_max:
             if not self.ctype:
-                self.ctype = list()
+                self.ctype = []
             self.ctype.append(NetworkType.LAND)
 
         # *-----------------Set aspect (ParameterType) ---------------------------------

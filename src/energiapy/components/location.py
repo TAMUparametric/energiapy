@@ -98,7 +98,7 @@ class Location:
     #     # *-----------------Set ctype (LocationType)---------------------------------
 
     #     if not self.ctype:
-    #         self.ctype = list()
+    #         self.ctype = []
 
     #     # update ctype if land aspects are defined
     #     if any([self.land, self.land_cost]):

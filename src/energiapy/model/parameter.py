@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 from pandas import DataFrame
 
 from ..funcs.birth import birth_theta
+from ..funcs.general import Dunders, Magics
 from .index import Index
 from .specialparams.dataset import DataSet
 from .specialparams.theta import Theta
@@ -13,13 +14,13 @@ from .type.bound import Bound
 from .type.certainty import Approach, Certainty
 
 if TYPE_CHECKING:
+    from ..components.horizon import Horizon
     from .type.alias import (IsAspect, IsComponent, IsDeclaredAt, IsTemporal,
                              IsValue)
-    from ..components.horizon import Horizon
 
 
 @dataclass
-class Parameter:
+class Parameter(Dunders, Magics):
     value: IsValue
     aspect: IsAspect
     component: IsComponent
@@ -54,18 +55,3 @@ class Parameter:
 
         if not hasattr(self, 'name'):
             self.name = f'{self.aspect.pnamer()}{self.bound.namer()}{self.index.name}'
-
-    def __lt__(self, other):
-        return self.name < other.name
-
-    def __gt__(self, other):
-        return self.name > other.name
-
-    def __repr__(self):
-        return str(self.name)
-
-    def __hash__(self):
-        return hash(self.name)
-
-    def __eq__(self, other):
-        return self.name == other.name

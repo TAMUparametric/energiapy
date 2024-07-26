@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
-    from ..model.type.alias import IsComponent, IsValue, IsAspect
+    from ..model.type.alias import IsAspect, IsComponent, IsValue
 
 
 def model_updater(component: IsComponent, aspect: IsAspect):

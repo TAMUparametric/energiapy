@@ -3,14 +3,15 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
-from ..funcs.component import namer, initializer
-from ..funcs.aspect import aspecter, aspectdicter
+
+from ..funcs.aspect import aspectdicter, aspecter
+from ..funcs.component import initializer, namer
 from ..funcs.conversion import conversioner
-from ..funcs.general import Dunders, Collector, Printer, Classer
+from ..funcs.general import Classer, Collector, Dunders, Magics, Printer
 
 if TYPE_CHECKING:
-    from .type.alias import IsComponent, IsValue
     from .horizon import Horizon
+    from .type.alias import IsComponent, IsValue
 
 
 class Preparer:
@@ -90,7 +91,7 @@ class Aspecter:
         aspectdicter(component=self, attr_name=attr_name)
 
 
-class Component(Sehwag, Dunders, Preparer, Aspecter, Printer, Classer):
+class Component(Sehwag, Dunders, Magics, Preparer, Aspecter, Printer, Classer):
     """Most energiapy components are inherited from this.
     Some like Horizon, TemporalScale, Scenario only take a subset of the methods 
     """
@@ -106,4 +107,4 @@ class ProcessChotu:
         conversioner(process=self)
 
     def __post_init__(self):
-        setattr(self, 'materials', list())
+        setattr(self, 'materials', [])

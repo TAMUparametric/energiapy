@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from ..components.horizon import Horizon
-    from ..model.type.alias import IsComponent, IsValue, IsAspect
+    from ..model.type.alias import IsAspect, IsComponent, IsValue
 
 
 def initializer(component: IsComponent):
@@ -24,8 +24,7 @@ def initializer(component: IsComponent):
     setattr(component, 'declared_at', component)
 
     if not hasattr(component, 'ctypes'):
-        setattr(component, 'ctypes', list())
-
+        setattr(component, 'ctypes', [])
 
 
 def namer(component: IsComponent, name: str, horizon: Horizon):
@@ -45,6 +44,3 @@ def namer(component: IsComponent, name: str, horizon: Horizon):
         attr = i.name.lower()
         if hasattr(component, attr) and getattr(component, attr) is not None:
             setattr(component, attr, getattr(component, attr))
-
-
-

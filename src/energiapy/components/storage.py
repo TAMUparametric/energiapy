@@ -7,6 +7,7 @@ from ..model.specialparams.dataset import DataSet
 from ..model.specialparams.theta import Theta
 from ..model.specialparams.unbound import BigM
 from ..model.type.input import Input
+from .component import Component
 
 if TYPE_CHECKING:
     from pandas import DataFrame
@@ -17,7 +18,7 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class Storage:
+class Storage(Component):
     pass
     # store: Resource
     # requires: List[Resource]
@@ -82,7 +83,7 @@ class Storage:
     #     self.named, self.name, self.horizon = (None for _ in range(3))
 
     #     self.parameters, self.variables, self.constraints = (
-    #         list() for _ in range(3))
+    #         [] for _ in range(3))
 
     #     self.declared_at = self
 

@@ -4,11 +4,12 @@ from dataclasses import dataclass
 
 from pandas import DataFrame
 
+from ...funcs.general import Dunders
 from .dataset import DataSet
 
 
 @dataclass(frozen=True)
-class Unbound:
+class Unbound(Dunders):
     """A really big number
     Unlike the money in my bank account
     """
@@ -31,17 +32,6 @@ class Unbound:
         if isinstance(other, Unbound):
             if other.greater is False:
                 return not self.greater
-        return NotImplemented
-
-    def __repr__(self):
-        return self.name
-
-    def __hash__(self):
-        return hash(self.name)
-
-    def __eq__(self, other):
-        if isinstance(other, Unbound):
-            return self.name == other.name
         return NotImplemented
 
 

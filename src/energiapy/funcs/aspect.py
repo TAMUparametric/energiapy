@@ -2,12 +2,12 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from ..funcs.model import model_updater
 from ..model.aspect import Aspect, AspectDict
 from ..model.type.input import Input
-from ..funcs.model import model_updater
 
 if TYPE_CHECKING:
-    from ..model.type.alias import IsAspectDict, IsComponent, IsValue, IsAspect
+    from ..model.type.alias import IsAspect, IsAspectDict, IsComponent, IsValue
 
 
 def aspecter(component: IsComponent, attr_name: str, attr_value: IsValue) -> IsAspect:

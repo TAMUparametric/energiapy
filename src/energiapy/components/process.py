@@ -11,8 +11,8 @@ from typing import TYPE_CHECKING
 from ..model.type.aspect import Aspects, CapBound, CashFlow, Limit
 from ..model.type.input import Input
 from ..utils.data_utils import get_depth
-from .type.process import ProcessType
 from .component import Component, ProcessChotu
+from .type.process import ProcessType
 
 if TYPE_CHECKING:
     from ..model.type.alias import (IsCapBound, IsCashFlow, IsConv,

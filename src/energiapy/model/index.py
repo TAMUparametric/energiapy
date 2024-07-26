@@ -5,12 +5,14 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
+from ..funcs.general import Dunders, Magics
+
 if TYPE_CHECKING:
     from .type.alias import IsAspect, IsComponent, IsDeclaredAt, IsTemporal
 
 
 @dataclass
-class Index:
+class Index(Dunders, Magics):
     component: IsComponent
     declared_at: IsDeclaredAt
     temporal: IsTemporal
@@ -40,12 +42,3 @@ class Index:
 
     def __len__(self):
         return self.temporal.n_index
-
-    def __repr__(self):
-        return self.name
-
-    def __hash__(self):
-        return hash(self.name)
-
-    def __eq__(self, other):
-        return self.name == other.name

@@ -2,12 +2,12 @@
 from dataclasses import dataclass
 from warnings import warn
 
-from ..model.type.alias import IsComponent
 from ..funcs.model import model_updater
+from ..model.type.alias import IsComponent
+from .component import Classer, Collector, Dunders, Printer
 from .horizon import Horizon
 from .process import Process
 from .resource import Resource
-from .component import Printer, Classer, Dunders, Collector
 
 
 @dataclass
@@ -43,7 +43,7 @@ class Scenario(Collector, Classer, Dunders, Printer):
         self.horizon, self.network = None, None
 
         for comps in ['resources', 'processes', 'storages', 'locations', 'transports', 'linkages']:
-            setattr(self, comps, list())
+            setattr(self, comps, [])
 
     def __setattr__(self, name, value):
         # *Would avoid making a general function to update components for the sake of clarity

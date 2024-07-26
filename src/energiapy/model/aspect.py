@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 
 from pandas import DataFrame
 
+from ..funcs.general import Classer, Collector, Dunders, Magics, Printer
 from .constraint import Constraint
 from .parameter import Parameter
 from .rulebook import rulebook
@@ -15,7 +16,6 @@ from .type.bound import Bound
 from .type.certainty import Approach, Certainty
 from .type.condition import Condition
 from .variable import Variable
-from ..funcs.general import Dunders, Printer, Collector, Classer
 
 if TYPE_CHECKING:
     from ..components.horizon import Horizon
@@ -24,7 +24,7 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class Aspect(Dunders, Printer, Collector, Classer):
+class Aspect(Dunders, Magics, Printer, Collector, Classer):
     aspect: IsAspect
     component: IsComponent
 
@@ -33,7 +33,20 @@ class Aspect(Dunders, Printer, Collector, Classer):
         self.name = f'{self.aspect.name.lower()}({self.component.name})'
 
     def add(self, value: IsValue, aspect: IsAspect, component: IsComponent, declared_at: IsDeclaredAt, horizon: Horizon = None):
+        """Add a value to an already existing Aspect
 
+        Args:
+            value (IsValue): the value to be made into Aspect
+            aspect (IsAspect): Component attribute 
+            component (IsComponent): energiapy Component
+            declared_at (IsDeclaredAt): energiapy Component
+            horizon (Horizon, optional): declared planning Horizon. Defaults to None.
+
+        Raises:
+            ValueError: length of data must match one of the scales
+            ValueError: tuple must be of length 2
+            ValueError: list can be of length 2 [lb, ub] or 1 [ub]
+        """
         if not isinstance(value, dict):
             value = {horizon.scales[0]: value}
 
@@ -136,7 +149,7 @@ class Aspect(Dunders, Printer, Collector, Classer):
 
 
 @dataclass
-class AspectDict(Dunders, Printer, Classer):
+class AspectDict(Dunders, Magics, Printer, Classer):
     aspect: IsAspect
     component: IsComponent
     aspects: IsAspectDict
@@ -145,7 +158,7 @@ class AspectDict(Dunders, Printer, Classer):
 
         self.name = f'{self.aspect.name.lower()}({self.component.name})'
         self.parameters, self.variables, self.constraints = (
-            list() for _ in range(3))
+            [] for _ in range(3))
 
         for i in ['parameters', 'variables', 'constraints']:
             setattr(

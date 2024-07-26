@@ -8,6 +8,7 @@ from warnings import warn
 
 from pandas import DataFrame
 
+from ...funcs.general import Dunders
 from ..index import Index
 from .dataset import DataSet
 
@@ -16,7 +17,7 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class Theta:
+class Theta(Dunders):
     """Just a convinient way to declare parametric variables
 
     Args:
@@ -77,12 +78,3 @@ class Theta:
 
     def __len__(self):
         return max([len(i) if isinstance(i, (DataFrame, DataSet)) else 1 for i in self.bounds])
-
-    def __repr__(self):
-        return self.name
-
-    def __hash__(self):
-        return hash(self.name)
-
-    def __eq__(self, other):
-        return self.name == other.name

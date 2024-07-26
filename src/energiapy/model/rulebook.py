@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, List
 
+from ..funcs.general import Dunders
 from .type.aspect import (CapBound, CashFlow, Emission, Land, Limit,  # Life,
                           Loss)
 from .type.condition import Condition, RightHandSide, SumOver
@@ -12,7 +13,7 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class Rule:
+class Rule(Dunders):
     condition: Condition
     variable: IsAspect
     associated: IsAspect = None
@@ -23,7 +24,7 @@ class Rule:
 
     def __post_init__(self):
 
-        self.rhs = list()
+        self.rhs = []
 
         assoc, param = ('' for _ in range(2))
         var = f'{self.variable.name.lower()}'
@@ -40,22 +41,13 @@ class Rule:
 
         self.name = f'{self.condition.name.lower()}|var:{var},var2:{assoc},parm:{param}'
 
-    def __repr__(self):
-        return self.name
-
-    def __hash__(self):
-        return hash(self.name)
-
-    def __eq__(self, other):
-        return self.name == other.name
-
 
 @dataclass
-class RuleBook:
+class RuleBook(Dunders):
     rules: List[Rule] = None
 
     def __post_init__(self):
-        self.rules = list()
+        self.rules = []
         self.name = 'RuleBook'
 
     def add(self, rule: Rule):
@@ -64,15 +56,6 @@ class RuleBook:
     def find(self, variable: IsAspect):
 
         return [rule for rule in self.rules if rule.variable == variable]
-
-    def __repr__(self):
-        return self.name
-
-    def __hash__(self):
-        return hash(self.name)
-
-    def __eq__(self, other):
-        return self.name == other.name
 
 
 rulebook = RuleBook()

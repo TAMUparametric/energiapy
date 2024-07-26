@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from functools import reduce
 from typing import TYPE_CHECKING
 
+from ...funcs.general import Dunders
 from ...utils.data_utils import get_depth
 
 if TYPE_CHECKING:
@@ -13,7 +14,7 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class Conversion:
+class Conversion(Dunders):
     """
     Represents a conversion process between energy modes.
 
@@ -56,12 +57,3 @@ class Conversion:
 
         self.involve = list(self.discharge) + list(self.consume)
         self.name = f'Conv({self.produce.name},{self.process.name})'
-
-    def __repr__(self):
-        return self.name
-
-    def __hash__(self):
-        return hash(self.name)
-
-    def __eq__(self, other):
-        return self.name == other.name

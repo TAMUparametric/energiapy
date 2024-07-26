@@ -82,7 +82,7 @@ class Transport:
     #     # *-----------------Set ctype (TransportType)---------------------------------
 
     #     if not self.ctype:
-    #         self.ctype = list()
+    #         self.ctype = []
 
     #     for i in self.resources:  # update Resource if transported
     #         # TODO - FIX

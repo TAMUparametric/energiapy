@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import List, TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 
+from ..funcs.general import Dunders, Magics
 from .parameter import Parameter
 from .type.bound import Bound
 from .type.condition import Condition, RightHandSide, SumOver
@@ -13,7 +14,7 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class Constraint:
+class Constraint(Dunders, Magics):
     condition: Condition
     variable: Variable
     rhs: List[RightHandSide]
@@ -62,18 +63,3 @@ class Constraint:
             constraint = f'{variable}<={parameter}{multip}{associated}'
 
         self.name = constraint
-
-    def __lt__(self, other):
-        return self.name < other.name
-
-    def __gt__(self, other):
-        return self.name > other.name
-
-    def __repr__(self):
-        return self.name
-
-    def __hash__(self):
-        return hash(self.name)
-
-    def __eq__(self, other):
-        return self.name == other.name

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from ..components.type.alias import IsComponent
 
@@ -11,7 +12,7 @@ def collector(component: IsComponent):
     """creates lists for collecting modeling units  
     """
     for i in ['parameters', 'variables', 'constraints']:
-        setattr(component, i, list())
+        setattr(component, i, [])
 
 
 def printer(component, print_collection):
@@ -25,18 +26,23 @@ def printer(component, print_collection):
         print(i)
 
 
-class Dunders:
-    """The usual dunder methods for a Component
+class Magics:
+    """Magic functions
     """
-
-    def __repr__(self):
-        return str(getattr(self, 'name'))
 
     def __lt__(self, other):
         return getattr(self, 'name') < other.name
 
     def __gt__(self, other):
         return getattr(self, 'name') > other.name
+
+
+class Dunders:
+    """The usual dunder methods for a Component
+    """
+
+    def __repr__(self):
+        return str(getattr(self, 'name'))
 
     def __eq__(self, other):
         return getattr(self, 'name') == other.name

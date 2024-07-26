@@ -3,8 +3,8 @@
 from dataclasses import dataclass, field
 from itertools import product
 
-from .component import Dunders, Classer
 from ..model.type.disposition import TemporalDisp
+from .component import Classer, Dunders
 from .temporal_scale import TemporalScale
 from .type.horizon import HorizonType
 
@@ -84,7 +84,7 @@ class Horizon(Dunders, Classer):
 
     def __post_init__(self):
 
-        self.name, self.scales, self.ctypes = None, list(), list()
+        self.name, self.scales, self.ctypes = None, [], []
         # # insert 1 at the beginning, this is the horizon itself
         self.discretizations.insert(0, 1)
 

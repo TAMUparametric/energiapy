@@ -4,7 +4,8 @@ energiapy.TemporalScale - A bespoke discretization of the planning horizon (Hori
 
 from dataclasses import dataclass
 from typing import List
-from .component import Dunders, Classer
+
+from .component import Classer, Dunders
 
 
 @dataclass

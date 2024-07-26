@@ -8,16 +8,17 @@ from typing import TYPE_CHECKING
 from pandas import DataFrame
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 
+from ...funcs.general import Dunders
 from ..index import Index
 from ..type.bound import Bound
 
 if TYPE_CHECKING:
-    from ..type.alias import IsAspect, IsComponent, IsData, IsDeclaredAt
     from ...components.horizon import Horizon
+    from ..type.alias import IsAspect, IsComponent, IsData, IsDeclaredAt
 
 
 @dataclass
-class DataSet:
+class DataSet(Dunders):
     """
     Args:
         data (IsData): Data to be used
@@ -130,11 +131,3 @@ class DataSet:
         else:
             return False
 
-    def __repr__(self):
-        return self.name
-
-    def __hash__(self):
-        return hash(self.name)
-
-    def __eq__(self, other):
-        return self.name == other.name
