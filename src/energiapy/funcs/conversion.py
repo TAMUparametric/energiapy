@@ -1,5 +1,5 @@
-from ..components.type.process import ProcessType
-from ..model.specialparams.conversion import Conversion
+from ..elements.specialparams.conversion import Conversion
+from ..type.component.process import ProcessType
 
 
 def conversioner(process):

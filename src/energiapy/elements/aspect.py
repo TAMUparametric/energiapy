@@ -5,26 +5,27 @@ from typing import TYPE_CHECKING
 
 from pandas import DataFrame
 
-from ..funcs.general import Classer, Collector, Dunders, Magics, Printer
+from ..core.general import ClassName, Dunders, Magics
+from ..core.onset import ElementCols
+from ..type.element.bound import Bound
+from ..type.element.certainty import Approach, Certainty
+from ..type.element.condition import Condition
 from .constraint import Constraint
 from .parameter import Parameter
 from .rulebook import rulebook
 from .specialparams.dataset import DataSet
 from .specialparams.theta import Theta
 from .specialparams.unbound import BigM, Unbound
-from .type.bound import Bound
-from .type.certainty import Approach, Certainty
-from .type.condition import Condition
 from .variable import Variable
 
 if TYPE_CHECKING:
     from ..components.horizon import Horizon
-    from .type.alias import (IsAspect, IsAspectDict, IsComponent, IsDeclaredAt,
-                             IsTemporal, IsValue)
+    from ..type.alias import (IsAspect, IsAspectDict, IsComponent,
+                              IsDeclaredAt, IsTemporal, IsValue)
 
 
 @dataclass
-class Aspect(Dunders, Magics, Printer, Collector, Classer):
+class Aspect(ElementCols, ClassName, Dunders, Magics):
     aspect: IsAspect
     component: IsComponent
 
@@ -126,9 +127,13 @@ class Aspect(Dunders, Magics, Printer, Collector, Classer):
                                         declared_at=declared_at, temporal=parameter.temporal)
 
                     self.parameters = sorted(
-                        list(set(self.parameters) | {parameter}))
-                    self.variables = sorted(
-                        list(set(self.variables) | {variable}))
+                        set(self.parameters) | {parameter})
+                    self.variables = sorted(set(self.variables) | {variable})
+
+                    # setattr(self, 'parameters', getattr(
+                    #     self, 'parameters').append(parameter))
+                    # setattr(self, 'variables', getattr(
+                    #     self, 'variables').append(variable))
 
                     if rule.associated:
                         associated_ = Variable(
@@ -144,12 +149,14 @@ class Aspect(Dunders, Magics, Printer, Collector, Classer):
                     else:
                         constraint = Constraint(condition=rule.condition, variable=variable,
                                                 associated=associated_, declared_at=declared_at, parameter=parameter_, bound=bound_, rhs=rule.rhs)
-                        self.constraints = sorted(list(
-                            set(self.constraints) | {constraint}))
+                        self.constraints = sorted(
+                            set(self.constraints) | {constraint})
+                        # setattr(self, 'constraints', getattr(
+                        #     self, 'constraints').append(constraint))
 
 
 @dataclass
-class AspectDict(Dunders, Magics, Printer, Classer):
+class AspectDict(ElementCols, Dunders, Magics, ClassName):
     aspect: IsAspect
     component: IsComponent
     aspects: IsAspectDict
@@ -157,8 +164,6 @@ class AspectDict(Dunders, Magics, Printer, Classer):
     def __post_init__(self):
 
         self.name = f'{self.aspect.name.lower()}({self.component.name})'
-        self.parameters, self.variables, self.constraints = (
-            [] for _ in range(3))
 
         for i in ['parameters', 'variables', 'constraints']:
             setattr(

@@ -8,12 +8,12 @@ from warnings import warn
 
 from pandas import DataFrame
 
-from ...funcs.general import Dunders
+from ...core.general import Dunders
 from ..index import Index
 from .dataset import DataSet
 
 if TYPE_CHECKING:
-    from ..type.alias import IsAspect, IsComponent, IsDeclaredAt, IsTemporal
+    from ...type.alias import IsAspect, IsComponent, IsDeclaredAt, IsTemporal
 
 
 @dataclass

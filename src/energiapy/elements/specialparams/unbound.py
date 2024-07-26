@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 from pandas import DataFrame
 
-from ...funcs.general import Dunders
+from ...core.general import Dunders
 from .dataset import DataSet
 
 

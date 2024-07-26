@@ -3,14 +3,14 @@
 from dataclasses import dataclass, field
 from itertools import product
 
-from ..model.type.disposition import TemporalDisp
-from .component import Classer, Dunders
+from ..core.general import ClassName, Dunders
+from ..type.component.horizon import HorizonType
+from ..type.element.disposition import TemporalDisp
 from .temporal_scale import TemporalScale
-from .type.horizon import HorizonType
 
 
 @dataclass
-class Horizon(Dunders, Classer):
+class Horizon(Dunders, ClassName):
     """
     Planning horizon of the problem. 
     Need to specify how many periods the parent scale t0 with 1 discretization is divided into.

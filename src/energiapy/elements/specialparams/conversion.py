@@ -5,12 +5,12 @@ from dataclasses import dataclass
 from functools import reduce
 from typing import TYPE_CHECKING
 
-from ...funcs.general import Dunders
+from ...core.general import Dunders
 from ...utils.data_utils import get_depth
 
 if TYPE_CHECKING:
+    from ...type.alias import IsConv
     from ..components.process import Process
-    from ..type.alias import IsConv
 
 
 @dataclass

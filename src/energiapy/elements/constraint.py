@@ -3,14 +3,14 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, List
 
-from ..funcs.general import Dunders, Magics
+from ..core.general import Dunders, Magics
+from ..type.element.bound import Bound
+from ..type.element.condition import Condition, RightHandSide, SumOver
 from .parameter import Parameter
-from .type.bound import Bound
-from .type.condition import Condition, RightHandSide, SumOver
 from .variable import Variable
 
 if TYPE_CHECKING:
-    from .type.alias import IsComponent
+    from ..type.alias import IsComponent
 
 
 @dataclass

@@ -8,24 +8,24 @@ from dataclasses import dataclass, field
 from functools import reduce
 from typing import TYPE_CHECKING
 
-from ..model.type.aspect import Aspects, CapBound, CashFlow, Limit
-from ..model.type.input import Input
+from ..funcs.conversion import conversioner
+from ..type.component.process import ProcessType
+from ..type.element.aspect import Aspects, CapBound, CashFlow, Limit
+from ..type.element.input import Input
 from ..utils.data_utils import get_depth
-from .component import Component, ProcessChotu
-from .type.process import ProcessType
+from .component import Component
 
 if TYPE_CHECKING:
-    from ..model.type.alias import (IsCapBound, IsCashFlow, IsConv,
-                                    IsDepreciated, IsDetail, IsEmission,
-                                    IsLand, IsLife, IsLimit, IsLoss, IsMatCons,
-                                    IsPWL)
+    from ..type.alias import (IsCapBound, IsCashFlow, IsConv, IsDepreciated,
+                              IsDetail, IsEmission, IsLand, IsLife, IsLimit,
+                              IsLoss, IsMatCons, IsPWL)
     from .horizon import Horizon
     from .material import Material
     from .resource import Resource
 
 
 @dataclass
-class Process(Component, ProcessChotu):
+class Process(Component):
 
     conversion: IsConv
     # Design parameters
@@ -77,7 +77,9 @@ class Process(Component, ProcessChotu):
 
     def __post_init__(self):
         super().__post_init__()
-
+        
+        self.materials = []
+        
         # *-----------------Set ctype (ProcessType)---------------------------------
 
         # Materials are not necessarily consumed (NO_MATMODE), if material_cons is None
@@ -146,7 +148,12 @@ class Process(Component, ProcessChotu):
             elif Input.match(name) in self.resource_aspects():
                 self.make_aspectdict(attr_name=name)
 
-    # *----------------- Class Methods --------------------------------------
+    # *----------------- Methods --------------------------------------
+    
+    def make_conversion(self):
+        """Makes Conversion for Process
+        """
+        conversioner(process=self)
 
     @staticmethod
     def process_aspects() -> list:

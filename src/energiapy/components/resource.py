@@ -5,14 +5,14 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
-from ..model.type.aspect import Aspects
-from ..model.type.input import Input
+from ..type.component.resource import ResourceType
+from ..type.element.aspect import Aspects
+from ..type.element.input import Input
 from .component import Component
-from .type.resource import ResourceType
 
 if TYPE_CHECKING:
-    from ..model.type.alias import (IsCashFlow, IsDepreciated, IsDetail,
-                                    IsEmission, IsLimit)
+    from ..type.alias import (IsCashFlow, IsDepreciated, IsDetail, IsEmission,
+                              IsLimit)
     from .horizon import Horizon
 
 
@@ -49,7 +49,6 @@ class Resource(Component):
 
     def __post_init__(self):
         super().__post_init__()
-
         # set at Process, Storage, Transport respectively
         self.produce, self.store, self.transport = (None for _ in range(3))
 

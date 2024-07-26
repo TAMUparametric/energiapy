@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from ..elements.aspect import Aspect, AspectDict
 from ..funcs.model import model_updater
-from ..model.aspect import Aspect, AspectDict
-from ..model.type.input import Input
+from ..type.element.input import Input
 
 if TYPE_CHECKING:
     from ..model.type.alias import IsAspect, IsAspectDict, IsComponent, IsValue
@@ -23,13 +23,14 @@ def aspecter(component: IsComponent, attr_name: str, attr_value: IsValue) -> IsA
     """
     current_value = getattr(component, attr_name)
 
-    if not isinstance(current_value, Aspect):  # if Aspect has not been created
+    # if not passing an Aspect, new value created as Aspect to append to
+    if not isinstance(current_value, Aspect):
         new_value = Aspect(
             aspect=Input.match(attr_name), component=component)
     else:
         new_value = current_value
 
-    if not isinstance(attr_value, Aspect):  # if not passing an Aspect
+    if not isinstance(attr_value, Aspect):
         new_value.add(value=attr_value, aspect=Input.match(attr_name), component=component,
                       horizon=component.horizon, declared_at=component.declared_at)
         setattr(component, attr_name, new_value)

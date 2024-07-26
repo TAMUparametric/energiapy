@@ -3,13 +3,13 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, List
 
-from ..funcs.general import Dunders
-from .type.aspect import (CapBound, CashFlow, Emission, Land, Limit,  # Life,
-                          Loss)
-from .type.condition import Condition, RightHandSide, SumOver
+from ..core.general import Dunders
+from ..type.element.aspect import (CapBound, CashFlow, Emission, Land,  # Life,
+                                   Limit, Loss)
+from ..type.element.condition import Condition, RightHandSide, SumOver
 
 if TYPE_CHECKING:
-    from .type.alias import IsAspect, IsComponent, IsDeclaredAt
+    from ..type.alias import IsAspect, IsComponent, IsDeclaredAt
 
 
 @dataclass

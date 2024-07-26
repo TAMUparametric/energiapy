@@ -367,7 +367,8 @@ class Loss(Enum):
 class Aspects:
     resource = Limit.resource() + CashFlow.resource() + \
         Emission.all() + CapBound.all()
-    process = Limit.process() + Land.process() + CashFlow.process() + Emission.all() + Life.all()
+    process = Limit.process() + Land.process() + CashFlow.process() + \
+        Emission.all() + Life.all()
     storage = Loss.storage()
     transport = Limit.transport() + CashFlow.transport() + \
         Land.transport() + Loss.transport() + Emission.all() + Life.all()

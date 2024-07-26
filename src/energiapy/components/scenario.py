@@ -1,17 +1,24 @@
+"""The main object in energiapy. Everything else is defined as a scenario attribute.
+"""
+from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 from warnings import warn
 
+from ..core.general import ClassName, Dunders
+from ..core.onset import ElementCols
 from ..funcs.model import model_updater
-from ..model.type.alias import IsComponent
-from .component import Classer, Collector, Dunders, Printer
 from .horizon import Horizon
 from .process import Process
 from .resource import Resource
 
+if TYPE_CHECKING:
+    from ..type.alias import IsComponent
+
 
 @dataclass
-class Scenario(Collector, Classer, Dunders, Printer):
+class Scenario(ElementCols, Dunders, ClassName):
     """
     A scenario for a considered system. It collects all the components of the model.
 
