@@ -5,8 +5,8 @@ from typing import TYPE_CHECKING
 
 from pandas import DataFrame
 
-from ..core.general import Dunders, Magics
-from ..funcs.birth import birth_theta
+from ..core.base import Dunders, Magics
+from ..funcs.element.birth import birth_theta
 from ..type.element.bound import Bound
 from ..type.element.certainty import Approach, Certainty
 from .index import Index
@@ -54,4 +54,4 @@ class Parameter(Dunders, Magics):
                 component=self.component, declared_at=self.declared_at, temporal=self.temporal)
 
         if not hasattr(self, 'name'):
-            self.name = f'{self.aspect.pnamer()}{self.bound.namer()}{self.index.name}'
+            self.name = f'{self.aspect.pname()}{self.bound.namer()}{self.index.name}'

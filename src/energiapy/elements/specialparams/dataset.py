@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 from pandas import DataFrame
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 
-from ...core.general import Dunders
+from ...core.base import Dunders
 from ...type.element.bound import Bound
 from ..index import Index
 
@@ -103,7 +103,7 @@ class DataSet(Dunders):
             self.index = Index(
                 component=self.component, declared_at=self.declared_at, temporal=self.temporal)
 
-            self.name = f'DSet|{self.aspect.pnamer()}{self.bound.namer()}{self.index.name}|'
+            self.name = f'DSet|{self.aspect.pname()}{self.bound.namer()}{self.index.name}|'
 
         else:
             temp = f'{self.temporal.name.lower()}'

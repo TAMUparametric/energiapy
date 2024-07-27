@@ -6,12 +6,12 @@ from dataclasses import dataclass, fields
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from .horizon import Horizon
-    from .type.alias import IsValue
+    from ..components.temporal.horizon import Horizon
+    from ..type.alias import IsValue
 
 
 @dataclass
-class CompInits:
+class CompInit:
     """Common initial attributes of a component
     named, name, horizon, declared_at, ctypes
     """
@@ -59,7 +59,7 @@ class CompInits:
 
 
 @dataclass
-class ElementCols:
+class ElementCol:
     """Lists for collecting modeling elements
     parameters, variables, constraints
     """

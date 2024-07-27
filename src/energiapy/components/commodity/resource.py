@@ -5,39 +5,19 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
+from ...core.capbound import ResCapBound
+from ...core.cashflow import ResCashFlow
+from ...core.limit import ResLimit
+from ...inputs.input_map import input_map
 from ...type.component.resource import ResourceType
-from ...type.element.aspect import Aspects
-from ...type.element.input import Input
-from ..component import Component
+from ..component import Commodity
 
 if TYPE_CHECKING:
-    from ...type.alias import (IsCashFlow, IsDepreciated, IsDetail, IsEmission,
-                               IsLimit)
-    from ..temporal.horizon import Horizon
+    from ...type.alias import IsDepreciated, IsLimit
 
 
 @dataclass
-class Resource(Component):
-    # Limit Aspect
-    discharge: IsLimit = field(default=None)
-    consume: IsLimit = field(default=None)
-    # CashFlowType
-    sell_cost: IsCashFlow = field(default=None)
-    purchase_cost: IsCashFlow = field(default=None)
-    credit: IsCashFlow = field(default=None)
-    penalty: IsCashFlow = field(default=None)
-    # EmissionType
-    gwp: IsEmission = field(default=None)
-    odp: IsEmission = field(default=None)
-    acid: IsEmission = field(default=None)
-    eutt: IsEmission = field(default=None)
-    eutf: IsEmission = field(default=None)
-    eutm: IsEmission = field(default=None)
-    # Details
-    basis: IsDetail = field(default=None)
-    block: IsDetail = field(default=None)
-    label: IsDetail = field(default=None)
-    citation: IsDetail = field(default=None)
+class Resource(ResCashFlow, ResLimit, ResCapBound, Commodity):
     # Depreciated
     sell: IsDepreciated = field(default=None)
     varying: IsDepreciated = field(default=None)
@@ -48,10 +28,9 @@ class Resource(Component):
     store_min: IsDepreciated = field(default=None)
 
     def __post_init__(self):
-        super().__post_init__()
-        # set at Process, Storage, Transport respectively
-        self.produce, self.store, self.transport = (None for _ in range(3))
 
+        ResCapBound.__post_init__(self)
+        Commodity.__post_init__(self)
         # *-----------------Set ctype (ResourceType)---------------------------------
 
         if self.sell_cost is not None:
@@ -84,11 +63,5 @@ class Resource(Component):
     def __setattr__(self, name, value):
         super().__setattr__(name, value)
         if self.is_ready(attr_value=value):
-            if Input.match(name) in self.aspects():
+            if input_map.is_component_aspect(attr=name, component='resource'):
                 self.make_aspect(attr_name=name, attr_value=value)
-
-    @ staticmethod
-    def aspects() -> list:
-        """Returns Resource aspects
-        """
-        return Aspects.resource

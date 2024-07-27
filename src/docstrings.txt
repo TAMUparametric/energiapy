@@ -307,3 +307,54 @@ Resource
         >>> Train = Transport(name='Train', resources={H2}, materials_cons={Steel: 100}, trans_max=10000, trans_loss=0.001, capex=300, label= 'Railine for Hydrogen)
 
     """
+
+
+       """
+    Networks link Locations with Transports
+    A distance matrix and Transport matrix needs to be provided
+
+    Args:
+        name (str): name of the network. Enter None to randomly assign a name.
+        sources (List[location]): list of location dataclass objects of source locations.
+        sinks (List[location]): list of location dataclass objects of sink locations.
+        distance_matrix (List[List[float]]): matrix with distances between sources and sinks, needs to be ordered.
+        transport_matrix (List[List[Transport]]): matrix with distances between sources and sinks, needs to be ordered.
+        land_max (Union[float, Tuple[float], Theta, bool, 'Big'], optional): land available. Defaults to None.
+        land_max_factor (DataFrame, optional): factor for changing land availability. Defaults to None. 
+        cap_max_factor (Dict[Tuple[Location, Location], Dict[Transport, DataFrame]], optional):  Factor for capacity expansion of Transport between Locations. Defaults to None.
+        capacity_factor (Dict[Tuple[Location, Location], Dict[Transport, DataFrame]], optional):  Factor for varying capacity for Transport between Locations. Defaults to None.
+        capex_factor (Dict[Tuple[Location, Location], Dict[Transport, DataFrame]], optional):  Factor for varying capital expenditure for Transport between Locations. Defaults to None.
+        vopex_factor (Dict[Tuple[Location, Location], Dict[Transport, DataFrame]], optional):  Factor for varying variable operational expenditure for Transport between Locations. Defaults to None.
+        fopex_factor (Dict[Tuple[Location, Location], Dict[Transport, DataFrame]], optional):  Factor for varying fixed operational expenditure for Transport between Locations. Defaults to None.
+        incidental_factor (Dict[Tuple[Location, Location], Dict[Transport, DataFrame]], optional):  Factor for varying incidental expenditure for Transport between Locations. Defaults to None.
+        basis (str, optional): unit in which land area is measured. Defaults to None.
+        label (str, optional): used while generating plots. Defaults to None.
+        citation (str, optional): can provide citations for your data sources. Defaults to None.
+        ctype (List[NetworkType], optional): Network type type. Defaults to None.
+        aspect (Dict[NetworkParamType, ParameterType], optional): paramater type of declared values. Defaults to None.
+        ftype (Dict[NetworkParamType, FactorType], optional): factor type of declared factors. Defaults to None.
+        factors (Dict[LocationParamType, Factor], optional): collection of factors defined at Network. Defaults to None.
+
+    Examples:
+
+        Networks object with to and from movement of resources using Transport. In the following example, Train and Pipeline can be set up from 'Goa' to 'Texas'
+
+        >>> Move = Network(name= 'Network', sources= [Goa, Texas], sinks= [Texas, Goa], distance_matrix= [[0, 500],[500, 0]], transport_matrix= [[], [Train, Pipe]], [[Train, Pipe], []]], label = 'network for moving stuff')
+
+        Networks can also have one way movement of resources. In the following example, a Pipeline is set up from Goa to Texas.
+
+        >>> BrainDrain = Network(name= 'BrainDrain', sources= [Goa], sinks= [Texas], distance_matrix= [[0, 500],[500, 0]], transport_matrix= [[], [Pipe]], [[], []]], label = 'The Pipeline') )
+
+        Declaring distance matrix:
+        Consider a source (Goa), and two sinks (Texas, Macedonia) at a distance of 1000 and 500 units. The source will form the rows and sinks the columns.
+        The distance matrix will look something like this:
+
+        >>> distance_matrix = [[1000, 500]]
+
+        Declaring transport matrix:
+        Similarly say, there is a ship (Ship) avaiable between only Goa and Macedonia, and a flight (Plane) available from Goa to both regions.
+        The transport matrix can be stated as:
+
+        >>> transport_matrix = [[[Ship], [Ship, Plane]]]
+
+    """

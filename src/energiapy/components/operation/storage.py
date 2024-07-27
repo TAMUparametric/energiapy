@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-# from typing import TYPE_CHECKING, Dict, List, Tuple, Union
 
 # from ..model.specialparams.conversion import Conversion
 # from .resource import Resource
@@ -8,6 +7,9 @@ from dataclasses import dataclass
 # from ..model.specialparams.unbound import BigM
 # from ..model.type.input import Input
 from ..component import Component
+
+# from typing import TYPE_CHECKING, Dict, List, Tuple, Union
+
 
 # if TYPE_CHECKING:
 #     from pandas import DataFrame
@@ -22,4 +24,4 @@ class Storage(Component):
 # store: Resource
 #     capacity: IsLimit
 #     land_use: IsLand = field(default=None)
-#     material_cons: IsMatCons = field(default=None)
+#     material_cons: IsMatUse = field(default=None)

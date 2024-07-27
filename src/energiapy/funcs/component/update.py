@@ -3,10 +3,10 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from ..type.alias import IsAspect, IsComponent, IsValue
+    from ...type.alias import IsAspect, IsComponent
 
 
-def model_updater(component: IsComponent, aspect: IsAspect):
+def update_element(component: IsComponent, aspect: IsAspect):
     """updates parameters, varaibles and constraints of a component with those of an aspect
 
     Args:

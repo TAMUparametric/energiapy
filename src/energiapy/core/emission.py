@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -9,7 +8,7 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class Impact:
+class CmdEmission:
     """Enivronmental impact of Commodities and Operations
     """
     gwp: IsEmission = field(default=None)
@@ -21,7 +20,13 @@ class Impact:
 
 
 @dataclass
-class ImpactCap:
+class OpnEmission(CmdEmission):
+    """Environmental impact of Operations
+    """
+
+
+@dataclass
+class SpcEmissionCap:
     """Environmental impact caps (upper bounds) for Spaces 
     """
     gwp: IsEmissionCap = field(default=None)

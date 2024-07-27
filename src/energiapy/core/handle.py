@@ -4,13 +4,13 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from ..funcs.aspect import aspectdicter, aspecter
+from ..funcs.input.aspect import aspecter, aspectshareder
 
 if TYPE_CHECKING:
-    from .. import IsValue
+    from ..type.alias import IsValue
 
 
-class HandleAspects:
+class HandleAspect:
     """Updates component attributes to aspects 
     """
 
@@ -23,10 +23,10 @@ class HandleAspects:
         """
         aspecter(component=self, attr_name=attr_name, attr_value=attr_value)
 
-    def make_aspectdict(self, attr_name: str):
-        """Makes AspectDict
+    def make_aspectshared(self, attr_name: str):
+        """Makes AspectShared
 
         Args:
             attr_name (str): name of the attribute
         """
-        aspectdicter(component=self, attr_name=attr_name)
+        aspectshareder(component=self, attr_name=attr_name)

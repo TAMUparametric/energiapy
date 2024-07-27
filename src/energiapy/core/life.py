@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -9,8 +8,8 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class Existence:
-    """Existence of Operation
+class OpnLife:
+    """Life descriptions of Operation
     """
     introduce: IsLife = field(default=None)
     retire: IsLife = field(default=None)

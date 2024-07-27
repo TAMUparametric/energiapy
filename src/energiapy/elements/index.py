@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-from ..core.general import Dunders, Magics
+from ..core.base import Dunders, Magics
 
 if TYPE_CHECKING:
     from ..type.alias import IsAspect, IsComponent, IsDeclaredAt, IsTemporal

@@ -5,15 +5,15 @@ energiapy.Scale - A bespoke discretization of the planning horizon (Horizon) of 
 from dataclasses import dataclass
 from typing import List
 
-from ...core.general import ClassName, Dunders, Magics
+from ..component import Temporal
 
 
 @dataclass
-class Scale(Dunders, Magics, ClassName):
+class Scale(Temporal):
     """
     A single temporal scale of the planning horizon (Horizon).
 
-    Input:
+    Inputs:
         name(str): name. 
         index(List[tuple]): index as a list of tuples
         n_index(int): number of indices, generated post-initialization.

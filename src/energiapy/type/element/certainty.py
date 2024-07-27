@@ -13,6 +13,7 @@ class Certainty(Enum):
     Subclassed in Uncertain
     """
 
+
 class Approach(Enum):
     """How uncertainty in parameter is handled
     """

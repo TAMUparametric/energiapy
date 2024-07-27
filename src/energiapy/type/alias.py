@@ -4,18 +4,19 @@ from typing import Dict, List, Tuple, Union
 
 from pandas import DataFrame
 
-from ..components.space.linkage import Linkage
-from ..components.space.location import Location
 from ..components.commodity.material import Material
-from ..components.operation.process import Process
 from ..components.commodity.resource import Resource
+from ..components.operation.process import Process
 from ..components.operation.storage import Storage
-from ..components.temporal.scale import Scale
 from ..components.operation.transport import Transport
+from ..components.spatial.linkage import Linkage
+from ..components.spatial.location import Location
+from ..components.spatial.network import Network
+from ..components.temporal.scale import Scale
 from ..elements.specialparams.dataset import DataSet
 from ..elements.specialparams.theta import Theta
 from ..elements.specialparams.unbound import Unbound
-from .element.aspect import CashFlow, Emission, Land, Life, Limit, Loss
+from .input.aspect import CashFlow, Emission, Land, Life, Limit, Loss
 
 # *Base types
 # aspect is given as a numeric value
@@ -46,13 +47,16 @@ IsCapBound = Union[IsExact, IsBound]
 IsCashFlow, IsLandUse, IsEmission, IsLife, IsLoss = (IsExact for _ in range(5))
 IsLandCap, IsEmissionCap = (IsBound for _ in range(2))
 
+# *Component types
+IsCommodity = Union[Resource, Material]
+IsOperation = Union[Process, Storage, Transport]
+IsSpace = Union[Location, Linkage, Network]
+IsComponent = Union[IsCommodity, IsOperation, IsSpace]
 
 # *Classes and Enums
 IsAspect = Union[CashFlow, Emission, Land, Life, Limit, Loss]
-IsComponent = Union[Resource, Process, Material,
-                    Storage, Location, Transport, Linkage]
-IsAspectDict = Dict[IsComponent, IsAspect]
-IsSpatialPair = Union[Tuple[Process, Location], Tuple[Transport, Linkage]]
+IsAspectShared = Dict[IsComponent, IsAspect]
+IsSpatialPair = Union[Tuple[IsOperation, IsSpace], Tuple[IsSpace, IsSpace]]
 IsDeclaredAt = Union[IsSpatialPair, IsComponent]
 
 # *Conversion
@@ -62,11 +66,11 @@ IsMultiConv = Dict[Union[IsNumeric, str], IsSingleConv]
 IsBalance = Union[IsSingleConv, IsMultiConv]
 IsConv = Dict[Resource, IsBalance]
 
-# *Material
+# *MaterialUse
 # can be multimode or single mode
 IsSingleMat = Dict[Material, IsNumeric]
 IsMultiMat = Dict[Union[IsNumeric, str], IsSingleMat]
-IsMatCons = Union[IsSingleMat, IsMultiMat]
+IsMatUse = Union[IsSingleMat, IsMultiMat]
 
 # *Piecewise Linear
 IsPWL = Dict[Tuple[IsNumeric, IsNumeric], IsNumeric]

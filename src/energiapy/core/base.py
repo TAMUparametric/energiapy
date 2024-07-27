@@ -1,5 +1,7 @@
 """General classes for Components and Model Elements
 """
+from dataclasses import dataclass
+
 
 class Magics:
     """Magic functions
@@ -41,3 +43,10 @@ class ClassName:
         """Returns class name
         """
         return cls.__name__
+
+
+@dataclass
+class Base(Magics, Dunders, ClassName):
+    """Basic stuff needed for everything, 
+    named after the legendary opening batsman Virender Sehwag
+    """

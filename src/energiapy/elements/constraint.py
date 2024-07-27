@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, List
 
-from ..core.general import Dunders, Magics
+from ..core.base import Dunders, Magics
 from ..type.element.bound import Bound
 from ..type.element.condition import Condition, RightHandSide, SumOver
 from .parameter import Parameter

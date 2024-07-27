@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-from ..core.general import Dunders, Magics
+from ..core.base import Dunders, Magics
 from .index import Index
 
 if TYPE_CHECKING:
@@ -21,4 +21,4 @@ class Variable(Dunders, Magics):
 
         self.index = Index(component=self.component,
                            declared_at=self.declared_at, temporal=self.temporal)
-        self.name = f'{self.aspect.vnamer()}{self.index.name}'
+        self.name = f'{self.aspect.vname()}{self.index.name}'

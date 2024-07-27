@@ -5,27 +5,27 @@ from typing import TYPE_CHECKING
 
 from pandas import DataFrame
 
-from ..core.general import ClassName, Dunders, Magics
-from ..core.onset import ElementCols
+from ..core.base import Base
+from ..core.onset import ElementCol
+from ..elements.constraint import Constraint
+from ..elements.parameter import Parameter
+from ..elements.rulebook import rulebook
+from ..elements.specialparams.dataset import DataSet
+from ..elements.specialparams.theta import Theta
+from ..elements.specialparams.unbound import BigM, Unbound
+from ..elements.variable import Variable
 from ..type.element.bound import Bound
 from ..type.element.certainty import Approach, Certainty
 from ..type.element.condition import Condition
-from .constraint import Constraint
-from .parameter import Parameter
-from .rulebook import rulebook
-from .specialparams.dataset import DataSet
-from .specialparams.theta import Theta
-from .specialparams.unbound import BigM, Unbound
-from .variable import Variable
 
 if TYPE_CHECKING:
     from ..components.horizon import Horizon
-    from ..type.alias import (IsAspect, IsAspectDict, IsComponent,
+    from ..type.alias import (IsAspect, IsAspectShared, IsComponent,
                               IsDeclaredAt, IsTemporal, IsValue)
 
 
 @dataclass
-class Aspect(ElementCols, ClassName, Dunders, Magics):
+class Aspect(ElementCol, Base):
     aspect: IsAspect
     component: IsComponent
 
@@ -153,18 +153,3 @@ class Aspect(ElementCols, ClassName, Dunders, Magics):
                             set(self.constraints) | {constraint})
                         # setattr(self, 'constraints', getattr(
                         #     self, 'constraints').append(constraint))
-
-
-@dataclass
-class AspectDict(ElementCols, Dunders, Magics, ClassName):
-    aspect: IsAspect
-    component: IsComponent
-    aspects: IsAspectDict
-
-    def __post_init__(self):
-
-        self.name = f'{self.aspect.name.lower()}({self.component.name})'
-
-        for i in ['parameters', 'variables', 'constraints']:
-            setattr(
-                self, i, [mod for comp in self.aspects for mod in getattr(comp, i) if mod.declared_at == self.component])

@@ -28,3 +28,4 @@ class Detail(Enum):
         """all members of the Enum
         """
         return [i for i in cls]
+

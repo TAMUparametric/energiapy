@@ -8,7 +8,7 @@ from warnings import warn
 
 from pandas import DataFrame
 
-from ...core.general import Dunders
+from ...core.base import Dunders
 from ..index import Index
 from .dataset import DataSet
 
@@ -71,7 +71,7 @@ class Theta(Dunders):
         if self.aspect:
             self.index = Index(
                 component=self.component, declared_at=self.declared_at, temporal=self.temporal)
-            self.name = f'Th|{self.aspect.pnamer().capitalize()}{self.index.name}|'
+            self.name = f'Th|{self.aspect.pname().capitalize()}{self.index.name}|'
 
         else:
             self.name = f'Th{self.bounds}'

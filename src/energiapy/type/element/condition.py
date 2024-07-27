@@ -16,12 +16,13 @@ class Condition(Enum):
     var = param * var2
     """
     SUMOVER = auto()
-    """Finds variable value by summing associated variable over time, space, or mode
+    """Finds variable value by summing associated variable over time, spatial, or mode
     """
     BALANCE = auto()
     """Balances multiple variables
     var1(c,s,t) + var2(c,s,t) - var3(c,s,t) = 0 
     """
+
 
 class RightHandSide(Enum):
     """Binds a variable to a(n)
@@ -36,7 +37,7 @@ class RightHandSide(Enum):
     INTEGER = auto()
     """integer variable
     """
-    
+
 
 class SumOver(Enum):
     """Sum type
@@ -46,11 +47,10 @@ class SumOver(Enum):
     var(s,t) = sum(var(s,t-1))
     """
     SPACE = auto()
-    """Finds variable value by summing associated variable over space
+    """Finds variable value by summing associated variable over spatial
     var(s,t) = sum(var(s-1,t))
     """
     MODE = auto()
     """Balances binary modes
     x(0,1) + x(0,2) + x(0,3) = x(0)
     """
-    

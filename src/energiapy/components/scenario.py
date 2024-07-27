@@ -6,19 +6,19 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 from warnings import warn
 
-from ..core.general import ClassName, Dunders
-from ..core.onset import ElementCols
-from ..funcs.model import model_updater
-from .temporal.horizon import Horizon
-from .operation.process import Process
+from ..core.base import Base
+from ..core.onset import ElementCol
+from ..funcs.component.update import update_element
 from .commodity.resource import Resource
+from .operation.process import Process
+from .temporal.horizon import Horizon
 
 if TYPE_CHECKING:
     from ..type.alias import IsComponent
 
 
 @dataclass
-class Scenario(ElementCols, Dunders, ClassName):
+class Scenario(ElementCol, Base):
     """
     A scenario for a considered system. It collects all the components of the model.
 
@@ -93,7 +93,7 @@ class Scenario(ElementCols, Dunders, ClassName):
             # setattr(self, 'resources', list(
             #     set(getattr(self, 'resources')) | {value}))
 
-        model_updater(component=self, aspect=value)
+        update_element(component=self, aspect=value)
 
     # * ---------Methods-----------------
 
