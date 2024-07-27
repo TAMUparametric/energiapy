@@ -16,7 +16,7 @@ if TYPE_CHECKING:
     from ...type.alias import IsAspect, IsComponent, IsDeclaredAt, IsTemporal
 
 
-@dataclass(kw_only=True)
+@dataclass
 class Theta(Dunders):
     """Just a convinient way to declare parametric variables
 

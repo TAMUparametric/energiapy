@@ -26,7 +26,7 @@ if TYPE_CHECKING:
     from ..temporal.horizon import Horizon
 
 
-@dataclass(kw_only=True)
+@dataclass
 class Process(PrcRscConv, PrcCapBound, ResLimit, RscCashFlow, Operation):
 
     # Depreciated
@@ -104,3 +104,7 @@ class Process(PrcRscConv, PrcCapBound, ResLimit, RscCashFlow, Operation):
 
             elif input_map.is_component_aspect(attr=name, component='resource', at='process'):
                 self.make_aspectshared(attr_name=name)
+
+    @staticmethod
+    def _spatial():
+        return Location

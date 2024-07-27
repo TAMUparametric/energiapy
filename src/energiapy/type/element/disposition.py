@@ -1,6 +1,6 @@
 from enum import Enum, auto
-from typing import List
 from operator import is_
+from typing import List
 
 
 class SpatialDisp(Enum):

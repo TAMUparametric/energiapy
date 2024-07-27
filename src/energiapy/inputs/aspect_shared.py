@@ -1,17 +1,18 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from operator import is_
 from typing import TYPE_CHECKING
 
 from ..core.base import Base
-from ..core.onset import ElementCol
-from operator import is_
+from ..core.onset import EmtCol
+
 if TYPE_CHECKING:
     from ..type.alias import IsAspect, IsAspectShared, IsComponent
 
 
-@dataclass(kw_only=True)
-class AspectShared(ElementCol, Base):
+@dataclass
+class AspectShared(EmtCol, Base):
     aspect: IsAspect
     component: IsComponent
     aspects: IsAspectShared

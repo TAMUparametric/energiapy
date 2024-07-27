@@ -7,18 +7,26 @@ from typing import TYPE_CHECKING
 from warnings import warn
 
 from ..core.base import Base
-from ..core.onset import ElementCol
+from ..core.onset import EmtCol, ScnInit
 from ..funcs.component.update import update_element
+from .commodity.cash import Cash
+from .commodity.emission import Emission
+from .commodity.land import Land
+from .commodity.material import Material
 from .commodity.resource import Resource
 from .operation.process import Process
+from .operation.storage import Storage
+from .operation.transit import Transit
+from .spatial.linkage import Linkage
+from .spatial.location import Location
 from .temporal.horizon import Horizon
 
-if TYPE_CHECKING:
-    from ..type.alias import IsComponent
+# if TYPE_CHECKING:
+from ..type.alias import IsComponent
 
 
-@dataclass(kw_only=True)
-class Scenario(ElementCol, Base):
+@dataclass
+class Scenario(ScnInit, EmtCol, Base):
     """
     A scenario for a considered system. It collects all the components of the model.
 
@@ -29,7 +37,7 @@ class Scenario(ElementCol, Base):
         resources (List[Resource]): List of Resource objects, generated post-initialization.
         processes (List[Process]): List of Process objects, generated post-initialization.
         locations (List[Location]): List of Location objects, generated post-initialization.
-        transports (List[Transport]): List of Transport objects, generated post-initialization.
+        transports (List[Transit]): List of Transit objects, generated post-initialization.
         linkages (List[Linkage]): List of Linkage objects, generated post-initialization.
         network (Network): Network
 
@@ -45,12 +53,8 @@ class Scenario(ElementCol, Base):
     name: str = r'\m/>'
 
     def __post_init__(self):
-        super().__post_init__()
-        # create empty attributes to collect components
-        self.horizon, self.network = None, None
-
-        for comps in ['resources', 'processes', 'storages', 'locations', 'transports', 'linkages']:
-            setattr(self, comps, [])
+        ScnInit.__post_init__(self)
+        EmtCol.__post_init__(self)
 
     def __setattr__(self, name, value):
         # *Would avoid making a general function to update components for the sake of clarity
@@ -69,11 +73,15 @@ class Scenario(ElementCol, Base):
         if hasattr(value, '_named') and not value._named:
             value.make_named(name=name, horizon=self.horizon)
 
-        if isinstance(value, Resource):
-            self.update_component_list(list_attr='resources', component=value)
+        if isinstance(value, IsComponent):
+            self.update_component_list(
+                list_attr=f'{value.cname().lower()}_all', component=value)
 
-        if isinstance(value, Process):
-            self.update_component_list(list_attr='processes', component=value)
+        # if isinstance(value, Resource):
+        #     self.update_component_list(list_attr='resources', component=value)
+
+        # if isinstance(value, Process):
+        #     self.update_component_list(list_attr='processes', component=value)
 
             # if hasattr(value, 'stored_resource'):
             #     r_naav = f'{value.stored_resource.name}_in_{value.name}'

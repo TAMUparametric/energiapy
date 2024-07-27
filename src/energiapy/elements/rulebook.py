@@ -1,18 +1,19 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from operator import is_
 from typing import TYPE_CHECKING, List
 
 from ..core.base import Dunders
 from ..type.element.condition import Condition, RightHandSide, SumOver
 from ..type.input.aspect import (CapBound, CashFlow, Emission, Land,  # Life,
                                  Limit, Loss)
-from operator import is_
+
 if TYPE_CHECKING:
     from ...type.alias import IsAspect, IsComponent, IsDeclaredAt
 
 
-@dataclass(kw_only=True)
+@dataclass
 class Rule(Dunders):
     condition: Condition
     variable: IsAspect
@@ -42,7 +43,7 @@ class Rule(Dunders):
         self.name = f'{self.condition.name.lower()}|var:{var},var2:{assoc},parm:{param}'
 
 
-@dataclass(kw_only=True)
+@dataclass
 class RuleBook(Dunders):
     rules: List[Rule] = None
 
@@ -111,7 +112,7 @@ rulebook.add(Rule(variable=CapBound.STORE, associated=Limit.CAPACITY,
                   condition=Condition.CAPACITATE, declared_at='Storage'))
 
 rulebook.add(Rule(variable=CapBound.TRANSPORT, associated=Limit.CAPACITY,
-                  condition=Condition.CAPACITATE, declared_at='Transport'))
+                  condition=Condition.CAPACITATE, declared_at='Transit'))
 
 
 for i in Emission.all():

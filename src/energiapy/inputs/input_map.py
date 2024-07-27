@@ -1,14 +1,14 @@
 from dataclasses import dataclass
+from itertools import chain
+from operator import attrgetter, is_
 
 from ..type.input.aspect import (CapBound, CashFlow, Emission, Land, Life,
                                  Limit, Loss)
 from ..type.input.balance import Conv, MatUse
 from ..type.input.detail import Detail
-from operator import is_, attrgetter
-from itertools import chain
 
 
-@dataclass(kw_only=True)
+@dataclass
 class CompAspectMap:
     """Tells what aspects need to be considered for components 
     """
@@ -31,8 +31,8 @@ class CompAspectMap:
     transport_at_linkage: list
     process_at_network: list
     storage_at_network: list
-    transport_at_network:list
-    
+    transport_at_network: list
+
     operation: list
     spatial: list
 
@@ -71,7 +71,7 @@ comp_aspect_map = CompAspectMap(
 )
 
 
-@dataclass(kw_only=True)
+@dataclass
 class InputMap:
     """Maps component attributes to aspects or balance or detail 
     """

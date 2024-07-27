@@ -9,7 +9,7 @@ class Condition(Enum):
     var <= ub or var >= lb 
     """
     CAPACITATE = auto()
-    """Limits variable to capacity of Process or Transport
+    """Limits variable to capacity of Process or Storage or Transit
     """
     CALCULATE = auto()
     """Finds variable value by multiplying a parameter with another variable

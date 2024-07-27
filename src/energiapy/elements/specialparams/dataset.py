@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from operator import is_
 from typing import TYPE_CHECKING
 
 from pandas import DataFrame
@@ -11,14 +12,13 @@ from sklearn.preprocessing import MinMaxScaler, StandardScaler
 from ...core.base import Dunders
 from ...type.element.bound import Bound
 from ..index import Index
-from operator import is_
 
 if TYPE_CHECKING:
     from ...components.horizon import Horizon
     from ...type.alias import IsAspect, IsComponent, IsData, IsDeclaredAt
 
 
-@dataclass(kw_only=True)
+@dataclass
 class DataSet(Dunders):
     """
     Args:

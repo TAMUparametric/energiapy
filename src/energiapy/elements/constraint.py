@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from operator import is_
 from typing import TYPE_CHECKING, List
 
 from ..core.base import Dunders, Magics
@@ -8,12 +9,12 @@ from ..type.element.bound import Bound
 from ..type.element.condition import Condition, RightHandSide, SumOver
 from .parameter import Parameter
 from .variable import Variable
-from operator import is_
+
 if TYPE_CHECKING:
     from ..type.alias import IsComponent
 
 
-@dataclass(kw_only=True)
+@dataclass
 class Constraint(Dunders, Magics):
     condition: Condition
     variable: Variable

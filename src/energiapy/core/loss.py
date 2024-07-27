@@ -7,14 +7,14 @@ if TYPE_CHECKING:
     from ..type.alias import IsLoss
 
 
-@dataclass(kw_only=True)
+@dataclass
 class StrLoss:
     """Resource lost during storage
     """
     store_loss: IsLoss = field(default=None)
 
 
-@dataclass(kw_only=True)
+@dataclass
 class TrnLoss:
     """Resource lost during transport
     """

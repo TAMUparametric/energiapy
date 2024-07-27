@@ -15,7 +15,7 @@ from dataclasses import dataclass
 from ..components.result import Result
 
 
-@dataclass(kw_only=True)
+@dataclass
 class CapacityBounds:
     """Capacity minimum bounds from results, for initialization 
 
@@ -29,7 +29,7 @@ class CapacityBounds:
         self.Cap_S = self.result.output['Cap_S']
 
 
-@dataclass(kw_only=True)
+@dataclass
 class EmissionBounds:
     """GWP maximum bound from results, for initialization 
 

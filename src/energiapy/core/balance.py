@@ -11,7 +11,7 @@ if TYPE_CHECKING:
     from ..type.alias import IsConv, IsMatUse
 
 
-@dataclass(kw_only=True)
+@dataclass
 class OpnMatUse:
     """Amount of Material used by Operation
     per unit basis
@@ -22,11 +22,11 @@ class OpnMatUse:
         self.materials = []
 
 
-@dataclass(kw_only=True)
+@dataclass
 class PrcRscConv:
     """Balance of Resource for Process
     """
-    conversion: IsConv
+    conversion: IsConv = field(default=None)
 
     def make_conversion(self):
         """Makes Conversion for Process

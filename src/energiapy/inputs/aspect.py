@@ -1,12 +1,15 @@
+"""Aspect describes the behavior of a component using model elements 
+"""
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from operator import is_
 from typing import TYPE_CHECKING
 
 from pandas import DataFrame
 
 from ..core.base import Base
-from ..core.onset import ElementCol
+from ..core.onset import EmtCol
 from ..elements.constraint import Constraint
 from ..elements.parameter import Parameter
 from ..elements.rulebook import rulebook
@@ -17,21 +20,22 @@ from ..elements.variable import Variable
 from ..type.element.bound import Bound
 from ..type.element.certainty import Approach, Certainty
 from ..type.element.condition import Condition
-from operator import is_
+
 if TYPE_CHECKING:
     from ..components.horizon import Horizon
     from ..type.alias import (IsAspect, IsAspectShared, IsComponent,
                               IsDeclaredAt, IsTemporal, IsValue)
 
 
-@dataclass(kw_only=True)
-class Aspect(ElementCol, Base):
-    aspect: IsAspect
-    component: IsComponent
+@dataclass
+class Aspect(EmtCol, Base):
+    aspect: IsAspect = field(default=None)
+    component: IsComponent = field(default=None)
 
     def __post_init__(self):
         super().__post_init__()
-        self.name = f'{self.aspect.name.lower()}({self.component.name})'
+        self.name = 'asd'
+        # self.name = f'{self.aspect.name.lower()}({self.component.name})'
 
     def add(self, value: IsValue, aspect: IsAspect, component: IsComponent, declared_at: IsDeclaredAt, horizon: Horizon = None):
         """Add a value to an already existing Aspect
@@ -151,4 +155,3 @@ class Aspect(ElementCol, Base):
                                                 associated=associated_, declared_at=declared_at, parameter=parameter_, bound=bound_, rhs=rule.rhs)
                         self.constraints = sorted(
                             set(self.constraints) | {constraint})
-

@@ -2,15 +2,15 @@
 """
 from dataclasses import dataclass, field
 from itertools import product
+from operator import imod, is_, is_not
 
 from ...type.component.horizon import HorizonType
 from ...type.element.disposition import TemporalDisp
 from ..component import Temporal
 from .scale import Scale
-from operator import is_not, imod, is_
 
 
-@dataclass(kw_only=True)
+@dataclass
 class Horizon(Temporal):
     """
     Planning horizon of the problem. 
@@ -119,7 +119,7 @@ class Horizon(Temporal):
             if is_not(self.discretizations, sorted(self.discretizations)):
                 raise ValueError(
                     'Discretizations need to be in ascending order')
-            if not all(is_(imod(max(self.discretizations),i), 0) for i in self.discretizations):
+            if not all(is_(imod(max(self.discretizations), i), 0) for i in self.discretizations):
                 raise ValueError(
                     'Discretizations need to be divisible by the most granular scale')
             lists = [(0, i) for i in range(max(self.discretizations))]

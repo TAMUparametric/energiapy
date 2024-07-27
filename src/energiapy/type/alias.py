@@ -1,22 +1,29 @@
 """Aliases are used to streamline the type hinting across energiapy
+alias should only be called if TYPE_CHECKING is True, to avoid circular imports
 """
 from typing import Dict, List, Tuple, Union
 
 from pandas import DataFrame
 
+from ..components.commodity.cash import Cash
+from ..components.commodity.emission import Emission
+from ..components.commodity.land import Land
 from ..components.commodity.material import Material
 from ..components.commodity.resource import Resource
 from ..components.operation.process import Process
 from ..components.operation.storage import Storage
-from ..components.operation.transport import Transport
+from ..components.operation.transport import Transit
 from ..components.spatial.linkage import Linkage
 from ..components.spatial.location import Location
 from ..components.spatial.network import Network
+from ..components.temporal.horizon import Horizon
 from ..components.temporal.scale import Scale
 from ..elements.specialparams.dataset import DataSet
 from ..elements.specialparams.theta import Theta
 from ..elements.specialparams.unbound import Unbound
-from .input.aspect import CashFlow, Emission, Land, Life, Limit, Loss
+
+# from .input.aspect import CashFlow, Emission, Land, Life, Limit, Loss #TODO - Change Land enum
+
 
 # *Base types
 # aspect is given as a numeric value
@@ -39,38 +46,67 @@ IsTempDict = Dict[Scale, Union[IsExact, IsBound]]
 
 IsValue = Union[IsExact, IsBound, IsTempDict]
 
-# *Specific Aspect types
+# *Temporal types
+IsHorizon = Horizon
 IsTemporal = Scale
-IsLimit = Union[IsExact, IsUnbound, IsBound, IsTempDict]
-IsCapBound = Union[IsExact, IsBound]
 
-IsCashFlow, IsLandUse, IsEmission, IsLife, IsLoss = (IsExact for _ in range(5))
-IsLandCap, IsEmissionCap = (IsBound for _ in range(2))
+# *Network type
+IsNetwork = Network
+
+# *Specific Aspect types
+IsLimit = Union[IsBound, IsExact, IsTempDict, IsUnbound]
+IsCapBound = Union[IsExact, IsBound]
+IsCashFlow, IsEmission, IsLandUse, IsLife, IsLoss = (IsExact for _ in range(5))
+IsEmissionCap, IsLandCap = (IsBound for _ in range(2))
+
+# *Commodity types
+IsCash = Cash
+IsEmission = Emission
+IsLand = Land
+IsMaterial = Material
+IsResource = Resource
+
+
+# *Operation types
+IsProcess = Process
+IsStorage = Storage
+IsTransit = Transit
+
+# *Spatial types
+IsLinkage = Linkage
+IsLocation = Location
+
 
 # *Component types
-IsCommodity = Union[Resource, Material]
-IsOperation = Union[Process, Storage, Transport]
-IsSpace = Union[Location, Linkage, Network]
-IsComponent = Union[IsCommodity, IsOperation, IsSpace]
+IsCommodity = Union[IsMaterial, IsResource]
+IsOperation = Union[IsProcess, IsStorage, IsTransit]
+IsSpatial = Union[IsLinkage, IsLocation]
+IsComponent = Union[IsCommodity, IsOperation, IsSpatial]
 
 # *Classes and Enums
-IsAspect = Union[CashFlow, Emission, Land, Life, Limit, Loss]
+IsAspect = Union[IsCapBound, IsCashFlow, IsEmission, IsEmissionCap,
+                 IsLand, IsLandCap, IsLandUse, IsLife, IsLimit, IsLoss]
 IsAspectShared = Dict[IsComponent, IsAspect]
-IsSpatialPair = Union[Tuple[IsOperation, IsSpace], Tuple[IsSpace, IsSpace]]
+IsSpatialPair = Union[Tuple[IsOperation, IsSpatial],
+                      Tuple[IsSpatial, IsSpatial]]
 IsDeclaredAt = Union[IsSpatialPair, IsComponent]
 
 # *Conversion
 # can be multimode or single mode
 IsSingleConv = Dict[Resource, IsNumeric]
 IsMultiConv = Dict[Union[IsNumeric, str], IsSingleConv]
-IsBalance = Union[IsSingleConv, IsMultiConv]
-IsConv = Dict[Resource, IsBalance]
+IsConvBalance = Union[IsSingleConv, IsMultiConv]
+IsConv = Dict[Resource, IsConvBalance]
 
 # *MaterialUse
 # can be multimode or single mode
 IsSingleMat = Dict[Material, IsNumeric]
 IsMultiMat = Dict[Union[IsNumeric, str], IsSingleMat]
 IsMatUse = Union[IsSingleMat, IsMultiMat]
+
+# *General Balance
+IsBalance = Union[IsConv, IsMatUse]
+
 
 # *Piecewise Linear
 IsPWL = Dict[Tuple[IsNumeric, IsNumeric], IsNumeric]
@@ -80,3 +116,5 @@ IsDetail = str
 
 # *Depreciated
 IsDepreciated = str
+
+IsInput = Union[IsAspect, IsBalance, IsPWL, IsDetail]

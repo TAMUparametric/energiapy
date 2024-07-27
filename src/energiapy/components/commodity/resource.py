@@ -16,7 +16,7 @@ if TYPE_CHECKING:
     from ...type.alias import IsDepreciated, IsLimit
 
 
-@dataclass(kw_only=True)
+@dataclass
 class Resource(RscCashFlow, ResLimit, RscCapBound, Commodity):
     # Depreciated
     sell: IsDepreciated = field(default=None)

@@ -9,9 +9,11 @@ from ..core.base import Dunders, Magics
 
 if TYPE_CHECKING:
     from ..type.alias import IsAspect, IsComponent, IsDeclaredAt, IsTemporal
+
 from operator import is_
 
-@dataclass(kw_only=True)
+
+@dataclass
 class Index(Dunders, Magics):
     component: IsComponent
     declared_at: IsDeclaredAt

@@ -8,7 +8,7 @@ from typing import List
 from ..component import Temporal
 
 
-@dataclass(kw_only=True)
+@dataclass
 class Scale(Temporal):
     """
     A single temporal scale of the planning horizon (Horizon).

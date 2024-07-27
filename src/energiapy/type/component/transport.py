@@ -2,8 +2,8 @@ from enum import Enum, auto
 from typing import Set
 
 
-class TransportType(Enum):
-    """Transport classification
+class TransitType(Enum):
+    """Transit classification
     """
     NO_MATMODE = auto()
     """Does not use materials
@@ -51,12 +51,12 @@ class TransportType(Enum):
 
     @classmethod
     def all(cls) -> Set[str]:
-        """All Transport classifications
+        """All Transit classifications
         """
         return {i.name for i in cls}
 
     @classmethod
     def transport_level(cls) -> Set[str]:
-        """Set when Transport is declared
+        """Set when Transit is declared
         """
         return cls.all() - cls.network_level()

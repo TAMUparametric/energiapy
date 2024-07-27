@@ -33,8 +33,6 @@ class ResourceType(Enum):
     TRANSPORT = auto()
     """can be transported
     """
-    
-
 
     # * ----------------------------------Update this ------------------------------------------
 
@@ -42,11 +40,11 @@ class ResourceType(Enum):
     def location_level() -> list:
         """Set when Location is declared
         """
-        return 
+        return
 
     @staticmethod
     def transport_level(cls) -> Set[str]:
-        """Set when Transport is declared
+        """Set when Transit is declared
         """
         return {'TRANSPORT'}
 

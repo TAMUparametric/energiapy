@@ -7,7 +7,7 @@ if TYPE_CHECKING:
     from ..type.alias import IsLimit
 
 
-@dataclass(kw_only=True)
+@dataclass
 class RscLimit:
     """Resource Limits
     """
@@ -15,9 +15,8 @@ class RscLimit:
     consume: IsLimit = field(default=None)
 
 
-@dataclass(kw_only=True)
+@dataclass
 class PrcLimit(RscLimit):
     """Operation Limits
     """
-    capacity: IsLimit
-
+    capacity: IsLimit = field(default=None)

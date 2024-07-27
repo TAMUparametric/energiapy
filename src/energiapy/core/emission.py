@@ -7,7 +7,7 @@ if TYPE_CHECKING:
     from ..type.alias import IsEmission, IsEmissionCap
 
 
-@dataclass(kw_only=True)
+@dataclass
 class CmdEmission:
     """Enivronmental impact of Commodities and Operations
     """
@@ -19,13 +19,13 @@ class CmdEmission:
     eutm: IsEmission = field(default=None)
 
 
-@dataclass(kw_only=True)
+@dataclass
 class OpnEmission(CmdEmission):
     """Environmental impact of Operations
     """
 
 
-@dataclass(kw_only=True)
+@dataclass
 class SptEmissionCap:
     """Environmental impact caps (upper bounds) for Spaces 
     """

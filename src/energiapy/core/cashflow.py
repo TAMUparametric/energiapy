@@ -7,7 +7,7 @@ if TYPE_CHECKING:
     from ..type.alias import IsCashFlow, IsPWL
 
 
-@dataclass(kw_only=True)
+@dataclass
 class RscCashFlow:
     """Cash flow of Commodities
     """
@@ -17,7 +17,7 @@ class RscCashFlow:
     penalty: IsCashFlow = field(default=None)
 
 
-@dataclass(kw_only=True)
+@dataclass
 class OpnCashFlow:
     """Cash flow of Operations
     """
@@ -28,46 +28,21 @@ class OpnCashFlow:
     incidental: IsCashFlow = field(default=None)
 
 
-@dataclass(kw_only=True)
+@dataclass
 class PrcCashFlow(OpnCashFlow, RscCashFlow):
     """Cash flow of Processes
     """
 
 
-@dataclass(kw_only=True)
+@dataclass
 class StrCashFlow(OpnCashFlow):
     """Cash flow of Storages
     """
     storage_cost: IsCashFlow = field(default=None)
 
 
-@dataclass(kw_only=True)
-class TrnCashFlow(OpnCashFlow):
-    """Cash flow of Transports
-    """
-    transport_cost: IsCashFlow = field(default=None)
-
-
-@dataclass(kw_only=True)
+@dataclass
 class SptCashFlow(OpnCashFlow):
     """CashFlow of Spaces
     """
     land_cost: IsCashFlow = field(default=None)
-
-
-@dataclass(kw_only=True)
-class LocCashFlow(PrcCashFlow, StrCashFlow, SptCashFlow):
-    """CashFlow of Locations
-    """
-
-
-@dataclass(kw_only=True)
-class LkgCashFlow(TrnCashFlow, SptCashFlow):
-    """CashFlow of Linkages
-    """
-
-
-@dataclass(kw_only=True)
-class NtwCashFlow(RscCashFlow, PrcCashFlow, StrCashFlow, TrnCashFlow, SptCashFlow):
-    """CashFlow of Networks
-    """

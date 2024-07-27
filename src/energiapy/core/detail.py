@@ -7,8 +7,8 @@ if TYPE_CHECKING:
     from ..type.alias import IsDetail
 
 
-@dataclass(kw_only=True)
-class CompDetail:
+@dataclass
+class CmpDetail:
     """For bookeeping purposes, this class is used to keep track of details
     """
     basis: IsDetail = field(default=None)

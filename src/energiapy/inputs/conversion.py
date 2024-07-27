@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from ..type.alias import IsConv
 
 
-@dataclass(kw_only=True)
+@dataclass
 class Conversion(Dunders):
     """
     Represents a conversion process between energy modes.
@@ -26,7 +26,7 @@ class Conversion(Dunders):
         n_modes (int): The number of modes, generated post initialization.
         discharge (List[Resource]): Resources discharged, generated post initialization.
         consume (List[Resource]): Resources consume, generated post initialization.
-        balance (IsBalance): Overall balance attribute generated post initialization.
+        balance (IsConvBalance): Overall balance attribute generated post initialization.
         involve (List[Resource]): The involve attribute generated post initialization.
         name (str): The name attribute generated post initialization.
     """

@@ -1,4 +1,4 @@
-"""energiapy.Transport - moves Resources between Locations
+"""energiapy.Transit - moves Resources between Locations
 """
 # TODO ---- apply material constraints
 # TODO --- trans_loss, retire, introduce, land, land_cost (could be between location.. will need to check)
@@ -17,15 +17,15 @@ from .material import Material
 # from .model.paramtype import FactorType, MPVarType, ParameterType
 # from .model.special import BigM, CouldBeVar
 # from .model.theta import Theta, birth_theta
-# from .model.transport import TransportParamType
+# from .model.transport import TransitParamType
 from .resource import Resource
 # from .type.emission import EmissionType
 from .type.resource import ResourceType
-from .type.transport import TransportType
+from .type.transport import TransitType
 
 
-@dataclass(kw_only=True)
-class Transport:
+@dataclass
+class Transit:
     pass
 
     # name: str
@@ -60,14 +60,14 @@ class Transport:
     # label: str = None
     # citation: str = None
     # # Type
-    # # ctype: List[Union[TransportType,
-    # #                   Dict[TransportType, Set[Tuple[Location, Location]]]]] = None
-    # # aspect: Dict[TransportParamType, ParameterType] = None
-    # # ftype: Dict[TransportParamType,
+    # # ctype: List[Union[TransitType,
+    # #                   Dict[TransitType, Set[Tuple[Location, Location]]]]] = None
+    # # aspect: Dict[TransitParamType, ParameterType] = None
+    # # ftype: Dict[TransitParamType,
     # #             Tuple[Tuple[Location, Location], FactorType]] = None
     # # etype: List[EmissionType] = None
     # # # Collections
-    # # factors: Dict[TransportParamType,
+    # # factors: Dict[TransitParamType,
     # #               Tuple[Tuple[Location, Location], Factor]] = None
     # emissions: Dict[str, float] = None
 
@@ -79,7 +79,7 @@ class Transport:
 
     # def __post_init__(self):
 
-    #     # *-----------------Set ctype (TransportType)---------------------------------
+    #     # *-----------------Set ctype (TransitType)---------------------------------
 
     #     if not self.ctype:
     #         self.ctype = []
@@ -99,45 +99,45 @@ class Transport:
     #     # for MULTI_MATMODE, provide a dict of type ('material_mode' (str, int): {Material: float})
 
     #     if self.material_cons is None:
-    #         self.ctype.append(TransportType.NO_MATMODE)
+    #         self.ctype.append(TransitType.NO_MATMODE)
     #         self.materials = set()
 
     #     else:
     #         if get_depth(self.material_cons) > 1:
-    #             self.ctype.append(TransportType.MULTI_MATMODE)
+    #             self.ctype.append(TransitType.MULTI_MATMODE)
     #             self.material_modes = set(self.material_cons)
     #             self.materials = reduce(
     #                 operator.or_, (set(self.material_cons[i]) for i in self.material_modes), set())
 
     #         else:
-    #             self.ctype.append(TransportType.SINGLE_MATMODE)
+    #             self.ctype.append(TransitType.SINGLE_MATMODE)
     #             self.materials = set(self.material_cons)
 
     #     # capex can be linear (LINEAR_CAPEX) or piecewise linear (PWL_CAPEX)
     #     # if PWL, capex needs to be provide as a dict {capacity_segment: capex_segement}
     #     if self.capex:
     #         if isinstance(self.capex, dict):
-    #             self.ctype.append(TransportType.PWL_CAPEX)
+    #             self.ctype.append(TransitType.PWL_CAPEX)
     #             self.capacity_segments = list(self.capex)
     #             self.capex_segments = list(self.capex.values())
     #         else:
-    #             self.ctype.append(TransportType.LINEAR_CAPEX)
+    #             self.ctype.append(TransitType.LINEAR_CAPEX)
 
     #     # if any expenditure is incurred
     #     if any([self.capex, self.fopex, self.vopex, self.incidental]):
-    #         self.ctype.append(TransportType.EXPENDITURE)
+    #         self.ctype.append(TransitType.EXPENDITURE)
 
     #     # if it requires land to set up
     #     if self.land:
-    #         self.ctype.append(TransportType.LAND)
+    #         self.ctype.append(TransitType.LAND)
 
     #     # if this process fails
     #     if self.p_fail:
-    #         self.ctype.append(TransportType.FAILURE)
+    #         self.ctype.append(TransitType.FAILURE)
 
     #     # if this process has some readiness aspects defined
     #     if any([self.introduce, self.retire, self.lifetime]):
-    #         self.ctype.append(TransportType.READINESS)
+    #         self.ctype.append(TransitType.READINESS)
 
     #     # *-----------------Set aspect---------------------------------
     #     # If parameter provided as Theta or tuple bounds are provided - makes MPVar
@@ -157,7 +157,7 @@ class Transport:
     #             if not self.etype:  # if etype is not yet defined
     #                 self.etype = []
     #                 self.emissions = dict()
-    #                 self.ctype.append(TransportType.EMISSION)
+    #                 self.ctype.append(TransitType.EMISSION)
     #             self.etype.append(etype_)
     #             self.emissions[i.lower()] = attr_
 
@@ -195,57 +195,57 @@ class Transport:
     #     """
     #     return cls.__name__
 
-    # # * Transport parameters
+    # # * Transit parameters
 
     # @classmethod
     # def aspects(cls) -> Set[str]:
-    #     """All Transport parameters
+    #     """All Transit parameters
     #     """
-    #     return TransportParamType.all()
+    #     return TransitParamType.all()
 
     # @classmethod
     # def uncertain_parameters(cls) -> Set[str]:
     #     """Uncertain parameters
     #     """
-    #     return TransportParamType.uncertain()
+    #     return TransitParamType.uncertain()
 
     # @classmethod
     # def uncertain_factors(cls) -> Set[str]:
     #     """Uncertain parameters for which factors are defined
     #     """
-    #     return TransportParamType.uncertain_factor()
+    #     return TransitParamType.uncertain_factor()
 
     # @classmethod
     # def transport_level_readiness_parameters(cls) -> Set[str]:
-    #     """Set when Transport are declared
+    #     """Set when Transit are declared
     #     """
-    #     return TransportParamType.readiness()
+    #     return TransitParamType.readiness()
 
     # @classmethod
     # def transport_level_failure_parameters(cls) -> Set[str]:
-    #     """Set when Transport are declared
+    #     """Set when Transit are declared
     #     """
-    #     return TransportParamType.failure()
+    #     return TransitParamType.failure()
 
-    # # * Transport classifications
+    # # * Transit classifications
 
     # @classmethod
     # def ctypes(cls) -> Set[str]:
-    #     """All Transport parameters
+    #     """All Transit parameters
     #     """
-    #     return TransportType.all()
+    #     return TransitType.all()
 
     # @classmethod
     # def transport_level_classifications(cls) -> Set[str]:
-    #     """Set when Transport is declared
+    #     """Set when Transit is declared
     #     """
-    #     return TransportType.transport_level()
+    #     return TransitType.transport_level()
 
     # @classmethod
     # def network_level_classifications(cls) -> Set[str]:
     #     """Set when Network is declared
     #     """
-    #     return TransportType.network_level()
+    #     return TransitType.network_level()
 
     # # * factor types
 
@@ -253,7 +253,7 @@ class Transport:
     # def ftypes(cls) -> Set[str]:
     #     """Factor types
     #     """
-    #     return TransportParamType.uncertain_factor()
+    #     return TransitParamType.uncertain_factor()
 
     # # * emission types
 
@@ -273,7 +273,7 @@ class Transport:
     #     """
     #     attr_ = getattr(self, parameter.lower())
     #     if attr_:
-    #         aspect_ = getattr(TransportParamType, parameter)
+    #         aspect_ = getattr(TransitParamType, parameter)
     #         if isinstance(attr_, (tuple, Theta)):
     #             self.aspect[aspect_] = ParameterType.UNCERTAIN
     #             theta_ = birth_theta(

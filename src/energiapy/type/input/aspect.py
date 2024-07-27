@@ -59,7 +59,7 @@ class Limit(AspectMixin, Enum):
     """Inflow 
     """
     CAPACITY = auto()
-    """Process or Transport capacity
+    """Process or Storage or Transit capacity
     """
 
     @staticmethod
@@ -71,7 +71,7 @@ class Limit(AspectMixin, Enum):
         return [Limit.CAPACITY]
 
 # DISCHARGE, CONSUME - Process, Location, (Location, Process)
-# CAPACITY - Process, Storage, Transport, (Location, Operation)
+# CAPACITY - Process, Storage, Transit, (Location, Operation)
 
 
 class CapBound(AspectMixin, Enum):
@@ -85,8 +85,8 @@ class CapBound(AspectMixin, Enum):
     """Amount stored capacitated by Process capacity
     """
     TRANSPORT = auto()
-    """Export capacitated by Transport capacity
-    if declared at Transport
+    """Export capacitated by Transit capacity
+    if declared at Transit
     """
 
     @staticmethod
@@ -101,7 +101,7 @@ class CapBound(AspectMixin, Enum):
     def at_transport():
         return [CapBound.TRANSPORT]
     # for i in operations,:
-    # PRODUCE - Process/Storage, (Location, Process/Storage), Transport, (Linkage, Transport)
+    # PRODUCE - Process/Storage, (Location, Process/Storage), Transit, (Linkage, Transit)
 
 
 class CashFlow(AspectMixin, Enum):
@@ -113,24 +113,24 @@ class CashFlow(AspectMixin, Enum):
     PURCHASE_COST = auto()
     """Expenditure per unit basis of Resource consumed
     """
-    STORE_COST = auto()
-    """Cost of maintaining Resource inventory
-    """
     CREDIT = auto()
     """Credit earned from production of Resource
     """
     PENALTY = auto()
     """For unmet demand
     """
+    STORE_COST = auto()
+    """Cost of maintaining Resource inventory
+    """
     CAPEX = auto()
     FOPEX = auto()
-    """Capital and fixed operational expenditure. Scales by Process/Transport capacity
+    """Capital and fixed operational expenditure. Scales by Process/Transit capacity
     """
     VOPEX = auto()
-    """Variable operational expenditure. Scales by total production from Process/Transport
+    """Variable operational expenditure. Scales by total production from Process/Transit
     """
     INCIDENTAL = auto()
-    """Needs to be spent irrespective of Process/Transport capacity
+    """Needs to be spent irrespective of Process/Transit capacity
     """
     LAND_COST = auto()
     """Expenditure on acquiring land
@@ -190,11 +190,11 @@ class Emission(AspectMixin, Enum):
     EUTM = auto()
     """Marine Eutrophication Potential
     """
-    # Commodity, Operation; Bound Spatial 
+    # Commodity, Operation; Bound Spatial
 
 
 class Life(AspectMixin, Enum):
-    """Constrictes the life of a Process or Transport 
+    """Constrictes the life of a Process or Transit 
     """
     INTRODUCE = auto()
     """Earliest setup 
@@ -211,7 +211,7 @@ class Life(AspectMixin, Enum):
     TRL = auto()
     """Technology Readiness Level
     """
-    #Operation
+    # Operation
 
 
 class Loss(AspectMixin, Enum):
@@ -227,4 +227,4 @@ class Loss(AspectMixin, Enum):
     @staticmethod
     def during_transport() -> list:
         return [Loss.TRANSPORT_LOSS]
-    # Resource, Storage/ Transport. (Location/Linkage, Storage/Transport), 
+    # Resource, Storage/ Transit. (Location/Linkage, Storage/Transit),

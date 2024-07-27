@@ -15,7 +15,7 @@ from math import isclose
 from warnings import warn
 
 
-@dataclass(kw_only=True)
+@dataclass
 class EmissionWeights:
     """Weights for emission objective 
 
