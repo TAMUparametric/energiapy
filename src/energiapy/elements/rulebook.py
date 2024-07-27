@@ -7,12 +7,12 @@ from ..core.base import Dunders
 from ..type.element.condition import Condition, RightHandSide, SumOver
 from ..type.input.aspect import (CapBound, CashFlow, Emission, Land,  # Life,
                                  Limit, Loss)
-
+from operator import is_
 if TYPE_CHECKING:
     from ...type.alias import IsAspect, IsComponent, IsDeclaredAt
 
 
-@dataclass
+@dataclass(kw_only=True)
 class Rule(Dunders):
     condition: Condition
     variable: IsAspect
@@ -42,7 +42,7 @@ class Rule(Dunders):
         self.name = f'{self.condition.name.lower()}|var:{var},var2:{assoc},parm:{param}'
 
 
-@dataclass
+@dataclass(kw_only=True)
 class RuleBook(Dunders):
     rules: List[Rule] = None
 
@@ -55,7 +55,7 @@ class RuleBook(Dunders):
 
     def find(self, variable: IsAspect):
 
-        return [rule for rule in self.rules if rule.variable == variable]
+        return [rule for rule in self.rules if is_(rule.variable, variable)]
 
 
 rulebook = RuleBook()

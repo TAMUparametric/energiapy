@@ -8,12 +8,12 @@ from ..type.element.bound import Bound
 from ..type.element.condition import Condition, RightHandSide, SumOver
 from .parameter import Parameter
 from .variable import Variable
-
+from operator import is_
 if TYPE_CHECKING:
     from ..type.alias import IsComponent
 
 
-@dataclass
+@dataclass(kw_only=True)
 class Constraint(Dunders, Magics):
     condition: Condition
     variable: Variable
@@ -46,20 +46,20 @@ class Constraint(Dunders, Magics):
         if hasattr(self.parameter, 'theta_bounds'):
             theta_bounds = f', Th in {list(self.parameter.theta_bounds)}'
 
-        if self.condition == Condition.CALCULATE:
+        if is_(self.condition, Condition.CALCULATE):
             constraint = f'{variable}={parameter}{multip}{associated}{theta_bounds}'
 
-        if self.condition == Condition.BIND:
-            if self.bound == Bound.LOWER:
+        if is_(self.condition, Condition.BIND):
+            if is_(self.bound, Bound.LOWER):
                 constraint = f'{variable}>={parameter}{multip}{associated}'
-            if self.bound in [Bound.UPPER, Bound.UNBOUNDED]:
+            if is_(self.bound in [Bound.UPPER, Bound.UNBOUNDED]):
                 constraint = f'{variable}<={parameter}{multip}{associated}'
-            if self.bound == Bound.EXACT:
+            if is_(self.bound, Bound.EXACT):
                 constraint = f'{variable}={parameter}{multip}{associated}'
-            if self.bound == Bound.PARAMETRIC:
+            if is_(self.bound, Bound.PARAMETRIC):
                 constraint = f'{variable}={parameter}{multip}{associated}{theta_bounds}'
 
-        if self.condition == Condition.CAPACITATE:
+        if is_(self.condition, Condition.CAPACITATE):
             constraint = f'{variable}<={parameter}{multip}{associated}'
 
         self.name = constraint

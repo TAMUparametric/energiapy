@@ -10,7 +10,7 @@ if TYPE_CHECKING:
     from ..type.alias import IsValue
 
 
-@dataclass
+@dataclass(kw_only=True)
 class CompInit:
     """Common initial attributes of a component
     named, name, horizon, declared_at, ctypes
@@ -58,7 +58,7 @@ class CompInit:
             return False
 
 
-@dataclass
+@dataclass(kw_only=True)
 class ElementCol:
     """Lists for collecting modeling elements
     parameters, variables, constraints

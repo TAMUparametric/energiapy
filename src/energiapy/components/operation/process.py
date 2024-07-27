@@ -8,9 +8,9 @@ from dataclasses import dataclass, field
 from functools import reduce
 from typing import TYPE_CHECKING
 
-from ...core.balance import PrcResConv
+from ...core.balance import PrcRscConv
 from ...core.capbound import PrcCapBound
-from ...core.cashflow import ResCashFlow
+from ...core.cashflow import RscCashFlow
 from ...core.limit import ResLimit
 from ...inputs.input_map import input_map
 from ...type.component.process import ProcessType
@@ -26,8 +26,8 @@ if TYPE_CHECKING:
     from ..temporal.horizon import Horizon
 
 
-@dataclass
-class Process(PrcResConv, PrcCapBound, ResLimit, ResCashFlow, Operation):
+@dataclass(kw_only=True)
+class Process(PrcRscConv, PrcCapBound, ResLimit, RscCashFlow, Operation):
 
     # Depreciated
     varying: IsDepreciated = field(default=None)

@@ -17,14 +17,14 @@ from ..elements.variable import Variable
 from ..type.element.bound import Bound
 from ..type.element.certainty import Approach, Certainty
 from ..type.element.condition import Condition
-
+from operator import is_
 if TYPE_CHECKING:
     from ..components.horizon import Horizon
     from ..type.alias import (IsAspect, IsAspectShared, IsComponent,
                               IsDeclaredAt, IsTemporal, IsValue)
 
 
-@dataclass
+@dataclass(kw_only=True)
 class Aspect(ElementCol, Base):
     aspect: IsAspect
     component: IsComponent
@@ -53,7 +53,7 @@ class Aspect(ElementCol, Base):
 
         for tempd, value_ in value.items():
 
-            if tempd == horizon.scales[0]:
+            if is_(tempd, horizon.scales[0]):
                 if isinstance(value_, (DataFrame, DataSet, Theta)):
                     if len(value_) in horizon.n_indices:
                         tempd = horizon.scales[horizon.n_indices.index(
@@ -142,7 +142,7 @@ class Aspect(ElementCol, Base):
                     if rule.parameter:
                         parameter_ = parameter
 
-                    if rule.condition == Condition.BIND:
+                    if is_(rule.condition, Condition.BIND):
                         bound_ = parameter.bound
                     if rule.declared_at and declared_at.cname() != rule.declared_at:
                         continue
@@ -151,5 +151,4 @@ class Aspect(ElementCol, Base):
                                                 associated=associated_, declared_at=declared_at, parameter=parameter_, bound=bound_, rhs=rule.rhs)
                         self.constraints = sorted(
                             set(self.constraints) | {constraint})
-                        # setattr(self, 'constraints', getattr(
-                        #     self, 'constraints').append(constraint))
+

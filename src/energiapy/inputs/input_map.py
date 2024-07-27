@@ -4,9 +4,11 @@ from ..type.input.aspect import (CapBound, CashFlow, Emission, Land, Life,
                                  Limit, Loss)
 from ..type.input.balance import Conv, MatUse
 from ..type.input.detail import Detail
+from operator import is_, attrgetter
+from itertools import chain
 
 
-@dataclass
+@dataclass(kw_only=True)
 class CompAspectMap:
     """Tells what aspects need to be considered for components 
     """
@@ -14,17 +16,45 @@ class CompAspectMap:
     resource_at_process: list
     resource_at_storage: list
     resource_at_transport: list
+    resource_at_location: list
+    resource_at_linkage: list
+    resource_at_network: list
     material: list
+    matrial_at_process: list
+    material_at_storage: list
+    material_at_transport: list
+    material_at_location: list
+    material_at_linkage: list
+    material_at_network: list
+    process_at_location: list
+    storage_at_location: list
+    transport_at_linkage: list
+    process_at_network: list
+    storage_at_network: list
+    transport_at_network:list
+    
     operation: list
     spatial: list
 
     def __post_init__(self):
         # doing this because currently operation and spatial components share all Aspects
-        for i in ['process', 'storage', 'transport']:
-            setattr(self, i, self.operation)
+        commodity = ['resource', 'material']
+        operation = ['process', 'storage', 'transport']
+        spatial = ['location', 'linkage', 'network']
 
-        for i in ['location', 'linkage', 'network']:
-            setattr(self, i, self.spatial)
+        for i in operation + spatial:
+            com = attrgetter(['operation', 'spatial'])
+            com_at = attrgetter([f'{j}_at_{i}' for j in commodity])(self)
+            opn = []
+            if i in spatial:
+                opn = operation
+                if is_(i, 'location'):
+                    opn = ['process', 'storage']
+                if is_(i, 'linkage'):
+                    opn = ['transport']
+                opn_at = attrgetter([f'{j}_at_{i}' for j in opn])(self)
+
+            setattr(self, i, list(chain.from_iterable((com + com_at + opn_at))))
 
 
 comp_aspect_map = CompAspectMap(
@@ -41,7 +71,7 @@ comp_aspect_map = CompAspectMap(
 )
 
 
-@dataclass
+@dataclass(kw_only=True)
 class InputMap:
     """Maps component attributes to aspects or balance or detail 
     """
@@ -86,7 +116,11 @@ class InputMap:
     def is_component_aspect(self, attr: str, component: str, at: str = ''):
         """Is the input a resource aspect
         """
-        check = f'{component}_at_{at}'
+        join = ''
+        if at:
+            join = '_at_'
+
+        check = f'{component}{join}{at}'
 
         if self.find_aspect(attr) in getattr(self.comp_aspect_map, check):
             return True

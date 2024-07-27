@@ -24,7 +24,7 @@ from .type.resource import ResourceType
 from .type.transport import TransportType
 
 
-@dataclass
+@dataclass(kw_only=True)
 class Transport:
     pass
 

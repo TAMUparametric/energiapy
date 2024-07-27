@@ -9,9 +9,9 @@ from ..core.base import Dunders, Magics
 
 if TYPE_CHECKING:
     from ..type.alias import IsAspect, IsComponent, IsDeclaredAt, IsTemporal
+from operator import is_
 
-
-@dataclass
+@dataclass(kw_only=True)
 class Index(Dunders, Magics):
     component: IsComponent
     declared_at: IsDeclaredAt
@@ -25,7 +25,7 @@ class Index(Dunders, Magics):
         if isinstance(self.declared_at, tuple):
             dec_at = f'{self.declared_at[0].name, self.declared_at[1].name}'
             index_list = [comp, dec_at, temp]
-        elif self.component == self.declared_at:
+        elif is_(self.component, self.declared_at):
             dec_at = ''
             index_list = [comp, temp]
         else:

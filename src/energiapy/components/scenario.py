@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     from ..type.alias import IsComponent
 
 
-@dataclass
+@dataclass(kw_only=True)
 class Scenario(ElementCol, Base):
     """
     A scenario for a considered system. It collects all the components of the model.

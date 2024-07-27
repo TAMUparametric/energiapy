@@ -1,5 +1,6 @@
 from enum import Enum, auto
 from typing import List
+from operator import is_
 
 
 class SpatialDisp(Enum):
@@ -34,7 +35,7 @@ class TemporalDisp(Enum):
 
     @classmethod
     def get_tdisp(cls, scale_name: str):
-        return [i for i in cls.all() if i.name == scale_name.upper()][0]
+        return [i for i in cls.all() if is_(i.name, scale_name.upper())][0]
 
     @classmethod
     def all(cls) -> List[str]:

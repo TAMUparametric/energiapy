@@ -7,9 +7,10 @@ from ...type.component.horizon import HorizonType
 from ...type.element.disposition import TemporalDisp
 from ..component import Temporal
 from .scale import Scale
+from operator import is_not, imod, is_
 
 
-@dataclass
+@dataclass(kw_only=True)
 class Horizon(Temporal):
     """
     Planning horizon of the problem. 
@@ -115,10 +116,10 @@ class Horizon(Temporal):
             lists = [list(range(i)) for i in self.discretizations]
             return list(product(*lists[:position+1]))
         else:
-            if not self.discretizations == sorted(self.discretizations):
+            if is_not(self.discretizations, sorted(self.discretizations)):
                 raise ValueError(
                     'Discretizations need to be in ascending order')
-            if not all(max(self.discretizations) % i == 0 for i in self.discretizations):
+            if not all(is_(imod(max(self.discretizations),i), 0) for i in self.discretizations):
                 raise ValueError(
                     'Discretizations need to be divisible by the most granular scale')
             lists = [(0, i) for i in range(max(self.discretizations))]

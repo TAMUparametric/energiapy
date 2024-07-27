@@ -5,8 +5,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
-from ...core.capbound import ResCapBound
-from ...core.cashflow import ResCashFlow
+from ...core.capbound import RscCapBound
+from ...core.cashflow import RscCashFlow
 from ...core.limit import ResLimit
 from ...inputs.input_map import input_map
 from ...type.component.resource import ResourceType
@@ -16,8 +16,8 @@ if TYPE_CHECKING:
     from ...type.alias import IsDepreciated, IsLimit
 
 
-@dataclass
-class Resource(ResCashFlow, ResLimit, ResCapBound, Commodity):
+@dataclass(kw_only=True)
+class Resource(RscCashFlow, ResLimit, RscCapBound, Commodity):
     # Depreciated
     sell: IsDepreciated = field(default=None)
     varying: IsDepreciated = field(default=None)
@@ -29,7 +29,7 @@ class Resource(ResCashFlow, ResLimit, ResCapBound, Commodity):
 
     def __post_init__(self):
 
-        ResCapBound.__post_init__(self)
+        RscCapBound.__post_init__(self)
         Commodity.__post_init__(self)
         # *-----------------Set ctype (ResourceType)---------------------------------
 

@@ -29,7 +29,7 @@ from .result import Result, Results
 from .scenario import Scenario
 
 
-@dataclass
+@dataclass(kw_only=True)
 class CaseStudy:
     """Case studies are a collection of scenarios that can be analyzed 
 

@@ -19,7 +19,7 @@ if TYPE_CHECKING:
                               IsValue)
 
 
-@dataclass
+@dataclass(kw_only=True)
 class Parameter(Dunders, Magics):
     value: IsValue
     aspect: IsAspect

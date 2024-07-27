@@ -32,7 +32,7 @@ def aspecter(component: IsComponent, attr_name: str, attr_value: IsValue) -> IsA
         new_value = current_value
 
     if not isinstance(attr_value, Aspect):
-        new_value.add(value=attr_value, aspect=input_map.find_aspect(attr_name), component=component,
+        new_value.value=attr_value, aspect=input_map.find_aspect(attr_name), component=component,
                       horizon=component.horizon, declared_at=component.declared_at)
         setattr(component, attr_name, new_value)
 

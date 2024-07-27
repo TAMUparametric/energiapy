@@ -10,7 +10,7 @@ if TYPE_CHECKING:
     from ..type.alias import IsAspect, IsComponent, IsDeclaredAt, IsTemporal
 
 
-@dataclass
+@dataclass(kw_only=True)
 class Variable(Dunders, Magics):
     aspect: IsAspect
     component: IsComponent

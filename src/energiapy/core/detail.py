@@ -7,7 +7,7 @@ if TYPE_CHECKING:
     from ..type.alias import IsDetail
 
 
-@dataclass
+@dataclass(kw_only=True)
 class CompDetail:
     """For bookeeping purposes, this class is used to keep track of details
     """

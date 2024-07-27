@@ -70,6 +70,9 @@ class Limit(AspectMixin, Enum):
     def operation() -> str:
         return [Limit.CAPACITY]
 
+# DISCHARGE, CONSUME - Process, Location, (Location, Process)
+# CAPACITY - Process, Storage, Transport, (Location, Operation)
+
 
 class CapBound(AspectMixin, Enum):
     """These are capacitated by the realized capacities
@@ -97,6 +100,8 @@ class CapBound(AspectMixin, Enum):
     @staticmethod
     def at_transport():
         return [CapBound.TRANSPORT]
+    # for i in operations,:
+    # PRODUCE - Process/Storage, (Location, Process/Storage), Transport, (Linkage, Transport)
 
 
 class CashFlow(AspectMixin, Enum):
@@ -142,6 +147,7 @@ class CashFlow(AspectMixin, Enum):
     @staticmethod
     def spatial() -> list:
         return [CashFlow.LAND_COST]
+    # Resource, Process, Resource, Locatiom,
 
 
 class Land(AspectMixin, Enum):
@@ -184,6 +190,7 @@ class Emission(AspectMixin, Enum):
     EUTM = auto()
     """Marine Eutrophication Potential
     """
+    # Commodity, Operation; Bound Spatial 
 
 
 class Life(AspectMixin, Enum):
@@ -204,6 +211,7 @@ class Life(AspectMixin, Enum):
     TRL = auto()
     """Technology Readiness Level
     """
+    #Operation
 
 
 class Loss(AspectMixin, Enum):
@@ -219,3 +227,4 @@ class Loss(AspectMixin, Enum):
     @staticmethod
     def during_transport() -> list:
         return [Loss.TRANSPORT_LOSS]
+    # Resource, Storage/ Transport. (Location/Linkage, Storage/Transport), 

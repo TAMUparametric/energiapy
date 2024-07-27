@@ -7,7 +7,7 @@ if TYPE_CHECKING:
     from ..type.alias import IsLife
 
 
-@dataclass
+@dataclass(kw_only=True)
 class OpnLife:
     """Life descriptions of Operation
     """

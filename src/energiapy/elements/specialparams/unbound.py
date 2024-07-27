@@ -8,7 +8,7 @@ from ...core.base import Dunders
 from .dataset import DataSet
 
 
-@dataclass(frozen=True)
+@dataclass(kw_only=True, frozen=True)
 class Unbound(Dunders):
     """A really big number
     Unlike the money in my bank account

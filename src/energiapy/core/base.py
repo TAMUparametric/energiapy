@@ -45,7 +45,7 @@ class ClassName:
         return cls.__name__
 
 
-@dataclass
+@dataclass(kw_only=True)
 class Base(Magics, Dunders, ClassName):
     """Basic stuff needed for everything, 
     named after the legendary opening batsman Virender Sehwag

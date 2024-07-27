@@ -5,12 +5,12 @@ from typing import TYPE_CHECKING
 
 from ..core.base import Base
 from ..core.onset import ElementCol
-
+from operator import is_
 if TYPE_CHECKING:
     from ..type.alias import IsAspect, IsAspectShared, IsComponent
 
 
-@dataclass
+@dataclass(kw_only=True)
 class AspectShared(ElementCol, Base):
     aspect: IsAspect
     component: IsComponent
@@ -22,4 +22,4 @@ class AspectShared(ElementCol, Base):
 
         for i in ['parameters', 'variables', 'constraints']:
             setattr(
-                self, i, [mod for comp in self.aspects for mod in getattr(comp, i) if mod.declared_at == self.component])
+                self, i, [mod for comp in self.aspects for mod in getattr(comp, i) if is_(mod.declared_at, self.component)])

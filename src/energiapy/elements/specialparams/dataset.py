@@ -11,13 +11,14 @@ from sklearn.preprocessing import MinMaxScaler, StandardScaler
 from ...core.base import Dunders
 from ...type.element.bound import Bound
 from ..index import Index
+from operator import is_
 
 if TYPE_CHECKING:
     from ...components.horizon import Horizon
     from ...type.alias import IsAspect, IsComponent, IsData, IsDeclaredAt
 
 
-@dataclass
+@dataclass(kw_only=True)
 class DataSet(Dunders):
     """
     Args:
@@ -116,17 +117,17 @@ class DataSet(Dunders):
             return len(self.data)
 
     def __lt__(self, other):
-        if isinstance(other, (int, float)) and self.bound == Bound.UPPER:
+        if isinstance(other, (int, float)) and is_(self.bound, Bound.UPPER):
             return False
-        elif isinstance(other, DataSet) and other.bound == Bound.LOWER:
+        elif isinstance(other, DataSet) and is_(other.bound, Bound.LOWER):
             return False
         else:
             return True
 
     def __gt__(self, other):
-        if isinstance(other, (int, float)) and self.bound == Bound.UPPER:
+        if isinstance(other, (int, float)) and is_(self.bound, Bound.UPPER):
             return True
-        elif isinstance(other, DataSet) and other.bound == Bound.LOWER:
+        elif isinstance(other, DataSet) and is_(other.bound, Bound.LOWER):
             return True
         else:
             return False

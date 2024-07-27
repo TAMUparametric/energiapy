@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from typing import Dict
 
 
-@dataclass
+@dataclass(kw_only=True)
 class Result:
     """Results from solving a Scenario
 
@@ -159,7 +159,7 @@ class Result:
         return self.name == other.name
 
 
-@dataclass
+@dataclass(kw_only=True)
 class Results:
     """Contains multiple Result objects
     Args:
@@ -168,7 +168,7 @@ class Results:
     """
     name: str
     results: Dict[str, Result]
-    
+
     def __repr__(self):
         return self.name
 

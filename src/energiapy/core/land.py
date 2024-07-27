@@ -7,15 +7,15 @@ if TYPE_CHECKING:
     from ..type.alias import IsCashFlow, IsLandCap, IsLandUse
 
 
-@dataclass
+@dataclass(kw_only=True)
 class OpnLand:
     """Land use of Operation Component
     """
     land_use: IsLandUse = field(default=None)
 
 
-@dataclass
-class SpcLand:
+@dataclass(kw_only=True)
+class SptLand(OpnLand):
     """Land use cap (upper bound) for Spatial Component 
     """
     land_cap: IsLandCap = field(default=None)

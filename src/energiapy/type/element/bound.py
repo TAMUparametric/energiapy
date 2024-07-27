@@ -1,4 +1,5 @@
 from enum import Enum, auto
+from operator import is_
 
 
 class Bound(Enum):
@@ -23,9 +24,9 @@ class Bound(Enum):
     def namer(self):
         """gives out a string to put in the name of the parameter
         """
-        if self == Bound.LOWER:
+        if is_(self, Bound.LOWER):
             return '_lb'
-        elif self == Bound.UPPER:
+        elif is_(self, Bound.UPPER):
             return '_ub'
         else:
             return ''

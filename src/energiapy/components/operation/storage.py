@@ -18,7 +18,7 @@ from ..component import Component
 #     from ..type.alias import
 
 
-@dataclass
+@dataclass(kw_only=True)
 class Storage(Component):
     pass
 # store: Resource

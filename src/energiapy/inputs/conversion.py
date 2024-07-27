@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from ..type.alias import IsConv
 
 
-@dataclass
+@dataclass(kw_only=True)
 class Conversion(Dunders):
     """
     Represents a conversion process between energy modes.

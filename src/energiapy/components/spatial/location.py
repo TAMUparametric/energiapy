@@ -26,7 +26,7 @@ from dataclasses import dataclass
 # from .type.resource import ResourceType
 
 
-@dataclass
+@dataclass(kw_only=True)
 class Location:
     pass
 

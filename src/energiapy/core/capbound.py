@@ -7,29 +7,29 @@ if TYPE_CHECKING:
     from ..type.alias import IsCapBound
 
 
-@dataclass
+@dataclass(kw_only=True)
 class PrcCapBound:
     """Resource Cap Bound for Process
     """
     produce: IsCapBound = field(default=None)
 
 
-@dataclass
+@dataclass(kw_only=True)
 class StrCapBound:
     """Resource Cap Bound for Storage
     """
     store: IsCapBound = field(default=None)
 
 
-@dataclass
+@dataclass(kw_only=True)
 class TrnCapBound:
     """Resource Cap Bound for Transport
     """
     transport: IsCapBound = field(default=None)
 
 
-@dataclass
-class ResCapBound:
+@dataclass(kw_only=True)
+class RscCapBound:
     """Resource Cap Bounds
     """
 
