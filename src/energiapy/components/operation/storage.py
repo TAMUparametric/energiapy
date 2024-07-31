@@ -4,7 +4,7 @@ from dataclasses import dataclass
 # from .resource import Resource
 # from ..model.specialparams.dataset import DataSet
 # from ..model.specialparams.theta import Theta
-# from ..model.specialparams.unbound import BigM
+# from ..model.specialparams.m import BigM
 # from ..model.type.input import Input
 from ..component import Component
 

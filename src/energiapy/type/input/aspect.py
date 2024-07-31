@@ -47,33 +47,6 @@ class AspectMixin:
         return [i for i in cls]
 
 
-class Limit(AspectMixin, Enum):
-    """What Resource flow is being limited 
-    at some spatiotemporal disposition 
-    """
-    DISCHARGE = auto()
-    """Outflow.
-    Only lower bound by default
-    """
-    CONSUME = auto()
-    """Inflow 
-    """
-    CAPACITY = auto()
-    """Process or Storage or Transit capacity
-    """
-
-    @staticmethod
-    def resource() -> str:
-        return [Limit.DISCHARGE, Limit.CONSUME]
-
-    @staticmethod
-    def operation() -> str:
-        return [Limit.CAPACITY]
-
-# DISCHARGE, CONSUME - Process, Location, (Location, Process)
-# CAPACITY - Process, Storage, Transit, (Location, Operation)
-
-
 class CapBound(AspectMixin, Enum):
     """These are capacitated by the realized capacities
     of the component where the Resource is declared
@@ -150,26 +123,7 @@ class CashFlow(AspectMixin, Enum):
     # Resource, Process, Resource, Locatiom,
 
 
-class Land(AspectMixin, Enum):
-    """Land use or available at spatial scale 
-    """
-    LAND_USE = auto()
-    """Exact
-    """
-    LAND = auto()
-    """Upper bound 
-    """
-
-    @staticmethod
-    def operation() -> list:
-        return [Land.LAND_USE]
-
-    @staticmethod
-    def spatial() -> list:
-        return [Land.LAND_USE]
-
-
-class Emission(AspectMixin, Enum):
+class Impact(AspectMixin, Enum):
     """Type of emission being considered
     """
     GWP = auto()
@@ -193,6 +147,25 @@ class Emission(AspectMixin, Enum):
     # Commodity, Operation; Bound Spatial
 
 
+class LandStat(AspectMixin, Enum):
+    """Land use or available at spatial scale 
+    """
+    LAND_USE = auto()
+    """Exact
+    """
+    LAND_CAP = auto()
+    """Upper bound 
+    """
+
+    @staticmethod
+    def operation() -> list:
+        return [LandStat.LAND_USE]
+
+    @staticmethod
+    def spatial() -> list:
+        return [LandStat.LAND_USE]
+
+
 class Life(AspectMixin, Enum):
     """Constrictes the life of a Process or Transit 
     """
@@ -212,6 +185,33 @@ class Life(AspectMixin, Enum):
     """Technology Readiness Level
     """
     # Operation
+
+
+class Limit(AspectMixin, Enum):
+    """What Resource flow is being limited 
+    at some spatiotemporal disposition 
+    """
+    DISCHARGE = auto()
+    """Outflow.
+    Only lower bound by default
+    """
+    CONSUME = auto()
+    """Inflow 
+    """
+    CAPACITY = auto()
+    """Process or Storage or Transit capacity
+    """
+
+    @staticmethod
+    def resource() -> str:
+        return [Limit.DISCHARGE, Limit.CONSUME]
+
+    @staticmethod
+    def operation() -> str:
+        return [Limit.CAPACITY]
+
+# DISCHARGE, CONSUME - Process, Location, (Location, Process)
+# CAPACITY - Process, Storage, Transit, (Location, Operation)
 
 
 class Loss(AspectMixin, Enum):

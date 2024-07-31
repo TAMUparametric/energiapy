@@ -2,22 +2,21 @@
 """
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
-from warnings import warn
 
-from pandas import DataFrame
-
-from ...core.base import Dunders
-from ..index import Index
+from .value import Value
 from .dataset import DataSet
+from numpy import DataFrame
+from .number import Number
+from .bound import SpcLmt
 
 if TYPE_CHECKING:
-    from ...type.alias import IsAspect, IsComponent, IsDeclaredAt, IsTemporal
+    from ...type.alias import IsRange
 
 
 @dataclass
-class Theta(Dunders):
+class Theta(Value):
     """Just a convinient way to declare parametric variables
 
     Args:
@@ -54,27 +53,31 @@ class Theta(Dunders):
 
 
     """
-    bounds: tuple = None
-    aspect: IsAspect = None
-    component: IsComponent = None
-    declared_at: IsDeclaredAt = None
-    temporal: IsTemporal = None
+    space: IsRange = field(default=None)
 
     def __post_init__(self):
 
-        if len(self.bounds) != 2:
-            warn('bounds need be a tuple of length 2, e.g. (0, 29)')
+        self.name = f'Th{self._id}'
 
-        if self.bounds is None:
-            self.bounds = (0, 1)
+        if len(self.space) == 2:
+            # if DataSet or DataFrame, make local DataSet or else keep numeric values
+            low_or_up = {0: SpcLmt.START, 1: SpcLmt.END}
 
-        if self.aspect:
-            self.index = Index(
-                component=self.component, declared_at=self.declared_at, temporal=self.temporal)
-            self.name = f'Th|{self.aspect.pname().capitalize()}{self.index.name}|'
+            args = {
+                'name': self.name, 'index': self.index, 'derived': self.derived, 'commodity': self.commodity, 'operation': self.operation, 'spatial': self.spatial
+            }
 
+            self.space = tuple([DataSet(data=j, varbound=low_or_up[i], **args) if isinstance(
+                j, DataFrame) else Number(number=j, varbound= ) for i, j in enumerate(self.space)])
         else:
-            self.name = f'Th{self.bounds}'
+            raise ValueError(
+                f'{self.name}: tuple must be of length 2')
 
-    def __len__(self):
-        return max([len(i) if isinstance(i, (DataFrame, DataSet)) else 1 for i in self.bounds])
+    @property
+    def value(self) -> dict:
+        """Returns a dictionary of data
+        """
+        return self.space
+
+
+Th = Theta(name='Th', space=(0, 1))

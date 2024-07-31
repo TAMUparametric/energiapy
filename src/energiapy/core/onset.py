@@ -5,9 +5,13 @@ from __future__ import annotations
 from dataclasses import dataclass, fields
 from typing import TYPE_CHECKING
 
+from ...components.commodity.cash import Cash
+from ...components.commodity.emission import Emission
+from ...components.commodity.land import Land
+
 if TYPE_CHECKING:
     from ..components.temporal.horizon import Horizon
-    from ..type.alias import IsValue
+    from ..type.alias import IsInput
 
 
 @dataclass
@@ -34,6 +38,7 @@ class ScnInit:
             ('adpf', 'MJ', 'Abiotic Depletion Potential (Fossil)'),
             ('wdp', 'm^3', 'Water Deprivation Potential')
         ]
+        
         for i, j, k in emissions:
             setattr(self, i, Emission(basis=j, label=k))
 
@@ -78,11 +83,11 @@ class CmpInit:
             if hasattr(self, attr) and getattr(self, attr) is not None:
                 setattr(self, attr, getattr(self, attr))
 
-    def is_ready(self, attr_value: IsValue) -> bool:
+    def is_ready(self, attr_value: IsInput) -> bool:
         """Checks if attribute is ready to be made into an Aspect
 
         Args:
-            attr_value (IsValue): value assigned to aspect attribute
+            attr_value (IsInput): value assigned to aspect attribute
 
         Returns:
             bool: True if component is ready and value is assigned

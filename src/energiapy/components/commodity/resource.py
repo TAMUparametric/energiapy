@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 
 from ...core.capbound import RscCapBound
 from ...core.cashflow import RscCashFlow
-from ...core.limit import ResLimit
+from ...core.resflow import ResFlow
 from ...inputs.input_map import input_map
 from ...type.component.resource import ResourceType
 from ..component import Commodity
@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class Resource(RscCashFlow, ResLimit, RscCapBound, Commodity):
+class Resource(RscCashFlow, ResFlow, RscCapBound, Commodity):
     # Depreciated
     sell: IsDepreciated = field(default=None)
     varying: IsDepreciated = field(default=None)

@@ -3,15 +3,13 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
 from warnings import warn
 
 from ..core.base import Base
 from ..core.onset import EmtCol, ScnInit
 from ..funcs.component.update import update_element
-from .commodity.cash import Cash
-from .commodity.emission import Emission
-from .commodity.land import Land
+# if TYPE_CHECKING:
+from ..type.alias import IsComponent
 from .commodity.material import Material
 from .commodity.resource import Resource
 from .operation.process import Process
@@ -20,9 +18,6 @@ from .operation.transit import Transit
 from .spatial.linkage import Linkage
 from .spatial.location import Location
 from .temporal.horizon import Horizon
-
-# if TYPE_CHECKING:
-from ..type.alias import IsComponent
 
 
 @dataclass

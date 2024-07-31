@@ -17,7 +17,7 @@ from ..core.limit import OpnLimit
 from ..core.onset import CmpInit, EmtCol
 
 if TYPE_CHECKING:
-    from ..type.alias import IsComponent, IsValue
+    from ..type.alias import IsComponent, IsInput
     from .horizon import Horizon
 
 

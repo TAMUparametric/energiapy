@@ -15,13 +15,13 @@ from .specialparams.theta import Theta
 
 if TYPE_CHECKING:
     from ..components.horizon import Horizon
-    from ..type.alias import (IsAspect, IsComponent, IsDeclaredAt, IsTemporal,
-                              IsValue)
+    from ..type.alias import (IsAspect, IsComponent, IsDeclaredAt, IsInput,
+                              IsTemporal)
 
 
 @dataclass
 class Parameter(Dunders, Magics):
-    value: IsValue
+    value: IsInput
     aspect: IsAspect
     component: IsComponent
     declared_at: IsDeclaredAt

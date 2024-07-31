@@ -8,11 +8,11 @@ from ...inputs.input_map import input_map
 from ..component.update import update_element
 
 if TYPE_CHECKING:
-    from ...type.alias import IsAspect, IsAspectShared, IsComponent, IsValue
+    from ...type.alias import IsAspect, IsAspectShared, IsComponent, IsInput
 
 
-def aspecter(component: IsComponent, attr_name: str, attr_value: IsValue) -> IsAspect:
-    """updates the attribute as an Aspect
+def aspecter(component: IsComponent, attr_name: str, attr_value: IsInput) -> IsAspect:
+    """updates the attribute to make an Aspect
 
     Args:
         component: energiapy component
@@ -24,19 +24,21 @@ def aspecter(component: IsComponent, attr_name: str, attr_value: IsValue) -> IsA
     """
     current_value = getattr(component, attr_name)
 
-    # if not passing an Aspect, new value created as Aspect to append to
-    if not isinstance(current_value, Aspect):
-        new_value = Aspect(
-            aspect=input_map.find_aspect(attr_name), component=component)
+    # Checks if attribute is already an Aspect
+    if hasattr(current_value, '_aspected'):
+        aspect = current_value
+    # if not make an Aspect
     else:
-        new_value = current_value
+        aspect = aspect_map[attr_name](component=component)
 
-    if not isinstance(attr_value, Aspect):
-        new_value.add(value=attr_value, aspect=input_map.find_aspect(attr_name), component=component,
-                      horizon=component.horizon, declared_at=component.declared_at)
-        setattr(component, attr_name, new_value)
+    # TODO - see if needs if not isinstance(attr_value, Aspect):
+    # add value to the aspect and update it in the component
+    aspect.add(value=attr_value, aspect=input_map.find_aspect(attr_name), component=component,
+               horizon=component.horizon, declared_at=component.declared_at)
+    setattr(component, attr_name, aspect)
 
-        update_element(component=component, aspect=new_value)
+    # update the model elements in the component
+    update_element(component=component, aspect=aspect)
 
 
 def aspectshareder(component: IsComponent, attr_name: str) -> IsAspectShared:
