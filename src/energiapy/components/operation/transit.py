@@ -26,7 +26,11 @@ from .type.transport import TransitType
 
 @dataclass
 class Transit:
-    pass
+    @property
+    def collection(self):
+        """The collection in scenario
+        """
+        return 'transits'
 
     # name: str
     # # Primary attributes

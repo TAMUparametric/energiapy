@@ -20,7 +20,11 @@ from ..component import Component
 
 @dataclass
 class Storage(Component):
-    pass
+    @property
+    def collection(self):
+        """The collection in scenario
+        """
+        return 'storages'
 # store: Resource
 #     capacity: IsLimit
 #     land_use: IsLand = field(default=None)

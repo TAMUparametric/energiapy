@@ -2,23 +2,16 @@
 """
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
-from ..components.commodity.material import Material
-from ..components.commodity.resource import Resource
-from ..components.operation.process import Process
-from ..components.operation.storage import Storage
-from ..components.operation.transit import Transit
-from ..components.spatial.linkage import Linkage
-from ..components.spatial.location import Location
-from ..components.temporal.horizon import Horizon
 from ..core.inits.scenario import ScnInit
-from ..funcs.add.component import add_component
-from ..funcs.add.element import add_element
+from ..funcs.add_to.scenario import add_component
 from ..funcs.update.name import update_name
+from ..components.temporal.horizon import Horizon
+
 # if TYPE_CHECKING:
-from ..types.alias import IsComponent
-from .player import Player
+# from ..types.alias import IsComponent
+# from .player import Player
 
 
 @dataclass
@@ -47,59 +40,25 @@ class Scenario(ScnInit):
     """
 
     name: str = r'\m/>'
+    basis_land: str = 'Acres'
+    basis_cash: str = '$'
+    default_players: bool = field(default=True)
 
     def __post_init__(self):
         ScnInit.__post_init__(self)
 
     def __setattr__(self, name, value):
-        super().__setattr__(name, value)
-
-        if isinstance(value, Player):
-            if not value.name:
-                setattr(value, 'name', name)
-                add_component(
-                     scenario=self, list_attr='player_all', component=value)
-
-        if isinstance(value, Horizon):
-            if not value.name:  # this assigns the name of Horizon
-                setattr(value, 'name', name)
-
-            if not self.horizon:
-                setattr(self, 'horizon', value)
-                setattr(self, 'scales', value.scales)
-                for i in value.scales:
-                    setattr(self, i.name, i)
 
         if hasattr(value, '_named') and not value._named:
-            update_name(component=value, name=name, horizon=self.horizon)
 
-        # *Would avoid making a general function to update components for the sake of clarity
-        if isinstance(value, IsComponent):
-            add_component(
-                scenario=self, list_attr=f'{value.cname().lower()}_all', component=value)
+            if isinstance(value, Horizon):  
+                update_name(component=value, name=name)
+                self.horizon, self.scales = value, value.scales
+                for i in value.scales:
+                    setattr(self, i.name, i)
+            else:
+                update_name(component=value, name=name, horizon=self.horizon)
+                add_component(
+                    scenario=self, list_attr=value.collection, component=value)
 
-        # if isinstance(value, Resource):
-        #     self.update_component_list(list_attr='resources', component=value)
-
-        # if isinstance(value, Process):
-        #     self.update_component_list(list_attr='processes', component=value)
-
-            # if hasattr(value, 'stored_resource'):
-            #     r_naav = f'{value.stored_resource.name}_in_{value.name}'
-            #     setattr(self, r_naav, value.conversion.produce)
-            #     p_naav = f'{value.name}_d'
-
-            #     setattr(self, p_naav, Process(
-            #         conversion={value.stored_resource: {i: -j for i, j in value.produce.items()}}, capacity=True))
-
-            #     for i in ['store', 'store_loss', 'store_cost']:
-            #         setattr(getattr(self, p_naav), i, {
-            #                 getattr(self, r_naav): getattr(value, i)})
-
-            #     setattr(getattr(getattr(self, name), 'conversion'), 'conversion',  {value.conversion.produce: {
-            #             value.stored_resource: value.conversion.conversion[value.stored_resource]}})
-
-            # setattr(self, 'resources', list(
-            #     set(getattr(self, 'resources')) | {value}))
-
-        add_element(component=self, aspect=value)
+        super().__setattr__(name, value)

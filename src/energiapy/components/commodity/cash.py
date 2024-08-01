@@ -13,3 +13,8 @@ class Cash(CmpInit):
         Storage Store
         Transit Transport    
     """
+    @property
+    def collection(self):
+        """The collection in scenario
+        """
+        return 'assets'

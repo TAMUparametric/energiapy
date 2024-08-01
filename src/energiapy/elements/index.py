@@ -2,42 +2,40 @@
 """
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from operator import is_not
+from dataclasses import dataclass, field, fields
 from typing import TYPE_CHECKING
 
 from ..core.inits.common import ElmCommon
 
 if TYPE_CHECKING:
-    from ..types.alias import (IsCommodity, IsOperation, IsPlayer, IsScale,
-                               IsSpatial)
+    from ..types.alias import (IsCommodity, IsOperation, IsScale, IsSpatial)
 
 
 @dataclass
 class Index(ElmCommon):
-    player: IsPlayer = field(default=None)
-    derived: IsCommodity = field(default=None)
-    commodity: IsCommodity = field(default=None)
-    operation: IsOperation = field(default=None)
-    spatial: IsSpatial = field(default=None)
-    scale: IsScale = field(default=None)
+    _derived: IsCommodity = field(default=None)
+    _commodity: IsCommodity = field(default=None)
+    _operation: IsOperation = field(default=None)
+    _spatial: IsSpatial = field(default=None)
+    _scale: IsScale = field(default=None)
 
     def __post_init__(self):
 
-        ply_, der_, cmd_, opn_ = (f'{getattr(self,i).name}' if i else '' for i in [
-            'player', 'derived', 'commodity', 'operation'])
+        self.index = tuple([getattr(self, i.name)
+                           for i in fields(self) if getattr(self, i.name)])
 
-        scl_ = f'{self.scale.name.lower()}'
+        self.name = f'{tuple(dict.fromkeys(self.index).keys())}'
 
-        index_list = [i for i in [der_, cmd_, opn_, scl_] if is_not(i, '')]
-
-        self.name = f'[{ply_}]{tuple(dict.fromkeys(index_list).keys())}'
-        self.index_list = index_list
+    @property
+    def args(self):
+        """provides a dict of attributes
+        """
+        return {i.name: getattr(self, i.name) for i in fields(self)}
 
     def full(self):
         """Gives the full index list, by expanding the temporal index
         """
-        return [(*self.index_list[:-1], *j) for j in self.scale.index]
+        return [(*[k.name for k in self.index[:-1]], *j) for j in self._scale.index if j]
 
     def __len__(self):
-        return self.scale.n_index
+        return self._scale.n_index

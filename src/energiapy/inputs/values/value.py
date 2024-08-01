@@ -24,21 +24,23 @@ class Value(InpCommon):
     def __post_init__(self):
         for i in ['_varbound', '_spclimit', '_certainty', '_approach']:
             setattr(self, i, None)
-        for i in ['player', 'derived', 'commodity', 'operation', 'spatial']:
-            setattr(self, i, getattr(self.index, i))
+
+        if self.index:
+            for i, j in self.index.args.items():
+                setattr(self, i, j)
 
         vb_, sl_ = '', ''
-        if hasattr(self, '_varbound'):
+        if getattr(self, '_varbound', None):
             vb_ = getattr(self, '_varbound').namer()
 
-        if hasattr(self, '_spclimit'):
+        if getattr(self, '_spclimit', None):
             sl_ = getattr(self, '_spclimit').namer()
 
         self.name = f'{self.name}{vb_}{sl_}'
 
     @property
     def _id(self):
-        return f'{self.name}{self.index.name}'
+        return f'{self.name}{getattr(self,"index","")}'
 
     def __len__(self):
         return len(self.index)

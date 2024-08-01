@@ -102,29 +102,9 @@ class Use(Trade):
         Trade.__post_init__(self)
 
 
-# TODO - push to cap bound?
-
 @dataclass
-class Produce(Trade):
-    """Produce Resource via Process
-    """
-
-    def __post_init__(self):
-        Trade.__post_init__(self)
-
-
-@dataclass
-class Store(Trade):
-    """Charge Resource via Storage
-    """
-
-    def __post_init__(self):
-        Trade.__post_init__(self)
-
-
-@dataclass
-class Transport(Trade):
-    """Transport Resource via Transit
+class Acquire(Trade):
+    """Acquire Land for Operation
     """
 
     def __post_init__(self):

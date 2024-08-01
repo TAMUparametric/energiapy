@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 
 
 def update_task(player: IsPlayer, component: IsComponent, attr_name: str, attr_input: IsInput, derived: IsCommodity, commodity: IsCommodity, operation: IsOperation, spatial: IsSpatial, scale: IsScale):
-    
+
     task = birth_task(component=component, attr_name=attr_name)
 
     horizon = component.horizon
@@ -52,7 +52,6 @@ def update_task(player: IsPlayer, component: IsComponent, attr_name: str, attr_i
 
                 update_bounds(value=j, varbound=low_or_up[i])
 
-
         else:
 
             scale_ = scale_match(value=j, horizon=horizon, scale=scale_)
@@ -66,5 +65,4 @@ def update_task(player: IsPlayer, component: IsComponent, attr_name: str, attr_i
 
             value_ = birth_value(
                 name=attr_name, attr_input=attr_input, index=index)
-
-        
+            

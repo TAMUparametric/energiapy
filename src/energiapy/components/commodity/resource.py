@@ -30,21 +30,21 @@ class Resource(CmpInit):
 
         # *-----------------Set ctype (ResourceType)---------------------------------
 
-        if self.sell_cost is not None:
-            getattr(self, 'ctypes').append(ResourceType.SELL)
-            if self.discharge is None:
-                self.discharge = True
+        # if self.sell_cost is not None:
+        #     getattr(self, 'ctypes').append(ResourceType.SELL)
+        #     if self.discharge is None:
+        #         self.discharge = True
 
-        if self.discharge is not None:
-            getattr(self, 'ctypes').append(ResourceType.DISCHARGE)
+        # if self.discharge is not None:
+        #     getattr(self, 'ctypes').append(ResourceType.DISCHARGE)
 
-        if self.consume is not None:
-            getattr(self, 'ctypes').append(ResourceType.CONSUME)
+        # if self.consume is not None:
+        #     getattr(self, 'ctypes').append(ResourceType.CONSUME)
 
-        if self.purchase_cost:
-            getattr(self, 'ctypes').append(ResourceType.PURCHASE)
-            if self.consume is None:
-                self.consume = True
+        # if self.purchase_cost:
+        #     getattr(self, 'ctypes').append(ResourceType.PURCHASE)
+        #     if self.consume is None:
+        #         self.consume = True
         # TODO update store, produce, transport
 
         # *----------------- Depreciation Warnings---------------------------------
@@ -56,9 +56,15 @@ class Resource(CmpInit):
             if getattr(self, i):
                 raise ValueError(
                     f'{_name}: {i} is depreciated. Please use {j} instead')
+    
+    @property
+    def collection(self):
+        """The collection in scenario
+        """
+        return 'resources'
 
-    def __setattr__(self, name, value):
-        super().__setattr__(name, value)
-        if self.is_ready(attr_value=value):
-            if input_map.is_component_aspect(attr=name, component='resource'):
-                self.make_aspect(attr_name=name, attr_value=value)
+    # def __setattr__(self, name, value):
+    #     super().__setattr__(name, value)
+    #     if self.is_ready(attr_value=value):
+    #         if input_map.is_component_aspect(attr=name, component='resource'):
+    #             self.make_aspect(attr_name=name, attr_value=value)

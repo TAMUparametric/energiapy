@@ -4,7 +4,12 @@ from dataclasses import dataclass
 
 @dataclass
 class Material:
-    pass
+    
+    @property
+    def collection(self):
+        """The collection in scenario
+        """
+        return 'materials'
     # """
     # Materials are needed to set up processes.
 

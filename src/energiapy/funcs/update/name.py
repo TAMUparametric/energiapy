@@ -7,7 +7,7 @@ if TYPE_CHECKING:
     from ...types.alias import IsComponent, IsHorizon
 
 
-def update_name(component: IsComponent, name: str, horizon: IsHorizon):
+def update_name(component: IsComponent, name: str, horizon: IsHorizon = None):
     """names and adds horizon to the Resource
 
     Args:
@@ -17,8 +17,9 @@ def update_name(component: IsComponent, name: str, horizon: IsHorizon):
     """
 
     setattr(component, 'name', name)
-    setattr(component, 'horizon', horizon)
     setattr(component, '_named', True)
+    if horizon:
+        setattr(component, '_horizon', horizon)
 
     for i in fields(component):
         attr = i.name.lower()

@@ -17,6 +17,6 @@ class Player:
     """
     name: str = field(default=None)
     owns: IsOwns = field(default_factory=None)
-    can_give: IsCan = field(default_factory=None)
-    can_take: IsCan = field(default_factory=None)
+    has: IsCan = field(default_factory=None)
+    needs: IsCan = field(default_factory=None)
     label: str = field(default=None)

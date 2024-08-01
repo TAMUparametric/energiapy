@@ -105,3 +105,9 @@ class Process(CmpInit):
     @staticmethod
     def _spatial():
         return Location
+
+    @property
+    def collection(self):
+        """The collection in scenario
+        """
+        return 'processes'

@@ -10,3 +10,8 @@ class Emission(CmpInit):
         Material Use
         Operation Capacity
     """
+    @property
+    def collection(self):
+        """The collection in scenario
+        """
+        return 'emissions'

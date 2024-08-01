@@ -75,37 +75,29 @@ class Horizon(CmpCommon):
 
     """
     # divides the horizon into n discretizations. Creates a Scale
-    discretizations: list
+    discretizations: list = field(default_factory=list)
     # if nested the discretizes based on previous scale
     nested: bool = field(default=True)
-    # apply scalings
-    scaling_max: bool = field(default=None)
-    scaling_min_max: bool = field(default=None)
-    scaling_standard: bool = field(default=None)
 
     def __post_init__(self):
 
-        self.name, self.scales, self.ctypes = None, [], []
+        self.name, self._named, self.scales, self.ctypes = None, None, [], []
+
         # # insert 1 at the beginning, this is the horizon itself
         self.discretizations.insert(0, 1)
 
-        if self.n_scales > 1:
-            getattr(self, 'ctypes').append(HorizonType.MULTISCALE)
-        else:
-            getattr(self, 'ctypes').append(HorizonType.SINGLESCALE)
-
-        if self.nested:
-            getattr(self, 'ctypes').append(HorizonType.NESTED)
-        else:
-            getattr(self, 'ctypes').append(HorizonType.UNNESTED)
+        self.ctypes.append(
+            HorizonType.MULTISCALE if self.n_scales > 1 else HorizonType.SINGLESCALE)
+        self.ctypes.append(
+            HorizonType.NESTED if self.nested else HorizonType.UNNESTED)
 
         for i in range(self.n_scales):
-            getattr(self, 'scales').append(Scale(name=TemporalDisp.all()[
+            self.scales.append(Scale(name=TemporalDisp.all()[
                 i].name.lower(), index=self.make_index(position=i, nested=self.nested)))
 
-        self.indices = {i: i.index for i in getattr(self, 'scales')}
+        self.indices = {i: i.index for i in self.scales}
 
-        self.n_indices = [i.n_index for i in getattr(self, 'scales')]
+        self.n_indices = [i.n_index for i in self.scales]
 
     # * ---------Methods-----------------
 
@@ -130,3 +122,9 @@ class Horizon(CmpCommon):
         """Returns number of scales
         """
         return len(self.discretizations)
+
+    @property
+    def collection(self):
+        """The collection in scenario
+        """
+        return 'horizon'

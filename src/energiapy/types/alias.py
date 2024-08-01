@@ -85,81 +85,81 @@ IsTemporal = Scale
 IsNetwork = Network
 
 # *Specific Aspect types
-IsCapacity = IsLimit
-IsResFlow = IsLimit
-IsCashFlow, IsEmission, IsLandUse, IsLife, IsLoss = (IsExact for _ in range(5))
-IsResFlowCap = IsCap
-IsEmissionCap, IsCap = (IsBound for _ in range(2))
+# IsCapacity = IsLimit
+# IsResFlow = IsLimit
+# IsCashFlow, IsEmission, IsLandUse, IsLife, IsLoss = (IsExact for _ in range(5))
+# IsResFlowCap = IsCap
+# IsEmissionCap, IsCap = (IsBound for _ in range(2))
 
 # * Commodity types
-IsCash = Cash
-IsEmission = Emission
-IsLand = Land
-IsMaterial = Material
-IsResource = Resource
+# IsCash = Cash
+# IsEmission = Emission
+# IsLand = Land
+# IsMaterial = Material
+# IsResource = Resource
 
 # *Operation types
-IsProcess = Process
-IsStorage = Storage
-IsTransit = Transit
+# IsProcess = Process
+# IsStorage = Storage
+# IsTransit = Transit
 
 # *Spatial types
 IsLinkage = Linkage
 IsLocation = Location
 
 # *Component types
-IsCommodity = Union[IsCash, IsEmission, IsLand, IsMaterial, IsResource]
-IsOperation = Union[IsProcess, IsStorage, IsTransit]
+# IsCommodity = Union[IsCash, IsEmission, IsLand, IsMaterial, IsResource]
+# IsOperation = Union[IsProcess, IsStorage, IsTransit]
 IsSpatial = Union[IsLinkage, IsLocation]
-IsComponent = Union[IsCommodity, IsOperation, IsSpatial]
+# IsComponent = Union[IsCommodity, IsOperation, IsSpatial]
 
 # *Classes and Enums
-IsTask = Union[IsResFlowCap, IsCashFlow, IsEmission, IsEmissionCap,
-               IsLand, IsLandCap, IsLandUse, IsLife, IsLimit, IsLoss]
-IsAspectShared = Dict[IsComponent, IsAspect]
-IsSpatialPair = Union[Tuple[IsOperation, IsSpatial],
-                      Tuple[IsSpatial, IsSpatial]]
-IsDeclaredAt = Union[IsSpatialPair, IsComponent]
+# IsTask = Union[IsResFlowCap, IsCashFlow, IsEmission, IsEmissionCap,
+#                IsLand, IsLandCap, IsLandUse, IsLife, IsLimit, IsLoss]
+# IsAspectShared = Dict[IsComponent, IsAspect]
+# IsSpatialPair = Union[Tuple[IsOperation, IsSpatial],
+#                       Tuple[IsSpatial, IsSpatial]]
+# IsDeclaredAt = Union[IsSpatialPair, IsComponent]
 
-# *Conversion
-# can be multimode or single mode
-IsSingleConv = Dict[Resource, IsNumeric]
-IsMultiConv = Dict[Union[IsNumeric, str], IsSingleConv]
-IsConvBalance = Union[IsSingleConv, IsMultiConv]
-IsConv = Dict[Resource, IsConvBalance]
+# # *Conversion
+# # can be multimode or single mode
+# IsSingleConv = Dict[Resource, IsNumeric]
+# IsMultiConv = Dict[Union[IsNumeric, str], IsSingleConv]
+# IsConvBalance = Union[IsSingleConv, IsMultiConv]
+# IsConv = Dict[Resource, IsConvBalance]
 
-# *MaterialUse
-# can be multimode or single mode
-IsSingleMat = Dict[Material, IsNumeric]
-IsMultiMat = Dict[Union[IsNumeric, str], IsSingleMat]
-IsMatUse = Union[IsSingleMat, IsMultiMat]
+# # *MaterialUse
+# # can be multimode or single mode
+# IsSingleMat = Dict[Material, IsNumeric]
+# IsMultiMat = Dict[Union[IsNumeric, str], IsSingleMat]
+# IsMatUse = Union[IsSingleMat, IsMultiMat]
 
-# *General Balance
-IsBalance = Union[IsConv, IsMatUse]
-
-
-# *Piecewise Linear
-IsPWL = Dict[Tuple[IsNumeric, IsNumeric], IsNumeric]
-
-# *Details
-IsDetail = str
-
-# *Depreciated
-IsDepreciated = str
-
-IsInput = Union[IsAspect, IsBalance, IsPWL, IsDetail]
+# # *General Balance
+# IsBalance = Union[IsConv, IsMatUse]
 
 
-# * Elements
+# # *Piecewise Linear
+# IsPWL = Dict[Tuple[IsNumeric, IsNumeric], IsNumeric]
 
-IsParameter = Parameter
-IsConstraint = Constraint
-IsVariable = Variable
-IsIndex = Index
+# # *Details
+# IsDetail = str
+
+# # *Depreciated
+# IsDepreciated = str
+
+# IsInput = Union[IsAspect, IsBalance, IsPWL, IsDetail]
 
 
-# *Player
+# # * Elements
 
-IsOwns = Dict[IsSpatial, List[IsOperation]]
-IsCan = Dict[IsSpatial,
-             List[Dict[IsCommodity, IsValue]]]
+# IsParameter = Parameter
+# IsConstraint = Constraint
+# IsVariable = Variable
+# IsIndex = Index
+
+
+# # *Player
+
+# IsOwns = Dict[IsSpatial, List[IsOperation]]
+# IsCan = Dict[IsSpatial,
+#              List[Dict[IsCommodity, IsValue]]]

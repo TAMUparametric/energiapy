@@ -6,7 +6,7 @@ if TYPE_CHECKING:
     from ...types.alias import IsComponent, IsInput
 
 
-def comp_ready(component: IsComponent, attr_input: IsInput) -> bool:
+def is_named(component: IsComponent, attr_input: IsInput) -> bool:
     """Checks if attribute is ready to be made into an Aspect
 
     Args:

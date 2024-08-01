@@ -8,3 +8,8 @@ from ...core.inits.component import CmpInit
 class Land(CmpInit):
     """Land derived from Operation Capacity
     """
+    @property
+    def collection(self):
+        """The collection in scenario
+        """
+        return 'assets'
