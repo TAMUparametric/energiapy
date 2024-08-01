@@ -1,4 +1,4 @@
-def update_element(self, value: Dict[IsScale, IsInput]: component: IsComponent, aspect: IsAspect, horizon: IsHorizon, bound: Bound, certainty: Certainty, approach: Approach):
+def update_tast(self, value: Dict[IsScale, IsInput]: component: IsComponent, aspect: IsAspect, horizon: IsHorizon, bound: Bound, certainty: Certainty, approach: Approach):
     for scale_, value_ in value.items():
         for i, j in enumerate(list(value_)):
             for rule in rulebook.find(aspect):

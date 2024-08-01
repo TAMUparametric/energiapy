@@ -9,8 +9,7 @@ from ...funcs.check.named import comp_ready
 from .common import CmpCommon, ElmCollect
 
 if TYPE_CHECKING:
-    from ..components.temporal.horizon import Horizon
-    from ..type.alias import IsInput
+    from ..type.alias import IsInput, IsTask
 
 
 @dataclass
@@ -29,14 +28,9 @@ class CmpInit(CmpCommon, ElmCollect):
 
         for i in ['_named', 'name', 'horizon']:
             setattr(self, i, None)
-        self.ctypes = []
-        
+        for i in ['tasks', 'ctypes']:
+            setattr(self, i, [])
+
     def __setattr__(self, name, value):
         super().__setattr__(name, value)
         if comp_ready(component=self, attr_input=value):
-            birth_value(self, name, value)
-            birth_task(self, name, value)
-        
-        
-
-
