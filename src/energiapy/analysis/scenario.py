@@ -58,7 +58,7 @@ class Scenario(ScnInit):
             if not value.name:
                 setattr(value, 'name', name)
                 add_component(
-                    scenario=self, list_attr='player_all', component=value)
+                     scenario=self, list_attr='player_all', component=value)
 
         if isinstance(value, Horizon):
             if not value.name:  # this assigns the name of Horizon

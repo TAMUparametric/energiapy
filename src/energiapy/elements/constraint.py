@@ -4,9 +4,9 @@ from dataclasses import dataclass
 from operator import is_
 from typing import TYPE_CHECKING, List
 
-from ..core.base import Dunders, Magics
-from ..type.element.bound import Bound
-from ..type.element.condition import Condition, RightHandSide, SumOver
+from ..cores.base import Dunders, Magics
+from ..types.element.bound import Bound
+from ..types.element.condition import Condition, RightHandSide, SumOver
 from .parameter import Parameter
 from .variable import Variable
 

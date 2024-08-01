@@ -16,6 +16,8 @@ if TYPE_CHECKING:
 
 
 def update_task(player: IsPlayer, component: IsComponent, attr_name: str, attr_input: IsInput, derived: IsCommodity, commodity: IsCommodity, operation: IsOperation, spatial: IsSpatial, scale: IsScale):
+    
+    task = birth_task(component=component, attr_name=attr_name)
 
     horizon = component.horizon
     if not isinstance(attr_input, dict):
@@ -50,7 +52,9 @@ def update_task(player: IsPlayer, component: IsComponent, attr_name: str, attr_i
 
                 update_bounds(value=j, varbound=low_or_up[i])
 
-                value_ = sorted(value_)
+                
+                task.add(j, index=index)
+                
 
         else:
 
@@ -66,8 +70,7 @@ def update_task(player: IsPlayer, component: IsComponent, attr_name: str, attr_i
             value_ = birth_value(
                 name=attr_name, attr_input=attr_input, index=index)
 
-        task = birth_task(component=component, attr_name=attr_name)
 
-        task.add(value=value_, index=index)
+            task.add(value=value_, index=index)
 
         setattr(component, attr_name, task)

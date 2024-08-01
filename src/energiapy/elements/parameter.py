@@ -3,18 +3,16 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-from pandas import DataFrame
 
 from ..core.inits.common import ElmCommon
 if TYPE_CHECKING:
     from ..components.horizon import Horizon
-    from ..type.alias import (IsAspect, IsComponent, IsDeclaredAt, IsInput,
-                              IsTemporal)
+    from ..type.alias import IsValue
 
 
 @dataclass
 class Parameter(ElmCommon):
-    value: IsInput
+    value: IsValue
 
     def __post_init__(self):
 
