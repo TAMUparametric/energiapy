@@ -1,15 +1,18 @@
 from __future__ import annotations
-from ...values.dataset import DataSet
-from ...values.theta import Theta
-from ...values.m import M
-from ...values.number import Number
-from ...values.bound import Bound
+
 from typing import TYPE_CHECKING
+
 from pandas import DataFrame
 
+from ...values.bounds import Bound
+from ...values.dataset import DataSet
+from ...values.m import M
+from ...values.number import Number
+from ...values.theta import Theta
 
 if TYPE_CHECKING:
-    from ...type.alias import IsValue, IsInput, IsIndex, IsDerived, IsCommodity, IsOperation, IsSpatial
+    from ...type.alias import (IsCommodity, IsDerived, IsIndex, IsInput,
+                               IsOperation, IsSpatial, IsValue)
 
 
 def make_value(name: str, value: IsInput, index: IsIndex, bound: Bound, derived: IsDerived = None,
@@ -30,7 +33,7 @@ def make_value(name: str, value: IsInput, index: IsIndex, bound: Bound, derived:
     Returns:
         IsValue: Value object
     """
-    
+
     args = {'name': name, 'index': index, 'bound': bound, 'derived': derived, 'commodity': commodity,
             'operation': operation, 'spatial': spatial}
 

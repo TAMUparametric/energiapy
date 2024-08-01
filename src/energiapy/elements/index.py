@@ -2,45 +2,42 @@
 """
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from operator import is_not
 from typing import TYPE_CHECKING
 
-from ..core.base import Dunders, Magics
+from ..core.inits.common import ElmCommon
 
 if TYPE_CHECKING:
-    from ..type.alias import IsAspect, IsComponent, IsDeclaredAt, IsTemporal
-
-from operator import is_
+    from ..types.alias import (IsCommodity, IsOperation, IsPlayer, IsScale,
+                               IsSpatial)
 
 
 @dataclass
-class Index(Dunders, Magics):
-    component: IsComponent
-    declared_at: IsDeclaredAt
-    temporal: IsTemporal
+class Index(ElmCommon):
+    player: IsPlayer = field(default=None)
+    derived: IsCommodity = field(default=None)
+    commodity: IsCommodity = field(default=None)
+    operation: IsOperation = field(default=None)
+    spatial: IsSpatial = field(default=None)
+    scale: IsScale = field(default=None)
 
     def __post_init__(self):
 
-        comp = f'{self.component.name}'
-        temp = f'{self.temporal.name.lower()}'
+        ply_, der_, cmd_, opn_ = (f'{getattr(self,i).name}' if i else '' for i in [
+            'player', 'derived', 'commodity', 'operation'])
 
-        if isinstance(self.declared_at, tuple):
-            dec_at = f'{self.declared_at[0].name, self.declared_at[1].name}'
-            index_list = [comp, dec_at, temp]
-        elif is_(self.component, self.declared_at):
-            dec_at = ''
-            index_list = [comp, temp]
-        else:
-            dec_at = f'{self.declared_at.name}'
-            index_list = [comp, dec_at, temp]
+        scl_ = f'{self.scale.name.lower()}'
 
-        self.name = f'{tuple(dict.fromkeys(index_list).keys())}'
+        index_list = [i for i in [der_, cmd_, opn_, scl_] if is_not(i, '')]
+
+        self.name = f'[{ply_}]{tuple(dict.fromkeys(index_list).keys())}'
         self.index_list = index_list
 
     def full(self):
         """Gives the full index list, by expanding the temporal index
         """
-        return [(*self.index_list[:-1], *j) for j in self.temporal.index]
+        return [(*self.index_list[:-1], *j) for j in self.scale.index]
 
     def __len__(self):
-        return self.temporal.n_index
+        return self.scale.n_index

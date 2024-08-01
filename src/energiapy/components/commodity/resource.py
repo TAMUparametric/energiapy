@@ -5,19 +5,16 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
-from ...core.capbound import RscCapBound
-from ...core.cashflow import RscCashFlow
-from ...core.resflow import ResFlow
+from ...core.inits.component import CmpInit
 from ...inputs.input_map import input_map
-from ...type.component.resource import ResourceType
-from ..component import Commodity
+from ...types.component.resource import ResourceType
 
 if TYPE_CHECKING:
     from ...type.alias import IsDepreciated, IsLimit
 
 
 @dataclass
-class Resource(RscCashFlow, ResFlow, RscCapBound, Commodity):
+class Resource(CmpInit):
     # Depreciated
     sell: IsDepreciated = field(default=None)
     varying: IsDepreciated = field(default=None)
@@ -29,8 +26,8 @@ class Resource(RscCashFlow, ResFlow, RscCapBound, Commodity):
 
     def __post_init__(self):
 
-        RscCapBound.__post_init__(self)
-        Commodity.__post_init__(self)
+        CmpInit.__post_init__(self)
+
         # *-----------------Set ctype (ResourceType)---------------------------------
 
         if self.sell_cost is not None:

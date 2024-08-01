@@ -8,13 +8,10 @@ from dataclasses import dataclass, field
 from functools import reduce
 from typing import TYPE_CHECKING
 
-from ...core.balance import PrcRscConv
-from ...core.capbound import PrcCapBound
-from ...core.cashflow import RscCashFlow
-from ...core.limit import ResLimit
+from ...core.inits.component import CmpInit
+from ...funcs.utils.data_utils import get_depth
 from ...inputs.input_map import input_map
-from ...type.component.process import ProcessType
-from ...utils.data_utils import get_depth
+from ...types.component.process import ProcessType
 from ..component import Operation
 
 if TYPE_CHECKING:
@@ -27,7 +24,7 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class Process(PrcRscConv, PrcCapBound, ResLimit, RscCashFlow, Operation):
+class Process(CmpInit):
 
     # Depreciated
     varying: IsDepreciated = field(default=None)

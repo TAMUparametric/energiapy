@@ -5,11 +5,11 @@ energiapy.Scale - A bespoke discretization of the planning horizon (Horizon) of 
 from dataclasses import dataclass
 from typing import List
 
-from ..component import Temporal
+from ...core.inits.common import CmpCommon
 
 
 @dataclass
-class Scale(Temporal):
+class Scale(CmpCommon):
     """
     A single temporal scale of the planning horizon (Horizon).
 
