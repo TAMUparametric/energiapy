@@ -3,37 +3,40 @@ from enum import Enum, auto
 from typing import Set
 
 
-class ProcessType(Enum):
+class HasModes(Enum):
+    """If the Operation has modes
+    """
+    PRODUCTION = auto()
+    """Process Conversion
+    """
+    CHARGING = auto()
+    """Again a Process within Storage
+    """
+    FREIGHT = auto()
+    """Transit Mode
+    """
+    EXPENDITURE = auto()
+    """Capital investment
+    """
+    USE = auto()
+    """Material requirements  
+    """
+    TRL = auto()
+    """Technology Readiness Level
+    """
+
+
+class Is(Enum):
     """What class a Process fits into or if a particular parameter is defined
     """
-    # * -------------------- Classifications--------------------------------------
-    SINGLE_PRODMODE = auto()
-    """Only allows one mode
-    """
-    MULTI_PRODMODE = auto()
-    """Allows multiple modes
-    """
-    NO_MATMODE = auto()
-    """Does not use materials
-    """
-    SINGLE_MATMODE = auto()
-    """Has a single material mode
-    """
-    MULTI_MATMODE = auto()
-    """Has multiple material modes
-    """
+    CHARGING = auto()
+
     STORAGE = auto()
     STORAGE_DISCHARGE = auto()
     """Storage type process
     """
     STORAGE_REQ = auto()
     """Storage type process, but storage itself consumes another resource.
-    """
-    LINEAR_CAPEX = auto()
-    """Consider constant CAPEX
-    """
-    PWL_CAPEX = auto()
-    """Use piece-wise linear CAPEX
     """
     INTERMITTENT = auto()
     """Not strictly intermittent, but experiences some type of variability

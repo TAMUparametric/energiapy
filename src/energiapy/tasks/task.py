@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class Task(ElmCollect, TskCommon):
+class Task():
     """Component Task 
     """
     component: IsComponent = field(default=None)
@@ -34,3 +34,13 @@ class Task(ElmCollect, TskCommon):
         """Gives the name of the Aspect
         """
         return cls.__name__
+
+    @classmethod
+    def _tsk(cls) -> str:
+        """Returns task class name
+        """
+        return cls.__name__
+
+    @staticmethod
+    def _istsk():
+        return True

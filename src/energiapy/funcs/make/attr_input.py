@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from ...funcs.utils.attr_input import get_depth
+from ...types.alias import IsHorizon, IsNetwork, IsSpatial
 
 if TYPE_CHECKING:
     from ...type.alias import IsHorizon, IsInput, IsNetwork, IsSptTmpDict

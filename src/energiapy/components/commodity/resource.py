@@ -47,7 +47,7 @@ class Resource(CmpInit):
         #         self.consume = True
         # TODO update store, produce, transport
 
-        # *----------------- Depreciation Warnings---------------------------------
+        # *Depreciation Warnings
         _name = getattr(self, 'name', None)
         _changed = {'store_max': 'store', 'store_min': 'store', 'cons_max': 'consume',
                     'sell': 'discharge and sell_cost', 'price': 'purchase_cost', 'revenue': 'sell_cost'}
