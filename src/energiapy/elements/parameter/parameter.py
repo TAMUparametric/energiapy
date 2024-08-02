@@ -3,8 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-
 from ..core.inits.common import ElmCommon
+
 if TYPE_CHECKING:
     from ..components.horizon import Horizon
     from ..type.alias import IsValue

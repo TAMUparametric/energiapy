@@ -353,21 +353,4 @@ def calculate_hourly(data: pandas.DataFrame, column_name: str, what: str = 'mean
     return results
 
 
-def get_depth(dictionary: dict) -> int:
-    """ finds depth of dictionary
 
-    Args:
-        dictionary (dict): dictionary
-
-    Returns:
-        int: depth of dictionary
-    """
-    if not isinstance(dictionary, dict) or not dictionary:
-        # If the input is not a dictionary or is an empty dictionary, return 0
-        return 0
-
-    # Recursively find the maximum depth of nested dictionaries
-    max_depth = max(get_depth(value) for value in dictionary.values())
-
-    # Return one more than the maximum depth found
-    return 1 + max_depth

@@ -2,9 +2,8 @@
 """
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
 from dataclasses import dataclass, field
+from typing import TYPE_CHECKING
 
 from ...core.inits.component import CmpInit
 

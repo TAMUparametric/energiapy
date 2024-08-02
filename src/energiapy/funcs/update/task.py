@@ -65,4 +65,3 @@ def update_task(player: IsPlayer, component: IsComponent, attr_name: str, attr_i
 
             value_ = birth_value(
                 name=attr_name, attr_input=attr_input, index=index)
-            

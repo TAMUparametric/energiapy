@@ -1,3 +1,3 @@
-from .task import Task
 from dataclasses import dataclass
 
+from .task import Task

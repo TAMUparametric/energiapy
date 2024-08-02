@@ -1,15 +1,17 @@
 # from __future__ import annotations
 
 from dataclasses import dataclass, field
-from .detail import DtlInit
-# from typing import TYPE_CHECKING
 
+from ...elements.index import Index
+from ...funcs.birth.value import birth_value
 # from ...funcs.birth.task import birth_task
 # from ...funcs.birth.value import birth_value
 from ...funcs.check.component import is_named
-from ...funcs.birth.value import birth_value
 from .common import CmpCommon, ElmCollect
-from ...elements.index import Index
+from .detail import DtlInit
+
+# from typing import TYPE_CHECKING
+
 
 # if TYPE_CHECKING:
 #     from ..type.alias import IsInput, IsTask
@@ -36,5 +38,5 @@ class CmpInit(CmpCommon, ElmCollect, DtlInit):
 
         if is_named(component=self, attr_input=value):
             print(name, value, 'yes')
-
+            
         super().__setattr__(name, value)

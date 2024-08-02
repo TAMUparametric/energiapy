@@ -1,13 +1,15 @@
 """The main object in energiapy. Everything else is defined as a scenario attribute.
 """
-from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-from ..core.inits.scenario import ScnInit
-from ..funcs.add_to.scenario import add_component
-from ..funcs.update.name import update_name
-from ..components.temporal.horizon import Horizon
+from ...components.spatial.linkage import Linkage
+from ...components.spatial.location import Location
+from ...components.spatial.network import Network
+from ...components.temporal.horizon import Horizon
+from ...core.inits.scenario import ScnInit
+from ...funcs.add_to.component import add_component
+from ...funcs.update.name import update_name
 
 # if TYPE_CHECKING:
 # from ..types.alias import IsComponent
@@ -50,15 +52,24 @@ class Scenario(ScnInit):
     def __setattr__(self, name, value):
 
         if hasattr(value, '_named') and not value._named:
+            update_name(component=value, name=name, horizon=self.horizon)
 
-            if isinstance(value, Horizon):  
-                update_name(component=value, name=name)
+            if isinstance(value, Horizon):
                 self.horizon, self.scales = value, value.scales
                 for i in value.scales:
                     setattr(self, i.name, i)
-            else:
-                update_name(component=value, name=name, horizon=self.horizon)
+
+            elif isinstance(value, Network):
+                pass
+
+            elif isinstance(value, (Location, Linkage)):
                 add_component(
-                    scenario=self, list_attr=value.collection, component=value)
+                    to=self, list_attr=value.collection, add=value)
+                add_component(
+                    to=self.network, list_attr=value.collection, add=value)
+                
+            else:
+                add_component(
+                    to=self, list_attr=value.collection, add=value)
 
         super().__setattr__(name, value)

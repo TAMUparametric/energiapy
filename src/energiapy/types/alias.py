@@ -48,14 +48,43 @@ IsSpace = Union[Tuple[IsSpaceBound, IsSpaceBound], Literal[Th]]
 # as an exact value (equality constraint)
 IsExact = Union[IsNumeric, IsData, IsSpace]
 
+
+# *Temporal types
+IsHorizon = Horizon
+IsScale = Scale
+
+# *Network type
+IsNetwork = Network
+
+# *Operation types
+# IsProcess = Process
+# IsStorage = Storage
+# IsTransit = Transit
+
+# *Spatial types
+IsLinkage = Linkage
+IsLocation = Location
+
+# *Component types
+# IsCommodity = Union[IsCash, IsEmission, IsLand, IsMaterial, IsResource]
+# IsOperation = Union[IsProcess, IsStorage, IsTransit]
+IsSpatial = Union[IsLinkage, IsLocation]
+# IsComponent = Union[IsCommodity, IsOperation, IsSpatial]
+
 # * compound input types
 # as a list of bounds [lower, upper] (inequality constraints)
 IsBound = List[IsExact, IsFree]
+
+IsTmpDict = Dict[IsScale, Union[IsExact, IsBound, IsFree]]
+
+IsSptDict = Dict[IsSpatial, Union[IsExact, IsBound, IsFree]]
+
+IsSptTmpDict = Dict[IsSpatial, IsTmpDict]
+
 # as a dictionary with keys being the temporal scale
-IsTempDict = Dict[Scale, Union[IsExact, IsBound, IsFree]]
-IsLimit = Union[IsBound, IsExact, IsTempDict, IsFree]
-IsCap = Union[IsBound, IsExact, IsTempDict]
-IsInput = Union[IsExact, IsBound, IsFree, IsTempDict]
+IsLimit = Union[IsBound, IsExact, IsTmpDict, IsSptDict, IsSptTmpDict, IsFree]
+IsCap = Union[IsBound, IsExact, IsSptDict, IsTmpDict]
+IsInput = Union[IsExact, IsBound, IsFree, IsSptDict, IsSptTmpDict, IsTmpDict]
 
 
 # * Value types
@@ -77,12 +106,6 @@ IsVarBnd = VarBnd
 # is a limit to the domain of a parametric variable
 IsSpcLmt = SpcLmt
 
-# *Temporal types
-IsHorizon = Horizon
-IsTemporal = Scale
-
-# *Network type
-IsNetwork = Network
 
 # *Specific Aspect types
 # IsCapacity = IsLimit
@@ -97,21 +120,6 @@ IsNetwork = Network
 # IsLand = Land
 # IsMaterial = Material
 # IsResource = Resource
-
-# *Operation types
-# IsProcess = Process
-# IsStorage = Storage
-# IsTransit = Transit
-
-# *Spatial types
-IsLinkage = Linkage
-IsLocation = Location
-
-# *Component types
-# IsCommodity = Union[IsCash, IsEmission, IsLand, IsMaterial, IsResource]
-# IsOperation = Union[IsProcess, IsStorage, IsTransit]
-IsSpatial = Union[IsLinkage, IsLocation]
-# IsComponent = Union[IsCommodity, IsOperation, IsSpatial]
 
 # *Classes and Enums
 # IsTask = Union[IsResFlowCap, IsCashFlow, IsEmission, IsEmissionCap,

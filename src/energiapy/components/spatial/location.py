@@ -2,9 +2,8 @@
 """
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
 from dataclasses import dataclass, field
+from typing import TYPE_CHECKING
 
 from ...core.inits.component import CmpInit
 
@@ -21,7 +20,11 @@ class Location(CmpInit):
 
     def __post_init__(self):
         CmpInit.__post_init__(self)
-    
+
+    @property
+    def _spatial(self):
+        return self
+
     @property
     def collection(self):
         """The collection in scenario
