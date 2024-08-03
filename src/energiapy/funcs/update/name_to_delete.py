@@ -4,10 +4,10 @@ from dataclasses import fields
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from ...types.alias import IsComponent, IsHorizon
+    from ..._core._aliases._component import IsComponent, IsHorizon, IsNetwork
 
 
-def update_name(component: IsComponent, name: str, horizon: IsHorizon = None):
+def update_name(component: IsComponent, name: str, horizon: IsHorizon, network: IsNetwork):
     """names and adds horizon to the Resource
 
     Args:
@@ -17,9 +17,11 @@ def update_name(component: IsComponent, name: str, horizon: IsHorizon = None):
     """
 
     setattr(component, 'name', name)
-    setattr(component, '_named', True)
+
     if horizon:
         setattr(component, '_horizon', horizon)
+    if network:
+        setattr(component, '_network', network)
 
     for i in fields(component):
         attr = i.name.lower()

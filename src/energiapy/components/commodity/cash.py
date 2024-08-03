@@ -1,11 +1,11 @@
 
 from dataclasses import dataclass
 
-from ...core.inits.component import CmpInit
+from .._component import _Component
 
 
 @dataclass
-class Cash(CmpInit):
+class Cash(_Component):
     """Cash derived from:
         Resource Consume and Discharge
         Operation Capacity
@@ -13,6 +13,10 @@ class Cash(CmpInit):
         Storage Store
         Transit Transport    
     """
+
+    def __post_init__(self):
+        _Component.__post_init__(self)
+
     @property
     def collection(self):
         """The collection in scenario

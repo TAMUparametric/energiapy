@@ -5,21 +5,21 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
-from ...core.inits.component import CmpInit
+from .._component import _Component
 
 if TYPE_CHECKING:
     from ...types.alias import IsInput
 
 
 @dataclass
-class Location(CmpInit):
+class Location(_Component):
     """Location where Process and Storage can reside 
     """
     land_cost: IsInput = field(default=None)
     land_avail: IsInput = field(default=None)
 
     def __post_init__(self):
-        CmpInit.__post_init__(self)
+        _Component.__post_init__(self)
 
     @property
     def _spatial(self):

@@ -4,14 +4,14 @@ from dataclasses import dataclass, field
 from itertools import product
 from operator import imod, is_, is_not
 
-from ...core.inits.common import CmpCommon
+from .._component import _ScopeComponent
 from ...types.component.horizon import HorizonType
 from ...types.element.disposition import TemporalDisp
 from .scale import Scale
 
 
 @dataclass
-class Horizon(CmpCommon):
+class Horizon(_ScopeComponent):
     """
     Planning horizon of the problem. 
     Need to specify how many periods the parent scale t0 with 1 discretization is divided into.
@@ -80,8 +80,8 @@ class Horizon(CmpCommon):
     nested: bool = field(default=True)
 
     def __post_init__(self):
-
-        self.name, self._named, self.scales, self.ctypes = None, None, [], []
+        _ScopeComponent.__post_init__(self)
+        self.scales = []
 
         # # insert 1 at the beginning, this is the horizon itself
         self.discretizations.insert(0, 1)

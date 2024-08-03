@@ -2,7 +2,7 @@
 """
 
 
-class Dunders:
+class _Reprs:
     """The usual dunder methods for a Component
     """
 
@@ -15,14 +15,13 @@ class Dunders:
     def __hash__(self):
         return hash(getattr(self, 'name'))
 
-    @classmethod
     def __init_subclass__(cls):
-        cls.__hash__ = Dunders.__hash__
-        cls.__eq__ = Dunders.__eq__
-        cls.__repr__ = Dunders.__repr__
+        cls.__repr__ = _Reprs.__repr__
+        cls.__eq__ = _Reprs.__eq__
+        cls.__hash__ = _Reprs.__hash__
 
 
-class Magics:
+class _Magics:
     """Magic functions
     """
 
@@ -31,3 +30,8 @@ class Magics:
 
     def __gt__(self, other):
         return getattr(self, 'name') > other.name
+
+
+class _Dunders(_Reprs, _Magics):
+    """Dunders for a Component
+    """

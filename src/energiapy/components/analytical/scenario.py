@@ -7,9 +7,16 @@ from ...components.spatial.linkage import Linkage
 from ...components.spatial.location import Location
 from ...components.spatial.network import Network
 from ...components.temporal.horizon import Horizon
-from ...core.inits.scenario import ScnInit
 from ...funcs.add_to.component import add_component
-from ...funcs.update.name import update_name
+from ...components.commodity.cash import Cash
+from ...components.commodity.emission import Emission
+from ...components.commodity.land import Land
+# from ...analysis.player import Players
+from ..._core._imports._dunders import _Dunders
+from ...model.data import Data
+from ...model.matrix import Matrix
+from ...model.program import Program
+from ...model.system import System
 
 # if TYPE_CHECKING:
 # from ..types.alias import IsComponent
@@ -17,7 +24,7 @@ from ...funcs.update.name import update_name
 
 
 @dataclass
-class Scenario(ScnInit):
+class Scenario(_Dunders):
     """
     A scenario for a considered system. It collects all the components of the model.
 
@@ -45,32 +52,70 @@ class Scenario(ScnInit):
     basis_land: str = 'Acres'
     basis_cash: str = '$'
     default_players: bool = field(default=True)
+    default_emissions: bool = field(default=True)
 
     def __post_init__(self):
-        ScnInit.__post_init__(self)
+        self.horizon = None
+        self.scales = []
+        self.network = Network(name=self.name)
+
+        self.program = Program(name=self.name)
+        self.system = System(name=self.name)
+        self.matrix = Matrix(name=self.name)
+        self.data = Data(name=self.name)
+
+        # if self.default_players:
+        #     players = [('dm', 'Decision Maker'), ('market', 'Commodity Market'),
+        #                ('consumer', 'Demand Consumer'), ('earth', 'Planet that absorbs the rest')]
+        #     for i, j in players:
+        #         setattr(self, i, Player(name=i, label=j))
+
+        # assets
+        self.land = Land(basis=self.basis_land, label='Land')
+        self.cash = Cash(basis=self.basis_cash, label='Cash')
+
+        if getattr(self, 'default_emissions'):
+            emissions = [
+                ('gwp', 'kg CO2 eq.', 'Global Warming Potential'),
+                ('ap', 'mol eq', 'Acidification Potential'),
+                ('epm', 'kg P eq', 'Eutrophication Potential (Marine)'),
+                ('epf', 'kg P eq', 'Eutrophication Potential (Freshwater)'),
+                ('ept', 'kg P eq', 'Eutrophication Potential (Terrestrial)'),
+                ('pocp', 'kg NMVOC eq', 'Photochemical Ozone Creation Potential'),
+                ('odp', 'kg CFC 11 eq', 'Ozone Depletion Potential'),
+                ('adpmn', 'kg Sb eq', 'Abiotic Depletion Potential (Mineral)'),
+                ('adpmt', 'kg Sb eq', 'Abiotic Depletion Potential (Metal)'),
+                ('adpf', 'MJ', 'Abiotic Depletion Potential (Fossil)'),
+                ('wdp', 'm^3', 'Water Deprivation Potential')
+            ]
+            for i, j, k in emissions:
+                setattr(self, i, Emission(basis=j, label=k))
 
     def __setattr__(self, name, value):
 
-        if hasattr(value, '_named') and not value._named:
-            update_name(component=value, name=name, horizon=self.horizon)
+        if isinstance(value, Horizon) and not value._named:
 
-            if isinstance(value, Horizon):
-                self.horizon, self.scales = value, value.scales
-                for i in value.scales:
-                    setattr(self, i.name, i)
+            print('asas')
+            setattr(value, 'name', name)
+            self.horizon, self.scales = value, value.scales
+            for i in value.scales:
+                setattr(self, i.name, i)
 
-            elif isinstance(value, Network):
-                pass
+        elif isinstance(value, Network):
+            pass
 
-            elif isinstance(value, (Location, Linkage)):
-                add_component(
-                    to=self, list_attr=value.collection, add=value)
-                add_component(
-                    to=self.network, list_attr=value.collection, add=value)
-                
-                
-            else:
-                add_component(
-                    to=self, list_attr=value.collection, add=value)
+        elif isinstance(value, (Location, Linkage)):
+            self.personalize(name, value)
+            add_component(
+                to=self, list_attr=value.collection, add=value)
+            add_component(
+                to=self.network, list_attr=value.collection, add=value)
 
         super().__setattr__(name, value)
+
+    def personalize(self, name, component):
+        """Personalize the incoming compoenent 
+        """
+        setattr(component, 'name', name)
+        setattr(component, '_horizon', self.horizon)
+        setattr(component, '_network', self.network)

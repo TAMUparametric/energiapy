@@ -7,7 +7,7 @@ from pandas import DataFrame
 from ...values.bounds import Bound
 from ...values.dataset import DataSet
 from ...values.m import M
-from ...values.number import Number
+from ...values.constant import Number
 from ...values.theta import Theta
 
 if TYPE_CHECKING:

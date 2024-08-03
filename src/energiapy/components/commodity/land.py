@@ -1,13 +1,17 @@
 
 from dataclasses import dataclass
 
-from ...core.inits.component import CmpInit
+from .._component import _Component
 
 
 @dataclass
-class Land(CmpInit):
+class Land(_Component):
     """Land derived from Operation Capacity
     """
+
+    def __post_init__(self):
+        _Component.__post_init__(self)
+
     @property
     def collection(self):
         """The collection in scenario

@@ -6,11 +6,11 @@ from dataclasses import dataclass, field
 from typing import List
 
 from typing import Union
-from ...core.inits.common import CmpCommon
+from .._component import _ScopeComponent
 
 
 @dataclass
-class Scale(CmpCommon):
+class Scale(_ScopeComponent):
     """
     A single temporal scale of the planning horizon (Horizon).
 
@@ -19,8 +19,10 @@ class Scale(CmpCommon):
         index(List[tuple]): index as a list of tuples
         n_index(int): number of indices, generated post-initialization.
     """
-    name: str = field(default='t0')
     index: List[tuple] = field(default_factory=list)
+
+    def __post_init__(self):
+        _ScopeComponent.__post_init__(self)
 
     def pos(self, index: tuple) -> int:
         """Returns position of index

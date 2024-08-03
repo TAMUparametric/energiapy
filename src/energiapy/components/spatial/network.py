@@ -3,15 +3,20 @@
 
 from dataclasses import dataclass
 
-from ...core.inits.component import CmpInit
+from .._component import _ScopeComponent
 
 
 @dataclass
-class Network(CmpInit):
+class Network(_ScopeComponent):
 
     def __post_init__(self):
-        CmpInit.__post_init__(self)
+        _ScopeComponent.__post_init__(self)
         self.locations, self.linkages = [], []
+        self.name = f'Network|{self.name}|'
+
+    @property
+    def _spatial(self):
+        return self
 
     @property
     def collection(self):

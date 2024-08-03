@@ -3,30 +3,25 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING
+# from typing import TYPE_CHECKING
 
-from ...core.inits.component import CmpInit
-from ...inputs.input_map import input_map
-from ...types.component.resource import ResourceType
-
-if TYPE_CHECKING:
-    from ...type.alias import IsDepreciated, IsLimit
+from .._component import _Component
+# from ...types.component.resource import ResourceType
 
 
 @dataclass
-class Resource(CmpInit):
+class Resource(_Component):
     # Depreciated
-    sell: IsDepreciated = field(default=None)
-    varying: IsDepreciated = field(default=None)
-    price: IsDepreciated = field(default=None)
-    revenue: IsDepreciated = field(default=None)
-    cons_max: IsDepreciated = field(default=None)
-    store_max: IsDepreciated = field(default=None)
-    store_min: IsDepreciated = field(default=None)
+    sell: str = field(default=None)
+    varying: str = field(default=None)
+    price: str = field(default=None)
+    revenue: str = field(default=None)
+    cons_max: str = field(default=None)
+    store_max: str = field(default=None)
+    store_min: str = field(default=None)
 
     def __post_init__(self):
-
-        CmpInit.__post_init__(self)
+        _Component.__post_init__(self)
 
         # *-----------------Set ctype (ResourceType)---------------------------------
 
@@ -56,7 +51,11 @@ class Resource(CmpInit):
             if getattr(self, i):
                 raise ValueError(
                     f'{_name}: {i} is depreciated. Please use {j} instead')
-    
+
+    @property
+    def _commodity(self):
+        return self
+
     @property
     def collection(self):
         """The collection in scenario

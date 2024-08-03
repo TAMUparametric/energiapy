@@ -8,9 +8,8 @@ from dataclasses import dataclass, field
 from functools import reduce
 from typing import TYPE_CHECKING
 
-from ...core.inits.component import CmpInit
+from .._component import _Component
 from ...funcs.utils.data_utils import get_depth
-from ...inputs.input_map import input_map
 from ...types.component.process import ProcessType
 from ..component import Operation
 

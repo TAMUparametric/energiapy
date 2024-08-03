@@ -10,7 +10,7 @@ from pandas import DataFrame
 from ...funcs.update.value import update_bounds
 from .bounds import Approach, Certainty, SpcLmt, VarBnd
 from .dataset import DataSet
-from .number import Number
+from .constant import Number
 from .value import Value
 
 if TYPE_CHECKING:

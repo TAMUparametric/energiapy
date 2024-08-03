@@ -1,10 +1,18 @@
-import uuid
 from dataclasses import dataclass
+from .._component import _Component
 
 
 @dataclass
-class Material:
-    
+class Material(_Component):
+
+    def __post_init__(self):
+        _Component.__post_init__(self)
+
+
+    @property
+    def _commodity(self):
+        return self
+
     @property
     def collection(self):
         """The collection in scenario

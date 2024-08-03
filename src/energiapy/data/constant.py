@@ -21,7 +21,7 @@ class Constant(Value):
 
     def __post_init__(self):
         Value.__post_init__(self)
-        self.name = f'{self.number}'
+        self.name = f'{self.constant}'
 
         self._certainty, self._approach, self._varbound = Certainty.CERTAIN, None, VarBnd.EXACT
 
@@ -31,4 +31,4 @@ class Constant(Value):
     def value(self) -> IsNumeric:
         """Returns a number 
         """
-        return self.number
+        return self.constant
