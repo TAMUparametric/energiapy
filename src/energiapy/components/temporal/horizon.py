@@ -4,9 +4,9 @@ from dataclasses import dataclass, field
 from itertools import product
 from operator import imod, is_, is_not
 
-from .._component import _ScopeComponent
 from ...types.component.horizon import HorizonType
 from ...types.element.disposition import TemporalDisp
+from .._initialize._component import _ScopeComponent
 from .scale import Scale
 
 
@@ -92,14 +92,12 @@ class Horizon(_ScopeComponent):
             HorizonType.NESTED if self.nested else HorizonType.UNNESTED)
 
         for i in range(self.n_scales):
-            self.scales.append(Scale(name=TemporalDisp.all()[
+            self.add(Scale(name=TemporalDisp.all()[
                 i].name.lower(), index=self.make_index(position=i, nested=self.nested)))
 
         self.indices = {i: i.index for i in self.scales}
 
         self.n_indices = [i.n_index for i in self.scales]
-
-    # * ---------Methods-----------------
 
     def make_index(self, position: int, nested: bool = True):
         """makes an index for Scale

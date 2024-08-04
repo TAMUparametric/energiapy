@@ -1,4 +1,15 @@
+from .task import Task
+from .._core._handy._dunders import _Dunders
+from .invest import Purchase
 
+
+class TaskMaster(_Dunders):
+    """TaskMaster class
+    """
+
+    def __init__(self):
+        self.name = 'TaskMaster'
+        self.land_cost = Purchase
 
 
 # resflow_res_attrs = {

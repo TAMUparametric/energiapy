@@ -3,7 +3,7 @@
 
 from dataclasses import dataclass
 
-from .._component import _ScopeComponent
+from .._initialize._component import _ScopeComponent
 
 
 @dataclass
@@ -12,7 +12,6 @@ class Network(_ScopeComponent):
     def __post_init__(self):
         _ScopeComponent.__post_init__(self)
         self.locations, self.linkages = [], []
-        self.name = f'Network|{self.name}|'
 
     @property
     def _spatial(self):

@@ -1,10 +1,10 @@
-from typing import List, Literal, Tuple, Union, Dict
+from typing import Dict, List, Literal, Tuple, Union
 
 from pandas import DataFrame
+
 from ...data.m import BigM
 from ...data.theta import Th
 from .component import IsScale, IsSpatial
-
 
 # *input types
 IsNumeric = Union[float, int]

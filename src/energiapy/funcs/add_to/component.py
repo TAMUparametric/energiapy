@@ -19,4 +19,4 @@ def add_component(to: IsComponent, list_attr: str, add: IsComponent):
     if add in list_curr:
         warn(f'{add} is being replaced in Scenario')
     # add component to list
-    setattr(to, list_attr, list(set(list_curr) | {add}))
+    setattr(to, list_attr, sorted(set(list_curr) | {add}))

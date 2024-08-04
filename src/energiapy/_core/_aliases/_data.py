@@ -1,10 +1,10 @@
 from typing import Union
 
+from ...data._bounds import _SpcLmt, _VarBnd
 from ...data.constant import Constant
-from ...data.theta import Theta
 from ...data.dataset import DataSet
 from ...data.m import M
-from ...data._bounds import _SpcLmt, _VarBnd
+from ...data.theta import Theta
 
 # * Value
 # these are generated internally

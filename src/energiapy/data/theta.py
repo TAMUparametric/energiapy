@@ -9,8 +9,8 @@ from pandas import DataFrame
 
 from ...funcs.update.value import update_bounds
 from .bounds import Approach, Certainty, SpcLmt, VarBnd
-from .dataset import DataSet
 from .constant import Number
+from .dataset import DataSet
 from .value import Value
 
 if TYPE_CHECKING:

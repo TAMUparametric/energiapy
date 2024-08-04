@@ -1,7 +1,7 @@
 
 from dataclasses import dataclass
 
-from .._component import _Component
+from .._initialize._component import _Component
 
 
 @dataclass

@@ -1,7 +1,8 @@
 
 from dataclasses import dataclass, field
 
-from .._core._imports._dunders import _Dunders
+from ..._core._handy._dunders import _Dunders
+from ...funcs.add_to.component import add_component
 
 
 @dataclass
@@ -21,9 +22,14 @@ class _ScopeComponent(_Dunders):
         else:
             return False
 
+    def add(self, component):
+        """Add a Component to Spatial Component
+        """
+        add_component(self, list_attr=component.collection, add=component)
+
 
 @dataclass
-class _Component(_ScopeComponent):
+class _Component(_Dunders):
     """Common initial attributes of components
     """
     label: str = field(default=None)
@@ -34,17 +40,20 @@ class _Component(_ScopeComponent):
     retire: str = field(default=None)
 
     def __post_init__(self):
-        _ScopeComponent.__post_init__(self)
-
         self._horizon = None
         self._network = None
 
     def __setattr__(self, name, value):
 
-        if name in ['basis'] and value and self._ready:
-            print(name, value, 'yes')
-
         super().__setattr__(name, value)
+
+    @property
+    def _named(self):
+        if getattr(self, 'name', False):
+            return True
+
+        else:
+            return False
 
     @property
     def _ready(self):
@@ -52,3 +61,16 @@ class _Component(_ScopeComponent):
             return True
         else:
             return False
+
+    def add(self, component):
+        """Add a Component to Spatial Component
+        """
+        add_component(self, list_attr=component.collection, add=component)
+
+    def personalize(self, name, horizon, network):
+        """Personalize the compoenent
+        give it a name (public), _horizon and _network 
+        """
+        setattr(self, 'name', name)
+        setattr(self, '_horizon', horizon)
+        setattr(self, '_network', network)

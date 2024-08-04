@@ -8,9 +8,9 @@ from dataclasses import dataclass, field
 from functools import reduce
 from typing import TYPE_CHECKING
 
-from .._component import _Component
 from ...funcs.utils.data_utils import get_depth
 from ...types.component.process import ProcessType
+from .._component import _Component
 from ..component import Operation
 
 if TYPE_CHECKING:

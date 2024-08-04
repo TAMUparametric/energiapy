@@ -5,9 +5,9 @@ from typing import TYPE_CHECKING
 from pandas import DataFrame
 
 from ...values.bounds import Bound
+from ...values.constant import Number
 from ...values.dataset import DataSet
 from ...values.m import M
-from ...values.constant import Number
 from ...values.theta import Theta
 
 if TYPE_CHECKING:

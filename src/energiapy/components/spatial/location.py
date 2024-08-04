@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
-from .._component import _Component
+from .._initialize._component import _Component
 
 if TYPE_CHECKING:
     from ...types.alias import IsInput
@@ -20,6 +20,7 @@ class Location(_Component):
 
     def __post_init__(self):
         _Component.__post_init__(self)
+        self.processes, self.storages, self.resources = [], [], []
 
     @property
     def _spatial(self):

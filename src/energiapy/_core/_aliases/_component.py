@@ -1,8 +1,8 @@
 
 from typing import Union
 
-from ...components.analytical.scenario import Scenario
 from ...components.analytical.player import Player
+from ...components.analytical.scenario import Scenario
 from ...components.commodity.cash import Cash
 from ...components.commodity.emission import Emission
 from ...components.commodity.land import Land

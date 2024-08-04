@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
+from .._core._handy._dunders import _Dunders
 
-from ..core.inits.common import ElmCollect, TskCommon
 
 if TYPE_CHECKING:
     from ..components.temporal.horizon import Horizon
@@ -13,13 +13,12 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class Task():
+class Task(_Dunders):
     """Component Task 
     """
     component: IsComponent = field(default=None)
-
+    
     def __post_init__(self):
-        ElmCollect.__post_init__(self)
         self.name = f'{self._name()}({self.component.name})'
 
     @property
@@ -44,3 +43,4 @@ class Task():
     @staticmethod
     def _istsk():
         return True
+    

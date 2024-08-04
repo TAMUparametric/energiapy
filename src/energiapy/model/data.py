@@ -1,8 +1,9 @@
 from dataclasses import dataclass, field
+from .._core._handy._dunders import _Dunders
 
 
 @dataclass
-class Data:
+class Data(_Dunders):
     """Is the data required for the model
     """
     name: str = field(default=None)

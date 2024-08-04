@@ -3,9 +3,11 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+
+from .._initialize._component import _Component
+
 # from typing import TYPE_CHECKING
 
-from .._component import _Component
 # from ...types.component.resource import ResourceType
 
 

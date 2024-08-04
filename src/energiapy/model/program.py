@@ -1,8 +1,9 @@
 from dataclasses import dataclass, field
+from .._core._handy._dunders import _Dunders
 
 
 @dataclass
-class Program:
+class Program(_Dunders):
     """Mathematical Programming Model
     """
     name: str = field(default=None)

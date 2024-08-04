@@ -1,22 +1,19 @@
 """The main object in energiapy. Everything else is defined as a scenario attribute.
 """
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
+from ...components.commodity.cash import Cash
+from ...components.commodity.emission import Emission
+from ...components.commodity.land import Land
 from ...components.spatial.linkage import Linkage
 from ...components.spatial.location import Location
 from ...components.spatial.network import Network
 from ...components.temporal.horizon import Horizon
 from ...funcs.add_to.component import add_component
-from ...components.commodity.cash import Cash
-from ...components.commodity.emission import Emission
-from ...components.commodity.land import Land
 # from ...analysis.player import Players
-from ..._core._imports._dunders import _Dunders
-from ...model.data import Data
-from ...model.matrix import Matrix
-from ...model.program import Program
-from ...model.system import System
+from .._initialize._scenario import _Scenario
+from .player import Player
 
 # if TYPE_CHECKING:
 # from ..types.alias import IsComponent
@@ -24,7 +21,7 @@ from ...model.system import System
 
 
 @dataclass
-class Scenario(_Dunders):
+class Scenario(_Scenario):
     """
     A scenario for a considered system. It collects all the components of the model.
 
@@ -48,74 +45,97 @@ class Scenario(_Dunders):
 
     """
 
-    name: str = r'\m/>'
-    basis_land: str = 'Acres'
-    basis_cash: str = '$'
-    default_players: bool = field(default=True)
-    default_emissions: bool = field(default=True)
-
     def __post_init__(self):
-        self.horizon = None
-        self.scales = []
-        self.network = Network(name=self.name)
-
-        self.program = Program(name=self.name)
-        self.system = System(name=self.name)
-        self.matrix = Matrix(name=self.name)
-        self.data = Data(name=self.name)
-
-        # if self.default_players:
-        #     players = [('dm', 'Decision Maker'), ('market', 'Commodity Market'),
-        #                ('consumer', 'Demand Consumer'), ('earth', 'Planet that absorbs the rest')]
-        #     for i, j in players:
-        #         setattr(self, i, Player(name=i, label=j))
-
-        # assets
-        self.land = Land(basis=self.basis_land, label='Land')
-        self.cash = Cash(basis=self.basis_cash, label='Cash')
-
-        if getattr(self, 'default_emissions'):
-            emissions = [
-                ('gwp', 'kg CO2 eq.', 'Global Warming Potential'),
-                ('ap', 'mol eq', 'Acidification Potential'),
-                ('epm', 'kg P eq', 'Eutrophication Potential (Marine)'),
-                ('epf', 'kg P eq', 'Eutrophication Potential (Freshwater)'),
-                ('ept', 'kg P eq', 'Eutrophication Potential (Terrestrial)'),
-                ('pocp', 'kg NMVOC eq', 'Photochemical Ozone Creation Potential'),
-                ('odp', 'kg CFC 11 eq', 'Ozone Depletion Potential'),
-                ('adpmn', 'kg Sb eq', 'Abiotic Depletion Potential (Mineral)'),
-                ('adpmt', 'kg Sb eq', 'Abiotic Depletion Potential (Metal)'),
-                ('adpf', 'MJ', 'Abiotic Depletion Potential (Fossil)'),
-                ('wdp', 'm^3', 'Water Deprivation Potential')
-            ]
-            for i, j, k in emissions:
-                setattr(self, i, Emission(basis=j, label=k))
+        _Scenario.__post_init__(self)
 
     def __setattr__(self, name, value):
 
+        # Avoid making general functions to handle these for the sake of clarity
+
+        # ScopeComponent are have name attributes
+
         if isinstance(value, Horizon) and not value._named:
 
-            print('asas')
             setattr(value, 'name', name)
+
             self.horizon, self.scales = value, value.scales
+
             for i in value.scales:
                 setattr(self, i.name, i)
 
-        elif isinstance(value, Network):
-            pass
+            self.system.horizon, self.system.scales = value, value.scales
 
-        elif isinstance(value, (Location, Linkage)):
-            self.personalize(name, value)
-            add_component(
-                to=self, list_attr=value.collection, add=value)
-            add_component(
-                to=self.network, list_attr=value.collection, add=value)
+        if isinstance(value, Network) and not value._named:
+
+            setattr(value, 'name', name)
+            self.network = value
+
+            self.system.network = value
+
+        if self._is_scoped and not self._is_initd:
+
+            # these are some initializations, which include:
+            # Assets - Land and Cash
+            # Emissions if default_emissions is True
+            # Players if default_players is True (default)
+            # see components._initialize._scenario.py for details
+            self._initialize()
+
+        if isinstance(value, Cash) or isinstance(value, Land):
+
+            value.personalize(name, self.horizon, self.network)
+
+            self.add(value)
+
+            self.system.add(value)
+
+        # Players and Emissions can be added by the user as well
+        if isinstance(value, Player):
+
+            value.personalize(name, self.horizon, self.network)
+
+            self.add(value)
+
+            self.system.add(value)
+
+        if isinstance(value, Emission):
+
+            value.personalize(name, self.horizon, self.network)
+
+            self.add(value)
+
+            self.system.add(value)
+
+        # These are strictly user defined
+
+        # spatial
+        if isinstance(value, (Location, Linkage)):
+
+            value.personalize(name, self.horizon, self.network)
+
+            self.add(value)
+
+            self.network.add(value)
+
+            self.system.add(value)
+
+        # commodities
+
+        # operational
 
         super().__setattr__(name, value)
 
-    def personalize(self, name, component):
-        """Personalize the incoming compoenent 
+    def add(self, component):
+        """Add a Component to System
         """
-        setattr(component, 'name', name)
-        setattr(component, '_horizon', self.horizon)
-        setattr(component, '_network', self.network)
+        add_component(self, list_attr=component.collection, add=component)
+
+    @property
+    def _is_scoped(self):
+        """Return true if the horizon and Network are both defined
+        """
+        if getattr(self, 'horizon', False) and getattr(self, 'network', False):
+            return True
+
+        else:
+            return False
