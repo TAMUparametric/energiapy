@@ -3,7 +3,8 @@
 
 from dataclasses import dataclass, field
 
-from .bounds import Certainty, VarBnd
+from ._bounds import _VarBnd
+from ._approach import _Certainty
 from .dataset import DataSet
 from .theta import Theta
 from .value import Value
@@ -29,9 +30,9 @@ class M(Value):
             self.name = 'm'
 
         self._certainty, self._approach, self._varbound = (
-            Certainty.CERTAIN,
+            _Certainty.CERTAIN,
             None,
-            VarBnd.FREE,
+            _VarBnd.FREE,
         )
 
     # TODO - fix add Number

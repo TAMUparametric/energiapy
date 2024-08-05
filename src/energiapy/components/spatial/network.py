@@ -3,7 +3,7 @@
 
 from dataclasses import dataclass
 
-from .._initialize._component import _ScopeComponent
+from .._component import _ScopeComponent
 
 
 @dataclass

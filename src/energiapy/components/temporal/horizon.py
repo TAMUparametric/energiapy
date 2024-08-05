@@ -7,7 +7,7 @@ from operator import imod, is_, is_not
 
 from ...types.component.horizon import HorizonType
 from ...types.element.disposition import TemporalDisp
-from .._initialize._component import _ScopeComponent
+from .._component import _ScopeComponent
 from .scale import Scale
 
 

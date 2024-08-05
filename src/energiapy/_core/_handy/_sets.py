@@ -2,7 +2,8 @@
 """
 
 from dataclasses import dataclass
-from ...funcs.add_to.component import add_component
+
+from ...funcs.add.component import add_component
 
 
 @dataclass
@@ -44,7 +45,7 @@ class _ComponentSets:
         comps = plys + cmds + opns + spts + temp
         for i in comps:
             setattr(self, i, [])
-
+    
     def add(self, component):
         """Add a Component to System"""
         add_component(self, list_attr=component.collection, add=component)

@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from .._initialize._component import _Component
+from .._component import _Component
 
 
 @dataclass
@@ -20,3 +20,6 @@ class Cash(_Component):
     def collection(self):
         """The collection in scenario"""
         return 'assets'
+
+
+a = Cash()

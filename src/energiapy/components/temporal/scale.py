@@ -5,7 +5,7 @@ energiapy.Scale - A bespoke discretization of the planning horizon (Horizon) of 
 from dataclasses import dataclass, field
 from typing import List, Union
 
-from .._initialize._component import _ScopeComponent
+from .._component import _ScopeComponent
 
 
 @dataclass
