@@ -9,16 +9,15 @@ class Material(_Component):
     def __post_init__(self):
         _Component.__post_init__(self)
 
-
     @property
     def _commodity(self):
         return self
 
     @property
     def collection(self):
-        """The collection in scenario
-        """
+        """The collection in scenario"""
         return 'materials'
+
     # """
     # Materials are needed to set up processes.
 

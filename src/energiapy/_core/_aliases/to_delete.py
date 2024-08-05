@@ -4,6 +4,7 @@ alias should only be called if TYPE_CHECKING is True, to avoid circular imports
 There are a lot of redundancies in the definition of type hints
 This is intentionally, for the sake of clarity and consistency in using the Is format for type hinting
 """
+
 # from typing import Dict, List, Literal, Tuple, Union
 
 # from pandas import DataFrame

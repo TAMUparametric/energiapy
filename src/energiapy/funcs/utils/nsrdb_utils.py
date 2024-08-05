@@ -18,8 +18,16 @@ import pandas
 from scipy.spatial import cKDTree
 
 
-def fetch_nsrdb_data(attrs: List[str], year: int, lat_lon: Tuple[float] = None, state: str = '',
-                     county: str = '', resolution: str = '', get: str = 'max-population', save: str = None) -> Union[pandas.DataFrame, tuple]:
+def fetch_nsrdb_data(
+    attrs: List[str],
+    year: int,
+    lat_lon: Tuple[float] = None,
+    state: str = '',
+    county: str = '',
+    resolution: str = '',
+    get: str = 'max-population',
+    save: str = None,
+) -> Union[pandas.DataFrame, tuple]:
     """fetches nsrdb data from nearest coordinates (latitude, longitude)
     or from county in a state matching a particular 'get' metric
 
@@ -52,35 +60,51 @@ def fetch_nsrdb_data(attrs: List[str], year: int, lat_lon: Tuple[float] = None, 
             dist, pos = tree.query(lat_lon_query)
             return pos
 
-        idx = nearest_site(
-            tree=tree, latitude=lat_lon[0], longitude=lat_lon[1])
+        idx = nearest_site(tree=tree, latitude=lat_lon[0], longitude=lat_lon[1])
 
     else:
         # gets coordinates and associated data
         meta = pandas.DataFrame(nsrdb_data['meta'][...])
         # data matching state coordinates
         state_data = meta.loc[meta['state'] == str.encode(state)]
-        county_data = state_data.loc[state_data['county'] == str.encode(
-            county)]  # data matching county
+        county_data = state_data.loc[
+            state_data['county'] == str.encode(county)
+        ]  # data matching county
 
         # splits the get string, e.g. max - population, gives [max, population(get_metric)]
         get_metric = get.split('-')[1]
 
         if get.split('-')[0] == 'min':
             latitude = float(
-                county_data['latitude'][county_data[get_metric] == min(county_data[get_metric])].iloc[0])
+                county_data['latitude'][
+                    county_data[get_metric] == min(county_data[get_metric])
+                ].iloc[0]
+            )
             longitude = float(
-                county_data['longitude'][county_data[get_metric] == min(county_data[get_metric])].iloc[0])
-            loc_data = county_data.loc[(county_data['latitude'] == latitude) & (
-                county_data['longitude'] == longitude)]
+                county_data['longitude'][
+                    county_data[get_metric] == min(county_data[get_metric])
+                ].iloc[0]
+            )
+            loc_data = county_data.loc[
+                (county_data['latitude'] == latitude)
+                & (county_data['longitude'] == longitude)
+            ]
 
         if get.split('-')[0] == 'max':
             latitude = float(
-                county_data['latitude'][county_data[get_metric] == max(county_data[get_metric])].iloc[0])
+                county_data['latitude'][
+                    county_data[get_metric] == max(county_data[get_metric])
+                ].iloc[0]
+            )
             longitude = float(
-                county_data['longitude'][county_data[get_metric] == max(county_data[get_metric])].iloc[0])
-            loc_data = county_data.loc[(county_data['latitude'] == latitude) & (
-                county_data['longitude'] == longitude)]
+                county_data['longitude'][
+                    county_data[get_metric] == max(county_data[get_metric])
+                ].iloc[0]
+            )
+            loc_data = county_data.loc[
+                (county_data['latitude'] == latitude)
+                & (county_data['longitude'] == longitude)
+            ]
 
         idx = loc_data.index[0]
         lat_lon = (latitude, longitude)
@@ -93,17 +117,20 @@ def fetch_nsrdb_data(attrs: List[str], year: int, lat_lon: Tuple[float] = None, 
     averaged_output = pandas.DataFrame()
 
     psm_scale_dict = {
-        attr: nsrdb_data[attr].attrs['psm_scale_factor'] for attr in attrs}
+        attr: nsrdb_data[attr].attrs['psm_scale_factor'] for attr in attrs
+    }
 
     for attr in attrs:
         full_output = nsrdb_data[attr][:, idx]  # native data set at 30 mins
         averaged_output[attr] = numpy.average(
-            full_output.reshape(-1, timestep_dict[resolution]), axis=1)  # averages over resolution
+            full_output.reshape(-1, timestep_dict[resolution]), axis=1
+        )  # averages over resolution
     averaged_output = averaged_output.set_index(
-        time_index[::timestep_dict[resolution]])
+        time_index[:: timestep_dict[resolution]]
+    )
 
     for attr in attrs:
-        averaged_output[attr] = averaged_output[attr]/psm_scale_dict[attr]
+        averaged_output[attr] = averaged_output[attr] / psm_scale_dict[attr]
 
     if save is not None:
         averaged_output.to_csv(save + '.csv')

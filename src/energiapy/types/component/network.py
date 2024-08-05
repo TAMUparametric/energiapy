@@ -3,12 +3,11 @@ from typing import Set
 
 
 class NetworkType(Enum):
-    """Network classifications
-    """
+    """Network classifications"""
+
     LAND = auto()
 
     @classmethod
     def all(cls) -> Set[str]:
-        """All Network classifications
-        """
+        """All Network classifications"""
         return {i.name for i in cls}

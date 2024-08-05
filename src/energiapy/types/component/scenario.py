@@ -15,6 +15,5 @@ class ScenarioType(Enum):
 
     @classmethod
     def all(cls) -> Set[str]:
-        """All Scenario classifications
-        """
+        """All Scenario classifications"""
         return {i.name for i in cls}

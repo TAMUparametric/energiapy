@@ -10,8 +10,7 @@ from ..components.spatial.linkage import Linkage
 
 @dataclass
 class Invest(Task):
-    """Invest Cash for Operation
-    """
+    """Invest Cash for Operation"""
 
     def __post_init__(self):
         Task.__post_init__(self)
@@ -19,8 +18,7 @@ class Invest(Task):
 
 @dataclass
 class Purchase(Invest):
-    """Purchase Land for Operation
-    """
+    """Purchase Land for Operation"""
 
     def __post_init__(self):
         Invest.__post_init__(self)

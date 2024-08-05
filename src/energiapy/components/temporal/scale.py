@@ -17,29 +17,27 @@ class Scale(_ScopeComponent):
         index(List[tuple]): index as a list of tuples
         n_index(int): number of indices, generated post-initialization.
     """
+
     index: List[tuple] = field(default_factory=list)
 
     def __post_init__(self):
         _ScopeComponent.__post_init__(self)
 
     def pos(self, index: tuple) -> int:
-        """Returns position of index
-        """
+        """Returns position of index"""
         return self.index.index(index)
 
     def idx(self, position: tuple):
-        """Pops index
-        """
+        """Pops index"""
         return self.index[position]
 
     def rng(self, lb: Union[int, tuple], ub: Union[int, tuple]):
-        """Returns range from postion/index
-        """
+        """Returns range from postion/index"""
         if isinstance(lb, int):
             return [self.idx(i) for i in self.index[lb:ub]]
 
         if isinstance(lb, tuple):
-            return self.index[self.pos(lb):self.pos(ub)]
+            return self.index[self.pos(lb) : self.pos(ub)]
 
     @property
     def n_index(self) -> int:
@@ -48,6 +46,5 @@ class Scale(_ScopeComponent):
 
     @property
     def collection(self) -> str:
-        """The collection in scenario
-        """
+        """The collection in scenario"""
         return 'scales'

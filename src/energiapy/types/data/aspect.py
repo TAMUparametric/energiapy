@@ -21,29 +21,24 @@ from enum import Enum, auto
 
 
 class AspectMixin:
-    """common methods for all Aspect enums
-    """
+    """common methods for all Aspect enums"""
 
     def pname(self):
-        """Parameter name generator
-        """
+        """Parameter name generator"""
         return getattr(self, 'name').lower().capitalize()
 
     def vname(self):
-        """Variable name generator
-        """
+        """Variable name generator"""
         return getattr(self, 'name').lower()
 
     @classmethod
     def aname(cls):
-        """Returns the name of the Enum
-        """
+        """Returns the name of the Enum"""
         return cls.__name__
 
     @classmethod
     def all(cls) -> str:
-        """All members of the Enum
-        """
+        """All members of the Enum"""
         return [i for i in cls]
 
 
@@ -51,6 +46,7 @@ class CapBound(AspectMixin, Enum):
     """These are capacitated by the realized capacities
     of the component where the Resource is declared
     """
+
     PRODUCE = auto()
     """Production capacitated by Process capacity
     """
@@ -73,13 +69,14 @@ class CapBound(AspectMixin, Enum):
     @staticmethod
     def at_transport():
         return [CapBound.TRANSPORT]
+
     # for i in operations,:
     # PRODUCE - Process/Storage, (Location, Process/Storage), Transit, (Linkage, Transit)
 
 
 class CashFlow(AspectMixin, Enum):
-    """Money going towards or being made from
-    """
+    """Money going towards or being made from"""
+
     SELL_COST = auto()
     """Revenue per unit basis of Resource sold
     """
@@ -111,7 +108,10 @@ class CashFlow(AspectMixin, Enum):
 
     @staticmethod
     def resource() -> list:
-        return [getattr(CashFlow, i) for i in ['SELL_COST', 'PURCHASE_COST', 'STORE_COST', 'CREDIT', 'PENALTY']]
+        return [
+            getattr(CashFlow, i)
+            for i in ['SELL_COST', 'PURCHASE_COST', 'STORE_COST', 'CREDIT', 'PENALTY']
+        ]
 
     @staticmethod
     def operation() -> list:
@@ -120,12 +120,13 @@ class CashFlow(AspectMixin, Enum):
     @staticmethod
     def spatial() -> list:
         return [CashFlow.LAND_COST]
+
     # Resource, Process, Resource, Locatiom,
 
 
 class Impact(AspectMixin, Enum):
-    """Type of emission being considered
-    """
+    """Type of emission being considered"""
+
     GWP = auto()
     """Global Warming Potential
     """
@@ -148,8 +149,8 @@ class Impact(AspectMixin, Enum):
 
 
 class LandStat(AspectMixin, Enum):
-    """Land use or available at spatial scale 
-    """
+    """Land use or available at spatial scale"""
+
     LAND_USE = auto()
     """Exact
     """
@@ -167,8 +168,8 @@ class LandStat(AspectMixin, Enum):
 
 
 class Life(AspectMixin, Enum):
-    """Constrictes the life of a Process or Transit 
-    """
+    """Constrictes the life of a Process or Transit"""
+
     INTRODUCE = auto()
     """Earliest setup 
     """
@@ -188,9 +189,10 @@ class Life(AspectMixin, Enum):
 
 
 class Limit(AspectMixin, Enum):
-    """What Resource flow is being limited 
-    at some spatiotemporal disposition 
+    """What Resource flow is being limited
+    at some spatiotemporal disposition
     """
+
     DISCHARGE = auto()
     """Outflow.
     Only lower bound by default
@@ -210,13 +212,14 @@ class Limit(AspectMixin, Enum):
     def operation() -> str:
         return [Limit.CAPACITY]
 
+
 # DISCHARGE, CONSUME - Process, Location, (Location, Process)
 # CAPACITY - Process, Storage, Transit, (Location, Operation)
 
 
 class Loss(AspectMixin, Enum):
-    """Resource lost during?
-    """
+    """Resource lost during?"""
+
     STORE_LOSS = auto()
     TRANSPORT_LOSS = auto()
 
@@ -227,4 +230,5 @@ class Loss(AspectMixin, Enum):
     @staticmethod
     def during_transport() -> list:
         return [Loss.TRANSPORT_LOSS]
+
     # Resource, Storage/ Transit. (Location/Linkage, Storage/Transit),

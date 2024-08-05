@@ -11,13 +11,27 @@ from ...values.m import M
 from ...values.theta import Theta
 
 if TYPE_CHECKING:
-    from ...type.alias import (IsCommodity, IsDerived, IsIndex, IsInput,
-                               IsOperation, IsSpatial, IsValue)
+    from ...type.alias import (
+        IsCommodity,
+        IsDerived,
+        IsIndex,
+        IsInput,
+        IsOperation,
+        IsSpatial,
+        IsValue,
+    )
 
 
-def make_value(name: str, value: IsInput, index: IsIndex, bound: Bound, derived: IsDerived = None,
-               commodity: IsCommodity = None, operation: IsOperation = None,
-               spatial: IsSpatial = None) -> IsValue:
+def make_value(
+    name: str,
+    value: IsInput,
+    index: IsIndex,
+    bound: Bound,
+    derived: IsDerived = None,
+    commodity: IsCommodity = None,
+    operation: IsOperation = None,
+    spatial: IsSpatial = None,
+) -> IsValue:
     """Converts a value to a Value object
 
     Args:
@@ -34,8 +48,15 @@ def make_value(name: str, value: IsInput, index: IsIndex, bound: Bound, derived:
         IsValue: Value object
     """
 
-    args = {'name': name, 'index': index, 'bound': bound, 'derived': derived, 'commodity': commodity,
-            'operation': operation, 'spatial': spatial}
+    args = {
+        'name': name,
+        'index': index,
+        'bound': bound,
+        'derived': derived,
+        'commodity': commodity,
+        'operation': operation,
+        'spatial': spatial,
+    }
 
     if isinstance(value, (float, int)):
         return Number(number=value, **args)

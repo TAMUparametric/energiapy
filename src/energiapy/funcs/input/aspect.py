@@ -17,7 +17,7 @@ def aspecter(component: IsComponent, attr_name: str, attr_value: IsInput) -> IsA
     Args:
         component: energiapy component
         attr_name (str): name of the attribute
-        attr_value: value of the attribute 
+        attr_value: value of the attribute
 
     Returns:
         IsAspect: Aspect
@@ -33,8 +33,13 @@ def aspecter(component: IsComponent, attr_name: str, attr_value: IsInput) -> IsA
 
     # TODO - see if needs if not isinstance(attr_value, Aspect):
     # add value to the aspect and update it in the component
-    aspect.add(value=attr_value, aspect=input_map.find_aspect(attr_name), component=component,
-               horizon=component.horizon, declared_at=component.declared_at)
+    aspect.add(
+        value=attr_value,
+        aspect=input_map.find_aspect(attr_name),
+        component=component,
+        horizon=component.horizon,
+        declared_at=component.declared_at,
+    )
     setattr(component, attr_name, aspect)
 
     # update the model elements in the component
@@ -47,7 +52,7 @@ def aspectshareder(component: IsComponent, attr_name: str) -> IsAspectShared:
     Args:
         component: energiapy component
         attr_name (str): name of the attribute
-        attr_value: value of the attribute 
+        attr_value: value of the attribute
 
     Returns:
         IsAspectShared: AspectShared (a dictionary of AspectMap)
@@ -58,13 +63,14 @@ def aspectshareder(component: IsComponent, attr_name: str) -> IsAspectShared:
     if isinstance(current_value, dict):
         for j in current_value:
             j.declared_at = component
-            aspecter(component=j, attr_name=attr_name,
-                     attr_value=current_value[j])
+            aspecter(component=j, attr_name=attr_name, attr_value=current_value[j])
             # setattr(j, attr_name, current_value[j])
 
         new_value = AspectShared(
-            aspect=input_map.find_aspect(attr_name), component=component,  aspects={
-                j: getattr(j, attr_name) for j in current_value})
+            aspect=input_map.find_aspect(attr_name),
+            component=component,
+            aspects={j: getattr(j, attr_name) for j in current_value},
+        )
         setattr(component, attr_name, new_value)
 
         update_element(component=component, aspect=new_value)

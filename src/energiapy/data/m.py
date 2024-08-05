@@ -1,5 +1,6 @@
 """For unbounded parameters
 """
+
 from dataclasses import dataclass, field
 
 from .bounds import Certainty, VarBnd
@@ -11,13 +12,14 @@ from .value import Value
 @dataclass
 class M(Value):
     """
-    If big is True: 
+    If big is True:
         A really big number like the weight on my shoulders
-    If big is False: 
+    If big is False:
         really small number like the money in my bank account
 
     The magic methods allow sorting
     """
+
     big: bool = field(default=True)
 
     def __post_init__(self):
@@ -26,7 +28,11 @@ class M(Value):
         else:
             self.name = 'm'
 
-        self._certainty, self._approach, self._varbound = Certainty.CERTAIN, None, VarBnd.FREE
+        self._certainty, self._approach, self._varbound = (
+            Certainty.CERTAIN,
+            None,
+            VarBnd.FREE,
+        )
 
     # TODO - fix add Number
     def __gt__(self, other):

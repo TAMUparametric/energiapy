@@ -89,8 +89,7 @@ def constraint_latex_render(constraint_rule, latex_alias_dict: dict = None) -> s
     list_.reverse()
 
     dict_ = {i: unsorted_dict_[i] for i in list_}
-    str_ = inspect.getsource(constraint_rule).split(
-        'return ')[1].split('\n')[0]
+    str_ = inspect.getsource(constraint_rule).split('return ')[1].split('\n')[0]
     for key in dict_.keys():
         str_ = str_.replace(key, dict_[key])
 

@@ -1,4 +1,3 @@
-
 from typing import Union
 
 from ...components.analytical.player import Player
@@ -59,5 +58,4 @@ IsOperational = Union[IsProcess, IsStorage, IsTransit]
 IsScopeComponent = Union[IsHorizon, IsNetwork]
 
 # *Component
-IsComponent = Union[IsAnalytical, IsTemporal,
-                    IsSpatial, IsCommodity, IsOperational]
+IsComponent = Union[IsAnalytical, IsTemporal, IsSpatial, IsCommodity, IsOperational]

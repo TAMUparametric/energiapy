@@ -1,7 +1,6 @@
 @dataclass
 class Produce(Trade):
-    """Produce Resource via Process
-    """
+    """Produce Resource via Process"""
 
     def __post_init__(self):
         Trade.__post_init__(self)
@@ -9,8 +8,7 @@ class Produce(Trade):
 
 @dataclass
 class Store(Trade):
-    """Charge Resource via Storage
-    """
+    """Charge Resource via Storage"""
 
     def __post_init__(self):
         Trade.__post_init__(self)
@@ -18,8 +16,7 @@ class Store(Trade):
 
 @dataclass
 class Transport(Trade):
-    """Transport Resource via Transit
-    """
+    """Transport Resource via Transit"""
 
     def __post_init__(self):
         Trade.__post_init__(self)

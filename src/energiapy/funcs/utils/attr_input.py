@@ -1,5 +1,5 @@
 def get_depth(attr_input: dict) -> int:
-    """ finds depth of attr_input
+    """finds depth of attr_input
 
     Args:
         attr_input (dict): attr_input

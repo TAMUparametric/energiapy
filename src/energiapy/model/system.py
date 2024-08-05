@@ -1,4 +1,3 @@
-
 from dataclasses import dataclass, field
 
 from .._core._handy._dunders import _Dunders
@@ -7,8 +6,8 @@ from ..funcs.add_to.component import add_component
 
 @dataclass
 class System(_Dunders):
-    """Collects System Components
-    """
+    """Collects System Components"""
+
     name: str = field(default=None)
 
     def __post_init__(self):
@@ -30,6 +29,5 @@ class System(_Dunders):
         self.network, self.horizon = None, None
 
     def add(self, component):
-        """Add a Component to System
-        """
+        """Add a Component to System"""
         add_component(self, list_attr=component.collection, add=component)

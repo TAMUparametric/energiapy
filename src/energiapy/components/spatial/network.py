@@ -19,6 +19,5 @@ class Network(_ScopeComponent):
 
     @property
     def collection(self):
-        """The collection in scenario
-        """
+        """The collection in scenario"""
         return 'network'

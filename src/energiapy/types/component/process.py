@@ -1,11 +1,10 @@
-
 from enum import Enum, auto
 from typing import Set
 
 
 class HasModes(Enum):
-    """If the Operation has modes
-    """
+    """If the Operation has modes"""
+
     PRODUCTION = auto()
     """Process Conversion
     """
@@ -27,8 +26,8 @@ class HasModes(Enum):
 
 
 class Is(Enum):
-    """What class a Process fits into or if a particular parameter is defined
-    """
+    """What class a Process fits into or if a particular parameter is defined"""
+
     CHARGING = auto()
 
     STORAGE = auto()
@@ -71,14 +70,12 @@ class Is(Enum):
 
     # *--------------------------- Automated below this -----------------------------------------
 
-    @ classmethod
+    @classmethod
     def all(cls) -> Set[str]:
-        """All Process classifications
-        """
+        """All Process classifications"""
         return {i.name for i in cls}
 
-    @ classmethod
+    @classmethod
     def process_level(cls) -> Set[str]:
-        """Set when Process is declared
-        """
+        """Set when Process is declared"""
         return cls.all() - cls.location_level()

@@ -1,5 +1,6 @@
 """Aspect describes the behavior of a component using model elements 
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -14,10 +15,10 @@ if TYPE_CHECKING:
 
 @dataclass
 class Task(_Dunders):
-    """Component Task 
-    """
+    """Component Task"""
+
     component: IsComponent = field(default=None)
-    
+
     def __post_init__(self):
         self.name = f'{self._name()}({self.component.name})'
 
@@ -30,17 +31,14 @@ class Task(_Dunders):
 
     @classmethod
     def _name(cls):
-        """Gives the name of the Aspect
-        """
+        """Gives the name of the Aspect"""
         return cls.__name__
 
     @classmethod
     def _tsk(cls) -> str:
-        """Returns task class name
-        """
+        """Returns task class name"""
         return cls.__name__
 
     @staticmethod
     def _istsk():
         return True
-    

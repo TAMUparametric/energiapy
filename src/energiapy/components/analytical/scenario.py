@@ -11,6 +11,7 @@ from ...components.spatial.location import Location
 from ...components.spatial.network import Network
 from ...components.temporal.horizon import Horizon
 from ...funcs.add_to.component import add_component
+
 # from ...analysis.player import Players
 from .._initialize._scenario import _Scenario
 from .player import Player
@@ -126,14 +127,12 @@ class Scenario(_Scenario):
         super().__setattr__(name, value)
 
     def add(self, component):
-        """Add a Component to System
-        """
+        """Add a Component to System"""
         add_component(self, list_attr=component.collection, add=component)
 
     @property
     def _is_scoped(self):
-        """Return true if the horizon and Network are both defined
-        """
+        """Return true if the horizon and Network are both defined"""
         if getattr(self, 'horizon', False) and getattr(self, 'network', False):
             return True
 

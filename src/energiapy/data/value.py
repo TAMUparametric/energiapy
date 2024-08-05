@@ -18,6 +18,7 @@ class Value(InpCommon):
         name (str): name of aspect
         index (IsIndex): index of the value
     """
+
     name: str = field(default=None)
     index: IsIndex = field(default=None)
 

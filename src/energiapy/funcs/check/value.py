@@ -21,8 +21,7 @@ def scale_match(value: IsValue, scale: IsScale, horizon: IsHorizon) -> IsScale:
 
     if is_(scale, horizon.scales[0]):
         if len(value) in horizon.n_indices:
-            scale = horizon.scales[horizon.n_indices.index(
-                len(value))]
+            scale = horizon.scales[horizon.n_indices.index(len(value))]
         else:
             scale = None
 

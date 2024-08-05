@@ -15,8 +15,7 @@ def is_named(component: IsComponent, attr_input: IsInput) -> bool:
     Returns:
         bool: True if component is ready and value is assigned
     """
-    cndtn_named = hasattr(component, '_named') and getattr(
-        component, '_named')
+    cndtn_named = hasattr(component, '_named') and getattr(component, '_named')
     cndtn_value = attr_input is not None
     if cndtn_named and cndtn_value:
         return True

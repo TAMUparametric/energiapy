@@ -1,5 +1,6 @@
 """energiapy.Resource - Resource as refined in the RT(M)N framework
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -46,13 +47,18 @@ class Resource(_Component):
 
         # *Depreciation Warnings
         _name = getattr(self, 'name', None)
-        _changed = {'store_max': 'store', 'store_min': 'store', 'cons_max': 'consume',
-                    'sell': 'discharge and sell_cost', 'price': 'purchase_cost', 'revenue': 'sell_cost'}
+        _changed = {
+            'store_max': 'store',
+            'store_min': 'store',
+            'cons_max': 'consume',
+            'sell': 'discharge and sell_cost',
+            'price': 'purchase_cost',
+            'revenue': 'sell_cost',
+        }
 
         for i, j in _changed.items():
             if getattr(self, i):
-                raise ValueError(
-                    f'{_name}: {i} is depreciated. Please use {j} instead')
+                raise ValueError(f'{_name}: {i} is depreciated. Please use {j} instead')
 
     @property
     def _commodity(self):
@@ -60,8 +66,7 @@ class Resource(_Component):
 
     @property
     def collection(self):
-        """The collection in scenario
-        """
+        """The collection in scenario"""
         return 'resources'
 
     # def __setattr__(self, name, value):

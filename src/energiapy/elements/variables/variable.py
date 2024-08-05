@@ -12,6 +12,3 @@ if TYPE_CHECKING:
 @dataclass
 class Variable(ElmCommon):
     index: IsIndex = field(default=None)
-    
-
-    

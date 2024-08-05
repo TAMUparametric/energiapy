@@ -2,8 +2,8 @@ from enum import Enum, auto
 
 
 class Condition(Enum):
-    """Rule for constraint generation
-    """
+    """Rule for constraint generation"""
+
     BIND = auto()
     """Binds a variable to parameter bounds
     var <= ub or var >= lb 
@@ -26,8 +26,9 @@ class Condition(Enum):
 
 class RightHandSide(Enum):
     """Binds a variable to a(n)
-    Can be multiplicative, e.g.: var <= param * var2 
+    Can be multiplicative, e.g.: var <= param * var2
     """
+
     PARAMETER = auto()
     """parameter
     """
@@ -40,8 +41,8 @@ class RightHandSide(Enum):
 
 
 class SumOver(Enum):
-    """Sum type
-    """
+    """Sum type"""
+
     TIME = auto()
     """Finds variable value by summing associated variable over time
     var(s,t) = sum(var(s,t-1))

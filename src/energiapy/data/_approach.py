@@ -5,8 +5,8 @@ from enum import Enum, auto
 
 
 class _Certainty(Enum):
-    """How is the parameter variability.
-    """
+    """How is the parameter variability."""
+
     CERTAIN = auto()
     """we know either the exact value or the exact bounds. 
     Subclassed in Bound
@@ -18,8 +18,8 @@ class _Certainty(Enum):
 
 
 class _Approach(Enum):
-    """How uncertainty in parameter is handled
-    """
+    """How uncertainty in parameter is handled"""
+
     PARAMETRIC = auto()
     """
     (float, float)/Theta i.e. MPVar. Parameteric variable

@@ -1,5 +1,6 @@
 """ energiapy.Location
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -13,8 +14,8 @@ if TYPE_CHECKING:
 
 @dataclass
 class Location(_Component):
-    """Location where Process and Storage can reside 
-    """
+    """Location where Process and Storage can reside"""
+
     land_cost: IsInput = field(default=None)
     land_avail: IsInput = field(default=None)
 
@@ -28,6 +29,5 @@ class Location(_Component):
 
     @property
     def collection(self):
-        """The collection in scenario
-        """
+        """The collection in scenario"""
         return 'locations'

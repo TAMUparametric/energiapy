@@ -15,8 +15,7 @@ class Trade(Task):
 
 @dataclass
 class Buy(Trade):
-    """Buy Resource at Location
-    """
+    """Buy Resource at Location"""
 
     def __post_init__(self):
         Trade.__post_init__(self)
@@ -24,8 +23,7 @@ class Buy(Trade):
 
 @dataclass
 class Sell(Trade):
-    """Sell Resource at Location
-    """
+    """Sell Resource at Location"""
 
     def __post_init__(self):
         Trade.__post_init__(self)
@@ -33,8 +31,7 @@ class Sell(Trade):
 
 @dataclass
 class Consume(Trade):
-    """Consume Resource via Process
-    """
+    """Consume Resource via Process"""
 
     def __post_init__(self):
         Trade.__post_init__(self)
@@ -42,8 +39,7 @@ class Consume(Trade):
 
 @dataclass
 class Dispatch(Trade):
-    """Consume Resource via Process
-    """
+    """Consume Resource via Process"""
 
     def __post_init__(self):
         Trade.__post_init__(self)
@@ -51,8 +47,7 @@ class Dispatch(Trade):
 
 @dataclass
 class Charge(Trade):
-    """Charge Resource via Storage
-    """
+    """Charge Resource via Storage"""
 
     def __post_init__(self):
         Trade.__post_init__(self)
@@ -60,8 +55,7 @@ class Charge(Trade):
 
 @dataclass
 class Discharge(Trade):
-    """Discharge Resource via Storage
-    """
+    """Discharge Resource via Storage"""
 
     def __post_init__(self):
         Trade.__post_init__(self)
@@ -69,8 +63,7 @@ class Discharge(Trade):
 
 @dataclass
 class Export(Trade):
-    """Export Resource via Transit
-    """
+    """Export Resource via Transit"""
 
     def __post_init__(self):
         Trade.__post_init__(self)
@@ -78,8 +71,7 @@ class Export(Trade):
 
 @dataclass
 class Import(Trade):
-    """Import Resource via Transit
-    """
+    """Import Resource via Transit"""
 
     def __post_init__(self):
         Trade.__post_init__(self)
@@ -87,8 +79,7 @@ class Import(Trade):
 
 @dataclass
 class Procure(Trade):
-    """Procure Material for Operation
-    """
+    """Procure Material for Operation"""
 
     def __post_init__(self):
         Trade.__post_init__(self)
@@ -96,8 +87,7 @@ class Procure(Trade):
 
 @dataclass
 class Use(Trade):
-    """Use Material for Operation
-    """
+    """Use Material for Operation"""
 
     def __post_init__(self):
         Trade.__post_init__(self)
@@ -105,8 +95,7 @@ class Use(Trade):
 
 @dataclass
 class Acquire(Trade):
-    """Acquire Land for Operation
-    """
+    """Acquire Land for Operation"""
 
     def __post_init__(self):
         Trade.__post_init__(self)

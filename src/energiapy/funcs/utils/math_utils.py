@@ -1,4 +1,3 @@
-
 """Math utilities
 """
 
@@ -23,18 +22,20 @@ def norm_constant(p, mu, sigma) -> float:
     """Calculates the normal constant
 
     Args:
-        p (float): level of complaince 
-        mu (float): mean 
+        p (float): level of complaince
+        mu (float): mean
         sigma (float): standard deviation
 
     Returns:
         float: normal constant
     """
     x = mu + erf(1 / sqrt(2) * p) * sigma * sqrt(2)
-    return 1 / (sigma * sqrt(2 * pi)) * exp(-(x - mu)**2 / (2 * sigma**2))
+    return 1 / (sigma * sqrt(2 * pi)) * exp(-((x - mu) ** 2) / (2 * sigma**2))
 
 
-def scaler(input_df: pandas.DataFrame, scale: list, child_scale: list = None) -> pandas.DataFrame:
+def scaler(
+    input_df: pandas.DataFrame, scale: list, child_scale: list = None
+) -> pandas.DataFrame:
     """creates a scaled list from a pandas.DataFrame object
 
     Args:
@@ -50,23 +51,21 @@ def scaler(input_df: pandas.DataFrame, scale: list, child_scale: list = None) ->
     scaled_df = pandas.DataFrame()
     for col in cols:
         if child_scale is not None:
-            col_names = [str(col) + '-' + str(i)
-                         for i in range(len(child_scale))]
+            col_names = [str(col) + '-' + str(i) for i in range(len(child_scale))]
             reshaped_df = numpy.reshape(
-                input_df[col].values, (len(scale), len(child_scale)))
+                input_df[col].values, (len(scale), len(child_scale))
+            )
         else:
             col_names = [col]
             # reshaped_df = input_df
             if len(cols) > 1:
-                reshaped_df = numpy.reshape(
-                    input_df[col].values, (len(scale), 1))
+                reshaped_df = numpy.reshape(input_df[col].values, (len(scale), 1))
             else:
                 reshaped_df = input_df
 
         scaler = StandardScaler().fit(reshaped_df)
 
-        scaled_iter = pandas.DataFrame(
-            scaler.transform(reshaped_df), columns=col_names)
+        scaled_iter = pandas.DataFrame(scaler.transform(reshaped_df), columns=col_names)
         scaled_df = pandas.concat([scaled_df, scaled_iter], axis=1)
     return scaled_df
 
@@ -81,8 +80,7 @@ def find_euclidean_distance(cluster_node_a: list, cluster_node_b: list) -> float
     Returns:
         float: euclidean distance
     """
-    euclidean_distance_ = [
-        (a - b)**2 for a, b in zip(cluster_node_a, cluster_node_b)]
+    euclidean_distance_ = [(a - b) ** 2 for a, b in zip(cluster_node_a, cluster_node_b)]
     euclidean_distance_ = sum(euclidean_distance_)
     return euclidean_distance_
 
@@ -103,16 +101,18 @@ def generate_connectivity_matrix(scale_len):
             connect_[i_, scale_len - 2] = 1
             # connect_[i,0] = 1
         else:
-            connect_[i_, i_-1] = 1
-            connect_[i_, i_+1] = 1
+            connect_[i_, i_ - 1] = 1
+            connect_[i_, i_ + 1] = 1
     return connect_
 
 
-def min_max(data: Union[numpy.array, pandas.DataFrame]) -> Union[numpy.array, pandas.DataFrame]:
+def min_max(
+    data: Union[numpy.array, pandas.DataFrame]
+) -> Union[numpy.array, pandas.DataFrame]:
     """min max for data
 
     Args:
-        data (numpy.array): time-series data 
+        data (numpy.array): time-series data
 
     Returns:
         Union[numpy.array, pandas.DataFrame]: min-maxed data array
@@ -124,11 +124,13 @@ def min_max(data: Union[numpy.array, pandas.DataFrame]) -> Union[numpy.array, pa
     return data
 
 
-def normalize(data: Union[numpy.array, pandas.DataFrame]) -> Union[numpy.array, pandas.DataFrame]:
+def normalize(
+    data: Union[numpy.array, pandas.DataFrame]
+) -> Union[numpy.array, pandas.DataFrame]:
     """normalizes data
 
     Args:
-        data (numpy.array): time-series data 
+        data (numpy.array): time-series data
 
     Returns:
         Union[numpy.array, pandas.DataFrame]: min-maxed data array

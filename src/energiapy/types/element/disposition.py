@@ -8,6 +8,7 @@ class SpatialDisp(Enum):
     Infered from the Component in which the resource
     parameter is declared
     """
+
     NETWORK = auto()
     LINKAGE = auto()
     TRANSPORT = auto()
@@ -17,9 +18,10 @@ class SpatialDisp(Enum):
 
 class TemporalDisp(Enum):
     """What temporal scale describes the parameter
-    Either inferred from length of deterministic data 
+    Either inferred from length of deterministic data
     or needs to be provided
     """
+
     T0 = auto()
     T1 = auto()
     T2 = auto()

@@ -7,7 +7,9 @@ if TYPE_CHECKING:
     from ..._core._aliases._component import IsComponent, IsHorizon, IsNetwork
 
 
-def update_name(component: IsComponent, name: str, horizon: IsHorizon, network: IsNetwork):
+def update_name(
+    component: IsComponent, name: str, horizon: IsHorizon, network: IsNetwork
+):
     """names and adds horizon to the Resource
 
     Args:

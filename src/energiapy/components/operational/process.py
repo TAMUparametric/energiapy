@@ -14,9 +14,20 @@ from .._component import _Component
 from ..component import Operation
 
 if TYPE_CHECKING:
-    from ...type.alias import (IsCapBound, IsCashFlow, IsConv, IsDepreciated,
-                               IsDetail, IsEmission, IsLand, IsLife, IsLimit,
-                               IsLoss, IsMatUse, IsPWL)
+    from ...type.alias import (
+        IsCapBound,
+        IsCashFlow,
+        IsConv,
+        IsDepreciated,
+        IsDetail,
+        IsEmission,
+        IsLand,
+        IsLife,
+        IsLimit,
+        IsLoss,
+        IsMatUse,
+        IsPWL,
+    )
     from ..commodity.material import Material
     from ..commodity.resource import Resource
     from ..temporal.horizon import Horizon
@@ -46,8 +57,13 @@ class Process(CmpInit):
             if get_depth(self.material_use) > 1:
                 getattr(self, 'ctypes').append(ProcessType.MULTI_MATMODE)
                 self.material_modes = list(self.material_use)
-                self.materials = list(reduce(
-                    operator.or_, (set(self.material_use[i]) for i in self.material_modes), set()))
+                self.materials = list(
+                    reduce(
+                        operator.or_,
+                        (set(self.material_use[i]) for i in self.material_modes),
+                        set(),
+                    )
+                )
             else:
                 getattr(self, 'ctypes').append(ProcessType.SINGLE_MATMODE)
                 self.materials = list(self.material_use)
@@ -83,8 +99,7 @@ class Process(CmpInit):
 
         for i, j in _changed.items():
             if getattr(self, i):
-                raise ValueError(
-                    f'{_name}: {i} is depreciated. Please use {j} instead')
+                raise ValueError(f'{_name}: {i} is depreciated. Please use {j} instead')
 
     def __setattr__(self, name, value):
 
@@ -98,7 +113,9 @@ class Process(CmpInit):
             elif input_map.is_component_aspect(attr=name, component='process'):
                 self.make_aspect(attr_name=name, attr_value=value)
 
-            elif input_map.is_component_aspect(attr=name, component='resource', at='process'):
+            elif input_map.is_component_aspect(
+                attr=name, component='resource', at='process'
+            ):
                 self.make_aspectshared(attr_name=name)
 
     @staticmethod
@@ -107,6 +124,5 @@ class Process(CmpInit):
 
     @property
     def collection(self):
-        """The collection in scenario
-        """
+        """The collection in scenario"""
         return 'processes'

@@ -1,11 +1,10 @@
-
 from enum import Enum, auto
 from typing import Set
 
 
 class ResourceType(Enum):
-    """Class of resource
-    """
+    """Class of resource"""
+
     DISCHARGE = auto()
     """can be dispensed
     """
@@ -38,26 +37,22 @@ class ResourceType(Enum):
 
     @staticmethod
     def location_level() -> list:
-        """Set when Location is declared
-        """
+        """Set when Location is declared"""
         return
 
     @staticmethod
     def transport_level(cls) -> Set[str]:
-        """Set when Transit is declared
-        """
+        """Set when Transit is declared"""
         return {'TRANSPORT'}
 
     # * ---------------------------- Automated below this --------------------------------------
 
     @classmethod
     def all(cls) -> Set[str]:
-        """All Resource classifications
-        """
+        """All Resource classifications"""
         return {i.name for i in cls}
 
     @classmethod
     def resource_level(cls) -> Set[str]:
-        """Set when Resource is declared
-        """
+        """Set when Resource is declared"""
         return cls.all() - cls.location_level() - cls.transport_level()

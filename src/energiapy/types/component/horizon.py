@@ -2,8 +2,8 @@ from enum import Enum, auto
 
 
 class HorizonType(Enum):
-    """Classifies Horizon as having multiple or single scales 
-    """
+    """Classifies Horizon as having multiple or single scales"""
+
     MULTISCALE = auto()
     """Problem has multiple scales 
     """
@@ -19,6 +19,5 @@ class HorizonType(Enum):
 
     @classmethod
     def all(cls) -> list:
-        """All HorizonTypes
-        """
+        """All HorizonTypes"""
         return [i for i in cls]

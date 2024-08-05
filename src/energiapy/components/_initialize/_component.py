@@ -1,4 +1,3 @@
-
 from dataclasses import dataclass, field
 
 from ..._core._handy._dunders import _Dunders
@@ -8,8 +7,9 @@ from ...funcs.add_to.component import add_component
 @dataclass
 class _ScopeComponent(_Dunders):
     """Components which have only one instance in the model
-    Horizon and Network 
+    Horizon and Network
     """
+
     name: str = field(default=None)
 
     def __post_init__(self):
@@ -23,15 +23,14 @@ class _ScopeComponent(_Dunders):
             return False
 
     def add(self, component):
-        """Add a Component to Spatial Component
-        """
+        """Add a Component to Spatial Component"""
         add_component(self, list_attr=component.collection, add=component)
 
 
 @dataclass
 class _Component(_Dunders):
-    """Common initial attributes of components
-    """
+    """Common initial attributes of components"""
+
     label: str = field(default=None)
     basis: str = field(default=None)
     citation: dict = field(default=None)  # for each attribute make dict
@@ -63,13 +62,12 @@ class _Component(_Dunders):
             return False
 
     def add(self, component):
-        """Add a Component to Spatial Component
-        """
+        """Add a Component to Spatial Component"""
         add_component(self, list_attr=component.collection, add=component)
 
     def personalize(self, name, horizon, network):
         """Personalize the compoenent
-        give it a name (public), _horizon and _network 
+        give it a name (public), _horizon and _network
         """
         setattr(self, 'name', name)
         setattr(self, '_horizon', horizon)

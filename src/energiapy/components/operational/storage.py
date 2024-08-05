@@ -22,9 +22,10 @@ from ..component import Component
 class Storage(Component):
     @property
     def collection(self):
-        """The collection in scenario
-        """
+        """The collection in scenario"""
         return 'storages'
+
+
 # store: Resource
 #     capacity: IsLimit
 #     land_use: IsLand = field(default=None)

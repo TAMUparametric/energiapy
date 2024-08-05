@@ -5,8 +5,7 @@ from .task import Task
 
 @dataclass
 class Transact(Task):
-    """Transact Cash
-    """
+    """Transact Cash"""
 
     def __post_init__(self):
         Task.__post_init__(self)
@@ -14,8 +13,7 @@ class Transact(Task):
 
 @dataclass
 class Earn(Transact):
-    """Earn from Sell Resource
-    """
+    """Earn from Sell Resource"""
 
     def __post_init__(self):
         Transact.__post_init__(self)
@@ -23,8 +21,7 @@ class Earn(Transact):
 
 @dataclass
 class Spend(Transact):
-    """Spend on Buy Resource
-    """
+    """Spend on Buy Resource"""
 
     def __post_init__(self):
         Transact.__post_init__(self)
@@ -32,8 +29,7 @@ class Spend(Transact):
 
 @dataclass
 class Invest(Transact):
-    """Invest to build Operation Capacity
-    """
+    """Invest to build Operation Capacity"""
 
     def __post_init__(self):
         Transact.__post_init__(self)
@@ -41,8 +37,7 @@ class Invest(Transact):
 
 @dataclass
 class Penalty(Transact):
-    """Penalty for not meeting Sell limit (demand)
-    """
+    """Penalty for not meeting Sell limit (demand)"""
 
     def __post_init__(self):
         Transact.__post_init__(self)
@@ -50,8 +45,7 @@ class Penalty(Transact):
 
 @dataclass
 class Credit(Transact):
-    """Credit for Produce Resource
-    """
+    """Credit for Produce Resource"""
 
     def __post_init__(self):
         Transact.__post_init__(self)

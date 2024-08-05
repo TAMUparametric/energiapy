@@ -28,8 +28,7 @@ class Constraint(Dunders, Magics):
 
     def __post_init__(self):
 
-        associated, parameter, multip, theta_bounds = (
-            '' for _ in range(4))
+        associated, parameter, multip, theta_bounds = ('' for _ in range(4))
 
         variable = self.variable.name
         for i in ['index', 'temporal']:

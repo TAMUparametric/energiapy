@@ -3,8 +3,8 @@ from typing import Set
 
 
 class TransitType(Enum):
-    """Transit classification
-    """
+    """Transit classification"""
+
     NO_MATMODE = auto()
     """Does not use materials
     """
@@ -43,20 +43,17 @@ class TransitType(Enum):
 
     @classmethod
     def network_level(cls) -> Set[str]:
-        """Set at Network level
-        """
+        """Set at Network level"""
         return {'INTERMITTENT'}
 
     # * -------------------------- Automated below this ----------------------------------------
 
     @classmethod
     def all(cls) -> Set[str]:
-        """All Transit classifications
-        """
+        """All Transit classifications"""
         return {i.name for i in cls}
 
     @classmethod
     def transport_level(cls) -> Set[str]:
-        """Set when Transit is declared
-        """
+        """Set when Transit is declared"""
         return cls.all() - cls.network_level()

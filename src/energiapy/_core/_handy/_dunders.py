@@ -3,8 +3,7 @@
 
 
 class _Reprs:
-    """The usual dunder methods for a Component
-    """
+    """The usual dunder methods for a Component"""
 
     def __repr__(self):
         return str(getattr(self, 'name'))
@@ -22,8 +21,7 @@ class _Reprs:
 
 
 class _Magics:
-    """Magic functions
-    """
+    """Magic functions"""
 
     def __lt__(self, other):
         return getattr(self, 'name') < other.name
@@ -33,5 +31,4 @@ class _Magics:
 
 
 class _Dunders(_Reprs, _Magics):
-    """Dunders for a Component
-    """
+    """Dunders for a Component"""

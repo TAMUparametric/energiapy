@@ -7,9 +7,4 @@ if TYPE_CHECKING:
 
 
 def add_value(task: IsTask, value: IsValue):
-    """Adds a value to a Task
-    """
-    
-    
-    
-    
+    """Adds a value to a Task"""

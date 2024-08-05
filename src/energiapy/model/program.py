@@ -4,11 +4,10 @@ from .._core._handy._dunders import _Dunders
 
 @dataclass
 class Program(_Dunders):
-    """Mathematical Programming Model
-    """
+    """Mathematical Programming Model"""
+
     name: str = field(default=None)
 
     def __post_init__(self):
         self.name = f'Progam|{self.name}|'
-        self.variables, self.constraints, self.parameters = (
-            [] for _ in range(3))
+        self.variables, self.constraints, self.parameters = ([] for _ in range(3))

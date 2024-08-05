@@ -17,18 +17,22 @@ class Constant(Value):
     Args:
         number (IsNumeric): numeric input
     """
+
     number: IsNumeric = field(default=None)
 
     def __post_init__(self):
         Value.__post_init__(self)
         self.name = f'{self.constant}'
 
-        self._certainty, self._approach, self._varbound = Certainty.CERTAIN, None, VarBnd.EXACT
+        self._certainty, self._approach, self._varbound = (
+            Certainty.CERTAIN,
+            None,
+            VarBnd.EXACT,
+        )
 
     # TODO: add __lt__, __gt__, __eq__, __ne__, __le__, __ge__ methods
 
     @property
     def value(self) -> IsNumeric:
-        """Returns a number 
-        """
+        """Returns a number"""
         return self.constant

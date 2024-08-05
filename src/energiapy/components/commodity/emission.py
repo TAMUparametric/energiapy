@@ -6,9 +6,9 @@ from .._initialize._component import _Component
 @dataclass
 class Emission(_Component):
     """Emission derived from:
-        Resource Consume and Discharge
-        Material Use
-        Operation Capacity
+    Resource Consume and Discharge
+    Material Use
+    Operation Capacity
     """
 
     def __post_init__(self):
@@ -16,6 +16,5 @@ class Emission(_Component):
 
     @property
     def collection(self):
-        """The collection in scenario
-        """
+        """The collection in scenario"""
         return 'emissions'

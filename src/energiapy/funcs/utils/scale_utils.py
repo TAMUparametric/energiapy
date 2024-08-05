@@ -42,10 +42,16 @@ def scale_tuple(instance: ConcreteModel, scale_levels: int = 0):
 
 
 def scale_changer(input_dict: dict, scales: Scale, scale_level: int) -> dict:
-    """changes the scales form datetime to tuples
-    """
-    df = pandas.concat([pandas.DataFrame(input_dict[list(input_dict.keys())[i]]).reset_index(drop=True)
-                        for i in range(len(input_dict.keys()))], axis=1)
+    """changes the scales form datetime to tuples"""
+    df = pandas.concat(
+        [
+            pandas.DataFrame(input_dict[list(input_dict.keys())[i]]).reset_index(
+                drop=True
+            )
+            for i in range(len(input_dict.keys()))
+        ],
+        axis=1,
+    )
     # df['hour'] = pandas.to_datetime(df.index, errors='coerce').strftime("%H")
     # df['day'] = pandas.to_datetime(df.index, errors='coerce').strftime("%j")
     # df['year'] = pandas.to_datetime(df.index, errors='coerce').strftime("%Y")
@@ -60,8 +66,10 @@ def scale_changer(input_dict: dict, scales: Scale, scale_level: int) -> dict:
     df['scales'] = scales.scale_iter(scale_level=scale_level)
     df = df.set_index(['scales'])
     df.columns = [i.name for i in input_dict.keys()]
-    df = df.apply(lambda x: x/x.max(), axis=0)
-    output_dict = {i: {j: df[i][j] if math.isnan(
-        df[i][j]) is False else 0.0 for j in df.index} for i in df.columns}
+    df = df.apply(lambda x: x / x.max(), axis=0)
+    output_dict = {
+        i: {j: df[i][j] if math.isnan(df[i][j]) is False else 0.0 for j in df.index}
+        for i in df.columns
+    }
 
     return output_dict

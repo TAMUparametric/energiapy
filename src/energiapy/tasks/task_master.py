@@ -4,8 +4,7 @@ from .invest import Purchase
 
 
 class TaskMaster(_Dunders):
-    """TaskMaster class
-    """
+    """TaskMaster class"""
 
     def __init__(self):
         self.name = 'TaskMaster'

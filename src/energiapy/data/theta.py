@@ -1,5 +1,6 @@
 """Parametric variable 
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -25,7 +26,7 @@ class Theta(Value):
         bounds (tuple, optional): (lower, upper) bound. If not provided, defaults to (0, 1)
         component (energiapy.component, optional): Assigned when used as a parameter value for a component. Defaults to None.
         location (Location, optional): Location at which this is being set. Defaults to None.
-        aspect (str, optional): Type of MPVar. Defaults to None. 
+        aspect (str, optional): Type of MPVar. Defaults to None.
 
     Examples:
 
@@ -35,7 +36,7 @@ class Theta(Value):
 
         >>> th_h2 = Theta(bounds = (0, 10))
 
-        or simply, 
+        or simply,
 
         >>> th_h2 = Theta((0, 10))
 
@@ -49,38 +50,49 @@ class Theta(Value):
 
         Providing the same Theta to different parameters or different components will create unique parametric variables internally.
 
-        For example: 
+        For example:
 
-        Each Theta when provided 
+        Each Theta when provided
 
 
     """
+
     space: IsRange = field(default=None)
 
     def __post_init__(self):
         Value.__post_init__(self)
         self.name = f'Th{self._id}'
 
-        self._certainty, self._approach, self._varbound = Certainty.UNCERTAIN, Approach.PARAMETRIC, VarBnd.EXACT
+        self._certainty, self._approach, self._varbound = (
+            Certainty.UNCERTAIN,
+            Approach.PARAMETRIC,
+            VarBnd.EXACT,
+        )
 
         if len(self.space) == 2:
             # if DataSet or DataFrame, make local DataSet or else keep numeric values
             low_or_up = {0: SpcLmt.START, 1: SpcLmt.END}
 
-            args = {
-                'name': self.name, 'index': self.index
-            }
+            args = {'name': self.name, 'index': self.index}
 
-            self.space = tuple([update_bounds(DataSet(data=j, **args), spclimit=low_or_up[i]) if isinstance(
-                j, DataFrame) else update_bounds(Number(number=j, **args), spclimit=low_or_up[i]) for i, j in enumerate(self.space)])
+            self.space = tuple(
+                [
+                    (
+                        update_bounds(DataSet(data=j, **args), spclimit=low_or_up[i])
+                        if isinstance(j, DataFrame)
+                        else update_bounds(
+                            Number(number=j, **args), spclimit=low_or_up[i]
+                        )
+                    )
+                    for i, j in enumerate(self.space)
+                ]
+            )
         else:
-            raise ValueError(
-                f'{self.name}: tuple must be of length 2')
+            raise ValueError(f'{self.name}: tuple must be of length 2')
 
     @property
     def value(self) -> dict:
-        """Returns a dictionary of data
-        """
+        """Returns a dictionary of data"""
         return self.space
 
 

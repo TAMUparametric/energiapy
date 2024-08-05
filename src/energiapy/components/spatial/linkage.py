@@ -1,5 +1,6 @@
 """ energiapy.Linkage links Locations
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -28,6 +29,5 @@ class Linkage(_Component):
 
     @property
     def collection(self):
-        """The collection in scenario
-        """
+        """The collection in scenario"""
         return 'linkages'

@@ -1,5 +1,6 @@
 """Player is a class that represents a player in the Scenario
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -14,9 +15,10 @@ if TYPE_CHECKING:
 @dataclass
 class Player(_Component):
     """Player in the Scenario
-    has control over some Operations 
-    can give or take commodities from other Players 
+    has control over some Operations
+    can give or take commodities from other Players
     """
+
     owns: IsOwns = field(default=None)
     has: IsCan = field(default=None)
     needs: IsCan = field(default=None)
@@ -26,6 +28,5 @@ class Player(_Component):
 
     @property
     def collection(self):
-        """The collection in scenario
-        """
+        """The collection in scenario"""
         return 'players'

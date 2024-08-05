@@ -30,6 +30,7 @@ class Conversion(InpCommon):
         involve (List[Resource]): The involve attribute generated post initialization.
         name (str): The name attribute generated post initialization.
     """
+
     conversion: IsConv
     process: Process
 
@@ -40,19 +41,51 @@ class Conversion(InpCommon):
 
             self.modes = list(self.conversion[self.produce])
             self.n_modes = len(self.modes)
-            self.discharge = [self.produce] + list(reduce(
-                operator.or_, (set(j for j, k in self.conversion[self.produce][i].items() if k > 0) for i in self.modes), set()))
-            self.consume = list(reduce(
-                operator.or_, (set(j for j, k in self.conversion[self.produce][i].items() if k < 0) for i in self.modes), set()))
+            self.discharge = [self.produce] + list(
+                reduce(
+                    operator.or_,
+                    (
+                        set(
+                            j
+                            for j, k in self.conversion[self.produce][i].items()
+                            if k > 0
+                        )
+                        for i in self.modes
+                    ),
+                    set(),
+                )
+            )
+            self.consume = list(
+                reduce(
+                    operator.or_,
+                    (
+                        set(
+                            j
+                            for j, k in self.conversion[self.produce][i].items()
+                            if k < 0
+                        )
+                        for i in self.modes
+                    ),
+                    set(),
+                )
+            )
             self.balance = {
-                i: {self.produce: 1, **self.conversion[self.produce][i]} for i in self.modes}
+                i: {self.produce: 1, **self.conversion[self.produce][i]}
+                for i in self.modes
+            }
 
         elif get_depth(self.conversion) == 2:
             self.modes, self.n_modes = None, 1
-            self.discharge = [
-                self.produce] + [i for i in self.conversion[self.produce] if self.conversion[self.produce][i] > 0]
-            self.consume = [i for i in self.conversion[self.produce]
-                            if self.conversion[self.produce][i] < 0]
+            self.discharge = [self.produce] + [
+                i
+                for i in self.conversion[self.produce]
+                if self.conversion[self.produce][i] > 0
+            ]
+            self.consume = [
+                i
+                for i in self.conversion[self.produce]
+                if self.conversion[self.produce][i] < 0
+            ]
             self.balance = {self.produce: 1, **self.conversion[self.produce]}
 
         self.involve = list(self.discharge) + list(self.consume)

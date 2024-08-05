@@ -18,8 +18,8 @@ from ...model.system import System
 
 @dataclass
 class _Scenario(_Dunders):
-    """initializations for the Scenario class 
-    """
+    """initializations for the Scenario class"""
+
     name: str = field(default=r'\m/>')
     basis_land: str = 'Acres'
     basis_cash: str = '$'
@@ -55,8 +55,7 @@ class _Scenario(_Dunders):
 
     @once
     def _initialize(self):
-        """Set default components
-        """
+        """Set default components"""
 
         setattr(self, 'land', Land(basis=self.basis_land, label='Land'))
         setattr(self, 'cash', Cash(basis=self.basis_cash, label='Cash'))
@@ -73,7 +72,7 @@ class _Scenario(_Dunders):
                 ('adpmn', 'kg Sb eq', 'Abiotic Depletion Potential (Mineral)'),
                 ('adpmt', 'kg Sb eq', 'Abiotic Depletion Potential (Metal)'),
                 ('adpf', 'MJ', 'Abiotic Depletion Potential (Fossil)'),
-                ('wdp', 'm^3', 'Water Deprivation Potential')
+                ('wdp', 'm^3', 'Water Deprivation Potential'),
             ]
 
             for i, j, k in emissions:
@@ -81,8 +80,12 @@ class _Scenario(_Dunders):
 
         if self.default_players:
 
-            players = [('dm', 'Decision Maker'), ('market', 'Commodity Market'),
-                       ('consumer', 'Demand Consumer'), ('earth', 'Planet that absorbs the rest')]
+            players = [
+                ('dm', 'Decision Maker'),
+                ('market', 'Commodity Market'),
+                ('consumer', 'Demand Consumer'),
+                ('earth', 'Planet that absorbs the rest'),
+            ]
 
             for i, j in players:
                 setattr(self, i, Player(label=j))
