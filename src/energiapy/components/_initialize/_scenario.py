@@ -4,11 +4,13 @@
 from dataclasses import dataclass, field
 
 from ..._core._handy._dunders import _Dunders
+from ..._core._handy._sets import _ComponentSets
 from ...components.analytical.player import Player
 from ...components.commodity.cash import Cash
 from ...components.commodity.emission import Emission
 from ...components.commodity.land import Land
 from ...components.spatial.network import Network
+from ...components.temporal.horizon import Horizon
 from ...funcs.utils.decorators import once
 from ...model.data import Data
 from ...model.matrix import Matrix
@@ -17,7 +19,7 @@ from ...model.system import System
 
 
 @dataclass
-class _Scenario(_Dunders):
+class _Scenario(_Dunders, _ComponentSets):
     """initializations for the Scenario class"""
 
     name: str = field(default=r'\m/>')
@@ -27,6 +29,9 @@ class _Scenario(_Dunders):
     default_emissions: bool = field(default=True)
 
     def __post_init__(self):
+        _ComponentSets.__post_init__(self)
+
+        self._is_initd = False
 
         # Declare Model
         self.system = System(name=self.name)
@@ -35,23 +40,9 @@ class _Scenario(_Dunders):
         self.matrix = Matrix(name=self.name)
 
         # Scope Components
-        self.horizon = None
+        self.horizon = Horizon(name='horizon')
         self.scales = []
-
-        self.network = Network(name=f'Network|{self.name}|')
-
-        # Collections
-        plys = ['players']
-        cmds = ['resources', 'materials', 'emissions', 'assets']
-        opns = ['processes', 'storages', 'transits']
-        spts = ['locations', 'linkages']
-        temp = ['scales']
-
-        comps = plys + cmds + opns + spts + temp
-        for i in comps:
-            setattr(self, f'{i}', [])
-
-        self._is_initd = False
+        self.network = Network(name='network')
 
     @once
     def _initialize(self):

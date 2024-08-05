@@ -126,10 +126,6 @@ class Scenario(_Scenario):
 
         super().__setattr__(name, value)
 
-    def add(self, component):
-        """Add a Component to System"""
-        add_component(self, list_attr=component.collection, add=component)
-
     @property
     def _is_scoped(self):
         """Return true if the horizon and Network are both defined"""

@@ -1,11 +1,11 @@
 from dataclasses import dataclass
 
+from ..components.commodity.cash import Cash
+from ..components.commodity.land import Land
+from ..components.spatial.linkage import Linkage
+from ..components.spatial.location import Location
 from .task import Task
 from .trade import Acquire
-from ..components.commodity.land import Land
-from ..components.commodity.cash import Cash
-from ..components.spatial.location import Location
-from ..components.spatial.linkage import Linkage
 
 
 @dataclass

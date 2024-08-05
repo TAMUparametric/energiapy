@@ -11,15 +11,8 @@ from ...funcs.update.value import update_bounds
 from ...inputs.values.bounds import VarBnd
 
 if TYPE_CHECKING:
-    from ...types.alias import (
-        IsCommodity,
-        IsComponent,
-        IsInput,
-        IsOperation,
-        IsPlayer,
-        IsScale,
-        IsSpatial,
-    )
+    from ...types.alias import (IsCommodity, IsComponent, IsInput, IsOperation,
+                                IsPlayer, IsScale, IsSpatial)
 
 
 def update_task(

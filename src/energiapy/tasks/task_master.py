@@ -1,6 +1,6 @@
-from .task import Task
 from .._core._handy._dunders import _Dunders
 from .invest import Purchase
+from .task import Task
 
 
 class TaskMaster(_Dunders):

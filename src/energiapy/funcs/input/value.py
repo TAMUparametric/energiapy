@@ -11,15 +11,8 @@ from ...values.m import M
 from ...values.theta import Theta
 
 if TYPE_CHECKING:
-    from ...type.alias import (
-        IsCommodity,
-        IsDerived,
-        IsIndex,
-        IsInput,
-        IsOperation,
-        IsSpatial,
-        IsValue,
-    )
+    from ...type.alias import (IsCommodity, IsDerived, IsIndex, IsInput,
+                               IsOperation, IsSpatial, IsValue)
 
 
 def make_value(

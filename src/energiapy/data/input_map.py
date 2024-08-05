@@ -2,7 +2,8 @@ from dataclasses import dataclass
 from itertools import chain
 from operator import attrgetter, is_
 
-from ..type.input.aspect import CapBound, CashFlow, Emission, Land, Life, Limit, Loss
+from ..type.input.aspect import (CapBound, CashFlow, Emission, Land, Life,
+                                 Limit, Loss)
 from ..type.input.balance import Conv, MatUse
 from ..type.input.detail import Detail
 

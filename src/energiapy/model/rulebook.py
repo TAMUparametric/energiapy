@@ -6,7 +6,8 @@ from typing import TYPE_CHECKING, List
 
 from ..core.base import Dunders
 from ..type.element.condition import Condition, RightHandSide, SumOver
-from ..type.input.aspect import CapBound, CashFlow, Emission, Land, Limit, Loss  # Life,
+from ..type.input.aspect import (CapBound, CashFlow, Emission, Land,  # Life,
+                                 Limit, Loss)
 
 if TYPE_CHECKING:
     from ...type.alias import IsAspect, IsComponent, IsDeclaredAt

@@ -11,13 +11,13 @@ from pandas import DataFrame
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 
 from .bounds import Approach, Certainty, VarBnd
-
 # from ..core.base import Dunders
 from .value import Value
 
 if TYPE_CHECKING:
     from ..components.horizon import Horizon
-    from ..type.alias import IsAspect, IsComponent, IsData, IsDeclaredAt, IsIndex
+    from ..type.alias import (IsAspect, IsComponent, IsData, IsDeclaredAt,
+                              IsIndex)
 
 
 @dataclass
