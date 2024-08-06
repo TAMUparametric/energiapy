@@ -63,13 +63,7 @@ class Scenario(_Default):
 
         if issubclass(type(value), (_Component)):
 
-            print(value.collection())
-            if is_(value.collection(), 'processes'):
-                tag = 'process'
-            else:
-                tag = value.collection()[:-1]
-
-            value.personalize(name=f'{tag}:{name}', **self._model)
+            value.personalize(name=name, **self._model)
 
             setattr(self.system, name, value)
 

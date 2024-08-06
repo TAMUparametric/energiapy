@@ -45,7 +45,7 @@ class Scale(_Temporal):
         """Returns number of indices"""
         return len(self.index)
 
-    @property
-    def collection(self) -> str:
+    @staticmethod
+    def collection() -> str:
         """The collection in scenario"""
         return 'scales'
