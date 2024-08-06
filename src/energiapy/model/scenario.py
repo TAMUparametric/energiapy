@@ -1,21 +1,22 @@
 """The main object in energiapy. Everything else is defined as a scenario attribute.
 """
 
-from dataclasses import dataclass
-
-from ..components.commodity.cash import Cash
-from ..components.commodity.emission import Emission
-from ..components.commodity.land import Land
-from ..components.spatial.linkage import Linkage
-from ..components.spatial.location import Location
-from ..components.spatial.network import Network
-from ..components.temporal.horizon import Horizon
-from ._scenario import _Scenario
-from ..components.analytical.player import Player
+from dataclasses import dataclass, field
+from operator import is_
+from ..components._component import _Component
+from ..components.scope.network import Network
+from ..components.scope.horizon import Horizon
+from ..components.temporal.scale import Scale
+from ..types.element.disposition import TemporalDisp
+from ._default import _Default
+from .data import Data
+from .matrix import Matrix
+from .program import Program
+from .system import System
 
 
 @dataclass
-class Scenario(_Scenario):
+class Scenario(_Default):
     """
     A scenario for a considered system. It collects all the components of the model.
 
@@ -39,85 +40,108 @@ class Scenario(_Scenario):
 
     """
 
+    name: str = field(default=r'\m/>')
+
     def __post_init__(self):
-        _Scenario.__post_init__(self)
+
+        # Declare Model
+        self.system = System(name=self.name)
+        self.program = Program(name=self.name)
+        self.data = Data(name=self.name)
+        self.matrix = Matrix(name=self.name)
+
+        self._model = {
+            'system': self.system,
+            'program': self.program,
+            'data': self.data,
+            'matrix': self.matrix,
+        }
+
+        self._default()
 
     def __setattr__(self, name, value):
 
-        # Avoid making general functions to handle these for the sake of clarity
+        if issubclass(type(value), (_Component)):
 
-        # ScopeComponent are have name attributes
+            print(value.collection())
+            if is_(value.collection(), 'processes'):
+                tag = 'process'
+            else:
+                tag = value.collection()[:-1]
 
-        if isinstance(value, Horizon) and not value._named:
+            value.personalize(name=f'{tag}:{name}', **self._model)
 
-            setattr(value, 'name', name)
+            setattr(self.system, name, value)
 
-            self.horizon, self.scales = value, value.scales
+        if isinstance(value, Horizon):
+            for i in range(value.n_scales):
 
-            for i in value.scales:
-                setattr(self, i.name, i)
+                name_scale = TemporalDisp.all()[i].name.lower()
 
-            self.system.horizon, self.system.scales = value, value.scales
+                basis, label = None, None
 
-        if isinstance(value, Network) and not value._named:
+                if value.basis_scale:
+                    basis = value.basis_scale[i]
 
-            setattr(value, 'name', name)
-            self.network = value
+                if label:
+                    label = f'{value.label} Scale {i}'
 
-            self.system.network = value
-
-        if self._is_scoped and not self._is_initd:
-
-            # these are some initializations, which include:
-            # Assets - Land and Cash
-            # Emissions if default_emissions is True
-            # Players if default_players is True (default)
-            # see components._initialize._scenario.py for details
-            self._initialize()
-
-        if isinstance(value, Cash) or isinstance(value, Land):
-
-            value.personalize(name, self.horizon, self.network)
-
-            self.system.add(value)
-
-        # Players and Emissions can be added by the user as well
-        if isinstance(value, Player):
-
-            value.personalize(name, self.horizon, self.network)
-
-            self.system.add(value)
-
-        if isinstance(value, Emission):
-
-            value.personalize(name, self.horizon, self.network)
-
-            self.system.add(value)
-
-        # These are strictly user defined
-
-        # spatial
-        if isinstance(value, (Location, Linkage)):
-
-            value.personalize(name, self.horizon, self.network)
-
-            self.network.add(value)
-
-            self.system.add(value)
-
-        # commodities
-
-        # operational
+                setattr(
+                    self,
+                    name_scale,
+                    Scale(
+                        index=value.make_index(position=i, nested=value.nested),
+                        basis=basis,
+                        label=label,
+                    ),
+                )
 
         super().__setattr__(name, value)
 
     @property
-    def _is_scoped(self):
-        """Return true if the horizon and Network are both defined"""
-        if getattr(self, 'horizon', False) and getattr(self, 'network', False):
-            return True
+    def players(self):
+        return self.system.players
 
-        else:
-            return False
-        
+    @property
+    def horizon(self):
+        return self.system.horizon
 
+    @property
+    def scales(self):
+        return self.system.scales
+
+    @property
+    def network(self):
+        return self.system.network
+
+    @property
+    def assets(self):
+        return self.system.assets
+
+    @property
+    def emissions(self):
+        return self.system.emissions
+
+    @property
+    def resources(self):
+        return self.system.resources
+
+    @property
+    def materials(self):
+        return self.system.materials
+
+    @property
+    def processes(self):
+        return self.system.processes
+
+    @property
+    def transits(self):
+        return self.system.transits
+
+    @property
+    def locations(self):
+        return self.system.locations
+
+    @property
+    def linkages(self):
+        return self.system.linkages

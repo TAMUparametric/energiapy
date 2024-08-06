@@ -5,11 +5,11 @@ energiapy.Scale - A bespoke discretization of the planning horizon (Horizon) of 
 from dataclasses import dataclass, field
 from typing import List, Union
 
-from .._component import _ScopeComponent
+from .._component import _Temporal
 
 
 @dataclass
-class Scale(_ScopeComponent):
+class Scale(_Temporal):
     """
     A single temporal scale of the planning horizon (Horizon).
 
@@ -19,9 +19,10 @@ class Scale(_ScopeComponent):
     """
 
     index: List[tuple] = field(default_factory=list)
+    basis: str = field(default='time')
 
     def __post_init__(self):
-        _ScopeComponent.__post_init__(self)
+        _Temporal.__post_init__(self)
 
     def pos(self, index: tuple) -> int:
         """Returns position of index"""

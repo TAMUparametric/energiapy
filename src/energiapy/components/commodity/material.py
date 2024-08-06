@@ -1,20 +1,20 @@
 from dataclasses import dataclass
 
-from .._component import _Component
+from .._component import _Commodity
 
 
 @dataclass
-class Material(_Component):
+class Material(_Commodity):
 
     def __post_init__(self):
-        _Component.__post_init__(self)
+        _Commodity.__post_init__(self)
 
     @property
     def _commodity(self):
         return self
 
-    @property
-    def collection(self):
+    @staticmethod
+    def collection():
         """The collection in scenario"""
         return 'materials'
 

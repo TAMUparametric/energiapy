@@ -1,33 +1,26 @@
 """ energiapy.Location
 """
 
-from __future__ import annotations
+from dataclasses import dataclass
 
-from dataclasses import dataclass, field
-from typing import TYPE_CHECKING
-
-from .._component import _Component
-
-if TYPE_CHECKING:
-    from ...types.alias import IsInput
+from .._component import _Spatial
 
 
 @dataclass
-class Location(_Component):
+class Location(_Spatial):
     """Location where Process and Storage can reside"""
 
-    land_cost: IsInput = field(default=None)
-    land_avail: IsInput = field(default=None)
-
     def __post_init__(self):
-        _Component.__post_init__(self)
-        self.processes, self.storages, self.resources = [], [], []
+        _Spatial.__post_init__(self)
+        for i in ['processes', 'storages', 'resources', 'materials', 'cash', 'land']:
+            setattr(self, i, [])
 
+    # TODO - check this property
     @property
     def _spatial(self):
         return self
 
-    @property
-    def collection(self):
+    @staticmethod
+    def collection():
         """The collection in scenario"""
         return 'locations'

@@ -8,9 +8,9 @@ from dataclasses import dataclass, field
 from functools import reduce
 from typing import TYPE_CHECKING
 
+from ..._component import _Component
 from ...funcs.utils.data_utils import get_depth
 from ...types.component.process import ProcessType
-from ..._component import _Component
 from ..component import Operation
 
 if TYPE_CHECKING:
@@ -30,7 +30,7 @@ if TYPE_CHECKING:
     )
     from ..commodity.material import Material
     from ..commodity.resource import Resource
-    from ..temporal.horizon import Horizon
+    from ..scope.horizon import Horizon
 
 
 @dataclass
@@ -122,7 +122,7 @@ class Process(CmpInit):
     def _spatial():
         return Location
 
-    @property
-    def collection(self):
+    @staticmethod
+    def collection():
         """The collection in scenario"""
         return 'processes'

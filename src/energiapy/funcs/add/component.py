@@ -16,8 +16,13 @@ def add_component(to: IsEpClass, list_attr: str, add: IsComponent):
         list_attr (str): The name of the attribute representing the list of components.
         add (IsComponent): The component to be added to the list.
     """
-    list_curr = getattr(to, list_attr)
-    if add in list_curr:
-        warn(f'{add} is being replaced in Scenario')
-    # add component to list
-    setattr(to, list_attr, sorted(set(list_curr) | {add}))
+
+    if isinstance(list_curr, list):
+        list_curr = getattr(to, list_attr)
+        if add in list_curr:
+            warn(f'{add} is being replaced in Scenario')
+        # add component to list
+        setattr(to, list_attr, sorted(set(list_curr) | {add}))
+
+    else:
+        setattr(to, list_attr, add)

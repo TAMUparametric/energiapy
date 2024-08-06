@@ -6,6 +6,7 @@
 # TODO -- PWL CAPEX
 
 import operator
+
 # import uuid
 from dataclasses import dataclass
 from functools import reduce
@@ -14,12 +15,14 @@ from typing import Dict, List, Set, Tuple, Union
 from ..utils.data_utils import get_depth
 from .location import Location
 from .material import Material
+
 # from .model.factor import Factor
 # from .model.paramtype import FactorType, MPVarType, ParameterType
 # from .model.special import BigM, CouldBeVar
 # from .model.theta import Theta, birth_theta
 # from .model.transport import TransitParamType
 from .resource import Resource
+
 # from .type.emission import EmissionType
 from .type.resource import ResourceType
 from .type.transport import TransitType
@@ -27,8 +30,8 @@ from .type.transport import TransitType
 
 @dataclass
 class Transit:
-    @property
-    def collection(self):
+    @staticmethod
+    def collection():
         """The collection in scenario"""
         return 'transits'
 

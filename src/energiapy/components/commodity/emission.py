@@ -1,10 +1,10 @@
 from dataclasses import dataclass
 
-from .._component import _Component
+from .._component import _Commodity
 
 
 @dataclass
-class Emission(_Component):
+class Emission(_Commodity):
     """Emission derived from:
     Resource Consume and Discharge
     Material Use
@@ -12,9 +12,9 @@ class Emission(_Component):
     """
 
     def __post_init__(self):
-        _Component.__post_init__(self)
+        _Commodity.__post_init__(self)
 
-    @property
-    def collection(self):
+    @staticmethod
+    def collection():
         """The collection in scenario"""
         return 'emissions'

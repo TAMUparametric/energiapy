@@ -1,4 +1,4 @@
-from typing import Union, TypeAlias
+from typing import TypeAlias, Union
 
 from ...components.analytical.player import Player
 from ...components.commodity.cash import Cash
@@ -11,8 +11,8 @@ from ...components.operational.storage import Storage
 from ...components.operational.transit import Transit
 from ...components.spatial.linkage import Linkage
 from ...components.spatial.location import Location
-from ...components.spatial.network import Network
-from ...components.temporal.horizon import Horizon
+from ...components.scope.network import Network
+from ...components.scope.horizon import Horizon
 from ...components.temporal.scale import Scale
 from ...model.scenario import Scenario
 

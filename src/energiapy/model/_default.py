@@ -4,49 +4,35 @@
 from dataclasses import dataclass, field
 
 from .._core._handy._dunders import _Dunders
-from .._core._handy._sets import _ComponentSets
 from ..components.analytical.player import Player
 from ..components.commodity.cash import Cash
 from ..components.commodity.emission import Emission
 from ..components.commodity.land import Land
-from ..components.spatial.network import Network
-from ..components.temporal.horizon import Horizon
+from ..components.scope.network import Network
+from ..components.scope.horizon import Horizon
 from ..funcs.utils.decorators import once
-from .data import Data
-from .matrix import Matrix
-from .program import Program
-from .system import System
 
 
 @dataclass
-class _Scenario(_Dunders):
+class _Default(_Dunders):
     """initializations for the Scenario class"""
 
-    name: str = field(default=r'\m/>')
-    basis_land: str = 'Acres'
-    basis_cash: str = '$'
+    basis_land: str = field(default='Acres')
+    basis_cash: str = field(default='$')
     default_players: bool = field(default=True)
     default_emissions: bool = field(default=True)
 
-    def __post_init__(self):
-        _ComponentSets.__post_init__(self)
-
-        self._is_initd = False
-
-        # Declare Model
-        self.system = System(name=self.name)
-        self.program = Program(name=self.name)
-        self.data = Data(name=self.name)
-        self.matrix = Matrix(name=self.name)
-
-        # Scope Components
-        self.horizon = Horizon(name='horizon')
-        self.scales = []
-        self.network = Network(name='network')
-
     @once
-    def _initialize(self):
+    def _default(self):
         """Set default components"""
+
+        # these are some initializations, which include:
+        # Assets - Land and Cash
+        # Emissions if default_emissions is True
+        # Players if default_players is True (default)
+        # Scope Components
+        setattr(self, 'h', Horizon(label='Default Horizon'))
+        setattr(self, 'n', Network(label='Default Network'))
 
         setattr(self, 'land', Land(basis=self.basis_land, label='Land'))
         setattr(self, 'cash', Cash(basis=self.basis_cash, label='Cash'))
@@ -80,5 +66,3 @@ class _Scenario(_Dunders):
 
             for i, j in players:
                 setattr(self, i, Player(label=j))
-
-        self._is_initd = True

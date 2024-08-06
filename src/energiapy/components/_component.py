@@ -1,76 +1,119 @@
+"""Base Classes for Components
+"""
+
+from __future__ import annotations
+
 from dataclasses import dataclass, field
-
+from typing import TYPE_CHECKING
 from .._core._handy._dunders import _Dunders
-from ..funcs.add.component import add_component
+from ..model._model import _Model
+
+if TYPE_CHECKING:
+    from .._core._aliases._is_input import IsInput
 
 
 @dataclass
-class _ScopeComponent(_Dunders):
-    """Components which have only one instance in the model
-    Horizon and Network
-    """
-
-    name: str = field(default=None)
-
-    def __post_init__(self):
-        self.ctypes = []
-
-    @property
-    def _named(self):
-        if self.name:
-            return True
-        else:
-            return False
-
-    def add(self, component):
-        """Add a Component to Spatial Component"""
-        add_component(self, list_attr=component.collection, add=component)
-
-
-@dataclass
-class _Component(_Dunders):
-    """Common initial attributes of components"""
+class _Component(_Dunders, _Model):
 
     label: str = field(default=None)
+
+    def __post_init__(self):
+        self.name = None
+
+    @property
+    def is_named(self):
+        """The component has been named"""
+        return self._named
+
+    def personalize(self, name, system, data, matrix, program):
+        """Personalize the compoenent
+        give it a name (public),
+        add model components
+        """
+        self.name = name
+        self._named = True
+        self._system = system
+        self._data = data
+        self._matrix = matrix
+        self._program = program
+
+
+@dataclass
+class _Scope(_Component):
+    """Components which have only one instance in the model
+    Horizon and Network are the only scope components
+    """
+
+    def __post_init__(self):
+        _Component.__post_init__(self)
+        self.ctypes = []
+
+
+@dataclass
+class _Temporal(_Component):
+    """Temporal Component
+    Basically the Scale which is derived from Horizon
+    """
+
+    def __post_init__(self):
+        _Component.__post_init__(self)
+
+
+@dataclass
+class _DefinedComponent(_Component):
+    """Common initial attributes of components"""
+
     basis: str = field(default='unit')
-    citation: dict = field(default=None)  # for each attribute make dict
+    citation: dict = field(default=None)  # TODO - for each attribute make dict
     block: str = field(default=None)
     introduce: str = field(default=None)
     retire: str = field(default=None)
 
     def __post_init__(self):
-        self._horizon = None
-        self._network = None
-
-    def __setattr__(self, name, value):
-
-        super().__setattr__(name, value)
+        _Component.__post_init__(self)
+        self.ctypes = []
 
     @property
-    def _named(self):
-        """The component has been named"""
-        if getattr(self, 'name', False):
-            return True
-
-        else:
-            return False
+    def _horizon(self):
+        """The Horizon of the Component"""
+        return self._system.horizon
 
     @property
-    def _is_scoped(self):
-        """The scope of the scenario has been conveyed to the Component"""
-        if self._named and self._horizon and self._network:
-            return True
-        else:
-            return False
+    def _network(self):
+        """The Network of the Component"""
+        return self._system.network
 
-    def add(self, component):
-        """Add a Component to Spatial Component"""
-        add_component(self, list_attr=component.collection, add=component)
 
-    def personalize(self, name, horizon, network):
-        """Personalize the compoenent
-        give it a name (public), _horizon and _network
-        """
-        setattr(self, 'name', name)
-        setattr(self, '_horizon', horizon)
-        setattr(self, '_network', network)
+@dataclass
+class _Commodity(_DefinedComponent):
+    """Commodity Component"""
+
+    def __post_init__(self):
+        _DefinedComponent.__post_init__(self)
+
+
+@dataclass
+class _Operational(_DefinedComponent):
+    """Operational Component"""
+
+    def __post_init__(self):
+        _DefinedComponent.__post_init__(self)
+
+
+@dataclass
+class _Spatial(_DefinedComponent):
+    """Spatial Component"""
+
+    land_cost: IsInput = field(default=None)
+    land_avail: IsInput = field(default=None)
+
+    def __post_init__(self):
+        _DefinedComponent.__post_init__(self)
+
+
+@dataclass
+class _Analytical(_DefinedComponent):
+    """Analytical Component"""
+
+    def __post_init__(self):
+        _DefinedComponent.__post_init__(self)

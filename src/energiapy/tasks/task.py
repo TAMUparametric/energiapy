@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING
 from .._core._handy._dunders import _Dunders
 
 if TYPE_CHECKING:
-    from ..components.temporal.horizon import Horizon
+    from ..components.scope.horizon import Horizon
     from ..types.alias import IsComponent
 
 

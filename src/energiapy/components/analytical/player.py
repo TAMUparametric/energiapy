@@ -6,14 +6,14 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
-from .._component import _Component
+from .._component import _Analytical
 
 if TYPE_CHECKING:
     from ..type.alias import IsCan, IsOwns
 
 
 @dataclass
-class Player(_Component):
+class Player(_Analytical):
     """Player in the Scenario
     has control over some Operations
     can give or take commodities from other Players
@@ -24,9 +24,9 @@ class Player(_Component):
     needs: IsCan = field(default=None)
 
     def __post_init__(self):
-        _Component.__post_init__(self)
+        _Analytical.__post_init__(self)
 
-    @property
-    def collection(self):
+    @staticmethod
+    def collection():
         """The collection in scenario"""
         return 'players'

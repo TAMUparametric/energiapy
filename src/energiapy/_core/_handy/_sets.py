@@ -3,6 +3,8 @@
 
 from dataclasses import dataclass
 
+from src.energiapy import data
+
 from ...funcs.add.component import add_component
 
 
@@ -30,22 +32,3 @@ class _ElementSets:
             print(i)
 
 
-@dataclass
-class _ComponentSets:
-    """Sets of Components associated with Object"""
-
-    def __post_init__(self):
-        # Collections
-        plys = ['players']
-        cmds = ['resources', 'materials', 'emissions', 'assets']
-        opns = ['processes', 'storages', 'transits']
-        spts = ['locations', 'linkages']
-        temp = ['scales']
-
-        comps = plys + cmds + opns + spts + temp
-        for i in comps:
-            setattr(self, i, [])
-    
-    def add(self, component):
-        """Add a Component to System"""
-        add_component(self, list_attr=component.collection, add=component)

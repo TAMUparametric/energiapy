@@ -1,10 +1,10 @@
 from dataclasses import dataclass
 
-from .._component import _Component
+from .._component import _Commodity
 
 
 @dataclass
-class Cash(_Component):
+class Cash(_Commodity):
     """Cash derived from:
     Resource Consume and Discharge
     Operation Capacity
@@ -14,12 +14,9 @@ class Cash(_Component):
     """
 
     def __post_init__(self):
-        _Component.__post_init__(self)
+        _Commodity.__post_init__(self)
 
-    @property
-    def collection(self):
+    @staticmethod
+    def collection():
         """The collection in scenario"""
         return 'assets'
-
-
-a = Cash()

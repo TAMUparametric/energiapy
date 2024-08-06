@@ -6,28 +6,27 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
-from .._component import _Component
+from .._component import _Spatial
 
 if TYPE_CHECKING:
-    from ...types.alias import IsInput, IsLocation
+    from ..._core._aliases._is_component import IsLocation
 
 
 @dataclass
-class Linkage(_Component):
-    land_cost: IsInput = field(default=None)
-    land_avail: IsInput = field(default=None)
+class Linkage(_Spatial):
+
     sink: IsLocation = field(default=None)
     source: IsLocation = field(default=None)
     bi: bool = field(default=False)
 
     def __post_init__(self):
-        _Component.__post_init__(self)
+        _Spatial.__post_init__(self)
 
     @property
     def _spatial(self):
         return self
 
-    @property
-    def collection(self):
+    @staticmethod
+    def collection():
         """The collection in scenario"""
         return 'linkages'

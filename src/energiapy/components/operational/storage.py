@@ -20,8 +20,8 @@ from ..component import Component
 
 @dataclass
 class Storage(Component):
-    @property
-    def collection(self):
+    @staticmethod
+    def collection():
         """The collection in scenario"""
         return 'storages'
 

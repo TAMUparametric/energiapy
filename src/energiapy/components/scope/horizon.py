@@ -4,15 +4,14 @@
 from dataclasses import dataclass, field
 from itertools import product
 from operator import imod, is_, is_not
+from typing import List
 
 from ...types.component.horizon import HorizonType
-from ...types.element.disposition import TemporalDisp
-from .._component import _ScopeComponent
-from .scale import Scale
+from .._component import _Scope
 
 
 @dataclass
-class Horizon(_ScopeComponent):
+class Horizon(_Scope):
     """
     Planning horizon of the problem.
     Need to specify how many periods the parent scale t0 with 1 discretization is divided into.
@@ -80,10 +79,11 @@ class Horizon(_ScopeComponent):
     discretizations: list = field(default_factory=list)
     # if nested the discretizes based on previous scale
     nested: bool = field(default=True)
+    basis_scale: List[str] = field(default_factory=list)
 
     def __post_init__(self):
-        _ScopeComponent.__post_init__(self)
-        self.scales = []
+        _Scope.__post_init__(self)
+        # self.scales = []
 
         # # insert 1 at the beginning, this is the horizon itself
         self.discretizations.insert(0, 1)
@@ -93,17 +93,9 @@ class Horizon(_ScopeComponent):
         )
         self.ctypes.append(HorizonType.NESTED if self.nested else HorizonType.UNNESTED)
 
-        for i in range(self.n_scales):
-            self.add(
-                Scale(
-                    name=TemporalDisp.all()[i].name.lower(),
-                    index=self.make_index(position=i, nested=self.nested),
-                )
-            )
+        # self.indices = {i: i.index for i in self.scales}
 
-        self.indices = {i: i.index for i in self.scales}
-
-        self.n_indices = [i.n_index for i in self.scales]
+        # self.n_indices = [i.n_index for i in self.scales]
 
     def make_index(self, position: int, nested: bool = True):
         """makes an index for Scale"""
@@ -127,7 +119,22 @@ class Horizon(_ScopeComponent):
         """Returns number of scales"""
         return len(self.discretizations)
 
-    @property
-    def collection(self):
+    @staticmethod
+    def collection():
         """The collection in scenario"""
-        return 'horizon'
+        return 'scopes'
+
+    @property
+    def scales(self):
+        """List of scales"""
+        return self._system.scales
+
+    @property
+    def indices(self):
+        """Dictionary of indices"""
+        return {i: i.index for i in self.scales}
+
+    @property
+    def n_indices(self):
+        """List of number of indices"""
+        return [i.n_index for i in self.scales]

@@ -3,8 +3,8 @@
 
 from dataclasses import dataclass, field
 
-from ._bounds import _VarBnd
 from ._approach import _Certainty
+from ._bounds import _VarBnd
 from .dataset import DataSet
 from .theta import Theta
 from .value import Value

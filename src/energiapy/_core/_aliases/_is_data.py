@@ -1,4 +1,4 @@
-from typing import Union, TypeAlias
+from typing import TypeAlias, Union
 
 from ...data._bounds import _SpcLmt, _VarBnd
 from ...data.constant import Constant

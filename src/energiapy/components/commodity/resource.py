@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-from .._component import _Component
+from .._component import _Commodity
 
 # from typing import TYPE_CHECKING
 
@@ -13,7 +13,7 @@ from .._component import _Component
 
 
 @dataclass
-class Resource(_Component):
+class Resource(_Commodity):
     # Depreciated
     sell: str = field(default=None)
     varying: str = field(default=None)
@@ -24,7 +24,7 @@ class Resource(_Component):
     store_min: str = field(default=None)
 
     def __post_init__(self):
-        _Component.__post_init__(self)
+        _Commodity.__post_init__(self)
 
         # *-----------------Set ctype (ResourceType)---------------------------------
 
@@ -64,8 +64,8 @@ class Resource(_Component):
     def _commodity(self):
         return self
 
-    @property
-    def collection(self):
+    @staticmethod
+    def collection():
         """The collection in scenario"""
         return 'resources'
 
