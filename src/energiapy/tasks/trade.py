@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-import stat
+from typing import Union
 
 from ._task import _Task
 from ..components.commodity.cash import Cash
@@ -11,33 +11,52 @@ from ..components.operational.transit import Transit
 from ..components.spatial.location import Location
 from ..components.spatial.linkage import Linkage
 from ..components.scope.network import Network
+from ..components.analytical.player import Player
+
 
 @dataclass
 class Trade(_Task):
-    """Trade Task
-    Moves Resource
-    """
+    """Trade changes the ownership of Resource between Players"""
 
     def __post_init__(self):
+        self._between = Player
+        self._at = Resource
+        self._give = Resource
+        self._take = Resource
+        self._opn = Process
+        self._spt = Location
+        self._scp = Network
+
         _Task.__post_init__(self)
 
 
 @dataclass
-class Buy(Trade):
-    """Buy Resource"""
+class Transact(_Task):
+    """Transact allows Players to give Cash for Resource"""
 
     def __post_init__(self):
+        self._between = Player
+        self._at = Resource
+        self._give = Cash
+        self._take = Resource
+        self._opn = Storage
+        self._spt = Location
+        self._scp = Network
 
-        self.cl_root = Resource
-        self.cl_give = Resource
-        self.cl_take = Resource 
-        self.cl_opn = Process
-        self.cl_spt = Location 
-        self.cl_scp = Network 
-
-        Trade.__post_init__(self)
+        _Task.__post_init__(self)
 
 
 @dataclass
-class Sell(Trade):
-    """Sell Resource at Location"""
+class Ship(_Task):
+    """Ship moves Resource between Locations"""
+
+    def __post_init__(self):
+        self._between = Location
+        self._at = Resource
+        self._also = Process
+        self._optn = Union[Location, Network]
+        self._give = Resource
+        self._take = Resource
+
+        _Task.__post_init__(self)
+

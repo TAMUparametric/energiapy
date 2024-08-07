@@ -3,14 +3,6 @@ from .invest import Purchase
 from ._task import Task
 
 
-class TaskMaster(_Dunders):
-    """TaskMaster class"""
-
-    def __init__(self):
-        self.name = 'TaskMaster'
-        self.land_cost = Purchase
-
-
 # resflow_res_attrs = {
 #     'discharge': Discharge,
 #     'consume': Consume,
