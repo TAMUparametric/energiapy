@@ -19,14 +19,6 @@ class Trade(_Task):
     """Trade changes the ownership of Resource between Players"""
 
     def __post_init__(self):
-        self._between = Player
-        self._at = Resource
-        self._give = Resource
-        self._take = Resource
-        self._opn = Process
-        self._spt = Location
-        self._scp = Network
-
         _Task.__post_init__(self)
 
 
@@ -35,14 +27,6 @@ class Transact(_Task):
     """Transact allows Players to give Cash for Resource"""
 
     def __post_init__(self):
-        self._between = Player
-        self._at = Resource
-        self._give = Cash
-        self._take = Resource
-        self._opn = Storage
-        self._spt = Location
-        self._scp = Network
-
         _Task.__post_init__(self)
 
 
@@ -51,12 +35,36 @@ class Ship(_Task):
     """Ship moves Resource between Locations"""
 
     def __post_init__(self):
-        self._between = Location
-        self._at = Resource
-        self._also = Process
-        self._optn = Union[Location, Network]
-        self._give = Resource
-        self._take = Resource
-
         _Task.__post_init__(self)
 
+
+@dataclass
+class Operate(_Task):
+    """Operate changes the state of Resource"""
+
+    def __post_init__(self):
+        _Task.__post_init__(self)
+
+
+@dataclass
+class Inventory(_Task):
+    """Stash Resource and pull it out later in time"""
+
+    def __post_init__(self):
+        _Task.__post_init__(self)
+
+
+@dataclass
+class Capacitate(_Task):
+    """Increase the capacity of a Storage"""
+
+    def __post_init__(self):
+        _Task.__post_init__(self)
+
+
+@dataclass
+class Emit(_Task):
+    """Release Emissions"""
+
+    def __post_init__(self):
+        _Task.__post_init__(self)

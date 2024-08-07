@@ -14,7 +14,17 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class Resource(_Commodity):
+class _Resource(_Commodity):
+    """Base Resource Class"""
+
+    @staticmethod
+    def collection():
+        """The collection in System"""
+        return 'resources'
+
+
+@dataclass
+class Resource(_Resource):
 
     buy: IsBoundInput = field(default=None)
     sell: IsBoundInput = field(default=None)
@@ -32,7 +42,7 @@ class Resource(_Commodity):
     store_min: str = field(default=None)
 
     def __post_init__(self):
-        _Commodity.__post_init__(self)
+        _Resource.__post_init__(self)
 
         # *-----------------Set ctype (ResourceType)---------------------------------
 
@@ -68,17 +78,26 @@ class Resource(_Commodity):
             if getattr(self, i):
                 raise ValueError(f'{_name}: {i} is depreciated. Please use {j} instead')
 
-    @property
-    def _commodity(self):
-        return self
 
-    @staticmethod
-    def collection():
-        """The collection in scenario"""
-        return 'resources'
+@dataclass
+class ResourceInStorage(_Resource):
+    """Stored Resource"""
 
-    # def __setattr__(self, name, value):
-    #     super().__setattr__(name, value)
-    #     if self.is_ready(attr_value=value):
-    #         if input_map.is_component_aspect(attr=name, component='resource'):
-    #             self.make_aspect(attr_name=name, attr_value=value)
+    def __post_init__(self):
+        _Resource.__post_init__(self)
+
+
+@dataclass
+class ResourceInTransit(_Resource):
+    """Resource in transit"""
+
+    def __post_init__(self):
+        _Resource.__post_init__(self)
+
+
+@dataclass
+class ResourceLost(_Resource):
+    """Resource lost"""
+
+    def __post_init__(self):
+        _Resource.__post_init__(self)

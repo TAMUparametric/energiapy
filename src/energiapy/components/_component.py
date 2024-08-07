@@ -119,7 +119,6 @@ class _Operational(_DefinedComponent):
 @dataclass
 class _Spatial(_DefinedComponent):
     """Spatial Component"""
-    
 
     def __post_init__(self):
         _DefinedComponent.__post_init__(self)

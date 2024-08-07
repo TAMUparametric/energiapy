@@ -97,37 +97,47 @@ class _Task(_Dunders):
         )
 
 
-Comp = TypeVar('Comp')
+# Comp = TypeVar('Comp')
 
 
+# class _TaskMaster:
+#     """TaskMaster class"""
 
-class _TaskMaster:
-    """TaskMaster class"""
+#     def add(
+#         self,
+#         name: str,
+#         at: Comp,
+#         also: Comp,
+#         between: Comp,
+#         optl_spt: Comp,
+#         give: Comp,
+#         take: Comp,
+#     ):
+#         """Add a task to the TaskMaster"""
+#         setattr(
+#             self,
+#             name,
+#             {
+#                 'at': at,
+#                 'between': between,
+#                 'optl_spt': optl_spt,
+#                 'give': give,
+#                 'take': take,
+#             },
+#         )
 
-    def add(
-        self,
-        name: str,
-        at: Comp,
-        between: Comp,
-        optl_spt: Comp,
-        give: Comp,
-        take: Comp,
-    ):
-        """Add a task to the TaskMaster"""
-        setattr(
-            self,
-            name,
-            {
-                'at': at,
-                'between': between,
-                'optl_spt': optl_spt,
-                'give': give,
-                'take': take,
-            },
-        )
+# taskmaster = _TaskMaster()
 
-taskmaster = _TaskMaster()
+# add_tasks = {
+#     'trade': {'at': Resource, 'also': Process, 'between': Player, 'optl_spt': [Network, Location], 'give': Resource, 'take': Resource},
+#     'transact': {'at': Resource, 'also': Process, 'between': Player, 'optl_spt': [Network, Location], 'give': Cash, 'take': Resource},
+#     'ship': {'at': Resource, 'also': Transit, 'between': Location, 'optl_spt': [Network, Linkage], 'give': Resource, 'take': Resource},
+#     'capacitate' : {'at': [Process, Storage, Transit], 'also': None, 'between': None, 'optl_spt': [Network, Location, Linkage]},
+
+# }
 
 
-taskmaster.add(name= 'trade', at= Resource, between= Player, optl_spt= [Network, Location], give= Resource, take= Resource)
-
+# taskmaster.add(name= 'trade', at= Resource, also =Process, between= Player, optl_spt= [Network, Location], give= Resource, take= Resource)
+# taskmaster.add(name = 'transact', at = Resource, also = Process, between = Player, optl_spt = [Network, Location], give = Cash, take = Resource)
+# taskmaster.add(name = 'ship', at = Resource, also = Transit, between = Location, optl_spt = [Network, Linkage], give = Resource, take = Resource)
+# taskmaster.add()

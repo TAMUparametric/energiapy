@@ -71,23 +71,17 @@ class Scenario(_Default):
         if isinstance(value, Horizon):
             for i in range(value.n_scales):
 
-                name_scale = TemporalDisp.all()[i].name.lower()
-
-                basis, label = None, None
-
-                if value.basis_scale:
-                    basis = value.basis_scale[i]
-
-                if label:
-                    label = f'{value.label} Scale {i}'
+                if value.label_scales:
+                    label_scale = value.label_scales[i]
+                else:
+                    label_scale = value.label_scales
 
                 setattr(
                     self,
-                    name_scale,
+                    value._name_scales[i],
                     Scale(
                         index=value.make_index(position=i, nested=value.nested),
-                        basis=basis,
-                        label=label,
+                        label=label_scale,
                     ),
                 )
 

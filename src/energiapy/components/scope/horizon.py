@@ -79,13 +79,26 @@ class Horizon(_Scope):
     discretizations: list = field(default_factory=list)
     # if nested the discretizes based on previous scale
     nested: bool = field(default=True)
-    basis_scale: List[str] = field(default_factory=list)
+    label: str = field(default=None)
+    label_scales: List[str] = field(default=None)
 
     def __post_init__(self):
         _Scope.__post_init__(self)
 
-        # # insert 1 at the beginning, this is the horizon itself
-        self.discretizations.insert(0, 1)
+        # insert 1 at the beginning, this is the horizon itself
+        if isinstance(self.discretizations, dict):
+            self._discretization_list = list(self.discretizations.values())
+            self._discretization_list.insert(0, 1)
+            self._name_scales = list(self.discretizations.keys())
+            self._name_scales.insert(0, 'scale0')
+
+        elif isinstance(self.discretizations, list):
+            self._discretization_list = list(self.discretizations)
+            self._discretization_list.insert(0, 1)
+            self._name_scales = [f't{i}' for i in range(len(self._discretization_list))]
+
+        else:
+            raise ValueError('Discretizations must be a list or a dictionary')
 
         self.ctypes.append(
             HorizonType.MULTISCALE if self.n_scales > 1 else HorizonType.SINGLESCALE
@@ -95,24 +108,27 @@ class Horizon(_Scope):
     def make_index(self, position: int, nested: bool = True):
         """makes an index for Scale"""
         if nested:
-            lists = [list(range(i)) for i in self.discretizations]
+            lists = [list(range(i)) for i in self._discretization_list]
             return list(product(*lists[: position + 1]))
         else:
-            if is_not(self.discretizations, sorted(self.discretizations)):
+            if is_not(self._discretization_list, sorted(self._discretization_list)):
                 raise ValueError('Discretizations need to be in ascending order')
             if not all(
-                is_(imod(max(self.discretizations), i), 0) for i in self.discretizations
+                is_(imod(max(self._discretization_list), i), 0)
+                for i in self._discretization_list
             ):
                 raise ValueError(
                     'Discretizations need to be divisible by the most granular scale'
                 )
-            lists = [(0, i) for i in range(max(self.discretizations))]
-            return lists[:: max(self.discretizations) // self.discretizations[position]]
+            lists = [(0, i) for i in range(max(self._discretization_list))]
+            return lists[
+                :: max(self._discretization_list) // self._discretization_list[position]
+            ]
 
     @property
     def n_scales(self) -> int:
         """Returns number of scales"""
-        return len(self.discretizations)
+        return len(self._discretization_list)
 
     @staticmethod
     def collection():

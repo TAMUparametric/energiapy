@@ -17,10 +17,11 @@ from ..funcs.utils.decorators import once
 class _Default(_Dunders):
     """initializations for the Scenario class"""
 
-    basis_land: str = field(default='Acres')
-    basis_cash: str = field(default='$')
     default_players: bool = field(default=True)
     default_emissions: bool = field(default=True)
+    default_cash: bool = field(default=True)
+    default_land: bool = field(default=True)
+    default_all: bool = field(default=False)
 
     @once
     def _default(self):
@@ -31,13 +32,18 @@ class _Default(_Dunders):
         # Emissions if default_emissions is True
         # Players if default_players is True (default)
         # Scope Components
+
         setattr(self, 'h', Horizon(label='Default Horizon'))
+
         setattr(self, 'n', Network(label='Default Network'))
 
-        setattr(self, 'land', Land(basis=self.basis_land, label='Land'))
-        setattr(self, 'cash', Cash(basis=self.basis_cash, label='Cash'))
+        if self.default_land or self.default_all:
+            setattr(self, 'land', Land(basis='Acres', label='Land'))
 
-        if self.default_emissions:
+        if self.default_cash or self.default_all:
+            setattr(self, 'cash', Cash(basis='$', label='Cash'))
+
+        if self.default_emissions or self.default_all:
             emissions = [
                 ('gwp', 'kg CO2 eq.', 'Global Warming Potential'),
                 ('ap', 'mol eq', 'Acidification Potential'),
@@ -52,10 +58,10 @@ class _Default(_Dunders):
                 ('wdp', 'm^3', 'Water Deprivation Potential'),
             ]
 
-            for i, j, k in emissions:
+            for i, j, k in emissions or self.default_all:
                 setattr(self, i, Emission(basis=j, label=k))
 
-        if self.default_players:
+        if self.default_players or self.default_all:
 
             players = [
                 ('dm', 'Decision Maker'),
