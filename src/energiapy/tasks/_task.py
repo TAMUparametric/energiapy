@@ -24,6 +24,7 @@ if TYPE_CHECKING:
 class _Task(_Dunders):
     """Component Task"""
 
+    specific: IsComponent = field(default=None)
     dependent: IsTask = field(default=None)
     variable: IsVariable = field(default=None)
     root: IsComponent = field(default=None)
