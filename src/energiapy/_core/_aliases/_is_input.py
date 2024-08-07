@@ -1,48 +1,48 @@
-from typing import Dict, List, Literal, Tuple, Union
+from typing import Dict, List, Literal, Tuple, Union, TypeAlias
 
 from pandas import DataFrame
 
-from ...data.m import BigM
-from ...data.theta import Th
+from ...data.m import M
+from ...data.theta import Theta
 from ._is_component import IsScale, IsSpatial
 
 # *input types
-IsNumeric = Union[float, int]
+IsNumeric: TypeAlias = Union[float, int]
 # is unbounded (=< BigM), constraint not written by variable declared
 # a futher check of whether value is True is required
 # so if value are given as False, then they are set to None
-IsBig = Union[Literal[True], Literal[BigM]]
+IsBig: TypeAlias = Union[Literal[True], M]
 # deterministic data is provided
-IsDataF = DataFrame
+IsDataF: TypeAlias = DataFrame
 # a range is give, treated as bounds for a parameteric variable
-IsSpaceBound = Union[IsNumeric, IsDataF]
-IsSpace = Union[Tuple[IsSpaceBound, IsSpaceBound], Literal[Th]]
+IsSpaceBound: TypeAlias = Union[IsNumeric, IsDataF]
+IsSpace: TypeAlias = Union[Tuple[IsSpaceBound, IsSpaceBound], Theta]
 # as an exact value (equality constraint)
-IsExact = Union[IsNumeric, IsDataF, IsSpace]
+IsExact: TypeAlias = Union[IsNumeric, IsDataF, IsSpace]
 # as a list of bounds [lower, upper] (inequality constraints)
-IsBound = Union[IsExact, IsBig, List[IsExact, IsBig]]
+IsBound: TypeAlias = Union[IsExact, IsBig, List[IsExact, IsBig]]
 
-IsBaseInput = Union[IsExact, IsBound]
+IsBaseInput: TypeAlias = Union[IsExact, IsBound]
 
 # *compound input types
-IsTmpExact = Dict[IsScale, IsExact]
-IsTmpBound = Dict[IsScale, IsBound]
+IsTmpExact: TypeAlias = Dict[IsScale, IsExact]
+IsTmpBound: TypeAlias = Dict[IsScale, IsBound]
 
-IsTmpInput = Union[IsTmpExact, IsTmpBound]
+IsTmpInput: TypeAlias = Union[IsTmpExact, IsTmpBound]
 
-IsSptExact = Dict[IsSpatial, IsExact]
-IsSptBound = Dict[IsSpatial, IsBound]
+IsSptExact: TypeAlias = Dict[IsSpatial, IsExact]
+IsSptBound: TypeAlias = Dict[IsSpatial, IsBound]
 
-IsSptInput = Union[IsSptExact, IsSptBound]
+IsSptInput: TypeAlias = Union[IsSptExact, IsSptBound]
 
-IsSptTmpExact = Dict[IsSpatial, IsTmpExact]
-IsSptTmpBound = Dict[IsSpatial, IsTmpBound]
+IsSptTmpExact: TypeAlias = Dict[IsSpatial, IsTmpExact]
+IsSptTmpBound: TypeAlias = Dict[IsSpatial, IsTmpBound]
 
-IsSptTmpInput = Union[IsSptTmpExact, IsSptTmpBound]
+IsSptTmpInput: TypeAlias = Union[IsSptTmpExact, IsSptTmpBound]
 
 # *attribute inputs
-IsExactInput = Union[IsExact, IsTmpExact, IsSptExact, IsSptTmpExact]
+IsExactInput: TypeAlias = Union[IsExact, IsTmpExact, IsSptExact, IsSptTmpExact]
 
-IsBoundInput = Union[IsBound, IsTmpBound, IsSptBound, IsSptTmpBound]
+IsBoundInput: TypeAlias = Union[IsBound, IsTmpBound, IsSptBound, IsSptTmpBound]
 
-IsInput = Union[IsExactInput, IsBoundInput]
+IsInput: TypeAlias = Union[IsExactInput, IsBoundInput]

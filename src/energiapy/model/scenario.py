@@ -2,9 +2,7 @@
 """
 
 from dataclasses import dataclass, field
-from operator import is_
 from ..components._component import _Component
-from ..components.scope.network import Network
 from ..components.scope.horizon import Horizon
 from ..components.temporal.scale import Scale
 from ..types.element.disposition import TemporalDisp
@@ -13,6 +11,7 @@ from .data import Data
 from .matrix import Matrix
 from .program import Program
 from .system import System
+from .abstract import Abstract
 
 
 @dataclass
@@ -49,12 +48,14 @@ class Scenario(_Default):
         self.program = Program(name=self.name)
         self.data = Data(name=self.name)
         self.matrix = Matrix(name=self.name)
+        self.abstract = Abstract(name=self.name)
 
         self._model = {
             'system': self.system,
             'program': self.program,
             'data': self.data,
             'matrix': self.matrix,
+            'abstract': self.abstract,
         }
 
         self._default()

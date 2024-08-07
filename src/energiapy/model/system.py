@@ -4,7 +4,12 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 from warnings import warn
 
-from ..components._component import _Component, _Spatial, _Scope  # , _Analytical
+from ..components._component import (
+    _Component,
+    _Spatial,
+    _Scope,
+    _Temporal,
+)  # , _Analytical
 from ..components.scope.horizon import Horizon
 from ..components.scope.network import Network
 from .._core._handy._dunders import _Dunders
@@ -23,7 +28,7 @@ class System(_Dunders):
 
         self.name = f'System|{self.name}|'
 
-        # Scope
+        # SpatioTemporal Scope
         # Is always [Horizon, Network]
         self.scopes = [None, None]
 
@@ -45,33 +50,41 @@ class System(_Dunders):
 
     def __setattr__(self, name, value):
 
+        # all Component to collection
         if issubclass(type(value), _Component):
             self.add(value)
 
+        # keeping scopes as a list and horizon and network avoids recursion
+        if issubclass(type(value), _Temporal):
+            # set Scales to horizon
+            setattr(self.scopes[0], name, value)
+
         if issubclass(type(value), _Spatial):
-            # keeping scopes as a list and horizon and network as properties
-            # avoids recursion
+            # set Location and Linkages in Network
             setattr(self.scopes[1], name, value)
 
         super().__setattr__(name, value)
 
-    def add(self, add: IsComponent):
-        """Updates the lists of components in the scenario.
+    def add(self, component: IsComponent):
+        """Updates the collection lists of components in the system.
 
         Args:
-            add (IsComponent): The component to be added to a particular collection
+            component (IsComponent): The component to be added to a particular collection
         """
 
-        if issubclass(type(add), _Scope):
-            if isinstance(add, Horizon):
-                self.scopes[0] = add
-            elif isinstance(add, Network):
-                self.scopes[1] = add
+        if issubclass(type(component), _Scope):
+            if isinstance(component, Horizon):
+                self.scopes[0] = component
+            elif isinstance(component, Network):
+                self.scopes[1] = component
         else:
-            list_curr = getattr(self, add.collection())
-            if add in list_curr:
-                warn(f'{add} is being replaced')
-            setattr(self, add.collection(), sorted(set(list_curr) | {add}))
+            list_curr = getattr(self, component.collection())
+            # skip the warnign for Scale because a default scale is already defined with 1 index
+            if not issubclass(type(component), _Temporal):
+                if component in list_curr:
+                    warn(f'{component} is being replaced')
+
+            setattr(self, component.collection(), sorted(set(list_curr) | {component}))
 
     @property
     def horizon(self):

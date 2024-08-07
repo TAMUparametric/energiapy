@@ -1,3 +1,7 @@
+"""Decorators for functions
+"""
+
+
 def once(func):
     """Ensures the function is executed only once"""
 

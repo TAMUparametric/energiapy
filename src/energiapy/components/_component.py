@@ -10,6 +10,13 @@ from ..model._model import _Model
 
 if TYPE_CHECKING:
     from .._core._aliases._is_input import IsInput
+    from .._core._aliases._is_model import (
+        IsData,
+        IsMatrix,
+        IsProgram,
+        IsSystem,
+        IsAbstract,
+    )
 
 
 @dataclass
@@ -25,7 +32,15 @@ class _Component(_Dunders, _Model):
         """The component has been named"""
         return self._named
 
-    def personalize(self, name, system, data, matrix, program):
+    def personalize(
+        self,
+        name,
+        system: IsSystem,
+        data: IsData,
+        matrix: IsMatrix,
+        program: IsProgram,
+        abstract: IsAbstract,
+    ):
         """Personalize the compoenent
         give it a name (public),
         add model components
@@ -36,6 +51,7 @@ class _Component(_Dunders, _Model):
         self._data = data
         self._matrix = matrix
         self._program = program
+        self._abstract = abstract
 
 
 @dataclass
@@ -103,9 +119,7 @@ class _Operational(_DefinedComponent):
 @dataclass
 class _Spatial(_DefinedComponent):
     """Spatial Component"""
-
-    land_cost: IsInput = field(default=None)
-    land_avail: IsInput = field(default=None)
+    
 
     def __post_init__(self):
         _DefinedComponent.__post_init__(self)

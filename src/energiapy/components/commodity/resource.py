@@ -7,15 +7,23 @@ from dataclasses import dataclass, field
 
 from .._component import _Commodity
 
-# from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING
 
-# from ...types.component.resource import ResourceType
+if TYPE_CHECKING:
+    from ..._core._aliases._is_input import IsExactInput, IsBoundInput
 
 
 @dataclass
 class Resource(_Commodity):
+
+    buy: IsBoundInput = field(default=None)
+    sell: IsBoundInput = field(default=None)
+    ship: IsBoundInput = field(default=None)
+    deliver: IsBoundInput = field(default=None)
+    buy_price: IsExactInput = field(default=None)
+    sell_price: IsExactInput = field(default=None)
+
     # Depreciated
-    sell: str = field(default=None)
     varying: str = field(default=None)
     price: str = field(default=None)
     revenue: str = field(default=None)
@@ -51,12 +59,12 @@ class Resource(_Commodity):
             'store_max': 'store',
             'store_min': 'store',
             'cons_max': 'consume',
-            'sell': 'discharge and sell_cost',
             'price': 'purchase_cost',
             'revenue': 'sell_cost',
         }
 
         for i, j in _changed.items():
+            # If the attribute i is depreciated raise ValueError.
             if getattr(self, i):
                 raise ValueError(f'{_name}: {i} is depreciated. Please use {j} instead')
 

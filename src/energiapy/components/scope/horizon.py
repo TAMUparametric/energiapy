@@ -83,7 +83,6 @@ class Horizon(_Scope):
 
     def __post_init__(self):
         _Scope.__post_init__(self)
-        # self.scales = []
 
         # # insert 1 at the beginning, this is the horizon itself
         self.discretizations.insert(0, 1)
@@ -92,10 +91,6 @@ class Horizon(_Scope):
             HorizonType.MULTISCALE if self.n_scales > 1 else HorizonType.SINGLESCALE
         )
         self.ctypes.append(HorizonType.NESTED if self.nested else HorizonType.UNNESTED)
-
-        # self.indices = {i: i.index for i in self.scales}
-
-        # self.n_indices = [i.n_index for i in self.scales]
 
     def make_index(self, position: int, nested: bool = True):
         """makes an index for Scale"""

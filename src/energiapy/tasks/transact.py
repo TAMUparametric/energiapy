@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from .task import Task
+from ._task import Task
 
 
 @dataclass
