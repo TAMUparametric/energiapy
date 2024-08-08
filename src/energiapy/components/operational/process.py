@@ -14,20 +14,9 @@ from ...types.component.process import ProcessType
 from ..component import Operation
 
 if TYPE_CHECKING:
-    from ...type.alias import (
-        IsCapBound,
-        IsCashFlow,
-        IsConv,
-        IsDepreciated,
-        IsDetail,
-        IsEmission,
-        IsLand,
-        IsLife,
-        IsLimit,
-        IsLoss,
-        IsMatUse,
-        IsPWL,
-    )
+    from ...type.alias import (IsCapBound, IsCashFlow, IsConv, IsDepreciated,
+                               IsDetail, IsEmission, IsLand, IsLife, IsLimit,
+                               IsLoss, IsMatUse, IsPWL)
     from ..commodity.material import Material
     from ..commodity.resource import Resource
     from ..scope.horizon import Horizon

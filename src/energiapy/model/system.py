@@ -4,15 +4,12 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 from warnings import warn
 
-from ..components._component import (
-    _Component,
-    _Spatial,
-    _Scope,
-    _Temporal,
-)  # , _Analytical
+from .._core._handy._dunders import _Dunders
+from ..components._component import (_Component, _Scope,  # , _Analytical
+                                     _Spatial, _Temporal)
 from ..components.scope.horizon import Horizon
 from ..components.scope.network import Network
-from .._core._handy._dunders import _Dunders
+from ..components.spatial.linkage import Linkage
 
 if TYPE_CHECKING:
     from .._core._aliases._is_component import IsComponent
@@ -83,7 +80,6 @@ class System(_Dunders):
             if not issubclass(type(component), _Temporal):
                 if component in list_curr:
                     warn(f'{component} is being replaced')
-
             setattr(self, component.collection(), sorted(set(list_curr) | {component}))
 
     @property
@@ -93,3 +89,23 @@ class System(_Dunders):
     @property
     def network(self):
         return self.scopes[1]
+
+    @property
+    def nodes(self):
+        return self.locations
+
+    @property
+    def edges(self):
+        return self.linkages
+
+    @property
+    def pairs(self):
+        return [(i.source, i.sink) for i in self.linkages]
+
+    @property
+    def sources(self):
+        return sorted({i[0] for i in self.pairs})
+
+    @property
+    def sinks(self):
+        return sorted({i[1] for i in self.pairs})

@@ -1,4 +1,4 @@
-from typing import Dict, List, Literal, Tuple, Union, TypeAlias
+from typing import Dict, List, Literal, Tuple, TypeAlias, Union
 
 from pandas import DataFrame
 

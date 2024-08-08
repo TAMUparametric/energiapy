@@ -4,26 +4,19 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, List, Union, TypeVar
+from typing import TYPE_CHECKING, List, TypeVar, Union
 
 from src.energiapy import data
 
 from .._core._aliases._is_component import IsLocation
-
-
 from .._core._handy._dunders import _Dunders
 
 if TYPE_CHECKING:
-    from .._core._aliases._is_task import IsTask
+    from .._core._aliases._is_component import (IsCommodity, IsComponent,
+                                                IsNetwork, IsOperational,
+                                                IsPlayer, IsSpatial)
     from .._core._aliases._is_element import IsVariable
-    from .._core._aliases._is_component import (
-        IsComponent,
-        IsCommodity,
-        IsOperational,
-        IsSpatial,
-        IsPlayer,
-        IsNetwork,
-    )
+    from .._core._aliases._is_task import IsTask
 
 
 @dataclass

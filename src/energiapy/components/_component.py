@@ -5,24 +5,18 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
+
 from .._core._handy._dunders import _Dunders
 from ..model._model import _Model
 
 if TYPE_CHECKING:
     from .._core._aliases._is_input import IsInput
-    from .._core._aliases._is_model import (
-        IsData,
-        IsMatrix,
-        IsProgram,
-        IsSystem,
-        IsAbstract,
-    )
+    from .._core._aliases._is_model import (IsAbstract, IsData, IsMatrix,
+                                            IsProgram, IsSystem)
 
 
 @dataclass
 class _Component(_Dunders, _Model):
-
-    label: str = field(default=None)
 
     def __post_init__(self):
         self.name = None
@@ -62,7 +56,6 @@ class _Scope(_Component):
 
     def __post_init__(self):
         _Component.__post_init__(self)
-        self.ctypes = []
 
 
 @dataclass
@@ -84,6 +77,7 @@ class _DefinedComponent(_Component):
     block: str = field(default=None)
     introduce: str = field(default=None)
     retire: str = field(default=None)
+    label: str = field(default=None)
 
     def __post_init__(self):
         _Component.__post_init__(self)

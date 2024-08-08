@@ -17,7 +17,8 @@ class Linkage(_Spatial):
 
     sink: IsLocation = field(default=None)
     source: IsLocation = field(default=None)
-    bi: bool = field(default=False)
+    bi: bool = field(default=True)
+    distance: float = field(default=None)
 
     def __post_init__(self):
         _Spatial.__post_init__(self)

@@ -2,16 +2,19 @@
 """
 
 from dataclasses import dataclass, field
+
 from ..components._component import _Component
 from ..components.scope.horizon import Horizon
+from ..components.scope.network import Network
+from ..components.spatial.linkage import Linkage
+from ..components.spatial.location import Location
 from ..components.temporal.scale import Scale
-from ..types.element.disposition import TemporalDisp
 from ._default import _Default
+from .abstract import Abstract
 from .data import Data
 from .matrix import Matrix
 from .program import Program
 from .system import System
-from .abstract import Abstract
 
 
 @dataclass
@@ -39,23 +42,23 @@ class Scenario(_Default):
 
     """
 
-    name: str = field(default=r'\m/>')
+    name: str = field(default='scenario')
 
     def __post_init__(self):
 
         # Declare Model
-        self.system = System(name=self.name)
-        self.program = Program(name=self.name)
-        self.data = Data(name=self.name)
-        self.matrix = Matrix(name=self.name)
-        self.abstract = Abstract(name=self.name)
+        self._system = System(name=self.name)
+        self._program = Program(name=self.name)
+        self._data = Data(name=self.name)
+        self._matrix = Matrix(name=self.name)
+        self._abstract = Abstract(name=self.name)
 
         self._model = {
-            'system': self.system,
-            'program': self.program,
-            'data': self.data,
-            'matrix': self.matrix,
-            'abstract': self.abstract,
+            'system': self._system,
+            'program': self._program,
+            'data': self._data,
+            'matrix': self._matrix,
+            'abstract': self._abstract,
         }
 
         self._default()
@@ -66,7 +69,7 @@ class Scenario(_Default):
 
             value.personalize(name=name, **self._model)
 
-            setattr(self.system, name, value)
+            setattr(self._system, name, value)
 
         if isinstance(value, Horizon):
             for i in range(value.n_scales):
@@ -85,52 +88,96 @@ class Scenario(_Default):
                     ),
                 )
 
+        if isinstance(value, Network):
+            for i in value.locs:
+
+                if value.label_locs:
+                    label_node = value.label_locs[i]
+                else:
+                    label_node = value.label_locs
+
+                setattr(self, i, Location(label=label_node))
+
+        if isinstance(value, Linkage):
+            if value.bi:
+
+                setattr(value, 'bi', False)
+
+                setattr(
+                    self,
+                    f'{value.name}_',
+                    Linkage(
+                        source=value.sink,
+                        sink=value.source,
+                        label=value.label,
+                        distance=value.distance,
+                        bi=False,
+                    ),
+                )
+
         super().__setattr__(name, value)
 
     @property
     def players(self):
-        return self.system.players
+        return self._system.players
 
     @property
     def horizon(self):
-        return self.system.horizon
+        return self._system.horizon
 
     @property
     def scales(self):
-        return self.system.scales
+        return self._system.scales
 
     @property
     def network(self):
-        return self.system.network
+        return self._system.network
 
     @property
     def assets(self):
-        return self.system.assets
+        return self._system.assets
 
     @property
     def emissions(self):
-        return self.system.emissions
+        return self._system.emissions
 
     @property
     def resources(self):
-        return self.system.resources
+        return self._system.resources
 
     @property
     def materials(self):
-        return self.system.materials
+        return self._system.materials
 
     @property
     def processes(self):
-        return self.system.processes
+        return self._system.processes
 
     @property
     def transits(self):
-        return self.system.transits
+        return self._system.transits
 
+    # spatial collections
     @property
     def locations(self):
-        return self.system.locations
+        return self._system.locations
 
     @property
     def linkages(self):
-        return self.system.linkages
+        return self._system.linkages
+
+    @property
+    def nodes(self):
+        return self._system.nodes
+
+    @property
+    def edges(self):
+        return self._system.edges
+
+    @property
+    def sources(self):
+        return self._system.sources
+
+    @property
+    def sinks(self):
+        return self._system.sinks

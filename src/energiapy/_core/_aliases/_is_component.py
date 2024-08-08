@@ -9,10 +9,10 @@ from ...components.commodity.resource import Resource
 from ...components.operational.process import Process
 from ...components.operational.storage import Storage
 from ...components.operational.transit import Transit
+from ...components.scope.horizon import Horizon
+from ...components.scope.network import Network
 from ...components.spatial.linkage import Linkage
 from ...components.spatial.location import Location
-from ...components.scope.network import Network
-from ...components.scope.horizon import Horizon
 from ...components.temporal.scale import Scale
 from ...model.scenario import Scenario
 

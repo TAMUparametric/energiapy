@@ -19,6 +19,7 @@ class Scale(_Temporal):
     """
 
     index: List[tuple] = field(default_factory=list)
+    label: str = field(default=None)
 
     def __post_init__(self):
         _Temporal.__post_init__(self)

@@ -8,8 +8,8 @@ from ..components.analytical.player import Player
 from ..components.commodity.cash import Cash
 from ..components.commodity.emission import Emission
 from ..components.commodity.land import Land
-from ..components.scope.network import Network
 from ..components.scope.horizon import Horizon
+from ..components.scope.network import Network
 from ..funcs.utils.decorators import once
 
 

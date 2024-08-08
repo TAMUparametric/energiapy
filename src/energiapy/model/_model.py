@@ -4,7 +4,8 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from .._core._aliases._is_model import IsData, IsMatrix, IsProgram, IsSystem
+    from .._core._aliases._is_model import (IsData, IsMatrix, IsProgram,
+                                            IsSystem)
 
 
 @dataclass

@@ -6,7 +6,6 @@ from itertools import product
 from operator import imod, is_, is_not
 from typing import List
 
-from ...types.component.horizon import HorizonType
 from .._component import _Scope
 
 
@@ -75,12 +74,11 @@ class Horizon(_Scope):
 
     """
 
-    # divides the horizon into n discretizations. Creates a Scale
     discretizations: list = field(default_factory=list)
     # if nested the discretizes based on previous scale
     nested: bool = field(default=True)
-    label: str = field(default=None)
     label_scales: List[str] = field(default=None)
+    label: str = field(default=None)
 
     def __post_init__(self):
         _Scope.__post_init__(self)
@@ -99,11 +97,6 @@ class Horizon(_Scope):
 
         else:
             raise ValueError('Discretizations must be a list or a dictionary')
-
-        self.ctypes.append(
-            HorizonType.MULTISCALE if self.n_scales > 1 else HorizonType.SINGLESCALE
-        )
-        self.ctypes.append(HorizonType.NESTED if self.nested else HorizonType.UNNESTED)
 
     def make_index(self, position: int, nested: bool = True):
         """makes an index for Scale"""
@@ -149,3 +142,17 @@ class Horizon(_Scope):
     def n_indices(self):
         """List of number of indices"""
         return [i.n_index for i in self.scales]
+
+    def is_multiscale(self):
+        """Returns True if problem has multiple scales"""
+        if self.n_scales > 1:
+            return True
+        else:
+            return False
+
+    def is_nested(self):
+        """Returns True if problem has nested scales"""
+        if self.nested:
+            return True
+        else:
+            return False

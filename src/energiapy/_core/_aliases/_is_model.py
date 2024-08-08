@@ -1,9 +1,10 @@
-from typing import Union, TypeAlias
+from typing import TypeAlias, Union
+
+from ...model.abstract import Abstract
 from ...model.data import Data
 from ...model.matrix import Matrix
 from ...model.program import Program
 from ...model.system import System
-from ...model.abstract import Abstract
 
 IsSystem: TypeAlias = System
 IsProgram: TypeAlias = Program
