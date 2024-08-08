@@ -23,10 +23,6 @@ class Linkage(_Spatial):
     def __post_init__(self):
         _Spatial.__post_init__(self)
 
-    @property
-    def _spatial(self):
-        return self
-
     @staticmethod
     def collection():
         """The collection in scenario"""

@@ -12,14 +12,14 @@ from ...funcs.update.value import update_bounds
 from .bounds import Approach, Certainty, SpcLmt, VarBnd
 from .constant import Number
 from .dataset import DataSet
-from .value import Value
+from ._value import _Value
 
 if TYPE_CHECKING:
     from ...type.alias import IsRange
 
 
 @dataclass
-class Theta(Value):
+class Theta(_Value):
     """Just a convinient way to declare parametric variables
 
     Args:
@@ -60,7 +60,7 @@ class Theta(Value):
     space: IsRange = field(default=None)
 
     def __post_init__(self):
-        Value.__post_init__(self)
+        _Value.__post_init__(self)
         self.name = f'Th{self._id}'
 
         self._certainty, self._approach, self._varbound = (
@@ -90,7 +90,6 @@ class Theta(Value):
         else:
             raise ValueError(f'{self.name}: tuple must be of length 2')
 
-    @property
     def value(self) -> dict:
         """Returns a dictionary of data"""
         return self.space

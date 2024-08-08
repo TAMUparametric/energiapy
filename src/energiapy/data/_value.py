@@ -3,15 +3,14 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
-from ...core.inits.common import InpCommon
-from .bounds import SpcLmt, VarBnd
+from abc import ABC, abstractmethod
 
 if TYPE_CHECKING:
     from ..type.alias import IsCommodity, IsIndex, IsOperation, IsSpatial
 
 
 @dataclass
-class Value(InpCommon):
+class _Value(ABC):
     """Value is the input given to a Component
 
     Args:
@@ -38,6 +37,10 @@ class Value(InpCommon):
             sl_ = getattr(self, '_spclimit').namer()
 
         self.name = f'{self.name}{vb_}{sl_}'
+
+    @abstractmethod
+    def value(self):
+        pass
 
     @property
     def _id(self):
