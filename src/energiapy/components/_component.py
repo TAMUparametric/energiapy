@@ -11,8 +11,13 @@ from ..model._model import _Model
 
 if TYPE_CHECKING:
     from .._core._aliases._is_input import IsInput
-    from .._core._aliases._is_model import (IsAbstract, IsData, IsMatrix,
-                                            IsProgram, IsSystem)
+    from .._core._aliases._is_model import (
+        IsAbstract,
+        IsData,
+        IsMatrix,
+        IsProgram,
+        IsSystem,
+    )
 
 
 @dataclass
@@ -92,6 +97,14 @@ class _DefinedComponent(_Component):
     def _network(self):
         """The Network of the Component"""
         return self._system.network
+
+
+@dataclass
+class _Asset(_DefinedComponent):
+    """Asset Component"""
+
+    def __post_init__(self):
+        _DefinedComponent.__post_init__(self)
 
 
 @dataclass

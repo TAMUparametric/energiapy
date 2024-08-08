@@ -42,7 +42,7 @@ class Scenario(_Default):
 
     """
 
-    name: str = field(default='scenario')
+    name: str = field(default=':s:')
 
     def __post_init__(self):
 
@@ -181,3 +181,11 @@ class Scenario(_Default):
     @property
     def sinks(self):
         return self._system.sinks
+
+    @property
+    def cash(self):
+        return self._system.cash
+
+    @property
+    def land(self):
+        return self._system.land

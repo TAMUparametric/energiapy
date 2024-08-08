@@ -5,11 +5,17 @@ from typing import TYPE_CHECKING
 from warnings import warn
 
 from .._core._handy._dunders import _Dunders
-from ..components._component import (_Component, _Scope,  # , _Analytical
-                                     _Spatial, _Temporal)
+from ..components._component import (
+    _Component,
+    _Scope,  # , _Analytical
+    _Spatial,
+    _Temporal,
+    _Asset,
+)
 from ..components.scope.horizon import Horizon
 from ..components.scope.network import Network
-from ..components.spatial.linkage import Linkage
+from ..components.commodity.cash import Cash
+from ..components.commodity.land import Land
 
 if TYPE_CHECKING:
     from .._core._aliases._is_component import IsComponent
@@ -36,9 +42,10 @@ class System(_Dunders):
         self.scales = []
 
         # Commodity
-        self.resources, self.materials, self.emissions, self.assets = (
-            [] for _ in range(4)
-        )
+        self.resources, self.materials, self.emissions = ([] for _ in range(3))
+        # always [Cash, Land]
+        self.assets = [None, None]
+
         # Operational
         self.processes, self.storages, self.transits = ([] for _ in range(3))
 
@@ -74,6 +81,13 @@ class System(_Dunders):
                 self.scopes[0] = component
             elif isinstance(component, Network):
                 self.scopes[1] = component
+
+        elif issubclass(type(component), _Asset):
+            if isinstance(component, Cash):
+                self.assets[0] = component
+            elif isinstance(component, Land):
+                self.assets[1] = component
+
         else:
             list_curr = getattr(self, component.collection())
             # skip the warnign for Scale because a default scale is already defined with 1 index
@@ -109,3 +123,11 @@ class System(_Dunders):
     @property
     def sinks(self):
         return sorted({i[1] for i in self.pairs})
+
+    @property
+    def cash(self):
+        return self.assets[0]
+
+    @property
+    def land(self):
+        return self.assets[1]

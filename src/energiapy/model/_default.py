@@ -38,10 +38,10 @@ class _Default(_Dunders):
         setattr(self, 'n', Network(label='Default Network'))
 
         if self.default_land or self.default_all:
-            setattr(self, 'land', Land(basis='Acres', label='Land'))
+            setattr(self, 'l', Land(basis='Acres', label='Land'))
 
         if self.default_cash or self.default_all:
-            setattr(self, 'cash', Cash(basis='$', label='Cash'))
+            setattr(self, 'c', Cash(basis='$', label='Cash'))
 
         if self.default_emissions or self.default_all:
             emissions = [

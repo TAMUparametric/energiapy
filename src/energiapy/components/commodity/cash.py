@@ -1,10 +1,16 @@
-from dataclasses import dataclass
+from __future__ import annotations
 
-from .._component import _Commodity
+from typing import TYPE_CHECKING
+from dataclasses import dataclass, field
+
+from .._component import _Asset
+
+if TYPE_CHECKING:
+    from ..._core._aliases._is_input import IsBoundInput
 
 
 @dataclass
-class Cash(_Commodity):
+class Cash(_Asset):
     """Cash derived from:
     Resource Consume and Discharge
     Operation Capacity
@@ -13,8 +19,10 @@ class Cash(_Commodity):
     Transit Transport
     """
 
+    spend: IsBoundInput = field(default=None)
+
     def __post_init__(self):
-        _Commodity.__post_init__(self)
+        _Asset.__post_init__(self)
 
     @staticmethod
     def collection():

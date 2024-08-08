@@ -8,3 +8,6 @@ class Matrix(_Dunders):
     """Matrix representation of the Model"""
 
     name: str = field(default=None)
+
+    def __post_init__(self):
+        self.name = f'Matrix|{self.name}|'
