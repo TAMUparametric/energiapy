@@ -6,7 +6,7 @@ from itertools import product
 from operator import imod, is_, is_not
 from typing import List
 
-from .._component import _Scope
+from .._base._scope import _Scope
 
 
 @dataclass
@@ -98,26 +98,6 @@ class Horizon(_Scope):
         else:
             raise ValueError('Discretizations must be a list or a dictionary')
 
-    def make_index(self, position: int, nested: bool = True):
-        """makes an index for Scale"""
-        if nested:
-            lists = [list(range(i)) for i in self._discretization_list]
-            return list(product(*lists[: position + 1]))
-        else:
-            if is_not(self._discretization_list, sorted(self._discretization_list)):
-                raise ValueError('Discretizations need to be in ascending order')
-            if not all(
-                is_(imod(max(self._discretization_list), i), 0)
-                for i in self._discretization_list
-            ):
-                raise ValueError(
-                    'Discretizations need to be divisible by the most granular scale'
-                )
-            lists = [(0, i) for i in range(max(self._discretization_list))]
-            return lists[
-                :: max(self._discretization_list) // self._discretization_list[position]
-            ]
-
     @property
     def n_scales(self) -> int:
         """Returns number of scales"""
@@ -141,7 +121,27 @@ class Horizon(_Scope):
     @property
     def n_indices(self):
         """List of number of indices"""
-        return [i.n_index for i in self.scales]
+        return [len(i) for i in self.scales]
+
+    def make_index(self, position: int, nested: bool = True):
+        """makes an index for Scale"""
+        if nested:
+            lists = [list(range(i)) for i in self._discretization_list]
+            return list(product(*lists[: position + 1]))
+        else:
+            if is_not(self._discretization_list, sorted(self._discretization_list)):
+                raise ValueError('Discretizations need to be in ascending order')
+            if not all(
+                is_(imod(max(self._discretization_list), i), 0)
+                for i in self._discretization_list
+            ):
+                raise ValueError(
+                    'Discretizations need to be divisible by the most granular scale'
+                )
+            lists = [(0, i) for i in range(max(self._discretization_list))]
+            return lists[
+                :: max(self._discretization_list) // self._discretization_list[position]
+            ]
 
     def is_multiscale(self):
         """Returns True if problem has multiple scales"""
@@ -156,3 +156,14 @@ class Horizon(_Scope):
             return True
         else:
             return False
+
+    def match_scale(self, value):
+        """Returns the scale that matches the length"""
+        if hasattr(value, '__len__'):
+            if len(value) not in self.n_indices:
+                raise ValueError(
+                    f'Length of value {len(value)} does not match any scale'
+                )
+            return self.scales[self.n_indices.index(len(value))]
+        else:
+            return self.scales[0]

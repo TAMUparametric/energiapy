@@ -4,7 +4,7 @@
 from dataclasses import dataclass, field
 from typing import List, Union
 
-from .._component import _Scope
+from .._base._scope import _Scope
 
 
 @dataclass

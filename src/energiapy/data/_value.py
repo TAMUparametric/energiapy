@@ -1,12 +1,11 @@
 from __future__ import annotations
 
+from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
-from abc import ABC, abstractmethod
-
 if TYPE_CHECKING:
-    from ..type.alias import IsCommodity, IsIndex, IsOperation, IsSpatial
+    from .._core._aliases._is_element import IsIndex
 
 
 @dataclass
@@ -38,9 +37,10 @@ class _Value(ABC):
 
         self.name = f'{self.name}{vb_}{sl_}'
 
+    @property
     @abstractmethod
     def value(self):
-        pass
+        """reports the value"""
 
     @property
     def _id(self):

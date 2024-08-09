@@ -24,10 +24,16 @@ class _Magics:
     """Magic functions"""
 
     def __lt__(self, other):
-        return getattr(self, 'name') < other.name
+        if hasattr(other, '__len__') and hasattr(self, '__len__'):
+            return len(self) < len(other)
+        else:
+            return getattr(self, 'name') < other.name
 
     def __gt__(self, other):
-        return getattr(self, 'name') > other.name
+        if hasattr(other, '__len__') and hasattr(self, '__len__'):
+            return len(self) > len(other)
+        else:
+            return getattr(self, 'name') > other.name
 
 
 class _Dunders(_Reprs, _Magics):

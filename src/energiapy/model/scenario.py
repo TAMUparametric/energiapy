@@ -3,7 +3,7 @@
 
 from dataclasses import dataclass, field
 
-from ..components._component import _Component
+from ..components._base._component import _Component
 from ..components.scope.horizon import Horizon
 from ..components.scope.network import Network
 from ..components.spatial.linkage import Linkage

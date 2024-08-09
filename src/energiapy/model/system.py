@@ -5,17 +5,12 @@ from typing import TYPE_CHECKING
 from warnings import warn
 
 from .._core._handy._dunders import _Dunders
-from ..components._component import (
-    _Component,
-    _Scope,  # , _Analytical
-    _Spatial,
-    _Temporal,
-    _Asset,
-)
-from ..components.scope.horizon import Horizon
-from ..components.scope.network import Network
+from ..components._base._scope import _Scope, _Spatial, _Temporal  # , _Analytical
+from ..components._base._defined import _Asset, _Component
 from ..components.commodity.cash import Cash
 from ..components.commodity.land import Land
+from ..components.scope.horizon import Horizon
+from ..components.scope.network import Network
 
 if TYPE_CHECKING:
     from .._core._aliases._is_component import IsComponent

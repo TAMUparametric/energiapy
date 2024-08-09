@@ -30,6 +30,8 @@ def update_task(
     task = birth_task(component=component, attr_name=attr_name)
 
     horizon = component.horizon
+    
+    
     if not isinstance(attr_input, dict):
         scl_val = {horizon[0]: attr_input}
 

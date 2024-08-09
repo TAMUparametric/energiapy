@@ -6,7 +6,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
-from .._component import _Spatial
+from .._base._scope import _Spatial
 
 if TYPE_CHECKING:
     from ..._core._aliases._is_component import IsLocation
@@ -19,6 +19,7 @@ class Linkage(_Spatial):
     source: IsLocation = field(default=None)
     bi: bool = field(default=True)
     distance: float = field(default=None)
+    label: str = field(default=None)
 
     def __post_init__(self):
         _Spatial.__post_init__(self)

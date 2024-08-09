@@ -8,14 +8,14 @@ from typing import TYPE_CHECKING
 
 from pandas import DataFrame
 
-from ...funcs.update.value import update_bounds
-from .bounds import Approach, Certainty, SpcLmt, VarBnd
-from .constant import Number
-from .dataset import DataSet
+from ._approach import _Approach, _Certainty
+from ._bounds import _SpcLmt, _VarBnd
 from ._value import _Value
+from .constant import Constant
+from .dataset import DataSet
 
 if TYPE_CHECKING:
-    from ...type.alias import IsRange
+    from .._core._aliases._is_input import IsInput, IsRange
 
 
 @dataclass
@@ -64,24 +64,26 @@ class Theta(_Value):
         self.name = f'Th{self._id}'
 
         self._certainty, self._approach, self._varbound = (
-            Certainty.UNCERTAIN,
-            Approach.PARAMETRIC,
-            VarBnd.EXACT,
+            _Certainty.UNCERTAIN,
+            _Approach.PARAMETRIC,
+            _VarBnd.EXACT,
         )
 
         if len(self.space) == 2:
             # if DataSet or DataFrame, make local DataSet or else keep numeric values
-            low_or_up = {0: SpcLmt.START, 1: SpcLmt.END}
+            low_or_up = {0: _SpcLmt.START, 1: _SpcLmt.END}
 
             args = {'name': self.name, 'index': self.index}
 
             self.space = tuple(
                 [
                     (
-                        update_bounds(DataSet(data=j, **args), spclimit=low_or_up[i])
+                        self.update_bounds(
+                            DataSet(data=j, **args), spclimit=low_or_up[i]
+                        )
                         if isinstance(j, DataFrame)
-                        else update_bounds(
-                            Number(number=j, **args), spclimit=low_or_up[i]
+                        else self.update_bounds(
+                            Constant(constant=j, **args), spclimit=low_or_up[i]
                         )
                     )
                     for i, j in enumerate(self.space)
@@ -90,6 +92,17 @@ class Theta(_Value):
         else:
             raise ValueError(f'{self.name}: tuple must be of length 2')
 
+    def update_bounds(
+        self, value: IsInput, varbound: _VarBnd = None, spclimit: _SpcLmt = None
+    ):
+        """Updates the name to add a variable bound"""
+        if varbound:
+            setattr(value, '_varbound', varbound)
+
+        if spclimit:
+            setattr(value, '_spclimit', spclimit)
+
+    @property
     def value(self) -> dict:
         """Returns a dictionary of data"""
         return self.space

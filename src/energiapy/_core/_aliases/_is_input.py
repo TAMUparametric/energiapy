@@ -13,12 +13,12 @@ IsNumeric: TypeAlias = Union[float, int]
 # so if value are given as False, then they are set to None
 IsBig: TypeAlias = Union[Literal[True], M]
 # deterministic data is provided
-IsDataF: TypeAlias = DataFrame
+IsDataFr: TypeAlias = DataFrame
 # a range is give, treated as bounds for a parameteric variable
-IsSpaceBound: TypeAlias = Union[IsNumeric, IsDataF]
+IsSpaceBound: TypeAlias = Union[IsNumeric, IsDataFr]
 IsSpace: TypeAlias = Union[Tuple[IsSpaceBound, IsSpaceBound], Theta]
 # as an exact value (equality constraint)
-IsExact: TypeAlias = Union[IsNumeric, IsDataF, IsSpace]
+IsExact: TypeAlias = Union[IsNumeric, IsDataFr, IsSpace]
 # as a list of bounds [lower, upper] (inequality constraints)
 IsBound: TypeAlias = Union[IsExact, IsBig, List[IsExact, IsBig]]
 

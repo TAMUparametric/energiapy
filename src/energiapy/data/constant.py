@@ -3,31 +3,32 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
-from .bounds import Certainty, VarBnd
-from .value import Value
+from ._approach import _Certainty
+from ._bounds import _VarBnd
+from ._value import _Value
 
 if TYPE_CHECKING:
-    from ..type.alias import IsNumeric
+    from .._core._aliases._is_data import IsNumeric
 
 
 @dataclass
-class Constant(Value):
+class Constant(_Value):
     """Value as a numberic input
 
     Args:
         number (IsNumeric): numeric input
     """
 
-    number: IsNumeric = field(default=None)
+    constant: IsNumeric = field(default=None)
 
     def __post_init__(self):
-        Value.__post_init__(self)
+        _Value.__post_init__(self)
         self.name = f'{self.constant}'
 
         self._certainty, self._approach, self._varbound = (
-            Certainty.CERTAIN,
+            _Certainty.CERTAIN,
             None,
-            VarBnd.EXACT,
+            _VarBnd.EXACT,
         )
 
     # TODO: add __lt__, __gt__, __eq__, __ne__, __le__, __ge__ methods

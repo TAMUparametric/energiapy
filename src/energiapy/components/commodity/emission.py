@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from .._component import _Commodity
+from .._base._defined import _Commodity
 
 
 @dataclass

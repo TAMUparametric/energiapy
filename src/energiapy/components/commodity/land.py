@@ -1,10 +1,9 @@
 from __future__ import annotations
 
+from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
-from dataclasses import dataclass, field
-
-from .._component import _Asset
+from .._base._defined import _Asset
 
 if TYPE_CHECKING:
     from ..._core._aliases._is_input import IsBoundInput, IsExactInput

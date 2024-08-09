@@ -3,11 +3,11 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from operator import is_
 from typing import TYPE_CHECKING
 
-from .._component import _Spatial
+from .._base._scope import _Spatial
 
 if TYPE_CHECKING:
     from ..._core._aliases._is_component import IsLocation
@@ -17,6 +17,8 @@ if TYPE_CHECKING:
 @dataclass
 class Location(_Spatial):
     """Location where Process and Storage can reside"""
+
+    label: str = field(default=None)
 
     def __post_init__(self):
         _Spatial.__post_init__(self)

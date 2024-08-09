@@ -30,5 +30,3 @@ class _ElementSets:
         """prints constraints of the Object"""
         for i in getattr(self, 'constraints'):
             print(i)
-
-

@@ -6,7 +6,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
-from .._component import _Analytical
+from .._base._defined import _Analytical
 
 if TYPE_CHECKING:
     from ..type.alias import IsCan, IsOwns

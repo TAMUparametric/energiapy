@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from typing import Any
 
 from .._core._handy._dunders import _Dunders
 
@@ -12,3 +13,10 @@ class Data(_Dunders):
     def __post_init__(self):
         self.name = f'Data|{self.name}|'
         self.constants, self.ms, self.thetas, self.datasets = ([] for _ in range(4))
+
+    def __setattr__(self, name, value):
+        
+        
+
+
+        super().__setattr__(name, value)

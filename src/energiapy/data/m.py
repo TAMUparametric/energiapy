@@ -5,13 +5,13 @@ from dataclasses import dataclass, field
 
 from ._approach import _Certainty
 from ._bounds import _VarBnd
+from ._value import _Value
 from .dataset import DataSet
 from .theta import Theta
-from .value import Value
 
 
 @dataclass
-class M(Value):
+class M(_Value):
     """
     If big is True:
         A really big number like the weight on my shoulders
@@ -34,6 +34,10 @@ class M(Value):
             None,
             _VarBnd.FREE,
         )
+
+    @property
+    def value(self):
+        return 'M'
 
     # TODO - fix add Number
     def __gt__(self, other):
