@@ -5,8 +5,6 @@ from dataclasses import dataclass
 
 from src.energiapy import data
 
-from ...funcs.add.component import add_component
-
 
 @dataclass
 class _ElementSets:

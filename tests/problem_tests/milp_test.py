@@ -1,6 +1,6 @@
 from tests.test_fixtures import single_location_milp_variability_cost, multi_location_milp_variability_cost
-from src.energiapy.model.solve import solve
-from src.energiapy.model.formulate import formulate
+from src.energiapy.blocks.solve import solve
+from src.energiapy.blocks.formulate import formulate
 import copy
 
 # Function to round all numerical values to 3 decimal places

@@ -1,6 +1,6 @@
 from tests.test_fixtures import single_location_scenario_variability, single_location_lp_variability_cost, single_location_lp_variability_profit
-from src.energiapy.model.solve import solve
-from src.energiapy.model.formulate import formulate
+from src.energiapy.blocks.solve import solve
+from src.energiapy.blocks.formulate import formulate
 
 
 def test_results_single_location_lp_variability_cost(single_location_scenario_variability, single_location_lp_variability_cost):

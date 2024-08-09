@@ -95,7 +95,7 @@ class _Asset(_Defined):
 
 @dataclass
 class _Impact(_Defined):
-    """Asset Component"""
+    """Impact Component"""
 
     def __post_init__(self):
         _Defined.__post_init__(self)

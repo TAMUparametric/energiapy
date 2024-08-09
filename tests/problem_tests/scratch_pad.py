@@ -3,8 +3,8 @@
 # %%
 # # %%
 
-from src.energiapy.model.solve import solve
-from src.energiapy.model.formulate import formulate, Constraints, Objective
+from src.energiapy.blocks.solve import solve
+from src.energiapy.blocks.formulate import formulate, Constraints, Objective
 from src.energiapy.components.scenario import Scenario
 from src.energiapy.components.location import Location
 from src.energiapy.components.material import Material

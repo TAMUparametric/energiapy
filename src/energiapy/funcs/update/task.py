@@ -8,7 +8,7 @@ from ...funcs.birth.value import birth_value
 from ...funcs.check.value import scale_match
 from ...funcs.update.value import update_bounds
 from ...inputs.values.bounds import VarBnd
-from ...model.index import Index
+from ...blocks.index import Index
 
 if TYPE_CHECKING:
     from ...types.alias import (IsCommodity, IsComponent, IsInput, IsOperation,

@@ -6,19 +6,18 @@ from __future__ import annotations
 from dataclasses import dataclass, field, fields
 from typing import TYPE_CHECKING
 
-from ..core.inits.common import ElmCommon
-
 if TYPE_CHECKING:
-    from ..types import IsCommodity, IsOperation, IsScale, IsSpatial
+    from .._core._aliases._is_component import     IsAnalytical, IsAsset, IsCommodity, IsImpact, IsOperational, IsScope, IsSpatial, IsTemporal,
 
 
 @dataclass
-class Index(ElmCommon):
-    _derived: IsCommodity = field(default=None)
-    _commodity: IsCommodity = field(default=None)
-    _operation: IsOperation = field(default=None)
-    _spatial: IsSpatial = field(default=None)
-    _scale: IsScale = field(default=None)
+class Index:
+    analytical: 
+    asset: IsCommodity = field(default=None)
+    commodity: IsCommodity = field(default=None)
+    operational: IsOperational = field(default=None)
+    spatial: IsSpatial = field(default=None)
+    scale: IsScale = field(default=None)
 
     def __post_init__(self):
 

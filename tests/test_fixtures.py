@@ -9,8 +9,8 @@ from src.energiapy.components.material import Material
 from src.energiapy.components.transport import Transport
 from src.energiapy.components.network import Network
 from src.energiapy.components.case_study import CaseStudy
-from src.energiapy.model.formulate import formulate, Constraints, Objective
-from src.energiapy.model.solve import solve
+from src.energiapy.blocks.formulate import formulate, Constraints, Objective
+from src.energiapy.blocks.solve import solve
 
 
 @pytest.fixture()

@@ -24,7 +24,7 @@ IsBound: TypeAlias = Union[IsExact, IsBig, List[IsExact, IsBig]]
 
 IsBaseInput: TypeAlias = Union[IsExact, IsBound]
 
-# *compound input types
+# compound input types
 IsTmpExact: TypeAlias = Dict[IsScale, IsExact]
 IsTmpBound: TypeAlias = Dict[IsScale, IsBound]
 
@@ -40,7 +40,7 @@ IsSptTmpBound: TypeAlias = Dict[IsSpatial, IsTmpBound]
 
 IsSptTmpInput: TypeAlias = Union[IsSptTmpExact, IsSptTmpBound]
 
-# *attribute inputs
+# attribute inputs
 IsExactInput: TypeAlias = Union[IsExact, IsTmpExact, IsSptExact, IsSptTmpExact]
 
 IsBoundInput: TypeAlias = Union[IsBound, IsTmpBound, IsSptBound, IsSptTmpBound]

@@ -16,7 +16,7 @@ IsDataSet: TypeAlias = DataSet
 # if unbounded
 IsM: TypeAlias = M
 # this is the value attribute of Value dataclass
-IsData: TypeAlias = Union[IsConstant, IsParVar, IsDataSet, IsM]
+IsData: TypeAlias = Union[IsConstant, IsDataSet, IsM, IsParVar]
 
 # *Bound types
 # is parameter bound on variable
