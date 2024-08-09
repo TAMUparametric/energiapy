@@ -5,10 +5,11 @@
 #                 parameter_, associated_, bound_ = (None for _ in range(3))
 
 #                 parameter = Parameter(value=j, aspect=aspect, component=component, declared_at=declared_at, horizon=horizon,
-#                                       bound=bound[i], certainty=certainty[i], approach=approach[i], temporal=scale_)
+# bound=bound[i], certainty=certainty[i], approach=approach[i],
+# temporal=scale_)
 
 #                 variable = Variable(aspect=aspect, component=component,
-#                                     declared_at=declared_at, temporal=parameter.temporal)
+# declared_at=declared_at, temporal=parameter.temporal)
 
 #                 self.parameters = sorted(
 #                     set(self.parameters) | {parameter})
@@ -16,7 +17,8 @@
 
 #                 if rule.associated:
 #                     associated_ = Variable(
-#                         aspect=rule.associated, component=component, declared_at=declared_at, temporal=parameter.temporal)
+# aspect=rule.associated, component=component, declared_at=declared_at,
+# temporal=parameter.temporal)
 
 #                 if rule.parameter:
 #                     parameter_ = parameter

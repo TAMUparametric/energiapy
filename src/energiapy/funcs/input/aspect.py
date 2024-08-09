@@ -11,7 +11,10 @@ if TYPE_CHECKING:
     from ...type.alias import IsAspect, IsAspectShared, IsComponent, IsInput
 
 
-def aspecter(component: IsComponent, attr_name: str, attr_value: IsInput) -> IsAspect:
+def aspecter(
+        component: IsComponent,
+        attr_name: str,
+        attr_value: IsInput) -> IsAspect:
     """updates the attribute to make an Aspect
 
     Args:
@@ -63,7 +66,10 @@ def aspectshareder(component: IsComponent, attr_name: str) -> IsAspectShared:
     if isinstance(current_value, dict):
         for j in current_value:
             j.declared_at = component
-            aspecter(component=j, attr_name=attr_name, attr_value=current_value[j])
+            aspecter(
+                component=j,
+                attr_name=attr_name,
+                attr_value=current_value[j])
             # setattr(j, attr_name, current_value[j])
 
         new_value = AspectShared(

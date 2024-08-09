@@ -1,4 +1,4 @@
-"""Parametric variable 
+"""Parametric variable
 """
 
 from __future__ import annotations
@@ -70,7 +70,8 @@ class Theta(_Value):
         )
 
         if len(self.space) == 2:
-            # if DataSet or DataFrame, make local DataSet or else keep numeric values
+            # if DataSet or DataFrame, make local DataSet or else keep numeric
+            # values
             low_or_up = {0: _SpcLmt.START, 1: _SpcLmt.END}
 
             args = {'name': self.name, 'index': self.index}
@@ -93,8 +94,10 @@ class Theta(_Value):
             raise ValueError(f'{self.name}: tuple must be of length 2')
 
     def update_bounds(
-        self, value: IsInput, varbound: _VarBnd = None, spclimit: _SpcLmt = None
-    ):
+            self,
+            value: IsInput,
+            varbound: _VarBnd = None,
+            spclimit: _SpcLmt = None):
         """Updates the name to add a variable bound"""
         if varbound:
             setattr(value, '_varbound', varbound)

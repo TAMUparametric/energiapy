@@ -1,8 +1,8 @@
-"""energiapy.components.model.paramtype - 
+"""energiapy.components.model.paramtype -
 
 These are enums for the type and subtypes of parameters
 
-Each parameter has a spatiotemporal disposition 
+Each parameter has a spatiotemporal disposition
 spatial: SpatialDisposition is determined from the Component where the parameter is defined
 temporal: TemporalDisposition needs to be provided using the _scale attributes
 
@@ -13,7 +13,7 @@ Uncertainty subtypes are Parametric, deterministic, stochastic
 
 Special parameters are actual dataclasses: BigM, SmallM, Factor, MPVar/Theta
 
-Finally, 
+Finally,
 aspect: ParameterType describes what the parameter models. There are subtypes for each type.
 """
 
@@ -115,7 +115,8 @@ class CashFlow(AspectMixin, Enum):
 
     @staticmethod
     def operation() -> list:
-        return [getattr(CashFlow, i) for i in ['CAPEX', 'FOPEX', 'VOPEX', 'INCIDENTAL']]
+        return [getattr(CashFlow, i)
+                for i in ['CAPEX', 'FOPEX', 'VOPEX', 'INCIDENTAL']]
 
     @staticmethod
     def spatial() -> list:
@@ -155,7 +156,7 @@ class LandStat(AspectMixin, Enum):
     """Exact
     """
     LAND_CAP = auto()
-    """Upper bound 
+    """Upper bound
     """
 
     @staticmethod
@@ -171,7 +172,7 @@ class Life(AspectMixin, Enum):
     """Constrictes the life of a Process or Transit"""
 
     INTRODUCE = auto()
-    """Earliest setup 
+    """Earliest setup
     """
     RETIRE = auto()
     """Threshold on keeping active
@@ -198,7 +199,7 @@ class Limit(AspectMixin, Enum):
     Only lower bound by default
     """
     CONSUME = auto()
-    """Inflow 
+    """Inflow
     """
     CAPACITY = auto()
     """Process or Storage or Transit capacity

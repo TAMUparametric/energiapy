@@ -1,4 +1,4 @@
-"""energiapy.Storage - Stashes Resource to Withdraw Later  
+"""energiapy.Storage - Stashes Resource to Withdraw Later
 """
 
 from __future__ import annotations
@@ -10,7 +10,6 @@ from .._base._defined import _Operational
 
 # import operator
 # from functools import reduce
-
 
 
 if TYPE_CHECKING:

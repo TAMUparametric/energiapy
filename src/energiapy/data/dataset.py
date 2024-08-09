@@ -45,7 +45,9 @@ class DataSet(_Value):
 
     # TODO - complete this
     def __lt__(self, other):
-        if isinstance(other, (int, float)) and is_(self._varbound, _VarBnd.UPPER):
+        if isinstance(
+                other, (int, float)) and is_(
+                self._varbound, _VarBnd.UPPER):
             return False
         elif isinstance(other, DataSet) and is_(other.varbound, _VarBnd.LOWER):
             return False
@@ -53,7 +55,9 @@ class DataSet(_Value):
             return True
 
     def __gt__(self, other):
-        if isinstance(other, (int, float)) and is_(self._varbound, _VarBnd.UPPER):
+        if isinstance(
+                other, (int, float)) and is_(
+                self._varbound, _VarBnd.UPPER):
             return True
         elif isinstance(other, DataSet) and is_(other.varbound, _VarBnd.LOWER):
             return True

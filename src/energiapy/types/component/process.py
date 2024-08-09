@@ -18,7 +18,7 @@ class HasModes(Enum):
     """Capital investment
     """
     USE = auto()
-    """Material requirements  
+    """Material requirements
     """
     TRL = auto()
     """Technology Readiness Level
@@ -59,7 +59,7 @@ class Is(Enum):
     """Emits
     """
 
-    # *------------------------- Update this ----------------------------------------
+    # *------------------------- Update this ---------------------------------
 
     @classmethod
     def location_level(cls) -> Set[str]:
@@ -68,7 +68,7 @@ class Is(Enum):
         """
         return {'CREDIT', 'STORAGE_DISCHARGE', 'INTERMITTENT'}
 
-    # *--------------------------- Automated below this -----------------------------------------
+    # *--------------------------- Automated below this ----------------------
 
     @classmethod
     def all(cls) -> Set[str]:

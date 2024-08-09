@@ -38,7 +38,7 @@ class Scale(_Temporal):
             return [self.idx(i) for i in self.index[lb:ub]]
 
         if isinstance(lb, tuple):
-            return self.index[self.pos(lb) : self.pos(ub)]
+            return self.index[self.pos(lb): self.pos(ub)]
 
     @staticmethod
     def collection() -> str:

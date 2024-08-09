@@ -54,7 +54,7 @@
 # }
 
 # cashflow_attrs = {**cashflow_res_attrs, **cashflow_opn_attrs, **
-#                   cashflow_str_attrs, **cashflow_trn_attrs, **cashflow_spt_attrs}
+# cashflow_str_attrs, **cashflow_trn_attrs, **cashflow_spt_attrs}
 
 
 # # *ResLoss

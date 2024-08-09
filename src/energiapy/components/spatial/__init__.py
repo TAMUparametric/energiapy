@@ -1,4 +1,4 @@
-"""energiapy.spatial init file 
+"""energiapy.spatial init file
 """
 
 from .linkage import Linkage

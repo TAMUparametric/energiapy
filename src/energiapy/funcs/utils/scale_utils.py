@@ -7,7 +7,10 @@ from pyomo.environ import ConcreteModel, Set
 from ..components.scale import Scale
 
 
-def scale_pyomo_set(instance: ConcreteModel, scale_level: int = 0, doc: str = None):
+def scale_pyomo_set(
+        instance: ConcreteModel,
+        scale_level: int = 0,
+        doc: str = None):
     """returns a set with appropropriate scale(s)
 
     Args:

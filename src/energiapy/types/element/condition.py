@@ -6,7 +6,7 @@ class Condition(Enum):
 
     BIND = auto()
     """Binds a variable to parameter bounds
-    var <= ub or var >= lb 
+    var <= ub or var >= lb
     """
     CAPACITATE = auto()
     """Limits variable to capacity of Process or Storage or Transit
@@ -20,7 +20,7 @@ class Condition(Enum):
     """
     BALANCE = auto()
     """Balances multiple variables
-    var1(c,s,t) + var2(c,s,t) - var3(c,s,t) = 0 
+    var1(c,s,t) + var2(c,s,t) - var3(c,s,t) = 0
     """
 
 

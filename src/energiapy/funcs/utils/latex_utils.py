@@ -14,7 +14,9 @@ __status__ = "Production"
 import inspect
 
 
-def constraint_latex_render(constraint_rule, latex_alias_dict: dict = None) -> str:
+def constraint_latex_render(
+        constraint_rule,
+        latex_alias_dict: dict = None) -> str:
     """renders a string for equation in latex format
 
     Args:
@@ -30,13 +32,13 @@ def constraint_latex_render(constraint_rule, latex_alias_dict: dict = None) -> s
 
     # this should most likely be using raw strings e.g. r'...'
     general_dict = {
-        'product': '\prod',
-        'sum': '\sum',
+        'product': '\\prod',
+        'sum': '\\sum',
         '**': '^',
         '*': '.',
         '==': '=',
-        '<=': '\leq',
-        '>=': '\geq',
+        '<=': '\\leq',
+        '>=': '\\geq',
         '[': '(',
         ']': ')',
         'exp': 'exp',
@@ -89,7 +91,8 @@ def constraint_latex_render(constraint_rule, latex_alias_dict: dict = None) -> s
     list_.reverse()
 
     dict_ = {i: unsorted_dict_[i] for i in list_}
-    str_ = inspect.getsource(constraint_rule).split('return ')[1].split('\n')[0]
+    str_ = inspect.getsource(constraint_rule).split(
+        'return ')[1].split('\n')[0]
     for key in dict_.keys():
         str_ = str_.replace(key, dict_[key])
 
@@ -99,7 +102,7 @@ def constraint_latex_render(constraint_rule, latex_alias_dict: dict = None) -> s
     print_ = print_.split('<function ')[1]
     try:
         print_ = print_.split('.<locals>')[0]
-    except:
+    except BaseException:
         print_ = print_.split('at')[0]
     finally:
         print_ = print_

@@ -1,4 +1,4 @@
-"""Function for scaling input data 
+"""Function for scaling input data
 """
 
 from operator import is_

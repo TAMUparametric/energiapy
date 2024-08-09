@@ -17,7 +17,6 @@ from .._base._defined import _Operational
 # from functools import reduce
 
 
-
 if TYPE_CHECKING:
     from ..._core._aliases._is_input import IsBoundInput, IsExactInput
 
@@ -101,7 +100,7 @@ class Transit(_Operational):
 
     # def __post_init__(self):
 
-    #     # *-----------------Set ctype (TransitType)---------------------------------
+    #     # *-----------------Set ctype (TransitType)-------------------------
 
     #     if not self.ctype:
     #         self.ctype = []
@@ -129,7 +128,8 @@ class Transit(_Operational):
     #             self.ctype.append(TransitType.MULTI_MATMODE)
     #             self.material_modes = set(self.material_cons)
     #             self.materials = reduce(
-    #                 operator.or_, (set(self.material_cons[i]) for i in self.material_modes), set())
+    # operator.or_, (set(self.material_cons[i]) for i in self.material_modes),
+    # set())
 
     #         else:
     #             self.ctype.append(TransitType.SINGLE_MATMODE)
@@ -169,7 +169,7 @@ class Transit(_Operational):
     #     for i in self.aspects():
     #         self.update_transport_level_parameter(parameter=i)
 
-    #     # *-----------------Set etype (Emission)---------------------------------
+    #     # *-----------------Set etype (Emission)----------------------------
     #     # Types of emission accounted for are declared here and EmissionTypes are set
 
     #     for i in self.etypes():
@@ -183,22 +183,26 @@ class Transit(_Operational):
     #             self.etype.append(etype_)
     #             self.emissions[i.lower()] = attr_
 
-    #     # *----------------- Depreciation Warnings------------------------------------
+    #     # *----------------- Depreciation Warnings--------------------------
     #     if self.trans_max:
     #         raise ValueError(
-    #             f'{self.name}: trans_max has been depreciated. Please use cap_max instead')
+    # f'{self.name}: trans_max has been depreciated. Please use cap_max
+    # instead')
 
     #     if self.trans_min:
     #         raise ValueError(
-    #             f'{self.name}: trans_max has been depreciated. Please use cap_min instead')
+    # f'{self.name}: trans_max has been depreciated. Please use cap_min
+    # instead')
 
     #     if self.varying:
     #         raise ValueError(
-    #             f'{self.name}: varying has been depreciated. Variability will be determined from factors provided to Network')
+    # f'{self.name}: varying has been depreciated. Variability will be
+    # determined from factors provided to Network')
 
     #     if self.emission:
     #         raise ValueError(
-    #             f'{self.name}: emission has been depreciated. Please provide individual emissions (gwp, odp, acid, eutt, eutf, eutm) instead')
+    # f'{self.name}: emission has been depreciated. Please provide individual
+    # emissions (gwp, odp, acid, eutt, eutf, eutm) instead')
 
     # # *----------------- Properties ---------------------------------
 
@@ -285,7 +289,7 @@ class Transit(_Operational):
     #     """
     #     return EmissionType.all()
 
-    # # *----------------- Functions ---------------------------------------------
+    # # *----------------- Functions -----------------------------------------
 
     # def update_transport_level_parameter(self, parameter: str):
     #     """updates parameter, sets aspect

@@ -111,7 +111,8 @@ class _Consistent:
         Returns:
             dict: ammended dict
         """
-        value_upd = {i: {k: {} for k, l in j.items()} for i, j in value.items()}
+        value_upd = {i: {k: {} for k, l in j.items()}
+                     for i, j in value.items()}
 
         for i, j in value.items():
             for k, l in j.items():

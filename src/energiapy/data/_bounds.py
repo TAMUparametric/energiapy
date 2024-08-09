@@ -9,16 +9,16 @@ class _VarBnd(Enum):
     """Type of Parameter Bound on Variable"""
 
     LOWER = auto()
-    """Is a certain lower bound 
+    """Is a certain lower bound
     """
     UPPER = auto()
-    """Is a certain upper bound 
+    """Is a certain upper bound
     """
     EXACT = auto()
-    """Is an exact value 
+    """Is an exact value
     """
     PARAMETRIC = auto()
-    """Is a parametric variable 
+    """Is a parametric variable
     """
     FREE = auto()
     """Is unbounded and free <= BigM

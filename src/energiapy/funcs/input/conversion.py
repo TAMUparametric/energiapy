@@ -10,9 +10,11 @@ def conversioner(process):
     """
 
     if not isinstance(process.conversion, Conversion):
-        process.conversion = Conversion(conversion=process.conversion, process=process)
+        process.conversion = Conversion(
+            conversion=process.conversion, process=process)
         # conversion can be single mode (SINGLE_PRODMODE) or multimode (MULTI_PRODMODE)
-        # For MULTI_PRODMODE, a dict of type {'mode' (str, int) : {Resource: float}} needs to be provided
+        # For MULTI_PRODMODE, a dict of type {'mode' (str, int) : {Resource:
+        # float}} needs to be provided
         for i in ['modes', 'n_modes', 'balance', 'involve']:
             setattr(process, i, getattr(process.conversion, i))
 
@@ -28,7 +30,10 @@ def conversioner(process):
                 {getattr(process.conversion, 'produce'): process.produce},
             )
         else:
-            setattr(process, 'produce', {getattr(process.conversion, 'produce'): 1})
+            setattr(
+                process, 'produce', {
+                    getattr(
+                        process.conversion, 'produce'): 1})
 
         for i in ['discharge', 'consume']:
             if getattr(process, i) is not None:
@@ -44,4 +49,7 @@ def conversioner(process):
                         f'{process}.{i} should be provided as a dictionary'
                     )
             else:
-                setattr(process, i, {r: True for r in getattr(process.conversion, i)})
+                setattr(
+                    process, i, {
+                        r: True for r in getattr(
+                            process.conversion, i)})

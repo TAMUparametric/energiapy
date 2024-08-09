@@ -15,10 +15,6 @@ from ...components.spatial.linkage import Linkage
 from ...components.spatial.location import Location
 from ...components.temporal.scale import Scale
 
-# Analytical
-
-IsPlayer: TypeAlias = Player
-IsAnalytical: TypeAlias = Union[IsPlayer]
 
 # Scope
 IsHorizon: TypeAlias = Horizon
@@ -36,6 +32,11 @@ IsSpatial: TypeAlias = Union[IsLinkage, IsLocation]
 
 # SpatioTemporal
 IsSpatioTemporal: TypeAlias = Union[IsScope, IsSpatial, IsTemporal]
+
+# Analytical
+IsPlayer: TypeAlias = Player
+IsAnalytical: TypeAlias = Union[IsPlayer]
+
 
 # Assets
 IsCash: TypeAlias = Cash

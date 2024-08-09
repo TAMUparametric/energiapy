@@ -1,4 +1,4 @@
-"""Aspect describes the behavior of a component using model elements 
+"""Aspect describes the behavior of a component using model elements
 """
 
 from __future__ import annotations
@@ -59,14 +59,16 @@ class _Task(_Dunders):
     def check_opn(self, opn: Union[IsOperational, List[IsOperational]]):
         """Check if the operation type is correct"""
         if isinstance(self.opn, list):
-            return any(isinstance(opn, getattr(self, '_opn')) for opn in self.opn)
+            return any(isinstance(opn, getattr(self, '_opn'))
+                       for opn in self.opn)
         else:
             return isinstance(opn, getattr(self, '_opn'))
 
     def check_spt(self, spt: Union[IsSpatial, List[IsSpatial]]):
         """Check if the spatial type is correct"""
         if isinstance(self.spt, list):
-            return any(isinstance(spt, getattr(self, '_spt')) for spt in self.spt)
+            return any(isinstance(spt, getattr(self, '_spt'))
+                       for spt in self.spt)
         else:
             return isinstance(spt, getattr(self, '_spt'))
 

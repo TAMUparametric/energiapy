@@ -8,7 +8,7 @@ from ...funcs.birth.value import birth_value
 from ...funcs.check.value import scale_match
 from ...funcs.update.value import update_bounds
 from ...inputs.values.bounds import VarBnd
-from ...blocks.index import Index
+from ...blocks.disposition import Index
 
 if TYPE_CHECKING:
     from ...types.alias import (IsCommodity, IsComponent, IsInput, IsOperation,
@@ -30,8 +30,7 @@ def update_task(
     task = birth_task(component=component, attr_name=attr_name)
 
     horizon = component.horizon
-    
-    
+
     if not isinstance(attr_input, dict):
         scl_val = {horizon[0]: attr_input}
 
@@ -42,14 +41,17 @@ def update_task(
             low_or_up = {0: VarBnd.LOWER, 1: VarBnd.UPPER}
 
             if len(value_) > 2:
-                raise ValueError(f'{component.name}: tuple must be of length 2')
+                raise ValueError(
+                    f'{component.name}: tuple must be of length 2')
             # if only one value, then it is an upper bound
             elif len(value_) == 1:
                 value_ = [0] + value_
 
             value_ = [
-                birth_value(name=attr_name, attr_input=i, index=index) for i in value_
-            ]
+                birth_value(
+                    name=attr_name,
+                    attr_input=i,
+                    index=index) for i in value_]
 
             for i, j in enumerate(value_):
 
@@ -89,4 +91,7 @@ def update_task(
                     f'{component.name}.{attr_name}: length of data does not match any scale index'
                 )
 
-            value_ = birth_value(name=attr_name, attr_input=attr_input, index=index)
+            value_ = birth_value(
+                name=attr_name,
+                attr_input=attr_input,
+                index=index)

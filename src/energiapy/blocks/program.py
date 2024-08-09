@@ -23,7 +23,8 @@ class ProgramBlock(_Dunders):
         elif self.task:
             self.name = f'ProgramBlock|{self.task.name}|'
 
-        self.variables, self.constraints, self.parameters = ([] for _ in range(3))
+        self.variables, self.constraints, self.parameters = (
+            [] for _ in range(3))
 
 
 @dataclass
@@ -34,4 +35,5 @@ class Program(_Dunders):
 
     def __post_init__(self):
         self.name = f'Progam|{self.name}|'
-        self.variables, self.constraints, self.parameters = ([] for _ in range(3))
+        self.variables, self.constraints, self.parameters = (
+            [] for _ in range(3))

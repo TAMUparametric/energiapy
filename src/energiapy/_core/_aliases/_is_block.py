@@ -9,7 +9,7 @@ from ...blocks.matrix import Matrix
 from ...blocks.program import Program
 from ...blocks.system import System
 from ...blocks.scenario import Scenario
-from ...blocks.index import Index
+from ...blocks.disposition import Index
 
 IsIndex: TypeAlias = Index
 IsScenario: TypeAlias = Scenario

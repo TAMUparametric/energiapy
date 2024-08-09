@@ -6,8 +6,7 @@ from warnings import warn
 
 from .._core._handy._dunders import _Dunders
 from ..components._base._defined import _Asset, _Component
-from ..components._base._spttmp import (_Scope, _Spatial,  # , _Analytical
-                                        _Temporal)
+from ..components._base._spttmp import _Scope, _Spatial, _Temporal  # , _Analytical
 from ..components.asset.cash import Cash
 from ..components.asset.land import Land
 from ..components.scope.horizon import Horizon
@@ -31,22 +30,27 @@ class System(_Dunders):
         # Is always [Horizon, Network]
         self.scopes = [None, None]
 
-        # Analytical
-        self.players = []
+        # Spatial
+        self.locations, self.linkages = [], []
 
         # Temporal
         self.scales = []
 
-        # Commodity
-        self.resources, self.materials, self.emissions = ([] for _ in range(3))
-        # always [Cash, Land]
+        # Analytical
+        self.players = []
+
+        # Assets
+        # Is always [Cash, Land]
         self.assets = [None, None]
+
+        # Commodity
+        self.resources, self.materials = [], []
+
+        # Impact
+        self.emissions = []
 
         # Operational
         self.processes, self.storages, self.transits = ([] for _ in range(3))
-
-        # Spatial
-        self.locations, self.linkages = ([] for _ in range(2))
 
     def __setattr__(self, name, value):
 
@@ -86,7 +90,8 @@ class System(_Dunders):
 
         else:
             list_curr = getattr(self, component.collection())
-            # skip the warnign for Scale because a default scale is already defined with 1 index
+            # skip the warnign for Scale because a default scale is already
+            # defined with 1 index
             if not issubclass(type(component), _Temporal):
                 if component in list_curr:
                     warn(f'{component} is being replaced')

@@ -33,7 +33,7 @@ class ResourceType(Enum):
     """can be transported
     """
 
-    # * ----------------------------------Update this ------------------------------------------
+    # * ----------------------------------Update this ------------------------
 
     @staticmethod
     def location_level() -> list:
@@ -45,7 +45,7 @@ class ResourceType(Enum):
         """Set when Transit is declared"""
         return {'TRANSPORT'}
 
-    # * ---------------------------- Automated below this --------------------------------------
+    # * ---------------------------- Automated below this --------------------
 
     @classmethod
     def all(cls) -> Set[str]:

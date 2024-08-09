@@ -37,7 +37,8 @@ class CompAspectMap:
     spatial: list
 
     def __post_init__(self):
-        # doing this because currently operation and spatial components share all Aspects
+        # doing this because currently operation and spatial components share
+        # all Aspects
         commodity = ['resource', 'material']
         operation = ['process', 'storage', 'transport']
         spatial = ['location', 'linkage', 'network']
@@ -54,21 +55,32 @@ class CompAspectMap:
                     opn = ['transport']
                 opn_at = attrgetter([f'{j}_at_{i}' for j in opn])(self)
 
-            setattr(self, i, list(chain.from_iterable((com + com_at + opn_at))))
+            setattr(
+                self, i, list(
+                    chain.from_iterable(
+                        (com + com_at + opn_at))))
 
 
 comp_aspect_map = CompAspectMap(
-    resource=Limit.resource() + CashFlow.resource() + Emission.all() + CapBound.all(),
-    resource_at_process=Limit.resource() + CashFlow.resource() + CapBound.at_process(),
-    resource_at_storage=CapBound.at_storage() + Loss.during_storage(),
-    resource_at_transport=CapBound.at_transport() + Loss.during_transport(),
+    resource=Limit.resource() +
+    CashFlow.resource() +
+    Emission.all() +
+    CapBound.all(),
+    resource_at_process=Limit.resource() +
+    CashFlow.resource() +
+    CapBound.at_process(),
+    resource_at_storage=CapBound.at_storage() +
+    Loss.during_storage(),
+    resource_at_transport=CapBound.at_transport() +
+    Loss.during_transport(),
     material=Emission.all(),
-    operation=Limit.operation()
-    + Land.operation()
-    + CashFlow.operation()
-    + Emission.all()
-    + Life.all(),
-    spatial=Land.spatial() + CashFlow.spatial(),
+    operation=Limit.operation() +
+    Land.operation() +
+    CashFlow.operation() +
+    Emission.all() +
+    Life.all(),
+    spatial=Land.spatial() +
+    CashFlow.spatial(),
 )
 
 
@@ -88,7 +100,9 @@ class InputMap:
     def map_maker(self, attr: str):
         """makes a map between the attribute and the aspect or balance or detail"""
         map_ = [{i.name.lower(): i for i in j} for j in getattr(self, attr)]
-        setattr(self, f'{attr}_map', {i: j for k in map_ for i, j in k.items()})
+        setattr(
+            self, f'{attr}_map', {
+                i: j for k in map_ for i, j in k.items()})
 
     def find_aspect(self, attr: str):
         """finds the Aspect matching the input"""

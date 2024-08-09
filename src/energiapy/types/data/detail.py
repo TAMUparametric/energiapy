@@ -5,7 +5,7 @@ class Detail(Enum):
     """Provides some detail regarding Component"""
 
     BASIS = auto()
-    """Base units 
+    """Base units
     """
     BLOCK = auto()
     """Block to which the Component belongs
@@ -14,7 +14,7 @@ class Detail(Enum):
     """Used as tag while generating plots
     """
     CITATION = auto()
-    """Provide any citations if needed 
+    """Provide any citations if needed
     """
 
     @staticmethod

@@ -46,7 +46,8 @@ class Material(_Commodity):
     #     eutm (float, optional): marine eutrophication potential per unit basis of Material produced. Defaults to None.
     #     basis (str, optional): Unit basis for material. Defaults to None.
     #     citation (str, optional): Add citation. Defaults to None.
-    #     label (str, optional): Longer descriptive label if required. Defaults to None.
+    # label (str, optional): Longer descriptive label if required. Defaults to
+    # None.
 
     # Examples:
     #     Materials can be declared using the resources they consume
@@ -67,7 +68,7 @@ class Material(_Commodity):
 
     # def __post_init__(self):
 
-    #     # *-----------------Set etype (Emission)---------------------------------
+    #     # *-----------------Set etype (Emission)----------------------------
 
     #     self.etype = []
     #     self.emissions = dict()

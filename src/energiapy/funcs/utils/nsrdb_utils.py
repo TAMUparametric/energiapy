@@ -60,7 +60,10 @@ def fetch_nsrdb_data(
             dist, pos = tree.query(lat_lon_query)
             return pos
 
-        idx = nearest_site(tree=tree, latitude=lat_lon[0], longitude=lat_lon[1])
+        idx = nearest_site(
+            tree=tree,
+            latitude=lat_lon[0],
+            longitude=lat_lon[1])
 
     else:
         # gets coordinates and associated data
@@ -71,7 +74,8 @@ def fetch_nsrdb_data(
             state_data['county'] == str.encode(county)
         ]  # data matching county
 
-        # splits the get string, e.g. max - population, gives [max, population(get_metric)]
+        # splits the get string, e.g. max - population, gives [max,
+        # population(get_metric)]
         get_metric = get.split('-')[1]
 
         if get.split('-')[0] == 'min':

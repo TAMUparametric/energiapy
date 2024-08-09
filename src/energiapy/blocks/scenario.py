@@ -87,7 +87,9 @@ class Scenario(_Default):
                     self,
                     value._name_scales[i],
                     Scale(
-                        index=value.make_index(position=i, nested=value.nested),
+                        index=value.make_index(
+                            position=i,
+                            nested=value.nested),
                         label=label_scale,
                     ),
                 )

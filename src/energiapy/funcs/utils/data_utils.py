@@ -87,8 +87,10 @@ def make_material_dict(file_name: str) -> dict:
 
 
 def make_cost_dict(
-    location_list: list, cost_scenario_list: list, process_list: list, year_list: list
-) -> dict:
+        location_list: list,
+        cost_scenario_list: list,
+        process_list: list,
+        year_list: list) -> dict:
     """intializes an empty dictionary for cost data for all processes
 
     Args:
@@ -101,7 +103,12 @@ def make_cost_dict(
         dict: dictionary with costs
     """
 
-    cost_metrics_list = ['CAPEX', 'Fixed O&M', 'Variable O&M', 'units', 'source']
+    cost_metrics_list = [
+        'CAPEX',
+        'Fixed O&M',
+        'Variable O&M',
+        'units',
+        'source']
     cost_dict = {
         location_.name: {
             cost_scenario.name: {
@@ -192,7 +199,8 @@ def make_henry_price_df(
     df = pandas.read_csv(file_name, skiprows=5, names=['date', 'CH4'])
 
     df[["month", "day", "year"]] = df['date'].str.split("/", expand=True)
-    df = df[df['year'] == str(year)].astype({"month": int, "day": int, "year": int})
+    df = df[df['year'] == str(year)].astype(
+        {"month": int, "day": int, "year": int})
     # , format='%d%b%Y:%H:%M:%S.%f')
     df['date'] = pandas.to_datetime(df['date'])
     df['doy'] = df['date'].dt.dayofyear
@@ -222,22 +230,14 @@ def make_henry_price_df(
                 )
                 # df = df.append({'CH4': df['CH4'][df['doy'] == 2].values[0], 'month': 1, 'day': 1, 'year': year, 'doy': 1}, ignore_index=True)
             else:
-                df = pandas.concat(
-                    [
-                        df,
-                        pandas.DataFrame.from_records(
-                            [
-                                {
-                                    'CH4': df['CH4'][df['doy'] == i - 1].values[0],
-                                    'month': df['month'][df['doy'] == i - 1].values[0],
-                                    'day': df['day'][df['doy'] == i - 1].values[0],
-                                    'year': df['year'][df['doy'] == i - 1].values[0],
-                                    'doy': i,
-                                }
-                            ]
-                        ),
-                    ]
-                )
+                df = pandas.concat([df,
+                                    pandas.DataFrame.from_records([{'CH4': df['CH4'][df['doy'] == i - 1].values[0],
+                                                                    'month': df['month'][df['doy'] == i - 1].values[0],
+                                                                    'day': df['day'][df['doy'] == i - 1].values[0],
+                                                                    'year': df['year'][df['doy'] == i - 1].values[0],
+                                                                    'doy': i,
+                                                                    }]),
+                                    ])
                 # df = df.append({'CH4': df['CH4'][df['doy'] == i-1].values[0], 'month': df['month'][df['doy'] == i-1].values[0], 'day': df['day'][df['doy'] == i-1].values[0], 'year': df['year'][df['doy'] == i-1].values[0], 'doy': i}, ignore_index=True)
 
     df = df.sort_values(by=['doy'])
@@ -251,7 +251,8 @@ def make_henry_price_df(
     else:
         df = df.loc[df.index.repeat(24)].reset_index(drop=True)
         df['hour'] = [int(i) for i in range(0, 24)] * 365
-        df['scales'] = [(0, int(i - 1), int(j)) for i, j in zip(df['day'], df['hour'])]
+        df['scales'] = [(0, int(i - 1), int(j))
+                        for i, j in zip(df['day'], df['hour'])]
     df = df[['CH4', 'scales']]
     return df
 

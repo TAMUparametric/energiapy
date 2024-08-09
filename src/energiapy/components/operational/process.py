@@ -1,4 +1,4 @@
-"""energiapy.Process - converts one Resource to another Resource, Or stores Resource  
+"""energiapy.Process - converts one Resource to another Resource, Or stores Resource
 """
 
 from __future__ import annotations
@@ -10,7 +10,6 @@ from .._base._defined import _Operational
 
 # import operator
 # from functools import reduce
-
 
 
 if TYPE_CHECKING:
@@ -34,11 +33,12 @@ class Process(_Operational):
     def __post_init__(self):
         _Operational.__post_init__(self)
 
-        # *-----------------Set ctype (ProcessType)---------------------------------
+        # *-----------------Set ctype (ProcessType)----------------------------
 
         # Materials are not necessarily consumed (NO_MATMODE), if use is None
         # If consumed, there could be multiple modes of consumption (MULTI_MATMODE) or one (SINGLE_MATMODE)
-        # for MULTI_MATMODE, provide a dict of type ('material_mode' (str, int): {Material: float})
+        # for MULTI_MATMODE, provide a dict of type ('material_mode' (str,
+        # int): {Material: float})
 
         # if self.material_use is None:
         #     getattr(self, 'ctypes').append(ProcessType.NO_MATMODE)
@@ -81,7 +81,7 @@ class Process(_Operational):
         # if any([self.introduce, self.retire, self.lifetime]):
         #     getattr(self, 'ctypes').append(ProcessType.READINESS)
 
-        # *----------------- Depreciation Warnings------------------------------------
+        # *----------------- Depreciation Warnings-----------------------------
 
         _name = getattr(self, 'name', None)
 
@@ -89,7 +89,8 @@ class Process(_Operational):
 
         for i, j in _changed.items():
             if getattr(self, i):
-                raise ValueError(f'{_name}: {i} is depreciated. Please use {j} instead')
+                raise ValueError(
+                    f'{_name}: {i} is depreciated. Please use {j} instead')
 
     @staticmethod
     def quantify():

@@ -153,7 +153,11 @@ rulebook.add(
         sumover=SumOver.SPACE,
     )
 )
-rulebook.add(Rule(variable=Land.LAND, parameter=Land.LAND, condition=Condition.BIND))
+rulebook.add(
+    Rule(
+        variable=Land.LAND,
+        parameter=Land.LAND,
+        condition=Condition.BIND))
 
 
 rulebook.add(

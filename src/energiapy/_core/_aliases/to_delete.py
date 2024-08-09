@@ -32,7 +32,8 @@ This is intentionally, for the sake of clarity and consistency in using the Is f
 # from ..inputs.values.constant import Number
 # from ..inputs.values.theta import Th, Theta
 
-# from .input.aspect import CashFlow, Emission, Land, Life, Limit, Loss #TODO - Change Land enum
+# from .input.aspect import CashFlow, Emission, Land, Life, Limit, Loss
+# #TODO - Change Land enum
 
 
 # # *input types

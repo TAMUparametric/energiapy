@@ -8,7 +8,7 @@ class _Certainty(Enum):
     """How is the parameter variability."""
 
     CERTAIN = auto()
-    """we know either the exact value or the exact bounds. 
+    """we know either the exact value or the exact bounds.
     Subclassed in Bound
     """
     UNCERTAIN = auto()
@@ -26,8 +26,8 @@ class _Approach(Enum):
     """
     DATA = auto()
     """(float, DataFrame)/DataFrame. Uncertain but estimated using a dataset.
-    DataFrames are converted to a Factor. A Factor can be provided directly as well. 
+    DataFrames are converted to a Factor. A Factor can be provided directly as well.
     """
     STOCHASTIC = auto()
-    """To be worked on  
+    """To be worked on
     """

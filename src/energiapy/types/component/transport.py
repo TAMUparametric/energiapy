@@ -36,17 +36,17 @@ class TransitType(Enum):
     """Fails
     """
     EMISSION = auto()
-    """Emits 
+    """Emits
     """
 
-    # * -------------------------- Update this ----------------------------------------
+    # * -------------------------- Update this -------------------------------
 
     @classmethod
     def network_level(cls) -> Set[str]:
         """Set at Network level"""
         return {'INTERMITTENT'}
 
-    # * -------------------------- Automated below this ----------------------------------------
+    # * -------------------------- Automated below this ----------------------
 
     @classmethod
     def all(cls) -> Set[str]:

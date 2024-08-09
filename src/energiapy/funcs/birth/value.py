@@ -8,7 +8,7 @@ from ...inputs.values.constant import Number
 from ...inputs.values.dataset import DataSet
 from ...inputs.values.m import M
 from ...inputs.values.theta import Theta
-from ...blocks.index import Index
+from ...blocks.disposition import Index
 
 if TYPE_CHECKING:
     from ..type.alias import IsIndex, IsInput, IsSpcLmt, IsValue, IsVarBnd
@@ -28,7 +28,12 @@ def birth_value(name: str, attr_input: IsInput, index: IsIndex) -> IsValue:
 
     args = {'name': name, 'index': index}
 
-    if isinstance(attr_input, (float, int)) and not isinstance(attr_input, bool):
+    if isinstance(
+            attr_input,
+            (float,
+             int)) and not isinstance(
+            attr_input,
+            bool):
         return Number(number=attr_input, **args)
 
     if isinstance(attr_input, bool):

@@ -45,7 +45,7 @@ class Resource(_Resource):
     def __post_init__(self):
         _Resource.__post_init__(self)
 
-        # *-----------------Set ctype (ResourceType)---------------------------------
+        # *-----------------Set ctype (ResourceType)---------------------------
 
         # if self.sell_cost is not None:
         #     getattr(self, 'ctypes').append(ResourceType.SELL)
@@ -77,7 +77,8 @@ class Resource(_Resource):
         for i, j in _changed.items():
             # If the attribute i is depreciated raise ValueError.
             if getattr(self, i):
-                raise ValueError(f'{_name}: {i} is depreciated. Please use {j} instead')
+                raise ValueError(
+                    f'{_name}: {i} is depreciated. Please use {j} instead')
 
     @staticmethod
     def quantify():

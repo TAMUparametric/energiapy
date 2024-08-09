@@ -46,7 +46,10 @@ class Location(_Spatial):
             return True
         return False
 
-    def find_links(self, location: IsLocation, print_link: bool = True) -> list:
+    def find_links(
+            self,
+            location: IsLocation,
+            print_link: bool = True) -> list:
         links = []
         for link in self._system.linkages:
             source, sink = False, False
@@ -64,7 +67,10 @@ class Location(_Spatial):
                 continue
         return links
 
-    def is_connected(self, location: IsLocation, print_link: bool = False) -> bool:
+    def is_connected(
+            self,
+            location: IsLocation,
+            print_link: bool = False) -> bool:
         if self.find_links(location, print_link=print_link):
             return True
         print(self.find_links(location, print_link=print_link))
