@@ -14,12 +14,27 @@ class Land(_Asset):
     """Land derived from Operation Capacity"""
 
     use: IsBoundInput = field(default=None)
-    cost: IsExactInput = field(default=None)
+    use_cost: IsExactInput = field(default=None)
 
     def __post_init__(self):
         _Asset.__post_init__(self)
 
     @staticmethod
+    def quantify():
+        """reports data inputs that quantify aspects of the component"""
+        return ['use']
+
+    @staticmethod
+    def expenses():
+        """reports what costs data can be given to the component"""
+        return ['use_cost']
+
+    @staticmethod
     def collection():
         """The collection in scenario"""
         return 'assets'
+
+    @property
+    def cash(self):
+        """The cash of the Resource"""
+        return self._system.cash

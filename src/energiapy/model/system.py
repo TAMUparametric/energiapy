@@ -5,10 +5,11 @@ from typing import TYPE_CHECKING
 from warnings import warn
 
 from .._core._handy._dunders import _Dunders
-from ..components._base._scope import _Scope, _Spatial, _Temporal  # , _Analytical
 from ..components._base._defined import _Asset, _Component
-from ..components.commodity.cash import Cash
-from ..components.commodity.land import Land
+from ..components._base._spttmp import (_Scope, _Spatial,  # , _Analytical
+                                        _Temporal)
+from ..components.asset.cash import Cash
+from ..components.asset.land import Land
 from ..components.scope.horizon import Horizon
 from ..components.scope.network import Network
 

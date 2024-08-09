@@ -4,6 +4,7 @@
 from dataclasses import dataclass, field
 
 from ..components._base._component import _Component
+from ..components._base._defined import _Defined
 from ..components.scope.horizon import Horizon
 from ..components.scope.network import Network
 from ..components.spatial.linkage import Linkage
@@ -68,6 +69,9 @@ class Scenario(_Default):
         if issubclass(type(value), (_Component)):
 
             value.personalize(name=name, **self._model)
+
+            if issubclass(type(value), _Defined):
+                value.make_consistent()
 
             setattr(self._system, name, value)
 

@@ -1,25 +1,45 @@
-from dataclasses import dataclass
+"""energiapy.Storage - Stashes Resource to Withdraw Later  
+"""
 
-# from ..model.specialparams.conversion import Conversion
-# from .resource import Resource
-# from ..model.specialparams.dataset import DataSet
-# from ..model.specialparams.theta import Theta
-# from ..model.specialparams.m import BigM
-# from ..model.type.input import Input
-from ..component import Component
+from __future__ import annotations
 
-# from typing import TYPE_CHECKING, Dict, List, Tuple, Union
+from dataclasses import dataclass, field
+from typing import TYPE_CHECKING
+
+from .._base._defined import _Operational
+
+# import operator
+# from functools import reduce
 
 
-# if TYPE_CHECKING:
-#     from pandas import DataFrame
-#     from .horizon import Horizon
-#     from .material import Material
-#     from ..type.alias import
+
+if TYPE_CHECKING:
+    from ..._core._aliases._is_input import IsBoundInput, IsExactInput
 
 
 @dataclass
-class Storage(Component):
+class Storage(_Operational):
+
+    capacity: IsBoundInput = field(default=None)
+    operate: IsBoundInput = field(default=None)
+    use: IsExactInput = field(default=None)
+    loss: IsExactInput = field(default=None)
+    capex: IsExactInput = field(default=None)
+    opex: IsExactInput = field(default=None)
+
+    def __post_init__(self):
+        _Operational.__post_init__(self)
+
+    @staticmethod
+    def quantify():
+        """The quantified data inputs to the component"""
+        return ['capacity', 'operate', 'use', 'loss']
+
+    @staticmethod
+    def expenses():
+        """The quantified costs of the component"""
+        return ['capex', 'opex']
+
     @staticmethod
     def collection():
         """The collection in scenario"""

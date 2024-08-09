@@ -5,28 +5,46 @@
 # TODO --- trans_loss, retire, introduce, land, land_cost (could be between location.. will need to check)
 # TODO -- PWL CAPEX
 
-import operator
-# import uuid
-from dataclasses import dataclass
-from functools import reduce
-from typing import Dict, List, Set, Tuple, Union
 
-from ..utils.data_utils import get_depth
-from .location import Location
-from .material import Material
-# from .model.factor import Factor
-# from .model.paramtype import FactorType, MPVarType, ParameterType
-# from .model.special import BigM, CouldBeVar
-# from .model.theta import Theta, birth_theta
-# from .model.transport import TransitParamType
-from .resource import Resource
-# from .type.emission import EmissionType
-from .type.resource import ResourceType
-from .type.transport import TransitType
+from __future__ import annotations
+
+from dataclasses import dataclass, field
+from typing import TYPE_CHECKING
+
+from .._base._defined import _Operational
+
+# import operator
+# from functools import reduce
+
+
+
+if TYPE_CHECKING:
+    from ..._core._aliases._is_input import IsBoundInput, IsExactInput
 
 
 @dataclass
-class Transit:
+class Transit(_Operational):
+
+    capacity: IsBoundInput = field(default=None)
+    operate: IsBoundInput = field(default=None)
+    use: IsExactInput = field(default=None)
+    loss: IsExactInput = field(default=None)
+    capex: IsExactInput = field(default=None)
+    opex: IsExactInput = field(default=None)
+
+    def __post_init__(self):
+        _Operational.__post_init__(self)
+
+    @staticmethod
+    def quantify():
+        """The quantified data inputs to the component"""
+        return ['capacity', 'operate', 'use', 'loss']
+
+    @staticmethod
+    def expenses():
+        """The quantified costs of the component"""
+        return ['capex', 'opex']
+
     @staticmethod
     def collection():
         """The collection in scenario"""

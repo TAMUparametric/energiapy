@@ -29,4 +29,3 @@ class _Spatial(_Component):
 
     def __post_init__(self):
         _Component.__post_init__(self)
-

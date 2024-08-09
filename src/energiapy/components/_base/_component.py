@@ -46,4 +46,3 @@ class _Component(_Dunders, _Model):
         self._matrix = matrix
         self._program = program
         self._abstract = abstract
-

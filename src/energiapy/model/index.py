@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING
 from ..core.inits.common import ElmCommon
 
 if TYPE_CHECKING:
-    from ..types.alias import IsCommodity, IsOperation, IsScale, IsSpatial
+    from ..types import IsCommodity, IsOperation, IsScale, IsSpatial
 
 
 @dataclass

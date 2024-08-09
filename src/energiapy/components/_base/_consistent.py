@@ -8,9 +8,9 @@ from warnings import warn
 
 from pandas import DataFrame
 
-from ._scope import _Spatial
 from ..scope.network import Network
 from ..temporal.scale import Scale
+from ._spttmp import _Spatial
 
 if TYPE_CHECKING:
     from ..._core._aliases._is_input import IsInput, IsSptTmpInput
@@ -52,7 +52,6 @@ class _Consistent:
         Returns:
             dict: ammended input dict
         """
-        print(value)
         value_upd = {i: {} for i in value.keys()}
 
         for i, j in value.items():
@@ -87,7 +86,7 @@ class _Consistent:
                     if is_not(scale_upd, k):
                         if is_not(k, 't'):
                             warn(
-                                f'Inconsistent temporal scale for {i} at {k}. Changing to {scale_upd}'
+                                f'{self}:Inconsistent temporal scale for {i} at {k}. Updating to {scale_upd}'
                             )
                         value_upd[i][scale_upd] = l
                         del value_upd[i][k]
@@ -123,7 +122,7 @@ class _Consistent:
 
                     if is_not(scale_upd, k):
                         warn(
-                            f'Inconsistent temporal scale for {i} at {k}. Changing to {scale_upd}'
+                            f'{self}:Inconsistent temporal scale for {i} at {k}. Updating to {scale_upd}'
                         )
                         value_upd[i][scale_upd] = l
                         del value_upd[i][k]

@@ -31,6 +31,8 @@ class Resource(_Resource):
     deliver: IsBoundInput = field(default=None)
     buy_price: IsExactInput = field(default=None)
     sell_price: IsExactInput = field(default=None)
+    credit: IsExactInput = field(default=None)
+    penalty: IsExactInput = field(default=None)
 
     # Depreciated
     varying: str = field(default=None)
@@ -77,10 +79,38 @@ class Resource(_Resource):
             if getattr(self, i):
                 raise ValueError(f'{_name}: {i} is depreciated. Please use {j} instead')
 
+    @staticmethod
+    def quantify():
+        """The quantified data inputs to the component"""
+        return ['buy', 'sell', 'ship', 'deliver']
+
+    @staticmethod
+    def expenses():
+        """The quantified costs of the component"""
+        return ['buy_price', 'sell_price', 'credit', 'penalty']
+
+    @property
+    def cash(self):
+        """The cash"""
+        return self._system.cash
+
+
+# TODO Determine the inputs for these
+
 
 @dataclass
 class ResourceInStorage(_Resource):
     """Stored Resource"""
+
+    @staticmethod
+    def quantify():
+        """The quantified data inputs to the component"""
+        return []
+
+    @staticmethod
+    def expenses():
+        """The quantified costs of the component"""
+        return []
 
     def __post_init__(self):
         _Resource.__post_init__(self)

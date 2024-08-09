@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
-from ..components.commodity.cash import Cash
-from ..components.commodity.land import Land
+from ..components.asset.cash import Cash
+from ..components.asset.land import Land
 from ..components.spatial.linkage import Linkage
 from ..components.spatial.location import Location
 from ._task import Task

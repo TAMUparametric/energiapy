@@ -7,7 +7,7 @@ from dataclasses import dataclass, field
 from operator import is_
 from typing import TYPE_CHECKING
 
-from .._base._scope import _Spatial
+from .._base._spttmp import _Spatial
 
 if TYPE_CHECKING:
     from ..._core._aliases._is_component import IsLocation

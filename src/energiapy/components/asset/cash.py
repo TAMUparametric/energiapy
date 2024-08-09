@@ -20,14 +20,27 @@ class Cash(_Asset):
     """
 
     spend: IsBoundInput = field(default=None)
+    earn: IsBoundInput = field(default=None)
 
     def __post_init__(self):
         _Asset.__post_init__(self)
 
     @staticmethod
+    def quantify():
+        """The quantified data inputs to the component"""
+        return ['spend', 'earn']
+
+    @staticmethod
+    def expenses():
+        """The expense data inputs to the component"""
+        return []
+
+    @classmethod
+    def inputs(cls):
+        """The data inputs to the component"""
+        return cls.quantify()
+
+    @staticmethod
     def collection():
         """The collection in scenario"""
         return 'assets'
-
-player = ['owns', 'has', 'needs']
-

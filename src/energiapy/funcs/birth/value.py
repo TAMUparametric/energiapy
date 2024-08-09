@@ -4,11 +4,11 @@ from typing import TYPE_CHECKING
 
 from pandas import DataFrame
 
-from ...elements.index import Index
 from ...inputs.values.constant import Number
 from ...inputs.values.dataset import DataSet
 from ...inputs.values.m import M
 from ...inputs.values.theta import Theta
+from ...model.index import Index
 
 if TYPE_CHECKING:
     from ..type.alias import IsIndex, IsInput, IsSpcLmt, IsValue, IsVarBnd
