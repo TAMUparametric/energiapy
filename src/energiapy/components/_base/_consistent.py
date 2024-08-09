@@ -134,7 +134,7 @@ class _Consistent:
                     value_upd[i][k] = l
         return value_upd
 
-    def make_consistent(self, value: IsInput) -> IsSptTmpInput:
+    def make_spttmpdict(self, value: IsInput) -> IsSptTmpInput:
         """Uses all the above functions to make a consistent input
 
         Args:

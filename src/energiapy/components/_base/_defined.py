@@ -23,14 +23,14 @@ class _DefinedComponent(_Component, _Consistent):
     def __setattr__(self, name, value):
 
         # value = self.make_spttmpdict(value)
-        value = self.make_consistent(value=value)
-        print(value)
+        value = self.make_spttmpdict(value=value)
+        
+        
 
         # args = {'name': name, index = }
 
         # if isinstance(value, (float, int)) and not isinstance(value, bool):
         #     return Constant(number=value, **args)
-
         # if isinstance(value, bool):
         #     return M(big=value, **args)
 

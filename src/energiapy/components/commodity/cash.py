@@ -28,3 +28,6 @@ class Cash(_Asset):
     def collection():
         """The collection in scenario"""
         return 'assets'
+
+player = ['owns', 'has', 'needs']
+
