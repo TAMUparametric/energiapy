@@ -33,8 +33,3 @@ class Land(_Asset):
     def collection():
         """The collection in scenario"""
         return 'assets'
-
-    @property
-    def cash(self):
-        """The cash of the Resource"""
-        return self._system.cash

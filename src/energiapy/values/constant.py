@@ -8,7 +8,7 @@ from ._bounds import _VarBnd
 from ._value import _Value
 
 if TYPE_CHECKING:
-    from .._core._aliases._is_data import IsNumeric
+    from .._core._aliases._is_input import IsNumeric
 
 
 @dataclass

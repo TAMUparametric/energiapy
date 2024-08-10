@@ -4,12 +4,7 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 
-from pandas import DataFrame
 
-from ...data.constant import Constant
-from ...data.dataset import DataSet
-from ...data.m import M
-from ...data.theta import Theta
 from ._component import _Component
 from ._consistent import _Consistent
 
@@ -63,26 +58,13 @@ class _Defined(_Component, _Consistent, ABC):
     def make_consistent(self):
         """Makes the data inputs consistent IsSptTmpDict"""
         for value in self.inputs():
-
-            #     if isinstance(value, (float, int)) and not isinstance(value, bool):
-            #         return Constant(constant=value, **args)
-            #     if isinstance(value, bool):
-            #         return M(big=value, **args)
-
-            #     if isinstance(value, DataFrame):
-            #         return DataSet(data=value, **args)
-
-            #     if isinstance(value, tuple):
-            #         return Theta(space=value, **args)
-
-            #     # if passing a BigM or Th, update
-            #     if hasattr(value, 'big') or hasattr(value, 'space'):
-            #         for i, j in args.items():
-            #             setattr(value, i, j)
-            #         return value
-
             setattr(self, value, self.make_spttmpdict(getattr(self, value)))
         self._consistent = True
+
+
+    def data(self):
+        """Returns the data of the component"""
+        return getattr(self._data, self.name)
 
 
 @dataclass

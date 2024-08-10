@@ -5,7 +5,7 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from .._core._aliases._is_element import IsIndex
+    from .._core._aliases._is_block import IsDisposition
 
 
 @dataclass
@@ -14,18 +14,18 @@ class _Value(ABC):
 
     Args:
         name (str): name of aspect
-        index (IsIndex): index of the value
+        disposition (IsDisposition): disposition of the value
     """
 
     name: str = field(default=None)
-    index: IsIndex = field(default=None)
+    disposition: IsDisposition = field(default=None)
 
     def __post_init__(self):
         for i in ['_varbound', '_spclimit', '_certainty', '_approach']:
             setattr(self, i, None)
 
-        if self.index:
-            for i, j in self.index.args.items():
+        if self.disposition:
+            for i, j in self.disposition.args().items():
                 setattr(self, i, j)
 
         vb_, sl_ = '', ''
@@ -44,7 +44,7 @@ class _Value(ABC):
 
     @property
     def _id(self):
-        return f'{self.name}{getattr(self,"index","")}'
+        return f'{self.name}{self.disposition}'
 
     def __len__(self):
-        return len(self.index)
+        return len(self.disposition)

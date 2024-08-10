@@ -6,7 +6,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, List, TypeVar, Union
 
-from src.energiapy import data
+from src.energiapy import values
 
 from .._core._aliases._is_component import IsLocation
 from .._core._handy._dunders import _Dunders

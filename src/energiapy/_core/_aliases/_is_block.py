@@ -9,9 +9,9 @@ from ...blocks.matrix import Matrix
 from ...blocks.program import Program
 from ...blocks.system import System
 from ...blocks.scenario import Scenario
-from ...blocks.disposition import Index
+from ...blocks.disposition import Disposition
 
-IsIndex: TypeAlias = Index
+IsDisposition: TypeAlias = Disposition
 IsScenario: TypeAlias = Scenario
 
 # submodels

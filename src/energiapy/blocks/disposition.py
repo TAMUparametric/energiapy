@@ -6,21 +6,6 @@ from __future__ import annotations
 from dataclasses import dataclass, field, fields
 from typing import TYPE_CHECKING
 
-
-from ..components.analytical.player import Player
-from ..components.asset.cash import Cash
-from ..components.asset.land import Land
-from ..components.commodity.material import Material
-from ..components.commodity.resource import Resource
-from ..components.impact.emission import Emission
-from ..components.operational.process import Process
-from ..components.operational.storage import Storage
-from ..components.operational.transit import Transit
-from ..components.scope.horizon import Horizon
-from ..components.scope.network import Network
-from ..components.spatial.linkage import Linkage
-
-
 if TYPE_CHECKING:
     from .._core._aliases._is_component import (
         IsCash,
@@ -35,6 +20,7 @@ if TYPE_CHECKING:
         IsScale,
         IsStorage,
         IsTransit,
+        IsNetwork,
     )
 
 
@@ -54,6 +40,7 @@ class Disposition:
     trn: IsTransit = field(default=None)
     loc: IsLocation = field(default=None)
     lnk: IsLinkage = field(default=None)
+    ntw: IsNetwork = field(default=None)
     scl: IsScale = field(default=None)
 
     def __post_init__(self):

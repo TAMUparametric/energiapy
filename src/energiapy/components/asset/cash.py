@@ -35,10 +35,6 @@ class Cash(_Asset):
         """The expense data inputs to the component"""
         return []
 
-    @classmethod
-    def inputs(cls):
-        """The data inputs to the component"""
-        return cls.quantify()
 
     @staticmethod
     def collection():

@@ -3,7 +3,7 @@
 
 from dataclasses import dataclass
 
-from src.energiapy import data
+from src.energiapy import values
 
 
 @dataclass

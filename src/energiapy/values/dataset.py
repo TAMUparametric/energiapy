@@ -11,6 +11,7 @@ from pandas import DataFrame
 
 from ._approach import _Approach, _Certainty
 from ._bounds import _VarBnd
+
 # from ..core.base import Dunders
 from ._value import _Value
 
@@ -45,9 +46,7 @@ class DataSet(_Value):
 
     # TODO - complete this
     def __lt__(self, other):
-        if isinstance(
-                other, (int, float)) and is_(
-                self._varbound, _VarBnd.UPPER):
+        if isinstance(other, (int, float)) and is_(self._varbound, _VarBnd.UPPER):
             return False
         elif isinstance(other, DataSet) and is_(other.varbound, _VarBnd.LOWER):
             return False
@@ -55,9 +54,7 @@ class DataSet(_Value):
             return True
 
     def __gt__(self, other):
-        if isinstance(
-                other, (int, float)) and is_(
-                self._varbound, _VarBnd.UPPER):
+        if isinstance(other, (int, float)) and is_(self._varbound, _VarBnd.UPPER):
             return True
         elif isinstance(other, DataSet) and is_(other.varbound, _VarBnd.LOWER):
             return True

@@ -72,7 +72,8 @@ class Scenario(_Default):
 
             if issubclass(type(value), _Defined):
                 value.make_consistent()
-
+                setattr(self._data, name, value)
+                
             setattr(self._system, name, value)
 
         if isinstance(value, Horizon):
@@ -87,9 +88,7 @@ class Scenario(_Default):
                     self,
                     value._name_scales[i],
                     Scale(
-                        index=value.make_index(
-                            position=i,
-                            nested=value.nested),
+                        index=value.make_index(position=i, nested=value.nested),
                         label=label_scale,
                     ),
                 )

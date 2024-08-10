@@ -15,7 +15,7 @@ from .constant import Constant
 from .dataset import DataSet
 
 if TYPE_CHECKING:
-    from .._core._aliases._is_input import IsInput, IsRange
+    from .._core._aliases._is_input import IsInput, IsSpace
 
 
 @dataclass
@@ -57,7 +57,7 @@ class Theta(_Value):
 
     """
 
-    space: IsRange = field(default=None)
+    space: IsSpace = field(default=None)
 
     def __post_init__(self):
         _Value.__post_init__(self)
@@ -74,7 +74,7 @@ class Theta(_Value):
             # values
             low_or_up = {0: _SpcLmt.START, 1: _SpcLmt.END}
 
-            args = {'name': self.name, 'index': self.index}
+            args = {'name': self.name, 'disposition': self.disposition}
 
             self.space = tuple(
                 [
@@ -94,10 +94,8 @@ class Theta(_Value):
             raise ValueError(f'{self.name}: tuple must be of length 2')
 
     def update_bounds(
-            self,
-            value: IsInput,
-            varbound: _VarBnd = None,
-            spclimit: _SpcLmt = None):
+        self, value: IsInput, varbound: _VarBnd = None, spclimit: _SpcLmt = None
+    ):
         """Updates the name to add a variable bound"""
         if varbound:
             setattr(value, '_varbound', varbound)

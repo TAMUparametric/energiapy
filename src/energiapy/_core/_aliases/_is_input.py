@@ -2,8 +2,8 @@ from typing import Dict, List, Literal, Tuple, TypeAlias, Union
 
 from pandas import DataFrame
 
-from ...data.m import M
-from ...data.theta import Theta
+from ...values.m import M
+from ...values.theta import Theta
 from ._is_component import IsScale, IsSpatial
 
 # *input types
