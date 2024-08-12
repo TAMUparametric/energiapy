@@ -48,7 +48,7 @@ class Resource(_Resource):
         # *-----------------Set ctype (ResourceType)---------------------------
 
         # if self.sell_cost is not None:
-        #     getattr(self, 'ctypes').append(ResourceType.SELL)
+        #     getattr(self, 'ctypes').append(ResourceType.SELL)1
         #     if self.discharge is None:
         #         self.discharge = True
 

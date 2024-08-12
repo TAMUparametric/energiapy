@@ -5,6 +5,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field, fields
 from typing import TYPE_CHECKING
+from .._core._handy._dunders import _Dunders
 
 if TYPE_CHECKING:
     from .._core._aliases._is_component import (
@@ -14,18 +15,18 @@ if TYPE_CHECKING:
         IsLinkage,
         IsLocation,
         IsMaterial,
+        IsNetwork,
         IsPlayer,
         IsProcess,
         IsResource,
         IsScale,
         IsStorage,
         IsTransit,
-        IsNetwork,
     )
 
 
 @dataclass
-class Disposition:
+class Disposition(_Dunders):
     """The spatiotemporal disposition of the Component"""
 
     # Do not reorder these fields

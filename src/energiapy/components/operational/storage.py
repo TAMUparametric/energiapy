@@ -13,18 +13,12 @@ from .._base._defined import _Operational
 
 
 if TYPE_CHECKING:
-    from ..._core._aliases._is_input import IsBoundInput, IsExactInput
+    from ..._core._aliases._is_input import IsExactInput
 
 
 @dataclass
 class Storage(_Operational):
-
-    capacity: IsBoundInput = field(default=None)
-    operate: IsBoundInput = field(default=None)
-    use: IsExactInput = field(default=None)
     loss: IsExactInput = field(default=None)
-    capex: IsExactInput = field(default=None)
-    opex: IsExactInput = field(default=None)
 
     def __post_init__(self):
         _Operational.__post_init__(self)

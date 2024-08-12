@@ -3,12 +3,12 @@ from __future__ import annotations
 from operator import is_
 from typing import TYPE_CHECKING
 
+from ...blocks.disposition import Index
 from ...funcs.birth.task import birth_task
 from ...funcs.birth.value import birth_value
 from ...funcs.check.value import scale_match
 from ...funcs.update.value import update_bounds
 from ...inputs.values.bounds import VarBnd
-from ...blocks.disposition import Index
 
 if TYPE_CHECKING:
     from ...types.alias import (IsCommodity, IsComponent, IsInput, IsOperation,

@@ -111,8 +111,7 @@ class _Consistent:
         Returns:
             dict: ammended dict
         """
-        value_upd = {i: {k: {} for k, l in j.items()}
-                     for i, j in value.items()}
+        value_upd = {i: {k: {} for k, l in j.items()} for i, j in value.items()}
 
         for i, j in value.items():
             for k, l in j.items():
@@ -143,9 +142,9 @@ class _Consistent:
         Returns:
             IsSptTmpInput: {Spatial: {Temporal: value}}
         """
-
-        value = self.make_consistent_spatial(value)
-        value = self.make_consistent_temporal(value)
-        value = self.make_consistent_len(value)
-        value = self.make_consistent_bounds(value)
+        if value:
+            value = self.make_consistent_spatial(value)
+            value = self.make_consistent_temporal(value)
+            value = self.make_consistent_len(value)
+            value = self.make_consistent_bounds(value)
         return value

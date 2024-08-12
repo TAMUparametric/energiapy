@@ -15,7 +15,6 @@ from ...components.spatial.linkage import Linkage
 from ...components.spatial.location import Location
 from ...components.temporal.scale import Scale
 
-
 # Scope
 IsHorizon: TypeAlias = Horizon
 IsNetwork: TypeAlias = Network

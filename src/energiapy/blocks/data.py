@@ -1,18 +1,11 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, field, fields
+from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
-
-from .._core._handy._dunders import _Dunders
 
 from pandas import DataFrame
 
-from ..values.constant import Constant
-from ..values.dataset import DataSet
-from ..values.m import M
-from ..values.theta import Theta
-from .disposition import Disposition
-
+from .._core._handy._dunders import _Dunders
 from ..components.analytical.player import Player
 from ..components.asset.cash import Cash
 from ..components.asset.land import Land
@@ -22,11 +15,16 @@ from ..components.impact.emission import Emission
 from ..components.operational.process import Process
 from ..components.operational.storage import Storage
 from ..components.operational.transit import Transit
-from ..components.temporal.scale import Scale
 from ..components.scope.network import Network
-from ..components.spatial.location import Location
 from ..components.spatial.linkage import Linkage
-from ..funcs.utils.dictionary import get_depth
+from ..components.spatial.location import Location
+from ..components.temporal.scale import Scale
+from ..components._base._defined import _Defined
+from ..values.constant import Constant
+from ..values.dataset import DataSet
+from ..values.m import M
+from ..values.theta import Theta
+from .disposition import Disposition
 
 if TYPE_CHECKING:
     from .._core._aliases._is_component import (
@@ -36,42 +34,15 @@ if TYPE_CHECKING:
         IsLinkage,
         IsLocation,
         IsMaterial,
+        IsNetwork,
         IsPlayer,
         IsProcess,
         IsResource,
         IsScale,
         IsStorage,
         IsTransit,
-        IsNetwork,
     )
-    from .._core._aliases._is_input import IsSptTmpInput, IsBaseInput
-
-
-@dataclass
-class _DataPoint(_Dunders):
-    """Is a particular data point"""
-
-    # Do not reorder these fields
-    base_input: IsBaseInput = field(default=None)
-    ply: IsPlayer = field(default=None)
-    emn: IsEmission = field(default=None)
-    csh: IsCash = field(default=None)
-    res: IsResource = field(default=None)
-    mat: IsMaterial = field(default=None)
-    lnd: IsLand = field(default=None)
-    pro: IsProcess = field(default=None)
-    stg: IsStorage = field(default=None)
-    trn: IsTransit = field(default=None)
-    loc: IsLocation = field(default=None)
-    lnk: IsLinkage = field(default=None)
-    ntw: IsNetwork = field(default=None)
-    scl: IsScale = field(default=None)
-
-    def __post_init__(self):
-
-        self.disposition = Disposition(
-            {i.name: getattr(self, i.name) for i in fields(self)}
-        )
+    from .._core._aliases._is_input import IsBaseInput, IsSptTmpInput
 
 
 @dataclass
@@ -95,42 +66,63 @@ class _SptTmpInput:
             nonlocal dict_input_upd
 
             if isinstance(dict_input, dict):
-                for i, j in dict_input.items():
-                    if isinstance(i, Player):
-                        ply = i
-                    if isinstance(i, Emission):
-                        emn = i
-                    if isinstance(i, Cash):
-                        csh = i
-                    if isinstance(i, Resource):
-                        res = i
-                    if isinstance(i, Material):
-                        mat = i
-                    if isinstance(i, Land):
-                        lnd = i
-                    if isinstance(i, Process):
-                        pro = i
-                    if isinstance(i, Storage):
-                        stg = i
-                    if isinstance(i, Transit):
-                        trn = i
-                    if isinstance(i, Location):
-                        loc = i
-                    if isinstance(i, Linkage):
-                        lnk = i
-                    if isinstance(i, Network):
-                        ntw = i
-                    if isinstance(i, Scale):
-                        scl = i
+                dict_input = {
+                    (spt, tmp): val
+                    for spt, tmpdict in dict_input.items()
+                    for tmp, val in tmpdict.items()
+                }
+                
+                for spttmp in dict_input.keys():
 
-                    if isinstance(j, dict):
-                        update_dispositions(j)
+                    if isinstance(spttmp[0], Location):
+                        loc = spttmp[0]
+                    if isinstance(spttmp[0], Linkage):
+                        lnk = spttmp[0]
+                    if isinstance(spttmp[0], Network):
+                        ntw = spttmp[0]
+                    if isinstance(spttmp[1], Scale):
+                        scl = spttmp[1]
+
+                    val = dict_input[spttmp]
+                    
+                    if isinstance(val, Emission):
+                        emn = val
+                    if isinstance(val, Cash):
+                        csh = val
+                    if isinstance(val, Resource):
+                        res = val
+                    if isinstance(val, Material):
+                        mat = val
+                    if isinstance(val, Land):
+                        lnd = val
+                    if isinstance(val, Process):
+                        pro = val
+                    if isinstance(val, Storage):
+                        stg = val
+                    if isinstance(val, Transit):
+                        trn = val
+
+                    if isinstance(val, dict):
+                        update_dispositions(val)
 
                     else:
-                        dp = j
+                        dp = val
+
                     disp = Disposition(
-                        ply, emn, csh, res, mat, lnd, pro, stg, trn, loc, lnk, ntw, scl
+                        emn,
+                        csh,
+                        res,
+                        mat,
+                        lnd,
+                        pro,
+                        stg,
+                        trn,
+                        loc,
+                        lnk,
+                        ntw,
+                        scl,
                     )
+                    print('disp', disp)
 
                     dict_input_upd[disp] = dp
 
@@ -140,7 +132,7 @@ class _SptTmpInput:
 
 
 @dataclass
-class _CmpData(_Dunders):
+class CmpData(_Dunders):
     """Is Component Data"""
 
     name_cmp: str = field(default=None)
@@ -148,7 +140,9 @@ class _CmpData(_Dunders):
     def __post_init__(self):
         self.name = f'CmpData|{self.name_cmp}|'
 
-    def __setattr__(self, name, spttmpinput: _SptTmpInput):
+    def __setattr__(self, name, dict_input):
+
+        spttmpinput = _SptTmpInput(name, dict_input)
 
         for disposition, datapoint in spttmpinput.dict_input.items():
 
@@ -184,10 +178,6 @@ class _CmpData(_Dunders):
 
         return datapoint
 
-    # def data(self):
-    #     """prints out the data"""
-    #     return self._data
-
 
 @dataclass
 class Data(_Dunders):
@@ -199,8 +189,9 @@ class Data(_Dunders):
         self.name = f'Data|{self.name}|'
         self.constants, self.ms, self.thetas, self.datasets = ([] for _ in range(4))
 
-    def __setattr__(self, name, value: _CmpData):
+    def __setattr__(self, name, value):
 
-        setattr(self, value.name_cmp, value)
+        if issubclass(type(value), _Defined):
+            setattr(self, value.name_cmp, value)
 
         super().__setattr__(name, value)

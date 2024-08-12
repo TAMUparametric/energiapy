@@ -19,12 +19,6 @@ if TYPE_CHECKING:
 @dataclass
 class Process(_Operational):
 
-    capacity: IsBoundInput = field(default=None)
-    operate: IsBoundInput = field(default=None)
-    use: IsExactInput = field(default=None)
-    capex: IsExactInput = field(default=None)
-    opex: IsExactInput = field(default=None)
-
     # Depreciated
     varying: str = field(default=None)
     prod_max: str = field(default=None)

@@ -1,12 +1,17 @@
 """There are user defined components
 """
 
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-
+from typing import TYPE_CHECKING
 
 from ._component import _Component
 from ._consistent import _Consistent
+
+if TYPE_CHECKING:
+    from ..._core._aliases._is_input import IsBoundInput, IsExactInput
 
 
 @dataclass
@@ -61,7 +66,6 @@ class _Defined(_Component, _Consistent, ABC):
             setattr(self, value, self.make_spttmpdict(getattr(self, value)))
         self._consistent = True
 
-
     def data(self):
         """Returns the data of the component"""
         return getattr(self._data, self.name)
@@ -94,6 +98,12 @@ class _Commodity(_Defined):
 @dataclass
 class _Operational(_Defined):
     """Operational Component"""
+
+    capacity: IsBoundInput = field(default=None)
+    operate: IsBoundInput = field(default=None)
+    use: IsExactInput = field(default=None)
+    capex: IsExactInput = field(default=None)
+    opex: IsExactInput = field(default=None)
 
     def __post_init__(self):
         _Defined.__post_init__(self)

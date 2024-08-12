@@ -12,7 +12,7 @@ from ..components.spatial.location import Location
 from ..components.temporal.scale import Scale
 from ._default import _Default
 from .abstract import Abstract
-from .data import Data
+from .data import Data, CmpData
 from .matrix import Matrix
 from .program import Program
 from .system import System
@@ -48,18 +48,18 @@ class Scenario(_Default):
     def __post_init__(self):
 
         # Declare Model
-        self._system = System(name=self.name)
-        self._program = Program(name=self.name)
-        self._data = Data(name=self.name)
-        self._matrix = Matrix(name=self.name)
-        self._abstract = Abstract(name=self.name)
+        self.system = System(name=self.name)
+        self.program = Program(name=self.name)
+        self.data = Data(name=self.name)
+        self.matrix = Matrix(name=self.name)
+        self.abstract = Abstract(name=self.name)
 
         self._model = {
-            'system': self._system,
-            'program': self._program,
-            'data': self._data,
-            'matrix': self._matrix,
-            'abstract': self._abstract,
+            'system': self.system,
+            'program': self.program,
+            'data': self.data,
+            'matrix': self.matrix,
+            'abstract': self.abstract,
         }
 
         self._default()
@@ -69,12 +69,20 @@ class Scenario(_Default):
         if issubclass(type(value), (_Component)):
 
             value.personalize(name=name, **self._model)
+            setattr(self.system, name, value)
 
             if issubclass(type(value), _Defined):
                 value.make_consistent()
-                setattr(self._data, name, value)
-                
-            setattr(self._system, name, value)
+                cmpdata = CmpData(name_cmp=name)
+
+                for inp in value.inputs():
+                    if getattr(value, inp, False):
+                        print('----------------------------------')
+
+                        print('tttt', getattr(value, inp))
+                        setattr(cmpdata, inp, getattr(value, inp))
+
+                setattr(value._data, name, cmpdata)
 
         if isinstance(value, Horizon):
             for i in range(value.n_scales):
@@ -124,73 +132,73 @@ class Scenario(_Default):
 
     @property
     def players(self):
-        return self._system.players
+        return self.system.players
 
     @property
     def horizon(self):
-        return self._system.horizon
+        return self.system.horizon
 
     @property
     def scales(self):
-        return self._system.scales
+        return self.system.scales
 
     @property
     def network(self):
-        return self._system.network
+        return self.system.network
 
     @property
     def assets(self):
-        return self._system.assets
+        return self.system.assets
 
     @property
     def emissions(self):
-        return self._system.emissions
+        return self.system.emissions
 
     @property
     def resources(self):
-        return self._system.resources
+        return self.system.resources
 
     @property
     def materials(self):
-        return self._system.materials
+        return self.system.materials
 
     @property
     def processes(self):
-        return self._system.processes
+        return self.system.processes
 
     @property
     def transits(self):
-        return self._system.transits
+        return self.system.transits
 
     # spatial collections
     @property
     def locations(self):
-        return self._system.locations
+        return self.system.locations
 
     @property
     def linkages(self):
-        return self._system.linkages
+        return self.system.linkages
 
     @property
     def nodes(self):
-        return self._system.nodes
+        return self.system.nodes
 
     @property
     def edges(self):
-        return self._system.edges
+        return self.system.edges
 
     @property
     def sources(self):
-        return self._system.sources
+        return self.system.sources
 
     @property
     def sinks(self):
-        return self._system.sinks
+        return self.system.sinks
 
     @property
     def cash(self):
-        return self._system.cash
+        return self.system.cash
 
     @property
     def land(self):
-        return self._system.land
+        return self.system.land
