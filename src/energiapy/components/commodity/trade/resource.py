@@ -6,14 +6,14 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
-from .._base._defined import _Commodity
+from ..._base._defined import _Trade
 
 if TYPE_CHECKING:
-    from ..._core._aliases._is_input import IsBoundInput, IsExactInput
+    from ...._core._aliases._is_input import IsBoundInput, IsExactInput
 
 
 @dataclass
-class _Resource(_Commodity):
+class _Resource(_Trade):
     """Base Resource Class"""
 
     @staticmethod
@@ -77,41 +77,11 @@ class Resource(_Resource):
         for i, j in _changed.items():
             # If the attribute i is depreciated raise ValueError.
             if getattr(self, i):
-                raise ValueError(
-                    f'{_name}: {i} is depreciated. Please use {j} instead')
-
-    @staticmethod
-    def quantify():
-        """The quantified data inputs to the component"""
-        return ['buy', 'sell', 'ship', 'deliver']
-
-    @staticmethod
-    def expenses():
-        """The quantified costs of the component"""
-        return ['buy_price', 'sell_price', 'credit', 'penalty']
-
-    @property
-    def cash(self):
-        """The cash"""
-        return self._system.cash
-
-
-# TODO Determine the inputs for these
-
+                raise ValueError(f'{_name}: {i} is depreciated. Please use {j} instead')
 
 @dataclass
 class ResourceInStorage(_Resource):
     """Stored Resource"""
-
-    @staticmethod
-    def quantify():
-        """The quantified data inputs to the component"""
-        return []
-
-    @staticmethod
-    def expenses():
-        """The quantified costs of the component"""
-        return []
 
     def __post_init__(self):
         _Resource.__post_init__(self)

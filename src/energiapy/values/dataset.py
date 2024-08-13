@@ -28,34 +28,40 @@ class DataSet(_Value):
         if not isinstance(self.data, DataFrame):
             raise ValueError(f'{self.name}: please provide DataFrame')
 
-        self._certainty, self._approach, self._varbound = (
-            _Certainty.UNCERTAIN,
-            _Approach.DATA,
-            _VarBnd.EXACT,
-        )
+        if self._varbnd is None:
+            self._varbnd = _VarBnd.EXACT
+
+        self._certainty, self._approach = _Certainty.CERTAIN, _Approach.DATA
 
         self.data = self.data[self.data.columns[0]].to_dict()
-
-        self.name = f'DSet{self._id}'
 
     @property
     def value(self) -> dict:
         """Returns a dictionary of data"""
         return self.data
 
-    # TODO - complete this
+    @staticmethod
+    def _id():
+        """ID to add to name"""
+        return 'DtSt'
+
+    @staticmethod
+    def collection():
+        """reports what collection the component belongs to"""
+        return 'datasets'
+
     def __lt__(self, other):
-        if isinstance(other, (int, float)) and is_(self._varbound, _VarBnd.UPPER):
+        if isinstance(other, (int, float)) and is_(self._varbnd, _VarBnd.UPPER):
             return False
-        elif isinstance(other, DataSet) and is_(other.varbound, _VarBnd.LOWER):
+        elif isinstance(other, DataSet) and is_(other._varbnd, _VarBnd.LOWER):
             return False
         else:
             return True
 
     def __gt__(self, other):
-        if isinstance(other, (int, float)) and is_(self._varbound, _VarBnd.UPPER):
+        if isinstance(other, (int, float)) and is_(self._varbnd, _VarBnd.UPPER):
             return True
-        elif isinstance(other, DataSet) and is_(other.varbound, _VarBnd.LOWER):
+        elif isinstance(other, DataSet) and is_(other._varbnd, _VarBnd.LOWER):
             return True
         else:
             return False

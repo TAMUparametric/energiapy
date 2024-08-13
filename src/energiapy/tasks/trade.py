@@ -2,9 +2,9 @@ from dataclasses import dataclass
 from typing import Union
 
 from ..components.analytical.player import Player
-from ..components.asset.cash import Cash
-from ..components.asset.land import Land
-from ..components.commodity.resource import Resource
+from ..components.commodity.asset.cash import Cash
+from ..components.commodity.asset.land import Land
+from ..components.commodity.trade.resource import Resource
 from ..components.operational.process import Process
 from ..components.operational.storage import Storage
 from ..components.operational.transit import Transit

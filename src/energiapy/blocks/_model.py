@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -13,9 +13,10 @@ class _Model:
     """Model of the Scenario"""
 
     def __post_init__(self):
-        self._named = False
+        self.named = False
         self._system = None
         self._data = None
         self._matrix = None
         self._program = None
         self._abstract = None
+

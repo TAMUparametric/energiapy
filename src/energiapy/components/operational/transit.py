@@ -29,16 +29,6 @@ class Transit(_Operational):
         _Operational.__post_init__(self)
 
     @staticmethod
-    def quantify():
-        """The quantified data inputs to the component"""
-        return ['capacity', 'operate', 'use', 'loss']
-
-    @staticmethod
-    def expenses():
-        """The quantified costs of the component"""
-        return ['capex', 'opex']
-
-    @staticmethod
     def collection():
         """The collection in scenario"""
         return 'transits'

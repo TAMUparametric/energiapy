@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING
 
 from pandas import DataFrame
 
+from .._core._handy._dunders import _Magics
 from ._approach import _Approach, _Certainty
 from ._bounds import _SpcLmt, _VarBnd
 from ._value import _Value
@@ -19,7 +20,7 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class Theta(_Value):
+class Theta(_Value, _Magics):
     """Just a convinient way to declare parametric variables
 
     Args:
@@ -61,52 +62,31 @@ class Theta(_Value):
 
     def __post_init__(self):
         _Value.__post_init__(self)
-        self.name = f'Th{self._id}'
 
-        self._certainty, self._approach, self._varbound = (
-            _Certainty.UNCERTAIN,
-            _Approach.PARAMETRIC,
-            _VarBnd.EXACT,
-        )
+        # self.name = f'{self.name} in {self.space}'
 
-        if len(self.space) == 2:
-            # if DataSet or DataFrame, make local DataSet or else keep numeric
-            # values
-            low_or_up = {0: _SpcLmt.START, 1: _SpcLmt.END}
+        if self._varbnd is None:
+            self._varbnd = _VarBnd.PARAMETRIC
 
-            args = {'name': self.name, 'disposition': self.disposition}
+        self._certainty, self._approach = _Certainty.CERTAIN, _Approach.PARAMETRIC
 
-            self.space = tuple(
-                [
-                    (
-                        self.update_bounds(
-                            DataSet(data=j, **args), spclimit=low_or_up[i]
-                        )
-                        if isinstance(j, DataFrame)
-                        else self.update_bounds(
-                            Constant(constant=j, **args), spclimit=low_or_up[i]
-                        )
-                    )
-                    for i, j in enumerate(self.space)
-                ]
-            )
-        else:
+        if len(self.space) != 2:
             raise ValueError(f'{self.name}: tuple must be of length 2')
-
-    def update_bounds(
-        self, value: IsInput, varbound: _VarBnd = None, spclimit: _SpcLmt = None
-    ):
-        """Updates the name to add a variable bound"""
-        if varbound:
-            setattr(value, '_varbound', varbound)
-
-        if spclimit:
-            setattr(value, '_spclimit', spclimit)
 
     @property
     def value(self) -> dict:
         """Returns a dictionary of data"""
         return self.space
 
+    @staticmethod
+    def _id():
+        """ID to add to name"""
+        return 'Th'
 
-Th = Theta(name='Th', space=(0, 1))
+    @staticmethod
+    def collection():
+        """reports what collection the component belongs to"""
+        return 'thetas'
+
+
+Th = Theta(space=(0, 1))

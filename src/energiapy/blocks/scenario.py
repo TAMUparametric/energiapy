@@ -12,7 +12,7 @@ from ..components.spatial.location import Location
 from ..components.temporal.scale import Scale
 from ._default import _Default
 from .abstract import Abstract
-from .data import Data, CmpData
+from .data import CmpData, Data
 from .matrix import Matrix
 from .program import Program
 from .system import System
@@ -72,17 +72,19 @@ class Scenario(_Default):
             setattr(self.system, name, value)
 
             if issubclass(type(value), _Defined):
+
                 value.make_consistent()
+
                 cmpdata = CmpData(name_cmp=name)
 
                 for inp in value.inputs():
                     if getattr(value, inp, False):
-                        print('----------------------------------')
 
-                        print('tttt', getattr(value, inp))
-                        setattr(cmpdata, inp, getattr(value, inp))
+                        setattr(cmpdata, inp, {value: getattr(value, inp)})
 
-                setattr(value._data, name, cmpdata)
+                        setattr(value, inp, getattr(cmpdata, inp))
+
+                setattr(self.data, name, cmpdata)
 
         if isinstance(value, Horizon):
             for i in range(value.n_scales):

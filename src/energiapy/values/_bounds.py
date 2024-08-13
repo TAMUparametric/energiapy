@@ -27,9 +27,9 @@ class _VarBnd(Enum):
     def namer(self):
         """gives out a string to put in the name of the parameter"""
         if is_(self, _VarBnd.LOWER):
-            return '_lb'
+            return ':U'
         elif is_(self, _VarBnd.UPPER):
-            return '_ub'
+            return ':L'
         else:
             return ''
 
@@ -43,6 +43,6 @@ class _SpcLmt(Enum):
     def namer(self):
         """gives out a string to put in the name of the parameter"""
         if is_(self, _SpcLmt.START):
-            return '_ll'
+            return ':l'
         if is_(self, _SpcLmt.END):
-            return '_ul'
+            return ':u'

@@ -10,13 +10,8 @@ from ..._core._handy._dunders import _Dunders
 from ...blocks._model import _Model
 
 if TYPE_CHECKING:
-    from ..._core._aliases._is_block import (
-        IsAbstract,
-        IsData,
-        IsMatrix,
-        IsProgram,
-        IsSystem,
-    )
+    from ..._core._aliases._is_block import (IsAbstract, IsData, IsMatrix,
+                                             IsProgram, IsSystem)
     from ..._core._aliases._is_input import IsInput
 
 
@@ -25,6 +20,7 @@ class _Component(_Dunders, _Model):
 
     def __post_init__(self):
         self.name = None
+        self._named = False
 
     @property
     def is_named(self):

@@ -3,10 +3,10 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
-from .._base._defined import _Asset
+from ..._base._defined import _Asset
 
 if TYPE_CHECKING:
-    from ..._core._aliases._is_input import IsBoundInput
+    from ...._core._aliases._is_input import IsBoundInput
 
 
 @dataclass
@@ -26,17 +26,6 @@ class Cash(_Asset):
         _Asset.__post_init__(self)
 
     @staticmethod
-    def quantify():
-        """The quantified data inputs to the component"""
-        return ['spend', 'earn']
-
-    @staticmethod
-    def expenses():
-        """The expense data inputs to the component"""
-        return []
-
-
-    @staticmethod
     def collection():
         """The collection in scenario"""
-        return 'assets'
+        return 'cash'

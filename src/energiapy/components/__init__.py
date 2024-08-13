@@ -2,10 +2,10 @@
 """
 
 from .analytical.player import Player
-from .asset.cash import Cash
-from .asset.land import Land
-from .commodity.material import Material
-from .commodity.resource import Resource
+from .commodity.asset.cash import Cash
+from .commodity.asset.land import Land
+from .commodity.trade.material import Material
+from .commodity.trade.resource import Resource
 from .impact.emission import Emission
 from .operational.process import Process
 from .operational.storage import Storage

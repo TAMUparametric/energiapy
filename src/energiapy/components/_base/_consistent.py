@@ -13,7 +13,7 @@ from ..temporal.scale import Scale
 from ._spttmp import _Spatial
 
 if TYPE_CHECKING:
-    from ..._core._aliases._is_input import IsInput, IsSptTmpInput
+    from ..._core._aliases._is_input import IsInput, IsInputDict, IsSptTmpInput
 
 
 class _Consistent:

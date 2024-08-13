@@ -18,6 +18,15 @@ if TYPE_CHECKING:
 
 @dataclass
 class Process(_Operational):
+    """Process converts one Resource to another Resource"""
+
+    # These are all from Resource
+    buy: IsBoundInput = field(default=None)
+    sell: IsBoundInput = field(default=None)
+    buy_price: IsExactInput = field(default=None)
+    sell_price: IsExactInput = field(default=None)
+    credit: IsExactInput = field(default=None)
+    penalty: IsExactInput = field(default=None)
 
     # Depreciated
     varying: str = field(default=None)
@@ -83,18 +92,7 @@ class Process(_Operational):
 
         for i, j in _changed.items():
             if getattr(self, i):
-                raise ValueError(
-                    f'{_name}: {i} is depreciated. Please use {j} instead')
-
-    @staticmethod
-    def quantify():
-        """The quantified data inputs to the component"""
-        return ['capacity', 'operate', 'use']
-
-    @staticmethod
-    def expenses():
-        """The quantified costs of the component"""
-        return ['capex', 'opex']
+                raise ValueError(f'{_name}: {i} is depreciated. Please use {j} instead')
 
     @staticmethod
     def collection():

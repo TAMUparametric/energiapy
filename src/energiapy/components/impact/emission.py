@@ -1,6 +1,12 @@
-from dataclasses import dataclass
+from __future__ import annotations
+
+from dataclasses import dataclass, field
+from typing import TYPE_CHECKING
 
 from .._base._defined import _Impact
+
+if TYPE_CHECKING:
+    from ..._core._aliases._is_input import IsExactInput
 
 
 @dataclass
@@ -11,18 +17,10 @@ class Emission(_Impact):
     Operation Capacity
     """
 
+    emit: IsExactInput = field(default=None)
+
     def __post_init__(self):
         _Impact.__post_init__(self)
-
-    @staticmethod
-    def quantify():
-        """The quantified data inputs to the component"""
-        return []
-
-    @staticmethod
-    def expenses():
-        """The quantified costs of the component"""
-        return []
 
     @staticmethod
     def collection():

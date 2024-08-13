@@ -23,17 +23,41 @@ class Constant(_Value):
 
     def __post_init__(self):
         _Value.__post_init__(self)
-        self.name = f'{self.constant}'
 
-        self._certainty, self._approach, self._varbound = (
-            _Certainty.CERTAIN,
-            None,
-            _VarBnd.EXACT,
-        )
+        self.name = f'{self.constant}{self.name}'
 
-    # TODO: add __lt__, __gt__, __eq__, __ne__, __le__, __ge__ methods
+        if self._varbnd is None:
+            self._varbnd = _VarBnd.EXACT
+
+        self._certainty, self._approach = _Certainty.CERTAIN, None
 
     @property
     def value(self) -> IsNumeric:
         """Returns a number"""
         return self.constant
+
+    @staticmethod
+    def collection():
+        """reports what collection the component belongs to"""
+        return 'constants'
+
+    @staticmethod
+    def _id():
+        """ID to add to name"""
+        return ''
+
+    def __gt__(self, other):
+        if isinstance(other, (int, float)):
+            # BigM is always greater than any number
+            return self.constant > other
+        if isinstance(other, Constant):
+            return self.constant > other.constant
+        return NotImplemented
+
+    def __lt__(self, other):
+        if isinstance(other, (int, float)):
+            # BigM is always greater than any number
+            return self.constant < other
+        if isinstance(other, Constant):
+            return self.constant < other.constant
+        return NotImplemented

@@ -6,8 +6,7 @@ from dataclasses import dataclass, field
 from ._approach import _Certainty
 from ._bounds import _VarBnd
 from ._value import _Value
-from .dataset import DataSet
-from .theta import Theta
+from .constant import Constant
 
 
 @dataclass
@@ -24,10 +23,7 @@ class M(_Value):
     big: bool = field(default=True)
 
     def __post_init__(self):
-        if self.big:
-            self.name = 'M'
-        else:
-            self.name = 'm'
+        _Value.__post_init__(self)
 
         self._certainty, self._approach, self._varbound = (
             _Certainty.CERTAIN,
@@ -35,13 +31,31 @@ class M(_Value):
             _VarBnd.FREE,
         )
 
+        if self.big:
+            self.name = f'M{self.name}'
+
+        else:
+            self.name = f'm{self.name}'
+
     @property
     def value(self):
-        return 'M'
+        if self.big:
+            return 'M'
+        else:
+            return 'm'
 
-    # TODO - fix add Number
+    @staticmethod
+    def collection():
+        """reports what collection the component belongs to"""
+        return 'ms'
+
+    @staticmethod
+    def _id():
+        """ID to add to name"""
+        return ''
+
     def __gt__(self, other):
-        if isinstance(other, (int, float, Theta, DataSet)):
+        if isinstance(other, (int, float, Constant)):
             # BigM is always greater than any number
             return getattr(self, 'big')
         if isinstance(other, M):
@@ -50,7 +64,7 @@ class M(_Value):
         return NotImplemented
 
     def __lt__(self, other):
-        if isinstance(other, (int, float, Theta, DataSet)):
+        if isinstance(other, (int, float, Constant)):
             # BigM is always big than any number
             return not getattr(self, 'big')
         if isinstance(other, M):

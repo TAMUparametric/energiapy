@@ -27,16 +27,6 @@ class Player(_Analytical):
         _Analytical.__post_init__(self)
 
     @staticmethod
-    def quantify():
-        """The quantified data inputs to the component"""
-        return ['owns', 'has', 'needs']
-
-    @staticmethod
-    def expenses():
-        """The quantified costs of the component"""
-        return []
-
-    @staticmethod
     def collection():
         """The collection in scenario"""
         return 'players'
