@@ -9,9 +9,9 @@ from typing import TYPE_CHECKING
 from pandas import DataFrame
 
 from .._core._handy._dunders import _Magics
-from ._approach import _Approach, _Certainty
-from ._bounds import _SpcLmt, _VarBnd
-from ._value import _Value
+from ._data import _Data
+from .approach import Approach, Certainty
+from .bounds import SpcLmt, VarBnd
 from .constant import Constant
 from .dataset import DataSet
 
@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class Theta(_Value, _Magics):
+class Theta(_Data, _Magics):
     """Just a convinient way to declare parametric variables
 
     Args:
@@ -61,14 +61,14 @@ class Theta(_Value, _Magics):
     space: IsSpace = field(default=None)
 
     def __post_init__(self):
-        _Value.__post_init__(self)
+        _Data.__post_init__(self)
 
         # self.name = f'{self.name} in {self.space}'
 
         if self._varbnd is None:
-            self._varbnd = _VarBnd.PARAMETRIC
+            self._varbnd = VarBnd.PARAMETRIC
 
-        self._certainty, self._approach = _Certainty.CERTAIN, _Approach.PARAMETRIC
+        self._certainty, self._approach = Certainty.CERTAIN, Approach.PARAMETRIC
 
         if len(self.space) != 2:
             raise ValueError(f'{self.name}: tuple must be of length 2')

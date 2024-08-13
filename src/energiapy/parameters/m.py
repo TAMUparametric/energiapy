@@ -3,14 +3,14 @@
 
 from dataclasses import dataclass, field
 
-from ._approach import _Certainty
-from ._bounds import _VarBnd
-from ._value import _Value
+from ._data import _Data
+from .approach import Certainty
+from .bounds import VarBnd
 from .constant import Constant
 
 
 @dataclass
-class M(_Value):
+class M(_Data):
     """
     If big is True:
         A really big number like the weight on my shoulders
@@ -23,12 +23,12 @@ class M(_Value):
     big: bool = field(default=True)
 
     def __post_init__(self):
-        _Value.__post_init__(self)
+        _Data.__post_init__(self)
 
         self._certainty, self._approach, self._varbound = (
-            _Certainty.CERTAIN,
+            Certainty.CERTAIN,
             None,
-            _VarBnd.FREE,
+            VarBnd.FREE,
         )
 
         if self.big:
@@ -39,6 +39,7 @@ class M(_Value):
 
     @property
     def value(self):
+        """Returns a str"""
         if self.big:
             return 'M'
         else:

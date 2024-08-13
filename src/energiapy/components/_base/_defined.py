@@ -4,12 +4,14 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, fields
 from typing import TYPE_CHECKING
 
+from ..._core._layout._action import action
+from ..._core._layout._nature import nature
+from ..._core._nirop._error import CacodcarError
 from ._component import _Component
 from ._consistent import _Consistent
-from .attrs import attrs
 
 if TYPE_CHECKING:
     from ..._core._aliases._is_input import IsBoundInput, IsExactInput
@@ -31,6 +33,12 @@ class _Defined(_Component, _Consistent, ABC):
         self.ctypes = []
         self._consistent = False
 
+        attrs_action = set(list(action[self.collection()]))
+        attrs_fields = set([i.name for i in fields(self)])
+
+        if not attrs_action <= attrs_fields:
+            raise CacodcarError(f'{self}: attributes not in fields')
+
     @staticmethod
     @abstractmethod
     def collection():
@@ -39,42 +47,42 @@ class _Defined(_Component, _Consistent, ABC):
     @classmethod
     def quantify(cls):
         """reports what quantitative attributes can be given to the component"""
-        return attrs[cls.collection()]['quantify']
+        return nature[cls.collection()]['quantify']
 
     @classmethod
     def expenses(cls):
         """reports what costs attributes can be given to the component"""
-        return attrs[cls.collection()]['expenses']
+        return nature[cls.collection()]['expenses']
 
     @classmethod
     def landuse(cls):
         """reports what land attributes can be given to the component"""
-        return attrs[cls.collection()]['landuse']
+        return nature[cls.collection()]['landuse']
 
     @classmethod
     def resourcebnds(cls):
         """reports what resource attributes can be given to the component"""
-        return attrs[cls.collection()]['resourcebnds']
+        return nature[cls.collection()]['resourcebnds']
 
     @classmethod
     def resourceexps(cls):
         """reports what resource attributes can be given to the component"""
-        return attrs[cls.collection()]['resourceexps']
+        return nature[cls.collection()]['resourceexps']
 
     @classmethod
     def materialuse(cls):
         """reports what material attributes can be given to the component"""
-        return attrs[cls.collection()]['materialuse']
+        return nature[cls.collection()]['materialuse']
 
     @classmethod
     def emitted(cls):
         """reports what emissions attributes that can be given to the component"""
-        return attrs[cls.collection()]['emitted']
+        return nature[cls.collection()]['emitted']
 
     @classmethod
     def loss(cls):
         """reports what loss attributes that can be given to the component"""
-        return attrs[cls.collection()]['loss']
+        return nature[cls.collection()]['loss']
 
     @classmethod
     def inputs(cls):

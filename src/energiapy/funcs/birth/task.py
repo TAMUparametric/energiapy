@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from ...tasks.task_map import task_map
+from ...variables.task_map import task_map
 
 if TYPE_CHECKING:
     from ...type.alias import IsComponent, IsInput, IsTask

@@ -16,7 +16,7 @@ class Land(_Asset):
     use: IsBoundInput = field(default=None)
     cost: IsExactInput = field(default=None)
     emission: IsExactInput = field(default=None)
-    
+
     def __post_init__(self):
         _Asset.__post_init__(self)
 

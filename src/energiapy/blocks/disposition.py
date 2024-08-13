@@ -54,5 +54,9 @@ class Disposition(_Dunders):
         """Gives the full index list, by expanding the temporal index"""
         return [(*[k.name for k in self.index[:-1]], *j) for j in self.scl.index if j]
 
+    def structure(self):
+        """provides the structure of the disposition"""
+        return [i.name for i in fields(self) if getattr(self, i.name)]
+
     def __len__(self):
         return len(self.scl)

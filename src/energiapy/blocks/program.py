@@ -7,7 +7,7 @@ from .._core._handy._dunders import _Dunders
 
 if TYPE_CHECKING:
     from .._core._aliases._is_component import IsComponent
-    from .._core._aliases._is_task import IsTask
+    from .._core._aliases._is_variable import IsTask
 
 
 @dataclass

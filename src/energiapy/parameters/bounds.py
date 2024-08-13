@@ -5,7 +5,7 @@ from enum import Enum, auto
 from operator import is_
 
 
-class _VarBnd(Enum):
+class VarBnd(Enum):
     """Type of Parameter Bound on Variable"""
 
     LOWER = auto()
@@ -26,15 +26,15 @@ class _VarBnd(Enum):
 
     def namer(self):
         """gives out a string to put in the name of the parameter"""
-        if is_(self, _VarBnd.LOWER):
+        if is_(self, VarBnd.LOWER):
             return ':U'
-        elif is_(self, _VarBnd.UPPER):
+        elif is_(self, VarBnd.UPPER):
             return ':L'
         else:
             return ''
 
 
-class _SpcLmt(Enum):
+class SpcLmt(Enum):
     """Type of bound on parameteric variable (Theta) space"""
 
     START = auto()
@@ -42,7 +42,7 @@ class _SpcLmt(Enum):
 
     def namer(self):
         """gives out a string to put in the name of the parameter"""
-        if is_(self, _SpcLmt.START):
+        if is_(self, SpcLmt.START):
             return ':l'
-        if is_(self, _SpcLmt.END):
+        if is_(self, SpcLmt.END):
             return ':u'

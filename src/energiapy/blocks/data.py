@@ -7,11 +7,11 @@ from typing import TYPE_CHECKING
 from pandas import DataFrame
 
 from .._core._handy._dunders import _Dunders
-from ..values._bounds import _SpcLmt, _VarBnd
-from ..values.constant import Constant
-from ..values.dataset import DataSet
-from ..values.m import M
-from ..values.theta import Theta
+from ..parameters.bounds import SpcLmt, VarBnd
+from ..parameters.constant import Constant
+from ..parameters.dataset import DataSet
+from ..parameters.m import M
+from ..parameters.theta import Theta
 from ._spttmpinput import _SptTmpInput
 from .disposition import Disposition
 
@@ -32,8 +32,8 @@ class CmpData(_Dunders):
 
     def __setattr__(self, name, value):
 
-        spclmts = [_SpcLmt.START, _SpcLmt.END]
-        varbnds = [_VarBnd.LOWER, _VarBnd.UPPER]
+        spclmts = [SpcLmt.START, SpcLmt.END]
+        varbnds = [VarBnd.LOWER, VarBnd.UPPER]
 
         if isinstance(value, dict):
 
@@ -72,8 +72,8 @@ class CmpData(_Dunders):
         self,
         disposition: Disposition,
         value: IsBaseInput,
-        varbnd: _VarBnd = None,
-        spclmt: _SpcLmt = None,
+        varbnd: VarBnd = None,
+        spclmt: SpcLmt = None,
     ) -> IsBaseInput:
         """Creates a parameter value"""
 

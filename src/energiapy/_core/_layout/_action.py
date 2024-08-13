@@ -1,0 +1,50 @@
+"""The Task action associated with the attributes that feature in Components of the System model"""
+
+action = {
+    'players': {'owns': None, 'has': None, 'needs': None},
+    'emissions': {'emit': None},
+    'cash': {'spend': None, 'earn': None},
+    'land': {'use': None, 'cost': None, 'emission': None},
+    'materials': {'use': None, 'cost': None, 'emission': None},
+    'resources': {
+        'buy': None,
+        'sell': None,
+        'ship': None,
+        'deliver': None,
+        'buy_price': None,
+        'sell_price': None,
+        'credit': None,
+        'penalty': None,
+        'emission': None,
+    },
+    'processes': {
+        'capex': None,
+        'opex': None,
+        'capacity': None,
+        'operate': None,
+        'land': None,
+        'material': None,
+        'emission': None,
+    },
+    'storages': {
+        'capex': None,
+        'opex': None,
+        'capacity': None,
+        'operate': None,
+        'land': None,
+        'material': None,
+        'emission': None,
+        'loss': None,
+    },
+    'transits': {
+        'capex': None,
+        'opex': None,
+        'capacity': None,
+        'operate': None,
+        'land': None,
+        'material': None,
+        'emission': None,
+        'loss': None,
+    },
+}
+

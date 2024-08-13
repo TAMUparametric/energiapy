@@ -4,7 +4,7 @@
 from enum import Enum, auto
 
 
-class _Certainty(Enum):
+class Certainty(Enum):
     """How is the parameter variability."""
 
     CERTAIN = auto()
@@ -17,7 +17,7 @@ class _Certainty(Enum):
     """
 
 
-class _Approach(Enum):
+class Approach(Enum):
     """How uncertainty in parameter is handled"""
 
     PARAMETRIC = auto()

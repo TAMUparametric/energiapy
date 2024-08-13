@@ -1,6 +1,6 @@
-"""These are attributes that feature in Components of the System model"""
+"""The nature of attributes that feature in Components of the System model"""
 
-attrs = {
+nature = {
     'players': {
         'expenses': [],
         'quantify': ['owns', 'has', 'needs'],
@@ -42,7 +42,7 @@ attrs = {
         'loss': [],
     },
     'materials': {
-        'expenses': ['price'],
+        'expenses': ['cost'],
         'quantify': ['use'],
         'landuse': [],
         'resourcebnds': [],

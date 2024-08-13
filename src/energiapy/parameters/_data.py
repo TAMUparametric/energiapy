@@ -1,3 +1,6 @@
+"""Value of defined Parameters 
+"""
+
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
@@ -5,14 +8,14 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 from .._core._handy._dunders import _Reprs
-from ._bounds import _SpcLmt, _VarBnd
+from .bounds import SpcLmt, VarBnd
 
 if TYPE_CHECKING:
     from .._core._aliases._is_block import IsDisposition
 
 
 @dataclass
-class _Value(ABC, _Reprs):
+class _Data(ABC, _Reprs):
     """Value is the input given to a Component
 
     Args:
@@ -21,8 +24,8 @@ class _Value(ABC, _Reprs):
     """
 
     disposition: IsDisposition = field(default=None)
-    _varbnd: _VarBnd = field(default=None)
-    _spclmt: _SpcLmt = field(default=None)
+    _varbnd: VarBnd = field(default=None)
+    _spclmt: SpcLmt = field(default=None)
 
     def __post_init__(self):
         for i in ['_certainty', '_approach']:
