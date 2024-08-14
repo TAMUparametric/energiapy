@@ -7,13 +7,13 @@ from typing import TYPE_CHECKING
 from pandas import DataFrame
 
 from .._core._handy._dunders import _Dunders
-from ..parameters.bounds import SpcLmt, VarBnd
-from ..parameters.constant import Constant
-from ..parameters.dataset import DataSet
-from ..parameters.m import M
-from ..parameters.theta import Theta
+from ..parameters.data.bounds import SpcLmt, VarBnd
+from ..parameters.data.constant import Constant
+from ..parameters.data.dataset import DataSet
+from ..parameters.data.m import M
+from ..parameters.data.theta import Theta
 from ._spttmpinput import _SptTmpInput
-from .disposition import Disposition
+from ..disposition.disposition import Disposition
 
 if TYPE_CHECKING:
     from .._core._aliases._is_data import IsData

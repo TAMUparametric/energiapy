@@ -24,22 +24,6 @@ class Condition(Enum):
     """
 
 
-class RightHandSide(Enum):
-    """Binds a variable to a(n)
-    Can be multiplicative, e.g.: var <= param * var2
-    """
-
-    PARAMETER = auto()
-    """parameter
-    """
-    CONTINUOUS = auto()
-    """continuous variable
-    """
-    INTEGER = auto()
-    """integer variable
-    """
-
-
 class SumOver(Enum):
     """Sum type"""
 

@@ -5,7 +5,7 @@ from typing import TypeAlias, Union
 
 from ...blocks.abstract import Abstract
 from ...blocks.data import Data
-from ...blocks.disposition import Disposition
+from ...disposition.disposition import Disposition
 from ...blocks.matrix import Matrix
 from ...blocks.program import Program
 from ...blocks.scenario import Scenario

@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 from pandas import DataFrame
 
-from ...blocks.disposition import Index
+from ...disposition.disposition import Index
 from ...inputs.values.constant import Number
 from ...inputs.values.dataset import DataSet
 from ...inputs.values.m import M

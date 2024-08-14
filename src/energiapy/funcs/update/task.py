@@ -3,7 +3,7 @@ from __future__ import annotations
 from operator import is_
 from typing import TYPE_CHECKING
 
-from ...blocks.disposition import Index
+from ...disposition.disposition import Index
 from ...funcs.birth.task import birth_task
 from ...funcs.birth.value import birth_value
 from ...funcs.check.value import scale_match

@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 
 from pandas import DataFrame
 
-from .._core._handy._dunders import _Magics
+from ..._core._handy._dunders import _Magics
 from ._data import _Data
 from .approach import Approach, Certainty
 from .bounds import SpcLmt, VarBnd
@@ -16,7 +16,7 @@ from .constant import Constant
 from .dataset import DataSet
 
 if TYPE_CHECKING:
-    from .._core._aliases._is_input import IsInput, IsSpace
+    from ..._core._aliases._is_input import IsInput, IsSpace
 
 
 @dataclass

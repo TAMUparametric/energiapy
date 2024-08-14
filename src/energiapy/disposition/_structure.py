@@ -6,7 +6,7 @@ from itertools import product
 from operator import is_, is_not
 from typing import List, Union
 
-from .._nirop._error import CacodcarError
+from .._core._nirop._error import CacodcarError
 
 
 def make_structures(

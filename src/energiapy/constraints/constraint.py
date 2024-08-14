@@ -8,8 +8,8 @@ from operator import is_
 from typing import TYPE_CHECKING, List
 
 from .._core._handy._dunders import _Dunders
-from ..parameters.bounds import VarBnd
-from .rules import Condition, RightHandSide, SumOver
+from ..parameters.data.bounds import VarBnd
+from .rules import Condition, SumOver
 
 if TYPE_CHECKING:
     from .._core._aliases._is_element import IsParameter, IsVariable
@@ -17,11 +17,12 @@ if TYPE_CHECKING:
 
 @dataclass
 class Constraint(_Dunders):
+    """Constraints for Program"""
+
     condition: Condition = field(default=None)
     variable: IsVariable = field(default=None)
     parent: IsVariable = field(default=None)
     disposition: IsParameter = field(default=None)
-    rhs: List[RightHandSide] = field(default=None)
     parameter: IsParameter = field(default=None)
     balance: List[IsVariable] = field(default=None)
     bound: VarBnd = field(default=None)
@@ -53,7 +54,7 @@ class Constraint(_Dunders):
         if is_(self.condition, Condition.BIND):
             if is_(self.bound, VarBnd.LOWER):
                 constraint = f'{variable}>={parameter}{multip}{parent}'
-            if is_(self.bound in [VarBnd.UPPER, VarBnd.UNBOUNDED]):
+            if is_(self.bound in [VarBnd.UPPER, VarBnd.FREE]):
                 constraint = f'{variable}<={parameter}{multip}{parent}'
             if is_(self.bound, VarBnd.EXACT):
                 constraint = f'{variable}={parameter}{multip}{parent}'

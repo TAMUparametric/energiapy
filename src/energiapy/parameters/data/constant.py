@@ -8,7 +8,7 @@ from .approach import Certainty
 from .bounds import VarBnd
 
 if TYPE_CHECKING:
-    from .._core._aliases._is_input import IsNumeric
+    from ..._core._aliases._is_input import IsNumeric
 
 
 @dataclass

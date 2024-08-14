@@ -4,11 +4,11 @@ from typing import TYPE_CHECKING
 
 from pandas import DataFrame
 
-from ...parameters.bounds import Bound
-from ...parameters.constant import Number
-from ...parameters.dataset import DataSet
-from ...parameters.m import M
-from ...parameters.theta import Theta
+from ...parameters.data.bounds import Bound
+from ...parameters.data.constant import Number
+from ...parameters.data.dataset import DataSet
+from ...parameters.data.m import M
+from ...parameters.data.theta import Theta
 
 if TYPE_CHECKING:
     from ...type.alias import (IsCommodity, IsDerived, IsIndex, IsInput,

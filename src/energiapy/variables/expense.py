@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 
-from .._core._layout._structure import make_structures
+from ..disposition._structure import make_structures
 from ._variable import _Variable
-from .capacitate import Capacitate
+from .capacitate import Capacity
 from .operate import Operate
 from .trade import Buy, Sell
 from .use import Use
@@ -24,12 +24,12 @@ class ExpSys(Expense):
         Expense.__post_init__(self)
 
     @staticmethod
-    def _structures():
+    def structures():
         """The allowed structures of disposition of the task"""
         return make_structures(csh=True, spt=['loc', 'lnk', 'ntw'])
 
     @staticmethod
-    def _parent():
+    def parent():
         """The Parent Task of the task"""
         return None
 
@@ -42,7 +42,7 @@ class ExpTrade(Expense):
         Expense.__post_init__(self)
 
     @staticmethod
-    def _structures():
+    def structures():
         """The allowed structures of disposition of the task"""
         return make_structures(csh=True, cmd='res', opn='pro', spt=['loc', 'ntw'])
 
@@ -55,7 +55,7 @@ class ExpBuy(ExpTrade):
         ExpTrade.__post_init__(self)
 
     @staticmethod
-    def _parent():
+    def parent():
         """The Parent Task of the task"""
         return Buy
 
@@ -68,7 +68,7 @@ class ExpSell(ExpTrade):
         ExpTrade.__post_init__(self)
 
     @staticmethod
-    def _parent():
+    def parent():
         """The Parent Task of the task"""
         return Sell
 
@@ -81,7 +81,7 @@ class Penalty(ExpTrade):
         ExpTrade.__post_init__(self)
 
     @staticmethod
-    def _parent():
+    def parent():
         """The Parent Task of the task"""
         return Sell
 
@@ -94,7 +94,7 @@ class Credit(ExpTrade):
         ExpTrade.__post_init__(self)
 
     @staticmethod
-    def _parent():
+    def parent():
         """The Parent Task of the task"""
         return Operate
 
@@ -107,12 +107,12 @@ class ExpUse(Expense):
         Expense.__post_init__(self)
 
     @staticmethod
-    def _parent():
+    def parent():
         """The Parent Task of the task"""
         return Use
 
     @staticmethod
-    def _structures():
+    def structures():
         """The allowed structures of disposition of the task"""
         return make_structures(
             csh=True,
@@ -124,18 +124,18 @@ class ExpUse(Expense):
 
 @dataclass
 class ExpCap(Expense):
-    """Capacitate Expense"""
+    """Capacity Expense"""
 
     def __post_init__(self):
         Expense.__post_init__(self)
 
     @staticmethod
-    def _parent():
+    def parent():
         """The Parent Task of the task"""
-        return Capacitate
+        return Capacity
 
     @staticmethod
-    def _structures():
+    def structures():
         """The allowed structures of disposition of the task"""
         return make_structures(
             csh=True, opn=['pro', 'stg', 'trn'], spt=['loc', 'lnk', 'ntw']
@@ -150,16 +150,13 @@ class ExpOp(Expense):
         Expense.__post_init__(self)
 
     @staticmethod
-    def _parent():
+    def parent():
         """The Parent Task of the task"""
         return Operate
 
     @staticmethod
-    def _structures():
+    def structures():
         """The allowed structures of disposition of the task"""
         return make_structures(
             csh=True, opn=['pro', 'stg', 'trn'], spt=['loc', 'lnk', 'ntw']
         )
-
-
-  

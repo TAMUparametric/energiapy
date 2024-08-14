@@ -3,9 +3,9 @@
 
 from dataclasses import dataclass
 
-from .._core._layout._structure import make_structures
+from ..disposition._structure import make_structures
 from ._variable import _Variable
-from .capacitate import Capacitate
+from .capacitate import Capacity
 from .loss import Loss
 from .trade import Buy, Sell
 from .use import Use
@@ -19,7 +19,7 @@ class Emit(_Variable):
         _Variable.__post_init__(self)
 
     @staticmethod
-    def _parent():
+    def parent():
         """The Parent Task of the task"""
         return None
 
@@ -32,12 +32,12 @@ class EmitSys(Emit):
         Emit.__post_init__(self)
 
     @staticmethod
-    def _structures():
+    def structures():
         """The allowed structures of disposition of the task"""
         return make_structures(emn=True, spt=['loc', 'lnk', 'ntw'])
 
     @staticmethod
-    def _parent():
+    def parent():
         """The Parent Task of the task"""
         return None
 
@@ -50,7 +50,7 @@ class EmitTrade(Emit):
         Emit.__post_init__(self)
 
     @staticmethod
-    def _structures():
+    def structures():
         """The allowed structures of disposition of the task"""
         return make_structures(emn=True, cmd='res', opn='pro', spt=['loc', 'ntw'])
 
@@ -63,7 +63,7 @@ class EmitBuy(EmitTrade):
         EmitTrade.__post_init__(self)
 
     @staticmethod
-    def _parent():
+    def parent():
         """The Parent Task of the task"""
         return Buy
 
@@ -76,7 +76,7 @@ class EmitSell(EmitTrade):
         EmitTrade.__post_init__(self)
 
     @staticmethod
-    def _parent():
+    def parent():
         """The Parent Task of the task"""
         return Sell
 
@@ -89,12 +89,12 @@ class EmitLoss(Emit):
         Emit.__post_init__(self)
 
     @staticmethod
-    def _parent():
+    def parent():
         """The Parent Task of the task"""
         return Loss
 
     @staticmethod
-    def _structures():
+    def structures():
         """The allowed structures of disposition of the task"""
         return make_structures(
             emn=True, cmd='res', opn=['stg', 'trn'], spt=['loc', 'lnk', 'ntw']
@@ -109,12 +109,12 @@ class EmitUse(Emit):
         Emit.__post_init__(self)
 
     @staticmethod
-    def _parent():
+    def parent():
         """The Parent Task of the task"""
         return Use
 
     @staticmethod
-    def _structures():
+    def structures():
         """The allowed structures of disposition of the task"""
         return make_structures(
             emn=True,
@@ -125,21 +125,20 @@ class EmitUse(Emit):
 
 
 @dataclass
-class EmitCap(Emit):
+class EmitOpn(Emit):
     """Operation Capacity related Emit"""
 
     def __post_init__(self):
         Emit.__post_init__(self)
 
     @staticmethod
-    def _parent():
+    def parent():
         """The Parent Task of the task"""
-        return Capacitate
+        return Capacity
 
     @staticmethod
-    def _structures():
+    def structures():
         """The allowed structures of disposition of the task"""
         return make_structures(
             emn=True, opn=['pro', 'stg', 'trn'], spt=['loc', 'lnk', 'ntw']
         )
-

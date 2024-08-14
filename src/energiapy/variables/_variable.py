@@ -12,7 +12,7 @@ from .._core._nirop._error import CacodcarError
 
 if TYPE_CHECKING:
     from .._core._aliases._is_block import IsDisposition
-    from .._core._aliases._is_variable import IsTask
+    from .._core._aliases._is_variable import IsVariable
 
 
 @dataclass
@@ -22,24 +22,24 @@ class _Variable(_Dunders, ABC):
     disposition: IsDisposition = field(default=None)
 
     def __post_init__(self):
-        self.name = f'{self._id()}{self.disposition}'
+        self.name = f'{self.id()}{self.disposition}'
 
-        if not self.disposition.structure() in self._structures():
+        if not self.disposition.structure() in self.structures():
             raise CacodcarError(
-                f'{self}:{self.disposition.structure()} not in {self._structures()}'
+                f'{self}:{self.disposition.structure()} not in {self.structures()}'
             )
 
     @classmethod
-    def _id(cls):
+    def id(cls):
         """The id of the task"""
         return cls.__name__
 
     @classmethod
     @abstractmethod
-    def _structures(cls):
+    def structures(cls):
         """The allowed structures of disposition of the task"""
 
     @staticmethod
     @abstractmethod
-    def _parent() -> IsTask:
-        """The Parent Task of the task"""
+    def parent() -> IsVariable:
+        """The Parent Variable of the task"""

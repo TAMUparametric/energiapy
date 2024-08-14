@@ -3,9 +3,26 @@
 
 from typing import TypeAlias, Union
 
-from ...parameters.parameter import (BuyBnd, BuyPrice, CapBnd, CapExp, CmdUse,
-                                     ExpBnd, OpExp, ResCredit, ResLoss,
-                                     ResPenalty, SellBnd, SellPrice, UseExp)
+from ...parameters.bound import BuyBnd, CapBnd, ExpBnd, OpBnd, SellBnd
+from ...parameters.expense import (
+    BuyPrice,
+    CapExp,
+    OpExp,
+    ResCredit,
+    ResPenalty,
+    SellPrice,
+    UseExp,
+)
+from ...parameters.calculated import CmdUse, ResLoss
+from ...parameters.emission import (
+    EmitBnd,
+    ResEmitBuy,
+    ResEmitSell,
+    CmdEmitUse,
+    OpnEmit,
+    ResEmitLoss,
+)
+
 
 IsTradeBnd: TypeAlias = Union[BuyBnd, SellBnd]
 IsCmdUse: TypeAlias = CmdUse
@@ -14,8 +31,12 @@ IsResExp: TypeAlias = Union[BuyPrice, SellPrice, ResCredit, ResPenalty]
 IsUseExp: TypeAlias = UseExp
 IsOpnExp: TypeAlias = Union[CapExp, OpExp]
 IsResLoss: TypeAlias = ResLoss
-IsCapBnd: TypeAlias = CapBnd
+IsOpnBnd: TypeAlias = Union[CapBnd, OpBnd]
+IsEmitBnd: TypeAlias = EmitBnd
+IsResEmits: TypeAlias = Union[ResEmitBuy, ResEmitSell, ResEmitLoss]
+IsCmdEmit: TypeAlias = CmdEmitUse
+IsOpnEmit: TypeAlias = OpnEmit
 
 IsParameter: TypeAlias = Union[
-    IsTradeBnd, IsCmdUse, IsExpBnd, IsResExp, IsUseExp, IsOpnExp, IsResLoss, IsCapBnd
+    IsTradeBnd, IsCmdUse, IsExpBnd, IsResExp, IsUseExp, IsOpnExp, IsResLoss, IsOpnBnd
 ]

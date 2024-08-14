@@ -24,9 +24,9 @@ class _Task(_Dunders, ABC):
     def __post_init__(self):
         self.name = f'{self._id()}{self.disposition}'
 
-        if not self.disposition.structure() in self._structures():
+        if not self.disposition.structure() in self.structures():
             raise CacodcarError(
-                f'{self}:{self.disposition.structure()} not in {self._structures()}'
+                f'{self}:{self.disposition.structure()} not in {self.structures()}'
             )
 
     @classmethod
@@ -41,5 +41,5 @@ class _Task(_Dunders, ABC):
 
     @staticmethod
     @abstractmethod
-    def _parent() -> IsTask:
+    def parent() -> IsTask:
         """The Parent Task of the task"""

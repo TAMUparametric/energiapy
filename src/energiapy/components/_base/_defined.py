@@ -7,8 +7,8 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field, fields
 from typing import TYPE_CHECKING
 
-from ..._core._layout._action import action
-from ..._core._layout._nature import nature
+from ...constraints._action import action
+from ._nature import nature
 from ..._core._nirop._error import CacodcarError
 from ._component import _Component
 from ._consistent import _Consistent

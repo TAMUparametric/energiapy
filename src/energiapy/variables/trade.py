@@ -3,7 +3,7 @@
 
 from dataclasses import dataclass
 
-from .._core._layout._structure import make_structures
+from ..disposition._structure import make_structures
 from ._variable import _Variable
 
 
@@ -15,7 +15,7 @@ class Trade(_Variable):
         _Variable.__post_init__(self)
 
     @staticmethod
-    def _parent():
+    def parent():
         """The Parent Task of the task"""
         return None
 
@@ -28,7 +28,7 @@ class LocTrade(Trade):
         Trade.__post_init__(self)
 
     @staticmethod
-    def _structures():
+    def structures():
         """The allowed structures of disposition of the task"""
         return make_structures(cmd='res', opn='pro', spt=['loc', 'ntw'])
 
@@ -57,6 +57,6 @@ class Ship(Trade):
         Trade.__post_init__(self)
 
     @staticmethod
-    def _structures():
+    def structures():
         """The allowed structures of disposition of the task"""
         return make_structures(cmd='res', opn='trn', spt=['lnk', 'ntw'])

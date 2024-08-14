@@ -1,51 +1,100 @@
+"""RuleBook for Constraint generation
+"""
+
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from operator import is_
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, Dict
 
-from ..core.base import Dunders
-from ..type.element.condition import Condition, RightHandSide, SumOver
-from ..type.input.aspect import (CapBound, CashFlow, Emission, Land,  # Life,
-                                 Limit, Loss)
+from .rules import Condition, SumOver
+from .._core._nirop._error import CacodcarError
+
+from ..variables.capacitate import Capacity
+from ..variables.emit import (
+    EmitBuy,
+    EmitOpn,
+    EmitLoss,
+    EmitSell,
+    EmitSys,
+    EmitUse,
+)
+
+from ..variables.expense import (
+    Credit,
+    ExpBuy,
+    ExpCap,
+    ExpOp,
+    ExpSell,
+    ExpSys,
+    ExpUse,
+    Penalty,
+)
+from ..variables.loss import Loss
+from ..variables.operate import Operate
+from ..variables.trade import Buy, Sell
+from ..variables.use import Use
+
+from ..parameters.bound import BuyBnd, CapBnd, ExpBnd, OpBnd, SellBnd
+from ..parameters.expense import (
+    BuyPrice,
+    CapExp,
+    OpExp,
+    ResCredit,
+    ResPenalty,
+    SellPrice,
+    UseExp,
+)
+from ..parameters.calculated import CmdUse, ResLoss
+from ..parameters.emission import (
+    EmitBnd,
+    ResEmitBuy,
+    ResEmitSell,
+    CmdEmitUse,
+    OpnEmit,
+    ResEmitLoss,
+)
+
+from .._core._handy._dunders import _Dunders
 
 if TYPE_CHECKING:
-    from ...type.alias import IsAspect, IsComponent, IsDeclaredAt
+    from .._core._aliases._is_element import IsVariable, IsParameter
 
 
 @dataclass
-class Rule(Dunders):
-    condition: Condition
-    variable: IsAspect
-    associated: IsAspect = None
-    balance: IsAspect = None
-    parameter: IsAspect = None
-    sumover: SumOver = None
-    declared_at: IsComponent = None
+class Rule(_Dunders):
+    """Rule for Constraint generation"""
+
+    condition: Condition = field(default=None)
+    variable: IsVariable = field(default=None)
+    parameter: IsParameter = field(default=None)
+    balance: Dict[IsVariable, float] = field(default=None)
+    sumover: SumOver = field(default=None)
 
     def __post_init__(self):
 
-        self.rhs = []
-
-        assoc, param = ('' for _ in range(2))
-        var = f'{self.variable.name.lower()}'
-        if self.associated:
-            assoc = f'{self.associated.name.lower()}'
-            self.rhs.append(RightHandSide.CONTINUOUS)
-        if self.parameter:
-            param = f'{self.parameter.name.lower().capitalize()}'
-            self.rhs.append(RightHandSide.PARAMETER)
-
-        if not any([self.associated, self.parameter]):
-            raise ValueError(
-                'Rule must have at least one of associated (variable) or parameter'
+        if not any([self.variable.parent(), self.parameter]):
+            raise CacodcarError(
+                'Rule must have at least one of parent (variable) or parameter'
             )
+        variable, parent, parameter = ('_' for _ in range(3))
 
-        self.name = f'{self.condition.name.lower()}|var:{var},var2:{assoc},parm:{param}'
+        if self.variable:
+            variable = self.variable.id()
+        if self.variable.parent():
+            parent = self.variable.parent().id()
+        if self.parameter:
+            parameter = self.parameter.id()
+
+        self.name = (
+            f'{self.condition.name}|var:{variable},var2:{parent},parm:{parameter}'
+        )
 
 
 @dataclass
-class RuleBook(Dunders):
+class RuleBook:
+    """RuleBook for constraint generation"""
+
     rules: List[Rule] = None
 
     def __post_init__(self):
@@ -53,184 +102,61 @@ class RuleBook(Dunders):
         self.name = 'RuleBook'
 
     def add(self, rule: Rule):
+        """Add Rule to RuleBook"""
         self.rules.append(rule)
 
-    def find(self, variable: IsAspect):
-
+    def find(self, variable: IsVariable):
+        """Fetch the rules that apply for a particular variable"""
         return [rule for rule in self.rules if is_(rule.variable, variable)]
 
 
 rulebook = RuleBook()
 
+# Bounded
+trade_bnd = [(Buy, BuyBnd), (Sell, SellBnd)]
+cap_bnd = [(Capacity, CapBnd)]
+op_bnd = [(Operate, OpBnd)]
+exp_bnd = [(ExpSys, ExpBnd)]
+emn_bnd = [(EmitSys, EmitBnd)]
 
-rulebook.add(
-    Rule(
-        variable=CashFlow.PURCHASE_COST,
-        associated=Limit.CONSUME,
-        parameter=CashFlow.PURCHASE_COST,
-        condition=Condition.CALCULATE,
-    )
-)
+# Calculated
+use_cmd = [(Use, CmdUse)]
+loss = [(Loss, ResLoss)]
 
-rulebook.add(
-    Rule(
-        variable=CashFlow.STORE_COST,
-        associated=CapBound.STORE,
-        parameter=CashFlow.STORE_COST,
-        condition=Condition.CALCULATE,
-    )
-)
+# Calculated Expenses
+exp_res = [
+    (ExpBuy, BuyPrice),
+    (ExpSell, SellPrice),
+    (Credit, ResCredit),
+    (Penalty, ResPenalty),
+]
+exp_use = [(ExpUse, UseExp)]
+exp_opn = [(ExpOp, OpExp), (ExpCap, CapExp)]
 
-for i in [CashFlow.SELL_COST, CashFlow.CREDIT, CashFlow.PENALTY]:
+# Calculated Emissions
+emit = [
+    (EmitBuy, ResEmitBuy),
+    (EmitSell, ResEmitSell),
+    (EmitUse, CmdEmitUse),
+    (EmitOpn, OpnEmit),
+    (EmitLoss, ResEmitLoss),
+]
+
+for var, param in trade_bnd + cap_bnd + op_bnd + exp_bnd + emn_bnd:
+
     rulebook.add(
         Rule(
-            variable=i,
-            associated=Limit.DISCHARGE,
-            parameter=i,
-            condition=Condition.CALCULATE,
+            variable=var,
+            parameter=param,
+            condition=Condition.BIND,
         )
     )
 
-rulebook.add(
-    Rule(
-        variable=CashFlow.VOPEX,
-        associated=CapBound.PRODUCE,
-        parameter=CashFlow.VOPEX,
-        condition=Condition.CALCULATE,
-    )
-)
-
-rulebook.add(
-    Rule(
-        variable=CashFlow.CAPEX,
-        associated=Limit.CAPACITY,
-        parameter=CashFlow.CAPEX,
-        condition=Condition.CALCULATE,
-    )
-)
-
-rulebook.add(
-    Rule(
-        variable=CashFlow.FOPEX,
-        associated=Limit.CAPACITY,
-        parameter=CashFlow.FOPEX,
-        condition=Condition.CALCULATE,
-    )
-)
-
-rulebook.add(
-    Rule(
-        variable=CashFlow.INCIDENTAL,
-        associated=None,
-        parameter=CashFlow.INCIDENTAL,
-        condition=Condition.CALCULATE,
-    )
-)
-
-
-rulebook.add(
-    Rule(
-        variable=Loss.STORE_LOSS,
-        associated=CapBound.STORE,
-        parameter=Loss.STORE_LOSS,
-        condition=Condition.CALCULATE,
-    )
-)
-rulebook.add(
-    Rule(
-        variable=Loss.TRANSPORT_LOSS,
-        associated=CapBound.TRANSPORT,
-        parameter=Loss.TRANSPORT_LOSS,
-        condition=Condition.CALCULATE,
-    )
-)
-
-rulebook.add(
-    Rule(
-        variable=Land.LAND,
-        associated=Land.LAND_USE,
-        condition=Condition.SUMOVER,
-        sumover=SumOver.SPACE,
-    )
-)
-rulebook.add(
-    Rule(
-        variable=Land.LAND,
-        parameter=Land.LAND,
-        condition=Condition.BIND))
-
-
-rulebook.add(
-    Rule(
-        variable=CashFlow.LAND_COST,
-        associated=Land.LAND,
-        parameter=CashFlow.LAND_COST,
-        condition=Condition.CALCULATE,
-    )
-)
-rulebook.add(
-    Rule(
-        variable=Land.LAND_USE,
-        associated=Limit.CAPACITY,
-        parameter=Land.LAND_USE,
-        condition=Condition.CALCULATE,
-    )
-)
-
-for i in Limit.all():
-    rulebook.add(Rule(variable=i, parameter=i, condition=Condition.BIND))
-
-
-rulebook.add(
-    Rule(
-        variable=CapBound.PRODUCE,
-        associated=Limit.CAPACITY,
-        condition=Condition.CAPACITATE,
-        declared_at='Process',
-    )
-)
-
-rulebook.add(
-    Rule(
-        variable=CapBound.STORE,
-        associated=Limit.CAPACITY,
-        condition=Condition.CAPACITATE,
-        declared_at='Storage',
-    )
-)
-
-rulebook.add(
-    Rule(
-        variable=CapBound.TRANSPORT,
-        associated=Limit.CAPACITY,
-        condition=Condition.CAPACITATE,
-        declared_at='Transit',
-    )
-)
-
-
-for i in Emission.all():
+for var, param in use_cmd + loss + exp_res + exp_use + exp_opn + emit:
     rulebook.add(
         Rule(
-            variable=i,
-            associated=Limit.CONSUME,
-            parameter=i,
-            condition=Condition.CALCULATE,
-        )
-    )
-    rulebook.add(
-        Rule(
-            variable=i,
-            associated=Limit.DISCHARGE,
-            parameter=i,
-            condition=Condition.CALCULATE,
-        )
-    )
-    rulebook.add(
-        Rule(
-            variable=i,
-            associated=Limit.CAPACITY,
-            parameter=i,
+            variable=var,
+            parameter=param,
             condition=Condition.CALCULATE,
         )
     )
