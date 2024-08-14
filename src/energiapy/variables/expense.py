@@ -1,3 +1,6 @@
+"""Variables for Expense
+"""
+
 from dataclasses import dataclass
 
 from ..disposition.structure import make_structures
@@ -17,7 +20,7 @@ class Expense(_Variable):
 
 
 @dataclass
-class ExpSys(Expense):
+class ExpBuyBnd(Expense):
     """System Expense"""
 
     def __post_init__(self):
@@ -25,12 +28,30 @@ class ExpSys(Expense):
 
     @staticmethod
     def structures():
-        """The allowed structures of disposition of the task"""
+        """The allowed structures of disposition of the Variable"""
         return make_structures(csh=True, spt=['loc', 'lnk', 'ntw'])
 
     @staticmethod
     def parent():
-        """The Parent Task of the task"""
+        """The Parent Task of the Variable"""
+        return None
+
+
+@dataclass
+class ExpSellBnd(Expense):
+    """System Expense"""
+
+    def __post_init__(self):
+        Expense.__post_init__(self)
+
+    @staticmethod
+    def structures():
+        """The allowed structures of disposition of the Variable"""
+        return make_structures(csh=True, spt=['loc', 'lnk', 'ntw'])
+
+    @staticmethod
+    def parent():
+        """The Parent Task of the Variable"""
         return None
 
 
@@ -43,7 +64,7 @@ class ExpTrade(Expense):
 
     @staticmethod
     def structures():
-        """The allowed structures of disposition of the task"""
+        """The allowed structures of disposition of the Variable"""
         return make_structures(csh=True, cmd='res', opn='pro', spt=['loc', 'ntw'])
 
 
@@ -56,7 +77,7 @@ class ExpBuy(ExpTrade):
 
     @staticmethod
     def parent():
-        """The Parent Task of the task"""
+        """The Parent Task of the Variable"""
         return Buy
 
 
@@ -69,7 +90,7 @@ class ExpSell(ExpTrade):
 
     @staticmethod
     def parent():
-        """The Parent Task of the task"""
+        """The Parent Task of the Variable"""
         return Sell
 
 
@@ -82,7 +103,7 @@ class Penalty(ExpTrade):
 
     @staticmethod
     def parent():
-        """The Parent Task of the task"""
+        """The Parent Task of the Variable"""
         return Sell
 
 
@@ -95,7 +116,7 @@ class Credit(ExpTrade):
 
     @staticmethod
     def parent():
-        """The Parent Task of the task"""
+        """The Parent Task of the Variable"""
         return Operate
 
 
@@ -108,12 +129,12 @@ class ExpUse(Expense):
 
     @staticmethod
     def parent():
-        """The Parent Task of the task"""
+        """The Parent Task of the Variable"""
         return Use
 
     @staticmethod
     def structures():
-        """The allowed structures of disposition of the task"""
+        """The allowed structures of disposition of the Variable"""
         return make_structures(
             csh=True,
             cmd=['mat', 'lnd'],
@@ -131,12 +152,12 @@ class ExpCap(Expense):
 
     @staticmethod
     def parent():
-        """The Parent Task of the task"""
+        """The Parent Task of the Variable"""
         return Capacity
 
     @staticmethod
     def structures():
-        """The allowed structures of disposition of the task"""
+        """The allowed structures of disposition of the Variable"""
         return make_structures(
             csh=True, opn=['pro', 'stg', 'trn'], spt=['loc', 'lnk', 'ntw']
         )
@@ -151,12 +172,12 @@ class ExpOp(Expense):
 
     @staticmethod
     def parent():
-        """The Parent Task of the task"""
+        """The Parent Task of the Variable"""
         return Operate
 
     @staticmethod
     def structures():
-        """The allowed structures of disposition of the task"""
+        """The allowed structures of disposition of the Variable"""
         return make_structures(
             csh=True, opn=['pro', 'stg', 'trn'], spt=['loc', 'lnk', 'ntw']
         )

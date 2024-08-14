@@ -3,14 +3,14 @@
 
 from dataclasses import dataclass, field
 
-from .._core._handy._dunders import _Dunders
-from ..components.analytical.player import Player
-from ..components.commodity.asset.cash import Cash
-from ..components.commodity.asset.land import Land
-from ..components.impact.emission import Emission
-from ..components.scope.horizon import Horizon
-from ..components.scope.network import Network
-from ..funcs.utils.decorators import once
+from ..._core._handy._dunders import _Dunders
+from ...components.analytical.player import Player
+from ...components.commodity.asset.cash import Cash
+from ...components.commodity.asset.land import Land
+from ...components.impact.emission import Emission
+from ...components.scope.horizon import Horizon
+from ...components.scope.network import Network
+from ...funcs.utils.decorators import once
 
 
 @dataclass

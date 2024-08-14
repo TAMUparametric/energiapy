@@ -24,5 +24,5 @@ class _Parameter(_Dunders):
 
     @classmethod
     def id(cls):
-        """The id of the task"""
+        """The id of the Parameter"""
         return cls.__name__

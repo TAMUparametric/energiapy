@@ -19,7 +19,6 @@ class Player(_Analytical):
     can give or take commodities from other Players
     """
 
-    owns: IsOwns = field(default=None)
     has: IsCan = field(default=None)
     needs: IsCan = field(default=None)
 

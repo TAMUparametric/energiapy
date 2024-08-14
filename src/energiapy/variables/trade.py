@@ -16,7 +16,7 @@ class Trade(_Variable):
 
     @staticmethod
     def parent():
-        """The Parent Task of the task"""
+        """The Parent Task of the Variable"""
         return None
 
 
@@ -29,7 +29,7 @@ class LocTrade(Trade):
 
     @staticmethod
     def structures():
-        """The allowed structures of disposition of the task"""
+        """The allowed structures of disposition of the Variable"""
         return make_structures(cmd='res', opn='pro', spt=['loc', 'ntw'])
 
 
@@ -58,5 +58,5 @@ class Ship(Trade):
 
     @staticmethod
     def structures():
-        """The allowed structures of disposition of the task"""
+        """The allowed structures of disposition of the Variable"""
         return make_structures(cmd='res', opn='trn', spt=['lnk', 'ntw'])

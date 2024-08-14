@@ -3,24 +3,24 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
-from ..components.analytical.player import Player
-from ..components.commodity.asset.cash import Cash
-from ..components.commodity.asset.land import Land
-from ..components.commodity.trade.material import Material
-from ..components.commodity.trade.resource import Resource
-from ..components.impact.emission import Emission
-from ..components.operational.process import Process
-from ..components.operational.storage import Storage
-from ..components.operational.transit import Transit
-from ..components.scope.network import Network
-from ..components.spatial.linkage import Linkage
-from ..components.spatial.location import Location
-from ..components.temporal.scale import Scale
-from ..funcs.utils.dictionary import flatten
-from ..disposition.disposition import Disposition
+from ...components.analytical.player import Player
+from ...components.commodity.asset.cash import Cash
+from ...components.commodity.asset.land import Land
+from ...components.commodity.trade.material import Material
+from ...components.commodity.trade.resource import Resource
+from ...components.impact.emission import Emission
+from ...components.operational.process import Process
+from ...components.operational.storage import Storage
+from ...components.operational.transit import Transit
+from ...components.scope.network import Network
+from ...components.spatial.linkage import Linkage
+from ...components.spatial.location import Location
+from ...components.temporal.scale import Scale
+from ...disposition.disposition import Disposition
+from ...funcs.utils.dictionary import flatten
 
 if TYPE_CHECKING:
-    from .._core._aliases._is_input import IsSptTmpInput
+    from ..._core._aliases._is_input import IsSptTmpInput
 
 
 @dataclass

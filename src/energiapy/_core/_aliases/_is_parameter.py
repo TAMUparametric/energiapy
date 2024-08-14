@@ -4,25 +4,11 @@
 from typing import TypeAlias, Union
 
 from ...parameters.bound import BuyBnd, CapBnd, ExpBnd, OpBnd, SellBnd
-from ...parameters.expense import (
-    BuyPrice,
-    CapExp,
-    OpExp,
-    ResCredit,
-    ResPenalty,
-    SellPrice,
-    UseExp,
-)
 from ...parameters.calculated import CmdUse, ResLoss
-from ...parameters.emission import (
-    EmitBnd,
-    ResEmitBuy,
-    ResEmitSell,
-    CmdEmitUse,
-    OpnEmit,
-    ResEmitLoss,
-)
-
+from ...parameters.emission import (CmdEmitUse, EmitBnd, OpnEmit, ResEmitBuy,
+                                    ResEmitLoss, ResEmitSell)
+from ...parameters.expense import (BuyPrice, CapExp, OpExp, ResCredit,
+                                   ResPenalty, SellPrice, UseExp)
 
 IsTradeBnd: TypeAlias = Union[BuyBnd, SellBnd]
 IsCmdUse: TypeAlias = CmdUse

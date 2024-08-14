@@ -14,6 +14,7 @@ class Material(_Trade):
 
     use: IsBoundInput = field(default=None)
     cost: IsExactInput = field(default=None)
+    emission: IsExactInput = field(default=None)
 
     def __post_init__(self):
         _Trade.__post_init__(self)

@@ -10,7 +10,7 @@ from ..components.scope.network import Network
 from ..components.spatial.linkage import Linkage
 from ..components.spatial.location import Location
 from ..components.temporal.scale import Scale
-from ._default import _Default
+from ._base._default import _Default
 from .abstract import Abstract
 from .data import CmpData, Data
 from .matrix import Matrix

@@ -33,6 +33,9 @@ class Resource(_Resource):
     sell_price: IsExactInput = field(default=None)
     credit: IsExactInput = field(default=None)
     penalty: IsExactInput = field(default=None)
+    buy_emission: IsExactInput = field(default=None)
+    sell_emission: IsExactInput = field(default=None)
+    loss_emission: IsExactInput = field(default=None)
 
     # Depreciated
     varying: str = field(default=None)
@@ -78,6 +81,7 @@ class Resource(_Resource):
             # If the attribute i is depreciated raise ValueError.
             if getattr(self, i):
                 raise ValueError(f'{_name}: {i} is depreciated. Please use {j} instead')
+
 
 @dataclass
 class ResourceInStorage(_Resource):

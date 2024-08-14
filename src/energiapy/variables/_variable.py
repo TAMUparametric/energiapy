@@ -37,9 +37,9 @@ class _Variable(_Dunders, ABC):
     @classmethod
     @abstractmethod
     def structures(cls):
-        """The allowed structures of disposition of the task"""
+        """The allowed structures of disposition of the Variable"""
 
     @staticmethod
     @abstractmethod
     def parent() -> IsVariable:
-        """The Parent Variable of the task"""
+        """The Parent Variable of the Variable"""

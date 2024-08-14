@@ -20,7 +20,7 @@ class Emit(_Variable):
 
     @staticmethod
     def parent():
-        """The Parent Task of the task"""
+        """The Parent Task of the Variable"""
         return None
 
 
@@ -33,12 +33,12 @@ class EmitSys(Emit):
 
     @staticmethod
     def structures():
-        """The allowed structures of disposition of the task"""
+        """The allowed structures of disposition of the Variable"""
         return make_structures(emn=True, spt=['loc', 'lnk', 'ntw'])
 
     @staticmethod
     def parent():
-        """The Parent Task of the task"""
+        """The Parent Task of the Variable"""
         return None
 
 
@@ -51,7 +51,7 @@ class EmitTrade(Emit):
 
     @staticmethod
     def structures():
-        """The allowed structures of disposition of the task"""
+        """The allowed structures of disposition of the Variable"""
         return make_structures(emn=True, cmd='res', opn='pro', spt=['loc', 'ntw'])
 
 
@@ -64,7 +64,7 @@ class EmitBuy(EmitTrade):
 
     @staticmethod
     def parent():
-        """The Parent Task of the task"""
+        """The Parent Task of the Variable"""
         return Buy
 
 
@@ -77,7 +77,7 @@ class EmitSell(EmitTrade):
 
     @staticmethod
     def parent():
-        """The Parent Task of the task"""
+        """The Parent Task of the Variable"""
         return Sell
 
 
@@ -90,12 +90,12 @@ class EmitLoss(Emit):
 
     @staticmethod
     def parent():
-        """The Parent Task of the task"""
+        """The Parent Task of the Variable"""
         return Loss
 
     @staticmethod
     def structures():
-        """The allowed structures of disposition of the task"""
+        """The allowed structures of disposition of the Variable"""
         return make_structures(
             emn=True, cmd='res', opn=['stg', 'trn'], spt=['loc', 'lnk', 'ntw']
         )
@@ -110,12 +110,12 @@ class EmitUse(Emit):
 
     @staticmethod
     def parent():
-        """The Parent Task of the task"""
+        """The Parent Task of the Variable"""
         return Use
 
     @staticmethod
     def structures():
-        """The allowed structures of disposition of the task"""
+        """The allowed structures of disposition of the Variable"""
         return make_structures(
             emn=True,
             cmd=['mat', 'lnd'],
@@ -125,7 +125,7 @@ class EmitUse(Emit):
 
 
 @dataclass
-class EmitOpn(Emit):
+class EmitCap(Emit):
     """Operation Capacity related Emit"""
 
     def __post_init__(self):
@@ -133,12 +133,12 @@ class EmitOpn(Emit):
 
     @staticmethod
     def parent():
-        """The Parent Task of the task"""
+        """The Parent Task of the Variable"""
         return Capacity
 
     @staticmethod
     def structures():
-        """The allowed structures of disposition of the task"""
+        """The allowed structures of disposition of the Variable"""
         return make_structures(
             emn=True, opn=['pro', 'stg', 'trn'], spt=['loc', 'lnk', 'ntw']
         )

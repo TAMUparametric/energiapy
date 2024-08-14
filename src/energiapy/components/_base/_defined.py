@@ -7,11 +7,11 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field, fields
 from typing import TYPE_CHECKING
 
-from ...constraints.task import action
-from ._nature import nature
 from ..._core._nirop._error import CacodcarError
+from ...constraints.task import task
 from ._component import _Component
 from ._consistent import _Consistent
+from ._nature import nature
 
 if TYPE_CHECKING:
     from ..._core._aliases._is_input import IsBoundInput, IsExactInput
@@ -33,10 +33,10 @@ class _Defined(_Component, _Consistent, ABC):
         self.ctypes = []
         self._consistent = False
 
-        attrs_action = set(list(action[self.collection()]))
+        attrs_task = set(list(task[self.collection()]))
         attrs_fields = set([i.name for i in fields(self)])
 
-        if not attrs_action <= attrs_fields:
+        if not attrs_task <= attrs_fields:
             raise CacodcarError(f'{self}: attributes not in fields')
 
     @staticmethod
@@ -196,8 +196,6 @@ class _Asset(_Defined):
 @dataclass
 class _Trade(_Defined):
     """Trade Commodity Component"""
-
-    emission: IsExactInput = field(default=None)
 
     def __post_init__(self):
         _Defined.__post_init__(self)

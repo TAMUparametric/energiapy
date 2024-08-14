@@ -4,33 +4,19 @@
 from typing import TypeAlias, Union
 
 from ...variables.capacitate import Capacity
-from ...variables.emit import (
-    EmitBuy,
-    EmitOpn,
-    EmitLoss,
-    EmitSell,
-    EmitSys,
-    EmitUse,
-)
-from ...variables.expense import (
-    Credit,
-    ExpBuy,
-    ExpCap,
-    ExpOp,
-    ExpSell,
-    ExpSys,
-    ExpUse,
-    Penalty,
-)
+from ...variables.emit import (EmitBuy, EmitCap, EmitLoss, EmitSell, EmitSys,
+                               EmitUse)
+from ...variables.expense import (Credit, ExpBuy, ExpBuyBnd, ExpCap, ExpOp,
+                                  ExpSell, ExpSellBnd, ExpUse, Penalty)
 from ...variables.loss import Loss
 from ...variables.operate import Operate
 from ...variables.trade import Buy, Sell, Ship
 from ...variables.use import Use
 
 IsCapacity: TypeAlias = Capacity
-IsEmit: TypeAlias = Union[EmitSys, EmitBuy, EmitSell, EmitLoss, EmitUse, EmitOpn]
+IsEmit: TypeAlias = Union[EmitSys, EmitBuy, EmitSell, EmitLoss, EmitUse, EmitCap]
 IsExpense: TypeAlias = Union[
-    ExpSys, ExpBuy, ExpSell, Penalty, Credit, ExpUse, ExpCap, ExpOp
+    ExpBuyBnd, ExpSellBnd, ExpBuy, ExpSell, Penalty, Credit, ExpUse, ExpCap, ExpOp
 ]
 IsLoss: TypeAlias = Loss
 IsOperate: TypeAlias = Operate

@@ -1,49 +1,51 @@
-"""The Task action associated with the attributes that feature in Components of the System model"""
+"""The Task action associated with the attributes that feature in Components of the System model
+"""
+
+from ..variables.action import Gives, Takes
+from ..variables.capacitate import Capacity
+from ..variables.emit import (EmitBuy, EmitCap, EmitLoss, EmitSell, EmitSys,
+                              EmitUse)
+from ..variables.expense import (Credit, ExpBuy, ExpBuyBnd, ExpCap, ExpOp,
+                                 ExpSell, ExpSellBnd, ExpUse, Penalty)
+from ..variables.loss import Loss
+from ..variables.operate import Operate
+from ..variables.trade import Buy, Sell, Ship
+from ..variables.use import Use
+
+cmd_use = {'use': Use, 'cost': ExpUse, 'emission': EmitUse}
+
+opn = {
+    'capex': ExpCap,
+    'opex': ExpOp,
+    'capacity': Capacity,
+    'operate': Operate,
+    'land': Use,
+    'material': Use,
+    'emission': EmitCap,
+}
+
+res_loss = {'loss': Loss}
+
 
 task = {
-    'players': {'owns': None, 'has': None, 'needs': None},
-    'emissions': {'emit': None},
-    'cash': {'spend': None, 'earn': None},
-    'land': {'use': None, 'cost': None, 'emission': None},
-    'materials': {'use': None, 'cost': None, 'emission': None},
+    'players': {'has': Gives, 'needs': Takes},
+    'emissions': {'emit': EmitSys},
+    'cash': {'spend': ExpBuyBnd, 'earn': ExpSellBnd},
+    'land': cmd_use,
+    'materials': cmd_use,
     'resources': {
-        'buy': None,
-        'sell': None,
-        'ship': None,
-        'deliver': None,
-        'buy_price': None,
-        'sell_price': None,
-        'credit': None,
-        'penalty': None,
-        'emission': None,
+        'buy': Buy,
+        'sell': Sell,
+        'ship': Ship,
+        'buy_price': ExpBuy,
+        'sell_price': ExpSell,
+        'credit': Credit,
+        'penalty': Penalty,
+        'buy_emission': EmitBuy,
+        'sell_emission': EmitSell,
+        'loss_emission': EmitLoss,
     },
-    'processes': {
-        'capex': None,
-        'opex': None,
-        'capacity': None,
-        'operate': None,
-        'land': None,
-        'material': None,
-        'emission': None,
-    },
-    'storages': {
-        'capex': None,
-        'opex': None,
-        'capacity': None,
-        'operate': None,
-        'land': None,
-        'material': None,
-        'emission': None,
-        'loss': None,
-    },
-    'transits': {
-        'capex': None,
-        'opex': None,
-        'capacity': None,
-        'operate': None,
-        'land': None,
-        'material': None,
-        'emission': None,
-        'loss': None,
-    },
+    'processes': opn,
+    'storages': {**opn, **res_loss},
+    'transits': {**opn, **res_loss},
 }

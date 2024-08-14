@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from ..._core._handy._dunders import _Dunders
-from ...blocks._model import _Model
+from ...blocks._base._model import _Model
 
 if TYPE_CHECKING:
     from ..._core._aliases._is_block import (IsAbstract, IsData, IsMatrix,

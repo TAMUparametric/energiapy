@@ -17,10 +17,10 @@ class Loss(_Variable):
 
     @staticmethod
     def parent():
-        """The Parent Task of the task"""
+        """The Parent Task of the Variable"""
         return Operate
 
     @staticmethod
     def structures():
-        """The allowed structures of disposition of the task"""
+        """The allowed structures of disposition of the Variable"""
         return make_structures(cmd='res', opn=['stg', 'trn'], spt=['loc', 'lnk', 'ntw'])

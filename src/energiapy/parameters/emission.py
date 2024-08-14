@@ -1,9 +1,9 @@
 """Defined Emission Parameters 
 """
 
-from ._parameter import _Parameter
-
 from dataclasses import dataclass
+
+from ._parameter import _Parameter
 
 
 @dataclass

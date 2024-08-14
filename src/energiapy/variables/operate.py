@@ -17,10 +17,10 @@ class Operate(_Variable):
 
     @staticmethod
     def parent():
-        """The Parent Task of the task"""
+        """The Parent Task of the Variable"""
         return Capacity
 
     @staticmethod
     def structures():
-        """The allowed structures of disposition of the task"""
+        """The allowed structures of disposition of the Variable"""
         return make_structures(opn=['pro', 'stg', 'trn'], spt=['loc', 'lnk', 'ntw'])
