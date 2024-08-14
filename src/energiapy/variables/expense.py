@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from ..disposition._structure import make_structures
+from ..disposition.structure import make_structures
 from ._variable import _Variable
 from .capacitate import Capacity
 from .operate import Operate

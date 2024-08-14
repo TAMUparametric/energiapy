@@ -77,18 +77,16 @@ class Rule(_Dunders):
             raise CacodcarError(
                 'Rule must have at least one of parent (variable) or parameter'
             )
-        variable, parent, parameter = ('_' for _ in range(3))
+        variable, parent, parameter = ('' for _ in range(3))
 
         if self.variable:
-            variable = self.variable.id()
+            variable = f'var:{self.variable.id()}|'
         if self.variable.parent():
-            parent = self.variable.parent().id()
+            parent = f'pvar:{self.variable.parent().id()}|'
         if self.parameter:
-            parameter = self.parameter.id()
+            parameter = f'Param:{self.parameter.id()}|'
 
-        self.name = (
-            f'{self.condition.name}|var:{variable},var2:{parent},parm:{parameter}'
-        )
+        self.name = f'{self.condition.name}|{variable}{parent}{parameter}'
 
 
 @dataclass

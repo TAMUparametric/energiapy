@@ -7,7 +7,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field, fields
 from typing import TYPE_CHECKING
 
-from ...constraints._action import action
+from ...constraints.task import action
 from ._nature import nature
 from ..._core._nirop._error import CacodcarError
 from ._component import _Component

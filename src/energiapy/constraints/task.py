@@ -1,6 +1,6 @@
 """The Task action associated with the attributes that feature in Components of the System model"""
 
-action = {
+task = {
     'players': {'owns': None, 'has': None, 'needs': None},
     'emissions': {'emit': None},
     'cash': {'spend': None, 'earn': None},
@@ -47,4 +47,3 @@ action = {
         'loss': None,
     },
 }
-
