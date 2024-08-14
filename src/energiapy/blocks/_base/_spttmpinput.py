@@ -4,10 +4,10 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 from ...components.analytical.player import Player
-from ...components.commodity.asset.cash import Cash
-from ...components.commodity.asset.land import Land
-from ...components.commodity.trade.material import Material
-from ...components.commodity.trade.resource import Resource
+from ...components.commodity.cash import Cash
+from ...components.commodity.land import Land
+from ...components.commodity.material import Material
+from ...components.commodity.resource import Resource
 from ...components.impact.emission import Emission
 from ...components.operational.process import Process
 from ...components.operational.storage import Storage
@@ -97,5 +97,4 @@ class _SptTmpInput:
             )
 
             dict_upd[disp] = val
-
         self.dict_input = dict_upd

@@ -11,7 +11,6 @@ from ..._core._nirop._error import CacodcarError
 from ...constraints.task import task
 from ._component import _Component
 from ._consistent import _Consistent
-from ._nature import nature
 
 if TYPE_CHECKING:
     from ..._core._aliases._is_input import IsBoundInput, IsExactInput
@@ -35,68 +34,45 @@ class _Defined(_Component, _Consistent, ABC):
 
         attrs_task = set(list(task[self.collection()]))
         attrs_fields = set([i.name for i in fields(self)])
-
         if not attrs_task <= attrs_fields:
+            print('defined tasks:', attrs_task)
+            print('component fields:', attrs_fields)
             raise CacodcarError(f'{self}: attributes not in fields')
 
     @staticmethod
     @abstractmethod
     def collection():
-        """reports what collection the component belongs to"""
+        """reports what collection the Component belongs to"""
+
+    @staticmethod
+    @abstractmethod
+    def bounds():
+        """Attrs that quantify the bounds of the Component"""
 
     @classmethod
-    def quantify(cls):
-        """reports what quantitative attributes can be given to the component"""
-        return nature[cls.collection()]['quantify']
-
-    @classmethod
-    def expenses(cls):
-        """reports what costs attributes can be given to the component"""
-        return nature[cls.collection()]['expenses']
-
-    @classmethod
-    def landuse(cls):
-        """reports what land attributes can be given to the component"""
-        return nature[cls.collection()]['landuse']
-
-    @classmethod
-    def resourcebnds(cls):
-        """reports what resource attributes can be given to the component"""
-        return nature[cls.collection()]['resourcebnds']
-
-    @classmethod
-    def resourceexps(cls):
-        """reports what resource attributes can be given to the component"""
-        return nature[cls.collection()]['resourceexps']
-
-    @classmethod
-    def materialuse(cls):
-        """reports what material attributes can be given to the component"""
-        return nature[cls.collection()]['materialuse']
-
-    @classmethod
-    def emitted(cls):
-        """reports what emissions attributes that can be given to the component"""
-        return nature[cls.collection()]['emitted']
-
-    @classmethod
-    def loss(cls):
-        """reports what loss attributes that can be given to the component"""
-        return nature[cls.collection()]['loss']
-
-    @classmethod
+    @abstractmethod
     def inputs(cls):
-        """reports what attributes can be given to the component"""
-        return (
-            cls.emitted()
-            + cls.expenses()
-            + cls.landuse()
-            + cls.loss()
-            + cls.materialuse()
-            + cls.resourcebnds()
-            + cls.resourceexps()
-            + cls.quantify()
-        )
+        """Attrs"""
+
+    @classmethod
+    @abstractmethod
+    def _cnst_csh(cls):
+        """Adds Cash when making consistent"""
+
+    @classmethod
+    @abstractmethod
+    def _cnst_lnd(cls):
+        """Adds Land when making consistent"""
+
+    @classmethod
+    @abstractmethod
+    def _cnst_nstd(cls):
+        """Is a nested input to be made consistent"""
+
+    @classmethod
+    @abstractmethod
+    def _cnst_nstd_csh(cls):
+        """Is a nested input to be made consistent with Cash"""
 
     @property
     def _horizon(self):
@@ -150,29 +126,23 @@ class _Defined(_Component, _Consistent, ABC):
 
             if value is not None:
 
-                if attr in self.quantify():
+                if attr in self.bounds():
                     setattr(self, attr, self.make_spttmpdict(value))
 
-                if attr in self.expenses():
+                if attr in self._cnst_csh():
                     setattr(self, attr, {self._cash: self.make_spttmpdict(value)})
 
-                if attr in self.landuse():
+                if attr in self._cnst_lnd():
                     setattr(self, attr, {self._land: self.make_spttmpdict(value)})
 
-                if (
-                    attr
-                    in self.materialuse()
-                    + self.loss()
-                    + self.emitted()
-                    + self.resourcebnds()
-                ):
+                if attr in self._cnst_nstd():
                     setattr(
                         self,
                         attr,
                         {i: self.make_spttmpdict(j) for i, j in value.items()},
                     )
 
-                if attr in self.resourceexps():
+                if attr in self._cnst_nstd_csh():
                     setattr(
                         self,
                         attr,
@@ -183,51 +153,3 @@ class _Defined(_Component, _Consistent, ABC):
                     )
 
         self._consistent = True
-
-
-@dataclass
-class _Asset(_Defined):
-    """Asset Commodity Component"""
-
-    def __post_init__(self):
-        _Defined.__post_init__(self)
-
-
-@dataclass
-class _Trade(_Defined):
-    """Trade Commodity Component"""
-
-    def __post_init__(self):
-        _Defined.__post_init__(self)
-
-
-@dataclass
-class _Impact(_Defined):
-    """Impact Component"""
-
-    def __post_init__(self):
-        _Defined.__post_init__(self)
-
-
-@dataclass
-class _Operational(_Defined):
-    """Operational Component"""
-
-    capacity: IsBoundInput = field(default=None)
-    operate: IsBoundInput = field(default=None)
-    land: IsExactInput = field(default=None)
-    material: IsExactInput = field(default=None)
-    capex: IsExactInput = field(default=None)
-    opex: IsExactInput = field(default=None)
-    emission: IsExactInput = field(default=None)
-
-    def __post_init__(self):
-        _Defined.__post_init__(self)
-
-
-@dataclass
-class _Analytical(_Defined):
-    """Analytical Component"""
-
-    def __post_init__(self):
-        _Defined.__post_init__(self)

@@ -1,54 +1,34 @@
 """The nature of attributes that feature in Components of the System model"""
 
 nature = {
-    'players': {
-        'quantify': ['has', 'needs'],
+    'player': {
+        'bounds': ['has', 'needs'],
     },
-    'emissions': {
-        'quantify': ['emit'],
+    'emission': {
+        'bounds': ['emit'],
     },
     'cash': {
-        'quantify': ['spend', 'earn'],
+        'bounds': ['spend', 'earn'],
     },
-    'land': {
+    'cmd_used': {
         'expenses': ['cost'],
-        'quantify': ['use'],
+        'bounds': ['use'],
         'emitted': ['emission'],
     },
-    'materials': {
-        'expenses': ['cost'],
-        'quantify': ['use'],
-        'emitted': ['emission'],
-    },
-    'resources': {
+    'resource': {
         'expenses': ['buy_price', 'sell_price', 'credit', 'penalty'],
-        'quantify': ['buy', 'sell', 'ship', 'deliver'],
-        'emitted': ['emission'],
+        'bounds_trade': ['buy', 'sell'],
+        'bounds_transit': ['ship', 'receive'],
+        'bounds': ['buy', 'sell', 'ship', 'receive'],
+        'emitted': ['buy_emission', 'sell_emission', 'loss_emission'],
     },
-    'processes': {
+    'operational': {
         'expenses': ['capex', 'opex'],
-        'quantify': ['capacity', 'operate'],
+        'bounds': ['capacity', 'operate'],
         'landuse': ['land'],
+        'materialuse': ['material'],
         'resourcebnds': ['buy', 'sell'],
-        'resourceexps': ['buy_price', 'sell_price', 'credit', 'penalty'],
-        'materialuse': ['material'],
         'emitted': ['emission'],
     },
-    'storages': {
-        'expenses': ['capex', 'opex'],
-        'quantify': ['capacity', 'operate'],
-        'landuse': ['land'],
-        'materialuse': ['material'],
-        'emitted': ['emission'],
-        'loss': ['loss'],
-    },
-    'transits': {
-        'expenses': ['capex', 'opex'],
-        'quantify': ['capacity', 'operate'],
-        'landuse': ['land'],
-        'resourcebnds': ['ship', 'deliver'],
-        'materialuse': ['material'],
-        'emitted': ['emission'],
-        'loss': ['loss'],
-    },
+    'resourceloss': ['loss'],
 }

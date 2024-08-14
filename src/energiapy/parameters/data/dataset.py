@@ -36,6 +36,7 @@ class DataSet(_Data):
         self._certainty, self._approach = Certainty.CERTAIN, Approach.DATA
 
         self.data = self.data[self.data.columns[0]].to_dict()
+        self.data = {self.disposition.scl.index[i]: self.data[i] for i in range(len(self.data))}
 
     @property
     def value(self) -> dict:

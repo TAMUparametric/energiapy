@@ -69,4 +69,7 @@ class _Data(ABC, _Reprs):
         return f'{self.disposition}{vb_}{sl_}'
 
     def __len__(self):
-        return len(self.disposition)
+        if self.disposition:
+            return len(self.disposition)
+        else:
+            return 1

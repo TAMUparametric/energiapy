@@ -4,7 +4,7 @@
 from dataclasses import dataclass, field
 from typing import List, Union
 
-from .._base._spttmp import _Scope
+from ._scope import _Scope
 
 
 @dataclass
@@ -20,11 +20,6 @@ class Network(_Scope):
         _Scope.__post_init__(self)
         if isinstance(self.locs, int):
             self.locs = [f'node{i}' for i in range(self.locs)]
-
-    @staticmethod
-    def collection():
-        """The collection in scenario"""
-        return 'scopes'
 
     @property
     def locations(self):

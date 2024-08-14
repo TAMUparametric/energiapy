@@ -10,7 +10,7 @@ from pandas import DataFrame
 
 from ..scope.network import Network
 from ..temporal.scale import Scale
-from ._spttmp import _Spatial
+from ..spatial._spatial import _Spatial
 
 if TYPE_CHECKING:
     from ..._core._aliases._is_input import IsInput, IsInputDict, IsSptTmpInput
@@ -36,7 +36,13 @@ class _Consistent:
             value_upd = {}
             for i, j in value.items():
                 if not isinstance(i, (_Spatial, Network)):
-                    value_upd[getattr(self, '_network')] = {i: j}
+                    if getattr(self, '_network') in value_upd:
+                        value_upd[getattr(self, '_network')] = {
+                            **value_upd[getattr(self, '_network')],
+                            **{i: j},
+                        }
+                    else:
+                        value_upd[getattr(self, '_network')] = {i: j}
                 else:
                     value_upd[i] = j
 
@@ -142,7 +148,7 @@ class _Consistent:
         Returns:
             IsSptTmpInput: {Spatial: {Temporal: value}}
         """
-        if value:
+        if value is not None:
             value = self.make_consistent_spatial(value)
             value = self.make_consistent_temporal(value)
             value = self.make_consistent_len(value)

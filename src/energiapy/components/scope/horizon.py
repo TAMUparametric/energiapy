@@ -6,7 +6,7 @@ from itertools import product
 from operator import imod, is_, is_not
 from typing import List
 
-from .._base._spttmp import _Scope
+from ._scope import _Scope
 
 
 @dataclass
@@ -93,8 +93,7 @@ class Horizon(_Scope):
         elif isinstance(self.discretizations, list):
             self._discretization_list = list(self.discretizations)
             self._discretization_list.insert(0, 1)
-            self._name_scales = [f't{i}' for i in range(
-                len(self._discretization_list))]
+            self._name_scales = [f't{i}' for i in range(len(self._discretization_list))]
 
         else:
             raise ValueError('Discretizations must be a list or a dictionary')
@@ -103,11 +102,6 @@ class Horizon(_Scope):
     def n_scales(self) -> int:
         """Returns number of scales"""
         return len(self._discretization_list)
-
-    @staticmethod
-    def collection():
-        """The collection in scenario"""
-        return 'scopes'
 
     @property
     def scales(self):
@@ -130,11 +124,8 @@ class Horizon(_Scope):
             lists = [list(range(i)) for i in self._discretization_list]
             return list(product(*lists[: position + 1]))
         else:
-            if is_not(
-                self._discretization_list, sorted(
-                    self._discretization_list)):
-                raise ValueError(
-                    'Discretizations need to be in ascending order')
+            if is_not(self._discretization_list, sorted(self._discretization_list)):
+                raise ValueError('Discretizations need to be in ascending order')
             if not all(
                 is_(imod(max(self._discretization_list), i), 0)
                 for i in self._discretization_list
@@ -143,8 +134,9 @@ class Horizon(_Scope):
                     'Discretizations need to be divisible by the most granular scale'
                 )
             lists = [(0, i) for i in range(max(self._discretization_list))]
-            return lists[:: max(self._discretization_list) //
-                         self._discretization_list[position]]
+            return lists[
+                :: max(self._discretization_list) // self._discretization_list[position]
+            ]
 
     def is_multiscale(self):
         """Returns True if problem has multiple scales"""

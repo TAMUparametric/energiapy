@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from ..._core._aliases._is_block import (IsData, IsMatrix, IsProgram,
-                                            IsSystem)
+                                             IsSystem)
 
 
 @dataclass

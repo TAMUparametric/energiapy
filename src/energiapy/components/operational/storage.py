@@ -6,7 +6,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
-from .._base._defined import _Operational
+from .._base._nature import nature
+from ._operational import _Operational
 
 # import operator
 # from functools import reduce
@@ -28,8 +29,12 @@ class Storage(_Operational):
         """The collection in scenario"""
         return 'storages'
 
+    @staticmethod
+    def resourceloss():
+        """Attrs that determine resource loss of the component"""
+        return nature['resourceloss']
 
-# store: Resource
-#     capacity: IsLimit
-#     land_use: IsLand = field(default=None)
-#     material_cons: IsMatUse = field(default=None)
+    @staticmethod
+    def resourceexps():
+        """Attrs that determine resource expenses of the component"""
+        return []

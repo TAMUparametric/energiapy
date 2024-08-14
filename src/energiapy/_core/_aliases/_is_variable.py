@@ -10,7 +10,7 @@ from ...variables.expense import (Credit, ExpBuy, ExpBuyBnd, ExpCap, ExpOp,
                                   ExpSell, ExpSellBnd, ExpUse, Penalty)
 from ...variables.loss import Loss
 from ...variables.operate import Operate
-from ...variables.trade import Buy, Sell, Ship
+from ...variables.trade import Buy, Recieve, Sell, Ship
 from ...variables.use import Use
 
 IsCapacity: TypeAlias = Capacity
@@ -20,7 +20,7 @@ IsExpense: TypeAlias = Union[
 ]
 IsLoss: TypeAlias = Loss
 IsOperate: TypeAlias = Operate
-IsTrade: TypeAlias = Union[Buy, Sell, Ship]
+IsTrade: TypeAlias = Union[Buy, Sell, Ship, Recieve]
 IsUse: TypeAlias = Use
 
 IsVariable: TypeAlias = Union[

@@ -5,8 +5,8 @@ from dataclasses import dataclass, field
 
 from ..._core._handy._dunders import _Dunders
 from ...components.analytical.player import Player
-from ...components.commodity.asset.cash import Cash
-from ...components.commodity.asset.land import Land
+from ...components.commodity.cash import Cash
+from ...components.commodity.land import Land
 from ...components.impact.emission import Emission
 from ...components.scope.horizon import Horizon
 from ...components.scope.network import Network
@@ -17,11 +17,12 @@ from ...funcs.utils.decorators import once
 class _Default(_Dunders):
     """initializations for the Scenario class"""
 
-    default_players: bool = field(default=True)
-    default_emissions: bool = field(default=True)
-    default_cash: bool = field(default=True)
-    default_land: bool = field(default=True)
-    default_all: bool = field(default=False)
+    default_scope: bool = field(default=False)
+    default_players: bool = field(default=False)
+    default_emissions: bool = field(default=False)
+    default_cash: bool = field(default=False)
+    default_land: bool = field(default=False)
+    default: bool = field(default=False)
 
     @once
     def _default(self):
@@ -33,17 +34,26 @@ class _Default(_Dunders):
         # Players if default_players is True (default)
         # Scope Components
 
-        setattr(self, 'h', Horizon(label='Default Horizon'))
+        if self.default:
+            (
+                self.default_players,
+                self.default_emissions,
+                self.default_cash,
+                self.default_land,
+                self.default_scope,
+            ) = (True for _ in range(5))
 
-        setattr(self, 'n', Network(label='Default Network'))
+        if self.default_scope:
+            setattr(self, 'hrz_def', Horizon(label='Default Horizon'))
+            setattr(self, 'ntw_def', Network(label='Default Network'))
 
-        if self.default_land or self.default_all:
-            setattr(self, 'l', Land(basis='Acres', label='Land'))
+        if self.default_land:
+            setattr(self, 'lnd_def', Land(basis='Acres', label='Land'))
 
-        if self.default_cash or self.default_all:
-            setattr(self, 'c', Cash(basis='$', label='Cash'))
+        if self.default_cash:
+            setattr(self, 'csh_def', Cash(basis='$', label='Cash'))
 
-        if self.default_emissions or self.default_all:
+        if self.default_emissions:
             emissions = [
                 ('gwp', 'kg CO2 eq.', 'Global Warming Potential'),
                 ('ap', 'mol eq', 'Acidification Potential'),
@@ -58,10 +68,10 @@ class _Default(_Dunders):
                 ('wdp', 'm^3', 'Water Deprivation Potential'),
             ]
 
-            for i, j, k in emissions or self.default_all:
+            for i, j, k in emissions:
                 setattr(self, i, Emission(basis=j, label=k))
 
-        if self.default_players or self.default_all:
+        if self.default_players or self.default:
 
             players = [
                 ('dm', 'Decision Maker'),

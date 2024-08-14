@@ -5,11 +5,13 @@ from typing import TYPE_CHECKING
 from warnings import warn
 
 from .._core._handy._dunders import _Dunders
-from ..components._base._defined import _Asset, _Component
-from ..components._base._spttmp import (_Scope, _Spatial,  # , _Analytical
-                                        _Temporal)
-from ..components.commodity.asset.cash import Cash
-from ..components.commodity.asset.land import Land
+from ..components._base._component import _Component
+from ..components.scope._scope import _Scope
+from ..components.temporal._temporal import _Temporal
+from ..components.spatial._spatial import _Spatial
+
+from ..components.commodity.cash import Cash
+from ..components.commodity.land import Land
 from ..components.scope.horizon import Horizon
 from ..components.scope.network import Network
 
@@ -83,11 +85,10 @@ class System(_Dunders):
             elif isinstance(component, Network):
                 self.scopes[1] = component
 
-        elif issubclass(type(component), _Asset):
-            if isinstance(component, Cash):
-                self.assets[0] = component
-            elif isinstance(component, Land):
-                self.assets[1] = component
+        elif isinstance(component, Cash):
+            self.assets[0] = component
+        elif isinstance(component, Land):
+            self.assets[1] = component
 
         else:
             list_curr = getattr(self, component.collection())

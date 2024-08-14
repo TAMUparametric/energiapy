@@ -51,7 +51,20 @@ class Sell(LocTrade):
 
 @dataclass
 class Ship(Trade):
-    """LocTrade changes the ownership of Resource between Players at a Location"""
+    """Resource sent out of a Location"""
+
+    def __post_init__(self):
+        Trade.__post_init__(self)
+
+    @staticmethod
+    def structures():
+        """The allowed structures of disposition of the Variable"""
+        return make_structures(cmd='res', opn='trn', spt=['lnk', 'ntw'])
+
+
+@dataclass
+class Recieve(Trade):
+    """Resource received at a Location"""
 
     def __post_init__(self):
         Trade.__post_init__(self)

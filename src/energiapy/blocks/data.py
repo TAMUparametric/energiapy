@@ -85,7 +85,6 @@ class CmpData(_Dunders):
 
         if isinstance(value, (float, int)) and not isinstance(value, bool):
             datapoint = Constant(constant=value, **args)
-
         if isinstance(value, bool):
             datapoint = M(big=value, **args)
 

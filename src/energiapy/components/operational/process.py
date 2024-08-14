@@ -6,7 +6,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
-from .._base._defined import _Operational
+from .._base._nature import nature
+from ._operational import _Operational
 
 # import operator
 # from functools import reduce
@@ -98,3 +99,13 @@ class Process(_Operational):
     def collection():
         """The collection in scenario"""
         return 'processes'
+
+    @staticmethod
+    def resourceloss():
+        """Attrs that determine resource loss of the component"""
+        return []
+
+    @staticmethod
+    def resourceexps():
+        """Attrs that determine resource expenses of the component"""
+        return nature['resource']['expenses']

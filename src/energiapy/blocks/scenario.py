@@ -87,6 +87,10 @@ class Scenario(_Default):
                 setattr(self.data, name, cmpdata)
 
         if isinstance(value, Horizon):
+
+            if self.system.scales:  # if new horizon is defined, reset scales
+                self.system.scales = []
+
             for i in range(value.n_scales):
 
                 if value.label_scales:
@@ -147,10 +151,6 @@ class Scenario(_Default):
     @property
     def network(self):
         return self.system.network
-
-    @property
-    def assets(self):
-        return self.system.assets
 
     @property
     def emissions(self):

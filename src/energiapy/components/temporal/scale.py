@@ -5,7 +5,7 @@ energiapy.Scale - A bespoke discretization of the planning horizon (Horizon) of 
 from dataclasses import dataclass, field
 from typing import List, Union
 
-from .._base._spttmp import _Temporal
+from ._temporal import _Temporal
 
 
 @dataclass
@@ -38,7 +38,7 @@ class Scale(_Temporal):
             return [self.idx(i) for i in self.index[lb:ub]]
 
         if isinstance(lb, tuple):
-            return self.index[self.pos(lb): self.pos(ub)]
+            return self.index[self.pos(lb) : self.pos(ub)]
 
     @staticmethod
     def collection() -> str:

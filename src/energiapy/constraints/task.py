@@ -9,7 +9,7 @@ from ..variables.expense import (Credit, ExpBuy, ExpBuyBnd, ExpCap, ExpOp,
                                  ExpSell, ExpSellBnd, ExpUse, Penalty)
 from ..variables.loss import Loss
 from ..variables.operate import Operate
-from ..variables.trade import Buy, Sell, Ship
+from ..variables.trade import Buy, Recieve, Sell, Ship
 from ..variables.use import Use
 
 cmd_use = {'use': Use, 'cost': ExpUse, 'emission': EmitUse}
@@ -37,6 +37,7 @@ task = {
         'buy': Buy,
         'sell': Sell,
         'ship': Ship,
+        'receive': Recieve,
         'buy_price': ExpBuy,
         'sell_price': ExpSell,
         'credit': Credit,
