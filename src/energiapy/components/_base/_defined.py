@@ -4,11 +4,11 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from dataclasses import dataclass, field, fields
+from dataclasses import dataclass, field  # , fields
 from typing import TYPE_CHECKING
 
-from ..._core._nirop._error import CacodcarError
-from ...constraints.task import task
+# from ..._core._nirop._error import CacodcarError
+# from ...constraints.taskmaster import taskmaster
 from ._component import _Component
 from ._consistent import _Consistent
 
@@ -32,12 +32,12 @@ class _Defined(_Component, _Consistent, ABC):
         self.ctypes = []
         self._consistent = False
 
-        attrs_task = set(list(task[self.collection()]))
-        attrs_fields = set([i.name for i in fields(self)])
-        if not attrs_task <= attrs_fields:
-            print('defined tasks:', attrs_task)
-            print('component fields:', attrs_fields)
-            raise CacodcarError(f'{self}: attributes not in fields')
+        # attrs_task = set(list(taskmaster[self.collection()]))
+        # attrs_fields = set([i.name for i in fields(self)])
+        # if not attrs_task <= attrs_fields:
+        #     print('defined tasks:', attrs_task)
+        #     print('component fields:', attrs_fields)
+        #     raise CacodcarError(f'{self}: attributes not in fields')
 
     @staticmethod
     @abstractmethod

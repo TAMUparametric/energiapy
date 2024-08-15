@@ -126,7 +126,9 @@ class _Consistent:
                         [getattr(self, '_horizon').match_scale(m) for m in l]
                     )[-1]
 
-                    if is_not(scale_upd, k):
+                    if is_not(scale_upd, k) and not all(
+                        isinstance(m, (float, int)) for m in l
+                    ):  # only update the scale if there is no float or int in the list
                         warn(
                             f'{self}:Inconsistent temporal scale for {i} at {k}. Updating to {scale_upd}'
                         )

@@ -12,9 +12,9 @@ from ..components.spatial.location import Location
 from ..components.temporal.scale import Scale
 from ._base._default import _Default
 from .abstract import Abstract
-from .data import CmpData, Data
+from .data import DataBlock, Data
 from .matrix import Matrix
-from .program import Program
+from .program import Program, ProgramBlock
 from .system import System
 
 
@@ -75,16 +75,22 @@ class Scenario(_Default):
 
                 value.make_consistent()
 
-                cmpdata = CmpData(name_cmp=name)
+                datablock = DataBlock(component=value)
+                programblock = ProgramBlock(component=value)
 
                 for inp in value.inputs():
+
                     if getattr(value, inp, False):
 
-                        setattr(cmpdata, inp, {value: getattr(value, inp)})
+                        setattr(datablock, inp, {value: getattr(value, inp)})
 
-                        setattr(value, inp, getattr(cmpdata, inp))
+                        setattr(value, inp, getattr(datablock, inp))
 
-                setattr(self.data, name, cmpdata)
+                setattr(self.data, name, datablock)
+
+                setattr(programblock, name, datablock)
+
+                setattr(self.program, name, programblock)
 
         if isinstance(value, Horizon):
 
@@ -204,3 +210,7 @@ class Scenario(_Default):
     @property
     def land(self):
         return self.system.land
+
+    @property
+    def components(self):
+        return self.system.components

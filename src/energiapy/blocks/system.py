@@ -55,11 +55,14 @@ class System(_Dunders):
         # Operational
         self.processes, self.storages, self.transits = ([] for _ in range(3))
 
+        self.components = []
+
     def __setattr__(self, name, value):
 
         # all Component to collection
         if issubclass(type(value), _Component):
             self.add(value)
+            self.components.append(value)
 
         # keeping scopes as a list and horizon and network avoids recursion
         if issubclass(type(value), _Temporal):
@@ -86,8 +89,14 @@ class System(_Dunders):
                 self.scopes[1] = component
 
         elif isinstance(component, Cash):
+            if self.assets[0]:
+                delattr(self, self.assets[0].name)
+
             self.assets[0] = component
         elif isinstance(component, Land):
+            if self.assets[1]:
+                delattr(self, self.assets[1].name)
+
             self.assets[1] = component
 
         else:

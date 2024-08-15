@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from operator import is_
 from typing import TYPE_CHECKING
 
 from pandas import DataFrame
@@ -21,14 +20,15 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class CmpData(_Dunders):
+class DataBlock(_Dunders):
     """Is Component Data"""
 
-    name_cmp: str = field(default=None)
+    component: str = field(default=None)
 
     def __post_init__(self):
-        self.name = f'Data|{self.name_cmp}|'
+        self.name = f'Data|{self.component}|'
         self.constants, self.ms, self.thetas, self.datasets = ([] for _ in range(4))
+        self.attrs = []
 
     def __setattr__(self, name, value):
 
@@ -63,7 +63,9 @@ class CmpData(_Dunders):
                 spttmpinput.dict_input[disposition] = datapoint
 
                 self.add(datapoint)
-            # value = spttmpinput.dict_input
+
+            self.attrs.append(name)
+
             value = sorted(spttmpinput.dict_input.values(), key=len)
 
         super().__setattr__(name, value)
@@ -85,6 +87,7 @@ class CmpData(_Dunders):
 
         if isinstance(value, (float, int)) and not isinstance(value, bool):
             datapoint = Constant(constant=value, **args)
+
         if isinstance(value, bool):
             datapoint = M(big=value, **args)
 
@@ -125,31 +128,3 @@ class Data(_Dunders):
 
     def __post_init__(self):
         self.name = f'Data|{self.name}|'
-        self.compdata = []
-
-    def __setattr__(self, name, value):
-
-        if isinstance(value, CmpData):
-            self.compdata.append(value)
-
-        super().__setattr__(name, value)
-
-    @property
-    def datasets(self):
-        """Returns the DataSets"""
-        return [i for i in self.compdata if is_(i.collection(), 'datasets')]
-
-    @property
-    def ms(self):
-        """Returns the Ms"""
-        return [i for i in self.compdata if is_(i.collection(), 'ms')]
-
-    @property
-    def thetas(self):
-        """Returns the Thetas"""
-        return [i for i in self.compdata if is_(i.collection(), 'thetas')]
-
-    @property
-    def constants(self):
-        """Returns the Constants"""
-        return [i for i in self.compdata if is_(i.collection(), 'constants')]
