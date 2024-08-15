@@ -1,7 +1,8 @@
 from typing import TypeAlias, Union
 
-from ...parameters.data.bounds import SpcLmt, VarBnd
+from ...parameters.bounds import SpcLmt, VarBnd
 from ...parameters.data.constant import Constant
+from ...parameters.data.conversion import Conversion
 from ...parameters.data.dataset import DataSet
 from ...parameters.data.m import M
 from ...parameters.data.theta import Theta
@@ -23,3 +24,5 @@ IsData: TypeAlias = Union[IsConstant, IsDataSet, IsM, IsParVar]
 IsVarBnd: TypeAlias = VarBnd
 # is a limit to the domain of a parametric variable
 IsSpcLmt: TypeAlias = SpcLmt
+
+IsConv: TypeAlias = Conversion

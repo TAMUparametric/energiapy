@@ -8,7 +8,7 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 from ..._core._handy._dunders import _Reprs
-from .bounds import SpcLmt, VarBnd
+from ..bounds import SpcLmt, VarBnd
 
 if TYPE_CHECKING:
     from ..._core._aliases._is_block import IsDisposition

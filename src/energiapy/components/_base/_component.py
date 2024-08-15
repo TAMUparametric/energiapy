@@ -10,7 +10,8 @@ from ..._core._handy._dunders import _Dunders
 from ...blocks._base._model import _Model
 
 if TYPE_CHECKING:
-    from ..._core._aliases._is_block import IsData, IsMatrix, IsProgram, IsSystem
+    from ..._core._aliases._is_block import (IsData, IsMatrix, IsProgram,
+                                             IsSystem)
 
 
 @dataclass

@@ -4,7 +4,7 @@ from pandas import DataFrame
 
 from ...parameters.data.m import M
 from ...parameters.data.theta import Theta
-from ._is_component import IsComponent, IsScale, IsSpatial
+from ._is_component import IsComponent, IsResource, IsScale, IsSpatial
 
 # *input types
 IsNumeric: TypeAlias = Union[float, int]
@@ -48,3 +48,9 @@ IsBoundInput: TypeAlias = Union[IsBound, IsTmpBound, IsSptBound, IsSptTmpBound]
 IsInput: TypeAlias = Union[IsExactInput, IsBoundInput]
 
 IsInputDict: TypeAlias = Union[IsComponent, IsSptInput, IsSptTmpInput]
+
+IsSingleConvInput: TypeAlias = Dict[IsResource, Dict[IsResource, IsNumeric]]
+
+IsMultiConvInput: TypeAlias = Dict[Union[str, float, int], IsSingleConvInput]
+
+IsConvInput = Union[IsSingleConvInput, IsMultiConvInput]

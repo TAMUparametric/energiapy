@@ -8,13 +8,12 @@ from typing import TYPE_CHECKING
 
 from .._base._nature import nature
 from ._operational import _Operational
+from ...parameters.data.conversion import Conversion
 
-# import operator
-# from functools import reduce
-
+from operator import is_
 
 if TYPE_CHECKING:
-    from ..._core._aliases._is_input import IsBoundInput, IsExactInput
+    from ..._core._aliases._is_input import IsBoundInput, IsExactInput, IsConvInput
 
 
 @dataclass
@@ -28,6 +27,7 @@ class Process(_Operational):
     sell_price: IsExactInput = field(default=None)
     credit: IsExactInput = field(default=None)
     penalty: IsExactInput = field(default=None)
+    conversion: IsConvInput = field(default=None)
 
     # Depreciated
     varying: str = field(default=None)
@@ -94,6 +94,38 @@ class Process(_Operational):
         for i, j in _changed.items():
             if getattr(self, i):
                 raise ValueError(f'{_name}: {i} is depreciated. Please use {j} instead')
+
+    def __setattr__(self, name, value):
+
+        if is_(name, 'conversion'):
+            self.conversion = Conversion(conversion=value, process=self)
+
+        super().__setattr__(name, value)
+
+    @property
+    def base(self):
+        """The base resource"""
+        return self.conversion.base
+
+    @property
+    def sold(self):
+        """The resources sold"""
+        return self.conversion.sold
+
+    @property
+    def bought(self):
+        """The resources bought"""
+        return self.conversion.bought
+
+    @property
+    def modes(self):
+        """The modes of conversion"""
+        return self.conversion.modes
+
+    @property
+    def x_conv(self):
+        """The number of modes"""
+        return self.conversion.n_modes
 
     @staticmethod
     def collection():

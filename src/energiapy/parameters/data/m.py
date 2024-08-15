@@ -3,9 +3,9 @@
 
 from dataclasses import dataclass, field
 
+from ..approach import Certainty
+from ..bounds import VarBnd
 from ._data import _Data
-from .approach import Certainty
-from .bounds import VarBnd
 from .constant import Constant
 
 

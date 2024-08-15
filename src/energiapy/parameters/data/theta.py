@@ -9,9 +9,9 @@ from typing import TYPE_CHECKING
 from pandas import DataFrame
 
 from ..._core._handy._dunders import _Magics
+from ..approach import Approach, Certainty
+from ..bounds import SpcLmt, VarBnd
 from ._data import _Data
-from .approach import Approach, Certainty
-from .bounds import SpcLmt, VarBnd
 from .constant import Constant
 from .dataset import DataSet
 

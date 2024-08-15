@@ -9,10 +9,10 @@ from typing import TYPE_CHECKING
 
 from pandas import DataFrame
 
+from ..approach import Approach, Certainty
+from ..bounds import VarBnd
 # from ..core.base import Dunders
 from ._data import _Data
-from .approach import Approach, Certainty
-from .bounds import VarBnd
 
 if TYPE_CHECKING:
     from ..._core._aliases._is_input import IsDataFr

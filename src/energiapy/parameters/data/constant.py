@@ -3,9 +3,9 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
+from ..approach import Certainty
+from ..bounds import VarBnd
 from ._data import _Data
-from .approach import Certainty
-from .bounds import VarBnd
 
 if TYPE_CHECKING:
     from ..._core._aliases._is_input import IsNumeric

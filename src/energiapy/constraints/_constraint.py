@@ -9,7 +9,7 @@ from operator import is_
 from typing import TYPE_CHECKING, List
 
 from .._core._handy._dunders import _Dunders
-from ..parameters.data.bounds import VarBnd
+from ..parameters.bounds import VarBnd
 from .rules import SumOver
 
 if TYPE_CHECKING:

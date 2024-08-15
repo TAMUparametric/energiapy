@@ -7,7 +7,7 @@ from pandas import DataFrame
 
 from .._core._handy._dunders import _Dunders
 from ..disposition.disposition import Disposition
-from ..parameters.data.bounds import SpcLmt, VarBnd
+from ..parameters.bounds import SpcLmt, VarBnd
 from ..parameters.data.constant import Constant
 from ..parameters.data.dataset import DataSet
 from ..parameters.data.m import M
