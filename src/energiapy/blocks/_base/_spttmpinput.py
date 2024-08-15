@@ -17,7 +17,7 @@ from ...components.spatial.linkage import Linkage
 from ...components.spatial.location import Location
 from ...components.temporal.scale import Scale
 from ...disposition.disposition import Disposition
-from ...funcs.utils.dictionary import flatten
+from ...utils.dictionary import flatten
 
 if TYPE_CHECKING:
     from ..._core._aliases._is_input import IsSptTmpInput

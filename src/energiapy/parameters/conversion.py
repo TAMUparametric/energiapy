@@ -5,8 +5,7 @@ from dataclasses import dataclass
 from functools import reduce
 from typing import TYPE_CHECKING
 
-from ...core.inits.common import InpCommon
-from ...funcs.utils.data_utils import get_depth
+from ...funcs.utils.dictionary import get_depth
 
 if TYPE_CHECKING:
     from ..components.operation.process import Process
@@ -14,7 +13,7 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class Conversion(InpCommon):
+class Conversion:
     """
     Represents a conversion process between energy modes.
 

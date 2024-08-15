@@ -10,7 +10,7 @@ from ...components.commodity.land import Land
 from ...components.impact.emission import Emission
 from ...components.scope.horizon import Horizon
 from ...components.scope.network import Network
-from ...funcs.utils.decorators import once
+from ...utils.decorators import once
 
 
 @dataclass
