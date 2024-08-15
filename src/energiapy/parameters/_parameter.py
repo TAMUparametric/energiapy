@@ -20,9 +20,14 @@ class _Parameter(_Dunders):
 
     def __post_init__(self):
         self.dispostion = self.value.disposition
-        self.name = f'{self.id()}{self.value.name}'
+        self.name = f'{self.id()}|{self.value.name}|'
 
     @classmethod
     def id(cls):
         """The id of the Parameter"""
         return cls.__name__
+
+    @staticmethod
+    def collection():
+        """What collection the element belongs to"""
+        return 'parameters'

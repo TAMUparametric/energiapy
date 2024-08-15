@@ -4,21 +4,22 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 from .._core._handy._dunders import _Dunders
-from ..constraints.taskmaster import taskmaster
 from ..constraints.rulebook import rulebook
-from ..constraints.constraint import Constraint
+from ..constraints.taskmaster import taskmaster
+from ..disposition.disposition import Disposition
 from .data import DataBlock
 
 if TYPE_CHECKING:
     from .._core._aliases._is_component import IsComponent
-    from .._core._aliases._is_variable import IsTask
+    from .._core._aliases._is_data import IsData
+    from .._core._aliases._is_element import IsElement
 
 
 @dataclass
 class ProgramBlock(_Dunders):
     """Block of Program"""
 
-    component: str = field(default=None)
+    component: IsComponent = field(default=None)
 
     def __post_init__(self):
         self.name = f'Program|{self.component}|'
@@ -28,17 +29,65 @@ class ProgramBlock(_Dunders):
 
         if isinstance(value, DataBlock):
             for attr in value.attrs:
-                
-                    variable = taskmaster[type(self.component)][attr](disposition = getattr())
-                    
-                    self.variables.append(variable)
-                    rules = rulebook.find(variable)
+                for data in getattr(value, attr):
 
-                for rule in self.rules: 
-                    constraint = Constraint(condition=rule.condition, variable=self.)
-                
-            
+                    if isinstance(data, list):
+                        for d in data:
+                            self.make_constraints(d, attr)
+                    else:
+                        self.make_constraints(data, attr)
+
         super().__setattr__(name, value)
+
+    def make_constraints(self, data: IsData, attr: str):
+        """Makes ass, kicks constraints"""
+        var = taskmaster[type(self.component)][attr]
+        variable = var(disposition=data.disposition)
+        self.add(variable)
+
+        if var.parent():
+
+            if var.child():
+                disposition_par = Disposition(
+                    **variable.disposition.childless(var.child())
+                )
+            else:
+                disposition_par = variable.disposition
+            parent = var.parent()(disposition=disposition_par)
+            self.add(parent)
+
+        else:
+            parent = None
+
+        rules = rulebook.find(var)
+
+        for rule in rules:
+
+            if rule.parameter:
+                parameter = rule.parameter(data)
+                self.add(parameter)
+
+            else:
+                parameter = None
+
+            constraint = rule.constraint(
+                variable=variable,
+                parent=parent,
+                parameter=parameter,
+                varbnd=data.varbnd,
+            )
+
+            self.add(constraint)
+
+    def add(self, element: IsElement):
+        """Updates the collection lists of elements in the program block
+
+        Args:
+            element (IsElement): Variable, Constraint, or Parameter to be added to a particular collection
+        """
+
+        list_curr = getattr(self, element.collection())
+        setattr(self, element.collection(), sorted(set(list_curr) | {element}))
 
 
 @dataclass
@@ -49,4 +98,14 @@ class Program(_Dunders):
 
     def __post_init__(self):
         self.name = f'Progam|{self.name}|'
-        # self.variables, self.constraints, self.parameters = ([] for _ in range(3))
+        self.variables, self.constraints, self.parameters = ([] for _ in range(3))
+
+    def __setattr__(self, name, value):
+
+        if isinstance(value, ProgramBlock):
+
+            self.parameters = sorted(set(self.parameters) | set(value.parameters))
+            self.variables = sorted(set(self.variables) | set(value.variables))
+            self.constraints = sorted(set(self.constraints) | set(value.constraints))
+
+        super().__setattr__(name, value)

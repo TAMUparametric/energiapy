@@ -10,13 +10,14 @@ from .._core._nirop._error import CacodcarError
 
 
 def make_structures(
-    emn: bool = False,
-    csh: bool = False,
-    cmd: str = None,
-    opn: Union[List[str], str] = None,
-    spt: Union[List[str], str] = None,
+    emn_strict: bool = False,
+    csh_strict: bool = False,
     opn_strict: bool = False,
     cmd_strict: bool = True,
+    ply_strict: bool = False,
+    cmd: Union[List[str], str] = None,
+    opn: Union[List[str], str] = None,
+    spt: Union[List[str], str] = None,
 ) -> List[List[str]]:
     """Makes a list of allowed disposition structures"""
 
@@ -26,15 +27,18 @@ def make_structures(
     struct_dict = OrderedDict()
 
     # Players can be provided to any disposition, but are always optional
-    struct_dict['ply'] = ['', 'ply']
+    if ply_strict:
+        struct_dict['ply'] = ['ply']
+    else:
+        struct_dict['ply'] = ['', 'ply']
 
     # Cash abd Emissions are optional
-    if emn:
+    if emn_strict:
         struct_dict['emn'] = ['emn']
     else:
         struct_dict['emn'] = ['']
 
-    if csh:
+    if csh_strict:
         struct_dict['csh'] = ['csh']
     else:
         struct_dict['csh'] = ['']
@@ -46,7 +50,7 @@ def make_structures(
         struct_dict['cmd'] = []
 
         for i in cmd:
-            if is_(i, 'res') or is_(i, 'mat') or is_(i, 'lnd'):
+            if is_(i, 'res') or is_(i, 'mat') or is_(i, 'lnd') or is_(i, 'csh'):
                 struct_dict['cmd'].append(i)
 
     else:

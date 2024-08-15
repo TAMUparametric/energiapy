@@ -30,13 +30,12 @@ class DataSet(_Data):
         if not isinstance(self.data, DataFrame):
             raise ValueError(f'{self.name}: please provide DataFrame')
 
-        if self._varbnd is None:
-            self._varbnd = VarBnd.EXACT
-
         self._certainty, self._approach = Certainty.CERTAIN, Approach.DATA
 
         self.data = self.data[self.data.columns[0]].to_dict()
-        self.data = {self.disposition.scl.index[i]: self.data[i] for i in range(len(self.data))}
+        self.data = {
+            self.disposition.scl.index[i]: self.data[i] for i in range(len(self.data))
+        }
 
     @property
     def value(self) -> dict:
@@ -54,17 +53,17 @@ class DataSet(_Data):
         return 'datasets'
 
     def __lt__(self, other):
-        if isinstance(other, (int, float)) and is_(self._varbnd, VarBnd.UPPER):
+        if isinstance(other, (int, float)) and is_(self.varbnd, VarBnd.UPPER):
             return False
-        elif isinstance(other, DataSet) and is_(other._varbnd, VarBnd.LOWER):
+        elif isinstance(other, DataSet) and is_(other.varbnd, VarBnd.LOWER):
             return False
         else:
             return True
 
     def __gt__(self, other):
-        if isinstance(other, (int, float)) and is_(self._varbnd, VarBnd.UPPER):
+        if isinstance(other, (int, float)) and is_(self.varbnd, VarBnd.UPPER):
             return True
-        elif isinstance(other, DataSet) and is_(other._varbnd, VarBnd.LOWER):
+        elif isinstance(other, DataSet) and is_(other.varbnd, VarBnd.LOWER):
             return True
         else:
             return False

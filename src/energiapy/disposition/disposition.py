@@ -4,15 +4,16 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field, fields
+from operator import is_not
 from typing import TYPE_CHECKING
 
 from .._core._handy._dunders import _Dunders
 
 if TYPE_CHECKING:
-    from .._core._aliases._is_component import (IsCash, IsEmission, IsLand,
-                                                IsLinkage, IsLocation,
-                                                IsMaterial, IsNetwork,
-                                                IsPlayer, IsProcess,
+    from .._core._aliases._is_component import (IsCash, IsComponent,
+                                                IsEmission, IsLand, IsLinkage,
+                                                IsLocation, IsMaterial,
+                                                IsNetwork, IsPlayer, IsProcess,
                                                 IsResource, IsScale, IsStorage,
                                                 IsTransit)
 
@@ -60,3 +61,11 @@ class Disposition(_Dunders):
 
     def __len__(self):
         return len(self.scl)
+
+    def childless(self, child: IsComponent):
+        """Gives the disposition with the component removed"""
+        return {
+            i.name: getattr(self, i.name)
+            for i in fields(self)
+            if not isinstance(getattr(self, i.name), child)
+        }

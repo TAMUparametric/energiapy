@@ -11,8 +11,7 @@ from ..components.spatial.linkage import Linkage
 from ..components.spatial.location import Location
 from ..components.temporal.scale import Scale
 from ._base._default import _Default
-from .abstract import Abstract
-from .data import DataBlock, Data
+from .data import Data, DataBlock
 from .matrix import Matrix
 from .program import Program, ProgramBlock
 from .system import System
@@ -52,14 +51,12 @@ class Scenario(_Default):
         self.program = Program(name=self.name)
         self.data = Data(name=self.name)
         self.matrix = Matrix(name=self.name)
-        self.abstract = Abstract(name=self.name)
 
         self._model = {
             'system': self.system,
             'program': self.program,
             'data': self.data,
             'matrix': self.matrix,
-            'abstract': self.abstract,
         }
 
         self._default()
@@ -144,30 +141,37 @@ class Scenario(_Default):
 
     @property
     def players(self):
+        """Players of the System"""
         return self.system.players
 
     @property
     def horizon(self):
+        """Horizon of the System"""
         return self.system.horizon
 
     @property
     def scales(self):
+        """Temporal Scales of the System"""
         return self.system.scales
 
     @property
     def network(self):
+        """Network of the System"""
         return self.system.network
 
     @property
     def emissions(self):
+        """Emissions of the System"""
         return self.system.emissions
 
     @property
     def resources(self):
+        """Resources of the System"""
         return self.system.resources
 
     @property
     def materials(self):
+        """Materials of the System"""
         return self.system.materials
 
     @property
@@ -181,36 +185,45 @@ class Scenario(_Default):
     # spatial collections
     @property
     def locations(self):
+        """Locations of the System"""
         return self.system.locations
 
     @property
     def linkages(self):
+        """Linkages of the System"""
         return self.system.linkages
 
     @property
     def nodes(self):
+        """Nodes of the System"""
         return self.system.nodes
 
     @property
     def edges(self):
+        """Edges of the System"""
         return self.system.edges
 
     @property
     def sources(self):
+        """Source Locations of the System"""
         return self.system.sources
 
     @property
     def sinks(self):
+        """Sink Locations of the System"""
         return self.system.sinks
 
     @property
     def cash(self):
+        """Cash of the System"""
         return self.system.cash
 
     @property
     def land(self):
+        """Land of the System"""
         return self.system.land
 
     @property
     def components(self):
+        """All Components of the System"""
         return self.system.components

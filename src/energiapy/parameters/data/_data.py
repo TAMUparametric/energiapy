@@ -24,10 +24,14 @@ class _Data(ABC, _Reprs):
     """
 
     disposition: IsDisposition = field(default=None)
-    _varbnd: VarBnd = field(default=None)
+    varbnd: VarBnd = field(default=None)
     _spclmt: SpcLmt = field(default=None)
 
     def __post_init__(self):
+
+        if not self.varbnd:
+            self.varbnd = VarBnd.EXACT
+
         for i in ['_certainty', '_approach']:
             setattr(self, i, None)
 
@@ -60,8 +64,8 @@ class _Data(ABC, _Reprs):
             str: some name
         """
         vb_, sl_ = '', ''
-        if self._varbnd:
-            vb_ = self._varbnd.namer()
+        if self.varbnd:
+            vb_ = self.varbnd.namer()
 
         if self._spclmt:
             sl_ = self._spclmt.namer()

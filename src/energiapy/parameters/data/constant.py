@@ -26,9 +26,6 @@ class Constant(_Data):
 
         self.name = f'{self.constant}{self.name}'
 
-        if self._varbnd is None:
-            self._varbnd = VarBnd.EXACT
-
         self._certainty, self._approach = Certainty.CERTAIN, None
 
     @property

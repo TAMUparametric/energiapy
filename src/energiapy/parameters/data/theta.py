@@ -65,8 +65,8 @@ class Theta(_Data, _Magics):
 
         # self.name = f'{self.name} in {self.space}'
 
-        if self._varbnd is None:
-            self._varbnd = VarBnd.PARAMETRIC
+        if self.varbnd is None:
+            self.varbnd = VarBnd.PARAMETRIC
 
         self._certainty, self._approach = Certainty.CERTAIN, Approach.PARAMETRIC
 

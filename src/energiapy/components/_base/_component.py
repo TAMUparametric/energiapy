@@ -10,14 +10,7 @@ from ..._core._handy._dunders import _Dunders
 from ...blocks._base._model import _Model
 
 if TYPE_CHECKING:
-    from ..._core._aliases._is_block import (
-        IsAbstract,
-        IsData,
-        IsMatrix,
-        IsProgram,
-        IsSystem,
-    )
-    from ..._core._aliases._is_input import IsInput
+    from ..._core._aliases._is_block import IsData, IsMatrix, IsProgram, IsSystem
 
 
 @dataclass
@@ -39,7 +32,6 @@ class _Component(_Dunders, _Model):
         data: IsData,
         matrix: IsMatrix,
         program: IsProgram,
-        abstract: IsAbstract,
     ):
         """Personalize the compoenent
         give it a name (public),
@@ -51,4 +43,3 @@ class _Component(_Dunders, _Model):
         self._data = data
         self._matrix = matrix
         self._program = program
-        self._abstract = abstract

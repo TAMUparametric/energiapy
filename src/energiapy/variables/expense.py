@@ -3,6 +3,7 @@
 
 from dataclasses import dataclass
 
+from ..components.commodity.cash import Cash
 from ..disposition.structure import make_structures
 from ._variable import _Variable
 from .capacitate import Capacity
@@ -12,47 +13,53 @@ from .use import Use
 
 
 @dataclass
+class BndExpense(_Variable):
+    """Expense is the cost of a Component"""
+
+    def __post_init__(self):
+        _Variable.__post_init__(self)
+
+    @staticmethod
+    def structures():
+        """The allowed structures of disposition of the Variable"""
+        return make_structures(csh_strict=True, spt=['loc', 'lnk', 'ntw'])
+
+    @staticmethod
+    def parent():
+        """The Parent Task of the Variable"""
+
+    @staticmethod
+    def child():
+        """The Parent Variable doesnot carry Child Component"""
+
+
+@dataclass
+class Spend(BndExpense):
+    """System Expense"""
+
+    def __post_init__(self):
+        BndExpense.__post_init__(self)
+
+
+@dataclass
+class Earn(BndExpense):
+    """System Expense"""
+
+    def __post_init__(self):
+        BndExpense.__post_init__(self)
+
+
+@dataclass
 class Expense(_Variable):
     """Expense is the cost of a Component"""
 
     def __post_init__(self):
         _Variable.__post_init__(self)
 
-
-@dataclass
-class ExpBuyBnd(Expense):
-    """System Expense"""
-
-    def __post_init__(self):
-        Expense.__post_init__(self)
-
     @staticmethod
-    def structures():
-        """The allowed structures of disposition of the Variable"""
-        return make_structures(csh=True, spt=['loc', 'lnk', 'ntw'])
-
-    @staticmethod
-    def parent():
-        """The Parent Task of the Variable"""
-        return None
-
-
-@dataclass
-class ExpSellBnd(Expense):
-    """System Expense"""
-
-    def __post_init__(self):
-        Expense.__post_init__(self)
-
-    @staticmethod
-    def structures():
-        """The allowed structures of disposition of the Variable"""
-        return make_structures(csh=True, spt=['loc', 'lnk', 'ntw'])
-
-    @staticmethod
-    def parent():
-        """The Parent Task of the Variable"""
-        return None
+    def child():
+        """The Parent Variable doesnot carry Child Component"""
+        return Cash
 
 
 @dataclass
@@ -65,7 +72,9 @@ class ExpTrade(Expense):
     @staticmethod
     def structures():
         """The allowed structures of disposition of the Variable"""
-        return make_structures(csh=True, cmd='res', opn='pro', spt=['loc', 'ntw'])
+        return make_structures(
+            csh_strict=True, cmd='res', opn='pro', spt=['loc', 'ntw']
+        )
 
 
 @dataclass
@@ -136,7 +145,7 @@ class ExpUse(Expense):
     def structures():
         """The allowed structures of disposition of the Variable"""
         return make_structures(
-            csh=True,
+            csh_strict=True,
             cmd=['mat', 'lnd'],
             opn=['pro', 'stg', 'trn'],
             spt=['loc', 'lnk', 'ntw'],
@@ -159,7 +168,7 @@ class ExpCap(Expense):
     def structures():
         """The allowed structures of disposition of the Variable"""
         return make_structures(
-            csh=True, opn=['pro', 'stg', 'trn'], spt=['loc', 'lnk', 'ntw']
+            csh_strict=True, opn=['pro', 'stg', 'trn'], spt=['loc', 'lnk', 'ntw']
         )
 
 
@@ -179,5 +188,5 @@ class ExpOp(Expense):
     def structures():
         """The allowed structures of disposition of the Variable"""
         return make_structures(
-            csh=True, opn=['pro', 'stg', 'trn'], spt=['loc', 'lnk', 'ntw']
+            csh_strict=True, opn=['pro', 'stg', 'trn'], spt=['loc', 'lnk', 'ntw']
         )

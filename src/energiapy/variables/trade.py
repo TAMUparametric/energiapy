@@ -17,7 +17,10 @@ class Trade(_Variable):
     @staticmethod
     def parent():
         """The Parent Task of the Variable"""
-        return None
+
+    @staticmethod
+    def child():
+        """The Parent Variable doesnot carry Child Component"""
 
 
 @dataclass

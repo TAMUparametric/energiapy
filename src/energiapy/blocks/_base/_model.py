@@ -18,5 +18,3 @@ class _Model:
         self._data = None
         self._matrix = None
         self._program = None
-        self._abstract = None
-

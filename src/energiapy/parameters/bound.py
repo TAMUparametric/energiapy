@@ -23,8 +23,16 @@ class SellBnd(_Parameter):
 
 
 @dataclass
-class ExpBnd(_Parameter):
-    """Expense Cap"""
+class SpendBnd(_Parameter):
+    """Expense Bound on Spending"""
+
+    def __post_init__(self):
+        _Parameter.__post_init__(self)
+
+
+@dataclass
+class EarnBnd(_Parameter):
+    """Expense Bound on Earning"""
 
     def __post_init__(self):
         _Parameter.__post_init__(self)
@@ -43,6 +51,14 @@ class OpBnd(_Parameter):
     """Operation Bounds
     This one is multiplied by capacity
     """
+
+    def __post_init__(self):
+        _Parameter.__post_init__(self)
+
+
+@dataclass
+class UseBnd(_Parameter):
+    """Use Bounds"""
 
     def __post_init__(self):
         _Parameter.__post_init__(self)

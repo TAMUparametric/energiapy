@@ -3,6 +3,7 @@
 
 from dataclasses import dataclass
 
+from ..components.commodity.resource import Resource
 from ..disposition.structure import make_structures
 from ._variable import _Variable
 from .operate import Operate
@@ -19,6 +20,11 @@ class Loss(_Variable):
     def parent():
         """The Parent Task of the Variable"""
         return Operate
+
+    @staticmethod
+    def child():
+        """The Parent Variable doesnot carry Child Component"""
+        return Resource
 
     @staticmethod
     def structures():

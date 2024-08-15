@@ -21,6 +21,10 @@ class Operate(_Variable):
         return Capacity
 
     @staticmethod
+    def child():
+        """The Parent Variable doesnot carry Child Component"""
+
+    @staticmethod
     def structures():
         """The allowed structures of disposition of the Variable"""
         return make_structures(opn=['pro', 'stg', 'trn'], spt=['loc', 'lnk', 'ntw'])

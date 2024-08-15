@@ -13,7 +13,7 @@ from ._component import _Component
 from ._consistent import _Consistent
 
 if TYPE_CHECKING:
-    from ..._core._aliases._is_input import IsBoundInput, IsExactInput
+    pass
 
 
 @dataclass
@@ -29,6 +29,7 @@ class _Defined(_Component, _Consistent, ABC):
 
     def __post_init__(self):
         _Component.__post_init__(self)
+
         self.ctypes = []
         self._consistent = False
 
@@ -118,6 +119,26 @@ class _Defined(_Component, _Consistent, ABC):
     def constants(self):
         """Returns the Constants"""
         return self.data.constants
+
+    @property
+    def program(self):
+        """Returns the Program"""
+        return getattr(self._program, self.name)
+
+    @property
+    def parameters(self):
+        """Returns the Parameters"""
+        return self.program.parameters
+
+    @property
+    def variables(self):
+        """Returns the Variables"""
+        return self.program.variables
+
+    @property
+    def constraints(self):
+        """Returns the Constraints"""
+        return self.program.constraints
 
     def make_consistent(self):
         """Makes the data inputs consistent IsSptTmpDict"""

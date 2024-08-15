@@ -2,7 +2,9 @@
 """
 
 from dataclasses import dataclass
+
 from .._base._simple import _Simple
+
 
 @dataclass
 class _Analytical(_Simple):

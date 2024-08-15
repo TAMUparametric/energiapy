@@ -29,23 +29,36 @@ class Location(_Spatial):
 
     @property
     def processes(self):
+        """Process Operations at the Location"""
         return self._system.processes
 
     @property
     def storages(self):
+        """Storage Operations at the Location"""
         return self._system.storages
 
     def is_sink(self):
+        """Tells whether the location is a sink"""
         if self in self._system.sinks:
             return True
         return False
 
     def is_source(self):
+        """Tells whether the location is a source"""
         if self in self._system.sources:
             return True
         return False
 
     def find_links(self, location: IsLocation, print_link: bool = True) -> list:
+        """Finds the links between two Locations
+
+        Args:
+            location (IsLocation): Location to find links with
+            print_link (bool, optional): Whether the links are to be printed. Defaults to True.
+
+        Returns:
+            list: Provides the links between the locations
+        """
         links = []
         for link in self._system.linkages:
             source, sink = False, False
@@ -64,6 +77,14 @@ class Location(_Spatial):
         return links
 
     def is_connected(self, location: IsLocation, print_link: bool = False) -> bool:
+        """Finds whether the Locations are connected
+        Args:
+            location (IsLocation): Location to verify Links with
+            print_link (bool, optional): Whether to print the Links. Defaults to False.
+
+        Returns:
+            bool: True if Locations are connection
+        """
         if self.find_links(location, print_link=print_link):
             return True
         print(self.find_links(location, print_link=print_link))

@@ -25,7 +25,7 @@ class M(_Data):
     def __post_init__(self):
         _Data.__post_init__(self)
 
-        self._certainty, self._approach, self._varbound = (
+        self._certainty, self._approach, self.varbnd = (
             Certainty.CERTAIN,
             None,
             VarBnd.FREE,

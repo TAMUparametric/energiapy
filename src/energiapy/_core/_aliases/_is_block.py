@@ -3,7 +3,6 @@
 
 from typing import TypeAlias, Union
 
-from ...blocks.abstract import Abstract
 from ...blocks.data import Data
 from ...blocks.matrix import Matrix
 from ...blocks.program import Program
@@ -15,10 +14,9 @@ IsDisposition: TypeAlias = Disposition
 IsScenario: TypeAlias = Scenario
 
 # submodels
-IsAbstract: TypeAlias = Abstract
 IsData: TypeAlias = Data
 IsMatrix: TypeAlias = Matrix
 IsProgram: TypeAlias = Program
 IsSystem: TypeAlias = System
 
-IsBlock = Union[IsAbstract, IsData, IsMatrix, IsProgram, IsSystem]
+IsBlock = Union[IsData, IsMatrix, IsProgram, IsSystem]

@@ -6,14 +6,13 @@ from warnings import warn
 
 from .._core._handy._dunders import _Dunders
 from ..components._base._component import _Component
-from ..components.scope._scope import _Scope
-from ..components.temporal._temporal import _Temporal
-from ..components.spatial._spatial import _Spatial
-
 from ..components.commodity.cash import Cash
 from ..components.commodity.land import Land
+from ..components.scope._scope import _Scope
 from ..components.scope.horizon import Horizon
 from ..components.scope.network import Network
+from ..components.spatial._spatial import _Spatial
+from ..components.temporal._temporal import _Temporal
 
 if TYPE_CHECKING:
     from .._core._aliases._is_component import IsComponent

@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
-from ._commodity import _Used, _Traded
+from ._commodity import _Used
 
 if TYPE_CHECKING:
     from ..._core._aliases._is_input import IsBoundInput, IsExactInput

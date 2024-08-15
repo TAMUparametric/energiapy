@@ -131,7 +131,7 @@ class Horizon(_Scope):
                 for i in self._discretization_list
             ):
                 raise ValueError(
-                    'Discretizations need to be divisible by the most granular scale'
+                    'Discretizations need to be divisible by the most granular scale',
                 )
             lists = [(0, i) for i in range(max(self._discretization_list))]
             return lists[
@@ -157,7 +157,7 @@ class Horizon(_Scope):
         if hasattr(value, '__len__'):
             if len(value) not in self.n_indices:
                 raise ValueError(
-                    f'Length of value {len(value)} does not match any scale'
+                    f'Length of value {len(value)} does not match any scale',
                 )
             return self.scales[self.n_indices.index(len(value))]
         else:

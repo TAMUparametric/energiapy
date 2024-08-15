@@ -27,9 +27,9 @@ class VarBnd(Enum):
     def namer(self):
         """gives out a string to put in the name of the parameter"""
         if is_(self, VarBnd.LOWER):
-            return ':U'
-        elif is_(self, VarBnd.UPPER):
             return ':L'
+        elif is_(self, VarBnd.UPPER):
+            return ':U'
         else:
             return ''
 

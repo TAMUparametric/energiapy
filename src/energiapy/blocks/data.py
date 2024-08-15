@@ -40,7 +40,6 @@ class DataBlock(_Dunders):
             spttmpinput = _SptTmpInput(name, value)
 
             for disposition, datapoint in spttmpinput.dict_input.items():
-
                 if isinstance(datapoint, list):
                     datapoint = [
                         self.birth_value(disposition, i, varbnd=varbnds[b])
@@ -81,7 +80,7 @@ class DataBlock(_Dunders):
 
         args = {
             'disposition': disposition,
-            '_varbnd': varbnd,
+            'varbnd': varbnd,
             '_spclmt': spclmt,
         }
 

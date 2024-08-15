@@ -3,8 +3,8 @@
 from dataclasses import dataclass
 
 from .._base._defined import _Defined
-from .._base._simple import _Simple
 from .._base._nature import nature
+from .._base._simple import _Simple
 
 
 @dataclass

@@ -9,11 +9,11 @@ from warnings import warn
 from pandas import DataFrame
 
 from ..scope.network import Network
-from ..temporal.scale import Scale
 from ..spatial._spatial import _Spatial
+from ..temporal.scale import Scale
 
 if TYPE_CHECKING:
-    from ..._core._aliases._is_input import IsInput, IsInputDict, IsSptTmpInput
+    from ..._core._aliases._is_input import IsInput, IsSptTmpInput
 
 
 class _Consistent:
@@ -30,19 +30,19 @@ class _Consistent:
             dict: ammended input dict
         """
         if not isinstance(value, dict):
-            value_upd = {getattr(self, '_network'): value}
+            value_upd = {self._network: value}
 
         else:
             value_upd = {}
             for i, j in value.items():
                 if not isinstance(i, (_Spatial, Network)):
-                    if getattr(self, '_network') in value_upd:
-                        value_upd[getattr(self, '_network')] = {
-                            **value_upd[getattr(self, '_network')],
+                    if self._network in value_upd:
+                        value_upd[self._network] = {
+                            **value_upd[self._network],
                             **{i: j},
                         }
                     else:
-                        value_upd[getattr(self, '_network')] = {i: j}
+                        value_upd[self._network] = {i: j}
                 else:
                     value_upd[i] = j
 
@@ -88,22 +88,21 @@ class _Consistent:
         for i, j in value.items():
             for k, l in j.items():
                 if isinstance(l, DataFrame):
-                    scale_upd = getattr(self, '_horizon').match_scale(l)
+                    scale_upd = self._horizon.match_scale(l)
                     if is_not(scale_upd, k):
                         if is_not(k, 't'):
                             warn(
-                                f'{self}:Inconsistent temporal scale for {i} at {k}. Updating to {scale_upd}'
+                                f'{self}:Inconsistent temporal scale for {i} at {k}. Updating to {scale_upd}',
                             )
                         value_upd[i][scale_upd] = l
                         del value_upd[i][k]
                     else:
                         value_upd[i][k] = l
+                elif is_(k, 't'):
+                    value_upd[i][self._horizon.scales[0]] = l
+                    del value_upd[i][k]
                 else:
-                    if is_(k, 't'):
-                        value_upd[i][getattr(self, '_horizon').scales[0]] = l
-                        del value_upd[i][k]
-                    else:
-                        value_upd[i][k] = l
+                    value_upd[i][k] = l
 
         return value_upd
 
@@ -123,14 +122,14 @@ class _Consistent:
             for k, l in j.items():
                 if isinstance(l, (list, tuple)):
                     scale_upd = sorted(
-                        [getattr(self, '_horizon').match_scale(m) for m in l]
+                        [self._horizon.match_scale(m) for m in l],
                     )[-1]
 
                     if is_not(scale_upd, k) and not all(
                         isinstance(m, (float, int)) for m in l
                     ):  # only update the scale if there is no float or int in the list
                         warn(
-                            f'{self}:Inconsistent temporal scale for {i} at {k}. Updating to {scale_upd}'
+                            f'{self}:Inconsistent temporal scale for {i} at {k}. Updating to {scale_upd}',
                         )
                         value_upd[i][scale_upd] = l
                         del value_upd[i][k]

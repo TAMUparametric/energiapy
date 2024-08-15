@@ -9,8 +9,11 @@ from typing import TYPE_CHECKING, Dict, List
 
 from .._core._handy._dunders import _Dunders
 from .._core._nirop._error import CacodcarError
-from ..parameters.bound import BuyBnd, CapBnd, ExpBnd, OpBnd, SellBnd
-from ..parameters.calculated import CmdUse, ResLoss
+from ..constraints.bind import Bind
+from ..constraints.calculate import Calculate
+from ..parameters.bound import (BuyBnd, CapBnd, EarnBnd, OpBnd, SellBnd,
+                                SpendBnd, UseBnd)
+from ..parameters.calculated import LndUse, MatUse, ResLoss
 from ..parameters.emission import (CmdEmitUse, EmitBnd, OpnEmit, ResEmitBuy,
                                    ResEmitLoss, ResEmitSell)
 from ..parameters.expense import (BuyPrice, CapExp, OpExp, ResCredit,
@@ -20,23 +23,24 @@ from ..variables.action import Gives, Takes
 from ..variables.capacitate import Capacity
 from ..variables.emit import (EmitBuy, EmitCap, EmitLoss, EmitSell, EmitSys,
                               EmitUse)
-from ..variables.expense import (Credit, ExpBuy, ExpBuyBnd, ExpCap, ExpOp,
-                                 ExpSell, ExpSellBnd, ExpUse, Penalty)
+from ..variables.expense import (Credit, Earn, ExpBuy, ExpCap, ExpOp, ExpSell,
+                                 ExpUse, Penalty, Spend)
 from ..variables.loss import Loss
 from ..variables.operate import Operate
 from ..variables.trade import Buy, Sell
-from ..variables.use import Use
+from ..variables.use import Use, UseLnd, UseMat
 from .rules import Condition, SumOver
 
 if TYPE_CHECKING:
-    from .._core._aliases._is_element import IsParameter, IsVariable
+    from .._core._aliases._is_element import (IsConstraint, IsParameter,
+                                              IsVariable)
 
 
 @dataclass
 class Rule(_Dunders):
     """Rule for Constraint generation"""
 
-    condition: Condition = field(default=None)
+    constraint: IsConstraint = field(default=None)
     variable: IsVariable = field(default=None)
     parameter: IsParameter = field(default=None)
     balance: Dict[IsVariable, float] = field(default=None)
@@ -57,7 +61,7 @@ class Rule(_Dunders):
         if self.parameter:
             parameter = f'Param:{self.parameter.id()}|'
 
-        self.name = f'{self.condition.name}|{variable}{parent}{parameter}'
+        self.name = f'{self.constraint.id()}|{variable}{parent}{parameter}'
 
 
 @dataclass
@@ -85,11 +89,13 @@ rulebook = RuleBook()
 trade_bnd = [(Buy, BuyBnd), (Sell, SellBnd)]
 cap_bnd = [(Capacity, CapBnd)]
 op_bnd = [(Operate, OpBnd)]
-exp_bnd = [(ExpBuyBnd, ExpBnd), (ExpSellBnd, ExpBnd)]
+exp_bnd = [(Spend, SpendBnd), (Earn, EarnBnd)]
 emn_bnd = [(EmitSys, EmitBnd)]
 ply_bnd = [(Gives, Has), (Takes, Needs)]
+use_bnd = [(Use, UseBnd)]
+
 # Calculated
-use_cmd = [(Use, CmdUse)]
+use_cmd = [(UseLnd, LndUse), (UseMat, MatUse)]
 loss = [(Loss, ResLoss)]
 
 # Calculated Expenses
@@ -111,13 +117,13 @@ emit = [
     (EmitLoss, ResEmitLoss),
 ]
 
-for var, param in trade_bnd + cap_bnd + op_bnd + exp_bnd + emn_bnd + ply_bnd:
+for var, param in trade_bnd + cap_bnd + op_bnd + exp_bnd + emn_bnd + ply_bnd + use_bnd:
 
     rulebook.add(
         Rule(
             variable=var,
             parameter=param,
-            condition=Condition.BIND,
+            constraint=Bind,
         )
     )
 
@@ -126,6 +132,6 @@ for var, param in use_cmd + loss + exp_res + exp_use + exp_opn + emit:
         Rule(
             variable=var,
             parameter=param,
-            condition=Condition.CALCULATE,
+            constraint=Calculate,
         )
     )

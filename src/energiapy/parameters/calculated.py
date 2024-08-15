@@ -7,8 +7,16 @@ from ._parameter import _Parameter
 
 
 @dataclass
-class CmdUse(_Parameter):
-    """Commodity Use"""
+class MatUse(_Parameter):
+    """Material Use"""
+
+    def __post_init__(self):
+        _Parameter.__post_init__(self)
+
+
+@dataclass
+class LndUse(_Parameter):
+    """Land Use"""
 
     def __post_init__(self):
         _Parameter.__post_init__(self)

@@ -40,3 +40,5 @@ class Player(_Analytical):
     def inputs(cls):
         """Attrs"""
         return cls.bounds()
+
+

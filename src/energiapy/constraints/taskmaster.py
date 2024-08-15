@@ -1,25 +1,6 @@
 """The Task action associated with the attributes that feature in Components of the System model
 """
 
-from ..variables.action import Gives, Takes
-from ..variables.capacitate import Capacity
-from ..variables.emit import EmitBuy, EmitCap, EmitLoss, EmitSell, EmitSys, EmitUse
-from ..variables.expense import (
-    Credit,
-    ExpBuy,
-    ExpBuyBnd,
-    ExpCap,
-    ExpOp,
-    ExpSell,
-    ExpSellBnd,
-    ExpUse,
-    Penalty,
-)
-from ..variables.loss import Loss
-from ..variables.operate import Operate
-from ..variables.trade import Buy, Recieve, Sell, Ship
-from ..variables.use import Use
-
 from ..components.analytical.player import Player
 from ..components.commodity.cash import Cash
 from ..components.commodity.land import Land
@@ -29,7 +10,16 @@ from ..components.impact.emission import Emission
 from ..components.operational.process import Process
 from ..components.operational.storage import Storage
 from ..components.operational.transit import Transit
-
+from ..variables.action import Gives, Takes
+from ..variables.capacitate import Capacity
+from ..variables.emit import (EmitBuy, EmitCap, EmitLoss, EmitSell, EmitSys,
+                              EmitUse)
+from ..variables.expense import (Credit, Earn, ExpBuy, ExpCap, ExpOp, ExpSell,
+                                 ExpUse, Penalty, Spend)
+from ..variables.loss import Loss
+from ..variables.operate import Operate
+from ..variables.trade import Buy, Recieve, Sell, Ship
+from ..variables.use import Use, UseLnd, UseMat
 
 cmd_use = {'use': Use, 'cost': ExpUse, 'emission': EmitUse}
 
@@ -38,8 +28,8 @@ opn = {
     'opex': ExpOp,
     'capacity': Capacity,
     'operate': Operate,
-    'land': Use,
-    'material': Use,
+    'land': UseLnd,
+    'material': UseMat,
     'emission': EmitCap,
 }
 
@@ -49,7 +39,7 @@ res_loss = {'loss': Loss}
 taskmaster = {
     Player: {'has': Gives, 'needs': Takes},
     Emission: {'emit': EmitSys},
-    Cash: {'spend': ExpBuyBnd, 'earn': ExpSellBnd},
+    Cash: {'spend': Spend, 'earn': Earn},
     Land: cmd_use,
     Material: cmd_use,
     Resource: {
