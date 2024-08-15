@@ -127,6 +127,11 @@ class Process(_Operational):
         """The number of modes"""
         return self.conversion.n_modes
 
+    @property
+    def balance(self):
+        """The balance of resources"""
+        return self.conversion.balance
+
     @staticmethod
     def collection():
         """The collection in scenario"""
