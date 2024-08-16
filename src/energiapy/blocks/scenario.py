@@ -176,10 +176,17 @@ class Scenario(_Default):
 
     @property
     def processes(self):
+        """Process Operations of the System"""
         return self.system.processes
 
     @property
+    def storages(self):
+        """Storage Operations of the System"""
+        return self.system.storages
+
+    @property
     def transits(self):
+        """Transit Operations of the System"""
         return self.system.transits
 
     # spatial collections
