@@ -5,6 +5,7 @@ from dataclasses import dataclass, field
 
 from ..components._base._component import _Component
 from ..components._base._defined import _Defined
+from ..components.operational.process import Process
 from ..components.scope.horizon import Horizon
 from ..components.scope.network import Network
 from ..components.spatial.linkage import Linkage
@@ -136,6 +137,10 @@ class Scenario(_Default):
                         bi=False,
                     ),
                 )
+
+        if isinstance(value, Process):
+
+            getattr(self.system, name).conversionize()
 
         super().__setattr__(name, value)
 

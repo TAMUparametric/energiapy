@@ -60,3 +60,19 @@ class OpExp(_Parameter):
 
     def __post_init__(self):
         _Parameter.__post_init__(self)
+
+
+@dataclass
+class CapExpI(_Parameter):
+    """Incidental Capital Expense"""
+
+    def __post_init__(self):
+        _Parameter.__post_init__(self)
+
+
+@dataclass
+class OpExpI(_Parameter):
+    """Incidental Operational Expense"""
+
+    def __post_init__(self):
+        _Parameter.__post_init__(self)

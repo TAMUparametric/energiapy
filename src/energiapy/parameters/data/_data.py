@@ -26,6 +26,7 @@ class _Data(ABC, _Reprs):
     disposition: IsDisposition = field(default=None)
     varbnd: VarBnd = field(default=None)
     _spclmt: SpcLmt = field(default=None)
+    incdntl: bool = field(default=False)
 
     def __post_init__(self):
 
@@ -63,14 +64,17 @@ class _Data(ABC, _Reprs):
         Returns:
             str: some name
         """
-        vb_, sl_ = '', ''
+        vb_, sl_, i_ = ('' for _ in range(3))
         if self.varbnd:
             vb_ = self.varbnd.namer()
 
         if self._spclmt:
             sl_ = self._spclmt.namer()
 
-        return f'{self.disposition}{vb_}{sl_}'
+        if self.incdntl:
+            i_ = '*i'
+
+        return f'{self.disposition}{vb_}{sl_}{i_}'
 
     def __len__(self):
         if self.disposition:

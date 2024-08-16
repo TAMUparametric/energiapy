@@ -4,16 +4,16 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from operator import is_
 from typing import TYPE_CHECKING
 
+from ...parameters.data.conversion import Conversion
 from .._base._nature import nature
 from ._operational import _Operational
-from ...parameters.data.conversion import Conversion
-
-from operator import is_
 
 if TYPE_CHECKING:
-    from ..._core._aliases._is_input import IsBoundInput, IsExactInput, IsConvInput
+    from ..._core._aliases._is_input import (IsBoundInput, IsConvInput,
+                                             IsExactInput)
 
 
 @dataclass
@@ -95,13 +95,6 @@ class Process(_Operational):
             if getattr(self, i):
                 raise ValueError(f'{_name}: {i} is depreciated. Please use {j} instead')
 
-    def __setattr__(self, name, value):
-
-        if is_(name, 'conversion'):
-            self.conversion = Conversion(conversion=value, process=self)
-
-        super().__setattr__(name, value)
-
     @property
     def base(self):
         """The base resource"""
@@ -146,3 +139,9 @@ class Process(_Operational):
     def resourceexps():
         """Attrs that determine resource expenses of the component"""
         return nature['resource']['expenses']
+
+    def conversionize(self):
+        """Makes the conversion"""
+
+        if not isinstance(self.conversion, Conversion):
+            self.conversion = Conversion(conversion=self.conversion, operation=self)

@@ -7,8 +7,9 @@ import operator
 from dataclasses import dataclass, field
 from functools import reduce
 from typing import TYPE_CHECKING
-from ..mode import X
+
 from ..._core._handy._dunders import _Reprs
+from ..designators.mode import X
 
 if TYPE_CHECKING:
     from ..._core._aliases._is_component import IsProcess
@@ -34,23 +35,23 @@ class Conversion(_Reprs):
     """
 
     conversion: IsConvInput = field(default=None)
-    process: IsProcess = field(default=None)
+    operation: IsProcess = field(default=None)
 
     def __post_init__(self):
 
         self.base = list(self.conversion)[0]
 
         if all(isinstance(i, X) for i in self.conversion[self.base]):
-            self.modes = [
-                i.personalize(self.process, 'conv') for i in self.conversion[self.base]
-            ]
-
-            self.n_modes = len(self.modes)
 
             self.conversion = {
-                self.modes[i]: self.conversion[self.base][i]
-                for i in range(self.n_modes)
+                self.base: {
+                    i.personalize(opn=self.operation, attr='conv'): j
+                    for i, j in self.conversion[self.base].items()
+                }
             }
+
+            self.modes = list(self.conversion[self.base])
+            self.n_modes = len(self.modes)
 
             self.sold = [self.base] + list(
                 reduce(
@@ -95,4 +96,4 @@ class Conversion(_Reprs):
             self.balance = {self.base: 1, **self.conversion[self.base]}
 
         self.involve = list(self.sold) + list(self.bought)
-        self.name = f'Conv({self.base},{self.process})'
+        self.name = f'Conv({self.base},{self.operation})'

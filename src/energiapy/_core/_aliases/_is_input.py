@@ -6,19 +6,27 @@ from ...parameters.data.m import M
 from ...parameters.data.theta import Theta
 from ._is_component import IsComponent, IsResource, IsScale, IsSpatial
 
-# *input types
+# input types
 IsNumeric: TypeAlias = Union[float, int]
+
+# deterministic data is provided
+IsDataFr: TypeAlias = DataFrame
+
+# can be given as an incidental parameter
+IsIncidental: TypeAlias = Union[IsNumeric, IsDataFr]
+
 # is unbounded (=< BigM), constraint not written by variable declared
 # a futher check of whether value is True is required
 # so if value are given as False, then they are set to None
 IsBig: TypeAlias = Union[Literal[True], M]
-# deterministic data is provided
-IsDataFr: TypeAlias = DataFrame
+
 # a range is give, treated as bounds for a parameteric variable
 IsSpaceBound: TypeAlias = Union[IsNumeric, IsDataFr]
 IsSpace: TypeAlias = Union[Tuple[IsSpaceBound, IsSpaceBound], Theta]
+
 # as an exact value (equality constraint)
 IsExact: TypeAlias = Union[IsNumeric, IsDataFr, IsSpace]
+
 # as a list of bounds [lower, upper] (inequality constraints)
 IsBound: TypeAlias = Union[IsExact, IsBig, List[IsExact, IsBig]]
 

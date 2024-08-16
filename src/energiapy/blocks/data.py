@@ -12,6 +12,7 @@ from ..parameters.data.constant import Constant
 from ..parameters.data.dataset import DataSet
 from ..parameters.data.m import M
 from ..parameters.data.theta import Theta
+from ..parameters.designators.incidental import I
 from ._base._spttmpinput import _SptTmpInput
 
 if TYPE_CHECKING:
@@ -56,6 +57,9 @@ class DataBlock(_Dunders):
 
                     datapoint = self.birth_value(disposition, datapoint)
 
+                elif isinstance(datapoint, set):
+                    datapoint = {self.birth_value(disposition, i) for i in datapoint}
+
                 else:
                     datapoint = self.birth_value(disposition, datapoint)
 
@@ -84,14 +88,20 @@ class DataBlock(_Dunders):
             '_spclmt': spclmt,
         }
 
+        if isinstance(value, I):
+            value = value.value
+            incdntl = True
+        else:
+            incdntl = False
+
         if isinstance(value, (float, int)) and not isinstance(value, bool):
-            datapoint = Constant(constant=value, **args)
+            datapoint = Constant(constant=value, **args, incdntl=incdntl)
 
         if isinstance(value, bool):
             datapoint = M(big=value, **args)
 
         if isinstance(value, DataFrame):
-            datapoint = DataSet(data=value, **args)
+            datapoint = DataSet(data=value, **args, incdntl=incdntl)
 
         if isinstance(value, tuple):
             datapoint = Theta(space=value, **args)
@@ -111,9 +121,11 @@ class DataBlock(_Dunders):
             datapoint (IsData): the data to be added to a particular collection
         """
 
-        if isinstance(datapoint, (list, tuple)):
+        if isinstance(datapoint, (list, tuple, set)):
             for dp in datapoint:
+                print(dp)
                 self.add(dp)
+
         else:
             list_curr = getattr(self, datapoint.collection())
             setattr(self, datapoint.collection(), sorted(set(list_curr) | {datapoint}))

@@ -11,20 +11,44 @@ from .._core._handy._dunders import _Dunders
 from .._core._nirop._error import CacodcarError
 from ..constraints.bind import Bind
 from ..constraints.calculate import Calculate
-from ..parameters.bound import (BuyBnd, CapBnd, EarnBnd, OpBnd, SellBnd,
-                                SpendBnd, UseBnd)
+from ..parameters.bound import BuyBnd, CapBnd, EarnBnd, OpBnd, SellBnd, SpendBnd, UseBnd
 from ..parameters.calculated import LndUse, MatUse, ResLoss
-from ..parameters.emission import (CmdEmitUse, EmitBnd, OpnEmit, ResEmitBuy,
-                                   ResEmitLoss, ResEmitSell)
-from ..parameters.expense import (BuyPrice, CapExp, OpExp, ResCredit,
-                                  ResPenalty, SellPrice, UseExp)
+from ..parameters.emission import (
+    CmdEmitUse,
+    EmitBnd,
+    OpnEmit,
+    ResEmitBuy,
+    ResEmitLoss,
+    ResEmitSell,
+)
+from ..parameters.expense import (
+    BuyPrice,
+    CapExp,
+    OpExp,
+    CapExpI,
+    OpExpI,
+    ResCredit,
+    ResPenalty,
+    SellPrice,
+    UseExp,
+)
 from ..parameters.ownership import Has, Needs
 from ..variables.action import Gives, Takes
 from ..variables.capacitate import Capacity
-from ..variables.emit import (EmitBuy, EmitCap, EmitLoss, EmitSell, EmitSys,
-                              EmitUse)
-from ..variables.expense import (Credit, Earn, ExpBuy, ExpCap, ExpOp, ExpSell,
-                                 ExpUse, Penalty, Spend)
+from ..variables.emit import EmitBuy, EmitCap, EmitLoss, EmitSell, EmitSys, EmitUse
+from ..variables.expense import (
+    Credit,
+    Earn,
+    ExpBuy,
+    ExpCap,
+    ExpOp,
+    ExpSell,
+    ExpUse,
+    Penalty,
+    Spend,
+    ExpCapI,
+    ExpOpI,
+)
 from ..variables.loss import Loss
 from ..variables.operate import Operate
 from ..variables.trade import Buy, Sell
@@ -32,8 +56,7 @@ from ..variables.use import Use, UseLnd, UseMat
 from .rules import Condition, SumOver
 
 if TYPE_CHECKING:
-    from .._core._aliases._is_element import (IsConstraint, IsParameter,
-                                              IsVariable)
+    from .._core._aliases._is_element import IsConstraint, IsParameter, IsVariable
 
 
 @dataclass
@@ -106,7 +129,7 @@ exp_res = [
     (Penalty, ResPenalty),
 ]
 exp_use = [(ExpUse, UseExp)]
-exp_opn = [(ExpOp, OpExp), (ExpCap, CapExp)]
+exp_opn = [(ExpOp, OpExp), (ExpCap, CapExp), (ExpOpI, OpExpI), (ExpCapI, CapExpI)]
 
 # Calculated Emissions
 emit = [

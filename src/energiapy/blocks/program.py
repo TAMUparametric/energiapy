@@ -8,6 +8,7 @@ from ..constraints.rulebook import rulebook
 from ..constraints.taskmaster import taskmaster
 from ..disposition.disposition import Disposition
 from .data import DataBlock
+from ..parameters.designators.incidental import I
 
 if TYPE_CHECKING:
     from .._core._aliases._is_component import IsComponent
@@ -41,43 +42,53 @@ class ProgramBlock(_Dunders):
 
     def make_constraints(self, data: IsData, attr: str):
         """Makes ass, kicks constraints"""
-        var = taskmaster[type(self.component)][attr]
-        variable = var(disposition=data.disposition)
-        self.add(variable)
-
-        if var.parent():
-
-            if var.child():
-                disposition_par = Disposition(
-                    **variable.disposition.childless(var.child())
-                )
-            else:
-                disposition_par = variable.disposition
-            parent = var.parent()(disposition=disposition_par)
-            self.add(parent)
+        if isinstance(data, set):
+            for i in data:
+                self.make_constraints(data=i, attr=attr)
 
         else:
-            parent = None
+            if data.incdntl:
+                var = taskmaster[type(self.component)][f'{attr}_i']
+                print(var)
+            else:
+                var = taskmaster[type(self.component)][attr]
 
-        rules = rulebook.find(var)
+            variable = var(disposition=data.disposition)
+            self.add(variable)
 
-        for rule in rules:
+            if var.parent():
 
-            if rule.parameter:
-                parameter = rule.parameter(data)
-                self.add(parameter)
+                if var.child():
+                    disposition_par = Disposition(
+                        **variable.disposition.childless(var.child())
+                    )
+                else:
+                    disposition_par = variable.disposition
+                parent = var.parent()(disposition=disposition_par)
+                self.add(parent)
 
             else:
-                parameter = None
+                parent = None
 
-            constraint = rule.constraint(
-                variable=variable,
-                parent=parent,
-                parameter=parameter,
-                varbnd=data.varbnd,
-            )
+            rules = rulebook.find(var)
 
-            self.add(constraint)
+            for rule in rules:
+
+                if rule.parameter:
+                    parameter = rule.parameter(data)
+                    self.add(parameter)
+
+                else:
+                    parameter = None
+
+                constraint = rule.constraint(
+                    variable=variable,
+                    parent=parent,
+                    parameter=parameter,
+                    varbnd=data.varbnd,
+                )
+
+                self.add(constraint)
 
     def add(self, element: IsElement):
         """Updates the collection lists of elements in the program block

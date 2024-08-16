@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from abc import ABC, abstractmethod
 from operator import is_, is_not
 from typing import TYPE_CHECKING
 from warnings import warn
@@ -16,8 +17,18 @@ if TYPE_CHECKING:
     from ..._core._aliases._is_input import IsInput, IsSptTmpInput
 
 
-class _Consistent:
+class _Consistent(ABC):
     """Functions to make the input into a SpatioTemporalDict"""
+
+    @property
+    @abstractmethod
+    def _horizon(self):
+        """The Horizon of the Component"""
+
+    @property
+    @abstractmethod
+    def _network(self):
+        """The Network of the Component"""
 
     def make_consistent_spatial(self, value: IsInput) -> dict:
         """adds spatial dispostion to input data if not there already

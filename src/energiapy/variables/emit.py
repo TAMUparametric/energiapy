@@ -13,19 +13,11 @@ from .use import Use
 
 
 @dataclass
-class Emit(_Variable):
-    """Emit changes the ownership of Resource between Players"""
-
-    def __post_init__(self):
-        _Variable.__post_init__(self)
-
-
-@dataclass
-class EmitSys(Emit):
+class EmitSys(_Variable):
     """System Emit"""
 
     def __post_init__(self):
-        Emit.__post_init__(self)
+        _Variable.__post_init__(self)
 
     @staticmethod
     def structures():
@@ -42,6 +34,19 @@ class EmitSys(Emit):
 
 
 @dataclass
+class Emit(_Variable):
+    """Emit changes the ownership of Resource between Players"""
+
+    def __post_init__(self):
+        _Variable.__post_init__(self)
+
+    @staticmethod
+    def child():
+        """The Parent Variable doesnot carry Child Component"""
+        return Emission
+
+
+@dataclass
 class EmitTrade(Emit):
     """Resource Emit"""
 
@@ -54,11 +59,6 @@ class EmitTrade(Emit):
         return make_structures(
             emn_strict=True, cmd='res', opn='pro', spt=['loc', 'ntw']
         )
-
-    @staticmethod
-    def child():
-        """The Parent Variable doesnot carry Child Component"""
-        return Emission
 
 
 @dataclass

@@ -153,16 +153,11 @@ class ExpUse(Expense):
 
 
 @dataclass
-class ExpCap(Expense):
+class ExpOpn(Expense):
     """Capacity Expense"""
 
     def __post_init__(self):
         Expense.__post_init__(self)
-
-    @staticmethod
-    def parent():
-        """The Parent Task of the Variable"""
-        return Capacity
 
     @staticmethod
     def structures():
@@ -173,20 +168,54 @@ class ExpCap(Expense):
 
 
 @dataclass
-class ExpOp(Expense):
+class ExpCap(ExpOpn):
+    """Capacity Expense"""
+
+    def __post_init__(self):
+        ExpOpn.__post_init__(self)
+
+    @staticmethod
+    def parent():
+        """The Parent Task of the Variable"""
+        return Capacity
+
+
+@dataclass
+class ExpOp(ExpOpn):
     """Operate Expense"""
 
     def __post_init__(self):
-        Expense.__post_init__(self)
+        ExpOpn.__post_init__(self)
 
     @staticmethod
     def parent():
         """The Parent Task of the Variable"""
         return Operate
 
+
+@dataclass
+class ExpOpnI(ExpOpn):
+    """Incidental Expense for Operation"""
+
+    def __post_init__(self):
+        ExpOpn.__post_init__(self)
+
     @staticmethod
-    def structures():
-        """The allowed structures of disposition of the Variable"""
-        return make_structures(
-            csh_strict=True, opn=['pro', 'stg', 'trn'], spt=['loc', 'lnk', 'ntw']
-        )
+    def parent():
+        """The Parent Task of the Variable"""
+
+
+@dataclass
+class ExpCapI(ExpOpnI):
+    """Incidental Capital Expense"""
+
+    def __post_init__(self):
+        ExpOpnI.__post_init__(self)
+
+
+@dataclass
+class ExpOpI(ExpOpnI):
+    """Incidental Operational Expense"""
+
+    def __post_init__(self):
+        ExpOpnI.__post_init__(self)

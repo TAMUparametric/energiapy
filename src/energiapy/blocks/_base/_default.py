@@ -10,7 +10,8 @@ from ...components.commodity.land import Land
 from ...components.impact.emission import Emission
 from ...components.scope.horizon import Horizon
 from ...components.scope.network import Network
-from ...utils.decorators import once
+
+# from ...utils.decorators import once
 
 
 @dataclass
@@ -24,7 +25,6 @@ class _Default(_Dunders):
     default_land: bool = field(default=False)
     default: bool = field(default=False)
 
-    @once
     def _default(self):
         """Set default components"""
 
