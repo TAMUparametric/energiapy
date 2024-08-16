@@ -1,8 +1,6 @@
 """Function for scaling input data
 """
 
-from operator import is_
-
 from pandas import DataFrame
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 
@@ -24,13 +22,13 @@ def scaling(data: DataFrame, how: str) -> DataFrame:
     if not isinstance(data, DataFrame):
         raise ValueError('please provide DataFrame')
 
-    if is_(how, 'max'):
+    if how == 'max':
         data = data / data.max()
 
     else:
-        if is_(how, 'standard'):
+        if how == 'standard':
             scaler = StandardScaler()
-        if is_(how, 'minmax'):
+        if how == 'minmax':
             scaler = MinMaxScaler()
         data = DataFrame(scaler.fit_transform(data))
 

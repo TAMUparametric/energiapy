@@ -148,19 +148,19 @@ class _Defined(_Component, _Consistent, ABC):
             if value is not None:
 
                 if attr in self.bounds():
-                    setattr(self, attr, self.make_spttmpdict(value))
+                    setattr(self, attr, self.make_spttmpdict(value, attr))
 
                 if attr in self._cnst_csh():
-                    setattr(self, attr, {self._cash: self.make_spttmpdict(value)})
+                    setattr(self, attr, {self._cash: self.make_spttmpdict(value, attr)})
 
                 if attr in self._cnst_lnd():
-                    setattr(self, attr, {self._land: self.make_spttmpdict(value)})
+                    setattr(self, attr, {self._land: self.make_spttmpdict(value, attr)})
 
                 if attr in self._cnst_nstd():
                     setattr(
                         self,
                         attr,
-                        {i: self.make_spttmpdict(j) for i, j in value.items()},
+                        {i: self.make_spttmpdict(j, attr) for i, j in value.items()},
                     )
 
                 if attr in self._cnst_nstd_csh():
@@ -168,7 +168,7 @@ class _Defined(_Component, _Consistent, ABC):
                         self,
                         attr,
                         {
-                            i: {self._cash: self.make_spttmpdict(j)}
+                            i: {self._cash: self.make_spttmpdict(j, attr)}
                             for i, j in value.items()
                         },
                     )

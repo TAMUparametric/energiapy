@@ -8,7 +8,6 @@ from ..constraints.rulebook import rulebook
 from ..constraints.taskmaster import taskmaster
 from ..disposition.disposition import Disposition
 from .data import DataBlock
-from ..parameters.designators.incidental import I
 
 if TYPE_CHECKING:
     from .._core._aliases._is_component import IsComponent
@@ -49,7 +48,6 @@ class ProgramBlock(_Dunders):
         else:
             if data.incdntl:
                 var = taskmaster[type(self.component)][f'{attr}_i']
-                print(var)
             else:
                 var = taskmaster[type(self.component)][attr]
 
@@ -64,6 +62,7 @@ class ProgramBlock(_Dunders):
                     )
                 else:
                     disposition_par = variable.disposition
+                print(variable)
                 parent = var.parent()(disposition=disposition_par)
                 self.add(parent)
 

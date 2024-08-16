@@ -65,6 +65,7 @@ class UseMat(UseCmd):
         """The allowed structures of disposition of the Variable"""
         return make_structures(
             cmd='mat',
+            mde=True,
             opn=['pro', 'stg', 'trn'],
             spt=['loc', 'lnk', 'ntw'],
         )
@@ -82,6 +83,7 @@ class UseLnd(UseCmd):
         """The allowed structures of disposition of the Variable"""
         return make_structures(
             cmd='lnd',
+            mde=True,
             opn=['pro', 'stg', 'trn'],
             spt=['loc', 'lnk', 'ntw'],
         )

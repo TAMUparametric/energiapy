@@ -6,6 +6,7 @@ from ...parameters.data.conversion import Conversion
 from ...parameters.data.dataset import DataSet
 from ...parameters.data.m import M
 from ...parameters.data.theta import Theta
+from ...parameters.designators.mode import X
 
 # * Value
 # these are generated internally
@@ -26,3 +27,6 @@ IsVarBnd: TypeAlias = VarBnd
 IsSpcLmt: TypeAlias = SpcLmt
 
 IsConv: TypeAlias = Conversion
+
+# Is operating mode
+IsMode: TypeAlias = X

@@ -79,7 +79,7 @@ class Scenario(_Default):
                 for inp in value.inputs():
 
                     if getattr(value, inp, False):
-
+                        print('hugaguag', getattr(value, inp))
                         setattr(datablock, inp, {value: getattr(value, inp)})
 
                         setattr(value, inp, getattr(datablock, inp))

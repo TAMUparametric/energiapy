@@ -5,6 +5,7 @@ from pandas import DataFrame
 from ...parameters.data.m import M
 from ...parameters.data.theta import Theta
 from ._is_component import IsComponent, IsResource, IsScale, IsSpatial
+from ._is_data import IsMode
 
 # input types
 IsNumeric: TypeAlias = Union[float, int]
@@ -48,6 +49,9 @@ IsSptTmpBound: TypeAlias = Dict[IsSpatial, IsTmpBound]
 
 IsSptTmpInput: TypeAlias = Union[IsSptTmpExact, IsSptTmpBound]
 
+IsSptTmpInput: TypeAlias = Union[Dict[IsMode, IsSptTmpInput], IsSptTmpInput]
+
+
 # attribute inputs
 IsExactInput: TypeAlias = Union[IsExact, IsTmpExact, IsSptExact, IsSptTmpExact]
 
@@ -59,6 +63,6 @@ IsInputDict: TypeAlias = Union[IsComponent, IsSptInput, IsSptTmpInput]
 
 IsSingleConvInput: TypeAlias = Dict[IsResource, Dict[IsResource, IsNumeric]]
 
-IsMultiConvInput: TypeAlias = Dict[Union[str, float, int], IsSingleConvInput]
+IsMultiConvInput: TypeAlias = Dict[IsMode, IsSingleConvInput]
 
 IsConvInput = Union[IsSingleConvInput, IsMultiConvInput]

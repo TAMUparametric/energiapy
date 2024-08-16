@@ -25,4 +25,6 @@ class Capacity(_Variable):
     @staticmethod
     def structures():
         """The allowed structures of disposition of the Variable"""
-        return make_structures(opn=['pro', 'stg', 'trn'], spt=['loc', 'lnk', 'ntw'])
+        return make_structures(
+            mde=True, opn=['pro', 'stg', 'trn'], spt=['loc', 'lnk', 'ntw']
+        )

@@ -17,6 +17,7 @@ from ...components.spatial.linkage import Linkage
 from ...components.spatial.location import Location
 from ...components.temporal.scale import Scale
 from ...disposition.disposition import Disposition
+from ...parameters.designators.mode import X
 from ...utils.dictionary import flatten
 
 if TYPE_CHECKING:
@@ -40,11 +41,10 @@ class _SptTmpInput:
         """
         dict_iter = flatten(self.dict_input)
         dict_upd = {}
-
         for key, val in dict_iter.items():
 
-            ply, emn, csh, res, mat, lnd, pro, stg, trn, loc, lnk, ntw, scl = (
-                None for _ in range(13)
+            ply, emn, csh, res, mat, lnd, pro, stg, trn, loc, lnk, ntw, scl, mde = (
+                None for _ in range(14)
             )
 
             if not isinstance(key, tuple):
@@ -79,6 +79,9 @@ class _SptTmpInput:
                     ntw = cmp
                 if isinstance(cmp, Scale):
                     scl = cmp
+                if isinstance(cmp, X):
+                    mde = cmp
+                    print('awewaea', mde)
 
             disp = Disposition(
                 ply=ply,
@@ -94,6 +97,7 @@ class _SptTmpInput:
                 lnk=lnk,
                 ntw=ntw,
                 scl=scl,
+                mde=mde,
             )
 
             dict_upd[disp] = val

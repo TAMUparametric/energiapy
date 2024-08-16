@@ -15,6 +15,7 @@ def make_structures(
     opn_strict: bool = False,
     cmd_strict: bool = True,
     ply_strict: bool = False,
+    mde: bool = False,
     cmd: Union[List[str], str] = None,
     opn: Union[List[str], str] = None,
     spt: Union[List[str], str] = None,
@@ -92,6 +93,11 @@ def make_structures(
 
     # Scale has to be provided
     struct_dict['scl'] = ['scl']
+
+    if mde:
+        struct_dict['mde'] = ['', 'mde']
+    else:
+        struct_dict['mde'] = ['']
 
     structures_upd = []
 

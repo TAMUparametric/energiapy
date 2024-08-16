@@ -37,7 +37,7 @@ class DataBlock(_Dunders):
         varbnds = [VarBnd.LOWER, VarBnd.UPPER]
 
         if isinstance(value, dict):
-
+            
             spttmpinput = _SptTmpInput(name, value)
 
             for disposition, datapoint in spttmpinput.dict_input.items():
@@ -123,7 +123,6 @@ class DataBlock(_Dunders):
 
         if isinstance(datapoint, (list, tuple, set)):
             for dp in datapoint:
-                print(dp)
                 self.add(dp)
 
         else:

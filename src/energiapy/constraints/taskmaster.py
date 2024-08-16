@@ -43,6 +43,12 @@ opn = {
     'land': UseLnd,
     'material': UseMat,
     'emission': EmitCap,
+    'buy': Buy,
+    'sell': Sell,
+    'buy_price': ExpBuy,
+    'sell_price': ExpSell,
+    'credit': Credit,
+    'penalty': Penalty,
 }
 
 res_loss = {'loss': Loss}

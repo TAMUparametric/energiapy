@@ -123,6 +123,7 @@ class EmitUse(Emit):
     def structures():
         """The allowed structures of disposition of the Variable"""
         return make_structures(
+            mde=True,
             emn_strict=True,
             cmd=['mat', 'lnd'],
             opn=['pro', 'stg', 'trn'],
@@ -146,5 +147,8 @@ class EmitCap(Emit):
     def structures():
         """The allowed structures of disposition of the Variable"""
         return make_structures(
-            emn_strict=True, opn=['pro', 'stg', 'trn'], spt=['loc', 'lnk', 'ntw']
+            mde=True,
+            emn_strict=True,
+            opn=['pro', 'stg', 'trn'],
+            spt=['loc', 'lnk', 'ntw'],
         )

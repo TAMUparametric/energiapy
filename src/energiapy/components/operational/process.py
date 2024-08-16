@@ -12,8 +12,7 @@ from .._base._nature import nature
 from ._operational import _Operational
 
 if TYPE_CHECKING:
-    from ..._core._aliases._is_input import (IsBoundInput, IsConvInput,
-                                             IsExactInput)
+    from ..._core._aliases._is_input import IsBoundInput, IsConvInput, IsExactInput
 
 
 @dataclass

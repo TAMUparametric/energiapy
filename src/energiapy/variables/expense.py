@@ -126,7 +126,7 @@ class Credit(ExpTrade):
     @staticmethod
     def parent():
         """The Parent Task of the Variable"""
-        return Operate
+        return Sell
 
 
 @dataclass
@@ -146,6 +146,7 @@ class ExpUse(Expense):
         """The allowed structures of disposition of the Variable"""
         return make_structures(
             csh_strict=True,
+            mde=True,
             cmd=['mat', 'lnd'],
             opn=['pro', 'stg', 'trn'],
             spt=['loc', 'lnk', 'ntw'],
@@ -163,7 +164,10 @@ class ExpOpn(Expense):
     def structures():
         """The allowed structures of disposition of the Variable"""
         return make_structures(
-            csh_strict=True, opn=['pro', 'stg', 'trn'], spt=['loc', 'lnk', 'ntw']
+            csh_strict=True,
+            mde=True,
+            opn=['pro', 'stg', 'trn'],
+            spt=['loc', 'lnk', 'ntw'],
         )
 
 
