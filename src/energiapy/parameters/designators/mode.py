@@ -19,7 +19,7 @@ class X(_Dunders):
     name: Union[str, float, int] = field(default=None)
 
     def __post_init__(self):
-        self.name = str(self.name)
+        self.name = f'x({self.name})'
 
     def personalize(self, opn: IsOperational, attr: str):
         """Personalizes the operational mode
