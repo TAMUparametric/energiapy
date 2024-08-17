@@ -81,7 +81,6 @@ class _SptTmpInput:
                     scl = cmp
                 if isinstance(cmp, X):
                     mde = cmp
-                    print('awewaea', mde)
 
             disp = Disposition(
                 ply=ply,

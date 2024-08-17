@@ -40,7 +40,8 @@ class _Constraint(_Dunders, ABC):
         if is_(self.varbnd, VarBnd.EXACT):
             self.equality = 'eq'
 
-        self.name = f'{self.variable}{self.pr_sign}{self.pr_parameter}{self.pr_multiply}{self.pr_parent}'
+        self.name = f'{self.id()}[{self.variable}]'
+        self.equation = f'{self.variable}{self.pr_sign}{self.pr_parameter}{self.pr_multiply}{self.pr_parent}'
 
     @property
     def pr_parent(self):

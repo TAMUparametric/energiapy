@@ -1,4 +1,11 @@
-"""Functions to make component input values in a consistent format"""
+"""Functions to make component input values in a consistent format
+
+This has been written in a very spread out manner for clarity
+
+spt - spatial disposition
+tmp - temporal disposition
+x - operational mode
+"""
 
 from __future__ import annotations
 
@@ -77,6 +84,7 @@ class _Consistent(ABC):
                         value_upd[self._network] = {spt: tmp_val}
                 else:
                     value_upd[spt] = tmp_val
+
         return value_upd
 
     def make_temporal(self, value: IsInput) -> dict:
@@ -95,16 +103,14 @@ class _Consistent(ABC):
         for spt, tmpx_val in value.items():
             if not isinstance(tmpx_val, dict):
                 value_upd[spt]['t'] = tmpx_val
-
             else:
                 for tmpx, val in tmpx_val.items():
-                    if not isinstance(tmpx, (Scale, X)):
-                        value_upd[spt]['t'] = val
+                    if isinstance(tmpx, Scale):
+                        value_upd[spt][tmpx] = val
+                    elif isinstance(tmpx, X):
+                        value_upd[spt]['t'] = tmpx_val
                     else:
-                        if isinstance(tmpx, X):
-                            value_upd[spt]['t'] = tmpx_val
-                        else:
-                            value_upd[spt][tmpx] = val
+                        value_upd[spt]['t'] = val
 
         return value_upd
 
@@ -131,9 +137,10 @@ class _Consistent(ABC):
                     value_upd[spt][tmp] = {
                         'x': value[spt][tmp]
                     }  # put a dummy mode temporarily
+
         return value_upd
 
-    def make_len(self, value: IsInput, attr: str) -> dict:
+    def fix_scale(self, value: IsInput, attr: str) -> dict:
         """checks whether a dataframe is given.
         if df, then sets to a matching scale or gives warning
         if not df, sets to parent scale
@@ -168,7 +175,7 @@ class _Consistent(ABC):
 
         return value_upd
 
-    def make_bounds(self, value: IsInput, attr: str) -> dict:
+    def fix_bound_scales(self, value: IsInput, attr: str) -> dict:
         """checks whether some inputs are bounds
         if bounds, sets to the lowest matching scale
 
@@ -201,6 +208,7 @@ class _Consistent(ABC):
                             value_upd[spt][tmp][x] = val
                     else:
                         value_upd[spt][tmp][x] = val
+
         return value_upd
 
     def clean_up(self, value: IsInput) -> IsSptTmpInput:
@@ -240,8 +248,8 @@ class _Consistent(ABC):
         value = self.make_spatial(value)
         value = self.make_temporal(value)
         value = self.make_modes(value, attr)
-        value = self.make_len(value, attr)
-        value = self.make_bounds(value, attr)
+        value = self.fix_scale(value, attr)
+        value = self.fix_bound_scales(value, attr)
         value = self.clean_up(value)
 
         return value

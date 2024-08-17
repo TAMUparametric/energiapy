@@ -140,6 +140,11 @@ class _Defined(_Component, _Consistent, ABC):
         """Returns the Constraints"""
         return self.program.constraints
 
+    def eqns(self):
+        """Prints all equations in the program"""
+        for constraint in self.constraints:
+            print(constraint.equation)
+
     def make_consistent(self):
         """Makes the data inputs consistent IsSptTmpDict"""
         for attr in self.inputs():

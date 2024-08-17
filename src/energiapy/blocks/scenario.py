@@ -79,7 +79,6 @@ class Scenario(_Default):
                 for inp in value.inputs():
 
                     if getattr(value, inp, False):
-                        print('hugaguag', getattr(value, inp))
                         setattr(datablock, inp, {value: getattr(value, inp)})
 
                         setattr(value, inp, getattr(datablock, inp))
@@ -239,3 +238,22 @@ class Scenario(_Default):
     def components(self):
         """All Components of the System"""
         return self.system.components
+
+    @property
+    def constraints(self):
+        """All Constraints of the System"""
+        return self.program.constraints
+
+    @property
+    def variables(self):
+        """All Variables of the System"""
+        return self.program.variables
+
+    @property
+    def parameters(self):
+        """All Parameters of the System"""
+        return self.program.parameters
+
+    def eqns(self):
+        """Prints all equations in the program"""
+        self.program.eqns()

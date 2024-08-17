@@ -19,12 +19,12 @@ class X(_Dunders):
     name: Union[str, float, int] = field(default=None)
 
     def __post_init__(self):
-        self.name = f'x({self.name})'
+        self.name = f'{self.name}'
 
     def personalize(self, opn: IsOperational, attr: str):
         """Personalizes the operational mode
         adds the name of the operation and for what input
         it is being used for
         """
-        self.name = f'X|{opn},{attr}|{self.name}'
+        self.name = f'x({opn},{attr},{self.name})'
         return self

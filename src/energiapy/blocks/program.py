@@ -1,3 +1,6 @@
+"""Mathematical Programming Model
+"""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -41,6 +44,7 @@ class ProgramBlock(_Dunders):
 
     def make_constraints(self, data: IsData, attr: str):
         """Makes ass, kicks constraints"""
+
         if isinstance(data, set):
             for i in data:
                 self.make_constraints(data=i, attr=attr)
@@ -62,7 +66,6 @@ class ProgramBlock(_Dunders):
                     )
                 else:
                     disposition_par = variable.disposition
-                print(variable)
                 parent = var.parent()(disposition=disposition_par)
                 self.add(parent)
 
@@ -99,6 +102,11 @@ class ProgramBlock(_Dunders):
         list_curr = getattr(self, element.collection())
         setattr(self, element.collection(), sorted(set(list_curr) | {element}))
 
+    def eqns(self):
+        """Prints all equations in the program"""
+        for constraint in self.constraints:
+            print(constraint.equation)
+
 
 @dataclass
 class Program(_Dunders):
@@ -108,14 +116,32 @@ class Program(_Dunders):
 
     def __post_init__(self):
         self.name = f'Progam|{self.name}|'
-        self.variables, self.constraints, self.parameters = ([] for _ in range(3))
+        self.blocks = []
 
     def __setattr__(self, name, value):
 
         if isinstance(value, ProgramBlock):
 
-            self.parameters = sorted(set(self.parameters) | set(value.parameters))
-            self.variables = sorted(set(self.variables) | set(value.variables))
-            self.constraints = sorted(set(self.constraints) | set(value.constraints))
+            self.blocks.append(value)
 
         super().__setattr__(name, value)
+
+    @property
+    def variables(self):
+        """Returns all variables in the program"""
+        return [block.variables for block in self.blocks if block.variables]
+
+    @property
+    def constraints(self):
+        """Returns all constraints in the program"""
+        return [block.constraints for block in self.blocks if block.constraints]
+
+    @property
+    def parameters(self):
+        """Returns all parameters in the program"""
+        return [block.parameters for block in self.blocks if block.parameters]
+
+    def eqns(self):
+        """Prints all equations in the program"""
+        for block in self.blocks:
+            block.eqns()
