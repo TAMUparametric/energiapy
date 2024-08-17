@@ -22,11 +22,6 @@ class Location(_Spatial):
     def __post_init__(self):
         _Spatial.__post_init__(self)
 
-    @staticmethod
-    def collection():
-        """The collection in scenario"""
-        return 'locations'
-
     @property
     def processes(self):
         """Process Operations at the Location"""

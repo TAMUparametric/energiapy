@@ -40,10 +40,6 @@ class _Defined(_Component, _Consistent, ABC):
         #     print('component fields:', attrs_fields)
         #     raise CacodcarError(f'{self}: attributes not in fields')
 
-    @staticmethod
-    @abstractmethod
-    def collection():
-        """reports what collection the Component belongs to"""
 
     @staticmethod
     @abstractmethod

@@ -11,8 +11,3 @@ class _Scope(_Component):
 
     def __post_init__(self):
         _Component.__post_init__(self)
-
-    @staticmethod
-    def collection():
-        """The collection in scenario"""
-        return 'scopes'

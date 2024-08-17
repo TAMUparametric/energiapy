@@ -18,8 +18,3 @@ class Material(_Used):
 
     def __post_init__(self):
         _Used.__post_init__(self)
-
-    @staticmethod
-    def collection():
-        """The collection in scenario"""
-        return 'materials'

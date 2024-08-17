@@ -40,10 +40,5 @@ class Scale(_Temporal):
         if isinstance(lb, tuple):
             return self.index[self.pos(lb) : self.pos(ub)]
 
-    @staticmethod
-    def collection() -> str:
-        """The collection in scenario"""
-        return 'scales'
-
     def __len__(self):
         return len(self.index)

@@ -23,10 +23,6 @@ class Emission(_Impact):
     def __post_init__(self):
         _Impact.__post_init__(self)
 
-    @staticmethod
-    def collection():
-        """The collection in scenario"""
-        return 'emissions'
 
     @staticmethod
     def bounds():

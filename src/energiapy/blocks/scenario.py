@@ -101,9 +101,6 @@ class Scenario(_Default):
 
         if isinstance(value, Horizon):
 
-            if self.system.scales:  # if new horizon is defined, reset scales
-                self.system.scales = []
-
             for i in range(value.n_scales):
 
                 if value.label_scales:
@@ -295,6 +292,11 @@ class Scenario(_Default):
         cmp = getattr(self, cmp)
 
         if cmp:
+
+            if isinstance(cmp, Horizon):
+                for scale in cmp.scales:
+                    delattr(self, scale.name)
+                    delattr(self.system, scale.name)
 
             delattr(self, cmp.name)
             delattr(self.system, cmp.name)

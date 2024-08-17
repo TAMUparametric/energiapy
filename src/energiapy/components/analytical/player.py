@@ -26,10 +26,6 @@ class Player(_Analytical):
     def __post_init__(self):
         _Analytical.__post_init__(self)
 
-    @staticmethod
-    def collection():
-        """The collection in scenario"""
-        return 'players'
 
     @staticmethod
     def bounds():

@@ -70,10 +70,7 @@ class Resource(_Traded):
             if getattr(self, i):
                 raise ValueError(f'{_name}: {i} is depreciated. Please use {j} instead')
 
-    @staticmethod
-    def collection():
-        """The collection in System"""
-        return 'resources'
+
 
 
 @dataclass

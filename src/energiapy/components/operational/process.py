@@ -125,11 +125,6 @@ class Process(_Operational):
         return self.conversion.balance
 
     @staticmethod
-    def collection():
-        """The collection in scenario"""
-        return 'processes'
-
-    @staticmethod
     def resourceloss():
         """Attrs that determine resource loss of the component"""
         return []

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 from warnings import warn
 
 from ..components._base._component import _Component
@@ -10,6 +10,16 @@ from ..components.commodity.land import Land
 from ..components.scope._scope import _Scope
 from ..components.scope.horizon import Horizon
 from ..components.scope.network import Network
+from ..components.spatial.location import Location
+from ..components.spatial.linkage import Linkage
+from ..components.temporal.scale import Scale
+from ..components.commodity.resource import Resource
+from ..components.commodity.material import Material
+from ..components.impact.emission import Emission
+from ..components.operational.process import Process
+from ..components.operational.storage import Storage
+from ..components.operational.transit import Transit
+from ..components.analytical.player import Player
 from ..components.spatial._spatial import _Spatial
 from ..components.temporal._temporal import _Temporal
 from ._base._block import _Block
@@ -34,111 +44,132 @@ class System(_Block):
         # Is always [Horizon, Network]
         self.scopes = [None, None]
 
-        # Spatial
-        self.locations, self.linkages = [], []
-
-        # Temporal
-        self.scales = []
-
-        # Analytical
-        self.players = []
-
         # Assets
         # Is always [Cash, Land]
         self.assets = [None, None]
 
-        # Commodity
-        self.resources, self.materials = [], []
-
-        # Impact
-        self.emissions = []
-
-        # Operational
-        self.processes, self.storages, self.transits = ([] for _ in range(3))
-
     def __setattr__(self, name, value):
 
-        # all Component to collection
-        if issubclass(type(value), _Component):
-            self.add(value)
+        if isinstance(value, Horizon):
+            self.scopes[0] = value
+        elif isinstance(value, Network):
+            self.scopes[1] = value
 
-        # keeping scopes as a list and horizon and network avoids recursion
-        if issubclass(type(value), _Temporal):
-            # set Scales to horizon
-            setattr(self.scopes[0], name, value)
-
-        if issubclass(type(value), _Spatial):
-            # set Location and Linkages in Network
-            setattr(self.scopes[1], name, value)
+        elif isinstance(value, Cash):
+            self.assets[0] = value
+        elif isinstance(value, Land):
+            self.assets[1] = value
 
         super().__setattr__(name, value)
 
-    def add(self, component: IsComponent):
-        """Updates the collection lists of components in the system.
-
-        Args:
-            component (IsComponent): The component to be added to a particular collection
-        """
-
-        if issubclass(type(component), _Scope):
-            if isinstance(component, Horizon):
-                self.scopes[0] = component
-            elif isinstance(component, Network):
-                self.scopes[1] = component
-
-        elif isinstance(component, Cash):
-            # if self.assets[0]:
-            # delattr(self, self.assets[0].name)
-
-            self.assets[0] = component
-        elif isinstance(component, Land):
-            # if self.assets[1]:
-
-            # delattr(self, self.assets[1].name)
-
-            self.assets[1] = component
-
-        else:
-            list_curr = getattr(self, component.collection())
-            # skip the warnign for Scale because a default scale is already
-            # defined with 1 index
-            if not issubclass(type(component), _Temporal):
-                if component in list_curr:
-                    warn(f'{component} is being replaced')
-            setattr(self, component.collection(), sorted(set(list_curr) | {component}))
-
     @property
     def horizon(self):
+        """Returns the Horizon of the System"""
         return self.scopes[0]
 
     @property
     def network(self):
+        """Returns the Network of the System"""
         return self.scopes[1]
 
     @property
-    def nodes(self):
-        return self.locations
-
-    @property
-    def edges(self):
-        return self.linkages
-
-    @property
-    def pairs(self):
-        return [(i.source, i.sink) for i in self.linkages]
-
-    @property
-    def sources(self):
-        return sorted({i[0] for i in self.pairs})
-
-    @property
-    def sinks(self):
-        return sorted({i[1] for i in self.pairs})
-
-    @property
     def cash(self):
+        """Returns the Cash of the System"""
         return self.assets[0]
 
     @property
     def land(self):
+        """Returns the Land of the System"""
         return self.assets[1]
+
+    @property
+    def locations(self):
+        """Returns the Locations of the System"""
+        return self.fetch(Location)
+
+    @property
+    def linkages(self):
+        """Returns the Linkages of the System"""
+        return self.fetch(Linkage)
+
+    @property
+    def scales(self):
+        """Returns the Scales of the System"""
+        return self.fetch(Scale)
+
+    @property
+    def players(self):
+        """Returns the Players of the System"""
+        return self.fetch(Player)
+
+    @property
+    def resources(self):
+        """Returns the Resources of the System"""
+        return self.fetch(Resource)
+
+    @property
+    def materials(self):
+        """Returns the Materials of the System"""
+        return self.fetch(Material)
+
+    @property
+    def emissions(self):
+        """Returns the Emissions of the System"""
+        return self.fetch(Emission)
+
+    @property
+    def processes(self):
+        """Returns the Processes of the System"""
+        return self.fetch(Process)
+
+    @property
+    def storages(self):
+        """Returns the Storages of the System"""
+        return self.fetch(Storage)
+
+    @property
+    def transits(self):
+        """Returns the Transits of the System"""
+        return self.fetch(Transit)
+
+    @property
+    def nodes(self):
+        """Nodes of the System are just Locations"""
+        return self.locations
+
+    @property
+    def edges(self):
+        """Edges of the System are just Linkages"""
+        return self.linkages
+
+    @property
+    def pairs(self):
+        """Source Sink pairs of the System"""
+        return [(i.source, i.sink) for i in self.linkages]
+
+    @property
+    def sources(self):
+        """Source Locations of the System"""
+        return sorted({i[0] for i in self.pairs})
+
+    @property
+    def sinks(self):
+        """Sink Locations of the System"""
+        return sorted({i[1] for i in self.pairs})
+
+    def fetch(self, cmp: IsComponent) -> List[IsComponent]:
+        """Fetches defined Components of a particular class in the System
+
+        Args:
+            cmp (IsComponent): Component type
+
+        Returns:
+            List[IsComponent]: list of defined Components
+        """
+        return sorted(
+            [
+                getattr(self, k)
+                for k, v in self.components().items()
+                if isinstance(v, cmp)
+            ]
+        )

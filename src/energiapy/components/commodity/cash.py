@@ -27,11 +27,6 @@ class Cash(_Monetary):
         _Monetary.__post_init__(self)
 
     @staticmethod
-    def collection():
-        """The collection in scenario"""
-        return 'cash'
-
-    @staticmethod
     def bounds():
         """Attrs that quantify the bounds of the component"""
         return nature['cash']['bounds']

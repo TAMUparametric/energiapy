@@ -88,7 +88,7 @@ class Horizon(_Scope):
             self._discretization_list = list(self.discretizations.values())
             self._discretization_list.insert(0, 1)
             self._name_scales = list(self.discretizations.keys())
-            self._name_scales.insert(0, 'scale0')
+            self._name_scales.insert(0, 'ph')
 
         elif isinstance(self.discretizations, list):
             self._discretization_list = list(self.discretizations)

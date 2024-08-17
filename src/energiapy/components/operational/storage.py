@@ -27,11 +27,6 @@ class Storage(_Operational):
         _Operational.__post_init__(self)
 
     @staticmethod
-    def collection():
-        """The collection in scenario"""
-        return 'storages'
-
-    @staticmethod
     def resourceloss():
         """Attrs that determine resource loss of the component"""
         return nature['resourceloss']
