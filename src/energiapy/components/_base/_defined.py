@@ -40,7 +40,6 @@ class _Defined(_Component, _Consistent, ABC):
         #     print('component fields:', attrs_fields)
         #     raise CacodcarError(f'{self}: attributes not in fields')
 
-
     @staticmethod
     @abstractmethod
     def bounds():
@@ -115,6 +114,11 @@ class _Defined(_Component, _Consistent, ABC):
     def constants(self):
         """Returns the Constants"""
         return self.data.constants
+
+    @property
+    def data_all(self):
+        """Returns all data"""
+        return self.data.all
 
     @property
     def program(self):

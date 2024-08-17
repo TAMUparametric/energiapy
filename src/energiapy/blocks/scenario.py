@@ -266,6 +266,31 @@ class Scenario(_Default):
         """All Dispositions in the Program"""
         return self.program.dispositions
 
+    @property
+    def constants(self):
+        """All Constants in the Data"""
+        return self.data.constants
+
+    @property
+    def datasets(self):
+        """All Datasets in the Data"""
+        return self.data.datasets
+
+    @property
+    def thetas(self):
+        """All Thetas in the Data"""
+        return self.data.thetas
+
+    @property
+    def ms(self):
+        """All M in the Data"""
+        return self.data.ms
+
+    @property
+    def data_all(self):
+        """All Data in the Data"""
+        return self.data.all
+
     def model(self) -> dict:
         """Makes a dict of Model Blocks to pass on while personalizing Component"""
         return {
