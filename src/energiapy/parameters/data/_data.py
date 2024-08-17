@@ -72,7 +72,7 @@ class _Data(ABC, _Reprs):
             sl_ = self._spclmt.namer()
 
         if self.incdntl:
-            i_ = '*i'
+            i_ = ':i'
 
         return f'{self.disposition}{vb_}{sl_}{i_}'
 

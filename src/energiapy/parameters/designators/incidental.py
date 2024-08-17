@@ -19,4 +19,4 @@ class I(_Dunders):
     value: IsIncidental = field(default=None)
 
     def __post_init__(self):
-        self.name = 'I'
+        self.name = 'i'
