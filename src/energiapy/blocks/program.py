@@ -11,6 +11,7 @@ from ..constraints.rulebook import rulebook
 from ..constraints.taskmaster import taskmaster
 from ..disposition.disposition import Disposition
 from .data import DataBlock
+from ._base._block import _Block
 
 
 if TYPE_CHECKING:
@@ -188,22 +189,14 @@ class ProgramBlock(_Dunders):
 
 
 @dataclass
-class Program(_Dunders):
+class Program(_Block):
     """Mathematical Programming Model"""
 
     name: str = field(default=None)
 
     def __post_init__(self):
-        self.name = f'Progam|{self.name}|'
-        self.blocks = []
-
-    def __setattr__(self, name, value):
-
-        if isinstance(value, ProgramBlock):
-
-            self.blocks.append(value)
-
-        super().__setattr__(name, value)
+        _Block.__post_init__(self)
+        self.name = f'Program|{self.name}|'
 
     @property
     def variables(self):
@@ -227,6 +220,11 @@ class Program(_Dunders):
         disps = [block.dispositions for block in self.blocks if block.parameters]
         return sum(disps, [])
 
+    @property
+    def blocks(self):
+        """Returns all blocks in the program"""
+        return [getattr(self, i) for i in self.components()]
+
     def eqns(self, at_cmp: IsComponent = None, at_disp: IsIndex = None):
         """Prints all equations in the Program
 
@@ -235,7 +233,18 @@ class Program(_Dunders):
             at_disp (IsIndex, optional): Disposition (actually Index) to search for. Defaults to None.
         """
 
+        if at_cmp:
+            print(f'-----------{at_cmp} Constraints -----------')
+
+        if at_disp:
+            print(f'-----------Constraints at Disposition:{at_disp}-----------')
+
         for block in self.blocks:
-            print(f'-----------{block.component} Constraints -----------')
+
+            if not any([at_cmp, at_disp]):
+                print(f'-----------{block.component} Constraints -----------')
+
             block.eqns(at_cmp=at_cmp, at_disp=at_disp)
-            print('')
+
+            if not any([at_cmp, at_disp]):
+                print('')

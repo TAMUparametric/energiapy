@@ -4,7 +4,6 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 from warnings import warn
 
-from .._core._handy._dunders import _Dunders
 from ..components._base._component import _Component
 from ..components.commodity.cash import Cash
 from ..components.commodity.land import Land
@@ -13,18 +12,21 @@ from ..components.scope.horizon import Horizon
 from ..components.scope.network import Network
 from ..components.spatial._spatial import _Spatial
 from ..components.temporal._temporal import _Temporal
+from ._base._block import _Block
 
 if TYPE_CHECKING:
     from .._core._aliases._is_component import IsComponent
 
 
 @dataclass
-class System(_Dunders):
+class System(_Block):
     """Collects System Components"""
 
     name: str = field(default=None)
 
     def __post_init__(self):
+
+        _Block.__post_init__(self)
 
         self.name = f'System|{self.name}|'
 
@@ -54,14 +56,11 @@ class System(_Dunders):
         # Operational
         self.processes, self.storages, self.transits = ([] for _ in range(3))
 
-        self.components = []
-
     def __setattr__(self, name, value):
 
         # all Component to collection
         if issubclass(type(value), _Component):
             self.add(value)
-            self.components.append(value)
 
         # keeping scopes as a list and horizon and network avoids recursion
         if issubclass(type(value), _Temporal):

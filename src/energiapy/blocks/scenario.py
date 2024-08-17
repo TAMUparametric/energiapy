@@ -1,9 +1,6 @@
 """The main object in energiapy. Everything else is defined as a scenario attribute.
 """
 
-from __future__ import annotations
-from typing import TYPE_CHECKING
-
 from dataclasses import dataclass, field
 from warnings import warn
 
@@ -22,9 +19,6 @@ from .data import Data, DataBlock
 from .matrix import Matrix
 from .program import Program, ProgramBlock
 from .system import System
-
-if TYPE_CHECKING:
-    from .._core._aliases import IsComponent
 
 
 @dataclass
@@ -62,13 +56,6 @@ class Scenario(_Default):
         self.data = Data(name=self.name)
         self.matrix = Matrix(name=self.name)
 
-        self._model = {
-            'system': self.system,
-            'program': self.program,
-            'data': self.data,
-            'matrix': self.matrix,
-        }
-
         self._default()
 
     def __setattr__(self, name, value):
@@ -89,7 +76,7 @@ class Scenario(_Default):
             if isinstance(value, Network):
                 self.cleanup('network')
 
-            value.personalize(name=name, **self._model)
+            value.personalize(name=name, **self.model())
             setattr(self.system, name, value)
 
             if issubclass(type(value), _Defined):
@@ -282,6 +269,15 @@ class Scenario(_Default):
         """All Dispositions in the Program"""
         return self.program.dispositions
 
+    def model(self) -> dict:
+        """Makes a dict of Model Blocks to pass on while personalizing Component"""
+        return {
+            'system': self.system,
+            'program': self.program,
+            'data': self.data,
+            'matrix': self.matrix,
+        }
+
     def eqns(self, at_cmp=None, at_disp=None):
         """Prints all equations in the program
         Args:
@@ -301,12 +297,9 @@ class Scenario(_Default):
         if cmp:
 
             delattr(self, cmp.name)
-
-            self.system.components.remove(cmp)
             delattr(self.system, cmp.name)
 
             if hasattr(self.program, cmp.name):
-                self.program.blocks.remove(cmp.program)
                 delattr(self.program, cmp.name)
 
             if hasattr(self.data, cmp.name):
