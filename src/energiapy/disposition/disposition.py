@@ -81,3 +81,8 @@ class Disposition(_Dunders):
             for i in fields(self)
             if not isinstance(getattr(self, i.name), child)
         }
+
+    @staticmethod
+    def collection():
+        """reports what collection the Component belongs to"""
+        return 'dispositions'

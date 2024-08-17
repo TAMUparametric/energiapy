@@ -1,7 +1,11 @@
 """The main object in energiapy. Everything else is defined as a scenario attribute.
 """
 
+from __future__ import annotations
+from typing import TYPE_CHECKING
+
 from dataclasses import dataclass, field
+from warnings import warn
 
 from ..components._base._component import _Component
 from ..components._base._defined import _Defined
@@ -11,11 +15,16 @@ from ..components.scope.network import Network
 from ..components.spatial.linkage import Linkage
 from ..components.spatial.location import Location
 from ..components.temporal.scale import Scale
+from ..components.commodity.cash import Cash
+from ..components.commodity.land import Land
 from ._base._default import _Default
 from .data import Data, DataBlock
 from .matrix import Matrix
 from .program import Program, ProgramBlock
 from .system import System
+
+if TYPE_CHECKING:
+    from .._core._aliases import IsComponent
 
 
 @dataclass
@@ -65,6 +74,20 @@ class Scenario(_Default):
     def __setattr__(self, name, value):
 
         if issubclass(type(value), (_Component)):
+
+            # Only one of Cash or Land can be defined
+            # if already defined, remove it
+            if isinstance(value, Cash):
+                self.cleanup('cash')
+
+            if isinstance(value, Land):
+                self.cleanup('land')
+
+            if isinstance(value, Horizon):
+                self.cleanup('horizon')
+
+            if isinstance(value, Network):
+                self.cleanup('network')
 
             value.personalize(name=name, **self._model)
             setattr(self.system, name, value)
@@ -241,19 +264,57 @@ class Scenario(_Default):
 
     @property
     def constraints(self):
-        """All Constraints of the System"""
+        """All Constraints in the Program"""
         return self.program.constraints
 
     @property
     def variables(self):
-        """All Variables of the System"""
+        """All Variables in the Program"""
         return self.program.variables
 
     @property
     def parameters(self):
-        """All Parameters of the System"""
+        """All Parameters in the Program"""
         return self.program.parameters
 
-    def eqns(self):
-        """Prints all equations in the program"""
-        self.program.eqns()
+    @property
+    def dispositions(self):
+        """All Dispositions in the Program"""
+        return self.program.dispositions
+
+    def eqns(self, at_cmp=None, at_disp=None):
+        """Prints all equations in the program
+        Args:
+            at_cmp (IsComponent, optional): Component to search for. Defaults to None.
+            at_disp (IsDisposition, optional): Disposition to search for. Defaults to None.
+        """
+        self.program.eqns(at_cmp=at_cmp, at_disp=at_disp)
+
+    def cleanup(self, cmp: str):
+        """Cleans up components which can have only one instance in the Model
+        Args:
+            cmp (str): Component to be removed
+        """
+
+        cmp = getattr(self, cmp)
+
+        if cmp:
+
+            delattr(self, cmp.name)
+
+            self.system.components.remove(cmp)
+            delattr(self.system, cmp.name)
+
+            if hasattr(self.program, cmp.name):
+                self.program.blocks.remove(cmp.program)
+                delattr(self.program, cmp.name)
+
+            if hasattr(self.data, cmp.name):
+                delattr(self.data, cmp.name)
+
+            warn(
+                f'\nA {cmp} object was already defined.\n'
+                'Overwriting.\n'
+                'This should not cause any modeling issues.\n'
+                'Check Scenario defaults if unintended.\n'
+            )

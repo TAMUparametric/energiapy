@@ -12,10 +12,12 @@ from ..constraints.taskmaster import taskmaster
 from ..disposition.disposition import Disposition
 from .data import DataBlock
 
+
 if TYPE_CHECKING:
     from .._core._aliases._is_component import IsComponent
     from .._core._aliases._is_data import IsData
     from .._core._aliases._is_element import IsElement
+    from .._core._aliases._is_block import IsIndex
 
 
 @dataclass
@@ -26,7 +28,9 @@ class ProgramBlock(_Dunders):
 
     def __post_init__(self):
         self.name = f'Program|{self.component}|'
-        self.variables, self.constraints, self.parameters = ([] for _ in range(3))
+        self.variables, self.constraints, self.parameters, self.dispositions = (
+            [] for _ in range(4)
+        )
 
     def __setattr__(self, name, value):
 
@@ -58,16 +62,46 @@ class ProgramBlock(_Dunders):
             variable = var(disposition=data.disposition)
             self.add(variable)
 
+            self.add(variable.disposition)
+
             if var.parent():
 
                 if var.child():
-                    disposition_par = Disposition(
-                        **variable.disposition.childless(var.child())
-                    )
+
+                    index_childless = variable.disposition.childless(var.child())
+
+                    par_index = tuple([i for i in index_childless.values() if i])
+
+                    # If Disposition exists already, get the existing and use it for child
+                    # If does not exist, make a new one
+
+                    if par_index in self.indices:
+                        disposition_par = self.dispositions[
+                            self.indices.index(par_index)
+                        ]
+                    else:
+                        disposition_par = Disposition(**index_childless)
+                        self.add(disposition_par)
+
                 else:
                     disposition_par = variable.disposition
-                parent = var.parent()(disposition=disposition_par)
-                self.add(parent)
+
+                parent_var = var.parent()
+
+                samevars = [
+                    var_ for var_ in self.variables if isinstance(var_, parent_var)
+                ]
+
+                samevars_indices = [var_.disposition.index for var_ in samevars]
+
+                # If Variable needed for parent exists with the same index, do not create a new one
+                # If does not exist, make a new one
+                if disposition_par.index in samevars_indices:
+                    parent = samevars[samevars_indices.index(disposition_par.index)]
+
+                else:
+                    parent = parent_var(disposition=disposition_par)
+                    self.add(parent)
 
             else:
                 parent = None
@@ -102,10 +136,55 @@ class ProgramBlock(_Dunders):
         list_curr = getattr(self, element.collection())
         setattr(self, element.collection(), sorted(set(list_curr) | {element}))
 
-    def eqns(self):
-        """Prints all equations in the program"""
-        for constraint in self.constraints:
+    def eqns(self, at_cmp: IsComponent = None, at_disp: IsIndex = None):
+        """Prints all equations in the program
+
+        Args:
+            at_cmp (IsComponent, optional): Component to search for. Defaults to None.
+            at_disp (IsDisposition, optional): Disposition to search for. Defaults to None.
+        """
+        if at_cmp:
+            constraints = self.at_cmp(at_cmp)
+
+        elif at_disp:
+            constraints = self.at_disp(at_disp)
+
+        if not any([at_cmp, at_disp]):
+            constraints = self.constraints
+
+        for constraint in constraints:
             print(constraint.equation)
+
+    def at_disp(self, disposition: IsIndex):
+        """Returns constraints defined for disposition throughout the program
+
+        Args:
+            disposition (IsIndex): disposition (actually index) to be searched for
+        """
+        return [
+            cons for cons in self.constraints if cons.disposition.index == disposition
+        ]
+
+    def at_cmp(self, component: IsComponent):
+        """Returns constraints defined for component throughout the program
+
+        Args:
+            component (IsComponent): component to be searched for
+        """
+
+        return [
+            cons for cons in self.constraints if component in cons.disposition.index
+        ]
+
+    @property
+    def indices(self):
+        """Returns all indices in the ProgramBlock"""
+        return [i.index for i in self.dispositions]
+
+    @property
+    def var_types(self):
+        """Returns all variables types already declared in the ProgramBlock"""
+        return [type(i) for i in self.variables]
 
 
 @dataclass
@@ -134,14 +213,29 @@ class Program(_Dunders):
     @property
     def constraints(self):
         """Returns all constraints in the program"""
-        return [block.constraints for block in self.blocks if block.constraints]
+        constraints = [block.constraints for block in self.blocks if block.constraints]
+        return sum(constraints, [])
 
     @property
     def parameters(self):
         """Returns all parameters in the program"""
         return [block.parameters for block in self.blocks if block.parameters]
 
-    def eqns(self):
-        """Prints all equations in the program"""
+    @property
+    def dispositions(self):
+        """Returns all dispositions in the program"""
+        disps = [block.dispositions for block in self.blocks if block.parameters]
+        return sum(disps, [])
+
+    def eqns(self, at_cmp: IsComponent = None, at_disp: IsIndex = None):
+        """Prints all equations in the Program
+
+        Args:
+            at_cmp (IsComponent, optional): Component to search for. Defaults to None.
+            at_disp (IsIndex, optional): Disposition (actually Index) to search for. Defaults to None.
+        """
+
         for block in self.blocks:
-            block.eqns()
+            print(f'-----------{block.component} Constraints -----------')
+            block.eqns(at_cmp=at_cmp, at_disp=at_disp)
+            print('')

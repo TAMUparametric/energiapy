@@ -88,13 +88,14 @@ class System(_Dunders):
                 self.scopes[1] = component
 
         elif isinstance(component, Cash):
-            if self.assets[0]:
-                delattr(self, self.assets[0].name)
+            # if self.assets[0]:
+            # delattr(self, self.assets[0].name)
 
             self.assets[0] = component
         elif isinstance(component, Land):
-            if self.assets[1]:
-                delattr(self, self.assets[1].name)
+            # if self.assets[1]:
+
+            # delattr(self, self.assets[1].name)
 
             self.assets[1] = component
 

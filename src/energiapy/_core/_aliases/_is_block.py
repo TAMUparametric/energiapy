@@ -1,7 +1,7 @@
 """Modeling blocks
 """
 
-from typing import TypeAlias, Union
+from typing import TypeAlias, Union, Tuple
 
 from ...blocks.data import Data
 from ...blocks.matrix import Matrix
@@ -9,8 +9,10 @@ from ...blocks.program import Program
 from ...blocks.scenario import Scenario
 from ...blocks.system import System
 from ...disposition.disposition import Disposition
+from ._is_component import IsComponent
 
 IsDisposition: TypeAlias = Disposition
+IsIndex: TypeAlias = Tuple[IsComponent]
 IsScenario: TypeAlias = Scenario
 
 # submodels

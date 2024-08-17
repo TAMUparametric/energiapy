@@ -19,7 +19,7 @@ class _Parameter(_Dunders):
     value: IsData = field(default=None)
 
     def __post_init__(self):
-        self.dispostion = self.value.disposition
+        self.disposition = self.value.disposition
         self.name = f'{self.id()}|{self.value.name}|'
 
     @classmethod
@@ -31,5 +31,3 @@ class _Parameter(_Dunders):
     def collection():
         """What collection the element belongs to"""
         return 'parameters'
-
-    

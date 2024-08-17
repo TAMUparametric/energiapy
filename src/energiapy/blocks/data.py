@@ -6,7 +6,6 @@ from typing import TYPE_CHECKING
 from pandas import DataFrame
 
 from .._core._handy._dunders import _Dunders
-from ..disposition.disposition import Disposition
 from ..parameters.bounds import SpcLmt, VarBnd
 from ..parameters.data.constant import Constant
 from ..parameters.data.dataset import DataSet
@@ -16,8 +15,9 @@ from ..parameters.designators.incidental import I
 from ._base._spttmpinput import _SptTmpInput
 
 if TYPE_CHECKING:
-    from .._core._aliases._is_data import IsData
+    from .._core._aliases._is_data import IsData, IsVarBnd, IsSpcLmt
     from .._core._aliases._is_input import IsBaseInput
+    from .._core._aliases._is_block import IsDisposition
 
 
 @dataclass
@@ -37,7 +37,7 @@ class DataBlock(_Dunders):
         varbnds = [VarBnd.LOWER, VarBnd.UPPER]
 
         if isinstance(value, dict):
-            
+
             spttmpinput = _SptTmpInput(name, value)
 
             for disposition, datapoint in spttmpinput.dict_input.items():
@@ -75,10 +75,10 @@ class DataBlock(_Dunders):
 
     def birth_value(
         self,
-        disposition: Disposition,
+        disposition: IsDisposition,
         value: IsBaseInput,
-        varbnd: VarBnd = None,
-        spclmt: SpcLmt = None,
+        varbnd: IsVarBnd = None,
+        spclmt: IsSpcLmt = None,
     ) -> IsBaseInput:
         """Creates a parameter value"""
 

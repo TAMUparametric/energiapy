@@ -28,6 +28,7 @@ class _Constraint(_Dunders, ABC):
     sumover: SumOver = None
 
     def __post_init__(self):
+
         if self.parameter and self.parent:
             self.multiply = True
         else:
@@ -35,12 +36,16 @@ class _Constraint(_Dunders, ABC):
 
         if is_(self.varbnd, VarBnd.LOWER):
             self.equality = 'geq'
+            nm_vb = 'LB'
         if self.varbnd in [VarBnd.UPPER, VarBnd.FREE]:
             self.equality = 'leq'
+            nm_vb = 'UB'
         if is_(self.varbnd, VarBnd.EXACT):
             self.equality = 'eq'
+            nm_vb = ''
 
-        self.name = f'{self.id()}[{self.variable}]'
+        self.disposition = self.variable.disposition
+        self.name = f'{self.id()}{nm_vb}[{self.variable}]'
         self.equation = f'{self.variable}{self.pr_sign}{self.pr_parameter}{self.pr_multiply}{self.pr_parent}'
 
     @property

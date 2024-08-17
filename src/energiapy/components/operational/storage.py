@@ -19,6 +19,8 @@ if TYPE_CHECKING:
 
 @dataclass
 class Storage(_Operational):
+    """Storage component"""
+
     loss: IsExactInput = field(default=None)
 
     def __post_init__(self):

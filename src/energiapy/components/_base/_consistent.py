@@ -59,7 +59,7 @@ class _Consistent(ABC):
             }
 
     def make_spatial(self, value: IsInput) -> dict:
-        """adds spatial dispostion to input data if not there already
+        """adds spatial disposition to input data if not there already
         defaults to Network
 
         Args:
@@ -88,7 +88,7 @@ class _Consistent(ABC):
         return value_upd
 
     def make_temporal(self, value: IsInput) -> dict:
-        """adds temporal dispostion to input data if not there already
+        """adds temporal disposition to input data if not there already
         puts a 't' temporarily
 
         Args:
