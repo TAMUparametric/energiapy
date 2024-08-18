@@ -58,3 +58,23 @@ class Storage(_Operational):
         """Makes the inventory"""
         if not isinstance(self.inventory, Inventory):
             self.inventory = Inventory(inventory=self.inventory, storage=self)
+
+    @property
+    def conversion_c(self):
+        """Conversion from Resource to ResourceStg"""
+        return self.inventory.conversion_c
+
+    @property
+    def conversion_d(self):
+        """Conversion from ResourceStg to Resource"""
+        return self.inventory.conversion_d
+
+    @property
+    def balance_c(self):
+        """Balance from Resource to ResourceStg"""
+        return self.inventory.conversion_c.balance
+
+    @property
+    def balance_d(self):
+        """Balance from ResourceStg to Resource"""
+        return self.inventory.conversion_d.balance
