@@ -14,6 +14,9 @@ __all__ = [
     'Horizon',
     'Network',
     'Linkage',
+    'IsExactInput',
+    'IsInput',
+    'IsBoundInput',
 ]
 
 from .analytical.player import Player
@@ -28,3 +31,5 @@ from .operational.transit import Transit
 from .scope.horizon import Horizon
 from .scope.network import Network
 from .spatial.linkage import Linkage
+
+from .._core._aliases._is_input import IsExactInput, IsInput, IsBoundInput

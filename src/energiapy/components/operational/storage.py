@@ -19,7 +19,12 @@ if TYPE_CHECKING:
 
 @dataclass
 class Storage(_Operational):
-    """Storage component"""
+    """Storage component
+
+    Args:
+        loss: (IsExactInput, optional): Loss of resource in storage. Defaults to None.
+
+    """
 
     loss: IsExactInput = field(default=None)
 

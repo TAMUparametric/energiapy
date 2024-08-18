@@ -29,7 +29,7 @@ IsSpace: TypeAlias = Union[Tuple[IsSpaceBound, IsSpaceBound], Theta]
 IsExact: TypeAlias = Union[IsNumeric, IsDataFr, IsSpace]
 
 # as a list of bounds [lower, upper] (inequality constraints)
-IsBound: TypeAlias = Union[IsExact, IsBig, List[IsExact, IsBig]]
+IsBound: TypeAlias = Union[IsExact, IsBig, List[Union[IsExact, IsBig]]]
 
 IsBaseInput: TypeAlias = Union[IsExact, IsBound]
 
