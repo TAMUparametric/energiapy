@@ -49,11 +49,6 @@ class _Data(ABC, _Reprs):
 
     @staticmethod
     @abstractmethod
-    def collection():
-        """reports what collection the component belongs to"""
-
-    @staticmethod
-    @abstractmethod
     def _id():
         """ID to add to name"""
 

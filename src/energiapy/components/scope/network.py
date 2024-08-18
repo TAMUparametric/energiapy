@@ -21,6 +21,7 @@ class Network(_Scope):
         if isinstance(self.locs, int):
             self.locs = [f'node{i}' for i in range(self.locs)]
 
+    # TODO - Block 3
     @property
     def locations(self):
         return self.system.locations

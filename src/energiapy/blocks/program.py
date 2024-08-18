@@ -199,31 +199,29 @@ class Program(_Block):
         self.name = f'Program|{self.name}|'
 
     @property
+    def blocks(self):
+        """Returns all blocks in the program"""
+        return sorted([getattr(self, i) for i in self.components()])
+
+    @property
     def variables(self):
         """Returns all variables in the program"""
-        return [block.variables for block in self.blocks if block.variables]
+        return self.fetch('variables')
 
     @property
     def constraints(self):
         """Returns all constraints in the program"""
-        constraints = [block.constraints for block in self.blocks if block.constraints]
-        return sum(constraints, [])
+        return self.fetch('constraints')
 
     @property
     def parameters(self):
         """Returns all parameters in the program"""
-        return [block.parameters for block in self.blocks if block.parameters]
+        return self.fetch('parameters')
 
     @property
     def dispositions(self):
         """Returns all dispositions in the program"""
-        disps = [block.dispositions for block in self.blocks if block.parameters]
-        return sum(disps, [])
-
-    @property
-    def blocks(self):
-        """Returns all blocks in the program"""
-        return [getattr(self, i) for i in self.components()]
+        return self.fetch('dispositions')
 
     def eqns(self, at_cmp: IsComponent = None, at_disp: IsIndex = None):
         """Prints all equations in the Program
@@ -248,3 +246,19 @@ class Program(_Block):
 
             if not any([at_cmp, at_disp]):
                 print('')
+
+    def fetch(self, element: str) -> list:
+        """Fetches input data of a particular type
+        Args:
+            element (str): The type of element to fetch parameters, variables, constraints, dispositions
+        """
+        return sorted(
+            sum(
+                [
+                    getattr(block, element)
+                    for block in self.blocks
+                    if getattr(block, element)
+                ],
+                [],
+            )
+        )

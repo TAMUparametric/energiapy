@@ -33,3 +33,5 @@ class Transit(_Operational):
     def resourceexps():
         """Attrs that determine resource expenses of the component"""
         return []
+
+    # TODO - Block 6

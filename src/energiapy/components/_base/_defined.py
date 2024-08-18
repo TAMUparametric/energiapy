@@ -70,7 +70,7 @@ class _Defined(_Component, _Consistent, ABC):
     def _cnst_nstd_csh(cls):
         """Is a nested input to be made consistent with Cash"""
 
-    #TODO - BLOCK 2
+    # TODO - BLOCK 2
 
     @property
     def datasets(self):
@@ -97,7 +97,7 @@ class _Defined(_Component, _Consistent, ABC):
         """Returns all data"""
         return self.data.all
 
-    #TODO - BLOCK 1
+    # TODO - BLOCK 1
     @property
     def parameters(self):
         """Returns the Parameters"""
@@ -112,6 +112,11 @@ class _Defined(_Component, _Consistent, ABC):
     def constraints(self):
         """Returns the Constraints"""
         return self.program.constraints
+
+    @property
+    def dispositions(self):
+        """Returns the Dispositions"""
+        return self.program.dispositions
 
     def eqns(self):
         """Prints all equations in the program"""

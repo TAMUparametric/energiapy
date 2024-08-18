@@ -103,6 +103,7 @@ class Horizon(_Scope):
         """Returns number of scales"""
         return len(self._discretization_list)
 
+    # TODO - Block 7
     @property
     def scales(self):
         """List of scales"""

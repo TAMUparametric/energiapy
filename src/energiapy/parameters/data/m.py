@@ -45,10 +45,6 @@ class M(_Data):
         else:
             return 'm'
 
-    @staticmethod
-    def collection():
-        """reports what collection the component belongs to"""
-        return 'ms'
 
     @staticmethod
     def _id():

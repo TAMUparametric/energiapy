@@ -175,10 +175,14 @@ class Scenario(_Default):
         """Horizon of the System"""
         return self.system.horizon
 
+    # TODO - Block 7
+
     @property
     def scales(self):
         """Temporal Scales of the System"""
         return self.system.scales
+
+    # TODO - Block 7 END
 
     @property
     def network(self):
@@ -200,6 +204,7 @@ class Scenario(_Default):
         """Materials of the System"""
         return self.system.materials
 
+    # TODO - Block 5
     @property
     def processes(self):
         """Process Operations of the System"""
@@ -210,12 +215,13 @@ class Scenario(_Default):
         """Storage Operations of the System"""
         return self.system.storages
 
+    # TODO - Block 6
     @property
     def transits(self):
         """Transit Operations of the System"""
         return self.system.transits
 
-    # spatial collections
+    # TODO - BLOCK 3
     @property
     def locations(self):
         """Locations of the System"""
@@ -246,6 +252,8 @@ class Scenario(_Default):
         """Sink Locations of the System"""
         return self.system.sinks
 
+    # TODO - Block 3 END
+
     @property
     def cash(self):
         """Cash of the System"""
@@ -259,9 +267,9 @@ class Scenario(_Default):
     @property
     def components(self):
         """All Components of the System"""
-        return self.system.components
+        return self.system.components()
 
-    #TODO - BLOCK 1
+    # TODO - BLOCK 1
     @property
     def constraints(self):
         """All Constraints in the Program"""
@@ -282,7 +290,7 @@ class Scenario(_Default):
         """All Dispositions in the Program"""
         return self.program.dispositions
 
-    #TODO - BLOCK 1
+    # TODO - BLOCK 2
 
     @property
     def constants(self):

@@ -22,6 +22,8 @@ class Location(_Spatial):
     def __post_init__(self):
         _Spatial.__post_init__(self)
 
+    # TODO - Block 5
+
     @property
     def processes(self):
         """Process Operations at the Location"""

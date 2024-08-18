@@ -83,10 +83,6 @@ class Theta(_Data, _Magics):
         """ID to add to name"""
         return 'Th'
 
-    @staticmethod
-    def collection():
-        """reports what collection the component belongs to"""
-        return 'thetas'
 
 
 Th = Theta(space=(0, 1))

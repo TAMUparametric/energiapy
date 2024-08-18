@@ -33,11 +33,6 @@ class Constant(_Data):
         return self.constant
 
     @staticmethod
-    def collection():
-        """reports what collection the component belongs to"""
-        return 'constants'
-
-    @staticmethod
     def _id():
         """ID to add to name"""
         return ''
