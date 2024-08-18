@@ -13,6 +13,62 @@ class _Sys(ABC):
         """System"""
 
 
+class _Cmds(_Sys):
+
+    @property
+    def cash(self):
+        """Cash of the System"""
+        return self.system.cash
+
+    @property
+    def land(self):
+        """Land of the System"""
+        return self.system.land
+
+    @property
+    def resources(self):
+        """Resources of the System"""
+        return self.system.resources
+
+    @property
+    def resources_stg(self):
+        """Resources of the System"""
+        return self.system.resources_stg
+
+    @property
+    def materials(self):
+        """Materials of the System"""
+        return self.system.materials
+
+
+class _Scps(_Sys):
+
+    @property
+    def horizon(self):
+        """Horizon of the System"""
+        return self.system.horizon
+
+    @property
+    def network(self):
+        """Network of the System"""
+        return self.system.network
+
+
+class _Alys(_Sys):
+    @property
+    def players(self):
+        """Players of the System"""
+        return self.system.players
+
+
+class _Imps(_Sys):
+
+    @property
+    def emissions(self):
+        """Emissions of the System"""
+        return self.system.emissions
+
+
 # TODO - Block 5
 
 
@@ -103,7 +159,7 @@ class _Prog(ABC):
 # TODO - BLOCK 1
 
 
-class _Elements(_Prog):
+class _Elms(_Prog):
     """Program Elements"""
 
     @property
@@ -139,7 +195,7 @@ class _Dt(ABC):
 # TODO - BLOCK 2
 
 
-class _Values(_Dt):
+class _Vlus(_Dt):
     """Values of Parameters"""
 
     @property

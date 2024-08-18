@@ -4,16 +4,18 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Union
 
 from ._operational import _Operational
+
+from ...parameters.data.inventory import Inventory
 
 # import operator
 # from functools import reduce
 
 
 if TYPE_CHECKING:
-    from ..._core._aliases._is_input import IsBoundInput, IsExactInput
+    from ..._core._aliases._is_input import IsBoundInput, IsExactInput, IsInvInput
 
 
 @dataclass
@@ -25,8 +27,9 @@ class Storage(_Operational):
 
     """
 
-    store: IsExactInput = field(default=None)
-    loss: IsBoundInput = field(default=None)
+    loss: IsExactInput = field(default=None)
+    store: IsBoundInput = field(default=None)
+    inventory: IsInvInput = field(default=None)
 
     def __post_init__(self):
         _Operational.__post_init__(self)
@@ -50,3 +53,8 @@ class Storage(_Operational):
     def resourceloss():
         """Attrs that determine resource loss of the component"""
         return ['loss']
+
+    def inventorize(self):
+        """Makes the inventory"""
+        if not isinstance(self.inventory, Inventory):
+            self.inventory = Inventory(inventory=self.inventory, storage=self)

@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-import operator
+from operator import or_
 from dataclasses import dataclass, field
 from functools import reduce
 from typing import TYPE_CHECKING
@@ -35,7 +35,7 @@ class Conversion(_Reprs):
     """
 
     conversion: IsConvInput = field(default=None)
-    operation: IsProcess = field(default=None)
+    process: IsProcess = field(default=None)
 
     def __post_init__(self):
 
@@ -45,7 +45,7 @@ class Conversion(_Reprs):
 
             self.conversion = {
                 self.base: {
-                    i.personalize(opn=self.operation, attr='conv'): j
+                    i.personalize(opn=self.process, attr='conv'): j
                     for i, j in self.conversion[self.base].items()
                 }
             }
@@ -55,7 +55,7 @@ class Conversion(_Reprs):
 
             self.sold = [self.base] + list(
                 reduce(
-                    operator.or_,
+                    or_,
                     (
                         set(
                             j for j, k in self.conversion[self.base][i].items() if k > 0
@@ -67,7 +67,7 @@ class Conversion(_Reprs):
             )
             self.bought = list(
                 reduce(
-                    operator.or_,
+                    or_,
                     (
                         set(
                             j for j, k in self.conversion[self.base][i].items() if k < 0
@@ -96,4 +96,4 @@ class Conversion(_Reprs):
             self.balance = {self.base: 1, **self.conversion[self.base]}
 
         self.involve = list(self.sold) + list(self.bought)
-        self.name = f'Conv({self.base},{self.operation})'
+        self.name = f'Conv({self.base},{self.process})'

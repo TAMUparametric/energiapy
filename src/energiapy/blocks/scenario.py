@@ -4,13 +4,25 @@
 from dataclasses import dataclass, field
 from warnings import warn
 
-from .._core._handy._collections import (_Elements, _LnkOpns, _LocOpns, _Scl,
-                                         _Spt, _Values)
+from .._core._handy._collections import (
+    _Elms,
+    _LnkOpns,
+    _LocOpns,
+    _Scl,
+    _Spt,
+    _Vlus,
+    _Cmds,
+    _Scps,
+    _Alys,
+    _Imps,
+)
 from ..components._base._component import _Component
 from ..components._base._defined import _Defined
 from ..components.commodity.cash import Cash
 from ..components.commodity.land import Land
+from ..components.commodity.resource import ResourceStg
 from ..components.operational.process import Process
+from ..components.operational.storage import Storage
 from ..components.scope.horizon import Horizon
 from ..components.scope.network import Network
 from ..components.spatial.linkage import Linkage
@@ -22,7 +34,7 @@ from .model import Model
 from .program import ProgramBlock
 
 
-class _ScnCol(_LocOpns, _LnkOpns, _Spt, _Scl, _Elements, _Values):
+class _ScnCol(_Alys, _Imps, _Cmds, _LocOpns, _LnkOpns, _Spt, _Scl, _Scps, _Elms, _Vlus):
     """Scenario Collection"""
 
 
@@ -61,7 +73,7 @@ class Scenario(_Default, _ScnCol):
 
     def __setattr__(self, name, value):
 
-        if issubclass(type(value), (_Component)):
+        if isinstance(value, _Component):
 
             # Only one of Cash or Land can be defined
             # if already defined, remove it
@@ -80,7 +92,7 @@ class Scenario(_Default, _ScnCol):
             value.personalize(name=name, model=self.model)
             setattr(self.system, name, value)
 
-            if issubclass(type(value), _Defined):
+            if isinstance(value, _Defined):
 
                 value.make_consistent()
 
@@ -149,6 +161,26 @@ class Scenario(_Default, _ScnCol):
 
             getattr(self.system, name).conversionize()
 
+        if isinstance(value, Storage):
+
+            storage = getattr(self.system, name)
+            storage.inventorize()
+
+            base = storage.inventory.base
+            conv_c = storage.inventory.conversion_c
+            conv_d = storage.inventory.conversion_d
+
+            setattr(self, f'{storage}_{base}', ResourceStg())
+            resourcestg = getattr(self, f'{storage}_{base}')
+
+            conv_c[resourcestg] = conv_c.pop('resource_stg')
+            setattr(self, f'{name}_c', Process(conversion=conv_c))
+            storage.inventory.conversion_c = getattr(self, f'{name}_c').conversion
+
+            conv_d[base][resourcestg] = conv_d[base].pop('resource_stg')
+            setattr(self, f'{name}_d', Process(conversion=conv_d))
+            storage.inventory.conversion_d = getattr(self, f'{name}_d').conversion
+
         super().__setattr__(name, value)
 
     @property
@@ -170,46 +202,6 @@ class Scenario(_Default, _ScnCol):
     def matrix(self):
         """Matrix of the Scenario"""
         return self.model.matrix
-
-    @property
-    def players(self):
-        """Players of the System"""
-        return self.system.players
-
-    @property
-    def horizon(self):
-        """Horizon of the System"""
-        return self.system.horizon
-
-    @property
-    def network(self):
-        """Network of the System"""
-        return self.system.network
-
-    @property
-    def emissions(self):
-        """Emissions of the System"""
-        return self.system.emissions
-
-    @property
-    def resources(self):
-        """Resources of the System"""
-        return self.system.resources
-
-    @property
-    def materials(self):
-        """Materials of the System"""
-        return self.system.materials
-
-    @property
-    def cash(self):
-        """Cash of the System"""
-        return self.system.cash
-
-    @property
-    def land(self):
-        """Land of the System"""
-        return self.system.land
 
     @property
     def components(self):

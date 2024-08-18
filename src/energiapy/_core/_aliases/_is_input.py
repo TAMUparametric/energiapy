@@ -66,3 +66,5 @@ IsSingleConvInput: TypeAlias = Dict[IsResource, Dict[IsResource, IsNumeric]]
 IsMultiConvInput: TypeAlias = Dict[IsMode, IsSingleConvInput]
 
 IsConvInput = Union[IsSingleConvInput, IsMultiConvInput]
+
+IsInvInput = Union[IsResource, IsConvInput]

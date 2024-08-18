@@ -10,8 +10,7 @@ from ...parameters.data.conversion import Conversion
 from ._operational import _Operational
 
 if TYPE_CHECKING:
-    from ..._core._aliases._is_input import (IsBoundInput, IsConvInput,
-                                             IsExactInput)
+    from ..._core._aliases._is_input import IsBoundInput, IsConvInput, IsExactInput
 
 
 @dataclass
@@ -148,4 +147,4 @@ class Process(_Operational):
         """Makes the conversion"""
 
         if not isinstance(self.conversion, Conversion):
-            self.conversion = Conversion(conversion=self.conversion, operation=self)
+            self.conversion = Conversion(conversion=self.conversion, process=self)

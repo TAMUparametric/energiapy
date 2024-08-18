@@ -86,7 +86,7 @@ class Resource(_Traded):
 
 
 @dataclass
-class ResourceInStorage(Resource):
+class ResourceStg(Resource):
     """Stored Resource"""
 
     def __post_init__(self):
@@ -94,16 +94,8 @@ class ResourceInStorage(Resource):
 
 
 @dataclass
-class ResourceInTransit(Resource):
+class ResourceTrn(Resource):
     """Resource in transit"""
-
-    def __post_init__(self):
-        Resource.__post_init__(self)
-
-
-@dataclass
-class ResourceLost(Resource):
-    """Resource lost"""
 
     def __post_init__(self):
         Resource.__post_init__(self)

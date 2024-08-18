@@ -3,12 +3,13 @@ from typing import TypeAlias, Union
 from ...parameters.bounds import SpcLmt, VarBnd
 from ...parameters.data.constant import Constant
 from ...parameters.data.conversion import Conversion
+from ...parameters.data.inventory import Inventory
 from ...parameters.data.dataset import DataSet
 from ...parameters.data.m import M
 from ...parameters.data.theta import Theta
 from ...parameters.designators.mode import X
 
-# * Value
+# Value
 # these are generated internally
 IsConstant: TypeAlias = Constant
 # if a range is provided
@@ -20,13 +21,17 @@ IsM: TypeAlias = M
 # this is the value attribute of Value dataclass
 IsValue: TypeAlias = Union[IsConstant, IsDataSet, IsM, IsParVar]
 
-# *Bound types
+# Bound types
 # is parameter bound on variable
 IsVarBnd: TypeAlias = VarBnd
 # is a limit to the domain of a parametric variable
 IsSpcLmt: TypeAlias = SpcLmt
 
+# Operation Balances
+# Process Conversion
 IsConv: TypeAlias = Conversion
+# Inventory Balance for Storage
+IsInv: TypeAlias = Inventory
 
 # Is operating mode
 IsMode: TypeAlias = X

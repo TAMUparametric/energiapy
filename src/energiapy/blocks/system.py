@@ -2,25 +2,20 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, List
-from warnings import warn
 
-from ..components._base._component import _Component
 from ..components.analytical.player import Player
 from ..components.commodity.cash import Cash
 from ..components.commodity.land import Land
 from ..components.commodity.material import Material
-from ..components.commodity.resource import Resource
+from ..components.commodity.resource import Resource, ResourceStg
 from ..components.impact.emission import Emission
 from ..components.operational.process import Process
 from ..components.operational.storage import Storage
 from ..components.operational.transit import Transit
-from ..components.scope._scope import _Scope
 from ..components.scope.horizon import Horizon
 from ..components.scope.network import Network
-from ..components.spatial._spatial import _Spatial
 from ..components.spatial.linkage import Linkage
 from ..components.spatial.location import Location
-from ..components.temporal._temporal import _Temporal
 from ..components.temporal.scale import Scale
 from ._base._block import _Block
 
@@ -106,6 +101,11 @@ class System(_Block):
     def resources(self):
         """Returns the Resources of the System"""
         return self.fetch(Resource)
+
+    @property
+    def resources_stg(self):
+        """Returns the Stored Resources of the System"""
+        return self.fetch(ResourceStg)
 
     @property
     def materials(self):
