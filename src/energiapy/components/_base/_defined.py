@@ -1,23 +1,21 @@
 """There are user defined components
 """
 
-from __future__ import annotations
-
 from abc import ABC, abstractmethod
-from dataclasses import dataclass, field  # , fields
-from typing import TYPE_CHECKING
+from dataclasses import dataclass, field
 
 # from ..._core._nirop._error import CacodcarError
-# from ...constraints.taskmaster import taskmaster
 from ._component import _Component
 from ._consistent import _Consistent
+from ..._core._handy._collections import _Values, _Elements
 
-if TYPE_CHECKING:
-    pass
+
+class _DefCol(_Values, _Elements):
+    """Defined Collection"""
 
 
 @dataclass
-class _Defined(_Component, _Consistent, ABC):
+class _Defined(_Component, _Consistent, _DefCol, ABC):
     """Common initial attributes of components"""
 
     basis: str = field(default='unit')
@@ -69,54 +67,6 @@ class _Defined(_Component, _Consistent, ABC):
     @abstractmethod
     def _cnst_nstd_csh(cls):
         """Is a nested input to be made consistent with Cash"""
-
-    # TODO - BLOCK 2
-
-    @property
-    def datasets(self):
-        """Returns the DataSets"""
-        return self.data.datasets
-
-    @property
-    def ms(self):
-        """Returns the Ms"""
-        return self.data.ms
-
-    @property
-    def thetas(self):
-        """Returns the Thetas"""
-        return self.data.thetas
-
-    @property
-    def constants(self):
-        """Returns the Constants"""
-        return self.data.constants
-
-    @property
-    def data_all(self):
-        """Returns all data"""
-        return self.data.all
-
-    # TODO - BLOCK 1
-    @property
-    def parameters(self):
-        """Returns the Parameters"""
-        return self.program.parameters
-
-    @property
-    def variables(self):
-        """Returns the Variables"""
-        return self.program.variables
-
-    @property
-    def constraints(self):
-        """Returns the Constraints"""
-        return self.program.constraints
-
-    @property
-    def dispositions(self):
-        """Returns the Dispositions"""
-        return self.program.dispositions
 
     def eqns(self):
         """Prints all equations in the program"""

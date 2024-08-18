@@ -8,7 +8,6 @@ from typing import TYPE_CHECKING
 
 from .._base._nature import nature
 from ._operational import _Operational
-
 # import operator
 # from functools import reduce
 
@@ -34,4 +33,3 @@ class Transit(_Operational):
         """Attrs that determine resource expenses of the component"""
         return []
 
-    # TODO - Block 6

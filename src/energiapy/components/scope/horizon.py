@@ -7,10 +7,11 @@ from operator import imod, is_, is_not
 from typing import List
 
 from ._scope import _Scope
+from ..._core._handy._collections import _Scl
 
 
 @dataclass
-class Horizon(_Scope):
+class Horizon(_Scope, _Scl):
     """
     Planning horizon of the problem.
     Need to specify how many periods the parent scale t0 with 1 discretization is divided into.
@@ -102,12 +103,6 @@ class Horizon(_Scope):
     def n_scales(self) -> int:
         """Returns number of scales"""
         return len(self._discretization_list)
-
-    # TODO - Block 7
-    @property
-    def scales(self):
-        """List of scales"""
-        return self.system.scales
 
     @property
     def indices(self):

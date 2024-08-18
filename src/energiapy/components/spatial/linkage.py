@@ -23,3 +23,5 @@ class Linkage(_Spatial):
 
     def __post_init__(self):
         _Spatial.__post_init__(self)
+
+    # TODO - Block 6
