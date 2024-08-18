@@ -5,12 +5,12 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
-from ..designators.mode import X
 
 from ..._core._handy._dunders import _Reprs
+from ..designators.mode import X
 
 if TYPE_CHECKING:
-    from ..._core._aliases._is_component import IsStorage, IsResource
+    from ..._core._aliases._is_component import IsResource, IsStorage
     from ..._core._aliases._is_input import IsInvInput
 
 

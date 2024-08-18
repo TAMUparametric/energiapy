@@ -4,18 +4,8 @@
 from dataclasses import dataclass, field
 from warnings import warn
 
-from .._core._handy._collections import (
-    _Elms,
-    _LnkOpns,
-    _LocOpns,
-    _Scl,
-    _Spt,
-    _Vlus,
-    _Cmds,
-    _Scps,
-    _Alys,
-    _Imps,
-)
+from .._core._handy._collections import (_Alys, _Cmds, _Elms, _Imps, _LnkOpns,
+                                         _LocOpns, _Scl, _Scps, _Spt, _Vlus)
 from ..components._base._component import _Component
 from ..components._base._defined import _Defined
 from ..components.commodity.cash import Cash

@@ -3,8 +3,8 @@ from typing import TypeAlias, Union
 from ...parameters.bounds import SpcLmt, VarBnd
 from ...parameters.data.constant import Constant
 from ...parameters.data.conversion import Conversion
-from ...parameters.data.inventory import Inventory
 from ...parameters.data.dataset import DataSet
+from ...parameters.data.inventory import Inventory
 from ...parameters.data.m import M
 from ...parameters.data.theta import Theta
 from ...parameters.designators.mode import X

@@ -3,19 +3,19 @@
 
 from dataclasses import dataclass
 
+from ..components.commodity.land import Land
+from ..components.commodity.material import Material
+from ..components.commodity.resource import Resource
 from ..components.impact.emission import Emission
+from ..components.operational.process import Process
+from ..components.operational.storage import Storage
+from ..components.operational.transit import Transit
 from ..disposition.structure import make_structures
 from ._variable import _Variable
 from .capacitate import Capacity
 from .loss import Loss
 from .trade import Buy, Sell
 from .use import Use
-from ..components.commodity.resource import Resource
-from ..components.operational.process import Process
-from ..components.operational.storage import Storage
-from ..components.operational.transit import Transit
-from ..components.commodity.material import Material
-from ..components.commodity.land import Land
 
 
 @dataclass

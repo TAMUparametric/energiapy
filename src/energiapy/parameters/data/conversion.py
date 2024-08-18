@@ -3,9 +3,9 @@
 
 from __future__ import annotations
 
-from operator import or_
 from dataclasses import dataclass, field
 from functools import reduce
+from operator import or_
 from typing import TYPE_CHECKING
 
 from ..._core._handy._dunders import _Reprs

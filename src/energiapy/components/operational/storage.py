@@ -6,16 +6,16 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Union
 
-from ._operational import _Operational
-
 from ...parameters.data.inventory import Inventory
+from ._operational import _Operational
 
 # import operator
 # from functools import reduce
 
 
 if TYPE_CHECKING:
-    from ..._core._aliases._is_input import IsBoundInput, IsExactInput, IsInvInput
+    from ..._core._aliases._is_input import (IsBoundInput, IsExactInput,
+                                             IsInvInput)
 
 
 @dataclass

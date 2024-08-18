@@ -7,7 +7,6 @@ from ..disposition.structure import make_structures
 from ._variable import _Variable
 
 
-
 @dataclass
 class Action(_Variable):
     """Action is a Player's action"""

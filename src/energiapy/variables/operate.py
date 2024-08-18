@@ -3,12 +3,12 @@
 
 from dataclasses import dataclass
 
-from ..disposition.structure import make_structures
-from ._variable import _Variable
-from .capacitate import Capacity
 from ..components.operational.process import Process
 from ..components.operational.storage import Storage
 from ..components.operational.transit import Transit
+from ..disposition.structure import make_structures
+from ._variable import _Variable
+from .capacitate import Capacity
 
 
 @dataclass

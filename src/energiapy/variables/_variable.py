@@ -12,8 +12,8 @@ from .._core._nirop._error import CacodcarError
 
 if TYPE_CHECKING:
     from .._core._aliases._is_block import IsDisposition
-    from .._core._aliases._is_variable import IsVariable
     from .._core._aliases._is_component import IsComponent
+    from .._core._aliases._is_variable import IsVariable
 
 
 @dataclass

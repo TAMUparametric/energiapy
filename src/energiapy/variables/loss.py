@@ -4,11 +4,11 @@
 from dataclasses import dataclass
 
 from ..components.commodity.resource import Resource
+from ..components.operational.storage import Storage
+from ..components.operational.transit import Transit
 from ..disposition.structure import make_structures
 from ._variable import _Variable
 from .operate import Operate
-from ..components.operational.storage import Storage
-from ..components.operational.transit import Transit
 
 
 @dataclass
