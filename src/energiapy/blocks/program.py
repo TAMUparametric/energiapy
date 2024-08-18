@@ -200,8 +200,10 @@ class Program(_Block):
 
     @property
     def blocks(self):
-        """Returns all blocks in the program"""
-        return sorted([getattr(self, i) for i in self.components()])
+        """Returns all blocks in the program
+        Do not sort this, the order is as defined by the user
+        """
+        return [getattr(self, i) for i in self.components()]
 
     @property
     def variables(self):
