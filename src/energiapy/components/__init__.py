@@ -19,6 +19,7 @@ __all__ = [
     'IsBoundInput',
 ]
 
+from .._core._aliases._is_input import IsBoundInput, IsExactInput, IsInput
 from .analytical.player import Player
 from .commodity.cash import Cash
 from .commodity.land import Land
@@ -31,5 +32,3 @@ from .operational.transit import Transit
 from .scope.horizon import Horizon
 from .scope.network import Network
 from .spatial.linkage import Linkage
-
-from .._core._aliases._is_input import IsExactInput, IsInput, IsBoundInput

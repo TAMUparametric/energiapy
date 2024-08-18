@@ -14,6 +14,7 @@ if TYPE_CHECKING:
 
 @dataclass
 class Resource(_Traded):
+    """Applies only for Resource"""
 
     buy: IsBoundInput = field(default=None)
     sell: IsBoundInput = field(default=None)
@@ -26,7 +27,7 @@ class Resource(_Traded):
     buy_emission: IsExactInput = field(default=None)
     sell_emission: IsExactInput = field(default=None)
     loss_emission: IsExactInput = field(default=None)
-
+    
     # Depreciated
     varying: str = field(default=None)
     price: str = field(default=None)
@@ -34,28 +35,11 @@ class Resource(_Traded):
     cons_max: str = field(default=None)
     store_max: str = field(default=None)
     store_min: str = field(default=None)
-
+    
     def __post_init__(self):
         _Traded.__post_init__(self)
-
-        # *-----------------Set ctype (ResourceType)---------------------------
-
-        # if self.sell_cost is not None:
-        #     getattr(self, 'ctypes').append(ResourceType.SELL)1
-        #     if self.discharge is None:
-        #         self.discharge = True
-
-        # if self.discharge is not None:
-        #     getattr(self, 'ctypes').append(ResourceType.DISCHARGE)
-
-        # if self.consume is not None:
-        #     getattr(self, 'ctypes').append(ResourceType.CONSUME)
-
-        # if self.purchase_cost:
-        #     getattr(self, 'ctypes').append(ResourceType.PURCHASE)
-        #     if self.consume is None:
-        #         self.consume = True
-        # *Depreciation Warnings
+        
+        # Depreciation Warnings
         _name = getattr(self, 'name', None)
         _changed = {
             'store_max': 'store',
@@ -69,6 +53,37 @@ class Resource(_Traded):
             # If the attribute i is depreciated raise ValueError.
             if getattr(self, i):
                 raise ValueError(f'{_name}: {i} is depreciated. Please use {j} instead')
+
+
+    @classmethod
+    def bounds(cls):
+        """Attrs that quantify the bounds of the Component"""
+        return ['buy', 'sell', 'ship', 'receive']
+
+    @classmethod
+    def expenses(cls):
+        """Attrs that determine expenses of the component"""
+        return ['buy_price', 'sell_price', 'credit', 'penalty']
+
+    @classmethod
+    def emitted(cls):
+        """Attrs that determine emissions of the component"""
+        return ['buy_emission', 'sell_emission', 'loss_emission']
+
+    @classmethod
+    def inputs(cls):
+        """Attrs"""
+        return cls.bounds() + cls.expenses() + cls.emitted()
+
+    @classmethod
+    def _csh(cls):
+        """Adds Cash when making consistent"""
+        return cls.expenses()
+
+    @classmethod
+    def _nstd(cls):
+        """Is a nested input to be made consistent"""
+        return cls.emitted()
 
 
 

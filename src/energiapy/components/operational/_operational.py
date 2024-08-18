@@ -10,19 +10,27 @@ from typing import TYPE_CHECKING
 from pandas import DataFrame
 
 from ...utils.scaling import scaling
+from .._base._consistent import (_ConsistentBnd, _ConsistentCsh,
+                                 _ConsistentLnd, _ConsistentNstd,
+                                 _ConsistentNstdCsh)
 from .._base._defined import _Defined
-from .._base._nature import nature
 
 if TYPE_CHECKING:
     from ..._core._aliases._is_input import IsBoundInput, IsExactInput
 
 
 @dataclass
-class _Operational(_Defined, ABC):
-    """Operational Component"""
+class _Operational(
+    _Defined,
+    _ConsistentBnd,
+    _ConsistentCsh,
+    _ConsistentLnd,
+    _ConsistentNstd,
+    _ConsistentNstdCsh,
+    ABC,
+):
 
     capacity: IsBoundInput = field(default=True)
-    operate: IsBoundInput = field(default=None)
     land: IsExactInput = field(default=None)
     material: IsExactInput = field(default=None)
     capex: IsExactInput = field(default=None)
@@ -31,38 +39,44 @@ class _Operational(_Defined, ABC):
 
     def __post_init__(self):
         _Defined.__post_init__(self)
-        if isinstance(self.operate, DataFrame):
+        self.operate = self._operate
+        if isinstance(self._operate, DataFrame):
             self.operate = scaling(data=self.operate, how='max')
+
+    @property
+    @abstractmethod
+    def _operate(self):
+        """Returns attribute value that signifies operating bounds"""
 
     @staticmethod
     def bounds():
         """Attrs that quantify the bounds of the component"""
-        return nature['operational']['bounds']
+        return ['capacity', 'operate']
 
     @staticmethod
     def expenses():
         """Attrs that determine expenses of the component"""
-        return nature['operational']['expenses']
+        return ['capex', 'opex']
 
     @staticmethod
     def emitted():
         """Attrs that determine emissions of the component"""
-        return nature['operational']['emitted']
+        return ['emission']
 
     @staticmethod
     def landuse():
         """Attrs that determine land use of the component"""
-        return nature['operational']['landuse']
+        return ['land']
 
     @staticmethod
     def materialuse():
         """Attrs that determine material use of the component"""
-        return nature['operational']['materialuse']
+        return ['material']
 
     @staticmethod
+    @abstractmethod
     def resourcebnds():
         """Attrs that determine resource bounds of the component"""
-        return nature['resource']['bounds_trade']
 
     @staticmethod
     @abstractmethod
@@ -89,23 +103,44 @@ class _Operational(_Defined, ABC):
         )
 
     @classmethod
-    def _cnst_csh(cls):
+    def _csh(cls):
         """Adds Cash when making consistent"""
         return cls.expenses()
 
     @classmethod
-    def _cnst_lnd(cls):
+    def _lnd(cls):
         """Adds Land when making consistent"""
         return cls.landuse()
 
     @classmethod
-    def _cnst_nstd(cls):
+    def _nstd(cls):
         """Is a nested input to be made consistent"""
         return (
             cls.materialuse() + cls.resourceloss() + cls.resourcebnds() + cls.emitted()
         )
 
     @classmethod
-    def _cnst_nstd_csh(cls):
+    def _nstd_csh(cls):
         """Is a nested input to be made consistent with Cash"""
         return cls.resourceexps()
+
+    def make_consistent(self):
+        """Makes the data inputs consistent IsSptTmpDict"""
+        for attr in self.inputs():
+            if getattr(self, attr) is not None:
+                if attr in self.bounds():
+                    self.make_bounds_consistent(attr)
+
+                if attr in self._csh():
+                    self.make_csh_consistent(attr)
+
+                if attr in self._lnd():
+                    self.make_lnd_consistent(attr)
+
+                if attr in self._nstd():
+                    self.make_nstd_consistent(attr)
+
+                if attr in self._nstd_csh():
+                    self.make_nstd_csh_consistent(attr)
+
+        self._consistent = True

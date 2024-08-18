@@ -4,11 +4,9 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from operator import is_
 from typing import TYPE_CHECKING
 
 from ...parameters.data.conversion import Conversion
-from .._base._nature import nature
 from ._operational import _Operational
 
 if TYPE_CHECKING:
@@ -28,6 +26,7 @@ class Process(_Operational):
     credit: IsExactInput = field(default=None)
     penalty: IsExactInput = field(default=None)
     conversion: IsConvInput = field(default=None)
+    produce: IsBoundInput = field(default=None)
 
     # Depreciated
     varying: str = field(default=None)
@@ -125,15 +124,25 @@ class Process(_Operational):
         """The balance of resources"""
         return self.conversion.balance
 
+    @property
+    def _operate(self):
+        """Returns attribute value that signifies operating bounds"""
+        return self.produce
+
     @staticmethod
-    def resourceloss():
-        """Attrs that determine resource loss of the component"""
-        return []
+    def resourcebnds():
+        """Attrs that quantify the bounds of the Component"""
+        return ['buy', 'sell']
 
     @staticmethod
     def resourceexps():
         """Attrs that determine resource expenses of the component"""
-        return nature['resource']['expenses']
+        return ['buy_price', 'sell_price', 'credit', 'penalty']
+
+    @staticmethod
+    def resourceloss():
+        """Attrs that determine resource loss of the component"""
+        return []
 
     def conversionize(self):
         """Makes the conversion"""

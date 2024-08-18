@@ -249,3 +249,52 @@ class _Consistent(ABC):
         value = self.clean_up(value)
 
         return value
+
+
+class _ConsistentBnd(_Consistent):
+    def make_bounds_consistent(self, attr: str):
+        """Makes the input of bounds attributes consistent"""
+        setattr(self, attr, self.make_spttmpdict(getattr(self, attr), attr))
+
+
+class _ConsistentCsh(_Consistent):
+    def make_csh_consistent(self, attr: str):
+        """Makes the input of cash attributes consistent"""
+        setattr(
+            self,
+            attr,
+            {self.system.cash: self.make_spttmpdict(getattr(self, attr), attr)},
+        )
+
+
+class _ConsistentLnd(_Consistent):
+    def make_lnd_consistent(self, attr: str):
+        """Makes the input of land attributes consistent"""
+        setattr(
+            self,
+            attr,
+            {self.system.land: self.make_spttmpdict(getattr(self, attr), attr)},
+        )
+
+
+class _ConsistentNstd(_Consistent):
+    def make_nstd_consistent(self, attr: str):
+        """Makes the input of nested attributes consistent"""
+        setattr(
+            self,
+            attr,
+            {i: self.make_spttmpdict(j, attr) for i, j in getattr(self, attr).items()},
+        )
+
+
+class _ConsistentNstdCsh(_Consistent):
+    def make_nstd_csh_consistent(self, attr: str):
+        """Makes the input of nested cash attributes consistent"""
+        setattr(
+            self,
+            attr,
+            {
+                i: {self.system.cash: self.make_spttmpdict(j, attr)}
+                for i, j in getattr(self, attr).items()
+            },
+        )
