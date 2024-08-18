@@ -15,6 +15,7 @@ from typing import TYPE_CHECKING
 from warnings import warn
 
 from pandas import DataFrame
+
 from ...parameters.designators.mode import X
 from ..scope.network import Network
 from ..spatial._spatial import _Spatial

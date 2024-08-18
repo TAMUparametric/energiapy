@@ -6,20 +6,20 @@ from typing import TYPE_CHECKING, List
 from pandas import DataFrame
 
 from .._core._handy._dunders import _Dunders
-from ._base._block import _Block
 from ..parameters.bounds import SpcLmt, VarBnd
 from ..parameters.data.constant import Constant
 from ..parameters.data.dataset import DataSet
 from ..parameters.data.m import M
 from ..parameters.data.theta import Theta
 from ..parameters.designators.incidental import I
+from ._base._block import _Block
 from ._base._spttmpinput import _SptTmpInput
 
 if TYPE_CHECKING:
-    from .._core._aliases._is_data import IsValue, IsVarBnd, IsSpcLmt
-    from .._core._aliases._is_input import IsBaseInput
     from .._core._aliases._is_block import IsDisposition
     from .._core._aliases._is_component import IsComponent
+    from .._core._aliases._is_data import IsSpcLmt, IsValue, IsVarBnd
+    from .._core._aliases._is_input import IsBaseInput
 
 
 @dataclass

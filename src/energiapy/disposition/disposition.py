@@ -10,22 +10,12 @@ from typing import TYPE_CHECKING
 from .._core._handy._dunders import _Dunders
 
 if TYPE_CHECKING:
-    from .._core._aliases._is_component import (
-        IsCash,
-        IsComponent,
-        IsEmission,
-        IsLand,
-        IsLinkage,
-        IsLocation,
-        IsMaterial,
-        IsNetwork,
-        IsPlayer,
-        IsProcess,
-        IsResource,
-        IsScale,
-        IsStorage,
-        IsTransit,
-    )
+    from .._core._aliases._is_component import (IsCash, IsComponent,
+                                                IsEmission, IsLand, IsLinkage,
+                                                IsLocation, IsMaterial,
+                                                IsNetwork, IsPlayer, IsProcess,
+                                                IsResource, IsScale, IsStorage,
+                                                IsTransit)
     from .._core._aliases._is_data import IsMode
 
 

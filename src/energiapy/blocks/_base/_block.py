@@ -1,6 +1,6 @@
 """Base Class for all Modeling Blocks in energiapy"""
 
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
 
 from ..._core._handy._dunders import _Dunders
 

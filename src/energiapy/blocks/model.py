@@ -8,12 +8,12 @@ Includes:
 """
 
 from dataclasses import dataclass, field
-from .system import System
-from .program import Program
-from .data import Data
-from .matrix import Matrix
 
 from .._core._handy._dunders import _Dunders
+from .data import Data
+from .matrix import Matrix
+from .program import Program
+from .system import System
 
 
 @dataclass

@@ -6,9 +6,10 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
-from pandas import DataFrame
-from ...utils.scaling import scaling
 
+from pandas import DataFrame
+
+from ...utils.scaling import scaling
 from .._base._defined import _Defined
 from .._base._nature import nature
 

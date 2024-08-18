@@ -6,8 +6,8 @@ from itertools import product
 from operator import imod, is_, is_not
 from typing import List
 
-from ._scope import _Scope
 from ..._core._handy._collections import _Scl
+from ._scope import _Scope
 
 
 @dataclass

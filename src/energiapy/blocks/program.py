@@ -10,15 +10,14 @@ from .._core._handy._dunders import _Dunders
 from ..constraints.rulebook import rulebook
 from ..constraints.taskmaster import taskmaster
 from ..disposition.disposition import Disposition
-from .data import DataBlock
 from ._base._block import _Block
-
+from .data import DataBlock
 
 if TYPE_CHECKING:
+    from .._core._aliases._is_block import IsIndex
     from .._core._aliases._is_component import IsComponent
     from .._core._aliases._is_data import IsValue
     from .._core._aliases._is_element import IsElement
-    from .._core._aliases._is_block import IsIndex
 
 
 @dataclass

@@ -1,14 +1,14 @@
 """Modeling blocks
 """
 
-from typing import TypeAlias, Union, Tuple
+from typing import Tuple, TypeAlias, Union
 
 from ...blocks.data import Data
 from ...blocks.matrix import Matrix
+from ...blocks.model import Model
 from ...blocks.program import Program
 from ...blocks.scenario import Scenario
 from ...blocks.system import System
-from ...blocks.model import Model
 from ...disposition.disposition import Disposition
 from ._is_component import IsComponent
 

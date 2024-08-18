@@ -4,9 +4,8 @@
 from dataclasses import dataclass, field
 from typing import List, Union
 
-from ._scope import _Scope
-
 from ..._core._handy._collections import _Spt
+from ._scope import _Scope
 
 
 @dataclass

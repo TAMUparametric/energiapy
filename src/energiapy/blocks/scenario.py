@@ -4,29 +4,22 @@
 from dataclasses import dataclass, field
 from warnings import warn
 
+from .._core._handy._collections import (_Elements, _LnkOpns, _LocOpns, _Scl,
+                                         _Spt, _Values)
 from ..components._base._component import _Component
 from ..components._base._defined import _Defined
+from ..components.commodity.cash import Cash
+from ..components.commodity.land import Land
 from ..components.operational.process import Process
 from ..components.scope.horizon import Horizon
 from ..components.scope.network import Network
 from ..components.spatial.linkage import Linkage
 from ..components.spatial.location import Location
 from ..components.temporal.scale import Scale
-from ..components.commodity.cash import Cash
-from ..components.commodity.land import Land
 from ._base._default import _Default
 from .data import DataBlock
-from .program import ProgramBlock
 from .model import Model
-
-from .._core._handy._collections import (
-    _LocOpns,
-    _LnkOpns,
-    _Spt,
-    _Scl,
-    _Elements,
-    _Values,
-)
+from .program import ProgramBlock
 
 
 class _ScnCol(_LocOpns, _LnkOpns, _Spt, _Scl, _Elements, _Values):

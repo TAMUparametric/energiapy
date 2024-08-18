@@ -4,10 +4,10 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 
+from ..._core._handy._collections import _Elements, _Values
 # from ..._core._nirop._error import CacodcarError
 from ._component import _Component
 from ._consistent import _Consistent
-from ..._core._handy._collections import _Values, _Elements
 
 
 class _DefCol(_Values, _Elements):
