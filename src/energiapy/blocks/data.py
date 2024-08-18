@@ -40,7 +40,11 @@ class DataBlock(_Dunders):
             spttmpinput = _SptTmpInput(name, value)
 
             for disposition, datapoint in spttmpinput.dict_input.items():
+
                 if isinstance(datapoint, list):
+                    if len(datapoint) == 1:
+                        # if only one value, the value given is an upper bound
+                        datapoint = [0] + datapoint
                     datapoint = [
                         self.birth_value(disposition, i, varbnd=varbnds[b])
                         for b, i in enumerate(datapoint)

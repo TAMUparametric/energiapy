@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List, Tuple
 
 from .._core._handy._dunders import _Dunders
 from .._core._nirop._error import CacodcarError
@@ -13,7 +13,7 @@ from .._core._nirop._error import CacodcarError
 if TYPE_CHECKING:
     from .._core._aliases._is_block import IsDisposition
     from .._core._aliases._is_variable import IsVariable
-    from ..core._aliases._is_component import IsComponent
+    from .._core._aliases._is_component import IsComponent
 
 
 @dataclass
@@ -21,13 +21,14 @@ class _Variable(_Dunders, ABC):
     """Component Task"""
 
     disposition: IsDisposition = field(default=None)
+    component: IsComponent = field(default=None)
 
     def __post_init__(self):
         self.name = f'{self.id()}{self.disposition}'
 
-        if not self.disposition.structure() in self.structures():
+        if not self.disposition.structure() in self.structures(self.component):
             raise CacodcarError(
-                f'{self}:{self.disposition.structure()} not in {self.structures()}'
+                f'{self}:{self.disposition.structure()} not in {self.structures(self.component)}'
             )
 
     @classmethod
@@ -37,17 +38,17 @@ class _Variable(_Dunders, ABC):
 
     @classmethod
     @abstractmethod
-    def structures(cls):
+    def structures(cls, component) -> List[Tuple[str]]:
         """The allowed structures of Dispositions of the Variable"""
 
-    @staticmethod
+    @classmethod
     @abstractmethod
-    def parent() -> IsVariable:
+    def parent(cls) -> IsVariable:
         """The Parent Variable of the Variable"""
 
-    @staticmethod
+    @classmethod
     @abstractmethod
-    def child() -> IsComponent:
+    def child(cls) -> IsComponent:
         """The Parent Variable doesnot carry Child Component"""
 
     @staticmethod

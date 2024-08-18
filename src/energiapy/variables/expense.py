@@ -10,6 +10,11 @@ from .capacitate import Capacity
 from .operate import Operate
 from .trade import Buy, Sell
 from .use import Use
+from ..components.commodity.material import Material
+from ..components.commodity.land import Land
+from ..components.operational.process import Process
+from ..components.operational.storage import Storage
+from ..components.operational.transit import Transit
 
 
 @dataclass
@@ -19,17 +24,17 @@ class BndExpense(_Variable):
     def __post_init__(self):
         _Variable.__post_init__(self)
 
-    @staticmethod
-    def structures():
+    @classmethod
+    def structures(cls, component):
         """The allowed structures of disposition of the Variable"""
         return make_structures(csh_strict=True, spt=['loc', 'lnk', 'ntw'])
 
-    @staticmethod
-    def parent():
+    @classmethod
+    def parent(cls):
         """The Parent Task of the Variable"""
 
-    @staticmethod
-    def child():
+    @classmethod
+    def child(cls):
         """The Parent Variable doesnot carry Child Component"""
 
 
@@ -56,8 +61,8 @@ class Expense(_Variable):
     def __post_init__(self):
         _Variable.__post_init__(self)
 
-    @staticmethod
-    def child():
+    @classmethod
+    def child(cls):
         """The Parent Variable doesnot carry Child Component"""
         return Cash
 
@@ -69,8 +74,8 @@ class ExpTrade(Expense):
     def __post_init__(self):
         Expense.__post_init__(self)
 
-    @staticmethod
-    def structures():
+    @classmethod
+    def structures(cls, component):
         """The allowed structures of disposition of the Variable"""
         return make_structures(
             csh_strict=True, cmd='res', opn='pro', spt=['loc', 'ntw']
@@ -84,8 +89,8 @@ class ExpBuy(ExpTrade):
     def __post_init__(self):
         ExpTrade.__post_init__(self)
 
-    @staticmethod
-    def parent():
+    @classmethod
+    def parent(cls):
         """The Parent Task of the Variable"""
         return Buy
 
@@ -97,8 +102,8 @@ class ExpSell(ExpTrade):
     def __post_init__(self):
         ExpTrade.__post_init__(self)
 
-    @staticmethod
-    def parent():
+    @classmethod
+    def parent(cls):
         """The Parent Task of the Variable"""
         return Sell
 
@@ -110,8 +115,8 @@ class Penalty(ExpTrade):
     def __post_init__(self):
         ExpTrade.__post_init__(self)
 
-    @staticmethod
-    def parent():
+    @classmethod
+    def parent(cls):
         """The Parent Task of the Variable"""
         return Sell
 
@@ -123,8 +128,8 @@ class Credit(ExpTrade):
     def __post_init__(self):
         ExpTrade.__post_init__(self)
 
-    @staticmethod
-    def parent():
+    @classmethod
+    def parent(cls):
         """The Parent Task of the Variable"""
         return Sell
 
@@ -136,18 +141,23 @@ class ExpUse(Expense):
     def __post_init__(self):
         Expense.__post_init__(self)
 
-    @staticmethod
-    def parent():
+    @classmethod
+    def parent(cls):
         """The Parent Task of the Variable"""
         return Use
 
-    @staticmethod
-    def structures():
+    @classmethod
+    def structures(cls, component):
         """The allowed structures of disposition of the Variable"""
+
+        if isinstance(component, Land):
+            cmd = 'lnd'
+        elif isinstance(component, Material):
+            cmd = 'mat'
         return make_structures(
-            csh_strict=True,
             mde=True,
-            cmd=['mat', 'lnd'],
+            csh_strict=True,
+            cmd=[cmd],
             opn=['pro', 'stg', 'trn'],
             spt=['loc', 'lnk', 'ntw'],
         )
@@ -160,14 +170,22 @@ class ExpOpn(Expense):
     def __post_init__(self):
         Expense.__post_init__(self)
 
-    @staticmethod
-    def structures():
+    @classmethod
+    def structures(cls, component):
         """The allowed structures of disposition of the Variable"""
+
+        if isinstance(component, Process):
+            opn, spt = 'pro', 'loc'
+        elif isinstance(component, Storage):
+            opn, spt = 'stg', 'loc'
+        elif isinstance(component, Transit):
+            opn, spt = 'trn', 'lnk'
+
         return make_structures(
             csh_strict=True,
             mde=True,
-            opn=['pro', 'stg', 'trn'],
-            spt=['loc', 'lnk', 'ntw'],
+            opn=[opn],
+            spt=[spt, 'ntw'],
         )
 
 
@@ -178,8 +196,8 @@ class ExpCap(ExpOpn):
     def __post_init__(self):
         ExpOpn.__post_init__(self)
 
-    @staticmethod
-    def parent():
+    @classmethod
+    def parent(cls):
         """The Parent Task of the Variable"""
         return Capacity
 
@@ -191,8 +209,8 @@ class ExpOp(ExpOpn):
     def __post_init__(self):
         ExpOpn.__post_init__(self)
 
-    @staticmethod
-    def parent():
+    @classmethod
+    def parent(cls):
         """The Parent Task of the Variable"""
         return Operate
 
@@ -204,8 +222,8 @@ class ExpOpnI(ExpOpn):
     def __post_init__(self):
         ExpOpn.__post_init__(self)
 
-    @staticmethod
-    def parent():
+    @classmethod
+    def parent(cls):
         """The Parent Task of the Variable"""
 
 

@@ -14,12 +14,12 @@ class Trade(_Variable):
     def __post_init__(self):
         _Variable.__post_init__(self)
 
-    @staticmethod
-    def parent():
+    @classmethod
+    def parent(cls):
         """The Parent Task of the Variable"""
 
-    @staticmethod
-    def child():
+    @classmethod
+    def child(cls):
         """The Parent Variable doesnot carry Child Component"""
 
 
@@ -30,8 +30,8 @@ class LocTrade(Trade):
     def __post_init__(self):
         Trade.__post_init__(self)
 
-    @staticmethod
-    def structures():
+    @classmethod
+    def structures(cls, component):
         """The allowed structures of disposition of the Variable"""
         return make_structures(cmd='res', opn='pro', spt=['loc', 'ntw'])
 
@@ -59,8 +59,8 @@ class Ship(Trade):
     def __post_init__(self):
         Trade.__post_init__(self)
 
-    @staticmethod
-    def structures():
+    @classmethod
+    def structures(cls, component):
         """The allowed structures of disposition of the Variable"""
         return make_structures(cmd='res', opn='trn', spt=['lnk', 'ntw'])
 
@@ -72,7 +72,7 @@ class Recieve(Trade):
     def __post_init__(self):
         Trade.__post_init__(self)
 
-    @staticmethod
-    def structures():
+    @classmethod
+    def structures(cls, component):
         """The allowed structures of disposition of the Variable"""
         return make_structures(cmd='res', opn='trn', spt=['lnk', 'ntw'])

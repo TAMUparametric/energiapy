@@ -7,6 +7,8 @@ from ..components.commodity.resource import Resource
 from ..disposition.structure import make_structures
 from ._variable import _Variable
 from .operate import Operate
+from ..components.operational.storage import Storage
+from ..components.operational.transit import Transit
 
 
 @dataclass
@@ -16,17 +18,23 @@ class Loss(_Variable):
     def __post_init__(self):
         _Variable.__post_init__(self)
 
-    @staticmethod
-    def parent():
+    @classmethod
+    def parent(cls):
         """The Parent Task of the Variable"""
         return Operate
 
-    @staticmethod
-    def child():
+    @classmethod
+    def child(cls):
         """The Parent Variable doesnot carry Child Component"""
         return Resource
 
-    @staticmethod
-    def structures():
+    @classmethod
+    def structures(cls, component):
         """The allowed structures of disposition of the Variable"""
-        return make_structures(cmd='res', opn=['stg', 'trn'], spt=['loc', 'lnk', 'ntw'])
+
+        if isinstance(component, Storage):
+            opn, spt = 'stg', 'loc'
+        elif isinstance(component, Transit):
+            opn, spt = 'trn', 'lnk'
+
+        return make_structures(cmd='res', opn=[opn], spt=[spt, 'ntw'])

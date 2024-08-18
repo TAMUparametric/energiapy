@@ -5,6 +5,10 @@ from dataclasses import dataclass
 
 from ..components.commodity.land import Land
 from ..components.commodity.material import Material
+
+from ..components.operational.process import Process
+from ..components.operational.storage import Storage
+from ..components.operational.transit import Transit
 from ..disposition.structure import make_structures
 from ._variable import _Variable
 from .capacitate import Capacity
@@ -17,73 +21,59 @@ class Use(_Variable):
     def __post_init__(self):
         _Variable.__post_init__(self)
 
-    @staticmethod
-    def parent():
+    @classmethod
+    def parent(cls):
         """The Parent Task of the Variable"""
 
-    @staticmethod
-    def child():
+    @classmethod
+    def child(cls):
         """The Parent Variable doesnot carry Child Component"""
 
-    @staticmethod
-    def structures():
+    @classmethod
+    def structures(cls, component):
         """The allowed structures of disposition of the Variable"""
+
+        if isinstance(component, Land):
+            cmd = 'lnd'
+        elif isinstance(component, Material):
+            cmd = 'mat'
         return make_structures(
-            cmd=['mat', 'lnd'],
+            cmd=[cmd],
             opn=['pro', 'stg', 'trn'],
             spt=['loc', 'lnk', 'ntw'],
         )
 
 
 @dataclass
-class UseCmd(_Variable):
+class Used(_Variable):
     """Commodity Use"""
 
     def __post_init__(self):
         _Variable.__post_init__(self)
 
-    @staticmethod
-    def parent():
+    @classmethod
+    def parent(cls):
         """The Parent Task of the Variable"""
         return Capacity
 
-    @staticmethod
-    def child():
+    @classmethod
+    def structures(cls, component):
+        """The allowed structures of disposition of the Variable"""
+
+        if isinstance(component, Process):
+            opn, spt = 'pro', 'loc'
+        elif isinstance(component, Storage):
+            opn, spt = 'stg', 'loc'
+        elif isinstance(component, Transit):
+            opn, spt = 'trn', 'lnk'
+        return make_structures(
+            cmd=['lnd', 'mat'],
+            mde=True,
+            opn=[opn],
+            spt=[spt, 'ntw'],
+        )
+
+    @classmethod
+    def child(cls):
         """The Parent Variable doesnot carry Child Component"""
         return (Land, Material)
-
-
-@dataclass
-class UseMat(UseCmd):
-    """Material Use"""
-
-    def __post_init__(self):
-        UseCmd.__post_init__(self)
-
-    @staticmethod
-    def structures():
-        """The allowed structures of disposition of the Variable"""
-        return make_structures(
-            cmd='mat',
-            mde=True,
-            opn=['pro', 'stg', 'trn'],
-            spt=['loc', 'lnk', 'ntw'],
-        )
-
-
-@dataclass
-class UseLnd(UseCmd):
-    """Land Use"""
-
-    def __post_init__(self):
-        UseCmd.__post_init__(self)
-
-    @staticmethod
-    def structures():
-        """The allowed structures of disposition of the Variable"""
-        return make_structures(
-            cmd='lnd',
-            mde=True,
-            opn=['pro', 'stg', 'trn'],
-            spt=['loc', 'lnk', 'ntw'],
-        )

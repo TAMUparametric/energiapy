@@ -7,20 +7,21 @@ from ..disposition.structure import make_structures
 from ._variable import _Variable
 
 
+
 @dataclass
 class Action(_Variable):
     """Action is a Player's action"""
 
-    @staticmethod
-    def parent():
+    @classmethod
+    def parent(cls):
         """The Parent Task of the Variable"""
 
-    @staticmethod
-    def child():
+    @classmethod
+    def child(cls):
         """The Parent Variable doesnot carry Child Component"""
 
-    @staticmethod
-    def structures():
+    @classmethod
+    def structures(cls, component):
         """The allowed structures of disposition of the Variable"""
         return make_structures(
             cmd=['csh', 'res', 'mat', 'lnd'],

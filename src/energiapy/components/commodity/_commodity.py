@@ -41,12 +41,12 @@ class _Traded(_Defined, _ConsistentBnd, _ConsistentCsh, _ConsistentNstd, ABC):
         return cls.bounds() + cls.expenses() + cls.emitted()
 
     @classmethod
-    def _csh(cls):
+    def _csh_inputs(cls):
         """Adds Cash when making consistent"""
         return cls.expenses()
 
     @classmethod
-    def _nstd(cls):
+    def _nstd_inputs(cls):
         """Is a nested input to be made consistent"""
         return cls.emitted()
 
@@ -57,10 +57,10 @@ class _Traded(_Defined, _ConsistentBnd, _ConsistentCsh, _ConsistentNstd, ABC):
                 if attr in self.bounds():
                     self.make_bounds_consistent(attr)
 
-                if attr in self._csh():
+                if attr in self._csh_inputs():
                     self.make_csh_consistent(attr)
 
-                if attr in self._nstd():
+                if attr in self._nstd_inputs():
                     self.make_nstd_consistent(attr)
 
         self._consistent = True

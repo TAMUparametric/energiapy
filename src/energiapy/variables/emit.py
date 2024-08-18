@@ -10,6 +10,12 @@ from .capacitate import Capacity
 from .loss import Loss
 from .trade import Buy, Sell
 from .use import Use
+from ..components.commodity.resource import Resource
+from ..components.operational.process import Process
+from ..components.operational.storage import Storage
+from ..components.operational.transit import Transit
+from ..components.commodity.material import Material
+from ..components.commodity.land import Land
 
 
 @dataclass
@@ -19,29 +25,28 @@ class EmitSys(_Variable):
     def __post_init__(self):
         _Variable.__post_init__(self)
 
-    @staticmethod
-    def structures():
+    @classmethod
+    def structures(cls, component):
         """The allowed structures of disposition of the Variable"""
         return make_structures(emn_strict=True, spt=['loc', 'lnk', 'ntw'])
 
-    @staticmethod
-    def parent():
+    @classmethod
+    def parent(cls):
         """The Parent Task of the Variable"""
 
-    @staticmethod
-    def child():
+    @classmethod
+    def child(cls):
         """The Parent Variable doesnot carry Child Component"""
-
 
 @dataclass
 class Emit(_Variable):
-    """Emit changes the ownership of Resource between Players"""
+    """Emit is a general variable for how much is Emitted"""
 
     def __post_init__(self):
         _Variable.__post_init__(self)
 
-    @staticmethod
-    def child():
+    @classmethod
+    def child(cls):
         """The Parent Variable doesnot carry Child Component"""
         return Emission
 
@@ -53,13 +58,12 @@ class EmitTrade(Emit):
     def __post_init__(self):
         Emit.__post_init__(self)
 
-    @staticmethod
-    def structures():
+    @classmethod
+    def structures(cls, component):
         """The allowed structures of disposition of the Variable"""
         return make_structures(
             emn_strict=True, cmd='res', opn='pro', spt=['loc', 'ntw']
         )
-
 
 @dataclass
 class EmitBuy(EmitTrade):
@@ -68,8 +72,8 @@ class EmitBuy(EmitTrade):
     def __post_init__(self):
         EmitTrade.__post_init__(self)
 
-    @staticmethod
-    def parent():
+    @classmethod
+    def parent(cls):
         """The Parent Task of the Variable"""
         return Buy
 
@@ -81,8 +85,8 @@ class EmitSell(EmitTrade):
     def __post_init__(self):
         EmitTrade.__post_init__(self)
 
-    @staticmethod
-    def parent():
+    @classmethod
+    def parent(cls):
         """The Parent Task of the Variable"""
         return Sell
 
@@ -94,17 +98,21 @@ class EmitLoss(Emit):
     def __post_init__(self):
         Emit.__post_init__(self)
 
-    @staticmethod
-    def parent():
+    @classmethod
+    def parent(cls):
         """The Parent Task of the Variable"""
         return Loss
 
-    @staticmethod
-    def structures():
+    @classmethod
+    def structures(cls, component):
         """The allowed structures of disposition of the Variable"""
-        return make_structures(
-            emn_strict=True, cmd='res', opn=['stg', 'trn'], spt=['loc', 'lnk', 'ntw']
-        )
+        if isinstance(component, Storage):
+            opn, spt = 'stg', 'loc'
+        elif isinstance(component, Transit):
+            opn, spt = 'trn', 'lnk'
+
+        return make_structures(emn_strict=True, cmd='res', opn=[opn], spt=[spt, 'ntw'])
+
 
 
 @dataclass
@@ -114,21 +122,27 @@ class EmitUse(Emit):
     def __post_init__(self):
         Emit.__post_init__(self)
 
-    @staticmethod
-    def parent():
+    @classmethod
+    def parent(cls):
         """The Parent Task of the Variable"""
         return Use
 
-    @staticmethod
-    def structures():
+    @classmethod
+    def structures(cls, component):
         """The allowed structures of disposition of the Variable"""
+
+        if isinstance(component, Land):
+            cmd = 'lnd'
+        elif isinstance(component, Material):
+            cmd = 'mat'
         return make_structures(
             mde=True,
             emn_strict=True,
-            cmd=['mat', 'lnd'],
+            cmd=[cmd],
             opn=['pro', 'stg', 'trn'],
             spt=['loc', 'lnk', 'ntw'],
         )
+
 
 
 @dataclass
@@ -138,17 +152,25 @@ class EmitCap(Emit):
     def __post_init__(self):
         Emit.__post_init__(self)
 
-    @staticmethod
-    def parent():
+    @classmethod
+    def parent(cls):
         """The Parent Task of the Variable"""
         return Capacity
 
-    @staticmethod
-    def structures():
+    @classmethod
+    def structures(cls, component):
         """The allowed structures of disposition of the Variable"""
+        if isinstance(component, Process):
+            opn, spt = 'pro', 'loc'
+        elif isinstance(component, Storage):
+            opn, spt = 'stg', 'loc'
+        elif isinstance(component, Transit):
+            opn, spt = 'trn', 'lnk'
+
         return make_structures(
             mde=True,
             emn_strict=True,
-            opn=['pro', 'stg', 'trn'],
-            spt=['loc', 'lnk', 'ntw'],
+            opn=[opn],
+            spt=[spt, 'ntw'],
         )
+

@@ -10,9 +10,13 @@ from typing import TYPE_CHECKING
 from pandas import DataFrame
 
 from ...utils.scaling import scaling
-from .._base._consistent import (_ConsistentBnd, _ConsistentCsh,
-                                 _ConsistentLnd, _ConsistentNstd,
-                                 _ConsistentNstdCsh)
+from .._base._consistent import (
+    _ConsistentBnd,
+    _ConsistentCsh,
+    _ConsistentLnd,
+    _ConsistentNstd,
+    _ConsistentNstdCsh,
+)
 from .._base._defined import _Defined
 
 if TYPE_CHECKING:
@@ -103,24 +107,24 @@ class _Operational(
         )
 
     @classmethod
-    def _csh(cls):
+    def _csh_inputs(cls):
         """Adds Cash when making consistent"""
         return cls.expenses()
 
     @classmethod
-    def _lnd(cls):
+    def _lnd_input(cls):
         """Adds Land when making consistent"""
         return cls.landuse()
 
     @classmethod
-    def _nstd(cls):
+    def _nstd_inputs(cls):
         """Is a nested input to be made consistent"""
         return (
             cls.materialuse() + cls.resourceloss() + cls.resourcebnds() + cls.emitted()
         )
 
     @classmethod
-    def _nstd_csh(cls):
+    def _nstd_csh_inputs(cls):
         """Is a nested input to be made consistent with Cash"""
         return cls.resourceexps()
 
@@ -128,19 +132,20 @@ class _Operational(
         """Makes the data inputs consistent IsSptTmpDict"""
         for attr in self.inputs():
             if getattr(self, attr) is not None:
+
                 if attr in self.bounds():
                     self.make_bounds_consistent(attr)
 
-                if attr in self._csh():
+                if attr in self._csh_inputs():
                     self.make_csh_consistent(attr)
 
-                if attr in self._lnd():
+                if attr in self._lnd_input():
                     self.make_lnd_consistent(attr)
 
-                if attr in self._nstd():
+                if attr in self._nstd_inputs():
                     self.make_nstd_consistent(attr)
 
-                if attr in self._nstd_csh():
+                if attr in self._nstd_csh_inputs():
                     self.make_nstd_csh_consistent(attr)
 
         self._consistent = True

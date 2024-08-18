@@ -37,22 +37,26 @@ IsPlayer: TypeAlias = Player
 IsAnalytical: TypeAlias = Union[IsPlayer]
 
 
-# Assets
-IsCash: TypeAlias = Cash
-IsLand = Land
-IsAsset: TypeAlias = Union[IsCash, IsLand]
-
 # Impact
 IsEmission: TypeAlias = Emission
 IsImpact: TypeAlias = Union[IsEmission]
 
-# Commodity
 
+# Asset Commodity
+IsCash: TypeAlias = Cash
+IsLand = Land
+IsAsset: TypeAlias = Union[IsCash, IsLand]
+
+
+# Traded Commodity
 IsMaterial: TypeAlias = Material
 IsResource: TypeAlias = Resource
-IsCommodity: TypeAlias = Union[IsMaterial, IsResource]
+IsTraded: TypeAlias = Union[IsMaterial, IsResource]
 
-# Operation
+# Commodity
+IsCommodity: TypeAlias = Union[IsTraded, IsAsset]
+
+# Operational
 IsProcess: TypeAlias = Process
 IsStorage: TypeAlias = Storage
 IsTransit: TypeAlias = Transit
@@ -61,7 +65,6 @@ IsOperational: TypeAlias = Union[IsProcess, IsStorage, IsTransit]
 # Component
 IsComponent: TypeAlias = Union[
     IsAnalytical,
-    IsAsset,
     IsCommodity,
     IsImpact,
     IsOperational,

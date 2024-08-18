@@ -59,7 +59,7 @@ class ProgramBlock(_Dunders):
             else:
                 var = taskmaster[type(self.component)][attr]
 
-            variable = var(disposition=data.disposition)
+            variable = var(disposition=data.disposition, component=self.component)
             self.add(variable)
 
             self.add(variable.disposition)
@@ -100,7 +100,9 @@ class ProgramBlock(_Dunders):
                     parent = samevars[samevars_indices.index(disposition_par.index)]
 
                 else:
-                    parent = parent_var(disposition=disposition_par)
+                    parent = parent_var(
+                        disposition=disposition_par, component=self.component
+                    )
                     self.add(parent)
 
             else:

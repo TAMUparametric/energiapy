@@ -27,7 +27,7 @@ class Resource(_Traded):
     buy_emission: IsExactInput = field(default=None)
     sell_emission: IsExactInput = field(default=None)
     loss_emission: IsExactInput = field(default=None)
-    
+
     # Depreciated
     varying: str = field(default=None)
     price: str = field(default=None)
@@ -35,10 +35,10 @@ class Resource(_Traded):
     cons_max: str = field(default=None)
     store_max: str = field(default=None)
     store_min: str = field(default=None)
-    
+
     def __post_init__(self):
         _Traded.__post_init__(self)
-        
+
         # Depreciation Warnings
         _name = getattr(self, 'name', None)
         _changed = {
@@ -53,7 +53,6 @@ class Resource(_Traded):
             # If the attribute i is depreciated raise ValueError.
             if getattr(self, i):
                 raise ValueError(f'{_name}: {i} is depreciated. Please use {j} instead')
-
 
     @classmethod
     def bounds(cls):
@@ -76,16 +75,14 @@ class Resource(_Traded):
         return cls.bounds() + cls.expenses() + cls.emitted()
 
     @classmethod
-    def _csh(cls):
+    def _csh_inputs(cls):
         """Adds Cash when making consistent"""
         return cls.expenses()
 
     @classmethod
-    def _nstd(cls):
+    def _nstd_inputs(cls):
         """Is a nested input to be made consistent"""
         return cls.emitted()
-
-
 
 
 @dataclass
