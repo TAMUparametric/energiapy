@@ -70,30 +70,7 @@ class _Defined(_Component, _Consistent, ABC):
     def _cnst_nstd_csh(cls):
         """Is a nested input to be made consistent with Cash"""
 
-    @property
-    def _horizon(self):
-        """The Horizon of the Component"""
-        return self._system.horizon
-
-    @property
-    def _network(self):
-        """The Network of the Component"""
-        return self._system.network
-
-    @property
-    def _cash(self):
-        """The Cash of the Component"""
-        return self._system.cash
-
-    @property
-    def _land(self):
-        """The Land of the Component"""
-        return self._system.land
-
-    @property
-    def data(self):
-        """Returns the data of the component"""
-        return getattr(self._data, self.name)
+    #TODO - BLOCK 2
 
     @property
     def datasets(self):
@@ -120,11 +97,7 @@ class _Defined(_Component, _Consistent, ABC):
         """Returns all data"""
         return self.data.all
 
-    @property
-    def program(self):
-        """Returns the Program"""
-        return getattr(self._program, self.name)
-
+    #TODO - BLOCK 1
     @property
     def parameters(self):
         """Returns the Parameters"""
@@ -156,10 +129,18 @@ class _Defined(_Component, _Consistent, ABC):
                     setattr(self, attr, self.make_spttmpdict(value, attr))
 
                 if attr in self._cnst_csh():
-                    setattr(self, attr, {self._cash: self.make_spttmpdict(value, attr)})
+                    setattr(
+                        self,
+                        attr,
+                        {self.system.cash: self.make_spttmpdict(value, attr)},
+                    )
 
                 if attr in self._cnst_lnd():
-                    setattr(self, attr, {self._land: self.make_spttmpdict(value, attr)})
+                    setattr(
+                        self,
+                        attr,
+                        {self.system.land: self.make_spttmpdict(value, attr)},
+                    )
 
                 if attr in self._cnst_nstd():
                     setattr(
@@ -173,7 +154,7 @@ class _Defined(_Component, _Consistent, ABC):
                         self,
                         attr,
                         {
-                            i: {self._cash: self.make_spttmpdict(j, attr)}
+                            i: {self.system.cash: self.make_spttmpdict(j, attr)}
                             for i, j in value.items()
                         },
                     )

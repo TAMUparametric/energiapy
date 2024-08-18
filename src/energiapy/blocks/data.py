@@ -16,7 +16,7 @@ from ..parameters.designators.incidental import I
 from ._base._spttmpinput import _SptTmpInput
 
 if TYPE_CHECKING:
-    from .._core._aliases._is_data import IsData, IsVarBnd, IsSpcLmt
+    from .._core._aliases._is_data import IsValue, IsVarBnd, IsSpcLmt
     from .._core._aliases._is_input import IsBaseInput
     from .._core._aliases._is_block import IsDisposition
     from .._core._aliases._is_component import IsComponent
@@ -98,7 +98,7 @@ class DataBlock(_Dunders):
         """Returns all data"""
         return self.ms + self.constants + self.datasets + self.thetas
 
-    def fetch(self, data: IsData) -> List[IsData]:
+    def fetch(self, data: IsValue) -> List[IsValue]:
         """Fetches input data of a particular type"""
 
         data_list = []
@@ -191,7 +191,7 @@ class Data(_Block):
         """Returns all data"""
         return self.ms + self.constants + self.datasets + self.thetas
 
-    def fetch(self, data: str) -> List[IsData]:
+    def fetch(self, data: str) -> List[IsValue]:
         """Fetches input data of a particular type
         Args:
             data: str: The type of data to fetch [thetas, ms, constants, datasets]

@@ -23,11 +23,11 @@ class Network(_Scope):
 
     @property
     def locations(self):
-        return self._system.locations
+        return self.system.locations
 
     @property
     def linkages(self):
-        return self._system.linkages
+        return self.system.linkages
 
     @property
     def nodes(self):

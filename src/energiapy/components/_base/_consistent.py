@@ -29,13 +29,8 @@ class _Consistent(ABC):
 
     @property
     @abstractmethod
-    def _horizon(self):
-        """The Horizon of the Component"""
-
-    @property
-    @abstractmethod
-    def _network(self):
-        """The Network of the Component"""
+    def system(self):
+        """The System of the Component"""
 
     def upd_dict(self, value: IsInput, level: str) -> dict:
         """Returns an empty dict with the same keys as the input
@@ -70,18 +65,18 @@ class _Consistent(ABC):
         """
 
         if not isinstance(value, dict):
-            value_upd = {self._network: value}
+            value_upd = {self.system.network: value}
         else:
             value_upd = {}
             for spt, tmp_val in value.items():
                 if not isinstance(spt, (_Spatial, Network)):
-                    if self._network in value_upd:
-                        value_upd[self._network] = {
-                            **value_upd[self._network],
+                    if self.system.network in value_upd:
+                        value_upd[self.system.network] = {
+                            **value_upd[self.system.network],
                             **{spt: tmp_val},
                         }
                     else:
-                        value_upd[self._network] = {spt: tmp_val}
+                        value_upd[self.system.network] = {spt: tmp_val}
                 else:
                     value_upd[spt] = tmp_val
 
@@ -158,7 +153,7 @@ class _Consistent(ABC):
             for tmp, x_val in tmp_x_val.items():
                 for x, val in x_val.items():
                     if isinstance(val, DataFrame):
-                        scale_upd = self._horizon.match_scale(val)
+                        scale_upd = self.system.horizon.match_scale(val)
                         if is_not(scale_upd, tmp):
                             if is_not(tmp, 't'):
                                 warn(
@@ -169,7 +164,7 @@ class _Consistent(ABC):
                         else:
                             value_upd[spt][tmp][x] = val
                     elif is_(tmp, 't'):
-                        value_upd[spt][self._horizon.scales[0]] = x_val
+                        value_upd[spt][self.system.horizon.scales[0]] = x_val
                     else:
                         value_upd[spt][tmp][x] = val
 
@@ -193,7 +188,7 @@ class _Consistent(ABC):
                 for x, val in x_val.items():
                     if isinstance(val, (list, tuple)):
                         scale_upd = sorted(
-                            [self._horizon.match_scale(m) for m in val],
+                            [self.system.horizon.match_scale(m) for m in val],
                         )[-1]
 
                         if is_not(scale_upd, tmp) and not all(

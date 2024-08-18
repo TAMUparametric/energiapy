@@ -7,32 +7,48 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from ..._core._handy._dunders import _Dunders
-from ...blocks._base._model import _Model
 
 if TYPE_CHECKING:
-    from ..._core._aliases._is_block import (IsData, IsMatrix, IsProgram,
-                                             IsSystem)
+    from ..._core._aliases._is_block import IsModel
 
 
 @dataclass
-class _Component(_Dunders, _Model):
+class _Component(_Dunders):
 
     def __post_init__(self):
         self.name = None
         self._named = False
+        self._model = None
 
     @property
     def is_named(self):
         """The component has been named"""
         return self._named
 
+    @property
+    def system(self):
+        """The System of the Component"""
+        return self._model.system
+
+    @property
+    def data(self):
+        """The Data of the Component"""
+        return getattr(self._model.data, self.name)
+
+    @property
+    def matrix(self):
+        """The Matrix of the Component"""
+        return getattr(self._model.matrix, self.name)
+
+    @property
+    def program(self):
+        """The Program of the Component"""
+        return getattr(self._model.program, self.name)
+
     def personalize(
         self,
-        name,
-        system: IsSystem,
-        data: IsData,
-        matrix: IsMatrix,
-        program: IsProgram,
+        name: str,
+        model: IsModel,
     ):
         """Personalize the compoenent
         give it a name (public),
@@ -40,7 +56,4 @@ class _Component(_Dunders, _Model):
         """
         self.name = name
         self._named = True
-        self._system = system
-        self._data = data
-        self._matrix = matrix
-        self._program = program
+        self._model = model

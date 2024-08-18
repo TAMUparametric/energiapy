@@ -25,22 +25,22 @@ class Location(_Spatial):
     @property
     def processes(self):
         """Process Operations at the Location"""
-        return self._system.processes
+        return self.system.processes
 
     @property
     def storages(self):
         """Storage Operations at the Location"""
-        return self._system.storages
+        return self.system.storages
 
     def is_sink(self):
         """Tells whether the location is a sink"""
-        if self in self._system.sinks:
+        if self in self.system.sinks:
             return True
         return False
 
     def is_source(self):
         """Tells whether the location is a source"""
-        if self in self._system.sources:
+        if self in self.system.sources:
             return True
         return False
 
@@ -55,7 +55,7 @@ class Location(_Spatial):
             list: Provides the links between the locations
         """
         links = []
-        for link in self._system.linkages:
+        for link in self.system.linkages:
             source, sink = False, False
 
             if is_(self, link.source) and is_(location, link.sink):

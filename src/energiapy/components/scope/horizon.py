@@ -106,7 +106,7 @@ class Horizon(_Scope):
     @property
     def scales(self):
         """List of scales"""
-        return self._system.scales
+        return self.system.scales
 
     @property
     def indices(self):

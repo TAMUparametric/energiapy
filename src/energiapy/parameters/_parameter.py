@@ -9,14 +9,14 @@ from typing import TYPE_CHECKING
 from .._core._handy._dunders import _Dunders
 
 if TYPE_CHECKING:
-    from .._core._aliases._is_data import IsData
+    from .._core._aliases._is_data import IsValue
 
 
 @dataclass
 class _Parameter(_Dunders):
     """Model Parameter"""
 
-    value: IsData = field(default=None)
+    value: IsValue = field(default=None)
 
     def __post_init__(self):
         self.disposition = self.value.disposition

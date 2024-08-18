@@ -8,6 +8,7 @@ from ...blocks.matrix import Matrix
 from ...blocks.program import Program
 from ...blocks.scenario import Scenario
 from ...blocks.system import System
+from ...blocks.model import Model
 from ...disposition.disposition import Disposition
 from ._is_component import IsComponent
 
@@ -22,3 +23,4 @@ IsProgram: TypeAlias = Program
 IsSystem: TypeAlias = System
 
 IsBlock = Union[IsData, IsMatrix, IsProgram, IsSystem]
+IsModel: TypeAlias = Model

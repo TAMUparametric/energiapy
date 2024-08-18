@@ -16,7 +16,7 @@ from ._base._block import _Block
 
 if TYPE_CHECKING:
     from .._core._aliases._is_component import IsComponent
-    from .._core._aliases._is_data import IsData
+    from .._core._aliases._is_data import IsValue
     from .._core._aliases._is_element import IsElement
     from .._core._aliases._is_block import IsIndex
 
@@ -47,7 +47,7 @@ class ProgramBlock(_Dunders):
 
         super().__setattr__(name, value)
 
-    def make_constraints(self, data: IsData, attr: str):
+    def make_constraints(self, data: IsValue, attr: str):
         """Makes ass, kicks constraints"""
 
         if isinstance(data, set):

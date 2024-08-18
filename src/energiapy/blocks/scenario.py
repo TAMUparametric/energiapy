@@ -15,10 +15,9 @@ from ..components.temporal.scale import Scale
 from ..components.commodity.cash import Cash
 from ..components.commodity.land import Land
 from ._base._default import _Default
-from .data import Data, DataBlock
-from .matrix import Matrix
-from .program import Program, ProgramBlock
-from .system import System
+from .data import DataBlock
+from .program import ProgramBlock
+from .model import Model
 
 
 @dataclass
@@ -51,11 +50,7 @@ class Scenario(_Default):
     def __post_init__(self):
 
         # Declare Model
-        self.system = System(name=self.name)
-        self.program = Program(name=self.name)
-        self.data = Data(name=self.name)
-        self.matrix = Matrix(name=self.name)
-
+        self.model = Model(name=self.name)
         self._default()
 
     def __setattr__(self, name, value):
@@ -76,7 +71,7 @@ class Scenario(_Default):
             if isinstance(value, Network):
                 self.cleanup('network')
 
-            value.personalize(name=name, **self.model())
+            value.personalize(name=name, model=self.model)
             setattr(self.system, name, value)
 
             if issubclass(type(value), _Defined):
@@ -149,6 +144,26 @@ class Scenario(_Default):
             getattr(self.system, name).conversionize()
 
         super().__setattr__(name, value)
+
+    @property
+    def system(self):
+        """System of the Scenario"""
+        return self.model.system
+
+    @property
+    def program(self):
+        """Program of the Scenario"""
+        return self.model.program
+
+    @property
+    def data(self):
+        """Data of the Scenario"""
+        return self.model.data
+
+    @property
+    def matrix(self):
+        """Matrix of the Scenario"""
+        return self.model.matrix
 
     @property
     def players(self):
@@ -246,6 +261,7 @@ class Scenario(_Default):
         """All Components of the System"""
         return self.system.components
 
+    #TODO - BLOCK 1
     @property
     def constraints(self):
         """All Constraints in the Program"""
@@ -265,6 +281,8 @@ class Scenario(_Default):
     def dispositions(self):
         """All Dispositions in the Program"""
         return self.program.dispositions
+
+    #TODO - BLOCK 1
 
     @property
     def constants(self):
@@ -290,15 +308,6 @@ class Scenario(_Default):
     def data_all(self):
         """All Data in the Data"""
         return self.data.all
-
-    def model(self) -> dict:
-        """Makes a dict of Model Blocks to pass on while personalizing Component"""
-        return {
-            'system': self.system,
-            'program': self.program,
-            'data': self.data,
-            'matrix': self.matrix,
-        }
 
     def eqns(self, at_cmp=None, at_disp=None):
         """Prints all equations in the program
