@@ -3,7 +3,6 @@
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from operator import is_
 from typing import TYPE_CHECKING, List
@@ -17,7 +16,7 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class _Constraint(_Dunders, ABC):
+class _Constraint(_Dunders):
     """Constraints for Program"""
 
     variable: IsVariable = field(default=None)

@@ -64,7 +64,6 @@ class _Consistent(ABC):
         Returns:
             dict: ammended input dict
         """
-        
 
         if not isinstance(value, dict):
             value_upd = {self.system.network: value}

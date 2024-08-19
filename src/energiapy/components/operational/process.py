@@ -12,7 +12,7 @@ from ._operational import _Operational
 if TYPE_CHECKING:
     from ..._core._aliases._is_component import IsLocation
     from ..._core._aliases._is_input import (IsBoundInput, IsConvInput,
-                                             IsExactInput) 
+                                             IsExactInput)
 
 
 @dataclass
@@ -151,6 +151,11 @@ class Process(_Operational):
     def resourceloss():
         """Attrs that determine resource loss of the component"""
         return []
+
+    @property
+    def resources(self):
+        """Resources in Inventory"""
+        return self.conversion.involve
 
     def conversionize(self):
         """Makes the conversion"""

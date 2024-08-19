@@ -22,17 +22,20 @@ class Location(_Spatial):
     def __post_init__(self):
         _Spatial.__post_init__(self)
 
-    # TODO - Block 5
-
     @property
     def processes(self):
         """Process Operations at the Location"""
-        return self.system.processes
+        return self.fetch('processes')
 
     @property
     def storages(self):
         """Storage Operations at the Location"""
-        return self.system.storages
+        return self.fetch('storages')
+
+    @property
+    def operations(self):
+        """Operations at the Location"""
+        return self.processes + self.storages
 
     def is_sink(self):
         """Tells whether the location is a sink"""

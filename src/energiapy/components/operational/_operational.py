@@ -53,6 +53,11 @@ class _Operational(
     def _spatials():
         """Spatial Components where the Operation is located"""
 
+    @property
+    @abstractmethod
+    def resources(self):
+        """Resources Involved"""
+
     @staticmethod
     def bounds():
         """Attrs that quantify the bounds of the component"""
@@ -129,11 +134,32 @@ class _Operational(
         """Is a nested input to be made consistent with Cash"""
         return cls.resourceexps()
 
+    @property
+    def spatials(self):
+        """Spatial Components where the Operation is located"""
+        return getattr(self, self._spatials())
+
+    @property
+    def materials(self):
+        """Materials used in the Operation"""
+        if self.material:
+            return [i.disposition.mat for i in self.material]
+        else:
+            return []
+
+    @property
+    def emissions(self):
+        """Emissions from the Operation"""
+        if self.emission:
+            return [i.disposition.emn for i in self.emission]
+        else:
+            return []
+
     def locate(self):
         """Locates the Component"""
 
         spatials = self._spatials()
-        value = getattr(self, spatials)
+        value = self.spatials
 
         if value and not isinstance(value, list):
             setattr(self, spatials, [value])

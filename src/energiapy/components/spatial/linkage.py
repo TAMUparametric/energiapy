@@ -25,3 +25,13 @@ class Linkage(_Spatial):
         _Spatial.__post_init__(self)
 
     # TODO - Block 6
+
+    @property
+    def transits(self):
+        """Storage Operations at the Location"""
+        return self.fetch('transits')
+
+    @property
+    def operations(self):
+        """Operations at the Location"""
+        return self.transits

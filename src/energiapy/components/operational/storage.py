@@ -16,7 +16,7 @@ from ._operational import _Operational
 if TYPE_CHECKING:
     from ..._core._aliases._is_component import IsLocation
     from ..._core._aliases._is_input import (IsBoundInput, IsExactInput,
-                                             IsInvInput) 
+                                             IsInvInput)
 
 
 @dataclass
@@ -85,3 +85,8 @@ class Storage(_Operational):
     def balance_d(self):
         """Balance from ResourceStg to Resource"""
         return self.inventory.conversion_d.balance
+
+    @property
+    def resources(self):
+        """Resources in Inventory"""
+        return sorted(set(self.conversion_c.involve) | set(self.conversion_d.involve))
