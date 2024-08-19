@@ -12,7 +12,7 @@ from ._operational import _Operational
 if TYPE_CHECKING:
     from ..._core._aliases._is_component import IsLocation
     from ..._core._aliases._is_input import (IsBoundInput, IsConvInput,
-                                             IsExactInput)
+                                             IsExactInput) 
 
 
 @dataclass
@@ -28,6 +28,8 @@ class Process(_Operational):
     penalty: IsExactInput = field(default=None)
     conversion: IsConvInput = field(default=None)
     produce: IsBoundInput = field(default=None)
+    locations: List[IsLocation] = field(default=None)
+
     locations: IsLocation = field(default=None)
     # Depreciated
     varying: str = field(default=None)

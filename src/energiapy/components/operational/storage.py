@@ -16,7 +16,7 @@ from ._operational import _Operational
 if TYPE_CHECKING:
     from ..._core._aliases._is_component import IsLocation
     from ..._core._aliases._is_input import (IsBoundInput, IsExactInput,
-                                             IsInvInput)
+                                             IsInvInput) 
 
 
 @dataclass
