@@ -9,8 +9,8 @@ from typing import TYPE_CHECKING, List
 from ._operational import _Operational
 
 if TYPE_CHECKING:
-    from ..._core._aliases._is_input import IsBoundInput, IsExactInput
     from ..._core._aliases._is_component import IsLinkage
+    from ..._core._aliases._is_input import IsBoundInput, IsExactInput
 
 
 @dataclass
