@@ -11,6 +11,7 @@ from ..components._base._defined import _Defined
 from ..components.commodity.cash import Cash
 from ..components.commodity.land import Land
 from ..components.commodity.resource import ResourceStg
+from ..components.operational._operational import _Operational
 from ..components.operational.process import Process
 from ..components.operational.storage import Storage
 from ..components.scope.horizon import Horizon
@@ -146,6 +147,9 @@ class Scenario(_Default, _ScnCol):
                         bi=False,
                     ),
                 )
+
+        if isinstance(value, _Operational):
+            value.locate()
 
         if isinstance(value, Process):
 

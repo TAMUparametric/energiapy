@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Union
+from typing import TYPE_CHECKING, List
 
 from ...parameters.data.inventory import Inventory
 from ._operational import _Operational
@@ -14,6 +14,7 @@ from ._operational import _Operational
 
 
 if TYPE_CHECKING:
+    from ..._core._aliases._is_component import IsLocation
     from ..._core._aliases._is_input import (IsBoundInput, IsExactInput,
                                              IsInvInput)
 
@@ -30,6 +31,7 @@ class Storage(_Operational):
     loss: IsExactInput = field(default=None)
     store: IsBoundInput = field(default=None)
     inventory: IsInvInput = field(default=None)
+    locations: List[IsLocation] = field(default=None)
 
     def __post_init__(self):
         _Operational.__post_init__(self)
@@ -38,6 +40,11 @@ class Storage(_Operational):
     def _operate(self):
         """Returns attribute value that signifies operating bounds"""
         return self.store
+
+    @staticmethod
+    def _spatials():
+        """Spatial Components where the Operation is located"""
+        return 'locations'
 
     @staticmethod
     def resourcebnds():

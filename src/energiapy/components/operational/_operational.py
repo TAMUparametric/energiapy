@@ -49,6 +49,11 @@ class _Operational(
         """Returns attribute value that signifies operating bounds"""
 
     @staticmethod
+    @abstractmethod
+    def _spatials():
+        """Spatial Components where the Operation is located"""
+
+    @staticmethod
     def bounds():
         """Attrs that quantify the bounds of the component"""
         return ['capacity', 'operate']
@@ -123,6 +128,18 @@ class _Operational(
     def _nstd_csh_inputs(cls):
         """Is a nested input to be made consistent with Cash"""
         return cls.resourceexps()
+
+    def locate(self):
+        """Locates the Component"""
+
+        spatials = self._spatials()
+        value = getattr(self, spatials)
+
+        if value and not isinstance(value, list):
+            setattr(self, spatials, [value])
+
+        if not value:
+            setattr(self, spatials, getattr(self._model.system, spatials))
 
     def make_consistent(self):
         """Makes the data inputs consistent IsSptTmpDict"""

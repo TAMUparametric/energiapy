@@ -4,12 +4,13 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 
 from ...parameters.data.conversion import Conversion
 from ._operational import _Operational
 
 if TYPE_CHECKING:
+    from ..._core._aliases._is_component import IsLocation
     from ..._core._aliases._is_input import (IsBoundInput, IsConvInput,
                                              IsExactInput)
 
@@ -27,7 +28,7 @@ class Process(_Operational):
     penalty: IsExactInput = field(default=None)
     conversion: IsConvInput = field(default=None)
     produce: IsBoundInput = field(default=None)
-
+    locations: IsLocation = field(default=None)
     # Depreciated
     varying: str = field(default=None)
     prod_max: str = field(default=None)
@@ -128,6 +129,11 @@ class Process(_Operational):
     def _operate(self):
         """Returns attribute value that signifies operating bounds"""
         return self.produce
+
+    @staticmethod
+    def _spatials():
+        """Spatial Components where the Operation is located"""
+        return 'locations'
 
     @staticmethod
     def resourcebnds():

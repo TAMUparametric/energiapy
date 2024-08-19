@@ -10,7 +10,7 @@ from ..._core._handy._dunders import _Reprs
 from ..designators.mode import X
 
 if TYPE_CHECKING:
-    from ..._core._aliases._is_component import IsResource, IsStorage
+    from ..._core._aliases._is_component import IsStorage
     from ..._core._aliases._is_input import IsInvInput
 
 
@@ -28,6 +28,7 @@ class Inventory(_Reprs):
 
             if isinstance(self.inventory[self.base], dict):
                 if not all(isinstance(i, X) for i in self.inventory[self.base]):
+                    # add a dummy mode if no modes present
                     self.inventory[self.base] = {'x': self.inventory[self.base]}
 
                 self.conversion_c = {'resource_stg': {}}
