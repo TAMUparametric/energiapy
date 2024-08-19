@@ -1,8 +1,42 @@
-"""The main object in energiapy. Everything else is defined as a scenario attribute.
+"""Scenario is the core object in energiapy. 
+
+    Everything else is defined as a scenario attribute.
+
+    energiapy.components are added to the System Model Block
+    _Components are the base for all components in energiapy, broadly categorized into
+    Components the do not generate constraints and those that do.
+    The former are further divided into -
+          _Scope: Horizon, Network
+          These create the spatiotemporal scope of the problem
+    Scopes are further divided into -
+          _Spatial: Location, Linkage
+          _Temporal: Scale
+          Locations and Scales are generated internally, Linkages are user-defined
+    _Defined components generate constraints which are added to the Program Model Block
+    
+    These include -
+          _Commodity: Cash, Land, Resource, Material, Emission
+          _Operational: Process, Storage, Transit
+          _Analytical: Players
+    The data provided as attributes is added to the Data Model Block
+    provided data is converted into in internal formats: Constant, DataSet, Theta, M
+    Theta - provided as tuple
+    M - provided as True
+    Constant - provided as float, int
+    DataSet - provided as DataFrame
+    Further any of these can be provided as a list to create an upper and lower bound for bounded variables
+    
+    The DataBlock is then added to the Program Model Block
+    The Program Model Block is used to generate Parameters, Variables, Constraints, and Objectives
+    
+    The Matrix Model is just a matrix representation of the problem block
+
 """
 
+from __future__ import annotations
 from dataclasses import dataclass, field
 from warnings import warn
+from typing import Any, TYPE_CHECKING
 
 from .._core._handy._collections import (
     _Alys,
@@ -18,7 +52,6 @@ from .._core._handy._collections import (
 )
 from ..components._base._component import _Component
 from ..components._base._defined import _Defined
-from ..components.commodity._commodity import _Commodity
 from ..components.commodity.cash import Cash
 from ..components.commodity.land import Land
 from ..components.commodity.resource import ResourceStg
@@ -35,6 +68,9 @@ from .data import DataBlock
 from .model import Model
 from .program import ProgramBlock
 
+if TYPE_CHECKING:
+    from .._core._aliases._is_component import IsDefined, IsScopeScale, IsLonely
+
 
 class _ScnCols(
     _Alys, _Imps, _Cmds, _LocOpns, _LnkOpns, _Spts, _Scls, _Scps, _Elms, _Vlus
@@ -48,19 +84,9 @@ class Scenario(_Default, _ScnCols):
     A scenario for a considered system. It collects all the components of the model.
 
     Input:
-        name (str, optional): Name. Defaults to 'energia'.
-        horizon (Horizon): Planning horizon of the problem, generated post-initialization.
-        scales (List[Scale]): List of Scale objects, generated post-initialization.
-        resources (List[Resource]): List of Resource objects, generated post-initialization.
-        processes (List[Process]): List of Process objects, generated post-initialization.
-        locations (List[Location]): List of Location objects, generated post-initialization.
-        transports (List[Transit]): List of Transit objects, generated post-initialization.
-        linkages (List[Linkage]): List of Linkage objects, generated post-initialization.
-        network (Network): Network
+        name (str, optional): Name. Defaults to ':s:'.
 
     Examples:
-
-        There is not much to this class, it is just a container for the components of the model.
 
         >>> from energiapy.components import Scenario
         >>> s = Scenario(name='Current')
@@ -71,52 +97,46 @@ class Scenario(_Default, _ScnCols):
 
     def __post_init__(self):
 
-        # Declare Model
+        # These are flags to check existence of components which can have only one instance in the System
+        for cmp in ['horizon', 'network', 'land', 'cash']:
+            setattr(self, f'_{cmp}', False)
+
+        # Declare Model, contains system, program, data, matrix
         self.model = Model(name=self.name)
+
+        # set default values if self.default (inherited from _Default) is True
         self._default()
 
     def __setattr__(self, name, value):
 
         if isinstance(value, _Component):
 
-            # Only one of Cash or Land can be defined
-            # if already defined, remove it
-            if isinstance(value, Cash):
-                self.cleanup('cash')
-
-            if isinstance(value, Land):
-                self.cleanup('land')
-
-            if isinstance(value, Horizon):
-                self.cleanup('horizon')
-
-            if isinstance(value, Network):
-                self.cleanup('network')
-
+            # Personalize the component
             value.personalize(name=name, model=self.model)
+
+            # set the component in the system
             setattr(self.system, name, value)
 
             if isinstance(value, _Defined):
 
-                value.make_consistent()
+                # defined components generate constraints (ProgramBlock) which are added to the Program
 
-                datablock = DataBlock(component=value)
-                programblock = ProgramBlock(component=value)
+                # Components that can have only one instance in the System are handled here
+                # Unique components are set as properties of the System which the Scenario can access
+                if isinstance(value, Cash):
+                    self.handle_unique_cmp(cmp='cash', component=value)
 
-                for inp in value.inputs():
+                if isinstance(value, Land):
+                    self.handle_unique_cmp(cmp='land', component=value)
 
-                    if getattr(value, inp, False):
-                        setattr(datablock, inp, {value: getattr(value, inp)})
-
-                        setattr(value, inp, getattr(datablock, inp))
-
-                setattr(self.data, name, datablock)
-
-                setattr(programblock, name, datablock)
-
-                setattr(self.program, name, programblock)
+                # All defined components have constraints
+                # The data is handled first and made into internal formats and added to the Data Model
+                # The Program Model is then generated using information from the Data Model
+                self.update_model(name=name, component=value)
 
         if isinstance(value, Horizon):
+
+            self.handle_unique_cmp('horizon', value)
 
             for i in range(value.n_scales):
 
@@ -135,6 +155,9 @@ class Scenario(_Default, _ScnCols):
                 )
 
         if isinstance(value, Network):
+
+            self.handle_unique_cmp('network', value)
+
             for i in value.locs:
 
                 if value.label_locs:
@@ -188,11 +211,10 @@ class Scenario(_Default, _ScnCols):
             setattr(self, f'{name}_d', Process(conversion=conv_d))
             storage.inventory.conversion_d = getattr(self, f'{name}_d').conversion
 
-        if isinstance(value, _Operational):
-
-            for cmd in value.commodities:
-                if not cmd._located:
-                    cmd.locate()
+        # if isinstance(value, _Operational):
+        #     for cmd in value.commodities:
+        #         if not cmd._located:
+        #             cmd.locate()
 
         super().__setattr__(name, value)
 
@@ -230,26 +252,31 @@ class Scenario(_Default, _ScnCols):
         self.program.eqns(at_cmp=at_cmp, at_disp=at_disp)
 
     def cleanup(self, cmp: str):
-        """Cleans up components which can have only one instance in the Model
+        """Cleans up components which can have only one instance in the System
         Args:
-            cmp (str): Component to be removed
+            cmp (str): 'cash', 'land', 'horizon', 'network'
         """
 
         cmp = getattr(self, cmp)
 
         if cmp:
-
             if isinstance(cmp, Horizon):
+                # remove scales if type Horizon
                 for scale in cmp.scales:
                     delattr(self, scale.name)
                     delattr(self.system, scale.name)
 
+            # remove the component from Scenario
             delattr(self, cmp.name)
+
+            # remove the component from System
             delattr(self.system, cmp.name)
 
+            # remove the component from Program Block
             if hasattr(self.program, cmp.name):
                 delattr(self.program, cmp.name)
 
+            # remove the component from Data Block
             if hasattr(self.data, cmp.name):
                 delattr(self.data, cmp.name)
 
@@ -259,3 +286,69 @@ class Scenario(_Default, _ScnCols):
                 'This should not cause any modeling issues.\n'
                 'Check Scenario defaults if unintended.\n'
             )
+
+    def handle_unique_cmp(self, cmp: str, component: IsLonely):
+        """Handles components which can have only one instance in the System
+        Args:
+            cmp (str): 'cash', 'land', 'horizon', 'network'
+            component(IsComponent): Component to be added
+
+        """
+
+        if getattr(self, f'_{cmp}'):
+            # if there is an existing instance of the same type
+            # remove it before adding the new one
+            # also remove generated components such as scales and locations
+            # also remove associated data and program if they exist
+            self.cleanup(cmp)
+
+        # set the component in the system
+        setattr(self.system, cmp, component)
+
+        # set the flag to True
+        setattr(self, f'_{cmp}', True)
+
+    def update_model(self, name: str, component: IsDefined):
+        """Updates the Data and System Model with the components
+
+        Args:
+            name (str): name of component
+            component (IsDefined): Component to be added
+        """
+
+        # Make the component inputs consistent
+        # i.e. of the form - {Spatial[Location, Linkage, Network]: Temporal[Scale]: Mode[X]: Value}
+        # Value can be numeric, DataFrame, True
+        # or a tuple of numeric or DataFrame
+        # or a list or numeric, DataFrame, True, or a tuple of numeric or DataFrame
+        component.make_consistent()
+
+        # make Small Blocks to be added to the larger Model Blocks
+        # where all the data values go
+        datablock = DataBlock(component=component)
+        # where all the model elements go
+        programblock = ProgramBlock(component=component)
+
+        # Each _Defined component has inputs which are categorized
+        # check individual component parent classes _Operational, _Commodity (_Traded and _Used) for details
+        for inp in component.inputs():
+            # if the input is provided (they all default to None)
+            if getattr(component, inp, False):
+                # set the input as attribute in the DataBlock
+                # This will make them into energiapy internal formats - Constant, DataSet, Theta, M
+                setattr(datablock, inp, {component: getattr(component, inp)})
+
+                # The updated Values are then set back into the component
+                setattr(component, inp, getattr(datablock, inp))
+
+        # The smaller Blocks are then added to the Larger Scenario Level Model Blocks
+        # The DataBlock is added to the Data Model
+        setattr(self.data, name, datablock)
+
+        # The DataBlock is then added to the ProgramBlock
+        # The disposition and type of value is used to generate Program elements:
+        # Parameters, Variables, Constraints, and Objectives
+        setattr(programblock, name, datablock)
+
+        # The ProgramBlock is also added to the Program Model
+        setattr(self.program, name, programblock)

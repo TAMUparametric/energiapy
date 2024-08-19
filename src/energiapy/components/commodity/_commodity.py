@@ -4,13 +4,14 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 
 from .._base._consistent import _ConsistentBnd, _ConsistentCsh, _ConsistentNstd
 from .._base._defined import _Defined
 
 if TYPE_CHECKING:
     from ..._core._aliases._is_input import IsBoundInput, IsExactInput
+    from ..._core._aliases._is_component import IsLocation, IsLinkage
 
 
 class _Commodity(ABC):
@@ -29,18 +30,20 @@ class _Commodity(ABC):
         """Locations where Commodity exists"""
         return self._locations
 
+    @locations.setter
+    def locations(self, locations: List[IsLocation]):
+        """Set Locations"""
+        self._locations = locations
+
     @property
     def linkages(self):
         """Linkages where Commodity exists"""
         return self._linkages
 
-    @locations.setter
-    def locations(self, value):
-        self._locations = value
-
     @linkages.setter
-    def linkages(self, value):
-        self._linkages = value
+    def linkages(self, linkages: List[IsLinkage]):
+        """Set Linkages"""
+        self._linkages = linkages
 
     def locate(self):
         """Locates the Commodity"""

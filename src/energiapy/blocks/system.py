@@ -20,7 +20,13 @@ from ..components.temporal.scale import Scale
 from ._base._block import _Block
 
 if TYPE_CHECKING:
-    from .._core._aliases._is_component import IsComponent
+    from .._core._aliases._is_component import (
+        IsComponent,
+        IsHorizon,
+        IsNetwork,
+        IsCash,
+        IsLand,
+    )
 
 
 @dataclass
@@ -35,47 +41,45 @@ class System(_Block):
 
         self.name = f'System|{self.name}|'
 
-        # SpatioTemporal Scope
-        # Is always [Horizon, Network]
-        self.scopes = [None, None]
-
-        # Assets
-        # Is always [Cash, Land]
-        self.assets = [None, None]
-
-    def __setattr__(self, name, value):
-
-        if isinstance(value, Horizon):
-            self.scopes[0] = value
-        elif isinstance(value, Network):
-            self.scopes[1] = value
-
-        elif isinstance(value, Cash):
-            self.assets[0] = value
-        elif isinstance(value, Land):
-            self.assets[1] = value
-
-        super().__setattr__(name, value)
-
     @property
     def horizon(self):
         """Returns the Horizon of the System"""
-        return self.scopes[0]
+        return self._horizon
+
+    @horizon.setter
+    def horizon(self, horizon: IsHorizon):
+        """Sets the Horizon of the System"""
+        self._horizon = horizon
 
     @property
     def network(self):
         """Returns the Network of the System"""
-        return self.scopes[1]
+        return self._network
+
+    @network.setter
+    def network(self, network: IsNetwork):
+        """Sets the Network of the System"""
+        self._network = network
 
     @property
     def cash(self):
         """Returns the Cash of the System"""
-        return self.assets[0]
+        return self._cash
+
+    @cash.setter
+    def cash(self, cash: IsCash):
+        """Sets the Cash of the System"""
+        self._cash = cash
 
     @property
     def land(self):
         """Returns the Land of the System"""
-        return self.assets[1]
+        return self._land
+
+    @land.setter
+    def land(self, land: IsLand):
+        """Sets the Land of the System"""
+        self._land = land
 
     @property
     def locations(self):

@@ -37,7 +37,7 @@ IsPlayer: TypeAlias = Player
 IsAnalytical: TypeAlias = Union[IsPlayer]
 
 
-# Impact
+# Impact Commodity
 IsEmission: TypeAlias = Emission
 IsImpact: TypeAlias = Union[IsEmission]
 
@@ -45,22 +45,33 @@ IsImpact: TypeAlias = Union[IsEmission]
 # Asset Commodity
 IsCash: TypeAlias = Cash
 IsLand = Land
-IsAsset: TypeAlias = Union[IsCash, IsLand]
-
 
 # Traded Commodity
 IsMaterial: TypeAlias = Material
 IsResource: TypeAlias = Resource
+
 IsTraded: TypeAlias = Union[IsMaterial, IsResource]
+IsUsed: TypeAlias = Union[IsMaterial, IsLand]
+IsAsset: TypeAlias = Union[IsCash, IsLand]
 
 # Commodity
-IsCommodity: TypeAlias = Union[IsTraded, IsAsset]
+IsCommodity: TypeAlias = Union[IsMaterial, IsResource, IsEmission, IsCash, IsLand]
+
 
 # Operational
 IsProcess: TypeAlias = Process
 IsStorage: TypeAlias = Storage
 IsTransit: TypeAlias = Transit
 IsOperational: TypeAlias = Union[IsProcess, IsStorage, IsTransit]
+
+# Components with only one instance
+IsLonely: TypeAlias = Union[IsScope, IsAsset]
+
+# Components with multiple instances and generate constraints
+IsDefined: TypeAlias = Union[IsAnalytical, IsCommodity, IsOperational]
+
+# Components with whcich do not generate constraints and add scale to the Scope
+IsScopeScale: TypeAlias = Union[IsSpatial, IsTemporal]
 
 # Component
 IsComponent: TypeAlias = Union[
