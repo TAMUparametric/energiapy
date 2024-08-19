@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List 
 
 from ...parameters.data.conversion import Conversion
 from ._operational import _Operational
@@ -12,6 +12,7 @@ from ._operational import _Operational
 if TYPE_CHECKING:
     from ..._core._aliases._is_input import (IsBoundInput, IsConvInput,
                                              IsExactInput)
+    from ..._core._aliases._is_component import IsLocation 
 
 
 @dataclass
@@ -27,6 +28,7 @@ class Process(_Operational):
     penalty: IsExactInput = field(default=None)
     conversion: IsConvInput = field(default=None)
     produce: IsBoundInput = field(default=None)
+    locations: List[IsLocation] = field(default=None)
 
     # Depreciated
     varying: str = field(default=None)
