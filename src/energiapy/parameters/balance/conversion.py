@@ -19,18 +19,20 @@ if TYPE_CHECKING:
 @dataclass
 class Conversion(_Reprs):
     """
-    Represents a conversion process between energy modes.
+    The Balance of Resources in a Process with respect to a Base Resource
+
+    Can have multiple Modes which can be declared using the Mode designator (X)
 
     Attributes:
-        conversion (IsConv): The conversion process.
-        process (Process): The process associated with the conversion.
-        base (Resource): Resource base, generated post initialization.
+        conversion (IsConvInput): The conversion process.
+        process (IsProcess): The process associated with the conversion.
+        base (IsResource): Resource base, generated post initialization.
         modes (Union[IsNumeric, str]): list of modes, generated post initialization.
         n_modes (int): The number of modes, generated post initialization.
-        sell (List[Resource]): Resources discharged, generated post initialization.
-        buy (List[Resource]): Resources buy, generated post initialization.
+        sold (List[IsResource]): Resources discharged, generated post initialization.
+        bought (List[IsResource]): Resources buy, generated post initialization.
         balance (IsConvBalance): Overall balance attribute generated post initialization.
-        involve (List[Resource]): The involve attribute generated post initialization.
+        involved (List[IsResource]): The involved attribute generated post initialization.
         name (str): The name attribute generated post initialization.
     """
 
@@ -39,8 +41,12 @@ class Conversion(_Reprs):
 
     def __post_init__(self):
 
+        # The purpose of the Process is to produce the base Resource
+        # The basis if set to one unit of this Resource
+        # Cost inputs, for example, are scaled as per this base
         self.base = list(self.conversion)[0]
 
+        # if Modes are given, then personalize the Modes to the Process
         if all(isinstance(i, X) for i in self.conversion[self.base]):
 
             self.conversion = {
@@ -50,9 +56,12 @@ class Conversion(_Reprs):
                 }
             }
 
+            # List of Modes, and the Number of Modes
             self.modes = list(self.conversion[self.base])
             self.n_modes = len(self.modes)
 
+            # Resources which are dispensed
+            # They have a positive value in the conversion dictionary, includes the base
             self.sold = [self.base] + list(
                 reduce(
                     or_,
@@ -65,6 +74,8 @@ class Conversion(_Reprs):
                     set(),
                 )
             )
+            # Resources which are consumed
+            # They have a negative value in the conversion dictionary
             self.bought = list(
                 reduce(
                     or_,
@@ -77,12 +88,17 @@ class Conversion(_Reprs):
                     set(),
                 )
             )
+
+            # Balance provides a dictionary with the base as a key and value of 1
             self.balance = {
-                i: {self.base: 1, **self.conversion[self.base][i]} for i in self.modes
+                x: {self.base: 1, **self.conversion[self.base][x]} for x in self.modes
             }
 
         else:
+            # If no modes set None, and set the number of modes to 1
             self.modes, self.n_modes = None, 1
+
+            # Just like above but simpler
             self.sold = [self.base] + [
                 i
                 for i in self.conversion[self.base]
@@ -95,5 +111,7 @@ class Conversion(_Reprs):
             ]
             self.balance = {self.base: 1, **self.conversion[self.base]}
 
-        self.involve = list(self.sold) + list(self.bought)
+        # The resources involvedd in the conversion process
+        self.involved = list(self.sold) + list(self.bought)
+
         self.name = f'Conv({self.base},{self.process})'

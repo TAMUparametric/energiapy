@@ -6,13 +6,12 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, List
 
-from ...parameters.data.conversion import Conversion
+from ...parameters.balance.conversion import Conversion
 from ._operational import _Operational
 
 if TYPE_CHECKING:
     from ..._core._aliases._is_component import IsLocation
-    from ..._core._aliases._is_input import (IsBoundInput, IsConvInput,
-                                             IsExactInput)
+    from ..._core._aliases._is_input import IsBoundInput, IsConvInput, IsExactInput
 
 
 @dataclass
@@ -164,7 +163,7 @@ class Process(_Operational):
     @property
     def resources(self):
         """Resources in Inventory"""
-        return self.conversion.involve
+        return self.conversion.involved
 
     def conversionize(self):
         """Makes the conversion"""

@@ -62,7 +62,7 @@ class _Consistent(ABC):
             value (IsInput): any input
 
         Returns:
-            dict: ammended input dict
+            dict: Always {Spatial (Location, Linkage, Network): Something}
         """
 
         if not isinstance(value, dict):
@@ -91,13 +91,14 @@ class _Consistent(ABC):
             value (IsInput): any input
 
         Returns:
-            dict: ammended input dict
+            dict: Always {Spatial: {Temporal (Scale): Something}}
         """
 
         value_upd = self.upd_dict(value, 'spt')
 
         for spt, tmpx_val in value.items():
             if not isinstance(tmpx_val, dict):
+                # The 't' is temporary, replaced by root scale of Horizon later
                 value_upd[spt]['t'] = tmpx_val
             else:
                 for tmpx, val in tmpx_val.items():
@@ -118,7 +119,7 @@ class _Consistent(ABC):
             attr (str): attr for which input is being passed
 
         Returns:
-            dict: ammended input dict
+            dict: Always {Spatial: {Temporal: {Mode (X): value}}}
 
         """
         value_upd = self.upd_dict(value, 'spttmp')
@@ -146,7 +147,7 @@ class _Consistent(ABC):
             attr (str): attr for which input is being passed
 
         Returns:
-            dict: ammended input dict
+            dict: Always {Spatial: {Temporal: {Mode: value}}} but with Temporal reflecting the True disposition
         """
         value_upd = self.upd_dict(value, 'spttmpx')
 
@@ -180,7 +181,7 @@ class _Consistent(ABC):
             attr (str): attr for which input is being passed
 
         Returns:
-            dict: ammended dict
+            dict: Always {Spatial: {Temporal: {Mode: value}}}, this however checks lists [LB, UB]
         """
         value_upd = self.upd_dict(value, 'spttmpx')
 
@@ -207,14 +208,14 @@ class _Consistent(ABC):
 
         return value_upd
 
-    def clean_up(self, value: IsInput) -> IsSptTmpInput:
+    def clean_up(self, value: IsInput) -> dict:
         """Cleans up the input, removes temporary 't' and 'x' keys
 
         Args:
             value (IsInput): any Input
 
         Returns:
-            IsSptTmpInput: cleaned up input
+            dict: Always {Spatial: {Temporal: {Mode: value}}} but without 't' and 'x' dummy keys
         """
 
         value_upd = self.upd_dict(value, 'spttmpx')
@@ -239,7 +240,7 @@ class _Consistent(ABC):
             attr (str): attr for which input is being passed
 
         Returns:
-            IsSptTmpInput: {Spatial: {Temporal: value}}
+            IsSptTmpInput: {Spatial: {Temporal: {Mode: value}}} Always!!
         """
         value = self.make_spatial(value)
         value = self.make_temporal(value)
@@ -260,6 +261,7 @@ class _ConsistentBnd(_Consistent):
 class _ConsistentCsh(_Consistent):
     def make_csh_consistent(self, attr: str):
         """Makes the input of cash attributes consistent"""
+        # adds cash as the main key
         setattr(
             self,
             attr,
@@ -270,6 +272,8 @@ class _ConsistentCsh(_Consistent):
 class _ConsistentLnd(_Consistent):
     def make_lnd_consistent(self, attr: str):
         """Makes the input of land attributes consistent"""
+        # adds land as the main key
+
         setattr(
             self,
             attr,
@@ -280,6 +284,7 @@ class _ConsistentLnd(_Consistent):
 class _ConsistentNstd(_Consistent):
     def make_nstd_consistent(self, attr: str):
         """Makes the input of nested attributes consistent"""
+        # for inputs with multiple components, such as use and emission
         setattr(
             self,
             attr,
@@ -290,6 +295,7 @@ class _ConsistentNstd(_Consistent):
 class _ConsistentNstdCsh(_Consistent):
     def make_nstd_csh_consistent(self, attr: str):
         """Makes the input of nested cash attributes consistent"""
+        # for expense inputs, where cash needs to be added to different components
         setattr(
             self,
             attr,

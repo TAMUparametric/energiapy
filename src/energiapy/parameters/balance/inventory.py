@@ -16,7 +16,14 @@ if TYPE_CHECKING:
 
 @dataclass
 class Inventory(_Reprs):
-    """Inventory Balance for Storage"""
+    """Inventory Balance for Storage
+
+    Attributes:
+        inventory (IsInvInput): The inventory balance.
+        storage (IsStorage): The storage component.
+
+
+    """
 
     inventory: IsInvInput = field(default=None)
     storage: IsStorage = field(default=None)
@@ -24,14 +31,22 @@ class Inventory(_Reprs):
     def __post_init__(self):
 
         if isinstance(self.inventory, dict):
+
+            # The purpose of the Process is to produce the base Resource
+            # The basis if set to one unit of this Resource
+            # Cost inputs, for example, are scaled as per this base
             self.base = list(self.inventory)[0]
 
+            # if Modes are given, then personalize the Modes to the Inventory Conversion
             if isinstance(self.inventory[self.base], dict):
                 if not all(isinstance(i, X) for i in self.inventory[self.base]):
                     # add a dummy mode if no modes present
                     self.inventory[self.base] = {'x': self.inventory[self.base]}
 
+                # Inventory hosts the charging an discharging conversion balances
+                # Take a gander at Conversion if whats happening here is not clear
                 self.conversion_c = {'resource_stg': {}}
+
                 for x in self.inventory[self.base]:
                     self.conversion_c['resource_stg'][x] = {
                         **{i: -1 / j for i, j in self.inventory[self.base][x].items()},

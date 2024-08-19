@@ -6,7 +6,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, List
 
-from ...parameters.data.inventory import Inventory
+from ...parameters.balance.inventory import Inventory
 from ._operational import _Operational
 
 # import operator
@@ -15,8 +15,7 @@ from ._operational import _Operational
 
 if TYPE_CHECKING:
     from ..._core._aliases._is_component import IsLocation
-    from ..._core._aliases._is_input import (IsBoundInput, IsExactInput,
-                                             IsInvInput)
+    from ..._core._aliases._is_input import IsBoundInput, IsExactInput, IsInvInput
 
 
 @dataclass
@@ -114,4 +113,4 @@ class Storage(_Operational):
     @property
     def resources(self):
         """Resources in Inventory"""
-        return sorted(set(self.conversion_c.involve))
+        return sorted(set(self.conversion_c.involved))

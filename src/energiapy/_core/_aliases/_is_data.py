@@ -1,12 +1,12 @@
 from typing import TypeAlias, Union
 
 from ...parameters.bounds import SpcLmt, VarBnd
-from ...parameters.data.constant import Constant
-from ...parameters.data.conversion import Conversion
-from ...parameters.data.dataset import DataSet
-from ...parameters.data.inventory import Inventory
-from ...parameters.data.m import M
-from ...parameters.data.theta import Theta
+from ...parameters.values.constant import Constant
+from ...parameters.balance.conversion import Conversion
+from ...parameters.values.dataset import DataSet
+from ...parameters.balance.inventory import Inventory
+from ...parameters.values.m import M
+from ...parameters.values.theta import Theta
 from ...parameters.designators.mode import X
 
 # Value

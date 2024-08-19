@@ -2,8 +2,8 @@ from typing import Dict, List, Literal, Tuple, TypeAlias, Union
 
 from pandas import DataFrame
 
-from ...parameters.data.m import M
-from ...parameters.data.theta import Theta
+from ...parameters.values.m import M
+from ...parameters.values.theta import Theta
 from ._is_component import IsComponent, IsResource, IsScale, IsSpatial
 from ._is_data import IsMode
 

@@ -35,8 +35,18 @@
 
 from dataclasses import dataclass, field
 
-from .._core._handy._collections import (_Alys, _Cmds, _Elms, _Imps, _LnkOpns,
-                                         _LocOpns, _Scls, _Scps, _Spts, _Vlus)
+from .._core._handy._collections import (
+    _Alys,
+    _Cmds,
+    _Elms,
+    _Imps,
+    _LnkOpns,
+    _LocOpns,
+    _Scls,
+    _Scps,
+    _Spts,
+    _Vlus,
+)
 from ..components._base._component import _Component
 from ..components._base._defined import _Defined
 from ..components.commodity.cash import Cash
