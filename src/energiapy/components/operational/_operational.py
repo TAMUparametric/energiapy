@@ -10,9 +10,13 @@ from typing import TYPE_CHECKING
 from pandas import DataFrame
 
 from ...utils.scaling import scaling
-from .._base._consistent import (_ConsistentBnd, _ConsistentCsh,
-                                 _ConsistentLnd, _ConsistentNstd,
-                                 _ConsistentNstdCsh)
+from .._base._consistent import (
+    _ConsistentBnd,
+    _ConsistentCsh,
+    _ConsistentLnd,
+    _ConsistentNstd,
+    _ConsistentNstdCsh,
+)
 from .._base._defined import _Defined
 
 if TYPE_CHECKING:
@@ -154,6 +158,17 @@ class _Operational(
             return [i.disposition.emn for i in self.emission]
         else:
             return []
+
+    @property
+    def commodities(self):
+        """Commodities used in the Operation"""
+        return (
+            self.materials
+            + self.emissions
+            + self.resources
+            + [self.system.cash]
+            + [self.system.land]
+        )
 
     def locate(self):
         """Locates the Component"""

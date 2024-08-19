@@ -8,7 +8,7 @@ from ..components.commodity.cash import Cash
 from ..components.commodity.land import Land
 from ..components.commodity.material import Material
 from ..components.commodity.resource import Resource, ResourceStg
-from ..components.impact.emission import Emission
+from ..components.commodity.emission import Emission
 from ..components.operational.process import Process
 from ..components.operational.storage import Storage
 from ..components.operational.transit import Transit
@@ -88,6 +88,11 @@ class System(_Block):
         return self.fetch(Linkage)
 
     @property
+    def spatials(self):
+        """Returns the Spatials of the System"""
+        return self.locations + self.linkages
+
+    @property
     def scales(self):
         """Returns the Scales of the System"""
         return self.fetch(Scale)
@@ -118,6 +123,13 @@ class System(_Block):
         return self.fetch(Emission)
 
     @property
+    def commodities(self):
+        """Returns the Commodity Components of the System"""
+        return (
+            self.resources + self.materials + self.emissions + [self.cash] + [self.land]
+        )
+
+    @property
     def processes(self):
         """Returns the Processes of the System"""
         return self.fetch(Process)
@@ -131,6 +143,11 @@ class System(_Block):
     def transits(self):
         """Returns the Transits of the System"""
         return self.fetch(Transit)
+
+    @property
+    def operations(self):
+        """Returns the Operations of the System"""
+        return self.processes + self.storages + self.transits
 
     @property
     def nodes(self):

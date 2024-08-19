@@ -18,6 +18,7 @@ from .._core._handy._collections import (
 )
 from ..components._base._component import _Component
 from ..components._base._defined import _Defined
+from ..components.commodity._commodity import _Commodity
 from ..components.commodity.cash import Cash
 from ..components.commodity.land import Land
 from ..components.commodity.resource import ResourceStg
@@ -186,6 +187,12 @@ class Scenario(_Default, _ScnCols):
             conv_d[base][resourcestg] = conv_d[base].pop('resource_stg')
             setattr(self, f'{name}_d', Process(conversion=conv_d))
             storage.inventory.conversion_d = getattr(self, f'{name}_d').conversion
+
+        if isinstance(value, _Operational):
+
+            for cmd in value.commodities:
+                if not cmd._located:
+                    cmd.locate()
 
         super().__setattr__(name, value)
 

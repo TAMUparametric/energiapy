@@ -26,6 +26,16 @@ class _Spatial(_Component, ABC):
         """Operations in the Spatial Component"""
 
     @property
+    def cash(self):
+        """Cash Commodity"""
+        return self.system.cash
+
+    @property
+    def land(self):
+        """Land Commodity"""
+        return self.system.land
+
+    @property
     def resources(self):
         """Resources in Inventory"""
         return self.fetch_cmd('resources')
@@ -39,6 +49,13 @@ class _Spatial(_Component, ABC):
     def emissions(self):
         """Emissions in Inventory"""
         return self.fetch_cmd('emissions')
+
+    @property
+    def commodities(self):
+        """Commodities in Inventory"""
+        return (
+            self.resources + self.materials + self.emissions + [self.cash] + [self.land]
+        )
 
     def fetch(self, opn: IsOperational):
         """Fetches what Operational Components are in the Spatial Component"""

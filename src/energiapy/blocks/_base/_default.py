@@ -7,7 +7,7 @@ from ..._core._handy._dunders import _Dunders
 from ...components.analytical.player import Player
 from ...components.commodity.cash import Cash
 from ...components.commodity.land import Land
-from ...components.impact.emission import Emission
+from ...components.commodity.emission import Emission
 from ...components.scope.horizon import Horizon
 from ...components.scope.network import Network
 

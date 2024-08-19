@@ -13,12 +13,60 @@ if TYPE_CHECKING:
     from ..._core._aliases._is_input import IsBoundInput, IsExactInput
 
 
+class _Commodity(ABC):
+    """Commodities that are Traded"""
+
+    def __post_init__(self):
+        self._located = False
+
+    @property
+    @abstractmethod
+    def system(self):
+        """System Block"""
+
+    @property
+    def locations(self):
+        """Locations where Commodity exists"""
+        return self._locations
+
+    @property
+    def linkages(self):
+        """Linkages where Commodity exists"""
+        return self._linkages
+
+    @locations.setter
+    def locations(self, value):
+        self._locations = value
+
+    @linkages.setter
+    def linkages(self, value):
+        self._linkages = value
+
+    def locate(self):
+        """Locates the Commodity"""
+        setattr(
+            self,
+            'locations',
+            [loc for loc in self.system.locations if self in loc.commodities],
+        )
+        setattr(
+            self,
+            'linkages',
+            [lnk for lnk in self.system.linkages if self in lnk.commodities],
+        )
+
+        self._located = True
+
+
 @dataclass
-class _Traded(_Defined, _ConsistentBnd, _ConsistentCsh, _ConsistentNstd, ABC):
+class _Traded(
+    _Defined, _Commodity, _ConsistentBnd, _ConsistentCsh, _ConsistentNstd, ABC
+):
     """Applied for Land, Material and Resource"""
 
     def __post_init__(self):
         _Defined.__post_init__(self)
+        _Commodity.__post_init__(self)
 
     @staticmethod
     @abstractmethod
