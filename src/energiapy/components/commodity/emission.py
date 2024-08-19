@@ -11,10 +11,9 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class Cash(_Simple, _Commodity):
+class Emission(_Simple, _Commodity):
 
-    spend: IsBoundInput = field(default=None)
-    earn: IsBoundInput = field(default=None)
+    emit: IsBoundInput = field(default=None)
 
     def __post_init__(self):
         _Simple.__post_init__(self)
@@ -23,4 +22,4 @@ class Cash(_Simple, _Commodity):
     @staticmethod
     def bounds():
         """Attrs that quantify the bounds of the component"""
-        return ['spend', 'earn']
+        return ['emit']

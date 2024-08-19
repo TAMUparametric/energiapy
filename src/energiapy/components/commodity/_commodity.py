@@ -10,8 +10,8 @@ from .._base._consistent import _ConsistentBnd, _ConsistentCsh, _ConsistentNstd
 from .._base._defined import _Defined
 
 if TYPE_CHECKING:
+    from ..._core._aliases._is_component import IsLinkage, IsLocation
     from ..._core._aliases._is_input import IsBoundInput, IsExactInput
-    from ..._core._aliases._is_component import IsLocation, IsLinkage
 
 
 class _Commodity(ABC):
@@ -59,6 +59,11 @@ class _Commodity(ABC):
         )
 
         self._located = True
+
+    @property
+    def is_located(self):
+        """Is located"""
+        return self._located
 
 
 @dataclass

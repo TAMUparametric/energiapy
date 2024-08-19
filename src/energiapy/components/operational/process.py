@@ -38,6 +38,7 @@ class Process(_Operational):
 
     def __post_init__(self):
         _Operational.__post_init__(self)
+        self._conversioned = False
 
         # *-----------------Set ctype (ProcessType)----------------------------
 
@@ -130,7 +131,15 @@ class Process(_Operational):
     @property
     def _operate(self):
         """Returns attribute value that signifies operating bounds"""
-        return self.produce
+        if self.produce:
+            return self.produce
+        else:
+            return [1]
+
+    @property
+    def is_conversioned(self):
+        """The Process conversion is Conversion"""
+        return self._conversioned
 
     @staticmethod
     def _spatials():
@@ -160,5 +169,6 @@ class Process(_Operational):
     def conversionize(self):
         """Makes the conversion"""
 
-        if not isinstance(self.conversion, Conversion):
+        if not self._conversioned:
             self.conversion = Conversion(conversion=self.conversion, process=self)
+            self._conversioned = True

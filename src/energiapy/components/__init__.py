@@ -22,10 +22,10 @@ __all__ = [
 from .._core._aliases._is_input import IsBoundInput, IsExactInput, IsInput
 from .analytical.player import Player
 from .commodity.cash import Cash
+from .commodity.emission import Emission
 from .commodity.land import Land
 from .commodity.material import Material
 from .commodity.resource import Resource
-from .commodity.emission import Emission
 from .operational.process import Process
 from .operational.storage import Storage
 from .operational.transit import Transit

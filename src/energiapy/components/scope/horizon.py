@@ -88,13 +88,13 @@ class Horizon(_Scope, _Scls):
         if isinstance(self.discretizations, dict):
             self._discretization_list = list(self.discretizations.values())
             self._discretization_list.insert(0, 1)
-            self._name_scales = list(self.discretizations.keys())
-            self._name_scales.insert(0, 'ph')
+            self.name_scales = list(self.discretizations.keys())
+            self.name_scales.insert(0, 'ph')
 
         elif isinstance(self.discretizations, list):
             self._discretization_list = list(self.discretizations)
             self._discretization_list.insert(0, 1)
-            self._name_scales = [f't{i}' for i in range(len(self._discretization_list))]
+            self.name_scales = [f't{i}' for i in range(len(self._discretization_list))]
 
         else:
             raise ValueError('Discretizations must be a list or a dictionary')

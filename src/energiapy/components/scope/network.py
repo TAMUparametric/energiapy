@@ -4,7 +4,8 @@
 from dataclasses import dataclass, field
 from typing import List, Union
 
-from ..._core._handy._collections import _Cmds, _Imps, _LocOpns, _LnkOpns, _Spts, _Scls
+from ..._core._handy._collections import (_Cmds, _Imps, _LnkOpns, _LocOpns,
+                                          _Scls, _Spts)
 from .._base._scope import _Scope
 
 

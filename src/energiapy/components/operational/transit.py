@@ -27,7 +27,10 @@ class Transit(_Operational):
     @property
     def _operate(self):
         """Returns attribute value that signifies operating bounds"""
-        return self.transport
+        if self.transport:
+            return self.transport
+        else:
+            return [1]
 
     @staticmethod
     def _spatials():

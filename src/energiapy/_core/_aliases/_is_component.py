@@ -2,10 +2,10 @@ from typing import TypeAlias, Union
 
 from ...components.analytical.player import Player
 from ...components.commodity.cash import Cash
+from ...components.commodity.emission import Emission
 from ...components.commodity.land import Land
 from ...components.commodity.material import Material
 from ...components.commodity.resource import Resource
-from ...components.commodity.emission import Emission
 from ...components.operational.process import Process
 from ...components.operational.storage import Storage
 from ...components.operational.transit import Transit

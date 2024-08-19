@@ -6,8 +6,8 @@ from dataclasses import dataclass, field
 from ..._core._handy._dunders import _Dunders
 from ...components.analytical.player import Player
 from ...components.commodity.cash import Cash
-from ...components.commodity.land import Land
 from ...components.commodity.emission import Emission
+from ...components.commodity.land import Land
 from ...components.scope.horizon import Horizon
 from ...components.scope.network import Network
 

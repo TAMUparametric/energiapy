@@ -10,13 +10,9 @@ from typing import TYPE_CHECKING
 from pandas import DataFrame
 
 from ...utils.scaling import scaling
-from .._base._consistent import (
-    _ConsistentBnd,
-    _ConsistentCsh,
-    _ConsistentLnd,
-    _ConsistentNstd,
-    _ConsistentNstdCsh,
-)
+from .._base._consistent import (_ConsistentBnd, _ConsistentCsh,
+                                 _ConsistentLnd, _ConsistentNstd,
+                                 _ConsistentNstdCsh)
 from .._base._defined import _Defined
 
 if TYPE_CHECKING:

@@ -33,7 +33,6 @@ class Inventory(_Reprs):
 
                 self.conversion_c = {'resource_stg': {}}
                 for x in self.inventory[self.base]:
-                    print(self.inventory[self.base][x])
                     self.conversion_c['resource_stg'][x] = {
                         **{i: -1 / j for i, j in self.inventory[self.base][x].items()},
                         **{self.base: -1},
@@ -58,3 +57,5 @@ class Inventory(_Reprs):
             self.base = self.inventory
             self.conversion_c = {'resource_stg': {self.base: -1}}
             self.conversion_d = {self.base: {'resource_stg': -1}}
+
+        self.name = f'Inv({self.base}, {self.storage})'

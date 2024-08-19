@@ -32,6 +32,8 @@ class Storage(_Operational):
     store: IsBoundInput = field(default=None)
     inventory: IsInvInput = field(default=None)
     locations: List[IsLocation] = field(default=None)
+    capacity_c: IsBoundInput = field(default=None)
+    capacity_d: IsBoundInput = field(default=None)
 
     def __post_init__(self):
         _Operational.__post_init__(self)
@@ -39,7 +41,10 @@ class Storage(_Operational):
     @property
     def _operate(self):
         """Returns attribute value that signifies operating bounds"""
-        return self.store
+        if self.store:
+            return self.store
+        else:
+            return [1]
 
     @staticmethod
     def _spatials():
@@ -67,26 +72,46 @@ class Storage(_Operational):
             self.inventory = Inventory(inventory=self.inventory, storage=self)
 
     @property
+    def processes(self):
+        """Processes in Storage"""
+        return self._processes
+
+    @processes.setter
+    def processes(self, processes):
+        """Set Processes"""
+        self._processes = processes
+
+    @property
+    def process_c(self):
+        """Process from Resource to ResourceStg"""
+        return self.processes[0]
+
+    @property
+    def process_d(self):
+        """Process from ResourceStg to Resource"""
+        return self.processes[1]
+
+    @property
     def conversion_c(self):
         """Conversion from Resource to ResourceStg"""
-        return self.inventory.conversion_c
+        return getattr(self.system, self.name).process_c.conversion
 
     @property
     def conversion_d(self):
         """Conversion from ResourceStg to Resource"""
-        return self.inventory.conversion_d
+        return self.process_d.conversion
 
     @property
     def balance_c(self):
         """Balance from Resource to ResourceStg"""
-        return self.inventory.conversion_c.balance
+        return self.conversion_c.balance
 
     @property
     def balance_d(self):
         """Balance from ResourceStg to Resource"""
-        return self.inventory.conversion_d.balance
+        return self.conversion_d.balance
 
     @property
     def resources(self):
         """Resources in Inventory"""
-        return sorted(set(self.conversion_c.involve) | set(self.conversion_d.involve))
+        return sorted(set(self.conversion_c.involve))
