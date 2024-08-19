@@ -4,12 +4,16 @@
 from dataclasses import dataclass, field
 from typing import List, Union
 
-from ..._core._handy._collections import _Spt
+from ..._core._handy._collections import _Cmds, _Imps, _LocOpns, _LnkOpns, _Spts, _Scls
 from ._scope import _Scope
 
 
+class _NtwCols(_Cmds, _Imps, _LocOpns, _LnkOpns, _Spts, _Scls):
+    """Network Collections"""
+
+
 @dataclass
-class Network(_Scope, _Spt):
+class Network(_Scope, _NtwCols):
     """Network of Locations and Linkages"""
 
     locs: Union[List[str], int] = field(default_factory=list)

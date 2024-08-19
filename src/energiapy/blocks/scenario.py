@@ -4,8 +4,18 @@
 from dataclasses import dataclass, field
 from warnings import warn
 
-from .._core._handy._collections import (_Alys, _Cmds, _Elms, _Imps, _LnkOpns,
-                                         _LocOpns, _Scl, _Scps, _Spt, _Vlus)
+from .._core._handy._collections import (
+    _Alys,
+    _Cmds,
+    _Elms,
+    _Imps,
+    _LnkOpns,
+    _LocOpns,
+    _Scls,
+    _Scps,
+    _Spts,
+    _Vlus,
+)
 from ..components._base._component import _Component
 from ..components._base._defined import _Defined
 from ..components.commodity.cash import Cash
@@ -25,12 +35,14 @@ from .model import Model
 from .program import ProgramBlock
 
 
-class _ScnCol(_Alys, _Imps, _Cmds, _LocOpns, _LnkOpns, _Spt, _Scl, _Scps, _Elms, _Vlus):
-    """Scenario Collection"""
+class _ScnCols(
+    _Alys, _Imps, _Cmds, _LocOpns, _LnkOpns, _Spts, _Scls, _Scps, _Elms, _Vlus
+):
+    """Scenario Collections"""
 
 
 @dataclass
-class Scenario(_Default, _ScnCol):
+class Scenario(_Default, _ScnCols):
     """
     A scenario for a considered system. It collects all the components of the model.
 

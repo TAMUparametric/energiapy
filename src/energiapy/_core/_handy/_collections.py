@@ -101,7 +101,7 @@ class _LnkOpns(_Sys):
 # TODO - BLOCK 3
 
 
-class _Spt(_Sys):
+class _Spts(_Sys):
     """Spatial Components"""
 
     @property
@@ -135,10 +135,11 @@ class _Spt(_Sys):
         return self.system.sinks
 
 
+
 # TODO - Block 7
 
 
-class _Scl(_Sys):
+class _Scls(_Sys):
     """Scale"""
 
     @property

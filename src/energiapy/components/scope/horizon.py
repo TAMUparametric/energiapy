@@ -6,12 +6,12 @@ from itertools import product
 from operator import imod, is_, is_not
 from typing import List
 
-from ..._core._handy._collections import _Scl
+from ..._core._handy._collections import _Scls
 from ._scope import _Scope
 
 
 @dataclass
-class Horizon(_Scope, _Scl):
+class Horizon(_Scope, _Scls):
     """
     Planning horizon of the problem.
     Need to specify how many periods the parent scale t0 with 1 discretization is divided into.

@@ -13,7 +13,7 @@ from ..parameters.data.m import M
 from ..parameters.data.theta import Theta
 from ..parameters.designators.incidental import I
 from ._base._block import _Block
-from ._base._spttmpinput import _SptTmpInput
+from ._base._spttmpinput import _SptsTmpInput
 
 if TYPE_CHECKING:
     from .._core._aliases._is_block import IsDisposition
@@ -37,7 +37,7 @@ class DataBlock(_Dunders):
         varbnds = [VarBnd.LOWER, VarBnd.UPPER]
 
         if isinstance(value, dict):
-            spttmpinput = _SptTmpInput(name, value)
+            spttmpinput = _SptsTmpInput(name, value)
 
             for disposition, datapoint in spttmpinput.dict_input.items():
 

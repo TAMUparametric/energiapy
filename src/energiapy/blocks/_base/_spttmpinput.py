@@ -25,7 +25,7 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class _SptTmpInput:
+class _SptsTmpInput:
     """Is a spatial temporal input"""
 
     name_attr: str = field(default=None)
