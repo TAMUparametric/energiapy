@@ -188,8 +188,10 @@ class _Operational(_Defined, _CnstOpn, ABC):
         if value and not isinstance(value, list):
             setattr(self, spatials, [value])
 
+        # If location is not specified, then default to all locations
         if not value:
             setattr(self, spatials, getattr(self._model.system, spatials))
+        
 
     def make_consistent(self):
         """Makes the data inputs consistent IsSptTmpDict"""

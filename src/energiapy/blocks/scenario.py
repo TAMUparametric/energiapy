@@ -33,7 +33,7 @@
 """
 
 from dataclasses import dataclass, field
-
+from ._base._ok import _Ok
 from .._core._handy._collections import (
     _Alys,
     _Cmds,
@@ -68,12 +68,32 @@ class _ScnCols(
 
 
 @dataclass
-class Scenario(_Update, _Default, _ScnCols):
+class Scenario(_Ok, _Default, _Update, _ScnCols):
     """
     A scenario for a considered system. It collects all the components of the model.
 
+    Some default components can be created (def_ attributes):
+        1. Network with no Locations or Linkages
+        2. Horizon with only a root scale, i.e. the planning horizon (ph)
+        3. Land with no bounds
+        4. Cash with no bounds
+        5. Players, viz. Consumer, Decision Maker, Market , Earth
+        6. Emissions such as gwp, odp, etc.
+
+    The strictness of checks can also be controlled (ok_ attribures).
+
     Attributes:
         name (str, optional): Name. Defaults to ':s:'.
+        def_scope (bool): create default Scope (Network, Horizon) Components. Default is False
+        def_players (bool): create default (Players) Components. Default is False
+        def_emissions (bool): create default (Emission) Components. Default is False
+        def_cash (bool): create default (Cash) Components. Default is False
+        def_land (bool): create default (Land) Components. Default is False
+        default (bool): create default Components of all the above. Default is False
+        ok_overwrite (bool): Allow overwriting of Components. Default is True
+        ok_nobasis (bool): Allow Components without basis. Default is True
+        ok_nolabel (bool): Allow Components without label. Default is True
+        be_strict (bool): Be strict with the above. Default is False
 
     Examples:
 
@@ -85,6 +105,8 @@ class Scenario(_Update, _Default, _ScnCols):
     name: str = field(default=':s:')
 
     def __post_init__(self):
+        _Ok.__post_init__(self)
+        _Default.__post_init__(self)
 
         # These are flags to check existence of components which can have only one instance in the System
         for cmp in ['horizon', 'network', 'land', 'cash']:
@@ -103,13 +125,23 @@ class Scenario(_Update, _Default, _ScnCols):
         # This is a cursory step to check what is being added, also excludes name
         if isinstance(value, _Component):
             # Personalize the component
+
             value.personalize(name=name, model=self.model)
+
+            # Check if ok to overwrite
+            # Inherited from _Ok
+            self.isok_ovewrite(cmp=name)
 
             # set the component in the system
             setattr(self.system, name, value)
 
             # defined components generate constraints (ProgramBlock) which are added to the Program
             if isinstance(value, _Defined):
+
+                # Run some checks based on what is ok
+                # Inherited from _Ok
+                self.isok_nobasis(component=value)
+                self.isok_nolabel(component=value)
 
                 # Components that can have only one instance in the System are handled here
                 # Unique components are set as properties of the System which the Scenario can access

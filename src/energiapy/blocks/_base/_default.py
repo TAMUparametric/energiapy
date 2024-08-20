@@ -15,52 +15,61 @@ from ...components.scope.network import Network
 @dataclass
 class _Default(_Dunders):
     """initializations for the Scenario class
-    
+
     Such as:
         1. Network with no Locations or Linkages
         2. Horizon with only a root scale, i.e. the planning horizon (ph)
         3. Land with no bounds
-        4. Cash with no bounds 
+        4. Cash with no bounds
         5. Players, viz. Consumer, Decision Maker, Market , Earth
         6. Emissions such as gwp, odp, etc.
+        
+    Attributes:
+        def_scope (bool): create default Scope (Network, Horizon) Components. Default is False
+        def_players (bool): create default (Players) Components. Default is False
+        def_emissions (bool): create default (Emission) Components. Default is False
+        def_cash (bool): create default (Cash) Components. Default is False
+        def_land (bool): create default (Land) Components. Default is False
+        default (bool): create default Components of all the above. Default is False 
     """
 
-    default_scope: bool = field(default=False)
-    default_players: bool = field(default=False)
-    default_emissions: bool = field(default=False)
-    default_cash: bool = field(default=False)
-    default_land: bool = field(default=False)
+    def_scope: bool = field(default=False)
+    def_players: bool = field(default=False)
+    def_emissions: bool = field(default=False)
+    def_cash: bool = field(default=False)
+    def_land: bool = field(default=False)
     default: bool = field(default=False)
+
+    def __post_init__(self):
+        if self.default:
+            (
+                self.def_players,
+                self.def_emissions,
+                self.def_cash,
+                self.def_land,
+                self.def_scope,
+            ) = (True for _ in range(5))
 
     def _default(self):
         """Set default components"""
 
         # these are some initializations, which include:
         # Assets - Land and Cash
-        # Emissions if default_emissions is True
-        # Players if default_players is True (default)
+        # Emissions if def_emissions is True
+        # Players if def_players is True (default)
         # Scope Components
 
-        if self.default:
-            (
-                self.default_players,
-                self.default_emissions,
-                self.default_cash,
-                self.default_land,
-                self.default_scope,
-            ) = (True for _ in range(5))
-
-        if self.default_scope:
+        if self.def_scope:
             setattr(self, 'hrz_def', Horizon(label='Default Horizon'))
             setattr(self, 'ntw_def', Network(label='Default Network'))
 
-        if self.default_land:
+        if self.def_land:
             setattr(self, 'lnd_def', Land(basis='Acres', label='Land'))
 
-        if self.default_cash:
+        if self.def_cash:
             setattr(self, 'csh_def', Cash(basis='$', label='Cash'))
 
-        if self.default_emissions:
+        if self.def_emissions:
             emissions = [
                 ('gwp', 'kg CO2 eq.', 'Global Warming Potential'),
                 ('ap', 'mol eq', 'Acidification Potential'),
@@ -78,7 +87,7 @@ class _Default(_Dunders):
             for i, j, k in emissions:
                 setattr(self, i, Emission(basis=j, label=k))
 
-        if self.default_players or self.default:
+        if self.def_players or self.default:
 
             players = [
                 ('dm', 'Decision Maker'),

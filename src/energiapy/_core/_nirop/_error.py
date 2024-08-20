@@ -18,6 +18,12 @@ class CacodcarError(ValueError):
 
 
 def check_attr(component: IsComponent, attr: str):
-    """Checks if an attribute is present in the component"""
+    """Checks if an attribute is present in the component
+    
+    Args:
+        component (IsComponent): Component to check
+        attr (str): Attribute to check
+    
+    """
     if not hasattr(component, attr):
         raise CacodcarError(f'{type(component)} has no attribute {attr}')
