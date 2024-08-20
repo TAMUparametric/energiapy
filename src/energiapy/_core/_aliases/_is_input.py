@@ -5,7 +5,7 @@ from pandas import DataFrame
 from ...parameters.values.m import M
 from ...parameters.values.theta import Theta
 from ._is_component import IsComponent, IsResource, IsScale, IsSpatial
-from ._is_data import IsMode
+from ._is_value import IsMode
 
 # input types
 IsNumeric: TypeAlias = Union[float, int]

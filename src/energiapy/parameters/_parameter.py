@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING
 from .._core._handy._dunders import _Dunders
 
 if TYPE_CHECKING:
-    from .._core._aliases._is_data import IsValue
+    from .._core._aliases._is_value import IsValue
 
 
 @dataclass

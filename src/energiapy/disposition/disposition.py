@@ -16,7 +16,7 @@ if TYPE_CHECKING:
                                                 IsNetwork, IsPlayer, IsProcess,
                                                 IsResource, IsScale, IsStorage,
                                                 IsTransit)
-    from .._core._aliases._is_data import IsMode
+    from .._core._aliases._is_value import IsMode
 
 
 @dataclass

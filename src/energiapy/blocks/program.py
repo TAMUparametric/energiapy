@@ -16,7 +16,7 @@ from .data import DataBlock
 if TYPE_CHECKING:
     from .._core._aliases._is_block import IsDataBlock, IsIndex
     from .._core._aliases._is_component import IsDefined
-    from .._core._aliases._is_data import IsValue
+    from .._core._aliases._is_value import IsValue
     from .._core._aliases._is_element import IsElement
 
 

@@ -21,7 +21,7 @@ from ._base._spttmpinput import _SptTmpInput
 if TYPE_CHECKING:
     from .._core._aliases._is_block import IsDisposition
     from .._core._aliases._is_component import IsDefined
-    from .._core._aliases._is_data import IsSpcLmt, IsValue, IsVarBnd
+    from .._core._aliases._is_value import IsSpcLmt, IsValue, IsVarBnd
     from .._core._aliases._is_input import IsBaseInput
 
 
