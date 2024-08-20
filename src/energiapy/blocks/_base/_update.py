@@ -19,15 +19,10 @@ from ..data import DataBlock
 from ..program import ProgramBlock
 
 if TYPE_CHECKING:
-    from ..._core._aliases._is_component import (
-        IsDefined,
-        IsHorizon,
-        IsLinkage,
-        IsLonely,
-        IsNetwork,
-        IsOperational,
-        IsStorage,
-    )
+    from ..._core._aliases._is_component import (IsDefined, IsHorizon,
+                                                 IsLinkage, IsLonely,
+                                                 IsNetwork, IsOperational,
+                                                 IsStorage)
 
 
 class _Update(ABC):

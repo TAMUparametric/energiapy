@@ -17,20 +17,10 @@ from ..components.operational.storage import Storage
 from ..components.operational.transit import Transit
 from ..variables.action import Gives, Takes
 from ..variables.capacitate import Capacity
-from ..variables.emit import EmitBuy, EmitCap, EmitLoss, EmitSell, EmitSys, EmitUse
-from ..variables.expense import (
-    Credit,
-    Earn,
-    ExpBuy,
-    ExpCap,
-    ExpCapI,
-    ExpOp,
-    ExpOpI,
-    ExpSell,
-    ExpUse,
-    Penalty,
-    Spend,
-)
+from ..variables.emit import (EmitBuy, EmitCap, EmitLoss, EmitSell, EmitSys,
+                              EmitUse)
+from ..variables.expense import (Credit, Earn, ExpBuy, ExpCap, ExpCapI, ExpOp,
+                                 ExpOpI, ExpSell, ExpUse, Penalty, Spend)
 from ..variables.loss import Loss
 from ..variables.operate import Operate
 from ..variables.trade import Buy, Recieve, Sell, Ship

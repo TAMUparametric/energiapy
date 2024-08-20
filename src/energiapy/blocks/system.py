@@ -16,13 +16,8 @@ from ..components.temporal.scale import Scale
 from ._base._block import _Block
 
 if TYPE_CHECKING:
-    from .._core._aliases._is_component import (
-        IsCash,
-        IsHorizon,
-        IsLand,
-        IsNetwork,
-        IsDefined,
-    )
+    from .._core._aliases._is_component import (IsCash, IsDefined, IsHorizon,
+                                                IsLand, IsNetwork)
 
 
 @dataclass

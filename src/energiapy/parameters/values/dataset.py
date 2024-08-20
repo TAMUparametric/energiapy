@@ -11,7 +11,6 @@ from pandas import DataFrame
 
 from ..approach import Approach, Certainty
 from ..bounds import VarBnd
-
 # from ..core.base import Dunders
 from ._data import _Value
 

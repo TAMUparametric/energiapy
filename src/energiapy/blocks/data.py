@@ -10,11 +10,11 @@ from pandas import DataFrame
 
 from .._core._handy._dunders import _Dunders
 from ..parameters.bounds import SpcLmt, VarBnd
+from ..parameters.designators.incidental import I
 from ..parameters.values.constant import Constant
 from ..parameters.values.dataset import DataSet
 from ..parameters.values.m import M
 from ..parameters.values.theta import Theta
-from ..parameters.designators.incidental import I
 from ._base._block import _Block
 from ._base._spttmpinput import _SptTmpInput
 
