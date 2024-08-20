@@ -23,8 +23,7 @@ class Resource(_Traded):
     Attributes:
         buy (IsBoundInput): bound on amount bought at Location or by Process
         sell (IsBoundInput): bound on amount sold at Location or by Process
-        ship (IsBoundInput): bound on amount shipped from Location
-        receive (IsBoundInput): bound on amount received by Location
+        ship (IsBoundInput): bound on amount shipped through Linkage
         buy_price (IsExactInput): price to buy per unit basis
         sell_price (IsExactInput): price at which to sell per unit basis
         credit (IsExactInput): credit received per unit basis sold
@@ -43,7 +42,6 @@ class Resource(_Traded):
     buy: IsBoundInput = field(default=None)
     sell: IsBoundInput = field(default=None)
     ship: IsBoundInput = field(default=None)
-    receive: IsBoundInput = field(default=None)
     buy_price: IsExactInput = field(default=None)
     sell_price: IsExactInput = field(default=None)
     credit: IsExactInput = field(default=None)
@@ -81,7 +79,7 @@ class Resource(_Traded):
     @classmethod
     def bounds(cls):
         """Attrs that quantify the bounds of the Component"""
-        return ['buy', 'sell', 'ship', 'receive']
+        return ['buy', 'sell', 'ship']
 
     @classmethod
     def expenses(cls):
@@ -123,5 +121,3 @@ class ResourceTrn(Resource):
 
     def __post_init__(self):
         Resource.__post_init__(self)
-
-

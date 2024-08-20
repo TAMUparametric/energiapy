@@ -10,6 +10,7 @@ from ._spatial import _Spatial
 
 if TYPE_CHECKING:
     from ..._core._aliases._is_component import IsLocation
+    from ..._core._aliases._is_component import IsLinkage
 
 
 @dataclass
@@ -17,6 +18,7 @@ class Linkage(_Spatial):
     """Linkage between Locations
 
     If bi is True, the Linkage is bothways and a Linkage_ is birthed
+    bi is then set to False
 
     Attributes:
         sink (IsLocation): Location where the Resource is sent
@@ -35,6 +37,7 @@ class Linkage(_Spatial):
 
     def __post_init__(self):
         _Spatial.__post_init__(self)
+        self._sib = None
 
     @property
     def transits(self):
@@ -45,3 +48,12 @@ class Linkage(_Spatial):
     def operations(self):
         """Operations at the Location"""
         return self.transits
+
+    @property
+    def sib(self):
+        """Sibling Linkage"""
+        return self._sib
+
+    @sib.setter
+    def sib(self, linkage: IsLinkage):
+        self._sib = linkage

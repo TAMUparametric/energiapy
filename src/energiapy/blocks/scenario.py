@@ -34,8 +34,18 @@
 
 from dataclasses import dataclass, field
 
-from .._core._handy._collections import (_Alys, _Cmds, _Elms, _Imps, _LnkOpns,
-                                         _LocOpns, _Scls, _Scps, _Spts, _Vlus)
+from .._core._handy._collections import (
+    _Alys,
+    _Cmds,
+    _Elms,
+    _Imps,
+    _LnkOpns,
+    _LocOpns,
+    _Scls,
+    _Scps,
+    _Spts,
+    _Vlus,
+)
 from ..components._base._component import _Component
 from ..components._base._defined import _Defined
 from ..components.commodity.cash import Cash
@@ -122,9 +132,11 @@ class Scenario(_Update, _Default, _ScnCols):
             if isinstance(value, Network):
                 self.handle_unique_cmp('network', value)
                 self.birth_locations(network=value)
+                if value.link_all:
+                    self.birth_all_linkages(network=value)
 
             if isinstance(value, Linkage):
-                self.birth_bi_linkage(linkage=value)
+                self.birth_sib_linkage(linkage=value)
 
             # find where all the Operation is located
             # if nothing is provided, available throughout Network (all locations)

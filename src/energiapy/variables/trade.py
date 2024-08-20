@@ -63,16 +63,3 @@ class Ship(Trade):
     def structures(cls, component):
         """The allowed structures of disposition of the Variable"""
         return make_structures(cmd='res', opn='trn', spt=['lnk', 'ntw'])
-
-
-@dataclass
-class Recieve(Trade):
-    """Resource received at a Location"""
-
-    def __post_init__(self):
-        Trade.__post_init__(self)
-
-    @classmethod
-    def structures(cls, component):
-        """The allowed structures of disposition of the Variable"""
-        return make_structures(cmd='res', opn='trn', spt=['lnk', 'ntw'])

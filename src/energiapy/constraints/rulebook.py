@@ -11,29 +11,61 @@ from .._core._handy._dunders import _Dunders
 from .._core._nirop._error import CacodcarError
 from ..constraints.bind import Bind
 from ..constraints.calculate import Calculate
-from ..parameters.bound import (BuyBnd, CapBnd, EarnBnd, OpBnd, SellBnd,
-                                SpendBnd, UseBnd)
+from ..parameters.bound import (
+    BuyBnd,
+    CapBnd,
+    EarnBnd,
+    OpBnd,
+    SellBnd,
+    SpendBnd,
+    UseBnd,
+    ShipBnd,
+)
 from ..parameters.calculated import LndUse, MatUse, ResLoss
-from ..parameters.emission import (CmdEmitUse, EmitBnd, OpnEmit, ResEmitBuy,
-                                   ResEmitLoss, ResEmitSell)
-from ..parameters.expense import (BuyPrice, CapExp, CapExpI, OpExp, OpExpI,
-                                  ResCredit, ResPenalty, SellPrice, UseExp)
+from ..parameters.emission import (
+    CmdEmitUse,
+    EmitBnd,
+    OpnEmit,
+    ResEmitBuy,
+    ResEmitLoss,
+    ResEmitSell,
+)
+from ..parameters.expense import (
+    BuyPrice,
+    CapExp,
+    CapExpI,
+    OpExp,
+    OpExpI,
+    ResCredit,
+    ResPenalty,
+    SellPrice,
+    UseExp,
+)
 from ..parameters.ownership import Has, Needs
 from ..variables.action import Gives, Takes
 from ..variables.capacitate import Capacity
-from ..variables.emit import (EmitBuy, EmitCap, EmitLoss, EmitSell, EmitSys,
-                              EmitUse)
-from ..variables.expense import (Credit, Earn, ExpBuy, ExpCap, ExpCapI, ExpOp,
-                                 ExpOpI, ExpSell, ExpUse, Penalty, Spend)
+from ..variables.emit import EmitBuy, EmitCap, EmitLoss, EmitSell, EmitSys, EmitUse
+from ..variables.expense import (
+    Credit,
+    Earn,
+    ExpBuy,
+    ExpCap,
+    ExpCapI,
+    ExpOp,
+    ExpOpI,
+    ExpSell,
+    ExpUse,
+    Penalty,
+    Spend,
+)
 from ..variables.loss import Loss
 from ..variables.operate import Operate
-from ..variables.trade import Buy, Sell
+from ..variables.trade import Buy, Sell, Ship
 from ..variables.use import Use, Used
 from .rules import Condition, SumOver
 
 if TYPE_CHECKING:
-    from .._core._aliases._is_element import (IsConstraint, IsParameter,
-                                              IsVariable)
+    from .._core._aliases._is_element import IsConstraint, IsParameter, IsVariable
 
 
 @dataclass
@@ -88,13 +120,17 @@ class RuleBook:
 
     def find(self, variable: IsVariable):
         """Fetch the rules that apply for a particular variable"""
-        return [rule for rule in self.rules if is_(rule.variable, variable)]
+        rule = [rule for rule in self.rules if is_(rule.variable, variable)]
+        if rule:
+            return rule
+        else:
+            raise CacodcarError(f'No Rule found for {variable.id()}')
 
 
 rulebook = RuleBook()
 
 # Bounded
-trade_bnd = [(Buy, BuyBnd), (Sell, SellBnd)]
+trade_bnd = [(Buy, BuyBnd), (Sell, SellBnd), (Ship, ShipBnd)]
 cap_bnd = [(Capacity, CapBnd)]
 op_bnd = [(Operate, OpBnd)]
 exp_bnd = [(Spend, SpendBnd), (Earn, EarnBnd)]

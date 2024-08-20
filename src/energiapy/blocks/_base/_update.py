@@ -8,6 +8,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 from warnings import warn
+from operator import is_not
 
 from ...components.commodity.resource import ResourceStg
 from ...components.operational.process import Process
@@ -19,10 +20,15 @@ from ..data import DataBlock
 from ..program import ProgramBlock
 
 if TYPE_CHECKING:
-    from ..._core._aliases._is_component import (IsDefined, IsHorizon,
-                                                 IsLinkage, IsLonely,
-                                                 IsNetwork, IsOperational,
-                                                 IsStorage)
+    from ..._core._aliases._is_component import (
+        IsDefined,
+        IsHorizon,
+        IsLinkage,
+        IsLonely,
+        IsNetwork,
+        IsOperational,
+        IsStorage,
+    )
 
 
 class _Update(ABC):
@@ -199,7 +205,7 @@ class _Update(ABC):
             # set the locations as attributes of the Scenario
             setattr(self, i, Location(label=label_node))
 
-    def birth_bi_linkage(self, linkage: IsLinkage):
+    def birth_sib_linkage(self, linkage: IsLinkage):
         """Births a Linkage going in the opposite direction of the provided Linkage
         if bi is set to True
 
@@ -225,6 +231,31 @@ class _Update(ABC):
                     bi=False,
                 ),
             )
+            setattr(
+                getattr(self.system, linkage.name),
+                'sib',
+                getattr(self.system, f'{linkage.name}_'),
+            )
+            setattr(
+                getattr(self.system, f'{linkage.name}_'),
+                'sib',
+                getattr(self.system, linkage.name),
+            )
+
+    def birth_all_linkages(self, network: IsNetwork):
+        """Births Linkages for between all Locations in the Network
+
+        Triggered if Network.link_all is set to True
+
+        Args:
+            network (IsNetwork): Network object
+        """
+
+        for i, src in enumerate(network.locations):
+            for snk in network.locations:
+                if is_not(src, snk):
+                    # set the linkages as attributes of the Scenario
+                    setattr(self, f'lnk{i}', Linkage(source=src, sink=snk, bi=True))
 
     def birth_stg_processes(self, storage: IsStorage):
         """Births Charging and Discharging Processes for a Storage Component
@@ -247,8 +278,8 @@ class _Update(ABC):
         # This is to keep birthing operations only in the Scenario
         # The conversions are updated in Storage Inventory as well
         # These are cleaned up here
-        conv_c[resourcestg] = conv_c.pop('resource_stg')
-        conv_d[resourcestg] = conv_d[base].pop('resource_stg')
+        conv_c[resourcestg] = conv_c.pop('r')
+        conv_d[resourcestg] = conv_d[base].pop('r')
 
         # Charging(_c) and Discharging(_d) Processes are birthed
         process_c = Process(conversion=conv_c, capacity=storage.capacity_c)

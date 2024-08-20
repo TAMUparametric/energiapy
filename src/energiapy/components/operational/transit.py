@@ -28,6 +28,7 @@ class Transit(_Operational):
         carries (IsResource): Resource carried by the Operation
         transport (IsBoundInput): bound by Capacity. Reported by operate as well.
         linkages (List[IsLinkage]): linkages between which Transit exists
+        ship (IsBoundInput): bound on shipping a Resource
         basis (str): basis of the component
         citation (dict): citation of the component
         block (str): block of the component
@@ -41,9 +42,12 @@ class Transit(_Operational):
     loss: IsExactInput = field(default=None)
     transport: IsBoundInput = field(default=None)
     linkages: List[IsLinkage] = field(default=None)
+    ship: IsBoundInput = field(default=None)
+    deliver: IsBoundInput = field(default=None)
 
     def __post_init__(self):
         _Operational.__post_init__(self)
+        self.ship = {self.carries: self.ship}
 
     @property
     def _operate(self):
@@ -61,7 +65,7 @@ class Transit(_Operational):
     @staticmethod
     def resourcebnds():
         """Attrs that quantify the bounds of the Component"""
-        return ['ship', 'deliver']
+        return ['ship']
 
     @staticmethod
     def resourceexps():

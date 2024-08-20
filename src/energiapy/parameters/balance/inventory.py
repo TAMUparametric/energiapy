@@ -21,8 +21,6 @@ class Inventory(_Reprs):
     Attributes:
         inventory (IsInvInput): The inventory balance.
         storage (IsStorage): The storage component.
-
-
     """
 
     inventory: IsInvInput = field(default=None)
@@ -47,38 +45,36 @@ class Inventory(_Reprs):
 
                 # Inventory hosts the charging an discharging conversion balances
                 # Take a gander at Conversion if whats happening here is not clear
-                self.conversion_c = {'resource_stg': {}}
+                self.conversion_c = {'r': {}}
 
                 # iterate over modes
                 for x in self.inventory[self.base]:
-                    self.conversion_c['resource_stg'][x] = {
+                    self.conversion_c['r'][x] = {
                         **{
                             res: -1 / val
                             for res, val in self.inventory[self.base][x].items()
                         },
                         **{self.base: -1},
                     }
-                #'x' is a dummy mode, which can be removed here
-                if self.conversion_c['resource_stg'] == 'x':
+                # 'x' is a dummy mode, which can be removed here
+                if self.conversion_c['r'] == 'x':
 
-                    self.conversion_c['resource_stg'] = self.conversion_c[
-                        'resource_stg'
-                    ]['x']
+                    self.conversion_c['r'] = self.conversion_c['r']['x']
 
-                    del self.conversion_c['resource_stg']['x']
+                    del self.conversion_c['r']['x']
 
-                self.conversion_d = {self.base: {'resource_stg': 1}}
+                self.conversion_d = {self.base: {'r': 1}}
 
             else:
                 # This is used when a single efficiency value is given
                 efficiency = self.inventory[self.base]
-                self.conversion_c = {'resource_stg': {self.base: -1 / efficiency}}
-                self.conversion_d = {self.base: {'resource_stg': -1}}
+                self.conversion_c = {'r': {self.base: -1 / efficiency}}
+                self.conversion_d = {self.base: {'r': -1}}
 
         else:
             # If only a Resource is given, consider 100% efficiency
             self.base = self.inventory
-            self.conversion_c = {'resource_stg': {self.base: -1}}
-            self.conversion_d = {self.base: {'resource_stg': -1}}
+            self.conversion_c = {'r': {self.base: -1}}
+            self.conversion_d = {self.base: {'r': -1}}
 
         self.name = f'Inv({self.base}, {self.storage})'

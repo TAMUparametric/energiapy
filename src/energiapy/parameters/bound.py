@@ -23,6 +23,14 @@ class SellBnd(_Parameter):
 
 
 @dataclass
+class ShipBnd(_Parameter):
+    """Ship Bounds"""
+
+    def __post_init__(self):
+        _Parameter.__post_init__(self)
+
+
+@dataclass
 class SpendBnd(_Parameter):
     """Expense Bound on Spending"""
 

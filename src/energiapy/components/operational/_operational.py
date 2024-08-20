@@ -10,10 +10,15 @@ from typing import TYPE_CHECKING
 from pandas import DataFrame
 
 from ...utils.scaling import scaling
-from .._base._consistent import (_ConsistentBnd, _ConsistentCsh,
-                                 _ConsistentLnd, _ConsistentNstd,
-                                 _ConsistentNstdCsh)
+from .._base._consistent import (
+    _ConsistentBnd,
+    _ConsistentCsh,
+    _ConsistentLnd,
+    _ConsistentNstd,
+    _ConsistentNstdCsh,
+)
 from .._base._defined import _Defined
+from ..._core._nirop._error import check_attr
 
 if TYPE_CHECKING:
     from ..._core._aliases._is_input import IsBoundInput, IsExactInput
@@ -189,6 +194,9 @@ class _Operational(_Defined, _CnstOpn, ABC):
     def make_consistent(self):
         """Makes the data inputs consistent IsSptTmpDict"""
         for attr in self.inputs():
+
+            check_attr(component=self, attr=attr)
+
             if getattr(self, attr) is not None:
 
                 if attr in self.bounds():
