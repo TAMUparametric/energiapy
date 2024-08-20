@@ -3,97 +3,42 @@
 
 from __future__ import annotations
 
+from abc import ABC, abstractmethod
+from collections import OrderedDict
 from dataclasses import dataclass, field
-from operator import is_
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING
 
 from .._core._handy._dunders import _Dunders
-from ..parameters.bounds import VarBnd
-from .rules import SumOver
 
 if TYPE_CHECKING:
     from .._core._aliases._is_element import IsParameter, IsVariable
 
 
 @dataclass
-class _Constraint(_Dunders):
+class _Constraint(_Dunders, ABC):
     """Constraints for Program
 
     Attributes:
         variable (IsVariable): The main Variable in the constraint
-        varbnd (VarBnd): The bound of the variable (UPPER, LOWER, EXACT, FREE)
-        parent (IsVariable): The parent Variable of the main Variable
-        parameter (IsParameter): The associated Parameter of the Variable
-        balance (List[IsVariable]): Variables to balance at some spatio temporal disposition
-        sumover (SumOver): Sum over either a Spatial or Temporal dimension
-
+        disposition (IsDisposition): The disposition of the constraint. Determined post initialization.
     """
 
     variable: IsVariable = field(default=None)
-    varbnd: VarBnd = field(default=None)
-    parent: IsVariable = field(default=None)
-    parameter: IsParameter = field(default=None)
-    balance: List[IsVariable] = field(default=None)
-    sumover: SumOver = None
 
     def __post_init__(self):
 
-        # A multiplication sign is needed if both parent and parameter are needed
-        if self.parameter and self.parent:
-            self.multiply = True
-        else:
-            self.multiply = False
-
-        if is_(self.varbnd, VarBnd.LOWER):
-            self.equality = 'geq'
-            nm_vb = 'LB'
-        if self.varbnd in [VarBnd.UPPER, VarBnd.FREE]:
-            self.equality = 'leq'
-            nm_vb = 'UB'
-        if is_(self.varbnd, VarBnd.EXACT):
-            self.equality = 'eq'
-            nm_vb = ''
-
         # The disposition of the constraint is the same as the main Variable
         self.disposition = self.variable.disposition
-        self.name = f'{self.id()}{nm_vb}[{self.variable}]'
-        # The equation for any Defined Component or the Scenario can be printed using .eqns()
-        self.equation = f'{self.variable}{self.pr_sign}{self.pr_parameter}{self.pr_multiply}{self.pr_parent}'
+        self.name = f'{self.id()}[{self.variable}]'
 
     @property
-    def pr_parent(self):
-        """for printing"""
-        if self.parent:
-            return self.parent
-        else:
-            return ''
+    def equation(self):
+        """The equation of the constraint"""
+        return self._equation
 
-    @property
-    def pr_parameter(self):
-        """for printing"""
-        if self.parameter:
-            return self.parameter
-        else:
-            return ''
-
-    @property
-    def pr_multiply(self):
-        """Mutliplication sign"""
-        if self.multiply:
-            return '*'
-        else:
-            return ''
-
-    @property
-    def pr_sign(self):
-        """Returns type of equality"""
-
-        if is_(self.equality, 'geq'):
-            return '>='
-        if is_(self.equality, 'leq'):
-            return '<='
-        if is_(self.equality, 'eq'):
-            return '=='
+    @equation.setter
+    def equation(self, equation):
+        self._equation = equation
 
     @classmethod
     def id(cls):
@@ -104,3 +49,37 @@ class _Constraint(_Dunders):
     def collection():
         """What collection the element belongs to"""
         return 'constraints'
+
+    def birth_equation(self, eq: str, par: IsParameter, prn: IsVariable):
+        """Create the equation for the constraint
+
+        Args:
+            var (IsVariable): The main Variable in the constraint
+            eq (str): The equality sign. '==', '<=', '>='
+            par (IsParameter): The parameter in the constraint
+            mlt (str): The multiplication sign
+            prn (IsVariable): The parent Variable in the constraint
+        """
+        # make an ordered dictionary to store the equation
+        # Why OrderedDict?, I know man. Good to keep things structured
+
+        # A multiplication sign is needed if both parent and parameter are needed
+
+        eqn = OrderedDict((i, None) for i in ['dsp', 'var', 'eq', 'par', 'mlt', 'prn'])
+
+        # Disposition
+        eqn['dsp'] = f'{self.disposition}:'
+        # LHS
+        eqn['var'] = self.variable.id()
+        # Equality
+        eqn['eq'] = eq
+        # RHS
+        if par:
+            eqn['par'] = par.value.vid
+        if prn:
+            eqn['prn'] = prn.id()
+        if all([par, prn]):
+            eqn['mlt'] = '*'
+
+        # Set the equation property
+        setattr(self, 'equation', ''.join([i for i in eqn.values() if i]))

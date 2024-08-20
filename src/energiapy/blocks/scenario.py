@@ -33,19 +33,9 @@
 """
 
 from dataclasses import dataclass, field
-from ._base._ok import _Ok
-from .._core._handy._collections import (
-    _Alys,
-    _Cmds,
-    _Elms,
-    _Imps,
-    _LnkOpns,
-    _LocOpns,
-    _Scls,
-    _Scps,
-    _Spts,
-    _Vlus,
-)
+
+from .._core._handy._collections import (_Alys, _Cmds, _Elms, _Imps, _LnkOpns,
+                                         _LocOpns, _Scls, _Scps, _Spts, _Vlus)
 from ..components._base._component import _Component
 from ..components._base._defined import _Defined
 from ..components.commodity.cash import Cash
@@ -57,6 +47,7 @@ from ..components.scope.horizon import Horizon
 from ..components.scope.network import Network
 from ..components.spatial.linkage import Linkage
 from ._base._default import _Default
+from ._base._ok import _Ok
 from ._base._update import _Update
 from .model import Model
 

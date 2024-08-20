@@ -9,9 +9,9 @@ from typing import TYPE_CHECKING
 from pandas import DataFrame
 
 from ..._core._handy._dunders import _Magics
+from ...disposition.bounds import SpcLmt, VarBnd
 from ..approach import Approach, Certainty
-from ..bounds import SpcLmt, VarBnd
-from ._data import _Value
+from ._value import _Value
 from .constant import Constant
 from .dataset import DataSet
 
@@ -62,11 +62,6 @@ class Theta(_Value, _Magics):
 
     def __post_init__(self):
         _Value.__post_init__(self)
-
-        # self.name = f'{self.name} in {self.space}'
-
-        if self.varbnd is None:
-            self.varbnd = VarBnd.PARAMETRIC
 
         self._certainty, self._approach = Certainty.CERTAIN, Approach.PARAMETRIC
 

@@ -9,16 +9,12 @@ from typing import TYPE_CHECKING
 
 from pandas import DataFrame
 
-from ...utils.scaling import scaling
-from .._base._consistent import (
-    _ConsistentBnd,
-    _ConsistentCsh,
-    _ConsistentLnd,
-    _ConsistentNstd,
-    _ConsistentNstdCsh,
-)
-from .._base._defined import _Defined
 from ..._core._nirop._error import check_attr
+from ...utils.scaling import scaling
+from .._base._consistent import (_ConsistentBnd, _ConsistentCsh,
+                                 _ConsistentLnd, _ConsistentNstd,
+                                 _ConsistentNstdCsh)
+from .._base._defined import _Defined
 
 if TYPE_CHECKING:
     from ..._core._aliases._is_input import IsBoundInput, IsExactInput

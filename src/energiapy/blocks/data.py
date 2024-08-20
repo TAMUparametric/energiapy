@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, List
 from pandas import DataFrame
 
 from .._core._handy._dunders import _Dunders
-from ..parameters.bounds import SpcLmt, VarBnd
+from ..disposition.bounds import SpcLmt, VarBnd
 from ..parameters.designators.incidental import I
 from ..parameters.values.constant import Constant
 from ..parameters.values.dataset import DataSet
@@ -21,8 +21,8 @@ from ._base._spttmpinput import _SptTmpInput
 if TYPE_CHECKING:
     from .._core._aliases._is_block import IsDisposition
     from .._core._aliases._is_component import IsDefined
-    from .._core._aliases._is_value import IsSpcLmt, IsValue, IsVarBnd
     from .._core._aliases._is_input import IsBaseInput
+    from .._core._aliases._is_value import IsSpcLmt, IsValue, IsVarBnd
 
 
 @dataclass

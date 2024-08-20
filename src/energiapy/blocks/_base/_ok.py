@@ -2,8 +2,8 @@
 """
 
 from abc import ABC, abstractmethod
-from warnings import warn
 from dataclasses import dataclass, field
+from warnings import warn
 
 
 @dataclass

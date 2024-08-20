@@ -6,9 +6,9 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from operator import is_not
 from typing import TYPE_CHECKING
 from warnings import warn
-from operator import is_not
 
 from ...components.commodity.resource import ResourceStg
 from ...components.operational.process import Process
@@ -20,15 +20,10 @@ from ..data import DataBlock
 from ..program import ProgramBlock
 
 if TYPE_CHECKING:
-    from ..._core._aliases._is_component import (
-        IsDefined,
-        IsHorizon,
-        IsLinkage,
-        IsLonely,
-        IsNetwork,
-        IsOperational,
-        IsStorage,
-    )
+    from ..._core._aliases._is_component import (IsDefined, IsHorizon,
+                                                 IsLinkage, IsLonely,
+                                                 IsNetwork, IsOperational,
+                                                 IsStorage)
 
 
 class _Update(ABC):

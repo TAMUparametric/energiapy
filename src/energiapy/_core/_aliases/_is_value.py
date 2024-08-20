@@ -1,8 +1,8 @@
 from typing import TypeAlias, Union
 
+from ...disposition.bounds import SpcLmt, VarBnd
 from ...parameters.balance.conversion import Conversion
 from ...parameters.balance.inventory import Inventory
-from ...parameters.bounds import SpcLmt, VarBnd
 from ...parameters.designators.mode import X
 from ...parameters.values.constant import Constant
 from ...parameters.values.dataset import DataSet

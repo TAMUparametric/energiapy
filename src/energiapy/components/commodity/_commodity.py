@@ -6,9 +6,9 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, List
 
+from ..._core._nirop._error import check_attr
 from .._base._consistent import _ConsistentBnd, _ConsistentCsh, _ConsistentNstd
 from .._base._defined import _Defined
-from ..._core._nirop._error import check_attr
 
 if TYPE_CHECKING:
     from ..._core._aliases._is_component import IsLinkage, IsLocation

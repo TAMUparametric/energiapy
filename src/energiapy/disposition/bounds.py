@@ -17,21 +17,10 @@ class VarBnd(Enum):
     EXACT = auto()
     """Is an exact value
     """
-    PARAMETRIC = auto()
-    """Is a parametric variable
-    """
     FREE = auto()
     """Is unbounded and free <= BigM
     """
 
-    def namer(self):
-        """gives out a string to put in the name of the parameter"""
-        if is_(self, VarBnd.LOWER):
-            return ':L'
-        elif is_(self, VarBnd.UPPER):
-            return ':U'
-        else:
-            return ''
 
 
 class SpcLmt(Enum):
@@ -40,9 +29,3 @@ class SpcLmt(Enum):
     START = auto()
     END = auto()
 
-    def namer(self):
-        """gives out a string to put in the name of the parameter"""
-        if is_(self, SpcLmt.START):
-            return ':l'
-        if is_(self, SpcLmt.END):
-            return ':u'

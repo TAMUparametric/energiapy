@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 from ..approach import Certainty
-from ._data import _Value
+from ._value import _Value
 
 if TYPE_CHECKING:
     from ..._core._aliases._is_input import IsNumeric

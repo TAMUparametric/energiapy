@@ -8,7 +8,7 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 from ..._core._handy._dunders import _Reprs
-from ..bounds import SpcLmt, VarBnd
+from ...disposition.bounds import SpcLmt, VarBnd
 
 if TYPE_CHECKING:
     from ..._core._aliases._is_block import IsDisposition
@@ -43,7 +43,7 @@ class _Value(ABC, _Reprs):
             for i, j in self.disposition.args().items():
                 setattr(self, i, j)
 
-        self.name = f'{self._id()}{self._name}'
+        self.name = f'{self.vid}{self.disposition}'
 
     @property
     @abstractmethod
@@ -56,23 +56,36 @@ class _Value(ABC, _Reprs):
         """ID to add to name"""
 
     @property
-    def _name(self) -> str:
+    def vid(self):
+        """ID to add to name"""
+        return self._id() + self._bnds
+
+    @property
+    def _bnds(self) -> str:
         """gives the base name for the Data value
 
         Returns:
             str: some name
         """
         vb_, sl_, i_ = ('' for _ in range(3))
-        if self.varbnd:
-            vb_ = self.varbnd.namer()
 
-        if self._spclmt:
-            sl_ = self._spclmt.namer()
+        # Variable bound
+        if self.varbnd == VarBnd.LOWER:
+            vb_ = '[LB]'
+        elif self.varbnd == VarBnd.UPPER:
+            vb_ = '[UB]'
 
+        # Theta space limit
+        if self._spclmt == SpcLmt.START:
+            sl_ = '[s]'
+        elif self._spclmt == SpcLmt.END:
+            sl_ = '[e]'
+
+        # Incidental
         if self.incdntl:
-            i_ = ':i'
+            i_ = '[i]'
 
-        return f'{self.disposition}{vb_}{sl_}{i_}'
+        return f'{vb_}{sl_}{i_}'
 
     def __len__(self):
         if self.disposition:

@@ -2,8 +2,8 @@
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from ..._core._nirop._error import check_attr
 
+from ..._core._nirop._error import check_attr
 from ._consistent import _ConsistentBnd
 from ._defined import _Defined
 
