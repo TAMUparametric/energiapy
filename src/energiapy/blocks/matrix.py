@@ -1,3 +1,6 @@
+"""Matrix representation of the Program Model
+"""
+
 from dataclasses import dataclass, field
 
 from .._core._handy._dunders import _Dunders
@@ -5,7 +8,12 @@ from .._core._handy._dunders import _Dunders
 
 @dataclass
 class Matrix(_Dunders):
-    """Matrix representation of the Model"""
+    """Matrix representation of the Program Model
+
+    Attributes:
+        name (str): Name, takes from Scenario
+
+    """
 
     name: str = field(default=None)
 

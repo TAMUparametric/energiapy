@@ -11,7 +11,7 @@ from pandas import DataFrame
 from ..._core._handy._dunders import _Magics
 from ..approach import Approach, Certainty
 from ..bounds import SpcLmt, VarBnd
-from ._data import _Data
+from ._data import _Value
 from .constant import Constant
 from .dataset import DataSet
 
@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class Theta(_Data, _Magics):
+class Theta(_Value, _Magics):
     """Just a convinient way to declare parametric variables
 
     Args:
@@ -61,7 +61,7 @@ class Theta(_Data, _Magics):
     space: IsSpace = field(default=None)
 
     def __post_init__(self):
-        _Data.__post_init__(self)
+        _Value.__post_init__(self)
 
         # self.name = f'{self.name} in {self.space}'
 
@@ -82,7 +82,6 @@ class Theta(_Data, _Magics):
     def _id():
         """ID to add to name"""
         return 'Th'
-
 
 
 Th = Theta(space=(0, 1))

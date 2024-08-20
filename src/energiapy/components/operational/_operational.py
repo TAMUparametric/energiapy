@@ -1,4 +1,4 @@
-"""Base for the Operational Components
+"""Base for Operational Components
 """
 
 from __future__ import annotations
@@ -10,25 +10,37 @@ from typing import TYPE_CHECKING
 from pandas import DataFrame
 
 from ...utils.scaling import scaling
-from .._base._consistent import (_ConsistentBnd, _ConsistentCsh,
-                                 _ConsistentLnd, _ConsistentNstd,
-                                 _ConsistentNstdCsh)
+from .._base._consistent import (
+    _ConsistentBnd,
+    _ConsistentCsh,
+    _ConsistentLnd,
+    _ConsistentNstd,
+    _ConsistentNstdCsh,
+)
 from .._base._defined import _Defined
 
 if TYPE_CHECKING:
     from ..._core._aliases._is_input import IsBoundInput, IsExactInput
 
 
-@dataclass
-class _Operational(
-    _Defined,
-    _ConsistentBnd,
-    _ConsistentCsh,
-    _ConsistentLnd,
-    _ConsistentNstd,
-    _ConsistentNstdCsh,
-    ABC,
+class _CnstOpn(
+    _ConsistentBnd, _ConsistentCsh, _ConsistentLnd, _ConsistentNstd, _ConsistentNstdCsh
 ):
+    """Functions to make inputs consistent"""
+
+
+@dataclass
+class _Operational(_Defined, _CnstOpn, ABC):
+    """Base for Operational Components
+
+    Attributes:
+        capacity (IsBoundInput): bound on the capacity of the Operation
+        land (IsExactInput): land use per Capacity
+        material (IsExactInput): material use per Capacity
+        capex (IsExactInput): capital expense per Capacity
+        opex (IsExactInput): operational expense based on Operation
+        emission (IsExactInput): emission due to construction per Capacity
+    """
 
     capacity: IsBoundInput = field(default=True)
     land: IsExactInput = field(default=None)
@@ -198,4 +210,5 @@ class _Operational(
                 if attr in self._nstd_csh_inputs():
                     self.make_nstd_csh_consistent(attr)
 
+        # update flag, the inputs have been made consistent
         self._consistent = True

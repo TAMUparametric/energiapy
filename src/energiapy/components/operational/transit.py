@@ -1,4 +1,4 @@
-"""energiapy.Transit - moves Resources between Locations
+"""Transit moves Resources between Locations
 """
 
 from __future__ import annotations
@@ -15,6 +15,27 @@ if TYPE_CHECKING:
 
 @dataclass
 class Transit(_Operational):
+    """Transit moves Resources between Locations through a Linkage
+
+    Attributes:
+        capacity (IsBoundInput): bound on the capacity of the Operation
+        land (IsExactInput): land use per Capacity
+        material (IsExactInput): material use per Capacity
+        capex (IsExactInput): capital expense per Capacity
+        opex (IsExactInput): operational expense based on Operation
+        emission (IsExactInput): emission due to construction per Capacity
+        loss: (IsExactInput): loss of resource during transportation
+        carries (IsResource): Resource carried by the Operation
+        transport (IsBoundInput): bound by Capacity. Reported by operate as well.
+        linkages (List[IsLinkage]): linkages between which Transit exists
+        basis (str): basis of the component
+        citation (dict): citation of the component
+        block (str): block of the component
+        introduce (str): index in scale when the component is introduced
+        retire (str): index in scale when the component is retired
+        label (str): label of the component
+
+    """
 
     carries: IsResource = field(default=None)
     loss: IsExactInput = field(default=None)

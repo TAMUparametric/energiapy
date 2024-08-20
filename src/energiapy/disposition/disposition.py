@@ -10,18 +10,50 @@ from typing import TYPE_CHECKING
 from .._core._handy._dunders import _Dunders
 
 if TYPE_CHECKING:
-    from .._core._aliases._is_component import (IsCash, IsComponent,
-                                                IsEmission, IsLand, IsLinkage,
-                                                IsLocation, IsMaterial,
-                                                IsNetwork, IsPlayer, IsProcess,
-                                                IsResource, IsScale, IsStorage,
-                                                IsTransit)
+    from .._core._aliases._is_component import (
+        IsCash,
+        IsComponent,
+        IsEmission,
+        IsLand,
+        IsLinkage,
+        IsLocation,
+        IsMaterial,
+        IsNetwork,
+        IsPlayer,
+        IsProcess,
+        IsResource,
+        IsScale,
+        IsStorage,
+        IsTransit,
+    )
     from .._core._aliases._is_data import IsMode
 
 
 @dataclass
 class Disposition(_Dunders):
-    """The spatiotemporal disposition of the Component"""
+    """The spatiotemporal disposition of the Component
+    Disposition is the index of the a Program Model Element
+    Gives you an idea of where the Parameter, Variable, or Constraint exists
+
+    Attributes:
+        ply (IsPlayer): Player
+        emn (IsEmission): Emission
+        csh (IsCash): Cash
+        res (IsResource): Resource
+        mat (IsMaterial): Material
+        lnd (IsLand): Land
+        pro (IsProcess): Process
+        stg (IsStorage): Storage
+        trn (IsTransit): Transit
+        loc (IsLocation): Location
+        lnk (IsLinkage): Linkage
+        ntw (IsNetwork): Network
+        scl (IsScale): Scale
+        mde (IsMode): Mode
+
+
+
+    """
 
     # Do not reorder these fields
     ply: IsPlayer = field(default=None)

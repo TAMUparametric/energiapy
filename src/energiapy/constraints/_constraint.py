@@ -17,7 +17,17 @@ if TYPE_CHECKING:
 
 @dataclass
 class _Constraint(_Dunders):
-    """Constraints for Program"""
+    """Constraints for Program
+
+    Attributes:
+        variable (IsVariable): The main Variable in the constraint
+        varbnd (VarBnd): The bound of the variable (UPPER, LOWER, EXACT, FREE)
+        parent (IsVariable): The parent Variable of the main Variable
+        parameter (IsParameter): The associated Parameter of the Variable
+        balance (List[IsVariable]): Variables to balance at some spatio temporal disposition
+        sumover (SumOver): Sum over either a Spatial or Temporal dimension
+
+    """
 
     variable: IsVariable = field(default=None)
     varbnd: VarBnd = field(default=None)
@@ -28,6 +38,7 @@ class _Constraint(_Dunders):
 
     def __post_init__(self):
 
+        # A multiplication sign is needed if both parent and parameter are needed
         if self.parameter and self.parent:
             self.multiply = True
         else:
@@ -43,8 +54,10 @@ class _Constraint(_Dunders):
             self.equality = 'eq'
             nm_vb = ''
 
+        # The disposition of the constraint is the same as the main Variable
         self.disposition = self.variable.disposition
         self.name = f'{self.id()}{nm_vb}[{self.variable}]'
+        # The equation for any Defined Component or the Scenario can be printed using .eqns()
         self.equation = f'{self.variable}{self.pr_sign}{self.pr_parameter}{self.pr_multiply}{self.pr_parent}'
 
     @property

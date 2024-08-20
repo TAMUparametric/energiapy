@@ -1,4 +1,4 @@
-"""Spatial Component
+"""Base for Spatial Components
 """
 
 from __future__ import annotations

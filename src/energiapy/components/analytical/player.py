@@ -14,6 +14,19 @@ if TYPE_CHECKING:
 
 @dataclass
 class Player(_Simple):
+    """_summary_
+
+    Attributes:
+        has (IsBoundInput): how much of particular commodity the player has
+        needs (IsBoundInput): how much of particular commodity the player needs
+        basis (str): basis of the component
+        citation (dict): citation of the component
+        block (str): block of the component
+        introduce (str): index in scale when the component is introduced
+        retire (str): index in scale when the component is retired
+        label (str): label of the component
+
+    """
 
     has: IsBoundInput = field(default=None)
     needs: IsBoundInput = field(default=None)

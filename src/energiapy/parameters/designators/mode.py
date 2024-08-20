@@ -14,7 +14,11 @@ if TYPE_CHECKING:
 
 @dataclass
 class X(_Dunders):
-    """Mode of Operation, can be used for Conversion, Use, etc."""
+    """Mode of Operation, can be used for Conversion, Use, etc.
+
+    Attributes:
+        name (Union[str, float, int]): The name of the mode, usually a number.
+    """
 
     name: Union[str, float, int] = field(default=None)
 

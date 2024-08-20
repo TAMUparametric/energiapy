@@ -11,20 +11,44 @@ from .._core._handy._dunders import _Dunders
 from .._core._nirop._error import CacodcarError
 from ..constraints.bind import Bind
 from ..constraints.calculate import Calculate
-from ..parameters.bound import (BuyBnd, CapBnd, EarnBnd, OpBnd, SellBnd,
-                                SpendBnd, UseBnd)
+from ..parameters.bound import BuyBnd, CapBnd, EarnBnd, OpBnd, SellBnd, SpendBnd, UseBnd
 from ..parameters.calculated import LndUse, MatUse, ResLoss
-from ..parameters.emission import (CmdEmitUse, EmitBnd, OpnEmit, ResEmitBuy,
-                                   ResEmitLoss, ResEmitSell)
-from ..parameters.expense import (BuyPrice, CapExp, CapExpI, OpExp, OpExpI,
-                                  ResCredit, ResPenalty, SellPrice, UseExp)
+from ..parameters.emission import (
+    CmdEmitUse,
+    EmitBnd,
+    OpnEmit,
+    ResEmitBuy,
+    ResEmitLoss,
+    ResEmitSell,
+)
+from ..parameters.expense import (
+    BuyPrice,
+    CapExp,
+    CapExpI,
+    OpExp,
+    OpExpI,
+    ResCredit,
+    ResPenalty,
+    SellPrice,
+    UseExp,
+)
 from ..parameters.ownership import Has, Needs
 from ..variables.action import Gives, Takes
 from ..variables.capacitate import Capacity
-from ..variables.emit import (EmitBuy, EmitCap, EmitLoss, EmitSell, EmitSys,
-                              EmitUse)
-from ..variables.expense import (Credit, Earn, ExpBuy, ExpCap, ExpCapI, ExpOp,
-                                 ExpOpI, ExpSell, ExpUse, Penalty, Spend)
+from ..variables.emit import EmitBuy, EmitCap, EmitLoss, EmitSell, EmitSys, EmitUse
+from ..variables.expense import (
+    Credit,
+    Earn,
+    ExpBuy,
+    ExpCap,
+    ExpCapI,
+    ExpOp,
+    ExpOpI,
+    ExpSell,
+    ExpUse,
+    Penalty,
+    Spend,
+)
 from ..variables.loss import Loss
 from ..variables.operate import Operate
 from ..variables.trade import Buy, Sell
@@ -32,13 +56,20 @@ from ..variables.use import Use, Used
 from .rules import Condition, SumOver
 
 if TYPE_CHECKING:
-    from .._core._aliases._is_element import (IsConstraint, IsParameter,
-                                              IsVariable)
+    from .._core._aliases._is_element import IsConstraint, IsParameter, IsVariable
 
 
 @dataclass
 class Rule(_Dunders):
-    """Rule for Constraint generation"""
+    """Rule for Constraint generation
+
+    Attributes:
+        constraint (IsConstraint): The Constraint to apply
+        variable (IsVariable): The main Variable in the Rule
+        parameter (IsParameter): The associated Parameter of the Variable
+        balance (Dict[IsVariable, float]): Variables to balance at some spatio temporal disposition
+        sumover (SumOver): Sum over either a Spatial or Temporal dimension
+    """
 
     constraint: IsConstraint = field(default=None)
     variable: IsVariable = field(default=None)

@@ -18,6 +18,9 @@ class _Commodity(ABC):
     """Commodities that are Traded"""
 
     def __post_init__(self):
+
+        # This flag is used to check if the Commodity has been located
+        # (assigned) to a Location or Linkage
         self._located = False
 
     @property
@@ -119,12 +122,21 @@ class _Traded(
                 if attr in self._nstd_inputs():
                     self.make_nstd_consistent(attr)
 
+        # update flag, the inputs have been made consistent
         self._consistent = True
 
 
 @dataclass
 class _Used(_Traded):
-    """Applies only for Land and Material"""
+    """Applies only for Land and Material
+    For now, do not subsume my limitations
+    Do whatever you can or want to with energiapy
+
+    Attributes:
+        use (IsBoundInput): bound for use at some spatiotemporal disposition
+        cost (IsExactInput): cost per a unit basis at some spatiotemporal disposition
+        emission (IsExactInput): emission per unit basis of use
+    """
 
     use: IsBoundInput = field(default=None)
     cost: IsExactInput = field(default=None)

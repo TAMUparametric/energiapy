@@ -5,12 +5,12 @@ from dataclasses import dataclass, field
 
 from ..approach import Certainty
 from ..bounds import VarBnd
-from ._data import _Data
+from ._data import _Value
 from .constant import Constant
 
 
 @dataclass
-class M(_Data):
+class M(_Value):
     """
     If big is True:
         A really big number like the weight on my shoulders
@@ -23,7 +23,7 @@ class M(_Data):
     big: bool = field(default=True)
 
     def __post_init__(self):
-        _Data.__post_init__(self)
+        _Value.__post_init__(self)
 
         self._certainty, self._approach, self.varbnd = (
             Certainty.CERTAIN,
@@ -44,7 +44,6 @@ class M(_Data):
             return 'M'
         else:
             return 'm'
-
 
     @staticmethod
     def _id():

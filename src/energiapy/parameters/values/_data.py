@@ -15,12 +15,14 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class _Data(ABC, _Reprs):
+class _Value(ABC, _Reprs):
     """Value is the input given to a Component
 
     Args:
         name (str): name of aspect
         disposition (IsDisposition): disposition of the value
+        _spclmt (SpcLmt): Whether the value is the start or end of the parametric variable space
+        varbnd (VarBnd): Whether the value is exact, or an upper or lower bound
     """
 
     disposition: IsDisposition = field(default=None)
@@ -31,6 +33,7 @@ class _Data(ABC, _Reprs):
     def __post_init__(self):
 
         if not self.varbnd:
+            # if nothing is specified, then exact. So will make equality constraint
             self.varbnd = VarBnd.EXACT
 
         for i in ['_certainty', '_approach']:

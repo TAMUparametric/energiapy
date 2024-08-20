@@ -1,4 +1,9 @@
-"""The Task action associated with the attributes that feature in Components of the System model
+"""The Task action associated with Components attrs
+Each attribute is trated as a Task basically
+Which is defined using a Variable 
+The Variable has a Constraint generation rule (see rulebook.py)
+The Constraint may need a Parent Variable or a Parameter
+
 """
 
 from ..components.analytical.player import Player
@@ -12,10 +17,20 @@ from ..components.operational.storage import Storage
 from ..components.operational.transit import Transit
 from ..variables.action import Gives, Takes
 from ..variables.capacitate import Capacity
-from ..variables.emit import (EmitBuy, EmitCap, EmitLoss, EmitSell, EmitSys,
-                              EmitUse)
-from ..variables.expense import (Credit, Earn, ExpBuy, ExpCap, ExpCapI, ExpOp,
-                                 ExpOpI, ExpSell, ExpUse, Penalty, Spend)
+from ..variables.emit import EmitBuy, EmitCap, EmitLoss, EmitSell, EmitSys, EmitUse
+from ..variables.expense import (
+    Credit,
+    Earn,
+    ExpBuy,
+    ExpCap,
+    ExpCapI,
+    ExpOp,
+    ExpOpI,
+    ExpSell,
+    ExpUse,
+    Penalty,
+    Spend,
+)
 from ..variables.loss import Loss
 from ..variables.operate import Operate
 from ..variables.trade import Buy, Recieve, Sell, Ship

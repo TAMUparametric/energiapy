@@ -13,7 +13,9 @@ class Scale(_Temporal):
     """
     A single temporal scale of the planning horizon (Horizon).
 
-    Inputs:
+    Generated based on the discretization of the planning horizon.
+
+    Attributes:
         index(List[tuple]): index as a list of tuples
         n_index(int): number of indices, generated post-initialization.
     """

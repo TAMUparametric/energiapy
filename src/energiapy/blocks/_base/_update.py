@@ -50,8 +50,10 @@ class _Update(ABC):
 
     def cleanup(self, cmp: str):
         """Cleans up components which can have only one instance in the System
+        Also the stuff they generate such as Scales (Horizon) and Locations (Network)
+
         Args:
-            cmp (str): 'cash', 'land', 'horizon', 'network'
+            cmp (str): property in Scenario that stores Component 'cash', 'land', 'horizon', 'network'
         """
 
         cmp = getattr(self, cmp)

@@ -32,40 +32,6 @@ The arrangment of the modules is as follows:
     Predefined values are update to provide name, index, disposition, and bound
     when aspect is defined
 
-- elements: Problem elements
-
-    These are the building blocks of the optimization problem
-
-    rulebook:
-    Contains rules for formulating the optimization problem
-
-
-    Parameter:
-    Initialized using aspect
-
-    Variable
-    Generated as needed by parameter
-
-    Constraint:
-    Provides a relationship between parameter and variables
-
-
-
-
-
-
-
-- components: Model components
-
-    divided under:
-
-    operations, commodities, spatial
-
-- core: Contains the base classes that are used throughout the package
-- inputs: Contains the classes for the inputs to the optimization problem
--
-
-
 
 
 __author__ = "Rahul Kakodkar"

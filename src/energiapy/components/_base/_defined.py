@@ -9,7 +9,16 @@ from ._component import _Component
 
 @dataclass
 class _Defined(_Component, _Vlus, _Elms):
-    """If the component is defined by user, it should inherit from this class"""
+    """If the component is defined by user, it should inherit from this class
+
+    Attributes:
+        basis (str): basis of the component
+        citation (dict): citation of the component
+        block (str): block of the component
+        introduce (str): index in scale when the component is introduced
+        retire (str): index in scale when the component is retired
+        label (str): label of the component
+    """
 
     basis: str = field(default='unit')
     citation: dict = field(default=None)
@@ -20,6 +29,7 @@ class _Defined(_Component, _Vlus, _Elms):
 
     def __post_init__(self):
         _Component.__post_init__(self)
+        # flag to see if the inputs have been made consistent
         self._consistent = False
 
     def eqns(self):

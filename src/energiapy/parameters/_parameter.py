@@ -14,7 +14,11 @@ if TYPE_CHECKING:
 
 @dataclass
 class _Parameter(_Dunders):
-    """Model Parameter"""
+    """Model Parameter
+
+    Attributes:
+        value (IsValue): The value of the parameter. Can be Constant, M, Theta, DataSet
+    """
 
     value: IsValue = field(default=None)
 

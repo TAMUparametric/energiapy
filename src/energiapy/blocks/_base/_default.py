@@ -1,4 +1,4 @@
-"""Initial values for the Scenario class
+"""This has some optional default Components for the Scenario
 """
 
 from dataclasses import dataclass, field
@@ -11,12 +11,19 @@ from ...components.commodity.land import Land
 from ...components.scope.horizon import Horizon
 from ...components.scope.network import Network
 
-# from ...utils.decorators import once
-
 
 @dataclass
 class _Default(_Dunders):
-    """initializations for the Scenario class"""
+    """initializations for the Scenario class
+    
+    Such as:
+        1. Network with no Locations or Linkages
+        2. Horizon with only a root scale, i.e. the planning horizon (ph)
+        3. Land with no bounds
+        4. Cash with no bounds 
+        5. Players, viz. Consumer, Decision Maker, Market , Earth
+        6. Emissions such as gwp, odp, etc.
+    """
 
     default_scope: bool = field(default=False)
     default_players: bool = field(default=False)

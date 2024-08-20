@@ -67,9 +67,11 @@ class Conversion(_Reprs):
                     or_,
                     (
                         set(
-                            j for j, k in self.conversion[self.base][i].items() if k > 0
+                            res
+                            for res, val in self.conversion[self.base][x].items()
+                            if val > 0
                         )
-                        for i in self.modes
+                        for x in self.modes
                     ),
                     set(),
                 )
@@ -81,9 +83,11 @@ class Conversion(_Reprs):
                     or_,
                     (
                         set(
-                            j for j, k in self.conversion[self.base][i].items() if k < 0
+                            res
+                            for res, val in self.conversion[self.base][x].items()
+                            if val < 0
                         )
-                        for i in self.modes
+                        for x in self.modes
                     ),
                     set(),
                 )
@@ -100,14 +104,14 @@ class Conversion(_Reprs):
 
             # Just like above but simpler
             self.sold = [self.base] + [
-                i
-                for i in self.conversion[self.base]
-                if self.conversion[self.base][i] > 0
+                res
+                for res in self.conversion[self.base]
+                if self.conversion[self.base][res] > 0
             ]
             self.bought = [
-                i
-                for i in self.conversion[self.base]
-                if self.conversion[self.base][i] < 0
+                res
+                for res in self.conversion[self.base]
+                if self.conversion[self.base][res] < 0
             ]
             self.balance = {self.base: 1, **self.conversion[self.base]}
 

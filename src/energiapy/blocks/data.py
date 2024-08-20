@@ -1,3 +1,6 @@
+"""Data Model Block
+"""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -13,20 +16,31 @@ from ..parameters.values.m import M
 from ..parameters.values.theta import Theta
 from ..parameters.designators.incidental import I
 from ._base._block import _Block
-from ._base._spttmpinput import _SptsTmpInput
+from ._base._spttmpinput import _SptTmpInput
 
 if TYPE_CHECKING:
     from .._core._aliases._is_block import IsDisposition
-    from .._core._aliases._is_component import IsComponent
+    from .._core._aliases._is_component import IsDefined
     from .._core._aliases._is_data import IsSpcLmt, IsValue, IsVarBnd
     from .._core._aliases._is_input import IsBaseInput
 
 
 @dataclass
 class DataBlock(_Dunders):
-    """Is Component Data"""
+    """Component Data Block
+    Recieves data for component from attributes
+    Converts it to one of the internal formats (M, Constant, DataSet, Theta)
+    Also determines the bounds (VarBnd, SpcLmt) of the data
 
-    component: IsComponent = field(default=None)
+    Each Component has a DataBlock which is then held in Data class
+
+    Data and the Bounds are used to make Parameters, Variables, and enventually Constraints
+
+    Args:
+        component (IsDefined): The component to which the data belongs.
+    """
+
+    component: IsDefined = field(default=None)
 
     def __post_init__(self):
         self.name = f'Data|{self.component}|'
@@ -37,7 +51,10 @@ class DataBlock(_Dunders):
         varbnds = [VarBnd.LOWER, VarBnd.UPPER]
 
         if isinstance(value, dict):
-            spttmpinput = _SptsTmpInput(name, value)
+            # _Spt holds the data in a particular format
+            # {Disposition: value}. The disposition is made there
+            # This is only temporary and the user eventually sees a list of parameters
+            spttmpinput = _SptTmpInput(name, value)
 
             for disposition, datapoint in spttmpinput.dict_input.items():
 
@@ -45,12 +62,14 @@ class DataBlock(_Dunders):
                     if len(datapoint) == 1:
                         # if only one value, the value given is an upper bound
                         datapoint = [0] + datapoint
+                    # The first value becomes the LB, and the second becomes the UB
                     datapoint = [
                         self.birth_value(disposition, i, varbnd=varbnds[b])
                         for b, i in enumerate(datapoint)
                     ]
 
                 elif isinstance(datapoint, tuple):
+                    # Tuples used to declare Theta space can have DataFrames as values
                     datapoint = tuple(
                         [
                             self.birth_value(disposition, i, spclmt=spclmts[b])
@@ -58,28 +77,45 @@ class DataBlock(_Dunders):
                         ]
                     )
 
+                    # Not BigMs though, so cannot have True in the tuple
+                    if any(isinstance(i, M) for i in datapoint):
+                        raise ValueError(
+                            'Parametric space cannot extent to BigM (No True)'
+                        )
+
+                    # A Theta variable can be declared now
                     datapoint = self.birth_value(disposition, datapoint)
 
                 elif isinstance(datapoint, set):
+
+                    # A set is only used when there can be an incidental parameter
+                    # capex, opex for example
                     datapoint = {self.birth_value(disposition, i) for i in datapoint}
 
                 else:
+                    # if not compound (set, list, tuple)
                     datapoint = self.birth_value(disposition, datapoint)
 
+                # Now update the value with an internal value type
                 spttmpinput.dict_input[disposition] = datapoint
 
+            # Sort the values by length
             value = sorted(spttmpinput.dict_input.values(), key=len)
 
         super().__setattr__(name, value)
 
     @property
-    def attrs(self):
-        """Returns the defined attribures of the component"""
+    def attrs(self) -> List[str]:
+        """Returns the defined attributes of the component
+
+        Returns:
+            List[str]: list of attributes
+        """
         return [i for i in self.component.inputs() if getattr(self.component, i)]
 
     @property
     def ms(self):
-        """Returns the M"""
+        """Returns the Ms"""
         return self.fetch(M)
 
     @property
@@ -103,7 +139,14 @@ class DataBlock(_Dunders):
         return self.ms + self.constants + self.datasets + self.thetas
 
     def fetch(self, data: IsValue) -> List[IsValue]:
-        """Fetches input data of a particular type"""
+        """Fetches input data of a particular type
+
+        Args:
+            data (IsValue): The type of values to fetch [M, Constant, DataSet, Theta]
+
+        Returns:
+            List[IsValue]: List of values (M, Constant, DataSet, Theta)
+        """
 
         data_list = []
 
@@ -124,8 +167,19 @@ class DataBlock(_Dunders):
         value: IsBaseInput,
         varbnd: IsVarBnd = None,
         spclmt: IsSpcLmt = None,
-    ) -> IsBaseInput:
-        """Creates a parameter value"""
+    ) -> IsValue:
+        """Creates a parameter value
+
+        Args:
+            disposition (IsDisposition): The disposition of the value
+            value (IsBaseInput): The input value used to make an internal value, like M, Constant, DataSet, Theta
+            varbnd (IsVarBnd): The variable bound (lower, upper)
+            spclmt (IsSpcLmt): The parametric space limit (start, end)
+
+        Returns:
+            IsValue: Internal datatype value (M, Constant, DataSet, Theta)
+
+        """
 
         args = {
             'disposition': disposition,
@@ -162,7 +216,14 @@ class DataBlock(_Dunders):
 
 @dataclass
 class Data(_Block):
-    """Is the data required for the model"""
+    """Is the data required for the Model
+
+    set attribures are DataBlock objects
+
+    Attributes:
+        name (str): name, takes from the name of the Scenario
+
+    """
 
     name: str = field(default=None)
 

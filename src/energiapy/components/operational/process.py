@@ -1,4 +1,4 @@
-"""energiapy.Process - converts one Resource to another Resource, Or stores Resource
+"""Process converts one Resource to another Resource
 """
 
 from __future__ import annotations
@@ -16,7 +16,33 @@ if TYPE_CHECKING:
 
 @dataclass
 class Process(_Operational):
-    """Process converts one Resource to another Resource"""
+    """Process converts one Resource to another Resource
+
+    Attributes:
+        capacity (IsBoundInput): bound on the capacity of the Operation
+        land (IsExactInput): land use per Capacity
+        material (IsExactInput): material use per Capacity
+        capex (IsExactInput): capital expense per Capacity
+        opex (IsExactInput): operational expense based on Operation
+        emission (IsExactInput): emission due to construction per Capacity
+        buy (IsBoundInput): bound on amount of Resource bought by Process
+        sell (IsBoundInput): bound on amount of Resource sold by Process
+        buy_price (IsExactInput): price to buy per unit basis
+        sell_price (IsExactInput): price at which to sell per unit basis
+        credit (IsExactInput): credit received per unit basis sold
+        penalty (IsExactInput): penalty paid for not meeting lower bound of sell
+        conversion (IsConvInput): conversion of Resource to other Resources
+        produce (IsBoundInput): bounded by capacity of Process. Reported by Operate as well
+        locations (List[IsLocation]): locations where the Process is located
+        basis (str): basis of the component
+        citation (dict): citation of the component
+        block (str): block of the component
+        introduce (str): index in scale when the component is introduced
+        retire (str): index in scale when the component is retired
+        label (str): label of the component
+
+
+    """
 
     # These are all from Resource
     buy: IsBoundInput = field(default=None)
@@ -29,7 +55,6 @@ class Process(_Operational):
     produce: IsBoundInput = field(default=None)
     locations: List[IsLocation] = field(default=None)
 
-    locations: IsLocation = field(default=None)
     # Depreciated
     varying: str = field(default=None)
     prod_max: str = field(default=None)
@@ -37,6 +62,7 @@ class Process(_Operational):
 
     def __post_init__(self):
         _Operational.__post_init__(self)
+        # flag to check if conversion is Conversion
         self._conversioned = False
 
         # *-----------------Set ctype (ProcessType)----------------------------

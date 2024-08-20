@@ -4,24 +4,25 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, List
 
 from ..components.analytical.player import Player
-from ..components.commodity.cash import Cash
 from ..components.commodity.emission import Emission
-from ..components.commodity.land import Land
 from ..components.commodity.material import Material
 from ..components.commodity.resource import Resource, ResourceStg
 from ..components.operational.process import Process
 from ..components.operational.storage import Storage
 from ..components.operational.transit import Transit
-from ..components.scope.horizon import Horizon
-from ..components.scope.network import Network
 from ..components.spatial.linkage import Linkage
 from ..components.spatial.location import Location
 from ..components.temporal.scale import Scale
 from ._base._block import _Block
 
 if TYPE_CHECKING:
-    from .._core._aliases._is_component import (IsCash, IsComponent, IsHorizon,
-                                                IsLand, IsNetwork)
+    from .._core._aliases._is_component import (
+        IsCash,
+        IsHorizon,
+        IsLand,
+        IsNetwork,
+        IsDefined,
+    )
 
 
 @dataclass
@@ -173,19 +174,19 @@ class System(_Block):
         """Sink Locations of the System"""
         return sorted({i[1] for i in self.pairs})
 
-    def fetch(self, cmp: IsComponent) -> List[IsComponent]:
+    def fetch(self, cmp: IsDefined) -> List[IsDefined]:
         """Fetches defined Components of a particular class in the System
 
         Args:
-            cmp (IsComponent): Component type
+            cmp (IsDefined): Component type
 
         Returns:
-            List[IsComponent]: list of defined Components
+            List[IsDefined]: list of defined Components
         """
         return sorted(
             [
-                getattr(self, k)
-                for k, v in self.components().items()
-                if isinstance(v, cmp)
+                getattr(self, name)
+                for name, component in self.components().items()
+                if isinstance(component, cmp)
             ]
         )

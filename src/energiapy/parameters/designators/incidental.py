@@ -14,7 +14,14 @@ if TYPE_CHECKING:
 
 @dataclass
 class I(_Dunders):
-    """Incidental parameter"""
+    """Incidental Parameter
+    This is useful when a Parameteris not dependent on the Parent Variable
+
+    Incidental Capital Expenditure or Fixed Operational Expenditure are examples
+
+    Attributes:
+        value (IsIncidental): The incidental value
+    """
 
     value: IsIncidental = field(default=None)
 

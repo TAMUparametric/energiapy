@@ -1,4 +1,4 @@
-"""If the component is simple, it should inherit from this class"""
+"""If the Component is simple, it should inherit from this class"""
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
@@ -9,6 +9,13 @@ from ._defined import _Defined
 
 @dataclass
 class _Simple(_Defined, _ConsistentBnd, ABC):
+    """Simple Components inherit from this class
+    They only have bounds
+    These are Cash, Player, Emission, for now
+    Again, do not let me tell you how to live your life
+    Make more Simple Components if you feel the need
+    More power to you
+    """
 
     def __post_init__(self):
         _Defined.__post_init__(self)
@@ -30,4 +37,5 @@ class _Simple(_Defined, _ConsistentBnd, ABC):
                 if attr in self.bounds():
                     self.make_bounds_consistent(attr)
 
+        # update flag, the inputs have been made consistent
         self._consistent = True

@@ -1,4 +1,4 @@
-"""energiapy.Storage - Stashes Resource to Withdraw Later
+"""Storage - Stashes Resource to Withdraw Later
 """
 
 from __future__ import annotations
@@ -20,10 +20,32 @@ if TYPE_CHECKING:
 
 @dataclass
 class Storage(_Operational):
-    """Storage component
+    """Storage stores and withdraws Resources
+    There could be a dependent Resource
 
-    Args:
-        loss: (IsExactInput, optional): Loss of resource in storage. Defaults to None.
+    A ResourceStg is generate internally as the stored Resource
+    Charging and discharging Processes are also generated internally
+    Capacity in this case is the amount of Resource that can be stored
+    Charging and discharging capacities can also be provided
+
+    Attributes:
+        capacity (IsBoundInput): bound on the capacity of the Operation
+        land (IsExactInput): land use per Capacity
+        material (IsExactInput): material use per Capacity
+        capex (IsExactInput): capital expense per Capacity
+        opex (IsExactInput): operational expense based on Operation
+        emission (IsExactInput): emission due to construction per Capacity
+        loss: (IsExactInput): loss of resource in storage
+        store: (IsBoundInput): bound by Capacity. Reported by operate as well.
+        inventory: (IsInvInput): balance needed for storage. can just be a Resource as well
+        capacity_c (IsBoundInput): bounds for capacity of generated charging Process
+        capacity_d (IsBoundInput): bounds for capacity of generated discharging Process
+        basis (str): basis of the component
+        citation (dict): citation of the component
+        block (str): block of the component
+        introduce (str): index in scale when the component is introduced
+        retire (str): index in scale when the component is retired
+        label (str): label of the component
 
     """
 

@@ -14,6 +14,7 @@ if TYPE_CHECKING:
 
 @dataclass
 class _Component(_Dunders):
+    """Base for all Components"""
 
     def __post_init__(self):
         self.name = None

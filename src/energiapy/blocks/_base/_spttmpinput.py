@@ -1,3 +1,6 @@
+"""SpatioTemporalInput, this is an intermediate class
+"""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -25,8 +28,21 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class _SptsTmpInput:
-    """Is a spatial temporal input"""
+class _SptTmpInput:
+    """This containts the dictionary of input in a particular format
+
+    This is made in Data Model Class, and is used in Scenario class
+
+    The format is like this:
+    * - optional
+
+    {Spatial/Network: {Scale: {*Mode: {*Operational: {*Commodity: value}}}}}
+
+    This ensures consistence in the input once provided to the Scenario class
+
+    The Disposition is also determined here and set as the key in the dictionary
+
+    """
 
     name_attr: str = field(default=None)
     dict_input: IsSptTmpInput = field(default=None)
@@ -37,10 +53,14 @@ class _SptsTmpInput:
 
     def update_dict_input(self):
         """Updates the dict_input
-        makes the form, {Disposition: value}
+        Returns:
+            dict: {Disposition: value}
         """
+        # Flatten the dictionary. Now the keys are tuples
+        # {(Network/Spatial, Scale, ...): value}
         dict_iter = flatten(self.dict_input)
         dict_upd = {}
+
         for key, val in dict_iter.items():
 
             ply, emn, csh, res, mat, lnd, pro, stg, trn, loc, lnk, ntw, scl, mde = (
@@ -51,7 +71,7 @@ class _SptsTmpInput:
                 raise ValueError(
                     f'Something is wrong with the input at {self}. If providing dict, check structure'
                 )
-
+            # Check if a particular Component has been declared
             for cmp in key:
                 if isinstance(cmp, Player):
                     ply = cmp
@@ -100,4 +120,6 @@ class _SptsTmpInput:
             )
 
             dict_upd[disp] = val
+
+        # update the input with a dictionary {Disposition: value}
         self.dict_input = dict_upd

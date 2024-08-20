@@ -26,7 +26,10 @@ if TYPE_CHECKING:
 
 
 class _Consistent(ABC):
-    """Functions to make the input into a SpatioTemporalDict"""
+    """Functions to make the input into a Consistent dictionary
+    to be used to make _SptTmpDict
+
+    """
 
     @property
     @abstractmethod

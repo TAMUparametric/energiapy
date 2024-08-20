@@ -18,7 +18,12 @@ from .system import System
 
 @dataclass
 class Model(_Dunders):
-    """Modeling Blocks of the Scenario"""
+    """Modeling Blocks of the Scenario
+
+    Attributes:
+        name (str): name, takes from the name of the Scenario
+
+    """
 
     name: str = field(default=None)
 

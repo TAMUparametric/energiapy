@@ -1,4 +1,7 @@
-"""energiapy.Resource - Resource as refined in the RT(M)N framework
+"""Resource are: 
+    1. converted by Processes
+    2. stored by Storage
+    3. transported by Transits
 """
 
 from __future__ import annotations
@@ -14,7 +17,28 @@ if TYPE_CHECKING:
 
 @dataclass
 class Resource(_Traded):
-    """Applies only for Resource"""
+    """Resources are Produced by Processes, Stored by Storage, and Transported by Transits
+    They can be bought, sold, shipped, and received by Locations or Processes
+
+    Attributes:
+        buy (IsBoundInput): bound on amount bought at Location or by Process
+        sell (IsBoundInput): bound on amount sold at Location or by Process
+        ship (IsBoundInput): bound on amount shipped from Location
+        receive (IsBoundInput): bound on amount received by Location
+        buy_price (IsExactInput): price to buy per unit basis
+        sell_price (IsExactInput): price at which to sell per unit basis
+        credit (IsExactInput): credit received per unit basis sold
+        penalty (IsExactInput): penalty paid for not meeting lower bound of sell
+        buy_emission (IsExactInput): emission per unit basis of buy
+        sell_emission (IsExactInput): emission per unit basis of sell
+        loss_emission (IsExactInput): emission per unit basis of loss (Storage, Transit)
+        basis (str): basis of the component
+        citation (dict): citation of the component
+        block (str): block of the component
+        introduce (str): index in scale when the component is introduced
+        retire (str): index in scale when the component is retired
+        label (str): label of the component
+    """
 
     buy: IsBoundInput = field(default=None)
     sell: IsBoundInput = field(default=None)

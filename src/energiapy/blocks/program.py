@@ -15,115 +15,160 @@ from .data import DataBlock
 
 if TYPE_CHECKING:
     from .._core._aliases._is_block import IsIndex
-    from .._core._aliases._is_component import IsComponent
+    from .._core._aliases._is_component import IsDefined
     from .._core._aliases._is_data import IsValue
     from .._core._aliases._is_element import IsElement
+    from .._core._aliases._is_block import IsDataBlock
 
 
 @dataclass
 class ProgramBlock(_Dunders):
-    """Block of Program"""
+    """Block of Program
+    The Parameters, Variables, Constraints are defined here
 
-    component: IsComponent = field(default=None)
+    Attributes:
+        component (IsComponent): Component to which the ProgramBlock belongs
+    """
+
+    component: IsDefined = field(default=None)
 
     def __post_init__(self):
         self.name = f'Program|{self.component}|'
+        # Declare empty lists to hold the generated elements
         self.variables, self.constraints, self.parameters, self.dispositions = (
             [] for _ in range(4)
         )
 
-    def __setattr__(self, name, value):
+    def __setattr__(self, name: str, datablock: IsDataBlock):
 
-        if isinstance(value, DataBlock):
-            for attr in value.attrs:
-                for data in getattr(value, attr):
-
+        if isinstance(datablock, DataBlock):
+            # DataBlocks collect the attrs which have been declared
+            for attr in datablock.attrs:
+                for data in getattr(datablock, attr):
+                    # if list loop over lower bound and upper bound
+                    # the VarBnd enums are already set in the DataBlock
                     if isinstance(data, list):
                         for d in data:
-                            self.make_constraints(d, attr)
+                            self.birth_elements(d, attr)
                     else:
-                        self.make_constraints(data, attr)
+                        self.birth_elements(data, attr)
 
-        super().__setattr__(name, value)
+        super().__setattr__(name, datablock)
 
-    def make_constraints(self, data: IsValue, attr: str):
-        """Makes ass, kicks constraints"""
+    def birth_elements(self, value: IsValue, attr: str):
+        """Makes ass, kicks elements
 
-        if isinstance(data, set):
-            for i in data:
-                self.make_constraints(data=i, attr=attr)
+        The dispostion determined in the DataBlock is used
+        Variable is generated
+        Variables know what Parameters or Parent Variable they need
+        Those are generated if not already made
+
+        rulebook knows the rule to generate constriant
+
+        Args:
+            value(IsValue): Is M, Theta, DataSet, Constant
+
+        """
+
+        if isinstance(value, set):
+            # This is only used if one of the Paramters is Incidental
+            # capex, opex for example
+            for i in value:
+                self.birth_elements(value=i, attr=attr)
 
         else:
-            if data.incdntl:
+            if value.incdntl:
+                # if parameter is incidental
                 var = taskmaster[type(self.component)][f'{attr}_i']
             else:
                 var = taskmaster[type(self.component)][attr]
 
-            variable = var(disposition=data.disposition, component=self.component)
+            # Variable is declared, the Disposition is used
+            variable = var(disposition=value.disposition, component=self.component)
+            # The collections are updated
             self.add(variable)
-
             self.add(variable.disposition)
 
+            # The Variable can have a:
+            # 1. Parent Variable: needed to bound or determine this variable
+            # Examples: Operate < Capacity; ExpCap = CapEx * Capacity
+            # 2. Child Component: This is not present in the Parent Variable
+            # So the disposition of the Parent Variable needs to be made childless
+            # In the CapEx example, ExpCap has Cash, but Capacity does not
+            # so remove Cash Component in Capacity Dispositio
             if var.parent():
-
                 if var.child():
-
+                    # This is the index of the Disposition without the child Component
                     index_childless = variable.disposition.childless(var.child())
 
+                    # The index is found, to run existence check
                     par_index = tuple([i for i in index_childless.values() if i])
 
                     # If Disposition exists already, get the existing and use it for child
                     # If does not exist, make a new one
 
                     if par_index in self.indices:
+                        # Get the existing Disposition
                         disposition_par = self.dispositions[
                             self.indices.index(par_index)
                         ]
                     else:
+                        # If not make a new one and update the collection
                         disposition_par = Disposition(**index_childless)
                         self.add(disposition_par)
 
                 else:
+                    # if no Parent then the Parameter Disposition is the same as variable
                     disposition_par = variable.disposition
 
+                # This has the object of the Parent Variable
                 parent_var = var.parent()
 
+                # Get all the Variables of the same type as the Parent Variable
+                # That already exist
                 samevars = [
                     var_ for var_ in self.variables if isinstance(var_, parent_var)
                 ]
 
+                # Get the indices of the exisiting variables
                 samevars_indices = [var_.disposition.index for var_ in samevars]
 
-                # If Variable needed for parent exists with the same index, do not create a new one
-                # If does not exist, make a new one
                 if disposition_par.index in samevars_indices:
+                    # If Variable needed for parent exists with the same index
+                    # Get the existing Variable
                     parent = samevars[samevars_indices.index(disposition_par.index)]
 
                 else:
+                    # If does not exist, then make a new one and update the collection
                     parent = parent_var(
                         disposition=disposition_par, component=self.component
                     )
                     self.add(parent)
 
             else:
+                # Bruce Wayne Variable
                 parent = None
 
+            # Get the rules to generate the constraint
+            # Variables can have multiple rules
             rules = rulebook.find(var)
 
+            # So iter over them
             for rule in rules:
-
                 if rule.parameter:
-                    parameter = rule.parameter(data)
+                    # If the rule needs a parameter, then make it
+                    parameter = rule.parameter(value)
                     self.add(parameter)
 
                 else:
                     parameter = None
 
+                # Generate the constraint
                 constraint = rule.constraint(
                     variable=variable,
                     parent=parent,
                     parameter=parameter,
-                    varbnd=data.varbnd,
+                    varbnd=value.varbnd,
                 )
 
                 self.add(constraint)
@@ -138,7 +183,7 @@ class ProgramBlock(_Dunders):
         list_curr = getattr(self, element.collection())
         setattr(self, element.collection(), sorted(set(list_curr) | {element}))
 
-    def eqns(self, at_cmp: IsComponent = None, at_disp: IsIndex = None):
+    def eqns(self, at_cmp: IsDefined = None, at_disp: IsIndex = None):
         """Prints all equations in the program
 
         Args:
@@ -148,7 +193,7 @@ class ProgramBlock(_Dunders):
         if at_cmp:
             constraints = self.at_cmp(at_cmp)
 
-        elif at_disp:
+        if at_disp:
             constraints = self.at_disp(at_disp)
 
         if not any([at_cmp, at_disp]):
@@ -167,7 +212,7 @@ class ProgramBlock(_Dunders):
             cons for cons in self.constraints if cons.disposition.index == disposition
         ]
 
-    def at_cmp(self, component: IsComponent):
+    def at_cmp(self, component: IsDefined):
         """Returns constraints defined for component throughout the program
 
         Args:
@@ -226,7 +271,7 @@ class Program(_Block):
         """Returns all dispositions in the program"""
         return self.fetch('dispositions')
 
-    def eqns(self, at_cmp: IsComponent = None, at_disp: IsIndex = None):
+    def eqns(self, at_cmp: IsDefined = None, at_disp: IsIndex = None):
         """Prints all equations in the Program
 
         Args:

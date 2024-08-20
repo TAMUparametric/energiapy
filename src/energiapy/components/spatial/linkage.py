@@ -1,4 +1,4 @@
-""" energiapy.Linkage links Locations
+"""Linkage links Locations
 """
 
 from __future__ import annotations
@@ -14,6 +14,18 @@ if TYPE_CHECKING:
 
 @dataclass
 class Linkage(_Spatial):
+    """Linkage between Locations
+
+    If bi is True, the Linkage is bothways and a Linkage_ is birthed
+
+    Attributes:
+        sink (IsLocation): Location where the Resource is sent
+        source (IsLocation): Location where the Resource is received
+        bi (bool): True in direction of the Linkage is bothways
+        distance (float): distance between Locations
+        label (str): label of the Linkage
+
+    """
 
     sink: IsLocation = field(default=None)
     source: IsLocation = field(default=None)
@@ -23,8 +35,6 @@ class Linkage(_Spatial):
 
     def __post_init__(self):
         _Spatial.__post_init__(self)
-
-    # TODO - Block 6
 
     @property
     def transits(self):

@@ -1,8 +1,8 @@
-"""Scenario is the core object in energiapy. 
+"""Scenario, is the core object 
 
-    Everything else is defined as a scenario attribute.
+    All Components defined as a scenario attribute.
 
-    energiapy.components are added to the System Model Block
+    energiapy.components get added to the System Model Block
     _Components are the base for all components in energiapy, broadly categorized into
     Components the do not generate constraints and those that do.
     The former are further divided into -
@@ -30,7 +30,6 @@
     The Program Model Block is used to generate Parameters, Variables, Constraints, and Objectives
     
     The Matrix Model is just a matrix representation of the problem block
-
 """
 
 from dataclasses import dataclass, field
@@ -73,7 +72,7 @@ class Scenario(_Update, _Default, _ScnCols):
     """
     A scenario for a considered system. It collects all the components of the model.
 
-    Input:
+    Attributes:
         name (str, optional): Name. Defaults to ':s:'.
 
     Examples:

@@ -1,9 +1,9 @@
-"""Allowed disposition structures 
+"""Allowed disposition structures for a Variable 
+A check is run while declaring (see _Variable)
 """
 
 from collections import OrderedDict
 from itertools import product
-from operator import is_, is_not
 from typing import List, Union
 
 from .._core._nirop._error import CacodcarError
@@ -20,10 +20,36 @@ def make_structures(
     opn: Union[List[str], str] = None,
     spt: Union[List[str], str] = None,
 ) -> List[List[str]]:
-    """Makes a list of allowed disposition structures"""
+    """Makes a list of allowed disposition structures
+
+    E.g. ['res', 'pro', 'loc', 'scl'] is a valid structure for
+    a Variable that can be declared for a Resource being used by a Process at some Location
+
+    Infact some spatial (ntw, loc, lnk) and a scale is compulsory
+    The function returns a list of all structures that are allowed
+
+
+
+    Args:
+        emn_strict (bool): If variable has to be declared strictly for Emission
+        csh_strict (bool): If variable has to be declared strictly for Cash
+        opn_strict (bool): If variable has to be declared strictly for Operation
+        cmd_strict (bool): If variable has to be declared strictly for Commodity
+        ply_strict (bool): If variable has to be declared strictly for Player
+        mde (bool): If True, the Variable can have Modes
+        cmd (Union[List[str], str]): What commodities can this variable be declare for
+        opn (Union[List[str], str]): What operations can this variable be declared for
+        spt (Union[List[str], str]): What spatial disposition can this variable be declared for
+
+    Returns:
+        List[List[str]]: List of allowed disposition structures.
+    """
 
     # Order is important, follows that of disposition
     # '' is put when something is optional
+    # The '' is cleared at the end
+    # This is a dumb way of doing it, but it works
+    # If you have something better, let me know
 
     struct_dict = OrderedDict()
 
@@ -33,7 +59,7 @@ def make_structures(
     else:
         struct_dict['ply'] = ['', 'ply']
 
-    # Cash abd Emissions are optional
+    # Cash and Emissions are optional
     if emn_strict:
         struct_dict['emn'] = ['emn']
     else:
@@ -51,7 +77,7 @@ def make_structures(
         struct_dict['cmd'] = []
 
         for i in cmd:
-            if is_(i, 'res') or is_(i, 'mat') or is_(i, 'lnd') or is_(i, 'csh'):
+            if i == 'res' or i == 'mat' or i == 'lnd' or i == 'csh':
                 struct_dict['cmd'].append(i)
 
     else:
@@ -64,7 +90,7 @@ def make_structures(
         struct_dict['opn'] = []
 
         for i in opn:
-            if is_(i, 'pro') or is_(i, 'stg') or is_(i, 'trn'):
+            if i == 'pro' or i == 'stg' or i == 'trn':
                 struct_dict['opn'].append(i)
     else:
         struct_dict['opn'] = ['']
@@ -86,7 +112,7 @@ def make_structures(
         struct_dict['spt'] = []
 
         for i in spt:
-            if is_(i, 'loc') or is_(i, 'lnk') or is_(i, 'ntw'):
+            if i == 'loc' or i == 'lnk' or i == 'ntw':
                 struct_dict['spt'].append(i)
     else:
         raise CacodcarError('No spatial disposition provided')
@@ -115,4 +141,4 @@ def make_structures(
 
         structures_upd.append(i)
 
-    return [[j for j in i if is_not(j, '')] for i in structures_upd]
+    return [[j for j in i if j != ''] for i in structures_upd]

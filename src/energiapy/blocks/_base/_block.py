@@ -10,19 +10,28 @@ class _Block(_Dunders):
     """Base Class for all Modeling Blocks in energiapy"""
 
     def __post_init__(self):
+        # This is the initial state of the Block
+        # Usually included just the name and post init arguments
         self._initial_state = asdict(self)
 
-    def components(self):
-        """Returns the names Components that have been added to the block"""
+    def components(self) -> dict:
+        """Returns the names (n) and Components (cmp) that have been added to the block
+
+        Returns:
+            dict: {name: Component}
+        """
+        # This is the current state of the Block
+        # Basically a dictionary of all the added attributes (Components)
 
         current_state = {
-            k: v
-            for k, v in self.__dict__.items()
-            if not k.startswith('_') and not isinstance(v, str)
+            n: cmp
+            for n, cmp in self.__dict__.items()
+            if not n.startswith('_') and not isinstance(cmp, str)
         }
 
+        # Returns the difference between the current state and the initial state
         return {
-            k: v
-            for k, v in current_state.items()
-            if k not in self._initial_state or self._initial_state[k] != v
+            n: cmp
+            for n, cmp in current_state.items()
+            if n not in self._initial_state or self._initial_state[n] != cmp
         }
