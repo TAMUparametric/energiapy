@@ -14,6 +14,7 @@ if TYPE_CHECKING:
     from .._core._aliases._is_block import IsDisposition
     from .._core._aliases._is_component import IsComponent
     from .._core._aliases._is_variable import IsVariable
+    from sympy import IndexedBase
 
 
 @dataclass
@@ -31,10 +32,10 @@ class _Variable(_Dunders, ABC):
                 f'{self}:{self.disposition.structure()} not in {self.structures(self.component)}'
             )
 
-    @classmethod
-    def id(cls):
-        """The id of the task"""
-        return cls.__name__
+    @staticmethod
+    @abstractmethod
+    def sym() -> IndexedBase:
+        """Symbolic representation of the Variable"""
 
     @classmethod
     @abstractmethod

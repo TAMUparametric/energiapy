@@ -16,7 +16,7 @@ from .capacitate import Capacity
 from .loss import Loss
 from .trade import Buy, Sell
 from .use import Use
-
+from sympy import IndexedBase
 
 @dataclass
 class EmitSys(_Variable):
@@ -37,6 +37,11 @@ class EmitSys(_Variable):
     @classmethod
     def child(cls):
         """The Parent Variable doesnot carry Child Component"""
+        
+    @staticmethod
+    def id() -> IndexedBase:
+        """Symbol"""
+        return IndexedBase('')
 
 @dataclass
 class Emit(_Variable):

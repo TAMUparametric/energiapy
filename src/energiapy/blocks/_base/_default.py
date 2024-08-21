@@ -3,7 +3,6 @@
 
 from dataclasses import dataclass, field
 
-from ..._core._handy._dunders import _Dunders
 from ...components.analytical.player import Player
 from ...components.commodity.cash import Cash
 from ...components.commodity.emission import Emission
@@ -13,7 +12,7 @@ from ...components.scope.network import Network
 
 
 @dataclass
-class _Default(_Dunders):
+class _Default:
     """initializations for the Scenario class
 
     Such as:
@@ -23,14 +22,14 @@ class _Default(_Dunders):
         4. Cash with no bounds
         5. Players, viz. Consumer, Decision Maker, Market , Earth
         6. Emissions such as gwp, odp, etc.
-        
+
     Attributes:
         def_scope (bool): create default Scope (Network, Horizon) Components. Default is False
         def_players (bool): create default (Players) Components. Default is False
         def_emissions (bool): create default (Emission) Components. Default is False
         def_cash (bool): create default (Cash) Components. Default is False
         def_land (bool): create default (Land) Components. Default is False
-        default (bool): create default Components of all the above. Default is False 
+        default (bool): create default Components of all the above. Default is False
     """
 
     def_scope: bool = field(default=False)

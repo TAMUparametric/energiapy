@@ -45,7 +45,7 @@ class DataSet(_Value):
         return self.data
 
     @staticmethod
-    def _id():
+    def id():
         """ID to add to name"""
         return 'DtSt'
 

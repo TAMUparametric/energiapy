@@ -46,7 +46,7 @@ class M(_Value):
             return 'm'
 
     @staticmethod
-    def _id():
+    def id():
         """ID to add to name"""
         return ''
 

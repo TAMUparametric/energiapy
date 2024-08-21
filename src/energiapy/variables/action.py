@@ -5,6 +5,7 @@ from dataclasses import dataclass
 
 from ..disposition.structure import make_structures
 from ._variable import _Variable
+from sympy import IndexedBase
 
 
 @dataclass
@@ -37,6 +38,11 @@ class Gives(Action):
 
     def __post_init__(self):
         Action.__post_init__(self)
+    
+    @staticmethod
+    def id() -> IndexedBase:
+        """ID to add to name"""
+        return IndexedBase('gives')
 
 
 @dataclass
@@ -45,3 +51,8 @@ class Takes(Action):
 
     def __post_init__(self):
         Action.__post_init__(self)
+
+    @staticmethod
+    def id() -> IndexedBase:
+        """ID to add to name"""
+        return IndexedBase('takes')

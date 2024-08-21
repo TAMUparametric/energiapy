@@ -11,3 +11,4 @@ distfit
 pvlib
 windpowerlib
 typing_extensions==4.5.0
+sympy

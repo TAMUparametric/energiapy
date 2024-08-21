@@ -3,11 +3,10 @@
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
 from collections import OrderedDict
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
-
+from sympy import symbols, Eq
 from .._core._handy._dunders import _Dunders
 
 if TYPE_CHECKING:
@@ -15,7 +14,7 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class _Constraint(_Dunders, ABC):
+class _Constraint(_Dunders):
     """Constraints for Program
 
     Attributes:
@@ -65,21 +64,32 @@ class _Constraint(_Dunders, ABC):
 
         # A multiplication sign is needed if both parent and parameter are needed
 
-        eqn = OrderedDict((i, None) for i in ['dsp', 'var', 'eq', 'par', 'mlt', 'prn'])
+        eqn = OrderedDict((i, None) for i in ['var', 'eq', 'par', 'mlt', 'prn'])
 
-        # Disposition
-        eqn['dsp'] = f'{self.disposition}:'
         # LHS
-        eqn['var'] = self.variable.id()
+        eqn['var'] = self.variable
         # Equality
         eqn['eq'] = eq
         # RHS
         if par:
-            eqn['par'] = par.value.vid
+            eqn['par'] = par
         if prn:
-            eqn['prn'] = prn.id()
+            eqn['prn'] = prn
         if all([par, prn]):
             eqn['mlt'] = '*'
 
+        # Define symbols
+        x, y = symbols('x y')
+
+        # Define equations
+        eq1 = Eq(2 * x + 3 * y, 6)
+        eq2 = Eq(3 * x + y, 4)
+        eq3 = Eq(x**2 + y**2, 1)
+
+        # Store equations in a list
+        equations = eq2
+
+        setattr(self, 'eq', equations)
+
         # Set the equation property
-        setattr(self, 'equation', ''.join([i for i in eqn.values() if i]))
+        setattr(self, 'equation', ''.join([f'{i}' for i in eqn.values() if i]))

@@ -33,10 +33,10 @@ class Constant(_Value):
         return self.constant
 
     @staticmethod
-    def _id():
+    def id():
         """ID to add to name"""
         return ''
-    
+
     # Constant compare by the value of the number
     def __gt__(self, other):
         if isinstance(other, (int, float)):

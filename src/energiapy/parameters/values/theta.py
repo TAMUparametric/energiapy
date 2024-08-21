@@ -74,7 +74,7 @@ class Theta(_Value, _Magics):
         return self.space
 
     @staticmethod
-    def _id():
+    def id():
         """ID to add to name"""
         return 'Th'
 

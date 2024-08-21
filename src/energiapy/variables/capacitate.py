@@ -8,7 +8,7 @@ from ..components.operational.storage import Storage
 from ..components.operational.transit import Transit
 from ..disposition.structure import make_structures
 from ._variable import _Variable
-
+from sympy import IndexedBase
 
 @dataclass
 class Capacity(_Variable):
@@ -36,3 +36,8 @@ class Capacity(_Variable):
             opn, spt = 'trn', 'lnk'
 
         return make_structures(mde=True, opn=[opn], spt=[spt, 'ntw'])
+
+    @staticmethod
+    def id() -> IndexedBase:
+        """ID to add to name"""
+        return IndexedBase('capacity')

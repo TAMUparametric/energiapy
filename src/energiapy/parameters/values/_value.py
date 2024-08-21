@@ -43,7 +43,7 @@ class _Value(ABC, _Reprs):
             for i, j in self.disposition.args().items():
                 setattr(self, i, j)
 
-        self.name = f'{self.vid}{self.disposition}'
+        self.name = f'{self.id()}{self.disposition}{self._bnds}'
 
     @property
     @abstractmethod
@@ -52,13 +52,8 @@ class _Value(ABC, _Reprs):
 
     @staticmethod
     @abstractmethod
-    def _id():
+    def id():
         """ID to add to name"""
-
-    @property
-    def vid(self):
-        """ID to add to name"""
-        return self._id() + self._bnds
 
     @property
     def _bnds(self) -> str:
