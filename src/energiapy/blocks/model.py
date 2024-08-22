@@ -22,7 +22,6 @@ class Model(_Dunders):
 
     Attributes:
         name (str): name, takes from the name of the Scenario
-
     """
 
     name: str = field(default=None)

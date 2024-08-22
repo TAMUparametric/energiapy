@@ -5,110 +5,110 @@ from dataclasses import dataclass
 
 from sympy import IndexedBase
 
-from ._parameter import _Parameter
+from ._parameter import _Bnd
 
 
 @dataclass
-class BuyBnd(_Parameter):
+class BuyBnd(_Bnd):
     """Buy Bounds"""
 
     def __post_init__(self):
-        _Parameter.__post_init__(self)
+        _Bnd.__post_init__(self)
 
-    @staticmethod
-    def id() -> str:
-        """Symbol"""
-        return IndexedBase('Buy')
+    @property
+    def id(self) -> str:
+        """ID"""
+        return IndexedBase(f'Buy{self.varbnd.value}')
 
 
 @dataclass
-class SellBnd(_Parameter):
+class SellBnd(_Bnd):
     """Sell Bounds"""
 
     def __post_init__(self):
-        _Parameter.__post_init__(self)
+        _Bnd.__post_init__(self)
 
-    @staticmethod
-    def id() -> str:
-        """Symbol"""
-        return IndexedBase('Sell')
+    @property
+    def id(self) -> str:
+        """ID"""
+        return IndexedBase(f'Sell{self.varbnd.value}')
 
 
 @dataclass
-class ShipBnd(_Parameter):
+class ShipBnd(_Bnd):
     """Ship Bounds"""
 
     def __post_init__(self):
-        _Parameter.__post_init__(self)
+        _Bnd.__post_init__(self)
 
-    @staticmethod
-    def id() -> str:
-        """Symbol"""
-        return IndexedBase('Ship')
+    @property
+    def id(self) -> str:
+        """ID"""
+        return IndexedBase(f'Ship{self.varbnd.value}')
 
 
 @dataclass
-class SpendBnd(_Parameter):
+class SpendBnd(_Bnd):
     """Expense Bound on Spending"""
 
     def __post_init__(self):
-        _Parameter.__post_init__(self)
+        _Bnd.__post_init__(self)
 
-    @staticmethod
-    def id() -> str:
-        """Symbol"""
-        return IndexedBase('Spend')
+    @property
+    def id(self) -> str:
+        """ID"""
+        return IndexedBase(f'Spend{self.varbnd.value}')
 
 
 @dataclass
-class EarnBnd(_Parameter):
+class EarnBnd(_Bnd):
     """Expense Bound on Earning"""
 
     def __post_init__(self):
-        _Parameter.__post_init__(self)
+        _Bnd.__post_init__(self)
 
-    @staticmethod
-    def id() -> str:
-        """Symbol"""
-        return IndexedBase('Earn')
+    @property
+    def id(self) -> str:
+        """ID"""
+        return IndexedBase(f'Earn{self.varbnd.value}')
 
 
 @dataclass
-class CapBnd(_Parameter):
+class CapBnd(_Bnd):
     """Capacity Bounds"""
 
     def __post_init__(self):
-        _Parameter.__post_init__(self)
+        _Bnd.__post_init__(self)
 
-    @staticmethod
-    def id() -> str:
-        """Symbol"""
-        return IndexedBase('Capacity')
+    @property
+    def id(self) -> str:
+        """ID"""
+        return IndexedBase(f'Capacity{self.varbnd.value}')
 
 
 @dataclass
-class OpBnd(_Parameter):
+class OpBnd(_Bnd):
     """Operation Bounds
     This one is multiplied by capacity
     """
 
     def __post_init__(self):
-        _Parameter.__post_init__(self)
+        _Bnd.__post_init__(self)
 
-    @staticmethod
-    def id() -> str:
-        """Symbol"""
-        return IndexedBase('CapF')
+    @property
+    def id(self) -> str:
+        """ID"""
+        return IndexedBase(f'Cap_F{self.varbnd.value}')
 
 
 @dataclass
-class UseBnd(_Parameter):
+class UseBnd(_Bnd):
     """Use Bounds"""
 
     def __post_init__(self):
-        _Parameter.__post_init__(self)
+        _Bnd.__post_init__(self)
 
-    @staticmethod
-    def id() -> str:
-        """Symbol"""
-        return IndexedBase('Use')
+    @property
+    def id(self) -> str:
+        """ID"""
+        return IndexedBase(f'Use{self.varbnd.value}')

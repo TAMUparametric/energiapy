@@ -51,8 +51,8 @@ class Conversion(_Reprs):
 
             self.conversion = {
                 self.base: {
-                    i.personalize(opn=self.process, attr='conv'): j
-                    for i, j in self.conversion[self.base].items()
+                    x.personalize(opn=self.process, attr='conv'): val
+                    for x, val in self.conversion[self.base].items()
                 }
             }
 

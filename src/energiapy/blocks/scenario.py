@@ -34,8 +34,18 @@
 
 from dataclasses import dataclass, field
 
-from .._core._handy._collections import (_Alys, _Cmds, _Elms, _Imps, _LnkOpns,
-                                         _LocOpns, _Scls, _Scps, _Spts, _Vlus)
+from .._core._handy._collections import (
+    _Alys,
+    _Cmds,
+    _Elms,
+    _Imps,
+    _LnkOpns,
+    _LocOpns,
+    _Scls,
+    _Scps,
+    _Spts,
+    _Vlus,
+)
 from .._core._handy._dunders import _Dunders
 from .._core._handy._printers import _Print
 from ..components._base._component import _Component
@@ -77,6 +87,7 @@ class Scenario(_Ok, _Default, _Update, _ScnCols, _Dunders, _Print):
 
     Attributes:
         name (str, optional): Name. Defaults to ':s:'.
+        m (float): replaces 0 inputs with a small m (bearing this value). Default is None
         def_scope (bool): create default Scope (Network, Horizon) Components. Default is False
         def_players (bool): create default (Players) Components. Default is False
         def_emissions (bool): create default (Emission) Components. Default is False
@@ -96,6 +107,7 @@ class Scenario(_Ok, _Default, _Update, _ScnCols, _Dunders, _Print):
     """
 
     name: str = field(default=':s:')
+    m: float = field(default=None)
 
     def __post_init__(self):
         _Ok.__post_init__(self)

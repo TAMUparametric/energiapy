@@ -54,7 +54,11 @@ class _Component(_Dunders):
         """Personalize the compoenent
         give it a name (public),
         add model components
+
+        Args:
+            name (str): name of the component. Given as Scenario attribute
+            model (IsModel): Model with System, Program, Data, Matrix
         """
         self.name = name
-        self._named = True
+        self._named = True  # update flag
         self._model = model

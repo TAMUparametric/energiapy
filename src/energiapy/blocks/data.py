@@ -38,9 +38,12 @@ class DataBlock(_Dunders):
 
     Args:
         component (IsDefined): The component to which the data belongs.
+        m (float): small m value
+
     """
 
     component: IsDefined = field(default=None)
+    m: float = field(default=None)
 
     def __post_init__(self):
         self.name = f'Data|{self.component}|'
@@ -58,7 +61,7 @@ class DataBlock(_Dunders):
 
             for disposition, datapoint in spttmpinput.dict_input.items():
                 if isinstance(datapoint, list):
-                    if len(datapoint) == 1:
+                    if len(datapoint) == 1 or datapoint is True:
                         # if only one value, the value given is an upper bound
                         datapoint = [0] + datapoint
                     # The first value becomes the LB, and the second becomes the UB
@@ -76,8 +79,8 @@ class DataBlock(_Dunders):
                         ]
                     )
 
-                    # Not BigMs though, so cannot have True in the tuple
-                    if any(isinstance(i, M) for i in datapoint):
+                    # Not BigMs though, so cannot have M with big = True in the tuple
+                    if any(i.big for i in datapoint if isinstance(i, M)):
                         raise ValueError(
                             'Parametric space cannot extent to BigM (No True)'
                         )
@@ -97,13 +100,9 @@ class DataBlock(_Dunders):
 
                 # Now update the value with an internal value type
                 spttmpinput.dict_input[disposition] = datapoint
-            # Sort the values by length
-            
-            value = sorted(spttmpinput.dict_input.values(), key=len)
-            print('dp', datapoint)
-            print(len(datapoint))
-            print('v', value)
 
+            # Sort the values by length
+            value = sorted(spttmpinput.dict_input.values(), key=len)
         super().__setattr__(name, value)
 
     @property
@@ -186,7 +185,7 @@ class DataBlock(_Dunders):
         args = {
             'disposition': disposition,
             'varbnd': varbnd,
-            '_spclmt': spclmt,
+            'spclmt': spclmt,
         }
 
         if isinstance(value, I):
@@ -196,7 +195,11 @@ class DataBlock(_Dunders):
             incdntl = False
 
         if isinstance(value, (float, int)) and not isinstance(value, bool):
-            datapoint = Constant(constant=value, **args, incdntl=incdntl)
+            # if small m is provided, make a small m instead of 0
+            if self.m and value == 0:
+                datapoint = M(big=False, m=self.m, **args)
+            else:
+                datapoint = Constant(constant=value, **args, incdntl=incdntl)
 
         if isinstance(value, bool):
             datapoint = M(big=value, **args)
@@ -224,7 +227,6 @@ class Data(_Block):
 
     Attributes:
         name (str): name, takes from the name of the Scenario
-
     """
 
     name: str = field(default=None)

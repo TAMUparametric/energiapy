@@ -6,7 +6,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Union
 
-from sympy import Idx, IndexedBase, Symbol, symbols
+from sympy import Symbol
 
 from ..._core._handy._dunders import _Dunders
 
@@ -32,8 +32,9 @@ class X(_Dunders):
     def personalize(self, opn: IsOperational, attr: str):
         """Personalizes the operational mode
         adds the name of the operation
+        and first three letters of the attribute
         """
-        x = Symbol(f'{self.name}_{opn.name}')
+        x = Symbol(f'{self.name}^{attr[0]}{attr[-1]}_{opn.name}')
         setattr(self, 'sym', x)
         self.name = str(x)
         return self

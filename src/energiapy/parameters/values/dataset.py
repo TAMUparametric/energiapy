@@ -47,7 +47,7 @@ class DataSet(_Value):
     @property
     def id(self):
         """Symbol"""
-        return IndexedBase('DtSt')
+        return IndexedBase(f'DtSt{self.varbnd.value}{self.spclmt.value}')
 
     @staticmethod
     def collection():

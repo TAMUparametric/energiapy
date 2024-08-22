@@ -20,10 +20,15 @@ from ..data import DataBlock
 from ..program import ProgramBlock
 
 if TYPE_CHECKING:
-    from ..._core._aliases._is_component import (IsDefined, IsHorizon,
-                                                 IsLinkage, IsLonely,
-                                                 IsNetwork, IsOperational,
-                                                 IsStorage)
+    from ..._core._aliases._is_component import (
+        IsDefined,
+        IsHorizon,
+        IsLinkage,
+        IsLonely,
+        IsNetwork,
+        IsOperational,
+        IsStorage,
+    )
 
 
 class _Update(ABC):
@@ -133,7 +138,7 @@ class _Update(ABC):
 
         # make Small Blocks to be added to the larger Model Blocks
         # where all the data values go
-        datablock = DataBlock(component=component)
+        datablock = DataBlock(component=component, m=getattr(self, 'm'))
         # where all the model elements go
         programblock = ProgramBlock(component=component)
 

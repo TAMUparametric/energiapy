@@ -27,7 +27,7 @@ class Bind(_Constraint):
         # Check the bound and add to name and make equality sign
         if self.varbnd == VarBnd.LB:
             eq = '>='
-        if self.varbnd in [VarBnd.UB, VarBnd.NB]:
+        if self.varbnd == VarBnd.UB:
             eq = '<='
         if self.varbnd == VarBnd.EQ:
             eq = '=='

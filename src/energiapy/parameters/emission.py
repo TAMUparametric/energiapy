@@ -15,8 +15,8 @@ class EmitBnd(_Parameter):
     def __post_init__(self):
         _Parameter.__post_init__(self)
 
-    @staticmethod
-    def id() -> str:
+    @property
+    def id(self) -> str:
         """Symbol"""
         return IndexedBase('Emit')
 
@@ -28,8 +28,8 @@ class ResEmitBuy(_Parameter):
     def __post_init__(self):
         _Parameter.__post_init__(self)
 
-    @staticmethod
-    def id() -> str:
+    @property
+    def id(self) -> str:
         """Symbol"""
         return IndexedBase('Emit^buy')
 
@@ -41,8 +41,8 @@ class ResEmitSell(_Parameter):
     def __post_init__(self):
         _Parameter.__post_init__(self)
 
-    @staticmethod
-    def id() -> str:
+    @property
+    def id(self) -> str:
         """Symbol"""
         return IndexedBase('Emit^sell')
 
@@ -54,8 +54,8 @@ class ResEmitLoss(_Parameter):
     def __post_init__(self):
         _Parameter.__post_init__(self)
 
-    @staticmethod
-    def id() -> str:
+    @property
+    def id(self) -> str:
         """Symbol"""
         return IndexedBase('Emit^loss')
 
@@ -67,8 +67,8 @@ class CmdEmitUse(_Parameter):
     def __post_init__(self):
         _Parameter.__post_init__(self)
 
-    @staticmethod
-    def id() -> str:
+    @property
+    def id(self) -> str:
         """Symbol"""
         return IndexedBase('Emit^use')
 
@@ -80,7 +80,7 @@ class OpnEmit(_Parameter):
     def __post_init__(self):
         _Parameter.__post_init__(self)
 
-    @staticmethod
-    def id() -> str:
+    @property
+    def id(self) -> str:
         """Symbol"""
         return IndexedBase('Emit^opn')

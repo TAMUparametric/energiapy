@@ -15,8 +15,8 @@ class BuyPrice(_Parameter):
     def __post_init__(self):
         _Parameter.__post_init__(self)
 
-    @staticmethod
-    def id() -> str:
+    @property
+    def id(self) -> str:
         """Symbol"""
         return IndexedBase('Price^buy')
 
@@ -28,8 +28,8 @@ class SellPrice(_Parameter):
     def __post_init__(self):
         _Parameter.__post_init__(self)
 
-    @staticmethod
-    def id() -> str:
+    @property
+    def id(self) -> str:
         """Symbol"""
         return IndexedBase('Price^sell')
 
@@ -41,8 +41,8 @@ class ResPenalty(_Parameter):
     def __post_init__(self):
         _Parameter.__post_init__(self)
 
-    @staticmethod
-    def id() -> str:
+    @property
+    def id(self) -> str:
         """Symbol"""
         return IndexedBase('Penalty')
 
@@ -54,8 +54,8 @@ class ResCredit(_Parameter):
     def __post_init__(self):
         _Parameter.__post_init__(self)
 
-    @staticmethod
-    def id() -> str:
+    @property
+    def id(self) -> str:
         """Symbol"""
         return IndexedBase('Credit')
 
@@ -67,8 +67,8 @@ class UseExp(_Parameter):
     def __post_init__(self):
         _Parameter.__post_init__(self)
 
-    @staticmethod
-    def id() -> str:
+    @property
+    def id(self) -> str:
         """Symbol"""
         return IndexedBase('Cost^use')
 
@@ -80,8 +80,8 @@ class CapExp(_Parameter):
     def __post_init__(self):
         _Parameter.__post_init__(self)
 
-    @staticmethod
-    def id() -> str:
+    @property
+    def id(self) -> str:
         """Symbol"""
         return IndexedBase('Capex')
 
@@ -93,8 +93,8 @@ class OpExp(_Parameter):
     def __post_init__(self):
         _Parameter.__post_init__(self)
 
-    @staticmethod
-    def id() -> str:
+    @property
+    def id(self) -> str:
         """Symbol"""
         return IndexedBase('Opex')
 
@@ -106,8 +106,8 @@ class CapExpI(_Parameter):
     def __post_init__(self):
         _Parameter.__post_init__(self)
 
-    @staticmethod
-    def id() -> str:
+    @property
+    def id(self) -> str:
         """Symbol"""
         return IndexedBase('Capex^i')
 
@@ -119,7 +119,7 @@ class OpExpI(_Parameter):
     def __post_init__(self):
         _Parameter.__post_init__(self)
 
-    @staticmethod
-    def id() -> str:
+    @property
+    def id(self) -> str:
         """Symbol"""
         return IndexedBase('Opex^i')

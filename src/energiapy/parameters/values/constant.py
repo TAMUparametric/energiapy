@@ -3,6 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
+from sympy import IndexedBase
+
 from ..approach import Certainty
 from ._value import _Value
 
@@ -33,7 +35,7 @@ class Constant(_Value):
     @property
     def id(self):
         """Symbol"""
-        return self.value
+        return IndexedBase(f'{self.value}')
 
     # Constant compare by the value of the number
     def __gt__(self, other):

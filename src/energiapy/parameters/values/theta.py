@@ -73,7 +73,4 @@ class Theta(_Value, _Magics):
     @property
     def id(self):
         """Symbol"""
-        return IndexedBase('θ')
-
-
-# Th = Theta(space=(0, 1))
+        return IndexedBase(f'θ{self.varbnd.value}')

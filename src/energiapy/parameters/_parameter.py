@@ -27,9 +27,9 @@ class _Parameter(_Dunders, ABC):
         self.disposition = self.value.disposition
         self.name = str(self.sym)
 
-    @staticmethod
+    @property
     @abstractmethod
-    def id() -> str:
+    def id(self) -> str:
         """Symbolic representation of the Parameter"""
 
     @staticmethod
@@ -40,4 +40,29 @@ class _Parameter(_Dunders, ABC):
     @property
     def sym(self):
         """Symbol"""
-        return self.id()[self.disposition.sym]
+        return self.id[self.disposition.sym]
+
+
+@dataclass
+class _Clc(_Parameter):
+    """Calculated Parameter"""
+
+    def __post_init__(self):
+        _Parameter.__post_init__(self)
+
+
+class _Bnd(_Parameter):
+    """Bounded Parameter"""
+
+    def __post_init__(self):
+        setattr(self, 'varbnd', self.value.varbnd)
+        _Parameter.__post_init__(self)
+
+    @property
+    def varbnd(self):
+        """Variable Bound"""
+        return self._varbnd
+
+    @varbnd.setter
+    def varbnd(self, varbnd):
+        self._varbnd = varbnd

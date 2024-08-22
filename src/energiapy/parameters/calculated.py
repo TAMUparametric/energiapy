@@ -15,8 +15,8 @@ class MatUse(_Parameter):
     def __post_init__(self):
         _Parameter.__post_init__(self)
 
-    @staticmethod
-    def id() -> str:
+    @property
+    def id(self) -> str:
         """Symbol"""
         return IndexedBase('Mat')
 
@@ -28,8 +28,8 @@ class LndUse(_Parameter):
     def __post_init__(self):
         _Parameter.__post_init__(self)
 
-    @staticmethod
-    def id() -> str:
+    @property
+    def id(self) -> str:
         """Symbol"""
         return IndexedBase('Land')
 
@@ -41,7 +41,7 @@ class ResLoss(_Parameter):
     def __post_init__(self):
         _Parameter.__post_init__(self)
 
-    @staticmethod
-    def id() -> str:
+    @property
+    def id(self) -> str:
         """Symbol"""
         return IndexedBase('Loss')

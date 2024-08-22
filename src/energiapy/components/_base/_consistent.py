@@ -175,6 +175,22 @@ class _Consistent(ABC):
 
         return value_upd
 
+    def fix_true(self, value: IsInput) -> dict:
+        """checks whether the input value is True
+        if True, makes a list [True]
+        """
+        value_upd = self.upd_dict(value, 'spttmpx')
+
+        for spt, tmp_x_val in value.items():
+            for tmp, x_val in tmp_x_val.items():
+                for x, val in x_val.items():
+                    if val is True:
+                        value_upd[spt][tmp][x] = [val]
+                    else:
+                        value_upd[spt][tmp][x] = val
+
+        return value_upd
+
     def fix_bound_scales(self, value: IsInput, attr: str) -> dict:
         """checks whether some inputs are bounds
         if bounds, sets to the lowest matching scale
@@ -249,6 +265,7 @@ class _Consistent(ABC):
         value = self.make_temporal(value)
         value = self.make_modes(value, attr)
         value = self.fix_scale(value, attr)
+        value = self.fix_true(value)
         value = self.fix_bound_scales(value, attr)
         value = self.clean_up(value)
 
@@ -258,6 +275,8 @@ class _Consistent(ABC):
 class _ConsistentBnd(_Consistent):
     def make_bounds_consistent(self, attr: str):
         """Makes the input of bounds attributes consistent"""
+        # For bounds, if True (Big M) is given, it is converted to a list
+        # i.e. it is set to be the upperbound
         setattr(self, attr, self.make_spttmpdict(getattr(self, attr), attr))
 
 

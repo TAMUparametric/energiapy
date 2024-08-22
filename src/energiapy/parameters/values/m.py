@@ -19,32 +19,43 @@ class M(_Value):
     If big is False:
         really small number like the money in my bank account
 
+    Attributes:
+        big (bool): True if big, False if small
+        m (float): small m value
+
     The magic methods allow sorting
     """
 
     big: bool = field(default=True)
+    m: float = field(default=None)
 
     def __post_init__(self):
         _Value.__post_init__(self)
 
-        self._certainty, self._approach, self.varbnd = (
-            Certainty.CERTAIN,
-            None,
-            VarBnd.NB,
-        )
+        self._certainty, self._approach = Certainty.CERTAIN, None
+
+        if self.big is True:
+            # if Big M
+            self.varbnd = VarBnd.UB
+        else:
+            # if small m
+            self.varbnd = VarBnd.LB
 
     @property
     def value(self):
         """Returns a str"""
-        if self.big:
-            return 'M'
+        if self.big is True:
+            return self.big
         else:
-            return 'm'
+            return self.m
 
     @property
     def id(self):
         """Symbol"""
-        return IndexedBase(self.value)
+        if self.big is True:
+            return IndexedBase('M')
+        else:
+            return IndexedBase('m')
 
     def __gt__(self, other):
         if isinstance(other, (int, float, Constant)):
@@ -63,7 +74,3 @@ class M(_Value):
             if other.big is False:
                 return not getattr(self, 'big')
         return NotImplemented
-
-
-# BigM = M()
-# smallm = M(big=False)
