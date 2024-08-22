@@ -71,7 +71,7 @@ class _Value(ABC, _Reprs):
         Returns:
             str: some name
         """
-        vb_, sl_= ('' for _ in range(2))
+        vb_, sl_ = ('' for _ in range(2))
         # Variable bound
         if self.varbnd == VarBnd.LB:
             vb_ = '[LB]'

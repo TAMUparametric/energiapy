@@ -97,9 +97,12 @@ class DataBlock(_Dunders):
 
                 # Now update the value with an internal value type
                 spttmpinput.dict_input[disposition] = datapoint
-
             # Sort the values by length
+            
             value = sorted(spttmpinput.dict_input.values(), key=len)
+            print('dp', datapoint)
+            print(len(datapoint))
+            print('v', value)
 
         super().__setattr__(name, value)
 

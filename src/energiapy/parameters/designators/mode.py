@@ -6,7 +6,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Union
 
-from sympy import IndexedBase
+from sympy import Idx, IndexedBase, Symbol, symbols
 
 from ..._core._handy._dunders import _Dunders
 
@@ -25,22 +25,24 @@ class X(_Dunders):
     name: Union[str, float, int] = field(default=None)
 
     def __post_init__(self):
-        self.name = str(self.sym)
+        self.name = str(f'x_{self.name}')
+        # Dummy initial name
+        setattr(self, 'sym', Symbol(f'{self.name}'))
 
     def personalize(self, opn: IsOperational, attr: str):
         """Personalizes the operational mode
-        adds the name of the operation and for what input
-        it is being used for
+        adds the name of the operation
         """
-        self.name = f'x({opn},{attr},{self.name.replace("x", "")})'
+        x = Symbol(f'{self.name}_{opn.name}')
+        setattr(self, 'sym', x)
+        self.name = str(x)
         return self
-
-    @property
-    def id(self):
-        """ID"""
-        return IndexedBase('X')
 
     @property
     def sym(self):
         """Symbol"""
-        return self.id[self.name]
+        return self._sym
+
+    @sym.setter
+    def sym(self, new_sym):
+        self._sym = new_sym
