@@ -3,10 +3,11 @@
 
 from __future__ import annotations
 
-from collections import OrderedDict
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
-from sympy import symbols, Eq
+
+from sympy import IndexedBase, Mul, Rel
+
 from .._core._handy._dunders import _Dunders
 
 if TYPE_CHECKING:
@@ -28,7 +29,7 @@ class _Constraint(_Dunders):
 
         # The disposition of the constraint is the same as the main Variable
         self.disposition = self.variable.disposition
-        self.name = f'{self.id()}[{self.variable}]'
+        self.name = str(self.sym)
 
     @property
     def equation(self):
@@ -42,7 +43,12 @@ class _Constraint(_Dunders):
     @classmethod
     def id(cls):
         """The id of the task"""
-        return cls.__name__
+        return IndexedBase(cls.__name__)
+
+    @property
+    def sym(self):
+        """Symbol"""
+        return self.id()[self.disposition.sym]
 
     @staticmethod
     def collection():
@@ -59,37 +65,20 @@ class _Constraint(_Dunders):
             mlt (str): The multiplication sign
             prn (IsVariable): The parent Variable in the constraint
         """
-        # make an ordered dictionary to store the equation
-        # Why OrderedDict?, I know man. Good to keep things structured
 
-        # A multiplication sign is needed if both parent and parameter are needed
+        # Left Hand Side is always the main Variable
+        lhs = self.variable.sym
 
-        eqn = OrderedDict((i, None) for i in ['var', 'eq', 'par', 'mlt', 'prn'])
-
-        # LHS
-        eqn['var'] = self.variable
-        # Equality
-        eqn['eq'] = eq
-        # RHS
-        if par:
-            eqn['par'] = par
-        if prn:
-            eqn['prn'] = prn
+        # Right Hand Side can have both the parameter and the parent Variable
         if all([par, prn]):
-            eqn['mlt'] = '*'
+            rhs = Mul(par.sym, prn.sym)
 
-        # Define symbols
-        x, y = symbols('x y')
-
-        # Define equations
-        eq1 = Eq(2 * x + 3 * y, 6)
-        eq2 = Eq(3 * x + y, 4)
-        eq3 = Eq(x**2 + y**2, 1)
-
-        # Store equations in a list
-        equations = eq2
-
-        setattr(self, 'eq', equations)
+        else:
+            # Or only one of the two
+            if par:
+                rhs = par.value.sym
+            if prn:
+                rhs = prn.sym
 
         # Set the equation property
-        setattr(self, 'equation', ''.join([f'{i}' for i in eqn.values() if i]))
+        setattr(self, 'equation', Rel(lhs, rhs, eq))

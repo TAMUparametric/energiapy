@@ -3,14 +3,17 @@
 
 from dataclasses import dataclass
 
+from sympy import IndexedBase
+
 from ..disposition.structure import make_structures
 from ._variable import _Variable
-from sympy import IndexedBase
 
 
 @dataclass
 class Action(_Variable):
-    """Action is a Player's action"""
+    """Action is a Player's action
+    This is a parent class
+    """
 
     @classmethod
     def parent(cls):
@@ -38,7 +41,7 @@ class Gives(Action):
 
     def __post_init__(self):
         Action.__post_init__(self)
-    
+
     @staticmethod
     def id() -> IndexedBase:
         """ID to add to name"""

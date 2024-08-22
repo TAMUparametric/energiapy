@@ -3,6 +3,8 @@
 
 from dataclasses import dataclass, field
 
+from sympy import IndexedBase
+
 from ...disposition.bounds import VarBnd
 from ..approach import Certainty
 from ._value import _Value
@@ -28,14 +30,8 @@ class M(_Value):
         self._certainty, self._approach, self.varbnd = (
             Certainty.CERTAIN,
             None,
-            VarBnd.FREE,
+            VarBnd.NB,
         )
-
-        if self.big:
-            self.name = f'M{self.name}'
-
-        else:
-            self.name = f'm{self.name}'
 
     @property
     def value(self):
@@ -45,10 +41,10 @@ class M(_Value):
         else:
             return 'm'
 
-    @staticmethod
-    def id():
-        """ID to add to name"""
-        return ''
+    @property
+    def id(self):
+        """Symbol"""
+        return IndexedBase(self.value)
 
     def __gt__(self, other):
         if isinstance(other, (int, float, Constant)):
@@ -69,5 +65,5 @@ class M(_Value):
         return NotImplemented
 
 
-BigM = M()
-smallm = M(big=False)
+# BigM = M()
+# smallm = M(big=False)

@@ -3,12 +3,16 @@
 
 from dataclasses import dataclass, field
 
+from IPython.display import Math, display
+from sympy import latex
+
 from ..._core._handy._collections import _Elms, _Vlus
+from ..._core._handy._printers import _Print
 from ._component import _Component
 
 
 @dataclass
-class _Defined(_Component, _Vlus, _Elms):
+class _Defined(_Component, _Vlus, _Elms, _Print):
     """If the component is defined by user, it should inherit from this class
 
     Attributes:
@@ -33,6 +37,6 @@ class _Defined(_Component, _Vlus, _Elms):
         self._consistent = False
 
     def eqns(self):
-        """Prints all equations in the program"""
+        """Prints all equations in the ProgramBlock"""
         for constraint in self.constraints:
-            print(constraint.equation)
+            yield constraint.equation

@@ -23,8 +23,6 @@ class Constant(_Value):
     def __post_init__(self):
         _Value.__post_init__(self)
 
-        self.name = f'{self.constant}{self.name}'
-
         self._certainty, self._approach = Certainty.CERTAIN, None
 
     @property
@@ -32,10 +30,10 @@ class Constant(_Value):
         """Returns a number"""
         return self.constant
 
-    @staticmethod
-    def id():
-        """ID to add to name"""
-        return ''
+    @property
+    def id(self):
+        """Symbol"""
+        return self.value
 
     # Constant compare by the value of the number
     def __gt__(self, other):

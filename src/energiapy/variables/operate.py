@@ -3,6 +3,8 @@
 
 from dataclasses import dataclass
 
+from sympy import IndexedBase
+
 from ..components.operational.process import Process
 from ..components.operational.storage import Storage
 from ..components.operational.transit import Transit
@@ -41,3 +43,8 @@ class Operate(_Variable):
             opn=[opn],
             spt=[spt, 'ntw'],
         )
+
+    @staticmethod
+    def id() -> IndexedBase:
+        """Symbol"""
+        return IndexedBase('operate')

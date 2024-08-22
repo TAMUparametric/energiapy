@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 
 @dataclass
 class Player(_Simple):
-    """_summary_
+    """A Player in the Scenario
 
     Attributes:
         has (IsBoundInput): how much of particular commodity the player has

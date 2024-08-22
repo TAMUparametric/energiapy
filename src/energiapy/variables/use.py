@@ -3,6 +3,8 @@
 
 from dataclasses import dataclass
 
+from sympy import IndexedBase
+
 from ..components.commodity.land import Land
 from ..components.commodity.material import Material
 from ..components.operational.process import Process
@@ -15,7 +17,7 @@ from .capacitate import Capacity
 
 @dataclass
 class Use(_Variable):
-    """Trade changes the ownership of Resource between Players"""
+    """Trade changes the ownership of Useable Commodity between Players"""
 
     def __post_init__(self):
         _Variable.__post_init__(self)
@@ -41,6 +43,11 @@ class Use(_Variable):
             opn=['pro', 'stg', 'trn'],
             spt=['loc', 'lnk', 'ntw'],
         )
+
+    @staticmethod
+    def id() -> IndexedBase:
+        """Symbol"""
+        return IndexedBase('use')
 
 
 @dataclass
@@ -77,4 +84,7 @@ class Used(_Variable):
         """The Parent Variable doesnot carry Child Component"""
         return (Land, Material)
 
-
+    @staticmethod
+    def id() -> IndexedBase:
+        """Symbol"""
+        return IndexedBase('used')

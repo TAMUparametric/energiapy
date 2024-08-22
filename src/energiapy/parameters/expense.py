@@ -3,6 +3,8 @@
 
 from dataclasses import dataclass
 
+from sympy import IndexedBase
+
 from ._parameter import _Parameter
 
 
@@ -13,6 +15,11 @@ class BuyPrice(_Parameter):
     def __post_init__(self):
         _Parameter.__post_init__(self)
 
+    @staticmethod
+    def id() -> str:
+        """Symbol"""
+        return IndexedBase('Price^buy')
+
 
 @dataclass
 class SellPrice(_Parameter):
@@ -20,6 +27,11 @@ class SellPrice(_Parameter):
 
     def __post_init__(self):
         _Parameter.__post_init__(self)
+
+    @staticmethod
+    def id() -> str:
+        """Symbol"""
+        return IndexedBase('Price^sell')
 
 
 @dataclass
@@ -29,6 +41,11 @@ class ResPenalty(_Parameter):
     def __post_init__(self):
         _Parameter.__post_init__(self)
 
+    @staticmethod
+    def id() -> str:
+        """Symbol"""
+        return IndexedBase('Penalty')
+
 
 @dataclass
 class ResCredit(_Parameter):
@@ -36,6 +53,11 @@ class ResCredit(_Parameter):
 
     def __post_init__(self):
         _Parameter.__post_init__(self)
+
+    @staticmethod
+    def id() -> str:
+        """Symbol"""
+        return IndexedBase('Credit')
 
 
 @dataclass
@@ -45,6 +67,11 @@ class UseExp(_Parameter):
     def __post_init__(self):
         _Parameter.__post_init__(self)
 
+    @staticmethod
+    def id() -> str:
+        """Symbol"""
+        return IndexedBase('Cost^use')
+
 
 @dataclass
 class CapExp(_Parameter):
@@ -52,6 +79,11 @@ class CapExp(_Parameter):
 
     def __post_init__(self):
         _Parameter.__post_init__(self)
+
+    @staticmethod
+    def id() -> str:
+        """Symbol"""
+        return IndexedBase('Capex')
 
 
 @dataclass
@@ -61,6 +93,11 @@ class OpExp(_Parameter):
     def __post_init__(self):
         _Parameter.__post_init__(self)
 
+    @staticmethod
+    def id() -> str:
+        """Symbol"""
+        return IndexedBase('Opex')
+
 
 @dataclass
 class CapExpI(_Parameter):
@@ -69,6 +106,11 @@ class CapExpI(_Parameter):
     def __post_init__(self):
         _Parameter.__post_init__(self)
 
+    @staticmethod
+    def id() -> str:
+        """Symbol"""
+        return IndexedBase('Capex^i')
+
 
 @dataclass
 class OpExpI(_Parameter):
@@ -76,3 +118,8 @@ class OpExpI(_Parameter):
 
     def __post_init__(self):
         _Parameter.__post_init__(self)
+
+    @staticmethod
+    def id() -> str:
+        """Symbol"""
+        return IndexedBase('Opex^i')

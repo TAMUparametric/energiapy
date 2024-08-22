@@ -4,8 +4,9 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field, fields
-from operator import is_not
 from typing import TYPE_CHECKING
+
+from sympy import Idx, symbols
 
 from .._core._handy._dunders import _Dunders
 
@@ -98,3 +99,8 @@ class Disposition(_Dunders):
     def collection():
         """reports what collection the Component belongs to"""
         return 'dispositions'
+
+    @property
+    def sym(self):
+        """Symbol"""
+        return symbols(",".join([f'{i}' for i in self.index]), cls=Idx)

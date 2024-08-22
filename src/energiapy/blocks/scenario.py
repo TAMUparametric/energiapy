@@ -32,22 +32,12 @@
     The Matrix Model is just a matrix representation of the problem block
 """
 
-from .._core._handy._dunders import _Dunders
-
 from dataclasses import dataclass, field
 
-from .._core._handy._collections import (
-    _Alys,
-    _Cmds,
-    _Elms,
-    _Imps,
-    _LnkOpns,
-    _LocOpns,
-    _Scls,
-    _Scps,
-    _Spts,
-    _Vlus,
-)
+from .._core._handy._collections import (_Alys, _Cmds, _Elms, _Imps, _LnkOpns,
+                                         _LocOpns, _Scls, _Scps, _Spts, _Vlus)
+from .._core._handy._dunders import _Dunders
+from .._core._handy._printers import _Print
 from ..components._base._component import _Component
 from ..components._base._defined import _Defined
 from ..components.commodity.cash import Cash
@@ -71,7 +61,7 @@ class _ScnCols(
 
 
 @dataclass
-class Scenario(_Ok, _Default, _Update, _ScnCols, _Dunders):
+class Scenario(_Ok, _Default, _Update, _ScnCols, _Dunders, _Print):
     """
     A scenario for a considered system. It collects all the components of the model.
 
@@ -226,4 +216,5 @@ class Scenario(_Ok, _Default, _Update, _ScnCols, _Dunders):
             at_cmp (IsComponent, optional): Component to search for. Defaults to None.
             at_disp (IsDisposition, optional): Disposition to search for. Defaults to None.
         """
-        self.program.eqns(at_cmp=at_cmp, at_disp=at_disp)
+        for eqn in self.program.eqns(at_cmp=at_cmp, at_disp=at_disp):
+            yield eqn

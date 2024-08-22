@@ -28,8 +28,6 @@ def make_structures(
     Infact some spatial (ntw, loc, lnk) and a scale is compulsory
     The function returns a list of all structures that are allowed
 
-
-
     Args:
         emn_strict (bool): If variable has to be declared strictly for Emission
         csh_strict (bool): If variable has to be declared strictly for Cash

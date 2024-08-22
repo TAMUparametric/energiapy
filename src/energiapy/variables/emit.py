@@ -3,10 +3,11 @@
 
 from dataclasses import dataclass
 
+from sympy import IndexedBase
+
 from ..components.commodity.emission import Emission
 from ..components.commodity.land import Land
 from ..components.commodity.material import Material
-from ..components.commodity.resource import Resource
 from ..components.operational.process import Process
 from ..components.operational.storage import Storage
 from ..components.operational.transit import Transit
@@ -16,7 +17,7 @@ from .capacitate import Capacity
 from .loss import Loss
 from .trade import Buy, Sell
 from .use import Use
-from sympy import IndexedBase
+
 
 @dataclass
 class EmitSys(_Variable):
@@ -37,15 +38,18 @@ class EmitSys(_Variable):
     @classmethod
     def child(cls):
         """The Parent Variable doesnot carry Child Component"""
-        
+
     @staticmethod
     def id() -> IndexedBase:
         """Symbol"""
-        return IndexedBase('')
+        return IndexedBase('emit^sys')
+
 
 @dataclass
 class Emit(_Variable):
-    """Emit is a general variable for how much is Emitted"""
+    """Emit is a general variable for how much is Emitted
+    This is a parent class
+    """
 
     def __post_init__(self):
         _Variable.__post_init__(self)
@@ -58,7 +62,9 @@ class Emit(_Variable):
 
 @dataclass
 class EmitTrade(Emit):
-    """Resource Emit"""
+    """Resource Emit
+    This is a parent class
+    """
 
     def __post_init__(self):
         Emit.__post_init__(self)
@@ -69,6 +75,7 @@ class EmitTrade(Emit):
         return make_structures(
             emn_strict=True, cmd='res', opn='pro', spt=['loc', 'ntw']
         )
+
 
 @dataclass
 class EmitBuy(EmitTrade):
@@ -82,6 +89,11 @@ class EmitBuy(EmitTrade):
         """The Parent Task of the Variable"""
         return Buy
 
+    @staticmethod
+    def id() -> IndexedBase:
+        """Symbol"""
+        return IndexedBase('emit^buy')
+
 
 @dataclass
 class EmitSell(EmitTrade):
@@ -94,6 +106,11 @@ class EmitSell(EmitTrade):
     def parent(cls):
         """The Parent Task of the Variable"""
         return Sell
+
+    @staticmethod
+    def id() -> IndexedBase:
+        """Symbol"""
+        return IndexedBase('emit^sell')
 
 
 @dataclass
@@ -118,6 +135,10 @@ class EmitLoss(Emit):
 
         return make_structures(emn_strict=True, cmd='res', opn=[opn], spt=[spt, 'ntw'])
 
+    @staticmethod
+    def id() -> IndexedBase:
+        """Symbol"""
+        return IndexedBase('emit^loss')
 
 
 @dataclass
@@ -148,6 +169,10 @@ class EmitUse(Emit):
             spt=['loc', 'lnk', 'ntw'],
         )
 
+    @staticmethod
+    def id() -> IndexedBase:
+        """Symbol"""
+        return IndexedBase('emit^use')
 
 
 @dataclass
@@ -179,3 +204,7 @@ class EmitCap(Emit):
             spt=[spt, 'ntw'],
         )
 
+    @staticmethod
+    def id() -> IndexedBase:
+        """Symbol"""
+        return IndexedBase('emit^opn')

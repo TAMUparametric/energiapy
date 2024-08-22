@@ -3,6 +3,8 @@
 
 from dataclasses import dataclass
 
+from sympy import IndexedBase
+
 from ..components.commodity.resource import Resource
 from ..components.operational.storage import Storage
 from ..components.operational.transit import Transit
@@ -38,3 +40,8 @@ class Loss(_Variable):
             opn, spt = 'trn', 'lnk'
 
         return make_structures(cmd='res', opn=[opn], spt=[spt, 'ntw'])
+
+    @staticmethod
+    def id() -> IndexedBase:
+        """Symbol"""
+        return IndexedBase('loss')

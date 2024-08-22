@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
@@ -13,7 +14,7 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class _Parameter(_Dunders):
+class _Parameter(_Dunders, ABC):
     """Model Parameter
 
     Attributes:
@@ -24,14 +25,19 @@ class _Parameter(_Dunders):
 
     def __post_init__(self):
         self.disposition = self.value.disposition
-        self.name = f'{self.id()}|{self.value.name}|'
+        self.name = str(self.sym)
 
-    @classmethod
-    def id(cls):
-        """The id of the Parameter"""
-        return cls.__name__
+    @staticmethod
+    @abstractmethod
+    def id() -> str:
+        """Symbolic representation of the Parameter"""
 
     @staticmethod
     def collection():
         """What collection the element belongs to"""
         return 'parameters'
+
+    @property
+    def sym(self):
+        """Symbol"""
+        return self.id()[self.disposition.sym]

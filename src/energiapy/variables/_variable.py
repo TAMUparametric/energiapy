@@ -11,10 +11,11 @@ from .._core._handy._dunders import _Dunders
 from .._core._nirop._error import CacodcarError
 
 if TYPE_CHECKING:
+    from sympy import IndexedBase
+
     from .._core._aliases._is_block import IsDisposition
     from .._core._aliases._is_component import IsComponent
     from .._core._aliases._is_variable import IsVariable
-    from sympy import IndexedBase
 
 
 @dataclass
@@ -25,7 +26,7 @@ class _Variable(_Dunders, ABC):
     component: IsComponent = field(default=None)
 
     def __post_init__(self):
-        self.name = f'{self.id()}{self.disposition}'
+        self.name = str(self.sym)
 
         if not self.disposition.structure() in self.structures(self.component):
             raise CacodcarError(
@@ -34,7 +35,7 @@ class _Variable(_Dunders, ABC):
 
     @staticmethod
     @abstractmethod
-    def sym() -> IndexedBase:
+    def id() -> IndexedBase:
         """Symbolic representation of the Variable"""
 
     @classmethod
@@ -56,3 +57,8 @@ class _Variable(_Dunders, ABC):
     def collection():
         """What collection the element belongs to"""
         return 'variables'
+
+    @property
+    def sym(self):
+        """The symbolic representation of the Variable"""
+        return self.id()[self.disposition.sym]

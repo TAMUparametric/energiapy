@@ -25,15 +25,15 @@ class Bind(_Constraint):
         _Constraint.__post_init__(self)
 
         # Check the bound and add to name and make equality sign
-        if self.varbnd == VarBnd.LOWER:
-            nm, eq = 'LB', '>='
-        if self.varbnd in [VarBnd.UPPER, VarBnd.FREE]:
-            nm, eq = 'UB', '<='
-        if self.varbnd == VarBnd.EXACT:
-            nm, eq = '', '=='
+        if self.varbnd == VarBnd.LB:
+            eq = '>='
+        if self.varbnd in [VarBnd.UB, VarBnd.NB]:
+            eq = '<='
+        if self.varbnd == VarBnd.EQ:
+            eq = '=='
 
         # Update the name of the constraint if it is a bound
-        self.name = f'{self.name}{nm}'
+        self.name = f'{self.name}{self.varbnd.value}'
 
         # Create the equation for the constraint
         self.birth_equation(eq=eq, par=self.parameter, prn=self.parent)

@@ -3,6 +3,8 @@
 
 from dataclasses import dataclass
 
+from sympy import IndexedBase
+
 from ._parameter import _Parameter
 
 
@@ -13,6 +15,11 @@ class MatUse(_Parameter):
     def __post_init__(self):
         _Parameter.__post_init__(self)
 
+    @staticmethod
+    def id() -> str:
+        """Symbol"""
+        return IndexedBase('Mat')
+
 
 @dataclass
 class LndUse(_Parameter):
@@ -21,6 +28,11 @@ class LndUse(_Parameter):
     def __post_init__(self):
         _Parameter.__post_init__(self)
 
+    @staticmethod
+    def id() -> str:
+        """Symbol"""
+        return IndexedBase('Land')
+
 
 @dataclass
 class ResLoss(_Parameter):
@@ -28,3 +40,8 @@ class ResLoss(_Parameter):
 
     def __post_init__(self):
         _Parameter.__post_init__(self)
+
+    @staticmethod
+    def id() -> str:
+        """Symbol"""
+        return IndexedBase('Loss')

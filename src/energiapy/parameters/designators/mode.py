@@ -6,6 +6,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Union
 
+from sympy import IndexedBase
+
 from ..._core._handy._dunders import _Dunders
 
 if TYPE_CHECKING:
@@ -23,7 +25,7 @@ class X(_Dunders):
     name: Union[str, float, int] = field(default=None)
 
     def __post_init__(self):
-        self.name = f'x({self.name})'
+        self.name = str(self.sym)
 
     def personalize(self, opn: IsOperational, attr: str):
         """Personalizes the operational mode
@@ -32,3 +34,13 @@ class X(_Dunders):
         """
         self.name = f'x({opn},{attr},{self.name.replace("x", "")})'
         return self
+
+    @property
+    def id(self):
+        """ID"""
+        return IndexedBase('X')
+
+    @property
+    def sym(self):
+        """Symbol"""
+        return self.id[self.name]

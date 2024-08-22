@@ -3,6 +3,8 @@
 
 from dataclasses import dataclass
 
+from sympy import IndexedBase
+
 from ._parameter import _Parameter
 
 
@@ -13,6 +15,11 @@ class Has(_Parameter):
     def __post_init__(self):
         _Parameter.__post_init__(self)
 
+    @staticmethod
+    def id() -> str:
+        """Symbol"""
+        return IndexedBase('Has')
+
 
 @dataclass
 class Needs(_Parameter):
@@ -20,3 +27,8 @@ class Needs(_Parameter):
 
     def __post_init__(self):
         _Parameter.__post_init__(self)
+
+    @staticmethod
+    def id() -> str:
+        """Symbol"""
+        return IndexedBase('Needs')

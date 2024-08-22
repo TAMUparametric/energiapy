@@ -3,6 +3,8 @@
 
 from dataclasses import dataclass
 
+from sympy import IndexedBase
+
 from ..components.commodity.cash import Cash
 from ..components.commodity.land import Land
 from ..components.commodity.material import Material
@@ -19,7 +21,9 @@ from .use import Use
 
 @dataclass
 class BndExpense(_Variable):
-    """Expense is the cost of a Component"""
+    """Expense is the cost of a Component
+    This is a parent class
+    """
 
     def __post_init__(self):
         _Variable.__post_init__(self)
@@ -45,6 +49,11 @@ class Spend(BndExpense):
     def __post_init__(self):
         BndExpense.__post_init__(self)
 
+    @staticmethod
+    def id() -> IndexedBase:
+        """Symbol"""
+        return IndexedBase('spend')
+
 
 @dataclass
 class Earn(BndExpense):
@@ -53,10 +62,17 @@ class Earn(BndExpense):
     def __post_init__(self):
         BndExpense.__post_init__(self)
 
+    @staticmethod
+    def id() -> IndexedBase:
+        """Symbol"""
+        return IndexedBase('earn')
+
 
 @dataclass
 class Expense(_Variable):
-    """Expense is the cost of a Component"""
+    """Expense is the cost of a Component
+    This is a parent class
+    """
 
     def __post_init__(self):
         _Variable.__post_init__(self)
@@ -69,7 +85,9 @@ class Expense(_Variable):
 
 @dataclass
 class ExpTrade(Expense):
-    """Resource Expense"""
+    """Resource Expense
+    This is a parent class
+    """
 
     def __post_init__(self):
         Expense.__post_init__(self)
@@ -94,6 +112,11 @@ class ExpBuy(ExpTrade):
         """The Parent Task of the Variable"""
         return Buy
 
+    @staticmethod
+    def id() -> IndexedBase:
+        """Symbol"""
+        return IndexedBase('exp^buy')
+
 
 @dataclass
 class ExpSell(ExpTrade):
@@ -106,6 +129,11 @@ class ExpSell(ExpTrade):
     def parent(cls):
         """The Parent Task of the Variable"""
         return Sell
+
+    @staticmethod
+    def id() -> IndexedBase:
+        """Symbol"""
+        return IndexedBase('exp^sell')
 
 
 @dataclass
@@ -120,6 +148,11 @@ class Penalty(ExpTrade):
         """The Parent Task of the Variable"""
         return Sell
 
+    @staticmethod
+    def id() -> IndexedBase:
+        """Symbol"""
+        return IndexedBase('penalty')
+
 
 @dataclass
 class Credit(ExpTrade):
@@ -132,6 +165,11 @@ class Credit(ExpTrade):
     def parent(cls):
         """The Parent Task of the Variable"""
         return Sell
+
+    @staticmethod
+    def id() -> IndexedBase:
+        """Symbol"""
+        return IndexedBase('credit')
 
 
 @dataclass
@@ -162,10 +200,17 @@ class ExpUse(Expense):
             spt=['loc', 'lnk', 'ntw'],
         )
 
+    @staticmethod
+    def id() -> IndexedBase:
+        """Symbol"""
+        return IndexedBase('exp^use')
+
 
 @dataclass
 class ExpOpn(Expense):
-    """Capacity Expense"""
+    """Capacity Expense
+    This is a parent class
+    """
 
     def __post_init__(self):
         Expense.__post_init__(self)
@@ -201,6 +246,11 @@ class ExpCap(ExpOpn):
         """The Parent Task of the Variable"""
         return Capacity
 
+    @staticmethod
+    def id() -> IndexedBase:
+        """Symbol"""
+        return IndexedBase('capex')
+
 
 @dataclass
 class ExpOp(ExpOpn):
@@ -214,10 +264,17 @@ class ExpOp(ExpOpn):
         """The Parent Task of the Variable"""
         return Operate
 
+    @staticmethod
+    def id() -> IndexedBase:
+        """Symbol"""
+        return IndexedBase('opex')
+
 
 @dataclass
 class ExpOpnI(ExpOpn):
-    """Incidental Expense for Operation"""
+    """Incidental Expense for Operation
+    This is a parent class
+    """
 
     def __post_init__(self):
         ExpOpn.__post_init__(self)
@@ -234,6 +291,11 @@ class ExpCapI(ExpOpnI):
     def __post_init__(self):
         ExpOpnI.__post_init__(self)
 
+    @staticmethod
+    def id() -> IndexedBase:
+        """Symbol"""
+        return IndexedBase('capex^I')
+
 
 @dataclass
 class ExpOpI(ExpOpnI):
@@ -241,3 +303,8 @@ class ExpOpI(ExpOpnI):
 
     def __post_init__(self):
         ExpOpnI.__post_init__(self)
+
+    @staticmethod
+    def id() -> IndexedBase:
+        """Symbol"""
+        return IndexedBase('opex^I')

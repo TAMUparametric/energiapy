@@ -8,10 +8,10 @@ from operator import is_
 from typing import TYPE_CHECKING
 
 from pandas import DataFrame
+from sympy import IndexedBase
 
 from ...disposition.bounds import VarBnd
 from ..approach import Approach, Certainty
-# from ..core.base import Dunders
 from ._value import _Value
 
 if TYPE_CHECKING:
@@ -44,10 +44,10 @@ class DataSet(_Value):
         """Returns a dictionary of data"""
         return self.data
 
-    @staticmethod
-    def id():
-        """ID to add to name"""
-        return 'DtSt'
+    @property
+    def id(self):
+        """Symbol"""
+        return IndexedBase('DtSt')
 
     @staticmethod
     def collection():
@@ -56,17 +56,17 @@ class DataSet(_Value):
 
     # DataSet are compared on the basis of what bound they are
     def __lt__(self, other):
-        if isinstance(other, (int, float)) and is_(self.varbnd, VarBnd.UPPER):
+        if isinstance(other, (int, float)) and is_(self.varbnd, VarBnd.UB):
             return False
-        elif isinstance(other, DataSet) and is_(other.varbnd, VarBnd.LOWER):
+        elif isinstance(other, DataSet) and is_(other.varbnd, VarBnd.LB):
             return False
         else:
             return True
 
     def __gt__(self, other):
-        if isinstance(other, (int, float)) and is_(self.varbnd, VarBnd.UPPER):
+        if isinstance(other, (int, float)) and is_(self.varbnd, VarBnd.UB):
             return True
-        elif isinstance(other, DataSet) and is_(other.varbnd, VarBnd.LOWER):
+        elif isinstance(other, DataSet) and is_(other.varbnd, VarBnd.LB):
             return True
         else:
             return False

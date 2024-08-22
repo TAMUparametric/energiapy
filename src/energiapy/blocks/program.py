@@ -7,6 +7,7 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 from .._core._handy._dunders import _Dunders
+from .._core._handy._printers import _Print
 from ..constraints.rulebook import rulebook
 from ..constraints.taskmaster import taskmaster
 from ..disposition.disposition import Disposition
@@ -21,7 +22,7 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class ProgramBlock(_Dunders):
+class ProgramBlock(_Dunders, _Print):
     """Block of Program
     The Parameters, Variables, Constraints are defined here
 
@@ -183,7 +184,7 @@ class ProgramBlock(_Dunders):
         setattr(self, element.collection(), sorted(set(list_curr) | {element}))
 
     def eqns(self, at_cmp: IsDefined = None, at_disp: IsIndex = None):
-        """Prints all equations in the program
+        """Yields all equations in the ProgramBlock
 
         Args:
             at_cmp (IsComponent, optional): Component to search for. Defaults to None.
@@ -199,7 +200,7 @@ class ProgramBlock(_Dunders):
             constraints = self.constraints
 
         for constraint in constraints:
-            print(constraint.equation)
+            yield constraint.equation
 
     def at_disp(self, disposition: IsIndex):
         """Returns constraints defined for disposition throughout the program
@@ -234,7 +235,7 @@ class ProgramBlock(_Dunders):
 
 
 @dataclass
-class Program(_Block):
+class Program(_Block, _Print):
     """Mathematical Programming Model"""
 
     name: str = field(default=None)
@@ -271,28 +272,15 @@ class Program(_Block):
         return self.fetch('dispositions')
 
     def eqns(self, at_cmp: IsDefined = None, at_disp: IsIndex = None):
-        """Prints all equations in the Program
+        """Yields all equations in the Program
 
         Args:
             at_cmp (IsComponent, optional): Component to search for. Defaults to None.
             at_disp (IsIndex, optional): Disposition (actually Index) to search for. Defaults to None.
         """
-
-        if at_cmp:
-            print(f'-----------{at_cmp} Constraints -----------')
-
-        if at_disp:
-            print(f'-----------Constraints at Disposition:{at_disp}-----------')
-
         for block in self.blocks:
-
-            if not any([at_cmp, at_disp]):
-                print(f'-----------{block.component} Constraints -----------')
-
-            block.eqns(at_cmp=at_cmp, at_disp=at_disp)
-
-            if not any([at_cmp, at_disp]):
-                print('')
+            for eqn in block.eqns(at_cmp=at_cmp, at_disp=at_disp):
+                yield eqn
 
     def fetch(self, element: str) -> list:
         """Fetches input data of a particular type

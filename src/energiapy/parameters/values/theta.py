@@ -6,14 +6,11 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
-from pandas import DataFrame
+from sympy import IndexedBase
 
 from ..._core._handy._dunders import _Magics
-from ...disposition.bounds import SpcLmt, VarBnd
 from ..approach import Approach, Certainty
 from ._value import _Value
-from .constant import Constant
-from .dataset import DataSet
 
 if TYPE_CHECKING:
     from ..._core._aliases._is_input import IsInput, IsSpace
@@ -73,10 +70,10 @@ class Theta(_Value, _Magics):
         """Returns a dictionary of data"""
         return self.space
 
-    @staticmethod
-    def id():
-        """ID to add to name"""
-        return 'Th'
+    @property
+    def id(self):
+        """Symbol"""
+        return IndexedBase('θ')
 
 
-Th = Theta(space=(0, 1))
+# Th = Theta(space=(0, 1))

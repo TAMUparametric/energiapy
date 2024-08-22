@@ -34,7 +34,7 @@ class _Value(ABC, _Reprs):
 
         if not self.varbnd:
             # if nothing is specified, then exact. So will make equality constraint
-            self.varbnd = VarBnd.EXACT
+            self.varbnd = VarBnd.EQ
 
         for i in ['_certainty', '_approach']:
             setattr(self, i, None)
@@ -43,17 +43,26 @@ class _Value(ABC, _Reprs):
             for i, j in self.disposition.args().items():
                 setattr(self, i, j)
 
-        self.name = f'{self.id()}{self.disposition}{self._bnds}'
+        self.name = str(self.sym)
 
     @property
     @abstractmethod
     def value(self):
         """reports the value"""
 
-    @staticmethod
+    @property
     @abstractmethod
-    def id():
-        """ID to add to name"""
+    def id(self):
+        """reports the value"""
+
+    @property
+    def sym(self):
+        """Symbol"""
+        if isinstance(self.value, (int, float)):
+            # This is only applicable for constants, that return the value as the symbol
+            return self.id
+        else:
+            return self.id[self.disposition.sym]
 
     @property
     def _bnds(self) -> str:
@@ -62,12 +71,11 @@ class _Value(ABC, _Reprs):
         Returns:
             str: some name
         """
-        vb_, sl_, i_ = ('' for _ in range(3))
-
+        vb_, sl_= ('' for _ in range(2))
         # Variable bound
-        if self.varbnd == VarBnd.LOWER:
+        if self.varbnd == VarBnd.LB:
             vb_ = '[LB]'
-        elif self.varbnd == VarBnd.UPPER:
+        elif self.varbnd == VarBnd.UB:
             vb_ = '[UB]'
 
         # Theta space limit
@@ -76,11 +84,7 @@ class _Value(ABC, _Reprs):
         elif self._spclmt == SpcLmt.END:
             sl_ = '[e]'
 
-        # Incidental
-        if self.incdntl:
-            i_ = '[i]'
-
-        return f'{vb_}{sl_}{i_}'
+        return f'{vb_}{sl_}'
 
     def __len__(self):
         if self.disposition:

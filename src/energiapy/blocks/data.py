@@ -48,7 +48,7 @@ class DataBlock(_Dunders):
     def __setattr__(self, name, value):
 
         spclmts = [SpcLmt.START, SpcLmt.END]
-        varbnds = [VarBnd.LOWER, VarBnd.UPPER]
+        varbnds = [VarBnd.LB, VarBnd.UB]
 
         if isinstance(value, dict):
             # _Spt holds the data in a particular format
@@ -57,7 +57,6 @@ class DataBlock(_Dunders):
             spttmpinput = _SptTmpInput(name, value)
 
             for disposition, datapoint in spttmpinput.dict_input.items():
-
                 if isinstance(datapoint, list):
                     if len(datapoint) == 1:
                         # if only one value, the value given is an upper bound

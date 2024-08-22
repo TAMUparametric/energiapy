@@ -3,6 +3,8 @@
 
 from dataclasses import dataclass
 
+from sympy import IndexedBase
+
 from ._parameter import _Parameter
 
 
@@ -13,6 +15,11 @@ class EmitBnd(_Parameter):
     def __post_init__(self):
         _Parameter.__post_init__(self)
 
+    @staticmethod
+    def id() -> str:
+        """Symbol"""
+        return IndexedBase('Emit')
+
 
 @dataclass
 class ResEmitBuy(_Parameter):
@@ -20,6 +27,11 @@ class ResEmitBuy(_Parameter):
 
     def __post_init__(self):
         _Parameter.__post_init__(self)
+
+    @staticmethod
+    def id() -> str:
+        """Symbol"""
+        return IndexedBase('Emit^buy')
 
 
 @dataclass
@@ -29,6 +41,11 @@ class ResEmitSell(_Parameter):
     def __post_init__(self):
         _Parameter.__post_init__(self)
 
+    @staticmethod
+    def id() -> str:
+        """Symbol"""
+        return IndexedBase('Emit^sell')
+
 
 @dataclass
 class ResEmitLoss(_Parameter):
@@ -36,6 +53,11 @@ class ResEmitLoss(_Parameter):
 
     def __post_init__(self):
         _Parameter.__post_init__(self)
+
+    @staticmethod
+    def id() -> str:
+        """Symbol"""
+        return IndexedBase('Emit^loss')
 
 
 @dataclass
@@ -45,6 +67,11 @@ class CmdEmitUse(_Parameter):
     def __post_init__(self):
         _Parameter.__post_init__(self)
 
+    @staticmethod
+    def id() -> str:
+        """Symbol"""
+        return IndexedBase('Emit^use')
+
 
 @dataclass
 class OpnEmit(_Parameter):
@@ -52,3 +79,8 @@ class OpnEmit(_Parameter):
 
     def __post_init__(self):
         _Parameter.__post_init__(self)
+
+    @staticmethod
+    def id() -> str:
+        """Symbol"""
+        return IndexedBase('Emit^opn')

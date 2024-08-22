@@ -3,6 +3,8 @@
 
 from dataclasses import dataclass
 
+from sympy import IndexedBase
+
 from ._parameter import _Parameter
 
 
@@ -13,6 +15,11 @@ class BuyBnd(_Parameter):
     def __post_init__(self):
         _Parameter.__post_init__(self)
 
+    @staticmethod
+    def id() -> str:
+        """Symbol"""
+        return IndexedBase('Buy')
+
 
 @dataclass
 class SellBnd(_Parameter):
@@ -20,6 +27,11 @@ class SellBnd(_Parameter):
 
     def __post_init__(self):
         _Parameter.__post_init__(self)
+
+    @staticmethod
+    def id() -> str:
+        """Symbol"""
+        return IndexedBase('Sell')
 
 
 @dataclass
@@ -29,6 +41,11 @@ class ShipBnd(_Parameter):
     def __post_init__(self):
         _Parameter.__post_init__(self)
 
+    @staticmethod
+    def id() -> str:
+        """Symbol"""
+        return IndexedBase('Ship')
+
 
 @dataclass
 class SpendBnd(_Parameter):
@@ -36,6 +53,11 @@ class SpendBnd(_Parameter):
 
     def __post_init__(self):
         _Parameter.__post_init__(self)
+
+    @staticmethod
+    def id() -> str:
+        """Symbol"""
+        return IndexedBase('Spend')
 
 
 @dataclass
@@ -45,6 +67,11 @@ class EarnBnd(_Parameter):
     def __post_init__(self):
         _Parameter.__post_init__(self)
 
+    @staticmethod
+    def id() -> str:
+        """Symbol"""
+        return IndexedBase('Earn')
+
 
 @dataclass
 class CapBnd(_Parameter):
@@ -52,6 +79,11 @@ class CapBnd(_Parameter):
 
     def __post_init__(self):
         _Parameter.__post_init__(self)
+
+    @staticmethod
+    def id() -> str:
+        """Symbol"""
+        return IndexedBase('Capacity')
 
 
 @dataclass
@@ -63,6 +95,11 @@ class OpBnd(_Parameter):
     def __post_init__(self):
         _Parameter.__post_init__(self)
 
+    @staticmethod
+    def id() -> str:
+        """Symbol"""
+        return IndexedBase('CapF')
+
 
 @dataclass
 class UseBnd(_Parameter):
@@ -70,3 +107,8 @@ class UseBnd(_Parameter):
 
     def __post_init__(self):
         _Parameter.__post_init__(self)
+
+    @staticmethod
+    def id() -> str:
+        """Symbol"""
+        return IndexedBase('Use')
