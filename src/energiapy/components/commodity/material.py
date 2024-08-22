@@ -31,3 +31,5 @@ class Material(_Used):
 
     def __post_init__(self):
         _Used.__post_init__(self)
+        #This collects parameters for material use declared at other components
+        self.material = []

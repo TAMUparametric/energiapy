@@ -30,3 +30,6 @@ class Land(_Used):
 
     def __post_init__(self):
         _Used.__post_init__(self)
+        #This collects parameters for land use declared at other components
+        self.land = []
+        

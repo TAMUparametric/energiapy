@@ -5,6 +5,8 @@ This has been written in a very spread out manner for clarity
 spt - spatial disposition
 tmp - temporal disposition
 x - operational mode
+
+use is_not to compare dummy to existing Components (Scale, Location)
 """
 
 from __future__ import annotations
@@ -36,6 +38,11 @@ class _Consistent(ABC):
     def system(self):
         """The System of the Component"""
 
+    @staticmethod
+    @abstractmethod
+    def bounds():
+        """Bound attr of the Component"""
+
     def upd_dict(self, value: IsInput, level: str) -> dict:
         """Returns an empty dict with the same keys as the input
 
@@ -57,12 +64,13 @@ class _Consistent(ABC):
                 for spt, tmp_x_val in value.items()
             }
 
-    def make_spatial(self, value: IsInput) -> dict:
+    def make_spatial(self, value: IsInput, attr: str) -> dict:
         """adds spatial disposition to input data if not there already
         defaults to Network
 
         Args:
             value (IsInput): any input
+            attr (str): attr for which input is being passed
 
         Returns:
             dict: Always {Spatial (Location, Linkage, Network): Something}
@@ -81,6 +89,21 @@ class _Consistent(ABC):
                         }
                     else:
                         value_upd[self.system.network] = {spt: tmp_val}
+                        # # Parameter bounds can be compound
+                        # # they can be seperate for an Operation or Location/Transit or Network
+                        # # with the value at a spatially larger Component being the sum of the Smaller
+                        # if attr in self.bounds():
+                        #     value_upd[self.system.network] = {spt: tmp_val}
+                        # else:
+                        #     # calculated Parameters are assumed from the spatially larger Component
+                        #     # if Spatial or Operational disposition is not given
+                        #     if hasattr(self, 'spatials'):
+                        #         # this is a check to see whether this is an Operation
+                        #         for spt_ in getattr(self, 'spatials'):
+                        #             value_upd[spt_] = {spt: tmp_val}
+                        #     else:
+                        #         #
+
                 else:
                     value_upd[spt] = tmp_val
 
@@ -157,20 +180,27 @@ class _Consistent(ABC):
         for spt, tmp_x_val in value.items():
             for tmp, x_val in tmp_x_val.items():
                 for x, val in x_val.items():
+                    # if value is a DataFrame, check if the scale is consistent
                     if isinstance(val, DataFrame):
                         scale_upd = self.system.horizon.match_scale(val)
                         if is_not(scale_upd, tmp):
+                            # if not consistent
                             if is_not(tmp, 't'):
                                 warn(
                                     f'{self}.{attr}:Inconsistent temporal scale for {spt} at {tmp}. Updating to {scale_upd}',
                                 )
+                            # update the scale
                             value_upd[spt][scale_upd] = x_val
+                            # delete the old entry
                             del value_upd[spt][tmp]
                         else:
+                            # if consistent, keep as is
                             value_upd[spt][tmp][x] = val
+                    # if dummy set to root scale of Horizon
                     elif is_(tmp, 't'):
                         value_upd[spt][self.system.horizon.scales[0]] = x_val
                     else:
+                        # if value is not a DataFrame, keep as is
                         value_upd[spt][tmp][x] = val
 
         return value_upd
@@ -178,9 +208,15 @@ class _Consistent(ABC):
     def fix_true(self, value: IsInput) -> dict:
         """checks whether the input value is True
         if True, makes a list [True]
+
+        Args:
+            value (IsInput): any Input
+            attr (str): attr for which input is being passed
+
+        Returns:
+            dict: Always {Spatial: {Temporal: {Mode: value}}}, this however makes True to [True]
         """
         value_upd = self.upd_dict(value, 'spttmpx')
-
         for spt, tmp_x_val in value.items():
             for tmp, x_val in tmp_x_val.items():
                 for x, val in x_val.items():
@@ -204,17 +240,21 @@ class _Consistent(ABC):
         """
         value_upd = self.upd_dict(value, 'spttmpx')
 
+        # note that you cant have True (Big M) inside bounds
         for spt, tmp_x_val in value.items():
             for tmp, x_val in tmp_x_val.items():
                 for x, val in x_val.items():
+                    # if list of , tuple of bounds. Check if both scales are same
                     if isinstance(val, (list, tuple)):
+                        # if DataFrame and numeric, bring DataFrame to front
+                        # determine the longer scale
                         scale_upd = sorted(
                             [self.system.horizon.match_scale(m) for m in val],
                         )[-1]
 
                         if is_not(scale_upd, tmp) and not all(
                             isinstance(m, (float, int)) for m in val
-                        ):  # only update the scale if there is no float or int in the list
+                        ):  # only update the scale if there is a mix of DataFrame and Numeric
                             warn(
                                 f'{self}.{attr}:Inconsistent temporal scale for {spt} at {tmp}. Updating to {scale_upd}',
                             )
@@ -261,7 +301,7 @@ class _Consistent(ABC):
         Returns:
             IsSptTmpInput: {Spatial: {Temporal: {Mode: value}}} Always!!
         """
-        value = self.make_spatial(value)
+        value = self.make_spatial(value, attr)
         value = self.make_temporal(value)
         value = self.make_modes(value, attr)
         value = self.fix_scale(value, attr)

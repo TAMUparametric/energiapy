@@ -35,6 +35,7 @@ class Cash(_Simple, _Commodity):
     def __post_init__(self):
         _Simple.__post_init__(self)
         _Commodity.__post_init__(self)
+        self.expenses = []
 
     @staticmethod
     def bounds():

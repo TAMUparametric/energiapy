@@ -33,6 +33,8 @@ class Emission(_Simple, _Commodity):
     def __post_init__(self):
         _Simple.__post_init__(self)
         _Commodity.__post_init__(self)
+        # This collects parameters for emission declared at other components
+        self.emission = []
 
     @staticmethod
     def bounds():
