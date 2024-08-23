@@ -8,10 +8,10 @@ from typing import TYPE_CHECKING
 
 from sympy import IndexedBase, Mul, Rel
 
-from .._core._handy._dunders import _Dunders
+from ..core._handy._dunders import _Dunders
 
 if TYPE_CHECKING:
-    from .._core._aliases._is_element import IsParameter, IsVariable
+    from ..core.aliases.is_element import IsParameter, IsVariable
 
 
 @dataclass

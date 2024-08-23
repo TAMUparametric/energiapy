@@ -8,10 +8,10 @@ from typing import TYPE_CHECKING, Union
 
 from sympy import Symbol
 
-from ..._core._handy._dunders import _Dunders
+from ...core._handy._dunders import _Dunders
 
 if TYPE_CHECKING:
-    from ..._core._aliases._is_component import IsOperational
+    from ...core.aliases.is_component import IsOperational
 
 
 @dataclass

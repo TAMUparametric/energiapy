@@ -8,12 +8,12 @@ from functools import reduce
 from operator import or_
 from typing import TYPE_CHECKING
 
-from ..._core._handy._dunders import _Reprs
+from ...core._handy._dunders import _Reprs
 from ..designators.mode import X
 
 if TYPE_CHECKING:
-    from ..._core._aliases._is_component import IsProcess
-    from ..._core._aliases._is_input import IsConvInput
+    from ...core.aliases.is_component import IsProcess
+    from ...core.aliases.is_input import IsConvInput
 
 
 @dataclass

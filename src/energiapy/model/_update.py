@@ -10,16 +10,16 @@ from operator import is_not
 from typing import TYPE_CHECKING
 from warnings import warn
 
-from ...components.operational.process import Process
-from ...components.scope.horizon import Horizon
-from ...components.spatial.linkage import Linkage
-from ...components.spatial.location import Location
-from ...components.temporal.scale import Scale
-from ..data import DataBlock
-from ..program import ProgramBlock
+from ..components.operational.process import Process
+from ..components.scope.horizon import Horizon
+from ..components.spatial.linkage import Linkage
+from ..components.spatial.location import Location
+from ..components.temporal.scale import Scale
+from ..blocks.data import DataBlock
+from ..blocks.program import ProgramBlock
 
 if TYPE_CHECKING:
-    from ..._core._aliases._is_component import (
+    from ..core.aliases.is_component import (
         IsDefined,
         IsHorizon,
         IsLinkage,
@@ -256,7 +256,6 @@ class _Update(ABC):
                 if is_not(src, snk):
                     # set the linkages as attributes of the Scenario
                     setattr(self, f'lnk{i}', Linkage(source=src, sink=snk, bi=True))
-
 
     def birth_bal_processes(self, operation: IsOperational, res: IsResource):
         """Births Balance Processes

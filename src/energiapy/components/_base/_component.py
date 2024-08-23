@@ -6,10 +6,10 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-from ..._core._handy._dunders import _Dunders
+from ...core._handy._dunders import _Dunders
 
 if TYPE_CHECKING:
-    from ..._core._aliases._is_block import IsModel
+    from ...core.aliases.is_block import IsModel
 
 
 @dataclass

@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 from sympy import IndexedBase
 
 from ...disposition.bounds import VarBnd
-from ..approach import Certainty
+from ..defined.approach import Certainty
 from ._value import _Value
 from .constant import Constant
 

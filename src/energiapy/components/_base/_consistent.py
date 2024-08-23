@@ -24,7 +24,7 @@ from ..spatial._spatial import _Spatial
 from ..temporal.scale import Scale
 
 if TYPE_CHECKING:
-    from ..._core._aliases._is_input import IsInput, IsSptTmpInput
+    from ...core.aliases.is_input import IsInput, IsSptTmpInput
 
 
 class _Consistent(ABC):

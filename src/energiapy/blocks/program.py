@@ -6,19 +6,19 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
-from .._core._handy._dunders import _Dunders
-from .._core._handy._printers import _Print
+from ..core._handy._dunders import _Dunders
+from ..core._handy._printers import _Print
 from ..constraints.rulebook import rulebook
 from ..constraints.taskmaster import taskmaster
 from ..disposition.disposition import Disposition
-from ._base._block import _Block
+from ._block import _Block
 from .data import DataBlock
 
 if TYPE_CHECKING:
-    from .._core._aliases._is_block import IsDataBlock, IsIndex
-    from .._core._aliases._is_component import IsDefined
-    from .._core._aliases._is_element import IsElement
-    from .._core._aliases._is_value import IsValue
+    from ..core.aliases.is_block import IsDataBlock, IsIndex
+    from ..core.aliases.is_component import IsDefined
+    from ..core.aliases.is_element import IsElement
+    from ..core.aliases.is_value import IsValue
 
 
 @dataclass

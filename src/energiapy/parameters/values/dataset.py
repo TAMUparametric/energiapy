@@ -11,11 +11,11 @@ from pandas import DataFrame
 from sympy import IndexedBase
 
 from ...disposition.bounds import VarBnd
-from ..approach import Approach, Certainty
+from ..defined.approach import Approach, Certainty
 from ._value import _Value
 
 if TYPE_CHECKING:
-    from ..._core._aliases._is_input import IsDataFr
+    from ...core.aliases.is_input import IsDataFr
 
 
 @dataclass

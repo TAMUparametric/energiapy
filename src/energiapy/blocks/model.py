@@ -9,7 +9,7 @@ Includes:
 
 from dataclasses import dataclass, field
 
-from .._core._handy._dunders import _Dunders
+from ..core._handy._dunders import _Dunders
 from .data import Data
 from .matrix import Matrix
 from .program import Program

@@ -1,4 +1,4 @@
-"""Defined Calculative Parameters 
+"""Defined Use Parameters
 """
 
 from dataclasses import dataclass
@@ -32,16 +32,3 @@ class LndUse(_Parameter):
     def id(self) -> str:
         """Symbol"""
         return IndexedBase('Land')
-
-
-@dataclass
-class ResLoss(_Parameter):
-    """Resource Loss"""
-
-    def __post_init__(self):
-        _Parameter.__post_init__(self)
-
-    @property
-    def id(self) -> str:
-        """Symbol"""
-        return IndexedBase('Loss')

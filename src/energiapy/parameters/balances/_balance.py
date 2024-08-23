@@ -3,7 +3,7 @@
 
 from dataclasses import dataclass
 from abc import ABC, abstractmethod
-from ..._core._handy._dunders import _Reprs
+from ...core._handy._dunders import _Reprs
 from ..designators.mode import X
 
 

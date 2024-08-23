@@ -9,8 +9,8 @@ from ._birther import _Birther
 from ...parameters.balances.freight import Freight
 
 if TYPE_CHECKING:
-    from ..._core._aliases._is_component import IsLinkage, IsResource
-    from ..._core._aliases._is_input import IsBoundInput, IsExactInput, IsBalInput
+    from ...core.aliases.is_component import IsLinkage, IsResource
+    from ...core.aliases.is_input import IsBoundInput, IsExactInput, IsBalInput
 
 
 @dataclass

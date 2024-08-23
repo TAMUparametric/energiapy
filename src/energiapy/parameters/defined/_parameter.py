@@ -7,10 +7,10 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
-from .._core._handy._dunders import _Dunders
+from ...core._handy._dunders import _Dunders
 
 if TYPE_CHECKING:
-    from .._core._aliases._is_value import IsValue
+    from ...core.aliases.is_value import IsValue
 
 
 @dataclass

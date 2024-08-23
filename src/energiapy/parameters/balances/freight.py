@@ -9,8 +9,8 @@ from typing import TYPE_CHECKING
 from ._balance import _Balance
 
 if TYPE_CHECKING:
-    from ..._core._aliases._is_component import IsTransit
-    from ..._core._aliases._is_input import IsBalInput
+    from ...core.aliases.is_component import IsTransit
+    from ...core.aliases.is_input import IsBalInput
 
 
 @dataclass

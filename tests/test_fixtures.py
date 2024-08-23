@@ -13,6 +13,8 @@ from src.energiapy.blocks.formulate import formulate, Constraints, Objective
 from src.energiapy.blocks.solve import solve
 
 
+
+
 @pytest.fixture()
 def single_level_scale():
     """Single scale with 4 discertizations"""

@@ -3,8 +3,8 @@
 
 from dataclasses import dataclass, field
 
-from ..._core._handy._collections import _Elms, _Vlus
-from ..._core._handy._printers import _Print
+from ...core._handy._collections import _Elms, _Vlus
+from ...core._handy._printers import _Print
 from ._component import _Component
 
 

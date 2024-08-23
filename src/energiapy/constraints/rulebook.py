@@ -7,11 +7,11 @@ from dataclasses import dataclass, field
 from operator import is_
 from typing import TYPE_CHECKING, Dict, List
 
-from .._core._handy._dunders import _Dunders
-from .._core._nirop._error import CacodcarError
+from ..core._handy._dunders import _Dunders
+from ..core._nirop._error import CacodcarError
 from ..constraints.bind import Bind
 from ..constraints.calculate import Calculate
-from ..parameters.bound import (
+from ..parameters.defined.bound import (
     BuyBnd,
     CapBnd,
     EarnBnd,
@@ -21,8 +21,9 @@ from ..parameters.bound import (
     SpendBnd,
     UseBnd,
 )
-from ..parameters.calculated import LndUse, MatUse, ResLoss
-from ..parameters.emission import (
+from ..parameters.defined.use import LndUse, MatUse
+from ..parameters.defined.loss import ResLoss
+from ..parameters.defined.emission import (
     CmdEmitUse,
     EmitBnd,
     OpnEmit,
@@ -30,7 +31,7 @@ from ..parameters.emission import (
     ResEmitLoss,
     ResEmitSell,
 )
-from ..parameters.expense import (
+from ..parameters.defined.expense import (
     BuyPrice,
     CapExp,
     CapExpI,
@@ -41,7 +42,7 @@ from ..parameters.expense import (
     SellPrice,
     UseExp,
 )
-from ..parameters.ownership import Has, Needs
+from ..parameters.defined.ownership import Has, Needs
 from ..variables.action import Gives, Takes
 from ..variables.capacitate import Capacity
 from ..variables.emit import EmitBuy, EmitCap, EmitLoss, EmitSell, EmitSys, EmitUse
@@ -65,7 +66,7 @@ from ..variables.use import Use, Used
 from .rules import Condition, SumOver
 
 if TYPE_CHECKING:
-    from .._core._aliases._is_element import IsConstraint, IsParameter, IsVariable
+    from ..core.aliases.is_element import IsConstraint, IsParameter, IsVariable
 
 
 @dataclass

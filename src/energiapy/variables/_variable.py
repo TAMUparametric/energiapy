@@ -7,15 +7,15 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, List, Tuple
 
-from .._core._handy._dunders import _Dunders
-from .._core._nirop._error import CacodcarError
+from ..core._handy._dunders import _Dunders
+from ..core._nirop._error import CacodcarError
 
 if TYPE_CHECKING:
     from sympy import IndexedBase
 
-    from .._core._aliases._is_block import IsDisposition
-    from .._core._aliases._is_component import IsComponent
-    from .._core._aliases._is_variable import IsVariable
+    from ..core.aliases.is_block import IsDisposition
+    from ..core.aliases.is_component import IsComponent
+    from ..core.aliases.is_variable import IsVariable
 
 
 @dataclass

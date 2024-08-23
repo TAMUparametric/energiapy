@@ -11,8 +11,8 @@ from ._birther import _Birther
 
 
 if TYPE_CHECKING:
-    from ..._core._aliases._is_component import IsLocation
-    from ..._core._aliases._is_input import IsBoundInput, IsExactInput, IsBalInput
+    from ...core.aliases.is_component import IsLocation
+    from ...core.aliases.is_input import IsBoundInput, IsExactInput, IsBalInput
 
 
 @dataclass

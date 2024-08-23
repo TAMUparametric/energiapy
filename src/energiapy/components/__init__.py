@@ -19,7 +19,7 @@ __all__ = [
     'IsBoundInput',
 ]
 # from typing import get_type_hints
-from .._core._aliases._is_input import IsBoundInput, IsExactInput, IsInput
+from ..core.aliases.is_input import IsBoundInput, IsExactInput, IsInput
 from .analytical.player import Player
 from .commodity.cash import Cash
 from .commodity.emission import Emission

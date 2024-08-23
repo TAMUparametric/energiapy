@@ -10,7 +10,7 @@ from ..disposition.bounds import VarBnd
 from ._constraint import _Constraint
 
 if TYPE_CHECKING:
-    from .._core._aliases._is_element import IsParameter, IsVariable
+    from ..core.aliases.is_element import IsParameter, IsVariable
 
 
 @dataclass

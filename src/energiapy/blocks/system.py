@@ -13,10 +13,10 @@ from ..components.operational.transit import Transit
 from ..components.spatial.linkage import Linkage
 from ..components.spatial.location import Location
 from ..components.temporal.scale import Scale
-from ._base._block import _Block
+from ._block import _Block
 
 if TYPE_CHECKING:
-    from .._core._aliases._is_component import (
+    from ..core.aliases.is_component import (
         IsCash,
         IsDefined,
         IsHorizon,

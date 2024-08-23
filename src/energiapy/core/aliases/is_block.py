@@ -7,10 +7,10 @@ from ...blocks.data import Data, DataBlock
 from ...blocks.matrix import Matrix
 from ...blocks.model import Model
 from ...blocks.program import Program, ProgramBlock
-from ...blocks.scenario import Scenario
+from ...model.scenario import Scenario
 from ...blocks.system import System
 from ...disposition.disposition import Disposition
-from ._is_component import IsComponent
+from .is_component import IsComponent
 
 IsDisposition: TypeAlias = Disposition
 IsIndex: TypeAlias = Tuple[IsComponent]

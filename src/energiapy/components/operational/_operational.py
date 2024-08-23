@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING
 
 from pandas import DataFrame
 
-from ..._core._nirop._error import check_attr
+from ...core._nirop._error import check_attr
 from ...utils.scaling import scaling
 from .._base._consistent import (
     _ConsistentBnd,
@@ -21,7 +21,7 @@ from .._base._consistent import (
 from .._base._defined import _Defined
 
 if TYPE_CHECKING:
-    from ..._core._aliases._is_input import IsBoundInput, IsExactInput
+    from ...core.aliases.is_input import IsBoundInput, IsExactInput
 
 
 class _CnstOpn(

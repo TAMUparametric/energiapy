@@ -8,16 +8,16 @@ from typing import TYPE_CHECKING
 
 from sympy import Idx, symbols
 
-from .._core._handy._dunders import _Dunders
+from ..core._handy._dunders import _Dunders
 
 if TYPE_CHECKING:
-    from .._core._aliases._is_component import (IsCash, IsComponent,
+    from ..core.aliases.is_component import (IsCash, IsComponent,
                                                 IsEmission, IsLand, IsLinkage,
                                                 IsLocation, IsMaterial,
                                                 IsNetwork, IsPlayer, IsProcess,
                                                 IsResource, IsScale, IsStorage,
                                                 IsTransit)
-    from .._core._aliases._is_value import IsMode
+    from ..core.aliases.is_value import IsMode
 
 
 @dataclass

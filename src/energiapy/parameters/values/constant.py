@@ -5,11 +5,11 @@ from typing import TYPE_CHECKING
 
 from sympy import IndexedBase
 
-from ..approach import Certainty
+from ..defined.approach import Certainty
 from ._value import _Value
 
 if TYPE_CHECKING:
-    from ..._core._aliases._is_input import IsNumeric
+    from ...core.aliases.is_input import IsNumeric
 
 
 @dataclass

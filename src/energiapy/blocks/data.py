@@ -8,21 +8,21 @@ from typing import TYPE_CHECKING, List
 
 from pandas import DataFrame
 
-from .._core._handy._dunders import _Dunders
+from ..core._handy._dunders import _Dunders
 from ..disposition.bounds import SpcLmt, VarBnd
 from ..parameters.designators.incidental import I
 from ..parameters.values.constant import Constant
 from ..parameters.values.dataset import DataSet
 from ..parameters.values.m import M
 from ..parameters.values.theta import Theta
-from ._base._block import _Block
-from ._base._spttmpinput import _SptTmpInput
+from ._block import _Block
+from ._spttmpinput import _SptTmpInput
 
 if TYPE_CHECKING:
-    from .._core._aliases._is_block import IsDisposition
-    from .._core._aliases._is_component import IsDefined
-    from .._core._aliases._is_input import IsBaseInput
-    from .._core._aliases._is_value import IsSpcLmt, IsValue, IsVarBnd
+    from ..core.aliases.is_block import IsDisposition
+    from ..core.aliases.is_component import IsDefined
+    from ..core.aliases.is_input import IsBaseInput
+    from ..core.aliases.is_value import IsSpcLmt, IsValue, IsVarBnd
 
 
 @dataclass

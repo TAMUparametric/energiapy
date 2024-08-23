@@ -7,12 +7,12 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
-from ..._core._handy._dunders import _Reprs
+from ...core._handy._dunders import _Reprs
 from ...disposition.bounds import SpcLmt, VarBnd
 
 if TYPE_CHECKING:
-    from ..._core._aliases._is_block import IsDisposition
-    from ..._core._aliases._is_value import IsSpcLmt, IsVarBnd
+    from ...core.aliases.is_block import IsDisposition
+    from ...core.aliases.is_value import IsSpcLmt, IsVarBnd
 
 
 @dataclass

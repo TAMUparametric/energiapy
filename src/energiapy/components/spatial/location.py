@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING
 from ._spatial import _Spatial
 
 if TYPE_CHECKING:
-    from ..._core._aliases._is_component import IsLocation
+    from ...core.aliases.is_component import IsLocation
 
 
 @dataclass
