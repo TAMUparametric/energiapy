@@ -17,6 +17,7 @@ from ..components.spatial.location import Location
 from ..components.temporal.scale import Scale
 from ..blocks.data import DataBlock
 from ..blocks.program import ProgramBlock
+from ..core._nirop._error import OverWriteWarning
 
 if TYPE_CHECKING:
     from ..core.aliases.is_component import (

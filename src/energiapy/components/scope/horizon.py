@@ -114,13 +114,30 @@ class Horizon(_Scope, _Scls):
         """List of number of indices"""
         return [len(i) for i in self.scales]
 
+    @property
+    def is_multiscale(self):
+        """Returns True if problem has multiple scales"""
+        # Note that the first scale is always the planning horizon
+        if self.n_scales > 2:
+            return True
+        else:
+            return False
+
+    @property
+    def is_nested(self):
+        """Returns True if problem has nested scales"""
+        if self.nested:
+            return True
+        else:
+            return False
+
     def make_index(self, position: int, nested: bool = True):
         """makes an index for Scale"""
         if nested:
             lists = [list(range(i)) for i in self._discretization_list]
             return list(product(*lists[: position + 1]))
         else:
-            if is_not(self._discretization_list, sorted(self._discretization_list)):
+            if self._discretization_list != sorted(self._discretization_list):
                 raise ValueError('Discretizations need to be in ascending order')
             if not all(
                 is_(imod(max(self._discretization_list), i), 0)
@@ -133,20 +150,6 @@ class Horizon(_Scope, _Scls):
             return lists[
                 :: max(self._discretization_list) // self._discretization_list[position]
             ]
-
-    def is_multiscale(self):
-        """Returns True if problem has multiple scales"""
-        if self.n_scales > 1:
-            return True
-        else:
-            return False
-
-    def is_nested(self):
-        """Returns True if problem has nested scales"""
-        if self.nested:
-            return True
-        else:
-            return False
 
     def match_scale(self, value):
         """Returns the scale that matches the length"""
