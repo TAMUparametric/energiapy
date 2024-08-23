@@ -1,13 +1,18 @@
 """Horizon is the planning period of the problem
 """
 
+from __future__ import annotations
+
 from dataclasses import dataclass, field
 from itertools import product
-from operator import imod, is_, is_not
-from typing import List
-
+from operator import imod, is_
+from typing import List, TYPE_CHECKING
+from ...core.nirop.errors import NoScaleMatchError
 from ...core._handy._collections import _Scls
 from .._base._scope import _Scope
+
+if TYPE_CHECKING:
+    from ...core.aliases.is_component import IsComponent
 
 
 @dataclass
@@ -151,13 +156,18 @@ class Horizon(_Scope, _Scls):
                 :: max(self._discretization_list) // self._discretization_list[position]
             ]
 
-    def match_scale(self, value):
-        """Returns the scale that matches the length"""
+    def match_scale(self, value, component: IsComponent = None, attr: str = None):
+        """Returns the scale that matches the length
+
+        Args:
+            value: data value to match
+            component: Component
+            attr: attribute to match
+
+        """
         if hasattr(value, '__len__'):
             if len(value) not in self.n_indices:
-                raise ValueError(
-                    f'Length of value {len(value)} does not match any scale',
-                )
+                raise NoScaleMatchError(value, component, attr)
             return self.scales[self.n_indices.index(len(value))]
         else:
             return self.scales[0]

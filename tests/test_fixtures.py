@@ -5,6 +5,7 @@ import pytest
 
 from src.energiapy.model.scenario import Scenario
 from src.energiapy.components.scope.horizon import Horizon
+from src.energiapy.components.scope.network import Network
 
 
 @pytest.fixture
@@ -17,6 +18,24 @@ def scenario_bare():
 def scenario_def():
     """Scenario with all default components"""
     return Scenario(default=True)
+
+
+@pytest.fixture
+def scenario_ok():
+    """Chill Scenario"""
+    s = Scenario()
+    s.h = Horizon(discretizations=[4])
+    s.n = Network()
+    return s
+
+
+@pytest.fixture
+def scenario_notok():
+    """Unchill Scenario"""
+    s = Scenario(chill=False)
+    s.h = Horizon(discretizations=[4])
+    s.n = Network()
+    return s
 
 
 @pytest.fixture

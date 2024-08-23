@@ -21,7 +21,7 @@ class _Defined(_Component, _Vlus, _Elms, _Print):
         label (str): label of the component
     """
 
-    basis: str = field(default='unit')
+    basis: str = field(default=None)
     citation: dict = field(default=None)
     block: str = field(default=None)
     introduce: str = field(default=None)

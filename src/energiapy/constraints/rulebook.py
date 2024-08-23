@@ -8,7 +8,7 @@ from operator import is_
 from typing import TYPE_CHECKING, Dict, List
 
 from ..core._handy._dunders import _Dunders
-from ..core._nirop._error import CacodcarError
+from ..core.nirop.errors import CacodcarError
 from ..constraints.bind import Bind
 from ..constraints.calculate import Calculate
 from ..parameters.defined.bound import (

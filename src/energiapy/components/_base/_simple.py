@@ -3,7 +3,7 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 
-from ...core._nirop._error import check_attr
+from ...core.nirop.errors import check_attr
 from ._consistent import _ConsistentBnd
 from ._defined import _Defined
 
@@ -31,15 +31,20 @@ class _Simple(_Defined, _ConsistentBnd, ABC):
         """Attrs"""
         return cls.bounds()
 
-    def make_consistent(self):
-        """Makes the data inputs consistent IsSptTmpDict"""
+    def make_consistent(self, ok_inconsistent: bool):
+        """Makes the data inputs consistent IsSptTmpDict
+
+        Args:
+            ok_inconsistent (bool): Fix Dispositions, with warnings.
+
+        """
         for attr in self.inputs():
 
             check_attr(component=self, attr=attr)
 
             if getattr(self, attr) is not None:
                 if attr in self.bounds():
-                    self.make_bounds_consistent(attr)
+                    self.make_bounds_consistent(attr, ok_inconsistent)
 
         # update flag, the inputs have been made consistent
         self._consistent = True

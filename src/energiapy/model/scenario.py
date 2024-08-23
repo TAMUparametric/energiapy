@@ -93,10 +93,10 @@ class Scenario(_Ok, _Default, _Update, _ScnCols, _Dunders, _Print):
         def_cash (bool): create default (Cash) Components. Default is False
         def_land (bool): create default (Land) Components. Default is False
         default (bool): create default Components of all the above. Default is False
-        ok_overwrite (bool): Allow overwriting of Components. Default is False
-        ok_nobasis (bool): Allow Components without basis. Default is False
-        ok_nolabel (bool): Allow Components without label. Default is False
-        chill (bool): Allow all the above. Default is True
+        ok_overwrite (bool): Allow overwriting of Components. Default is True
+        ok_nobasis (bool): Allow Components without basis. Default is True
+        ok_nolabel (bool): Allow Components without label. Default is True
+        chill (bool): If False, disallow all the above. Default is True
 
     Examples:
 

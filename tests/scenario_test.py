@@ -3,21 +3,28 @@
 
 import pytest
 
-from .test_fixtures import scenario_bare, scenario_def
+from .test_fixtures import scenario_bare, scenario_def, scenario_notok
 
 
-def test_scenario_model_blocks(scenario_bare, scenario_def):
+def test_scenario_model_blocks(scenario_bare, scenario_def, scenario_notok):
     """Model blocks should be initialized"""
     assert hasattr(scenario_bare, 'model') is True
     assert hasattr(scenario_bare.model, 'system') is True
     assert hasattr(scenario_bare.model, 'data') is True
     assert hasattr(scenario_bare.model, 'matrix') is True
     assert hasattr(scenario_bare.model, 'program') is True
+    # With defaults
     assert hasattr(scenario_def, 'model') is True
     assert hasattr(scenario_def.model, 'system') is True
     assert hasattr(scenario_def.model, 'data') is True
     assert hasattr(scenario_def.model, 'matrix') is True
     assert hasattr(scenario_def.model, 'program') is True
+    # Unchill Scenario
+    assert hasattr(scenario_notok, 'model') is True
+    assert hasattr(scenario_notok.model, 'system') is True
+    assert hasattr(scenario_notok.model, 'data') is True
+    assert hasattr(scenario_notok.model, 'matrix') is True
+    assert hasattr(scenario_notok.model, 'program') is True
 
 
 def test_scenario_bare_defaults(scenario_bare):
@@ -30,6 +37,7 @@ def test_scenario_bare_defaults(scenario_bare):
     assert scenario_bare.ok_overwrite is True
     assert scenario_bare.ok_nobasis is True
     assert scenario_bare.ok_nolabel is True
+    assert scenario_bare.ok_inconsistent is True
     assert scenario_bare.chill is True
     assert scenario_bare.m is None
     # These come from System Block
@@ -92,10 +100,6 @@ def test_scenario_def_defaults(scenario_def):
     assert scenario_def.def_cash is True
     assert scenario_def.def_land is True
     assert scenario_def.default is True
-    assert scenario_def.ok_overwrite is True
-    assert scenario_def.ok_nobasis is True
-    assert scenario_def.ok_nolabel is True
-    assert scenario_def.chill is True
     assert scenario_def.m is None
     # These come from System Block
     assert [i.name for i in scenario_def.players] == [
@@ -165,3 +169,12 @@ def test_scenario_def_defaults(scenario_def):
     # These are defuault scopes
     assert scenario_def.horizon.name == 'hrz_def'
     assert scenario_def.network.name == 'ntw_def'
+
+
+def test_scenario_notok(scenario_notok):
+    """Unchill Scenario enforces stuff strictly"""
+    assert scenario_notok.ok_overwrite is False
+    assert scenario_notok.ok_nobasis is False
+    assert scenario_notok.ok_nolabel is False
+    assert scenario_notok.ok_inconsistent is False
+    assert scenario_notok.chill is False

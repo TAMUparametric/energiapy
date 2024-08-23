@@ -16,12 +16,15 @@ from operator import is_, is_not
 from typing import TYPE_CHECKING
 from warnings import warn
 
+
 from pandas import DataFrame
 
 from ...parameters.designators.mode import X
 from ..scope.network import Network
 from ..spatial._spatial import _Spatial
 from ..temporal.scale import Scale
+from ...core.nirop.warnings import InconsistencyWarning
+from ...core.nirop.errors import InconsistencyError
 
 if TYPE_CHECKING:
     from ...core.aliases.is_input import IsInput, IsSptTmpInput
@@ -163,7 +166,7 @@ class _Consistent(ABC):
 
         return value_upd
 
-    def fix_scale(self, value: IsInput, attr: str) -> dict:
+    def fix_scale(self, value: IsInput, attr: str, ok_inconsistent: bool) -> dict:
         """checks whether a dataframe is given.
         if df, then sets to a matching scale or gives warning
         if not df, sets to parent scale
@@ -171,6 +174,7 @@ class _Consistent(ABC):
         Args:
             value (IsInput): any Input
             attr (str): attr for which input is being passed
+            fix_bool (bool): whether to fix dispositions or just warn.
 
         Returns:
             dict: Always {Spatial: {Temporal: {Mode: value}}} but with Temporal reflecting the True disposition
@@ -182,13 +186,22 @@ class _Consistent(ABC):
                 for x, val in x_val.items():
                     # if value is a DataFrame, check if the scale is consistent
                     if isinstance(val, DataFrame):
-                        scale_upd = self.system.horizon.match_scale(val)
+                        scale_upd = self.system.horizon.match_scale(val, self, attr)
                         if is_not(scale_upd, tmp):
                             # if not consistent
                             if is_not(tmp, 't'):
-                                warn(
-                                    f'{self}.{attr}:Inconsistent temporal scale for {spt} at {tmp}. Updating to {scale_upd}',
-                                )
+
+                                if ok_inconsistent:
+                                    warn(
+                                        InconsistencyWarning(
+                                            self, attr, spt, tmp, scale_upd
+                                        )
+                                    )
+                                else:
+                                    raise InconsistencyError(
+                                        self, attr, spt, tmp, scale_upd
+                                    )
+
                             # update the scale
                             value_upd[spt][scale_upd] = x_val
                             # delete the old entry
@@ -227,14 +240,16 @@ class _Consistent(ABC):
 
         return value_upd
 
-    def fix_bound_scales(self, value: IsInput, attr: str) -> dict:
+    def fix_bound_scales(
+        self, value: IsInput, attr: str, ok_inconsistent: bool
+    ) -> dict:
         """checks whether some inputs are bounds
         if bounds, sets to the lowest matching scale
 
         Args:
             value (IsInput): any Input
             attr (str): attr for which input is being passed
-
+            fix_bool (bool): whether to fix dispositions or just warn.
         Returns:
             dict: Always {Spatial: {Temporal: {Mode: value}}}, this however checks lists [LB, UB]
         """
@@ -249,17 +264,27 @@ class _Consistent(ABC):
                         # if DataFrame and numeric, bring DataFrame to front
                         # determine the longer scale
                         scale_upd = sorted(
-                            [self.system.horizon.match_scale(m) for m in val],
+                            [
+                                self.system.horizon.match_scale(m, self, attr)
+                                for m in val
+                            ],
                         )[-1]
 
                         if is_not(scale_upd, tmp) and not all(
                             isinstance(m, (float, int, str)) for m in val
                         ):
-
                             # only update the scale if there is a mix of DataFrame and Numeric or str (small M)
-                            warn(
-                                f'{self}.{attr}:Inconsistent temporal scale for {spt} at {tmp}. Updating to {scale_upd}',
-                            )
+                            if ok_inconsistent:
+                                warn(
+                                    InconsistencyWarning(
+                                        self, attr, spt, tmp, scale_upd
+                                    )
+                                )
+                            else:
+                                raise InconsistencyError(
+                                    self, attr, spt, tmp, scale_upd
+                                )
+
                             value_upd[spt][scale_upd] = x_val
                             del value_upd[spt][tmp]
                         else:
@@ -293,78 +318,119 @@ class _Consistent(ABC):
 
         return value_upd
 
-    def make_spttmpdict(self, value: IsInput, attr: str) -> IsSptTmpInput:
+    def make_spttmpdict(
+        self, value: IsInput, attr: str, ok_inconsistent: bool
+    ) -> IsSptTmpInput:
         """Uses all the above functions to make a consistent input
 
         Args:
             value (IsInput): any Input
             attr (str): attr for which input is being passed
-
+            fix_bool (bool): whether to fix dispositions or just warn.
         Returns:
             IsSptTmpInput: {Spatial: {Temporal: {Mode: value}}} Always!!
         """
         value = self.make_spatial(value, attr)
         value = self.make_temporal(value)
         value = self.make_modes(value, attr)
-        value = self.fix_scale(value, attr)
+        value = self.fix_scale(value, attr, ok_inconsistent)
         value = self.fix_true(value)
-        value = self.fix_bound_scales(value, attr)
+        value = self.fix_bound_scales(value, attr, ok_inconsistent)
         value = self.clean_up(value)
 
         return value
 
 
 class _ConsistentBnd(_Consistent):
-    def make_bounds_consistent(self, attr: str):
-        """Makes the input of bounds attributes consistent"""
+    def make_bounds_consistent(self, attr: str, ok_inconsistent: bool):
+        """Makes the input of bounds attributes consistent
+
+        Args:
+            attr (str): attribute for which input is being passed
+            ok_inconsistent (bool): whether to fix dispositions or just warn.
+        """
         # For bounds, if True (Big M) is given, it is converted to a list
         # i.e. it is set to be the upperbound
-        setattr(self, attr, self.make_spttmpdict(getattr(self, attr), attr))
+        setattr(
+            self, attr, self.make_spttmpdict(getattr(self, attr), attr, ok_inconsistent)
+        )
 
 
 class _ConsistentCsh(_Consistent):
-    def make_csh_consistent(self, attr: str):
-        """Makes the input of cash attributes consistent"""
+    def make_csh_consistent(self, attr: str, ok_inconsistent: bool):
+        """Makes the input of cash attributes consistent
+
+        Args:
+            attr (str): attribute for which input is being passed
+            ok_inconsistent (bool): whether to fix dispositions or just warn.
+
+        """
         # adds cash as the main key
         setattr(
             self,
             attr,
-            {self.system.cash: self.make_spttmpdict(getattr(self, attr), attr)},
+            {
+                self.system.cash: self.make_spttmpdict(
+                    getattr(self, attr), attr, ok_inconsistent
+                )
+            },
         )
 
 
 class _ConsistentLnd(_Consistent):
-    def make_lnd_consistent(self, attr: str):
-        """Makes the input of land attributes consistent"""
+    def make_lnd_consistent(self, attr: str, ok_inconsistent: bool):
+        """Makes the input of land attributes consistent
+
+        Args:
+            attr (str): attribute for which input is being passed
+            ok_inconsistent (bool): whether to fix dispositions or just warn.
+        """
         # adds land as the main key
 
         setattr(
             self,
             attr,
-            {self.system.land: self.make_spttmpdict(getattr(self, attr), attr)},
+            {
+                self.system.land: self.make_spttmpdict(
+                    getattr(self, attr), attr, ok_inconsistent
+                )
+            },
         )
 
 
 class _ConsistentNstd(_Consistent):
-    def make_nstd_consistent(self, attr: str):
-        """Makes the input of nested attributes consistent"""
+    def make_nstd_consistent(self, attr: str, ok_inconsistent: bool):
+        """Makes the input of nested attributes consistent
+
+        Args:
+            attr (str): attribute for which input is being passed
+            ok_inconsistent (bool): whether to fix dispositions or just warn.
+        """
         # for inputs with multiple components, such as use and emission
         setattr(
             self,
             attr,
-            {i: self.make_spttmpdict(j, attr) for i, j in getattr(self, attr).items()},
+            {
+                i: self.make_spttmpdict(j, attr, ok_inconsistent)
+                for i, j in getattr(self, attr).items()
+            },
         )
 
 
 class _ConsistentNstdCsh(_Consistent):
-    def make_nstd_csh_consistent(self, attr: str):
-        """Makes the input of nested cash attributes consistent"""
+    def make_nstd_csh_consistent(self, attr: str, ok_inconsistent: bool):
+        """Makes the input of nested cash attributes consistent
+
+        Args:
+            attr (str): attribute for which input is being passed
+            ok_inconsistent (bool): whether to fix dispositions or just warn.
+        """
         # for expense inputs, where cash needs to be added to different components
         setattr(
             self,
             attr,
             {
-                i: {self.system.cash: self.make_spttmpdict(j, attr)}
+                i: {self.system.cash: self.make_spttmpdict(j, attr, ok_inconsistent)}
                 for i, j in getattr(self, attr).items()
             },
         )

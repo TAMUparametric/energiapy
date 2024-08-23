@@ -8,7 +8,6 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from operator import is_not
 from typing import TYPE_CHECKING
-from warnings import warn
 
 from ..components.operational.process import Process
 from ..components.scope.horizon import Horizon
@@ -17,7 +16,6 @@ from ..components.spatial.location import Location
 from ..components.temporal.scale import Scale
 from ..blocks.data import DataBlock
 from ..blocks.program import ProgramBlock
-from ..core._nirop._error import OverWriteWarning
 
 if TYPE_CHECKING:
     from ..core.aliases.is_component import (
@@ -81,13 +79,6 @@ class _Update(ABC):
             if hasattr(self.data, cmp.name):
                 delattr(self.data, cmp.name)
 
-            warn(
-                f'\nA {cmp} object was already defined.\n'
-                'Overwriting.\n'
-                'This should not cause any modeling issues.\n'
-                'Check Scenario defaults if unintended.\n'
-            )
-
     def locate_commodities(self, operation: IsOperational):
         """Locates Commodities based on their participation in Operations
 
@@ -135,7 +126,7 @@ class _Update(ABC):
         # Value can be numeric, DataFrame, True
         # or a tuple of numeric or DataFrame
         # or a list or numeric, DataFrame, True, or a tuple of numeric or DataFrame
-        component.make_consistent()
+        component.make_consistent(getattr(self, 'ok_inconsistent'))
 
         # make Small Blocks to be added to the larger Model Blocks
         # where all the data values go

@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING
 
 from pandas import DataFrame
 
-from ...core._nirop._error import check_attr
+from ...core.nirop.errors import check_attr
 from ...utils.scaling import scaling
 from .._base._consistent import (
     _ConsistentBnd,
@@ -193,7 +193,7 @@ class _Operational(_Defined, _CnstOpn, ABC):
         if not value:
             setattr(self, spatials, getattr(self._model.system, spatials))
 
-    def make_consistent(self):
+    def make_consistent(self, ok_inconsistent: bool):
         """Makes the data inputs consistent IsSptTmpDict"""
         for attr in self.inputs():
 
@@ -202,20 +202,19 @@ class _Operational(_Defined, _CnstOpn, ABC):
             if getattr(self, attr) is not None:
 
                 if attr in self.bounds():
-                    self.make_bounds_consistent(attr)
+                    self.make_bounds_consistent(attr, ok_inconsistent)
 
                 if attr in self._csh_inputs():
-                    self.make_csh_consistent(attr)
+                    self.make_csh_consistent(attr, ok_inconsistent)
 
                 if attr in self._lnd_input():
-                    self.make_lnd_consistent(attr)
+                    self.make_lnd_consistent(attr, ok_inconsistent)
 
                 if attr in self._nstd_inputs():
-                    self.make_nstd_consistent(attr)
+                    self.make_nstd_consistent(attr, ok_inconsistent)
 
                 if attr in self._nstd_csh_inputs():
-                    self.make_nstd_csh_consistent(attr)
+                    self.make_nstd_csh_consistent(attr, ok_inconsistent)
 
         # update flag, the inputs have been made consistent
         self._consistent = True
-

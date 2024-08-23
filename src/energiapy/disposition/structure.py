@@ -6,7 +6,7 @@ from collections import OrderedDict
 from itertools import product
 from typing import List, Union
 
-from ..core._nirop._error import CacodcarError
+from ..core.nirop.errors import CacodcarError
 
 
 def make_structures(

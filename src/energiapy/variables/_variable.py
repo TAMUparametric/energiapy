@@ -8,7 +8,7 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, List, Tuple
 
 from ..core._handy._dunders import _Dunders
-from ..core._nirop._error import CacodcarError
+from ..core.nirop.errors import CacodcarError
 
 if TYPE_CHECKING:
     from sympy import IndexedBase

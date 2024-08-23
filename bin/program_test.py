@@ -3,7 +3,7 @@
 
 import pytest
 
-from .test_fixtures import scenario_bare, scenario_def
+from ..tests.test_fixtures import scenario_bare, scenario_def
 
 
 def test_scenario_bare_program(scenario_bare, scenario_def):
