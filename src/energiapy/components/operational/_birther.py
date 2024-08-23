@@ -1,8 +1,9 @@
 """Operational Components that give birth to Processes
 """
 
-from dataclasses import dataclass
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
+
 from ._operational import _Operational
 
 
@@ -15,6 +16,12 @@ class _Birther(_Operational, ABC):
     """
 
     def __post_init__(self):
+        # flag to check whether proceses have been birthed
+        # important to know what capacity Transit should pass on
+        # basically, conversion_in and conversion_out
+        # The processes inherit the original capacities
+        # (before they are made into SpatioTemporal Dicts)
+        self._birthed = False
         _Operational.__post_init__(self)
 
     @property

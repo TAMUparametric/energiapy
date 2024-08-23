@@ -5,7 +5,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from warnings import warn
 
-from ..core.nirop.errors import OverWriteError, NoBasisError, NoLabelError
+from ..core.nirop.errors import NoBasisError, NoLabelError, OverWriteError
 from ..core.nirop.warnings import OverWriteWarning
 
 

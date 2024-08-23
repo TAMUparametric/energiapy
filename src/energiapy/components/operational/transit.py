@@ -5,12 +5,13 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, List
-from ._birther import _Birther
+
 from ...parameters.balances.freight import Freight
+from ._birther import _Birther
 
 if TYPE_CHECKING:
     from ...core.aliases.is_component import IsLinkage, IsResource
-    from ...core.aliases.is_input import IsBoundInput, IsExactInput, IsBalInput
+    from ...core.aliases.is_input import IsBalInput, IsBoundInput, IsExactInput
 
 
 @dataclass
@@ -53,7 +54,6 @@ class Transit(_Birther):
     speed: IsExactInput = field(default=None)
 
     def __post_init__(self):
-
         # ship is a resourcebnd input
         # so it needs to be a dictionary with Resource as key
         # if not provided, use base Resource
@@ -106,12 +106,24 @@ class Transit(_Birther):
     @property
     def capacity_in(self):
         """Capacity of the Loading Process"""
-        return self.capacity
+        # Returns og input if birthing is not done
+        # This is because the birthed Process capacity
+        # needs to be set
+        if self._birthed:
+            return self.capacity
+        else:
+            return self.capacity.og_input
 
     @property
     def capacity_out(self):
         """Capacity of the Unloading Process"""
-        return self.capacity
+        # Returns og input if birthing is not done
+        # This is because the birthed Process capacity
+        # needs to be set
+        if self._birthed:
+            return self.capacity
+        else:
+            return self.capacity.og_input
 
     def freightize(self):
         """Makes the freight"""

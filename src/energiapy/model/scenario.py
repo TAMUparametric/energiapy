@@ -34,6 +34,19 @@
 
 from dataclasses import dataclass, field
 
+from ..blocks.model import Model
+from ..components._base._component import _Component
+from ..components._base._defined import _Defined
+from ..components.commodity.cash import Cash
+from ..components.commodity.land import Land
+from ..components.commodity.resource import ResourceStg, ResourceTrn
+from ..components.operational._operational import _Operational
+from ..components.operational.process import Process
+from ..components.operational.storage import Storage
+from ..components.operational.transit import Transit
+from ..components.scope.horizon import Horizon
+from ..components.scope.network import Network
+from ..components.spatial.linkage import Linkage
 from ..core._handy._collections import (
     _Alys,
     _Cmds,
@@ -47,22 +60,10 @@ from ..core._handy._collections import (
 )
 from ..core._handy._dunders import _Dunders
 from ..core._handy._printers import _Print
-from ..components._base._component import _Component
-from ..components._base._defined import _Defined
-from ..components.commodity.cash import Cash
-from ..components.commodity.land import Land
-from ..components.commodity.resource import ResourceStg, ResourceTrn
-from ..components.operational._operational import _Operational
-from ..components.operational.process import Process
-from ..components.operational.storage import Storage
-from ..components.operational.transit import Transit
-from ..components.scope.horizon import Horizon
-from ..components.scope.network import Network
-from ..components.spatial.linkage import Linkage
 from ._default import _Default
 from ._ok import _Ok
+from ._birth import _Birth
 from ._update import _Update
-from ..blocks.model import Model
 
 
 class _ScnCols(_Alys, _Imps, _Cmds, _Opns, _Spts, _Scls, _Scps, _Elms, _Vlus):
@@ -70,7 +71,7 @@ class _ScnCols(_Alys, _Imps, _Cmds, _Opns, _Spts, _Scls, _Scps, _Elms, _Vlus):
 
 
 @dataclass
-class Scenario(_Ok, _Default, _Update, _ScnCols, _Dunders, _Print):
+class Scenario(_Ok, _Default, _Birth, _Update, _ScnCols, _Dunders, _Print):
     """
     A scenario for a considered system. It collects all the components of the model.
 

@@ -11,13 +11,9 @@ from pandas import DataFrame
 
 from ...core.nirop.errors import check_attr
 from ...utils.scaling import scaling
-from .._base._consistent import (
-    _ConsistentBnd,
-    _ConsistentCsh,
-    _ConsistentLnd,
-    _ConsistentNstd,
-    _ConsistentNstdCsh,
-)
+from .._base._consistent import (_ConsistentBnd, _ConsistentCsh,
+                                 _ConsistentLnd, _ConsistentNstd,
+                                 _ConsistentNstdCsh)
 from .._base._defined import _Defined
 
 if TYPE_CHECKING:
@@ -157,7 +153,7 @@ class _Operational(_Defined, _CnstOpn, ABC):
     def materials(self):
         """Materials used in the Operation"""
         if self.material:
-            return [i.disposition.mat for i in self.material]
+            return [i.disposition.mat for i in self.material.dict_input.values()]
         else:
             return []
 
@@ -165,7 +161,7 @@ class _Operational(_Defined, _CnstOpn, ABC):
     def emissions(self):
         """Emissions from the Operation"""
         if self.emission:
-            return [i.disposition.emn for i in self.emission]
+            return [i.disposition.emn for i in self.emission.dict_input.values()]
         else:
             return []
 

@@ -16,7 +16,7 @@ from ..parameters.values.dataset import DataSet
 from ..parameters.values.m import M
 from ..parameters.values.theta import Theta
 from ._block import _Block
-from ._spttmpinput import _SptTmpInput
+from .spttmpinput import SptTmpInp
 
 if TYPE_CHECKING:
     from ..core.aliases.is_block import IsDisposition
@@ -47,17 +47,20 @@ class DataBlock(_Dunders):
 
     def __post_init__(self):
         self.name = f'Data|{self.component}|'
+        # this will have the attributes of the components as keys
+        # will be set back into the component
+        self.spttmpinp = {}
 
     def __setattr__(self, name, value):
 
         spclmts = [SpcLmt.START, SpcLmt.END]
         varbnds = [VarBnd.LB, VarBnd.UB]
 
-        if isinstance(value, dict):
+        if isinstance(value, dict) and not name == 'spttmpinp':
             # _Spt holds the data in a particular format
             # {Disposition: value}. The disposition is made there
             # This is only temporary and the user eventually sees a list of parameters
-            spttmpinput = _SptTmpInput(name, value)
+            spttmpinput = SptTmpInp(name, value)
             for disposition, datapoint in spttmpinput.dict_input.items():
                 if isinstance(datapoint, list):
                     if len(datapoint) == 1 or datapoint is True:
@@ -99,9 +102,11 @@ class DataBlock(_Dunders):
 
                 # Now update the value with an internal value type
                 spttmpinput.dict_input[disposition] = datapoint
-
             # Sort the values by length
             value = sorted(spttmpinput.dict_input.values(), key=len)
+
+            self.spttmpinp[name] = spttmpinput
+
         super().__setattr__(name, value)
 
     @property

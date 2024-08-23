@@ -9,10 +9,9 @@ from typing import TYPE_CHECKING, List
 from ...parameters.balances.inventory import Inventory
 from ._birther import _Birther
 
-
 if TYPE_CHECKING:
     from ...core.aliases.is_component import IsLocation
-    from ...core.aliases.is_input import IsBoundInput, IsExactInput, IsBalInput
+    from ...core.aliases.is_input import IsBalInput, IsBoundInput, IsExactInput
 
 
 @dataclass

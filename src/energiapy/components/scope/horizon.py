@@ -6,9 +6,10 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from itertools import product
 from operator import imod, is_
-from typing import List, TYPE_CHECKING
-from ...core.nirop.errors import NoScaleMatchError
+from typing import TYPE_CHECKING, List
+
 from ...core._handy._collections import _Scls
+from ...core.nirop.errors import NoScaleMatchError
 from .._base._scope import _Scope
 
 if TYPE_CHECKING:

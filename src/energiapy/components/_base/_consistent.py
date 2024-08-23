@@ -16,18 +16,17 @@ from operator import is_, is_not
 from typing import TYPE_CHECKING
 from warnings import warn
 
-
 from pandas import DataFrame
 
+from ...core.nirop.errors import InconsistencyError
+from ...core.nirop.warnings import InconsistencyWarning
 from ...parameters.designators.mode import X
 from ..scope.network import Network
 from ..spatial._spatial import _Spatial
 from ..temporal.scale import Scale
-from ...core.nirop.warnings import InconsistencyWarning
-from ...core.nirop.errors import InconsistencyError
 
 if TYPE_CHECKING:
-    from ...core.aliases.is_input import IsInput, IsSptTmpInput
+    from ...core.aliases.is_input import IsInput, IsSptTmpInp
 
 
 class _Consistent(ABC):
@@ -320,7 +319,7 @@ class _Consistent(ABC):
 
     def make_spttmpdict(
         self, value: IsInput, attr: str, ok_inconsistent: bool
-    ) -> IsSptTmpInput:
+    ) -> IsSptTmpInp:
         """Uses all the above functions to make a consistent input
 
         Args:
@@ -328,7 +327,7 @@ class _Consistent(ABC):
             attr (str): attr for which input is being passed
             fix_bool (bool): whether to fix dispositions or just warn.
         Returns:
-            IsSptTmpInput: {Spatial: {Temporal: {Mode: value}}} Always!!
+            IsSptTmpInp: {Spatial: {Temporal: {Mode: value}}} Always!!
         """
         value = self.make_spatial(value, attr)
         value = self.make_temporal(value)

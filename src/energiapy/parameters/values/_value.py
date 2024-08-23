@@ -50,7 +50,7 @@ class _Value(ABC, _Reprs):
         # Constant - int, float
         # M - 'M' or 'm'
         if isinstance(self.value, (int, float, str)):
-            self.name = str(self.id)
+            self.name = str(self.id[self.disposition.sym])
         else:
             self.name = str(self.sym)
 

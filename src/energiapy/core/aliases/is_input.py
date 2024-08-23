@@ -47,9 +47,9 @@ IsSptInput: TypeAlias = Union[IsSptExact, IsSptBound]
 IsSptTmpExact: TypeAlias = Dict[IsSpatial, IsTmpExact]
 IsSptTmpBound: TypeAlias = Dict[IsSpatial, IsTmpBound]
 
-IsSptTmpInput: TypeAlias = Union[IsSptTmpExact, IsSptTmpBound]
+IsSptTmpInp: TypeAlias = Union[IsSptTmpExact, IsSptTmpBound]
 
-IsSptTmpInput: TypeAlias = Union[Dict[IsMode, IsSptTmpInput], IsSptTmpInput]
+IsSptTmpInp: TypeAlias = Union[Dict[IsMode, IsSptTmpInp], IsSptTmpInp]
 
 
 # attribute inputs
@@ -59,7 +59,7 @@ IsBoundInput: TypeAlias = Union[IsBound, IsTmpBound, IsSptBound, IsSptTmpBound]
 
 IsInput: TypeAlias = Union[IsExactInput, IsBoundInput]
 
-IsInputDict: TypeAlias = Union[IsComponent, IsSptInput, IsSptTmpInput]
+IsInputDict: TypeAlias = Union[IsComponent, IsSptInput, IsSptTmpInp]
 
 IsSingleConvInput: TypeAlias = Dict[IsResource, Dict[IsResource, IsNumeric]]
 

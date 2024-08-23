@@ -7,58 +7,27 @@ from dataclasses import dataclass, field
 from operator import is_
 from typing import TYPE_CHECKING, Dict, List
 
-from ..core._handy._dunders import _Dunders
-from ..core.nirop.errors import CacodcarError
 from ..constraints.bind import Bind
 from ..constraints.calculate import Calculate
-from ..parameters.defined.bound import (
-    BuyBnd,
-    CapBnd,
-    EarnBnd,
-    OpBnd,
-    SellBnd,
-    ShipBnd,
-    SpendBnd,
-    UseBnd,
-)
-from ..parameters.defined.use import LndUse, MatUse
+from ..core._handy._dunders import _Dunders
+from ..core.nirop.errors import CacodcarError
+from ..parameters.defined.bound import (BuyBnd, CapBnd, EarnBnd, OpBnd,
+                                        SellBnd, ShipBnd, SpendBnd, UseBnd)
+from ..parameters.defined.emission import (CmdEmitUse, EmitBnd, OpnEmit,
+                                           ResEmitBuy, ResEmitLoss,
+                                           ResEmitSell)
+from ..parameters.defined.expense import (BuyPrice, CapExp, CapExpI, OpExp,
+                                          OpExpI, ResCredit, ResPenalty,
+                                          SellPrice, UseExp)
 from ..parameters.defined.loss import ResLoss
-from ..parameters.defined.emission import (
-    CmdEmitUse,
-    EmitBnd,
-    OpnEmit,
-    ResEmitBuy,
-    ResEmitLoss,
-    ResEmitSell,
-)
-from ..parameters.defined.expense import (
-    BuyPrice,
-    CapExp,
-    CapExpI,
-    OpExp,
-    OpExpI,
-    ResCredit,
-    ResPenalty,
-    SellPrice,
-    UseExp,
-)
 from ..parameters.defined.ownership import Has, Needs
+from ..parameters.defined.use import LndUse, MatUse
 from ..variables.action import Gives, Takes
 from ..variables.capacitate import Capacity
-from ..variables.emit import EmitBuy, EmitCap, EmitLoss, EmitSell, EmitSys, EmitUse
-from ..variables.expense import (
-    Credit,
-    Earn,
-    ExpBuy,
-    ExpCap,
-    ExpCapI,
-    ExpOp,
-    ExpOpI,
-    ExpSell,
-    ExpUse,
-    Penalty,
-    Spend,
-)
+from ..variables.emit import (EmitBuy, EmitCap, EmitLoss, EmitSell, EmitSys,
+                              EmitUse)
+from ..variables.expense import (Credit, Earn, ExpBuy, ExpCap, ExpCapI, ExpOp,
+                                 ExpOpI, ExpSell, ExpUse, Penalty, Spend)
 from ..variables.loss import Loss
 from ..variables.operate import Operate
 from ..variables.trade import Buy, Sell, Ship

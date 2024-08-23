@@ -11,12 +11,11 @@ from sympy import Idx, symbols
 from ..core._handy._dunders import _Dunders
 
 if TYPE_CHECKING:
-    from ..core.aliases.is_component import (IsCash, IsComponent,
-                                                IsEmission, IsLand, IsLinkage,
-                                                IsLocation, IsMaterial,
-                                                IsNetwork, IsPlayer, IsProcess,
-                                                IsResource, IsScale, IsStorage,
-                                                IsTransit)
+    from ..core.aliases.is_component import (IsCash, IsComponent, IsEmission,
+                                             IsLand, IsLinkage, IsLocation,
+                                             IsMaterial, IsNetwork, IsPlayer,
+                                             IsProcess, IsResource, IsScale,
+                                             IsStorage, IsTransit)
     from ..core.aliases.is_value import IsMode
 
 

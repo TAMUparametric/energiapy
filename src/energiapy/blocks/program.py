@@ -6,10 +6,10 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
-from ..core._handy._dunders import _Dunders
-from ..core._handy._printers import _Print
 from ..constraints.rulebook import rulebook
 from ..constraints.taskmaster import taskmaster
+from ..core._handy._dunders import _Dunders
+from ..core._handy._printers import _Print
 from ..disposition.disposition import Disposition
 from ._block import _Block
 from .data import DataBlock

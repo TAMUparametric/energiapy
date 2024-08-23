@@ -39,3 +39,5 @@ def test_mismatch(scenario_ok, scenario_notok):
         scenario_ok.c0 = Cash(spend=wrong_length)
     with pytest.raises(NoScaleMatchError):
         scenario_notok.c1 = Cash(spend=wrong_length, basis='basis', label='label')
+
+

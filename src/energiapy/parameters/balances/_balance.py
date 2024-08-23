@@ -1,8 +1,9 @@
 """Balance for Storage Inventory and Transit Freight 
 """
 
-from dataclasses import dataclass
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
+
 from ...core._handy._dunders import _Reprs
 from ..designators.mode import X
 
