@@ -20,13 +20,17 @@ def scenario_def():
 
 
 @pytest.fixture
-def singlescale_horizon():
+def singlescale_horizon(scenario_bare):
     """Single scale with 4 discertizations"""
-    return Horizon(discretizations=[4])
+
+    scenario_bare.h = Horizon(discretizations=[4])
+    return scenario_bare.horizon
 
 
 @pytest.fixture
-def multiscale_horizon():
+def multiscale_horizon(scenario_bare):
     """Multiscale Horizon with 2 and 4 discertizations"""
-    return Horizon(discretizations=[2, 4])
+    scenario_bare.h = Horizon(discretizations=[2, 4])
+    return scenario_bare.horizon
+
 
