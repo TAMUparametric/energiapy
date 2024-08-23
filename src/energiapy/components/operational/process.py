@@ -6,13 +6,12 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, List
 
-from ...parameters.balance.conversion import Conversion
+from ...parameters.balances.conversion import Conversion
 from ._operational import _Operational
 
 if TYPE_CHECKING:
     from ..._core._aliases._is_component import IsLocation
-    from ..._core._aliases._is_input import (IsBoundInput, IsConvInput,
-                                             IsExactInput)
+    from ..._core._aliases._is_input import IsBoundInput, IsConvInput, IsExactInput
 
 
 @dataclass
@@ -63,8 +62,6 @@ class Process(_Operational):
 
     def __post_init__(self):
         _Operational.__post_init__(self)
-        # flag to check if conversion is Conversion
-        self._conversioned = False
 
         # *-----------------Set ctype (ProcessType)----------------------------
 
@@ -163,9 +160,9 @@ class Process(_Operational):
             return [1]
 
     @property
-    def is_conversioned(self):
+    def is_balanced(self):
         """The Process conversion is Conversion"""
-        return self._conversioned
+        return self._balanced
 
     @staticmethod
     def _spatials():
@@ -195,6 +192,6 @@ class Process(_Operational):
     def conversionize(self):
         """Makes the conversion"""
 
-        if not self._conversioned:
+        if not self._balanced:
             self.conversion = Conversion(conversion=self.conversion, process=self)
-            self._conversioned = True
+            self._balanced = True

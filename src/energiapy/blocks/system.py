@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, List
 from ..components.analytical.player import Player
 from ..components.commodity.emission import Emission
 from ..components.commodity.material import Material
-from ..components.commodity.resource import Resource, ResourceStg
+from ..components.commodity.resource import Resource, ResourceStg, ResourceTrn
 from ..components.operational.process import Process
 from ..components.operational.storage import Storage
 from ..components.operational.transit import Transit
@@ -16,8 +16,13 @@ from ..components.temporal.scale import Scale
 from ._base._block import _Block
 
 if TYPE_CHECKING:
-    from .._core._aliases._is_component import (IsCash, IsDefined, IsHorizon,
-                                                IsLand, IsNetwork)
+    from .._core._aliases._is_component import (
+        IsCash,
+        IsDefined,
+        IsHorizon,
+        IsLand,
+        IsNetwork,
+    )
 
 
 @dataclass
@@ -106,6 +111,11 @@ class System(_Block):
     def resources_stg(self):
         """Returns the Stored Resources of the System"""
         return self.fetch(ResourceStg)
+
+    @property
+    def resources_trn(self):
+        """Returns the Transit Resources of the System"""
+        return self.fetch(ResourceTrn)
 
     @property
     def materials(self):

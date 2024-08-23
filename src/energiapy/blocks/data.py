@@ -58,7 +58,6 @@ class DataBlock(_Dunders):
             # {Disposition: value}. The disposition is made there
             # This is only temporary and the user eventually sees a list of parameters
             spttmpinput = _SptTmpInput(name, value)
-
             for disposition, datapoint in spttmpinput.dict_input.items():
                 if isinstance(datapoint, list):
                     if len(datapoint) == 1 or datapoint is True:
@@ -193,7 +192,6 @@ class DataBlock(_Dunders):
             incdntl = True
         else:
             incdntl = False
-
         if isinstance(value, (float, int)) and not isinstance(value, bool):
             # if small m is provided, make a small m instead of 0
             if self.m and value == 0:

@@ -11,22 +11,22 @@ class _Ok(ABC):
     """Allows certain behaviors when modeling the Scenario
 
     Attributes:
-        ok_overwrite (bool): Allow overwriting of Components. Default is True
-        ok_nobasis (bool): Allow Components without basis. Default is True
-        ok_nolabel (bool): Allow Components without label. Default is True
-        be_strict (bool): Be strict with the above. Default is False
+        ok_overwrite (bool): Allow overwriting of Components. Default is False
+        ok_nobasis (bool): Allow Components without basis. Default is False
+        ok_nolabel (bool): Allow Components without label. Default is False
+        chill (bool): Allow all the above. Default is True
     """
 
-    ok_overwrite: bool = field(default=True)
-    ok_nobasis: bool = field(default=True)
-    ok_nolabel: bool = field(default=True)
-    be_strict: bool = field(default=False)
+    ok_overwrite: bool = field(default=False)
+    ok_nobasis: bool = field(default=False)
+    ok_nolabel: bool = field(default=False)
+    chill: bool = field(default=True)
 
     def __post_init__(self):
-        if self.be_strict:
-            self.ok_overwrite = False
-            self.ok_nobasis = False
-            self.ok_nolabel = False
+        if self.chill:
+            self.ok_overwrite = True
+            self.ok_nobasis = True
+            self.ok_nolabel = True
 
     @property
     @abstractmethod

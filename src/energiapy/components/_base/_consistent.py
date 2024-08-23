@@ -253,8 +253,10 @@ class _Consistent(ABC):
                         )[-1]
 
                         if is_not(scale_upd, tmp) and not all(
-                            isinstance(m, (float, int)) for m in val
-                        ):  # only update the scale if there is a mix of DataFrame and Numeric
+                            isinstance(m, (float, int, str)) for m in val
+                        ):
+
+                            # only update the scale if there is a mix of DataFrame and Numeric or str (small M)
                             warn(
                                 f'{self}.{attr}:Inconsistent temporal scale for {spt} at {tmp}. Updating to {scale_upd}',
                             )

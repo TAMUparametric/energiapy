@@ -52,9 +52,11 @@ from ..components._base._component import _Component
 from ..components._base._defined import _Defined
 from ..components.commodity.cash import Cash
 from ..components.commodity.land import Land
+from ..components.commodity.resource import ResourceStg, ResourceTrn
 from ..components.operational._operational import _Operational
 from ..components.operational.process import Process
 from ..components.operational.storage import Storage
+from ..components.operational.transit import Transit
 from ..components.scope.horizon import Horizon
 from ..components.scope.network import Network
 from ..components.spatial.linkage import Linkage
@@ -94,10 +96,10 @@ class Scenario(_Ok, _Default, _Update, _ScnCols, _Dunders, _Print):
         def_cash (bool): create default (Cash) Components. Default is False
         def_land (bool): create default (Land) Components. Default is False
         default (bool): create default Components of all the above. Default is False
-        ok_overwrite (bool): Allow overwriting of Components. Default is True
-        ok_nobasis (bool): Allow Components without basis. Default is True
-        ok_nolabel (bool): Allow Components without label. Default is True
-        be_strict (bool): Be strict with the above. Default is False
+        ok_overwrite (bool): Allow overwriting of Components. Default is False
+        ok_nobasis (bool): Allow Components without basis. Default is False
+        ok_nolabel (bool): Allow Components without label. Default is False
+        chill (bool): Allow all the above. Default is True
 
     Examples:
 
@@ -193,7 +195,15 @@ class Scenario(_Ok, _Default, _Update, _ScnCols, _Dunders, _Print):
                 storage.inventorize()
                 # birth the Charging and Discharging processes
                 # and the Storage Resource
-                self.birth_stg_processes(storage=storage)
+                self.birth_bal_processes(operation=storage, res=ResourceStg())
+
+            if isinstance(value, Transit):
+                transit = getattr(self.system, name)
+                # make the freight into Freight
+                transit.freightize()
+                # birth the Loading and Unloading processes
+                # and the Transit Resource
+                self.birth_bal_processes(operation=transit, res=ResourceTrn())
 
         super().__setattr__(name, value)
 

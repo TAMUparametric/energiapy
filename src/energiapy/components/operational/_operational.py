@@ -11,9 +11,13 @@ from pandas import DataFrame
 
 from ..._core._nirop._error import check_attr
 from ...utils.scaling import scaling
-from .._base._consistent import (_ConsistentBnd, _ConsistentCsh,
-                                 _ConsistentLnd, _ConsistentNstd,
-                                 _ConsistentNstdCsh)
+from .._base._consistent import (
+    _ConsistentBnd,
+    _ConsistentCsh,
+    _ConsistentLnd,
+    _ConsistentNstd,
+    _ConsistentNstdCsh,
+)
 from .._base._defined import _Defined
 
 if TYPE_CHECKING:
@@ -51,21 +55,22 @@ class _Operational(_Defined, _CnstOpn, ABC):
         self.operate = self._operate
         if isinstance(self._operate, DataFrame):
             self.operate = scaling(data=self.operate, how='max')
+        self._balanced = False
 
     @property
     @abstractmethod
     def _operate(self):
         """Returns attribute value that signifies operating bounds"""
 
+    @property
+    @abstractmethod
+    def resources(self):
+        """Resources in Balance"""
+
     @staticmethod
     @abstractmethod
     def _spatials():
         """Spatial Components where the Operation is located"""
-
-    @property
-    @abstractmethod
-    def resources(self):
-        """Resources Involved"""
 
     @staticmethod
     def bounds():
@@ -187,7 +192,6 @@ class _Operational(_Defined, _CnstOpn, ABC):
         # If location is not specified, then default to all locations
         if not value:
             setattr(self, spatials, getattr(self._model.system, spatials))
-        
 
     def make_consistent(self):
         """Makes the data inputs consistent IsSptTmpDict"""
@@ -214,3 +218,4 @@ class _Operational(_Defined, _CnstOpn, ABC):
 
         # update flag, the inputs have been made consistent
         self._consistent = True
+

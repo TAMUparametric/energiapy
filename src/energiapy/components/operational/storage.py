@@ -6,21 +6,17 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, List
 
-from ...parameters.balance.inventory import Inventory
-from ._operational import _Operational
-
-# import operator
-# from functools import reduce
+from ...parameters.balances.inventory import Inventory
+from ._birther import _Birther
 
 
 if TYPE_CHECKING:
     from ..._core._aliases._is_component import IsLocation
-    from ..._core._aliases._is_input import (IsBoundInput, IsExactInput,
-                                             IsInvInput)
+    from ..._core._aliases._is_input import IsBoundInput, IsExactInput, IsBalInput
 
 
 @dataclass
-class Storage(_Operational):
+class Storage(_Birther):
     """Storage stores and withdraws Resources
     There could be a dependent Resource
 
@@ -38,7 +34,7 @@ class Storage(_Operational):
         emission (IsExactInput): emission due to construction per Capacity
         loss: (IsExactInput): loss of resource in storage
         store: (IsBoundInput): bound by Capacity. Reported by operate as well.
-        inventory: (IsInvInput): balance needed for storage. can just be a Resource as well
+        inventory: (IsBalInput): balance needed for storage. can just be a Resource as well
         capacity_c (IsBoundInput): bounds for capacity of generated charging Process
         capacity_d (IsBoundInput): bounds for capacity of generated discharging Process
         basis (str): basis of the component
@@ -47,18 +43,17 @@ class Storage(_Operational):
         introduce (str): index in scale when the component is introduced
         retire (str): index in scale when the component is retired
         label (str): label of the component
-
     """
 
     loss: IsExactInput = field(default=None)
     store: IsBoundInput = field(default=None)
-    inventory: IsInvInput = field(default=None)
+    inventory: IsBalInput = field(default=None)
     locations: List[IsLocation] = field(default=None)
-    capacity_c: IsBoundInput = field(default=None)
-    capacity_d: IsBoundInput = field(default=None)
+    capacity_in: IsBoundInput = field(default=None)
+    capacity_out: IsBoundInput = field(default=None)
 
     def __post_init__(self):
-        _Operational.__post_init__(self)
+        _Birther.__post_init__(self)
 
     @property
     def _operate(self):
@@ -88,52 +83,13 @@ class Storage(_Operational):
         """Attrs that determine resource loss of the component"""
         return ['loss']
 
+    @property
+    def balance(self):
+        """Balance of the Storage"""
+        return self.inventory
+
     def inventorize(self):
         """Makes the inventory"""
         if not isinstance(self.inventory, Inventory):
             self.inventory = Inventory(inventory=self.inventory, storage=self)
-
-    @property
-    def processes(self):
-        """Processes in Storage"""
-        return self._processes
-
-    @processes.setter
-    def processes(self, processes):
-        """Set Processes"""
-        self._processes = processes
-
-    @property
-    def process_c(self):
-        """Process from Resource to ResourceStg"""
-        return self.processes[0]
-
-    @property
-    def process_d(self):
-        """Process from ResourceStg to Resource"""
-        return self.processes[1]
-
-    @property
-    def conversion_c(self):
-        """Conversion from Resource to ResourceStg"""
-        return getattr(self.system, self.name).process_c.conversion
-
-    @property
-    def conversion_d(self):
-        """Conversion from ResourceStg to Resource"""
-        return self.process_d.conversion
-
-    @property
-    def balance_c(self):
-        """Balance from Resource to ResourceStg"""
-        return self.conversion_c.balance
-
-    @property
-    def balance_d(self):
-        """Balance from ResourceStg to Resource"""
-        return self.conversion_d.balance
-
-    @property
-    def resources(self):
-        """Resources in Inventory"""
-        return sorted(set(self.conversion_c.involved))
+            self._balanced = True

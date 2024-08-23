@@ -60,7 +60,8 @@ class Resource(_Traded):
 
     def __post_init__(self):
         _Traded.__post_init__(self)
-
+        # defined at Storage and Transit
+        self.loss = []
         # Depreciation Warnings
         _name = getattr(self, 'name', None)
         _changed = {

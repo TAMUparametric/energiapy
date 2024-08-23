@@ -71,7 +71,7 @@ class _Constraint(_Dunders):
 
         # Right Hand Side can have both the parameter and the parent Variable
         if all([par, prn]):
-            rhs = Mul(par.sym, prn.sym)
+            rhs = Mul(prn.sym, par.value.sym)
 
         else:
             # Or only one of the two

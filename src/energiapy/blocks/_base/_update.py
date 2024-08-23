@@ -10,7 +10,6 @@ from operator import is_not
 from typing import TYPE_CHECKING
 from warnings import warn
 
-from ...components.commodity.resource import ResourceStg
 from ...components.operational.process import Process
 from ...components.scope.horizon import Horizon
 from ...components.spatial.linkage import Linkage
@@ -28,6 +27,7 @@ if TYPE_CHECKING:
         IsNetwork,
         IsOperational,
         IsStorage,
+        IsResource,
     )
 
 
@@ -95,7 +95,7 @@ class _Update(ABC):
         """
         # commodities for Process come from conversion
         # for Storage from conersion_c and conversion_d
-        # for Transit from carries
+        # for Transit from freight
         for cmd in getattr(self.system, operation.name).commodities:
             if not cmd.is_located:
                 cmd.locate()
@@ -257,37 +257,40 @@ class _Update(ABC):
                     # set the linkages as attributes of the Scenario
                     setattr(self, f'lnk{i}', Linkage(source=src, sink=snk, bi=True))
 
-    def birth_stg_processes(self, storage: IsStorage):
-        """Births Charging and Discharging Processes for a Storage Component
+
+    def birth_bal_processes(self, operation: IsOperational, res: IsResource):
+        """Births Balance Processes
+        Charging and Discharging Processes for a Operation Component
+        Loading and Unloading Processes for a Transit Component
 
         Args:
-            storage (IsStorage): Storage object
+            operation (IsOperation): Operation object
         """
 
         # The base resource (what is stored)
-        inventory = storage.inventory
-        base = inventory.base
-        conv_c, conv_d = inventory.conversion_c, inventory.conversion_d
+        balance = operation.balance
+        base = balance.base
+        conv_in, conv_out = balance.conversion_in, balance.conversion_out
 
-        # A Storage Resource is birthed
-        setattr(self, f'{storage}_{base}', ResourceStg())
-        resourcestg = getattr(self, f'{storage}_{base}')
+        # A Operation Resource is birthed
+        setattr(self, f'{operation}_{base}', res)
+        res = getattr(self, f'{operation}_{base}')
 
-        # When Invetory is made within the Storage
-        # Place holders are used for Storage Resource (ResourceStg)
+        # When Invetory is made within the Operation
+        # Place holders are used for Operation Resource (res)
         # This is to keep birthing operations only in the Scenario
-        # The conversions are updated in Storage Inventory as well
+        # The conversions are updated in Operation Balance as well
         # These are cleaned up here
-        conv_c[resourcestg] = conv_c.pop('r')
-        conv_d[resourcestg] = conv_d[base].pop('r')
+        conv_in[res] = conv_in.pop('r')
+        conv_out[res] = conv_out[base].pop('r')
 
-        # Charging(_c) and Discharging(_d) Processes are birthed
-        process_c = Process(conversion=conv_c, capacity=storage.capacity_c)
-        process_d = Process(conversion=conv_d, capacity=storage.capacity_d)
-        processes = [process_c, process_d]
+        # Charging(_in) and Discharging(_out) Processes are birthed
+        process_in = Process(conversion=conv_in, capacity=operation.capacity_in)
+        process_out = Process(conversion=conv_out, capacity=operation.capacity_out)
+        processes = [process_in, process_out]
 
-        # update processes in Storage
-        setattr(storage, 'processes', processes)
+        # update processes in Operation
+        setattr(operation, 'processes', processes)
         # set the processes as attributes of the Scenario
-        setattr(self, f'{storage}_c', storage.process_c)
-        setattr(self, f'{storage}_d', storage.process_d)
+        setattr(self, f'{operation}_in', operation.process_in)
+        setattr(self, f'{operation}_out', operation.process_out)
