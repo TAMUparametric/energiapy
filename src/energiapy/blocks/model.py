@@ -31,3 +31,4 @@ class Model(_Dunders):
         self.data = Data(self.name)
         self.matrix = Matrix(self.name)
         self.program = Program(self.name)
+        self.name = f'Model|{self.name}|'

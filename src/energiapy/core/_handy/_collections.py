@@ -32,13 +32,23 @@ class _Cmds(_Sys):
 
     @property
     def resources_stg(self):
-        """Resources of the System"""
+        """Resources in Inventory of the System"""
         return self.system.resources_stg
+
+    @property
+    def resources_trn(self):
+        """Resources in Transit of the System"""
+        return self.system.resources_trn
 
     @property
     def materials(self):
         """Materials of the System"""
         return self.system.materials
+
+    @property
+    def commodities(self):
+        """Commodities of the System"""
+        return self.system.commodities
 
 
 class _Scps(_Sys):
@@ -98,6 +108,15 @@ class _LnkOpns(_Sys):
         return self.system.transits
 
 
+class _Opns(_LocOpns, _LnkOpns):
+    """Operations"""
+
+    @property
+    def operations(self):
+        """Operations of the System"""
+        return self.system.operations
+
+
 # TODO - BLOCK 3
 
 
@@ -133,6 +152,16 @@ class _Spts(_Sys):
     def sinks(self):
         """Sink Locations of the System"""
         return self.system.sinks
+
+    @property
+    def pairs(self):
+        """Source Sink pairs of the System"""
+        return self.system.pairs
+
+    @property
+    def spatials(self):
+        """Spatial Components of the System"""
+        return self.system.spatials
 
 
 # TODO - Block 7

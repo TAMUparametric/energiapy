@@ -39,8 +39,7 @@ from ..core._handy._collections import (
     _Cmds,
     _Elms,
     _Imps,
-    _LnkOpns,
-    _LocOpns,
+    _Opns,
     _Scls,
     _Scps,
     _Spts,
@@ -66,9 +65,7 @@ from ._update import _Update
 from ..blocks.model import Model
 
 
-class _ScnCols(
-    _Alys, _Imps, _Cmds, _LocOpns, _LnkOpns, _Spts, _Scls, _Scps, _Elms, _Vlus
-):
+class _ScnCols(_Alys, _Imps, _Cmds, _Opns, _Spts, _Scls, _Scps, _Elms, _Vlus):
     """Scenario Collections"""
 
 
