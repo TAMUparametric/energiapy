@@ -10,6 +10,7 @@ Includes:
 from dataclasses import dataclass, field
 
 from ..core._handy._dunders import _Dunders
+from .attr import Attr
 from .data import Data
 from .matrix import Matrix
 from .program import Program
@@ -31,4 +32,5 @@ class Model(_Dunders):
         self.data = Data(self.name)
         self.matrix = Matrix(self.name)
         self.program = Program(self.name)
+        self.attr = Attr(self.name)
         self.name = f'Model|{self.name}|'

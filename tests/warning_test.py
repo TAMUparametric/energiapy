@@ -3,8 +3,9 @@
 
 import pytest
 
-from src.energiapy.core.nirop.warnings import OverWriteWarning, InconsistencyWarning
 from src.energiapy.components.scope.horizon import Horizon
+from src.energiapy.core.nirop.warnings import (InconsistencyWarning,
+                                               OverWriteWarning)
 
 from .test_fixtures import scenario_ok
 

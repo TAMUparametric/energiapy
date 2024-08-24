@@ -12,13 +12,8 @@ from ..blocks.data import DataBlock
 from ..blocks.program import ProgramBlock
 from ..components.scope.horizon import Horizon
 
-
 if TYPE_CHECKING:
-    from ..core.aliases.is_component import (
-        IsDefined,
-        IsLonely,
-        IsOperational,
-    )
+    from ..core.aliases.is_component import IsDefined, IsLonely, IsOperational
 
 
 class _Update(ABC):

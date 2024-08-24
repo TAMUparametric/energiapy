@@ -2,23 +2,19 @@
 """
 
 from __future__ import annotations
+
 from abc import ABC, abstractmethod
+from operator import is_not
 from typing import TYPE_CHECKING
 
-from operator import is_not
 from ..components.operational.process import Process
 from ..components.spatial.linkage import Linkage
 from ..components.spatial.location import Location
 from ..components.temporal.scale import Scale
 
 if TYPE_CHECKING:
-    from ..core.aliases.is_component import (
-        IsHorizon,
-        IsLinkage,
-        IsNetwork,
-        IsOperational,
-        IsResource,
-    )
+    from ..core.aliases.is_component import (IsHorizon, IsLinkage, IsNetwork,
+                                             IsOperational, IsResource)
 
 
 class _Birth(ABC):

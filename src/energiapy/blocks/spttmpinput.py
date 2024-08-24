@@ -19,14 +19,14 @@ from ..components.scope.network import Network
 from ..components.spatial.linkage import Linkage
 from ..components.spatial.location import Location
 from ..components.temporal.scale import Scale
+from ..core._handy._dunders import _Dunders
 from ..disposition.disposition import Disposition
 from ..parameters.designators.mode import X
 from ..utils.dictionary import flatten
-from ..core._handy._dunders import _Dunders
 
 if TYPE_CHECKING:
-    from ..core.aliases.is_input import IsSptTmpInp
     from ..core.aliases.is_component import IsComponent
+    from ..core.aliases.is_input import IsSptTmpInp
     from ..core.aliases.is_value import IsValue
 
 

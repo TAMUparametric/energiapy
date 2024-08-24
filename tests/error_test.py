@@ -4,17 +4,13 @@
 import pytest
 from pandas import DataFrame
 
-from src.energiapy.core.nirop.errors import (
-    OverWriteError,
-    NoBasisError,
-    NoLabelError,
-    NoScaleMatchError,
-)
-
-from src.energiapy.components.scope.horizon import Horizon
 from src.energiapy.components.commodity.cash import Cash
+from src.energiapy.components.scope.horizon import Horizon
+from src.energiapy.core.nirop.errors import (NoBasisError, NoLabelError,
+                                             NoScaleMatchError, OverWriteError)
 
-from .test_fixtures import scenario_notok, scenario_ok, scenario_def, scenario_bare
+from .test_fixtures import (scenario_bare, scenario_def, scenario_notok,
+                            scenario_ok)
 
 
 def test_notok_errors(scenario_notok):

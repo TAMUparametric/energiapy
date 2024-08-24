@@ -3,24 +3,19 @@
 
 import pytest
 from pandas import DataFrame
-from .test_fixtures import (
-    horizon_singlescale,
-    horizon_singlescale_scale_0,
-    horizon_singlescale_scale_1,
-    horizon_multiscale,
-    horizon_multiscale_scale_0,
-    horizon_multiscale_scale_1,
-    horizon_multiscale_scale_2,
-    horizon_multiscale_un,
-    horizon_multiscale_un_scale_0,
-    horizon_multiscale_un_scale_1,
-    horizon_multiscale_un_scale_2,
-    horizon_multiscale_nmd,
-    horizon_multiscale_nmd_scale_0,
-    horizon_multiscale_nmd_scale_1,
-    horizon_multiscale_nmd_scale_2,
-    scenario_bare,
-)
+
+from .test_fixtures import (horizon_multiscale, horizon_multiscale_nmd,
+                            horizon_multiscale_nmd_scale_0,
+                            horizon_multiscale_nmd_scale_1,
+                            horizon_multiscale_nmd_scale_2,
+                            horizon_multiscale_scale_0,
+                            horizon_multiscale_scale_1,
+                            horizon_multiscale_scale_2, horizon_multiscale_un,
+                            horizon_multiscale_un_scale_0,
+                            horizon_multiscale_un_scale_1,
+                            horizon_multiscale_un_scale_2, horizon_singlescale,
+                            horizon_singlescale_scale_0,
+                            horizon_singlescale_scale_1, scenario_bare)
 
 a = DataFrame({'a': list(range(2))})
 b = DataFrame({'b': list(range(8))})
