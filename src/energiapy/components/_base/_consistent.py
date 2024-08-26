@@ -12,8 +12,8 @@ use is_not to compare dummy to existing Components (Scale, Location)
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from operator import is_, is_not
-from typing import TYPE_CHECKING
+from operator import is_not
+from typing import TYPE_CHECKING, Union, Any
 from warnings import warn
 
 from pandas import DataFrame
@@ -33,7 +33,6 @@ if TYPE_CHECKING:
 class _Consistent(ABC):
     """Functions to make the input into a Consistent dictionary
     to be used to make _SptTmpDict
-
     """
 
     @property
@@ -93,15 +92,7 @@ class _Consistent(ABC):
                     # if yes, stick with it
                     value_upd[key] = val
                 else:
-                    # else, we need to do some quick math
-                    # the value can apply to:
-                    # 1. an Exact input such as cost, emissions, etc.
-                    # if exact, then the value is assumed to apply
-                    # across all spatial dispositions
-                    # 2. a Bound input such as buy, sell, etc.
-                    # if bound, the network limit can be independent of locations
-                    # infact, the locations values will sum up to the network value
-                    # but we bother will that later
+                    # else, add a _Dummy.N for now
                     value_upd[_Dummy.N] = {key: val}
 
         return value_upd
@@ -160,159 +151,143 @@ class _Consistent(ABC):
 
         return value_upd
 
-    def fix_scale(self, value: IsInput, attr: str, ok_inconsistent: bool) -> dict:
+    def match_scale(
+        self,
+        val: Any,
+        tmp: Union[Scale, _Dummy],
+        attr: str,
+    ) -> Scale:
         """checks whether a dataframe is given.
         if df, then sets to a matching scale or gives warning
         if not df, sets to parent scale
 
         Args:
-            value (IsInput): any Input
+            val (Any): Any incoming value
+            tmp (Union[Scale, _Dummy]): Temporal disposition
             attr (str): attr for which input is being passed
-            fix_bool (bool): whether to fix dispositions or just warn.
-
         Returns:
-            dict: Always {Spatial: {Temporal: {Mode: value}}} but with Temporal reflecting the True disposition
+            Scale: Updated scale
         """
-        value_upd = self.upd_dict(value, 'spttmpx')
 
-        for spt, tmp_x_val in value.items():
-            for tmp, x_val in tmp_x_val.items():
-                for x, val in x_val.items():
-                    # if value is a DataFrame, check if the scale is consistent
-                    if isinstance(val, DataFrame):
-                        scale_upd = self.system.horizon.match_scale(val, self, attr)
-                        if is_not(scale_upd, tmp):
-                            # if not consistent
-                            if is_not(tmp, _Dummy.T):
+        # if value is a DataFrame, check if the scale is consistent
+        if isinstance(val, DataFrame):
+            return self.system.horizon.match_scale(val, self, attr)
+        elif isinstance(val, (list, tuple)) and any(
+            isinstance(v, DataFrame) for v in val
+        ):
+            return sorted(self.match_scale(v, self, attr) for v in val)[-1]
+        else:
+            return tmp
 
-                                if ok_inconsistent:
-                                    warn(
-                                        InconsistencyWarning(
-                                            self, attr, spt, tmp, scale_upd
-                                        )
-                                    )
-                                else:
-                                    raise InconsistencyError(
-                                        self, attr, spt, tmp, scale_upd
-                                    )
-
-                            # update the scale
-                            value_upd[spt][scale_upd] = x_val
-                            # delete the old entry
-                            del value_upd[spt][tmp]
-                        else:
-                            # if consistent, keep as is
-                            value_upd[spt][tmp][x] = val
-                    # if dummy set to root scale of Horizon
-                    elif is_(tmp, _Dummy.T):
-                        value_upd[spt][_Dummy.T] = x_val
-                    else:
-                        # if value is not a DataFrame, keep as is
-                        value_upd[spt][tmp][x] = val
-
-        return value_upd
-
-    def fix_true(self, value: IsInput) -> dict:
-        """checks whether the input value is True
-        if True, makes a list [True]
-
-        Args:
-            value (IsInput): any Input
-            attr (str): attr for which input is being passed
-
-        Returns:
-            dict: Always {Spatial: {Temporal: {Mode: value}}}, this however makes True to [True]
-        """
-        value_upd = self.upd_dict(value, 'spttmpx')
-        for spt, tmp_x_val in value.items():
-            for tmp, x_val in tmp_x_val.items():
-                for x, val in x_val.items():
-                    if val is True:
-                        value_upd[spt][tmp][x] = [val]
-                    else:
-                        value_upd[spt][tmp][x] = val
-
-        return value_upd
-
-    def fix_bound_scales(
-        self, value: IsInput, attr: str, ok_inconsistent: bool
+    def fix_temporal(
+        self, spttmpmdeval: dict, attr: str, ok_inconsistent: bool
     ) -> dict:
-        """checks whether some inputs are bounds
-        if bounds, sets to the lowest matching scale
+        """Fixes the temporal disposition of the input
 
         Args:
-            value (IsInput): any Input
+            spttmpmdeval (dict): {Spatial: {Temporal: {Mode: value}}}
             attr (str): attr for which input is being passed
-            fix_bool (bool): whether to fix dispositions or just warn.
+            ok_inconsistent (bool): whether to fix dispositions or just warn.
+
         Returns:
-            dict: Always {Spatial: {Temporal: {Mode: value}}}, this however checks lists [LB, UB]
+            dict: {Spatial: {Temporal: {Mode: value}}} but with scales checked
+
         """
-        value_upd = self.upd_dict(value, 'spttmpx')
 
-        # note that you cant have True (Big M) inside bounds
-        for spt, tmp_x_val in value.items():
-            for tmp, x_val in tmp_x_val.items():
-                for x, val in x_val.items():
-                    # if list of , tuple of bounds. Check if both scales are same
-                    if isinstance(val, (list, tuple)):
-                        # if DataFrame and numeric, bring DataFrame to front
-                        # determine the longer scale
-                        scale_upd = sorted(
-                            [
-                                self.system.horizon.match_scale(m, self, attr)
-                                for m in val
-                            ],
-                        )[-1]
-
-                        if is_not(scale_upd, tmp) and not all(
-                            isinstance(m, (float, int, str)) for m in val
-                        ):
-                            # only update the scale if there is a mix of DataFrame and Numeric or str (small M)
-                            if ok_inconsistent:
+        value_upd = self.upd_dict(spttmpmdeval, 'spttmpx')
+        for spt, tmpmdeval in spttmpmdeval.items():
+            for tmp, mdeval in tmpmdeval.items():
+                for val in mdeval.values():
+                    scl_upd = self.match_scale(val, tmp, attr)
+                    if is_not(scl_upd, tmp):
+                        if ok_inconsistent:
+                            if not isinstance(tmp, _Dummy):
                                 warn(
-                                    InconsistencyWarning(
-                                        self, attr, spt, tmp, scale_upd
-                                    )
+                                    InconsistencyWarning(self, attr, spt, tmp, scl_upd)
                                 )
-                            else:
-                                raise InconsistencyError(
-                                    self, attr, spt, tmp, scale_upd
-                                )
-
-                            value_upd[spt][scale_upd] = x_val
-                            del value_upd[spt][tmp]
                         else:
-                            value_upd[spt][tmp][x] = val
+                            raise InconsistencyError(self, attr, spt, tmp, scl_upd)
+                        value_upd[spt][scl_upd] = spttmpmdeval[spt][tmp]
+                        del value_upd[spt][tmp]
                     else:
-                        value_upd[spt][tmp][x] = val
-
+                        value_upd[spt][tmp] = spttmpmdeval[spt][tmp]
         return value_upd
 
-    def clean_up(self, value: IsInput) -> dict:
-        """Cleans up the input, removes temporary _Dummy.T and _Dummy.X keys
+    def replace_dummy_n(self, spttmpmdeval: dict, attr: str) -> dict:
+        """Replaces the dummy N in the input
 
         Args:
-            value (IsInput): any Input
+            spttmpmdeval (dict): {Spatial: {Temporal: {Mode: value}}}
+            attr (str): attr for which input is being passed
 
         Returns:
-            dict: Always {Spatial: {Temporal: {Mode: value}}} but without _Dummy.T and _Dummy.X dummy keys
+            dict: {Spatial: {Temporal: {Mode: value}}}
         """
 
-        value_upd = self.upd_dict(value, 'spttmpx')
-
-        for spt, tmp_x_val in value.items():
-            for tmp, x_val in tmp_x_val.items():
-                for x in x_val:
-                    if is_(x, _Dummy.X):
-                        value_upd[spt][tmp] = value[spt][tmp][x]
-                    else:
-                        value_upd[spt][tmp][x] = value[spt][tmp][x]
-                if is_(tmp, _Dummy.T):
-                    del value_upd[spt][tmp]
+        # The rules are as follows:
+        # 1. an Exact input such as cost, emissions, etc.
+        # if exact, then the value is assumed to apply
+        # across all spatial dispositions
+        # 2. a Bound input such as buy, sell, etc.
+        # if bound, the network limit can be independent of locations
+        # infact, the locations values will sum up to the network value
+        value_upd = {}
+        for spt in spttmpmdeval.keys():
+            if spt == _Dummy.N:
+                if attr in self.bounds():
+                    value_upd[self.system.network] = spttmpmdeval[spt]
+                else:
+                    for loc in self.system.locations:
+                        value_upd[loc] = spttmpmdeval[spt]
+            else:
+                value_upd[spt] = spttmpmdeval[spt]
 
         return value_upd
 
-    def make_spttmpdict(
+    def replace_dummy_t(self, spttmpmdeval: dict) -> dict:
+        """Replaces the dummy T in the input
+
+        Args:
+            spttmpmdeval (dict): {Spatial: {Temporal: {Mode: value}}}
+
+        Returns:
+            dict: {Spatial: {Temporal: {Mode: value}}}
+        """
+
+        value_upd = self.upd_dict(spttmpmdeval, 'spttmp')
+        for spt, tmpmdeval in spttmpmdeval.items():
+            for tmp in tmpmdeval.keys():
+                if tmp == _Dummy.T:
+                    value_upd[spt][self.system.scales[0]] = spttmpmdeval[spt][tmp]
+                    del value_upd[spt][_Dummy.T]
+                else:
+                    value_upd[spt][tmp] = spttmpmdeval[spt][tmp]
+
+        return value_upd
+
+    def replace_dummy_x(self, spttmpmdeval: dict) -> dict:
+        """Replaces the dummy X in the input
+
+        Args:
+            spttmpmdeval (dict): {Spatial: {Temporal: {Mode: value}}}
+
+        Returns:
+            dict: {Spatial: {Temporal: {Mode: value}}} or {Spatial: {Temporal: value}}
+        """
+
+        value_upd = self.upd_dict(spttmpmdeval, 'spttmpx')
+        for spt, tmpx_val in spttmpmdeval.items():
+            for tmp, x_val in tmpx_val.items():
+                for x in x_val.keys():
+                    if x == _Dummy.X:
+                        # {Spatial: {Temporal: value}}
+                        value_upd[spt][tmp] = spttmpmdeval[spt][tmp][x]
+                    else:
+                        # {Spatial: {Temporal: {Mode: value}}}
+                        value_upd[spt][tmp][x] = spttmpmdeval[spt][tmp][x]
+        return value_upd
+
+    def make_spttmpmde(
         self, value: IsInput, attr: str, ok_inconsistent: bool
     ) -> IsSptTmpInp:
         """Uses all the above functions to make a consistent input
@@ -324,15 +299,24 @@ class _Consistent(ABC):
         Returns:
             IsSptTmpInp: {Spatial: {Temporal: {Mode: value}}} Always!!
         """
-        value = self.make_spatial(value)
-        value = self.make_temporal(value)
-        value = self.make_modes(value, attr)
-        value = self.fix_scale(value, attr, ok_inconsistent)
-        value = self.fix_true(value)
-        value = self.fix_bound_scales(value, attr, ok_inconsistent)
-        value = self.clean_up(value)
 
-        return value
+        # This makes it consistently in the format:
+        # {Spatial: {Temporal: {Mode: value}}}
+        # Spatial - Location, Linkage, Network, _Dummy.N
+        # Temporal - Scale, _Dummy.T
+        # Mode - X (Mode), _Dummy.X
+        spttmpmdeval = self.make_modes(
+            value=self.make_temporal(self.make_spatial(value)), attr=attr
+        )
+        # Then we fix the temporal disposition and warn if inconsistent
+        spttmpmdeval = self.fix_temporal(spttmpmdeval, attr, ok_inconsistent)
+
+        # The dummy values are replaced with actual values
+        spttmpmdeval = self.replace_dummy_x(
+            self.replace_dummy_t(self.replace_dummy_n(spttmpmdeval, attr))
+        )
+
+        return spttmpmdeval
 
 
 class _ConsistentBnd(_Consistent):
@@ -346,7 +330,7 @@ class _ConsistentBnd(_Consistent):
         # For bounds, if True (Big M) is given, it is converted to a list
         # i.e. it is set to be the upperbound
         setattr(
-            self, attr, self.make_spttmpdict(getattr(self, attr), attr, ok_inconsistent)
+            self, attr, self.make_spttmpmde(getattr(self, attr), attr, ok_inconsistent)
         )
 
 
@@ -364,7 +348,7 @@ class _ConsistentCsh(_Consistent):
             self,
             attr,
             {
-                self.system.cash: self.make_spttmpdict(
+                self.system.cash: self.make_spttmpmde(
                     getattr(self, attr), attr, ok_inconsistent
                 )
             },
@@ -385,7 +369,7 @@ class _ConsistentLnd(_Consistent):
             self,
             attr,
             {
-                self.system.land: self.make_spttmpdict(
+                self.system.land: self.make_spttmpmde(
                     getattr(self, attr), attr, ok_inconsistent
                 )
             },
@@ -405,7 +389,7 @@ class _ConsistentNstd(_Consistent):
             self,
             attr,
             {
-                i: self.make_spttmpdict(j, attr, ok_inconsistent)
+                i: self.make_spttmpmde(j, attr, ok_inconsistent)
                 for i, j in getattr(self, attr).items()
             },
         )
@@ -424,7 +408,7 @@ class _ConsistentNstdCsh(_Consistent):
             self,
             attr,
             {
-                i: {self.system.cash: self.make_spttmpdict(j, attr, ok_inconsistent)}
+                i: {self.system.cash: self.make_spttmpmde(j, attr, ok_inconsistent)}
                 for i, j in getattr(self, attr).items()
             },
         )

@@ -11,9 +11,13 @@ from pandas import DataFrame
 
 from ...core.nirop.errors import check_attr
 from ...utils.scaling import scaling
-from .._base._consistent import (_ConsistentBnd, _ConsistentCsh,
-                                 _ConsistentLnd, _ConsistentNstd,
-                                 _ConsistentNstdCsh)
+from .._base._consistent import (
+    _ConsistentBnd,
+    _ConsistentCsh,
+    _ConsistentLnd,
+    _ConsistentNstd,
+    _ConsistentNstdCsh,
+)
 from .._base._defined import _Defined
 
 if TYPE_CHECKING:

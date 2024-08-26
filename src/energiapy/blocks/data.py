@@ -62,8 +62,14 @@ class DataBlock(_Dunders):
             # This is only temporary and the user eventually sees a list of parameters
             spttmpinput = SptTmpInp(name, value)
             for disposition, datapoint in spttmpinput.dict_input.items():
+
+                if datapoint is True:
+                    # if datapoint is True, put it in a list
+                    # it will become an upper bound in the next step
+                    datapoint = [True]
+
                 if isinstance(datapoint, list):
-                    if len(datapoint) == 1 or datapoint is True:
+                    if len(datapoint) == 1:
                         # if only one value, the value given is an upper bound
                         datapoint = [0] + datapoint
                     # The first value becomes the LB, and the second becomes the UB
