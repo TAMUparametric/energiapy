@@ -18,6 +18,7 @@ from warnings import warn
 
 from pandas import DataFrame
 
+from ...core._handy._enums import _Dummy
 from ...core.nirop.errors import InconsistencyError
 from ...core.nirop.warnings import InconsistencyWarning
 from ...parameters.designators.mode import X
@@ -66,7 +67,7 @@ class _Consistent(ABC):
                 for spt, tmp_x_val in value.items()
             }
 
-    def make_spatial(self, value: IsInput, attr: str) -> dict:
+    def make_spatial(self, value: IsInput) -> dict:
         """adds spatial disposition to input data if not there already
         defaults to Network
 
@@ -77,43 +78,43 @@ class _Consistent(ABC):
         Returns:
             dict: Always {Spatial (Location, Linkage, Network): Something}
         """
-
+        # There has to be a spatial disposition
+        # if not, then the network is assumed
+        # set network to a dummy _Dummy.N key for now
         if not isinstance(value, dict):
-            value_upd = {self.system.network: value}
+            value_upd = {_Dummy.N: value}
         else:
+            # if already dictionary
+            # check if the spatial disposition is given
             value_upd = {}
             for spt, tmp_val in value.items():
-                if not isinstance(spt, (_Spatial, Network)):
-                    if self.system.network in value_upd:
-                        value_upd[self.system.network] = {
-                            **value_upd[self.system.network],
+                # check if a spatial component is already given
+                if isinstance(spt, _Spatial, Network):
+                    # if yes, stick with it
+                    value_upd[spt] = tmp_val
+                else:
+                    # else, we need to do some quick math
+                    # the value can apply to:
+                    # 1. an Exact input such as cost, emissions, etc.
+                    # if exact, then the value is assumed to apply
+                    # across all spatial dispositions
+                    # 2. a Bound input such as buy, sell, etc.
+                    # if bound, the network limit can be independent of locations
+                    # infact, the locations values will sum up to the network value
+                    # but we bothere will that later in ...
+                    # for now
+                    if _Dummy.N in value_upd:
+                        value_upd = {
+                            **value_upd[_Dummy.N],
                             **{spt: tmp_val},
                         }
                     else:
-                        value_upd[self.system.network] = {spt: tmp_val}
-                        # # Parameter bounds can be compound
-                        # # they can be seperate for an Operation or Location/Transit or Network
-                        # # with the value at a spatially larger Component being the sum of the Smaller
-                        # if attr in self.bounds():
-                        #     value_upd[self.system.network] = {spt: tmp_val}
-                        # else:
-                        #     # calculated Parameters are assumed from the spatially larger Component
-                        #     # if Spatial or Operational disposition is not given
-                        #     if hasattr(self, 'spatials'):
-                        #         # this is a check to see whether this is an Operation
-                        #         for spt_ in getattr(self, 'spatials'):
-                        #             value_upd[spt_] = {spt: tmp_val}
-                        #     else:
-                        #         #
-
-                else:
-                    value_upd[spt] = tmp_val
-
+                        value_upd[_Dummy.N] = tmp_val
         return value_upd
 
     def make_temporal(self, value: IsInput) -> dict:
         """adds temporal disposition to input data if not there already
-        puts a 't' temporarily
+        puts a _Dummy.T temporarily
 
         Args:
             value (IsInput): any input
@@ -126,16 +127,16 @@ class _Consistent(ABC):
 
         for spt, tmpx_val in value.items():
             if not isinstance(tmpx_val, dict):
-                # The 't' is temporary, replaced by root scale of Horizon later
-                value_upd[spt]['t'] = tmpx_val
+                # The _Dummy.T is temporary, replaced by root scale of Horizon later
+                value_upd[spt][_Dummy.T] = tmpx_val
             else:
                 for tmpx, val in tmpx_val.items():
                     if isinstance(tmpx, Scale):
                         value_upd[spt][tmpx] = val
                     elif isinstance(tmpx, X):
-                        value_upd[spt]['t'] = tmpx_val
+                        value_upd[spt][_Dummy.T] = tmpx_val
                     else:
-                        value_upd[spt]['t'] = val
+                        value_upd[spt][_Dummy.T] = val
 
         return value_upd
 
@@ -160,7 +161,7 @@ class _Consistent(ABC):
                     }
                 else:
                     value_upd[spt][tmp] = {
-                        'x': value[spt][tmp]
+                        _Dummy.X: value[spt][tmp]
                     }  # put a dummy mode temporarily
 
         return value_upd
@@ -188,7 +189,7 @@ class _Consistent(ABC):
                         scale_upd = self.system.horizon.match_scale(val, self, attr)
                         if is_not(scale_upd, tmp):
                             # if not consistent
-                            if is_not(tmp, 't'):
+                            if is_not(tmp, _Dummy.T):
 
                                 if ok_inconsistent:
                                     warn(
@@ -209,7 +210,7 @@ class _Consistent(ABC):
                             # if consistent, keep as is
                             value_upd[spt][tmp][x] = val
                     # if dummy set to root scale of Horizon
-                    elif is_(tmp, 't'):
+                    elif is_(tmp, _Dummy.T):
                         value_upd[spt][self.system.horizon.scales[0]] = x_val
                     else:
                         # if value is not a DataFrame, keep as is
@@ -294,13 +295,13 @@ class _Consistent(ABC):
         return value_upd
 
     def clean_up(self, value: IsInput) -> dict:
-        """Cleans up the input, removes temporary 't' and 'x' keys
+        """Cleans up the input, removes temporary _Dummy.T and _Dummy.X keys
 
         Args:
             value (IsInput): any Input
 
         Returns:
-            dict: Always {Spatial: {Temporal: {Mode: value}}} but without 't' and 'x' dummy keys
+            dict: Always {Spatial: {Temporal: {Mode: value}}} but without _Dummy.T and _Dummy.X dummy keys
         """
 
         value_upd = self.upd_dict(value, 'spttmpx')
@@ -308,11 +309,11 @@ class _Consistent(ABC):
         for spt, tmp_x_val in value.items():
             for tmp, x_val in tmp_x_val.items():
                 for x in x_val:
-                    if is_(x, 'x'):
+                    if is_(x, _Dummy.X):
                         value_upd[spt][tmp] = value[spt][tmp][x]
                     else:
                         value_upd[spt][tmp][x] = value[spt][tmp][x]
-                if is_(tmp, 't'):
+                if is_(tmp, _Dummy.T):
                     del value_upd[spt][tmp]
 
         return value_upd
@@ -329,7 +330,7 @@ class _Consistent(ABC):
         Returns:
             IsSptTmpInp: {Spatial: {Temporal: {Mode: value}}} Always!!
         """
-        value = self.make_spatial(value, attr)
+        value = self.make_spatial(value)
         value = self.make_temporal(value)
         value = self.make_modes(value, attr)
         value = self.fix_scale(value, attr, ok_inconsistent)
