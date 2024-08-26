@@ -80,18 +80,18 @@ class _Consistent(ABC):
         """
         # There has to be a spatial disposition
         # if not, then the network is assumed
-        # set network to a dummy _Dummy.N key for now
+        # set network to a dummy 'n' key for now
         if not isinstance(value, dict):
             value_upd = {_Dummy.N: value}
         else:
             # if already dictionary
             # check if the spatial disposition is given
             value_upd = {}
-            for spt, tmp_val in value.items():
+            for key, val in value.items():
                 # check if a spatial component is already given
-                if isinstance(spt, _Spatial, Network):
+                if isinstance(key, (_Spatial, Network)):
                     # if yes, stick with it
-                    value_upd[spt] = tmp_val
+                    value_upd[key] = val
                 else:
                     # else, we need to do some quick math
                     # the value can apply to:
@@ -101,15 +101,9 @@ class _Consistent(ABC):
                     # 2. a Bound input such as buy, sell, etc.
                     # if bound, the network limit can be independent of locations
                     # infact, the locations values will sum up to the network value
-                    # but we bothere will that later in ...
-                    # for now
-                    if _Dummy.N in value_upd:
-                        value_upd = {
-                            **value_upd[_Dummy.N],
-                            **{spt: tmp_val},
-                        }
-                    else:
-                        value_upd[_Dummy.N] = tmp_val
+                    # but we bother will that later
+                    value_upd[_Dummy.N] = {key: val}
+
         return value_upd
 
     def make_temporal(self, value: IsInput) -> dict:
@@ -211,7 +205,7 @@ class _Consistent(ABC):
                             value_upd[spt][tmp][x] = val
                     # if dummy set to root scale of Horizon
                     elif is_(tmp, _Dummy.T):
-                        value_upd[spt][self.system.horizon.scales[0]] = x_val
+                        value_upd[spt][_Dummy.T] = x_val
                     else:
                         # if value is not a DataFrame, keep as is
                         value_upd[spt][tmp][x] = val
