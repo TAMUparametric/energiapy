@@ -3,118 +3,163 @@ Handles the attributes of components
 Defines strict behaviour
 """
 
-from __future__ import annotations
+from dataclasses import dataclass, field, fields
 
-from dataclasses import dataclass, field
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from ..core.aliases.is_input import IsBoundInput
-
-
-# @dataclass
-# class Bounds:
-#     # Player
-#     has: IsBoundInput = field(default=None)
-#     needs: IsBoundInput = field(default=None)
-#     # Cash
-#     spend: IsBoundInput = field(default=None)
-#     earn: IsBoundInput = field(default=None)
-#     # Emission
-#     emit: IsBoundInput = field(default=None)
-#     # Land and Material (Used)
-#     use: IsBoundInput = field(default=None)
-#     # Resource
-#     buy: IsBoundInput = field(default=None)
-#     sell: IsBoundInput = field(default=None)
-#     ship: IsBoundInput = field(default=None)
-#     # Operational
-#     capacity: IsBoundInput = field(default=True)
-#     # Process
-#     produce: IsBoundInput = field(default=None)
-#     # Storage
-#     capacity_c: IsBoundInput = field(default=None)
-#     capacity_d: IsBoundInput = field(default=None)
-#     store: IsBoundInput = field(default=None)
-#     # Transit
-#     transport: IsBoundInput = field(default=None)
-
-
-# @dataclass
-# class Collects:
-#     expense = []
-#     emission = []
-#     land = []
-
-
-# @dataclass
-# class Exacts:
-#     # Land and Material (Used)
-#     cost: IsExactInput = field(default=None)
-#     emission: IsExactInput = field(default=None)
-#     # Resource
-#     buy_price: IsExactInput = field(default=None)
-#     sell_price: IsExactInput = field(default=None)
-#     credit: IsExactInput = field(default=None)
-#     penalty: IsExactInput = field(default=None)
-#     buy_emission: IsExactInput = field(default=None)
-#     sell_emission: IsExactInput = field(default=None)
-#     loss_emission: IsExactInput = field(default=None)
-#     # Operational
-#     land: IsExactInput = field(default=None)
-#     material: IsExactInput = field(default=None)
-#     capex: IsExactInput = field(default=None)
-#     opex: IsExactInput = field(default=None)
-#     emission: IsExactInput = field(default=None)
-
-
-# @dataclass
-# class BoundsRes:
-#     # Process
-#     buy: IsBoundInput = field(default=None)
-#     sell: IsBoundInput = field(default=None)
-#     # Transit
-#     ship: IsBoundInput = field(default=None)
-
-
-# @dataclass
-# class ExactRes:
-#     # Process
-#     buy_price: IsExactInput = field(default=None)
-#     sell_price: IsExactInput = field(default=None)
-#     credit: IsExactInput = field(default=None)
-#     penalty: IsExactInput = field(default=None)
-
-
-# @dataclass
-# class Balances:
-#     # Process
-#     conversion: IsConvInput = field(default=None)
-#     # Transit
-#     freight: IsResource = field(default=None)
+from ..core._handy._dunders import _Dunders
 
 
 @dataclass
-class Attr:
+class Bounds:
+    """These are Bounds for the Components
+
+    Bounds can be different for Network and individual Spatial Components
+
+    """
+
+    # Player
+    has: list = field(default_factory=list)
+    needs: list = field(default_factory=list)
+    # Cash
+    spend: list = field(default_factory=list)
+    earn: list = field(default_factory=list)
+    # Emission
+    emit: list = field(default_factory=list)
+    # Land and Material (Used)
+    use: list = field(default_factory=list)
+    # Resource
+    buy: list = field(default_factory=list)
+    sell: list = field(default_factory=list)
+    ship: list = field(default_factory=list)
+    # Operational
+    capacity: list = field(default_factory=list)
+    # Process
+    produce: list = field(default_factory=list)
+    # Storage
+    capacity_c: list = field(default_factory=list)
+    capacity_d: list = field(default_factory=list)
+    store: list = field(default_factory=list)
+    # Transit
+    transport: list = field(default_factory=list)
+
+
+@dataclass
+class Collects:
+    """These are at the root Component and collect
+    the values defined at other Components
+    """
+
+    # Cash
+    expenses: list = field(default_factory=list)
+    # Emission
+    emits: list = field(default_factory=list)
+    # Land
+    lands: list = field(default_factory=list)
+
+
+@dataclass
+class Exacts:
+    """These are Exact Component Inputs
+
+    These are inherited across all Spatial Components
+    if defined at Network
+
+    There is no Network value for these
+
+    """
+
+    # Land and Material (Used)
+    cost: list = field(default_factory=list)
+    emission: list = field(default_factory=list)
+    # Resource
+    buy_price: list = field(default_factory=list)
+    sell_price: list = field(default_factory=list)
+    credit: list = field(default_factory=list)
+    penalty: list = field(default_factory=list)
+    buy_emission: list = field(default_factory=list)
+    sell_emission: list = field(default_factory=list)
+    loss_emission: list = field(default_factory=list)
+    # Operational
+    land: list = field(default_factory=list)
+    material: list = field(default_factory=list)
+    capex: list = field(default_factory=list)
+    opex: list = field(default_factory=list)
+    emission: list = field(default_factory=list)
+
+
+@dataclass
+class BoundsRes:
+    """These are Bounds for Resources
+    defined at Operational Components
+    """
+
+    # Process
+    buy: list = field(default_factory=list)
+    sell: list = field(default_factory=list)
+    # Transit
+    ship: list = field(default_factory=list)
+
+
+@dataclass
+class ExactRes:
+    """These are Exact Resource Inputs
+    defined at Operational Components
+    """
+
+    # Process
+    buy_price: list = field(default_factory=list)
+    sell_price: list = field(default_factory=list)
+    credit: list = field(default_factory=list)
+    penalty: list = field(default_factory=list)
+
+
+@dataclass
+class Balances:
+    """These are Balances for Resources
+    defined at Operational Components
+    """
+
+    # Process
+    conversion: list = field(default_factory=list)
+    # Storage
+    inventory: list = field(default_factory=list)
+    # Transit
+    freight: list = field(default_factory=list)
+
+
+@dataclass
+class Attr(Bounds, Collects, Exacts, BoundsRes, ExactRes, Balances, _Dunders):
+    """This object collects all the attributes defined
+    and makes a list of Dispositions they are defined at
+
+    """
+
     name: str = field(default=None)
 
-    # def __post_init__(self):
-    #     self.name = str(self.name)
+    def __setattr__(self, name, value):
 
-    # # Player
+        if name != 'name':
+            value = getattr(self, name) + [value]
+        else:
+            value = f'Attr|{self.name}|'
 
-    # # Cash
-    # # Emission
-    # # Land and Material (Used)
-    # # Resource
-    # # Operational
-    # # Process
-    # locations: List[IsLocation] = field(default=None)
-    # # Storage
-    # loss: IsExactInput = field(default=None)
-    # inventory: IsInvInput = field(default=None)
-    # locations: List[IsLocation] = field(default=None)
-    # # Transit
-    # loss: IsExactInput = field(default=None)
-    # linkages: List[IsLinkage] = field(default=None)
-    # # deliver: IsBoundInput = field(default=None)
+        super().__setattr__(name, value)
+
+    @staticmethod
+    def bounds():
+        """Returns all Bounds"""
+        return fields(Bounds) + fields(BoundsRes)
+
+    @staticmethod
+    def collects():
+        """Returns all Collects"""
+        return fields(Collects)
+
+    @staticmethod
+    def exacts():
+        """Returns all Exacts"""
+        return fields(Exacts) + fields(ExactRes)
+
+    @staticmethod
+    def balances():
+        """Returns all Balances"""
+        return fields(Balances)

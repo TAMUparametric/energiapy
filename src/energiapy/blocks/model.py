@@ -28,9 +28,9 @@ class Model(_Dunders):
     name: str = field(default=None)
 
     def __post_init__(self):
-        self.system = System(self.name)
-        self.data = Data(self.name)
-        self.matrix = Matrix(self.name)
-        self.program = Program(self.name)
-        self.attr = Attr(self.name)
+        self.system = System(name=self.name)
+        self.data = Data(name=self.name)
+        self.matrix = Matrix(name=self.name)
+        self.program = Program(name=self.name)
+        self.attr = Attr(name=self.name)
         self.name = f'Model|{self.name}|'

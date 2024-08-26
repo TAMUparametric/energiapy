@@ -40,6 +40,11 @@ class _Consistent(ABC):
     def system(self):
         """The System of the Component"""
 
+    @property
+    @abstractmethod
+    def attr(self):
+        """The Attributes of the Component"""
+
     @staticmethod
     @abstractmethod
     def bounds():
@@ -234,7 +239,7 @@ class _Consistent(ABC):
         value_upd = {}
         for spt in spttmpmdeval.keys():
             if spt == _Dummy.N:
-                if attr in self.bounds():
+                if attr in self.attr.bounds():
                     value_upd[self.system.network] = spttmpmdeval[spt]
                 else:
                     for loc in self.system.locations:

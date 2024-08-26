@@ -34,6 +34,11 @@ class _Update(ABC):
     def data(self):
         """Data Model Block of the Scenario"""
 
+    @property
+    @abstractmethod
+    def attr(self):
+        """Attributes Model Block of the Scenario"""
+
     def cleanup(self, cmp: str):
         """Cleans up components which can have only one instance in the System
         Also the stuff they generate such as Scales (Horizon) and Locations (Network)
@@ -131,6 +136,9 @@ class _Update(ABC):
 
                 # The updated Values are then set back into the component
                 setattr(component, inp, datablock.spttmpinp[inp])
+
+                # add to Attr Modeling Block
+                setattr(self.attr, inp, getattr(component, inp))
 
         # The smaller Blocks are then added to the Larger Scenario Level Model Blocks
         # The DataBlock is added to the Data Model

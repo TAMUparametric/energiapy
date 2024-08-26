@@ -46,6 +46,11 @@ class _Component(_Dunders):
         """The Program of the Component"""
         return getattr(self._model.program, self.name)
 
+    @property
+    def attr(self):
+        """The Attributes of the Component"""
+        return self._model.attr
+
     def personalize(
         self,
         name: str,
