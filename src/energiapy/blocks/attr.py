@@ -28,6 +28,12 @@ from ..components.operational.transit import Transit
 
 if TYPE_CHECKING:
     from ..core.aliases.is_component import IsComponent
+    from ..core.aliases.is_input import (
+        IsBoundInput,
+        IsExactInput,
+        IsBalInput,
+        IsConvInput,
+    )
 
 
 @dataclass
@@ -38,7 +44,6 @@ class AttrBlock(_Dunders):
 
     Attributes:
         name (str): The name of the attribute block
-
     """
 
     name: str = field(default=None)
@@ -77,24 +82,51 @@ class AttrCollection(_Dunders):
 
 
 @dataclass
-class Bounds:
+class PlyBounds:
+    """Bounds for Players"""
+
+    has: IsBoundInput = field(default=None)
+    needs: IsBoundInput = field(default=None)
+
+
+@dataclass
+class CshBounds:
+    """Bounds for Cash"""
+
+    spend: IsBoundInput = field(default=None)
+    earn: IsBoundInput = field(default=None)
+
+
+@dataclass
+class UsedBounds:
+    """Bounds for Land and Material (Used)"""
+
+    use: IsBoundInput = field(default=None)
+
+
+@dataclass
+class ResBounds:
+    """Bounds for Resources"""
+
+    buy: IsBoundInput = field(default=None)
+    sell: IsBoundInput = field(default=None)
+    ship: IsBoundInput = field(default=None)
+
+
+@dataclass
+class OpnBounds:
+    """Bounds for Operational Components"""
+
+    capacity: IsBoundInput = field(default=None)
+    operate: IsBoundInput = field(default=None)
+
+
+@dataclass
+class Bounds(PlyBounds, CshBounds, UsedBounds, ResBounds, OpnBounds):
     """These are Bounds for the Components
 
     Bounds can be different for Network and individual Spatial Components
-
     """
-
-    has: AttrBlock = field(default=None)
-    needs: AttrBlock = field(default=None)
-    spend: AttrBlock = field(default=None)
-    earn: AttrBlock = field(default=None)
-    emit: AttrBlock = field(default=None)
-    use: AttrBlock = field(default=None)
-    buy: AttrBlock = field(default=None)
-    sell: AttrBlock = field(default=None)
-    ship: AttrBlock = field(default=None)
-    capacity: AttrBlock = field(default=None)
-    operate: AttrBlock = field(default=None)
 
     def __post_init__(self):
         # Player
@@ -117,7 +149,38 @@ class Bounds:
 
 
 @dataclass
-class Exacts:
+class ResExacts:
+    """Exact Inputs for Resources"""
+
+    buy_price: IsExactInput = field(default=None)
+    sell_price: IsExactInput = field(default=None)
+    credit: IsExactInput = field(default=None)
+    penalty: IsExactInput = field(default=None)
+    buy_emission: IsExactInput = field(default=None)
+    sell_emission: IsExactInput = field(default=None)
+    loss_emission: IsExactInput = field(default=None)
+
+
+@dataclass
+class UsedExacts:
+    """Exact Inputs for Land and Material (Used)"""
+
+    cost: IsExactInput = field(default=None)
+
+
+@dataclass
+class OpnExacts:
+    """Exact Inputs for Operational Components"""
+
+    land: IsExactInput = field(default=None)
+    material: IsExactInput = field(default=None)
+    capex: IsExactInput = field(default=None)
+    opex: IsExactInput = field(default=None)
+    emission: IsExactInput = field(default=None)
+
+
+@dataclass
+class Exacts(ResExacts, UsedExacts, OpnExacts):
     """These are Exact Component Inputs
 
     These are inherited across all Spatial Components
@@ -126,20 +189,6 @@ class Exacts:
     There is no Network value for these
 
     """
-
-    cost: AttrBlock = field(default=None)
-    buy_price: AttrBlock = field(default=None)
-    sell_price: AttrBlock = field(default=None)
-    credit: AttrBlock = field(default=None)
-    penalty: AttrBlock = field(default=None)
-    buy_emission: AttrBlock = field(default=None)
-    sell_emission: AttrBlock = field(default=None)
-    loss_emission: AttrBlock = field(default=None)
-    land: AttrBlock = field(default=None)
-    material: AttrBlock = field(default=None)
-    capex: AttrBlock = field(default=None)
-    opex: AttrBlock = field(default=None)
-    emission: AttrBlock = field(default=None)
 
     def __post_init__(self):
         # Land and Material (Used)
@@ -163,17 +212,33 @@ class Exacts:
 
 
 @dataclass
-class Balances:
+class ProBalances:
+    """Balances for Players"""
+
+    conversion: IsConvInput = field(default=None)
+
+
+@dataclass
+class StgBalances:
+    """Balances for Storage"""
+
+    inventory: IsBalInput = field(default=None)
+
+
+@dataclass
+class TrnBalances:
+    """Balances for Transit"""
+
+    freight: IsBalInput = field(default=None)
+
+
+@dataclass
+class Balances(ProBalances, StgBalances, TrnBalances):
     """These are Balances for Resources
     defined at Operational Components
     """
 
-    conversion: AttrBlock = field(default=None)
-    inventory: AttrBlock = field(default=None)
-    freight: AttrBlock = field(default=None)
-
     def __post_init__(self):
-
         # Process
         self.conversion = AttrBlock(name='conversion', cmp=[Process])
         # Storage
