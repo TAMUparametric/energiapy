@@ -146,13 +146,13 @@ class SptTmpInp(_Dunders):
         # update the input with a dictionary {Disposition: value}
         self.dict_input = dict_upd
 
-    def get(self, n: Union[Tuple[IsComponent], int] = None) -> IsValue:
+    def get(self, n: Union[Tuple[IsComponent], int, None] = None) -> IsValue:
         """Gets the value of the input at the index
         You can give the index or the position
         or nothing, to get some guidelines
 
         Args:
-            n (Union[Tuple[IsComponent], int]): index (tuple) or position (int) to get the value. Default is None
+            n (Union[Tuple[IsComponent], int, None]): index (tuple) or position (int) to get the value. Default is None
 
         Returns:
             IsValue: The value at the index
@@ -190,7 +190,7 @@ class SptTmpInp(_Dunders):
             print()
             print('Use help() for examples')
 
-        if not n:
+        if n is None:
             print('No index or position provided')
             siren_position()
             siren_index()
