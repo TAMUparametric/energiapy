@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 
 from sympy import IndexedBase
 
-from ..defined.approach import Certainty
+from ..defined.enums import Certainty
 from ._value import _Value
 
 if TYPE_CHECKING:

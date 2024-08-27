@@ -1,6 +1,6 @@
 from typing import TypeAlias, Union
 
-from ...indices.bounds import SpcLmt, VarBnd
+from ...indices.enums import SpcLmt, VarBnd
 from ...parameters.balances.conversion import Conversion
 from ...parameters.balances.inventory import Inventory
 from ...parameters.designators.mode import X

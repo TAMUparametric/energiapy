@@ -48,13 +48,13 @@ def scenario():
         buy={scn.loca: {scn.t0: 1}},
         sell={scn.locb: {scn.t1: 1}},
         ship={scn.lnk: {scn.t0: 1}},
-        buy_price={scn.loca: {scn.t0: 1}},
-        sell_price={scn.locb: {scn.t1: 1}},
+        price_buy={scn.loca: {scn.t0: 1}},
+        price_sell={scn.locb: {scn.t1: 1}},
         credit={scn.loca: {scn.t0: 1}},
         penalty={scn.locb: {scn.t1: 1}},
-        buy_emission={scn.loca: {scn.t0: {scn.emn: 1}}},
-        sell_emission={scn.locb: {scn.t1: {scn.emn: 1}}},
-        loss_emission={scn.locb: {scn.t0: {scn.emn: 1}}},
+        emission_buy={scn.loca: {scn.t0: {scn.emn: 1}}},
+        emission_sell={scn.locb: {scn.t1: {scn.emn: 1}}},
+        emission_loss={scn.locb: {scn.t0: {scn.emn: 1}}},
     )
     scn.res_ = Resource()
     scn.pro = Process(conversion={scn.res: {scn.res_: -1}})

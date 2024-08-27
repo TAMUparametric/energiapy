@@ -29,7 +29,7 @@ class EmitSys(_Variable):
     @classmethod
     def structures(cls, component):
         """The allowed structures of disposition of the Variable"""
-        return make_structures(emn_strict=True, spt=['loc', 'lnk', 'ntw'])
+        return make_structures(emission_strict=True, spt=['loc', 'lnk', 'ntw'])
 
     @classmethod
     def parent(cls):
@@ -73,7 +73,7 @@ class EmitTrade(Emit):
     def structures(cls, component):
         """The allowed structures of disposition of the Variable"""
         return make_structures(
-            emn_strict=True, cmd='res', opn='pro', spt=['loc', 'ntw']
+            emission_strict=True, cmd='res', opn='pro', spt=['loc', 'ntw']
         )
 
 
@@ -133,7 +133,9 @@ class EmitLoss(Emit):
         elif isinstance(component, Transit):
             opn, spt = 'trn', 'lnk'
 
-        return make_structures(emn_strict=True, cmd='res', opn=[opn], spt=[spt, 'ntw'])
+        return make_structures(
+            emission_strict=True, cmd='res', opn=[opn], spt=[spt, 'ntw']
+        )
 
     @staticmethod
     def id() -> IndexedBase:
@@ -163,7 +165,7 @@ class EmitUse(Emit):
             cmd = 'mat'
         return make_structures(
             mde=True,
-            emn_strict=True,
+            emission_strict=True,
             cmd=[cmd],
             opn=['pro', 'stg', 'trn'],
             spt=['loc', 'lnk', 'ntw'],
@@ -199,7 +201,7 @@ class EmitCap(Emit):
 
         return make_structures(
             mde=True,
-            emn_strict=True,
+            emission_strict=True,
             opn=[opn],
             spt=[spt, 'ntw'],
         )

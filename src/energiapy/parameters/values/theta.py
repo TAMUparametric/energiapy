@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING
 from sympy import IndexedBase
 
 from ...core._handy._dunders import _Magics
-from ..defined.approach import Approach, Certainty
+from ..defined.enums import Approach, Certainty
 from ._value import _Value
 
 if TYPE_CHECKING:

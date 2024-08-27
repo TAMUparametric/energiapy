@@ -1,21 +1,19 @@
 """Storage - Stashes Resource to Withdraw Later
 """
 
-from __future__ import annotations
-
-from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, List
+from dataclasses import dataclass
 
 from ...parameters.balances.inventory import Inventory
 from ._birther import _Birther
 
-if TYPE_CHECKING:
-    from ...core.aliases.is_component import IsLocation
-    from ...core.aliases.is_input import IsBalInput, IsBoundInput, IsExactInput
+from ...attrs.bounds import StgBounds
+from ...attrs.exacts import StgLossExacts
+from ...attrs.balances import StgBalance
+from ...attrs.spatials import LocCollection
 
 
 @dataclass
-class Storage(_Birther):
+class Storage(StgBounds, StgLossExacts, StgBalance, LocCollection, _Birther):
     """Storage stores and withdraws Resources
     There could be a dependent Resource
 
@@ -43,13 +41,6 @@ class Storage(_Birther):
         retire (str): index in scale when the component is retired
         label (str): label of the component
     """
-
-    loss: IsExactInput = field(default=None)
-    store: IsBoundInput = field(default=None)
-    inventory: IsBalInput = field(default=None)
-    locations: List[IsLocation] = field(default=None)
-    capacity_in: IsBoundInput = field(default=None)
-    capacity_out: IsBoundInput = field(default=None)
 
     def __post_init__(self):
         _Birther.__post_init__(self)

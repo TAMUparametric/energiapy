@@ -10,7 +10,7 @@ from ..core.nirop.errors import CacodcarError
 
 
 def make_structures(
-    emn_strict: bool = False,
+    emission_strict: bool = False,
     csh_strict: bool = False,
     opn_strict: bool = False,
     cmd_strict: bool = True,
@@ -29,7 +29,7 @@ def make_structures(
     The function returns a list of all structures that are allowed
 
     Args:
-        emn_strict (bool): If variable has to be declared strictly for Emission
+        emission_strict (bool): If variable has to be declared strictly for Emission
         csh_strict (bool): If variable has to be declared strictly for Cash
         opn_strict (bool): If variable has to be declared strictly for Operation
         cmd_strict (bool): If variable has to be declared strictly for Commodity
@@ -58,7 +58,7 @@ def make_structures(
         struct_dict['ply'] = ['', 'ply']
 
     # Cash and Emissions are optional
-    if emn_strict:
+    if emission_strict:
         struct_dict['emn'] = ['emn']
     else:
         struct_dict['emn'] = ['']

@@ -5,8 +5,8 @@ from dataclasses import dataclass, field
 
 from sympy import IndexedBase
 
-from ...indices.bounds import VarBnd
-from ..defined.approach import Certainty
+from ...indices.enums import VarBnd
+from ..defined.enums import Certainty
 from ._value import _Value
 from .constant import Constant
 

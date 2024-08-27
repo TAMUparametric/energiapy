@@ -1,19 +1,13 @@
 """Player is a class that represents a player in the Scenario
 """
 
-from __future__ import annotations
-
-from dataclasses import dataclass, field
-from typing import TYPE_CHECKING
-
+from dataclasses import dataclass
 from .._base._simple import _Simple
-
-if TYPE_CHECKING:
-    from ...core.aliases.is_input import IsBoundInput
+from ...attrs.bounds import PlyBounds
 
 
 @dataclass
-class Player(_Simple):
+class Player(PlyBounds, _Simple):
     """A Player in the Scenario
 
     Attributes:
@@ -28,13 +22,5 @@ class Player(_Simple):
 
     """
 
-    has: IsBoundInput = field(default=None)
-    needs: IsBoundInput = field(default=None)
-
     def __post_init__(self):
         _Simple.__post_init__(self)
-
-    @staticmethod
-    def bounds():
-        """Attrs that quantify the bounds of the component"""
-        return ['has', 'needs']

@@ -4,19 +4,15 @@
     3. transported by Transits
 """
 
-from __future__ import annotations
-
-from dataclasses import dataclass, field
-from typing import TYPE_CHECKING
+from dataclasses import dataclass, field, fields
 
 from ._commodity import _Traded
-
-if TYPE_CHECKING:
-    from ...core.aliases.is_input import IsBoundInput, IsExactInput
+from ...attrs.bounds import ResBounds
+from ...attrs.exacts import ResExpExacts, ResEmnExacts
 
 
 @dataclass
-class Resource(_Traded):
+class Resource(ResBounds, ResExpExacts, ResEmnExacts, _Traded):
     """Resources are Produced by Processes, Stored by Storage, and Transported by Transits
     They can be bought, sold, shipped, and received by Locations or Processes
 
@@ -24,13 +20,13 @@ class Resource(_Traded):
         buy (IsBoundInput): bound on amount bought at Location or by Process
         sell (IsBoundInput): bound on amount sold at Location or by Process
         ship (IsBoundInput): bound on amount shipped through Linkage
-        buy_price (IsExactInput): price to buy per unit basis
-        sell_price (IsExactInput): price at which to sell per unit basis
+        price_buy (IsExactInput): price to buy per unit basis
+        price_sell (IsExactInput): price at which to sell per unit basis
         credit (IsExactInput): credit received per unit basis sold
         penalty (IsExactInput): penalty paid for not meeting lower bound of sell
-        buy_emission (IsExactInput): emission per unit basis of buy
-        sell_emission (IsExactInput): emission per unit basis of sell
-        loss_emission (IsExactInput): emission per unit basis of loss (Storage, Transit)
+        emission_buy (IsExactInput): emission per unit basis of buy
+        emission_sell (IsExactInput): emission per unit basis of sell
+        emission_loss (IsExactInput): emission per unit basis of loss (Storage, Transit)
         basis (str): basis of the component
         citation (dict): citation of the component
         block (str): block of the component
@@ -38,17 +34,6 @@ class Resource(_Traded):
         retire (str): index in scale when the component is retired
         label (str): label of the component
     """
-
-    buy: IsBoundInput = field(default=None)
-    sell: IsBoundInput = field(default=None)
-    ship: IsBoundInput = field(default=None)
-    buy_price: IsExactInput = field(default=None)
-    sell_price: IsExactInput = field(default=None)
-    credit: IsExactInput = field(default=None)
-    penalty: IsExactInput = field(default=None)
-    buy_emission: IsExactInput = field(default=None)
-    sell_emission: IsExactInput = field(default=None)
-    loss_emission: IsExactInput = field(default=None)
 
     # Depreciated
     varying: str = field(default=None)
@@ -60,8 +45,6 @@ class Resource(_Traded):
 
     def __post_init__(self):
         _Traded.__post_init__(self)
-        # defined at Storage and Transit
-        self.loss = []
         # Depreciation Warnings
         _name = getattr(self, 'name', None)
         _changed = {
@@ -77,20 +60,21 @@ class Resource(_Traded):
             if getattr(self, i):
                 raise ValueError(f'{_name}: {i} is depreciated. Please use {j} instead')
 
-    @classmethod
-    def bounds(cls):
-        """Attrs that quantify the bounds of the Component"""
-        return ['buy', 'sell', 'ship']
+    @property
+    def losses(self):
+        """Resource Losses"""
+        return self.attr.losses
+
 
     @classmethod
     def expenses(cls):
         """Attrs that determine expenses of the component"""
-        return ['buy_price', 'sell_price', 'credit', 'penalty']
+        return fields(ResExpExacts)
 
     @classmethod
     def emitted(cls):
         """Attrs that determine emissions of the component"""
-        return ['buy_emission', 'sell_emission', 'loss_emission']
+        return fields(ResEmnExacts)
 
     @classmethod
     def inputs(cls):

@@ -11,23 +11,54 @@ from ..constraints.bind import Bind
 from ..constraints.calculate import Calculate
 from ..core._handy._dunders import _Dunders
 from ..core.nirop.errors import CacodcarError
-from ..parameters.defined.bound import (BuyBnd, CapBnd, EarnBnd, OpBnd,
-                                        SellBnd, ShipBnd, SpendBnd, UseBnd)
-from ..parameters.defined.emission import (CmdEmitUse, EmitBnd, OpnEmit,
-                                           ResEmitBuy, ResEmitLoss,
-                                           ResEmitSell)
-from ..parameters.defined.expense import (BuyPrice, CapExp, CapExpI, OpExp,
-                                          OpExpI, ResCredit, ResPenalty,
-                                          SellPrice, UseExp)
+from ..parameters.defined.bound import (
+    BuyBnd,
+    CapBnd,
+    EarnBnd,
+    OpBnd,
+    SellBnd,
+    ShipBnd,
+    SpendBnd,
+    UseBnd,
+)
+from ..parameters.defined.emission import (
+    CmdEmitUse,
+    EmitBnd,
+    OpnEmit,
+    ResEmitBuy,
+    ResEmitLoss,
+    ResEmitSell,
+)
+from ..parameters.defined.expense import (
+    BuyPrice,
+    CapExp,
+    CapExpI,
+    OpExp,
+    OpExpI,
+    ResCredit,
+    ResPenalty,
+    SellPrice,
+    UseExp,
+)
 from ..parameters.defined.loss import ResLoss
 from ..parameters.defined.ownership import Has, Needs
 from ..parameters.defined.use import LndUse, MatUse
 from ..variables.action import Gives, Takes
 from ..variables.capacitate import Capacity
-from ..variables.emit import (EmitBuy, EmitCap, EmitLoss, EmitSell, EmitSys,
-                              EmitUse)
-from ..variables.expense import (Credit, Earn, ExpBuy, ExpCap, ExpCapI, ExpOp,
-                                 ExpOpI, ExpSell, ExpUse, Penalty, Spend)
+from ..variables.emit import EmitBuy, EmitCap, EmitLoss, EmitSell, EmitSys, EmitUse
+from ..variables.expense import (
+    Credit,
+    Earn,
+    ExpBuy,
+    ExpCap,
+    ExpCapI,
+    ExpOp,
+    ExpOpI,
+    ExpSell,
+    ExpUse,
+    Penalty,
+    Spend,
+)
 from ..variables.loss import Loss
 from ..variables.operate import Operate
 from ..variables.trade import Buy, Sell, Ship
@@ -104,7 +135,7 @@ trade_bnd = [(Buy, BuyBnd), (Sell, SellBnd), (Ship, ShipBnd)]
 cap_bnd = [(Capacity, CapBnd)]
 op_bnd = [(Operate, OpBnd)]
 exp_bnd = [(Spend, SpendBnd), (Earn, EarnBnd)]
-emn_bnd = [(EmitSys, EmitBnd)]
+emission_bnd = [(EmitSys, EmitBnd)]
 ply_bnd = [(Gives, Has), (Takes, Needs)]
 use_bnd = [(Use, UseBnd)]
 
@@ -131,7 +162,9 @@ emit = [
     (EmitLoss, ResEmitLoss),
 ]
 
-for var, param in trade_bnd + cap_bnd + op_bnd + exp_bnd + emn_bnd + ply_bnd + use_bnd:
+for var, param in (
+    trade_bnd + cap_bnd + op_bnd + exp_bnd + emission_bnd + ply_bnd + use_bnd
+):
 
     rulebook.add(
         Rule(
