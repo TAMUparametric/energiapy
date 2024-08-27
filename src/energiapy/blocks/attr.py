@@ -32,6 +32,7 @@ class Bounds:
     ship: list = field(default_factory=list)
     # Operational
     capacity: list = field(default_factory=list)
+    operate: list = field(default_factory=list)
     # Process
     produce: list = field(default_factory=list)
     # Storage

@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Tuple
+from typing import TYPE_CHECKING, Tuple, Union
 
 from ..components.analytical.player import Player
 from ..components.commodity.cash import Cash
@@ -146,18 +146,33 @@ class SptTmpInp(_Dunders):
         # update the input with a dictionary {Disposition: value}
         self.dict_input = dict_upd
 
-    def get(self, index: Tuple[IsComponent] = None, position: int = None) -> IsValue:
+    def get(self, n: Union[Tuple[IsComponent], int] = None) -> IsValue:
         """Gets the value of the input at the index
         You can give the index or the position
         or nothing, to get some guidelines
-        if both are given, will use the index
 
         Args:
-            index (tuple, optional): Index to get the value
-            position (int, optional): Position to get the value. Defaults to None
+            n (Union[Tuple[IsComponent], int]): index (tuple) or position (int) to get the value. Default is None
 
         Returns:
             IsValue: The value at the index
+
+        Examples:
+            Declare some Scenario, Horizon, and Network
+            >>> s = Scenario()
+            >>> s.hrz = Horizon(discretizations=[2, 12])
+            >>> s.ntw = Network(['madgaon', 'ponje'])
+            Here we are setting the cash spend at madgaon for t2
+            i.e. Do not spend more than 50 money in any time period in Scale t2 at Location madgaon
+            >>> s.csh = Cash(spend = {s.madgaon: {s.t2: [50]}})
+            You can get the value by index
+            >>> s.csh.spend.get((s.csh, s.madgaon, s.t2))
+            or by position
+            >>> s.csh.spend.get(0)
+            Irrespective you will get:
+            >>> [0[csh, madgaon, t2], 50[csh, madgaon, t2]]
+            For guidelines, just use this
+            >>> s.csh.spend.get()
         """
 
         def siren_position():
@@ -171,32 +186,39 @@ class SptTmpInp(_Dunders):
             print('For index, use this as a guideline')
             print(f'{self.dict_input}')
 
-        if not index and not position:
+        def siren_help():
+            print()
+            print('Use help() for examples')
+
+        if not n:
             print('No index or position provided')
             siren_position()
             siren_index()
+            siren_help()
 
-        if position and not index:
-            if position > len(self.dispositions):
-                print(f'Position {position} out of range')
-                siren_position()
-            else:
-                index = self.dispositions[position]
-                return self.dict_input[index]
+        if isinstance(n, tuple):
 
-        if index and not position:
+            index = n
             if not index in [disp.index for disp in self.dispositions]:
                 print(f'Index {index} not found')
                 siren_index()
+                siren_help()
 
             for disp, value in self.dict_input.items():
                 if disp.index == index:
                     return value
 
-        if index and position:
-            print('Provide either index or position, not both')
-            print('If you provide both, the index will be used')
-            return self.get(index=index)
+        if isinstance(n, int):
+
+            position = n
+            if position > len(self.dispositions):
+                print(f'Position {position} out of range')
+                siren_position()
+                siren_help()
+
+            else:
+                index = self.dispositions[position]
+                return self.dict_input[index]
 
     def values(self):
         """Returns the values of the input"""
