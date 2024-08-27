@@ -53,11 +53,6 @@ class _Variable(_Dunders, ABC):
     def child(cls) -> IsComponent:
         """The Parent Variable doesnot carry Child Component"""
 
-    @staticmethod
-    def collection():
-        """What collection the element belongs to"""
-        return 'variables'
-
     @property
     def sym(self):
         """The symbolic representation of the Variable"""

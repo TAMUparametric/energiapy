@@ -8,7 +8,7 @@ from ...blocks.matrix import Matrix
 from ...blocks.model import Model
 from ...blocks.program import Program, ProgramBlock
 from ...blocks.system import System
-from ...disposition.disposition import Disposition
+from ...indices.disposition import Disposition
 from ...model.scenario import Scenario
 from .is_component import IsComponent
 

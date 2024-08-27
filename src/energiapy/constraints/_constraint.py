@@ -50,11 +50,6 @@ class _Constraint(_Dunders):
         """Symbol"""
         return self.id()[self.disposition.sym]
 
-    @staticmethod
-    def collection():
-        """What collection the element belongs to"""
-        return 'constraints'
-
     def birth_equation(self, eq: str, par: IsParameter, prn: IsVariable):
         """Create the equation for the constraint
 

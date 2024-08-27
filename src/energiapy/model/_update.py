@@ -127,19 +127,19 @@ class _Update(ABC):
 
         # Each _Defined component has inputs which are categorized
         # check individual component parent classes _Operational, _Commodity (_Traded and _Used) for details
-        for inp in component.inputs():
+        for attr in component.inputs():
             # if the input is provided (they all default to None)
-            if getattr(component, inp, False):
+            if getattr(component, attr, False):
                 # set the input as attribute in the DataBlock
                 # This will make them into energiapy internal formats - Constant, DataSet, Theta, M
-                setattr(datablock, inp, {component: getattr(component, inp)})
+                setattr(datablock, attr, {component: getattr(component, attr)})
 
                 # The updated Values are then set back into the component
-                setattr(component, inp, datablock.spttmpinp[inp])
+                setattr(component, attr, datablock.spttmpinp[attr])
 
-                # add to Attr Modeling Block
-                for val in getattr(component, inp).values():
-                    getattr(self.attr, inp).append(val)
+                # update the values for the attributes in the Attr Modeling Block
+                for val in getattr(component, attr).values():
+                    getattr(self.attr, attr).values.append(val)
 
         # The smaller Blocks are then added to the Larger Scenario Level Model Blocks
         # The DataBlock is added to the Data Model
@@ -149,6 +149,18 @@ class _Update(ABC):
         # The disposition and type of value is used to generate Program elements:
         # Parameters, Variables, Constraints, and Objectives
         setattr(programblock, name, datablock)
+
+        # update all the elements related the attributes in the Attr Modeling Block
+        for attr, cons in programblock.attr_constraints.items():
+            getattr(self.attr, attr).constraints.extend(cons)
+
+        for attr, var in programblock.attr_variables.items():
+            getattr(self.attr, attr).variables.extend(var)
+        for attr, par in programblock.attr_parameters.items():
+            getattr(self.attr, attr).parameters.extend(par)
+
+        for attr, disp in programblock.attr_dispositions.items():
+            getattr(self.attr, attr).dispositions.extend(disp)
 
         # The ProgramBlock is also added to the Program Model
         setattr(self.program, name, programblock)

@@ -13,7 +13,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from operator import is_not
-from typing import TYPE_CHECKING, Union, Any
+from typing import TYPE_CHECKING, Any, Union
 from warnings import warn
 
 from pandas import DataFrame

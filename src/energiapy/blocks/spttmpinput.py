@@ -20,7 +20,7 @@ from ..components.spatial.linkage import Linkage
 from ..components.spatial.location import Location
 from ..components.temporal.scale import Scale
 from ..core._handy._dunders import _Dunders
-from ..disposition.disposition import Disposition
+from ..indices.disposition import Disposition
 from ..parameters.designators.mode import X
 from ..utils.dictionary import flatten
 

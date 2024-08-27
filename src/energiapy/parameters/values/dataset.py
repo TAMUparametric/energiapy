@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING
 from pandas import DataFrame
 from sympy import IndexedBase
 
-from ...disposition.bounds import VarBnd
+from ...indices.bounds import VarBnd
 from ..defined.approach import Approach, Certainty
 from ._value import _Value
 

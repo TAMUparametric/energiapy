@@ -10,7 +10,7 @@ from ..constraints.rulebook import rulebook
 from ..constraints.taskmaster import taskmaster
 from ..core._handy._dunders import _Dunders
 from ..core._handy._printers import _Print
-from ..disposition.disposition import Disposition
+from ..indices.disposition import Disposition
 from ._block import _Block
 from .data import DataBlock
 
@@ -34,10 +34,14 @@ class ProgramBlock(_Dunders, _Print):
 
     def __post_init__(self):
         self.name = f'Program|{self.component}|'
-        # Declare empty lists to hold the generated elements
-        self.variables, self.constraints, self.parameters, self.dispositions = (
-            [] for _ in range(4)
-        )
+        # Declare empty dictionaries to hold the generated elements
+        # the keys are the attributes of the components
+        (
+            self.attr_variables,
+            self.attr_constraints,
+            self.attr_parameters,
+            self.attr_dispositions,
+        ) = ({inp: [] for inp in self.component.inputs()} for _ in range(4))
 
     def __setattr__(self, name: str, datablock: IsDataBlock):
 
@@ -86,8 +90,8 @@ class ProgramBlock(_Dunders, _Print):
             # Variable is declared, the Disposition is used
             variable = var(disposition=value.disposition, component=self.component)
             # The collections are updated
-            self.add(variable)
-            self.add(variable.disposition)
+            self.attr_variables[attr].append(variable)
+            self.attr_dispositions[attr].append(value.disposition)
 
             # The Variable can have a:
             # 1. Parent Variable: needed to bound or determine this variable
@@ -115,7 +119,7 @@ class ProgramBlock(_Dunders, _Print):
                     else:
                         # If not make a new one and update the collection
                         disposition_par = Disposition(**index_childless)
-                        self.add(disposition_par)
+                        self.attr_dispositions[attr].append(disposition_par)
 
                 else:
                     # if no Parent then the Parameter Disposition is the same as variable
@@ -143,7 +147,7 @@ class ProgramBlock(_Dunders, _Print):
                     parent = parent_var(
                         disposition=disposition_par, component=self.component
                     )
-                    self.add(parent)
+                    self.attr_variables[attr].append(parent)
 
             else:
                 # Bruce Wayne Variable
@@ -158,7 +162,7 @@ class ProgramBlock(_Dunders, _Print):
                 if rule.parameter:
                     # If the rule needs a parameter, then make it
                     parameter = rule.parameter(value)
-                    self.add(parameter)
+                    self.attr_parameters[attr].append(parameter)
 
                 else:
                     parameter = None
@@ -170,18 +174,8 @@ class ProgramBlock(_Dunders, _Print):
                     parameter=parameter,
                     varbnd=value.varbnd,
                 )
-
-                self.add(constraint)
-
-    def add(self, element: IsElement):
-        """Updates the collection lists of elements in the program block
-
-        Args:
-            element (IsElement): Variable, Constraint, or Parameter to be added to a particular collection
-        """
-
-        list_curr = getattr(self, element.collection())
-        setattr(self, element.collection(), sorted(set(list_curr) | {element}))
+                # update collection
+                self.attr_constraints[attr].append(constraint)
 
     def eqns(self, at_cmp: IsDefined = None, at_disp: IsIndex = None):
         """Yields all equations in the ProgramBlock
@@ -232,6 +226,26 @@ class ProgramBlock(_Dunders, _Print):
     def var_types(self):
         """Returns all variables types already declared in the ProgramBlock"""
         return [type(i) for i in self.variables]
+
+    @property
+    def variables(self):
+        """Returns all variables in the ProgramBlock"""
+        return sum(list(self.attr_variables.values()), [])
+
+    @property
+    def constraints(self):
+        """Returns all constraints in the ProgramBlock"""
+        return sum(list(self.attr_constraints.values()), [])
+
+    @property
+    def parameters(self):
+        """Returns all parameters in the ProgramBlock"""
+        return sum(list(self.attr_parameters.values()), [])
+
+    @property
+    def dispositions(self):
+        """Returns all dispositions in the ProgramBlock"""
+        return sum(list(self.attr_dispositions.values()), [])
 
 
 @dataclass

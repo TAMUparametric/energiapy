@@ -6,7 +6,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
-from ..disposition.bounds import VarBnd
+from ..indices.bounds import VarBnd
 from ._constraint import _Constraint
 
 if TYPE_CHECKING:

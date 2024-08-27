@@ -4,8 +4,54 @@ Defines strict behaviour
 """
 
 from dataclasses import dataclass, field, fields
+from typing import List
 
 from ..core._handy._dunders import _Dunders
+
+
+@dataclass
+class AttrBlock(_Dunders):
+    """Attr Block
+    Handles the attributes of components
+    Defines strict behaviour
+
+    Attributes:
+        name (str): The name of the attribute block
+
+    """
+
+    name: str = field(default=None)
+
+    def __post_init__(self):
+        self.name = f'Attr|{self.name}|'
+        # Collections associated with the attribute
+        self.values = []
+        self.parameters = []
+        self.constraints = []
+        self.variables = []
+        self.dispositions = []
+
+
+@dataclass
+class AttrCollection(_Dunders):
+    """Attr is a collection of AttrBlocks
+
+    Attributes:
+        name (str): The name of the attribute collection
+
+    """
+
+    name: str = field(default=None)
+    attrblocks: List[AttrBlock] = field(default_factory=list)
+
+    def __post_init__(self):
+        self.name = f'Attr|{self.name}|'
+        # Collections associated with the attribute
+        self.values = sum([attr.values for attr in self.attrblocks], [])
+        self.parameters = sum([attr.parameters for attr in self.attrblocks], [])
+        self.dispositions = sum([attr.dispositions for attr in self.attrblocks], [])
+        self.constraints = sum([attr.constraints for attr in self.attrblocks], [])
+        self.variables = sum([attr.variables for attr in self.attrblocks], [])
 
 
 @dataclass
@@ -16,45 +62,24 @@ class Bounds:
 
     """
 
-    # Player
-    has: list = field(default_factory=list)
-    needs: list = field(default_factory=list)
-    # Cash
-    spend: list = field(default_factory=list)
-    earn: list = field(default_factory=list)
-    # Emission
-    emit: list = field(default_factory=list)
-    # Land and Material (Used)
-    use: list = field(default_factory=list)
-    # Resource
-    buy: list = field(default_factory=list)
-    sell: list = field(default_factory=list)
-    ship: list = field(default_factory=list)
-    # Operational
-    capacity: list = field(default_factory=list)
-    operate: list = field(default_factory=list)
-    # Process
-    produce: list = field(default_factory=list)
-    # Storage
-    capacity_c: list = field(default_factory=list)
-    capacity_d: list = field(default_factory=list)
-    store: list = field(default_factory=list)
-    # Transit
-    transport: list = field(default_factory=list)
-
-
-@dataclass
-class Collects:
-    """These are at the root Component and collect
-    the values defined at other Components
-    """
-
-    # Cash
-    expenses: list = field(default_factory=list)
-    # Emission
-    emits: list = field(default_factory=list)
-    # Land
-    lands: list = field(default_factory=list)
+    def __post_init__(self):
+        # Player
+        self.has = AttrBlock(name='has')
+        self.needs = AttrBlock(name='needs')
+        # Cash
+        self.spend = AttrBlock(name='spend')
+        self.earn = AttrBlock(name='earn')
+        # Emission
+        self.emit = AttrBlock(name='emit')
+        # Land and Material (Used)
+        self.use = AttrBlock(name='use')
+        # Resource
+        self.buy = AttrBlock(name='buy')
+        self.sell = AttrBlock(name='sell')
+        self.ship = AttrBlock(name='ship')
+        # Operational
+        self.capacity = AttrBlock(name='capacity')
+        self.operate = AttrBlock(name='operate')
 
 
 @dataclass
@@ -68,23 +93,23 @@ class Exacts:
 
     """
 
-    # Land and Material (Used)
-    cost: list = field(default_factory=list)
-    emission: list = field(default_factory=list)
-    # Resource
-    buy_price: list = field(default_factory=list)
-    sell_price: list = field(default_factory=list)
-    credit: list = field(default_factory=list)
-    penalty: list = field(default_factory=list)
-    buy_emission: list = field(default_factory=list)
-    sell_emission: list = field(default_factory=list)
-    loss_emission: list = field(default_factory=list)
-    # Operational
-    land: list = field(default_factory=list)
-    material: list = field(default_factory=list)
-    capex: list = field(default_factory=list)
-    opex: list = field(default_factory=list)
-    emission: list = field(default_factory=list)
+    def __post_init__(self):
+        # Land and Material (Used)
+        self.cost = AttrBlock(name='cost')
+        # Resource
+        self.buy_price = AttrBlock(name='buy_price')
+        self.sell_price = AttrBlock(name='sell_price')
+        self.credit = AttrBlock(name='credit')
+        self.penalty = AttrBlock(name='penalty')
+        self.buy_emission = AttrBlock(name='buy_emission')
+        self.sell_emission = AttrBlock(name='sell_emission')
+        self.loss_emission = AttrBlock(name='loss_emission')
+        # Operational
+        self.land = AttrBlock(name='land')
+        self.material = AttrBlock(name='material')
+        self.capex = AttrBlock(name='capex')
+        self.opex = AttrBlock(name='opex')
+        self.emission = AttrBlock(name='emission')
 
 
 @dataclass
@@ -93,11 +118,13 @@ class BoundsRes:
     defined at Operational Components
     """
 
-    # Process
-    buy: list = field(default_factory=list)
-    sell: list = field(default_factory=list)
-    # Transit
-    ship: list = field(default_factory=list)
+    def __post_init__(self):
+
+        # Process
+        self.buy = AttrBlock(name='buy')
+        self.sell = AttrBlock(name='sell')
+        # Transit
+        self.ship = AttrBlock(name='ship')
 
 
 @dataclass
@@ -106,11 +133,13 @@ class ExactRes:
     defined at Operational Components
     """
 
-    # Process
-    buy_price: list = field(default_factory=list)
-    sell_price: list = field(default_factory=list)
-    credit: list = field(default_factory=list)
-    penalty: list = field(default_factory=list)
+    def __post_init__(self):
+
+        # Process
+        self.buy_price = AttrBlock(name='buy_price')
+        self.sell_price = AttrBlock(name='sell_price')
+        self.credit = AttrBlock(name='credit')
+        self.penalty = AttrBlock(name='penalty')
 
 
 @dataclass
@@ -119,16 +148,18 @@ class Balances:
     defined at Operational Components
     """
 
-    # Process
-    conversion: list = field(default_factory=list)
-    # Storage
-    inventory: list = field(default_factory=list)
-    # Transit
-    freight: list = field(default_factory=list)
+    def __post_init__(self):
+
+        # Process
+        self.conversion = AttrBlock(name='conversion')
+        # Storage
+        self.inventory = AttrBlock(name='inventory')
+        # Transit
+        self.freight = AttrBlock(name='freight')
 
 
 @dataclass
-class Attr(Bounds, Collects, Exacts, BoundsRes, ExactRes, Balances, _Dunders):
+class Attr(Bounds, Exacts, BoundsRes, ExactRes, Balances, _Dunders):
     """This object collects all the attributes defined
     and makes a list of Dispositions they are defined at
 
@@ -137,18 +168,17 @@ class Attr(Bounds, Collects, Exacts, BoundsRes, ExactRes, Balances, _Dunders):
     name: str = field(default=None)
 
     def __post_init__(self):
-
         self.name = f'Attr|{self.name}|'
+        Bounds.__post_init__(self)
+        Exacts.__post_init__(self)
+        BoundsRes.__post_init__(self)
+        ExactRes.__post_init__(self)
+        Balances.__post_init__(self)
 
     @staticmethod
     def bounds():
         """Returns all Bounds"""
         return fields(Bounds) + fields(BoundsRes)
-
-    @staticmethod
-    def collects():
-        """Returns all Collects"""
-        return fields(Collects)
 
     @staticmethod
     def exacts():
@@ -159,3 +189,42 @@ class Attr(Bounds, Collects, Exacts, BoundsRes, ExactRes, Balances, _Dunders):
     def balances():
         """Returns all Balances"""
         return fields(Balances)
+
+    @property
+    def expenses(self):
+        """Expenses"""
+        return AttrCollection(
+            name='expenses',
+            attrblocks=[
+                self.capex,
+                self.opex,
+                self.buy_price,
+                self.sell_price,
+                self.credit,
+                self.penalty,
+                self.cost,
+            ],
+        )
+
+    @property
+    def emissions(self):
+        """Emissions"""
+        return AttrCollection(
+            name='emissions',
+            attrblocks=[
+                self.buy_emission,
+                self.sell_emission,
+                self.loss_emission,
+                self.emission,
+            ],
+        )
+
+    @property
+    def lnduses(self):
+        """Land Uses"""
+        return AttrCollection(name='lnduses', attrblocks=[self.land])
+
+    @property
+    def matuses(self):
+        """Material Uses"""
+        return AttrCollection(name='matuses', attrblocks=[self.material])

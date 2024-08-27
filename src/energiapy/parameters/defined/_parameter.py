@@ -32,11 +32,6 @@ class _Parameter(_Dunders, ABC):
     def id(self) -> str:
         """Symbolic representation of the Parameter"""
 
-    @staticmethod
-    def collection():
-        """What collection the element belongs to"""
-        return 'parameters'
-
     @property
     def sym(self):
         """Symbol"""

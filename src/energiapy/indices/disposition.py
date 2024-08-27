@@ -94,11 +94,6 @@ class Disposition(_Dunders):
             if not isinstance(getattr(self, i.name), child)
         }
 
-    @staticmethod
-    def collection():
-        """reports what collection the Component belongs to"""
-        return 'dispositions'
-
     @property
     def sym(self):
         """Symbol"""

@@ -35,9 +35,13 @@ class Cash(_Simple, _Commodity):
     def __post_init__(self):
         _Simple.__post_init__(self)
         _Commodity.__post_init__(self)
-        self.expense = []
 
     @staticmethod
     def bounds():
         """Attrs that quantify the bounds of the component"""
         return ['spend', 'earn']
+
+    @property
+    def expenses(self):
+        """Expenses"""
+        return self.attr.expenses
