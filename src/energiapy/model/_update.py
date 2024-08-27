@@ -138,7 +138,8 @@ class _Update(ABC):
                 setattr(component, inp, datablock.spttmpinp[inp])
 
                 # add to Attr Modeling Block
-                setattr(self.attr, inp, getattr(component, inp))
+                for val in getattr(component, inp).values():
+                    getattr(self.attr, inp).append(val)
 
         # The smaller Blocks are then added to the Larger Scenario Level Model Blocks
         # The DataBlock is added to the Data Model

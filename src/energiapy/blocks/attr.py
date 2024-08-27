@@ -135,14 +135,9 @@ class Attr(Bounds, Collects, Exacts, BoundsRes, ExactRes, Balances, _Dunders):
 
     name: str = field(default=None)
 
-    def __setattr__(self, name, value):
+    def __post_init__(self):
 
-        if name != 'name':
-            value = getattr(self, name) + [value]
-        else:
-            value = f'Attr|{self.name}|'
-
-        super().__setattr__(name, value)
+        self.name = f'Attr|{self.name}|'
 
     @staticmethod
     def bounds():

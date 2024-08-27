@@ -197,3 +197,7 @@ class SptTmpInp(_Dunders):
             print('Provide either index or position, not both')
             print('If you provide both, the index will be used')
             return self.get(index=index)
+
+    def values(self):
+        """Returns the values of the input"""
+        return list(self.dict_input.values())
