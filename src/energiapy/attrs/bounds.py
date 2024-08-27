@@ -51,51 +51,41 @@ class UsedBounds(Bounds):
 
 
 @dataclass
-class ResLocBounds:
+class ResLocBounds(Bounds):
     """Bounds for Resources at Locations"""
 
     buy: IsBoundInput = field(default=None)
     sell: IsBoundInput = field(default=None)
 
-    @property
-    def resourcebnds(self):
-        """Attrs that determine resource bounds of the component"""
-        return fields(self)
-
 
 @dataclass
-class ResLnkBounds:
+class ResLnkBounds(Bounds):
     """Bounds for Resources at Linkages"""
 
     ship: IsBoundInput = field(default=None)
 
-    @property
-    def resourcebnds(self):
-        """Attrs that determine resource expenses of the component"""
-        return fields(self)
-
 
 @dataclass
-class ResBounds(Bounds):
+class ResBounds(ResLocBounds, ResLnkBounds):
     """Bounds for Resources"""
 
 
 @dataclass
-class OpnBounds:
+class OpnBounds(Bounds):
     """Bounds for Operational Components"""
 
     capacity: IsBoundInput = field(default=None)
 
 
 @dataclass
-class ProBounds(OpnBounds, Bounds):
+class ProBounds(OpnBounds):
     """Bounds for Process"""
 
     produce: IsBoundInput = field(default=None)
 
 
 @dataclass
-class StgBounds(OpnBounds, Bounds):
+class StgBounds(OpnBounds):
     """Bounds for Storage"""
 
     store: IsBoundInput = field(default=None)
@@ -104,7 +94,7 @@ class StgBounds(OpnBounds, Bounds):
 
 
 @dataclass
-class TrnBounds(OpnBounds, Bounds):
+class TrnBounds(OpnBounds):
     """Bounds for Transit"""
 
     transport: IsBoundInput = field(default=None)

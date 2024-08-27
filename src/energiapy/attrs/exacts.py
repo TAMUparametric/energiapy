@@ -28,6 +28,18 @@ class EmnExacts:
         return fields(cls)
 
 
+class UseExacts:
+    """Exact Use Inputs for Components"""
+
+    @classmethod
+    def used(cls):
+        """Exact Use Inputs across the Scenario"""
+        return fields(cls)
+
+
+# Resource
+
+
 @dataclass
 class ResExpExacts(ExpExacts):
     """Exact Expense Inputs for Resources"""
@@ -52,6 +64,9 @@ class ResExacts(ResExpExacts, ResEmnExacts):
     """Exact Inputs for Resources"""
 
 
+# Land and Material (Used)
+
+
 @dataclass
 class UsedExpExacts(ExpExacts):
     """Exact Expense Inputs for Land and Material (Used)"""
@@ -71,26 +86,51 @@ class UsedExacts(UsedExpExacts, UsedEmnExacts):
     """Exact Inputs for Land and Material (Used)"""
 
 
+# Operational (Process, Storage, Transit)
+
+
 @dataclass
-class OpnExacts:
-    """Exact Inputs for Operational Components"""
+class OpnExpExacts(ExpExacts):
+    """Exact Expense Inputs for Operational Components"""
 
     capex: IsExactInput = field(default=None)
     opex: IsExactInput = field(default=None)
-    use_land: IsExactInput = field(default=None)
-    use_material: IsExactInput = field(default=None)
+
+
+@dataclass
+class OpnEmnExacts(EmnExacts):
+    """Exact Emission Inputs for Operational Components"""
+
     emission_setup: IsExactInput = field(default=None)
 
 
 @dataclass
-class StgLossExacts:
+class OpnUseExacts(UseExacts):
+    """Exact Use Inputs for Operational Components"""
+
+    use_land: IsExactInput = field(default=None)
+    use_material: IsExactInput = field(default=None)
+
+
+@dataclass
+class OpnExacts(OpnExpExacts, OpnEmnExacts, OpnUseExacts):
+    """Exact Inputs for Operational Components"""
+
+
+@dataclass
+class ProExacts(OpnExacts):
+    """Exact Inputs for Process Components"""
+
+
+@dataclass
+class StgExacts(OpnExacts):
     """Exact Inputs for Storage Components"""
 
     loss_storage: IsExactInput = field(default=None)
 
 
 @dataclass
-class TrnLossExacts:
+class TrnExacts(OpnExacts):
     """Exact Inputs for Transit Components"""
 
     loss_transit: IsExactInput = field(default=None)

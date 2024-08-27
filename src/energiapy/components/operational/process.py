@@ -105,15 +105,6 @@ class Process(
         """The Process conversion is Conversion"""
         return self._balanced
 
-    @staticmethod
-    def _spatials():
-        """Spatial Components where the Operation is located"""
-        return fields(LocCollection)
-
-    @staticmethod
-    def resourcebnds():
-        """Attrs that quantify the bounds of the Component"""
-        return fields(ResLocBounds)
 
     @staticmethod
     def resourceexps():
