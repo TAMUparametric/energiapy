@@ -17,10 +17,20 @@ from ..components.operational.storage import Storage
 from ..components.operational.transit import Transit
 from ..variables.action import Gives, Takes
 from ..variables.capacitate import Capacity
-from ..variables.emit import (EmitBuy, EmitCap, EmitLoss, EmitSell, EmitSys,
-                              EmitUse)
-from ..variables.expense import (Credit, Earn, ExpBuy, ExpCap, ExpCapI, ExpOp,
-                                 ExpOpI, ExpSell, ExpUse, Penalty, Spend)
+from ..variables.emit import EmitBuy, EmitCap, EmitLoss, EmitSell, EmitSys, EmitUse
+from ..variables.expense import (
+    Credit,
+    Earn,
+    ExpBuy,
+    ExpCap,
+    ExpCapI,
+    ExpOp,
+    ExpOpI,
+    ExpSell,
+    ExpUse,
+    Penalty,
+    Spend,
+)
 from ..variables.loss import Loss
 from ..variables.operate import Operate
 from ..variables.trade import Buy, Sell, Ship
@@ -40,8 +50,8 @@ opn = {
     'emission': EmitCap,
     'buy': Buy,
     'sell': Sell,
-    'buy_price': ExpBuy,
-    'sell_price': ExpSell,
+    'price_buy': ExpBuy,
+    'price_sell': ExpSell,
     'credit': Credit,
     'penalty': Penalty,
     'loss': Loss,
@@ -59,16 +69,15 @@ taskmaster = {
         'buy': Buy,
         'sell': Sell,
         'ship': Ship,
-        'buy_price': ExpBuy,
-        'sell_price': ExpSell,
+        'price_buy': ExpBuy,
+        'price_sell': ExpSell,
         'credit': Credit,
         'penalty': Penalty,
-        'buy_emission': EmitBuy,
-        'sell_emission': EmitSell,
-        'loss_emission': EmitLoss,
+        'emission_buy': EmitBuy,
+        'emission_sell': EmitSell,
+        'emission_loss': EmitLoss,
     },
     Process: opn,
     Storage: opn,
     Transit: opn,
 }
-

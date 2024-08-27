@@ -1,20 +1,15 @@
 """Poishe, Money 
 """
 
-from __future__ import annotations
-
-from dataclasses import dataclass, field
-from typing import TYPE_CHECKING
+from dataclasses import dataclass, fields
 
 from .._base._simple import _Simple
+from ...attrs.bounds import CshBounds
 from ._commodity import _Commodity
-
-if TYPE_CHECKING:
-    from ...core.aliases.is_input import IsBoundInput
 
 
 @dataclass
-class Cash(_Simple, _Commodity):
+class Cash(CshBounds, _Simple, _Commodity):
     """Cash is an Asset
     The amount spent or earned at some spatiotemporal dispoqition can be bound
 
@@ -29,9 +24,6 @@ class Cash(_Simple, _Commodity):
         label (str): label of the component
     """
 
-    spend: IsBoundInput = field(default=None)
-    earn: IsBoundInput = field(default=None)
-
     def __post_init__(self):
         _Simple.__post_init__(self)
         _Commodity.__post_init__(self)
@@ -39,7 +31,7 @@ class Cash(_Simple, _Commodity):
     @staticmethod
     def bounds():
         """Attrs that quantify the bounds of the component"""
-        return ['spend', 'earn']
+        return fields(CshBounds)
 
     @property
     def expenses(self):

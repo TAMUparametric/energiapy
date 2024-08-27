@@ -1,21 +1,20 @@
 """Transit moves Resources between Locations
 """
 
-from __future__ import annotations
-
-from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, List
+from dataclasses import dataclass
 
 from ...parameters.balances.freight import Freight
 from ._birther import _Birther
-
-if TYPE_CHECKING:
-    from ...core.aliases.is_component import IsLinkage, IsResource
-    from ...core.aliases.is_input import IsBalInput, IsBoundInput, IsExactInput
+from ...attrs.bounds import TrnBounds, ResLnkBounds
+from ...attrs.exacts import TrnLossExacts
+from ...attrs.balances import TrnBalance
+from ...attrs.spatials import LnkCollection
 
 
 @dataclass
-class Transit(_Birther):
+class Transit(
+    TrnBounds, TrnLossExacts, TrnBalance, ResLnkBounds, LnkCollection, _Birther
+):
     """Transit moves Resources between Locations through a Linkage
     There could be a dependent Resource
 
@@ -45,13 +44,6 @@ class Transit(_Birther):
         label (str): label of the component
 
     """
-
-    freight: IsBalInput = field(default=None)
-    loss: IsExactInput = field(default=None)
-    transport: IsBoundInput = field(default=None)
-    linkages: List[IsLinkage] = field(default=None)
-    ship: IsBoundInput = field(default=None)
-    speed: IsExactInput = field(default=None)
 
     def __post_init__(self):
         # ship is a resourcebnd input

@@ -35,4 +35,4 @@ class Land(_Used):
     @property
     def uses(self):
         """Land Uses across the Scenario"""
-        return self.attr.lnduses
+        return self.attr.use_land

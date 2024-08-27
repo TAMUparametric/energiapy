@@ -3,16 +3,17 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from dataclasses import dataclass, field
+from dataclasses import dataclass, fields
 from typing import TYPE_CHECKING, List
 
 from ...core.nirop.errors import check_attr
 from .._base._consistent import _ConsistentBnd, _ConsistentCsh, _ConsistentNstd
 from .._base._defined import _Defined
+from ...attrs.bounds import UsedBounds
+from ...attrs.exacts import UsedExpExacts, UsedEmnExacts
 
 if TYPE_CHECKING:
     from ...core.aliases.is_component import IsLinkage, IsLocation
-    from ...core.aliases.is_input import IsBoundInput, IsExactInput
 
 
 class _Commodity(ABC):
@@ -137,7 +138,7 @@ class _Traded(
 
 
 @dataclass
-class _Used(_Traded):
+class _Used(UsedBounds, UsedExpExacts, UsedEmnExacts, _Traded):
     """Applies only for Land and Material
     For now, do not subsume my limitations
     Do whatever you can or want to with energiapy
@@ -148,24 +149,20 @@ class _Used(_Traded):
         emission (IsExactInput): emission per unit basis of use
     """
 
-    use: IsBoundInput = field(default=None)
-    cost: IsExactInput = field(default=None)
-    emission: IsExactInput = field(default=None)
-
     def __post_init__(self):
         _Traded.__post_init__(self)
 
     @staticmethod
     def bounds():
         """Attrs that quantify the bounds of the component"""
-        return ['use']
+        return fields(UsedBounds)
 
     @staticmethod
     def expenses():
         """Attrs that determine expenses of the component"""
-        return ['cost']
+        return fields(UsedExpExacts)
 
     @staticmethod
     def emitted():
         """Attrs that determine emissions of the component"""
-        return ['emission']
+        return fields(UsedEmnExacts)

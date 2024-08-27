@@ -10,8 +10,8 @@ from typing import TYPE_CHECKING
 from pandas import DataFrame
 from sympy import IndexedBase
 
-from ...indices.bounds import VarBnd
-from ..defined.approach import Approach, Certainty
+from ...indices.enums import VarBnd
+from ..defined.enums import Approach, Certainty
 from ._value import _Value
 
 if TYPE_CHECKING:

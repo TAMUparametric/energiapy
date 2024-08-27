@@ -1,23 +1,22 @@
 """Base for Operational Components
 """
 
-from __future__ import annotations
-
 from abc import ABC, abstractmethod
-from dataclasses import dataclass, field
-from typing import TYPE_CHECKING
+from dataclasses import dataclass
 
 from pandas import DataFrame
 
+from ...attrs.exacts import OpnExacts
 from ...core.nirop.errors import check_attr
 from ...utils.scaling import scaling
-from .._base._consistent import (_ConsistentBnd, _ConsistentCsh,
-                                 _ConsistentLnd, _ConsistentNstd,
-                                 _ConsistentNstdCsh)
+from .._base._consistent import (
+    _ConsistentBnd,
+    _ConsistentCsh,
+    _ConsistentLnd,
+    _ConsistentNstd,
+    _ConsistentNstdCsh,
+)
 from .._base._defined import _Defined
-
-if TYPE_CHECKING:
-    from ...core.aliases.is_input import IsBoundInput, IsExactInput
 
 
 class _CnstOpn(
@@ -27,7 +26,7 @@ class _CnstOpn(
 
 
 @dataclass
-class _Operational(_Defined, _CnstOpn, ABC):
+class _Operational(OpnExacts, _Defined, _CnstOpn, ABC):
     """Base for Operational Components
 
     Attributes:
@@ -38,13 +37,6 @@ class _Operational(_Defined, _CnstOpn, ABC):
         opex (IsExactInput): operational expense based on Operation
         emission (IsExactInput): emission due to construction per Capacity
     """
-
-    capacity: IsBoundInput = field(default=True)
-    land: IsExactInput = field(default=None)
-    material: IsExactInput = field(default=None)
-    capex: IsExactInput = field(default=None)
-    opex: IsExactInput = field(default=None)
-    emission: IsExactInput = field(default=None)
 
     def __post_init__(self):
         _Defined.__post_init__(self)
@@ -152,16 +144,16 @@ class _Operational(_Defined, _CnstOpn, ABC):
     @property
     def materials(self):
         """Materials used in the Operation"""
-        if self.material:
-            return [i.disposition.mat for i in self.material.dict_input.values()]
+        if self.use_material:
+            return [i.disposition.mat for i in self.use_material.dict_input.values()]
         else:
             return []
 
     @property
     def emissions(self):
         """Emissions from the Operation"""
-        if self.emission:
-            return [i.disposition.emn for i in self.emission.dict_input.values()]
+        if self.emission_setup:
+            return [i.disposition.emn for i in self.emission_setup.dict_input.values()]
         else:
             return []
 

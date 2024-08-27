@@ -1,22 +1,21 @@
 """Process converts one Resource to another Resource
 """
 
-from __future__ import annotations
-
-from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, List
+from dataclasses import dataclass, field, fields
 
 from ...parameters.balances.conversion import Conversion
 from ._operational import _Operational
 
-if TYPE_CHECKING:
-    from ...core.aliases.is_component import IsLocation
-    from ...core.aliases.is_input import (IsBoundInput, IsConvInput,
-                                          IsExactInput)
+from ...attrs.bounds import ProBounds, ResLocBounds
+from ...attrs.exacts import ResExpExacts
+from ...attrs.balances import ProBalance
+from ...attrs.spatials import LocCollection
 
 
 @dataclass
-class Process(_Operational):
+class Process(
+    ProBounds, ProBalance, ResLocBounds, ResExpExacts, LocCollection, _Operational
+):
     """Process converts one Resource to another Resource
 
     Attributes:
@@ -28,8 +27,8 @@ class Process(_Operational):
         emission (IsExactInput): emission due to construction per Capacity
         buy (IsBoundInput): bound on amount of Resource bought by Process
         sell (IsBoundInput): bound on amount of Resource sold by Process
-        buy_price (IsExactInput): price to buy per unit basis
-        sell_price (IsExactInput): price at which to sell per unit basis
+        price_buy (IsExactInput): price to buy per unit basis
+        price_sell (IsExactInput): price at which to sell per unit basis
         credit (IsExactInput): credit received per unit basis sold
         penalty (IsExactInput): penalty paid for not meeting lower bound of sell
         conversion (IsConvInput): conversion of Resource to other Resources
@@ -45,17 +44,6 @@ class Process(_Operational):
 
     """
 
-    # These are all from Resource
-    buy: IsBoundInput = field(default=None)
-    sell: IsBoundInput = field(default=None)
-    buy_price: IsExactInput = field(default=None)
-    sell_price: IsExactInput = field(default=None)
-    credit: IsExactInput = field(default=None)
-    penalty: IsExactInput = field(default=None)
-    conversion: IsConvInput = field(default=None)
-    produce: IsBoundInput = field(default=None)
-    locations: List[IsLocation] = field(default=None)
-
     # Depreciated
     varying: str = field(default=None)
     prod_max: str = field(default=None)
@@ -63,54 +51,6 @@ class Process(_Operational):
 
     def __post_init__(self):
         _Operational.__post_init__(self)
-
-        # *-----------------Set ctype (ProcessType)----------------------------
-
-        # Materials are not necessarily consumed (NO_MATMODE), if use is None
-        # If consumed, there could be multiple modes of consumption (MULTI_MATMODE) or one (SINGLE_MATMODE)
-        # for MULTI_MATMODE, provide a dict of type ('material_mode' (str,
-        # int): {Material: float})
-
-        # if self.material_use is None:
-        #     getattr(self, 'ctypes').append(ProcessType.NO_MATMODE)
-
-        # else:
-        #     if get_depth(self.material_use) > 1:
-        #         getattr(self, 'ctypes').append(ProcessType.MULTI_MATMODE)
-        #         self.material_modes = list(self.material_use)
-        #         self.materials = list(
-        #             reduce(
-        #                 operator.or_,
-        #                 (set(self.material_use[i]) for i in self.material_modes),
-        #                 set(),
-        #             )
-        #         )
-        #     else:
-        #         getattr(self, 'ctypes').append(ProcessType.SINGLE_MATMODE)
-        #         self.materials = list(self.material_use)
-
-        # if self.capex_pwl:
-        #     getattr(self, 'ctypes').append(ProcessType.PWL_CAPEX)
-        #     self.capacity_segments = list(self.capex_pwl)
-        #     self.capex_segments = list(self.capex_pwl.values())
-        # else:
-        #     getattr(self, 'ctypes').append(ProcessType.LINEAR_CAPEX)
-
-        # # if any expenditure is incurred
-        # if any([self.capex, self.fopex, self.vopex, self.incidental]):
-        #     getattr(self, 'ctypes').append(ProcessType.EXPENDITURE)
-
-        # # if it requires land to set up
-        # if self.land_use:
-        #     getattr(self, 'ctypes').append(ProcessType.LAND)
-
-        # # if this process fails
-        # if self.pfail:
-        #     getattr(self, 'ctypes').append(ProcessType.FAILURE)
-
-        # # if this process has some readiness aspects defined
-        # if any([self.introduce, self.retire, self.lifetime]):
-        #     getattr(self, 'ctypes').append(ProcessType.READINESS)
 
         # *----------------- Depreciation Warnings-----------------------------
 
@@ -168,17 +108,17 @@ class Process(_Operational):
     @staticmethod
     def _spatials():
         """Spatial Components where the Operation is located"""
-        return 'locations'
+        return fields(LocCollection)
 
     @staticmethod
     def resourcebnds():
         """Attrs that quantify the bounds of the Component"""
-        return ['buy', 'sell']
+        return fields(ResLocBounds)
 
     @staticmethod
     def resourceexps():
         """Attrs that determine resource expenses of the component"""
-        return ['buy_price', 'sell_price', 'credit', 'penalty']
+        return fields(ResExpExacts)
 
     @staticmethod
     def resourceloss():

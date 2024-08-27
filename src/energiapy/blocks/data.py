@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, List
 from pandas import DataFrame
 
 from ..core._handy._dunders import _Dunders
-from ..indices.bounds import SpcLmt, VarBnd
+from ..indices.enums import SpcLmt, VarBnd
 from ..parameters.designators.incidental import I
 from ..parameters.values.constant import Constant
 from ..parameters.values.dataset import DataSet

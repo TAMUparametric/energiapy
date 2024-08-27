@@ -35,4 +35,4 @@ class Material(_Used):
     @property
     def uses(self):
         """Material Uses across the Scenario"""
-        return self.attr.matuses
+        return self.attr.use_material
