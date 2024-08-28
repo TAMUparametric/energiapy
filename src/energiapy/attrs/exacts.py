@@ -75,15 +75,36 @@ class EmnExacts(ResEmnExacts, UsedEmnExacts, OpnEmnExacts):
     """Exact Emission Inputs for Components"""
 
 
-# -------------Use exacts-------------
+# -------------Usage Exacts-------------
 
 
 @dataclass
-class UsgExacts:
-    """Exact Use Inputs for Operational Components"""
+class UsgUseExacts:
+    """Exact Use Inputs for Resources"""
 
     use_land: IsExactInput = field(default=None)
     use_material: IsExactInput = field(default=None)
+
+
+@dataclass
+class UsgExpExacts:
+    """Exact Use Inputs for Operational Components"""
+
+    cost_use_land: IsExactInput = field(default=None)
+    cost_use_material: IsExactInput = field(default=None)
+
+
+@dataclass
+class UsgEmnExacts:
+    """Exact Use Inputs for Operational Components"""
+
+    emission_use_land: IsExactInput = field(default=None)
+    emission_use_material: IsExactInput = field(default=None)
+
+
+@dataclass
+class UsgExacts(UsgUseExacts, UsgExpExacts, UsgEmnExacts):
+    """Exact Use Inputs for Operational Components"""
 
 
 # -------------Loss Exacts-------------
@@ -112,10 +133,22 @@ class LssExacts(StgLossExacts, TrnLossExacts):
 
 
 @dataclass
-class RteExacts:
+class OpnRteExacts:
+    """Exact Rate Inputs for Operational Components"""
+
+    setup_time: IsExactInput = field(default=None)
+
+
+@dataclass
+class TrnRteExacts:
     """Exact Rate Inputs for Transit Components"""
 
     speed: IsExactInput = field(default=None)
+
+
+@dataclass
+class RteExacts(OpnRteExacts, TrnRteExacts):
+    """Exact Rate Inputs for Components"""
 
 
 # -------------Component Exacts-------------
@@ -131,7 +164,8 @@ class UsedExacts(UsedExpExacts, UsedEmnExacts):
     """Exact Inputs for Land and Material (Used)"""
 
 
-class OpnExacts(OpnEmnExacts, UsgExacts, ABC):
+@dataclass
+class OpnExacts(OpnExpExacts, OpnEmnExacts, UsgExacts, OpnRteExacts, ABC):
     """Exact Inputs for Operational Components"""
 
     @property
@@ -146,15 +180,15 @@ class OpnExacts(OpnEmnExacts, UsgExacts, ABC):
 
 
 @dataclass
-class ProExacts(OpnExpExacts, OpnExacts):
+class ProExacts(OpnExacts):
     """Exact Inputs for Process Components"""
 
 
 @dataclass
-class StgExacts(OpnExpExacts, OpnExacts, StgLossExacts):
+class StgExacts(OpnExacts, StgLossExacts):
     """Exact Inputs for Storage Components"""
 
 
 @dataclass
-class TrnExacts(OpnExpExacts, OpnExacts, TrnLossExacts, RteExacts):
+class TrnExacts(OpnExacts, TrnLossExacts, TrnRteExacts):
     """Exact Inputs for Transit Components"""

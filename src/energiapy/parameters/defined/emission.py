@@ -5,28 +5,15 @@ from dataclasses import dataclass
 
 from sympy import IndexedBase
 
-from ._parameter import _Parameter
+from ._parameter import _ExactPar
 
 
 @dataclass
-class EmitBnd(_Parameter):
-    """Bound on Emission"""
-
-    def __post_init__(self):
-        _Parameter.__post_init__(self)
-
-    @property
-    def id(self) -> str:
-        """Symbol"""
-        return IndexedBase('Emit')
-
-
-@dataclass
-class ResEmitBuy(_Parameter):
+class BuyEmit(_ExactPar):
     """Resource Emission Buy"""
 
     def __post_init__(self):
-        _Parameter.__post_init__(self)
+        _ExactPar.__post_init__(self)
 
     @property
     def id(self) -> str:
@@ -35,11 +22,11 @@ class ResEmitBuy(_Parameter):
 
 
 @dataclass
-class ResEmitSell(_Parameter):
+class SellEmit(_ExactPar):
     """Resource Emission Sell"""
 
     def __post_init__(self):
-        _Parameter.__post_init__(self)
+        _ExactPar.__post_init__(self)
 
     @property
     def id(self) -> str:
@@ -48,11 +35,11 @@ class ResEmitSell(_Parameter):
 
 
 @dataclass
-class ResEmitLoss(_Parameter):
+class LossEmit(_ExactPar):
     """Resource Emission Loss"""
 
     def __post_init__(self):
-        _Parameter.__post_init__(self)
+        _ExactPar.__post_init__(self)
 
     @property
     def id(self) -> str:
@@ -61,11 +48,11 @@ class ResEmitLoss(_Parameter):
 
 
 @dataclass
-class CmdEmitUse(_Parameter):
+class UseEmit(_ExactPar):
     """Commodity Emission Use"""
 
     def __post_init__(self):
-        _Parameter.__post_init__(self)
+        _ExactPar.__post_init__(self)
 
     @property
     def id(self) -> str:
@@ -74,11 +61,11 @@ class CmdEmitUse(_Parameter):
 
 
 @dataclass
-class OpnEmit(_Parameter):
+class SetUpEmit(_ExactPar):
     """Emission due to setting up operation"""
 
     def __post_init__(self):
-        _Parameter.__post_init__(self)
+        _ExactPar.__post_init__(self)
 
     @property
     def id(self) -> str:

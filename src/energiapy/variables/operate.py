@@ -9,16 +9,16 @@ from ..components.operational.process import Process
 from ..components.operational.storage import Storage
 from ..components.operational.transit import Transit
 from ..indices.structure import make_structures
-from ._variable import _Variable
+from ._variable import _BoundVar
 from .capacitate import Capacity
 
 
 @dataclass
-class Operate(_Variable):
+class Operate(_BoundVar):
     """Trade changes the ownership of Resource between Players"""
 
     def __post_init__(self):
-        _Variable.__post_init__(self)
+        _BoundVar.__post_init__(self)
 
     @classmethod
     def parent(cls):

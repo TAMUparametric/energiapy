@@ -12,7 +12,7 @@ from ..components.operational.process import Process
 from ..components.operational.storage import Storage
 from ..components.operational.transit import Transit
 from ..indices.structure import make_structures
-from ._variable import _Variable
+from ._variable import _ExactVar, _BoundVar
 from .capacitate import Capacity
 from .loss import Loss
 from .trade import Buy, Sell
@@ -20,11 +20,11 @@ from .use import Use
 
 
 @dataclass
-class EmitSys(_Variable):
-    """System Emit"""
+class Emit(_BoundVar):
+    """Emission emit bound"""
 
     def __post_init__(self):
-        _Variable.__post_init__(self)
+        _BoundVar.__post_init__(self)
 
     @classmethod
     def structures(cls, component):
@@ -46,13 +46,13 @@ class EmitSys(_Variable):
 
 
 @dataclass
-class Emit(_Variable):
+class _Emit(_ExactVar):
     """Emit is a general variable for how much is Emitted
     This is a parent class
     """
 
     def __post_init__(self):
-        _Variable.__post_init__(self)
+        _ExactVar.__post_init__(self)
 
     @classmethod
     def child(cls):
@@ -61,13 +61,13 @@ class Emit(_Variable):
 
 
 @dataclass
-class EmitTrade(Emit):
+class _EmitTrade(_Emit):
     """Resource Emit
     This is a parent class
     """
 
     def __post_init__(self):
-        Emit.__post_init__(self)
+        _Emit.__post_init__(self)
 
     @classmethod
     def structures(cls, component):
@@ -78,11 +78,11 @@ class EmitTrade(Emit):
 
 
 @dataclass
-class EmitBuy(EmitTrade):
+class EmitBuy(_EmitTrade):
     """Buy Emit"""
 
     def __post_init__(self):
-        EmitTrade.__post_init__(self)
+        _EmitTrade.__post_init__(self)
 
     @classmethod
     def parent(cls):
@@ -96,11 +96,11 @@ class EmitBuy(EmitTrade):
 
 
 @dataclass
-class EmitSell(EmitTrade):
+class EmitSell(_EmitTrade):
     """Sell Emit"""
 
     def __post_init__(self):
-        EmitTrade.__post_init__(self)
+        _EmitTrade.__post_init__(self)
 
     @classmethod
     def parent(cls):
@@ -114,11 +114,11 @@ class EmitSell(EmitTrade):
 
 
 @dataclass
-class EmitLoss(Emit):
+class EmitLoss(_Emit):
     """Loss Emit"""
 
     def __post_init__(self):
-        Emit.__post_init__(self)
+        _Emit.__post_init__(self)
 
     @classmethod
     def parent(cls):
@@ -144,11 +144,11 @@ class EmitLoss(Emit):
 
 
 @dataclass
-class EmitUse(Emit):
+class EmitUse(_Emit):
     """Use Emit"""
 
     def __post_init__(self):
-        Emit.__post_init__(self)
+        _Emit.__post_init__(self)
 
     @classmethod
     def parent(cls):
@@ -178,11 +178,11 @@ class EmitUse(Emit):
 
 
 @dataclass
-class EmitCap(Emit):
+class EmitSetUp(_Emit):
     """Operation Capacity related Emit"""
 
     def __post_init__(self):
-        Emit.__post_init__(self)
+        _Emit.__post_init__(self)
 
     @classmethod
     def parent(cls):

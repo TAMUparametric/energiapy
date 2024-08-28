@@ -4,44 +4,29 @@ The project was supervised by Prof. Efstratios (Stratos) N. Pistikopoulos
 
 It is licensed under the MIT License
 
-The arrangment of the modules is as follows:
+Attributes: 
+    Bound - is a bound on some component Task 
 
-- inputs:
+    Exact - is an exact value of some component Task
+        The subtypes are:
+            Exp (expenses) - how much Cash is spent or earned 
+            Emn (emissions) - amount of Emission released
+            Usg (usages) - is the usage of Land or Material
+            Lss (losses) - is the loss of Resource
+            Rte (rates) - rates such as speed, setup_time
 
-- values: Values of parameters
+    Balance - is the balance of Resource
+        The subtypes are: 
+            Conversion: for Process
+            Inventory: for Storage
+            Freight: for Transit
 
-    These are the values of parameters, generated based on input:
+The naming convention is as follows:
 
-    Value: base class
-    contains name, index, disposition, and bound
+    Variables: Task (if not Parent), TaskParent (if Parent)
+    
+    
 
-    Number: if float or int
-    Numeric parameter value
-
-    DataSet: if input is DataFrame
-    Deterministic data providing matching some temporal scale
-
-    M: if input is True
-    big = True makes the number bigger than any Number, else smaller
-    Predefined BigM and smallm can be passed
-
-    Theta: if input is a tuple of upper and lower bound.
-    Parametric variable
-    Predefined Th can be passed
-
-    Predefined values are update to provide name, index, disposition, and bound
-    when aspect is defined
-
-
-
-__author__ = "Rahul Kakodkar"
-__copyright__ = "Copyright 2022, Multi-parametric Optimization & Control Lab"
-__credits__ = ["Rahul Kakodkar", "Efstratios N. Pistikopoulos"]
-__license__ = "Open"
-__version__ = "0.0.1"
-__maintainer__ = "Rahul Kakodkar"
-__email__ = "cacodcar@tamu.edu"
-__status__ = "Production"
 
 
 """

@@ -15,19 +15,21 @@ from ..parameters.defined.bound import (
     BuyBnd,
     CapBnd,
     EarnBnd,
-    OpBnd,
+    OprBnd,
     SellBnd,
     ShipBnd,
     SpendBnd,
     UseBnd,
+    EmitBnd,
+    Has,
+    Needs,
 )
 from ..parameters.defined.emission import (
-    CmdEmitUse,
-    EmitBnd,
-    OpnEmit,
-    ResEmitBuy,
-    ResEmitLoss,
-    ResEmitSell,
+    UseEmit,
+    SetUpEmit,
+    BuyEmit,
+    LossEmit,
+    SellEmit,
 )
 from ..parameters.defined.expense import (
     BuyPrice,
@@ -41,28 +43,27 @@ from ..parameters.defined.expense import (
     UseExp,
 )
 from ..parameters.defined.loss import ResLoss
-from ..parameters.defined.ownership import Has, Needs
 from ..parameters.defined.use import LndUse, MatUse
-from ..variables.action import Gives, Takes
+from ..variables.action import Give, Take
 from ..variables.capacitate import Capacity
-from ..variables.emit import EmitBuy, EmitCap, EmitLoss, EmitSell, EmitSys, EmitUse
+from ..variables.emit import EmitBuy, EmitSetUp, EmitLoss, EmitSell, Emit, EmitUse
 from ..variables.expense import (
     Credit,
     Earn,
     ExpBuy,
-    ExpCap,
-    ExpCapI,
-    ExpOp,
-    ExpOpI,
+    ExpSetUp,
+    ExpSetUpI,
+    ExpOpr,
+    ExpOprI,
     ExpSell,
-    ExpUse,
+    ExpUsage,
     Penalty,
     Spend,
 )
 from ..variables.loss import Loss
 from ..variables.operate import Operate
 from ..variables.trade import Buy, Sell, Ship
-from ..variables.use import Use, Used
+from ..variables.use import Use, Usage
 from .rules import Condition, SumOver
 
 if TYPE_CHECKING:
@@ -133,14 +134,14 @@ rulebook = RuleBook()
 # Bounded
 trade_bnd = [(Buy, BuyBnd), (Sell, SellBnd), (Ship, ShipBnd)]
 cap_bnd = [(Capacity, CapBnd)]
-op_bnd = [(Operate, OpBnd)]
+op_bnd = [(Operate, OprBnd)]
 exp_bnd = [(Spend, SpendBnd), (Earn, EarnBnd)]
-emission_bnd = [(EmitSys, EmitBnd)]
-ply_bnd = [(Gives, Has), (Takes, Needs)]
+emission_bnd = [(Emit, EmitBnd)]
+ply_bnd = [(Give, Has), (Take, Needs)]
 use_bnd = [(Use, UseBnd)]
 
 # Calculated
-use_cmd = [(Used, LndUse), (Used, MatUse)]
+use_cmd = [(Usage, LndUse), (Usage, MatUse)]
 loss = [(Loss, ResLoss)]
 
 # Calculated Expenses
@@ -150,16 +151,16 @@ exp_res = [
     (Credit, ResCredit),
     (Penalty, ResPenalty),
 ]
-exp_use = [(ExpUse, UseExp)]
-exp_opn = [(ExpOp, OpExp), (ExpCap, CapExp), (ExpOpI, OpExpI), (ExpCapI, CapExpI)]
+exp_use = [(ExpUsage, UseExp)]
+exp_opn = [(ExpOpr, OpExp), (ExpSetUp, CapExp), (ExpOprI, OpExpI), (ExpSetUpI, CapExpI)]
 
 # Calculated Emissions
 emit = [
-    (EmitBuy, ResEmitBuy),
-    (EmitSell, ResEmitSell),
-    (EmitUse, CmdEmitUse),
-    (EmitCap, OpnEmit),
-    (EmitLoss, ResEmitLoss),
+    (EmitBuy, BuyEmit),
+    (EmitSell, SellEmit),
+    (EmitUse, UseEmit),
+    (EmitSetUp, SetUpEmit),
+    (EmitLoss, LossEmit),
 ]
 
 for var, param in (

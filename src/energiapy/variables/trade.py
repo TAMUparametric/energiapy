@@ -6,17 +6,17 @@ from dataclasses import dataclass
 from sympy import IndexedBase
 
 from ..indices.structure import make_structures
-from ._variable import _Variable
+from ._variable import _BoundVar
 
 
 @dataclass
-class Trade(_Variable):
+class _Trade(_BoundVar):
     """Trade changes the ownership of Resource between Players
     This is a parent class
     """
 
     def __post_init__(self):
-        _Variable.__post_init__(self)
+        _BoundVar.__post_init__(self)
 
     @classmethod
     def parent(cls):
@@ -28,13 +28,13 @@ class Trade(_Variable):
 
 
 @dataclass
-class LocTrade(Trade):
+class _LocTrade(_Trade):
     """LocTrade changes the ownership of Resource between Players at a Location
     This is a parent class
     """
 
     def __post_init__(self):
-        Trade.__post_init__(self)
+        _Trade.__post_init__(self)
 
     @classmethod
     def structures(cls, component):
@@ -43,11 +43,11 @@ class LocTrade(Trade):
 
 
 @dataclass
-class Buy(LocTrade):
+class Buy(_LocTrade):
     """Buy allows Players to purchase Resource"""
 
     def __post_init__(self):
-        LocTrade.__post_init__(self)
+        _LocTrade.__post_init__(self)
 
     @staticmethod
     def id() -> IndexedBase:
@@ -56,11 +56,11 @@ class Buy(LocTrade):
 
 
 @dataclass
-class Sell(LocTrade):
+class Sell(_LocTrade):
     """Sell allows Players to Sell Resource"""
 
     def __post_init__(self):
-        LocTrade.__post_init__(self)
+        _LocTrade.__post_init__(self)
 
     @staticmethod
     def id() -> IndexedBase:
@@ -69,11 +69,11 @@ class Sell(LocTrade):
 
 
 @dataclass
-class Ship(Trade):
+class Ship(_Trade):
     """Resource sent out of a Location"""
 
     def __post_init__(self):
-        Trade.__post_init__(self)
+        _Trade.__post_init__(self)
 
     @classmethod
     def structures(cls, component):

@@ -12,7 +12,7 @@ from ..components.operational.process import Process
 from ..components.operational.storage import Storage
 from ..components.operational.transit import Transit
 from ..indices.structure import make_structures
-from ._variable import _Variable
+from ._variable import _ExactVar, _BoundVar
 from .capacitate import Capacity
 from .operate import Operate
 from .trade import Buy, Sell
@@ -20,13 +20,13 @@ from .use import Use
 
 
 @dataclass
-class BndExpense(_Variable):
+class _Expense(_BoundVar):
     """Expense is the cost of a Component
     This is a parent class
     """
 
     def __post_init__(self):
-        _Variable.__post_init__(self)
+        _BoundVar.__post_init__(self)
 
     @classmethod
     def structures(cls, component):
@@ -43,11 +43,11 @@ class BndExpense(_Variable):
 
 
 @dataclass
-class Spend(BndExpense):
+class Spend(_Expense):
     """System Expense"""
 
     def __post_init__(self):
-        BndExpense.__post_init__(self)
+        _Expense.__post_init__(self)
 
     @staticmethod
     def id() -> IndexedBase:
@@ -56,11 +56,11 @@ class Spend(BndExpense):
 
 
 @dataclass
-class Earn(BndExpense):
+class Earn(_Expense):
     """System Expense"""
 
     def __post_init__(self):
-        BndExpense.__post_init__(self)
+        _Expense.__post_init__(self)
 
     @staticmethod
     def id() -> IndexedBase:
@@ -69,13 +69,13 @@ class Earn(BndExpense):
 
 
 @dataclass
-class Expense(_Variable):
+class _Exp(_ExactVar):
     """Expense is the cost of a Component
     This is a parent class
     """
 
     def __post_init__(self):
-        _Variable.__post_init__(self)
+        _ExactVar.__post_init__(self)
 
     @classmethod
     def child(cls):
@@ -84,13 +84,13 @@ class Expense(_Variable):
 
 
 @dataclass
-class ExpTrade(Expense):
+class ExpTrade(_Exp):
     """Resource Expense
     This is a parent class
     """
 
     def __post_init__(self):
-        Expense.__post_init__(self)
+        _Exp.__post_init__(self)
 
     @classmethod
     def structures(cls, component):
@@ -173,11 +173,11 @@ class Credit(ExpTrade):
 
 
 @dataclass
-class ExpUse(Expense):
+class ExpUsage(_Exp):
     """Use Expense"""
 
     def __post_init__(self):
-        Expense.__post_init__(self)
+        _Exp.__post_init__(self)
 
     @classmethod
     def parent(cls):
@@ -207,13 +207,13 @@ class ExpUse(Expense):
 
 
 @dataclass
-class ExpOpn(Expense):
+class _ExpOpn(_Exp):
     """Capacity Expense
     This is a parent class
     """
 
     def __post_init__(self):
-        Expense.__post_init__(self)
+        _Exp.__post_init__(self)
 
     @classmethod
     def structures(cls, component):
@@ -235,11 +235,11 @@ class ExpOpn(Expense):
 
 
 @dataclass
-class ExpCap(ExpOpn):
+class ExpSetUp(_ExpOpn):
     """Capacity Expense"""
 
     def __post_init__(self):
-        ExpOpn.__post_init__(self)
+        _ExpOpn.__post_init__(self)
 
     @classmethod
     def parent(cls):
@@ -253,11 +253,11 @@ class ExpCap(ExpOpn):
 
 
 @dataclass
-class ExpOp(ExpOpn):
+class ExpOpr(_ExpOpn):
     """Operate Expense"""
 
     def __post_init__(self):
-        ExpOpn.__post_init__(self)
+        _ExpOpn.__post_init__(self)
 
     @classmethod
     def parent(cls):
@@ -271,13 +271,13 @@ class ExpOp(ExpOpn):
 
 
 @dataclass
-class ExpOpnI(ExpOpn):
+class _ExpOpnI(_ExpOpn):
     """Incidental Expense for Operation
     This is a parent class
     """
 
     def __post_init__(self):
-        ExpOpn.__post_init__(self)
+        _ExpOpn.__post_init__(self)
 
     @classmethod
     def parent(cls):
@@ -285,11 +285,11 @@ class ExpOpnI(ExpOpn):
 
 
 @dataclass
-class ExpCapI(ExpOpnI):
+class ExpSetUpI(_ExpOpnI):
     """Incidental Capital Expense"""
 
     def __post_init__(self):
-        ExpOpnI.__post_init__(self)
+        _ExpOpnI.__post_init__(self)
 
     @staticmethod
     def id() -> IndexedBase:
@@ -298,11 +298,11 @@ class ExpCapI(ExpOpnI):
 
 
 @dataclass
-class ExpOpI(ExpOpnI):
+class ExpOprI(_ExpOpnI):
     """Incidental Operational Expense"""
 
     def __post_init__(self):
-        ExpOpnI.__post_init__(self)
+        _ExpOpnI.__post_init__(self)
 
     @staticmethod
     def id() -> IndexedBase:

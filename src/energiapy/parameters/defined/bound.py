@@ -5,15 +5,41 @@ from dataclasses import dataclass
 
 from sympy import IndexedBase
 
-from ._parameter import _Bnd
+from ._parameter import _BoundPar
 
 
 @dataclass
-class BuyBnd(_Bnd):
+class Has(_BoundPar):
+    """Bound on What Commodoties a Player Has"""
+
+    def __post_init__(self):
+        _BoundPar.__post_init__(self)
+
+    @property
+    def id(self) -> str:
+        """Symbol"""
+        return IndexedBase('Has')
+
+
+@dataclass
+class Needs(_BoundPar):
+    """Bound on what Commodities a Player Needs"""
+
+    def __post_init__(self):
+        _BoundPar.__post_init__(self)
+
+    @property
+    def id(self) -> str:
+        """Symbol"""
+        return IndexedBase('Needs')
+
+
+@dataclass
+class BuyBnd(_BoundPar):
     """Buy Bounds"""
 
     def __post_init__(self):
-        _Bnd.__post_init__(self)
+        _BoundPar.__post_init__(self)
 
     @property
     def id(self) -> str:
@@ -22,11 +48,11 @@ class BuyBnd(_Bnd):
 
 
 @dataclass
-class SellBnd(_Bnd):
+class SellBnd(_BoundPar):
     """Sell Bounds"""
 
     def __post_init__(self):
-        _Bnd.__post_init__(self)
+        _BoundPar.__post_init__(self)
 
     @property
     def id(self) -> str:
@@ -35,11 +61,11 @@ class SellBnd(_Bnd):
 
 
 @dataclass
-class ShipBnd(_Bnd):
+class ShipBnd(_BoundPar):
     """Ship Bounds"""
 
     def __post_init__(self):
-        _Bnd.__post_init__(self)
+        _BoundPar.__post_init__(self)
 
     @property
     def id(self) -> str:
@@ -48,11 +74,11 @@ class ShipBnd(_Bnd):
 
 
 @dataclass
-class SpendBnd(_Bnd):
+class SpendBnd(_BoundPar):
     """Expense Bound on Spending"""
 
     def __post_init__(self):
-        _Bnd.__post_init__(self)
+        _BoundPar.__post_init__(self)
 
     @property
     def id(self) -> str:
@@ -61,11 +87,11 @@ class SpendBnd(_Bnd):
 
 
 @dataclass
-class EarnBnd(_Bnd):
+class EarnBnd(_BoundPar):
     """Expense Bound on Earning"""
 
     def __post_init__(self):
-        _Bnd.__post_init__(self)
+        _BoundPar.__post_init__(self)
 
     @property
     def id(self) -> str:
@@ -74,11 +100,11 @@ class EarnBnd(_Bnd):
 
 
 @dataclass
-class CapBnd(_Bnd):
+class CapBnd(_BoundPar):
     """Capacity Bounds"""
 
     def __post_init__(self):
-        _Bnd.__post_init__(self)
+        _BoundPar.__post_init__(self)
 
     @property
     def id(self) -> str:
@@ -87,13 +113,13 @@ class CapBnd(_Bnd):
 
 
 @dataclass
-class OpBnd(_Bnd):
+class OprBnd(_BoundPar):
     """Operation Bounds
     This one is multiplied by capacity
     """
 
     def __post_init__(self):
-        _Bnd.__post_init__(self)
+        _BoundPar.__post_init__(self)
 
     @property
     def id(self) -> str:
@@ -102,13 +128,26 @@ class OpBnd(_Bnd):
 
 
 @dataclass
-class UseBnd(_Bnd):
+class UseBnd(_BoundPar):
     """Use Bounds"""
 
     def __post_init__(self):
-        _Bnd.__post_init__(self)
+        _BoundPar.__post_init__(self)
 
     @property
     def id(self) -> str:
         """ID"""
         return IndexedBase(f'Use{self.varbnd.value}')
+
+
+@dataclass
+class EmitBnd(_BoundPar):
+    """Bound on Emission"""
+
+    def __post_init__(self):
+        _BoundPar.__post_init__(self)
+
+    @property
+    def id(self) -> str:
+        """Symbol"""
+        return IndexedBase('Emit')

@@ -6,11 +6,11 @@ from dataclasses import dataclass
 from sympy import IndexedBase
 
 from ..indices.structure import make_structures
-from ._variable import _Variable
+from ._variable import _BoundVar
 
 
 @dataclass
-class Action(_Variable):
+class Action(_BoundVar):
     """Action is a Player's action
     This is a parent class
     """
@@ -36,8 +36,8 @@ class Action(_Variable):
 
 
 @dataclass
-class Gives(Action):
-    """Gives is when a player gives from what they Need(s)"""
+class Give(Action):
+    """Give is when a player gives from what they Need(s)"""
 
     def __post_init__(self):
         Action.__post_init__(self)
@@ -49,8 +49,8 @@ class Gives(Action):
 
 
 @dataclass
-class Takes(Action):
-    """Takes is when Player takes from what they Has(ve)"""
+class Take(Action):
+    """Take is when Player takes from what they Has(ve)"""
 
     def __post_init__(self):
         Action.__post_init__(self)

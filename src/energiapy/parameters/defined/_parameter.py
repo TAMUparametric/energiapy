@@ -38,15 +38,21 @@ class _Parameter(_Dunders, ABC):
         return self.id[self.disposition.sym]
 
 
+# These parameters are exact values for ExactVars
+
+
 @dataclass
-class _Clc(_Parameter):
+class _ExactPar(_Parameter):
     """Calculated Parameter"""
 
     def __post_init__(self):
         _Parameter.__post_init__(self)
 
 
-class _Bnd(_Parameter):
+# These parameters serve as bounds for BoundVars
+
+
+class _BoundPar(_Parameter):
     """Bounded Parameter"""
 
     def __post_init__(self):

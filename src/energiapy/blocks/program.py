@@ -95,10 +95,10 @@ class ProgramBlock(_Dunders, _Print):
 
             # The Variable can have a:
             # 1. Parent Variable: needed to bound or determine this variable
-            # Examples: Operate < Capacity; ExpCap = CapEx * Capacity
+            # Examples: Operate < Capacity; ExpSetUp = CapEx * Capacity
             # 2. Child Component: This is not present in the Parent Variable
             # So the disposition of the Parent Variable needs to be made childless
-            # In the CapEx example, ExpCap has Cash, but Capacity does not
+            # In the CapEx example, ExpSetUp has Cash, but Capacity does not
             # so remove Cash Component in Capacity Dispositio
             if var.parent():
                 if var.child():

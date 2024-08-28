@@ -5,15 +5,15 @@ from dataclasses import dataclass
 
 from sympy import IndexedBase
 
-from ._parameter import _Parameter
+from ._parameter import _ExactPar
 
 
 @dataclass
-class BuyPrice(_Parameter):
+class BuyPrice(_ExactPar):
     """Resource Buy Price"""
 
     def __post_init__(self):
-        _Parameter.__post_init__(self)
+        _ExactPar.__post_init__(self)
 
     @property
     def id(self) -> str:
@@ -22,11 +22,11 @@ class BuyPrice(_Parameter):
 
 
 @dataclass
-class SellPrice(_Parameter):
+class SellPrice(_ExactPar):
     """Resource Sell Price"""
 
     def __post_init__(self):
-        _Parameter.__post_init__(self)
+        _ExactPar.__post_init__(self)
 
     @property
     def id(self) -> str:
@@ -35,11 +35,11 @@ class SellPrice(_Parameter):
 
 
 @dataclass
-class ResPenalty(_Parameter):
+class ResPenalty(_ExactPar):
     """Resource Penalty Price"""
 
     def __post_init__(self):
-        _Parameter.__post_init__(self)
+        _ExactPar.__post_init__(self)
 
     @property
     def id(self) -> str:
@@ -48,11 +48,11 @@ class ResPenalty(_Parameter):
 
 
 @dataclass
-class ResCredit(_Parameter):
+class ResCredit(_ExactPar):
     """Resource Buy Price"""
 
     def __post_init__(self):
-        _Parameter.__post_init__(self)
+        _ExactPar.__post_init__(self)
 
     @property
     def id(self) -> str:
@@ -61,11 +61,11 @@ class ResCredit(_Parameter):
 
 
 @dataclass
-class UseExp(_Parameter):
+class UseExp(_ExactPar):
     """Resource Use Expense"""
 
     def __post_init__(self):
-        _Parameter.__post_init__(self)
+        _ExactPar.__post_init__(self)
 
     @property
     def id(self) -> str:
@@ -74,11 +74,11 @@ class UseExp(_Parameter):
 
 
 @dataclass
-class CapExp(_Parameter):
+class CapExp(_ExactPar):
     """Operation Capital Expense"""
 
     def __post_init__(self):
-        _Parameter.__post_init__(self)
+        _ExactPar.__post_init__(self)
 
     @property
     def id(self) -> str:
@@ -87,11 +87,11 @@ class CapExp(_Parameter):
 
 
 @dataclass
-class OpExp(_Parameter):
+class OpExp(_ExactPar):
     """Operational Expense"""
 
     def __post_init__(self):
-        _Parameter.__post_init__(self)
+        _ExactPar.__post_init__(self)
 
     @property
     def id(self) -> str:
@@ -100,11 +100,11 @@ class OpExp(_Parameter):
 
 
 @dataclass
-class CapExpI(_Parameter):
+class CapExpI(_ExactPar):
     """Incidental Capital Expense"""
 
     def __post_init__(self):
-        _Parameter.__post_init__(self)
+        _ExactPar.__post_init__(self)
 
     @property
     def id(self) -> str:
@@ -113,11 +113,11 @@ class CapExpI(_Parameter):
 
 
 @dataclass
-class OpExpI(_Parameter):
+class OpExpI(_ExactPar):
     """Incidental Operational Expense"""
 
     def __post_init__(self):
-        _Parameter.__post_init__(self)
+        _ExactPar.__post_init__(self)
 
     @property
     def id(self) -> str:

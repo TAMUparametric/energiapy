@@ -57,3 +57,29 @@ class _Variable(_Dunders, ABC):
     def sym(self):
         """The symbolic representation of the Variable"""
         return self.id()[self.disposition.sym]
+
+
+# The ones below are made for the sake of clarity
+# They are the same otherwise
+# That being said, the parents of exacts are usually BoundVars
+# The parents of bounds are usually BoundVars or BinaryVars
+
+
+@dataclass
+class _BoundVar(_Variable):
+    """Bound is a general variable for how much is Bound
+    This is a parent class
+    """
+
+    def __post_init__(self):
+        _Variable.__post_init__(self)
+
+
+@dataclass
+class _ExactVar(_Variable):
+    """Exact is a general variable for how much is Exact
+    This is a parent class
+    """
+
+    def __post_init__(self):
+        _Variable.__post_init__(self)

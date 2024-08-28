@@ -15,39 +15,39 @@ from ..components.commodity.resource import Resource
 from ..components.operational.process import Process
 from ..components.operational.storage import Storage
 from ..components.operational.transit import Transit
-from ..variables.action import Gives, Takes
+from ..variables.action import Give, Take
 from ..variables.capacitate import Capacity
-from ..variables.emit import EmitBuy, EmitCap, EmitLoss, EmitSell, EmitSys, EmitUse
+from ..variables.emit import EmitBuy, EmitSetUp, EmitLoss, EmitSell, Emit, EmitUse
 from ..variables.expense import (
     Credit,
     Earn,
     ExpBuy,
-    ExpCap,
-    ExpCapI,
-    ExpOp,
-    ExpOpI,
+    ExpSetUp,
+    ExpSetUpI,
+    ExpOpr,
+    ExpOprI,
     ExpSell,
-    ExpUse,
+    ExpUsage,
     Penalty,
     Spend,
 )
 from ..variables.loss import Loss
 from ..variables.operate import Operate
 from ..variables.trade import Buy, Sell, Ship
-from ..variables.use import Use, Used
+from ..variables.use import Use, Usage
 
-cmd_use = {'use': Use, 'cost': ExpUse, 'emission': EmitUse}
+cmd_use = {'use': Use, 'cost': ExpUsage, 'emission': EmitUse}
 
 opn = {
-    'capex_i': ExpCapI,
-    'opex_i': ExpOpI,
-    'capex': ExpCap,
-    'opex': ExpOp,
+    'capex_i': ExpSetUpI,
+    'opex_i': ExpOprI,
+    'capex': ExpSetUp,
+    'opex': ExpOpr,
     'capacity': Capacity,
     'operate': Operate,
-    'land': Used,
-    'material': Used,
-    'emission': EmitCap,
+    'land': Usage,
+    'material': Usage,
+    'emission': EmitSetUp,
     'buy': Buy,
     'sell': Sell,
     'price_buy': ExpBuy,
@@ -60,8 +60,8 @@ opn = {
 
 
 taskmaster = {
-    Player: {'has': Gives, 'needs': Takes},
-    Emission: {'emit': EmitSys},
+    Player: {'has': Give, 'needs': Take},
+    Emission: {'emit': Emit},
     Cash: {'spend': Spend, 'earn': Earn},
     Land: cmd_use,
     Material: cmd_use,

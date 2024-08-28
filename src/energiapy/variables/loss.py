@@ -9,16 +9,16 @@ from ..components.commodity.resource import Resource
 from ..components.operational.storage import Storage
 from ..components.operational.transit import Transit
 from ..indices.structure import make_structures
-from ._variable import _Variable
+from ._variable import _ExactVar
 from .operate import Operate
 
 
 @dataclass
-class Loss(_Variable):
+class Loss(_ExactVar):
     """Loss is the cost of a Component"""
 
     def __post_init__(self):
-        _Variable.__post_init__(self)
+        _ExactVar.__post_init__(self)
 
     @classmethod
     def parent(cls):

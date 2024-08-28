@@ -11,16 +11,16 @@ from ..components.operational.process import Process
 from ..components.operational.storage import Storage
 from ..components.operational.transit import Transit
 from ..indices.structure import make_structures
-from ._variable import _Variable
+from ._variable import _ExactVar, _BoundVar
 from .capacitate import Capacity
 
 
 @dataclass
-class Use(_Variable):
+class Use(_BoundVar):
     """Trade changes the ownership of Useable Commodity between Players"""
 
     def __post_init__(self):
-        _Variable.__post_init__(self)
+        _BoundVar.__post_init__(self)
 
     @classmethod
     def parent(cls):
@@ -51,11 +51,11 @@ class Use(_Variable):
 
 
 @dataclass
-class Used(_Variable):
+class Usage(_ExactVar):
     """Commodity Use"""
 
     def __post_init__(self):
-        _Variable.__post_init__(self)
+        _ExactVar.__post_init__(self)
 
     @classmethod
     def parent(cls):
