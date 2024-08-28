@@ -63,7 +63,7 @@ class Resource(ResBounds, ResExpExacts, ResEmnExacts, _Traded):
     @property
     def losses(self):
         """Resource Losses"""
-        return self.attr.coll_losses
+        return self.taskmaster.report_losses
 
     @staticmethod
     def inputs():

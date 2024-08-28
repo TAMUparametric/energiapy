@@ -35,4 +35,4 @@ class Material(_Used):
     @property
     def usage(self):
         """Material Uses across the Scenario"""
-        return self.attr.coll_uses_material
+        return self.taskmaster.report_uses_material

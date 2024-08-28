@@ -36,8 +36,8 @@ class _Update(ABC):
 
     @property
     @abstractmethod
-    def attr(self):
-        """Attributes Model Block of the Scenario"""
+    def taskmaster(self):
+        """TaskMaster of the Scenario"""
 
     def cleanup(self, cmp: str):
         """Cleans up components which can have only one instance in the System
@@ -137,9 +137,9 @@ class _Update(ABC):
                 # The updated Values are then set back into the component
                 setattr(component, attr, datablock.spttmpinp[attr])
 
-                # update the values for the attributes in the Attr Modeling Block
+                # update the values for the attributes in the Task Modeling Block
                 for val in getattr(component, attr).values():
-                    getattr(self.attr, attr).values.append(val)
+                    getattr(self.taskmaster, attr).values.append(val)
 
         # The smaller Blocks are then added to the Larger Scenario Level Model Blocks
         # The DataBlock is added to the Data Model
@@ -150,17 +150,17 @@ class _Update(ABC):
         # Parameters, Variables, Constraints, and Objectives
         setattr(programblock, name, datablock)
 
-        # update all the elements related the attributes in the Attr Modeling Block
+        # update all the elements related the attributes in the Task Modeling Block
         for attr, cons in programblock.attr_constraints.items():
-            getattr(self.attr, attr).constraints.extend(cons)
+            getattr(self.taskmaster, attr).constraints.extend(cons)
 
         for attr, var in programblock.attr_variables.items():
-            getattr(self.attr, attr).variables.extend(var)
+            getattr(self.taskmaster, attr).variables.extend(var)
         for attr, par in programblock.attr_parameters.items():
-            getattr(self.attr, attr).parameters.extend(par)
+            getattr(self.taskmaster, attr).parameters.extend(par)
 
         for attr, disp in programblock.attr_dispositions.items():
-            getattr(self.attr, attr).dispositions.extend(disp)
+            getattr(self.taskmaster, attr).dispositions.extend(disp)
 
         # The ProgramBlock is also added to the Program Model
         setattr(self.program, name, programblock)

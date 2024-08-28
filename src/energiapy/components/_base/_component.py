@@ -47,9 +47,9 @@ class _Component(_Dunders):
         return getattr(self._model.program, self.name)
 
     @property
-    def attr(self):
-        """The Attributes of the Component"""
-        return self._model.attr
+    def taskmaster(self):
+        """TaskMaster of the Scenario"""
+        return self._model.taskmaster
 
     def personalize(
         self,

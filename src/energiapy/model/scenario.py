@@ -47,8 +47,17 @@ from ..components.operational.transit import Transit
 from ..components.scope.horizon import Horizon
 from ..components.scope.network import Network
 from ..components.spatial.linkage import Linkage
-from ..core._handy._collections import (_Alys, _Cmds, _Elms, _Imps, _Opns,
-                                        _Scls, _Scps, _Spts, _Vlus)
+from ..core._handy._collections import (
+    _Alys,
+    _Cmds,
+    _Elms,
+    _Imps,
+    _Opns,
+    _Scls,
+    _Scps,
+    _Spts,
+    _Vlus,
+)
 from ..core._handy._dunders import _Dunders
 from ..core._handy._printers import _Print
 from ._birth import _Birth
@@ -217,9 +226,9 @@ class Scenario(_Ok, _Default, _Birth, _Update, _ScnCols, _Dunders, _Print):
         return self.model.matrix
 
     @property
-    def attr(self):
-        """Attributes of the Scenario"""
-        return self.model.attr
+    def taskmaster(self):
+        """TaskMaster of the Scenario"""
+        return self.model.taskmaster
 
     @property
     def components(self):

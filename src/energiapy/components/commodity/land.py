@@ -32,8 +32,7 @@ class Land(_Used):
         _Used.__post_init__(self)
         # This collects parameters for land use declared at other components
 
-
     @property
     def usage(self):
         """Land Uses across the Scenario"""
-        return self.attr.coll_uses_land
+        return self.taskmaster.report_uses_land

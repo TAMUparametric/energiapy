@@ -5,7 +5,7 @@ This will inherently check if there are any abstract methods have not been imple
 
 import pytest
 
-from src.energiapy.blocks.attr import Attr
+from src.energiapy.blocks.taskmaster import TaskMaster
 from src.energiapy.blocks.data import Data, DataBlock
 from src.energiapy.blocks.matrix import Matrix
 from src.energiapy.blocks.model import Model
@@ -67,7 +67,7 @@ from src.energiapy.parameters.balances.inventory import Inventory
 #     """Test to check if all components can be initialized"""
 #     # check if Model Blocks have been made
 #     assert isinstance(scenario.model, Model)
-#     assert isinstance(scenario.attr, Attr)
+#     assert isinstance(scenario.taskmaster, TaskMaster)
 #     assert isinstance(scenario.data, Data)
 #     assert isinstance(scenario.matrix, Matrix)
 #     assert isinstance(scenario.program, Program)

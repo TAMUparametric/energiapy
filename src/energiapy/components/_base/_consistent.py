@@ -58,8 +58,8 @@ class _Consistent(ABC):
 
     @property
     @abstractmethod
-    def attr(self):
-        """The Attributes of the Component"""
+    def taskmaster(self):
+        """TaskMaster of the Scenario"""
 
     @staticmethod
     @abstractmethod
@@ -273,7 +273,7 @@ class _Consistent(ABC):
         value_upd = {}
         for spt in spttmpmdeval.keys():
             if spt == _Dummy.N:
-                if attr in self.attr.bounds():
+                if attr in self.taskmaster.bounds():
                     value_upd[self.system.network] = spttmpmdeval[spt]
                 else:
                     for loc in self.system.locations:
@@ -383,7 +383,7 @@ class _Consistent(ABC):
             dict: {Commodity: value}
         """
 
-        if attr in self.attr.expenses():
+        if attr in self.taskmaster.expenses():
             value = {self.system.cash: value}
 
         if attr == 'use_land':
@@ -410,7 +410,7 @@ class _Consistent(ABC):
 
                 pr_op(getattr(self, attr), 'make_consistent')
 
-                if attr in self.attr.exacts():
+                if attr in self.taskmaster.exacts():
 
                     value = self.make_commodity(attr, value)
 
@@ -423,7 +423,7 @@ class _Consistent(ABC):
                         },
                     )
 
-                if attr in self.attr.bounds():
+                if attr in self.taskmaster.bounds():
                     setattr(
                         self,
                         attr,

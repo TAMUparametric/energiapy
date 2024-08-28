@@ -35,4 +35,4 @@ class Emission(EmnBounds, _Simple, _Commodity):
     @property
     def emissions(self):
         """Emissions across the components"""
-        return self.attr.coll_emissions
+        return self.taskmaster.report_emissions

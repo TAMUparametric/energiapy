@@ -36,4 +36,4 @@ class Cash(CshBounds, _Simple, _Commodity):
     @property
     def expenses(self):
         """Expenses"""
-        return self.attr.coll_expenses
+        return self.taskmaster.report_expenses

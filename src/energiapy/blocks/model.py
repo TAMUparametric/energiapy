@@ -10,7 +10,7 @@ Includes:
 from dataclasses import dataclass, field
 
 from ..core._handy._dunders import _Dunders
-from .attr import Attr
+from .taskmaster import TaskMaster
 from .data import Data
 from .matrix import Matrix
 from .program import Program
@@ -32,5 +32,5 @@ class Model(_Dunders):
         self.data = Data(name=self.name)
         self.matrix = Matrix(name=self.name)
         self.program = Program(name=self.name)
-        self.attr = Attr(name=self.name)
+        self.taskmaster = TaskMaster(name=self.name)
         self.name = f'Model|{self.name}|'

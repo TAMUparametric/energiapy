@@ -7,7 +7,6 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 from ..constraints.rulebook import rulebook
-from ..constraints.taskmaster import taskmaster
 from ..core._handy._dunders import _Dunders
 from ..core._handy._printers import _Print
 from ..indices.disposition import Disposition
@@ -82,10 +81,10 @@ class ProgramBlock(_Dunders, _Print):
 
         else:
             if value.incdntl:
-                # if parameter is incidental
-                var = taskmaster[type(self.component)][f'{attr}_i']
+                # if input value is incidental
+                var = getattr(self.component.taskmaster, attr).task_i
             else:
-                var = taskmaster[type(self.component)][attr]
+                var = getattr(self.component.taskmaster, attr).task
 
             # Variable is declared, the Disposition is used
             variable = var(disposition=value.disposition, component=self.component)

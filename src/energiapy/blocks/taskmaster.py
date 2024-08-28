@@ -1,12 +1,12 @@
 """ This has three objects
-AttrBlock: 
+Task: 
     individual attributes of Components
-AttrCollections:
+Reports:
     collections of Component attributes 
     this is helpful when component attributes are declared at other Components
-Attr: 
-    Consists of: AttrBounds, AttrExacts, AttrBalances
-    All AttrBlocks, there is only one instance of this in the Scenario
+Task: 
+    Consists of: Bounds, Exacts, TaskBalances
+    All TaskBlocks, there is only one instance of this in the Scenario
     Handles the attributes of components
     Defines strict behaviour
 """
@@ -69,12 +69,12 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class AttrBlock(_Dunders):
-    """Attr Block
+class Task(_Dunders):
+    """Task
     Handles the attributes of components
     Defines strict behaviour
 
-    Attributes:
+    Taskibutes:
         name (str): The name of the attribute block
         root (List[IsComponent]): List of Components where the attribute can be declared
         other (List[IsComponent]): List of Incongruent Components where the Component attribute can be declared
@@ -90,7 +90,7 @@ class AttrBlock(_Dunders):
     task_i: IsVariable = field(default=None)
 
     def __post_init__(self):
-        self.name = f'Attr|{self.name}|'
+        self.name = f'Task|{self.name}|'
         # Elements associated with the attribute
         self.values = []
         self.parameters = []
@@ -100,29 +100,29 @@ class AttrBlock(_Dunders):
 
 
 @dataclass
-class AttrCollection(_Dunders):
-    """Attr is a collection of AttrBlocks
+class Report(_Dunders):
+    """Task is a collection of Tasks
 
-    Attributes:
+    Taskibutes:
         name (str): The name of the attribute collection
-        attrblocks (List[AttrBlock]): List of AttrBlocks that the collection consists of
+        tasks (List[Task]): List of TaskBlocks that the collection consists of
     """
 
     name: str = field(default=None)
-    attrblocks: List[AttrBlock] = field(default_factory=list)
+    tasks: List[Task] = field(default_factory=list)
 
     def __post_init__(self):
-        self.name = f'Attr|{self.name}|'
-        # Collections associated with the attribute
-        self.values = sum([attr.values for attr in self.attrblocks], [])
-        self.parameters = sum([attr.parameters for attr in self.attrblocks], [])
-        self.dispositions = sum([attr.dispositions for attr in self.attrblocks], [])
-        self.constraints = sum([attr.constraints for attr in self.attrblocks], [])
-        self.variables = sum([attr.variables for attr in self.attrblocks], [])
+        self.name = f'Task|{self.name}|'
+        # Report associated with the attribute
+        self.values = sum([attr.values for attr in self.tasks], [])
+        self.parameters = sum([attr.parameters for attr in self.tasks], [])
+        self.dispositions = sum([attr.dispositions for attr in self.tasks], [])
+        self.constraints = sum([attr.constraints for attr in self.tasks], [])
+        self.variables = sum([attr.variables for attr in self.tasks], [])
 
 
 @dataclass
-class AttrBounds(
+class _Bounds(
     PlyBounds,
     CshBounds,
     EmnBounds,
@@ -140,32 +140,32 @@ class AttrBounds(
 
     def __post_init__(self):
         # Player
-        self.has = AttrBlock(name='has', root=[Player], task=Give)
-        self.needs = AttrBlock(name='needs', root=[Player], task=Take)
+        self.has = Task(name='has', root=[Player], task=Give)
+        self.needs = Task(name='needs', root=[Player], task=Take)
         # Cash
-        self.spend = AttrBlock(name='spend', root=[Cash], task=Spend)
-        self.earn = AttrBlock(name='earn', root=[Cash], task=Earn)
+        self.spend = Task(name='spend', root=[Cash], task=Spend)
+        self.earn = Task(name='earn', root=[Cash], task=Earn)
         # Emission
-        self.emit = AttrBlock(name='emit', root=[Emission], task=Emit)
+        self.emit = Task(name='emit', root=[Emission], task=Emit)
         # Land and Material (Used)
-        self.use = AttrBlock(name='use', root=[Land, Material], task=Use)
+        self.use = Task(name='use', root=[Land, Material], task=Use)
         # Resource
-        self.buy = AttrBlock(name='buy', root=[Resource], task=Buy, other=[Process])
-        self.sell = AttrBlock(name='sell', root=[Resource], task=Sell, other=[Process])
-        self.ship = AttrBlock(name='ship', root=[Resource], task=Ship, other=[Transit])
+        self.buy = Task(name='buy', root=[Resource], task=Buy, other=[Process])
+        self.sell = Task(name='sell', root=[Resource], task=Sell, other=[Process])
+        self.ship = Task(name='ship', root=[Resource], task=Ship, other=[Transit])
         # Operational
-        self.capacity = AttrBlock(
+        self.capacity = Task(
             name='capacity', root=[Process, Storage, Transit], task=Capacity
         )
-        self.operate = AttrBlock(
+        self.operate = Task(
             name='operate', root=[Process, Storage, Transit], task=Operate
         )
         # # Process
-        # self.produce = AttrBlock(name='produce', root=[Process])
+        # self.produce = Task(name='produce', root=[Process])
         # # Storage
-        # self.store = AttrBlock(name='store', root=[Storage])
+        # self.store = Task(name='store', root=[Storage])
         # # Transit
-        # self.transport = AttrBlock(name='transport', root=[Transit])
+        # self.transport = Task(name='transport', root=[Transit])
 
     @staticmethod
     def bounds():
@@ -191,7 +191,7 @@ class AttrBounds(
 
 
 @dataclass
-class AttrExacts(ExpExacts, EmnExacts, UsgExacts, LssExacts, RteExacts):
+class _Exacts(ExpExacts, EmnExacts, UsgExacts, LssExacts, RteExacts):
     """These are Exact Component Inputs
 
     These are inherited across all Spatial Components
@@ -204,68 +204,68 @@ class AttrExacts(ExpExacts, EmnExacts, UsgExacts, LssExacts, RteExacts):
     def __post_init__(self):
         # ---------Expenses---------
         # Resource
-        self.price_buy = AttrBlock(
+        self.price_buy = Task(
             name='price_buy',
             root=[Resource],
             task=ExpBuy,
         )
-        self.price_sell = AttrBlock(name='price_sell', root=[Resource], task=ExpSell)
-        self.credit = AttrBlock(name='credit', root=[Resource], task=Credit)
-        self.penalty = AttrBlock(name='penalty', root=[Resource], task=Penalty)
+        self.price_sell = Task(name='price_sell', root=[Resource], task=ExpSell)
+        self.credit = Task(name='credit', root=[Resource], task=Credit)
+        self.penalty = Task(name='penalty', root=[Resource], task=Penalty)
         # Land and Material (Used)
-        self.cost_use = AttrBlock(
+        self.cost_use = Task(
             name='cost_use', root=[Land, Material], task=ExpUsage, other=[Process]
         )
         # Operational
-        self.capex = AttrBlock(
+        self.capex = Task(
             name='capex',
             root=[Process, Storage, Transit],
             task=ExpSetUp,
             task_i=ExpSetUpI,
         )
-        self.opex = AttrBlock(
+        self.opex = Task(
             name='opex', root=[Process, Storage, Transit], task=ExpOpr, task_i=ExpOprI
         )
         # ---------Emissions---------
         # Resource
-        self.emission_buy = AttrBlock(
+        self.emission_buy = Task(
             name='emission_buy', root=[Resource], task=EmitBuy, other=[Process]
         )
-        self.emission_sell = AttrBlock(
+        self.emission_sell = Task(
             name='emission_sell', root=[Resource], task=EmitSell, other=[Process]
         )
-        self.emission_loss = AttrBlock(
+        self.emission_loss = Task(
             name='emission_loss',
             root=[Resource],
             task=EmitLoss,
             other=[Storage, Transit],
         )
         # Land and Material (Used)
-        self.emission_use = AttrBlock(
+        self.emission_use = Task(
             name='emission_use', root=[Land, Material], task=EmitUse
         )
         # Operational
-        self.emission_setup = AttrBlock(
+        self.emission_setup = Task(
             name='emission_setup', root=[Process, Storage, Transit], task=EmitSetUp
         )
         # ---------Uses---------
         # Operational
-        self.use_land = AttrBlock(
+        self.use_land = Task(
             name='use_land', root=[Process, Storage, Transit], task=Usage
         )
-        self.use_material = AttrBlock(
+        self.use_material = Task(
             name='use_material', root=[Process, Storage, Transit], task=Usage
         )
         # ---------Losses---------
         # Storage Operation
-        self.loss_storage = AttrBlock(name='loss_storage', root=[Storage], task=Loss)
+        self.loss_storage = Task(name='loss_storage', root=[Storage], task=Loss)
         # Transit Operation
-        self.loss_transit = AttrBlock(name='loss_transit', root=[Transit], task=Loss)
+        self.loss_transit = Task(name='loss_transit', root=[Transit], task=Loss)
         # ---------Rates---------
         # Operational
-        self.setup_time = AttrBlock(name='setup_time', root=[Process, Storage, Transit])
+        self.setup_time = Task(name='setup_time', root=[Process, Storage, Transit])
         # Transit Operation
-        self.speed = AttrBlock(name='speed', root=[Transit])
+        self.speed = Task(name='speed', root=[Transit])
 
     @staticmethod
     def expenses():
@@ -305,18 +305,18 @@ class AttrExacts(ExpExacts, EmnExacts, UsgExacts, LssExacts, RteExacts):
 
 
 @dataclass
-class AttrBalances(ProBalance, StgBalance, TrnBalance):
+class _Balances(ProBalance, StgBalance, TrnBalance):
     """These are Balances for Resources
     defined at Operational Components
     """
 
     def __post_init__(self):
         # Process
-        self.conversion = AttrBlock(name='conversion', root=[Process])
+        self.conversion = Task(name='conversion', root=[Process])
         # Storage
-        self.inventory = AttrBlock(name='inventory', root=[Storage])
+        self.inventory = Task(name='inventory', root=[Storage])
         # Transit
-        self.freight = AttrBlock(name='freight', root=[Transit])
+        self.freight = Task(name='freight', root=[Transit])
 
     @staticmethod
     def balances():
@@ -331,7 +331,7 @@ class AttrBalances(ProBalance, StgBalance, TrnBalance):
 
 
 @dataclass
-class Attr(AttrBounds, AttrExacts, AttrBalances, _Dunders):
+class TaskMaster(_Bounds, _Exacts, _Balances, _Dunders):
     """This object collects all the attributes defined
     and makes a list of Dispositions they are defined at
 
@@ -340,46 +340,46 @@ class Attr(AttrBounds, AttrExacts, AttrBalances, _Dunders):
     name: str = field(default=None)
 
     def __post_init__(self):
-        self.name = f'Attr|{self.name}|'
-        AttrBounds.__post_init__(self)
-        AttrExacts.__post_init__(self)
-        AttrBalances.__post_init__(self)
+        self.name = f'TaskMaster|{self.name}|'
+        _Bounds.__post_init__(self)
+        _Exacts.__post_init__(self)
+        _Balances.__post_init__(self)
 
     @property
-    def coll_expenses(self):
+    def report_expenses(self):
         """Collection of Expenses"""
-        return AttrCollection(
+        return Report(
             name='expenses',
-            attrblocks=[getattr(self, attr) for attr in self.expenses()],
+            tasks=[getattr(self, attr) for attr in self.expenses()],
         )
 
     @property
-    def coll_uses_land(self):
+    def report_uses_land(self):
         """Collection of Uses Land"""
-        return AttrCollection(
+        return Report(
             name='uses_land',
-            attrblocks=[getattr(self, 'use_land')],
+            tasks=[getattr(self, 'use_land')],
         )
 
     @property
-    def coll_emissions(self):
+    def report_emissions(self):
         """Collection of Emissions"""
-        return AttrCollection(
+        return Report(
             name='emissions',
-            attrblocks=[getattr(self, attr) for attr in self.emissions()],
+            tasks=[getattr(self, attr) for attr in self.emissions()],
         )
 
     @property
-    def coll_losses(self):
+    def report_losses(self):
         """Collection of Losses"""
-        return AttrCollection(
-            name='losses', attrblocks=[getattr(self, attr) for attr in self.losses()]
+        return Report(
+            name='losses', tasks=[getattr(self, attr) for attr in self.losses()]
         )
 
     @property
-    def coll_uses_material(self):
+    def report_uses_material(self):
         """Collection of Uses Material"""
-        return AttrCollection(
+        return Report(
             name='uses_material',
-            attrblocks=[getattr(self, 'use_material')],
+            tasks=[getattr(self, 'use_material')],
         )
