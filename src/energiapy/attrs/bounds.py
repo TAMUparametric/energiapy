@@ -66,17 +66,18 @@ class OpnBounds:
     """Bounds for Operational Components"""
 
     capacity: IsBoundInput = field(default=None)
+    operate: IsBoundInput = field(default=None)
 
 
 @dataclass
-class ProBounds(OpnBounds):
+class ProBounds:
     """Bounds for Process"""
 
     produce: IsBoundInput = field(default=None)
 
 
 @dataclass
-class StgBounds(OpnBounds):
+class StgBounds:
     """Bounds for Storage"""
 
     store: IsBoundInput = field(default=None)
@@ -85,7 +86,7 @@ class StgBounds(OpnBounds):
 
 
 @dataclass
-class TrnBounds(OpnBounds):
+class TrnBounds:
     """Bounds for Transit"""
 
     transport: IsBoundInput = field(default=None)

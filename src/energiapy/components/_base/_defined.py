@@ -1,15 +1,17 @@
 """There are user defined components
 """
 
+from abc import abstractmethod, ABC
 from dataclasses import dataclass, field
 
 from ...core._handy._collections import _Elms, _Vlus
 from ...core._handy._printers import _Print
 from ._component import _Component
+from ._consistent import _Consistent
 
 
 @dataclass
-class _Defined(_Component, _Vlus, _Elms, _Print):
+class _Defined(_Component, _Consistent, _Vlus, _Elms, _Print, ABC):
     """If the component is defined by user, it should inherit from this class
 
     Attributes:
@@ -31,9 +33,28 @@ class _Defined(_Component, _Vlus, _Elms, _Print):
     def __post_init__(self):
         _Component.__post_init__(self)
         # flag to see if the inputs have been made consistent
-        self._consistent = False
+
+    @staticmethod
+    @abstractmethod
+    def inputs():
+        """Input attributes"""
+
 
     def eqns(self):
         """Prints all equations in the ProgramBlock"""
         for constraint in self.constraints:
             yield constraint.equation
+
+
+@dataclass
+class _Simple(_Defined):
+    """Simple Components inherit from this class
+    They only have bounds
+    These are Cash, Player, Emission, for now
+    Again, do not let me tell you how to live your life
+    Make more Simple Components if you feel the need
+    More power to you
+    """
+
+    def __post_init__(self):
+        _Defined.__post_init__(self)

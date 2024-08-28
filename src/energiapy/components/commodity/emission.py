@@ -3,7 +3,7 @@
 
 from dataclasses import dataclass, fields
 
-from .._base._simple import _Simple
+from .._base._defined import _Simple
 from ._commodity import _Commodity
 from ...attrs.bounds import EmnBounds
 
@@ -28,11 +28,11 @@ class Emission(EmnBounds, _Simple, _Commodity):
         _Commodity.__post_init__(self)
 
     @staticmethod
-    def bounds():
-        """Attrs that quantify the bounds of the component"""
-        return fields(EmnBounds)
+    def inputs():
+        """Input attributes"""
+        return [f.name for f in fields(EmnBounds)]
 
     @property
     def emissions(self):
         """Emissions across the components"""
-        return self.attr.emissions
+        return self.attr.coll_emissions

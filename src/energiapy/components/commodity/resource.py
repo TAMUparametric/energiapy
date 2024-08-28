@@ -63,33 +63,15 @@ class Resource(ResBounds, ResExpExacts, ResEmnExacts, _Traded):
     @property
     def losses(self):
         """Resource Losses"""
-        return self.attr.losses
+        return self.attr.coll_losses
 
-
-    @classmethod
-    def expenses(cls):
-        """Attrs that determine expenses of the component"""
-        return fields(ResExpExacts)
-
-    @classmethod
-    def emitted(cls):
-        """Attrs that determine emissions of the component"""
-        return fields(ResEmnExacts)
-
-    @classmethod
-    def inputs(cls):
-        """Attrs"""
-        return cls.bounds() + cls.expenses() + cls.emitted()
-
-    @classmethod
-    def _csh_inputs(cls):
-        """Adds Cash when making consistent"""
-        return cls.expenses()
-
-    @classmethod
-    def _nstd_inputs(cls):
-        """Is a nested input to be made consistent"""
-        return cls.emitted()
+    @staticmethod
+    def inputs():
+        """Input attributes"""
+        return [
+            f.name
+            for f in fields(ResBounds) + fields(ResExpExacts) + fields(ResEmnExacts)
+        ]
 
 
 @dataclass

@@ -6,15 +6,22 @@ from dataclasses import dataclass, field, fields
 from ...parameters.balances.conversion import Conversion
 from ._operational import _Operational
 
-from ...attrs.bounds import ProBounds, ResLocBounds
-from ...attrs.exacts import ResExpExacts
+from ...attrs.bounds import OpnBounds, ProBounds, ResLocBounds
+from ...attrs.exacts import ResExpExacts, ProExacts
 from ...attrs.balances import ProBalance
 from ...attrs.spatials import LocCollection
 
 
 @dataclass
 class Process(
-    ProBounds, ProBalance, ResLocBounds, ResExpExacts, LocCollection, _Operational
+    OpnBounds,
+    ProBounds,
+    ProExacts,
+    ProBalance,
+    ResLocBounds,
+    ResExpExacts,
+    LocCollection,
+    _Operational,
 ):
     """Process converts one Resource to another Resource
 
@@ -105,16 +112,16 @@ class Process(
         """The Process conversion is Conversion"""
         return self._balanced
 
-
     @staticmethod
-    def resourceexps():
-        """Attrs that determine resource expenses of the component"""
-        return fields(ResExpExacts)
-
-    @staticmethod
-    def resourceloss():
-        """Attrs that determine resource loss of the component"""
-        return []
+    def inputs():
+        """Input attributes"""
+        return [
+            f.name
+            for f in fields(ProBounds)
+            + fields(ProExacts)
+            + fields(ResExpExacts)
+            + fields(ResLocBounds)
+        ]
 
     @property
     def resources(self):

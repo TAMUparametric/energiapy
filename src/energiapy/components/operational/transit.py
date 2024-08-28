@@ -1,19 +1,19 @@
 """Transit moves Resources between Locations
 """
 
-from dataclasses import dataclass
+from dataclasses import dataclass, fields
 
 from ...parameters.balances.freight import Freight
 from ._birther import _Birther
-from ...attrs.bounds import TrnBounds, ResLnkBounds
-from ...attrs.exacts import TrnLossExacts
+from ...attrs.bounds import OpnBounds, TrnBounds, ResLnkBounds
+from ...attrs.exacts import TrnExacts
 from ...attrs.balances import TrnBalance
 from ...attrs.spatials import LnkCollection
 
 
 @dataclass
 class Transit(
-    TrnBounds, TrnLossExacts, TrnBalance, ResLnkBounds, LnkCollection, _Birther
+    OpnBounds, TrnBounds, TrnExacts, TrnBalance, ResLnkBounds, LnkCollection, _Birther
 ):
     """Transit moves Resources between Locations through a Linkage
     There could be a dependent Resource
@@ -70,26 +70,6 @@ class Transit(
         else:
             return [1]
 
-    @staticmethod
-    def _spatials():
-        """Spatial Components where the Operation is located"""
-        return 'linkages'
-
-    @staticmethod
-    def resourcebnds():
-        """Attrs that quantify the bounds of the Component"""
-        return ['ship']
-
-    @staticmethod
-    def resourceexps():
-        """Attrs that determine resource expenses of the component"""
-        return []
-
-    @staticmethod
-    def resourceloss():
-        """Attrs that determine resource loss of the component"""
-        return ['loss']
-
     @property
     def balance(self):
         """Balance attribute"""
@@ -116,6 +96,13 @@ class Transit(
             return self.capacity
         else:
             return self.capacity.og_input
+
+    @staticmethod
+    def inputs():
+        """Input attributes"""
+        return [
+            f.name for f in fields(TrnBounds) + fields(TrnExacts) + fields(ResLnkBounds)
+        ]
 
     def freightize(self):
         """Makes the freight"""

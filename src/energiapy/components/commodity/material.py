@@ -33,6 +33,6 @@ class Material(_Used):
         _Used.__post_init__(self)
 
     @property
-    def uses(self):
+    def usage(self):
         """Material Uses across the Scenario"""
-        return self.attr.use_material
+        return self.attr.coll_uses_material

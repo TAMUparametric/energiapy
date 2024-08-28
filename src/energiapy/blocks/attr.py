@@ -23,6 +23,9 @@ from ..attrs.bounds import (
     UsedBounds,
     ResBounds,
     OpnBounds,
+    ProBounds,
+    StgBounds,
+    TrnBounds,
 )
 from ..attrs.exacts import ExpExacts, EmnExacts, UsgExacts, LssExacts, RteExacts
 
@@ -88,7 +91,17 @@ class AttrCollection(_Dunders):
 
 
 @dataclass
-class AttrBounds(PlyBounds, CshBounds, EmnBounds, UsedBounds, ResBounds, OpnBounds):
+class AttrBounds(
+    PlyBounds,
+    CshBounds,
+    EmnBounds,
+    UsedBounds,
+    ResBounds,
+    OpnBounds,
+    ProBounds,
+    StgBounds,
+    TrnBounds,
+):
     """These are Bounds for the Components
 
     Bounds can be different for Network and individual Spatial Components
@@ -112,11 +125,34 @@ class AttrBounds(PlyBounds, CshBounds, EmnBounds, UsedBounds, ResBounds, OpnBoun
         # Operational
         self.capacity = AttrBlock(name='capacity', cmp=[Process, Storage, Transit])
         self.operate = AttrBlock(name='operate', cmp=[Process, Storage, Transit])
+        # # Process
+        # self.produce = AttrBlock(name='produce', cmp=[Process])
+        # # Storage
+        # self.store = AttrBlock(name='store', cmp=[Storage])
+        # # Transit
+        # self.transport = AttrBlock(name='transport', cmp=[Transit])
 
-    @classmethod
-    def bounds(cls):
+    @staticmethod
+    def bounds():
         """Returns all Bounds"""
-        return fields(cls)
+
+        return sum(
+            [
+                [f.name for f in fields(bln)]
+                for bln in [
+                    PlyBounds,
+                    CshBounds,
+                    EmnBounds,
+                    UsedBounds,
+                    ResBounds,
+                    OpnBounds,
+                    ProBounds,
+                    StgBounds,
+                    TrnBounds,
+                ]
+            ],
+            [],
+        )
 
 
 @dataclass
@@ -171,32 +207,38 @@ class AttrExacts(ExpExacts, EmnExacts, UsgExacts, LssExacts, RteExacts):
     @staticmethod
     def expenses():
         """Expenses"""
-        return fields(ExpExacts)
+        return [f.name for f in fields(ExpExacts)]
 
     @staticmethod
     def emissions():
         """Emissions"""
-        return fields(EmnExacts)
+        return [f.name for f in fields(EmnExacts)]
 
     @staticmethod
     def uses():
         """Uses"""
-        return fields(UsgExacts)
+        return [f.name for f in fields(UsgExacts)]
 
     @staticmethod
     def losses():
         """Losses"""
-        return fields(LssExacts)
+        return [f.name for f in fields(LssExacts)]
 
     @staticmethod
     def rates():
         """Rates"""
-        return fields(RteExacts)
+        return [f.name for f in fields(RteExacts)]
 
-    @classmethod
-    def exacts(cls):
+    @staticmethod
+    def exacts():
         """Returns all Exact Inputs"""
-        return fields(cls)
+        return sum(
+            [
+                [f.name for f in fields(ext)]
+                for ext in [ExpExacts, EmnExacts, UsgExacts, LssExacts]
+            ],
+            [],
+        )
 
 
 @dataclass
@@ -213,10 +255,16 @@ class AttrBalances(ProBalance, StgBalance, TrnBalance):
         # Transit
         self.freight = AttrBlock(name='freight', cmp=[Transit])
 
-    @classmethod
-    def balances(cls):
+    @staticmethod
+    def balances():
         """Returns all Balances"""
-        return fields(cls)
+        return sum(
+            [
+                [f.name for f in fields(bln)]
+                for bln in [ProBalance, StgBalance, TrnBalance]
+            ],
+            [],
+        )
 
 
 @dataclass

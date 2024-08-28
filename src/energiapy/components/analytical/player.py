@@ -1,8 +1,8 @@
 """Player is a class that represents a player in the Scenario
 """
 
-from dataclasses import dataclass
-from .._base._simple import _Simple
+from dataclasses import dataclass, fields
+from .._base._defined import _Simple
 from ...attrs.bounds import PlyBounds
 
 
@@ -24,3 +24,9 @@ class Player(PlyBounds, _Simple):
 
     def __post_init__(self):
         _Simple.__post_init__(self)
+
+    @staticmethod
+    def inputs():
+        """Inputs"""
+        return [f.name for f in fields(PlyBounds)]
+

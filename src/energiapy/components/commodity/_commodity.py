@@ -6,8 +6,6 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, fields
 from typing import TYPE_CHECKING, List
 
-from ...core.nirop.errors import check_attr
-from .._base._consistent import _ConsistentBnd, _ConsistentCsh, _ConsistentNstd
 from .._base._defined import _Defined
 from ...attrs.bounds import UsedBounds
 from ...attrs.exacts import UsedExpExacts, UsedEmnExacts
@@ -72,9 +70,7 @@ class _Commodity(ABC):
 
 
 @dataclass
-class _Traded(
-    _Defined, _Commodity, _ConsistentBnd, _ConsistentCsh, _ConsistentNstd, ABC
-):
+class _Traded(_Defined, _Commodity, ABC):
     """Applied for Land, Material and Resource"""
 
     def __post_init__(self):
@@ -83,58 +79,8 @@ class _Traded(
 
     @staticmethod
     @abstractmethod
-    def bounds():
-        """Attrs that quantify the bounds of the component"""
-
-    @staticmethod
-    @abstractmethod
-    def expenses():
-        """Attrs that determine expenses of the component"""
-
-    @staticmethod
-    @abstractmethod
-    def emitted():
-        """Attrs that determine emissions of the component"""
-
-    @classmethod
-    def inputs(cls):
-        """Attrs"""
-        return cls.bounds() + cls.expenses() + cls.emitted()
-
-    @classmethod
-    def _csh_inputs(cls):
-        """Adds Cash when making consistent"""
-        return cls.expenses()
-
-    @classmethod
-    def _nstd_inputs(cls):
-        """Is a nested input to be made consistent"""
-        return cls.emitted()
-
-    def make_consistent(self, ok_inconsistent: bool):
-        """Makes the data inputs consistent IsSptTmpDict
-
-        Args:
-            ok_inconsistent (bool): Fix Dispositions, with warnings.
-
-        """
-
-        for attr in self.inputs():
-
-            check_attr(component=self, attr=attr)
-
-            if getattr(self, attr) is not None:
-                if attr in self.bounds():
-                    self.make_bounds_consistent(attr, ok_inconsistent)
-
-                if attr in self._csh_inputs():
-                    self.make_csh_consistent(attr, ok_inconsistent)
-
-                if attr in self._nstd_inputs():
-                    self.make_nstd_consistent(attr, ok_inconsistent)
-
-        # update flag, the inputs have been made consistent
-        self._consistent = True
+    def inputs():
+        """Input Attributes"""
 
 
 @dataclass
@@ -153,16 +99,9 @@ class _Used(UsedBounds, UsedExpExacts, UsedEmnExacts, _Traded):
         _Traded.__post_init__(self)
 
     @staticmethod
-    def bounds():
-        """Attrs that quantify the bounds of the component"""
-        return fields(UsedBounds)
-
-    @staticmethod
-    def expenses():
-        """Attrs that determine expenses of the component"""
-        return fields(UsedExpExacts)
-
-    @staticmethod
-    def emitted():
-        """Attrs that determine emissions of the component"""
-        return fields(UsedEmnExacts)
+    def inputs():
+        """Input attributes"""
+        return [
+            f.name
+            for f in fields(UsedBounds) + fields(UsedExpExacts) + fields(UsedEmnExacts)
+        ]

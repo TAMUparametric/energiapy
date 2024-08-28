@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
@@ -130,21 +131,30 @@ class UsedExacts(UsedExpExacts, UsedEmnExacts):
     """Exact Inputs for Land and Material (Used)"""
 
 
-@dataclass
-class OpnExacts:
+class OpnExacts(OpnEmnExacts, UsgExacts, ABC):
     """Exact Inputs for Operational Components"""
 
+    @property
+    @abstractmethod
+    def system(self):
+        """System of the Operation"""
+
+    @property
+    @abstractmethod
+    def resources(self):
+        """Resources used in the Operation"""
+
 
 @dataclass
-class ProExacts(OpnExpExacts, OpnEmnExacts, UsgExacts):
+class ProExacts(OpnExpExacts, OpnExacts):
     """Exact Inputs for Process Components"""
 
 
 @dataclass
-class StgExacts(OpnExpExacts, OpnEmnExacts, UsgExacts, StgLossExacts):
+class StgExacts(OpnExpExacts, OpnExacts, StgLossExacts):
     """Exact Inputs for Storage Components"""
 
 
 @dataclass
-class TrnExacts(OpnExpExacts, OpnEmnExacts, UsgExacts, TrnLossExacts, RteExacts):
+class TrnExacts(OpnExpExacts, OpnExacts, TrnLossExacts, RteExacts):
     """Exact Inputs for Transit Components"""

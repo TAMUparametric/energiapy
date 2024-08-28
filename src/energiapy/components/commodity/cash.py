@@ -3,7 +3,7 @@
 
 from dataclasses import dataclass, fields
 
-from .._base._simple import _Simple
+from .._base._defined import _Simple
 from ...attrs.bounds import CshBounds
 from ._commodity import _Commodity
 
@@ -29,9 +29,9 @@ class Cash(CshBounds, _Simple, _Commodity):
         _Commodity.__post_init__(self)
 
     @staticmethod
-    def bounds():
-        """Attrs that quantify the bounds of the component"""
-        return fields(CshBounds)
+    def inputs():
+        """Inputs"""
+        return [f.name for f in fields(CshBounds)]
 
     @property
     def expenses(self):

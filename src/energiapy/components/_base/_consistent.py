@@ -19,7 +19,7 @@ from warnings import warn
 from pandas import DataFrame
 
 from ...core._handy._enums import _Dummy
-from ...core.nirop.errors import InconsistencyError
+from ...core.nirop.errors import InconsistencyError, check_attr
 from ...core.nirop.warnings import InconsistencyWarning
 from ...parameters.designators.mode import X
 from ..scope.network import Network
@@ -28,6 +28,22 @@ from ..temporal.scale import Scale
 
 if TYPE_CHECKING:
     from ...core.aliases.is_input import IsInput, IsSptTmpInp
+
+
+TESTING = True
+
+
+def pr_op(op: str, wh: str):
+    """prints output if TESTING is True
+
+    Args:
+        t (bool): TESTING flag
+        op (str): output
+        wh (str): what is being printed
+    """
+    if TESTING:
+        print()
+        print(f'{wh}: {op}')
 
 
 class _Consistent(ABC):
@@ -47,8 +63,17 @@ class _Consistent(ABC):
 
     @staticmethod
     @abstractmethod
-    def bounds():
-        """Bound attr of the Component"""
+    def inputs():
+        """Input attrs of the Component"""
+
+    @property
+    def consistent(self):
+        """Checks if the inputs have been made consistent"""
+        return self._consistent
+
+    @consistent.setter
+    def consistent(self, value):
+        self._consistent = value
 
     def upd_dict(self, value: IsInput, level: str) -> dict:
         """Returns an empty dict with the same keys as the input
@@ -98,7 +123,9 @@ class _Consistent(ABC):
                     value_upd[key] = val
                 else:
                     # else, add a _Dummy.N for now
-                    value_upd[_Dummy.N] = {key: val}
+                    value_upd[_Dummy.N] = val
+
+        pr_op(value_upd, 'make_spatial')
 
         return value_upd
 
@@ -128,6 +155,8 @@ class _Consistent(ABC):
                     else:
                         value_upd[spt][_Dummy.T] = val
 
+        pr_op(value_upd, 'make_temporal')
+
         return value_upd
 
     def make_modes(self, value: IsInput, attr: str) -> dict:
@@ -153,6 +182,8 @@ class _Consistent(ABC):
                     value_upd[spt][tmp] = {
                         _Dummy.X: value[spt][tmp]
                     }  # put a dummy mode temporarily
+
+        pr_op(value_upd, 'make_modes')
 
         return value_upd
 
@@ -216,6 +247,9 @@ class _Consistent(ABC):
                         del value_upd[spt][tmp]
                     else:
                         value_upd[spt][tmp] = spttmpmdeval[spt][tmp]
+
+        pr_op(value_upd, 'fix_temporal')
+
         return value_upd
 
     def replace_dummy_n(self, spttmpmdeval: dict, attr: str) -> dict:
@@ -247,6 +281,8 @@ class _Consistent(ABC):
             else:
                 value_upd[spt] = spttmpmdeval[spt]
 
+        pr_op(value_upd, 'replace_dummy_n')
+
         return value_upd
 
     def replace_dummy_t(self, spttmpmdeval: dict) -> dict:
@@ -267,6 +303,8 @@ class _Consistent(ABC):
                     del value_upd[spt][_Dummy.T]
                 else:
                     value_upd[spt][tmp] = spttmpmdeval[spt][tmp]
+
+        pr_op(value_upd, 'replace_dummy_t')
 
         return value_upd
 
@@ -290,6 +328,9 @@ class _Consistent(ABC):
                     else:
                         # {Spatial: {Temporal: {Mode: value}}}
                         value_upd[spt][tmp][x] = spttmpmdeval[spt][tmp][x]
+
+        pr_op(value_upd, 'replace_dummy_x')
+
         return value_upd
 
     def make_spttmpmde(
@@ -310,6 +351,9 @@ class _Consistent(ABC):
         # Spatial - Location, Linkage, Network, _Dummy.N
         # Temporal - Scale, _Dummy.T
         # Mode - X (Mode), _Dummy.X
+
+        pr_op(value, 'make_spatial')
+
         spttmpmdeval = self.make_modes(
             value=self.make_temporal(self.make_spatial(value)), attr=attr
         )
@@ -321,105 +365,69 @@ class _Consistent(ABC):
             self.replace_dummy_t(self.replace_dummy_n(spttmpmdeval, attr))
         )
 
-        if attr in self.attr.expenses():
-            spttmpmdeval = {self.system.cash: spttmpmdeval}
-
-        if attr == 'use_land':
-            spttmpmdeval = {self.system.land: spttmpmdeval}
+        pr_op(spttmpmdeval, 'make_spttmpmde')
 
         return spttmpmdeval
 
+    def make_commodity(self, attr: str, value: IsInput) -> dict:
+        """If exact input is given, checks if commodity is given.
 
-class _ConsistentBnd(_Consistent):
-    def make_bounds_consistent(self, attr: str, ok_inconsistent: bool):
-        """Makes the input of bounds attributes consistent
-
-        Args:
-            attr (str): attribute for which input is being passed
-            ok_inconsistent (bool): whether to fix dispositions or just warn.
-        """
-        # For bounds, if True (Big M) is given, it is converted to a list
-        # i.e. it is set to be the upperbound
-        setattr(
-            self, attr, self.make_spttmpmde(getattr(self, attr), attr, ok_inconsistent)
-        )
-
-
-class _ConsistentCsh(_Consistent):
-    def make_csh_consistent(self, attr: str, ok_inconsistent: bool):
-        """Makes the input of cash attributes consistent
+        If not sets one for Cash and Land
+        If Emission, Resource, Material, gives an Error
 
         Args:
-            attr (str): attribute for which input is being passed
-            ok_inconsistent (bool): whether to fix dispositions or just warn.
+            attr (str): attribute being passed
+            value (IsInput): user input
 
+        Returns:
+            dict: {Commodity: value}
         """
-        # adds cash as the main key
-        setattr(
-            self,
-            attr,
-            {
-                self.system.cash: self.make_spttmpmde(
-                    getattr(self, attr), attr, ok_inconsistent
-                )
-            },
-        )
 
+        if attr in self.attr.expenses():
+            value = {self.system.cash: value}
 
-class _ConsistentLnd(_Consistent):
-    def make_lnd_consistent(self, attr: str, ok_inconsistent: bool):
-        """Makes the input of land attributes consistent
+        if attr == 'use_land':
+            value = {self.system.land: value}
+
+        pr_op(value, 'make_commodity')
+
+        return value
+
+    def make_consistent(self, ok_inconsistent: bool):
+        """Makes the inputs consistent as SptTmpInput
 
         Args:
-            attr (str): attribute for which input is being passed
-            ok_inconsistent (bool): whether to fix dispositions or just warn.
+            ok_inconsistent (bool): whether to fix dispositions with warning or error out
         """
-        # adds land as the main key
 
-        setattr(
-            self,
-            attr,
-            {
-                self.system.land: self.make_spttmpmde(
-                    getattr(self, attr), attr, ok_inconsistent
-                )
-            },
-        )
+        for attr in self.inputs():
 
+            value = getattr(self, attr)
 
-class _ConsistentNstd(_Consistent):
-    def make_nstd_consistent(self, attr: str, ok_inconsistent: bool):
-        """Makes the input of nested attributes consistent
+            check_attr(component=self, attr=attr)
 
-        Args:
-            attr (str): attribute for which input is being passed
-            ok_inconsistent (bool): whether to fix dispositions or just warn.
-        """
-        # for inputs with multiple components, such as use and emission
-        setattr(
-            self,
-            attr,
-            {
-                i: self.make_spttmpmde(j, attr, ok_inconsistent)
-                for i, j in getattr(self, attr).items()
-            },
-        )
+            if value is not None:
 
+                pr_op(getattr(self, attr), 'make_consistent')
 
-class _ConsistentNstdCsh(_Consistent):
-    def make_nstd_csh_consistent(self, attr: str, ok_inconsistent: bool):
-        """Makes the input of nested cash attributes consistent
+                if attr in self.attr.exacts():
 
-        Args:
-            attr (str): attribute for which input is being passed
-            ok_inconsistent (bool): whether to fix dispositions or just warn.
-        """
-        # for expense inputs, where cash needs to be added to different components
-        setattr(
-            self,
-            attr,
-            {
-                i: {self.system.cash: self.make_spttmpmde(j, attr, ok_inconsistent)}
-                for i, j in getattr(self, attr).items()
-            },
-        )
+                    value = self.make_commodity(attr, value)
+
+                    setattr(
+                        self,
+                        attr,
+                        {
+                            cmd: self.make_spttmpmde(val, attr, ok_inconsistent)
+                            for cmd, val in value.items()
+                        },
+                    )
+
+                if attr in self.attr.bounds():
+                    setattr(
+                        self,
+                        attr,
+                        self.make_spttmpmde(value, attr, ok_inconsistent),
+                    )
+
+        setattr(self, 'consistent', True)

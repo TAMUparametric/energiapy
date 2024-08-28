@@ -1,19 +1,19 @@
 """Storage - Stashes Resource to Withdraw Later
 """
 
-from dataclasses import dataclass
+from dataclasses import dataclass, fields
 
 from ...parameters.balances.inventory import Inventory
 from ._birther import _Birther
 
-from ...attrs.bounds import StgBounds
-from ...attrs.exacts import StgLossExacts
+from ...attrs.bounds import OpnBounds, StgBounds
+from ...attrs.exacts import StgExacts
 from ...attrs.balances import StgBalance
 from ...attrs.spatials import LocCollection
 
 
 @dataclass
-class Storage(StgBounds, StgLossExacts, StgBalance, LocCollection, _Birther):
+class Storage(OpnBounds, StgBounds, StgExacts, StgBalance, LocCollection, _Birther):
     """Storage stores and withdraws Resources
     There could be a dependent Resource
 
@@ -54,24 +54,9 @@ class Storage(StgBounds, StgLossExacts, StgBalance, LocCollection, _Birther):
             return [1]
 
     @staticmethod
-    def _spatials():
-        """Spatial Components where the Operation is located"""
-        return 'locations'
-
-    @staticmethod
-    def resourcebnds():
-        """Attrs that quantify the bounds of the Component"""
-        return []
-
-    @staticmethod
-    def resourceexps():
-        """Attrs that determine resource expenses of the component"""
-        return []
-
-    @staticmethod
-    def resourceloss():
-        """Attrs that determine resource loss of the component"""
-        return ['loss']
+    def inputs():
+        """Input attributes"""
+        return [f.name for f in fields(StgBounds) + fields(StgExacts)]
 
     @property
     def balance(self):
