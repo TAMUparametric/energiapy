@@ -373,7 +373,6 @@ class _Consistent(ABC):
         """If exact input is given, checks if commodity is given.
 
         If not sets one for Cash and Land
-        If Emission, Resource, Material, gives an Error
 
         Args:
             attr (str): attribute being passed
@@ -400,6 +399,34 @@ class _Consistent(ABC):
             ok_inconsistent (bool): whether to fix dispositions with warning or error out
         """
 
+        def make_exact_consistent(value: IsInput, attr: str, ok_inconsistent: bool):
+            """Makes Exact inputs consistent"""
+
+            # Exact inputs always have some commodity as the first key
+            # for Cash and Land, these are added, Resources, Materials, Emissions need to be specified
+            value = self.make_commodity(attr, value)
+
+            # Thus,  we iterate over the commodities (cmd)
+            setattr(
+                self,
+                attr,
+                {
+                    cmd: self.make_spttmpmde(val, attr, ok_inconsistent)
+                    for cmd, val in value.items()
+                },
+            )
+
+        def make_bound_consistent(value: IsInput, attr: str, ok_inconsistent: bool):
+            """Makes Bound inputs consistent"""
+            # Bounds are defined for the Component itself
+            # or can be declared at other components
+            setattr(
+                self,
+                attr,
+                self.make_spttmpmde(value, attr, ok_inconsistent),
+            )
+
+        # Every Component has a set of inputs
         for attr in self.inputs():
 
             value = getattr(self, attr)
@@ -408,26 +435,16 @@ class _Consistent(ABC):
 
             if value is not None:
 
-                pr_op(getattr(self, attr), 'make_consistent')
+                pr_op(value, 'make_consistent')
 
                 if attr in self.taskmaster.exacts():
 
-                    value = self.make_commodity(attr, value)
-
-                    setattr(
-                        self,
-                        attr,
-                        {
-                            cmd: self.make_spttmpmde(val, attr, ok_inconsistent)
-                            for cmd, val in value.items()
-                        },
-                    )
+                    make_exact_consistent(value, attr, ok_inconsistent)
 
                 if attr in self.taskmaster.bounds():
-                    setattr(
-                        self,
-                        attr,
-                        self.make_spttmpmde(value, attr, ok_inconsistent),
-                    )
+
+                    make_bound_consistent(value, attr, ok_inconsistent)
 
         setattr(self, 'consistent', True)
+
+        # if type(self) in getattr(self.taskmaster, attr).other:

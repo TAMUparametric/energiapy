@@ -75,7 +75,7 @@ class Task(_Dunders):
     Defines strict behaviour
 
     Taskibutes:
-        name (str): The name of the attribute block
+        attr (str): attr associated with Task
         root (List[IsComponent]): List of Components where the attribute can be declared
         other (List[IsComponent]): List of Incongruent Components where the Component attribute can be declared
         task (IsVariable): Task Variable
@@ -83,14 +83,14 @@ class Task(_Dunders):
 
     """
 
-    name: str = field(default=None)
+    attr: str = field(default=None)
     root: List[IsComponent] = field(default_factory=list)
     other: List[IsComponent] = field(default_factory=list)
     task: IsVariable = field(default=None)
     task_i: IsVariable = field(default=None)
 
     def __post_init__(self):
-        self.name = f'Task|{self.name}|'
+        self.name = f'Task|{self.attr}|'
         # Elements associated with the attribute
         self.values = []
         self.parameters = []
@@ -112,7 +112,7 @@ class Report(_Dunders):
     tasks: List[Task] = field(default_factory=list)
 
     def __post_init__(self):
-        self.name = f'Task|{self.name}|'
+        self.name = f'Report|{self.name}|'
         # Report associated with the attribute
         self.values = sum([attr.values for attr in self.tasks], [])
         self.parameters = sum([attr.parameters for attr in self.tasks], [])
@@ -140,32 +140,32 @@ class _Bounds(
 
     def __post_init__(self):
         # Player
-        self.has = Task(name='has', root=[Player], task=Give)
-        self.needs = Task(name='needs', root=[Player], task=Take)
+        self.has = Task(attr='has', root=[Player], task=Give)
+        self.needs = Task(attr='needs', root=[Player], task=Take)
         # Cash
-        self.spend = Task(name='spend', root=[Cash], task=Spend)
-        self.earn = Task(name='earn', root=[Cash], task=Earn)
+        self.spend = Task(attr='spend', root=[Cash], task=Spend)
+        self.earn = Task(attr='earn', root=[Cash], task=Earn)
         # Emission
-        self.emit = Task(name='emit', root=[Emission], task=Emit)
+        self.emit = Task(attr='emit', root=[Emission], task=Emit)
         # Land and Material (Used)
-        self.use = Task(name='use', root=[Land, Material], task=Use)
+        self.use = Task(attr='use', root=[Land, Material], task=Use)
         # Resource
-        self.buy = Task(name='buy', root=[Resource], task=Buy, other=[Process])
-        self.sell = Task(name='sell', root=[Resource], task=Sell, other=[Process])
-        self.ship = Task(name='ship', root=[Resource], task=Ship, other=[Transit])
+        self.buy = Task(attr='buy', root=[Resource], task=Buy, other=[Process])
+        self.sell = Task(attr='sell', root=[Resource], task=Sell, other=[Process])
+        self.ship = Task(attr='ship', root=[Resource], task=Ship, other=[Transit])
         # Operational
         self.capacity = Task(
-            name='capacity', root=[Process, Storage, Transit], task=Capacity
+            attr='capacity', root=[Process, Storage, Transit], task=Capacity
         )
         self.operate = Task(
-            name='operate', root=[Process, Storage, Transit], task=Operate
+            attr='operate', root=[Process, Storage, Transit], task=Operate
         )
         # # Process
-        # self.produce = Task(name='produce', root=[Process])
+        # self.produce = Task(attr='produce', root=[Process])
         # # Storage
-        # self.store = Task(name='store', root=[Storage])
+        # self.store = Task(attr='store', root=[Storage])
         # # Transit
-        # self.transport = Task(name='transport', root=[Transit])
+        # self.transport = Task(attr='transport', root=[Transit])
 
     @staticmethod
     def bounds():
@@ -205,67 +205,67 @@ class _Exacts(ExpExacts, EmnExacts, UsgExacts, LssExacts, RteExacts):
         # ---------Expenses---------
         # Resource
         self.price_buy = Task(
-            name='price_buy',
+            attr='price_buy',
             root=[Resource],
             task=ExpBuy,
         )
-        self.price_sell = Task(name='price_sell', root=[Resource], task=ExpSell)
-        self.credit = Task(name='credit', root=[Resource], task=Credit)
-        self.penalty = Task(name='penalty', root=[Resource], task=Penalty)
+        self.price_sell = Task(attr='price_sell', root=[Resource], task=ExpSell)
+        self.credit = Task(attr='credit', root=[Resource], task=Credit)
+        self.penalty = Task(attr='penalty', root=[Resource], task=Penalty)
         # Land and Material (Used)
         self.cost_use = Task(
-            name='cost_use', root=[Land, Material], task=ExpUsage, other=[Process]
+            attr='cost_use', root=[Land, Material], task=ExpUsage, other=[Process]
         )
         # Operational
         self.capex = Task(
-            name='capex',
+            attr='capex',
             root=[Process, Storage, Transit],
             task=ExpSetUp,
             task_i=ExpSetUpI,
         )
         self.opex = Task(
-            name='opex', root=[Process, Storage, Transit], task=ExpOpr, task_i=ExpOprI
+            attr='opex', root=[Process, Storage, Transit], task=ExpOpr, task_i=ExpOprI
         )
         # ---------Emissions---------
         # Resource
         self.emission_buy = Task(
-            name='emission_buy', root=[Resource], task=EmitBuy, other=[Process]
+            attr='emission_buy', root=[Resource], task=EmitBuy, other=[Process]
         )
         self.emission_sell = Task(
-            name='emission_sell', root=[Resource], task=EmitSell, other=[Process]
+            attr='emission_sell', root=[Resource], task=EmitSell, other=[Process]
         )
         self.emission_loss = Task(
-            name='emission_loss',
+            attr='emission_loss',
             root=[Resource],
             task=EmitLoss,
             other=[Storage, Transit],
         )
         # Land and Material (Used)
         self.emission_use = Task(
-            name='emission_use', root=[Land, Material], task=EmitUse
+            attr='emission_use', root=[Land, Material], task=EmitUse
         )
         # Operational
         self.emission_setup = Task(
-            name='emission_setup', root=[Process, Storage, Transit], task=EmitSetUp
+            attr='emission_setup', root=[Process, Storage, Transit], task=EmitSetUp
         )
         # ---------Uses---------
         # Operational
         self.use_land = Task(
-            name='use_land', root=[Process, Storage, Transit], task=Usage
+            attr='use_land', root=[Process, Storage, Transit], task=Usage
         )
         self.use_material = Task(
-            name='use_material', root=[Process, Storage, Transit], task=Usage
+            attr='use_material', root=[Process, Storage, Transit], task=Usage
         )
         # ---------Losses---------
         # Storage Operation
-        self.loss_storage = Task(name='loss_storage', root=[Storage], task=Loss)
+        self.loss_storage = Task(attr='loss_storage', root=[Storage], task=Loss)
         # Transit Operation
-        self.loss_transit = Task(name='loss_transit', root=[Transit], task=Loss)
+        self.loss_transit = Task(attr='loss_transit', root=[Transit], task=Loss)
         # ---------Rates---------
         # Operational
-        self.setup_time = Task(name='setup_time', root=[Process, Storage, Transit])
+        self.setup_time = Task(attr='setup_time', root=[Process, Storage, Transit])
         # Transit Operation
-        self.speed = Task(name='speed', root=[Transit])
+        self.speed = Task(attr='speed', root=[Transit])
 
     @staticmethod
     def expenses():
@@ -312,11 +312,11 @@ class _Balances(ProBalance, StgBalance, TrnBalance):
 
     def __post_init__(self):
         # Process
-        self.conversion = Task(name='conversion', root=[Process])
+        self.conversion = Task(attr='conversion', root=[Process])
         # Storage
-        self.inventory = Task(name='inventory', root=[Storage])
+        self.inventory = Task(attr='inventory', root=[Storage])
         # Transit
-        self.freight = Task(name='freight', root=[Transit])
+        self.freight = Task(attr='freight', root=[Transit])
 
     @staticmethod
     def balances():
