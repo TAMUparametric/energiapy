@@ -94,7 +94,7 @@ class AttrCollection(_Dunders):
 
 
 @dataclass
-class Bounds(PlyBounds, CshBounds, EmnBounds, UsedBounds, ResBounds, OpnBounds):
+class AttrBounds(PlyBounds, CshBounds, EmnBounds, UsedBounds, ResBounds, OpnBounds):
     """These are Bounds for the Components
 
     Bounds can be different for Network and individual Spatial Components
@@ -121,7 +121,7 @@ class Bounds(PlyBounds, CshBounds, EmnBounds, UsedBounds, ResBounds, OpnBounds):
 
 
 @dataclass
-class Exacts(ResExacts, UsedExacts, OpnExacts, TrnLossExacts, StgLossExacts):
+class AttrExacts(ResExacts, UsedExacts, OpnExacts, TrnLossExacts, StgLossExacts):
     """These are Exact Component Inputs
 
     These are inherited across all Spatial Components
@@ -133,7 +133,7 @@ class Exacts(ResExacts, UsedExacts, OpnExacts, TrnLossExacts, StgLossExacts):
 
     def __post_init__(self):
         # Land and Material (Used)
-        self.cost_use = AttrBlock(name='cost', cmp=[Land, Material])
+        self.cost_use = AttrBlock(name='cost_use', cmp=[Land, Material])
         self.emission_use = AttrBlock(name='emission_use', cmp=[Land, Material])
         # Resource
         self.price_buy = AttrBlock(name='price_buy', cmp=[Resource])
@@ -158,7 +158,7 @@ class Exacts(ResExacts, UsedExacts, OpnExacts, TrnLossExacts, StgLossExacts):
 
 
 @dataclass
-class Balances(ProBalance, StgBalance, TrnBalance):
+class AttrBalances(ProBalance, StgBalance, TrnBalance):
     """These are Balances for Resources
     defined at Operational Components
     """
@@ -173,7 +173,7 @@ class Balances(ProBalance, StgBalance, TrnBalance):
 
 
 @dataclass
-class Attr(Bounds, Exacts, Balances, _Dunders):
+class Attr(AttrBounds, AttrExacts, AttrBalances, _Dunders):
     """This object collects all the attributes defined
     and makes a list of Dispositions they are defined at
 
@@ -183,9 +183,9 @@ class Attr(Bounds, Exacts, Balances, _Dunders):
 
     def __post_init__(self):
         self.name = f'Attr|{self.name}|'
-        Bounds.__post_init__(self)
-        Exacts.__post_init__(self)
-        Balances.__post_init__(self)
+        AttrBounds.__post_init__(self)
+        AttrExacts.__post_init__(self)
+        AttrBalances.__post_init__(self)
 
     @staticmethod
     def bounds():

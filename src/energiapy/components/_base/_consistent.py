@@ -321,6 +321,12 @@ class _Consistent(ABC):
             self.replace_dummy_t(self.replace_dummy_n(spttmpmdeval, attr))
         )
 
+        if attr in self.attr.expenses():
+            spttmpmdeval = {self.system.cash: spttmpmdeval}
+
+        if attr in self.attr.use_land:
+            spttmpmdeval = {self.system.land: spttmpmdeval}
+
         return spttmpmdeval
 
 
