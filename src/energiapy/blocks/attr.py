@@ -24,13 +24,7 @@ from ..attrs.bounds import (
     ResBounds,
     OpnBounds,
 )
-from ..attrs.exacts import (
-    ResExacts,
-    UsedExacts,
-    OpnExacts,
-    TrnLossExacts,
-    StgLossExacts,
-)
+from ..attrs.exacts import ExpExacts, EmnExacts, UsgExacts, LssExacts, RteExacts
 
 from ..core._handy._dunders import _Dunders
 from ..components.analytical.player import Player
@@ -119,9 +113,14 @@ class AttrBounds(PlyBounds, CshBounds, EmnBounds, UsedBounds, ResBounds, OpnBoun
         self.capacity = AttrBlock(name='capacity', cmp=[Process, Storage, Transit])
         self.operate = AttrBlock(name='operate', cmp=[Process, Storage, Transit])
 
+    @classmethod
+    def bounds(cls):
+        """Returns all Bounds"""
+        return fields(cls)
+
 
 @dataclass
-class AttrExacts(ResExacts, UsedExacts, OpnExacts, TrnLossExacts, StgLossExacts):
+class AttrExacts(ExpExacts, EmnExacts, UsgExacts, LssExacts, RteExacts):
     """These are Exact Component Inputs
 
     These are inherited across all Spatial Components
@@ -132,29 +131,72 @@ class AttrExacts(ResExacts, UsedExacts, OpnExacts, TrnLossExacts, StgLossExacts)
     """
 
     def __post_init__(self):
-        # Land and Material (Used)
-        self.cost_use = AttrBlock(name='cost_use', cmp=[Land, Material])
-        self.emission_use = AttrBlock(name='emission_use', cmp=[Land, Material])
+        # ---------Expenses---------
         # Resource
         self.price_buy = AttrBlock(name='price_buy', cmp=[Resource])
         self.price_sell = AttrBlock(name='price_sell', cmp=[Resource])
         self.credit = AttrBlock(name='credit', cmp=[Resource])
         self.penalty = AttrBlock(name='penalty', cmp=[Resource])
+        # Land and Material (Used)
+        self.cost_use = AttrBlock(name='cost_use', cmp=[Land, Material])
+        # Operational
+        self.capex = AttrBlock(name='capex', cmp=[Process, Storage, Transit])
+        self.opex = AttrBlock(name='opex', cmp=[Process, Storage, Transit])
+        # ---------Emissions---------
+        # Resource
         self.emission_buy = AttrBlock(name='emission_buy', cmp=[Resource])
         self.emission_sell = AttrBlock(name='emission_sell', cmp=[Resource])
         self.emission_loss = AttrBlock(name='emission_loss', cmp=[Resource])
+        # Land and Material (Used)
+        self.emission_use = AttrBlock(name='emission_use', cmp=[Land, Material])
+        # Operational
+        self.emission_setup = AttrBlock(
+            name='emission_setup', cmp=[Process, Storage, Transit]
+        )
+        # ---------Uses---------
         # Operational
         self.use_land = AttrBlock(name='use_land', cmp=[Process, Storage, Transit])
         self.use_material = AttrBlock(
             name='use_material', cmp=[Process, Storage, Transit]
         )
-        self.capex = AttrBlock(name='capex', cmp=[Process, Storage, Transit])
-        self.opex = AttrBlock(name='opex', cmp=[Process, Storage, Transit])
-        self.emission_setup = AttrBlock(
-            name='emission_setup', cmp=[Process, Storage, Transit, Land, Material]
-        )
+        # ---------Losses---------
+        # Storage Operation
         self.loss_storage = AttrBlock(name='loss_storage', cmp=[Storage])
+        # Transit Operation
         self.loss_transit = AttrBlock(name='loss_transit', cmp=[Transit])
+        # ---------Rates---------
+        # Transit Operation
+        self.speed = AttrBlock(name='speed', cmp=[Transit])
+
+    @staticmethod
+    def expenses():
+        """Expenses"""
+        return fields(ExpExacts)
+
+    @staticmethod
+    def emissions():
+        """Emissions"""
+        return fields(EmnExacts)
+
+    @staticmethod
+    def uses():
+        """Uses"""
+        return fields(UsgExacts)
+
+    @staticmethod
+    def losses():
+        """Losses"""
+        return fields(LssExacts)
+
+    @staticmethod
+    def rates():
+        """Rates"""
+        return fields(RteExacts)
+
+    @classmethod
+    def exacts(cls):
+        """Returns all Exact Inputs"""
+        return fields(cls)
 
 
 @dataclass
@@ -170,6 +212,11 @@ class AttrBalances(ProBalance, StgBalance, TrnBalance):
         self.inventory = AttrBlock(name='inventory', cmp=[Storage])
         # Transit
         self.freight = AttrBlock(name='freight', cmp=[Transit])
+
+    @classmethod
+    def balances(cls):
+        """Returns all Balances"""
+        return fields(cls)
 
 
 @dataclass
@@ -187,54 +234,41 @@ class Attr(AttrBounds, AttrExacts, AttrBalances, _Dunders):
         AttrExacts.__post_init__(self)
         AttrBalances.__post_init__(self)
 
-    @staticmethod
-    def bounds():
-        """Returns all Bounds"""
-        return fields(Bounds)
-
-    @staticmethod
-    def exacts():
-        """Returns all Exacts"""
-        return fields(Exacts)
-
-    @staticmethod
-    def balances():
-        """Returns all Balances"""
-        return fields(Balances)
-
     @property
-    def expenses(self):
-        """Expenses"""
+    def coll_expenses(self):
+        """Collection of Expenses"""
         return AttrCollection(
             name='expenses',
-            attrblocks=[
-                self.capex,
-                self.opex,
-                self.price_buy,
-                self.price_sell,
-                self.credit,
-                self.penalty,
-                self.cost_use,
-            ],
+            attrblocks=[getattr(self, attr) for attr in self.expenses()],
         )
 
     @property
-    def emissions(self):
-        """Emissions"""
+    def coll_uses_land(self):
+        """Collection of Uses Land"""
+        return AttrCollection(
+            name='uses_land',
+            attrblocks=[getattr(self, 'use_land')],
+        )
+
+    @property
+    def coll_emissions(self):
+        """Collection of Emissions"""
         return AttrCollection(
             name='emissions',
-            attrblocks=[
-                self.emission_buy,
-                self.emission_sell,
-                self.emission_loss,
-                self.emission_setup,
-                self.emission_use,
-            ],
+            attrblocks=[getattr(self, attr) for attr in self.emissions()],
         )
 
     @property
-    def losses(self):
-        """Losses"""
+    def coll_losses(self):
+        """Collection of Losses"""
         return AttrCollection(
-            name='losses', attrblocks=[self.loss_storage, self.loss_transit]
+            name='losses', attrblocks=[getattr(self, attr) for attr in self.losses()]
+        )
+
+    @property
+    def coll_uses_material(self):
+        """Collection of Uses Material"""
+        return AttrCollection(
+            name='uses_material',
+            attrblocks=[getattr(self, 'use_material')],
         )

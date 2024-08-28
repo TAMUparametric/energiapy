@@ -324,7 +324,7 @@ class _Consistent(ABC):
         if attr in self.attr.expenses():
             spttmpmdeval = {self.system.cash: spttmpmdeval}
 
-        if attr in self.attr.use_land:
+        if attr == 'use_land':
             spttmpmdeval = {self.system.land: spttmpmdeval}
 
         return spttmpmdeval

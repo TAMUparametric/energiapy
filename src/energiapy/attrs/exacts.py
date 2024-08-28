@@ -3,45 +3,18 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field, fields
+from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from ..core.aliases.is_input import IsExactInput
 
 
-class ExpExacts:
-    """Exact input attributes for Components"""
-
-    @classmethod
-    def expenses(cls):
-        """Exact Inputs across the Scenario"""
-        return fields(cls)
-
-
-class EmnExacts:
-    """Exact Emission Inputs for Components"""
-
-    @classmethod
-    def emitted(cls):
-        """Exact Emission Inputs across the Scenario"""
-        return fields(cls)
-
-
-class UseExacts:
-    """Exact Use Inputs for Components"""
-
-    @classmethod
-    def used(cls):
-        """Exact Use Inputs across the Scenario"""
-        return fields(cls)
-
-
-# Resource
+# -------------Expense Exacts-------------
 
 
 @dataclass
-class ResExpExacts(ExpExacts):
+class ResExpExacts:
     """Exact Expense Inputs for Resources"""
 
     price_buy: IsExactInput = field(default=None)
@@ -51,7 +24,30 @@ class ResExpExacts(ExpExacts):
 
 
 @dataclass
-class ResEmnExacts(EmnExacts):
+class UsedExpExacts:
+    """Exact Expense Inputs for Land and Material (Used)"""
+
+    cost_use: IsExactInput = field(default=None)
+
+
+@dataclass
+class OpnExpExacts:
+    """Exact Expense Inputs for Operational Components"""
+
+    capex: IsExactInput = field(default=None)
+    opex: IsExactInput = field(default=None)
+
+
+@dataclass
+class ExpExacts(ResExpExacts, UsedExpExacts, OpnExpExacts):
+    """Exact Expense Inputs for Components"""
+
+
+# -------------Emission Exacts-------------
+
+
+@dataclass
+class ResEmnExacts:
     """Exact Emission Inputs for Resources"""
 
     emission_buy: IsExactInput = field(default=None)
@@ -60,25 +56,73 @@ class ResEmnExacts(EmnExacts):
 
 
 @dataclass
-class ResExacts(ResExpExacts, ResEmnExacts):
-    """Exact Inputs for Resources"""
-
-
-# Land and Material (Used)
-
-
-@dataclass
-class UsedExpExacts(ExpExacts):
-    """Exact Expense Inputs for Land and Material (Used)"""
-
-    cost_use: IsExactInput = field(default=None)
-
-
-@dataclass
-class UsedEmnExacts(EmnExacts):
+class UsedEmnExacts:
     """Exact Emissions Inputs for Land and Material (Used)"""
 
     emission_use: IsExactInput = field(default=None)
+
+
+@dataclass
+class OpnEmnExacts:
+    """Exact Emission Inputs for Operational Components"""
+
+    emission_setup: IsExactInput = field(default=None)
+
+
+@dataclass
+class EmnExacts(ResEmnExacts, UsedEmnExacts, OpnEmnExacts):
+    """Exact Emission Inputs for Components"""
+
+
+# -------------Use exacts-------------
+
+
+@dataclass
+class UsgExacts:
+    """Exact Use Inputs for Operational Components"""
+
+    use_land: IsExactInput = field(default=None)
+    use_material: IsExactInput = field(default=None)
+
+
+# -------------Loss Exacts-------------
+
+
+@dataclass
+class StgLossExacts:
+    """Exact Loss Inputs for Storage Components"""
+
+    loss_storage: IsExactInput = field(default=None)
+
+
+@dataclass
+class TrnLossExacts:
+    """Exact Loss Inputs for Transit Components"""
+
+    loss_transit: IsExactInput = field(default=None)
+
+
+@dataclass
+class LssExacts(StgLossExacts, TrnLossExacts):
+    """Exact Loss Inputs for Components"""
+
+
+# -------------Rate Exacts-------------
+
+
+@dataclass
+class RteExacts:
+    """Exact Rate Inputs for Transit Components"""
+
+    speed: IsExactInput = field(default=None)
+
+
+# -------------Component Exacts-------------
+
+
+@dataclass
+class ResExacts(ResExpExacts, ResEmnExacts):
+    """Exact Inputs for Resources"""
 
 
 @dataclass
@@ -86,52 +130,21 @@ class UsedExacts(UsedExpExacts, UsedEmnExacts):
     """Exact Inputs for Land and Material (Used)"""
 
 
-# Operational (Process, Storage, Transit)
-
-
 @dataclass
-class OpnExpExacts(ExpExacts):
-    """Exact Expense Inputs for Operational Components"""
-
-    capex: IsExactInput = field(default=None)
-    opex: IsExactInput = field(default=None)
-
-
-@dataclass
-class OpnEmnExacts(EmnExacts):
-    """Exact Emission Inputs for Operational Components"""
-
-    emission_setup: IsExactInput = field(default=None)
-
-
-@dataclass
-class OpnUseExacts(UseExacts):
-    """Exact Use Inputs for Operational Components"""
-
-    use_land: IsExactInput = field(default=None)
-    use_material: IsExactInput = field(default=None)
-
-
-@dataclass
-class OpnExacts(OpnExpExacts, OpnEmnExacts, OpnUseExacts):
+class OpnExacts:
     """Exact Inputs for Operational Components"""
 
 
 @dataclass
-class ProExacts(OpnExacts):
+class ProExacts(OpnExpExacts, OpnEmnExacts, UsgExacts):
     """Exact Inputs for Process Components"""
 
 
 @dataclass
-class StgExacts(OpnExacts):
+class StgExacts(OpnExpExacts, OpnEmnExacts, UsgExacts, StgLossExacts):
     """Exact Inputs for Storage Components"""
-
-    loss_storage: IsExactInput = field(default=None)
 
 
 @dataclass
-class TrnExacts(OpnExacts):
+class TrnExacts(OpnExpExacts, OpnEmnExacts, UsgExacts, TrnLossExacts, RteExacts):
     """Exact Inputs for Transit Components"""
-
-    loss_transit: IsExactInput = field(default=None)
-    speed: IsExactInput = field(default=None)

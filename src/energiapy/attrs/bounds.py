@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field, fields
+from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 
@@ -11,17 +11,8 @@ if TYPE_CHECKING:
     from ..core.aliases.is_input import IsBoundInput
 
 
-class Bounds:
-    """Bound input attributes for Components"""
-
-    @classmethod
-    def bounds(cls):
-        """Bounds across the Scenario"""
-        return fields(cls)
-
-
 @dataclass
-class PlyBounds(Bounds):
+class PlyBounds:
     """Bounds for Players"""
 
     has: IsBoundInput = field(default=None)
@@ -29,7 +20,7 @@ class PlyBounds(Bounds):
 
 
 @dataclass
-class CshBounds(Bounds):
+class CshBounds:
     """Bounds for Cash"""
 
     spend: IsBoundInput = field(default=None)
@@ -37,21 +28,21 @@ class CshBounds(Bounds):
 
 
 @dataclass
-class EmnBounds(Bounds):
+class EmnBounds:
     """Bounds for Emission"""
 
     emit: IsBoundInput = field(default=None)
 
 
 @dataclass
-class UsedBounds(Bounds):
+class UsedBounds:
     """Bounds for Land and Material (Used)"""
 
     use: IsBoundInput = field(default=None)
 
 
 @dataclass
-class ResLocBounds(Bounds):
+class ResLocBounds:
     """Bounds for Resources at Locations"""
 
     buy: IsBoundInput = field(default=None)
@@ -59,7 +50,7 @@ class ResLocBounds(Bounds):
 
 
 @dataclass
-class ResLnkBounds(Bounds):
+class ResLnkBounds:
     """Bounds for Resources at Linkages"""
 
     ship: IsBoundInput = field(default=None)
@@ -71,7 +62,7 @@ class ResBounds(ResLocBounds, ResLnkBounds):
 
 
 @dataclass
-class OpnBounds(Bounds):
+class OpnBounds:
     """Bounds for Operational Components"""
 
     capacity: IsBoundInput = field(default=None)
