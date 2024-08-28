@@ -46,6 +46,11 @@ class _Operational(_Defined, ABC):
         """Spatial Components where the Operation is located"""
         return getattr(self, self._spatials())
 
+    @property
+    @abstractmethod
+    def resources(self):
+        """Resources used in the Operation"""
+
     def locate(self):
         """Locates the Component"""
 

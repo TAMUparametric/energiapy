@@ -4,7 +4,8 @@ AttrBlock:
 AttrCollections:
     collections of Component attributes 
     this is helpful when component attributes are declared at other Components
-Attr:
+Attr: 
+    Consists of: AttrBounds, AttrExacts, AttrBalances
     All AttrBlocks, there is only one instance of this in the Scenario
     Handles the attributes of components
     Defines strict behaviour
@@ -75,22 +76,22 @@ class AttrBlock(_Dunders):
 
     Attributes:
         name (str): The name of the attribute block
-        cmp (List[IsComponent]): List of Components where the attribute can be declared
-        cmp_ing (List[IsComponent]): List of Incongruent Components where the Component attribute can be declared
+        root (List[IsComponent]): List of Components where the attribute can be declared
+        other (List[IsComponent]): List of Incongruent Components where the Component attribute can be declared
         task (IsVariable): Task Variable
         task_i (IsVariable): Incidental Task Variable
 
     """
 
     name: str = field(default=None)
-    cmp: List[IsComponent] = field(default_factory=list)
-    cmp_ing: List[IsComponent] = field(default_factory=list)
+    root: List[IsComponent] = field(default_factory=list)
+    other: List[IsComponent] = field(default_factory=list)
     task: IsVariable = field(default=None)
     task_i: IsVariable = field(default=None)
 
     def __post_init__(self):
         self.name = f'Attr|{self.name}|'
-        # Collections associated with the attribute
+        # Elements associated with the attribute
         self.values = []
         self.parameters = []
         self.constraints = []
@@ -104,7 +105,7 @@ class AttrCollection(_Dunders):
 
     Attributes:
         name (str): The name of the attribute collection
-
+        attrblocks (List[AttrBlock]): List of AttrBlocks that the collection consists of
     """
 
     name: str = field(default=None)
@@ -139,32 +140,32 @@ class AttrBounds(
 
     def __post_init__(self):
         # Player
-        self.has = AttrBlock(name='has', cmp=[Player], task=Give)
-        self.needs = AttrBlock(name='needs', cmp=[Player], task=Take)
+        self.has = AttrBlock(name='has', root=[Player], task=Give)
+        self.needs = AttrBlock(name='needs', root=[Player], task=Take)
         # Cash
-        self.spend = AttrBlock(name='spend', cmp=[Cash], task=Spend)
-        self.earn = AttrBlock(name='earn', cmp=[Cash], task=Earn)
+        self.spend = AttrBlock(name='spend', root=[Cash], task=Spend)
+        self.earn = AttrBlock(name='earn', root=[Cash], task=Earn)
         # Emission
-        self.emit = AttrBlock(name='emit', cmp=[Emission], task=Emit)
+        self.emit = AttrBlock(name='emit', root=[Emission], task=Emit)
         # Land and Material (Used)
-        self.use = AttrBlock(name='use', cmp=[Land, Material], task=Use)
+        self.use = AttrBlock(name='use', root=[Land, Material], task=Use)
         # Resource
-        self.buy = AttrBlock(name='buy', cmp=[Resource], task=Buy, cmp_ing=[Process])
-        self.sell = AttrBlock(name='sell', cmp=[Resource], task=Sell, cmp_ing=[Process])
-        self.ship = AttrBlock(name='ship', cmp=[Resource], task=Ship, cmp_ing=[Transit])
+        self.buy = AttrBlock(name='buy', root=[Resource], task=Buy, other=[Process])
+        self.sell = AttrBlock(name='sell', root=[Resource], task=Sell, other=[Process])
+        self.ship = AttrBlock(name='ship', root=[Resource], task=Ship, other=[Transit])
         # Operational
         self.capacity = AttrBlock(
-            name='capacity', cmp=[Process, Storage, Transit], task=Capacity
+            name='capacity', root=[Process, Storage, Transit], task=Capacity
         )
         self.operate = AttrBlock(
-            name='operate', cmp=[Process, Storage, Transit], task=Operate
+            name='operate', root=[Process, Storage, Transit], task=Operate
         )
         # # Process
-        # self.produce = AttrBlock(name='produce', cmp=[Process])
+        # self.produce = AttrBlock(name='produce', root=[Process])
         # # Storage
-        # self.store = AttrBlock(name='store', cmp=[Storage])
+        # self.store = AttrBlock(name='store', root=[Storage])
         # # Transit
-        # self.transport = AttrBlock(name='transport', cmp=[Transit])
+        # self.transport = AttrBlock(name='transport', root=[Transit])
 
     @staticmethod
     def bounds():
@@ -205,66 +206,66 @@ class AttrExacts(ExpExacts, EmnExacts, UsgExacts, LssExacts, RteExacts):
         # Resource
         self.price_buy = AttrBlock(
             name='price_buy',
-            cmp=[Resource],
+            root=[Resource],
             task=ExpBuy,
         )
-        self.price_sell = AttrBlock(name='price_sell', cmp=[Resource], task=ExpSell)
-        self.credit = AttrBlock(name='credit', cmp=[Resource], task=Credit)
-        self.penalty = AttrBlock(name='penalty', cmp=[Resource], task=Penalty)
+        self.price_sell = AttrBlock(name='price_sell', root=[Resource], task=ExpSell)
+        self.credit = AttrBlock(name='credit', root=[Resource], task=Credit)
+        self.penalty = AttrBlock(name='penalty', root=[Resource], task=Penalty)
         # Land and Material (Used)
         self.cost_use = AttrBlock(
-            name='cost_use', cmp=[Land, Material], task=ExpUsage, cmp_ing=[Process]
+            name='cost_use', root=[Land, Material], task=ExpUsage, other=[Process]
         )
         # Operational
         self.capex = AttrBlock(
             name='capex',
-            cmp=[Process, Storage, Transit],
+            root=[Process, Storage, Transit],
             task=ExpSetUp,
             task_i=ExpSetUpI,
         )
         self.opex = AttrBlock(
-            name='opex', cmp=[Process, Storage, Transit], task=ExpOpr, task_i=ExpOprI
+            name='opex', root=[Process, Storage, Transit], task=ExpOpr, task_i=ExpOprI
         )
         # ---------Emissions---------
         # Resource
         self.emission_buy = AttrBlock(
-            name='emission_buy', cmp=[Resource], task=EmitBuy, cmp_ing=[Process]
+            name='emission_buy', root=[Resource], task=EmitBuy, other=[Process]
         )
         self.emission_sell = AttrBlock(
-            name='emission_sell', cmp=[Resource], task=EmitSell, cmp_ing=[Process]
+            name='emission_sell', root=[Resource], task=EmitSell, other=[Process]
         )
         self.emission_loss = AttrBlock(
             name='emission_loss',
-            cmp=[Resource],
+            root=[Resource],
             task=EmitLoss,
-            cmp_ing=[Storage, Transit],
+            other=[Storage, Transit],
         )
         # Land and Material (Used)
         self.emission_use = AttrBlock(
-            name='emission_use', cmp=[Land, Material], task=EmitUse
+            name='emission_use', root=[Land, Material], task=EmitUse
         )
         # Operational
         self.emission_setup = AttrBlock(
-            name='emission_setup', cmp=[Process, Storage, Transit], task=EmitSetUp
+            name='emission_setup', root=[Process, Storage, Transit], task=EmitSetUp
         )
         # ---------Uses---------
         # Operational
         self.use_land = AttrBlock(
-            name='use_land', cmp=[Process, Storage, Transit], task=Usage
+            name='use_land', root=[Process, Storage, Transit], task=Usage
         )
         self.use_material = AttrBlock(
-            name='use_material', cmp=[Process, Storage, Transit], task=Usage
+            name='use_material', root=[Process, Storage, Transit], task=Usage
         )
         # ---------Losses---------
         # Storage Operation
-        self.loss_storage = AttrBlock(name='loss_storage', cmp=[Storage], task=Loss)
+        self.loss_storage = AttrBlock(name='loss_storage', root=[Storage], task=Loss)
         # Transit Operation
-        self.loss_transit = AttrBlock(name='loss_transit', cmp=[Transit], task=Loss)
+        self.loss_transit = AttrBlock(name='loss_transit', root=[Transit], task=Loss)
         # ---------Rates---------
         # Operational
-        self.setup_time = AttrBlock(name='setup_time', cmp=[Process, Storage, Transit])
+        self.setup_time = AttrBlock(name='setup_time', root=[Process, Storage, Transit])
         # Transit Operation
-        self.speed = AttrBlock(name='speed', cmp=[Transit])
+        self.speed = AttrBlock(name='speed', root=[Transit])
 
     @staticmethod
     def expenses():
@@ -311,11 +312,11 @@ class AttrBalances(ProBalance, StgBalance, TrnBalance):
 
     def __post_init__(self):
         # Process
-        self.conversion = AttrBlock(name='conversion', cmp=[Process])
+        self.conversion = AttrBlock(name='conversion', root=[Process])
         # Storage
-        self.inventory = AttrBlock(name='inventory', cmp=[Storage])
+        self.inventory = AttrBlock(name='inventory', root=[Storage])
         # Transit
-        self.freight = AttrBlock(name='freight', cmp=[Transit])
+        self.freight = AttrBlock(name='freight', root=[Transit])
 
     @staticmethod
     def balances():
