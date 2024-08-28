@@ -19,7 +19,7 @@ class CacodcarError(ValueError):
 
 
 def check_attr(component: IsComponent, attr: str):
-    """Checks if an attribute is present in the component
+    """Checks if an attribute is present in the Component
 
     Args:
         component (IsComponent): Component to check

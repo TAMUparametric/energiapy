@@ -1,7 +1,6 @@
 """There are user defined components
 """
 
-from abc import abstractmethod, ABC
 from dataclasses import dataclass, field
 
 from ...core._handy._collections import _Elms, _Vlus
@@ -11,7 +10,7 @@ from ._consistent import _Consistent
 
 
 @dataclass
-class _Defined(_Component, _Consistent, _Vlus, _Elms, _Print, ABC):
+class _Defined(_Component, _Consistent, _Vlus, _Elms, _Print):
     """If the component is defined by user, it should inherit from this class
 
     Attributes:
@@ -33,12 +32,6 @@ class _Defined(_Component, _Consistent, _Vlus, _Elms, _Print, ABC):
     def __post_init__(self):
         _Component.__post_init__(self)
         # flag to see if the inputs have been made consistent
-
-    @staticmethod
-    @abstractmethod
-    def inputs():
-        """Input attributes"""
-
 
     def eqns(self):
         """Prints all equations in the ProgramBlock"""
