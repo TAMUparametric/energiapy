@@ -10,6 +10,7 @@ from ..core._handy._dunders import _Dunders
 
 if TYPE_CHECKING:
     from ..core.aliases.is_block import IsDisposition, IsRuleBook
+    from ..core.aliases.is_element import IsElement
 
 
 @dataclass
@@ -29,13 +30,13 @@ class ChitraGupta(_Dunders):
 
         self.name = f'ChitraGupta|{self.name}|'
 
-        for var in self.rulebook.variables():
+        for var in self.rulebook.vars():
             setattr(self, var.cname(), [])
 
-        for param in self.rulebook.parameters():
+        for param in self.rulebook.params():
             setattr(self, param.cname(), [])
 
-    def add(self, elm: str, disp: IsDisposition):
+    def add(self, elm: IsElement, disp: IsDisposition):
         """Add a disposition to a Variable or Parameter
 
         Args:
@@ -43,4 +44,4 @@ class ChitraGupta(_Dunders):
             disp (IsDisposition): Rule to add to the ChitraGupta
         """
 
-        getattr(self, elm).append(disp)
+        getattr(self, elm.cname()).append(disp)

@@ -4,18 +4,36 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from ..core._handy._dunders import _Dunders
 from ..core._handy._printers import _Print
+from ..core.nirop.errors import CacodcarError
 from ..indices.disposition import Disposition
 from ._block import _Block
 from .data import DataBlock
 
 if TYPE_CHECKING:
-    from ..core.aliases.is_block import IsDataBlock
+    from ..core.aliases.is_block import IsDataBlock, IsDisposition
     from ..core.aliases.is_component import IsDefined, IsIndex
     from ..core.aliases.is_value import IsValue
+    from ..core.aliases.is_element import IsVariable
+
+# set true if testing the backend
+TESTING = True
+
+
+def pr(o: Any, m: str, wh: str):
+    """This is for testing purposes
+
+    Args:
+        o (Any): Object to print
+        m (str): Message to print
+        wh (str): Where the message is coming from
+    """
+    if TESTING:
+        print(f'{wh}:{m}')
+        print(f'{o}')
 
 
 @dataclass
@@ -90,6 +108,9 @@ class ProgramBlock(_Dunders, _Print):
             self.attr_variables[attr].append(variable)
             self.attr_dispositions[attr].append(value.disposition)
 
+            # Update the Registrar with the disposition for the Variable
+            self.component.registrar.add(var, value.disposition)
+
             # The Variable can have a:
             # 1. Parent Variable: needed to bound or determine this variable
             # Examples: Operate < Capacity; ExpSetUp = CapEx * Capacity
@@ -99,6 +120,7 @@ class ProgramBlock(_Dunders, _Print):
             # so remove Cash Component in Capacity Dispositio
             if var.parent():
                 if var.child():
+
                     # This is the index of the Disposition without the child Component
                     index_childless = variable.disposition.childless(var.child())
 
@@ -117,6 +139,9 @@ class ProgramBlock(_Dunders, _Print):
                         # If not make a new one and update the collection
                         disposition_par = Disposition(**index_childless)
                         self.attr_dispositions[attr].append(disposition_par)
+
+                        # Update the Registrar with the disposition for the Parent Variable
+                        self.component.registrar.add(var, disposition_par)
 
                 else:
                     # if no Parent then the Parameter Disposition is the same as variable
@@ -145,6 +170,9 @@ class ProgramBlock(_Dunders, _Print):
                         disposition=disposition_par, component=self.component
                     )
                     self.attr_variables[attr].append(parent)
+
+                    # Update the Registrar with the disposition for the Parent Variable
+                    self.component.registrar.add(parent_var, disposition_par)
 
             else:
                 # Bruce Wayne Variable
@@ -308,3 +336,78 @@ class Program(_Block, _Print):
                 [],
             )
         )
+
+    def fish_var(self, var: IsVariable, disp: IsDisposition) -> IsVariable:
+        """Fishes for an existing variable at a particular disposition in the Program
+
+        The idea is that we should have a unique instance of any Program element
+
+        Args:
+            var (IsVariable): Variable type to fish
+            disp (IsDisposition): at this Disposition
+
+        Returns:
+            IsVariable: Variable or Disposition
+        """
+
+        # seaches for the variable in the Program
+
+        catch = [
+            e for e in self.variables if isinstance(e, var) and e.disposition == disp
+        ]
+
+        # number of catches
+        n_catch = len(catch)
+
+        # There can only be one
+        if n_catch > 1:
+            pr(catch, 'existing vars', 'fish_var')
+            raise CacodcarError(
+                f'We are going to need a bigger boat.\n{n_catch} matches for {var.cname()} at {disp}. There should be 1'
+            )
+
+        # If found a catch, return it
+        if n_catch == 1:
+            pr(catch[0], 'existing var', 'fish_var')
+            return catch[0]
+
+        # If no catch, make a new variable
+        if n_catch == 0:
+            pr(catch, 'new var', 'fish_var')
+            return var(disposition=disp, component=self)
+
+    def fish_disp(self, index: IsIndex) -> IsDisposition:
+        """Fishes for an exisiting disposition with the given index in the Program
+
+        The idea is that we should have a unique instance of any Program element
+
+        Args:
+            index (IsIndex): Index to fish
+
+        Returns:
+            IsDisposition: Disposition
+
+        """
+
+        # seaches for the disposition in the Program
+        catch = [e for e in self.dispositions if e.index == index]
+
+        # number of catches
+        n_catch = len(catch)
+
+        # There can only be one
+        if n_catch > 1:
+            pr(catch, 'existing disps', 'fish_disp')
+            raise CacodcarError(
+                f'We are going to need a bigger boat.\n{n_catch} disposition at {index}. There should be 1'
+            )
+
+        # If found a catch, return it
+        if n_catch == 1:
+            pr(catch[0], 'existing disp', 'fish_disp')
+            return catch[0]
+
+        # If no catch, make a new disposition
+        if n_catch == 0:
+            pr(catch, 'new disp', 'fish_disp')
+            return Disposition(**index)

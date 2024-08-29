@@ -128,7 +128,6 @@ class _Update(ABC):
         # Each _Defined component has inputs which are categorized
         # check individual component parent classes _Operational, _Commodity (_Traded and _Used) for details
         for attr in component.inputs():
-            # if the input is provided (they all default to None)
             if getattr(component, attr, False):
                 # set the input as attribute in the DataBlock
                 # This will make them into energiapy internal formats - Constant, DataSet, Theta, M

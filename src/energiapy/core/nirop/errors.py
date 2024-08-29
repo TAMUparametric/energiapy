@@ -7,6 +7,8 @@ from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from ..aliases.is_component import IsComponent
+    from ..aliases.is_element import IsElement
+    from ..aliases.is_block import IsDisposition
 
 
 class CacodcarError(ValueError):
@@ -107,3 +109,5 @@ class InconsistencyError(AttributeError):
         self.message = f'{component}.{attr}:Inconsistent temporal scale for {spt} at {tmp}.\nUpdating to {scale_upd}.\nSet Scneario.ok_inconsistent=True, to let energiapy fix scales'
 
         super().__init__(self.message)
+
+

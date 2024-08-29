@@ -17,11 +17,18 @@ from dataclasses import asdict, dataclass, field, fields
 from typing import TYPE_CHECKING, List
 
 from ..attrs.balances import ProBalance, StgBalance, TrnBalance
-from ..attrs.bounds import (CshBounds, EmnBounds, OpnBounds, PlyBounds,
-                            ProBounds, ResBounds, StgBounds, TrnBounds,
-                            UsedBounds)
-from ..attrs.exacts import (EmnExacts, ExpExacts, LssExacts, RteExacts,
-                            UsgExacts)
+from ..attrs.bounds import (
+    CshBounds,
+    EmnBounds,
+    OpnBounds,
+    PlyBounds,
+    ProBounds,
+    ResBounds,
+    StgBounds,
+    TrnBounds,
+    UsedBounds,
+)
+from ..attrs.exacts import EmnExacts, ExpExacts, LssExacts, RteExacts, UsgExacts
 from ..components.analytical.player import Player
 from ..components.commodity.cash import Cash
 from ..components.commodity.emission import Emission
@@ -35,11 +42,20 @@ from ..core._handy._dunders import _Dunders
 from ..core._handy._printers import _Print
 from ..variables.action import Give, Take
 from ..variables.capacitate import Capacity
-from ..variables.emit import (Emit, EmitBuy, EmitLoss, EmitSell, EmitSetUp,
-                              EmitUse)
-from ..variables.expense import (Credit, Earn, ExpBuy, ExpOpr, ExpOprI,
-                                 ExpSell, ExpSetUp, ExpSetUpI, ExpUseSetUp,
-                                 Penalty, Spend)
+from ..variables.emit import Emit, EmitBuy, EmitLoss, EmitSell, EmitSetUp, EmitUse
+from ..variables.expense import (
+    Credit,
+    Earn,
+    ExpBuy,
+    ExpOpr,
+    ExpOprI,
+    ExpSell,
+    ExpSetUp,
+    ExpSetUpI,
+    ExpUseSetUp,
+    Penalty,
+    Spend,
+)
 from ..variables.loss import Loss
 from ..variables.operate import Operate
 from ..variables.trade import Buy, Sell, Ship
@@ -405,7 +421,7 @@ class TaskMaster(_Balances, _Bounds, _Exacts, _Dunders):
             tasks=[getattr(self, 'use_material')],
         )
 
-    def variables(self):
+    def vars(self):
         """Returns all Variables"""
         return sorted(
             {
