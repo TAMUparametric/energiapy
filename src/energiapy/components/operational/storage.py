@@ -3,14 +3,13 @@
 
 from dataclasses import dataclass, fields
 
-from ...parameters.balances.inventory import Inventory
-from ._birther import _Birther
-
+from ...attrs.balances import StgBalance
+from ...attrs.birthing import StgBirthing
 from ...attrs.bounds import OpnBounds, StgBounds
 from ...attrs.exacts import StgExacts
-from ...attrs.balances import StgBalance
 from ...attrs.spatials import LocCollection
-from ...attrs.birthing import StgBirthing
+from ...parameters.balances.inventory import Inventory
+from ._birther import _Birther
 
 
 @dataclass

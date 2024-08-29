@@ -231,6 +231,11 @@ class Scenario(_Ok, _Default, _Birth, _Update, _ScnCols, _Dunders, _Print):
         return self.model.taskmaster
 
     @property
+    def attr(self):
+        """Attributes of the System"""
+        return self.taskmaster
+
+    @property
     def components(self):
         """All Components of the System"""
         return self.system.components()

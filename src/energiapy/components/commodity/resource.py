@@ -6,9 +6,9 @@
 
 from dataclasses import dataclass, field, fields
 
-from ._commodity import _Traded
 from ...attrs.bounds import ResBounds
-from ...attrs.exacts import ResExpExacts, ResEmnExacts
+from ...attrs.exacts import ResEmnExacts, ResExpExacts
+from ._commodity import _Traded
 
 
 @dataclass

@@ -3,8 +3,8 @@
 
 from dataclasses import dataclass, fields
 
-from .._base._defined import _Simple
 from ...attrs.bounds import CshBounds
+from .._base._defined import _Simple
 from ._commodity import _Commodity
 
 

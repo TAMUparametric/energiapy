@@ -14,23 +14,21 @@ Task:
 from __future__ import annotations
 
 from dataclasses import dataclass, field, fields
-from typing import List, TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 
 from ..attrs.balances import ProBalance, StgBalance, TrnBalance
 from ..attrs.bounds import (
-    PlyBounds,
     CshBounds,
     EmnBounds,
-    UsedBounds,
-    ResBounds,
     OpnBounds,
+    PlyBounds,
     ProBounds,
+    ResBounds,
     StgBounds,
     TrnBounds,
+    UsedBounds,
 )
-from ..attrs.exacts import ExpExacts, EmnExacts, UsgExacts, LssExacts, RteExacts
-
-from ..core._handy._dunders import _Dunders
+from ..attrs.exacts import EmnExacts, ExpExacts, LssExacts, RteExacts, UsgExacts
 from ..components.analytical.player import Player
 from ..components.commodity.cash import Cash
 from ..components.commodity.emission import Emission
@@ -40,19 +38,19 @@ from ..components.commodity.resource import Resource
 from ..components.operational.process import Process
 from ..components.operational.storage import Storage
 from ..components.operational.transit import Transit
-
+from ..core._handy._dunders import _Dunders
 from ..variables.action import Give, Take
 from ..variables.capacitate import Capacity
-from ..variables.emit import EmitBuy, EmitSetUp, EmitLoss, EmitSell, Emit, EmitUse
+from ..variables.emit import Emit, EmitBuy, EmitLoss, EmitSell, EmitSetUp, EmitUse
 from ..variables.expense import (
     Credit,
     Earn,
     ExpBuy,
-    ExpSetUp,
-    ExpSetUpI,
     ExpOpr,
     ExpOprI,
     ExpSell,
+    ExpSetUp,
+    ExpSetUpI,
     ExpUsage,
     Penalty,
     Spend,
@@ -60,16 +58,25 @@ from ..variables.expense import (
 from ..variables.loss import Loss
 from ..variables.operate import Operate
 from ..variables.trade import Buy, Sell, Ship
-from ..variables.use import Use, Usage
-
+from ..variables.use import Usage, Use
+from ..core._handy._printers import _Print
 
 if TYPE_CHECKING:
     from ..core.aliases.is_component import IsComponent
     from ..core.aliases.is_variable import IsVariable
 
 
+class _TskPrint(_Print):
+    """Prints Task"""
+
+    def eqns(self):
+        """Prints all equations in the ProgramBlock"""
+        for constraint in getattr(self, 'constraints'):
+            yield constraint.equation
+
+
 @dataclass
-class Task(_Dunders):
+class Task(_Dunders, _TskPrint):
     """Task
     Handles the attributes of components
     Defines strict behaviour
@@ -101,7 +108,7 @@ class Task(_Dunders):
 
 
 @dataclass
-class Report(_Dunders):
+class Report(_Dunders, _TskPrint):
     """Task is a collection of Tasks
 
     Taskibutes:

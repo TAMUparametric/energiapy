@@ -6,7 +6,6 @@ from dataclasses import dataclass
 
 from pandas import DataFrame
 
-
 from ...utils.scaling import scaling
 from .._base._defined import _Defined
 

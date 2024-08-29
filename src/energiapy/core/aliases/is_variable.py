@@ -4,18 +4,10 @@
 from typing import TypeAlias, Union
 
 from ...variables.capacitate import Capacity
-from ...variables.emit import EmitBuy, EmitSetUp, EmitLoss, EmitSell, Emit, EmitUse
-from ...variables.expense import (
-    Credit,
-    Earn,
-    ExpBuy,
-    ExpSetUp,
-    ExpOpr,
-    ExpSell,
-    ExpUsage,
-    Penalty,
-    Spend,
-)
+from ...variables.emit import (Emit, EmitBuy, EmitLoss, EmitSell, EmitSetUp,
+                               EmitUse)
+from ...variables.expense import (Credit, Earn, ExpBuy, ExpOpr, ExpSell,
+                                  ExpSetUp, ExpUsage, Penalty, Spend)
 from ...variables.loss import Loss
 from ...variables.operate import Operate
 from ...variables.trade import Buy, Sell, Ship

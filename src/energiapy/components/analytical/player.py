@@ -2,8 +2,9 @@
 """
 
 from dataclasses import dataclass, fields
-from .._base._defined import _Simple
+
 from ...attrs.bounds import PlyBounds
+from .._base._defined import _Simple
 
 
 @dataclass

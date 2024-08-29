@@ -3,9 +3,9 @@
 
 from dataclasses import dataclass, fields
 
+from ...attrs.bounds import EmnBounds
 from .._base._defined import _Simple
 from ._commodity import _Commodity
-from ...attrs.bounds import EmnBounds
 
 
 @dataclass

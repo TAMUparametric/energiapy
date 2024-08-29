@@ -11,7 +11,7 @@ from ..components.operational.process import Process
 from ..components.operational.storage import Storage
 from ..components.operational.transit import Transit
 from ..indices.structure import make_structures
-from ._variable import _ExactVar, _BoundVar
+from ._variable import _BoundVar, _ExactVar
 from .capacitate import Capacity
 
 

@@ -6,9 +6,9 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, fields
 from typing import TYPE_CHECKING, List
 
-from .._base._defined import _Defined
 from ...attrs.bounds import UsedBounds
-from ...attrs.exacts import UsedExpExacts, UsedEmnExacts
+from ...attrs.exacts import UsedEmnExacts, UsedExpExacts
+from .._base._defined import _Defined
 
 if TYPE_CHECKING:
     from ...core.aliases.is_component import IsLinkage, IsLocation

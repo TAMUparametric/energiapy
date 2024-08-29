@@ -10,11 +10,11 @@ Includes:
 from dataclasses import dataclass, field
 
 from ..core._handy._dunders import _Dunders
-from .taskmaster import TaskMaster
 from .data import Data
 from .matrix import Matrix
 from .program import Program
 from .system import System
+from .taskmaster import TaskMaster
 
 
 @dataclass

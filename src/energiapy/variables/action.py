@@ -10,6 +10,7 @@ from ._variable import _BoundVar
 
 # ---------------MixIns---------------
 
+
 @dataclass
 class _Action(_BoundVar):
     """Action is a Player's action
@@ -36,7 +37,8 @@ class _Action(_BoundVar):
         )
 
 
-#-------------Variables---------------
+# -------------Variables---------------
+
 
 @dataclass
 class Give(_Action):

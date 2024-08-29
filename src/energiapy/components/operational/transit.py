@@ -3,12 +3,12 @@
 
 from dataclasses import dataclass, fields
 
+from ...attrs.balances import TrnBalance
+from ...attrs.bounds import OpnBounds, ResLnkBounds, TrnBounds
+from ...attrs.exacts import TrnExacts
+from ...attrs.spatials import LnkCollection
 from ...parameters.balances.freight import Freight
 from ._birther import _Birther
-from ...attrs.bounds import OpnBounds, TrnBounds, ResLnkBounds
-from ...attrs.exacts import TrnExacts
-from ...attrs.balances import TrnBalance
-from ...attrs.spatials import LnkCollection
 
 
 @dataclass

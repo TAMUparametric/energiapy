@@ -11,59 +11,27 @@ from ..constraints.bind import Bind
 from ..constraints.calculate import Calculate
 from ..core._handy._dunders import _Dunders
 from ..core.nirop.errors import CacodcarError
-from ..parameters.defined.bound import (
-    BuyBnd,
-    CapBnd,
-    EarnBnd,
-    OprBnd,
-    SellBnd,
-    ShipBnd,
-    SpendBnd,
-    UseBnd,
-    EmitBnd,
-    Has,
-    Needs,
-)
-from ..parameters.defined.emission import (
-    UseEmit,
-    SetUpEmit,
-    BuyEmit,
-    LossEmit,
-    SellEmit,
-)
-from ..parameters.defined.expense import (
-    BuyPrice,
-    CapExp,
-    CapExpI,
-    OpExp,
-    OpExpI,
-    ResCredit,
-    ResPenalty,
-    SellPrice,
-    UseExp,
-)
+from ..parameters.defined.bound import (BuyBnd, CapBnd, EarnBnd, EmitBnd, Has,
+                                        Needs, OprBnd, SellBnd, ShipBnd,
+                                        SpendBnd, UseBnd)
+from ..parameters.defined.emission import (BuyEmit, LossEmit, SellEmit,
+                                           SetUpEmit, UseEmit)
+from ..parameters.defined.expense import (BuyPrice, CapExp, CapExpI, OpExp,
+                                          OpExpI, ResCredit, ResPenalty,
+                                          SellPrice, UseExp)
 from ..parameters.defined.loss import ResLoss
 from ..parameters.defined.use import LndUse, MatUse
 from ..variables.action import Give, Take
 from ..variables.capacitate import Capacity
-from ..variables.emit import EmitBuy, EmitSetUp, EmitLoss, EmitSell, Emit, EmitUse
-from ..variables.expense import (
-    Credit,
-    Earn,
-    ExpBuy,
-    ExpSetUp,
-    ExpSetUpI,
-    ExpOpr,
-    ExpOprI,
-    ExpSell,
-    ExpUsage,
-    Penalty,
-    Spend,
-)
+from ..variables.emit import (Emit, EmitBuy, EmitLoss, EmitSell, EmitSetUp,
+                              EmitUse)
+from ..variables.expense import (Credit, Earn, ExpBuy, ExpOpr, ExpOprI,
+                                 ExpSell, ExpSetUp, ExpSetUpI, ExpUsage,
+                                 Penalty, Spend)
 from ..variables.loss import Loss
 from ..variables.operate import Operate
 from ..variables.trade import Buy, Sell, Ship
-from ..variables.use import Use, Usage
+from ..variables.use import Usage, Use
 from .rules import Condition, SumOver
 
 if TYPE_CHECKING:

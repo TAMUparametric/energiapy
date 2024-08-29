@@ -3,13 +3,12 @@
 
 from dataclasses import dataclass, field, fields
 
+from ...attrs.balances import ProBalance
+from ...attrs.bounds import OpnBounds, ProBounds, ResLocBounds
+from ...attrs.exacts import ProExacts, ResExacts
+from ...attrs.spatials import LocCollection
 from ...parameters.balances.conversion import Conversion
 from ._operational import _Operational
-
-from ...attrs.bounds import OpnBounds, ProBounds, ResLocBounds
-from ...attrs.exacts import ResExacts, ProExacts
-from ...attrs.balances import ProBalance
-from ...attrs.spatials import LocCollection
 
 
 @dataclass
