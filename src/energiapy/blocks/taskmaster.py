@@ -89,7 +89,6 @@ class Task(_Dunders):
     other: List[IsComponent] = field(default_factory=list)
     task: IsVariable = field(default=None)
     task_i: IsVariable = field(default=None)
-    spt: List[str] = field(default_factory=list)
 
     def __post_init__(self):
         self.name = f'Task|{self.attr}|'
@@ -211,7 +210,6 @@ class _Exacts(ExpExacts, EmnExacts, UsgExacts, LssExacts, RteExacts):
             root=[Resource],
             task=ExpBuy,
             other=[Process],
-            spt=['locations'],
         )
         self.price_sell = Task(
             attr='price_sell', root=[Resource], task=ExpSell, other=[Process]
