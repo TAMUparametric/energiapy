@@ -74,12 +74,13 @@ class Task(_Dunders):
     Handles the attributes of components
     Defines strict behaviour
 
-    Taskibutes:
+    Attributes:
         attr (str): attr associated with Task
         root (List[IsComponent]): List of Components where the attribute can be declared
         other (List[IsComponent]): List of Incongruent Components where the Component attribute can be declared
         task (IsVariable): Task Variable
         task_i (IsVariable): Incidental Task Variable
+        spt (List[IsSpatial]): List of Spatial Components where the attribute can be declared
 
     """
 
@@ -88,6 +89,7 @@ class Task(_Dunders):
     other: List[IsComponent] = field(default_factory=list)
     task: IsVariable = field(default=None)
     task_i: IsVariable = field(default=None)
+    spt: List[str] = field(default_factory=list)
 
     def __post_init__(self):
         self.name = f'Task|{self.attr}|'
@@ -157,15 +159,15 @@ class _Bounds(
         self.capacity = Task(
             attr='capacity', root=[Process, Storage, Transit], task=Capacity
         )
-        self.operate = Task(
-            attr='operate', root=[Process, Storage, Transit], task=Operate
-        )
-        # # Process
-        # self.produce = Task(attr='produce', root=[Process])
-        # # Storage
-        # self.store = Task(attr='store', root=[Storage])
-        # # Transit
-        # self.transport = Task(attr='transport', root=[Transit])
+        # self.operate = Task(
+        #     attr='operate', root=[Process, Storage, Transit], task=Operate
+        # )
+        # Process
+        self.produce = Task(attr='produce', root=[Process], task=Operate)
+        # Storage
+        self.store = Task(attr='store', root=[Storage], task=Operate)
+        # Transit
+        self.transport = Task(attr='transport', root=[Transit], task=Operate)
 
     @staticmethod
     def bounds():
@@ -208,10 +210,16 @@ class _Exacts(ExpExacts, EmnExacts, UsgExacts, LssExacts, RteExacts):
             attr='price_buy',
             root=[Resource],
             task=ExpBuy,
+            other=[Process],
+            spt=['locations'],
         )
-        self.price_sell = Task(attr='price_sell', root=[Resource], task=ExpSell)
-        self.credit = Task(attr='credit', root=[Resource], task=Credit)
-        self.penalty = Task(attr='penalty', root=[Resource], task=Penalty)
+        self.price_sell = Task(
+            attr='price_sell', root=[Resource], task=ExpSell, other=[Process]
+        )
+        self.credit = Task(attr='credit', root=[Resource], task=Credit, other=[Process])
+        self.penalty = Task(
+            attr='penalty', root=[Resource], task=Penalty, other=[Process]
+        )
         # Land and Material (Used)
         self.cost_use = Task(
             attr='cost_use', root=[Land, Material], task=ExpUsage, other=[Process]
@@ -226,6 +234,18 @@ class _Exacts(ExpExacts, EmnExacts, UsgExacts, LssExacts, RteExacts):
         self.opex = Task(
             attr='opex', root=[Process, Storage, Transit], task=ExpOpr, task_i=ExpOprI
         )
+
+        self.cost_use_land = Task(
+            attr='cost_use_land', root=[Land], task=ExpUsage, other=[Process]
+        )
+
+        self.cost_use_material = Task(
+            attr='cost_use_material',
+            root=[Material],
+            task=ExpUsage,
+            other=[Process],
+        )
+
         # ---------Emissions---------
         # Resource
         self.emission_buy = Task(
@@ -247,6 +267,18 @@ class _Exacts(ExpExacts, EmnExacts, UsgExacts, LssExacts, RteExacts):
         # Operational
         self.emission_setup = Task(
             attr='emission_setup', root=[Process, Storage, Transit], task=EmitSetUp
+        )
+        self.emission_use_land = Task(
+            attr='emission_use_land',
+            root=[Land],
+            other=[Process, Storage, Transit],
+            task=EmitUse,
+        )
+        self.emission_use_material = Task(
+            attr='emission_use_material',
+            root=[Material],
+            other=[Process, Storage, Transit],
+            task=EmitUse,
         )
         # ---------Uses---------
         # Operational
@@ -331,7 +363,7 @@ class _Balances(ProBalance, StgBalance, TrnBalance):
 
 
 @dataclass
-class TaskMaster(_Bounds, _Exacts, _Balances, _Dunders):
+class TaskMaster(_Balances, _Bounds, _Exacts, _Dunders):
     """This object collects all the attributes defined
     and makes a list of Dispositions they are defined at
 
@@ -341,9 +373,9 @@ class TaskMaster(_Bounds, _Exacts, _Balances, _Dunders):
 
     def __post_init__(self):
         self.name = f'TaskMaster|{self.name}|'
+        _Balances.__post_init__(self)
         _Bounds.__post_init__(self)
         _Exacts.__post_init__(self)
-        _Balances.__post_init__(self)
 
     @property
     def report_expenses(self):

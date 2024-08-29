@@ -14,10 +14,10 @@ from ...attrs.spatials import LocCollection
 
 @dataclass
 class Process(
+    ProBalance,
     OpnBounds,
     ProBounds,
     ProExacts,
-    ProBalance,
     ResLocBounds,
     ResExacts,
     LocCollection,
@@ -117,7 +117,8 @@ class Process(
         """Input attributes"""
         return [
             f.name
-            for f in fields(ProBounds)
+            for f in fields(OpnBounds)
+            + fields(ProBounds)
             + fields(ProExacts)
             + fields(ResExacts)
             + fields(ResLocBounds)
@@ -125,7 +126,7 @@ class Process(
 
     @property
     def resources(self):
-        """Resources in Inventory"""
+        """Resources in Conversion"""
         return self.conversion.involved
 
     def conversionize(self):

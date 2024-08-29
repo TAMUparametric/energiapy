@@ -29,8 +29,8 @@ from ..temporal.scale import Scale
 if TYPE_CHECKING:
     from ...core.aliases.is_input import IsInput, IsSptTmpInp
 
-
-TESTING = True
+# set to True if you want the output printed at every step
+TESTING = False
 
 
 def pr_op(op: str, wh: str):
@@ -407,59 +407,64 @@ class _Consistent(ABC):
             ok_inconsistent (bool): whether to fix dispositions with warning or error out
         """
 
-        def make_exact_consistent(ok_inconsistent: bool):
+        def make_exact_consistent(value: dict, attr: str, ok_inconsistent: bool):
             """Makes Exact inputs consistent"""
 
             # Exact inputs always have some commodity as the first key
-            # for Cash and Land, these are added, Resources, Materials, Emissions need to be specified
             # Thus,  we iterate over the commodities (cmd)
+            return {
+                cmd: self.make_spttmpmde(val, attr, ok_inconsistent)
+                for cmd, val in value.items()
+            }
 
-            for attr in self.exacts():
-                # This throws a CacodcarError if the attribute is not defined for the Component
-                check_attr(component=self, attr=attr)
+        def make_bound_consistent(value: dict, attr: str, ok_inconsistent: bool):
+            """Makes Bound inputs consistent"""
+            # Bounds are defined for the Component itself
+            # or can be declared at other components
 
-                if getattr(self, attr) is None:
-                    continue
+            return self.make_spttmpmde(value, attr, ok_inconsistent)
 
-                pr_op(getattr(self, attr), 'make_exact_consistent')
+        def make_any_consistent(value: dict, attr: str, ok_inconsistent: bool):
+            """Make either exact or bound consistent"""
 
+            if attr in self.exacts():
+                # for Cash and Land, these are added, Resources, Materials, Emissions need to be specified
+                value = self.make_commodity(attr, value)
+                pr_op(value, 'make_exact_consistent')
+                return make_exact_consistent(value, attr, ok_inconsistent)
+
+            if attr in self.bounds():
+                pr_op(value, 'make_bound_consistent')
+                return make_bound_consistent(value, attr, ok_inconsistent)
+
+        for attr in self.inputs():
+
+            # This throws a CacodcarError if the attribute is not defined for the Component
+            check_attr(component=self, attr=attr)
+
+            value = getattr(self, attr)
+
+            if value is None:
+                continue
+
+            if any(
+                isinstance(self, cmp) for cmp in getattr(self.taskmaster, attr).other
+            ):
+                # if this is an attribute of another Component
+                # Then we need to iterate over the Components
                 setattr(
                     self,
                     attr,
                     {
-                        cmd: self.make_spttmpmde(val, attr, ok_inconsistent)
-                        for cmd, val in self.make_commodity(
-                            attr, getattr(self, attr)
-                        ).items()
+                        cmd: make_any_consistent(val, attr, ok_inconsistent)
+                        for cmd, val in value.items()
                     },
                 )
+            else:
+                # else just set i
+                setattr(self, attr, make_any_consistent(value, attr, ok_inconsistent))
 
-                pr_op(getattr(self, attr), 'make_exact_consistent')
-
-        def make_bound_consistent(ok_inconsistent: bool):
-            """Makes Bound inputs consistent"""
-            # Bounds are defined for the Component itself
-            # or can be declared at other components
-            for attr in self.bounds():
-                # This throws a CacodcarError if the attribute is not defined for the Component
-                check_attr(component=self, attr=attr)
-
-                if getattr(self, attr) is None:
-                    continue
-
-                pr_op(getattr(self, attr), 'make_bound_consistent')
-
-                setattr(
-                    self,
-                    attr,
-                    self.make_spttmpmde(getattr(self, attr), attr, ok_inconsistent),
-                )
-
-                pr_op(getattr(self, attr), 'make_bound_consistent')
-
-        make_exact_consistent(ok_inconsistent)
-
-        make_bound_consistent(ok_inconsistent)
+            pr_op(value, 'make_consistent')
 
         setattr(self, 'consistent', True)
 

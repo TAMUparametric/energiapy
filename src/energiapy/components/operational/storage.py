@@ -10,10 +10,13 @@ from ...attrs.bounds import OpnBounds, StgBounds
 from ...attrs.exacts import StgExacts
 from ...attrs.balances import StgBalance
 from ...attrs.spatials import LocCollection
+from ...attrs.birthing import StgBirthing
 
 
 @dataclass
-class Storage(OpnBounds, StgBounds, StgExacts, StgBalance, LocCollection, _Birther):
+class Storage(
+    StgBalance, OpnBounds, StgBounds, StgBirthing, StgExacts, LocCollection, _Birther
+):
     """Storage stores and withdraws Resources
     There could be a dependent Resource
 
@@ -56,7 +59,9 @@ class Storage(OpnBounds, StgBounds, StgExacts, StgBalance, LocCollection, _Birth
     @staticmethod
     def inputs():
         """Input attributes"""
-        return [f.name for f in fields(StgBounds) + fields(StgExacts)]
+        return [
+            f.name for f in fields(OpnBounds) + fields(StgBounds) + fields(StgExacts)
+        ]
 
     @property
     def balance(self):

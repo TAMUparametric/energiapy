@@ -51,6 +51,39 @@ class _Operational(_Defined, ABC):
     def resources(self):
         """Resources used in the Operation"""
 
+    @property
+    def materials(self):
+        """Materials used in the Operation"""
+        if getattr(self, 'use_material'):
+            return [
+                i.disposition.mat
+                for i in getattr(self, 'use_material').dict_input.values()
+            ]
+        else:
+            return []
+
+    @property
+    def emissions(self):
+        """Emissions from the Operation"""
+        if getattr(self, 'emission_setup'):
+            return [
+                i.disposition.emn
+                for i in getattr(self, 'emission_setup').dict_input.values()
+            ]
+        else:
+            return []
+
+    @property
+    def commodities(self):
+        """Commodities used in the Operation"""
+        return (
+            self.materials
+            + self.emissions
+            + self.resources
+            + [self.system.cash]
+            + [self.system.land]
+        )
+
     def locate(self):
         """Locates the Component"""
 

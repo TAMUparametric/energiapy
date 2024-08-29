@@ -66,7 +66,6 @@ class OpnBounds:
     """Bounds for Operational Components"""
 
     capacity: IsBoundInput = field(default=None)
-    operate: IsBoundInput = field(default=None)
 
 
 @dataclass
@@ -81,8 +80,6 @@ class StgBounds:
     """Bounds for Storage"""
 
     store: IsBoundInput = field(default=None)
-    capacity_in: IsBoundInput = field(default=None)
-    capacity_out: IsBoundInput = field(default=None)
 
 
 @dataclass

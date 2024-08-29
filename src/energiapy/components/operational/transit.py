@@ -13,7 +13,7 @@ from ...attrs.spatials import LnkCollection
 
 @dataclass
 class Transit(
-    OpnBounds, TrnBounds, TrnExacts, TrnBalance, ResLnkBounds, LnkCollection, _Birther
+    TrnBalance, OpnBounds, TrnBounds, TrnExacts, ResLnkBounds, LnkCollection, _Birther
 ):
     """Transit moves Resources between Locations through a Linkage
     There could be a dependent Resource
@@ -101,7 +101,11 @@ class Transit(
     def inputs():
         """Input attributes"""
         return [
-            f.name for f in fields(TrnBounds) + fields(TrnExacts) + fields(ResLnkBounds)
+            f.name
+            for f in fields(OpnBounds)
+            + fields(TrnBounds)
+            + fields(TrnExacts)
+            + fields(ResLnkBounds)
         ]
 
     def freightize(self):
