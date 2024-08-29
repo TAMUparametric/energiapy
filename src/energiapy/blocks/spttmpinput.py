@@ -26,7 +26,7 @@ from ..utils.dictionary import flatten
 
 if TYPE_CHECKING:
     from ..core.aliases.is_component import IsComponent
-    from ..core.aliases.is_input import IsSptTmpInp
+    from ..core.aliases.is_input import IsSptTmpDict
     from ..core.aliases.is_value import IsValue
 
 
@@ -46,41 +46,47 @@ class SptTmpInp(_Dunders):
 
     The Disposition is also determined here and set as the key in the dictionary
 
+    Attributes:
+        attr (str): The attribute of the input
+        spttmpdict (IsSptTmpDict): The dictionary input
+        component (IsComponent): The component to which the input belongs
+
     """
 
-    name_attr: str = field(default=None)
-    dict_input: IsSptTmpInp = field(default=None)
+    attr: str = field(default=None)
+    spttmpdict: IsSptTmpDict = field(default=None)
+    component: IsComponent = field(default=None)
 
     def __post_init__(self):
         # The original dictionary input
         # keep it because some operations birth processes
         # processes need the og input
-        self.og_input = self.dict_input
-        self.update_dict_input()
+        self.og_input = self.spttmpdict
+        self.update_spttmpdict()
 
     @property
     def dispositions(self):
         """Returns the Disposition of the input"""
-        return list(self.dict_input.keys())
+        return list(self.spttmpdict.keys())
 
     @property
     def name(self):
         """Returns the Disposition of the input"""
-        return f'{self.name_attr}{self.dict_input}'
+        return f'{self.attr}{self.spttmpdict}'
 
     @property
     def by_position(self):
         """Returns the Disposition of the input"""
-        return {i: val for i, val in enumerate(list(self.dict_input.values()))}
+        return {i: val for i, val in enumerate(list(self.spttmpdict.values()))}
 
-    def update_dict_input(self):
-        """Updates the dict_input
+    def update_spttmpdict(self):
+        """Updates the spttmpdict
         Returns:
             dict: {Disposition: value}
         """
         # Flatten the dictionary. Now the keys are tuples
         # {(Network/Spatial, Scale, ...): value}
-        dict_iter = flatten(self.dict_input)
+        dict_iter = flatten(self.spttmpdict)
         dict_upd = {}
 
         for key, val in dict_iter.items():
@@ -141,10 +147,12 @@ class SptTmpInp(_Dunders):
                 mde=mde,
             )
 
+
+
             dict_upd[disp] = val
 
         # update the input with a dictionary {Disposition: value}
-        self.dict_input = dict_upd
+        self.spttmpdict = dict_upd
 
     def get(self, n: Union[Tuple[IsComponent], int, None] = None) -> IsValue:
         """Gets the value of the input at the index
@@ -184,7 +192,7 @@ class SptTmpInp(_Dunders):
         def siren_index():
             print()
             print('For index, use this as a guideline')
-            print(f'{self.dict_input}')
+            print(f'{self.spttmpdict}')
 
         def siren_help():
             print()
@@ -204,7 +212,7 @@ class SptTmpInp(_Dunders):
                 siren_index()
                 siren_help()
 
-            for disp, value in self.dict_input.items():
+            for disp, value in self.spttmpdict.items():
                 if disp.index == index:
                     return value
 
@@ -218,8 +226,11 @@ class SptTmpInp(_Dunders):
 
             else:
                 index = self.dispositions[position]
-                return self.dict_input[index]
+                return self.spttmpdict[index]
 
     def values(self):
         """Returns the values of the input"""
-        return list(self.dict_input.values())
+        return list(self.spttmpdict.values())
+
+
+    

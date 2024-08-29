@@ -111,3 +111,16 @@ class InconsistencyError(AttributeError):
         super().__init__(self.message)
 
 
+class InputTypeError(TypeError):
+    """Error for wrong input type
+
+    Attributes:
+        component (IsComponent): Component with wrong input type
+        attr (str): Attribute with wrong input type
+        value (Any): Value with wrong input type
+    """
+
+    def __init__(self, component: IsComponent, attr: str, value: Any):
+        self.message = f'{value} is not a valid input for {component}.{attr}'
+
+        super().__init__(self.message)

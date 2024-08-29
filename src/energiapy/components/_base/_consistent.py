@@ -27,7 +27,7 @@ from ..spatial._spatial import _Spatial
 from ..temporal.scale import Scale
 
 if TYPE_CHECKING:
-    from ...core.aliases.is_input import IsInput, IsSptTmpInp
+    from ...core.aliases.is_input import IsInput, IsSptTmpDict
 
 
 class _Consistent(ABC):
@@ -313,7 +313,7 @@ class _Consistent(ABC):
 
     def make_spttmpmde(
         self, value: IsInput, attr: str, ok_inconsistent: bool
-    ) -> IsSptTmpInp:
+    ) -> IsSptTmpDict:
         """Uses all the above functions to make a consistent input
 
         Args:
@@ -321,7 +321,7 @@ class _Consistent(ABC):
             attr (str): attr for which input is being passed
             fix_bool (bool): whether to fix dispositions or just warn.
         Returns:
-            IsSptTmpInp: {Spatial: {Temporal: {Mode: value}}} Always!!
+            IsSptTmpDict: {Spatial: {Temporal: {Mode: value}}} Always!!
         """
 
         # This makes it consistently in the format:
@@ -365,7 +365,7 @@ class _Consistent(ABC):
         return value
 
     def make_consistent(self, ok_inconsistent: bool):
-        """Makes the inputs consistent as SptTmpInput
+        """Makes and sets input attributes consistent as SptTmpDict
 
         Args:
             ok_inconsistent (bool): whether to fix dispositions with warning or error out
@@ -413,7 +413,7 @@ class _Consistent(ABC):
             if any(
                 isinstance(self, cmp) for cmp in getattr(self.taskmaster, attr).other
             ):
-                # if this is an attribute of another Component
+                # if the root of attribute is another Component
                 # Then we need to iterate over the Components
                 setattr(
                     self,

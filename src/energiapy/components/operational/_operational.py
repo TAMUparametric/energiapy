@@ -56,7 +56,7 @@ class _Operational(_Defined, ABC):
         if getattr(self, 'use_material'):
             return [
                 i.disposition.mat
-                for i in getattr(self, 'use_material').dict_input.values()
+                for i in getattr(self, 'use_material').spttmpdict.values()
             ]
         else:
             return []
@@ -67,7 +67,7 @@ class _Operational(_Defined, ABC):
         if getattr(self, 'emission_setup'):
             return [
                 i.disposition.emn
-                for i in getattr(self, 'emission_setup').dict_input.values()
+                for i in getattr(self, 'emission_setup').spttmpdict.values()
             ]
         else:
             return []

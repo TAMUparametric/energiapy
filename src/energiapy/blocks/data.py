@@ -60,8 +60,10 @@ class DataBlock(_Dunders):
             # _Spt holds the data in a particular format
             # {Disposition: value}. The disposition is made there
             # This is only temporary and the user eventually sees a list of parameters
-            spttmpinput = SptTmpInp(name, value)
-            for disposition, datapoint in spttmpinput.dict_input.items():
+            spttmpinput = SptTmpInp(
+                attr=name, spttmpdict=value, component=self.component
+            )
+            for disposition, datapoint in spttmpinput.spttmpdict.items():
 
                 if datapoint is True:
                     # if datapoint is True, put it in a list
@@ -107,9 +109,9 @@ class DataBlock(_Dunders):
                     datapoint = self.birth_value(disposition, datapoint)
 
                 # Now update the value with an internal value type
-                spttmpinput.dict_input[disposition] = datapoint
+                spttmpinput.spttmpdict[disposition] = datapoint
             # Sort the values by length
-            value = sorted(spttmpinput.dict_input.values(), key=len)
+            value = sorted(spttmpinput.spttmpdict.values(), key=len)
 
             self.spttmpinp[name] = spttmpinput
 
@@ -161,8 +163,8 @@ class DataBlock(_Dunders):
 
         data_list = []
 
-        for i in self.attrs:
-            attr_data = getattr(self, i)
+        for attr in self.attrs:
+            attr_data = getattr(self, attr)
             for d in attr_data:
                 if isinstance(d, data):
                     data_list.append(d)
