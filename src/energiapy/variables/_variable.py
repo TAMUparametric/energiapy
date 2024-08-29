@@ -32,8 +32,6 @@ class _Variable(_Dunders, ABC):
             raise CacodcarError(
                 f'{self}:{self.disposition.structure()} not in {self.structures(self.component)}'
             )
-        
-    
 
     @staticmethod
     @abstractmethod
@@ -60,9 +58,6 @@ class _Variable(_Dunders, ABC):
         """The symbolic representation of the Variable"""
         return self.id()[self.disposition.sym]
 
-    def scaledown(self):
-        """The lower scale of the Variable"""
-        return 
 
 # The ones below are made for the sake of clarity
 # They are the same otherwise

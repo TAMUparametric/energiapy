@@ -51,6 +51,16 @@ class _Component(_Dunders):
         """TaskMaster of the Scenario"""
         return self._model.taskmaster
 
+    @property
+    def rulebook(self):
+        """RuleBook of the Scenario"""
+        return self._model.rulebook
+
+    @property
+    def registrar(self):
+        """Registrar of the Scenario"""
+        return self._model.registrar
+
     def personalize(
         self,
         name: str,

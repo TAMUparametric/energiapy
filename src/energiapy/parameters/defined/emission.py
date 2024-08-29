@@ -70,4 +70,4 @@ class SetUpEmit(_ExactPar):
     @property
     def id(self) -> str:
         """Symbol"""
-        return IndexedBase('Emit^opn')
+        return IndexedBase('Emit^setup')

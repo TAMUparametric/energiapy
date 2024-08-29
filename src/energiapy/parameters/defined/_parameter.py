@@ -37,7 +37,6 @@ class _Parameter(_Dunders, ABC):
         """Symbol"""
         return self.id[self.disposition.sym]
 
-
 # These parameters are exact values for ExactVars
 
 

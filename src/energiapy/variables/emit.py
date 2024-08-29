@@ -214,4 +214,4 @@ class EmitSetUp(_Emit):
     @staticmethod
     def id() -> IndexedBase:
         """Symbol"""
-        return IndexedBase('emit^opn')
+        return IndexedBase('emit^setup')

@@ -32,6 +32,7 @@
     The Matrix Model is just a matrix representation of the problem block
 """
 
+from abc import ABCMeta
 from dataclasses import dataclass, field
 
 from ..blocks.model import Model
@@ -227,9 +228,19 @@ class Scenario(_Ok, _Default, _Birth, _Update, _ScnCols, _Dunders, _Print):
         return self.taskmaster
 
     @property
+    def rulebook(self):
+        """RuleBook of the Scenario"""
+        return self.model.rulebook
+
+    @property
     def components(self):
         """All Components of the System"""
         return self.system.components()
+
+    @property
+    def registrar(self):
+        """Registrar of the Scenario"""
+        return self.model.registrar
 
     def eqns(self, at_cmp=None, at_disp=None):
         """Prints all equations in the program

@@ -19,6 +19,11 @@ class _Reprs:
         cls.__eq__ = _Reprs.__eq__
         cls.__hash__ = _Reprs.__hash__
 
+    @classmethod
+    def cname(cls):
+        """The name of the Class"""
+        return cls.__name__
+
 
 class _Magics:
     """Magic functions"""

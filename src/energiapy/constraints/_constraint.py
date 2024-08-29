@@ -9,7 +9,6 @@ from typing import TYPE_CHECKING
 from sympy import IndexedBase, Mul, Rel
 
 from ..core._handy._dunders import _Dunders
-from ..indices.enums import VarBnd
 
 if TYPE_CHECKING:
     from ..core.aliases.is_element import IsParameter, IsVariable
@@ -42,7 +41,7 @@ class _Constraint(_Dunders):
     @classmethod
     def id(cls):
         """The id of the task"""
-        return IndexedBase(cls.__name__)
+        return IndexedBase(cls.cname())
 
     @property
     def sym(self):

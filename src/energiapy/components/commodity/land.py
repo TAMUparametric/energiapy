@@ -33,6 +33,6 @@ class Land(_Used):
         # This collects parameters for land use declared at other components
 
     @property
-    def usage(self):
+    def uses(self):
         """Land Uses across the Scenario"""
         return self.taskmaster.report_uses_land

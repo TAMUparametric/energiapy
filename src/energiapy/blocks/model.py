@@ -13,6 +13,8 @@ from ..core._handy._dunders import _Dunders
 from .data import Data
 from .matrix import Matrix
 from .program import Program
+from .registrar import ChitraGupta
+from .rulebook import RuleBook
 from .system import System
 from .taskmaster import TaskMaster
 
@@ -33,4 +35,6 @@ class Model(_Dunders):
         self.matrix = Matrix(name=self.name)
         self.program = Program(name=self.name)
         self.taskmaster = TaskMaster(name=self.name)
+        self.rulebook = RuleBook(name=self.name)
+        self.registrar = ChitraGupta(name=self.name, rulebook=self.rulebook)
         self.name = f'Model|{self.name}|'

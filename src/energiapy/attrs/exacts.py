@@ -74,7 +74,7 @@ class EmnExacts(ResEmnExacts, UsedEmnExacts, OpnEmnExacts):
     """Exact Emission Inputs for Components"""
 
 
-# -------------Usage Exacts-------------
+# -------------UseSetUp Exacts-------------
 
 
 @dataclass

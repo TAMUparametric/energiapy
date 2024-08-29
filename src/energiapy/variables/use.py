@@ -51,7 +51,7 @@ class Use(_BoundVar):
 
 
 @dataclass
-class Usage(_ExactVar):
+class UseSetUp(_ExactVar):
     """Commodity Use"""
 
     def __post_init__(self):
@@ -87,4 +87,4 @@ class Usage(_ExactVar):
     @staticmethod
     def id() -> IndexedBase:
         """Symbol"""
-        return IndexedBase('used')
+        return IndexedBase('use^setup')

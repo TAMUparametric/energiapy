@@ -1,4 +1,7 @@
-from typing import TypeAlias, Union
+"""Aliases for Components
+"""
+
+from typing import Tuple, TypeAlias, Union
 
 from ...components.analytical.player import Player
 from ...components.commodity.cash import Cash
@@ -83,3 +86,6 @@ IsComponent: TypeAlias = Union[
     IsSpatial,
     IsTemporal,
 ]
+
+
+IsIndex: TypeAlias = Tuple[IsComponent]

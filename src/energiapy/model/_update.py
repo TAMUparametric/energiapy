@@ -156,6 +156,7 @@ class _Update(ABC):
 
         for attr, var in programblock.attr_variables.items():
             getattr(self.taskmaster, attr).variables.extend(var)
+
         for attr, par in programblock.attr_parameters.items():
             getattr(self.taskmaster, attr).parameters.extend(par)
 

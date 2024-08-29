@@ -9,7 +9,7 @@ from ._parameter import _ExactPar
 
 
 @dataclass
-class MatUse(_ExactPar):
+class Usage(_ExactPar):
     """Material Use"""
 
     def __post_init__(self):
@@ -18,17 +18,6 @@ class MatUse(_ExactPar):
     @property
     def id(self) -> str:
         """Symbol"""
-        return IndexedBase('Mat')
+        return IndexedBase('Usage')
 
 
-@dataclass
-class LndUse(_ExactPar):
-    """Land Use"""
-
-    def __post_init__(self):
-        _ExactPar.__post_init__(self)
-
-    @property
-    def id(self) -> str:
-        """Symbol"""
-        return IndexedBase('Land')

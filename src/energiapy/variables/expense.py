@@ -220,7 +220,7 @@ class Credit(_ExpTrade):
 
 
 @dataclass
-class ExpUsage(_Exp):
+class ExpUseSetUp(_Exp):
     """Use Expense"""
 
     def __post_init__(self):

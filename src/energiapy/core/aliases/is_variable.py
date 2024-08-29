@@ -7,7 +7,7 @@ from ...variables.capacitate import Capacity
 from ...variables.emit import (Emit, EmitBuy, EmitLoss, EmitSell, EmitSetUp,
                                EmitUse)
 from ...variables.expense import (Credit, Earn, ExpBuy, ExpOpr, ExpSell,
-                                  ExpSetUp, ExpUsage, Penalty, Spend)
+                                  ExpSetUp, ExpUseSetUp, Penalty, Spend)
 from ...variables.loss import Loss
 from ...variables.operate import Operate
 from ...variables.trade import Buy, Sell, Ship
@@ -16,7 +16,7 @@ from ...variables.use import Use
 IsCapacity: TypeAlias = Capacity
 IsEmit: TypeAlias = Union[Emit, EmitBuy, EmitSell, EmitLoss, EmitUse, EmitSetUp]
 IsExpense: TypeAlias = Union[
-    Spend, Earn, ExpBuy, ExpSell, Penalty, Credit, ExpUsage, ExpSetUp, ExpOpr
+    Spend, Earn, ExpBuy, ExpSell, Penalty, Credit, ExpUseSetUp, ExpSetUp, ExpOpr
 ]
 IsLoss: TypeAlias = Loss
 IsOperate: TypeAlias = Operate

@@ -33,6 +33,6 @@ class Material(_Used):
         _Used.__post_init__(self)
 
     @property
-    def usage(self):
+    def uses(self):
         """Material Uses across the Scenario"""
         return self.taskmaster.report_uses_material

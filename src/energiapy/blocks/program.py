@@ -6,7 +6,6 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
-from ..constraints.rulebook import rulebook
 from ..core._handy._dunders import _Dunders
 from ..core._handy._printers import _Print
 from ..indices.disposition import Disposition
@@ -14,9 +13,8 @@ from ._block import _Block
 from .data import DataBlock
 
 if TYPE_CHECKING:
-    from ..core.aliases.is_block import IsDataBlock, IsIndex
-    from ..core.aliases.is_component import IsDefined
-    from ..core.aliases.is_element import IsElement
+    from ..core.aliases.is_block import IsDataBlock
+    from ..core.aliases.is_component import IsDefined, IsIndex
     from ..core.aliases.is_value import IsValue
 
 
@@ -82,9 +80,9 @@ class ProgramBlock(_Dunders, _Print):
         else:
             if value.incdntl:
                 # if input value is incidental
-                var = getattr(self.component.taskmaster, attr).task_i
+                var = getattr(self.component.taskmaster, attr).var_i
             else:
-                var = getattr(self.component.taskmaster, attr).task
+                var = getattr(self.component.taskmaster, attr).var
 
             # Variable is declared, the Disposition is used
             variable = var(disposition=value.disposition, component=self.component)
@@ -154,7 +152,7 @@ class ProgramBlock(_Dunders, _Print):
 
             # Get the rules to generate the constraint
             # Variables can have multiple rules
-            rules = rulebook.find(var)
+            rules = self.component.rulebook.find(var)
 
             # So iter over them
             for rule in rules:

@@ -11,7 +11,7 @@ Attributes:
         The subtypes are:
             Exp (expenses) - how much Cash is spent or earned 
             Emn (emissions) - amount of Emission released
-            Usg (usages) - is the usage of Land or Material
+            Use (use) - is the use of Land or Material
             Lss (losses) - is the loss of Resource
             Rte (rates) - rates such as speed, setup_time
 

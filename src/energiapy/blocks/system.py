@@ -1,3 +1,6 @@
+"""System Model Block represents the Scenario through Components
+"""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -22,7 +25,51 @@ if TYPE_CHECKING:
 
 @dataclass
 class System(_Block):
-    """Collects System Components"""
+    """System is the representation of the Scenario through the use of Components
+
+    The methodology of commodification of the Scenario draws from the resource task network (RTN)
+
+    Read more about the RTN methodology in the following paper:
+
+        Barbosa-Póvoa, A. P. F. D., & Pantelides, C. C. (1997).
+        Design of multipurpose plants using the resource-task network unified framework.
+        Computers & chemical engineering, 21, S703-S708.
+
+    The Components that can be added to the System are:
+
+    Scopes:
+        - Horizon (discretized into Temporal Scales)
+        - Network (Locations connected via Linkages)
+
+    Temporal:
+        - Scale
+
+    Spatial:
+        - Location
+        - Linkage
+
+    Commodities:
+        - Resource
+        - Material
+        - Emission
+        - Cash
+        - Land
+
+    Operations:
+        - Process
+        - Storage
+        - Transit
+
+    Scales and Locations are birthed internally
+
+    Storages birth Charging and Discharging Processes and ResourceStg
+    Transits birth Loading and Unloading Processes and ResourceTrn
+
+    Attributes:
+
+        name (str): name of the System, takes from Scenario
+
+    """
 
     name: str = field(default=None)
 
