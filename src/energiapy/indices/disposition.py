@@ -11,11 +11,22 @@ from sympy import Idx, symbols
 from ..core._handy._dunders import _Dunders
 
 if TYPE_CHECKING:
-    from ..core.aliases.is_component import (IsCash, IsComponent, IsEmission,
-                                             IsLand, IsLinkage, IsLocation,
-                                             IsMaterial, IsNetwork, IsPlayer,
-                                             IsProcess, IsResource, IsScale,
-                                             IsStorage, IsTransit)
+    from ..core.aliases.is_component import (
+        IsCash,
+        IsComponent,
+        IsEmission,
+        IsLand,
+        IsLinkage,
+        IsLocation,
+        IsMaterial,
+        IsNetwork,
+        IsPlayer,
+        IsProcess,
+        IsResource,
+        IsScale,
+        IsStorage,
+        IsTransit,
+    )
     from ..core.aliases.is_value import IsMode
 
 
@@ -83,9 +94,6 @@ class Disposition(_Dunders):
         """provides the structure of the disposition"""
         return [i.name for i in fields(self) if getattr(self, i.name)]
 
-    def __len__(self):
-        return len(self.scl)
-
     def childless(self, child: IsComponent):
         """Gives the disposition with the component removed"""
         return {
@@ -93,6 +101,13 @@ class Disposition(_Dunders):
             for i in fields(self)
             if not isinstance(getattr(self, i.name), child)
         }
+
+    def scaledown(self):
+        """Goes to a lower scale"""
+        return Disposition(**self.args())
+
+    def __len__(self):
+        return len(self.scl)
 
     @property
     def sym(self):
