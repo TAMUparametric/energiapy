@@ -151,7 +151,7 @@ class SptTmpInp(_Dunders):
                 mde=mde,
             )
 
-            # Checks whether the input value type is appropriate
+            # Check whether the input value type is appropriate
             # if not raises an InputTypeError
             self.check_type(val)
 

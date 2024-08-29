@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from ..core._handy._dunders import _Dunders
 from ..core._handy._printers import _Print
@@ -86,7 +86,10 @@ class ProgramBlock(_Dunders, _Print):
             else:
                 var = getattr(self.component.taskmaster, attr).var
 
-            # This fishes for an existing variable, or creates a new one
+            # This fishes for an existing variable in the full Program Model Block
+            # or creates a new one
+            # TODO
+            print('vvvv', self.variables)
             variable = self.component.program_full.fish_var(
                 var=var, disposition=value.disposition, component=self.component
             )
@@ -109,7 +112,10 @@ class ProgramBlock(_Dunders, _Print):
             if var.parent():
                 if var.child():
 
-                    # Fish for an existing Dispostion or make a new one
+                    # Fish for an existing Dispostion in the full Program Model Block
+                    # or make a new one
+                    # TODO
+                    print('dddd', self.dispositions)
                     disp_parent = self.component.program_full.fish_disp(
                         index=variable.disposition.childless(var.child())
                     )
@@ -125,7 +131,10 @@ class ProgramBlock(_Dunders, _Print):
                     # if no child then the Parent Disposition is the same as variable
                     disp_parent = variable.disposition
 
-                # Fish for an existing parent variable or make a new one
+                # Fish for an existing parent Variable in the full Program Model Block
+                # or make a new one
+                # TODO
+                print('pvpv', self.variables)
                 parent = self.component.program_full.fish_var(
                     var=var.parent(),
                     disposition=disp_parent,
@@ -345,7 +354,7 @@ class Program(_Block, _Print):
         if n_catch == 0:
             v = var(disposition=disposition, component=component)
 
-            print(f'making new at {v} {disposition} {component}')
+            print(f'making new var at {v} {disposition} {component}')
             return v
 
     def fish_disp(self, index: IsIndex) -> IsDisposition:
@@ -382,4 +391,7 @@ class Program(_Block, _Print):
 
         # If no catch, make a new disposition
         if n_catch == 0:
-            return Disposition(**index)
+            d = Disposition(**index)
+            print(f'making new disp {d}')
+
+            return d
