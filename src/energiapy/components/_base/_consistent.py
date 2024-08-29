@@ -29,22 +29,6 @@ from ..temporal.scale import Scale
 if TYPE_CHECKING:
     from ...core.aliases.is_input import IsInput, IsSptTmpInp
 
-# set to True if you want the output printed at every step
-TESTING = False
-
-
-def pr_op(op: str, wh: str):
-    """prints output if TESTING is True
-
-    Args:
-        t (bool): TESTING flag
-        op (str): output
-        wh (str): what is being printed
-    """
-    if TESTING:
-        print()
-        print(f'{wh}: {op}')
-
 
 class _Consistent(ABC):
     """Functions to make the input into a Consistent dictionary
@@ -133,8 +117,6 @@ class _Consistent(ABC):
                     # else, add a _Dummy.N for now
                     value_upd[_Dummy.N] = val
 
-        pr_op(value_upd, 'make_spatial')
-
         return value_upd
 
     def make_temporal(self, value: IsInput) -> dict:
@@ -163,8 +145,6 @@ class _Consistent(ABC):
                     else:
                         value_upd[spt][_Dummy.T] = val
 
-        pr_op(value_upd, 'make_temporal')
-
         return value_upd
 
     def make_modes(self, value: IsInput, attr: str) -> dict:
@@ -190,8 +170,6 @@ class _Consistent(ABC):
                     value_upd[spt][tmp] = {
                         _Dummy.X: value[spt][tmp]
                     }  # put a dummy mode temporarily
-
-        pr_op(value_upd, 'make_modes')
 
         return value_upd
 
@@ -256,8 +234,6 @@ class _Consistent(ABC):
                     else:
                         value_upd[spt][tmp] = spttmpmdeval[spt][tmp]
 
-        pr_op(value_upd, 'fix_temporal')
-
         return value_upd
 
     def replace_dummy_n(self, spttmpmdeval: dict, attr: str) -> dict:
@@ -289,8 +265,6 @@ class _Consistent(ABC):
             else:
                 value_upd[spt] = spttmpmdeval[spt]
 
-        pr_op(value_upd, 'replace_dummy_n')
-
         return value_upd
 
     def replace_dummy_t(self, spttmpmdeval: dict) -> dict:
@@ -311,8 +285,6 @@ class _Consistent(ABC):
                     del value_upd[spt][_Dummy.T]
                 else:
                     value_upd[spt][tmp] = spttmpmdeval[spt][tmp]
-
-        pr_op(value_upd, 'replace_dummy_t')
 
         return value_upd
 
@@ -337,8 +309,6 @@ class _Consistent(ABC):
                         # {Spatial: {Temporal: {Mode: value}}}
                         value_upd[spt][tmp][x] = spttmpmdeval[spt][tmp][x]
 
-        pr_op(value_upd, 'replace_dummy_x')
-
         return value_upd
 
     def make_spttmpmde(
@@ -360,8 +330,6 @@ class _Consistent(ABC):
         # Temporal - Scale, _Dummy.T
         # Mode - X (Mode), _Dummy.X
 
-        pr_op(value, 'make_spatial')
-
         spttmpmdeval = self.make_modes(
             value=self.make_temporal(self.make_spatial(value)), attr=attr
         )
@@ -372,8 +340,6 @@ class _Consistent(ABC):
         spttmpmdeval = self.replace_dummy_x(
             self.replace_dummy_t(self.replace_dummy_n(spttmpmdeval, attr))
         )
-
-        pr_op(spttmpmdeval, 'make_spttmpmde')
 
         return spttmpmdeval
 
@@ -395,8 +361,6 @@ class _Consistent(ABC):
 
         if attr == 'use_land':
             value = {self.system.land: value}
-
-        pr_op(value, 'make_commodity')
 
         return value
 
@@ -430,11 +394,10 @@ class _Consistent(ABC):
             if attr in self.exacts():
                 # for Cash and Land, these are added, Resources, Materials, Emissions need to be specified
                 value = self.make_commodity(attr, value)
-                pr_op(value, 'make_exact_consistent')
+
                 return make_exact_consistent(value, attr, ok_inconsistent)
 
             if attr in self.bounds():
-                pr_op(value, 'make_bound_consistent')
                 return make_bound_consistent(value, attr, ok_inconsistent)
 
         for attr in self.inputs():
@@ -464,8 +427,4 @@ class _Consistent(ABC):
                 # else just set i
                 setattr(self, attr, make_any_consistent(value, attr, ok_inconsistent))
 
-            pr_op(value, 'make_consistent')
-
         setattr(self, 'consistent', True)
-
-        # if type(self) in getattr(self.taskmaster, attr).other:

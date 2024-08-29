@@ -5,6 +5,7 @@ e.g. are constraint rules defined for all variables?
 """
 
 import pytest
+
 from .test_fixtures import scenario_bare
 
 

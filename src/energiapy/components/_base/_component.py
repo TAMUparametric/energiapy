@@ -47,6 +47,11 @@ class _Component(_Dunders):
         return getattr(self._model.program, self.name)
 
     @property
+    def program_full(self):
+        """The Program for the entire Scenario"""
+        return self._model.program
+
+    @property
     def taskmaster(self):
         """TaskMaster of the Scenario"""
         return self._model.taskmaster

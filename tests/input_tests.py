@@ -6,9 +6,9 @@ import pytest
 from src.energiapy.components.commodity.resource import Resource
 from src.energiapy.components.scope.horizon import Horizon
 from src.energiapy.components.scope.network import Network
+from src.energiapy.core._handy._enums import _Dummy
 from src.energiapy.model.scenario import Scenario
 from src.energiapy.parameters.designators.mode import X
-from src.energiapy.core._handy._enums import _Dummy
 
 
 @pytest.fixture

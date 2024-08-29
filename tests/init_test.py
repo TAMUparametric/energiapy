@@ -5,13 +5,13 @@ This will inherently check if there are any abstract methods have not been imple
 
 import pytest
 
-from src.energiapy.blocks.taskmaster import TaskMaster
 from src.energiapy.blocks.data import Data, DataBlock
 from src.energiapy.blocks.matrix import Matrix
 from src.energiapy.blocks.model import Model
 from src.energiapy.blocks.program import Program, ProgramBlock
 from src.energiapy.blocks.spttmpinput import SptTmpInp
 from src.energiapy.blocks.system import System
+from src.energiapy.blocks.taskmaster import TaskMaster
 from src.energiapy.components.analytical.player import Player
 from src.energiapy.components.commodity.cash import Cash
 from src.energiapy.components.commodity.emission import Emission
@@ -30,7 +30,6 @@ from src.energiapy.model.scenario import Scenario
 from src.energiapy.parameters.balances.conversion import Conversion
 from src.energiapy.parameters.balances.freight import Freight
 from src.energiapy.parameters.balances.inventory import Inventory
-
 
 # @pytest.fixture
 # def scenario():
