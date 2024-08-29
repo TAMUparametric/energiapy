@@ -6,9 +6,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from ..aliases.is_block import IsDisposition
     from ..aliases.is_component import IsComponent
-    from ..aliases.is_element import IsElement
 
 
 class CacodcarError(ValueError):
@@ -120,7 +118,10 @@ class InputTypeError(TypeError):
         value (Any): Value with wrong input type
     """
 
-    def __init__(self, component: IsComponent, attr: str, value: Any):
-        self.message = f'{value} is not a valid input for {component}.{attr}'
+    def __init__(self, message: str, component: IsComponent, attr: str, value: Any):
+        msg_bounds = '\nCheck Scenario.attr.bounds() for Bound attrs.'
+        msg_exact = '\nCheck Scenario.attr.exacts() for Exact attrs.'
+        msg_alias = '\nCheckout energiapy.core.aliases.is_input for valid input types.'
+        self.message = f'{value} [{type(value)}] is not a valid input for {component}.{attr}.\n{message}.{msg_bounds}{msg_exact}{msg_alias}'
 
         super().__init__(self.message)

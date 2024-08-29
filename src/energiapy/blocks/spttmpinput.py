@@ -4,7 +4,9 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Tuple, Union
+from typing import TYPE_CHECKING, Tuple, Union, Any
+
+from pandas import DataFrame
 
 from ..components.analytical.player import Player
 from ..components.commodity.cash import Cash
@@ -20,8 +22,10 @@ from ..components.spatial.linkage import Linkage
 from ..components.spatial.location import Location
 from ..components.temporal.scale import Scale
 from ..core._handy._dunders import _Dunders
+from ..core.nirop.errors import InputTypeError
 from ..indices.disposition import Disposition
 from ..parameters.designators.mode import X
+from ..parameters.designators.incidental import I
 from ..utils.dictionary import flatten
 
 if TYPE_CHECKING:
@@ -147,7 +151,9 @@ class SptTmpInp(_Dunders):
                 mde=mde,
             )
 
-
+            # Checks whether the input value type is appropriate
+            # if not raises an InputTypeError
+            self.check_type(val)
 
             dict_upd[disp] = val
 
@@ -232,5 +238,52 @@ class SptTmpInp(_Dunders):
         """Returns the values of the input"""
         return list(self.spttmpdict.values())
 
+    def check_type(self, value: Any):
+        """Verifies if the input type is correct
 
-    
+        Args:
+            value (Any): The user input value
+
+        Raises:
+            InputTypeError: If the value is not of the correct type
+        """
+
+        # values cannot be False, if something is not needed
+        # just dont set it
+        if value is False:
+            raise InputTypeError(
+                'Value cannot be False',
+                self.component,
+                self.attr,
+                value,
+            )
+
+        if self.attr in self.component.bounds():
+            # Bound inputs cannot be:
+            # sets - used only in the special case when there is an incidental parameter
+            if not isinstance(value, (int, float, list, bool, DataFrame, tuple)):
+                raise InputTypeError(
+                    'Bound attrs can only take certain types',
+                    self.component,
+                    self.attr,
+                    value,
+                )
+
+        if self.attr in self.component.exacts():
+            # Exact inputs cannot be:
+            # lists - used for upper and lower bounds
+            # bool (True) - used for BigM
+
+            if (
+                not isinstance(value, (int, float, DataFrame, tuple, set, I))
+                or value is True
+            ):
+                raise InputTypeError(
+                    'Exact attrs can only take certain types',
+                    self.component,
+                    self.attr,
+                    value,
+                )
+
+        # another check for whether the theta space extends to BigM is required
+        # This is done in the Data Model Block

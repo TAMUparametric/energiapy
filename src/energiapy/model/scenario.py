@@ -250,3 +250,5 @@ class Scenario(_Ok, _Default, _Birth, _Update, _ScnCols, _Dunders, _Print):
         """
         for eqn in self.program.eqns(at_cmp=at_cmp, at_disp=at_disp):
             yield eqn
+
+

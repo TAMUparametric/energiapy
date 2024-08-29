@@ -220,6 +220,8 @@ class System(_Block):
     def sinks(self):
         """Sink Locations of the System"""
         return sorted({i[1] for i in self.pairs})
+    
+    
 
     def fetch(self, cmp: IsDefined) -> List[IsDefined]:
         """Fetches defined Components of a particular class in the System

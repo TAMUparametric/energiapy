@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, List
 from pandas import DataFrame
 
 from ..core._handy._dunders import _Dunders
+from ..core.nirop.errors import InputTypeError
 from ..indices.enums import SpcLmt, VarBnd
 from ..parameters.designators.incidental import I
 from ..parameters.values.constant import Constant
@@ -91,8 +92,11 @@ class DataBlock(_Dunders):
 
                     # Not BigMs though, so cannot have M with big = True in the tuple
                     if any(i.big for i in datapoint if isinstance(i, M)):
-                        raise ValueError(
-                            'Parametric space cannot extent to BigM (No True)'
+                        raise InputTypeError(
+                            'Parametric space cannot extent to BigM (No True)',
+                            self.component,
+                            name,
+                            datapoint,
                         )
 
                     # A Theta variable can be declared now
