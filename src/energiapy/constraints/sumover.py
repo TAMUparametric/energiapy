@@ -1,12 +1,12 @@
-"""Constraint to Bind variable to a lower or upper Parameter or Variable (or both) Bound
+"""Constraint to sumover time and space
 """
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import TYPE_CHECKING
-from sympy import Rel, Sum
 
+from ..indices.enums import VarBnd
 from ._constraint import _Constraint
 
 if TYPE_CHECKING:
@@ -19,19 +19,15 @@ class SumOver(_Constraint):
 
     def __post_init__(self):
         _Constraint.__post_init__(self)
+        # Check the bound and add to name and make equality sign
+        if self.varbnd == VarBnd.LB:
+            eq = '>='
+        if self.varbnd == VarBnd.UB:
+            eq = '<='
+        if self.varbnd == VarBnd.EQ:
+            eq = '=='
+        # Update the name of the constraint if it is a bound
+        self.name = f'{self.name}{self.varbnd.value}'
 
-    def sumtemporal_variable(self):
-        """Create the equation for the constraint
-
-        Args:
-            var (IsVariable): The main Variable in the constraint
-        """
-
-        # Left Hand Side is always the main Variable
-        lhs = self.variable.sym
-
-        # Right Hand Side is at a lower temporal disposition
-        rhs = Sum(self.variable.sym)
-
-        # Set the equation property
-        setattr(self, 'equation', Rel(lhs, rhs, '=='))
+        # Create the equation for the constraint
+        self.birth_equation(eq=eq, par=self.parameter, prn=self.parent)
