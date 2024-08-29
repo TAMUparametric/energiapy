@@ -19,30 +19,7 @@ from .trade import Buy, Sell
 from .use import Use
 
 
-@dataclass
-class Emit(_BoundVar):
-    """Emission emit bound"""
-
-    def __post_init__(self):
-        _BoundVar.__post_init__(self)
-
-    @classmethod
-    def structures(cls, component):
-        """The allowed structures of disposition of the Variable"""
-        return make_structures(emission_strict=True, spt=['loc', 'lnk', 'ntw'])
-
-    @classmethod
-    def parent(cls):
-        """The Parent Task of the Variable"""
-
-    @classmethod
-    def child(cls):
-        """The Parent Variable doesnot carry Child Component"""
-
-    @staticmethod
-    def id() -> IndexedBase:
-        """Symbol"""
-        return IndexedBase('emit^sys')
+# ---------------MixIns---------------
 
 
 @dataclass
@@ -75,6 +52,35 @@ class _EmitTrade(_Emit):
         return make_structures(
             emission_strict=True, cmd='res', opn='pro', spt=['loc', 'ntw']
         )
+
+
+# -------------Variables---------------
+
+
+@dataclass
+class Emit(_BoundVar):
+    """Emission emit bound"""
+
+    def __post_init__(self):
+        _BoundVar.__post_init__(self)
+
+    @classmethod
+    def structures(cls, component):
+        """The allowed structures of disposition of the Variable"""
+        return make_structures(emission_strict=True, spt=['loc', 'lnk', 'ntw'])
+
+    @classmethod
+    def parent(cls):
+        """The Parent Task of the Variable"""
+
+    @classmethod
+    def child(cls):
+        """The Parent Variable doesnot carry Child Component"""
+
+    @staticmethod
+    def id() -> IndexedBase:
+        """Symbol"""
+        return IndexedBase('emit^sys')
 
 
 @dataclass

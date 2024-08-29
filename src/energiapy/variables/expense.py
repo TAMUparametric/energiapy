@@ -18,6 +18,8 @@ from .operate import Operate
 from .trade import Buy, Sell
 from .use import Use
 
+# ---------------MixIns---------------
+
 
 @dataclass
 class _Expense(_BoundVar):
@@ -40,6 +42,83 @@ class _Expense(_BoundVar):
     @classmethod
     def child(cls):
         """The Parent Variable doesnot carry Child Component"""
+
+
+@dataclass
+class _Exp(_ExactVar):
+    """Expense is the cost of a Component
+    This is a parent class
+    """
+
+    def __post_init__(self):
+        _ExactVar.__post_init__(self)
+
+    @classmethod
+    def child(cls):
+        """The Parent Variable doesnot carry Child Component"""
+        return Cash
+
+
+@dataclass
+class _ExpTrade(_Exp):
+    """Resource Expense
+    This is a parent class
+    """
+
+    def __post_init__(self):
+        _Exp.__post_init__(self)
+
+    @classmethod
+    def structures(cls, component):
+        """The allowed structures of disposition of the Variable"""
+        return make_structures(
+            csh_strict=True, cmd='res', opn='pro', spt=['loc', 'ntw']
+        )
+
+
+@dataclass
+class _ExpOpn(_Exp):
+    """Capacity Expense
+    This is a parent class
+    """
+
+    def __post_init__(self):
+        _Exp.__post_init__(self)
+
+    @classmethod
+    def structures(cls, component):
+        """The allowed structures of disposition of the Variable"""
+
+        if isinstance(component, Process):
+            opn, spt = 'pro', 'loc'
+        elif isinstance(component, Storage):
+            opn, spt = 'stg', 'loc'
+        elif isinstance(component, Transit):
+            opn, spt = 'trn', 'lnk'
+
+        return make_structures(
+            csh_strict=True,
+            mde=True,
+            opn=[opn],
+            spt=[spt, 'ntw'],
+        )
+
+
+@dataclass
+class _ExpOpnI(_ExpOpn):
+    """Incidental Expense for Operation
+    This is a parent class
+    """
+
+    def __post_init__(self):
+        _ExpOpn.__post_init__(self)
+
+    @classmethod
+    def parent(cls):
+        """The Parent Task of the Variable"""
+
+
+# -------------Variables---------------
 
 
 @dataclass
@@ -69,43 +148,11 @@ class Earn(_Expense):
 
 
 @dataclass
-class _Exp(_ExactVar):
-    """Expense is the cost of a Component
-    This is a parent class
-    """
-
-    def __post_init__(self):
-        _ExactVar.__post_init__(self)
-
-    @classmethod
-    def child(cls):
-        """The Parent Variable doesnot carry Child Component"""
-        return Cash
-
-
-@dataclass
-class ExpTrade(_Exp):
-    """Resource Expense
-    This is a parent class
-    """
-
-    def __post_init__(self):
-        _Exp.__post_init__(self)
-
-    @classmethod
-    def structures(cls, component):
-        """The allowed structures of disposition of the Variable"""
-        return make_structures(
-            csh_strict=True, cmd='res', opn='pro', spt=['loc', 'ntw']
-        )
-
-
-@dataclass
-class ExpBuy(ExpTrade):
+class ExpBuy(_ExpTrade):
     """Buy Expense"""
 
     def __post_init__(self):
-        ExpTrade.__post_init__(self)
+        _ExpTrade.__post_init__(self)
 
     @classmethod
     def parent(cls):
@@ -119,11 +166,11 @@ class ExpBuy(ExpTrade):
 
 
 @dataclass
-class ExpSell(ExpTrade):
+class ExpSell(_ExpTrade):
     """Sell Expense"""
 
     def __post_init__(self):
-        ExpTrade.__post_init__(self)
+        _ExpTrade.__post_init__(self)
 
     @classmethod
     def parent(cls):
@@ -137,11 +184,11 @@ class ExpSell(ExpTrade):
 
 
 @dataclass
-class Penalty(ExpTrade):
+class Penalty(_ExpTrade):
     """Buy Expense"""
 
     def __post_init__(self):
-        ExpTrade.__post_init__(self)
+        _ExpTrade.__post_init__(self)
 
     @classmethod
     def parent(cls):
@@ -155,11 +202,11 @@ class Penalty(ExpTrade):
 
 
 @dataclass
-class Credit(ExpTrade):
+class Credit(_ExpTrade):
     """Credit Earned"""
 
     def __post_init__(self):
-        ExpTrade.__post_init__(self)
+        _ExpTrade.__post_init__(self)
 
     @classmethod
     def parent(cls):
@@ -207,34 +254,6 @@ class ExpUsage(_Exp):
 
 
 @dataclass
-class _ExpOpn(_Exp):
-    """Capacity Expense
-    This is a parent class
-    """
-
-    def __post_init__(self):
-        _Exp.__post_init__(self)
-
-    @classmethod
-    def structures(cls, component):
-        """The allowed structures of disposition of the Variable"""
-
-        if isinstance(component, Process):
-            opn, spt = 'pro', 'loc'
-        elif isinstance(component, Storage):
-            opn, spt = 'stg', 'loc'
-        elif isinstance(component, Transit):
-            opn, spt = 'trn', 'lnk'
-
-        return make_structures(
-            csh_strict=True,
-            mde=True,
-            opn=[opn],
-            spt=[spt, 'ntw'],
-        )
-
-
-@dataclass
 class ExpSetUp(_ExpOpn):
     """Capacity Expense"""
 
@@ -268,20 +287,6 @@ class ExpOpr(_ExpOpn):
     def id() -> IndexedBase:
         """Symbol"""
         return IndexedBase('opex')
-
-
-@dataclass
-class _ExpOpnI(_ExpOpn):
-    """Incidental Expense for Operation
-    This is a parent class
-    """
-
-    def __post_init__(self):
-        _ExpOpn.__post_init__(self)
-
-    @classmethod
-    def parent(cls):
-        """The Parent Task of the Variable"""
 
 
 @dataclass

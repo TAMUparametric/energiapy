@@ -8,9 +8,10 @@ from sympy import IndexedBase
 from ..indices.structure import make_structures
 from ._variable import _BoundVar
 
+# ---------------MixIns---------------
 
 @dataclass
-class Action(_BoundVar):
+class _Action(_BoundVar):
     """Action is a Player's action
     This is a parent class
     """
@@ -35,12 +36,14 @@ class Action(_BoundVar):
         )
 
 
+#-------------Variables---------------
+
 @dataclass
-class Give(Action):
+class Give(_Action):
     """Give is when a player gives from what they Need(s)"""
 
     def __post_init__(self):
-        Action.__post_init__(self)
+        _Action.__post_init__(self)
 
     @staticmethod
     def id() -> IndexedBase:
@@ -49,11 +52,11 @@ class Give(Action):
 
 
 @dataclass
-class Take(Action):
+class Take(_Action):
     """Take is when Player takes from what they Has(ve)"""
 
     def __post_init__(self):
-        Action.__post_init__(self)
+        _Action.__post_init__(self)
 
     @staticmethod
     def id() -> IndexedBase:

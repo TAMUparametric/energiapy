@@ -9,6 +9,9 @@ from ..indices.structure import make_structures
 from ._variable import _BoundVar
 
 
+# ---------------MixIns---------------
+
+
 @dataclass
 class _Trade(_BoundVar):
     """Trade changes the ownership of Resource between Players
@@ -41,6 +44,8 @@ class _LocTrade(_Trade):
         """The allowed structures of disposition of the Variable"""
         return make_structures(cmd='res', opn='pro', spt=['loc', 'ntw'])
 
+
+#-------------Variables---------------
 
 @dataclass
 class Buy(_LocTrade):
