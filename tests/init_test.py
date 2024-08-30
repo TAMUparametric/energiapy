@@ -31,6 +31,24 @@ from src.energiapy.parameters.balances.conversion import Conversion
 from src.energiapy.parameters.balances.freight import Freight
 from src.energiapy.parameters.balances.inventory import Inventory
 
+# TODO - set test to see uniqueness of birthed elements
+
+# print(len(s.variables))
+# print(len(set(s.variables)))
+# print(len(set([v.name for v in s.variables])))
+# print()
+# print(len(s.parameters))
+# print(len(set(s.parameters)))
+# print(len(set([v.name for v in s.parameters])))
+# print()
+# print(len(s.constraints))
+# print(len(set(s.constraints)))
+# print(len(set([v.name for v in s.constraints])))
+# print()
+# print(len(s.dispositions))
+# print(len(set(s.dispositions)))
+# print(len(set([v.name for v in s.dispositions])))
+
 # @pytest.fixture
 # def scenario():
 #     """Scenario"""

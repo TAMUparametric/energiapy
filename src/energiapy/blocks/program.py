@@ -3,7 +3,9 @@
 
 from __future__ import annotations
 
+from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
+from operator import is_not
 from typing import TYPE_CHECKING
 
 from ..core._handy._dunders import _Dunders
@@ -14,14 +16,96 @@ from ._block import _Block
 from .data import DataBlock
 
 if TYPE_CHECKING:
-    from ..core.aliases.is_block import IsDataBlock, IsDisposition
+    from ..core.aliases.is_block import (IsDataBlock, IsDisposition,
+                                         IsProgramBlock)
     from ..core.aliases.is_component import IsDefined, IsIndex
     from ..core.aliases.is_element import IsVariable
     from ..core.aliases.is_value import IsValue
 
 
+class _Fish(ABC):
+
+    @property
+    @abstractmethod
+    def variables(self):
+        """Variables"""
+
+    @property
+    @abstractmethod
+    def dispositions(self):
+        """Dispositions"""
+
+    def taste_catch(self, catch: list):
+        """Tastes the catch, sees if there are multiple fishes (vars)
+        If not, returns the only fish (var)
+
+        Args:
+            catch (list): list of Variabkes caught
+        """
+        # number of catches
+        n_catch = len(catch)
+
+        # There can only be one
+        if n_catch > 1:
+            raise CacodcarError(
+                'We are going to need a bigger boat. Multiple instances of element found'
+            )
+
+        # If found a catch, return it
+        if n_catch == 1:
+            return catch[0]
+
+        # If no catch, then need to check in the full Program Model Block
+        if n_catch == 0:
+            return False
+
+    def fish_var(self, var: IsVariable, disposition: IsDisposition) -> IsVariable:
+        """Fishes for an existing variable at a particular disposition in the Program
+
+        The idea is that we should have a unique instance of any Program element
+
+        Args:
+            var (IsVariable): Variable type to fish
+            disposition (IsDisposition): at this Disposition
+
+        Returns:
+            IsVariable: Variable
+
+        Raises:
+            CacodcarError: If more than one variable is found
+        """
+
+        # seaches for the disposition in the ProgramBlock and check for multiple instances
+        return self.taste_catch(
+            [
+                e
+                for e in self.variables
+                if isinstance(e, var) and e.disposition == disposition
+            ]
+        )
+
+    def fish_disp(self, index: IsIndex) -> IsDisposition:
+        """Fishes for an exisiting disposition with the given index in the Program
+
+        The idea is that we should have a unique instance of any Program element
+
+        Args:
+            index (IsIndex): Index to fish
+
+        Returns:
+            IsDisposition: Disposition
+
+        Raises:
+            CacodcarError: If more than one disposition is found
+
+        """
+
+        # seaches for the disposition in the ProgramBlock and check for multiple instances
+        return self.taste_catch([e for e in self.dispositions if e.index == index])
+
+
 @dataclass
-class ProgramBlock(_Dunders, _Print):
+class ProgramBlock(_Fish, _Dunders, _Print):
     """Block of Program
     The Parameters, Variables, Constraints are defined here
 
@@ -86,20 +170,9 @@ class ProgramBlock(_Dunders, _Print):
             else:
                 var = getattr(self.component.taskmaster, attr).var
 
-            # This fishes for an existing variable in the full Program Model Block
-            # or creates a new one
-            # TODO
-            print('vvvv', self.variables)
-            variable = self.component.program_full.fish_var(
-                var=var, disposition=value.disposition, component=self.component
-            )
-
-            # Update the Registrar with the disposition for the Variable
-            self.component.registrar.add(var, value.disposition)
-
-            # The collections are updated
-            self.attr_variables[attr].append(variable)
-            self.attr_dispositions[attr].append(value.disposition)
+            # This fishes for an existing Variable
+            # if not found births one
+            variable = self.birth_var(var=var, disposition=value.disposition, attr=attr)
 
             # The Variable can have a:
             # 1. Parent Variable: needed to bound or determine this variable
@@ -111,41 +184,21 @@ class ProgramBlock(_Dunders, _Print):
 
             if var.parent():
                 if var.child():
-
-                    # Fish for an existing Dispostion in the full Program Model Block
-                    # or make a new one
-                    # TODO
-                    print('dddd', self.dispositions)
-                    disp_parent = self.component.program_full.fish_disp(
-                        index=variable.disposition.childless(var.child())
+                    # Fish for an existing Dispostion
+                    # if not found, births one
+                    disp_parent = self.birth_disp(
+                        index=variable.disposition.childless(var.child()), attr=attr
                     )
-
-                    # Update the collections
-                    self.attr_dispositions[attr].append(disp_parent)
-
-                    # Update the Registrar with the disposition for the Parent Variable
-                    self.component.registrar.add(var, disp_parent)
-
+                    
                 else:
-
                     # if no child then the Parent Disposition is the same as variable
                     disp_parent = variable.disposition
 
-                # Fish for an existing parent Variable in the full Program Model Block
-                # or make a new one
-                # TODO
-                print('pvpv', self.variables)
-                parent = self.component.program_full.fish_var(
-                    var=var.parent(),
-                    disposition=disp_parent,
-                    component=self.component,
+                # This fishes for an existing Parent Variable
+                # if not found births one
+                parent = self.birth_var(
+                    var=var.parent(), disposition=disp_parent, attr=attr
                 )
-
-                # Update the collections
-                self.attr_variables[attr].append(parent)
-
-                # Update the Registrar with the disposition for the Parent Variable
-                self.component.registrar.add(var.parent(), disp_parent)
 
             else:
                 # Bruce Wayne Variable
@@ -174,6 +227,108 @@ class ProgramBlock(_Dunders, _Print):
                 )
                 # update collection
                 self.attr_constraints[attr].append(constraint)
+
+    def birth_var(self, var: IsVariable, disposition: IsDisposition, attr: str):
+        """Creates a variable in the ProgramBlock
+        if not found in the ProgramBlock and full Program Model Block
+
+        Args:
+            var (IsVariable): Variable to be created
+            disposition (IsDisposition): Disposition of the Variable
+            attr (str): Attribute of the Component
+        """
+
+        # Fish for an existing variable in the ProgramBlock
+        catch = self.fish_var(var=var, disposition=disposition)
+
+        if catch:
+            # if found return the existing variable
+            return catch
+
+        else:
+            # if nothing found look in the full Program Model Block
+            catch = self.component.program_full.fish_var(
+                var=var, disposition=disposition
+            )
+
+            if catch:
+                # if found in Program Model Block, return the existing variable
+                return catch
+
+            else:
+                # if still nothing found, then create a new one
+                variable = var(disposition=disposition, component=self.component)
+                # Update the collections
+                self.attr_variables[attr].append(variable)
+
+                # Update the Registrar with the new Disposition
+                # at which var is defined
+                self.component.registrar.add(var, disposition)
+
+                return variable
+
+    def birth_disp(self, index: IsIndex, attr: str):
+        """Creates a disposition in the ProgramBlock
+        if not found in the ProgramBlock and full Program Model Block
+
+        Args:
+            index (IsIndex): Index of the Disposition
+            attr (str): Attribute of the Component
+        """
+
+        # Fish for an existing disposition in the ProgramBlock
+        catch = self.fish_disp(index=index)
+
+        if catch:
+            # if existing disposition found, return it
+            return catch
+
+        else:
+            # if nothing found look in the full Program Model Block
+            catch = self.component.program_full.fish_disp(index=index)
+
+            if catch:
+                # if found in Program Model Block, return the existing disposition
+                return catch
+
+            else:
+                # if still nothing found, then create a new disposition
+                disp = Disposition(**index)
+
+                # Update the collections
+                self.attr_dispositions[attr].append(disp)
+
+                return disp
+
+    @property
+    def indices(self):
+        """Returns all indices in the ProgramBlock"""
+        return [i.index for i in self.dispositions]
+
+    @property
+    def var_types(self):
+        """Returns all variables types already declared in the ProgramBlock"""
+        return [type(i) for i in self.variables]
+
+    @property
+    def variables(self):
+        """Returns all variables in the ProgramBlock"""
+        return sum(list(self.attr_variables.values()), [])
+
+    @property
+    def constraints(self):
+        """Returns all constraints in the ProgramBlock"""
+        return sum(list(self.attr_constraints.values()), [])
+
+    @property
+    def parameters(self):
+        """Returns all parameters in the ProgramBlock"""
+        return sum(list(self.attr_parameters.values()), [])
+
+    @property
+    def dispositions(self):
+        """Returns all dispositions in the ProgramBlock"""
+        return sum(list(self.attr_dispositions.values()), [])
 
     def eqns(self, at_cmp: IsDefined = None, at_disp: IsIndex = None):
         """Yields all equations in the ProgramBlock
@@ -215,39 +370,9 @@ class ProgramBlock(_Dunders, _Print):
             cons for cons in self.constraints if component in cons.disposition.index
         ]
 
-    @property
-    def indices(self):
-        """Returns all indices in the ProgramBlock"""
-        return [i.index for i in self.dispositions]
-
-    @property
-    def var_types(self):
-        """Returns all variables types already declared in the ProgramBlock"""
-        return [type(i) for i in self.variables]
-
-    @property
-    def variables(self):
-        """Returns all variables in the ProgramBlock"""
-        return sum(list(self.attr_variables.values()), [])
-
-    @property
-    def constraints(self):
-        """Returns all constraints in the ProgramBlock"""
-        return sum(list(self.attr_constraints.values()), [])
-
-    @property
-    def parameters(self):
-        """Returns all parameters in the ProgramBlock"""
-        return sum(list(self.attr_parameters.values()), [])
-
-    @property
-    def dispositions(self):
-        """Returns all dispositions in the ProgramBlock"""
-        return sum(list(self.attr_dispositions.values()), [])
-
 
 @dataclass
-class Program(_Block, _Print):
+class Program(_Fish, _Block, _Print):
     """Mathematical Programming Model"""
 
     name: str = field(default=None)
@@ -309,89 +434,3 @@ class Program(_Block, _Print):
                 [],
             )
         )
-
-    def fish_var(
-        self, var: IsVariable, disposition: IsDisposition, component: IsDefined
-    ) -> IsVariable:
-        """Fishes for an existing variable at a particular disposition in the Program
-
-        The idea is that we should have a unique instance of any Program element
-
-        Args:
-            var (IsVariable): Variable type to fish
-            disposition (IsDisposition): at this Disposition
-            component (IsComponent): Component for which the Variable is being defined
-
-        Returns:
-            IsVariable: Variable
-
-        Raises:
-            CacodcarError: If more than one variable is found
-        """
-
-        # seaches for the variable in the Program
-
-        catch = [
-            e
-            for e in self.variables
-            if isinstance(e, var) and e.disposition == disposition
-        ]
-
-        # number of catches
-        n_catch = len(catch)
-
-        # There can only be one
-        if n_catch > 1:
-            raise CacodcarError(
-                f'We are going to need a bigger boat.\n{n_catch} matches for {var.cname()} at {disposition}. There should be 1'
-            )
-
-        # If found a catch, return it
-        if n_catch == 1:
-            return catch[0]
-
-        # If no catch, make a new variable
-        if n_catch == 0:
-            v = var(disposition=disposition, component=component)
-
-            print(f'making new var at {v} {disposition} {component}')
-            return v
-
-    def fish_disp(self, index: IsIndex) -> IsDisposition:
-        """Fishes for an exisiting disposition with the given index in the Program
-
-        The idea is that we should have a unique instance of any Program element
-
-        Args:
-            index (IsIndex): Index to fish
-
-        Returns:
-            IsDisposition: Disposition
-
-        Raises:
-            CacodcarError: If more than one disposition is found
-
-        """
-
-        # seaches for the disposition in the Program
-        catch = [e for e in self.dispositions if e.index == index]
-
-        # number of catches
-        n_catch = len(catch)
-
-        # There can only be one
-        if n_catch > 1:
-            raise CacodcarError(
-                f'We are going to need a bigger boat.\n{n_catch} disposition at {index}. There should be 1'
-            )
-
-        # If found a catch, return it
-        if n_catch == 1:
-            return catch[0]
-
-        # If no catch, make a new disposition
-        if n_catch == 0:
-            d = Disposition(**index)
-            print(f'making new disp {d}')
-
-            return d

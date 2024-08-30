@@ -7,6 +7,7 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 from ..core._handy._dunders import _Dunders
+from ..core.nirop.errors import CacodcarError
 
 if TYPE_CHECKING:
     from ..core.aliases.is_block import IsDisposition, IsRuleBook
@@ -43,5 +44,9 @@ class ChitraGupta(_Dunders):
             elm (str): Element to add to the ChitraGupta
             disp (IsDisposition): Rule to add to the ChitraGupta
         """
+
+        # Only unique instances of dispositions are allowed
+        if disp in getattr(self, elm.cname()):
+            raise CacodcarError(f'{elm} already has {disp} in {self.name}')
 
         getattr(self, elm.cname()).append(disp)

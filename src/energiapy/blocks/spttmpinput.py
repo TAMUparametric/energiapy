@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Tuple, Union, Any
+from typing import TYPE_CHECKING, Any, Tuple, Union
 
 from pandas import DataFrame
 
@@ -24,8 +24,8 @@ from ..components.temporal.scale import Scale
 from ..core._handy._dunders import _Dunders
 from ..core.nirop.errors import InputTypeError
 from ..indices.disposition import Disposition
-from ..parameters.designators.mode import X
 from ..parameters.designators.incidental import I
+from ..parameters.designators.mode import X
 from ..utils.dictionary import flatten
 
 if TYPE_CHECKING:
