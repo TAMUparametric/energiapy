@@ -10,10 +10,8 @@ from ...blocks.program import Program, ProgramBlock
 from ...blocks.rulebook import RuleBook
 from ...blocks.system import System
 from ...blocks.taskmaster import TaskMaster
-from ...indices.disposition import Disposition
 from ...model.scenario import Scenario
 
-IsDisposition: TypeAlias = Disposition
 IsScenario: TypeAlias = Scenario
 
 # submodels

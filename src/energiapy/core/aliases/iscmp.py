@@ -15,6 +15,7 @@ from ...components.scope.network import Network
 from ...components.spatial.linkage import Linkage
 from ...components.spatial.location import Location
 from ...components.temporal.scale import Scale
+from ...components.temporal.mode import X
 
 
 # Analytical
@@ -25,7 +26,7 @@ type IsAnalytical = Player
 # Scales provide the discretization of the Temporal Horizon
 # Linkages provide the spatial connections between Locations
 type IsScope = Horizon | Network
-type IsTemporal = Horizon | Scale
+type IsTemporal = Horizon | Scale | X
 type IsSpatial = Network| Linkage | Location
 type IsSptTmp = IsSpatial | IsTemporal
 
@@ -46,7 +47,7 @@ type IsLonely = IsScope | IsAsset
 # constraints are generated based on the data provided to these components
 type IsDefined = IsAnalytical| IsCommodity| IsOperational
 
-type IsComponent =  IsAnalytical| IsCommodity| IsImpact| IsOperational| IsScope| IsSpatial| IsTemporal|
+type IsCmp =  IsAnalytical| IsCommodity| IsImpact| IsOperational| IsScope| IsSpatial| IsTemporal|
 
-type IsIndex = tuple[IsComponent]
+type IsIndex = tuple[IsCmp]
 

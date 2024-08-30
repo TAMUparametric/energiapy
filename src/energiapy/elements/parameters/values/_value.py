@@ -11,7 +11,7 @@ from ...core._handy._dunders import _Reprs
 from ...indices.enums import SpcLmt, VarBnd
 
 if TYPE_CHECKING:
-    from ...core.aliases.isblk import IsDisposition
+    from ...core.aliases.isblk import IsIndex
     from ...core.aliases.isval import IsSpcLmt, IsVarBnd
 
 
@@ -21,12 +21,12 @@ class _Value(ABC, _Reprs):
 
     Args:
         name (str): name of aspect
-        disposition (IsDisposition): disposition of the value
+        disposition (IsIndex): disposition of the value
         spclmt (SpcLmt): Whether the value is the start or end of the parametric variable space
         varbnd (VarBnd): Whether the value is exact, or an upper or lower bound
     """
 
-    disposition: IsDisposition = field(default=None)
+    disposition: IsIndex = field(default=None)
     varbnd: IsVarBnd = field(default=None)
     spclmt: IsSpcLmt = field(default=None)
     incdntl: bool = field(default=False)

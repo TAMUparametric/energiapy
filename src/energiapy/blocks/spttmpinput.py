@@ -23,13 +23,13 @@ from ..components.spatial.location import Location
 from ..components.temporal.scale import Scale
 from ..core._handy._dunders import _Dunders
 from ..core.nirop.errors import InputTypeError
-from ..indices.disposition import Disposition
+from ..indices.disposition import Index
 from ..parameters.designators.incidental import I
 from ..parameters.designators.mode import X
 from ..utils.dictionary import flatten
 
 if TYPE_CHECKING:
-    from ..core.aliases.iscmp import IsComponent
+    from ..core.aliases.iscmp import IsCmp
     from ..core.aliases.isinp import IsSptTmpDict
     from ..core.aliases.isval import IsValue
 
@@ -48,18 +48,18 @@ class SptTmpInp(_Dunders):
 
     This ensures consistence in the input once provided to the Scenario class
 
-    The Disposition is also determined here and set as the key in the dictionary
+    The Index is also determined here and set as the key in the dictionary
 
     Attributes:
         attr (str): The attribute of the input
         spttmpdict (IsSptTmpDict): The dictionary input
-        component (IsComponent): The component to which the input belongs
+        component (IsCmp): The component to which the input belongs
 
     """
 
     attr: str = field(default=None)
     spttmpdict: IsSptTmpDict = field(default=None)
-    component: IsComponent = field(default=None)
+    component: IsCmp = field(default=None)
 
     def __post_init__(self):
         # The original dictionary input
@@ -69,24 +69,24 @@ class SptTmpInp(_Dunders):
         self.update_spttmpdict()
 
     @property
-    def dispositions(self):
-        """Returns the Disposition of the input"""
+    def indices(self):
+        """Returns the Index of the input"""
         return list(self.spttmpdict.keys())
 
     @property
     def name(self):
-        """Returns the Disposition of the input"""
+        """Returns the Index of the input"""
         return f'{self.attr}{self.spttmpdict}'
 
     @property
     def by_position(self):
-        """Returns the Disposition of the input"""
+        """Returns the Index of the input"""
         return {i: val for i, val in enumerate(list(self.spttmpdict.values()))}
 
     def update_spttmpdict(self):
         """Updates the spttmpdict
         Returns:
-            dict: {Disposition: value}
+            dict: {Index: value}
         """
         # Flatten the dictionary. Now the keys are tuples
         # {(Network/Spatial, Scale, ...): value}
@@ -134,7 +134,7 @@ class SptTmpInp(_Dunders):
                 if isinstance(cmp, X):
                     mde = cmp
 
-            disp = Disposition(
+            disp = Index(
                 ply=ply,
                 emn=emn,
                 csh=csh,
@@ -157,16 +157,16 @@ class SptTmpInp(_Dunders):
 
             dict_upd[disp] = val
 
-        # update the input with a dictionary {Disposition: value}
+        # update the input with a dictionary {Index: value}
         self.spttmpdict = dict_upd
 
-    def get(self, n: Union[Tuple[IsComponent], int, None] = None) -> IsValue:
+    def get(self, n: Union[Tuple[IsCmp], int, None] = None) -> IsValue:
         """Gets the value of the input at the index
         You can give the index or the position
         or nothing, to get some guidelines
 
         Args:
-            n (Union[Tuple[IsComponent], int, None]): index (tuple) or position (int) to get the value. Default is None
+            n (Union[Tuple[IsCmp], int, None]): index (tuple) or position (int) to get the value. Default is None
 
         Returns:
             IsValue: The value at the index
@@ -213,25 +213,25 @@ class SptTmpInp(_Dunders):
         if isinstance(n, tuple):
 
             index = n
-            if not index in [disp.index for disp in self.dispositions]:
+            if not index in [disp.disposition for disp in self.indices]:
                 print(f'Index {index} not found')
                 siren_index()
                 siren_help()
 
             for disp, value in self.spttmpdict.items():
-                if disp.index == index:
+                if disp.disposition == index:
                     return value
 
         if isinstance(n, int):
 
             position = n
-            if position > len(self.dispositions):
+            if position > len(self.indices):
                 print(f'Position {position} out of range')
                 siren_position()
                 siren_help()
 
             else:
-                index = self.dispositions[position]
+                index = self.indices[position]
                 return self.spttmpdict[index]
 
     def values(self):

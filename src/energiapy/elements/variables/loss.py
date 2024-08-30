@@ -8,7 +8,7 @@ from sympy import IndexedBase
 from ..components.commodity.resource import Resource
 from ..components.operational.storage import Storage
 from ..components.operational.transit import Transit
-from ..indices.structure import make_structures
+from ..dispositions.structure import make_structures
 from ._variable import _ExactVar
 from .operate import Operate
 

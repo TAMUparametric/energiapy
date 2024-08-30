@@ -17,7 +17,7 @@ class _Ok(ABC):
         ok_overwrite (bool): Allow overwriting of Components. Default is True
         ok_nobasis (bool): Allow Components without basis. Default is True
         ok_nolabel (bool): Allow Components without label. Default is True
-        ok_inconsistent (bool): Fix incosistent Dispositions, with warnings. Default is True
+        ok_inconsistent (bool): Fix incosistent Indexs, with warnings. Default is True
         chill (bool): If False, disallow all the above. Default is True
     """
 

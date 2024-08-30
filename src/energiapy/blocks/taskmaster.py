@@ -17,11 +17,18 @@ from dataclasses import asdict, dataclass, field, fields
 from typing import TYPE_CHECKING, List
 
 from ..attrs.balances import ProBalance, StgBalance, TrnBalance
-from ..attrs.bounds import (CshBounds, EmnBounds, OpnBounds, PlyBounds,
-                            ProBounds, ResBounds, StgBounds, TrnBounds,
-                            UsedBounds)
-from ..attrs.exacts import (EmnExacts, ExpExacts, LssExacts, RteExacts,
-                            UsgExacts)
+from ..attrs.bounds import (
+    CshBounds,
+    EmnBounds,
+    OpnBounds,
+    PlyBounds,
+    ProBounds,
+    ResBounds,
+    StgBounds,
+    TrnBounds,
+    UsedBounds,
+)
+from ..attrs.exacts import EmnExacts, ExpExacts, LssExacts, RteExacts, UsgExacts
 from ..components.analytical.player import Player
 from ..components.commodity.cash import Cash
 from ..components.commodity.emission import Emission
@@ -35,18 +42,27 @@ from ..core._handy._dunders import _Dunders
 from ..core._handy._printers import _Print
 from ..variables.action import Give, Take
 from ..variables.capacitate import Capacity
-from ..variables.emit import (Emit, EmitBuy, EmitLoss, EmitSell, EmitSetUp,
-                              EmitUse)
-from ..variables.expense import (Credit, Earn, ExpBuy, ExpOpr, ExpOprI,
-                                 ExpSell, ExpSetUp, ExpSetUpI, ExpUseSetUp,
-                                 Penalty, Spend)
+from ..variables.emit import Emit, EmitBuy, EmitLoss, EmitSell, EmitSetUp, EmitUse
+from ..variables.expense import (
+    Credit,
+    Earn,
+    ExpBuy,
+    ExpOpr,
+    ExpOprI,
+    ExpSell,
+    ExpSetUp,
+    ExpSetUpI,
+    ExpUseSetUp,
+    Penalty,
+    Spend,
+)
 from ..variables.loss import Loss
 from ..variables.operate import Operate
 from ..variables.trade import Buy, Sell, Ship
 from ..variables.use import Use, UseSetUp
 
 if TYPE_CHECKING:
-    from ..core.aliases.iscmp import IsComponent
+    from ..core.aliases.iscmp import IsCmp
     from ..core.aliases.isvar import IsVariable
 
 
@@ -67,8 +83,8 @@ class Task(_Dunders, _TskPrint):
 
     Attributes:
         attr (str): attr associated with Task
-        root (List[IsComponent]): List of Components where the attribute can be declared
-        other (List[IsComponent]): List of Incongruent Components where the Component attribute can be declared
+        root (List[IsCmp]): List of Components where the attribute can be declared
+        other (List[IsCmp]): List of Incongruent Components where the Component attribute can be declared
         var (IsVariable): Task Variable
         var_i (IsVariable): Incidental Task Variable
         spt (List[IsSpatial]): List of Spatial Components where the attribute can be declared
@@ -76,8 +92,8 @@ class Task(_Dunders, _TskPrint):
     """
 
     attr: str = field(default=None)
-    root: List[IsComponent] = field(default_factory=list)
-    other: List[IsComponent] = field(default_factory=list)
+    root: List[IsCmp] = field(default_factory=list)
+    other: List[IsCmp] = field(default_factory=list)
     var: IsVariable = field(default=None)
     var_i: IsVariable = field(default=None)
 
@@ -88,7 +104,7 @@ class Task(_Dunders, _TskPrint):
         self.parameters = []
         self.constraints = []
         self.variables = []
-        self.dispositions = []
+        self.indices = []
 
 
 @dataclass
@@ -108,7 +124,7 @@ class Report(_Dunders, _TskPrint):
         # Report associated with the attribute
         self.values = sum([attr.values for attr in self.tasks], [])
         self.parameters = sum([attr.parameters for attr in self.tasks], [])
-        self.dispositions = sum([attr.dispositions for attr in self.tasks], [])
+        self.indices = sum([attr.indices for attr in self.tasks], [])
         self.constraints = sum([attr.constraints for attr in self.tasks], [])
         self.variables = sum([attr.variables for attr in self.tasks], [])
 
@@ -354,7 +370,7 @@ class _Balances(ProBalance, StgBalance, TrnBalance):
 @dataclass
 class TaskMaster(_Balances, _Bounds, _Exacts, _Dunders):
     """This object collects all the attributes defined
-    and makes a list of Dispositions they are defined at
+    and makes a list of Indexs they are defined at
 
     """
 

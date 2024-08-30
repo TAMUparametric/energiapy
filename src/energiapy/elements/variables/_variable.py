@@ -13,8 +13,8 @@ from ..core.nirop.errors import CacodcarError
 if TYPE_CHECKING:
     from sympy import IndexedBase
 
-    from ..core.aliases.isblk import IsDisposition
-    from ..core.aliases.iscmp import IsComponent
+    from ..core.aliases.isblk import IsIndex
+    from ..core.aliases.iscmp import IsCmp
     from ..core.aliases.isvar import IsVariable
 
 
@@ -22,8 +22,8 @@ if TYPE_CHECKING:
 class _Variable(_Dunders, ABC):
     """Component Task"""
 
-    disposition: IsDisposition = field(default=None)
-    component: IsComponent = field(default=None)
+    disposition: IsIndex = field(default=None)
+    component: IsCmp = field(default=None)
 
     def __post_init__(self):
         self.name = str(self.sym)
@@ -41,7 +41,7 @@ class _Variable(_Dunders, ABC):
     @classmethod
     @abstractmethod
     def structures(cls, component) -> List[Tuple[str]]:
-        """The allowed structures of Dispositions of the Variable"""
+        """The allowed structures of Indexs of the Variable"""
 
     @classmethod
     @abstractmethod
@@ -50,7 +50,7 @@ class _Variable(_Dunders, ABC):
 
     @classmethod
     @abstractmethod
-    def child(cls) -> IsComponent:
+    def child(cls) -> IsCmp:
         """The Parent Variable doesnot carry Child Component"""
 
     @property

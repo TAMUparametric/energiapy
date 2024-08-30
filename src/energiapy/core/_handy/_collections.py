@@ -207,9 +207,9 @@ class _Elms(_Prog):
         return self.program.parameters
 
     @property
-    def dispositions(self):
-        """All Dispositions in the Program"""
-        return self.program.dispositions
+    def indices(self):
+        """All Indexs in the Program"""
+        return self.program.indices
 
 
 class _Dt(ABC):

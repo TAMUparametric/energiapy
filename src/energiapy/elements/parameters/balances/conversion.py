@@ -9,7 +9,7 @@ from operator import or_
 from typing import TYPE_CHECKING
 
 from ...core._handy._dunders import _Reprs
-from ..designators.mode import X
+from ....components.temporal.mode import X
 
 if TYPE_CHECKING:
     from ...core.aliases.iscmp import IsProcess

@@ -87,7 +87,7 @@ class _Update(ABC):
         """Handles components which can have only one instance in the System
         Args:
             cmp (str): 'cash', 'land', 'horizon', 'network'
-            component(IsComponent): Component to be added
+            component(IsCmp): Component to be added
 
         """
 

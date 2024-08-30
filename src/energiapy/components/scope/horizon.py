@@ -13,7 +13,7 @@ from ...core.nirop.errors import NoScaleMatchError
 from .._base._scope import _Scope
 
 if TYPE_CHECKING:
-    from ...core.aliases.iscmp import IsComponent
+    from ...core.aliases.iscmp import IsCmp
 
 
 @dataclass
@@ -157,7 +157,7 @@ class Horizon(_Scope, _Scls):
                 :: max(self._discretization_list) // self._discretization_list[position]
             ]
 
-    def match_scale(self, value, component: IsComponent = None, attr: str = None):
+    def match_scale(self, value, component: IsCmp = None, attr: str = None):
         """Returns the scale that matches the length
 
         Args:

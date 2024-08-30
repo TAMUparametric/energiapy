@@ -1,14 +1,19 @@
 """Operational Mode
 """
 
+from __future__ import annotations
+
 from dataclasses import dataclass, field
 
-
+from typing import TYPE_CHECKING
 from sympy import Symbol
 
-from ....core._handy._dunders import _Dunders
+from ...core._handy._dunders import _Dunders
 
-from ....core.aliases.iscmp import IsOperational
+if TYPE_CHECKING:
+    from ..operational.process import Process
+    from ..operational.storage import Storage
+    from ..operational.transit import Transit
 
 
 @dataclass
@@ -26,7 +31,7 @@ class X(_Dunders):
         # Dummy initial name
         setattr(self, 'sym', Symbol(f'{self.name}'))
 
-    def personalize(self, opn: IsOperational, attr: str):
+    def personalize(self, opn: Process | Storage | Transit, attr: str):
         """Personalizes the operational mode
         adds the name of the operation
         and first three letters of the attribute

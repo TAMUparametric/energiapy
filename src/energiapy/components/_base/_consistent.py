@@ -209,7 +209,7 @@ class _Consistent(ABC):
         Args:
             spttmpmdeval (dict): {Spatial: {Temporal: {Mode: value}}}
             attr (str): attr for which input is being passed
-            ok_inconsistent (bool): whether to fix dispositions or just warn.
+            ok_inconsistent (bool): whether to fix indices or just warn.
 
         Returns:
             dict: {Spatial: {Temporal: {Mode: value}}} but with scales checked
@@ -250,7 +250,7 @@ class _Consistent(ABC):
         # The rules are as follows:
         # 1. an Exact input such as cost, emissions, etc.
         # if exact, then the value is assumed to apply
-        # across all spatial dispositions
+        # across all spatial indices
         # 2. a Bound input such as buy, sell, etc.
         # if bound, the network limit can be independent of locations
         # infact, the locations values will sum up to the network value
@@ -319,7 +319,7 @@ class _Consistent(ABC):
         Args:
             value (IsInput): any Input
             attr (str): attr for which input is being passed
-            fix_bool (bool): whether to fix dispositions or just warn.
+            fix_bool (bool): whether to fix indices or just warn.
         Returns:
             IsSptTmpDict: {Spatial: {Temporal: {Mode: value}}} Always!!
         """
@@ -368,7 +368,7 @@ class _Consistent(ABC):
         """Makes and sets input attributes consistent as SptTmpDict
 
         Args:
-            ok_inconsistent (bool): whether to fix dispositions with warning or error out
+            ok_inconsistent (bool): whether to fix indices with warning or error out
         """
 
         def make_exact_consistent(value: dict, attr: str, ok_inconsistent: bool):

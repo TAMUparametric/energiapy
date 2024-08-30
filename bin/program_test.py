@@ -12,7 +12,7 @@ def test_scenario_bare_program(scenario_bare, scenario_def):
     assert scenario_bare.program.variables == []
     assert scenario_bare.program.constraints == []
     assert scenario_bare.program.parameters == []
-    assert scenario_bare.program.dispositions == []
+    assert scenario_bare.program.indices == []
 
 
 def test_scenario_def_program(scenario_def):
@@ -39,4 +39,4 @@ def test_scenario_def_program(scenario_def):
     assert scenario_def.program.variables == []
     assert scenario_def.program.constraints == []
     assert scenario_def.program.parameters == []
-    assert scenario_def.program.dispositions == []
+    assert scenario_def.program.indices == []

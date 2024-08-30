@@ -19,7 +19,7 @@ class _Constraint(_Dunders):
     """Constraints for Program
     Attributes:
         variable (IsVariable): The main Variable in the constraint
-        disposition (IsDisposition): The disposition of the constraint. Determined post initialization.
+        disposition (IsIndex): The disposition of the constraint. Determined post initialization.
     """
 
     variable: IsVariable = field(default=None)

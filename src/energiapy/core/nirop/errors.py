@@ -6,7 +6,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from ..aliases.iscmp import IsComponent
+    from ..aliases.iscmp import IsCmp
 
 
 class CacodcarError(ValueError):
@@ -18,11 +18,11 @@ class CacodcarError(ValueError):
         super().__init__(self.message)
 
 
-def check_attr(component: IsComponent, attr: str):
+def check_attr(component: IsCmp, attr: str):
     """Checks if an attribute is present in the Component
 
     Args:
-        component (IsComponent): Component to check
+        component (IsCmp): Component to check
         attr (str): Attribute to check
 
     """
@@ -49,10 +49,10 @@ class NoBasisError(AttributeError):
     """Error for having no basis
 
     Attributes:
-        component (IsComponent): Component with no basis
+        component (IsCmp): Component with no basis
     """
 
-    def __init__(self, component: IsComponent):
+    def __init__(self, component: IsCmp):
         self.message = (
             f'{component} has no basis\nset Scenario.ok_basis=True if intentional'
         )
@@ -64,10 +64,10 @@ class NoLabelError(AttributeError):
     """Error for having no label
 
     Attributes:
-        component (IsComponent): Component with no label
+        component (IsCmp): Component with no label
     """
 
-    def __init__(self, component: IsComponent):
+    def __init__(self, component: IsCmp):
         self.message = (
             f'{component} has no label\nset Scenario.ok_label=True if intentional'
         )
@@ -79,12 +79,12 @@ class NoScaleMatchError(ValueError):
     """Error for no scale match
 
     Attributes:
-        component (IsComponent): Component with no scale match
+        component (IsCmp): Component with no scale match
         value (Any): Value with length
         attr (str): Attribute being checked
     """
 
-    def __init__(self, value: Any, component: IsComponent, attr: str):
+    def __init__(self, value: Any, component: IsCmp, attr: str):
         self.message = (
             f'{component}: Length ({len(value)}) of {attr}  does not match any scale'
         )
@@ -113,12 +113,12 @@ class InputTypeError(TypeError):
     """Error for wrong input type
 
     Attributes:
-        component (IsComponent): Component with wrong input type
+        component (IsCmp): Component with wrong input type
         attr (str): Attribute with wrong input type
         value (Any): Value with wrong input type
     """
 
-    def __init__(self, message: str, component: IsComponent, attr: str, value: Any):
+    def __init__(self, message: str, component: IsCmp, attr: str, value: Any):
         msg_bounds = '\nCheck Scenario.attr.bounds() for Bound attrs.'
         msg_exact = '\nCheck Scenario.attr.exacts() for Exact attrs.'
         msg_alias = '\nCheckout energiapy.core.aliases.is_input for valid input types.'

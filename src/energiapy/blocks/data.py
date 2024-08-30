@@ -20,7 +20,7 @@ from ._block import _Block
 from .spttmpinput import SptTmpInp
 
 if TYPE_CHECKING:
-    from ..core.aliases.isblk import IsDisposition
+    from ..core.aliases.isblk import IsIndex
     from ..core.aliases.iscmp import IsDefined
     from ..core.aliases.isinp import IsBaseInput
     from ..core.aliases.isval import IsSpcLmt, IsValue, IsVarBnd
@@ -59,7 +59,7 @@ class DataBlock(_Dunders):
 
         if isinstance(value, dict) and not name == 'spttmpinp':
             # _Spt holds the data in a particular format
-            # {Disposition: value}. The disposition is made there
+            # {Index: value}. The disposition is made there
             # This is only temporary and the user eventually sees a list of parameters
             spttmpinput = SptTmpInp(
                 attr=name, spttmpdict=value, component=self.component
@@ -180,7 +180,7 @@ class DataBlock(_Dunders):
 
     def birth_value(
         self,
-        disposition: IsDisposition,
+        disposition: IsIndex,
         value: IsBaseInput,
         varbnd: IsVarBnd = None,
         spclmt: IsSpcLmt = None,
@@ -188,7 +188,7 @@ class DataBlock(_Dunders):
         """Creates a parameter value
 
         Args:
-            disposition (IsDisposition): The disposition of the value
+            disposition (IsIndex): The disposition of the value
             value (IsBaseInput): The input value used to make an internal value, like M, Constant, DataSet, Theta
             varbnd (IsVarBnd): The variable bound (lower, upper)
             spclmt (IsSpcLmt): The parametric space limit (start, end)

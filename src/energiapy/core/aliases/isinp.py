@@ -35,7 +35,7 @@ IsTmpBound = dict[Scale | IsBound]
 
 IsTmpInput = IsTmpExact | IsTmpBound
 
-IsSpt = Location | Linkage 
+IsSpt = Location | Linkage
 
 IsSptExact: TypeAlias = Dict[IsSpt, IsExact]
 IsSptBound: TypeAlias = Dict[IsSpt, IsBound]
@@ -57,7 +57,7 @@ IsBoundInput: TypeAlias = Union[IsBound, IsTmpBound, IsSptBound, IsSptTmpBound]
 
 IsInput: TypeAlias = Union[IsExactInput, IsBoundInput]
 
-IsInputDict: TypeAlias = Union[IsComponent, IsSptInput, IsSptTmpDict]
+IsInputDict: TypeAlias = Union[IsCmp, IsSptInput, IsSptTmpDict]
 
 IsSingleConvInput: TypeAlias = Dict[IsResource, Dict[IsResource, IsNumeric]]
 

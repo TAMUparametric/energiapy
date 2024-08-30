@@ -1,6 +1,6 @@
 from typing import Union
 
 from .isblk import IsBlock
-from .iscmp import IsComponent
+from .iscmp import IsCmp
 
-IsEpClass = Union[IsBlock, IsComponent]
+IsEpClass = Union[IsBlock, IsCmp]

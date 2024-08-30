@@ -11,13 +11,12 @@ from typing import TYPE_CHECKING
 from ..core._handy._dunders import _Dunders
 from ..core._handy._printers import _Print
 from ..core.nirop.errors import CacodcarError
-from ..indices.disposition import Disposition
+from ..indices.disposition import Index
 from ._block import _Block
 from .data import DataBlock
 
 if TYPE_CHECKING:
-    from ..core.aliases.isblk import (IsDataBlock, IsDisposition,
-                                         IsProgramBlock)
+    from ..core.aliases.isblk import IsDataBlock, IsIndex, IsProgramBlock
     from ..core.aliases.iscmp import IsDefined, IsIndex
     from ..core.aliases.iselm import IsVariable
     from ..core.aliases.isval import IsValue
@@ -32,8 +31,8 @@ class _Fish(ABC):
 
     @property
     @abstractmethod
-    def dispositions(self):
-        """Dispositions"""
+    def indices(self):
+        """Indexs"""
 
     def taste_catch(self, catch: list):
         """Tastes the catch, sees if there are multiple fishes (vars)
@@ -59,14 +58,14 @@ class _Fish(ABC):
         if n_catch == 0:
             return False
 
-    def fish_var(self, var: IsVariable, disposition: IsDisposition) -> IsVariable:
+    def fish_var(self, var: IsVariable, disposition: IsIndex) -> IsVariable:
         """Fishes for an existing variable at a particular disposition in the Program
 
         The idea is that we should have a unique instance of any Program element
 
         Args:
             var (IsVariable): Variable type to fish
-            disposition (IsDisposition): at this Disposition
+            disposition (IsIndex): at this Index
 
         Returns:
             IsVariable: Variable
@@ -84,7 +83,7 @@ class _Fish(ABC):
             ]
         )
 
-    def fish_disp(self, index: IsIndex) -> IsDisposition:
+    def fish_disp(self, index: IsIndex) -> IsIndex:
         """Fishes for an exisiting disposition with the given index in the Program
 
         The idea is that we should have a unique instance of any Program element
@@ -93,7 +92,7 @@ class _Fish(ABC):
             index (IsIndex): Index to fish
 
         Returns:
-            IsDisposition: Disposition
+            IsIndex: Index
 
         Raises:
             CacodcarError: If more than one disposition is found
@@ -101,7 +100,7 @@ class _Fish(ABC):
         """
 
         # seaches for the disposition in the ProgramBlock and check for multiple instances
-        return self.taste_catch([e for e in self.dispositions if e.index == index])
+        return self.taste_catch([e for e in self.indices if e.disposition == index])
 
 
 @dataclass
@@ -110,7 +109,7 @@ class ProgramBlock(_Fish, _Dunders, _Print):
     The Parameters, Variables, Constraints are defined here
 
     Attributes:
-        component (IsComponent): Component to which the ProgramBlock belongs
+        component (IsCmp): Component to which the ProgramBlock belongs
     """
 
     component: IsDefined = field(default=None)
@@ -123,7 +122,7 @@ class ProgramBlock(_Fish, _Dunders, _Print):
             self.attr_variables,
             self.attr_constraints,
             self.attr_parameters,
-            self.attr_dispositions,
+            self.attr_indices,
         ) = ({inp: [] for inp in self.component.inputs()} for _ in range(4))
 
     def __setattr__(self, name: str, datablock: IsDataBlock):
@@ -189,9 +188,9 @@ class ProgramBlock(_Fish, _Dunders, _Print):
                     disp_parent = self.birth_disp(
                         index=variable.disposition.childless(var.child()), attr=attr
                     )
-                    
+
                 else:
-                    # if no child then the Parent Disposition is the same as variable
+                    # if no child then the Parent Index is the same as variable
                     disp_parent = variable.disposition
 
                 # This fishes for an existing Parent Variable
@@ -228,13 +227,13 @@ class ProgramBlock(_Fish, _Dunders, _Print):
                 # update collection
                 self.attr_constraints[attr].append(constraint)
 
-    def birth_var(self, var: IsVariable, disposition: IsDisposition, attr: str):
+    def birth_var(self, var: IsVariable, disposition: IsIndex, attr: str):
         """Creates a variable in the ProgramBlock
         if not found in the ProgramBlock and full Program Model Block
 
         Args:
             var (IsVariable): Variable to be created
-            disposition (IsDisposition): Disposition of the Variable
+            disposition (IsIndex): Index of the Variable
             attr (str): Attribute of the Component
         """
 
@@ -261,7 +260,7 @@ class ProgramBlock(_Fish, _Dunders, _Print):
                 # Update the collections
                 self.attr_variables[attr].append(variable)
 
-                # Update the Registrar with the new Disposition
+                # Update the Registrar with the new Index
                 # at which var is defined
                 self.component.registrar.add(var, disposition)
 
@@ -272,7 +271,7 @@ class ProgramBlock(_Fish, _Dunders, _Print):
         if not found in the ProgramBlock and full Program Model Block
 
         Args:
-            index (IsIndex): Index of the Disposition
+            index (IsIndex): Index of the Index
             attr (str): Attribute of the Component
         """
 
@@ -293,17 +292,17 @@ class ProgramBlock(_Fish, _Dunders, _Print):
 
             else:
                 # if still nothing found, then create a new disposition
-                disp = Disposition(**index)
+                disp = Index(**index)
 
                 # Update the collections
-                self.attr_dispositions[attr].append(disp)
+                self.attr_indices[attr].append(disp)
 
                 return disp
 
     @property
     def indices(self):
         """Returns all indices in the ProgramBlock"""
-        return [i.index for i in self.dispositions]
+        return [i.disposition for i in self.indices]
 
     @property
     def var_types(self):
@@ -326,16 +325,16 @@ class ProgramBlock(_Fish, _Dunders, _Print):
         return sum(list(self.attr_parameters.values()), [])
 
     @property
-    def dispositions(self):
-        """Returns all dispositions in the ProgramBlock"""
-        return sum(list(self.attr_dispositions.values()), [])
+    def indices(self):
+        """Returns all indices in the ProgramBlock"""
+        return sum(list(self.attr_indices.values()), [])
 
     def eqns(self, at_cmp: IsDefined = None, at_disp: IsIndex = None):
         """Yields all equations in the ProgramBlock
 
         Args:
-            at_cmp (IsComponent, optional): Component to search for. Defaults to None.
-            at_disp (IsDisposition, optional): Disposition to search for. Defaults to None.
+            at_cmp (IsCmp, optional): Component to search for. Defaults to None.
+            at_disp (IsIndex, optional): Index to search for. Defaults to None.
         """
         if at_cmp:
             constraints = self.at_cmp(at_cmp)
@@ -356,18 +355,22 @@ class ProgramBlock(_Fish, _Dunders, _Print):
             disposition (IsIndex): disposition (actually index) to be searched for
         """
         return [
-            cons for cons in self.constraints if cons.disposition.index == disposition
+            cons
+            for cons in self.constraints
+            if cons.disposition.disposition == disposition
         ]
 
     def at_cmp(self, component: IsDefined):
         """Returns constraints defined for component throughout the program
 
         Args:
-            component (IsComponent): component to be searched for
+            component (IsCmp): component to be searched for
         """
 
         return [
-            cons for cons in self.constraints if component in cons.disposition.index
+            cons
+            for cons in self.constraints
+            if component in cons.disposition.disposition
         ]
 
 
@@ -404,16 +407,16 @@ class Program(_Fish, _Block, _Print):
         return self.fetch('parameters')
 
     @property
-    def dispositions(self):
-        """Returns all dispositions in the program"""
-        return self.fetch('dispositions')
+    def indices(self):
+        """Returns all indices in the program"""
+        return self.fetch('indices')
 
     def eqns(self, at_cmp: IsDefined = None, at_disp: IsIndex = None):
         """Yields all equations in the Program
 
         Args:
-            at_cmp (IsComponent, optional): Component to search for. Defaults to None.
-            at_disp (IsIndex, optional): Disposition (actually Index) to search for. Defaults to None.
+            at_cmp (IsCmp, optional): Component to search for. Defaults to None.
+            at_disp (IsIndex, optional): Index (actually Index) to search for. Defaults to None.
         """
         for block in self.blocks:
             for eqn in block.eqns(at_cmp=at_cmp, at_disp=at_disp):
@@ -422,7 +425,7 @@ class Program(_Fish, _Block, _Print):
     def fetch(self, element: str) -> list:
         """Fetches input data of a particular type
         Args:
-            element (str): The type of element to fetch parameters, variables, constraints, dispositions
+            element (str): The type of element to fetch parameters, variables, constraints, indices
         """
         return sorted(
             sum(

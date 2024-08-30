@@ -5,7 +5,7 @@ from dataclasses import dataclass, field
 
 from sympy import IndexedBase
 
-from ...indices.enums import VarBnd
+from ...dispositions.enums import VarBnd
 from ..defined.enums import Certainty
 from ._value import _Value
 from .constant import Constant

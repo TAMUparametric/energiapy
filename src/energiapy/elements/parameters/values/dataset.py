@@ -1,28 +1,22 @@
 """DataSet is a deterministic data given to account for temporal variability in parameter.
 """
 
-from __future__ import annotations
-
 from dataclasses import dataclass, field
 from operator import is_
-from typing import TYPE_CHECKING
 
 from pandas import DataFrame
 from sympy import IndexedBase
 
-from ...indices.enums import VarBnd
+from ...dispositions.enums import VarBnd
 from ..defined.enums import Approach, Certainty
 from ._value import _Value
-
-if TYPE_CHECKING:
-    from ...core.aliases.isinp import IsDataFr
 
 
 @dataclass
 class DataSet(_Value):
     """Variable data set"""
 
-    data: IsDataFr = field(default=None)
+    data: DataFrame = field(default=None)
 
     def __post_init__(self):
         _Value.__post_init__(self)
@@ -36,7 +30,8 @@ class DataSet(_Value):
         # will look something like {(0,0): 4, (0,1): 9, (1,0): 2}
         self.data = self.data[self.data.columns[0]].to_dict()
         self.data = {
-            self.disposition.scl.index[i]: self.data[i] for i in range(len(self.data))
+            self.disposition.scl.disposition[i]: self.data[i]
+            for i in range(len(self.data))
         }
 
     @property

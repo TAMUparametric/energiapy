@@ -48,8 +48,17 @@ from ..components.operational.transit import Transit
 from ..components.scope.horizon import Horizon
 from ..components.scope.network import Network
 from ..components.spatial.linkage import Linkage
-from ..core._handy._collections import (_Alys, _Cmds, _Elms, _Imps, _Opns,
-                                        _Scls, _Scps, _Spts, _Vlus)
+from ..core._handy._collections import (
+    _Alys,
+    _Cmds,
+    _Elms,
+    _Imps,
+    _Opns,
+    _Scls,
+    _Scps,
+    _Spts,
+    _Vlus,
+)
 from ..core._handy._dunders import _Dunders
 from ..core._handy._printers import _Print
 from ._scenario._birth import _Birth
@@ -245,10 +254,8 @@ class Scenario(_Ok, _Default, _Birth, _Update, _ScnCols, _Dunders, _Print):
     def eqns(self, at_cmp=None, at_disp=None):
         """Prints all equations in the program
         Args:
-            at_cmp (IsComponent, optional): Component to search for. Defaults to None.
-            at_disp (IsDisposition, optional): Disposition to search for. Defaults to None.
+            at_cmp (IsCmp, optional): Component to search for. Defaults to None.
+            at_disp (IsIndex, optional): Index to search for. Defaults to None.
         """
         for eqn in self.program.eqns(at_cmp=at_cmp, at_disp=at_disp):
             yield eqn
-
-
