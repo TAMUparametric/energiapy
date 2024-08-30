@@ -35,7 +35,7 @@ from ..variables.trade import Buy, Sell, Ship
 from ..variables.use import Use, UseSetUp
 
 if TYPE_CHECKING:
-    from ..core.aliases.is_element import IsConstraint, IsParameter, IsVariable
+    from ..core.aliases.iselm import IsConstraint, IsParameter, IsVariable
 
 
 @dataclass

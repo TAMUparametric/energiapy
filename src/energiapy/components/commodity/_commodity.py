@@ -11,7 +11,7 @@ from ...attrs.exacts import UsedEmnExacts, UsedExpExacts
 from .._base._defined import _Defined
 
 if TYPE_CHECKING:
-    from ...core.aliases.is_component import IsLinkage, IsLocation
+    from ...core.aliases.iscmp import IsLinkage, IsLocation
 
 
 class _Commodity(ABC):

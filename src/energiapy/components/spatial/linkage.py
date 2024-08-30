@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING
 from ._spatial import _Spatial
 
 if TYPE_CHECKING:
-    from ...core.aliases.is_component import IsLinkage, IsLocation
+    from ...core.aliases.iscmp import IsLinkage, IsLocation
 
 
 @dataclass

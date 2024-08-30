@@ -6,7 +6,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from ..aliases.is_component import IsComponent
+    from ..aliases.iscmp import IsComponent
 
 
 class CacodcarError(ValueError):

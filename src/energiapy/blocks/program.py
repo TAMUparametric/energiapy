@@ -16,11 +16,11 @@ from ._block import _Block
 from .data import DataBlock
 
 if TYPE_CHECKING:
-    from ..core.aliases.is_block import (IsDataBlock, IsDisposition,
+    from ..core.aliases.isblk import (IsDataBlock, IsDisposition,
                                          IsProgramBlock)
-    from ..core.aliases.is_component import IsDefined, IsIndex
-    from ..core.aliases.is_element import IsVariable
-    from ..core.aliases.is_value import IsValue
+    from ..core.aliases.iscmp import IsDefined, IsIndex
+    from ..core.aliases.iselm import IsVariable
+    from ..core.aliases.isval import IsValue
 
 
 class _Fish(ABC):

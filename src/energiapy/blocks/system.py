@@ -1,11 +1,8 @@
 """System Model Block represents the Scenario through Components
 """
 
-from __future__ import annotations
-
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, List
-
+from typing import List
 from ..components.analytical.player import Player
 from ..components.commodity.emission import Emission
 from ..components.commodity.material import Material
@@ -16,11 +13,14 @@ from ..components.operational.transit import Transit
 from ..components.spatial.linkage import Linkage
 from ..components.spatial.location import Location
 from ..components.temporal.scale import Scale
-from ._block import _Block
+from ..components.scope.horizon import Horizon
+from ..components.scope.network import Network
+from ..components.commodity.cash import Cash
+from ..components.commodity.land import Land
 
-if TYPE_CHECKING:
-    from ..core.aliases.is_component import (IsCash, IsDefined, IsHorizon,
-                                             IsLand, IsNetwork)
+from ..core.aliases.iscmp import IsDefined
+
+from ._block import _Block
 
 
 @dataclass
@@ -85,7 +85,7 @@ class System(_Block):
         return self._horizon
 
     @horizon.setter
-    def horizon(self, horizon: IsHorizon):
+    def horizon(self, horizon: Horizon):
         """Sets the Horizon of the System"""
         self._horizon = horizon
 
@@ -95,7 +95,7 @@ class System(_Block):
         return self._network
 
     @network.setter
-    def network(self, network: IsNetwork):
+    def network(self, network: Network):
         """Sets the Network of the System"""
         self._network = network
 
@@ -105,7 +105,7 @@ class System(_Block):
         return self._cash
 
     @cash.setter
-    def cash(self, cash: IsCash):
+    def cash(self, cash: Cash):
         """Sets the Cash of the System"""
         self._cash = cash
 
@@ -115,7 +115,7 @@ class System(_Block):
         return self._land
 
     @land.setter
-    def land(self, land: IsLand):
+    def land(self, land: Land):
         """Sets the Land of the System"""
         self._land = land
 
@@ -220,17 +220,15 @@ class System(_Block):
     def sinks(self):
         """Sink Locations of the System"""
         return sorted({i[1] for i in self.pairs})
-    
-    
 
     def fetch(self, cmp: IsDefined) -> List[IsDefined]:
         """Fetches defined Components of a particular class in the System
 
         Args:
-            cmp (IsDefined): Component type
+            cmp (Defined): Component type
 
         Returns:
-            List[IsDefined]: list of defined Components
+            List[Defined]: list of defined Components
         """
         return sorted(
             [

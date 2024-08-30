@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING
 from ...core._handy._dunders import _Dunders
 
 if TYPE_CHECKING:
-    from ...core.aliases.is_block import IsModel
+    from ...core.aliases.isblk import IsModel
 
 
 @dataclass

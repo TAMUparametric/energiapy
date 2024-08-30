@@ -29,9 +29,9 @@ from ..parameters.designators.mode import X
 from ..utils.dictionary import flatten
 
 if TYPE_CHECKING:
-    from ..core.aliases.is_component import IsComponent
-    from ..core.aliases.is_input import IsSptTmpDict
-    from ..core.aliases.is_value import IsValue
+    from ..core.aliases.iscmp import IsComponent
+    from ..core.aliases.isinp import IsSptTmpDict
+    from ..core.aliases.isval import IsValue
 
 
 @dataclass

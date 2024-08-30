@@ -10,8 +10,8 @@ from ..core._handy._dunders import _Dunders
 from ..core.nirop.errors import CacodcarError
 
 if TYPE_CHECKING:
-    from ..core.aliases.is_block import IsDisposition, IsRuleBook
-    from ..core.aliases.is_element import IsElement
+    from ..core.aliases.isblk import IsDisposition, IsRuleBook
+    from ..core.aliases.iselm import IsElement
 
 
 @dataclass

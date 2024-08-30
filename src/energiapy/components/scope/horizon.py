@@ -13,7 +13,7 @@ from ...core.nirop.errors import NoScaleMatchError
 from .._base._scope import _Scope
 
 if TYPE_CHECKING:
-    from ...core.aliases.is_component import IsComponent
+    from ...core.aliases.iscmp import IsComponent
 
 
 @dataclass

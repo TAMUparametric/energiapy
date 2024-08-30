@@ -20,10 +20,10 @@ from ._block import _Block
 from .spttmpinput import SptTmpInp
 
 if TYPE_CHECKING:
-    from ..core.aliases.is_block import IsDisposition
-    from ..core.aliases.is_component import IsDefined
-    from ..core.aliases.is_input import IsBaseInput
-    from ..core.aliases.is_value import IsSpcLmt, IsValue, IsVarBnd
+    from ..core.aliases.isblk import IsDisposition
+    from ..core.aliases.iscmp import IsDefined
+    from ..core.aliases.isinp import IsBaseInput
+    from ..core.aliases.isval import IsSpcLmt, IsValue, IsVarBnd
 
 
 @dataclass

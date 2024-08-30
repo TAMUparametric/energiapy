@@ -46,8 +46,8 @@ from ..variables.trade import Buy, Sell, Ship
 from ..variables.use import Use, UseSetUp
 
 if TYPE_CHECKING:
-    from ..core.aliases.is_component import IsComponent
-    from ..core.aliases.is_variable import IsVariable
+    from ..core.aliases.iscmp import IsComponent
+    from ..core.aliases.isvar import IsVariable
 
 
 class _TskPrint(_Print):

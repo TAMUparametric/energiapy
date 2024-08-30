@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING
 from ._commodity import _Used
 
 if TYPE_CHECKING:
-    from ...core.aliases.is_input import IsBoundInput, IsExactInput
+    from ...core.aliases.isinp import IsBoundInput, IsExactInput
 
 
 @dataclass
