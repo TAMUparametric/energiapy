@@ -1,6 +1,8 @@
 """Aliases for Spatio Temporal (Scope) Components
 """
 
+from typing import TypeAlias
+
 from ....components.scope.spatial.linkage import Linkage
 from ....components.scope.spatial.location import Location
 from ....components.scope.spatial.network import Network
@@ -13,7 +15,7 @@ from ....components.scope.temporal.scale import Scale
 # These halp set the scope of the problem
 # Scales provide the discretization of the Temporal Horizon
 # Linkages provide the spatial connections between Locations
-type IsScp = Horizon | Network
-type IsTmp = Horizon | Scale | X | I
-type IsSpt = Network | Linkage | Location
-type IsSptTmp = IsSpt | IsTmp
+IsScp: TypeAlias = Horizon | Network
+IsTmp: TypeAlias = Horizon | Scale | X | I
+IsSpt: TypeAlias = Network | Linkage | Location
+IsSptTmp: TypeAlias = IsSpt | IsTmp

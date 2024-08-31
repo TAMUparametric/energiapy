@@ -1,8 +1,10 @@
 """Aliases for Program Constraint Elements 
 """
 
+from typing import TypeAlias
+
 from ....elements.constraints.bind import Bind
 from ....elements.constraints.calculate import Calculate
 from ....elements.constraints.sumover import SumOver
 
-type IsCns = Bind | Calculate | SumOver
+IsCns: TypeAlias = Bind | Calculate | SumOver
