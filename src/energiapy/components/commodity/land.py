@@ -1,25 +1,27 @@
 """Land used by Operations
 """
 
-from __future__ import annotations
-
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
 
 from ._commodity import _Used
 
-if TYPE_CHECKING:
-    from ...core.aliases.isinp import IsBoundInput, IsExactInput
+# Associated Program Elements:
+#   BoundParameters - UseBound
+#   Operational Parameters - Usage
+#   Variables (Use) - Use
+#   Variables (Emissions) - EmitUse
+#   Variables (Transactions) - TransactUse
 
 
 @dataclass
 class Land(_Used):
     """Land derived from Operation Capacity
+    Use can cost Cash and emit Emissions
 
     Attributes:
-        use (IsBoundInput): bound for use at some spatiotemporal disposition
-        cost (IsExactInput): cost per a unit basis at some spatiotemporal disposition
-        emission (IsExactInput): emission per unit basis of use
+        use (IsBnd): bound for use at some spatiotemporal disposition
+        use_cost (IsExt): cost per a unit basis at some spatiotemporal disposition
+        use_emission (IsExt): emission per unit basis of use
         basis (str): basis of the component
         citation (dict): citation of the component
         block (str): block of the component

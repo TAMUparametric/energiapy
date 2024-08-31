@@ -1,21 +1,26 @@
 """Poishe, Money 
 """
 
+# Associated Program Elements are:
+#     Bound Parameters - SpdBound, ErnBound
+#     Variables (Transacts) - Spend, Earn
+
+
 from dataclasses import dataclass, fields
 
-from ...attrs.bounds import CshBounds
+from .._attrs._bounds import _CshBounds
 from .._base._defined import _Simple
 from ._commodity import _Commodity
 
 
 @dataclass
-class Cash(CshBounds, _Simple, _Commodity):
+class Cash(_CshBounds, _Simple, _Commodity):
     """Cash is an Asset
     The amount spent or earned at some spatiotemporal dispoqition can be bound
 
     Attributes:
-        spend (IsBoundInput): bound on amount spent
-        earn (IsBoundInput): bound on amount earned
+        spend (IsBnd): bound on spending Cash
+        earn (IsBnd): bound on earning Cash
         basis (str): basis of the component
         citation (dict): citation of the component
         block (str): block of the component
@@ -31,9 +36,9 @@ class Cash(CshBounds, _Simple, _Commodity):
     @staticmethod
     def inputs():
         """Inputs"""
-        return [f.name for f in fields(CshBounds)]
+        return [f.name for f in fields(_CshBounds)]
 
     @property
-    def expenses(self):
-        """Expenses"""
-        return self.taskmaster.report_expenses
+    def transactions(self):
+        """Transacts"""
+        return self.taskmaster.report_transactions

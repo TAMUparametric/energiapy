@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 
 @dataclass
 class Calculate(_Constraint):
-    """Calculates; expenses, emissions, etc."""
+    """Calculates; transactions, emissions, etc."""
 
     varbnd: VarBnd = field(default=None)
     parent: IsVariable = field(default=None)

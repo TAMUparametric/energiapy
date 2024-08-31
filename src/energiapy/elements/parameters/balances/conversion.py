@@ -8,12 +8,12 @@ from functools import reduce
 from operator import or_
 from typing import TYPE_CHECKING
 
-from ...core._handy._dunders import _Reprs
-from ....components.temporal.mode import X
+from ....components.scope.temporal.mode import X
+from ....core._handy._dunders import _Reprs
+from ....core.aliases.inps.isblc import IsCnv
 
 if TYPE_CHECKING:
-    from ...core.aliases.iscmp import IsProcess
-    from ...core.aliases.isinp import IsConvInput
+    from ....components.operation.process import Process
 
 
 @dataclass
@@ -27,17 +27,17 @@ class Conversion(_Reprs):
         conversion (IsConvInput): The conversion process.
         process (IsProcess): The process associated with the conversion.
         base (IsResource): Resource base, generated post initialization.
-        modes (Union[IsNumeric, str]): list of modes, generated post initialization.
+        modes (IsNumeric, str]): list of modes, generated post initialization.
         n_modes (int): The number of modes, generated post initialization.
-        sold (List[IsResource]): Resources discharged, generated post initialization.
-        bought (List[IsResource]): Resources buy, generated post initialization.
+        sold (list[IsResource]): Resources discharged, generated post initialization.
+        bought (list[IsResource]): Resources buy, generated post initialization.
         balance (IsConvBalance): Overall balance attribute generated post initialization.
-        involved (List[IsResource]): The involved attribute generated post initialization.
+        involved (list[IsResource]): The involved attribute generated post initialization.
         name (str): The name attribute generated post initialization.
     """
 
-    conversion: IsConvInput = field(default=None)
-    process: IsProcess = field(default=None)
+    conversion: IsCnv = field(default=None)
+    process: Process = field(default=None)
 
     def __post_init__(self):
 
@@ -56,7 +56,7 @@ class Conversion(_Reprs):
                 }
             }
 
-            # List of Modes, and the Number of Modes
+            # list of Modes, and the Number of Modes
             self.modes = list(self.conversion[self.base])
             self.n_modes = len(self.modes)
 

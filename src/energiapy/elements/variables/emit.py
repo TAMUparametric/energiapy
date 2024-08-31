@@ -13,8 +13,8 @@ from ..components.operational.storage import Storage
 from ..components.operational.transit import Transit
 from ..dispositions.structure import make_structures
 from ._variable import _BoundVar, _ExactVar
-from .capacitate import Capacity
-from .loss import Loss
+from .lose import Lose
+from .setup import Capacity
 from .trade import Buy, Sell
 from .use import Use
 
@@ -101,7 +101,7 @@ class EmitBuy(_EmitTrade):
 
 
 @dataclass
-class EmitSell(_EmitTrade):
+class EmitSll(_EmitTrade):
     """Sell Emit"""
 
     def __post_init__(self):
@@ -119,7 +119,7 @@ class EmitSell(_EmitTrade):
 
 
 @dataclass
-class EmitLoss(_Emit):
+class EmitLss(_Emit):
     """Loss Emit"""
 
     def __post_init__(self):
@@ -128,7 +128,7 @@ class EmitLoss(_Emit):
     @classmethod
     def parent(cls):
         """The Parent Task of the Variable"""
-        return Loss
+        return Lose
 
     @classmethod
     def structures(cls, component):
@@ -183,7 +183,7 @@ class EmitUse(_Emit):
 
 
 @dataclass
-class EmitSetUp(_Emit):
+class EmitStp(_Emit):
     """Operation Capacity related Emit"""
 
     def __post_init__(self):

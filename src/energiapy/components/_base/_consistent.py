@@ -9,30 +9,33 @@ x - operational mode
 use is_not to compare dummy to existing Components (Scale, Location)
 """
 
-from __future__ import annotations
-
 from abc import ABC, abstractmethod
 from operator import is_not
-from typing import TYPE_CHECKING, Any, Union
 from warnings import warn
 
 from pandas import DataFrame
 
 from ...core._handy._enums import _Dummy
+from ...core.aliases.inps.isinp import IsBndInp, IsExtInp, IsInp, IsSptTmp
 from ...core.nirop.errors import InconsistencyError, check_attr
 from ...core.nirop.warnings import InconsistencyWarning
-from ...parameters.designators.mode import X
-from ..scope.network import Network
-from ..spatial._spatial import _Spatial
-from ..temporal.scale import Scale
-
-if TYPE_CHECKING:
-    from ...core.aliases.isinp import IsInput, IsSptTmpDict
+from ..scope.spatial._spatial import _Spatial
+from ..scope.spatial.network import Network
+from ..scope.temporal.mode import X
+from ..scope.temporal.scale import Scale
 
 
 class _Consistent(ABC):
-    """Functions to make the input into a Consistent dictionary
-    to be used to make _SptTmpDict
+    """Functions to make user data input into Datum
+
+    Datum stores data in a consistent format
+        {Spatial Disposition: {Temporal Disposition: {*Mode: value}}}
+
+    Commodity data proivided at Operational Components are in the form:
+        {Commodity: {Spatial Disposition: {Temporal Disposition: {*Mode: value}}}}
+
+    *optional
+
     """
 
     @property
@@ -67,11 +70,11 @@ class _Consistent(ABC):
     def consistent(self, value):
         self._consistent = value
 
-    def upd_dict(self, value: IsInput, level: str) -> dict:
+    def upd_dict(self, value: IsInp, level: str) -> dict:
         """Returns an empty dict with the same keys as the input
 
         Args:
-            value (IsInput): any input
+            value (IsInp): any input
 
         Returns:
             dict: empty dict with same keys as input
@@ -88,12 +91,12 @@ class _Consistent(ABC):
                 for spt, tmp_x_val in value.items()
             }
 
-    def make_spatial(self, value: IsInput) -> dict:
+    def make_spatial(self, value: IsInp) -> dict:
         """adds spatial disposition to input data if not there already
         defaults to Network
 
         Args:
-            value (IsInput): any input
+            value (IsInp): any input
             attr (str): attr for which input is being passed
 
         Returns:
@@ -119,12 +122,12 @@ class _Consistent(ABC):
 
         return value_upd
 
-    def make_temporal(self, value: IsInput) -> dict:
+    def make_temporal(self, value: IsInp) -> dict:
         """adds temporal disposition to input data if not there already
         puts a _Dummy.T temporarily
 
         Args:
-            value (IsInput): any input
+            value (IsInp): any input
 
         Returns:
             dict: Always {Spatial: {Temporal (Scale): Something}}
@@ -147,11 +150,11 @@ class _Consistent(ABC):
 
         return value_upd
 
-    def make_modes(self, value: IsInput, attr: str) -> dict:
+    def make_modes(self, value: IsInp, attr: str) -> dict:
         """Recognizes and creates modes
 
         Args:
-            value (IsInput): any input
+            value (IsInp): any input
             attr (str): attr for which input is being passed
 
         Returns:
@@ -175,8 +178,8 @@ class _Consistent(ABC):
 
     def match_scale(
         self,
-        val: Any,
-        tmp: Union[Scale, _Dummy],
+        val: IsExtInp | IsBndInp,
+        tmp: Scale | _Dummy,
         attr: str,
     ) -> Scale:
         """checks whether a dataframe is given.
@@ -185,7 +188,7 @@ class _Consistent(ABC):
 
         Args:
             val (Any): Any incoming value
-            tmp (Union[Scale, _Dummy]): Temporal disposition
+            tmp (Scale, _Dummy]): Temporal disposition
             attr (str): attr for which input is being passed
         Returns:
             Scale: Updated scale
@@ -312,12 +315,12 @@ class _Consistent(ABC):
         return value_upd
 
     def make_spttmpmde(
-        self, value: IsInput, attr: str, ok_inconsistent: bool
-    ) -> IsSptTmpDict:
+        self, value: IsInp, attr: str, ok_inconsistent: bool
+    ) -> IsSptTmp:
         """Uses all the above functions to make a consistent input
 
         Args:
-            value (IsInput): any Input
+            value (IsInp): any Input
             attr (str): attr for which input is being passed
             fix_bool (bool): whether to fix indices or just warn.
         Returns:
@@ -343,23 +346,23 @@ class _Consistent(ABC):
 
         return spttmpmdeval
 
-    def make_commodity(self, attr: str, value: IsInput) -> dict:
+    def make_commodity(self, attr: str, value: IsInp) -> dict:
         """If exact input is given, checks if commodity is given.
 
         If not sets one for Cash and Land
 
         Args:
             attr (str): attribute being passed
-            value (IsInput): user input
+            value (IsInp): user input
 
         Returns:
             dict: {Commodity: value}
         """
 
-        if attr in self.taskmaster.expenses():
+        if attr in self.taskmaster.transactions():
             value = {self.system.cash: value}
 
-        if attr == 'use_land':
+        if attr == 'land_use':
             value = {self.system.land: value}
 
         return value

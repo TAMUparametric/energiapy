@@ -9,7 +9,7 @@ from src.energiapy.blocks.data import Data, DataBlock
 from src.energiapy.blocks.matrix import Matrix
 from src.energiapy.blocks.model import Model
 from src.energiapy.blocks.program import Program, ProgramBlock
-from src.energiapy.blocks.spttmpinput import SptTmpInp
+from src.energiapy.blocks.spttmpinput import Datum
 from src.energiapy.blocks.system import System
 from src.energiapy.blocks.taskmaster import TaskMaster
 from src.energiapy.components.analytical.player import Player
@@ -18,15 +18,15 @@ from src.energiapy.components.commodity.emission import Emission
 from src.energiapy.components.commodity.land import Land
 from src.energiapy.components.commodity.material import Material
 from src.energiapy.components.commodity.resource import Resource
-from src.energiapy.components.operational.process import Process
-from src.energiapy.components.operational.storage import Storage
-from src.energiapy.components.operational.transit import Transit
+from src.energiapy.components.operation.process import Process
+from src.energiapy.components.operation.storage import Storage
+from src.energiapy.components.operation.transit import Transit
 from src.energiapy.components.scope.horizon import Horizon
-from src.energiapy.components.scope.network import Network
-from src.energiapy.components.spatial.linkage import Linkage
-from src.energiapy.components.spatial.location import Location
+from energiapy.components.scope.spatial.network import Network
+from energiapy.components.scope.spatial.linkage import Linkage
+from energiapy.components.scope.spatial.location import Location
 from src.energiapy.components.temporal.scale import Scale
-from src.energiapy.model.scenario import Scenario
+from src.energiapy.environ.scenario import Scenario
 from src.energiapy.parameters.balances.conversion import Conversion
 from src.energiapy.parameters.balances.freight import Freight
 from src.energiapy.parameters.balances.inventory import Inventory
@@ -65,13 +65,13 @@ from src.energiapy.parameters.balances.inventory import Inventory
 #         buy={scn.loca: {scn.t0: 1}},
 #         sell={scn.locb: {scn.t1: 1}},
 #         ship={scn.lnk: {scn.t0: 1}},
-#         price_buy={scn.loca: {scn.t0: 1}},
-#         price_sell={scn.locb: {scn.t1: 1}},
+#         buy_price={scn.loca: {scn.t0: 1}},
+#         sell_price={scn.locb: {scn.t1: 1}},
 #         credit={scn.loca: {scn.t0: 1}},
 #         penalty={scn.locb: {scn.t1: 1}},
-#         emission_buy={scn.loca: {scn.t0: {scn.emn: 1}}},
-#         emission_sell={scn.locb: {scn.t1: {scn.emn: 1}}},
-#         emission_loss={scn.locb: {scn.t0: {scn.emn: 1}}},
+#         buy_emission={scn.loca: {scn.t0: {scn.emn: 1}}},
+#         sell_emission={scn.locb: {scn.t1: {scn.emn: 1}}},
+#         loss_emission={scn.locb: {scn.t0: {scn.emn: 1}}},
 #     )
 #     scn.res_ = Resource()
 #     scn.pro = Process(conversion={scn.res: {scn.res_: -1}})
@@ -161,8 +161,8 @@ from src.energiapy.parameters.balances.inventory import Inventory
 
 # @pytest.fixture
 # def spttmpinp(scenario):
-#     """SptTmpInp"""
-#     return SptTmpInp()
+#     """Datum"""
+#     return Datum()
 
 
 # @pytest.fixture
@@ -178,6 +178,6 @@ from src.energiapy.parameters.balances.inventory import Inventory
 
 
 # def test_ind_init(spttmpinp, programblock, datablock):
-#     assert isinstance(spttmpinp, SptTmpInp(dict_input={}))
+#     assert isinstance(spttmpinp, Datum(dict_input={}))
 #     assert isinstance(programblock, ProgramBlock)
 #     assert isinstance(datablock, DataBlock)

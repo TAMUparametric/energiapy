@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, List, Tuple
+from typing import TYPE_CHECKING, Tuple, list
 
 from ..core._handy._dunders import _Dunders
 from ..core.nirop.errors import CacodcarError
@@ -40,7 +40,7 @@ class _Variable(_Dunders, ABC):
 
     @classmethod
     @abstractmethod
-    def structures(cls, component) -> List[Tuple[str]]:
+    def structures(cls, component) -> list[Tuple[str]]:
         """The allowed structures of Indexs of the Variable"""
 
     @classmethod

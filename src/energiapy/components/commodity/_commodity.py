@@ -4,18 +4,27 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, fields
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING
 
-from ...attrs.bounds import UsedBounds
-from ...attrs.exacts import UsedEmnExacts, UsedExpExacts
+from .._attrs._bounds import _UsdBounds
+from .._attrs._exacts import _UsdEmnExacts, _UsdExpExacts
 from .._base._defined import _Defined
 
 if TYPE_CHECKING:
-    from ...core.aliases.iscmp import IsLinkage, IsLocation
+    from ..scope.spatial.linkage import Linkage
+    from ..scope.spatial.location import Location
 
 
 class _Commodity(ABC):
-    """Commodities that are Traded"""
+    """Commodities that are:
+
+    Traded (Trade) - Resource
+    Lost (Lose) - Resource
+    Used (Use) - Material, Land
+    Emitted (Emit) - Emission
+    Transacted - Cash
+
+    """
 
     def __post_init__(self):
 
@@ -34,7 +43,7 @@ class _Commodity(ABC):
         return self._locations
 
     @locations.setter
-    def locations(self, locations: List[IsLocation]):
+    def locations(self, locations: list[Location]):
         """Set Locations"""
         self._locations = locations
 
@@ -44,7 +53,7 @@ class _Commodity(ABC):
         return self._linkages
 
     @linkages.setter
-    def linkages(self, linkages: List[IsLinkage]):
+    def linkages(self, linkages: list[Linkage]):
         """Set Linkages"""
         self._linkages = linkages
 
@@ -84,15 +93,15 @@ class _Traded(_Defined, _Commodity, ABC):
 
 
 @dataclass
-class _Used(UsedBounds, UsedExpExacts, UsedEmnExacts, _Traded):
+class _Used(_UsdBounds, _UsdExpExacts, _UsdEmnExacts, _Traded):
     """Applies only for Land and Material
     For now, do not subsume my limitations
     Do whatever you can or want to with energiapy
 
     Attributes:
-        use (IsBoundInput): bound for use at some spatiotemporal disposition
-        cost (IsExactInput): cost per a unit basis at some spatiotemporal disposition
-        emission (IsExactInput): emission per unit basis of use
+        use (IsBnd): bound for use at some spatiotemporal disposition
+        cost (IsExt): cost per a unit basis at some spatiotemporal disposition
+        emission (IsExt): emission per unit basis of use
     """
 
     def __post_init__(self):
@@ -103,5 +112,5 @@ class _Used(UsedBounds, UsedExpExacts, UsedEmnExacts, _Traded):
         """Input attributes"""
         return [
             f.name
-            for f in fields(UsedBounds) + fields(UsedExpExacts) + fields(UsedEmnExacts)
+            for f in fields(_UsdBounds) + fields(_UsdExpExacts) + fields(_UsdEmnExacts)
         ]

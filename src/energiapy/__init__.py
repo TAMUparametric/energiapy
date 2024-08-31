@@ -9,7 +9,7 @@ Attributes:
 
     Exact - is an exact value of some component Task
         The subtypes are:
-            Exp (expenses) - how much Cash is spent or earned 
+            Exp (transactions) - how much Cash is spent or earned 
             Emn (emissions) - amount of Emission released
             Use (use) - is the use of Land or Material
             Lss (losses) - is the loss of Resource

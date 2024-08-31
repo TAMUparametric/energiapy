@@ -6,11 +6,11 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
+from ....core.aliases.inps.isblc import IsBlc
 from ._balance import _Balance
 
 if TYPE_CHECKING:
-    from ...core.aliases.iscmp import IsTransit
-    from ...core.aliases.isinp import IsBalInput
+    from ....components.operation.transit import Transit
 
 
 @dataclass
@@ -18,12 +18,12 @@ class Freight(_Balance):
     """Inventory Balance for Storage
 
     Attributes:
-        freight (IsBalInput): The freight balance.
+        freight (IsBlc): The freight balance.
         storage (IsStorage): The transity component.
     """
 
-    freight: IsBalInput = field(default=None)
-    transit: IsTransit = field(default=None)
+    freight: IsBlc = field(default=None)
+    transit: Transit = field(default=None)
 
     def __post_init__(self):
         _Balance.__post_init__(self)

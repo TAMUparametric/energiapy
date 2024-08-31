@@ -44,7 +44,8 @@ class _LocTrade(_Trade):
         return make_structures(cmd='res', opn='pro', spt=['loc', 'ntw'])
 
 
-#-------------Variables---------------
+# -------------Variables---------------
+
 
 @dataclass
 class Buy(_LocTrade):

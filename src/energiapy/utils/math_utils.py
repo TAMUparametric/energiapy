@@ -116,15 +116,15 @@ def generate_connectivity_matrix(scale_len):
 
 
 def min_max(
-    data: Union[numpy.array, pandas.DataFrame]
-) -> Union[numpy.array, pandas.DataFrame]:
+    data: numpy.array, pandas.DataFrame]
+) -> numpy.array, pandas.DataFrame]:
     """min max for data
 
     Args:
         data (numpy.array): time-series data
 
     Returns:
-        Union[numpy.array, pandas.DataFrame]: min-maxed data array
+        numpy.array, pandas.DataFrame]: min-maxed data array
     """
     min_data = numpy.min(data)
     max_data = numpy.max(data)
@@ -134,15 +134,15 @@ def min_max(
 
 
 def normalize(
-    data: Union[numpy.array, pandas.DataFrame]
-) -> Union[numpy.array, pandas.DataFrame]:
+    data: numpy.array, pandas.DataFrame]
+) -> numpy.array, pandas.DataFrame]:
     """normalizes data
 
     Args:
         data (numpy.array): time-series data
 
     Returns:
-        Union[numpy.array, pandas.DataFrame]: min-maxed data array
+        numpy.array, pandas.DataFrame]: min-maxed data array
     """
     scaler = MinMaxScaler()
     data = numpy.array(data).reshape(-1, 1)

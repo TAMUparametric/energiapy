@@ -4,8 +4,8 @@
 import pytest
 
 from src.energiapy.components.scope.horizon import Horizon
-from src.energiapy.components.scope.network import Network
-from src.energiapy.model.scenario import Scenario
+from energiapy.components.scope.spatial.network import Network
+from src.energiapy.environ.scenario import Scenario
 
 
 @pytest.fixture

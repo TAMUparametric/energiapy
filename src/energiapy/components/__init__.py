@@ -2,6 +2,10 @@
 """
 
 __all__ = [
+    'Horizon',
+    'X',
+    'Network',
+    'Linkage',
     'Player',
     'Cash',
     'Land',
@@ -11,21 +15,19 @@ __all__ = [
     'Process',
     'Storage',
     'Transit',
-    'Horizon',
-    'Network',
-    'Linkage',
 ]
+
+
 from .analytical.player import Player
 from .commodity.cash import Cash
 from .commodity.emission import Emission
 from .commodity.land import Land
 from .commodity.material import Material
 from .commodity.resource import Resource
-from .operational.process import Process
-from .operational.storage import Storage
-from .operational.transit import Transit
-from .scope.horizon import Horizon
-from .scope.network import Network
-from .spatial.linkage import Linkage
-from .spatial.location import Location
-from .temporal.scale import Scale
+from .operation.process import Process
+from .operation.storage import Storage
+from .operation.transit import Transit
+from .scope.spatial.linkage import Linkage
+from .scope.spatial.network import Network
+from .scope.temporal.horizon import Horizon
+from .scope.temporal.mode import X

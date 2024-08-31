@@ -1,4 +1,4 @@
-"""Base Classes for Components
+"""Base Object for all Components
 """
 
 from __future__ import annotations
@@ -9,12 +9,17 @@ from typing import TYPE_CHECKING
 from ...core._handy._dunders import _Dunders
 
 if TYPE_CHECKING:
-    from ...core.aliases.isblk import IsModel
+    from ...environ.model import Model
 
 
 @dataclass
 class _Component(_Dunders):
-    """Base for all Components"""
+    """This is inherited by all Components
+
+    Personalizes the Component based on the attribute name set in Scenario
+
+    Also adds Model and reports individual Blocks of the Model
+    """
 
     def __post_init__(self):
         self.name = None
@@ -58,7 +63,7 @@ class _Component(_Dunders):
 
     @property
     def rulebook(self):
-        """RuleBook of the Scenario"""
+        """Chanakya of the Scenario"""
         return self._model.rulebook
 
     @property
@@ -69,7 +74,7 @@ class _Component(_Dunders):
     def personalize(
         self,
         name: str,
-        model: IsModel,
+        model: Model,
     ):
         """Personalize the compoenent
         give it a name (public),
@@ -77,7 +82,7 @@ class _Component(_Dunders):
 
         Args:
             name (str): name of the component. Given as Scenario attribute
-            model (IsModel): Model with System, Program, Data, Matrix
+            model (IsModel): Model with System, Program, Data, Matrix, TaskMaster, Rulebook, Registrar
         """
         self.name = name
         self._named = True  # update flag

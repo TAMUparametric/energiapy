@@ -10,7 +10,7 @@ __maintainer__ = "Rahul Kakodkar"
 __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
-from typing import List, Tuple, Union
+from typing import Tuple, Union, list
 
 import h5pyd
 import numpy
@@ -19,7 +19,7 @@ from scipy.spatial import cKDTree
 
 
 def fetch_nsrdb_data(
-    attrs: List[str],
+    attrs: list[str],
     year: int,
     lat_lon: Tuple[float] = None,
     state: str = '',
@@ -27,12 +27,12 @@ def fetch_nsrdb_data(
     resolution: str = '',
     get: str = 'max-population',
     save: str = None,
-) -> Union[pandas.DataFrame, tuple]:
+) -> pandas.DataFrame, tuple]:
     """fetches nsrdb data from nearest coordinates (latitude, longitude)
     or from county in a state matching a particular 'get' metric
 
     Args:
-        attrs (List[str]): attributes to fetch ['air_temperature', 'clearsky_dhi', 'clearsky_dni', 'clearsky_ghi', 'cloud_type', 'coordinates', 'dew_point', 'dhi', 'dni', 'fill_flag', 'ghi', 'meta', 'relative_humidity', 'solar_zenith_angle', 'surface_albedo', 'surface_pressure', 'time_index', 'total_precipitable_water', 'wind_direction', 'wind_speed']
+        attrs (list[str]): attributes to fetch ['air_temperature', 'clearsky_dhi', 'clearsky_dni', 'clearsky_ghi', 'cloud_type', 'coordinates', 'dew_point', 'dhi', 'dni', 'fill_flag', 'ghi', 'meta', 'relative_humidity', 'solar_zenith_angle', 'surface_albedo', 'surface_pressure', 'time_index', 'total_precipitable_water', 'wind_direction', 'wind_speed']
         year (int): year of choice, e.g. 2019
         lat_lon (Tuple[float], optional): (latitude, longitude) to fetch closest data point. Defaults to None.
         state (str, optional): capitalized state name, e.g. 'Texas' . Defaults to ''.

@@ -4,9 +4,8 @@ A check is run while declaring (see _Variable)
 
 from collections import OrderedDict
 from itertools import product
-from typing import List, Union
 
-from ..core.nirop.errors import CacodcarError
+from ...core.nirop.errors import CacodcarError
 
 
 def make_structures(
@@ -16,10 +15,10 @@ def make_structures(
     cmd_strict: bool = True,
     ply_strict: bool = False,
     mde: bool = False,
-    cmd: Union[List[str], str] = None,
-    opn: Union[List[str], str] = None,
-    spt: Union[List[str], str] = None,
-) -> List[List[str]]:
+    cmd: list[str] | str = None,
+    opn: list[str] | str = None,
+    spt: list[str] | str = None,
+) -> list[list[str]]:
     """Makes a list of allowed disposition structures
 
     E.g. ['res', 'pro', 'loc', 'scl'] is a valid structure for
@@ -35,12 +34,12 @@ def make_structures(
         cmd_strict (bool): If variable has to be declared strictly for Commodity
         ply_strict (bool): If variable has to be declared strictly for Player
         mde (bool): If True, the Variable can have Modes
-        cmd (Union[List[str], str]): What commodities can this variable be declare for
-        opn (Union[List[str], str]): What operations can this variable be declared for
-        spt (Union[List[str], str]): What spatial disposition can this variable be declared for
+        cmd (list[str], str]): What commodities can this variable be declare for
+        opn (list[str], str]): What operations can this variable be declared for
+        spt (list[str], str]): What spatial disposition can this variable be declared for
 
     Returns:
-        List[List[str]]: List of allowed disposition structures.
+        list[list[str]]: list of allowed disposition structures.
     """
 
     # Order is important, follows that of disposition

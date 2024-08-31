@@ -1,26 +1,33 @@
-"""Player is a class that represents a player in the Scenario
+"""Player acts based on information 
 """
+
+# Associated Program Elements are:
+#     Bound Parameters - Has, Needs
+#     Variables (Actions) - Gives, Takes
+
 
 from dataclasses import dataclass, fields
 
-from ...attrs.bounds import PlyBounds
+from .._attrs._bounds import _PlyBounds
 from .._base._defined import _Simple
 
 
 @dataclass
-class Player(PlyBounds, _Simple):
-    """A Player in the Scenario
+class Player(_PlyBounds, _Simple):
+    """Player represents a decision maker in the Scenario
+
+    A Player has ownership of some Commodities which they give
+    They can also gain ownership of some Commodities which they take
 
     Attributes:
-        has (IsBoundInput): how much of particular commodity the player has
-        needs (IsBoundInput): how much of particular commodity the player needs
+        has (IsBnd): what a Player has
+        needs (IsBnd): what a Player needs
         basis (str): basis of the component
         citation (dict): citation of the component
         block (str): block of the component
         introduce (str): index in scale when the component is introduced
         retire (str): index in scale when the component is retired
         label (str): label of the component
-
     """
 
     def __post_init__(self):
@@ -29,5 +36,4 @@ class Player(PlyBounds, _Simple):
     @staticmethod
     def inputs():
         """Inputs"""
-        return [f.name for f in fields(PlyBounds)]
-
+        return [f.name for f in fields(_PlyBounds)]

@@ -12,7 +12,7 @@ from ..components.operational.storage import Storage
 from ..components.operational.transit import Transit
 from ..dispositions.structure import make_structures
 from ._variable import _BoundVar, _ExactVar
-from .capacitate import Capacity
+from .setup import Capacity
 
 
 @dataclass
