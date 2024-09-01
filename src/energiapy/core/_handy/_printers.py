@@ -28,3 +28,16 @@ class _Print(ABC):
         """Returns the latex"""
         for eq in self.eqns():
             display(latex(eq, mul_symbol='dot'))
+
+
+class _EasyPrint(_Print):
+    """Printing functions with a straightforward setup
+
+    Basically the object has an attribute called constraints
+    and you want to print the equations in these constraints
+    """
+
+    def eqns(self):
+        """Prints all equations in Constraints"""
+        for constraint in getattr(self, 'constraints'):
+            yield constraint.equation

@@ -9,9 +9,11 @@ from ...core._report._prog import _Elms
 from ._component import _Component
 from ._consistent import _Consistent
 
+from ...core._handy._printers import _EasyPrint
+
 
 @dataclass
-class _Defined(_Component, _Consistent, _Vlus, _Elms, _Print):
+class _Defined(_Component, _Consistent, _Vlus, _Elms, _EasyPrint):
     """If the component is defined by user, it should inherit from this class
 
     Attributes:
@@ -32,12 +34,6 @@ class _Defined(_Component, _Consistent, _Vlus, _Elms, _Print):
 
     def __post_init__(self):
         _Component.__post_init__(self)
-        # flag to see if the inputs have been made consistent
-
-    def eqns(self):
-        """Prints all equations in the ProgramBlock"""
-        for constraint in self.constraints:
-            yield constraint.equation
 
 
 @dataclass

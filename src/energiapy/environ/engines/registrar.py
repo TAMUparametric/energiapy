@@ -16,7 +16,7 @@ class ChitraGupta(_Dunders):
 
     Attributes:
         name (str): name, takes from the name of the Scenario
-        rulebook: IsBhaskara = field(default_factory=rulebook)
+        rulebook: Bhaskara = field(default_factory=rulebook)
 
     """
 
@@ -37,8 +37,8 @@ class ChitraGupta(_Dunders):
         """Register that a Variable or Parameter has been declared at a particular Index
 
         Args:
-            elm (IsElm): Element to add to the ChitraGupta
-            index (Index): Rule to add to the ChitraGupta
+            elm (IsElm): Element to update
+            index (Index): with this Index
         """
 
         # Only unique instances of indices are allowed

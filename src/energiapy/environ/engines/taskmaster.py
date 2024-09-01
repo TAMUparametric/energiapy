@@ -13,13 +13,25 @@ Task:
 
 from dataclasses import asdict, dataclass, field, fields
 
-from ...components._attrs._balances import (_ProBalance, _StgBalance,
-                                            _TrnBalance)
-from ...components._attrs._bounds import (_CshBounds, _EmnBounds, _OpnBounds,
-                                          _PlyBounds, _ProBounds, _ResBounds,
-                                          _StgBounds, _TrnBounds, _UsdBounds)
-from ...components._attrs._exacts import (_EmnExacts, _LseExacts, _RteExacts,
-                                          _TscExacts, _UseExacts)
+from ...components._attrs._balances import _ProBalance, _StgBalance, _TrnBalance
+from ...components._attrs._bounds import (
+    _CshBounds,
+    _EmnBounds,
+    _OpnBounds,
+    _PlyBounds,
+    _ProBounds,
+    _ResBounds,
+    _StgBounds,
+    _TrnBounds,
+    _UsdBounds,
+)
+from ...components._attrs._exacts import (
+    _EmnExacts,
+    _LseExacts,
+    _RteExacts,
+    _TscExacts,
+    _UseExacts,
+)
 from ...components.analytical.player import Player
 from ...components.commodity.cash import Cash
 from ...components.commodity.emission import Emission
@@ -30,83 +42,30 @@ from ...components.operation.process import Process
 from ...components.operation.storage import Storage
 from ...components.operation.transit import Transit
 from ...core._handy._dunders import _Dunders
-from ...core._handy._printers import _Print
-from ...core.isalias.cmps.isdfn import IsDfn
-from ...core.isalias.elms.isvar import IsVar
+
 from ...elements.variables.act import Give, Take
-from ...elements.variables.emit import (Emit, EmitBuy, EmitLse, EmitSll,
-                                        EmitStp, EmitUse)
+from ...elements.variables.emit import Emit, EmitBuy, EmitLse, EmitSll, EmitStp, EmitUse
 from ...elements.variables.lose import Lose
 from ...elements.variables.operate import Operate
 from ...elements.variables.setup import Capacitate
 from ...elements.variables.trade import Buy, Sell, Ship
-from ...elements.variables.transact import (Earn, Spend, TransactBuy,
-                                            TransactCrd, TransactOpr,
-                                            TransactOprI, TransactPnt,
-                                            TransactSll, TransactStp,
-                                            TransactStpI, TransactUse)
+from ...elements.variables.transact import (
+    Earn,
+    Spend,
+    TransactBuy,
+    TransactCrd,
+    TransactOpr,
+    TransactOprI,
+    TransactPnt,
+    TransactSll,
+    TransactStp,
+    TransactStpI,
+    TransactUse,
+)
 from ...elements.variables.use import Use, UseStp
 
-
-class _TskPrint(_Print):
-    """Prints Task"""
-
-    def eqns(self):
-        """Prints all equations in the ProgramBlock"""
-        for constraint in getattr(self, 'constraints'):
-            yield constraint.equation
-
-
-@dataclass
-class Task(_Dunders, _TskPrint):
-    """Task
-    Handles the attributes of components
-    Defines strict behaviour
-
-    Attributes:
-        attr (str): attr associated with Task
-        root (list[IsDfn]): list of Components where the attribute can be declared
-        other (list[IsDfn]): list of Incongruent Components where the Component attribute can be declared
-        var (IsVar): Task Variable
-        var_i (IsVar): Incidental Task Variable
-    """
-
-    attr: str = field(default=None)
-    root: list[IsDfn] = field(default_factory=list)
-    other: list[IsDfn] = field(default_factory=list)
-    var: IsVar = field(default=None)
-    var_i: IsVar = field(default=None)
-
-    def __post_init__(self):
-        self.name = f'Task|{self.attr}|'
-        # Elements associated with the attribute
-        self.values = []
-        self.parameters = []
-        self.constraints = []
-        self.variables = []
-        self.indices = []
-
-
-@dataclass
-class Report(_Dunders, _TskPrint):
-    """Task is a collection of Tasks
-
-    Taskibutes:
-        name (str): The name of the attribute collection
-        tasks (list[Task]): list of TaskBlocks that the collection consists of
-    """
-
-    name: str = field(default=None)
-    tasks: list[Task] = field(default_factory=list)
-
-    def __post_init__(self):
-        self.name = f'Report|{self.name}|'
-        # Report associated with the attribute
-        self.values = sum([attr.values for attr in self.tasks], [])
-        self.parameters = sum([attr.parameters for attr in self.tasks], [])
-        self.indices = sum([attr.indices for attr in self.tasks], [])
-        self.constraints = sum([attr.constraints for attr in self.tasks], [])
-        self.variables = sum([attr.variables for attr in self.tasks], [])
+from .task import Task
+from .report import Report
 
 
 @dataclass
