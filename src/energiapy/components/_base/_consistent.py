@@ -284,7 +284,7 @@ class _Consistent(ABC):
         for spt, tmpmdeval in spttmpmdeval.items():
             for tmp in tmpmdeval.keys():
                 if tmp == _Dummy.T:
-                    value_upd[spt][self.system.scales[0]] = spttmpmdeval[spt][tmp]
+                    value_upd[spt][self.system.horizon.root] = spttmpmdeval[spt][tmp]
                     del value_upd[spt][_Dummy.T]
                 else:
                     value_upd[spt][tmp] = spttmpmdeval[spt][tmp]

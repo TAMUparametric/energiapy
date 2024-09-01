@@ -132,6 +132,11 @@ class Horizon(_Scope, _Scls):
         else:
             return False
 
+    @property
+    def root(self):
+        """Returns the root scale"""
+        return self.scales[0]
+
     def make_index(self, position: int, nested: bool = True):
         """makes an index for Scale"""
         if nested:
