@@ -3,8 +3,7 @@
 
 from dataclasses import dataclass, field
 
-from ....core._report._syst import (_Cmds, _LnkOpns, _LocOpns,
-                                          _Scls, _Spts)
+from ....core._report._syst import _Cmds, _LnkOpns, _LocOpns, _Scls, _Spts
 from ..._base._scope import _Scope
 
 

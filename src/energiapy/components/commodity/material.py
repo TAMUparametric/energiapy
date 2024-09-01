@@ -3,7 +3,7 @@
 
 from dataclasses import dataclass
 
-from ._commodity import _Used
+from ._used import _Used
 
 # Associated Program Elements:
 #   BoundParameters - UseBound

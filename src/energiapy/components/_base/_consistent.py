@@ -15,7 +15,6 @@ from warnings import warn
 
 from pandas import DataFrame
 
-from ._dummy import _Dummy
 from ...core.isalias.inps.isinp import IsBndInp, IsExtInp, IsInp, IsSptTmp
 from ...core.nirop.errors import InconsistencyError, check_attr
 from ...core.nirop.warnings import InconsistencyWarning
@@ -23,6 +22,7 @@ from ..scope.spatial._spatial import _Spatial
 from ..scope.spatial.network import Network
 from ..scope.temporal.mode import X
 from ..scope.temporal.scale import Scale
+from ._dummy import _Dummy
 
 
 class _Consistent(ABC):
@@ -239,7 +239,7 @@ class _Consistent(ABC):
 
         return value_upd
 
-    def replace_dummy_n(self, spttmpmdeval: dict, attr: str) -> dict:
+    def spatialize(self, spttmpmdeval: dict, attr: str) -> dict:
         """Replaces the dummy N in the input
 
         Args:
@@ -270,7 +270,7 @@ class _Consistent(ABC):
 
         return value_upd
 
-    def replace_dummy_t(self, spttmpmdeval: dict) -> dict:
+    def temporalize(self, spttmpmdeval: dict) -> dict:
         """Replaces the dummy T in the input
 
         Args:
@@ -291,7 +291,7 @@ class _Consistent(ABC):
 
         return value_upd
 
-    def replace_dummy_x(self, spttmpmdeval: dict) -> dict:
+    def modize(self, spttmpmdeval: dict) -> dict:
         """Replaces the dummy X in the input
 
         Args:
@@ -340,8 +340,8 @@ class _Consistent(ABC):
         spttmpmdeval = self.fix_temporal(spttmpmdeval, attr, ok_inconsistent)
 
         # The dummy values are replaced with actual values
-        spttmpmdeval = self.replace_dummy_x(
-            self.replace_dummy_t(self.replace_dummy_n(spttmpmdeval, attr))
+        spttmpmdeval = self.modize(
+            self.temporalize(self.spatialize(spttmpmdeval, attr))
         )
 
         return spttmpmdeval

@@ -22,6 +22,7 @@ __all__ = [
 ]
 
 
+from ..core.isalias.inps.isinp import IsBnd, IsExt, IsInc
 from .analytical.player import Player
 from .commodity.cash import Cash
 from .commodity.emission import Emission
@@ -34,7 +35,5 @@ from .operation.transit import Transit
 from .scope.spatial.linkage import Linkage
 from .scope.spatial.network import Network
 from .scope.temporal.horizon import Horizon
-from .scope.temporal.mode import X
 from .scope.temporal.incidental import I
-
-from ..core.isalias.inps.isinp import IsBnd, IsExt, IsInc
+from .scope.temporal.mode import X

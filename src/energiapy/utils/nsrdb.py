@@ -1,8 +1,8 @@
 """Fetch data from NREL's NSRDB database
 """
 
-from numpy import array, average
 import h5pyd
+from numpy import array, average
 from pandas import DataFrame, to_datetime
 from scipy.spatial import cKDTree
 

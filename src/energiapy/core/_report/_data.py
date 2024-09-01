@@ -3,6 +3,7 @@
 
 from abc import ABC, abstractmethod
 
+
 class _Vlus(ABC):
     """Values of Parameters"""
 

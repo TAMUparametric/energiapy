@@ -13,25 +13,13 @@ Task:
 
 from dataclasses import asdict, dataclass, field, fields
 
-from ...components._attrs._balances import _ProBalance, _StgBalance, _TrnBalance
-from ...components._attrs._bounds import (
-    _CshBounds,
-    _EmnBounds,
-    _OpnBounds,
-    _PlyBounds,
-    _ProBounds,
-    _ResBounds,
-    _StgBounds,
-    _TrnBounds,
-    _UsdBounds,
-)
-from ...components._attrs._exacts import (
-    _EmnExacts,
-    _LseExacts,
-    _RteExacts,
-    _TscExacts,
-    _UseExacts,
-)
+from ...components._attrs._balances import (_ProBalance, _StgBalance,
+                                            _TrnBalance)
+from ...components._attrs._bounds import (_CshBounds, _EmnBounds, _OpnBounds,
+                                          _PlyBounds, _ProBounds, _ResBounds,
+                                          _StgBounds, _TrnBounds, _UsdBounds)
+from ...components._attrs._exacts import (_EmnExacts, _LseExacts, _RteExacts,
+                                          _TscExacts, _UseExacts)
 from ...components.analytical.player import Player
 from ...components.commodity.cash import Cash
 from ...components.commodity.emission import Emission
@@ -46,24 +34,17 @@ from ...core._handy._printers import _Print
 from ...core.isalias.cmps.isdfn import IsDfn
 from ...core.isalias.elms.isvar import IsVar
 from ...elements.variables.act import Give, Take
-from ...elements.variables.emit import Emit, EmitBuy, EmitLse, EmitSll, EmitStp, EmitUse
+from ...elements.variables.emit import (Emit, EmitBuy, EmitLse, EmitSll,
+                                        EmitStp, EmitUse)
 from ...elements.variables.lose import Lose
 from ...elements.variables.operate import Operate
 from ...elements.variables.setup import Capacitate
 from ...elements.variables.trade import Buy, Sell, Ship
-from ...elements.variables.transact import (
-    Earn,
-    Spend,
-    TransactBuy,
-    TransactCrd,
-    TransactOpr,
-    TransactOprI,
-    TransactPnt,
-    TransactSll,
-    TransactStp,
-    TransactStpI,
-    TransactUse,
-)
+from ...elements.variables.transact import (Earn, Spend, TransactBuy,
+                                            TransactCrd, TransactOpr,
+                                            TransactOprI, TransactPnt,
+                                            TransactSll, TransactStp,
+                                            TransactStpI, TransactUse)
 from ...elements.variables.use import Use, UseStp
 
 
@@ -88,8 +69,6 @@ class Task(_Dunders, _TskPrint):
         other (list[IsDfn]): list of Incongruent Components where the Component attribute can be declared
         var (IsVar): Task Variable
         var_i (IsVar): Incidental Task Variable
-        spt (list[IsSpt]): list of Spatial Components where the attribute can be declared
-
     """
 
     attr: str = field(default=None)

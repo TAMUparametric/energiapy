@@ -1,14 +1,10 @@
-"""Base for Commodity Component"""
+"""Base for any Commodity Component
+"""
 
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from dataclasses import dataclass, fields
 from typing import TYPE_CHECKING
-
-from .._attrs._bounds import _UsdBounds
-from .._attrs._exacts import _UsdEmnExacts, _UsdTscExacts
-from .._base._defined import _Defined
 
 if TYPE_CHECKING:
     from ..scope.spatial.linkage import Linkage
@@ -76,41 +72,3 @@ class _Commodity(ABC):
     def is_located(self):
         """Is located"""
         return self._located
-
-
-@dataclass
-class _Traded(_Defined, _Commodity, ABC):
-    """Applied for Land, Material and Resource"""
-
-    def __post_init__(self):
-        _Defined.__post_init__(self)
-        _Commodity.__post_init__(self)
-
-    @staticmethod
-    @abstractmethod
-    def inputs():
-        """Input Attributes"""
-
-
-@dataclass
-class _Used(_UsdBounds, _UsdTscExacts, _UsdEmnExacts, _Traded):
-    """Applies only for Land and Material
-    For now, do not subsume my limitations
-    Do whatever you can or want to with energiapy
-
-    Attributes:
-        use (IsBnd): bound for use at some spatiotemporal disposition
-        cost (IsExt): cost per a unit basis at some spatiotemporal disposition
-        emission (IsExt): emission per unit basis of use
-    """
-
-    def __post_init__(self):
-        _Traded.__post_init__(self)
-
-    @staticmethod
-    def inputs():
-        """Input attributes"""
-        return [
-            f.name
-            for f in fields(_UsdBounds) + fields(_UsdTscExacts) + fields(_UsdEmnExacts)
-        ]

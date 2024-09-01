@@ -9,7 +9,7 @@ from dataclasses import dataclass, fields
 
 from .._attrs._bounds import _ResBounds
 from .._attrs._exacts import _ResEmnExacts, _ResTscExacts
-from ._commodity import _Traded
+from ._traded import _Traded
 
 # Associated Program Elements are:
 #    Bound Parameters - BuyBound, SellBound, ShipBound
