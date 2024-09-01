@@ -5,8 +5,8 @@ from dataclasses import dataclass, field
 from itertools import product
 from operator import imod, is_
 
-from ....core._handy._collections import _Scls
-from ....core.aliases.cmps.isdfn import IsDfn
+from ....core._report._syst import _Scls
+from ....core.isalias.cmps.isdfn import IsDfn
 from ....core.nirop.errors import NoScaleMatchError
 from ..._base._scope import _Scope
 

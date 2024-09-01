@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING
 
 from ....components.scope.temporal.mode import X
 from ....core._handy._dunders import _Reprs
-from ....core.aliases.inps.isblc import IsCnv
+from ....core.isalias.inps.isblc import IsCnv
 
 if TYPE_CHECKING:
     from ....components.operation.process import Process

@@ -44,8 +44,8 @@ from ...components.operation.storage import Storage
 from ...components.operation.transit import Transit
 from ...core._handy._dunders import _Dunders
 from ...core._handy._printers import _Print
-from ...core.aliases.cmps.isdfn import IsDfn
-from ...core.aliases.elms.isvar import IsVar
+from ...core.isalias.cmps.isdfn import IsDfn
+from ...core.isalias.elms.isvar import IsVar
 from ...elements.variables.act import Give, Take
 from ...elements.variables.emit import Emit, EmitBuy, EmitLse, EmitSll, EmitStp, EmitUse
 from ...elements.variables.lose import Lose

@@ -3,7 +3,7 @@
 
 from dataclasses import dataclass, field
 
-from ...core.aliases.inps.isinp import IsBnd
+from ...core.isalias.inps.isinp import IsBnd
 
 
 @dataclass

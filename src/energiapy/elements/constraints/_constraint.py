@@ -6,8 +6,8 @@ from dataclasses import dataclass, field
 from sympy import IndexedBase, Mul, Rel
 
 from ...core._handy._dunders import _Dunders
-from ...core.aliases.elms.isprm import IsPrm
-from ...core.aliases.elms.isvar import IsVar
+from ...core.isalias.elms.isprm import IsPrm
+from ...core.isalias.elms.isvar import IsVar
 
 
 @dataclass

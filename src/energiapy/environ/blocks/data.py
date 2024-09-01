@@ -7,9 +7,9 @@ from pandas import DataFrame
 
 from ...components.scope.temporal.incidental import I
 from ...core._handy._dunders import _Dunders
-from ...core.aliases.cmps.isdfn import IsDfn
-from ...core.aliases.elms.isval import IsVal
-from ...core.aliases.inps.isinp import IsInp
+from ...core.isalias.cmps.isdfn import IsDfn
+from ...core.isalias.elms.isval import IsVal
+from ...core.isalias.inps.isinp import IsInp
 from ...core.nirop.errors import InputTypeError
 from ...elements.disposition.bound import SpcLmt, VarBnd
 from ...elements.disposition.index import Index

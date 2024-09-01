@@ -8,10 +8,10 @@ from dataclasses import dataclass, field
 
 from ...core._handy._dunders import _Dunders
 from ...core._handy._printers import _Print
-from ...core.aliases.cmps.iscmp import IsDsp
-from ...core.aliases.cmps.isdfn import IsDfn
-from ...core.aliases.elms.isval import IsVal
-from ...core.aliases.elms.isvar import IsVar
+from ...core.isalias.cmps.iscmp import IsDsp
+from ...core.isalias.cmps.isdfn import IsDfn
+from ...core.isalias.elms.isval import IsVal
+from ...core.isalias.elms.isvar import IsVar
 from ...core.nirop.errors import CacodcarError
 from ...elements.disposition.index import Index
 from ._block import _Block

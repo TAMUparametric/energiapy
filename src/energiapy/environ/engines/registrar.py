@@ -4,7 +4,7 @@
 from dataclasses import dataclass, field
 
 from ...core._handy._dunders import _Dunders
-from ...core.aliases.elms.iselm import IsElm
+from ...core.isalias.elms.iselm import IsElm
 from ...core.nirop.errors import CacodcarError
 from ...elements.disposition.index import Index
 from .rulebook import Bhaskara

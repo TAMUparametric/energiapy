@@ -6,7 +6,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from ..aliases.cmps.iscmp import IsCmp
+    from ..isalias.cmps.iscmp import IsCmp
 
 
 class CacodcarError(ValueError):

@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING
 from sympy import IndexedBase
 
 from ...core._handy._dunders import _Dunders
-from ...core.aliases.cmps.isdfn import IsDfn
+from ...core.isalias.cmps.isdfn import IsDfn
 from ...core.nirop.errors import CacodcarError
 
 if TYPE_CHECKING:

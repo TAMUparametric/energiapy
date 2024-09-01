@@ -21,10 +21,10 @@ from ..components.scope.temporal.incidental import I
 from ..components.scope.temporal.mode import X
 from ..components.scope.temporal.scale import Scale
 from ..core._handy._dunders import _Dunders
-from ..core.aliases.cmps.iscmp import IsDsp
-from ..core.aliases.cmps.isdfn import IsDfn
-from ..core.aliases.elms.isval import IsVal
-from ..core.aliases.inps.isinp import IsBndInp, IsExtInp, IsIncInp, IsSptTmp
+from ..core.isalias.cmps.iscmp import IsDsp
+from ..core.isalias.cmps.isdfn import IsDfn
+from ..core.isalias.elms.isval import IsVal
+from ..core.isalias.inps.isinp import IsBndInp, IsExtInp, IsIncInp, IsSptTmp
 from ..core.nirop.errors import InputTypeError
 from ..elements.disposition.index import Index
 from ..utils.dictionary import flatten

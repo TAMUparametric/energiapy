@@ -5,9 +5,9 @@ from dataclasses import dataclass, field
 from operator import is_
 
 from ...core._handy._dunders import _Dunders
-from ...core.aliases.elms.iscns import IsCns
-from ...core.aliases.elms.isprm import IsPrm
-from ...core.aliases.elms.isvar import IsVar
+from ...core.isalias.elms.iscns import IsCns
+from ...core.isalias.elms.isprm import IsPrm
+from ...core.isalias.elms.isvar import IsVar
 from ...core.nirop.errors import CacodcarError
 from ...elements.constraints.bind import Bind
 from ...elements.constraints.calculate import Calculate

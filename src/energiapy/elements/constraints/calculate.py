@@ -2,8 +2,8 @@
 
 from dataclasses import dataclass, field
 
-from ...core.aliases.elms.isprm import IsPrm
-from ...core.aliases.elms.isvar import IsVar
+from ...core.isalias.elms.isprm import IsPrm
+from ...core.isalias.elms.isvar import IsVar
 from ..disposition.bound import VarBnd
 from ._constraint import _Constraint
 

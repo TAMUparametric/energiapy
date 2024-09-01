@@ -11,7 +11,7 @@ from sympy import IndexedBase
 from ._value import _Value
 
 if TYPE_CHECKING:
-    from ...core.aliases.inps.isinp import IsNum
+    from ...core.isalias.inps.isinp import IsNum
 
 
 @dataclass

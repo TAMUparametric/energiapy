@@ -5,7 +5,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 
 from ...core._handy._dunders import _Dunders
-from ...core.aliases.elms.isval import IsVal
+from ...core.isalias.elms.isval import IsVal
 
 
 @dataclass

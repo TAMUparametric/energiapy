@@ -3,12 +3,12 @@
 
 from dataclasses import dataclass, field
 
-from ....core._handy._collections import (_Cmds, _Imps, _LnkOpns, _LocOpns,
+from ....core._report._syst import (_Cmds, _LnkOpns, _LocOpns,
                                           _Scls, _Spts)
 from ..._base._scope import _Scope
 
 
-class _NtwCols(_Cmds, _Imps, _LocOpns, _LnkOpns, _Spts, _Scls):
+class _NtwCols(_Cmds, _LocOpns, _LnkOpns, _Spts, _Scls):
     """Network Collections"""
 
 

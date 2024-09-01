@@ -32,7 +32,6 @@
     The Matrix Model is just a matrix representation of the problem block
 """
 
-from abc import ABCMeta
 from dataclasses import dataclass, field
 
 from ..components._base._component import _Component
@@ -47,17 +46,9 @@ from ..components.operation.transit import Transit
 from ..components.scope.spatial.linkage import Linkage
 from ..components.scope.spatial.network import Network
 from ..components.scope.temporal.horizon import Horizon
-from ..core._handy._collections import (
-    _Alys,
-    _Cmds,
-    _Elms,
-    _Imps,
-    _Opns,
-    _Scls,
-    _Scps,
-    _Spts,
-    _Vlus,
-)
+from ..core._report._syst import _Cmps
+from ..core._report._prog import _Elms
+from ..core._report._data import _Vlus
 from ..core._handy._dunders import _Dunders
 from ..core._handy._printers import _Print
 from ._scenario._birth import _Birth
@@ -67,7 +58,7 @@ from ._scenario._update import _Update
 from .model import Model
 
 
-class _ScnCols(_Alys, _Imps, _Cmds, _Opns, _Spts, _Scls, _Scps, _Elms, _Vlus):
+class _ScnCols(_Cmps, _Elms, _Vlus):
     """Scenario Collections"""
 
 

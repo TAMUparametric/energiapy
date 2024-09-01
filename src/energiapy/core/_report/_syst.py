@@ -1,4 +1,4 @@
-"""Collections of properties to report units of Modeling Blocks
+"""Properties to report System Modeling Block Components
 """
 
 from abc import ABC, abstractmethod
@@ -11,6 +11,14 @@ class _Sys(ABC):
     @abstractmethod
     def system(self):
         """System"""
+
+
+class _Alys(_Sys):
+    
+    @property
+    def players(self):
+        """Players of the System"""
+        return self.system.players
 
 
 class _Cmds(_Sys):
@@ -46,6 +54,11 @@ class _Cmds(_Sys):
         return self.system.materials
 
     @property
+    def emissions(self):
+        """Emissions of the System"""
+        return self.system.emissions
+
+    @property
     def commodities(self):
         """Commodities of the System"""
         return self.system.commodities
@@ -64,24 +77,6 @@ class _Scps(_Sys):
         return self.system.network
 
 
-class _Alys(_Sys):
-    @property
-    def players(self):
-        """Players of the System"""
-        return self.system.players
-
-
-class _Imps(_Sys):
-
-    @property
-    def emissions(self):
-        """Emissions of the System"""
-        return self.system.emissions
-
-
-# TODO - Block 5
-
-
 class _LocOpns(_Sys):
     """Operations found at Location"""
 
@@ -94,9 +89,6 @@ class _LocOpns(_Sys):
     def storages(self):
         """Storage Operations of the System"""
         return self.system.storages
-
-
-# TODO - Block 6
 
 
 class _LnkOpns(_Sys):
@@ -115,9 +107,6 @@ class _Opns(_LocOpns, _LnkOpns):
     def operations(self):
         """Operations of the System"""
         return self.system.operations
-
-
-# TODO - BLOCK 3
 
 
 class _Spts(_Sys):
@@ -164,9 +153,6 @@ class _Spts(_Sys):
         return self.system.spatials
 
 
-# TODO - Block 7
-
-
 class _Scls(_Sys):
     """Scale"""
 
@@ -176,78 +162,5 @@ class _Scls(_Sys):
         return self.system.scales
 
 
-class _Prog(ABC):
-    """Program"""
-
-    @property
-    @abstractmethod
-    def program(self):
-        """Program"""
-
-
-# TODO - BLOCK 1
-
-
-class _Elms(_Prog):
-    """Program Elements"""
-
-    @property
-    def constraints(self):
-        """All Constraints in the Program"""
-        return self.program.constraints
-
-    @property
-    def variables(self):
-        """All Variables in the Program"""
-        return self.program.variables
-
-    @property
-    def parameters(self):
-        """All Parameters in the Program"""
-        return self.program.parameters
-
-    @property
-    def indices(self):
-        """All Indexs in the Program"""
-        return self.program.indices
-
-
-class _Dt(ABC):
-    """Data"""
-
-    @property
-    @abstractmethod
-    def data(self):
-        """Data"""
-
-
-# TODO - BLOCK 2
-
-
-class _Vlus(_Dt):
-    """Values of Parameters"""
-
-    @property
-    def constants(self):
-        """All Constants in the Data"""
-        return self.data.constants
-
-    @property
-    def datasets(self):
-        """All Datasets in the Data"""
-        return self.data.datasets
-
-    @property
-    def thetas(self):
-        """All Thetas in the Data"""
-        return self.data.thetas
-
-    @property
-    def ms(self):
-        """All M in the Data"""
-        return self.data.ms
-
-    @property
-    def data_all(self):
-        """All Data in the Data"""
-        return self.data.all
+class _Cmps(_Alys, _Cmds, _Scps, _Opns, _Spts, _Scls):
+    """Components"""

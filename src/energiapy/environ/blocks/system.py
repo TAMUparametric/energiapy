@@ -17,7 +17,7 @@ from ...components.scope.spatial.location import Location
 from ...components.scope.spatial.network import Network
 from ...components.scope.temporal.horizon import Horizon
 from ...components.scope.temporal.scale import Scale
-from ...core.aliases.cmps.isdfn import IsDfn
+from ...core.isalias.cmps.isdfn import IsDfn
 from ._block import _Block
 
 

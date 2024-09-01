@@ -20,7 +20,7 @@ from ...components.scope.spatial.network import Network
 from ...components.scope.temporal.mode import X
 from ...components.scope.temporal.scale import Scale
 from ...core._handy._dunders import _Dunders
-from ...core.aliases.cmps.iscmp import IsCmp
+from ...core.isalias.cmps.iscmp import IsCmp
 
 
 @dataclass

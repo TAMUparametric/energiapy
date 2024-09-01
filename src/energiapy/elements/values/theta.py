@@ -12,7 +12,7 @@ from ...core._handy._dunders import _Magics
 from ._value import _Value
 
 if TYPE_CHECKING:
-    from ...core.aliases.inps.isinp import IsSpc
+    from ...core.isalias.inps.isinp import IsSpc
 
 
 @dataclass

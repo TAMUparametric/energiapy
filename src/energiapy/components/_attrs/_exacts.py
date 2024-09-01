@@ -3,7 +3,7 @@
 
 from dataclasses import dataclass, field
 
-from ...core.aliases.inps.isinp import IsExt, IsInc
+from ...core.isalias.inps.isinp import IsExt, IsInc
 
 # -------------Transact Exacts-------------
 

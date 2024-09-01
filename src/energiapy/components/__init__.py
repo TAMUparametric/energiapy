@@ -37,4 +37,4 @@ from .scope.temporal.horizon import Horizon
 from .scope.temporal.mode import X
 from .scope.temporal.incidental import I
 
-from ..core.aliases.inps.isinp import IsBnd, IsExt, IsInc
+from ..core.isalias.inps.isinp import IsBnd, IsExt, IsInc

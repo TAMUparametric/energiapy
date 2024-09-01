@@ -16,7 +16,7 @@ from warnings import warn
 from pandas import DataFrame
 
 from ._dummy import _Dummy
-from ...core.aliases.inps.isinp import IsBndInp, IsExtInp, IsInp, IsSptTmp
+from ...core.isalias.inps.isinp import IsBndInp, IsExtInp, IsInp, IsSptTmp
 from ...core.nirop.errors import InconsistencyError, check_attr
 from ...core.nirop.warnings import InconsistencyWarning
 from ..scope.spatial._spatial import _Spatial
