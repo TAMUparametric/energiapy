@@ -9,34 +9,60 @@ from ...core.isalias.elms.isvar import IsVar
 from ...core.nirop.errors import CacodcarError
 from ...elements.constraints.bind import Bind
 from ...elements.constraints.calculate import Calculate
-from ...elements.parameters.bounds.all import (BuyBound, CapBound, EmnBound,
-                                               ErnBound, Has, Needs, OprBound,
-                                               ShpBound, SllBound, SpdBound,
-                                               UseBound)
-from ...elements.parameters.exacts.emission import (BuyEmission, LseEmission,
-                                                    SllEmission, StpEmission,
-                                                    UseEmission)
-from ...elements.parameters.exacts.expense import (BuyPrice, OprExpense,
-                                                   OprExpenseI, SllCredit,
-                                                   SllPenalty, SllPrice,
-                                                   StpExpense, StpExpenseI,
-                                                   UseCost)
+from ...elements.parameters.bounds.all import (
+    BuyBound,
+    CapBound,
+    EmnBound,
+    ErnBound,
+    Has,
+    Needs,
+    OprBound,
+    ShpBound,
+    SllBound,
+    SpdBound,
+    UseBound,
+)
+from ...elements.parameters.exacts.emission import (
+    BuyEmission,
+    LseEmission,
+    SllEmission,
+    StpEmission,
+    UseEmission,
+)
+from ...elements.parameters.exacts.expense import (
+    BuyPrice,
+    OprExpense,
+    OprExpenseI,
+    SllCredit,
+    SllPenalty,
+    SllPrice,
+    StpExpense,
+    StpExpenseI,
+    UseCost,
+)
 from ...elements.parameters.exacts.loss import Loss
 from ...elements.parameters.exacts.usage import Usage
 from ...elements.variables.act import Give, Take
-from ...elements.variables.emit import (Emit, EmitBuy, EmitLse, EmitSll,
-                                        EmitStp, EmitUse)
+from ...elements.variables.emit import Emit, EmitBuy, EmitLse, EmitSll, EmitStp, EmitUse
 from ...elements.variables.lose import Lose
 from ...elements.variables.operate import Operate
 from ...elements.variables.setup import Capacitate
 from ...elements.variables.trade import Buy, Sell, Ship
-from ...elements.variables.transact import (Earn, Spend, TransactBuy,
-                                            TransactCrd, TransactOpr,
-                                            TransactOprI, TransactPnt,
-                                            TransactSll, TransactStp,
-                                            TransactStpI, TransactUse)
+from ...elements.variables.transact import (
+    Earn,
+    Spend,
+    TransactBuy,
+    TransactCrd,
+    TransactOpr,
+    TransactOprI,
+    TransactPnt,
+    TransactSll,
+    TransactStp,
+    TransactStpI,
+    TransactUse,
+)
 from ...elements.variables.use import Use, UseStp
-from .rule import Rule
+from ..rule import Rule
 
 
 @dataclass

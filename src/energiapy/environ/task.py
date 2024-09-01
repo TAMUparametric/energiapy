@@ -3,10 +3,10 @@
 
 from dataclasses import dataclass, field
 
-from ...core._handy._dunders import _Dunders
-from ...core._handy._printers import _EasyPrint
-from ...core.isalias.cmps.isdfn import IsDfn
-from ...core.isalias.elms.isvar import IsVar
+from ..core._handy._dunders import _Dunders
+from ..core._handy._printers import _EasyPrint
+from ..core.isalias.cmps.isdfn import IsDfn
+from ..core.isalias.elms.isvar import IsVar
 
 
 @dataclass
