@@ -48,45 +48,45 @@ class Datum(_Dunders):
 
     Attributes:
         attr (str): The attribute of the input
-        datum (IsSptTmp): Consistent spatiotemporal input dictionary
+        data (IsSptTmp): Consistent spatiotemporal input dictionary
         component (IsDfn): The component to which the input belongs
 
     """
 
     attr: str = field(default=None)
-    datum: IsSptTmp = field(default=None)
+    data: IsSptTmp = field(default=None)
     component: IsDfn = field(default=None)
 
     def __post_init__(self):
         # The original dictionary input
         # keep it because some operations birth processes
         # processes need the og input
-        self.og_input = self.datum
-        self.update_datum()
+        self.og_input = self.data
+        self.update_data()
 
     @property
     def indices(self):
         """Returns the Index of the input"""
-        return list(self.datum.keys())
+        return list(self.data.keys())
 
     @property
     def name(self):
         """Returns the Index of the input"""
-        return f'{self.attr}{self.datum}'
+        return f'{self.attr}{self.data}'
 
     @property
     def by_position(self):
         """Returns the Index of the input"""
-        return {i: val for i, val in enumerate(list(self.datum.values()))}
+        return {i: val for i, val in enumerate(list(self.data.values()))}
 
-    def update_datum(self):
-        """Updates the datum
+    def update_data(self):
+        """Updates the data
         Returns:
             dict: {Index: value}
         """
         # Flatten the dictionary. Now the keys are tuples
         # {(Network/Spatial, Scale, ...): value}
-        dict_iter = flatten(self.datum)
+        dict_iter = flatten(self.data)
         dict_upd = {}
 
         for key, val in dict_iter.items():
@@ -154,7 +154,7 @@ class Datum(_Dunders):
             dict_upd[disp] = val
 
         # update the input with a dictionary {Index: value}
-        self.datum = dict_upd
+        self.data = dict_upd
 
     def get(self, n: IsDsp | int | None = None) -> IsVal:
         """Gets the value of the input at the index
@@ -194,7 +194,7 @@ class Datum(_Dunders):
         def siren_index():
             print()
             print('For index, use this as a guideline')
-            print(f'{self.datum}')
+            print(f'{self.data}')
 
         def siren_help():
             print()
@@ -214,7 +214,7 @@ class Datum(_Dunders):
                 siren_index()
                 siren_help()
 
-            for idx, value in self.datum.items():
+            for idx, value in self.data.items():
                 if idx.disposition == disp:
                     return value
 
@@ -228,11 +228,11 @@ class Datum(_Dunders):
 
             else:
                 disp = self.indices[position]
-                return self.datum[disp]
+                return self.data[disp]
 
     def values(self):
         """Returns the values of the input"""
-        return list(self.datum.values())
+        return list(self.data.values())
 
     def check_type(self, value: IsBndInp | IsExtInp | IsIncInp):
         """Verifies if the input type is correct

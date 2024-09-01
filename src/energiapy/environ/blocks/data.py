@@ -56,8 +56,8 @@ class DataBlock(_Dunders):
             # _Spt holds the data in a particular format
             # {Index: value}. The disposition is made there
             # This is only temporary and the user eventually sees a list of parameters
-            datum = Datum(attr=name, datum=value, component=self.component)
-            for index, datapoint in datum.datum.items():
+            datum = Datum(attr=name, data=value, component=self.component)
+            for index, datapoint in datum.data.items():
 
                 if datapoint is True:
                     # if datapoint is True, put it in a list
@@ -106,9 +106,9 @@ class DataBlock(_Dunders):
                     datapoint = self.birth_value(index, datapoint)
 
                 # Now update the value with an internal value type
-                datum.datum[index] = datapoint
+                datum.data[index] = datapoint
             # Sort the values by length
-            value = sorted(datum.datum.values(), key=len)
+            value = sorted(datum.data.values(), key=len)
 
             self.data[name] = datum
 

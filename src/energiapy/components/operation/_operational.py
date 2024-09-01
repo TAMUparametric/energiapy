@@ -54,10 +54,7 @@ class _Operational(_Defined, ABC):
     def materials(self):
         """Materials used in the Operation"""
         if getattr(self, 'material_use'):
-            return [
-                i.index.mat
-                for i in getattr(self, 'material_use').datum.values()
-            ]
+            return [i.index.mat for i in getattr(self, 'material_use').data.values()]
         else:
             return []
 
@@ -65,10 +62,7 @@ class _Operational(_Defined, ABC):
     def emissions(self):
         """Emissions from the Operation"""
         if getattr(self, 'setup_emission'):
-            return [
-                i.index.emn
-                for i in getattr(self, 'setup_emission').datum.values()
-            ]
+            return [i.index.emn for i in getattr(self, 'setup_emission').data.values()]
         else:
             return []
 
