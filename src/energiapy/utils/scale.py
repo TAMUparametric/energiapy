@@ -4,7 +4,7 @@ from itertools import product
 import pandas
 from pyomo.environ import ConcreteModel, Set
 
-from ..components.scale import Scale
+from ..components import Scale
 
 
 def scale_pyomo_set(

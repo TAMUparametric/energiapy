@@ -1,20 +1,10 @@
-"""Math utilities
+"""Utilities to perform mathematical operations
 """
 
-__author__ = "Rahul Kakodkar"
-__copyright__ = "Copyright 2022, Multi-parametric Optimization & Control Lab"
-__credits__ = ["Rahul Kakodkar", "Efstratios N. Pistikopoulos"]
-__license__ = "MIT"
-__version__ = "1.0.5"
-__maintainer__ = "Rahul Kakodkar"
-__email__ = "cacodcar@tamu.edu"
-__status__ = "Production"
-
 from math import erf, exp, pi, sqrt
-from typing import Union
 
 import numpy
-import pandas
+from pandas import DataFrame, concat
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 
 
@@ -33,26 +23,23 @@ def norm_constant(p, mu, sigma) -> float:
     return 1 / (sigma * sqrt(2 * pi)) * exp(-((x - mu) ** 2) / (2 * sigma**2))
 
 
-def scaler(
-    input_df: pandas.DataFrame, scale: list, child_scale: list = None
-) -> pandas.DataFrame:
-    """creates a scaled list from a pandas.DataFrame object
+def scaler(input_df: DataFrame, scale: list, child_scale: list = None) -> DataFrame:
+    """creates a scaled list from a DataFrame object
 
     Args:
-        input_df (pandas.DataFrame): df with values to be scaled
+        input_df (DataFrame): df with values to be scaled
         parent_scale (list): scale to project into
         child_scale (list): scale to project
 
     Returns:
-        pandas.DataFrame: scaled values
+        DataFrame: scaled values
     """
 
     cols = list(input_df.columns)
-    scaled_df = pandas.DataFrame()
+    scaled_df = DataFrame()
     for col in cols:
         if child_scale is not None:
-            col_names = [str(col) + '-' + str(i)
-                         for i in range(len(child_scale))]
+            col_names = [str(col) + '-' + str(i) for i in range(len(child_scale))]
             reshaped_df = numpy.reshape(
                 input_df[col].values, (len(scale), len(child_scale))
             )
@@ -60,22 +47,18 @@ def scaler(
             col_names = [col]
             # reshaped_df = input_df
             if len(cols) > 1:
-                reshaped_df = numpy.reshape(
-                    input_df[col].values, (len(scale), 1))
+                reshaped_df = numpy.reshape(input_df[col].values, (len(scale), 1))
             else:
                 reshaped_df = input_df
 
         scaler = StandardScaler().fit(reshaped_df)
 
-        scaled_iter = pandas.DataFrame(
-            scaler.transform(reshaped_df), columns=col_names)
-        scaled_df = pandas.concat([scaled_df, scaled_iter], axis=1)
+        scaled_iter = DataFrame(scaler.transform(reshaped_df), columns=col_names)
+        scaled_df = concat([scaled_df, scaled_iter], axis=1)
     return scaled_df
 
 
-def find_euclidean_distance(
-        cluster_node_a: list,
-        cluster_node_b: list) -> float:
+def find_euclidean_distance(cluster_node_a: list, cluster_node_b: list) -> float:
     """finds euclidean distances between two cluster nodes
 
     Args:
@@ -85,20 +68,16 @@ def find_euclidean_distance(
     Returns:
         float: euclidean distance
     """
-    euclidean_distance_ = [
-        (a - b) ** 2 for a,
-        b in zip(
-            cluster_node_a,
-            cluster_node_b)]
+    euclidean_distance_ = [(a - b) ** 2 for a, b in zip(cluster_node_a, cluster_node_b)]
     euclidean_distance_ = sum(euclidean_distance_)
     return euclidean_distance_
 
 
-def generate_connectivity_matrix(scale_len):
+def generate_connectivity_matrix(scale_len) -> numpy.array:
     """generates a connectivity matrixto maintain chronology [..1,0,1..]
 
     Returns:
-        array: matrix with connectivity relations
+        numpy.array: matrix with connectivity relations
     """
     connect_ = numpy.zeros((scale_len, scale_len), dtype=int)
     for i_ in range(len(connect_)):
@@ -115,16 +94,14 @@ def generate_connectivity_matrix(scale_len):
     return connect_
 
 
-def min_max(
-    data: numpy.array, pandas.DataFrame]
-) -> numpy.array, pandas.DataFrame]:
+def min_max(data: numpy.array | DataFrame) -> numpy.array | DataFrame:
     """min max for data
 
     Args:
-        data (numpy.array): time-series data
+        data (numpy.array | DataFrame): time-series data
 
     Returns:
-        numpy.array, pandas.DataFrame]: min-maxed data array
+        numpy.array | DataFrame: min-maxed data array
     """
     min_data = numpy.min(data)
     max_data = numpy.max(data)
@@ -133,16 +110,14 @@ def min_max(
     return data
 
 
-def normalize(
-    data: numpy.array, pandas.DataFrame]
-) -> numpy.array, pandas.DataFrame]:
+def normalize(data: numpy.array | DataFrame) -> numpy.array | DataFrame:
     """normalizes data
 
     Args:
-        data (numpy.array): time-series data
+        data (numpy.array | DataFrame): time-series data
 
     Returns:
-        numpy.array, pandas.DataFrame]: min-maxed data array
+        numpy.array | DataFrame: min-maxed data array
     """
     scaler = MinMaxScaler()
     data = numpy.array(data).reshape(-1, 1)

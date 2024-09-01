@@ -1,33 +1,22 @@
-"""pvlib utils
+"""Fetch data from NREL's NSRDB database
 """
 
-__author__ = "Rahul Kakodkar"
-__copyright__ = "Copyright 2023, Multi-parametric Optimization & Control Lab"
-__credits__ = ["Rahul Kakodkar", "Efstratios N. Pistikopoulos"]
-__license__ = "MIT"
-__version__ = "1.1.0"
-__maintainer__ = "Rahul Kakodkar"
-__email__ = "cacodcar@tamu.edu"
-__status__ = "Production"
-
-from typing import Tuple, Union, list
-
+from numpy import array, average
 import h5pyd
-import numpy
-import pandas
+from pandas import DataFrame, to_datetime
 from scipy.spatial import cKDTree
 
 
 def fetch_nsrdb_data(
     attrs: list[str],
     year: int,
-    lat_lon: Tuple[float] = None,
+    lat_lon: tuple[float] | None = None,
     state: str = '',
     county: str = '',
     resolution: str = '',
     get: str = 'max-population',
     save: str = None,
-) -> pandas.DataFrame, tuple]:
+) -> DataFrame | tuple:
     """fetches nsrdb data from nearest coordinates (latitude, longitude)
     or from county in a state matching a particular 'get' metric
 
@@ -41,12 +30,12 @@ def fetch_nsrdb_data(
         get (str, optional): Defaults to 'max-population'. From within county choose the data point that matches one of the following. 'max-population', 'max-elevation', 'max-landcover' 'min-population', 'min-elevation', 'min-landcover'
 
     Returns:
-        pandas.DataFrame, tuple: Dataframe with output data, (latitude, longitude)
+        DataFrame, tuple: Dataframe with output data, (latitude, longitude)
     """
 
     # fetches nsrdb data for the year
     nsrdb_data = h5pyd.File(f"/nrel/nsrdb/v3/nsrdb_{str(year)}.h5", 'r')
-    time_index = pandas.to_datetime(nsrdb_data['time_index'][...].astype(str))
+    time_index = to_datetime(nsrdb_data['time_index'][...].astype(str))
 
     if lat_lon is not None:
         # get coordinates for all locations
@@ -56,18 +45,15 @@ def fetch_nsrdb_data(
 
         # find the data point closest to latitude and longitude
         def nearest_site(tree, latitude, longitude):
-            lat_lon_query = numpy.array([latitude, longitude])
+            lat_lon_query = array([latitude, longitude])
             dist, pos = tree.query(lat_lon_query)
             return pos
 
-        idx = nearest_site(
-            tree=tree,
-            latitude=lat_lon[0],
-            longitude=lat_lon[1])
+        idx = nearest_site(tree=tree, latitude=lat_lon[0], longitude=lat_lon[1])
 
     else:
         # gets coordinates and associated data
-        meta = pandas.DataFrame(nsrdb_data['meta'][...])
+        meta = DataFrame(nsrdb_data['meta'][...])
         # data matching state coordinates
         state_data = meta.loc[meta['state'] == str.encode(state)]
         county_data = state_data.loc[
@@ -118,7 +104,7 @@ def fetch_nsrdb_data(
         'hourly': 2,  # averages over the hour
         'daily': 48,  # averages over the day
     }
-    averaged_output = pandas.DataFrame()
+    averaged_output = DataFrame()
 
     psm_scale_dict = {
         attr: nsrdb_data[attr].attrs['psm_scale_factor'] for attr in attrs
@@ -126,7 +112,7 @@ def fetch_nsrdb_data(
 
     for attr in attrs:
         full_output = nsrdb_data[attr][:, idx]  # native data set at 30 mins
-        averaged_output[attr] = numpy.average(
+        averaged_output[attr] = average(
             full_output.reshape(-1, timestep_dict[resolution]), axis=1
         )  # averages over resolution
     averaged_output = averaged_output.set_index(
