@@ -1,16 +1,10 @@
-""" energiapy.Location
+"""Location where Processes and Storages can reside
 """
-
-from __future__ import annotations
 
 from dataclasses import dataclass, field
 from operator import is_
-from typing import TYPE_CHECKING
 
 from ._spatial import _Spatial
-
-if TYPE_CHECKING:
-    from ....core.aliases.cmps.iscmp import IsLocation
 
 
 @dataclass
@@ -54,7 +48,7 @@ class Location(_Spatial):
             return True
         return False
 
-    def find_links(self, location: IsLocation, print_link: bool = True) -> list:
+    def find_links(self, location, print_link: bool = True) -> list:
         """Finds the links between two Locations
 
         Args:
@@ -81,7 +75,7 @@ class Location(_Spatial):
                 continue
         return links
 
-    def is_connected(self, location: IsLocation, print_link: bool = False) -> bool:
+    def is_connected(self, location, print_link: bool = False) -> bool:
         """Finds whether the Locations are connected
         Args:
             location (IsLocation): Location to verify Links with

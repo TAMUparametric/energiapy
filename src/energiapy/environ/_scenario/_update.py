@@ -3,17 +3,13 @@
     2. The Model Blocks 
 """
 
-from __future__ import annotations
-
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING
 
-from ...blocks.data import DataBlock
-from ...blocks.program import ProgramBlock
-from ...components.scope.horizon import Horizon
-
-if TYPE_CHECKING:
-    from ...core.aliases.cmps.iscmp import IsDfn, IsOpn, IsUnq
+from ...components.scope.temporal.horizon import Horizon
+from ...core.aliases.cmps.iscmp import IsUnq
+from ...core.aliases.cmps.isdfn import IsDfn, IsOpn
+from ..blocks.data import DataBlock
+from ..blocks.program import ProgramBlock
 
 
 class _Update(ABC):
@@ -37,7 +33,7 @@ class _Update(ABC):
     @property
     @abstractmethod
     def taskmaster(self):
-        """TaskMaster of the Scenario"""
+        """Chanakya of the Scenario"""
 
     def cleanup(self, cmp: str):
         """Cleans up components which can have only one instance in the System
@@ -87,7 +83,7 @@ class _Update(ABC):
         """Handles components which can have only one instance in the System
         Args:
             cmp (str): 'cash', 'land', 'horizon', 'network'
-            component(IsCmp): Component to be added
+            component(IsUnq): Component to be added
 
         """
 
@@ -134,7 +130,7 @@ class _Update(ABC):
                 setattr(datablock, attr, {component: getattr(component, attr)})
 
                 # The updated Values are then set back into the component
-                setattr(component, attr, datablock.spttmpinp[attr])
+                setattr(component, attr, datablock.data[attr])
 
                 # update the values for the attributes in the Task Modeling Block
                 for val in getattr(component, attr).values():
@@ -159,8 +155,8 @@ class _Update(ABC):
         for attr, par in programblock.attr_parameters.items():
             getattr(self.taskmaster, attr).parameters.extend(par)
 
-        for attr, disp in programblock.attr_dispositions.items():
-            getattr(self.taskmaster, attr).dispositions.extend(disp)
+        for attr, disp in programblock.attr_indices.items():
+            getattr(self.taskmaster, attr).indices.extend(disp)
 
         # The ProgramBlock is also added to the Program Model
         setattr(self.program, name, programblock)

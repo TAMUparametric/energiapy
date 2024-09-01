@@ -5,8 +5,7 @@ from dataclasses import dataclass, field
 
 from sympy import IndexedBase
 
-from ...dispositions.enums import VarBnd
-from ..defined.enums import Certainty
+from ..disposition.bound import VarBnd
 from ._value import _Value
 from .constant import Constant
 
@@ -31,8 +30,6 @@ class M(_Value):
 
     def __post_init__(self):
         _Value.__post_init__(self)
-
-        self._certainty, self._approach = Certainty.CERTAIN, None
 
         if self.big is True:
             # if Big M

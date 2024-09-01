@@ -1,7 +1,8 @@
-"""Aliases for Inputs
+"""Aliases for User Inputs
 """
 
 from typing import Literal, TypeAlias
+
 from pandas import DataFrame
 
 from ....components.scope.spatial.linkage import Linkage
@@ -14,7 +15,7 @@ from ....components.scope.temporal.scale import Scale
 # --------------Base Inputs--------------
 
 # Parameter value input
-IsNumeric: TypeAlias = float | int
+IsNum: TypeAlias = float | int
 
 # is unbounded (=< BigM), constraint not written by variable declared
 # a futher check of whether value is True is required
@@ -23,12 +24,12 @@ IsBig: TypeAlias = Literal[True]
 
 
 # a range is give, treated as bounds for a parameteric variable
-IsSpcBnd: TypeAlias = IsNumeric | DataFrame
+IsSpcBnd: TypeAlias = IsNum | DataFrame
 IsSpc: TypeAlias = tuple[IsSpcBnd, IsSpcBnd]
 
 
 # as an exact value (equality constraint)
-IsExtInp: TypeAlias = IsNumeric | DataFrame | IsSpc
+IsExtInp: TypeAlias = IsNum | DataFrame | IsSpc
 
 # has an incidental parameter input
 IsIncInp: TypeAlias = set[IsExtInp | I]

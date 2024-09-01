@@ -1,4 +1,5 @@
 """DataSet is a deterministic data given to account for temporal variability in parameter.
+Created when input is a DataFrame
 """
 
 from dataclasses import dataclass, field
@@ -7,8 +8,7 @@ from operator import is_
 from pandas import DataFrame
 from sympy import IndexedBase
 
-from ...dispositions.enums import VarBnd
-from ..defined.enums import Approach, Certainty
+from ..disposition.bound import VarBnd
 from ._value import _Value
 
 
@@ -24,14 +24,11 @@ class DataSet(_Value):
         if not isinstance(self.data, DataFrame):
             raise ValueError(f'{self.name}: please provide DataFrame')
 
-        self._certainty, self._approach = Certainty.CERTAIN, Approach.DATA
-
         # Data is made into a dictionary with the keys being the indices of the scale
         # will look something like {(0,0): 4, (0,1): 9, (1,0): 2}
         self.data = self.data[self.data.columns[0]].to_dict()
         self.data = {
-            self.disposition.scl.disposition[i]: self.data[i]
-            for i in range(len(self.data))
+            self.index.scl.index[i]: self.data[i] for i in range(len(self.data))
         }
 
     @property

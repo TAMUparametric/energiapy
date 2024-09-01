@@ -35,7 +35,6 @@
 from abc import ABCMeta
 from dataclasses import dataclass, field
 
-from ..blocks.model import Model
 from ..components._base._component import _Component
 from ..components._base._defined import _Defined
 from ..components.commodity.cash import Cash
@@ -45,9 +44,9 @@ from ..components.operation._operational import _Operational
 from ..components.operation.process import Process
 from ..components.operation.storage import Storage
 from ..components.operation.transit import Transit
-from ..components.scope.horizon import Horizon
 from ..components.scope.spatial.linkage import Linkage
 from ..components.scope.spatial.network import Network
+from ..components.scope.temporal.horizon import Horizon
 from ..core._handy._collections import (_Alys, _Cmds, _Elms, _Imps, _Opns,
                                         _Scls, _Scps, _Spts, _Vlus)
 from ..core._handy._dunders import _Dunders
@@ -56,6 +55,7 @@ from ._scenario._birth import _Birth
 from ._scenario._default import _Default
 from ._scenario._ok import _Ok
 from ._scenario._update import _Update
+from .model import Model
 
 
 class _ScnCols(_Alys, _Imps, _Cmds, _Opns, _Spts, _Scls, _Scps, _Elms, _Vlus):
@@ -219,7 +219,7 @@ class Scenario(_Ok, _Default, _Birth, _Update, _ScnCols, _Dunders, _Print):
 
     @property
     def taskmaster(self):
-        """TaskMaster of the Scenario"""
+        """Chanakya of the Scenario"""
         return self.model.taskmaster
 
     @property
@@ -229,7 +229,7 @@ class Scenario(_Ok, _Default, _Birth, _Update, _ScnCols, _Dunders, _Print):
 
     @property
     def rulebook(self):
-        """Chanakya of the Scenario"""
+        """Bhaskara of the Scenario"""
         return self.model.rulebook
 
     @property

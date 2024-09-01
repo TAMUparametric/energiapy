@@ -44,7 +44,7 @@ class LseEmission(_ExactPar):
     @property
     def id(self) -> str:
         """Symbol"""
-        return IndexedBase('Emit^loss')
+        return IndexedBase('Emit^lose')
 
 
 @dataclass

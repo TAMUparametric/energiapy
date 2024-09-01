@@ -1,29 +1,24 @@
 """Data Model Block
 """
 
-from __future__ import annotations
-
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, list
 
 from pandas import DataFrame
 
-from ..core._handy._dunders import _Dunders
-from ..core.nirop.errors import InputTypeError
+from ...components.scope.temporal.incidental import I
+from ...core._handy._dunders import _Dunders
+from ...core.aliases.cmps.isdfn import IsDfn
+from ...core.aliases.elms.isval import IsVal
+from ...core.aliases.inps.isinp import IsInp
+from ...core.nirop.errors import InputTypeError
+from ...elements.disposition.bound import SpcLmt, VarBnd
+from ...elements.disposition.index import Index
+from ...elements.values.constant import Constant
+from ...elements.values.dataset import DataSet
+from ...elements.values.m import M
+from ...elements.values.theta import Theta
 from ..datum import Datum
-from ..indices.enums import SpcLmt, VarBnd
-from ..parameters.designators.incidental import I
-from ..parameters.values.constant import Constant
-from ..parameters.values.dataset import DataSet
-from ..parameters.values.m import M
-from ..parameters.values.theta import Theta
 from ._block import _Block
-
-if TYPE_CHECKING:
-    from ..core.aliases.isblk import IsIndex
-    from ..core.aliases.isdef import IsDfn
-    from ..core.aliases.isinp import IsBaseInput
-    from ..core.aliases.isval import IsSpcLmt, IsValue, IsVarBnd
 
 
 @dataclass
@@ -50,19 +45,19 @@ class DataBlock(_Dunders):
         self.name = f'Data|{self.component}|'
         # this will have the attributes of the components as keys
         # will be set back into the component
-        self.spttmpinp = {}
+        self.data = {}
 
     def __setattr__(self, name, value):
 
         spclmts = [SpcLmt.START, SpcLmt.END]
         varbnds = [VarBnd.LB, VarBnd.UB]
 
-        if isinstance(value, dict) and not name == 'spttmpinp':
+        if isinstance(value, dict) and not name == 'data':
             # _Spt holds the data in a particular format
             # {Index: value}. The disposition is made there
             # This is only temporary and the user eventually sees a list of parameters
-            spttmpinput = Datum(attr=name, spttmpdict=value, component=self.component)
-            for disposition, datapoint in spttmpinput.spttmpdict.items():
+            datum = Datum(attr=name, datum=value, component=self.component)
+            for index, datapoint in datum.datum.items():
 
                 if datapoint is True:
                     # if datapoint is True, put it in a list
@@ -75,7 +70,7 @@ class DataBlock(_Dunders):
                         datapoint = [0] + datapoint
                     # The first value becomes the LB, and the second becomes the UB
                     datapoint = [
-                        self.birth_value(disposition, i, varbnd=varbnds[b])
+                        self.birth_value(index, i, varbnd=varbnds[b])
                         for b, i in enumerate(datapoint)
                     ]
 
@@ -83,7 +78,7 @@ class DataBlock(_Dunders):
                     # Tuples used to declare Theta space can have DataFrames as values
                     datapoint = tuple(
                         [
-                            self.birth_value(disposition, i, spclmt=spclmts[b])
+                            self.birth_value(index, i, spclmt=spclmts[b])
                             for b, i in enumerate(datapoint)
                         ]
                     )
@@ -98,24 +93,24 @@ class DataBlock(_Dunders):
                         )
 
                     # A Theta variable can be declared now
-                    datapoint = self.birth_value(disposition, datapoint)
+                    datapoint = self.birth_value(index, datapoint)
 
                 elif isinstance(datapoint, set):
 
                     # A set is only used when there can be an incidental parameter
                     # capex, opex for example
-                    datapoint = {self.birth_value(disposition, i) for i in datapoint}
+                    datapoint = {self.birth_value(index, i) for i in datapoint}
 
                 else:
                     # if not compound (set, list, tuple)
-                    datapoint = self.birth_value(disposition, datapoint)
+                    datapoint = self.birth_value(index, datapoint)
 
                 # Now update the value with an internal value type
-                spttmpinput.spttmpdict[disposition] = datapoint
+                datum.datum[index] = datapoint
             # Sort the values by length
-            value = sorted(spttmpinput.spttmpdict.values(), key=len)
+            value = sorted(datum.datum.values(), key=len)
 
-            self.spttmpinp[name] = spttmpinput
+            self.data[name] = datum
 
         super().__setattr__(name, value)
 
@@ -153,7 +148,7 @@ class DataBlock(_Dunders):
         """Returns all data"""
         return self.ms + self.constants + self.datasets + self.thetas
 
-    def fetch(self, data: IsValue) -> list[IsValue]:
+    def fetch(self, data: IsVal) -> list[IsVal]:
         """Fetches input data of a particular type
 
         Args:
@@ -178,15 +173,15 @@ class DataBlock(_Dunders):
 
     def birth_value(
         self,
-        disposition: IsIndex,
-        value: IsBaseInput,
-        varbnd: IsVarBnd = None,
-        spclmt: IsSpcLmt = None,
-    ) -> IsValue:
+        index: Index,
+        value: IsInp,
+        varbnd: VarBnd = None,
+        spclmt: SpcLmt = None,
+    ) -> IsVal:
         """Creates a parameter value
 
         Args:
-            disposition (IsIndex): The disposition of the value
+            index (IsIndex): The index of the value
             value (IsBaseInput): The input value used to make an internal value, like M, Constant, DataSet, Theta
             varbnd (IsVarBnd): The variable bound (lower, upper)
             spclmt (IsSpcLmt): The parametric space limit (start, end)
@@ -197,7 +192,7 @@ class DataBlock(_Dunders):
         """
 
         args = {
-            'disposition': disposition,
+            'index': index,
             'varbnd': varbnd,
             'spclmt': spclmt,
         }
@@ -225,7 +220,7 @@ class DataBlock(_Dunders):
 
         # if passing a BigM or Th, update
         if hasattr(value, 'big') or hasattr(value, 'space'):
-            for i, j in disposition.args().items():
+            for i, j in index.args().items():
                 setattr(value, i, j)
             datapoint = value
 
@@ -273,7 +268,7 @@ class Data(_Block):
         """Returns all data"""
         return self.ms + self.constants + self.datasets + self.thetas
 
-    def fetch(self, data: str) -> list[IsValue]:
+    def fetch(self, data: str) -> list[IsVal]:
         """Fetches input data of a particular type
         Args:
             data: str: The type of data to fetch [thetas, ms, constants, datasets]

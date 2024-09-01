@@ -27,7 +27,7 @@ class Conversion(_Reprs):
         conversion (IsConvInput): The conversion process.
         process (IsProcess): The process associated with the conversion.
         base (IsResource): Resource base, generated post initialization.
-        modes (IsNumeric, str]): list of modes, generated post initialization.
+        modes (IsNum, str]): list of modes, generated post initialization.
         n_modes (int): The number of modes, generated post initialization.
         sold (list[IsResource]): Resources discharged, generated post initialization.
         bought (list[IsResource]): Resources buy, generated post initialization.

@@ -1,11 +1,10 @@
-"""Operational Mode
+"""Operational Mode attached to a Parameter
 """
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
 from dataclasses import dataclass, field
+from typing import TYPE_CHECKING
 
 from sympy import Symbol
 

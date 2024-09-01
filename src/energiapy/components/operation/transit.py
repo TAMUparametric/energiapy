@@ -38,15 +38,15 @@ class Transit(
 
     A ResourceTrn is generate internally as the stored Resource
     Loading and Unloading Processes are also generated internally
-    Capacity in this case is the amount of Resource that can be Transported
-    Loading and Unloading capacities are the same as Transit Capacity
+    Capacitate in this case is the amount of Resource that can be Transported
+    Loading and Unloading capacities are the same as Transit Capacitate
 
     Attributes:
         capacity (IsBnd): bound on the capacity of the Operation
-        transport (IsBnd): bound by Capacity. Reported by operate as well.
-        land_use (IsExt): land use per Capacity
-        material_use (IsExt): material use per Capacity
-        capex (IsInc): capital expense per Capacity
+        transport (IsBnd): bound by Capacitate. Reported by operate as well.
+        land_use (IsExt): land use per Capacitate
+        material_use (IsExt): material use per Capacitate
+        capex (IsInc): capital expense per Capacitate
         opex (IsInc): operational expense based on Operation
         land_use_emission (IsExt): emission due to land use
         material_use_emission (IsExt): emission due to material use
@@ -97,7 +97,7 @@ class Transit(
 
     @property
     def capacity_in(self):
-        """Capacity of the Loading Process"""
+        """Capacitate of the Loading Process"""
         # Returns og input if birthing is not done
         # This is because the birthed Process capacity
         # needs to be set
@@ -108,7 +108,7 @@ class Transit(
 
     @property
     def capacity_out(self):
-        """Capacity of the Unloading Process"""
+        """Capacitate of the Unloading Process"""
         # Returns og input if birthing is not done
         # This is because the birthed Process capacity
         # needs to be set

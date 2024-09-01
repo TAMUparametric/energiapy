@@ -11,10 +11,10 @@ from ...components.commodity.material import Material
 from ...components.operation.process import Process
 from ...components.operation.storage import Storage
 from ...components.operation.transit import Transit
-from ..dispositions.structure import make_structures
+from ..disposition.structure import make_structures
 from ._variable import _BoundVar, _ExactVar
 from .operate import Operate
-from .setup import Capacity
+from .setup import Capacitate
 from .trade import Buy, Sell
 from .use import Use
 
@@ -78,7 +78,7 @@ class _ExpTrade(_Exp):
 
 @dataclass
 class _ExpOpn(_Exp):
-    """Capacity Transact
+    """Capacitate Transact
     This is a parent class
     """
 
@@ -255,7 +255,7 @@ class TransactUse(_Exp):
 
 @dataclass
 class TransactStp(_ExpOpn):
-    """Capacity Transact"""
+    """Capacitate Transact"""
 
     def __post_init__(self):
         _ExpOpn.__post_init__(self)
@@ -263,7 +263,7 @@ class TransactStp(_ExpOpn):
     @classmethod
     def parent(cls):
         """The Parent Task of the Variable"""
-        return Capacity
+        return Capacitate
 
     @staticmethod
     def id() -> IndexedBase:

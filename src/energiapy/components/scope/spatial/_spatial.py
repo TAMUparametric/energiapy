@@ -1,16 +1,10 @@
 """Base for Spatial Components
 """
 
-from __future__ import annotations
-
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
 
 from ..._base._component import _Component
-
-if TYPE_CHECKING:
-    from ....core.aliases.cmps.iscmp import IsCmd, IsOpn
 
 
 @dataclass
@@ -57,10 +51,12 @@ class _Spatial(_Component, ABC):
             self.resources + self.materials + self.emissions + [self.cash] + [self.land]
         )
 
-    def fetch(self, opn: IsOpn):
+    def fetch(self, operation):
         """Fetches what Operational Components are in the Spatial Component"""
-        return [cmp for cmp in getattr(self.system, opn) if self in cmp.spatials]
+        return [opn for opn in getattr(self.system, operation) if self in opn.spatials]
 
-    def fetch_cmd(self, cmd: IsCmd):
+    def fetch_cmd(self, commodity):
         """Fetches what Components are in the Spatial Component"""
-        return sorted(set(sum([getattr(spt, cmd) for spt in self.operations], [])))
+        return sorted(
+            set(sum([getattr(spt, commodity) for spt in self.operations], []))
+        )

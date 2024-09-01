@@ -19,7 +19,7 @@ class _Parameter(_Dunders, ABC):
     value: IsVal = field(default=None)
 
     def __post_init__(self):
-        self.disposition = self.value.disposition
+        self.index = self.value.index
         self.name = str(self.sym)
 
     @property
@@ -30,7 +30,7 @@ class _Parameter(_Dunders, ABC):
     @property
     def sym(self):
         """Symbol"""
-        return self.id[self.disposition.sym]
+        return self.id[self.index.sym]
 
 
 # These parameters are exact values for ExactVars

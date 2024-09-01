@@ -101,7 +101,7 @@ class ErnBound(_BoundPar):
 
 @dataclass
 class CapBound(_BoundPar):
-    """Capacity Bounds"""
+    """Capacitate Bounds"""
 
     def __post_init__(self):
         _BoundPar.__post_init__(self)
@@ -109,7 +109,7 @@ class CapBound(_BoundPar):
     @property
     def id(self) -> str:
         """ID"""
-        return IndexedBase(f'Capacity{self.varbnd.value}')
+        return IndexedBase(f'Capacitate{self.varbnd.value}')
 
 
 @dataclass

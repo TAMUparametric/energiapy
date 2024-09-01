@@ -15,8 +15,8 @@ from .blocks.matrix import Matrix
 from .blocks.program import Program
 from .blocks.system import System
 from .engines.registrar import ChitraGupta
-from .engines.rulebook import Chanakya
-from .engines.taskmaster import TaskMaster
+from .engines.rulebook import Bhaskara
+from .engines.taskmaster import Chanakya
 
 
 @dataclass
@@ -34,7 +34,7 @@ class Model(_Dunders):
         self.data = Data(name=self.name)
         self.matrix = Matrix(name=self.name)
         self.program = Program(name=self.name)
-        self.taskmaster = TaskMaster(name=self.name)
-        self.rulebook = Chanakya(name=self.name)
+        self.taskmaster = Chanakya(name=self.name)
+        self.rulebook = Bhaskara(name=self.name)
         self.registrar = ChitraGupta(name=self.name, rulebook=self.rulebook)
         self.name = f'Model|{self.name}|'

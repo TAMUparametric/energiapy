@@ -5,13 +5,9 @@ This will inherently check if there are any abstract methods have not been imple
 
 import pytest
 
-from src.energiapy.blocks.data import Data, DataBlock
-from src.energiapy.blocks.matrix import Matrix
-from src.energiapy.blocks.model import Model
-from src.energiapy.blocks.program import Program, ProgramBlock
-from src.energiapy.blocks.spttmpinput import Datum
-from src.energiapy.blocks.system import System
-from src.energiapy.blocks.taskmaster import TaskMaster
+from src.energiapy.components.scope.spatial.linkage import Linkage
+from src.energiapy.components.scope.spatial.location import Location
+from src.energiapy.components.scope.spatial.network import Network
 from src.energiapy.components.analytical.player import Player
 from src.energiapy.components.commodity.cash import Cash
 from src.energiapy.components.commodity.emission import Emission
@@ -21,15 +17,19 @@ from src.energiapy.components.commodity.resource import Resource
 from src.energiapy.components.operation.process import Process
 from src.energiapy.components.operation.storage import Storage
 from src.energiapy.components.operation.transit import Transit
-from src.energiapy.components.scope.horizon import Horizon
-from energiapy.components.scope.spatial.network import Network
-from energiapy.components.scope.spatial.linkage import Linkage
-from energiapy.components.scope.spatial.location import Location
-from src.energiapy.components.temporal.scale import Scale
+from src.energiapy.components.scope.temporal.horizon import Horizon
+from src.energiapy.components.scope.temporal.scale import Scale
+from src.energiapy.elements.parameters.balances.conversion import Conversion
+from src.energiapy.elements.parameters.balances.freight import Freight
+from src.energiapy.elements.parameters.balances.inventory import Inventory
+from src.energiapy.environ.blocks.data import Data, DataBlock
+from src.energiapy.environ.blocks.matrix import Matrix
+from src.energiapy.environ.blocks.program import Program, ProgramBlock
+from src.energiapy.environ.blocks.system import System
+from src.energiapy.environ.datum import Datum
+from src.energiapy.environ.engines.taskmaster import Chanakya
+from src.energiapy.environ.model import Model
 from src.energiapy.environ.scenario import Scenario
-from src.energiapy.parameters.balances.conversion import Conversion
-from src.energiapy.parameters.balances.freight import Freight
-from src.energiapy.parameters.balances.inventory import Inventory
 
 # TODO - set test to see uniqueness of birthed elements
 
@@ -84,7 +84,7 @@ from src.energiapy.parameters.balances.inventory import Inventory
 #     """Test to check if all components can be initialized"""
 #     # check if Model Blocks have been made
 #     assert isinstance(scenario.model, Model)
-#     assert isinstance(scenario.taskmaster, TaskMaster)
+#     assert isinstance(scenario.taskmaster, Chanakya)
 #     assert isinstance(scenario.data, Data)
 #     assert isinstance(scenario.matrix, Matrix)
 #     assert isinstance(scenario.program, Program)

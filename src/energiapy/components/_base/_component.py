@@ -3,8 +3,9 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 from typing import TYPE_CHECKING
+
+from dataclasses import dataclass
 
 from ...core._handy._dunders import _Dunders
 
@@ -58,12 +59,12 @@ class _Component(_Dunders):
 
     @property
     def taskmaster(self):
-        """TaskMaster of the Scenario"""
+        """Chanakya of the Scenario"""
         return self._model.taskmaster
 
     @property
     def rulebook(self):
-        """Chanakya of the Scenario"""
+        """Bhaskara of the Scenario"""
         return self._model.rulebook
 
     @property
@@ -82,7 +83,7 @@ class _Component(_Dunders):
 
         Args:
             name (str): name of the component. Given as Scenario attribute
-            model (IsModel): Model with System, Program, Data, Matrix, TaskMaster, Rulebook, Registrar
+            model (IsModel): Model with System, Program, Data, Matrix, Chanakya, Rulebook, Registrar
         """
         self.name = name
         self._named = True  # update flag

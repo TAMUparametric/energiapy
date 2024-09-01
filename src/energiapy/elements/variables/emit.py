@@ -5,16 +5,16 @@ from dataclasses import dataclass
 
 from sympy import IndexedBase
 
-from ..components.commodity.emission import Emission
-from ..components.commodity.land import Land
-from ..components.commodity.material import Material
-from ..components.operational.process import Process
-from ..components.operational.storage import Storage
-from ..components.operational.transit import Transit
-from ..dispositions.structure import make_structures
+from ...components.commodity.emission import Emission
+from ...components.commodity.land import Land
+from ...components.commodity.material import Material
+from ...components.operation.process import Process
+from ...components.operation.storage import Storage
+from ...components.operation.transit import Transit
+from ..disposition.structure import make_structures
 from ._variable import _BoundVar, _ExactVar
 from .lose import Lose
-from .setup import Capacity
+from .setup import Capacitate
 from .trade import Buy, Sell
 from .use import Use
 
@@ -37,7 +37,7 @@ class _Emit(_ExactVar):
 
 
 @dataclass
-class _EmitTrade(_Emit):
+class _EmitTrd(_Emit):
     """Resource Emit
     This is a parent class
     """
@@ -83,11 +83,11 @@ class Emit(_BoundVar):
 
 
 @dataclass
-class EmitBuy(_EmitTrade):
+class EmitBuy(_EmitTrd):
     """Buy Emit"""
 
     def __post_init__(self):
-        _EmitTrade.__post_init__(self)
+        _EmitTrd.__post_init__(self)
 
     @classmethod
     def parent(cls):
@@ -101,11 +101,11 @@ class EmitBuy(_EmitTrade):
 
 
 @dataclass
-class EmitSll(_EmitTrade):
+class EmitSll(_EmitTrd):
     """Sell Emit"""
 
     def __post_init__(self):
-        _EmitTrade.__post_init__(self)
+        _EmitTrd.__post_init__(self)
 
     @classmethod
     def parent(cls):
@@ -119,7 +119,7 @@ class EmitSll(_EmitTrade):
 
 
 @dataclass
-class EmitLss(_Emit):
+class EmitLse(_Emit):
     """Loss Emit"""
 
     def __post_init__(self):
@@ -184,7 +184,7 @@ class EmitUse(_Emit):
 
 @dataclass
 class EmitStp(_Emit):
-    """Operation Capacity related Emit"""
+    """Operation Capacitate related Emit"""
 
     def __post_init__(self):
         _Emit.__post_init__(self)
@@ -192,7 +192,7 @@ class EmitStp(_Emit):
     @classmethod
     def parent(cls):
         """The Parent Task of the Variable"""
-        return Capacity
+        return Capacitate
 
     @classmethod
     def structures(cls, component):

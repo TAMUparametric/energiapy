@@ -1,17 +1,13 @@
 """Keeps a track of what elements are defined at what dispostions  
 """
 
-from __future__ import annotations
-
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING
 
 from ...core._handy._dunders import _Dunders
+from ...core.aliases.elms.iselm import IsElm
 from ...core.nirop.errors import CacodcarError
-
-if TYPE_CHECKING:
-    from ..core.aliases.isblk import IsChanakya, IsIndex
-    from ..core.aliases.iselm import IsElement
+from ...elements.disposition.index import Index
+from .rulebook import Bhaskara
 
 
 @dataclass
@@ -20,12 +16,12 @@ class ChitraGupta(_Dunders):
 
     Attributes:
         name (str): name, takes from the name of the Scenario
-        rulebook: IsChanakya = field(default_factory=rulebook)
+        rulebook: IsBhaskara = field(default_factory=rulebook)
 
     """
 
     name: str = field(default=None)
-    rulebook: IsChanakya = field(default=None)
+    rulebook: Bhaskara = field(default=None)
 
     def __post_init__(self):
 
@@ -34,19 +30,19 @@ class ChitraGupta(_Dunders):
         for var in self.rulebook.vars():
             setattr(self, var.cname(), [])
 
-        for param in self.rulebook.params():
-            setattr(self, param.cname(), [])
+        for prm in self.rulebook.prms():
+            setattr(self, prm.cname(), [])
 
-    def add(self, elm: IsElement, disp: IsIndex):
-        """Add a disposition to a Variable or Parameter
+    def register(self, elm: IsElm, index: Index):
+        """Register that a Variable or Parameter has been declared at a particular Index
 
         Args:
-            elm (str): Element to add to the ChitraGupta
-            disp (IsIndex): Rule to add to the ChitraGupta
+            elm (IsElm): Element to add to the ChitraGupta
+            index (Index): Rule to add to the ChitraGupta
         """
 
         # Only unique instances of indices are allowed
-        if disp in getattr(self, elm.cname()):
-            raise CacodcarError(f'{elm} already has {disp} in {self.name}')
+        if index in getattr(self, elm.cname()):
+            raise CacodcarError(f'{elm} already has {index} in {self.name}')
 
-        getattr(self, elm.cname()).append(disp)
+        getattr(self, elm.cname()).append(index)

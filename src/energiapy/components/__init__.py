@@ -15,6 +15,10 @@ __all__ = [
     'Process',
     'Storage',
     'Transit',
+    'I',
+    'IsBnd',
+    'IsExt',
+    'IsInc',
 ]
 
 
@@ -31,3 +35,6 @@ from .scope.spatial.linkage import Linkage
 from .scope.spatial.network import Network
 from .scope.temporal.horizon import Horizon
 from .scope.temporal.mode import X
+from .scope.temporal.incidental import I
+
+from ..core.aliases.inps.isinp import IsBnd, IsExt, IsInc

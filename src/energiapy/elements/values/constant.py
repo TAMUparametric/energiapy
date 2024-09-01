@@ -1,3 +1,6 @@
+"""Constant, created by a numeric input
+"""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -5,11 +8,10 @@ from typing import TYPE_CHECKING
 
 from sympy import IndexedBase
 
-from ..defined.enums import Certainty
 from ._value import _Value
 
 if TYPE_CHECKING:
-    from ...core.aliases.inps.isinp import IsNumeric
+    from ...core.aliases.inps.isinp import IsNum
 
 
 @dataclass
@@ -17,18 +19,16 @@ class Constant(_Value):
     """Value as a numberic input
 
     Args:
-        number (IsNumeric): numeric input
+        constant (IsNum): numeric input
     """
 
-    constant: IsNumeric = field(default=None)
+    constant: IsNum = field(default=None)
 
     def __post_init__(self):
         _Value.__post_init__(self)
 
-        self._certainty, self._approach = Certainty.CERTAIN, None
-
     @property
-    def value(self) -> IsNumeric:
+    def value(self) -> IsNum:
         """Returns a number"""
         return self.constant
 

@@ -1,14 +1,13 @@
-"""
-energiapy.Scale - A bespoke discretization of the planning horizon (Horizon) of the problem.
+"""Scale is a bespoke discretization of the planning horizon (Horizon) of the problem.
 """
 
 from dataclasses import dataclass, field
 
-from ._temporal import _Temporal
+from ..._base._component import _Component
 
 
 @dataclass
-class Scale(_Temporal):
+class Scale(_Component):
     """
     A single temporal scale of the planning horizon (Horizon).
 
@@ -23,7 +22,7 @@ class Scale(_Temporal):
     label: str = field(default=None)
 
     def __post_init__(self):
-        _Temporal.__post_init__(self)
+        _Component.__post_init__(self)
 
     def pos(self, index: tuple) -> int:
         """Returns position of index"""

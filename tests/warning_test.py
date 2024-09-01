@@ -3,9 +3,8 @@
 
 import pytest
 
-from src.energiapy.components.scope.horizon import Horizon
-from src.energiapy.core.nirop.warnings import (InconsistencyWarning,
-                                               OverWriteWarning)
+from src.energiapy.components.scope.temporal.horizon import Horizon
+from src.energiapy.core.nirop.warnings import InconsistencyWarning, OverWriteWarning
 
 from .test_fixtures import scenario_ok
 
@@ -16,5 +15,3 @@ def test_overwrite_warning(scenario_ok):
     """
     with pytest.warns(OverWriteWarning):
         scenario_ok.h = Horizon(discretizations=[4])
-        
-

@@ -7,7 +7,7 @@ from dataclasses import dataclass, fields
 from typing import TYPE_CHECKING
 
 from .._attrs._bounds import _UsdBounds
-from .._attrs._exacts import _UsdEmnExacts, _UsdExpExacts
+from .._attrs._exacts import _UsdEmnExacts, _UsdTscExacts
 from .._base._defined import _Defined
 
 if TYPE_CHECKING:
@@ -93,7 +93,7 @@ class _Traded(_Defined, _Commodity, ABC):
 
 
 @dataclass
-class _Used(_UsdBounds, _UsdExpExacts, _UsdEmnExacts, _Traded):
+class _Used(_UsdBounds, _UsdTscExacts, _UsdEmnExacts, _Traded):
     """Applies only for Land and Material
     For now, do not subsume my limitations
     Do whatever you can or want to with energiapy
@@ -112,5 +112,5 @@ class _Used(_UsdBounds, _UsdExpExacts, _UsdEmnExacts, _Traded):
         """Input attributes"""
         return [
             f.name
-            for f in fields(_UsdBounds) + fields(_UsdExpExacts) + fields(_UsdEmnExacts)
+            for f in fields(_UsdBounds) + fields(_UsdTscExacts) + fields(_UsdEmnExacts)
         ]

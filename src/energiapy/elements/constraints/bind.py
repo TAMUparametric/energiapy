@@ -1,16 +1,12 @@
 """Constraint to Bind variable to a lower or upper Parameter or Variable (or both) Bound
 """
 
-from __future__ import annotations
-
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING
 
-from ..dispositions.enums import VarBnd
+from ...core.aliases.elms.isprm import IsPrm
+from ...core.aliases.elms.isvar import IsVar
+from ..disposition.bound import VarBnd
 from ._constraint import _Constraint
-
-if TYPE_CHECKING:
-    from ..core.aliases.iselm import IsParameter, IsVariable
 
 
 @dataclass
@@ -18,8 +14,8 @@ class Bind(_Constraint):
     """Bind variable to another variable or parameter"""
 
     varbnd: VarBnd = field(default=None)
-    parent: IsVariable = field(default=None)
-    parameter: IsParameter = field(default=None)
+    parent: IsVar = field(default=None)
+    parameter: IsPrm = field(default=None)
 
     def __post_init__(self):
         _Constraint.__post_init__(self)

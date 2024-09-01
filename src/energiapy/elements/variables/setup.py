@@ -1,19 +1,19 @@
-"""Capacity Operations
+"""Capacitate Operations
 """
 
 from dataclasses import dataclass
 
 from sympy import IndexedBase
 
-from ..components.operational.process import Process
-from ..components.operational.storage import Storage
-from ..components.operational.transit import Transit
-from ..dispositions.structure import make_structures
+from ...components.operation.process import Process
+from ...components.operation.storage import Storage
+from ...components.operation.transit import Transit
+from ..disposition.structure import make_structures
 from ._variable import _BoundVar
 
 
 @dataclass
-class Capacity(_BoundVar):
+class Capacitate(_BoundVar):
     """Trade changes the ownership of Resource between Players"""
 
     def __post_init__(self):

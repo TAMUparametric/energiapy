@@ -9,11 +9,10 @@ from typing import TYPE_CHECKING
 from sympy import IndexedBase
 
 from ...core._handy._dunders import _Magics
-from ..defined.enums import Approach, Certainty
 from ._value import _Value
 
 if TYPE_CHECKING:
-    from ...core.aliases.inps.isinp import IsInput, IsSpace
+    from ...core.aliases.inps.isinp import IsSpc
 
 
 @dataclass
@@ -55,12 +54,10 @@ class Theta(_Value, _Magics):
 
     """
 
-    space: IsSpace = field(default=None)
+    space: IsSpc = field(default=None)
 
     def __post_init__(self):
         _Value.__post_init__(self)
-
-        self._certainty, self._approach = Certainty.CERTAIN, Approach.PARAMETRIC
 
         if len(self.space) != 2:
             raise ValueError(f'{self.name}: tuple must be of length 2')

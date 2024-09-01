@@ -15,7 +15,7 @@ from ._commodity import _Used
 
 @dataclass
 class Land(_Used):
-    """Land derived from Operation Capacity
+    """Land derived from Operation Capacitate
     Use can cost Cash and emit Emissions
 
     Attributes:

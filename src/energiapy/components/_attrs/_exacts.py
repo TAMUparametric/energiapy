@@ -9,7 +9,7 @@ from ...core.aliases.inps.isinp import IsExt, IsInc
 
 
 @dataclass
-class _ResExpExacts:
+class _ResTscExacts:
     """Exact Transact Inputs for Resources
 
 
@@ -28,7 +28,7 @@ class _ResExpExacts:
 
 
 @dataclass
-class _UsdExpExacts:
+class _UsdTscExacts:
     """Exact Transact Inputs for Land and Material (Used)
 
     Attributes:
@@ -39,7 +39,7 @@ class _UsdExpExacts:
 
 
 @dataclass
-class _OpnExpExacts:
+class _OpnTscExacts:
     """Exact Transact Inputs for Operational Components
 
     Attributes:
@@ -52,7 +52,7 @@ class _OpnExpExacts:
 
 
 @dataclass
-class _ExpExacts(_ResExpExacts, _UsdExpExacts, _OpnExpExacts):
+class _TscExacts(_ResTscExacts, _UsdTscExacts, _OpnTscExacts):
     """Exact Transact Inputs for Components"""
 
 
@@ -104,11 +104,11 @@ class _EmnExacts(_ResEmnExacts, _UsdEmnExacts, _OpnEmnExacts):
     """Exact Emission Inputs for Components"""
 
 
-# -------------UseSetUp Exacts-------------
+# -------------UseStp Exacts-------------
 
 
 @dataclass
-class _UsdUseExacts:
+class _OpnUseExacts:
     """Exact Uses of Land and Material (Used) by Operational Components
 
     Attributes:
@@ -122,7 +122,7 @@ class _UsdUseExacts:
 
 
 @dataclass
-class _UsdExpExacts:
+class _OpnUseTscExacts:
     """Exact Use Costs for Land and Material (Used) by Operational Components
 
     Attributes:
@@ -136,7 +136,7 @@ class _UsdExpExacts:
 
 
 @dataclass
-class _UsdEmnExacts:
+class _OpnUseEmnExacts:
     """Exact Use Emissions by use of Land and Material (Used) by Operational Components
 
     Attributes:
@@ -150,7 +150,7 @@ class _UsdEmnExacts:
 
 
 @dataclass
-class _UsdExacts(_UsdUseExacts, _UsdExpExacts, _UsdEmnExacts):
+class _OpnUsdExacts(_OpnUseExacts, _OpnUseTscExacts, _OpnUseEmnExacts):
     """Exact Use Inputs for Operational Components"""
 
 
@@ -158,7 +158,7 @@ class _UsdExacts(_UsdUseExacts, _UsdExpExacts, _UsdEmnExacts):
 
 
 @dataclass
-class _StgLssExacts:
+class _StgLseExacts:
     """Exact Loss during inventory of Resource by Storage
 
     Attributes:
@@ -170,7 +170,7 @@ class _StgLssExacts:
 
 
 @dataclass
-class _TrnLssExacts:
+class _TrnLseExacts:
     """Exact Loss during freight of Resource by Transit
 
     Attributes:
@@ -182,7 +182,7 @@ class _TrnLssExacts:
 
 
 @dataclass
-class LssExacts(_StgLssExacts, _TrnLssExacts):
+class _LseExacts(_StgLseExacts, _TrnLseExacts):
     """Exact Loss Inputs for Components"""
 
 
@@ -222,17 +222,17 @@ class _RteExacts(_OpnRteExacts, _TrnRteExacts):
 
 
 @dataclass
-class _ResExacts(_ResExpExacts, _ResEmnExacts):
+class _ResExacts(_ResTscExacts, _ResEmnExacts):
     """Exact Inputs for Resources imported by Process"""
 
 
 @dataclass
-class _UsdExacts(_UsdExpExacts, _UsdEmnExacts):
+class _UsdExacts(_UsdTscExacts, _UsdEmnExacts):
     """Exact Inputs for Land and Material (Used)"""
 
 
 @dataclass
-class _OpnExacts(_OpnExpExacts, _OpnEmnExacts, _UsdExacts, _OpnRteExacts):
+class _OpnExacts(_OpnTscExacts, _OpnEmnExacts, _OpnUsdExacts, _OpnRteExacts):
     """Exact Inputs for Operational Components"""
 
 
@@ -242,10 +242,10 @@ class _ProExacts(_OpnExacts):
 
 
 @dataclass
-class _StgExacts(_OpnExacts, _StgLssExacts):
+class _StgExacts(_OpnExacts, _StgLseExacts):
     """Exact Inputs for Storage Components"""
 
 
 @dataclass
-class _TrnExacts(_OpnExacts, _TrnLssExacts, _TrnRteExacts):
+class _TrnExacts(_OpnExacts, _TrnLseExacts, _TrnRteExacts):
     """Exact Inputs for Transit Components"""

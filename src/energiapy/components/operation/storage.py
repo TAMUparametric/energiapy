@@ -38,15 +38,15 @@ class Storage(
 
     A ResourceStg is generate internally as the stored Resource
     Charging and discharging Processes are also generated internally
-    Capacity in this case is the amount of Resource that can be stored
+    Capacitate in this case is the amount of Resource that can be stored
     Charging and discharging capacities can also be provided
 
     Attributes:
         capacity (IsBnd): bound on the capacity of the Operation
-        store: (IsBnd): bound by Capacity. Reported by operate as well.
-        land_use (IsExt): land use per Capacity
-        material_use (IsExt): material use per Capacity
-        capex (IsInc): capital expense per Capacity
+        store: (IsBnd): bound by Capacitate. Reported by operate as well.
+        land_use (IsExt): land use per Capacitate
+        material_use (IsExt): material use per Capacitate
+        capex (IsInc): capital expense per Capacitate
         opex (IsInc): operational expense based on Operation
         land_use_emission (IsExt): emission due to land use
         material_use_emission (IsExt): emission due to material use

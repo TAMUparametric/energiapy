@@ -3,7 +3,7 @@
 
 from dataclasses import dataclass, field
 
-from ..core._handy._dunders import _Dunders
+from ...core._handy._dunders import _Dunders
 
 
 @dataclass

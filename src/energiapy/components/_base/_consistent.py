@@ -46,7 +46,7 @@ class _Consistent(ABC):
     @property
     @abstractmethod
     def taskmaster(self):
-        """TaskMaster of the Scenario"""
+        """Chanakya of the Scenario"""
 
     @staticmethod
     @abstractmethod

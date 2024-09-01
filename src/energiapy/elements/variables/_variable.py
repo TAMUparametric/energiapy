@@ -5,32 +5,31 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Tuple, list
+from typing import TYPE_CHECKING
 
-from ..core._handy._dunders import _Dunders
-from ..core.nirop.errors import CacodcarError
+from sympy import IndexedBase
+
+from ...core._handy._dunders import _Dunders
+from ...core.aliases.cmps.isdfn import IsDfn
+from ...core.nirop.errors import CacodcarError
 
 if TYPE_CHECKING:
-    from sympy import IndexedBase
-
-    from ..core.aliases.isblk import IsIndex
-    from ..core.aliases.iscmp import IsCmp
-    from ..core.aliases.isvar import IsVariable
+    from ..disposition.index import Index
 
 
 @dataclass
 class _Variable(_Dunders, ABC):
     """Component Task"""
 
-    disposition: IsIndex = field(default=None)
-    component: IsCmp = field(default=None)
+    index: Index = field(default=None)
+    component: IsDfn = field(default=None)
 
     def __post_init__(self):
         self.name = str(self.sym)
 
-        if not self.disposition.structure() in self.structures(self.component):
+        if not self.index.structure() in self.structures(self.component):
             raise CacodcarError(
-                f'{self}:{self.disposition.structure()} not in {self.structures(self.component)}'
+                f'{self}:{self.index.structure()} not in {self.structures(self.component)}'
             )
 
     @staticmethod
@@ -40,23 +39,23 @@ class _Variable(_Dunders, ABC):
 
     @classmethod
     @abstractmethod
-    def structures(cls, component) -> list[Tuple[str]]:
+    def structures(cls, component) -> list[tuple[str]]:
         """The allowed structures of Indexs of the Variable"""
 
     @classmethod
     @abstractmethod
-    def parent(cls) -> IsVariable:
+    def parent(cls) -> _Variable:
         """The Parent Variable of the Variable"""
 
     @classmethod
     @abstractmethod
-    def child(cls) -> IsCmp:
+    def child(cls) -> IsDfn:
         """The Parent Variable doesnot carry Child Component"""
 
     @property
     def sym(self):
         """The symbolic representation of the Variable"""
-        return self.id()[self.disposition.sym]
+        return self.id()[self.index.sym]
 
 
 # The ones below are made for the sake of clarity

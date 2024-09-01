@@ -113,7 +113,7 @@ class StpExpenseI(_ExactPar):
 
 
 @dataclass
-class OpExpI(_ExactPar):
+class OprExpenseI(_ExactPar):
     """Incidental Operational Transact"""
 
     def __post_init__(self):

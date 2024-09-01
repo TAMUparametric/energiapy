@@ -1,15 +1,11 @@
-"""If a parameter is incidental
+"""Used as a decorator for Incidental Parameters
 """
 
-from __future__ import annotations
-
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING
+
+from pandas import DataFrame
 
 from ....core._handy._dunders import _Dunders
-
-if TYPE_CHECKING:
-    from ...core.aliases.isinp import IsIncidental
 
 
 @dataclass
@@ -23,7 +19,7 @@ class I(_Dunders):
         value (IsIncidental): The incidental value
     """
 
-    value: IsIncidental = field(default=None)
+    value: int | float | DataFrame = field(default=None)
 
     def __post_init__(self):
         self.name = 'i'

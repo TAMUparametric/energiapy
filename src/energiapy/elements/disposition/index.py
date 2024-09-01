@@ -1,4 +1,4 @@
-"""Index is attached to parameters, variables, and constraints
+"""Index gives the disposition of Program Elements (Variables, Parameters, Constraints)
 """
 
 from dataclasses import dataclass, field, fields
@@ -17,8 +17,8 @@ from ...components.operation.transit import Transit
 from ...components.scope.spatial.linkage import Linkage
 from ...components.scope.spatial.location import Location
 from ...components.scope.spatial.network import Network
-from ...components.temporal.mode import X
-from ...components.temporal.scale import Scale
+from ...components.scope.temporal.mode import X
+from ...components.scope.temporal.scale import Scale
 from ...core._handy._dunders import _Dunders
 from ...core.aliases.cmps.iscmp import IsCmp
 
@@ -44,12 +44,9 @@ class Index(_Dunders):
         ntw (IsNetwork): Network
         scl (IsScale): Scale
         mde (IsMode): Mode
-
-
-
     """
 
-    # Do not reorder these fields
+    # Do not reorder these fields, Please
     ply: Player = field(default=None)
     emn: Emission = field(default=None)
     csh: Cash = field(default=None)
@@ -67,12 +64,12 @@ class Index(_Dunders):
 
     def __post_init__(self):
 
-        # this is the component index
+        # this is the disposition of the Program Element
         self.disposition = tuple(
             [getattr(self, f.name) for f in fields(self) if getattr(self, f.name)]
         )
 
-        # this maintains the order of the components in the index
+        # this maintains the order of the components in the disposition
         self.name = f'{tuple(dict.fromkeys(self.disposition).keys())}'
 
     def args(self):
@@ -80,28 +77,22 @@ class Index(_Dunders):
         return {f.name: getattr(self, f.name) for f in fields(self)}
 
     def idx(self):
-        """Gives the full index list, by expanding the temporal index"""
+        """Gives the full disposition list, by expanding the temporal index"""
         return [
-            (*[k.name for k in self.disposition[:-1]], *j)
-            for j in self.scl.disposition
-            if j
+            (*[k.name for k in self.disposition[:-1]], *t) for t in self.scl.index if t
         ]
 
     def structure(self):
-        """provides the structure of the disposition"""
-        return [i.name for i in fields(self) if getattr(self, i.name)]
+        """provides the structure of the Index"""
+        return [f.name for f in fields(self) if getattr(self, f.name)]
 
     def childless(self, child: IsCmp):
-        """Gives the disposition with the component removed"""
+        """Gives a disposition without the component"""
         return {
             f.name: getattr(self, f.name)
             for f in fields(self)
             if not isinstance(getattr(self, f.name), child)
         }
-
-    def scaledown(self):
-        """Goes to a lower scale"""
-        return Index(**self.args())
 
     def __len__(self):
         return len(self.scl)
@@ -109,4 +100,4 @@ class Index(_Dunders):
     @property
     def sym(self):
         """Symbol"""
-        return symbols(",".join([f'{i}' for i in self.disposition]), cls=Idx)
+        return symbols(",".join([f'{d}' for d in self.disposition]), cls=Idx)

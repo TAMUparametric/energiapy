@@ -4,11 +4,11 @@
 import pytest
 
 from src.energiapy.components.commodity.resource import Resource
-from src.energiapy.components.scope.horizon import Horizon
-from energiapy.components.scope.spatial.network import Network
+from src.energiapy.components.scope.spatial.network import Network
+from src.energiapy.components.scope.temporal.horizon import Horizon
+from src.energiapy.components.scope.temporal.mode import X
 from src.energiapy.core._handy._enums import _Dummy
 from src.energiapy.environ.scenario import Scenario
-from src.energiapy.parameters.designators.mode import X
 
 
 @pytest.fixture
@@ -272,5 +272,3 @@ def test_make_modes(
     assert (
         scenario.res.make_modes(spttmpmdeval, attr=attr) == spttmpmdepval
     )  # left alone
-
-

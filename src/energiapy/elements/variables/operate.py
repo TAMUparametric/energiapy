@@ -1,16 +1,16 @@
-"""Operate Operations
+"""Operate is when you utilize the capacity of an Operation to make a Resource
 """
 
 from dataclasses import dataclass
 
 from sympy import IndexedBase
 
-from ..components.operational.process import Process
-from ..components.operational.storage import Storage
-from ..components.operational.transit import Transit
-from ..dispositions.structure import make_structures
+from ...components.operation.process import Process
+from ...components.operation.storage import Storage
+from ...components.operation.transit import Transit
+from ..disposition.structure import make_structures
 from ._variable import _BoundVar
-from .setup import Capacity
+from .setup import Capacitate
 
 
 @dataclass
@@ -23,7 +23,7 @@ class Operate(_BoundVar):
     @classmethod
     def parent(cls):
         """The Parent Task of the Variable"""
-        return Capacity
+        return Capacitate
 
     @classmethod
     def child(cls):

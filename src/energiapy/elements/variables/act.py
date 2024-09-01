@@ -5,15 +5,15 @@ from dataclasses import dataclass
 
 from sympy import IndexedBase
 
-from ..dispositions.structure import make_structures
+from ..disposition.structure import make_structures
 from ._variable import _BoundVar
 
 # ---------------MixIns---------------
 
 
 @dataclass
-class _Action(_BoundVar):
-    """Action is a Player's action
+class _Act(_BoundVar):
+    """Act is a Player's action
     This is a parent class
     """
 
@@ -41,11 +41,11 @@ class _Action(_BoundVar):
 
 
 @dataclass
-class Give(_Action):
+class Give(_Act):
     """Give is when a player gives from what they Need(s)"""
 
     def __post_init__(self):
-        _Action.__post_init__(self)
+        _Act.__post_init__(self)
 
     @staticmethod
     def id() -> IndexedBase:
@@ -54,11 +54,11 @@ class Give(_Action):
 
 
 @dataclass
-class Take(_Action):
+class Take(_Act):
     """Take is when Player takes from what they Has(ve)"""
 
     def __post_init__(self):
-        _Action.__post_init__(self)
+        _Act.__post_init__(self)
 
     @staticmethod
     def id() -> IndexedBase:

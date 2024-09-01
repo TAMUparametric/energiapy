@@ -16,11 +16,11 @@ class _Operational(_Defined, ABC):
 
     Attributes:
         capacity (IsBnd): bound on the capacity of the Operation
-        land (IsExt): land use per Capacity
-        material (IsExt): material use per Capacity
-        capex (IsExt): capital expense per Capacity
+        land (IsExt): land use per Capacitate
+        material (IsExt): material use per Capacitate
+        capex (IsExt): capital expense per Capacitate
         opex (IsExt): operational expense based on Operation
-        emission (IsExt): emission due to construction per Capacity
+        emission (IsExt): emission due to construction per Capacitate
     """
 
     def __post_init__(self):
@@ -55,8 +55,8 @@ class _Operational(_Defined, ABC):
         """Materials used in the Operation"""
         if getattr(self, 'material_use'):
             return [
-                i.disposition.mat
-                for i in getattr(self, 'material_use').spttmpdict.values()
+                i.index.mat
+                for i in getattr(self, 'material_use').datum.values()
             ]
         else:
             return []
@@ -66,8 +66,8 @@ class _Operational(_Defined, ABC):
         """Emissions from the Operation"""
         if getattr(self, 'setup_emission'):
             return [
-                i.disposition.emn
-                for i in getattr(self, 'setup_emission').spttmpdict.values()
+                i.index.emn
+                for i in getattr(self, 'setup_emission').datum.values()
             ]
         else:
             return []

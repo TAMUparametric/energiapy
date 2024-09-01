@@ -1,14 +1,10 @@
 """SpatioTemporalInput, this is an intermediate class
 """
 
-from __future__ import annotations
-
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Any, Tuple, Union
 
 from pandas import DataFrame
 
-from ..components import Linkage, Location, Scale
 from ..components.analytical.player import Player
 from ..components.commodity.cash import Cash
 from ..components.commodity.emission import Emission
@@ -18,16 +14,20 @@ from ..components.commodity.resource import Resource
 from ..components.operation.process import Process
 from ..components.operation.storage import Storage
 from ..components.operation.transit import Transit
-from ..components.scope import Network
+from ..components.scope.spatial.linkage import Linkage
+from ..components.scope.spatial.location import Location
+from ..components.scope.spatial.network import Network
+from ..components.scope.temporal.incidental import I
+from ..components.scope.temporal.mode import X
+from ..components.scope.temporal.scale import Scale
 from ..core._handy._dunders import _Dunders
+from ..core.aliases.cmps.iscmp import IsDsp
+from ..core.aliases.cmps.isdfn import IsDfn
+from ..core.aliases.elms.isval import IsVal
+from ..core.aliases.inps.isinp import IsBndInp, IsExtInp, IsIncInp, IsSptTmp
 from ..core.nirop.errors import InputTypeError
-from ..indices.disposition import Index
-from ..parameters.designators.incidental import I
-from ..parameters.designators.mode import X
+from ..elements.disposition.index import Index
 from ..utils.dictionary import flatten
-
-if TYPE_CHECKING:
-    from ..core.aliases import IsCmp, IsSptTmpDict, IsValue
 
 
 @dataclass
@@ -48,45 +48,45 @@ class Datum(_Dunders):
 
     Attributes:
         attr (str): The attribute of the input
-        spttmpdict (IsSptTmpDict): The dictionary input
-        component (IsCmp): The component to which the input belongs
+        datum (IsSptTmp): Consistent spatiotemporal input dictionary
+        component (IsDfn): The component to which the input belongs
 
     """
 
     attr: str = field(default=None)
-    spttmpdict: IsSptTmpDict = field(default=None)
-    component: IsCmp = field(default=None)
+    datum: IsSptTmp = field(default=None)
+    component: IsDfn = field(default=None)
 
     def __post_init__(self):
         # The original dictionary input
         # keep it because some operations birth processes
         # processes need the og input
-        self.og_input = self.spttmpdict
-        self.update_spttmpdict()
+        self.og_input = self.datum
+        self.update_datum()
 
     @property
     def indices(self):
         """Returns the Index of the input"""
-        return list(self.spttmpdict.keys())
+        return list(self.datum.keys())
 
     @property
     def name(self):
         """Returns the Index of the input"""
-        return f'{self.attr}{self.spttmpdict}'
+        return f'{self.attr}{self.datum}'
 
     @property
     def by_position(self):
         """Returns the Index of the input"""
-        return {i: val for i, val in enumerate(list(self.spttmpdict.values()))}
+        return {i: val for i, val in enumerate(list(self.datum.values()))}
 
-    def update_spttmpdict(self):
-        """Updates the spttmpdict
+    def update_datum(self):
+        """Updates the datum
         Returns:
             dict: {Index: value}
         """
         # Flatten the dictionary. Now the keys are tuples
         # {(Network/Spatial, Scale, ...): value}
-        dict_iter = flatten(self.spttmpdict)
+        dict_iter = flatten(self.datum)
         dict_upd = {}
 
         for key, val in dict_iter.items():
@@ -154,18 +154,18 @@ class Datum(_Dunders):
             dict_upd[disp] = val
 
         # update the input with a dictionary {Index: value}
-        self.spttmpdict = dict_upd
+        self.datum = dict_upd
 
-    def get(self, n: Tuple[IsCmp], int, None] = None) -> IsValue:
+    def get(self, n: IsDsp | int | None = None) -> IsVal:
         """Gets the value of the input at the index
         You can give the index or the position
         or nothing, to get some guidelines
 
         Args:
-            n (Tuple[IsCmp], int, None]): index (tuple) or position (int) to get the value. Default is None
+            n (Tuple[IsDsp], int, None]): disposition (tuple) or position (int) to get the value. Default is None
 
         Returns:
-            IsValue: The value at the index
+            IsVal: The value at the index
 
         Examples:
             Declare some Scenario, Horizon, and Network
@@ -194,7 +194,7 @@ class Datum(_Dunders):
         def siren_index():
             print()
             print('For index, use this as a guideline')
-            print(f'{self.spttmpdict}')
+            print(f'{self.datum}')
 
         def siren_help():
             print()
@@ -208,14 +208,14 @@ class Datum(_Dunders):
 
         if isinstance(n, tuple):
 
-            index = n
-            if not index in [disp.disposition for disp in self.indices]:
-                print(f'Index {index} not found')
+            disp = n
+            if not disp in [idx.disposition for idx in self.indices]:
+                print(f'Index with disposition {disp} not found')
                 siren_index()
                 siren_help()
 
-            for disp, value in self.spttmpdict.items():
-                if disp.disposition == index:
+            for idx, value in self.datum.items():
+                if idx.disposition == disp:
                     return value
 
         if isinstance(n, int):
@@ -227,18 +227,18 @@ class Datum(_Dunders):
                 siren_help()
 
             else:
-                index = self.indices[position]
-                return self.spttmpdict[index]
+                disp = self.indices[position]
+                return self.datum[disp]
 
     def values(self):
         """Returns the values of the input"""
-        return list(self.spttmpdict.values())
+        return list(self.datum.values())
 
-    def check_type(self, value: Any):
+    def check_type(self, value: IsBndInp | IsExtInp | IsIncInp):
         """Verifies if the input type is correct
 
         Args:
-            value (Any): The user input value
+            value (IsBndInp | IsExtInp | IsIncInp): The user input value
 
         Raises:
             InputTypeError: If the value is not of the correct type

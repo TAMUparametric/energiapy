@@ -38,9 +38,9 @@ class Process(
     Attributes:
         capacity (IsBnd): bound on the capacity of the Operation
         produce (IsBnd): bounded by capacity of Process. Reported by Operate as well
-        land_use (IsExt): land use per Capacity
-        material_use (IsExt): material use per Capacity
-        capex (IsInc): capital expense per Capacity
+        land_use (IsExt): land use per Capacitate
+        material_use (IsExt): material use per Capacitate
+        capex (IsInc): capital expense per Capacitate
         opex (IsInc): operational expense based on Operation
         land_use_emission (IsExt): emission due to land use
         material_use_emission (IsExt): emission due to material use

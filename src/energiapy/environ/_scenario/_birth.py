@@ -10,11 +10,14 @@ from typing import TYPE_CHECKING
 from ...components.operation.process import Process
 from ...components.scope.spatial.linkage import Linkage
 from ...components.scope.spatial.location import Location
-from ...components.temporal.scale import Scale
+from ...components.scope.temporal.scale import Scale
 
 if TYPE_CHECKING:
-    from ...core.aliases.cmps.iscmp import (IsHorizon, IsLinkage, IsNetwork,
-                                            IsOpn, IsResource)
+    from ...components.commodity.resource import Resource
+    from ...components.operation.storage import Storage
+    from ...components.operation.transit import Transit
+    from ...components.scope.spatial.network import Network
+    from ...components.scope.temporal.horizon import Horizon
 
 
 class _Birth(ABC):
@@ -24,7 +27,7 @@ class _Birth(ABC):
     def system(self):
         """System Model Block of the Scenario"""
 
-    def birth_scales(self, horizon: IsHorizon):
+    def birth_scales(self, horizon: Horizon):
         """Births temporal Scales based on discretizations provided in the Horizon
 
         Args:
@@ -48,7 +51,7 @@ class _Birth(ABC):
                 ),
             )
 
-    def birth_locations(self, network: IsNetwork):
+    def birth_locations(self, network: Network):
         """Births Locations based on the locs provided in the Network
 
         Args:
@@ -63,7 +66,7 @@ class _Birth(ABC):
             # set the locations as attributes of the Scenario
             setattr(self, i, Location(label=label_node))
 
-    def birth_sib_linkage(self, linkage: IsLinkage):
+    def birth_sib_linkage(self, linkage: Linkage):
         """Births a Linkage going in the opposite direction of the provided Linkage
         if bi is set to True
 
@@ -100,7 +103,7 @@ class _Birth(ABC):
                 getattr(self.system, linkage.name),
             )
 
-    def birth_all_linkages(self, network: IsNetwork):
+    def birth_all_linkages(self, network: Network):
         """Births Linkages for between all Locations in the Network
 
         Triggered if Network.link_all is set to True
@@ -115,7 +118,7 @@ class _Birth(ABC):
                     # set the linkages as attributes of the Scenario
                     setattr(self, f'lnk{i}', Linkage(source=src, sink=snk, bi=True))
 
-    def birth_bal_processes(self, operation: IsOpn, res: IsResource):
+    def birth_bal_processes(self, operation: Storage | Transit, res: Resource):
         """Births Balance Processes
         Charging and Discharging Processes for a Operation Component
         Loading and Unloading Processes for a Transit Component

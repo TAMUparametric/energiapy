@@ -96,7 +96,7 @@ class _ProBounds:
     """Bounds for Process
 
     Attributes:
-        capacity (IsBnd): bound on Capacity Variable
+        capacity (IsBnd): bound on Capacitate Variable
         produce (IsBnd): bound on Operate Variable
     """
 
@@ -108,7 +108,7 @@ class _StgBounds:
     """Bounds for Storage
 
     Attributes:
-        capacity (IsBnd): bound on Capacity Variable
+        capacity (IsBnd): bound on Capacitate Variable
         store (IsBnd): bound on Store Variable
     """
 
@@ -120,7 +120,7 @@ class _TrnBounds:
     """Bounds for Transit
 
     Attributes:
-        capacity (IsBnd): bound on Capacity Variable
+        capacity (IsBnd): bound on Capacitate Variable
         transport (IsBnd): bound on Transport Variable
     """
 

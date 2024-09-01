@@ -8,7 +8,7 @@
 from dataclasses import dataclass, fields
 
 from .._attrs._bounds import _ResBounds
-from .._attrs._exacts import _ResEmnExacts, _ResExpExacts
+from .._attrs._exacts import _ResEmnExacts, _ResTscExacts
 from ._commodity import _Traded
 
 # Associated Program Elements are:
@@ -22,7 +22,7 @@ from ._commodity import _Traded
 
 
 @dataclass
-class Resource(_ResBounds, _ResExpExacts, _ResEmnExacts, _Traded):
+class Resource(_ResBounds, _ResTscExacts, _ResEmnExacts, _Traded):
     """Resources are Produced by Processes, Stored by Storage, and Transported by Transits
     They can be bought, sold, shipped, and received by Locations or Processes
 
@@ -58,7 +58,7 @@ class Resource(_ResBounds, _ResExpExacts, _ResEmnExacts, _Traded):
         """Input attributes"""
         return [
             f.name
-            for f in fields(_ResBounds) + fields(_ResExpExacts) + fields(_ResEmnExacts)
+            for f in fields(_ResBounds) + fields(_ResTscExacts) + fields(_ResEmnExacts)
         ]
 
 

@@ -11,42 +11,61 @@ Task:
     Defines strict behaviour
 """
 
-from __future__ import annotations
-
 from dataclasses import asdict, dataclass, field, fields
-from typing import TYPE_CHECKING, list
 
-from ..attrs.balances import _ProBalance, _StgBalance, _TrnBalance
-from ..attrs.bounds import (_CshBounds, _EmnBounds, _OpnBounds, _PlyBounds,
-                            _ProBounds, _ResBounds, _StgBounds, _TrnBounds,
-                            _UsdBounds)
-from ..attrs.exacts import (LssExacts, _EmnExacts, _ExpExacts, _RteExacts,
-                            _UsdExacts)
-from ..components.analytical.player import Player
-from ..components.commodity.cash import Cash
-from ..components.commodity.emission import Emission
-from ..components.commodity.land import Land
-from ..components.commodity.material import Material
-from ..components.commodity.resource import Resource
-from ..components.operational.process import Process
-from ..components.operational.storage import Storage
-from ..components.operational.transit import Transit
-from ..core._handy._dunders import _Dunders
-from ..core._handy._printers import _Print
-from ..variables.action import Give, Take
-from ..variables.capacitate import Capacity
-from ..variables.emit import Emit, EmtBuy, EmtLss, EmtSll, EmtStp, EmtUse
-from ..variables.expense import (Earn, ExpBuy, ExpOpr, ExpOprI, ExpSell,
-                                 ExpSetUp, ExpSetUpI, ExpUseSetUp, Spend,
-                                 TransactCrd, TransactPnt)
-from ..variables.loss import Loss
-from ..variables.operate import Operate
-from ..variables.trade import Buy, Sell, Ship
-from ..variables.use import Use, UseSetUp
-
-if TYPE_CHECKING:
-    from ..core.aliases.isdef import IsCmp
-    from ..core.aliases.isvar import IsVariable
+from ...components._attrs._balances import _ProBalance, _StgBalance, _TrnBalance
+from ...components._attrs._bounds import (
+    _CshBounds,
+    _EmnBounds,
+    _OpnBounds,
+    _PlyBounds,
+    _ProBounds,
+    _ResBounds,
+    _StgBounds,
+    _TrnBounds,
+    _UsdBounds,
+)
+from ...components._attrs._exacts import (
+    _EmnExacts,
+    _LseExacts,
+    _RteExacts,
+    _TscExacts,
+    _UsdExacts,
+    _OpnUsdExacts,
+)
+from ...components.analytical.player import Player
+from ...components.commodity.cash import Cash
+from ...components.commodity.emission import Emission
+from ...components.commodity.land import Land
+from ...components.commodity.material import Material
+from ...components.commodity.resource import Resource
+from ...components.operation.process import Process
+from ...components.operation.storage import Storage
+from ...components.operation.transit import Transit
+from ...core._handy._dunders import _Dunders
+from ...core._handy._printers import _Print
+from ...core.aliases.cmps.isdfn import IsDfn
+from ...core.aliases.elms.isvar import IsVar
+from ...elements.variables.act import Give, Take
+from ...elements.variables.emit import Emit, EmitBuy, EmitLse, EmitSll, EmitStp, EmitUse
+from ...elements.variables.lose import Lose
+from ...elements.variables.operate import Operate
+from ...elements.variables.setup import Capacitate
+from ...elements.variables.trade import Buy, Sell, Ship
+from ...elements.variables.transact import (
+    Earn,
+    Spend,
+    TransactBuy,
+    TransactCrd,
+    TransactOpr,
+    TransactOprI,
+    TransactPnt,
+    TransactSll,
+    TransactStp,
+    TransactStpI,
+    TransactUse,
+)
+from ...elements.variables.use import Use, UseStp
 
 
 class _TskPrint(_Print):
@@ -66,19 +85,19 @@ class Task(_Dunders, _TskPrint):
 
     Attributes:
         attr (str): attr associated with Task
-        root (list[IsCmp]): list of Components where the attribute can be declared
-        other (list[IsCmp]): list of Incongruent Components where the Component attribute can be declared
-        var (IsVariable): Task Variable
-        var_i (IsVariable): Incidental Task Variable
+        root (list[IsDfn]): list of Components where the attribute can be declared
+        other (list[IsDfn]): list of Incongruent Components where the Component attribute can be declared
+        var (IsVar): Task Variable
+        var_i (IsVar): Incidental Task Variable
         spt (list[IsSpt]): list of Spatial Components where the attribute can be declared
 
     """
 
     attr: str = field(default=None)
-    root: list[IsCmp] = field(default_factory=list)
-    other: list[IsCmp] = field(default_factory=list)
-    var: IsVariable = field(default=None)
-    var_i: IsVariable = field(default=None)
+    root: list[IsDfn] = field(default_factory=list)
+    other: list[IsDfn] = field(default_factory=list)
+    var: IsVar = field(default=None)
+    var_i: IsVar = field(default=None)
 
     def __post_init__(self):
         self.name = f'Task|{self.attr}|'
@@ -146,7 +165,7 @@ class _Bounds(
         self.ship = Task(attr='ship', root=[Resource], var=Ship, other=[Transit])
         # Operational
         self.capacity = Task(
-            attr='capacity', root=[Process, Storage, Transit], var=Capacity
+            attr='capacity', root=[Process, Storage, Transit], var=Capacitate
         )
         # self.operate = Task(
         #     attr='operate', root=[Process, Storage, Transit], var=Operate
@@ -182,7 +201,9 @@ class _Bounds(
 
 
 @dataclass
-class _Exacts(_ExpExacts, _EmnExacts, _UsdExacts, LssExacts, _RteExacts):
+class _Exacts(
+    _TscExacts, _EmnExacts, _UsdExacts, _OpnUsdExacts, _LseExacts, _RteExacts
+):
     """These are Exact Component Inputs
 
     These are inherited across all Spatial Components
@@ -198,11 +219,11 @@ class _Exacts(_ExpExacts, _EmnExacts, _UsdExacts, LssExacts, _RteExacts):
         self.buy_price = Task(
             attr='buy_price',
             root=[Resource],
-            var=ExpBuy,
+            var=TransactBuy,
             other=[Process],
         )
         self.sell_price = Task(
-            attr='sell_price', root=[Resource], var=ExpSell, other=[Process]
+            attr='sell_price', root=[Resource], var=TransactSll, other=[Process]
         )
         self.credit = Task(
             attr='credit', root=[Resource], var=TransactCrd, other=[Process]
@@ -212,75 +233,80 @@ class _Exacts(_ExpExacts, _EmnExacts, _UsdExacts, LssExacts, _RteExacts):
         )
         # Land and Material (Used)
         self.use_cost = Task(
-            attr='use_cost', root=[Land, Material], var=ExpUseSetUp, other=[Process]
+            attr='use_cost', root=[Land, Material], var=TransactUse, other=[Process]
         )
         # Operational
         self.capex = Task(
             attr='capex',
             root=[Process, Storage, Transit],
-            var=ExpSetUp,
-            var_i=ExpSetUpI,
+            var=TransactStp,
+            var_i=TransactStpI,
         )
         self.opex = Task(
-            attr='opex', root=[Process, Storage, Transit], var=ExpOpr, var_i=ExpOprI
+            attr='opex',
+            root=[Process, Storage, Transit],
+            var=TransactOpr,
+            var_i=TransactOprI,
         )
 
         self.land_use_cost = Task(
-            attr='land_use_cost', root=[Land], var=ExpUseSetUp, other=[Process]
+            attr='land_use_cost', root=[Land], var=TransactUse, other=[Process]
         )
 
         self.material_use_cost = Task(
             attr='material_use_cost',
             root=[Material],
-            var=ExpUseSetUp,
+            var=TransactUse,
             other=[Process],
         )
 
         # ---------Emissions---------
         # Resource
         self.buy_emission = Task(
-            attr='buy_emission', root=[Resource], var=EmtBuy, other=[Process]
+            attr='buy_emission', root=[Resource], var=EmitBuy, other=[Process]
         )
         self.sell_emission = Task(
-            attr='sell_emission', root=[Resource], var=EmtSll, other=[Process]
+            attr='sell_emission', root=[Resource], var=EmitSll, other=[Process]
         )
         self.loss_emission = Task(
             attr='loss_emission',
             root=[Resource],
-            var=EmtLss,
+            var=EmitLse,
             other=[Storage, Transit],
         )
         # Land and Material (Used)
-        self.use_emission = Task(attr='use_emission', root=[Land, Material], var=EmtUse)
+        self.use_emission = Task(
+            attr='use_emission', root=[Land, Material], var=EmitUse
+        )
         # Operational
         self.setup_emission = Task(
-            attr='setup_emission', root=[Process, Storage, Transit], var=EmtStp
+            attr='setup_emission', root=[Process, Storage, Transit], var=EmitStp
         )
         self.land_use_emission = Task(
             attr='land_use_emission',
             root=[Land],
             other=[Process, Storage, Transit],
-            var=EmtUse,
+            var=EmitUse,
         )
         self.material_use_emission = Task(
             attr='material_use_emission',
             root=[Material],
             other=[Process, Storage, Transit],
-            var=EmtUse,
+            var=EmitUse,
         )
         # ---------Uses---------
         # Operational
         self.land_use = Task(
-            attr='land_use', root=[Process, Storage, Transit], var=UseSetUp
+            attr='land_use', root=[Process, Storage, Transit], var=UseStp
         )
         self.material_use = Task(
-            attr='material_use', root=[Process, Storage, Transit], var=UseSetUp
+            attr='material_use', root=[Process, Storage, Transit], var=UseStp
         )
         # ---------Losses---------
         # Storage Operation
-        self.inventory_loss = Task(attr='inventory_loss', root=[Storage], var=Loss)
+        self.inventory_loss = Task(attr='inventory_loss', root=[Storage], var=Lose)
         # Transit Operation
-        self.freight_loss = Task(attr='freight_loss', root=[Transit], var=Loss)
+        self.freight_loss = Task(attr='freight_loss', root=[Transit], var=Lose)
         # ---------Rates---------
         # Operational
         self.setup_time = Task(attr='setup_time', root=[Process, Storage, Transit])
@@ -290,7 +316,7 @@ class _Exacts(_ExpExacts, _EmnExacts, _UsdExacts, LssExacts, _RteExacts):
     @staticmethod
     def transactions():
         """Transacts"""
-        return [f.name for f in fields(_ExpExacts)]
+        return [f.name for f in fields(_TscExacts)]
 
     @staticmethod
     def emissions():
@@ -300,12 +326,12 @@ class _Exacts(_ExpExacts, _EmnExacts, _UsdExacts, LssExacts, _RteExacts):
     @staticmethod
     def uses():
         """Uses"""
-        return [f.name for f in fields(_UsdExacts)]
+        return [f.name for f in fields(_UsdExacts) + fields(_OpnUsdExacts)]
 
     @staticmethod
     def losses():
         """Losses"""
-        return [f.name for f in fields(LssExacts)]
+        return [f.name for f in fields(_LseExacts)]
 
     @staticmethod
     def rates():
@@ -318,7 +344,13 @@ class _Exacts(_ExpExacts, _EmnExacts, _UsdExacts, LssExacts, _RteExacts):
         return sum(
             [
                 [f.name for f in fields(ext)]
-                for ext in [_ExpExacts, _EmnExacts, _UsdExacts, LssExacts]
+                for ext in [
+                    _TscExacts,
+                    _EmnExacts,
+                    _UsdExacts,
+                    _OpnUsdExacts,
+                    _LseExacts,
+                ]
             ],
             [],
         )
@@ -351,7 +383,7 @@ class _Balances(_ProBalance, _StgBalance, _TrnBalance):
 
 
 @dataclass
-class TaskMaster(_Balances, _Bounds, _Exacts, _Dunders):
+class Chanakya(_Balances, _Bounds, _Exacts, _Dunders):
     """This object collects all the attributes defined
     and makes a list of Indexs they are defined at
 

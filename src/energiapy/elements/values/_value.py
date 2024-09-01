@@ -8,11 +8,10 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 from ...core._handy._dunders import _Reprs
-from ...indices.enums import SpcLmt, VarBnd
+from ..disposition.bound import SpcLmt, VarBnd
 
 if TYPE_CHECKING:
-    from ...core.aliases.elms.isval import IsSpcLmt, IsVarBnd
-    from ...core.aliases.inps.isblk import IsIndex
+    from ..disposition.index import Index
 
 
 @dataclass
@@ -21,14 +20,14 @@ class _Value(ABC, _Reprs):
 
     Args:
         name (str): name of aspect
-        disposition (IsIndex): disposition of the value
+        index (Index): index of the value
         spclmt (SpcLmt): Whether the value is the start or end of the parametric variable space
         varbnd (VarBnd): Whether the value is exact, or an upper or lower bound
     """
 
-    disposition: IsIndex = field(default=None)
-    varbnd: IsVarBnd = field(default=None)
-    spclmt: IsSpcLmt = field(default=None)
+    index: Index = field(default=None)
+    varbnd: VarBnd = field(default=None)
+    spclmt: SpcLmt = field(default=None)
     incdntl: bool = field(default=False)
 
     def __post_init__(self):
@@ -43,14 +42,14 @@ class _Value(ABC, _Reprs):
         for i in ['_certainty', '_approach']:
             setattr(self, i, None)
 
-        if self.disposition:
-            for i, j in self.disposition.args().items():
+        if self.index:
+            for i, j in self.index.args().items():
                 setattr(self, i, j)
         # This is to check whether the Value types are
         # Constant - int, float
         # M - 'M' or 'm'
         if isinstance(self.value, (int, float, str)):
-            self.name = str(self.id[self.disposition.sym])
+            self.name = str(self.id[self.index.sym])
         else:
             self.name = str(self.sym)
 
@@ -68,17 +67,17 @@ class _Value(ABC, _Reprs):
     def sym(self):
         """Symbol"""
         # See how name is set
-        # We do not want the disposition in the symbolic names
-        # but we want the disposition in the name
-        # disposition makes the name unique
+        # We do not want the index in the symbolic names
+        # but we want the index in the name
+        # index makes the name unique
         # Values are always attached to parameters
         if isinstance(self.value, (int, float, str)):
             return self.id
         else:
-            return self.id[self.disposition.sym]
+            return self.id[self.index.sym]
 
     def __len__(self):
-        if self.disposition:
-            return len(self.disposition)
+        if self.index:
+            return len(self.index)
         else:
             return 1

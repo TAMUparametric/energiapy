@@ -1,4 +1,4 @@
-"""Horizon is the planning period of the problem
+"""Planning Horizon of the problem
 """
 
 from dataclasses import dataclass, field

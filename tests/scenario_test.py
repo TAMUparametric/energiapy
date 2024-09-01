@@ -64,7 +64,7 @@ def test_scenario_bare_defaults(scenario_bare):
     assert scenario_bare.variables == []
     assert scenario_bare.constraints == []
     assert scenario_bare.parameters == []
-    assert scenario_bare.dispositions == []
+    assert scenario_bare.indices == []
     # These come from Data Block
     assert scenario_bare.ms == []
     assert scenario_bare.constants == []
@@ -142,7 +142,7 @@ def test_scenario_def_defaults(scenario_def):
     assert scenario_def.variables == []
     assert scenario_def.constraints == []
     assert scenario_def.parameters == []
-    assert scenario_def.dispositions == []
+    assert scenario_def.indices == []
     # These come from Data Block
     assert scenario_def.ms == []
     assert scenario_def.constants == []

@@ -2,23 +2,22 @@
 """
 
 from dataclasses import dataclass, field
-from typing import list
 
-from ..components.analytical.player import Player
-from ..components.commodity.cash import Cash
-from ..components.commodity.emission import Emission
-from ..components.commodity.land import Land
-from ..components.commodity.material import Material
-from ..components.commodity.resource import Resource, ResourceStg, ResourceTrn
-from ..components.operational.process import Process
-from ..components.operational.storage import Storage
-from ..components.operational.transit import Transit
-from ..components.scope.horizon import Horizon
-from ..components.scope.network import Network
-from ..components.spatial.linkage import Linkage
-from ..components.spatial.location import Location
-from ..components.temporal.scale import Scale
-from ..core.aliases.isdef import IsDfn
+from ...components.analytical.player import Player
+from ...components.commodity.cash import Cash
+from ...components.commodity.emission import Emission
+from ...components.commodity.land import Land
+from ...components.commodity.material import Material
+from ...components.commodity.resource import Resource, ResourceStg, ResourceTrn
+from ...components.operation.process import Process
+from ...components.operation.storage import Storage
+from ...components.operation.transit import Transit
+from ...components.scope.spatial.linkage import Linkage
+from ...components.scope.spatial.location import Location
+from ...components.scope.spatial.network import Network
+from ...components.scope.temporal.horizon import Horizon
+from ...components.scope.temporal.scale import Scale
+from ...core.aliases.cmps.isdfn import IsDfn
 from ._block import _Block
 
 

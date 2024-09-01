@@ -1,17 +1,13 @@
 """Program Constraints 
 """
 
-from __future__ import annotations
-
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING
 
 from sympy import IndexedBase, Mul, Rel
 
-from ..core._handy._dunders import _Dunders
-
-if TYPE_CHECKING:
-    from ..core.aliases.iselm import IsParameter, IsVariable
+from ...core._handy._dunders import _Dunders
+from ...core.aliases.elms.isprm import IsPrm
+from ...core.aliases.elms.isvar import IsVar
 
 
 @dataclass
@@ -19,14 +15,13 @@ class _Constraint(_Dunders):
     """Constraints for Program
     Attributes:
         variable (IsVariable): The main Variable in the constraint
-        disposition (IsIndex): The disposition of the constraint. Determined post initialization.
     """
 
-    variable: IsVariable = field(default=None)
+    variable: IsVar = field(default=None)
 
     def __post_init__(self):
-        # The disposition of the constraint is the same as the main Variable
-        self.disposition = self.variable.disposition
+        # The index of the constraint is the same as the main Variable
+        self.index = self.variable.index
         self.name = str(self.sym)
 
     @property
@@ -46,16 +41,15 @@ class _Constraint(_Dunders):
     @property
     def sym(self):
         """Symbol"""
-        return self.id()[self.disposition.sym]
+        return self.id()[self.index.sym]
 
-    def birth_equation(self, eq: str, par: IsParameter, prn: IsVariable):
+    def birth_equation(self, eq: str, par: IsPrm, prn: IsVar):
         """Create the equation for the constraint
         Args:
-            var (IsVariable): The main Variable in the constraint
             eq (str): The equality sign. '==', '<=', '>='
-            par (IsParameter): The parameter in the constraint
+            par (IsPrm): The parameter in the constraint
             mlt (str): The multiplication sign
-            prn (IsVariable): The parent Variable in the constraint
+            prn (IsVar): The parent Variable in the constraint
         """
 
         # Left Hand Side is always the main Variable

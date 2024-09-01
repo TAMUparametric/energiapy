@@ -1,4 +1,4 @@
-"""Linkage links Locations
+"""Linkage links Locations through Transits
 """
 
 from __future__ import annotations
@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING
 from ._spatial import _Spatial
 
 if TYPE_CHECKING:
-    from ....core.aliases.cmps.iscmp import IsLinkage, IsLocation
+    from .location import Location
 
 
 @dataclass
@@ -28,8 +28,8 @@ class Linkage(_Spatial):
 
     """
 
-    sink: IsLocation = field(default=None)
-    source: IsLocation = field(default=None)
+    sink: Location = field(default=None)
+    source: Location = field(default=None)
     bi: bool = field(default=True)
     distance: float = field(default=None)
     label: str = field(default=None)
@@ -54,5 +54,5 @@ class Linkage(_Spatial):
         return self._sib
 
     @sib.setter
-    def sib(self, linkage: IsLinkage):
+    def sib(self, linkage):
         self._sib = linkage

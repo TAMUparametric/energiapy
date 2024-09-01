@@ -1,40 +1,69 @@
-"""Chanakya for Constraint generation
+"""Bhaskara for Constraint generation
 """
-
-from __future__ import annotations
 
 from dataclasses import dataclass, field
 from operator import is_
-from typing import TYPE_CHECKING, Dict
 
-from ..constraints.bind import Bind
-from ..constraints.calculate import Calculate
-from ..constraints.rules import Condition, SumOver
-from ..core._handy._dunders import _Dunders
-from ..core.nirop.errors import CacodcarError
-from ..parameters.defined.bound import (BuyBnd, CapBnd, EmtBnd, ErnBnd, Has,
-                                        Needs, OprBnd, ShpBnd, SllBnd, SpdBnd,
-                                        UseBnd)
-from ..parameters.defined.emission import (BuyEmt, LossEmt, SellEmt, StpEmt,
-                                           UseEmt)
-from ..parameters.defined.expense import (BuyPrice, OpExpI, OprExpense,
-                                          SllCredit, SllPenalty, SllPrice,
-                                          StpExpense, StpExpenseI, UseCost)
-from ..parameters.defined.loss import ResLss
-from ..parameters.defined.usage import Usage
-from ..variables.action import Give, Take
-from ..variables.capacitate import Capacity
-from ..variables.emit import Emit, EmtBuy, EmtLss, EmtSll, EmtStp, EmtUse
-from ..variables.expense import (Earn, ExpBuy, ExpOpr, ExpOprI, ExpSell,
-                                 ExpSetUp, ExpSetUpI, ExpUseSetUp, Spend,
-                                 TransactCrd, TransactPnt)
-from ..variables.loss import Loss
-from ..variables.operate import Operate
-from ..variables.trade import Buy, Sell, Ship
-from ..variables.use import Use, UseSetUp
-
-if TYPE_CHECKING:
-    from ..core.aliases.iselm import IsConstraint, IsParameter, IsVariable
+from ...core._handy._dunders import _Dunders
+from ...core.aliases.elms.iscns import IsCns
+from ...core.aliases.elms.isprm import IsPrm
+from ...core.aliases.elms.isvar import IsVar
+from ...core.nirop.errors import CacodcarError
+from ...elements.constraints.bind import Bind
+from ...elements.constraints.calculate import Calculate
+from ...elements.parameters.bounds.all import (
+    BuyBound,
+    CapBound,
+    EmnBound,
+    ErnBound,
+    Has,
+    Needs,
+    OprBound,
+    ShpBound,
+    SllBound,
+    SpdBound,
+    UseBound,
+)
+from ...elements.parameters.exacts.emission import (
+    BuyEmission,
+    LseEmission,
+    SllEmission,
+    StpEmission,
+    UseEmission,
+)
+from ...elements.parameters.exacts.expense import (
+    BuyPrice,
+    OprExpense,
+    OprExpenseI,
+    SllCredit,
+    SllPenalty,
+    SllPrice,
+    StpExpense,
+    StpExpenseI,
+    UseCost,
+)
+from ...elements.parameters.exacts.loss import Loss
+from ...elements.parameters.exacts.usage import Usage
+from ...elements.variables.act import Give, Take
+from ...elements.variables.emit import Emit, EmitBuy, EmitLse, EmitSll, EmitStp, EmitUse
+from ...elements.variables.lose import Lose
+from ...elements.variables.operate import Operate
+from ...elements.variables.setup import Capacitate
+from ...elements.variables.trade import Buy, Sell, Ship
+from ...elements.variables.transact import (
+    Earn,
+    Spend,
+    TransactBuy,
+    TransactCrd,
+    TransactOpr,
+    TransactOprI,
+    TransactPnt,
+    TransactSll,
+    TransactStp,
+    TransactStpI,
+    TransactUse,
+)
+from ...elements.variables.use import Use, UseStp
 
 
 @dataclass
@@ -49,11 +78,10 @@ class Rule(_Dunders):
         sumover (SumOver): Sum over either a Spatial or Temporal dimension
     """
 
-    constraint: IsConstraint = field(default=None)
-    variable: IsVariable = field(default=None)
-    parameter: IsParameter = field(default=None)
-    balance: Dict[IsVariable, float] = field(default=None)
-    sumover: SumOver = field(default=None)
+    constraint: IsCns = field(default=None)
+    variable: IsVar = field(default=None)
+    parameter: IsPrm = field(default=None)
+    balance: dict[IsVar, int] = field(default=None)
 
     def __post_init__(self):
 
@@ -74,11 +102,11 @@ class Rule(_Dunders):
 
 
 @dataclass
-class Chanakya:
-    """Chanakya is rulebook for constraint generation
+class Bhaskara(_Dunders):
+    """Bhaskara is rulebook for constraint generation
 
     Attributes:
-        name (str): name of the Chanakya, borrows from Scenario
+        name (str): name of the Bhaskara, borrows from Scenario
     """
 
     name: str = field(default=None)
@@ -87,40 +115,40 @@ class Chanakya:
         self.rules = []
         self.name = f'RuleBook|{self.name}|'
         # Bounded
-        trade_bnd = [(Buy, BuyBnd), (Sell, SllBnd), (Ship, ShpBnd)]
-        cap_bnd = [(Capacity, CapBnd)]
-        op_bnd = [(Operate, OprBnd)]
-        exp_bnd = [(Spend, SpdBnd), (Earn, ErnBnd)]
-        emission_bnd = [(Emit, EmtBnd)]
+        trade_bnd = [(Buy, BuyBound), (Sell, SllBound), (Ship, ShpBound)]
+        cap_bnd = [(Capacitate, CapBound)]
+        op_bnd = [(Operate, OprBound)]
+        exp_bnd = [(Spend, SpdBound), (Earn, ErnBound)]
+        emission_bnd = [(Emit, EmnBound)]
         ply_bnd = [(Give, Has), (Take, Needs)]
-        use_bnd = [(Use, UseBnd)]
+        use_bnd = [(Use, UseBound)]
 
         # Calculated
-        use_cmd = [(UseSetUp, Usage)]
-        loss = [(Loss, ResLss)]
+        use_cmd = [(UseStp, Usage)]
+        loss = [(Lose, Loss)]
 
         # Calculated Transacts
         exp_res = [
-            (ExpBuy, BuyPrice),
-            (ExpSell, SllPrice),
+            (TransactBuy, BuyPrice),
+            (TransactSll, SllPrice),
             (TransactCrd, SllCredit),
             (TransactPnt, SllPenalty),
         ]
-        exp_use = [(ExpUseSetUp, UseCost)]
+        exp_use = [(TransactUse, UseCost)]
         exp_opn = [
-            (ExpOpr, OprExpense),
-            (ExpSetUp, StpExpense),
-            (ExpOprI, OpExpI),
-            (ExpSetUpI, StpExpenseI),
+            (TransactOpr, OprExpense),
+            (TransactStp, StpExpense),
+            (TransactOprI, OprExpenseI),
+            (TransactStpI, StpExpenseI),
         ]
 
         # Calculated Emissions
         emit = [
-            (EmtBuy, BuyEmt),
-            (EmtSll, SellEmt),
-            (EmtUse, UseEmt),
-            (EmtStp, StpEmt),
-            (EmtLss, LossEmt),
+            (EmitBuy, BuyEmission),
+            (EmitSll, SllEmission),
+            (EmitUse, UseEmission),
+            (EmitStp, StpEmission),
+            (EmitLse, LseEmission),
         ]
 
         # Bind Constraints
@@ -149,10 +177,10 @@ class Chanakya:
             )
 
     def add(self, rule: Rule):
-        """Add Rule to Chanakya"""
+        """Add Rule to Bhaskara"""
         self.rules.append(rule)
 
-    def find(self, variable: IsVariable):
+    def find(self, variable: IsVar):
         """Fetch the rules that apply for a particular variable"""
         rule = [rule for rule in self.rules if is_(rule.variable, variable)]
         if rule:
@@ -161,18 +189,18 @@ class Chanakya:
             raise CacodcarError(f'No Rule found for {variable.id()}')
 
     def vars(self):
-        """Fetch all the Variables in the Chanakya"""
+        """Fetch all the Variables in the Bhaskara"""
         return sorted([rule.variable for rule in self.rules], key=lambda x: x.cname())
 
-    def parvars(self):
-        """Fetch all the parent Variables in the Chanakya"""
+    def prn_vars(self):
+        """Fetch all the parent Variables in the Bhaskara"""
         return sorted(
             [rule.variable.parent() for rule in self.rules if rule.variable.parent()],
             key=lambda x: x.cname(),
         )
 
-    def params(self):
-        """Fetch all the Parameters in the Chanakya"""
+    def prms(self):
+        """Fetch all the Parameters in the Bhaskara"""
         return sorted(
             [rule.parameter for rule in self.rules if rule.parameter],
             key=lambda x: x.cname(),

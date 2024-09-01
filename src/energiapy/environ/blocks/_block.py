@@ -2,7 +2,7 @@
 
 from dataclasses import asdict, dataclass
 
-from ..core._handy._dunders import _Dunders
+from ...core._handy._dunders import _Dunders
 
 
 @dataclass

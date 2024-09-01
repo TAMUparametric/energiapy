@@ -1,13 +1,15 @@
 """Conversion, Inventory, Freight
 """
 
+from typing import TypeAlias
+
 from ....components.commodity.resource import Resource
 from ....components.scope.temporal.mode import X
 
-type IsSngCnv = dict[Resource, int | float]
-type IsMltCnv = dict[X, IsSngCnv]
+IsSngCnv: TypeAlias = dict[Resource, int | float]
+IsMltCnv: TypeAlias = dict[X, IsSngCnv]
 # Balance for Resource Conversion in Process
-type IsCnv = IsSngCnv | IsMltCnv
+IsCnv: TypeAlias = IsSngCnv | IsMltCnv
 
 # Balance for Inventory in Storage and Frieght in Transit
-type IsBlc = Resource | IsSngCnv | IsMltCnv
+IsBlc: TypeAlias = Resource | IsSngCnv | IsMltCnv
