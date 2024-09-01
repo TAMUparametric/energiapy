@@ -346,24 +346,19 @@ class _Consistent(ABC):
 
         return spttmpmdeval
 
-    def make_commodity(self, attr: str, value: IsInp) -> dict:
-        """If exact input is given, checks if commodity is given.
-
-        If not sets one for Cash and Land
+    def cashify(self, attr: str, value: IsInp) -> dict:
+        """If exact transaction input is given add Cash Component.
 
         Args:
             attr (str): attribute being passed
             value (IsInp): user input
 
         Returns:
-            dict: {Commodity: value}
+            dict: {Cash: value}
         """
 
         if attr in self.taskmaster.transactions():
             value = {self.system.cash: value}
-
-        if attr == 'land_use':
-            value = {self.system.land: value}
 
         return value
 
@@ -396,7 +391,7 @@ class _Consistent(ABC):
 
             if attr in self.exacts():
                 # for Cash and Land, these are added, Resources, Materials, Emissions need to be specified
-                value = self.make_commodity(attr, value)
+                value = self.cashify(attr, value)
 
                 return make_exact_consistent(value, attr, ok_inconsistent)
 

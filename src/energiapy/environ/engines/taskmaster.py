@@ -30,8 +30,7 @@ from ...components._attrs._exacts import (
     _LseExacts,
     _RteExacts,
     _TscExacts,
-    _UsdExacts,
-    _OpnUsdExacts,
+    _UseExacts,
 )
 from ...components.analytical.player import Player
 from ...components.commodity.cash import Cash
@@ -201,9 +200,7 @@ class _Bounds(
 
 
 @dataclass
-class _Exacts(
-    _TscExacts, _EmnExacts, _UsdExacts, _OpnUsdExacts, _LseExacts, _RteExacts
-):
+class _Exacts(_TscExacts, _EmnExacts, _UseExacts, _LseExacts, _RteExacts):
     """These are Exact Component Inputs
 
     These are inherited across all Spatial Components
@@ -249,17 +246,6 @@ class _Exacts(
             var_i=TransactOprI,
         )
 
-        self.land_use_cost = Task(
-            attr='land_use_cost', root=[Land], var=TransactUse, other=[Process]
-        )
-
-        self.material_use_cost = Task(
-            attr='material_use_cost',
-            root=[Material],
-            var=TransactUse,
-            other=[Process],
-        )
-
         # ---------Emissions---------
         # Resource
         self.buy_emission = Task(
@@ -282,26 +268,13 @@ class _Exacts(
         self.setup_emission = Task(
             attr='setup_emission', root=[Process, Storage, Transit], var=EmitStp
         )
-        self.land_use_emission = Task(
-            attr='land_use_emission',
-            root=[Land],
-            other=[Process, Storage, Transit],
-            var=EmitUse,
-        )
-        self.material_use_emission = Task(
-            attr='material_use_emission',
-            root=[Material],
-            other=[Process, Storage, Transit],
-            var=EmitUse,
-        )
+
         # ---------Uses---------
         # Operational
-        self.land_use = Task(
-            attr='land_use', root=[Process, Storage, Transit], var=UseStp
+        self.setup_use = Task(
+            attr='setup_use', root=[Process, Storage, Transit], var=UseStp
         )
-        self.material_use = Task(
-            attr='material_use', root=[Process, Storage, Transit], var=UseStp
-        )
+
         # ---------Losses---------
         # Storage Operation
         self.inventory_loss = Task(attr='inventory_loss', root=[Storage], var=Lose)
@@ -326,7 +299,7 @@ class _Exacts(
     @staticmethod
     def uses():
         """Uses"""
-        return [f.name for f in fields(_UsdExacts) + fields(_OpnUsdExacts)]
+        return [f.name for f in fields(_UseExacts)]
 
     @staticmethod
     def losses():
@@ -347,8 +320,7 @@ class _Exacts(
                 for ext in [
                     _TscExacts,
                     _EmnExacts,
-                    _UsdExacts,
-                    _OpnUsdExacts,
+                    _UseExacts,
                     _LseExacts,
                 ]
             ],
@@ -406,11 +378,11 @@ class Chanakya(_Balances, _Bounds, _Exacts, _Dunders):
         )
 
     @property
-    def report_uses_land(self):
-        """Collection of Uses Land"""
+    def report_uses(self):
+        """Collection of Uses"""
         return Report(
-            name='uses_land',
-            tasks=[getattr(self, 'land_use')],
+            name='uses',
+            tasks=[getattr(self, attr) for attr in self.uses()],
         )
 
     @property
@@ -426,14 +398,6 @@ class Chanakya(_Balances, _Bounds, _Exacts, _Dunders):
         """Collection of Losses"""
         return Report(
             name='losses', tasks=[getattr(self, attr) for attr in self.losses()]
-        )
-
-    @property
-    def report_uses_material(self):
-        """Collection of Uses Material"""
-        return Report(
-            name='uses_material',
-            tasks=[getattr(self, 'material_use')],
         )
 
     def vars(self):

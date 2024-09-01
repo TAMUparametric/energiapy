@@ -52,7 +52,7 @@ class Use(_BoundVar):
 
 @dataclass
 class UseStp(_ExactVar):
-    """Commodity Use"""
+    """Land or Material (Used) Use for Operation Setup"""
 
     def __post_init__(self):
         _ExactVar.__post_init__(self)

@@ -6,13 +6,13 @@ from dataclasses import dataclass, fields
 from ...elements.parameters.balances.freight import Freight
 from .._attrs._balances import _TrnBalance
 from .._attrs._bounds import _OpnBounds, _ResLnkBounds, _TrnBounds
-from .._attrs._exacts import _TrnExacts
+from .._attrs._exacts import _TrnExacts, _UsdExacts
 from .._attrs._spatials import LnkCollection
 from ._birther import _Birther
 
 # Associated Program Elements:
 #   Bound Parameters - CapBound, OprBound
-#   Exact Parameters - StpEmission, StpExpense, OprExpense, Usage
+#   Exact Parameters - StpEmission, StpExpense, OprExpense, StpUse
 #   Balance Parameters - Freight
 #   Variable (Transact) - TransactOpr, TransactStp
 #   Variable (Emissions) - EmitStp, EmitUse
@@ -24,12 +24,26 @@ from ._birther import _Birther
 
 
 @dataclass
+class _Transit(_OpnBounds, _TrnBounds, _TrnExacts):
+    """These are attributes which are original to Transit"""
+
+
+@dataclass
+class _ResTransit(_ResLnkBounds):
+    """These are Resource attributes which can be defined at Transit"""
+
+
+@dataclass
+class _UsdTransit(_UsdExacts):
+    """These are Land and Material (Used) attributes which can be defined at Transit"""
+
+
+@dataclass
 class Transit(
     _TrnBalance,
-    _OpnBounds,
-    _TrnBounds,
-    _TrnExacts,
-    _ResLnkBounds,
+    _Transit,
+    _ResTransit,
+    _UsdTransit,
     LnkCollection,
     _Birther,
 ):
@@ -44,17 +58,16 @@ class Transit(
     Attributes:
         capacity (IsBnd): bound on the capacity of the Operation
         transport (IsBnd): bound by Capacitate. Reported by operate as well.
-        land_use (IsExt): land use per Capacitate
-        material_use (IsExt): material use per Capacitate
+        ship (IsBnd): bound on shipping a Resource
+        use (IsBnd): bound on amount of Land or Material used by Process
+        setup_use (IsExt): Land or Material setup_use per unit capacity
+        use_emission (IsExt): emission due to land or Material use
         capex (IsInc): capital expense per Capacitate
         opex (IsInc): operational expense based on Operation
-        land_use_emission (IsExt): emission due to land use
-        material_use_emission (IsExt): emission due to material use
         setup_emission (IsExt): emission due to construction activity
         freight (IsBlc): balance of Resources carried by the Operation
         freight_loss: (IsExt): loss of resource during transportation
         linkages (list[IsLinkage]): linkages between which Transit exists
-        ship (IsBnd): bound on shipping a Resource
         speed (IsExt): speed of Transit
         basis (str): basis of the component
         citation (dict): citation of the component
@@ -121,11 +134,7 @@ class Transit(
     def inputs():
         """Input attributes"""
         return [
-            f.name
-            for f in fields(_OpnBounds)
-            + fields(_TrnBounds)
-            + fields(_TrnExacts)
-            + fields(_ResLnkBounds)
+            f.name for f in fields(_Transit) + fields(_ResTransit) + fields(_UsdTransit)
         ]
 
     def freightize(self):

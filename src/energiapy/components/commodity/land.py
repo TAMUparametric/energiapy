@@ -37,4 +37,4 @@ class Land(_Used):
     @property
     def uses(self):
         """Land Uses across the Scenario"""
-        return self.taskmaster.report_uses_land
+        return self.taskmaster.report_uses

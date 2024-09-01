@@ -6,7 +6,7 @@ from dataclasses import dataclass, fields
 from ...elements.parameters.balances.conversion import Conversion
 from .._attrs._balances import _ProBalance
 from .._attrs._bounds import _OpnBounds, _ProBounds, _ResLocBounds
-from .._attrs._exacts import _ProExacts, _ResExacts
+from .._attrs._exacts import _ProExacts, _ResExacts, _UsdExacts
 from .._attrs._spatials import LocCollection
 from ._operation import _Operation
 
@@ -23,13 +23,26 @@ from ._operation import _Operation
 
 
 @dataclass
+class _Process(_OpnBounds, _ProBounds, _ProExacts):
+    """These are attributes which are original to Process"""
+
+
+@dataclass
+class _ResProcess(_ResExacts, _ResLocBounds):
+    """These are Resource attributes which can be defined at Process"""
+
+
+@dataclass
+class _UsdProcess(_UsdExacts):
+    """These are Land and Material (Used) attributes which can be defined at Process"""
+
+
+@dataclass
 class Process(
     _ProBalance,
-    _OpnBounds,
-    _ProBounds,
-    _ProExacts,
-    _ResLocBounds,
-    _ResExacts,
+    _Process,
+    _ResProcess,
+    _UsdProcess,
     LocCollection,
     _Operation,
 ):
@@ -38,14 +51,14 @@ class Process(
     Attributes:
         capacity (IsBnd): bound on the capacity of the Operation
         produce (IsBnd): bounded by capacity of Process. Reported by Operate as well
-        land_use (IsExt): land use per Capacitate
-        material_use (IsExt): material use per Capacitate
-        capex (IsInc): capital expense per Capacitate
-        opex (IsInc): operational expense based on Operation
-        land_use_emission (IsExt): emission due to land use
-        material_use_emission (IsExt): emission due to material use
         buy (IsBnd): bound on amount of Resource bought by Process
         sell (IsBnd): bound on amount of Resource sold by Process
+        use (IsBnd): bound on amount of Land or Material used by Process
+        setup_use (IsExt): Land or Material setup_use per unit capacity
+        use_emission (IsExt): emission due to land or Material use
+        capex (IsInc): capital expense per Capacitate
+        opex (IsInc): operational expense based on Operation
+        setup_emission (IsExt): emission due to construction activity
         buy_price (IsInc): price to buy per unit basis
         sell_price (IsInc): price at which to sell per unit basis
         credit (IsExt): credit received per unit basis sold
@@ -111,12 +124,7 @@ class Process(
     def inputs():
         """Input attributes"""
         return [
-            f.name
-            for f in fields(_OpnBounds)
-            + fields(_ProBounds)
-            + fields(_ProExacts)
-            + fields(_ResExacts)
-            + fields(_ResLocBounds)
+            f.name for f in fields(_Process) + fields(_ResProcess) + fields(_UsdProcess)
         ]
 
     @property

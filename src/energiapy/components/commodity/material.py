@@ -36,4 +36,4 @@ class Material(_Used):
     @property
     def uses(self):
         """Material Uses across the Scenario"""
-        return self.taskmaster.report_uses_material
+        return self.taskmaster.report_uses
