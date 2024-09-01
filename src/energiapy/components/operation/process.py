@@ -8,7 +8,7 @@ from .._attrs._balances import _ProBalance
 from .._attrs._bounds import _OpnBounds, _ProBounds, _ResLocBounds
 from .._attrs._exacts import _ProExacts, _ResExacts
 from .._attrs._spatials import LocCollection
-from ._operational import _Operational
+from ._operation import _Operation
 
 # Associated Program Elements:
 #   Bound Parameters - CapBound, OprBound
@@ -31,7 +31,7 @@ class Process(
     _ResLocBounds,
     _ResExacts,
     LocCollection,
-    _Operational,
+    _Operation,
 ):
     """Process converts one Resource to another Resource
 
@@ -62,7 +62,7 @@ class Process(
     """
 
     def __post_init__(self):
-        _Operational.__post_init__(self)
+        _Operation.__post_init__(self)
 
     @property
     def base(self):

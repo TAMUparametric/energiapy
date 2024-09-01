@@ -16,7 +16,7 @@
     
     These include -
           _Commodity: Cash, Land, Resource, Material, Emission
-          _Operational: Process, Storage, Transit
+          _Operation: Process, Storage, Transit
           _Analytical: Players
     The data provided as attributes is added to the Data Model Block
     provided data is converted into in internal formats: Constant, DataSet, Theta, M
@@ -40,15 +40,24 @@ from ..components._base._defined import _Defined
 from ..components.commodity.cash import Cash
 from ..components.commodity.land import Land
 from ..components.commodity.resource import ResourceStg, ResourceTrn
-from ..components.operation._operational import _Operational
+from ..components.operation._operation import _Operation
 from ..components.operation.process import Process
 from ..components.operation.storage import Storage
 from ..components.operation.transit import Transit
 from ..components.scope.spatial.linkage import Linkage
 from ..components.scope.spatial.network import Network
 from ..components.scope.temporal.horizon import Horizon
-from ..core._handy._collections import (_Alys, _Cmds, _Elms, _Imps, _Opns,
-                                        _Scls, _Scps, _Spts, _Vlus)
+from ..core._handy._collections import (
+    _Alys,
+    _Cmds,
+    _Elms,
+    _Imps,
+    _Opns,
+    _Scls,
+    _Scps,
+    _Spts,
+    _Vlus,
+)
 from ..core._handy._dunders import _Dunders
 from ..core._handy._printers import _Print
 from ._scenario._birth import _Birth
@@ -169,7 +178,7 @@ class Scenario(_Ok, _Default, _Birth, _Update, _ScnCols, _Dunders, _Print):
 
             # find where all the Operation is located
             # if nothing is provided, available throughout Network (all locations)
-            if isinstance(value, _Operational):
+            if isinstance(value, _Operation):
                 value.locate()
 
             # Operation are gotten from the System because at this point they are not set to the Scenario

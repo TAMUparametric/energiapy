@@ -70,7 +70,7 @@ class _Update(ABC):
         """Locates Commodities based on their participation in Operations
 
         Args:
-            operation (IsOpn): _Operation object
+            operation (IsOpn): _Operationn object
         """
         # commodities for Process come from conversion
         # for Storage from conersion_c and conversion_d
@@ -122,7 +122,7 @@ class _Update(ABC):
         programblock = ProgramBlock(component=component)
 
         # Each _Defined component has inputs which are categorized
-        # check individual component parent classes _Operational, _Commodity (_Traded and _Used) for details
+        # check individual component parent classes _Operation, _Commodity (_Traded and _Used) for details
         for attr in component.inputs():
             if getattr(component, attr, False):
                 # set the input as attribute in the DataBlock

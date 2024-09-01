@@ -7,7 +7,7 @@ from src.energiapy.components.commodity.resource import Resource
 from src.energiapy.components.scope.spatial.network import Network
 from src.energiapy.components.scope.temporal.horizon import Horizon
 from src.energiapy.components.scope.temporal.mode import X
-from src.energiapy.core._handy._enums import _Dummy
+from energiapy.components._base._dummy import _Dummy
 from src.energiapy.environ.scenario import Scenario
 
 

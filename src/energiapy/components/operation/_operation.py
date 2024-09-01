@@ -11,7 +11,7 @@ from .._base._defined import _Defined
 
 
 @dataclass
-class _Operational(_Defined, ABC):
+class _Operation(_Defined, ABC):
     """Base for Operational Components
 
     Attributes:

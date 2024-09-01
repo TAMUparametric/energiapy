@@ -4,11 +4,11 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 
-from ._operational import _Operational
+from ._operation import _Operation
 
 
 @dataclass
-class _Birther(_Operational, ABC):
+class _Birther(_Operation, ABC):
     """Operations that have balance
     They give birth to input and output Processes
     They have input and output conversions
@@ -22,7 +22,7 @@ class _Birther(_Operational, ABC):
         # The processes inherit the original capacities
         # (before they are made into SpatioTemporal Dicts)
         self._birthed = False
-        _Operational.__post_init__(self)
+        _Operation.__post_init__(self)
 
     @property
     @abstractmethod
