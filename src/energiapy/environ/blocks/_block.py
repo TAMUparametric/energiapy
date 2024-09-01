@@ -1,18 +1,25 @@
 """Base Class for all Modeling Blocks in energiapy"""
 
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
 
 from ...core._handy._dunders import _Dunders
 
 
 @dataclass
 class _Block(_Dunders):
-    """Base Class for all Modeling Blocks in energiapy"""
+    """Base Class for all Modeling Blocks in energiapy
+
+    Attributes:
+        name (str): name of the Block
+    """
+
+    name: str = field(default=None)
 
     def __post_init__(self):
         # This is the initial state of the Block
         # Usually included just the name and post init arguments
         self._initial_state = asdict(self)
+        self.name = f'{self.cname()}|{self.name}|'
 
     def components(self) -> dict:
         """Returns the names (n) and Components (cmp) that have been added to the block

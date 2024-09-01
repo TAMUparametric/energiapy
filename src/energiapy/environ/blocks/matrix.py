@@ -3,11 +3,11 @@
 
 from dataclasses import dataclass, field
 
-from ...core._handy._dunders import _Dunders
+from ._block import _Block
 
 
 @dataclass
-class Matrix(_Dunders):
+class Matrix(_Block):
     """Matrix representation of the Program Model
 
     Attributes:
@@ -15,7 +15,6 @@ class Matrix(_Dunders):
 
     """
 
-    name: str = field(default=None)
 
     def __post_init__(self):
-        self.name = f'Matrix|{self.name}|'
+        _Block.__post_init__(self)

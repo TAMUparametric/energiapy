@@ -237,11 +237,8 @@ class Data(_Block):
         name (str): name, takes from the name of the Scenario
     """
 
-    name: str = field(default=None)
-
     def __post_init__(self):
         _Block.__post_init__(self)
-        self.name = f'Data|{self.name}|'
 
     @property
     def ms(self):

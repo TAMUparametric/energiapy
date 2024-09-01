@@ -69,13 +69,9 @@ class System(_Block):
 
     """
 
-    name: str = field(default=None)
-
     def __post_init__(self):
 
         _Block.__post_init__(self)
-
-        self.name = f'System|{self.name}|'
 
     @property
     def horizon(self):
