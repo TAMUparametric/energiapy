@@ -4,11 +4,9 @@
 from dataclasses import dataclass, field
 
 from ...core._handy._dunders import _Dunders
-
 from ...core.isalias.elms.iscns import IsCns
 from ...core.isalias.elms.isprm import IsPrm
 from ...core.isalias.elms.isvar import IsVar
-
 from ...core.nirop.errors import CacodcarError
 
 

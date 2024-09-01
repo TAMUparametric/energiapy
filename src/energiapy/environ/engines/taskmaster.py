@@ -13,25 +13,13 @@ Task:
 
 from dataclasses import asdict, dataclass, field, fields
 
-from ...components._attrs._balances import _ProBalance, _StgBalance, _TrnBalance
-from ...components._attrs._bounds import (
-    _CshBounds,
-    _EmnBounds,
-    _OpnBounds,
-    _PlyBounds,
-    _ProBounds,
-    _ResBounds,
-    _StgBounds,
-    _TrnBounds,
-    _UsdBounds,
-)
-from ...components._attrs._exacts import (
-    _EmnExacts,
-    _LseExacts,
-    _RteExacts,
-    _TscExacts,
-    _UseExacts,
-)
+from ...components._attrs._balances import (_ProBalance, _StgBalance,
+                                            _TrnBalance)
+from ...components._attrs._bounds import (_CshBounds, _EmnBounds, _OpnBounds,
+                                          _PlyBounds, _ProBounds, _ResBounds,
+                                          _StgBounds, _TrnBounds, _UsdBounds)
+from ...components._attrs._exacts import (_EmnExacts, _LseExacts, _RteExacts,
+                                          _TscExacts, _UseExacts)
 from ...components.analytical.player import Player
 from ...components.commodity.cash import Cash
 from ...components.commodity.emission import Emission
@@ -42,30 +30,21 @@ from ...components.operation.process import Process
 from ...components.operation.storage import Storage
 from ...components.operation.transit import Transit
 from ...core._handy._dunders import _Dunders
-
 from ...elements.variables.act import Give, Take
-from ...elements.variables.emit import Emit, EmitBuy, EmitLse, EmitSll, EmitStp, EmitUse
+from ...elements.variables.emit import (Emit, EmitBuy, EmitLse, EmitSll,
+                                        EmitStp, EmitUse)
 from ...elements.variables.lose import Lose
 from ...elements.variables.operate import Operate
 from ...elements.variables.setup import Capacitate
 from ...elements.variables.trade import Buy, Sell, Ship
-from ...elements.variables.transact import (
-    Earn,
-    Spend,
-    TransactBuy,
-    TransactCrd,
-    TransactOpr,
-    TransactOprI,
-    TransactPnt,
-    TransactSll,
-    TransactStp,
-    TransactStpI,
-    TransactUse,
-)
+from ...elements.variables.transact import (Earn, Spend, TransactBuy,
+                                            TransactCrd, TransactOpr,
+                                            TransactOprI, TransactPnt,
+                                            TransactSll, TransactStp,
+                                            TransactStpI, TransactUse)
 from ...elements.variables.use import Use, UseStp
-
-from .task import Task
 from .report import Report
+from .task import Task
 
 
 @dataclass

@@ -3,13 +3,11 @@
 
 from dataclasses import dataclass, field
 
-from ...core._handy._printers import _Print
+from ...core._handy._printers import _EasyPrint, _Print
 from ...core._report._data import _Vlus
 from ...core._report._prog import _Elms
 from ._component import _Component
 from ._consistent import _Consistent
-
-from ...core._handy._printers import _EasyPrint
 
 
 @dataclass
