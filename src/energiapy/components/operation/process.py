@@ -5,9 +5,15 @@ from dataclasses import dataclass, fields
 
 from ...elements.parameters.balances.conversion import Conversion
 from .._attrs._balances import _ProBalance
-from .._attrs._bounds import _OpnBounds, _ProBounds, _ResLocBounds
-from .._attrs._exacts import _ProExacts, _ResExacts, _UsdExacts
-from .._attrs._spatials import LocCollection
+from .._attrs._bounds import (
+    _OpnBounds,
+    _ProBounds,
+    _ResLocBounds,
+    _EmnBounds,
+    _UsdBounds,
+)
+from .._attrs._exacts import _ProExacts, _ResExacts, _UsdExacts, _EmnExacts
+from .._attrs._spatials import _LocCollection
 from ._operation import _Operation
 
 # Associated Program Elements:
@@ -28,22 +34,18 @@ class _Process(_OpnBounds, _ProBounds, _ProExacts):
 
 
 @dataclass
-class _ResProcess(_ResExacts, _ResLocBounds):
-    """These are Resource attributes which can be defined at Process"""
-
-
-@dataclass
-class _UsdProcess(_UsdExacts):
-    """These are Land and Material (Used) attributes which can be defined at Process"""
+class _CmdProcess(
+    _ResExacts, _ResLocBounds, _UsdExacts, _UsdBounds, _EmnExacts, _EmnBounds
+):
+    """These are Commodity attributes which can be defined at Process"""
 
 
 @dataclass
 class Process(
     _ProBalance,
+    _CmdProcess,
+    _LocCollection,
     _Process,
-    _ResProcess,
-    _UsdProcess,
-    LocCollection,
     _Operation,
 ):
     """Process converts one Resource to another Resource
@@ -123,9 +125,7 @@ class Process(
     @staticmethod
     def inputs():
         """Input attributes"""
-        return [
-            f.name for f in fields(_Process) + fields(_ResProcess) + fields(_UsdProcess)
-        ]
+        return [f.name for f in fields(_Process) + fields(_CmdProcess)]
 
     @property
     def resources(self):

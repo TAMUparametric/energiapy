@@ -30,20 +30,20 @@ class Index(_Dunders):
     Gives you an idea of where the Parameter, Variable, or Constraint exists
 
     Attributes:
-        ply (IsPlayer): Player
-        emn (IsEmission): Emission
-        csh (IsCash): Cash
-        res (IsResource): Resource
-        mat (IsMaterial): Material
-        lnd (IsLand): Land
-        pro (IsProcess): Process
-        stg (IsStorage): Storage
-        trn (IsTransit): Transit
-        loc (IsLocation): Location
-        lnk (IsLinkage): Linkage
-        ntw (IsNetwork): Network
-        scl (IsScale): Scale
-        mde (IsMode): Mode
+        ply (Player): Player
+        emn (Emission): Emission
+        csh (Cash): Cash
+        res (Resource): Resource
+        mat (Material): Material
+        lnd (Land): Land
+        pro (Process): Process
+        stg (Storage): Storage
+        trn (Transit): Transit
+        loc (Location): Location
+        lnk (Linkage): Linkage
+        ntw (Network): Network
+        scl (Scale): Scale
+        mde (Mode): Mode
     """
 
     # Do not reorder these fields, Please

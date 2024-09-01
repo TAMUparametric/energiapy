@@ -263,6 +263,7 @@ class _Consistent(ABC):
                 if attr in self.taskmaster.bounds():
                     value_upd[self.system.network] = spttmpmdeval[spt]
                 else:
+
                     for loc in self.system.locations:
                         value_upd[loc] = spttmpmdeval[spt]
             else:

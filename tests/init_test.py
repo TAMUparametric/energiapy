@@ -5,9 +5,9 @@ This will inherently check if there are any abstract methods have not been imple
 
 import pytest
 
-from energiapy.components.spatial.linkage import Linkage
-from energiapy.components.spatial.location import Location
-from energiapy.components.spatial.network import Network
+from src.energiapy.components.spatial.linkage import Linkage
+from src.energiapy.components.spatial.location import Location
+from src.energiapy.components.spatial.network import Network
 from src.energiapy.components.analytical.player import Player
 from src.energiapy.components.commodity.cash import Cash
 from src.energiapy.components.commodity.emission import Emission
@@ -17,8 +17,8 @@ from src.energiapy.components.commodity.resource import Resource
 from src.energiapy.components.operation.process import Process
 from src.energiapy.components.operation.storage import Storage
 from src.energiapy.components.operation.transit import Transit
-from energiapy.components.temporal.horizon import Horizon
-from energiapy.components.temporal.scale import Scale
+from src.energiapy.components.temporal.horizon import Horizon
+from src.energiapy.components.temporal.scale import Scale
 from src.energiapy.elements.parameters.balances.conversion import Conversion
 from src.energiapy.elements.parameters.balances.freight import Freight
 from src.energiapy.elements.parameters.balances.inventory import Inventory

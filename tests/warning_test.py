@@ -3,7 +3,7 @@
 
 import pytest
 
-from energiapy.components.temporal.horizon import Horizon
+from src.energiapy.components.temporal.horizon import Horizon
 from src.energiapy.core.nirop.warnings import InconsistencyWarning, OverWriteWarning
 
 from .test_fixtures import scenario_ok

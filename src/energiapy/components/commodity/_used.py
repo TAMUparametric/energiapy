@@ -4,12 +4,12 @@
 from dataclasses import dataclass, fields
 
 from .._attrs._bounds import _UsdBounds
-from .._attrs._exacts import _UsdEmnExacts, _UsdTscExacts
+from .._attrs._exacts import _UsdExacts
 from ._traded import _Traded
 
 
 @dataclass
-class _Used(_UsdBounds, _UsdTscExacts, _UsdEmnExacts, _Traded):
+class _Used(_UsdBounds, _UsdExacts, _Traded):
     """Applies only for Land and Material
     For now, do not subsume my limitations
     Do whatever you can or want to with energiapy
@@ -26,7 +26,4 @@ class _Used(_UsdBounds, _UsdTscExacts, _UsdEmnExacts, _Traded):
     @staticmethod
     def inputs():
         """Input attributes"""
-        return [
-            f.name
-            for f in fields(_UsdBounds) + fields(_UsdTscExacts) + fields(_UsdEmnExacts)
-        ]
+        return [f.name for f in fields(_UsdBounds) + fields(_UsdExacts)]

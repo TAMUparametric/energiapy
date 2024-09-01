@@ -5,9 +5,15 @@ from dataclasses import dataclass, fields
 
 from ...elements.parameters.balances.freight import Freight
 from .._attrs._balances import _TrnBalance
-from .._attrs._bounds import _OpnBounds, _ResLnkBounds, _TrnBounds
-from .._attrs._exacts import _TrnExacts, _UsdExacts
-from .._attrs._spatials import LnkCollection
+from .._attrs._bounds import (
+    _OpnBounds,
+    _ResLnkBounds,
+    _TrnBounds,
+    _EmnBounds,
+    _UsdBounds,
+)
+from .._attrs._exacts import _TrnExacts, _UsdExacts, _EmnExacts
+from .._attrs._spatials import _LnkCollection
 from ._birther import _Birther
 
 # Associated Program Elements:
@@ -29,22 +35,16 @@ class _Transit(_OpnBounds, _TrnBounds, _TrnExacts):
 
 
 @dataclass
-class _ResTransit(_ResLnkBounds):
-    """These are Resource attributes which can be defined at Transit"""
-
-
-@dataclass
-class _UsdTransit(_UsdExacts):
-    """These are Land and Material (Used) attributes which can be defined at Transit"""
+class _CmdTransit(_ResLnkBounds, _EmnBounds, _EmnExacts, _UsdBounds, _UsdExacts):
+    """These are Commodity attributes which can be defined at Transit"""
 
 
 @dataclass
 class Transit(
     _TrnBalance,
     _Transit,
-    _ResTransit,
-    _UsdTransit,
-    LnkCollection,
+    _CmdTransit,
+    _LnkCollection,
     _Birther,
 ):
     """Transit moves Resources between Locations through a Linkage
@@ -133,9 +133,7 @@ class Transit(
     @staticmethod
     def inputs():
         """Input attributes"""
-        return [
-            f.name for f in fields(_Transit) + fields(_ResTransit) + fields(_UsdTransit)
-        ]
+        return [f.name for f in fields(_Transit) + fields(_CmdTransit)]
 
     def freightize(self):
         """Makes the freight"""

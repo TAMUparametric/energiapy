@@ -1,0 +1,87 @@
+
+@Process | @Storage -> @Location 
+@Transit -> @Linkage
+
+If *, then strict
+else, locations can also be used 
+
+------------------------------Bounds-------------------------------
+
+Player:
+    Act @Commodity @ Operation @ Spatial - has, needs 
+    @ Resource - sell UB (has), buy LB (needs)
+    @ Land | Material - needs LB (has)
+
+Cash:
+    Transact - spend, earn
+    @ Resource - buy_price, penalty (spend); sell_price, credit (earn)
+    @ Land | Material - use_cost (spend)
+    @ Operation - capex, opex (spend)
+
+Emission: 
+    Emit - emit 
+    @ Resource - buy_emission, sell_emission, loss_emission
+    @ Land | Material - use_emission 
+    @ Operation - setup_emission 
+
+Land | Material (Used):
+    Use  - use 
+    @Operation - use 
+
+Resource: 
+    Trade - buy, sell, ship
+    @Process | Storage - buy, sell 
+    @Transit - ship
+    Loss - loss 
+    @ Storage | Transit - loss 
+
+Operation:
+    Capacitate @Operation - capacity
+
+------------------------------Bounded Bound-------------------------
+# Will not go to Network, can same for operations across all locations
+# So has the spatial behavior or exact but is actually a bound 
+
+Process:
+    *Operate - produce | operate 
+
+Storage:
+    *Operate - store | operate 
+
+Transit:
+    *Operate - transport | operate
+
+
+------------------------------Exacts-------------------------------
+
+Resource:
+    Transact - buy_price, sell_price, credit, penalty 
+    @ Process | Storage 
+    Emission - buy_emission, sell_emission
+    @ Process | Storage
+    Emission - loss_emission
+    @ Storage | Transit 
+
+Land | Material (Used):
+    Transact  - use_cost 
+    @ Operation
+    Emission  - use_emission 
+    @ Operation
+
+Operation: 
+    Transact  - capex, opex 
+    Emission  - setup_emission
+    UseStp - setup_use 
+    Rate - setup_time 
+
+Storage:  
+    Lose - inventory_loss
+
+Transit: 
+    Lose - freight_loss
+    Rate - speed
+
+
+
+
+

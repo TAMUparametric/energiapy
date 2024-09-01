@@ -4,10 +4,10 @@
 import pytest
 
 from src.energiapy.components.commodity.resource import Resource
-from energiapy.components.spatial.network import Network
-from energiapy.components.temporal.horizon import Horizon
-from energiapy.components.temporal.mode import X
-from energiapy.components._base._dummy import _Dummy
+from src.energiapy.components.spatial.network import Network
+from src.energiapy.components.temporal.horizon import Horizon
+from src.energiapy.components.temporal.mode import X
+from src.energiapy.components._base._dummy import _Dummy
 from src.energiapy.environ.scenario import Scenario
 
 

@@ -3,8 +3,8 @@
 
 import pytest
 
-from energiapy.components.spatial.network import Network
-from energiapy.components.temporal.horizon import Horizon
+from src.energiapy.components.spatial.network import Network
+from src.energiapy.components.temporal.horizon import Horizon
 from src.energiapy.environ.scenario import Scenario
 
 

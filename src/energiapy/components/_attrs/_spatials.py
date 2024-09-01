@@ -8,7 +8,7 @@ from ..spatial.location import Location
 
 
 @dataclass
-class LocCollection:
+class _LocCollection:
     """Collection of Locations"""
 
     locations: list[Location] = field(default_factory=list)
@@ -20,7 +20,7 @@ class LocCollection:
 
 
 @dataclass
-class LnkCollection:
+class _LnkCollection:
     """Collection of Linkages"""
 
     linkages: list[Linkage] = field(default_factory=list)

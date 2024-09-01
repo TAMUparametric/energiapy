@@ -37,3 +37,61 @@ class Task(_Dunders, _EasyPrint):
         self.constraints = []
         self.variables = []
         self.indices = []
+
+
+@dataclass
+class Task2(_Dunders, _EasyPrint):
+    """Task
+    Handles the attributes of components
+    Defines strict behaviour
+
+    Attributes:
+        attr (str): attr associated with Task
+        var (IsVar): Task Variable
+        var_i (IsVar): Incidental Task Variable
+        ply (bool): Does this apply to Player?
+        emn (bool): Does this apply to Emission?
+        csh (bool): Does this apply to Cash?
+        res (bool): Does this apply to Resource?
+        mat (bool): Does this apply to Material?
+        lnd (bool): Does this apply to Land?
+        pro (bool): Does this apply to Process?
+        stg (bool): Does this apply to Storage?
+        trn (bool): Does this apply to Transit?
+        loc (bool): Does this apply to Location?
+        lnk (bool): Does this apply to Linkage?
+        ntw (bool): Does this apply to Network?
+        scl (bool): Does this apply to Scale?
+        mde (bool): Does this apply to Mode?
+    """
+
+    attr: str = field(default=None)
+    var: IsVar = field(default=None)
+    var_i: IsVar = field(default=None)
+    root: str = field(default=None)
+    # Do not reorder these fields
+    # I like to look at them in this order
+    # Not sure why, but I do
+    ply: bool = field(default=False)
+    emn: bool = field(default=False)
+    csh: bool = field(default=False)
+    res: bool = field(default=False)
+    mat: bool = field(default=False)
+    lnd: bool = field(default=False)
+    pro: bool = field(default=False)
+    stg: bool = field(default=False)
+    trn: bool = field(default=False)
+    loc: bool = field(default=False)
+    lnk: bool = field(default=False)
+    ntw: bool = field(default=False)
+    scl: bool = field(default=False)
+    mde: bool = field(default=False)
+
+    def __post_init__(self):
+        self.name = f'Task|{self.attr}|'
+        # Elements associated with the attribute
+        self.values = []
+        self.parameters = []
+        self.constraints = []
+        self.variables = []
+        self.indices = []
