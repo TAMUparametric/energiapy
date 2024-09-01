@@ -52,9 +52,13 @@ class _Operation(_Defined, ABC):
 
     @property
     def materials(self):
-        """Materials used in the Operation"""
-        if getattr(self, 'material_use'):
-            return [i.index.mat for i in getattr(self, 'material_use').data.values()]
+        """Materials used to setup in the Operation"""
+        if getattr(self, 'setup_use'):
+            return [
+                i.index.mat
+                for i in getattr(self, 'setup_use').data.values()
+                if i.index.mat
+            ]
         else:
             return []
 

@@ -10,7 +10,7 @@ from .._parameter import _ExactPar
 
 @dataclass
 class Usage(_ExactPar):
-    """Material Use"""
+    """Material or Land Usage"""
 
     def __post_init__(self):
         _ExactPar.__post_init__(self)

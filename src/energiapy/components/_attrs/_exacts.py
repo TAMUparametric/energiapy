@@ -51,11 +51,6 @@ class _OpnTscExacts:
     opex: IsInc = field(default=None)
 
 
-@dataclass
-class _TscExacts(_ResTscExacts, _UsdTscExacts, _OpnTscExacts):
-    """Exact Transact Inputs for Components"""
-
-
 # -------------Emission Exacts-------------
 
 
@@ -99,59 +94,19 @@ class _OpnEmnExacts:
     setup_emission: IsExt = field(default=None)
 
 
-@dataclass
-class _EmnExacts(_ResEmnExacts, _UsdEmnExacts, _OpnEmnExacts):
-    """Exact Emission Inputs for Components"""
-
-
 # -------------UseStp Exacts-------------
 
 
 @dataclass
 class _OpnUseExacts:
-    """Exact Uses of Land and Material (Used) by Operational Components
+    """Exact Use Inputs for Operational Components
 
     Attributes:
-        land_use (IsExt): land use associated with setting up Operational Component
-        material_use (IsExt): material use associated with setting up Operational Component
+        setup_use (IsExt): use (Material or Land) associated with setting up Operational Component
 
     """
 
-    land_use: IsExt = field(default=None)
-    material_use: IsExt = field(default=None)
-
-
-@dataclass
-class _OpnUseTscExacts:
-    """Exact Use Costs for Land and Material (Used) by Operational Components
-
-    Attributes:
-        land_use_cost (IsExt): cost associated with using Land for setting up Operational Component
-        material_use_cost (IsExt): cost associated with using Material (Used) for setting up Operational Component
-
-    """
-
-    land_use_cost: IsExt = field(default=None)
-    material_use_cost: IsExt = field(default=None)
-
-
-@dataclass
-class _OpnUseEmnExacts:
-    """Exact Use Emissions by use of Land and Material (Used) by Operational Components
-
-    Attributes:
-        land_use_emission (IsExt): emission associated with using Land for setting up Operational Component
-        material_use_emission (IsExt): emission associated with using Material (Used) for setting up Operational Component
-
-    """
-
-    land_use_emission: IsExt = field(default=None)
-    material_use_emission: IsExt = field(default=None)
-
-
-@dataclass
-class _OpnUsdExacts(_OpnUseExacts, _OpnUseTscExacts, _OpnUseEmnExacts):
-    """Exact Use Inputs for Operational Components"""
+    setup_use: IsExt = field(default=None)
 
 
 # -------------Loss Exacts-------------
@@ -181,11 +136,6 @@ class _TrnLseExacts:
     freight_loss: IsExt = field(default=None)
 
 
-@dataclass
-class _LseExacts(_StgLseExacts, _TrnLseExacts):
-    """Exact Loss Inputs for Components"""
-
-
 # -------------Rate Exacts-------------
 
 
@@ -213,12 +163,8 @@ class _TrnRteExacts:
     speed: IsExt = field(default=None)
 
 
-@dataclass
-class _RteExacts(_OpnRteExacts, _TrnRteExacts):
-    """Exact Rate Inputs for Components"""
-
-
-# -------------Component Exacts-------------
+# -------------Exacts Component-wise -------------
+# These are inherited by the Components
 
 
 @dataclass
@@ -232,7 +178,7 @@ class _UsdExacts(_UsdTscExacts, _UsdEmnExacts):
 
 
 @dataclass
-class _OpnExacts(_OpnTscExacts, _OpnEmnExacts, _OpnUsdExacts, _OpnRteExacts):
+class _OpnExacts(_OpnTscExacts, _OpnEmnExacts, _OpnUseExacts, _OpnRteExacts):
     """Exact Inputs for Operational Components"""
 
 
@@ -249,3 +195,32 @@ class _StgExacts(_OpnExacts, _StgLseExacts):
 @dataclass
 class _TrnExacts(_OpnExacts, _TrnLseExacts, _TrnRteExacts):
     """Exact Inputs for Transit Components"""
+
+
+# -------------Exacts Task-wise -------------
+# These are used by the TaskMaster to generate Tasks
+
+
+@dataclass
+class _TscExacts(_ResTscExacts, _UsdTscExacts, _OpnTscExacts):
+    """Exact Transact Inputs for Components"""
+
+
+@dataclass
+class _EmnExacts(_ResEmnExacts, _UsdEmnExacts, _OpnEmnExacts):
+    """Exact Emission Inputs for Components"""
+
+
+@dataclass
+class _UseExacts(_OpnUseExacts):
+    """Exact Use Inputs for Components"""
+
+
+@dataclass
+class _LseExacts(_StgLseExacts, _TrnLseExacts):
+    """Exact Loss Inputs for Components"""
+
+
+@dataclass
+class _RteExacts(_OpnRteExacts, _TrnRteExacts):
+    """Exact Rate Inputs for Components"""

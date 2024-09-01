@@ -7,13 +7,13 @@ from ...elements.parameters.balances.inventory import Inventory
 from .._attrs._balances import _StgBalance
 from .._attrs._birthing import _StgBirthing
 from .._attrs._bounds import _OpnBounds, _StgBounds
-from .._attrs._exacts import _StgExacts
+from .._attrs._exacts import _StgExacts, _UsdExacts
 from .._attrs._spatials import LocCollection
 from ._birther import _Birther
 
 # Associated Program Elements:
 #   Bound Parameters - CapBound, OprBound
-#   Exact Parameters - StpEmission, StpExpense, OprExpense, Usage
+#   Exact Parameters - StpEmission, StpExpense, OprExpense, StpUse
 #   Balance Parameters - Inventory
 #   Variable (Transact) - TransactOpr, TransactStp
 #   Variable (Emissions) - EmitStp, EmitUse
@@ -24,12 +24,21 @@ from ._birther import _Birther
 
 
 @dataclass
+class _Storage(_OpnBounds, _StgBounds, _StgExacts):
+    """These are attributes which are original to Storage"""
+
+
+@dataclass
+class _UsdStorage(_UsdExacts):
+    """These are Land and Material (Used) attributes which can be defined at Storage"""
+
+
+@dataclass
 class Storage(
     _StgBalance,
-    _OpnBounds,
-    _StgBounds,
+    _Storage,
+    _UsdStorage,
     _StgBirthing,
-    _StgExacts,
     LocCollection,
     _Birther,
 ):
@@ -44,12 +53,11 @@ class Storage(
     Attributes:
         capacity (IsBnd): bound on the capacity of the Operation
         store: (IsBnd): bound by Capacitate. Reported by operate as well.
-        land_use (IsExt): land use per Capacitate
-        material_use (IsExt): material use per Capacitate
+        use (IsBnd): bound on amount of Land or Material used by Process
+        setup_use (IsExt): Land or Material setup_use per unit capacity
         capex (IsInc): capital expense per Capacitate
         opex (IsInc): operational expense based on Operation
-        land_use_emission (IsExt): emission due to land use
-        material_use_emission (IsExt): emission due to material use
+        use_emission (IsExt): emission due to land or Material use
         setup_emission (IsExt): emission due to construction activity
         inventory: (IsBlc): balance needed for storage. can just be a Resource as well
         freight_loss: (IsExt): loss of resource in storage
@@ -78,9 +86,7 @@ class Storage(
     @staticmethod
     def inputs():
         """Input attributes"""
-        return [
-            f.name for f in fields(_OpnBounds) + fields(_StgBounds) + fields(_StgExacts)
-        ]
+        return [f.name for f in fields(_Storage) + fields(_UsdStorage)]
 
     @property
     def balance(self):

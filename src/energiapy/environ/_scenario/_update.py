@@ -33,7 +33,7 @@ class _Update(ABC):
     @property
     @abstractmethod
     def taskmaster(self):
-        """Chanakya of the Scenario"""
+        """TaskMaster of the Scenario"""
 
     def cleanup(self, cmp: str):
         """Cleans up components which can have only one instance in the System

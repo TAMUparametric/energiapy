@@ -60,7 +60,7 @@ Model components are declared as energiapy objects. The suggested hierarchy is a
 4. **Process:** Tasks/processes are set up by utilizing materials, and convert resources from on form to the other.
 5. **Location:** Locations are essentially a set of process. Capacity, cost, and demand variability can also be
    introduced.
-6. **Transport:** Modes of transportation translocate resources. Materials usage can also be provided.
+6. **Transport:** Modes of transportation translocate resources. Materials setup_use can also be provided.
 7. **Network:** Networks connect locations using transport linkages. The distance and transport availability matrices
    need to be provided.
 8. **Scenario:** single location (using Location) or multi-location (using Network) scenarios can be generated at
