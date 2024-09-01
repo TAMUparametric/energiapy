@@ -43,9 +43,9 @@ from ..components.operation._operation import _Operation
 from ..components.operation.process import Process
 from ..components.operation.storage import Storage
 from ..components.operation.transit import Transit
-from ..components.scope.spatial.linkage import Linkage
-from ..components.scope.spatial.network import Network
-from ..components.scope.temporal.horizon import Horizon
+from ..components.spatial.linkage import Linkage
+from ..components.spatial.network import Network
+from ..components.temporal.horizon import Horizon
 from ..core._handy._dunders import _Dunders
 from ..core._handy._printers import _Print
 from ..core._report._data import _Vlus

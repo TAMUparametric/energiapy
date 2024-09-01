@@ -4,7 +4,7 @@
 from typing import TypeAlias
 
 from ....components.commodity.resource import Resource
-from ....components.scope.temporal.mode import X
+from ....components.temporal.mode import X
 
 IsSngCnv: TypeAlias = dict[Resource, int | float]
 IsMltCnv: TypeAlias = dict[X, IsSngCnv]

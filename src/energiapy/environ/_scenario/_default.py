@@ -7,8 +7,8 @@ from ...components.analytical.player import Player
 from ...components.commodity.cash import Cash
 from ...components.commodity.emission import Emission
 from ...components.commodity.land import Land
-from ...components.scope.spatial.network import Network
-from ...components.scope.temporal.horizon import Horizon
+from ...components.spatial.network import Network
+from ...components.temporal.horizon import Horizon
 
 
 @dataclass

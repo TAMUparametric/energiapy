@@ -7,8 +7,8 @@ from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from ..scope.spatial.linkage import Linkage
-    from ..scope.spatial.location import Location
+    from ..spatial.linkage import Linkage
+    from ..spatial.location import Location
 
 
 class _Commodity(ABC):

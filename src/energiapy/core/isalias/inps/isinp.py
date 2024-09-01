@@ -5,12 +5,12 @@ from typing import Literal, TypeAlias
 
 from pandas import DataFrame
 
-from ....components.scope.spatial.linkage import Linkage
-from ....components.scope.spatial.location import Location
-from ....components.scope.spatial.network import Network
-from ....components.scope.temporal.incidental import I
-from ....components.scope.temporal.mode import X
-from ....components.scope.temporal.scale import Scale
+from ....components.spatial.linkage import Linkage
+from ....components.spatial.location import Location
+from ....components.spatial.network import Network
+from ....components.temporal.incidental import I
+from ....components.temporal.mode import X
+from ....components.temporal.scale import Scale
 
 # --------------Base Inputs--------------
 

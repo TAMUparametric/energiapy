@@ -32,8 +32,8 @@ from .commodity.resource import Resource
 from .operation.process import Process
 from .operation.storage import Storage
 from .operation.transit import Transit
-from .scope.spatial.linkage import Linkage
-from .scope.spatial.network import Network
-from .scope.temporal.horizon import Horizon
-from .scope.temporal.incidental import I
-from .scope.temporal.mode import X
+from .spatial.linkage import Linkage
+from .spatial.network import Network
+from .temporal.horizon import Horizon
+from .temporal.incidental import I
+from .temporal.mode import X

@@ -3,7 +3,7 @@
 
 from typing import TypeAlias
 
-from ....components.scope.temporal.incidental import I
+from ....components.temporal.incidental import I
 from ....elements.parameters.balances.conversion import Conversion
 from ....elements.parameters.balances.freight import Freight
 from ....elements.parameters.balances.inventory import Inventory

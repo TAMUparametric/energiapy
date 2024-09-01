@@ -8,7 +8,7 @@ from functools import reduce
 from operator import or_
 from typing import TYPE_CHECKING
 
-from ....components.scope.temporal.mode import X
+from ....components.temporal.mode import X
 from ....core._handy._dunders import _Reprs
 from ....core.isalias.inps.isblc import IsCnv
 

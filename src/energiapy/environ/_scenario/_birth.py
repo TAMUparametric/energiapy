@@ -8,16 +8,16 @@ from operator import is_not
 from typing import TYPE_CHECKING
 
 from ...components.operation.process import Process
-from ...components.scope.spatial.linkage import Linkage
-from ...components.scope.spatial.location import Location
-from ...components.scope.temporal.scale import Scale
+from ...components.spatial.linkage import Linkage
+from ...components.spatial.location import Location
+from ...components.temporal.scale import Scale
 
 if TYPE_CHECKING:
     from ...components.commodity.resource import Resource
     from ...components.operation.storage import Storage
     from ...components.operation.transit import Transit
-    from ...components.scope.spatial.network import Network
-    from ...components.scope.temporal.horizon import Horizon
+    from ...components.spatial.network import Network
+    from ...components.temporal.horizon import Horizon
 
 
 class _Birth(ABC):

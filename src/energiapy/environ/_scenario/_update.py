@@ -5,7 +5,7 @@
 
 from abc import ABC, abstractmethod
 
-from ...components.scope.temporal.horizon import Horizon
+from ...components.temporal.horizon import Horizon
 from ...core.isalias.cmps.iscmp import IsUnq
 from ...core.isalias.cmps.isdfn import IsDfn, IsOpn
 from ..blocks.data import DataBlock

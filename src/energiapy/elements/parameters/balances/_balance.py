@@ -4,7 +4,7 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 
-from ....components.scope.temporal.mode import X
+from ....components.temporal.mode import X
 from ....core._handy._dunders import _Reprs
 
 

@@ -3,8 +3,8 @@
 
 from dataclasses import dataclass, field
 
-from ..scope.spatial.linkage import Linkage
-from ..scope.spatial.location import Location
+from ..spatial.linkage import Linkage
+from ..spatial.location import Location
 
 
 @dataclass

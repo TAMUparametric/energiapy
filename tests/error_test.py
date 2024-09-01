@@ -5,7 +5,7 @@ import pytest
 from pandas import DataFrame
 
 from src.energiapy.components.commodity.cash import Cash
-from src.energiapy.components.scope.temporal.horizon import Horizon
+from energiapy.components.temporal.horizon import Horizon
 from src.energiapy.core.nirop.errors import (NoBasisError, NoLabelError,
                                              NoScaleMatchError, OverWriteError)
 

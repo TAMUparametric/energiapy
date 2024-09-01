@@ -3,13 +3,13 @@
 
 from typing import TypeAlias
 
-from ....components.scope.spatial.linkage import Linkage
-from ....components.scope.spatial.location import Location
-from ....components.scope.spatial.network import Network
-from ....components.scope.temporal.horizon import Horizon
-from ....components.scope.temporal.incidental import I
-from ....components.scope.temporal.mode import X
-from ....components.scope.temporal.scale import Scale
+from ....components.spatial.linkage import Linkage
+from ....components.spatial.location import Location
+from ....components.spatial.network import Network
+from ....components.temporal.horizon import Horizon
+from ....components.temporal.incidental import I
+from ....components.temporal.mode import X
+from ....components.temporal.scale import Scale
 
 # SpatioTemporal
 # These halp set the scope of the problem

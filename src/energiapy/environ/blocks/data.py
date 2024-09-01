@@ -5,7 +5,7 @@ from dataclasses import dataclass, field
 
 from pandas import DataFrame
 
-from ...components.scope.temporal.incidental import I
+from ...components.temporal.incidental import I
 from ...core._handy._dunders import _Dunders
 from ...core.isalias.cmps.isdfn import IsDfn
 from ...core.isalias.elms.isval import IsVal
