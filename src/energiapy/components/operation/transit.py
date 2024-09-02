@@ -5,14 +5,9 @@ from dataclasses import dataclass, fields
 
 from ...elements.parameters.balances.freight import Freight
 from .._attrs._balances import _TrnBalance
-from .._attrs._bounds import (
-    _OpnBounds,
-    _ResLnkBounds,
-    _TrnBounds,
-    _EmnBounds,
-    _UsdBounds,
-)
-from .._attrs._exacts import _TrnExacts, _UsdExacts, _EmnExacts
+from .._attrs._bounds import (_EmnBounds, _OpnBounds, _ResLnkBounds,
+                              _TrnBounds, _UsdBounds)
+from .._attrs._exacts import _EmnExacts, _TrnExacts, _UsdExacts
 from .._attrs._spatials import _LnkCollection
 from ._birther import _Birther
 

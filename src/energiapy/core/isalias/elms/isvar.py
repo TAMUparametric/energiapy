@@ -3,14 +3,14 @@
 
 from typing import TypeAlias
 
-from ....elements.variables.act import Give, Take
-from ....elements.variables.emit import (Emit, EmitBuy, EmitLse, EmitSll,
-                                         EmitStp, EmitUse)
-from ....elements.variables.lose import Lose
-from ....elements.variables.operate import Operate
-from ....elements.variables.rate import Rate
-from ....elements.variables.setup import Capacitate
-from ....elements.variables.trade import Buy, Sell, Ship
+from ....elements.variables.boundbounds.operate import Operate
+from ....elements.variables.bounds.act import Give, Take
+from ....elements.variables.bounds.capacitate import Capacitate
+from ....elements.variables.bounds.trade import Buy, Sell, Ship
+from ....elements.variables.exacts.emit import (Emit, EmitBuy, EmitLse,
+                                                EmitSll, EmitStp, EmitUse)
+from ....elements.variables.exacts.lose import Lose
+from ....elements.variables.exacts.rate import Rate
 from ....elements.variables.transact import (Earn, Spend, TransactBuy,
                                              TransactCrd, TransactOpr,
                                              TransactPnt, TransactSll,

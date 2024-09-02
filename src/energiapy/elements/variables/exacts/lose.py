@@ -5,12 +5,12 @@ from dataclasses import dataclass
 
 from sympy import IndexedBase
 
-from ...components.commodity.resource import Resource
-from ...components.operation.storage import Storage
-from ...components.operation.transit import Transit
-from ..disposition.structure import make_structures
-from ._variable import _ExactVar
-from .operate import Operate
+from ....components.commodity.resource import Resource
+from ....components.operation.storage import Storage
+from ....components.operation.transit import Transit
+from ...disposition.structure import make_structures
+from .._variable import _ExactVar
+from ..boundbounds.operate import Operate
 
 
 @dataclass
