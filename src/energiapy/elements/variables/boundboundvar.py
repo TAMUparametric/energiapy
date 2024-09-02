@@ -19,8 +19,6 @@ class BoundBoundVar(BoundVar):
         symbol (IndexedBase): Symbolic representation of the Variable
         p (bool): Does it add to the Balance (plus sign)
         m (bool): Does it subtract from the Balance (minus sign)
-        symbol_p (str): Symbol if p is True
-        symbol_m (str): Symbol if m is True
         parent (BoundVar): The Parent Variable of the Variable
     """
 

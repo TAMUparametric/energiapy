@@ -1,7 +1,6 @@
 """General Variable Class
 """
 
-from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 
 from sympy import IndexedBase
@@ -13,7 +12,7 @@ from ..disposition.index import Index
 
 
 @dataclass
-class _Variable(_Dunders, ABC):
+class _Variable(_Dunders):
     """This is a general Variable
 
     Attributes:
@@ -39,9 +38,9 @@ class _Variable(_Dunders, ABC):
             raise ValueError(f'{self}: symbol must be provided')
 
     @property
-    @abstractmethod
     def symib(self) -> IndexedBase:
         """Symbolic representation of the Variable"""
+        return IndexedBase(self.symbol)
 
     @property
     def sym(self):

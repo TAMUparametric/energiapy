@@ -87,8 +87,8 @@ class _Bounds(
 
     def __post_init__(self):
         # Player
-        self.has = Task(attr='has', var=BoundVar(p=True, ), **act)
-        self.needs = Task(attr='needs', var=Take, **act)
+        self.has = Task(attr='has', var=BoundVar(p=True, symbol='gives'), **act)
+        self.needs = Task(attr='needs', var=BoundVar(m=True, symbol='takes'), **act)
         # Emission
         self.emit = Task(attr='emit', var=Emit, **emit)
         self.emit = Task(attr='abate', var=Emit, **emit)

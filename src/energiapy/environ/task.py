@@ -75,3 +75,5 @@ class Task(_Dunders, _EasyPrint):
         self.constraints = []
         self.variables = []
         self.indices = []
+
+        

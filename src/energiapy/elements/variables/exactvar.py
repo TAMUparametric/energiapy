@@ -6,8 +6,6 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
-from sympy import IndexedBase
-
 from ...core.isalias.cmps.isdfn import IsDfn
 from ._variable import _Variable
 
@@ -34,8 +32,3 @@ class ExactVar(_Variable):
 
     def __post_init__(self):
         _Variable.__post_init__(self)
-
-    @property
-    def symib(self) -> IndexedBase:
-        """Symbolic representation of the Variable"""
-        return IndexedBase(self.symbol)

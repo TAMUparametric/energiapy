@@ -14,9 +14,7 @@ class Act(BoundVar):
     """Act is a Player's action
     This is a parent class
     """
-    
 
-    
     @classmethod
     def structures(cls, component):
         """The allowed structures of disposition of the Variable"""
