@@ -1,27 +1,12 @@
 """Bound Input attributes for all Defined Components
 """
 
-from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from ...core.isalias.inps.isinp import IsBnd
 
 
-class _Ounds(ABC):
-    """Abstract Base Class for Bounds"""
-
-    @property
-    @abstractmethod
-    def plus(self):
-        """Positive sign in Balance"""
-
-    @property
-    @abstractmethod
-    def minus(self):
-        """Negative sign in Balance"""
-
-
 @dataclass
-class _PlyB(_Ounds):
+class _PlyBounds:
     """Bounds for Players
 
     Attributes:
@@ -33,19 +18,9 @@ class _PlyB(_Ounds):
     has: IsBnd = field(default=None)
     needs: IsBnd = field(default=None)
 
-    @property
-    def plus(self):
-        """Positive sign in Balance"""
-        return self.has
-
-    @property
-    def minus(self):
-        """Negative sign in Balance"""
-        return self.needs
-
 
 @dataclass
-class _CshBB(_Ounds):
+class _CshBounds:
     """Bounds for Cash
 
     Attributes:
@@ -57,19 +32,9 @@ class _CshBB(_Ounds):
     spend: IsBnd = field(default=None)
     earn: IsBnd = field(default=None)
 
-    @property
-    def plus(self):
-        """Positive sign in Balance"""
-        return self.spend
-
-    @property
-    def minus(self):
-        """Negative sign in Balance"""
-        return self.earn
-
 
 @dataclass
-class _EmnB(_Ounds):
+class _EmnBounds:
     """Bounds for Emission
 
     Attributes:
@@ -78,21 +43,11 @@ class _EmnB(_Ounds):
     """
 
     emit: IsBnd = field(default=None)
-    abate: IsBnd = field(default=None)
-
-    @property
-    def plus(self):
-        """Positive sign in Balance"""
-        return self.emit
-
-    @property
-    def minus(self):
-        """Negative sign in Balance"""
-        return self.abate
+    # abate: IsBnd = field(default=None)
 
 
 @dataclass
-class _UsdB(_Ounds):
+class _UsdBounds:
     """Bounds for Land and Material (Used)
 
     Attributes:
@@ -101,54 +56,35 @@ class _UsdB(_Ounds):
     """
 
     use: IsBnd = field(default=None)
-    dispose: IsBnd = field(default=None)
-
-    @property
-    def plus(self):
-        """Positive sign in Balance"""
-        return self.use
-
-    @property
-    def minus(self):
-        """Negative sign in Balance"""
-        return self.dispose
+    # dispose: IsBnd = field(default=None)
 
 
 @dataclass
-class _ResLocB(_Ounds):
+class _ResLocBounds:
     """Bounds for Resources at Locations"""
 
     buy: IsBnd = field(default=None)
     sell: IsBnd = field(default=None)
 
-    @property
-    def plus(self):
-        """Positive sign in Balance"""
-        return self.buy
-
-    @property
-    def minus(self):
-        """Negative sign in Balance"""
-        return self.sell
-
 
 @dataclass
-class _ResLnkBB(_Ounds):
+class _ResLnkBounds:
     """Bounds for Resources at Linkages"""
 
     ship: IsBnd = field(default=None)
     # only for bi directional linkages
-    receive: IsBnd = field(default=None)
+    # receive: IsBnd = field(default=None)
 
 
 @dataclass
-class _ResBounds(_ResLocBB(_Ounds), _ResLnkBB(_Ounds)):
+class _ResBounds(_ResLocBounds, _ResLnkBounds):
     """Bounds for Resources
 
     Attributes:
         buy (IsBnd): bound on amount bought at Location or by Process
         sell (IsBnd): bound on amount sold at Location or by Process
         ship (IsBnd): bound on amount shipped through Linkage
+        recieve (IsBnd): bound on amount received through Linkage
     """
 
 

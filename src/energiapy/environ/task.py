@@ -63,6 +63,8 @@ class Task2(_Dunders, _EasyPrint):
         ntw (bool): Does this apply to Network?
         scl (bool): Does this apply to Scale?
         mde (bool): Does this apply to Mode?
+        p (bool): Does it add to the Balance (plus sign)
+        m (bool): Does it subtract from the Balance (minus sign)
     """
 
     attr: str = field(default=None)
@@ -86,9 +88,18 @@ class Task2(_Dunders, _EasyPrint):
     ntw: bool = field(default=False)
     scl: bool = field(default=False)
     mde: bool = field(default=False)
+    p: bool = field(default=False)
+    m: bool = field(default=False)
 
     def __post_init__(self):
         self.name = f'Task|{self.attr}|'
+
+        if self.p and self.m:
+            raise ValueError('Task cannot be both plus and minus')
+
+        if not (self.p or self.m):
+            raise ValueError('Task must be either plus or minus')
+
         # Elements associated with the attribute
         self.values = []
         self.parameters = []

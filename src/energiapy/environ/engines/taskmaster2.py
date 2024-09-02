@@ -82,7 +82,6 @@ emit = {
 
 transact = {
     'csh': True,
-    
 }
 
 
@@ -109,11 +108,17 @@ class _Bounds(
         self.needs = Task2(attr='needs', var=Take, **act)
         # Emission
         self.emit = Task2(attr='emit', var=Emit, **emit)
+        self.emit = Task2(attr='abate', var=Emit, **emit)
         # Cash
-        self.spend = Task2(attr='spend', csh=True, var=Spend)
+        self.spend = Task2(
+            attr='spend',
+            csh=True,
+            var=Spend,
+        )
         self.earn = Task2(attr='earn', csh=True, var=Earn)
         # Land and Material (Used)
         self.use = Task2(attr='use', mat=True, lnd=True, var=Use)
+        self.dispose = Task2(attr='dispose', mat=True, lnd=True, var=Use)
         # Resource
         self.buy = Task2(attr='buy', res=True, var=Buy, pro=True)
         self.sell = Task2(attr='sell', res=True, var=Sell, pro=True)
