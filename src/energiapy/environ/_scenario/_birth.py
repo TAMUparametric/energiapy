@@ -50,7 +50,7 @@ class _Birth(ABC):
                     label=label_scale,
                 ),
             )
-
+            
     def birth_locations(self, network: Network):
         """Births Locations based on the locs provided in the Network
 

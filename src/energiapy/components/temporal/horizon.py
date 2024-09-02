@@ -78,7 +78,7 @@ class Horizon(_Scope, _Scls):
 
     discretizations: list = field(default_factory=list)
     # if nested the discretizes based on previous scale
-    nested: bool = field(default=True)
+    nested: bool = field(default=False)
     label_scales: list[str] = field(default=None)
     label: str = field(default=None)
 
@@ -139,23 +139,11 @@ class Horizon(_Scope, _Scls):
 
     def make_index(self, position: int, nested: bool = True):
         """makes an index for Scale"""
+        lists = [list(range(i)) for i in self._discretization_list]
         if nested:
-            lists = [list(range(i)) for i in self._discretization_list]
             return list(product(*lists[: position + 1]))
         else:
-            if self._discretization_list != sorted(self._discretization_list):
-                raise ValueError('Discretizations need to be in ascending order')
-            if not all(
-                is_(imod(max(self._discretization_list), i), 0)
-                for i in self._discretization_list
-            ):
-                raise ValueError(
-                    'Discretizations need to be divisible by the most granular scale',
-                )
-            lists = [(0, i) for i in range(max(self._discretization_list))]
-            return lists[
-                :: max(self._discretization_list) // self._discretization_list[position]
-            ]
+            return [(0, i) for i in lists[position]]
 
     def match_scale(self, value, component: IsDfn = None, attr: str = None):
         """Returns the scale that matches the length
