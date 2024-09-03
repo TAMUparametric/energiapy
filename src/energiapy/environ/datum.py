@@ -150,7 +150,7 @@ class Datum(_Dunders):
             # Check whether the input value type is appropriate
             # if not raises an InputTypeError
             self.check_type(val)
-
+            print(val)
             dict_upd[disp] = val
 
         # update the input with a dictionary {Index: value}

@@ -161,7 +161,7 @@ class Scenario(_Ok, _Default, _Birth, _Update, _ScnCols, _Dunders, _Print):
             # Horizon, Network, Linkages and Storage give birth to new components
             if isinstance(value, Horizon):
                 self.handle_unique_cmp('horizon', value)
-                self.birth_scales(horizon=value)
+                self.birth_partitions(scope=value)
 
                 # once scales are birthed, they are periodized
                 # which creates time periods for each scale
@@ -170,7 +170,7 @@ class Scenario(_Ok, _Default, _Birth, _Update, _ScnCols, _Dunders, _Print):
 
             if isinstance(value, Network):
                 self.handle_unique_cmp('network', value)
-                self.birth_locations(network=value)
+                self.birth_partitions(scope=value)
                 if value.link_all:
                     self.birth_all_linkages(network=value)
 

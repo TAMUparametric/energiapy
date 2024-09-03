@@ -3,7 +3,6 @@
 
 from dataclasses import dataclass, field
 from itertools import product
-from operator import imod, is_
 
 from ...core._report._syst import _Scls
 from ...core.isalias.cmps.isdfn import IsDfn
@@ -78,72 +77,35 @@ class Horizon(_Scope, _Scls):
 
     discretizations: list = field(default_factory=list)
     # if nested the discretizes based on previous scale
-    nested: bool = field(default=False)
     label_scales: list[str] = field(default=None)
-    label: str = field(default=None)
 
     def __post_init__(self):
         _Scope.__post_init__(self)
 
-        # insert 1 at the beginning, this is the horizon itself
-        if isinstance(self.discretizations, dict):
-            self._discretization_list = list(self.discretizations.values())
-            self._discretization_list.insert(0, 1)
-            self.name_scales = list(self.discretizations.keys())
-            self.name_scales.insert(0, 'ph')
-
-        elif isinstance(self.discretizations, list):
-            self._discretization_list = list(self.discretizations)
-            self._discretization_list.insert(0, 1)
-            self.name_scales = [f't{i}' for i in range(len(self._discretization_list))]
-
-        else:
-            raise ValueError('Discretizations must be a list or a dictionary')
+    @property
+    def partitions(self):
+        """Partitions to divide the Horizon into"""
+        return self.discretizations
 
     @property
-    def n_scales(self) -> int:
-        """Returns number of scales"""
-        return len(self._discretization_list)
-
-    @property
-    def indices(self):
-        """Dictionary of indices"""
-        return {i: i.index for i in self.scales}
-
-    @property
-    def n_indices(self):
-        """list of number of indices"""
-        return [len(i) for i in self.scales]
-
-    @property
-    def is_multiscale(self):
-        """Returns True if problem has multiple scales"""
-        # Note that the first scale is always the planning horizon
-        if self.n_scales > 2:
-            return True
-        else:
-            return False
-
-    @property
-    def is_nested(self):
-        """Returns True if problem has nested scales"""
-        if self.nested:
-            return True
-        else:
-            return False
+    def label_partitions(self):
+        """Labels for the partitions"""
+        return self.label_scales
 
     @property
     def root(self):
         """Returns the root scale"""
         return self.scales[0]
 
-    def make_index(self, position: int, nested: bool = True):
-        """makes an index for Scale"""
-        lists = [list(range(i)) for i in self._discretization_list]
-        if nested:
-            return list(product(*lists[: position + 1]))
-        else:
-            return [(0, i) for i in lists[position]]
+    @staticmethod
+    def _root():
+        """Root partition of the Horizon"""
+        return 'ph'
+
+    @staticmethod
+    def _def_name():
+        """Default name for the Partitions"""
+        return 't'
 
     def match_scale(self, value, component: IsDfn = None, attr: str = None):
         """Returns the scale that matches the length
