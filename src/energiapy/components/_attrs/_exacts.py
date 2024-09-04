@@ -72,7 +72,7 @@ class _ResEmnExacts:
     buy_sequester: IsExt = field(default=None)
     sell_emit: IsExt = field(default=None)
     sell_sequester: IsExt = field(default=None)
-    loss_emit: IsExt = field(default=None)
+    lose_emit: IsExt = field(default=None)
 
 
 @dataclass
@@ -85,6 +85,7 @@ class _UsdEmnExacts:
     """
 
     use_emit: IsExt = field(default=None)
+    use_sequester: IsExt = field(default=None)
     dispose_emit: IsExt = field(default=None)
 
 
@@ -98,6 +99,8 @@ class _OpnEmnExacts:
     """
 
     setup_emit: IsExt = field(default=None)
+    setup_sequester: IsExt = field(default=None)
+    dismantle_emit: IsExt = field(default=None)
 
 
 # -------------UseStp Exacts-------------

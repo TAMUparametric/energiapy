@@ -79,10 +79,8 @@ class _ResBounds:
     sell: IsBnd = field(default=None)
     # Trade between Linkages
     ship: IsBnd = field(default=None)
-    recieve: IsBnd = field(default=None)
     # Lose at Location or between Linkage
     lose: IsBnd = field(default=None)
-    recover: IsBnd = field(default=None)
 
 
 @dataclass

@@ -27,13 +27,13 @@ class _Scope(_Component, ABC):
             # if only a number is given, then just make
             self.birth = [self.birth]
 
-        if isinstance(self.partitions, dict):
+        if isinstance(self.birth, dict):
             self._partition_list = list(self.birth.values())
             self._partition_list.insert(0, 1)
             self.name_partitions = list(self.birth.keys())
             self.name_partitions.insert(0, self._root())
 
-        elif isinstance(self.partitions, list):
+        elif isinstance(self.birth, list):
             self._partition_list = self.birth
             self._partition_list.insert(0, 1)
             self.name_partitions = [

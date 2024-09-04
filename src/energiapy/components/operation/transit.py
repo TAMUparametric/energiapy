@@ -9,18 +9,7 @@ from .._attrs._bounds import _OpnBounds, _TrnBounds
 from .._attrs._exacts import _TrnExacts
 from .._attrs._spatials import _LnkCollection
 from ._birther import _Birther
-
-# Associated Program Elements:
-#   Bound Parameters - CapBound, OprBound
-#   Exact Parameters - StpEmission, StpExpense, OprExpense, StpUse
-#   Balance Parameters - Freight
-#   Variable (Transact) - TransactOpr, TransactStp
-#   Variable (Emissions) - EmitStp, EmitUse
-#   Variable (Losses) - Lose
-#   Variable (Operate) - Operate
-#   Variable (Trade) - Ship
-#   Variable (Use) - Use
-#   Variable (Rates) - Rate
+from ..spatial.linkage import Linkage
 
 
 @dataclass
@@ -86,6 +75,11 @@ class Transit(
     def inputs():
         """Input attributes"""
         return [f.name for f in fields(_Transit)]
+
+    @staticmethod
+    def at():
+        """At what Spatial can the Operation be located"""
+        return Linkage
 
     def freightize(self):
         """Makes the freight"""

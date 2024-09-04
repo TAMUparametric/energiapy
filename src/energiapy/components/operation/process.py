@@ -10,6 +10,7 @@ from .._attrs._bounds import _OpnBounds, _ProBounds
 from .._attrs._exacts import _ProExacts
 from .._attrs._spatials import _LocCollection
 from ._operation import _Operation
+from ..spatial.location import Location
 
 # Associated Program Elements:
 #   Bound Parameters - CapBound, OprBound
@@ -118,6 +119,11 @@ class Process(
     def resources(self):
         """Resources in Conversion"""
         return self.conversion.involved
+
+    @staticmethod
+    def at():
+        """At what Spatial can the Operation be located"""
+        return Location
 
     def conversionize(self):
         """Makes the conversion"""

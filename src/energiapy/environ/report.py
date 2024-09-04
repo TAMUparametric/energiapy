@@ -5,7 +5,7 @@ from dataclasses import dataclass, field
 
 from ..core._handy._dunders import _Dunders
 from ..core._handy._printers import _EasyPrint
-from .task import Task
+from .tasks._task import _Task
 
 
 @dataclass
@@ -18,7 +18,7 @@ class Report(_Dunders, _EasyPrint):
     """
 
     name: str = field(default=None)
-    tasks: list[Task] = field(default_factory=list)
+    tasks: list[_Task] = field(default_factory=list)
 
     def __post_init__(self):
         self.name = f'Report|{self.name}|'

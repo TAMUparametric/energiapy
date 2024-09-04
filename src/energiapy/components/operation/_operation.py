@@ -40,6 +40,11 @@ class _Operation(_Defined, ABC):
     def _spatials():
         """Spatial Components where the Operation is located"""
 
+    @staticmethod
+    @abstractmethod
+    def at():
+        """At what Spatial can the Operation be located"""
+
     @property
     def spatials(self):
         """Spatial Components where the Operation is located"""

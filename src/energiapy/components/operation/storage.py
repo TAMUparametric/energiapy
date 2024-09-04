@@ -10,6 +10,7 @@ from .._attrs._bounds import _OpnBounds, _StgBounds
 from .._attrs._exacts import _StgExacts
 from .._attrs._spatials import _LocCollection
 from ._birther import _Birther
+from ..spatial.location import Location
 
 # Associated Program Elements:
 #   Bound Parameters - CapBound, OprBound
@@ -86,6 +87,11 @@ class Storage(
     def balance(self):
         """Balance of the Storage"""
         return self.inventory
+
+    @staticmethod
+    def at():
+        """At what Spatial can the Operation be located"""
+        return Location
 
     def inventorize(self):
         """Makes the inventory"""

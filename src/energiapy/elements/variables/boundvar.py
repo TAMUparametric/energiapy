@@ -24,6 +24,7 @@ class BoundVar(_Variable):
 
     def __post_init__(self):
         _Variable.__post_init__(self)
+        self.parent = None
 
         if not self.p and not self.m:
             raise ValueError(f'{self}: p or m must be True')

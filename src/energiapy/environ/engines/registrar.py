@@ -1,13 +1,13 @@
-"""Keeps a track of what elements are defined at what dispostions  
+"""Keeps a track of what tasks have been defined at what indices
 """
 
 from dataclasses import dataclass, field
 
 from ...core._handy._dunders import _Dunders
-from ...core.isalias.elms.iselm import IsElm
 from ...core.nirop.errors import CacodcarError
 from ...elements.disposition.index import Index
-from .rulebook import Bhaskara
+from ...environ.tasks.bound import Bound, BoundBound
+from ...environ.tasks.calculation import Calculation
 
 
 @dataclass
@@ -21,19 +21,15 @@ class ChitraGupta(_Dunders):
     """
 
     name: str = field(default=None)
-    rulebook: Bhaskara = field(default=None)
 
     def __post_init__(self):
 
         self.name = f'Registrar|{self.name}|'
+        self.pbounds, self.mbounds, self.boundbounds, self.calculations = (
+            [] for _ in range(4)
+        )
 
-        for var in self.rulebook.vars():
-            setattr(self, var.cname(), [])
-
-        for prm in self.rulebook.prms():
-            setattr(self, prm.cname(), [])
-
-    def register(self, elm: IsElm, index: Index):
+    def register(self, task: Bound | BoundBound | Calculation, index: Index):
         """Register that a Variable or Parameter has been declared at a particular Index
 
         Args:
@@ -41,8 +37,16 @@ class ChitraGupta(_Dunders):
             index (Index): with this Index
         """
 
-        # Only unique instances of indices are allowed
-        if index in getattr(self, elm.cname()):
-            raise CacodcarError(f'{elm} already has {index} in {self.name}')
+        if isinstance(task, Bound):
+            collection = 'pbounds' if task.p else 'mbounds'
 
-        getattr(self, elm.cname()).append(index)
+        if isinstance(task, BoundBound):
+            collection = 'boundbounds'
+
+        if isinstance(task, Calculation):
+            collection = 'calculations'
+
+        if task in getattr(self, collection):
+            raise CacodcarError(f'{task} already has {index} in {self.name}')
+
+        getattr(self, collection).append(index)

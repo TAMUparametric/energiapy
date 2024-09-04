@@ -157,11 +157,8 @@ class ProgramBlock(_Fish, _Dunders, _Print):
                 self.birth_elements(value=i, attr=attr)
 
         else:
-            if value.incdntl:
-                # if input value is incidental
-                var = getattr(self.component.taskmaster, attr).var_i
-            else:
-                var = getattr(self.component.taskmaster, attr).var
+
+            var = getattr(self.component.taskmaster, attr).var
 
             # This fishes for an existing Variable
             # if not found births one
@@ -175,22 +172,17 @@ class ProgramBlock(_Fish, _Dunders, _Print):
             # In the CapEx example, ExpSetUp has Cash, but Capacitate does not
             # so remove Cash Component in Capacitate Dispositio
 
-            if var.parent():
-                if var.child():
-                    # Fish for an existing Dispostion
-                    # if not found, births one
-                    idx_parent = self.birth_index(
-                        disposition=variable.index.childless(var.child()),
-                        attr=attr,
-                    )
-
-                else:
-                    # if no child then the Parent Index is the same as variable
-                    idx_parent = variable.index
+            if var.parent:
+                # Fish for an existing Dispostion
+                # if not found, births one
+                idx_parent = self.birth_index(
+                    disposition=variable.index.childless(var.parent.root),
+                    attr=attr,
+                )
 
                 # This fishes for an existing Parent Variable
                 # if not found births one
-                parent = self.birth_var(var=var.parent(), index=idx_parent, attr=attr)
+                parent = self.birth_var(var=var.parent, index=idx_parent, attr=attr)
 
             else:
                 # Bruce Wayne Variable
