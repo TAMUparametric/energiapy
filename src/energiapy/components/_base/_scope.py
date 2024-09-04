@@ -20,11 +20,10 @@ class _Scope(_Component, ABC):
 
     def __post_init__(self):
         _Component.__post_init__(self)
-        #Every Scope has a root partition
-        #This root partition, basiscally the horizon 
+        # Every Scope has a root partition
+        # This root partition, basiscally the horizon
         if isinstance(self.partitions, int):
             # if only a number is given, then just make
-            @
             self.partitions = [self.partitions]
 
         if isinstance(self.partitions, dict):

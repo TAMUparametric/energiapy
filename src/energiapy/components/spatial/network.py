@@ -28,7 +28,6 @@ class Network(_Scope, _NtwCols):
     label_locs: list[str] = field(default=None)
     link_all: bool = field(default=False)
 
-
     def __post_init__(self):
         _Scope.__post_init__(self)
 
