@@ -76,6 +76,8 @@ class Horizon(_Scope, _Scls):
     """
 
     discretizations: list = field(default_factory=list)
+    nested: bool = field(default=True)
+    label: str = field(default=None)
     # if nested the discretizes based on previous scale
     label_scales: list[str] = field(default=None)
 
@@ -122,3 +124,17 @@ class Horizon(_Scope, _Scls):
             return self.scales[self.n_indices.index(len(value))]
         else:
             return self.scales[0]
+
+    def make_index(self, position: int, nested: bool = True):
+        """makes an index for Scale
+        Args:
+            position: int
+            nested: bool, optional, default True
+
+        """
+
+        lists = [list(range(i)) for i in self._partition_list]
+        if nested:
+            return list(product(*lists[: position + 1]))
+        else:
+            return [(0, i) for i in lists[position]]

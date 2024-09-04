@@ -7,7 +7,6 @@ from dataclasses import dataclass, field
 from ._component import _Component
 
 from ...utils.dictionary import tupler, get_depth
-from itertools import product
 
 
 @dataclass
@@ -17,13 +16,15 @@ class _Scope(_Component, ABC):
     Horizon and Network are the only scope components
     """
 
-    nested: bool = field(default=False)
-    label: str = field(default=None)
+    nested: bool = field(default=True)
 
     def __post_init__(self):
         _Component.__post_init__(self)
-
+        #Every Scope has a root partition
+        #This root partition, basiscally the horizon 
         if isinstance(self.partitions, int):
+            # if only a number is given, then just make
+            @
             self.partitions = [self.partitions]
 
         if isinstance(self.partitions, dict):
@@ -108,15 +109,3 @@ class _Scope(_Component, ABC):
             return True
         else:
             return False
-
-    def make_index(self, position: int, nested: bool = True):
-        """makes an index for Scale"""
-
-        if self._tuplered:
-            return self.partitions[position]
-        else:
-            lists = [list(range(i)) for i in self._partition_list]
-            if nested:
-                return list(product(*lists[: position + 1]))
-            else:
-                return [(0, i) for i in lists[position]]

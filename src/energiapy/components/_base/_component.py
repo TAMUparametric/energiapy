@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field 
 from typing import TYPE_CHECKING
 
 from ...core._handy._dunders import _Dunders
@@ -20,6 +20,8 @@ class _Component(_Dunders):
 
     Also adds Model and reports individual Blocks of the Model
     """
+
+    label: str = field(default=None)
 
     def __post_init__(self):
         self.name = None

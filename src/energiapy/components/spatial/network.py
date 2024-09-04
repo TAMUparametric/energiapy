@@ -2,6 +2,7 @@
 """
 
 from dataclasses import dataclass, field
+from itertools import product
 
 from ...core._report._syst import _Cmds, _LnkOpns, _LocOpns, _Scls, _Spts
 from .._base._scope import _Scope
@@ -23,8 +24,10 @@ class Network(_Scope, _NtwCols):
     """
 
     locs: list[str] | int = field(default_factory=list)
+    label: str = field(default=None)
     label_locs: list[str] = field(default=None)
     link_all: bool = field(default=False)
+
 
     def __post_init__(self):
         _Scope.__post_init__(self)
@@ -53,3 +56,15 @@ class Network(_Scope, _NtwCols):
     def _def_name():
         """Default name for the Partitions"""
         return 'node'
+
+    def make_index(self, position: int, nested: bool = True):
+        """makes an index for Scale"""
+
+        if self._tuplered:
+            return self.partitions[position]
+        else:
+            lists = [list(range(i)) for i in self._partition_list]
+            if nested:
+                return list(product(*lists[: position + 1]))
+            else:
+                return [(0, i) for i in lists[position]]

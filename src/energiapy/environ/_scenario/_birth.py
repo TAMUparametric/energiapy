@@ -27,7 +27,7 @@ class _Birth(ABC):
     def system(self):
         """System Model Block of the Scenario"""
 
-    def birth_partitions(self, scope: Horizon | Network):
+    def birth_partitions(self, scope: Horizon | Network, birth: Scale | Location):
         """Births temporal Scales based on discretizations provided in the Horizon
 
         Args:
@@ -43,16 +43,10 @@ class _Birth(ABC):
 
             # set the scales as attributes of the Scenario
 
-            if isinstance(scope, Horizon):
-                birth_ = Scale
-
-            if isinstance(scope, Network):
-                birth_ = Location
-
             setattr(
                 self,
                 scope.name_partitions[i],
-                birth_(
+                birth(
                     index=scope.make_index(position=i, nested=scope.nested),
                     label=label_partition,
                 ),
