@@ -5,14 +5,9 @@ from dataclasses import dataclass, fields
 
 from ...elements.parameters.balances.conversion import Conversion
 from .._attrs._balances import _ProBalance
-from .._attrs._bounds import (
-    _OpnBounds,
-    _ProBounds,
-    _ResLocBounds,
-    _EmnBounds,
-    _UsdBounds,
-)
-from .._attrs._exacts import _ProExacts, _ResExacts, _UsdExacts, _EmnExacts
+from .._attrs._bounds import (_EmnBounds, _OpnBounds, _ProBounds,
+                              _ResLocBounds, _UsdBounds)
+from .._attrs._exacts import _EmnExacts, _ProExacts, _ResExacts, _UsdExacts
 from .._attrs._spatials import _LocCollection
 from ._operation import _Operation
 

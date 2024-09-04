@@ -2,6 +2,7 @@
 """
 
 from dataclasses import dataclass, field
+
 from ...core.isalias.inps.isinp import IsBnd
 
 
@@ -17,6 +18,7 @@ class _PlyBounds:
 
     has: IsBnd = field(default=None)
     needs: IsBnd = field(default=None)
+
 
 
 @dataclass

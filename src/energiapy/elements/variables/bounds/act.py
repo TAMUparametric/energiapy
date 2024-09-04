@@ -5,25 +5,15 @@ from dataclasses import dataclass
 
 from sympy import IndexedBase
 
-from ..disposition.structure import make_structures
-from ._variable import _BoundVar
-
-# ---------------MixIns---------------
+from ...disposition.structure import make_structures
+from ..boundvar import BoundVar
 
 
 @dataclass
-class _Act(_BoundVar):
+class Act(BoundVar):
     """Act is a Player's action
     This is a parent class
     """
-
-    @classmethod
-    def parent(cls):
-        """The Parent Task of the Variable"""
-
-    @classmethod
-    def child(cls):
-        """The Parent Variable doesnot carry Child Component"""
 
     @classmethod
     def structures(cls, component):
