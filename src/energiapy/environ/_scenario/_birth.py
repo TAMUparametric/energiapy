@@ -11,13 +11,13 @@ from ...components.operation.process import Process
 from ...components.spatial.linkage import Linkage
 from ...components.spatial.location import Location
 from ...components.temporal.scale import Scale
+from ...components.spatial.network import Network
+from ...components.temporal.horizon import Horizon
 
 if TYPE_CHECKING:
     from ...components.commodity.resource import Resource
     from ...components.operation.storage import Storage
     from ...components.operation.transit import Transit
-    from ...components.spatial.network import Network
-    from ...components.temporal.horizon import Horizon
 
 
 class _Birth(ABC):
@@ -27,44 +27,36 @@ class _Birth(ABC):
     def system(self):
         """System Model Block of the Scenario"""
 
-    def birth_scales(self, horizon: Horizon):
+    def birth_partitions(self, scope: Horizon | Network):
         """Births temporal Scales based on discretizations provided in the Horizon
 
         Args:
-            horizon (IsHorizon): Horizon object
+            scope (Horizon | Network): Scope Component
         """
-        for i in range(horizon.n_scales):
+        for i in range(scope.n_partitions):
             # labels can be provided. or they are set to t0, t1, t2, ...
 
-            if horizon.label_scales:
-                label_scale = horizon.label_scales[i]
+            if scope.label_partitions:
+                label_partition = scope.label_partitions[i]
             else:
-                label_scale = horizon.label_scales
+                label_partition = scope.label_partitions
 
             # set the scales as attributes of the Scenario
+
+            if isinstance(scope, Horizon):
+                birth_ = Scale
+
+            if isinstance(scope, Network):
+                birth_ = Location
+
             setattr(
                 self,
-                horizon.name_scales[i],
-                Scale(
-                    index=horizon.make_index(position=i, nested=horizon.nested),
-                    label=label_scale,
+                scope.name_partitions[i],
+                birth_(
+                    index=scope.make_index(position=i, nested=scope.nested),
+                    label=label_partition,
                 ),
             )
-
-    def birth_locations(self, network: Network):
-        """Births Locations based on the locs provided in the Network
-
-        Args:
-            network (IsNetwork): Network object
-        """
-
-        for i in network.locs:
-            if network.label_locs:
-                label_node = network.label_locs[i]
-            else:
-                label_node = network.label_locs
-            # set the locations as attributes of the Scenario
-            setattr(self, i, Location(label=label_node))
 
     def birth_sib_linkage(self, linkage: Linkage):
         """Births a Linkage going in the opposite direction of the provided Linkage

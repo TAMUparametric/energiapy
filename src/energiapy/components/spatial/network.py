@@ -25,11 +25,31 @@ class Network(_Scope, _NtwCols):
     locs: list[str] | int = field(default_factory=list)
     label_locs: list[str] = field(default=None)
     link_all: bool = field(default=False)
-    label: str = field(default=None)
 
     def __post_init__(self):
         _Scope.__post_init__(self)
 
-        # if integer number is giver, will make Locations with names node0, node1, ...
-        if isinstance(self.locs, int):
-            self.locs = [f'node{i}' for i in range(self.locs)]
+    @property
+    def partitions(self):
+        """Partitions to divide the Network into"""
+        return self.locs
+
+    @property
+    def label_partitions(self):
+        """Labels for the partitions"""
+        return self.label_locs
+
+    @property
+    def root(self):
+        """Root partition of the Network"""
+        return self.locations[0]
+
+    @staticmethod
+    def _root():
+        """Root partition of the Network"""
+        return 'sys'
+
+    @staticmethod
+    def _def_name():
+        """Default name for the Partitions"""
+        return 'node'

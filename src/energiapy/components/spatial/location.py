@@ -16,6 +16,7 @@ class Location(_Spatial):
             label (str): label of the Location
     """
 
+    index: list[tuple] = field(default_factory=list)
     label: str = field(default=None)
 
     def __post_init__(self):
