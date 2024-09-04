@@ -5,11 +5,11 @@ from dataclasses import dataclass, fields
 
 from .._attrs._bounds import _UsdBounds
 from .._attrs._exacts import _UsdExacts
-from ._traded import _Traded
+from ._commodity import _Commodity
 
 
 @dataclass
-class _Used(_UsdBounds, _UsdExacts, _Traded):
+class _Used(_Commodity, _UsdBounds, _UsdExacts):
     """Applies only for Land and Material
     For now, do not subsume my limitations
     Do whatever you can or want to with energiapy
@@ -21,7 +21,7 @@ class _Used(_UsdBounds, _UsdExacts, _Traded):
     """
 
     def __post_init__(self):
-        _Traded.__post_init__(self)
+        _Commodity.__post_init__(self)
 
     @staticmethod
     def inputs():

@@ -2,11 +2,10 @@
 """
 
 from abc import ABC, abstractmethod
+from itertools import product
 from dataclasses import dataclass, field
 
 from ._component import _Component
-
-from ...utils.dictionary import tupler, get_depth
 
 
 @dataclass
@@ -17,36 +16,28 @@ class _Scope(_Component, ABC):
     """
 
     nested: bool = field(default=True)
+    birth: int | list[int] | dict[str, int] = field(default=1)
+    birth_labels: bool = field(default=False)
 
     def __post_init__(self):
         _Component.__post_init__(self)
         # Every Scope has a root partition
         # This root partition, basiscally the horizon
-        if isinstance(self.partitions, int):
+        if isinstance(self.birth, int):
             # if only a number is given, then just make
-            self.partitions = [self.partitions]
+            self.birth = [self.birth]
 
         if isinstance(self.partitions, dict):
-            if get_depth(self.partitions) > 1:
-                self.partitions = {i[-1]: i for i in tupler(self.partitions)}
-                self.partitions[self._root] = tuple(
-                    [p[0] for p in list(self.partitions) if len(p) == 1]
-                )
-                self._tuplered = True
-            else:
-                self._tuplered = False
-                self._partition_list = list(self.partitions.values())
-                self._partition_list.insert(0, 1)
-
-            self.name_partitions = list(self.partitions.keys())
+            self._partition_list = list(self.birth.values())
+            self._partition_list.insert(0, 1)
+            self.name_partitions = list(self.birth.keys())
             self.name_partitions.insert(0, self._root())
 
         elif isinstance(self.partitions, list):
-            self._tuplered = False
-            self._partition_list = self.partitions
+            self._partition_list = self.birth
             self._partition_list.insert(0, 1)
             self.name_partitions = [
-                f'{self._def_name()}{p}' for p in self._partition_list
+                f'{self._def_name()}{p}' for p in range(len(self._partition_list))
             ]
 
         else:
@@ -54,8 +45,8 @@ class _Scope(_Component, ABC):
 
     @property
     @abstractmethod
-    def partitions(self):
-        """Partitions to divide the Scope into"""
+    def discretizations(self):
+        """Discretizations for the partitions"""
 
     @property
     @abstractmethod
@@ -73,11 +64,6 @@ class _Scope(_Component, ABC):
         """Default name for the Partitions"""
 
     @property
-    @abstractmethod
-    def label_partitions(self):
-        """Labels for the partitions"""
-
-    @property
     def n_partitions(self) -> int:
         """Returns number of partitions"""
         return len(self._partition_list)
@@ -85,12 +71,12 @@ class _Scope(_Component, ABC):
     @property
     def indices(self):
         """Dictionary of indices"""
-        return {i: i.index for i in self.partitions}
+        return {i: i.index for i in self.discretizations}
 
     @property
     def n_indices(self):
         """list of number of indices"""
-        return [len(i) for i in self.partitions]
+        return [len(i) for i in self.discretizations]
 
     @property
     def is_multiscale(self):
@@ -108,3 +94,17 @@ class _Scope(_Component, ABC):
             return True
         else:
             return False
+
+    def make_index(self, position: int, nested: bool = True):
+        """makes an index for Discretization of the Scope
+        Args:
+            position: int
+            nested: bool, optional, default True
+
+        """
+
+        lists = [list(range(i)) for i in self._partition_list]
+        if nested:
+            return list(product(*lists[: position + 1]))
+        else:
+            return [(0, i) for i in lists[position]]

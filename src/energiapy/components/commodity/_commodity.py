@@ -5,13 +5,17 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
+from dataclasses import dataclass
+
+from .._base._defined import _Defined
 
 if TYPE_CHECKING:
     from ..spatial.linkage import Linkage
     from ..spatial.location import Location
 
 
-class _Commodity(ABC):
+@dataclass
+class _Commodity(_Defined, ABC):
     """Commodities that are:
 
     Traded (Trade) - Resource
@@ -23,10 +27,7 @@ class _Commodity(ABC):
     """
 
     def __post_init__(self):
-
-        # This flag is used to check if the Commodity has been located
-        # (assigned) to a Location or Linkage
-        self._located = False
+        _Defined.__post_init__(self)
 
     @property
     @abstractmethod

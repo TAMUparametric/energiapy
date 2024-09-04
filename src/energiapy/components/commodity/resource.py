@@ -9,20 +9,11 @@ from dataclasses import dataclass, fields
 
 from .._attrs._bounds import _ResBounds
 from .._attrs._exacts import _ResEmnExacts, _ResTscExacts
-from ._traded import _Traded
-
-# Associated Program Elements are:
-#    Bound Parameters - BuyBound, SellBound, ShipBound
-#    Exact Parameters - BuyPrice, SllPrice, SllCredit, SllPenalty, BuyEmission, SllEmission, LseEmission
-#    Operational Parameters - Loss
-#    Variables (Trades) - Buy, Sell, Ship
-#    Variables (Transactions) - TransactBuy, TransactSell, TransactPnt, TransactCrd
-#    Variables (Emissions) - BuyEmit, SellEmit, LseEmit
-#    Variables (Losses) - Lose
+from ._commodity import _Commodity
 
 
 @dataclass
-class Resource(_ResBounds, _ResTscExacts, _ResEmnExacts, _Traded):
+class Resource(_Commodity, _ResBounds, _ResTscExacts, _ResEmnExacts):
     """Resources are Produced by Processes, Stored by Storage, and Transported by Transits
     They can be bought, sold, shipped, and received by Locations or Processes
 
@@ -46,7 +37,7 @@ class Resource(_ResBounds, _ResTscExacts, _ResEmnExacts, _Traded):
     """
 
     def __post_init__(self):
-        _Traded.__post_init__(self)
+        _Commodity.__post_init__(self)
 
     @property
     def losses(self):

@@ -4,7 +4,6 @@
 from dataclasses import dataclass, fields
 
 from .._attrs._bounds import _EmnBounds
-from .._base._defined import _Simple
 from ._commodity import _Commodity
 
 # Associated Program Elements are:
@@ -13,7 +12,7 @@ from ._commodity import _Commodity
 
 
 @dataclass
-class Emission(_EmnBounds, _Simple, _Commodity):
+class Emission(_EmnBounds, _Commodity):
     """Emission are generated through:
             Commodity Use, Trade, Loss
             Operational Setup
@@ -31,7 +30,6 @@ class Emission(_EmnBounds, _Simple, _Commodity):
     """
 
     def __post_init__(self):
-        _Simple.__post_init__(self)
         _Commodity.__post_init__(self)
 
     @staticmethod

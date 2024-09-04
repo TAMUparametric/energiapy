@@ -1,8 +1,7 @@
 """Planning Horizon of the problem
 """
 
-from dataclasses import dataclass, field
-from itertools import product
+from dataclasses import dataclass
 
 from ...core._report._syst import _Scls
 from ...core.isalias.cmps.isdfn import IsDfn
@@ -75,29 +74,17 @@ class Horizon(_Scope, _Scls):
 
     """
 
-    discretizations: list = field(default_factory=list)
-    nested: bool = field(default=True)
-    label: str = field(default=None)
-    # if nested the discretizes based on previous scale
-    label_scales: list[str] = field(default=None)
-
     def __post_init__(self):
         _Scope.__post_init__(self)
-
-    @property
-    def partitions(self):
-        """Partitions to divide the Horizon into"""
-        return self.discretizations
-
-    @property
-    def label_partitions(self):
-        """Labels for the partitions"""
-        return self.label_scales
 
     @property
     def root(self):
         """Returns the root scale"""
         return self.scales[0]
+
+    @property
+    def index(self):
+        """Index of the Horizon"""
 
     @staticmethod
     def _root():
@@ -108,6 +95,11 @@ class Horizon(_Scope, _Scls):
     def _def_name():
         """Default name for the Partitions"""
         return 't'
+
+    @property
+    def discretizations(self):
+        """Discretizations for the partitions"""
+        return self.scales
 
     def match_scale(self, value, component: IsDfn = None, attr: str = None):
         """Returns the scale that matches the length
@@ -124,17 +116,3 @@ class Horizon(_Scope, _Scls):
             return self.scales[self.n_indices.index(len(value))]
         else:
             return self.scales[0]
-
-    def make_index(self, position: int, nested: bool = True):
-        """makes an index for Scale
-        Args:
-            position: int
-            nested: bool, optional, default True
-
-        """
-
-        lists = [list(range(i)) for i in self._partition_list]
-        if nested:
-            return list(product(*lists[: position + 1]))
-        else:
-            return [(0, i) for i in lists[position]]

@@ -87,18 +87,16 @@ class _Bounds(
 
     def __post_init__(self):
         # Player
-        self.has = Task(attr='has', var=BoundVar(p=True, symbol='gives'), **act)
-        self.needs = Task(attr='needs', var=BoundVar(m=True, symbol='takes'), **act)
+        self.has = Task(attr='has', var=BoundVar(p=True, symbol='give'), **act)
+        self.needs = Task(attr='needs', var=BoundVar(m=True, symbol='take'), **act)
         # Emission
-        self.emit = Task(attr='emit', var=Emit, **emit)
-        self.emit = Task(attr='abate', var=Emit, **emit)
+        self.emit = Task(attr='emit', var=BoundVar(m=True, symbol='emit'), **emit)
+        self.abate = Task(attr='abate', var=BoundVar(p=True, symbol='abate'), **emit)
         # Cash
         self.spend = Task(
-            attr='spend',
-            csh=True,
-            var=Spend,
+            attr='spend', var=BoundVar(m=True, symbol='spend'), **transact
         )
-        self.earn = Task(attr='earn', csh=True, var=Earn)
+        self.earn = Task(attr='earn', var=BoundVar(p=True, symbol='earn'), **transact)
         # Land and Material (Used)
         self.use = Task(attr='use', mat=True, lnd=True, var=Use)
         self.dispose = Task(attr='dispose', mat=True, lnd=True, var=Use)

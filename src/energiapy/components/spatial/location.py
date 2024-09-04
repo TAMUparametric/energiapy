@@ -1,7 +1,7 @@
 """Location where Processes and Storages can reside
 """
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from operator import is_
 
 from ._spatial import _Spatial
@@ -15,9 +15,6 @@ class Location(_Spatial):
     Attributes:
             label (str): label of the Location
     """
-
-    index: list[tuple] = field(default_factory=list)
-    label: str = field(default=None)
 
     def __post_init__(self):
         _Spatial.__post_init__(self)
@@ -89,3 +86,6 @@ class Location(_Spatial):
             return True
         print(self.find_links(location, print_link=print_link))
         return False
+
+    def __len__(self):
+        return len(self.index)

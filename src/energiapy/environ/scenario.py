@@ -162,7 +162,7 @@ class Scenario(_Ok, _Default, _Birth, _Update, _ScnCols, _Dunders, _Print):
             if isinstance(value, Horizon):
                 self.handle_unique_cmp('horizon', value)
                 self.birth_partitions(scope=value)
-                s.value.periodize()
+                # value.periodize()
                 # once scales are birthed, they are periodized
                 # which creates time periods for each scale
                 for s in self.scales:

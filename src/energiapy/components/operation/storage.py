@@ -6,8 +6,8 @@ from dataclasses import dataclass, fields
 from ...elements.parameters.balances.inventory import Inventory
 from .._attrs._balances import _StgBalance
 from .._attrs._birthing import _StgBirthing
-from .._attrs._bounds import _EmnBounds, _OpnBounds, _StgBounds, _UsdBounds
-from .._attrs._exacts import _EmnExacts, _StgExacts, _UsdExacts
+from .._attrs._bounds import _OpnBounds, _StgBounds
+from .._attrs._exacts import _StgExacts
 from .._attrs._spatials import _LocCollection
 from ._birther import _Birther
 
@@ -29,15 +29,9 @@ class _Storage(_OpnBounds, _StgBounds, _StgExacts):
 
 
 @dataclass
-class _CmdStorage(_UsdExacts, _UsdBounds, _EmnExacts, _EmnBounds):
-    """These are Commodity attributes which can be defined at Storage"""
-
-
-@dataclass
 class Storage(
     _StgBalance,
     _Storage,
-    _CmdStorage,
     _StgBirthing,
     _LocCollection,
     _Birther,
@@ -86,7 +80,7 @@ class Storage(
     @staticmethod
     def inputs():
         """Input attributes"""
-        return [f.name for f in fields(_Storage) + fields(_CmdStorage)]
+        return [f.name for f in fields(_Storage)]
 
     @property
     def balance(self):

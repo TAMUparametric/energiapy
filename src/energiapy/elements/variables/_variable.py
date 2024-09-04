@@ -46,18 +46,3 @@ class _Variable(_Dunders):
     def sym(self):
         """The symbolic representation of the Variable"""
         return self.symib[self.index.sym]
-
-    # @property
-    # @abstractmethod
-    # def id(self) -> IndexedBase:
-    #     """Symbolic representation of the Variable"""
-
-    # @classmethod
-    # @abstractmethod
-    # def parent(cls) -> _Variable:
-    #     """The Parent Variable of the Variable"""
-
-    # @classmethod
-    # @abstractmethod
-    # def child(cls) -> IsDfn:
-    #     """The Parent Variable doesnot carry Child Component"""

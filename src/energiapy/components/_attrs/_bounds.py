@@ -20,14 +20,13 @@ class _PlyBounds:
     needs: IsBnd = field(default=None)
 
 
-
 @dataclass
 class _CshBounds:
     """Bounds for Cash
 
     Attributes:
-        spend (IsBnd): bound on spending Cash
-        earn (IsBnd): bound on earning Cash
+        spend (IsBnd): bound on spending
+        earn (IsBnd): bound on earning
 
     """
 
@@ -40,12 +39,13 @@ class _EmnBounds:
     """Bounds for Emission
 
     Attributes:
-        emit (IsBnd): bound on Emission
+        emit (IsBnd): bound on how much is discharged
+        sequester (IsBnd): bound on how much is abated
 
     """
 
     emit: IsBnd = field(default=None)
-    # abate: IsBnd = field(default=None)
+    sequester: IsBnd = field(default=None)
 
 
 @dataclass
@@ -53,48 +53,49 @@ class _UsdBounds:
     """Bounds for Land and Material (Used)
 
     Attributes:
-        use (IsBnd): bound on Use Variable
-
+        use (IsBnd): bound on how much is used
+        dispose (IsBnd): bound on how much is disposed
     """
 
     use: IsBnd = field(default=None)
-    # dispose: IsBnd = field(default=None)
+    dispose: IsBnd = field(default=None)
 
 
 @dataclass
-class _ResLocBounds:
-    """Bounds for Resources at Locations"""
-
-    buy: IsBnd = field(default=None)
-    sell: IsBnd = field(default=None)
-
-
-@dataclass
-class _ResLnkBounds:
-    """Bounds for Resources at Linkages"""
-
-    ship: IsBnd = field(default=None)
-    # only for bi directional linkages
-    # receive: IsBnd = field(default=None)
-
-
-@dataclass
-class _ResBounds(_ResLocBounds, _ResLnkBounds):
+class _ResBounds:
     """Bounds for Resources
 
     Attributes:
-        buy (IsBnd): bound on amount bought at Location or by Process
-        sell (IsBnd): bound on amount sold at Location or by Process
-        ship (IsBnd): bound on amount shipped through Linkage
-        recieve (IsBnd): bound on amount received through Linkage
+        buy (IsBnd): bound on amount bought at Location
+        sell (IsBnd): bound on amount sold at Location
+        ship (IsBnd): bound on amount shipped from Linkage
+        recieve (IsBnd): bound on amount recieved from Linkage
+        lose (IsBnd): bound on amount lost at Location or Linkage
+        recover (IsBnd): bound on amount recovered at Location or between Linkage
     """
+
+    # Trade at Locations
+    buy: IsBnd = field(default=None)
+    sell: IsBnd = field(default=None)
+    # Trade between Linkages
+    ship: IsBnd = field(default=None)
+    recieve: IsBnd = field(default=None)
+    # Lose at Location or between Linkage
+    lose: IsBnd = field(default=None)
+    recover: IsBnd = field(default=None)
 
 
 @dataclass
 class _OpnBounds:
-    """Bounds for Operational Components"""
+    """Bounds for Operational Components
 
-    capacity: IsBnd = field(default=None)
+    Attributes:
+        setup (IsBnd): bound on how much capacity can be setup
+        dismantle (IsBnd): bound on how much capacity can be dismantled
+    """
+
+    setup: IsBnd = field(default=None)
+    dismantle: IsBnd = field(default=None)
 
 
 @dataclass
@@ -102,8 +103,8 @@ class _ProBounds:
     """Bounds for Process
 
     Attributes:
-        capacity (IsBnd): bound on Capacitate Variable
-        produce (IsBnd): bound on Operate Variable
+        setup (IsBnd): bound on how much capacity can be setup
+        produce (IsBnd): bound on how much capacity can be utilized (operated)
     """
 
     produce: IsBnd = field(default=None)
@@ -114,8 +115,8 @@ class _StgBounds:
     """Bounds for Storage
 
     Attributes:
-        capacity (IsBnd): bound on Capacitate Variable
-        store (IsBnd): bound on Store Variable
+        setup (IsBnd): bound on how much capacity can be setup
+        store (IsBnd): bound on how much capacity can be utilized (operated)
     """
 
     store: IsBnd = field(default=None)
@@ -126,8 +127,8 @@ class _TrnBounds:
     """Bounds for Transit
 
     Attributes:
-        capacity (IsBnd): bound on Capacitate Variable
-        transport (IsBnd): bound on Transport Variable
+        setup (IsBnd): bound on how much capacity can be setup
+        transport (IsBnd): bound on how much capacity can be utilized (operated)
     """
 
     transport: IsBnd = field(default=None)

@@ -42,7 +42,6 @@ class _Birth(ABC):
                 label_partition = scope.label_partitions
 
             # set the scales as attributes of the Scenario
-
             setattr(
                 self,
                 scope.name_partitions[i],
@@ -131,8 +130,8 @@ class _Birth(ABC):
         conv_out[res] = conv_out[base].pop('r')
 
         # Charging(_in) and Discharging(_out) Processes are birthed
-        process_in = Process(conversion=conv_in, capacity=operation.capacity_in)
-        process_out = Process(conversion=conv_out, capacity=operation.capacity_out)
+        process_in = Process(conversion=conv_in, setup=operation.setup_in)
+        process_out = Process(conversion=conv_out, setup=operation.setup_out)
         processes = [process_in, process_out]
 
         # update processes in Operation

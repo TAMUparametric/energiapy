@@ -9,11 +9,11 @@
 from dataclasses import dataclass, fields
 
 from .._attrs._bounds import _PlyBounds
-from .._base._defined import _Simple
+from .._base._defined import _Defined
 
 
 @dataclass
-class Player(_PlyBounds, _Simple):
+class Player(_PlyBounds, _Defined):
     """Player represents a decision maker in the Scenario
 
     A Player has ownership of some Commodities which they give
@@ -31,7 +31,7 @@ class Player(_PlyBounds, _Simple):
     """
 
     def __post_init__(self):
-        _Simple.__post_init__(self)
+        _Defined.__post_init__(self)
 
     @staticmethod
     def inputs():

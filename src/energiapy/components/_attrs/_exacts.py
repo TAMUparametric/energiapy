@@ -36,6 +36,7 @@ class _UsdTscExacts:
     """
 
     use_cost: IsInc = field(default=None)
+    dispose_cost: IsInc = field(default=None)
 
 
 @dataclass
@@ -59,15 +60,19 @@ class _ResEmnExacts:
     """Exact Emission Inputs for Resources
 
     Attributes:
-        buy_emission (IsExt): emission associated with buying Resource
-        sell_emission (IsExt): emission associated with selling Resource
-        loss_emission (IsExt): emission associated with losing Resource
+        buy_emit (IsExt): Emission discharged when buying Resource
+        buy_sequester (IsExt): Emission abated when buying Resource
+        sell_emit (IsExt): Emission discharged when selling Resource
+        sell_sequester (IsExt): Emission abated when selling Resource
+        loss_emit (IsExt): Emission discharged when losing Resource
 
     """
 
-    buy_emission: IsExt = field(default=None)
-    sell_emission: IsExt = field(default=None)
-    loss_emission: IsExt = field(default=None)
+    buy_emit: IsExt = field(default=None)
+    buy_sequester: IsExt = field(default=None)
+    sell_emit: IsExt = field(default=None)
+    sell_sequester: IsExt = field(default=None)
+    loss_emit: IsExt = field(default=None)
 
 
 @dataclass
@@ -75,11 +80,12 @@ class _UsdEmnExacts:
     """Exact Emissions Inputs for Land and Material (Used)
 
     Attributes:
-        use_emission (IsExt): emission associated with using Land or Material (Used
-
+        use_emit (IsExt): emission associated with using Land or Material (Used
+        dispose_emit (IsExt): emission associated with disposing Land or Material (Used)
     """
 
-    use_emission: IsExt = field(default=None)
+    use_emit: IsExt = field(default=None)
+    dispose_emit: IsExt = field(default=None)
 
 
 @dataclass
@@ -87,11 +93,11 @@ class _OpnEmnExacts:
     """Exact Emission Inputs for Operational Components
 
     Attributes:
-        setup_emission (IsExt): emission associated with setting up Operational Component
+        setup_emit (IsExt): emission associated with set up (capacitating)
 
     """
 
-    setup_emission: IsExt = field(default=None)
+    setup_emit: IsExt = field(default=None)
 
 
 # -------------UseStp Exacts-------------
@@ -102,7 +108,7 @@ class _OpnUseExacts:
     """Exact Use Inputs for Operational Components
 
     Attributes:
-        setup_use (IsExt): use (Material or Land) associated with setting up Operational Component
+        setup_use (IsExt): use (Material or Land) associated with setup
 
     """
 
@@ -163,7 +169,7 @@ class _TrnRteExacts:
     speed: IsExt = field(default=None)
 
 
-# -------------Exacts Component-wise -------------
+# -------------Component-wise Exacts-------------
 # These are inherited by the Components
 
 
@@ -197,7 +203,7 @@ class _TrnExacts(_OpnExacts, _TrnLseExacts, _TrnRteExacts):
     """Exact Inputs for Transit Components"""
 
 
-# -------------Exacts Task-wise -------------
+# -------------Task-wise Exacts-------------
 # These are used by the TaskMaster to generate Tasks
 
 

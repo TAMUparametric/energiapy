@@ -31,12 +31,12 @@ class _Birther(_Operation, ABC):
 
     @property
     @abstractmethod
-    def capacity_in(self):
+    def setup_in(self):
         """Process Capacitate for Input Process"""
 
     @property
     @abstractmethod
-    def capacity_out(self):
+    def setup_out(self):
         """Process Capacitate for Output Process"""
 
     @property

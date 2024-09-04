@@ -32,7 +32,6 @@ class Linkage(_Spatial):
     source: Location = field(default=None)
     bi: bool = field(default=True)
     distance: float = field(default=None)
-    label: str = field(default=None)
 
     def __post_init__(self):
         _Spatial.__post_init__(self)

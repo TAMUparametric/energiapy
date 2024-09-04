@@ -2,7 +2,6 @@
 """
 
 from dataclasses import dataclass, field
-from itertools import product
 
 from ...core._report._syst import _Cmds, _LnkOpns, _LocOpns, _Scls, _Spts
 from .._base._scope import _Scope
@@ -23,28 +22,19 @@ class Network(_Scope, _NtwCols):
         label (str): label of the Network
     """
 
-    locs: list[str] | int = field(default_factory=list)
-    label: str = field(default=None)
-    label_locs: list[str] = field(default=None)
     link_all: bool = field(default=False)
 
     def __post_init__(self):
         _Scope.__post_init__(self)
 
     @property
-    def partitions(self):
-        """Partitions to divide the Network into"""
-        return self.locs
-
-    @property
-    def label_partitions(self):
-        """Labels for the partitions"""
-        return self.label_locs
-
-    @property
     def root(self):
         """Root partition of the Network"""
         return self.locations[0]
+
+    @property
+    def index(self):
+        """Index of the Network"""
 
     @staticmethod
     def _root():
@@ -56,14 +46,7 @@ class Network(_Scope, _NtwCols):
         """Default name for the Partitions"""
         return 'node'
 
-    def make_index(self, position: int, nested: bool = True):
-        """makes an index for Scale"""
-
-        if self._tuplered:
-            return self.partitions[position]
-        else:
-            lists = [list(range(i)) for i in self._partition_list]
-            if nested:
-                return list(product(*lists[: position + 1]))
-            else:
-                return [(0, i) for i in lists[position]]
+    @property
+    def discretizations(self):
+        """Discretizations for the partitions"""
+        return self.locations + self.linkages
