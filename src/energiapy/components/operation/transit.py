@@ -5,45 +5,19 @@ from dataclasses import dataclass, fields
 
 from ...elements.parameters.balances.freight import Freight
 from .._attrs._balances import _TrnBalance
-from .._attrs._bounds import (
-    _OpnBounds,
-    _ResLnkBounds,
-    _TrnBounds,
-    _EmnBounds,
-    _UsdBounds,
-)
-from .._attrs._exacts import _TrnExacts, _UsdExacts, _EmnExacts
+from .._attrs._bounds import _OpnBounds, _TrnBounds
+from .._attrs._exacts import _TrnExacts
 from .._attrs._spatials import _LnkCollection
 from ._birther import _Birther
-
-# Associated Program Elements:
-#   Bound Parameters - CapBound, OprBound
-#   Exact Parameters - StpEmission, StpExpense, OprExpense, StpUse
-#   Balance Parameters - Freight
-#   Variable (Transact) - TransactOpr, TransactStp
-#   Variable (Emissions) - EmitStp, EmitUse
-#   Variable (Losses) - Lose
-#   Variable (Operate) - Operate
-#   Variable (Trade) - Ship
-#   Variable (Use) - Use
-#   Variable (Rates) - Rate
-
-
-@dataclass
-class _Transit(_OpnBounds, _TrnBounds, _TrnExacts):
-    """These are attributes which are original to Transit"""
-
-
-@dataclass
-class _CmdTransit(_ResLnkBounds, _EmnBounds, _EmnExacts, _UsdBounds, _UsdExacts):
-    """These are Commodity attributes which can be defined at Transit"""
+from ..spatial.linkage import Linkage
 
 
 @dataclass
 class Transit(
     _TrnBalance,
-    _Transit,
-    _CmdTransit,
+    _OpnBounds,
+    _TrnBounds,
+    _TrnExacts,
     _LnkCollection,
     _Birther,
 ):
@@ -79,21 +53,8 @@ class Transit(
     """
 
     def __post_init__(self):
-        # ship is a resourcebnd input
-        # so it needs to be a dictionary with Resource as key
-        # if not provided, use base Resource
-        if self.ship:
-            # if freight is a dictionary
-            # i.e. it has some Resource dependency
-            if isinstance(self.freight, dict):
-                # use the base Resource as key
-                self.ship = {list(self.freight)[0]: self.ship}
-            else:
-                # else, it is a Resource itself,
-                # so use it as key
-                self.ship = {self.freight: self.ship}
-
         _Birther.__post_init__(self)
+        self.setup_in = self.setup_out = self.setup
 
     @property
     def _operate(self):
@@ -108,32 +69,17 @@ class Transit(
         """Balance attribute"""
         return self.freight
 
-    @property
-    def capacity_in(self):
-        """Capacitate of the Loading Process"""
-        # Returns og input if birthing is not done
-        # This is because the birthed Process capacity
-        # needs to be set
-        if self._birthed:
-            return self.capacity
-        else:
-            return self.capacity.og_input
-
-    @property
-    def capacity_out(self):
-        """Capacitate of the Unloading Process"""
-        # Returns og input if birthing is not done
-        # This is because the birthed Process capacity
-        # needs to be set
-        if self._birthed:
-            return self.capacity
-        else:
-            return self.capacity.og_input
-
     @staticmethod
     def inputs():
         """Input attributes"""
-        return [f.name for f in fields(_Transit) + fields(_CmdTransit)]
+        return [
+            f.name for f in fields(_OpnBounds) + fields(_TrnBounds) + fields(_TrnExacts)
+        ]
+
+    @staticmethod
+    def at():
+        """At what Spatial can the Operation be located"""
+        return Linkage
 
     def freightize(self):
         """Makes the freight"""

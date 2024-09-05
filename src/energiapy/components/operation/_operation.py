@@ -40,6 +40,11 @@ class _Operation(_Defined, ABC):
     def _spatials():
         """Spatial Components where the Operation is located"""
 
+    @staticmethod
+    @abstractmethod
+    def at():
+        """At what Spatial can the Operation be located"""
+
     @property
     def spatials(self):
         """Spatial Components where the Operation is located"""
@@ -65,8 +70,8 @@ class _Operation(_Defined, ABC):
     @property
     def emissions(self):
         """Emissions from the Operation"""
-        if getattr(self, 'setup_emission'):
-            return [i.index.emn for i in getattr(self, 'setup_emission').data.values()]
+        if getattr(self, 'setup_emit'):
+            return [i.index.emn for i in getattr(self, 'setup_emit').data.values()]
         else:
             return []
 

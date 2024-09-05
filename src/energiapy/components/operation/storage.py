@@ -6,38 +6,19 @@ from dataclasses import dataclass, fields
 from ...elements.parameters.balances.inventory import Inventory
 from .._attrs._balances import _StgBalance
 from .._attrs._birthing import _StgBirthing
-from .._attrs._bounds import _OpnBounds, _StgBounds, _EmnBounds, _UsdBounds
-from .._attrs._exacts import _StgExacts, _UsdExacts, _EmnExacts
+from .._attrs._bounds import _OpnBounds, _StgBounds
+from .._attrs._exacts import _StgExacts
 from .._attrs._spatials import _LocCollection
 from ._birther import _Birther
-
-# Associated Program Elements:
-#   Bound Parameters - CapBound, OprBound
-#   Exact Parameters - StpEmission, StpExpense, OprExpense, StpUse
-#   Balance Parameters - Inventory
-#   Variable (Transact) - TransactOpr, TransactStp
-#   Variable (Emissions) - EmitStp, EmitUse
-#   Variable (Losses) - Lose
-#   Variable (Operate) - Operate
-#   Variable (Use) - Use
-#   Variable (Rates) - Rate
-
-
-@dataclass
-class _Storage(_OpnBounds, _StgBounds, _StgExacts):
-    """These are attributes which are original to Storage"""
-
-
-@dataclass
-class _CmdStorage(_UsdExacts, _UsdBounds, _EmnExacts, _EmnBounds):
-    """These are Commodity attributes which can be defined at Storage"""
+from ..spatial.location import Location
 
 
 @dataclass
 class Storage(
     _StgBalance,
-    _Storage,
-    _CmdStorage,
+    _OpnBounds,
+    _StgBounds,
+    _StgExacts,
     _StgBirthing,
     _LocCollection,
     _Birther,
@@ -86,12 +67,19 @@ class Storage(
     @staticmethod
     def inputs():
         """Input attributes"""
-        return [f.name for f in fields(_Storage) + fields(_CmdStorage)]
+        return [
+            f.name for f in fields(_OpnBounds) + fields(_StgBounds) + fields(_StgExacts)
+        ]
 
     @property
     def balance(self):
         """Balance of the Storage"""
         return self.inventory
+
+    @staticmethod
+    def at():
+        """At what Spatial can the Operation be located"""
+        return Location
 
     def inventorize(self):
         """Makes the inventory"""

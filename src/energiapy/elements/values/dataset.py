@@ -20,6 +20,7 @@ class DataSet(_Value):
 
     def __post_init__(self):
         _Value.__post_init__(self)
+
         # Data has to be provided as a DataFrame
         if not isinstance(self.data, DataFrame):
             raise ValueError(f'{self.name}: please provide DataFrame')
@@ -27,9 +28,7 @@ class DataSet(_Value):
         # Data is made into a dictionary with the keys being the indices of the scale
         # will look something like {(0,0): 4, (0,1): 9, (1,0): 2}
         self.data = self.data[self.data.columns[0]].to_dict()
-        self.data = {
-            self.index.scl.index[i]: self.data[i] for i in range(len(self.data))
-        }
+        self.data = {i: self.data[i] for i in range(self.index.scl.discrs)}
 
     @property
     def value(self) -> dict:

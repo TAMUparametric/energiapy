@@ -16,7 +16,7 @@ class I(_Dunders):
     Incidental Capital Expenditure or Fixed Operational Expenditure are examples
 
     Attributes:
-        value (IsIncidental): The incidental value
+        value (): The incidental value
     """
 
     value: int | float | DataFrame = field(default=None)

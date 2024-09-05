@@ -125,3 +125,16 @@ class InputTypeError(TypeError):
         self.message = f'{value} [{type(value)}] is not a valid input for {component}.{attr}.\n{message}.{msg_bounds}{msg_exact}{msg_alias}'
 
         super().__init__(self.message)
+
+
+class ReservedWord(AttributeError):
+    """Error for reserved words
+
+    Attributes:
+        word (str): Reserved word
+    """
+
+    def __init__(self, word: str):
+        self.message = f'{word} is a reserved word'
+
+        super().__init__(self.message)

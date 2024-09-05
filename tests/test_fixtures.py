@@ -24,7 +24,7 @@ def scenario_def():
 def scenario_ok():
     """Chill Scenario"""
     s = Scenario()
-    s.h = Horizon(discretizations=[4])
+    s.h = Horizon(birth=[4])
     s.n = Network()
     return s
 
@@ -33,7 +33,7 @@ def scenario_ok():
 def scenario_notok():
     """Unchill Scenario"""
     s = Scenario(chill=False)
-    s.h = Horizon(discretizations=[4])
+    s.h = Horizon(birth=[4])
     s.n = Network()
     return s
 
@@ -42,7 +42,7 @@ def scenario_notok():
 def horizon_singlescale(scenario_bare):
     """Single scale with 4 discertizations"""
 
-    scenario_bare.h = Horizon(discretizations=[4])
+    scenario_bare.h = Horizon(birth=[4])
     return scenario_bare.horizon
 
 
@@ -52,16 +52,11 @@ def horizon_singlescale_scale_0(horizon_singlescale):
     return horizon_singlescale.scales[0]
 
 
-@pytest.fixture
-def horizon_singlescale_scale_1(horizon_singlescale):
-    """t1 single scale"""
-    return horizon_singlescale.scales[1]
-
 
 @pytest.fixture
 def horizon_multiscale(scenario_bare):
     """Multiscale Horizon with 2 and 4 discertizations"""
-    scenario_bare.h = Horizon(discretizations=[2, 4])
+    scenario_bare.h = Horizon(birth=[2, 4])
     return scenario_bare.horizon
 
 
@@ -77,16 +72,11 @@ def horizon_multiscale_scale_1(horizon_multiscale):
     return horizon_multiscale.scales[1]
 
 
-@pytest.fixture
-def horizon_multiscale_scale_2(horizon_multiscale):
-    """t2 multiscale"""
-    return horizon_multiscale.scales[2]
-
 
 @pytest.fixture
 def horizon_multiscale_un(scenario_bare):
     """Not nested Multiscale Horizon with 2 and 8 discertizations"""
-    scenario_bare.h = Horizon(discretizations=[2, 8], nested=False)
+    scenario_bare.h = Horizon(birth=[2, 8], nested=False)
     return scenario_bare.horizon
 
 
@@ -111,7 +101,7 @@ def horizon_multiscale_un_scale_2(horizon_multiscale_un):
 @pytest.fixture
 def horizon_multiscale_nmd(scenario_bare):
     """Named Multiscale Horizon with 2 and 4 discertizations"""
-    scenario_bare.h = Horizon(discretizations={'a': 2, 'b': 4})
+    scenario_bare.h = Horizon(birth={'a': 2, 'b': 4})
     return scenario_bare.horizon
 
 

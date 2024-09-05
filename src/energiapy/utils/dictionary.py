@@ -36,3 +36,29 @@ def flatten(dict_: dict, key_: tuple = ()) -> dict:
         else:
             items.append((key_upd, val))
     return dict(items)
+
+
+def tupler(d: dict, path: tuple = ()) -> list[tuple[str]]:
+    """makes a list of tuples of keys in a nested dictionary
+
+    Args:
+        d (dict): dictionary
+        current_path (tuple, optional): path taken to get to value. Defaults to ().
+
+    Returns:
+        list[tuple[str]]: list of tuples of keys
+    """
+    result = []
+
+    for k, v in d.items():
+        path_ = path + (k,)
+        result.append(path_)
+
+        if isinstance(v, dict):
+            result.extend(tupler(v, path_))
+
+        if isinstance(v, set):
+            for v_ in v:
+                result.append(path_ + (v_,))
+
+    return result

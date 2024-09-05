@@ -15,8 +15,8 @@ from src.energiapy.environ.scenario import Scenario
 def scenario():
     """Scenario"""
     scn = Scenario()
-    scn.hrz = Horizon(discretizations=[1])
-    scn.ntw = Network(locs=['loca', 'locb'])
+    scn.hrz = Horizon(birth=[1])
+    scn.ntw = Network(birth=['loca', 'locb'])
     scn.res = Resource()
     return scn
 

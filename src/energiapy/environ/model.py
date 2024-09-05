@@ -52,7 +52,7 @@ class Engines(_Dunders):
     def __post_init__(self):
         self.taskmaster = Chanakya(name=self.name)
         self.rulebook = Bhaskara(name=self.name)
-        self.registrar = ChitraGupta(name=self.name, rulebook=self.rulebook)
+        self.registrar = ChitraGupta(name=self.name)
         # Update name after setting the rest
         # The name of the scenario is taken as is
         self.name = f'{self.cname()}|{self.name}|'

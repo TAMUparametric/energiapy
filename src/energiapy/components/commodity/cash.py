@@ -9,12 +9,11 @@
 from dataclasses import dataclass, fields
 
 from .._attrs._bounds import _CshBounds
-from .._base._defined import _Simple
 from ._commodity import _Commodity
 
 
 @dataclass
-class Cash(_CshBounds, _Simple, _Commodity):
+class Cash(_CshBounds, _Commodity):
     """Cash is an Asset
     The amount spent or earned at some spatiotemporal dispoqition can be bound
 
@@ -30,7 +29,6 @@ class Cash(_CshBounds, _Simple, _Commodity):
     """
 
     def __post_init__(self):
-        _Simple.__post_init__(self)
         _Commodity.__post_init__(self)
 
     @staticmethod

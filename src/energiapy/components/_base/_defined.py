@@ -1,6 +1,7 @@
 """There are user defined components
 """
 
+from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 
 from ...core._handy._printers import _EasyPrint
@@ -11,7 +12,7 @@ from ._consistent import _Consistent
 
 
 @dataclass
-class _Defined(_Component, _Consistent, _Vlus, _Elms, _EasyPrint):
+class _Defined(_Component, _Consistent, _Vlus, _Elms, _EasyPrint, ABC):
     """If the component is defined by user, it should inherit from this class
 
     Attributes:
@@ -28,21 +29,14 @@ class _Defined(_Component, _Consistent, _Vlus, _Elms, _EasyPrint):
     block: str = field(default=None)
     introduce: str = field(default=None)
     retire: str = field(default=None)
-    label: str = field(default=None)
 
     def __post_init__(self):
         _Component.__post_init__(self)
+        # This flag is used to check if the Defined Component has been located
+        # i.e., assigned to a Location or Linkage
+        self._located = False
 
-
-@dataclass
-class _Simple(_Defined):
-    """Simple Components inherit from this class
-    They only have bounds
-    These are Cash, Player, Emission, for now
-    Again, do not let me tell you how to live your life
-    Make more Simple Components if you feel the need
-    More power to you
-    """
-
-    def __post_init__(self):
-        _Defined.__post_init__(self)
+    @staticmethod
+    @abstractmethod
+    def inputs():
+        """Input attributes"""

@@ -5,47 +5,21 @@ from dataclasses import dataclass, fields
 
 from ...elements.parameters.balances.conversion import Conversion
 from .._attrs._balances import _ProBalance
-from .._attrs._bounds import (
-    _OpnBounds,
-    _ProBounds,
-    _ResLocBounds,
-    _EmnBounds,
-    _UsdBounds,
-)
-from .._attrs._exacts import _ProExacts, _ResExacts, _UsdExacts, _EmnExacts
+from .._attrs._bounds import _OpnBounds, _ProBounds
+
+from .._attrs._exacts import _ProExacts
 from .._attrs._spatials import _LocCollection
 from ._operation import _Operation
-
-# Associated Program Elements:
-#   Bound Parameters - CapBound, OprBound
-#   Exact Parameters - StpEmission, StpExpense, OprExpense, Usage
-#   Balance Parameters - Conversion
-#   Resource Parameters - BuyBound, SellBound, BuyPrice, SellPrice, Credit, Penalty
-#   Variable (Transact) - TransactOpr, TransactStp
-#   Variable (Emissions) - EmitStp, EmitUse
-#   Variable (Operate) - Operate
-#   Variable (Use) - Use
-#   Variable (Rates) - Rate
-
-
-@dataclass
-class _Process(_OpnBounds, _ProBounds, _ProExacts):
-    """These are attributes which are original to Process"""
-
-
-@dataclass
-class _CmdProcess(
-    _ResExacts, _ResLocBounds, _UsdExacts, _UsdBounds, _EmnExacts, _EmnBounds
-):
-    """These are Commodity attributes which can be defined at Process"""
+from ..spatial.location import Location
 
 
 @dataclass
 class Process(
     _ProBalance,
-    _CmdProcess,
     _LocCollection,
-    _Process,
+    _OpnBounds,
+    _ProBounds,
+    _ProExacts,
     _Operation,
 ):
     """Process converts one Resource to another Resource
@@ -125,12 +99,19 @@ class Process(
     @staticmethod
     def inputs():
         """Input attributes"""
-        return [f.name for f in fields(_Process) + fields(_CmdProcess)]
+        return [
+            f.name for f in fields(_OpnBounds) + fields(_ProBounds) + fields(_ProExacts)
+        ]
 
     @property
     def resources(self):
         """Resources in Conversion"""
         return self.conversion.involved
+
+    @staticmethod
+    def at():
+        """At what Spatial can the Operation be located"""
+        return Location
 
     def conversionize(self):
         """Makes the conversion"""

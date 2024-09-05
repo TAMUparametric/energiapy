@@ -32,38 +32,26 @@ from ...components._attrs._exacts import (
     _TscExacts,
     _UseExacts,
 )
+from ...core._handy._dunders import _Dunders
+from ..tasks.report import Report
+from ..tasks.bound import Bound, BoundBound
+from ..tasks.calculation import Calculation
+from ..tasks.balancing import Balancing
+
 from ...components.analytical.player import Player
 from ...components.commodity.cash import Cash
 from ...components.commodity.emission import Emission
-from ...components.commodity.land import Land
-from ...components.commodity.material import Material
 from ...components.commodity.resource import Resource
 from ...components.operation.process import Process
 from ...components.operation.storage import Storage
 from ...components.operation.transit import Transit
-from ...core._handy._dunders import _Dunders
-from ...elements.variables.act import Give, Take
-from ...elements.variables.emit import Emit, EmitBuy, EmitLse, EmitSll, EmitStp, EmitUse
-from ...elements.variables.lose import Lose
-from ...elements.variables.operate import Operate
-from ...elements.variables.setup import Capacitate
-from ...elements.variables.trade import Buy, Sell, Ship
-from ...elements.variables.transact import (
-    Earn,
-    Spend,
-    TransactBuy,
-    TransactCrd,
-    TransactOpr,
-    TransactOprI,
-    TransactPnt,
-    TransactSll,
-    TransactStp,
-    TransactStpI,
-    TransactUse,
-)
-from ...elements.variables.use import Use, UseStp
-from ..report import Report
-from ..task import Task
+from ...components.operation._operation import _Operation
+from ...components.commodity._used import _Used
+from ...components.temporal.horizon import Horizon
+
+from ...elements.parameters.balances.conversion import Conversion
+from ...elements.parameters.balances.freight import Freight
+from ...elements.parameters.balances.inventory import Inventory
 
 
 @dataclass
@@ -85,32 +73,81 @@ class _Bounds(
 
     def __post_init__(self):
         # Player
-        self.has = Task(attr='has', root=[Player], var=Give)
-        self.needs = Task(attr='needs', root=[Player], var=Take)
-        # Cash
-        self.spend = Task(attr='spend', root=[Cash], var=Spend)
-        self.earn = Task(attr='earn', root=[Cash], var=Earn)
-        # Emission
-        self.emit = Task(attr='emit', root=[Emission], var=Emit)
-        # Land and Material (Used)
-        self.use = Task(attr='use', root=[Land, Material], var=Use)
-        # Resource
-        self.buy = Task(attr='buy', root=[Resource], var=Buy, other=[Process])
-        self.sell = Task(attr='sell', root=[Resource], var=Sell, other=[Process])
-        self.ship = Task(attr='ship', root=[Resource], var=Ship, other=[Transit])
-        # Operational
-        self.capacity = Task(
-            attr='capacity', root=[Process, Storage, Transit], var=Capacitate
+        self.has = Bound(name='has', root=Player, p=True, varsym='give', prmsym='Has')
+        self.needs = Bound(
+            name='needs', root=Player, m=True, varsym='take', prmsym='Needs'
         )
-        # self.operate = Task(
-        #     attr='operate', root=[Process, Storage, Transit], var=Operate
-        # )
+        # Cash
+        self.spend = Bound(
+            name='spend', root=Cash, p=True, varsym='spend', prmsym='Spend'
+        )
+        self.earn = Bound(name='earn', root=Cash, m=True, varsym='earn', prmsym='Earn')
+        # Emission
+        self.emit = Bound(
+            name='emit', root=Emission, p=True, varsym='emit', prmsym='Emit'
+        )
+        self.sequester = Bound(
+            name='sequester',
+            root=Emission,
+            m=True,
+            varsym='sequester',
+            prmsym='Sequester',
+        )
+        # Material | Land
+        self.use = Bound(name='use', root=_Used, p=True, varsym='use', prmsym='Use')
+        self.dispose = Bound(
+            name='dispose', root=_Used, m=True, varsym='dispose', prmsym='Dispose'
+        )
+        # Resource
+        self.buy = Bound(name='buy', root=Resource, p=True, varsym='buy', prmsym='Buy')
+        self.sell = Bound(
+            name='sell', root=Resource, m=True, varsym='sell', prmsym='Sell'
+        )
+        self.ship = Bound(
+            name='ship', root=Resource, p=True, varsym='ship', prmsym='Ship'
+        )
+        self.lose = Bound(
+            name='lose', root=Resource, p=True, varsym='lose', prmsym='Lose'
+        )
+        # Operational
+        self.setup = Bound(
+            name='setup',
+            root=_Operation,
+            p=True,
+            varsym='capacity^add',
+            prmsym='Capacity^add',
+        )
+        self.dismantle = Bound(
+            name='dismantle',
+            root=_Operation,
+            m=True,
+            varsym='capacity^rmv',
+            prmsym='Capacity^rmv',
+        )
         # Process
-        self.produce = Task(attr='produce', root=[Process], var=Operate)
+        self.produce = BoundBound(
+            name='produce',
+            root=Process,
+            varsym='produce',
+            parent=self.setup,
+            prmsym='Cap^F',
+        )
         # Storage
-        self.store = Task(attr='store', root=[Storage], var=Operate)
+        self.store = BoundBound(
+            name='store',
+            root=Storage,
+            varsym='store',
+            parent=self.setup,
+            prmsym='Cap^F',
+        )
         # Transit
-        self.transport = Task(attr='transport', root=[Transit], var=Operate)
+        self.transport = BoundBound(
+            name='transport',
+            root=Transit,
+            varsym='transport',
+            parent=self.setup,
+            prmsym='Cap^F',
+        )
 
     @staticmethod
     def bounds():
@@ -118,14 +155,26 @@ class _Bounds(
 
         return sum(
             [
-                [f.name for f in fields(bln)]
-                for bln in [
+                [f.name for f in fields(bnds)]
+                for bnds in [
                     _PlyBounds,
                     _CshBounds,
                     _EmnBounds,
                     _UsdBounds,
                     _ResBounds,
                     _OpnBounds,
+                ]
+            ],
+            [],
+        )
+
+    @staticmethod
+    def boundbounds():
+        """Returns all BoundBounds"""
+        return sum(
+            [
+                [f.name for f in fields(bnds)]
+                for bnds in [
                     _ProBounds,
                     _StgBounds,
                     _TrnBounds,
@@ -136,7 +185,7 @@ class _Bounds(
 
 
 @dataclass
-class _Exacts(_TscExacts, _EmnExacts, _UseExacts, _LseExacts, _RteExacts):
+class _Exacts(_Bounds, _TscExacts, _EmnExacts, _UseExacts, _LseExacts, _RteExacts):
     """These are Exact Component Inputs
 
     These are inherited across all Spatial Components
@@ -147,80 +196,191 @@ class _Exacts(_TscExacts, _EmnExacts, _UseExacts, _LseExacts, _RteExacts):
     """
 
     def __post_init__(self):
+        _Bounds.__post_init__(self)
         # ---------Transacts---------
         # Resource
-        self.buy_price = Task(
-            attr='buy_price',
-            root=[Resource],
-            var=TransactBuy,
-            other=[Process],
+        self.buy_price = Calculation(
+            name='buy_price',
+            root=Cash,
+            varsym='exp^buy',
+            parent=self.buy,
+            prmsym='Price^buy',
         )
-        self.sell_price = Task(
-            attr='sell_price', root=[Resource], var=TransactSll, other=[Process]
+        self.sell_price = Calculation(
+            name='sell_price',
+            root=Cash,
+            varsym='exp^sell',
+            parent=self.sell,
+            prmsym='Price^sell',
         )
-        self.credit = Task(
-            attr='credit', root=[Resource], var=TransactCrd, other=[Process]
+        self.credit = Calculation(
+            name='credit',
+            root=Cash,
+            varsym='exp^credit',
+            parent=self.sell,
+            prmsym='Credit',
         )
-        self.penalty = Task(
-            attr='penalty', root=[Resource], var=TransactPnt, other=[Process]
+        self.penalty = Calculation(
+            name='penalty',
+            root=Cash,
+            varsym='exp^penalty',
+            parent=self.sell,
+            prmsym='Penalty',
         )
         # Land and Material (Used)
-        self.use_cost = Task(
-            attr='use_cost', root=[Land, Material], var=TransactUse, other=[Process]
+        self.use_cost = Calculation(
+            name='use_cost',
+            root=Cash,
+            varsym='exp^use',
+            parent=self.use,
+            prmsym='Cost^use',
+        )
+        self.dispose_cost = Calculation(
+            name='dispose_cost',
+            root=Cash,
+            varsym='exp^dsp',
+            parent=self.dispose,
+            prmsym='Cost^dsp',
         )
         # Operational
-        self.capex = Task(
-            attr='capex',
-            root=[Process, Storage, Transit],
-            var=TransactStp,
-            var_i=TransactStpI,
+        self.capex = Calculation(
+            name='capex',
+            root=Cash,
+            varsym='exp^capex',
+            parent=self.setup,
+            prmsym='Capex',
         )
-        self.opex = Task(
-            attr='opex',
-            root=[Process, Storage, Transit],
-            var=TransactOpr,
-            var_i=TransactOprI,
+        self.opex = Calculation(
+            name='opex',
+            root=Cash,
+            varsym='exp^opex',
+            parent=self.produce,
+            prmsym='Opex',
         )
-
         # ---------Emissions---------
         # Resource
-        self.buy_emission = Task(
-            attr='buy_emission', root=[Resource], var=EmitBuy, other=[Process]
+        self.buy_emit = Calculation(
+            name='buy_emit',
+            root=Emission,
+            varsym='emit^buy',
+            parent=self.buy,
+            prmsym='Emit^buy',
         )
-        self.sell_emission = Task(
-            attr='sell_emission', root=[Resource], var=EmitSll, other=[Process]
+        self.buy_sequester = Calculation(
+            name='buy_sequester',
+            root=Emission,
+            varsym='sequester^buy',
+            parent=self.buy,
+            prmsym='Sequester^buy',
         )
-        self.loss_emission = Task(
-            attr='loss_emission',
-            root=[Resource],
-            var=EmitLse,
-            other=[Storage, Transit],
+        self.sell_emit = Calculation(
+            name='sell_emit',
+            root=Emission,
+            varsym='emit^sell',
+            parent=self.sell,
+            prmsym='Emit^sell',
+        )
+        self.sell_sequester = Calculation(
+            name='sell_sequester',
+            root=Emission,
+            varsym='sequester^sell',
+            parent=self.sell,
+            prmsym='Sequester^sell',
+        )
+        self.lose_emit = Calculation(
+            name='lose_emit',
+            root=Emission,
+            varsym='emit^lose',
+            parent=self.lose,
+            prmsym='Emit^lose',
         )
         # Land and Material (Used)
-        self.use_emission = Task(
-            attr='use_emission', root=[Land, Material], var=EmitUse
+        self.use_emit = Calculation(
+            name='use_emit',
+            root=Emission,
+            varsym='emit^use',
+            parent=self.use,
+            prmsym='Emit^use',
+        )
+        self.use_sequester = Calculation(
+            name='use_sequester',
+            root=Emission,
+            varsym='sequester^use',
+            parent=self.use,
+            prmsym='Sequester^use',
+        )
+        self.dispose_emit = Calculation(
+            name='dispose_emit',
+            root=Emission,
+            varsym='emit^dispose',
+            parent=self.dispose,
+            prmsym='Emit^dispose',
         )
         # Operational
-        self.setup_emission = Task(
-            attr='setup_emission', root=[Process, Storage, Transit], var=EmitStp
+        self.setup_emit = Calculation(
+            name='setup_emit',
+            root=Emission,
+            varsym='emit^setup',
+            parent=self.setup,
+            prmsym='Emit^setup',
         )
-
+        self.setup_sequester = Calculation(
+            name='setup_sequester',
+            root=Emission,
+            varsym='sequester^setup',
+            parent=self.setup,
+            prmsym='Sequester^setup',
+        )
+        self.dismantle_emit = Calculation(
+            name='dismantle_emit',
+            root=Emission,
+            varsym='emit^dismantle',
+            parent=self.dismantle,
+            prmsym='Emit^dismantle',
+        )
         # ---------Uses---------
         # Operational
-        self.setup_use = Task(
-            attr='setup_use', root=[Process, Storage, Transit], var=UseStp
+        self.setup_use = Calculation(
+            name='setup_use',
+            root=_Used,
+            varsym='use^setup',
+            parent=self.setup,
+            prmsym='Use^setup',
         )
-
         # ---------Losses---------
         # Storage Operation
-        self.inventory_loss = Task(attr='inventory_loss', root=[Storage], var=Lose)
+        self.inventory_loss = Calculation(
+            name='inventory_loss',
+            root=Resource,
+            varsym='lose^stg',
+            parent=self.store,
+            prmsym='Loss^stg',
+        )
         # Transit Operation
-        self.freight_loss = Task(attr='freight_loss', root=[Transit], var=Lose)
+        self.freight_loss = Calculation(
+            name='freight_loss',
+            root=Resource,
+            varsym='lose^trn',
+            parent=self.transport,
+            prmsym='Loss^trn',
+        )
         # ---------Rates---------
         # Operational
-        self.setup_time = Task(attr='setup_time', root=[Process, Storage, Transit])
+        self.setup_time = Calculation(
+            name='setup_time',
+            root=Horizon,
+            varsym='time^setup',
+            parent=self.setup,
+            prmsym='τ',
+        )
         # Transit Operation
-        self.speed = Task(attr='speed', root=[Transit])
+        self.speed = Calculation(
+            name='speed',
+            root=Horizon,
+            varsym='speed',
+            parent=self.transport,
+            prmsym='Speed',
+        )
 
     @staticmethod
     def transactions():
@@ -265,18 +425,37 @@ class _Exacts(_TscExacts, _EmnExacts, _UseExacts, _LseExacts, _RteExacts):
 
 
 @dataclass
-class _Balances(_ProBalance, _StgBalance, _TrnBalance):
+class _Balances(_Exacts, _ProBalance, _StgBalance, _TrnBalance):
     """These are Balances for Resources
     defined at Operational Components
     """
 
     def __post_init__(self):
+        _Exacts.__post_init__(self)
         # Process
-        self.conversion = Task(attr='conversion', root=[Process])
+        self.conversion = Balancing(
+            name='conversion',
+            opn=Process,
+            balance=Conversion,
+            prmsym='η',
+            parent=self.produce,
+        )
         # Storage
-        self.inventory = Task(attr='inventory', root=[Storage])
+        self.inventory = Balancing(
+            name='inventory',
+            opn=Storage,
+            balance=Inventory,
+            prmsym='φ',
+            parent=self.store,
+        )
         # Transit
-        self.freight = Task(attr='freight', root=[Transit])
+        self.freight = Balancing(
+            name='freight',
+            opn=Transit,
+            balance=Freight,
+            prmsym='ψ',
+            parent=self.transport,
+        )
 
     @staticmethod
     def balances():
@@ -291,7 +470,7 @@ class _Balances(_ProBalance, _StgBalance, _TrnBalance):
 
 
 @dataclass
-class Chanakya(_Balances, _Bounds, _Exacts, _Dunders):
+class Chanakya(_Balances, _Dunders):
     """This object collects all the attributes defined
     and makes a list of Indexs they are defined at
 
@@ -302,8 +481,6 @@ class Chanakya(_Balances, _Bounds, _Exacts, _Dunders):
     def __post_init__(self):
         self.name = f'TaskMaster|{self.name}|'
         _Balances.__post_init__(self)
-        _Bounds.__post_init__(self)
-        _Exacts.__post_init__(self)
 
     @property
     def report_transactions(self):
@@ -322,10 +499,10 @@ class Chanakya(_Balances, _Bounds, _Exacts, _Dunders):
         )
 
     @property
-    def report_emissions(self):
+    def report_emits(self):
         """Collection of Emissions"""
         return Report(
-            name='emissions',
+            name='emits',
             tasks=[getattr(self, attr) for attr in self.emissions()],
         )
 
@@ -351,3 +528,7 @@ class Chanakya(_Balances, _Bounds, _Exacts, _Dunders):
             },
             key=lambda x: x.cname(),
         )
+
+    def birth_attrs(self, task: str):
+        """Returns all Attributes need to birth Variables"""
+        return getattr(self, task).birth_attrs()

@@ -46,11 +46,15 @@ from ..components.operation.transit import Transit
 from ..components.spatial.linkage import Linkage
 from ..components.spatial.network import Network
 from ..components.temporal.horizon import Horizon
+from ..components.temporal.scale import Scale
+from ..components.spatial.location import Location
 from ..core._handy._dunders import _Dunders
 from ..core._handy._printers import _Print
 from ..core._report._data import _Vlus
 from ..core._report._prog import _Elms
 from ..core._report._syst import _Cmps
+from ..core._handy._words import reserved
+from ..core.nirop.errors import ReservedWord
 from ._scenario._birth import _Birth
 from ._scenario._default import _Default
 from ._scenario._ok import _Ok
@@ -121,8 +125,11 @@ class Scenario(_Ok, _Default, _Birth, _Update, _ScnCols, _Dunders, _Print):
         # The Model [System, Program, Data, Matrix] is also added
         # This is a cursory step to check what is being added, also excludes name
         if isinstance(value, _Component):
-            # Personalize the component
 
+            if name in reserved:
+                raise ReservedWord(name)
+
+            # Personalize the component
             value.personalize(name=name, model=self.model)
 
             # Check if ok to overwrite
@@ -156,11 +163,16 @@ class Scenario(_Ok, _Default, _Birth, _Update, _ScnCols, _Dunders, _Print):
             # Horizon, Network, Linkages and Storage give birth to new components
             if isinstance(value, Horizon):
                 self.handle_unique_cmp('horizon', value)
-                self.birth_scales(horizon=value)
+                self.birth_partitions(scope=value, birth=Scale)
+                # value.periodize()
+                # once scales are birthed, they are periodized
+                # which creates time periods for each scale
+                for s in self.scales:
+                    s.periodize()
 
             if isinstance(value, Network):
                 self.handle_unique_cmp('network', value)
-                self.birth_locations(network=value)
+                self.birth_partitions(scope=value, birth=Location)
                 if value.link_all:
                     self.birth_all_linkages(network=value)
 
