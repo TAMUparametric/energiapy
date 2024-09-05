@@ -146,18 +146,18 @@ class _Update(ABC):
         setattr(programblock, name, datablock)
 
         # update all the elements related the attributes in the Task Modeling Block
-        for attr, cons in programblock.attr_constraints.items():
-            print(attr)
-            getattr(self.taskmaster, attr).constraints.extend(cons)
+        # for cons in programblock.constraints:
+        #     print(attr)
+        #     getattr(self.taskmaster, attr).constraints.extend(cons)
 
-        for attr, var in programblock.attr_variables.items():
-            getattr(self.taskmaster, attr).variables.extend(var)
+        # for var in programblock.variables:
+        #     getattr(self.taskmaster, attr).variables.extend(var)
 
-        for attr, par in programblock.attr_parameters.items():
-            getattr(self.taskmaster, attr).parameters.extend(par)
+        # for par in programblock.parameters:
+        #     getattr(self.taskmaster, attr).parameters.extend(par)
 
-        for attr, disp in programblock.attr_indices.items():
-            getattr(self.taskmaster, attr).indices.extend(disp)
+        # for disp in programblock.indices:
+        #     getattr(self.taskmaster, attr).indices.extend(disp)
 
         # The ProgramBlock is also added to the Program Model
         setattr(self.program, name, programblock)

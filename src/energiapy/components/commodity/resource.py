@@ -12,12 +12,8 @@ from .._attrs._exacts import _ResEmnExacts, _ResTscExacts
 from ._commodity import _Commodity
 
 
-class _Resource(_ResBounds, _ResTscExacts, _ResEmnExacts):
-    """These are attributes which are original to Resource"""
-
-
 @dataclass
-class Resource(_Commodity, _Resource):
+class Resource(_Commodity, _ResBounds, _ResTscExacts, _ResEmnExacts):
     """Resources are Produced by Processes, Stored by Storage, and Transported by Transits
     They can be bought, sold, shipped, and received by Locations or Processes
 
@@ -51,7 +47,10 @@ class Resource(_Commodity, _Resource):
     @staticmethod
     def inputs():
         """Input attributes"""
-        return [f.name for f in fields(_Resource)]
+        return [
+            f.name
+            for f in fields(_ResBounds) + fields(_ResTscExacts) + fields(_ResEmnExacts)
+        ]
 
 
 @dataclass

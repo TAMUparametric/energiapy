@@ -1,10 +1,16 @@
 """Operational Components that give birth to Processes
 """
 
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-
+from typing import TYPE_CHECKING
 from ._operation import _Operation
+
+if TYPE_CHECKING:
+    from .process import Process
+    from ...elements.parameters.balances.conversion import Conversion
 
 
 @dataclass
@@ -30,17 +36,7 @@ class _Birther(_Operation, ABC):
         """Balance attribute"""
 
     @property
-    @abstractmethod
-    def setup_in(self):
-        """Process Capacitate for Input Process"""
-
-    @property
-    @abstractmethod
-    def setup_out(self):
-        """Process Capacitate for Output Process"""
-
-    @property
-    def processes(self):
+    def processes(self) -> list[Process]:
         """Birthed Processes"""
         return self._processes
 
@@ -50,22 +46,22 @@ class _Birther(_Operation, ABC):
         self._processes = processes
 
     @property
-    def process_in(self):
+    def process_in(self) -> Process:
         """Process from Resource to Birthed Resource"""
         return self.processes[0]
 
     @property
-    def process_out(self):
+    def process_out(self) -> Process:
         """Process from Birthed Resource to Resource"""
         return self.processes[1]
 
     @property
-    def conversion_in(self):
+    def conversion_in(self) -> Conversion:
         """Conversion from Resource to Birthed Resource"""
         return getattr(self.system, getattr(self, 'name')).process_in.conversion
 
     @property
-    def conversion_out(self):
+    def conversion_out(self) -> Conversion:
         """Conversion from Birthed Resource to Resource"""
         return self.process_out.conversion
 

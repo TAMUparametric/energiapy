@@ -10,6 +10,7 @@ from sympy import IndexedBase
 
 from ...core._handy._dunders import _Magics
 from ._value import _Value
+from ..disposition.bound import VarBnd
 
 if TYPE_CHECKING:
     from ...core.isalias.inps.isinp import IsSpc

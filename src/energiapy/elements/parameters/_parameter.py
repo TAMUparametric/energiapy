@@ -22,11 +22,7 @@ class _Parameter(_Dunders, ABC):
     def __post_init__(self):
         self.index = self.value.index
         self.name = str(self.sym)
-
-    @property
-    @abstractmethod
-    def id(self) -> str:
-        """Symbolic representation of the Parameter"""
+        # unless specified otherwise, the a Variable is equal to this parameter
 
     @property
     @abstractmethod
@@ -37,10 +33,3 @@ class _Parameter(_Dunders, ABC):
     def sym(self):
         """Symbol"""
         return self.symib[self.index.sym]
-
-
-# These parameters are exact values for ExactVars
-
-
-
-# These parameters serve as bounds for BoundVars

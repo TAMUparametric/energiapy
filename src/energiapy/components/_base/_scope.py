@@ -21,7 +21,7 @@ class _Scope(_Component, ABC):
 
     """
 
-    birth: int | list[int] | dict[str, int] = field(default=1)
+    birth: int | list[int] | dict[str, int] = field(default=None)
     birth_labels: list[str] = field(default=None)
     nested: bool = field(default=False)
 
@@ -31,31 +31,35 @@ class _Scope(_Component, ABC):
         self.discrs = 1
         # Every Scope has a root birth
         # This root birth, basiscally the horizon
-        if isinstance(self.birth, int):
-            # if only a number is given, then just make
-            self.birth = [self.birth]
+        if self.birth:
+            if isinstance(self.birth, int):
+                # if only a number is given, then just make
+                self.birth = [self.birth]
 
-        if isinstance(self.birth, dict):
-            self.birth_list = list(self.birth.values())
-            # self.birth_list.insert(0, 1)
-            self.birth_names = list(self.birth.keys())
-            # self.birth_names.insert(0, self._root())
+            if isinstance(self.birth, dict):
+                self.birth_list = list(self.birth.values())
+                # self.birth_list.insert(0, 1)
+                self.birth_names = list(self.birth.keys())
+                # self.birth_names.insert(0, self._root())
 
-        elif isinstance(self.birth, list):
-            self.birth_list = self.birth
-            # self.birth_list.insert(0, 1)
-            self.birth_names = [
-                f'{self._def_name()}{b}' for b in range(len(self.birth_list))
-            ]
+            elif isinstance(self.birth, list):
+                self.birth_list = self.birth
+                # self.birth_list.insert(0, 1)
+                self.birth_names = [
+                    f'{self._def_name()}{b}' for b in range(len(self.birth_list))
+                ]
+
+            else:
+                raise ValueError('Partitions must be int, list or dictionary')
+
+            if self.nested:
+                self.birth_list = list(accumulate(self.birth_list, mul))
+
+            if not self.birth_labels:
+                self.birth_labels = [None for _ in range(self.n_births)]
 
         else:
-            raise ValueError('Partitions must be int, list or dictionary')
-
-        if self.nested:
-            self.birth_list = list(accumulate(self.birth_list, mul))
-
-        if not self.birth_labels:
-            self.birth_labels = [None for _ in range(self.n_births)]
+            self.birth_list, self.birth_names = [], []
 
     @property
     def index(self):

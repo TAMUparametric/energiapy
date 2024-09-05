@@ -36,7 +36,7 @@ class Horizon(_Scope, _Scls):
         >>> s = Scenario(name='pse')
 
         The planning horizon of the problem can be declared as follows:
-        >>> s.h = Horizon(discretizations=[4])
+        >>> s.h = Horizon(birth=[4])
 
         This creates two scales, t0 and t1, with 1 and 4 discretizations respectively.
         >>> s.h.scales
@@ -47,7 +47,7 @@ class Horizon(_Scope, _Scls):
         Consider the example where you want to consider 2 years, with 4 quarters each year.
 
         If nested is True, which is the default:
-        >>> s.h = Horizon(discretizations=[2, 4])
+        >>> s.h = Horizon(birth=[2, 4])
         >>> s.t0.index,
         [(0,)]
         >>> s.t1.index
@@ -58,7 +58,7 @@ class Horizon(_Scope, _Scls):
         If nested is False:
         The total number of discretizations for each scale must be provided in ascending order,
         and must be divisible by the most granular scals.
-        >>> s.h = Horizon(discretizations=[2, 8], nested=False)
+        >>> s.h = Horizon(birth=[2, 8], nested=False)
         >>> s.t0.index,
         [(0,0)]
         >>> s.t1.index
@@ -68,9 +68,9 @@ class Horizon(_Scope, _Scls):
 
         so for a 365 days and 24 hours, the following can be done:
         either
-        >>> s.h = Horizon(discretizations=[365, 24])
+        >>> s.h = Horizon(birth=[365, 24])
         or
-        >>> s.h = Horizon(discretizations=[365, 8760], nested=False)
+        >>> s.h = Horizon(birth=[365, 8760], nested=False)
 
     """
 

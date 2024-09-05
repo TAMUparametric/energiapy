@@ -3,6 +3,7 @@
 
 from dataclasses import dataclass, field
 
+from .taskmaster import Chanakya
 from ...core._handy._dunders import _Dunders
 from ...core.nirop.errors import CacodcarError
 from ...elements.disposition.index import Index
@@ -16,37 +17,45 @@ class ChitraGupta(_Dunders):
 
     Attributes:
         name (str): name, takes from the name of the Scenario
-        rulebook: Bhaskara = field(default_factory=rulebook)
+        taskmaster: Chanakya
 
     """
 
     name: str = field(default=None)
+    taskmaster: Chanakya = field(default=None)
 
     def __post_init__(self):
 
         self.name = f'Registrar|{self.name}|'
         self.pbounds, self.mbounds, self.boundbounds, self.calculations = (
-            [] for _ in range(4)
+            {} for _ in range(4)
         )
 
     def register(self, task: Bound | BoundBound | Calculation, index: Index):
         """Register that a Variable or Parameter has been declared at a particular Index
 
         Args:
-            elm (IsElm): Element to update
-            index (Index): with this Index
+            task (Bound | BoundBound | Calculation): task
+            index (Index): index
         """
 
         if isinstance(task, Bound):
-            collection = 'pbounds' if task.p else 'mbounds'
+            collection = (
+                getattr(self, 'pbounds') if task.p else getattr(self, 'mbounds')
+            )
 
         if isinstance(task, BoundBound):
-            collection = 'boundbounds'
+            collection = getattr(self, 'boundbounds')
 
         if isinstance(task, Calculation):
-            collection = 'calculations'
+            collection = getattr(self, 'calculations')
 
-        if task in getattr(self, collection):
-            raise CacodcarError(f'{task} already has {index} in {self.name}')
+        if task.name in collection:
 
-        getattr(self, collection).append(index)
+            if index in collection[task.name]:
+                raise CacodcarError(f'{task} already has {index} in {self.name}')
+
+            collection[task.name].append(index)
+
+        else:
+            collection[task.name] = [index]

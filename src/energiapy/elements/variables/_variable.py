@@ -29,10 +29,10 @@ class _Variable(_Dunders):
     def __post_init__(self):
         self.name = str(self.sym)
 
-        if not self.index.structure() in self.structures(self.component):
-            raise CacodcarError(
-                f'{self}:{self.index.structure()} not in {self.structures(self.component)}'
-            )
+        # if not self.index.structure() in self.structures(self.component):
+        #     raise CacodcarError(
+        #         f'{self}:{self.index.structure()} not in {self.structures(self.component)}'
+        #     )
 
         if not self.symbol:
             raise ValueError(f'{self}: symbol must be provided')

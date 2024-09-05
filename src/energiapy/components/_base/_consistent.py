@@ -9,10 +9,12 @@ x - operational mode
 use is_not to compare dummy to existing Components (Scale, Location)
 """
 
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from operator import is_not
 from warnings import warn
-
+from typing import TYPE_CHECKING
 from pandas import DataFrame
 
 from ...core.isalias.inps.isinp import IsBndInp, IsExtInp, IsInp, IsSptTmp
@@ -23,6 +25,10 @@ from ..spatial.network import Network
 from ..temporal.mode import X
 from ..temporal.scale import Scale
 from ._dummy import _Dummy
+
+if TYPE_CHECKING:
+    from ...environ.engines.taskmaster import Chanakya
+    from ...environ.blocks.system import System
 
 
 class _Consistent(ABC):
@@ -40,12 +46,12 @@ class _Consistent(ABC):
 
     @property
     @abstractmethod
-    def system(self):
+    def system(self) -> System:
         """The System of the Component"""
 
     @property
     @abstractmethod
-    def taskmaster(self):
+    def taskmaster(self) -> Chanakya:
         """Chanakya of the Scenario"""
 
     @staticmethod
@@ -60,6 +66,10 @@ class _Consistent(ABC):
     def bounds(self):
         """Bounds attributes"""
         return sorted(set(self.inputs()) & set(self.taskmaster.bounds()))
+
+    def boundbounds(self):
+        """BoundBounds attributes"""
+        return sorted(set(self.inputs()) & set(self.taskmaster.boundbounds()))
 
     @property
     def consistent(self):
@@ -205,7 +215,7 @@ class _Consistent(ABC):
             return tmp
 
     def fix_temporal(
-        self, spttmpmdeval: dict, attr: str, ok_inconsistent: bool
+        self, spttmpmdeval: dict[dict, dict], attr: str, ok_inconsistent: bool
     ) -> dict:
         """Fixes the temporal disposition of the input
 
@@ -260,7 +270,7 @@ class _Consistent(ABC):
         value_upd = {}
         for spt in spttmpmdeval.keys():
             if spt == _Dummy.N:
-                if attr in self.taskmaster.bounds():
+                if attr in self.bounds() + self.boundbounds():
                     value_upd[self.system.network] = spttmpmdeval[spt]
                 else:
 
@@ -292,7 +302,7 @@ class _Consistent(ABC):
 
         return value_upd
 
-    def modize(self, spttmpmdeval: dict) -> dict:
+    def modize(self, spttmpmdeval: dict[dict, dict]) -> dict:
         """Replaces the dummy X in the input
 
         Args:
@@ -357,7 +367,6 @@ class _Consistent(ABC):
         Returns:
             dict: {Cash: value}
         """
-
         if attr in self.taskmaster.transactions():
             value = {self.system.cash: value}
 
@@ -391,12 +400,10 @@ class _Consistent(ABC):
             """Make either exact or bound consistent"""
 
             if attr in self.exacts():
-                # for Cash and Land, these are added, Resources, Materials, Emissions need to be specified
                 value = self.cashify(attr, value)
-
                 return make_exact_consistent(value, attr, ok_inconsistent)
 
-            if attr in self.bounds():
+            if attr in self.bounds() + self.boundbounds():
                 return make_bound_consistent(value, attr, ok_inconsistent)
 
         for attr in self.inputs():
@@ -409,21 +416,22 @@ class _Consistent(ABC):
             if value is None:
                 continue
 
-            if any(
-                isinstance(self, cmp) for cmp in getattr(self.taskmaster, attr).other
-            ):
-                # if the root of attribute is another Component
-                # Then we need to iterate over the Components
-                setattr(
-                    self,
-                    attr,
-                    {
-                        cmd: make_any_consistent(val, attr, ok_inconsistent)
-                        for cmd, val in value.items()
-                    },
-                )
-            else:
-                # else just set i
-                setattr(self, attr, make_any_consistent(value, attr, ok_inconsistent))
+            setattr(self, attr, make_any_consistent(value, attr, ok_inconsistent))
+
+            # if any(
+            #     isinstance(self, cmp) for cmp in getattr(self.taskmaster, attr).other
+            # ):
+            #     # if the root of attribute is another Component
+            #     # Then we need to iterate over the Components
+            #     setattr(
+            #         self,
+            #         attr,
+            #         {
+            #             cmd: make_any_consistent(val, attr, ok_inconsistent)
+            #             for cmd, val in value.items()
+            #         },
+            #     )
+            # else:
+            #     # else just set i
 
         setattr(self, 'consistent', True)

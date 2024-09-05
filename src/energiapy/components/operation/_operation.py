@@ -70,8 +70,8 @@ class _Operation(_Defined, ABC):
     @property
     def emissions(self):
         """Emissions from the Operation"""
-        if getattr(self, 'setup_emission'):
-            return [i.index.emn for i in getattr(self, 'setup_emission').data.values()]
+        if getattr(self, 'setup_emit'):
+            return [i.index.emn for i in getattr(self, 'setup_emit').data.values()]
         else:
             return []
 

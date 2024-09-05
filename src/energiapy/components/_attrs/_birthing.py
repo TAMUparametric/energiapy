@@ -16,5 +16,5 @@ class _StgBirthing:
 
     """
 
-    capacity_in: IsBnd = field(default=None)
-    capacity_out: IsBnd = field(default=None)
+    setup_in: IsBnd = field(default=None)
+    setup_out: IsBnd = field(default=None)

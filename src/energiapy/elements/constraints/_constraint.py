@@ -4,6 +4,7 @@
 from dataclasses import dataclass, field
 
 from sympy import IndexedBase, Mul, Rel
+from ..disposition.bound import VarBnd
 
 from ...core._handy._dunders import _Dunders
 from ...core.isalias.elms.isprm import IsPrm
@@ -18,6 +19,9 @@ class _Constraint(_Dunders):
     """
 
     variable: IsVar = field(default=None)
+    varbnd: VarBnd = field(default=None)
+    parent: IsVar = field(default=None)
+    parameter: IsPrm = field(default=None)
 
     def __post_init__(self):
         # The index of the constraint is the same as the main Variable

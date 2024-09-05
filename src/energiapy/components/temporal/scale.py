@@ -5,10 +5,11 @@ from dataclasses import dataclass
 
 from .._base._discr import _Discr
 from .period import Period
+from .._base._component import _Component
 
 
 @dataclass
-class Scale(_Discr):
+class Scale(_Discr, _Component):
     """
     A single temporal scale of the planning horizon (Horizon).
 
@@ -21,6 +22,7 @@ class Scale(_Discr):
 
     def __post_init__(self):
         _Discr.__post_init__(self)
+        _Component.__post_init__(self)
         self.periods = None
 
     def pos(self, index: tuple) -> int:
@@ -44,4 +46,4 @@ class Scale(_Discr):
         self.periods = [Period(scale=self, period=i) for i in self.index]
 
     def __len__(self):
-        return len(self.index)
+        return self.discrs

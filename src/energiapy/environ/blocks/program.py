@@ -3,8 +3,9 @@
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
+
+from typing import TYPE_CHECKING
 
 from ...core._handy._dunders import _Dunders
 from ...core._handy._printers import _Print
@@ -17,18 +18,12 @@ from ...elements.disposition.index import Index
 from ._block import _Block
 from .data import DataBlock
 
+if TYPE_CHECKING:
+    from ...environ.tasks.bound import Bound, BoundBound
+    from ...environ.tasks.calculation import Calculation
 
-class _Fish(ABC):
 
-    @property
-    @abstractmethod
-    def variables(self):
-        """Variables"""
-
-    @property
-    @abstractmethod
-    def indices(self):
-        """Indexs"""
+class _Fish:
 
     def taste_catch(self, catch: list):
         """Tastes the catch, sees if there are multiple fishes (vars)
@@ -39,7 +34,6 @@ class _Fish(ABC):
         """
         # number of catches
         n_catch = len(catch)
-
         # There can only be one
         if n_catch > 1:
             raise CacodcarError(
@@ -72,7 +66,11 @@ class _Fish(ABC):
 
         # seaches for the index in the ProgramBlock and check for multiple instances
         return self.taste_catch(
-            [e for e in self.variables if isinstance(e, var) and e.index == index]
+            [
+                e
+                for e in getattr(self, 'variables')
+                if isinstance(e, var) and e.index == index
+            ]
         )
 
     def fish_idx(self, disposition: IsDsp) -> Index:
@@ -93,7 +91,7 @@ class _Fish(ABC):
 
         # seaches for the index in the ProgramBlock and check for multiple instances
         return self.taste_catch(
-            [e for e in self.indices if e.disposition == disposition]
+            [e for e in getattr(self, 'indices') if e.disposition == disposition]
         )
 
 
@@ -110,14 +108,9 @@ class ProgramBlock(_Fish, _Dunders, _Print):
 
     def __post_init__(self):
         self.name = f'Program|{self.component}|'
-        # Declare empty dictionaries to hold the generated elements
-        # the keys are the attributes of the components
-        (
-            self.attr_variables,
-            self.attr_constraints,
-            self.attr_parameters,
-            self.attr_indices,
-        ) = ({inp: [] for inp in self.component.inputs()} for _ in range(4))
+        self.indices, self.parameters, self.variables, self.constraints = (
+            [] for _ in range(4)
+        )
 
     def __setattr__(self, name: str, datablock: DataBlock):
 
@@ -157,12 +150,11 @@ class ProgramBlock(_Fish, _Dunders, _Print):
                 self.birth_elements(value=i, attr=attr)
 
         else:
-
-            var = getattr(self.component.taskmaster, attr).var
+            task = getattr(self.component.taskmaster, attr)
 
             # This fishes for an existing Variable
             # if not found births one
-            variable = self.birth_var(var=var, index=value.index, attr=attr)
+            variable = self.birth_var(index=value.index, task=task)
 
             # The Variable can have a:
             # 1. Parent Variable: needed to bound or determine this variable
@@ -172,47 +164,40 @@ class ProgramBlock(_Fish, _Dunders, _Print):
             # In the CapEx example, ExpSetUp has Cash, but Capacitate does not
             # so remove Cash Component in Capacitate Dispositio
 
-            if var.parent:
+            if task.parent:
+
                 # Fish for an existing Dispostion
                 # if not found, births one
                 idx_parent = self.birth_index(
-                    disposition=variable.index.childless(var.parent.root),
-                    attr=attr,
+                    disposition=variable.index.childless(task.root),
                 )
 
                 # This fishes for an existing Parent Variable
                 # if not found births one
-                parent = self.birth_var(var=var.parent, index=idx_parent, attr=attr)
+                parent = self.birth_var(
+                    index=idx_parent,
+                    task=task.parent,
+                )
 
             else:
                 # Bruce Wayne Variable
                 parent = None
 
-            # Get the rules to generate the constraint
-            # Variables can have multiple rules
-            rules = self.component.rulebook.find(var)
+            parameter = task.prm()(value, symbol=task.prmsym)
+            self.parameters.append(parameter)
+            constraint = task.cns()(
+                variable=variable,
+                parent=parent,
+                parameter=parameter,
+                varbnd=value.varbnd,
+            )
+            self.constraints.append(constraint)
 
-            # So iter over them
-            for rule in rules:
-                if rule.parameter:
-                    # If the rule needs a parameter, then make it
-                    parameter = rule.parameter(value)
-                    self.attr_parameters[attr].append(parameter)
-
-                else:
-                    parameter = None
-
-                # Generate the constraint
-                constraint = rule.constraint(
-                    variable=variable,
-                    parent=parent,
-                    parameter=parameter,
-                    varbnd=value.varbnd,
-                )
-                # update collection
-                self.attr_constraints[attr].append(constraint)
-
-    def birth_var(self, var: IsVar, index: Index, attr: str):
+    def birth_var(
+        self,
+        task: Bound | BoundBound | Calculation,
+        index: Index,
+    ):
         """Creates a variable in the ProgramBlock
         if not found in the ProgramBlock and full Program Model Block
 
@@ -220,7 +205,10 @@ class ProgramBlock(_Fish, _Dunders, _Print):
             var (IsVar): Variable to be created
             index (Index): Index of the Variable
             attr (str): Attribute of the Component
+            sym (str): Symbol of the Variable
         """
+        varbirth_attrs = task.varbirth_attrs()
+        var = task.var()
 
         # Fish for an existing variable in the ProgramBlock
         catch = self.fish_var(var=var, index=index)
@@ -239,17 +227,16 @@ class ProgramBlock(_Fish, _Dunders, _Print):
 
             else:
                 # if still nothing found, then create a new one
-                variable = var(index=index, component=self.component)
-                # Update the collections
-                self.attr_variables[attr].append(variable)
+                variable = var(index=index, component=self.component, **varbirth_attrs)
 
+                self.variables.append(variable)
                 # Update the Registrar with the new Index
-                # at which var is defined
-                self.component.registrar.register(var, index)
+                # at which task is defined
+                self.component.registrar.register(task, index)
 
                 return variable
 
-    def birth_index(self, disposition: IsDsp, attr: str):
+    def birth_index(self, disposition: IsDsp):
         """Searchs for an Index with the give dispostion in the ProgramBlock
         If not found, looks for one in the full Program Model Block
         if not found in the ProgramBlock and full Program Model Block
@@ -257,7 +244,6 @@ class ProgramBlock(_Fish, _Dunders, _Print):
 
         Args:
             index (Index): Index of the Index
-            attr (str): Attribute of the Component
         """
 
         # Fish for an existing index in the ProgramBlock
@@ -278,10 +264,7 @@ class ProgramBlock(_Fish, _Dunders, _Print):
             else:
                 # if still nothing found, then create a new index
                 idx = Index(**disposition)
-
-                # Update the collections
-                self.attr_indices[attr].append(idx)
-
+                self.indices.append(idx)
                 return idx
 
     @property
@@ -293,26 +276,6 @@ class ProgramBlock(_Fish, _Dunders, _Print):
     def var_types(self):
         """Returns all variables types already declared in the ProgramBlock"""
         return [type(i) for i in self.variables]
-
-    @property
-    def variables(self):
-        """Returns all variables in the ProgramBlock"""
-        return sum(list(self.attr_variables.values()), [])
-
-    @property
-    def constraints(self):
-        """Returns all constraints in the ProgramBlock"""
-        return sum(list(self.attr_constraints.values()), [])
-
-    @property
-    def parameters(self):
-        """Returns all parameters in the ProgramBlock"""
-        return sum(list(self.attr_parameters.values()), [])
-
-    @property
-    def indices(self):
-        """Returns all indices in the ProgramBlock"""
-        return sum(list(self.attr_indices.values()), [])
 
     def eqns(self, at_cmp: IsDfn = None, at_disp: IsDsp = None):
         """Yields all equations in the ProgramBlock

@@ -4,15 +4,15 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 
-from .._base._discr import _Discr
+from .._base._component import _Component
 
 
 @dataclass
-class _Spatial(_Discr, ABC):
+class _Spatial(_Component, ABC):
     """Spatial Component"""
 
     def __post_init__(self):
-        _Discr.__post_init__(self)
+        _Component.__post_init__(self)
 
     @property
     @abstractmethod

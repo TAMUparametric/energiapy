@@ -12,27 +12,13 @@ from .._attrs._spatials import _LocCollection
 from ._birther import _Birther
 from ..spatial.location import Location
 
-# Associated Program Elements:
-#   Bound Parameters - CapBound, OprBound
-#   Exact Parameters - StpEmission, StpExpense, OprExpense, StpUse
-#   Balance Parameters - Inventory
-#   Variable (Transact) - TransactOpr, TransactStp
-#   Variable (Emissions) - EmitStp, EmitUse
-#   Variable (Losses) - Lose
-#   Variable (Operate) - Operate
-#   Variable (Use) - Use
-#   Variable (Rates) - Rate
-
-
-@dataclass
-class _Storage(_OpnBounds, _StgBounds, _StgExacts):
-    """These are attributes which are original to Storage"""
-
 
 @dataclass
 class Storage(
     _StgBalance,
-    _Storage,
+    _OpnBounds,
+    _StgBounds,
+    _StgExacts,
     _StgBirthing,
     _LocCollection,
     _Birther,
@@ -81,7 +67,9 @@ class Storage(
     @staticmethod
     def inputs():
         """Input attributes"""
-        return [f.name for f in fields(_Storage)]
+        return [
+            f.name for f in fields(_OpnBounds) + fields(_StgBounds) + fields(_StgExacts)
+        ]
 
     @property
     def balance(self):

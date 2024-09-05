@@ -45,3 +45,7 @@ class Calculation(_Task):
     def cns():
         """Constraint"""
         return Calculate
+
+    def varbirth_attrs(self):
+        """Attributes of the Variable"""
+        return {'symbol': self.varsym}

@@ -10,6 +10,7 @@ from sympy import IndexedBase
 
 from ._value import _Value
 
+
 if TYPE_CHECKING:
     from ...core.isalias.inps.isinp import IsNum
 
@@ -26,6 +27,7 @@ class Constant(_Value):
 
     def __post_init__(self):
         _Value.__post_init__(self)
+        # unless specified otherwise, the a Variable is equal to this parameter
 
     @property
     def value(self) -> IsNum:

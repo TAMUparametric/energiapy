@@ -163,6 +163,18 @@ class _Bounds(
                     _UsdBounds,
                     _ResBounds,
                     _OpnBounds,
+                ]
+            ],
+            [],
+        )
+
+    @staticmethod
+    def boundbounds():
+        """Returns all BoundBounds"""
+        return sum(
+            [
+                [f.name for f in fields(bnds)]
+                for bnds in [
                     _ProBounds,
                     _StgBounds,
                     _TrnBounds,
@@ -487,10 +499,10 @@ class Chanakya(_Balances, _Dunders):
         )
 
     @property
-    def report_emissions(self):
+    def report_emits(self):
         """Collection of Emissions"""
         return Report(
-            name='emissions',
+            name='emits',
             tasks=[getattr(self, attr) for attr in self.emissions()],
         )
 
@@ -516,3 +528,7 @@ class Chanakya(_Balances, _Dunders):
             },
             key=lambda x: x.cname(),
         )
+
+    def birth_attrs(self, task: str):
+        """Returns all Attributes need to birth Variables"""
+        return getattr(self, task).birth_attrs()

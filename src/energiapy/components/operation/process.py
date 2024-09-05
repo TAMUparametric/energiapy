@@ -12,28 +12,14 @@ from .._attrs._spatials import _LocCollection
 from ._operation import _Operation
 from ..spatial.location import Location
 
-# Associated Program Elements:
-#   Bound Parameters - CapBound, OprBound
-#   Exact Parameters - StpEmission, StpExpense, OprExpense, Usage
-#   Balance Parameters - Conversion
-#   Resource Parameters - BuyBound, SellBound, BuyPrice, SellPrice, Credit, Penalty
-#   Variable (Transact) - TransactOpr, TransactStp
-#   Variable (Emissions) - EmitStp, EmitUse
-#   Variable (Operate) - Operate
-#   Variable (Use) - Use
-#   Variable (Rates) - Rate
-
-
-@dataclass
-class _Process(_OpnBounds, _ProBounds, _ProExacts):
-    """These are attributes which are original to Process"""
-
 
 @dataclass
 class Process(
     _ProBalance,
     _LocCollection,
-    _Process,
+    _OpnBounds,
+    _ProBounds,
+    _ProExacts,
     _Operation,
 ):
     """Process converts one Resource to another Resource
@@ -113,7 +99,9 @@ class Process(
     @staticmethod
     def inputs():
         """Input attributes"""
-        return [f.name for f in fields(_Process)]
+        return [
+            f.name for f in fields(_OpnBounds) + fields(_ProBounds) + fields(_ProExacts)
+        ]
 
     @property
     def resources(self):

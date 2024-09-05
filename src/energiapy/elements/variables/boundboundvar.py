@@ -25,4 +25,5 @@ class BoundBoundVar(BoundVar):
     parent: BoundVar = field(default=None)
 
     def __post_init__(self):
+        self.p = True
         BoundVar.__post_init__(self)

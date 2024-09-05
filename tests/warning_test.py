@@ -14,4 +14,4 @@ def test_overwrite_warning(scenario_ok):
     if another Horizon is defined, it should raise a warning
     """
     with pytest.warns(OverWriteWarning):
-        scenario_ok.h = Horizon(discretizations=[4])
+        scenario_ok.h = Horizon(birth=[4])

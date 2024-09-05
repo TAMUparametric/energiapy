@@ -13,14 +13,11 @@ from ..spatial.linkage import Linkage
 
 
 @dataclass
-class _Transit(_OpnBounds, _TrnBounds, _TrnExacts):
-    """These are attributes which are original to Transit"""
-
-
-@dataclass
 class Transit(
     _TrnBalance,
-    _Transit,
+    _OpnBounds,
+    _TrnBounds,
+    _TrnExacts,
     _LnkCollection,
     _Birther,
 ):
@@ -57,6 +54,7 @@ class Transit(
 
     def __post_init__(self):
         _Birther.__post_init__(self)
+        self.setup_in = self.setup_out = self.setup
 
     @property
     def _operate(self):
@@ -74,7 +72,9 @@ class Transit(
     @staticmethod
     def inputs():
         """Input attributes"""
-        return [f.name for f in fields(_Transit)]
+        return [
+            f.name for f in fields(_OpnBounds) + fields(_TrnBounds) + fields(_TrnExacts)
+        ]
 
     @staticmethod
     def at():

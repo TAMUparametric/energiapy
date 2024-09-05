@@ -19,6 +19,7 @@ class Bound(_Task):
     def __post_init__(self):
         _Task.__post_init__(self)
         self.name = f'Bound|{self.name}|'
+        self.parent = None
 
         if self.p and self.m:
             raise ValueError('Task cannot be both plus and minus')
@@ -40,6 +41,10 @@ class Bound(_Task):
     def cns():
         """Constraint"""
         return Bind
+
+    def varbirth_attrs(self):
+        """Attributes of the Variable"""
+        return {'p': self.p, 'm': self.m, 'symbol': self.varsym}
 
 
 @dataclass
@@ -66,3 +71,7 @@ class BoundBound(_Task):
     def cns():
         """Constraint"""
         return Bind
+
+    def varbirth_attrs(self):
+        """Attributes of the Variable"""
+        return {'symbol': self.varsym}

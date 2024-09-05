@@ -14,6 +14,7 @@ class ExactPrm(_Parameter):
     def __post_init__(self):
         _Parameter.__post_init__(self)
 
+
     @property
     def symib(self):
         """Symbolic representation of the Parameter"""

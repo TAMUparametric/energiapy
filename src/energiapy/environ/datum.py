@@ -150,7 +150,6 @@ class Datum(_Dunders):
             # Check whether the input value type is appropriate
             # if not raises an InputTypeError
             self.check_type(val)
-            print(val)
             dict_upd[disp] = val
 
         # update the input with a dictionary {Index: value}
@@ -170,7 +169,7 @@ class Datum(_Dunders):
         Examples:
             Declare some Scenario, Horizon, and Network
             >>> s = Scenario()
-            >>> s.hrz = Horizon(discretizations=[2, 12])
+            >>> s.hrz = Horizon(birth=[2, 12])
             >>> s.ntw = Network(['madgaon', 'ponje'])
             Here we are setting the cash spend at madgaon for t2
             i.e. Do not spend more than 50 money in any time period in Scale t2 at Location madgaon
@@ -254,7 +253,11 @@ class Datum(_Dunders):
                 value,
             )
 
-        if self.attr in self.component.bounds():
+        if (
+            self.attr
+            in self.component.taskmaster.bounds()
+            + self.component.taskmaster.boundbounds()
+        ):
             # Bound inputs cannot be:
             # sets - used only in the special case when there is an incidental parameter
             if not isinstance(value, (int, float, list, bool, DataFrame, tuple)):
@@ -265,7 +268,7 @@ class Datum(_Dunders):
                     value,
                 )
 
-        if self.attr in self.component.exacts():
+        if self.attr in self.component.taskmaster.exacts():
             # Exact inputs cannot be:
             # lists - used for upper and lower bounds
             # bool (True) - used for BigM

@@ -21,7 +21,7 @@ def test_notok_errors(scenario_notok):
     if another Horizon is defined, it should raise a warning
     """
     with pytest.raises(OverWriteError):
-        scenario_notok.h = Horizon(discretizations=[4])
+        scenario_notok.h = Horizon(birth=[4])
     with pytest.raises(NoLabelError):
         scenario_notok.r0 = Cash(basis='basis')
     with pytest.raises(NoBasisError):

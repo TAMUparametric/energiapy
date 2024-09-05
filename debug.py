@@ -6,7 +6,7 @@ from dataclasses import fields, field, dataclass
 s = Scenario(default=True)
 
 # s.h2 = Horizon({'days': 2, 'hours': 12})
-s.hor = Horizon(discretizations=[2, 12])
+s.hor = Horizon(birth=[2, 12])
 s.net = Network(['madgaon', 'ponje', 'cacoda'])  # , link_all=True)
 s.alink = Linkage(source=s.madgaon, sink=s.ponje, bi=True, distance=50)
 s.blink = Linkage(source=s.ponje, sink=s.cacoda, bi=False, distance=80)
