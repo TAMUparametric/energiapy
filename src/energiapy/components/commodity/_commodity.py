@@ -30,11 +30,6 @@ class _Commodity(_Defined, ABC):
         _Defined.__post_init__(self)
 
     @property
-    @abstractmethod
-    def system(self):
-        """System Block"""
-
-    @property
     def locations(self):
         """Locations where Commodity exists"""
         return self._locations

@@ -147,6 +147,7 @@ class _Update(ABC):
 
         # update all the elements related the attributes in the Task Modeling Block
         for attr, cons in programblock.attr_constraints.items():
+            print(attr)
             getattr(self.taskmaster, attr).constraints.extend(cons)
 
         for attr, var in programblock.attr_variables.items():

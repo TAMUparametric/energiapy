@@ -21,42 +21,47 @@ class _Scope(_Component, ABC):
 
     def __post_init__(self):
         _Component.__post_init__(self)
-        # Every Scope has a root partition
-        # This root partition, basiscally the horizon
+        # Every Scope has a root birth
+        # This root birth, basiscally the horizon
         if isinstance(self.birth, int):
             # if only a number is given, then just make
             self.birth = [self.birth]
 
         if isinstance(self.birth, dict):
-            self._partition_list = list(self.birth.values())
-            self._partition_list.insert(0, 1)
-            self.name_partitions = list(self.birth.keys())
-            self.name_partitions.insert(0, self._root())
+            self._birth_list = list(self.birth.values())
+            # self._birth_list.insert(0, 1)
+            self.birth_names = list(self.birth.keys())
+            # self.birth_names.insert(0, self._root())
 
         elif isinstance(self.birth, list):
-            self._partition_list = self.birth
-            self._partition_list.insert(0, 1)
-            self.name_partitions = [
-                f'{self._def_name()}{p}' for p in range(len(self._partition_list))
+            self._birth_list = self.birth
+            # self._birth_list.insert(0, 1)
+            self.birth_names = [
+                f'{self._def_name()}{b}' for b in range(len(self._birth_list))
             ]
 
         else:
             raise ValueError('Partitions must be int, list or dictionary')
 
     @property
+    def index(self):
+        """Index of the Network"""
+        return (self,)
+
+    @property
     @abstractmethod
     def discretizations(self):
-        """Discretizations for the partitions"""
+        """Discretizations for the births"""
 
     @property
     @abstractmethod
     def root(self):
-        """Root partition of the Scope"""
+        """Root birth of the Scope"""
 
     @staticmethod
     @abstractmethod
     def _root():
-        """Name for root partition of the Scope"""
+        """Name for root birth of the Scope"""
 
     @staticmethod
     @abstractmethod
@@ -64,9 +69,9 @@ class _Scope(_Component, ABC):
         """Default name for the Partitions"""
 
     @property
-    def n_partitions(self) -> int:
-        """Returns number of partitions"""
-        return len(self._partition_list)
+    def n_births(self) -> int:
+        """Returns number of births"""
+        return len(self._birth_list)
 
     @property
     def indices(self):
@@ -82,7 +87,7 @@ class _Scope(_Component, ABC):
     def is_multiscale(self):
         """Returns True if problem has multiple scales"""
         # Note that the first scale is always the planning horizon
-        if self.n_partitions > 2:
+        if self.n_births > 2:
             return True
         else:
             return False
@@ -103,7 +108,7 @@ class _Scope(_Component, ABC):
 
         """
 
-        lists = [list(range(i)) for i in self._partition_list]
+        lists = [list(range(i)) for i in self._birth_list]
         if nested:
             return list(product(*lists[: position + 1]))
         else:

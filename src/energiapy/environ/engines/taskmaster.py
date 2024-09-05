@@ -33,7 +33,7 @@ from ...components._attrs._exacts import (
     _UseExacts,
 )
 from ...core._handy._dunders import _Dunders
-from ..report import Report
+from ..tasks.report import Report
 from ..tasks.bound import Bound, BoundBound
 from ..tasks.calculation import Calculation
 from ..tasks.balancing import Balancing
@@ -217,7 +217,18 @@ class _Exacts(_Bounds, _TscExacts, _EmnExacts, _UseExacts, _LseExacts, _RteExact
         )
         # Land and Material (Used)
         self.use_cost = Calculation(
-            name='use_cost', root=Cash, varsym='exp^use', parent=self.use, prmsym='Cost'
+            name='use_cost',
+            root=Cash,
+            varsym='exp^use',
+            parent=self.use,
+            prmsym='Cost^use',
+        )
+        self.dispose_cost = Calculation(
+            name='dispose_cost',
+            root=Cash,
+            varsym='exp^dsp',
+            parent=self.dispose,
+            prmsym='Cost^dsp',
         )
         # Operational
         self.capex = Calculation(

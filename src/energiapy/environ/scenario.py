@@ -46,6 +46,8 @@ from ..components.operation.transit import Transit
 from ..components.spatial.linkage import Linkage
 from ..components.spatial.network import Network
 from ..components.temporal.horizon import Horizon
+from ..components.temporal.scale import Scale
+from ..components.spatial.location import Location
 from ..core._handy._dunders import _Dunders
 from ..core._handy._printers import _Print
 from ..core._report._data import _Vlus
@@ -161,7 +163,7 @@ class Scenario(_Ok, _Default, _Birth, _Update, _ScnCols, _Dunders, _Print):
             # Horizon, Network, Linkages and Storage give birth to new components
             if isinstance(value, Horizon):
                 self.handle_unique_cmp('horizon', value)
-                self.birth_partitions(scope=value)
+                self.birth_partitions(scope=value, birth=Scale)
                 # value.periodize()
                 # once scales are birthed, they are periodized
                 # which creates time periods for each scale
@@ -170,7 +172,7 @@ class Scenario(_Ok, _Default, _Birth, _Update, _ScnCols, _Dunders, _Print):
 
             if isinstance(value, Network):
                 self.handle_unique_cmp('network', value)
-                self.birth_partitions(scope=value)
+                self.birth_partitions(scope=value, birth=Location)
                 if value.link_all:
                     self.birth_all_linkages(network=value)
 

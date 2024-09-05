@@ -33,22 +33,24 @@ class _Birth(ABC):
         Args:
             scope (Horizon | Network): Scope Component
         """
-        for i in range(scope.n_partitions):
+        for i in range(scope.n_births):
             # labels can be provided. or they are set to t0, t1, t2, ...
 
-            if scope.label_partitions:
-                label_partition = scope.label_partitions[i]
+            if scope.birth_labels:
+                birth_label = scope.birth_labels[i]
             else:
-                label_partition = scope.label_partitions
+                birth_label = scope.birth_labels
+
+            if i == 0:
+                parent = scope
+            else:
+                parent = getattr(self, scope.birth_names[i - 1])
 
             # set the scales as attributes of the Scenario
             setattr(
                 self,
-                scope.name_partitions[i],
-                birth(
-                    index=scope.make_index(position=i, nested=scope.nested),
-                    label=label_partition,
-                ),
+                scope.birth_names[i],
+                birth(label=birth_label, parent=parent),
             )
 
     def birth_sib_linkage(self, linkage: Linkage):

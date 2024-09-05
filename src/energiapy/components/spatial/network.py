@@ -32,10 +32,6 @@ class Network(_Scope, _NtwCols):
         """Root partition of the Network"""
         return self.locations[0]
 
-    @property
-    def index(self):
-        """Index of the Network"""
-
     @staticmethod
     def _root():
         """Root partition of the Network"""

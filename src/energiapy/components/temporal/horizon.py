@@ -82,10 +82,6 @@ class Horizon(_Scope, _Scls):
         """Returns the root scale"""
         return self.scales[0]
 
-    @property
-    def index(self):
-        """Index of the Horizon"""
-
     @staticmethod
     def _root():
         """Root partition of the Horizon"""

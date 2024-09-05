@@ -3,9 +3,9 @@
 
 from dataclasses import dataclass, field
 
-from ..core._handy._dunders import _Dunders
-from ..core._handy._printers import _EasyPrint
-from .tasks._task import _Task
+from ...core._handy._dunders import _Dunders
+from ...core._handy._printers import _EasyPrint
+from ._task import _Task
 
 
 @dataclass
