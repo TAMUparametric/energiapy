@@ -36,21 +36,22 @@ class _Birth(ABC):
         for i in range(scope.n_births):
             # labels can be provided. or they are set to t0, t1, t2, ...
 
-            if scope.birth_labels:
-                birth_label = scope.birth_labels[i]
-            else:
-                birth_label = scope.birth_labels
+            # set the scales as attributes of the Scenario
 
-            if i == 0:
+            if not scope.nested or i == 0:
                 parent = scope
-            else:
+
+            elif scope.nested and i > 0:
                 parent = getattr(self, scope.birth_names[i - 1])
 
-            # set the scales as attributes of the Scenario
             setattr(
                 self,
                 scope.birth_names[i],
-                birth(label=birth_label, parent=parent),
+                birth(
+                    label=scope.birth_labels[i],
+                    parent=parent,
+                    discrs=scope.birth_list[i],
+                ),
             )
 
     def birth_sib_linkage(self, linkage: Linkage):

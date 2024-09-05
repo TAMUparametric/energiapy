@@ -2,9 +2,9 @@
 """
 
 from abc import ABC, abstractmethod
-from itertools import product
+from itertools import product, accumulate
 from dataclasses import dataclass, field
-
+from operator import mul
 from ._component import _Component
 
 
@@ -13,14 +13,22 @@ class _Scope(_Component, ABC):
     """These define the spatiotemporal boundaries of the System
     Components which have only one instance in the model
     Horizon and Network are the only scope components
+
+    Attributes:
+        nested: bool, optional, default True
+        birth: int | list[int] | dict[str, int], optional, default 1
+        birth_labels: bool, optional, default False
+
     """
 
-    nested: bool = field(default=True)
     birth: int | list[int] | dict[str, int] = field(default=1)
-    birth_labels: bool = field(default=False)
+    birth_labels: list[str] = field(default=None)
+    nested: bool = field(default=False)
 
     def __post_init__(self):
         _Component.__post_init__(self)
+        self.children = []
+        self.discrs = 1
         # Every Scope has a root birth
         # This root birth, basiscally the horizon
         if isinstance(self.birth, int):
@@ -28,20 +36,26 @@ class _Scope(_Component, ABC):
             self.birth = [self.birth]
 
         if isinstance(self.birth, dict):
-            self._birth_list = list(self.birth.values())
-            # self._birth_list.insert(0, 1)
+            self.birth_list = list(self.birth.values())
+            # self.birth_list.insert(0, 1)
             self.birth_names = list(self.birth.keys())
             # self.birth_names.insert(0, self._root())
 
         elif isinstance(self.birth, list):
-            self._birth_list = self.birth
-            # self._birth_list.insert(0, 1)
+            self.birth_list = self.birth
+            # self.birth_list.insert(0, 1)
             self.birth_names = [
-                f'{self._def_name()}{b}' for b in range(len(self._birth_list))
+                f'{self._def_name()}{b}' for b in range(len(self.birth_list))
             ]
 
         else:
             raise ValueError('Partitions must be int, list or dictionary')
+
+        if self.nested:
+            self.birth_list = list(accumulate(self.birth_list, mul))
+
+        if not self.birth_labels:
+            self.birth_labels = [None for _ in range(self.n_births)]
 
     @property
     def index(self):
@@ -71,7 +85,7 @@ class _Scope(_Component, ABC):
     @property
     def n_births(self) -> int:
         """Returns number of births"""
-        return len(self._birth_list)
+        return len(self.birth_list)
 
     @property
     def indices(self):
@@ -105,10 +119,9 @@ class _Scope(_Component, ABC):
         Args:
             position: int
             nested: bool, optional, default True
-
         """
 
-        lists = [list(range(i)) for i in self._birth_list]
+        lists = [list(range(i)) for i in self.birth_list]
         if nested:
             return list(product(*lists[: position + 1]))
         else:

@@ -4,7 +4,7 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 
-from .._base._discretization import _Discr
+from .._base._discr import _Discr
 
 
 @dataclass
