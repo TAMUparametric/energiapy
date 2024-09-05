@@ -26,7 +26,6 @@ class ChitraGupta(_Dunders):
     taskmaster: Chanakya = field(default=None)
 
     def __post_init__(self):
-
         self.name = f'Registrar|{self.name}|'
         self.pbounds, self.mbounds, self.boundbounds, self.calculations = (
             {} for _ in range(4)
@@ -39,6 +38,8 @@ class ChitraGupta(_Dunders):
             task (Bound | BoundBound | Calculation): task
             index (Index): index
         """
+
+
 
         if isinstance(task, Bound):
             collection = (
