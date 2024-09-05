@@ -19,7 +19,8 @@ from ._block import _Block
 from .data import DataBlock
 
 if TYPE_CHECKING:
-    from ...environ.tasks.bound import Bound, BoundBound
+    from ...environ.tasks.bound import Bound
+    from ...environ.tasks.boundbound import BoundBound
     from ...environ.tasks.calculation import Calculation
 
 
@@ -48,7 +49,9 @@ class _Fish:
         if n_catch == 0:
             return False
 
-    def fish_var(self, var: IsVar, index: Index) -> IsVar:
+    def fish_var(
+        self, var: IsVar, index: Index, task: Bound | BoundBound | Calculation
+    ) -> IsVar:
         """Fishes for an existing variable at a particular index in the Program
 
         The idea is that we should have a unique instance of any Program element
@@ -67,9 +70,9 @@ class _Fish:
         # seaches for the index in the ProgramBlock and check for multiple instances
         return self.taste_catch(
             [
-                e
-                for e in getattr(self, 'variables')
-                if isinstance(e, var) and e.index == index
+                v
+                for v in getattr(self, 'variables')
+                if isinstance(v, var) and v.index == index and v.symbol == task.varsym
             ]
         )
 
@@ -154,6 +157,7 @@ class ProgramBlock(_Fish, _Dunders, _Print):
 
             # This fishes for an existing Variable
             # if not found births one
+
             variable = self.birth_var(index=value.index, task=task)
 
             # The Variable can have a:
@@ -211,7 +215,7 @@ class ProgramBlock(_Fish, _Dunders, _Print):
         var = task.var()
 
         # Fish for an existing variable in the ProgramBlock
-        catch = self.fish_var(var=var, index=index)
+        catch = self.fish_var(var=var, index=index, task=task)
 
         if catch:
             # if found return the existing variable
@@ -219,7 +223,9 @@ class ProgramBlock(_Fish, _Dunders, _Print):
 
         else:
             # if nothing found look in the full Program Model Block
-            catch = self.component.program_full.fish_var(var=var, index=index)
+            catch = self.component.program_full.fish_var(
+                var=var, index=index, task=task
+            )
 
             if catch:
                 # if found in Program Model Block, return the existing variable

@@ -94,6 +94,10 @@ class Index(_Dunders):
             if not isinstance(getattr(self, f.name), child)
         }
 
+    def disp(self):
+        """Gives the disposition of the Index"""
+        return {f.name: getattr(self, f.name) for f in fields(self)}
+
     def __len__(self):
         return len(self.scl)
 

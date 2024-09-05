@@ -34,7 +34,8 @@ from ...components._attrs._exacts import (
 )
 from ...core._handy._dunders import _Dunders
 from ..tasks.report import Report
-from ..tasks.bound import Bound, BoundBound
+from ..tasks.bound import Bound
+from ..tasks.boundbound import BoundBound
 from ..tasks.calculation import Calculation
 from ..tasks.balancing import Balancing
 

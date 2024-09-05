@@ -7,7 +7,8 @@ from .taskmaster import Chanakya
 from ...core._handy._dunders import _Dunders
 from ...core.nirop.errors import CacodcarError
 from ...elements.disposition.index import Index
-from ...environ.tasks.bound import Bound, BoundBound
+from ...environ.tasks.bound import Bound
+from ...environ.tasks.boundbound import BoundBound
 from ...environ.tasks.calculation import Calculation
 
 

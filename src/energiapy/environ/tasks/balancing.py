@@ -12,7 +12,7 @@ from ...core.isalias.cmps.isdfn import IsOpn
 from ...components.commodity.resource import Resource
 
 if TYPE_CHECKING:
-    from .bound import BoundBound
+    from .boundbound import BoundBound
 
 
 @dataclass
