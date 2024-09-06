@@ -6,7 +6,8 @@ from dataclasses import dataclass, fields
 from ...elements.parameters.balances.inventory import Inventory
 from .._attrs._balances import _StgBalance
 from .._attrs._birthing import _StgBirthing
-from .._attrs._bounds import _OpnBounds, _StgBounds
+from .._attrs._bounds import _OpnBounds
+from .._attrs._boundbounds import _StgBounds
 from .._attrs._exacts import _StgExacts
 from .._attrs._spatials import _LocCollection
 from ._birther import _Birther

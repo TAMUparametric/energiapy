@@ -19,12 +19,10 @@ from ...components._attrs._bounds import (
     _EmnBounds,
     _OpnBounds,
     _PlyBounds,
-    _ProBounds,
     _ResBounds,
-    _StgBounds,
-    _TrnBounds,
     _UsdBounds,
 )
+from ...components._attrs._boundbounds import _ProBounds, _StgBounds, _TrnBounds
 from ...components._attrs._exacts import (
     _EmnExacts,
     _LseExacts,

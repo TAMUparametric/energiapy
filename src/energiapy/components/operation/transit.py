@@ -5,7 +5,8 @@ from dataclasses import dataclass, fields
 
 from ...elements.parameters.balances.freight import Freight
 from .._attrs._balances import _TrnBalance
-from .._attrs._bounds import _OpnBounds, _TrnBounds
+from .._attrs._bounds import _OpnBounds
+from .._attrs._boundbounds import _TrnBounds
 from .._attrs._exacts import _TrnExacts
 from .._attrs._spatials import _LnkCollection
 from ._birther import _Birther
