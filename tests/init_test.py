@@ -22,10 +22,11 @@ from src.energiapy.components.temporal.scale import Scale
 from src.energiapy.elements.parameters.balances.conversion import Conversion
 from src.energiapy.elements.parameters.balances.freight import Freight
 from src.energiapy.elements.parameters.balances.inventory import Inventory
-from src.energiapy.environ.blocks.data import Data, DataBlock
-from src.energiapy.environ.blocks.matrix import Matrix
-from src.energiapy.environ.blocks.program import Program, ProgramBlock
-from src.energiapy.environ.blocks.system import System
+from src.energiapy.environ.renditions.data import Data
+from src.energiapy.environ.renditions.blocks.datablock import DataBlock
+from src.energiapy.environ.renditions.matrix import Matrix
+from src.energiapy.environ.renditions.program import Program, ProgramBlock
+from src.energiapy.environ.renditions.system import System
 from src.energiapy.environ.datum import Datum
 from src.energiapy.environ.engines.taskmaster import Chanakya
 from src.energiapy.environ.model import Model

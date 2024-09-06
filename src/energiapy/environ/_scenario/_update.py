@@ -8,8 +8,8 @@ from abc import ABC, abstractmethod
 from ...components.temporal.horizon import Horizon
 from ...core.isalias.cmps.iscmp import IsUnq
 from ...core.isalias.cmps.isdfn import IsDfn, IsOpn
-from ..blocks.data import DataBlock
-from ..blocks.program import ProgramBlock
+from ..renditions.blocks.datablock import DataBlock
+from ..renditions.program import ProgramBlock
 
 
 class _Update(ABC):

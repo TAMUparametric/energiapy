@@ -28,7 +28,7 @@ from ._dummy import _Dummy
 
 if TYPE_CHECKING:
     from ...environ.engines.taskmaster import Chanakya
-    from ...environ.blocks.system import System
+    from ...environ.renditions.system import System
 
 
 class _Consistent(ABC):

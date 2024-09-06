@@ -10,17 +10,17 @@ Includes:
 from dataclasses import dataclass, field
 
 from ..core._handy._dunders import _Dunders
-from .blocks.data import Data
-from .blocks.matrix import Matrix
-from .blocks.program import Program
-from .blocks.system import System
+from .renditions.data import Data
+from .renditions.matrix import Matrix
+from .renditions.program import Program
+from .renditions.system import System
 from .engines.registrar import ChitraGupta
 from .engines.taskmaster import Chanakya
 
 
 @dataclass
-class Blocks(_Dunders):
-    """Individual Blocks of the Model
+class Renditions(_Dunders):
+    """Individual Renditions of the Model
 
     Attributes:
         name (str): name, takes from the name of the Scenario
@@ -68,7 +68,7 @@ class Model(_Dunders):
 
     def __post_init__(self):
 
-        self.blocks = Blocks(name=self.name)
+        self.blocks = Renditions(name=self.name)
         self.engines = Engines(name=self.name)
         # Update name after setting the rest
         # The name of the scenario is taken as is
