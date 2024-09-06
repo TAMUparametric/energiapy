@@ -79,6 +79,11 @@ class Datum(_Dunders):
         """Returns the Index of the input"""
         return {i: val for i, val in enumerate(list(self.data.values()))}
 
+    @property
+    def register(self):
+        """Registrar"""
+        return self.component.registrar
+
     def update_data(self):
         """Updates the data
         Returns:
@@ -130,7 +135,7 @@ class Datum(_Dunders):
                 if isinstance(cmp, X):
                     mde = cmp
 
-            disp = Index(
+            index = Index(
                 ply=ply,
                 emn=emn,
                 csh=csh,
@@ -147,10 +152,12 @@ class Datum(_Dunders):
                 mde=mde,
             )
 
+            self.register.register(self.attr, index)
+
             # Check whether the input value type is appropriate
             # if not raises an InputTypeError
             self.check_type(val)
-            dict_upd[disp] = val
+            dict_upd[index] = val
 
         # update the input with a dictionary {Index: value}
         self.data = dict_upd

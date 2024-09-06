@@ -275,3 +275,31 @@ class Chanakya(_BoundAttrs, _BoundBoundAttrs, _ExactAttrs, _BalanceAttrs, _Dunde
     def inputs(self):
         """Returns all Inputs"""
         return self.bounds() + self.exacts() + self.boundbounds()
+
+    def get(self, task: str):
+        """Returns the Task"""
+        return getattr(self, task)
+
+    def var(self, task: str):
+        """Returns the Variable"""
+        return self.get(task).var()
+
+    def prm(self, task: str):
+        """Returns the Parameter"""
+        return self.get(task).prm()
+
+    def cns(self, task: str):
+        """Returns the Constraint"""
+        return self.get(task).cns()
+
+    def varsym(self, task: str):
+        """Returns the Variable Symbol"""
+        return self.get(task).varsym
+
+    def prmsym(self, task: str):
+        """Returns the Parameter Symbol"""
+        return self.get(task).prmsym
+
+    def varbirth_attrs(self, task: str):
+        """Returns the Variable Attributes"""
+        return self.get(task).varbirth_attrs()

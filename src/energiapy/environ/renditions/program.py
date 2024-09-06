@@ -59,14 +59,27 @@ class ProgramBlock(_Dunders, _Print):
         super().__setattr__(name, datablock)
 
     def birth_elements(self, data: IsVal, attr: str):
+        pass
+        # index = self.registrar.fish(data.index)
 
-        # Each datapoint has a disposition
-        # This is defined by the Index
-        index = data.index
+        # self.registrar.register(attr, index)
 
-        # each datapoint in turn, generated as a variable, parameter, and constraint
+        # task = self.taskmaster.get(attr)
+        # var = task.var()
 
+        # varbirth_attrs = self.task.varbirth_attrs()
 
+        # variable = var(index = index, component = self.component, **varbirth_attrs)
+
+        # if task.parent:
+
+        #     idx_parent = self.registrar.fish(index)
+
+        # index = self.registrar.fish(data.index)
+
+        # if not index:
+        #     index =
+        # self.registrar.register(attr, index)
 
     @property
     def taskmaster(self) -> Chanakya:
@@ -77,16 +90,6 @@ class ProgramBlock(_Dunders, _Print):
     def registrar(self) -> ChitraGupta:
         """Returns the Registrar"""
         return self.component.registrar
-
-    @property
-    def dispositions(self):
-        """Returns all indices in the ProgramBlock"""
-        return [i.disposition for i in self.indices]
-
-    @property
-    def var_types(self):
-        """Returns all variables types already declared in the ProgramBlock"""
-        return [type(i) for i in self.variables]
 
     def eqns(self, at_cmp: IsDfn = None, at_disp: IsDsp = None):
         """Yields all equations in the ProgramBlock

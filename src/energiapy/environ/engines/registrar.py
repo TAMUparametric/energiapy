@@ -7,9 +7,6 @@ from .taskmaster import Chanakya
 from ...core._handy._dunders import _Dunders
 from ...core.nirop.errors import CacodcarError
 from ...elements.disposition.index import Index
-from ...elements.constraints.bound import Bound
-from ...elements.constraints.boundbound import BoundBound
-from ...elements.constraints.calculate import Calculation
 
 
 @dataclass
@@ -32,18 +29,41 @@ class ChitraGupta(_Dunders):
         for attr in self.taskmaster.inputs():
             setattr(self, attr, [])
 
-    def register(self, task: Bound | BoundBound | Calculation, index: Index):
+    def fish(self, index: Index):
+        """Fish the tasks declared at a particular Index
+
+        Args:
+            index (Index): index
+        """
+        if index in self.indices():
+            return self.indices()[self.indices().index(index)]
+        else:
+            return None
+
+    def register(self, attr: str, index: Index):
         """Register that a Variable or Parameter has been declared at a particular Index
 
         Args:
-            task (Bound | BoundBound | Calculation): task
+            attr (str) : task
             index (Index): index
         """
 
-        task_attr = getattr(self, task.attr)
+        task_attr = getattr(self, attr)
 
         if index in task_attr:
-            raise CacodcarError(f'{task} already has {index} in {self.name}')
+            raise CacodcarError(f'{attr} already has {index} in {self.name}')
 
         else:
-            setattr(self, task.attr, task_attr + [index])
+            setattr(self, attr, task_attr + [index])
+
+    def indices(self):
+        """_summary_
+
+        Args:
+            attr (str): _description_
+        """
+        return sum([getattr(self, attr) for attr in self.inputs()], [])
+
+    def inputs(self):
+        """Returns Inputs"""
+        return self.taskmaster.inputs()
