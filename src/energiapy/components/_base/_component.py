@@ -63,10 +63,6 @@ class _Component(_Dunders):
         """Chanakya of the Scenario"""
         return self._model.taskmaster
 
-    @property
-    def rulebook(self):
-        """Bhaskara of the Scenario"""
-        return self._model.rulebook
 
     @property
     def registrar(self):

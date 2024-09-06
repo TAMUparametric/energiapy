@@ -24,10 +24,10 @@ class _Task(_Dunders, _EasyPrint):
     prmsym: str = field(default=None)
 
     def __post_init__(self):
+        self.attr = self.name
         # Elements associated with the attribute
         self.values = []
         self.parameters = []
         self.constraints = []
         self.variables = []
         self.indices = []
-

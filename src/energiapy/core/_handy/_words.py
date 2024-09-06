@@ -36,7 +36,7 @@ reserved_collection = [
 
 
 reserved_block = ['program', 'data', 'matrix', 'system', 'model']
-reserved_engine = ['engines', 'registrar', 'taskmaster', 'tasks', 'rulebook', 'rules']
+reserved_engine = ['engines', 'registrar', 'taskmaster', 'tasks']
 
 reserved = (
     reserved_component

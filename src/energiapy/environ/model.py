@@ -15,7 +15,6 @@ from .blocks.matrix import Matrix
 from .blocks.program import Program
 from .blocks.system import System
 from .engines.registrar import ChitraGupta
-from .engines.rulebook import Bhaskara
 from .engines.taskmaster import Chanakya
 
 
@@ -51,8 +50,7 @@ class Engines(_Dunders):
 
     def __post_init__(self):
         self.taskmaster = Chanakya(name=self.name)
-        self.rulebook = Bhaskara(name=self.name)
-        self.registrar = ChitraGupta(name=self.name)
+        self.registrar = ChitraGupta(name=self.name, taskmaster=self.taskmaster)
         # Update name after setting the rest
         # The name of the scenario is taken as is
         self.name = f'{self.cname()}|{self.name}|'
@@ -100,11 +98,6 @@ class Model(_Dunders):
     def taskmaster(self):
         """Taskmaster Engine"""
         return self.engines.taskmaster
-
-    @property
-    def rulebook(self):
-        """Rulebook Engine"""
-        return self.engines.rulebook
 
     @property
     def registrar(self):

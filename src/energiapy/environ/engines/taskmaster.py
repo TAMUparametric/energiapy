@@ -533,3 +533,7 @@ class Chanakya(_Balances, _Dunders):
     def birth_attrs(self, task: str):
         """Returns all Attributes need to birth Variables"""
         return getattr(self, task).birth_attrs()
+
+    def inputs(self):
+        """Returns all Inputs"""
+        return self.bounds() + self.exacts() + self.boundbounds()

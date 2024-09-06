@@ -27,9 +27,10 @@ class ChitraGupta(_Dunders):
 
     def __post_init__(self):
         self.name = f'Registrar|{self.name}|'
-        self.pbounds, self.mbounds, self.boundbounds, self.calculations = (
-            {} for _ in range(4)
-        )
+
+        # make a list to store all the indices at which the task is declared
+        for attr in self.taskmaster.inputs():
+            setattr(self, attr, [])
 
     def register(self, task: Bound | BoundBound | Calculation, index: Index):
         """Register that a Variable or Parameter has been declared at a particular Index
@@ -39,25 +40,10 @@ class ChitraGupta(_Dunders):
             index (Index): index
         """
 
+        task_attr = getattr(self, task.attr)
 
-
-        if isinstance(task, Bound):
-            collection = (
-                getattr(self, 'pbounds') if task.p else getattr(self, 'mbounds')
-            )
-
-        if isinstance(task, BoundBound):
-            collection = getattr(self, 'boundbounds')
-
-        if isinstance(task, Calculation):
-            collection = getattr(self, 'calculations')
-
-        if task.name in collection:
-
-            if index in collection[task.name]:
-                raise CacodcarError(f'{task} already has {index} in {self.name}')
-
-            collection[task.name].append(index)
+        if index in task_attr:
+            raise CacodcarError(f'{task} already has {index} in {self.name}')
 
         else:
-            collection[task.name] = [index]
+            setattr(self, task.attr, task_attr + [index])

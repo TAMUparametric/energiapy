@@ -240,11 +240,6 @@ class Scenario(_Ok, _Default, _Birth, _Update, _ScnCols, _Dunders, _Print):
         return self.taskmaster
 
     @property
-    def rulebook(self):
-        """Bhaskara of the Scenario"""
-        return self.model.rulebook
-
-    @property
     def components(self):
         """All Components of the System"""
         return self.system.components()

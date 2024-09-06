@@ -139,8 +139,6 @@ class ProgramBlock(_Fish, _Dunders, _Print):
         Variables know what Parameters or Parent Variable they need
         Those are generated if not already made
 
-        rulebook knows the rule to generate constriant
-
         Args:
             value(IsVal): Is M, Theta, DataSet, Constant
 
