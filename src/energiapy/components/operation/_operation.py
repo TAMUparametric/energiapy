@@ -2,16 +2,19 @@
 """
 
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
+from dataclasses import dataclass, fields
 
 from pandas import DataFrame
 
 from ...utils.scaling import scaling
 from .._base._defined import _Defined
+from .._attrs._bounds import _OpnBounds
+from .._attrs._boundbounds import _OpnBoundBounds
+from .._attrs._exacts import _OpnExacts
 
 
 @dataclass
-class _Operation(_Defined, ABC):
+class _Operation(_OpnBounds, _OpnBoundBounds, _OpnExacts, _Defined, ABC):
     """Base for Operational Components
 
     Attributes:
@@ -25,15 +28,9 @@ class _Operation(_Defined, ABC):
 
     def __post_init__(self):
         _Defined.__post_init__(self)
-        self.operate = self._operate
-        if isinstance(self._operate, DataFrame):
+        if isinstance(self.operate, DataFrame):
             self.operate = scaling(data=self.operate, how='max')
         self._balanced = False
-
-    @property
-    @abstractmethod
-    def _operate(self):
-        """Returns attribute value that signifies operating bounds"""
 
     @staticmethod
     @abstractmethod
@@ -54,6 +51,14 @@ class _Operation(_Defined, ABC):
     @abstractmethod
     def resources(self):
         """Resources used in the Operation"""
+
+    @staticmethod
+    def inputs():
+        """Input attributes"""
+        return [
+            f.name
+            for f in fields(_OpnBounds) + fields(_OpnBoundBounds) + fields(_OpnExacts)
+        ]
 
     @property
     def materials(self):

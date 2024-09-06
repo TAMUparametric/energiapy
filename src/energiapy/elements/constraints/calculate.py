@@ -1,17 +1,55 @@
-"""Constraint to calculate Variable. There is usually a parent Variable associated"""
+"""Calculates the value of a Variable based on the Parent Task
+"""
 
-from dataclasses import dataclass
+from __future__ import annotations
 
+from typing import TYPE_CHECKING
 
+from dataclasses import dataclass, field
 from ._constraint import _Constraint
+from ..variables.exactvar import ExactVar
+from .rules.calculation import Calculation
+from ..parameters.exactprm import ExactPrm
+
+if TYPE_CHECKING:
+    from .bound import Bound
 
 
 @dataclass
 class Calculate(_Constraint):
-    """Calculates; transactions, emissions, etc."""
+    """Calculation Task
+    Handles the attributes of components
+    Defines strict behaviour
+
+    Attributes:
+        var (IsVar): Task Variable
+    """
+
+    parent: Bound = field(default=None)
+    friend: Bound = field(default=None)
 
     def __post_init__(self):
         _Constraint.__post_init__(self)
+        self.prmsym = f'{self.friend.prmsym}^{self.parent.varsym}'
+        self.varsym = f'{self.friend.varsym}^{self.parent.varsym}'
+        self.attr = f'{self.parent.name}_{self.friend.name}'
+        self.name = f'Calculate|{self.attr}|'
 
-        # calculations always have an equality sign
-        self.birth_equation(eq='==', par=self.parameter, prn=self.parent)
+    @staticmethod
+    def var():
+        """Variable"""
+        return ExactVar
+
+    @staticmethod
+    def prm():
+        """Parameter"""
+        return ExactPrm
+
+    @staticmethod
+    def cns():
+        """Constraint"""
+        return Calculation
+
+    def varbirth_attrs(self):
+        """Attributes of the Variable"""
+        return {'symbol': self.varsym}

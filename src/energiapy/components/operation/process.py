@@ -1,15 +1,11 @@
 """Process converts one Resource to another Resource
 """
 
-from dataclasses import dataclass, fields
-
+from dataclasses import dataclass
 from ...elements.parameters.balances.conversion import Conversion
 from .._attrs._balances import _ProBalance
-from .._attrs._bounds import _OpnBounds
-from .._attrs._boundbounds import _ProBounds
 
-from .._attrs._exacts import _ProExacts
-from .._attrs._spatials import _LocCollection
+from .._attrs._spatial import _LocCollection
 from ._operation import _Operation
 from ..spatial.location import Location
 
@@ -18,9 +14,6 @@ from ..spatial.location import Location
 class Process(
     _ProBalance,
     _LocCollection,
-    _OpnBounds,
-    _ProBounds,
-    _ProExacts,
     _Operation,
 ):
     """Process converts one Resource to another Resource
@@ -85,24 +78,9 @@ class Process(
         return self.conversion.balance
 
     @property
-    def _operate(self):
-        """Returns attribute value that signifies operating bounds"""
-        if self.produce:
-            return self.produce
-        else:
-            return [1]
-
-    @property
     def is_balanced(self):
         """The Process conversion is Conversion"""
         return self._balanced
-
-    @staticmethod
-    def inputs():
-        """Input attributes"""
-        return [
-            f.name for f in fields(_OpnBounds) + fields(_ProBounds) + fields(_ProExacts)
-        ]
 
     @property
     def resources(self):

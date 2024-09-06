@@ -20,9 +20,9 @@ from .blocks.datablock import DataBlock
 
 
 if TYPE_CHECKING:
-    from ...environ.tasks.bound import Bound
-    from ...environ.tasks.boundbound import BoundBound
-    from ...environ.tasks.calculation import Calculation
+    from ...elements.constraints.bound import Bound
+    from ...elements.constraints.boundbound import BoundBound
+    from ...elements.constraints.calculate import Calculation
     from ..engines.taskmaster import Chanakya
     from ..engines.registrar import ChitraGupta
     from ..datum import Datum

@@ -1,14 +1,11 @@
 """Transit moves Resources between Locations
 """
 
-from dataclasses import dataclass, fields
+from dataclasses import dataclass
 
 from ...elements.parameters.balances.freight import Freight
 from .._attrs._balances import _TrnBalance
-from .._attrs._bounds import _OpnBounds
-from .._attrs._boundbounds import _TrnBounds
-from .._attrs._exacts import _TrnExacts
-from .._attrs._spatials import _LnkCollection
+from .._attrs._spatial import _LnkCollection
 from ._birther import _Birther
 from ..spatial.linkage import Linkage
 
@@ -16,9 +13,6 @@ from ..spatial.linkage import Linkage
 @dataclass
 class Transit(
     _TrnBalance,
-    _OpnBounds,
-    _TrnBounds,
-    _TrnExacts,
     _LnkCollection,
     _Birther,
 ):
@@ -58,24 +52,9 @@ class Transit(
         self.setup_in = self.setup_out = self.setup
 
     @property
-    def _operate(self):
-        """Returns attribute value that signifies operating bounds"""
-        if self.transport:
-            return self.transport
-        else:
-            return [1]
-
-    @property
     def balance(self):
         """Balance attribute"""
         return self.freight
-
-    @staticmethod
-    def inputs():
-        """Input attributes"""
-        return [
-            f.name for f in fields(_OpnBounds) + fields(_TrnBounds) + fields(_TrnExacts)
-        ]
 
     @staticmethod
     def at():

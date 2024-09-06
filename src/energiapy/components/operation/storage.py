@@ -1,15 +1,13 @@
 """Storage - Stashes Resource to Withdraw Later
 """
 
-from dataclasses import dataclass, fields
+from dataclasses import dataclass
 
 from ...elements.parameters.balances.inventory import Inventory
 from .._attrs._balances import _StgBalance
-from .._attrs._birthing import _StgBirthing
-from .._attrs._bounds import _OpnBounds
-from .._attrs._boundbounds import _StgBounds
-from .._attrs._exacts import _StgExacts
-from .._attrs._spatials import _LocCollection
+from .._attrs._births import _StgBirthing
+
+from .._attrs._spatial import _LocCollection
 from ._birther import _Birther
 from ..spatial.location import Location
 
@@ -17,9 +15,6 @@ from ..spatial.location import Location
 @dataclass
 class Storage(
     _StgBalance,
-    _OpnBounds,
-    _StgBounds,
-    _StgExacts,
     _StgBirthing,
     _LocCollection,
     _Birther,
@@ -56,21 +51,6 @@ class Storage(
 
     def __post_init__(self):
         _Birther.__post_init__(self)
-
-    @property
-    def _operate(self):
-        """Returns attribute value that signifies operating bounds"""
-        if self.store:
-            return self.store
-        else:
-            return [1]
-
-    @staticmethod
-    def inputs():
-        """Input attributes"""
-        return [
-            f.name for f in fields(_OpnBounds) + fields(_StgBounds) + fields(_StgExacts)
-        ]
 
     @property
     def balance(self):

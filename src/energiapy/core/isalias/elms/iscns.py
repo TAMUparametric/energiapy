@@ -3,8 +3,8 @@
 
 from typing import TypeAlias
 
-from ....elements.constraints.bind import Bind
-from ....elements.constraints.calculate import Calculate
-from ....elements.constraints.sumover import SumOver
+from ....elements.constraints.rules.bind import Bind
+from ....elements.constraints.rules.calculation import Calculate
+from ....elements.constraints.rules.summation import SumOver
 
 IsCns: TypeAlias = Bind | Calculate | SumOver

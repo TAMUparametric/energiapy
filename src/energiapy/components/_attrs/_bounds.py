@@ -1,20 +1,14 @@
 """Bound Input attributes for all Defined Components
 """
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, fields
 
 from ...core.isalias.inps.isinp import IsBnd
 
 
 @dataclass
 class _PlyBounds:
-    """Bounds for Players
-
-    Attributes:
-        has (IsBnd): what a Player has
-        needs (IsBnd): what a Player needs
-
-    """
+    """Bounds for Players"""
 
     has: IsBnd = field(default=None)
     needs: IsBnd = field(default=None)
@@ -22,13 +16,7 @@ class _PlyBounds:
 
 @dataclass
 class _CshBounds:
-    """Bounds for Cash
-
-    Attributes:
-        spend (IsBnd): bound on spending
-        earn (IsBnd): bound on earning
-
-    """
+    """Bounds for Cash"""
 
     spend: IsBnd = field(default=None)
     earn: IsBnd = field(default=None)
@@ -36,13 +24,7 @@ class _CshBounds:
 
 @dataclass
 class _EmnBounds:
-    """Bounds for Emission
-
-    Attributes:
-        emit (IsBnd): bound on how much is discharged
-        sequester (IsBnd): bound on how much is abated
-
-    """
+    """Bounds for Emission"""
 
     emit: IsBnd = field(default=None)
     sequester: IsBnd = field(default=None)
@@ -50,12 +32,7 @@ class _EmnBounds:
 
 @dataclass
 class _UsdBounds:
-    """Bounds for Land and Material (Used)
-
-    Attributes:
-        use (IsBnd): bound on how much is used
-        dispose (IsBnd): bound on how much is disposed
-    """
+    """Bounds for Land and Material (Used)"""
 
     use: IsBnd = field(default=None)
     dispose: IsBnd = field(default=None)
@@ -63,36 +40,43 @@ class _UsdBounds:
 
 @dataclass
 class _ResBounds:
-    """Bounds for Resources
-
-    Attributes:
-        buy (IsBnd): bound on amount bought at Location
-        sell (IsBnd): bound on amount sold at Location
-        ship (IsBnd): bound on amount shipped from Linkage
-        recieve (IsBnd): bound on amount recieved from Linkage
-        lose (IsBnd): bound on amount lost at Location or Linkage
-        recover (IsBnd): bound on amount recovered at Location or between Linkage
-    """
+    """Bounds for Resources"""
 
     # Trade at Locations
     buy: IsBnd = field(default=None)
     sell: IsBnd = field(default=None)
     # Trade between Linkages
+    # Linkages go in one direction
     ship: IsBnd = field(default=None)
     # Lose at Location or between Linkage
     lose: IsBnd = field(default=None)
+    recover: IsBnd = field(default=None)
 
 
 @dataclass
 class _OpnBounds:
-    """Bounds for Operational Components
-
-    Attributes:
-        setup (IsBnd): bound on how much capacity can be setup
-        dismantle (IsBnd): bound on how much capacity can be dismantled
-    """
+    """Bounds for Operational Components"""
 
     setup: IsBnd = field(default=None)
     dismantle: IsBnd = field(default=None)
 
 
+class _BoundAttrs:
+    @staticmethod
+    def bounds():
+        """Returns all Bounds"""
+
+        return sum(
+            [
+                [f.name for f in fields(bnds)]
+                for bnds in [
+                    _PlyBounds,
+                    _CshBounds,
+                    _EmnBounds,
+                    _UsdBounds,
+                    _ResBounds,
+                    _OpnBounds,
+                ]
+            ],
+            [],
+        )

@@ -1,4 +1,4 @@
-"""Calculates the value of a Variable based on the Parent Task
+"""Adds temporal lag to an event 
 """
 
 from __future__ import annotations
@@ -6,30 +6,27 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from dataclasses import dataclass, field
-from ._task import _Task
-from ...elements.variables.exactvar import ExactVar
-from ...elements.constraints.calculate import Calculate
-from ...elements.parameters.exactprm import ExactPrm
+from ._constraint import _Constraint
+from ..variables.exactvar import ExactVar
+from .rules.delay import Delay
+from ..parameters.exactprm import ExactPrm
 
 if TYPE_CHECKING:
     from .bound import Bound
 
 
 @dataclass
-class Calculation(_Task):
-    """Calculation Task
-    Handles the attributes of components
-    Defines strict behaviour
-
-    Attributes:
-        var (IsVar): Task Variable
-    """
+class Lag(_Constraint):
+    """Adds lag"""
 
     parent: Bound = field(default=None)
 
     def __post_init__(self):
-        _Task.__post_init__(self)
-        self.name = f'Calculation|{self.name}|'
+        _Constraint.__post_init__(self)
+        self.prmsym = f'τ^{self.parent.varsym}'
+        self.varsym = f'{self.parent.varsym}^lag'
+        self.attr = f'{self.parent.name}_time'
+        self.name = f'Lag|{self.attr}|'
 
     @staticmethod
     def var():
@@ -44,7 +41,7 @@ class Calculation(_Task):
     @staticmethod
     def cns():
         """Constraint"""
-        return Calculate
+        return Delay
 
     def varbirth_attrs(self):
         """Attributes of the Variable"""

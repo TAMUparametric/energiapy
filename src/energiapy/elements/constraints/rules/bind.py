@@ -1,18 +1,18 @@
-"""Constraint to Bind variable to a lower or upper Parameter or Variable (or both) Bound
+"""Constraint Rule to Bind variable to a lower or upper Parameter or Variable (or both) Bound
 """
 
 from dataclasses import dataclass
 
-from ..disposition.bound import VarBnd
-from ._constraint import _Constraint
+from ...disposition.bound import VarBnd
+from ._rule import _Rule
 
 
 @dataclass
-class Bind(_Constraint):
+class Bind(_Rule):
     """Bind variable to another variable or parameter"""
 
     def __post_init__(self):
-        _Constraint.__post_init__(self)
+        _Rule.__post_init__(self)
         # Check the bound and add to name and make equality sign
         if self.varbnd == VarBnd.LB:
             eq = '>='

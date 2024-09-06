@@ -8,9 +8,10 @@ from ....elements.parameters.balances.freight import Freight
 from ....elements.parameters.balances.inventory import Inventory
 
 from ....elements.parameters.boundprm import BoundPrm
+from ....elements.parameters.boundboundprm import BoundBoundPrm
 from ....elements.parameters.exactprm import ExactPrm
 
 IsCnv: TypeAlias = Conversion | Freight | Inventory
 
 # All Parameters
-IsPrm: TypeAlias = BoundPrm | ExactPrm
+IsPrm: TypeAlias = BoundPrm | ExactPrm | BoundBoundPrm

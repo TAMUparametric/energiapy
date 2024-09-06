@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
-from ._task import _Task
+from ._constraint import _Constraint
 
 from ...core.isalias.inps.isblc import IsBlc
 from ...core.isalias.cmps.isdfn import IsOpn
@@ -16,14 +16,16 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class Balancing(_Task):
+class Balance(_Constraint):
     """Balances the flow of Resource in Operations"""
 
+    attr: str = field(default=None)
     balance: IsBlc = field(default=None)
     opn: IsOpn = field(default=None)
     parent: BoundBound = field(default=None)
+    prmsym: str = field(default=None)
 
     def __post_init__(self):
-        _Task.__post_init__(self)
+        _Constraint.__post_init__(self)
         self.root = Resource
-        self.name = f'Balancing|{self.name}|'
+        self.name = f'Balance|{self.attr}|'

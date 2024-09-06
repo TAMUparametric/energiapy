@@ -1,42 +1,29 @@
 """Bound Bound Input attributes for all Defined Components
 """
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, fields
 
 from ...core.isalias.inps.isinp import IsBnd
 
 
 @dataclass
-class _ProBounds:
-    """Bounds for Process
+class _OpnBoundBounds:
+    """Bound Bounds for Operational Components
 
     Attributes:
-        setup (IsBnd): bound on how much capacity can be setup
-        produce (IsBnd): bound on how much capacity can be utilized (operated)
+        operate (IsBnd): bound on how much capacity (setup) can be utilized
     """
 
-    produce: IsBnd = field(default=None)
+    operate: IsBnd = field(default=None)
 
 
-@dataclass
-class _StgBounds:
-    """Bounds for Storage
+class _BoundBoundAttrs:
+    """Bound Bound Input attributes for all Defined Components"""
 
-    Attributes:
-        setup (IsBnd): bound on how much capacity can be setup
-        store (IsBnd): bound on how much capacity can be utilized (operated)
-    """
-
-    store: IsBnd = field(default=None)
-
-
-@dataclass
-class _TrnBounds:
-    """Bounds for Transit
-
-    Attributes:
-        setup (IsBnd): bound on how much capacity can be setup
-        transport (IsBnd): bound on how much capacity can be utilized (operated)
-    """
-
-    transport: IsBnd = field(default=None)
+    @staticmethod
+    def boundbounds():
+        """Returns all BoundBounds"""
+        return sum(
+            [[f.name for f in fields(bnds)] for bnds in [_OpnBoundBounds]],
+            [],
+        )

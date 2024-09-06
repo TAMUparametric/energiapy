@@ -3,22 +3,25 @@
 
 from dataclasses import dataclass, field
 
-from ...elements.variables.boundboundvar import BoundBoundVar
-from ._task import _Task
+from ..variables.boundboundvar import BoundBoundVar
+from ._constraint import _Constraint
 from .bound import Bound
-from ...elements.parameters.boundprm import BoundPrm
-from ...elements.constraints.bind import Bind
+from ..parameters.boundboundprm import BoundBoundPrm
+from .rules.bind import Bind
 
 
 @dataclass
-class BoundBound(_Task):
+class BoundBound(_Constraint):
     """Bound Task"""
 
+    attr: str = field(default=None)
     parent: Bound = field(default=None)
 
     def __post_init__(self):
-        _Task.__post_init__(self)
-        self.name = f'BoundBound|{self.name}|'
+        _Constraint.__post_init__(self)
+        self.varsym = self.attr
+        self.prmsym = f'{self.attr.capitalize()}^f'
+        self.name = f'BoundBound|{self.attr}|'
 
     @staticmethod
     def var():
@@ -28,7 +31,7 @@ class BoundBound(_Task):
     @staticmethod
     def prm():
         """Parameter"""
-        return BoundPrm
+        return BoundBoundPrm
 
     @staticmethod
     def cns():
