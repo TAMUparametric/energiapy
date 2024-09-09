@@ -132,9 +132,10 @@ class _Update(ABC):
                 # The updated Values are then set back into the component
                 setattr(component, attr, datablock.data[attr])
 
-                # update the values for the attributes in the Task Modeling Block
-                for val in getattr(component, attr).values():
-                    getattr(self.taskmaster, attr).values.append(val)
+                # TODO
+                # # update the values for the attributes in the Task Modeling Block
+                # for val in getattr(component, attr).values():
+                #     getattr(self.taskmaster, attr).values.append(val)
 
         # The smaller Blocks are then added to the Larger Scenario Level Model Blocks
         # The DataBlock is added to the Data Model

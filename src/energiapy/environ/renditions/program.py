@@ -61,7 +61,7 @@ class ProgramBlock(_Dunders, _Print):
     def birth_elements(self, data: IsVal, attr: str):
         """Births the elements of the ProgramBlock"""
 
-        index = self.registrar.fish(attr=attr, disposition=data.index.disposition)
+        index = self.registrar.fish(attr=attr, disposition=data.index.args())
 
         cns = self.taskmaster.cns(attr)
 
@@ -78,8 +78,12 @@ class ProgramBlock(_Dunders, _Print):
                 attr=cns.parent.attr, disposition=index.childless(cns.root)
             )
             parent = rule.parent.var()(
-                index=idx_parent, component=self.component, **rule.parent.birth_attrs()
+                index=idx_parent, component=self.component, **rule.parent.varbirth_attrs
             )
+
+        constraint = cns(
+            root=self.component, attr=attr, varsym=cns.varsym, prmsym=cns.prmsym
+        )
 
     @property
     def taskmaster(self) -> Chanakya:
