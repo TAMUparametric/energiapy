@@ -1,7 +1,11 @@
 """Task Master relates attributes to Elements
 """
 
+from __future__ import annotations
+
 from dataclasses import asdict, dataclass, field
+from typing import TYPE_CHECKING
+
 
 from ...components._attrs._balances import _BalanceAttrs
 from ...components._attrs._bounds import _BoundAttrs
@@ -29,6 +33,10 @@ from ...components.temporal.horizon import Horizon
 from ...elements.parameters.balances.conversion import Conversion
 from ...elements.parameters.balances.freight import Freight
 from ...elements.parameters.balances.inventory import Inventory
+
+if TYPE_CHECKING:
+    from ...elements.constraints.rules._rule import _Rule
+    from ...elements.constraints._constraint import _Constraint
 
 
 @dataclass
@@ -81,7 +89,7 @@ class Chanakya(_BoundAttrs, _BoundBoundAttrs, _ExactAttrs, _BalanceAttrs, _Dunde
             attr='conversion',
             opn=Process,
             balance=Conversion,
-            prmsym='η',
+            symbol='η',
             parent=self.operate,
         )
         # Storage
@@ -89,7 +97,7 @@ class Chanakya(_BoundAttrs, _BoundBoundAttrs, _ExactAttrs, _BalanceAttrs, _Dunde
             attr='inventory',
             opn=Storage,
             balance=Inventory,
-            prmsym='φ',
+            symbol='φ',
             parent=self.operate,
         )
         # Transit
@@ -97,7 +105,7 @@ class Chanakya(_BoundAttrs, _BoundBoundAttrs, _ExactAttrs, _BalanceAttrs, _Dunde
             attr='freight',
             opn=Transit,
             balance=Freight,
-            prmsym='ψ',
+            symbol='ψ',
             parent=self.operate,
         )
 
@@ -268,38 +276,34 @@ class Chanakya(_BoundAttrs, _BoundBoundAttrs, _ExactAttrs, _BalanceAttrs, _Dunde
             key=lambda x: x.cname(),
         )
 
-    def birth_attrs(self, task: str):
-        """Returns all Attributes need to birth Variables"""
-        return getattr(self, task).birth_attrs()
-
     def inputs(self):
         """Returns all Inputs"""
         return self.bounds() + self.exacts() + self.boundbounds()
 
-    def get(self, task: str):
-        """Returns the Task"""
-        return getattr(self, task)
+    def cns(self, attr: str) -> _Constraint:
+        """Returns the Constraint associated with the attribute"""
+        return getattr(self, attr)
 
-    def var(self, task: str):
+    def var(self, attr: str):
         """Returns the Variable"""
-        return self.get(task).var()
+        return self.cns(attr).var()
 
-    def prm(self, task: str):
+    def prm(self, attr: str):
         """Returns the Parameter"""
-        return self.get(task).prm()
+        return self.cns(attr).prm()
 
-    def cns(self, task: str):
+    def rule(self, attr: str):
         """Returns the Constraint"""
-        return self.get(task).cns()
+        return self.cns(attr).rule()
 
-    def varsym(self, task: str):
+    def varsym(self, attr: str):
         """Returns the Variable Symbol"""
-        return self.get(task).varsym
+        return self.cns(attr).varsym
 
-    def prmsym(self, task: str):
+    def prmsym(self, attr: str):
         """Returns the Parameter Symbol"""
-        return self.get(task).prmsym
+        return self.cns(attr).prmsym
 
-    def varbirth_attrs(self, task: str):
+    def varbirth_attrs(self, attr: str):
         """Returns the Variable Attributes"""
-        return self.get(task).varbirth_attrs()
+        return self.cns(attr).varbirth_attrs()

@@ -17,9 +17,8 @@ if TYPE_CHECKING:
 
 @dataclass
 class Calculate(_Constraint):
-    """Calculation Task
-    Handles the attributes of components
-    Defines strict behaviour
+    """Calculate Constraint calculates
+
 
     Attributes:
         var (IsVar): Task Variable
@@ -29,11 +28,11 @@ class Calculate(_Constraint):
     friend: Bound = field(default=None)
 
     def __post_init__(self):
-        _Constraint.__post_init__(self)
-        self.prmsym = f'{self.friend.prmsym}^{self.parent.varsym}'
-        self.varsym = f'{self.friend.varsym}^{self.parent.varsym}'
-        self.attr = f'{self.parent.name}_{self.friend.name}'
-        self.name = f'Calculate|{self.attr}|'
+        setattr(self, 'prmsym', f'{self.friend.prmsym}^{self.parent.varsym}')
+        setattr(self, 'varsym', f'{self.friend.varsym}^{self.parent.varsym}')
+
+        if not self.attr:
+            self.attr = f'{self.parent.name}_{self.friend.name}'
 
     @staticmethod
     def var():
@@ -46,10 +45,11 @@ class Calculate(_Constraint):
         return ExactPrm
 
     @staticmethod
-    def cns():
-        """Constraint"""
+    def rule():
+        """Constraint Rule"""
         return Calculation
 
+    @property
     def varbirth_attrs(self):
         """Attributes of the Variable"""
         return {'symbol': self.varsym}

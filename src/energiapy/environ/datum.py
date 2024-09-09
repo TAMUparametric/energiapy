@@ -26,7 +26,6 @@ from ..core.isalias.cmps.isdfn import IsDfn
 from ..core.isalias.elms.isval import IsVal
 from ..core.isalias.inps.isinp import IsBndInp, IsExtInp, IsIncInp, IsSptTmp
 from ..core.nirop.errors import InputTypeError
-from ..elements.disposition.index import Index
 from ..utils.dictionary import flatten
 
 
@@ -77,10 +76,10 @@ class Datum(_Dunders):
     @property
     def by_position(self):
         """Returns the Index of the input"""
-        return {i: val for i, val in enumerate(list(self.data.values()))}
+        return dict(enumerate(list(self.data.values())))
 
     @property
-    def register(self):
+    def registrar(self):
         """Registrar"""
         return self.component.registrar
 
@@ -95,64 +94,63 @@ class Datum(_Dunders):
         dict_upd = {}
 
         for key, val in dict_iter.items():
-
-            ply, emn, csh, res, mat, lnd, pro, stg, trn, loc, lnk, ntw, scl, mde = (
-                None for _ in range(14)
-            )
-
+            disposition = {
+                d: None
+                for d in [
+                    'ply',
+                    'emn',
+                    'csh',
+                    'res',
+                    'mat',
+                    'lnd',
+                    'pro',
+                    'stg',
+                    'trn',
+                    'loc',
+                    'lnk',
+                    'ntw',
+                    'scl',
+                    'mde',
+                ]
+            }
             if not isinstance(key, tuple):
                 raise ValueError(
                     f'Something is wrong with the input at {self}. If providing dict, check structure'
                 )
+
             # Check if a particular Component has been declared
             for cmp in key:
                 if isinstance(cmp, Player):
-                    ply = cmp
+                    disposition['ply'] = cmp
                 if isinstance(cmp, Emission):
-                    emn = cmp
+                    disposition['emn'] = cmp
                 if isinstance(cmp, Cash):
-                    csh = cmp
+                    disposition['csh'] = cmp
                 if isinstance(cmp, Resource):
-                    res = cmp
+                    disposition['res'] = cmp
                 if isinstance(cmp, Material):
-                    mat = cmp
+                    disposition['mat'] = cmp
                 if isinstance(cmp, Land):
-                    lnd = cmp
+                    disposition['lnd'] = cmp
                 if isinstance(cmp, Process):
-                    pro = cmp
+                    disposition['pro'] = cmp
                 if isinstance(cmp, Storage):
-                    stg = cmp
+                    disposition['stg'] = cmp
                 if isinstance(cmp, Transit):
-                    trn = cmp
+                    disposition['trn'] = cmp
                 if isinstance(cmp, Location):
-                    loc = cmp
+                    disposition['loc'] = cmp
                 if isinstance(cmp, Linkage):
-                    lnk = cmp
+                    disposition['lnk'] = cmp
                 if isinstance(cmp, Network):
-                    ntw = cmp
+                    disposition['ntw'] = cmp
                 if isinstance(cmp, Scale):
-                    scl = cmp
+                    disposition['scl'] = cmp
                 if isinstance(cmp, X):
-                    mde = cmp
+                    disposition['mde'] = cmp
 
-            index = Index(
-                ply=ply,
-                emn=emn,
-                csh=csh,
-                res=res,
-                mat=mat,
-                lnd=lnd,
-                pro=pro,
-                stg=stg,
-                trn=trn,
-                loc=loc,
-                lnk=lnk,
-                ntw=ntw,
-                scl=scl,
-                mde=mde,
-            )
-
-            self.register.register(self.attr, index)
+            # fish will either return an existing index or create a new one
+            index = self.registrar.fish(self.attr, disposition)
 
             # Check whether the input value type is appropriate
             # if not raises an InputTypeError

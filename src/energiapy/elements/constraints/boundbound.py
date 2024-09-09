@@ -12,16 +12,13 @@ from .rules.bind import Bind
 
 @dataclass
 class BoundBound(_Constraint):
-    """Bound Task"""
+    """Bound Constraint that binds with Bound to another Bound"""
 
-    attr: str = field(default=None)
     parent: Bound = field(default=None)
 
     def __post_init__(self):
-        _Constraint.__post_init__(self)
-        self.varsym = self.attr
-        self.prmsym = f'{self.attr.capitalize()}^f'
-        self.name = f'BoundBound|{self.attr}|'
+        setattr(self, 'varsym', self.attr)
+        setattr(self, 'prmsym', f'{self.attr.capitalize()}^f')
 
     @staticmethod
     def var():
@@ -34,10 +31,11 @@ class BoundBound(_Constraint):
         return BoundBoundPrm
 
     @staticmethod
-    def cns():
-        """Constraint"""
+    def rule():
+        """Constraint Rule"""
         return Bind
 
+    @property
     def varbirth_attrs(self):
         """Attributes of the Variable"""
         return {'symbol': self.varsym}

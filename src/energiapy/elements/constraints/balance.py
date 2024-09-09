@@ -19,13 +19,28 @@ if TYPE_CHECKING:
 class Balance(_Constraint):
     """Balances the flow of Resource in Operations"""
 
-    attr: str = field(default=None)
     balance: IsBlc = field(default=None)
     opn: IsOpn = field(default=None)
     parent: BoundBound = field(default=None)
-    prmsym: str = field(default=None)
+    sym: str = field(default=None)
 
     def __post_init__(self):
-        _Constraint.__post_init__(self)
+        setattr(self, 'varsym', None)
+        setattr(self, 'prmsym', self.sym)
         self.root = Resource
-        self.name = f'Balance|{self.attr}|'
+
+    @staticmethod
+    def var():
+        """Variable"""
+
+    @staticmethod
+    def prm():
+        """Parameter"""
+
+    @staticmethod
+    def rule():
+        """Constraint Rule"""
+
+    @property
+    def varbirth_attrs(self):
+        """Attributes of the Variable"""

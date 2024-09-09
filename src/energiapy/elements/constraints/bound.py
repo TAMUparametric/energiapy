@@ -10,18 +10,15 @@ from ..parameters.boundprm import BoundPrm
 
 @dataclass
 class Bound(_Constraint):
-    """Bound Task"""
+    """Bound Constraint"""
 
-    attr: str = field(default=None)
     p: bool = field(default=False)
     m: bool = field(default=False)
 
     def __post_init__(self):
-        _Constraint.__post_init__(self)
         self.parent = None
-        self.varsym = self.attr
-        self.prmsym = self.attr.capitalize()
-        self.name = f'Bound|{self.attr}|'
+        setattr(self, 'varsym', self.attr)
+        setattr(self, 'prmsym', f'{self.attr.capitalize()}')
 
         if self.p and self.m:
             raise ValueError('Task cannot be both plus and minus')
@@ -40,10 +37,11 @@ class Bound(_Constraint):
         return BoundPrm
 
     @staticmethod
-    def cns():
-        """Constraint"""
+    def rule():
+        """Constraint Rule"""
         return Bind
 
+    @property
     def varbirth_attrs(self):
         """Attributes of the Variable"""
         return {'p': self.p, 'm': self.m, 'symbol': self.varsym}

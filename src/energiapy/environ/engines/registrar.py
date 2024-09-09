@@ -1,12 +1,18 @@
 """Keeps a track of what tasks have been defined at what indices
 """
 
-from dataclasses import dataclass, field
+from __future__ import annotations
 
-from .taskmaster import Chanakya
+from dataclasses import dataclass, field
+from typing import TYPE_CHECKING
+
 from ...core._handy._dunders import _Dunders
 from ...core.nirop.errors import CacodcarError
+from ...core.isalias.cmps.iscmp import IsDsp
 from ...elements.disposition.index import Index
+
+if TYPE_CHECKING:
+    from .taskmaster import Chanakya
 
 
 @dataclass
@@ -29,16 +35,30 @@ class ChitraGupta(_Dunders):
         for attr in self.taskmaster.inputs():
             setattr(self, attr, [])
 
-    def fish(self, index: Index):
-        """Fish the tasks declared at a particular Index
+    def fish(self, attr: str, disposition: dict):
+        """Fishes out an Index declared at a particular Disposition
 
         Args:
-            index (Index): index
+            attr (str): attribute
+            disposition (dict): Disposition of the Index as a dictionary
         """
-        if index in self.indices():
-            return self.indices()[self.indices().index(index)]
-        else:
-            return None
+        disp = tuple([v for v in disposition.values() if v])
+        catch = [i for i in self.indices() if i.disposition == disp]
+
+        # Only one should be found, if more than one is found, it is an error
+        if len(catch) > 1:
+            raise CacodcarError(
+                f'More than one Index found at {disposition} in {self.name}'
+            )
+
+        if len(catch) == 1:
+            index = catch[0]
+
+        if len(catch) == 0:
+            index = Index(**disposition)
+        # register the index, and return a fresh Index or found Index
+        self.register(attr, index)
+        return index
 
     def register(self, attr: str, index: Index):
         """Register that a Variable or Parameter has been declared at a particular Index
@@ -57,10 +77,10 @@ class ChitraGupta(_Dunders):
             setattr(self, attr, task_attr + [index])
 
     def indices(self):
-        """_summary_
+        """All indices declared
 
         Args:
-            attr (str): _description_
+            attr (str): attribute
         """
         return sum([getattr(self, attr) for attr in self.inputs()], [])
 

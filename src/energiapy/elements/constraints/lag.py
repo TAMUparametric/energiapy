@@ -22,11 +22,11 @@ class Lag(_Constraint):
     parent: Bound = field(default=None)
 
     def __post_init__(self):
-        _Constraint.__post_init__(self)
-        self.prmsym = f'τ^{self.parent.varsym}'
-        self.varsym = f'{self.parent.varsym}^lag'
-        self.attr = f'{self.parent.name}_time'
-        self.name = f'Lag|{self.attr}|'
+        setattr(self, 'prmsym', f'τ^{self.parent.varsym}')
+        setattr(self, 'varsym', f'{self.parent.varsym}^lag')
+
+        if not self.attr:
+            self.attr = f'{self.parent.name}_time'
 
     @staticmethod
     def var():
@@ -39,10 +39,11 @@ class Lag(_Constraint):
         return ExactPrm
 
     @staticmethod
-    def cns():
+    def rule():
         """Constraint"""
         return Delay
 
+    @property
     def varbirth_attrs(self):
         """Attributes of the Variable"""
         return {'symbol': self.varsym}

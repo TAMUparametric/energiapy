@@ -59,27 +59,27 @@ class ProgramBlock(_Dunders, _Print):
         super().__setattr__(name, datablock)
 
     def birth_elements(self, data: IsVal, attr: str):
-        pass
-        # index = self.registrar.fish(data.index)
+        """Births the elements of the ProgramBlock"""
 
-        # self.registrar.register(attr, index)
+        index = self.registrar.fish(attr=attr, disposition=data.index.disposition)
 
-        # task = self.taskmaster.get(attr)
-        # var = task.var()
+        cns = self.taskmaster.cns(attr)
 
-        # varbirth_attrs = self.task.varbirth_attrs()
+        rule = cns.rule()
+        var = cns.var()
+        prm = cns.prm()
+        varbirth_attrs = cns.varbirth_attrs
 
-        # variable = var(index = index, component = self.component, **varbirth_attrs)
+        variable = var(index=index, component=self.component, **varbirth_attrs)
+        paramter = prm(value=data, symbol=cns.prmsym)
 
-        # if task.parent:
-
-        #     idx_parent = self.registrar.fish(index)
-
-        # index = self.registrar.fish(data.index)
-
-        # if not index:
-        #     index =
-        # self.registrar.register(attr, index)
+        if cns.parent:
+            idx_parent = self.registrar.fish(
+                attr=cns.parent.attr, disposition=index.childless(cns.root)
+            )
+            parent = rule.parent.var()(
+                index=idx_parent, component=self.component, **rule.parent.birth_attrs()
+            )
 
     @property
     def taskmaster(self) -> Chanakya:
