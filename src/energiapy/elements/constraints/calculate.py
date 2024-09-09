@@ -13,6 +13,7 @@ from ..parameters.exactprm import ExactPrm
 
 if TYPE_CHECKING:
     from .bound import Bound
+    from .boundbound import BoundBound
 
 
 @dataclass
@@ -21,15 +22,22 @@ class Calculate(_Constraint):
 
 
     Attributes:
-        var (IsVar): Task Variable
+        root (IsCmp): Root Component for which information is being defined
+        attr (str): Attribute of the Component
+        varsym (str): Symbol of the Variable
+        prmsym (str): Symbol of the Parameter
+        parent (Bound): Bound gives the value to calculate
+        friend (Bound): This calculation contributes to this Bound
     """
 
-    parent: Bound = field(default=None)
-    friend: Bound = field(default=None)
+    parent: Bound | BoundBound = field(default=None)
+    friend: Bound | BoundBound = field(default=None)
 
     def __post_init__(self):
-        setattr(self, 'prmsym', f'{self.friend.prmsym}^{self.parent.varsym}')
-        setattr(self, 'varsym', f'{self.friend.varsym}^{self.parent.varsym}')
+
+        if not self.varsym:
+            self.prmsym = f'{self.friend.prmsym}^{self.parent.varsym}'
+            self.varsym = f'{self.friend.varsym}^{self.parent.varsym}'
 
         if not self.attr:
             self.attr = f'{self.parent.name}_{self.friend.name}'

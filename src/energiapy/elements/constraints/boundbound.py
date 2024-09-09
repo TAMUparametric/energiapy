@@ -12,13 +12,25 @@ from .rules.bind import Bind
 
 @dataclass
 class BoundBound(_Constraint):
-    """Bound Constraint that binds with Bound to another Bound"""
+    """Bound Constraint that binds with Bound to another Bound
+
+    Attributes:
+        root (IsCmp): Root Component for which information is being defined
+        attr (str): Attribute of the Component
+        varsym (str): Symbol of the Variable
+        prmsym (str): Symbol of the Parameter
+        parent (Bound): Variable that Bounds this Bound
+    """
 
     parent: Bound = field(default=None)
 
     def __post_init__(self):
-        setattr(self, 'varsym', self.attr)
-        setattr(self, 'prmsym', f'{self.attr.capitalize()}^f')
+
+        if not self.varsym:
+            self.varsym = self.attr
+
+        if not self.prmsym:
+            self.prmsym = f'{self.attr.capitalize()}^f'
 
     @staticmethod
     def var():

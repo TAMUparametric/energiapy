@@ -2,12 +2,11 @@
 """
 
 from dataclasses import dataclass, field
+from typing import Self
 
 from sympy import IndexedBase
-
 from ...core._handy._dunders import _Dunders
 from ...core.isalias.cmps.isdfn import IsDfn
-from ...core.nirop.errors import CacodcarError
 from ..disposition.index import Index
 
 
@@ -23,16 +22,13 @@ class _Variable(_Dunders):
 
     index: Index = field(default=None)
     component: IsDfn = field(default=None)
-    structures: tuple[str] = field(default=None)
     symbol: str = field(default=None)
+    parent: Self = field(default=None)
 
     def __post_init__(self):
         self.name = str(self.sym)
 
-        # if not self.index.structure() in self.structures(self.component):
-        #     raise CacodcarError(
-        #         f'{self}:{self.index.structure()} not in {self.structures(self.component)}'
-        #     )
+        
 
         if not self.symbol:
             raise ValueError(f'{self}: symbol must be provided')

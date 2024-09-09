@@ -4,7 +4,6 @@
 __all__ = [
     'Cash',
     'Land',
-    'Material',
     'Resource',
     'Emission',
 ]
@@ -12,5 +11,4 @@ __all__ = [
 from .cash import Cash
 from .emission import Emission
 from .land import Land
-from .material import Material
 from .resource import Resource

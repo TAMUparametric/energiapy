@@ -8,13 +8,33 @@ from pandas import DataFrame
 
 from ...utils.scaling import scaling
 from .._base._defined import _Defined
-from .._attrs._bounds import _OpnBounds
-from .._attrs._boundbounds import _OpnBoundBounds
-from .._attrs._exacts import _OpnExacts
+from .._attrs._boundbounds import _Operate
+from .._attrs._bounds import _Setup
+from .._attrs._exacts import (
+    _OperateTrade,
+    _OperateTransact,
+    _OperateLose,
+    _SetupTransact,
+    _SetupEmit,
+    _SetupUse,
+)
+from .._attrs._rates import _SetupRate, _OperateRate
 
 
 @dataclass
-class _Operation(_OpnBounds, _OpnBoundBounds, _OpnExacts, _Defined, ABC):
+class _Operation(
+    _Operate,
+    _Setup,
+    _OperateTransact,
+    _OperateRate,
+    _OperateLose,
+    _SetupTransact,
+    _SetupRate,
+    _SetupEmit,
+    _SetupUse,
+    _Defined,
+    ABC,
+):
     """Base for Operational Components
 
     Attributes:
@@ -57,26 +77,31 @@ class _Operation(_OpnBounds, _OpnBoundBounds, _OpnExacts, _Defined, ABC):
         """Input attributes"""
         return [
             f.name
-            for f in fields(_OpnBounds) + fields(_OpnBoundBounds) + fields(_OpnExacts)
+            for f in fields(_Operate)
+            + fields(_OperateTrade)
+            + fields(_OperateTransact)
+            + fields(_OperateLose)
+            + fields(_OperateRate)
+            + fields(_Setup)
+            + fields(_SetupTransact)
+            + fields(_SetupEmit)
+            + fields(_SetupUse)
+            + fields(_SetupRate)
         ]
 
     @property
     def materials(self):
         """Materials used to setup in the Operation"""
-        if getattr(self, 'setup_use'):
-            return [
-                i.index.mat
-                for i in getattr(self, 'setup_use').data.values()
-                if i.index.mat
-            ]
+        if self.setup_use:
+            return [i.index.mat for i in self.setup_use.data.values() if i.index.mat]
         else:
             return []
 
     @property
     def emissions(self):
         """Emissions from the Operation"""
-        if getattr(self, 'setup_emit'):
-            return [i.index.emn for i in getattr(self, 'setup_emit').data.values()]
+        if self.setup_emit:
+            return [i.index.emn for i in self.setup_emit.data.values()]
         else:
             return []
 

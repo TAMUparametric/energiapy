@@ -9,7 +9,6 @@ from ...components.analytical.player import Player
 from ...components.commodity.cash import Cash
 from ...components.commodity.emission import Emission
 from ...components.commodity.land import Land
-from ...components.commodity.material import Material
 from ...components.commodity.resource import Resource
 from ...components.operation.process import Process
 from ...components.operation.storage import Storage
@@ -34,7 +33,6 @@ class Index(_Dunders):
         emn (Emission): Emission
         csh (Cash): Cash
         res (Resource): Resource
-        mat (Material): Material
         lnd (Land): Land
         pro (Process): Process
         stg (Storage): Storage
@@ -51,7 +49,6 @@ class Index(_Dunders):
     emn: Emission = field(default=None)
     csh: Cash = field(default=None)
     res: Resource = field(default=None)
-    mat: Material = field(default=None)
     lnd: Land = field(default=None)
     pro: Process = field(default=None)
     stg: Storage = field(default=None)

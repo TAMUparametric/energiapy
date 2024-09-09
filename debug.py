@@ -83,7 +83,7 @@ s.CO2_DAC = Resource(basis='tons', label='Carbon dioxide - captured')
 s.Power = Resource(buy=[0, a], basis='MW', label='Power generated')
 
 
-s.LiR = Material(
+s.LiR = Resource(
     use_emission={s.gwp: {s.t2: 1.484}},
     use={s.ponje: 1.5},
     basis='kg',

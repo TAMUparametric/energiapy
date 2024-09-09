@@ -1,20 +1,15 @@
 """Land used by Operations
 """
 
-from dataclasses import dataclass
+from dataclasses import dataclass, fields
 
-from ._used import _Used
-
-# Associated Program Elements:
-#   BoundParameters - UseBound
-#   Operational Parameters - Usage
-#   Variables (Use) - Use
-#   Variables (Emissions) - EmitUse
-#   Variables (Transactions) - TransactUse
+from .._attrs._bounds import _Use
+from .._attrs._exacts import _UseTransact, _UseEmit
+from ._commodity import _Commodity
 
 
 @dataclass
-class Land(_Used):
+class Land(_Use, _UseTransact, _UseEmit, _Commodity):
     """Land derived from Operation Capacitate
     Use can cost Cash and emit Emissions
 
@@ -31,10 +26,15 @@ class Land(_Used):
     """
 
     def __post_init__(self):
-        _Used.__post_init__(self)
+        _Commodity.__post_init__(self)
         # This collects parameters for land use declared at other components
+
+    @staticmethod
+    def inputs():
+        """Inputs"""
+        return [f.name for f in fields(_Use) + fields(_UseTransact) + fields(_UseEmit)]
 
     @property
     def uses(self):
         """Land Uses across the Scenario"""
-        return self.taskmaster.report_uses
+        return self.taskmaster.report_use

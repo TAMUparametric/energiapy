@@ -2,6 +2,7 @@
 """
 
 from dataclasses import dataclass, field
+from typing import Self
 from ._constraint import _Constraint
 from ..variables.boundvar import BoundVar
 from .rules.bind import Bind
@@ -10,21 +11,37 @@ from ..parameters.boundprm import BoundPrm
 
 @dataclass
 class Bound(_Constraint):
-    """Bound Constraint"""
+    """Bound Constraint
 
-    p: bool = field(default=False)
-    m: bool = field(default=False)
+    Attributes:
+        root (IsCmp): Root Component for which information is being defined
+        attr (str): Attribute of the Component
+        varsym (str): Symbol of the Variable
+        prmsym (str): Symbol of the Parameter
+        sibling (Bound): Sibling Bound, one will add to the balance, the other will take
+    """
+
+    sibling: Self = field(default=None)
 
     def __post_init__(self):
+
+        # Bounds have no parent, they are bound by parameters only
         self.parent = None
-        setattr(self, 'varsym', self.attr)
-        setattr(self, 'prmsym', f'{self.attr.capitalize()}')
 
-        if self.p and self.m:
-            raise ValueError('Task cannot be both plus and minus')
+        if self.sibling:
+            # if sibling is provided, then the sign is negative
+            self.sign = -1
+            # set this one as the sibling of the sibling
+            self.sibling.sibling = self
+        else:
+            # if sibling is not provided, then the sign is positive
+            self.sign = 1
 
-        if not (self.p or self.m):
-            raise ValueError('Task must be either plus or minus')
+        if not self.varsym:
+            self.varsym = self.attr
+
+        if not self.prmsym:
+            self.prmsym = f'{self.attr.capitalize()}'
 
     @staticmethod
     def var():
@@ -44,4 +61,4 @@ class Bound(_Constraint):
     @property
     def varbirth_attrs(self):
         """Attributes of the Variable"""
-        return {'p': self.p, 'm': self.m, 'symbol': self.varsym}
+        return {'sign': self.sign, 'symbol': self.varsym}

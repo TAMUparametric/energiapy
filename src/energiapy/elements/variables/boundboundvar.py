@@ -22,8 +22,6 @@ class BoundBoundVar(BoundVar):
         parent (BoundVar): The Parent Variable of the Variable
     """
 
-    parent: BoundVar = field(default=None)
-
     def __post_init__(self):
         self.p = True
         BoundVar.__post_init__(self)

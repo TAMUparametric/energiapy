@@ -3,7 +3,6 @@
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 from dataclasses import dataclass
 
@@ -15,16 +14,8 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class _Commodity(_Defined, ABC):
-    """Commodities that are:
-
-    Traded (Trade) - Resource
-    Lost (Lose) - Resource
-    Used (Use) - Material, Land
-    Emitted (Emit) - Emission
-    Transacted - Cash
-
-    """
+class _Commodity(_Defined):
+    """Commodities"""
 
     def __post_init__(self):
         _Defined.__post_init__(self)

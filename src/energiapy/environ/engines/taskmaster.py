@@ -27,7 +27,6 @@ from ...components.operation.process import Process
 from ...components.operation.storage import Storage
 from ...components.operation.transit import Transit
 from ...components.operation._operation import _Operation
-from ...components.commodity._used import _Used
 from ...components.temporal.horizon import Horizon
 
 from ...elements.parameters.balances.conversion import Conversion
@@ -58,24 +57,25 @@ class Chanakya(_BoundAttrs, _BoundBoundAttrs, _ExactAttrs, _BalanceAttrs, _Dunde
         #     name='needs', root=Player, m=True, varsym='take', prmsym='Needs'
         # )
         # Cash
-        self.spend = Bound(attr='spend', root=Cash, p=True)
-        self.earn = Bound(attr='earn', root=Cash, m=True)
+        self.spend = Bound(attr='spend', root=Cash)
+        self.earn = Bound(attr='earn', root=Cash, sibling=self.spend)
         # Emission
-        self.emit = Bound(attr='emit', root=Emission, p=True)
-        self.sequester = Bound(attr='sequester', root=Emission, m=True)
-        # Material | Land
-        self.use = Bound(attr='use', root=_Used, p=True)
-        self.dispose = Bound(attr='dispose', root=_Used, m=True)
+        self.emit = Bound(attr='emit', root=Emission)
+        self.sequester = Bound(attr='sequester', root=Emission, sibling=self.emit)
+        # Resource | Land
+        self.use = Bound(attr='use', root=Resource)
+        self.dispose = Bound(attr='dispose', root=Resource, sibling=self.use)
         # Resource
-        self.buy = Bound(attr='buy', root=Resource, p=True)
-        self.sell = Bound(attr='sell', root=Resource, m=True)
-        self.ship = Bound(attr='ship', root=Resource, p=True)
-        self.lose = Bound(attr='lose', root=Resource, p=True)
-        self.recover = Bound(attr='recover', root=Resource, m=True)
+        self.buy = Bound(attr='buy', root=Resource)
+        self.sell = Bound(attr='sell', root=Resource, sibling=self.buy)
+        self.receive = Bound(attr='receive', root=Resource)
+        self.ship = Bound(attr='ship', root=Resource, sibling=self.receive)
+        self.recover = Bound(attr='recover', root=Resource)
+        self.lose = Bound(attr='lose', root=Resource, sibling=self.recover)
 
         # Operational
-        self.setup = Bound(attr='setup', root=_Operation, p=True)
-        self.dismantle = Bound(attr='dismantle', root=_Operation, m=True)
+        self.setup = Bound(attr='setup', root=_Operation)
+        self.dismantle = Bound(attr='dismantle', root=_Operation, sibling=self.setup)
 
         # ----------BoundBounds-----------
         # ----------------------------------------
@@ -89,7 +89,7 @@ class Chanakya(_BoundAttrs, _BoundBoundAttrs, _ExactAttrs, _BalanceAttrs, _Dunde
             attr='conversion',
             opn=Process,
             balance=Conversion,
-            symbol='η',
+            sym='η',
             parent=self.operate,
         )
         # Storage
@@ -97,7 +97,7 @@ class Chanakya(_BoundAttrs, _BoundBoundAttrs, _ExactAttrs, _BalanceAttrs, _Dunde
             attr='inventory',
             opn=Storage,
             balance=Inventory,
-            symbol='φ',
+            sym='φ',
             parent=self.operate,
         )
         # Transit
@@ -105,7 +105,7 @@ class Chanakya(_BoundAttrs, _BoundBoundAttrs, _ExactAttrs, _BalanceAttrs, _Dunde
             attr='freight',
             opn=Transit,
             balance=Freight,
-            symbol='ψ',
+            sym='ψ',
             parent=self.operate,
         )
 
@@ -125,13 +125,15 @@ class Chanakya(_BoundAttrs, _BoundBoundAttrs, _ExactAttrs, _BalanceAttrs, _Dunde
             root=Resource, parent=self.recover, friend=self.earn
         )
         # ----Use--------
-        self.use_spend = Calculate(root=_Used, parent=self.use, friend=self.spend)
-        self.use_earn = Calculate(root=_Used, parent=self.use, friend=self.earn)
+        self.use_spend = Calculate(root=Resource, parent=self.use, friend=self.spend)
+        self.use_earn = Calculate(root=Resource, parent=self.use, friend=self.earn)
         # ----Dispose--------
         self.dispose_spend = Calculate(
-            root=_Used, parent=self.dispose, friend=self.spend
+            root=Resource, parent=self.dispose, friend=self.spend
         )
-        self.dispose_earn = Calculate(root=_Used, parent=self.dispose, friend=self.earn)
+        self.dispose_earn = Calculate(
+            root=Resource, parent=self.dispose, friend=self.earn
+        )
         # ----SetUp--------
         self.setup_spend = Calculate(
             root=_Operation, parent=self.setup, friend=self.spend
@@ -208,10 +210,10 @@ class Chanakya(_BoundAttrs, _BoundBoundAttrs, _ExactAttrs, _BalanceAttrs, _Dunde
         )
         # ---------------Use/Dispose----------------
         # ----Setup--------
-        self.setup_use = Calculate(root=_Used, parent=self.setup, friend=self.use)
+        self.setup_use = Calculate(root=Resource, parent=self.setup, friend=self.use)
         # ----Dismantle--------
         self.dismantle_dispose = Calculate(
-            root=_Used, parent=self.dismantle, friend=self.dispose
+            root=Resource, parent=self.dismantle, friend=self.dispose
         )
         # ---------------Lose/Recover----------------
         # ----Operate--------
@@ -230,15 +232,15 @@ class Chanakya(_BoundAttrs, _BoundBoundAttrs, _ExactAttrs, _BalanceAttrs, _Dunde
         self.operate_time = Lag(root=Horizon, parent=self.operate)
 
     @property
-    def report_transactions(self):
+    def report_transact(self):
         """Collection of Transacts"""
         return Report(
             name='transactions',
-            tasks=[getattr(self, attr) for attr in self.transactions()],
+            tasks=[getattr(self, attr) for attr in self.transacts()],
         )
 
     @property
-    def report_uses(self):
+    def report_use(self):
         """Collection of Uses"""
         return Report(
             name='uses',
@@ -246,15 +248,15 @@ class Chanakya(_BoundAttrs, _BoundBoundAttrs, _ExactAttrs, _BalanceAttrs, _Dunde
         )
 
     @property
-    def report_emits(self):
+    def report_emit(self):
         """Collection of Emissions"""
         return Report(
             name='emits',
-            tasks=[getattr(self, attr) for attr in self.emissions()],
+            tasks=[getattr(self, attr) for attr in self.emits()],
         )
 
     @property
-    def report_losses(self):
+    def report_lose(self):
         """Collection of Losses"""
         return Report(
             name='losses', tasks=[getattr(self, attr) for attr in self.losses()]

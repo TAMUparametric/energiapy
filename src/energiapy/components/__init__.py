@@ -9,7 +9,6 @@ __all__ = [
     'Player',
     'Cash',
     'Land',
-    'Material',
     'Resource',
     'Emission',
     'Process',
@@ -27,7 +26,6 @@ from .analytical.player import Player
 from .commodity.cash import Cash
 from .commodity.emission import Emission
 from .commodity.land import Land
-from .commodity.material import Material
 from .commodity.resource import Resource
 from .operation.process import Process
 from .operation.storage import Storage

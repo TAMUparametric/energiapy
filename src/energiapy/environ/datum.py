@@ -9,7 +9,6 @@ from ..components.analytical.player import Player
 from ..components.commodity.cash import Cash
 from ..components.commodity.emission import Emission
 from ..components.commodity.land import Land
-from ..components.commodity.material import Material
 from ..components.commodity.resource import Resource
 from ..components.operation.process import Process
 from ..components.operation.storage import Storage
@@ -101,7 +100,6 @@ class Datum(_Dunders):
                     'emn',
                     'csh',
                     'res',
-                    'mat',
                     'lnd',
                     'pro',
                     'stg',
@@ -128,8 +126,6 @@ class Datum(_Dunders):
                     disposition['csh'] = cmp
                 if isinstance(cmp, Resource):
                     disposition['res'] = cmp
-                if isinstance(cmp, Material):
-                    disposition['mat'] = cmp
                 if isinstance(cmp, Land):
                     disposition['lnd'] = cmp
                 if isinstance(cmp, Process):

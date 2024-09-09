@@ -8,12 +8,12 @@
 
 from dataclasses import dataclass, fields
 
-from .._attrs._bounds import _CshBounds
+from .._attrs._bounds import _Transact
 from ._commodity import _Commodity
 
 
 @dataclass
-class Cash(_CshBounds, _Commodity):
+class Cash(_Transact, _Commodity):
     """Cash is an Asset
     The amount spent or earned at some spatiotemporal dispoqition can be bound
 
@@ -34,9 +34,9 @@ class Cash(_CshBounds, _Commodity):
     @staticmethod
     def inputs():
         """Inputs"""
-        return [f.name for f in fields(_CshBounds)]
+        return [f.name for f in fields(_Transact)]
 
     @property
-    def transactions(self):
+    def transacts(self):
         """Transacts"""
-        return self.taskmaster.report_transactions
+        return self.taskmaster.report_transact

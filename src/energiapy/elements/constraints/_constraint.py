@@ -23,29 +23,16 @@ class _Constraint(_Dunders, _EasyPrint, ABC):
     between variables and parameters
 
     Attributes:
-        var (IsVar): Task Variable
+        root (IsCmp): Root Component for which information is being defined
+        attr (str): Attribute of the Component
+        varsym (str): Symbol of the Variable
+        prmsym (str): Symbol of the Parameter
     """
 
     root: IsCmp = field(default=None)
     attr: str = field(default=None)
-
-    @property
-    def varsym(self):
-        """Variable Symbol"""
-        return self._varsym
-
-    @varsym.setter
-    def varsym(self, value):
-        self._varsym = value
-
-    @property
-    def prmsym(self):
-        """Parameter Symbol"""
-        return self._parsym
-
-    @prmsym.setter
-    def prmsym(self, value):
-        self._parsym = value
+    varsym: str = field(default=None)
+    prmsym: str = field(default=None)
 
     @property
     def name(self):

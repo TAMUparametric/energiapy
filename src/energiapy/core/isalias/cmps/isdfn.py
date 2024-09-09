@@ -7,7 +7,6 @@ from ....components.analytical.player import Player
 from ....components.commodity.cash import Cash
 from ....components.commodity.emission import Emission
 from ....components.commodity.land import Land
-from ....components.commodity.material import Material
 from ....components.commodity.resource import Resource
 from ....components.operation.process import Process
 from ....components.operation.storage import Storage
@@ -18,10 +17,10 @@ IsAly: TypeAlias = Player
 
 # Commodities
 IsImp: TypeAlias = Emission
-IsTrd: TypeAlias = Material | Resource
-IsUsd: TypeAlias = Material | Land
+IsTrd: TypeAlias = Resource
+IsUsd: TypeAlias = Land | Resource
 IsAst: TypeAlias = Cash | Land
-IsCmd: TypeAlias = Emission | Material | Resource | Cash | Land
+IsCmd: TypeAlias = Emission | Resource | Cash | Land
 
 # Operational
 IsOpn: TypeAlias = Process | Storage | Transit

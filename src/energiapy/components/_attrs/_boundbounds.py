@@ -7,7 +7,7 @@ from ...core.isalias.inps.isinp import IsBnd
 
 
 @dataclass
-class _OpnBoundBounds:
+class _Operate:
     """Bound Bounds for Operational Components
 
     Attributes:
@@ -23,7 +23,4 @@ class _BoundBoundAttrs:
     @staticmethod
     def boundbounds():
         """Returns all BoundBounds"""
-        return sum(
-            [[f.name for f in fields(bnds)] for bnds in [_OpnBoundBounds]],
-            [],
-        )
+        return [f.name for f in fields(_Operate)]

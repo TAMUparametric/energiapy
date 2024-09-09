@@ -8,12 +8,12 @@
 
 from dataclasses import dataclass, fields
 
-from .._attrs._bounds import _PlyBounds
+from .._attrs._bounds import _Transact, _Emit, _Trade, _Use, _Setup
 from .._base._defined import _Defined
 
 
 @dataclass
-class Player(_PlyBounds, _Defined):
+class Player(_Transact, _Emit, _Trade, _Use, _Setup, _Defined):
     """Player represents a decision maker in the Scenario
 
     A Player has ownership of some Commodities which they give
@@ -36,4 +36,11 @@ class Player(_PlyBounds, _Defined):
     @staticmethod
     def inputs():
         """Inputs"""
-        return [f.name for f in fields(_PlyBounds)]
+        return [
+            f.name
+            for f in fields(_Transact)
+            + fields(_Emit)
+            + fields(_Trade)
+            + fields(_Use)
+            + fields(_Setup)
+        ]

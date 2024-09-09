@@ -27,7 +27,6 @@ class ExactVar(_Variable):
 
     """
 
-    parent: BoundVar = field(default=None)
     child: IsDfn = field(default=None)
 
     def __post_init__(self):

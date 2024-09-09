@@ -7,7 +7,6 @@ from ...components.analytical.player import Player
 from ...components.commodity.cash import Cash
 from ...components.commodity.emission import Emission
 from ...components.commodity.land import Land
-from ...components.commodity.material import Material
 from ...components.commodity.resource import Resource, ResourceStg, ResourceTrn
 from ...components.operation.process import Process
 from ...components.operation.storage import Storage
@@ -48,7 +47,6 @@ class System(_Block):
 
     Commodities:
         - Resource
-        - Material
         - Emission
         - Cash
         - Land
@@ -154,11 +152,6 @@ class System(_Block):
         return self.fetch(ResourceTrn)
 
     @property
-    def materials(self):
-        """Returns the Materials of the System"""
-        return self.fetch(Material)
-
-    @property
     def emissions(self):
         """Returns the Emissions of the System"""
         return self.fetch(Emission)
@@ -166,9 +159,7 @@ class System(_Block):
     @property
     def commodities(self):
         """Returns the Commodity Components of the System"""
-        return (
-            self.resources + self.materials + self.emissions + [self.cash] + [self.land]
-        )
+        return self.resources + self.emissions + [self.cash] + [self.land]
 
     @property
     def processes(self):

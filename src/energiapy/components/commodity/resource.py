@@ -7,13 +7,15 @@
 
 from dataclasses import dataclass, fields
 
-from .._attrs._bounds import _ResBounds
-from .._attrs._exacts import _ResEmnExacts, _ResTscExacts
+from .._attrs._bounds import _Trade, _Use
+from .._attrs._exacts import _TradeTransact, _TradeEmit, _UseTransact, _UseEmit
 from ._commodity import _Commodity
 
 
 @dataclass
-class Resource(_Commodity, _ResBounds, _ResTscExacts, _ResEmnExacts):
+class Resource(
+    _Commodity, _Trade, _Use, _TradeTransact, _TradeEmit, _UseTransact, _UseEmit
+):
     """Resources are Produced by Processes, Stored by Storage, and Transported by Transits
     They can be bought, sold, shipped, and received by Locations or Processes
 
@@ -42,14 +44,19 @@ class Resource(_Commodity, _ResBounds, _ResTscExacts, _ResEmnExacts):
     @property
     def losses(self):
         """Resource Losses"""
-        return self.taskmaster.report_losses
+        return self.taskmaster.report_lose
 
     @staticmethod
     def inputs():
         """Input attributes"""
         return [
             f.name
-            for f in fields(_ResBounds) + fields(_ResTscExacts) + fields(_ResEmnExacts)
+            for f in fields(_Trade)
+            + fields(_Use)
+            + fields(_TradeTransact)
+            + fields(_TradeEmit)
+            + fields(_UseTransact)
+            + fields(_UseEmit)
         ]
 
 

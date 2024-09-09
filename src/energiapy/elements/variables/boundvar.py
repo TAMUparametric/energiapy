@@ -3,6 +3,7 @@
 
 from dataclasses import dataclass, field
 
+
 from ._variable import _Variable
 
 
@@ -19,15 +20,7 @@ class BoundVar(_Variable):
         m (bool): Does it subtract from the Balance (minus sign)
     """
 
-    p: bool = field(default=False)
-    m: bool = field(default=False)
-
     def __post_init__(self):
         _Variable.__post_init__(self)
         self.parent = None
 
-        if not self.p and not self.m:
-            raise ValueError(f'{self}: p or m must be True')
-
-        if self.p and self.m:
-            raise ValueError(f'{self}: p and m cannot be both True')

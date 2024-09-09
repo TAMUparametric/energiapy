@@ -34,16 +34,16 @@ class _Balance(_Reprs, ABC):
         # Trains for goods need for power too
         if isinstance(self.balance, dict):
 
-            # The purpose of the Operation is to do something with base Resource
+            # The purpose of the Operation is to do something with operated Resource
             # The basis if set to one unit of this Resource
-            # Cost inputs, for example, are scaled as per this base
-            self.base = list(self.balance)[0]
+            # Cost inputs, for example, are scaled as per this operated
+            self.operated = list(self.balance)[0]
 
             # if Modes are given, then personalize the Modes to the Inventory Conversion
-            if isinstance(self.balance[self.base], dict):
-                if not all(isinstance(i, X) for i in self.balance[self.base]):
+            if isinstance(self.balance[self.operated], dict):
+                if not all(isinstance(i, X) for i in self.balance[self.operated]):
                     # add a dummy mode if no modes present
-                    self.balance[self.base] = {'x': self.balance[self.base]}
+                    self.balance[self.operated] = {'x': self.balance[self.operated]}
 
                 # Balances have the charging an discharging conversion balances
                 # Take a gander at Conversion if whats happening here is not clear
@@ -51,13 +51,13 @@ class _Balance(_Reprs, ABC):
                 self.conversion_in = {'r': {}}
 
                 # iterate over modes
-                for x in self.balance[self.base]:
+                for x in self.balance[self.operated]:
                     self.conversion_in['r'][x] = {
                         **{
                             res: -1 / val
-                            for res, val in self.balance[self.base][x].items()
+                            for res, val in self.balance[self.operated][x].items()
                         },
-                        **{self.base: -1},
+                        **{self.operated: -1},
                     }
                 # 'x' is a dummy mode, which can be removed here
                 if self.conversion_in['r'] == 'x':
@@ -66,18 +66,18 @@ class _Balance(_Reprs, ABC):
 
                     del self.conversion_in['r']['x']
 
-                self.conversion_out = {self.base: {'r': 1}}
+                self.conversion_out = {self.operated: {'r': 1}}
 
             else:
                 # This is used when a single efficiency value is given
-                efficiency = self.balance[self.base]
-                self.conversion_in = {'r': {self.base: -1 / efficiency}}
-                self.conversion_out = {self.base: {'r': -1}}
+                efficiency = self.balance[self.operated]
+                self.conversion_in = {'r': {self.operated: -1 / efficiency}}
+                self.conversion_out = {self.operated: {'r': -1}}
 
         else:
             # If only a Resource is given, consider 100% efficiency
-            self.base = self.balance
-            self.conversion_in = {'r': {self.base: -1}}
-            self.conversion_out = {self.base: {'r': -1}}
+            self.operated = self.balance
+            self.conversion_in = {'r': {self.operated: -1}}
+            self.conversion_out = {self.operated: {'r': -1}}
 
-        self.name = f'Bal({self.base}, {self.operation})'
+        self.name = f'Bal({self.operated}, {self.operation})'

@@ -10,6 +10,7 @@ from ._operation import _Operation
 from ..spatial.location import Location
 
 
+
 @dataclass
 class Process(
     _ProBalance,

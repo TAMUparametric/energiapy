@@ -3,16 +3,12 @@
 
 from dataclasses import dataclass, fields
 
-from .._attrs._bounds import _EmnBounds
+from .._attrs._bounds import _Emit
 from ._commodity import _Commodity
-
-# Associated Program Elements are:
-#     Bound Parameters - EmnBound
-#     Variables (Emissions) - Emit
 
 
 @dataclass
-class Emission(_EmnBounds, _Commodity):
+class Emission(_Emit, _Commodity):
     """Emission are generated through:
             Commodity Use, Trade, Loss
             Operational Setup
@@ -35,9 +31,9 @@ class Emission(_EmnBounds, _Commodity):
     @staticmethod
     def inputs():
         """Input attributes"""
-        return [f.name for f in fields(_EmnBounds)]
+        return [f.name for f in fields(_Emit)]
 
     @property
-    def emissions(self):
+    def emits(self):
         """Emissions across the components"""
-        return self.taskmaster.report_emits
+        return self.taskmaster.report_emit
