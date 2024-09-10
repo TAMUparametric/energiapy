@@ -78,7 +78,7 @@ class ProgramBlock(_Dunders, _Print):
                 attr=cns.parent.attr, disposition=index.childless(cns.root)
             )
             parent = rule.parent.var()(
-                index=idx_parent, component=self.component, **rule.parent.varbirth_attrs
+                index=idx_parent, component=self.component, **cns.varbirth_attrs
             )
 
         constraint = cns(
