@@ -133,6 +133,8 @@ def generate_sets(instance: ConcreteModel, scenario: Scenario):
         initialize=sets['processes_multim'], doc='Set of processes with multiple modes')
     instance.processes_singlem = Set(
         initialize=sets['processes_singlem'], doc='Set of processes with multiple modes')
+    instance.processes_order_fopex = Set(
+        initialize=sets['processes_order_fopex'], doc='Set of processes with fixed procurement costs')
     instance.locations = Set(
         initialize=sets['locations'], doc='Set of locations')
 

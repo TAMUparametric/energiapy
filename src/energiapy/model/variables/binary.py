@@ -30,4 +30,23 @@ def generate_network_binary_vars(instance: ConcreteModel, scale_level: int = 0):
                        instance.scales_network_binary, within=Binary, doc='Process Binary')
     instance.X_S = Var(instance.locations, instance.resources_store,
                        instance.scales_network_binary, within=Binary, doc='Storage Binary')
+
+    return
+
+
+def generate_scheduling_binary_vars(instance: ConcreteModel, scale_level: int = 0):
+    """
+
+    Args:
+        instance (ConcreteModel): pyomo instance
+        scale_level: scale level for scheduling variables. Defaults to 0.
+
+    Returns:
+
+    """
+
+    instance.scales_scheduling_binary = scale_pyomo_set(instance=instance, scale_level=scale_level)
+    instance.X_O = Var(instance.locations, instance.processes_order_fopex,
+                       instance.scales_scheduling_binary, within=Binary, doc='Fixed Ordering Cost Binary')
+
     return

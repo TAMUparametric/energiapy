@@ -14,7 +14,7 @@ from enum import Enum, auto
 from itertools import product
 from typing import Set
 
-from pyomo.environ import ConcreteModel, Constraint
+from pyomo.environ import ConcreteModel, Constraint, value
 
 from ...utils.latex_utils import constraint_latex_render
 from ...utils.scale_utils import scale_list, scale_tuple
@@ -617,34 +617,33 @@ def constraint_process_fopex(instance: ConcreteModel, fopex_dict: dict, network_
     constraint_latex_render(process_fopex_rule)
     return instance.constraint_process_fopex
 
-# def constraint_process_fopex(instance: ConcreteModel, fopex_dict: dict, network_scale_level: int = 0, fopex_factor: dict = None, annualization_factor: float = 1, location_process_dict: dict = None) -> Constraint:
-#     """Fixed operational expenditure for each process at location in network
-#     Args:
-#         instance (ConcreteModel): pyomo instance
-#         fopex_dict (dict): fixed opex at location
-#         network_scale_level (int, optional): scale of network decisions. Defaults to 0.
-#         annualization_factor (float, optional): Annual depreciation of asset. Defaults to 1.
+def constraint_process_order_fopex(instance: ConcreteModel, location_process_dict:dict, order_fopex_dict: dict, scheduling_scale_level: int = 0) -> Constraint:
+    """
 
-#     Returns:
-#         Constraint: process_fopex
-#     """
-#     scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
+    Args:
+        instance: pyomo instance
+        order_fopex_dict: fopex for procurement
+        network_scale_level: scale for network decision. Defaults to 0.
 
-#     def process_fopex_rule(instance, location, process, *scale_list):
-#         if fopex_dict[process] is not None:
-#             if fopex_factor[location] is not None:
-#                 return instance.Fopex_process[location, process, scale_list] == annualization_factor*fopex_factor[location][process][scale_list]*fopex_dict[process]*instance.Cap_P[location, process, scale_list]
-#             else:
-#                 return instance.Fopex_process[location, process, scale_list] == annualization_factor*fopex_dict[process]*instance.Cap_P[location, process, scale_list]
-#         else:
-#             return instance.Fopex_process[location, process, scale_list] == 0
-#     instance.constraint_process_fopex = Constraint(
-#         instance.locations, instance.processes, *scales, rule=process_fopex_rule, doc='fopex for process')
-#     constraint_latex_render(process_fopex_rule)
-#     return instance.constraint_process_fopex
+    Returns:
 
+    """
+    scales = scale_list(instance=instance, scale_levels=scheduling_scale_level + 1)
 
-def constraint_location_fopex(instance: ConcreteModel, network_scale_level: int = 0) -> Constraint:
+    def process_fopex_order_rule(instance, location, process, *scale_list):
+
+        if process in location_process_dict[location]:
+            return instance.Fopex_order_process[location, process, scale_list] == order_fopex_dict[process]*instance.X_O[location, process, scale_list]
+        else:
+            return instance.Fopex_order_process[location, process, scale_list] == 0
+
+    instance.constraint_process_order_fopex = Constraint(instance.locations, instance.processes_order_fopex, *scales,
+                                                         rule=process_fopex_order_rule, doc='Fixed order cost for procurement')
+
+    constraint_latex_render(process_fopex_order_rule)
+    return instance.constraint_process_order_fopex
+
+def constraint_location_fopex(instance: ConcreteModel, network_scale_level: int = 0, scheduling_scale_level:int = 0) -> Constraint:
     """Fixed operational expenditure for each process at location in network
 
     Args:
@@ -655,9 +654,16 @@ def constraint_location_fopex(instance: ConcreteModel, network_scale_level: int 
         Constraint: location_fopex
     """
     scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
+    scale_iter = scale_tuple(instance=instance, scale_levels=scheduling_scale_level + 1)
 
     def location_fopex_rule(instance, location, *scale_list):
-        return instance.Fopex_location[location, scale_list] == sum(instance.Fopex_process[location, process_, scale_list] for process_ in instance.processes)
+        if instance.processes_order_fopex!={}:
+            return instance.Fopex_location[location, scale_list] == (sum(instance.Fopex_process[location, process_, scale_list] for process_ in instance.processes) +
+                                                                    sum(instance.Fopex_order_process[location, process_, scale_] for process_ in instance.processes_order_fopex
+                                                                     for scale_ in scale_iter if scale_[:network_scale_level+1] == scale_list))
+        else:
+            return instance.Fopex_location[location, scale_list] == sum(instance.Fopex_process[location, process_, scale_list] for process_ in instance.processes)
+
     instance.constraint_location_fopex = Constraint(
         instance.locations, *scales, rule=location_fopex_rule, doc='total fopex from network')
     constraint_latex_render(location_fopex_rule)

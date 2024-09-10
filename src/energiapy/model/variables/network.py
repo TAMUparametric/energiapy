@@ -86,6 +86,12 @@ def generate_network_vars(instance: ConcreteModel, scale_level: int = 0):
         instance.scales_network, within=NonNegativeReals, doc='Incidental at network scale')
     instance.Inv_network = Var(instance.locations, instance.resources_store,
                                instance.scales_network, doc='Total inventory stored at location for resource')
+
+    if instance.processes_order_fopex!={}:
+        instance.Fopex_order_process = Var(instance.locations, instance.processes_order_fopex,
+                                           instance.scales_scheduling, within=NonNegativeReals,
+                                           doc='Fixed Opex for procurement')
+
     return
 
 

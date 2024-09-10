@@ -248,3 +248,30 @@ def constraint_production_min(instance: ConcreteModel, prod_min: dict, location_
         doc='production facility sizing and location')
     constraint_latex_render(production_min_rule)
     return instance.constraint_production_min
+
+def constraint_production_max_order_fopex(instance: ConcreteModel, prod_max:dict, location_process_dict:dict, scheduling_scale_level:int = 0) -> Constraint:
+    """
+
+    Args:
+        instance:
+        prod_max:
+        location_process_dict:
+        scheduling_scale_level:
+
+    Returns:
+
+    """
+
+    scales = scale_list(instance=instance, scale_levels=scheduling_scale_level + 1)
+
+    def production_max_order_fopex_rule(instance, location, process, *scale_list):
+
+        if process in location_process_dict[location]:
+            return instance.P[location, process, scale_list[:scheduling_scale_level+1]] <= prod_max[location][process][0] * instance.X_O[location, process, scale_list[:scheduling_scale_level+1]]
+        else:
+            return Constraint.Skip
+
+    instance.constraint_production_max_order_fopex = Constraint(instance.locations, instance.processes_order_fopex, *scales,
+                                                                rule=production_max_order_fopex_rule, doc='Production constraint for processes with fixed ordering costs')
+    constraint_latex_render(production_max_order_fopex_rule)
+    return instance.constraint_production_max_order_fopex

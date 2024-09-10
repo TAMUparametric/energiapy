@@ -26,7 +26,7 @@ from ppopt.mp_solvers.solve_mpqp import solve_mpqp, mpqp_algorithm
 from ppopt.mplp_program import MPLP_Program
 
 
-def solve(solver: str, name: str, instance: ConcreteModel = None, matrix: dict = None, interface: str = 'pyomo', scenario: Scenario = None, saveformat: str = None, print_solversteps: bool = True, log: bool = False) -> Result:
+def solve(solver: str, name: str, instance: ConcreteModel = None, matrix: dict = None, interface: str = 'pyomo', scenario: Scenario = None, saveformat: str = None, print_solversteps: bool = True, log: bool = False, solver_options:dict=None) -> Result:
     """solves a model instance, scenario needs to be provided
 
     Args:
@@ -55,8 +55,13 @@ def solve(solver: str, name: str, instance: ConcreteModel = None, matrix: dict =
 
     else:
         if interface == 'pyomo':
-            output = SolverFactory(solver, solver_io='python').solve(
-                instance, tee=print_solversteps)
+            opt = SolverFactory(solver, solver_io='python')
+
+            if solver_options is not None:
+                for key, value in solver_options.items():
+                    opt.options[key] = value
+
+            output = opt.solve(instance, tee=print_solversteps)
 
         if interface == 'GAMS':
             warn('Ensure GAMS is installed on system and PATH is set')
@@ -71,7 +76,7 @@ def solve(solver: str, name: str, instance: ConcreteModel = None, matrix: dict =
                 'resources': {i.name: i.__dict__ for i in scenario.resource_set},
                 'materials': {i.name: i.__dict__ for i in scenario.material_set},
                 'locations': {i.name: i.__dict__ for i in scenario.location_set},
-                'transports': {},
+                'transports': {} if scenario.transport_set is None else {i.name: i.__dict__ for i in scenario.transport_set}
             }
 
         if len(instance.locations) > 1:

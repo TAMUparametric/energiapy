@@ -247,6 +247,7 @@ class Scenario:
         self.capex_dict = {i.name: i.capex for i in self.process_set}
         self.fopex_dict = {i.name: i.fopex for i in self.process_set}
         self.vopex_dict = {i.name: i.vopex for i in self.process_set}
+        self.order_fopex_dict = {i.name: i.order_fopex for i in self.process_set}
         # self.storage_capex_dict = {i.resource_storage: i.storage_capex for i in self.process_set if i.resource_storage is not None}
         self.storage_capex_dict = {i.name: i.storage_capex_dict for i in self.location_set}
         self.incidental_dict = {i.name: i.incidental for i in self.process_set}
@@ -425,6 +426,7 @@ class Scenario:
                                                 VaryingProcess.UNCERTAIN_EXPENDITURE in i.varying],
 
             'processes_segments': [i.name for i in self.process_set if i.cost_dynamics == CostDynamics.PWL],
+            'processes_order_fopex': [i.name for i in self.process_set if i.order_fopex!=0],
 
             'locations': [i.name for i in self.location_set],
             'materials': [i.name for i in self.material_set],

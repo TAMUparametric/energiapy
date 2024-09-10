@@ -49,7 +49,8 @@ from .constraints.cost import (
     constraint_storage_cost,
     constraint_storage_cost_location,
     constraint_storage_cost_network,
-    constraint_storage_capex
+    constraint_storage_capex,
+    constraint_process_order_fopex
 )
 from .constraints.emission import (
     constraint_global_warming_potential_location,
@@ -131,7 +132,8 @@ from .constraints.production import (
     constraint_nameplate_production,
     constraint_production_max,
     constraint_production_min,
-    constraint_nameplate_production_material_mode
+    constraint_nameplate_production_material_mode,
+    constraint_production_max_order_fopex
 )
 from .constraints.resource_balance import (
     constraint_inventory_balance,
@@ -216,7 +218,7 @@ from .objectives import (
 )
 
 from .sets import generate_sets
-from .variables.binary import generate_network_binary_vars
+from .variables.binary import generate_network_binary_vars, generate_scheduling_binary_vars
 from .variables.cost import generate_costing_vars
 from .variables.mode import generate_mode_vars
 from .variables.network import generate_network_vars
@@ -354,6 +356,9 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
         generate_material_vars(
             instance=instance, scale_level=scenario.network_scale_level)
 
+        if instance.processes_order_fopex != {}:
+            generate_scheduling_binary_vars(instance=instance, scale_level=scenario.scheduling_scale_level)
+
         if Constraints.UNCERTAIN in constraints:
             generate_uncertainty_vars(
                 instance=instance, scale_level=scenario.scheduling_scale_level)
@@ -378,8 +383,13 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
 
             constraint_location_capex(
                 instance=instance, network_scale_level=scenario.network_scale_level)
-            # constraint_location_fopex(
-            #     instance=instance, network_scale_level=scenario.network_scale_level)
+
+            if instance.processes_order_fopex!={}:
+                instance.constraint_process_order_fopex = constraint_process_order_fopex(instance=instance, location_process_dict=scenario.location_process_dict,
+                                                                                         order_fopex_dict=scenario.order_fopex_dict, scheduling_scale_level=scenario.scheduling_scale_level)
+
+            constraint_location_fopex(
+                instance=instance, network_scale_level=scenario.network_scale_level, scheduling_scale_level=scenario.scheduling_scale_level)
             # constraint_location_vopex(
             #     instance=instance, network_scale_level=scenario.network_scale_level)
             # constraint_location_incidental(
@@ -392,10 +402,10 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
             #     loc_comp_dict=scenario.location_process_dict, x_scale_level=scenario.network_scale_level, y_scale_level=scenario.network_scale_level,
             #     label='sums up capex from process over a location')
 
-            instance.constraint_location_fopex = make_constraint(
-                instance=instance, type_cons=Cons.X_EQ_SUMLOCCOST_Y, variable_x='Fopex_location', variable_y='Fopex_process', location_set=instance.locations, component_set=instance.processes,
-                loc_comp_dict=scenario.location_process_dict, x_scale_level=scenario.network_scale_level, y_scale_level=scenario.network_scale_level,
-                label='sums up fopex from process over a locations')
+            # instance.constraint_location_fopex = make_constraint(
+            #     instance=instance, type_cons=Cons.X_EQ_SUMLOCCOST_Y, variable_x='Fopex_location', variable_y='Fopex_process', location_set=instance.locations, component_set=instance.processes,
+            #     loc_comp_dict=scenario.location_process_dict, x_scale_level=scenario.network_scale_level, y_scale_level=scenario.network_scale_level,
+            #     label='sums up fopex from process over a locations')
 
             instance.constraint_location_vopex = make_constraint(
                 instance=instance, type_cons=Cons.X_EQ_SUMLOCCOST_Y, variable_x='Vopex_location', variable_y='Vopex_process', location_set=instance.locations, component_set=instance.processes,
@@ -670,6 +680,12 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
 
             instance.constraint_production_min = make_constraint(instance=instance, type_cons=Cons.X_GEQ_B, variable_x='Cap_P', b_max=scenario.prod_max, location_set=instance.locations, component_set=instance.processes,
                                                                  loc_comp_dict=scenario.location_process_dict, x_scale_level=scenario.network_scale_level, label='restricts nameplate capacity to some LB')
+
+            # *----------------production capacity bounds for fixed ordering costs---------------------------------------------
+
+            if instance.processes_order_fopex!={}:
+                constraint_production_max_order_fopex(instance=instance, prod_max=scenario.prod_max, location_process_dict=scenario.location_process_dict,
+                                                      scheduling_scale_level=scenario.scheduling_scale_level)
 
         if Constraints.LAND in constraints:
             generate_land_vars(

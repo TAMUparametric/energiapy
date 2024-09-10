@@ -164,6 +164,7 @@ class Process:
     capex: Union[float, dict] = 0
     fopex: Union[float, dict] = 0
     vopex: Union[float, dict] = 0
+    order_fopex: float = 0
     incidental: Union[float, dict] = 0
     material_cons: Union[Dict[Union[int, str],
                               Dict[Material, float]], Dict[Material, float]] = None
