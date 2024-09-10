@@ -1,7 +1,7 @@
 """General Bounded Variable Class
 """
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 
 from ._variable import _Variable
@@ -22,5 +22,3 @@ class BoundVar(_Variable):
 
     def __post_init__(self):
         _Variable.__post_init__(self)
-        self.parent = None
-

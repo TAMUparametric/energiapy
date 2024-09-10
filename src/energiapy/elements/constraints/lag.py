@@ -10,6 +10,7 @@ from ._constraint import _Constraint
 from ..variables.exactvar import ExactVar
 from .rules.delay import Delay
 from ..parameters.exactprm import ExactPrm
+from ...core.isalias.cmps.isdfn import IsDfn
 
 if TYPE_CHECKING:
     from .bound import Bound
@@ -19,14 +20,13 @@ if TYPE_CHECKING:
 class Lag(_Constraint):
     """Adds lag"""
 
+    root: IsDfn = field(default=None)
     parent: Bound = field(default=None)
 
     def __post_init__(self):
-        setattr(self, 'prmsym', f'τ^{self.parent.varsym}')
-        setattr(self, 'varsym', f'{self.parent.varsym}^lag')
+        _Constraint.__post_init__(self)
 
-        if not self.attr:
-            self.attr = f'{self.parent.name}_time'
+        self.at = self.parent.root
 
     @staticmethod
     def var():
@@ -47,3 +47,13 @@ class Lag(_Constraint):
     def varbirth_attrs(self):
         """Attributes of the Variable"""
         return {'symbol': self.varsym}
+
+    @property
+    def varsym(self):
+        """Symbol of the Variable"""
+        return f'{self.parent.varsym}^lag'
+
+    @property
+    def prmsym(self):
+        """Symbol of the Parameter"""
+        return f'τ^{self.parent.varsym}'

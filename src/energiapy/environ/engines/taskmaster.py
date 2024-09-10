@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 
 from ...components._attrs._balances import _BalanceAttrs
@@ -50,43 +50,30 @@ class Chanakya(_BoundAttrs, _BoundBoundAttrs, _ExactAttrs, _BalanceAttrs, _Dunde
     def __post_init__(self):
         self.name = f'TaskMaster|{self.name}|'
         # ---------Bounds-------------------------
-        # ----------------------------------------
-        # # Player
-        # self.has = Bound(name='has', root=Player, p=True, varsym='give', prmsym='Has')
-        # self.needs = Bound(
-        #     name='needs', root=Player, m=True, varsym='take', prmsym='Needs'
-        # )
-        # Cash
-        self.spend = Bound(attr='spend', root=Cash)
-        self.earn = Bound(attr='earn', root=Cash, sibling=self.spend)
+        self.spend = Bound(root=Cash)
+        self.earn = Bound(sibling=self.spend)
         # Emission
-        self.emit = Bound(attr='emit', root=Emission)
-        self.sequester = Bound(attr='sequester', root=Emission, sibling=self.emit)
+        self.emit = Bound(root=Emission)
+        self.sequester = Bound(sibling=self.emit)
         # Resource | Land
-        self.use = Bound(attr='use', root=Resource)
-        self.dispose = Bound(attr='dispose', root=Resource, sibling=self.use)
+        self.use = Bound(root=Resource)
+        self.dispose = Bound(sibling=self.use)
         # Resource
-        self.buy = Bound(attr='buy', root=Resource)
-        self.sell = Bound(attr='sell', root=Resource, sibling=self.buy)
-        self.receive = Bound(attr='receive', root=Resource)
-        self.ship = Bound(attr='ship', root=Resource, sibling=self.receive)
-        self.recover = Bound(attr='recover', root=Resource)
-        self.lose = Bound(attr='lose', root=Resource, sibling=self.recover)
-
+        self.buy = Bound(root=Resource)
+        self.sell = Bound(sibling=self.buy)
+        self.receive = Bound(root=Resource)
+        self.ship = Bound(sibling=self.receive)
+        self.recover = Bound(root=Resource)
+        self.lose = Bound(sibling=self.recover)
         # Operational
-        self.setup = Bound(attr='setup', root=_Operation)
-        self.dismantle = Bound(attr='dismantle', root=_Operation, sibling=self.setup)
+        self.setup = Bound(root=_Operation)
+        self.dismantle = Bound(sibling=self.setup)
 
         # ----------BoundBounds-----------
-        # ----------------------------------------
-
-        self.operate = BoundBound(attr='operate', root=_Operation, parent=self.setup)
+        self.operate = BoundBound(parent=self.setup)
         # ---------Balances-------------
-        # ----------------------------------------
-
         # Process
         self.conversion = Balance(
-            attr='conversion',
             opn=Process,
             balance=Conversion,
             sym='η',
@@ -94,7 +81,6 @@ class Chanakya(_BoundAttrs, _BoundBoundAttrs, _ExactAttrs, _BalanceAttrs, _Dunde
         )
         # Storage
         self.inventory = Balance(
-            attr='inventory',
             opn=Storage,
             balance=Inventory,
             sym='φ',
@@ -102,7 +88,6 @@ class Chanakya(_BoundAttrs, _BoundBoundAttrs, _ExactAttrs, _BalanceAttrs, _Dunde
         )
         # Transit
         self.freight = Balance(
-            attr='freight',
             opn=Transit,
             balance=Freight,
             sym='ψ',
@@ -110,126 +95,71 @@ class Chanakya(_BoundAttrs, _BoundBoundAttrs, _ExactAttrs, _BalanceAttrs, _Dunde
         )
 
         # -----------Exact Calculations-----------
-        # ----------------------------------------
         # ---------------Spend/Earn----------------
-        # ----Buy--------
-        self.buy_spend = Calculate(root=Cash, parent=self.buy, friend=self.spend)
-        self.buy_earn = Calculate(root=Cash, parent=self.buy, friend=self.earn)
-        # ----Sell--------
-        self.sell_earn = Calculate(root=Cash, parent=self.sell, friend=self.earn)
-        self.sell_spend = Calculate(root=Cash, parent=self.sell, friend=self.spend)
-        # ----Lose--------
-        self.lose_spend = Calculate(root=Resource, parent=self.lose, friend=self.spend)
-        # ----Recover--------
-        self.recover_earn = Calculate(
-            root=Resource, parent=self.recover, friend=self.earn
-        )
-        # ----Use--------
-        self.use_spend = Calculate(root=Resource, parent=self.use, friend=self.spend)
-        self.use_earn = Calculate(root=Resource, parent=self.use, friend=self.earn)
-        # ----Dispose--------
-        self.dispose_spend = Calculate(
-            root=Resource, parent=self.dispose, friend=self.spend
-        )
-        self.dispose_earn = Calculate(
-            root=Resource, parent=self.dispose, friend=self.earn
-        )
-        # ----SetUp--------
-        self.setup_spend = Calculate(
-            root=_Operation, parent=self.setup, friend=self.spend
-        )
-        self.setup_earn = Calculate(
-            root=_Operation, parent=self.setup, friend=self.earn
-        )
-        # ----Dismantle--------
-        self.dismantle_spend = Calculate(
-            root=_Operation, parent=self.dismantle, friend=self.spend
-        )
-        self.dismantle_earn = Calculate(
-            root=_Operation, parent=self.dismantle, friend=self.earn
-        )
-        # ----Operate--------
-        self.operate_spend = Calculate(
-            root=_Operation, parent=self.operate, friend=self.spend
-        )
-        self.operate_earn = Calculate(
-            root=_Operation, parent=self.operate, friend=self.earn
-        )
+        # Buy/Sell
+        self.buy_spend = Calculate(parent=self.buy, ilk=self.spend)
+        self.buy_earn = Calculate(parent=self.buy, ilk=self.earn)
+        self.sell_spend = Calculate(parent=self.sell, ilk=self.spend)
+        self.sell_earn = Calculate(parent=self.sell, ilk=self.earn)
+        # Use/Dispose
+        self.use_spend = Calculate(parent=self.use, ilk=self.spend)
+        self.use_earn = Calculate(parent=self.use, ilk=self.earn)
+        self.dispose_spend = Calculate(parent=self.dispose, ilk=self.spend)
+        self.dispose_earn = Calculate(parent=self.dispose, ilk=self.earn)
+        # Setup/Dismantle
+        self.setup_spend = Calculate(parent=self.setup, ilk=self.spend)
+        self.setup_earn = Calculate(parent=self.setup, ilk=self.earn)
+        self.dismantle_spend = Calculate(parent=self.dismantle, ilk=self.spend)
+        self.dismantle_earn = Calculate(parent=self.dismantle, ilk=self.earn)
+        # Operate
+        self.operate_spend = Calculate(parent=self.operate, ilk=self.spend)
+        self.operate_earn = Calculate(parent=self.operate, ilk=self.earn)
 
         # ---------------Emit/Sequester----------------
-        # ----Buy--------
-        self.buy_emit = Calculate(root=Emission, parent=self.buy, friend=self.emit)
-        self.buy_sequester = Calculate(
-            root=Emission, parent=self.buy, friend=self.sequester
-        )
-        # ----Sell--------
-        self.sell_emit = Calculate(root=Emission, parent=self.sell, friend=self.emit)
-        self.sell_sequester = Calculate(
-            root=Emission, parent=self.sell, friend=self.sequester
-        )
-        # ----Lose--------
-        self.lose_emit = Calculate(root=Resource, parent=self.lose, friend=self.emit)
-        self.recover_sequester = Calculate(
-            root=Resource, parent=self.recover, friend=self.sequester
-        )
-        # ----Use--------
-        self.use_emit = Calculate(root=Emission, parent=self.use, friend=self.emit)
-        self.use_sequester = Calculate(
-            root=Emission, parent=self.use, friend=self.sequester
-        )
-        # ----Dispose--------
-        self.dispose_emit = Calculate(
-            root=Emission, parent=self.dispose, friend=self.emit
-        )
-        self.dispose_sequester = Calculate(
-            root=Emission, parent=self.dispose, friend=self.sequester
-        )
-        # ----SetUp--------
-        self.setup_emit = Calculate(root=Emission, parent=self.setup, friend=self.emit)
-        self.setup_sequester = Calculate(
-            root=Emission, parent=self.setup, friend=self.sequester
-        )
-        # ----Dismantle--------
-        self.dismantle_emit = Calculate(
-            root=Emission, parent=self.dismantle, friend=self.emit
-        )
-        self.dismantle_sequester = Calculate(
-            root=Emission, parent=self.dismantle, friend=self.sequester
-        )
-        # ----Setup--------
-        self.setup_emit = Calculate(root=Emission, parent=self.setup, friend=self.emit)
-        self.setup_sequester = Calculate(
-            root=Emission, parent=self.setup, friend=self.sequester
-        )
-        # ----Operate--------
-        self.operate_emit = Calculate(
-            root=Emission, parent=self.operate, friend=self.emit
-        )
-        self.operate_sequester = Calculate(
-            root=Emission, parent=self.operate, friend=self.sequester
-        )
+        # Buy/Sell
+        self.buy_emit = Calculate(parent=self.buy, ilk=self.emit)
+        self.buy_sequester = Calculate(parent=self.buy, ilk=self.sequester)
+        self.sell_emit = Calculate(parent=self.sell, ilk=self.emit)
+        self.sell_sequester = Calculate(parent=self.sell, ilk=self.sequester)
+        # Lose
+        self.lose_emit = Calculate(parent=self.lose, ilk=self.emit)
+        self.recover_sequester = Calculate(parent=self.recover, ilk=self.sequester)
+        # Use/Dispose
+        self.use_emit = Calculate(parent=self.use, ilk=self.emit)
+        self.use_sequester = Calculate(parent=self.use, ilk=self.sequester)
+        self.dispose_emit = Calculate(parent=self.dispose, ilk=self.emit)
+        self.dispose_sequester = Calculate(parent=self.dispose, ilk=self.sequester)
+        # Setup/Dismantle
+        self.setup_emit = Calculate(parent=self.setup, ilk=self.emit)
+        self.setup_sequester = Calculate(parent=self.setup, ilk=self.sequester)
+        self.dismantle_emit = Calculate(parent=self.dismantle, ilk=self.emit)
+        self.dismantle_sequester = Calculate(parent=self.dismantle, ilk=self.sequester)
+        # Operate
+        self.operate_emit = Calculate(parent=self.operate, ilk=self.emit)
+        self.operate_sequester = Calculate(parent=self.operate, ilk=self.sequester)
         # ---------------Use/Dispose----------------
-        # ----Setup--------
-        self.setup_use = Calculate(root=Resource, parent=self.setup, friend=self.use)
-        # ----Dismantle--------
-        self.dismantle_dispose = Calculate(
-            root=Resource, parent=self.dismantle, friend=self.dispose
-        )
+        # Setup
+        self.setup_use = Calculate(parent=self.setup, ilk=self.use)
+        # Dismantle
+        self.dismantle_dispose = Calculate(parent=self.dismantle, ilk=self.dispose)
         # ---------------Lose/Recover----------------
-        # ----Operate--------
-        self.operate_lose = Calculate(
-            root=Resource, parent=self.operate, friend=self.lose
-        )
-        self.operate_recover = Calculate(
-            root=Resource, parent=self.operate, friend=self.recover
-        )
-        # ---------------Lag----------------
-        # ----SetUp--------
+        # Operate
+        self.operate_lose = Calculate(parent=self.operate, ilk=self.lose)
+        self.operate_recover = Calculate(parent=self.operate, ilk=self.recover)
+        # ---------------Rates----------------
+        # SetUp
         self.setup_time = Lag(root=Horizon, parent=self.setup)
-        # ----Dismantle--------
+        # Dismantle
         self.dismantle_time = Lag(root=Horizon, parent=self.dismantle)
-        # ----Operate--------
+        # Operate
         self.operate_time = Lag(root=Horizon, parent=self.operate)
+
+    def __setattr__(self, name: str, value: _Constraint):
+
+        if not isinstance(value, str):
+            value.attr = name
+
+        super().__setattr__(name, value)
 
     @property
     def report_transact(self):

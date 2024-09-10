@@ -144,7 +144,6 @@ class Program(_Block, _Print):
 
     def __post_init__(self):
         _Block.__post_init__(self)
-        self.name = f'Program|{self.name}|'
 
     @property
     def blocks(self):

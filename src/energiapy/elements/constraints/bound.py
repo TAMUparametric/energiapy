@@ -7,6 +7,7 @@ from ._constraint import _Constraint
 from ..variables.boundvar import BoundVar
 from .rules.bind import Bind
 from ..parameters.boundprm import BoundPrm
+from ...core.isalias.cmps.iscmp import IsCmp
 
 
 @dataclass
@@ -21,10 +22,11 @@ class Bound(_Constraint):
         sibling (Bound): Sibling Bound, one will add to the balance, the other will take
     """
 
+    root: IsCmp = field(default=None)
     sibling: Self = field(default=None)
 
     def __post_init__(self):
-
+        _Constraint.__post_init__(self)
         # Bounds have no parent, they are bound by parameters only
         self.parent = None
 
@@ -33,15 +35,11 @@ class Bound(_Constraint):
             self.sign = -1
             # set this one as the sibling of the sibling
             self.sibling.sibling = self
+            # and take the root from there
+            self.root = self.sibling.root
         else:
             # if sibling is not provided, then the sign is positive
             self.sign = 1
-
-        if not self.varsym:
-            self.varsym = self.attr
-
-        if not self.prmsym:
-            self.prmsym = f'{self.attr.capitalize()}'
 
     @staticmethod
     def var():
@@ -62,3 +60,13 @@ class Bound(_Constraint):
     def varbirth_attrs(self):
         """Attributes of the Variable"""
         return {'sign': self.sign, 'symbol': self.varsym}
+
+    @property
+    def varsym(self):
+        """Symbol of the Variable"""
+        return self.attr
+
+    @property
+    def prmsym(self):
+        """Symbol of the Parameter"""
+        return f'{self.attr.capitalize()}'

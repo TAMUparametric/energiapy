@@ -25,8 +25,6 @@ class Balance(_Constraint):
     sym: str = field(default=None)
 
     def __post_init__(self):
-        setattr(self, 'varsym', None)
-        setattr(self, 'prmsym', self.sym)
         self.root = Resource
 
     @staticmethod
@@ -44,3 +42,12 @@ class Balance(_Constraint):
     @property
     def varbirth_attrs(self):
         """Attributes of the Variable"""
+
+    @property
+    def varsym(self):
+        """Symbol of the Variable"""
+
+    @property
+    def prmsym(self):
+        """Symbol of the Parameter"""
+        return self.sym

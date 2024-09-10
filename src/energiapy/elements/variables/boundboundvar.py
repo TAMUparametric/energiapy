@@ -1,13 +1,19 @@
 """General Bounded Bound Variable Class
 """
 
-from dataclasses import dataclass, field
+from __future__ import annotations
 
-from .boundvar import BoundVar
+from dataclasses import dataclass, field
+from typing import TYPE_CHECKING
+
+from ._variable import _Variable
+
+if TYPE_CHECKING:
+    from .boundvar import BoundVar
 
 
 @dataclass
-class BoundBoundVar(BoundVar):
+class BoundBoundVar(_Variable):
     """BoundBoundVar is a general variable which is essentially a Bound Variable
     Bounded by another Bound Variable
 
@@ -22,6 +28,7 @@ class BoundBoundVar(BoundVar):
         parent (BoundVar): The Parent Variable of the Variable
     """
 
+    parent: BoundVar = field(default=None)
+
     def __post_init__(self):
-        self.p = True
-        BoundVar.__post_init__(self)
+        _Variable.__post_init__(self)

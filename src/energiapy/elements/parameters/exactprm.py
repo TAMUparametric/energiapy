@@ -15,6 +15,6 @@ class ExactPrm(_Parameter):
         _Parameter.__post_init__(self)
 
     @property
-    def symib(self):
+    def symib(self) -> IndexedBase:
         """Symbolic representation of the Parameter"""
         return IndexedBase(self.symbol)

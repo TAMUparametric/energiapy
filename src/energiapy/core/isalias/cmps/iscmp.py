@@ -15,3 +15,6 @@ IsCmp: TypeAlias = IsDfn | IsSptTmp
 # Is a tuple of components
 # which tells you the disposition of an element
 IsDsp: TypeAlias = tuple[IsCmp]
+
+# Is a disposition as a dictionary
+IsDct: TypeAlias = dict[str, IsCmp]

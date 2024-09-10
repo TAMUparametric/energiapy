@@ -1,13 +1,17 @@
 """General Variable Class
 """
 
-from dataclasses import dataclass, field
-from typing import Self
+from __future__ import annotations
+from typing import TYPE_CHECKING
 
+
+from dataclasses import dataclass, field
 from sympy import IndexedBase
 from ...core._handy._dunders import _Dunders
 from ...core.isalias.cmps.isdfn import IsDfn
-from ..disposition.index import Index
+
+if TYPE_CHECKING:
+    from ..disposition.index import Index
 
 
 @dataclass
@@ -23,13 +27,9 @@ class _Variable(_Dunders):
     index: Index = field(default=None)
     component: IsDfn = field(default=None)
     symbol: str = field(default=None)
-    parent: Self = field(default=None)
 
     def __post_init__(self):
         self.name = str(self.sym)
-
-        
-
         if not self.symbol:
             raise ValueError(f'{self}: symbol must be provided')
 
@@ -39,6 +39,6 @@ class _Variable(_Dunders):
         return IndexedBase(self.symbol)
 
     @property
-    def sym(self):
+    def sym(self) -> IndexedBase:
         """The symbolic representation of the Variable"""
         return self.symib[self.index.sym]

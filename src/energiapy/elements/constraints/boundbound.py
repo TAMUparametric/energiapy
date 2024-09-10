@@ -25,12 +25,9 @@ class BoundBound(_Constraint):
     parent: Bound = field(default=None)
 
     def __post_init__(self):
-
-        if not self.varsym:
-            self.varsym = self.attr
-
-        if not self.prmsym:
-            self.prmsym = f'{self.attr.capitalize()}^f'
+        _Constraint.__post_init__(self)
+        self.sign = 1
+        self.root = self.parent.root
 
     @staticmethod
     def var():
@@ -51,3 +48,13 @@ class BoundBound(_Constraint):
     def varbirth_attrs(self):
         """Attributes of the Variable"""
         return {'symbol': self.varsym}
+
+    @property
+    def varsym(self):
+        """Symbol of the Variable"""
+        return self.attr
+
+    @property
+    def prmsym(self):
+        """Symbol of the Parameter"""
+        return f'{self.attr.capitalize()}^f'

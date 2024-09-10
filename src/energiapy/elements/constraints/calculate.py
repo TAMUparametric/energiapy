@@ -27,20 +27,18 @@ class Calculate(_Constraint):
         varsym (str): Symbol of the Variable
         prmsym (str): Symbol of the Parameter
         parent (Bound): Bound gives the value to calculate
-        friend (Bound): This calculation contributes to this Bound
+        ilk (Bound): This calculation contributes to this Bound
     """
 
     parent: Bound | BoundBound = field(default=None)
-    friend: Bound | BoundBound = field(default=None)
+    ilk: Bound | BoundBound = field(default=None)
 
     def __post_init__(self):
+        _Constraint.__post_init__(self)
 
-        if not self.varsym:
-            self.prmsym = f'{self.friend.prmsym}^{self.parent.varsym}'
-            self.varsym = f'{self.friend.varsym}^{self.parent.varsym}'
-
-        if not self.attr:
-            self.attr = f'{self.parent.name}_{self.friend.name}'
+        self.at = self.parent.root
+        self.root = self.ilk.root
+        self.sign = self.parent.sign
 
     @staticmethod
     def var():
@@ -61,3 +59,13 @@ class Calculate(_Constraint):
     def varbirth_attrs(self):
         """Attributes of the Variable"""
         return {'symbol': self.varsym}
+
+    @property
+    def varsym(self):
+        """Symbol of the Variable"""
+        return f'{self.ilk.varsym}^{self.parent.varsym}'
+
+    @property
+    def prmsym(self):
+        """Symbol of the Parameter"""
+        return f'{self.ilk.prmsym}^{self.parent.varsym}'

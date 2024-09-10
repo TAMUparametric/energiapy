@@ -9,7 +9,6 @@ from dataclasses import dataclass, field
 
 from ...core._handy._dunders import _Dunders
 from ...core._handy._printers import _EasyPrint
-from ...core.isalias.cmps.iscmp import IsCmp
 
 if TYPE_CHECKING:
     from ...elements.constraints.rules._rule import _Rule
@@ -29,10 +28,8 @@ class _Constraint(_Dunders, _EasyPrint, ABC):
         prmsym (str): Symbol of the Parameter
     """
 
-    root: IsCmp = field(default=None)
-    attr: str = field(default=None)
-    varsym: str = field(default=None)
-    prmsym: str = field(default=None)
+    def __post_init__(self):
+        self._attr = ''
 
     @property
     def name(self):
@@ -58,3 +55,22 @@ class _Constraint(_Dunders, _EasyPrint, ABC):
     @abstractmethod
     def varbirth_attrs(self) -> dict:
         """Attributes of the Variable"""
+
+    @property
+    def attr(self) -> str:
+        """Attribute"""
+        return self._attr
+
+    @attr.setter
+    def attr(self, value: str):
+        self._attr = value
+
+    @property
+    @abstractmethod
+    def varsym(self) -> str:
+        """Symbol of the Variable"""
+
+    @property
+    @abstractmethod
+    def prmsym(self) -> str:
+        """Symbol of the Parameter"""
