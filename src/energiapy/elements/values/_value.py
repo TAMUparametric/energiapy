@@ -39,9 +39,6 @@ class _Value(ABC, _Reprs):
         if not self.spclmt:
             self.spclmt = SpcLmt.NOT
 
-        for i in ['_certainty', '_approach']:
-            setattr(self, i, None)
-
         if self.index:
             for i, j in self.index.args().items():
                 setattr(self, i, j)
