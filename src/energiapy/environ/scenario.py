@@ -146,15 +146,6 @@ class Scenario(_Ok, _Default, _Birth, _Update, _ScnCols, _Dunders, _Print):
                 # Inherited from _Ok
                 self.isok_nobasis(component=value)
                 self.isok_nolabel(component=value)
-
-                # Components that can have only one instance in the System are handled here
-                # Unique components are set as properties of the System which the Scenario can access
-                if isinstance(value, Cash):
-                    self.handle_unique_cmp(cmp='cash', component=value)
-
-                if isinstance(value, Land):
-                    self.handle_unique_cmp(cmp='land', component=value)
-
                 # All defined components have constraints
                 # The data is handled first and made into internal formats and added to the Data Model
                 # The Program Model is then generated using information from the Data Model

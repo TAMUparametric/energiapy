@@ -40,7 +40,7 @@ class _Update(ABC):
         Also the stuff they generate such as Scales (Horizon) and Locations (Network)
 
         Args:
-            cmp (str): property in Scenario that stores Component 'cash', 'land', 'horizon', 'network'
+            cmp (str): property in Scenario that stores Component 'horizon', 'network'
         """
 
         cmp = getattr(self, cmp)
