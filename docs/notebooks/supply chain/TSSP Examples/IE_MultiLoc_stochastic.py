@@ -45,33 +45,27 @@ def create_event_dict(n_total: int):
         'cap2_13': {'prob': 0.05,
                     'factor': pandas.DataFrame(data={('loc2', 'com1_process'): create_list(n_total, 13)})},
         'cap2_26': {'prob': 0.1, 'factor': pandas.DataFrame(data={('loc2', 'com1_process'): create_list(n_total, 26)})},
-        'cap2_39': {'prob': 0.15,
-                    'factor': pandas.DataFrame(data={('loc2', 'com1_process'): create_list(n_total, 39)})},
-        'cap2_52': {'prob': 0.7, 'factor': pandas.DataFrame(data={('loc2', 'com1_process'): default_list})},
+        'cap2_52': {'prob': 0.85, 'factor': pandas.DataFrame(data={('loc2', 'com1_process'): default_list})},
 
         'cap4_13': {'prob': 0.01,
                     'factor': pandas.DataFrame(data={('loc4', 'com1_process'): create_list(n_total, 13)})},
         'cap4_26': {'prob': 0.05,
                     'factor': pandas.DataFrame(data={('loc4', 'com1_process'): create_list(n_total, 26)})},
-        'cap4_39': {'prob': 0.1, 'factor': pandas.DataFrame(data={('loc4', 'com1_process'): create_list(n_total, 39)})},
-        'cap4_52': {'prob': 0.84, 'factor': pandas.DataFrame(data={('loc4', 'com1_process'): default_list})},
+        'cap4_52': {'prob': 0.94, 'factor': pandas.DataFrame(data={('loc4', 'com1_process'): default_list})},
 
         'cap7_13': {'prob': 0.05,
                     'factor': pandas.DataFrame(data={('loc7', 'com1_process'): create_list(n_total, 13)})},
         'cap7_26': {'prob': 0.15,
                     'factor': pandas.DataFrame(data={('loc7', 'com1_process'): create_list(n_total, 26)})},
-        'cap7_39': {'prob': 0.1, 'factor': pandas.DataFrame(data={('loc7', 'com1_process'): create_list(n_total, 39)})},
-        'cap7_52': {'prob': 0.25, 'factor': pandas.DataFrame(data={('loc7', 'com1_process'): default_list})},
+        'cap7_52': {'prob': 0.8, 'factor': pandas.DataFrame(data={('loc7', 'com1_process'): default_list})},
 
-        'res1_13': {'prob': 0.25, 'factor': pandas.DataFrame(data={('loc1', 'com1_pur'): create_list(n_total, 13)})},
-        'res1_26': {'prob': 0.25, 'factor': pandas.DataFrame(data={('loc1', 'com1_pur'): create_list(n_total, 26)})},
-        'res1_39': {'prob': 0.25, 'factor': pandas.DataFrame(data={('loc1', 'com1_pur'): create_list(n_total, 39)})},
-        'res1_52': {'prob': 0.25, 'factor': pandas.DataFrame(data={('loc1', 'com1_pur'): default_list})},
+        'res1_13': {'prob': 0.02, 'factor': pandas.DataFrame(data={('loc1', 'com1_pur'): create_list(n_total, 13)})},
+        'res1_26': {'prob': 0.1, 'factor': pandas.DataFrame(data={('loc1', 'com1_pur'): create_list(n_total, 26)})},
+        'res1_52': {'prob': 0.88, 'factor': pandas.DataFrame(data={('loc1', 'com1_pur'): default_list})},
 
-        'res6_13': {'prob': 0.25, 'factor': pandas.DataFrame(data={('loc6', 'com1_pur'): create_list(n_total, 13)})},
-        'res6_26': {'prob': 0.25, 'factor': pandas.DataFrame(data={('loc6', 'com1_pur'): create_list(n_total, 26)})},
-        'res6_39': {'prob': 0.25, 'factor': pandas.DataFrame(data={('loc6', 'com1_pur'): create_list(n_total, 39)})},
-        'res6_52': {'prob': 0.25, 'factor': pandas.DataFrame(data={('loc6', 'com1_pur'): default_list})},
+        'res6_13': {'prob': 0.02, 'factor': pandas.DataFrame(data={('loc6', 'com1_pur'): create_list(n_total, 13)})},
+        'res6_26': {'prob': 0.2, 'factor': pandas.DataFrame(data={('loc6', 'com1_pur'): create_list(n_total, 26)})},
+        'res6_52': {'prob': 0.78, 'factor': pandas.DataFrame(data={('loc6', 'com1_pur'): default_list})},
     }
 
     return event_dict
