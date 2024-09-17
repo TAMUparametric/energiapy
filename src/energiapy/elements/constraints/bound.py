@@ -3,11 +3,12 @@
 
 from dataclasses import dataclass, field
 from typing import Self
-from ._constraint import _Constraint
-from ..variables.boundvar import BoundVar
-from .rules.bind import Bind
-from ..parameters.boundprm import BoundPrm
+
 from ...core.isalias.cmps.iscmp import IsCmp
+from ..parameters.boundprm import BoundPrm
+from ..variables.boundvar import BoundVar
+from ._constraint import _Constraint
+from .rules.bind import Bind
 
 
 @dataclass

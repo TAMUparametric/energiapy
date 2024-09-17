@@ -4,8 +4,8 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING
 from dataclasses import dataclass, field
+from typing import TYPE_CHECKING
 
 from ...core._handy._dunders import _Dunders
 from ...core._handy._printers import _EasyPrint

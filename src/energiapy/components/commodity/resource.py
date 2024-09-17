@@ -8,7 +8,7 @@
 from dataclasses import dataclass, fields
 
 from .._attrs._bounds import _Trade, _Use
-from .._attrs._exacts import _TradeTransact, _TradeEmit, _UseTransact, _UseEmit
+from .._attrs._exacts import _TradeEmit, _TradeTransact, _UseEmit, _UseTransact
 from ._commodity import _Commodity
 
 

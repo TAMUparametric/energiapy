@@ -2,8 +2,8 @@
 """
 
 from dataclasses import dataclass
-from ...core.isalias.elms.isval import IsVal
 
+from ...core.isalias.elms.isval import IsVal
 from ._block import _Block
 
 

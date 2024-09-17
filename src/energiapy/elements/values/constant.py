@@ -10,7 +10,6 @@ from sympy import IndexedBase
 
 from ._value import _Value
 
-
 if TYPE_CHECKING:
     from ...core.isalias.inps.isinp import IsNum
 
@@ -53,5 +52,3 @@ class Constant(_Value):
         if isinstance(other, Constant):
             return self.constant < other.constant
         return NotImplemented
-
-

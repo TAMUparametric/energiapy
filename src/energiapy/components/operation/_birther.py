@@ -6,11 +6,12 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
+
 from ._operation import _Operation
 
 if TYPE_CHECKING:
-    from .process import Process
     from ...elements.parameters.balances.conversion import Conversion
+    from .process import Process
 
 
 @dataclass

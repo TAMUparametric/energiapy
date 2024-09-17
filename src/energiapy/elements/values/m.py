@@ -4,14 +4,11 @@
 from dataclasses import dataclass, field
 
 from sympy import IndexedBase
-
-from ..disposition.bound import VarBnd
-from ._value import _Value
-from .constant import Constant
+from ...core._handy._dunders import _Reprs
 
 
 @dataclass
-class M(_Value):
+class M(_Reprs):
     """
     If big is True:
         A really big number like the weight on my shoulders
@@ -29,14 +26,10 @@ class M(_Value):
     m: float = field(default=None)
 
     def __post_init__(self):
-        _Value.__post_init__(self)
-
-        if self.big is True:
-            # if Big M
-            self.varbnd = VarBnd.UB
+        if self.big:
+            self.name = 'M'
         else:
-            # if small m
-            self.varbnd = VarBnd.LB
+            self.name = 'm'
 
     @property
     def value(self):
@@ -47,27 +40,37 @@ class M(_Value):
             return self.m
 
     @property
-    def id(self):
+    def sym(self):
         """Symbol"""
-        if self.big is True:
-            return IndexedBase('M')
-        else:
-            return IndexedBase('m')
+        return IndexedBase(f'{self.name}')
 
     def __gt__(self, other):
-        if isinstance(other, (int, float, Constant)):
+        if isinstance(other, (int, float)):
             # BigM is always greater than any number
-            return getattr(self, 'big')
+            return self.big
         if isinstance(other, M):
             if other.big is False:
-                return getattr(self, 'big')
-        return NotImplemented
+                return self.big
+
+    def __ge__(self, other):
+        return self > other
 
     def __lt__(self, other):
-        if isinstance(other, (int, float, Constant)):
-            # BigM is always big than any number
-            return not getattr(self, 'big')
+        return not self > other
+
+    def __le__(self, other):
+        return not self > other
+
+    def __eq__(self, other):
+
+        if isinstance(other, (int, float)):
+            return False
+
         if isinstance(other, M):
-            if other.big is False:
-                return not getattr(self, 'big')
-        return NotImplemented
+            if self.big == other.big:
+                return True
+            else:
+                return False
+
+    def __ne__(self, other):
+        return not self == other

@@ -2,11 +2,12 @@
 """
 
 from __future__ import annotations
-from typing import TYPE_CHECKING
-
 
 from dataclasses import dataclass, field
+from typing import TYPE_CHECKING
+
 from sympy import IndexedBase
+
 from ...core._handy._dunders import _Dunders
 from ...core.isalias.cmps.isdfn import IsDfn
 

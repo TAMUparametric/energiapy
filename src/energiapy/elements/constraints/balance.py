@@ -5,11 +5,11 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
-from ._constraint import _Constraint
 
-from ...core.isalias.inps.isblc import IsBlc
-from ...core.isalias.cmps.isdfn import IsOpn
 from ...components.commodity.resource import Resource
+from ...core.isalias.cmps.isdfn import IsOpn
+from ...core.isalias.inps.isblc import IsBlc
+from ._constraint import _Constraint
 
 if TYPE_CHECKING:
     from .boundbound import BoundBound

@@ -2,13 +2,12 @@
 """
 
 from dataclasses import dataclass
+
 from ...elements.parameters.balances.conversion import Conversion
 from .._attrs._balances import _ProBalance
-
 from .._attrs._spatial import _LocCollection
-from ._operation import _Operation
 from ..spatial.location import Location
-
+from ._operation import _Operation
 
 
 @dataclass

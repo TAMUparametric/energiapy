@@ -3,13 +3,13 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
-from dataclasses import dataclass, field
-from ._constraint import _Constraint
-from ..variables.exactvar import ExactVar
-from .rules.calculation import Calculation
 from ..parameters.exactprm import ExactPrm
+from ..variables.exactvar import ExactVar
+from ._constraint import _Constraint
+from .rules.calculation import Calculation
 
 if TYPE_CHECKING:
     from .bound import Bound

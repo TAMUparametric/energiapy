@@ -8,7 +8,6 @@ from pandas import DataFrame
 from ....components.spatial.linkage import Linkage
 from ....components.spatial.location import Location
 from ....components.spatial.network import Network
-from ....components.temporal.incidental import I
 from ....components.temporal.mode import X
 from ....components.temporal.scale import Scale
 
@@ -32,7 +31,7 @@ IsSpc: TypeAlias = tuple[IsSpcBnd, IsSpcBnd]
 IsExtInp: TypeAlias = IsNum | DataFrame | IsSpc
 
 # has an incidental parameter input
-IsIncInp: TypeAlias = set[IsExtInp | I]
+IsIncInp: TypeAlias = set[IsExtInp]
 
 # as a list of bounds [lower, upper (inequality constraints)
 IsBndInp: TypeAlias = IsExtInp | IsBig | list[IsExtInp | IsBig]

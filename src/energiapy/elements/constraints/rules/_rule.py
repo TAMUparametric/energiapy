@@ -4,11 +4,11 @@
 from dataclasses import dataclass, field
 
 from sympy import IndexedBase, Mul, Rel
-from ...disposition.bound import VarBnd
 
 from ....core._handy._dunders import _Dunders
 from ....core.isalias.elms.isprm import IsPrm
 from ....core.isalias.elms.isvar import IsVar
+from ...disposition.bound import VarBnd
 
 
 @dataclass

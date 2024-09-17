@@ -2,9 +2,10 @@
 """
 
 from abc import ABC, abstractmethod
-from itertools import product, accumulate
 from dataclasses import dataclass, field
+from itertools import accumulate, product
 from operator import mul
+
 from ._component import _Component
 
 

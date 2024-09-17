@@ -3,9 +3,9 @@
 
 from dataclasses import dataclass
 
+from .._base._component import _Component
 from .._base._discr import _Discr
 from .period import Period
-from .._base._component import _Component
 
 
 @dataclass

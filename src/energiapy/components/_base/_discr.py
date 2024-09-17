@@ -6,12 +6,11 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
-
 if TYPE_CHECKING:
-    from ..temporal.scale import Scale
     from ..spatial.location import Location
-    from ..temporal.horizon import Horizon
     from ..spatial.network import Network
+    from ..temporal.horizon import Horizon
+    from ..temporal.scale import Scale
 
 
 @dataclass

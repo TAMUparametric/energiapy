@@ -3,9 +3,11 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
+
 from sympy import IndexedBase
+
 from ._parameter import _Parameter
 
 if TYPE_CHECKING:

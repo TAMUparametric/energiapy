@@ -4,8 +4,8 @@
 from dataclasses import dataclass
 from operator import is_
 
-from ._spatial import _Spatial
 from .._base._discr import _Discr
+from ._spatial import _Spatial
 
 
 @dataclass

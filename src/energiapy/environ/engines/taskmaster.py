@@ -6,36 +6,33 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass, field
 from typing import TYPE_CHECKING, Any
 
-
 from ...components._attrs._balances import _BalanceAttrs
-from ...components._attrs._bounds import _BoundAttrs
 from ...components._attrs._boundbounds import _BoundBoundAttrs
+from ...components._attrs._bounds import _BoundAttrs
 from ...components._attrs._exacts import _ExactAttrs
-from ...core._handy._dunders import _Dunders
-from ...elements.constraints.report import Report
-from ...elements.constraints.bound import Bound
-from ...elements.constraints.boundbound import BoundBound
-from ...elements.constraints.calculate import Calculate
-from ...elements.constraints.balance import Balance
-from ...elements.constraints.lag import Lag
-
 # from ...components.analytical.player import Player
 from ...components.commodity.cash import Cash
 from ...components.commodity.emission import Emission
 from ...components.commodity.resource import Resource
+from ...components.operation._operation import _Operation
 from ...components.operation.process import Process
 from ...components.operation.storage import Storage
 from ...components.operation.transit import Transit
-from ...components.operation._operation import _Operation
 from ...components.temporal.horizon import Horizon
-
+from ...core._handy._dunders import _Dunders
+from ...elements.constraints.balance import Balance
+from ...elements.constraints.bound import Bound
+from ...elements.constraints.boundbound import BoundBound
+from ...elements.constraints.calculate import Calculate
+from ...elements.constraints.lag import Lag
+from ...elements.constraints.report import Report
 from ...elements.parameters.balances.conversion import Conversion
 from ...elements.parameters.balances.freight import Freight
 from ...elements.parameters.balances.inventory import Inventory
 
 if TYPE_CHECKING:
-    from ...elements.constraints.rules._rule import _Rule
     from ...elements.constraints._constraint import _Constraint
+    from ...elements.constraints.rules._rule import _Rule
 
 
 @dataclass

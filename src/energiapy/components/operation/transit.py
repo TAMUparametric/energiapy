@@ -6,8 +6,8 @@ from dataclasses import dataclass
 from ...elements.parameters.balances.freight import Freight
 from .._attrs._balances import _TrnBalance
 from .._attrs._spatial import _LnkCollection
-from ._birther import _Birther
 from ..spatial.linkage import Linkage
+from ._birther import _Birther
 
 
 @dataclass

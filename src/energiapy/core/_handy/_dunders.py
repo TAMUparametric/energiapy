@@ -8,15 +8,11 @@ class _Reprs:
     def __repr__(self):
         return str(getattr(self, 'name'))
 
-    def __eq__(self, other):
-        return getattr(self, 'name') == other.name
-
     def __hash__(self):
         return hash(getattr(self, 'name'))
 
     def __init_subclass__(cls):
         cls.__repr__ = _Reprs.__repr__
-        cls.__eq__ = _Reprs.__eq__
         cls.__hash__ = _Reprs.__hash__
 
     @classmethod
@@ -27,6 +23,9 @@ class _Reprs:
 
 class _Magics:
     """Magic functions"""
+
+    def __eq__(self, other):
+        return getattr(self, 'name') == other.name
 
     def __lt__(self, other):
         if hasattr(other, '__len__') and hasattr(self, '__len__'):

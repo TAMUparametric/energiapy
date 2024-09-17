@@ -3,10 +3,10 @@
 
 from dataclasses import dataclass, field
 
+from ..parameters.boundboundprm import BoundBoundPrm
 from ..variables.boundboundvar import BoundBoundVar
 from ._constraint import _Constraint
 from .bound import Bound
-from ..parameters.boundboundprm import BoundBoundPrm
 from .rules.bind import Bind
 
 

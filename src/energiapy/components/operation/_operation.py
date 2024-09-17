@@ -7,18 +7,12 @@ from dataclasses import dataclass, fields
 from pandas import DataFrame
 
 from ...utils.scaling import scaling
-from .._base._defined import _Defined
 from .._attrs._boundbounds import _Operate
 from .._attrs._bounds import _Setup
-from .._attrs._exacts import (
-    _OperateTrade,
-    _OperateTransact,
-    _OperateLose,
-    _SetupTransact,
-    _SetupEmit,
-    _SetupUse,
-)
-from .._attrs._rates import _SetupRate, _OperateRate
+from .._attrs._exacts import (_OperateLose, _OperateTrade, _OperateTransact,
+                              _SetupEmit, _SetupTransact, _SetupUse)
+from .._attrs._rates import _OperateRate, _SetupRate
+from .._base._defined import _Defined
 
 
 @dataclass

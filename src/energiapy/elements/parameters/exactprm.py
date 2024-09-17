@@ -2,6 +2,7 @@
 """
 
 from dataclasses import dataclass
+
 from sympy import IndexedBase
 
 from ._parameter import _Parameter

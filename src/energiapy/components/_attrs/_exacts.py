@@ -5,7 +5,6 @@ from dataclasses import dataclass, field, fields
 
 from ...core.isalias.inps.isinp import IsExt, IsInc
 
-
 # -------------Exacts with Transact as parent-------------
 
 

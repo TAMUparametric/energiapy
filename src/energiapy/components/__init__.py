@@ -14,7 +14,6 @@ __all__ = [
     'Process',
     'Storage',
     'Transit',
-    'I',
     'IsBnd',
     'IsExt',
     'IsInc',
@@ -33,5 +32,4 @@ from .operation.transit import Transit
 from .spatial.linkage import Linkage
 from .spatial.network import Network
 from .temporal.horizon import Horizon
-from .temporal.incidental import I
 from .temporal.mode import X

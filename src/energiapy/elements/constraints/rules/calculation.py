@@ -2,7 +2,6 @@
 
 from dataclasses import dataclass
 
-
 from ._rule import _Rule
 
 

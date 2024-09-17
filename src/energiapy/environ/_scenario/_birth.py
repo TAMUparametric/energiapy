@@ -10,9 +10,9 @@ from typing import TYPE_CHECKING
 from ...components.operation.process import Process
 from ...components.spatial.linkage import Linkage
 from ...components.spatial.location import Location
-from ...components.temporal.scale import Scale
 from ...components.spatial.network import Network
 from ...components.temporal.horizon import Horizon
+from ...components.temporal.scale import Scale
 
 if TYPE_CHECKING:
     from ...components.commodity.resource import Resource

@@ -3,14 +3,14 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
-from dataclasses import dataclass, field
-from ._constraint import _Constraint
-from ..variables.exactvar import ExactVar
-from .rules.delay import Delay
-from ..parameters.exactprm import ExactPrm
 from ...core.isalias.cmps.isdfn import IsDfn
+from ..parameters.exactprm import ExactPrm
+from ..variables.exactvar import ExactVar
+from ._constraint import _Constraint
+from .rules.delay import Delay
 
 if TYPE_CHECKING:
     from .bound import Bound

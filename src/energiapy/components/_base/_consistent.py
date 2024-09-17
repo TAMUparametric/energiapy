@@ -13,8 +13,9 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from operator import is_not
-from warnings import warn
 from typing import TYPE_CHECKING
+from warnings import warn
+
 from pandas import DataFrame
 
 from ...core.isalias.inps.isinp import IsBndInp, IsExtInp, IsInp, IsSptTmp

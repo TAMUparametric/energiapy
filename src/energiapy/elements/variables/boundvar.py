@@ -3,7 +3,6 @@
 
 from dataclasses import dataclass
 
-
 from ._variable import _Variable
 
 

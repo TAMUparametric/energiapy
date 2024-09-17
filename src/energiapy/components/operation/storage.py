@@ -6,10 +6,9 @@ from dataclasses import dataclass
 from ...elements.parameters.balances.inventory import Inventory
 from .._attrs._balances import _StgBalance
 from .._attrs._births import _StgBirthing
-
 from .._attrs._spatial import _LocCollection
-from ._birther import _Birther
 from ..spatial.location import Location
+from ._birther import _Birther
 
 
 @dataclass

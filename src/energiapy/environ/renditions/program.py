@@ -4,7 +4,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-
 from typing import TYPE_CHECKING
 
 from ...core._handy._dunders import _Dunders
@@ -18,14 +17,13 @@ from ...elements.disposition.index import Index
 from ._block import _Block
 from .blocks.datablock import DataBlock
 
-
 if TYPE_CHECKING:
     from ...elements.constraints.bound import Bound
     from ...elements.constraints.boundbound import BoundBound
     from ...elements.constraints.calculate import Calculation
-    from ..engines.taskmaster import Chanakya
-    from ..engines.registrar import ChitraGupta
     from ..datum import Datum
+    from ..engines.registrar import ChitraGupta
+    from ..engines.taskmaster import Chanakya
 
 
 @dataclass
