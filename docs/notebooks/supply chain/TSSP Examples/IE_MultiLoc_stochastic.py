@@ -25,6 +25,7 @@ from pyomo.environ import Param
 from energiapy.utils.scale_utils import scale_pyomo_set
 from energiapy.utils.scale_utils import scale_list, scale_tuple
 from mpisppy.opt.ef import ExtensiveForm
+import pickle
 
 _time_intervals = 7  # Number of time intervals in a planning horizon    (L_chi)
 _coms = 1
@@ -416,6 +417,11 @@ if __name__ == '__main__':
     exCost_UI = ef_UI.get_objective_value()
     EVPI = exCost_UI - exCost_PI
     p_inc = EVPI * 100 / exCost_PI
+
+    ssoln_dict = ef_UI.get_root_solution()
+
+    with open('ssoln_IE_MultiLoc_stochastic.pkl', 'wb') as file:
+        pickle.dump(ssoln_dict, file)
 
     print(f"Total Expected Cost considering perfect information: {exCost_PI:.4f}")
     print(f"Total Expected Cost considering disruptions (stochastic solution): {exCost_UI:.4f}")
