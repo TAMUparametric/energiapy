@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 from matplotlib import rc
 import sys
 sys.path.append('../../../../src')
+# sys.path.append('../../mpi-sppy/mpisppy')
 import pandas
 import random
 import math
