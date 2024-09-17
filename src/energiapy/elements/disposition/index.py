@@ -1,25 +1,30 @@
 """Index gives the disposition of Program Elements (Variables, Parameters, Constraints)
 """
 
+from __future__ import annotations
+
 from dataclasses import dataclass, field, fields
+from typing import TYPE_CHECKING
 
 from sympy import Idx, symbols
 
-from ...components.analytical.player import Player
-from ...components.commodity.cash import Cash
-from ...components.commodity.emission import Emission
-from ...components.commodity.land import Land
-from ...components.commodity.resource import Resource
-from ...components.operation.process import Process
-from ...components.operation.storage import Storage
-from ...components.operation.transit import Transit
-from ...components.spatial.linkage import Linkage
-from ...components.spatial.location import Location
-from ...components.spatial.network import Network
-from ...components.temporal.mode import X
-from ...components.temporal.scale import Scale
+
 from ...core._handy._dunders import _Dunders
-from ...core.isalias.cmps.iscmp import IsCmp
+
+if TYPE_CHECKING:
+    from ...components.analytical.player import Player
+    from ...components.commodity.cash import Cash
+    from ...components.commodity.emission import Emission
+    from ...components.commodity.land import Land
+    from ...components.commodity.resource import Resource
+    from ...components.operation.process import Process
+    from ...components.operation.storage import Storage
+    from ...components.operation.transit import Transit
+    from ...components.spatial.linkage import Linkage
+    from ...components.spatial.location import Location
+    from ...components.temporal.mode import X
+    from ...components.temporal.scale import Scale
+    from ...components._base._component import _Component
 
 
 @dataclass
@@ -55,7 +60,6 @@ class Index(_Dunders):
     trn: Transit = field(default=None)
     loc: Location = field(default=None)
     lnk: Linkage = field(default=None)
-    ntw: Network = field(default=None)
     scl: Scale = field(default=None)
     mde: X = field(default=None)
 
@@ -83,7 +87,7 @@ class Index(_Dunders):
         """provides the structure of the Index"""
         return [f.name for f in fields(self) if getattr(self, f.name)]
 
-    def childless(self, child: IsCmp):
+    def childless(self, child: _Component):
         """Gives a disposition without the component"""
         return {
             f.name: getattr(self, f.name)
