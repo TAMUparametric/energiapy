@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
-
+from sympy import Rel
 from ..core._handy._dunders import _Reprs
 from .disposition.index import Index
 

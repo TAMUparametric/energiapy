@@ -28,6 +28,21 @@ class Exn(_Reprs):
     rel: str = field()
     name: str = field(default='Exn')
 
+    @property
+    def sym(self):
+        """symbolic representation"""
+        if self.rel == '+':
+            return self.one.sym + self.two.sym 
+        
+        if self.rel == '-':
+            return self.one.sym - self.two.sym
+        
+        if self.rel == '*':
+            return self.one.sym* self.two.sym
+        
+        if self.rel == '/':
+            return self.one.sym / self.two.sym
+
     def __add__(self, other: Self | Prm | Vrb):
         return Exn(one=self, two=other, rel='+')
 
@@ -54,3 +69,5 @@ class Exn(_Reprs):
 
     def __gt__(self, other: Self | Prm | Vrb):
         return self >= other
+
+
