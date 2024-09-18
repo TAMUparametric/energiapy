@@ -56,8 +56,8 @@ class Btwn(_Bnds):
     The value can be anything between the lower and upper bound
 
     Attributes:
-        lb (int | float | list | tuple[int | float | list]): lower bound
-        ub (bool | int | float | list | tuple[bool | int | float | list]): upper bound
+        lb (int | float | list | In): lower bound
+        ub (bool | int | float | list | In): upper bound
         lb_penalty (int | float | list): penalty for lower bound
         ub_penalty (int | float | list): penalty for upper bound
     """

@@ -92,26 +92,6 @@ class System(_Block):
         self._network = network
 
     @property
-    def cash(self):
-        """Returns the Cash of the System"""
-        return self._cash
-
-    @cash.setter
-    def cash(self, cash: Cash):
-        """Sets the Cash of the System"""
-        self._cash = cash
-
-    @property
-    def land(self):
-        """Returns the Land of the System"""
-        return self._land
-
-    @land.setter
-    def land(self, land: Land):
-        """Sets the Land of the System"""
-        self._land = land
-
-    @property
     def locations(self):
         """Returns the Locations of the System"""
         return self.fetch(Location)
@@ -157,9 +137,19 @@ class System(_Block):
         return self.fetch(Emission)
 
     @property
+    def cashes(self):
+        """Returns the Cashes of the System"""
+        return self.fetch(Cash)
+
+    @property
+    def lands(self):
+        """Returns the Lands of the System"""
+        return self.fetch(Land)
+
+    @property
     def commodities(self):
         """Returns the Commodity Components of the System"""
-        return self.resources + self.emissions + [self.cash] + [self.land]
+        return self.resources + self.emissions + self.cashes + self.lands
 
     @property
     def processes(self):

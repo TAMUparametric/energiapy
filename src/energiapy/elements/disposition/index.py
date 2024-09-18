@@ -76,30 +76,16 @@ class Index(_Dunders):
         """provides a dict of attributes"""
         return {f.name: getattr(self, f.name) for f in fields(self)}
 
-    def idx(self):
-        """Gives the full disposition list, by expanding the temporal index"""
-        return [
-            (*[k.name for k in self.disposition[:-1]], *t) for t in self.scl.index if t
-        ]
-
-    def structure(self):
-        """provides the structure of the Index"""
-        return [f.name for f in fields(self) if getattr(self, f.name)]
-
     def childless(self, child: _Component):
         """Gives a disposition without the component"""
-        return {
-            f.name: getattr(self, f.name)
-            for f in fields(self)
-            if not isinstance(getattr(self, f.name), child)
-        }
-
-    def disp(self):
-        """Gives the disposition of the Index"""
-        return {f.name: getattr(self, f.name) for f in fields(self)}
+        return {k: cmp for k, cmp in self.args().items() if cmp != child}
 
     def __len__(self):
         return len(self.scl)
+
+    def size(self):
+        """Size of the Index"""
+        return len(self.disposition)
 
     @property
     def sym(self):

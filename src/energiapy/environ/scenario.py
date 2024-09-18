@@ -110,7 +110,7 @@ class Scenario(_Ok, _Default, _Birth, _Update, _ScnCols, _Dunders, _Print):
         _Default.__post_init__(self)
 
         # These are flags to check existence of components which can have only one instance in the System
-        for cmp in ['horizon', 'network', 'land', 'cash']:
+        for cmp in ['horizon', 'network']:
             setattr(self, f'_{cmp}', False)
 
         # Declare Model, contains system, program, data, matrix
