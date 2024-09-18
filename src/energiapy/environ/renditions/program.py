@@ -27,7 +27,7 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class ProgramBlock(_Dunders, _Print):
+class PrgmBlock(_Dunders, _Print):
     """Block of Program
     The Parameters, Variables, Constraints are defined here
 

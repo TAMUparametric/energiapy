@@ -63,7 +63,7 @@ class Index(_Dunders):
     mde: X = field(default=None)
 
     def __post_init__(self):
-
+        
         # this is the disposition of the Program Element
         self.disposition = tuple(
             [getattr(self, f.name) for f in fields(self) if getattr(self, f.name)]

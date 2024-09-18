@@ -106,15 +106,12 @@ class Scenario(_Ok, _Default, _Birth, _Update, _ScnCols, _Dunders, _Print):
     m: float = field(default=None)
 
     def __post_init__(self):
-        _Ok.__post_init__(self)
-        _Default.__post_init__(self)
-
-        # These are flags to check existence of components which can have only one instance in the System
-        for cmp in ['horizon', 'network']:
-            setattr(self, f'_{cmp}', False)
 
         # Declare Model, contains system, program, data, matrix
         self.model = Model(name=self.name)
+
+        _Ok.__post_init__(self)
+        _Default.__post_init__(self)
 
         # set default values if self.default (inherited from _Default) is True
         self._default()
@@ -134,7 +131,7 @@ class Scenario(_Ok, _Default, _Birth, _Update, _ScnCols, _Dunders, _Print):
 
             # Check if ok to overwrite
             # Inherited from _Ok
-            self.isok_ovewrite(cmp=name)
+            self.isok_overwrite(cmp=name)
 
             # set the component in the system
             setattr(self.system, name, value)
@@ -177,13 +174,13 @@ class Scenario(_Ok, _Default, _Birth, _Update, _ScnCols, _Dunders, _Print):
 
             # Operation are gotten from the System because at this point they are not set to the Scenario
             if isinstance(value, Process):
-                process = getattr(self.system, name)
+                process: Process = getattr(self.system, name)
                 # make the conversion into a Conversion
                 process.conversionize()
                 self.locate_commodities(operation=process)
 
             if isinstance(value, Storage):
-                storage = getattr(self.system, name)
+                storage: Storage = getattr(self.system, name)
                 # make the inventory into Inventory
                 storage.inventorize()
                 # birth the Charging and Discharging processes
@@ -191,7 +188,7 @@ class Scenario(_Ok, _Default, _Birth, _Update, _ScnCols, _Dunders, _Print):
                 self.birth_bal_processes(operation=storage, res=ResourceStg())
 
             if isinstance(value, Transit):
-                transit = getattr(self.system, name)
+                transit: Transit = getattr(self.system, name)
                 # make the freight into Freight
                 transit.freightize()
                 # birth the Loading and Unloading processes
@@ -209,16 +206,6 @@ class Scenario(_Ok, _Default, _Birth, _Update, _ScnCols, _Dunders, _Print):
     def program(self):
         """Program of the Scenario"""
         return self.model.program
-
-    @property
-    def data(self):
-        """Data of the Scenario"""
-        return self.model.data
-
-    @property
-    def matrix(self):
-        """Matrix of the Scenario"""
-        return self.model.matrix
 
     @property
     def taskmaster(self):

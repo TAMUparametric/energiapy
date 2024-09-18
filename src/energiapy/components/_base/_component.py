@@ -7,6 +7,7 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 from ...core._handy._dunders import _Dunders
+from ...environ.renditions.blocks.progblock import PrgmBlock
 
 if TYPE_CHECKING:
     from ...environ.model import Model
@@ -27,6 +28,7 @@ class _Component(_Dunders):
         self.name = None
         self._named = False
         self._model = None
+        self.progblock = PrgmBlock(self)
 
     @property
     def is_named(self):
@@ -60,9 +62,8 @@ class _Component(_Dunders):
 
     @property
     def taskmaster(self):
-        """Chanakya of the Scenario"""
+        """Task Master of the Scenario"""
         return self._model.taskmaster
-
 
     @property
     def registrar(self):

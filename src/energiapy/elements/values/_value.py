@@ -8,7 +8,7 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 from ...core._handy._dunders import _Reprs
-from ..disposition.bound import SpcLmt, VarBnd
+# from ..disposition.bound import SpcLmt, VarBnd
 
 if TYPE_CHECKING:
     from ..disposition.index import Index
@@ -26,18 +26,18 @@ class _Value(ABC, _Reprs):
     """
 
     index: Index = field(default=None)
-    varbnd: VarBnd = field(default=None)
-    spclmt: SpcLmt = field(default=None)
+    # varbnd: VarBnd = field(default=None)
+    # spclmt: SpcLmt = field(default=None)
     incdntl: bool = field(default=False)
 
     def __post_init__(self):
 
-        if not self.varbnd:
-            # if nothing is specified, then exact. So will make equality constraint
-            self.varbnd = VarBnd.EQ
+        # if not self.varbnd:
+        #     # if nothing is specified, then exact. So will make equality constraint
+        #     self.varbnd = VarBnd.EQ
 
-        if not self.spclmt:
-            self.spclmt = SpcLmt.NOT
+        # if not self.spclmt:
+        #     self.spclmt = SpcLmt.NOT
 
         if self.index:
             for i, j in self.index.args().items():

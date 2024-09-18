@@ -7,7 +7,7 @@ from ...components.analytical.player import Player
 from ...components.commodity.cash import Cash
 from ...components.commodity.emission import Emission
 from ...components.commodity.land import Land
-from ...components.commodity.resource import Resource, ResourceStg, ResourceTrn
+from ...components.commodity.resource import Resource
 from ...components.operation.process import Process
 from ...components.operation.storage import Storage
 from ...components.operation.transit import Transit
@@ -16,12 +16,12 @@ from ...components.spatial.location import Location
 from ...components.spatial.network import Network
 from ...components.temporal.horizon import Horizon
 from ...components.temporal.scale import Scale
-from ...core.isalias.cmps.isdfn import IsDfn
-from ._block import _Block
+
+from ...core._handy._dunders import _Dunders
 
 
 @dataclass
-class System(_Block):
+class System(_Dunders):
     """System is the representation of the Scenario through the use of Components
 
     The methodology of commodification of the Scenario draws from the resource task network (RTN)
@@ -67,39 +67,69 @@ class System(_Block):
 
     """
 
+    name: str = field(default="System")
+
     def __post_init__(self):
 
-        _Block.__post_init__(self)
+        # declare the scopes of the problem
+        self.horizon = Horizon()
+        self.network = Network()
+
+        # create empty lists to collect declared components
+        self.players: list[Player] = []
+        self.emissions: list[Emission] = []
+        self.cashes: list[Cash] = []
+        self.resources: list[Resource] = []
+        self.lands: list[Land] = []
+        self.processes: list[Process] = []
+        self.storages: list[Storage] = []
+        self.transits: list[Transit] = []
+        self.locations: list[Location] = []
+        self.linkages: list[Linkage] = []
+        self.scales: list[Scale] = []
+
+    def __setattr__(self, name, component):
+
+        # add components to the collections
+        if isinstance(component, Player):
+            self.players.append(component)
+
+        if isinstance(component, Emission):
+            self.emissions.append(component)
+
+        if isinstance(component, Cash):
+            self.cashes.append(component)
+
+        if isinstance(component, Resource):
+            self.resources.append(component)
+
+        if isinstance(component, Land):
+            self.lands.append(component)
+
+        if isinstance(component, Process):
+            self.processes.append(component)
+
+        if isinstance(component, Storage):
+            self.storages.append(component)
+
+        if isinstance(component, Transit):
+            self.transits.append(component)
+
+        if isinstance(component, Location):
+            self.locations.append(component)
+
+        if isinstance(component, Linkage):
+            self.linkages.append(component)
+
+        if isinstance(component, Scale):
+            self.scales.append(component)
+
+        super().__setattr__(name, component)
 
     @property
-    def horizon(self):
-        """Returns the Horizon of the System"""
-        return self._horizon
-
-    @horizon.setter
-    def horizon(self, horizon: Horizon):
-        """Sets the Horizon of the System"""
-        self._horizon = horizon
-
-    @property
-    def network(self):
-        """Returns the Network of the System"""
-        return self._network
-
-    @network.setter
-    def network(self, network: Network):
-        """Sets the Network of the System"""
-        self._network = network
-
-    @property
-    def locations(self):
-        """Returns the Locations of the System"""
-        return self.fetch(Location)
-
-    @property
-    def linkages(self):
-        """Returns the Linkages of the System"""
-        return self.fetch(Linkage)
+    def scopes(self):
+        """Scopes of the System"""
+        return [self.horizon, self.network]
 
     @property
     def spatials(self):
@@ -107,69 +137,19 @@ class System(_Block):
         return self.locations + self.linkages
 
     @property
-    def scales(self):
-        """Returns the Scales of the System"""
-        return self.fetch(Scale)
-
-    @property
-    def players(self):
-        """Returns the Players of the System"""
-        return self.fetch(Player)
-
-    @property
-    def resources(self):
-        """Returns the Resources of the System"""
-        return self.fetch(Resource)
-
-    @property
-    def resources_stg(self):
-        """Returns the Stored Resources of the System"""
-        return self.fetch(ResourceStg)
-
-    @property
-    def resources_trn(self):
-        """Returns the Transit Resources of the System"""
-        return self.fetch(ResourceTrn)
-
-    @property
-    def emissions(self):
-        """Returns the Emissions of the System"""
-        return self.fetch(Emission)
-
-    @property
-    def cashes(self):
-        """Returns the Cashes of the System"""
-        return self.fetch(Cash)
-
-    @property
-    def lands(self):
-        """Returns the Lands of the System"""
-        return self.fetch(Land)
-
-    @property
     def commodities(self):
         """Returns the Commodity Components of the System"""
         return self.resources + self.emissions + self.cashes + self.lands
 
     @property
-    def processes(self):
-        """Returns the Processes of the System"""
-        return self.fetch(Process)
-
-    @property
-    def storages(self):
-        """Returns the Storages of the System"""
-        return self.fetch(Storage)
-
-    @property
-    def transits(self):
-        """Returns the Transits of the System"""
-        return self.fetch(Transit)
-
-    @property
     def operations(self):
         """Returns the Operations of the System"""
         return self.processes + self.storages + self.transits
+
+    @property
+    def components(self):
+        """Returns all the Components of the System"""
+        return self.scopes + self.spatials + self.commodities + self.operations
 
     @property
     def nodes(self):
@@ -195,20 +175,3 @@ class System(_Block):
     def sinks(self):
         """Sink Locations of the System"""
         return sorted({i[1] for i in self.pairs})
-
-    def fetch(self, cmp: IsDfn) -> list[IsDfn]:
-        """Fetches defined Components of a particular class in the System
-
-        Args:
-            cmp (Defined): Component type
-
-        Returns:
-            list[Defined]: list of defined Components
-        """
-        return sorted(
-            [
-                getattr(self, name)
-                for name, component in self.components().items()
-                if isinstance(component, cmp)
-            ]
-        )

@@ -14,7 +14,7 @@ class _Sys(ABC):
 
 
 class _Alys(_Sys):
-    
+
     @property
     def players(self):
         """Players of the System"""

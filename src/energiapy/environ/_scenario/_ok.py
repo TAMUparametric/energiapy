@@ -40,7 +40,7 @@ class _Ok(ABC):
     def system(self):
         """System of the Scenario"""
 
-    def isok_ovewrite(self, cmp: str):
+    def isok_overwrite(self, cmp: str):
         """Check if overwriting is allowed
 
         Args:

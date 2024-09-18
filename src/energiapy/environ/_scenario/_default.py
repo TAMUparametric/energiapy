@@ -58,10 +58,6 @@ class _Default:
         # Players if def_players is True (default)
         # Scope Components
 
-        if self.def_scope:
-            setattr(self, 'hrz_def', Horizon(label='Default Horizon'))
-            setattr(self, 'ntw_def', Network(label='Default Network'))
-
         if self.def_land:
             setattr(self, 'lnd_def', Land(basis='Acres', label='Land'))
 
