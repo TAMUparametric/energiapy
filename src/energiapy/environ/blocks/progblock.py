@@ -4,30 +4,24 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+
 from typing import TYPE_CHECKING
 
 from ...core._handy._dunders import _Dunders
 from ...core._handy._printers import _Print
-from ...core.isalias.cmps.iscmp import IsDsp
-from ...core.isalias.cmps.isdfn import IsDfn
-from ...core.isalias.elms.isval import IsVal
-from ...core.isalias.elms.isvar import IsVar
-from ...core.nirop.errors import CacodcarError
-from ...elements.disposition.index import Index
-from ._block import _Block
-from .blocks.datablock import DataBlock
+
 
 if TYPE_CHECKING:
     from ...elements.constraints.bound import Bound
     from ...elements.constraints.boundbound import BoundBound
     from ...elements.constraints.calculate import Calculation
-    from ..datum import Datum
-    from ..engines.registrar import ChitraGupta
     from ..engines.taskmaster import Chanakya
+    from ..engines.registrar import ChitraGupta
+    from ..datum import Datum
 
 
 @dataclass
-class PrgmBlock(_Dunders, _Print):
+class ProgramBlock(_Dunders, _Print):
     """Block of Program
     The Parameters, Variables, Constraints are defined here
 

@@ -7,7 +7,7 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 from ...core._handy._dunders import _Dunders
-from ...environ.renditions.blocks.progblock import PrgmBlock
+from ...environ.blocks.progblock import ProgramBlock
 
 if TYPE_CHECKING:
     from ...environ.model import Model
@@ -28,7 +28,7 @@ class _Component(_Dunders):
         self.name = None
         self._named = False
         self._model = None
-        self.progblock = PrgmBlock(self)
+        self.program = ProgramBlock(self)
 
     @property
     def is_named(self):
@@ -51,12 +51,7 @@ class _Component(_Dunders):
         return getattr(self._model.matrix, self.name)
 
     @property
-    def program(self):
-        """The Program of the Component"""
-        return getattr(self._model.program, self.name)
-
-    @property
-    def program_full(self):
+    def model(self):
         """The Program for the entire Scenario"""
         return self._model.program
 

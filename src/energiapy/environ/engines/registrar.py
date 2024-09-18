@@ -13,6 +13,7 @@ from ...elements.disposition.index import Index
 
 if TYPE_CHECKING:
     from .taskmaster import Chanakya
+    from ..system import System
 
 
 @dataclass
@@ -26,6 +27,7 @@ class ChitraGupta(_Dunders):
     """
 
     name: str = field(default=None)
+    system: System = field(default=None)
     taskmaster: Chanakya = field(default=None)
 
     def __post_init__(self):
@@ -35,7 +37,15 @@ class ChitraGupta(_Dunders):
     def __setattr__(self, name: str, disp: IsDct):
         if isinstance(disp, dict):
             index: Index = self.fish(disp)
+
+    @property
+    def prmspace(self):
+        """Parameter Space"""
         
+        
+     
+
+
 
     def fish(self, disp: dict):
         """Fishes out an Index declared at a particular Disposition
