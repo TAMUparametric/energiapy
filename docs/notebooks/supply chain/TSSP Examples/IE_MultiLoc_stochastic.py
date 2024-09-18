@@ -25,6 +25,8 @@ from pyomo.environ import Param
 from energiapy.utils.scale_utils import scale_pyomo_set
 from energiapy.utils.scale_utils import scale_list, scale_tuple
 from mpisppy.opt.ef import ExtensiveForm
+from energiapy.model.constraints.constraints import make_constraint, Cons
+from energiapy.model.formulate import constraint_export
 import pickle
 
 _time_intervals = 7  # Number of time intervals in a planning horizon    (L_chi)
@@ -110,7 +112,7 @@ def create_scenario_dict(event_dict):
     return scenario_dict
 
 
-def build_model(scen_df):
+def build_model(scen_df=pandas.DataFrame()):
     default_df = pandas.DataFrame(data=[1] * _exec_scenarios)
 
     # Define temporal scales
@@ -142,10 +144,16 @@ def build_model(scen_df):
     # ======================================================================================================================
     com1_process_capacity = 500
 
+    # prod_max = {0: 0.25*com1_process_capacity, 1: 0.5*com1_process_capacity, 2: 0.75*com1_process_capacity, 3: 0.95*com1_process_capacity, 4: com1_process_capacity}
+    # prod_min = {0: 0, 1: 0.25*com1_process_capacity, 2: 0.5*com1_process_capacity, 3: 0.75*com1_process_capacity, 4: 0.95*com1_process_capacity}
+    # rate_max = {0:1.25/2, 1: 1/2, 2: 0.75/2, 3: 0.5/2, 4: 0.25/2}
+    # mode_ramp = {(0,1): 5, (1,2): 5}
+
     com1_procure = Process(name='procure com1', prod_max=com1_process_capacity, conversion={com1_pur: -1, com1_in: 1},
                            capex=25, vopex=0.01, prod_min=0.01, label='Procure com1')
     com1_sell = Process(name='sell com1', prod_max=com1_process_capacity, conversion={com1_out: -1, com1_sold: 1},
                         capex=0.1, vopex=0.01, prod_min=0.01, label='Sell com1')
+    # com1_opt_procure = Process(name='procure optional com1', prod_max=75, conversion={com1_pur: -1, com1_in:1}, capex=10, vopex=0.1, prod_min=0.01, label='Procure optional com1')
 
     com1_receive_loc1 = Process(name='com1_receive_loc1', prod_max=com1_process_capacity,
                                 conversion={com1_loc1_out: -1, com1_in: 1}, capex=0.1, vopex=0.01, prod_min=0.01,
@@ -172,6 +180,12 @@ def build_model(scen_df):
     com1_process = Process(name='com1_process', prod_max=com1_process_capacity, conversion={com1_in: -1, com1_out: 1},
                            capex=5, vopex=0.01, prod_min=0.01, label='Process the commodity through the location',
                            varying=[VaryingProcess.DETERMINISTIC_CAPACITY])
+
+    # com1_process = Process(name='com1_process', prod_max=prod_max, conversion={0:{com1_in: -1, com1_out: 1}, 1:{com1_in: -1, com1_out: 1}, 2:{com1_in: -1, com1_out: 1}, 3:{com1_in: -1, com1_out: 1}, 4:{com1_in: -1, com1_out: 1}},  capex=0.01, vopex=0.01, prod_min=prod_min, rate_max=rate_max, varying=[VaryingProcess.DETERMINISTIC_CAPACITY], label='Process the commodity through the location')
+
+    # com1_store10 = Process(name='com1_store10', prod_max=com1_process_capacity, capex=0.1, vopex=0.01, storage_capex=10, store_min=0.01, store_max= 40, prod_min=0.01, label="Storage capacity of 10 units", storage=com1_in, storage_cost=0.02)
+    # com1_store20 = Process(name='com1_store20', prod_max=com1_process_capacity, capex=0.1, vopex=0.02, storage_capex=20, store_min=0.01,store_max= 80, prod_min=0.01, label="Storage capacity of 20 units", storage=com1_in, storage_cost=0.02)
+    # com1_store50 = Process(name='com1_store50', prod_max=com1_process_capacity, capex=0.1, vopex=0.05, storage_capex=50, store_min=0.01, store_max= 200, prod_min=0.01, label="Storage capacity of 50 units", storage=com1_in, storage_cost=0.02)
 
     com1_store = Process(name='com1_store', prod_max=500, capex=0.5, vopex=0.01, storage_capex=30, store_min=0.01,
                          store_max=200, prod_min=0.01, label="Storage process", storage=com1_in, storage_cost=0.02)
@@ -236,9 +250,7 @@ def build_model(scen_df):
                     label="Location 6", scales=scales, demand_scale_level=2, capacity_scale_level=1,
                     availability_scale_level=1,
                     availability_factor={
-                        com1_pur: scen_df[[('loc6', 'com1_pur')]] if ('loc6', 'com1_pur') in scen_df else default_df},
-                    capacity_factor={com1_process: scen_df[[('loc6', 'com1_process')]] if ('loc6',
-                                                                                           'com1_process') in scen_df else default_df})
+                        com1_pur: scen_df[[('loc6', 'com1_pur')]] if ('loc6', 'com1_pur') in scen_df else default_df})
 
     loc7 = Location(name='loc7',
                     processes={com1_receive_loc4, com1_receive_loc5, com1_process, com1_store, com1_loc7_send},
@@ -353,23 +365,27 @@ def build_model(scen_df):
                         capacity_scale_level=1, network=network, demand=demand_dict, demand_penalty=demand_penalty_dict,
                         label='Stochastic scenario with Multiple Locations')
 
-    # ======================================================================================================================
-    # Declare problem
-    # ======================================================================================================================
+    if scen_df.empty:
+        # ======================================================================================================================
+        # Declare problem
+        # ======================================================================================================================
 
-    problem_mincost = formulate(scenario=scenario,
-                                constraints={Constraints.COST, Constraints.TRANSPORT, Constraints.RESOURCE_BALANCE,
-                                             Constraints.INVENTORY, Constraints.PRODUCTION, Constraints.DEMAND,
-                                             Constraints.NETWORK},
-                                demand_sign='eq', objective=Objective.COST_W_DEMAND_PENALTY)
+        problem_mincost = formulate(scenario=scenario,
+                                    constraints={Constraints.COST, Constraints.TRANSPORT, Constraints.RESOURCE_BALANCE,
+                                                 Constraints.INVENTORY, Constraints.PRODUCTION, Constraints.DEMAND,
+                                                 Constraints.NETWORK},
+                                    demand_sign='eq', objective=Objective.COST_W_DEMAND_PENALTY)
 
-    scale_iter = scale_tuple(instance=problem_mincost, scale_levels=scenario.network_scale_level + 1)
-    capex_process = sum(problem_mincost.Capex_network[scale_] for scale_ in scale_iter)
-    cost_trans_capex = sum(problem_mincost.Capex_transport_network[scale_] for scale_ in scale_iter)
+        scale_iter = scale_tuple(instance=problem_mincost, scale_levels=scenario.network_scale_level + 1)
+        capex_process = sum(problem_mincost.Capex_network[scale_] for scale_ in scale_iter)
+        cost_trans_capex = sum(problem_mincost.Capex_transport_network[scale_] for scale_ in scale_iter)
 
-    problem_mincost.first_stage_cost = capex_process + cost_trans_capex
+        problem_mincost.first_stage_cost = capex_process + cost_trans_capex
 
-    return scenario, problem_mincost
+        return scenario, problem_mincost
+
+    else:
+        return scenario
 
 
 def scenario_creator(scen_name, **kwargs):
@@ -385,13 +401,9 @@ if __name__ == '__main__':
 
     solver_options = {
         'MIPGap': 0.005,
-        'TimeLimit': 60 * 15,
+        # 'TimeLimit': 60 * 15,
         'Heuristics': 0.20
     }
-
-    exCost_PI = 0
-    results_PI = dict()
-    model_PI = dict()
 
     event_dict = create_event_dict(n_total=_exec_scenarios)
     scenario_dict = create_scenario_dict(event_dict=event_dict)
@@ -401,13 +413,49 @@ if __name__ == '__main__':
     print(f"Sum of probabilities of all scenarios: {sum(scenario_dict[scen]['prob'] for scen in scenario_dict):.6f}")
     print(f'Number of considered scenarios: {len(scenario_names)}')
 
-    for scenario_name in scenario_names:
-        scen_PI, model_PI[scenario_name] = build_model(scen_df=scenario_dict[scenario_name]['factor'])
-        results_PI[scenario_name] = solve(scenario=scen_PI, instance=model_PI[scenario_name], solver='gurobi',
-                                          name=scenario_name, solver_options=solver_options)
-        print('######################## Finished solving ' + scenario_name + ' ########################')
-        exCost_PI += value(model_PI[scenario_name].objective_cost_w_demand_penalty) * scenario_dict[scenario_name][
-            'prob']
+    exCost_PI = 0
+    results_PI = dict()
+    scen_PI, model_PI = build_model()
+
+    # Deterministic Scenarios for Perfect Information
+
+    for scen_name in scenario_names:
+        scen_PI = build_model(scen_df=scenario_dict[scen_name]['factor'])
+
+        # Delete process capacity factors, resource availability factors, transport capacity factors
+        model_PI.del_component('constraint_nameplate_production_varying_capacity')
+        model_PI.del_component('constraint_resource_consumption_varying')
+        model_PI.del_component('constraint_export')
+
+        # Add the constraints back for this particular scenario
+        model_PI.constraint_nameplate_production_varying_capacity = make_constraint(instance=model_PI,
+            type_cons=Cons.X_LEQ_BY, variable_x='P', location_set=model_PI.locations, component_set=model_PI.processes_varying_capacity,
+            loc_comp_dict=scen_PI.location_process_dict, b_factor=scen_PI.capacity_factor,
+                                                                                    x_scale_level=scen_PI.scheduling_scale_level,
+                                                                                    b_scale_level=scen_PI.capacity_scale_level,
+                                                                                    y_scale_level=scen_PI.network_scale_level,
+                                                                                    variable_y='Cap_P',
+                                                                                    label='restricts production to varying nameplate capacity')
+
+        model_PI.constraint_resource_consumption_varying = make_constraint(
+            instance=model_PI, type_cons=Cons.X_LEQ_B, variable_x='C', location_set=model_PI.locations,
+            component_set=model_PI.resources_varying_availability, b_max=scen_PI.cons_max,
+            loc_comp_dict=scen_PI.location_resource_dict, b_factor=scen_PI.availability_factor,
+            x_scale_level=scen_PI.scheduling_scale_level, b_scale_level=scen_PI.availability_scale_level,
+            label='restricts resource consumption to varying availablity')
+
+        constraint_export(instance=model_PI, scheduling_scale_level=scen_PI.scheduling_scale_level,
+                          network_scale_level=scen_PI.network_scale_level,
+                          location_transport_resource_dict=scen_PI.location_transport_resource_dict,
+                          transport_capacity_factor=scen_PI.transport_capacity_factor,
+                          transport_capacity_scale_level=scen_PI.transport_capacity_scale_level)
+
+        results_PI = solve(scenario=scen_PI, instance=model_PI, solver='gurobi', name=scen_name,
+                           solver_options=solver_options)
+
+        print('######################## Finished solving ' + scen_name + ' ########################')
+
+        exCost_PI += value(model_PI.objective_cost_w_demand_penalty) * scenario_dict[scen_name]['prob']
 
     options = {"solver": "gurobi"}
     scenario_creator_kwargs = {'scenario_dict': scenario_dict}
