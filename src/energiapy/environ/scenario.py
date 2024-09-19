@@ -103,7 +103,6 @@ class Scenario(_Ok, _Default, _Birth, _Update, _ScnCols, _Dunders, _Print):
     """
 
     name: str = field(default=':s:')
-    m: float = field(default=None)
 
     def __post_init__(self):
 
@@ -201,6 +200,16 @@ class Scenario(_Ok, _Default, _Birth, _Update, _ScnCols, _Dunders, _Print):
     def system(self):
         """System of the Scenario"""
         return self.model.system
+
+    @property
+    def horizon(self):
+        """Horizon of the Scenario"""
+        return self.system.horizon
+
+    @property
+    def network(self):
+        """Network of the Scenario"""
+        return self.system.network
 
     @property
     def program(self):

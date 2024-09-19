@@ -119,7 +119,9 @@ class _Update(ABC):
         # where all the data values go
         datablock = DataBlock(component=component, m=getattr(self, 'm'))
         # where all the model elements go
-        programblock = ProgramBlock(component=component)
+        block = component.block 
+
+
 
         # Each _Defined component has inputs which are categorized
         # check individual component parent classes _Operation, _Commodity (_Traded and _Used) for details

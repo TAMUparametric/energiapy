@@ -13,6 +13,11 @@ from ....components.temporal.scale import Scale
 
 # --------------Base Inputs--------------
 
+number = float | int | list
+
+bound = number | tuple[number, number] | tuple[number, Literal[True]]
+
+
 # Parameter value input
 IsNum: TypeAlias = float | int
 

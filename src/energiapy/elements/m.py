@@ -4,7 +4,7 @@
 from dataclasses import dataclass, field
 
 from sympy import IndexedBase
-from ...core._handy._dunders import _Reprs
+from ..core._handy._dunders import _Reprs
 
 
 @dataclass

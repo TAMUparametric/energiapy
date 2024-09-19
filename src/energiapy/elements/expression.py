@@ -6,11 +6,11 @@ from typing import TYPE_CHECKING, Self
 from dataclasses import dataclass, field
 
 from ..core._handy._dunders import _Reprs
-from .cns import Cns
+from .constraint import Cns
 
 if TYPE_CHECKING:
-    from .prm import Prm
-    from .vrb import Vrb
+    from .parameter import Prm
+    from .variable import Vrb
 
 
 @dataclass

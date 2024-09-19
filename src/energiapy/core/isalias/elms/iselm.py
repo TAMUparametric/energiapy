@@ -3,7 +3,7 @@
 
 from typing import TypeAlias
 
-from ....elements.disposition.index import Index
+from ....elements.index import Index
 from .iscns import IsCns
 from .isprm import IsPrm
 from .isval import IsVal

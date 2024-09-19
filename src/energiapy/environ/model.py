@@ -23,6 +23,7 @@ class Model(_Dunders):
     """
 
     name: str = field(default=None)
+    m: float = field(default=None)
 
     def __post_init__(self):
 

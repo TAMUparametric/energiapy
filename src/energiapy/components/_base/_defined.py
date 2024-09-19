@@ -1,7 +1,6 @@
 """There are user defined components
 """
 
-from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 
 from ...core._handy._printers import _EasyPrint
@@ -12,7 +11,7 @@ from ._consistent import _Consistent
 
 
 @dataclass
-class _Defined(_Component, _Consistent, _Vlus, _Elms, _EasyPrint, ABC):
+class _Defined(_Component, _Consistent, _Vlus, _Elms, _EasyPrint):
     """If the component is defined by user, it should inherit from this class
 
     Attributes:
@@ -35,8 +34,3 @@ class _Defined(_Component, _Consistent, _Vlus, _Elms, _EasyPrint, ABC):
         # This flag is used to check if the Defined Component has been located
         # i.e., assigned to a Location or Linkage
         self._located = False
-
-    @staticmethod
-    @abstractmethod
-    def inputs():
-        """Input attributes"""

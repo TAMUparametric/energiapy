@@ -8,22 +8,22 @@ from typing import TYPE_CHECKING
 
 from sympy import Idx, symbols
 
-from ...core._handy._dunders import _Dunders
+from ..core._handy._dunders import _Dunders
 
 if TYPE_CHECKING:
-    from ...components._base._component import _Component
-    from ...components.analytical.player import Player
-    from ...components.commodity.cash import Cash
-    from ...components.commodity.emission import Emission
-    from ...components.commodity.land import Land
-    from ...components.commodity.resource import Resource
-    from ...components.operation.process import Process
-    from ...components.operation.storage import Storage
-    from ...components.operation.transit import Transit
-    from ...components.spatial.linkage import Linkage
-    from ...components.spatial.location import Location
-    from ...components.temporal.mode import X
-    from ...components.temporal.scale import Scale
+    from ..components._base._component import _Component
+    from ..components.analytical.player import Player
+    from ..components.commodity.cash import Cash
+    from ..components.commodity.emission import Emission
+    from ..components.commodity.land import Land
+    from ..components.commodity.resource import Resource
+    from ..components.operation.process import Process
+    from ..components.operation.storage import Storage
+    from ..components.operation.transit import Transit
+    from ..components.spatial.linkage import Linkage
+    from ..components.spatial.location import Location
+    from ..components.temporal.mode import X
+    from ..components.temporal.scale import Scale
 
 
 @dataclass

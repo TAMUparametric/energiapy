@@ -47,6 +47,11 @@ class Process(
     def __post_init__(self):
         _Operation.__post_init__(self)
 
+    @staticmethod
+    def _at():
+        """At what Spatial can the Operation be located"""
+        return Location
+
     @property
     def base(self):
         """The base resource"""

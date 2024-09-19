@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Any
 from ...core._handy._dunders import _Dunders
 from ...core.isalias.cmps.iscmp import IsDct, IsDsp
 from ...core.nirop.errors import CacodcarError
-from ...elements.disposition.index import Index
+from ...elements.index import Index
 
 if TYPE_CHECKING:
     from .taskmaster import Chanakya

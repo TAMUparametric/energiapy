@@ -5,23 +5,21 @@ from dataclasses import dataclass, field
 
 from pandas import DataFrame
 
-from ....components.temporal.incidental import I
-from ....core._handy._dunders import _Dunders
-from ....core.isalias.cmps.isdfn import IsDfn
-from ....core.isalias.elms.isval import IsVal
-from ....core.isalias.inps.isinp import IsInp
-from ....core.nirop.errors import InputTypeError
-from ....elements.disposition.bound import SpcLmt, VarBnd
-from ....elements.disposition.index import Index
-from ....elements.values.constant import Constant
-from ....elements.values.dataset import DataSet
-from ....elements.values.m import M
-from ....elements.values.theta import Theta
-from ...datum import Datum
+from ..core._handy._dunders import _Dunders
+from ..core.isalias.cmps.isdfn import IsDfn
+from ..core.isalias.elms.isval import IsVal
+from ..core.isalias.inps.isinp import IsInp
+from ..core.nirop.errors import InputTypeError
+from ..elements.index import Index
+from ..elements.values.constant import Constant
+from ..elements.values.dataset import DataSet
+from ..elements.m import M
+from ..elements.theta import Theta
+from .datum import Datum
 
 
 @dataclass
-class DataBlock(_Dunders):
+class Data(_Dunders):
     """Component Data Block
     Recieves data for component from attributes
     Converts it to one of the internal formats (M, Constant, DataSet, Theta)

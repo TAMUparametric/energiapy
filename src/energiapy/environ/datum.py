@@ -16,7 +16,6 @@ from ..components.operation.transit import Transit
 from ..components.spatial.linkage import Linkage
 from ..components.spatial.location import Location
 from ..components.spatial.network import Network
-from ..components.temporal.incidental import I
 from ..components.temporal.mode import X
 from ..components.temporal.scale import Scale
 from ..core._handy._dunders import _Dunders
@@ -275,7 +274,7 @@ class Datum(_Dunders):
             # bool (True) - used for BigM
 
             if (
-                not isinstance(value, (int, float, DataFrame, tuple, set, I))
+                not isinstance(value, (int, float, DataFrame, tuple, set))
                 or value is True
             ):
                 raise InputTypeError(

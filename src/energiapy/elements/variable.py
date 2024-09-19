@@ -8,9 +8,9 @@ from typing import Self, TYPE_CHECKING
 from sympy import IndexedBase, Symbol
 
 from ..core._handy._dunders import _Reprs
-from .disposition.index import Index
-from .exn import Exn
-from .cns import Cns
+from .index import Index
+from .expression import Exn
+from .constraint import Cns
 
 if TYPE_CHECKING:
     from ..components.analytical.player import Player

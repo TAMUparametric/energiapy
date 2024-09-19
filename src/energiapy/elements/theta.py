@@ -8,16 +8,16 @@ from typing import TYPE_CHECKING
 
 from sympy import IndexedBase
 
-from ...core._handy._dunders import _Magics
-from ._value import _Value
+from ..core._handy._dunders import _Magics
+
 # from ..disposition.bound import VarBnd
 
 if TYPE_CHECKING:
-    from ...core.isalias.inps.isinp import IsSpc
+    from ..core.isalias.inps.isinp import IsSpc
 
 
 @dataclass
-class Theta(_Value, _Magics):
+class Theta(_Magics):
     """Just a convinient way to declare parametric variables
 
     Args:
@@ -56,9 +56,9 @@ class Theta(_Value, _Magics):
     """
 
     space: IsSpc = field(default=None)
+    name: str = field(default='Theta')
 
     def __post_init__(self):
-        _Value.__post_init__(self)
 
         if len(self.space) != 2:
             raise ValueError(f'{self.name}: tuple must be of length 2')

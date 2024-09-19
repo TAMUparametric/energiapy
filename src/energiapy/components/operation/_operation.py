@@ -48,18 +48,8 @@ class _Operation(
 
     @staticmethod
     @abstractmethod
-    def _spatials():
-        """Spatial Components where the Operation is located"""
-
-    @staticmethod
-    @abstractmethod
-    def at():
+    def _at():
         """At what Spatial can the Operation be located"""
-
-    @property
-    def spatials(self):
-        """Spatial Components where the Operation is located"""
-        return getattr(self, self._spatials())
 
     @property
     @abstractmethod

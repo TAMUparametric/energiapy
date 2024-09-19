@@ -12,7 +12,7 @@ from ...core._handy._dunders import _Dunders
 from ...core.isalias.cmps.isdfn import IsDfn
 
 if TYPE_CHECKING:
-    from ..disposition.index import Index
+    from ..index import Index
 
 
 @dataclass

@@ -7,12 +7,12 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 from sympy import Rel
 from ..core._handy._dunders import _Reprs
-from .disposition.index import Index
+from .index import Index
 
 if TYPE_CHECKING:
-    from .exn import Exn
-    from .prm import Prm
-    from .vrb import Vrb
+    from .expression import Exn
+    from .parameter import Prm
+    from .variable import Vrb
 
 
 @dataclass

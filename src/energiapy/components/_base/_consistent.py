@@ -29,7 +29,7 @@ from ._dummy import _Dummy
 
 if TYPE_CHECKING:
     from ...environ.engines.taskmaster import Chanakya
-    from ...environ.renditions.system import System
+    from ...environ.system import System
 
 
 class _Consistent(ABC):

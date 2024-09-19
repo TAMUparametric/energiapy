@@ -6,13 +6,11 @@ from typing import Self
 
 from sympy import IndexedBase, Symbol
 
-from .disposition.index import Index
-from .values.decorators import In
-from .values.m import M
-from .values.theta import Theta
+from .index import Index
+from .m import M
 from ..core._handy._dunders import _Reprs
-from .exn import Exn
-from .cns import Cns
+from .expression import Exn
+from .constraint import Cns
 
 
 @dataclass
@@ -32,11 +30,24 @@ class Prm(_Reprs):
     name: str = field(default='Prm')
 
     def __post_init__(self):
+
+        if self.lb and self.ub:
+            raise ValueError('Parameter cannot be both a lower and upper bound')
+
+        if self.lb:
+            tag = '^LB'
+
+        if self.ub:
+            tag = '^UB'
+
         # if no lower bound or upper bound is provided, the parameter is treated as a constant
         if not self.lb and not self.ub:
             self.ex = True
+            tag = ''
         else:
             self.ex = False
+
+        self.name = f'{self.name}{tag}'.capitalize()
 
         # if single value, put in list
         if not isinstance(self.value, list):
@@ -46,8 +57,6 @@ class Prm(_Reprs):
         for i, v in enumerate(self.value):
             if isinstance(v, bool) and v is True:
                 self.value[i] = M(big=True)
-            if isinstance(v, In):
-                self.value[i] = Theta(space=v.space, index=self.index)
 
     @property
     def sym(self) -> IndexedBase:
