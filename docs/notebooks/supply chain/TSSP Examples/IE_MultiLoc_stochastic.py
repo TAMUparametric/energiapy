@@ -48,27 +48,27 @@ def create_event_dict(n_total: int):
     event_dict = {
         'cap2_13': {'prob': 0.05,
                     'factor': pandas.DataFrame(data={('loc2', 'com1_process'): create_list(n_total, 13)})},
-        # 'cap2_26': {'prob': 0.1, 'factor': pandas.DataFrame(data={('loc2', 'com1_process'): create_list(n_total, 26)})},
+        'cap2_26': {'prob': 0.1, 'factor': pandas.DataFrame(data={('loc2', 'com1_process'): create_list(n_total, 26)})},
         'cap2_52': {'prob': 0.85, 'factor': pandas.DataFrame(data={('loc2', 'com1_process'): default_list})},
 
         'cap4_13': {'prob': 0.01,
                     'factor': pandas.DataFrame(data={('loc4', 'com1_process'): create_list(n_total, 13)})},
-        # 'cap4_26': {'prob': 0.05, 'factor': pandas.DataFrame(data={('loc4', 'com1_process'): create_list(n_total, 26)})},
+        'cap4_26': {'prob': 0.05, 'factor': pandas.DataFrame(data={('loc4', 'com1_process'): create_list(n_total, 26)})},
         'cap4_52': {'prob': 0.94, 'factor': pandas.DataFrame(data={('loc4', 'com1_process'): default_list})},
 
-        # 'cap7_13': {'prob': 0.05,
-        #             'factor': pandas.DataFrame(data={('loc7', 'com1_process'): create_list(n_total, 13)})},
-        # 'cap7_26': {'prob': 0.15,
-        #             'factor': pandas.DataFrame(data={('loc7', 'com1_process'): create_list(n_total, 26)})},
-        # 'cap7_52': {'prob': 0.8, 'factor': pandas.DataFrame(data={('loc7', 'com1_process'): default_list})},
+        'cap7_13': {'prob': 0.05,
+                    'factor': pandas.DataFrame(data={('loc7', 'com1_process'): create_list(n_total, 13)})},
+        'cap7_26': {'prob': 0.15,
+                    'factor': pandas.DataFrame(data={('loc7', 'com1_process'): create_list(n_total, 26)})},
+        'cap7_52': {'prob': 0.8, 'factor': pandas.DataFrame(data={('loc7', 'com1_process'): default_list})},
 
-        # 'res1_13': {'prob': 0.02, 'factor': pandas.DataFrame(data={('loc1', 'com1_pur'): create_list(n_total, 13)})},
-        # 'res1_26': {'prob': 0.1, 'factor': pandas.DataFrame(data={('loc1', 'com1_pur'): create_list(n_total, 26)})},
-        # 'res1_52': {'prob': 0.88, 'factor': pandas.DataFrame(data={('loc1', 'com1_pur'): default_list})},
+        'res1_13': {'prob': 0.02, 'factor': pandas.DataFrame(data={('loc1', 'com1_pur'): create_list(n_total, 13)})},
+        'res1_26': {'prob': 0.1, 'factor': pandas.DataFrame(data={('loc1', 'com1_pur'): create_list(n_total, 26)})},
+        'res1_52': {'prob': 0.88, 'factor': pandas.DataFrame(data={('loc1', 'com1_pur'): default_list})},
 
-        # 'res6_13': {'prob': 0.02, 'factor': pandas.DataFrame(data={('loc6', 'com1_pur'): create_list(n_total, 13)})},
-        # 'res6_26': {'prob': 0.2, 'factor': pandas.DataFrame(data={('loc6', 'com1_pur'): create_list(n_total, 26)})},
-        # 'res6_52': {'prob': 0.78, 'factor': pandas.DataFrame(data={('loc6', 'com1_pur'): default_list})},
+        'res6_13': {'prob': 0.02, 'factor': pandas.DataFrame(data={('loc6', 'com1_pur'): create_list(n_total, 13)})},
+        'res6_26': {'prob': 0.2, 'factor': pandas.DataFrame(data={('loc6', 'com1_pur'): create_list(n_total, 26)})},
+        'res6_52': {'prob': 0.78, 'factor': pandas.DataFrame(data={('loc6', 'com1_pur'): default_list})},
     }
 
     return event_dict
@@ -387,10 +387,30 @@ def build_model(scen_df=pandas.DataFrame()):
     else:
         return scenario
 
+def build_smodel(scen_df=pandas.DataFrame()):
+
+    scenario = build_model(scen_df)
+    # ======================================================================================================================
+    # Declare problem
+    # ======================================================================================================================
+
+    problem_mincost = formulate(scenario=scenario,
+                                constraints={Constraints.COST, Constraints.TRANSPORT, Constraints.RESOURCE_BALANCE,
+                                             Constraints.INVENTORY, Constraints.PRODUCTION, Constraints.DEMAND,
+                                             Constraints.NETWORK},
+                                demand_sign='eq', objective=Objective.COST_W_DEMAND_PENALTY)
+
+    scale_iter = scale_tuple(instance=problem_mincost, scale_levels=scenario.network_scale_level + 1)
+    capex_process = sum(problem_mincost.Capex_network[scale_] for scale_ in scale_iter)
+    cost_trans_capex = sum(problem_mincost.Capex_transport_network[scale_] for scale_ in scale_iter)
+
+    problem_mincost.first_stage_cost = capex_process + cost_trans_capex
+
+    return scenario, problem_mincost
 
 def scenario_creator(scen_name, **kwargs):
     scen_dict = kwargs.get('scenario_dict')
-    scen, model = build_model(scen_df=scen_dict[scen_name]['factor'])
+    scen, model = build_smodel(scen_df=scen_dict[scen_name]['factor'])
     sputils.attach_root_node(model, model.first_stage_cost,
                              [model.X_P, model.Cap_P, model.X_S, model.Cap_S, model.X_F, model.Cap_F])
     model._mpisppy_probability = scen_dict[scen_name]['prob']
@@ -418,10 +438,10 @@ if __name__ == '__main__':
     scen_PI, model_PI = build_model()
 
     # Deterministic Scenarios for Perfect Information
-
+    counter = 0
     for scen_name in scenario_names:
         scen_PI = build_model(scen_df=scenario_dict[scen_name]['factor'])
-
+        counter+=1
         # Delete process capacity factors, resource availability factors, transport capacity factors
         model_PI.del_component('constraint_nameplate_production_varying_capacity')
         model_PI.del_component('constraint_resource_consumption_varying')
@@ -453,7 +473,7 @@ if __name__ == '__main__':
         results_PI = solve(scenario=scen_PI, instance=model_PI, solver='gurobi', name=scen_name,
                            solver_options=solver_options)
 
-        print('######################## Finished solving ' + scen_name + ' ########################')
+        print('######################## Finished solving ' + scen_name + ' ('+ str(counter) +' of ' + str(len(scenario_dict)) + ') ########################')
 
         exCost_PI += value(model_PI.objective_cost_w_demand_penalty) * scenario_dict[scen_name]['prob']
 
