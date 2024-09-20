@@ -387,34 +387,34 @@ def build_model(scen_df=pandas.DataFrame()):
     else:
         return scenario
 
-def build_smodel(scen_df=pandas.DataFrame()):
+# def build_smodel(scen_df=pandas.DataFrame()):
+#
+#     scenario = build_model(scen_df)
+#     # ======================================================================================================================
+#     # Declare problem
+#     # ======================================================================================================================
+#
+#     problem_mincost = formulate(scenario=scenario,
+#                                 constraints={Constraints.COST, Constraints.TRANSPORT, Constraints.RESOURCE_BALANCE,
+#                                              Constraints.INVENTORY, Constraints.PRODUCTION, Constraints.DEMAND,
+#                                              Constraints.NETWORK},
+#                                 demand_sign='eq', objective=Objective.COST_W_DEMAND_PENALTY)
+#
+#     scale_iter = scale_tuple(instance=problem_mincost, scale_levels=scenario.network_scale_level + 1)
+#     capex_process = sum(problem_mincost.Capex_network[scale_] for scale_ in scale_iter)
+#     cost_trans_capex = sum(problem_mincost.Capex_transport_network[scale_] for scale_ in scale_iter)
+#
+#     problem_mincost.first_stage_cost = capex_process + cost_trans_capex
+#
+#     return scenario, problem_mincost
 
-    scenario = build_model(scen_df)
-    # ======================================================================================================================
-    # Declare problem
-    # ======================================================================================================================
-
-    problem_mincost = formulate(scenario=scenario,
-                                constraints={Constraints.COST, Constraints.TRANSPORT, Constraints.RESOURCE_BALANCE,
-                                             Constraints.INVENTORY, Constraints.PRODUCTION, Constraints.DEMAND,
-                                             Constraints.NETWORK},
-                                demand_sign='eq', objective=Objective.COST_W_DEMAND_PENALTY)
-
-    scale_iter = scale_tuple(instance=problem_mincost, scale_levels=scenario.network_scale_level + 1)
-    capex_process = sum(problem_mincost.Capex_network[scale_] for scale_ in scale_iter)
-    cost_trans_capex = sum(problem_mincost.Capex_transport_network[scale_] for scale_ in scale_iter)
-
-    problem_mincost.first_stage_cost = capex_process + cost_trans_capex
-
-    return scenario, problem_mincost
-
-def scenario_creator(scen_name, **kwargs):
-    scen_dict = kwargs.get('scenario_dict')
-    scen, model = build_smodel(scen_df=scen_dict[scen_name]['factor'])
-    sputils.attach_root_node(model, model.first_stage_cost,
-                             [model.X_P, model.Cap_P, model.X_S, model.Cap_S, model.X_F, model.Cap_F])
-    model._mpisppy_probability = scen_dict[scen_name]['prob']
-    return model
+# def scenario_creator(scen_name, **kwargs):
+#     scen_dict = kwargs.get('scenario_dict')
+#     scen, model = build_smodel(scen_df=scen_dict[scen_name]['factor'])
+#     sputils.attach_root_node(model, model.first_stage_cost,
+#                              [model.X_P, model.Cap_P, model.X_S, model.Cap_S, model.X_F, model.Cap_F])
+#     model._mpisppy_probability = scen_dict[scen_name]['prob']
+#     return model
 
 
 if __name__ == '__main__':
@@ -433,67 +433,67 @@ if __name__ == '__main__':
     print(f"Sum of probabilities of all scenarios: {sum(scenario_dict[scen]['prob'] for scen in scenario_dict):.6f}")
     print(f'Number of considered scenarios: {len(scenario_names)}')
 
-    # exCost_PI = 0
-    # results_PI = dict()
-    # scen_PI, model_PI = build_model()
-    #
-    # # Deterministic Scenarios for Perfect Information
-    # counter = 0
-    # for scen_name in scenario_names:
-    #     scen_PI = build_model(scen_df=scenario_dict[scen_name]['factor'])
-    #     counter+=1
-    #     # Delete process capacity factors, resource availability factors, transport capacity factors
-    #     model_PI.del_component('constraint_nameplate_production_varying_capacity')
-    #     model_PI.del_component('constraint_resource_consumption_varying')
-    #     model_PI.del_component('constraint_export')
-    #
-    #     # Add the constraints back for this particular scenario
-    #     model_PI.constraint_nameplate_production_varying_capacity = make_constraint(instance=model_PI,
-    #         type_cons=Cons.X_LEQ_BY, variable_x='P', location_set=model_PI.locations, component_set=model_PI.processes_varying_capacity,
-    #         loc_comp_dict=scen_PI.location_process_dict, b_factor=scen_PI.capacity_factor,
-    #                                                                                 x_scale_level=scen_PI.scheduling_scale_level,
-    #                                                                                 b_scale_level=scen_PI.capacity_scale_level,
-    #                                                                                 y_scale_level=scen_PI.network_scale_level,
-    #                                                                                 variable_y='Cap_P',
-    #                                                                                 label='restricts production to varying nameplate capacity')
-    #
-    #     model_PI.constraint_resource_consumption_varying = make_constraint(
-    #         instance=model_PI, type_cons=Cons.X_LEQ_B, variable_x='C', location_set=model_PI.locations,
-    #         component_set=model_PI.resources_varying_availability, b_max=scen_PI.cons_max,
-    #         loc_comp_dict=scen_PI.location_resource_dict, b_factor=scen_PI.availability_factor,
-    #         x_scale_level=scen_PI.scheduling_scale_level, b_scale_level=scen_PI.availability_scale_level,
-    #         label='restricts resource consumption to varying availablity')
-    #
-    #     constraint_export(instance=model_PI, scheduling_scale_level=scen_PI.scheduling_scale_level,
-    #                       network_scale_level=scen_PI.network_scale_level,
-    #                       location_transport_resource_dict=scen_PI.location_transport_resource_dict,
-    #                       transport_capacity_factor=scen_PI.transport_capacity_factor,
-    #                       transport_capacity_scale_level=scen_PI.transport_capacity_scale_level)
-    #
-    #     results_PI = solve(scenario=scen_PI, instance=model_PI, solver='gurobi', name=scen_name,
-    #                        solver_options=solver_options)
-    #
-    #     print('######################## Finished solving ' + scen_name + ' ('+ str(counter) +' of ' + str(len(scenario_dict)) + ') ########################')
-    #
-    #     exCost_PI += value(model_PI.objective_cost_w_demand_penalty) * scenario_dict[scen_name]['prob']
+    exCost_PI = 0
+    results_PI = dict()
+    scen_PI, model_PI = build_model()
 
-    options = {"solver": "gurobi"}
-    scenario_creator_kwargs = {'scenario_dict': scenario_dict}
-    ef_UI = ExtensiveForm(options, scenario_names, scenario_creator, scenario_creator_kwargs=scenario_creator_kwargs)
-    results = ef_UI.solve_extensive_form(solver_options=solver_options)
+    # Deterministic Scenarios for Perfect Information
+    counter = 0
+    for scen_name in scenario_names:
+        scen_PI = build_model(scen_df=scenario_dict[scen_name]['factor'])
+        counter+=1
+        # Delete process capacity factors, resource availability factors, transport capacity factors
+        model_PI.del_component('constraint_nameplate_production_varying_capacity')
+        model_PI.del_component('constraint_resource_consumption_varying')
+        model_PI.del_component('constraint_export')
 
-    exCost_UI = ef_UI.get_objective_value()
+        # Add the constraints back for this particular scenario
+        model_PI.constraint_nameplate_production_varying_capacity = make_constraint(instance=model_PI,
+            type_cons=Cons.X_LEQ_BY, variable_x='P', location_set=model_PI.locations, component_set=model_PI.processes_varying_capacity,
+            loc_comp_dict=scen_PI.location_process_dict, b_factor=scen_PI.capacity_factor,
+                                                                                    x_scale_level=scen_PI.scheduling_scale_level,
+                                                                                    b_scale_level=scen_PI.capacity_scale_level,
+                                                                                    y_scale_level=scen_PI.network_scale_level,
+                                                                                    variable_y='Cap_P',
+                                                                                    label='restricts production to varying nameplate capacity')
+
+        model_PI.constraint_resource_consumption_varying = make_constraint(
+            instance=model_PI, type_cons=Cons.X_LEQ_B, variable_x='C', location_set=model_PI.locations,
+            component_set=model_PI.resources_varying_availability, b_max=scen_PI.cons_max,
+            loc_comp_dict=scen_PI.location_resource_dict, b_factor=scen_PI.availability_factor,
+            x_scale_level=scen_PI.scheduling_scale_level, b_scale_level=scen_PI.availability_scale_level,
+            label='restricts resource consumption to varying availablity')
+
+        constraint_export(instance=model_PI, scheduling_scale_level=scen_PI.scheduling_scale_level,
+                          network_scale_level=scen_PI.network_scale_level,
+                          location_transport_resource_dict=scen_PI.location_transport_resource_dict,
+                          transport_capacity_factor=scen_PI.transport_capacity_factor,
+                          transport_capacity_scale_level=scen_PI.transport_capacity_scale_level)
+
+        results_PI = solve(scenario=scen_PI, instance=model_PI, solver='gurobi', name=scen_name,
+                           solver_options=solver_options)
+
+        print('######################## Finished solving ' + scen_name + ' ('+ str(counter) +' of ' + str(len(scenario_dict)) + ') ########################')
+
+        exCost_PI += value(model_PI.objective_cost_w_demand_penalty) * scenario_dict[scen_name]['prob']
+
+    # options = {"solver": "gurobi"}
+    # scenario_creator_kwargs = {'scenario_dict': scenario_dict}
+    # ef_UI = ExtensiveForm(options, scenario_names, scenario_creator, scenario_creator_kwargs=scenario_creator_kwargs)
+    # results = ef_UI.solve_extensive_form(solver_options=solver_options)
+
+    # exCost_UI = ef_UI.get_objective_value()
     # EVPI = exCost_UI - exCost_PI
     # p_inc = EVPI * 100 / exCost_PI
     # p_dec = EVPI * 100 / exCost_UI
+    #
+    # ssoln_dict = ef_UI.get_root_solution()
+    #
+    # with open('ssoln_IE_MultiLoc_stochastic.pkl', 'wb') as file:
+    #     pickle.dump(ssoln_dict, file)
 
-    ssoln_dict = ef_UI.get_root_solution()
-
-    with open('ssoln_IE_MultiLoc_stochastic.pkl', 'wb') as file:
-        pickle.dump(ssoln_dict, file)
-
-    # print(f"Total Expected Cost considering perfect information: {exCost_PI:.4f}")
-    print(f"Total Expected Cost considering disruptions (stochastic solution): {exCost_UI:.4f}")
+    print(f"Total Expected Cost considering perfect information: {exCost_PI:.4f}")
+    # print(f"Total Expected Cost considering disruptions (stochastic solution): {exCost_UI:.4f}")
     # print(f"Expected Value of Perfect Information: {EVPI:.4f}")
     # print(f"Percentage Increase in Cost: {p_inc:.4f}%%")
     # print(f"Percentage Decrease in Cost: {p_dec:.4f}%%")
