@@ -31,7 +31,7 @@ class _Scope(_Component, ABC):
         self.children = []
         self.discrs = 1
         # Every Scope has a root birth
-        # This root birth, basiscally the horizon
+        # This root birth, basically the horizon
         if self.birth:
             if isinstance(self.birth, int):
                 # if only a number is given, then just make

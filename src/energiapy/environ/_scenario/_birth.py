@@ -27,32 +27,71 @@ class _Birth(ABC):
     def system(self):
         """System Model Block of the Scenario"""
 
-    def birth_partitions(self, scope: Horizon | Network, birth: Scale | Location):
+    @property
+    @abstractmethod
+    def horizon(self):
+        """Horizon of the Scenario"""
+
+    @property
+    @abstractmethod
+    def network(self):
+        """Network of the Scenario"""
+
+    def birth_partitions(
+        self,
+        scope: Horizon | Network,
+        birth: Scale | Location,
+        discretizations: int | list[int],
+        birth_names: str | list[str],
+        birth_labels: str | list[str],
+    ):
         """Births temporal Scales based on discretizations provided in the Horizon
 
         Args:
             scope (Horizon | Network): Scope Component
         """
-        for i in range(scope.n_births):
-            # labels can be provided. or they are set to t0, t1, t2, ...
 
-            # set the scales as attributes of the Scenario
+        if isinstance(discretizations, list):
+            for i, d in enumerate(discretizations):
+                # set the scales as attributes of the Scenario
+                setattr(
+                    self,
+                    f'{birth_names[i]}',
+                    birth(
+                        label=birth_labels[i],
+                        parent=scope,
+                        discrs=d,
+                    ),
+                )
 
-            if not scope.nested or i == 0:
-                parent = scope
+    def birth_scales(
+        self, scales: int | list[int], names: str | list[str], labels: str | list[str]
+    ):
+        """Births temporal Scales based on discretizations provided in the Horizon"""
 
-            elif scope.nested and i > 0:
-                parent = getattr(self, scope.birth_names[i - 1])
+        self.birth_partitions(
+            scope=self.horizon,
+            birth=Scale,
+            discretizations=scales,
+            birth_names=names,
+            birth_labels=labels,
+        )
 
-            setattr(
-                self,
-                scope.birth_names[i],
-                birth(
-                    label=scope.birth_labels[i],
-                    parent=parent,
-                    discrs=scope.birth_list[i],
-                ),
-            )
+    def birth_locations(
+        self,
+        locations: int | list[int],
+        names: str | list[str],
+        labels: str | list[str],
+    ):
+        """Births Locations based on discretizations provided in the Network"""
+
+        self.birth_partitions(
+            scope=self.network,
+            birth=Location,
+            discretizations=locations,
+            birth_names=names,
+            birth_labels=labels,
+        )
 
     def birth_sib_linkage(self, linkage: Linkage):
         """Births a Linkage going in the opposite direction of the provided Linkage

@@ -9,8 +9,14 @@ from pandas import DataFrame
 from ...utils.scaling import scaling
 from .._attrs._boundbounds import _Operate
 from .._attrs._bounds import _Setup
-from .._attrs._exacts import (_OperateLose, _OperateTrade, _OperateTransact,
-                              _SetupEmit, _SetupTransact, _SetupUse)
+from .._attrs._exacts import (
+    _OperateLose,
+    _OperateTrade,
+    _OperateTransact,
+    _SetupEmit,
+    _SetupTransact,
+    _SetupUse,
+)
 from .._attrs._rates import _OperateRate, _SetupRate
 from .._base._defined import _Defined
 
@@ -92,13 +98,7 @@ class _Operation(
     @property
     def commodities(self):
         """Commodities used in the Operation"""
-        return (
-            self.materials
-            + self.emissions
-            + self.resources
-            + [self.system.cash]
-            + [self.system.land]
-        )
+        return self.emissions + self.resources + self.system.cashes + self.system.lands
 
     def locate(self):
         """Locates the Component"""
