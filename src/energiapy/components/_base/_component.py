@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from ...core._handy._dunders import _Dunders
@@ -11,6 +11,8 @@ from ...environ.program import Block
 
 if TYPE_CHECKING:
     from ...environ.model import Model
+    from ...components.temporal.horizon import Horizon
+    from ...components.spatial.network import Network
 
 
 @dataclass
@@ -22,12 +24,12 @@ class _Component(_Dunders):
     Also adds Model and reports individual Blocks of the Model
     """
 
-    label: str = field(default=None)
-
     def __post_init__(self):
         self.name = None
         self._named = False
         self._model = None
+        self.horizon = None
+        self.network = None
         # this is a block of the Program
         # only contains modeling elements pertaining to the component
         self.block = Block(self)
@@ -61,6 +63,8 @@ class _Component(_Dunders):
         self,
         name: str,
         model: Model,
+        horizon: Horizon,
+        network: Network,
     ):
         """Personalize the compoenent
         give it a name (public),
@@ -73,3 +77,5 @@ class _Component(_Dunders):
         self.name = name
         self._named = True  # update flag
         self._model = model
+        self.horizon = horizon
+        self.network = network

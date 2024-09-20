@@ -109,6 +109,13 @@ class Scenario(_Ok, _Default, _Birth, _Update, _ScnCols, _Dunders, _Print):
         # Declare Model, contains system, program, data, matrix
         self.model = Model(name=self.name)
 
+        # These is the spatiotemporal scope of the Scenario
+        # temporal Scales discretize the Horizon
+        self.horizon = Horizon()
+        # Locations discretize the Network
+        # and are connected via Linkages
+        self.network = Network()
+
         _Ok.__post_init__(self)
         _Default.__post_init__(self)
 
@@ -132,8 +139,22 @@ class Scenario(_Ok, _Default, _Birth, _Update, _ScnCols, _Dunders, _Print):
             # Inherited from _Ok
             self.isok_overwrite(cmp=name)
 
-            # set the component in the system
-            setattr(self.system, name, value)
+            if isinstance(value, Scale):
+                # horizon collects temporal Scales
+                setattr(self.horizon, name, value)
+
+            elif isinstance(value, Location):
+                # network collects Locations
+                setattr(self.network, name, value)
+
+            elif isinstance(value, Linkage):
+                self.birth_sib_linkage(linkage=value)
+                # network collects Linkages too
+                setattr(self.network, name, value)
+
+            else:
+                # set the component in the system
+                setattr(self.system, name, value)
 
             # defined components generate constraints (ProgramBlock) which are added to the Program
             if isinstance(value, _Defined):
@@ -146,25 +167,6 @@ class Scenario(_Ok, _Default, _Birth, _Update, _ScnCols, _Dunders, _Print):
                 # The data is handled first and made into internal formats and added to the Data Model
                 # The Program Model is then generated using information from the Data Model
                 self.update_model(name=name, component=value)
-
-            # Horizon, Network, Linkages and Storage give birth to new components
-            if isinstance(value, Horizon):
-                self.handle_unique_cmp('horizon', value)
-                self.birth_partitions(scope=value, birth=Scale)
-                # value.periodize()
-                # once scales are birthed, they are periodized
-                # which creates time periods for each scale
-                for s in self.scales:
-                    s.periodize()
-
-            if isinstance(value, Network):
-                self.handle_unique_cmp('network', value)
-                self.birth_partitions(scope=value, birth=Location)
-                if value.link_all:
-                    self.birth_all_linkages(network=value)
-
-            if isinstance(value, Linkage):
-                self.birth_sib_linkage(linkage=value)
 
             # find where all the Operation is located
             # if nothing is provided, available throughout Network (all locations)
@@ -200,16 +202,6 @@ class Scenario(_Ok, _Default, _Birth, _Update, _ScnCols, _Dunders, _Print):
     def system(self):
         """System of the Scenario"""
         return self.model.system
-
-    @property
-    def horizon(self):
-        """Horizon of the Scenario"""
-        return self.system.horizon
-
-    @property
-    def network(self):
-        """Network of the Scenario"""
-        return self.system.network
 
     @property
     def program(self):

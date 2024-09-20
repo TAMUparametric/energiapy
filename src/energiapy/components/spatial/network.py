@@ -3,16 +3,14 @@
 
 from dataclasses import dataclass, field
 
-from ...core._report._syst import _Cmds, _LnkOpns, _LocOpns, _Scls, _Spts
-from .._base._scope import _Scope
+from ...core._handy._dunders import _Dunders
 
-
-class _NtwCols(_Cmds, _LocOpns, _LnkOpns, _Spts, _Scls):
-    """Network Collections"""
+from .linkage import Linkage
+from .location import Location
 
 
 @dataclass
-class Network(_Scope, _NtwCols):
+class Network(_Dunders):
     """Network of Locations and Linkages
 
     Attributes:
@@ -25,24 +23,40 @@ class Network(_Scope, _NtwCols):
     link_all: bool = field(default=False)
 
     def __post_init__(self):
-        _Scope.__post_init__(self)
+        self.locations: list[Location] = []
+        self.linkages: list[Linkage] = []
+
+    def __setattr__(self, name, component):
+
+        if isinstance(component, Location):
+            self.locations.append(component)
+
+        if isinstance(component, Linkage):
+            self.linkages.append(component)
+
+        super().__setattr__(name, component)
 
     @property
-    def root(self):
-        """Root partition of the Network"""
-        return self.locations[0]
-
-    @staticmethod
-    def _root():
-        """Root partition of the Network"""
-        return 'sys'
-
-    @staticmethod
-    def _def_name():
-        """Default name for the Partitions"""
-        return 'node'
+    def nodes(self):
+        """Nodes of the System are just Locations"""
+        return self.locations
 
     @property
-    def discretizations(self):
-        """Discretizations for the partitions"""
-        return self.locations + self.linkages
+    def edges(self):
+        """Edges of the System are just Linkages"""
+        return self.linkages
+    
+    @property
+    def pairs(self):
+        """Source Sink pairs of the System"""
+        return [(i.source, i.sink) for i in self.linkages]
+
+    @property
+    def sources(self):
+        """Source Locations of the System"""
+        return sorted({i[0] for i in self.pairs})
+
+    @property
+    def sinks(self):
+        """Sink Locations of the System"""
+        return sorted({i[1] for i in self.pairs})

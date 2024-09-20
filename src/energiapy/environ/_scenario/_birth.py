@@ -4,17 +4,19 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from operator import is_not
+from operator import is_not, mul
+from itertools import accumulate
 from typing import TYPE_CHECKING
 
 from ...components.operation.process import Process
 from ...components.spatial.linkage import Linkage
 from ...components.spatial.location import Location
-from ...components.spatial.network import Network
-from ...components.temporal.horizon import Horizon
 from ...components.temporal.scale import Scale
 
 if TYPE_CHECKING:
+    from ..system import System
+    from ...components.spatial.network import Network
+    from ...components.temporal.horizon import Horizon
     from ...components.commodity.resource import Resource
     from ...components.operation.storage import Storage
     from ...components.operation.transit import Transit
@@ -24,26 +26,26 @@ class _Birth(ABC):
 
     @property
     @abstractmethod
-    def system(self):
+    def system(self) -> System:
         """System Model Block of the Scenario"""
 
     @property
     @abstractmethod
-    def horizon(self):
+    def horizon(self) -> Horizon:
         """Horizon of the Scenario"""
 
     @property
     @abstractmethod
-    def network(self):
+    def network(self) -> Network:
         """Network of the Scenario"""
 
     def birth_partitions(
         self,
-        scope: Horizon | Network,
         birth: Scale | Location,
-        discretizations: int | list[int],
+        birth_list: int | list[int],
         birth_names: str | list[str],
-        birth_labels: str | list[str],
+        nested: bool,
+        name_str: str,
     ):
         """Births temporal Scales based on discretizations provided in the Horizon
 
@@ -51,46 +53,54 @@ class _Birth(ABC):
             scope (Horizon | Network): Scope Component
         """
 
-        if isinstance(discretizations, list):
-            for i, d in enumerate(discretizations):
-                # set the scales as attributes of the Scenario
-                setattr(
-                    self,
-                    f'{birth_names[i]}',
-                    birth(
-                        label=birth_labels[i],
-                        parent=scope,
-                        discrs=d,
-                    ),
-                )
+        if isinstance(birth_list, int):
+            birth_list = [birth_list]
+            birth_names = [birth_names]
+
+        if nested:
+            birth_list = list(accumulate(birth_list, mul))
+
+        if not birth_names:
+            birth_names = [f'{name_str}{b}' for b in range(len(birth_list))]
+
+        for i, d in enumerate(birth_list):
+            # set the scales as attributes of the Scenario
+            setattr(
+                self,
+                f'{birth_names[i]}',
+                birth(d),
+            )
 
     def birth_scales(
-        self, scales: int | list[int], names: str | list[str], labels: str | list[str]
+        self,
+        scales: int | list[int],
+        names: str | list[str] = None,
+        nested: bool = False,
     ):
         """Births temporal Scales based on discretizations provided in the Horizon"""
 
         self.birth_partitions(
-            scope=self.horizon,
             birth=Scale,
-            discretizations=scales,
+            birth_list=scales,
             birth_names=names,
-            birth_labels=labels,
+            nested=nested,
+            name_str='t',
         )
 
     def birth_locations(
         self,
         locations: int | list[int],
         names: str | list[str],
-        labels: str | list[str],
+        nested: bool = False,
     ):
         """Births Locations based on discretizations provided in the Network"""
 
         self.birth_partitions(
-            scope=self.network,
             birth=Location,
-            discretizations=locations,
+            birth_list=locations,
             birth_names=names,
-            birth_labels=labels,
+            nested=nested,
+            name_str='l',
         )
 
     def birth_sib_linkage(self, linkage: Linkage):
@@ -120,17 +130,17 @@ class _Birth(ABC):
                 ),
             )
             setattr(
-                getattr(self.system, linkage.name),
+                getattr(self.network, linkage.name),
                 'sib',
-                getattr(self.system, f'{linkage.name}_'),
+                getattr(self.network, f'{linkage.name}_'),
             )
             setattr(
-                getattr(self.system, f'{linkage.name}_'),
+                getattr(self.network, f'{linkage.name}_'),
                 'sib',
-                getattr(self.system, linkage.name),
+                getattr(self.network, linkage.name),
             )
 
-    def birth_all_linkages(self, network: Network):
+    def link_all(self):
         """Births Linkages for between all Locations in the Network
 
         Triggered if Network.link_all is set to True
@@ -139,48 +149,48 @@ class _Birth(ABC):
             network (IsNetwork): Network object
         """
 
-        for i, src in enumerate(network.locations):
-            for snk in network.locations:
+        for i, src in enumerate(self.network.locations):
+            for snk in self.network.locations:
                 if is_not(src, snk):
                     # set the linkages as attributes of the Scenario
                     setattr(self, f'lnk{i}', Linkage(source=src, sink=snk, bi=True))
 
-    def birth_bal_processes(self, operation: Storage | Transit, res: Resource):
-        """Births Balance Processes
-        Charging and Discharging Processes for a Operation Component
-        Loading and Unloading Processes for a Transit Component
+    # def birth_bal_processes(self, operation: Storage | Transit, res: Resource):
+    #     """Births Balance Processes
+    #     Charging and Discharging Processes for a Operation Component
+    #     Loading and Unloading Processes for a Transit Component
 
-        Args:
-            operation (IsOperation): Operation object
-        """
+    #     Args:
+    #         operation (IsOperation): Operation object
+    #     """
 
-        # The base resource (what is stored)
-        balance = operation.balance
-        base = balance.base
-        conv_in, conv_out = balance.conversion_in, balance.conversion_out
+    #     # The base resource (what is stored)
+    #     balance = operation.balance
+    #     base = balance.base
+    #     conv_in, conv_out = balance.conversion_in, balance.conversion_out
 
-        # A Operation Resource is birthed
-        setattr(self, f'{operation}_{base}', res)
-        res = getattr(self, f'{operation}_{base}')
+    #     # A Operation Resource is birthed
+    #     setattr(self, f'{operation}_{base}', res)
+    #     res = getattr(self, f'{operation}_{base}')
 
-        # When Invetory is made within the Operation
-        # Place holders are used for Operation Resource (res)
-        # This is to keep birthing operations only in the Scenario
-        # The conversions are updated in Operation Balance as well
-        # These are cleaned up here
-        conv_in[res] = conv_in.pop('r')
-        conv_out[res] = conv_out[base].pop('r')
+    #     # When Invetory is made within the Operation
+    #     # Place holders are used for Operation Resource (res)
+    #     # This is to keep birthing operations only in the Scenario
+    #     # The conversions are updated in Operation Balance as well
+    #     # These are cleaned up here
+    #     conv_in[res] = conv_in.pop('r')
+    #     conv_out[res] = conv_out[base].pop('r')
 
-        # Charging(_in) and Discharging(_out) Processes are birthed
-        process_in = Process(conversion=conv_in, setup=operation.setup_in)
-        process_out = Process(conversion=conv_out, setup=operation.setup_out)
-        processes = [process_in, process_out]
+    #     # Charging(_in) and Discharging(_out) Processes are birthed
+    #     # process_in = Process(conversion=conv_in, setup=operation.setup_in)
+    #     # process_out = Process(conversion=conv_out, setup=operation.setup_out)
+    #     # processes = [process_in, process_out]
 
-        # update processes in Operation
-        setattr(operation, 'processes', processes)
-        # set the processes as attributes of the Scenario
-        setattr(self, f'{operation}_in', operation.process_in)
-        setattr(self, f'{operation}_out', operation.process_out)
+    #     # update processes in Operation
+    #     setattr(operation, 'processes', processes)
+    #     # set the processes as attributes of the Scenario
+    #     setattr(self, f'{operation}_in', operation.process_in)
+    #     setattr(self, f'{operation}_out', operation.process_out)
 
-        # set the flag to True
-        setattr(operation, '_birthed', True)
+    #     # set the flag to True
+    #     setattr(operation, '_birthed', True)
