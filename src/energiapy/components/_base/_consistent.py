@@ -21,7 +21,6 @@ from pandas import DataFrame
 from ...core.isalias.inps.isinp import IsBndInp, IsExtInp, IsInp, IsSptTmp
 from ...core.nirop.errors import InconsistencyError, check_attr
 from ...core.nirop.warnings import InconsistencyWarning
-from ..spatial._spatial import _Spatial
 from ..spatial.network import Network
 from ..temporal.mode import X
 from ..temporal.scale import Scale

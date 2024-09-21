@@ -59,6 +59,11 @@ class _Operation(
 
     @property
     @abstractmethod
+    def spatials(self):
+        """Spatial attributes"""
+
+    @property
+    @abstractmethod
     def resources(self):
         """Resources used in the Operation"""
 
@@ -80,14 +85,6 @@ class _Operation(
         ]
 
     @property
-    def materials(self):
-        """Materials used to setup in the Operation"""
-        if self.setup_use:
-            return [i.index.mat for i in self.setup_use.data.values() if i.index.mat]
-        else:
-            return []
-
-    @property
     def emissions(self):
         """Emissions from the Operation"""
         if self.setup_emit:
@@ -102,13 +99,7 @@ class _Operation(
 
     def locate(self):
         """Locates the Component"""
-
-        spatials = self._spatials()
-        value = self.spatials
-
-        if value and not isinstance(value, list):
-            setattr(self, spatials, [value])
-
-        # If location is not specified, then default to all locations
-        if not value:
-            setattr(self, spatials, getattr(self._model.system, spatials))
+        
+        #
+        if not self.spatials:
+            self.spatials = self.network.locations

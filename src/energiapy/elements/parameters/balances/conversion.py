@@ -13,7 +13,7 @@ from ....core._handy._dunders import _Reprs
 from ....core.isalias.inps.isblc import IsCnv
 
 if TYPE_CHECKING:
-    from ....components.operation.process import Process
+    from ....components.process import Process
 
 
 @dataclass

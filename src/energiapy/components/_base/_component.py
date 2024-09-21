@@ -11,8 +11,8 @@ from ...environ.program import Block
 
 if TYPE_CHECKING:
     from ...environ.model import Model
-    from ...components.temporal.horizon import Horizon
-    from ...components.spatial.network import Network
+    from ...dimensions.temporal.horizon import Horizon
+    from ...dimensions.spatial.network import Network
 
 
 @dataclass

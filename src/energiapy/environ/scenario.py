@@ -36,8 +36,6 @@ from dataclasses import dataclass, field
 
 from ..components._base._component import _Component
 from ..components._base._defined import _Defined
-from ..components.commodity.cash import Cash
-from ..components.commodity.land import Land
 from ..components.commodity.resource import ResourceStg, ResourceTrn
 from ..components.operation._operation import _Operation
 from ..components.operation.process import Process
@@ -51,8 +49,6 @@ from ..components.temporal.scale import Scale
 from ..core._handy._dunders import _Dunders
 from ..core._handy._printers import _Print
 from ..core._handy._words import reserved
-from ..core._report._data import _Vlus
-from ..core._report._prog import _Elms
 from ..core._report._syst import _Cmps
 from ..core.nirop.errors import ReservedWord
 from ._scenario._birth import _Birth
@@ -62,12 +58,8 @@ from ._scenario._update import _Update
 from .model import Model
 
 
-class _ScnCols(_Cmps, _Elms, _Vlus):
-    """Scenario Collections"""
-
-
 @dataclass
-class Scenario(_Ok, _Default, _Birth, _Update, _ScnCols, _Dunders, _Print):
+class Scenario(_Ok, _Default, _Birth, _Update, _Dunders, _Print):
     """
     A scenario for a considered system. It collects all the components of the model.
 
@@ -221,7 +213,7 @@ class Scenario(_Ok, _Default, _Birth, _Update, _ScnCols, _Dunders, _Print):
     @property
     def components(self):
         """All Components of the System"""
-        return self.system.components()
+        return self.system.components
 
     @property
     def registrar(self):

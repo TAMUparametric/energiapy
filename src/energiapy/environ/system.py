@@ -7,7 +7,7 @@ from ..components.commodity.cash import Cash
 from ..components.commodity.emission import Emission
 from ..components.commodity.land import Land
 from ..components.commodity.resource import Resource
-from ..components.operation.process import Process
+from ..components.process import Process
 from ..components.operation.storage import Storage
 from ..components.operation.transit import Transit
 
@@ -27,10 +27,6 @@ class System(_Dunders):
         Computers & chemical engineering, 21, S703-S708.
 
     The Components that can be added to the System are:
-
-    Scopes:
-        - Horizon (discretized into Temporal Scales)
-        - Network (Locations connected via Linkages)
 
     Temporal:
         - Scale

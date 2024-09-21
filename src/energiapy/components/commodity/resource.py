@@ -9,7 +9,7 @@ from dataclasses import dataclass, fields
 
 from .._attrs._bounds import _Trade, _Use
 from .._attrs._exacts import _TradeEmit, _TradeTransact, _UseEmit, _UseTransact
-from ._commodity import _Commodity
+from .._base._commodity import _Commodity
 
 
 @dataclass
@@ -71,6 +71,14 @@ class ResourceStg(Resource):
 @dataclass
 class ResourceTrn(Resource):
     """Resource in Freight"""
+
+    def __post_init__(self):
+        Resource.__post_init__(self)
+
+
+@dataclass
+class ResourcePrd(Resource):
+    """Resource Produced"""
 
     def __post_init__(self):
         Resource.__post_init__(self)

@@ -14,8 +14,8 @@ from ...components._attrs._exacts import _ExactAttrs
 from ...components.commodity.cash import Cash
 from ...components.commodity.emission import Emission
 from ...components.commodity.resource import Resource
-from ...components.operation._operation import _Operation
-from ...components.operation.process import Process
+from ...components._base._operation import _Operation
+from ...components.process import Process
 from ...components.operation.storage import Storage
 from ...components.operation.transit import Transit
 from ...components.temporal.horizon import Horizon

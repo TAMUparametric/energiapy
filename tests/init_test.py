@@ -14,9 +14,9 @@ from src.energiapy.components.commodity.emission import Emission
 from src.energiapy.components.commodity.land import Land
 from src.energiapy.components.commodity.material import Material
 from src.energiapy.components.commodity.resource import Resource
-from src.energiapy.components.operation.process import Process
-from src.energiapy.components.operation.storage import Storage
-from src.energiapy.components.operation.transit import Transit
+from energiapy.components.process import Process
+from energiapy.components.operation.storage import Storage
+from energiapy.components.operation.transit import Transit
 from src.energiapy.components.temporal.horizon import Horizon
 from src.energiapy.components.temporal.scale import Scale
 from src.energiapy.elements.parameters.balances.conversion import Conversion

@@ -1,13 +1,14 @@
 """Process converts one Resource to another Resource
 """
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from ...elements.parameters.balances.conversion import Conversion
 from .._attrs._balances import _ProBalance
 from .._attrs._spatial import _LocCollection
 from ..spatial.location import Location
 from ._operation import _Operation
+from ...elements.parameters.balances.conversion import Conversion
 
 
 @dataclass
@@ -43,6 +44,8 @@ class Process(
         label (str): label of the component
 
     """
+
+    locations: list[Location] = field(default_factory=list)
 
     def __post_init__(self):
         _Operation.__post_init__(self)

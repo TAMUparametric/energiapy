@@ -5,7 +5,7 @@ from dataclasses import dataclass, fields
 
 from .._attrs._bounds import _Use
 from .._attrs._exacts import _UseEmit, _UseTransact
-from ._commodity import _Commodity
+from .._base._commodity import _Commodity
 
 
 @dataclass

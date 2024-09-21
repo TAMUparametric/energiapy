@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     from ..components.commodity.emission import Emission
     from ..components.commodity.land import Land
     from ..components.commodity.resource import Resource
-    from ..components.operation.process import Process
+    from ..components.process import Process
     from ..components.operation.storage import Storage
     from ..components.operation.transit import Transit
     from ..components.spatial.linkage import Linkage

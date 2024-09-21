@@ -20,6 +20,7 @@ if TYPE_CHECKING:
     from ...components.commodity.resource import Resource
     from ...components.operation.storage import Storage
     from ...components.operation.transit import Transit
+    from ...elements.parameters.balances.inventory import Inventory
 
 
 class _Birth(ABC):
@@ -54,6 +55,7 @@ class _Birth(ABC):
         """
 
         if isinstance(birth_list, int):
+
             birth_list = [birth_list]
             birth_names = [birth_names]
 
@@ -155,42 +157,48 @@ class _Birth(ABC):
                     # set the linkages as attributes of the Scenario
                     setattr(self, f'lnk{i}', Linkage(source=src, sink=snk, bi=True))
 
-    # def birth_bal_processes(self, operation: Storage | Transit, res: Resource):
-    #     """Births Balance Processes
-    #     Charging and Discharging Processes for a Operation Component
-    #     Loading and Unloading Processes for a Transit Component
+    def birth_bal_processes(self, operation: Storage | Transit, res: Resource):
+        """Births Balance Processes
+        Charging and Discharging Processes for a Operation Component
+        Loading and Unloading Processes for a Transit Component
 
-    #     Args:
-    #         operation (IsOperation): Operation object
-    #     """
+        Args:
+            operation (IsOperation): Operation object
+        """
 
-    #     # The base resource (what is stored)
-    #     balance = operation.balance
-    #     base = balance.base
-    #     conv_in, conv_out = balance.conversion_in, balance.conversion_out
+        # The base resource (what is stored)
+        balance: Inventory = operation.balance
+        base: Resource = balance.operated
+        # eta is the efficiency of the operation
+        # Input conversion produces ResourceStg, using Resource
+        # {ResourceStg: {Resource: -eta}}
+        conv_in: dict = balance.conversion_in
+        # Output conversion consumes Resource, using ResourceStg
+        # {Resource: {ResourceStg: -eta}}
+        conv_out: dict = balance.conversion_out[base]
 
-    #     # A Operation Resource is birthed
-    #     setattr(self, f'{operation}_{base}', res)
-    #     res = getattr(self, f'{operation}_{base}')
+        # A Operation Resource is birthed
+        setattr(self, f'{operation}_{base}', res)
+        res = getattr(self, f'{operation}_{base}')
 
-    #     # When Invetory is made within the Operation
-    #     # Place holders are used for Operation Resource (res)
-    #     # This is to keep birthing operations only in the Scenario
-    #     # The conversions are updated in Operation Balance as well
-    #     # These are cleaned up here
-    #     conv_in[res] = conv_in.pop('r')
-    #     conv_out[res] = conv_out[base].pop('r')
+        # When Invetory is made within the Operation
+        # Place holders are used for Operation Resource (res)
+        # This is to keep birthing operations only in the Scenario
+        # The conversions are updated in Operation Balance as well
+        # These are cleaned up here
+        conv_in[res] = conv_in.pop('r')
+        conv_out[res] = conv_out.pop('r')
 
-    #     # Charging(_in) and Discharging(_out) Processes are birthed
-    #     # process_in = Process(conversion=conv_in, setup=operation.setup_in)
-    #     # process_out = Process(conversion=conv_out, setup=operation.setup_out)
-    #     # processes = [process_in, process_out]
+        # Charging(_in) and Discharging(_out) Processes are birthed
+        process_in = Process(conversion=conv_in, setup=operation.setup_in)
+        process_out = Process(conversion=conv_out, setup=operation.setup_out)
+        processes = [process_in, process_out]
 
-    #     # update processes in Operation
-    #     setattr(operation, 'processes', processes)
-    #     # set the processes as attributes of the Scenario
-    #     setattr(self, f'{operation}_in', operation.process_in)
-    #     setattr(self, f'{operation}_out', operation.process_out)
+        # update processes in Operation
+        setattr(operation, 'processes', processes)
+        # set the processes as attributes of the Scenario
+        setattr(self, f'{operation}_in', operation.process_in)
+        setattr(self, f'{operation}_out', operation.process_out)
 
-    #     # set the flag to True
-    #     setattr(operation, '_birthed', True)
+        # set the flag to True
+        setattr(operation, '_birthed', True)

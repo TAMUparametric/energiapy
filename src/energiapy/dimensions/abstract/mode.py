@@ -11,7 +11,7 @@ from sympy import Symbol
 from ...core._handy._dunders import _Dunders
 
 if TYPE_CHECKING:
-    from ..operation.process import Process
+    from ..process import Process
     from ..operation.storage import Storage
     from ..operation.transit import Transit
 

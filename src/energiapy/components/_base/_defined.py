@@ -4,14 +4,12 @@
 from dataclasses import dataclass, field
 
 from ...core._handy._printers import _EasyPrint
-from ...core._report._data import _Vlus
-from ...core._report._prog import _Elms
 from ._component import _Component
 from ._consistent import _Consistent
 
 
 @dataclass
-class _Defined(_Component, _Consistent, _Vlus, _Elms, _EasyPrint):
+class _Defined(_Component, _Consistent, _EasyPrint):
     """If the component is defined by user, it should inherit from this class
 
     Attributes:
