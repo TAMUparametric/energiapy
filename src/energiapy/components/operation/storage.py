@@ -1,21 +1,16 @@
 """Storage - Stashes Resource to Withdraw Later
 """
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from ...elements.parameters.balances.inventory import Inventory
-from .._attrs._balances import _StgBalance
-from .._attrs._births import _StgBirthing
-from .._attrs._spatial import _LocCollection
 from ..spatial.location import Location
 from ._birther import _Birther
+from ...core.isalias.inps.isinp import IsBnd
 
 
 @dataclass
 class Storage(
-    _StgBalance,
-    _StgBirthing,
-    _LocCollection,
     _Birther,
 ):
     """Storage stores and withdraws Resources
@@ -48,6 +43,11 @@ class Storage(
         label (str): label of the component
     """
 
+    inventory: dict | Inventory = field(default_factory=dict)
+    locations: list[Location] = field(default_factory=list)
+    setup_in: IsBnd = field(default=None)
+    setup_out: IsBnd = field(default=None)
+
     def __post_init__(self):
         _Birther.__post_init__(self)
 
@@ -57,9 +57,9 @@ class Storage(
         return self.inventory
 
     @staticmethod
-    def at():
-        """At what Spatial can the Operation be located"""
-        return Location
+    def _at():
+        """Spatial attributes"""
+        return 'locations'
 
     def inventorize(self):
         """Makes the inventory"""

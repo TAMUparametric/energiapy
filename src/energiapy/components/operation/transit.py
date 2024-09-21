@@ -1,19 +1,15 @@
 """Transit moves Resources between Locations
 """
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from ...elements.parameters.balances.freight import Freight
-from .._attrs._balances import _TrnBalance
-from .._attrs._spatial import _LnkCollection
 from ..spatial.linkage import Linkage
 from ._birther import _Birther
 
 
 @dataclass
 class Transit(
-    _TrnBalance,
-    _LnkCollection,
     _Birther,
 ):
     """Transit moves Resources between Locations through a Linkage
@@ -47,6 +43,9 @@ class Transit(
 
     """
 
+    freight: dict | Freight = field(default_factory=dict)
+    linkages: list[Linkage] = field(default_factory=list)
+
     def __post_init__(self):
         _Birther.__post_init__(self)
         self.setup_in = self.setup_out = self.setup
@@ -56,10 +55,11 @@ class Transit(
         """Balance attribute"""
         return self.freight
 
+
     @staticmethod
-    def at():
-        """At what Spatial can the Operation be located"""
-        return Linkage
+    def _at():
+        """Spatial attributes"""
+        return 'linkages'
 
     def freightize(self):
         """Makes the freight"""

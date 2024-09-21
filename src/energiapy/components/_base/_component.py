@@ -11,8 +11,8 @@ from ...environ.program import Block
 
 if TYPE_CHECKING:
     from ...environ.model import Model
-    from ...dimensions.temporal.horizon import Horizon
-    from ...dimensions.spatial.network import Network
+    from ...environ.horizon import Horizon
+    from ...environ.network import Network
 
 
 @dataclass
@@ -27,9 +27,9 @@ class _Component(_Dunders):
     def __post_init__(self):
         self.name = None
         self._named = False
-        self._model = None
-        self.horizon = None
-        self.network = None
+        self._model: Model = None
+        self.horizon: Horizon = None
+        self.network: Network = None
         # this is a block of the Program
         # only contains modeling elements pertaining to the component
         self.block = Block(self)

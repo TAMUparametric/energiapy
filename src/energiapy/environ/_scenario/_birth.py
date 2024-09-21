@@ -15,12 +15,13 @@ from ...components.temporal.scale import Scale
 
 if TYPE_CHECKING:
     from ..system import System
-    from ...components.spatial.network import Network
-    from ...components.temporal.horizon import Horizon
+    from ..network import Network
+    from ..horizon import Horizon
     from ...components.commodity.resource import Resource
     from ...components.operation.storage import Storage
     from ...components.operation.transit import Transit
     from ...elements.parameters.balances.inventory import Inventory
+    from ...elements.parameters.balances.freight import Freight
 
 
 class _Birth(ABC):
@@ -167,7 +168,7 @@ class _Birth(ABC):
         """
 
         # The base resource (what is stored)
-        balance: Inventory = operation.balance
+        balance: Inventory | Freight = operation.balance
         base: Resource = balance.operated
         # eta is the efficiency of the operation
         # Input conversion produces ResourceStg, using Resource
@@ -190,15 +191,21 @@ class _Birth(ABC):
         conv_out[res] = conv_out.pop('r')
 
         # Charging(_in) and Discharging(_out) Processes are birthed
-        process_in = Process(conversion=conv_in, setup=operation.setup_in)
-        process_out = Process(conversion=conv_out, setup=operation.setup_out)
-        processes = [process_in, process_out]
+        # and set on the scenario
+        setattr(
+            self,
+            f'{operation}_in',
+            Process(conversion=conv_in, setup=operation.setup_in),
+        )
+        setattr(
+            self,
+            f'{operation}_out',
+            Process(conversion=conv_out, setup=operation.setup_out),
+        )
 
-        # update processes in Operation
-        setattr(operation, 'processes', processes)
-        # set the processes as attributes of the Scenario
-        setattr(self, f'{operation}_in', operation.process_in)
-        setattr(self, f'{operation}_out', operation.process_out)
+        # The Processes are set as attributes of the Operation
+        operation.process_in = getattr(self, f'{operation}_in')
+        operation.process_out = getattr(self, f'{operation}_out')
 
         # set the flag to True
-        setattr(operation, '_birthed', True)
+        operation.birthed = True

@@ -43,13 +43,12 @@ from ..components.operation.storage import Storage
 from ..components.operation.transit import Transit
 from ..components.spatial.linkage import Linkage
 from ..components.spatial.location import Location
-from ..components.spatial.network import Network
-from ..components.temporal.horizon import Horizon
+from .network import Network
+from .horizon import Horizon
 from ..components.temporal.scale import Scale
 from ..core._handy._dunders import _Dunders
 from ..core._handy._printers import _Print
 from ..core._handy._words import reserved
-from ..core._report._syst import _Cmps
 from ..core.nirop.errors import ReservedWord
 from ._scenario._birth import _Birth
 from ._scenario._default import _Default

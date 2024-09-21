@@ -3,10 +3,9 @@
 
 from dataclasses import dataclass, field
 
-from ...core._handy._dunders import _Dunders
-
-from .linkage import Linkage
-from .location import Location
+from ..core._handy._dunders import _Dunders
+from ..components.spatial.location import Location
+from ..components.spatial.linkage import Linkage
 
 
 @dataclass
@@ -45,7 +44,7 @@ class Network(_Dunders):
     def edges(self):
         """Edges of the System are just Linkages"""
         return self.linkages
-    
+
     @property
     def pairs(self):
         """Source Sink pairs of the System"""

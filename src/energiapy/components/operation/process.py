@@ -4,17 +4,12 @@
 from dataclasses import dataclass, field
 
 from ...elements.parameters.balances.conversion import Conversion
-from .._attrs._balances import _ProBalance
-from .._attrs._spatial import _LocCollection
 from ..spatial.location import Location
 from ._operation import _Operation
-from ...elements.parameters.balances.conversion import Conversion
 
 
 @dataclass
 class Process(
-    _ProBalance,
-    _LocCollection,
     _Operation,
 ):
     """Process converts one Resource to another Resource
@@ -45,30 +40,32 @@ class Process(
 
     """
 
+    conversion: dict | Conversion = field(default_factory=dict)
     locations: list[Location] = field(default_factory=list)
 
     def __post_init__(self):
         _Operation.__post_init__(self)
 
+
     @staticmethod
     def _at():
-        """At what Spatial can the Operation be located"""
-        return Location
+        """Spatial attributes"""
+        return 'locations'
 
     @property
-    def base(self):
-        """The base resource"""
-        return self.conversion.base
+    def operated(self):
+        """The base Resource"""
+        return self.conversion.operated
 
     @property
-    def sold(self):
-        """The resources sold"""
-        return self.conversion.sold
+    def discharged(self):
+        """The discharged Resources"""
+        return self.conversion.discharged
 
     @property
-    def bought(self):
-        """The resources bought"""
-        return self.conversion.bought
+    def consumed(self):
+        """The consumed Resources"""
+        return self.conversion.consumed
 
     @property
     def modes(self):
@@ -94,11 +91,6 @@ class Process(
     def resources(self):
         """Resources in Conversion"""
         return self.conversion.involved
-
-    @staticmethod
-    def at():
-        """At what Spatial can the Operation be located"""
-        return Location
 
     def conversionize(self):
         """Makes the conversion"""

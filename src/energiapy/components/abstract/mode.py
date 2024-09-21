@@ -11,7 +11,7 @@ from sympy import Symbol
 from ...core._handy._dunders import _Dunders
 
 if TYPE_CHECKING:
-    from ..process import Process
+    from ..operation.process import Process
     from ..operation.storage import Storage
     from ..operation.transit import Transit
 
@@ -19,7 +19,7 @@ if TYPE_CHECKING:
 @dataclass
 class X(_Dunders):
     """Represents a discrete choice to be taken within a
-    spatiotemporal disposition. 
+    spatiotemporal disposition.
     Modes can split you
     Mode of Operation, can be used for Conversion, Use, etc.
 

@@ -21,8 +21,10 @@ from pandas import DataFrame
 from ...core.isalias.inps.isinp import IsBndInp, IsExtInp, IsInp, IsSptTmp
 from ...core.nirop.errors import InconsistencyError, check_attr
 from ...core.nirop.warnings import InconsistencyWarning
-from ..spatial.network import Network
-from ..temporal.mode import X
+from ...environ.network import Network
+from ...components.spatial.location import Location
+from ...components.spatial.linkage import Linkage
+from ..abstract.mode import X
 from ..temporal.scale import Scale
 from ._dummy import _Dummy
 
@@ -123,7 +125,7 @@ class _Consistent(ABC):
             value_upd = {}
             for key, val in value.items():
                 # check if a spatial component is already given
-                if isinstance(key, (_Spatial, Network)):
+                if isinstance(key, (Location, Linkage, Network)):
                     # if yes, stick with it
                     value_upd[key] = val
                 else:

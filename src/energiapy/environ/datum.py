@@ -10,13 +10,13 @@ from ..components.commodity.cash import Cash
 from ..components.commodity.emission import Emission
 from ..components.commodity.land import Land
 from ..components.commodity.resource import Resource
-from ..components.process import Process
+from ..components.operation.process import Process
 from ..components.operation.storage import Storage
 from ..components.operation.transit import Transit
 from ..components.spatial.linkage import Linkage
 from ..components.spatial.location import Location
-from ..components.spatial.network import Network
-from ..components.temporal.mode import X
+from .network import Network
+from ..components.abstract.mode import X
 from ..components.temporal.scale import Scale
 from ..core._handy._dunders import _Dunders
 from ..core.isalias.cmps.iscmp import IsDsp

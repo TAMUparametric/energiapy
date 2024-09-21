@@ -4,16 +4,16 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Self
 
-from ._spatial import _Spatial
+from ...components._base._component import _Component
 
 if TYPE_CHECKING:
     from .location import Location
 
 
 @dataclass
-class Linkage(_Spatial):
+class Linkage(_Component):
     """Linkage between Locations
 
     If bi is True, the Linkage is bothways and a Linkage_ is birthed
@@ -35,18 +35,8 @@ class Linkage(_Spatial):
     label: str = field(default=None)
 
     def __post_init__(self):
-        _Spatial.__post_init__(self)
-        self._sib = None
-
-    @property
-    def transits(self):
-        """Storage Operations at the Location"""
-        return self.fetch('transits')
-
-    @property
-    def operations(self):
-        """Operations at the Location"""
-        return self.transits
+        _Component.__post_init__(self)
+        self._sib: Self = None
 
     @property
     def sib(self):

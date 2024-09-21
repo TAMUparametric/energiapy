@@ -3,8 +3,8 @@
 
 from dataclasses import dataclass
 
-from ...core._handy._dunders import _Dunders
-from .scale import Scale
+from ..core._handy._dunders import _Dunders
+from ..components.temporal.scale import Scale
 
 
 @dataclass

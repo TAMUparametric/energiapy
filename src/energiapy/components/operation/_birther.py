@@ -3,7 +3,6 @@
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
@@ -15,7 +14,7 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class _Birther(_Operation, ABC):
+class _Birther(_Operation):
     """Operations that have balance
     They give birth to input and output Processes
     They have input and output conversions
@@ -28,38 +27,21 @@ class _Birther(_Operation, ABC):
         # basically, conversion_in and conversion_out
         # The processes inherit the original capacities
         # (before they are made into SpatioTemporal Dicts)
-        self._birthed = False
+        self.birthed = False
         _Operation.__post_init__(self)
 
-    @property
-    @abstractmethod
-    def balance(self):
-        """Balance attribute"""
+        self.process_in: Process = None
+        self.process_out: Process = None
 
     @property
     def processes(self) -> list[Process]:
-        """Birthed Processes"""
-        return self._processes
-
-    @processes.setter
-    def processes(self, processes):
-        """Set Processes"""
-        self._processes = processes
-
-    @property
-    def process_in(self) -> Process:
-        """Process from Resource to Birthed Resource"""
-        return self.processes[0]
-
-    @property
-    def process_out(self) -> Process:
-        """Process from Birthed Resource to Resource"""
-        return self.processes[1]
+        """Processes that are birthed"""
+        return [self.process_in, self.process_out]
 
     @property
     def conversion_in(self) -> Conversion:
         """Conversion from Resource to Birthed Resource"""
-        return getattr(self.system, getattr(self, 'name')).process_in.conversion
+        return self.process_in.conversion
 
     @property
     def conversion_out(self) -> Conversion:

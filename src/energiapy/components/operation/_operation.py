@@ -4,8 +4,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, fields
 
-from pandas import DataFrame
-
 from ...utils.scaling import scaling
 from .._attrs._boundbounds import _Operate
 from .._attrs._bounds import _Setup
@@ -48,19 +46,19 @@ class _Operation(
 
     def __post_init__(self):
         _Defined.__post_init__(self)
-        if isinstance(self.operate, DataFrame):
+        if isinstance(self.operate, list):
             self.operate = scaling(data=self.operate, how='max')
         self._balanced = False
 
     @staticmethod
     @abstractmethod
     def _at():
-        """At what Spatial can the Operation be located"""
+        """Spatial attributes"""
 
     @property
     @abstractmethod
-    def spatials(self):
-        """Spatial attributes"""
+    def balance(self):
+        """Balance attribute"""
 
     @property
     @abstractmethod
@@ -99,7 +97,5 @@ class _Operation(
 
     def locate(self):
         """Locates the Component"""
-        
-        #
-        if not self.spatials:
-            self.spatials = self.network.locations
+        if not getattr(self, self._at()):
+            setattr(self, self._at(), getattr(self.network, self._at()))

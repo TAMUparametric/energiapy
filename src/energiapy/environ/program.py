@@ -1,12 +1,10 @@
 """Mathematical Programming Model
 """
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
 from dataclasses import dataclass, field
-
-from ..core._handy._dunders import _Dunders
-from ..core._handy._printers import _Print
 
 from ..core._handy._dunders import _Dunders
 from ..core._handy._printers import _Print
@@ -127,8 +125,6 @@ class Block(_Dunders, _Print):
         return [
             cons for cons in self.constraints if component in cons.index.disposition
         ]
-
-
 
 
 @dataclass
