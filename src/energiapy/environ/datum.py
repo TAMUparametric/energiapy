@@ -3,7 +3,6 @@
 
 from dataclasses import dataclass, field
 
-from pandas import DataFrame
 
 from ..components.analytical.player import Player
 from ..components.commodity.cash import Cash
@@ -41,7 +40,7 @@ class Datum(_Dunders):
 
     This ensures consistence in the input once provided to the Scenario class
 
-    The Index is also determined here and set as the key in the dictionary
+    The Idx is also determined here and set as the key in the dictionary
 
     Attributes:
         attr (str): The attribute of the input
@@ -63,17 +62,17 @@ class Datum(_Dunders):
 
     @property
     def indices(self):
-        """Returns the Index of the input"""
+        """Returns the Idx of the input"""
         return list(self.data.keys())
 
     @property
     def name(self):
-        """Returns the Index of the input"""
+        """Returns the Idx of the input"""
         return f'{self.attr}{self.data}'
 
     @property
     def by_position(self):
-        """Returns the Index of the input"""
+        """Returns the Idx of the input"""
         return dict(enumerate(list(self.data.values())))
 
     @property
@@ -84,7 +83,7 @@ class Datum(_Dunders):
     def update_data(self):
         """Updates the data
         Returns:
-            dict: {Index: value}
+            dict: {Idx: value}
         """
         # Flatten the dictionary. Now the keys are tuples
         # {(Network/Spatial, Scale, ...): value}
@@ -152,7 +151,7 @@ class Datum(_Dunders):
             self.check_type(val)
             dict_upd[index] = val
 
-        # update the input with a dictionary {Index: value}
+        # update the input with a dictionary {Idx: value}
         self.data = dict_upd
 
     def get(self, n: IsDsp | int | None = None) -> IsVal:
@@ -209,7 +208,7 @@ class Datum(_Dunders):
 
             disp = n
             if not disp in [idx.disposition for idx in self.indices]:
-                print(f'Index with disposition {disp} not found')
+                print(f'Idx with disposition {disp} not found')
                 siren_index()
                 siren_help()
 
@@ -260,7 +259,7 @@ class Datum(_Dunders):
         ):
             # Bound inputs cannot be:
             # sets - used only in the special case when there is an incidental parameter
-            if not isinstance(value, (int, float, list, bool, DataFrame, tuple)):
+            if not isinstance(value, (int, float, list, bool, tuple)):
                 raise InputTypeError(
                     'Bound attrs can only take certain types',
                     self.component,
@@ -273,10 +272,7 @@ class Datum(_Dunders):
             # lists - used for upper and lower bounds
             # bool (True) - used for BigM
 
-            if (
-                not isinstance(value, (int, float, DataFrame, tuple, set))
-                or value is True
-            ):
+            if not isinstance(value, (int, float, list, tuple, set)) or value is True:
                 raise InputTypeError(
                     'Exact attrs can only take certain types',
                     self.component,

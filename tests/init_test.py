@@ -7,17 +7,17 @@ import pytest
 
 from src.energiapy.components.spatial.linkage import Linkage
 from src.energiapy.components.spatial.location import Location
-from src.energiapy.components.spatial.network import Network
+from src.energiapy.environ.network import Network
 from src.energiapy.components.analytical.player import Player
 from src.energiapy.components.commodity.cash import Cash
 from src.energiapy.components.commodity.emission import Emission
 from src.energiapy.components.commodity.land import Land
 from src.energiapy.components.commodity.material import Material
 from src.energiapy.components.commodity.resource import Resource
-from energiapy.components.process import Process
+from energiapy.components.operation.process import Process
 from energiapy.components.operation.storage import Storage
 from energiapy.components.operation.transit import Transit
-from src.energiapy.components.temporal.horizon import Horizon
+from src.energiapy.environ.horizon import Horizon
 from src.energiapy.components.temporal.scale import Scale
 from src.energiapy.elements.parameters.balances.conversion import Conversion
 from src.energiapy.elements.parameters.balances.freight import Freight

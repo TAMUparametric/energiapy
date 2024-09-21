@@ -9,7 +9,7 @@
 from dataclasses import dataclass, fields
 
 from .._attrs._bounds import _Transact
-from .._base._commodity import _Commodity
+from ._commodity import _Commodity
 
 
 @dataclass

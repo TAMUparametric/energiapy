@@ -10,15 +10,16 @@ from ...components._attrs._balances import _BalanceAttrs
 from ...components._attrs._boundbounds import _BoundBoundAttrs
 from ...components._attrs._bounds import _BoundAttrs
 from ...components._attrs._exacts import _ExactAttrs
+
 # from ...components.analytical.player import Player
 from ...components.commodity.cash import Cash
 from ...components.commodity.emission import Emission
 from ...components.commodity.resource import Resource
-from ...components._base._operation import _Operation
-from ...components.process import Process
+from ...components.operation._operation import _Operation
+from ...components.operation.process import Process
 from ...components.operation.storage import Storage
 from ...components.operation.transit import Transit
-from ...components.temporal.horizon import Horizon
+from ...environ.horizon import Horizon
 from ...core._handy._dunders import _Dunders
 from ...elements.constraints.balance import Balance
 from ...elements.constraints.bound import Bound

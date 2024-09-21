@@ -3,8 +3,8 @@
 
 import pytest
 
-from src.energiapy.components.spatial.network import Network
-from src.energiapy.components.temporal.horizon import Horizon
+from src.energiapy.environ.network import Network
+from src.energiapy.environ.horizon import Horizon
 from src.energiapy.environ.scenario import Scenario
 
 
@@ -52,7 +52,6 @@ def horizon_singlescale_scale_0(horizon_singlescale):
     return horizon_singlescale.scales[0]
 
 
-
 @pytest.fixture
 def horizon_multiscale(scenario_bare):
     """Multiscale Horizon with 2 and 4 discertizations"""
@@ -70,7 +69,6 @@ def horizon_multiscale_scale_0(horizon_multiscale):
 def horizon_multiscale_scale_1(horizon_multiscale):
     """t1 multiscale"""
     return horizon_multiscale.scales[1]
-
 
 
 @pytest.fixture

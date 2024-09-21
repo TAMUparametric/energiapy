@@ -28,6 +28,7 @@ from ..abstract.mode import X
 from ..temporal.scale import Scale
 from ._dummy import _Dummy
 
+
 if TYPE_CHECKING:
     from ...environ.engines.taskmaster import Chanakya
     from ...environ.system import System
@@ -419,21 +420,5 @@ class _Consistent(ABC):
                 continue
 
             setattr(self, attr, make_any_consistent(value, attr, ok_inconsistent))
-
-            # if any(
-            #     isinstance(self, cmp) for cmp in getattr(self.taskmaster, attr).other
-            # ):
-            #     # if the root of attribute is another Component
-            #     # Then we need to iterate over the Components
-            #     setattr(
-            #         self,
-            #         attr,
-            #         {
-            #             cmd: make_any_consistent(val, attr, ok_inconsistent)
-            #             for cmd, val in value.items()
-            #         },
-            #     )
-            # else:
-            #     # else just set i
 
         setattr(self, 'consistent', True)

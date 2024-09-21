@@ -12,6 +12,8 @@ from .engines.registrar import ChitraGupta
 from .engines.taskmaster import Chanakya
 from .program import Program
 from .system import System
+from .network import Network
+from .horizon import Horizon
 
 
 @dataclass
@@ -31,6 +33,8 @@ class Model(_Dunders):
         self.program = Program(self.name)
         self.taskmaster = Chanakya(self.name)
         self.registrar = ChitraGupta(self.name, self.system, self.taskmaster)
+        self.horizon = Horizon(self.name)
+        self.network = Network(self.name)
         # Update name after setting the rest
         # The name of the scenario is taken as is
         self.name = f'Model|{self.name}|'

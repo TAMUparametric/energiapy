@@ -99,14 +99,6 @@ class Scenario(_Ok, _Default, _Birth, _Update, _Dunders, _Print):
 
         # Declare Model, contains system, program, data, matrix
         self.model = Model(name=self.name)
-
-        # These is the spatiotemporal scope of the Scenario
-        # temporal Scales discretize the Horizon
-        self.horizon = Horizon()
-        # Locations discretize the Network
-        # and are connected via Linkages
-        self.network = Network()
-
         _Ok.__post_init__(self)
         _Default.__post_init__(self)
 
@@ -190,6 +182,16 @@ class Scenario(_Ok, _Default, _Birth, _Update, _Dunders, _Print):
         super().__setattr__(name, value)
 
     @property
+    def horizon(self):
+        """Horizon of the Scenario"""
+        return self.model.horizon
+
+    @property
+    def network(self):
+        """Network of the Scenario"""
+        return self.model.network
+
+    @property
     def system(self):
         """System of the Scenario"""
         return self.model.system
@@ -223,7 +225,7 @@ class Scenario(_Ok, _Default, _Birth, _Update, _Dunders, _Print):
         """Prints all equations in the program
         Args:
             at_cmp (IsCmp, optional): Component to search for. Defaults to None.
-            at_disp (IsIndex, optional): Index to search for. Defaults to None.
+            at_disp (IsIndex, optional): Idx to search for. Defaults to None.
         """
         for eqn in self.program.eqns(at_cmp=at_cmp, at_disp=at_disp):
             yield eqn

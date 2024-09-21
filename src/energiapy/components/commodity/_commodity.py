@@ -9,8 +9,8 @@ from typing import TYPE_CHECKING
 from .._base._defined import _Defined
 
 if TYPE_CHECKING:
-    from ...dimensions.spatial.linkage import Linkage
-    from ...dimensions.spatial.location import Location
+    from ..spatial.linkage import Linkage
+    from ..spatial.location import Location
 
 
 @dataclass

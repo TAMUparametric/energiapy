@@ -1,4 +1,4 @@
-"""Index gives the disposition of Program Elements (Variables, Parameters, Constraints)
+"""Idx gives the disposition of Program Elements (Variables, Parameters, Constraints)
 """
 
 from __future__ import annotations
@@ -6,7 +6,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field, fields
 from typing import TYPE_CHECKING
 
-from sympy import Idx, symbols
+from sympy import symbols
+from sympy import Idx as IdxSym
 
 from ..core._handy._dunders import _Dunders
 
@@ -17,19 +18,19 @@ if TYPE_CHECKING:
     from ..components.commodity.emission import Emission
     from ..components.commodity.land import Land
     from ..components.commodity.resource import Resource
-    from ..components.process import Process
+    from ..components.operation.process import Process
     from ..components.operation.storage import Storage
     from ..components.operation.transit import Transit
     from ..components.spatial.linkage import Linkage
     from ..components.spatial.location import Location
-    from ..components.temporal.mode import X
+    from ..components.abstract.mode import X
     from ..components.temporal.scale import Scale
 
 
 @dataclass
-class Index(_Dunders):
+class Idx(_Dunders):
     """The spatiotemporal disposition of the Component
-    Index is the index of the a Program Model Element
+    Idx is the index of the a Program Model Element
     Gives you an idea of where the Parameter, Variable, or Constraint exists
 
     Attributes:
@@ -63,7 +64,7 @@ class Index(_Dunders):
     mde: X = field(default=None)
 
     def __post_init__(self):
-        
+
         # this is the disposition of the Program Element
         self.disposition = tuple(
             [getattr(self, f.name) for f in fields(self) if getattr(self, f.name)]
@@ -84,10 +85,10 @@ class Index(_Dunders):
         return len(self.scl)
 
     def size(self):
-        """Size of the Index"""
+        """Size of the Idx"""
         return len(self.disposition)
 
     @property
     def sym(self):
         """Symbol"""
-        return symbols(",".join([f'{d}' for d in self.disposition]), cls=Idx)
+        return symbols(",".join([f'{d}' for d in self.disposition]), cls=IdxSym)

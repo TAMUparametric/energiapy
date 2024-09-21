@@ -7,7 +7,7 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 from sympy import Rel
 from ..core._handy._dunders import _Reprs
-from .index import Index
+from .index import Idx
 
 if TYPE_CHECKING:
     from .expression import Exn
@@ -22,5 +22,5 @@ class Cns(_Reprs):
     lhs: Exn | Prm | Vrb = field()
     rhs: Exn | Prm | Vrb = field()
     rel: str = field(default='eq')
-    index: Index = field(default=None)
+    index: Idx = field(default=None)
     name: str = field(default='Cns')

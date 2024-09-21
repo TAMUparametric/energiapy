@@ -19,11 +19,11 @@ class ExactVar(_Variable):
     This is a parent class
 
     Attributes:
-        index (Index): Index of the Variable
+        index (Idx): Idx of the Variable
         component (IsDfn): Component for which variable is being defined
         symbol (IndexedBase): Symbolic representation of the Variable
         parent (BoundVar): The Parent Variable of the Variable
-        child (IsDfn): The Parent Variable doesnot carry Child Component in Index
+        child (IsDfn): The Parent Variable doesnot carry Child Component in Idx
 
     """
 

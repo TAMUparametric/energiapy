@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING
 from ...core._handy._dunders import _Dunders
 from ...environ.program import Block
 
+
 if TYPE_CHECKING:
     from ...environ.model import Model
     from ...environ.horizon import Horizon
@@ -28,11 +29,9 @@ class _Component(_Dunders):
         self.name = None
         self._named = False
         self._model: Model = None
-        self.horizon: Horizon = None
-        self.network: Network = None
         # this is a block of the Program
         # only contains modeling elements pertaining to the component
-        self.block = Block(self)
+        self.programblock = Block(self)
 
     @property
     def is_named(self):
@@ -43,6 +42,16 @@ class _Component(_Dunders):
     def system(self):
         """The System of the Component"""
         return self._model.system
+
+    @property
+    def horizon(self):
+        """The Horizon of the Scenario"""
+        return self._model.horizon
+
+    @property
+    def network(self):
+        """The Network of the Scenario"""
+        return self._model.network
 
     @property
     def program(self):
@@ -63,8 +72,6 @@ class _Component(_Dunders):
         self,
         name: str,
         model: Model,
-        horizon: Horizon,
-        network: Network,
     ):
         """Personalize the compoenent
         give it a name (public),
@@ -77,5 +84,3 @@ class _Component(_Dunders):
         self.name = name
         self._named = True  # update flag
         self._model = model
-        self.horizon = horizon
-        self.network = network

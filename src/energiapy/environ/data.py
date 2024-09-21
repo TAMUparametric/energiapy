@@ -10,7 +10,7 @@ from ..core.isalias.cmps.isdfn import IsDfn
 from ..core.isalias.elms.isval import IsVal
 from ..core.isalias.inps.isinp import IsInp
 from ..core.nirop.errors import InputTypeError
-from ..elements.index import Index
+from ..elements.index import Idx
 from ..elements.values.constant import Constant
 from ..elements.values.dataset import DataSet
 from ..elements.m import M
@@ -51,7 +51,7 @@ class Data(_Dunders):
 
         if isinstance(value, dict) and not name == 'data':
             # _Spt holds the data in a particular format
-            # {Index: value}. The disposition is made there
+            # {Idx: value}. The disposition is made there
             # This is only temporary and the user eventually sees a list of parameters
             datum = Datum(attr=name, data=value, component=self.component)
             for index, datapoint in datum.data.items():
@@ -170,7 +170,7 @@ class Data(_Dunders):
 
     def birth_value(
         self,
-        index: Index,
+        index: Idx,
         value: IsInp,
         varbnd: VarBnd = None,
         spclmt: SpcLmt = None,

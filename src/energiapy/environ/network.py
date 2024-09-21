@@ -19,9 +19,10 @@ class Network(_Dunders):
         label (str): label of the Network
     """
 
-    link_all: bool = field(default=False)
+    name: str = field(default=None)
 
     def __post_init__(self):
+        self.name = f'Network|{self.name}|'
         self.locations: list[Location] = []
         self.linkages: list[Linkage] = []
 

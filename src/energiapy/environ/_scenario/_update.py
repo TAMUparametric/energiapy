@@ -4,16 +4,19 @@
 """
 
 from abc import ABC, abstractmethod
+from dataclasses import dataclass, field
 
-from ...components.temporal.horizon import Horizon
+from ..horizon import Horizon
 from ...core.isalias.cmps.iscmp import IsUnq
 from ...core.isalias.cmps.isdfn import IsDfn, IsOpn
-from ..renditions.blocks.datablock import DataBlock
-from ..renditions.program import ProgramBlock
+from ..program import Block
 
 
+@dataclass
 class _Update(ABC):
     """Has all the function needed to update the Scenario with Components and Model Blocks"""
+
+    m: float = field(default=None)
 
     @property
     @abstractmethod
@@ -43,7 +46,7 @@ class _Update(ABC):
             cmp (str): property in Scenario that stores Component 'horizon', 'network'
         """
 
-        cmp = getattr(self, cmp)
+        cmp: IsDfn = getattr(self, cmp)
 
         if cmp:
             if isinstance(cmp, Horizon):
@@ -114,12 +117,12 @@ class _Update(ABC):
         # or a tuple of numeric or DataFrame
         # or a list or numeric, DataFrame, True, or a tuple of numeric or DataFrame
         component.make_consistent(getattr(self, 'ok_inconsistent'))
+        component.datumize()
 
         # make Small Blocks to be added to the larger Model Blocks
-        # where all the data values go
-        datablock = DataBlock(component=component, m=getattr(self, 'm'))
         # where all the model elements go
-        block = component.block
+        programblock: Block = component.programblock
+        programblock.m = self.m
 
         # Each _Defined component has inputs which are categorized
         # check individual component parent classes _Operation, _Commodity (_Traded and _Used) for details
@@ -127,38 +130,9 @@ class _Update(ABC):
             if getattr(component, attr, False):
                 # set the input as attribute in the DataBlock
                 # This will make them into energiapy internal formats - Constant, DataSet, Theta, M
-                setattr(datablock, attr, {component: getattr(component, attr)})
-
-                # The updated Values are then set back into the component
-                setattr(component, attr, datablock.data[attr])
-
-                # TODO
-                # # update the values for the attributes in the Task Modeling Block
-                # for val in getattr(component, attr).values():
-                #     getattr(self.taskmaster, attr).values.append(val)
-
-        # The smaller Blocks are then added to the Larger Scenario Level Model Blocks
-        # The DataBlock is added to the Data Model
-        setattr(self.data, name, datablock)
-
-        # The DataBlock is then added to the ProgramBlock
-        # The disposition and type of value is used to generate Program elements:
-        # Parameters, Variables, Constraints, and Objectives
-        setattr(programblock, name, datablock)
-
-        # update all the elements related the attributes in the Task Modeling Block
-        # for cons in programblock.constraints:
-        #     print(attr)
-        #     getattr(self.taskmaster, attr).constraints.extend(cons)
-
-        # for var in programblock.variables:
-        #     getattr(self.taskmaster, attr).variables.extend(var)
-
-        # for par in programblock.parameters:
-        #     getattr(self.taskmaster, attr).parameters.extend(par)
-
-        # for disp in programblock.indices:
-        #     getattr(self.taskmaster, attr).indices.extend(disp)
+                programblock.write_constraints(
+                    datum=getattr(component, attr), attr=attr
+                )
 
         # The ProgramBlock is also added to the Program Model
         setattr(self.program, name, programblock)

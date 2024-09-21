@@ -7,24 +7,27 @@ from pandas import DataFrame
 
 from ....components.spatial.linkage import Linkage
 from ....components.spatial.location import Location
-from ....components.spatial.network import Network
-from ....components.temporal.mode import X
+from ....environ.network import Network
+from ....components.abstract.mode import X
 from ....components.temporal.scale import Scale
 
 # --------------Base Inputs--------------
 
-number = float | int | list
+# Numeric input
+IsNum: TypeAlias = float | int | list
 
-bound = number | tuple[number, number] | tuple[number, Literal[True]]
+# Is Unbounded
+IsBig: TypeAlias = Literal[True]
 
+# Is lower and upper bound of a variable (a range)
+IsRng: TypeAlias = tuple[IsNum, IsNum] | tuple[IsNum, IsBig]
 
-# Parameter value input
-IsNum: TypeAlias = float | int
+# --------------Inputs with Dispositions--------------
+
 
 # is unbounded (=< BigM), constraint not written by variable declared
 # a futher check of whether value is True is required
 # so if value are given as False, then they are set to None
-IsBig: TypeAlias = Literal[True]
 
 
 # a range is give, treated as bounds for a parameteric variable
@@ -64,7 +67,7 @@ IsMdeInc: TypeAlias = dict[X, IsIncInp]
 # Both Spatial and Temporal Dispositions are provided
 IsSptTmpExt: TypeAlias = dict[Location | Linkage, IsTmpExt]
 IsSptTmpInc: TypeAlias = dict[Location | Linkage, IsTmpInc]
-IsSptTmpBnd: TypeAlias = dict[Location | Linkage | Network, IsTmpBnd]
+IsSptTmpBnd: TypeAlias = dict[Location | Linkage , IsTmpBnd]
 
 
 # SpatioTemporal and Mode Dispositions are provided

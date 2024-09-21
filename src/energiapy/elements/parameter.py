@@ -6,7 +6,7 @@ from typing import Self
 
 from sympy import IndexedBase, Symbol
 
-from .index import Index
+from .index import Idx
 from .m import M
 from ..core._handy._dunders import _Reprs
 from .expression import Exn
@@ -19,12 +19,12 @@ class Prm(_Reprs):
 
     Attributes:
         value (IsValue): The value of the parameter. Can be numeric, M, Theta
-        index (Index): index of the Prm
+        index (Idx): index of the Prm
 
     """
 
     value: int | float | list | bool
-    index: Index = field(default=None)
+    index: Idx = field(default=None)
     lb: bool = field(default=False)
     ub: bool = field(default=False)
     name: str = field(default='Prm')

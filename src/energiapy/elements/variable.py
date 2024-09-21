@@ -8,7 +8,7 @@ from typing import Self, TYPE_CHECKING
 from sympy import IndexedBase, Symbol
 
 from ..core._handy._dunders import _Reprs
-from .index import Index
+from .index import Idx
 from .expression import Exn
 from .constraint import Cns
 
@@ -18,7 +18,7 @@ if TYPE_CHECKING:
     from ..components.commodity.emission import Emission
     from ..components.commodity.land import Land
     from ..components.commodity.resource import Resource
-    from ..components.process import Process
+    from ..components.operation.process import Process
     from ..components.operation.storage import Storage
     from ..components.operation.transit import Transit
 
@@ -28,7 +28,7 @@ class Vrb(_Reprs):
     """This is a general Variable
 
     Attributes:
-        index (Index): Index of the Variable
+        index (Idx): Idx of the Variable
         component (IsDfn): Component for which variable is being defined
         symbol (IndexedBase): Symbolic representation of the Variable
     """
@@ -36,7 +36,7 @@ class Vrb(_Reprs):
     component: (
         Player | Cash | Emission | Land | Resource | Process | Storage | Transit
     ) = field(default=None)
-    index: Index = field(default=None)
+    index: Idx = field(default=None)
     name: str = field(default='vrb')
 
     @property

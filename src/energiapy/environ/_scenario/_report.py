@@ -13,8 +13,8 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ..system import System
     from ..program import Program
-    from ...components.spatial.network import Network
-    from ...components.temporal.horizon import Horizon
+    from ...environ.network import Network
+    from ...environ.horizon import Horizon
 
 
 class _Report(ABC):

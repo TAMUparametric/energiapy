@@ -5,10 +5,9 @@ from typing import TypeAlias
 
 from ....components.spatial.linkage import Linkage
 from ....components.spatial.location import Location
-from ....components.spatial.network import Network
-from ....components.temporal.horizon import Horizon
-from ....components.temporal.incidental import I
-from ....components.temporal.mode import X
+from ....environ.network import Network
+from ....environ.horizon import Horizon
+from ....components.abstract.mode import X
 from ....components.temporal.scale import Scale
 
 # SpatioTemporal
@@ -16,6 +15,7 @@ from ....components.temporal.scale import Scale
 # Scales provide the discretization of the Temporal Horizon
 # Linkages provide the spatial connections between Locations
 IsScp: TypeAlias = Horizon | Network
-IsTmp: TypeAlias = Horizon | Scale | X | I
+IsTmp: TypeAlias = Horizon | Scale
 IsSpt: TypeAlias = Network | Linkage | Location
+IsAbs: TypeAlias = X
 IsSptTmp: TypeAlias = IsSpt | IsTmp

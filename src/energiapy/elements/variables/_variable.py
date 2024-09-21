@@ -12,7 +12,7 @@ from ...core._handy._dunders import _Dunders
 from ...core.isalias.cmps.isdfn import IsDfn
 
 if TYPE_CHECKING:
-    from ..index import Index
+    from ..index import Idx
 
 
 @dataclass
@@ -20,12 +20,12 @@ class _Variable(_Dunders):
     """This is a general Variable
 
     Attributes:
-        index (Index): Index of the Variable
+        index (Idx): Idx of the Variable
         component (IsDfn): Component for which variable is being defined
         symbol (IndexedBase): Symbolic representation of the Variable
     """
 
-    index: Index = field(default=None)
+    index: Idx = field(default=None)
     component: IsDfn = field(default=None)
     symbol: str = field(default=None)
 

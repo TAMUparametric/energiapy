@@ -4,12 +4,12 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from ...core._handy._dunders import _Dunders
 from ...core.isalias.cmps.iscmp import IsDct, IsDsp
 from ...core.nirop.errors import CacodcarError
-from ...elements.index import Index
+from ...elements.index import Idx
 
 if TYPE_CHECKING:
     from .taskmaster import Chanakya
@@ -32,55 +32,43 @@ class ChitraGupta(_Dunders):
 
     def __post_init__(self):
         self.name = f'Registrar|{self.name}|'
-        self.indices: list[Index] = []
-
-    def __setattr__(self, name: str, disp: IsDct):
-        if isinstance(disp, dict):
-            index: Index = self.fish(disp)
-
-    @property
-    def prmspace(self):
-        """Parameter Space"""
-        
-        
-     
-
+        self.indices: list[Idx] = []
 
 
     def fish(self, disp: dict):
-        """Fishes out an Index declared at a particular Disposition
+        """Fishes out an Idx declared at a particular Disposition
 
         Args:
             attr (str): attribute
-            disposition (dict): Disposition of the Index as a dictionary
+            disposition (dict): Disposition of the Idx as a dictionary
         """
         disposition: IsDsp = tuple([v for v in disp.values() if v])
-        catch: list[Index] = [i for i in self.indices if i.disposition == disp]
+        catch: list[Idx] = [i for i in self.indices if i.disposition == disp]
 
         # Only one should be found, if more than one is found, it is an error
         if len(catch) > 1:
             raise CacodcarError(
-                f'More than one Index found at {disposition} in {self.name}'
+                f'More than one Idx found at {disposition} in {self.name}'
             )
 
         if len(catch) == 1:
-            index: Index = catch[0]
+            index: Idx = catch[0]
 
         if len(catch) == 0:
-            index = Index(**disp)
-            # register the index, and return a fresh Index or found Index
+            index = Idx(**disp)
+            # register the index, and return a fresh Idx or found Idx
             self.indices.append(index)
         return index
 
-    def register(self, cns: str, index: Index):
-        """Register that a Variable or Parameter has been declared at a particular Index
+    def register(self, cns: str, index: Idx):
+        """Register that a Variable or Parameter has been declared at a particular Idx
 
         Args:
             attr (str) : cns
-            index (Index): index
+            index (Idx): index
         """
 
-        indices: list[Index] = getattr(self, cns)
+        indices: list[Idx] = getattr(self, cns)
 
         if index in indices:
             raise CacodcarError(f'{cns} already has {index} in {self.name}')
@@ -114,39 +102,39 @@ class ChitraGupta(_Dunders):
 #             setattr(self, attr, [])
 
 #     def fish(self, attr: str, disposition: dict):
-#         """Fishes out an Index declared at a particular Disposition
+#         """Fishes out an Idx declared at a particular Disposition
 
 #         Args:
 #             attr (str): attribute
-#             disposition (dict): Disposition of the Index as a dictionary
+#             disposition (dict): Disposition of the Idx as a dictionary
 #         """
 #         disp: IsDsp = tuple([v for v in disposition.values() if v])
-#         catch: list[Index] = [i for i in self.indices() if i.disposition == disp]
+#         catch: list[Idx] = [i for i in self.indices() if i.disposition == disp]
 
 #         # Only one should be found, if more than one is found, it is an error
 #         if len(catch) > 1:
 #             raise CacodcarError(
-#                 f'More than one Index found at {disposition} in {self.name}'
+#                 f'More than one Idx found at {disposition} in {self.name}'
 #             )
 
 #         if len(catch) == 1:
-#             index: Index = catch[0]
+#             index: Idx = catch[0]
 
 #         if len(catch) == 0:
-#             index = Index(**disposition)
-#         # register the index, and return a fresh Index or found Index
+#             index = Idx(**disposition)
+#         # register the index, and return a fresh Idx or found Idx
 #         self.register(attr, index)
 #         return index
 
-#     def register(self, cns: str, index: Index):
-#         """Register that a Variable or Parameter has been declared at a particular Index
+#     def register(self, cns: str, index: Idx):
+#         """Register that a Variable or Parameter has been declared at a particular Idx
 
 #         Args:
 #             attr (str) : cns
-#             index (Index): index
+#             index (Idx): index
 #         """
 
-#         indices: list[Index] = getattr(self, cns)
+#         indices: list[Idx] = getattr(self, cns)
 
 #         if index in indices:
 #             raise CacodcarError(f'{cns} already has {index} in {self.name}')
@@ -154,7 +142,7 @@ class ChitraGupta(_Dunders):
 #         else:
 #             setattr(self, cns, indices.append(index))
 
-#     def indices(self) -> list[Index]:
+#     def indices(self) -> list[Idx]:
 #         """All indices declared
 
 #         Args:

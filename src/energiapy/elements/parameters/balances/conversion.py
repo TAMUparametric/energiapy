@@ -8,12 +8,12 @@ from functools import reduce
 from operator import or_
 from typing import TYPE_CHECKING
 
-from ....components.temporal.mode import X
+from ....components.abstract.mode import X
 from ....core._handy._dunders import _Reprs
 from ....core.isalias.inps.isblc import IsCnv
 
 if TYPE_CHECKING:
-    from ....components.process import Process
+    from ....components.operation.process import Process
 
 
 @dataclass
@@ -95,7 +95,8 @@ class Conversion(_Reprs):
 
             # Balance provides a dictionary with the operated as a key and value of 1
             self.balance = {
-                x: {self.operated: 1, **self.conversion[self.operated][x]} for x in self.modes
+                x: {self.operated: 1, **self.conversion[self.operated][x]}
+                for x in self.modes
             }
 
         else:

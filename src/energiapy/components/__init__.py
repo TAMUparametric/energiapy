@@ -32,4 +32,4 @@
 # from .spatial.linkage import Linkage
 # from .spatial.network import Network
 # from .temporal.horizon import Horizon
-# from .temporal.mode import X
+# from .abstract.mode import X
