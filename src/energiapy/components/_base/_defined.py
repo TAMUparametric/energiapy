@@ -6,7 +6,6 @@ from dataclasses import dataclass, field
 from ...core._handy._printers import _EasyPrint
 from ._component import _Component
 from ._consistent import _Consistent
-from ...environ.datum import Datum
 
 
 @dataclass
@@ -35,9 +34,3 @@ class _Defined(_Component, _Consistent, _EasyPrint):
         # i.e., assigned to a Location or Linkage
         self._located = False
 
-    def datumize(self):
-        """makes Datums out of available data"""
-        # if input attr has value, make it a Datum
-        for i in self.inputs():
-            if getattr(self, i, False):
-                setattr(self, i, Datum(attr=i, data=getattr(self, i), component=self))

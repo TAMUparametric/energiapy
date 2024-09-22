@@ -32,6 +32,8 @@ from ._dummy import _Dummy
 if TYPE_CHECKING:
     from ...environ.engines.taskmaster import Chanakya
     from ...environ.system import System
+    from ...environ.horizon import Horizon
+    from ...environ.network import Network
 
 
 class _Consistent(ABC):
@@ -56,6 +58,16 @@ class _Consistent(ABC):
     @abstractmethod
     def taskmaster(self) -> Chanakya:
         """Chanakya of the Scenario"""
+
+    @property
+    @abstractmethod
+    def horizon(self) -> Horizon:
+        """The Horizon of the Scenario"""
+
+    @property
+    @abstractmethod
+    def network(self) -> Network:
+        """The Network of the Scenario"""
 
     @staticmethod
     @abstractmethod
@@ -209,7 +221,7 @@ class _Consistent(ABC):
 
         # if value is a DataFrame, check if the scale is consistent
         if isinstance(val, DataFrame):
-            return self.system.horizon.match_scale(val, self, attr)
+            return self.horizon.match_scale(val, self, attr)
         elif isinstance(val, (list, tuple)) and any(
             isinstance(v, DataFrame) for v in val
         ):
@@ -274,10 +286,10 @@ class _Consistent(ABC):
         for spt in spttmpmdeval.keys():
             if spt == _Dummy.N:
                 if attr in self.bounds() + self.boundbounds():
-                    value_upd[self.system.network] = spttmpmdeval[spt]
+                    value_upd[self.network] = spttmpmdeval[spt]
                 else:
 
-                    for loc in self.system.locations:
+                    for loc in self.network.locations:
                         value_upd[loc] = spttmpmdeval[spt]
             else:
                 value_upd[spt] = spttmpmdeval[spt]
@@ -298,7 +310,7 @@ class _Consistent(ABC):
         for spt, tmpmdeval in spttmpmdeval.items():
             for tmp in tmpmdeval.keys():
                 if tmp == _Dummy.T:
-                    value_upd[spt][self.system.horizon.root] = spttmpmdeval[spt][tmp]
+                    value_upd[spt][self.horizon.root] = spttmpmdeval[spt][tmp]
                     del value_upd[spt][_Dummy.T]
                 else:
                     value_upd[spt][tmp] = spttmpmdeval[spt][tmp]

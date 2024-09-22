@@ -131,9 +131,9 @@ class Scenario(_Ok, _Default, _Birth, _Update, _Dunders, _Print):
                 setattr(self.network, name, value)
 
             elif isinstance(value, Linkage):
+                setattr(self.network, name, value)
                 self.birth_sib_linkage(linkage=value)
                 # network collects Linkages too
-                setattr(self.network, name, value)
 
             else:
                 # set the component in the system

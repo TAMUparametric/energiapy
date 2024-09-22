@@ -8,19 +8,26 @@ from dataclasses import dataclass, field
 
 from ..core._handy._dunders import _Dunders
 from ..core._handy._printers import _Print
-from ..core.isalias.cmps.isdfn import IsDfn
 from ..elements.parameter import Prm
 from ..elements.variable import Vrb
 from ..elements.constraint import Cns
 from ..elements.index import Idx
-from .datum import Datum
 
 if TYPE_CHECKING:
+    from .datum import Datum
     from ..elements.constraints.bound import Bound
     from ..elements.constraints.boundbound import BoundBound
     from ..elements.constraints.calculate import Calculation
     from .engines.taskmaster import Chanakya
     from .engines.registrar import ChitraGupta
+
+    from ..components.commodity.cash import Cash
+    from ..components.commodity.emission import Emission
+    from ..components.commodity.land import Land
+    from ..components.commodity.resource import Resource
+    from ..components.operation.process import Process
+    from ..components.operation.storage import Storage
+    from ..components.operation.transit import Transit
 
 
 @dataclass
@@ -32,7 +39,9 @@ class Block(_Dunders, _Print):
         component (IsCmp): Component to which the ProgramBlock belongs
     """
 
-    component: IsDfn = field(default=None)
+    component: Emission | Resource | Land | Cash | Process | Storage | Transit = field(
+        default=None
+    )
     m: float = field(default=None)
 
     def __post_init__(self):
@@ -78,12 +87,18 @@ class Block(_Dunders, _Print):
         """Returns the Registrar"""
         return self.component.registrar
 
-    def eqns(self, at_cmp: IsDfn = None, at_disp: IsDsp = None):
+    def eqns(
+        self,
+        at_cmp: Emission | Resource | Land | Cash | Process | Storage | Transit = None,
+        at_disp: tuple[
+            Emission | Resource | Land | Cash | Process | Storage | Transit
+        ] = None,
+    ):
         """Yields all equations in the ProgramBlock
 
         Args:
             at_cmp (IsCmp, optional): Component to search for. Defaults to None.
-            at_disp (IsDsp, optional): Disposition to search for. Defaults to None.
+            at_disp (tuple[Emission| Resource | Land | Cash | Process | Storage | Transit], optional): Disposition to search for. Defaults to None.
         """
         if at_cmp:
             constraints = self.at_cmp(at_cmp)
@@ -97,17 +112,24 @@ class Block(_Dunders, _Print):
         for constraint in constraints:
             yield constraint.equation
 
-    def at_disp(self, disposition: IsDsp):
+    def at_disp(
+        self,
+        disposition: tuple[
+            Emission | Resource | Land | Cash | Process | Storage | Transit
+        ],
+    ):
         """Returns constraints defined for disposition throughout the program
 
         Args:
-            disposition (IsDsp): disposition to be searched for
+            disposition (tuple[Emission| Resource | Land | Cash | Process | Storage | Transit]): disposition to be searched for
         """
         return [
             cons for cons in self.constraints if cons.index.disposition == disposition
         ]
 
-    def at_cmp(self, component: IsDfn):
+    def at_cmp(
+        self, component: Emission | Resource | Land | Cash | Process | Storage | Transit
+    ):
         """Returns constraints defined for component throughout the program
 
         Args:
@@ -143,12 +165,18 @@ class Program(_Dunders, _Print):
 
         super().__setattr__(name, block)
 
-    def eqns(self, at_cmp: IsDfn = None, at_disp: IsDsp = None):
+    def eqns(
+        self,
+        at_cmp: Emission | Resource | Land | Cash | Process | Storage | Transit = None,
+        at_disp: tuple[
+            Emission | Resource | Land | Cash | Process | Storage | Transit
+        ] = None,
+    ):
         """Yields all equations in the Program
 
         Args:
             at_cmp (IsCmp, optional): Component to search for. Defaults to None.
-            at_disp (IsDsp, optional): Idx (actually Idx) to search for. Defaults to None.
+            at_disp (tuple[Emission| Resource | Land | Cash | Process | Storage | Transit], optional): Idx (actually Idx) to search for. Defaults to None.
         """
         for block in self.blocks:
             for eqn in block.eqns(at_cmp=at_cmp, at_disp=at_disp):

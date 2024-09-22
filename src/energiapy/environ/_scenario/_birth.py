@@ -93,7 +93,7 @@ class _Birth(ABC):
     def birth_locations(
         self,
         locations: int | list[int],
-        names: str | list[str],
+        names: str | list[str] = None,
         nested: bool = False,
     ):
         """Births Locations based on discretizations provided in the Network"""

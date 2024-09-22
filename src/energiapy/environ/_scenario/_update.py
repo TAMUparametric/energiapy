@@ -28,10 +28,10 @@ class _Update(ABC):
     def program(self):
         """Program Model Block of the Scenario"""
 
-    @property
-    @abstractmethod
-    def data(self):
-        """Data Model Block of the Scenario"""
+    # @property
+    # @abstractmethod
+    # def data(self):
+    #     """Data Model Block of the Scenario"""
 
     @property
     @abstractmethod
@@ -117,7 +117,6 @@ class _Update(ABC):
         # or a tuple of numeric or DataFrame
         # or a list or numeric, DataFrame, True, or a tuple of numeric or DataFrame
         component.make_consistent(getattr(self, 'ok_inconsistent'))
-        component.datumize()
 
         # make Small Blocks to be added to the larger Model Blocks
         # where all the model elements go
