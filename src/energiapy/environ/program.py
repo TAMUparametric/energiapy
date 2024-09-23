@@ -39,9 +39,7 @@ class Block(_Dunders, _Print):
         component (IsCmp): Component to which the ProgramBlock belongs
     """
 
-    component: Emission | Resource | Land | Cash | Process | Storage | Transit = field(
-        default=None
-    )
+    component: Emission | Resource | Land | Cash | Process | Storage | Transit
     m: float = field(default=None)
 
     def __post_init__(self):

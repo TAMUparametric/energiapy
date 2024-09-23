@@ -1,7 +1,7 @@
 """System Model Block represents the Scenario through Components
 """
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 from ..components.commodity.cash import Cash
 from ..components.commodity.emission import Emission
@@ -57,7 +57,7 @@ class System(_Dunders):
 
     """
 
-    name: str = field(default="System")
+    name: str 
 
     def __post_init__(self):
 

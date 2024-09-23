@@ -24,7 +24,7 @@ class Model(_Dunders):
         name (str): name, takes from the name of the Scenario
     """
 
-    name: str = field(default=None)
+    name: str
     m: float = field(default=None)
 
     def __post_init__(self):

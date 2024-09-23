@@ -46,7 +46,6 @@ class Process(
     def __post_init__(self):
         _Operation.__post_init__(self)
 
-
     @staticmethod
     def _at():
         """Spatial attributes"""

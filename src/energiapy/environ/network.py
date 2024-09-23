@@ -1,7 +1,7 @@
 """Network is made up of Locations connected by Linkages
 """
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 from ..core._handy._dunders import _Dunders
 from ..components.spatial.location import Location
@@ -13,13 +13,10 @@ class Network(_Dunders):
     """Network of Locations and Linkages
 
     Attributes:
-        locs (list[str] | int): Locations in the Network
-        label_locs (list[str]): label of Locations
-        link_all (bool): link all Locations
-        label (str): label of the Network
+        name (str): name of the Network
     """
 
-    name: str = field(default=None)
+    name: str
 
     def __post_init__(self):
         self.name = f'Network|{self.name}|'

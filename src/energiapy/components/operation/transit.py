@@ -63,6 +63,6 @@ class Transit(
 
     def freightize(self):
         """Makes the freight"""
-        if not isinstance(self.freight, Freight):
+        if not isinstance(self.balance, Freight):
             self.freight = Freight(freight=self.freight, transit=self)
             self._balanced = True
