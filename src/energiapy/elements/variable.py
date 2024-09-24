@@ -4,13 +4,14 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Self, TYPE_CHECKING
+from typing import Self, TYPE_CHECKING, Any, Mapping
 from sympy import IndexedBase, Symbol
 
 from ..core._handy._dunders import _Reprs
 from .index import Idx
 from .expression import Exn
 from .constraint import Cns
+from .set import Set
 
 if TYPE_CHECKING:
     from ..components.analytical.player import Player
@@ -33,14 +34,16 @@ class Vrb(_Reprs):
         symbol (IndexedBase): Symbolic representation of the Variable
     """
 
-    component: (
-        Player | Cash | Emission | Land | Resource | Process | Storage | Transit
-    ) = field(default=None)
-    index: Idx = field(default=None)
-    name: str = field(default='vrb')
+    args: list[Set]
+    kwargs: Mapping[Set, Set]
+    name: str = field(default='v')
+
+    def __init__(self, *args, **kwargs):
+        self.args = args
+        self.kwargs = kwargs
 
     @property
-    def sym(self) -> IndexedBase:
+    def sym(self) -> IndexedBase | Symbol:
         """symbolic representation"""
         if self.index:
             return IndexedBase(self.name)[self.index.sym]
