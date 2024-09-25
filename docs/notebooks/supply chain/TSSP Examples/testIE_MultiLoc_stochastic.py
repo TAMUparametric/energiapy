@@ -130,7 +130,7 @@ def build_model(scen_df=pandas.DataFrame()):
     # ======================================================================================================================
     # Declare resources/commodities
     # ======================================================================================================================
-    com1_pur = Resource(name='com1_pur', cons_max=M, block={'imp': 1, 'urg': 1}, price=0.00,
+    com1_pur = Resource(name='com1_pur', cons_max=20000, block={'imp': 1, 'urg': 1}, price=0.00,
                         label='Commodity 1 consumed from outside the system',
                         varying=[VaryingResource.DETERMINISTIC_AVAILABILITY])
 
@@ -189,12 +189,6 @@ def build_model(scen_df=pandas.DataFrame()):
     com1_process = Process(name='com1_process', prod_max=com1_process_capacity, conversion={com1_in: -1, com1_out: 1},
                            capex=5/scale_factor, vopex=0.01, prod_min=0.01, label='Process the commodity through the location',
                            varying=[VaryingProcess.DETERMINISTIC_CAPACITY])
-
-    # com1_process = Process(name='com1_process', prod_max=prod_max, conversion={0:{com1_in: -1, com1_out: 1}, 1:{com1_in: -1, com1_out: 1}, 2:{com1_in: -1, com1_out: 1}, 3:{com1_in: -1, com1_out: 1}, 4:{com1_in: -1, com1_out: 1}},  capex=0.01, vopex=0.01, prod_min=prod_min, rate_max=rate_max, varying=[VaryingProcess.DETERMINISTIC_CAPACITY], label='Process the commodity through the location')
-
-    # com1_store10 = Process(name='com1_store10', prod_max=com1_process_capacity, capex=0.1, vopex=0.01, storage_capex=10, store_min=0.01, store_max= 40, prod_min=0.01, label="Storage capacity of 10 units", storage=com1_in, storage_cost=0.02)
-    # com1_store20 = Process(name='com1_store20', prod_max=com1_process_capacity, capex=0.1, vopex=0.02, storage_capex=20, store_min=0.01,store_max= 80, prod_min=0.01, label="Storage capacity of 20 units", storage=com1_in, storage_cost=0.02)
-    # com1_store50 = Process(name='com1_store50', prod_max=com1_process_capacity, capex=0.1, vopex=0.05, storage_capex=50, store_min=0.01, store_max= 200, prod_min=0.01, label="Storage capacity of 50 units", storage=com1_in, storage_cost=0.02)
 
     com1_store = Process(name='com1_store', prod_max=com1_process_capacity, capex=0.5/scale_factor, vopex=0.01, storage_capex=30/scale_factor, store_min=0.01,
                          store_max=200*scale_factor, prod_min=0.01, label="Storage process", storage=com1_in, storage_cost=0.02)
@@ -368,35 +362,16 @@ def build_model(scen_df=pandas.DataFrame()):
 
     network = Network(name='Network', scales=scales, source_locations=sources, sink_locations=sinks,
                       transport_matrix=transport_matrix, distance_matrix=distance_matrix, transport_capacity_scale_level=1,
-                      transport_capacity_factor={(loc1, loc2): {truck12: scen_df[[('trans12', 'com1_loc1_out')]] if (
-                                                                                                                    'trans12',
-                                                                                                                    'com1_loc1_out') in scen_df else default_df},
-                                                 (loc1, loc3): {truck13: scen_df[[('trans13', 'com1_loc1_out')]] if (
-                                                                                                                    'trans13',
-                                                                                                                    'com1_loc1_out') in scen_df else default_df},
-                                                 (loc2, loc4): {truck24: scen_df[[('trans24', 'com1_loc2_out')]] if (
-                                                                                                                    'trans24',
-                                                                                                                    'com1_loc2_out') in scen_df else default_df},
-                                                 (loc2, loc5): {truck25: scen_df[[('trans25', 'com1_loc2_out')]] if (
-                                                                                                                    'trans25',
-                                                                                                                    'com1_loc2_out') in scen_df else default_df},
-                                                 (loc3, loc4): {truck34: scen_df[[('trans34', 'com1_loc3_out')]] if (
-                                                                                                                    'trans34',
-                                                                                                                    'com1_loc3_out') in scen_df else default_df},
-                                                 (loc4, loc5): {truck45: scen_df[[('trans45', 'com1_loc4_out')]] if (
-                                                                                                                    'trans45',
-                                                                                                                    'com1_loc4_out') in scen_df else default_df},
-                                                 (loc4, loc7): {truck47: scen_df[[('trans47', 'com1_loc4_out')]] if (
-                                                                                                                    'trans47',
-                                                                                                                    'com1_loc4_out') in scen_df else default_df},
-                                                 (loc6, loc4): {truck64: scen_df[[('trans64', 'com1_loc6_out')]] if (
-                                                                                                                    'trans64',
-                                                                                                                    'com1_loc6_out') in scen_df else default_df},
-                                                 (loc7, loc5): {truck75: scen_df[[('trans75', 'com1_loc7_out')]] if (
-                                                                                                                    'trans75',
-                                                                                                                    'com1_loc7_out') in scen_df else default_df},
-                                                 }
-                      )
+                      transport_capacity_factor={(loc1, loc2): {truck12: scen_df[[('trans12', 'com1_loc1_out')]] if ('trans12', 'com1_loc1_out') in scen_df else default_df},
+                                                 (loc1, loc3): {truck13: scen_df[[('trans13', 'com1_loc1_out')]] if ('trans13', 'com1_loc1_out') in scen_df else default_df},
+                                                 (loc2, loc4): {truck24: scen_df[[('trans24', 'com1_loc2_out')]] if ('trans24', 'com1_loc2_out') in scen_df else default_df},
+                                                 (loc2, loc5): {truck25: scen_df[[('trans25', 'com1_loc2_out')]] if ('trans25', 'com1_loc2_out') in scen_df else default_df},
+                                                 (loc3, loc4): {truck34: scen_df[[('trans34', 'com1_loc3_out')]] if ('trans34', 'com1_loc3_out') in scen_df else default_df},
+                                                 (loc4, loc5): {truck45: scen_df[[('trans45', 'com1_loc4_out')]] if ('trans45', 'com1_loc4_out') in scen_df else default_df},
+                                                 (loc4, loc7): {truck47: scen_df[[('trans47', 'com1_loc4_out')]] if ('trans47', 'com1_loc4_out') in scen_df else default_df},
+                                                 (loc6, loc4): {truck64: scen_df[[('trans64', 'com1_loc6_out')]] if ('trans64', 'com1_loc6_out') in scen_df else default_df},
+                                                 (loc7, loc5): {truck75: scen_df[[('trans75', 'com1_loc7_out')]] if ('trans75', 'com1_loc7_out') in scen_df else default_df},
+                                                 })
 
     # ======================================================================================================================
     # Declare scenario
@@ -434,6 +409,7 @@ def build_model(scen_df=pandas.DataFrame()):
 
     else:
         return scenario
+
 
 def build_smodel(scen_df=pandas.DataFrame()):
 
@@ -539,6 +515,8 @@ if __name__ == '__main__':
 
     with open('ssoln_testIE_MultiLoc_stochastic.pkl', 'wb') as file:
         pickle.dump(ssoln_dict, file)
+
+    # test phrase
 
     # print(f"Total Expected Cost considering perfect information: {exCost_PI:.4f}")
     # print(f"Total Expected Cost considering disruptions (stochastic solution): {exCost_UI:.4f}")
