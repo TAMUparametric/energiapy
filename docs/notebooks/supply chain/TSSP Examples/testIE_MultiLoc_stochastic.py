@@ -367,7 +367,36 @@ def build_model(scen_df=pandas.DataFrame()):
     sinks = locset
 
     network = Network(name='Network', scales=scales, source_locations=sources, sink_locations=sinks,
-                      transport_matrix=transport_matrix, distance_matrix=distance_matrix)
+                      transport_matrix=transport_matrix, distance_matrix=distance_matrix, transport_capacity_scale_level=1,
+                      transport_capacity_factor={(loc1, loc2): {truck12: scen_df[[('trans12', 'com1_loc1_out')]] if (
+                                                                                                                    'trans12',
+                                                                                                                    'com1_loc1_out') in scen_df else default_df},
+                                                 (loc1, loc3): {truck13: scen_df[[('trans13', 'com1_loc1_out')]] if (
+                                                                                                                    'trans13',
+                                                                                                                    'com1_loc1_out') in scen_df else default_df},
+                                                 (loc2, loc4): {truck24: scen_df[[('trans24', 'com1_loc2_out')]] if (
+                                                                                                                    'trans24',
+                                                                                                                    'com1_loc2_out') in scen_df else default_df},
+                                                 (loc2, loc5): {truck25: scen_df[[('trans25', 'com1_loc2_out')]] if (
+                                                                                                                    'trans25',
+                                                                                                                    'com1_loc2_out') in scen_df else default_df},
+                                                 (loc3, loc4): {truck34: scen_df[[('trans34', 'com1_loc3_out')]] if (
+                                                                                                                    'trans34',
+                                                                                                                    'com1_loc3_out') in scen_df else default_df},
+                                                 (loc4, loc5): {truck45: scen_df[[('trans45', 'com1_loc4_out')]] if (
+                                                                                                                    'trans45',
+                                                                                                                    'com1_loc4_out') in scen_df else default_df},
+                                                 (loc4, loc7): {truck47: scen_df[[('trans47', 'com1_loc4_out')]] if (
+                                                                                                                    'trans47',
+                                                                                                                    'com1_loc4_out') in scen_df else default_df},
+                                                 (loc6, loc4): {truck64: scen_df[[('trans64', 'com1_loc6_out')]] if (
+                                                                                                                    'trans64',
+                                                                                                                    'com1_loc6_out') in scen_df else default_df},
+                                                 (loc7, loc5): {truck75: scen_df[[('trans75', 'com1_loc7_out')]] if (
+                                                                                                                    'trans75',
+                                                                                                                    'com1_loc7_out') in scen_df else default_df},
+                                                 }
+                      )
 
     # ======================================================================================================================
     # Declare scenario
