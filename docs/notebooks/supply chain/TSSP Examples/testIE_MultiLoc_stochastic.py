@@ -130,7 +130,7 @@ def build_model(scen_df=pandas.DataFrame()):
     # ======================================================================================================================
     # Declare resources/commodities
     # ======================================================================================================================
-    com1_pur = Resource(name='com1_pur', cons_max=20000, block={'imp': 1, 'urg': 1}, price=0.00,
+    com1_pur = Resource(name='com1_pur', cons_max=225*scale_factor, block={'imp': 1, 'urg': 1}, price=0.00,
                         label='Commodity 1 consumed from outside the system',
                         varying=[VaryingResource.DETERMINISTIC_AVAILABILITY])
 
@@ -410,7 +410,6 @@ def build_model(scen_df=pandas.DataFrame()):
     else:
         return scenario
 
-
 def build_smodel(scen_df=pandas.DataFrame()):
 
     scenario = build_model(scen_df)
@@ -506,7 +505,7 @@ if __name__ == '__main__':
     ef_UI = ExtensiveForm(options, scenario_names, scenario_creator, scenario_creator_kwargs=scenario_creator_kwargs)
     results = ef_UI.solve_extensive_form(solver_options=solver_options)
 
-    # exCost_UI = ef_UI.get_objective_value()
+    exCost_UI = ef_UI.get_objective_value()
     # EVPI = exCost_UI - exCost_PI
     # p_inc = EVPI * 100 / exCost_PI
     # p_dec = EVPI * 100 / exCost_UI
@@ -519,7 +518,7 @@ if __name__ == '__main__':
     # test phrase
 
     # print(f"Total Expected Cost considering perfect information: {exCost_PI:.4f}")
-    # print(f"Total Expected Cost considering disruptions (stochastic solution): {exCost_UI:.4f}")
+    print(f"Total Expected Cost considering disruptions (stochastic solution): {exCost_UI:.4f}")
     # print(f"Expected Value of Perfect Information: {EVPI:.4f}")
     # print(f"Percentage Increase in Cost: {p_inc:.4f}%%")
     # print(f"Percentage Decrease in Cost: {p_dec:.4f}%%")
