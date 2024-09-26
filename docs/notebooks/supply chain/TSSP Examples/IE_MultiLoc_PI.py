@@ -472,8 +472,8 @@ if __name__ == '__main__':
 
         results_PI = solve(scenario=scen_PI, instance=model_PI, solver='gurobi', name=scen_name,
                            solver_options=solver_options)
-
-        print('######################## Finished solving ' + scen_name + ' ('+ str(counter) +' of ' + str(len(scenario_dict)) + ') ########################')
+        
+        print(f'######################## Finished solving {scen_name} ({counter} of {len(scenario_dict)})########################')
 
         exCost_PI += value(model_PI.objective_cost_w_demand_penalty) * scenario_dict[scen_name]['prob']
 

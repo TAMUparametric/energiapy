@@ -511,7 +511,7 @@ if __name__ == '__main__':
 
     ssoln_dict = ef_UI.get_root_solution()
 
-    with open('ssoln_testIE_MultiLoc_stochastic.pkl', 'wb') as file:
+    with open('ssoln_IE_ML_SD_S.pkl', 'wb') as file:
         pickle.dump(ssoln_dict, file)
 
     # test phrase
