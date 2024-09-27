@@ -56,7 +56,7 @@ class Prm(_Reprs):
         # declare big Ms and Thetas (multiparametric variables)
         for i, v in enumerate(self.value):
             if isinstance(v, bool) and v is True:
-                self.value[i] = M(big=True)
+                self.value[i] = M()
 
     @property
     def sym(self) -> IndexedBase:
