@@ -5,7 +5,7 @@
     4. lost by Storage and Transits
 """
 
-from dataclasses import dataclass, fields
+from dataclasses import dataclass, fields, field
 
 from .._attrs._bounds import _Trade, _Use
 from .._attrs._exacts import _TradeEmit, _TradeTransact, _UseEmit, _UseTransact
@@ -37,6 +37,19 @@ class Resource(
         retire (str): index in scale when the component is retired
         label (str): label of the component
     """
+
+    # Trade at Locations
+    buy: dict = field(default=None)
+    sell: dict = field(default=None)
+    # Trade between Linkages
+    # Linkages go in one direction
+    receive: dict = field(default=None)
+    ship: dict = field(default=None)
+    # Lose at Location or between Linkage
+    lose: dict = field(default=None)
+    recover: dict = field(default=None)
+    use: dict = field(default=None)
+    dispose: dict = field(default=None)
 
     def __post_init__(self):
         _Commodity.__post_init__(self)

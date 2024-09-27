@@ -10,17 +10,11 @@ from ...core.isalias.inps.isinp import IsExt
 class _SetupRate:
     """Rate of Construction of Operation"""
 
-    setup_time: IsExt = field(default=None)
-    life_time: IsExt = field(default=None)
-    introduce: IsExt = field(default=None)
-    retire: IsExt = field(default=None)
-
 
 @dataclass
 class _OperateRate:
     """Rate of Operation of Operation"""
 
-    operate_time: IsExt = field(default=None)
 
 
 class _RateAttrs:

@@ -55,7 +55,6 @@ class Transit(
         """Balance attribute"""
         return self.freight
 
-
     @staticmethod
     def _at():
         """Spatial attributes"""

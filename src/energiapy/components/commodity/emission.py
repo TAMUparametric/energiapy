@@ -1,14 +1,14 @@
 """Emission, released based on some activity or operation 
 """
 
-from dataclasses import dataclass, fields
+from dataclasses import dataclass, fields, field
 
 from .._attrs._bounds import _Emit
 from ._commodity import _Commodity
 
 
 @dataclass
-class Emission(_Emit, _Commodity):
+class Emission(_Commodity):
     """Emission are generated through:
             Commodity Use, Trade, Loss
             Operational Setup
@@ -24,6 +24,9 @@ class Emission(_Emit, _Commodity):
         retire (str): index in scale when the component is retired
         label (str): label of the component
     """
+
+    emit: dict = field(default=None)
+    sequester: dict = field(default=None)
 
     def __post_init__(self):
         _Commodity.__post_init__(self)

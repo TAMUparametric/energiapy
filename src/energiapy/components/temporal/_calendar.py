@@ -33,7 +33,7 @@
 #     def_minute: bool = field(default=False)
 
 #     def __post_init__(self):
-#         self._calendar = calendar.Calendar()        
+#         self._calendar = calendar.Calendar()
 #         rng_attrs = [
 #             'rng_year',
 #             'rng_month',
@@ -45,10 +45,10 @@
 
 #         if sum(rng is not None for getattr(self, rng) in rng_attrs) > 1:
 #             raise ValueError('Only one range attribute can be set')
-    
+
 #         rng = [getattr(self, rng) for rng in rng_attrs if getattr(self, rng) is not None]
 
-#         for r in rng: 
+#         for r in rng:
 #             if self.range_year:
 #                 year = r
 #             else:
@@ -59,6 +59,3 @@
 #                 months = cal[r[1]]
 
 #             if self.range_week:
-
-
-            

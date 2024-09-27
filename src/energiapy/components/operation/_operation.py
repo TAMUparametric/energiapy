@@ -2,18 +2,11 @@
 """
 
 from abc import ABC, abstractmethod
-from dataclasses import dataclass, fields
+from dataclasses import dataclass, fields, field
 
 from ...utils.scaling import scaling
 from .._attrs._boundbounds import _Operate
-from .._attrs._bounds import _Setup
-from .._attrs._exacts import (
-    _OperateLose,
-    _OperateTrade,
-    _OperateTransact,
-    _SetupEmit,
-    _SetupTransact,
-    _SetupUse,
+
 )
 from .._attrs._rates import _OperateRate, _SetupRate
 from .._base._defined import _Defined
@@ -22,14 +15,7 @@ from .._base._defined import _Defined
 @dataclass
 class _Operation(
     _Operate,
-    _Setup,
-    _OperateTransact,
     _OperateRate,
-    _OperateLose,
-    _SetupTransact,
-    _SetupRate,
-    _SetupEmit,
-    _SetupUse,
     _Defined,
     ABC,
 ):
@@ -43,6 +29,33 @@ class _Operation(
         opex (IsExt): operational expense based on Operation
         emission (IsExt): emission due to construction per Capacitate
     """
+
+    setup: dict = field(default=None)
+    dismantle: dict = field(default=None)
+
+    setup_spend: IsInc = field(default=None)
+    setup_earn: IsInc = field(default=None)
+    dismantle_spend: IsInc = field(default=None)
+    dismantle_earn: IsInc = field(default=None)
+    setup_emit: IsExt = field(default=None)
+    dismantle_emit: IsExt = field(default=None)
+    setup_sequester: IsExt = field(default=None)
+    dismantle_sequester: IsExt = field(default=None)
+    setup_use: IsExt = field(default=None)
+    dismantle_dispose: IsExt = field(default=None)
+    consume: IsInc = field(default=None)
+    discharge: IsInc = field(default=None)
+    operate_spend: IsInc = field(default=None)
+    operate_earn: IsInc = field(default=None)
+    operate_lose: IsExt = field(default=None)
+    operate_recover: IsExt = field(default=None)
+    setup_time: IsExt = field(default=None)
+    life_time: IsExt = field(default=None)
+    introduce: IsExt = field(default=None)
+    retire: IsExt = field(default=None)
+    operate_time: IsExt = field(default=None)
+
+    
 
     def __post_init__(self):
         _Defined.__post_init__(self)

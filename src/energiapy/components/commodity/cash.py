@@ -6,14 +6,12 @@
 #     Variables (Transacts) - Spend, Earn
 
 
-from dataclasses import dataclass, fields
-
-from .._attrs._bounds import _Transact
+from dataclasses import dataclass, fields, field
 from ._commodity import _Commodity
 
 
 @dataclass
-class Cash(_Transact, _Commodity):
+class Cash(_Commodity):
     """Cash is an Asset
     The amount spent or earned at some spatiotemporal dispoqition can be bound
 
@@ -27,6 +25,9 @@ class Cash(_Transact, _Commodity):
         retire (str): index in scale when the component is retired
         label (str): label of the component
     """
+
+    spend: dict = field(default=None)
+    earn: dict = field(default=None)
 
     def __post_init__(self):
         _Commodity.__post_init__(self)

@@ -61,61 +61,6 @@ class _UseEmit:
 # -------------Exacts with Setup as parent-------------
 
 
-@dataclass
-class _SetupTransact:
-    """Transactions due to Construction of Operation"""
-
-    setup_spend: IsInc = field(default=None)
-    setup_earn: IsInc = field(default=None)
-    dismantle_spend: IsInc = field(default=None)
-    dismantle_earn: IsInc = field(default=None)
-
-
-@dataclass
-class _SetupEmit:
-    """Emissions due to Construction of Operation"""
-
-    setup_emit: IsExt = field(default=None)
-    dismantle_emit: IsExt = field(default=None)
-
-    setup_sequester: IsExt = field(default=None)
-    dismantle_sequester: IsExt = field(default=None)
-
-
-@dataclass
-class _SetupUse:
-    """Use due to Construction of Operation"""
-
-    setup_use: IsExt = field(default=None)
-    dismantle_dispose: IsExt = field(default=None)
-
-
-# -------------Exacts with Operate as parent-------------
-
-
-@dataclass
-class _OperateTrade:
-    """Trades due to Operation of Operation"""
-
-    consume: IsInc = field(default=None)
-    discharge: IsInc = field(default=None)
-
-
-@dataclass
-class _OperateTransact:
-    """Transactions due to Operation of Operation"""
-
-    operate_spend: IsInc = field(default=None)
-    operate_earn: IsInc = field(default=None)
-
-
-@dataclass
-class _OperateLose:
-    """Loss due to Operation of Operation"""
-
-    operate_lose: IsExt = field(default=None)
-    operate_recover: IsExt = field(default=None)
-
 
 class _ExactAttrs:
     """Exact input attributes for Components"""
