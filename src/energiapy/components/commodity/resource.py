@@ -51,7 +51,7 @@ class Resource(_Commodity):
     # Intra-Location Trade (through Linkage)
     # Linkages go in one direction
     receive: dict = field(default=None)
-    ship: dict = field(default=None)
+    deliver: dict = field(default=None)
 
     # Setup and Disposal for Operations
     use: dict = field(default=None)
