@@ -3,7 +3,7 @@
 
 from typing import TypeAlias
 
-from ....components.analytical.player import Player
+from ....analytical.player import Player
 from ....components.commodity.cash import Cash
 from ....components.commodity.emission import Emission
 from ....components.commodity.land import Land

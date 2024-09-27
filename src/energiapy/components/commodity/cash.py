@@ -7,6 +7,7 @@
 
 
 from dataclasses import dataclass, fields, field
+from typing import Self
 from ._commodity import _Commodity
 
 
@@ -28,6 +29,7 @@ class Cash(_Commodity):
 
     spend: dict = field(default=None)
     earn: dict = field(default=None)
+    ex: dict[Self, float] = field(default=None)
 
     def __post_init__(self):
         _Commodity.__post_init__(self)

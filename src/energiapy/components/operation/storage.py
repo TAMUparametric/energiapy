@@ -42,7 +42,7 @@ class Storage(
         retire (str): index in scale when the component is retired
         label (str): label of the component
     """
-
+    
     inventory: dict | Inventory = field(default_factory=dict)
     locations: list[Location] = field(default_factory=list)
     setup_in: IsBnd = field(default=None)

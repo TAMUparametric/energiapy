@@ -3,7 +3,6 @@
 
 from dataclasses import dataclass, fields, field
 
-from .._attrs._bounds import _Emit
 from ._commodity import _Commodity
 
 

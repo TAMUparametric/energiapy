@@ -9,7 +9,7 @@
 from dataclasses import dataclass, fields
 
 from .._attrs._bounds import _Emit, _Setup, _Trade, _Transact, _Use
-from .._base._defined import _Defined
+from ..components._base._defined import _Defined
 
 
 @dataclass

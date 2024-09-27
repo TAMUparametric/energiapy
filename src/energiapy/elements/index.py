@@ -13,7 +13,7 @@ from ..core._handy._dunders import _Dunders
 
 if TYPE_CHECKING:
     from ..components._base._component import _Component
-    from ..components.analytical.player import Player
+    from ..analytical.player import Player
     from ..components.commodity.cash import Cash
     from ..components.commodity.emission import Emission
     from ..components.commodity.land import Land

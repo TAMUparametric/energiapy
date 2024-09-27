@@ -8,7 +8,7 @@ import pytest
 from src.energiapy.components.spatial.linkage import Linkage
 from src.energiapy.components.spatial.location import Location
 from src.energiapy.environ.network import Network
-from src.energiapy.components.analytical.player import Player
+from src.energiapy.analytical.player import Player
 from src.energiapy.components.commodity.cash import Cash
 from src.energiapy.components.commodity.emission import Emission
 from src.energiapy.components.commodity.land import Land

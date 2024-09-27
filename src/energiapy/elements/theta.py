@@ -53,7 +53,7 @@ class Theta(_Magics):
         Each Theta when provided
 
 
-    """
+    """ 
 
     space: IsSpc = field(default=None)
     name: str = field(default='Theta')

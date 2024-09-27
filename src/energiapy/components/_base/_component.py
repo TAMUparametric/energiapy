@@ -3,21 +3,17 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 from typing import TYPE_CHECKING
-
-from ...core._handy._dunders import _Dunders
-from ...environ.program import Block
-
+from ......gana.src.gana.block.prg import Prg
 
 if TYPE_CHECKING:
     from ...environ.model import Model
     from ...environ.horizon import Horizon
     from ...environ.network import Network
+    from ...environ.system import System
 
 
-@dataclass
-class _Component(_Dunders):
+class _Component:
     """This is inherited by all Components
 
     Personalizes the Component based on the attribute name set in Scenario
@@ -25,36 +21,31 @@ class _Component(_Dunders):
     Also adds Model and reports individual Blocks of the Model
     """
 
-    def __post_init__(self):
-        self.name = None
-        self._named = False
+    def __init__(self):
+        self.name: str = None
+        self._named: bool = False
         self._model: Model = None
         # this is a block of the Program
         # only contains modeling elements pertaining to the component
-        self.programblock = Block(self)
+        self.prg = Prg(self.name)
 
     @property
-    def is_named(self):
-        """The component has been named"""
-        return self._named
-
-    @property
-    def system(self):
+    def system(self) -> System:
         """The System of the Component"""
         return self._model.system
 
     @property
-    def horizon(self):
+    def horizon(self) -> Horizon:
         """The Horizon of the Scenario"""
         return self._model.horizon
 
     @property
-    def network(self):
+    def network(self) -> Network:
         """The Network of the Scenario"""
         return self._model.network
 
     @property
-    def program(self):
+    def program(self) -> Prg:
         """The Mathematical Program of the Scenario"""
         return self._model.program
 
@@ -84,3 +75,5 @@ class _Component(_Dunders):
         self.name = name
         self._named = True  # update flag
         self._model = model
+
+
