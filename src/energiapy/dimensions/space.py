@@ -1,22 +1,18 @@
-"""Network is made up of Locations connected by Linkages
+"""3D Space
 """
 
-from dataclasses import dataclass
 
-from ..core._handy._dunders import _Dunders
-from ..components.spatial.location import Location
-from ..components.spatial.linkage import Linkage
-
-
-@dataclass
-class Network(_Dunders):
-    """Network of Locations and Linkages
-
-    Attributes:
-        name (str): name of the Network
+class Dimension:
+    """Space - represented by three dimensions
+    
+    dimension are representation through discretizations
+    three discritizations are collected as elements of lists
     """
 
-    name: str
+    def __init__(self, *dimensions):
+        self.name = 'space'
+
+
 
     def __post_init__(self):
         self.name = f'Network|{self.name}|'

@@ -24,7 +24,7 @@ if TYPE_CHECKING:
     from ..components.spatial.linkage import Linkage
     from ..components.spatial.location import Location
     from ..components.abstract.mode import X
-    from ..components.temporal.scale import Scale
+    from ..components.temporal.period import Scale
 
 
 @dataclass

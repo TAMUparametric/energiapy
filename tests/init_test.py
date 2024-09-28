@@ -18,7 +18,7 @@ from energiapy.components.operation.process import Process
 from energiapy.components.operation.storage import Storage
 from energiapy.components.operation.transit import Transit
 from src.energiapy.environ.horizon import Horizon
-from src.energiapy.components.temporal.scale import Scale
+from energiapy.components.temporal.period import Scale
 from src.energiapy.elements.parameters.balances.conversion import Conversion
 from src.energiapy.elements.parameters.balances.freight import Freight
 from src.energiapy.elements.parameters.balances.inventory import Inventory

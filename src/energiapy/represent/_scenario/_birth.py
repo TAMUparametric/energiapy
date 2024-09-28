@@ -11,12 +11,12 @@ from typing import TYPE_CHECKING
 from ...components.operation.process import Process
 from ...components.spatial.linkage import Linkage
 from ...components.spatial.location import Location
-from ...components.temporal.scale import Scale
+from ...components.temporal.period import Scale
 
 if TYPE_CHECKING:
     from ..system import System
-    from ..network import Network
-    from ..horizon import Horizon
+    from ...dimensions.space import Network
+    from ...dimensions.time import Horizon
     from ...components.commodity.resource import Resource
     from ...components.operation.storage import Storage
     from ...components.operation.transit import Transit

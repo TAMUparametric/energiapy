@@ -1,17 +1,12 @@
 """Planning Horizon of the problem
 """
 
-from dataclasses import dataclass
 
-from ..core._handy._dunders import _Dunders
-from ..components.temporal.scale import Scale
+class Time:
+    """Time"""
 
-
-@dataclass
-class Horizon(_Dunders):
-    """Planning Horizon of the problem"""
-
-    name: str
+    def __init__(self):
+        self.name = 't'
 
     def __post_init__(self):
         self.name = f'Horizon|{self.name}|'

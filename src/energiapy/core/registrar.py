@@ -12,7 +12,7 @@ from ...core.nirop.errors import CacodcarError
 from ...elements.index import Idx
 
 if TYPE_CHECKING:
-    from .taskmaster import Chanakya
+    from .isalias.taskmaster import Chanakya
     from ..system import System
 
 

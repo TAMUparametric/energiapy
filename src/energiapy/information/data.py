@@ -5,14 +5,14 @@ from dataclasses import dataclass, field
 
 from pandas import DataFrame
 
-from ..core._handy._dunders import _Dunders
+from ..core._handy import _Dunders
 from ..core.isalias.cmps.isdfn import IsDfn
-from ..core.isalias.elms.isval import IsVal
+from ..core.isalias.elms import IsVal
 from ..core.isalias.inps.isinp import IsInp
 from ..core.nirop.errors import InputTypeError
 from ..elements.index import Idx
-from ..elements.values.constant import Constant
-from ..elements.values.dataset import DataSet
+from ..elements import Constant
+from ..elements import DataSet
 from ..elements.m import M
 from ..elements.theta import Theta
 from .datum import Datum

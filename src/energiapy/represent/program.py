@@ -14,7 +14,7 @@ from ..elements.constraint import Cns
 from ..elements.index import Idx
 
 if TYPE_CHECKING:
-    from .datum import Datum
+    from ..data.datum import Datum
     from ..elements.constraints.bound import Bound
     from ..elements.constraints.boundbound import BoundBound
     from ..elements.constraints.calculate import Calculation

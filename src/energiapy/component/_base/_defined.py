@@ -19,7 +19,7 @@ from ...core.nirop.warnings import InconsistencyWarning
 from ...components.spatial.location import Location
 from ...components.spatial.linkage import Linkage
 from ..abstract.mode import X
-from ..temporal.scale import Scale
+from ..temporal.period import Scale
 from ._dummy import _Dummy
 
 
@@ -31,24 +31,8 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class _Defined(_Component, ABC):
-    """If the component is defined by user, it should inherit from this class
+class Defined(_Component, ABC):    
 
-    Attributes:
-        basis (str): basis of the component
-        citation (dict): citation of the component
-        block (str): block of the component
-        introduce (str): index in scale when the component is introduced
-        retire (str): index in scale when the component is retired
-        label (str): label of the component
-    """
-
-    basis: str = field(default=None)
-    cite: dict = field(default=None)
-    block: str = field(default=None)
-    introduce: str = field(default=None)
-    retire: str = field(default=None)
-    label: str = field(default=None)
 
     def __post_init__(self):
         _Component.__init__(self)

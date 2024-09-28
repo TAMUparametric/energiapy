@@ -6,7 +6,7 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 
-from ..horizon import Horizon
+from ...dimensions.time import Horizon
 from ...core.isalias.cmps.iscmp import IsUnq
 from ...core.isalias.cmps.isdfn import IsDfn, IsOpn
 from ..program import Block

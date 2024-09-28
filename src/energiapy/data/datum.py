@@ -14,13 +14,13 @@ from ..components.operation.storage import Storage
 from ..components.operation.transit import Transit
 from ..components.spatial.linkage import Linkage
 from ..components.spatial.location import Location
-from .network import Network
+from ..dimensions.space import Network
 from ..components.abstract.mode import X
-from ..components.temporal.scale import Scale
-from ..core._handy._dunders import _Dunders
+from ..components.temporal.period import Scale
+from ..core._handy import _Dunders
 from ..core.isalias.cmps.iscmp import IsDsp
 from ..core.isalias.cmps.isdfn import IsDfn
-from ..core.isalias.elms.isval import IsVal
+from ..core.isalias.elms import IsVal
 from ..core.isalias.inps.isinp import IsBndInp, IsExtInp, IsIncInp, IsSptTmp
 from ..core.nirop.errors import InputTypeError
 from ..utils.dictionary import flatten

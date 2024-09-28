@@ -3,10 +3,10 @@
 
 from typing import Self
 
-from ..core.energia import Energia
+from ..information.dimension import Component
 
 
-class Decision(Energia):
+class Decision(Component):
     """A Player's Decision or Action that causes an Impact"""
 
     def __init__(self, *causes: tuple[Self], name: str = None):
