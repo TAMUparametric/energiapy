@@ -11,6 +11,7 @@ __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
 import logging
+import os
 from warnings import warn
 from pyomo.environ import ConcreteModel, Constraint, Objective, SolverFactory, Var
 from pyomo.util.infeasible import (
@@ -26,7 +27,7 @@ from ppopt.mp_solvers.solve_mpqp import solve_mpqp, mpqp_algorithm
 from ppopt.mplp_program import MPLP_Program
 
 
-def solve(solver: str, name: str, instance: ConcreteModel = None, matrix: dict = None, interface: str = 'pyomo', scenario: Scenario = None, saveformat: str = None, print_solversteps: bool = True, log: bool = False, solver_options:dict=None) -> Result:
+def solve(solver: str, name: str, instance: ConcreteModel = None, matrix: dict = None, interface: str = 'pyomo', scenario: Scenario = None, saveformat: str = None, print_solversteps: bool = True, log: bool = False, solver_options:dict=None, folder_path:str = None) -> Result:
     """solves a model instance, scenario needs to be provided
 
     Args:
@@ -138,6 +139,9 @@ def solve(solver: str, name: str, instance: ConcreteModel = None, matrix: dict =
                          output=output_dict, duals=duals_dict)
 
         if saveformat is not None:
-            results.saveoutputs(name + saveformat)
+            if folder_path is not None:
+                results.saveoutputs((os.path.join(folder_path, name + saveformat)))
+            else:
+                results.saveoutputs(name + saveformat)
 
     return results
