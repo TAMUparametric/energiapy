@@ -469,24 +469,14 @@ if __name__ == '__main__':
         'Heuristics': 0.20
     }
 
-    folder = r'C:\Users\shivam.vedant\PycharmProjects\energiapy\docs\notebooks\supply chain\AIChE 2024\PI_pickle_dump3'
-    PI_load_dict = dict()
-    for file in os.listdir(folder):
-        if file.endswith('.pkl'):
-            full_file_path = os.path.join(folder, file)
-
-            with open(full_file_path, 'rb') as f:
-                PI_load_dict[file.removesuffix('.pkl')] = pickle.load(f)
-
     with open('scenario_dict.pkl', 'rb') as file:
         scenario_load_dict = pickle.load(file)
 
+    with open('sorted_result.pkl', 'rb') as file:
+        sorted_result = pickle.load(file)
+
     scenario_load_names = list(scenario_load_dict.keys())
 
-    print(f"Sum of probabilities of all scenarios: {sum(scenario_load_dict[scen]['prob'] for scen in scenario_load_dict):.6f}")
-    print(f'Number of considered scenarios: {len(scenario_load_names)}')
-
-    sorted_result = filter_scenarios()
     selected_scenarios = pick_scenarios(sorted_result, scenarios_to_select)
 
     norm_factor = sum_probabilities(selected_scenarios)
