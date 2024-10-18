@@ -456,7 +456,13 @@ def sum_probabilities(d):
     recursive_sum(d)
     return total_prob
 
-
+def scenario_creator(scen_name, **kwargs):
+    scen_dict = kwargs.get('scenario_dict')
+    scen, model = build_smodel(scen_df=scen_dict[scen_name]['factor'])
+    sputils.attach_root_node(model, model.first_stage_cost,
+                             [model.X_P, model.Cap_P, model.X_S, model.Cap_S, model.X_F, model.Cap_F])
+    model._mpisppy_probability = scen_dict[scen_name]['prob']
+    return model
 
 if __name__ == '__main__':
 
@@ -493,4 +499,18 @@ if __name__ == '__main__':
     selected_scenario_names = list(selected_scenario_dict.keys())
     print(f'Number of scenarios considered: {len(selected_scenario_names)}')
 
-    print(selected_scenario_names)
+    prob_select = sum_probabilities(selected_scenario_dict)
+    print(f'Sum of probabilities of considered scenarios: {prob_select}')
+
+    options = {"solver": "gurobi"}
+    scenario_creator_kwargs = {'scenario_dict': selected_scenario_dict}
+    ef_UI = ExtensiveForm(options, selected_scenario_names, scenario_creator,
+                          scenario_creator_kwargs=scenario_creator_kwargs)
+    results = ef_UI.solve_extensive_form(solver_options=solver_options)
+
+    exCost_UI = ef_UI.get_objective_value()
+
+    ssoln_dict = ef_UI.get_root_solution()
+    ssoln_dict['exCost_UI'] = exCost_UI
+    with open(f'ssoln_IE_MultiLoc_stochastic_{scenarios_to_select}_.pkl', 'wb') as file:
+        pickle.dump(ssoln_dict, file)
