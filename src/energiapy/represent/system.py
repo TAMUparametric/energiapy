@@ -2,6 +2,7 @@
 """
 
 from typing import Self
+
 from dataclasses import dataclass
 
 from ..component.flow.cash import Cash
