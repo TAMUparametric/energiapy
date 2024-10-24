@@ -9,28 +9,29 @@ from src.energiapy.components.spatial.linkage import Linkage
 from src.energiapy.components.spatial.location import Location
 from src.energiapy.environ.network import Network
 from src.energiapy.analytical.player import Player
-from src.energiapy.components.commodity.cash import Cash
-from src.energiapy.components.commodity.emission import Emission
-from src.energiapy.components.commodity.land import Land
-from src.energiapy.components.commodity.material import Material
-from src.energiapy.components.commodity.resource import Resource
-from energiapy.components.operation.process import Process
-from energiapy.components.operation.storage import Storage
-from energiapy.components.operation.transit import Transit
+from src.energiapy.component.flow.cash import Cash
+from src.energiapy.component.flow.emission import Emission
+from src.energiapy.component.flow.land import Land
+from src.energiapy.component.flow.resource import Resource
+from src.energiapy.component.operation.process import Process
+from src.energiapy.component.operation.storage import Storage
+from src.energiapy.component.operation.transit import Transit
+from src.energiapy.component.temporal.period import Scale
 from src.energiapy.environ.horizon import Horizon
-from energiapy.components.temporal.period import Scale
 from src.energiapy.elements.parameters.balances.conversion import Conversion
 from src.energiapy.elements.parameters.balances.freight import Freight
 from src.energiapy.elements.parameters.balances.inventory import Inventory
-from src.energiapy.environ.renditions.data import Data
-from src.energiapy.environ.renditions.blocks.datablock import DataBlock
-from src.energiapy.environ.renditions.matrix import Matrix
-from src.energiapy.environ.renditions.program import Program, ProgramBlock
-from src.energiapy.environ.renditions.system import System
-from src.energiapy.environ.datum import Datum
-from src.energiapy.environ.engines.taskmaster import Chanakya
-from src.energiapy.environ.model import Model
-from src.energiapy.environ.scenario import Scenario
+
+@pytest.fixture
+def scn():
+    s = Scenario()
+    
+    return Scenario()
+
+def test_init(scn):
+    
+
+
 
 # TODO - set test to see uniqueness of birthed elements
 

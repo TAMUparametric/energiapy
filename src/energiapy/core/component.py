@@ -3,6 +3,7 @@
 from .....gana.src.gana.block.prg import Prg
 
 
+
 class Component:
     """This is inherited by all Components
 

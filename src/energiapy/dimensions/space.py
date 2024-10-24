@@ -2,15 +2,17 @@
 """
 
 
-class Dimension:
+class Space:
     """Space - represented by three dimensions
     
     dimension are representation through discretizations
     three discritizations are collected as elements of lists
     """
 
-    def __init__(self, *dimensions):
-        self.name = 'space'
+    def __init__(self, name: str = 'Space'):
+        self.name = name
+
+
 
 
 
