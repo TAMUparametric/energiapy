@@ -523,7 +523,7 @@ if __name__ == '__main__':
     # with open(r'sorted_result_4096_HP.pkl', 'rb') as file:
         load_sorted_result = pickle.load(file)
 
-    scenarios_to_select = 1
+    scenarios_to_select = 400
     # random.seed(2)
     selected_scenarios = pick_scenarios(sorted_dict=load_sorted_result, n=scenarios_to_select, scenario_dict=load_scenario_dict)
 
