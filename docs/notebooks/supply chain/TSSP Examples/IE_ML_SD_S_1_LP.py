@@ -511,15 +511,16 @@ if __name__ == '__main__':
         # 'TimeLimit': 60 * 15,
         'Heuristics': 0.20
     }
-
+    
+    hprc_folder = r'/scratch/user/shivam.vedant/Scripts/TSSP/AIChE2024/min_p'
     FD_folder = r'FD_LP_pkl'
 
-    with open(r'/scratch/user/shivam.vedant/Scripts/TSSP/AIChE2024/scenario_dict_LP.pkl', 'rb') as file:
+    with open(fr'{hprc_folder}/scenario_dict_LP.pkl', 'rb') as file:
     # with open(r'scenario_dict_HP.pkl', 'rb') as file:
         load_scenario_dict = pickle.load(file)
     load_scenario_names = list(load_scenario_dict.keys())
 
-    with open(r'/scratch/user/shivam.vedant/Scripts/TSSP/AIChE2024/sorted_result_4096_LP.pkl', 'rb') as file:
+    with open(fr'{hprc_folder}/sorted_result_4096_LP.pkl', 'rb') as file:
     # with open(r'sorted_result_4096_HP.pkl', 'rb') as file:
         load_sorted_result = pickle.load(file)
 
