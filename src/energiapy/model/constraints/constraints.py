@@ -304,3 +304,5 @@ class Constraints(Enum):
     DEMAND = auto()
     SCOPEONE = auto()
     SCOPETWO = auto()
+    EMISSION_DYNAMIC = auto()
+    EMISSION_CONSTANT = auto()

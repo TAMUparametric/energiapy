@@ -261,6 +261,10 @@ class Scenario:
             i.name: {j.name: j.eutf for j in self.material_set} for i in self.location_set}
         self.material_eutm_dict = {
             i.name: {j.name: j.eutm for j in self.material_set} for i in self.location_set}
+        self.resource_gwp_network_constant_dict = {j.name: {i : j.gwp  for i in self.scales.scale_iter(0)} for j in self.resource_set}
+        self.resource_gwp_network_dynamic_dict = {j.name: {i : j.gwp  for i in self.scales.scale_iter(0)} for j in self.resource_set}
+        if 'CH4_Vent' in self.resource_gwp_network_dynamic_dict:
+            self.resource_gwp_network_dynamic_dict['CH4_Vent'] = {i : 93.42 * numpy.exp(-0.03065*(self.scales.discretization_list[0] - i[0])) + 29.81 * numpy.exp(-0.00261 * (self.scales.discretization_list[0] - i[0])) for i in self.scales.scale_iter(0)}
         self.resource_gwp_dict = {
             i.name: {j.name: j.gwp for j in self.resource_set} for i in self.location_set}
         self.resource_odp_dict = {
