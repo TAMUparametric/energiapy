@@ -141,6 +141,7 @@ class Scenario:
             self.trans_vopex = None
             self.trans_emission = None
             self.distance_dict = None
+            self.travel_time = None
             self.location_set = {self.network}
             self.transport_capacity_factor = None
             self.transport_capex_factor = None
