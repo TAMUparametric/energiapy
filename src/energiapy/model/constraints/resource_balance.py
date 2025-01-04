@@ -65,9 +65,125 @@ def constraint_resource_consumption(instance: ConcreteModel, location_resource_d
     return instance.constraint_resource_consumption
 
 
+# def constraint_inventory_balance(instance: ConcreteModel, scheduling_scale_level: int = 0,
+#                                  multiconversion: dict = None, mode_dict: dict = None,
+#                                  cluster_wt: dict = None,
+#                                  inventory_zero: Dict[Location, Dict[Tuple[Process, Resource], float]] = None,
+#                                  location_resource_dict: dict = None) -> Constraint:
+#     """balances resource across the scheduling horizon
+#     Mass balance in any temporal discretization has the following within their respective sets:
+#     - consumption for resources that can be purchased
+#     - produced for resources produced in the system. [conversion * nameplate capacity]
+#     - discharge for resources that can be sold(if selling cost)/discharged bound by the demand constraint
+#     - transport for resources that can be translocated
+#     - storage for resources that can be held in inventory
+#
+#     The general mass balance is given as:
+#
+#     consumption + produced - discharge + transport == storage
+#
+#     Args:
+#         instance (ConcreteModel): pyomo instance
+#         scheduling_scale_level (int, optional): scale of scheduling decisions. Defaults to 0.
+#         multiconversion (dict, optional): unit conversion of resource by production facility. Defaults to {}.
+#         mode_dict (dict, optional): dictionary with modes available. Defaults to {}.
+#         cluster_wt (dict, optional): weight of cluster as determined through scenario aggregation. Defaults to None.
+#         inventory_zero (Dict[Location, Dict[Tuple[Process, Resource], float]], optional): inventory at the start of the scheduling horizon. Defaults to None.
+#         location_resource_dict (dict, optional): dict with resources in locations. Defaults to None.
+#     Returns:
+#         Constraint: inventory_balance
+#     """
+#
+#     if multiconversion is None:
+#         multiconversion = dict()
+#
+#     if mode_dict is None:
+#         mode_dict = dict()
+#
+#     if inventory_zero is None:
+#         inventory_zero = {j: {i: 0 for i in instance.resources_store}
+#                           for j in instance.locations}
+#
+#     else:
+#         inventory_zero = {j.name: {(i[0].name, i[1].name): inventory_zero[j][i] for i in inventory_zero[j].keys(
+#         )} for j in inventory_zero.keys()}
+#
+#         inventory_zero = {i: {f"{j[0]}_{j[1]}_stored": inventory_zero[i][(
+#             j[0], j[1])] for j in inventory_zero[i]} for i in inventory_zero.keys()}
+#
+#         inventory_zero = {i: {
+#             j: inventory_zero[i][j] if j in inventory_zero[i].keys() else 0 for j in instance.resources_store} for i in
+#             inventory_zero.keys()}
+#
+#     scales = scale_list(instance=instance,
+#                         scale_levels=scheduling_scale_level + 1)
+#     scale_iter = scale_tuple(
+#         instance=instance, scale_levels=scheduling_scale_level + 1)
+#
+#     def inventory_balance_rule(instance, location, resource, *scale_list):
+#         if resource in instance.resources_purch:
+#             consumption = instance.C[location, resource,
+#             scale_list[:scheduling_scale_level + 1]]
+#         else:
+#             consumption = 0
+#
+#         if resource in instance.resources_store:
+#             if scale_list[:scheduling_scale_level + 1] != scale_iter[0]:
+#                 storage = instance.Inv[location, resource, scale_list[:scheduling_scale_level + 1]] \
+#                           - instance.Inv[location, resource, scale_iter[scale_iter.index(
+#                     scale_list[:scheduling_scale_level + 1]) - 1]]
+#             else:
+#                 storage = instance.Inv[location, resource,
+#                 scale_list[:scheduling_scale_level + 1]] - inventory_zero[location][resource]
+#         else:
+#             storage = 0
+#
+#         if resource in instance.resources_sell:
+#             discharge = instance.S[location, resource,
+#             scale_list[:scheduling_scale_level + 1]]
+#         else:
+#             discharge = 0
+#
+#         if len(instance.locations) > 1:
+#             if resource in instance.resources_trans:
+#                 if resource in location_resource_dict[location]:
+#                     transport = sum(
+#                         instance.Exp_R[source_, location, resource, scale_list[:scheduling_scale_level + 1]] for source_
+#                         in
+#                         instance.sources if source_ != location if location in instance.sinks) \
+#                                 - sum(
+#                         instance.Exp_R[location, sink_, resource, scale_list[:scheduling_scale_level + 1]] for sink_ in
+#                         instance.sinks if sink_ != location if location in instance.sources)
+#                 else:
+#                     transport = 0
+#             else:
+#                 transport = 0
+#         else:
+#             transport = 0
+#
+#         # produced = sum(conversion[process][resource]*instance.P[location, process, scale_list[:scheduling_scale_level+1]] for process in instance.processes_singlem) \
+#         #     + sum(instance.P[location, process, scale_list[:scheduling_scale_level+1]] for process in instance.processes_multim)
+#
+#         produced = sum(sum(multiconversion[process][mode][resource] * instance.P_m[location, process, mode,
+#         scale_list[:scheduling_scale_level + 1]] for mode in mode_dict[process]) for process in
+#                        instance.processes_full)  # includes processes + discharge
+#
+#         def weight(x):
+#             return 1 if cluster_wt is None else cluster_wt[x]
+#
+#         return weight(scale_list[:scheduling_scale_level + 1]) * (
+#                 consumption + produced - discharge + transport) == storage
+#
+#     instance.constraint_inventory_balance = Constraint(
+#         instance.locations, instance.resources, *scales, rule=inventory_balance_rule,
+#         doc='mass balance across scheduling scale')
+#     constraint_latex_render(inventory_balance_rule)
+#     return instance.constraint_inventory_balance
+
+
 def constraint_inventory_balance(instance: ConcreteModel, scheduling_scale_level: int = 0,
                                  multiconversion: dict = None, mode_dict: dict = None,
-                                 cluster_wt: dict = None,
+                                 cluster_wt: dict = None, travel_time_dict: dict =None,
                                  inventory_zero: Dict[Location, Dict[Tuple[Process, Resource], float]] = None,
                                  location_resource_dict: dict = None) -> Constraint:
     """balances resource across the scheduling horizon
@@ -120,6 +236,9 @@ def constraint_inventory_balance(instance: ConcreteModel, scheduling_scale_level
     scale_iter = scale_tuple(
         instance=instance, scale_levels=scheduling_scale_level + 1)
 
+    # print(f'scale_iter: \n {scale_iter}')
+    # print(f'scales: \n {scales}')
+
     def inventory_balance_rule(instance, location, resource, *scale_list):
         if resource in instance.resources_purch:
             consumption = instance.C[location, resource,
@@ -148,18 +267,23 @@ def constraint_inventory_balance(instance: ConcreteModel, scheduling_scale_level
             if resource in instance.resources_trans:
                 if resource in location_resource_dict[location]:
                     transport = sum(
-                        instance.Exp_R[source_, location, resource, scale_list[:scheduling_scale_level + 1]] for source_
-                        in
-                        instance.sources if source_ != location if location in instance.sinks) \
+                        instance.Exp_R[source_, location, resource, scale_iter[scale_iter.index(
+                    scale_list[:scheduling_scale_level + 1]) - travel_time_dict[(source_, location)]]]
+                        if travel_time_dict[(source_, location)] is not None and scale_iter.index(scale_list[:scheduling_scale_level + 1]) - travel_time_dict[(source_, location)] >= 0  else 0
+                        for source_ in instance.sources if source_ != location if location in instance.sinks) \
                                 - sum(
-                        instance.Exp_R[location, sink_, resource, scale_list[:scheduling_scale_level + 1]] for sink_ in
-                        instance.sinks if sink_ != location if location in instance.sources)
+                        instance.Exp_R[location, sink_, resource, scale_iter[scale_iter.index(
+                    scale_list[:scheduling_scale_level + 1]) - travel_time_dict[(location, sink_)]]]
+                        if travel_time_dict[(location, sink_)] is not None and scale_iter.index(scale_list[:scheduling_scale_level + 1]) - travel_time_dict[(location, sink_)] >= 0 else 0
+                        for sink_ in instance.sinks if sink_ != location if location in instance.sources)
                 else:
                     transport = 0
             else:
                 transport = 0
         else:
             transport = 0
+
+
 
         # produced = sum(conversion[process][resource]*instance.P[location, process, scale_list[:scheduling_scale_level+1]] for process in instance.processes_singlem) \
         #     + sum(instance.P[location, process, scale_list[:scheduling_scale_level+1]] for process in instance.processes_multim)

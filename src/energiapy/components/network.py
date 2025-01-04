@@ -63,7 +63,7 @@ class Network:
     source_locations: List[Location] = field(default_factory=list)
     sink_locations: List[Location] = field(default_factory=list)
     distance_matrix: List[List[float]] = field(default_factory=list)
-    travel_time_matrix: List[List[float]] = field(default_factory=list)
+    travel_time_matrix: List[List[float]] = None
     transport_matrix: List[List[Transport]] = field(default_factory=list)
     transport_capacity_factor: Union[float,
                                      Dict[Tuple[Location, Location], Dict[Transport, float]]] = None
@@ -150,11 +150,15 @@ class Network:
         Returns:
             dict: a dictionary of travel times from sources to sinks
         """
-        travel_time_dict = {(self.source_locations[i].name, self.sink_locations[j].name):
-                            self.travel_time_matrix[i][j] for i, j in
-                            product(range(len(self.source_locations)), range(len(self.sink_locations)))}
+        # print(f"Travel Time matrix:\n{self.travel_time_matrix}")
 
-        return travel_time_dict
+        if self.travel_time_matrix is not None:
+            travel_time_dict = {(self.source_locations[i].name, self.sink_locations[j].name):
+                                self.travel_time_matrix[i][j] for i, j in
+                                product(range(len(self.source_locations)), range(len(self.sink_locations)))}
+            return travel_time_dict
+        return {(self.source_locations[i].name, self.sink_locations[j].name): 0
+                for i, j in product(range(len(self.source_locations)), range(len(self.sink_locations)))}
 
     def make_transport_dict(self) -> dict:
         """returns a dictionary of transportation modes available between sources to sinks

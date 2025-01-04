@@ -141,7 +141,7 @@ class Scenario:
             self.trans_vopex = None
             self.trans_emission = None
             self.distance_dict = None
-            self.travel_time = None
+            self.travel_time_dict = None
             self.location_set = {self.network}
             self.transport_capacity_factor = None
             self.transport_capex_factor = None
@@ -173,6 +173,7 @@ class Scenario:
             self.trans_emission = {
                 j.name: j.emission for j in self.transport_set}
             self.distance_dict = self.network.distance_dict
+            self.travel_time_dict = self.network.travel_time_dict
             # self.transport_resource_dict = {i: None for i in self.transport_dict.keys()}
             self.location_transport_resource_dict = {i: {k.name: {
                 l.name for l in k.resources} for k in j} for i, j in self.transport_dict.items()}
