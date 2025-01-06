@@ -115,6 +115,7 @@ class Transport:
     fopex: float = 0
     citation: str = 'citation needed'
     label: str = ''
+    speed: float = None
     varying: List[VaryingTransport] = None
 
     def __post_init__(self):

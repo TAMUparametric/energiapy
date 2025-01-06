@@ -182,9 +182,9 @@ def constraint_resource_consumption(instance: ConcreteModel, location_resource_d
 
 
 def constraint_inventory_balance(instance: ConcreteModel, scheduling_scale_level: int = 0,
-                                 multiconversion: dict = None, mode_dict: dict = None,
-                                 cluster_wt: dict = None, travel_time_dict: dict =None,
-                                 inventory_zero: Dict[Location, Dict[Tuple[Process, Resource], float]] = None,
+                                 multiconversion: dict = None, mode_dict: dict = None, transport_avail_dict:dict = None,
+                                 cluster_wt: dict = None, travel_time_dict: dict =None, resource_transport_dict: dict = None,
+                                 inventory_zero: Dict[Location, Dict[Tuple[Process, Resource], float]] = None, transport_resource_dict: dict = None,
                                  location_resource_dict: dict = None) -> Constraint:
     """balances resource across the scheduling horizon
     Mass balance in any temporal discretization has the following within their respective sets:
@@ -215,6 +215,12 @@ def constraint_inventory_balance(instance: ConcreteModel, scheduling_scale_level
 
     if mode_dict is None:
         mode_dict = dict()
+
+    if not transport_avail_dict:
+        transport_avail_dict = dict()
+
+    if not transport_resource_dict:
+        transport_resource_dict = dict()
 
     if inventory_zero is None:
         inventory_zero = {j: {i: 0 for i in instance.resources_store}
@@ -267,15 +273,15 @@ def constraint_inventory_balance(instance: ConcreteModel, scheduling_scale_level
             if resource in instance.resources_trans:
                 if resource in location_resource_dict[location]:
                     transport = sum(
-                        instance.Exp_R[source_, location, resource, scale_iter[scale_iter.index(
-                    scale_list[:scheduling_scale_level + 1]) - travel_time_dict[(source_, location)]]]
-                        if travel_time_dict[(source_, location)] is not None and scale_iter.index(scale_list[:scheduling_scale_level + 1]) - travel_time_dict[(source_, location)] >= 0  else 0
+                        sum(instance.Exp[source_, location, transport_, resource, scale_iter[scale_iter.index(scale_list[:scheduling_scale_level + 1]) - travel_time_dict[(source_, location)][transport_]]]
+                                    if (transport_ in resource_transport_dict[resource] and resource in transport_resource_dict[transport_] and travel_time_dict[(source_, location)][transport_] and
+                                        scale_iter.index(scale_list[:scheduling_scale_level + 1]) - travel_time_dict[(source_, location)][transport_] >= 0) else 0
+                                        for transport_ in transport_avail_dict[(source_, location)])
                         for source_ in instance.sources if source_ != location if location in instance.sinks) \
-                                - sum(
-                        instance.Exp_R[location, sink_, resource, scale_iter[scale_iter.index(
-                    scale_list[:scheduling_scale_level + 1]) - travel_time_dict[(location, sink_)]]]
-                        if travel_time_dict[(location, sink_)] is not None and scale_iter.index(scale_list[:scheduling_scale_level + 1]) - travel_time_dict[(location, sink_)] >= 0 else 0
-                        for sink_ in instance.sinks if sink_ != location if location in instance.sources)
+                                - sum(sum(instance.Exp[location, sink_, transport_, resource, scale_list[:scheduling_scale_level + 1]]
+                                      if (transport_ in resource_transport_dict[resource] and resource in transport_resource_dict[transport_]) else 0
+                                       for transport_ in transport_avail_dict[(location, sink_)])
+                                      for sink_ in instance.sinks if sink_ != location if location in instance.sources)
                 else:
                     transport = 0
             else:

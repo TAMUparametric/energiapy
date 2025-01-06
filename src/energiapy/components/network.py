@@ -13,6 +13,7 @@ __status__ = "Production"
 from dataclasses import dataclass, field
 from itertools import product
 from typing import List, Dict, Union, Tuple
+import math
 
 from pandas import DataFrame
 
@@ -63,7 +64,7 @@ class Network:
     source_locations: List[Location] = field(default_factory=list)
     sink_locations: List[Location] = field(default_factory=list)
     distance_matrix: List[List[float]] = field(default_factory=list)
-    travel_time_matrix: List[List[float]] = None
+    # travel_time_matrix: List[List[float]] = None
     transport_matrix: List[List[Transport]] = field(default_factory=list)
     transport_capacity_factor: Union[float,
                                      Dict[Tuple[Location, Location], Dict[Transport, float]]] = None
@@ -94,8 +95,8 @@ class Network:
         # makes dictionary of distances between locations
         self.distance_dict = self.make_distance_dict()
         # same as transport dict, I do not know why I made two, but now I am too scared to change it
-        self.travel_time_dict = self.make_travel_time_dict()
         self.transport_avail_dict = self.make_transport_avail_dict()
+        self.travel_time_dict = self.make_travel_time_dict()
         self.locations = list(
             set(self.source_locations).union(set(self.sink_locations)))  # all locations in network
         self.source_sink_resource_dict = self.make_source_sink_resource_dict()
@@ -152,13 +153,28 @@ class Network:
         """
         # print(f"Travel Time matrix:\n{self.travel_time_matrix}")
 
-        if self.travel_time_matrix is not None:
-            travel_time_dict = {(self.source_locations[i].name, self.sink_locations[j].name):
-                                self.travel_time_matrix[i][j] for i, j in
-                                product(range(len(self.source_locations)), range(len(self.sink_locations)))}
-            return travel_time_dict
-        return {(self.source_locations[i].name, self.sink_locations[j].name): 0
-                for i, j in product(range(len(self.source_locations)), range(len(self.sink_locations)))}
+        travel_time_dict = {i: {j.name: math.ceil(self.distance_dict[i] / j.speed) if j.speed else 0 for j in self.transport_dict[i]} for i
+                            in self.transport_dict.keys()}
+        return travel_time_dict
+        # return {(self.source_locations[i].name, self.sink_locations[j].name): 0
+        #         for i, j in product(range(len(self.source_locations)), range(len(self.sink_locations)))}
+
+    # def make_travel_time_dict(self) -> dict:
+    #     """
+    #     returns a dictionary of travel time from sources to sinks
+    #
+    #     Returns:
+    #         dict: a dictionary of travel times from sources to sinks
+    #     """
+    #     # print(f"Travel Time matrix:\n{self.travel_time_matrix}")
+    #
+    #     if self.travel_time_matrix is not None:
+    #         travel_time_dict = {(self.source_locations[i].name, self.sink_locations[j].name):
+    #                             self.travel_time_matrix[i][j] for i, j in
+    #                             product(range(len(self.source_locations)), range(len(self.sink_locations)))}
+    #         return travel_time_dict
+    #     return {(self.source_locations[i].name, self.sink_locations[j].name): 0
+    #             for i, j in product(range(len(self.source_locations)), range(len(self.sink_locations)))}
 
     def make_transport_dict(self) -> dict:
         """returns a dictionary of transportation modes available between sources to sinks
