@@ -727,7 +727,7 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
                                          multiconversion=scenario.multiconversion, mode_dict=scenario.mode_dict,
                                          travel_time_dict=scenario.travel_time_dict, inventory_zero=inventory_zero,
                                          location_resource_dict=scenario.location_resource_dict, transport_avail_dict=scenario.transport_avail_dict,
-                                         resource_transport_dict=scenario.resource_transport_dict, transport_resource_dict=scenario.transport_resource_dict)
+                                         resource_transport_dict=scenario.resource_transport_dict)
 
             # constraint_network_production(
             #     instance=instance, network_scale_level=scenario.network_scale_level)
