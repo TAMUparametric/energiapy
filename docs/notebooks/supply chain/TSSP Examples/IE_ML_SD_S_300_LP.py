@@ -511,17 +511,17 @@ if __name__ == '__main__':
         # 'TimeLimit': 60 * 15,
         'Heuristics': 0.20
     }
-
+    
     hprc_folder = r'/scratch/user/shivam.vedant/Scripts/TSSP/AIChE2024/min_p'
     FD_folder = r'FD_LP_pkl'
 
     with open(fr'{hprc_folder}/scenario_dict_LP.pkl', 'rb') as file:
-        # with open(r'scenario_dict_HP.pkl', 'rb') as file:
+    # with open(r'scenario_dict_HP.pkl', 'rb') as file:
         load_scenario_dict = pickle.load(file)
     load_scenario_names = list(load_scenario_dict.keys())
 
     with open(fr'{hprc_folder}/sorted_result_4096_LP.pkl', 'rb') as file:
-        # with open(r'sorted_result_4096_HP.pkl', 'rb') as file:
+    # with open(r'sorted_result_4096_HP.pkl', 'rb') as file:
         load_sorted_result = pickle.load(file)
 
     scenarios_to_select = 300
@@ -542,7 +542,7 @@ if __name__ == '__main__':
     selected_scenario_names = list(selected_scenario_dict.keys())
     print(f'Number of scenarios considered: {len(selected_scenario_names)}')
 
-    print(selected_scenario_names)
+    # print(selected_scenario_names)
 
     prob_select = sum_probabilities(selected_scenario_dict)
     print(f'Sum of probabilities of selected scenarios: {prob_select:.6f}')
@@ -558,9 +558,8 @@ if __name__ == '__main__':
     exCost_UI = ef_UI.get_objective_value()
     ssoln_UI = ef_UI.get_root_solution()
 
-    with open(f"exCost_{len(selected_scenario_names)}_UI_LP.pkl",
-              'wb') as file:
-        pickle.dump(exCost_UI, file)
+    with open(fr"{hprc_folder}/results/ssoln_{len(selected_scenario_names)}_UI_LP.pkl",'wb') as file:
+        pickle.dump(ssoln_UI, file)
 
     exCost_FD = 0
     exPen_FD = 0
@@ -641,5 +640,5 @@ if __name__ == '__main__':
                                                          'First Stage Cost': fsc,
                                                          'Execution Time': end_time - start_time}}
 
-    with open(f"FD_{len(selected_scenario_names)}_final_results_LP.pkl", 'wb') as file:
+    with open(fr"{hprc_folder}/results/FD_{len(selected_scenario_names)}_final_results_LP.pkl", 'wb') as file:
         pickle.dump(final_results_dict, file)
