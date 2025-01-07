@@ -70,6 +70,18 @@ class VaryingTransport(Enum):
     """
     Use uncertain parameter for fopex
     """
+    DETERMINISTIC_LAG = auto()
+    """
+    Use deterministic data as parameters for transport lead time
+    """
+    CERTAIN_LAG = auto()
+    """
+    Use certain parameter as parameters for transport lead time
+    """
+    UNCERTAIN_LAG = auto()
+    """
+    Use uncertain parameter as parameters for transport lead time
+    """
 
 
 @dataclass
@@ -133,6 +145,9 @@ class Transport:
 
         if (VaryingTransport.DETERMINISTIC_VOPEX not in self.varying) and (VaryingTransport.UNCERTAIN_VOPEX not in self.varying):
             self.varying = self.varying + [VaryingTransport.CERTAIN_VOPEX]
+
+        if (VaryingTransport.DETERMINISTIC_LAG not in self.varying) and (VaryingTransport.UNCERTAIN_LAG not in self.varying):
+            self.varying = self.varying + [VaryingTransport.CERTAIN_LAG]
 
     def __repr__(self):
         return self.name

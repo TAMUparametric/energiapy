@@ -147,10 +147,12 @@ class Scenario:
             self.transport_capex_factor = None
             self.transport_vopex_factor = None
             self.transport_fopex_factor = None
+            self.transport_lag_factor = None
             self.transport_capacity_scale_level = None
             self.transport_capex_scale_level = None
             self.transport_vopex_scale_level = None
             self.transport_fopex_scale_level = None
+            self.transport_lag_scale_level = None
             self.source_sink_resource_dict = None
         else:
             self.transport_set = set().union(*self.network.transport_dict.values())
@@ -198,10 +200,12 @@ class Scenario:
             self.transport_capex_factor = self.network.transport_capex_factor
             self.transport_vopex_factor = self.network.transport_vopex_factor
             self.transport_fopex_factor = self.network.transport_fopex_factor
+            self.transport_lag_factor = self.network.transport_lag_factor
             self.transport_capacity_scale_level = self.network.transport_capacity_scale_level
             self.transport_capex_scale_level = self.network.transport_capex_scale_level
             self.transport_vopex_scale_level = self.network.transport_vopex_scale_level
             self.transport_fopex_scale_level = self.network.transport_fopex_scale_level
+            self.transport_lag_scale_level = self.network.transport_lag_scale_level
             self.source_sink_resource_dict = self.network.source_sink_resource_dict
 
         self.process_set = set().union(
