@@ -146,8 +146,8 @@ class Transport:
         if (VaryingTransport.DETERMINISTIC_VOPEX not in self.varying) and (VaryingTransport.UNCERTAIN_VOPEX not in self.varying):
             self.varying = self.varying + [VaryingTransport.CERTAIN_VOPEX]
 
-        if (VaryingTransport.DETERMINISTIC_LAG not in self.varying) and (VaryingTransport.UNCERTAIN_LAG not in self.varying):
-            self.varying = self.varying + [VaryingTransport.CERTAIN_LAG]
+        # if (VaryingTransport.DETERMINISTIC_LAG not in self.varying) and (VaryingTransport.UNCERTAIN_LAG not in self.varying):
+        #     self.varying = self.varying + [VaryingTransport.CERTAIN_LAG]
 
     def __repr__(self):
         return self.name

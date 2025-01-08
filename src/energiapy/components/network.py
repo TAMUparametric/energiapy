@@ -73,13 +73,13 @@ class Network:
                                                     Location], Dict[Transport, float]]] = None
     transport_fopex_factor: Union[float, Dict[Tuple[Location,
                                                     Location], Dict[Transport, float]]] = None
-    transport_lag_factor: Union[float, Dict[Tuple[Location,
-                                                    Location], Dict[Transport, float]]] = None
+    # transport_lag_factor: Union[float, Dict[Tuple[Location,
+    #                                                 Location], Dict[Transport, float]]] = None
     transport_capacity_scale_level: int = 0
     transport_capex_scale_level: int = 0
     transport_vopex_scale_level: int = 0
     transport_fopex_scale_level: int = 0
-    transport_lag_scale_level: int = 0
+    # transport_lag_scale_level: int = 0
 
     label: str = ''
 
@@ -135,13 +135,13 @@ class Network:
                 warn(
                     'Input should be a dict of a dict of a DataFrame, Dict[Tuple[Location, Location], Dict[Transport, float]]')
 
-        if self.transport_lag_factor is not None:
-            if isinstance(list(self.transport_lag_factor[list(self.transport_lag_factor.keys())[0]].values())[0], DataFrame):
-                self.transport_lag_factor = {i: scale_changer(
-                    j, scales=self.scales, scale_level=self.transport_lag_scale_level) for i, j in self.transport_lag_factor.items()}
-            else:
-                warn(
-                    'Input should be a dict of a dict of a DataFrame, Dict[Tuple[Location, Location], Dict[Transport, float]]')
+        # if self.transport_lag_factor is not None:
+        #     if isinstance(list(self.transport_lag_factor[list(self.transport_lag_factor.keys())[0]].values())[0], DataFrame):
+        #         self.transport_lag_factor = {i: scale_changer(
+        #             j, scales=self.scales, scale_level=self.transport_lag_scale_level) for i, j in self.transport_lag_factor.items()}
+        #     else:
+        #         warn(
+        #             'Input should be a dict of a dict of a DataFrame, Dict[Tuple[Location, Location], Dict[Transport, float]]')
 
 
     def make_distance_dict(self) -> dict:
