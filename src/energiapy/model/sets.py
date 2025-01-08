@@ -95,6 +95,17 @@ def generate_sets(instance: ConcreteModel, scenario: Scenario):
     instance.resources_purch = Set(
         initialize=sets['resources_purch'], doc='Set of purchased resources')
 
+    set_a = list(set(sets['resources_purch']) - set(sets['resources_varying_gwp']))
+
+    instance.resources_purch_certain_gwp = Set(
+        initialize=set_a, doc='Set of purchased resources')
+
+
+    set_b = list(set(sets['resources_sell']) - set(sets['resources_varying_gwp']))
+
+    instance.resources_sell_certain_gwp = Set(
+        initialize=set_b, doc='Set of dischargeable resources')
+    
 #Marco Begin
 
     instance.resources_purch_scope1 = Set(
@@ -109,6 +120,8 @@ def generate_sets(instance: ConcreteModel, scenario: Scenario):
     instance.resources_sell_scope2 = Set(
         initialize = sets['resources_sell_scope2'], doc = 'Set of discharged resources that contribute to scope 2 emissions ')
 
+    instance.resources_varying_gwp = Set(initialize=sets['resources_varying_gwp'],
+                                           doc='Set of resources with varying gwp')
 #Marco End    
     instance.resources_varying_price = Set(initialize=sets['resources_varying_price'],
                                            doc='Set of resources with varying purchase price')

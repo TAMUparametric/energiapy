@@ -465,25 +465,34 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
 
         if Constraints.EMISSION in constraints:
             generate_emission_vars(
-                instance=instance, scale_level=scenario.network_scale_level)
+                instance=instance, scale_level=scenario.gwp_scale_level)
 
-            constraint_global_warming_potential_process(
-                instance=instance, process_gwp_dict=scenario.process_gwp_dict,
-                network_scale_level=scenario.network_scale_level)
+            # constraint_global_warming_potential_process(
+            #     instance=instance, process_gwp_dict=scenario.process_gwp_dict,
+            #     gwp_scale_level=scenario.gwp_scale_level)
 
             constraint_global_warming_potential_resource(
-                instance=instance, network_scale_level=scenario.network_scale_level)
+                instance=instance, gwp_scale_level=scenario.gwp_scale_level)
 
             constraint_global_warming_potential_resource_consumption(
                 instance=instance, resource_gwp_dict=scenario.resource_gwp_dict,
-                network_scale_level=scenario.network_scale_level)
+                gwp_scale_level=scenario.gwp_scale_level)
 
             constraint_global_warming_potential_resource_discharge(
                 instance=instance, resource_gwp_dict=scenario.resource_gwp_dict,
-                network_scale_level=scenario.network_scale_level)
+                gwp_scale_level=scenario.gwp_scale_level)
+            
+            if Constraints.MATERIAL in constraints: 
+
+                constraint_global_warming_potential_material(
+                    instance=instance, network_scale_level=scenario.network_scale_level, annualization_factor=scenario.annualization_factor)
+
+                constraint_global_warming_potential_material_mode(instance=instance, material_gwp_dict=scenario.material_gwp_dict,
+                                                                    process_material_mode_material_dict=scenario.process_material_mode_material_dict,
+                                                                    network_scale_level=scenario.network_scale_level)
 
             constraint_global_warming_potential_location(
-                instance=instance, network_scale_level=scenario.network_scale_level)
+                instance=instance, network_scale_level=scenario.network_scale_level, gwp_scale_level=scenario.gwp_scale_level)
 
             constraint_global_warming_potential_network(
                 instance=instance, network_scale_level=scenario.network_scale_level)
@@ -596,7 +605,7 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
 #Marco Code 
         if Constraints.SCOPEONE in constraints:
             generate_emission_vars(
-                instance=instance, scale_level=scenario.network_scale_level)
+                instance=instance, scale_level=scenario.gwp_scale_level)
 
             constraint_global_warming_potential_process_scope1(
                 instance=instance, process_gwp_dict=scenario.process_gwp_dict,
@@ -622,7 +631,7 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
 
         if Constraints.SCOPETWO in constraints:
             generate_emission_vars(
-                instance=instance, scale_level=scenario.network_scale_level)
+                instance=instance, scale_level=scenario.gwp_scale_level)
 
             constraint_global_warming_potential_process_scope2(
                 instance=instance, process_gwp_dict=scenario.process_gwp_dict,
@@ -662,49 +671,41 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
             #                                                        network_scale_level=scenario.network_scale_level)
 
 #Marco code end
-            if Constraints.MATERIAL in constraints:
 
-                constraint_global_warming_potential_material(
-                    instance=instance, network_scale_level=scenario.network_scale_level)
+            # constraint_ozone_depletion_potential_material(
+            #     instance=instance, network_scale_level=scenario.network_scale_level)
 
-                constraint_global_warming_potential_material_mode(instance=instance, material_gwp_dict=scenario.material_gwp_dict,
-                                                                  process_material_mode_material_dict=scenario.process_material_mode_material_dict,
-                                                                  network_scale_level=scenario.network_scale_level)
+            # constraint_ozone_depletion_potential_material_mode(instance=instance, material_odp_dict=scenario.material_odp_dict,
+            #                                                     process_material_mode_material_dict=scenario.process_material_mode_material_dict,
+            #                                                     network_scale_level=scenario.network_scale_level)
 
-                constraint_ozone_depletion_potential_material(
-                    instance=instance, network_scale_level=scenario.network_scale_level)
+            # constraint_acidification_potential_material(
+            #     instance=instance, network_scale_level=scenario.network_scale_level)
 
-                constraint_ozone_depletion_potential_material_mode(instance=instance, material_odp_dict=scenario.material_odp_dict,
-                                                                   process_material_mode_material_dict=scenario.process_material_mode_material_dict,
-                                                                   network_scale_level=scenario.network_scale_level)
+            # constraint_acidification_potential_material_mode(instance=instance, material_acid_dict=scenario.material_acid_dict,
+            #                                                     process_material_mode_material_dict=scenario.process_material_mode_material_dict,
+            #                                                     network_scale_level=scenario.network_scale_level)
 
-                constraint_acidification_potential_material(
-                    instance=instance, network_scale_level=scenario.network_scale_level)
+            # constraint_terrestrial_eutrophication_potential_material(
+            #     instance=instance, network_scale_level=scenario.network_scale_level)
 
-                constraint_acidification_potential_material_mode(instance=instance, material_acid_dict=scenario.material_acid_dict,
-                                                                 process_material_mode_material_dict=scenario.process_material_mode_material_dict,
-                                                                 network_scale_level=scenario.network_scale_level)
+            # constraint_terrestrial_eutrophication_potential_material_mode(instance=instance, material_eutt_dict=scenario.material_eutt_dict,
+            #                                                                 process_material_mode_material_dict=scenario.process_material_mode_material_dict,
+            #                                                                 network_scale_level=scenario.network_scale_level)
 
-                constraint_terrestrial_eutrophication_potential_material(
-                    instance=instance, network_scale_level=scenario.network_scale_level)
+            # constraint_freshwater_eutrophication_potential_material(
+            #     instance=instance, network_scale_level=scenario.network_scale_level)
 
-                constraint_terrestrial_eutrophication_potential_material_mode(instance=instance, material_eutt_dict=scenario.material_eutt_dict,
-                                                                              process_material_mode_material_dict=scenario.process_material_mode_material_dict,
-                                                                              network_scale_level=scenario.network_scale_level)
+            # constraint_freshwater_eutrophication_potential_material_mode(instance=instance, material_eutf_dict=scenario.material_eutf_dict,
+            #                                                                 process_material_mode_material_dict=scenario.process_material_mode_material_dict,
+            #                                                                 network_scale_level=scenario.network_scale_level)
 
-                constraint_freshwater_eutrophication_potential_material(
-                    instance=instance, network_scale_level=scenario.network_scale_level)
+            # constraint_marine_eutrophication_potential_material(
+            #     instance=instance, network_scale_level=scenario.network_scale_level)
 
-                constraint_freshwater_eutrophication_potential_material_mode(instance=instance, material_eutf_dict=scenario.material_eutf_dict,
-                                                                             process_material_mode_material_dict=scenario.process_material_mode_material_dict,
-                                                                             network_scale_level=scenario.network_scale_level)
-
-                constraint_marine_eutrophication_potential_material(
-                    instance=instance, network_scale_level=scenario.network_scale_level)
-
-                constraint_marine_eutrophication_potential_material_mode(instance=instance, material_eutm_dict=scenario.material_eutm_dict,
-                                                                         process_material_mode_material_dict=scenario.process_material_mode_material_dict,
-                                                                         network_scale_level=scenario.network_scale_level)
+            # constraint_marine_eutrophication_potential_material_mode(instance=instance, material_eutm_dict=scenario.material_eutm_dict,
+            #                                                             process_material_mode_material_dict=scenario.process_material_mode_material_dict,
+            #                                                             network_scale_level=scenario.network_scale_level)
         if Constraints.FAILURE in constraints:
             constraint_nameplate_production_failure(instance=instance, fail_factor=scenario.fail_factor,
                                                     network_scale_level=scenario.network_scale_level,
@@ -821,6 +822,14 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
             instance.constraint_resource_purchase_varying = make_constraint(
                 instance=instance, type_cons=Cons.X_EQ_BY, variable_x='B', variable_y='C', location_set=instance.locations, component_set=instance.resources_varying_price, b_max=scenario.price_dict,
                 loc_comp_dict=scenario.location_resource_dict, b_factor=scenario.price_factor, x_scale_level=scenario.scheduling_scale_level, y_scale_level=scenario.scheduling_scale_level, b_scale_level=scenario.purchase_scale_level, label='calculates varying amount spent on resource consumption')
+            
+            # # *----------------varying emissions---------------------------------------------
+            
+            instance.constraint_resource_gwp_varying = make_constraint(
+                instance=instance, type_cons=Cons.X_EQ_BY, variable_x='global_warming_potential_resource_varying', variable_y='C', location_set=instance.locations, component_set=instance.resources_varying_gwp, b_max=scenario.gwp_dict,
+                loc_comp_dict=scenario.location_resource_dict, b_factor=scenario.gwp_factor, x_scale_level=scenario.scheduling_scale_level, y_scale_level=scenario.scheduling_scale_level, b_scale_level=scenario.gwp_scale_level, label='calculates varying amount emitted through resource consumption')
+
+
 
             # # *----------------sum P,S,C,B over location---------------------------------------------
 

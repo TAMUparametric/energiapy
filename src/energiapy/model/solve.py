@@ -55,8 +55,24 @@ def solve(solver: str, name: str, instance: ConcreteModel = None, matrix: dict =
 
     else:
         if interface == 'pyomo':
-            output = SolverFactory(solver, solver_io='python').solve(
-                instance, tee=print_solversteps)
+            # if solver == 'gurobi':
+            #     solvr = SolverFactory('gurobi', solver_io = 'python')
+
+            #     default_options = {
+            #         'MIPGap': 2.0, 
+            #         'TimeLimit': 4*60 * 60,
+            #         'Heuristics': 0.15 # amount of computation power assigned to heuristic
+            #     }
+
+            #     # comment this out to do default solve
+            #     # for option, value in default_options.items():
+            #     #     solvr.options[option] = value
+
+            #     return solvr.solve(instance, tee=True)
+
+            # else: 
+                output = SolverFactory(solver, solver_io='python').solve(
+                    instance, tee=print_solversteps)
 
         if interface == 'GAMS':
             warn('Ensure GAMS is installed on system and PATH is set')

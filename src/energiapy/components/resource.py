@@ -30,7 +30,10 @@ class VaryingResource(Enum):
     """
     Utilize deterministic price data as parameters
     """
-
+    DETERMINISTIC_GWP = auto()
+    """
+    Utilize deterministic gwp data as parameters
+    """
     DETERMINISTIC_AVAILABILITY = auto()
     """
     Utilize deterministic resource availability as parameters

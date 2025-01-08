@@ -64,6 +64,7 @@ class Scenario:
     scales: TemporalScale
     network: Union[Network, Location] = None
     purchase_scale_level: int = 0
+    gwp_scale_level: int = 0
     expenditure_scale_level: int = 0
     scheduling_scale_level: int = 0
     availability_scale_level: int = 0
@@ -223,6 +224,7 @@ class Scenario:
         self.capacity_factor = {
             i.name: i.capacity_factor for i in self.location_set}
         self.price_factor = {i.name: i.price_factor for i in self.location_set}
+        self.gwp_factor = {i.name: i.gwp_factor for i in self.location_set}
         self.demand_factor = {
             i.name: i.demand_factor for i in self.location_set}
         self.capex_factor = {i.name: i.capex_factor for i in self.location_set}
@@ -241,6 +243,7 @@ class Scenario:
         self.location_material_dict = {i.name: {j.name for j in i.materials}
                                        for i in self.location_set}
         # TODO change to be location wise
+        self.gwp_dict = {i.name: i.resource_gwp for i in self.location_set}
         self.price_dict = {i.name: i.resource_price for i in self.location_set}
         self.revenue_dict = {
             i.name: i.resource_revenue for i in self.location_set}
@@ -299,8 +302,15 @@ class Scenario:
         self.process_material_dict = {
             i.name: {j.name: i.material_cons[j] if j in i.material_cons.keys() else 0 for j in self.material_set} for i in self.process_set}
 
-        self.process_material_mode_material_dict = {i.name: {j: {l.name: m for l, m in k.items(
-        )} for j, k in i.material_cons.items()} for i in self.process_set}
+    
+        self.process_material_mode_material_dict = {
+            i.name: {'d': {j.name: i.material_cons[j] if j in i.material_cons.keys() else 0 for j in self.material_set}} for i in self.process_set}
+
+        # self.process_material_mode_material_dict = {i.name: {j: {l.name: m for l, m in k.items(
+        # )} for j, k in i.material_cons.items()} for i in self.process_set}
+
+
+
         multiconversion_dict = dict()
         for i in self.process_set:
             if i.processmode == ProcessMode.MULTI:
@@ -341,10 +351,10 @@ class Scenario:
 
         process_material_modes = []
         for i in self.process_set:
-            if i.material_cons is not None:
+            if i.material_cons:
 
                 process_material_modes = process_material_modes + \
-                    [(i.name, j) for j in list(i.material_cons.keys())]
+                    [(i.name, 'd') for j in list(i.material_cons.keys())]
                 if i.material_cons != {}:
                     self.process_material_modes = process_material_modes
 
@@ -376,8 +386,11 @@ class Scenario:
             'resources_uncertain_demand': [i.name for i in self.resource_set if
                                            VaryingResource.UNCERTAIN_DEMAND in i.varying],
 
-            # 'resources_varying_gwp': [i.name for i in self.resource_set if
-            #                             VaryingEmission.DETERMINISTIC_GWP in i.varyinggwp],
+            'resources_varying_gwp': [i.name for i in self.resource_set if
+                                        VaryingResource.DETERMINISTIC_GWP in i.varying],
+            
+            'resources_certain_gwp': [i.name for i in self.resource_set if
+                                        VaryingResource.DETERMINISTIC_GWP not in i.varying],
 
             'resources_varying_price': [i.name for i in self.resource_set if
                                         VaryingResource.DETERMINISTIC_PRICE in i.varying],

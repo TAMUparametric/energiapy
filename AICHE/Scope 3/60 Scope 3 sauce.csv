@@ -1,0 +1,16 @@
+﻿PV,PV_Val,,SMR,SMR_Val,,SMRCCS,SMRCCS_Val,,WF,WF_Val
+Silicon,0.564128549,,StainlessSteel,0.163421737,,Concrete,0.404431992,,StainlessSteel,0.303123763
+Glass,0.090502134,,AluminaRefractory,0.203369651,,StainlessSteel,0.327476004,,GlassFiber,0.10757787
+Aluminium,0.171461738,,NickelAlumina,0.041055413,,Methyldiethanolamine,0.189177028,,Copper,0.027455469
+EthyleneVinylAcetate,0.010009029,,Electronics,0.065969459,,Monoethanolamine,0.078914976,,Concrete,0.187178445
+StainlessSteel,0.0606744,,Concrete,0.42952603,,,,,CarbonSteel,0.317129445
+Concrete,0.026018296,,CarbonSteel,0.084546934,,,,,RockAggregate,0.006856853
+Copper,0.043386242,,IronOxideChromiumOxide,0.012110777,,,,,Neodymium,0.019929384
+PolyvinylFluoride,0.02811007,,,,,,,,Dysprosium,0.016450465
+Silver,0.002896716,,,,,,,,ZincRichPrimer,0.000254683
+GlassFiber,0.002812828,,,,,,,,EpoxyCoat,0.000380643
+,,,,,,,,,Polyurethane,0.000997774
+,,,,,,,,,GelCoat,0.001101994
+,,,,,,,,,Tetrafloroethylene,0.004771977
+,,,,,,,,,LubricatingOil,0.000128774
+,,,,,,,,,Aluminum,0.006662461
