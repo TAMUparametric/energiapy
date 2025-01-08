@@ -66,6 +66,7 @@ class Location:
     demand: Dict[Resource, float] = None
     demand_factor: Union[float, Dict[Resource, float]] = None
     price_factor: Union[float, Dict[Resource, float]] = None
+    gwp_factor: Union[float, Dict[Resource, float]] = None
     capacity_factor: Union[float, Dict[Process, float]] = None
     capex_factor: Union[float, Dict[Process, float]] = None
     vopex_factor: Union[float, Dict[Process, float]] = None
@@ -74,6 +75,7 @@ class Location:
     availability_factor: Union[float, Dict[Resource, float]] = None
     revenue_factor: Union[float, Dict[Resource, float]] = None
     demand_scale_level: int = 0
+    gwp_scale_level: int = 0
     price_scale_level: int = 0
     capacity_scale_level: int = 0
     expenditure_scale_level: int = 0
@@ -106,6 +108,7 @@ class Location:
         self.prod_max = self.get_prod_max()  # dicitionary of maximum production
         self.prod_min = self.get_prod_min()  # dictionary of minimum production
         self.resource_price = self.get_resource_price()  # dictionary of resource prices
+        self.resource_gwp = self.get_resource_gwp()  # dictionary of resource prices
         # dictionary of resource selling prices
         self.resource_revenue = self.get_resource_revenue()
         # fetch all processes with failure rates set
@@ -129,6 +132,15 @@ class Location:
             if isinstance(list(self.price_factor.values())[0], DataFrame):
                 self.price_factor = scale_changer(
                     self.price_factor, scales=self.scales, scale_level=self.price_scale_level)  # changes the scales to tuple
+            else:
+                warn(
+                    'Input should be a dict of a DataFrame, Dict[Resource, float]')
+                
+        if self.gwp_factor is not None:
+            self.varying_gwp = set(self.gwp_factor.keys())
+            if isinstance(list(self.gwp_factor.values())[0], DataFrame):
+                self.gwp_factor = scale_changer(
+                    self.gwp_factor, scales=self.scales, scale_level=self.gwp_scale_level)  # changes the scales to tuple
             else:
                 warn(
                     'Input should be a dict of a DataFrame, Dict[Resource, float]')
@@ -229,7 +241,10 @@ class Location:
                 if i.material_cons is not None:
                     if isinstance(i.material_cons, dict):
                         for j in i.material_cons.keys():
-                            materials = materials.union(set(i.material_cons[j].keys()))             
+                            if isinstance(i.material_cons[j], dict):
+                                materials = materials.union(set(i.material_cons[j].keys()))             
+                            else: 
+                                materials = materials.union(set(i.material_cons.keys()))
                     else:
                         materials = materials.union(set(i.material_cons.keys()))
                         # return set().union(*[set(i.material_cons.keys()) for i in self.processes if i.material_cons is not None])
@@ -241,6 +256,14 @@ class Location:
             dict: with resource prices
         """
         return {i.name: i.price for i in self.resources}
+    
+    def get_resource_gwp(self) -> dict:
+        """gets resource prices for resources with non-varying costs
+
+        Returns:
+            dict: with resource prices
+        """
+        return {i.name: i.gwp for i in self.resources}
 
     def get_resource_revenue(self) -> dict:
         """gets resource revenues for resources with non-varying costs

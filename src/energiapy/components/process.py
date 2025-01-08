@@ -272,7 +272,8 @@ class Process:
             self.capacity_segments = list(self.capex.keys())
             self.capex_segements = list(self.capex.values())
 
-        self.material_modes = set(self.material_cons.keys())
+        # self.material_modes = set(self.material_cons.keys())
+        self.material_modes = {'d'}
         # self.emission_dict = {i: i.emissions for i in self.conversion.keys()}
         self.emission_potentials_dict = {'gwp': self.gwp, 'odp': self.odp,
                                          'acid': self.acid, 'eutt': self.eutt, 'eutf': self.eutf, 'eutm': self.eutm}
