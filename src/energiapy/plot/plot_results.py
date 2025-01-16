@@ -222,6 +222,44 @@ def transport(results: Result, source: str, sink: str, resource: str, transport:
     plt.rcdefaults()
     return
 
+def transit(results: Result, source: str, sink: str, resource: str, transport: str, fig_size: tuple = (12, 6), font_size: int = 16, color: str = 'blue', usetex: bool = False):
+    """Plots the transportation schedule from source to sink of choice for resource through a transportation mode
+
+    Args:
+        results (Result): results
+        source (str): source location
+        sink (str): sink location
+        resource (str): Resource that is being transported
+        transport (str): Transport being used
+        fig_size (tuple, optional): Defaults to (12,6).
+        font_size (int, optional): Defaults to 16.
+        color (str, optional): Defaults to 'blue'.
+        usetex (bool, optional): Defaults to False.
+
+    Examples:
+
+        Plotting trasnit is fairly straight forward. This plots the resource in transit from source to sink.
+
+        >>> plot.transit(results= results, source= 'Goa', sink= 'Texas', resource= 'PhDStudents', transport= 'GradSchool')
+
+    """
+
+    rc('font', **{'family': 'serif',
+       'serif': ['Computer Modern'], 'size': font_size})
+    rc('text', usetex=usetex)
+    fig, ax = plt.subplots(figsize=fig_size)
+    y_ = [results.output['Transit'][i] for i in results.output['Transit'].keys(
+    ) if list(i)[:4] == [source, sink, transport, resource]]
+    plt.plot(y_)
+    plt.ylabel("Amount in unit basis")
+    plt.xlabel("Scheduling scale")
+    plt.title(
+        f"Schedule for {resource} in transit between {transport} from {source} to {sink}")
+    plt.xticks(rotation=90)
+    plt.grid(alpha=0.3)
+    plt.rcdefaults()
+    return
+
 # TODO - make bar plots / pie plots for contribution from different components
 # TODO - make layered scheduling plot for comparison
 # TODO - make scenario comparison plots, perhaps use kwargs, allow n number of comparisons

@@ -41,6 +41,8 @@ def generate_transport_vars(instance: ConcreteModel):
                                  instance.scales_network, within=NonNegativeReals, doc='total resources transported mode through between locations over network scale')
     instance.Exp = Var(instance.sources, instance.sinks, instance.transports, instance.resources_trans,
                        instance.scales_scheduling, within=NonNegativeReals, doc='resource transported through mode between locations')
+    instance.Transit = Var(instance.sources, instance.sinks, instance.transports, instance.resources_trans,
+                           instance.scales_scheduling, within=NonNegativeReals, doc='resource in transit through mode between locations')
     instance.Capex_transport = Var(instance.sources, instance.sinks, instance.transports,
                                    instance.scales_network, within=NonNegativeReals, doc='capex to set up transport mode between sink and source')
     instance.Vopex_transport = Var(instance.sources, instance.sinks, instance.transports,
