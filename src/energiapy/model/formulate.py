@@ -18,6 +18,7 @@ from ..components.scenario import Scenario
 from ..components.resource import Resource
 from ..components.location import Location
 from ..components.process import Process
+from ..components.transport import Transport
 from .constraints.constraints import Constraints, make_constraint, Cons
 
 from .constraints.cost import (
@@ -287,8 +288,8 @@ class Objective(Enum):
 def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objective: Objective = None,
               write_lpfile: bool = False, gwp: float = None, land_restriction: float = None,
               gwp_reduction_pct: float = None, model_class: ModelClass = ModelClass.MIP, objective_resource: Resource = None,
-              inventory_zero: Dict[Location,
-                                   Dict[Tuple[Process, Resource], float]] = None,
+              inventory_zero: Dict[Location, Dict[Tuple[Process, Resource], float]] = None,
+              transit_zero: Dict[Tuple[Location, Location, Transport, Resource, *Tuple[int, ...]], float] = None,
               demand_sign: str = 'geq') -> ConcreteModel:
     """formulates a model. Constraints need to be declared in order
 
@@ -810,7 +811,8 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
             if len(scenario.location_set) > 1:
                 constraint_transit_balance(instance=instance, scheduling_scale_level=scenario.scheduling_scale_level,
                                            travel_time_dict=scenario.travel_time_dict, transport_avail_dict=scenario.transport_avail_dict,
-                                           resource_transport_dict=scenario.resource_transport_dict, source_sink_resource_dict=scenario.source_sink_resource_dict)
+                                           resource_transport_dict=scenario.resource_transport_dict, source_sink_resource_dict=scenario.source_sink_resource_dict,
+                                           transit_initial_dict=transit_zero)
                 constraint_resource_export(instance=instance, scheduling_scale_level=scenario.scheduling_scale_level,
                                            transport_avail_dict=scenario.transport_avail_dict, resource_transport_dict=scenario.resource_transport_dict,
                                            source_sink_resource_dict=scenario.source_sink_resource_dict)

@@ -18,12 +18,13 @@ from ...utils.scale_utils import scale_list, scale_tuple
 
 def constraint_transit_balance(instance: ConcreteModel, scheduling_scale_level: int = 0, travel_time_dict: dict = None,
                                transport_avail_dict: dict = None, resource_transport_dict: dict = None,
-                               source_sink_resource_dict: dict = None) -> Constraint:
+                               source_sink_resource_dict: dict = None, transit_initial_dict: dict = None) -> Constraint:
 
     transport_avail_dict = transport_avail_dict or dict()
     resource_transport_dict = resource_transport_dict or dict()
     source_sink_resource_dict = source_sink_resource_dict or dict()
     travel_time_dict = travel_time_dict or dict()
+    transit_initial_dict = transit_initial_dict or dict()
 
     scales = scale_list(instance=instance, scale_levels=scheduling_scale_level+1)
     scale_iter = scale_tuple(instance=instance, scale_levels=scheduling_scale_level+1)
@@ -35,9 +36,9 @@ def constraint_transit_balance(instance: ConcreteModel, scheduling_scale_level: 
             difference = scale_iter.index(scale_list[:scheduling_scale_level + 1]) - travel_time_dict[(source, sink)][transport]
 
             if current_index - 1 >= 0:
-                initial = instance.Transit[source, sink, transport, resource, scale_iter[current_index - 1]]
+                previous = instance.Transit[source, sink, transport, resource, scale_iter[current_index - 1]]
             else:
-                initial = 0
+                previous = 0
 
             incoming = instance.Exp[source, sink, transport, resource, scale_iter[current_index]]
 
@@ -46,8 +47,13 @@ def constraint_transit_balance(instance: ConcreteModel, scheduling_scale_level: 
             else:
                 outgoing = 0
 
+            if (source, sink, transport, resource, *scale_list) in list(transit_initial_dict.keys()):
+                initial = transit_initial_dict[source, sink, transport, resource, *scale_list]
+            else:
+                initial = 0
+
             return instance.Transit[
-                source, sink, transport, resource, scale_iter[current_index]] == initial + incoming - outgoing
+                source, sink, transport, resource, scale_iter[current_index]] == previous + incoming - outgoing
 
         else:
             return instance.Transit[
@@ -185,9 +191,12 @@ def constraint_export(instance: ConcreteModel, scheduling_scale_level: int = 0, 
     def export_rule(instance, source, sink, transport, *scale_list):
         if transport in location_transport_resource_dict[(source, sink)].keys():
             if transport in instance.transports_varying_capacity:
-                return instance.Exp_F[source, sink, transport, scale_list[:scheduling_scale_level + 1]] <= transport_capacity_factor[(source, sink)][transport][scale_list[:transport_capacity_scale_level+1]]*instance.Cap_F[source, sink, transport, scale_list[:network_scale_level + 1]]
+                return (instance.Exp_F[source, sink, transport, scale_list[:scheduling_scale_level + 1]] <=
+                        transport_capacity_factor[(source, sink)][transport][scale_list[:transport_capacity_scale_level+1]]*\
+                        instance.Cap_F[source, sink, transport, scale_list[:network_scale_level + 1]])
             else:
-                return instance.Exp_F[source, sink, transport, scale_list[:scheduling_scale_level + 1]] <= instance.Cap_F[source, sink, transport, scale_list[:network_scale_level + 1]]
+                return (instance.Exp_F[source, sink, transport, scale_list[:scheduling_scale_level + 1]] <=
+                        instance.Cap_F[source, sink, transport, scale_list[:network_scale_level + 1]])
         else:
             return instance.Exp_F[source, sink, transport, scale_list[:scheduling_scale_level + 1]] == 0
     # in instance.resources_trans if resource_
