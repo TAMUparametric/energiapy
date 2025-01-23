@@ -1,9 +1,10 @@
 from pyomo.environ import *
 import os
 import sys
-sys.path.append('/scratch/user/shivam.vedant')
-sys.path.append('/scratch/user/shivam.vedant/src')
-sys.path.append('/scratch/user/shivam.vedant/Scripts/TSSP/AIChE2024/min_p')
+# sys.path.append('../../../../../mpi-sppy')
+# sys.path.append('/scratch/user/shivam.vedant')
+# sys.path.append('/scratch/user/shivam.vedant/src')
+# sys.path.append('/scratch/user/shivam.vedant/Scripts/TSSP/AIChE2024/min_p')
 # sys.path.append('../../../../src')
 
 import mpisppy.utils.sputils as sputils
