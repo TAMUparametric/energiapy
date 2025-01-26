@@ -664,10 +664,10 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
                                                                                         location_set=instance.locations, component_set=instance.processes_certain_capacity,  loc_comp_dict=scenario.location_process_dict,
                                                                                         x_scale_level=scenario.scheduling_scale_level, y_scale_level=scenario.network_scale_level, variable_y='Cap_P', label='restricts production to certain nameplate capacity')
 
-            instance.constraint_nameplate_production_varying_capacity = make_constraint(instance=instance, type_cons=Cons.X_LEQ_BY, variable_x='P',
-                                                                                        location_set=instance.locations, component_set=instance.processes_varying_capacity,  loc_comp_dict=scenario.location_process_dict,
-                                                                                        b_factor=scenario.capacity_factor, x_scale_level=scenario.scheduling_scale_level, b_scale_level=scenario.capacity_scale_level,
-                                                                                        y_scale_level=scenario.network_scale_level, variable_y='Cap_P', label='restricts production to varying nameplate capacity')
+            # instance.constraint_nameplate_production_varying_capacity = make_constraint(instance=instance, type_cons=Cons.X_LEQ_BY, variable_x='P',
+            #                                                                             location_set=instance.locations, component_set=instance.processes_varying_capacity,  loc_comp_dict=scenario.location_process_dict,
+            #                                                                             b_factor=scenario.capacity_factor, x_scale_level=scenario.scheduling_scale_level, b_scale_level=scenario.capacity_scale_level,
+            #                                                                             y_scale_level=scenario.network_scale_level, variable_y='Cap_P', label='restricts production to varying nameplate capacity')
 
             # *----------------production capacity bounds---------------------------------------------
 
