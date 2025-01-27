@@ -191,7 +191,8 @@ from .constraints.network import (
     constraint_min_storage_facility,
     constraint_min_production_facility,
     constraint_min_capacity_facility,
-    constraint_preserve_capacity_facility
+    constraint_preserve_capacity_facility,
+    constraint_preserve_capacity_transport
 )
 from .constraints.credit import (
     constraint_credit_process,
@@ -664,10 +665,10 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
                                                                                         location_set=instance.locations, component_set=instance.processes_certain_capacity,  loc_comp_dict=scenario.location_process_dict,
                                                                                         x_scale_level=scenario.scheduling_scale_level, y_scale_level=scenario.network_scale_level, variable_y='Cap_P', label='restricts production to certain nameplate capacity')
 
-            # instance.constraint_nameplate_production_varying_capacity = make_constraint(instance=instance, type_cons=Cons.X_LEQ_BY, variable_x='P',
-            #                                                                             location_set=instance.locations, component_set=instance.processes_varying_capacity,  loc_comp_dict=scenario.location_process_dict,
-            #                                                                             b_factor=scenario.capacity_factor, x_scale_level=scenario.scheduling_scale_level, b_scale_level=scenario.capacity_scale_level,
-            #                                                                             y_scale_level=scenario.network_scale_level, variable_y='Cap_P', label='restricts production to varying nameplate capacity')
+            instance.constraint_nameplate_production_varying_capacity = make_constraint(instance=instance, type_cons=Cons.X_LEQ_BY, variable_x='P',
+                                                                                        location_set=instance.locations, component_set=instance.processes_varying_capacity,  loc_comp_dict=scenario.location_process_dict,
+                                                                                        b_factor=scenario.capacity_factor, x_scale_level=scenario.scheduling_scale_level, b_scale_level=scenario.capacity_scale_level,
+                                                                                        y_scale_level=scenario.network_scale_level, variable_y='Cap_P', label='restricts production to varying nameplate capacity')
 
             # *----------------production capacity bounds---------------------------------------------
 
@@ -901,6 +902,9 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
 
             constraint_preserve_capacity_facility(
                 instance=instance, location_process_dict=scenario.location_process_dict, network_scale_level=scenario.network_scale_level)
+
+            constraint_preserve_capacity_transport(
+                instance=instance, transport_avail_dict=scenario.transport_avail_dict, network_scale_level=scenario.network_scale_level)
 
         if Constraints.MODE in constraints:
             generate_mode_vars(
