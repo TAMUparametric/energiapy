@@ -37,6 +37,7 @@ class TemporalScale:
     """
     discretization_list: list 
     start_zero: Tuple = None
+    end_zero: Tuple = None
 
     def __post_init__(self):
         """
@@ -49,11 +50,11 @@ class TemporalScale:
             scale_levels (int): levels of the scale.
         """
         self.scale_levels = len(self.discretization_list)
-        self.scale = {i: list(range(self.discretization_list[i])) for i in range(self.scale_levels)}
-        # if self.start_zero and len(self.start_zero) != self.scale_levels:
-        #     raise ValueError("start zero input error")
-        # else:
-        #     self.scale = {i: list(range(self.discretization_list[i])) for i in range(self.scale_levels)}
+        # self.scale = {i: list(range(self.discretization_list[i])) for i in range(self.scale_levels)}
+        if self.end_zero and len(self.end_zero) != self.scale_levels:
+            raise ValueError("start zero input error")
+        else:
+            self.scale = {i: list(range(self.discretization_list[i])) for i in range(self.scale_levels)}
         self.list = list(range(len(self.discretization_list)))
         self.name = str(self.list)
 
@@ -66,12 +67,12 @@ class TemporalScale:
         Returns:
             List[tuple]: list of tuples with representing the scales
         """
-        # if self.start_zero is None:
-        #     return list(product(*[self.scale[i] for i in self.scale][:scale_level+1]))
-        # else:
-        #     return [j for j in list(product(*[self.scale[i] for i in self.scale][:scale_level+1])) if j >= self.start_zero[:scale_level+1]]
+        if self.end_zero is None:
+            return list(product(*[self.scale[i] for i in self.scale][:scale_level+1]))
+        else:
+            return [j for j in list(product(*[self.scale[i] for i in self.scale][:scale_level+1])) if j <= self.end_zero[:scale_level+1]]
 
-        return list(product(*[self.scale[i] for i in self.scale][:scale_level+1]))
+        # return list(product(*[self.scale[i] for i in self.scale][:scale_level+1]))
 
     def __repr__(self):
         return self.name
