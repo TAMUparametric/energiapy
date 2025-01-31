@@ -221,8 +221,7 @@ def make_constraint(instance: ConcreteModel, type_cons: Cons, variable_x: Var, l
 
             if b_factor is not None:
                 if b_factor[location] is not None:
-                    bfactor = b_factor[location][component][scale[:b_scale_level + 1]
-                                                            ]
+                    bfactor = b_factor[location][component][scale[:b_scale_level + 1]]
                 else:
                     bfactor = 1
             else:
