@@ -51,15 +51,32 @@ class TemporalScale:
         """
         self.scale_levels = len(self.discretization_list)
         # self.scale = {i: list(range(self.discretization_list[i])) for i in range(self.scale_levels)}
+        # if self.end_zero:
+        #     if len(self.end_zero) != self.scale_levels:
+        #         raise ValueError("end zero input error")
+        #     else:
+        #         self.scale = {
+        #             i: [j for j in range(self.discretization_list[i]) if j <= self.end_zero[i]] if i == 0 else list(
+        #                 range(self.discretization_list[i])) for i in range(self.scale_levels)}
+        # else:
+        #     self.scale = {i: list(range(self.discretization_list[i])) for i in range(self.scale_levels)}
+
+        if self.start_zero:
+            if len(self.start_zero) != self.scale_levels:
+                raise ValueError("Start zero input error")
+        else:
+            self.start_zero = (0,)*self.scale_levels
+
         if self.end_zero:
             if len(self.end_zero) != self.scale_levels:
-                raise ValueError("end zero input error")
-            else:
-                self.scale = {
-                    i: [j for j in range(self.discretization_list[i]) if j <= self.end_zero[i]] if i == 0 else list(
-                        range(self.discretization_list[i])) for i in range(self.scale_levels)}
+                raise ValueError("End zero input error")
         else:
-            self.scale = {i: list(range(self.discretization_list[i])) for i in range(self.scale_levels)}
+            self.end_zero = tuple(list(self.scale_iter(scale_level=self.scale_levels))[-1])
+
+        self.scale = {
+            i: [j for j in range(self.discretization_list[i]) if j>= self.start_zero[i] and j<= self.end_zero[i]] if i==0 else list(
+            range(self.discretization_list[i])for i in range(self.scale_levels))
+        }
 
         self.list = list(range(len(self.discretization_list)))
         self.name = str(self.list)
