@@ -13,7 +13,7 @@ __status__ = "Production"
 
 from dataclasses import dataclass
 from itertools import product
-from typing import Tuple
+from typing import Tuple, Union
 
 
 @dataclass
@@ -50,33 +50,29 @@ class TemporalScale:
             scale_levels (int): levels of the scale.
         """
         self.scale_levels = len(self.discretization_list)
-        # self.scale = {i: list(range(self.discretization_list[i])) for i in range(self.scale_levels)}
-        # if self.end_zero:
-        #     if len(self.end_zero) != self.scale_levels:
-        #         raise ValueError("end zero input error")
-        #     else:
-        #         self.scale = {
-        #             i: [j for j in range(self.discretization_list[i]) if j <= self.end_zero[i]] if i == 0 else list(
-        #                 range(self.discretization_list[i])) for i in range(self.scale_levels)}
-        # else:
-        #     self.scale = {i: list(range(self.discretization_list[i])) for i in range(self.scale_levels)}
+        self.full_scale = {i: list(range(self.discretization_list[i])) for i in range(self.scale_levels)}
+        self.full_iter_list = list(product(*[self.full_scale[i] for i in self.full_scale][:self.scale_levels]))
+
+        start_idx = 0
+        end_idx = len(self.full_iter_list) - 1
 
         if self.start_zero:
             if len(self.start_zero) != self.scale_levels:
-                raise ValueError("Start zero input error")
-        else:
-            self.start_zero = (0,)*self.scale_levels
+                raise ValueError(f"Incorrect start zero declaration. Expected {self.scale_levels} time values")
+            else:
+                start_idx = self.full_iter_list.index(self.start_zero)
 
         if self.end_zero:
             if len(self.end_zero) != self.scale_levels:
-                raise ValueError("End zero input error")
-        else:
-            self.end_zero = tuple(list(self.scale_iter(scale_level=self.scale_levels))[-1])
+                raise ValueError(f"Incorrect end zero declaration. Expected {self.scale_levels} time values")
+            else:
+                end_idx = self.full_iter_list.index(self.end_zero)
 
-        self.scale = {
-            i: [j for j in range(self.discretization_list[i]) if j>= self.start_zero[i] and j<= self.end_zero[i]] if i==0 else list(
-            range(self.discretization_list[i])for i in range(self.scale_levels))
-        }
+        self.iter_list = [self.full_iter_list[t] for t in range(start_idx, end_idx+1)]
+
+        self.scale = {i: sorted(set(j[i] for j in self.iter_list)) for i in range(self.scale_levels)}
+
+        # self.scale = {i: list(range(self.discretization_list[i])) for i in range(self.scale_levels)}
 
         self.list = list(range(len(self.discretization_list)))
         self.name = str(self.list)
@@ -90,10 +86,11 @@ class TemporalScale:
         Returns:
             List[tuple]: list of tuples with representing the scales
         """
-        if self.end_zero is None:
+        if not self.start_zero and not self.end_zero:
             return list(product(*[self.scale[i] for i in self.scale][:scale_level+1]))
         else:
-            return [j for j in list(product(*[self.scale[i] for i in self.scale][:scale_level+1])) if j <= self.end_zero[:scale_level+1]]
+            return [j for j in list(product(*[self.scale[i] for i in self.scale][:scale_level+1]))
+                    if j <= self.end_zero[:scale_level+1] and j >= self.start_zero[:scale_level+1]]
 
         # return list(product(*[self.scale[i] for i in self.scale][:scale_level+1]))
 
