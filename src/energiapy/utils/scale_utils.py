@@ -17,8 +17,6 @@ import math
 from pyomo.environ import ConcreteModel, Set
 
 from ..components.temporal_scale import TemporalScale
-
-
 def scale_pyomo_set(instance: ConcreteModel, scale_level: int = 0):
     """returns a set with appropropriate scale(s)
 
@@ -48,7 +46,8 @@ def scale_tuple(instance: ConcreteModel, scale_levels: int = 0):
         scale_level (int, optional): appropriate scale. Defaults to 0.
     """
     data = [instance.scales[i].data() for i in range(scale_levels)]
-    list_ = list(product(*data))
+    list_ = [i for i in list(product(*data)) if instance.start_zero[:scale_levels+1] <= i <= instance.end_zero[:scale_levels+1]]
+
     return list_
 
 

@@ -348,6 +348,8 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
     if model_class is ModelClass.MIP:
 
         instance = ConcreteModel()
+        instance.start_zero = scenario.scales.start_zero
+        instance.end_zero = scenario.scales.end_zero
         generate_sets(instance=instance, scenario=scenario)
 
         generate_scheduling_vars(
