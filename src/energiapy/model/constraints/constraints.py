@@ -150,36 +150,46 @@ def make_constraint(instance: ConcreteModel, type_cons: Cons, variable_x: Var, l
     else:
         scales = scale_list(instance=instance,
                             scale_levels=max(x_scale_level, y_scale_level, b_scale_level) + 1)
+        scale_iter = scale_tuple(instance=instance, scale_levels=max(y_scale_level, b_scale_level) + 1)
 
     # print_once = True
     # printer(variable_x, variable_y, type_cons, print_once)
     # print_once = False
     if type_cons == Cons.X_EQ_SUMLOC_Y:
         def cons_rule(instance, component, *scale):
-            x = getattr(instance, variable_x)[
-                component, scale[:x_scale_level + 1]]
-            d_sum = sum(getattr(instance, variable_y)[location_, component, scale[
-                :y_scale_level + 1]] for location_ in location_set)
-            return x == d_sum
+            if scale[:x_scale_level+1] in scale_iter:
+                x = getattr(instance, variable_x)[
+                    component, scale[:x_scale_level + 1]]
+                d_sum = sum(getattr(instance, variable_y)[location_, component, scale[
+                    :y_scale_level + 1]] for location_ in location_set)
+                return x == d_sum
+            else:
+                return Constraint.Skip
 
         return Constraint(component_set, *scales, rule=cons_rule, doc=label)
 
     elif type_cons == Cons.X_EQ_SUMLOCCOST_Y:
         def cons_rule(instance, location, *scale):
-            x = getattr(instance, variable_x)[
-                location, scale[:x_scale_level + 1]]
-            d_sum = sum(getattr(instance, variable_y)[location, component_, scale[
-                :y_scale_level + 1]] for component_ in component_set)
-            return x == d_sum
+            if scale[:x_scale_level+1] in scale_iter:
+                x = getattr(instance, variable_x)[
+                    location, scale[:x_scale_level + 1]]
+                d_sum = sum(getattr(instance, variable_y)[location, component_, scale[
+                    :y_scale_level + 1]] for component_ in component_set)
+                return x == d_sum
+            else:
+                return Constraint.Skip
 
         return Constraint(location_set, *scales, rule=cons_rule, doc=label)
 
     elif type_cons == Cons.X_EQ_SUMCOST_Y:
         def cons_rule(instance, *scale):
-            x = getattr(instance, variable_x)[scale[:x_scale_level + 1]]
-            d_sum = sum(getattr(instance, variable_y)[location_, scale[
-                :y_scale_level + 1]] for location_ in location_set)
-            return x == d_sum
+            if scale[:x_scale_level+1] in scale_iter and scale[:y_scale_level+1] in scale_iter:
+                x = getattr(instance, variable_x)[scale[:x_scale_level + 1]]
+                d_sum = sum(getattr(instance, variable_y)[location_, scale[
+                    :y_scale_level + 1]] for location_ in location_set)
+                return x == d_sum
+            else:
+                return Constraint.Skip
 
         return Constraint(*scales, rule=cons_rule, doc=label)
 
@@ -187,9 +197,11 @@ def make_constraint(instance: ConcreteModel, type_cons: Cons, variable_x: Var, l
         def cons_rule(instance, location, component, *scale):
 
             if type_cons == Cons.X_EQ_SUMCOMP_Y:
-
-                x = getattr(instance, variable_x)[
-                    location, scale[:x_scale_level + 1]]
+                if scale[:x_scale_level+1] in scale_iter:
+                    x = getattr(instance, variable_x)[
+                        location, scale[:x_scale_level + 1]]
+                else:
+                    return Constraint.Skip
 
             # elif type_cons == Cons.X_EQ_SUMCOST_Y:
 
@@ -197,9 +209,11 @@ def make_constraint(instance: ConcreteModel, type_cons: Cons, variable_x: Var, l
             #         scale[:x_scale_level + 1]]
 
             else:
-
-                x = getattr(instance, variable_x)[
-                    location, component, scale[:x_scale_level + 1]]
+                if scale[:x_scale_level+1] in scale_iter:
+                    x = getattr(instance, variable_x)[
+                        location, component, scale[:x_scale_level + 1]]
+                else:
+                    return Constraint.Skip
 
             def weight(x): return 1 if cluster_wt is None else cluster_wt[x]
 

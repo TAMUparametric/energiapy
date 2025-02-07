@@ -35,11 +35,16 @@ def constraint_production_mode(instance: ConcreteModel, mode_dict: dict, schedul
     scales = scale_list(instance=instance,
                         scale_levels=scheduling_scale_level + 1)
 
+    scale_iter = scale_tuple(instance=instance, scale_levels=scheduling_scale_level + 1)
+
     def production_mode_rule(instance, location, process, *scale_list):
         if process in location_process_dict[location]:
-            return instance.P[location, process, scale_list[:scheduling_scale_level + 1]] == sum(
-                instance.P_m[location, process, mode, scale_list[:scheduling_scale_level + 1]] for mode in
-                mode_dict[process])
+            if scale_list[:scheduling_scale_level+1] in scale_iter:
+                return instance.P[location, process, scale_list[:scheduling_scale_level + 1]] == sum(
+                    instance.P_m[location, process, mode, scale_list[:scheduling_scale_level + 1]] for mode in
+                    mode_dict[process])
+            else:
+                return Constraint.Skip
         else:
             return Constraint.Skip
 
@@ -145,10 +150,16 @@ def constraint_production_mode_binary(instance: ConcreteModel, mode_dict: dict, 
     scales = scale_list(instance=instance,
                         scale_levels=scheduling_scale_level + 1)
 
+    scale_iter_s = scale_tuple(instance=instance, scale_levels=scheduling_scale_level+1)
+    scale_iter_n = scale_tuple(instance=instance, scale_levels=network_scale_level+1)
+
     def production_mode_binary_rule(instance, location, process, *scale_list):
-        return instance.X_P[location, process, scale_list[:network_scale_level + 1]] >= sum(
-            instance.X_P_m[location, process, mode, scale_list[:scheduling_scale_level + 1]] for mode in
-            mode_dict[process])
+        if scale_list[:network_scale_level+1] in scale_iter_n and scale_list[:scheduling_scale_level+1] in scale_iter_s:
+            return instance.X_P[location, process, scale_list[:network_scale_level + 1]] >= sum(
+                instance.X_P_m[location, process, mode, scale_list[:scheduling_scale_level + 1]] for mode in
+                mode_dict[process])
+        else:
+            return Constraint.Skip
 
     instance.constraint_production_mode_binary = Constraint(
         instance.locations, instance.processes, *
