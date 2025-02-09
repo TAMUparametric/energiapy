@@ -157,7 +157,7 @@ def make_constraint(instance: ConcreteModel, type_cons: Cons, variable_x: Var, l
     # print_once = False
     if type_cons == Cons.X_EQ_SUMLOC_Y:
         def cons_rule(instance, component, *scale):
-            if scale[:x_scale_level+1] in scale_iter:
+            if scale[:x_scale_level+1] in scale_iter[:x_scale_level+1]:
                 x = getattr(instance, variable_x)[
                     component, scale[:x_scale_level + 1]]
                 d_sum = sum(getattr(instance, variable_y)[location_, component, scale[
@@ -170,7 +170,7 @@ def make_constraint(instance: ConcreteModel, type_cons: Cons, variable_x: Var, l
 
     elif type_cons == Cons.X_EQ_SUMLOCCOST_Y:
         def cons_rule(instance, location, *scale):
-            if scale[:x_scale_level+1] in scale_iter:
+            if scale[:x_scale_level+1] in scale_iter[:x_scale_level+1]:
                 x = getattr(instance, variable_x)[
                     location, scale[:x_scale_level + 1]]
                 d_sum = sum(getattr(instance, variable_y)[location, component_, scale[
@@ -183,7 +183,7 @@ def make_constraint(instance: ConcreteModel, type_cons: Cons, variable_x: Var, l
 
     elif type_cons == Cons.X_EQ_SUMCOST_Y:
         def cons_rule(instance, *scale):
-            if scale[:x_scale_level+1] in scale_iter and scale[:y_scale_level+1] in scale_iter:
+            if scale[:x_scale_level+1] in scale_iter[:x_scale_level+1] and scale[:y_scale_level+1] in scale_iter[:y_scale_level+1]:
                 x = getattr(instance, variable_x)[scale[:x_scale_level + 1]]
                 d_sum = sum(getattr(instance, variable_y)[location_, scale[
                     :y_scale_level + 1]] for location_ in location_set)
@@ -197,7 +197,7 @@ def make_constraint(instance: ConcreteModel, type_cons: Cons, variable_x: Var, l
         def cons_rule(instance, location, component, *scale):
 
             if type_cons == Cons.X_EQ_SUMCOMP_Y:
-                if scale[:x_scale_level+1] in scale_iter:
+                if scale[:x_scale_level+1] in scale_iter[:x_scale_level+1]:
                     x = getattr(instance, variable_x)[
                         location, scale[:x_scale_level + 1]]
                 else:
@@ -209,7 +209,7 @@ def make_constraint(instance: ConcreteModel, type_cons: Cons, variable_x: Var, l
             #         scale[:x_scale_level + 1]]
 
             else:
-                if scale[:x_scale_level+1] in scale_iter:
+                if scale[:x_scale_level+1] in scale_iter[:x_scale_level+1]:
                     x = getattr(instance, variable_x)[
                         location, component, scale[:x_scale_level + 1]]
                 else:

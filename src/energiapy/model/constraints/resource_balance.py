@@ -243,7 +243,7 @@ def constraint_inventory_balance(instance: ConcreteModel, scheduling_scale_level
     # print(f'scales: \n {scales}')
 
     def inventory_balance_rule(instance, location, resource, *scale_list):
-        if scale_list[:scheduling_scale_level + 1] in scale_iter:
+        if scale_list[:scheduling_scale_level + 1] in scale_iter[:scheduling_scale_level+1]:
             if resource in instance.resources_purch:
                 consumption = instance.C[location, resource,
                 scale_list[:scheduling_scale_level + 1]]
