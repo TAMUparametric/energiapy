@@ -152,56 +152,57 @@ def make_constraint(instance: ConcreteModel, type_cons: Cons, variable_x: Var, l
                             scale_levels=max(x_scale_level, y_scale_level, b_scale_level) + 1)
         scale_iter = scale_tuple(instance=instance, scale_levels=max(y_scale_level, b_scale_level) + 1)
 
-    # print_once = True
-    # printer(variable_x, variable_y, type_cons, print_once)
-    # print_once = False
+    # print(scales)
+    # print(scale_iter)
+    print_once = True
+    printer(variable_x, variable_y, type_cons, print_once)
+    print_once = False
     if type_cons == Cons.X_EQ_SUMLOC_Y:
         def cons_rule(instance, component, *scale):
-            if scale[:x_scale_level+1] in scale_iter[:x_scale_level+1]:
-                x = getattr(instance, variable_x)[
-                    component, scale[:x_scale_level + 1]]
-                d_sum = sum(getattr(instance, variable_y)[location_, component, scale[
-                    :y_scale_level + 1]] for location_ in location_set)
-                return x == d_sum
-            else:
-                return Constraint.Skip
+            # if scale[:x_scale_level+1] in scale_iter[:x_scale_level+1]:
+            x = getattr(instance, variable_x)[
+                component, scale[:x_scale_level + 1]]
+            d_sum = sum(getattr(instance, variable_y)[location_, component, scale[
+                :y_scale_level + 1]] for location_ in location_set)
+            return x == d_sum
+            # else:
+            #     return Constraint.Skip
 
         return Constraint(component_set, *scales, rule=cons_rule, doc=label)
 
     elif type_cons == Cons.X_EQ_SUMLOCCOST_Y:
         def cons_rule(instance, location, *scale):
-            if scale[:x_scale_level+1] in scale_iter[:x_scale_level+1]:
-                x = getattr(instance, variable_x)[
-                    location, scale[:x_scale_level + 1]]
-                d_sum = sum(getattr(instance, variable_y)[location, component_, scale[
-                    :y_scale_level + 1]] for component_ in component_set)
-                return x == d_sum
-            else:
-                return Constraint.Skip
+            # if scale[:x_scale_level+1] in scale_iter[:x_scale_level+1]:
+            x = getattr(instance, variable_x)[
+                location, scale[:x_scale_level + 1]]
+            d_sum = sum(getattr(instance, variable_y)[location, component_, scale[
+                :y_scale_level + 1]] for component_ in component_set)
+            return x == d_sum
+            # else:
+            #     return Constraint.Skip
 
         return Constraint(location_set, *scales, rule=cons_rule, doc=label)
 
     elif type_cons == Cons.X_EQ_SUMCOST_Y:
         def cons_rule(instance, *scale):
-            if scale[:x_scale_level+1] in scale_iter[:x_scale_level+1] and scale[:y_scale_level+1] in scale_iter[:y_scale_level+1]:
-                x = getattr(instance, variable_x)[scale[:x_scale_level + 1]]
-                d_sum = sum(getattr(instance, variable_y)[location_, scale[
-                    :y_scale_level + 1]] for location_ in location_set)
-                return x == d_sum
-            else:
-                return Constraint.Skip
+            # if scale[:x_scale_level+1] in scale_iter[:x_scale_level+1] and scale[:y_scale_level+1] in scale_iter[:y_scale_level+1]:
+            x = getattr(instance, variable_x)[scale[:x_scale_level + 1]]
+            d_sum = sum(getattr(instance, variable_y)[location_, scale[
+                :y_scale_level + 1]] for location_ in location_set)
+            return x == d_sum
+            # else:
+            #     return Constraint.Skip
 
         return Constraint(*scales, rule=cons_rule, doc=label)
 
     else:
         def cons_rule(instance, location, component, *scale):
-
             if type_cons == Cons.X_EQ_SUMCOMP_Y:
-                if scale[:x_scale_level+1] in scale_iter[:x_scale_level+1]:
-                    x = getattr(instance, variable_x)[
-                        location, scale[:x_scale_level + 1]]
-                else:
-                    return Constraint.Skip
+                # if scale[:x_scale_level+1] in scale_iter[:x_scale_level+1]:
+                x = getattr(instance, variable_x)[
+                    location, scale[:x_scale_level + 1]]
+                # else:
+                #     return Constraint.Skip
 
             # elif type_cons == Cons.X_EQ_SUMCOST_Y:
 
@@ -259,10 +260,11 @@ def make_constraint(instance: ConcreteModel, type_cons: Cons, variable_x: Var, l
                 elif type_cons == Cons.X_EQ_SUMCOST_Y:
                     d_sum = sum(getattr(instance, variable_y)[location_, scale[
                                 :y_scale_level + 1]] for location_ in location_set)
-
                 else:
-                    y = getattr(instance, variable_y)[
-                        location, component, scale[:y_scale_level + 1]]
+                    if scale[:y_scale_level+1] in scale_iter[:y_scale_level+1]:
+                        y = getattr(instance, variable_y)[location, component, scale[:y_scale_level + 1]]
+                    else:
+                        return Constraint.Skip
 
             if loc_comp_dict[location] is not None:
                 if component in loc_comp_dict[location]:

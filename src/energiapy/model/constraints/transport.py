@@ -89,15 +89,15 @@ def constraint_resource_export(instance: ConcreteModel, scheduling_scale_level: 
     scale_iter = scale_tuple(instance=instance, scale_levels=scheduling_scale_level+1)
 
     def resource_export_rule(instance, source, sink, resource, *scale_list):
-        if scale_list[:scheduling_scale_level+1] in scale_iter[:scheduling_scale_level+1]:
-            if resource in source_sink_resource_dict[(source, sink)]:
-                return instance.Exp_R[source, sink, resource, scale_list[:scheduling_scale_level + 1]] == \
-                    sum(instance.Exp[source, sink, transport_, resource, scale_list[:scheduling_scale_level + 1]]
-                        for transport_ in transport_avail_dict[(source, sink)] if transport_ in resource_transport_dict[resource])
-            else:
-                return instance.Exp_R[source, sink, resource, scale_list[:scheduling_scale_level + 1]] == 0
+        # if scale_list[:scheduling_scale_level+1] in scale_iter[:scheduling_scale_level+1]:
+        if resource in source_sink_resource_dict[(source, sink)]:
+            return instance.Exp_R[source, sink, resource, scale_list[:scheduling_scale_level + 1]] == \
+                sum(instance.Exp[source, sink, transport_, resource, scale_list[:scheduling_scale_level + 1]]
+                    for transport_ in transport_avail_dict[(source, sink)] if transport_ in resource_transport_dict[resource])
         else:
-            return Constraint.Skip
+            return instance.Exp_R[source, sink, resource, scale_list[:scheduling_scale_level + 1]] == 0
+        # else:
+        #     return Constraint.Skip
 
     instance.constraint_resource_export = Constraint(instance.sources, instance.sinks,
                                                      instance.resources_trans, *scales, rule=resource_export_rule,
@@ -128,15 +128,15 @@ def constraint_transport_export(instance: ConcreteModel, scheduling_scale_level:
     scale_iter = scale_tuple(instance=instance, scale_levels=scheduling_scale_level+1)
 
     def transport_export_rule(instance, source, sink, transport, *scale_list):
-        if scale_list[:scheduling_scale_level+1] in scale_iter[:scheduling_scale_level+1]:
-            if transport in transport_avail_dict[(source, sink)]:
-                return instance.Exp_F[source, sink, transport, scale_list[:scheduling_scale_level + 1]] == \
-                    sum(instance.Exp[source, sink, transport, resource_, scale_list[:scheduling_scale_level + 1]]
-                        for resource_ in transport_resource_dict[transport])
-            else:
-                return instance.Exp_F[source, sink, transport, scale_list[:scheduling_scale_level + 1]] == 0
+        # if scale_list[:scheduling_scale_level+1] in scale_iter[:scheduling_scale_level+1]:
+        if transport in transport_avail_dict[(source, sink)]:
+            return instance.Exp_F[source, sink, transport, scale_list[:scheduling_scale_level + 1]] == \
+                sum(instance.Exp[source, sink, transport, resource_, scale_list[:scheduling_scale_level + 1]]
+                    for resource_ in transport_resource_dict[transport])
         else:
-            return Constraint.Skip
+            return instance.Exp_F[source, sink, transport, scale_list[:scheduling_scale_level + 1]] == 0
+        # else:
+        #     return Constraint.Skip
     instance.constraint_transport_export = Constraint(instance.sources, instance.sinks,
                                                       instance.transports, *scales, rule=transport_export_rule,
                                                       doc='export of resource from source to sink')
@@ -201,19 +201,19 @@ def constraint_export(instance: ConcreteModel, scheduling_scale_level: int = 0, 
     scale_iter = scale_tuple(instance=instance, scale_levels=scheduling_scale_level+1)
 
     def export_rule(instance, source, sink, transport, *scale_list):
-        if scale_list[:scheduling_scale_level+1] in scale_iter[:scheduling_scale_level+1]:
-            if transport in location_transport_resource_dict[(source, sink)].keys():
-                if transport in instance.transports_varying_capacity:
-                    return (instance.Exp_F[source, sink, transport, scale_list[:scheduling_scale_level + 1]] <=
-                            transport_capacity_factor[(source, sink)][transport][scale_list[:transport_capacity_scale_level+1]]*\
-                            instance.Cap_F[source, sink, transport, scale_list[:network_scale_level + 1]])
-                else:
-                    return (instance.Exp_F[source, sink, transport, scale_list[:scheduling_scale_level + 1]] <=
-                            instance.Cap_F[source, sink, transport, scale_list[:network_scale_level + 1]])
+        # if scale_list[:scheduling_scale_level+1] in scale_iter[:scheduling_scale_level+1] and scale_list[:network_scale_level+1] in scale_iter[:network_scale_level+1]:
+        if transport in location_transport_resource_dict[(source, sink)].keys():
+            if transport in instance.transports_varying_capacity:
+                return (instance.Exp_F[source, sink, transport, scale_list[:scheduling_scale_level + 1]] <=
+                        transport_capacity_factor[(source, sink)][transport][scale_list[:transport_capacity_scale_level+1]]*\
+                        instance.Cap_F[source, sink, transport, scale_list[:network_scale_level + 1]])
             else:
-                return instance.Exp_F[source, sink, transport, scale_list[:scheduling_scale_level + 1]] == 0
+                return (instance.Exp_F[source, sink, transport, scale_list[:scheduling_scale_level + 1]] <=
+                        instance.Cap_F[source, sink, transport, scale_list[:network_scale_level + 1]])
         else:
-            return Constraint.Skip
+            return instance.Exp_F[source, sink, transport, scale_list[:scheduling_scale_level + 1]] == 0
+        # else:
+        #     return Constraint.Skip
     # in instance.resources_trans if resource_
     instance.constraint_export = Constraint(instance.sources, instance.sinks,
                                             instance.transports, *scales, rule=export_rule,
