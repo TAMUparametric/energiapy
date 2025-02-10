@@ -259,7 +259,7 @@ def constraint_demand_penalty(instance: ConcreteModel, demand: Union[dict, float
         location_resource_dict = dict()
 
     def demand_penalty_rule(instance, location, resource, *scale_list):
-        if scale_list[:scheduling_scale_level+1] in scale_iter[:scheduling_scale_level+1] and scale_list[:demand_scale_level+1] in scale_iter[:demand_scale_level+1]:
+        if scale_list[:scheduling_scale_level+1] in scale_iter and scale_list[:demand_scale_level+1] in scale_iter_d:
             if demand_factor[location] is not None:
                 if isinstance(demand_factor[location][list(demand_factor[location])[0]], (float, int)):
                     discharge = sum(instance.S[location, resource_, scale_list[:scheduling_scale_level + 1]] for
@@ -383,7 +383,7 @@ def constraint_demand_penalty_cost(instance: ConcreteModel, demand_penalty_dict:
     scale_iter = scale_tuple(instance=instance, scale_levels=demand_scale_level+1)
 
     def demand_penalty_cost_rule(instance, location, resource_demand, *scale_list):
-        if scale_list[:demand_scale_level + 1] in scale_iter[:demand_scale_level+1]:
+        if scale_list[:demand_scale_level + 1] in scale_iter:
             if demand_penalty_dict[location][resource_demand] is not None:
                 Demand_penalty = instance.Demand_penalty[location, resource_demand, scale_list]
             else:

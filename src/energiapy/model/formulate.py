@@ -361,6 +361,10 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
         generate_material_vars(
             instance=instance, scale_level=scenario.network_scale_level)
 
+        if inventory_zero:
+            scenario.store_min.update({loc: {process: inventory_zero[loc][process] for process in inventory_zero[loc] if
+                                             inventory_zero[loc][process] > 0} for loc in inventory_zero})
+
         if instance.processes_order_fopex != {}:
             generate_scheduling_binary_vars(instance=instance, scale_level=scenario.scheduling_scale_level)
 
