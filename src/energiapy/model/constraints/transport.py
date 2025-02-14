@@ -202,7 +202,7 @@ def constraint_export(instance: ConcreteModel, scheduling_scale_level: int = 0, 
     iter_ = scale_tuple(instance=instance, scale_levels=network_scale_level+1)
 
     def export_rule(instance, source, sink, transport, *scale_list):
-        if scale_list[:scheduling_scale_level+1] in scale_iter[:scheduling_scale_level+1] and scale_list[:network_scale_level+1] in iter_:
+        if scale_list[:scheduling_scale_level+1] in scale_iter and scale_list[:network_scale_level+1] in iter_:
             if transport in location_transport_resource_dict[(source, sink)].keys():
                 if transport in instance.transports_varying_capacity:
                     return (instance.Exp_F[source, sink, transport, scale_list[:scheduling_scale_level + 1]] <=

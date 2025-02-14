@@ -428,7 +428,7 @@ if __name__ == '__main__':
         'Heuristics': 0.20
     }
 
-    with open(r'/scratch/user/shivam.vedant/Scripts/TSSP/AIChE2024/scenario_dict_HP.pkl', 'rb') as file:
+    with open(r'/scratch/user/shivam.vedant/Scripts/TSSP/AIChE2024/max_p/scenario_dict_HP.pkl', 'rb') as file:
         load_scenario_dict = pickle.load(file)
 
     load_scenario_names = list(load_scenario_dict.keys())
