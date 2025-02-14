@@ -199,10 +199,10 @@ def make_constraint(instance: ConcreteModel, type_cons: Cons, variable_x: Var, l
         return Constraint(*scales, rule=cons_rule, doc=label)
 
     else:
+        iter_x = scale_tuple(instance=instance, scale_levels=x_scale_level + 1)
         def cons_rule(instance, location, component, *scale):
-            iter_x = scale_tuple(instance=instance, scale_levels=x_scale_level + 1)
             if type_cons == Cons.X_EQ_SUMCOMP_Y:
-                if scale[:x_scale_level+1] in iter_x[:x_scale_level+1]:
+                if scale[:x_scale_level+1] in iter_x:
                     x = getattr(instance, variable_x)[
                         location, scale[:x_scale_level + 1]]
                 else:
