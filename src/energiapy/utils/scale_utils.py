@@ -39,7 +39,7 @@ def scale_list(instance: ConcreteModel, scale_levels: int = 0):
     return [instance.scales[i].data() for i in range(scale_levels)]
 
 
-def scale_tuple(instance: ConcreteModel, scale_levels: int = 0):
+def scale_tuple(instance: ConcreteModel, scale_levels: int = 0, full: bool = False):
     """returns a tuple with appropropriate scale(s)
 
     Args:
@@ -47,8 +47,10 @@ def scale_tuple(instance: ConcreteModel, scale_levels: int = 0):
         scale_level (int, optional): appropriate scale. Defaults to 0.
     """
     data = [instance.scales[i].data() for i in range(scale_levels)]
-    # list_ = list(product(*data))
-    list_ = [i for i in list(product(*data)) if instance.start_zero[:scale_levels] <= i <= instance.end_zero[:scale_levels]]
+    if full:
+        list_ = list(product(*data))
+    else:
+        list_ = [i for i in list(product(*data)) if instance.start_zero[:scale_levels] <= i <= instance.end_zero[:scale_levels]]
 
     return list_
 
