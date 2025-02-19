@@ -246,7 +246,7 @@ def build_model(scen_df=pandas.DataFrame()):
     #                     label='Truck from location 4 to 3', capex=0.0001, vopex=0.02, trans_min=0.01)
 
     truck45 = Transport(name='truck45', resources={com1_loc4_out}, trans_max=truck_cap45,
-                        label='Truck from location 4 to 5', capex=1 / scale_factor, vopex=0.1, trans_min=0.01,
+                        label='Truck from location 4 to 5', capex=1 / scale_factor, vopex=0.75, trans_min=0.01,
                         varying=[VaryingTransport.DETERMINISTIC_CAPACITY])
     # truck54 = Transport(name='truck54', resources={com1_loc5_out}, trans_max=truck_cap45,
     #                     label='Truck from location 5 to 4', capex=0.0001, vopex=0.1, trans_min=0.01)
@@ -312,32 +312,32 @@ def build_model(scen_df=pandas.DataFrame()):
                       transport_matrix=transport_matrix, distance_matrix=distance_matrix,
                       transport_capacity_scale_level=1,
                       transport_capacity_factor={(loc1, loc2): {truck12: scen_df[[('trans12', 'com1_loc1_out')]] if (
-                                                                                                                        'trans12',
-                                                                                                                        'com1_loc1_out') in scen_df else default_df},
+                                                                                                                    'trans12',
+                                                                                                                    'com1_loc1_out') in scen_df else default_df},
                                                  (loc1, loc3): {truck13: scen_df[[('trans13', 'com1_loc1_out')]] if (
-                                                                                                                        'trans13',
-                                                                                                                        'com1_loc1_out') in scen_df else default_df},
+                                                                                                                    'trans13',
+                                                                                                                    'com1_loc1_out') in scen_df else default_df},
                                                  (loc2, loc4): {truck24: scen_df[[('trans24', 'com1_loc2_out')]] if (
-                                                                                                                        'trans24',
-                                                                                                                        'com1_loc2_out') in scen_df else default_df},
+                                                                                                                    'trans24',
+                                                                                                                    'com1_loc2_out') in scen_df else default_df},
                                                  (loc2, loc5): {truck25: scen_df[[('trans25', 'com1_loc2_out')]] if (
-                                                                                                                        'trans25',
-                                                                                                                        'com1_loc2_out') in scen_df else default_df},
+                                                                                                                    'trans25',
+                                                                                                                    'com1_loc2_out') in scen_df else default_df},
                                                  (loc3, loc4): {truck34: scen_df[[('trans34', 'com1_loc3_out')]] if (
-                                                                                                                        'trans34',
-                                                                                                                        'com1_loc3_out') in scen_df else default_df},
+                                                                                                                    'trans34',
+                                                                                                                    'com1_loc3_out') in scen_df else default_df},
                                                  (loc4, loc5): {truck45: scen_df[[('trans45', 'com1_loc4_out')]] if (
-                                                                                                                        'trans45',
-                                                                                                                        'com1_loc4_out') in scen_df else default_df},
+                                                                                                                    'trans45',
+                                                                                                                    'com1_loc4_out') in scen_df else default_df},
                                                  (loc4, loc7): {truck47: scen_df[[('trans47', 'com1_loc4_out')]] if (
-                                                                                                                        'trans47',
-                                                                                                                        'com1_loc4_out') in scen_df else default_df},
+                                                                                                                    'trans47',
+                                                                                                                    'com1_loc4_out') in scen_df else default_df},
                                                  (loc6, loc4): {truck64: scen_df[[('trans64', 'com1_loc6_out')]] if (
-                                                                                                                        'trans64',
-                                                                                                                        'com1_loc6_out') in scen_df else default_df},
+                                                                                                                    'trans64',
+                                                                                                                    'com1_loc6_out') in scen_df else default_df},
                                                  (loc7, loc5): {truck75: scen_df[[('trans75', 'com1_loc7_out')]] if (
-                                                                                                                        'trans75',
-                                                                                                                        'com1_loc7_out') in scen_df else default_df},
+                                                                                                                    'trans75',
+                                                                                                                    'com1_loc7_out') in scen_df else default_df},
                                                  })
 
     # ======================================================================================================================
@@ -345,7 +345,7 @@ def build_model(scen_df=pandas.DataFrame()):
     # ======================================================================================================================
 
     daily_demand = 400 * scale_factor
-    demand_penalty = 20
+    demand_penalty = 200
 
     demand_dict = {i: {com1_sold: daily_demand} if i == loc5 else {com1_sold: 0} for i in locset}
     demand_penalty_dict = {i: {com1_sold: demand_penalty} if i == loc5 else {com1_sold: 0} for i in locset}
@@ -379,7 +379,6 @@ def build_model(scen_df=pandas.DataFrame()):
         problem_mincost.constraint_first_stage_cost = Constraint(rule=first_stage_cost_rule)
 
         return scenario, problem_mincost
-
     else:
         return scenario
 
