@@ -179,7 +179,7 @@ from .constraints.transport import (
     constraint_transport_network_fopex,
     constraint_transport_capacity_UB_no_bin,
     constraint_transport_capacity_LB_no_bin,
-    constraint_transit_balance
+    # constraint_transit_balance
 )
 from .constraints.uncertain import (
     constraint_uncertain_process_capacity,

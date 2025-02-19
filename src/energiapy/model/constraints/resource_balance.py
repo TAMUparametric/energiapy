@@ -238,6 +238,7 @@ def constraint_inventory_balance(instance: ConcreteModel, scheduling_scale_level
                         scale_levels=scheduling_scale_level + 1)
     scale_iter = scale_tuple(
         instance=instance, scale_levels=scheduling_scale_level + 1)
+    scale_iter_full = scale_tuple(instance=instance, scale_levels=scheduling_scale_level + 1, full=True)
 
     # print(f'scale_iter: \n {scale_iter}')
     # print(f'scales: \n {scales}')
@@ -251,9 +252,9 @@ def constraint_inventory_balance(instance: ConcreteModel, scheduling_scale_level
                 consumption = 0
 
             if resource in instance.resources_store:
-                if scale_list[:scheduling_scale_level + 1] != scale_iter[0]:
+                if scale_list[:scheduling_scale_level + 1] != scale_iter_full[0]:
                     storage = instance.Inv[location, resource, scale_list[:scheduling_scale_level + 1]] \
-                              - instance.Inv[location, resource, scale_iter[scale_iter.index(scale_list[:scheduling_scale_level + 1]) - 1]]
+                              - instance.Inv[location, resource, scale_iter_full[scale_iter_full.index(scale_list[:scheduling_scale_level + 1]) - 1]]
                 else:
                     storage = instance.Inv[location, resource,
                     scale_list[:scheduling_scale_level + 1]] - inventory_zero[location][resource]
@@ -270,10 +271,17 @@ def constraint_inventory_balance(instance: ConcreteModel, scheduling_scale_level
                 if resource in instance.resources_trans:
                     if resource in location_resource_dict[location]:
                         transport = sum(
-                            sum(instance.Exp[source_, location, transport_, resource, scale_iter[scale_iter.index(scale_list[:scheduling_scale_level + 1]) - travel_time_dict[(source_, location)][transport_]]]
-                                        if (transport_ in resource_transport_dict[resource] and travel_time_dict[(source_, location)][transport_] is not None and
-                                            scale_iter.index(scale_list[:scheduling_scale_level + 1]) - travel_time_dict[(source_, location)][transport_] >= 0) else 0
-                                            for transport_ in transport_avail_dict[(source_, location)])
+                            sum(
+                                instance.Exp[source_, location, transport_, resource,
+                                scale_iter_full[scale_iter_full.index(scale_list[:scheduling_scale_level + 1]) - travel_time_dict[(source_, location)][transport_]]]
+                                if (transport_ in resource_transport_dict[resource] and travel_time_dict[(source_, location)][transport_] is not None and
+                                    scale_iter_full.index(scale_list[:scheduling_scale_level + 1]) - travel_time_dict[(source_, location)][transport_] >= 0)
+                                # else instance.Exp[source_, location, transport_, resource,
+                                # scale_iter_full[scale_iter_full.index(scale_list[:scheduling_scale_level + 1]) - travel_time_dict[(source_, location)][transport_]]]
+                                # if (transport_ in resource_transport_dict[resource] and travel_time_dict[(source_, location)][transport_] is not None and
+                                #     scale_iter_full.index(scale_list[:scheduling_scale_level + 1]) - travel_time_dict[(source_, location)][transport_] >= 0)
+                                else 0
+                                for transport_ in transport_avail_dict[(source_, location)])
                             for source_ in instance.sources if source_ != location if location in instance.sinks) \
                                     - sum(sum(instance.Exp[location, sink_, transport_, resource, scale_list[:scheduling_scale_level + 1]]
                                           if (transport_ in resource_transport_dict[resource]) else 0
@@ -325,7 +333,7 @@ def constraint_location_production(instance: ConcreteModel, cluster_wt: dict,
     scales = scale_list(instance=instance,
                         scale_levels=network_scale_level + 1)
     scale_iter = scale_tuple(
-        instance=instance, scale_levels=scheduling_scale_level + 1)
+        instance=instance, scale_levels=scheduling_scale_level + 1, full=True)
 
     def location_production_rule(instance, location, process, *scale_list):
         def weight(x): return 1 if cluster_wt is None else cluster_wt[x]

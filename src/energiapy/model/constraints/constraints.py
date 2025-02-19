@@ -147,6 +147,8 @@ def make_constraint(instance: ConcreteModel, type_cons: Cons, variable_x: Var, l
                             scale_levels=x_scale_level + 1)
         scale_iter = scale_tuple(
             instance=instance, scale_levels=y_scale_level+1)
+        scale_iter_full = scale_tuple(
+            instance=instance, scale_levels=y_scale_level+1, full=True)
     else:
         scales = scale_list(instance=instance,
                             scale_levels=max(x_scale_level, y_scale_level, b_scale_level) + 1)

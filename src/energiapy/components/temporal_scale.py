@@ -74,9 +74,9 @@ class TemporalScale:
 
         iter_list = [full_iter_list[t] for t in range(start_idx, end_idx+1)]
 
-        self.scale = {i: sorted(set(j[i] for j in iter_list)) for i in range(self.scale_levels)}
+        # self.scale = {i: sorted(set(j[i] for j in iter_list)) for i in range(self.scale_levels)}
 
-        # self.scale = {i: list(range(self.discretization_list[i])) for i in range(self.scale_levels)}
+        self.scale = {i: list(range(self.discretization_list[i])) for i in range(self.scale_levels)}
 
         self.list = list(range(len(self.discretization_list)))
         self.name = str(self.list)
@@ -91,10 +91,10 @@ class TemporalScale:
             List[tuple]: list of tuples with representing the scales
         """
 
-        return [i for i in list(product(*[self.scale[i] for i in self.scale][:scale_level+1]))
-                if self.start_zero[:scale_level + 1] <= i <= self.end_zero[:scale_level + 1]]
+        # return [i for i in list(product(*[self.scale[i] for i in self.scale][:scale_level+1]))
+        #         if self.start_zero[:scale_level + 1] <= i <= self.end_zero[:scale_level + 1]]
 
-        # return list(product(*[self.scale[i] for i in self.scale][:scale_level+1]))
+        return list(product(*[self.scale[i] for i in self.scale][:scale_level+1]))
 
     def __repr__(self):
         return self.name

@@ -16,54 +16,54 @@ from itertools import product
 from ...utils.latex_utils import constraint_latex_render
 from ...utils.scale_utils import scale_list, scale_tuple
 
-def constraint_transit_balance(instance: ConcreteModel, scheduling_scale_level: int = 0, travel_time_dict: dict = None,
-                               transport_avail_dict: dict = None, resource_transport_dict: dict = None,
-                               source_sink_resource_dict: dict = None, transit_initial_dict: dict = None) -> Constraint:
-
-    transport_avail_dict = transport_avail_dict or dict()
-    resource_transport_dict = resource_transport_dict or dict()
-    source_sink_resource_dict = source_sink_resource_dict or dict()
-    travel_time_dict = travel_time_dict or dict()
-    transit_initial_dict = transit_initial_dict or dict()
-
-    scales = scale_list(instance=instance, scale_levels=scheduling_scale_level+1)
-    scale_iter = scale_tuple(instance=instance, scale_levels=scheduling_scale_level+1)
-
-    def transit_balance_rule(instance: ConcreteModel, source, sink, transport, resource, *scale_list):
-        current_index = scale_iter.index(scale_list[:scheduling_scale_level + 1])
-        if transport in transport_avail_dict[(source, sink)] and transport in resource_transport_dict[(resource)] and resource in source_sink_resource_dict[(source, sink)]:
-
-            difference = scale_iter.index(scale_list[:scheduling_scale_level + 1]) - travel_time_dict[(source, sink)][transport]
-
-            if current_index - 1 >= 0:
-                previous = instance.Transit[source, sink, transport, resource, scale_iter[current_index - 1]]
-            else:
-                previous = 0
-
-            incoming = instance.Exp[source, sink, transport, resource, scale_iter[current_index]]
-
-            if difference >= 0:
-                outgoing = instance.Exp[source, sink, transport, resource, scale_iter[difference]]
-            else:
-                outgoing = 0
-
-            if (source, sink, transport, resource, *scale_list) in list(transit_initial_dict.keys()):
-                initial = transit_initial_dict[source, sink, transport, resource, *scale_list]
-            else:
-                initial = 0
-
-            return instance.Transit[
-                source, sink, transport, resource, scale_iter[current_index]] == previous + incoming - outgoing
-
-        else:
-            return instance.Transit[
-                source, sink, transport, resource, scale_iter[current_index]] == 0
-
-    instance.constraint_transit_balance = Constraint(instance.sources, instance.sinks, instance.transports,
-                                                     instance.resources_trans, *scales, rule=transit_balance_rule, doc='Resource in transit between locations')
-
-    constraint_latex_render(transit_balance_rule)
-    return instance.constraint_transit_balance
+# def constraint_transit_balance(instance: ConcreteModel, scheduling_scale_level: int = 0, travel_time_dict: dict = None,
+#                                transport_avail_dict: dict = None, resource_transport_dict: dict = None,
+#                                source_sink_resource_dict: dict = None, transit_initial_dict: dict = None) -> Constraint:
+#
+#     transport_avail_dict = transport_avail_dict or dict()
+#     resource_transport_dict = resource_transport_dict or dict()
+#     source_sink_resource_dict = source_sink_resource_dict or dict()
+#     travel_time_dict = travel_time_dict or dict()
+#     transit_initial_dict = transit_initial_dict or dict()
+#
+#     scales = scale_list(instance=instance, scale_levels=scheduling_scale_level+1)
+#     scale_iter = scale_tuple(instance=instance, scale_levels=scheduling_scale_level+1)
+#
+#     def transit_balance_rule(instance: ConcreteModel, source, sink, transport, resource, *scale_list):
+#         current_index = scale_iter.index(scale_list[:scheduling_scale_level + 1])
+#         if transport in transport_avail_dict[(source, sink)] and transport in resource_transport_dict[(resource)] and resource in source_sink_resource_dict[(source, sink)]:
+#
+#             difference = scale_iter.index(scale_list[:scheduling_scale_level + 1]) - travel_time_dict[(source, sink)][transport]
+#
+#             if current_index - 1 >= 0:
+#                 previous = instance.Transit[source, sink, transport, resource, scale_iter[current_index - 1]]
+#             else:
+#                 previous = 0
+#
+#             incoming = instance.Exp[source, sink, transport, resource, scale_iter[current_index]]
+#
+#             if difference >= 0:
+#                 outgoing = instance.Exp[source, sink, transport, resource, scale_iter[difference]]
+#             else:
+#                 outgoing = 0
+#
+#             if (source, sink, transport, resource, *scale_list) in list(transit_initial_dict.keys()):
+#                 initial = transit_initial_dict[source, sink, transport, resource, *scale_list]
+#             else:
+#                 initial = 0
+#
+#             return instance.Transit[
+#                 source, sink, transport, resource, scale_iter[current_index]] == previous + incoming - outgoing
+#
+#         else:
+#             return instance.Transit[
+#                 source, sink, transport, resource, scale_iter[current_index]] == 0
+#
+#     instance.constraint_transit_balance = Constraint(instance.sources, instance.sinks, instance.transports,
+#                                                      instance.resources_trans, *scales, rule=transit_balance_rule, doc='Resource in transit between locations')
+#
+#     constraint_latex_render(transit_balance_rule)
+#     return instance.constraint_transit_balance
 
 
 
