@@ -276,10 +276,6 @@ def constraint_inventory_balance(instance: ConcreteModel, scheduling_scale_level
                                 scale_iter_full[scale_iter_full.index(scale_list[:scheduling_scale_level + 1]) - travel_time_dict[(source_, location)][transport_]]]
                                 if (transport_ in resource_transport_dict[resource] and travel_time_dict[(source_, location)][transport_] is not None and
                                     scale_iter_full.index(scale_list[:scheduling_scale_level + 1]) - travel_time_dict[(source_, location)][transport_] >= 0)
-                                # else instance.Exp[source_, location, transport_, resource,
-                                # scale_iter_full[scale_iter_full.index(scale_list[:scheduling_scale_level + 1]) - travel_time_dict[(source_, location)][transport_]]]
-                                # if (transport_ in resource_transport_dict[resource] and travel_time_dict[(source_, location)][transport_] is not None and
-                                #     scale_iter_full.index(scale_list[:scheduling_scale_level + 1]) - travel_time_dict[(source_, location)][transport_] >= 0)
                                 else 0
                                 for transport_ in transport_avail_dict[(source_, location)])
                             for source_ in instance.sources if source_ != location if location in instance.sinks) \
