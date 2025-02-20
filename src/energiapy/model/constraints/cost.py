@@ -386,18 +386,21 @@ def constraint_storage_capex(instance: ConcreteModel, location_resource_dict: di
         Constraint: process_capex
     """
     scales = scale_list(instance=instance, scale_levels=network_scale_level+1)
+    scale_iter = scale_tuple(instance=instance, scale_levels=network_scale_level+1)
 
     def storage_capex_rule(instance, location, resource_store, *scale_list):
+        if scale_list in scale_iter:
+            if storage_capex_dict is not None:
+                Cap_S = instance.Cap_S[location, resource_store, scale_list]
+            else:
+                Cap_S = 0
 
-        if storage_capex_dict is not None:
-            Cap_S = instance.Cap_S[location, resource_store, scale_list]
+            if (resource_store in location_resource_dict[location]) and (resource_store in storage_capex_dict[location]):
+                    return instance.Capex_storage[location, resource_store, scale_list[:network_scale_level + 1]] == annualization_factor * Cap_S * storage_capex_dict[location][resource_store]
+            else:
+                return instance.Capex_storage[location, resource_store, scale_list[:network_scale_level + 1]] == 0
         else:
-            Cap_S = 0
-
-        if (resource_store in location_resource_dict[location]) and (resource_store in storage_capex_dict[location]):
-                return instance.Capex_storage[location, resource_store, scale_list[:network_scale_level + 1]] == annualization_factor * Cap_S * storage_capex_dict[location][resource_store]
-        else:
-            return instance.Capex_storage[location, resource_store, scale_list[:network_scale_level + 1]] == 0
+            return Constraint.Skip
 
 
     instance.constraint_storage_capex = Constraint(
@@ -934,15 +937,19 @@ def constraint_storage_cost(instance: ConcreteModel, location_resource_dict: dic
     """
     scales = scale_list(instance=instance,
                         scale_levels=network_scale_level + 1)
+    scale_iter = scale_tuple(instance=instance, scale_levels=network_scale_level + 1)
 
     def storage_cost_rule(instance, location, resource, *scale_list):
-        if resource in location_resource_dict[location]:
-            if resource in storage_cost_dict[location]:
-                return instance.Inv_cost[location, resource, scale_list[:network_scale_level + 1]] == storage_cost_dict[location][resource]*instance.Inv_network[location, resource, scale_list[:network_scale_level + 1]]
+        if scale_list in scale_iter:
+            if resource in location_resource_dict[location]:
+                if resource in storage_cost_dict[location]:
+                    return instance.Inv_cost[location, resource, scale_list[:network_scale_level + 1]] == storage_cost_dict[location][resource]*instance.Inv_network[location, resource, scale_list[:network_scale_level + 1]]
+                else:
+                    return instance.Inv_cost[location, resource, scale_list[:network_scale_level + 1]] == 0
             else:
-                return instance.Inv_cost[location, resource, scale_list[:network_scale_level + 1]] == 0
+                return instance.Inv_cost[location, resource, scale_list] == 0
         else:
-            return instance.Inv_cost[location, resource, scale_list] == 0
+            return Constraint.Skip
     instance.constraint_storage_cost = Constraint(
         instance.locations, instance.resources_store, *
         scales, rule=storage_cost_rule,
@@ -965,9 +972,13 @@ def constraint_storage_cost_location(instance: ConcreteModel, network_scale_leve
     """
     scales = scale_list(instance=instance,
                         scale_levels=network_scale_level + 1)
+    scale_iter = scale_tuple(instance=instance, scale_levels=network_scale_level + 1)
 
     def storage_cost_location_rule(instance, location, *scale_list):
-        return instance.Inv_cost_location[location, scale_list[:network_scale_level + 1]] == sum(instance.Inv_cost[location, resource_, scale_list[:network_scale_level + 1]] for resource_ in instance.resources_store)
+        if scale_list in scale_iter:
+            return instance.Inv_cost_location[location, scale_list[:network_scale_level + 1]] == sum(instance.Inv_cost[location, resource_, scale_list[:network_scale_level + 1]] for resource_ in instance.resources_store)
+        else:
+            return Constraint.Skip
     instance.constraint_storage_cost_location = Constraint(
         instance.locations, *scales, rule=storage_cost_location_rule,
         doc='penalty for stored resources across location')
@@ -989,9 +1000,13 @@ def constraint_storage_cost_network(instance: ConcreteModel, network_scale_level
     """
     scales = scale_list(instance=instance,
                         scale_levels=network_scale_level + 1)
+    scale_iter = scale_tuple(instance=instance, scale_levels=network_scale_level + 1)
 
     def storage_cost_network_rule(instance, *scale_list):
-        return instance.Inv_cost_network[scale_list[:network_scale_level + 1]] == sum(instance.Inv_cost_location[location_, scale_list[:network_scale_level + 1]] for location_ in instance.locations)
+        if scale_list in scale_iter:
+            return instance.Inv_cost_network[scale_list[:network_scale_level + 1]] == sum(instance.Inv_cost_location[location_, scale_list[:network_scale_level + 1]] for location_ in instance.locations)
+        else:
+            return Constraint.Skip
     instance.constraint_storage_cost_network = Constraint(*scales, rule=storage_cost_network_rule,
                                                           doc='penalty for stored resources across network')
     constraint_latex_render(storage_cost_network_rule)

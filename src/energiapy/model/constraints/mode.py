@@ -38,8 +38,8 @@ def constraint_production_mode(instance: ConcreteModel, mode_dict: dict, schedul
     scale_iter = scale_tuple(instance=instance, scale_levels=scheduling_scale_level + 1)
 
     def production_mode_rule(instance, location, process, *scale_list):
-        if process in location_process_dict[location]:
-            if scale_list[:scheduling_scale_level+1] in scale_iter:
+        if scale_list[:scheduling_scale_level + 1] in scale_iter:
+            if process in location_process_dict[location]:
                 return instance.P[location, process, scale_list[:scheduling_scale_level + 1]] == sum(
                     instance.P_m[location, process, mode, scale_list[:scheduling_scale_level + 1]] for mode in
                     mode_dict[process])
