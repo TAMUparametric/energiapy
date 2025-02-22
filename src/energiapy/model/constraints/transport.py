@@ -162,17 +162,20 @@ def constraint_transport_export_network(instance: ConcreteModel, scheduling_scal
 
     scales = scale_list(instance=instance,
                         scale_levels=network_scale_level + 1)
-
+    scale_iter_n = scale_tuple(instance=instance, scale_levels=network_scale_level + 1)
     scale_iter = scale_tuple(
         instance=instance, scale_levels=scheduling_scale_level+1)
 
     def transport_export_network_rule(instance, source, sink, transport, *scale_list):
-        if transport in transport_avail_dict[(source, sink)]:
-            return instance.Exp_F_network[source, sink, transport, scale_list[:network_scale_level + 1]] == \
-                sum(instance.Exp_F[source, sink, transport, scale_]
-                    for scale_ in scale_iter if scale_[:network_scale_level + 1] == scale_list)
+        if scale_list in scale_iter_n:
+            if transport in transport_avail_dict[(source, sink)]:
+                return instance.Exp_F_network[source, sink, transport, scale_list[:network_scale_level + 1]] == \
+                    sum(instance.Exp_F[source, sink, transport, scale_]
+                        for scale_ in scale_iter if scale_[:network_scale_level + 1] == scale_list)
+            else:
+                return instance.Exp_F_network[source, sink, transport, scale_list[:scheduling_scale_level + 1]] == 0
         else:
-            return instance.Exp_F_network[source, sink, transport, scale_list[:scheduling_scale_level + 1]] == 0
+            return Constraint.Skip
     instance.constraint_transport_export_network = Constraint(instance.sources, instance.sinks,
                                                               instance.transports, *scales, rule=transport_export_network_rule,
                                                               doc='total export from transport mode from source to sink')
@@ -246,13 +249,18 @@ def constraint_transport_capacity_LB(instance: ConcreteModel, network_scale_leve
     scales = scale_list(instance=instance,
                         scale_levels=network_scale_level + 1)
 
+    scale_iter = scale_tuple(instance=instance, scale_levels=network_scale_level + 1)
+
     def transport_capacity_LB_rule(instance, source, sink,  transport, *scale_list):
-        if transport in transport_avail_dict[(source, sink)]:
-            return instance.Cap_F[source, sink, transport, scale_list[:network_scale_level + 1]] >= \
-                trans_min[transport] * instance.X_F[source, sink,
-                                                    transport, scale_list[:network_scale_level + 1]]
+        if scale_list in scale_iter:
+            if transport in transport_avail_dict[(source, sink)]:
+                return instance.Cap_F[source, sink, transport, scale_list[:network_scale_level + 1]] >= \
+                    trans_min[transport] * instance.X_F[source, sink,
+                                                        transport, scale_list[:network_scale_level + 1]]
+            else:
+                return instance.Cap_F[source, sink, transport, scale_list[:network_scale_level + 1]] == 0
         else:
-            return instance.Cap_F[source, sink, transport, scale_list[:network_scale_level + 1]] == 0
+            return Constraint.Skip
 
     instance.constraint_transport_capacity_LB = Constraint(instance.sources, instance.sinks,
                                                            instance.transports, *scales, rule=transport_capacity_LB_rule,
@@ -283,14 +291,18 @@ def constraint_transport_capacity_UB(instance: ConcreteModel, network_scale_leve
 
     scales = scale_list(instance=instance,
                         scale_levels=network_scale_level + 1)
+    scale_iter = scale_tuple(instance=instance, scale_levels=network_scale_level + 1)
 
     def transport_capacity_UB_rule(instance, source, sink, transport, *scale_list):
-        if transport in transport_avail_dict[(source, sink)]:
-            return instance.Cap_F[source, sink, transport, scale_list[:network_scale_level + 1]] <= \
-                trans_max[transport] * instance.X_F[source, sink,
-                                                    transport, scale_list[:network_scale_level + 1]]
+        if scale_list in scale_iter:
+            if transport in transport_avail_dict[(source, sink)]:
+                return instance.Cap_F[source, sink, transport, scale_list[:network_scale_level + 1]] <= \
+                    trans_max[transport] * instance.X_F[source, sink,
+                                                        transport, scale_list[:network_scale_level + 1]]
+            else:
+                return instance.Cap_F[source, sink, transport, scale_list[:network_scale_level + 1]] == 0
         else:
-            return instance.Cap_F[source, sink, transport, scale_list[:network_scale_level + 1]] == 0
+            return Constraint.Skip
 
     instance.constraint_transport_capacity_UB = Constraint(instance.sources, instance.sinks,
                                                            instance.transports, *scales, rule=transport_capacity_UB_rule,
@@ -390,11 +402,16 @@ def constraint_transport_capex(instance: ConcreteModel, trans_capex: dict, dista
     scales = scale_list(instance=instance,
                         scale_levels=network_scale_level + 1)
 
+    scale_iter = scale_tuple(instance=instance, scale_levels=network_scale_level + 1)
+
     def transport_capex_rule(instance, source, sink, transport, *scale_list):
-        if transport in transport_avail_dict[(source, sink)]:
-            return instance.Capex_transport[source, sink, transport, scale_list[:network_scale_level + 1]] == annualization_factor*distance_dict[(source, sink)]*trans_capex[transport]*instance.Cap_F[source, sink, transport, scale_list[:network_scale_level + 1]]
+        if scale_list in scale_iter:
+            if transport in transport_avail_dict[(source, sink)]:
+                return instance.Capex_transport[source, sink, transport, scale_list[:network_scale_level + 1]] == annualization_factor*distance_dict[(source, sink)]*trans_capex[transport]*instance.Cap_F[source, sink, transport, scale_list[:network_scale_level + 1]]
+            else:
+                return instance.Capex_transport[source, sink, transport, scale_list[:network_scale_level + 1]] == 0
         else:
-            return instance.Capex_transport[source, sink, transport, scale_list[:network_scale_level + 1]] == 0
+            return Constraint.Skip
     instance.constraint_transport_capex = Constraint(
         instance.sources, instance.sinks, instance.transports, *scales, rule=transport_capex_rule, doc='transport capex calculation')
 
@@ -418,11 +435,16 @@ def constraint_transport_fopex(instance: ConcreteModel, trans_fopex: dict, dista
     scales = scale_list(instance=instance,
                         scale_levels=network_scale_level + 1)
 
+    scale_iter = scale_tuple(instance=instance, scale_levels=network_scale_level + 1)
+
     def transport_fopex_rule(instance, source, sink, transport, *scale_list):
-        if transport in transport_avail_dict[(source, sink)]:
-            return instance.Fopex_transport[source, sink, transport, scale_list[:network_scale_level + 1]] == distance_dict[(source, sink)]*trans_fopex[transport]*instance.Cap_F[source, sink, transport, scale_list[:network_scale_level + 1]]
+        if scale_list in scale_iter:
+            if transport in transport_avail_dict[(source, sink)]:
+                return instance.Fopex_transport[source, sink, transport, scale_list[:network_scale_level + 1]] == distance_dict[(source, sink)]*trans_fopex[transport]*instance.Cap_F[source, sink, transport, scale_list[:network_scale_level + 1]]
+            else:
+                return instance.Fopex_transport[source, sink, transport, scale_list[:network_scale_level + 1]] == 0
         else:
-            return instance.Fopex_transport[source, sink, transport, scale_list[:network_scale_level + 1]] == 0
+            return Constraint.Skip
     instance.constraint_transport_fopex = Constraint(
         instance.sources, instance.sinks, instance.transports, *scales, rule=transport_fopex_rule, doc='transport fopex calculation')
 
@@ -445,12 +467,16 @@ def constraint_transport_vopex(instance: ConcreteModel, trans_vopex: dict, dista
     """
     scales = scale_list(instance=instance,
                         scale_levels=network_scale_level + 1)
+    scale_iter = scale_tuple(instance=instance, scale_levels=network_scale_level + 1)
 
     def transport_vopex_rule(instance, source, sink, transport, *scale_list):
-        if transport in transport_avail_dict[(source, sink)]:
-            return instance.Vopex_transport[source, sink, transport, scale_list[:network_scale_level + 1]] == distance_dict[(source, sink)]*trans_vopex[transport]*instance.Exp_F_network[source, sink, transport, scale_list[:network_scale_level + 1]]
+        if scale_list in scale_iter:
+            if transport in transport_avail_dict[(source, sink)]:
+                return instance.Vopex_transport[source, sink, transport, scale_list[:network_scale_level + 1]] == distance_dict[(source, sink)]*trans_vopex[transport]*instance.Exp_F_network[source, sink, transport, scale_list[:network_scale_level + 1]]
+            else:
+                return instance.Vopex_transport[source, sink, transport, scale_list[:network_scale_level + 1]] == 0
         else:
-            return instance.Vopex_transport[source, sink, transport, scale_list[:network_scale_level + 1]] == 0
+            return Constraint.Skip
     instance.constraint_transport_vopex = Constraint(
         instance.sources, instance.sinks, instance.transports, *scales, rule=transport_vopex_rule, doc='transport capex calculation')
 
@@ -473,10 +499,13 @@ def constraint_transport_network_capex(instance: ConcreteModel, network_scale_le
     """
     scales = scale_list(instance=instance,
                         scale_levels=network_scale_level + 1)
-
+    scale_iter = scale_tuple(instance=instance, scale_levels=network_scale_level+1)
     def transport_network_capex_rule(instance, *scale_list):
-        return instance.Capex_transport_network[scale_list[:network_scale_level + 1]] == sum(instance.Capex_transport[source_, sink_, transport_, scale_list[:network_scale_level+1]]
-                                                                                             for source_, sink_, transport_ in product(instance.sources, instance.sinks, instance.transports))
+        if scale_list in scale_iter:
+            return instance.Capex_transport_network[scale_list[:network_scale_level + 1]] == sum(instance.Capex_transport[source_, sink_, transport_, scale_list[:network_scale_level+1]]
+                                                                                                 for source_, sink_, transport_ in product(instance.sources, instance.sinks, instance.transports))
+        else:
+            return Constraint.Skip
     instance.constraint_transport_network_capex = Constraint(
         *scales, rule=transport_network_capex_rule, doc='transport capex calculation for network')
 
@@ -499,10 +528,14 @@ def constraint_transport_network_fopex(instance: ConcreteModel, network_scale_le
     """
     scales = scale_list(instance=instance,
                         scale_levels=network_scale_level + 1)
+    scale_iter = scale_tuple(instance=instance, scale_levels=network_scale_level + 1)
 
     def transport_network_fopex_rule(instance, *scale_list):
-        return instance.Fopex_transport_network[scale_list[:network_scale_level + 1]] == sum(instance.Fopex_transport[source_, sink_, transport_, scale_list[:network_scale_level+1]]
-                                                                                             for source_, sink_, transport_ in product(instance.sources, instance.sinks, instance.transports))
+        if scale_list in scale_iter:
+            return instance.Fopex_transport_network[scale_list[:network_scale_level + 1]] == sum(instance.Fopex_transport[source_, sink_, transport_, scale_list[:network_scale_level+1]]
+                                                                                                 for source_, sink_, transport_ in product(instance.sources, instance.sinks, instance.transports))
+        else:
+            return Constraint.Skip
     instance.constraint_transport_network_fopex = Constraint(
         *scales, rule=transport_network_fopex_rule, doc='transport fopex calculation for network')
 
@@ -525,10 +558,14 @@ def constraint_transport_network_vopex(instance: ConcreteModel, network_scale_le
     """
     scales = scale_list(instance=instance,
                         scale_levels=network_scale_level + 1)
+    scale_iter = scale_tuple(instance=instance, scale_levels=network_scale_level + 1)
 
     def transport_network_vopex_rule(instance, *scale_list):
-        return instance.Vopex_transport_network[scale_list[:network_scale_level + 1]] == sum(instance.Vopex_transport[source_, sink_, transport_, scale_list[:network_scale_level+1]]
+        if scale_list in scale_iter:
+            return instance.Vopex_transport_network[scale_list[:network_scale_level + 1]] == sum(instance.Vopex_transport[source_, sink_, transport_, scale_list[:network_scale_level+1]]
                                                                                              for source_, sink_, transport_ in product(instance.sources, instance.sinks, instance.transports))
+        else:
+            return Constraint.Skip
     instance.constraint_transport_network_vopex = Constraint(
         *scales, rule=transport_network_vopex_rule, doc='transport vopex calculation for network')
 

@@ -162,7 +162,6 @@ from .constraints.demand import (
 from .constraints.transport import (
     # constraint_transport_balance,
     # constraint_transport_exp_UB,
-    # constraint_transport_export,
     # constraint_transport_imp_UB,
     # constraint_transport_import,
     constraint_transport_export,

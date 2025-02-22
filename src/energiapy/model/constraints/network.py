@@ -32,13 +32,17 @@ def constraint_production_facility(instance: ConcreteModel, prod_max: dict, loca
     """
     scales = scale_list(instance=instance,
                         scale_levels=network_scale_level + 1)
+    scale_iter = scale_tuple(instance=instance, scale_levels=network_scale_level + 1)
 
     def production_facility_rule(instance, location, process, *scale_list):
-        if location_process_dict is not None:
-            if process in location_process_dict[location]:
-                return instance.Cap_P[location, process, scale_list[:network_scale_level + 1]] <= prod_max[location][process][list(prod_max[location][process].keys())[-1:][0]]*instance.X_P[location, process, scale_list[:network_scale_level + 1]]
+        if scale_list in scale_iter:
+            if location_process_dict is not None:
+                if process in location_process_dict[location]:
+                    return instance.Cap_P[location, process, scale_list[:network_scale_level + 1]] <= prod_max[location][process][list(prod_max[location][process].keys())[-1:][0]]*instance.X_P[location, process, scale_list[:network_scale_level + 1]]
+                else:
+                    return instance.Cap_P[location, process, scale_list[:network_scale_level + 1]] == 0
             else:
-                return instance.Cap_P[location, process, scale_list[:network_scale_level + 1]] == 0
+                return Constraint.Skip
         else:
             return Constraint.Skip
 
@@ -68,14 +72,17 @@ def constraint_storage_facility(instance: ConcreteModel, store_max: dict, locati
 
     scales = scale_list(instance=instance,
                         scale_levels=network_scale_level + 1)
-
+    scale_iter = scale_tuple(instance=instance, scale_levels=network_scale_level + 1)
     def storage_facility_rule(instance, location, resource, *scale_list):
-        if resource in location_resource_dict[location]:
-            return instance.Cap_S[location, resource, scale_list[:network_scale_level + 1]] <= store_max[location][
-                resource]*instance.X_S[location, resource,
-                                       scale_list[:network_scale_level + 1]]
+        if scale_list in scale_iter:
+            if resource in location_resource_dict[location]:
+                return instance.Cap_S[location, resource, scale_list[:network_scale_level + 1]] <= store_max[location][
+                    resource]*instance.X_S[location, resource,
+                                           scale_list[:network_scale_level + 1]]
+            else:
+                return instance.Cap_S[location, resource, scale_list[:network_scale_level + 1]] == 0
         else:
-            return instance.Cap_S[location, resource, scale_list[:network_scale_level + 1]] == 0
+            return Constraint.Skip
 
     instance.constraint_storage_facility = Constraint(
         instance.locations, instance.resources_store, *scales, rule=storage_facility_rule, doc='storage facility sizing and location')
@@ -103,11 +110,15 @@ def constraint_min_storage_facility(instance: ConcreteModel, store_min: dict, lo
 
     scales = scale_list(instance=instance,
                         scale_levels=network_scale_level + 1)
+    scale_iter = scale_tuple(instance=instance, scale_levels=network_scale_level + 1)
 
     def min_storage_facility_rule(instance, location, resource, *scale_list):
-        if resource in location_resource_dict[location]:
-            return instance.Cap_S[location, resource, scale_list[:network_scale_level + 1]] >= store_min[location][
-                resource] * instance.X_S[location, resource, scale_list[:network_scale_level + 1]]
+        if scale_list in scale_iter:
+            if resource in location_resource_dict[location]:
+                return instance.Cap_S[location, resource, scale_list[:network_scale_level + 1]] >= store_min[location][
+                    resource] * instance.X_S[location, resource, scale_list[:network_scale_level + 1]]
+            else:
+                return Constraint.Skip
         else:
             return Constraint.Skip
 
@@ -138,13 +149,17 @@ def constraint_min_production_facility(instance: ConcreteModel, prod_min: dict, 
 
     scales = scale_list(instance=instance,
                         scale_levels=network_scale_level + 1)
+    scale_iter = scale_tuple(instance=instance, scale_levels=network_scale_level + 1)
 
     def min_production_facility_rule(instance, location, process, *scale_list):
-        if location_process_dict is not None:
-            if process in location_process_dict[location]:
-                return instance.Cap_P[location, process, scale_list[:network_scale_level + 1]] >= prod_min[location][process][list(prod_min[location][process].keys())[:1][0]] * instance.X_P[location, process, scale_list[:network_scale_level + 1]]
+        if scale_list in scale_iter:
+            if location_process_dict is not None:
+                if process in location_process_dict[location]:
+                    return instance.Cap_P[location, process, scale_list[:network_scale_level + 1]] >= prod_min[location][process][list(prod_min[location][process].keys())[:1][0]] * instance.X_P[location, process, scale_list[:network_scale_level + 1]]
+                else:
+                    return instance.Cap_P[location, process, scale_list[:network_scale_level + 1]] == 0
             else:
-                return instance.Cap_P[location, process, scale_list[:network_scale_level + 1]] == 0
+                return Constraint.Skip
         else:
             return Constraint.Skip
 

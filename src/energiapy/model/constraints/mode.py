@@ -219,26 +219,30 @@ def constraint_fixed_nameplate_min_production_mode(instance: ConcreteModel, prod
         mode_dict = dict()
 
     scales = scale_list(instance=instance, scale_levels=scheduling_scale_level+1)
+    scale_iter = scale_tuple(instance=instance, scale_levels=scheduling_scale_level+1)
 
     def fixed_nameplate_min_production_mode_rule(instance, location, process, mode, *scale_list):
-        if process not in location_process_dict[location]:
+        if scale_list in scale_iter:
+            if process not in location_process_dict[location]:
+                return Constraint.Skip
+
+            if len(mode_dict[process])<=1:
+                return Constraint.Skip
+
+            if mode <= list(prod_min[location][process].keys())[-1:][0]:
+                rhs = (prod_min[location][process][mode]*instance.X_P_m[location, process, mode, scale_list[:scheduling_scale_level+1]])
+                lhs = instance.P_m[location, process, mode, scale_list[:scheduling_scale_level + 1]]
+
+                # if process not in instance.processes_varying_capacity:
+                #     return lhs >= rhs
+
+                # cap_factor = capacity_factor[location][process][scale_list[:capacity_scale_level + 1]] if capacity_factor[
+                #     location] else 1
+                return lhs >= rhs
+
             return Constraint.Skip
-
-        if len(mode_dict[process])<=1:
+        else:
             return Constraint.Skip
-
-        if mode <= list(prod_min[location][process].keys())[-1:][0]:
-            rhs = (prod_min[location][process][mode]*instance.X_P_m[location, process, mode, scale_list[:scheduling_scale_level+1]])
-            lhs = instance.P_m[location, process, mode, scale_list[:scheduling_scale_level + 1]]
-
-            # if process not in instance.processes_varying_capacity:
-            #     return lhs >= rhs
-
-            # cap_factor = capacity_factor[location][process][scale_list[:capacity_scale_level + 1]] if capacity_factor[
-            #     location] else 1
-            return lhs >= rhs
-
-        return Constraint.Skip
 
     instance.constraint_fixed_nameplate_min_production_mode = Constraint(instance.locations, instance.processes, instance.modes,
                                                                *scales, rule=fixed_nameplate_min_production_mode_rule,
@@ -267,21 +271,25 @@ def constraint_fixed_nameplate_max_production_mode(instance: ConcreteModel, prod
         location_process_dict = dict()
 
     scales = scale_list(instance=instance, scale_levels=scheduling_scale_level+1)
+    scale_iter = scale_tuple(instance=instance, scale_levels=scheduling_scale_level+1)
 
     def fixed_nameplate_max_production_mode_rule(instance, location, process, mode, *scale_list):
-        if process not in location_process_dict[location]:
+        if scale_list in scale_iter:
+            if process not in location_process_dict[location]:
+                return Constraint.Skip
+
+            if len(mode_dict[process]) <= 1:
+                return Constraint.Skip
+
+            if mode <= list(prod_max[location][process].keys())[-1:][0]:
+                rhs = (prod_max[location][process][mode]*instance.X_P_m[location, process, mode, scale_list[:scheduling_scale_level+1]])
+                lhs = instance.P_m[location, process, mode, scale_list[:scheduling_scale_level + 1]]
+
+                return lhs <= rhs
+
             return Constraint.Skip
-
-        if len(mode_dict[process]) <= 1:
+        else:
             return Constraint.Skip
-
-        if mode <= list(prod_max[location][process].keys())[-1:][0]:
-            rhs = (prod_max[location][process][mode]*instance.X_P_m[location, process, mode, scale_list[:scheduling_scale_level+1]])
-            lhs = instance.P_m[location, process, mode, scale_list[:scheduling_scale_level + 1]]
-
-            return lhs <= rhs
-
-        return Constraint.Skip
 
     instance.constraint_fixed_nameplate_max_production_mode = Constraint(instance.locations, instance.processes, instance.modes,
                                                                *scales, rule=fixed_nameplate_max_production_mode_rule,
@@ -393,15 +401,18 @@ def constraint_production_rate1(instance: ConcreteModel, rate_max_dict: dict, sc
     # loc_list = [loc.name for loc in scenario.location_set if loc.capacity_factor is not None]
 
     def production_rate_rule1(instance, location, process, mode, *scale_list):
-        if rate_max_dict[process] is not None:
-            if all(e==0 for e in scale_list):
-                return Constraint.Skip
-            if scale_list[2]==0:
-                return Constraint.Skip
+        if scale_list in scale_iter:
+            if rate_max_dict[process] is not None:
+                if all(e==0 for e in scale_list):
+                    return Constraint.Skip
+                # if scale_list[2]==0:
+                #     return Constraint.Skip
+                else:
+                    lhs = instance.P[location, process, scale_list[:scheduling_scale_level + 1]] - instance.P[location, process,  scale_iter[scale_iter.index(scale_list[:scheduling_scale_level + 1]) - 1]]
+                    rhs = sum(rate_max_dict[process][mode]*instance.X_P_m[location, process, mode, scale_list[:scheduling_scale_level + 1]] for mode in instance.modes)
+                return lhs <= rhs
             else:
-                lhs = instance.P[location, process, scale_list[:scheduling_scale_level + 1]] - instance.P[location, process,  scale_iter[scale_iter.index(scale_list[:scheduling_scale_level + 1]) - 1]]
-                rhs = sum(rate_max_dict[process][mode]*instance.X_P_m[location, process, mode, scale_list[:scheduling_scale_level + 1]] for mode in instance.modes)
-            return lhs <= rhs
+                return Constraint.Skip
         else:
             return Constraint.Skip
 
@@ -431,15 +442,18 @@ def constraint_production_rate2(instance: ConcreteModel, rate_max_dict: dict, sc
         instance=instance, scale_levels=scheduling_scale_level + 1)
 
     def production_rate_rule2(instance, location, process, mode, *scale_list):
-        if rate_max_dict[process] is not None:
-            if all(e==0 for e in scale_list):
-                return Constraint.Skip
-            if scale_list[2]==0:
-                return Constraint.Skip
+        if scale_list in scale_iter:
+            if rate_max_dict[process] is not None:
+                if all(e==0 for e in scale_list):
+                    return Constraint.Skip
+                # if scale_list[2]==0:
+                #     return Constraint.Skip
+                else:
+                    lhs = instance.P[location, process, scale_list[:scheduling_scale_level + 1]] - instance.P[location, process, scale_iter[scale_iter.index(scale_list[:scheduling_scale_level + 1]) - 1]]
+                    rhs = -sum(rate_max_dict[process][mode]*instance.X_P_m[location, process, mode, scale_list[:scheduling_scale_level + 1]] for mode in instance.modes)
+                return lhs >= rhs
             else:
-                lhs = instance.P[location, process, scale_list[:scheduling_scale_level + 1]] - instance.P[location, process, scale_iter[scale_iter.index(scale_list[:scheduling_scale_level + 1]) - 1]]
-                rhs = -sum(rate_max_dict[process][mode]*instance.X_P_m[location, process, mode, scale_list[:scheduling_scale_level + 1]] for mode in instance.modes)
-            return lhs >= rhs
+                return Constraint.Skip
         else:
             return Constraint.Skip
 
@@ -468,15 +482,18 @@ def constraint_production_mode_switch(instance: ConcreteModel, mode_dict: dict, 
         instance=instance, scale_levels=scheduling_scale_level + 1)
 
     def production_mode_switch_rule(instance, location, process, mode, *scale_list):
-        if len(mode_dict[process]) > 1:
-            lhs = sum(instance.X_P_mm[location, process, mode_, mode, scale_list[:scheduling_scale_level+1]] for mode_ in instance.modes) - sum(
-                instance.X_P_mm[location, process, mode, mode_, scale_list[:scheduling_scale_level+1]] for mode_ in instance.modes)
+        if scale_list in scale_iter:
+            if len(mode_dict[process]) > 1:
+                lhs = sum(instance.X_P_mm[location, process, mode_, mode, scale_list[:scheduling_scale_level+1]] for mode_ in instance.modes) - sum(
+                    instance.X_P_mm[location, process, mode, mode_, scale_list[:scheduling_scale_level+1]] for mode_ in instance.modes)
 
-            rhs = instance.X_P_m[location, process, mode, scale_list[:scheduling_scale_level + 1]] - \
-                instance.X_P_m[location, process, mode, scale_iter[scale_iter.index(
-                    scale_list[:scheduling_scale_level + 1]) - 1]]
+                rhs = instance.X_P_m[location, process, mode, scale_list[:scheduling_scale_level + 1]] - \
+                    instance.X_P_m[location, process, mode, scale_iter[scale_iter.index(
+                        scale_list[:scheduling_scale_level + 1]) - 1]]
 
-            return lhs == rhs
+                return lhs == rhs
+            else:
+                return Constraint.Skip
         else:
             return Constraint.Skip
 
