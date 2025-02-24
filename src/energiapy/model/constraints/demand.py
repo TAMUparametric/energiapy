@@ -329,14 +329,18 @@ def constraint_demand_penalty_location(instance: ConcreteModel, cluster_wt: dict
     """
 
     scales = scale_list(instance=instance, scale_levels=network_scale_level + 1)
-    scale_iter = scale_tuple(instance=instance, scale_levels=len(instance.scales))
+    scale_iter_n = scale_tuple(instance=instance, scale_levels=network_scale_level + 1)
+    scale_iter = scale_tuple(instance=instance, scale_levels=demand_scale_level + 1)
 
     def location_demand_penalty_rule(instance, location, resource_demand, *scale_list):
-        def weight(x): return 1 if cluster_wt is None else cluster_wt[x]
+        if scale_list in scale_iter_n:
+            def weight(x): return 1 if cluster_wt is None else cluster_wt[x]
 
-        return instance.Demand_penalty_location[location, resource_demand, scale_list] == sum(
-            weight(scale_) * instance.Demand_penalty[location, resource_demand, scale_[:demand_scale_level + 1]]
-            for scale_ in scale_iter if scale_[:network_scale_level + 1] == scale_list)
+            return instance.Demand_penalty_location[location, resource_demand, scale_list] == sum(
+                weight(scale_) * instance.Demand_penalty[location, resource_demand, scale_[:demand_scale_level + 1]]
+                for scale_ in scale_iter if scale_[:network_scale_level + 1] == scale_list)
+        else:
+            return Constraint.Skip
 
     instance.constraint_demand_penalty_location = Constraint(instance.locations, instance.resources_demand, *scales,
                                                              rule=location_demand_penalty_rule,
@@ -356,10 +360,14 @@ def constraint_demand_penalty_network(instance: ConcreteModel, network_scale_lev
     """
 
     scales = scale_list(instance=instance, scale_levels=network_scale_level + 1)
+    scale_iter = scale_tuple(instance=instance, scale_levels=network_scale_level + 1)
 
     def demand_penalty_network_rule(instance, resource_demand, *scale_list):
-        return instance.Demand_penalty_network[resource_demand, scale_list] == sum(
-            instance.Demand_penalty_location[location_, resource_demand, scale_list] for location_ in instance.locations)
+        if scale_list in scale_iter:
+            return instance.Demand_penalty_network[resource_demand, scale_list] == sum(
+                instance.Demand_penalty_location[location_, resource_demand, scale_list] for location_ in instance.locations)
+        else:
+            return Constraint.Skip
 
     instance.constraint_demand_penalty_network = Constraint(
         instance.resources_demand, *scales, rule=demand_penalty_network_rule, doc='total unmet demand from network')
@@ -413,12 +421,16 @@ def constraint_demand_penalty_cost_location(instance: ConcreteModel, demand_scal
 
     '''
     scales = scale_list(instance=instance, scale_levels=network_scale_level + 1)
-    scale_iter = scale_tuple(instance=instance, scale_levels=len(instance.scales))
+    scale_iter_n = scale_tuple(instance=instance, scale_levels=network_scale_level + 1)
+    scale_iter = scale_tuple(instance=instance, scale_levels=demand_scale_level + 1)
 
     def location_demand_penalty_cost_rule(instance, location, resource_demand, *scale_list):
-        return instance.Demand_penalty_cost_location[location, resource_demand, scale_list] == sum(
-            instance.Demand_penalty_cost[location, resource_demand, scale_[:demand_scale_level + 1]]
-            for scale_ in scale_iter if scale_[:network_scale_level + 1] == scale_list)
+        if scale_list in scale_iter_n:
+            return instance.Demand_penalty_cost_location[location, resource_demand, scale_list] == sum(
+                instance.Demand_penalty_cost[location, resource_demand, scale_[:demand_scale_level + 1]]
+                for scale_ in scale_iter if scale_[:network_scale_level + 1] == scale_list)
+        else:
+            return Constraint.Skip
 
     instance.constraint_demand_penalty_cost_location = Constraint(instance.locations, instance.resources_demand,
                                                                   *scales, rule=location_demand_penalty_cost_rule,
@@ -439,11 +451,15 @@ def constraint_demand_penalty_cost_network(instance: ConcreteModel, network_scal
     """
 
     scales = scale_list(instance=instance, scale_levels=network_scale_level + 1)
+    scale_iter = scale_tuple(instance=instance, scale_levels=network_scale_level + 1)
 
     def network_demand_penalty_cost_rule(instance, resource_demand, *scale_list):
-        return instance.Demand_penalty_cost_network[resource_demand, scale_list] == sum(
-            instance.Demand_penalty_cost_location[location_, resource_demand, scale_list]
-            for location_ in instance.locations)
+        if scale_list in scale_iter:
+            return instance.Demand_penalty_cost_network[resource_demand, scale_list] == sum(
+                instance.Demand_penalty_cost_location[location_, resource_demand, scale_list]
+                for location_ in instance.locations)
+        else:
+            return Constraint.Skip
 
     instance.constraint_demand_penalty_cost_network = Constraint(instance.resources_demand, *scales,
                                                                  rule=network_demand_penalty_cost_rule,
