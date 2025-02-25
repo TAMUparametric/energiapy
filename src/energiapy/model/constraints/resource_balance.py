@@ -611,14 +611,17 @@ def constraint_inventory_network(instance: ConcreteModel, network_scale_level: i
 
     scales = scale_list(instance=instance,
                         scale_levels=network_scale_level + 1)
-
+    scale_iter_n = scale_tuple(instance=instance, scale_levels=network_scale_level + 1)
     scale_iter = scale_tuple(
         instance=instance, scale_levels=scheduling_scale_level + 1)
 
     def inventory_network_rule(instance, location, resource, *scale_list):
-        return instance.Inv_network[location, resource, scale_list[:network_scale_level + 1]] == sum(
-            instance.Inv[location, resource, scale_] for scale_ in scale_iter if
-            scale_[:network_scale_level + 1] == scale_list)
+        if scale_list in scale_iter_n:
+            return instance.Inv_network[location, resource, scale_list[:network_scale_level + 1]] == sum(
+                instance.Inv[location, resource, scale_] for scale_ in scale_iter if
+                scale_[:network_scale_level + 1] == scale_list)
+        else:
+            return Constraint.Skip
 
     instance.constraint_inventory_network = Constraint(
         instance.locations, instance.resources_store, *scales, rule=inventory_network_rule,
