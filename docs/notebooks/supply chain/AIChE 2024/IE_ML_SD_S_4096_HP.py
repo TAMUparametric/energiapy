@@ -463,7 +463,7 @@ if __name__ == '__main__':
     with open(f'output_{len(load_scenario_names)}_UI_HP.pkl','wb') as file:
         pickle.dump(output_dict,file)
 
-    error
+    # error
 
     exPen_UI = 0
     for scen in load_scenario_names:
