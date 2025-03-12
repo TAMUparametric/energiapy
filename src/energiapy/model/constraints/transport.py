@@ -334,13 +334,17 @@ def constraint_transport_capacity_LB_no_bin(instance: ConcreteModel, network_sca
 
     scales = scale_list(instance=instance,
                         scale_levels=network_scale_level + 1)
+    scale_iter = scale_tuple(instance=instance, scale_levels=network_scale_level + 1)
 
     def transport_capacity_LB_no_bin_rule(instance, source, sink,  transport, *scale_list):
-        if transport in transport_avail_dict[(source, sink)]:
-            return instance.Cap_F[source, sink, transport, scale_list[:network_scale_level + 1]] >= \
-                trans_min[transport] 
+        if scale_list in scale_iter:
+            if transport in transport_avail_dict[(source, sink)]:
+                return instance.Cap_F[source, sink, transport, scale_list[:network_scale_level + 1]] >= \
+                    trans_min[transport]
+            else:
+                return instance.Cap_F[source, sink, transport, scale_list[:network_scale_level + 1]] == 0
         else:
-            return instance.Cap_F[source, sink, transport, scale_list[:network_scale_level + 1]] == 0
+            return Constraint.Skip
 
     instance.constraint_transport_capacity_LB_no_bin = Constraint(instance.sources, instance.sinks,
                                                            instance.transports, *scales, rule=transport_capacity_LB_no_bin_rule,
@@ -371,13 +375,17 @@ def constraint_transport_capacity_UB_no_bin(instance: ConcreteModel, network_sca
 
     scales = scale_list(instance=instance,
                         scale_levels=network_scale_level + 1)
+    scale_iter = scale_tuple(instance=instance, scale_levels=network_scale_level + 1)
 
     def transport_capacity_UB_no_bin_rule(instance, source, sink, transport, *scale_list):
-        if transport in transport_avail_dict[(source, sink)]:
-            return instance.Cap_F[source, sink, transport, scale_list[:network_scale_level + 1]] <= \
-                trans_max[transport]
+        if scale_list in scale_iter:
+            if transport in transport_avail_dict[(source, sink)]:
+                return instance.Cap_F[source, sink, transport, scale_list[:network_scale_level + 1]] <= \
+                    trans_max[transport]
+            else:
+                return instance.Cap_F[source, sink, transport, scale_list[:network_scale_level + 1]] == 0
         else:
-            return instance.Cap_F[source, sink, transport, scale_list[:network_scale_level + 1]] == 0
+            return Constraint.Skip
 
     instance.constraint_transport_capacity_UB_no_bin = Constraint(instance.sources, instance.sinks,
                                                            instance.transports, *scales, rule=transport_capacity_UB_no_bin_rule,
