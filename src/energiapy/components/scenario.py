@@ -69,6 +69,7 @@ class Scenario:
     network_scale_level: int = 0
     demand_scale_level: int = 0
     capacity_scale_level: int = 0
+    demand_penalty_scale_level: int = 0
     cluster_wt: dict = None
     demand: Union[Dict[Location, Dict[Resource, float]], float] = None
     label: str = ''
@@ -240,6 +241,7 @@ class Scenario:
             i.name: i.availability_factor for i in self.location_set}
         self.revenue_factor = {
             i.name: i.revenue_factor for i in self.location_set}
+        self.demand_penalty_factor = {i.name: i.demand_penalty_factor for i in self.location_set}
         self.location_resource_dict = {
             i.name: {j.name for j in i.resources_full} for i in self.location_set}
         self.location_process_dict = {
