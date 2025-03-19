@@ -73,7 +73,7 @@ class Location:
     incidental_factor: Union[float, Dict[Process, float]] = None
     availability_factor: Union[float, Dict[Resource, float]] = None
     revenue_factor: Union[float, Dict[Resource, float]] = None
-    demand_penalty_factor: Union[float, Dict[Process, float]] = None
+    demand_penalty_factor: Union[float, Dict[Resource, float]] = None
     demand_scale_level: int = 0
     price_scale_level: int = 0
     capacity_scale_level: int = 0

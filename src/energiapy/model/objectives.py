@@ -131,8 +131,11 @@ def objective_cost_w_demand_penalty(instance: ConcreteModel, demand_penalty: Dic
             cost_trans_vopex = 0
             cost_trans_fopex = 0
 
-        penalty = sum(demand_penalty[location_][resource_]*instance.Demand_penalty[location_, resource_, scale_] for location_, resource_, scale_ in product(
-            instance.locations, instance.resources_demand, scale_iter_penalty))
+        # penalty = sum(demand_penalty[location_][resource_]*instance.Demand_penalty[location_, resource_, scale_] for location_, resource_, scale_ in product(
+        #     instance.locations, instance.resources_demand, scale_iter_penalty))
+
+        penalty = sum(instance.Demand_penalty_cost_network[resource_, scale_] for resource_ in instance.resources_demand for scale_ in scale_iter)
+
         return capex + cost_trans_capex + vopex + fopex + cost_purch + cost_trans_vopex + cost_trans_fopex + incidental + land_cost - credit + penalty + storage_cost
     instance.objective_cost_w_demand_penalty = Objective(
         rule=objective_cost_w_demand_penalty_rule, doc='total cost with penalty for demand')

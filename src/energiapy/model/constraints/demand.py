@@ -374,7 +374,7 @@ def constraint_demand_penalty_network(instance: ConcreteModel, network_scale_lev
     constraint_latex_render(demand_penalty_network_rule)
     return instance.constraint_demand_penalty_network
 
-def constraint_demand_penalty_cost(instance: ConcreteModel, demand_penalty_dict: dict, demand_scale_level: int):
+def constraint_demand_penalty_cost(instance: ConcreteModel, demand_penalty_dict: dict, demand_penalty_factor: dict, demand_scale_level: int):
     '''
 
     Args:
@@ -397,8 +397,15 @@ def constraint_demand_penalty_cost(instance: ConcreteModel, demand_penalty_dict:
             else:
                 Demand_penalty = 0
 
-            return (instance.Demand_penalty_cost[location, resource_demand, scale_list] ==
-                    demand_penalty_dict[location][resource_demand] * Demand_penalty)
+            if demand_penalty_factor[location] is not None:
+                if resource_demand in list(demand_penalty_factor[location].keys()):
+                    demand_penalty_fact = demand_penalty_factor[location][resource_demand][scale_list]
+                else:
+                    demand_penalty_fact = 1
+            else:
+                demand_penalty_fact = 1
+
+            return instance.Demand_penalty_cost[location, resource_demand, scale_list] == demand_penalty_fact * demand_penalty_dict[location][resource_demand] * Demand_penalty
         else:
             return Constraint.Skip
 

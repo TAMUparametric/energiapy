@@ -991,7 +991,7 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
 
             constraint_demand_penalty_network(instance=instance, network_scale_level=scenario.network_scale_level)
 
-            constraint_demand_penalty_cost(instance=instance, demand_scale_level=scenario.demand_scale_level, demand_penalty_dict=scenario.demand_penalty)
+            constraint_demand_penalty_cost(instance=instance, demand_scale_level=scenario.demand_scale_level, demand_penalty_dict=scenario.demand_penalty, demand_penalty_factor=scenario.demand_penalty_factor)
 
             constraint_demand_penalty_cost_location(instance=instance, demand_scale_level=scenario.demand_scale_level,
                                                     network_scale_level=scenario.network_scale_level)
@@ -1013,7 +1013,7 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
 
             constraint_demand_penalty_network(instance=instance, network_scale_level=scenario.network_scale_level)
 
-            constraint_demand_penalty_cost(instance=instance, demand_scale_level=scenario.demand_scale_level, demand_penalty_dict=scenario.demand_penalty)
+            constraint_demand_penalty_cost(instance=instance, demand_scale_level=scenario.demand_scale_level, demand_penalty_dict=scenario.demand_penalty, demand_penalty_factor=scenario.demand_penalty_factor)
 
             constraint_demand_penalty_cost_location(instance=instance, demand_scale_level=scenario.demand_scale_level,
                                                     network_scale_level=scenario.network_scale_level)
