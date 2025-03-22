@@ -14,7 +14,6 @@ from energiapy.components.location import Location
 from energiapy.components.transport import Transport
 from energiapy.components.network import Network
 from energiapy.components.scenario import Scenario
-# from energiapy.model.constraints.demand import constraint_demand2
 from energiapy.components.result import Result
 from energiapy.model.formulate import formulate, Constraints, Objective
 from energiapy.plot import plot_results, plot_scenario, plot_location

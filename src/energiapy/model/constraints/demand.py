@@ -145,8 +145,8 @@ def constraint_demand(instance: ConcreteModel, demand: Union[dict, float], deman
     constraint_latex_render(demand_rule)
     return instance.constraint_demand
 
-def constraint_demand2(instance: ConcreteModel, demand: Union[dict, float], demand_factor: Union[dict, float],
-                      demand_scale_level: int = 0, scheduling_scale_level: int = 0,
+def constraint_demand_lb(instance: ConcreteModel, demand: Union[dict, float], demand_factor: Union[dict, float],
+                      demand_scale_level: int = 0, scheduling_scale_level: int = 0, epsilon: float = 1,
                       cluster_wt: dict = None, location_resource_dict: dict = None, sign: str = 'geq') -> Constraint:
     """Ensures that demand for resource is met at chosen temporal scale
 
@@ -209,25 +209,25 @@ def constraint_demand2(instance: ConcreteModel, demand: Union[dict, float], dema
                 demandtarget = demand
 
         if sign == 'geq':
-            return discharge >= demandtarget
+            return discharge >= epsilon*demandtarget
 
         if sign == 'leq':
-            return discharge <= demandtarget
+            return discharge <= epsilon*demandtarget
 
         if sign == 'eq':
-            return discharge == demandtarget
+            return discharge == epsilon*demandtarget
 
     if len(instance.locations) > 1:
-        instance.constraint_demand2 = Constraint(
+        instance.constraint_demand_lb = Constraint(
             instance.sinks, instance.resources_demand, *scales, rule=demand_rule, doc='specific demand for resources')
 
     else:
-        instance.constraint_demand2 = Constraint(
+        instance.constraint_demand_lb = Constraint(
             instance.locations, instance.resources_demand, *scales, rule=demand_rule,
             doc='specific demand for resources')
 
     constraint_latex_render(demand_rule)
-    return instance.constraint_demand2
+    return instance.constraint_demand_lb
 
 
 
