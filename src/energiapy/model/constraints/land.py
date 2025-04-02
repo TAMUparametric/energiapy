@@ -35,7 +35,7 @@ def constraint_land_process(instance: ConcreteModel, land_dict: dict, network_sc
 
     instance.constraint_land_process = Constraint(
         instance.locations, instance.processes, *scales, rule=land_process_rule, doc='land required for process')
-    constraint_latex_render(land_process_rule)
+    #constraint_latex_render(land_process_rule)
     return instance.constraint_land_process
 
 
@@ -57,7 +57,7 @@ def constraint_land_location(instance: ConcreteModel, network_scale_level: int =
 
     instance.constraint_land_location = Constraint(
         instance.locations, *scales, rule=land_location_rule, doc='land required for process')
-    constraint_latex_render(land_location_rule)
+    #constraint_latex_render(land_location_rule)
     return instance.constraint_land_location
 
 
@@ -79,7 +79,7 @@ def constraint_land_network(instance: ConcreteModel, network_scale_level: int = 
 
     instance.constraint_land_network = Constraint(
         *scales, rule=land_network_rule, doc='land required for process')
-    constraint_latex_render(land_network_rule)
+    #constraint_latex_render(land_network_rule)
     return instance.constraint_land_network
 
 
@@ -101,5 +101,5 @@ def constraint_land_location_restriction(instance: ConcreteModel, network_scale_
 
     instance.constraint_land_location_restriction = Constraint(
         instance.locations, *scales, rule=land_location_restriction_rule, doc='land required for process')
-    constraint_latex_render(land_location_restriction_rule)
+    #constraint_latex_render(land_location_restriction_rule)
     return instance.constraint_land_location_restriction

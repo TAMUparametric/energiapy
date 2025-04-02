@@ -34,7 +34,7 @@ def constraint_block_integer_cut_max(instance: ConcreteModel, network_scale_leve
 
     def block_integer_cut_max_rule(instance, *scale_list):
         return sum(instance.X_P[location.name, i.name, scale_list] for i in process_set if i.block == block) <= number
-    constraint_latex_render(block_integer_cut_max_rule)
+    #constraint_latex_render(block_integer_cut_max_rule)
 
     return Constraint(*scales, rule=block_integer_cut_max_rule, doc=f'block integer cut for {block}')
 
@@ -57,7 +57,7 @@ def constraint_block_integer_cut_min(instance: ConcreteModel, network_scale_leve
 
     def block_integer_cut_min_rule(instance, *scale_list):
         return sum(instance.X_P[location.name, i.name, scale_list] for i in process_set if i.block == block) >= number
-    constraint_latex_render(block_integer_cut_min_rule)
+    #constraint_latex_render(block_integer_cut_min_rule)
 
     return Constraint(*scales, rule=block_integer_cut_min_rule, doc=f'block integer cut for {block}')
 
@@ -80,6 +80,6 @@ def constraint_block_integer_cut(instance: ConcreteModel, network_scale_level: i
 
     def block_integer_cut_rule(instance, *scale_list):
         return sum(instance.X_P[location.name, i.name, scale_list] for i in process_set if i.block == block) == number
-    constraint_latex_render(block_integer_cut_rule)
+    #constraint_latex_render(block_integer_cut_rule)
 
     return Constraint(*scales, rule=block_integer_cut_rule, doc=f'block integer cut for {block}')

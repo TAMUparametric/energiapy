@@ -135,6 +135,7 @@ class Scenario:
             self.sink_locations = None
             self.transport_dict = None
             self.transport_avail_dict = None
+            self.resource_transport_dict = None
             self.trans_max = None
             self.trans_loss = None
             self.trans_capex = None

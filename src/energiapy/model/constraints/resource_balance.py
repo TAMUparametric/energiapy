@@ -61,7 +61,7 @@ def constraint_resource_consumption(instance: ConcreteModel, location_resource_d
         instance.locations, instance.resources_purch, *
         scales, rule=resource_consumption_rule,
         doc='resource consumption')
-    constraint_latex_render(resource_consumption_rule)
+    #constraint_latex_render(resource_consumption_rule)
     return instance.constraint_resource_consumption
 
 
@@ -177,7 +177,7 @@ def constraint_resource_consumption(instance: ConcreteModel, location_resource_d
 #     instance.constraint_inventory_balance = Constraint(
 #         instance.locations, instance.resources, *scales, rule=inventory_balance_rule,
 #         doc='mass balance across scheduling scale')
-#     constraint_latex_render(inventory_balance_rule)
+#     #constraint_latex_render(inventory_balance_rule)
 #     return instance.constraint_inventory_balance
 
 
@@ -215,6 +215,9 @@ def constraint_inventory_balance(instance: ConcreteModel, scheduling_scale_level
 
     if mode_dict is None:
         mode_dict = dict()
+
+    if not resource_transport_dict:
+        resource_transport_dict = dict()
 
     if not transport_avail_dict:
         transport_avail_dict = dict()
@@ -310,7 +313,7 @@ def constraint_inventory_balance(instance: ConcreteModel, scheduling_scale_level
     instance.constraint_inventory_balance = Constraint(
         instance.locations, instance.resources, *scales, rule=inventory_balance_rule,
         doc='mass balance across scheduling scale')
-    constraint_latex_render(inventory_balance_rule)
+    #constraint_latex_render(inventory_balance_rule)
     return instance.constraint_inventory_balance
 
 
@@ -341,7 +344,7 @@ def constraint_location_production(instance: ConcreteModel, cluster_wt: dict,
     instance.constraint_location_production = Constraint(
         instance.locations, instance.processes, *scales, rule=location_production_rule,
         doc='total production at location')
-    constraint_latex_render(location_production_rule)
+    #constraint_latex_render(location_production_rule)
     return instance.constraint_location_production
 
 
@@ -369,7 +372,7 @@ def constraint_location_production_material_mode_sum(instance: ConcreteModel, pr
         instance.locations, instance.processes, *
         scales, rule=location_production_material_mode_sum_rule,
         doc='total production at location')
-    constraint_latex_render(location_production_material_mode_sum_rule)
+    #constraint_latex_render(location_production_material_mode_sum_rule)
     return instance.constraint_location_production_material_mode_sum
 
 
@@ -403,7 +406,7 @@ def constraint_location_production_material_mode(instance: ConcreteModel, cluste
         instance.locations, instance.processes, instance.material_modes, *
         scales, rule=location_production_material_mode_rule,
         doc='total production at location')
-    constraint_latex_render(location_production_material_mode_rule)
+    #constraint_latex_render(location_production_material_mode_rule)
     return instance.constraint_location_production_material_mode
 
 
@@ -435,7 +438,7 @@ def constraint_location_discharge(instance: ConcreteModel, cluster_wt: dict,
         instance.locations, instance.resources_sell, *
         scales, rule=location_discharge_rule,
         doc='total discharge at location')
-    constraint_latex_render(location_discharge_rule)
+    #constraint_latex_render(location_discharge_rule)
     return instance.constraint_location_discharge
 
 
@@ -468,7 +471,7 @@ def constraint_location_consumption(instance: ConcreteModel, cluster_wt: dict,
         instance.locations, instance.resources_purch, *
         scales, rule=location_consumption_rule,
         doc='total consumption at location')
-    constraint_latex_render(location_consumption_rule)
+    #constraint_latex_render(location_consumption_rule)
     return instance.constraint_location_consumption
 
 
@@ -491,7 +494,7 @@ def constraint_network_production(instance: ConcreteModel, network_scale_level: 
 
     instance.constraint_network_production = Constraint(
         instance.processes, *scales, rule=network_production_rule, doc='total production from network')
-    constraint_latex_render(network_production_rule)
+    #constraint_latex_render(network_production_rule)
     return instance.constraint_network_production
 
 
@@ -514,7 +517,7 @@ def constraint_network_discharge(instance: ConcreteModel, network_scale_level: i
 
     instance.constraint_network_discharge = Constraint(
         instance.resources_sell, *scales, rule=network_discharge_rule, doc='total discharge from network')
-    constraint_latex_render(network_discharge_rule)
+    #constraint_latex_render(network_discharge_rule)
     return instance.constraint_network_discharge
 
 
@@ -537,7 +540,7 @@ def constraint_network_consumption(instance: ConcreteModel, network_scale_level:
 
     instance.constraint_network_consumption = Constraint(
         instance.resources_purch, *scales, rule=network_consumption_rule, doc='total consumption from network')
-    constraint_latex_render(network_consumption_rule)
+    #constraint_latex_render(network_consumption_rule)
     return instance.constraint_network_consumption
 
 
@@ -563,7 +566,7 @@ def constraint_specific_network_discharge(instance: ConcreteModel, bounds: Dict[
         else:
             return Constraint.Skip
 
-    constraint_latex_render(specific_network_discharge_rule)
+    #constraint_latex_render(specific_network_discharge_rule)
     return Constraint(instance.resources_sell, *scales, rule=specific_network_discharge_rule,
                       doc='restrict discharge of resource at network level')
 
@@ -591,7 +594,7 @@ def constraint_specific_location_discharge(instance: ConcreteModel, location: Lo
         else:
             return Constraint.Skip
 
-    constraint_latex_render(specific_location_discharge_rule)
+    #constraint_latex_render(specific_location_discharge_rule)
     return Constraint(instance.resources_sell, *scales, rule=specific_location_discharge_rule,
                       doc='restrict discharge of resource at location level')
 
@@ -626,6 +629,6 @@ def constraint_inventory_network(instance: ConcreteModel, network_scale_level: i
     instance.constraint_inventory_network = Constraint(
         instance.locations, instance.resources_store, *scales, rule=inventory_network_rule,
         doc='total inventory at network')
-    constraint_latex_render(inventory_network_rule)
+    #constraint_latex_render(inventory_network_rule)
 
     return instance.constraint_inventory_network

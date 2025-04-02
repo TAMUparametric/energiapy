@@ -57,7 +57,7 @@ from ...utils.scale_utils import scale_list, scale_tuple
 #             instance.locations, instance.resources_demand, *scales, rule=demand_rule,
 #             doc='specific demand for resources')
 
-#     constraint_latex_render(demand_rule)
+#     ##constraint_latex_render(demand_rule)
 #     return instance.constraint_demand
 
 
@@ -142,7 +142,7 @@ def constraint_demand(instance: ConcreteModel, demand: Union[dict, float], deman
             instance.locations, instance.resources_demand, *scales, rule=demand_rule,
             doc='specific demand for resources')
 
-    constraint_latex_render(demand_rule)
+    ##constraint_latex_render(demand_rule)
     return instance.constraint_demand
 
 def constraint_demand_lb(instance: ConcreteModel, demand: Union[dict, float], demand_factor: Union[dict, float],
@@ -226,8 +226,8 @@ def constraint_demand_lb(instance: ConcreteModel, demand: Union[dict, float], de
             instance.locations, instance.resources_demand, *scales, rule=demand_rule,
             doc='specific demand for resources')
 
-    constraint_latex_render(demand_rule)
-    return instance.constraint_demand_lb
+    ##constraint_latex_render(demand_rule)
+    # return instance.constraint_demand_lb
 
 
 
@@ -312,7 +312,7 @@ def constraint_demand_penalty(instance: ConcreteModel, demand: Union[dict, float
         instance.constraint_demand_penalty = Constraint(
             instance.locations, instance.resources_demand, *scales, rule=demand_penalty_rule,
             doc='specific demand for resources with penalty')
-    constraint_latex_render(demand_penalty_rule)
+    ##constraint_latex_render(demand_penalty_rule)
     return instance.constraint_demand_penalty
 
 def constraint_demand_penalty_location(instance: ConcreteModel, cluster_wt: dict,
@@ -345,7 +345,7 @@ def constraint_demand_penalty_location(instance: ConcreteModel, cluster_wt: dict
     instance.constraint_demand_penalty_location = Constraint(instance.locations, instance.resources_demand, *scales,
                                                              rule=location_demand_penalty_rule,
                                                              doc='total unmet demand at a location')
-    constraint_latex_render(location_demand_penalty_rule)
+    ##constraint_latex_render(location_demand_penalty_rule)
     return instance.constraint_demand_penalty_location
 
 def constraint_demand_penalty_network(instance: ConcreteModel, network_scale_level: int = 0) -> Constraint:
@@ -371,7 +371,7 @@ def constraint_demand_penalty_network(instance: ConcreteModel, network_scale_lev
 
     instance.constraint_demand_penalty_network = Constraint(
         instance.resources_demand, *scales, rule=demand_penalty_network_rule, doc='total unmet demand from network')
-    constraint_latex_render(demand_penalty_network_rule)
+    ##constraint_latex_render(demand_penalty_network_rule)
     return instance.constraint_demand_penalty_network
 
 def constraint_demand_penalty_cost(instance: ConcreteModel, demand_penalty_dict: dict, demand_penalty_factor: dict, demand_scale_level: int):
@@ -411,7 +411,7 @@ def constraint_demand_penalty_cost(instance: ConcreteModel, demand_penalty_dict:
 
     instance.constraint_demand_penalty_cost = Constraint(instance.locations, instance.resources_demand, *scales,
                                                          rule=demand_penalty_cost_rule, doc='Demand penalty cost')
-    constraint_latex_render(demand_penalty_cost_rule)
+    #constraint_latex_render(demand_penalty_cost_rule)
     return instance.constraint_demand_penalty_cost
 
 
@@ -442,7 +442,7 @@ def constraint_demand_penalty_cost_location(instance: ConcreteModel, demand_scal
     instance.constraint_demand_penalty_cost_location = Constraint(instance.locations, instance.resources_demand,
                                                                   *scales, rule=location_demand_penalty_cost_rule,
                                                                   doc='Total demand penalty cost at a location')
-    constraint_latex_render(location_demand_penalty_cost_rule)
+    #constraint_latex_render(location_demand_penalty_cost_rule)
     return instance.constraint_demand_penalty_cost_location
 
 
@@ -471,7 +471,7 @@ def constraint_demand_penalty_cost_network(instance: ConcreteModel, network_scal
     instance.constraint_demand_penalty_cost_network = Constraint(instance.resources_demand, *scales,
                                                                  rule=network_demand_penalty_cost_rule,
                                                                  doc='Total demand penalty cost for the network')
-    constraint_latex_render(network_demand_penalty_cost_rule)
+    #constraint_latex_render(network_demand_penalty_cost_rule)
     return instance.constraint_demand_penalty_cost_network
 
 def constraint_demand_theta(instance: ConcreteModel, demand: Union[dict, float], demand_factor: Union[dict, float],
@@ -554,5 +554,5 @@ def constraint_demand_theta(instance: ConcreteModel, demand: Union[dict, float],
         instance.constraint_demand = Constraint(
             instance.locations, instance.resources_demand, *scales, rule=demand_rule,
             doc='specific demand for resources')
-    constraint_latex_render(demand_rule)
+    #constraint_latex_render(demand_rule)
     return instance.constraint_demand
