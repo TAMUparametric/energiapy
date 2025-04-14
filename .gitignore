@@ -14,3 +14,5 @@ env/
 *.pkl
 *.log
 .DS_Store
+.iml
+.xml

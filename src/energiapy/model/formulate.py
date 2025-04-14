@@ -289,7 +289,6 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
               write_lpfile: bool = False, gwp: float = None, land_restriction: float = None,
               gwp_reduction_pct: float = None, model_class: ModelClass = ModelClass.MIP, objective_resource: Resource = None,
               inventory_zero: Dict[Location, Dict[Tuple[Process, Resource], float]] = None,
-              transit_zero: Dict[Tuple[Location, Location, Transport, Resource, *Tuple[int, ...]], float] = None,
               init_zero = None,
               demand_sign: str = 'geq') -> ConcreteModel:
     """formulates a model. Constraints need to be declared in order

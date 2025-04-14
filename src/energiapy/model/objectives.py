@@ -97,6 +97,7 @@ def objective_cost_w_demand_penalty(instance: ConcreteModel, demand_penalty: Dic
 
     def objective_cost_w_demand_penalty_rule(instance):
         capex = sum(instance.Capex_network[scale_] for scale_ in scale_iter)
+        # capex = sum()
         vopex = sum(instance.Vopex_network[scale_] for scale_ in scale_iter)
         fopex = sum(instance.Fopex_network[scale_] for scale_ in scale_iter)
         incidental = sum(
