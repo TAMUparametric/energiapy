@@ -325,3 +325,4 @@ class Constraints(Enum):
     MATERIAL = auto()
     PRESERVE_NETWORK = auto()
     DEMAND = auto()
+    BACKLOG = auto()

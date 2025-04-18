@@ -70,12 +70,14 @@ class Scenario:
     demand_scale_level: int = 0
     capacity_scale_level: int = 0
     demand_penalty_scale_level: int = 0
+    backlog_penalty_scale_level: int = 0
     cluster_wt: dict = None
     demand: Union[Dict[Location, Dict[Resource, float]], float] = None
     label: str = ''
     capacity_bounds: CapacityBounds = None
     annualization_factor: float = 1
     demand_penalty: Dict[Location, Dict[Resource, float]] = None
+    backlog_penalty: Dict[Location, Dict[Resource, float]] = None
     error: float = None
     rep_dict: dict = None
     emission_weights: EmissionWeights = None
@@ -243,6 +245,7 @@ class Scenario:
         self.revenue_factor = {
             i.name: i.revenue_factor for i in self.location_set}
         self.demand_penalty_factor = {i.name: i.demand_penalty_factor for i in self.location_set}
+        self.backlog_penalty_factor = {i.name: i.backlog_penalty_factor for i in self.location_set}
         self.location_resource_dict = {
             i.name: {j.name for j in i.resources_full} for i in self.location_set}
         self.location_process_dict = {
@@ -257,7 +260,6 @@ class Scenario:
         self.fopex_dict = {i.name: i.fopex for i in self.process_set}
         self.vopex_dict = {i.name: i.vopex for i in self.process_set}
         self.order_fopex_dict = {i.name: i.order_fopex for i in self.process_set}
-        # self.storage_capex_dict = {i.resource_storage: i.storage_capex for i in self.process_set if i.resource_storage is not None}
         self.storage_capex_dict = {i.name: i.storage_capex_dict for i in self.location_set}
         self.incidental_dict = {i.name: i.incidental for i in self.process_set}
         self.land_dict = {i.name: i.land for i in self.process_set}
@@ -333,6 +335,9 @@ class Scenario:
 
         if self.demand_penalty is not None:
             self.demand_penalty = {i.name: {j.name: self.demand_penalty[i][j] for j in self.demand_penalty[i].keys()} for i in self.demand_penalty.keys()}
+
+        if not self.backlog_penalty:
+            self.backlog_penalty = {i.name: {j.name: self.backlog_penalty[i][j] for j in self.backlog_penalty[i].keys()} for i in self.backlog_penalty.keys()}
 
         df_capex = DataFrame.from_dict(
             self.capex_dict, orient='index', columns=['capex'])

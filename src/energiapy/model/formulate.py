@@ -344,6 +344,9 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
                     j.name: demand[i][j] for j in demand[i].keys()} for i in demand.keys()}
             except:
                 pass
+
+    isBacklog = Constraints.BACKLOG in constraints
+
     if model_class is ModelClass.MIP:
 
         instance = ConcreteModel()

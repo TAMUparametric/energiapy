@@ -74,12 +74,14 @@ class Location:
     availability_factor: Union[float, Dict[Resource, float]] = None
     revenue_factor: Union[float, Dict[Resource, float]] = None
     demand_penalty_factor: Union[float, Dict[Resource, float]] = None
+    backlog_penalty_factor: Union[float, Dict[Process, float]] = None
     demand_scale_level: int = 0
     price_scale_level: int = 0
     capacity_scale_level: int = 0
     expenditure_scale_level: int = 0
     availability_scale_level: int = 0
     demand_penalty_scale_level: int = 0
+    backlog_penalty_scale_level: int = 0
     land_cost: float = 0
     credit: Dict[Process, float] = None
     label: str = ''
@@ -134,6 +136,14 @@ class Location:
                 self.demand_penalty_factor = scale_changer(
                     self.demand_penalty_factor, scales=self.scales, scale_level=self.demand_penalty_scale_level
                 )
+            else:
+                warn('Input should be a dict of a DataFrame, Dict[Process, float]')
+
+        if self.backlog_penalty_factor is not None:
+            self.varying_backlog_penalty = set(self.backlog_penalty_factor.keys())
+            if isinstance(list(self.backlog_penalty_factor.values())[0], DataFrame):
+                self.backlog_penalty_factor = scale_changer(
+                    self.backlog_penalty_factor, scales=self.scales, scale_level=self.backlog_penalty_scale_level)
             else:
                 warn('Input should be a dict of a DataFrame, Dict[Process, float]')
 
