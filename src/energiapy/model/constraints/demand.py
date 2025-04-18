@@ -168,54 +168,57 @@ def constraint_demand_lb(instance: ConcreteModel, demand: Union[dict, float], de
     #                     scale_levels=len(instance.scales))
     scale_iter = scale_tuple(
         instance=instance, scale_levels=scheduling_scale_level + 1)
-
+    scale_iter_d = scale_tuple(instance=instance, scale_levels=demand_scale_level + 1)
     if location_resource_dict is None:
         location_resource_dict = dict()
 
     def demand_rule(instance, location, resource, *scale_list):
+        if scale_list[:scheduling_scale_level + 1] in scale_iter and scale_list[
+                                                                     :demand_scale_level + 1] in scale_iter_d:
+            if demand_factor[location] is not None:
+                if isinstance(demand_factor[location][list(demand_factor[location])[0]], (float, int)):
+                    discharge = sum(instance.S[location, resource_, scale_list[:scheduling_scale_level + 1]] for
+                                    resource_ in instance.resources_demand)
 
-        if demand_factor[location] is not None:
-            if isinstance(demand_factor[location][list(demand_factor[location])[0]], (float, int)):
-                discharge = sum(instance.S[location, resource_, scale_list[:scheduling_scale_level + 1]] for
-                                resource_ in instance.resources_demand)
+                else:
+                    discharge = sum(instance.S[location, resource, scale_] for scale_ in scale_iter if scale_[
+                        :demand_scale_level + 1] == scale_list)
 
+                if isinstance(demand, dict):
+                    if resource in location_resource_dict[location]:
+                        if resource in demand_factor[location].keys():
+                            demandtarget = demand[location][resource] * \
+                                demand_factor[location][resource][scale_list[:demand_scale_level + 1]]
+                        else:
+                            demandtarget = demand[location][resource]
+                    else:
+                        demandtarget = 0
+                else:
+                    if resource in location_resource_dict[location]:
+                        demandtarget = demand * \
+                            demand_factor[location][resource][scale_list[:demand_scale_level + 1]]
+                    else:
+                        demandtarget = 0
             else:
+                # TODO - doesn't meet demand in first timeperiod
                 discharge = sum(instance.S[location, resource, scale_] for scale_ in scale_iter if scale_[
                     :demand_scale_level + 1] == scale_list)
 
-            if isinstance(demand, dict):
-                if resource in location_resource_dict[location]:
-                    if resource in demand_factor[location].keys():
-                        demandtarget = demand[location][resource] * \
-                            demand_factor[location][resource][scale_list[:demand_scale_level + 1]]
-                    else:
-                        demandtarget = demand[location][resource]
+                if isinstance(demand, dict):
+                    demandtarget = demand[location][resource]
                 else:
-                    demandtarget = 0
-            else:
-                if resource in location_resource_dict[location]:
-                    demandtarget = demand * \
-                        demand_factor[location][resource][scale_list[:demand_scale_level + 1]]
-                else:
-                    demandtarget = 0
+                    demandtarget = demand
+
+            if sign == 'geq':
+                return discharge >= epsilon*demandtarget
+
+            if sign == 'leq':
+                return discharge <= epsilon*demandtarget
+
+            if sign == 'eq':
+                return discharge == epsilon*demandtarget
         else:
-            # TODO - doesn't meet demand in first timeperiod
-            discharge = sum(instance.S[location, resource, scale_] for scale_ in scale_iter if scale_[
-                :demand_scale_level + 1] == scale_list)
-
-            if isinstance(demand, dict):
-                demandtarget = demand[location][resource]
-            else:
-                demandtarget = demand
-
-        if sign == 'geq':
-            return discharge >= epsilon*demandtarget
-
-        if sign == 'leq':
-            return discharge <= epsilon*demandtarget
-
-        if sign == 'eq':
-            return discharge == epsilon*demandtarget
+            return Constraint.Skip
 
     if len(instance.locations) > 1:
         instance.constraint_demand_lb = Constraint(
