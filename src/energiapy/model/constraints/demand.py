@@ -233,8 +233,8 @@ def constraint_demand_lb(instance: ConcreteModel, demand: Union[dict, float], de
     # return instance.constraint_demand_lb
 
 def constraint_demand_penalty(instance: ConcreteModel, demand: Union[dict, float], demand_factor: Union[dict, float],
-                              demand_scale_level: int = 0, scheduling_scale_level: int = 0, is_backlog: bool = False,
-                              backlog: Union[dict, float] = None, backlog_factor: Union[dict, float] = None,
+                              backlog: Union[dict, float], backlog_factor: Union[dict, float],
+                              demand_scale_level: int = 0, scheduling_scale_level: int = 0, isBacklog: bool = False,
                               cluster_wt: dict = None, location_resource_dict: dict = None, sign: str = 'geq') -> Constraint:
     """Ensures that demand for resource is met at chosen temporal scale
 
@@ -259,6 +259,9 @@ def constraint_demand_penalty(instance: ConcreteModel, demand: Union[dict, float
 
     if location_resource_dict is None:
         location_resource_dict = dict()
+
+    # if isBacklog:
+    #
 
     def demand_penalty_rule(instance, location, resource, *scale_list):
         if scale_list[:scheduling_scale_level+1] in scale_iter and scale_list[:demand_scale_level+1] in scale_iter_d:
