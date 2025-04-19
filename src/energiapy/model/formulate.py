@@ -157,7 +157,8 @@ from .constraints.demand import (
     constraint_demand_penalty_network,
     constraint_demand_penalty_cost,
     constraint_demand_penalty_cost_location,
-    constraint_demand_penalty_cost_network
+    constraint_demand_penalty_cost_network,
+    constraint_backlog
 )
 from .constraints.transport import (
     # constraint_transport_balance,
@@ -289,7 +290,7 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
               write_lpfile: bool = False, gwp: float = None, land_restriction: float = None,
               gwp_reduction_pct: float = None, model_class: ModelClass = ModelClass.MIP, objective_resource: Resource = None,
               inventory_zero: Dict[Location, Dict[Tuple[Process, Resource], float]] = None,
-              init_zero = None,
+              backlog_zero: Dict[Location, Dict[Resource, float]] = None,
               demand_sign: str = 'geq') -> ConcreteModel:
     """formulates a model. Constraints need to be declared in order
 
@@ -367,6 +368,13 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
             scenario.store_min.update({loc: {process: inventory_zero[loc][process] for process in inventory_zero[loc] if
                                              inventory_zero[loc][process] > 0} for loc in inventory_zero})
 
+        if not backlog_zero:
+            backlog_zero = {l: {r: 0 for r in instance.resources_demand} for l in instance.locations}
+        else:
+            backlog_zero = {l.name: {r.name: backlog_zero[l][r] for r in backlog_zero[l]} for l in backlog_zero}
+            backlog_zero = {l: {r: backlog_zero[l][r] if r in backlog_zero[l] else 0 for r in instance.resources_demand} if l in backlog_zero else 0 for l in instance.locations}
+
+        # print(backlog_zero)
         if instance.processes_order_fopex != {}:
             generate_scheduling_binary_vars(instance=instance, scale_level=scenario.scheduling_scale_level)
 
@@ -983,8 +991,14 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
         if objective == Objective.COST_W_DEMAND_PENALTY:
             generate_demand_vars(
                 instance=instance, scale_level=scenario.demand_scale_level)
+
+            if isBacklog:
+
+                constraint_backlog(instance=instance, demand_scale_level=scenario.demand_scale_level, scheduling_scale_level=scenario.scheduling_scale_level,
+                                   location_resource_dict=scenario.location_resource_dict, backlog_zero=backlog_zero, demand=demand, demand_factor=scenario.demand_factor)
+
             constraint_demand_penalty(instance=instance, demand_scale_level=scenario.demand_scale_level,
-                                      scheduling_scale_level=scenario.scheduling_scale_level, demand=demand,
+                                      scheduling_scale_level=scenario.scheduling_scale_level, demand=demand, backlog_zero=backlog_zero, isBacklog=isBacklog,
                                       demand_factor=scenario.demand_factor, location_resource_dict=scenario.location_resource_dict, sign=demand_sign)
 
             constraint_demand_penalty_location(

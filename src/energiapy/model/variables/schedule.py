@@ -54,6 +54,11 @@ def generate_scheduling_vars(instance: ConcreteModel, scale_level: int = 0, mode
                                 instance.scales_scheduling, within=NonNegativeReals, doc='Production in material modes')
     return
 
+def generate_backlog_vars(instance: ConcreteModel):
+    instance.S_demand = Var(instance.locations, instance.resources_sell,
+                            instance.scales_scheduling, within=NonNegativeReals, doc='Resource sold to meet current demand')
+    instance.S_backlog = Var(instance.locations, instance.resources_sell,
+                             instance.scales_scheduling, within=NonNegativeReals, doc='Resource sold to meet current backlog')
 
 def generate_scheduling_theta_vars(instance: ConcreteModel):
     """declares multiparametric pyomo variables for scheduling at the chosen scales
