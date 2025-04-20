@@ -234,8 +234,7 @@ def constraint_demand_lb(instance: ConcreteModel, demand: Union[dict, float], de
     ##constraint_latex_render(demand_rule)
     # return instance.constraint_demand_lb
 
-def constraint_backlog(instance: ConcreteModel, demand: Union[dict, float], demand_factor: Union[dict, float],
-                       demand_scale_level: int = 0, scheduling_scale_level: int = 0,
+def constraint_backlog(instance: ConcreteModel, demand_scale_level: int = 0, scheduling_scale_level: int = 0,
                        location_resource_dict:dict = None, backlog_zero: Dict[Location, Dict[Resource, float]] = None):
 
     scales = scale_list(instance=instance, scale_levels=demand_scale_level+1)
@@ -248,48 +247,49 @@ def constraint_backlog(instance: ConcreteModel, demand: Union[dict, float], dema
 
     def backlog_rule(instance, location, resource, *scale_list):
         if scale_list[:scheduling_scale_level+1] in scale_iter and scale_list[:demand_scale_level+1] in scale_iter_d:
-            if demand_factor[location] is not None:
-                if isinstance(demand_factor[location][list(demand_factor[location])[0]], (float, int)):
-                    discharge = sum(instance.S[location, resource_, scale_list[:scheduling_scale_level + 1]] for
-                                    resource_ in instance.resources_demand)
-                else:
-                    discharge = sum(instance.S[location, resource, scale_] for scale_ in scale_iter if scale_[
-                        :demand_scale_level + 1] == scale_list)
-
-                if isinstance(demand, dict):
-                    if resource in location_resource_dict[location]:
-                        if resource in demand_factor[location].keys():
-                            demandtarget = demand[location][resource] * \
-                                demand_factor[location][resource][scale_list[:demand_scale_level + 1]]
-                        else:
-                            demandtarget = demand[location][resource]
-                    else:
-                        demandtarget = 0
-                else:
-                    if resource in location_resource_dict[location]:
-                        demandtarget = demand * \
-                            demand_factor[location][resource][scale_list[:demand_scale_level + 1]]
-                    else:
-                        demandtarget = 0
-            else:
-                # TODO - doesn't meet demand in first timeperiod
-                discharge = sum(instance.S[location, resource, scale_] for scale_ in scale_iter if scale_[
-                    :demand_scale_level + 1] == scale_list)
-
-                if isinstance(demand, dict):
-                    demandtarget = demand[location][resource]
-                else:
-                    demandtarget = demand
+            # if demand_factor[location] is not None:
+            #     if isinstance(demand_factor[location][list(demand_factor[location])[0]], (float, int)):
+            #         discharge = sum(instance.S[location, resource_, scale_list[:scheduling_scale_level + 1]] for
+            #                         resource_ in instance.resources_demand)
+            #     else:
+            #         discharge = sum(instance.S[location, resource, scale_] for scale_ in scale_iter if scale_[
+            #             :demand_scale_level + 1] == scale_list)
+            #
+            #     if isinstance(demand, dict):
+            #         if resource in location_resource_dict[location]:
+            #             if resource in demand_factor[location].keys():
+            #                 demandtarget = demand[location][resource] * \
+            #                     demand_factor[location][resource][scale_list[:demand_scale_level + 1]]
+            #             else:
+            #                 demandtarget = demand[location][resource]
+            #         else:
+            #             demandtarget = 0
+            #     else:
+            #         if resource in location_resource_dict[location]:
+            #             demandtarget = demand * \
+            #                 demand_factor[location][resource][scale_list[:demand_scale_level + 1]]
+            #         else:
+            #             demandtarget = 0
+            # else:
+            #     # TODO - doesn't meet demand in first timeperiod
+            #     discharge = sum(instance.S[location, resource, scale_] for scale_ in scale_iter if scale_[
+            #         :demand_scale_level + 1] == scale_list)
+            #
+            #     if isinstance(demand, dict):
+            #         demandtarget = demand[location][resource]
+            #     else:
+            #         demandtarget = demand
 
             if resource in location_resource_dict[location]:
                 if scale_list[:demand_scale_level+1] != scale_iter_d_full[0]:
-                    delta_backlog = instance.Demand_backlog[location, resource, scale_list[:demand_scale_level+1]] - instance.Demand_backlog[location, resource, scale_iter_d[scale_iter_d.index(scale_list[:demand_scale_level+1])-1]]
+                    backlog_add = (instance.Demand_penalty[location, resource, scale_iter_d[scale_iter_d.index(scale_list[:demand_scale_level+1])-1]]
+                                   + instance.Demand_backlog[location, resource, scale_iter_d[scale_iter_d.index(scale_list[:demand_scale_level+1])-1]])
                 else:
-                    delta_backlog = instance.Demand_backlog[location, resource, scale_list[:demand_scale_level+1]] - backlog_zero[location][resource]
+                    backlog_add = backlog_zero[location][resource]
             else:
-                return instance.Demand_backlog[location, resource, scale_list] == 0
+                return instance.Demand_backlog[location, resource, scale_list[:demand_scale_level+1]] == 0
 
-            return delta_backlog == demandtarget - discharge
+            return backlog_add == instance.Demand_backlog[location, resource, scale_list[:demand_scale_level+1]] + instance.S_backlog[location, resource, scale_list[:demand_scale_level+1]]
         else:
             return Constraint.Skip
 
@@ -330,12 +330,13 @@ def constraint_demand_penalty(instance: ConcreteModel, demand: Union[dict, float
 
     def demand_penalty_rule(instance, location, resource, *scale_list):
         if scale_list[:scheduling_scale_level+1] in scale_iter and scale_list[:demand_scale_level+1] in scale_iter_d:
+            sell = instance.S_demand if isBacklog else instance.S
             if demand_factor[location] is not None:
                 if isinstance(demand_factor[location][list(demand_factor[location])[0]], (float, int)):
-                    discharge = sum(instance.S[location, resource_, scale_list[:scheduling_scale_level + 1]] for
+                    discharge = sum(sell[location, resource_, scale_list[:scheduling_scale_level + 1]] for
                                     resource_ in instance.resources_demand)
                 else:
-                    discharge = sum(instance.S[location, resource, scale_] for scale_ in scale_iter if scale_[
+                    discharge = sum(sell[location, resource, scale_] for scale_ in scale_iter if scale_[
                         :demand_scale_level + 1] == scale_list)
 
                 if isinstance(demand, dict):
@@ -355,7 +356,7 @@ def constraint_demand_penalty(instance: ConcreteModel, demand: Union[dict, float
                         demandtarget = 0
             else:
                 # TODO - doesn't meet demand in first timeperiod
-                discharge = sum(instance.S[location, resource, scale_] for scale_ in scale_iter if scale_[
+                discharge = sum(sell[location, resource, scale_] for scale_ in scale_iter if scale_[
                     :demand_scale_level + 1] == scale_list)
 
                 if isinstance(demand, dict):
@@ -363,22 +364,22 @@ def constraint_demand_penalty(instance: ConcreteModel, demand: Union[dict, float
                 else:
                     demandtarget = demand
 
-            if isBacklog and resource in location_resource_dict[location]:
-                if scale_list[:demand_scale_level+1] != scale_iter_d[0]:
-                    backlog = instance.Demand_backlog[location, resource, scale_iter_d[scale_iter_d.index(scale_list[:demand_scale_level+1])-1]]
-                else:
-                    backlog = backlog_zero[location][resource]
-            else:
-                backlog = 0
+            # if isBacklog and resource in location_resource_dict[location]:
+            #     if scale_list[:demand_scale_level+1] != scale_iter_d[0]:
+            #         backlog = instance.Demand_backlog[location, resource, scale_iter_d[scale_iter_d.index(scale_list[:demand_scale_level+1])-1]]
+            #     else:
+            #         backlog = backlog_zero[location][resource]
+            # else:
+            #     backlog = 0
 
             if sign == 'geq':
-                return discharge >= demandtarget - instance.Demand_penalty[location, resource, scale_list[:demand_scale_level + 1]] + backlog
+                return discharge >= demandtarget - instance.Demand_penalty[location, resource, scale_list[:demand_scale_level + 1]]
 
             if sign == 'leq':
-                return discharge <= demandtarget - instance.Demand_penalty[location, resource, scale_list[:demand_scale_level + 1]] + backlog
+                return discharge <= demandtarget - instance.Demand_penalty[location, resource, scale_list[:demand_scale_level + 1]]
 
             if sign == 'eq':
-                return discharge == demandtarget - instance.Demand_penalty[location, resource, scale_list[:demand_scale_level + 1]] + backlog
+                return discharge == demandtarget - instance.Demand_penalty[location, resource, scale_list[:demand_scale_level + 1]]
         else:
             return Constraint.Skip
 
@@ -576,9 +577,51 @@ def constraint_demand_penalty_cost(instance: ConcreteModel, demand_penalty_dict:
     #constraint_latex_render(demand_penalty_cost_rule)
     return instance.constraint_demand_penalty_cost
 
+def constraint_backlog_penalty_cost(instance: ConcreteModel, backlog_penalty: dict, backlog_penalty_factor: dict,
+                                    demand_scale_level: int=0, backlog_penalty_scale_level: int=0):
+    """
+
+    Args:
+        instance:
+        backlog_penalty_dict:
+        backlog_penalty_factor:
+        demand_scale_level:
+
+    Returns:
+
+    """
+
+    scales = scale_list(instance=instance, scale_levels=demand_scale_level + 1)
+
+    scale_iter = scale_tuple(instance=instance, scale_levels=demand_scale_level+1)
+
+    def backlog_penalty_cost_rule(instance, location, resource, *scale_list):
+        if scale_list[:demand_scale_level + 1] in scale_iter:
+            if backlog_penalty[location][resource]:
+                Demand_backlog = instance.Demand_backlog[location, resource, scale_list]
+            else:
+                Demand_backlog = 0
+
+            if backlog_penalty_factor[location]:
+                if resource in backlog_penalty_factor[location]:
+                    demand_backlog_fact = backlog_penalty_factor[location][resource][scale_list[:backlog_penalty_scale_level+1]]
+                else:
+                    demand_backlog_fact = 1
+            else:
+                demand_backlog_fact = 1
+
+            return (instance.Demand_backlog_cost[location, resource, scale_list] ==
+                    demand_backlog_fact * backlog_penalty[location][resource] * Demand_backlog)
+        else:
+            return Constraint.Skip
+
+    instance.constraint_backlog_penalty_cost = Constraint(instance.locations, instance.resources_demand, *scales,
+                                                         rule=backlog_penalty_cost_rule, doc='Demand backlog cost')
+    #constraint_latex_render(backlog_penalty_cost_rule)
+    return instance.constraint_backlog_penalty_cost
 
 def constraint_demand_penalty_cost_location(instance: ConcreteModel, demand_scale_level: int = 0,
-                                            network_scale_level: int = 0):
+                                            network_scale_level: int = 0, isBacklog: bool = False) -> Constraint:
     '''
 
     Args:
@@ -595,9 +638,15 @@ def constraint_demand_penalty_cost_location(instance: ConcreteModel, demand_scal
 
     def location_demand_penalty_cost_rule(instance, location, resource_demand, *scale_list):
         if scale_list in scale_iter_n:
+            if isBacklog:
+                backlog_cost = sum(instance.Demand_backlog_cost[location, resource_demand, scale_[:demand_scale_level + 1]]
+                                   for scale_ in scale_iter if scale_[:network_scale_level + 1] == scale_list)
+            else:
+                backlog_cost = 0
+
             return instance.Demand_penalty_cost_location[location, resource_demand, scale_list] == sum(
                 instance.Demand_penalty_cost[location, resource_demand, scale_[:demand_scale_level + 1]]
-                for scale_ in scale_iter if scale_[:network_scale_level + 1] == scale_list)
+                for scale_ in scale_iter if scale_[:network_scale_level + 1] == scale_list) + backlog_cost
         else:
             return Constraint.Skip
 

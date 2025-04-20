@@ -1,4 +1,3 @@
-
 """demand variables
 """
 
@@ -35,11 +34,14 @@ def generate_demand_vars(instance: ConcreteModel, scale_level: int = 0):
     instance.Demand_penalty_cost = Var(instance.locations, instance.resources_demand, instance.scales_demand,
                                        within=NonNegativeReals, doc='penalty cost for unmet demand')
     instance.Demand_penalty_cost_location = Var(instance.locations, instance.resources_demand, instance.scales_network,
-                                                within=NonNegativeReals, doc='Total penalty cost for unmet demand at a location')
+                                                within=NonNegativeReals,
+                                                doc='Total penalty cost for unmet demand at a location')
     instance.Demand_penalty_cost_network = Var(instance.resources_demand, instance.scales_network,
-                                               within=NonNegativeReals, doc='Total penalty cost for unmet demand from network')
+                                               within=NonNegativeReals,
+                                               doc='Total penalty cost for unmet demand from network')
 
     return
+
 
 def generate_demand_backlog_vars(instance: ConcreteModel):
     instance.Demand_backlog = Var(instance.locations, instance.resources_demand, instance.scales_demand,
@@ -54,6 +56,7 @@ def generate_demand_backlog_vars(instance: ConcreteModel):
                                                 within=NonNegativeReals, doc='Total backlog cost at a location')
     instance.Demand_backlog_cost_network = Var(instance.resources_demand, instance.scales_network,
                                                within=NonNegativeReals, doc='Total backlog cost from network')
+
 
 def generate_demand_theta_vars(instance: ConcreteModel):
     """multiparametric variable for demand 

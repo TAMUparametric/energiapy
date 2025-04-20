@@ -632,3 +632,28 @@ def constraint_inventory_network(instance: ConcreteModel, network_scale_level: i
     #constraint_latex_render(inventory_network_rule)
 
     return instance.constraint_inventory_network
+
+def constraint_backlog_total_discharge(instance: ConcreteModel, demand_scale_level: int = 0, location_resource_dict: dict = None,
+                                       scheduling_scale_level: int = 0) -> Constraint:
+
+    location_resource_dict = location_resource_dict or dict()
+
+    scales = scale_list(instance=instance, scale_levels=demand_scale_level + 1)
+    # scale_iter = scale_tuple(instance=instance, scale_levels=demand_scale_level + 1)
+    scale_iter_s = scale_tuple(instance=instance, scale_levels=scheduling_scale_level + 1)
+
+    def backlog_total_discharge_rule(instance, location, resource, *scale_list):
+        if scale_list in scale_iter_s[:demand_scale_level + 1]:
+            if resource in location_resource_dict[location]:
+                return (instance.S[location, resource, scale_list] ==
+                        instance.S_demand[location, resource, scale_list] + instance.S_backlog[location, resource, scale_list])
+            else:
+                return instance.S[location, resource, scale_list] == 0
+        else:
+            return Constraint.Skip
+
+    instance.constraint_backlog_total_discharge = Constraint(instance.locations, instance.resources_demand, *scales,
+                                                             rule=backlog_total_discharge_rule)
+
+    # constraint_latex_render(backlog_total_discharge_rule)
+    return instance.constraint_backlog_total_discharge

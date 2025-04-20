@@ -147,7 +147,8 @@ from .constraints.resource_balance import (
     constraint_resource_consumption,
     constraint_inventory_network,
     constraint_location_production_material_mode,
-    constraint_location_production_material_mode_sum
+    constraint_location_production_material_mode_sum,
+    constraint_backlog_total_discharge
 )
 
 from .constraints.demand import (
@@ -158,7 +159,8 @@ from .constraints.demand import (
     constraint_demand_penalty_cost,
     constraint_demand_penalty_cost_location,
     constraint_demand_penalty_cost_network,
-    constraint_backlog
+    constraint_backlog,
+    constraint_backlog_penalty_cost
 )
 from .constraints.transport import (
     # constraint_transport_balance,
@@ -225,14 +227,14 @@ from .variables.binary import generate_network_binary_vars, generate_scheduling_
 from .variables.cost import generate_costing_vars
 from .variables.mode import generate_mode_vars
 from .variables.network import generate_network_vars
-from .variables.schedule import generate_scheduling_vars
+from .variables.schedule import generate_scheduling_vars, generate_backlog_vars
 from .variables.transport import generate_transport_vars
 from .variables.uncertain import generate_uncertainty_vars
 from .variables.credit import generate_credit_vars
 from .variables.land import generate_land_vars
 from .variables.emission import generate_emission_vars
 from .variables.material import generate_material_vars
-from .variables.demand import generate_demand_vars
+from .variables.demand import generate_demand_vars, generate_demand_backlog_vars
 
 
 class ModelClass(Enum):
@@ -346,6 +348,14 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
             except:
                 pass
 
+    backlog_penalty = scenario.backlog_penalty
+    if isinstance(backlog_penalty, dict):
+        if isinstance(list(backlog_penalty.keys())[0], Location):
+            try:
+                backlog_penalty = {i.name: {j.name: backlog_penalty[i][j] for j in backlog_penalty[i]} for i in backlog_penalty}
+            except:
+                pass
+
     isBacklog = Constraints.BACKLOG in constraints
 
     if model_class is ModelClass.MIP:
@@ -374,7 +384,6 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
             backlog_zero = {l.name: {r.name: backlog_zero[l][r] for r in backlog_zero[l]} for l in backlog_zero}
             backlog_zero = {l: {r: backlog_zero[l][r] if r in backlog_zero[l] else 0 for r in instance.resources_demand} if l in backlog_zero else 0 for l in instance.locations}
 
-        # print(backlog_zero)
         if instance.processes_order_fopex != {}:
             generate_scheduling_binary_vars(instance=instance, scale_level=scenario.scheduling_scale_level)
 
@@ -993,9 +1002,16 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
                 instance=instance, scale_level=scenario.demand_scale_level)
 
             if isBacklog:
+                generate_backlog_vars(instance=instance)
+                generate_demand_backlog_vars(instance=instance)
 
                 constraint_backlog(instance=instance, demand_scale_level=scenario.demand_scale_level, scheduling_scale_level=scenario.scheduling_scale_level,
-                                   location_resource_dict=scenario.location_resource_dict, backlog_zero=backlog_zero, demand=demand, demand_factor=scenario.demand_factor)
+                                   location_resource_dict=scenario.location_resource_dict, backlog_zero=backlog_zero)
+                constraint_backlog_total_discharge(instance=instance, demand_scale_level=scenario.demand_scale_level, location_resource_dict=scenario.location_resource_dict,
+                                                   scheduling_scale_level=scenario.scheduling_scale_level)
+                constraint_backlog_penalty_cost(instance=instance, backlog_penalty=backlog_penalty, backlog_penalty_factor=scenario.backlog_penalty_factor,
+                                                demand_scale_level=scenario.demand_scale_level, backlog_penalty_scale_level=scenario.backlog_penalty_scale_level,)
+
 
             constraint_demand_penalty(instance=instance, demand_scale_level=scenario.demand_scale_level,
                                       scheduling_scale_level=scenario.scheduling_scale_level, demand=demand, backlog_zero=backlog_zero, isBacklog=isBacklog,
@@ -1007,10 +1023,11 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
 
             constraint_demand_penalty_network(instance=instance, network_scale_level=scenario.network_scale_level)
 
-            constraint_demand_penalty_cost(instance=instance, demand_scale_level=scenario.demand_scale_level, demand_penalty_dict=scenario.demand_penalty, demand_penalty_factor=scenario.demand_penalty_factor)
+            constraint_demand_penalty_cost(instance=instance, demand_scale_level=scenario.demand_scale_level,
+                                           demand_penalty_dict=scenario.demand_penalty, demand_penalty_factor=scenario.demand_penalty_factor)
 
             constraint_demand_penalty_cost_location(instance=instance, demand_scale_level=scenario.demand_scale_level,
-                                                    network_scale_level=scenario.network_scale_level)
+                                                    network_scale_level=scenario.network_scale_level, isBacklog=isBacklog,)
 
             constraint_demand_penalty_cost_network(instance=instance, network_scale_level=scenario.network_scale_level)
 
@@ -1032,7 +1049,7 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
             constraint_demand_penalty_cost(instance=instance, demand_scale_level=scenario.demand_scale_level, demand_penalty_dict=scenario.demand_penalty, demand_penalty_factor=scenario.demand_penalty_factor)
 
             constraint_demand_penalty_cost_location(instance=instance, demand_scale_level=scenario.demand_scale_level,
-                                                    network_scale_level=scenario.network_scale_level)
+                                                    network_scale_level=scenario.network_scale_level, isBacklog=isBacklog,)
 
             constraint_demand_penalty_cost_network(instance=instance, network_scale_level=scenario.network_scale_level)
 
