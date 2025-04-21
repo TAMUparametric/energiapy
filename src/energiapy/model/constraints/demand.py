@@ -81,7 +81,7 @@ def constraint_demand(instance: ConcreteModel, demand: Union[dict, float], deman
     Returns:
         Constraint: demand
     """
-    scales = scale_list(instance=instance, scale_levels=demand_scale_level+1)
+    scales = scale_list(instance=instance, scale_levels=demand_scale_level + 1)
     # scales = scale_list(instance=instance,
     #                     scale_levels=len(instance.scales))
     scale_iter = scale_tuple(
@@ -99,13 +99,13 @@ def constraint_demand(instance: ConcreteModel, demand: Union[dict, float], deman
 
             else:
                 discharge = sum(instance.S[location, resource, scale_] for scale_ in scale_iter if scale_[
-                    :demand_scale_level + 1] == scale_list)
+                                                                                                   :demand_scale_level + 1] == scale_list)
 
             if isinstance(demand, dict):
                 if resource in location_resource_dict[location]:
                     if resource in demand_factor[location].keys():
                         demandtarget = demand[location][resource] * \
-                            demand_factor[location][resource][scale_list[:demand_scale_level + 1]]
+                                       demand_factor[location][resource][scale_list[:demand_scale_level + 1]]
                     else:
                         demandtarget = demand[location][resource]
                 else:
@@ -113,13 +113,13 @@ def constraint_demand(instance: ConcreteModel, demand: Union[dict, float], deman
             else:
                 if resource in location_resource_dict[location]:
                     demandtarget = demand * \
-                        demand_factor[location][resource][scale_list[:demand_scale_level + 1]]
+                                   demand_factor[location][resource][scale_list[:demand_scale_level + 1]]
                 else:
                     demandtarget = 0
         else:
             # TODO - doesn't meet demand in first timeperiod
             discharge = sum(instance.S[location, resource, scale_] for scale_ in scale_iter if scale_[
-                :demand_scale_level + 1] == scale_list)
+                                                                                               :demand_scale_level + 1] == scale_list)
 
             if isinstance(demand, dict):
                 demandtarget = demand[location][resource]
@@ -147,9 +147,10 @@ def constraint_demand(instance: ConcreteModel, demand: Union[dict, float], deman
     ##constraint_latex_render(demand_rule)
     return instance.constraint_demand
 
+
 def constraint_demand_lb(instance: ConcreteModel, demand: Union[dict, float], demand_factor: Union[dict, float],
-                      demand_scale_level: int = 0, scheduling_scale_level: int = 0, epsilon: float = 1,
-                      cluster_wt: dict = None, location_resource_dict: dict = None, sign: str = 'geq') -> Constraint:
+                         demand_scale_level: int = 0, scheduling_scale_level: int = 0, epsilon: float = 1,
+                         cluster_wt: dict = None, location_resource_dict: dict = None, sign: str = 'geq') -> Constraint:
     """Ensures that demand for resource is met at chosen temporal scale
 
     Args:
@@ -165,7 +166,7 @@ def constraint_demand_lb(instance: ConcreteModel, demand: Union[dict, float], de
     Returns:
         Constraint: demand
     """
-    scales = scale_list(instance=instance, scale_levels=demand_scale_level+1)
+    scales = scale_list(instance=instance, scale_levels=demand_scale_level + 1)
     # scales = scale_list(instance=instance,
     #                     scale_levels=len(instance.scales))
     scale_iter = scale_tuple(
@@ -184,13 +185,13 @@ def constraint_demand_lb(instance: ConcreteModel, demand: Union[dict, float], de
 
                 else:
                     discharge = sum(instance.S[location, resource, scale_] for scale_ in scale_iter if scale_[
-                        :demand_scale_level + 1] == scale_list)
+                                                                                                       :demand_scale_level + 1] == scale_list)
 
                 if isinstance(demand, dict):
                     if resource in location_resource_dict[location]:
                         if resource in demand_factor[location].keys():
                             demandtarget = demand[location][resource] * \
-                                demand_factor[location][resource][scale_list[:demand_scale_level + 1]]
+                                           demand_factor[location][resource][scale_list[:demand_scale_level + 1]]
                         else:
                             demandtarget = demand[location][resource]
                     else:
@@ -198,13 +199,13 @@ def constraint_demand_lb(instance: ConcreteModel, demand: Union[dict, float], de
                 else:
                     if resource in location_resource_dict[location]:
                         demandtarget = demand * \
-                            demand_factor[location][resource][scale_list[:demand_scale_level + 1]]
+                                       demand_factor[location][resource][scale_list[:demand_scale_level + 1]]
                     else:
                         demandtarget = 0
             else:
                 # TODO - doesn't meet demand in first timeperiod
                 discharge = sum(instance.S[location, resource, scale_] for scale_ in scale_iter if scale_[
-                    :demand_scale_level + 1] == scale_list)
+                                                                                                   :demand_scale_level + 1] == scale_list)
 
                 if isinstance(demand, dict):
                     demandtarget = demand[location][resource]
@@ -212,13 +213,13 @@ def constraint_demand_lb(instance: ConcreteModel, demand: Union[dict, float], de
                     demandtarget = demand
 
             if sign == 'geq':
-                return discharge >= epsilon*demandtarget
+                return discharge >= epsilon * demandtarget
 
             if sign == 'leq':
-                return discharge <= epsilon*demandtarget
+                return discharge <= epsilon * demandtarget
 
             if sign == 'eq':
-                return discharge == epsilon*demandtarget
+                return discharge == epsilon * demandtarget
         else:
             return Constraint.Skip
 
@@ -234,76 +235,50 @@ def constraint_demand_lb(instance: ConcreteModel, demand: Union[dict, float], de
     ##constraint_latex_render(demand_rule)
     # return instance.constraint_demand_lb
 
-def constraint_backlog(instance: ConcreteModel, demand_scale_level: int = 0, scheduling_scale_level: int = 0,
-                       location_resource_dict:dict = None, backlog_zero: Dict[Location, Dict[Resource, float]] = None):
 
-    scales = scale_list(instance=instance, scale_levels=demand_scale_level+1)
-    scale_iter = scale_tuple(instance=instance, scale_levels=scheduling_scale_level+1)
-    scale_iter_d = scale_tuple(instance=instance, scale_levels=demand_scale_level+1)
-    scale_iter_d_full = scale_tuple(instance=instance, scale_levels=demand_scale_level+1, full=True)
+def constraint_backlog(instance: ConcreteModel, demand_scale_level: int = 0, scheduling_scale_level: int = 0,
+                       location_resource_dict: dict = None, backlog_zero: Dict[Location, Dict[Resource, float]] = None):
+    scales = scale_list(instance=instance, scale_levels=demand_scale_level + 1)
+    scale_iter = scale_tuple(instance=instance, scale_levels=scheduling_scale_level + 1)
+    scale_iter_d = scale_tuple(instance=instance, scale_levels=demand_scale_level + 1)
+    scale_iter_d_full = scale_tuple(instance=instance, scale_levels=demand_scale_level + 1, full=True)
 
     if not location_resource_dict:
         location_resource_dict = dict()
 
     def backlog_rule(instance, location, resource, *scale_list):
-        if scale_list[:scheduling_scale_level+1] in scale_iter and scale_list[:demand_scale_level+1] in scale_iter_d:
-            # if demand_factor[location] is not None:
-            #     if isinstance(demand_factor[location][list(demand_factor[location])[0]], (float, int)):
-            #         discharge = sum(instance.S[location, resource_, scale_list[:scheduling_scale_level + 1]] for
-            #                         resource_ in instance.resources_demand)
-            #     else:
-            #         discharge = sum(instance.S[location, resource, scale_] for scale_ in scale_iter if scale_[
-            #             :demand_scale_level + 1] == scale_list)
-            #
-            #     if isinstance(demand, dict):
-            #         if resource in location_resource_dict[location]:
-            #             if resource in demand_factor[location].keys():
-            #                 demandtarget = demand[location][resource] * \
-            #                     demand_factor[location][resource][scale_list[:demand_scale_level + 1]]
-            #             else:
-            #                 demandtarget = demand[location][resource]
-            #         else:
-            #             demandtarget = 0
-            #     else:
-            #         if resource in location_resource_dict[location]:
-            #             demandtarget = demand * \
-            #                 demand_factor[location][resource][scale_list[:demand_scale_level + 1]]
-            #         else:
-            #             demandtarget = 0
-            # else:
-            #     # TODO - doesn't meet demand in first timeperiod
-            #     discharge = sum(instance.S[location, resource, scale_] for scale_ in scale_iter if scale_[
-            #         :demand_scale_level + 1] == scale_list)
-            #
-            #     if isinstance(demand, dict):
-            #         demandtarget = demand[location][resource]
-            #     else:
-            #         demandtarget = demand
-
+        if scale_list[:scheduling_scale_level + 1] in scale_iter and scale_list[
+                                                                     :demand_scale_level + 1] in scale_iter_d:
             if resource in location_resource_dict[location]:
-                if scale_list[:demand_scale_level+1] != scale_iter_d_full[0]:
-                    backlog_add = (instance.Demand_penalty[location, resource, scale_iter_d[scale_iter_d.index(scale_list[:demand_scale_level+1])-1]]
-                                   + instance.Demand_backlog[location, resource, scale_iter_d[scale_iter_d.index(scale_list[:demand_scale_level+1])-1]])
+                if scale_list[:demand_scale_level + 1] != scale_iter_d_full[0]:
+                    backlog_add = (instance.Demand_penalty[location, resource, scale_iter_d[scale_iter_d.index(scale_list[:demand_scale_level + 1]) - 1]]
+                                   + instance.Demand_backlog[location, resource, scale_iter_d[scale_iter_d.index(scale_list[:demand_scale_level + 1]) - 1]])
                 else:
                     backlog_add = backlog_zero[location][resource]
             else:
-                return instance.Demand_backlog[location, resource, scale_list[:demand_scale_level+1]] == 0
+                backlog_add = 0
 
-            return backlog_add == instance.Demand_backlog[location, resource, scale_list[:demand_scale_level+1]] + instance.S_backlog[location, resource, scale_list[:demand_scale_level+1]]
+            return backlog_add == instance.Demand_backlog[location, resource, scale_list[:demand_scale_level + 1]] + \
+                instance.S_backlog[location, resource, scale_list[:demand_scale_level + 1]]
         else:
             return Constraint.Skip
 
     if len(instance.locations) > 1:
-        instance.constraint_backlog = Constraint(instance.sinks, instance.resources_demand, *scales, rule=backlog_rule, doc='backlog balance for resources')
+        instance.constraint_backlog = Constraint(instance.sinks, instance.resources_demand, *scales, rule=backlog_rule,
+                                                 doc='backlog balance for resources')
     else:
-        instance.constraint_backlog = Constraint(instance.locations, instance.resources_demand, *scales, rule=backlog_rule, doc='backlog balance for resources')
+        instance.constraint_backlog = Constraint(instance.locations, instance.resources_demand, *scales,
+                                                 rule=backlog_rule, doc='backlog balance for resources')
 
     # constraint_latex_render(backlog_rule)
     # return instance.constraint_backlog
+
+
 def constraint_demand_penalty(instance: ConcreteModel, demand: Union[dict, float], demand_factor: Union[dict, float],
                               backlog_zero: Dict[Location, Dict[Resource, float]] = None, isBacklog: bool = False,
                               demand_scale_level: int = 0, scheduling_scale_level: int = 0,
-                              cluster_wt: dict = None, location_resource_dict: dict = None, sign: str = 'geq') -> Constraint:
+                              cluster_wt: dict = None, location_resource_dict: dict = None,
+                              sign: str = 'geq') -> Constraint:
     """Ensures that demand for resource is met at chosen temporal scale
 
     Args:
@@ -319,7 +294,7 @@ def constraint_demand_penalty(instance: ConcreteModel, demand: Union[dict, float
     Returns:
         Constraint: demand
     """
-    scales = scale_list(instance=instance, scale_levels=demand_scale_level+1)
+    scales = scale_list(instance=instance, scale_levels=demand_scale_level + 1)
     # scales = scale_list(instance=instance,
     #                     scale_levels=len(instance.scales))
     scale_iter = scale_tuple(instance=instance, scale_levels=scheduling_scale_level + 1)
@@ -329,7 +304,8 @@ def constraint_demand_penalty(instance: ConcreteModel, demand: Union[dict, float
         location_resource_dict = dict()
 
     def demand_penalty_rule(instance, location, resource, *scale_list):
-        if scale_list[:scheduling_scale_level+1] in scale_iter and scale_list[:demand_scale_level+1] in scale_iter_d:
+        if scale_list[:scheduling_scale_level + 1] in scale_iter and scale_list[
+                                                                     :demand_scale_level + 1] in scale_iter_d:
             sell = instance.S_demand if isBacklog else instance.S
             if demand_factor[location] is not None:
                 if isinstance(demand_factor[location][list(demand_factor[location])[0]], (float, int)):
@@ -337,13 +313,13 @@ def constraint_demand_penalty(instance: ConcreteModel, demand: Union[dict, float
                                     resource_ in instance.resources_demand)
                 else:
                     discharge = sum(sell[location, resource, scale_] for scale_ in scale_iter if scale_[
-                        :demand_scale_level + 1] == scale_list)
+                                                                                                 :demand_scale_level + 1] == scale_list)
 
                 if isinstance(demand, dict):
                     if resource in location_resource_dict[location]:
                         if resource in demand_factor[location].keys():
                             demandtarget = demand[location][resource] * \
-                                demand_factor[location][resource][scale_list[:demand_scale_level + 1]]
+                                           demand_factor[location][resource][scale_list[:demand_scale_level + 1]]
                         else:
                             demandtarget = demand[location][resource]
                     else:
@@ -351,41 +327,37 @@ def constraint_demand_penalty(instance: ConcreteModel, demand: Union[dict, float
                 else:
                     if resource in location_resource_dict[location]:
                         demandtarget = demand * \
-                            demand_factor[location][resource][scale_list[:demand_scale_level + 1]]
+                                       demand_factor[location][resource][scale_list[:demand_scale_level + 1]]
                     else:
                         demandtarget = 0
             else:
                 # TODO - doesn't meet demand in first timeperiod
                 discharge = sum(sell[location, resource, scale_] for scale_ in scale_iter if scale_[
-                    :demand_scale_level + 1] == scale_list)
+                                                                                             :demand_scale_level + 1] == scale_list)
 
                 if isinstance(demand, dict):
                     demandtarget = demand[location][resource]
                 else:
                     demandtarget = demand
 
-            # if isBacklog and resource in location_resource_dict[location]:
-            #     if scale_list[:demand_scale_level+1] != scale_iter_d[0]:
-            #         backlog = instance.Demand_backlog[location, resource, scale_iter_d[scale_iter_d.index(scale_list[:demand_scale_level+1])-1]]
-            #     else:
-            #         backlog = backlog_zero[location][resource]
-            # else:
-            #     backlog = 0
-
             if sign == 'geq':
-                return discharge >= demandtarget - instance.Demand_penalty[location, resource, scale_list[:demand_scale_level + 1]]
+                return discharge >= demandtarget - instance.Demand_penalty[
+                    location, resource, scale_list[:demand_scale_level + 1]]
 
             if sign == 'leq':
-                return discharge <= demandtarget - instance.Demand_penalty[location, resource, scale_list[:demand_scale_level + 1]]
+                return discharge <= demandtarget - instance.Demand_penalty[
+                    location, resource, scale_list[:demand_scale_level + 1]]
 
             if sign == 'eq':
-                return discharge == demandtarget - instance.Demand_penalty[location, resource, scale_list[:demand_scale_level + 1]]
+                return discharge == demandtarget - instance.Demand_penalty[
+                    location, resource, scale_list[:demand_scale_level + 1]]
         else:
             return Constraint.Skip
 
     if len(instance.locations) > 1:
         instance.constraint_demand_penalty = Constraint(
-            instance.sinks, instance.resources_demand, *scales, rule=demand_penalty_rule, doc='specific demand for resources with penalty')
+            instance.sinks, instance.resources_demand, *scales, rule=demand_penalty_rule,
+            doc='specific demand for resources with penalty')
 
     else:
         instance.constraint_demand_penalty = Constraint(
@@ -393,6 +365,7 @@ def constraint_demand_penalty(instance: ConcreteModel, demand: Union[dict, float
             doc='specific demand for resources with penalty')
     ##constraint_latex_render(demand_penalty_rule)
     return instance.constraint_demand_penalty
+
 
 # def constraint_demand_penalty(instance: ConcreteModel, demand: Union[dict, float], demand_factor: Union[dict, float],
 #                               demand_scale_level: int = 0, scheduling_scale_level: int = 0,
@@ -493,11 +466,12 @@ def constraint_demand_penalty_location(instance: ConcreteModel, cluster_wt: dict
 
     scales = scale_list(instance=instance, scale_levels=network_scale_level + 1)
     scale_iter_n = scale_tuple(instance=instance, scale_levels=network_scale_level + 1)
-    scale_iter = scale_tuple(instance=instance, scale_levels=demand_scale_level+1)
+    scale_iter = scale_tuple(instance=instance, scale_levels=demand_scale_level + 1)
 
     def location_demand_penalty_rule(instance, location, resource_demand, *scale_list):
         if scale_list in scale_iter_n:
-            def weight(x): return 1 if cluster_wt is None else cluster_wt[x]
+            def weight(x):
+                return 1 if cluster_wt is None else cluster_wt[x]
 
             return instance.Demand_penalty_location[location, resource_demand, scale_list] == sum(
                 weight(scale_) * instance.Demand_penalty[location, resource_demand, scale_[:demand_scale_level + 1]]
@@ -510,6 +484,7 @@ def constraint_demand_penalty_location(instance: ConcreteModel, cluster_wt: dict
                                                              doc='total unmet demand at a location')
     ##constraint_latex_render(location_demand_penalty_rule)
     return instance.constraint_demand_penalty_location
+
 
 def constraint_demand_penalty_network(instance: ConcreteModel, network_scale_level: int = 0) -> Constraint:
     """
@@ -528,7 +503,8 @@ def constraint_demand_penalty_network(instance: ConcreteModel, network_scale_lev
     def demand_penalty_network_rule(instance, resource_demand, *scale_list):
         if scale_list in scale_iter:
             return instance.Demand_penalty_network[resource_demand, scale_list] == sum(
-                instance.Demand_penalty_location[location_, resource_demand, scale_list] for location_ in instance.locations)
+                instance.Demand_penalty_location[location_, resource_demand, scale_list] for location_ in
+                instance.locations)
         else:
             return Constraint.Skip
 
@@ -537,7 +513,9 @@ def constraint_demand_penalty_network(instance: ConcreteModel, network_scale_lev
     ##constraint_latex_render(demand_penalty_network_rule)
     return instance.constraint_demand_penalty_network
 
-def constraint_demand_penalty_cost(instance: ConcreteModel, demand_penalty_dict: dict, demand_penalty_factor: dict, demand_scale_level: int):
+
+def constraint_demand_penalty_cost(instance: ConcreteModel, demand_penalty_dict: dict, demand_penalty_factor: dict,
+                                   demand_scale_level: int):
     '''
 
     Args:
@@ -551,7 +529,7 @@ def constraint_demand_penalty_cost(instance: ConcreteModel, demand_penalty_dict:
 
     scales = scale_list(instance=instance, scale_levels=demand_scale_level + 1)
 
-    scale_iter = scale_tuple(instance=instance, scale_levels=demand_scale_level+1)
+    scale_iter = scale_tuple(instance=instance, scale_levels=demand_scale_level + 1)
 
     def demand_penalty_cost_rule(instance, location, resource_demand, *scale_list):
         if scale_list[:demand_scale_level + 1] in scale_iter:
@@ -568,7 +546,8 @@ def constraint_demand_penalty_cost(instance: ConcreteModel, demand_penalty_dict:
             else:
                 demand_penalty_fact = 1
 
-            return instance.Demand_penalty_cost[location, resource_demand, scale_list] == demand_penalty_fact * demand_penalty_dict[location][resource_demand] * Demand_penalty
+            return instance.Demand_penalty_cost[location, resource_demand, scale_list] == demand_penalty_fact * \
+                demand_penalty_dict[location][resource_demand] * Demand_penalty
         else:
             return Constraint.Skip
 
@@ -577,8 +556,9 @@ def constraint_demand_penalty_cost(instance: ConcreteModel, demand_penalty_dict:
     #constraint_latex_render(demand_penalty_cost_rule)
     return instance.constraint_demand_penalty_cost
 
+
 def constraint_backlog_penalty_cost(instance: ConcreteModel, backlog_penalty: dict, backlog_penalty_factor: dict,
-                                    demand_scale_level: int=0, backlog_penalty_scale_level: int=0):
+                                    demand_scale_level: int = 0, backlog_penalty_scale_level: int = 0):
     """
 
     Args:
@@ -593,7 +573,7 @@ def constraint_backlog_penalty_cost(instance: ConcreteModel, backlog_penalty: di
 
     scales = scale_list(instance=instance, scale_levels=demand_scale_level + 1)
 
-    scale_iter = scale_tuple(instance=instance, scale_levels=demand_scale_level+1)
+    scale_iter = scale_tuple(instance=instance, scale_levels=demand_scale_level + 1)
 
     def backlog_penalty_cost_rule(instance, location, resource, *scale_list):
         if scale_list[:demand_scale_level + 1] in scale_iter:
@@ -604,7 +584,8 @@ def constraint_backlog_penalty_cost(instance: ConcreteModel, backlog_penalty: di
 
             if backlog_penalty_factor[location]:
                 if resource in backlog_penalty_factor[location]:
-                    demand_backlog_fact = backlog_penalty_factor[location][resource][scale_list[:backlog_penalty_scale_level+1]]
+                    demand_backlog_fact = backlog_penalty_factor[location][resource][
+                        scale_list[:backlog_penalty_scale_level + 1]]
                 else:
                     demand_backlog_fact = 1
             else:
@@ -616,9 +597,10 @@ def constraint_backlog_penalty_cost(instance: ConcreteModel, backlog_penalty: di
             return Constraint.Skip
 
     instance.constraint_backlog_penalty_cost = Constraint(instance.locations, instance.resources_demand, *scales,
-                                                         rule=backlog_penalty_cost_rule, doc='Demand backlog cost')
+                                                          rule=backlog_penalty_cost_rule, doc='Demand backlog cost')
     #constraint_latex_render(backlog_penalty_cost_rule)
     return instance.constraint_backlog_penalty_cost
+
 
 def constraint_demand_penalty_cost_location(instance: ConcreteModel, demand_scale_level: int = 0,
                                             network_scale_level: int = 0, isBacklog: bool = False) -> Constraint:
@@ -639,8 +621,9 @@ def constraint_demand_penalty_cost_location(instance: ConcreteModel, demand_scal
     def location_demand_penalty_cost_rule(instance, location, resource_demand, *scale_list):
         if scale_list in scale_iter_n:
             if isBacklog:
-                backlog_cost = sum(instance.Demand_backlog_cost[location, resource_demand, scale_[:demand_scale_level + 1]]
-                                   for scale_ in scale_iter if scale_[:network_scale_level + 1] == scale_list)
+                backlog_cost = sum(
+                    instance.Demand_backlog_cost[location, resource_demand, scale_[:demand_scale_level + 1]]
+                    for scale_ in scale_iter if scale_[:network_scale_level + 1] == scale_list)
             else:
                 backlog_cost = 0
 
@@ -685,9 +668,11 @@ def constraint_demand_penalty_cost_network(instance: ConcreteModel, network_scal
     #constraint_latex_render(network_demand_penalty_cost_rule)
     return instance.constraint_demand_penalty_cost_network
 
+
 def constraint_demand_theta(instance: ConcreteModel, demand: Union[dict, float], demand_factor: Union[dict, float],
                             demand_scale_level: int = 0, scheduling_scale_level: int = 0,
-                            cluster_wt: dict = None, location_resource_dict: dict = None, sign: str = 'geq') -> Constraint:
+                            cluster_wt: dict = None, location_resource_dict: dict = None,
+                            sign: str = 'geq') -> Constraint:
     """Ensures that demand for resource is met at chosen temporal scale with the demand being multiplied by a
     multiparametric theta variable 
 
@@ -704,7 +689,7 @@ def constraint_demand_theta(instance: ConcreteModel, demand: Union[dict, float],
     Returns:
         Constraint: demand
     """
-    scales = scale_list(instance=instance, scale_levels=demand_scale_level+1)
+    scales = scale_list(instance=instance, scale_levels=demand_scale_level + 1)
     # scales = scale_list(instance=instance,
     #                     scale_levels=len(instance.scales))
     scale_iter = scale_tuple(
@@ -721,13 +706,13 @@ def constraint_demand_theta(instance: ConcreteModel, demand: Union[dict, float],
                                 resource_ in instance.resources_demand)
             else:
                 discharge = sum(instance.S[location, resource, scale_] for scale_ in scale_iter if scale_[
-                    :demand_scale_level + 1] == scale_list)
+                                                                                                   :demand_scale_level + 1] == scale_list)
 
             if isinstance(demand, dict):
                 if resource in location_resource_dict[location]:
                     if resource in demand_factor[location].keys():
                         demandtarget = demand[location][resource] * \
-                            demand_factor[location][resource][scale_list[:demand_scale_level + 1]]
+                                       demand_factor[location][resource][scale_list[:demand_scale_level + 1]]
                     else:
                         demandtarget = demand[location][resource]
                 else:
@@ -735,13 +720,13 @@ def constraint_demand_theta(instance: ConcreteModel, demand: Union[dict, float],
             else:
                 if resource in location_resource_dict[location]:
                     demandtarget = demand * \
-                        demand_factor[location][resource][scale_list[:demand_scale_level + 1]]
+                                   demand_factor[location][resource][scale_list[:demand_scale_level + 1]]
                 else:
                     demandtarget = 0
         else:
             # TODO - doesn't meet demand in first timeperiod
             discharge = sum(instance.S[location, resource, scale_] for scale_ in scale_iter if scale_[
-                :demand_scale_level + 1] == scale_list)
+                                                                                               :demand_scale_level + 1] == scale_list)
 
             if isinstance(demand, dict):
                 demandtarget = demand[location][resource]
@@ -749,13 +734,16 @@ def constraint_demand_theta(instance: ConcreteModel, demand: Union[dict, float],
                 demandtarget = demand
 
         if sign == 'geq':
-            return discharge >= demandtarget*instance.demand_theta[location, resource, scale_list[:demand_scale_level]]
+            return discharge >= demandtarget * instance.demand_theta[
+                location, resource, scale_list[:demand_scale_level]]
 
         if sign == 'leq':
-            return discharge <= demandtarget*instance.demand_theta[location, resource, scale_list[:demand_scale_level]]
+            return discharge <= demandtarget * instance.demand_theta[
+                location, resource, scale_list[:demand_scale_level]]
 
         if sign == 'eq':
-            return discharge == demandtarget*instance.demand_theta[location, resource, scale_list[:demand_scale_level]]
+            return discharge == demandtarget * instance.demand_theta[
+                location, resource, scale_list[:demand_scale_level]]
 
     if len(instance.locations) > 1:
         instance.constraint_demand = Constraint(
