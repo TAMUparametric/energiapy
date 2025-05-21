@@ -4,7 +4,7 @@ import sys
 
 # sys.path.append('/scratch/user/shivam.vedant')
 # sys.path.append('/scratch/user/shivam.vedant/src')
-sys.path.append('../../../src')
+sys.path.append('../../../../src')
 
 import pandas
 import random
@@ -580,5 +580,5 @@ if __name__ == '__main__':
 
     results_final = solve(scenario=scen_final, instance=model_final, solver='gurobi', name='MILP_final')
 
-    with open(f'ControlResults_ef_07.pkl', 'wb') as file:
+    with open(f'../ControlResults_ef_07.pkl', 'wb') as file:
         pickle.dump(results_final, file)
