@@ -49,6 +49,7 @@ from .constraints.cost import (
     constraint_storage_cost,
     constraint_storage_cost_location,
     constraint_storage_cost_network,
+    constraint_storage_capex,
 )
 from .constraints.emission import (
     constraint_global_warming_potential_location,
@@ -117,6 +118,7 @@ from .constraints.emission import (
     constraint_marine_eutrophication_potential_resource_discharge,
 )
 from .constraints.failure import constraint_nameplate_production_failure
+#Harsh took constraint.inventory out of the constraints list
 from .constraints.inventory import (
     constraint_nameplate_inventory,
     constraint_storage_max,
@@ -389,11 +391,12 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
                                      network_scale_level=scenario.expenditure_scale_level, fopex_factor=scenario.fopex_factor)
             constraint_process_vopex(instance=instance, vopex_dict=scenario.vopex_dict,
                                      network_scale_level=scenario.expenditure_scale_level, vopex_factor=scenario.vopex_factor)
+            constraint_storage_capex(instance=instance, storage_capex_dict=scenario.storage_capex_dict, location_resource_dict=scenario.location_resource_dict, network_scale_level=scenario.network_scale_level)
             constraint_process_incidental(instance=instance, incidental_dict=scenario.incidental_dict,
                                           network_scale_level=scenario.network_scale_level)
 
-            # constraint_location_capex(
-            #     instance=instance, network_scale_level=scenario.network_scale_level)
+            constraint_location_capex(
+                instance=instance, network_scale_level=scenario.network_scale_level)
             # constraint_location_fopex(
             #     instance=instance, network_scale_level=scenario.network_scale_level)
             # constraint_location_vopex(
@@ -403,10 +406,10 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
 
             # *----------------sum capex, fopex, vopex, incidental costs over location ---------------------------------------------
 
-            instance.constraint_location_capex = make_constraint(
-                instance=instance, type_cons=Cons.X_EQ_SUMLOCCOST_Y, variable_x='Capex_location', variable_y='Capex_process', location_set=instance.locations, component_set=instance.processes,
-                loc_comp_dict=scenario.location_process_dict, x_scale_level=scenario.network_scale_level, y_scale_level=scenario.network_scale_level,
-                label='sums up capex from process over a location')
+            # instance.constraint_location_capex = make_constraint(
+            #     instance=instance, type_cons=Cons.X_EQ_SUMLOCCOST_Y, variable_x='Capex_location', variable_y='Capex_process', location_set=instance.locations, component_set=instance.processes,
+            #     loc_comp_dict=scenario.location_process_dict, x_scale_level=scenario.network_scale_level, y_scale_level=scenario.network_scale_level,
+            #     label='sums up capex from process over a location')
 
             instance.constraint_location_fopex = make_constraint(
                 instance=instance, type_cons=Cons.X_EQ_SUMLOCCOST_Y, variable_x='Fopex_location', variable_y='Fopex_process', location_set=instance.locations, component_set=instance.processes,
@@ -717,6 +720,16 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
                                                                       x_scale_level=scenario.scheduling_scale_level, y_scale_level=scenario.network_scale_level, variable_y='Cap_S', label='restricts inventory to certain nameplate capacity')
 
             # *----------------inventory bounds ---------------------------------------------
+            #Harsh Code edit 
+            '''if inventory_zero:
+                d = inventory_zero
+                loc = list(inventory_zero)[0]
+                pro = list(d[loc])[0][0]
+                res = list(d[loc])[0][1]
+                inv = list(pro.conversion)[1]
+                val = d[loc][(pro, res)]
+                # print(inv)
+                scenario.store_min[loc.name][inv.name] = val'''
 
             instance.constraint_storage_max = make_constraint(instance=instance, type_cons=Cons.X_LEQ_B, variable_x='Cap_S', b_max=scenario.store_max, location_set=instance.locations, component_set=instance.resources_store,
                                                               loc_comp_dict=scenario.location_resource_dict, x_scale_level=scenario.network_scale_level, label='restricts nameplate inventory to some UB')

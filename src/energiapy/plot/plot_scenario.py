@@ -76,6 +76,32 @@ def price_factor(scenario: Scenario, resource: Resource, location: Location, fig
     plt.rcdefaults()
     return
 
+def gwp_factor(scenario: Scenario, resource: Resource, location: Location, fig_size: tuple = (12, 6), font_size: int = 16, color: str = 'blue', usetex: bool = False):
+    """generates a plot for varying price factor for purchase of resource
+
+    Args:
+        scenario (Scenario): scenario energiapy object
+        resource (Resource): resource energiapy object
+        location (Location): location energiapy object
+        font_size (int, optional): font size. Defaults to 16.
+        fig_size (tuple, optional): figure size. Defaults to (12,6).
+        color (str, optional): color of plot. Defaults to 'blue'.
+        usetex (bool, optional): False, if using latex font, need Tex set up (prone to errors). Defaults to 'False'.
+    """
+    rc('font', **{'family': 'serif',
+       'serif': ['Computer Modern'], 'size': font_size})
+    rc('text', usetex=False)
+    fig, ax = plt.subplots(figsize=fig_size)
+    y_ = list(scenario.gwp_factor[location.name][resource.name].values())
+    x_ = list(range(len(y_)))
+    ax.plot(x_, y_, linewidth=0.5, color=color)
+    ax = axis_formatter(axes=ax, xcord=x_, axis_labels='M')
+    plt.title(f'GWP factor for {resource.label} in {location.label}')
+    plt.ylabel("Normalized gwp factor")
+    plt.xlabel("Scheduling Horizon")
+    plt.grid(alpha=0.3)
+    plt.rcdefaults()
+    return
 
 def demand_factor(scenario: Scenario, resource: Resource, location: Location,
                   fig_size: tuple = (12, 6), font_size: int = 16, color: str = 'blue', usetex: bool = False):
