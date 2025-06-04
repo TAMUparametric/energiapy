@@ -168,6 +168,8 @@ class Process:
     material_cons: Union[Dict[Union[int, str],
                               Dict[Material, float]], Dict[Material, float]] = None
     prod_max: Union[Dict[int, float], float] = 0
+    #Harsh comment
+    '''prod_min: Union[Dict[int, float], float] = 0'''
     prod_min: float = 0
     basis: str = 'unit'
     credit: float = None
@@ -193,6 +195,7 @@ class Process:
     varying_bounds: Tuple[float] = (0, 1)
     mode_ramp: Dict[tuple, int] = None
     storage_cost: float = 0
+    storage_capex: float = 0
     processmode: ProcessMode = None
     materialmode: MaterialMode = None
 
