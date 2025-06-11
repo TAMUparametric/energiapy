@@ -194,7 +194,8 @@ from .constraints.network import (
     constraint_min_production_facility,
     constraint_min_capacity_facility,
     constraint_preserve_capacity_facility,
-    constraint_preserve_capacity_transport
+    constraint_preserve_capacity_transport,
+    constraint_preserve_capacity_storage
 )
 from .constraints.credit import (
     constraint_credit_process,
@@ -930,6 +931,8 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
 
             constraint_preserve_capacity_transport(
                 instance=instance, transport_avail_dict=scenario.transport_avail_dict, network_scale_level=scenario.network_scale_level)
+
+            constraint_preserve_capacity_storage(instance=instance, location_resource_dict=scenario.location_resource_dict, network_scale_level=scenario.network_scale_level)
 
         if Constraints.MODE in constraints:
             generate_mode_vars(

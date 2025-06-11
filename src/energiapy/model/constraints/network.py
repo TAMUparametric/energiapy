@@ -288,3 +288,41 @@ def constraint_preserve_capacity_transport(instance: ConcreteModel, transport_av
         doc='preserves the capacity over network scale')
     #constraint_latex_render(preserve_capacity_transport_rule)
     return instance.constraint_preserve_capacity_transport
+
+def constraint_preserve_capacity_storage(instance: ConcreteModel, location_resource_dict:dict = None, network_scale_level: int = 0) -> Constraint:
+    """Ensures that capacity over network scale is not reduced
+    Essentially, the capacity of a storage facility is preserved
+
+    Args:
+        instance (ConcreteModel): pyomo instance
+        resource_store_dict (dict, optional): transport facilities available between locations. Defaults to {}.
+        network_scale_level (int, optional): scale of network decisions. Defaults to 0.
+
+    Returns:
+        Constraint: preserve_transport_facility
+    """
+
+    if location_resource_dict is None:
+        location_resource_dict = dict()
+
+    scales = scale_list(instance=instance,
+                        scale_levels=network_scale_level + 1)
+
+    scale_iter = scale_tuple(
+        instance=instance, scale_levels=network_scale_level + 1)
+
+    def preserve_storage_capacity_rule(instance, location, resource_store, *scale_list):
+        if scale_list[:network_scale_level + 1] != scale_iter[0]:
+            if resource_store in location_resource_dict[location]:
+                return instance.Cap_S[location, resource_store, scale_list[:network_scale_level + 1]] >= instance.Cap_S[location, resource_store, scale_iter[scale_iter.index(
+                    scale_list[:network_scale_level + 1]) - 1]]
+            else:
+                return Constraint.Skip
+        else:
+            return Constraint.Skip
+
+    instance.constraint_preserve_storage_capacity = Constraint(
+        instance.locations, instance.resources_store, *scales, rule=preserve_storage_capacity_rule,
+        doc='preserves the storage capacity over network scale')
+    #constraint_latex_render(preserve_capacity_transport_rule)
+    return instance.constraint_preserve_storage_capacity
