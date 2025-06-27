@@ -12,7 +12,9 @@ __status__ = "Production"
 
 from enum import Enum, auto
 from typing import Set, Dict, Tuple
-from pyomo.environ import ConcreteModel, Suffix
+'''I added Var, ConstraintList, Constraint, Binary, NonNegativeReals to the imports - Marco De Sousa'''
+from pyomo.environ import ConcreteModel, Suffix 
+#Var, ConstraintList, Constraint, Binary, NonNegativeReals
 
 from ..components.scenario import Scenario
 from ..components.resource import Resource
@@ -1039,9 +1041,41 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
         if objective == Objective.COST_W_DEMAND_PENALTY:
             generate_demand_vars(
                 instance=instance, scale_level=scenario.demand_scale_level)
+            
             constraint_demand_penalty(instance=instance, demand_scale_level=scenario.demand_scale_level,
                                       scheduling_scale_level=scenario.scheduling_scale_level, demand=demand,
                                       demand_factor=scenario.demand_factor, location_resource_dict=scenario.location_resource_dict, sign=demand_sign)
+            # '''Test of demand penalty constraints- but Shivam would know the flow of energiapy better''' 
+            #     # Dynamic tier penalty logic
+            # instance.z_penalty = Var(instance.demand_t, instance.demand_r, range(len(scenario.demand_penalty_tiers)), domain=Binary)
+            # instance.unmet_demand = Var(instance.demand_t, instance.demand_r, domain=NonNegativeReals)
+            # instance.penalty_cost = Var(instance.demand_t, instance.demand_r, domain=NonNegativeReals)
+            # instance.penalty_constraints = ConstraintList()
+
+            # bigM = 1e5
+            # for t in instance.demand_t:
+            #     for r in instance.demand_r:
+            #         D = scenario.demand_factor[r.name][t] if isinstance(scenario.demand_factor[r.name], dict) else scenario.demand_factor[r.name]
+            
+            # # Unmet = demand - discharge
+            # instance.penalty_constraints.add(instance.unmet_demand[t, r] >= D - instance.S[t, r])
+
+            # # Only one tier active
+            # instance.penalty_constraints.add(sum(instance.z_penalty[t, r, i] for i in range(len(scenario.demand_penalty_tiers))) == 1)
+
+            # # Apply tier logic
+            # for i, (lower, upper, rate) in enumerate(scenario.demand_penalty_tiers):
+            #     instance.penalty_constraints.add(instance.unmet_demand[t, r] >= lower * D - (1 - instance.z_penalty[t, r, i]) * bigM)
+            #     instance.penalty_constraints.add(instance.unmet_demand[t, r] <= upper * D + (1 - instance.z_penalty[t, r, i]) * bigM)
+
+            # # Penalty cost: apply selected tier rate
+            # instance.penalty_constraints.add(instance.penalty_cost[t, r] == sum(
+            #     instance.unmet_demand[t, r] * rate * instance.z_penalty[t, r, i] for i, (_, _, rate) in enumerate(scenario.demand_penalty_tiers)
+            # ))
+            # '''End of test of demand penalty constraints'''
+            
+            # instance.total_penalty_cost = Var(domain=NonNegativeReals)
+            # instance.penalty_sum_constraint = Constraint(expr=instance.total_penalty_cost == sum(instance.penalty_cost[t, r] for t in instance.demand_t for r in instance.demand_r))
 
             objective_cost_w_demand_penalty(instance=instance, demand_penalty=scenario.demand_penalty,
                                             constraints=constraints, network_scale_level=scenario.network_scale_level, demand_scale_level=scenario.demand_scale_level)

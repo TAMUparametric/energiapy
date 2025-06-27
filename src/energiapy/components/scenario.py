@@ -333,6 +333,13 @@ class Scenario:
         if self.demand_penalty is not None:
             self.demand_penalty = {i.name: {j.name: self.demand_penalty[i][j] for j in self.demand_penalty[i].keys(
             )} for i in self.demand_penalty.keys()}
+        
+        # # Marco De Sousa Trying something
+        # self.demand_penalty_tiers = [
+        # (0.00, 0.10, 50.0),
+        # (0.10, 0.20, 80.0),
+        # (0.20, 0.30, 120.0),
+        # (0.30, 1.00, 200.0),]
 
         df_capex = DataFrame.from_dict(
             self.capex_dict, orient='index', columns=['capex'])
