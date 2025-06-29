@@ -275,7 +275,7 @@ def constraint_backlog(instance: ConcreteModel, demand_scale_level: int = 0, sch
 
 
 def constraint_demand_penalty(instance: ConcreteModel, demand: Union[dict, float], demand_factor: Union[dict, float],
-                              backlog_zero: Dict[Location, Dict[Resource, float]] = None, isBacklog: bool = False,
+                              isBacklog: bool = False,
                               demand_scale_level: int = 0, scheduling_scale_level: int = 0,
                               cluster_wt: dict = None, location_resource_dict: dict = None,
                               sign: str = 'geq') -> Constraint:
