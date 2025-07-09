@@ -20,7 +20,7 @@ if __name__ == '__main__':
     theta_1, theta_2 = sp.symbols('theta_1 theta_2')
 
     # Gauss–Legendre quadrature settings
-    n_gl = [5, 5]
+    n_gl = [2, 2]
     xi_1, wi_1 = np.polynomial.legendre.leggauss(n_gl[0])
     xi_2, wi_2 = np.polynomial.legendre.leggauss(n_gl[1])
 
@@ -31,14 +31,14 @@ if __name__ == '__main__':
     theta1_bounds_array = np.array([
         [[0.0, 0.0, 0.0],  # d0 - 10
          [0.0, 0.0, 4.0]],  # d0 + 10
-        [[0.75, -1.5, -1.25],  # d1 - 5
-         [0.0, 0.0, 4.0]]  # d1 + 5
+        # [[0.75, -1.5, -1.25],  # d1 - 5
+        #  [0.0, 0.0, 4.0]]  # d1 + 5
     ])
 
     theta2_bounds_array = np.array([
-        [[-8/3, 2.0, -4.0, 2/3], [0.0, 0.0, 0.0, 4.0]],  # θ1 ± d2
+        # [[-8/3, 2.0, -4.0, 2/3], [0.0, 0.0, 0.0, 4.0]],  # θ1 ± d2
         [[0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 4.0]],  # θ1 ± 2d2
-        [[1/3, -0.5, 0.5, -1/3], [0.0, 0.0, 0.0, 4.0]]  # θ1 ± 3d2
+        # [[1/3, -0.5, 0.5, -1/3], [0.0, 0.0, 0.0, 4.0]]  # θ1 ± 3d2
     ])
 
     # Joint PDF
