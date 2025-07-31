@@ -62,7 +62,7 @@ from ...utils.scale_utils import scale_list, scale_tuple
 #     instance.constraint_transit_balance = Constraint(instance.sources, instance.sinks, instance.transports,
 #                                                      instance.resources_trans, *scales, rule=transit_balance_rule, doc='Resource in transit between locations')
 #
-#     #constraint_latex_render(transit_balance_rule)
+#     constraint_latex_render(transit_balance_rule)
 #     return instance.constraint_transit_balance
 
 

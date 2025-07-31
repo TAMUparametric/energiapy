@@ -49,7 +49,7 @@ def constraint_production_facility(instance: ConcreteModel, prod_max: dict, loca
     instance.constraint_production_facility = Constraint(
         instance.locations, instance.processes, *scales, rule=production_facility_rule,
         doc='production facility sizing and location')
-    #constraint_latex_render(production_facility_rule)
+    constraint_latex_render(production_facility_rule)
     return instance.constraint_production_facility
 
 
@@ -86,7 +86,7 @@ def constraint_storage_facility(instance: ConcreteModel, store_max: dict, locati
 
     instance.constraint_storage_facility = Constraint(
         instance.locations, instance.resources_store, *scales, rule=storage_facility_rule, doc='storage facility sizing and location')
-    #constraint_latex_render(storage_facility_rule)
+    constraint_latex_render(storage_facility_rule)
     return instance.constraint_storage_facility
 
 
@@ -126,7 +126,7 @@ def constraint_min_storage_facility(instance: ConcreteModel, store_min: dict, lo
         instance.locations, instance.resources_store, *
         scales, rule=min_storage_facility_rule,
         doc='storage facility sizing and location')
-    #constraint_latex_render(min_storage_facility_rule)
+    constraint_latex_render(min_storage_facility_rule)
     return instance.constraint_min_storage_facility
 
 
@@ -167,7 +167,7 @@ def constraint_min_production_facility(instance: ConcreteModel, prod_min: dict, 
         instance.locations, instance.processes, *
         scales, rule=min_production_facility_rule,
         doc='production facility sizing and location')
-    #constraint_latex_render(min_production_facility_rule)
+    constraint_latex_render(min_production_facility_rule)
     return instance.constraint_min_production_facility
 
 
@@ -202,7 +202,7 @@ def constraint_min_capacity_facility(instance: ConcreteModel, location_process_d
         instance.locations, instance.processes, *
         scales, rule=min_capacity_facility_rule,
         doc='capacity facility sizing initialization')
-    #constraint_latex_render(min_capacity_facility_rule)
+    constraint_latex_render(min_capacity_facility_rule)
     return instance.constraint_min_capacity_facility
 
 
@@ -245,7 +245,7 @@ def constraint_preserve_capacity_facility(instance: ConcreteModel, location_proc
         instance.locations, instance.processes, *
         scales, rule=preserve_capacity_facility_rule,
         doc='preserves the capacity over network scale')
-    #constraint_latex_render(preserve_capacity_facility_rule)
+    constraint_latex_render(preserve_capacity_facility_rule)
     return instance.constraint_preserve_capacity_facility
 
 
@@ -286,7 +286,7 @@ def constraint_preserve_capacity_transport(instance: ConcreteModel, transport_av
         instance.sources, instance.sinks, instance.transports, *
         scales, rule=preserve_capacity_transport_rule,
         doc='preserves the capacity over network scale')
-    #constraint_latex_render(preserve_capacity_transport_rule)
+    constraint_latex_render(preserve_capacity_transport_rule)
     return instance.constraint_preserve_capacity_transport
 
 def constraint_preserve_capacity_storage(instance: ConcreteModel, location_resource_dict:dict = None, network_scale_level: int = 0) -> Constraint:
@@ -324,5 +324,5 @@ def constraint_preserve_capacity_storage(instance: ConcreteModel, location_resou
     instance.constraint_preserve_storage_capacity = Constraint(
         instance.locations, instance.resources_store, *scales, rule=preserve_storage_capacity_rule,
         doc='preserves the storage capacity over network scale')
-    #constraint_latex_render(preserve_capacity_transport_rule)
-    return instance.constraint_preserve_storage_capacity
+    constraint_latex_render(preserve_storage_capacity_rule)
+    return instance.preserve_storage_capacity_rule

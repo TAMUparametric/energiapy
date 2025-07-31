@@ -50,7 +50,7 @@ def constraint_storage_facility_affix(instance: ConcreteModel, affix_storage_cap
         instance.locations, instance.resources_store, *
         scales, rule=storage_facility_affix_rule,
         doc='storage facility sizing and location')
-    #constraint_latex_render(storage_facility_affix_rule)
+    constraint_latex_render(storage_facility_affix_rule)
     return instance.constraint_storage_facility_affix
 
 
@@ -88,7 +88,7 @@ def constraint_storage_facility_fix(instance: ConcreteModel, store_max: dict, st
         instance.locations, instance.resources_store, *
         scales, rule=storage_facility_fix_rule,
         doc='storage facility sizing and location')
-    #constraint_latex_render(storage_facility_fix_rule)
+    constraint_latex_render(storage_facility_fix_rule)
     return instance.constraint_storage_facility_fix
 
 
@@ -123,7 +123,7 @@ def constraint_storage_min(instance: ConcreteModel, store_min: dict, location_re
     instance.constraint_storage_min = Constraint(
         instance.locations, instance.resources_store, *scales, rule=storage_min_rule,
         doc='storage facility sizing-min')
-    #constraint_latex_render(storage_min_rule)
+    constraint_latex_render(storage_min_rule)
     return instance.constraint_storage_min
 
 
@@ -158,7 +158,7 @@ def constraint_nameplate_inventory(instance: ConcreteModel, location_resource_di
         instance.locations, instance.resources_store, *
         scales, rule=nameplate_inventory_rule,
         doc='nameplate inventory capacity constraint')
-    #constraint_latex_render(nameplate_inventory_rule)
+    constraint_latex_render(nameplate_inventory_rule)
     return instance.constraint_nameplate_inventory
 
 
@@ -192,5 +192,5 @@ def constraint_storage_max(instance: ConcreteModel, store_max: dict, location_re
     instance.constraint_storage_max = Constraint(
         instance.locations, instance.resources_store, *scales, rule=storage_max_rule,
         doc='storage facility sizing')
-    #constraint_latex_render(storage_max_rule)
+    constraint_latex_render(storage_max_rule)
     return instance.constraint_storage_max

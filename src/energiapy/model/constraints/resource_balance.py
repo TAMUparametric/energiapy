@@ -61,7 +61,7 @@ def constraint_resource_consumption(instance: ConcreteModel, location_resource_d
         instance.locations, instance.resources_purch, *
         scales, rule=resource_consumption_rule,
         doc='resource consumption')
-    #constraint_latex_render(resource_consumption_rule)
+    constraint_latex_render(resource_consumption_rule)
     return instance.constraint_resource_consumption
 
 
@@ -177,7 +177,7 @@ def constraint_resource_consumption(instance: ConcreteModel, location_resource_d
 #     instance.constraint_inventory_balance = Constraint(
 #         instance.locations, instance.resources, *scales, rule=inventory_balance_rule,
 #         doc='mass balance across scheduling scale')
-#     #constraint_latex_render(inventory_balance_rule)
+#     constraint_latex_render(inventory_balance_rule)
 #     return instance.constraint_inventory_balance
 
 
@@ -313,7 +313,7 @@ def constraint_inventory_balance(instance: ConcreteModel, scheduling_scale_level
     instance.constraint_inventory_balance = Constraint(
         instance.locations, instance.resources, *scales, rule=inventory_balance_rule,
         doc='mass balance across scheduling scale')
-    #constraint_latex_render(inventory_balance_rule)
+    constraint_latex_render(inventory_balance_rule)
     return instance.constraint_inventory_balance
 
 
@@ -344,7 +344,7 @@ def constraint_location_production(instance: ConcreteModel, cluster_wt: dict,
     instance.constraint_location_production = Constraint(
         instance.locations, instance.processes, *scales, rule=location_production_rule,
         doc='total production at location')
-    #constraint_latex_render(location_production_rule)
+    constraint_latex_render(location_production_rule)
     return instance.constraint_location_production
 
 
@@ -372,7 +372,7 @@ def constraint_location_production_material_mode_sum(instance: ConcreteModel, pr
         instance.locations, instance.processes, *
         scales, rule=location_production_material_mode_sum_rule,
         doc='total production at location')
-    #constraint_latex_render(location_production_material_mode_sum_rule)
+    constraint_latex_render(location_production_material_mode_sum_rule)
     return instance.constraint_location_production_material_mode_sum
 
 
@@ -406,7 +406,7 @@ def constraint_location_production_material_mode(instance: ConcreteModel, cluste
         instance.locations, instance.processes, instance.material_modes, *
         scales, rule=location_production_material_mode_rule,
         doc='total production at location')
-    #constraint_latex_render(location_production_material_mode_rule)
+    constraint_latex_render(location_production_material_mode_rule)
     return instance.constraint_location_production_material_mode
 
 
