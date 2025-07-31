@@ -1017,7 +1017,7 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
 
 
             constraint_demand_penalty(instance=instance, demand_scale_level=scenario.demand_scale_level,
-                                      scheduling_scale_level=scenario.scheduling_scale_level, demand=demand, backlog_zero=backlog_zero, isBacklog=isBacklog,
+                                      scheduling_scale_level=scenario.scheduling_scale_level, demand=demand, isBacklog=isBacklog,
                                       demand_factor=scenario.demand_factor, location_resource_dict=scenario.location_resource_dict, sign=demand_sign)
 
             constraint_demand_penalty_location(
