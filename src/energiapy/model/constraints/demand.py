@@ -270,7 +270,7 @@ def constraint_backlog(instance: ConcreteModel, demand_scale_level: int = 0, sch
         instance.constraint_backlog = Constraint(instance.locations, instance.resources_demand, *scales,
                                                  rule=backlog_rule, doc='backlog balance for resources')
 
-    # constraint_latex_render(backlog_rule)
+    constraint_latex_render(backlog_rule)
     # return instance.constraint_backlog
 
 

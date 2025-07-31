@@ -204,7 +204,7 @@ def objective_uncertainty_cost(instance: ConcreteModel, penalty: float, network_
 #                    product(instance.resources_demand, scale_iter))
 
 #     instance.demand_objective = Objective(rule=demand_objective_rule, doc='total purchase from network', sense=maximize)
-#     # constraint_latex_render(cost_objective_rule)
+#     constraint_latex_render(cost_objective_rule)
 #     return instance.demand_objective
 
 
@@ -390,7 +390,7 @@ def objective_gwp_min(instance: ConcreteModel, network_scale_level: int = 0, ) -
 
     instance.objective_gwp_min = Objective(
         rule=objective_gwp_min_rule, doc='minimize total gwp for network')
-    #constraint_latex_render(objective_gwp_min_rule)
+    constraint_latex_render(objective_gwp_min_rule)
     return instance.objective_gwp_min
 
 
@@ -416,5 +416,5 @@ def objective_emission_min(instance: ConcreteModel, network_scale_level: int = 0
 
     instance.objective_emission_min = Objective(
         rule=objective_emission_min_rule, doc='minimize total emission for network')
-    #constraint_latex_render(objective_emission_min_rule)
+    constraint_latex_render(objective_emission_min_rule)
     return instance.objective_emission_min

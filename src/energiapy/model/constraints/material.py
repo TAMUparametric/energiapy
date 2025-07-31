@@ -177,7 +177,7 @@ def constraint_production_facility_material_mode_binary(instance: ConcreteModel,
     instance.constraint_production_facility_material_mode_binary = Constraint(
         instance.locations, instance.processes, *scales, rule=production_facility_material_mode_binary_rule, doc='capacity of process under different material modes')
 
-    #constraint_latex_render(production_facility_material_mode_binary_rule)
+    constraint_latex_render(production_facility_material_mode_binary_rule)
     return instance.constraint_production_facility_material_mode_binary
 
 
@@ -214,7 +214,7 @@ def constraint_production_facility_material(instance: ConcreteModel, prod_max: d
         instance.locations, instance.processes,  instance.material_modes, *
         scales, rule=production_facility_material_rule,
         doc='production facility sizing and location for material mode')
-    #constraint_latex_render(production_facility_material_rule)
+    constraint_latex_render(production_facility_material_rule)
     return instance.constraint_production_facility_material
 
 
@@ -255,5 +255,5 @@ def constraint_min_production_facility_material(instance: ConcreteModel, prod_mi
         instance.locations, instance.processes, instance.material_modes, *
         scales, rule=min_production_facility_material_rule,
         doc='production facility sizing and location for material mode')
-    #constraint_latex_render(min_production_facility_material_rule)
+    constraint_latex_render(min_production_facility_material_rule)
     return instance.constraint_min_production_facility_material

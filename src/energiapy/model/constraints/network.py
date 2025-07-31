@@ -325,4 +325,4 @@ def constraint_preserve_capacity_storage(instance: ConcreteModel, location_resou
         instance.locations, instance.resources_store, *scales, rule=preserve_storage_capacity_rule,
         doc='preserves the storage capacity over network scale')
     constraint_latex_render(preserve_storage_capacity_rule)
-    return instance.preserve_storage_capacity_rule
+    return instance.constraint_preserve_storage_capacity
