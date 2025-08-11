@@ -53,7 +53,7 @@ class Costdynamics(Enum):
 #                                                                                    sink, resource, transport, scale_list[:scheduling_scale_level+1]]
 #     instance.constraint_transport_exp_cost = Constraint(instance.sources, instance.sinks, instance.resources_trans,
 #                                                         instance.transports, *scales, rule=transport_exp_cost_rule, doc='import of resource from sink to source')
-#     ##constraint_latex_render(transport_exp_cost_rule)
+#     constraint_latex_render(transport_exp_cost_rule)
 #     return instance.constraint_transport_exp_cost
 
 
@@ -101,7 +101,7 @@ def constraint_resource_purchase(instance: ConcreteModel, price_factor: dict = N
         instance.locations, instance.resources_purch, *
         scales, rule=resource_purchase_rule,
         doc='expenditure on purchase of resource')
-    ##constraint_latex_render(resource_purchase_rule)
+    constraint_latex_render(resource_purchase_rule)
     return instance.constraint_resource_purchase
 
 
@@ -131,7 +131,7 @@ def constraint_location_purchase(instance: ConcreteModel, cluster_wt: dict, netw
         instance.locations, instance.resources_purch, *
         scales, rule=location_purchase_rule,
         doc='total purchase at location')
-    ##constraint_latex_render(location_purchase_rule)
+    constraint_latex_render(location_purchase_rule)
     return instance.constraint_location_purchase
 
 
@@ -154,7 +154,7 @@ def constraint_network_purchase(instance: ConcreteModel, network_scale_level: in
 
     instance.constraint_network_purchase = Constraint(
         instance.resources_purch, *scales, rule=network_purchase_rule, doc='total purchase from network')
-    ##constraint_latex_render(network_purchase_rule)
+    constraint_latex_render(network_purchase_rule)
     return instance.constraint_network_purchase
 
 
@@ -201,7 +201,7 @@ def constraint_resource_revenue(instance: ConcreteModel, revenue_factor: dict = 
         instance.locations, instance.resources_sell, *
         scales, rule=resource_revenue_rule,
         doc='revenue from resource')
-    ##constraint_latex_render(resource_revenue_rule)
+    constraint_latex_render(resource_revenue_rule)
     return instance.constraint_resource_revenue
 
 
@@ -233,7 +233,7 @@ def constraint_location_revenue(instance: ConcreteModel, cluster_wt: dict, netwo
         instance.locations, instance.resources_sell, *
         scales, rule=location_revenue_rule,
         doc='total revenue at location')
-    ##constraint_latex_render(location_revenue_rule)
+    constraint_latex_render(location_revenue_rule)
     return instance.constraint_location_revenue
 
 
@@ -256,7 +256,7 @@ def constraint_network_revenue(instance: ConcreteModel, network_scale_level: int
 
     instance.constraint_network_revenue = Constraint(
         instance.resources_sell, *scales, rule=network_revenue_rule, doc='total revenue from network')
-    ##constraint_latex_render(network_revenue_rule)
+    constraint_latex_render(network_revenue_rule)
     return instance.constraint_network_revenue
 
 
@@ -280,7 +280,7 @@ def constraint_land_process_cost(instance: ConcreteModel, land_dict: dict, land_
         return instance.Land_cost_process[location, process, scale_list] == land_cost_dict[location]*land_dict[process]*instance.Cap_P[location, process, scale_list]
     instance.constraint_land_process_cost = Constraint(
         instance.locations, instance.processes, *scales, rule=land_process_cost_rule, doc='land cost for process at location')
-    ##constraint_latex_render(land_process_cost_rule)
+    constraint_latex_render(land_process_cost_rule)
     return instance.constraint_land_process_cost
 
 
@@ -300,7 +300,7 @@ def constraint_land_location_cost(instance: ConcreteModel, network_scale_level: 
         return instance.Land_cost_location[location, scale_list] == sum(instance.Land_cost_process[location, process_, scale_list] for process_ in instance.processes)
     instance.constraint_land_location_cost = Constraint(
         instance.locations, *scales, rule=land_location_cost_rule, doc='land cost at location')
-    ##constraint_latex_render(land_location_cost_rule)
+    constraint_latex_render(land_location_cost_rule)
     return instance.constraint_land_location_cost
 
 
@@ -320,7 +320,7 @@ def constraint_land_network_cost(instance: ConcreteModel, network_scale_level: i
         return instance.Land_cost_network[scale_list] == sum(instance.Land_cost_location[location_, scale_list] for location_ in instance.locations)
     instance.constraint_land_network_cost = Constraint(
         *scales, rule=land_network_cost_rule, doc='land cost for process')
-    ##constraint_latex_render(land_network_cost_rule)
+    constraint_latex_render(land_network_cost_rule)
     return instance.constraint_land_network_cost
 
 
@@ -370,7 +370,7 @@ def constraint_process_capex(instance: ConcreteModel, capex_dict: dict, network_
     instance.constraint_process_capex = Constraint(
         instance.locations, instance.processes, *scales, rule=process_capex_rule, doc='capex for process')
 
-    ##constraint_latex_render(process_capex_rule)
+    constraint_latex_render(process_capex_rule)
     return instance.constraint_process_capex
 
 def constraint_storage_capex(instance: ConcreteModel, location_resource_dict: dict, storage_capex_dict: dict, network_scale_level: int = 0, annualization_factor: float = 1) -> Constraint:
@@ -406,7 +406,7 @@ def constraint_storage_capex(instance: ConcreteModel, location_resource_dict: di
     instance.constraint_storage_capex = Constraint(
         instance.locations, instance.resources_store, *scales, rule=storage_capex_rule, doc='capex for storage')
 
-    ##constraint_latex_render(storage_capex_rule)
+    constraint_latex_render(storage_capex_rule)
     return instance.constraint_storage_capex
 
 
@@ -426,7 +426,7 @@ def constraint_storage_capex(instance: ConcreteModel, location_resource_dict: di
 #         return instance.Capex_location[location, scale_list] == sum(instance.Capex_process[location, process_, scale_list] for process_ in instance.processes)
 #     instance.constraint_location_capex = Constraint(
 #         instance.locations, *scales, rule=location_capex_rule, doc='total location cost from network')
-#     ##constraint_latex_render(location_capex_rule)
+#     constraint_latex_render(location_capex_rule)
 #     return instance.constraint_location_capex
 
 def constraint_location_capex(instance: ConcreteModel, network_scale_level: int = 0) -> Constraint:
@@ -449,7 +449,7 @@ def constraint_location_capex(instance: ConcreteModel, network_scale_level: int 
             return Constraint.Skip
     instance.constraint_location_capex = Constraint(
         instance.locations, *scales, rule=location_capex_rule, doc='total location cost from network')
-    ##constraint_latex_render(location_capex_rule)
+    constraint_latex_render(location_capex_rule)
     return instance.constraint_location_capex
 
 
@@ -469,7 +469,7 @@ def constraint_network_capex(instance: ConcreteModel, network_scale_level: int =
         return instance.Capex_network[scale_list] == sum(instance.Capex_location[location_, scale_list] for location_ in instance.locations)
     instance.constraint_network_capex = Constraint(
         *scales, rule=network_capex_rule, doc='total capex from network')
-    #constraint_latex_render(network_capex_rule)
+    constraint_latex_render(network_capex_rule)
     return instance.constraint_network_capex
 
 # *-------------------------vopex costing constraints----------------------------
@@ -497,7 +497,7 @@ def constraint_network_capex(instance: ConcreteModel, network_scale_level: int =
 #             return instance.Vopex_process[location, process, scale_list] == 0
 #     instance.constraint_process_vopex = Constraint(
 #         instance.locations, instance.processes, *scales, rule=process_vopex_rule, doc='total vopex from network')
-#     #constraint_latex_render(process_vopex_rule)
+#     constraint_latex_render(process_vopex_rule)
 #     return instance.constraint_process_vopex
 
 
@@ -545,7 +545,7 @@ def constraint_process_vopex(instance: ConcreteModel, vopex_dict: dict, network_
     instance.constraint_process_vopex = Constraint(
         instance.locations, instance.processes, *scales, rule=process_vopex_rule, doc='vopex for process')
 
-    #constraint_latex_render(process_vopex_rule)
+    constraint_latex_render(process_vopex_rule)
     return instance.constraint_process_vopex
 
 
@@ -569,7 +569,7 @@ def constraint_location_vopex(instance: ConcreteModel, network_scale_level: int 
             return Constraint.Skip
     instance.constraint_location_vopex = Constraint(
         instance.locations, *scales, rule=location_vopex_rule, doc='total vopex from location')
-    #constraint_latex_render(location_vopex_rule)
+    constraint_latex_render(location_vopex_rule)
     return instance.constraint_location_vopex
 
 
@@ -589,7 +589,7 @@ def constraint_network_vopex(instance: ConcreteModel, network_scale_level: int =
         return instance.Vopex_network[scale_list] == sum(instance.Vopex_location[location_, scale_list] for location_ in instance.locations)
     instance.constraint_network_vopex = Constraint(
         *scales, rule=network_vopex_rule, doc='total vopex from network')
-    #constraint_latex_render(network_vopex_rule)
+    constraint_latex_render(network_vopex_rule)
     return instance.constraint_network_vopex
 
 
@@ -639,7 +639,7 @@ def constraint_process_fopex(instance: ConcreteModel, fopex_dict: dict, network_
     instance.constraint_process_fopex = Constraint(
         instance.locations, instance.processes, *scales, rule=process_fopex_rule, doc='fopex for process')
 
-    #constraint_latex_render(process_fopex_rule)
+    constraint_latex_render(process_fopex_rule)
     return instance.constraint_process_fopex
 
 def constraint_process_order_fopex(instance: ConcreteModel, location_process_dict:dict, order_fopex_dict: dict, scheduling_scale_level: int = 0) -> Constraint:
@@ -665,7 +665,7 @@ def constraint_process_order_fopex(instance: ConcreteModel, location_process_dic
     instance.constraint_process_order_fopex = Constraint(instance.locations, instance.processes_order_fopex, *scales,
                                                          rule=process_fopex_order_rule, doc='Fixed order cost for procurement')
 
-    #constraint_latex_render(process_fopex_order_rule)
+    constraint_latex_render(process_fopex_order_rule)
     return instance.constraint_process_order_fopex
 
 def constraint_location_fopex(instance: ConcreteModel, network_scale_level: int = 0, scheduling_scale_level:int = 0) -> Constraint:
@@ -695,7 +695,7 @@ def constraint_location_fopex(instance: ConcreteModel, network_scale_level: int 
 
     instance.constraint_location_fopex = Constraint(
         instance.locations, *scales, rule=location_fopex_rule, doc='total fopex from network')
-    #constraint_latex_render(location_fopex_rule)
+    constraint_latex_render(location_fopex_rule)
     return instance.constraint_location_fopex
 
 
@@ -715,7 +715,7 @@ def constraint_network_fopex(instance: ConcreteModel, network_scale_level: int =
         return instance.Fopex_network[scale_list] == sum(instance.Fopex_location[location_, scale_list] for location_ in instance.locations)
     instance.constraint_network_fopex = Constraint(
         *scales, rule=network_fopex_rule, doc='total fopex from network')
-    #constraint_latex_render(network_fopex_rule)
+    constraint_latex_render(network_fopex_rule)
     return instance.constraint_network_fopex
 
 
@@ -748,7 +748,7 @@ def constraint_transport_imp_cost(instance: ConcreteModel, scheduling_scale_leve
     instance.constraint_transport_imp_cost = Constraint(instance.sinks, instance.sources, instance.resources_trans,
                                                         instance.transports, *scales, rule=transport_imp_cost_rule, doc='import of resource from sink to source')
 
-    #constraint_latex_render(transport_imp_cost_rule)
+    constraint_latex_render(transport_imp_cost_rule)
     return instance.constraint_transport_imp_cost
 
 
@@ -770,7 +770,7 @@ def constraint_transport_cost(instance: ConcreteModel, scheduling_scale_level: i
                                                                                             for sink, source, resource in product(instance.sinks, instance.sources, instance.resources_trans))
     instance.constraint_transport_cost = Constraint(
         instance.transports, *scales, rule=transport_cost_rule, doc='total transport cost')
-    #constraint_latex_render(transport_cost_rule)
+    constraint_latex_render(transport_cost_rule)
     return instance.constraint_transport_cost
 
 
@@ -792,7 +792,7 @@ def constraint_transport_cost_network(instance: ConcreteModel, network_scale_lev
         return instance.Trans_cost_network[transport, scale_list] == sum(instance.Trans_cost[transport, scale_] for scale_ in scale_iter)
     instance.constraint_transport_cost_network = Constraint(
         instance.transports, *scales, rule=transport_cost_network_rule, doc='total transport cost across scale')
-    #constraint_latex_render(transport_cost_network_rule)
+    constraint_latex_render(transport_cost_network_rule)
     return instance.constraint_transport_cost_network
 
 
@@ -823,7 +823,7 @@ def constraint_process_incidental(instance: ConcreteModel, incidental_dict: dict
     instance.constraint_process_incidental = Constraint(
         instance.locations, instance.processes, *scales, rule=process_incidental_rule, doc='total incidental costs from processes')
 
-    #constraint_latex_render(process_incidental_rule)
+    constraint_latex_render(process_incidental_rule)
     return instance.constraint_process_incidental
 
 
@@ -847,7 +847,7 @@ def constraint_location_incidental(instance: ConcreteModel, network_scale_level:
             return Constraint.Skip
     instance.constraint_location_incidental = Constraint(
         instance.locations, *scales, rule=location_incidental_rule, doc='total incidental cost from network')
-    #constraint_latex_render(location_incidental_rule)
+    constraint_latex_render(location_incidental_rule)
     return instance.constraint_location_incidental
 
 
@@ -867,7 +867,7 @@ def constraint_network_incidental(instance: ConcreteModel, network_scale_level: 
         return instance.Incidental_network[scale_list] == sum(instance.Incidental_location[location_, scale_list] for location_ in instance.locations)
     instance.constraint_network_incidental = Constraint(
         *scales, rule=network_incidental_rule, doc='total incidental costs from network')
-    #constraint_latex_render(network_incidental_rule)
+    constraint_latex_render(network_incidental_rule)
     return instance.constraint_network_incidental
 
 # *-------------------------Total network cost--------------------------
@@ -917,7 +917,7 @@ def constraint_network_cost(instance: ConcreteModel, constraints=Set[Constraints
 
     instance.constraint_network_cost = Constraint(
         rule=constraint_network_cost_rule, doc='total network cost')
-    #constraint_latex_render(constraint_network_cost_rule)
+    constraint_latex_render(constraint_network_cost_rule)
     return instance.constraint_network_cost
 
 # *-------------------------Inventory penalty --------------------------
@@ -954,7 +954,7 @@ def constraint_storage_cost(instance: ConcreteModel, location_resource_dict: dic
         instance.locations, instance.resources_store, *
         scales, rule=storage_cost_rule,
         doc='penalty for stored resources')
-    #constraint_latex_render(storage_cost_rule)
+    constraint_latex_render(storage_cost_rule)
     return instance.constraint_storage_cost
 
 
@@ -982,7 +982,7 @@ def constraint_storage_cost_location(instance: ConcreteModel, network_scale_leve
     instance.constraint_storage_cost_location = Constraint(
         instance.locations, *scales, rule=storage_cost_location_rule,
         doc='penalty for stored resources across location')
-    #constraint_latex_render(storage_cost_location_rule)
+    constraint_latex_render(storage_cost_location_rule)
     return instance.constraint_storage_cost_location
 
 
@@ -1009,5 +1009,5 @@ def constraint_storage_cost_network(instance: ConcreteModel, network_scale_level
             return Constraint.Skip
     instance.constraint_storage_cost_network = Constraint(*scales, rule=storage_cost_network_rule,
                                                           doc='penalty for stored resources across network')
-    #constraint_latex_render(storage_cost_network_rule)
+    constraint_latex_render(storage_cost_network_rule)
     return instance.constraint_storage_cost_network

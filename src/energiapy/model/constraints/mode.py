@@ -51,7 +51,7 @@ def constraint_production_mode(instance: ConcreteModel, mode_dict: dict, schedul
     instance.constraint_production_mode = Constraint(
         instance.locations, instance.processes, *scales, rule=production_mode_rule,
         doc='production mode sum constraint')
-    #constraint_latex_render(production_mode_rule)
+    constraint_latex_render(production_mode_rule)
     return instance.constraint_production_mode
 
 
@@ -90,7 +90,7 @@ def constraint_production_mode_facility(instance: ConcreteModel, prod_max: dict,
         instance.locations, instance.processes, instance.modes, *
         scales, rule=production_mode_facility_rule,
         doc='production facility sizing and location')
-    #constraint_latex_render(production_mode_facility_rule)
+    constraint_latex_render(production_mode_facility_rule)
     return instance.constraint_production_mode_facility
 
 
@@ -129,7 +129,7 @@ def constraint_min_production_mode_facility(instance: ConcreteModel, prod_min: d
         instance.locations, instance.processes, instance.modes, *
         scales, rule=min_production_mode_facility_rule,
         doc='production facility sizing and location')
-    #constraint_latex_render(min_production_mode_facility_rule)
+    constraint_latex_render(min_production_mode_facility_rule)
     return instance.constraint_min_production_mode_facility
 
 
@@ -165,7 +165,7 @@ def constraint_production_mode_binary(instance: ConcreteModel, mode_dict: dict, 
         instance.locations, instance.processes, *
         scales, rule=production_mode_binary_rule,
         doc='production mode binary sum constraint')
-    #constraint_latex_render(production_mode_binary_rule)
+    constraint_latex_render(production_mode_binary_rule)
     return instance.constraint_production_mode_binary
 
 def constraint_production_mode_wo_binary(instance: ConcreteModel, mode_dict: dict, scheduling_scale_level: int = 0
@@ -193,7 +193,7 @@ def constraint_production_mode_wo_binary(instance: ConcreteModel, mode_dict: dic
         instance.locations, instance.processes, *
         scales, rule=production_mode_wo_binary_rule,
         doc='production mode without binary sum constraint')
-    #constraint_latex_render(production_mode_wo_binary_rule)
+    constraint_latex_render(production_mode_wo_binary_rule)
     return instance.constraint_production_mode_wo_binary
 
 
@@ -247,7 +247,7 @@ def constraint_fixed_nameplate_min_production_mode(instance: ConcreteModel, prod
     instance.constraint_fixed_nameplate_min_production_mode = Constraint(instance.locations, instance.processes, instance.modes,
                                                                *scales, rule=fixed_nameplate_min_production_mode_rule,
                                                                doc='mode nameplate min production capacity constraint')
-    #constraint_latex_render(fixed_nameplate_min_production_mode_rule)
+    constraint_latex_render(fixed_nameplate_min_production_mode_rule)
     return instance.constraint_fixed_nameplate_min_production_mode
 
 def constraint_fixed_nameplate_max_production_mode(instance: ConcreteModel, prod_max: dict, location_process_dict: dict = None,
@@ -294,7 +294,7 @@ def constraint_fixed_nameplate_max_production_mode(instance: ConcreteModel, prod
     instance.constraint_fixed_nameplate_max_production_mode = Constraint(instance.locations, instance.processes, instance.modes,
                                                                *scales, rule=fixed_nameplate_max_production_mode_rule,
                                                                doc='mode nameplate max production capacity constraint')
-    #constraint_latex_render(fixed_nameplate_max_production_mode_rule)
+    constraint_latex_render(fixed_nameplate_max_production_mode_rule)
     return instance.constraint_fixed_nameplate_max_production_mode
 
 # def constraint_production_rate1(instance: ConcreteModel, rate_max_dict: dict, scheduling_scale_level: int = 0) -> Constraint:
@@ -337,7 +337,7 @@ def constraint_fixed_nameplate_max_production_mode(instance: ConcreteModel, prod
 #         instance.locations, instance.processes, instance.modes, *
 #         scales, rule=production_rate_rule1,
 #         doc='production mode rate 1')
-#     #constraint_latex_render(production_rate_rule1)
+#     constraint_latex_render(production_rate_rule1)
 #     return instance.constraint_production_rate1
 #
 #
@@ -377,7 +377,7 @@ def constraint_fixed_nameplate_max_production_mode(instance: ConcreteModel, prod
 #         instance.locations, instance.processes, instance.modes, *
 #         scales, rule=production_rate_rule2,
 #         doc='production mode rate 1')
-#     #constraint_latex_render(production_rate_rule2)
+#     constraint_latex_render(production_rate_rule2)
 #     return instance.constraint_production_rate2
 
 
@@ -420,7 +420,7 @@ def constraint_production_rate1(instance: ConcreteModel, rate_max_dict: dict, sc
         instance.locations, instance.processes, instance.modes, *
         scales, rule=production_rate_rule1,
         doc='production mode rate 1')
-    #constraint_latex_render(production_rate_rule1)
+    constraint_latex_render(production_rate_rule1)
     return instance.constraint_production_rate1
 
 
@@ -461,7 +461,7 @@ def constraint_production_rate2(instance: ConcreteModel, rate_max_dict: dict, sc
         instance.locations, instance.processes, instance.modes, *
         scales, rule=production_rate_rule2,
         doc='production mode rate 2')
-    #constraint_latex_render(production_rate_rule2)
+    constraint_latex_render(production_rate_rule2)
     return instance.constraint_production_rate2
 
 
@@ -501,5 +501,5 @@ def constraint_production_mode_switch(instance: ConcreteModel, mode_dict: dict, 
         instance.locations, instance.processes, instance.modes, *
         scales, rule=production_mode_switch_rule,
         doc='production mode switch')
-    #constraint_latex_render(production_mode_switch_rule)
+    constraint_latex_render(production_mode_switch_rule)
     return instance.production_mode_switch

@@ -74,7 +74,7 @@ def objective_cost(instance: ConcreteModel, constraints: Set[Constraints], netwo
 
     instance.objective_cost = Objective(
         rule=objective_cost_rule, doc='total cost')
-    #constraint_latex_render(objective_cost_rule)
+    constraint_latex_render(objective_cost_rule)
     return instance.objective_cost
 
 
@@ -140,7 +140,7 @@ def objective_cost_w_demand_penalty(instance: ConcreteModel, demand_penalty: Dic
         return capex + cost_trans_capex + vopex + fopex + cost_purch + cost_trans_vopex + cost_trans_fopex + incidental + land_cost - credit + penalty + storage_cost
     instance.objective_cost_w_demand_penalty = Objective(
         rule=objective_cost_w_demand_penalty_rule, doc='total cost with penalty for demand')
-    #constraint_latex_render(objective_cost_w_demand_penalty_rule)
+    constraint_latex_render(objective_cost_w_demand_penalty_rule)
     return instance.objective_cost_w_demand_penalty
 
 
@@ -183,7 +183,7 @@ def objective_uncertainty_cost(instance: ConcreteModel, penalty: float, network_
 
     instance.uncertainty_cost_objective = Objective(rule=uncertainty_cost_objective_rule,
                                                     doc='total purchase from network')
-    #constraint_latex_render(uncertainty_cost_objective_rule)
+    constraint_latex_render(uncertainty_cost_objective_rule)
     return instance.uncertainty_cost_objective
 
 
@@ -204,7 +204,7 @@ def objective_uncertainty_cost(instance: ConcreteModel, penalty: float, network_
 #                    product(instance.resources_demand, scale_iter))
 
 #     instance.demand_objective = Objective(rule=demand_objective_rule, doc='total purchase from network', sense=maximize)
-#     # #constraint_latex_render(cost_objective_rule)
+#     constraint_latex_render(cost_objective_rule)
 #     return instance.demand_objective
 
 
@@ -226,7 +226,7 @@ def objective_discharge_min(instance: ConcreteModel, resource: Resource, network
 
     instance.objective_discharge_min = Objective(
         rule=objective_discharge_min_rule, doc='minimize total discharge from specific_network')
-    #constraint_latex_render(objective_discharge_min_rule)
+    constraint_latex_render(objective_discharge_min_rule)
     return instance.objective_discharge_min
 
 
@@ -248,7 +248,7 @@ def objective_discharge_max(instance: ConcreteModel, resource: Resource, network
 
     instance.objective_discharge_max = Objective(
         rule=objective_discharge_max_rule, sense=maximize, doc='maximize total discharge from specific_network')
-    #constraint_latex_render(objective_discharge_max_rule)
+    constraint_latex_render(objective_discharge_max_rule)
     return instance.objective_discharge_max
 
 
@@ -305,7 +305,7 @@ def objective_profit(instance: ConcreteModel, constraints: Set[Constraints], net
 
     instance.objective_profit = Objective(
         rule=objective_profit_rule, sense=maximize, doc='total profit')
-    #constraint_latex_render(objective_profit_rule)
+    constraint_latex_render(objective_profit_rule)
     return instance.objective_profit
 
 
@@ -368,7 +368,7 @@ def objective_profit_w_demand_penalty(instance: ConcreteModel, demand_penalty: D
 
     instance.objective_profit_w_demand_penalty = Objective(
         rule=objective_profit_w_demand_penalty_rule, sense=maximize, doc='total profit w demand_penalty')
-    #constraint_latex_render(objective_profit_w_demand_penalty_rule)
+    constraint_latex_render(objective_profit_w_demand_penalty_rule)
     return instance.objective_profit_w_demand_penalty
 
 
@@ -390,7 +390,7 @@ def objective_gwp_min(instance: ConcreteModel, network_scale_level: int = 0, ) -
 
     instance.objective_gwp_min = Objective(
         rule=objective_gwp_min_rule, doc='minimize total gwp for network')
-    #constraint_latex_render(objective_gwp_min_rule)
+    constraint_latex_render(objective_gwp_min_rule)
     return instance.objective_gwp_min
 
 
@@ -416,5 +416,5 @@ def objective_emission_min(instance: ConcreteModel, network_scale_level: int = 0
 
     instance.objective_emission_min = Objective(
         rule=objective_emission_min_rule, doc='minimize total emission for network')
-    #constraint_latex_render(objective_emission_min_rule)
+    constraint_latex_render(objective_emission_min_rule)
     return instance.objective_emission_min

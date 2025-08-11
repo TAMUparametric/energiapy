@@ -49,7 +49,7 @@ def constraint_production_facility_affix(instance: ConcreteModel, affix_producti
         instance.locations, instance.processes, *
         scales, rule=production_facility_affix_rule,
         doc='production facility sizing and location')
-    #constraint_latex_render(production_facility_affix_rule)
+    constraint_latex_render(production_facility_affix_rule)
     return instance.constraint_production_facility_affix
 
 
@@ -86,7 +86,7 @@ def constraint_production_facility_fix(instance: ConcreteModel, prod_max: dict, 
         instance.locations, instance.processes, *
         scales, rule=production_facility_fix_rule,
         doc='production facility sizing and location')
-    #constraint_latex_render(production_facility_fix_rule)
+    constraint_latex_render(production_facility_fix_rule)
     return instance.constraint_production_facility_fix
 
 
@@ -131,7 +131,7 @@ def constraint_nameplate_production(instance: ConcreteModel, capacity_factor: di
         instance.locations, instance.processes, *
         scales, rule=nameplate_production_rule,
         doc='nameplate production capacity constraint')
-    #constraint_latex_render(nameplate_production_rule)
+    constraint_latex_render(nameplate_production_rule)
     return instance.constraint_nameplate_production
 
 
@@ -176,7 +176,7 @@ def constraint_nameplate_production_material_mode(instance: ConcreteModel, capac
         instance.locations, instance.processes, instance.material_modes, *
         scales, rule=nameplate_production_material_mode_rule,
         doc='nameplate production capacity constraint for material mode')
-    #constraint_latex_render(nameplate_production_material_mode_rule)
+    constraint_latex_render(nameplate_production_material_mode_rule)
     return instance.constraint_nameplate_production_material_mode
 
 
@@ -208,7 +208,7 @@ def constraint_production_max(instance: ConcreteModel, prod_max: dict, location_
     instance.constraint_production_max = Constraint(
         instance.locations, instance.processes, *scales, rule=production_max_rule,
         doc='production facility sizing')
-    #constraint_latex_render(production_max_rule)
+    constraint_latex_render(production_max_rule)
     return instance.constraint_production_max
 
 
@@ -246,7 +246,7 @@ def constraint_production_min(instance: ConcreteModel, prod_min: dict, location_
         instance.locations, instance.processes, *
         scales, rule=production_min_rule,
         doc='production facility sizing and location')
-    #constraint_latex_render(production_min_rule)
+    constraint_latex_render(production_min_rule)
     return instance.constraint_production_min
 
 def constraint_production_max_order_fopex(instance: ConcreteModel, prod_max:dict, location_process_dict:dict, scheduling_scale_level:int = 0) -> Constraint:
@@ -273,5 +273,5 @@ def constraint_production_max_order_fopex(instance: ConcreteModel, prod_max:dict
 
     instance.constraint_production_max_order_fopex = Constraint(instance.locations, instance.processes_order_fopex, *scales,
                                                                 rule=production_max_order_fopex_rule, doc='Production constraint for processes with fixed ordering costs')
-    #constraint_latex_render(production_max_order_fopex_rule)
+    constraint_latex_render(production_max_order_fopex_rule)
     return instance.constraint_production_max_order_fopex
