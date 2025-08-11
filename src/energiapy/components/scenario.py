@@ -336,7 +336,7 @@ class Scenario:
         if self.demand_penalty is not None:
             self.demand_penalty = {i.name: {j.name: self.demand_penalty[i][j] for j in self.demand_penalty[i].keys()} for i in self.demand_penalty.keys()}
 
-        if not self.backlog_penalty:
+        if self.backlog_penalty:
             self.backlog_penalty = {i.name: {j.name: self.backlog_penalty[i][j] for j in self.backlog_penalty[i].keys()} for i in self.backlog_penalty.keys()}
 
         df_capex = DataFrame.from_dict(
