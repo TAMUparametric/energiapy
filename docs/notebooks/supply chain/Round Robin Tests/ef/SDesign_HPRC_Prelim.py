@@ -1,41 +1,41 @@
 from pyomo.environ import *
-import os
+# import os
 import sys
 
-# sys.path.append('/scratch/user/shivam.vedant')
-# sys.path.append('/scratch/user/shivam.vedant/src')
-sys.path.append('../../../../../src')
+sys.path.append('/scratch/user/shivam.vedant')
+sys.path.append('/scratch/user/shivam.vedant/src')
+# sys.path.append('../../../../../../src')
 
 import pandas
-import random
-import math
-from itertools import product
-from functools import reduce
+# import random
+# import math
+# from itertools import product
+# from functools import reduce
 from energiapy.components.temporal_scale import TemporalScale
 from energiapy.components.resource import Resource, VaryingResource
-from energiapy.components.process import Process, ProcessMode, VaryingProcess
+from energiapy.components.process import Process, VaryingProcess
 from energiapy.components.location import Location
 from energiapy.components.transport import Transport, VaryingTransport
 from energiapy.components.network import Network
 from energiapy.components.scenario import Scenario
 from energiapy.model.constraints.demand import constraint_demand_lb
-from energiapy.components.result import Result
+# from energiapy.components.result import Result
 from energiapy.model.formulate import formulate, Constraints, Objective
-from energiapy.plot import plot_results, plot_scenario, plot_location
-from energiapy.model.solve import solve
-from pyomo.environ import Param
+# from energiapy.plot import plot_results, plot_scenario, plot_location
+# from energiapy.model.solve import solve
+# from pyomo.environ import Param
 from pyomo.environ import value as pyoval
-from collections import defaultdict
-from energiapy.utils.scale_utils import scale_pyomo_set, scale_tuple, scale_list, scale_changer
-import matplotlib.pyplot as plt
-from matplotlib import rc
-from typing import Union, Tuple, List
-from pyomo.environ import ConcreteModel, Var, Constraint, NonNegativeReals, TerminationCondition
-from pyomo.contrib.iis import write_iis
+# from collections import defaultdict
+from energiapy.utils.scale_utils import scale_tuple
+# import matplotlib.pyplot as plt
+# from matplotlib import rc
+# from typing import Union, Tuple, List
+from pyomo.environ import Var, Constraint, NonNegativeReals
+# from pyomo.contrib.iis import write_iis
 import time
 import pickle
-from energiapy.model.constraints.constraints import make_constraint, Cons
-from energiapy.model.formulate import constraint_export, constraint_demand_penalty, constraint_demand_penalty_cost
+# from energiapy.model.constraints.constraints import make_constraint, Cons
+# from energiapy.model.formulate import constraint_export, constraint_demand_penalty, constraint_demand_penalty_cost
 
 import mpisppy.utils.sputils as sputils
 from mpisppy.opt.ef import ExtensiveForm
@@ -46,18 +46,19 @@ design_planning_horizons = 1
 # design_exec_scenarios = 52
 design_scale_factor = 1
 
-capacity_scale_factor = 2
+capacity_scale_factor = 10
 
 schedule_planning_horizons = 1
 schedule_exec_scenarios = 52
 schedule_time_intervals = 7
 
-M = 1e3  # Big M
+M = 1e4  # Big M
 
 design_annualization_factor = 1/design_planning_horizons
 # schedule_annualization_factor = 1/schedule_planning_horizons
 
-fill_rate = 1
+# fill_rate = 0.6
+fill_rate = float(sys.argv[1])
 
 print(f"fill_rate: {fill_rate}")
 print(f"Type: {type(fill_rate)}")
@@ -77,7 +78,7 @@ def build_design_model(eps: float, scen_df=pandas.DataFrame()):
     # ======================================================================================================================
     # Declare resources/commodities
     # ======================================================================================================================
-    com1_pur = Resource(name='com1_pur', cons_max=75 * design_scale_factor * capacity_scale_factor,
+    com1_pur = Resource(name='com1_pur', cons_max=500* design_scale_factor * capacity_scale_factor,
                         block={'imp': 1, 'urg': 1}, price=0.00, label='Commodity 1 consumed from outside the system',
                         varying=[VaryingResource.DETERMINISTIC_AVAILABILITY])
 
@@ -98,67 +99,67 @@ def build_design_model(eps: float, scen_df=pandas.DataFrame()):
     # ======================================================================================================================
     # Declare processes/storage capacities
     # ======================================================================================================================
-    com1_process_capacity = 150 * design_scale_factor * capacity_scale_factor
+    com1_process_capacity = 500 * design_scale_factor * capacity_scale_factor
     min_process_capacity = 0.01
 
     com1_procure = Process(name='procure com1', prod_max=com1_process_capacity, conversion={com1_pur: -1, com1_in: 1},
-                           capex=0.1 / design_scale_factor, vopex=0.01, prod_min=min_process_capacity,
+                           capex=25 / design_scale_factor, vopex=0.01, prod_min=min_process_capacity,
                            label='Procure com1')
     com1_sell = Process(name='sell com1', prod_max=com1_process_capacity, conversion={com1_out: -1, com1_sold: 1},
-                        capex=0.01 / design_scale_factor, vopex=0.01, prod_min=min_process_capacity, label='Sell com1')
+                        capex=0.1 / design_scale_factor, vopex=0.01, prod_min=min_process_capacity, label='Sell com1')
 
     com1_receive_loc1 = Process(name='com1_receive_loc1', prod_max=com1_process_capacity,
-                                conversion={com1_loc1_out: -1, com1_in: 1}, capex=0.01 / design_scale_factor,
+                                conversion={com1_loc1_out: -1, com1_in: 1}, capex=0.1 / design_scale_factor,
                                 vopex=0.01, prod_min=min_process_capacity, label='Commodity 1 received from location 1')
     com1_receive_loc2 = Process(name='com1_receive_loc2', prod_max=com1_process_capacity,
-                                conversion={com1_loc2_out: -1, com1_in: 1}, capex=0.01 / design_scale_factor,
+                                conversion={com1_loc2_out: -1, com1_in: 1}, capex=0.1 / design_scale_factor,
                                 vopex=0.01, prod_min=min_process_capacity, label='Commodity 1 received from location 2')
     com1_receive_loc3 = Process(name='com1_receive_loc3', prod_max=com1_process_capacity,
-                                conversion={com1_loc3_out: -1, com1_in: 1}, capex=0.01 / design_scale_factor,
+                                conversion={com1_loc3_out: -1, com1_in: 1}, capex=0.1 / design_scale_factor,
                                 vopex=0.01, prod_min=min_process_capacity, label='Commodity 1 received from location 3')
     com1_receive_loc4 = Process(name='com1_receive_loc4', prod_max=com1_process_capacity,
-                                conversion={com1_loc4_out: -1, com1_in: 1}, capex=0.01 / design_scale_factor,
+                                conversion={com1_loc4_out: -1, com1_in: 1}, capex=0.1 / design_scale_factor,
                                 vopex=0.01, prod_min=min_process_capacity, label='Commodity 1 received from location 4')
     com1_receive_loc5 = Process(name='com1_receive_loc5', prod_max=com1_process_capacity,
-                                conversion={com1_loc5_out: -1, com1_in: 1}, capex=0.01 / design_scale_factor,
+                                conversion={com1_loc5_out: -1, com1_in: 1}, capex=0.1 / design_scale_factor,
                                 vopex=0.01, prod_min=min_process_capacity, label='Commodity 1 received from location 5')
     com1_receive_loc6 = Process(name='com1_receive_loc6', prod_max=com1_process_capacity,
-                                conversion={com1_loc6_out: -1, com1_in: 1}, capex=0.01 / design_scale_factor,
+                                conversion={com1_loc6_out: -1, com1_in: 1}, capex=0.1 / design_scale_factor,
                                 vopex=0.01, prod_min=min_process_capacity, label='Commodity 1 received from location 6')
     com1_receive_loc7 = Process(name='com1_receive_loc7', prod_max=com1_process_capacity,
-                                conversion={com1_loc7_out: -1, com1_in: 1}, capex=0.01 / design_scale_factor,
+                                conversion={com1_loc7_out: -1, com1_in: 1}, capex=0.1 / design_scale_factor,
                                 vopex=0.01, prod_min=min_process_capacity, label='Commodity 1 received from location 7')
 
     com1_process = Process(name='com1_process', prod_max=com1_process_capacity, conversion={com1_in: -1, com1_out: 1},
-                           capex=0.01 / design_scale_factor, vopex=0.01, prod_min=min_process_capacity,
+                           capex=5 / design_scale_factor, vopex=0.01, prod_min=min_process_capacity,
                            varying=[VaryingProcess.DETERMINISTIC_CAPACITY],
                            label='Process the commodity through the location')
 
-    com1_store = Process(name='com1_store', prod_max=com1_process_capacity, capex=0.01 / design_scale_factor, vopex=5,
-                         store_min=0.01, store_max=100 * design_scale_factor * capacity_scale_factor,
+    com1_store = Process(name='com1_store', prod_max=com1_process_capacity, capex=0.5 / design_scale_factor, vopex=5,
+                         store_min=0.01, store_max=500 * design_scale_factor * capacity_scale_factor,
                          prod_min=min_process_capacity, label="Storage capacity of upto 100 units", storage=com1_in,
                          storage_cost=0.02, storage_capex=50 / design_scale_factor)
 
     com1_loc1_send = Process(name='com1_loc1_send', prod_max=com1_process_capacity,
-                             conversion={com1_out: -1, com1_loc1_out: 1}, capex=0.01 / design_scale_factor, vopex=0.01,
+                             conversion={com1_out: -1, com1_loc1_out: 1}, capex=0.1 / design_scale_factor, vopex=0.01,
                              prod_min=min_process_capacity, label='Send commodity one from location 1')
     com1_loc2_send = Process(name='com1_loc2_send', prod_max=com1_process_capacity,
-                             conversion={com1_out: -1, com1_loc2_out: 1}, capex=0.01 / design_scale_factor, vopex=0.01,
+                             conversion={com1_out: -1, com1_loc2_out: 1}, capex=0.1 / design_scale_factor, vopex=0.01,
                              prod_min=min_process_capacity, label='Send commodity one from location 2')
     com1_loc3_send = Process(name='com1_loc3_send', prod_max=com1_process_capacity,
-                             conversion={com1_out: -1, com1_loc3_out: 1}, capex=0.01 / design_scale_factor, vopex=0.01,
+                             conversion={com1_out: -1, com1_loc3_out: 1}, capex=0.1 / design_scale_factor, vopex=0.01,
                              prod_min=min_process_capacity, label='Send commodity one from location 3')
     com1_loc4_send = Process(name='com1_loc4_send', prod_max=com1_process_capacity,
-                             conversion={com1_out: -1, com1_loc4_out: 1}, capex=0.01 / design_scale_factor, vopex=0.01,
+                             conversion={com1_out: -1, com1_loc4_out: 1}, capex=0.1 / design_scale_factor, vopex=0.01,
                              prod_min=min_process_capacity, label='Send commodity one from location 4')
     com1_loc5_send = Process(name='com1_loc5_send', prod_max=com1_process_capacity,
-                             conversion={com1_out: -1, com1_loc5_out: 1}, capex=0.01 / design_scale_factor, vopex=0.01,
+                             conversion={com1_out: -1, com1_loc5_out: 1}, capex=0.1 / design_scale_factor, vopex=0.01,
                              prod_min=min_process_capacity, label='Send commodity one from location 5')
     com1_loc6_send = Process(name='com1_loc6_send', prod_max=com1_process_capacity,
-                             conversion={com1_out: -1, com1_loc6_out: 1}, capex=0.01 / design_scale_factor, vopex=0.01,
+                             conversion={com1_out: -1, com1_loc6_out: 1}, capex=0.1 / design_scale_factor, vopex=0.01,
                              prod_min=min_process_capacity, label='Send commodity one from location 6')
     com1_loc7_send = Process(name='com1_loc7_send', prod_max=com1_process_capacity,
-                             conversion={com1_out: -1, com1_loc7_out: 1}, capex=0.01 / design_scale_factor, vopex=0.01,
+                             conversion={com1_out: -1, com1_loc7_out: 1}, capex=0.1 / design_scale_factor, vopex=0.01,
                              prod_min=min_process_capacity, label='Send commodity one from location 7')
 
     # ======================================================================================================================
@@ -207,18 +208,18 @@ def build_design_model(eps: float, scen_df=pandas.DataFrame()):
     # Declare transport/trucks
     # ======================================================================================================================
 
-    truck_cap12 = 70 * design_scale_factor * capacity_scale_factor
-    truck_cap13 = 30 * design_scale_factor * capacity_scale_factor
-    truck_cap24 = 50 * design_scale_factor * capacity_scale_factor
-    truck_cap25 = 30 * design_scale_factor * capacity_scale_factor
-    truck_cap34 = 30 * design_scale_factor * capacity_scale_factor
-    truck_cap45 = 100 * design_scale_factor * capacity_scale_factor
-    truck_cap47 = 40 * design_scale_factor * capacity_scale_factor
-    truck_cap64 = 50 * design_scale_factor * capacity_scale_factor
-    truck_cap75 = 40 * design_scale_factor * capacity_scale_factor
+    truck_cap12 = 140 * design_scale_factor * capacity_scale_factor
+    truck_cap13 = 60 * design_scale_factor
+    truck_cap24 = 100 * design_scale_factor * capacity_scale_factor
+    truck_cap25 = 60 * design_scale_factor * capacity_scale_factor
+    truck_cap34 = 60 * design_scale_factor 
+    truck_cap45 = 200 * design_scale_factor * capacity_scale_factor
+    truck_cap47 = 80 * design_scale_factor * capacity_scale_factor
+    truck_cap64 = 100 * design_scale_factor * capacity_scale_factor
+    truck_cap75 = 80 * design_scale_factor * capacity_scale_factor
 
-    plane_cap15 = 20 * design_scale_factor * capacity_scale_factor
-    plane_cap65 = 20 * design_scale_factor * capacity_scale_factor
+    plane_cap15 = 30 * design_scale_factor
+    plane_cap65 = 40 * design_scale_factor * capacity_scale_factor
 
     truck_capmin = 0.01
     plane_capmin = 0.01
@@ -272,9 +273,9 @@ def build_design_model(eps: float, scen_df=pandas.DataFrame()):
                         label='Plane from location 1 to 5', capex=3 / design_scale_factor, vopex=0.5,
                         trans_min=plane_capmin, varying=[VaryingTransport.DETERMINISTIC_CAPACITY])
 
-    plane65 = Transport(name='plane65', resources={com1_loc6_out}, trans_max=plane_cap65,
-                        label='Plane from location 6 to 5', capex=3 / design_scale_factor, vopex=0.5,
-                        trans_min=plane_capmin, varying=[VaryingTransport.DETERMINISTIC_CAPACITY])
+    # plane65 = Transport(name='plane65', resources={com1_loc6_out}, trans_max=plane_cap65,
+    #                     label='Plane from location 6 to 5', capex=3 / design_scale_factor, vopex=0.5,
+    #                     trans_min=plane_capmin, varying=[VaryingTransport.DETERMINISTIC_CAPACITY])
 
     # ======================================================================================================================
     # Declare network
@@ -356,7 +357,7 @@ def build_design_model(eps: float, scen_df=pandas.DataFrame()):
     # ======================================================================================================================
 
     daily_demand = 100 * design_scale_factor
-    demand_penalty = 200
+    demand_penalty = 20
 
     demand_dict = {i: {com1_sold: daily_demand} if i == loc5 else {com1_sold: 0} for i in locset}
     demand_penalty_dict = {i: {com1_sold: demand_penalty} if i == loc5 else {com1_sold: 0} for i in locset}
@@ -487,7 +488,7 @@ if __name__ == '__main__':
     exCost_UI = ef_UI.get_objective_value()
     ssoln_UI = ef_UI.get_root_solution()
 
-    with open(f"ssoln_{len(load_scenario_names)}_{int(fill_rate * 10):02d}_UI_HP.pkl", "wb") as file:
+    with open(f"ssoln_{len(load_scenario_names)}_{int(fill_rate * 10):02d}_UI_EF.pkl", "wb") as file:
         pickle.dump(ssoln_UI, file)
 
     output_dict = dict()
@@ -500,7 +501,7 @@ if __name__ == '__main__':
 
         output_dict[scen] ={**vars_dict, **obj_dict}
 
-    with open(f'output_{len(load_scenario_names)}_{int(fill_rate * 10):02d}_UI_HP.pkl','wb') as file:
+    with open(f'output_{len(load_scenario_names)}_{int(fill_rate * 10):02d}_UI_EF.pkl','wb') as file:
         pickle.dump(output_dict,file)
 
     # error
@@ -510,7 +511,7 @@ if __name__ == '__main__':
         model = getattr(ef_UI.ef, scen)
         exPen_UI += pyoval(model.Demand_penalty_network[('com1_sold', 0)]) * load_scenario_dict[scen]['prob']
 
-    exRes_UI = 1 - exPen_UI / (100*200*schedule_exec_scenarios*design_scale_factor) # daily demand * demand penalty factor
+    exRes_UI = 1 - exPen_UI / (100*20*schedule_exec_scenarios*design_scale_factor) # daily demand * demand penalty factor
 
     m = getattr(ef_UI.ef, load_scenario_names[0])
     fsc = pyoval(m.first_stage_cost)
@@ -525,6 +526,6 @@ if __name__ == '__main__':
                                                      'First Stage Cost': fsc,
                                                      'Execution Time': start_time - end_time}}
 
-    with open(f"FD_{len(load_scenario_names)}_{int(fill_rate * 10):02d}_final_results_HP.pkl", 'wb') as file:
+    with open(f"{len(load_scenario_names)}_{int(fill_rate * 10):02d}_final_results_EF.pkl", 'wb') as file:
         pickle.dump(final_results_dict, file)
 
