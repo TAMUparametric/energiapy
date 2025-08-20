@@ -251,8 +251,8 @@ def constraint_backlog(instance: ConcreteModel, demand_scale_level: int = 0, sch
                                                                      :demand_scale_level + 1] in scale_iter_d:
             if resource in location_resource_dict[location]:
                 if scale_list[:demand_scale_level + 1] != scale_iter_d_full[0]:
-                    backlog_add = (instance.Demand_penalty[location, resource, scale_iter_d[scale_iter_d.index(scale_list[:demand_scale_level + 1]) - 1]]
-                                   + instance.Demand_backlog[location, resource, scale_iter_d[scale_iter_d.index(scale_list[:demand_scale_level + 1]) - 1]])
+                    backlog_add = (instance.Demand_penalty[location, resource, scale_iter_d_full[scale_iter_d_full.index(scale_list[:demand_scale_level + 1]) - 1]]
+                                   + instance.Demand_backlog[location, resource, scale_iter_d_full[scale_iter_d_full.index(scale_list[:demand_scale_level + 1]) - 1]])
                 else:
                     backlog_add = backlog_zero[location][resource]
             else:
