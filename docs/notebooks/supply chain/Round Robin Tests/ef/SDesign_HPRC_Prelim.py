@@ -1,16 +1,9 @@
-from pyomo.environ import *
-# import os
 import sys
-
 sys.path.append('/scratch/user/shivam.vedant')
 sys.path.append('/scratch/user/shivam.vedant/src')
 # sys.path.append('../../../../../../src')
 
 import pandas
-# import random
-# import math
-# from itertools import product
-# from functools import reduce
 from energiapy.components.temporal_scale import TemporalScale
 from energiapy.components.resource import Resource, VaryingResource
 from energiapy.components.process import Process, VaryingProcess
@@ -19,23 +12,16 @@ from energiapy.components.transport import Transport, VaryingTransport
 from energiapy.components.network import Network
 from energiapy.components.scenario import Scenario
 from energiapy.model.constraints.demand import constraint_demand_lb
-# from energiapy.components.result import Result
 from energiapy.model.formulate import formulate, Constraints, Objective
-# from energiapy.plot import plot_results, plot_scenario, plot_location
-# from energiapy.model.solve import solve
-# from pyomo.environ import Param
-from pyomo.environ import value as pyoval
-# from collections import defaultdict
 from energiapy.utils.scale_utils import scale_tuple
-# import matplotlib.pyplot as plt
-# from matplotlib import rc
-# from typing import Union, Tuple, List
+
+from pyomo.environ import *
+from pyomo.environ import value as pyoval
 from pyomo.environ import Var, Constraint, NonNegativeReals
 # from pyomo.contrib.iis import write_iis
+
 import time
 import pickle
-# from energiapy.model.constraints.constraints import make_constraint, Cons
-# from energiapy.model.formulate import constraint_export, constraint_demand_penalty, constraint_demand_penalty_cost
 
 import mpisppy.utils.sputils as sputils
 from mpisppy.opt.ef import ExtensiveForm
