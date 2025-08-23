@@ -441,6 +441,19 @@ if __name__ =='__main__':
     with open(f"ssoln_Backlog_EF.pkl", "wb") as file:
         pickle.dump(ssoln_UI, file)
 
+    output_dict = dict()
+    for scen in load_scenario_names:
+        model_vars = getattr(ef_UI.ef, scen).component_map(ctype=Var)
+        vars_dict = {i:model_vars[i].extract_values() for i in model_vars.keys()}
+
+        model_obj = getattr(ef_UI.ef, scen).component_map(ctype=Objective)
+        obj_dict = {'objective': model_obj[i]() for i in model_obj.keys()}
+
+        output_dict[scen] ={**vars_dict, **obj_dict}
+
+    with open(f'output_{len(load_scenario_names)}_Backlog_EF.pkl','wb') as file:
+        pickle.dump(output_dict,file)
+
     exPen = 0
     for scen in load_scenario_names:
         model = getattr(ef_UI.ef, scen)
