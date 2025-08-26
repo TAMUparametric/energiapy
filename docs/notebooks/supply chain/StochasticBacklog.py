@@ -451,7 +451,7 @@ if __name__ =='__main__':
 
         output_dict[scen] ={**vars_dict, **obj_dict}
 
-    with open(f'output_{len(load_scenario_names)}_Backlog_EF.pkl','wb') as file:
+    with open(f'output_Backlog_EF.pkl','wb') as file:
         pickle.dump(output_dict,file)
 
     exPen = 0
