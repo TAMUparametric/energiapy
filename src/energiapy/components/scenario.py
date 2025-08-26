@@ -11,7 +11,7 @@ __email__ = "cacodcar@tamu.edu"
 __status__ = "Production"
 
 from dataclasses import dataclass
-from typing import Dict, Union
+from typing import Dict, Union, Tuple
 
 import numpy
 from pandas import DataFrame
@@ -77,7 +77,7 @@ class Scenario:
     capacity_bounds: CapacityBounds = None
     annualization_factor: float = 1
     demand_penalty: Dict[Location, Dict[Resource, float]] = None
-    backlog_penalty: Dict[Location, Dict[Resource, float]] = None
+    backlog_penalty: Dict[Location, Dict[Resource, Dict[Tuple, float]]] = None
     error: float = None
     rep_dict: dict = None
     emission_weights: EmissionWeights = None
