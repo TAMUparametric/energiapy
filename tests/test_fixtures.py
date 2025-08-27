@@ -1,16 +1,16 @@
 import pandas
 import pytest
-from src.energiapy.components.resource import Resource, VaryingResource
-from src.energiapy.components.temporal_scale import TemporalScale
-from src.energiapy.components.process import Process, VaryingProcess
-from src.energiapy.components.location import Location
-from src.energiapy.components.scenario import Scenario
-from src.energiapy.components.material import Material
-from src.energiapy.components.transport import Transport
-from src.energiapy.components.network import Network
-from src.energiapy.components.case_study import CaseStudy
-from src.energiapy.model.formulate import formulate, Constraints, Objective
-from src.energiapy.model.solve import solve
+from src.energia.components.resource import Resource, VaryingResource
+from src.energia.components.temporal_scale import TemporalScale
+from src.energia.components.process import Process, VaryingProcess
+from src.energia.components.location import Location
+from src.energia.components.scenario import Scenario
+from src.energia.components.material import Material
+from src.energia.components.transport import Transport
+from src.energia.components.network import Network
+from src.energia.components.case_study import CaseStudy
+from src.energia.model.formulate import formulate, Constraints, Objective
+from src.energia.model.solve import solve
 
 
 @pytest.fixture()
