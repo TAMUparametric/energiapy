@@ -8,7 +8,7 @@ from ..parameters.value import Value
 
 if TYPE_CHECKING:
     from gana.block.program import Prg
-    from gana.sets.constraint import C
+    from gana.sets.function import F
 
     from ...core.x import X
     from ...represent.model import Model
@@ -108,7 +108,7 @@ class Calculate:
                 v_rhs = decision.V(other)
                 cons_name = rf'{self.name}{domain.idxname}_calc'
 
-            cons: C = v_lhs == other * v_rhs
+            cons: F = v_lhs == other * v_rhs
 
             # categorize the constraint
             cons.categorize('Calculation')

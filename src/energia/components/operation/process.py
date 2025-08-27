@@ -197,7 +197,7 @@ class Process(_Operation):
                 cons_name = f'operate{dom.idxname}_bal'
 
                 # cons = v_lhs - eff * v_rhs == 0
-                cons = v_rhs - (1 / eff) * v_lhs == 0
+                cons = v_rhs == (1 / eff) * v_lhs
 
                 cons.categorize('Flow')
 

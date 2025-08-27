@@ -353,6 +353,11 @@ class _Program:
         return self.program.constraint_sets
 
     @property
+    def function_sets(self) -> list[C]:
+        """Function sets"""
+        return self.program.function_sets
+
+    @property
     def variable_sets(self) -> list[V]:
         """Variable sets"""
         return self.program.variable_sets
@@ -380,6 +385,11 @@ class _Program:
     def constraints(self) -> list[C]:
         """Constraints"""
         return self.program.constraints
+
+    @property
+    def functions(self) -> list[C]:
+        """Functions"""
+        return self.program.functions
 
     @property
     def variables(self) -> list[V]:
