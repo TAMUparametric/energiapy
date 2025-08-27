@@ -129,7 +129,6 @@ class Bind(_Generator):
         length: int = None,
         report: bool = False,
         incidental: bool = False,
-        write_grb: bool = True,
     ) -> V:
         """Returns a gana variable (V) using .domain as the index.
         If time and space are (or) not given, i.e. .spaced or .timed are False,
@@ -187,9 +186,6 @@ class Bind(_Generator):
 
         if not self.domain.primary in self.aspect.bound_spaces:
             self.aspect.bound_spaces[self.domain.primary] = []
-
-        # if self.domain.loc not in self.aspect.bound_spaces[self.domain.primary]:
-        #     self.aspect.bound_spaces[self.domain.primary].append(self.domain.loc)
 
         if not self.timed:
             # if the temporal index is not passed
@@ -441,27 +437,6 @@ class Bind(_Generator):
         self._normalize = norm
         return self
 
-    # def write_grb(self):
-    #     """Handles balanced update"""
-
-    #     # Stored resource are tracked at the same spatio temporal scale
-
-    #     if not self.domain.resource in self.grb:
-
-    #         # this updates the balanced dictionary, by adding the resource as a key
-    #         self.model.update_grb(self.domain.resource)
-
-    # # if link, constraints for resource balance (ship_out)
-    # # are still written at the location level
-    # # interpret this a resource being ship_outed from a location
-    # if self.domain.link:
-    #     _loc = self.domain.link.source
-
-    # else:
-    #     _loc = self.domain.loc
-
-    # self.model.grb[self.domain.resource][_loc][self.domain.period] = True
-
     def sol(self, aslist: bool = False):
         """Solution
 
@@ -476,10 +451,10 @@ class Bind(_Generator):
         return self
 
     # -----------------------------------------------------
-    #                    Relational
+    #                    Write Constraints
     # -----------------------------------------------------
 
-    def bind(
+    def writecons_bind(
         self,
         rel: Literal['leq', 'eq', 'geq'],
         other: float | list[float] | tuple[float | list[float]],
@@ -487,9 +462,11 @@ class Bind(_Generator):
         """Binds a variable (aspect at some index) to a parameter"""
 
         if self._forall:
-            # repeats the constraint for all elements in _forall
+            # --------- repeats the constraint for all elements in _forall
+
             if isinstance(other, list):
                 for n, idx in enumerate(self._forall):
+
                     if rel == 'leq':
                         _ = self(idx) <= other[n]
                     elif rel == 'eq':
@@ -507,6 +484,7 @@ class Bind(_Generator):
 
         else:
 
+            # --------- handle the scaling of the data
             if self._nominal:
                 if self._normalize:
                     other = [
@@ -527,58 +505,70 @@ class Bind(_Generator):
                         for i in other
                     ]
 
-            if self.aspect.bound is not None:
-                if self.report:
-                    if rel == 'leq':
-                        cons: C = self.V(other, write_grb=True) <= other * self.X(other)
-                    elif rel == 'eq':
-                        cons: C = self.V(other, write_grb=True) == other * self.X(other)
-                    elif rel == 'geq':
-                        cons: C = self.V(other, write_grb=True) >= other * self.X(other)
-                else:
-                    if rel == 'leq':
-                        cons: C = self.V(other, write_grb=True) <= other * self.Vb()
-                    elif rel == 'eq':
-                        cons: C = self.V(other, write_grb=True) == other * self.Vb()
-                    elif rel == 'geq':
-                        cons: C = self.V(other, write_grb=True) >= other * self.Vb()
+            # --------- Get LHS
+            # lhs needs to be determined here
+            # because V will be spaced and timed if not passed by user
+            # .X(), .Vb() need time and space
 
-                    if (
-                        self.domain.space
-                        in self.aspect.bound_spaces[self.domain.primary]
-                    ):
-                        return
-                    self.aspect.bound_spaces[self.domain.primary].append(
-                        self.domain.space
-                    )
-            else:
+            lhs = self.V(other)
+
+            # --------- Get RHS
+
+            if self.aspect.bound is not None:
+                # --------- if variable bound
                 if self.report:
-                    if rel == 'leq':
-                        cons: C = self.V(other, write_grb=True) <= other * self.X(other)
-                    elif rel == 'eq':
-                        cons: C = self.V(other, write_grb=True) == other * self.X(other)
-                    elif rel == 'geq':
-                        cons: C = self.V(other, write_grb=True) >= other * self.X(other)
+                    # --------- if variable bound and reported
+                    # we do not want a bi-linear term
+                    rhs = other * self.X(other)
+
                 else:
-                    if rel == 'leq':
-                        cons: C = self.V(other, write_grb=True) <= other
-                    elif rel == 'eq':
-                        cons: C = self.V(other, write_grb=True) == other
-                    elif rel == 'geq':
-                        cons: C = self.V(other, write_grb=True) >= other
+                    # --------- if just variable bound
+                    rhs = other * self.Vb()
+
+                # return if aspect already bound in space
+                if self.domain.space in self.aspect.bound_spaces[self.domain.primary]:
+                    return
+                # else append new space
+                self.aspect.bound_spaces[self.domain.primary].append(self.domain.space)
+
+            else:
+                # --------- if  parameter bound
+                if self.report:
+                    # --------- if  parameter bound and reported
+                    rhs = other * self.X(other)
+                else:
+                    # --------- if just parameter bound
+                    rhs = other
 
             if rel == 'leq':
-                cons_name = rf'{self.name}{self.domain.idxname}_ub'
+                # Less than equal to
+                cons: C = lhs <= rhs
+                rel = '_ub'
             elif rel == 'eq':
-                cons_name = rf'{self.name}{self.domain.idxname}_eq'
+                # Exactly equal to
+                cons: C = lhs == rhs
+                rel = '_eq'
             elif rel == 'geq':
-                cons_name = rf'{self.name}{self.domain.idxname}_lb'
+                # Greater than equal to
+                cons: C = lhs >= rhs
+                rel = '_lb'
+            else:
+                return
 
+            # name of the constraint
+            cons_name = rf'{self.name}{self.domain.idxname}{rel}'
+
+            # categorize the constraint
             cons.categorize('Bound')
 
+            # let all objects in the domain know that
+            # a constraint with this name contains it
             self.domain.update_cons(cons_name)
+
+            # let the aspect know about the new constraint
             self.aspect.constraints.append(cons_name)
 
+            # set the constraint
             setattr(
                 self.program,
                 cons_name,
@@ -587,29 +577,23 @@ class Bind(_Generator):
 
     def __le__(self, other):
 
-        self.bind('leq', other)
+        self.writecons_bind('leq', other)
 
     def __ge__(self, other):
 
-        self.bind('geq', other)
+        self.writecons_bind('geq', other)
 
     def __eq__(self, other):
-
-        # if isinstance(other, Conv):
-        #     unit = list(other.conversion.keys())[0]
-        #     value = list(other.conversion.values())[0]
-        #     period = other.period
-        #     _ = self(period)[unit] == value
 
         if other is True:
             # if a truth value is give
             # just declare the variable
             # it will be non-negative by default
             # and will begin a resource balance
-            self.V(write_grb=True)
+            self.V()
 
         else:
-            self.bind('eq', other)
+            self.writecons_bind('eq', other)
 
     def __gt__(self, other):
         _ = self >= other

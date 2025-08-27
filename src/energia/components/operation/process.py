@@ -185,7 +185,7 @@ class Process(_Operation):
                     res.insitu = True
                     _ = rhs == True
 
-                v_rhs = rhs.V(par, write_grb=True)
+                v_rhs = rhs.V(par)
 
                 # else:
                 #     v_rhs = rhs.V(par, balanced=True)

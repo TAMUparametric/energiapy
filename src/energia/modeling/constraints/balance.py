@@ -45,7 +45,7 @@ class Balance(_Generator):
         # write stream balance constraint
         if self.domain.resource:
 
-            self.write_generalresourcebalance()
+            self.writecons_grb()
 
     @property
     def mapped_to(self) -> list[Domain]:
@@ -75,7 +75,7 @@ class Balance(_Generator):
         else:
             return self(*self.domain).V()
 
-    def write_generalresourcebalance(self):
+    def writecons_grb(self):
         """Writes the stream balance constraint"""
 
         if self.domain.lag:
@@ -238,7 +238,7 @@ class Balance(_Generator):
                     # if the resource has a base, it is also bound at the same scale
                     # this is used for stored resources, which are bound at the same scale as their base
 
-                    self.write_generalresourcebalance()
+                    self.writecons_grb()
 
                 # check if the resource is bound at a spatial index of a lower order
                 if not self.domain.link and space.isin:

@@ -166,13 +166,13 @@ class Transport(_Operation):
                     if upd_ship:
                         _ = rhs_export == True
                         _ = rhs_import == True
-                    v_rhs_export = rhs_export.V(par, write_grb=True)
-                    v_rhs_import = rhs_import.V(par, write_grb=True)
+                    v_rhs_export = rhs_export.V(par)
+                    v_rhs_import = rhs_import.V(par)
 
                 if upd_ship:
                     if not _insitu:
-                        v_rhs_export = rhs_export.V(par, write_grb=True)
-                        v_rhs_import = rhs_import.V(par, write_grb=True)
+                        v_rhs_export = rhs_export.V(par)
+                        v_rhs_import = rhs_import.V(par)
                     v_lhs = lhs.V(par)
                     dom_export = rhs_export.domain
                     dom_import = rhs_import.domain
