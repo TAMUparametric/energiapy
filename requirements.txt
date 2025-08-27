@@ -1,12 +1,16 @@
-numpy
+numpy < 2.0.0
 pandas
-pyomo
-gurobipy
-h5pyd
 matplotlib
-scikit-learn
-openpyxl
+sympy
+gurobipy
 ppopt
+
+[optional]
+pint
+scikit-learn
+pyomo
+h5pyd
 distfit
 pvlib
 windpowerlib
+typing_extensions==4.5.0

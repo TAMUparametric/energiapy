@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Self
 
 from gana.operations.operators import sigma
 
-from ._constraint import _Constraint
+from ._generator import _Generator
 
 if TYPE_CHECKING:
     from gana.block.program import Prg
@@ -29,7 +29,7 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class Balance(_Constraint):
+class Balance(_Generator):
     """Performs a general resource balance
 
     Args:

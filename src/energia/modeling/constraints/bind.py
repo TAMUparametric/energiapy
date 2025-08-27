@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Self
+from typing import TYPE_CHECKING, Self, Literal
 
 from gana.operations.composition import inf, sup
 from gana.operations.operators import sigma
@@ -12,38 +12,39 @@ from gana.sets.index import I
 from gana.sets.variable import V
 
 from ...utils.math import normalize
-from ..parameters.conversion import Conv
-from ._constraint import _Constraint
+from ._generator import _Generator
 from .calculate import Calculate
 
 if TYPE_CHECKING:
     from gana.block.program import Prg
     from gana.sets.constraint import C
-
-    from ...components.commodity.resource import Resource
-    from ...components.operation.process import Process
-    from ...components.operation.storage import Storage
-    from ...components.operation.transport import Transport
-    from ...components.spatial.linkage import Link
-    from ...components.spatial.location import Loc
-    from ...components.temporal.period import Period
     from ...core.component import Component
     from ...core.x import X
-    from ..indices.domain import Domain
-    from ..variables.aspect import Aspect
+
+
+# ------------------------------------------------------------------------------
+# Bind is the primary constraint generator
+# These are essentially a variable waiting to be bound
+# ------------------------------------------------------------------------------
 
 
 @dataclass
-class Bind(_Constraint):
+class Bind(_Generator):
     """Sets a bound on a variable (V) within a particular domain
 
-    Attributes:
+    Args:
         aspect (Aspect. optional): Aspect to which the constraint is applied
         domain (Domain. optional): Domain over which the aspect is defined
         timed (bool): If the temporal index is predetermined. Defaults to None.
         spaced (bool): If the spatial index is predetermined. Defaults to None.
+
+
+
+    Attributes:
+        name (str, optional): Name.
+        model (Model, optional): Model to which the generator belongs.
+        program (Prg, optional): Gana Program to which the generated constraint belongs.
         opr (F): Operation to bind (in lieu of a single variable). Defaults to None.
-        name (str): Name of the Bind. Defaults to ''.
         domains (Domain): set of domains over which the Bind is applied. Defaults to [].
         hasinc (bool): If the Bind has some incidental calculation. Defaults to False.
     Note:
@@ -474,16 +475,35 @@ class Bind(_Constraint):
         self._forall = index
         return self
 
-    def __le__(self, other):
+    # -----------------------------------------------------
+    #                    Relational
+    # -----------------------------------------------------
+
+    def bind(
+        self,
+        rel: Literal['leq', 'eq', 'geq'],
+        other: float | list[float] | tuple[float | list[float]],
+    ):
+        """Binds a variable (aspect at some index) to a parameter"""
 
         if self._forall:
             # repeats the constraint for all elements in _forall
             if isinstance(other, list):
                 for n, idx in enumerate(self._forall):
-                    _ = self(idx) <= other[n]
+                    if rel == 'leq':
+                        _ = self(idx) <= other[n]
+                    elif rel == 'eq':
+                        _ = self(idx) == other[n]
+                    elif rel == 'geq':
+                        _ = self(idx) >= other[n]
             else:
                 for idx in self._forall:
-                    _ = self(idx) <= other
+                    if rel == 'leq':
+                        _ = self(idx) <= other
+                    elif rel == 'eq':
+                        _ = self(idx) == other
+                    elif rel == 'geq':
+                        _ = self(idx) >= other
 
         else:
 
@@ -509,9 +529,20 @@ class Bind(_Constraint):
 
             if self.aspect.bound is not None:
                 if self.report:
-                    cons: C = self.V(other, write_grb=True) <= other * self.X(other)
+                    if rel == 'leq':
+                        cons: C = self.V(other, write_grb=True) <= other * self.X(other)
+                    elif rel == 'eq':
+                        cons: C = self.V(other, write_grb=True) == other * self.X(other)
+                    elif rel == 'geq':
+                        cons: C = self.V(other, write_grb=True) >= other * self.X(other)
                 else:
-                    cons: C = self.V(other, write_grb=True) <= other * self.Vb()
+                    if rel == 'leq':
+                        cons: C = self.V(other, write_grb=True) <= other * self.Vb()
+                    elif rel == 'eq':
+                        cons: C = self.V(other, write_grb=True) == other * self.Vb()
+                    elif rel == 'geq':
+                        cons: C = self.V(other, write_grb=True) >= other * self.Vb()
+
                     if (
                         self.domain.space
                         in self.aspect.bound_spaces[self.domain.primary]
@@ -522,11 +553,27 @@ class Bind(_Constraint):
                     )
             else:
                 if self.report:
-                    cons: C = self.V(other, write_grb=True) <= other * self.X(other)
+                    if rel == 'leq':
+                        cons: C = self.V(other, write_grb=True) <= other * self.X(other)
+                    elif rel == 'eq':
+                        cons: C = self.V(other, write_grb=True) == other * self.X(other)
+                    elif rel == 'geq':
+                        cons: C = self.V(other, write_grb=True) >= other * self.X(other)
                 else:
-                    cons: C = self.V(other, write_grb=True) <= other
+                    if rel == 'leq':
+                        cons: C = self.V(other, write_grb=True) <= other
+                    elif rel == 'eq':
+                        cons: C = self.V(other, write_grb=True) == other
+                    elif rel == 'geq':
+                        cons: C = self.V(other, write_grb=True) >= other
 
-            cons_name = rf'{self.name}{self.domain.idxname}_ub'
+            if rel == 'leq':
+                cons_name = rf'{self.name}{self.domain.idxname}_ub'
+            elif rel == 'eq':
+                cons_name = rf'{self.name}{self.domain.idxname}_eq'
+            elif rel == 'geq':
+                cons_name = rf'{self.name}{self.domain.idxname}_lb'
+
             cons.categorize('Bound')
 
             self.domain.update_cons(cons_name)
@@ -537,63 +584,14 @@ class Bind(_Constraint):
                 cons_name,
                 cons,
             )
+
+    def __le__(self, other):
+
+        self.bind('leq', other)
 
     def __ge__(self, other):
 
-        if self._forall:
-            # repeats the constraint for all elements in _forall
-            if isinstance(other, list):
-                for n, idx in enumerate(self._forall):
-                    _ = self(idx) >= other[n]
-            else:
-                for idx in self._forall:
-                    _ = self(idx) >= other
-        else:
-            if self._nominal:
-
-                if self._normalize:
-                    other = [
-                        (
-                            (self._nominal * i[0], self._nominal * i[1])
-                            if isinstance(i, tuple)
-                            else self._nominal * i
-                        )
-                        for i in normalize(other)
-                    ]
-                else:
-                    other = [
-                        (
-                            (self._nominal * i[0], self._nominal * i[1])
-                            if isinstance(i, tuple)
-                            else self._nominal * i
-                        )
-                        for i in other
-                    ]
-
-            if self.aspect.bound is not None:
-                cons: C = self.V(other, write_grb=True) >= other * self.Vb()
-                if self.domain.space in self.aspect.bound_spaces[self.domain.primary]:
-                    return
-                self.aspect.bound_spaces[self.domain.primary].append(self.domain.space)
-            else:
-                if self.report:
-                    cons: C = self.V(other, write_grb=True) >= other * self.X(other)
-
-                else:
-                    cons: C = self.V(other, write_grb=True) >= other
-
-            cons_name = rf'{self.name}{self.domain.idxname}_lb'
-            cons.categorize('Bound')
-
-            self.domain.update_cons(cons_name)
-
-            self.aspect.constraints.append(cons_name)
-
-            setattr(
-                self.program,
-                cons_name,
-                cons,
-            )
+        self.bind('geq', other)
 
     def __eq__(self, other):
 
@@ -611,66 +609,7 @@ class Bind(_Constraint):
             self.V(write_grb=True)
 
         else:
-
-            if self._forall:
-                # repeats the constraint for all elements in _forall
-                if isinstance(other, list):
-                    for n, idx in enumerate(self._forall):
-                        _ = self(idx) == other[n]
-                else:
-                    for idx in self._forall:
-                        _ = self(idx) == other
-            else:
-
-                if self._nominal:
-                    if self._normalize:
-                        other = [
-                            (
-                                (self._nominal * i[0], self._nominal * i[1])
-                                if isinstance(i, tuple)
-                                else self._nominal * i
-                            )
-                            for i in normalize(other)
-                        ]
-                    else:
-                        other = [
-                            (
-                                (self._nominal * i[0], self._nominal * i[1])
-                                if isinstance(i, tuple)
-                                else self._nominal * i
-                            )
-                            for i in other
-                        ]
-
-                if self.aspect.bound is not None:
-                    cons: C = self.V(other) == other * self.Vb()
-                    if (
-                        self.domain.space
-                        in self.aspect.bound_spaces[self.domain.primary]
-                    ):
-                        return
-                    self.aspect.bound_spaces[self.domain.primary].append(
-                        self.domain.space
-                    )
-
-                else:
-                    if self.report:
-                        cons: C = self.V(other) == other * self.X(other)
-                    else:
-                        cons: C = self.V(other) == other
-
-                cons_name = rf'{self.name}{self.domain.idxname}_eq'
-
-                cons.categorize('Bound')
-
-                self.domain.update_cons(cons_name)
-                self.aspect.constraints.append(cons_name)
-
-                setattr(
-                    self.program,
-                    cons_name,
-                    cons,
-                )
+            self.bind('eq', other)
 
     def __gt__(self, other):
         _ = self >= other

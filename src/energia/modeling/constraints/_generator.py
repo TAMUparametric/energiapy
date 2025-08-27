@@ -21,25 +21,33 @@ if TYPE_CHECKING:
     from ...core.x import X
     from ...dimensions.decisiontree import DecisionTree
     from ...represent.model import Model
-    from ..constraints.bind import Bind
+    from .bind import Bind
     from ..indices.domain import Domain
     from ..variables.aspect import Aspect
+    from ..variables.state import State
+    from ..variables.control import Control
+    from ..variables.impact import Impact
+    from ..variables.stream import Stream
 
 
 @dataclass
-class _Constraint(Name):
-    """Base class for all Energia constraints.
+class _Generator(Name):
+    """Base class for all Energia constraint generators
 
     Args:
         aspect (Aspect. optional): Aspect to which the constraint is applied
         domain (Domain. optional): Domain over which the aspect is defined
 
     Attributes:
-        name (str. optional): Name of the constraint.
+        name (str, optional): Name.
+        model (Model, optional): Model to which the generator belongs.
+        program (Prg, optional): Gana Program to which the generated constraint belongs.
+
+
     """
 
     # this is the aspect for which the constraint is being defined
-    aspect: Aspect = None
+    aspect: State | Control | Impact | Stream = None
     # the domain is passed when the aspect is called using __call__()
     domain: Domain = None
 
@@ -66,12 +74,9 @@ class _Constraint(Name):
     @property
     def dispositions(self) -> dict[
         Aspect,
-        dict[
-            Resource | Process | Storage | Transport,
-            dict[Period | Loc | Link, dict[Loc | Period | Link, bool]],
-        ],
+        dict[Resource | Process | Storage | Transport, dict[Loc | Link, dict[Period]]],
     ]:
-        """Returns the dispositions over which the aspect has been defined"""
+        """Nested dictionary describing the disposition of each Aspect"""
         return self.model.dispositions
 
     @property
@@ -81,18 +86,8 @@ class _Constraint(Name):
         Resource | Process | Storage | Transport,
         dict[Loc, dict[Period | Link, list[Bind]]],
     ]:
-        """Returns the grb status over which the aspect has been defined"""
+        """List of Bind at each disposition"""
         return self.model.grb
-
-    @property
-    def bind(
-        self,
-    ) -> dict[
-        Resource | Process | Storage | Transport,
-        dict[Loc | Link, dict[Period, True]],
-    ]:
-        """Bind dict"""
-        return self.model.bind
 
     @property
     def tree(self) -> DecisionTree:

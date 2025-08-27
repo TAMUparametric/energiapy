@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 
 from gana.operations.operators import sigma
 
-from ._constraint import _Constraint
+from ._generator import _Generator
 
 if TYPE_CHECKING:
     from gana.block.program import Prg
@@ -27,7 +27,7 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class Map(_Constraint):
+class Map(_Generator):
     """Maps between domains"""
 
     return_sum: bool = False

@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, Self
 
 # from ..operation.task import Task
 from ...modeling.variables.default import Transact, Utilize
+
 # from ..impact.categories import Eco
 from .resource import Resource
 
@@ -16,13 +17,13 @@ if TYPE_CHECKING:
 class Cash(Resource, Transact):
     """Same as Economic Impact (Eco)"""
 
-    def __init__(self, *locs: Loc, label: str = None):
+    def __init__(self, *locs: Loc, label: str = ''):
 
         Resource.__init__(self, label=label)
         # Eco.__init__(self)
 
         # the locations, where this currency applies
-        self.locs: tuple[Loc] = locs
+        self.locs: Loc = locs
 
         # also applies to all locations nested under the locations
         if locs:
@@ -79,6 +80,7 @@ class Human(Resource):
 @dataclass
 class Mana(Resource):
     """Mana"""
+
 
 @dataclass
 class Etc(Resource):

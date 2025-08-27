@@ -33,6 +33,7 @@ if TYPE_CHECKING:
     from ...represent.model import Model
     from .control import Control
     from .state import State
+    from .stream import Stream
 
 
 @dataclass
