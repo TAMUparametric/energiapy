@@ -280,6 +280,12 @@ class Domain:
     def tup(self):
         """Tuple of objects"""
         return tuple(self._.values())
+    
+    @property
+    def lst(self):
+        """Tuple of objects"""
+        return list(self._.values())
+
 
     @property
     def Ilist(self):

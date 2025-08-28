@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Literal
 
 from ..components.commodity.misc import Cash, Emission, Land, Material
+from ..components.impact.indicator import Indicator
 from ..components.commodity.resource import Resource
 from ..components.operation.transport import Transport
 from ..dimensions.consequence import Consequence
@@ -87,24 +88,29 @@ class _Scope:
     ):
         """Updates the spatiotemporal dispositions for an aspect pertaining to a component"""
 
+        indicator = domain.indicator
         resource = domain.resource
+        player = domain.player
+        dr_aspect = domain.dr_aspect
+        dresource = domain.dresource
+        op_aspect = domain.op_aspect
         operation = domain.operation
         space = domain.space
-        time = domain.time
+        time = domain.period
 
         def update_space_time(
-            base_dict: (
+            dict_: (
                 dict[Aspect, dict[Resource, set]]
                 | dict[Aspect, dict[Resource, dict[Process | Storage | Transport, set]]]
                 | dict[Aspect, dict[Process | Storage | Transport, set]]
             ),
         ):
             """Updates the space and time dictionaries for the given base dictionary."""
-            if not space in base_dict:
-                base_dict[space] = set()
+            if not space in dict_:
+                dict_[space] = set()
 
-            if not time in base_dict[space]:
-                base_dict[space].add(time)
+            if not time in dict_[space]:
+                dict_[space].add(time)
 
         if not aspect in self.dispositions:
             # update the aspect
@@ -115,10 +121,34 @@ class _Scope:
         # 2. {aspect: resource: {operation: {}}}
         # 3. {aspect: operation: {}}
 
+        # ======== Commodities for the 0 the index
+
+        def update_player(
+            player: Player,
+            component: Resource | Indicator | Process | Storage | Transport,
+        ):
+            """Update Player"""
+            if player and not player in self.dispositions[aspect][component]:
+                self.dispositions[aspect][component][player] = {}
+
+        def update_primary(
+            component: Resource | Indicator | Process | Storage | Transport,
+        ):
+            """Update stream or operation"""
+            if not component in self.dispositions[aspect]:
+                self.dispositions[aspect][component] = {}
+            update_player(player, component)
+
+        def update_dcomponent(component: Resource | Process | Storage | Transport, dcomponent: ):
+            """Update component that influences primary stream or operation"""
+
+
+
+        if indicator:
+            update_primary(indicator)   
+
         if resource:
-            if not resource in self.dispositions[aspect]:
-                # if resource is given, update resource
-                self.dispositions[aspect][resource] = {}
+            update_primary(resource)
 
             # this applies for resource coming from an operation
             if operation:
@@ -130,9 +160,7 @@ class _Scope:
 
         else:
             if operation:
-                if not operation in self.dispositions[aspect]:
-                    # if operation is given, update operation
-                    self.dispositions[aspect][operation] = {}
+                update_primary(operation)
                 return update_space_time(self.dispositions[aspect][operation])
 
     def update_grb(self, resource: Resource, space: Loc | Link, time: Period):
