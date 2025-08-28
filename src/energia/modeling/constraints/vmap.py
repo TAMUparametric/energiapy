@@ -53,6 +53,7 @@ class Map(_Generator):
             return
 
         # this is the disposition of the variable to be mapped
+        # through time and space
         time, space = self.domain.period, self.domain.space
 
         # these are periods denser and sparser than the current domain
