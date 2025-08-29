@@ -142,10 +142,10 @@ class Process(_Operation):
 
                     if self.lag:
                         # expend happens immediately, when process is operated
-                        rhs = self.model.expend(res, self, loc, self.lag.of)
+                        rhs = self.model.expend(res, self.operate, loc, self.lag.of)
                         opr = self.model.operate(self, loc, self.lag.of)
                     else:
-                        rhs = self.model.expend(res, self, loc, time)
+                        rhs = self.model.expend(res, self.operate, loc, time)
                         opr = self.model.operate(self, loc, time)
                     upd_expend, upd_operate = True, True
 
@@ -156,10 +156,10 @@ class Process(_Operation):
 
                     if self.lag:
                         # expend happens immediately, when process is operated
-                        rhs = self.model.expend(res, self, loc, self.lag.of)
+                        rhs = self.model.expend(res, self.operate, loc, self.lag.of)
                         opr = self.model.operate(self, loc, self.lag.of)
                     else:
-                        rhs = self.model.expend(res, self, loc, time)
+                        rhs = self.model.expend(res, self.operate, loc, time)
                         opr = self.model.operate(self, loc, time)
                     upd_expend, upd_operate = True, True
 
@@ -169,10 +169,10 @@ class Process(_Operation):
 
                     if self.lag:
                         # production happens after lag, unlike expend
-                        rhs = self.model.produce(res, self, loc, self.lag.of)
+                        rhs = self.model.produce(res, self.operate, loc, self.lag.of)
                         opr = self.model.operate(self, loc, self.lag)
                     else:
-                        rhs = self.model.produce(res, self, loc, time)
+                        rhs = self.model.produce(res, self.operate, loc, time)
                         opr = self.model.operate(self, loc, time)
 
                     upd_produce, upd_operate = True, True
