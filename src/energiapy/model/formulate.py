@@ -379,14 +379,22 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
             scenario.store_min.update({loc: {process: inventory_zero[loc][process] for process in inventory_zero[loc] if
                                              inventory_zero[loc][process] > 0} for loc in inventory_zero})
 
-        if not backlog_zero:
-            backlog_zero = {l: {r: 0 for r in instance.resources_demand} for l in instance.locations}
-        else:
-            backlog_zero = {l.name: {r.name: backlog_zero[l][r] for r in backlog_zero[l]} for l in backlog_zero}
-            backlog_zero = {l: {r: backlog_zero[l][r] if r in backlog_zero[l] else 0 for r in instance.resources_demand} if l in backlog_zero else 0 for l in instance.locations}
-
         if instance.processes_order_fopex != {}:
             generate_scheduling_binary_vars(instance=instance, scale_level=scenario.scheduling_scale_level)
+
+        if not backlog_zero:
+            backlog_zero = {l: {r: 0 for r in instance.resources_demand} for l in instance.locations}
+            backlog_age = {l: {r: 0 for r in instance.resources_demand} for l in instance.locations}
+        else:
+            backlog_zero = {l.name: {r.name: backlog_zero[l][r] for r in backlog_zero[l]} for l in backlog_zero}
+            backlog_zero = {l: {r: backlog_zero.get(l,{}).get(r,0) for r in instance.resources_demand} for l in instance.locations}
+            backlog_age = {l: {r: backlog_zero[l][r][0] if (r in backlog_zero[l] and isinstance(backlog_zero[l][r], tuple)) else 0
+                               for r in instance.resources_demand} for l in instance.locations}
+
+        backlog_age_max = max(max(inner.values()) for inner in backlog_age.values())
+        # print(f'Backlog Zero: {backlog_zero}')
+        # print(f'Backlog Age: {backlog_age}')
+        # print(f'Backlog Age Max: {backlog_age_max}')
 
         if Constraints.UNCERTAIN in constraints:
             generate_uncertainty_vars(
