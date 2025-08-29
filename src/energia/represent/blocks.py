@@ -88,17 +88,68 @@ class _Scope:
     ):
         """Updates the spatiotemporal dispositions for an aspect pertaining to a component"""
 
-        indicator = domain.indicator
-        resource = domain.resource
-        player = domain.player
+        # indicator = domain.indicator
+        # resource = domain.resource
+        # operation = domain.operation
+        primary = domain.primary
 
         binds = domain.binds
+
         # dr_aspect = domain.dr_aspect
         # dresource = domain.dresource
         # op_aspect = domain.op_aspect
-        operation = domain.operation
+        dm = domain.player or domain.couple
+
         space = domain.space
         time = domain.period
+
+        # the base key, value combinations are of the form
+        # 1. {aspect: resource: {}}
+        # 2. {aspect: resource: {operation: {}}}
+        # 3. {aspect: operation: {}}
+
+        # ======== Commodities for the 0 the index
+
+        def update_aspect(aspect: Aspect):
+            """Update aspect"""
+            if not aspect in self.dispositions:
+                self.dispositions[aspect] = {}
+
+        def update_primary(
+            component: Resource | Indicator | Process | Storage | Transport,
+        ):
+            """Update stream or operation"""
+            if not component in self.dispositions[aspect]:
+                self.dispositions[aspect][component] = {}
+
+        def update_binds(
+            binds: dict[Aspect, Resource | Process | Storage | Transport],
+        ):
+            """Update component that influences primary stream or operation"""
+            binds = list(binds.items())
+            _dict = {binds[-1][0]: {binds[-1][1]: {}}}
+            for k, v in reversed(binds[:-1]):
+                _dict = {k: {v: _dict}}
+            return _dict
+
+            # self.dispositions[aspect][primary] =
+            # return {
+            #     **self.dispositions[aspect][primary],
+            #     **_dict,
+            # }
+
+        def update_dm(
+            _dict: dict[
+                Aspect, dict[Resource | Process | Storage | Transport, dict[Player]]
+            ],
+            player: Player,
+        ):
+            """Update Player"""
+            if not player in _dict:
+                _dict[player] = {}
+            return _dict
+
+            # update_player(dm, component)
 
         def update_space_time(
             dict_: (
@@ -113,62 +164,21 @@ class _Scope:
 
             if not time in dict_[space]:
                 dict_[space].add(time)
+            return dict_
 
-        if not aspect in self.dispositions:
-            # update the aspect
-            self.dispositions[aspect] = {}
+        update_aspect(aspect)
 
-        # the base key, value combinations are of the form
-        # 1. {aspect: resource: {}}
-        # 2. {aspect: resource: {operation: {}}}
-        # 3. {aspect: operation: {}}
+        update_primary(primary)
 
-        # ======== Commodities for the 0 the index
+        _dict = {}
 
-        def update_player(
-            player: Player,
-            component: Resource | Indicator | Process | Storage | Transport,
-        ):
-            """Update Player"""
-            if player and not player in self.dispositions[aspect][component]:
-                self.dispositions[aspect][component][player] = {}
+        if binds:
+            _dict = update_binds(binds)
 
-        def update_primary(
-            component: Resource | Indicator | Process | Storage | Transport,
-        ):
-            """Update stream or operation"""
-            if not component in self.dispositions[aspect]:
-                self.dispositions[aspect][component] = {}
-            update_player(player, component)
+        if dm:
+            _dict = update_dm(_dict, dm)
 
-        def update_binds(
-            component: Resource | Process | Storage | Transport,
-            dcomponent: Resource | Process | Storage | Transport,
-        ):
-            """Update component that influences primary stream or operation"""
-            if not dcomponent in self.dispositions[aspect][component]:
-                self.dispositions[aspect][component][dcomponent] = {}
-
-                update_space_time(self.dispositions[aspect][component][dcomponent])
-
-        if indicator:
-            update_primary(indicator)
-
-        if resource:
-            update_primary(resource)
-
-            # this applies for resource coming from an operation
-            if operation:
-                if not operation in self.dispositions[aspect][resource]:
-                    self.dispositions[aspect][resource][operation] = {}
-                return update_space_time(self.dispositions[aspect][resource][operation])
-
-            return update_space_time(self.dispositions[aspect][resource])
-
-        else:
-            if operation:
-                update_primary(operation)
-                return update_space_time(self.dispositions[aspect][operation])
+        self.dispositions[aspect][primary] = update_space_time(_dict)
 
     def update_grb(self, resource: Resource, space: Loc | Link, time: Period):
         """Creates a mesh for grb dict"""
