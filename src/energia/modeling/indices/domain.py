@@ -12,6 +12,7 @@ from gana.sets.index import I
 if TYPE_CHECKING:
     from ...components.commodity.resource import Resource
     from ...components.game.player import Player
+    from ...components.game.couple import Couple
     from ...components.impact.indicator import Indicator
     from ...components.operation.process import Process
     from ...components.operation.storage import Storage
@@ -49,18 +50,21 @@ class Domain:
         lag (Lag): Lag is a boolean that indicates whether the temporal element is lagged or not.
     """
 
-    # lag and link attributes are used because an instance check is already done when making the domain using Aspect(..indices..)
-    # this avoids additional checks
-
+    # primary component
     indicator: Indicator = None
     resource: Resource = None
-    player: Player = None
-    dr_aspect: Aspect = None
-    dresource: Resource = None
-    op_aspect: Aspect = None
     process: Process = None
     storage: Storage = None
     transport: Transport = None
+    # dr_aspect: Aspect = None
+    # dresource: Resource = None
+    # # operational
+    # op_aspect: Aspect = None
+    binds: dict[Resource | Process | Storage | Transport, Aspect] = None
+    # decision - maker and other decision-maker
+    player: Player = None
+    couple: Couple = None
+    # compulsory space and time elements
     loc: Loc = None
     link: Link = None
     period: Period = None
@@ -73,6 +77,14 @@ class Domain:
             space (Loc | Link): Space is the spatial aspect of the domain, e.g. Goa, Texas.
             lagged (bool): Lagged is a boolean that indicates whether the temporal element is lagged or not.
         """
+
+        # Domains are structured something like this:
+        # (primary_component ...aspect_n, secondary_component_n....,decision-makers, space, time
+        # primary_component can be an indicator, resource, or operation (process | storage | transport)
+        # {aspect_n: secondary_component_n} is given in self.binds
+        # decision-makers = player | couple
+        # space = loc | link
+        # time = period | lag
 
         # self.operation = self.process or self.storage or self.transport
         # self.space = self.loc or self.link
@@ -91,6 +103,9 @@ class Domain:
             self.primary = self.operation
         else:
             raise ValueError('Domain must have at least one primary index')
+
+        if not self.binds:
+            self.binds = {}
 
     @property
     def I(self):
@@ -191,14 +206,14 @@ class Domain:
         """list of _Index elements"""
         return [
             i
-            for i in [
-                self.indicator,
-                self.resource,
+            for i in [self.indicator, self.resource, self.operation]
+            + list(sum(([i, j] for i, j in self.binds.items()), []))
+            + [
+                # self.dr_aspect,
+                # self.dresource,
+                # self.op_aspect,
                 self.player,
-                self.dr_aspect,
-                self.dresource,
-                self.op_aspect,
-                self.operation,
+                self.couple,
                 self.space,
                 self.period,
                 self.lag,
@@ -215,23 +230,23 @@ class Domain:
                 self.player,
                 self.indicator,
                 self.resource,
-                self.dresource,
                 self.operation,
             ]
             if i is not None
-        ]
+        ] + list(self.binds.keys())
 
     @property
     def aspects(self) -> list[Aspect]:
         """Aspects"""
-        return [
-            i
-            for i in [
-                self.dr_aspect,
-                self.op_aspect,
-            ]
-            if i is not None
-        ]
+        return list(self.binds.values())
+        # return [
+        #     i
+        #     for i in [
+        #         self.dr_aspect,
+        #         self.op_aspect,
+        #     ]
+        #     if i is not None
+        # ]
 
     @property
     def args(self) -> dict[str, X]:
@@ -240,9 +255,7 @@ class Domain:
             'indicator': self.indicator,
             'resource': self.resource,
             'player': self.player,
-            'dr_aspect': self.dr_aspect,
-            'dresource': self.dresource,
-            'op_aspect': self.op_aspect,
+            'binds': self.binds,
             'process': self.process,
             'storage': self.storage,
             'transport': self.transport,
@@ -259,9 +272,10 @@ class Domain:
             'indicator': self.indicator,
             'resource': self.resource,
             'player': self.player,
-            'dr_aspect': self.dr_aspect,
-            'dresource': self.dresource,
-            'op_aspect': self.op_aspect,
+            'binds': self.binds,
+            # 'dr_aspect': self.dr_aspect,
+            # 'dresource': self.dresource,
+            # 'op_aspect': self.op_aspect,
             'operation': self.operation,
             'space': self.space,
             'time': self.time,
@@ -280,17 +294,16 @@ class Domain:
     def tup(self):
         """Tuple of objects"""
         return tuple(self._.values())
-    
+
     @property
     def lst(self):
         """Tuple of objects"""
         return list(self._.values())
 
-
     @property
     def Ilist(self):
         """List of I"""
-        return [i.I for i in self.index]
+        return [i if isinstance(i, list) else i.I for i in self.index]
 
     # -----------------------------------------------------
     #                    Helpers
@@ -310,7 +323,7 @@ class Domain:
             if self.lag and i == 'time':
                 # lags disappear anyway, so dont bother
                 continue
-            if not i in ['op_aspect', 'dr_aspect']:
+            if not i in ['binds']:
                 # these are dependent variables, so do not update them
                 if not self in j.domains:
                     # check and update the domains at each index

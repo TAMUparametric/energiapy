@@ -35,15 +35,15 @@ class Calculate:
 
     def __init__(
         self,
-        calc: Bind,
+        calculation: Bind,
         decision: Bind,
     ):
         self.decision = decision
-        self.domain = calc.domain
-        self.calc = calc(*decision.index)
-        self.name = calc.name
+        self.calculation = calculation
+        self.domain = calculation.domain
+        self.name = calculation.name
         self.program: Prg = decision.program
-        self.index = calc.index
+        self.index = calculation.index
         self._forall: list[X] = []
 
     @property
@@ -58,9 +58,13 @@ class Calculate:
 
     def __call__(self, *index) -> Self:
         # update the index and return a Calc object
-        _index = list(index) + self.index
 
-        return Calculate(calc=self.calc(*_index), decision=self.decision(*index))
+        _index = list(index) + self.index
+        print('aaa', self.index, index)
+
+        return Calculate(
+            calculation=self.calculation(*_index), decision=self.decision(*index)
+        )
 
     def __eq__(self, other):
 
@@ -88,9 +92,9 @@ class Calculate:
         else:
             # the aspect being calculated
             if time:
-                calc: Bind = self.calc(self.decision, time)
+                calc: Bind = self.calculation(time)
             else:
-                calc: Bind = self.calc(self.decision)
+                calc: Bind = self.calculation
 
             # the aspect the calculation is dependant on
             decision: Bind = self.decision

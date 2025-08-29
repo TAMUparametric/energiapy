@@ -28,3 +28,4 @@ class Player(Component, Capacitate, Trade, Transact):
     def tree(self) -> DecisionTree:
         """Tree of the player"""
         return self.model.tree
+

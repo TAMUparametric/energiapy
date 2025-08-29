@@ -1,4 +1,5 @@
 """Small Energy Scheduling Optimization (ESO) Scheduling Example"""
+
 from ..represent.model import Model
 from ..components.commodity.resource import Resource
 from ..components.commodity.misc import Cash
@@ -6,24 +7,20 @@ from ..components.operation.process import Process
 from ..components.temporal.period import Period
 
 
-
-
-def scheduling_small():
+def scheduling_small(model: Model):
     """Small example of energy scheduling with wind farm, power and cash."""
+    model.q = Period()
+    model.y = 4 * model.q
+    model.usd = Cash()
+    model.power, model.wind = Resource(), Resource()
+    model.wind.consume <= 400
+    model.power.release.preprocess(100) >= [0.6, 0.7, 1, 0.3]
 
-    _m = Model()
-    _m.q = Period()
-    _m.y = 4 * _m.q
-    _m.usd = Cash()
-    _m.power, _m.wind = Resource(), Resource()
-    _m.wind.consume <= 400
-    _m.power.release.preprocess(100) >= [0.6, 0.7, 1, 0.3]
+    model.wf = Process()
+    model.wf(model.power) == -1 * model.wind
+    model.wf.operate.preprocess(200, norm=False) <= [0.9, 0.8, 0.5, 0.7]
 
-    _m.wf = Process()
-    _m.wf(_m.power) == -1 * _m.wind
-    _m.wf.operate.preprocess(200, norm=False) <= [0.9, 0.8, 0.5, 0.7]
-
-    _m.wf.operate[_m.usd.spend] == [4000, 4200, 4300, 3900]
-    _m.network.operations(_m.wf)
-    _m.usd.spend.opt()
-    return _m
+    model.wf.operate[model.usd.spend] == [4000, 4200, 4300, 3900]
+    model.network.operations(model.wf)
+    model.usd.spend.opt()
+    return model

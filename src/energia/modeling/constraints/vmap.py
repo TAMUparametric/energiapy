@@ -173,8 +173,8 @@ class Map(_Generator):
             v_lower = self(*to_domain).V()
 
             # write the constraint
-
-            cons = v_lower - self.give_sum(domain=from_domain, tsum=tsum) == 0
+            print('qqqq', from_domain)
+            cons = v_lower == self.give_sum(domain=from_domain, tsum=tsum) 
 
             cons.categorize('Map')
 

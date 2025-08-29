@@ -11,6 +11,7 @@ from matplotlib import rc
 
 from ...components.commodity.resource import Resource
 from ...components.game.player import Player
+from ...components.game.couple import Couple
 from ...components.impact.indicator import Indicator
 from ...components.operation.process import Process
 from ...components.operation.storage import Storage
@@ -166,16 +167,6 @@ class Aspect(Name):
         return self.model.grb
 
     @property
-    def bind(
-        self,
-    ) -> dict[
-        Resource | Process | Storage | Transport,
-        dict[Loc | Link, dict[Period, list[Aspect]]],
-    ]:
-        """Bind dict"""
-        return self.model.bind
-
-    @property
     def dispositions(self) -> dict[
         Self,
         dict[
@@ -235,24 +226,26 @@ class Aspect(Name):
             return self.name == other.name
 
     def __call__(self, *index: X, domain: Domain = None):
-
         if not domain:
 
             (
                 indicator,
                 resource,
                 player,
-                dr_aspect,
-                dresource,
-                op_aspect,
+                # dr_aspect,
+                # dresource,
+                # op_aspect,
                 process,
                 storage,
                 transport,
+                period,
+                couple,
                 loc,
                 link,
-                period,
                 lag,
-            ) = (None for _ in range(13))
+            ) = (None for _ in range(11))
+
+            binds: dict[Resource | Process | Storage | Transport, Aspect] = {}
             timed, spaced = False, False
 
             for comp in index:
@@ -285,14 +278,17 @@ class Aspect(Name):
                 elif isinstance(comp, Player):
                     player = comp
 
+                elif isinstance(comp, Couple):
+                    couple = comp
+
                 elif isinstance(comp, Resource):
                     # check if this is the right resource type for the aspect
                     # domain.resource should be the primary resource only
                     if isinstance(comp, self.Resource):
                         resource = comp
-                    else:
-                        # anything else is a derivative resource
-                        dresource = comp
+                    # else:
+                    #     # anything else is a derivative resource
+                    #     dresource = comp
 
                 elif isinstance(comp, Indicator):
                     indicator = comp
@@ -303,19 +299,22 @@ class Aspect(Name):
                     # this only comes in play for calculations (streams, impacts)
 
                     if comp.domain.operation:
-                        process = comp.domain.process
-                        storage = comp.domain.storage
-                        transport = comp.domain.transport
-                        op_aspect = comp.aspect
-                    if comp.domain.resource:
-                        dresource = comp.domain.resource
-                        dr_aspect = comp.aspect
+                        binds[comp.aspect] = comp.domain.operation
+                        # process = comp.domain.process
+                        # storage = comp.domain.storage
+                        # transport = comp.domain.transport
+                        # op_aspect = comp.aspect
 
-                elif isinstance(comp, Aspect):
-                    if comp.Operation and not comp.Resource:
-                        op_aspect = comp
-                    elif comp.Resource:
-                        dr_aspect = comp
+                    if comp.domain.resource:
+                        binds[comp.domain.resource] = comp.aspect
+                        # dresource = comp.domain.resource
+                        # dr_aspect = comp.aspect
+
+                # elif isinstance(comp, Aspect):
+                #     if comp.Operation and not comp.Resource:
+                #         op_aspect = comp
+                #     elif comp.Resource:
+                #         dr_aspect = comp
 
                 elif isinstance(comp, I):
                     if comp.name == 'locs':
@@ -329,19 +328,21 @@ class Aspect(Name):
                     )
 
             domain = Domain(
-                indicator,
-                resource,
-                player,
-                dr_aspect,
-                dresource,
-                op_aspect,
-                process,
-                storage,
-                transport,
-                loc,
-                link,
-                period,
-                lag,
+                indicator=indicator,
+                resource=resource,
+                process=process,
+                storage=storage,
+                transport=transport,
+                # dr_aspect,
+                # dresource,
+                # op_aspect,
+                binds=binds,
+                player=player,
+                couple=couple,
+                loc=loc,
+                link=link,
+                period=period,
+                lag=lag,
             )
 
         else:

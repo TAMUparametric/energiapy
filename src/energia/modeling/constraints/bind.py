@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from re import S
 from typing import TYPE_CHECKING, Self, Literal
 
 from gana.operations.composition import inf, sup
@@ -247,9 +248,12 @@ class Bind(_Generator):
         # the reason we check by name:
         # some variables can serve as indices, a normal check ends by
         # creating a constraint variable == variable
-        if not [i.name for i in index] in [
-            [i.name for i in idx] for idx in self.aspect.indices
-        ]:
+        # if not [i.name for i in index] in [
+        #     [i.name for i in idx] for idx in self.aspect.indices
+        # ]:
+
+        if not index in self.aspect.indices:
+
             # if a variable has not been created for the index
             # create a variable
             # all energia variables are mutable by default
@@ -636,9 +640,15 @@ class Bind(_Generator):
             f.report = self.report
             return f
 
-        variable = self(*self.index)
-        variable.report = self.report
-        return Calculate(calc=dependent(*self.index), decision=variable)
+        calculation = dependent(self)
+
+        decision = self(*self.index)
+        decision.report = self.report
+
+        return Calculate(calculation=calculation, decision=decision)
+
+        # variable.report = self.report
+        # return Calculate(calc=dependent(*self.index), decision=variable)
 
     def draw(self, **kwargs):
         """Draws the variable"""

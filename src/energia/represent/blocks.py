@@ -91,9 +91,11 @@ class _Scope:
         indicator = domain.indicator
         resource = domain.resource
         player = domain.player
-        dr_aspect = domain.dr_aspect
-        dresource = domain.dresource
-        op_aspect = domain.op_aspect
+
+        binds = domain.binds
+        # dr_aspect = domain.dr_aspect
+        # dresource = domain.dresource
+        # op_aspect = domain.op_aspect
         operation = domain.operation
         space = domain.space
         time = domain.period
@@ -139,13 +141,18 @@ class _Scope:
                 self.dispositions[aspect][component] = {}
             update_player(player, component)
 
-        def update_dcomponent(component: Resource | Process | Storage | Transport, dcomponent: ):
+        def update_binds(
+            component: Resource | Process | Storage | Transport,
+            dcomponent: Resource | Process | Storage | Transport,
+        ):
             """Update component that influences primary stream or operation"""
+            if not dcomponent in self.dispositions[aspect][component]:
+                self.dispositions[aspect][component][dcomponent] = {}
 
-
+                update_space_time(self.dispositions[aspect][component][dcomponent])
 
         if indicator:
-            update_primary(indicator)   
+            update_primary(indicator)
 
         if resource:
             update_primary(resource)
