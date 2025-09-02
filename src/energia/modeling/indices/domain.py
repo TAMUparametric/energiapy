@@ -26,6 +26,8 @@ if TYPE_CHECKING:
     from ..constraints.bind import Bind
     from ..parameters.conversion import Conv
     from ..variables.aspect import Aspect
+    from ...represent.model import Model
+    from ...modeling.constraints.bind import Bind 
 
 
 @dataclass
@@ -50,25 +52,26 @@ class Domain:
         lag (Lag): Lag is a boolean that indicates whether the temporal element is lagged or not.
     """
 
-    # primary component
+    # primary component (one of these is needed)
     indicator: Indicator = None
     resource: Resource = None
+
     process: Process = None
     storage: Storage = None
     transport: Transport = None
-    # dr_aspect: Aspect = None
-    # dresource: Resource = None
-    # # operational
-    # op_aspect: Aspect = None
-    binds: dict[Resource | Process | Storage | Transport, Aspect] = None
+
     # decision - maker and other decision-maker
     player: Player = None
     couple: Couple = None
+
     # compulsory space and time elements
     loc: Loc = None
     link: Link = None
     period: Period = None
     lag: Lag = None
+
+    # These can be summed over
+    binds: dict[Resource | Process | Storage | Transport, Aspect] = None
 
     def __post_init__(self):
         """Post initialization method to set up the domain
@@ -93,19 +96,20 @@ class Domain:
         # self.lagged = True if self.lag else False
 
         # primary index being modeled in some spatiotemporal context
-        self.model = next((i.model for i in self.index if i), None)
+        self.model: Model = next((i.model for i in self.index if i), None)
 
-        if self.indicator:
-            self.primary = self.indicator
-        elif self.resource:
-            self.primary = self.resource
-        elif self.operation:
-            self.primary = self.operation
-        else:
-            raise ValueError('Domain must have at least one primary index')
+        # if self.indicator:
+        #     self.primary = self.indicator
+        # elif self.resource:
+        #     self.primary = self.resource
+        # elif self.operation:
+        #     self.primary = self.operation
+        # else:
+            # raise ValueError('Domain must have at least one primary index')
 
         if not self.binds:
-            self.binds = {}
+            self.binds: dict[Aspect, X] = {}
+
 
     @property
     def I(self):
@@ -122,9 +126,22 @@ class Domain:
         return self.process or self.storage or self.transport
 
     @property
+    def primary(self) -> Indicator | Resource | Process | Storage | Transport:
+        """Primary component"""
+        _primary =  self.indicator or self.resource or self.operation
+        if not _primary:
+            raise ValueError('Domain must have at least one primary index')
+        return _primary
+
+    @property
     def space(self) -> Loc | Link:
         """Space"""
         return self.link or self.loc
+    
+    @property
+    def maker(self) -> Player | Couple:
+        """Decision-maker"""
+        return self.couple or self.player
 
     @property
     def time(self) -> Period | Lag:
@@ -201,61 +218,57 @@ class Domain:
     #                    Dictionaries
     # -----------------------------------------------------
 
+
     @property
     def index(self) -> list[X]:
         """list of _Index elements"""
-        return [
-            i
-            for i in [self.indicator, self.resource, self.operation]
-            + list(sum(([i, j] for i, j in self.binds.items()), []))
-            + [
-                # self.dr_aspect,
-                # self.dresource,
-                # self.op_aspect,
-                self.player,
-                self.couple,
-                self.space,
-                self.period,
-                self.lag,
-            ]
-            if i is not None
-        ]
+
+        # binds = sum([[i, j] for i, j in self.binds.items()], [])
+
+        # these default to network and horizon, so can default from model using .space or .time
+        spatio_temporal = [i for i in [self.loc, self.link, self.period, self.lag] if i is not None]
+
+        return  [self.primary] + spatio_temporal + self.bind_list
 
     @property
-    def components(self) -> list[Component]:
-        """Components"""
-        return [
-            i
-            for i in [
-                self.player,
-                self.indicator,
-                self.resource,
-                self.operation,
-            ]
-            if i is not None
-        ] + list(self.binds.keys())
+    def tree(self) -> dict:
+        """Convert index into tree"""
+        tree = {}
+        node = tree
+        for key in self.index:
+            node[key] = {}
+            node = node[key]
+        return tree
+
+    @property
+    def bind_list(self)-> list[Aspect, X]:
+        """List of binds"""
+        _bind_list = []
+        tree = self.binds
+        while tree:
+            (k, v), = tree.items()   # unpack the only key:value
+            _bind_list.append(k)
+            tree = v
+        return _bind_list
+        # return [(k, v) for k, v in self.binds.items()]
 
     @property
     def aspects(self) -> list[Aspect]:
         """Aspects"""
         return list(self.binds.values())
-        # return [
-        #     i
-        #     for i in [
-        #         self.dr_aspect,
-        #         self.op_aspect,
-        #     ]
-        #     if i is not None
-        # ]
+    
+
+
+
+
 
     @property
-    def args(self) -> dict[str, X]:
+    def args(self) -> dict[str, X | Lag | dict[Aspect, X]]:
         """Dictionary of indices"""
         return {
             'indicator': self.indicator,
             'resource': self.resource,
             'player': self.player,
-            'binds': self.binds,
             'process': self.process,
             'storage': self.storage,
             'transport': self.transport,
@@ -263,22 +276,18 @@ class Domain:
             'link': self.link,
             'period': self.period,
             'lag': self.lag,
+            'binds': self.binds,
         }
 
     @property
-    def dictionary(self) -> dict[str, X]:
+    def dictionary(self) -> dict[str, X|Lag| dict[Aspect, X]]:
         """Dictionary of indices"""
         return {
-            'indicator': self.indicator,
-            'resource': self.resource,
-            'player': self.player,
-            'binds': self.binds,
-            # 'dr_aspect': self.dr_aspect,
-            # 'dresource': self.dresource,
-            # 'op_aspect': self.op_aspect,
-            'operation': self.operation,
+            'primary': self.primary,
+            'maker': self.maker,
             'space': self.space,
             'time': self.time,
+            'binds': self.binds,
         }
 
     # -----------------------------------------------------

@@ -299,22 +299,24 @@ class Aspect(Name):
                     # this only comes in play for calculations (streams, impacts)
 
                     if comp.domain.operation:
-                        binds[comp.aspect] = comp.domain.operation
+                        binds[comp.aspect] = {comp.domain.operation: {}}
                         # process = comp.domain.process
                         # storage = comp.domain.storage
                         # transport = comp.domain.transport
                         # op_aspect = comp.aspect
 
                     if comp.domain.resource:
-                        binds[comp.domain.resource] = comp.aspect
+                        binds[comp.domain.resource] = {comp.aspect: {}}
                         # dresource = comp.domain.resource
                         # dr_aspect = comp.aspect
 
-                # elif isinstance(comp, Aspect):
-                #     if comp.Operation and not comp.Resource:
-                #         op_aspect = comp
-                #     elif comp.Resource:
-                #         dr_aspect = comp
+                elif isinstance(comp, Aspect):
+                    # if an Aspect is being passed, it has to be a bind aspect
+                    binds[comp] = {index[index.index(comp)+1]:{}}
+                    # if comp.Operation and not comp.Resource:
+                    #     op_aspect = comp
+                    # elif comp.Resource:
+                    #     dr_aspect = comp
 
                 elif isinstance(comp, I):
                     if comp.name == 'locs':
@@ -322,7 +324,7 @@ class Aspect(Name):
                         spaced = True
 
                 else:
-
+                    print('eee', comp)
                     raise ValueError(
                         f'{self}:{comp} of type {type(comp)} not recognized as an index'
                     )
@@ -333,16 +335,14 @@ class Aspect(Name):
                 process=process,
                 storage=storage,
                 transport=transport,
-                # dr_aspect,
-                # dresource,
-                # op_aspect,
-                binds=binds,
+
                 player=player,
                 couple=couple,
                 loc=loc,
                 link=link,
                 period=period,
                 lag=lag,
+                binds=binds,
             )
 
         else:
