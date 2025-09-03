@@ -201,10 +201,10 @@ class Aspect(Name):
         """Negative Consequence"""
         dscn = type(self)(
             nn=False,
-            Operation=self.types_opr,
-            Resource=self.types_res,
-            Indicator=self.types_idc,
-            DResource=self.types_dres,
+            types_opr=self.types_opr,
+            types_res=self.types_res,
+            types_idc=self.types_idc,
+            types_dres=self.types_dres,
             create_grb=self.create_grb,
         )
         dscn.neg, self.neg = self, dscn

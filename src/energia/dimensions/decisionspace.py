@@ -62,13 +62,13 @@ class DecisionSpace:
         # ------Capacity Sizing-------#
         ############################################
 
-        self.capacity = self.birth_state(
-            types_opr=(Process, Transport),
-            label='Capacity',
-        )
-        self.capacity.latex=r'{cap}^{P}'
-        self.capacity.add.latex = r'{cap}^{P+}'
-        self.capacity.sub.latex = r'{cap}^{P-}'
+        # self.capacity = self.birth_state(
+        #     types_opr=(Process, Transport),
+        #     label='Capacity',
+        # )
+        # self.capacity.latex = r'{cap}^{P}'
+        # self.capacity.add.latex = r'{cap}^{P+}'
+        # self.capacity.sub.latex = r'{cap}^{P-}'
 
         # increases the capacity of an operation
         self.setup = Control(
