@@ -60,7 +60,6 @@ class Calculate:
         # update the index and return a Calc object
 
         _index = list(index) + self.index
-        print('aaa', self.index, index)
 
         return Calculate(
             calculation=self.calculation(*_index), decision=self.decision(*index)

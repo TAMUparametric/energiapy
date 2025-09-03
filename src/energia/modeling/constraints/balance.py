@@ -96,6 +96,7 @@ class Balance(_Generator):
 
         time = self.domain.time
 
+        # if no time is provided, take a default period
         if time is None:
             time = self.model.default_period()
 
@@ -187,6 +188,7 @@ class Balance(_Generator):
             # ---- add aspect to GRB if not added already ----
 
             elif not self in self.grb[resource][_loc][time]:
+            
 
                 if self.domain.operation:
                     print(

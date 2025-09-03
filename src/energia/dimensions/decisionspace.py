@@ -2,6 +2,8 @@
 
 from dataclasses import dataclass
 
+from typing import Type
+
 from ..components.commodity.misc import Cash, Material
 from ..components.commodity.resource import Resource
 from ..components.impact.categories import Environ, Social
@@ -26,12 +28,51 @@ class DecisionSpace:
         - Decisions, positive and negative together, grant 1 degree of freedom
     """
 
+    def birth_state(
+        self,
+        types_idc: Type[Environ | Social] = None,
+        types_res: Type[Resource] = None,
+        types_opr: tuple[Type[Process | Storage | Transport]] = None,
+        types_dres: Type[Resource] = None,
+        label: str = '',
+    ):
+        """ "Defines an state"""
+        # create the state
+        state = State(
+            types_idc=types_idc,
+            types_res=types_res,
+            types_opr=types_opr,
+            types_dres=types_dres,
+            label=label,
+        )
+        # create the control to add to the state
+        state.add = Control(
+            types_idc=types_idc,
+            types_res=types_res,
+            types_opr=types_opr,
+            types_dres=types_dres,
+        )
+        # create the control to subtract from the state
+        state.sub = -state.add
+
+        return state
+
     def __post_init__(self):
 
         # ------Capacity Sizing-------#
+        ############################################
+
+        self.capacity = self.birth_state(
+            types_opr=(Process, Transport),
+            label='Capacity',
+        )
+        self.capacity.latex=r'{cap}^{P}'
+        self.capacity.add.latex = r'{cap}^{P+}'
+        self.capacity.sub.latex = r'{cap}^{P-}'
+
         # increases the capacity of an operation
         self.setup = Control(
-            Operation=(Process, Transport),
+            types_opr=(Process, Transport),
             label='Capacitate Operation',
             latex=r'{cap}^{P+}',
         )
@@ -41,16 +82,18 @@ class DecisionSpace:
 
         # operating capacity state variable
         self.capacity = State(
-            Operation=(Process, Transport),
+            types_opr=(Process, Transport),
             label='Operational Capacity',
             latex=r'{cap}^{P}',
         )
         self.capacity.add = self.setup
         self.capacity.sub = self.dismantle
 
+        ############################################
+
         # increases the inventory capacity of an operation
         self.invsetup = Control(
-            Operation=(Storage,),
+            types_opr=(Storage,),
             label='Capacitate Inventory',
             latex=r'{cap}^{S+}',
         )
@@ -63,19 +106,21 @@ class DecisionSpace:
         # will have capacity, while the storage itself wil have
         # inventory capacity
         self.invcapacity = State(
-            Resource=Resource,
-            Operation=Storage,
+            types_res=Resource,
+            types_opr=Storage,
             label='Inventory Capacity',
             latex=r'{cap}^{S}',
         )
         self.invcapacity.add = self.invsetup
         self.invcapacity.sub = self.invdismantle
 
+        ############################################
+
         # -------Operational Scheduling-------#
 
         # Increases the operating level
         self.rampup = Control(
-            Operation=(Process, Storage, Transport),
+            types_opr=(Process, Storage, Transport),
             label='Ramp Capacity Utilization',
             latex=r'{opr}^{+}',
         )
@@ -85,7 +130,7 @@ class DecisionSpace:
 
         # Operating Level
         self.operate = State(
-            Operation=(Process, Storage, Transport),
+            types_opr=(Process, Storage, Transport),
             label='Capacity Utilization',
             latex=r'{opr}',
         )
@@ -93,12 +138,14 @@ class DecisionSpace:
         self.operate.add = self.rampup
         self.operate.sub = self.rampdown
 
+        ############################################
+
         # ------Trade-------#
 
         ## Buy - Positive trade which brings in resource
         # increases the amount of resource being bought
         self.buy_more = Control(
-            Resource=Resource,
+            types_res=Resource,
             label='Buy More Resource',
             latex=r'{buy}^{+}',
         )
@@ -108,7 +155,7 @@ class DecisionSpace:
         self.buy_less.latex = r'{buy}^{-}'
 
         self.buy = Stream(
-            Resource=Resource, label='Exchange Resource with other player'
+            types_res=Resource, label='Exchange Resource with other player'
         )
         self.buy.add = self.buy_more
         self.buy.sub = self.buy_less
@@ -116,7 +163,7 @@ class DecisionSpace:
         ## Sell - Negative trade which takes out resource
         # increases the amount of resource being sold
         self.sell_more = Control(
-            Resource=Resource,
+            types_res=Resource,
             label='Sell More Resource',
             latex=r'{sell}^{+}',
         )
@@ -128,25 +175,31 @@ class DecisionSpace:
         self.sell.add = self.sell_more
         self.sell.sub = self.sell_less
 
+        ############################################
+
         # ------Streams-------#
 
         ## Flow
 
+        ############################################
+
         # going into inventory
         # Inventory Levels
         self.inventory = Stream(
-            Resource=Resource,
-            Operation=Storage,
+            types_res=Resource,
+            types_opr=Storage,
             label='Store Resource',
             latex=r'{inv}',
         )
         self.inventory.ispos = False
         self.inventory.bound = self.invcapacity
 
+        ############################################
+
         # Production
         self.produce = Stream(
-            Resource=Resource,
-            Operation=(Process, Storage, Transport),
+            types_res=Resource,
+            types_opr=(Process, Storage, Transport),
             label='Resource Stream caused by Operation',
             latex=r'{prod}',
             create_grb=False,
@@ -154,9 +207,11 @@ class DecisionSpace:
         self.expend = -self.produce
         self.expend.latex = r'{expd}'
 
+        ############################################
+
         ##  Free Movements of goods
         self.consume = Stream(
-            Resource=Resource,
+            types_res=Resource,
             label='Free Resource Stream',
             latex=r'{cons}',
         )
@@ -164,19 +219,12 @@ class DecisionSpace:
         self.release = -self.consume
         self.release.latex = r'{rlse}'
 
-        # Monetary
-        self.earn = Impact(
-            Resource=Cash,
-            DResource=Resource,
-            Operation=(Process, Storage, Transport),
-            label='Transact',
-        )
-        self.spend = -self.earn
+        ############################################
 
         # Freight
         self.ship_in = Stream(
-            Resource=Resource,
-            Operation=Transport,
+            types_res=Resource,
+            types_opr=Transport,
             label='Resource Stream between Locations',
             create_grb=False,
         )
@@ -184,54 +232,74 @@ class DecisionSpace:
         self.ship_out = -self.ship_in
         self.ship_out.latex = r'{expt}'
 
+        ############################################
+
         # Utilization
         self.dispose = Stream(
-            Resource=Resource,
-            Operation=(Process, Storage, Transport),
+            types_res=Resource,
+            types_opr=(Process, Storage, Transport),
             label='Utilize Resource',
             latex=r'{disp}',
             create_grb=False,
         )
         self.use = -self.dispose
+        ############################################
 
         # ------Consequences-------#
 
         # Environmental
         self.emit = Impact(
-            Resource=Environ,
-            DResource=(Resource, Material),
-            Operation=(Process, Storage, Transport),
+            types_res=Environ,
+            types_dres=(Resource, Material),
+            types_opr=(Process, Storage, Transport),
             label='Emit',
         )
         self.abate = -self.emit
         # change is the balance of emit and abate
-        self.change = Impact(
-            Indicator=(Environ),
+
+        self.change = State(
+            types_idc=(Environ),
             label='Environmental Change',
             latex=r'{chng}',
         )
         self.change.add = self.emit
         self.change.sub = self.abate
 
+        ############################################
+
         # Social
         self.detriment = Impact(
-            Indicator=Social, Resource=Resource, label='Detriment', latex=r'{detr}'
+            types_idc=Social,
+            types_res=Resource,
+            label='Detriment',
+            latex=r'{detr}',
         )
         self.benefit = -self.detriment
         self.benefit.latex = r'{benf}'
 
         # social success is a balance of benefit and detriment
-        self.success = Impact(
-            Indicator=(Social),
+        self.success = State(
+            types_idc=(Social),
             label='Social Success',
             latex=r'{succ}',
         )
         self.success.add = self.benefit
         self.success.sub = self.detriment
 
+        ############################################
+
+        # Monetary
+        self.earn = Impact(
+            types_res=Cash,
+            types_dres=Resource,
+            types_opr=(Process, Storage, Transport),
+            label='Transact',
+        )
+        self.spend = -self.earn
+
         # Economic revenue is a balance of earn and spend
-        self.revenue = Impact(
-            Resource=Cash,
+        self.revenue = State(
+            types_res=Cash,
             label='Revenue',
             latex=r'{rev}',
         )

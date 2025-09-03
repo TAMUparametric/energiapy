@@ -52,13 +52,10 @@ class Aspect(Name):
     """
 
     nn: bool = True
-    Operation: Type[Process | Storage | Transport] = None
-    Resource: Type[Resource] = None
-    DResource: Type[Resource] = None
-    Indicator: Type[Indicator] = None
-    vardisp_min: list[str] = None
-    pardisp_min: list[str] = None
-    pardisp_max: list[str] = None
+    types_opr: tuple[Type[Process | Storage | Transport]] = None
+    types_res: Type[Resource] = None
+    types_dres: Type[Resource] = None
+    types_idc: Type[Indicator] = None
     latex: str = None
     create_grb: bool = True
 
@@ -204,10 +201,10 @@ class Aspect(Name):
         """Negative Consequence"""
         dscn = type(self)(
             nn=False,
-            Operation=self.Operation,
-            Resource=self.Resource,
-            Indicator=self.Indicator,
-            DResource=self.DResource,
+            Operation=self.types_opr,
+            Resource=self.types_res,
+            Indicator=self.types_idc,
+            DResource=self.types_dres,
             create_grb=self.create_grb,
         )
         dscn.neg, self.neg = self, dscn
@@ -284,7 +281,7 @@ class Aspect(Name):
                 elif isinstance(comp, Resource):
                     # check if this is the right resource type for the aspect
                     # domain.resource should be the primary resource only
-                    if isinstance(comp, self.Resource):
+                    if isinstance(comp, self.types_res):
                         resource = comp
                     # else:
                     #     # anything else is a derivative resource
@@ -312,7 +309,7 @@ class Aspect(Name):
 
                 elif isinstance(comp, Aspect):
                     # if an Aspect is being passed, it has to be a bind aspect
-                    binds[comp] = {index[index.index(comp)+1]:{}}
+                    binds[comp] = {index[index.index(comp) + 1]: {}}
                     # if comp.Operation and not comp.Resource:
                     #     op_aspect = comp
                     # elif comp.Resource:
@@ -324,7 +321,6 @@ class Aspect(Name):
                         spaced = True
 
                 else:
-                    print('eee', comp)
                     raise ValueError(
                         f'{self}:{comp} of type {type(comp)} not recognized as an index'
                     )
@@ -335,7 +331,6 @@ class Aspect(Name):
                 process=process,
                 storage=storage,
                 transport=transport,
-
                 player=player,
                 couple=couple,
                 loc=loc,

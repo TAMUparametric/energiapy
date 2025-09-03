@@ -100,7 +100,6 @@ class Map(_Generator):
                 if denser_period in dispositions[space]:
 
                     domain_from = self.domain.copy()
-                    print(denser_period)
                     domain_from.period = denser_period
                     binds = dispositions[space][denser_period]
                     domain_from.binds = binds
@@ -207,5 +206,4 @@ class Map(_Generator):
 
     def __call__(self, *index: X):
         """Returns the variable for the aspect at the given index"""
-        print(index)
         return self.aspect(*index)
