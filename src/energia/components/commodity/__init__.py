@@ -1,2 +1,0 @@
-"""energiapy.commodity init file
-"""
