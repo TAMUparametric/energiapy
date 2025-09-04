@@ -11,7 +11,7 @@ from ...utils.dictionary import get_depth
 from .linkage import Link
 
 if TYPE_CHECKING:
-    from ...dimensions.space import Space
+    from ...dimensions.loc import Space
     from ..commodity.misc import Cash
     from ..operation.process import Process
     from ..operation.storage import Storage

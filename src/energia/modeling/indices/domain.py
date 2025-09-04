@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from math import prod
 from operator import is_, is_not
 from typing import TYPE_CHECKING, Self
+from xml.sax.handler import property_declaration_handler
 
 from gana.sets.index import I
 
@@ -23,11 +24,10 @@ if TYPE_CHECKING:
     from ...components.temporal.period import Period
     from ...core.component import Component
     from ...core.x import X
-    from ..constraints.bind import Bind
     from ..parameters.conversion import Conv
     from ..variables.aspect import Aspect
     from ...represent.model import Model
-    from ...modeling.constraints.bind import Bind 
+    from ...modeling.constraints.bind import Bind
 
 
 @dataclass
@@ -71,7 +71,7 @@ class Domain:
     lag: Lag = None
 
     # These can be summed over
-    binds: dict[Resource | Process | Storage | Transport, Aspect] = None
+    binds: list[Bind] = None
 
     def __post_init__(self):
         """Post initialization method to set up the domain
@@ -105,11 +105,10 @@ class Domain:
         # elif self.operation:
         #     self.primary = self.operation
         # else:
-            # raise ValueError('Domain must have at least one primary index')
+        # raise ValueError('Domain must have at least one primary index')
 
         if not self.binds:
-            self.binds: dict[Aspect, X] = {}
-
+            self.binds: list[Bind] = []
 
     @property
     def I(self):
@@ -128,7 +127,7 @@ class Domain:
     @property
     def primary(self) -> Indicator | Resource | Process | Storage | Transport:
         """Primary component"""
-        _primary =  self.indicator or self.resource or self.operation
+        _primary = self.indicator or self.resource or self.operation
         if not _primary:
             raise ValueError('Domain must have at least one primary index')
         return _primary
@@ -137,7 +136,7 @@ class Domain:
     def space(self) -> Loc | Link:
         """Space"""
         return self.link or self.loc
-    
+
     @property
     def maker(self) -> Player | Couple:
         """Decision-maker"""
@@ -218,7 +217,6 @@ class Domain:
     #                    Dictionaries
     # -----------------------------------------------------
 
-
     @property
     def index(self) -> list[X]:
         """list of _Index elements"""
@@ -226,41 +224,76 @@ class Domain:
         # binds = sum([[i, j] for i, j in self.binds.items()], [])
 
         # these default to network and horizon, so can default from model using .space or .time
-        spatio_temporal = [i for i in [self.loc, self.link, self.period, self.lag] if i is not None]
 
-        return  [self.primary] + spatio_temporal + self.bind_list
+        return self.index_primary + self.index_binds
+
+    @property
+    def index_primary(self) -> list[X]:
+        """Primary index
+
+        Returns:
+            list[X]: list of primary indices
+        """
+        return [self.primary] + [
+            i for i in [self.loc, self.link, self.period, self.lag] if i is not None
+        ]
+
+    @property
+    def index_binds(self) -> list[Bind, X]:
+        """List of bind indices
+
+        Returns:
+            list[Bind, X]: list of bind indices
+        """
+
+        return [x for b in self.binds for x in (b.aspect, b.domain.primary)]
 
     @property
     def tree(self) -> dict:
         """Convert index into tree"""
+
         tree = {}
         node = tree
-        for key in self.index:
+
+        if self.binds:
+            index = self.index[: -len(self.binds)]
+        else:
+            index = self.index
+        for key in index:
             node[key] = {}
             node = node[key]
+
+        for b in self.binds:
+            node[b.aspect] = {}
+            node[b.domain.primary] = {}
+
+        # tree = {}
+        # node = tree
+
         return tree
 
-    @property
-    def bind_list(self)-> list[Aspect, X]:
-        """List of binds"""
-        _bind_list = []
-        tree = self.binds
-        while tree:
-            (k, v), = tree.items()   # unpack the only key:value
-            _bind_list.append(k)
-            tree = v
-        return _bind_list
-        # return [(k, v) for k, v in self.binds.items()]
+    # @property
+    # def bind_dict(self) -> dict[Aspect, X]:
+    #     """Dictionary of binds"""
+    #     return {i.aspect: i.domain.primary for i in self.binds}
+
+    # @property
+    # def bind_list(self) -> list[Aspect, X]:
+    #     """List of binds"""
+    #     _bind_list = []
+    #     tree = self.bind_dict.copy()
+
+    #     while tree:
+    #         ((k, v),) = tree.items()  # unpack the only key:value
+    #         _bind_list.append(k)
+    #         tree = v
+    #     return _bind_list
+    #     return [(k, v) for k, v in self.binds.items()]
 
     @property
     def aspects(self) -> list[Aspect]:
         """Aspects"""
-        return list(self.binds.values())
-    
-
-
-
-
+        return [b.aspect for b in self.binds]
 
     @property
     def args(self) -> dict[str, X | Lag | dict[Aspect, X]]:
@@ -280,7 +313,7 @@ class Domain:
         }
 
     @property
-    def dictionary(self) -> dict[str, X|Lag| dict[Aspect, X]]:
+    def dictionary(self) -> dict[str, X | Lag | dict[Aspect, X]]:
         """Dictionary of indices"""
         return {
             'primary': self.primary,
@@ -364,7 +397,7 @@ class Domain:
 
     def __iter__(self):
         """Iterate over the indices"""
-        return iter(self.index)
+        return iter(self.index_primary + self.binds)
 
     def __call__(self, *args: str) -> Self:
         return Domain(**{i: j for i, j in self.args.items() if i in args})

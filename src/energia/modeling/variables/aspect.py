@@ -48,7 +48,6 @@ class Aspect(Name):
         DResource (Type[Resource]): The type of derivative resource associated with the decision. Defaults to None
         Indicator (Type[Indicator]): The type of indicator associated with the decision. Defaults to None
         latex (str): LaTeX representation of the decision. Defaults to None
-        create_grb (bool): If True, a general resource balance constraint will be created. Defaults to True
     """
 
     nn: bool = True
@@ -57,7 +56,6 @@ class Aspect(Name):
     types_dres: Type[Resource] = None
     types_idc: Type[Indicator] = None
     latex: str = None
-    create_grb: bool = True
 
     def __post_init__(self):
         Name.__post_init__(self)
@@ -205,7 +203,6 @@ class Aspect(Name):
             types_res=self.types_res,
             types_idc=self.types_idc,
             types_dres=self.types_dres,
-            create_grb=self.create_grb,
         )
         dscn.neg, self.neg = self, dscn
         dscn.ispos = not self.ispos
@@ -242,7 +239,7 @@ class Aspect(Name):
                 lag,
             ) = (None for _ in range(11))
 
-            binds: dict[Resource | Process | Storage | Transport, Aspect] = {}
+            binds: list[Bind] = []
             timed, spaced = False, False
 
             for comp in index:
@@ -295,30 +292,32 @@ class Aspect(Name):
                     # thing get a little easier as the bind has specific information
                     # this only comes in play for calculations (streams, impacts)
 
-                    if comp.domain.operation:
-                        binds[comp.aspect] = {comp.domain.operation: {}}
-                        # process = comp.domain.process
-                        # storage = comp.domain.storage
-                        # transport = comp.domain.transport
-                        # op_aspect = comp.aspect
+                    binds.append(comp)
 
-                    if comp.domain.resource:
-                        binds[comp.domain.resource] = {comp.aspect: {}}
-                        # dresource = comp.domain.resource
-                        # dr_aspect = comp.aspect
+                    # if comp.domain.operation:
+                    #     binds[comp.aspect] = {comp.domain.operation: {}}
+                    #     # process = comp.domain.process
+                    #     # storage = comp.domain.storage
+                    #     # transport = comp.domain.transport
+                    #     # op_aspect = comp.aspect
 
-                elif isinstance(comp, Aspect):
-                    # if an Aspect is being passed, it has to be a bind aspect
-                    binds[comp] = {index[index.index(comp) + 1]: {}}
-                    # if comp.Operation and not comp.Resource:
-                    #     op_aspect = comp
-                    # elif comp.Resource:
-                    #     dr_aspect = comp
+                    # if comp.domain.resource:
+                    #     binds[comp.domain.resource] = {comp.aspect: {}}
+                    # dresource = comp.domain.resource
+                    # dr_aspect = comp.aspect
 
-                elif isinstance(comp, I):
-                    if comp.name == 'locs':
-                        loc = comp
-                        spaced = True
+                # elif isinstance(comp, Aspect):
+                # if an Aspect is being passed, it has to be a bind aspect
+                # binds[comp] = {index[index.index(comp) + 1]: {}}
+                # if comp.Operation and not comp.Resource:
+                #     op_aspect = comp
+                # elif comp.Resource:
+                #     dr_aspect = comp
+
+                # elif isinstance(comp, I):
+                #     if comp.name == 'locs':
+                #         loc = comp
+                #         spaced = True
 
                 else:
                     raise ValueError(

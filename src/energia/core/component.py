@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from ..components.spatial.location import Loc
     from ..components.temporal.period import Period
     from ..dimensions.decisiontree import DecisionTree
-    from ..dimensions.space import Space
+    from ..dimensions.loc import Space
     from ..dimensions.time import Time
     from ..modeling.variables.aspect import Aspect
 

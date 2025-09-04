@@ -115,6 +115,11 @@ class Bind(_Generator):
         """Function"""
         return self.V(1)
 
+    @property
+    def constraints(self):
+        """Constraints"""
+        return self.aspect.constraints
+
     def show(self, descriptive=False):
         """Pretty print the component"""
         constraints = list(set(sum([i.constraints for i in self.index], [])))

@@ -81,13 +81,12 @@ class Map(_Generator):
         # this will lead to adding twice. India = Goa + Madgaon + Ponje (WRONG)
         # We scale only one level up
 
-
         if space in dispositions and time in dispositions[space]:
             # the aspect is already defined at this location
             # we need to check if it is defined for any periods sparser than time
             for sparser_period in sparser_periods:
                 if sparser_period in dispositions[space]:
-                    
+
                     # check if the aspect has been defined for a sparser period
                     # this creates a map from this domain to a sparser domain
                     self.writecons_map(
@@ -104,9 +103,7 @@ class Map(_Generator):
                     binds = dispositions[space][denser_period]
                     domain_from.binds = binds
                     domain_to = self.domain.copy()
-               
 
-                    
                     # check if the aspect has been defined for a denser period
                     self.writecons_map(
                         domain_from,
@@ -184,9 +181,13 @@ class Map(_Generator):
             v_lower = self(*to_domain).V()
 
             # write the constraint
-            cons = v_lower == self.give_sum(domain=from_domain, tsum=tsum) 
+            cons = v_lower == self.give_sum(domain=from_domain, tsum=tsum)
 
             cons.categorize('Map')
+
+            if self.return_sum:
+                # if only a sum is requested, don't set to the program
+                return cons
 
             setattr(
                 self.program,

@@ -202,7 +202,6 @@ class DecisionSpace:
             types_opr=(Process, Storage, Transport),
             label='Resource Stream caused by Operation',
             latex=r'{prod}',
-            create_grb=False,
         )
         self.expend = -self.produce
         self.expend.latex = r'{expd}'
@@ -226,7 +225,6 @@ class DecisionSpace:
             types_res=Resource,
             types_opr=Transport,
             label='Resource Stream between Locations',
-            create_grb=False,
         )
         self.ship_in.latex = r'{impt}'
         self.ship_out = -self.ship_in
@@ -240,7 +238,6 @@ class DecisionSpace:
             types_opr=(Process, Storage, Transport),
             label='Utilize Resource',
             latex=r'{disp}',
-            create_grb=False,
         )
         self.use = -self.dispose
         ############################################

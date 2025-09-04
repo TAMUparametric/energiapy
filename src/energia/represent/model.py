@@ -158,6 +158,7 @@ class Model(DecisionSpace, _Init):
         # the set that needs to be updated
         model_set.append(value)
 
+        # update the index set for index elements
         if collection in [
             'resources',
             'currencies',
@@ -179,7 +180,7 @@ class Model(DecisionSpace, _Init):
     def Link(self, source: Loc, sink: Loc, dist: float | Unit = None, bi: bool = False):
         """Link two Locations"""
         if source - sink:
-            # if the source and sink are the same, throw error
+            # if source and sink are already linked
             raise ValueError(
                 f'A link already defined between {source} and {sink}.\n'
                 'For multiple links with different attributes, use model.named_link = Link(...)'

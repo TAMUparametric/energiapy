@@ -15,7 +15,7 @@ from ..modeling.variables.stream import Stream
 
 if TYPE_CHECKING:
     from ..modeling.variables.aspect import Aspect
-    from .space import Space
+    from .loc import Space
     from .time import Time
 
 

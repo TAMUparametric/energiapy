@@ -10,7 +10,7 @@ from ...core.x import X
 from ..measure.unit import Unit
 
 if TYPE_CHECKING:
-    from ...dimensions.space import Space
+    from ...dimensions.loc import Space
     from .location import Loc
 
 
@@ -40,6 +40,11 @@ class Link(X):
     auto: bool = False
 
     def __post_init__(self):
+
+        if is_(self.source, self.sink):
+            # if the source and sink are the same, throw error
+            raise ValueError(f"source and sink can't both be {self.source}")
+
         X.__post_init__(self)
         self.sib: Self = None
 

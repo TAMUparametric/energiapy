@@ -11,7 +11,7 @@ from ..components.commodity.resource import Resource
 from ..components.operation.transport import Transport
 from ..dimensions.consequence import Consequence
 from ..dimensions.decisiontree import DecisionTree
-from ..dimensions.space import Space
+from ..dimensions.loc import Space
 from ..dimensions.system import System
 from ..dimensions.time import Time
 from .graph import Graph
@@ -96,6 +96,8 @@ class _Scope:
                 else:
                     result[k] = v
             return result
+        
+       
         
         self.dispositions = merge_trees(self.dispositions, {aspect: domain.tree})
         
