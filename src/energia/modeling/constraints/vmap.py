@@ -5,12 +5,12 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-from gana.operations.operators import sigma
+from gana import sigma
 
 from ._generator import _Generator
 
 if TYPE_CHECKING:
-    from gana.block.program import Prg
+    from gana import Prg, C
 
     from ...components.commodity.resource import Resource
     from ...components.operation.process import Process
@@ -98,9 +98,22 @@ class Map(_Generator):
             for denser_period in denser_periods:
                 if denser_period in dispositions[space]:
 
+                    # create a new domain to map from
                     domain_from = self.domain.copy()
                     domain_from.period = denser_period
-                    binds = dispositions[space][denser_period]
+                    binds_dict = dispositions[space][denser_period]
+                    binds = []
+                    # TODO - check this
+                    # here I am re creating Bind objects
+                    # from the dict of the form {aspect: {component: {aspect: {component: {...}}}}}
+                    # there has to be a way to avoid this
+                    # I make a list  of bounds as such [aspect(component), aspect(component), ...]
+                    iter_dict = binds_dict
+                    for aspect, component_dict in iter_dict.items():
+                        for component in component_dict:
+                            binds.append(aspect(component))
+                            iter_dict = iter_dict[aspect][component]
+
                     domain_from.binds = binds
                     domain_to = self.domain.copy()
 
@@ -164,7 +177,7 @@ class Map(_Generator):
 
             print(f'--- Mapping {self.aspect}: from {from_domain} to {to_domain}')
 
-            cons_existing = getattr(self.program, _name)
+            cons_existing: C = getattr(self.program, _name)
             # update the existing constraint
             setattr(
                 self.program,
@@ -181,7 +194,7 @@ class Map(_Generator):
             v_lower = self(*to_domain).V()
 
             # write the constraint
-            cons = v_lower == self.give_sum(domain=from_domain, tsum=tsum)
+            cons: C = v_lower == self.give_sum(domain=from_domain, tsum=tsum)
 
             cons.categorize('Map')
 

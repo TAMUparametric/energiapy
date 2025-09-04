@@ -11,7 +11,7 @@ from ..components.commodity.resource import Resource
 from ..components.operation.transport import Transport
 from ..dimensions.consequence import Consequence
 from ..dimensions.decisiontree import DecisionTree
-from ..dimensions.loc import Space
+from ..dimensions.space import Space
 from ..dimensions.system import System
 from ..dimensions.time import Time
 from .graph import Graph
@@ -87,20 +87,21 @@ class _Scope:
         # time: Period = None,
     ):
         """Updates the spatiotemporal dispositions for an aspect pertaining to a component"""
+
         def merge_trees(d1, d2):
             """Recursively merge two tree-like dicts (values always dicts)."""
             result = dict(d1)  # shallow copy of d1
             for k, v in d2.items():
                 if k in result:
-                    result[k] = merge_trees(result[k], v)  # recurse since v must also be a dict
+                    result[k] = merge_trees(
+                        result[k], v
+                    )  # recurse since v must also be a dict
                 else:
                     result[k] = v
             return result
-        
-       
-        
+
         self.dispositions = merge_trees(self.dispositions, {aspect: domain.tree})
-        
+
         # # indicator = domain.indicator
         # # resource = domain.resource
         # # operation = domain.operation
@@ -115,8 +116,6 @@ class _Scope:
 
         # space = domain.space
         # time = domain.period
-
-
 
         # the base key, value combinations are of the form
         # 1. {aspect: resource: {}}
@@ -152,7 +151,6 @@ class _Scope:
         #         dict_[space].add(time)
         #     return dict_
 
-
         # def update_binds(
         #     binds: dict[Aspect, Resource | Process | Storage | Transport],
         # ):
@@ -181,8 +179,6 @@ class _Scope:
         #     return _dict
 
         #     # update_player(dm, component)
-
-
 
         # update_aspect(aspect)
 

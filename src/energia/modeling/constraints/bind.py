@@ -257,7 +257,10 @@ class Bind(_Generator):
         #     [i.name for i in idx] for idx in self.aspect.indices
         # ]:
 
-        if not index in self.aspect.indices:
+        if not [i.name for i in index] in [
+            [i.name for i in idx] for idx in self.aspect.indices
+        ]:
+            # if not index in self.aspect.indices:
 
             # if a variable has not been created for the index
             # create a variable
@@ -350,6 +353,7 @@ class Bind(_Generator):
             not self.domain.space
             in self.model.dispositions[self.aspect.bound][self.domain.primary]
         ):
+
             # if the bound variable has not been defined at the given space
             print(
                 f'--- Aspect ({self.aspect.bound}) not defined at {self.domain.space}, a variable will be created assuming {self.model.horizon} as the temporal index'
@@ -600,6 +604,12 @@ class Bind(_Generator):
             # it will be non-negative by default
             # and will begin a resource balance
             self.V()
+
+        elif isinstance(other, Bind):
+            if self.name == other.name:
+                if self.domain == other.domain:
+                    return True
+            return False
 
         else:
             self.writecons_bind('eq', other)

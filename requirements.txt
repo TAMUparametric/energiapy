@@ -1,12 +1,13 @@
 numpy < 2.0.0
 pandas
 matplotlib
-sympy
-gurobipy
 ppopt
+gana
 
 [optional]
 pint
+sympy
+gurobipy
 scikit-learn
 pyomo
 h5pyd

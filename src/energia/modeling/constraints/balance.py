@@ -46,10 +46,11 @@ class Balance(_Generator):
 
         # this is the disposition of the variable to be mapped
         # through time and space
-        resource, time, space = (
+        resource, time, space, binds = (
             self.domain.resource,
             self.domain.period,
             self.domain.space,
+            self.domain.binds,
         )
 
         if self.domain.link:
@@ -73,10 +74,17 @@ class Balance(_Generator):
             # this is only used if times are being declared dynamically (based on parameter set sizes)
             self.model.update_grb(resource=resource, time=time, space=loc)
 
-        # write stream balance constraint
-        if self.domain.resource:
-
+        if not binds:
+            # if no binds, then create GRB or append to exisiting GRB
+            # writecons_grb will figure it out
             self.writecons_grb(resource, loc, time)
+
+        else:
+            # if there are binds
+            if self.grb[resource][loc][time]:
+                # if there is already a GRB existing
+                # add the bind to the GRB at the same scale
+                self.writecons_grb(resource, loc, time)
 
     @property
     def mapped_to(self) -> list[Domain]:
@@ -235,26 +243,26 @@ class Balance(_Generator):
             # grab the constraint from the program
             cons_grb = getattr(self.program, _name)
 
-            if space_map:
-                v_bal = self.give_sum()
-            else:
-                v_bal = self(*self.domain).V()
+            # if space_map:
+            #     v_bal = self.give_sum()
+            # else:
+            #     v_bal = self(*self.domain).V()
 
-            if time_map:
-                v_bal = self.give_sum(mapped=v_bal, tsum=True)
+            # if time_map:
+            #     v_bal = self.give_sum(mapped=v_bal, tsum=True)
 
             # update the constraint
             if self.aspect.ispos:
                 setattr(
                     self.program,
                     _name,
-                    cons_grb + v_bal,
+                    cons_grb + self(*self.domain).V(),
                 )
             else:
                 setattr(
                     self.program,
                     _name,
-                    cons_grb - v_bal,
+                    cons_grb - self(*self.domain).V(),
                 )
 
             # updates the constraints in all the indices of self.domain
@@ -270,7 +278,7 @@ class Balance(_Generator):
                 # if the resource has a base, it is also bound at the same scale
                 # this is used for stored resources, which are bound at the same scale as their base
 
-                self.writecons_grb()
+                self.writecons_grb(resource.base, loc, time)
 
             # check if the resource is bound at a spatial index of a lower order
             if not self.domain.link and loc.isin:

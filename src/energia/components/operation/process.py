@@ -97,11 +97,13 @@ class Process(_Operation):
             if not time in self.model.grb[res][loc]:
                 self.model.update_grb(resource=res, space=loc, time=time)
 
-            times = list(self.model.grb[res][loc])
+            times = list(
+                [t for t in self.model.grb[res][loc] if self.model.grb[res][loc][t]]
+            )
+            # write the conversion balance at
+            # densest temporal scale in that space
             if times:
-                time = max(times)
-            else:
-                time = time.horizon
+                return min(times)
 
             return time.horizon
 

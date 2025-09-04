@@ -60,7 +60,7 @@ class Storage(Component, Stock, InvCapacity, Capacitate, Ramp):  # , Stock):
                     f'--- Assuming  {self} capacity is unbounded in ({loc}, {self.horizon})'
                 )
                 # this is not a check, this generates a constraint
-                _ = self.model.invcapacity(self.stored, self, loc, self.horizon) == True
+                _ = self.model.invcapacity(self.stored, loc, self.horizon) == True
 
             # now that the process has been capacitated at the location
             # check if it is being operated at the location
@@ -72,7 +72,7 @@ class Storage(Component, Stock, InvCapacity, Capacitate, Ramp):  # , Stock):
                 print(
                     f'--- Assuming inventory of {self.stored} is bound by capacity in ({loc}, {self.horizon})'
                 )
-                _ = self.model.inventory(self.stored, self, loc, self.horizon) <= 1
+                _ = self.model.inventory(self.stored, loc, self.horizon) <= 1
 
             for d in self.model.inventory.domains:
                 if d.operation in [self.charge, self.discharge] and d.space == loc:

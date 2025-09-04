@@ -245,7 +245,6 @@ class Domain:
         Returns:
             list[Bind, X]: list of bind indices
         """
-
         return [x for b in self.binds for x in (b.aspect, b.domain.primary)]
 
     @property
@@ -256,16 +255,16 @@ class Domain:
         node = tree
 
         if self.binds:
-            index = self.index[: -len(self.binds)]
+            index = self.index[: -2 * (len(self.binds))]
         else:
             index = self.index
         for key in index:
             node[key] = {}
             node = node[key]
-
         for b in self.binds:
             node[b.aspect] = {}
-            node[b.domain.primary] = {}
+            node[b.aspect][b.domain.primary] = {}
+            node = node[b.aspect][b.domain.primary]
 
         # tree = {}
         # node = tree
