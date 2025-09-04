@@ -24,6 +24,9 @@ class Get(ABC):
         return getattr(self.tree, decision)(self)
 
 
+# -------------------------------------------------------
+# Design
+# -------------------------------------------------------
 class Capacity(Get):
     """Operational Capacity of an Operation"""
 
@@ -36,15 +39,6 @@ class Capacity(Get):
     def operate(self):
         """Capacity Utilization"""
         return self.get('operate')
-
-
-class InvCapacity(Get):
-    """Inventory Capacity of a Resource"""
-
-    @property
-    def invcapacity(self):
-        """Inventory Capacity"""
-        return self.get('invcapacity')
 
 
 class Capacitate(Get):
@@ -63,6 +57,11 @@ class Capacitate(Get):
 
 class Design(Capacity, Capacitate):
     """Design an Operation"""
+
+
+# -------------------------------------------------------
+# Scheduling
+# -------------------------------------------------------
 
 
 class Operate(Get):
@@ -89,6 +88,51 @@ class Scheduling(Operate, Ramp):
     """Schedule an Operation"""
 
 
+# -------------------------------------------------------
+# Inventory
+# -------------------------------------------------------
+
+
+class InvCapacity(Get):
+    """Inventory Capacity of a Resource"""
+
+    @property
+    def invcapacity(self):
+        """Inventory Capacity"""
+        return self.get('invcapacity')
+
+
+class InvCapacitate(Get):
+    """Capacitate an Operation"""
+
+    @property
+    def invsetup(self):
+        """Add Capacity"""
+        return self.get('invsetup')
+
+    @property
+    def invdismantle(self):
+        """Remove Capacity"""
+        return self.get('invdismantle')
+
+
+class Stock(Get):
+    """Inventory of a Resource"""
+
+    @property
+    def inventory(self):
+        return self.get('inventory')
+
+
+class Inventory(InvCapacity, InvCapacitate, Stock):
+    """Inventory a Resource"""
+
+
+# -------------------------------------------------------
+# Trade
+# -------------------------------------------------------
+
+
 class Trade(Get):
     """Exchange Resource/Material with another Player"""
 
@@ -113,6 +157,11 @@ class Transact(Get):
         return self.get('spend')
 
 
+# -------------------------------------------------------
+# Streams
+# -------------------------------------------------------
+
+
 class Produce(Get):
     """Resource Stream resulting from Operate"""
 
@@ -135,14 +184,6 @@ class Free(Get):
     @property
     def release(self):
         return self.get('release')
-
-
-class Stock(Get):
-    """Inventory of a Resource"""
-
-    @property
-    def inventory(self):
-        return self.get('inventory')
 
 
 class Ship(Get):

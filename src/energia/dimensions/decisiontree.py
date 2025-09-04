@@ -137,8 +137,6 @@ class DecisionTree(Dimension):
             domain.resource: [] for domain in self.model.inventory.domains
         }
         for domain in self.model.inventory.domains:
-            _inventoried_at[domain.resource].append(
-                (domain.storage, domain.space, domain.time)
-            )
+            _inventoried_at[domain.resource].append((domain.space, domain.time))
 
         return _inventoried_at

@@ -27,6 +27,7 @@ class State(Aspect):
         self.sub: Control = None
 
         self.mapped_from: list[Domain] = []
+        
 
     def __setattr__(self, name: str, value: Control | Any):
 

@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 
 from ...core.component import Component
 from ...modeling.parameters.conversion import Conv
-from ...modeling.variables.default import Capacitate, InvCapacity, Operate, Ramp, Stock
+
 from ..commodity.resource import Resource
 from .process import Process
 
@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class Storage(Component, Stock, InvCapacity, Capacitate, Ramp):  # , Stock):
+class Storage(Component):  # , Stock):
     """Storage"""
 
     store: Resource = None
@@ -57,10 +57,10 @@ class Storage(Component, Stock, InvCapacity, Capacitate, Ramp):  # , Stock):
                 # if not self.tree.inventoried_at:
                 # if the storage is not capacitated at the location and time
                 print(
-                    f'--- Assuming  {self} capacity is unbounded in ({loc}, {self.horizon})'
+                    f'--- Assuming  {self.stored} inventory capacity is unbounded in ({loc}, {self.horizon})'
                 )
                 # this is not a check, this generates a constraint
-                _ = self.model.invcapacity(self.stored, loc, self.horizon) == True
+                _ = self.capacity(loc, self.horizon) == True
 
             # now that the process has been capacitated at the location
             # check if it is being operated at the location
@@ -68,17 +68,41 @@ class Storage(Component, Stock, InvCapacity, Capacitate, Ramp):  # , Stock):
             if not self in self.tree.inventoried_at or not loc in [
                 l_t[0] for l_t in self.tree.inventoried_at[self]
             ]:
+
+                # check for the time over which base resource's GRB is defined
+                times = list(
+                    [
+                        t
+                        for t in self.model.grb[self.stored.inv_of][loc]
+                        if self.model.grb[self.stored.inv_of][loc][t]
+                    ]
+                )
+                # write the conversion balance at
+                # densest temporal scale in that space
+                if times:
+                    time = min(times)
+                else:
+                    time = self.horizon
                 # if not just write opr_{pro, loc, horizon} <= capacity_{pro, loc, horizon}
                 print(
-                    f'--- Assuming inventory of {self.stored} is bound by capacity in ({loc}, {self.horizon})'
+                    f'--- Assuming inventory of {self.stored} is bound by inventory capacity in ({loc}, {time})'
                 )
-                _ = self.model.inventory(self.stored, loc, self.horizon) <= 1
+                _ = self.inventory(loc, time) <= 1
 
-            for d in self.model.inventory.domains:
-                if d.operation in [self.charge, self.discharge] and d.space == loc:
-                    loc_time = (loc, d.time)
-                    if loc_time not in loc_times:
-                        loc_times.append(loc_time)
+            # for d in self.model.inventory.domains:
+            #     if d.space == loc:
+            # loc_time = (loc, d.time)
+            # if not loc_time in loc_times:
+            #     loc_times.append(loc_time)
+            # self.inventory(
+            #     loc,
+            # )
+
+            # if d.operation in [self.charge, self.discharge] and d.space == loc:
+            #     loc_time = (loc, d.time)
+            #     if loc_time not in loc_times:
+            #         loc_times.append(loc_time)
+            # self.stored.inventory()
 
         # locate the charge and discharge processes
         self.charge.locate(*locs)
@@ -89,7 +113,22 @@ class Storage(Component, Stock, InvCapacity, Capacitate, Ramp):  # , Stock):
     @property
     def capacity(self) -> Bind:
         """Reports invcapacity as capacity"""
-        return self.invcapacity
+        return self.stored.invcapacity
+
+    @property
+    def setup(self) -> Bind:
+        """Reports invsetup as setup"""
+        return self.stored.invsetup
+
+    @property
+    def dismantle(self) -> Bind:
+        """Reports invdismantle as dismantle"""
+        return self.stored.invdismantle
+
+    @property
+    def inventory(self) -> Bind:
+        """Inventory of the stored resource"""
+        return self.stored.inventory
 
     @property
     def base(self) -> Resource:
@@ -97,7 +136,7 @@ class Storage(Component, Stock, InvCapacity, Capacitate, Ramp):  # , Stock):
         return self.discharge.conv.base
 
     @property
-    def conversion(self) -> dict[Resource : int | float]:
+    def conversion(self) -> dict[Resource, int | float]:
         """Conversion of commodities"""
         return self.discharge.conv.conversion
 
@@ -106,6 +145,7 @@ class Storage(Component, Stock, InvCapacity, Capacitate, Ramp):  # , Stock):
         if not self._conv:
             # create storage resource
             stored = Resource()
+            resource.in_inv.append(stored)
             setattr(self.model, f'{resource}.{self}', stored)
 
             # ---------- set discharge conversion
@@ -123,7 +163,7 @@ class Storage(Component, Stock, InvCapacity, Capacitate, Ramp):  # , Stock):
 
             setattr(self.base, self.name, stored)
 
-            self.stored, self.stored.base = stored, self.base
+            self.stored, self.stored.inv_of = stored, self.base
             self._conv = True
             # self.model.update_grb_aspects(add=self.stored)
 

@@ -31,15 +31,10 @@ def m():
 
     _m.lii = Storage()
     _m.lii(_m.power) == 0.9
-    _m.lii.invcapacity.x <= 100
-    _m.lii.invcapacity.x >= 10
-    _m.lii.inventory(_m.q) <= 1
-    _m.lii.invcapacity[_m.usd.spend] == 1302182 + 41432
+    _m.lii.capacity.x <= 100
+    _m.lii.capacity.x >= 10
+    _m.lii.capacity[_m.usd.spend] == 1302182 + 41432
     _m.lii.inventory[_m.usd.spend] == 2000
-    _m.lii.charge.capacity <= 100
-    _m.lii.charge.operate <= 1
-    _m.lii.discharge.capacity <= 100
-    _m.lii.discharge.operate <= 1
 
     _m.network.operations(_m.wf, _m.pv, _m.lii)
 
@@ -55,9 +50,11 @@ def test_small_1L_mT_mO_MILP(m):
         [41.88271604938263, 88.88888888888889, 100.0, 0.0, 311.94444444444446], rel=1e-9
     )
     assert m.capacity.sol(True) == pytest.approx(
-        [100.0, 100.0, 27.160493827160487, 100.0, 100.0], rel=1e-9
+        [100.0, 100.0, 27.160493827160423, 24.444444444444443], rel=1e-9
     )
-    assert m.capacity.reporting.sol(True) == pytest.approx([1.0, 1.0, 1.0], rel=1e-9)
+    assert m.invcapacity.sol(True) == pytest.approx([27.160493827160423], rel=1e-9)
+    assert m.capacity.reporting.sol(True) == pytest.approx([1.0, 1.0], rel=1e-9)
+    assert m.invcapacity.reporting.sol(True) == pytest.approx([1.0], rel=1e-9)
     assert m.operate.sol(True) == pytest.approx(
         [
             100.0,
@@ -65,22 +62,17 @@ def test_small_1L_mT_mO_MILP(m):
             55.55555555555556,
             67.5,
             311.94444444444446,
-            41.88271604938263,
+            41.882716049382566,
             88.88888888888889,
             100.0,
             0.0,
-            230.77160493827154,
-            6.882716049382658,
-            27.160493827160487,
-            0.0,
-            0.0,
-            34.043209876543145,
-            27.160493827160487,
-            24.444444444444443,
-            6.882716049382658,
+            230.77160493827148,
+            27.160493827160423,
+            6.882716049382594,
             20.27777777777778,
             0.0,
             0.0,
+            24.444444444444443,
             0.0,
             0.0,
             24.444444444444443,
@@ -100,30 +92,30 @@ def test_small_1L_mT_mO_MILP(m):
         ],
         rel=1e-9,
     )
-    assert m.produce(m.power.lii, m.lii.charge, m.q).sol(True) == pytest.approx(
-        [6.882716049382658, 20.27777777777778, 0.0, 0.0], rel=1e-9
+    assert m.produce(m.power.lii, m.lii.charge.operate, m.q).sol(True) == pytest.approx(
+        [6.882716049382594, 20.27777777777778, 0.0, 0.0], rel=1e-9
     )
-    assert m.produce(m.power, m.lii.discharge, m.q).sol(True) == pytest.approx(
+    assert m.produce(m.power, m.lii.discharge.operate, m.q).sol(True) == pytest.approx(
         [0.0, 0.0, 24.444444444444443, 0.0], rel=1e-9
     )
-    assert m.produce(m.power, m.wf, m.q).sol(True) == pytest.approx(
+    assert m.produce(m.power, m.wf.operate, m.q).sol(True) == pytest.approx(
         [100.0, 88.88888888888889, 55.55555555555556, 67.5], rel=1e-9
     )
-    assert m.produce(m.power, m.pv, m.q).sol(True) == pytest.approx(
-        [41.88271604938263, 88.88888888888889, 100.0, 0.0], rel=1e-9
+    assert m.produce(m.power, m.pv.operate, m.q).sol(True) == pytest.approx(
+        [41.882716049382566, 88.88888888888889, 100.0, 0.0], rel=1e-9
     )
-    assert m.expend(m.power, m.lii.charge, m.q).sol(True) == pytest.approx(
-        [6.882716049382658, 20.27777777777778, 0.0, 0.0], rel=1e-9
+    assert m.expend(m.power, m.lii.charge.operate, m.q).sol(True) == pytest.approx(
+        [6.882716049382594, 20.27777777777778, 0.0, 0.0], rel=1e-9
     )
-    assert m.expend(m.power.lii, m.lii.discharge, m.q).sol(True) == pytest.approx(
-        [0.0, 0.0, 27.160493827160487, 0.0], rel=1e-9
-    )
-    assert m.expend(m.wind, m.wf, m.y).sol(True) == pytest.approx(
+    assert m.expend(m.power.lii, m.lii.discharge.operate, m.q).sol(
+        True
+    ) == pytest.approx([0.0, 0.0, 27.160493827160423, 0.0], rel=1e-9)
+    assert m.expend(m.wind, m.wf.operate, m.y).sol(True) == pytest.approx(
         [311.94444444444446], rel=1e-9
     )
-    assert m.expend(m.solar, m.pv, m.q).sol(True) == pytest.approx(
-        [41.88271604938263, 88.88888888888889, 100.0, 0.0], rel=1e-9
+    assert m.expend(m.solar, m.pv.operate, m.q).sol(True) == pytest.approx(
+        [41.882716049382566, 88.88888888888889, 100.0, 0.0], rel=1e-9
     )
     assert m.inventory.sol(True) == pytest.approx(
-        [6.882716049382658, 27.160493827160487, 0.0, 0.0], rel=1e-9
+        [34.04320987654302, 6.882716049382594, 27.160493827160423, 0.0, 0.0], rel=1e-9
     )

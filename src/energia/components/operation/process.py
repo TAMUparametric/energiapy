@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import re
 from typing import TYPE_CHECKING
 
 from ...modeling.parameters.conversion import Conv
@@ -96,6 +97,11 @@ class Process(_Operation):
 
             if not time in self.model.grb[res][loc]:
                 self.model.update_grb(resource=res, space=loc, time=time)
+
+            if res.inv_of:
+                # for inventoried resources, the conversion is written
+                # using the time of the base resource's grb
+                res = res.inv_of
 
             times = list(
                 [t for t in self.model.grb[res][loc] if self.model.grb[res][loc][t]]

@@ -10,11 +10,17 @@ from typing import Self
 
 from ...core.component import Component
 from ...modeling.parameters.conversion import Conv
-from ...modeling.variables.default import Free, Produce, Stock, Trade, Utilize
+from ...modeling.variables.default import (
+    Free,
+    Produce,
+    Trade,
+    Utilize,
+    Inventory,
+)
 
 
 @dataclass
-class Resource(Component, Trade, Produce, Utilize, Free, Stock):
+class Resource(Component, Trade, Produce, Utilize, Free, Inventory):
     """A resource, can be a material, chemical, energy, etc.
 
     Args:
@@ -35,7 +41,11 @@ class Resource(Component, Trade, Produce, Utilize, Free, Stock):
         Component.__post_init__(self)
 
         # base resource, if any in conversion
-        self.base: Resource = None
+        self.inv_of: Resource = None
+
+        # resource in its stored form
+        self.in_inv: list[Resource] = []
+
         # list of conversions associated with the resource
         self.conversions: list[Conv] = []
 

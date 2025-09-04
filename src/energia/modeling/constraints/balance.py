@@ -41,17 +41,11 @@ class Balance(_Generator):
 
     def __post_init__(self):
 
-        if self.domain.lag:
-            return
-
         # this is the disposition of the variable to be mapped
         # through time and space
-        resource, time, space, binds = (
-            self.domain.resource,
-            self.domain.period,
-            self.domain.space,
-            self.domain.binds,
-        )
+        resource = self.domain.resource
+        binds = self.domain.binds
+        time = self.domain.time
 
         if self.domain.link:
             if self.aspect.sign == -1:
@@ -74,7 +68,7 @@ class Balance(_Generator):
             # this is only used if times are being declared dynamically (based on parameter set sizes)
             self.model.update_grb(resource=resource, time=time, space=loc)
 
-        if not binds:
+        if not binds and resource:
             # if no binds, then create GRB or append to exisiting GRB
             # writecons_grb will figure it out
             self.writecons_grb(resource, loc, time)
@@ -117,65 +111,6 @@ class Balance(_Generator):
     def writecons_grb(self, resource, loc, time):
         """Writes the stream balance constraint"""
 
-        # if self.domain.lag:
-        #     return
-
-        # resource = self.domain.resource
-
-        # space = self.domain.space
-
-        # if self.domain.link:
-        #     if self.aspect.sign == -1:
-        #         loc = self.domain.link.source
-
-        #     else:
-        #         loc = self.domain.link.sink
-        # else:
-        #     loc = self.domain.loc
-
-        # time = self.domain.time
-
-        # # if no time is provided, take a default period
-        # if time is None:
-        #     time = self.model.default_period()
-
-        # if not resource in self.grb:
-        #     self.model.update_grb(resource, space=loc, time=time)
-
-        # if not self.aspect.create_grb:
-        #     # if a general resource balance is not to be created
-        #     # The stream will be mapped to existing balances
-        #     spaces = [
-        #         space
-        #         for space, t_resource in self.grb[resource].items()
-        #         if any(
-        #             [self.grb[resource][space][t] for t in self.grb[resource][space]]
-        #         )
-        #         and self.domain.space in space
-        #     ]
-
-        #     times = sum(
-        #         [
-        #             [
-        #                 time
-        #                 for time, truth in self.grb[resource][space].items()
-        #                 if truth and time < self.domain.time
-        #             ]
-        #             for space in spaces
-        #         ],
-        #         [],
-        #     )
-
-        #     space_map, time_map = True, True
-
-        # else:
-        #     spaces = [loc]
-        #     times = [time]
-
-        #     space_map, time_map = False, False
-
-        # for loc, time in product(spaces, times):
-
         _name = f'{resource}_{loc}_{time}_grb'
 
         # ---- initialize GRB for resource if necessary -----
@@ -198,25 +133,33 @@ class Balance(_Generator):
             # if not defined, start a new constraint
             if self.domain.operation:
                 print(
-                    f'--- General Resource Balance for {resource} in ({loc}, {time}): initializing constraint , adding {self.aspect} from {self.domain.operation}'
+                    f'--- General Resource Balance for {resource} in ({loc}, {time}): initializing constraint, adding {self.aspect} from {self.domain.operation}'
                 )
 
             else:
                 print(
-                    f'--- General Resource Balance for {resource} in ({loc}, {time}): initializing constraint , adding {self.aspect}'
+                    f'--- General Resource Balance for {resource} in ({loc}, {time}): initializing constraint, adding {self.aspect}'
                 )
 
-            if self.aspect.ispos:  # or _signs[n]:
-                cons = self(*self.domain).V() == 0
-            else:
-                cons = -self(*self.domain).V() == 0
+            if resource.inv_of and self.aspect.name == 'inventory':
+                if len(time) == 1:
+                    return
+                # if inventory is being add to GRB
+                lagged_domain = self.domain.change({'lag': -1 * time, 'period': None})
 
-            cons.categorize('General Resource Balance')
+                cons_grb = -self(*self.domain).V() + self(*lagged_domain).V() == 0
+            else:
+                if self.aspect.ispos:  # or _signs[n]:
+                    cons_grb = self(*self.domain).V() == 0
+                else:
+                    cons_grb = -self(*self.domain).V() == 0
+
+            cons_grb.categorize('General Resource Balance')
 
             setattr(
                 self.program,
                 _name,
-                cons,
+                cons_grb,
             )
 
             # updates the constraints in all indices of self.domain
@@ -243,27 +186,31 @@ class Balance(_Generator):
             # grab the constraint from the program
             cons_grb = getattr(self.program, _name)
 
-            # if space_map:
-            #     v_bal = self.give_sum()
-            # else:
-            #     v_bal = self(*self.domain).V()
+            if resource.in_inv and self.aspect.name == 'inventory':
+                # if inventory is being add to GRB
+                lagged_domain = self.domain.change({'lag': -1 * time, 'period': None})
 
-            # if time_map:
-            #     v_bal = self.give_sum(mapped=v_bal, tsum=True)
-
-            # update the constraint
-            if self.aspect.ispos:
                 setattr(
                     self.program,
                     _name,
-                    cons_grb + self(*self.domain).V(),
+                    cons_grb + self(*lagged_domain).V() - self(*self.domain).V(),
                 )
+
             else:
-                setattr(
-                    self.program,
-                    _name,
-                    cons_grb - self(*self.domain).V(),
-                )
+
+                # update the constraint
+                if self.aspect.ispos:
+                    setattr(
+                        self.program,
+                        _name,
+                        cons_grb + self(*self.domain).V(),
+                    )
+                else:
+                    setattr(
+                        self.program,
+                        _name,
+                        cons_grb - self(*self.domain).V(),
+                    )
 
             # updates the constraints in all the indices of self.domain
             self.domain.update_cons(_name)
@@ -274,11 +221,12 @@ class Balance(_Generator):
         else:
             # ---- add aspect to GRB if not added already ----
 
-            if resource.base and self.grb[resource.base][loc][time]:
-                # if the resource has a base, it is also bound at the same scale
-                # this is used for stored resources, which are bound at the same scale as their base
+            # if resource.base and self.grb[resource.base][loc][time]:
+            #     # if the resource has a base, it is also bound at the same scale
+            #     # this is used for stored resources, which are bound at the same scale as their base
 
-                self.writecons_grb(resource.base, loc, time)
+            #     self.writecons_grb(resource.base, loc, time)
+            #     self.writecons_grb(resource, loc, -1 * time)
 
             # check if the resource is bound at a spatial index of a lower order
             if not self.domain.link and loc.isin:

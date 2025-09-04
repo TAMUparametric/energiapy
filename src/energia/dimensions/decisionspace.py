@@ -93,7 +93,8 @@ class DecisionSpace:
 
         # increases the inventory capacity of an operation
         self.invsetup = Control(
-            types_opr=(Storage,),
+            types_res=Resource,
+            # types_opr=(Storage,),
             label='Capacitate Inventory',
             latex=r'{cap}^{S+}',
         )
@@ -107,7 +108,7 @@ class DecisionSpace:
         # inventory capacity
         self.invcapacity = State(
             types_res=Resource,
-            types_opr=Storage,
+            # types_opr=Storage,
             label='Inventory Capacity',
             latex=r'{cap}^{S}',
         )

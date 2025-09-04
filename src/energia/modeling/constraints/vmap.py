@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from gana import sigma
+from operator import is_
 
 from ._generator import _Generator
 
@@ -139,6 +140,26 @@ class Map(_Generator):
                     self.domain,
                     self.domain.change({'loc': parent_location}),
                 )
+
+            if not self.domain.binds and dispositions[space][time]:
+                # if the current variable being declared has no binds
+                # but the aspect has already been defined at this location and time with binds
+                # there is a need to map from the defined binds to no binds
+                # get list of domains of the aspect
+                domains = [
+                    d
+                    for d in self.aspect.domains
+                    if is_(d.primary, self.domain.primary)
+                    and is_(d.space, space)
+                    and is_(d.period, time)
+                    and d.binds
+                ]
+
+                for domain in domains:
+                    self.writecons_map(
+                        domain,
+                        self.domain,
+                    )
 
     @property
     def maps(self) -> list[str]:
