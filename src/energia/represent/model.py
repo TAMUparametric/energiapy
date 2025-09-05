@@ -38,6 +38,13 @@ if TYPE_CHECKING:
 class Model(DecisionSpace, _Init):
     """An abstract representation of an energy system
 
+    Args:
+        name (str) = m 
+        default (bool): True if want some default objects to be declared
+        capacitate (bool): True if want to determine process capacities to bound operations
+
+    
+
     Attributes:
         name (str): Name of the Model
         default (bool): True if want some default objects to be declared
@@ -60,6 +67,7 @@ class Model(DecisionSpace, _Init):
 
     name: str = 'm'
     default: bool = True
+    capacitate: bool = False
 
     def __post_init__(self):
 
@@ -122,6 +130,7 @@ class Model(DecisionSpace, _Init):
 
         # introduce the dimensions of the model
         DecisionSpace.__post_init__(self)
+        
 
     def update(
         self,

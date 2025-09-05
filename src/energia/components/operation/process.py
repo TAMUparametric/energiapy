@@ -47,13 +47,15 @@ class Process(_Operation):
                 l_t[0] for l_t in self.tree.capacitated_at[self]
             ]:
                 # The model could be an only scheduling model
-                # if not self.d self.tree.operated_at:
-                # if the process is not capacitated at the location and time
-                print(
-                    f'--- Assuming  {self} capacity is unbounded in ({loc}, {self.horizon})'
-                )
-                # this is not a check, this generates a constraint
-                _ = self.capacity(loc, self.horizon) == True
+                if self.tree.capacitated_at:
+                    # The model could be an only scheduling model
+                    # if not self.d self.tree.operated_at:
+                    # if the process is not capacitated at the location and time
+                    print(
+                        f'--- Assuming  {self} capacity is unbounded in ({loc}, {self.horizon})'
+                    )
+                    # this is not a check, this generates a constraint
+                    _ = self.capacity(loc, self.horizon) == True
 
             # now that the process has been capacitated at the location
             # check if it is being operated at the location

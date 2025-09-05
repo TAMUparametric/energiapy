@@ -527,7 +527,13 @@ class Bind(_Generator):
 
             # --------- Get RHS
 
-            if self.aspect.bound is not None:
+            if self.aspect.bound is not None and (
+                self.model.capacitate
+                or (
+                    self.aspect.bound in self.dispositions
+                    and self.domain.primary in self.dispositions[self.aspect.bound]
+                )
+            ):
                 # --------- if variable bound
                 if self.report:
                     # --------- if variable bound and reported
