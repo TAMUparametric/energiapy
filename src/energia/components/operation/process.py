@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-import re
 from typing import TYPE_CHECKING
 
 from ...modeling.parameters.conversion import Conv
@@ -91,8 +90,14 @@ class Process(_Operation):
             # a lower temporal scale
 
             if not loc in self.model.grb[res]:
-                parent = self.space.split(loc)[1]
+                # if not defined for that location, check for a lower order location
+                # i.e. location at a lower hierarchy,
+                # e.g. say if loc being passed is a city, and a grb has not been defined for it
+                # then we need to check at a higher order 
+                parent = self.space.split(loc)[1] # get location at one hierarchy above 
                 if parent:
+                    # if that indeed exists, then make the parent the loc
+                    # the conversion Balance variables will feature in grb for parent location
                     loc = parent
 
                 self.model.update_grb(resource=res, space=loc, time=time)
@@ -120,7 +125,7 @@ class Process(_Operation):
             time = loc_time[1]
 
             if loc in self.locs:
-                # if the location is already balanced, skip
+                # if the process is already balanced for the location , Skip
 
                 continue
 

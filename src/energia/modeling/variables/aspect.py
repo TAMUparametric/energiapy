@@ -306,13 +306,13 @@ class Aspect(Name):
                     # dresource = comp.domain.resource
                     # dr_aspect = comp.aspect
 
-                # elif isinstance(comp, Aspect):
+                elif isinstance(comp, Aspect):
                 # if an Aspect is being passed, it has to be a bind aspect
-                # binds[comp] = {index[index.index(comp) + 1]: {}}
-                # if comp.Operation and not comp.Resource:
-                #     op_aspect = comp
-                # elif comp.Resource:
-                #     dr_aspect = comp
+                    binds[comp] = {index[index.index(comp) + 1]: {}}
+                    if comp.Operation and not comp.Resource:
+                        op_aspect = comp
+                    elif comp.Resource:
+                        dr_aspect = comp
 
                 # elif isinstance(comp, I):
                 #     if comp.name == 'locs':
@@ -321,7 +321,7 @@ class Aspect(Name):
 
                 else:
                     raise ValueError(
-                        f'{self}:{comp} of type {type(comp)} not recognized as an index'
+                        f'For component {self} of type {type(self)}: {comp} of type {type(comp)} not recognized as an index'
                     )
 
             domain = Domain(

@@ -11,13 +11,13 @@ def m():
     _m.declare(Resource, ['power', 'wind', 'solar'])
     _m.solar.consume(_m.q) <= 100
     _m.wind.consume <= 400
-    _m.power.release.preprocess(180) >= [0.6, 0.7, 0.8, 0.3]
+    _m.power.release.prep(180) >= [0.6, 0.7, 0.8, 0.3]
 
     _m.wf = Process()
     _m.wf(_m.power) == -1 * _m.wind
     _m.wf.capacity.x <= 100
     _m.wf.capacity.x >= 10
-    _m.wf.operate.preprocess(norm=True) <= [0.9, 0.8, 0.5, 0.7]
+    _m.wf.operate.prep(norm=True) <= [0.9, 0.8, 0.5, 0.7]
     _m.wf.capacity[_m.usd.spend] == 990637 + 3354
     _m.wf.operate[_m.usd.spend] == 49
 
@@ -25,7 +25,7 @@ def m():
     _m.pv(_m.power) == -1 * _m.solar
     _m.pv.capacity.x <= 100
     _m.pv.capacity.x >= 10
-    _m.pv.operate.preprocess(norm=True) <= [0.6, 0.8, 0.9, 0.7]
+    _m.pv.operate.prep(norm=True) <= [0.6, 0.8, 0.9, 0.7]
     _m.pv.capacity[_m.usd.spend] == 567000 + 872046
     _m.pv.operate[_m.usd.spend] == 90000
 

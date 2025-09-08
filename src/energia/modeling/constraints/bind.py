@@ -440,7 +440,7 @@ class Bind(_Generator):
         bmax = -self.program.obj()
         return (bmin, bmax)
 
-    def preprocess(self, nominal: float = 1, norm: bool = True) -> Self:
+    def prep(self, nominal: float = 1, norm: bool = True) -> Self:
         """Nominal value
         Args:
             value (float): Nominal value to multiply with bounds
@@ -650,7 +650,7 @@ class Bind(_Generator):
         return FBind(F=other * self.F, program=self.program)
 
     def __call__(self, *index):
-        index = list(set(self.index + list(index)))
+        index = list(set(self.domain.index_primary + self.domain.binds + list(index)))
         v = self.aspect(*index)
         v.report = self.report
         return v

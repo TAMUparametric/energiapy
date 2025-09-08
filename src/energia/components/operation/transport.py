@@ -70,26 +70,77 @@ class Transport(_Operation):
 
         self.conv.balancer()
 
-        def time_checker(res: Resource, link: Link, time: Period):
+        def time_checker(res: Resource, loc: Loc, time: Period):
             """This checks if it is actually necessary
             to write conversion at denser temporal scales
             """
-
             # This checks whether some other aspect is defined at
             # a lower temporal scale
-            if (
-                self.model.grb[res][link.source][time]
-                or self.model.grb[res][link.sink][time]
-            ):
-                return time
-            else:
-                return time.horizon
+
+            if not loc in self.model.grb[res]:
+                # if not defined for that location, check for a lower order location
+                # i.e. location at a lower hierarchy,
+                # e.g. say if loc being passed is a city, and a grb has not been defined for it
+                # then we need to check at a higher order
+                parent = self.space.split(loc)[1]  # get location at one hierarchy above
+                if parent:
+                    # if that indeed exists, then make the parent the loc
+                    # the conversion Balance variables will feature in grb for parent location
+                    loc = parent
+
+                self.model.update_grb(resource=res, space=loc, time=time)
+
+            if not time in self.model.grb[res][loc]:
+                self.model.update_grb(resource=res, space=loc, time=time)
+
+            if res.inv_of:
+                # for inventoried resources, the conversion is written
+                # using the time of the base resource's grb
+                res = res.inv_of
+
+            times = list(
+                [t for t in self.model.grb[res][loc] if self.model.grb[res][loc][t]]
+            )
+            # write the conversion balance at
+            # densest temporal scale in that space
+            if times:
+                return min(times)
+
+            return time.horizon
+
+        # def time_checker(res: Resource, loc: Loc, time: Period):
+        #     """This checks if it is actually necessary
+        #     to write conversion at denser temporal scales
+        #     """
+
+        #     # This checks whether some other aspect is defined at
+        #     # a lower temporal scale
+
+        #     if not link.source in self.model.grb[res]:
+        #         # if not defined for that location, check for a lower order location
+        #         # i.e. location at a lower hierarchy,
+        #         # e.g. say if loc being passed is a city, and a grb has not been defined for it
+        #         # then we need to check at a higher order
+        #         parent = self.space.split(link.source)[1]  # get location at one hierarchy above
+        #         if parent:
+        #             # if that indeed exists, then make the parent the loc
+        #             # the conversion Balance variables will feature in grb for parent location
+        #             link.source = parent
+
+        #     if (
+        #         self.model.grb[res][link.source][time]
+        #         or self.model.grb[res][link.sink][time]
+        #     ):
+        #         return time
+        #     else:
+        #         return time.horizon
 
         for link_time in link_times:
             link, time = link_time
             # time = link_time[1]
 
             if link in self.links:
+                # if the transport is already balanced for the location , Skip
                 continue
 
             for res, par in self.conversion.items():
@@ -104,7 +155,7 @@ class Transport(_Operation):
                 # insitu resource (expended and ship_outed within the system)
                 # do not initiate a grb so we need to run a check for that first
                 if res in self.model.grb:
-                    time = time_checker(res, link, time)
+                    # time = time_checker(res, link, time)
                     _insitu = False
                 else:
                     # this implies that the grb needs to be initiated
@@ -122,7 +173,7 @@ class Transport(_Operation):
                         rhs = self.model.expend(res, self, link.source, self.lag.of)
                         lhs = self.model.operate(self, link, self.lag.of)
                     else:
-                        rhs = self.model.expend(res, link.source, self, time)
+                        rhs = self.model.expend(res, link.source, self, time_checker(res, link.source, time))
                         lhs = self.model.operate(self, link, time)
 
                     upd_expend, upd_operate = True, True
@@ -132,10 +183,11 @@ class Transport(_Operation):
                     eff = [-i for i in par]
 
                     if self.lag:
-                        rhs = self.model.expend(res, self, link.source, self.lag.of)
+                        rhs = self.model.expend(res, self.operate, link.source, self.lag.of)
                         lhs = self.model.operate(self, link, self.lag.of)
                     else:
-                        rhs = self.model.expend(res, self, link.source, time)
+
+                        rhs = self.model.expend(res, self.operate, link.source, time_checker(res, link.source, time))
                         lhs = self.model.operate(self, link, time)
                     upd_expend, upd_operate = True, True
 
@@ -145,15 +197,15 @@ class Transport(_Operation):
 
                     if self.lag:
                         rhs_export = self.model.ship_out(
-                            res, self, link.source, self.lag.of
+                            res, self.operate, link.source, self.lag.of
                         )
                         rhs_import = self.model.ship_in(
-                            res, self, link.sink, self.lag.of
+                            res, self.operate, link.sink, self.lag
                         )
-                        lhs = self.model.operate(self, link, self.lag)
+                        lhs = self.model.operate(self, link, self.lag.of)
                     else:
-                        rhs_export = self.model.ship_out(res, self, link, time)
-                        rhs_import = self.model.ship_in(res, self, link, time)
+                        rhs_export = self.model.ship_out(res, self, link.source, time_checker(res, link.source, time))
+                        rhs_import = self.model.ship_in(res, self, link.sink, time_checker(res, link.sink, time))
                         lhs = self.model.operate(self, link, time)
                     upd_operate, upd_ship = True, True
 
@@ -218,8 +270,11 @@ class Transport(_Operation):
                     cons_name = f'operate_{res}_{self}_{link}_{time}_bal'.replace(
                         '-', '_'
                     )
+                    cons = v_rhs == (1 / eff) * v_lhs
 
-                    setattr(self.program, cons_name, v_lhs - eff * v_rhs == 0)
+                    cons.categorize('Flow')
+
+                    setattr(self.program, cons_name, cons)
 
                     dom.update_cons(cons_name)
                     if upd_expend:
@@ -228,7 +283,7 @@ class Transport(_Operation):
                         self.model.ship_out.constraints.append(cons_name)
                     if upd_operate:
                         self.model.operate.constraints.append(cons_name)
-            self.links.append(link)
+                self.links.append(link)
 
     def __call__(self, resource: Resource | Conv):
         """Conversion is called with a Resource to be converted"""
