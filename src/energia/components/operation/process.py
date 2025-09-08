@@ -93,8 +93,8 @@ class Process(_Operation):
                 # if not defined for that location, check for a lower order location
                 # i.e. location at a lower hierarchy,
                 # e.g. say if loc being passed is a city, and a grb has not been defined for it
-                # then we need to check at a higher order 
-                parent = self.space.split(loc)[1] # get location at one hierarchy above 
+                # then we need to check at a higher order
+                parent = self.space.split(loc)[1]  # get location at one hierarchy above
                 if parent:
                     # if that indeed exists, then make the parent the loc
                     # the conversion Balance variables will feature in grb for parent location

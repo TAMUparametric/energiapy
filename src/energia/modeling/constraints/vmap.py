@@ -214,6 +214,8 @@ class Map(_Generator):
 
             v_lower = self(*to_domain).V()
 
+            print('eeeee', self.give_sum(domain=from_domain, tsum=tsum))
+
             # write the constraint
             cons: C = v_lower == self.give_sum(domain=from_domain, tsum=tsum)
 

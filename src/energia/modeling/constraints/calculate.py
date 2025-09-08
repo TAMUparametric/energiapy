@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Self
 
 from ..parameters.value import Value
+from ...utils.math import normalize
 
 if TYPE_CHECKING:
     from gana.block.program import Prg
@@ -46,6 +47,12 @@ class Calculate:
         self.index = calculation.index
         self._forall: list[X] = []
 
+        # if nominal is provided
+        # and multiplied by the nominal value
+        self._nominal: float = None
+        # the input argument is normalized if True
+        self._normalize: bool = False
+
     @property
     def model(self) -> Model:
         """Model to which the Calc belongs"""
@@ -54,6 +61,16 @@ class Calculate:
     def forall(self, index) -> Self:
         """Write the constraint for all indices in the index set"""
         self._forall = index
+        return self
+
+    def prep(self, nominal: float = 1, norm: bool = True) -> Self:
+        """Nominal value
+        Args:
+            value (float): Nominal value to multiply with bounds
+            norm (bool): If the input argument (bounds) are normalized, defaults to True
+        """
+        self._nominal = nominal
+        self._normalize = norm
         return self
 
     def __call__(self, *index) -> Self:
@@ -72,6 +89,26 @@ class Calculate:
         )
 
     def __eq__(self, other):
+
+        if self._nominal:
+            if self._normalize:
+                other = [
+                    (
+                        (self._nominal * i[0], self._nominal * i[1])
+                        if isinstance(i, tuple)
+                        else self._nominal * i
+                    )
+                    for i in normalize(other)
+                ]
+            else:
+                other = [
+                    (
+                        (self._nominal * i[0], self._nominal * i[1])
+                        if isinstance(i, tuple)
+                        else self._nominal * i
+                    )
+                    for i in other
+                ]
 
         if isinstance(other, Value):
             time = other.period

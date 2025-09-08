@@ -6,8 +6,8 @@ from dataclasses import dataclass
 from re import S
 from typing import TYPE_CHECKING, Self, Literal
 
-from gana.operations.composition import inf, sup
-from gana.operations.operators import sigma
+from gana.operators.composition import inf, sup
+from gana.operators.sigma import sigma
 from gana.sets.function import F
 from gana.sets.index import I
 from gana.sets.variable import V
