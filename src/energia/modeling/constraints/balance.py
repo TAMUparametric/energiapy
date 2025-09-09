@@ -77,13 +77,13 @@ class Balance(_Generator):
             # if there are binds
             if self.grb[resource][loc][time]:
 
-                # we need to still check if this is this is an insitu (e.g. a storage resource)
-                # these do not get their own GRB, as they are only utilized within a process
-                if not resource.inv_of:
+                # # we need to still check if this is this is an insitu (e.g. a storage resource)
+                # # these do not get their own GRB, as they are only utilized within a process
+                # if not resource.inv_of:
 
-                    # if there is already a GRB existing
-                    # add the bind to the GRB at the same scale
-                    self.writecons_grb(resource, loc, time)
+                # if there is already a GRB existing
+                # add the bind to the GRB at the same scale
+                self.writecons_grb(resource, loc, time)
 
     @property
     def mapped_to(self) -> list[Domain]:
