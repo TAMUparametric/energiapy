@@ -204,6 +204,7 @@ class Bind(_Generator):
         # if a reporting binary variable is needed
         if report:
             # these are basically named using a breve over the variable name or latex name
+
             if self.aspect.latex:
                 ltx = r'{\breve{' + self.aspect.latex + r'}}'
             else:

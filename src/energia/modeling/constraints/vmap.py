@@ -8,6 +8,8 @@ from typing import TYPE_CHECKING
 from gana import sigma
 from operator import is_
 
+import time as keep_time
+
 from ._generator import _Generator
 
 if TYPE_CHECKING:
@@ -82,12 +84,14 @@ class Map(_Generator):
         # this will lead to adding twice. India = Goa + Madgaon + Ponje (WRONG)
         # We scale only one level up
 
+        # DONOT map across all periods, only to from the densest which is given by .of
         if space in dispositions and time in dispositions[space]:
             # the aspect is already defined at this location
             # we need to check if it is defined for any periods sparser than time
             for sparser_period in sparser_periods:
-                if sparser_period in dispositions[space]:
-
+                if sparser_period in dispositions[space] and is_(
+                    sparser_period.of, time
+                ):
                     # check if the aspect has been defined for a sparser period
                     # this creates a map from this domain to a sparser domain
                     self.writecons_map(
@@ -97,7 +101,7 @@ class Map(_Generator):
                     )
 
             for denser_period in denser_periods:
-                if denser_period in dispositions[space]:
+                if denser_period in dispositions[space] and is_(time.of, denser_period):
 
                     # create a new domain to map from
                     domain_from = self.domain.copy()
@@ -197,6 +201,7 @@ class Map(_Generator):
         if _name in self.maps:
 
             print(f'--- Mapping {self.aspect}: from {from_domain} to {to_domain}')
+            start = keep_time.time()
 
             cons_existing: C = getattr(self.program, _name)
             # update the existing constraint
@@ -206,11 +211,16 @@ class Map(_Generator):
                 cons_existing - self.give_sum(domain=from_domain, tsum=tsum),
             )
 
+            end = keep_time.time()
+            print(f'    Completed in {end-start} seconds')
+
         else:
 
             print(
                 f'--- Creating map to {to_domain}. Mapping {self.aspect}: from {from_domain} to {to_domain}'
             )
+
+            start = keep_time.time()
 
             v_lower = self(*to_domain).V()
 
@@ -228,6 +238,9 @@ class Map(_Generator):
                 _name,
                 cons,
             )
+
+            end = keep_time.time()
+            print(f'    Completed in {end-start} seconds')
 
             self.aspect.constraints.append(_name)
 
