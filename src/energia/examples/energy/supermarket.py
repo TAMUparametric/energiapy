@@ -2,7 +2,7 @@
 
 from ...represent.model import Model
 from ...components.commodity.resource import Resource
-from ...components.commodity.misc import Cash
+from ...components.commodity.misc import Currency
 from ...components.operation.process import Process
 from ...components.measure.unit import Unit
 from ...components.spatial.location import Location
@@ -76,7 +76,7 @@ def supermarket():
 
     # Resources can be declared along with thier attributes such as maximum allowed consumption, dischargeablity, base price, etc.
 
-    m.usd = Cash(label='$')
+    m.usd = Currency(label='$')
 
     m.biomass = Resource(basis=m.GJ, label='Biomass')
     m.biomass.consume == True

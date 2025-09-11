@@ -12,7 +12,7 @@ from .linkage import Linkage
 
 if TYPE_CHECKING:
     from ...dimensions.space import Space
-    from ..commodity.misc import Cash
+    from ..commodity.misc import Currency
     from ..operation.process import Process
     from ..operation.storage import Storage
 
@@ -33,7 +33,7 @@ class Location(X):
         # if the location is a part of another
         self.isin = None
         # the currency used in the location
-        self.currency: Cash = None
+        self.currency: Currency = None
         # goes down another level of hierarchy
         # to find locations within the locations contained in this location
         self.alsohas: tuple[Self] = ()

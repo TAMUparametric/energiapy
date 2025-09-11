@@ -12,7 +12,7 @@
 
 from ...represent.model import Model
 from ...components.commodity.resource import Resource
-from ...components.commodity.misc import Cash
+from ...components.commodity.misc import Currency
 from ...components.operation.process import Process
 from ...components.temporal.period import Period
 
@@ -44,7 +44,7 @@ def scheduling():
     #
     # In the Resource Task Network (RTN) methodology all commodities are resources. In this case, we have a few general resources (wind, power) and a monetary resource (USD).
 
-    m.usd = Cash()
+    m.usd = Currency()
     m.power, m.wind = Resource(), Resource()
 
     # ### Setting Bounds

@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Literal
 
-from ..components.commodity.misc import Cash, Emission, Land, Material
+from ..components.commodity.misc import Currency, Emission, Land, Material
 from ..components.impact.indicator import Indicator
 from ..components.commodity.resource import Resource
 from ..components.operation.transport import Transport
@@ -362,7 +362,7 @@ class _System:
         return self.system.materials
 
     @property
-    def currencies(self) -> list[Cash]:
+    def currencies(self) -> list[Currency]:
         """The Currencies"""
         return self.system.currencies
 

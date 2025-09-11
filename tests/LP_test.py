@@ -1,6 +1,6 @@
 import pytest
 
-# from energia import Cash, Model, Period, Process, Resource
+# from energia import Currency, Model, Period, Process, Resource
 
 from energia.examples.energy.scheduling import scheduling
 

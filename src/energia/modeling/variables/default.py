@@ -146,7 +146,7 @@ class Trade(Get):
 
 
 class Transact(Get):
-    """Exchange Cash with another Player"""
+    """Exchange Currency with another Player"""
 
     @property
     def earn(self):

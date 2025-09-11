@@ -1,6 +1,6 @@
 """Energia Imports"""
 
-from .components.commodity.misc import Cash, Land, Material
+from .components.commodity.misc import Currency, Land, Material
 from .components.commodity.resource import Resource
 from .components.game.player import Player
 from .components.impact.categories import Economic, Environ, Social
@@ -14,7 +14,7 @@ from .components.temporal.period import Period
 from .represent.model import Model
 
 __all__ = [
-    "Cash",
+    "Currency",
     "Economic",
     "Environ",
     "Land",

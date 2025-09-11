@@ -1,7 +1,7 @@
 """Design and scheduling example"""
 
 from ...represent.model import Model
-from ...components.commodity.misc import Cash
+from ...components.commodity.misc import Currency
 from ...components.temporal.period import Period
 from ...components.commodity.resource import Resource
 from ...components.operation.process import Process
@@ -13,7 +13,7 @@ def design_scheduling():
     m = Model('design_scheduling')
     m.q = Period()
     m.y = 4 * m.q
-    m.usd = Cash()
+    m.usd = Currency()
     m.declare(Resource, ['power', 'wind', 'solar'])
     m.solar.consume(m.q) <= 100
     m.wind.consume <= 400
@@ -36,7 +36,7 @@ def design_scheduling():
     m.pv.operate[m.usd.spend] == 90000
 
     m.lii = Storage()
-    m.lii(m.power) == 1/0.9
+    m.lii(m.power) == 1 / 0.9
     m.lii.capacity.x <= 100
     m.lii.capacity.x >= 10
     m.lii.capacity[m.usd.spend] == 1302182 + 41432

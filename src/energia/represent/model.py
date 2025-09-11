@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Type
 
 from dill import dump
 
-from ..components.commodity.misc import Cash, Emission, Land, Material
+from ..components.commodity.misc import Currency, Emission, Land, Material
 from ..components.commodity.resource import Resource
 from ..components.game.player import Player
 from ..components.impact.categories import Economic, Environ, Social
@@ -25,6 +25,7 @@ from ..modeling.variables.control import Control
 from ..modeling.variables.impact import Impact
 from ..modeling.variables.state import State
 from ..modeling.variables.stream import Stream
+from .library import Library
 from .blocks import _Init
 
 if TYPE_CHECKING:
@@ -35,7 +36,7 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class Model(DecisionSpace, _Init):
+class Model(DecisionSpace, _Init, Library):
     """An abstract representation of an energy system
 
     Args:
@@ -85,7 +86,7 @@ class Model(DecisionSpace, _Init):
         # 1. Commodity (Resource) of any kind
         # 2. Emission (Emission) resource
         # 3. Land (Land) resource
-        # 4. Money (Cash)
+        # 4. Money (Currency)
         # 5. Material (Material) used to setup processes
         # 6. etc. societal (Jobs), etc (Etc).
         # IV Operations (System):
@@ -111,7 +112,7 @@ class Model(DecisionSpace, _Init):
             Storage: [('system', 'storages')],
             Transport: [('system', 'transits')],
             Player: [('tree', 'players')],
-            Cash: [('system', 'currencies', True)],
+            Currency: [('system', 'currencies', True)],
             Land: [('system', 'lands', True)],
             Emission: [('system', 'emissions', True)],
             Material: [('system', 'materials', True)],
@@ -241,9 +242,9 @@ class Model(DecisionSpace, _Init):
                 setattr(self, rev.name, rev)
 
         elif isinstance(value, Conv):
-            # Cash can be declared through their exchange with other Cash
-            if value.balance and isinstance(list(value.balance)[0], Cash):
-                cash, task = Cash(), Conv()
+            # Currency can be declared through their exchange with other Currency
+            if value.balance and isinstance(list(value.balance)[0], Currency):
+                cash, task = Currency(), Conv()
                 cash.name = name
                 task.name = list(value.balance)[0].name
                 task.balance = {cash: list(value.balance.values())[0]}

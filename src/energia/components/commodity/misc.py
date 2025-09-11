@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from ..spatial.location import Location
 
 
-class Cash(Resource, Transact):
+class Currency(Resource, Transact):
     """Same as Economic Impact (Eco)"""
 
     def __init__(self, *locs: Location, label: str = ''):
