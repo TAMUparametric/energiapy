@@ -256,13 +256,15 @@ class Model(DecisionSpace, _Init):
 
         super().__setattr__(name, value)
 
-    def show(self, descriptive: bool = False, categorical: bool = True, category: str = None):
+    def show(
+        self, descriptive: bool = False, categorical: bool = True, category: str = None
+    ):
         """Pretty print the Model"""
         self.program.show(descriptive, categorical=categorical, category=category)
 
-    def sol(self, slack: bool = True):
+    def sol(self, n_sol: int = 0, slack: bool = True):
         """Solution"""
-        return self.program.sol(slack)
+        return self.program.sol(n_sol=n_sol, slack=slack)
 
     def save(self, as_type: str = 'dill'):
         """Save the Model to a file"""
