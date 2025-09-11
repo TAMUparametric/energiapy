@@ -468,6 +468,11 @@ class _Program:
         """Indices"""
         return self.program.indices
 
+    @property
+    def objectives(self) -> list[C]:
+        """Objectives"""
+        return self.program.objectives
+
     # -------------------------------------
     #            Ordered Lists
     # -------------------------------------

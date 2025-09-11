@@ -42,9 +42,9 @@ class Process(_Operation):
         for loc in locs:
 
             if self not in self.model.capacity.bound_spaces:
-                self.model.capacity.bound_spaces[self] = []
+                self.model.capacity.bound_spaces[self] = {'ub': [], 'lb': []}
 
-            if loc not in self.model.capacity.bound_spaces[self]:
+            if loc not in self.model.capacity.bound_spaces[self]['ub']:
                 # check if operational capacity has been bound
                 print(
                     f'--- Assuming  {self} capacity is unbounded in ({loc}, {self.horizon})'
@@ -53,9 +53,9 @@ class Process(_Operation):
                 _ = self.capacity(loc, self.horizon) == True
 
             if self not in self.model.operate.bound_spaces:
-                self.model.operate.bound_spaces[self] = []
+                self.model.operate.bound_spaces[self] = {'ub': [], 'lb': []}
 
-            if loc not in self.model.operate.bound_spaces[self]:
+            if loc not in self.model.operate.bound_spaces[self]['ub']:
                 # check if operate has been bound
                 # if not just write opr_{pro, loc, horizon} <= capacity_{pro, loc, horizon}
                 print(
@@ -164,7 +164,10 @@ class Process(_Operation):
                 # do not initiate a grb so we need to run a check for that first
                 if res in self.model.grb:
                     time = time_checker(res, loc, time)
-                    _insitu = False
+                    if self.model.grb[res][loc][time]:
+                        _insitu = False
+                    else:
+                        _insitu = True
                 else:
                     # this implies that the grb needs to be initiated
                     # by declaring relevant variable
@@ -227,14 +230,14 @@ class Process(_Operation):
                 # else:
                 #     v_rhs = rhs.V(par, balanced=True)
 
-                v_lhs = opr.V(par)
+                v_opr = opr.V(par)
 
                 dom = rhs.domain
 
                 cons_name = f'operate{dom.idxname}_bal'
 
                 # cons = v_lhs - eff * v_rhs == 0
-                cons = v_rhs == (1 / eff) * v_lhs
+                cons = v_rhs == eff * v_opr
 
                 cons.categorize('Flow')
 

@@ -7,7 +7,6 @@ from energia.examples.energy.design_scheduling import design_scheduling
 def m():
     _m = design_scheduling()
     _m.usd.spend.opt()
-
     return _m
 
 

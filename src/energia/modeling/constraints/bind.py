@@ -191,7 +191,7 @@ class Bind(_Generator):
             space()
 
         if not self.domain.primary in self.aspect.bound_spaces:
-            self.aspect.bound_spaces[self.domain.primary] = []
+            self.aspect.bound_spaces[self.domain.primary] = {'ub': [], 'lb': []}
 
         if not self.timed:
             # if the temporal index is not passed
@@ -555,14 +555,17 @@ class Bind(_Generator):
                     # --------- if just parameter bound
                     rhs = other
 
-            # return if aspect already bound in space
-            if self.domain.space in self.aspect.bound_spaces[self.domain.primary]:
-                return
-            # else append new space
-            self.aspect.bound_spaces[self.domain.primary].append(self.domain.space)
-
             if rel == 'leq':
                 # Less than equal to
+                if (
+                    self.domain.space
+                    in self.aspect.bound_spaces[self.domain.primary]['ub']
+                ):
+                    # return if aspect already bound in space
+                    return
+                self.aspect.bound_spaces[self.domain.primary]['ub'].append(
+                    self.domain.space
+                )
                 cons: C = lhs <= rhs
                 rel = '_ub'
             elif rel == 'eq':
@@ -571,6 +574,15 @@ class Bind(_Generator):
                 rel = '_eq'
             elif rel == 'geq':
                 # Greater than equal to
+                if (
+                    self.domain.space
+                    in self.aspect.bound_spaces[self.domain.primary]['lb']
+                ):
+                    # return if aspect already bound in space
+                    return
+                self.aspect.bound_spaces[self.domain.primary]['lb'].append(
+                    self.domain.space
+                )
                 cons: C = lhs >= rhs
                 rel = '_lb'
             else:

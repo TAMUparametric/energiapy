@@ -76,13 +76,6 @@ class Calculate:
     def __call__(self, *index) -> Self:
         # update the index and return a Calc object
 
-        # _index = (
-        #     self.calculation.domain.index_primary
-        #     + self.calculation.domain.binds
-        #     + list(index)
-        # )
-
-        # print('aaa', _index)
 
         return Calculate(
             calculation=self.calculation(*index), decision=self.decision(*index)

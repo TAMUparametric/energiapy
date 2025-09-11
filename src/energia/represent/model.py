@@ -256,9 +256,9 @@ class Model(DecisionSpace, _Init):
 
         super().__setattr__(name, value)
 
-    def show(self, descriptive: bool = False, categorical: bool = True):
+    def show(self, descriptive: bool = False, categorical: bool = True, category: str = None):
         """Pretty print the Model"""
-        self.program.show(descriptive, categorical=categorical)
+        self.program.show(descriptive, categorical=categorical, category=category)
 
     def sol(self, slack: bool = True):
         """Solution"""

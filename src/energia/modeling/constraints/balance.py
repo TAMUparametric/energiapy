@@ -75,6 +75,13 @@ class Balance(_Generator):
 
         else:
             # if there are binds
+
+            if resource.insitu:
+                # if the resource is insitu that means that
+                # no external bounds have been defined
+                # a GRB is still needed
+                self.writecons_grb(resource, loc, time)
+
             if self.grb[resource][loc][time]:
 
                 # # we need to still check if this is this is an insitu (e.g. a storage resource)
