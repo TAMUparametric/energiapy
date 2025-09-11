@@ -77,16 +77,20 @@ class Balance(_Generator):
             # if there are binds
 
             if resource.insitu:
+                # # we need to still check if this is this is an insitu (e.g. a storage resource)
                 # if the resource is insitu that means that
                 # no external bounds have been defined
                 # a GRB is still needed
                 self.writecons_grb(resource, loc, time)
 
-            if self.grb[resource][loc][time]:
+            if (
+                self.grb[resource][loc][time]
+                and self.aspect(resource, loc, time)
+                not in self.grb[resource][loc][time]
+            ):
+                # for the second check, consider the case where
 
-                # # we need to still check if this is this is an insitu (e.g. a storage resource)
                 # # these do not get their own GRB, as they are only utilized within a process
-                # if not resource.inv_of:
 
                 # if there is already a GRB existing
                 # add the bind to the GRB at the same scale

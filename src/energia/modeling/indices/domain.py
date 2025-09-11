@@ -271,23 +271,6 @@ class Domain:
 
         return tree
 
-    # @property
-    # def bind_dict(self) -> dict[Aspect, X]:
-    #     """Dictionary of binds"""
-    #     return {i.aspect: i.domain.primary for i in self.binds}
-
-    # @property
-    # def bind_list(self) -> list[Aspect, X]:
-    #     """List of binds"""
-    #     _bind_list = []
-    #     tree = self.bind_dict.copy()
-
-    #     while tree:
-    #         ((k, v),) = tree.items()  # unpack the only key:value
-    #         _bind_list.append(k)
-    #         tree = v
-    #     return _bind_list
-    #     return [(k, v) for k, v in self.binds.items()]
 
     @property
     def aspects(self) -> list[Aspect]:

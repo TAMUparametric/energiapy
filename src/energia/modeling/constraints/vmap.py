@@ -165,6 +165,16 @@ class Map(_Generator):
                         self.domain,
                     )
 
+            if (
+                self.domain.primary in self.grb
+                and self.aspect(self.domain.primary, space, time)
+                in self.grb[self.domain.primary][space][time]
+            ):
+                # consider the case where overall consumption for water in some location and time is defined
+                # now user defines consumption due to using cement during construction
+                # we should have the constraint consume(water, goa, 2025) = consume(water, goa, 2025, use, cement)
+                self.writecons_map(self.domain, self.domain.change({'binds': []}))
+
     @property
     def maps(self) -> list[str]:
         """List of domains that the aspect has been mapped to"""
