@@ -19,7 +19,7 @@ if TYPE_CHECKING:
     from ...components.operation.process import Process
     from ...components.operation.storage import Storage
     from ...components.operation.transport import Transport
-    from ...components.spatial.linkage import Link
+    from ...components.spatial.linkage import Linkage
     from ...components.spatial.location import Location
     from ...components.temporal.period import Period
     from ...core.x import X

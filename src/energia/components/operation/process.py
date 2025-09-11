@@ -11,7 +11,7 @@ from ._operation import _Operation
 if TYPE_CHECKING:
     from ..commodity.resource import Resource
     from ..measure.unit import Unit
-    from ..spatial.linkage import Link
+    from ..spatial.linkage import Linkage
     from ..spatial.location import Location
     from ..temporal.lag import Lag
     from ..temporal.period import Period
@@ -41,32 +41,54 @@ class Process(_Operation):
         loc_times: list[tuple[Location, Period]] = []
         for loc in locs:
 
-            # check if the process has been capacitated at that location first
-            if not self in self.tree.capacitated_at or not loc in [
-                l_t[0] for l_t in self.tree.capacitated_at[self]
-            ]:
-                # The model could be an only scheduling model
-                if self.tree.capacitated_at:
-                    # The model could be an only scheduling model
-                    # if not self.d self.tree.operated_at:
-                    # if the process is not capacitated at the location and time
-                    print(
-                        f'--- Assuming  {self} capacity is unbounded in ({loc}, {self.horizon})'
-                    )
-                    # this is not a check, this generates a constraint
-                    _ = self.capacity(loc, self.horizon) == True
+            if self not in self.model.capacity.bound_spaces:
+                self.model.capacity.bound_spaces[self] = []
 
-            # now that the process has been capacitated at the location
-            # check if it is being operated at the location
+            if loc not in self.model.capacity.bound_spaces[self]:
+                # check if operational capacity has been bound
+                print(
+                    f'--- Assuming  {self} capacity is unbounded in ({loc}, {self.horizon})'
+                )
+                # this is not a check, this generates a constraint
+                _ = self.capacity(loc, self.horizon) == True
 
-            if not self in self.tree.operated_at or not loc in [
-                l_t[0] for l_t in self.tree.operated_at[self]
-            ]:
+            if self not in self.model.operate.bound_spaces:
+                self.model.operate.bound_spaces[self] = []
+
+            if loc not in self.model.operate.bound_spaces[self]:
+                # check if operate has been bound
                 # if not just write opr_{pro, loc, horizon} <= capacity_{pro, loc, horizon}
                 print(
                     f'--- Assuming operation of {self} is bound by capacity in ({loc}, {self.horizon})'
                 )
                 _ = self.operate(loc, self.horizon) <= 1
+
+            # # check if the process has been capacitated at that location first
+            # if not self in self.tree.capacity_bound or not loc in [
+            #     l_t[0] for l_t in self.tree.capacity_bound[self]
+            # ]:
+            #     # The model could be an only scheduling model
+            #     if self.tree.capacity_bound:
+            #         # The model could be an only scheduling model
+            #         # if not self.d self.tree.operated_at:
+            #         # if the process is not capacitated at the location and time
+            #         print(
+            #             f'--- Assuming  {self} capacity is unbounded in ({loc}, {self.horizon})'
+            #         )
+            #         # this is not a check, this generates a constraint
+            #         _ = self.capacity(loc, self.horizon) == True
+
+            # # now that the process has been capacitated at the location
+            # # check if it is being operated at the location
+
+            # if not self in self.tree.operate_bound or not loc in [
+            #     l_t[0] for l_t in self.tree.operate_bound[self]
+            # ]:
+            #     # if not just write opr_{pro, loc, horizon} <= capacity_{pro, loc, horizon}
+            #     print(
+            #         f'--- Assuming operation of {self} is bound by capacity in ({loc}, {self.horizon})'
+            #     )
+            #     _ = self.operate(loc, self.horizon) <= 1
 
             # check if the process is being operated at the location
             for d in self.model.operate.domains:

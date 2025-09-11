@@ -29,7 +29,7 @@ if TYPE_CHECKING:
     from ..components.impact.categories import Economic, Environ, Social
     from ..components.operation.process import Process
     from ..components.operation.storage import Storage
-    from ..components.spatial.linkage import Link
+    from ..components.spatial.linkage import Linkage
     from ..components.spatial.location import Location
     from ..components.temporal.period import Period
     from ..modeling.indices.domain import Domain
@@ -56,7 +56,9 @@ class _Scope:
 
         # Dictionary which tells you what aspects of resource
         # have grb {loc: time: []} and {time: loc: []}
-        self.grb: dict[Resource, dict[Location | Link, dict[Period, list[Aspect]]]] = {}
+        self.grb: dict[
+            Resource, dict[Location | Linkage, dict[Period, list[Aspect]]]
+        ] = {}
 
         # Dictionary which tells you what aspects of what component
         # have been bound at what location and time
@@ -64,7 +66,7 @@ class _Scope:
             Aspect,
             dict[
                 Resource | Process | Storage | Transport,
-                dict[Location | Link, dict[Period]],
+                dict[Location | Linkage, dict[Period]],
             ],
         ] = {}
 
@@ -195,7 +197,7 @@ class _Scope:
 
         # self.dispositions[aspect][primary] = update_space_time(_dict)
 
-    def update_grb(self, resource: Resource, space: Location | Link, time: Period):
+    def update_grb(self, resource: Resource, space: Location | Linkage, time: Period):
         """Creates a mesh for grb dict"""
 
         if not resource in self.grb:
@@ -220,7 +222,7 @@ class _Scope:
         return self.space.locs
 
     @property
-    def links(self) -> list[Link]:
+    def links(self) -> list[Linkage]:
         """The Links"""
         return self.space.links
 
@@ -326,7 +328,7 @@ class _Graph:
         self.graph = Graph(self)
 
     @property
-    def edges(self) -> list[Link]:
+    def edges(self) -> list[Linkage]:
         """The Edges"""
         return self.graph.edges
 

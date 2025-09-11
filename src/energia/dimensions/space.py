@@ -2,7 +2,7 @@
 
 from dataclasses import dataclass
 
-from ..components.spatial.linkage import Link
+from ..components.spatial.linkage import Linkage
 from ..components.spatial.location import Location
 from ..core.dimension import Dimension
 
@@ -34,7 +34,7 @@ class Space(Dimension):
         self.locs: list[Location] = []
         self.sources: list[Location] = []
         self.sinks: list[Location] = []
-        self.links: list[Link] = []
+        self.links: list[Linkage] = []
 
         Dimension.__post_init__(self)
 
@@ -114,6 +114,6 @@ class Space(Dimension):
             return self.model.ntw
 
     @property
-    def s(self) -> list[Location | Link]:
+    def s(self) -> list[Location | Linkage]:
         """List of spatial components"""
         return self.locs + self.links

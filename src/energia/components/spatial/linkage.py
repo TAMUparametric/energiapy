@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class Link(X):
+class Linkage(X):
     """Linkage between two Locations
 
     Args:
@@ -84,7 +84,7 @@ class Link(X):
         else:
             label = None
 
-        _link = Link(
+        _link = Linkage(
             source=self.sink,
             sink=self.source,
             dist=self.dist,

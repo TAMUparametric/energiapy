@@ -18,7 +18,7 @@ if TYPE_CHECKING:
     from ...components.operation.process import Process
     from ...components.operation.storage import Storage
     from ...components.operation.transport import Transport
-    from ...components.spatial.linkage import Link
+    from ...components.spatial.linkage import Linkage
     from ...components.spatial.location import Location
     from ...components.temporal.lag import Lag
     from ...components.temporal.period import Period
@@ -66,7 +66,7 @@ class Domain:
 
     # compulsory space and time elements
     loc: Location = None
-    link: Link = None
+    link: Linkage = None
     period: Period = None
     lag: Lag = None
 
@@ -133,7 +133,7 @@ class Domain:
         return _primary
 
     @property
-    def space(self) -> Location | Link:
+    def space(self) -> Location | Linkage:
         """Space"""
         return self.link or self.loc
 

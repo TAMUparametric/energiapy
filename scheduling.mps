@@ -1,4 +1,4 @@
-NAME          EXAMPLE1
+NAME          SCHEDULING
 ROWS
  N   O0
  L   C0

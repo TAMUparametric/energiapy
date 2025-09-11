@@ -1,43 +1,11 @@
 import pytest
-from energia import Cash, Model, Period, Process, Resource, Storage
+
+from energia.examples.energy.design_scheduling import design_scheduling
 
 
 @pytest.fixture
 def m():
-    _m = Model()
-    _m.q = Period()
-    _m.y = 4 * _m.q
-    _m.usd = Cash()
-    _m.declare(Resource, ['power', 'wind', 'solar'])
-    _m.solar.consume(_m.q) <= 100
-    _m.wind.consume <= 400
-    _m.power.release.prep(180) >= [0.6, 0.7, 0.8, 0.3]
-
-    _m.wf = Process()
-    _m.wf(_m.power) == -1 * _m.wind
-    _m.wf.capacity.x <= 100
-    _m.wf.capacity.x >= 10
-    _m.wf.operate.prep(norm=True) <= [0.9, 0.8, 0.5, 0.7]
-    _m.wf.capacity[_m.usd.spend] == 990637 + 3354
-    _m.wf.operate[_m.usd.spend] == 49
-
-    _m.pv = Process()
-    _m.pv(_m.power) == -1 * _m.solar
-    _m.pv.capacity.x <= 100
-    _m.pv.capacity.x >= 10
-    _m.pv.operate.prep(norm=True) <= [0.6, 0.8, 0.9, 0.7]
-    _m.pv.capacity[_m.usd.spend] == 567000 + 872046
-    _m.pv.operate[_m.usd.spend] == 90000
-
-    _m.lii = Storage()
-    _m.lii(_m.power) == 0.9
-    _m.lii.capacity.x <= 100
-    _m.lii.capacity.x >= 10
-    _m.lii.capacity[_m.usd.spend] == 1302182 + 41432
-    _m.lii.inventory[_m.usd.spend] == 2000
-
-    _m.network.operations(_m.wf, _m.pv, _m.lii)
-
+    _m = design_scheduling()
     _m.usd.spend.opt()
 
     return _m

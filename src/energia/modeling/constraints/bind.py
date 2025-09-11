@@ -528,13 +528,14 @@ class Bind(_Generator):
 
             # --------- Get RHS
 
-            if self.aspect.bound is not None and (
-                self.model.capacitate
-                or (
-                    self.aspect.bound in self.dispositions
-                    and self.domain.primary in self.dispositions[self.aspect.bound]
-                )
-            ):
+            # if self.aspect.bound is not None and (
+            #     self.model.capacitate
+            #     or (
+            #         self.aspect.bound in self.dispositions
+            #         and self.domain.primary in self.dispositions[self.aspect.bound]
+            #     )
+            # ):
+            if self.aspect.bound is not None:
                 # --------- if variable bound
                 if self.report:
                     # --------- if variable bound and reported
@@ -545,12 +546,6 @@ class Bind(_Generator):
                     # --------- if just variable bound
                     rhs = other * self.Vb()
 
-                # return if aspect already bound in space
-                if self.domain.space in self.aspect.bound_spaces[self.domain.primary]:
-                    return
-                # else append new space
-                self.aspect.bound_spaces[self.domain.primary].append(self.domain.space)
-
             else:
                 # --------- if  parameter bound
                 if self.report:
@@ -559,6 +554,12 @@ class Bind(_Generator):
                 else:
                     # --------- if just parameter bound
                     rhs = other
+
+            # return if aspect already bound in space
+            if self.domain.space in self.aspect.bound_spaces[self.domain.primary]:
+                return
+            # else append new space
+            self.aspect.bound_spaces[self.domain.primary].append(self.domain.space)
 
             if rel == 'leq':
                 # Less than equal to

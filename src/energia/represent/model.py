@@ -15,7 +15,7 @@ from ..components.measure.unit import Unit
 from ..components.operation.process import Process
 from ..components.operation.storage import Storage
 from ..components.operation.transport import Transport
-from ..components.spatial.linkage import Link
+from ..components.spatial.linkage import Linkage
 from ..components.spatial.location import Location
 from ..components.temporal.period import Period
 from ..core.x import X
@@ -100,7 +100,7 @@ class Model(DecisionSpace, _Init):
         self.update_map = {
             Period: [('time', 'periods')],
             Location: [('space', 'locs')],
-            Link: [
+            Linkage: [
                 ('space', 'links'),
             ],
             Environ: [('impact', 'envs')],
@@ -200,7 +200,7 @@ class Model(DecisionSpace, _Init):
                 'For multiple links with different attributes, use model.named_link = Link(...)'
             )
 
-        link = Link(source=source, sink=sink, dist=dist, bi=bi, auto=True)
+        link = Linkage(source=source, sink=sink, dist=dist, bi=bi, auto=True)
         setattr(self, f'{source.name}-{sink.name}', link)
 
     def __setattr__(self, name, value):
@@ -228,7 +228,7 @@ class Model(DecisionSpace, _Init):
             self.program.spaces |= value.I
 
         # Linkages also belong to spaces
-        elif isinstance(value, Link):
+        elif isinstance(value, Linkage):
             self.program.spaces |= value.I
             self.program.sources |= value.source.I
             self.program.sinks |= value.sink.I

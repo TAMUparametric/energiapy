@@ -15,7 +15,7 @@ if TYPE_CHECKING:
     from ...components.operation.process import Process
     from ...components.operation.storage import Storage
     from ...components.operation.transport import Transport
-    from ...components.spatial.linkage import Link
+    from ...components.spatial.linkage import Linkage
     from ...components.spatial.location import Location
     from ...components.temporal.period import Period
     from ...core.x import X
@@ -76,7 +76,7 @@ class _Generator(Name):
         Aspect,
         dict[
             Resource | Process | Storage | Transport,
-            dict[Location | Link, dict[Period]],
+            dict[Location | Linkage, dict[Period]],
         ],
     ]:
         """Nested dictionary describing the disposition of each Aspect"""
@@ -87,7 +87,7 @@ class _Generator(Name):
         self,
     ) -> dict[
         Resource | Process | Storage | Transport,
-        dict[Location, dict[Period | Link, list[Bind]]],
+        dict[Location, dict[Period | Linkage, list[Bind]]],
     ]:
         """List of Bind at each disposition"""
         return self.model.grb

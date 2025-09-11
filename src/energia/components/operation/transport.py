@@ -11,7 +11,7 @@ from ._operation import _Operation
 if TYPE_CHECKING:
     from ..commodity.resource import Resource
     from ..measure.unit import Unit
-    from ..spatial.linkage import Link
+    from ..spatial.linkage import Linkage
     from ..spatial.location import Location
     from ..temporal.lag import Lag
     from ..temporal.period import Period
@@ -25,9 +25,9 @@ class Transport(_Operation):
 
     def __post_init__(self):
         _Operation.__post_init__(self)
-        self.links: list[Link] = []
+        self.links: list[Linkage] = []
 
-    def locate(self, *links: Link):
+    def locate(self, *links: Linkage):
         """Locate the transport"""
         link_times = []
 
@@ -37,8 +37,8 @@ class Transport(_Operation):
         for link in links:
 
             # check if the transport has been capacitated at that link and time
-            if not self in self.tree.capacitated_at or not link in [
-                l_t[0] for l_t in self.tree.capacitated_at[self]
+            if not self in self.tree.capacity_bound or not link in [
+                l_t[0] for l_t in self.tree.capacity_bound[self]
             ]:
                 # if the process is not capacitated at the link and time
                 print(
@@ -49,8 +49,8 @@ class Transport(_Operation):
 
             # now that the transport has been capacitated at the link
             # check if the transport has been operated at that link and time
-            if not self in self.tree.operated_at or not link in [
-                l_t[0] for l_t in self.tree.operated_at[self]
+            if not self in self.tree.operate_bound or not link in [
+                l_t[0] for l_t in self.tree.operate_bound[self]
             ]:
                 # if the transport is not operated at the link and time
                 print(f'--- Assuming {self} is operated at ({link}, {self.horizon})')
@@ -65,7 +65,7 @@ class Transport(_Operation):
 
         self.writecons_conversion(link_times)
 
-    def writecons_conversion(self, link_times: list[tuple[Link, Period]]):
+    def writecons_conversion(self, link_times: list[tuple[Linkage, Period]]):
         """Write the conversion constraints for the transport"""
 
         self.conv.balancer()

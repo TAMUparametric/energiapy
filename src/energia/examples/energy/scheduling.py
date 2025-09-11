@@ -17,9 +17,9 @@ from ...components.operation.process import Process
 from ...components.temporal.period import Period
 
 
-def scheduling_small():
+def scheduling():
     """A small scheduling example"""
-    m = Model('example1')
+    m = Model('scheduling')
 
     # ## Time
     #

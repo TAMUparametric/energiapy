@@ -8,7 +8,7 @@ from warnings import warn
 
 from ...core.x import X
 from ...utils.dictionary import get_depth
-from .linkage import Link
+from .linkage import Linkage
 
 if TYPE_CHECKING:
     from ...dimensions.space import Space
@@ -120,7 +120,7 @@ class Location(X):
             return True
         return False
 
-    def links(self, location, print_link: bool = True) -> list[Link]:
+    def links(self, location, print_link: bool = True) -> list[Linkage]:
         """Finds the links between two Locations
 
         Args:

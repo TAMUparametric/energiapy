@@ -9,7 +9,7 @@ from .x import X
 
 if TYPE_CHECKING:
     from ..components.measure.unit import Unit
-    from ..components.spatial.linkage import Link
+    from ..components.spatial.linkage import Linkage
     from ..components.spatial.location import Location
     from ..components.temporal.period import Period
     from ..dimensions.decisiontree import DecisionTree

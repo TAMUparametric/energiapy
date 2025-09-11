@@ -16,7 +16,7 @@ from ...components.impact.indicator import Indicator
 from ...components.operation.process import Process
 from ...components.operation.storage import Storage
 from ...components.operation.transport import Transport
-from ...components.spatial.linkage import Link
+from ...components.spatial.linkage import Linkage
 from ...components.spatial.location import Location
 from ...components.temporal.lag import Lag
 from ...components.temporal.period import Period
@@ -67,7 +67,7 @@ class Aspect(Name):
                 self.label += ' [+]'
             else:
                 self.label += ' [-]'
-        self.indices: list[Location | Link, Period] = []
+        self.indices: list[Location | Linkage, Period] = []
 
         # Does this add to the domain?
         self.ispos = True
@@ -76,7 +76,7 @@ class Aspect(Name):
 
         # spaces where the aspect has been already bound
         self.bound_spaces: dict[
-            Resource | Process | Storage | Transport, list[Location | Link]
+            Resource | Process | Storage | Transport, list[Location | Linkage]
         ] = {}
 
         # Domains of the decision
@@ -157,7 +157,9 @@ class Aspect(Name):
         return self.model.tree
 
     @property
-    def grb(self) -> dict[Resource, dict[Location | Link, dict[Period, list[Aspect]]]]:
+    def grb(
+        self,
+    ) -> dict[Resource, dict[Location | Linkage, dict[Period, list[Aspect]]]]:
         """General Resource Balance dict"""
         return self.model.grb
 
@@ -166,7 +168,7 @@ class Aspect(Name):
         Self,
         dict[
             Resource | Process | Storage | Transport,
-            dict[Period | Location | Link, dict[Location | Period | Link, bool]],
+            dict[Period | Location | Linkage, dict[Location | Period | Linkage, bool]],
         ],
     ]:
         """Dispositions dict"""
@@ -256,7 +258,7 @@ class Aspect(Name):
                     loc = comp
                     spaced = True
 
-                elif isinstance(comp, Link):
+                elif isinstance(comp, Linkage):
                     link = comp
                     spaced = True
 

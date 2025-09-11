@@ -17,6 +17,12 @@ if TYPE_CHECKING:
     from ..modeling.variables.aspect import Aspect
     from .space import Space
     from .time import Time
+    from ..components.operation.process import Process
+    from ..components.operation.transport import Transport
+    from ..components.operation.storage import Storage
+    from ..components.spatial.linkage import Linkage
+    from ..components.spatial.location import Location
+    from ..components.temporal.period import Period
 
 
 @dataclass
@@ -47,6 +53,7 @@ class DecisionTree(Dimension):
         self.impacts: list[Impact] = []
         self.players: list[Player] = []
 
+
     @property
     def time(self) -> Time:
         """Time"""
@@ -58,7 +65,7 @@ class DecisionTree(Dimension):
         return self.model.space
 
     @property
-    def aspects(self) -> list[Aspect]:
+    def aspects(self) -> list[Impact | Stream | Control | State]:
         """All Decisions"""
         return self.states + self.controls + self.streams + self.impacts
 
@@ -106,37 +113,41 @@ class DecisionTree(Dimension):
             dict_ = {k.tup: v for k, v in dict_.items() if v}
             return dict_
 
-    @property
-    def capacitated_at(self) -> list[Domain]:
-        """Finds the spaces and times in which the an operation is capacitated"""
+        raise ValueError(
+            'keys must be one of aspects, states, controls, streams, impacts, domains'
+        )
 
-        _capacitated_at = {
-            domain.operation: []
-            for domain in self.model.capacity.domains + self.model.invcapacity.domains
-        }
-        for domain in self.model.capacity.domains + self.model.invcapacity.domains:
-            _capacitated_at[domain.operation].append((domain.space, domain.time))
+    # @property
+    # def capacity_bound(self) -> list[Domain]:
+    #     """Finds the spaces and times in which the an operation is bound"""
 
-        return _capacitated_at
+    #     _capacity_bound = {
+    #         domain.operation: []
+    #         for domain in self.model.capacity.domains + self.model.invcapacity.domains
+    #     }
+    #     for domain in self.model.capacity.domains + self.model.invcapacity.domains:
+    #         _capacity_bound[domain.operation].append((domain.space, domain.time))
 
-    @property
-    def operated_at(self) -> list[Domain]:
-        """Finds the spaces and times in which the an operation is operated"""
+    #     return _capacity_bound
 
-        _operated_at = {domain.operation: [] for domain in self.model.operate.domains}
-        for domain in self.model.operate.domains:
-            _operated_at[domain.operation].append((domain.space, domain.time))
+    # @property
+    # def operate_bound(self) -> list[Domain]:
+    #     """Finds the spaces and times in which the an operation is bound"""
 
-        return _operated_at
+    #     _operate_bound = {domain.operation: [] for domain in self.model.operate.domains}
+    #     for domain in self.model.operate.domains:
+    #         _operate_bound[domain.operation].append((domain.space, domain.time))
 
-    @property
-    def inventoried_at(self) -> list[Domain]:
-        """Finds the spaces and times in which the an operation is inventoried"""
+    #     return _operate_bound
 
-        _inventoried_at = {
-            domain.resource: [] for domain in self.model.inventory.domains
-        }
-        for domain in self.model.inventory.domains:
-            _inventoried_at[domain.resource].append((domain.space, domain.time))
+    # @property
+    # def inventory_bound(self) -> list[Domain]:
+    #     """Finds the spaces and times in which the an storage inventory is bound"""
 
-        return _inventoried_at
+    #     _inventory_bound = {
+    #         domain.resource: [] for domain in self.model.inventory.domains
+    #     }
+    #     for domain in self.model.inventory.domains:
+    #         _inventory_bound[domain.resource].append((domain.space, domain.time))
+
+    #     return _inventory_bound
