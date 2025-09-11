@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from ..commodity.resource import Resource
     from ..measure.unit import Unit
     from ..spatial.linkage import Link
-    from ..spatial.location import Loc
+    from ..spatial.location import Location
     from ..temporal.lag import Lag
     from ..temporal.period import Period
 
@@ -70,7 +70,7 @@ class Transport(_Operation):
 
         self.conv.balancer()
 
-        def time_checker(res: Resource, loc: Loc, time: Period):
+        def time_checker(res: Resource, loc: Location, time: Period):
             """This checks if it is actually necessary
             to write conversion at denser temporal scales
             """
@@ -173,7 +173,9 @@ class Transport(_Operation):
                         rhs = self.model.expend(res, self, link.source, self.lag.of)
                         lhs = self.model.operate(self, link, self.lag.of)
                     else:
-                        rhs = self.model.expend(res, link.source, self, time_checker(res, link.source, time))
+                        rhs = self.model.expend(
+                            res, link.source, self, time_checker(res, link.source, time)
+                        )
                         lhs = self.model.operate(self, link, time)
 
                     upd_expend, upd_operate = True, True
@@ -183,11 +185,18 @@ class Transport(_Operation):
                     eff = [-i for i in par]
 
                     if self.lag:
-                        rhs = self.model.expend(res, self.operate, link.source, self.lag.of)
+                        rhs = self.model.expend(
+                            res, self.operate, link.source, self.lag.of
+                        )
                         lhs = self.model.operate(self, link, self.lag.of)
                     else:
 
-                        rhs = self.model.expend(res, self.operate, link.source, time_checker(res, link.source, time))
+                        rhs = self.model.expend(
+                            res,
+                            self.operate,
+                            link.source,
+                            time_checker(res, link.source, time),
+                        )
                         lhs = self.model.operate(self, link, time)
                     upd_expend, upd_operate = True, True
 
@@ -204,8 +213,12 @@ class Transport(_Operation):
                         )
                         lhs = self.model.operate(self, link, self.lag.of)
                     else:
-                        rhs_export = self.model.ship_out(res, self, link.source, time_checker(res, link.source, time))
-                        rhs_import = self.model.ship_in(res, self, link.sink, time_checker(res, link.sink, time))
+                        rhs_export = self.model.ship_out(
+                            res, self, link.source, time_checker(res, link.source, time)
+                        )
+                        rhs_import = self.model.ship_in(
+                            res, self, link.sink, time_checker(res, link.sink, time)
+                        )
                         lhs = self.model.operate(self, link, time)
                     upd_operate, upd_ship = True, True
 

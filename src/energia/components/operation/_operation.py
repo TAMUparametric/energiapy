@@ -12,7 +12,7 @@ from ...modeling.variables.default import Design, Scheduling
 if TYPE_CHECKING:
     from ..commodity.resource import Resource
     from ..measure.unit import Unit
-    from ..spatial.location import Loc
+    from ..spatial.location import Location
     from ..temporal.lag import Lag
 
 

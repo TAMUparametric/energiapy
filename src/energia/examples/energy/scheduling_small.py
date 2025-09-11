@@ -104,7 +104,7 @@ def scheduling_small():
     #
     # The production streams are only generated once the process is places in some location. In this study, the only location is available is the default network.
 
-    m.network.operations(m.wf)
+    m.network.locate(m.wf)
 
     # Alternatively,
 

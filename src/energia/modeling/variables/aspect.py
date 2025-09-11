@@ -17,7 +17,7 @@ from ...components.operation.process import Process
 from ...components.operation.storage import Storage
 from ...components.operation.transport import Transport
 from ...components.spatial.linkage import Link
-from ...components.spatial.location import Loc
+from ...components.spatial.location import Location
 from ...components.temporal.lag import Lag
 from ...components.temporal.period import Period
 from ...core.name import Name
@@ -67,7 +67,7 @@ class Aspect(Name):
                 self.label += ' [+]'
             else:
                 self.label += ' [-]'
-        self.indices: list[Loc | Link, Period] = []
+        self.indices: list[Location | Link, Period] = []
 
         # Does this add to the domain?
         self.ispos = True
@@ -76,7 +76,7 @@ class Aspect(Name):
 
         # spaces where the aspect has been already bound
         self.bound_spaces: dict[
-            Resource | Process | Storage | Transport, list[Loc | Link]
+            Resource | Process | Storage | Transport, list[Location | Link]
         ] = {}
 
         # Domains of the decision
@@ -157,7 +157,7 @@ class Aspect(Name):
         return self.model.tree
 
     @property
-    def grb(self) -> dict[Resource, dict[Loc | Link, dict[Period, list[Aspect]]]]:
+    def grb(self) -> dict[Resource, dict[Location | Link, dict[Period, list[Aspect]]]]:
         """General Resource Balance dict"""
         return self.model.grb
 
@@ -166,7 +166,7 @@ class Aspect(Name):
         Self,
         dict[
             Resource | Process | Storage | Transport,
-            dict[Period | Loc | Link, dict[Loc | Period | Link, bool]],
+            dict[Period | Location | Link, dict[Location | Period | Link, bool]],
         ],
     ]:
         """Dispositions dict"""
@@ -252,7 +252,7 @@ class Aspect(Name):
                     lag = comp
                     timed = True
 
-                elif isinstance(comp, Loc):
+                elif isinstance(comp, Location):
                     loc = comp
                     spaced = True
 
@@ -307,7 +307,7 @@ class Aspect(Name):
                     # dr_aspect = comp.aspect
 
                 elif isinstance(comp, Aspect):
-                # if an Aspect is being passed, it has to be a bind aspect
+                    # if an Aspect is being passed, it has to be a bind aspect
                     binds[comp] = {index[index.index(comp) + 1]: {}}
                     if comp.Operation and not comp.Resource:
                         op_aspect = comp

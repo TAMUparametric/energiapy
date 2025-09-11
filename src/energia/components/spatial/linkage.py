@@ -11,7 +11,7 @@ from ..measure.unit import Unit
 
 if TYPE_CHECKING:
     from ...dimensions.loc import Space
-    from .location import Loc
+    from .location import Location
 
 
 @dataclass
@@ -33,8 +33,8 @@ class Link(X):
         network (Loc): Network to which the Linkage belongs.
     """
 
-    source: Loc = None
-    sink: Loc = None
+    source: Location = None
+    sink: Location = None
     dist: float | Unit = None
     bi: bool = False
     auto: bool = False
@@ -56,7 +56,7 @@ class Link(X):
         return self.model.space
 
     @property
-    def network(self) -> Loc:
+    def network(self) -> Location:
         """Network to which the Location belongs"""
         return self.model.network
 

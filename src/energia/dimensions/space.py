@@ -3,7 +3,7 @@
 from dataclasses import dataclass
 
 from ..components.spatial.linkage import Link
-from ..components.spatial.location import Loc
+from ..components.spatial.location import Location
 from ..core.dimension import Dimension
 
 
@@ -31,9 +31,9 @@ class Space(Dimension):
     """
 
     def __post_init__(self):
-        self.locs: list[Loc] = []
-        self.sources: list[Loc] = []
-        self.sinks: list[Loc] = []
+        self.locs: list[Location] = []
+        self.sources: list[Location] = []
+        self.sinks: list[Location] = []
         self.links: list[Link] = []
 
         Dimension.__post_init__(self)
@@ -53,7 +53,7 @@ class Space(Dimension):
         return tree_
 
     @property
-    def hierarchy(self) -> dict[int, list[Loc]]:
+    def hierarchy(self) -> dict[int, list[Location]]:
         """creates a nested dictionary of locations"""
         self.network.update_hierarchy()
         hierarchy_ = {}
@@ -63,7 +63,7 @@ class Space(Dimension):
             hierarchy_[loc.hierarchy].append(loc)
         return hierarchy_
 
-    def split(self, loc: Loc) -> tuple[list[Loc], list[Loc]]:
+    def split(self, loc: Location) -> tuple[list[Location], list[Location]]:
         """Gives a list of locations at a higher and lower hierarchy than loc"""
         hierarchy = self.hierarchy
 
@@ -88,7 +88,7 @@ class Space(Dimension):
     # -----------------------------------------------------
 
     @property
-    def network(self) -> Loc:
+    def network(self) -> Location:
         """An encompassing region"""
 
         # if no location is available, create a default one
@@ -114,6 +114,6 @@ class Space(Dimension):
             return self.model.ntw
 
     @property
-    def s(self) -> list[Loc | Link]:
+    def s(self) -> list[Location | Link]:
         """List of spatial components"""
         return self.locs + self.links

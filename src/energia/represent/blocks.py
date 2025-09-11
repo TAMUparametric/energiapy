@@ -30,7 +30,7 @@ if TYPE_CHECKING:
     from ..components.operation.process import Process
     from ..components.operation.storage import Storage
     from ..components.spatial.linkage import Link
-    from ..components.spatial.location import Loc
+    from ..components.spatial.location import Location
     from ..components.temporal.period import Period
     from ..modeling.indices.domain import Domain
     from ..modeling.variables.aspect import Aspect
@@ -56,14 +56,15 @@ class _Scope:
 
         # Dictionary which tells you what aspects of resource
         # have grb {loc: time: []} and {time: loc: []}
-        self.grb: dict[Resource, dict[Loc | Link, dict[Period, list[Aspect]]]] = {}
+        self.grb: dict[Resource, dict[Location | Link, dict[Period, list[Aspect]]]] = {}
 
         # Dictionary which tells you what aspects of what component
         # have been bound at what location and time
         self.dispositions: dict[
             Aspect,
             dict[
-                Resource | Process | Storage | Transport, dict[Loc | Link, dict[Period]]
+                Resource | Process | Storage | Transport,
+                dict[Location | Link, dict[Period]],
             ],
         ] = {}
 
@@ -73,7 +74,7 @@ class _Scope:
         return self.time.horizon
 
     @property
-    def network(self) -> Loc:
+    def network(self) -> Location:
         """The network of the Model"""
         return self.space.network
 
@@ -194,7 +195,7 @@ class _Scope:
 
         # self.dispositions[aspect][primary] = update_space_time(_dict)
 
-    def update_grb(self, resource: Resource, space: Loc | Link, time: Period):
+    def update_grb(self, resource: Resource, space: Location | Link, time: Period):
         """Creates a mesh for grb dict"""
 
         if not resource in self.grb:
@@ -214,7 +215,7 @@ class _Scope:
         return self.time.periods
 
     @property
-    def locs(self) -> list[Loc]:
+    def locs(self) -> list[Location]:
         """The Locations"""
         return self.space.locs
 
@@ -330,7 +331,7 @@ class _Graph:
         return self.graph.edges
 
     @property
-    def nodes(self) -> list[Loc]:
+    def nodes(self) -> list[Location]:
         """The Nodes"""
         return self.graph.nodes
 

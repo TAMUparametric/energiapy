@@ -16,7 +16,7 @@ from ..components.operation.process import Process
 from ..components.operation.storage import Storage
 from ..components.operation.transport import Transport
 from ..components.spatial.linkage import Link
-from ..components.spatial.location import Loc
+from ..components.spatial.location import Location
 from ..components.temporal.period import Period
 from ..core.x import X
 from ..dimensions.decisionspace import DecisionSpace
@@ -39,11 +39,11 @@ class Model(DecisionSpace, _Init):
     """An abstract representation of an energy system
 
     Args:
-        name (str) = m 
+        name (str) = m
         default (bool): True if want some default objects to be declared
         capacitate (bool): True if want to determine process capacities to bound operations
 
-    
+
 
     Attributes:
         name (str): Name of the Model
@@ -99,7 +99,7 @@ class Model(DecisionSpace, _Init):
 
         self.update_map = {
             Period: [('time', 'periods')],
-            Loc: [('space', 'locs')],
+            Location: [('space', 'locs')],
             Link: [
                 ('space', 'links'),
             ],
@@ -130,7 +130,6 @@ class Model(DecisionSpace, _Init):
 
         # introduce the dimensions of the model
         DecisionSpace.__post_init__(self)
-        
 
     def update(
         self,
@@ -186,7 +185,13 @@ class Model(DecisionSpace, _Init):
         for i in names:
             setattr(self, i, what())
 
-    def Link(self, source: Loc, sink: Loc, dist: float | Unit = None, bi: bool = False):
+    def Link(
+        self,
+        source: Location,
+        sink: Location,
+        dist: float | Unit = None,
+        bi: bool = False,
+    ):
         """Link two Locations"""
         if source - sink:
             # if source and sink are already linked
@@ -218,7 +223,7 @@ class Model(DecisionSpace, _Init):
                 break
 
         # Locations also belong to spaces
-        if isinstance(value, Loc):
+        if isinstance(value, Location):
 
             self.program.spaces |= value.I
 
@@ -288,10 +293,14 @@ class Model(DecisionSpace, _Init):
         self.t0 = Period('Time')
         return self.t0
 
-    def default_loc(self) -> Loc:
+    def default_loc(self) -> Location:
         """Return a default location"""
-        self.l = Loc(label='l')
+        self.l = Location(label='l')
         return self.l
+
+    def locate(self, *operations: Process | Storage):
+        """Locate operations in the network"""
+        self.network.locate(*operations)
 
     # -----------------------------------------------------
     #                    Hashing

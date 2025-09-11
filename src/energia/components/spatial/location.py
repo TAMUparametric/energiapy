@@ -11,13 +11,13 @@ from ...utils.dictionary import get_depth
 from .linkage import Link
 
 if TYPE_CHECKING:
-    from ...dimensions.loc import Space
+    from ...dimensions.space import Space
     from ..commodity.misc import Cash
     from ..operation.process import Process
     from ..operation.storage import Storage
 
 
-class Loc(X):
+class Location(X):
     """A discretization of Space
     A location can be inclusive of other locations
 
@@ -54,11 +54,11 @@ class Loc(X):
                     if not locin in self.has:
                         self.alsohas += (locin,)
 
-    def operations(self, *oprs: Process | Storage):
+    def locate(self, *operations: Process | Storage):
         """Locates the Operations"""
         # locates an operation
         # which leads to the conversion balances being written
-        for opr in oprs:
+        for opr in operations:
             opr.locate(self)
 
     @property
@@ -174,8 +174,8 @@ class Loc(X):
         """Creates another location which consists of self and other"""
         if not self.name:
             # this handles when adding multiple locations
-            return Loc(*self.has, location)
-        return Loc(location, self)
+            return Location(*self.has, location)
+        return Location(location, self)
 
     def __radd__(self, number: int):
         """For allowing sum([Loc])"""

@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from ..commodity.resource import Resource
     from ..measure.unit import Unit
     from ..spatial.linkage import Link
-    from ..spatial.location import Loc
+    from ..spatial.location import Location
     from ..temporal.lag import Lag
     from ..temporal.period import Period
     from .storage import Storage
@@ -30,15 +30,15 @@ class Process(_Operation):
         # Note that we do not need a conversion at every temporal scale.
         # once balanced at a location for a particular time,
         # if time != horizon, the individual streams are summed up anyway
-        self.locs: list[Loc] = []
+        self.locs: list[Location] = []
 
         self.ofstorage: Storage = None
 
-    def locate(self, *locs: Loc):
+    def locate(self, *locs: Location):
         """Locate the process"""
 
         # get location, time tuples where operation is defined
-        loc_times: list[tuple[Loc, Period]] = []
+        loc_times: list[tuple[Location, Period]] = []
         for loc in locs:
 
             # check if the process has been capacitated at that location first
@@ -77,12 +77,12 @@ class Process(_Operation):
 
         self.writecons_conversion(loc_times)
 
-    def writecons_conversion(self, loc_times: list[tuple[Loc, Period]]):
+    def writecons_conversion(self, loc_times: list[tuple[Location, Period]]):
         """Write the conversion constraints for the process"""
 
         self.conv.balancer()
 
-        def time_checker(res: Resource, loc: Loc, time: Period):
+        def time_checker(res: Resource, loc: Location, time: Period):
             """This checks if it is actually necessary
             to write conversion at denser temporal scales
             """

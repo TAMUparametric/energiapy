@@ -12,7 +12,7 @@ from ..commodity.resource import Resource
 from .process import Process
 
 if TYPE_CHECKING:
-    from ..spatial.location import Loc
+    from ..spatial.location import Location
     from ..temporal.period import Period
     from ...modeling.constraints.bind import Bind
 
@@ -32,7 +32,7 @@ class Storage(Component):  # , Stock):
         self.charge.ofstorage = self
         self.discharge = Process()
         self.discharge.ofstorage = self
-        self.locs: list[Loc] = []
+        self.locs: list[Location] = []
 
     def __setattr__(self, name, value):
         if name == 'model' and value:
@@ -41,7 +41,7 @@ class Storage(Component):  # , Stock):
 
         super().__setattr__(name, value)
 
-    def locate(self, *locs: Loc):
+    def locate(self, *locs: Location):
         """Locate the storage"""
         # update the locations at which the storage exists
 
