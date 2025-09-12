@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from ...core.component import Component
-from ...modeling.parameters.conversion import Conv
+from ...modeling.parameters.conversion import Conversion
 
 from ..commodity.resource import Resource
 from .process import Process
@@ -172,7 +172,7 @@ class Storage(Component):  # , Stock):
         """Conversion of commodities"""
         return self.discharge.conv.conversion
 
-    def __call__(self, resource: Resource | Conv):
+    def __call__(self, resource: Resource | Conversion):
         """Conversion is called with a Resource to be converted"""
         if not self._conv:
             # create storage resource
@@ -181,13 +181,13 @@ class Storage(Component):  # , Stock):
             setattr(self.model, f'{resource}.{self}', stored)
 
             # ---------- set discharge conversion
-            self.discharge.conv = Conv(
+            self.discharge.conv = Conversion(
                 process=self.discharge, storage=self, resource=stored
             )
             _ = self.discharge.conv(resource) == -1.0 * stored
 
             # ---------- set charge conversion
-            self.charge.conv = Conv(
+            self.charge.conv = Conversion(
                 process=self.charge, storage=self, resource=resource
             )
 

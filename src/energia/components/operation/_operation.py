@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from ...core.component import Component
-from ...modeling.parameters.conversion import Conv
+from ...modeling.parameters.conversion import Conversion
 from ...modeling.variables.default import Design, Scheduling
 
 if TYPE_CHECKING:
@@ -23,7 +23,7 @@ class _Operation(Component, Design, Scheduling):
     def __post_init__(self):
         Component.__post_init__(self)
         self._conv = False
-        self.conv: Conv = None
+        self.conv: Conversion = None
 
     @property
     def base(self) -> Resource:

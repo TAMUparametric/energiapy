@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-from ...modeling.parameters.conversion import Conv
+from ...modeling.parameters.conversion import Conversion
 from ._operation import _Operation
 
 if TYPE_CHECKING:
@@ -298,10 +298,10 @@ class Transport(_Operation):
                         self.model.operate.constraints.append(cons_name)
                 self.links.append(link)
 
-    def __call__(self, resource: Resource | Conv):
+    def __call__(self, resource: Resource | Conversion):
         """Conversion is called with a Resource to be converted"""
         if not self._conv:
 
-            self.conv = Conv(process=self)
+            self.conv = Conversion(process=self)
             self._conv = True
         return self.conv(resource)

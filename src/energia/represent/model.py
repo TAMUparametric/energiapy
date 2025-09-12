@@ -20,7 +20,7 @@ from ..components.spatial.location import Location
 from ..components.temporal.period import Period
 from ..core.x import X
 from ..dimensions.decisionspace import DecisionSpace
-from ..modeling.parameters.conversion import Conv
+from ..modeling.parameters.conversion import Conversion
 from ..modeling.variables.control import Control
 from ..modeling.variables.impact import Impact
 from ..modeling.variables.state import State
@@ -126,7 +126,7 @@ class Model(DecisionSpace, _Init, Library):
 
         # measuring units
         self.units: list[Unit] = []
-        self.conversions: list[Conv] = []  # not added to program
+        self.conversions: list[Conversion] = []  # not added to program
         self.convmatrix: dict[Process, dict[Resource, int | float | list]] = {}
 
         # introduce the dimensions of the model
@@ -241,10 +241,10 @@ class Model(DecisionSpace, _Init, Library):
                 rev = value.rev()
                 setattr(self, rev.name, rev)
 
-        elif isinstance(value, Conv):
+        elif isinstance(value, Conversion):
             # Currency can be declared through their exchange with other Currency
             if value.balance and isinstance(list(value.balance)[0], Currency):
-                cash, task = Currency(), Conv()
+                cash, task = Currency(), Conversion()
                 cash.name = name
                 task.name = list(value.balance)[0].name
                 task.balance = {cash: list(value.balance.values())[0]}

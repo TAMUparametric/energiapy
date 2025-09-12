@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 
 from numpy import isin
 
-from ...modeling.parameters.conversion import Conv
+from ...modeling.parameters.conversion import Conversion
 from ._operation import _Operation
 
 if TYPE_CHECKING:
@@ -256,11 +256,11 @@ class Process(_Operation):
             # update the locations at which the process exists
             self.locs.append(loc)
 
-    def __call__(self, resource: Resource | Conv, lag: Lag = None) -> Conv:
+    def __call__(self, resource: Resource | Conversion, lag: Lag = None) -> Conversion:
         """Conversion is called with a Resource to be converted"""
 
         if not self._conv:
-            self.conv = Conv(process=self)
+            self.conv = Conversion(process=self)
             self._conv = True
 
         self.conv.lag = lag

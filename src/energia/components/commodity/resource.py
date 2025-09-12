@@ -9,7 +9,7 @@ from dataclasses import dataclass
 from typing import Self
 
 from ...core.component import Component
-from ...modeling.parameters.conversion import Conv
+from ...modeling.parameters.conversion import Conversion
 from ...modeling.variables.default import (
     Free,
     Produce,
@@ -47,13 +47,13 @@ class Resource(Component, Trade, Produce, Utilize, Free, Inventory):
         self.in_inv: list[Resource] = []
 
         # list of conversions associated with the resource
-        self.conversions: list[Conv] = []
+        self.conversions: list[Conversion] = []
 
         # flag indicates whether the resource is produced and expended insitu only
         self.insitu = False
 
     @property
-    def conversion(self) -> dict[Conv, int | float]:
+    def conversion(self) -> dict[Conversion, int | float]:
         """Conversion"""
         # if no conversion is set, return 1.0
         if not self.conversions:
@@ -64,25 +64,25 @@ class Resource(Component, Trade, Produce, Utilize, Free, Inventory):
 
     def __setattr__(self, name, value):
 
-        if isinstance(value, Conv):
+        if isinstance(value, Conversion):
             # update conversions
             self.conversions.append(value)
 
         super().__setattr__(name, value)
 
-    def __mul__(self, other: int | float) -> Conv:
+    def __mul__(self, other: int | float) -> Conversion:
         # multiplying a number with a resources gives conversion
         # math operations with conversions form the balance in tasks
-        conv = Conv()
+        conv = Conversion()
         conv.conversion = {self: other}
         return conv
 
-    def __rmul__(self, other: int | float) -> Conv:
+    def __rmul__(self, other: int | float) -> Conversion:
         # reverse multiplication
         return self * other
 
-    def __add__(self, other: Conv) -> Conv:
-        conv = Conv()
+    def __add__(self, other: Conversion) -> Conversion:
+        conv = Conversion()
         if isinstance(other, Resource):
             # if another resource is added, give it the parameter 1
             conv.conversion = {self: 1, other: 1}
@@ -92,18 +92,18 @@ class Resource(Component, Trade, Produce, Utilize, Free, Inventory):
         conv.conversion = {self: 1, **other.conversion}
         return conv
 
-    def __neg__(self) -> Conv:
+    def __neg__(self) -> Conversion:
         # just multiply by -1
         return self * -1
 
-    def __sub__(self, other: Conv | Self):
+    def __sub__(self, other: Conversion | Self):
         if isinstance(other, Resource):
             # if another resource is subtracted
             # give it the parameter -1
             return self + -1 * other
-        if isinstance(other, Conv):
+        if isinstance(other, Conversion):
             # if another conversion is subtracted, update the balance
-            conv = Conv()
+            conv = Conversion()
             conv.conversion = {
                 self: 1,
                 **{res: -1 * par for res, par in other.conversion.items()},

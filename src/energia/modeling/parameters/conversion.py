@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class Conv(Name):
+class Conversion(Name):
     """Processes convert one Resource to another Resource
 
     Conversion provides the conversion of resources
@@ -112,9 +112,9 @@ class Conv(Name):
 
     #     raise TypeError(f'Expected Lag, got {type(lag)} instead.')
 
-    def __call__(self, basis: Resource | Conv) -> Self:
+    def __call__(self, basis: Resource | Conversion) -> Self:
         # sets the basis
-        if isinstance(basis, Conv):
+        if isinstance(basis, Conversion):
             # if a Conversion is provided (parameter*Resource)
             # In this case the associated conversion is not 1
             # especially useful if Process is scaled to consumption of a resource
@@ -131,7 +131,7 @@ class Conv(Name):
 
         return self
 
-    def __eq__(self, other: Conv | float):
+    def __eq__(self, other: Conversion | float):
         # cons = []
         if isinstance(other, (int, float)):
             # this is used for inventory conversion
@@ -146,15 +146,15 @@ class Conv(Name):
         self.model.convmatrix[self.operation] = self.conversion
 
     # these update the conversion of the resource (self.conversion)
-    def __add__(self, other: Conv) -> Self:
-        if isinstance(other, Conv):
+    def __add__(self, other: Conversion) -> Self:
+        if isinstance(other, Conversion):
             self.conversion = {**self.conversion, **other.conversion}
             return self
         self.conversion = {**self.conversion, other: 1}
         return self
 
-    def __sub__(self, other: Conv) -> Self:
-        if isinstance(other, Conv):
+    def __sub__(self, other: Conversion) -> Self:
+        if isinstance(other, Conversion):
             self.conversion = {
                 **self.conversion,
                 **{res: -1 * par for res, par in other.conversion.items()},

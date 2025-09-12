@@ -24,7 +24,7 @@ if TYPE_CHECKING:
     from ...components.temporal.period import Period
     from ...core.component import Component
     from ...core.x import X
-    from ..parameters.conversion import Conv
+    from ..parameters.conversion import Conversion
     from ..variables.aspect import Aspect
     from ...represent.model import Model
     from ...modeling.constraints.bind import Bind
