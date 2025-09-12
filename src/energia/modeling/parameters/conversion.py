@@ -104,13 +104,13 @@ class Conv(Name):
                 if isinstance(par, (float, int)):
                     self.conversion[res] = [par] * length
 
-    def __getitem__(self, lag: Lag) -> Self:
-        # Used to set the lag
-        if isinstance(lag, Lag):
-            self.lag = lag
-            return self
+    # def __getitem__(self, lag: Lag) -> Self:
+    #     # Used to set the lag
+    #     if isinstance(lag, Lag):
+    #         self.lag = lag
+    #         return self
 
-        raise TypeError(f'Expected Lag, got {type(lag)} instead.')
+    #     raise TypeError(f'Expected Lag, got {type(lag)} instead.')
 
     def __call__(self, basis: Resource | Conv) -> Self:
         # sets the basis

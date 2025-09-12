@@ -271,7 +271,6 @@ class Domain:
 
         return tree
 
-
     @property
     def aspects(self) -> list[Aspect]:
         """Aspects"""
