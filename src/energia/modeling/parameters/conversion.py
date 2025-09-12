@@ -58,7 +58,7 @@ class Conversion(Name):
 
         self.name = f'η({self.process})'
         self.base: Resource = None
-        self.conversion: dict[Resource : int | float] = {}
+        self.conversion: dict[Resource, int | float | list[int | float]] = {}
         self.lag: Lag = None
         self.period: Period = None
 
@@ -72,7 +72,7 @@ class Conversion(Name):
         """gana Program"""
         return self.operation.program
 
-    def balancer(self) -> dict[Resource, int | float | list]:
+    def balancer(self):
         """Checks if there is a list in the conversion
         If yes, tries to make everything consistent
 
@@ -104,13 +104,13 @@ class Conversion(Name):
                 if isinstance(par, (float, int)):
                     self.conversion[res] = [par] * length
 
-    # def __getitem__(self, lag: Lag) -> Self:
-    #     # Used to set the lag
-    #     if isinstance(lag, Lag):
-    #         self.lag = lag
-    #         return self
+    def __getitem__(self, lag: Lag) -> Self:
+        # Used to set the lag
+        if isinstance(lag, Lag):
+            self.lag = lag
+            return self
 
-    #     raise TypeError(f'Expected Lag, got {type(lag)} instead.')
+        raise TypeError(f'Expected Lag, got {type(lag)} instead.')
 
     def __call__(self, basis: Resource | Conversion) -> Self:
         # sets the basis

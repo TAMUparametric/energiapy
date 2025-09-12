@@ -31,7 +31,7 @@ class _Operation(Component, Design, Scheduling):
         return self.conv.base
 
     @property
-    def conversion(self) -> dict[Resource : int | float]:
+    def conversion(self) -> dict[Resource, int | float]:
         """Conversion of commodities"""
         return self.conv.conversion
 
