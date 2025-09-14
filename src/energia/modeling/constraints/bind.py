@@ -90,6 +90,11 @@ class Bind(_Generator):
         return self.domain.index
 
     @property
+    def index_short(self) -> list[X | Bind]:
+        """Short Index"""
+        return self.domain.index_short
+
+    @property
     def I(self) -> I:
         """gana index set (I)"""
         return self.aspect.I
@@ -664,7 +669,8 @@ class Bind(_Generator):
         return FBind(F=other * self.F, program=self.program)
 
     def __call__(self, *index):
-        index = list(set(self.domain.index_primary + self.domain.binds + list(index)))
+
+        index = list(set(self.domain.index_short + list(index)))
         v = self.aspect(*index)
         v.report = self.report
         return v
@@ -676,8 +682,7 @@ class Bind(_Generator):
             return f
 
         calculation = dependent(self)
-
-        decision = self(*self.index)
+        decision = self(*self.index_short)
         decision.report = self.report
 
         return Calculate(calculation=calculation, decision=decision)

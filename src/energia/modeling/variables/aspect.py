@@ -295,6 +295,10 @@ class Aspect(Name):
                     # this only comes in play for calculations (streams, impacts)
 
                     binds.append(comp)
+                    for b in binds:
+                        if b.domain.binds:
+                            binds.extend(b.domain.binds)
+                    binds = list(set(binds))
 
                     # if comp.domain.operation:
                     #     binds[comp.aspect] = {comp.domain.operation: {}}
@@ -308,13 +312,13 @@ class Aspect(Name):
                     # dresource = comp.domain.resource
                     # dr_aspect = comp.aspect
 
-                elif isinstance(comp, Aspect):
-                    # if an Aspect is being passed, it has to be a bind aspect
-                    binds[comp] = {index[index.index(comp) + 1]: {}}
-                    if comp.Operation and not comp.Resource:
-                        op_aspect = comp
-                    elif comp.Resource:
-                        dr_aspect = comp
+                # elif isinstance(comp, Aspect):
+                #     # if an Aspect is being passed, it has to be a bind aspect
+                #     binds[comp] = {index[index.index(comp) + 1]: {}}
+                #     if comp.types_opr and not comp.types_res:
+                #         op_aspect = comp
+                #     elif comp.types_res:
+                #         dr_aspect = comp
 
                 # elif isinstance(comp, I):
                 #     if comp.name == 'locs':

@@ -96,7 +96,7 @@ class Domain:
         # self.lagged = True if self.lag else False
 
         # primary index being modeled in some spatiotemporal context
-        self.model: Model = next((i.model for i in self.index if i), None)
+        self.model: Model = next((i.model for i in self.index_short if i), None)
 
         # if self.indicator:
         #     self.primary = self.indicator
@@ -228,7 +228,9 @@ class Domain:
         return self.index_primary + self.index_binds
 
     @property
-    def index_primary(self) -> list[X]:
+    def index_primary(
+        self,
+    ) -> list[Indicator | Resource | Process | Storage | Transport]:
         """Primary index
 
         Returns:
@@ -239,13 +241,18 @@ class Domain:
         ]
 
     @property
-    def index_binds(self) -> list[Bind, X]:
+    def index_binds(self) -> list[Bind | X]:
         """List of bind indices
 
         Returns:
             list[Bind, X]: list of bind indices
         """
         return [x for b in self.binds for x in (b.aspect, b.domain.primary)]
+
+    @property
+    def index_short(self) -> list[X | Bind]:
+        """Set of indices"""
+        return self.index_primary + self.binds
 
     @property
     def tree(self) -> dict:
@@ -378,7 +385,7 @@ class Domain:
 
     def __iter__(self):
         """Iterate over the indices"""
-        return iter(self.index_primary + self.binds)
+        return iter(self.index_short)
 
     def __call__(self, *args: str) -> Self:
         return Domain(**{i: j for i, j in self.args.items() if i in args})
