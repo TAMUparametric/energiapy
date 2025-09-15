@@ -131,18 +131,26 @@ class Conversion(Name):
 
         return self
 
-    def __eq__(self, other: Conversion | float):
+    def __eq__(self, other: Conversion | int | float | dict[int | float, Conversion]):
         # cons = []
         if isinstance(other, (int, float)):
             # this is used for inventory conversion
+            # when not other resource besides the one being inventoried is involved
             self.conversion = {**self.conversion, self.resource: -1.0 * float(other)}
         else:
             # this is when there is a proper resource conversion
             # -20*res1 = 10*res2 for example
-            self.conversion: dict[Resource, int | float] = {
-                **self.conversion,
-                **other.conversion,
-            }
+
+            if isinstance(other, dict):
+                self.conversion = {
+                    k: {**self.conversion, **v.conversion} for k, v in other.items()
+                }
+            else:
+                self.conversion: dict[Resource, int | float] = {
+                    **self.conversion,
+                    **other.conversion,
+                }
+            print('aaaaa', self.conversion)
         self.model.convmatrix[self.operation] = self.conversion
 
     # these update the conversion of the resource (self.conversion)

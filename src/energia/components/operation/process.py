@@ -159,13 +159,13 @@ class Process(_Operation):
 
             for res, par in self.conversion.items():
                 # set, the conversion on the resource
+
                 setattr(res, self.name, self)
                 # now there are two cases possible
                 # the parameter (par) is positive or negative
                 # if positive, the resource is expended
                 # if negative, the resource is produced
                 # also, the par can be an number or a list of numbers
-
 
                 # insitu resource (produced and expended within the system)
                 # do not initiate a grb so we need to run a check for that first
