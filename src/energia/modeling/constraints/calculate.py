@@ -82,80 +82,108 @@ class Calculate:
 
     def __eq__(self, other):
 
-        if self._nominal:
-            if self._normalize:
-                other = [
-                    (
-                        (self._nominal * i[0], self._nominal * i[1])
-                        if isinstance(i, tuple)
-                        else self._nominal * i
-                    )
-                    for i in normalize(other)
-                ]
-            else:
-                other = [
-                    (
-                        (self._nominal * i[0], self._nominal * i[1])
-                        if isinstance(i, tuple)
-                        else self._nominal * i
-                    )
-                    for i in other
-                ]
+        if isinstance(other, dict):
+            # if this is a dict, piece wise linear functions are being passed
+            # Take the example of expenditure and capacity being modeled
+            # sat the input is {(0, 200): 5000, (200, 300): 4000, (300, 400): 3000
+            # what this implies is that for the capacity between 0 and 200, the expenditure is 5000
+            # for the capacity between 200 and 300, the expenditure is 4000
+            # for the capacity between 300 and 400, the expenditure is 3000
+            # Modes objects index the bin. Three in this case : 1 - (0,200), 2 - (200,300), 3 - (300,400)
+            # We need the following equations:
+            # 1. capacity = capacity(bin0) + capacity(bin1) + capacity(bin2)
+            # 2. x_capacity = 0*capacity(bin0) + 200*capacity(bin1) + 300*capacity(bin2), where is a reporting binary
+            # 3-5. spend(bin0) = 5000*capacity(bin0); spend(bin1) = 4000*capacity(bin1); spend(bin2) = 3000*capacity(bin2)
+            # 6. spend = spend(bin0) + spend(bin1) + spend(bin2)
 
-        if isinstance(other, Value):
-            time = other.period
-            other = other.value
+            # this takes care of 1 and 2
+            _ = self.decision == {n: k[1] for n, k in enumerate(other.keys())}
 
-        else:
-            time = None
+            # this takes care of 3-6
 
-        if self.decision.aspect not in self.model.dispositions:
-            # if a calculation is given directly, without an explicit bound being set
-            _ = self.decision == True
+            # the new modes object would have just been added to the model
+            modes = self.model.modes[-1]
 
-        if self._forall:
-            if isinstance(other, list):
-                # if other is a list, iterate over the _forall indices
-                for n, idx in enumerate(self._forall):
-                    _ = self(idx) == other[n]
-            else:
-                for idx in self._forall:
-                    # if other is not a list, just compare with the first element
-                    _ = self(idx) == other
+            _ = self.decision(modes)[self.calculation(modes)] == list(other.values())
 
         else:
-            # the aspect being calculated
-            if time:
-                calc: Bind = self.calculation(time)
+
+            if self._nominal:
+                if self._normalize:
+                    other = [
+                        (
+                            (self._nominal * i[0], self._nominal * i[1])
+                            if isinstance(i, tuple)
+                            else self._nominal * i
+                        )
+                        for i in normalize(other)
+                    ]
+                else:
+                    other = [
+                        (
+                            (self._nominal * i[0], self._nominal * i[1])
+                            if isinstance(i, tuple)
+                            else self._nominal * i
+                        )
+                        for i in other
+                    ]
+
+            if isinstance(other, Value):
+                time = other.period
+                other = other.value
+
             else:
-                calc: Bind = self.calculation
+                time = None
 
-            # the aspect the calculation is dependant on
-            decision: Bind = self.decision
-            if self.decision.report:
-                # incidental, v_inc_calc = P_inc*x_v
-                v_lhs = calc.Vinc(other)
-                domain = calc.domain
-                v_rhs = decision.X(other)
-                cons_name = rf'{self.calculation.aspect.name}_inc{domain.idxname}_calc'
+            if self.decision.aspect not in self.model.dispositions:
+                # if a calculation is given directly, without an explicit bound being set
+                _ = self.decision == True
+
+            if self._forall:
+                if isinstance(other, list):
+                    # if other is a list, iterate over the _forall indices
+                    for n, idx in enumerate(self._forall):
+                        _ = self(idx) == other[n]
+                else:
+                    for idx in self._forall:
+                        # if other is not a list, just compare with the first element
+                        _ = self(idx) == other
 
             else:
-                # v_calc = P*v
-                v_lhs = calc.V(other)
-                domain = calc.domain
-                v_rhs = decision.V(other)
-                cons_name = rf'{self.calculation.aspect.name}{domain.idxname}_calc'
+                # the aspect being calculated
+                if time:
+                    calc: Bind = self.calculation(time)
+                else:
+                    calc: Bind = self.calculation
 
-            cons: C = v_lhs == other * v_rhs
+                # the aspect the calculation is dependant on
+                decision: Bind = self.decision
+                if self.decision.report:
+                    # incidental, v_inc_calc = P_inc*x_v
+                    v_lhs = calc.Vinc(other)
+                    domain = calc.domain
+                    v_rhs = decision.X(other)
+                    cons_name = (
+                        rf'{self.calculation.aspect.name}_inc{domain.idxname}_calc'
+                    )
 
-            # categorize the constraint
-            cons.categorize('Calculation')
+                else:
+                    # v_calc = P*v
+                    v_lhs = calc.V(other)
+                    domain = calc.domain
+                    v_rhs = decision.V(other)
+                    cons_name = rf'{self.calculation.aspect.name}{domain.idxname}_calc'
 
-            setattr(
-                self.program,
-                cons_name,
-                cons,
-            )
+                cons: C = v_lhs == other * v_rhs
 
-            calc.aspect.constraints.append(cons_name)
-            domain.update_cons(cons_name)
+                # categorize the constraint
+                cons.categorize('Calculation')
+
+                setattr(
+                    self.program,
+                    cons_name,
+                    cons,
+                )
+
+                calc.aspect.constraints.append(cons_name)
+                domain.update_cons(cons_name)

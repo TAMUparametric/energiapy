@@ -121,7 +121,7 @@ class Model(DecisionSpace, _Init, Library):
             State: [('tree', 'states')],
             Control: [('tree', 'controls')],
             Stream: [('tree', 'streams')],
-            Impact: [('tree', 'impacts')], 
+            Impact: [('tree', 'impacts')],
         }
         # ---- Different representations of the model ---
         _Init.__post_init__(self)
@@ -130,6 +130,8 @@ class Model(DecisionSpace, _Init, Library):
         self.units: list[Unit] = []
         self.conversions: list[Conversion] = []  # not added to program
         self.convmatrix: dict[Process, dict[Resource, int | float | list]] = {}
+
+        self.modes_dict: dict[Bind, Modes] = {}
 
         # introduce the dimensions of the model
         DecisionSpace.__post_init__(self)

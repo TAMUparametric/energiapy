@@ -81,60 +81,6 @@ class Storage(Component):  # , Stock):
                 )
                 _ = self.inventory(loc, time) <= 1
 
-            # # check if the storage has been capacitated at that location first
-            # if not self in self.tree.capacity_bound or not loc in [
-            #     l_t[0] for l_t in self.tree.capacity_bound[self]
-            # ]:
-            #     # # The model could be an only scheduling model
-            #     # if not self.tree.inventoried_at:
-            #     # if the storage is not capacitated at the location and time
-            #     print(
-            #         f'--- Assuming  {self.stored} inventory capacity is unbounded in ({loc}, {self.horizon})'
-            #     )
-            #     # this is not a check, this generates a constraint
-            #     _ = self.capacity(loc, self.horizon) == True
-
-            # # now that the process has been capacitated at the location
-            # # check if it is being operated at the location
-
-            # if not self in self.tree.inventory_bound or not loc in [
-            #     l_t[0] for l_t in self.tree.inventory_bound[self]
-            # ]:
-
-            #     # check for the time over which base resource's GRB is defined
-            #     times = list(
-            #         [
-            #             t
-            #             for t in self.model.grb[self.stored.inv_of][loc]
-            #             if self.model.grb[self.stored.inv_of][loc][t]
-            #         ]
-            #     )
-            #     # write the conversion balance at
-            #     # densest temporal scale in that space
-            #     if times:
-            #         time = min(times)
-            #     else:
-            #         time = self.horizon
-            #     # if not just write opr_{pro, loc, horizon} <= capacity_{pro, loc, horizon}
-            #     print(
-            #         f'--- Assuming inventory of {self.stored} is bound by inventory capacity in ({loc}, {time})'
-            #     )
-            #     _ = self.inventory(loc, time) <= 1
-
-            # for d in self.model.inventory.domains:
-            #     if d.space == loc:
-            # loc_time = (loc, d.time)
-            # if not loc_time in loc_times:
-            #     loc_times.append(loc_time)
-            # self.inventory(
-            #     loc,
-            # )
-
-            # if d.operation in [self.charge, self.discharge] and d.space == loc:
-            #     loc_time = (loc, d.time)
-            #     if loc_time not in loc_times:
-            #         loc_times.append(loc_time)
-            # self.stored.inventory()
 
         # locate the charge and discharge processes
         self.charge.locate(*locs)
