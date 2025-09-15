@@ -97,7 +97,7 @@ class Calculate:
             # 6. spend = spend(bin0) + spend(bin1) + spend(bin2)
 
             # this takes care of 1 and 2
-            _ = self.decision == {n: k[1] for n, k in enumerate(other.keys())}
+            _ = self.decision == {n: k for n, k in enumerate(other)}
 
             # this takes care of 3-6
 
