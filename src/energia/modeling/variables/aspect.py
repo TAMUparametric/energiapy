@@ -322,6 +322,7 @@ class Aspect(Name):
                 link=link,
                 period=period,
                 lag=lag,
+                mode=mode,
                 binds=binds,
             )
 

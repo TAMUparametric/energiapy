@@ -197,7 +197,7 @@ class Domain:
         return False
 
     @property
-    def disposition(self) -> str:
+    def disposition(self) -> tuple[str, ...]:
         """Disposition"""
         return tuple(self._.keys())
 
@@ -220,7 +220,7 @@ class Domain:
     # -----------------------------------------------------
 
     @property
-    def index(self) -> list[X]:
+    def index(self) -> list[Aspect | X]:
         """list of _Index elements"""
 
         # binds = sum([[i, j] for i, j in self.binds.items()], [])
@@ -239,11 +239,13 @@ class Domain:
             list[X]: list of primary indices
         """
         return [self.primary] + [
-            i for i in [self.loc, self.link, self.period, self.lag] if i is not None
+            i
+            for i in [self.loc, self.link, self.period, self.lag, self.mode]
+            if i is not None
         ]
 
     @property
-    def index_binds(self) -> list[Bind | X]:
+    def index_binds(self) -> list[Aspect | X]:
         """List of bind indices
 
         Returns:
@@ -252,7 +254,9 @@ class Domain:
         return [x for b in self.binds for x in (b.aspect, b.domain.primary)]
 
     @property
-    def index_short(self) -> list[X | Bind]:
+    def index_short(
+        self,
+    ) -> list[Indicator | Resource | Process | Storage | Transport | Bind]:
         """Set of indices"""
         return self.index_primary + self.binds
 
@@ -286,7 +290,7 @@ class Domain:
         return [b.aspect for b in self.binds]
 
     @property
-    def args(self) -> dict[str, X | Lag | list[Bind]]:
+    def args(self) -> dict[str, X | Lag | Mode | list[Bind]]:
         """Dictionary of indices"""
         return {
             'indicator': self.indicator,
@@ -304,11 +308,11 @@ class Domain:
         }
 
     @property
-    def dictionary(self) -> dict[str, X | Lag | dict[Aspect, X]]:
+    def dictionary(self) -> dict[str, X | Lag | Mode | list[Bind]]:
         """Dictionary of indices"""
         return {
             'primary': self.primary,
-            'maker': self.maker,
+            'player': self.player,
             'space': self.space,
             'time': self.time,
             'mode': self.mode,

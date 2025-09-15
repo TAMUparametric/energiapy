@@ -1,6 +1,14 @@
 """Operational Mode attached to a Parameter"""
 
-from dataclasses import dataclass, field
+from __future__ import annotations
+
+from dataclasses import dataclass
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from gana.sets.index import I
+    from ...modeling.indices.domain import Domain
+    from ...modeling.variables.aspect import Aspect
 
 
 @dataclass
@@ -20,6 +28,17 @@ class Mode:
     def __post_init__(self):
 
         self.name = str(self.name)
+        self.parent_set: I = None
+        self.pos: int = None
+
+        self.domains: list[Domain] = []
+        self.constraints: list[str] = []
+        self.aspects: list[Aspect] = {}
+
+    @property
+    def I(self) -> I:
+        """Index set"""
+        return self.parent_set[self.pos]
 
     def __str__(self):
         return self.name

@@ -516,10 +516,29 @@ class Bind(_Generator):
 
                 modes = [Mode(i, self) for i in other]
                 mode_bounds = [
-                    (other[i], other[i + 1]) if i + 1 in other else (other[i],)
+                    (other[i], other[i + 1]) if i + 1 in other else (other[i], True)
                     for i in other
                 ]
-                print(other, modes, mode_bounds)
+
+                setattr(
+                    self.program,
+                    f'm{self.aspect.name}',
+                    I(size=n_modes, ltx_num=True),
+                )
+                for n, m in enumerate(modes):
+                    m.parent_set = getattr(self.program, f'm{self.aspect.name}')
+                    m.pos = n
+
+           
+
+                for m, b in zip(modes, mode_bounds):
+
+                    _ = self(m) >= b[0]
+                    if b[1] is True:
+                        _ = self(m) == b[1]
+                    else:
+                        _ = self(m) <= b[1]
+
 
             else:
 
@@ -585,7 +604,7 @@ class Bind(_Generator):
                     if (
                         self.domain.space
                         in self.aspect.bound_spaces[self.domain.primary]['ub']
-                    ):
+                    ) and (not self.domain.mode):
                         # return if aspect already bound in space
                         return
                     self.aspect.bound_spaces[self.domain.primary]['ub'].append(
@@ -602,7 +621,7 @@ class Bind(_Generator):
                     if (
                         self.domain.space
                         in self.aspect.bound_spaces[self.domain.primary]['lb']
-                    ):
+                    ) and (not self.domain.mode):
                         # return if aspect already bound in space
                         return
                     self.aspect.bound_spaces[self.domain.primary]['lb'].append(
