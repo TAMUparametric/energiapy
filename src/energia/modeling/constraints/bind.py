@@ -604,7 +604,7 @@ class Bind(_Generator):
                     if (
                         self.domain.space
                         in self.aspect.bound_spaces[self.domain.primary]['ub']
-                    ):
+                    ) and not self.domain.modes:
                         # return if aspect already bound in space
                         return
                     self.aspect.bound_spaces[self.domain.primary]['ub'].append(
@@ -621,7 +621,7 @@ class Bind(_Generator):
                     if (
                         self.domain.space
                         in self.aspect.bound_spaces[self.domain.primary]['lb']
-                    ):
+                    ) and not self.domain.modes:
                         # return if aspect already bound in space
                         return
                     self.aspect.bound_spaces[self.domain.primary]['lb'].append(
