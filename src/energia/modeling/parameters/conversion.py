@@ -62,6 +62,9 @@ class Conversion(Name):
         self.lag: Lag = None
         self.period: Period = None
 
+        # if piece wise linear conversion is provided
+        self.pwl: bool = False
+
     @property
     def model(self) -> Model:
         """energia Model"""
@@ -142,15 +145,17 @@ class Conversion(Name):
             # -20*res1 = 10*res2 for example
 
             if isinstance(other, dict):
+
                 self.conversion = {
                     k: {**self.conversion, **v.conversion} for k, v in other.items()
                 }
+                self.pwl = True
             else:
                 self.conversion: dict[Resource, int | float] = {
                     **self.conversion,
                     **other.conversion,
                 }
-            print('aaaaa', self.conversion)
+
         self.model.convmatrix[self.operation] = self.conversion
 
     # these update the conversion of the resource (self.conversion)

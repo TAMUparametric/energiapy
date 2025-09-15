@@ -5,7 +5,6 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-from numpy import isin
 
 from ...modeling.parameters.conversion import Conversion
 from ._operation import _Operation
@@ -69,33 +68,6 @@ class Process(_Operation):
                 )
                 _ = self.operate(loc, self.horizon) <= 1
 
-            # # check if the process has been capacitated at that location first
-            # if not self in self.tree.capacity_bound or not loc in [
-            #     l_t[0] for l_t in self.tree.capacity_bound[self]
-            # ]:
-            #     # The model could be an only scheduling model
-            #     if self.tree.capacity_bound:
-            #         # The model could be an only scheduling model
-            #         # if not self.d self.tree.operated_at:
-            #         # if the process is not capacitated at the location and time
-            #         print(
-            #             f'--- Assuming  {self} capacity is unbounded in ({loc}, {self.horizon})'
-            #         )
-            #         # this is not a check, this generates a constraint
-            #         _ = self.capacity(loc, self.horizon) == True
-
-            # # now that the process has been capacitated at the location
-            # # check if it is being operated at the location
-
-            # if not self in self.tree.operate_bound or not loc in [
-            #     l_t[0] for l_t in self.tree.operate_bound[self]
-            # ]:
-            #     # if not just write opr_{pro, loc, horizon} <= capacity_{pro, loc, horizon}
-            #     print(
-            #         f'--- Assuming operation of {self} is bound by capacity in ({loc}, {self.horizon})'
-            #     )
-            #     _ = self.operate(loc, self.horizon) <= 1
-
             # check if the process is being operated at the location
             for d in self.model.operate.domains:
                 if d.operation == self and d.space == loc:
@@ -155,6 +127,11 @@ class Process(_Operation):
             if loc in self.locs:
                 # if the process is already balanced for the location , Skip
 
+                continue
+
+            if self.conv.pwl:
+                # if piece wise linear conversion is being used
+                # TODO - stopped here
                 continue
 
             for res, par in self.conversion.items():
@@ -238,8 +215,3 @@ class Process(_Operation):
 
         self.conv.lag = lag
         return self.conv(resource)
-
-    def __getitem__(self, mode: int | str) -> Conversion:
-        """Conversion is called with a Resource to be converted"""
-
-        self.mode = mode
