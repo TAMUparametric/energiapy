@@ -176,6 +176,11 @@ class Map(_Generator):
                 self.writecons_map(self.domain, self.domain.change({'binds': []}))
 
     @property
+    def name(self) -> str:
+        """Name of the constraint"""
+        return self.aspect.name + '_map'
+
+    @property
     def maps(self) -> list[str]:
         """List of domains that the aspect has been mapped to"""
         return self.aspect.maps
@@ -183,7 +188,7 @@ class Map(_Generator):
     def give_sum(self, domain: Domain, tsum: bool = False):
         """Gives the sum of the variable over the domain"""
         if tsum:
-            v = getattr(self.program, self.name)
+            v = getattr(self.program, self.aspect.name)
             # if the domain has been mapped to but this is a time sum
             # we need to first map time
             # and then add it to an existing map at a lower domain
@@ -203,9 +208,9 @@ class Map(_Generator):
     ):
         """Scales up variable to a lower dimension"""
         if tsum:
-            _name = f'{self.name}{to_domain.idxname}_tmap'
+            _name = f'{self.aspect.name}{to_domain.idxname}_tmap'
         else:
-            _name = f'{self.name}{to_domain.idxname}_lmap'
+            _name = f'{self.aspect.name}{to_domain.idxname}_lmap'
 
         # check to see if the lower order domain has been upscaled to already
         if _name in self.maps:

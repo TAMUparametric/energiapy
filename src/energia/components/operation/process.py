@@ -9,6 +9,7 @@ from numpy import isin
 
 from ...modeling.parameters.conversion import Conversion
 from ._operation import _Operation
+from ..temporal.mode import Mode
 
 if TYPE_CHECKING:
     from ..commodity.resource import Resource
@@ -35,6 +36,12 @@ class Process(_Operation):
         self.locs: list[Location] = []
 
         self.ofstorage: Storage = None
+
+        # operating mode
+        self.mode: Mode = None
+
+    
+
 
     def locate(self, *locs: Location):
         """Locate the process"""
@@ -265,3 +272,8 @@ class Process(_Operation):
 
         self.conv.lag = lag
         return self.conv(resource)
+
+    def __getitem__(self, mode: int | str) -> Conversion:
+        """Conversion is called with a Resource to be converted"""
+
+        self.mode = mode

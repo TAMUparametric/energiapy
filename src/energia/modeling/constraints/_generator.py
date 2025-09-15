@@ -51,10 +51,10 @@ class _Generator(Name):
     # the domain is passed when the aspect is called using __call__()
     domain: Domain = None
 
-    @property
-    def name(self) -> str:
-        """Name of the constraint"""
-        return self.aspect.name
+    # @property
+    # def name(self) -> str:
+    #     """Name of the constraint"""
+    #     return self.aspect.name
 
     @property
     def model(self) -> Model:

@@ -53,6 +53,8 @@ class Calculate:
         # the input argument is normalized if True
         self._normalize: bool = False
 
+
+
     @property
     def model(self) -> Model:
         """Model to which the Calc belongs"""
@@ -75,7 +77,6 @@ class Calculate:
 
     def __call__(self, *index) -> Self:
         # update the index and return a Calc object
-
 
         return Calculate(
             calculation=self.calculation(*index), decision=self.decision(*index)

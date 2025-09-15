@@ -15,6 +15,7 @@ from gana.sets.variable import V
 from ...utils.math import normalize
 from ._generator import _Generator
 from .calculate import Calculate
+from ...components.temporal.mode import Mode
 
 if TYPE_CHECKING:
     from gana.block.program import Prg
@@ -83,6 +84,11 @@ class Bind(_Generator):
 
         # an index will be carried here
         self._index: I = None
+
+    @property
+    def name(self) -> str:
+        """Name of the constraint"""
+        return f'{self.domain.primary}.{self.aspect.name}'
 
     @property
     def index(self) -> list[Component]:
@@ -166,7 +172,7 @@ class Bind(_Generator):
         # for example, if opr_t = opr_t-1 + x_t, then opr_t is already defined
         if self.domain.lag:
             # t - 1 is made after t, so no need to set a new one
-            return getattr(self.program, self.name)(*self.domain.Ilist)
+            return getattr(self.program, self.aspect.name)(*self.domain.Ilist)
 
         # ------ Check time and space -------
         # this is only called if the bind variable has no temporal index defined
@@ -213,11 +219,11 @@ class Bind(_Generator):
             if self.aspect.latex:
                 ltx = r'{\breve{' + self.aspect.latex + r'}}'
             else:
-                ltx = r'{\breve{' + self.name + r'}}'
+                ltx = r'{\breve{' + self.aspect.name + r'}}'
             # create a binary variable
             setattr(
                 self.program,
-                f'x_{self.name}',
+                f'x_{self.aspect.name}',
                 V(
                     *index,
                     mutable=True,
@@ -225,7 +231,7 @@ class Bind(_Generator):
                     bnr=True,
                 ),
             )
-            v_rpt = getattr(self.program, f'x_{self.name}')
+            v_rpt = getattr(self.program, f'x_{self.aspect.name}')
             self.aspect.reporting = v_rpt
             return v_rpt(*index)
 
@@ -244,15 +250,15 @@ class Bind(_Generator):
             if self.aspect.latex:
                 ltx = self.aspect.latex + r'^{inc}'
             else:
-                ltx = self.name + r'^{inc}'
+                ltx = self.aspect.name + r'^{inc}'
 
             # create an incidental variable (continuous)
             setattr(
                 self.program,
-                f'{self.name}_incidental',
+                f'{self.aspect.name}_incidental',
                 V(*index, mutable=True, ltx=ltx),
             )
-            return getattr(self.program, f'{self.name}_incidental')(*index)
+            return getattr(self.program, f'{self.aspect.name}_incidental')(*index)
 
         # --------- if continuous ---------------
 
@@ -273,7 +279,7 @@ class Bind(_Generator):
             # all energia variables are mutable by default
             setattr(
                 self.program,
-                self.name,
+                self.aspect.name,
                 V(*index, mutable=True, ltx=self.aspect.latex),
             )
 
@@ -314,7 +320,7 @@ class Bind(_Generator):
 
             self.aspect.domains.append(self.domain)
 
-        return getattr(self.program, self.name)(*index)
+        return getattr(self.program, self.aspect.name)(*index)
 
     def Vinc(self, parameters: float | list = None, length: int = None) -> V:
         """Returns the incidental variable
@@ -430,9 +436,9 @@ class Bind(_Generator):
                 obj += sigma(v_inc)
 
         if max:
-            setattr(self.program, f'max{self.name})', sup(obj))
+            setattr(self.program, f'max{self.aspect.name})', sup(obj))
         else:
-            setattr(self.program, f'min({self.name})', inf(obj))
+            setattr(self.program, f'min({self.aspect.name})', inf(obj))
 
         # optimize!
         self.program.opt()
@@ -503,115 +509,129 @@ class Bind(_Generator):
 
         else:
 
-            # --------- handle the scaling of the data
-            if self._nominal:
-                if self._normalize:
-                    other = [
-                        (
-                            (self._nominal * i[0], self._nominal * i[1])
-                            if isinstance(i, tuple)
-                            else self._nominal * i
-                        )
-                        for i in normalize(other)
-                    ]
-                else:
-                    other = [
-                        (
-                            (self._nominal * i[0], self._nominal * i[1])
-                            if isinstance(i, tuple)
-                            else self._nominal * i
-                        )
-                        for i in other
-                    ]
+            if isinstance(other, dict):
+                # if a dictionary is passed
+                # modes are assumed
+                n_modes = len(other)
 
-            # --------- Get LHS
-            # lhs needs to be determined here
-            # because V will be spaced and timed if not passed by user
-            # .X(), .Vb() need time and space
-
-            lhs = self.V(other)
-
-            # --------- Get RHS
-
-            # if self.aspect.bound is not None and (
-            #     self.model.capacitate
-            #     or (
-            #         self.aspect.bound in self.dispositions
-            #         and self.domain.primary in self.dispositions[self.aspect.bound]
-            #     )
-            # ):
-            if self.aspect.bound is not None:
-                # --------- if variable bound
-                if self.report:
-                    # --------- if variable bound and reported
-                    # we do not want a bi-linear term
-                    rhs = other * self.X(other)
-
-                else:
-                    # --------- if just variable bound
-                    rhs = other * self.Vb()
+                modes = [Mode(i, self) for i in other]
+                mode_bounds = [
+                    (other[i], other[i + 1]) if i + 1 in other else (other[i],)
+                    for i in other
+                ]
+                print(other, modes, mode_bounds)
 
             else:
-                # --------- if  parameter bound
-                if self.report:
-                    # --------- if  parameter bound and reported
-                    rhs = other * self.X(other)
+
+                # --------- handle the scaling of the data
+                if self._nominal:
+                    if self._normalize:
+                        other = [
+                            (
+                                (self._nominal * i[0], self._nominal * i[1])
+                                if isinstance(i, tuple)
+                                else self._nominal * i
+                            )
+                            for i in normalize(other)
+                        ]
+                    else:
+                        other = [
+                            (
+                                (self._nominal * i[0], self._nominal * i[1])
+                                if isinstance(i, tuple)
+                                else self._nominal * i
+                            )
+                            for i in other
+                        ]
+
+                # --------- Get LHS
+                # lhs needs to be determined here
+                # because V will be spaced and timed if not passed by user
+                # .X(), .Vb() need time and space
+
+                lhs = self.V(other)
+
+                # --------- Get RHS
+
+                # if self.aspect.bound is not None and (
+                #     self.model.capacitate
+                #     or (
+                #         self.aspect.bound in self.dispositions
+                #         and self.domain.primary in self.dispositions[self.aspect.bound]
+                #     )
+                # ):
+                if self.aspect.bound is not None:
+                    # --------- if variable bound
+                    if self.report:
+                        # --------- if variable bound and reported
+                        # we do not want a bi-linear term
+                        rhs = other * self.X(other)
+
+                    else:
+                        # --------- if just variable bound
+                        rhs = other * self.Vb()
+
                 else:
-                    # --------- if just parameter bound
-                    rhs = other
+                    # --------- if  parameter bound
+                    if self.report:
+                        # --------- if  parameter bound and reported
+                        rhs = other * self.X(other)
+                    else:
+                        # --------- if just parameter bound
+                        rhs = other
 
-            if rel == 'leq':
-                # Less than equal to
-                if (
-                    self.domain.space
-                    in self.aspect.bound_spaces[self.domain.primary]['ub']
-                ):
-                    # return if aspect already bound in space
+                if rel == 'leq':
+                    # Less than equal to
+                    if (
+                        self.domain.space
+                        in self.aspect.bound_spaces[self.domain.primary]['ub']
+                    ):
+                        # return if aspect already bound in space
+                        return
+                    self.aspect.bound_spaces[self.domain.primary]['ub'].append(
+                        self.domain.space
+                    )
+                    cons: C = lhs <= rhs
+                    rel = '_ub'
+                elif rel == 'eq':
+                    # Exactly equal to
+                    cons: C = lhs == rhs
+                    rel = '_eq'
+                elif rel == 'geq':
+                    # Greater than equal to
+                    if (
+                        self.domain.space
+                        in self.aspect.bound_spaces[self.domain.primary]['lb']
+                    ):
+                        # return if aspect already bound in space
+                        return
+                    self.aspect.bound_spaces[self.domain.primary]['lb'].append(
+                        self.domain.space
+                    )
+                    cons: C = lhs >= rhs
+                    rel = '_lb'
+                else:
                     return
-                self.aspect.bound_spaces[self.domain.primary]['ub'].append(
-                    self.domain.space
+
+                # name of the constraint
+                cons_name = rf'{self.aspect.name}{self.domain.idxname}{rel}'
+
+                # categorize the constraint
+                cons.categorize('Bound')
+
+                # let all objects in the domain know that
+                # a constraint with this name contains it
+                self.domain.update_cons(cons_name)
+
+                # let the aspect know about the new constraint
+                self.aspect.constraints.append(cons_name)
+
+                # set the constraint
+                setattr(
+                    self.program,
+                    cons_name,
+                    cons,
                 )
-                cons: C = lhs <= rhs
-                rel = '_ub'
-            elif rel == 'eq':
-                # Exactly equal to
-                cons: C = lhs == rhs
-                rel = '_eq'
-            elif rel == 'geq':
-                # Greater than equal to
-                if (
-                    self.domain.space
-                    in self.aspect.bound_spaces[self.domain.primary]['lb']
-                ):
-                    # return if aspect already bound in space
-                    return
-                self.aspect.bound_spaces[self.domain.primary]['lb'].append(
-                    self.domain.space
-                )
-                cons: C = lhs >= rhs
-                rel = '_lb'
-            else:
-                return
-
-            # name of the constraint
-            cons_name = rf'{self.name}{self.domain.idxname}{rel}'
-
-            # categorize the constraint
-            cons.categorize('Bound')
-
-            # let all objects in the domain know that
-            # a constraint with this name contains it
-            self.domain.update_cons(cons_name)
-
-            # let the aspect know about the new constraint
-            self.aspect.constraints.append(cons_name)
-
-            # set the constraint
-            setattr(
-                self.program,
-                cons_name,
-                cons,
-            )
 
     def __le__(self, other):
 
@@ -631,7 +651,7 @@ class Bind(_Generator):
             self.V()
 
         elif isinstance(other, Bind):
-            if self.name == other.name:
+            if self.aspect.name == other.aspect.name:
                 if self.domain == other.domain:
                     return True
             return False

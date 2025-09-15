@@ -20,6 +20,7 @@ from ...components.spatial.linkage import Linkage
 from ...components.spatial.location import Location
 from ...components.temporal.lag import Lag
 from ...components.temporal.period import Period
+from ...components.temporal.mode import Mode
 from ...core.name import Name
 from ..constraints.bind import Bind
 from ..indices.domain import Domain
@@ -239,7 +240,8 @@ class Aspect(Name):
                 loc,
                 link,
                 lag,
-            ) = (None for _ in range(11))
+                mode,
+            ) = (None for _ in range(12))
 
             binds: list[Bind] = []
             timed, spaced = False, False
@@ -300,30 +302,8 @@ class Aspect(Name):
                             binds.extend(b.domain.binds)
                     binds = list(set(binds))
 
-                    # if comp.domain.operation:
-                    #     binds[comp.aspect] = {comp.domain.operation: {}}
-                    #     # process = comp.domain.process
-                    #     # storage = comp.domain.storage
-                    #     # transport = comp.domain.transport
-                    #     # op_aspect = comp.aspect
-
-                    # if comp.domain.resource:
-                    #     binds[comp.domain.resource] = {comp.aspect: {}}
-                    # dresource = comp.domain.resource
-                    # dr_aspect = comp.aspect
-
-                # elif isinstance(comp, Aspect):
-                #     # if an Aspect is being passed, it has to be a bind aspect
-                #     binds[comp] = {index[index.index(comp) + 1]: {}}
-                #     if comp.types_opr and not comp.types_res:
-                #         op_aspect = comp
-                #     elif comp.types_res:
-                #         dr_aspect = comp
-
-                # elif isinstance(comp, I):
-                #     if comp.name == 'locs':
-                #         loc = comp
-                #         spaced = True
+                elif isinstance(comp, Mode):
+                    mode = comp
 
                 else:
                     raise ValueError(

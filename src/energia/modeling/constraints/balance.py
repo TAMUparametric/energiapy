@@ -97,6 +97,11 @@ class Balance(_Generator):
                 self.writecons_grb(resource, loc, time)
 
     @property
+    def name(self) -> str:
+        """Name of the constraint"""
+        return f'{self.aspect.name}{self.domain}'
+
+    @property
     def mapped_to(self) -> list[Domain]:
         """List of domains that the aspect has been mapped to"""
         return self.aspect.maps
