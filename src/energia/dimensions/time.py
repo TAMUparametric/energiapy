@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from ..components.temporal.period import Period
+from ..components.temporal.modes import Modes
 from ..core.dimension import Dimension
 
 if TYPE_CHECKING:
@@ -24,6 +25,7 @@ class Time(Dimension):
         name (str): Name of the model. Defaults to None.
         _indexed (I): The index set of Horizon. For easy call. Defaults to None.
         periods (list[Period]): List of time periods. Defaults to []
+        modes (list[Modes]): List of modes. Defaults to []
 
     Note:
         - name is generated based on the Class and Model name
@@ -34,6 +36,7 @@ class Time(Dimension):
     def __post_init__(self):
         self._indexed: I = None
         self.periods: list[Period] = []
+        self.modes: list[Modes] = []
         Dimension.__post_init__(self)
 
     @property

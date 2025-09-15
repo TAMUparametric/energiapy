@@ -20,7 +20,7 @@ from ...components.spatial.linkage import Linkage
 from ...components.spatial.location import Location
 from ...components.temporal.lag import Lag
 from ...components.temporal.period import Period
-from ...components.temporal.mode import Mode
+from ...components.temporal.modes import Modes
 from ...core.name import Name
 from ..constraints.bind import Bind
 from ..indices.domain import Domain
@@ -302,7 +302,7 @@ class Aspect(Name):
                             binds.extend(b.domain.binds)
                     binds = list(set(binds))
 
-                elif isinstance(comp, Mode):
+                elif isinstance(comp, Modes):
                     mode = comp
 
                 else:

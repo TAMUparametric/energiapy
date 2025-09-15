@@ -9,7 +9,7 @@ from numpy import isin
 
 from ...modeling.parameters.conversion import Conversion
 from ._operation import _Operation
-from ..temporal.mode import Mode
+from ..temporal.modes import Modes
 
 if TYPE_CHECKING:
     from ..commodity.resource import Resource
@@ -38,10 +38,7 @@ class Process(_Operation):
         self.ofstorage: Storage = None
 
         # operating mode
-        self.mode: Mode = None
-
-    
-
+        self.mode: Modes = None
 
     def locate(self, *locs: Location):
         """Locate the process"""

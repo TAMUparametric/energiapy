@@ -22,7 +22,7 @@ if TYPE_CHECKING:
     from ...components.spatial.location import Location
     from ...components.temporal.lag import Lag
     from ...components.temporal.period import Period
-    from ...components.temporal.mode import Mode
+    from ...components.temporal.modes import Modes
     from ...core.component import Component
     from ...core.x import X
     from ..parameters.conversion import Conversion
@@ -70,7 +70,7 @@ class Domain:
     link: Linkage = None
     period: Period = None
     lag: Lag = None
-    mode: Mode = None
+    mode: Modes = None
 
     # These can be summed over
     binds: list[Bind] = None
@@ -290,7 +290,7 @@ class Domain:
         return [b.aspect for b in self.binds]
 
     @property
-    def args(self) -> dict[str, X | Lag | Mode | list[Bind]]:
+    def args(self) -> dict[str, X | Lag | Modes | list[Bind]]:
         """Dictionary of indices"""
         return {
             'indicator': self.indicator,
@@ -308,7 +308,7 @@ class Domain:
         }
 
     @property
-    def dictionary(self) -> dict[str, X | Lag | Mode | list[Bind]]:
+    def dictionary(self) -> dict[str, X | Lag | Modes | list[Bind]]:
         """Dictionary of indices"""
         return {
             'primary': self.primary,

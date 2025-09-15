@@ -32,6 +32,7 @@ if TYPE_CHECKING:
     from ..components.spatial.linkage import Linkage
     from ..components.spatial.location import Location
     from ..components.temporal.period import Period
+    from ..components.temporal.modes import Modes
     from ..modeling.indices.domain import Domain
     from ..modeling.variables.aspect import Aspect
     from ..modeling.variables.control import Control
@@ -66,7 +67,7 @@ class _Scope:
             Aspect,
             dict[
                 Resource | Process | Storage | Transport,
-                dict[Location | Linkage, dict[Period]],
+                dict[Location | Linkage, dict[Period, list[Aspect]]],
             ],
         ] = {}
 
@@ -215,6 +216,11 @@ class _Scope:
     def periods(self) -> list[Period]:
         """The periods of the Model"""
         return self.time.periods
+
+    @property
+    def modes(self) -> list[Modes]:
+        """The modes of the Model"""
+        return self.time.modes
 
     @property
     def locs(self) -> list[Location]:

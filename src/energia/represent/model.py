@@ -18,6 +18,7 @@ from ..components.operation.transport import Transport
 from ..components.spatial.linkage import Linkage
 from ..components.spatial.location import Location
 from ..components.temporal.period import Period
+from ..components.temporal.modes import Modes
 from ..core.x import X
 from ..dimensions.decisionspace import DecisionSpace
 from ..modeling.parameters.conversion import Conversion
@@ -100,6 +101,7 @@ class Model(DecisionSpace, _Init, Library):
 
         self.update_map = {
             Period: [('time', 'periods')],
+            Modes: [('time', 'modes')],
             Location: [('space', 'locs')],
             Linkage: [
                 ('space', 'links'),
@@ -119,7 +121,7 @@ class Model(DecisionSpace, _Init, Library):
             State: [('tree', 'states')],
             Control: [('tree', 'controls')],
             Stream: [('tree', 'streams')],
-            Impact: [('tree', 'impacts')],
+            Impact: [('tree', 'impacts')], 
         }
         # ---- Different representations of the model ---
         _Init.__post_init__(self)
@@ -240,20 +242,6 @@ class Model(DecisionSpace, _Init, Library):
                 # also ensures that all linakges go in one direction only
                 rev = value.rev()
                 setattr(self, rev.name, rev)
-
-        elif isinstance(value, Conversion):
-            # Currency can be declared through their exchange with other Currency
-            if value.balance and isinstance(list(value.balance)[0], Currency):
-                cash, task = Currency(), Conversion()
-                cash.name = name
-                task.name = list(value.balance)[0].name
-                task.balance = {cash: list(value.balance.values())[0]}
-                setattr(cash, task.name, task)
-                setattr(self, name, cash)
-                return
-            else:
-                setattr(self.tree, name, value)
-                self.conversions.append(value)
 
         super().__setattr__(name, value)
 

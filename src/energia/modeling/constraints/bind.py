@@ -15,7 +15,7 @@ from gana.sets.variable import V
 from ...utils.math import normalize
 from ._generator import _Generator
 from .calculate import Calculate
-from ...components.temporal.mode import Mode
+from ...components.temporal.modes import Modes
 
 if TYPE_CHECKING:
     from gana.block.program import Prg
@@ -513,32 +513,31 @@ class Bind(_Generator):
                 # if a dictionary is passed
                 # modes are assumed
                 n_modes = len(other)
+                modes_name = f'm{self.aspect.name}'
 
-                modes = [Mode(i, self) for i in other]
+                setattr(self.model, modes_name, Modes(n_modes=n_modes, bind=self))
+
+                modes = getattr(self.model, modes_name)
+                print('kkkk', modes, modes.program)
+
                 mode_bounds = [
                     (other[i], other[i + 1]) if i + 1 in other else (other[i], True)
                     for i in other
                 ]
+                modes_lb = [b[0] for b in mode_bounds]
+                modes_ub = [b[1] for b in mode_bounds]
 
-                setattr(
-                    self.program,
-                    f'm{self.aspect.name}',
-                    I(size=n_modes, ltx_num=True),
-                )
-                for n, m in enumerate(modes):
-                    m.parent_set = getattr(self.program, f'm{self.aspect.name}')
-                    m.pos = n
+                _ = self(modes) >= modes_lb
+                _ = self(modes) <= modes_ub
 
-           
+                # for m, b in zip(modes, mode_bounds):
 
-                for m, b in zip(modes, mode_bounds):
-
-                    _ = self(m) >= b[0]
-                    if b[1] is True:
-                        _ = self(m) == b[1]
-                    else:
-                        _ = self(m) <= b[1]
-
+                #     _ = self()
+                #     _ = self(m) >= b[0]
+                #     if b[1] is True:
+                #         _ = self(m) == b[1]
+                #     else:
+                #         _ = self(m) <= b[1]
 
             else:
 
