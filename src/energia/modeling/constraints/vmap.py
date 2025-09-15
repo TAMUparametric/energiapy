@@ -8,17 +8,20 @@ from typing import TYPE_CHECKING
 from gana import sigma
 from operator import is_
 
+import time as keep_time
+
 from ._generator import _Generator
 
 if TYPE_CHECKING:
-    from gana import Prg, C
+    from gana.block.program import Prg
+    from gana.sets.constraint import C
 
     from ...components.commodity.resource import Resource
     from ...components.operation.process import Process
     from ...components.operation.storage import Storage
     from ...components.operation.transport import Transport
-    from ...components.spatial.linkage import Link
-    from ...components.spatial.location import Loc
+    from ...components.spatial.linkage import Linkage
+    from ...components.spatial.location import Location
     from ...components.temporal.period import Period
     from ...core.x import X
     from ...represent.model import Model
@@ -31,6 +34,7 @@ class Map(_Generator):
     """Maps between domains"""
 
     return_sum: bool = False
+    reporting: bool = False
 
     def __post_init__(self):
 
@@ -82,12 +86,14 @@ class Map(_Generator):
         # this will lead to adding twice. India = Goa + Madgaon + Ponje (WRONG)
         # We scale only one level up
 
+        # DONOT map across all periods, only to from the densest which is given by .of
         if space in dispositions and time in dispositions[space]:
             # the aspect is already defined at this location
             # we need to check if it is defined for any periods sparser than time
             for sparser_period in sparser_periods:
-                if sparser_period in dispositions[space]:
-
+                if sparser_period in dispositions[space] and is_(
+                    sparser_period.of, time
+                ):
                     # check if the aspect has been defined for a sparser period
                     # this creates a map from this domain to a sparser domain
                     self.writecons_map(
@@ -97,7 +103,7 @@ class Map(_Generator):
                     )
 
             for denser_period in denser_periods:
-                if denser_period in dispositions[space]:
+                if denser_period in dispositions[space] and is_(time.of, denser_period):
 
                     # create a new domain to map from
                     domain_from = self.domain.copy()
@@ -161,15 +167,43 @@ class Map(_Generator):
                         self.domain,
                     )
 
+            if (
+                self.domain.primary in self.grb
+                and self.aspect(self.domain.primary, space, time)
+                in self.grb[self.domain.primary][space][time]
+            ):
+                # consider the case where overall consumption for water in some location and time is defined
+                # now user defines consumption due to using cement during construction
+                # we should have the constraint consume(water, goa, 2025) = consume(water, goa, 2025, use, cement)
+
+                self.writecons_map(self.domain, self.domain.change({'binds': []}))
+
+            if self.domain.modes:
+                # if the variable is defined over modes
+                # we need to map it to the same domain without modes
+                self.writecons_map(
+                    self.domain, self.domain.change({'modes': None}), msum=True
+                )
+
+    @property
+    def name(self) -> str:
+        """Name of the constraint"""
+        return self.aspect.name + '_map'
+
     @property
     def maps(self) -> list[str]:
         """List of domains that the aspect has been mapped to"""
         return self.aspect.maps
 
-    def give_sum(self, domain: Domain, tsum: bool = False):
+    def give_sum(
+        self,
+        domain: Domain,
+        tsum: bool = False,
+        msum: bool = False,
+    ):
         """Gives the sum of the variable over the domain"""
         if tsum:
-            v = getattr(self.program, self.name)
+            v = getattr(self.program, self.aspect.name)
             # if the domain has been mapped to but this is a time sum
             # we need to first map time
             # and then add it to an existing map at a lower domain
@@ -177,6 +211,20 @@ class Map(_Generator):
                 v(*domain.Ilist),
                 domain.time.I,
             )
+            return v_sum
+        if msum:
+            if self.reporting:
+                v = getattr(self.program, f'x_{self.aspect.name}')
+            else:
+                v = getattr(self.program, self.aspect.name)
+            # if the domain has been mapped to but this is a mode sum
+            # we need to first map modes
+            # and then add it to an existing map at a lower domain
+            v_sum = sigma(
+                v(*domain.Ilist),
+                domain.modes.I,
+            )
+
             return v_sum
         else:
             return self(*domain).V()
@@ -186,38 +234,58 @@ class Map(_Generator):
         from_domain: Domain,
         to_domain: Domain = None,
         tsum: bool = False,
+        msum: bool = False,
     ):
         """Scales up variable to a lower dimension"""
         if tsum:
-            _name = f'{self.name}{to_domain.idxname}_tmap'
+            _name = f'{self.aspect.name}{to_domain.idxname}_tmap'
+        elif msum:
+            if self.reporting:
+                _name = f'{self.aspect.name}{to_domain.idxname}_x_mmap'
+            else:
+                _name = f'{self.aspect.name}{to_domain.idxname}_mmap'
+
         else:
-            _name = f'{self.name}{to_domain.idxname}_lmap'
+            _name = f'{self.aspect.name}{to_domain.idxname}_lmap'
 
-        # check to see if the lower order domain has been upscaled to already
         if _name in self.maps:
-
+            # check to see if the lower order domain has been upscaled to already
+            if self.reporting:
+                # this does not apply to modes (reporting), since they only need to be mapped once
+                return
             print(f'--- Mapping {self.aspect}: from {from_domain} to {to_domain}')
+            start = keep_time.time()
 
             cons_existing: C = getattr(self.program, _name)
             # update the existing constraint
             setattr(
                 self.program,
                 _name,
-                cons_existing - self.give_sum(domain=from_domain, tsum=tsum),
+                cons_existing - self.give_sum(domain=from_domain, tsum=tsum, msum=msum),
             )
+
+            end = keep_time.time()
+            print(f'    Completed in {end-start} seconds')
 
         else:
+            if self.reporting:
+                print(
+                    f'--- Creating map to {to_domain}. Mapping {self.aspect.reporting}: from {from_domain} to {to_domain}'
+                )
+            else:
 
-            print(
-                f'--- Creating map to {to_domain}. Mapping {self.aspect}: from {from_domain} to {to_domain}'
-            )
+                print(
+                    f'--- Creating map to {to_domain}. Mapping {self.aspect}: from {from_domain} to {to_domain}'
+                )
 
-            v_lower = self(*to_domain).V()
+            start = keep_time.time()
+            if self.reporting:
+                v_lower = self(*to_domain).X()
+            else:
+                v_lower = self(*to_domain).V()
 
             # write the constraint
-            cons: C = v_lower == self.give_sum(domain=from_domain, tsum=tsum)
-
-            cons.categorize('Map')
+            cons: C = v_lower == self.give_sum(domain=from_domain, tsum=tsum, msum=msum)
 
             if self.return_sum:
                 # if only a sum is requested, don't set to the program
@@ -228,6 +296,9 @@ class Map(_Generator):
                 _name,
                 cons,
             )
+            cons.categorize('Mapping')
+            end = keep_time.time()
+            print(f'    Completed in {end-start} seconds')
 
             self.aspect.constraints.append(_name)
 

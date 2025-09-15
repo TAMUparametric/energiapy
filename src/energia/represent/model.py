@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Type
 
 from dill import dump
 
-from ..components.commodity.misc import Cash, Emission, Land, Material
+from ..components.commodity.misc import Currency, Emission, Land, Material
 from ..components.commodity.resource import Resource
 from ..components.game.player import Player
 from ..components.impact.categories import Economic, Environ, Social
@@ -15,16 +15,18 @@ from ..components.measure.unit import Unit
 from ..components.operation.process import Process
 from ..components.operation.storage import Storage
 from ..components.operation.transport import Transport
-from ..components.spatial.linkage import Link
-from ..components.spatial.location import Loc
+from ..components.spatial.linkage import Linkage
+from ..components.spatial.location import Location
 from ..components.temporal.period import Period
+from ..components.temporal.modes import Modes
 from ..core.x import X
 from ..dimensions.decisionspace import DecisionSpace
-from ..modeling.parameters.conversion import Conv
+from ..modeling.parameters.conversion import Conversion
 from ..modeling.variables.control import Control
 from ..modeling.variables.impact import Impact
 from ..modeling.variables.state import State
 from ..modeling.variables.stream import Stream
+from .library import Library
 from .blocks import _Init
 
 if TYPE_CHECKING:
@@ -35,8 +37,15 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class Model(DecisionSpace, _Init):
+class Model(DecisionSpace, _Init, Library):
     """An abstract representation of an energy system
+
+    Args:
+        name (str) = m
+        default (bool): True if want some default objects to be declared
+        capacitate (bool): True if want to determine process capacities to bound operations
+
+
 
     Attributes:
         name (str): Name of the Model
@@ -60,6 +69,7 @@ class Model(DecisionSpace, _Init):
 
     name: str = 'm'
     default: bool = True
+    capacitate: bool = False
 
     def __post_init__(self):
 
@@ -77,7 +87,7 @@ class Model(DecisionSpace, _Init):
         # 1. Commodity (Resource) of any kind
         # 2. Emission (Emission) resource
         # 3. Land (Land) resource
-        # 4. Money (Cash)
+        # 4. Money (Currency)
         # 5. Material (Material) used to setup processes
         # 6. etc. societal (Jobs), etc (Etc).
         # IV Operations (System):
@@ -91,8 +101,9 @@ class Model(DecisionSpace, _Init):
 
         self.update_map = {
             Period: [('time', 'periods')],
-            Loc: [('space', 'locs')],
-            Link: [
+            Modes: [('time', 'modes')],
+            Location: [('space', 'locs')],
+            Linkage: [
                 ('space', 'links'),
             ],
             Environ: [('impact', 'envs')],
@@ -103,7 +114,7 @@ class Model(DecisionSpace, _Init):
             Storage: [('system', 'storages')],
             Transport: [('system', 'transits')],
             Player: [('tree', 'players')],
-            Cash: [('system', 'currencies', True)],
+            Currency: [('system', 'currencies', True)],
             Land: [('system', 'lands', True)],
             Emission: [('system', 'emissions', True)],
             Material: [('system', 'materials', True)],
@@ -117,8 +128,10 @@ class Model(DecisionSpace, _Init):
 
         # measuring units
         self.units: list[Unit] = []
-        self.conversions: list[Conv] = []  # not added to program
+        self.conversions: list[Conversion] = []  # not added to program
         self.convmatrix: dict[Process, dict[Resource, int | float | list]] = {}
+
+        self.modes_dict: dict[Bind, Modes] = {}
 
         # introduce the dimensions of the model
         DecisionSpace.__post_init__(self)
@@ -177,7 +190,13 @@ class Model(DecisionSpace, _Init):
         for i in names:
             setattr(self, i, what())
 
-    def Link(self, source: Loc, sink: Loc, dist: float | Unit = None, bi: bool = False):
+    def Link(
+        self,
+        source: Location,
+        sink: Location,
+        dist: float | Unit = None,
+        bi: bool = False,
+    ):
         """Link two Locations"""
         if source - sink:
             # if source and sink are already linked
@@ -186,7 +205,7 @@ class Model(DecisionSpace, _Init):
                 'For multiple links with different attributes, use model.named_link = Link(...)'
             )
 
-        link = Link(source=source, sink=sink, dist=dist, bi=bi, auto=True)
+        link = Linkage(source=source, sink=sink, dist=dist, bi=bi, auto=True)
         setattr(self, f'{source.name}-{sink.name}', link)
 
     def __setattr__(self, name, value):
@@ -209,12 +228,12 @@ class Model(DecisionSpace, _Init):
                 break
 
         # Locations also belong to spaces
-        if isinstance(value, Loc):
+        if isinstance(value, Location):
 
             self.program.spaces |= value.I
 
         # Linkages also belong to spaces
-        elif isinstance(value, Link):
+        elif isinstance(value, Linkage):
             self.program.spaces |= value.I
             self.program.sources |= value.source.I
             self.program.sinks |= value.sink.I
@@ -226,29 +245,17 @@ class Model(DecisionSpace, _Init):
                 rev = value.rev()
                 setattr(self, rev.name, rev)
 
-        elif isinstance(value, Conv):
-            # Cash can be declared through their exchange with other Cash
-            if value.balance and isinstance(list(value.balance)[0], Cash):
-                cash, task = Cash(), Conv()
-                cash.name = name
-                task.name = list(value.balance)[0].name
-                task.balance = {cash: list(value.balance.values())[0]}
-                setattr(cash, task.name, task)
-                setattr(self, name, cash)
-                return
-            else:
-                setattr(self.tree, name, value)
-                self.conversions.append(value)
-
         super().__setattr__(name, value)
 
-    def show(self, descriptive: bool = False, categorical: bool = True):
+    def show(
+        self, descriptive: bool = False, categorical: bool = True, category: str = None
+    ):
         """Pretty print the Model"""
-        self.program.show(descriptive, categorical=categorical)
+        self.program.show(descriptive, categorical=categorical, category=category)
 
-    def sol(self, slack: bool = True):
+    def sol(self, n_sol: int = 0, slack: bool = True):
         """Solution"""
-        return self.program.sol(slack)
+        return self.program.sol(n_sol=n_sol, slack=slack)
 
     def save(self, as_type: str = 'dill'):
         """Save the Model to a file"""
@@ -279,10 +286,14 @@ class Model(DecisionSpace, _Init):
         self.t0 = Period('Time')
         return self.t0
 
-    def default_loc(self) -> Loc:
+    def default_loc(self) -> Location:
         """Return a default location"""
-        self.l = Loc(label='l')
+        self.l = Location(label='l')
         return self.l
+
+    def locate(self, *operations: Process | Storage):
+        """Locate operations in the network"""
+        self.network.locate(*operations)
 
     # -----------------------------------------------------
     #                    Hashing

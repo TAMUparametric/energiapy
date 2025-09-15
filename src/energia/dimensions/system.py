@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 from ..core.dimension import Dimension
 
 if TYPE_CHECKING:
-    from ..components.commodity.misc import Cash, Emission, Land, Material
+    from ..components.commodity.misc import Currency, Emission, Land, Material
     from ..components.commodity.resource import Resource
     from ..components.operation.process import Process
     from ..components.operation.storage import Storage
@@ -36,7 +36,7 @@ class System(Dimension):
         self.resources: list[Resource] = []
         self.lands: list[Land] = []
         self.materials: list[Material] = []
-        self.currencies: list[Cash] = []
+        self.currencies: list[Currency] = []
         self.emissions: list[Emission] = []
 
         # ---------- Operations/Tasks ----------

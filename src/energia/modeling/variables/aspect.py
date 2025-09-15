@@ -16,10 +16,11 @@ from ...components.impact.indicator import Indicator
 from ...components.operation.process import Process
 from ...components.operation.storage import Storage
 from ...components.operation.transport import Transport
-from ...components.spatial.linkage import Link
-from ...components.spatial.location import Loc
+from ...components.spatial.linkage import Linkage
+from ...components.spatial.location import Location
 from ...components.temporal.lag import Lag
 from ...components.temporal.period import Period
+from ...components.temporal.modes import Modes
 from ...core.name import Name
 from ..constraints.bind import Bind
 from ..indices.domain import Domain
@@ -67,7 +68,7 @@ class Aspect(Name):
                 self.label += ' [+]'
             else:
                 self.label += ' [-]'
-        self.indices: list[Loc | Link, Period] = []
+        self.indices: list[Location | Linkage, Period] = []
 
         # Does this add to the domain?
         self.ispos = True
@@ -76,7 +77,7 @@ class Aspect(Name):
 
         # spaces where the aspect has been already bound
         self.bound_spaces: dict[
-            Resource | Process | Storage | Transport, list[Loc | Link]
+            Resource | Process | Storage | Transport, list[Location | Linkage]
         ] = {}
 
         # Domains of the decision
@@ -157,7 +158,9 @@ class Aspect(Name):
         return self.model.tree
 
     @property
-    def grb(self) -> dict[Resource, dict[Loc | Link, dict[Period, list[Aspect]]]]:
+    def grb(
+        self,
+    ) -> dict[Resource, dict[Location | Linkage, dict[Period, list[Aspect]]]]:
         """General Resource Balance dict"""
         return self.model.grb
 
@@ -166,7 +169,7 @@ class Aspect(Name):
         Self,
         dict[
             Resource | Process | Storage | Transport,
-            dict[Period | Loc | Link, dict[Loc | Period | Link, bool]],
+            dict[Period | Location | Linkage, dict[Location | Period | Linkage, bool]],
         ],
     ]:
         """Dispositions dict"""
@@ -181,13 +184,13 @@ class Aspect(Name):
         for c in self.cons:
             c.show(descriptive)
 
-    def sol(self, aslist: bool = False) -> list[float] | None:
+    def sol(self, n_sol: int = 0, aslist: bool = False) -> list[float] | None:
         """Solution
         Args:
             aslist (bool, optional): Returns values taken as list. Defaults to False.
         """
         var: V = getattr(self.program, self.name)
-        return var.sol(aslist)
+        return var.sol(n_sol, aslist)
 
     def gettime(self, *index) -> list[Period]:
         """Finds the sparsest time scale in the domains"""
@@ -237,7 +240,8 @@ class Aspect(Name):
                 loc,
                 link,
                 lag,
-            ) = (None for _ in range(11))
+                modes,
+            ) = (None for _ in range(12))
 
             binds: list[Bind] = []
             timed, spaced = False, False
@@ -252,11 +256,11 @@ class Aspect(Name):
                     lag = comp
                     timed = True
 
-                elif isinstance(comp, Loc):
+                elif isinstance(comp, Location):
                     loc = comp
                     spaced = True
 
-                elif isinstance(comp, Link):
+                elif isinstance(comp, Linkage):
                     link = comp
                     spaced = True
 
@@ -293,35 +297,17 @@ class Aspect(Name):
                     # this only comes in play for calculations (streams, impacts)
 
                     binds.append(comp)
+                    for b in binds:
+                        if b.domain.binds:
+                            binds.extend(b.domain.binds)
+                    binds = list(set(binds))
 
-                    # if comp.domain.operation:
-                    #     binds[comp.aspect] = {comp.domain.operation: {}}
-                    #     # process = comp.domain.process
-                    #     # storage = comp.domain.storage
-                    #     # transport = comp.domain.transport
-                    #     # op_aspect = comp.aspect
-
-                    # if comp.domain.resource:
-                    #     binds[comp.domain.resource] = {comp.aspect: {}}
-                    # dresource = comp.domain.resource
-                    # dr_aspect = comp.aspect
-
-                # elif isinstance(comp, Aspect):
-                # if an Aspect is being passed, it has to be a bind aspect
-                # binds[comp] = {index[index.index(comp) + 1]: {}}
-                # if comp.Operation and not comp.Resource:
-                #     op_aspect = comp
-                # elif comp.Resource:
-                #     dr_aspect = comp
-
-                # elif isinstance(comp, I):
-                #     if comp.name == 'locs':
-                #         loc = comp
-                #         spaced = True
+                elif isinstance(comp, Modes):
+                    modes = comp
 
                 else:
                     raise ValueError(
-                        f'{self}:{comp} of type {type(comp)} not recognized as an index'
+                        f'For component {self} of type {type(self)}: {comp} of type {type(comp)} not recognized as an index'
                     )
 
             domain = Domain(
@@ -336,6 +322,7 @@ class Aspect(Name):
                 link=link,
                 period=period,
                 lag=lag,
+                modes=modes,
                 binds=binds,
             )
 

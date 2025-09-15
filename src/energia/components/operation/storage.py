@@ -6,13 +6,13 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from ...core.component import Component
-from ...modeling.parameters.conversion import Conv
+from ...modeling.parameters.conversion import Conversion
 
 from ..commodity.resource import Resource
 from .process import Process
 
 if TYPE_CHECKING:
-    from ..spatial.location import Loc
+    from ..spatial.location import Location
     from ..temporal.period import Period
     from ...modeling.constraints.bind import Bind
 
@@ -32,7 +32,7 @@ class Storage(Component):  # , Stock):
         self.charge.ofstorage = self
         self.discharge = Process()
         self.discharge.ofstorage = self
-        self.locs: list[Loc] = []
+        self.locs: list[Location] = []
 
     def __setattr__(self, name, value):
         if name == 'model' and value:
@@ -41,7 +41,7 @@ class Storage(Component):  # , Stock):
 
         super().__setattr__(name, value)
 
-    def locate(self, *locs: Loc):
+    def locate(self, *locs: Location):
         """Locate the storage"""
         # update the locations at which the storage exists
 
@@ -49,27 +49,19 @@ class Storage(Component):  # , Stock):
         loc_times = []
         for loc in locs:
 
-            # check if the storage has been capacitated at that location first
-            if not self in self.tree.capacitated_at or not loc in [
-                l_t[0] for l_t in self.tree.capacitated_at[self]
-            ]:
-                # # The model could be an only scheduling model
-                # if not self.tree.inventoried_at:
-                # if the storage is not capacitated at the location and time
+            if loc not in self.model.invcapacity.bound_spaces[self.stored]:
+                # check if the storage capacity has been bound at that location
                 print(
                     f'--- Assuming  {self.stored} inventory capacity is unbounded in ({loc}, {self.horizon})'
                 )
                 # this is not a check, this generates a constraint
                 _ = self.capacity(loc, self.horizon) == True
 
-            # now that the process has been capacitated at the location
-            # check if it is being operated at the location
-
-            if not self in self.tree.inventoried_at or not loc in [
-                l_t[0] for l_t in self.tree.inventoried_at[self]
-            ]:
-
-                # check for the time over which base resource's GRB is defined
+            if loc not in self.model.inventory.bound_spaces[self.stored]:
+                # check if the storage inventory has been bound at that location
+                print(
+                    f'--- Assuming inventory of {self.stored} is bound by inventory capacity in ({loc}, {self.horizon})'
+                )
                 times = list(
                     [
                         t
@@ -89,20 +81,6 @@ class Storage(Component):  # , Stock):
                 )
                 _ = self.inventory(loc, time) <= 1
 
-            # for d in self.model.inventory.domains:
-            #     if d.space == loc:
-            # loc_time = (loc, d.time)
-            # if not loc_time in loc_times:
-            #     loc_times.append(loc_time)
-            # self.inventory(
-            #     loc,
-            # )
-
-            # if d.operation in [self.charge, self.discharge] and d.space == loc:
-            #     loc_time = (loc, d.time)
-            #     if loc_time not in loc_times:
-            #         loc_times.append(loc_time)
-            # self.stored.inventory()
 
         # locate the charge and discharge processes
         self.charge.locate(*locs)
@@ -140,7 +118,7 @@ class Storage(Component):  # , Stock):
         """Conversion of commodities"""
         return self.discharge.conv.conversion
 
-    def __call__(self, resource: Resource | Conv):
+    def __call__(self, resource: Resource | Conversion):
         """Conversion is called with a Resource to be converted"""
         if not self._conv:
             # create storage resource
@@ -149,13 +127,13 @@ class Storage(Component):  # , Stock):
             setattr(self.model, f'{resource}.{self}', stored)
 
             # ---------- set discharge conversion
-            self.discharge.conv = Conv(
+            self.discharge.conv = Conversion(
                 process=self.discharge, storage=self, resource=stored
             )
             _ = self.discharge.conv(resource) == -1.0 * stored
 
             # ---------- set charge conversion
-            self.charge.conv = Conv(
+            self.charge.conv = Conversion(
                 process=self.charge, storage=self, resource=resource
             )
 

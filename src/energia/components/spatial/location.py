@@ -8,16 +8,16 @@ from warnings import warn
 
 from ...core.x import X
 from ...utils.dictionary import get_depth
-from .linkage import Link
+from .linkage import Linkage
 
 if TYPE_CHECKING:
-    from ...dimensions.loc import Space
-    from ..commodity.misc import Cash
+    from ...dimensions.space import Space
+    from ..commodity.misc import Currency
     from ..operation.process import Process
     from ..operation.storage import Storage
 
 
-class Loc(X):
+class Location(X):
     """A discretization of Space
     A location can be inclusive of other locations
 
@@ -33,7 +33,7 @@ class Loc(X):
         # if the location is a part of another
         self.isin = None
         # the currency used in the location
-        self.currency: Cash = None
+        self.currency: Currency = None
         # goes down another level of hierarchy
         # to find locations within the locations contained in this location
         self.alsohas: tuple[Self] = ()
@@ -54,11 +54,11 @@ class Loc(X):
                     if not locin in self.has:
                         self.alsohas += (locin,)
 
-    def operations(self, *oprs: Process | Storage):
+    def locate(self, *operations: Process | Storage):
         """Locates the Operations"""
         # locates an operation
         # which leads to the conversion balances being written
-        for opr in oprs:
+        for opr in operations:
             opr.locate(self)
 
     @property
@@ -120,7 +120,7 @@ class Loc(X):
             return True
         return False
 
-    def links(self, location, print_link: bool = True) -> list[Link]:
+    def links(self, location, print_link: bool = True) -> list[Linkage]:
         """Finds the links between two Locations
 
         Args:
@@ -174,8 +174,8 @@ class Loc(X):
         """Creates another location which consists of self and other"""
         if not self.name:
             # this handles when adding multiple locations
-            return Loc(*self.has, location)
-        return Loc(location, self)
+            return Location(*self.has, location)
+        return Location(location, self)
 
     def __radd__(self, number: int):
         """For allowing sum([Loc])"""

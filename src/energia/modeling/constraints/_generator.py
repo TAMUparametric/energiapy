@@ -15,8 +15,8 @@ if TYPE_CHECKING:
     from ...components.operation.process import Process
     from ...components.operation.storage import Storage
     from ...components.operation.transport import Transport
-    from ...components.spatial.linkage import Link
-    from ...components.spatial.location import Loc
+    from ...components.spatial.linkage import Linkage
+    from ...components.spatial.location import Location
     from ...components.temporal.period import Period
     from ...core.x import X
     from ...dimensions.decisiontree import DecisionTree
@@ -51,10 +51,10 @@ class _Generator(Name):
     # the domain is passed when the aspect is called using __call__()
     domain: Domain = None
 
-    @property
-    def name(self) -> str:
-        """Name of the constraint"""
-        return self.aspect.name
+    # @property
+    # def name(self) -> str:
+    #     """Name of the constraint"""
+    #     return self.aspect.name
 
     @property
     def model(self) -> Model:
@@ -74,7 +74,10 @@ class _Generator(Name):
     @property
     def dispositions(self) -> dict[
         Aspect,
-        dict[Resource | Process | Storage | Transport, dict[Loc | Link, dict[Period]]],
+        dict[
+            Resource | Process | Storage | Transport,
+            dict[Location | Linkage, dict[Period]],
+        ],
     ]:
         """Nested dictionary describing the disposition of each Aspect"""
         return self.model.dispositions
@@ -84,7 +87,7 @@ class _Generator(Name):
         self,
     ) -> dict[
         Resource | Process | Storage | Transport,
-        dict[Loc, dict[Period | Link, list[Bind]]],
+        dict[Location, dict[Period | Linkage, list[Bind]]],
     ]:
         """List of Bind at each disposition"""
         return self.model.grb

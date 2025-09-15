@@ -11,19 +11,19 @@ from ...modeling.variables.default import Transact, Utilize
 from .resource import Resource
 
 if TYPE_CHECKING:
-    from ..spatial.location import Loc
+    from ..spatial.location import Location
 
 
-class Cash(Resource, Transact):
+class Currency(Resource, Transact):
     """Same as Economic Impact (Eco)"""
 
-    def __init__(self, *locs: Loc, label: str = ''):
+    def __init__(self, *locs: Location, label: str = ''):
 
         Resource.__init__(self, label=label)
         # Eco.__init__(self)
 
         # the locations, where this currency applies
-        self.locs: Loc = locs
+        self.locs: Location = locs
 
         # also applies to all locations nested under the locations
         if locs:

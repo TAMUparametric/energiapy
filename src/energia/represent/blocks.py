@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Literal
 
-from ..components.commodity.misc import Cash, Emission, Land, Material
+from ..components.commodity.misc import Currency, Emission, Land, Material
 from ..components.impact.indicator import Indicator
 from ..components.commodity.resource import Resource
 from ..components.operation.transport import Transport
@@ -29,9 +29,10 @@ if TYPE_CHECKING:
     from ..components.impact.categories import Economic, Environ, Social
     from ..components.operation.process import Process
     from ..components.operation.storage import Storage
-    from ..components.spatial.linkage import Link
-    from ..components.spatial.location import Loc
+    from ..components.spatial.linkage import Linkage
+    from ..components.spatial.location import Location
     from ..components.temporal.period import Period
+    from ..components.temporal.modes import Modes
     from ..modeling.indices.domain import Domain
     from ..modeling.variables.aspect import Aspect
     from ..modeling.variables.control import Control
@@ -56,14 +57,17 @@ class _Scope:
 
         # Dictionary which tells you what aspects of resource
         # have grb {loc: time: []} and {time: loc: []}
-        self.grb: dict[Resource, dict[Loc | Link, dict[Period, list[Aspect]]]] = {}
+        self.grb: dict[
+            Resource, dict[Location | Linkage, dict[Period, list[Aspect]]]
+        ] = {}
 
         # Dictionary which tells you what aspects of what component
         # have been bound at what location and time
         self.dispositions: dict[
             Aspect,
             dict[
-                Resource | Process | Storage | Transport, dict[Loc | Link, dict[Period]]
+                Resource | Process | Storage | Transport,
+                dict[Location | Linkage, dict[Period, list[Aspect]]],
             ],
         ] = {}
 
@@ -73,7 +77,7 @@ class _Scope:
         return self.time.horizon
 
     @property
-    def network(self) -> Loc:
+    def network(self) -> Location:
         """The network of the Model"""
         return self.space.network
 
@@ -194,7 +198,7 @@ class _Scope:
 
         # self.dispositions[aspect][primary] = update_space_time(_dict)
 
-    def update_grb(self, resource: Resource, space: Loc | Link, time: Period):
+    def update_grb(self, resource: Resource, space: Location | Linkage, time: Period):
         """Creates a mesh for grb dict"""
 
         if not resource in self.grb:
@@ -214,12 +218,17 @@ class _Scope:
         return self.time.periods
 
     @property
-    def locs(self) -> list[Loc]:
+    def modes(self) -> list[Modes]:
+        """The modes of the Model"""
+        return self.time.modes
+
+    @property
+    def locs(self) -> list[Location]:
         """The Locations"""
         return self.space.locs
 
     @property
-    def links(self) -> list[Link]:
+    def links(self) -> list[Linkage]:
         """The Links"""
         return self.space.links
 
@@ -325,12 +334,12 @@ class _Graph:
         self.graph = Graph(self)
 
     @property
-    def edges(self) -> list[Link]:
+    def edges(self) -> list[Linkage]:
         """The Edges"""
         return self.graph.edges
 
     @property
-    def nodes(self) -> list[Loc]:
+    def nodes(self) -> list[Location]:
         """The Nodes"""
         return self.graph.nodes
 
@@ -359,7 +368,7 @@ class _System:
         return self.system.materials
 
     @property
-    def currencies(self) -> list[Cash]:
+    def currencies(self) -> list[Currency]:
         """The Currencies"""
         return self.system.currencies
 
@@ -464,6 +473,11 @@ class _Program:
     def indices(self) -> list[str]:
         """Indices"""
         return self.program.indices
+
+    @property
+    def objectives(self) -> list[C]:
+        """Objectives"""
+        return self.program.objectives
 
     # -------------------------------------
     #            Ordered Lists

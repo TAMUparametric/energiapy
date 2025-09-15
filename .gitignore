@@ -200,7 +200,7 @@ pyrightconfig.json
 
 
 #other generated files
-.lp 
-.mps
-.pkl 
-.pdf 
+*.lp 
+*.mps
+*.pkl 
+*.pdf 

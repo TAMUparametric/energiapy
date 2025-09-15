@@ -37,6 +37,7 @@ class X:
     """
 
     label: str = None
+    citations: str = None
 
     def __post_init__(self):
         # the model

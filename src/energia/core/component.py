@@ -9,11 +9,11 @@ from .x import X
 
 if TYPE_CHECKING:
     from ..components.measure.unit import Unit
-    from ..components.spatial.linkage import Link
-    from ..components.spatial.location import Loc
+    from ..components.spatial.linkage import Linkage
+    from ..components.spatial.location import Location
     from ..components.temporal.period import Period
     from ..dimensions.decisiontree import DecisionTree
-    from ..dimensions.loc import Space
+    from ..dimensions.space import Space
     from ..dimensions.time import Time
     from ..modeling.variables.aspect import Aspect
 
@@ -58,7 +58,7 @@ class Component(X):
         return self.model.tree
 
     @property
-    def network(self) -> Loc:
+    def network(self) -> Location:
         """Circumscribing Loc (Spatial Scale)"""
         return self.model.network
 

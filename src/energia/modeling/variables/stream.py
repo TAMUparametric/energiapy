@@ -24,6 +24,7 @@ class Stream(State):
         """Add a domain to the decision variable"""
 
         # Write a mapping constraint
+
         Map(aspect=self, domain=domain)
 
         # Write/Update, the stream balance

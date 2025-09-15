@@ -6,13 +6,13 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from ...core.component import Component
-from ...modeling.parameters.conversion import Conv
+from ...modeling.parameters.conversion import Conversion
 from ...modeling.variables.default import Design, Scheduling
 
 if TYPE_CHECKING:
     from ..commodity.resource import Resource
     from ..measure.unit import Unit
-    from ..spatial.location import Loc
+    from ..spatial.location import Location
     from ..temporal.lag import Lag
 
 
@@ -23,7 +23,7 @@ class _Operation(Component, Design, Scheduling):
     def __post_init__(self):
         Component.__post_init__(self)
         self._conv = False
-        self.conv: Conv = None
+        self.conv: Conversion = None
 
     @property
     def base(self) -> Resource:
@@ -31,7 +31,7 @@ class _Operation(Component, Design, Scheduling):
         return self.conv.base
 
     @property
-    def conversion(self) -> dict[Resource : int | float]:
+    def conversion(self) -> dict[Resource, int | float]:
         """Conversion of commodities"""
         return self.conv.conversion
 

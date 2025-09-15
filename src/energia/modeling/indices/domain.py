@@ -18,13 +18,14 @@ if TYPE_CHECKING:
     from ...components.operation.process import Process
     from ...components.operation.storage import Storage
     from ...components.operation.transport import Transport
-    from ...components.spatial.linkage import Link
-    from ...components.spatial.location import Loc
+    from ...components.spatial.linkage import Linkage
+    from ...components.spatial.location import Location
     from ...components.temporal.lag import Lag
     from ...components.temporal.period import Period
+    from ...components.temporal.modes import Modes
     from ...core.component import Component
     from ...core.x import X
-    from ..parameters.conversion import Conv
+    from ..parameters.conversion import Conversion
     from ..variables.aspect import Aspect
     from ...represent.model import Model
     from ...modeling.constraints.bind import Bind
@@ -65,10 +66,11 @@ class Domain:
     couple: Couple = None
 
     # compulsory space and time elements
-    loc: Loc = None
-    link: Link = None
+    loc: Location = None
+    link: Linkage = None
     period: Period = None
     lag: Lag = None
+    modes: Modes = None
 
     # These can be summed over
     binds: list[Bind] = None
@@ -96,7 +98,7 @@ class Domain:
         # self.lagged = True if self.lag else False
 
         # primary index being modeled in some spatiotemporal context
-        self.model: Model = next((i.model for i in self.index if i), None)
+        self.model: Model = next((i.model for i in self.index_short if i), None)
 
         # if self.indicator:
         #     self.primary = self.indicator
@@ -133,7 +135,7 @@ class Domain:
         return _primary
 
     @property
-    def space(self) -> Loc | Link:
+    def space(self) -> Location | Linkage:
         """Space"""
         return self.link or self.loc
 
@@ -195,7 +197,7 @@ class Domain:
         return False
 
     @property
-    def disposition(self) -> str:
+    def disposition(self) -> tuple[str, ...]:
         """Disposition"""
         return tuple(self._.keys())
 
@@ -218,7 +220,7 @@ class Domain:
     # -----------------------------------------------------
 
     @property
-    def index(self) -> list[X]:
+    def index(self) -> list[Aspect | X]:
         """list of _Index elements"""
 
         # binds = sum([[i, j] for i, j in self.binds.items()], [])
@@ -228,24 +230,35 @@ class Domain:
         return self.index_primary + self.index_binds
 
     @property
-    def index_primary(self) -> list[X]:
+    def index_primary(
+        self,
+    ) -> list[Indicator | Resource | Process | Storage | Transport]:
         """Primary index
 
         Returns:
             list[X]: list of primary indices
         """
         return [self.primary] + [
-            i for i in [self.loc, self.link, self.period, self.lag] if i is not None
+            i
+            for i in [self.loc, self.link, self.period, self.lag, self.modes]
+            if i is not None
         ]
 
     @property
-    def index_binds(self) -> list[Bind, X]:
+    def index_binds(self) -> list[Aspect | X]:
         """List of bind indices
 
         Returns:
             list[Bind, X]: list of bind indices
         """
         return [x for b in self.binds for x in (b.aspect, b.domain.primary)]
+
+    @property
+    def index_short(
+        self,
+    ) -> list[Indicator | Resource | Process | Storage | Transport | Bind]:
+        """Set of indices"""
+        return self.index_primary + self.binds
 
     @property
     def tree(self) -> dict:
@@ -271,31 +284,13 @@ class Domain:
 
         return tree
 
-    # @property
-    # def bind_dict(self) -> dict[Aspect, X]:
-    #     """Dictionary of binds"""
-    #     return {i.aspect: i.domain.primary for i in self.binds}
-
-    # @property
-    # def bind_list(self) -> list[Aspect, X]:
-    #     """List of binds"""
-    #     _bind_list = []
-    #     tree = self.bind_dict.copy()
-
-    #     while tree:
-    #         ((k, v),) = tree.items()  # unpack the only key:value
-    #         _bind_list.append(k)
-    #         tree = v
-    #     return _bind_list
-    #     return [(k, v) for k, v in self.binds.items()]
-
     @property
     def aspects(self) -> list[Aspect]:
         """Aspects"""
         return [b.aspect for b in self.binds]
 
     @property
-    def args(self) -> dict[str, X | Lag | dict[Aspect, X]]:
+    def args(self) -> dict[str, X | Lag | Modes | list[Bind]]:
         """Dictionary of indices"""
         return {
             'indicator': self.indicator,
@@ -308,17 +303,19 @@ class Domain:
             'link': self.link,
             'period': self.period,
             'lag': self.lag,
+            'modes': self.modes,
             'binds': self.binds,
         }
 
     @property
-    def dictionary(self) -> dict[str, X | Lag | dict[Aspect, X]]:
+    def dictionary(self) -> dict[str, X | Lag | Modes | list[Bind]]:
         """Dictionary of indices"""
         return {
             'primary': self.primary,
-            'maker': self.maker,
+            'player': self.player,
             'space': self.space,
             'time': self.time,
+            'modes': self.modes,
             'binds': self.binds,
         }
 
@@ -396,7 +393,7 @@ class Domain:
 
     def __iter__(self):
         """Iterate over the indices"""
-        return iter(self.index_primary + self.binds)
+        return iter(self.index_short)
 
     def __call__(self, *args: str) -> Self:
         return Domain(**{i: j for i, j in self.args.items() if i in args})

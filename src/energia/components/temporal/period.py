@@ -46,6 +46,8 @@ class Period(X):
 
     def __post_init__(self):
 
+        X.__post_init__(self)
+
         self._periods = self.periods
 
         self._of = self.of
@@ -58,13 +60,6 @@ class Period(X):
 
         # can be overwritten by program
         self.name = f'{self._periods}{self._of}'
-
-        self.constraints: list[str] = []
-        self.domains: list[Domain] = []
-        self.aspects: dict[Aspect, list[Domain]] = {}
-
-        # has an index been made?
-        self._indexed: bool = False
 
         if self.of is None:
             self.of = self

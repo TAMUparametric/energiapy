@@ -27,7 +27,6 @@ class State(Aspect):
         self.sub: Control = None
 
         self.mapped_from: list[Domain] = []
-        
 
     def __setattr__(self, name: str, value: Control | Any):
 
@@ -45,8 +44,8 @@ class State(Aspect):
         """Get the domains over which the sub variable is defined"""
         return self.tree.get('aspects', 'domains')[self.sub]
 
-    def map_domain(self, domain: Domain):
+    def map_domain(self, domain: Domain, reporting: bool = False):
         """Add a domain to the decision variable"""
 
         # Write a mapping constraint
-        Map(aspect=self, domain=domain)
+        Map(aspect=self, domain=domain, reporting=reporting)

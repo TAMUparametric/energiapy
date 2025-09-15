@@ -5,8 +5,8 @@ import json
 import pickle
 from itertools import product
 
-import numpy
-import pandas
+import numpy as np
+import pandas as pd
 
 # from ..solution.result import Result
 
@@ -15,7 +15,7 @@ def make_henry_price_df(
     file_name: str,
     year: int,
     stretch: bool = False,
-) -> pandas.DataFrame:
+) -> pd.DataFrame:
     """makes a df from data with missing data filled using previous day values
     The costs are converted to $/kg from $/MMBtu using a factor of /22.4
     Only works if there is an entire year of data (365). Converts form $/MMBtu to $/kg (x/22.4)
@@ -26,28 +26,28 @@ def make_henry_price_df(
 
 
     Returns:
-        pandas.DataFrame: data frame with varying natural gas prices
+        pd.DataFrame: data frame with varying natural gas prices
     """
 
-    df = pandas.read_csv(file_name, skiprows=5, names=['date', 'CH4'])
+    df = pd.read_csv(file_name, skiprows=5, names=['date', 'CH4'])
 
     df[["month", "day", "year"]] = df['date'].str.split("/", expand=True)
     df = df[df['year'] == str(year)].astype({"month": int, "day": int, "year": int})
     # , format='%d%b%Y:%H:%M:%S.%f')
-    df['date'] = pandas.to_datetime(df['date'])
+    df['date'] = pd.to_datetime(df['date'])
     df['doy'] = df['date'].dt.dayofyear
     df = df.sort_values(by=['doy'])
     df = df.drop(columns='date').dropna(axis='rows')
     doy_list = list(df['doy'])
 
     # fixes values for weekends and holidays to last active day
-    for i in numpy.arange(1, 366):
+    for i in np.arange(1, 366):
         if i not in doy_list:
             if i == 1:  # onetime fix if first day has no value, takes value from day 2
-                df = pandas.concat(
+                df = pd.concat(
                     [
                         df,
-                        pandas.DataFrame.from_records(
+                        pd.DataFrame.from_records(
                             [
                                 {
                                     'CH4': df['CH4'][df['doy'] == 2].values[0],
@@ -62,10 +62,10 @@ def make_henry_price_df(
                 )
                 # df = df.append({'CH4': df['CH4'][df['doy'] == 2].values[0], 'month': 1, 'day': 1, 'year': year, 'doy': 1}, ignore_index=True)
             else:
-                df = pandas.concat(
+                df = pd.concat(
                     [
                         df,
-                        pandas.DataFrame.from_records(
+                        pd.DataFrame.from_records(
                             [
                                 {
                                     'CH4': df['CH4'][df['doy'] == i - 1].values[0],
@@ -97,16 +97,16 @@ def make_henry_price_df(
 
 
 def remove_outliers(
-    data: pandas.DataFrame, sd_cuttoff: int = 2, mean_range: int = 1
-) -> pandas.DataFrame:
+    data: pd.DataFrame, sd_cuttoff: int = 2, mean_range: int = 1
+) -> pd.DataFrame:
     """Removes outliers upto chosen standard deviations
     fixes data as the mean of data points on both sides of the point
     Args:
-        data (pandas.DataFrame): input data
+        data (pd.DataFrame): input data
         sd_cuttoff (int, optional): data upto integer number of standard deviations. Defaults to 2.
         mean_range: (int, optional): number of data points on either sides to average over
     Returns:
-        pandas.DataFrame: data sans outliers
+        pd.DataFrame: data sans outliers
     """
     data_mean, data_std = data.mean(), data.std()
     # identify outliers

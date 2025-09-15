@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 from typing import Type
 
-from ..components.commodity.misc import Cash, Material
+from ..components.commodity.misc import Currency, Material
 from ..components.commodity.resource import Resource
 from ..components.impact.categories import Environ, Social
 from ..components.operation.process import Process
@@ -288,7 +288,7 @@ class DecisionSpace:
 
         # Monetary
         self.earn = Impact(
-            types_res=Cash,
+            types_res=Currency,
             types_dres=Resource,
             types_opr=(Process, Storage, Transport),
             label='Transact',
@@ -297,7 +297,7 @@ class DecisionSpace:
 
         # Economic revenue is a balance of earn and spend
         self.revenue = State(
-            types_res=Cash,
+            types_res=Currency,
             label='Revenue',
             latex=r'{rev}',
         )

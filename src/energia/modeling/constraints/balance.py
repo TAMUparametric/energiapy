@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from itertools import product
+import time as keep_time
 from operator import is_
 from typing import TYPE_CHECKING, Self
 
@@ -18,8 +18,8 @@ if TYPE_CHECKING:
     from ...components.operation.process import Process
     from ...components.operation.storage import Storage
     from ...components.operation.transport import Transport
-    from ...components.spatial.linkage import Link
-    from ...components.spatial.location import Loc
+    from ...components.spatial.linkage import Linkage
+    from ...components.spatial.location import Location
     from ...components.temporal.period import Period
     from ...core.x import X
     from ...represent.model import Model
@@ -46,6 +46,7 @@ class Balance(_Generator):
         resource = self.domain.resource
         binds = self.domain.binds
         time = self.domain.time
+
 
         if self.domain.link:
             if self.aspect.sign == -1:
@@ -75,10 +76,32 @@ class Balance(_Generator):
 
         else:
             # if there are binds
-            if self.grb[resource][loc][time]:
+
+            if resource.insitu:
+                # # we need to still check if this is this is an insitu (e.g. a storage resource)
+                # if the resource is insitu that means that
+                # no external bounds have been defined
+                # a GRB is still needed
+
+                self.writecons_grb(resource, loc, time)
+
+            if (
+                self.grb[resource][loc][time]
+                and self.aspect(resource, loc, time)
+                not in self.grb[resource][loc][time]
+            ):
+                # for the second check, consider the case where
+
+                # # these do not get their own GRB, as they are only utilized within a process
+
                 # if there is already a GRB existing
                 # add the bind to the GRB at the same scale
                 self.writecons_grb(resource, loc, time)
+
+    @property
+    def name(self) -> str:
+        """Name of the constraint"""
+        return f'{self.aspect.name}{self.domain}'
 
     @property
     def mapped_to(self) -> list[Domain]:
@@ -140,6 +163,7 @@ class Balance(_Generator):
                 print(
                     f'--- General Resource Balance for {resource} in ({loc}, {time}): initializing constraint, adding {self.aspect}'
                 )
+            start = keep_time.time()
 
             if resource.inv_of and self.aspect.name == 'inventory':
                 if len(time) == 1:
@@ -161,6 +185,8 @@ class Balance(_Generator):
                 _name,
                 cons_grb,
             )
+            end = keep_time.time()
+            print(f'    Completed in {end-start} seconds')
 
             # updates the constraints in all indices of self.domain
             self.domain.update_cons(_name)
@@ -179,6 +205,8 @@ class Balance(_Generator):
                 print(
                     f'--- General Resource Balance for {resource} in ({loc}, {time}): adding {self.aspect}'
                 )
+
+            start = keep_time.time()
 
             # update the GRB aspects
             self.grb[resource][loc][time].append(self)
@@ -211,6 +239,8 @@ class Balance(_Generator):
                         _name,
                         cons_grb - self(*self.domain).V(),
                     )
+            end = keep_time.time()
+            print(f'    Completed in {end-start} seconds')
 
             # updates the constraints in all the indices of self.domain
             self.domain.update_cons(_name)
@@ -241,6 +271,8 @@ class Balance(_Generator):
                             f'--- General Resource Balance for {resource} in ({loc.isin}, {time}): adding {self.aspect}'
                         )
 
+                    start = keep_time.time()
+
                     _name = f'{resource}_{loc.isin}_{time}_grb'
 
                     cons_grb = getattr(self.program, _name)
@@ -256,6 +288,10 @@ class Balance(_Generator):
                             _name,
                             cons_grb - self(*self.domain).V(),
                         )
+
+                    end = keep_time.time()
+                    print(f'    Completed in {end-start} seconds')
+
                     self.domain.update_cons(_name)
                     if _name not in self.aspect.constraints:
                         self.aspect.constraints.append(_name)
