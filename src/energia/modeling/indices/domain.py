@@ -70,7 +70,7 @@ class Domain:
     link: Linkage = None
     period: Period = None
     lag: Lag = None
-    mode: Modes = None
+    modes: Modes = None
 
     # These can be summed over
     binds: list[Bind] = None
@@ -240,7 +240,7 @@ class Domain:
         """
         return [self.primary] + [
             i
-            for i in [self.loc, self.link, self.period, self.lag, self.mode]
+            for i in [self.loc, self.link, self.period, self.lag, self.modes]
             if i is not None
         ]
 
@@ -303,7 +303,7 @@ class Domain:
             'link': self.link,
             'period': self.period,
             'lag': self.lag,
-            'mode': self.mode,
+            'modes': self.modes,
             'binds': self.binds,
         }
 
@@ -315,7 +315,7 @@ class Domain:
             'player': self.player,
             'space': self.space,
             'time': self.time,
-            'mode': self.mode,
+            'modes': self.modes,
             'binds': self.binds,
         }
 

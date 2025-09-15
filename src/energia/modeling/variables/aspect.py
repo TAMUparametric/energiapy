@@ -240,7 +240,7 @@ class Aspect(Name):
                 loc,
                 link,
                 lag,
-                mode,
+                modes,
             ) = (None for _ in range(12))
 
             binds: list[Bind] = []
@@ -303,7 +303,7 @@ class Aspect(Name):
                     binds = list(set(binds))
 
                 elif isinstance(comp, Modes):
-                    mode = comp
+                    modes = comp
 
                 else:
                     raise ValueError(
@@ -322,7 +322,7 @@ class Aspect(Name):
                 link=link,
                 period=period,
                 lag=lag,
-                mode=mode,
+                modes=modes,
                 binds=binds,
             )
 

@@ -513,15 +513,14 @@ class Bind(_Generator):
                 # if a dictionary is passed
                 # modes are assumed
                 n_modes = len(other)
-                modes_name = f'm{self.aspect.name}'
+                modes_name = f'bin{len(self.model.modes)}'
 
                 setattr(self.model, modes_name, Modes(n_modes=n_modes, bind=self))
 
                 modes = getattr(self.model, modes_name)
-                print('kkkk', modes, modes.program)
 
                 mode_bounds = [
-                    (other[i], other[i + 1]) if i + 1 in other else (other[i], True)
+                    (other[i - 1], other[i]) if i - 1 in other else (0, other[i])
                     for i in other
                 ]
                 modes_lb = [b[0] for b in mode_bounds]
@@ -591,9 +590,11 @@ class Bind(_Generator):
 
                 else:
                     # --------- if  parameter bound
-                    if self.report:
+                    if self.report or self.domain.modes is not None:
                         # --------- if  parameter bound and reported
                         rhs = other * self.X(other)
+                        self.aspect.map_domain(self.domain, reporting=True)
+
                     else:
                         # --------- if just parameter bound
                         rhs = other
@@ -603,7 +604,7 @@ class Bind(_Generator):
                     if (
                         self.domain.space
                         in self.aspect.bound_spaces[self.domain.primary]['ub']
-                    ) and (not self.domain.mode):
+                    ):
                         # return if aspect already bound in space
                         return
                     self.aspect.bound_spaces[self.domain.primary]['ub'].append(
@@ -620,7 +621,7 @@ class Bind(_Generator):
                     if (
                         self.domain.space
                         in self.aspect.bound_spaces[self.domain.primary]['lb']
-                    ) and (not self.domain.mode):
+                    ):
                         # return if aspect already bound in space
                         return
                     self.aspect.bound_spaces[self.domain.primary]['lb'].append(
