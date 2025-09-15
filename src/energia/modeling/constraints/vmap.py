@@ -13,7 +13,8 @@ import time as keep_time
 from ._generator import _Generator
 
 if TYPE_CHECKING:
-    from gana import Prg, C
+    from gana.block.program import Prg
+    from gana.sets.constraint import C
 
     from ...components.commodity.resource import Resource
     from ...components.operation.process import Process
@@ -174,6 +175,7 @@ class Map(_Generator):
                 # consider the case where overall consumption for water in some location and time is defined
                 # now user defines consumption due to using cement during construction
                 # we should have the constraint consume(water, goa, 2025) = consume(water, goa, 2025, use, cement)
+
                 self.writecons_map(self.domain, self.domain.change({'binds': []}))
 
             if self.domain.modes:
@@ -246,9 +248,11 @@ class Map(_Generator):
         else:
             _name = f'{self.aspect.name}{to_domain.idxname}_lmap'
 
-        if _name in self.maps and not self.reporting:
+        if _name in self.maps:
             # check to see if the lower order domain has been upscaled to already
-            # this does not apply to modes (reporting), since they only need to be mapped once
+            if self.reporting:
+                # this does not apply to modes (reporting), since they only need to be mapped once
+                return
             print(f'--- Mapping {self.aspect}: from {from_domain} to {to_domain}')
             start = keep_time.time()
 
@@ -292,7 +296,7 @@ class Map(_Generator):
                 _name,
                 cons,
             )
-
+            cons.categorize('Mapping')
             end = keep_time.time()
             print(f'    Completed in {end-start} seconds')
 

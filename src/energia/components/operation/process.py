@@ -166,6 +166,7 @@ class Process(_Operation):
                 # if negative, the resource is produced
                 # also, the par can be an number or a list of numbers
 
+
                 # insitu resource (produced and expended within the system)
                 # do not initiate a grb so we need to run a check for that first
                 if res in self.model.grb:
@@ -180,20 +181,18 @@ class Process(_Operation):
                     # the relevant variable will be unbounded
                     _insitu = True
 
-                upd_expend, upd_produce, upd_operate = False, False, False
+                # upd_expend, upd_produce, upd_operate = False, False, False
 
                 if isinstance(par, (int | float)) and par < 0:
                     # condition: negative number
                     eff = -par
 
                     if self.lag:
-                        # expend happens immediately, when process is operated
-                        rhs = self.model.expend(res, self.operate, loc, self.lag.of)
-                        opr = self.model.operate(self, loc, self.lag.of)
+                        opr = self.operate(loc, self.lag.of)
+                        rhs = res.expend(self.operate, loc, self.lag.of)
                     else:
-                        rhs = self.model.expend(res, self.operate, loc, time)
-                        opr = self.model.operate(self, loc, time)
-                    upd_expend, upd_operate = True, True
+                        opr = self.operate(loc, time)
+                        rhs = res.expend(self.operate, loc, time)
 
                 elif isinstance(par, list) and par[0] < 0:
 
@@ -201,61 +200,31 @@ class Process(_Operation):
                     eff = [-i for i in par]
 
                     if self.lag:
-                        # expend happens immediately, when process is operated
-                        rhs = self.model.expend(res, self.operate, loc, self.lag.of)
-                        opr = self.model.operate(self, loc, self.lag.of)
+                        opr = self.operate(loc, self.lag.of)
+                        rhs = res.expend(self.operate, loc, self.lag.of)
                     else:
-                        rhs = self.model.expend(res, self.operate, loc, time)
-                        opr = self.model.operate(self, loc, time)
-                    upd_expend, upd_operate = True, True
+                        opr = self.operate(loc, time)
+                        rhs = res.expend(self.operate, loc, time)
 
                 else:
                     # condition: positive number or list of positive numbers
                     eff = par
 
                     if self.lag:
-                        # production happens after lag, unlike expend
-                        rhs = self.model.produce(res, self.operate, loc, self.lag.of)
-                        opr = self.model.operate(self, loc, self.lag)
+                        # Lag is considered on the outset
+                        # i.e. commodities are immediately consumed, and produced after lag
+                        opr = self.operate(loc, self.lag.of)
+                        rhs = res.produce(self.operate, loc, self.lag)
                     else:
-                        rhs = self.model.produce(res, self.operate, loc, time)
-                        opr = self.model.operate(self, loc, time)
-
-                    upd_produce, upd_operate = True, True
-
-                if len(time) > 1:
-                    par = [par] * len(time)
+                        opr = self.operate(loc, time)
+                        rhs = res.produce(self.operate, loc, time)
 
                 if _insitu:
                     # this initiates a grb
                     res.insitu = True
-                    _ = rhs == True
+                    _ = rhs(self.operate, loc, time) == True
 
-                v_rhs = rhs.V(par)
-
-                # else:
-                #     v_rhs = rhs.V(par, balanced=True)
-
-                v_opr = opr.V(par)
-
-                dom = rhs.domain
-
-                cons_name = f'operate{dom.idxname}_bal'
-
-                # cons = v_lhs - eff * v_rhs == 0
-                cons = v_rhs == eff * v_opr
-
-                cons.categorize('Flow')
-
-                setattr(self.program, cons_name, cons)
-
-                dom.update_cons(cons_name)
-                if upd_expend:
-                    self.model.expend.constraints.append(cons_name)
-                if upd_produce:
-                    self.model.produce.constraints.append(cons_name)
-                if upd_operate:
-                    self.model.operate.constraints.append(cons_name)
+                _ = opr[rhs] == eff
 
             # update the locations at which the process exists
             self.locs.append(loc)

@@ -47,6 +47,7 @@ class Balance(_Generator):
         binds = self.domain.binds
         time = self.domain.time
 
+
         if self.domain.link:
             if self.aspect.sign == -1:
                 loc = self.domain.link.source
@@ -81,6 +82,7 @@ class Balance(_Generator):
                 # if the resource is insitu that means that
                 # no external bounds have been defined
                 # a GRB is still needed
+
                 self.writecons_grb(resource, loc, time)
 
             if (

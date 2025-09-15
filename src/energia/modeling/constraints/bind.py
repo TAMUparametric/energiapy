@@ -671,8 +671,8 @@ class Bind(_Generator):
 
         elif isinstance(other, Bind):
             if self.aspect.name == other.aspect.name:
-                if self.domain == other.domain:
-                    return True
+                # if self.domain == other.domain:
+                return True
             return False
 
         else:
