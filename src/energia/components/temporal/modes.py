@@ -49,3 +49,13 @@ class Modes(X):
             self._indexed = True
         # if already indexed, return the index set from the program
         return getattr(self.program, self.name)
+
+    def __eq__(self, other: Modes) -> bool:
+        """Equality operator"""
+        if other.name == self.name:
+            return True
+        return False
+
+    def __len__(self) -> int:
+        """Length of the modes"""
+        return self.n_modes

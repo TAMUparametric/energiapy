@@ -146,6 +146,7 @@ class Bind(_Generator):
         length: int = None,
         report: bool = False,
         incidental: bool = False,
+        n_modes: bool = False,
     ) -> V:
         """Returns a gana variable (V) using .domain as the index.
         If time and space are (or) not given, i.e. .spaced or .timed are False,
@@ -180,7 +181,13 @@ class Bind(_Generator):
             """Matches an appropriate temporal scale"""
             if isinstance(parameters, list):
                 # if list is given, find using length of the list
-                self.domain.period = self.aspect.time.find(len(parameters))
+                if self.domain.modes is not None:
+                    self.domain.period = self.aspect.time.find(
+                        len(parameters) / len(self.domain.modes)
+                    )
+                else:
+                    self.domain.period = self.aspect.time.find(len(parameters))
+
             elif isinstance(length, int):
                 # if length is given, use it directly
                 self.domain.period = self.aspect.time.find(length)

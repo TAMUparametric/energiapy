@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
+from warnings import warn
 
 
 from ...modeling.parameters.conversion import Conversion
@@ -79,6 +80,11 @@ class Process(_Operation):
 
     def writecons_conversion(self, loc_times: list[tuple[Location, Period]]):
         """Write the conversion constraints for the process"""
+        if not self.conv:
+            warn(
+                f'{self}: Conversion not defined, no Constraints generated', UserWarning
+            )
+            return
 
         self.conv.balancer()
 

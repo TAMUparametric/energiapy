@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING
 from ..components.temporal.period import Period
 from ..components.temporal.modes import Modes
 from ..core.dimension import Dimension
+from warnings import warn
 
 if TYPE_CHECKING:
     from gana.block.program import Prg
@@ -78,7 +79,11 @@ class Time(Dimension):
 
         if not size in self.tree:
             # if no math make a default period
+            warn(
+                f"{size} does not match the size of any data set passed, generating 't{size}'.)"
+            )
             _ = self.model.default_period(size=size)
+
         return self.tree[size]
 
     def split(self, period: Period) -> tuple[list[Period], list[Period]]:
