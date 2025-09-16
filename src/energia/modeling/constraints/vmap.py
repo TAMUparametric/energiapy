@@ -240,7 +240,6 @@ class Map(_Generator):
         msum: bool = False,
     ):
         """Scales up variable to a lower dimension"""
-        print('aaa', self.reporting, self)
 
         if not to_domain in self.maps:
             self.maps[to_domain] = []

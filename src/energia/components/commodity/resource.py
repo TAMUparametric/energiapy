@@ -104,9 +104,10 @@ class Resource(Component, Trade, Produce, Utilize, Free, Inventory):
         if isinstance(other, Conversion):
             # if another conversion is subtracted, update the balance
             conv = Conversion()
+
             conv.conversion = {
                 self: 1,
-                **{res: -1 * par for res, par in other.conversion.items()},
+                **{res: -1 * par if isinstance(par, (int, float)) else [-i for i in par] for res, par in other.conversion.items()},
             }
             return conv
 

@@ -78,7 +78,6 @@ class Conversion(Name):
     def balancer(self):
         """Checks if there is a list in the conversion
         If yes, tries to make everything consistent
-
         """
         # check if lists are provided
         check_list = {res: False for res in self.conversion.keys()}
