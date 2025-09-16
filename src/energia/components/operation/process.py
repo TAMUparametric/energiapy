@@ -207,6 +207,8 @@ class Process(_Operation):
                     res.insitu = True
                     _ = rhs(self.operate, loc, time) == True
 
+                # if list, a time match will be done,
+                # because of using .balancer(), expend/produce thus on same temporal scale
                 _ = opr[rhs] == eff
 
             # update the locations at which the process exists
@@ -221,5 +223,3 @@ class Process(_Operation):
 
         self.conv.lag = lag
         return self.conv(resource)
-
-    

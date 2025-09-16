@@ -1,4 +1,4 @@
-"""Tests for Conversion class."""
+"""Tests for Conversion"""
 
 import pytest
 
