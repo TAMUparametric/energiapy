@@ -144,6 +144,7 @@ class Conversion(Name):
                     k: {**self.conversion, **v.conversion} for k, v in other.items()
                 }
                 self.pwl = True
+
             else:
                 self.conversion: dict[Resource, int | float] = {
                     **self.conversion,

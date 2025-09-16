@@ -123,6 +123,7 @@ class Storage(Component):  # , Stock):
             # create storage resource
             stored = Resource()
             resource.in_inv.append(stored)
+
             setattr(self.model, f'{resource}.{self}', stored)
 
             # ---------- set discharge conversion
@@ -142,71 +143,3 @@ class Storage(Component):  # , Stock):
 
             # self.model.update_grb(add=self.stored)
         return self.discharge.conv(resource)
-
-    # def writecons_conversion(self, loc_times: list[tuple[Loc, Period]]):
-    #     """Write the conversion constraints for the process"""
-    #     self.charge.conv.balancer()
-    #     self.discharge.conv.balancer()
-
-    #     def time_checker(res: Resource, loc: Loc, time: Period):
-    #         """This checks if it is actually necessary
-    #         to write conversion at denser temporal scales
-    #         """
-
-    #         # This checks whether some other aspect is defined at
-    #         # a lower temporal scale
-    #         if self.model.grb[res][loc][time]:
-    #             return time
-    #         else:
-    #             return time.horizon
-
-    #     for loc_time in loc_times:
-    #         loc = loc_time[0]
-    #         time = loc_time[1]
-
-    #         if loc in self.locs:
-    #             # if the location is already balanced, skip
-
-    #             continue
-
-    #         time = time_checker(self.stored, loc, time)
-
-    #         # inventory in current time period
-    #         # inv = self.model.inventory(self.stored, self, loc, time)
-    #         inv = self.stored.inventory(self, loc, time)
-
-    #         v_inv = inv.V(write_grb=True)
-
-    #         # operate in current time period
-    #         opr = self.model.operate(self, loc, time)
-    #         v_opr = opr.V()
-
-    #         # create an operating constraint
-    #         _cons_opr = f'operate_{self}_{loc}_{time}_bal'
-
-    #         cons_opr = v_opr - v_inv == 0
-    #         cons_opr.categorize('Flow')
-    #         setattr(self.program, _cons_opr, cons_opr)
-
-    #         inv.domain.update_cons(_cons_opr)
-    #         self.model.inventory.constraints.append(_cons_opr)
-    #         self.model.operate.constraints.append(_cons_opr)
-
-    #         # add previous step inventory to the resource balance
-    #         _cons_inv = f'{self.stored}_{loc}_{time}_grb'
-
-    #         cons_inv = getattr(self.program, _cons_inv)
-
-    #         # inventory in previous time period
-
-    #         # inv_t = self.model.inventory(self.stored, self, loc, -1 * time)
-    #         inv_t = self.stored.inventory(self.stored, self, loc, -1 * time)
-
-    #         v_inv_t = inv_t.V()
-
-    #         setattr(self.program, _cons_inv, cons_inv + v_inv_t)
-
-    #         self.locs.append(loc)
-
-    #     self.charge.writecons_conversion(loc_times)
-    #     self.discharge.writecons_conversion(loc_times)
