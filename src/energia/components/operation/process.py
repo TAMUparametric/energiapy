@@ -218,7 +218,7 @@ class Process(_Operation):
         """Conversion is called with a Resource to be converted"""
 
         if not self._conv:
-            self.conv = Conversion(process=self)
+            self.conv = Conversion(operation=self)
             self._conv = True
 
         self.conv.lag = lag

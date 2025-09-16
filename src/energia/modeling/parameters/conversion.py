@@ -13,6 +13,7 @@ if TYPE_CHECKING:
 
     from ...components.commodity.resource import Resource
     from ...components.measure.unit import Unit
+    from ...components.operation._operation import _Operation
     from ...components.operation.process import Process
     from ...components.operation.storage import Storage
     from ...components.temporal.period import Period
@@ -46,17 +47,11 @@ class Conversion(Name):
 
     """
 
-    process: Process = None
-    storage: Storage = None
     resource: Resource = None
+    operation: _Operation = None
 
     def __post_init__(self):
-        if self.process:
-            self.operation = self.process
-        elif self.storage:
-            self.operation = self.storage
-
-        self.name = f'η({self.process})'
+        self.name = f'η({self.operation})'
         self.base: Resource = None
         self.conversion: dict[Resource, int | float | list[int | float]] = {}
         self.lag: Lag = None

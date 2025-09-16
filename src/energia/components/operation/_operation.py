@@ -22,8 +22,23 @@ class _Operation(Component, Design, Scheduling):
 
     def __post_init__(self):
         Component.__post_init__(self)
+
         self._conv = False
+
+        # Operational conversion
         self.conv: Conversion = None
+
+        # Material conversion
+        self._make: Conversion = None
+
+    @property
+    def make(self) -> Conversion:
+        """Material conversion"""
+
+        if self._make is None:
+            # will be made the first time it is called
+            self._make = Conversion(process=self)
+        return self._make
 
     @property
     def base(self) -> Resource:

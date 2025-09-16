@@ -81,7 +81,6 @@ class Storage(Component):  # , Stock):
                 )
                 _ = self.inventory(loc, time) <= 1
 
-
         # locate the charge and discharge processes
         self.charge.locate(*locs)
         self.discharge.locate(*locs)
@@ -127,15 +126,11 @@ class Storage(Component):  # , Stock):
             setattr(self.model, f'{resource}.{self}', stored)
 
             # ---------- set discharge conversion
-            self.discharge.conv = Conversion(
-                process=self.discharge, storage=self, resource=stored
-            )
+            self.discharge.conv = Conversion(operation=self.discharge, resource=stored)
             _ = self.discharge.conv(resource) == -1.0 * stored
 
             # ---------- set charge conversion
-            self.charge.conv = Conversion(
-                process=self.charge, storage=self, resource=resource
-            )
+            self.charge.conv = Conversion(operation=self.charge, resource=resource)
 
             _ = self.charge.conv(stored) == -1.0 * resource
 
