@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from pyexpat import model
 from typing import TYPE_CHECKING
 
 from gana import sigma
@@ -193,6 +194,8 @@ class Map(_Generator):
     @property
     def maps(self) -> list[str]:
         """List of domains that the aspect has been mapped to"""
+        if self.reporting:
+            return self.aspect.maps_report
         return self.aspect.maps
 
     def give_sum(
@@ -237,78 +240,101 @@ class Map(_Generator):
         msum: bool = False,
     ):
         """Scales up variable to a lower dimension"""
-        if tsum:
-            _name = f'{self.aspect.name}{to_domain.idxname}_tmap'
-        elif msum:
-            if self.reporting:
-                _name = f'{self.aspect.name}{to_domain.idxname}_x_mmap'
-            else:
-                _name = f'{self.aspect.name}{to_domain.idxname}_mmap'
+        print('aaa', self.reporting, self)
+
+        if not to_domain in self.maps:
+            self.maps[to_domain] = []
+
+            self.maps[to_domain].append(from_domain)
+            exists = False
 
         else:
-            _name = f'{self.aspect.name}{to_domain.idxname}_lmap'
+            # a map to the lower order domain has already been created
+            exists = True
 
-        if _name in self.maps:
-            # check to see if the lower order domain has been upscaled to already
-            if self.reporting:
-                # this does not apply to modes (reporting), since they only need to be mapped once
+            if from_domain in self.maps[to_domain]:
+                # map already exists
                 return
-            print(f'--- Mapping {self.aspect}: from {from_domain} to {to_domain}')
-            start = keep_time.time()
+            else:
+                self.maps[to_domain].append(from_domain)
 
-            cons_existing: C = getattr(self.program, _name)
-            # update the existing constraint
-            setattr(
-                self.program,
-                _name,
-                cons_existing - self.give_sum(domain=from_domain, tsum=tsum, msum=msum),
-            )
+        if self.reporting:
+            var = self.aspect.reporting
+        else:
+            var = self.aspect
 
-            end = keep_time.time()
-            print(f'    Completed in {end-start} seconds')
+        # for t sum,
+        if tsum:
+
+            print(f'--- Mapping {var} across time from {from_domain} to {to_domain}')
+
+            rhs = self.give_sum(domain=from_domain, tsum=tsum)
+
+            _name = f'{var}{from_domain.idxname}_tmap'
+
+        elif msum:
+            print(f'--- Mapping {var} across modes {from_domain} to {to_domain}')
+
+            rhs = self.give_sum(domain=from_domain, msum=msum)
+
+            _name = f'{var}{from_domain.idxname}_mmap'
 
         else:
-            if self.reporting:
-                print(
-                    f'--- Creating map to {to_domain}. Mapping {self.aspect.reporting}: from {from_domain} to {to_domain}'
+
+            rhs = self.give_sum(domain=from_domain)
+
+            # if not tsum or msum. The map to a lower order domain is unique
+            _name = f'{var}{to_domain.idxname}_map'
+
+            if exists:
+                # check to see if the lower order domain has been upscaled to already
+
+                print(f'--- Mapping {var}: from {from_domain} to {to_domain}')
+
+                start = keep_time.time()
+
+                cons_existing: C = getattr(self.program, _name)
+                # update the existing constraint
+                setattr(
+                    self.program,
+                    _name,
+                    cons_existing - self.give_sum(domain=from_domain),
                 )
-            else:
 
-                print(
-                    f'--- Creating map to {to_domain}. Mapping {self.aspect}: from {from_domain} to {to_domain}'
-                )
+                end = keep_time.time()
+                print(f'    Completed in {end-start} seconds')
 
-            start = keep_time.time()
-            if self.reporting:
-                v_lower = self(*to_domain).X()
-            else:
-                v_lower = self(*to_domain).V()
+                return
 
-            # write the constraint
-            cons: C = v_lower == self.give_sum(domain=from_domain, tsum=tsum, msum=msum)
+        print(
+            f'--- Creating map to {to_domain}. Mapping {var}: from {from_domain} to {to_domain}'
+        )
 
-            if self.return_sum:
-                # if only a sum is requested, don't set to the program
-                return cons
+        start = keep_time.time()
+        if self.reporting:
+            v_lower = self(*to_domain).X()
+        else:
+            v_lower = self(*to_domain).V()
 
-            setattr(
-                self.program,
-                _name,
-                cons,
-            )
-            cons.categorize('Mapping')
-            end = keep_time.time()
-            print(f'    Completed in {end-start} seconds')
+        # write the constraint
+        cons: C = v_lower == rhs
 
-            self.aspect.constraints.append(_name)
+        if self.return_sum:
+            # if only a sum is requested, don't set to the program
+            return cons
+
+        setattr(
+            self.program,
+            _name,
+            cons,
+        )
+        cons.categorize('Mapping')
+        end = keep_time.time()
+        print(f'    Completed in {end-start} seconds')
+
+        self.aspect.constraints.append(_name)
 
         from_domain.update_cons(_name)
-
-        # update the list of maps
-        if not _name in self.maps:
-            # keeping a list, allows updating constraints instead of making new
-
-            self.maps.append(_name)
 
     def __call__(self, *index: X):
         """Returns the variable for the aspect at the given index"""

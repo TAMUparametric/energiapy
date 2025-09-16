@@ -71,6 +71,9 @@ class _Scope:
             ],
         ] = {}
 
+        self.maps: dict[Aspect, dict[Domain, dict[str, list[Domain]]]] = {}
+        self.maps_report: dict[Aspect, dict[Domain, dict[str, list[Domain]]]] = {}
+
     @property
     def horizon(self) -> Period:
         """The horizon of the Model"""
@@ -105,98 +108,6 @@ class _Scope:
             return result
 
         self.dispositions = merge_trees(self.dispositions, {aspect: domain.tree})
-
-        # # indicator = domain.indicator
-        # # resource = domain.resource
-        # # operation = domain.operation
-        # primary = domain.primary
-
-        # binds = domain.binds
-
-        # # dr_aspect = domain.dr_aspect
-        # # dresource = domain.dresource
-        # # op_aspect = domain.op_aspect
-        # dm = domain.player or domain.couple
-
-        # space = domain.space
-        # time = domain.period
-
-        # the base key, value combinations are of the form
-        # 1. {aspect: resource: {}}
-        # 2. {aspect: resource: {operation: {}}}
-        # 3. {aspect: operation: {}}
-
-        # ======== Commodities for the 0 the index
-
-        # def update_aspect(aspect: Aspect):
-        #     """Update aspect"""
-        #     if not aspect in self.dispositions:
-        #         self.dispositions[aspect] = {}
-
-        # def update_primary(
-        #     component: Resource | Indicator | Process | Storage | Transport,
-        # ):
-        #     """Update stream or operation"""
-        #     if not component in self.dispositions[aspect]:
-        #         self.dispositions[aspect][component] = {}
-
-        # def update_space_time(
-        #     dict_: (
-        #         dict[Aspect, dict[Resource, set]]
-        #         | dict[Aspect, dict[Resource, dict[Process | Storage | Transport, set]]]
-        #         | dict[Aspect, dict[Process | Storage | Transport, set]]
-        #     ),
-        # ):
-        #     """Updates the space and time dictionaries for the given base dictionary."""
-        #     if not space in dict_:
-        #         dict_[space] = set()
-
-        #     if not time in dict_[space]:
-        #         dict_[space].add(time)
-        #     return dict_
-
-        # def update_binds(
-        #     binds: dict[Aspect, Resource | Process | Storage | Transport],
-        # ):
-        #     """Update component that influences primary stream or operation"""
-        #     binds = list(binds.items())
-        #     _dict = {binds[-1][0]: {binds[-1][1]: {}}}
-        #     for k, v in reversed(binds[:-1]):
-        #         _dict = {k: {v: _dict}}
-        #     return _dict
-
-        #     # self.dispositions[aspect][primary] =
-        #     # return {
-        #     #     **self.dispositions[aspect][primary],
-        #     #     **_dict,
-        #     # }
-
-        # def update_dm(
-        #     _dict: dict[
-        #         Aspect, dict[Resource | Process | Storage | Transport, dict[Player]]
-        #     ],
-        #     player: Player,
-        # ):
-        #     """Update Player"""
-        #     if not player in _dict:
-        #         _dict[player] = {}
-        #     return _dict
-
-        #     # update_player(dm, component)
-
-        # update_aspect(aspect)
-
-        # update_primary(primary)
-
-        # _dict = {}
-
-        # if binds:
-        #     _dict = update_binds(binds)
-
-        # if dm:
-        #     _dict = update_dm(_dict, dm)
-
-        # self.dispositions[aspect][primary] = update_space_time(_dict)
 
     def update_grb(self, resource: Resource, space: Location | Linkage, time: Period):
         """Creates a mesh for grb dict"""

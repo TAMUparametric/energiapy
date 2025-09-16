@@ -83,8 +83,11 @@ class Aspect(Name):
         # Domains of the decision
         self.domains: list[Domain] = []
 
-        # a list of domain pairs which have been paired
-        self.maps: list[str] = []
+        # a dictionary of domains and their maps from higher order domains
+
+        self._maps: bool = False
+
+        self._maps_report: bool = False
 
         # reporting variable
         self.reporting: V = None
@@ -93,6 +96,22 @@ class Aspect(Name):
         self._indexed: bool = False
 
         self.constraints: list[str] = []
+
+    @property
+    def maps(self) -> dict[Domain, dict[str, list[Domain]]]:
+        """Maps of the decision"""
+        if not self._maps:
+            self.model.maps[self] = {}
+            self._maps = True
+        return self.model.maps[self]
+
+    @property
+    def maps_report(self) -> dict[Domain, dict[str, list[Domain]]]:
+        """Maps of the decision"""
+        if not self._maps_report:
+            self.model.maps_report[self] = {}
+            self._maps_report = True
+        return self.model.maps_report[self]
 
     @property
     def isneg(self) -> bool:
