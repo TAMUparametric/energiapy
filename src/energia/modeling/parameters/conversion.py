@@ -61,7 +61,7 @@ class Conversion(Name):
         self.pwl: bool = False
 
         # this is holds a mode for the conversion to be appended to
-        self.hold_mode: int | str = None
+        self._mode: int | str = None
 
     @property
     def model(self) -> Model:
@@ -106,7 +106,7 @@ class Conversion(Name):
 
     def __getitem__(self, mode: int | str) -> Self:
         """Used to define mode based conversions"""
-        self.hold_mode = mode
+        self._mode = mode
         return self
 
     def __call__(self, basis: Resource | Conversion, lag: Lag = None) -> Self:
@@ -134,24 +134,28 @@ class Conversion(Name):
     def __eq__(self, other: Conversion | int | float | dict[int | float, Conversion]):
         # cons = []
 
-
         if isinstance(other, (int, float)):
             # this is used for inventory conversion
             # when not other resource besides the one being inventoried is involved
-    
+
             self.conversion = {**self.conversion, self.resource: -1.0 * float(other)}
-        else:
+
+        elif isinstance(other, dict):
+
             # this is when there is a proper resource conversion
             # -20*res1 = 10*res2 for example
+            self.conversion = {
+                k: {**self.conversion, **v.conversion} for k, v in other.items()
+            }
+            self.pwl = True
 
-            if isinstance(other, dict):
-
-                self.conversion = {
-                    k: {**self.conversion, **v.conversion} for k, v in other.items()
-                }
-                self.pwl = True
-
+        else:
+            # this would be a Conversion or Resource
+            if self._mode is not None:
+                self.conversion[self._mode] = other.conversion
+                self._mode = None
             else:
+
                 self.conversion: dict[Resource, int | float] = {
                     **self.conversion,
                     **other.conversion,

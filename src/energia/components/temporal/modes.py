@@ -25,7 +25,7 @@ class Modes(X):
     Attributes:
         name (str, float, int]): The name of the mode, usually a number.
     """
-
+    
     n_modes: int = 1
     bind: Bind = None
 

@@ -51,6 +51,16 @@ class _Operation(Component, Design, Scheduling):
         return self.conv.conversion
 
     @property
+    def conversion_material(
+        self,
+    ) -> (
+        dict[Resource, int | float | list[int | float]]
+        | dict[int | str, dict[Resource, int | float | list[int | float]]]
+    ):
+        """Material conversion of commodities"""
+        return self.make.conversion
+
+    @property
     def lag(self) -> Lag:
         """Lag of the process"""
         return self.conv.lag
