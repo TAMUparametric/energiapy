@@ -88,6 +88,7 @@ class Process(_Operation):
 
         self.conv.balancer()
 
+
         def time_checker(res: Resource, loc: Location, time: Period):
             """This checks if it is actually necessary
             to write conversion at denser temporal scales
@@ -135,10 +136,6 @@ class Process(_Operation):
 
                 continue
 
-            if self.conv.pwl:
-                # if piece wise linear conversion is being used
-                # TODO - stopped here
-                continue
 
             for res, par in self.conversion.items():
                 # set, the conversion on the resource
