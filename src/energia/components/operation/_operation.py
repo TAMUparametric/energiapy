@@ -29,16 +29,16 @@ class _Operation(Component, Design, Scheduling):
         self.conv: Conversion = None
 
         # Material conversion
-        self._make: Conversion = None
+        self._fab: Conversion = None
 
     @property
-    def make(self) -> Conversion:
+    def fab(self) -> Conversion:
         """Material conversion"""
 
-        if self._make is None:
+        if self._fab is None:
             # will be made the first time it is called
-            self._make = Conversion(operation=self)
-        return self._make
+            self._fab = Conversion(operation=self)
+        return self._fab
 
     @property
     def base(self) -> Resource:
@@ -51,14 +51,24 @@ class _Operation(Component, Design, Scheduling):
         return self.conv.conversion
 
     @property
-    def conversion_material(
+    def fabrication(
         self,
     ) -> (
         dict[Resource, int | float | list[int | float]]
         | dict[int | str, dict[Resource, int | float | list[int | float]]]
     ):
         """Material conversion of commodities"""
-        return self.make.conversion
+        return self.fab.conversion
+
+    @property
+    def convpwl(self) -> bool:
+        """Is conversion piece wise linear"""
+        return self.conv.pwl
+
+    @property
+    def fabpwl(self) -> bool:
+        """Is material conversion piece wise linear"""
+        return self.fab.pwl
 
     @property
     def lag(self) -> Lag:

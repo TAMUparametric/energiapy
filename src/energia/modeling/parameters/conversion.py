@@ -77,32 +77,43 @@ class Conversion(Name):
         """Checks if there is a list in the conversion
         If yes, tries to make everything consistent
         """
-        # check if lists are provided
-        check_list = {res: False for res in self.conversion.keys()}
-        # check lengths of the list, for parameter the length is 1
-        check_len = {res: 1 for res in self.conversion.keys()}
 
-        for res, par in self.conversion.items():
-            if isinstance(par, list):
-                check_list[res] = True
-                check_len[res] = len(par)
+        def _balancer(conversion: dict):
 
-        # check if all the list lens are the same
-        lengths = set([i for i in check_len.values() if i > 1])
+            # check if lists are provided
+            check_list = {res: False for res in conversion.keys()}
+            # check lengths of the list, for parameter the length is 1
+            check_len = {res: 1 for res in conversion.keys()}
 
-        if len(lengths) > 1:
-            # if there are different lengths, raise an error
-            raise ValueError(
-                f'Conversion: {self.name} has inconsistent list lengths: {lengths}'
-            )
+            for res, par in conversion.items():
+                if isinstance(par, list):
+                    check_list[res] = True
+                    check_len[res] = len(par)
 
-        if any(check_list.values()):
-            length = list(lengths)[0]
-            # if any of the values are a list
-            #
-            for res, par in self.conversion.items():
-                if isinstance(par, (float, int)):
-                    self.conversion[res] = [par] * length
+            # check if all the list lens are the same
+            lengths = set([i for i in check_len.values() if i > 1])
+
+            if len(lengths) > 1:
+                # if there are different lengths, raise an error
+                raise ValueError(
+                    f'Conversion: {self.name} has inconsistent list lengths: {lengths}'
+                )
+
+            if any(check_list.values()):
+                length = list(lengths)[0]
+                # if any of the values are a list
+                #
+                for res, par in conversion.items():
+                    if isinstance(par, (float, int)):
+                        conversion[res] = [par] * length
+            return conversion
+
+        if self.pwl:
+            for mode, conv in self.conversion.items():
+                self.conversion[mode] = _balancer(conv)
+
+        else:
+            self.conversion = _balancer(self.conversion)
 
     def __getitem__(self, mode: int | str) -> Self:
         """Used to define mode based conversions"""
@@ -153,6 +164,8 @@ class Conversion(Name):
             # this would be a Conversion or Resource
             if self._mode is not None:
                 self.conversion[self._mode] = other.conversion
+                if not self.pwl:
+                    self.pwl = True
                 self._mode = None
             else:
 
