@@ -3,10 +3,8 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from re import S
 from typing import TYPE_CHECKING, Self, Literal
 
-from cycler import K
 from gana.operators.composition import inf, sup
 from gana.operators.sigma import sigma
 from gana.sets.function import F
@@ -729,7 +727,7 @@ class Bind(_Generator):
     def __rmul__(self, other: int | float):
         return FBind(F=other * self.F, program=self.program)
 
-    def __call__(self, *index):
+    def __call__(self, *index) -> V:
 
         index = list(set(self.domain.index_short + list(index)))
         v = self.aspect(*index)

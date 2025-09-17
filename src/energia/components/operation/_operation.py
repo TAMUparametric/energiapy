@@ -60,15 +60,6 @@ class _Operation(Component, Design, Scheduling):
         """Material conversion of commodities"""
         return self.fab.conversion
 
-    @property
-    def convpwl(self) -> bool:
-        """Is conversion piece wise linear"""
-        return self.conv.pwl
-
-    @property
-    def fabpwl(self) -> bool:
-        """Is material conversion piece wise linear"""
-        return self.fab.pwl
 
     @property
     def lag(self) -> Lag:

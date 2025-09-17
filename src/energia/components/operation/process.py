@@ -10,6 +10,7 @@ from warnings import warn
 from ...modeling.parameters.conversion import Conversion
 from ._operation import _Operation
 from ..temporal.modes import Modes
+from energia.components.temporal import modes
 
 if TYPE_CHECKING:
     from ..commodity.resource import Resource
@@ -88,6 +89,23 @@ class Process(_Operation):
 
         self.conv.balancer()
 
+        if self.conv.pwl:
+            n_modes = len(self.conversion)
+            mode_bounds = [
+                (
+                    (self.conversion[i - 1], self.conversion[i])
+                    if i - 1 in self.conversion
+                    else (0, self.conversion[i])
+                )
+                for i in self.conversion
+            ]
+
+            conversion = self.conversion[list(self.conversion)[0]]
+
+        else:
+            conversion = self.conversion
+
+        modes_set = False
 
         def time_checker(res: Resource, loc: Location, time: Period):
             """This checks if it is actually necessary
@@ -136,8 +154,7 @@ class Process(_Operation):
 
                 continue
 
-
-            for res, par in self.conversion.items():
+            for res, par in conversion.items():
                 # set, the conversion on the resource
 
                 setattr(res, self.name, self)
@@ -206,6 +223,44 @@ class Process(_Operation):
 
                 # if list, a time match will be done,
                 # because of using .balancer(), expend/produce thus on same temporal scale
+
+                if self.conv.pwl:
+                    # if conversion is piece wise linear
+                    # if not modes_set:
+                    #     modes_name = f'bin{len(self.model.modes)}'
+
+                    #     setattr(
+                    #         self.model, modes_name, Modes(n_modes=n_modes, bind=opr)
+                    #     )
+                    #     modes = getattr(self.model, modes_name)
+                    #     modes_set = True
+
+                    eff = [conv[res] for conv in self.conversion.values()]
+
+                    if eff[0] < 0:
+                        eff = [-e for e in eff]
+
+                    if not modes_set:
+                        # this is setting the bin limits for piece wise linear conversion
+                        # these are written bound to capacity generally
+                        # but here we pause that binding and bind operate to explicit limits
+                        self.model.operate.bound = None
+
+                        _ = opr == {n: k for n, k in enumerate(self.conversion.keys())}
+
+                        # reset capacity binding
+                        self.model.operate.bound = self.model.capacity
+
+                        modes = self.model.modes[-1]
+                        modes_set = True
+
+                    opr = opr(modes)
+
+                    rhs = rhs(modes)
+
+                    # _ = opr(modes)[rhs(modes)] == eff
+
+                # else:
                 _ = opr[rhs] == eff
 
             # update the locations at which the process exists

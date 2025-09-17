@@ -43,6 +43,10 @@ class Balance(_Generator):
 
         # this is the disposition of the variable to be mapped
         # through time and space
+
+        if self.domain.modes:
+            return
+
         resource = self.domain.resource
         binds = self.domain.binds
         time = self.domain.time
