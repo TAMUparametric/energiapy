@@ -60,6 +60,9 @@ class Conversion(Name):
         # if piece wise linear conversion is provided
         self.pwl: bool = False
 
+        # this is holds a mode for the conversion to be appended to
+        self.hold_mode: int | str = None
+
     @property
     def model(self) -> Model:
         """energia Model"""
@@ -101,10 +104,10 @@ class Conversion(Name):
                 if isinstance(par, (float, int)):
                     self.conversion[res] = [par] * length
 
-    # def __getitem__(self, lag: Lag) -> Self:
-    #     if isinstance(int)
-
-    #     raise TypeError(f'Expected Lag, got {type(lag)} instead.')
+    def __getitem__(self, mode: int | str) -> Self:
+        """Used to define mode based conversions"""
+        self.hold_mode = mode
+        return self
 
     def __call__(self, basis: Resource | Conversion, lag: Lag = None) -> Self:
         # sets the basis
@@ -130,9 +133,12 @@ class Conversion(Name):
 
     def __eq__(self, other: Conversion | int | float | dict[int | float, Conversion]):
         # cons = []
+
+
         if isinstance(other, (int, float)):
             # this is used for inventory conversion
             # when not other resource besides the one being inventoried is involved
+    
             self.conversion = {**self.conversion, self.resource: -1.0 * float(other)}
         else:
             # this is when there is a proper resource conversion
