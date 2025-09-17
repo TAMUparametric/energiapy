@@ -47,7 +47,6 @@ class Balance(_Generator):
         binds = self.domain.binds
         time = self.domain.time
 
-
         if self.domain.link:
             if self.aspect.sign == -1:
                 loc = self.domain.link.source

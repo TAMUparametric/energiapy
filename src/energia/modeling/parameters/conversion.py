@@ -101,15 +101,12 @@ class Conversion(Name):
                 if isinstance(par, (float, int)):
                     self.conversion[res] = [par] * length
 
-    def __getitem__(self, lag: Lag) -> Self:
-        # Used to set the lag
-        if isinstance(lag, Lag):
-            self.lag = lag
-            return self
+    # def __getitem__(self, lag: Lag) -> Self:
+    #     if isinstance(int)
 
-        raise TypeError(f'Expected Lag, got {type(lag)} instead.')
+    #     raise TypeError(f'Expected Lag, got {type(lag)} instead.')
 
-    def __call__(self, basis: Resource | Conversion) -> Self:
+    def __call__(self, basis: Resource | Conversion, lag: Lag = None) -> Self:
         # sets the basis
         if isinstance(basis, Conversion):
             # if a Conversion is provided (parameter*Resource)
@@ -125,6 +122,9 @@ class Conversion(Name):
             # i.e the Process is scaled to one unit of this Resource produced
             self.base = basis
             self.conversion = {basis: 1.0, **self.conversion}
+
+        if lag:
+            self.lag = lag
 
         return self
 

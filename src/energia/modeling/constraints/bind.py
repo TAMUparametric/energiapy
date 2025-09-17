@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from re import S
 from typing import TYPE_CHECKING, Self, Literal
 
+from cycler import K
 from gana.operators.composition import inf, sup
 from gana.operators.sigma import sigma
 from gana.sets.function import F
@@ -172,7 +173,22 @@ class Bind(_Generator):
         # for example, if opr_t = opr_t-1 + x_t, then opr_t is already defined
         if self.domain.lag:
             # t - 1 is made after t, so no need to set a new one
-            return getattr(self.program, self.aspect.name)(*self.domain.Ilist)
+            try:
+                return getattr(self.program, self.aspect.name)(*self.domain.Ilist)
+            except KeyError:
+                # the variable has not been defined yet
+                lag = self.domain.lag
+                self.domain = self.domain.change(
+                    {'lag': None, 'period': self.domain.lag.of}
+                )
+                self.V(
+                    parameters=parameters,
+                    length=length,
+                    report=report,
+                    incidental=incidental,
+                )
+                self.domain = self.domain.change({'lag': lag, 'period': None})
+                return getattr(self.program, self.aspect.name)(*self.domain.Ilist)
 
         # ------ Check time and space -------
         # this is only called if the bind variable has no temporal index defined

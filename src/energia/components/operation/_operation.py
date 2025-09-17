@@ -37,7 +37,7 @@ class _Operation(Component, Design, Scheduling):
 
         if self._make is None:
             # will be made the first time it is called
-            self._make = Conversion(process=self)
+            self._make = Conversion(operation=self)
         return self._make
 
     @property

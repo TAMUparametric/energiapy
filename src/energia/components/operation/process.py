@@ -196,8 +196,8 @@ class Process(_Operation):
                     if self.lag:
                         # Lag is considered on the outset
                         # i.e. commodities are immediately consumed, and produced after lag
-                        opr = self.operate(loc, self.lag.of)
-                        rhs = res.produce(self.operate, loc, self.lag)
+                        opr = self.operate(loc, self.lag)
+                        rhs = res.produce(self.operate, loc, self.lag.of)
                     else:
                         opr = self.operate(loc, time)
                         rhs = res.produce(self.operate, loc, time)
@@ -223,4 +223,3 @@ class Process(_Operation):
 
         self.conv.lag = lag
         return self.conv(resource)
- 
