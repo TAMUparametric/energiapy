@@ -155,8 +155,6 @@ class Process(_Operation):
             # there is a problem though, because I am only checking for the elements in the first dict
             # in the multi conversion dict
 
-
-
             conversion = self.conversion[list(self.conversion)[0]]
 
         else:

@@ -287,8 +287,18 @@ class Map(_Generator):
 
             rhs = self.give_sum(domain=from_domain)
 
-            # if not tsum or msum. The map to a lower order domain is unique
-            _name = f'{var}{to_domain.idxname}_map'
+            if from_domain.modes:
+                # for modes, stick to the msum convention
+                # the name will take the parent modes name
+                # NOTE: msum is not used when writing the constraint
+                # for individual modes
+                if from_domain.modes.parent:
+                    _name = f'{var}{from_domain.change({'modes': from_domain.modes.parent}).idxname}_mmap'
+                else:
+                    _name = f'{var}{from_domain.idxname}_mmap'
+            else:
+                # if not tsum or msum. The map to a lower order domain is unique
+                _name = f'{var}{to_domain.idxname}_map'
 
             if exists:
                 # check to see if the lower order domain has been upscaled to already

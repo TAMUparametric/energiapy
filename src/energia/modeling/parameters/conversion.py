@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, Self
 
 from ...components.temporal.lag import Lag
 from ...core.name import Name
+from ...components.temporal.modes import Modes
 
 if TYPE_CHECKING:
     from gana.block.program import Prg
@@ -18,6 +19,7 @@ if TYPE_CHECKING:
     from ...components.operation.storage import Storage
     from ...components.temporal.period import Period
     from ...represent.model import Model
+    from ...modeling.constraints.bind import Bind
 
 
 @dataclass
@@ -49,6 +51,7 @@ class Conversion(Name):
 
     resource: Resource = None
     operation: _Operation = None
+    bind: Bind = None
 
     def __post_init__(self):
         self.name = f'η({self.operation})'
@@ -62,6 +65,23 @@ class Conversion(Name):
 
         # this is holds a mode for the conversion to be appended to
         self._mode: int | str = None
+
+        # modes if PWL conversion is defined
+        # or if multiple modes are defined
+        self._modes: Modes = None
+
+    @property
+    def modes(self) -> Modes:
+        """Modes of the operation"""
+        if self._modes is None:
+            n_modes = len(self.conversion)
+            modes_name = f'bin{len(self.model.modes)}'
+
+            setattr(self.model, modes_name, Modes(n_modes=n_modes, bind=self.bind))
+
+            self._modes = self.model.modes[-1]
+
+        return self._modes
 
     @property
     def model(self) -> Model:

@@ -49,7 +49,7 @@ class _Operation(Component, Design, Scheduling):
 
         if self._fab is None:
             # will be made the first time it is called
-            self._fab = Conversion(operation=self)
+            self._fab = Conversion(operation=self, bind=self.capacity)
         return self._fab
 
     @property
@@ -88,14 +88,15 @@ class _Operation(Component, Design, Scheduling):
             self._fab_balanced = True
 
         if self.fab.pwl:
-            n_modes = len(self.fabrication)
-            modes_name = f'bin{len(self.model.modes)}'
+            # n_modes = len(self.fabrication)
+            # modes_name = f'bin{len(self.model.modes)}'
 
-            setattr(self.model, modes_name, Modes(n_modes=n_modes, bind=self.capacity))
+            # setattr(self.model, modes_name, Modes(n_modes=n_modes, bind=self.capacity))
 
-            modes = self.model.modes[-1]
-            # capacity = self.capacity(modes)
-            # _ = capacity == True
+            # modes = self.model.modes[-1]
+
+            # this will create modes if not already created
+            modes = self.fab.modes
 
         for space_time in space_times:
             space = space_time[0]

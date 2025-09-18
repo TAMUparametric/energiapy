@@ -156,6 +156,10 @@ class Calculate:
                 else:
                     calc: Bind = self.calculation
 
+                if self.decision.domain.modes:
+                    # mode calculations, should map to modes
+                    calc = calc(self.decision.domain.modes)
+
                 # the aspect the calculation is dependant on
                 decision: Bind = self.decision
                 if self.decision.report:
