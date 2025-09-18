@@ -116,6 +116,11 @@ class Storage(Component):  # , Stock):
         """Conversion of commodities"""
         return self.discharge.conv.conversion
 
+    @property
+    def fab(self) -> Conversion:
+        """Fabrication conversion of commodities"""
+        return self.charge.fab
+
     def __call__(self, resource: Resource | Conversion):
         """Conversion is called with a Resource to be converted"""
         if not self._conv:
