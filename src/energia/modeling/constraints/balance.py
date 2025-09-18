@@ -156,16 +156,16 @@ class Balance(_Generator):
 
             self.grb[resource][loc][time].append(self)
 
-            # if not defined, start a new constraint
-            if self.domain.operation:
-                print(
-                    f'--- General Resource Balance for {resource} in ({loc}, {time}): initializing constraint, adding {self.aspect} from {self.domain.operation}'
-                )
+            # # if not defined, start a new constraint
+            # if self.domain.operation:
+            #     print(
+            #         f'--- General Resource Balance for {resource} in ({loc}, {time}): initializing constraint, adding {self.aspect} from {self.domain.operation}'
+            #     )
 
-            else:
-                print(
-                    f'--- General Resource Balance for {resource} in ({loc}, {time}): initializing constraint, adding {self.aspect}'
-                )
+            # else:
+            print(
+                f'--- General Resource Balance for {resource} in ({loc}, {time}): initializing constraint, adding {self.aspect}{self.domain}'
+            )
             start = keep_time.time()
 
             if resource.inv_of and self.aspect.name == 'inventory':
@@ -200,14 +200,14 @@ class Balance(_Generator):
 
         elif not self in self.grb[resource][loc][time]:
 
-            if self.domain.operation:
-                print(
-                    f'--- General Resource Balance for {resource} in ({loc}, {time}): adding {self.aspect} from {self.domain.operation}'
-                )
-            else:
-                print(
-                    f'--- General Resource Balance for {resource} in ({loc}, {time}): adding {self.aspect}'
-                )
+            # if self.domain.operation:
+            #     print(
+            #         f'--- General Resource Balance for {resource} in ({loc}, {time}): adding {self.aspect} from {self.domain.operation}'
+            #     )
+            # else:
+            print(
+                f'--- General Resource Balance for {resource} in ({loc}, {time}): adding {self.aspect}{self.domain}'
+            )
 
             start = keep_time.time()
 

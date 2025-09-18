@@ -181,9 +181,12 @@ class Map(_Generator):
             if self.domain.modes:
                 # if the variable is defined over modes
                 # we need to map it to the same domain without modes
-                self.writecons_map(
-                    self.domain, self.domain.change({'modes': None}), msum=True
-                )
+                if self.domain.modes.parent:
+                    self.writecons_map(self.domain, self.domain.change({'modes': None}))
+                else:
+                    self.writecons_map(
+                        self.domain, self.domain.change({'modes': None}), msum=True
+                    )
 
     @property
     def name(self) -> str:
@@ -229,7 +232,10 @@ class Map(_Generator):
 
             return v_sum
         else:
-            return self(*domain).V()
+            # the copy is important since otherwise, the printing will take
+            # the update index if the variable is mutated
+            return getattr(self.program, self.aspect.name)(*domain.Ilist).copy()
+            # return self(*domain).V()
 
     def writecons_map(
         self,
@@ -315,6 +321,7 @@ class Map(_Generator):
             v_lower = self(*to_domain).V()
 
         # write the constraint
+        print('dddd', type(rhs), rhs.index)
         cons: C = v_lower == rhs
 
         if self.return_sum:

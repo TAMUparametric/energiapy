@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Self
 
 from gana.sets.index import I
 
@@ -28,18 +28,27 @@ class Modes(X):
     Attributes:
         name (str, float, int]): The name of the mode, usually a number.
     """
-    
+
     n_modes: int = 1
     bind: Bind = None
+    parent: Self = None
+    pos: int = None
 
     def __post_init__(self):
         X.__post_init__(self)
 
-        self.name = f'modes({self.bind})'
+        if self.pos is not None:
+            self.name = f'{self.parent}[{self.pos}]'
 
     @property
     def I(self) -> I:
         """Index set of modes"""
+
+        if self.parent:
+            _ = self.parent.I  # makes sure the parent is indexed
+            # do not set a new index set, get from parent
+            return getattr(self.parent.program, self.parent.name)[self.pos]
+
         if not self._indexed:
             # and index element is created for each component
             # with the same name as the component
@@ -62,6 +71,14 @@ class Modes(X):
     def __len__(self) -> int:
         """Length of the modes"""
         return self.n_modes
-    
-    
 
+    def __getitem__(self, key: int) -> X:
+        """Get a mode by index"""
+        # TODO: allow slicing
+
+        return Modes(bind=self.bind, parent=self, pos=key)
+
+    def __iter__(self):
+        """Iterate over modes"""
+        for i in range(self.n_modes):
+            yield self[i]

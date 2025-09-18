@@ -6,6 +6,7 @@ from abc import abstractmethod
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
+from ...components.temporal.modes import Modes
 from ...core.component import Component
 from ...modeling.parameters.conversion import Conversion
 from ...modeling.variables.default import Design, Scheduling
@@ -86,6 +87,16 @@ class _Operation(Component, Design, Scheduling):
             self.fab.balancer()
             self._fab_balanced = True
 
+        if self.fab.pwl:
+            n_modes = len(self.fabrication)
+            modes_name = f'bin{len(self.model.modes)}'
+
+            setattr(self.model, modes_name, Modes(n_modes=n_modes, bind=self.capacity))
+
+            modes = self.model.modes[-1]
+            # capacity = self.capacity(modes)
+            # _ = capacity == True
+
         for space_time in space_times:
             space = space_time[0]
             time = space_time[1]
@@ -97,29 +108,62 @@ class _Operation(Component, Design, Scheduling):
             # write use on the sparsest temporal index
             return min(self.model.dispositions[self.model.capacity][self][space])
 
-        for res, par in self.fabrication.items():
+        if self.fab.pwl:
 
-            if isinstance(par, (int | float)):
-                if par == 0:
-                    continue
+            _modes = list(self.fabrication)
+            for n, mode in enumerate(modes):
 
-            if isinstance(par, list):
-                if par[0] == 0:
-                    continue
+                for res, par in self.fabrication[_modes[n]].items():
 
-            if res in self.model.grb:
-                time = time_checker()
+                    if isinstance(par, (int | float)):
+                        if par == 0:
+                            continue
 
-                if self.model.grb[res][space][time]:
-                    _insitu = False
+                    if isinstance(par, list):
+                        if par[0] == 0:
+                            continue
+
+                    # if res in self.model.grb:
+                    #     time = time_checker()
+
+                    #     if self.model.grb[res][space][time]:
+                    #         _insitu = False
+                    #     else:
+                    #         _insitu = True
+
+                    # else:
+                    #     _insitu = True
+
+                    # if _insitu:
+                    #     res.insitu = True
+                    #     _ = res.use(capacity, space, time, mode) == True
+                    _ = self.capacity(space, time, mode)[res.use(mode)] == par
+
+        else:
+
+            for res, par in self.fabrication.items():
+
+                if isinstance(par, (int | float)):
+                    if par == 0:
+                        continue
+
+                if isinstance(par, list):
+                    if par[0] == 0:
+                        continue
+
+                if res in self.model.grb:
+                    time = time_checker()
+
+                    if self.model.grb[res][space][time]:
+                        _insitu = False
+                    else:
+                        _insitu = True
+
                 else:
                     _insitu = True
 
-            else:
-                _insitu = True
+                if _insitu:
+                    res.insitu = True
+                    _ = res.use(capacity, space, time) == True
 
-            if _insitu:
-                res.insitu = True
-                _ = res.use(self.capacity, space, time) == True
-
-            _ = self.capacity(space, time)[res.use] == par
+                _ = self.capacity(space, time)[res.use] == par

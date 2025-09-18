@@ -538,7 +538,8 @@ class Bind(_Generator):
 
                 setattr(self.model, modes_name, Modes(n_modes=n_modes, bind=self))
 
-                modes = getattr(self.model, modes_name)
+                # modes = getattr(self.model, modes_name)
+                modes = self.model.modes[-1]
 
                 mode_bounds = [
                     (other[i - 1], other[i]) if i - 1 in other else (0, other[i])
@@ -551,14 +552,6 @@ class Bind(_Generator):
 
                 _ = self(modes) <= modes_ub
 
-                # for m, b in zip(modes, mode_bounds):
-
-                #     _ = self()
-                #     _ = self(m) >= b[0]
-                #     if b[1] is True:
-                #         _ = self(m) == b[1]
-                #     else:
-                #         _ = self(m) <= b[1]
 
             else:
 
