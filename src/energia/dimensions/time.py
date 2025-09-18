@@ -4,11 +4,11 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
-
-from ..components.temporal.period import Period
-from ..components.temporal.modes import Modes
-from ..core.dimension import Dimension
 from warnings import warn
+
+from ..components.temporal.modes import Modes
+from ..components.temporal.period import Period
+from ..core.dimension import Dimension
 
 if TYPE_CHECKING:
     from gana.block.program import Prg

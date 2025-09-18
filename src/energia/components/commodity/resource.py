@@ -10,13 +10,8 @@ from typing import Self
 
 from ...core.component import Component
 from ...modeling.parameters.conversion import Conversion
-from ...modeling.variables.default import (
-    Free,
-    Produce,
-    Trade,
-    Utilize,
-    Inventory,
-)
+from ...modeling.variables.default import (Free, Inventory, Produce, Trade,
+                                           Utilize)
 
 
 @dataclass

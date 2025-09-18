@@ -1,9 +1,9 @@
 """Library of elements"""
 
-from ..components.temporal.period import Period
-from ..components.measure.unit import Unit
 from ..components.commodity.misc import Currency
 from ..components.impact.categories import Environ
+from ..components.measure.unit import Unit
+from ..components.temporal.period import Period
 
 
 class Library:
@@ -38,12 +38,13 @@ class Library:
 
     def load_units(self):
         """Load default units"""
-        self.mw = Unit(label='MW')
+        self.MW = Unit(label='MW')
         self.kg = Unit(label='kg')
         self.ton = 1000 * self.kg
+        self.miles = Unit(label='Miles')
 
     def load_indicators(self):
         """Load default indicators"""
-        self.gwp = Environ(label='Global Warming Potential')
+        self.GWP = Environ(label='Global Warming Potential')
         # self.odp = EnvImp(label='Ozone Depletion Potential')
-        self.htp = Environ(label='Human Toxicity Potential')
+        self.HTP = Environ(label='Human Toxicity Potential')

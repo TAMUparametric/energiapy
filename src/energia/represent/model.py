@@ -17,8 +17,8 @@ from ..components.operation.storage import Storage
 from ..components.operation.transport import Transport
 from ..components.spatial.linkage import Linkage
 from ..components.spatial.location import Location
-from ..components.temporal.period import Period
 from ..components.temporal.modes import Modes
+from ..components.temporal.period import Period
 from ..core.x import X
 from ..dimensions.decisionspace import DecisionSpace
 from ..modeling.parameters.conversion import Conversion
@@ -26,8 +26,8 @@ from ..modeling.variables.control import Control
 from ..modeling.variables.impact import Impact
 from ..modeling.variables.state import State
 from ..modeling.variables.stream import Stream
-from .library import Library
 from .blocks import _Init
+from .library import Library
 
 if TYPE_CHECKING:
     from gana.sets.index import I

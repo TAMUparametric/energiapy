@@ -21,13 +21,13 @@ if TYPE_CHECKING:
     from ...core.x import X
     from ...dimensions.decisiontree import DecisionTree
     from ...represent.model import Model
-    from .bind import Bind
     from ..indices.domain import Domain
     from ..variables.aspect import Aspect
-    from ..variables.state import State
     from ..variables.control import Control
     from ..variables.impact import Impact
+    from ..variables.state import State
     from ..variables.stream import Stream
+    from .bind import Bind
 
 
 @dataclass

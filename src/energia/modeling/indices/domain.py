@@ -12,8 +12,8 @@ from gana.sets.index import I
 
 if TYPE_CHECKING:
     from ...components.commodity.resource import Resource
-    from ...components.game.player import Player
     from ...components.game.couple import Couple
+    from ...components.game.player import Player
     from ...components.impact.indicator import Indicator
     from ...components.operation.process import Process
     from ...components.operation.storage import Storage
@@ -21,14 +21,14 @@ if TYPE_CHECKING:
     from ...components.spatial.linkage import Linkage
     from ...components.spatial.location import Location
     from ...components.temporal.lag import Lag
-    from ...components.temporal.period import Period
     from ...components.temporal.modes import Modes
+    from ...components.temporal.period import Period
     from ...core.component import Component
     from ...core.x import X
+    from ...modeling.constraints.bind import Bind
+    from ...represent.model import Model
     from ..parameters.conversion import Conversion
     from ..variables.aspect import Aspect
-    from ...represent.model import Model
-    from ...modeling.constraints.bind import Bind
 
 
 @dataclass

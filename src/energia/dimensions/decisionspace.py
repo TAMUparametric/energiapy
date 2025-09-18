@@ -1,7 +1,6 @@
 """DecisionSpace of the Model"""
 
 from dataclasses import dataclass
-
 from typing import Type
 
 from ..components.commodity.misc import Currency, Material

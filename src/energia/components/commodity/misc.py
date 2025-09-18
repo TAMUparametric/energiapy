@@ -6,7 +6,6 @@ from typing import TYPE_CHECKING, Self
 
 # from ..operation.task import Task
 from ...modeling.variables.default import Transact, Utilize
-
 # from ..impact.categories import Eco
 from .resource import Resource
 

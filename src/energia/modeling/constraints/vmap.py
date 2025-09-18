@@ -2,14 +2,13 @@
 
 from __future__ import annotations
 
+import time as keep_time
 from dataclasses import dataclass
+from operator import is_
 from pyexpat import model
 from typing import TYPE_CHECKING
 
 from gana import sigma
-from operator import is_
-
-import time as keep_time
 
 from ._generator import _Generator
 

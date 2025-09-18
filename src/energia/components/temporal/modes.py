@@ -4,15 +4,18 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
+
 from gana.sets.index import I
+
 from ...core.x import X
 
 if TYPE_CHECKING:
+    from gana.block.program import Prg
+
+    from ...modeling.constraints.bind import Bind
     from ...modeling.indices.domain import Domain
     from ...modeling.variables.aspect import Aspect
-    from ...modeling.constraints.bind import Bind
     from ...represent.model import Model
-    from gana.block.program import Prg
 
 
 @dataclass
@@ -59,3 +62,6 @@ class Modes(X):
     def __len__(self) -> int:
         """Length of the modes"""
         return self.n_modes
+    
+    
+

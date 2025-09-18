@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Self
 
-from ..parameters.value import Value
 from ...utils.math import normalize
+from ..parameters.value import Value
 
 if TYPE_CHECKING:
     from gana.block.program import Prg

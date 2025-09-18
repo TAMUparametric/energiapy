@@ -6,8 +6,8 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Literal
 
 from ..components.commodity.misc import Currency, Emission, Land, Material
-from ..components.impact.indicator import Indicator
 from ..components.commodity.resource import Resource
+from ..components.impact.indicator import Indicator
 from ..components.operation.transport import Transport
 from ..dimensions.consequence import Consequence
 from ..dimensions.decisiontree import DecisionTree
@@ -31,8 +31,8 @@ if TYPE_CHECKING:
     from ..components.operation.storage import Storage
     from ..components.spatial.linkage import Linkage
     from ..components.spatial.location import Location
-    from ..components.temporal.period import Period
     from ..components.temporal.modes import Modes
+    from ..components.temporal.period import Period
     from ..modeling.indices.domain import Domain
     from ..modeling.variables.aspect import Aspect
     from ..modeling.variables.control import Control

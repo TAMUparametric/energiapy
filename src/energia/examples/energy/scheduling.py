@@ -10,11 +10,11 @@
 
 # ## Initialize
 
-from ...represent.model import Model
-from ...components.commodity.resource import Resource
 from ...components.commodity.misc import Currency
+from ...components.commodity.resource import Resource
 from ...components.operation.process import Process
 from ...components.temporal.period import Period
+from ...represent.model import Model
 
 
 def scheduling():

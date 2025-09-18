@@ -1,11 +1,11 @@
 """Supermarket energy system example."""
 
-from ...represent.model import Model
-from ...components.commodity.resource import Resource
 from ...components.commodity.misc import Currency
-from ...components.operation.process import Process
+from ...components.commodity.resource import Resource
 from ...components.measure.unit import Unit
+from ...components.operation.process import Process
 from ...components.spatial.location import Location
+from ...represent.model import Model
 
 
 def supermarket():

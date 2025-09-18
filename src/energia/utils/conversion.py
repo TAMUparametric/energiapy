@@ -1,15 +1,13 @@
 """Process conversion models (external libraries)"""
 
-import pandas as pd
 import numpy as np
-
+import pandas as pd
+from pvlib.location import Location as PVLocation
+from pvlib.modelchain import ModelChain as PVModelChain
 from pvlib.pvsystem import PVSystem, retrieve_sam
 from pvlib.temperature import TEMPERATURE_MODEL_PARAMETERS
-from pvlib.modelchain import ModelChain as PVModelChain
-from pvlib.location import Location as PVLocation
-
-from windpowerlib import WindTurbine
 from windpowerlib import ModelChain as WModelChain
+from windpowerlib import WindTurbine
 
 
 def solar_power_output(

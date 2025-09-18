@@ -6,11 +6,11 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 from warnings import warn
 
+from energia.components.temporal import modes
 
 from ...modeling.parameters.conversion import Conversion
-from ._operation import _Operation
 from ..temporal.modes import Modes
-from energia.components.temporal import modes
+from ._operation import _Operation
 
 if TYPE_CHECKING:
     from ..commodity.resource import Resource
@@ -40,6 +40,11 @@ class Process(_Operation):
 
         # operating mode
         self.mode: Modes = None
+
+    @property
+    def spaces(self) -> list[Location]:
+        """Locations at which the process is balanced"""
+        return self.locs
 
     def locate(self, *locs: Location):
         """Locate the process"""
@@ -79,33 +84,11 @@ class Process(_Operation):
 
         self.writecons_conversion(loc_times)
 
+        if self.fabrication:
+            self.writecons_fabrication(loc_times)
+
     def writecons_conversion(self, loc_times: list[tuple[Location, Period]]):
         """Write the conversion constraints for the process"""
-        if not self.conv:
-            warn(
-                f'{self}: Conversion not defined, no Constraints generated', UserWarning
-            )
-            return
-
-        self.conv.balancer()
-
-        if self.conv.pwl:
-            n_modes = len(self.conversion)
-            mode_bounds = [
-                (
-                    (self.conversion[i - 1], self.conversion[i])
-                    if i - 1 in self.conversion
-                    else (0, self.conversion[i])
-                )
-                for i in self.conversion
-            ]
-
-            conversion = self.conversion[list(self.conversion)[0]]
-
-        else:
-            conversion = self.conversion
-
-        modes_set = False
 
         def time_checker(res: Resource, loc: Location, time: Period):
             """This checks if it is actually necessary
@@ -145,6 +128,50 @@ class Process(_Operation):
 
             return time.horizon
 
+        if not self.conv:
+            warn(
+                f'{self}: Conversion not defined, no Constraints generated', UserWarning
+            )
+            return
+
+        # This makes the conversion consistent
+        # check conv_test.py in tests for examples
+        self.conv.balancer()
+
+        if self.conv.pwl:
+            # if there are piece-wise linear conversions
+            # here we assume that the same resources appear in all piece-wise segments
+            # this is a reasonable assumption for conversion in processes
+            # but not if process modes involve different resources
+
+            # TODO:
+            # make the statement eff = [conv[res] for conv in self.conversion.values()]
+            # into try
+            # if that fails, create a consistent dict, see:
+            # {0: {r1: 10, r2: -5}, 1: {r1: 8, r2: -4, r3: -2}}
+            # transforms to {0: {r1: 10, r2: -5, r3: 0}, 1: {r1: 8, r2: -4, r3: -2}}
+            # the r3: 0 will ensure that r3 is considered in all modes
+            # the zero checks will prevent unnecessary constraints
+            # there is a problem though, because I am only checking for the elements in the first dict
+            # in the multi conversion dict
+
+            # n_modes = len(self.conversion)
+            # mode_bounds = [
+            #     (
+            #         (self.conversion[i - 1], self.conversion[i])
+            #         if i - 1 in self.conversion
+            #         else (0, self.conversion[i])
+            #     )
+            #     for i in self.conversion
+            # ]
+
+            conversion = self.conversion[list(self.conversion)[0]]
+
+        else:
+            conversion = self.conversion
+
+        modes_set = False
+
         for loc_time in loc_times:
             loc = loc_time[0]
             time = loc_time[1]
@@ -181,9 +208,12 @@ class Process(_Operation):
                 # upd_expend, upd_produce, upd_operate = False, False, False
 
                 if isinstance(par, (int | float)) and par < 0:
+                    # if par == 0:
+                    #     continue
+
+                    # if par < 0:
                     # condition: negative number
                     eff = -par
-
                     if self.lag:
                         opr = self.operate(loc, self.lag.of)
                         rhs = res.expend(self.operate, loc, self.lag.of)
@@ -192,7 +222,8 @@ class Process(_Operation):
                         rhs = res.expend(self.operate, loc, time)
 
                 elif isinstance(par, list) and par[0] < 0:
-
+                    # NOTE: this only checks the sign of the first element
+                    # if par[0] < 0:
                     # condition: list with negative numbers
                     eff = [-i for i in par]
 
@@ -202,6 +233,9 @@ class Process(_Operation):
                     else:
                         opr = self.operate(loc, time)
                         rhs = res.expend(self.operate, loc, time)
+
+                    # if par[0] == 0:
+                    #     continue
 
                 else:
                     # condition: positive number or list of positive numbers
@@ -225,15 +259,6 @@ class Process(_Operation):
                 # because of using .balancer(), expend/produce thus on same temporal scale
 
                 if self.conv.pwl:
-                    # if conversion is piece wise linear
-                    # if not modes_set:
-                    #     modes_name = f'bin{len(self.model.modes)}'
-
-                    #     setattr(
-                    #         self.model, modes_name, Modes(n_modes=n_modes, bind=opr)
-                    #     )
-                    #     modes = getattr(self.model, modes_name)
-                    #     modes_set = True
 
                     eff = [conv[res] for conv in self.conversion.values()]
 

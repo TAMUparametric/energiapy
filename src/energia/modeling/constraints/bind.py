@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Self, Literal
+from typing import TYPE_CHECKING, Literal, Self
 
 from gana.operators.composition import inf, sup
 from gana.operators.sigma import sigma
@@ -11,14 +11,15 @@ from gana.sets.function import F
 from gana.sets.index import I
 from gana.sets.variable import V
 
+from ...components.temporal.modes import Modes
 from ...utils.math import normalize
 from ._generator import _Generator
 from .calculate import Calculate
-from ...components.temporal.modes import Modes
 
 if TYPE_CHECKING:
     from gana.block.program import Prg
     from gana.sets.constraint import C
+
     from ...core.component import Component
     from ...core.x import X
 
@@ -547,6 +548,7 @@ class Bind(_Generator):
                 modes_ub = [b[1] for b in mode_bounds]
 
                 _ = self(modes) >= modes_lb
+
                 _ = self(modes) <= modes_ub
 
                 # for m, b in zip(modes, mode_bounds):
@@ -656,7 +658,10 @@ class Bind(_Generator):
                 cons_name = rf'{self.aspect.name}{self.domain.idxname}{rel}'
 
                 # categorize the constraint
-                cons.categorize('Bound')
+                if self.domain.modes:
+                    cons.categorize('Piecewise Linear')
+                else:
+                    cons.categorize('Bound')
 
                 # let all objects in the domain know that
                 # a constraint with this name contains it

@@ -7,14 +7,13 @@ from typing import TYPE_CHECKING
 
 from ...core.component import Component
 from ...modeling.parameters.conversion import Conversion
-
 from ..commodity.resource import Resource
 from .process import Process
 
 if TYPE_CHECKING:
+    from ...modeling.constraints.bind import Bind
     from ..spatial.location import Location
     from ..temporal.period import Period
-    from ...modeling.constraints.bind import Bind
 
 
 @dataclass
