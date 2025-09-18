@@ -321,7 +321,6 @@ class Map(_Generator):
             v_lower = self(*to_domain).V()
 
         # write the constraint
-        print('dddd', type(rhs), rhs.index)
         cons: C = v_lower == rhs
 
         if self.return_sum:

@@ -155,15 +155,7 @@ class Process(_Operation):
             # there is a problem though, because I am only checking for the elements in the first dict
             # in the multi conversion dict
 
-            # n_modes = len(self.conversion)
-            # mode_bounds = [
-            #     (
-            #         (self.conversion[i - 1], self.conversion[i])
-            #         if i - 1 in self.conversion
-            #         else (0, self.conversion[i])
-            #     )
-            #     for i in self.conversion
-            # ]
+
 
             conversion = self.conversion[list(self.conversion)[0]]
 

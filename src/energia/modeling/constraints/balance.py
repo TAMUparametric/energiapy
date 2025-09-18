@@ -141,11 +141,6 @@ class Balance(_Generator):
 
         # ---- initialize GRB for resource if necessary -----
 
-        # # self.model.update_grb(resource=resource, space=loc, time=time)
-        # if not time in self.grb[resource][loc]:
-        #     # this is only used if times are being declared dynamically (based on parameter set sizes)
-        #     self.model.update_grb(resource=resource, time=time, space=loc)
-
         if not self.grb[resource][loc][time]:
             # this checks whether a general resource balance has been defined
             # for the resource in that space and time
@@ -156,13 +151,7 @@ class Balance(_Generator):
 
             self.grb[resource][loc][time].append(self)
 
-            # # if not defined, start a new constraint
-            # if self.domain.operation:
-            #     print(
-            #         f'--- General Resource Balance for {resource} in ({loc}, {time}): initializing constraint, adding {self.aspect} from {self.domain.operation}'
-            #     )
 
-            # else:
             print(
                 f'--- General Resource Balance for {resource} in ({loc}, {time}): initializing constraint, adding {self.aspect}{self.domain}'
             )
@@ -200,11 +189,6 @@ class Balance(_Generator):
 
         elif not self in self.grb[resource][loc][time]:
 
-            # if self.domain.operation:
-            #     print(
-            #         f'--- General Resource Balance for {resource} in ({loc}, {time}): adding {self.aspect} from {self.domain.operation}'
-            #     )
-            # else:
             print(
                 f'--- General Resource Balance for {resource} in ({loc}, {time}): adding {self.aspect}{self.domain}'
             )
@@ -253,13 +237,6 @@ class Balance(_Generator):
 
         else:
             # ---- add aspect to GRB if not added already ----
-
-            # if resource.base and self.grb[resource.base][loc][time]:
-            #     # if the resource has a base, it is also bound at the same scale
-            #     # this is used for stored resources, which are bound at the same scale as their base
-
-            #     self.writecons_grb(resource.base, loc, time)
-            #     self.writecons_grb(resource, loc, -1 * time)
 
             # check if the resource is bound at a spatial index of a lower order
             if not self.domain.link and loc.isin:
