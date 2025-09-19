@@ -70,6 +70,12 @@ class _Operation(Component, Design, Scheduling):
         | dict[int | str, dict[Resource, int | float | list[int | float]]]
     ):
         """Material conversion of commodities"""
+        if self.fab.pwl:
+            return {
+                mode: self.fab.conversion[_mode]
+                for mode, _mode in zip(self.fab.modes, list(self.fab.conversion))
+            }
+
         return self.fab.conversion
 
     @property
@@ -123,7 +129,7 @@ class _Operation(Component, Design, Scheduling):
                     if isinstance(par, list):
                         if par[0] == 0:
                             continue
-                        
+
                     _ = self.capacity(space, time, mode)[res.use(mode)] == par
 
         else:
