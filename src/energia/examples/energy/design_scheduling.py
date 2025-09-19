@@ -4,14 +4,14 @@ from ...components.commodity.misc import Currency
 from ...components.commodity.resource import Resource
 from ...components.operation.process import Process
 from ...components.operation.storage import Storage
-from ...components.temporal.period import Period
+from ...components.temporal.periods import Periods
 from ...represent.model import Model
 
 
 def design_scheduling():
     """A small design and scheduling example"""
     m = Model('design_scheduling')
-    m.q = Period()
+    m.q = Periods()
     m.y = 4 * m.q
     m.usd = Currency()
     m.declare(Resource, ['power', 'wind', 'solar'])

@@ -20,7 +20,7 @@ from ...components.spatial.linkage import Linkage
 from ...components.spatial.location import Location
 from ...components.temporal.lag import Lag
 from ...components.temporal.modes import Modes
-from ...components.temporal.period import Period
+from ...components.temporal.periods import Periods
 from ...core.name import Name
 from ..constraints.bind import Bind
 from ..indices.domain import Domain
@@ -68,7 +68,7 @@ class Aspect(Name):
                 self.label += ' [+]'
             else:
                 self.label += ' [-]'
-        self.indices: list[Location | Linkage, Period] = []
+        self.indices: list[Location | Linkage, Periods] = []
 
         # Does this add to the domain?
         self.ispos = True
@@ -153,7 +153,7 @@ class Aspect(Name):
 
     @property
     def horizon(self):
-        """Circumscribing Period (Temporal Scale)"""
+        """Circumscribing Periods (Temporal Scale)"""
         return self.model.horizon
 
     @property
@@ -179,7 +179,7 @@ class Aspect(Name):
     @property
     def grb(
         self,
-    ) -> dict[Resource, dict[Location | Linkage, dict[Period, list[Aspect]]]]:
+    ) -> dict[Resource, dict[Location | Linkage, dict[Periods, list[Aspect]]]]:
         """General Resource Balance dict"""
         return self.model.grb
 
@@ -188,7 +188,9 @@ class Aspect(Name):
         Self,
         dict[
             Resource | Process | Storage | Transport,
-            dict[Period | Location | Linkage, dict[Location | Period | Linkage, bool]],
+            dict[
+                Periods | Location | Linkage, dict[Location | Periods | Linkage, bool]
+            ],
         ],
     ]:
         """Dispositions dict"""
@@ -211,10 +213,10 @@ class Aspect(Name):
         var: V = getattr(self.program, self.name)
         return var.sol(n_sol, aslist)
 
-    def gettime(self, *index) -> list[Period]:
+    def gettime(self, *index) -> list[Periods]:
         """Finds the sparsest time scale in the domains"""
         ds = [i for i in self.indices if all([x in i for x in index])]
-        t = [t for t in ds if isinstance(t, Period)]
+        t = [t for t in ds if isinstance(t, Periods)]
         return t
 
     def __neg__(self):
@@ -267,7 +269,7 @@ class Aspect(Name):
 
             for comp in index:
 
-                if isinstance(comp, Period):
+                if isinstance(comp, Periods):
                     period = comp
                     timed = True
 
@@ -351,7 +353,7 @@ class Aspect(Name):
 
         return Bind(aspect=self, domain=domain, timed=timed, spaced=spaced)
 
-    def plot(
+    def draw(
         self,
         x: X,
         y: tuple[X] | X,

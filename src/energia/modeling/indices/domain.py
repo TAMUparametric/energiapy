@@ -22,7 +22,7 @@ if TYPE_CHECKING:
     from ...components.spatial.location import Location
     from ...components.temporal.lag import Lag
     from ...components.temporal.modes import Modes
-    from ...components.temporal.period import Period
+    from ...components.temporal.periods import Periods
     from ...core.component import Component
     from ...core.x import X
     from ...modeling.constraints.bind import Bind
@@ -49,7 +49,7 @@ class Domain:
         loc (Loc): Location is the spatial aspect of the domain, e.g. Goa, Texas.
         link (Link): Linkage is the linkage aspect of the domain, e.g. pipeline, road.
         link (bool): Link is a boolean that indicates whether the spatial element is a linkage.
-        period (Period): Time is the temporal aspect of the domain, e.g. year, month.
+        period (Periods): Time is the temporal aspect of the domain, e.g. year, month.
         lag (Lag): Lag is a boolean that indicates whether the temporal element is lagged or not.
     """
 
@@ -68,7 +68,7 @@ class Domain:
     # compulsory space and time elements
     loc: Location = None
     link: Linkage = None
-    period: Period = None
+    period: Periods = None
     lag: Lag = None
     modes: Modes = None
 
@@ -145,7 +145,7 @@ class Domain:
         return self.couple or self.player
 
     @property
-    def time(self) -> Period | Lag:
+    def time(self) -> Periods | Lag:
         """Time"""
         if self.period is not None:
             return self.period

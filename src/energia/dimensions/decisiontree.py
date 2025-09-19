@@ -19,7 +19,7 @@ if TYPE_CHECKING:
     from ..components.operation.transport import Transport
     from ..components.spatial.linkage import Linkage
     from ..components.spatial.location import Location
-    from ..components.temporal.period import Period
+    from ..components.temporal.periods import Periods
     from ..modeling.variables.aspect import Aspect
     from .space import Space
     from .time import Time
@@ -52,7 +52,6 @@ class DecisionTree(Dimension):
         self.streams: list[Stream] = []
         self.impacts: list[Impact] = []
         self.players: list[Player] = []
-
 
     @property
     def time(self) -> Time:

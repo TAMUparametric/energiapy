@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     from ...components.operation._operation import _Operation
     from ...components.operation.process import Process
     from ...components.operation.storage import Storage
-    from ...components.temporal.period import Period
+    from ...components.temporal.periods import Periods
     from ...represent.model import Model
     from ...modeling.constraints.bind import Bind
 
@@ -58,7 +58,7 @@ class Conversion(Name):
         self.base: Resource = None
         self.conversion: dict[Resource, int | float | list[int | float]] = {}
         self.lag: Lag = None
-        self.period: Period = None
+        self.period: Periods = None
 
         # if piece wise linear conversion is provided
         self.pwl: bool = False
@@ -226,6 +226,6 @@ class Conversion(Name):
     def __rmul__(self, times) -> Self:
         return self * times
 
-    def __truediv__(self, period: Period) -> Self:
+    def __truediv__(self, period: Periods) -> Self:
         self.period = period
         return self

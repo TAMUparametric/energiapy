@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from ..spatial.linkage import Linkage
     from ..spatial.location import Location
     from ..temporal.lag import Lag
-    from ..temporal.period import Period
+    from ..temporal.periods import Periods
 
 
 @dataclass
@@ -65,12 +65,12 @@ class Transport(_Operation):
 
         self.writecons_conversion(link_times)
 
-    def writecons_conversion(self, link_times: list[tuple[Linkage, Period]]):
+    def writecons_conversion(self, link_times: list[tuple[Linkage, Periods]]):
         """Write the conversion constraints for the transport"""
 
         self.conv.balancer()
 
-        def time_checker(res: Resource, loc: Location, time: Period):
+        def time_checker(res: Resource, loc: Location, time: Periods):
             """This checks if it is actually necessary
             to write conversion at denser temporal scales
             """
@@ -108,7 +108,7 @@ class Transport(_Operation):
 
             return time.horizon
 
-        # def time_checker(res: Resource, loc: Loc, time: Period):
+        # def time_checker(res: Resource, loc: Loc, time: Periods):
         #     """This checks if it is actually necessary
         #     to write conversion at denser temporal scales
         #     """

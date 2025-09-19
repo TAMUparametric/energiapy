@@ -10,7 +10,8 @@ from .components.operation.storage import Storage
 from .components.operation.transport import Transport
 from .components.spatial.linkage import Linkage
 from .components.spatial.location import Location
-from .components.temporal.period import Period
+from .components.temporal.periods import Periods
+from .components.temporal.scales import TemporalScales
 from .represent.model import Model
 
 __all__ = [
@@ -22,12 +23,13 @@ __all__ = [
     "Location",
     "Material",
     "Model",
-    "Period",
+    "Periods",
     "Player",
     "Process",
     "Resource",
     "Social",
     "Storage",
+    "TemporalScales",
     "Transport",
     "Unit",
 ]

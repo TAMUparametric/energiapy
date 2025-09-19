@@ -18,7 +18,7 @@ if TYPE_CHECKING:
     from ..spatial.linkage import Linkage
     from ..spatial.location import Location
     from ..temporal.lag import Lag
-    from ..temporal.period import Period
+    from ..temporal.periods import Periods
     from .storage import Storage
 
 
@@ -50,7 +50,7 @@ class Process(_Operation):
         """Locate the process"""
 
         # get location, time tuples where operation is defined
-        loc_times: list[tuple[Location, Period]] = []
+        loc_times: list[tuple[Location, Periods]] = []
         for loc in locs:
 
             if self not in self.model.capacity.bound_spaces:
@@ -82,15 +82,17 @@ class Process(_Operation):
                     if loc_time not in loc_times:
                         loc_times.append(loc_time)
 
+
+
         self.writecons_conversion(loc_times)
 
         if self.fabrication:
             self.writecons_fabrication(loc_times)
 
-    def writecons_conversion(self, loc_times: list[tuple[Location, Period]]):
+    def writecons_conversion(self, loc_times: list[tuple[Location, Periods]]):
         """Write the conversion constraints for the process"""
 
-        def time_checker(res: Resource, loc: Location, time: Period):
+        def time_checker(res: Resource, loc: Location, time: Periods):
             """This checks if it is actually necessary
             to write conversion at denser temporal scales
             """
@@ -118,9 +120,12 @@ class Process(_Operation):
                 # using the time of the base resource's grb
                 res = res.inv_of
 
-            times = list(
-                [t for t in self.model.grb[res][loc] if self.model.grb[res][loc][t]]
-            )
+            try:
+                times = list(
+                    [t for t in self.model.grb[res][loc] if self.model.grb[res][loc][t]]
+                )
+            except KeyError:
+                times = []
             # write the conversion balance at
             # densest temporal scale in that space
             if times:
@@ -269,9 +274,18 @@ class Process(_Operation):
                         modes = self.model.modes[-1]
                         modes_set = True
 
+
+
                     opr = opr(modes)
 
                     rhs = rhs(modes)
+
+
+
+
+
+
+
 
                     # _ = opr(modes)[rhs(modes)] == eff
 

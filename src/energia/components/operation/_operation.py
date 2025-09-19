@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     from ..spatial.linkage import Linkage
     from ..spatial.location import Location
     from ..temporal.lag import Lag
-    from ..temporal.period import Period
+    from ..temporal.periods import Periods
 
 
 @dataclass
@@ -79,7 +79,7 @@ class _Operation(Component, Design, Scheduling):
 
     def writecons_fabrication(
         self,
-        space_times: list[tuple[Location | Linkage, Period]],
+        space_times: list[tuple[Location | Linkage, Periods]],
         # fabrication: dict[Resource, int | float | list[int | float]],
     ):
         """write fabrication constraints for the operation"""
@@ -123,21 +123,7 @@ class _Operation(Component, Design, Scheduling):
                     if isinstance(par, list):
                         if par[0] == 0:
                             continue
-
-                    # if res in self.model.grb:
-                    #     time = time_checker()
-
-                    #     if self.model.grb[res][space][time]:
-                    #         _insitu = False
-                    #     else:
-                    #         _insitu = True
-
-                    # else:
-                    #     _insitu = True
-
-                    # if _insitu:
-                    #     res.insitu = True
-                    #     _ = res.use(capacity, space, time, mode) == True
+                        
                     _ = self.capacity(space, time, mode)[res.use(mode)] == par
 
         else:

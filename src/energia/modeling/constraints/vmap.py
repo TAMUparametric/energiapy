@@ -22,7 +22,7 @@ if TYPE_CHECKING:
     from ...components.operation.transport import Transport
     from ...components.spatial.linkage import Linkage
     from ...components.spatial.location import Location
-    from ...components.temporal.period import Period
+    from ...components.temporal.periods import Periods
     from ...core.x import X
     from ...represent.model import Model
     from ..indices.domain import Domain

@@ -3,7 +3,7 @@
 from ..components.commodity.misc import Currency
 from ..components.impact.categories import Environ
 from ..components.measure.unit import Unit
-from ..components.temporal.period import Period
+from ..components.temporal.periods import Periods
 
 
 class Library:
@@ -32,7 +32,7 @@ class Library:
 
     def load_periods(self):  # , what: list[str] = ['h', 'd', 'y']
         """Load default periods"""
-        self.h = Period(label='Hour')
+        self.h = Periods(label='Hour')
         self.d = 24 * self.h
         self.y = 365 * self.d
 

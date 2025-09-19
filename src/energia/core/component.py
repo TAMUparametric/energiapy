@@ -11,7 +11,7 @@ if TYPE_CHECKING:
     from ..components.measure.unit import Unit
     from ..components.spatial.linkage import Linkage
     from ..components.spatial.location import Location
-    from ..components.temporal.period import Period
+    from ..components.temporal.periods import Periods
     from ..dimensions.decisiontree import DecisionTree
     from ..dimensions.space import Space
     from ..dimensions.time import Time
@@ -63,8 +63,8 @@ class Component(X):
         return self.model.network
 
     @property
-    def horizon(self) -> Period:
-        """Circumscribing Period (Temporal Scale)"""
+    def horizon(self) -> Periods:
+        """Circumscribing Periods (Temporal Scale)"""
         return self.model.horizon
 
     @property

@@ -552,7 +552,6 @@ class Bind(_Generator):
 
                 _ = self(modes) <= modes_ub
 
-
             else:
 
                 # --------- handle the scaling of the data
@@ -697,9 +696,11 @@ class Bind(_Generator):
             self.writecons_bind('eq', other)
 
     def __gt__(self, other):
+        print(f'--- Bind {self} > {other} is being written as {self} >= {other}')
         _ = self >= other
 
     def __lt__(self, other):
+        print(f'--- Bind {self} < {other} is being written as {self} <= {other}')
         _ = self <= other
 
     def __add__(self, other: Self | FBind):

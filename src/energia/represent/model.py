@@ -18,7 +18,8 @@ from ..components.operation.transport import Transport
 from ..components.spatial.linkage import Linkage
 from ..components.spatial.location import Location
 from ..components.temporal.modes import Modes
-from ..components.temporal.period import Period
+from ..components.temporal.periods import Periods
+from ..components.temporal.scales import TemporalScales
 from ..core.x import X
 from ..dimensions.decisionspace import DecisionSpace
 from ..modeling.parameters.conversion import Conversion
@@ -80,7 +81,7 @@ class Model(DecisionSpace, _Init, Library):
 
         # the structure of components:
         # I Temporal representation (Time):
-        # 1.  Period (Period) generates a bespoke discretization.
+        # 1.  Periods (Periods) generates a bespoke discretization.
         # II Spatial representation (Space):
         # 1. Spatial representation (Space). Location (Loc) generate a bespoke discretization.
         # III Streams (System):
@@ -100,7 +101,7 @@ class Model(DecisionSpace, _Init, Library):
         #   1. Impact (Impact) categories include Eco, Soc
 
         self.update_map = {
-            Period: [('time', 'periods')],
+            Periods: [('time', 'periods')],
             Modes: [('time', 'modes')],
             Location: [('space', 'locs')],
             Linkage: [
@@ -216,6 +217,29 @@ class Model(DecisionSpace, _Init, Library):
             super().__setattr__(name, value)
             return
 
+        if isinstance(value, TemporalScales):
+            # This is an easy way to define multiple time periods (scales)
+            # set the root period:
+            setattr(self, value.names[-1], Periods())
+            # pick up the period that was just created
+            # use it as the root
+            root = self.periods[-1]
+            discretizations = list(reversed(value.discretizations))
+
+            names = list(reversed(value.names[:-1]))
+
+
+
+            if discretizations[-1] != 1:
+                discretizations.append(1)
+                names.append('t0')
+
+            for disc, name in zip(discretizations, names):
+                setattr(self, name, disc * root)
+                root = self.periods[-1]
+
+            return
+
         if isinstance(value, Unit):
             value.name = name
             self.units.append(value)
@@ -269,13 +293,13 @@ class Model(DecisionSpace, _Init, Library):
         """Draw the solution for a variable"""
         self.program.draw(variable.V())
 
-    def default_period(self, size: int = None) -> Period:
+    def default_period(self, size: int = None) -> Periods:
         """Return a default period"""
 
         if size:
             # if size is passed,
             # make a new temporal scale
-            new_period = Period(f'Time/{size}', periods=size, of=self.horizon)
+            new_period = Periods(f'Time/{size}', periods=size, of=self.horizon)
             setattr(self, f't{len(self.time.periods)}', new_period)
 
             # return the newly created period
@@ -283,7 +307,7 @@ class Model(DecisionSpace, _Init, Library):
 
         # or create a default period
 
-        self.t0 = Period('Time')
+        self.t0 = Periods('Time')
         return self.t0
 
     def default_loc(self) -> Location:

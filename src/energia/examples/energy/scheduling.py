@@ -13,7 +13,7 @@
 from ...components.commodity.misc import Currency
 from ...components.commodity.resource import Resource
 from ...components.operation.process import Process
-from ...components.temporal.period import Period
+from ...components.temporal.periods import Periods
 from ...represent.model import Model
 
 
@@ -25,7 +25,7 @@ def scheduling():
     #
     # We have 4 quarter which form a year
 
-    m.q = Period()
+    m.q = Periods()
     m.y = 4 * m.q
 
     # The horizon ($\overset{\ast}{t} = argmin_{n \in N} |\mathcal{T}_{n}|$) is determined by Energia implicitly. Check it by printing Model.Horizon

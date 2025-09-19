@@ -32,7 +32,7 @@ if TYPE_CHECKING:
     from ..components.spatial.linkage import Linkage
     from ..components.spatial.location import Location
     from ..components.temporal.modes import Modes
-    from ..components.temporal.period import Period
+    from ..components.temporal.periods import Periods
     from ..modeling.indices.domain import Domain
     from ..modeling.variables.aspect import Aspect
     from ..modeling.variables.control import Control
@@ -58,7 +58,7 @@ class _Scope:
         # Dictionary which tells you what aspects of resource
         # have grb {loc: time: []} and {time: loc: []}
         self.grb: dict[
-            Resource, dict[Location | Linkage, dict[Period, list[Aspect]]]
+            Resource, dict[Location | Linkage, dict[Periods, list[Aspect]]]
         ] = {}
 
         # Dictionary which tells you what aspects of what component
@@ -67,7 +67,7 @@ class _Scope:
             Aspect,
             dict[
                 Resource | Process | Storage | Transport,
-                dict[Location | Linkage, dict[Period, list[Aspect]]],
+                dict[Location | Linkage, dict[Periods, list[Aspect]]],
             ],
         ] = {}
 
@@ -75,7 +75,7 @@ class _Scope:
         self.maps_report: dict[Aspect, dict[Domain, dict[str, list[Domain]]]] = {}
 
     @property
-    def horizon(self) -> Period:
+    def horizon(self) -> Periods:
         """The horizon of the Model"""
         return self.time.horizon
 
@@ -91,7 +91,7 @@ class _Scope:
         # resource: Resource = None,
         # operation: Process | Storage | Transport = None,
         # space: Space = None,
-        # time: Period = None,
+        # time: Periods = None,
     ):
         """Updates the spatiotemporal dispositions for an aspect pertaining to a component"""
 
@@ -109,7 +109,7 @@ class _Scope:
 
         self.dispositions = merge_trees(self.dispositions, {aspect: domain.tree})
 
-    def update_grb(self, resource: Resource, space: Location | Linkage, time: Period):
+    def update_grb(self, resource: Resource, space: Location | Linkage, time: Periods):
         """Creates a mesh for grb dict"""
 
         if not resource in self.grb:
@@ -124,7 +124,7 @@ class _Scope:
             self.grb[resource][space][time] = []
 
     @property
-    def periods(self) -> list[Period]:
+    def periods(self) -> list[Periods]:
         """The periods of the Model"""
         return self.time.periods
 

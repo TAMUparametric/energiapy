@@ -13,7 +13,7 @@ from .process import Process
 if TYPE_CHECKING:
     from ...modeling.constraints.bind import Bind
     from ..spatial.location import Location
-    from ..temporal.period import Period
+    from ..temporal.periods import Periods
 
 
 @dataclass
@@ -56,18 +56,24 @@ class Storage(Component):  # , Stock):
                 # this is not a check, this generates a constraint
                 _ = self.capacity(loc, self.horizon) == True
 
+            if self.stored not in self.model.inventory.bound_spaces:
+                _ = self.model.inventory(self.stored) == True
+
             if loc not in self.model.inventory.bound_spaces[self.stored]:
                 # check if the storage inventory has been bound at that location
                 print(
                     f'--- Assuming inventory of {self.stored} is bound by inventory capacity in ({loc}, {self.horizon})'
                 )
-                times = list(
-                    [
-                        t
-                        for t in self.model.grb[self.stored.inv_of][loc]
-                        if self.model.grb[self.stored.inv_of][loc][t]
-                    ]
-                )
+                try:
+                    times = list(
+                        [
+                            t
+                            for t in self.model.grb[self.stored.inv_of][loc]
+                            if self.model.grb[self.stored.inv_of][loc][t]
+                        ]
+                    )
+                except KeyError:
+                    times = []
                 # write the conversion balance at
                 # densest temporal scale in that space
                 if times:
