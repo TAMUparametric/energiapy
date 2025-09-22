@@ -232,6 +232,7 @@ class Bind(_Generator):
         # get the list of Indices in the domain
         index = tuple(self.domain.Ilist)
 
+
         # --------- if reporting binary ---------------
         # if a reporting binary variable is needed
         if report:

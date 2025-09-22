@@ -112,8 +112,8 @@ class _Operation(Component, Design, Scheduling):
                 continue
 
         def time_checker():
-            # write use on the sparsest temporal index
-            return min(self.model.dispositions[self.model.capacity][self][space])
+            # write use on the densest temporal index
+            return max(self.model.dispositions[self.model.capacity][self][space])
 
         if self.fab.pwl:
 
@@ -130,7 +130,8 @@ class _Operation(Component, Design, Scheduling):
                         if par[0] == 0:
                             continue
 
-                    _ = self.capacity(space, time, mode)[res.use(mode)] == par
+
+                    _ = self.capacity(space, time_checker(), mode)[res.use(mode)] == par
 
         else:
 

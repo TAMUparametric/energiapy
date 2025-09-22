@@ -82,8 +82,6 @@ class Process(_Operation):
                     if loc_time not in loc_times:
                         loc_times.append(loc_time)
 
-
-
         self.writecons_conversion(loc_times)
 
         if self.fabrication:
@@ -164,8 +162,6 @@ class Process(_Operation):
 
         else:
             conversion = self.conversion
-
-        modes_set = False
 
         for loc_time in loc_times:
             loc = loc_time[0]
@@ -260,7 +256,7 @@ class Process(_Operation):
                     if eff[0] < 0:
                         eff = [-e for e in eff]
 
-                    if not modes_set:
+                    if not self.conv.modes_set:
                         # this is setting the bin limits for piece wise linear conversion
                         # these are written bound to capacity generally
                         # but here we pause that binding and bind operate to explicit limits
@@ -272,20 +268,16 @@ class Process(_Operation):
                         self.model.operate.bound = self.model.capacity
 
                         modes = self.model.modes[-1]
-                        modes_set = True
+                        self.conv.modes_set = True
 
-
+                    else:
+                        modes = self.conv.modes
+                        modes.bind = self.operate
+                        self.conv.modes_set = True
 
                     opr = opr(modes)
 
                     rhs = rhs(modes)
-
-
-
-
-
-
-
 
                     # _ = opr(modes)[rhs(modes)] == eff
 

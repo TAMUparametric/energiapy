@@ -70,6 +70,9 @@ class Conversion(Name):
         # or if multiple modes are defined
         self._modes: Modes = None
 
+        # if the keys are converted into Modes
+        self.modes_set: bool = False
+
     @property
     def modes(self) -> Modes:
         """Modes of the operation"""
@@ -131,6 +134,9 @@ class Conversion(Name):
         if self.pwl:
             for mode, conv in self.conversion.items():
                 self.conversion[mode] = _balancer(conv)
+
+            if isinstance(list(self.conversion)[0], Modes):
+                self.modes_set = True
 
         else:
             self.conversion = _balancer(self.conversion)

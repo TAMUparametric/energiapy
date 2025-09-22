@@ -179,14 +179,43 @@ class Map(_Generator):
                 self.writecons_map(self.domain, self.domain.change({'binds': []}))
 
             if self.domain.modes:
+
                 # if the variable is defined over modes
                 # we need to map it to the same domain without modes
                 if self.domain.modes.parent:
-                    self.writecons_map(self.domain, self.domain.change({'modes': None}))
-                else:
-                    self.writecons_map(
-                        self.domain, self.domain.change({'modes': None}), msum=True
+                    domain_parent = self.domain.change(
+                        {'modes': self.domain.modes.parent}
                     )
+                    domain_to = self.domain.change({'modes': None})
+
+                    if domain_to in self.maps:
+                        if self.domain in self.maps[domain_to]:
+                            return
+                        if domain_parent in self.maps[domain_to]:
+                            return
+
+                    self.writecons_map(self.domain, domain_to)
+                else:
+
+                    domain_children = [
+                        self.domain.change({'modes': modes})
+                        for modes in self.domain.modes
+                    ]
+                    print('aaaa', domain_children, self.maps)
+                    domain_to = self.domain.change({'modes': None})
+
+                    if domain_to in self.maps:
+
+                        if self.domain in self.maps[domain_to]:
+                            return
+
+                        if any(
+                            domain_child in self.maps[domain_to]
+                            for domain_child in domain_children
+                        ):
+                            return
+
+                    self.writecons_map(self.domain, domain_to, msum=True)
 
     @property
     def name(self) -> str:
