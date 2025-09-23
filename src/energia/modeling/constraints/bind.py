@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import time as keep_time
 from typing import TYPE_CHECKING, Literal, Self
 
 from gana.operators.composition import inf, sup
@@ -582,6 +583,9 @@ class Bind(_Generator):
 
                 lhs = self.V(other)
 
+                print(f'--- Binding {self.aspect} in domain {self.domain}')
+
+                start = keep_time.time()
                 # --------- Get RHS
 
                 # if self.aspect.bound is not None and (
@@ -668,6 +672,9 @@ class Bind(_Generator):
                     cons_name,
                     cons,
                 )
+
+                end = keep_time.time()
+                print(f'    Completed in {end-start} seconds')
 
     def __le__(self, other):
 

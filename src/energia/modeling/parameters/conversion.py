@@ -6,8 +6,8 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Self
 
 from ...components.temporal.lag import Lag
-from ...core.name import Name
 from ...components.temporal.modes import Modes
+from ...core.name import Name
 
 if TYPE_CHECKING:
     from gana.block.program import Prg
@@ -18,8 +18,8 @@ if TYPE_CHECKING:
     from ...components.operation.process import Process
     from ...components.operation.storage import Storage
     from ...components.temporal.periods import Periods
-    from ...represent.model import Model
     from ...modeling.constraints.bind import Bind
+    from ...represent.model import Model
 
 
 @dataclass
@@ -69,6 +69,9 @@ class Conversion(Name):
         # modes if PWL conversion is defined
         # or if multiple modes are defined
         self._modes: Modes = None
+
+        # if the keys are converted into Modes
+        self.modes_set: bool = False
 
     @property
     def modes(self) -> Modes:
@@ -131,6 +134,9 @@ class Conversion(Name):
         if self.pwl:
             for mode, conv in self.conversion.items():
                 self.conversion[mode] = _balancer(conv)
+
+            if isinstance(list(self.conversion)[0], Modes):
+                self.modes_set = True
 
         else:
             self.conversion = _balancer(self.conversion)

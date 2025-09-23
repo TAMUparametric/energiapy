@@ -250,9 +250,6 @@ class Aspect(Name):
                 indicator,
                 resource,
                 player,
-                # dr_aspect,
-                # dresource,
-                # op_aspect,
                 process,
                 storage,
                 transport,
@@ -330,6 +327,8 @@ class Aspect(Name):
                     raise ValueError(
                         f'For component {self} of type {type(self)}: {comp} of type {type(comp)} not recognized as an index'
                     )
+                
+                
 
             domain = Domain(
                 indicator=indicator,
