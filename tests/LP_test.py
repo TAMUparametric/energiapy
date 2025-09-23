@@ -2,7 +2,7 @@ import pytest
 
 # from energia import Currency, Model, Periods, Process, Resource
 
-from energia.examples.energy.scheduling import scheduling
+from energia.examples.energy import scheduling
 
 
 @pytest.fixture

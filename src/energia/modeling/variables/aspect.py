@@ -205,13 +205,15 @@ class Aspect(Name):
         for c in self.cons:
             c.show(descriptive)
 
-    def sol(self, n_sol: int = 0, aslist: bool = False) -> list[float] | None:
+    def sol(
+        self, n_sol: int = 0, aslist: bool = False, compare: bool = False
+    ) -> list[float] | None:
         """Solution
         Args:
             aslist (bool, optional): Returns values taken as list. Defaults to False.
         """
         var: V = getattr(self.program, self.name)
-        return var.sol(n_sol, aslist)
+        return var.sol(n_sol, aslist, compare=compare)
 
     def gettime(self, *index) -> list[Periods]:
         """Finds the sparsest time scale in the domains"""
@@ -327,8 +329,6 @@ class Aspect(Name):
                     raise ValueError(
                         f'For component {self} of type {type(self)}: {comp} of type {type(comp)} not recognized as an index'
                     )
-                
-                
 
             domain = Domain(
                 indicator=indicator,

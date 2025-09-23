@@ -228,8 +228,6 @@ class Model(DecisionSpace, _Init, Library):
 
             names = list(reversed(value.names[:-1]))
 
-
-
             if discretizations[-1] != 1:
                 discretizations.append(1)
                 names.append('t0')
@@ -277,9 +275,9 @@ class Model(DecisionSpace, _Init, Library):
         """Pretty print the Model"""
         self.program.show(descriptive, categorical=categorical, category=category)
 
-    def sol(self, n_sol: int = 0, slack: bool = True):
+    def sol(self, n_sol: int = 0, slack: bool = True, compare: bool = False):
         """Solution"""
-        return self.program.sol(n_sol=n_sol, slack=slack)
+        return self.program.sol(n_sol=n_sol, slack=slack, compare=compare)
 
     def save(self, as_type: str = 'dill'):
         """Save the Model to a file"""
