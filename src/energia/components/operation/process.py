@@ -73,6 +73,7 @@ class Process(_Operation):
                 print(
                     f'--- Assuming operation of {self} is bound by capacity in ({loc}, {self.horizon})'
                 )
+                
                 _ = self.operate(loc, self.horizon) <= 1
 
             # check if the process is being operated at the location

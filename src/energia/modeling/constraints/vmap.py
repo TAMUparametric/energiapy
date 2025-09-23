@@ -5,7 +5,6 @@ from __future__ import annotations
 import time as keep_time
 from dataclasses import dataclass
 from operator import is_
-from pyexpat import model
 from typing import TYPE_CHECKING
 
 from gana import sigma
@@ -13,20 +12,9 @@ from gana import sigma
 from ._generator import _Generator
 
 if TYPE_CHECKING:
-    from gana.block.program import Prg
     from gana.sets.constraint import C
-
-    from ...components.commodity.resource import Resource
-    from ...components.operation.process import Process
-    from ...components.operation.storage import Storage
-    from ...components.operation.transport import Transport
-    from ...components.spatial.linkage import Linkage
-    from ...components.spatial.location import Location
-    from ...components.temporal.periods import Periods
     from ...core.x import X
-    from ...represent.model import Model
     from ..indices.domain import Domain
-    from ..variables.aspect import Aspect
 
 
 @dataclass
@@ -179,43 +167,15 @@ class Map(_Generator):
                 self.writecons_map(self.domain, self.domain.change({'binds': []}))
 
             if self.domain.modes:
-
                 # if the variable is defined over modes
                 # we need to map it to the same domain without modes
+
                 if self.domain.modes.parent:
-                    domain_parent = self.domain.change(
-                        {'modes': self.domain.modes.parent}
-                    )
-                    domain_to = self.domain.change({'modes': None})
-
-                    if domain_to in self.maps:
-                        if self.domain in self.maps[domain_to]:
-                            return
-                        if domain_parent in self.maps[domain_to]:
-                            return
-
-                    self.writecons_map(self.domain, domain_to)
+                    self.writecons_map(self.domain, self.domain.change({'modes': None}))
                 else:
-
-                    domain_children = [
-                        self.domain.change({'modes': modes})
-                        for modes in self.domain.modes
-                    ]
-                    print('aaaa', domain_children, self.maps)
-                    domain_to = self.domain.change({'modes': None})
-
-                    if domain_to in self.maps:
-
-                        if self.domain in self.maps[domain_to]:
-                            return
-
-                        if any(
-                            domain_child in self.maps[domain_to]
-                            for domain_child in domain_children
-                        ):
-                            return
-
-                    self.writecons_map(self.domain, domain_to, msum=True)
+                    self.writecons_map(
+                        self.domain, self.domain.change({'modes': None}), msum=True
+                    )
 
     @property
     def name(self) -> str:
@@ -288,7 +248,35 @@ class Map(_Generator):
             if from_domain in self.maps[to_domain]:
                 # map already exists
                 return
+
+            if from_domain.modes:
+                # modes need some additional checks
+                # constraints could be written using parent modes or child modes
+                # these checks avoid writing the same constraint twice
+                # AVOIDS: v_t = v_t,m1 + v_t,m2 + v_t,m; v_t,m = v_t,m1 + v_t,m2
+                # CORRECT: v_t = v_t,m; v_t,m = v_t,m1 + v_t,m2 OR v_t = v_t,m1 + v_t,m2
+
+                if from_domain.modes.parent:
+                    if (
+                        from_domain.change({'modes': from_domain.modes.parent})
+                        in self.maps[to_domain]
+                    ):
+                        # map already written using parent modes
+                        # no need to write again
+                        return
+                else:
+                    domain_w_childmodes = [
+                        from_domain.change({'modes': mode})
+                        for mode in from_domain.modes
+                    ]
+
+                    if any(dom in self.maps[to_domain] for dom in domain_w_childmodes):
+                        # map already written using child modes
+                        # no need to write again
+                        return
+
             else:
+
                 self.maps[to_domain].append(from_domain)
 
         if self.reporting:
@@ -303,7 +291,7 @@ class Map(_Generator):
 
             rhs = self.give_sum(domain=from_domain, tsum=tsum)
 
-            _name = f'{var}{from_domain.idxname}_tmap'
+            _name = f'{var}{from_domain.idxname}_to_{to_domain.idxname}_tmap'
 
         elif msum:
             print(f'--- Mapping {var} across modes {from_domain} to {to_domain}')

@@ -130,7 +130,6 @@ class _Operation(Component, Design, Scheduling):
                         if par[0] == 0:
                             continue
 
-
                     _ = self.capacity(space, time_checker(), mode)[res.use(mode)] == par
 
         else:

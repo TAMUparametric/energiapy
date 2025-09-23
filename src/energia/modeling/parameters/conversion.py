@@ -6,8 +6,8 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Self
 
 from ...components.temporal.lag import Lag
-from ...core.name import Name
 from ...components.temporal.modes import Modes
+from ...core.name import Name
 
 if TYPE_CHECKING:
     from gana.block.program import Prg
@@ -18,8 +18,8 @@ if TYPE_CHECKING:
     from ...components.operation.process import Process
     from ...components.operation.storage import Storage
     from ...components.temporal.periods import Periods
-    from ...represent.model import Model
     from ...modeling.constraints.bind import Bind
+    from ...represent.model import Model
 
 
 @dataclass

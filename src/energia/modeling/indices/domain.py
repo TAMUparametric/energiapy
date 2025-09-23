@@ -6,7 +6,6 @@ from dataclasses import dataclass
 from math import prod
 from operator import is_, is_not
 from typing import TYPE_CHECKING, Self
-from xml.sax.handler import property_declaration_handler
 
 from gana.sets.index import I
 
@@ -23,11 +22,9 @@ if TYPE_CHECKING:
     from ...components.temporal.lag import Lag
     from ...components.temporal.modes import Modes
     from ...components.temporal.periods import Periods
-    from ...core.component import Component
     from ...core.x import X
     from ...modeling.constraints.bind import Bind
     from ...represent.model import Model
-    from ..parameters.conversion import Conversion
     from ..variables.aspect import Aspect
 
 
@@ -53,6 +50,10 @@ class Domain:
         lag (Lag): Lag is a boolean that indicates whether the temporal element is lagged or not.
     """
 
+    # the reason I keep these individual
+    # instead of directly adding primary or stream
+    # is because we do an instance check in Aspect
+    # this helps relay the checks
     # primary component (one of these is needed)
     indicator: Indicator = None
     resource: Resource = None
@@ -113,13 +114,22 @@ class Domain:
             self.binds: list[Bind] = []
 
     @property
-    def I(self):
+    def I(self) -> tuple[I]:
         """Compound index"""
         return prod(self.Ilist)
 
     # -----------------------------------------------------
     #                    Components
     # -----------------------------------------------------
+
+    # These are kept as properties
+    # because domains are updated on the fly
+    # look at change() and call()
+
+    @property
+    def stream(self) -> Indicator | Resource:
+        """Stream"""
+        return self.indicator or self.resource
 
     @property
     def operation(self) -> Process | Storage | Transport:
@@ -129,7 +139,7 @@ class Domain:
     @property
     def primary(self) -> Indicator | Resource | Process | Storage | Transport:
         """Primary component"""
-        _primary = self.indicator or self.resource or self.operation
+        _primary = self.stream or self.operation
         if not _primary:
             raise ValueError('Domain must have at least one primary index')
         return _primary
