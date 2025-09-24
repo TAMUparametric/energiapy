@@ -1,19 +1,11 @@
-numpy < 2.0.0
-pandas
 matplotlib
-ppopt
 gana
 
 [optional]
-pint
-sympy
-gurobipy
 scikit-learn
-pyomo
 h5pyd
 distfit
 pvlib
 windpowerlib
-typing_extensions==4.5.0
 pyarrow
 fastparquet
