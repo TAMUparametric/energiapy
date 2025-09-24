@@ -366,7 +366,7 @@ class Bind(_Generator):
         These apply when there are multiple levels of variable-making
         Endogenous bounds apply, i.e.
 
-        .. math::
+        ..math::
            \mathbf{v}_{\dots, t^{+}} <= {\theta}_{\dots, t^{+}} \cdot \mathbf{v}_{\dots, t^{-}}
 
         where :
@@ -417,7 +417,7 @@ class Bind(_Generator):
         These report whether a variable has been made or not
         Also useful to make the variable space semi-continuous
 
-        .. math::
+        ..math::
               \mathbf{v}_{\dots, t} <= {\theta}_{\dots, t} \cdot \mathbf{x}_{\dots, t}
 
           where :
