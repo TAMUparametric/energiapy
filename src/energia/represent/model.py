@@ -116,10 +116,10 @@ class Model(Decisions, _Init):
             Transport: [('system', 'transits')],
             Player: [('system', 'players')],
             Couple: [('system', 'couples')],
-            Currency: [('system', 'currencies', True)],
-            Land: [('system', 'lands', True)],
-            Emission: [('system', 'emissions', True)],
-            Material: [('system', 'materials', True)],
+            Currency: [('system', 'currencies')],
+            Land: [('system', 'lands')],
+            Emission: [('system', 'emissions')],
+            Material: [('system', 'materials')],
             Resource: [('system', 'resources')],
             State: [('decisionspace', 'states')],
             Control: [('decisionspace', 'controls')],
@@ -151,7 +151,6 @@ class Model(Decisions, _Init):
         value: X,
         represent: str,
         collection: str,
-        subset: bool = False,
     ):
         """Update the Model with a new value
 
