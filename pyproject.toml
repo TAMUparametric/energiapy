@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "energia"
-version = "1.1.0"
+version = "2.0.0"
 authors = [
   { name="Rahul Kakodkar", email="cacodcar@gmail.com" },
   {name = "Efstratios Pistikopoulos", email = "stratos@tamu.edu"}
@@ -23,7 +23,7 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
-dependencies = ["gana @ file:../gana", "ppopt", "matplotlib"]
+dependencies = ["gana", "ppopt", "matplotlib"]
 [project.optional-dependencies]
 test = ["coverage", "pytest"]
 

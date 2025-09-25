@@ -31,7 +31,7 @@ if TYPE_CHECKING:
     from gana.sets.variable import V
 
     from ...core.x import X
-    from ...dimensions.decisiontree import DecisionTree
+    from ...dimensions.decisionspace import DecisionSpace
     from ...represent.model import Model
     from .control import Control
     from .state import State
@@ -172,7 +172,7 @@ class Aspect(Name):
         return self.model.program
 
     @property
-    def tree(self) -> DecisionTree:
+    def tree(self) -> DecisionSpace:
         """Tree"""
         return self.model.tree
 

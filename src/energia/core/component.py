@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from ..components.spatial.linkage import Linkage
     from ..components.spatial.location import Location
     from ..components.temporal.periods import Periods
-    from ..dimensions.decisiontree import DecisionTree
+    from ..dimensions.decisionspace import DecisionSpace
     from ..dimensions.space import Space
     from ..dimensions.time import Time
     from ..modeling.variables.aspect import Aspect
@@ -51,7 +51,7 @@ class Component(X):
         X.__post_init__(self)
 
     @property
-    def tree(self) -> DecisionTree:
+    def tree(self) -> DecisionSpace:
         """Feasible Region"""
         # the decision tree gives the component access to
         # the aspects of all other components

@@ -10,7 +10,7 @@ from ..components.commodity.resource import Resource
 from ..components.impact.indicator import Indicator
 from ..components.operation.transport import Transport
 from ..dimensions.consequence import Consequence
-from ..dimensions.decisiontree import DecisionTree
+from ..dimensions.decisionspace import DecisionSpace
 from ..dimensions.space import Space
 from ..dimensions.system import System
 from ..dimensions.time import Time
@@ -180,7 +180,7 @@ class _Tree:
 
     def __post_init__(self):
         # Tree (Feasible Region)
-        self.tree = DecisionTree(self)
+        self.tree = DecisionSpace(self)
 
     @property
     def states(self) -> list[State]:

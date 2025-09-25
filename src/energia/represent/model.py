@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Type
+from typing import TYPE_CHECKING, Type, Self
 
 from dill import dump
-
+from collections.abc import Callable
 from ..components.commodity.misc import Currency, Emission, Land, Material
 from ..components.commodity.resource import Resource
 from ..components.game.player import Player
@@ -21,14 +21,13 @@ from ..components.temporal.modes import Modes
 from ..components.temporal.periods import Periods
 from ..components.temporal.scales import TemporalScales
 from ..core.x import X
-from ..dimensions.decisionspace import DecisionSpace
+from ..library.decisions import Decisions
 from ..modeling.parameters.conversion import Conversion
 from ..modeling.variables.control import Control
 from ..modeling.variables.impact import Impact
 from ..modeling.variables.state import State
 from ..modeling.variables.stream import Stream
 from .blocks import _Init
-from .library import Library
 
 if TYPE_CHECKING:
     from gana.sets.index import I
@@ -38,7 +37,7 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class Model(DecisionSpace, _Init, Library):
+class Model(Decisions, _Init):
     """An abstract representation of an energy system
 
     Args:
@@ -110,11 +109,11 @@ class Model(DecisionSpace, _Init, Library):
             Environ: [('impact', 'envs')],
             Social: [('impact', 'socs')],
             Economic: [('impact', 'ecos')],
-            Resource: [('system', 'resources')],
             Process: [('system', 'processes')],
             Storage: [('system', 'storages')],
             Transport: [('system', 'transits')],
             Player: [('tree', 'players')],
+            Resource: [('system', 'resources')],
             Currency: [('system', 'currencies', True)],
             Land: [('system', 'lands', True)],
             Emission: [('system', 'emissions', True)],
@@ -135,7 +134,10 @@ class Model(DecisionSpace, _Init, Library):
         self.modes_dict: dict[Bind, Modes] = {}
 
         # introduce the dimensions of the model
-        DecisionSpace.__post_init__(self)
+        Decisions.__post_init__(self)
+
+        # if SI units have been set
+        self.siunits_set: bool = False
 
     def update(
         self,
@@ -316,6 +318,18 @@ class Model(DecisionSpace, _Init, Library):
     def locate(self, *operations: Process | Storage):
         """Locate operations in the network"""
         self.network.locate(*operations)
+
+    def __call__(self, *funcs: Callable[Self]):
+        """Set functions on the model
+
+        These can include default units
+
+        """
+
+        for f in funcs:
+            f(self)
+
+        
 
     # -----------------------------------------------------
     #                    Hashing

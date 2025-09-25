@@ -19,7 +19,7 @@ if TYPE_CHECKING:
     from ...components.spatial.location import Location
     from ...components.temporal.periods import Periods
     from ...core.x import X
-    from ...dimensions.decisiontree import DecisionTree
+    from ...dimensions.decisionspace import DecisionSpace
     from ...represent.model import Model
     from ..indices.domain import Domain
     from ..variables.aspect import Aspect
@@ -93,6 +93,6 @@ class _Generator(Name):
         return self.model.grb
 
     @property
-    def tree(self) -> DecisionTree:
+    def tree(self) -> DecisionSpace:
         """Model Tree"""
         return self.model.tree
