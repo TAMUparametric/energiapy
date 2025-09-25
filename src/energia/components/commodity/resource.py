@@ -5,9 +5,17 @@
 4. lost by Storage and Transits
 """
 
+from __future__ import annotations
+
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
+from ..impact.categories import Environ
+
 from ._commodity import _Commodity
 from ...modeling.variables.default import Free, Inventory, Produce, Trade, Utilize
+
+if TYPE_CHECKING:
+    from ...modeling.constraints.calculate import Calculate
 
 
 @dataclass
@@ -37,11 +45,27 @@ class Resource(_Commodity, Trade, Produce, Utilize, Free, Inventory):
         self.in_inv: list[Resource] = []
 
     @property
-    def demand(self):
-        """Demand"""
+    def gwp(self) -> Calculate:
+        """Global Warming Potential"""
+        if not hasattr(self.model, "GWP"):
+            self.model.GWP = Environ(label='Global Warming Potential (kg CO2)')
+
+        return self.consume[self.model.GWP.emit]
+
+    @property
+    def htp(self) -> Calculate:
+        """Human Toxicity Potential"""
+        if not hasattr(self.model, "HTP"):
+            self.model.HTP = Environ(label='Human Toxicity Potential (kg 1,4-DB eq.)')
+
+        return self.consume[self.model.HTP.emit]
+
+    @property
+    def demand(self) -> Calculate:
+        """Demand (alias for the Aspect release)"""
         return self.release
 
     @property
-    def price(self):
+    def price(self) -> Calculate:
         """Cost of consume"""
         return self.consume[self.model.default_currency().spend]

@@ -18,6 +18,7 @@ if TYPE_CHECKING:
     from ..spatial.location import Location
     from ..temporal.lag import Lag
     from ..temporal.periods import Periods
+    from ...modeling.constraints.calculate import Calculate
 
 
 @dataclass
@@ -51,6 +52,16 @@ class _Operation(Component, Design, Scheduling):
             # will be made the first time it is called
             self._fab = Conversion(operation=self, bind=self.capacity)
         return self._fab
+
+    @property
+    def capex(self) -> Calculate:
+        """Capital Expenditure"""
+        return self.capacity[self.model.default_currency().spend]
+
+    @property
+    def opex(self) -> Calculate:
+        """Operational Expenditure"""
+        return self.operate[self.model.default_currency().spend]
 
     @property
     def base(self) -> Resource:

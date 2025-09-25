@@ -6,13 +6,17 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from ...core.component import Component
+from ...modeling.constraints.calculate import Calculate
 from ...modeling.parameters.conversion import Conversion
 from ..commodity.stored import Stored
+
 from .process import Process
 
 if TYPE_CHECKING:
+    from ..commodity.resource import Resource
     from ...modeling.constraints.bind import Bind
     from ..spatial.location import Location
+    from gana.sets.constraint import C
 
 
 @dataclass
@@ -112,6 +116,16 @@ class Storage(Component):  # , Stock):
         return self.stored.inventory
 
     @property
+    def capex(self) -> Calculate:
+        """Capital Expenditure"""
+        return self.capacity[self.model.default_currency().spend]
+
+    @property
+    def opex(self) -> Calculate:
+        """Operational Expenditure"""
+        return self.charge.operate[self.model.default_currency().spend]
+
+    @property
     def base(self) -> Resource:
         """Base resource"""
         return self.discharge.conv.base
@@ -120,6 +134,24 @@ class Storage(Component):  # , Stock):
     def conversion(self) -> dict[Resource, int | float]:
         """Conversion of commodities"""
         return self.discharge.conv.conversion
+
+    @property
+    def storage_cost(self) -> Calculate:
+        """Cost of storing the resource"""
+        return self.inventory[self.model.default_currency().spend]
+
+    @property
+    def cons(self) -> list[C]:
+        """Constraints"""
+        # This overwrites the Component cons property
+        # this gets the actual constraint objects from the program
+        # based on the pname (attribute name) in the program
+        return (
+            [getattr(self.program, c) for c in self.constraints]
+            + self.charge.cons
+            + self.discharge.cons
+            + self.stored.cons
+        )
 
     @property
     def fab(self) -> Conversion:

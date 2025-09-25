@@ -175,7 +175,7 @@ class Conversion(Name):
             # this is used for inventory conversion
             # when not other resource besides the one being inventoried is involved
 
-            self.conversion = {**self.conversion, self.resource: -1.0 * float(other)}
+            self.conversion = {**self.conversion, self.resource: -1.0 / float(other)}
 
         elif isinstance(other, dict):
 
