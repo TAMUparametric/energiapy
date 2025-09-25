@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from pyexpat import model
 from typing import TYPE_CHECKING, Self
 
 from gana.sets.index import I

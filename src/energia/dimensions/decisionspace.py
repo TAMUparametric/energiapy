@@ -13,12 +13,6 @@ from ..modeling.variables.state import State
 from ..modeling.variables.stream import Stream
 
 if TYPE_CHECKING:
-    from ..components.operation.process import Process
-    from ..components.operation.storage import Storage
-    from ..components.operation.transport import Transport
-    from ..components.spatial.linkage import Linkage
-    from ..components.spatial.location import Location
-    from ..components.temporal.periods import Periods
     from ..modeling.variables.aspect import Aspect
     from .space import Space
     from .time import Time

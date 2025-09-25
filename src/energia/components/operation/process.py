@@ -6,8 +6,6 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 from warnings import warn
 
-from energia.components.temporal import modes
-
 from ...modeling.parameters.conversion import Conversion
 from ..temporal.modes import Modes
 from ._operation import _Operation
@@ -73,8 +71,16 @@ class Process(_Operation):
                 print(
                     f'--- Assuming operation of {self} is bound by capacity in ({loc}, {self.horizon})'
                 )
-                
-                _ = self.operate(loc, self.horizon) <= 1
+                if self in self.model.operate.dispositions:
+
+                    _ = (
+                        self.operate(
+                            loc, min(self.model.operate.dispositions[self][loc])
+                        )
+                        <= 1
+                    )
+                else:
+                    _ = self.operate(loc, self.horizon) <= 1
 
             # check if the process is being operated at the location
             for d in self.model.operate.domains:

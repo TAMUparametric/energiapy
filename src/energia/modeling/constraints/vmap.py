@@ -261,29 +261,33 @@ class Map(_Generator):
                         from_domain.change({'modes': from_domain.modes.parent})
                         in self.maps[to_domain]
                     ):
-                        print('adada', self.aspect, from_domain)
                         # map already written using parent modes
                         # no need to write again
                         return
                 else:
 
+                    if (
+                        from_domain
+                        in self.maps[to_domain.change({'binds': from_domain.binds})]
+                    ):
+                        # TODO: This check should not be necessary
+                        # TODO: but it do be necessary, figure out and rectify this
+                        # map already written using no modes
+                        # no need to write again
+                        return
+
                     domain_w_childmodes = [
                         from_domain.change({'modes': mode})
                         for mode in from_domain.modes
                     ]
-                    print('kkkkkkk', self.aspect)
-                    print('aaaaaaaa', domain_w_childmodes)
-                    print('bbbbbbbb', self.maps[to_domain])
+
 
                     if any(dom in self.maps[to_domain] for dom in domain_w_childmodes):
                         # map already written using child modes
                         # no need to write again
-                        print('ccccc   returned')
                         return
 
-            else:
-
-                self.maps[to_domain].append(from_domain)
+            self.maps[to_domain].append(from_domain)
 
         if self.reporting:
             var = self.aspect.reporting
@@ -303,6 +307,8 @@ class Map(_Generator):
             print(f'--- Mapping {var} across modes {from_domain} to {to_domain}')
 
             rhs = self.give_sum(domain=from_domain, msum=msum)
+            # append the from_domain to the list of maps to avoid rewriting the constraint
+            self.maps[to_domain].append(from_domain)
 
             _name = f'{var}{from_domain.idxname}_mmap'
 
@@ -371,10 +377,7 @@ class Map(_Generator):
 
         self.aspect.constraints.append(_name)
 
-        print('lllllllllllll', self.aspect, from_domain, to_domain)
         from_domain.update_cons(_name)
-        if from_domain.modes:
-            print(from_domain.modes.constraints)
 
     def __call__(self, *index: X):
         """Returns the variable for the aspect at the given index"""
