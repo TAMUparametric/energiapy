@@ -312,21 +312,14 @@ class Bind(_Generator):
             # because of the check above
             self.aspect.indices.append(index)
 
-            # if write_grb and not self.domain.resource in self.grb:
+            # this updates the balanced dictionary, by adding the commodity as a key
 
-            # this updates the balanced dictionary, by adding the resource as a key
-
-            if self.domain.resource:
+            if self.domain.commodity:
                 self.model.update_grb(
-                    self.domain.resource, time=self.domain.period, space=self.domain.loc
+                    self.domain.commodity,
+                    time=self.domain.period,
+                    space=self.domain.loc,
                 )
-
-            # if write_grb and self.domain.resource:
-            #     # if this aspects needs to feature in the general resource balance
-            #     # at some space and time
-            #     # this is where it is declared
-            #     # if self.domain.resource:
-            #     self.write_grb()
 
             # this lets all index elements in the domain know
             # that the aspect was sampled
@@ -692,7 +685,7 @@ class Bind(_Generator):
             # if a truth value is give
             # just declare the variable
             # it will be non-negative by default
-            # and will begin a resource balance
+            # and will begin a commodity balance
             self.V()
 
         elif isinstance(other, Bind):

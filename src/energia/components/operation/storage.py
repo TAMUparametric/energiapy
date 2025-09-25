@@ -7,13 +7,12 @@ from typing import TYPE_CHECKING
 
 from ...core.component import Component
 from ...modeling.parameters.conversion import Conversion
-from ..commodity.resource import Resource
+from ..commodity.stored import Stored
 from .process import Process
 
 if TYPE_CHECKING:
     from ...modeling.constraints.bind import Bind
     from ..spatial.location import Location
-    from ..temporal.periods import Periods
 
 
 @dataclass
@@ -127,11 +126,11 @@ class Storage(Component):  # , Stock):
         """Fabrication conversion of commodities"""
         return self.charge.fab
 
-    def __call__(self, resource: Resource | Conversion):
+    def __call__(self, resource: Stored | Conversion):
         """Conversion is called with a Resource to be converted"""
         if not self._conv:
             # create storage resource
-            stored = Resource()
+            stored = Stored()
             resource.in_inv.append(stored)
 
             setattr(self.model, f'{resource}.{self}', stored)

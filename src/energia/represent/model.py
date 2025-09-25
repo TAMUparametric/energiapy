@@ -7,7 +7,10 @@ from typing import TYPE_CHECKING, Type, Self
 
 from dill import dump
 from collections.abc import Callable
-from ..components.commodity.misc import Currency, Emission, Land, Material
+from ..components.commodity.currency import Currency
+from ..components.commodity.land import Land
+from ..components.commodity.material import Material
+from ..components.commodity.emission import Emission
 from ..components.commodity.resource import Resource
 from ..components.game.player import Player
 from ..components.game.couple import Couple

@@ -36,9 +36,6 @@ class Resource(_Commodity, Trade, Produce, Utilize, Free, Inventory):
         # resource in its stored form
         self.in_inv: list[Resource] = []
 
-        # flag indicates whether the resource is produced and expended insitu only
-        self.insitu = False
-
     @property
     def demand(self):
         """Demand"""

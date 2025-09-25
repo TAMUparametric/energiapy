@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, Self
 from gana.sets.index import I
 
 if TYPE_CHECKING:
-    from ...components.commodity.resource import Resource
+    from ...components.commodity._commodity import _Commodity
     from ...components.game.couple import Couple
     from ...components.game.player import Player
     from ...components.impact.indicator import Indicator
@@ -34,10 +34,10 @@ class Domain:
 
     Attributes:
         indicator (Indicator): Indicates the impact of some activity through an equivalency, e.g. GWP, ODP.
-        resource (Resource): Resource can represent the flow of any stream, measured using some basis, e.g. water, Rupee, carbon-dioxide.
+        commodity (_Commodity): _Commodity can represent the flow of any stream, measured using some basis, e.g. water, Rupee, carbon-dioxide.
         player (Player): Player is the actor that takes decisions, e.g. me, you.
         dr_aspect (Aspect): The aspect regarding the dresource that is being considered, e.g. consumption, production, purchase.
-        dresource (Resource): dresource is responsible for the flow of resource, e.g. GWP due to water consumption, Rupee spent on water purchasing.
+        dresource (_Commodity): dresource is responsible for the flow of commodity, e.g. GWP due to water consumption, Rupee spent on water purchasing.
         op_aspect (Aspect): The aspect regarding the operation that is being considered, e.g. capacity, operating level.
         process (Process): Process is the process that is being considered, e.g. dam, farming.
         storage (Storage): Storage is the storage that is being considered, e.g. reservoir,
@@ -56,7 +56,7 @@ class Domain:
     # this helps relay the checks
     # primary component (one of these is needed)
     indicator: Indicator = None
-    resource: Resource = None
+    commodity: _Commodity = None
 
     process: Process = None
     storage: Storage = None
@@ -86,31 +86,17 @@ class Domain:
 
         # Domains are structured something like this:
         # (primary_component ...aspect_n, secondary_component_n....,decision-makers, space, time
-        # primary_component can be an indicator, resource, or operation (process | storage | transport)
+        # primary_component can be an indicator, commodity, or operation (process | storage | transport)
         # {aspect_n: secondary_component_n} is given in self.binds
         # decision-makers = player | couple
         # space = loc | link
         # time = period | lag
 
-        # self.operation = self.process or self.storage or self.transport
-        # self.space = self.loc or self.link
-        # self.linked = True if self.link else False
-        # self.time = self.period or self.lag
-        # self.lagged = True if self.lag else False
-
         # primary index being modeled in some spatiotemporal context
         self.model: Model = next((i.model for i in self.index_short if i), None)
 
-        # if self.indicator:
-        #     self.primary = self.indicator
-        # elif self.resource:
-        #     self.primary = self.resource
-        # elif self.operation:
-        #     self.primary = self.operation
-        # else:
-        # raise ValueError('Domain must have at least one primary index')
-
         if not self.binds:
+            # these are the list of binds on which a stream can depend on
             self.binds: list[Bind] = []
 
     @property
@@ -127,9 +113,9 @@ class Domain:
     # look at change() and call()
 
     @property
-    def stream(self) -> Indicator | Resource:
+    def stream(self) -> Indicator | _Commodity:
         """Stream"""
-        return self.indicator or self.resource
+        return self.indicator or self.commodity
 
     @property
     def operation(self) -> Process | Storage | Transport:
@@ -137,7 +123,7 @@ class Domain:
         return self.process or self.storage or self.transport
 
     @property
-    def primary(self) -> Indicator | Resource | Process | Storage | Transport:
+    def primary(self) -> Indicator | _Commodity | Process | Storage | Transport:
         """Primary component"""
         _primary = self.stream or self.operation
         if not _primary:
@@ -186,7 +172,7 @@ class Domain:
         if self.lag:
             return False
         if self.disposition in [
-            ('resource', 'space', 'time'),
+            ('commodity', 'space', 'time'),
             ('indicator', 'space', 'time'),
             ('operation', 'space', 'time'),
         ]:
@@ -242,7 +228,7 @@ class Domain:
     @property
     def index_primary(
         self,
-    ) -> list[Indicator | Resource | Process | Storage | Transport]:
+    ) -> list[Indicator | _Commodity | Process | Storage | Transport]:
         """Primary index
 
         Returns:
@@ -266,7 +252,7 @@ class Domain:
     @property
     def index_short(
         self,
-    ) -> list[Indicator | Resource | Process | Storage | Transport | Bind]:
+    ) -> list[Indicator | _Commodity | Process | Storage | Transport | Bind]:
         """Set of indices"""
         return self.index_primary + self.binds
 
@@ -304,7 +290,7 @@ class Domain:
         """Dictionary of indices"""
         return {
             'indicator': self.indicator,
-            'resource': self.resource,
+            'commodity': self.commodity,
             'player': self.player,
             'process': self.process,
             'storage': self.storage,
@@ -425,11 +411,11 @@ class Domain:
             Self: lower dimensional domain
 
         Example:
-            >>> domain = Domain(resource=water, operation=dam, space=goa, time=year)
+            >>> domain = Domain(commodity=water, operation=dam, space=goa, time=year)
             (water, dam, goa, year)
             >>> domain/'operation'
             (water, goa, year)
-            >>> domain/['resource', 'operation']
+            >>> domain/['commodity', 'operation']
             (goa, year)
         """
 
@@ -443,8 +429,8 @@ class Domain:
             list[str]: list of indices that are not common
 
         Example:
-            >>> domain1 = Domain(resource=water, operation=dam, space=goa, time=year)
-            >>> domain2 = Domain(resource=water, space=mumbai, time=year)
+            >>> domain1 = Domain(commodity=water, operation=dam, space=goa, time=year)
+            >>> domain2 = Domain(commodity=water, space=mumbai, time=year)
             >>> domain1 - domain2
             ['operation', 'space']
 

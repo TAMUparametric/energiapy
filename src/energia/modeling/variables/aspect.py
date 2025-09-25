@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 from gana.sets.index import I
 from matplotlib import rc
 
-from ...components.commodity.resource import Resource
+from ...components.commodity._commodity import _Commodity
 from ...components.game.couple import Couple
 from ...components.game.player import Player
 from ...components.impact.indicator import Indicator
@@ -45,16 +45,16 @@ class Aspect(Name):
     Attributes:
         nn (bool): If True, the decision is a non-negative decision. Defaults to True
         Operation (Type[Process | Storage | Transport]): The type of operation associated with the decision. Defaults to None
-        Resource (Type[Resource]): The type of resource associated with the decision. Defaults to None
-        DResource (Type[Resource]): The type of derivative resource associated with the decision. Defaults to None
+        _Commodity (Type[_Commodity]): The type of commodity associated with the decision. Defaults to None
+        DResource (Type[_Commodity]): The type of derivative commodity associated with the decision. Defaults to None
         Indicator (Type[Indicator]): The type of indicator associated with the decision. Defaults to None
         latex (str): LaTeX representation of the decision. Defaults to None
     """
 
     nn: bool = True
     types_opr: tuple[Type[Process | Storage | Transport]] = None
-    types_res: Type[Resource] = None
-    types_dres: Type[Resource] = None
+    types_res: Type[_Commodity] = None
+    types_dres: Type[_Commodity] = None
     types_idc: Type[Indicator] = None
     latex: str = None
 
@@ -77,7 +77,7 @@ class Aspect(Name):
 
         # spaces where the aspect has been already bound
         self.bound_spaces: dict[
-            Resource | Process | Storage | Transport, list[Location | Linkage]
+            _Commodity | Process | Storage | Transport, list[Location | Linkage]
         ] = {}
 
         # Domains of the decision
@@ -179,15 +179,15 @@ class Aspect(Name):
     @property
     def grb(
         self,
-    ) -> dict[Resource, dict[Location | Linkage, dict[Periods, list[Aspect]]]]:
-        """General Resource Balance dict"""
+    ) -> dict[_Commodity, dict[Location | Linkage, dict[Periods, list[Aspect]]]]:
+        """General _Commodity Balance dict"""
         return self.model.grb
 
     @property
     def dispositions(self) -> dict[
         Self,
         dict[
-            Resource | Process | Storage | Transport,
+            _Commodity | Process | Storage | Transport,
             dict[
                 Periods | Location | Linkage, dict[Location | Periods | Linkage, bool]
             ],
@@ -250,7 +250,7 @@ class Aspect(Name):
 
             (
                 indicator,
-                resource,
+                commodity,
                 player,
                 process,
                 storage,
@@ -299,13 +299,13 @@ class Aspect(Name):
                 elif isinstance(comp, Couple):
                     couple = comp
 
-                elif isinstance(comp, Resource):
-                    # check if this is the right resource type for the aspect
-                    # domain.resource should be the primary resource only
+                elif isinstance(comp, _Commodity):
+                    # check if this is the right commodity type for the aspect
+                    # domain.commodity should be the primary commodity only
                     if isinstance(comp, self.types_res):
-                        resource = comp
+                        commodity = comp
                     # else:
-                    #     # anything else is a derivative resource
+                    #     # anything else is a derivative commodity
                     #     dresource = comp
 
                 elif isinstance(comp, Indicator):
@@ -332,7 +332,7 @@ class Aspect(Name):
 
             domain = Domain(
                 indicator=indicator,
-                resource=resource,
+                commodity=commodity,
                 process=process,
                 storage=storage,
                 transport=transport,

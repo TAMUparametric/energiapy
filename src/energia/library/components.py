@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from ..components.commodity.misc import Currency
+from ..components.commodity.currency import Currency
 from ..components.impact.categories import Environ
 from ..components.measure.unit import Unit
 from ..components.temporal.scales import TemporalScales

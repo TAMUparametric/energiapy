@@ -5,7 +5,9 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Literal
 
-from ..components.commodity.misc import Currency, Emission, Land, Material
+from ..components.commodity.currency import Currency
+from ..components.commodity.land import Land
+from ..components.commodity.material import Material
 from ..components.commodity.resource import Resource
 from ..components.impact.indicator import Indicator
 from ..components.operation.transport import Transport

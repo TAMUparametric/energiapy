@@ -14,7 +14,7 @@ from ._generator import _Generator
 if TYPE_CHECKING:
     from gana import F, Prg
 
-    from ...components.commodity.resource import Resource
+    from ...components.commodity._commodity import _Commodity
     from ...components.operation.process import Process
     from ...components.operation.storage import Storage
     from ...components.operation.transport import Transport
@@ -29,7 +29,7 @@ if TYPE_CHECKING:
 
 @dataclass
 class Balance(_Generator):
-    """Performs a general resource balance
+    """Performs a general commodity balance
 
     Args:
         aspect (Aspect. optional): Aspect to which the constraint is applied
@@ -47,7 +47,7 @@ class Balance(_Generator):
         if self.domain.modes:
             return
 
-        resource = self.domain.resource
+        commodity = self.domain.commodity
         binds = self.domain.binds
         time = self.domain.time
 
@@ -64,34 +64,34 @@ class Balance(_Generator):
         if time is None:
             time = self.model.default_period()
 
-        if not resource in self.grb:
-            self.model.update_grb(resource, space=loc, time=time)
+        if not commodity in self.grb:
+            self.model.update_grb(commodity, space=loc, time=time)
 
-        # self.model.update_grb(resource=resource, space=loc, time=time)
-        if not time in self.grb[resource][loc]:
+        # self.model.update_grb(commodity=commodity, space=loc, time=time)
+        if not time in self.grb[commodity][loc]:
             # this is only used if times are being declared dynamically (based on parameter set sizes)
-            self.model.update_grb(resource=resource, time=time, space=loc)
+            self.model.update_grb(commodity=commodity, time=time, space=loc)
 
-        if not binds and resource:
+        if not binds and commodity:
             # if no binds, then create GRB or append to exisiting GRB
             # writecons_grb will figure it out
-            self.writecons_grb(resource, loc, time)
+            self.writecons_grb(commodity, loc, time)
 
         else:
             # if there are binds
 
-            if resource.insitu:
-                # # we need to still check if this is this is an insitu (e.g. a storage resource)
-                # if the resource is insitu that means that
+            if commodity.insitu:
+                # # we need to still check if this is this is an insitu (e.g. a storage commodity)
+                # if the commodity is insitu that means that
                 # no external bounds have been defined
                 # a GRB is still needed
 
-                self.writecons_grb(resource, loc, time)
+                self.writecons_grb(commodity, loc, time)
 
             if (
-                self.grb[resource][loc][time]
-                and self.aspect(resource, loc, time)
-                not in self.grb[resource][loc][time]
+                self.grb[commodity][loc][time]
+                and self.aspect(commodity, loc, time)
+                not in self.grb[commodity][loc][time]
             ):
                 # for the second check, consider the case where
 
@@ -99,7 +99,7 @@ class Balance(_Generator):
 
                 # if there is already a GRB existing
                 # add the bind to the GRB at the same scale
-                self.writecons_grb(resource, loc, time)
+                self.writecons_grb(commodity, loc, time)
 
     @property
     def name(self) -> str:
@@ -134,29 +134,29 @@ class Balance(_Generator):
         else:
             return self(*self.domain).V()
 
-    def writecons_grb(self, resource, loc, time):
+    def writecons_grb(self, commodity, loc, time):
         """Writes the stream balance constraint"""
 
-        _name = f'{resource}_{loc}_{time}_grb'
+        _name = f'{commodity}_{loc}_{time}_grb'
 
-        # ---- initialize GRB for resource if necessary -----
+        # ---- initialize GRB for commodity if necessary -----
 
-        if not self.grb[resource][loc][time]:
-            # this checks whether a general resource balance has been defined
-            # for the resource in that space and time
+        if not self.grb[commodity][loc][time]:
+            # this checks whether a general commodity balance has been defined
+            # for the commodity in that space and time
 
             # first check if a bind has been defined
 
             # update the GRB aspects
 
-            self.grb[resource][loc][time].append(self)
+            self.grb[commodity][loc][time].append(self)
 
             print(
-                f'--- General Resource Balance for {resource} in ({loc}, {time}): initializing constraint, adding {self.aspect}{self.domain}'
+                f'--- General Resource Balance for {commodity} in ({loc}, {time}): initializing constraint, adding {self.aspect}{self.domain}'
             )
             start = keep_time.time()
 
-            if resource.inv_of and self.aspect.name == 'inventory':
+            if commodity.inv_of and self.aspect.name == 'inventory':
                 if len(time) == 1:
                     return
                 # if inventory is being add to GRB
@@ -186,21 +186,21 @@ class Balance(_Generator):
 
         # ---- add aspect to GRB if not added already ----
 
-        elif not self in self.grb[resource][loc][time]:
+        elif not self in self.grb[commodity][loc][time]:
 
             print(
-                f'--- General Resource Balance for {resource} in ({loc}, {time}): adding {self.aspect}{self.domain}'
+                f'--- General Resource Balance for {commodity} in ({loc}, {time}): adding {self.aspect}{self.domain}'
             )
 
             start = keep_time.time()
 
             # update the GRB aspects
-            self.grb[resource][loc][time].append(self)
+            self.grb[commodity][loc][time].append(self)
 
             # grab the constraint from the program
             cons_grb = getattr(self.program, _name)
 
-            if resource.in_inv and self.aspect.name == 'inventory':
+            if commodity.in_inv and self.aspect.name == 'inventory':
                 # if inventory is being add to GRB
                 lagged_domain = self.domain.change({'lag': -1 * time, 'period': None})
 
@@ -237,22 +237,22 @@ class Balance(_Generator):
         else:
             # ---- add aspect to GRB if not added already ----
 
-            # check if the resource is bound at a spatial index of a lower order
+            # check if the commodity is bound at a spatial index of a lower order
             if not self.domain.link and loc.isin:
-                if self.grb[resource][loc.isin][time]:
+                if self.grb[commodity][loc.isin][time]:
 
                     if self.domain.operation:
                         print(
-                            f'--- General Resource Balance for {resource} in ({loc.isin}, {time}): adding {self.aspect} from {self.domain.operation}'
+                            f'--- General Resource Balance for {commodity} in ({loc.isin}, {time}): adding {self.aspect} from {self.domain.operation}'
                         )
                     else:
                         print(
-                            f'--- General Resource Balance for {resource} in ({loc.isin}, {time}): adding {self.aspect}'
+                            f'--- General Resource Balance for {commodity} in ({loc.isin}, {time}): adding {self.aspect}'
                         )
 
                     start = keep_time.time()
 
-                    _name = f'{resource}_{loc.isin}_{time}_grb'
+                    _name = f'{commodity}_{loc.isin}_{time}_grb'
 
                     cons_grb = getattr(self.program, _name)
                     if self.aspect.ispos:  # or _signs[n]:

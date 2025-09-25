@@ -26,6 +26,9 @@ class _Commodity(Component):
         # list of conversions associated with the commodity
         self.conversions: list[Conversion] = []
 
+        # flag indicates whether the commodity is produced and expended insitu only
+        self.insitu = False
+
     @property
     def conversion(self) -> dict[Conversion, int | float]:
         """Conversion"""

@@ -8,7 +8,10 @@ from typing import TYPE_CHECKING
 from ..core.dimension import Dimension
 
 if TYPE_CHECKING:
-    from ..components.commodity.misc import Currency, Emission, Land, Material
+    from ..components.commodity.currency import Currency
+    from ..components.commodity.emission import Emission
+    from ..components.commodity.land import Land
+    from ..components.commodity.material import Material
     from ..components.commodity.resource import Resource
     from ..components.operation.process import Process
     from ..components.operation.storage import Storage

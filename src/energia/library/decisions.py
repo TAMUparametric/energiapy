@@ -3,7 +3,8 @@
 from dataclasses import dataclass
 from typing import Type
 
-from ..components.commodity.misc import Currency, Material
+from ..components.commodity.currency import Currency
+from ..components.commodity.material import Material
 from ..components.commodity.resource import Resource
 from ..components.impact.categories import Environ, Social
 from ..components.operation.process import Process

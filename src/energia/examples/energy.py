@@ -1,6 +1,6 @@
 """Energy system examples"""
 
-from ..components.commodity.misc import Currency
+from ..components.commodity.currency import Currency
 from ..components.commodity.resource import Resource
 from ..components.operation.process import Process
 from ..components.temporal.periods import Periods
@@ -8,7 +8,7 @@ from ..represent.model import Model
 from ..components.operation.storage import Storage
 from ..components.temporal.scales import TemporalScales
 from ..components.impact.categories import Environ
-from ..components.commodity.misc import Material
+from ..components.commodity.material import Material
 from ..components.spatial.location import Location
 from ..components.measure.unit import Unit
 
