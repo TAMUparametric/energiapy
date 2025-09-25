@@ -10,8 +10,7 @@ from typing import Self
 
 from ...core.component import Component
 from ...modeling.parameters.conversion import Conversion
-from ...modeling.variables.default import (Free, Inventory, Produce, Trade,
-                                           Utilize)
+from ...modeling.variables.default import Free, Inventory, Produce, Trade, Utilize
 
 
 @dataclass
@@ -56,6 +55,16 @@ class Resource(Component, Trade, Produce, Utilize, Free, Inventory):
         # if there is a conversion, return its parameter in all tasks its
         # associated with
         return {task: task.conversion[self] for task in self.conversions}
+
+    @property
+    def demand(self):
+        """Demand"""
+        return self.release
+
+    @property
+    def price(self):
+        """Cost of consume"""
+        return self.consume[self.model.default_currency().spend]
 
     def __setattr__(self, name, value):
 
@@ -102,7 +111,12 @@ class Resource(Component, Trade, Produce, Utilize, Free, Inventory):
 
             conv.conversion = {
                 self: 1,
-                **{res: -1 * par if isinstance(par, (int, float)) else [-i for i in par] for res, par in other.conversion.items()},
+                **{
+                    res: (
+                        -1 * par if isinstance(par, (int, float)) else [-i for i in par]
+                    )
+                    for res, par in other.conversion.items()
+                },
             }
             return conv
 

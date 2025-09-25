@@ -116,11 +116,11 @@ class Model(Decisions, _Init):
             Transport: [('system', 'transits')],
             Player: [('system', 'players')],
             Couple: [('system', 'couples')],
-            Resource: [('system', 'resources')],
             Currency: [('system', 'currencies', True)],
             Land: [('system', 'lands', True)],
             Emission: [('system', 'emissions', True)],
             Material: [('system', 'materials', True)],
+            Resource: [('system', 'resources')],
             State: [('decisionspace', 'states')],
             Control: [('decisionspace', 'controls')],
             Stream: [('decisionspace', 'streams')],
@@ -163,18 +163,19 @@ class Model(Decisions, _Init):
             subset (bool, optional): If True, the value is not added to the Model's
         """
 
-        if not subset:
-            # ignore subsets
-            value.name = name
-            # every component is handed the model
-            value.model = self
+        value.name = name
+        # every component is handed the model
+        value.model = self
 
-            if name in self.added:
-                # do not allow overriding of components
-                # throw error if name already exists
-                raise ValueError(f'{name} already defined')
-                # added is the list of all components that have been added to the model
-            self.added.append(name)
+        if name in self.added:
+            # do not allow overriding of components
+            # throw error if name already exists
+            raise ValueError(f'{name} already defined')
+            # added is the list of all components that have been added to the model
+        self.added.append(name)
+
+        # if not subset:
+        #     # ignore subsets
 
         model_set: list = getattr(getattr(self, represent), collection)
         # the set that needs to be updated
@@ -320,6 +321,14 @@ class Model(Decisions, _Init):
         """Return a default location"""
         self.l = Location(label='l')
         return self.l
+
+    def default_currency(self) -> Currency:
+        """Return a default currency"""
+        if self.currencies:
+            return self.currencies[0]
+
+        self.money = Currency(label='$')
+        return self.money
 
     def locate(self, *operations: Process | Storage):
         """Locate operations in the network"""
