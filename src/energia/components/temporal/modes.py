@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from pyexpat import model
 from typing import TYPE_CHECKING, Self
 
 from gana.sets.index import I
@@ -11,6 +12,7 @@ from ...core.x import X
 
 if TYPE_CHECKING:
     from gana.block.program import Prg
+    from gana.sets.constraint import C
 
     from ...modeling.constraints.bind import Bind
     from ...modeling.indices.domain import Domain
@@ -39,6 +41,26 @@ class Modes(X):
 
         if self.pos is not None:
             self.name = f'{self.parent}[{self.pos}]'
+
+        if self.parent:
+            self.model = self.parent.model
+
+        # have child modes been made
+        self._birthed = False
+        # where child modes are stored
+        self._ = []
+
+    @property
+    def cons(self) -> list[C]:
+        """Constraints"""
+        # overwrite X.cons property
+        # this gets the actual constraint objects from the program
+        # based on the pname (attribute name) in the program
+        if self.parent:
+            return [getattr(self.program, c) for c in self.constraints]
+        return [getattr(self.program, c) for c in self.constraints] + sum(
+            [m.cons for m in self], []
+        )
 
     @property
     def I(self) -> I:
@@ -74,9 +96,13 @@ class Modes(X):
 
     def __getitem__(self, key: int) -> X:
         """Get a mode by index"""
-        # TODO: allow slicing
+        if not self._birthed:
+            self._ = [
+                Modes(bind=self.bind, parent=self, pos=i) for i in range(self.n_modes)
+            ]
+            self._birthed = True
 
-        return Modes(bind=self.bind, parent=self, pos=key)
+        return self._[key]
 
     def __iter__(self):
         """Iterate over modes"""

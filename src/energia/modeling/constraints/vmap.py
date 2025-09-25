@@ -261,6 +261,7 @@ class Map(_Generator):
                         from_domain.change({'modes': from_domain.modes.parent})
                         in self.maps[to_domain]
                     ):
+                        print('adada', self.aspect, from_domain)
                         # map already written using parent modes
                         # no need to write again
                         return
@@ -370,7 +371,10 @@ class Map(_Generator):
 
         self.aspect.constraints.append(_name)
 
+        print('lllllllllllll', self.aspect, from_domain, to_domain)
         from_domain.update_cons(_name)
+        if from_domain.modes:
+            print(from_domain.modes.constraints)
 
     def __call__(self, *index: X):
         """Returns the variable for the aspect at the given index"""
