@@ -93,6 +93,6 @@ class _Generator(Name):
         return self.model.grb
 
     @property
-    def tree(self) -> DecisionSpace:
+    def decisionspace(self) -> DecisionSpace:
         """Model Tree"""
-        return self.model.tree
+        return self.model.decisionspace

@@ -10,6 +10,7 @@ from collections.abc import Callable
 from ..components.commodity.misc import Currency, Emission, Land, Material
 from ..components.commodity.resource import Resource
 from ..components.game.player import Player
+from ..components.game.couple import Couple
 from ..components.impact.categories import Economic, Environ, Social
 from ..components.measure.unit import Unit
 from ..components.operation.process import Process
@@ -68,6 +69,7 @@ class Model(Decisions, _Init):
     """
 
     name: str = 'm'
+    init: list[Callable[Self]] = None
     default: bool = True
     capacitate: bool = False
 
@@ -112,16 +114,17 @@ class Model(Decisions, _Init):
             Process: [('system', 'processes')],
             Storage: [('system', 'storages')],
             Transport: [('system', 'transits')],
-            Player: [('tree', 'players')],
+            Player: [('system', 'players')],
+            Couple: [('system', 'couples')],
             Resource: [('system', 'resources')],
             Currency: [('system', 'currencies', True)],
             Land: [('system', 'lands', True)],
             Emission: [('system', 'emissions', True)],
             Material: [('system', 'materials', True)],
-            State: [('tree', 'states')],
-            Control: [('tree', 'controls')],
-            Stream: [('tree', 'streams')],
-            Impact: [('tree', 'impacts')],
+            State: [('decisionspace', 'states')],
+            Control: [('decisionspace', 'controls')],
+            Stream: [('decisionspace', 'streams')],
+            Impact: [('decisionspace', 'impacts')],
         }
         # ---- Different representations of the model ---
         _Init.__post_init__(self)
@@ -138,6 +141,9 @@ class Model(Decisions, _Init):
 
         # if SI units have been set
         self.siunits_set: bool = False
+
+        for func in self.init or []:
+            func(self)
 
     def update(
         self,
@@ -213,7 +219,7 @@ class Model(Decisions, _Init):
 
     def __setattr__(self, name, value):
 
-        if isinstance(value, (str, dict, list, bool)):
+        if isinstance(value, (str, dict, list, bool)) or value is None:
             # if value is a string, dict, list or bool
             # set the attribute to the value
             super().__setattr__(name, value)
@@ -328,8 +334,6 @@ class Model(Decisions, _Init):
 
         for f in funcs:
             f(self)
-
-        
 
     # -----------------------------------------------------
     #                    Hashing

@@ -15,13 +15,13 @@ class Get(ABC):
 
     @property
     @abstractmethod
-    def tree(self) -> DecisionSpace:
+    def decisionspace(self) -> DecisionSpace:
         """Decision Tree"""
 
     # The decision is pulled from the tree with the component as the default index
     def get(self, decision: str) -> Bind:
         """Get the decision"""
-        return getattr(self.tree, decision)(self)
+        return getattr(self.decisionspace, decision)(self)
 
 
 # -------------------------------------------------------

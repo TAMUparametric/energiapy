@@ -1,6 +1,6 @@
 
 [build-system]
-requires = ["setuptools", "wheel"]
+requires = ["setuptools>61"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -8,24 +8,25 @@ name = "energia"
 version = "2.0.0"
 authors = [
   { name="Rahul Kakodkar", email="cacodcar@gmail.com" },
-  {name = "Efstratios Pistikopoulos", email = "stratos@tamu.edu"}
+  {name = "Efstratios N. Pistikopoulos", email = "stratos@tamu.edu"}
 ]
 maintainers = [
   { name="Rahul Kakodkar", email="cacodcar@gmail.com" },
 ]
 description = "For multiscale modeling and optimization of energy systems"
-requires-python = ">=3.12"
+requires-python = ">=3.13"
 readme = "README.md"
 license = { file = "LICENSE" }
 keywords = ["modeling", "optimization", "energy systems", "ems", "multiscale"]
 classifiers = [
-    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
-dependencies = ["gana", "ppopt", "matplotlib"]
+dependencies = ["gana", "ppopt", "matplotlib", "scipy", "pandas", "numpy"]
 [project.optional-dependencies]
-test = ["coverage", "pytest"]
+all = ["pvlib", "windpowerlib", "h5pyd"]
+
 
 [project.urls]
 Homepage = "https://github.com/TAMUparametric/energia"

@@ -172,9 +172,9 @@ class Aspect(Name):
         return self.model.program
 
     @property
-    def tree(self) -> DecisionSpace:
+    def decisionspace(self) -> DecisionSpace:
         """Tree"""
-        return self.model.tree
+        return self.model.decisionspace
 
     @property
     def grb(

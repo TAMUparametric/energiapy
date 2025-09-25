@@ -27,35 +27,6 @@ class Decisions:
         - Decisions, positive and negative together, grant 1 degree of freedom
     """
 
-    def birth_state(
-        self,
-        types_idc: Type[Environ | Social] = None,
-        types_res: Type[Resource] = None,
-        types_opr: tuple[Type[Process | Storage | Transport]] = None,
-        types_dres: Type[Resource] = None,
-        label: str = '',
-    ):
-        """ "Defines an state"""
-        # create the state
-        state = State(
-            types_idc=types_idc,
-            types_res=types_res,
-            types_opr=types_opr,
-            types_dres=types_dres,
-            label=label,
-        )
-        # create the control to add to the state
-        state.add = Control(
-            types_idc=types_idc,
-            types_res=types_res,
-            types_opr=types_opr,
-            types_dres=types_dres,
-        )
-        # create the control to subtract from the state
-        state.sub = -state.add
-
-        return state
-
     def __post_init__(self):
 
         # ------Capacity Sizing-------#

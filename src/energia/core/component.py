@@ -51,11 +51,11 @@ class Component(X):
         X.__post_init__(self)
 
     @property
-    def tree(self) -> DecisionSpace:
+    def decisionspace(self) -> DecisionSpace:
         """Feasible Region"""
         # the decision tree gives the component access to
         # the aspects of all other components
-        return self.model.tree
+        return self.model.decisionspace
 
     @property
     def network(self) -> Location:

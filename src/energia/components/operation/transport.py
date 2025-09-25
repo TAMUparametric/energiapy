@@ -37,8 +37,8 @@ class Transport(_Operation):
         for link in links:
 
             # check if the transport has been capacitated at that link and time
-            if not self in self.tree.capacity_bound or not link in [
-                l_t[0] for l_t in self.tree.capacity_bound[self]
+            if not self in self.decisionspace.capacity_bound or not link in [
+                l_t[0] for l_t in self.decisionspace.capacity_bound[self]
             ]:
                 # if the process is not capacitated at the link and time
                 print(
@@ -49,8 +49,8 @@ class Transport(_Operation):
 
             # now that the transport has been capacitated at the link
             # check if the transport has been operated at that link and time
-            if not self in self.tree.operate_bound or not link in [
-                l_t[0] for l_t in self.tree.operate_bound[self]
+            if not self in self.decisionspace.operate_bound or not link in [
+                l_t[0] for l_t in self.decisionspace.operate_bound[self]
             ]:
                 # if the transport is not operated at the link and time
                 print(f'--- Assuming {self} is operated at ({link}, {self.horizon})')

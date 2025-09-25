@@ -13,6 +13,8 @@ if TYPE_CHECKING:
     from ..components.operation.process import Process
     from ..components.operation.storage import Storage
     from ..components.operation.transport import Transport
+    from ..components.game.couple import Couple
+    from ..components.game.player import Player
     from ..represent.model import Model
 
 
@@ -44,6 +46,10 @@ class System(Dimension):
         self.processes: list[Process] = []
         self.storages: list[Storage] = []
         self.transits: list[Transport] = []
+
+        # ------------Decision-Makers----------------------
+        self.players: list[Player] = []
+        self.couples: list[Couple] = []
 
     @property
     def operations(self) -> list[Process | Storage | Transport]:

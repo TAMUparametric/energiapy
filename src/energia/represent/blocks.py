@@ -180,37 +180,32 @@ class _Tree:
 
     def __post_init__(self):
         # Tree (Feasible Region)
-        self.tree = DecisionSpace(self)
+        self.decisionspace = DecisionSpace(self)
 
     @property
     def states(self) -> list[State]:
         """The State Variables"""
-        return self.tree.states
+        return self.decisionspace.states
 
     @property
     def controls(self) -> list[Control]:
         """The Control Variables"""
-        return self.tree.controls
+        return self.decisionspace.controls
 
     @property
     def streams(self) -> list[Stream]:
         """The Stream Variables"""
-        return self.tree.streams
+        return self.decisionspace.streams
 
     @property
     def impacts(self) -> list[Impact]:
         """The Impact Variables"""
-        return self.tree.impacts
-
-    @property
-    def players(self) -> list[Player]:
-        """The Players"""
-        return self.tree.players
+        return self.decisionspace.impacts
 
     @property
     def domains(self):
         """The domains of the Model"""
-        return self.tree.domains
+        return self.decisionspace.domains
 
     def get(
         self,
@@ -233,7 +228,7 @@ class _Tree:
         Returns:
             dict[Variable | Domain, list[Variable | Domain]]: dictionary with particular structure
         """
-        return self.tree.get(keys, values)
+        return self.decisionspace.get(keys, values)
 
 
 @dataclass

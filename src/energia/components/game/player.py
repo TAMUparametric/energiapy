@@ -25,6 +25,6 @@ class Player(Component, Capacitate, Trade, Transact):
         Component.__post_init__(self)
 
     @property
-    def tree(self) -> DecisionSpace:
+    def decisionspace(self) -> DecisionSpace:
         """Tree of the player"""
-        return self.model.tree
+        return self.model.decisionspace
