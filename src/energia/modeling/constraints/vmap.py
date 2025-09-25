@@ -265,14 +265,19 @@ class Map(_Generator):
                         # no need to write again
                         return
                 else:
+
                     domain_w_childmodes = [
                         from_domain.change({'modes': mode})
                         for mode in from_domain.modes
                     ]
+                    print('kkkkkkk', self.aspect)
+                    print('aaaaaaaa', domain_w_childmodes)
+                    print('bbbbbbbb', self.maps[to_domain])
 
                     if any(dom in self.maps[to_domain] for dom in domain_w_childmodes):
                         # map already written using child modes
                         # no need to write again
+                        print('ccccc   returned')
                         return
 
             else:

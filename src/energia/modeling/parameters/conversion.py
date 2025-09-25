@@ -179,6 +179,14 @@ class Conversion(Name):
 
         elif isinstance(other, dict):
 
+            key = list(other.keys())[0]
+
+            if isinstance(key, Modes):
+                # conversion modes can collate
+                # for example resource conversion modes and material conversion modes
+                self.modes_set = True
+                self._modes = key.parent
+
             # this is when there is a proper resource conversion
             # -20*res1 = 10*res2 for example
             self.conversion = {

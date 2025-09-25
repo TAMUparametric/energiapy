@@ -194,7 +194,7 @@ class Aspect(Name):
         ],
     ]:
         """Dispositions dict"""
-        return self.model.dispositions
+        return self.model.dispositions[self]
 
     def map_domain(self, domain: Domain):
         """Each inherited object has their own"""
