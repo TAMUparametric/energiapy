@@ -37,7 +37,8 @@ docs = [
     "sphinxcontrib-bibtex",
     "sphinx-copybutton",
     "sphinx-togglebutton",
-    "numpydoc"
+    "numpydoc",
+    "linkify"
 ]
 
 

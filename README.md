@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="_static/logo2.jpg" width="75%">
+  <img src="https://github.com/TAMUparametric/energiapy/blob/main/docs/_static/logo2.jpg" width="75%">
 </p>
 
-
+https://github.com/TAMUparametric/energiapy/blob/main/docs/_static/logo.jpg
 [![Documentation Status](https://readthedocs.org/projects/energiapy/badge/)](https://energiapy.readthedocs.io/en/latest/)
 [![PyPI](https://img.shields.io/pypi/v/energiapy.svg)](https://pypi.org/project/energiapy)
 [![Downloads](https://static.pepy.tech/personalized-badge/energiapy?period=total&units=international_system&left_color=grey&right_color=orange&left_text=Downloads)](https://pepy.tech/project/energiapy)
