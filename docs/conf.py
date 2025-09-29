@@ -101,8 +101,8 @@ suppress_warnings = [
 ]
 html_theme_options = {
     "path_to_docs": "docs",
-    "repository_url": "https://github.com/cacodcar/energiapy",
-    "repository_branch": "v2",
+    "repository_url": "https://github.com/TAMUparametric/energiapy",
+    "repository_branch": "main",
     "use_edit_page_button": True,
     "use_source_button": True,
     "use_issues_button": True,
