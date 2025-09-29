@@ -54,7 +54,7 @@ myst_enable_extensions = [
     "deflist",
     "html_admonition",
     "html_image",
-    "linkify",
+    # "linkify",
     "dollarmath",
     "colon_fence",
     "smartquotes",
