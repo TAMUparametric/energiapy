@@ -2,31 +2,19 @@
 
 from __future__ import annotations
 
+import time as keep_time
 from dataclasses import dataclass
+from operator import is_
 from typing import TYPE_CHECKING
 
 from gana import sigma
-from operator import is_
-
-import time as keep_time
 
 from ._generator import _Generator
 
 if TYPE_CHECKING:
-    from gana.block.program import Prg
     from gana.sets.constraint import C
-
-    from ...components.commodity.resource import Resource
-    from ...components.operation.process import Process
-    from ...components.operation.storage import Storage
-    from ...components.operation.transport import Transport
-    from ...components.spatial.linkage import Linkage
-    from ...components.spatial.location import Location
-    from ...components.temporal.period import Period
     from ...core.x import X
-    from ...represent.model import Model
     from ..indices.domain import Domain
-    from ..variables.aspect import Aspect
 
 
 @dataclass
@@ -181,9 +169,13 @@ class Map(_Generator):
             if self.domain.modes:
                 # if the variable is defined over modes
                 # we need to map it to the same domain without modes
-                self.writecons_map(
-                    self.domain, self.domain.change({'modes': None}), msum=True
-                )
+
+                if self.domain.modes.parent:
+                    self.writecons_map(self.domain, self.domain.change({'modes': None}))
+                else:
+                    self.writecons_map(
+                        self.domain, self.domain.change({'modes': None}), msum=True
+                    )
 
     @property
     def name(self) -> str:
@@ -193,6 +185,8 @@ class Map(_Generator):
     @property
     def maps(self) -> list[str]:
         """List of domains that the aspect has been mapped to"""
+        if self.reporting:
+            return self.aspect.maps_report
         return self.aspect.maps
 
     def give_sum(
@@ -227,7 +221,10 @@ class Map(_Generator):
 
             return v_sum
         else:
-            return self(*domain).V()
+            # the copy is important since otherwise, the printing will take
+            # the update index if the variable is mutated
+            return getattr(self.program, self.aspect.name)(*domain.Ilist).copy()
+            # return self(*domain).V()
 
     def writecons_map(
         self,
@@ -237,78 +234,150 @@ class Map(_Generator):
         msum: bool = False,
     ):
         """Scales up variable to a lower dimension"""
-        if tsum:
-            _name = f'{self.aspect.name}{to_domain.idxname}_tmap'
-        elif msum:
-            if self.reporting:
-                _name = f'{self.aspect.name}{to_domain.idxname}_x_mmap'
-            else:
-                _name = f'{self.aspect.name}{to_domain.idxname}_mmap'
+
+        if not to_domain in self.maps:
+            self.maps[to_domain] = []
+
+            self.maps[to_domain].append(from_domain)
+            exists = False
 
         else:
-            _name = f'{self.aspect.name}{to_domain.idxname}_lmap'
+            # a map to the lower order domain has already been created
+            exists = True
 
-        if _name in self.maps:
-            # check to see if the lower order domain has been upscaled to already
-            if self.reporting:
-                # this does not apply to modes (reporting), since they only need to be mapped once
+            if from_domain in self.maps[to_domain]:
+                # map already exists
                 return
-            print(f'--- Mapping {self.aspect}: from {from_domain} to {to_domain}')
-            start = keep_time.time()
 
-            cons_existing: C = getattr(self.program, _name)
-            # update the existing constraint
-            setattr(
-                self.program,
-                _name,
-                cons_existing - self.give_sum(domain=from_domain, tsum=tsum, msum=msum),
-            )
+            if from_domain.modes:
+                # modes need some additional checks
+                # constraints could be written using parent modes or child modes
+                # these checks avoid writing the same constraint twice
+                # AVOIDS: v_t = v_t,m1 + v_t,m2 + v_t,m; v_t,m = v_t,m1 + v_t,m2
+                # CORRECT: v_t = v_t,m; v_t,m = v_t,m1 + v_t,m2 OR v_t = v_t,m1 + v_t,m2
 
-            end = keep_time.time()
-            print(f'    Completed in {end-start} seconds')
+                if from_domain.modes.parent:
+                    if (
+                        from_domain.change({'modes': from_domain.modes.parent})
+                        in self.maps[to_domain]
+                    ):
+                        # map already written using parent modes
+                        # no need to write again
+                        return
+                else:
+
+                    if (
+                        from_domain
+                        in self.maps[to_domain.change({'binds': from_domain.binds})]
+                    ):
+                        # TODO: This check should not be necessary
+                        # TODO: but it do be necessary, figure out and rectify this
+                        # map already written using no modes
+                        # no need to write again
+                        return
+
+                    domain_w_childmodes = [
+                        from_domain.change({'modes': mode})
+                        for mode in from_domain.modes
+                    ]
+
+
+                    if any(dom in self.maps[to_domain] for dom in domain_w_childmodes):
+                        # map already written using child modes
+                        # no need to write again
+                        return
+
+            self.maps[to_domain].append(from_domain)
+
+        if self.reporting:
+            var = self.aspect.reporting
+        else:
+            var = self.aspect
+
+        # for t sum,
+        if tsum:
+
+            print(f'--- Mapping {var} across time from {from_domain} to {to_domain}')
+
+            rhs = self.give_sum(domain=from_domain, tsum=tsum)
+
+            _name = f'{var}{from_domain.idxname}_to_{to_domain.idxname}_tmap'
+
+        elif msum:
+            print(f'--- Mapping {var} across modes {from_domain} to {to_domain}')
+
+            rhs = self.give_sum(domain=from_domain, msum=msum)
+            # append the from_domain to the list of maps to avoid rewriting the constraint
+            self.maps[to_domain].append(from_domain)
+
+            _name = f'{var}{from_domain.idxname}_mmap'
 
         else:
-            if self.reporting:
-                print(
-                    f'--- Creating map to {to_domain}. Mapping {self.aspect.reporting}: from {from_domain} to {to_domain}'
-                )
+
+            rhs = self.give_sum(domain=from_domain)
+
+            if from_domain.modes:
+                # for modes, stick to the msum convention
+                # the name will take the parent modes name
+                # NOTE: msum is not used when writing the constraint
+                # for individual modes
+                if from_domain.modes.parent:
+                    _name = f'{var}{from_domain.change({'modes': from_domain.modes.parent}).idxname}_mmap'
+                else:
+                    _name = f'{var}{from_domain.idxname}_mmap'
             else:
+                # if not tsum or msum. The map to a lower order domain is unique
+                _name = f'{var}{to_domain.idxname}_map'
 
-                print(
-                    f'--- Creating map to {to_domain}. Mapping {self.aspect}: from {from_domain} to {to_domain}'
+            if exists:
+                # check to see if the lower order domain has been upscaled to already
+
+                print(f'--- Mapping {var}: from {from_domain} to {to_domain}')
+
+                start = keep_time.time()
+
+                cons_existing: C = getattr(self.program, _name)
+                # update the existing constraint
+                setattr(
+                    self.program,
+                    _name,
+                    cons_existing - self.give_sum(domain=from_domain),
                 )
 
-            start = keep_time.time()
-            if self.reporting:
-                v_lower = self(*to_domain).X()
-            else:
-                v_lower = self(*to_domain).V()
+                end = keep_time.time()
+                print(f'    Completed in {end-start} seconds')
 
-            # write the constraint
-            cons: C = v_lower == self.give_sum(domain=from_domain, tsum=tsum, msum=msum)
+                return
 
-            if self.return_sum:
-                # if only a sum is requested, don't set to the program
-                return cons
+        print(
+            f'--- Creating map to {to_domain}. Mapping {var}: from {from_domain} to {to_domain}'
+        )
 
-            setattr(
-                self.program,
-                _name,
-                cons,
-            )
-            cons.categorize('Mapping')
-            end = keep_time.time()
-            print(f'    Completed in {end-start} seconds')
+        start = keep_time.time()
+        if self.reporting:
+            v_lower = self(*to_domain).X()
+        else:
+            v_lower = self(*to_domain).V()
 
-            self.aspect.constraints.append(_name)
+        # write the constraint
+        cons: C = v_lower == rhs
+
+        if self.return_sum:
+            # if only a sum is requested, don't set to the program
+            return cons
+
+        setattr(
+            self.program,
+            _name,
+            cons,
+        )
+        cons.categorize('Mapping')
+        end = keep_time.time()
+        print(f'    Completed in {end-start} seconds')
+
+        self.aspect.constraints.append(_name)
 
         from_domain.update_cons(_name)
-
-        # update the list of maps
-        if not _name in self.maps:
-            # keeping a list, allows updating constraints instead of making new
-
-            self.maps.append(_name)
 
     def __call__(self, *index: X):
         """Returns the variable for the aspect at the given index"""

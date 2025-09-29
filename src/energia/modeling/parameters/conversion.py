@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Self
 
 from ...components.temporal.lag import Lag
+from ...components.temporal.modes import Modes
 from ...core.name import Name
 
 if TYPE_CHECKING:
@@ -13,9 +14,11 @@ if TYPE_CHECKING:
 
     from ...components.commodity.resource import Resource
     from ...components.measure.unit import Unit
+    from ...components.operation._operation import _Operation
     from ...components.operation.process import Process
     from ...components.operation.storage import Storage
-    from ...components.temporal.period import Period
+    from ...components.temporal.periods import Periods
+    from ...modeling.constraints.bind import Bind
     from ...represent.model import Model
 
 
@@ -46,21 +49,42 @@ class Conversion(Name):
 
     """
 
-    process: Process = None
-    storage: Storage = None
     resource: Resource = None
+    operation: _Operation = None
+    bind: Bind = None
 
     def __post_init__(self):
-        if self.process:
-            self.operation = self.process
-        elif self.storage:
-            self.operation = self.storage
-
-        self.name = f'η({self.process})'
+        self.name = f'η({self.operation})'
         self.base: Resource = None
         self.conversion: dict[Resource, int | float | list[int | float]] = {}
         self.lag: Lag = None
-        self.period: Period = None
+        self.period: Periods = None
+
+        # if piece wise linear conversion is provided
+        self.pwl: bool = False
+
+        # this is holds a mode for the conversion to be appended to
+        self._mode: int | str = None
+
+        # modes if PWL conversion is defined
+        # or if multiple modes are defined
+        self._modes: Modes = None
+
+        # if the keys are converted into Modes
+        self.modes_set: bool = False
+
+    @property
+    def modes(self) -> Modes:
+        """Modes of the operation"""
+        if self._modes is None:
+            n_modes = len(self.conversion)
+            modes_name = f'bin{len(self.model.modes)}'
+
+            setattr(self.model, modes_name, Modes(n_modes=n_modes, bind=self.bind))
+
+            self._modes = self.model.modes[-1]
+
+        return self._modes
 
     @property
     def model(self) -> Model:
@@ -75,44 +99,54 @@ class Conversion(Name):
     def balancer(self):
         """Checks if there is a list in the conversion
         If yes, tries to make everything consistent
-
         """
-        # check if lists are provided
-        check_list = {res: False for res in self.conversion.keys()}
-        # check lengths of the list, for parameter the length is 1
-        check_len = {res: 1 for res in self.conversion.keys()}
 
-        for res, par in self.conversion.items():
-            if isinstance(par, list):
-                check_list[res] = True
-                check_len[res] = len(par)
+        def _balancer(conversion: dict):
 
-        # check if all the list lens are the same
-        lengths = set([i for i in check_len.values() if i > 1])
+            # check if lists are provided
+            check_list = {res: False for res in conversion.keys()}
+            # check lengths of the list, for parameter the length is 1
+            check_len = {res: 1 for res in conversion.keys()}
 
-        if len(lengths) > 1:
-            # if there are different lengths, raise an error
-            raise ValueError(
-                f'Conversion: {self.name} has inconsistent list lengths: {lengths}'
-            )
+            for res, par in conversion.items():
+                if isinstance(par, list):
+                    check_list[res] = True
+                    check_len[res] = len(par)
 
-        if any(check_list.values()):
-            length = list(lengths)[0]
-            # if any of the values are a list
-            #
-            for res, par in self.conversion.items():
-                if isinstance(par, (float, int)):
-                    self.conversion[res] = [par] * length
+            # check if all the list lens are the same
+            lengths = set([i for i in check_len.values() if i > 1])
 
-    def __getitem__(self, lag: Lag) -> Self:
-        # Used to set the lag
-        if isinstance(lag, Lag):
-            self.lag = lag
-            return self
+            if len(lengths) > 1:
+                # if there are different lengths, raise an error
+                raise ValueError(
+                    f'Conversion: {self.name} has inconsistent list lengths: {lengths}'
+                )
 
-        raise TypeError(f'Expected Lag, got {type(lag)} instead.')
+            if any(check_list.values()):
+                length = list(lengths)[0]
+                # if any of the values are a list
+                #
+                for res, par in conversion.items():
+                    if isinstance(par, (float, int)):
+                        conversion[res] = [par] * length
+            return conversion
 
-    def __call__(self, basis: Resource | Conversion) -> Self:
+        if self.pwl:
+            for mode, conv in self.conversion.items():
+                self.conversion[mode] = _balancer(conv)
+
+            if isinstance(list(self.conversion)[0], Modes):
+                self.modes_set = True
+
+        else:
+            self.conversion = _balancer(self.conversion)
+
+    def __getitem__(self, mode: int | str) -> Self:
+        """Used to define mode based conversions"""
+        self._mode = mode
+        return self
+
+    def __call__(self, basis: Resource | Conversion, lag: Lag = None) -> Self:
         # sets the basis
         if isinstance(basis, Conversion):
             # if a Conversion is provided (parameter*Resource)
@@ -129,20 +163,51 @@ class Conversion(Name):
             self.base = basis
             self.conversion = {basis: 1.0, **self.conversion}
 
+        if lag:
+            self.lag = lag
+
         return self
 
-    def __eq__(self, other: Conversion | float):
+    def __eq__(self, other: Conversion | int | float | dict[int | float, Conversion]):
         # cons = []
+
         if isinstance(other, (int, float)):
             # this is used for inventory conversion
-            self.conversion = {**self.conversion, self.resource: -1.0 * float(other)}
-        else:
+            # when not other resource besides the one being inventoried is involved
+
+            self.conversion = {**self.conversion, self.resource: -1.0 / float(other)}
+
+        elif isinstance(other, dict):
+
+            key = list(other.keys())[0]
+
+            if isinstance(key, Modes):
+                # conversion modes can collate
+                # for example resource conversion modes and material conversion modes
+                self.modes_set = True
+                self._modes = key.parent
+
             # this is when there is a proper resource conversion
             # -20*res1 = 10*res2 for example
-            self.conversion: dict[Resource, int | float] = {
-                **self.conversion,
-                **other.conversion,
+            self.conversion = {
+                k: {**self.conversion, **v.conversion} for k, v in other.items()
             }
+            self.pwl = True
+
+        else:
+            # this would be a Conversion or Resource
+            if self._mode is not None:
+                self.conversion[self._mode] = other.conversion
+                if not self.pwl:
+                    self.pwl = True
+                self._mode = None
+            else:
+
+                self.conversion: dict[Resource, int | float] = {
+                    **self.conversion,
+                    **other.conversion,
+                }
+
         self.model.convmatrix[self.operation] = self.conversion
 
     # these update the conversion of the resource (self.conversion)
@@ -175,6 +240,6 @@ class Conversion(Name):
     def __rmul__(self, times) -> Self:
         return self * times
 
-    def __truediv__(self, period: Period) -> Self:
+    def __truediv__(self, period: Periods) -> Self:
         self.period = period
         return self

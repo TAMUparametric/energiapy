@@ -1,8 +1,8 @@
 import pytest
 
-# from energia import Currency, Model, Period, Process, Resource
+# from energia import Currency, Model, Periods, Process, Resource
 
-from energia.examples.energy.scheduling import scheduling
+from energia.examples.energy import scheduling
 
 
 @pytest.fixture
@@ -15,7 +15,8 @@ def m():
 def test_small_1L_1T_1O_LP(m):
     assert m.periods == [m.q, m.y]
     assert m.locs == [m.network]
-    assert m.resources == [m.usd, m.power, m.wind]
+    assert m.resources == [m.power, m.wind]
+    assert m.currencies == [m.usd]
     assert m.processes == [m.wf]
     assert m.consume.sol(aslist=True) == pytest.approx([260.0], rel=1e-9)
     assert m.release.sol(aslist=True) == pytest.approx(

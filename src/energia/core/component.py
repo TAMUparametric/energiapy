@@ -11,8 +11,8 @@ if TYPE_CHECKING:
     from ..components.measure.unit import Unit
     from ..components.spatial.linkage import Linkage
     from ..components.spatial.location import Location
-    from ..components.temporal.period import Period
-    from ..dimensions.decisiontree import DecisionTree
+    from ..components.temporal.periods import Periods
+    from ..dimensions.problem import Problem
     from ..dimensions.space import Space
     from ..dimensions.time import Time
     from ..modeling.variables.aspect import Aspect
@@ -51,11 +51,11 @@ class Component(X):
         X.__post_init__(self)
 
     @property
-    def tree(self) -> DecisionTree:
+    def problem(self) -> Problem:
         """Feasible Region"""
         # the decision tree gives the component access to
         # the aspects of all other components
-        return self.model.tree
+        return self.model.problem
 
     @property
     def network(self) -> Location:
@@ -63,8 +63,8 @@ class Component(X):
         return self.model.network
 
     @property
-    def horizon(self) -> Period:
-        """Circumscribing Period (Temporal Scale)"""
+    def horizon(self) -> Periods:
+        """Circumscribing Periods (Temporal Scale)"""
         return self.model.horizon
 
     @property

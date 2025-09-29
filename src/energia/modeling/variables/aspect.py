@@ -9,9 +9,9 @@ import matplotlib.pyplot as plt
 from gana.sets.index import I
 from matplotlib import rc
 
-from ...components.commodity.resource import Resource
-from ...components.game.player import Player
+from ...components.commodity._commodity import _Commodity
 from ...components.game.couple import Couple
+from ...components.game.player import Player
 from ...components.impact.indicator import Indicator
 from ...components.operation.process import Process
 from ...components.operation.storage import Storage
@@ -19,8 +19,8 @@ from ...components.operation.transport import Transport
 from ...components.spatial.linkage import Linkage
 from ...components.spatial.location import Location
 from ...components.temporal.lag import Lag
-from ...components.temporal.period import Period
 from ...components.temporal.modes import Modes
+from ...components.temporal.periods import Periods
 from ...core.name import Name
 from ..constraints.bind import Bind
 from ..indices.domain import Domain
@@ -31,7 +31,7 @@ if TYPE_CHECKING:
     from gana.sets.variable import V
 
     from ...core.x import X
-    from ...dimensions.decisiontree import DecisionTree
+    from ...dimensions.problem import Problem
     from ...represent.model import Model
     from .control import Control
     from .state import State
@@ -45,16 +45,16 @@ class Aspect(Name):
     Attributes:
         nn (bool): If True, the decision is a non-negative decision. Defaults to True
         Operation (Type[Process | Storage | Transport]): The type of operation associated with the decision. Defaults to None
-        Resource (Type[Resource]): The type of resource associated with the decision. Defaults to None
-        DResource (Type[Resource]): The type of derivative resource associated with the decision. Defaults to None
+        _Commodity (Type[_Commodity]): The type of commodity associated with the decision. Defaults to None
+        DResource (Type[_Commodity]): The type of derivative commodity associated with the decision. Defaults to None
         Indicator (Type[Indicator]): The type of indicator associated with the decision. Defaults to None
         latex (str): LaTeX representation of the decision. Defaults to None
     """
 
     nn: bool = True
     types_opr: tuple[Type[Process | Storage | Transport]] = None
-    types_res: Type[Resource] = None
-    types_dres: Type[Resource] = None
+    types_res: Type[_Commodity] = None
+    types_dres: Type[_Commodity] = None
     types_idc: Type[Indicator] = None
     latex: str = None
 
@@ -68,7 +68,7 @@ class Aspect(Name):
                 self.label += ' [+]'
             else:
                 self.label += ' [-]'
-        self.indices: list[Location | Linkage, Period] = []
+        self.indices: list[Location | Linkage, Periods] = []
 
         # Does this add to the domain?
         self.ispos = True
@@ -77,14 +77,17 @@ class Aspect(Name):
 
         # spaces where the aspect has been already bound
         self.bound_spaces: dict[
-            Resource | Process | Storage | Transport, list[Location | Linkage]
+            _Commodity | Process | Storage | Transport, list[Location | Linkage]
         ] = {}
 
         # Domains of the decision
         self.domains: list[Domain] = []
 
-        # a list of domain pairs which have been paired
-        self.maps: list[str] = []
+        # a dictionary of domains and their maps from higher order domains
+
+        self._maps: bool = False
+
+        self._maps_report: bool = False
 
         # reporting variable
         self.reporting: V = None
@@ -93,6 +96,22 @@ class Aspect(Name):
         self._indexed: bool = False
 
         self.constraints: list[str] = []
+
+    @property
+    def maps(self) -> dict[Domain, dict[str, list[Domain]]]:
+        """Maps of the decision"""
+        if not self._maps:
+            self.model.maps[self] = {}
+            self._maps = True
+        return self.model.maps[self]
+
+    @property
+    def maps_report(self) -> dict[Domain, dict[str, list[Domain]]]:
+        """Maps of the decision"""
+        if not self._maps_report:
+            self.model.maps_report[self] = {}
+            self._maps_report = True
+        return self.model.maps_report[self]
 
     @property
     def isneg(self) -> bool:
@@ -134,7 +153,7 @@ class Aspect(Name):
 
     @property
     def horizon(self):
-        """Circumscribing Period (Temporal Scale)"""
+        """Circumscribing Periods (Temporal Scale)"""
         return self.model.horizon
 
     @property
@@ -153,27 +172,29 @@ class Aspect(Name):
         return self.model.program
 
     @property
-    def tree(self) -> DecisionTree:
+    def problem(self) -> Problem:
         """Tree"""
-        return self.model.tree
+        return self.model.problem
 
     @property
     def grb(
         self,
-    ) -> dict[Resource, dict[Location | Linkage, dict[Period, list[Aspect]]]]:
-        """General Resource Balance dict"""
+    ) -> dict[_Commodity, dict[Location | Linkage, dict[Periods, list[Aspect]]]]:
+        """General _Commodity Balance dict"""
         return self.model.grb
 
     @property
     def dispositions(self) -> dict[
         Self,
         dict[
-            Resource | Process | Storage | Transport,
-            dict[Period | Location | Linkage, dict[Location | Period | Linkage, bool]],
+            _Commodity | Process | Storage | Transport,
+            dict[
+                Periods | Location | Linkage, dict[Location | Periods | Linkage, bool]
+            ],
         ],
     ]:
         """Dispositions dict"""
-        return self.model.dispositions
+        return self.model.dispositions[self]
 
     def map_domain(self, domain: Domain):
         """Each inherited object has their own"""
@@ -184,18 +205,20 @@ class Aspect(Name):
         for c in self.cons:
             c.show(descriptive)
 
-    def sol(self, n_sol: int = 0, aslist: bool = False) -> list[float] | None:
+    def sol(
+        self, n_sol: int = 0, aslist: bool = False, compare: bool = False
+    ) -> list[float] | None:
         """Solution
         Args:
             aslist (bool, optional): Returns values taken as list. Defaults to False.
         """
         var: V = getattr(self.program, self.name)
-        return var.sol(n_sol, aslist)
+        return var.sol(n_sol, aslist, compare=compare)
 
-    def gettime(self, *index) -> list[Period]:
+    def gettime(self, *index) -> list[Periods]:
         """Finds the sparsest time scale in the domains"""
         ds = [i for i in self.indices if all([x in i for x in index])]
-        t = [t for t in ds if isinstance(t, Period)]
+        t = [t for t in ds if isinstance(t, Periods)]
         return t
 
     def __neg__(self):
@@ -227,11 +250,8 @@ class Aspect(Name):
 
             (
                 indicator,
-                resource,
+                commodity,
                 player,
-                # dr_aspect,
-                # dresource,
-                # op_aspect,
                 process,
                 storage,
                 transport,
@@ -248,7 +268,7 @@ class Aspect(Name):
 
             for comp in index:
 
-                if isinstance(comp, Period):
+                if isinstance(comp, Periods):
                     period = comp
                     timed = True
 
@@ -279,13 +299,13 @@ class Aspect(Name):
                 elif isinstance(comp, Couple):
                     couple = comp
 
-                elif isinstance(comp, Resource):
-                    # check if this is the right resource type for the aspect
-                    # domain.resource should be the primary resource only
+                elif isinstance(comp, _Commodity):
+                    # check if this is the right commodity type for the aspect
+                    # domain.commodity should be the primary commodity only
                     if isinstance(comp, self.types_res):
-                        resource = comp
+                        commodity = comp
                     # else:
-                    #     # anything else is a derivative resource
+                    #     # anything else is a derivative commodity
                     #     dresource = comp
 
                 elif isinstance(comp, Indicator):
@@ -312,7 +332,7 @@ class Aspect(Name):
 
             domain = Domain(
                 indicator=indicator,
-                resource=resource,
+                commodity=commodity,
                 process=process,
                 storage=storage,
                 transport=transport,
@@ -332,7 +352,7 @@ class Aspect(Name):
 
         return Bind(aspect=self, domain=domain, timed=timed, spaced=spaced)
 
-    def plot(
+    def draw(
         self,
         x: X,
         y: tuple[X] | X,

@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from re import S
-from typing import TYPE_CHECKING, Self, Literal
+import time as keep_time
+from typing import TYPE_CHECKING, Literal, Self
+
 
 from gana.operators.composition import inf, sup
 from gana.operators.sigma import sigma
@@ -12,14 +13,16 @@ from gana.sets.function import F
 from gana.sets.index import I
 from gana.sets.variable import V
 
+
+from ...components.temporal.modes import Modes
 from ...utils.math import normalize
 from ._generator import _Generator
 from .calculate import Calculate
-from ...components.temporal.modes import Modes
 
 if TYPE_CHECKING:
     from gana.block.program import Prg
     from gana.sets.constraint import C
+
     from ...core.component import Component
     from ...core.x import X
 
@@ -172,7 +175,22 @@ class Bind(_Generator):
         # for example, if opr_t = opr_t-1 + x_t, then opr_t is already defined
         if self.domain.lag:
             # t - 1 is made after t, so no need to set a new one
-            return getattr(self.program, self.aspect.name)(*self.domain.Ilist)
+            try:
+                return getattr(self.program, self.aspect.name)(*self.domain.Ilist)
+            except KeyError:
+                # the variable has not been defined yet
+                lag = self.domain.lag
+                self.domain = self.domain.change(
+                    {'lag': None, 'period': self.domain.lag.of}
+                )
+                self.V(
+                    parameters=parameters,
+                    length=length,
+                    report=report,
+                    incidental=incidental,
+                )
+                self.domain = self.domain.change({'lag': lag, 'period': None})
+                return getattr(self.program, self.aspect.name)(*self.domain.Ilist)
 
         # ------ Check time and space -------
         # this is only called if the bind variable has no temporal index defined
@@ -180,7 +198,13 @@ class Bind(_Generator):
             """Matches an appropriate temporal scale"""
             if isinstance(parameters, list):
                 # if list is given, find using length of the list
-                self.domain.period = self.aspect.time.find(len(parameters))
+                if self.domain.modes is not None:
+                    self.domain.period = self.aspect.time.find(
+                        len(parameters) / len(self.domain.modes)
+                    )
+                else:
+                    self.domain.period = self.aspect.time.find(len(parameters))
+
             elif isinstance(length, int):
                 # if length is given, use it directly
                 self.domain.period = self.aspect.time.find(length)
@@ -288,21 +312,14 @@ class Bind(_Generator):
             # because of the check above
             self.aspect.indices.append(index)
 
-            # if write_grb and not self.domain.resource in self.grb:
+            # this updates the balanced dictionary, by adding the commodity as a key
 
-            # this updates the balanced dictionary, by adding the resource as a key
-
-            if self.domain.resource:
+            if self.domain.commodity:
                 self.model.update_grb(
-                    self.domain.resource, time=self.domain.period, space=self.domain.loc
+                    self.domain.commodity,
+                    time=self.domain.period,
+                    space=self.domain.loc,
                 )
-
-            # if write_grb and self.domain.resource:
-            #     # if this aspects needs to feature in the general resource balance
-            #     # at some space and time
-            #     # this is where it is declared
-            #     # if self.domain.resource:
-            #     self.write_grb()
 
             # this lets all index elements in the domain know
             # that the aspect was sampled
@@ -398,7 +415,7 @@ class Bind(_Generator):
         ..math::
               \mathbf{v}_{\dots, t} <= {\theta}_{\dots, t} \cdot \mathbf{x}_{\dots, t}
 
-          where :
+        where :
             - :math:`\mathbf{v}` is the variable
             - :math:`\mathbf{x}` is the binary reporting variable
             - :math:`\theta` is the parameter set
@@ -517,7 +534,8 @@ class Bind(_Generator):
 
                 setattr(self.model, modes_name, Modes(n_modes=n_modes, bind=self))
 
-                modes = getattr(self.model, modes_name)
+                # modes = getattr(self.model, modes_name)
+                modes = self.model.modes[-1]
 
                 mode_bounds = [
                     (other[i - 1], other[i]) if i - 1 in other else (0, other[i])
@@ -527,16 +545,8 @@ class Bind(_Generator):
                 modes_ub = [b[1] for b in mode_bounds]
 
                 _ = self(modes) >= modes_lb
+
                 _ = self(modes) <= modes_ub
-
-                # for m, b in zip(modes, mode_bounds):
-
-                #     _ = self()
-                #     _ = self(m) >= b[0]
-                #     if b[1] is True:
-                #         _ = self(m) == b[1]
-                #     else:
-                #         _ = self(m) <= b[1]
 
             else:
 
@@ -568,6 +578,9 @@ class Bind(_Generator):
 
                 lhs = self.V(other)
 
+                print(f'--- Binding {self.aspect} in domain {self.domain}')
+
+                start = keep_time.time()
                 # --------- Get RHS
 
                 # if self.aspect.bound is not None and (
@@ -636,7 +649,10 @@ class Bind(_Generator):
                 cons_name = rf'{self.aspect.name}{self.domain.idxname}{rel}'
 
                 # categorize the constraint
-                cons.categorize('Bound')
+                if self.domain.modes:
+                    cons.categorize('Piecewise Linear')
+                else:
+                    cons.categorize('Bound')
 
                 # let all objects in the domain know that
                 # a constraint with this name contains it
@@ -652,6 +668,9 @@ class Bind(_Generator):
                     cons,
                 )
 
+                end = keep_time.time()
+                print(f'    Completed in {end-start} seconds')
+
     def __le__(self, other):
 
         self.writecons_bind('leq', other)
@@ -666,7 +685,7 @@ class Bind(_Generator):
             # if a truth value is give
             # just declare the variable
             # it will be non-negative by default
-            # and will begin a resource balance
+            # and will begin a commodity balance
             self.V()
 
         elif isinstance(other, Bind):
@@ -679,9 +698,11 @@ class Bind(_Generator):
             self.writecons_bind('eq', other)
 
     def __gt__(self, other):
+        print(f'--- Bind {self} > {other} is being written as {self} >= {other}')
         _ = self >= other
 
     def __lt__(self, other):
+        print(f'--- Bind {self} < {other} is being written as {self} <= {other}')
         _ = self <= other
 
     def __add__(self, other: Self | FBind):
@@ -707,7 +728,7 @@ class Bind(_Generator):
     def __rmul__(self, other: int | float):
         return FBind(F=other * self.F, program=self.program)
 
-    def __call__(self, *index):
+    def __call__(self, *index) -> V:
 
         index = list(set(self.domain.index_short + list(index)))
         v = self.aspect(*index)

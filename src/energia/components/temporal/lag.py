@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from gana.sets.index import I
 
     from ...modeling.indices.domain import Domain
-    from .period import Period
+    from .periods import Periods
 
 
 @dataclass
@@ -21,7 +21,7 @@ class Lag(Name):
 
     Attributes:
         label (str): Label of the component, used for plotting. Defaults to None.
-        of (Period): Period to lag. Defaults to None.
+        of (Periods): Periods to lag. Defaults to None.
         periods (int | float): Number of periods to lag. Defaults to 1.
         name (str): generated based on the number of periods
         domains (list[Domain]): List of Domains, lag features in. Defaults to [].
@@ -31,7 +31,7 @@ class Lag(Name):
         - domains are set as the program is built
     """
 
-    of: Period = None
+    of: Periods = None
     periods: int | float = 1
 
     def __post_init__(self):
@@ -50,11 +50,11 @@ class Lag(Name):
         return self.of.I - self.periods
 
     @property
-    def horizon(self) -> Period:
+    def horizon(self) -> Periods:
         """Horizon of the lag"""
         return self.of.horizon
 
-    def __eq__(self, other: Self | Period) -> bool:
+    def __eq__(self, other: Self | Periods) -> bool:
         """Check if two lags are equal"""
         if isinstance(other, Lag):
             return is_(self.of, other.of) and self.periods == other.periods

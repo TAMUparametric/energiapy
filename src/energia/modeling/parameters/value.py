@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 from ...core.name import Name
 
 if TYPE_CHECKING:
-    from ...components.temporal.period import Period
+    from ...components.temporal.periods import Periods
 
 
 @dataclass
@@ -24,7 +24,7 @@ class Value(Name):
         | tuple[int]
         | tuple[list[int | float]]
     ) = None
-    period: Period = None
+    period: Periods = None
 
     def __post_init__(self):
         if isinstance(self.value, (float, int)):

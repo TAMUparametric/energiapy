@@ -8,11 +8,16 @@ from typing import TYPE_CHECKING
 from ..core.dimension import Dimension
 
 if TYPE_CHECKING:
-    from ..components.commodity.misc import Currency, Emission, Land, Material
+    from ..components.commodity.currency import Currency
+    from ..components.commodity.emission import Emission
+    from ..components.commodity.land import Land
+    from ..components.commodity.material import Material
     from ..components.commodity.resource import Resource
     from ..components.operation.process import Process
     from ..components.operation.storage import Storage
     from ..components.operation.transport import Transport
+    from ..components.game.couple import Couple
+    from ..components.game.player import Player
     from ..represent.model import Model
 
 
@@ -44,6 +49,10 @@ class System(Dimension):
         self.processes: list[Process] = []
         self.storages: list[Storage] = []
         self.transits: list[Transport] = []
+
+        # ------------Decision-Makers----------------------
+        self.players: list[Player] = []
+        self.couples: list[Couple] = []
 
     @property
     def operations(self) -> list[Process | Storage | Transport]:

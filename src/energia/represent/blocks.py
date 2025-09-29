@@ -5,12 +5,14 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Literal
 
-from ..components.commodity.misc import Currency, Emission, Land, Material
-from ..components.impact.indicator import Indicator
+from ..components.commodity.currency import Currency
+from ..components.commodity.land import Land
+from ..components.commodity.material import Material
 from ..components.commodity.resource import Resource
+from ..components.impact.indicator import Indicator
 from ..components.operation.transport import Transport
 from ..dimensions.consequence import Consequence
-from ..dimensions.decisiontree import DecisionTree
+from ..dimensions.problem import Problem
 from ..dimensions.space import Space
 from ..dimensions.system import System
 from ..dimensions.time import Time
@@ -31,8 +33,8 @@ if TYPE_CHECKING:
     from ..components.operation.storage import Storage
     from ..components.spatial.linkage import Linkage
     from ..components.spatial.location import Location
-    from ..components.temporal.period import Period
     from ..components.temporal.modes import Modes
+    from ..components.temporal.periods import Periods
     from ..modeling.indices.domain import Domain
     from ..modeling.variables.aspect import Aspect
     from ..modeling.variables.control import Control
@@ -58,7 +60,7 @@ class _Scope:
         # Dictionary which tells you what aspects of resource
         # have grb {loc: time: []} and {time: loc: []}
         self.grb: dict[
-            Resource, dict[Location | Linkage, dict[Period, list[Aspect]]]
+            Resource, dict[Location | Linkage, dict[Periods, list[Aspect]]]
         ] = {}
 
         # Dictionary which tells you what aspects of what component
@@ -67,12 +69,15 @@ class _Scope:
             Aspect,
             dict[
                 Resource | Process | Storage | Transport,
-                dict[Location | Linkage, dict[Period, list[Aspect]]],
+                dict[Location | Linkage, dict[Periods, list[Aspect]]],
             ],
         ] = {}
 
+        self.maps: dict[Aspect, dict[Domain, dict[str, list[Domain]]]] = {}
+        self.maps_report: dict[Aspect, dict[Domain, dict[str, list[Domain]]]] = {}
+
     @property
-    def horizon(self) -> Period:
+    def horizon(self) -> Periods:
         """The horizon of the Model"""
         return self.time.horizon
 
@@ -88,7 +93,7 @@ class _Scope:
         # resource: Resource = None,
         # operation: Process | Storage | Transport = None,
         # space: Space = None,
-        # time: Period = None,
+        # time: Periods = None,
     ):
         """Updates the spatiotemporal dispositions for an aspect pertaining to a component"""
 
@@ -106,99 +111,7 @@ class _Scope:
 
         self.dispositions = merge_trees(self.dispositions, {aspect: domain.tree})
 
-        # # indicator = domain.indicator
-        # # resource = domain.resource
-        # # operation = domain.operation
-        # primary = domain.primary
-
-        # binds = domain.binds
-
-        # # dr_aspect = domain.dr_aspect
-        # # dresource = domain.dresource
-        # # op_aspect = domain.op_aspect
-        # dm = domain.player or domain.couple
-
-        # space = domain.space
-        # time = domain.period
-
-        # the base key, value combinations are of the form
-        # 1. {aspect: resource: {}}
-        # 2. {aspect: resource: {operation: {}}}
-        # 3. {aspect: operation: {}}
-
-        # ======== Commodities for the 0 the index
-
-        # def update_aspect(aspect: Aspect):
-        #     """Update aspect"""
-        #     if not aspect in self.dispositions:
-        #         self.dispositions[aspect] = {}
-
-        # def update_primary(
-        #     component: Resource | Indicator | Process | Storage | Transport,
-        # ):
-        #     """Update stream or operation"""
-        #     if not component in self.dispositions[aspect]:
-        #         self.dispositions[aspect][component] = {}
-
-        # def update_space_time(
-        #     dict_: (
-        #         dict[Aspect, dict[Resource, set]]
-        #         | dict[Aspect, dict[Resource, dict[Process | Storage | Transport, set]]]
-        #         | dict[Aspect, dict[Process | Storage | Transport, set]]
-        #     ),
-        # ):
-        #     """Updates the space and time dictionaries for the given base dictionary."""
-        #     if not space in dict_:
-        #         dict_[space] = set()
-
-        #     if not time in dict_[space]:
-        #         dict_[space].add(time)
-        #     return dict_
-
-        # def update_binds(
-        #     binds: dict[Aspect, Resource | Process | Storage | Transport],
-        # ):
-        #     """Update component that influences primary stream or operation"""
-        #     binds = list(binds.items())
-        #     _dict = {binds[-1][0]: {binds[-1][1]: {}}}
-        #     for k, v in reversed(binds[:-1]):
-        #         _dict = {k: {v: _dict}}
-        #     return _dict
-
-        #     # self.dispositions[aspect][primary] =
-        #     # return {
-        #     #     **self.dispositions[aspect][primary],
-        #     #     **_dict,
-        #     # }
-
-        # def update_dm(
-        #     _dict: dict[
-        #         Aspect, dict[Resource | Process | Storage | Transport, dict[Player]]
-        #     ],
-        #     player: Player,
-        # ):
-        #     """Update Player"""
-        #     if not player in _dict:
-        #         _dict[player] = {}
-        #     return _dict
-
-        #     # update_player(dm, component)
-
-        # update_aspect(aspect)
-
-        # update_primary(primary)
-
-        # _dict = {}
-
-        # if binds:
-        #     _dict = update_binds(binds)
-
-        # if dm:
-        #     _dict = update_dm(_dict, dm)
-
-        # self.dispositions[aspect][primary] = update_space_time(_dict)
-
-    def update_grb(self, resource: Resource, space: Location | Linkage, time: Period):
+    def update_grb(self, resource: Resource, space: Location | Linkage, time: Periods):
         """Creates a mesh for grb dict"""
 
         if not resource in self.grb:
@@ -213,7 +126,7 @@ class _Scope:
             self.grb[resource][space][time] = []
 
     @property
-    def periods(self) -> list[Period]:
+    def periods(self) -> list[Periods]:
         """The periods of the Model"""
         return self.time.periods
 
@@ -269,37 +182,32 @@ class _Tree:
 
     def __post_init__(self):
         # Tree (Feasible Region)
-        self.tree = DecisionTree(self)
+        self.problem = Problem(self)
 
     @property
     def states(self) -> list[State]:
         """The State Variables"""
-        return self.tree.states
+        return self.problem.states
 
     @property
     def controls(self) -> list[Control]:
         """The Control Variables"""
-        return self.tree.controls
+        return self.problem.controls
 
     @property
     def streams(self) -> list[Stream]:
         """The Stream Variables"""
-        return self.tree.streams
+        return self.problem.streams
 
     @property
     def impacts(self) -> list[Impact]:
         """The Impact Variables"""
-        return self.tree.impacts
-
-    @property
-    def players(self) -> list[Player]:
-        """The Players"""
-        return self.tree.players
+        return self.problem.impacts
 
     @property
     def domains(self):
         """The domains of the Model"""
-        return self.tree.domains
+        return self.problem.domains
 
     def get(
         self,
@@ -322,7 +230,7 @@ class _Tree:
         Returns:
             dict[Variable | Domain, list[Variable | Domain]]: dictionary with particular structure
         """
-        return self.tree.get(keys, values)
+        return self.problem.get(keys, values)
 
 
 @dataclass

@@ -38,11 +38,11 @@ class State(Aspect):
 
     def adddomains(self) -> list[Domain]:
         """Get the domains over which the add variable is defined"""
-        return self.tree.get('aspects', 'domains')[self.add]
+        return self.problem.get('aspects', 'domains')[self.add]
 
     def subdomains(self) -> list[Domain]:
         """Get the domains over which the sub variable is defined"""
-        return self.tree.get('aspects', 'domains')[self.sub]
+        return self.problem.get('aspects', 'domains')[self.sub]
 
     def map_domain(self, domain: Domain, reporting: bool = False):
         """Add a domain to the decision variable"""

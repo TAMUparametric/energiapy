@@ -16,17 +16,26 @@ def make_henry_price_df(
     year: int,
     stretch: bool = False,
 ) -> pd.DataFrame:
-    """makes a df from data with missing data filled using previous day values
-    The costs are converted to $/kg from $/MMBtu using a factor of /22.4
-    Only works if there is an entire year of data (365). Converts form $/MMBtu to $/kg (x/22.4)
-    Args:
-        file_name (str): provide csv file with data
-        year (int): import data from a particular year
-        stretch (bool): if True, streches the timescale from days (365) to hours (8760) by repetition. Defaults to False.
+    """
+    Makes a DataFrame from data with missing values filled using previous day values.
 
+    The costs are converted from $/MMBtu to $/kg using a factor of 1/22.4.
+    Only works if there is a full year of data (365 days).
+    If `stretch` is True, the timescale is repeated to expand from days (365) to hours (8760).
 
-    Returns:
-        pd.DataFrame: data frame with varying natural gas prices
+    Parameters
+    ----------
+    file_name : :class:`str`
+        Path to the CSV file containing the data.
+    year : :class:`int`
+        Year to import data from.
+    stretch : :class:`bool`, optional
+        If True, stretches the timescale from days to hours. Defaults to ``False``.
+
+    Returns
+    -------
+    :class:`pandas.DataFrame`
+        DataFrame containing varying natural gas prices with missing values filled.
     """
 
     df = pd.read_csv(file_name, skiprows=5, names=['date', 'CH4'])
@@ -99,14 +108,24 @@ def make_henry_price_df(
 def remove_outliers(
     data: pd.DataFrame, sd_cuttoff: int = 2, mean_range: int = 1
 ) -> pd.DataFrame:
-    """Removes outliers upto chosen standard deviations
-    fixes data as the mean of data points on both sides of the point
-    Args:
-        data (pd.DataFrame): input data
-        sd_cuttoff (int, optional): data upto integer number of standard deviations. Defaults to 2.
-        mean_range: (int, optional): number of data points on either sides to average over
-    Returns:
-        pd.DataFrame: data sans outliers
+    """
+    Removes outliers up to a chosen number of standard deviations.
+
+    Outliers are replaced with the mean of data points on both sides of the point.
+
+    Parameters
+    ----------
+    data : :class:`pandas.DataFrame`
+        Input data.
+    sd_cutoff : :class:`int`, optional
+        Remove data points that are beyond this many standard deviations. Defaults to ``2``.
+    mean_range : :class:`int`, optional
+        Number of neighboring data points on each side to average over when replacing outliers. Defaults to ``1``.
+
+    Returns
+    -------
+    :class:`pandas.DataFrame`
+        DataFrame with outliers replaced by local means.
     """
     data_mean, data_std = data.mean(), data.std()
     # identify outliers

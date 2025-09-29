@@ -43,7 +43,7 @@ class Space(Dimension):
     # -----------------------------------------------------
 
     @property
-    def tree(self):
+    def tree(self) -> dict:
         """creates a nested dictionary of locations"""
         tree_ = {self.network: {}}
 

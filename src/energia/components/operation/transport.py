@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from ..spatial.linkage import Linkage
     from ..spatial.location import Location
     from ..temporal.lag import Lag
-    from ..temporal.period import Period
+    from ..temporal.periods import Periods
 
 
 @dataclass
@@ -37,8 +37,8 @@ class Transport(_Operation):
         for link in links:
 
             # check if the transport has been capacitated at that link and time
-            if not self in self.tree.capacity_bound or not link in [
-                l_t[0] for l_t in self.tree.capacity_bound[self]
+            if not self in self.problem.capacity_bound or not link in [
+                l_t[0] for l_t in self.problem.capacity_bound[self]
             ]:
                 # if the process is not capacitated at the link and time
                 print(
@@ -49,8 +49,8 @@ class Transport(_Operation):
 
             # now that the transport has been capacitated at the link
             # check if the transport has been operated at that link and time
-            if not self in self.tree.operate_bound or not link in [
-                l_t[0] for l_t in self.tree.operate_bound[self]
+            if not self in self.problem.operate_bound or not link in [
+                l_t[0] for l_t in self.problem.operate_bound[self]
             ]:
                 # if the transport is not operated at the link and time
                 print(f'--- Assuming {self} is operated at ({link}, {self.horizon})')
@@ -65,12 +65,12 @@ class Transport(_Operation):
 
         self.writecons_conversion(link_times)
 
-    def writecons_conversion(self, link_times: list[tuple[Linkage, Period]]):
+    def writecons_conversion(self, link_times: list[tuple[Linkage, Periods]]):
         """Write the conversion constraints for the transport"""
 
         self.conv.balancer()
 
-        def time_checker(res: Resource, loc: Location, time: Period):
+        def time_checker(res: Resource, loc: Location, time: Periods):
             """This checks if it is actually necessary
             to write conversion at denser temporal scales
             """
@@ -108,7 +108,7 @@ class Transport(_Operation):
 
             return time.horizon
 
-        # def time_checker(res: Resource, loc: Loc, time: Period):
+        # def time_checker(res: Resource, loc: Loc, time: Periods):
         #     """This checks if it is actually necessary
         #     to write conversion at denser temporal scales
         #     """
@@ -302,6 +302,6 @@ class Transport(_Operation):
         """Conversion is called with a Resource to be converted"""
         if not self._conv:
 
-            self.conv = Conversion(process=self)
+            self.conv = Conversion(operation=self)
             self._conv = True
         return self.conv(resource)

@@ -1,10 +1,15 @@
-"""Fetch data from NREL's NSRDB database
-"""
+"""Fetch data from NREL's NSRDB database"""
 
-import h5pyd
 from numpy import array, average
 from pandas import DataFrame, to_datetime
 from scipy.spatial import cKDTree
+
+try:
+    import h5pyd
+
+    import_all = False
+except ImportError:
+    import_all = True
 
 
 def fetch_nsrdb_data(
@@ -32,6 +37,12 @@ def fetch_nsrdb_data(
     Returns:
         DataFrame, tuple: Dataframe with output data, (latitude, longitude)
     """
+
+    if import_all:
+        print(
+            'This is an optional feature. Please install h5pyd, or pip install energiapy[all]'
+        )
+        return
 
     # fetches nsrdb data for the year
     nsrdb_data = h5pyd.File(f"/nrel/nsrdb/v3/nsrdb_{str(year)}.h5", 'r')

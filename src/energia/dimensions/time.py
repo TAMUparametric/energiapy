@@ -4,9 +4,10 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
+from warnings import warn
 
-from ..components.temporal.period import Period
 from ..components.temporal.modes import Modes
+from ..components.temporal.periods import Periods
 from ..core.dimension import Dimension
 
 if TYPE_CHECKING:
@@ -24,7 +25,7 @@ class Time(Dimension):
         model (Model): Model to which the representation belongs.
         name (str): Name of the model. Defaults to None.
         _indexed (I): The index set of Horizon. For easy call. Defaults to None.
-        periods (list[Period]): List of time periods. Defaults to []
+        periods (list[Periods]): List of time periods. Defaults to []
         modes (list[Modes]): List of modes. Defaults to []
 
     Note:
@@ -35,7 +36,7 @@ class Time(Dimension):
 
     def __post_init__(self):
         self._indexed: I = None
-        self.periods: list[Period] = []
+        self.periods: list[Periods] = []
         self.modes: list[Modes] = []
         Dimension.__post_init__(self)
 
@@ -62,26 +63,30 @@ class Time(Dimension):
     # -----------------------------------------------------
 
     @property
-    def tree(self) -> list[Period]:
+    def tree(self) -> list[Periods]:
         """Return the tree of periods"""
         hrz = self.horizon
 
         return {int(hrz.howmany(prd)): prd for prd in self.periods}
 
     @property
-    def sorted_periods(self) -> list[Period]:
+    def sorted_periods(self) -> list[Periods]:
         """Sorted periods from densest to sparsest"""
         return sorted(self.periods)
 
-    def find(self, size: int | float) -> Period:
+    def find(self, size: int | float) -> Periods:
         """Find the period that has the length"""
 
         if not size in self.tree:
             # if no math make a default period
+            warn(
+                f"{size} does not match the size of any data set passed, generating 't{size}'.)"
+            )
             _ = self.model.default_period(size=size)
+
         return self.tree[size]
 
-    def split(self, period: Period) -> tuple[list[Period], list[Period]]:
+    def split(self, period: Periods) -> tuple[list[Periods], list[Periods]]:
         """Gives a list of periods which are denser and sparser than period"""
 
         periods = self.sorted_periods
@@ -93,7 +98,7 @@ class Time(Dimension):
     # -----------------------------------------------------
 
     @property
-    def horizon(self) -> Period:
+    def horizon(self) -> Periods:
         """The sparsest scale is treated as the horizon"""
         if self.periods:
             return self.sparsest
@@ -101,13 +106,13 @@ class Time(Dimension):
         return self.model.default_period()
 
     @property
-    def densest(self) -> Period:
+    def densest(self) -> Periods:
         """The densest period"""
         if self.periods:
             return min(self.periods, key=lambda x: x.periods)
 
     @property
-    def sparsest(self) -> Period:
+    def sparsest(self) -> Periods:
         """The sparsest period"""
         if self.periods:
             return max(self.periods, key=lambda x: x.periods)

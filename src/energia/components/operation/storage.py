@@ -6,15 +6,17 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from ...core.component import Component
+from ...modeling.constraints.calculate import Calculate
 from ...modeling.parameters.conversion import Conversion
+from ..commodity.stored import Stored
 
-from ..commodity.resource import Resource
 from .process import Process
 
 if TYPE_CHECKING:
-    from ..spatial.location import Location
-    from ..temporal.period import Period
+    from ..commodity.resource import Resource
     from ...modeling.constraints.bind import Bind
+    from ..spatial.location import Location
+    from gana.sets.constraint import C
 
 
 @dataclass
@@ -57,18 +59,24 @@ class Storage(Component):  # , Stock):
                 # this is not a check, this generates a constraint
                 _ = self.capacity(loc, self.horizon) == True
 
+            if self.stored not in self.model.inventory.bound_spaces:
+                _ = self.model.inventory(self.stored) == True
+
             if loc not in self.model.inventory.bound_spaces[self.stored]:
                 # check if the storage inventory has been bound at that location
                 print(
                     f'--- Assuming inventory of {self.stored} is bound by inventory capacity in ({loc}, {self.horizon})'
                 )
-                times = list(
-                    [
-                        t
-                        for t in self.model.grb[self.stored.inv_of][loc]
-                        if self.model.grb[self.stored.inv_of][loc][t]
-                    ]
-                )
+                try:
+                    times = list(
+                        [
+                            t
+                            for t in self.model.grb[self.stored.inv_of][loc]
+                            if self.model.grb[self.stored.inv_of][loc][t]
+                        ]
+                    )
+                except KeyError:
+                    times = []
                 # write the conversion balance at
                 # densest temporal scale in that space
                 if times:
@@ -80,7 +88,6 @@ class Storage(Component):  # , Stock):
                     f'--- Assuming inventory of {self.stored} is bound by inventory capacity in ({loc}, {time})'
                 )
                 _ = self.inventory(loc, time) <= 1
-
 
         # locate the charge and discharge processes
         self.charge.locate(*locs)
@@ -109,6 +116,16 @@ class Storage(Component):  # , Stock):
         return self.stored.inventory
 
     @property
+    def capex(self) -> Calculate:
+        """Capital Expenditure"""
+        return self.capacity[self.model.default_currency().spend]
+
+    @property
+    def opex(self) -> Calculate:
+        """Operational Expenditure"""
+        return self.charge.operate[self.model.default_currency().spend]
+
+    @property
     def base(self) -> Resource:
         """Base resource"""
         return self.discharge.conv.base
@@ -118,24 +135,44 @@ class Storage(Component):  # , Stock):
         """Conversion of commodities"""
         return self.discharge.conv.conversion
 
-    def __call__(self, resource: Resource | Conversion):
+    @property
+    def storage_cost(self) -> Calculate:
+        """Cost of storing the resource"""
+        return self.inventory[self.model.default_currency().spend]
+
+    @property
+    def cons(self) -> list[C]:
+        """Constraints"""
+        # This overwrites the Component cons property
+        # this gets the actual constraint objects from the program
+        # based on the pname (attribute name) in the program
+        return (
+            [getattr(self.program, c) for c in self.constraints]
+            + self.charge.cons
+            + self.discharge.cons
+            + self.stored.cons
+        )
+
+    @property
+    def fab(self) -> Conversion:
+        """Fabrication conversion of commodities"""
+        return self.charge.fab
+
+    def __call__(self, resource: Stored | Conversion):
         """Conversion is called with a Resource to be converted"""
         if not self._conv:
             # create storage resource
-            stored = Resource()
+            stored = Stored()
             resource.in_inv.append(stored)
+
             setattr(self.model, f'{resource}.{self}', stored)
 
             # ---------- set discharge conversion
-            self.discharge.conv = Conversion(
-                process=self.discharge, storage=self, resource=stored
-            )
+            self.discharge.conv = Conversion(operation=self.discharge, resource=stored)
             _ = self.discharge.conv(resource) == -1.0 * stored
 
             # ---------- set charge conversion
-            self.charge.conv = Conversion(
-                process=self.charge, storage=self, resource=resource
-            )
+            self.charge.conv = Conversion(operation=self.charge, resource=resource)
 
             _ = self.charge.conv(stored) == -1.0 * resource
 
@@ -147,71 +184,3 @@ class Storage(Component):  # , Stock):
 
             # self.model.update_grb(add=self.stored)
         return self.discharge.conv(resource)
-
-    # def writecons_conversion(self, loc_times: list[tuple[Loc, Period]]):
-    #     """Write the conversion constraints for the process"""
-    #     self.charge.conv.balancer()
-    #     self.discharge.conv.balancer()
-
-    #     def time_checker(res: Resource, loc: Loc, time: Period):
-    #         """This checks if it is actually necessary
-    #         to write conversion at denser temporal scales
-    #         """
-
-    #         # This checks whether some other aspect is defined at
-    #         # a lower temporal scale
-    #         if self.model.grb[res][loc][time]:
-    #             return time
-    #         else:
-    #             return time.horizon
-
-    #     for loc_time in loc_times:
-    #         loc = loc_time[0]
-    #         time = loc_time[1]
-
-    #         if loc in self.locs:
-    #             # if the location is already balanced, skip
-
-    #             continue
-
-    #         time = time_checker(self.stored, loc, time)
-
-    #         # inventory in current time period
-    #         # inv = self.model.inventory(self.stored, self, loc, time)
-    #         inv = self.stored.inventory(self, loc, time)
-
-    #         v_inv = inv.V(write_grb=True)
-
-    #         # operate in current time period
-    #         opr = self.model.operate(self, loc, time)
-    #         v_opr = opr.V()
-
-    #         # create an operating constraint
-    #         _cons_opr = f'operate_{self}_{loc}_{time}_bal'
-
-    #         cons_opr = v_opr - v_inv == 0
-    #         cons_opr.categorize('Flow')
-    #         setattr(self.program, _cons_opr, cons_opr)
-
-    #         inv.domain.update_cons(_cons_opr)
-    #         self.model.inventory.constraints.append(_cons_opr)
-    #         self.model.operate.constraints.append(_cons_opr)
-
-    #         # add previous step inventory to the resource balance
-    #         _cons_inv = f'{self.stored}_{loc}_{time}_grb'
-
-    #         cons_inv = getattr(self.program, _cons_inv)
-
-    #         # inventory in previous time period
-
-    #         # inv_t = self.model.inventory(self.stored, self, loc, -1 * time)
-    #         inv_t = self.stored.inventory(self.stored, self, loc, -1 * time)
-
-    #         v_inv_t = inv_t.V()
-
-    #         setattr(self.program, _cons_inv, cons_inv + v_inv_t)
-
-    #         self.locs.append(loc)
-
-    #     self.charge.writecons_conversion(loc_times)
-    #     self.discharge.writecons_conversion(loc_times)

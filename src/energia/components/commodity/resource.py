@@ -5,40 +5,41 @@
 4. lost by Storage and Transits
 """
 
-from dataclasses import dataclass
-from typing import Self
+from __future__ import annotations
 
-from ...core.component import Component
-from ...modeling.parameters.conversion import Conversion
-from ...modeling.variables.default import (
-    Free,
-    Produce,
-    Trade,
-    Utilize,
-    Inventory,
-)
+from dataclasses import dataclass
+from typing import TYPE_CHECKING
+
+from energia.components.impact.categories import Environ
+from energia.components.commodity._commodity import _Commodity
+from energia.modeling.variables.default import Free, Inventory, Produce, Trade, Utilize
+
+if TYPE_CHECKING:
+    from ...modeling.constraints.calculate import Calculate
 
 
 @dataclass
-class Resource(Component, Trade, Produce, Utilize, Free, Inventory):
-    """A resource, can be a material, chemical, energy, etc.
+class Resource(_Commodity, Trade, Produce, Utilize, Free, Inventory):
+    """
+    A resource, can be a material, chemical, energy, etc.
 
-    Args:
-        label (str): Label of the resource, used for plotting. Defaults to None.
-        name (str): Name of the resource, used for indexing. Defaults to None.
-        basis (Unit): Unit basis of the resource. Defaults to None.
+    :param label: Label of the resource, used for plotting. Defaults to None.
+    :type label: str, optional
+    :param name: Name of the resource, used for indexing. Defaults to None.
+    :type name: str, optional
+    :param basis: Unit basis of the resource. Defaults to None.
+    :type basis: Unit, optional
 
-    Attributes:
-        conversions (list[Conv]): List of conversions associated with the resource. Defaults to [].
-        stored (Resource): Auxiliary resource in its stored form.
-        base (Resource): Base resource, if any in conversion
-
-
+    :ivar conversions: List of conversions associated with the resource. Defaults to [].
+    :vartype conversions: list[Conv]
+    :ivar stored: Auxiliary resource in its stored form.
+    :vartype stored: Resource
+    :ivar base: Base resource, if any in conversion.
+    :vartype base: Resource
     """
 
     def __post_init__(self):
-        # resources are components
-        Component.__post_init__(self)
+        _Commodity.__post_init__(self)
 
         # base resource, if any in conversion
         self.inv_of: Resource = None
@@ -46,70 +47,28 @@ class Resource(Component, Trade, Produce, Utilize, Free, Inventory):
         # resource in its stored form
         self.in_inv: list[Resource] = []
 
-        # list of conversions associated with the resource
-        self.conversions: list[Conversion] = []
+    @property
+    def gwp(self) -> Calculate:
+        """Global Warming Potential"""
+        if not hasattr(self.model, "GWP"):
+            self.model.GWP = Environ(label='Global Warming Potential (kg CO2)')
 
-        # flag indicates whether the resource is produced and expended insitu only
-        self.insitu = False
+        return self.consume[self.model.GWP.emit]
 
     @property
-    def conversion(self) -> dict[Conversion, int | float]:
-        """Conversion"""
-        # if no conversion is set, return 1.0
-        if not self.conversions:
-            return {self: 1.0}
-        # if there is a conversion, return its parameter in all tasks its
-        # associated with
-        return {task: task.conversion[self] for task in self.conversions}
+    def htp(self) -> Calculate:
+        """Human Toxicity Potential"""
+        if not hasattr(self.model, "HTP"):
+            self.model.HTP = Environ(label='Human Toxicity Potential (kg 1,4-DB eq.)')
 
-    def __setattr__(self, name, value):
+        return self.consume[self.model.HTP.emit]
 
-        if isinstance(value, Conversion):
-            # update conversions
-            self.conversions.append(value)
+    @property
+    def demand(self) -> Calculate:
+        """Demand (alias for the Aspect release)"""
+        return self.release
 
-        super().__setattr__(name, value)
-
-    def __mul__(self, other: int | float) -> Conversion:
-        # multiplying a number with a resources gives conversion
-        # math operations with conversions form the balance in tasks
-        conv = Conversion()
-        conv.conversion = {self: other}
-        return conv
-
-    def __rmul__(self, other: int | float) -> Conversion:
-        # reverse multiplication
-        return self * other
-
-    def __add__(self, other: Conversion) -> Conversion:
-        conv = Conversion()
-        if isinstance(other, Resource):
-            # if another resource is added, give it the parameter 1
-            conv.conversion = {self: 1, other: 1}
-            return conv
-
-        # if added with another conversion, updated the balance
-        conv.conversion = {self: 1, **other.conversion}
-        return conv
-
-    def __neg__(self) -> Conversion:
-        # just multiply by -1
-        return self * -1
-
-    def __sub__(self, other: Conversion | Self):
-        if isinstance(other, Resource):
-            # if another resource is subtracted
-            # give it the parameter -1
-            return self + -1 * other
-        if isinstance(other, Conversion):
-            # if another conversion is subtracted, update the balance
-            conv = Conversion()
-            conv.conversion = {
-                self: 1,
-                **{res: -1 * par for res, par in other.conversion.items()},
-            }
-            return conv
-
-    def __truediv__(self, other: int | float):
-        # treat division as multiplication by the inverse
-        return self * (1 / other)
+    @property
+    def price(self) -> Calculate:
+        """Cost of consume"""
+        return self.consume[self.model.default_currency().spend]

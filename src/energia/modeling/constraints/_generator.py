@@ -17,17 +17,17 @@ if TYPE_CHECKING:
     from ...components.operation.transport import Transport
     from ...components.spatial.linkage import Linkage
     from ...components.spatial.location import Location
-    from ...components.temporal.period import Period
+    from ...components.temporal.periods import Periods
     from ...core.x import X
-    from ...dimensions.decisiontree import DecisionTree
+    from ...dimensions.problem import Problem
     from ...represent.model import Model
-    from .bind import Bind
     from ..indices.domain import Domain
     from ..variables.aspect import Aspect
-    from ..variables.state import State
     from ..variables.control import Control
     from ..variables.impact import Impact
+    from ..variables.state import State
     from ..variables.stream import Stream
+    from .bind import Bind
 
 
 @dataclass
@@ -76,7 +76,7 @@ class _Generator(Name):
         Aspect,
         dict[
             Resource | Process | Storage | Transport,
-            dict[Location | Linkage, dict[Period]],
+            dict[Location | Linkage, dict[Periods]],
         ],
     ]:
         """Nested dictionary describing the disposition of each Aspect"""
@@ -87,12 +87,12 @@ class _Generator(Name):
         self,
     ) -> dict[
         Resource | Process | Storage | Transport,
-        dict[Location, dict[Period | Linkage, list[Bind]]],
+        dict[Location, dict[Periods | Linkage, list[Bind]]],
     ]:
         """List of Bind at each disposition"""
         return self.model.grb
 
     @property
-    def tree(self) -> DecisionTree:
+    def problem(self) -> Problem:
         """Model Tree"""
-        return self.model.tree
+        return self.model.problem
