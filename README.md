@@ -1,4 +1,7 @@
-![Energia logo](docs/_static/logo2.jpg){: style="width:75%; display:block; margin:auto;" }
+<p align="center">
+  <img src="docs/_static/logo2.jpg" width="75%">
+</p>
+
 
 [![Documentation Status](https://readthedocs.org/projects/energiapy/badge/)](https://energiapy.readthedocs.io/en/latest/)
 [![PyPI](https://img.shields.io/pypi/v/energiapy.svg)](https://pypi.org/project/energiapy)
