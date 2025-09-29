@@ -1,7 +1,4 @@
-<!-- <p align="center">
-  <img src="https://github.com/TAMUparametric/energiapy/blob/main/docs/_static/logo2.jpg" width="75%">
-</p> -->
-![Energia logo](docs/_static/logo2.jpg){: style="width:75%; display:block; margin:auto;" }
+![Energia logo](docs/_static/logo2.jpg)
 
 https://github.com/TAMUparametric/energiapy/blob/main/docs/_static/logo.jpg
 [![Documentation Status](https://readthedocs.org/projects/energiapy/badge/)](https://energiapy.readthedocs.io/en/latest/)
