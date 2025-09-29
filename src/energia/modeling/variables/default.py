@@ -6,7 +6,7 @@ from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from ...dimensions.decisionspace import DecisionSpace
+    from ...dimensions.problem import Problem
     from ..constraints.bind import Bind
 
 
@@ -15,13 +15,13 @@ class Get(ABC):
 
     @property
     @abstractmethod
-    def decisionspace(self) -> DecisionSpace:
+    def problem(self) -> Problem:
         """Decision Tree"""
 
     # The decision is pulled from the tree with the component as the default index
     def get(self, decision: str) -> Bind:
         """Get the decision"""
-        return getattr(self.decisionspace, decision)(self)
+        return getattr(self.problem, decision)(self)
 
 
 # -------------------------------------------------------

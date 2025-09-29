@@ -9,7 +9,7 @@ from ...core.component import Component
 from ...modeling.variables.default import Capacitate, Trade, Transact
 
 if TYPE_CHECKING:
-    from ...dimensions.decisionspace import DecisionSpace
+    from ...dimensions.problem import Problem
 
 
 @dataclass
@@ -25,6 +25,6 @@ class Player(Component, Capacitate, Trade, Transact):
         Component.__post_init__(self)
 
     @property
-    def decisionspace(self) -> DecisionSpace:
+    def problem(self) -> Problem:
         """Tree of the player"""
-        return self.model.decisionspace
+        return self.model.problem

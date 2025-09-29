@@ -1,11 +1,19 @@
+"""dictionary utils"""
+
+
 def get_depth(dict_: dict) -> int:
-    """finds depth of dict_
+    """
+    Finds the depth of a dictionary.
 
-    Args:
-        dict_ (dict): dict_
+    Parameters
+    ----------
+    dict_ : :class:`dict`
+        The dictionary to measure.
 
-    Returns:
-        int: depth of dict_
+    Returns
+    -------
+    int
+        Depth of the dictionary.
     """
     if not isinstance(dict_, dict) or not dict_:
         # If the input is not a dict_ or is an empty dict_, return 0
@@ -19,14 +27,20 @@ def get_depth(dict_: dict) -> int:
 
 
 def flatten(dict_: dict, key_: tuple = ()) -> dict:
-    """makes a flat dictionary from a nested dictionary
+    """
+    Makes a flat dictionary from a nested dictionary.
 
-    Args:
-        dict_ (dict): nested dictionary. {'a': {'b': {'c': 1}}}
-        key_ (tuple, optional): empty, dont give an input here. Defaults to ().
+    Parameters
+    ----------
+    dict_ : :class:`dict`
+        Nested dictionary. For example: ``{'a': {'b': {'c': 1}}}``.
+    key_ : :class:`tuple`, optional
+        Internal use; do not provide an input. Defaults to ``()``.
 
-    Returns:
-        dict: flat dictionary. {('a', 'b', 'c'): 1}
+    Returns
+    -------
+    :class:`dict`
+        Flattened dictionary. For example: ``{('a', 'b', 'c'): 1}``.
     """
     items = []
     for key, val in dict_.items():
@@ -39,15 +53,22 @@ def flatten(dict_: dict, key_: tuple = ()) -> dict:
 
 
 def tupler(d: dict, path: tuple = ()) -> list[tuple[str]]:
-    """makes a list of tuples of keys in a nested dictionary
-
-    Args:
-        d (dict): dictionary
-        current_path (tuple, optional): path taken to get to value. Defaults to ().
-
-    Returns:
-        list[tuple[str]]: list of tuples of keys
     """
+    Makes a list of tuples of keys in a nested dictionary.
+
+    Parameters
+    ----------
+    d : :class:`dict`
+        The dictionary to traverse.
+    current_path : :class:`tuple`, optional
+        Path taken to get to a value. Defaults to ``()``.
+
+    Returns
+    -------
+    :class:`list` of :class:`tuple` of :class:`str`
+        List of tuples of keys representing the paths to each value.
+    """
+
     result = []
 
     for k, v in d.items():

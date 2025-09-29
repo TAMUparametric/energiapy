@@ -1,41 +1,45 @@
-Energia for Multiscale Modeling
-===============================
+Energia on Python
+=================
 
-   .. mdinclude:: ../README.md
-      
-   
-Examples
---------
+.. include:: ../README.md
+   :parser: myst_parser.sphinx_
+
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Example Implementation:
+   :maxdepth: 1
+   :caption: Tutorials
+   :hidden:
 
    examples/example1
    examples/example2
    examples/example3
-   examples/example4
-
-API
----
-
-.. toctree::
-   :maxdepth: 5
-   :caption: Documentation
-
-   energiapy
+   examples/supermarket
+   examples/fetch_nsrdb/fetch_nsrdb_data
 
 
-
-Indices and tables
-------------------
 
 .. toctree::
    :maxdepth: 1
-   :caption: Indices
+   :caption: Implementation:
+   :hidden:
+   
+   frameworks
 
-   genindex
-   modindex
-   search
 
+API Reference
+=============
 
+.. autosummary:: 
+   :toctree: _autosummary
+   :recursive:
+   :caption: API
+   :nosignatures:
+
+   energia
+
+Indices and tables
+==================
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`

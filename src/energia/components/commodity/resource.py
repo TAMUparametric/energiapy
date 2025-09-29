@@ -9,10 +9,10 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
-from ..impact.categories import Environ
 
-from ._commodity import _Commodity
-from ...modeling.variables.default import Free, Inventory, Produce, Trade, Utilize
+from energia.components.impact.categories import Environ
+from energia.components.commodity._commodity import _Commodity
+from energia.modeling.variables.default import Free, Inventory, Produce, Trade, Utilize
 
 if TYPE_CHECKING:
     from ...modeling.constraints.calculate import Calculate
@@ -20,19 +20,22 @@ if TYPE_CHECKING:
 
 @dataclass
 class Resource(_Commodity, Trade, Produce, Utilize, Free, Inventory):
-    """A resource, can be a material, chemical, energy, etc.
+    """
+    A resource, can be a material, chemical, energy, etc.
 
-    Args:
-        label (str): Label of the resource, used for plotting. Defaults to None.
-        name (str): Name of the resource, used for indexing. Defaults to None.
-        basis (Unit): Unit basis of the resource. Defaults to None.
+    :param label: Label of the resource, used for plotting. Defaults to None.
+    :type label: str, optional
+    :param name: Name of the resource, used for indexing. Defaults to None.
+    :type name: str, optional
+    :param basis: Unit basis of the resource. Defaults to None.
+    :type basis: Unit, optional
 
-    Attributes:
-        conversions (list[Conv]): List of conversions associated with the resource. Defaults to [].
-        stored (Resource): Auxiliary resource in its stored form.
-        base (Resource): Base resource, if any in conversion
-
-
+    :ivar conversions: List of conversions associated with the resource. Defaults to [].
+    :vartype conversions: list[Conv]
+    :ivar stored: Auxiliary resource in its stored form.
+    :vartype stored: Resource
+    :ivar base: Base resource, if any in conversion.
+    :vartype base: Resource
     """
 
     def __post_init__(self):

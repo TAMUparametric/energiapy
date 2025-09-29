@@ -29,6 +29,7 @@ share/python-wheels/
 .installed.cfg
 *.egg
 MANIFEST
+source/
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
@@ -198,9 +199,8 @@ pyrightconfig.json
 .DS_Store
 .DS_Store?
 
-
-#other generated files
-*.lp 
-*.mps
 *.pkl 
-*.pdf 
+*.mps
+*.lp 
+*.swp
+results/

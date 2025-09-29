@@ -30,6 +30,7 @@ class Problem(Dimension):
         controls (list[Decision]): List of controls. Defaults to empty list.
         streams (list[Stream]): List of streams. Defaults to empty list.
         impacts (list[Impact]): List of consequences. Defaults to empty list.
+        players (list[Player]): List of players. Defaults to empty list.
 
     Note:
         - name is generated based on Model name

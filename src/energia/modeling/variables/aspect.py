@@ -31,7 +31,7 @@ if TYPE_CHECKING:
     from gana.sets.variable import V
 
     from ...core.x import X
-    from ...dimensions.decisionspace import DecisionSpace
+    from ...dimensions.problem import Problem
     from ...represent.model import Model
     from .control import Control
     from .state import State
@@ -172,9 +172,9 @@ class Aspect(Name):
         return self.model.program
 
     @property
-    def decisionspace(self) -> DecisionSpace:
+    def problem(self) -> Problem:
         """Tree"""
-        return self.model.decisionspace
+        return self.model.problem
 
     @property
     def grb(

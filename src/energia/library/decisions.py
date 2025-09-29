@@ -1,4 +1,4 @@
-"""DecisionSpace of the Model"""
+"""Decision Space of the Model"""
 
 from dataclasses import dataclass
 from typing import Type

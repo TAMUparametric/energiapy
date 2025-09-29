@@ -415,7 +415,7 @@ class Bind(_Generator):
         ..math::
               \mathbf{v}_{\dots, t} <= {\theta}_{\dots, t} \cdot \mathbf{x}_{\dots, t}
 
-          where :
+        where :
             - :math:`\mathbf{v}` is the variable
             - :math:`\mathbf{x}` is the binary reporting variable
             - :math:`\theta` is the parameter set

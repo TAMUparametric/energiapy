@@ -17,8 +17,5 @@ class Social(Indicator, SocImp):
 
 
 @dataclass
-class Economic(Indicator,EcoImp):
+class Economic(Indicator, EcoImp):
     """Economic impact"""
-
-
-

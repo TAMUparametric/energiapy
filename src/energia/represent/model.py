@@ -124,10 +124,10 @@ class Model(Decisions, _Init):
             Emission: [('system', 'emissions')],
             Material: [('system', 'materials')],
             Resource: [('system', 'resources')],
-            State: [('decisionspace', 'states')],
-            Control: [('decisionspace', 'controls')],
-            Stream: [('decisionspace', 'streams')],
-            Impact: [('decisionspace', 'impacts')],
+            State: [('problem', 'states')],
+            Control: [('problem', 'controls')],
+            Stream: [('problem', 'streams')],
+            Impact: [('problem', 'impacts')],
         }
         # ---- Different representations of the model ---
         _Init.__post_init__(self)
