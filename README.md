@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/_static/logo2.jpg" width="75%">
+  <img src="https://github.com/TAMUparametric/energiapy/blob/main/docs/_static/logo2.jpg" width="75%">
 </p>
 
 
@@ -119,7 +119,7 @@ Multiple objectives can be provided. Infact the lower and upperbounds of any ```
 can be determined. 
 
 
-![alt text](https://github.com/TAMUparametric/energiapy/blob/main/docs/hierarchy.png?raw=true)
+<!-- ![alt text](https://github.com/TAMUparametric/energiapy/blob/main/docs/hierarchy.png?raw=true) -->
 
 
 
