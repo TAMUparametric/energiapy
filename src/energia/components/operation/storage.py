@@ -55,8 +55,8 @@ class Storage(_Component):  # , Stock):
     :vartype charge: Process
     :ivar discharge: The discharge process associated with the storage.
     :vartype discharge: Process
-    :ivar locs: List of locations where the storage is located. Defaults to [].
-    :vartype locs: list[Location]
+    :ivar locations: List of locations where the storage is located. Defaults to [].
+    :vartype locations: list[Location]
     """
 
     store: Resource = None
@@ -70,7 +70,7 @@ class Storage(_Component):  # , Stock):
         self.charge.ofstorage = self
         self.discharge = Process()
         self.discharge.ofstorage = self
-        self.locs: list[Location] = []
+        self.locations: list[Location] = []
 
     def __setattr__(self, name, value):
         if name == 'model' and value:
@@ -79,13 +79,13 @@ class Storage(_Component):  # , Stock):
 
         super().__setattr__(name, value)
 
-    def locate(self, *locs: Location):
+    def locate(self, *locations: Location):
         """Locate the storage"""
         # update the locations at which the storage exists
 
         # get location, time tuples where operation is defined
         loc_times = []
-        for loc in locs:
+        for loc in locations:
 
             if loc not in self.model.invcapacity.bound_spaces[self.stored]:
                 # check if the storage capacity has been bound at that location
@@ -126,8 +126,8 @@ class Storage(_Component):  # , Stock):
                 _ = self.inventory(loc, time) <= 1
 
         # locate the charge and discharge processes
-        self.charge.locate(*locs)
-        self.discharge.locate(*locs)
+        self.charge.locate(*locations)
+        self.discharge.locate(*locations)
 
         # self.writecons_conversion(loc_times)
 

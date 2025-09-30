@@ -136,14 +136,14 @@ class _Scope:
         return self.time.modes
 
     @property
-    def locs(self) -> list[Location]:
+    def locations(self) -> list[Location]:
         """The Locations"""
-        return self.space.locs
+        return self.space.locations
 
     @property
-    def links(self) -> list[Linkage]:
+    def linkages(self) -> list[Linkage]:
         """The Links"""
-        return self.space.links
+        return self.space.linkages
 
 
 @dataclass

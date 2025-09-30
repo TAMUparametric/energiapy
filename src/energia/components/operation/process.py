@@ -52,8 +52,8 @@ class Process(_Operation):
     :vartype fab: Conversion, optional
     :ivar _fab_balanced: True if the material conversion has been balanced. Defaults to False.
     :vartype _fab_balanced: bool
-    :ivar locs: Locations at which the process is balanced. Defaults to [].
-    :vartype locs: list[Location]
+    :ivar locations: Locations at which the process is balanced. Defaults to [].
+    :vartype locations: list[Location]
     :ivar ofstorage: If the Process is Storage charging and discharging. Defaults to None.
     :vartype ofstorage: Storage, optional
     """
@@ -65,21 +65,21 @@ class Process(_Operation):
         # Note that we do not need a conversion at every temporal scale.
         # once balanced at a location for a particular time,
         # if time != horizon, the individual streams are summed up anyway
-        self.locs: list[Location] = []
+        self.locations: list[Location] = []
 
         self.ofstorage: Storage = None
 
     @property
     def spaces(self) -> list[Location]:
         """Locations at which the process is balanced"""
-        return self.locs
+        return self.locations
 
-    def locate(self, *locs: Location):
+    def locate(self, *locations: Location):
         """Locate the process"""
 
         # get location, time tuples where operation is defined
         loc_times: list[tuple[Location, Periods]] = []
-        for loc in locs:
+        for loc in locations:
 
             if self not in self.model.capacity.bound_spaces:
                 self.model.capacity.bound_spaces[self] = {'ub': [], 'lb': []}
@@ -204,7 +204,7 @@ class Process(_Operation):
             loc = loc_time[0]
             time = loc_time[1]
 
-            if loc in self.locs:
+            if loc in self.locations:
                 # if the process is already balanced for the location , Skip
 
                 continue
@@ -322,7 +322,7 @@ class Process(_Operation):
                 _ = opr[rhs] == eff
 
             # update the locations at which the process exists
-            self.locs.append(loc)
+            self.locations.append(loc)
 
     def __call__(self, resource: Resource | Conversion, lag: Lag = None) -> Conversion:
         """Conversion is called with a Resource to be converted"""

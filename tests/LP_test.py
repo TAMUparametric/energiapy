@@ -14,7 +14,7 @@ def m():
 
 def test_small_1L_1T_1O_LP(m):
     assert m.periods == [m.q, m.y]
-    assert m.locs == [m.network]
+    assert m.locations == [m.network]
     assert m.resources == [m.power, m.wind]
     assert m.currencies == [m.usd]
     assert m.processes == [m.wf]

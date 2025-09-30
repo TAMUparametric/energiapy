@@ -11,14 +11,15 @@
 
 Energia is a tool for the data-driven multiscale modeling and optimization of energy systems under uncertainty. Users are directed to {cite}`kakodkar2022review` for an overview of the state-of-the-art in the field.
 The component-driven methodology is inspired by the resource task network (RTN) methodology {cite}`barbosa_povoa_pantelides_1997` and constituent functionalities developed through the research conducted in
-the [Multiparameteric Optimization and Control (Pistikopoulos) Group](https://parametric.tamu.edu/). 
+the [Multiparameteric Optimization and Control (Pistikopoulos) Group](https://parametric.tamu.edu/). The Tutorials and Examples sections are a good starting point.
+
 
 :::{seealso}
 [Gana](https://gana.readthedocs.io/en/latest/), an Algebraic Modeling Language (AML) for Multiscale Modeling and Optimization which serves as the backend
 :::
 
 
-# Installation
+<!-- # Installation
 
 Energia can be installed using the standard pip installation. It is recommended to install the package in a separate
 conda or pip environment.
@@ -41,7 +42,7 @@ Install energiapy
 
 For the most updated (albeit occassionally unstable) version use
 
-    pip install git+https://github.com/TAMUparametric/energiapy
+    pip install git+https://github.com/TAMUparametric/energiapy -->
 
 
 # Components

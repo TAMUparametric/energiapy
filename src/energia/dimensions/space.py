@@ -16,17 +16,17 @@ class Space(_Dimension):
 
     :param model: Model to which the dimension belongs.
     :type model: Model
-    
+
     :ivar name: Name of the model. Defaults to None.
     :vartype name: str
-    :ivar locs: List of locations in the space.
-    :vartype locs: list[Loc]
+    :ivar locations: List of locations in the space.
+    :vartype locations: list[Loc]
     :ivar sources: List of source locations.
     :vartype sources: list[Loc]
     :ivar sinks: List of sink locations.
     :vartype sinks: list[Loc]
-    :ivar links: List of links in the space.
-    :vartype links: list[Link]
+    :ivar linkages: List of linkages in the space.
+    :vartype linkages: list[Link]
     :ivar label: Label for the space.
     :vartype label: str
     :ivar default: Default location for the space. Defaults to None.
@@ -34,16 +34,16 @@ class Space(_Dimension):
 
     .. note::
         - name is self generated
-        - locs, sources, sinks, and links are populated as model is defined
+        - locations, sources, sinks, and linkages are populated as model is defined
         - label is fixed
         - default is set to None initially and is updated when needed (see network property)
     """
 
     def __post_init__(self):
-        self.locs: list[Location] = []
+        self.locations: list[Location] = []
         self.sources: list[Location] = []
         self.sinks: list[Location] = []
-        self.links: list[Linkage] = []
+        self.linkages: list[Linkage] = []
 
         _Dimension.__post_init__(self)
 
@@ -66,7 +66,7 @@ class Space(_Dimension):
         """creates a nested dictionary of locations"""
         self.network.update_hierarchy()
         hierarchy_ = {}
-        for loc in self.locs:
+        for loc in self.locations:
             if not loc.hierarchy in hierarchy_:
                 hierarchy_[loc.hierarchy] = []
             hierarchy_[loc.hierarchy].append(loc)
@@ -101,15 +101,15 @@ class Space(_Dimension):
         """An encompassing region"""
 
         # if no location is available, create a default one
-        if not self.locs:
+        if not self.locations:
             return self.model.default_loc()
 
         # if only one location is available, return it
-        if len(self.locs) == 1:
-            return self.locs[0]
+        if len(self.locations) == 1:
+            return self.locations[0]
 
         # check for locations that are not nested
-        loc_not_nested = [loc for loc in self.locs if not loc.isin]
+        loc_not_nested = [loc for loc in self.locations if not loc.isin]
 
         # only one implies that all locations are nested under the one location
         # which is the network
@@ -125,4 +125,4 @@ class Space(_Dimension):
     @property
     def s(self) -> list[Location | Linkage]:
         """List of spatial components"""
-        return self.locs + self.links
+        return self.locations + self.linkages

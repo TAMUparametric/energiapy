@@ -35,6 +35,5 @@ class Land(_Commodity, Trade, Produce, Utilize):
     :vartype insitu: bool, optional
     """
 
-
     def __post_init__(self):
         _Commodity.__post_init__(self)

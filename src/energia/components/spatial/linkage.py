@@ -7,11 +7,11 @@ from operator import is_
 from typing import TYPE_CHECKING, Self
 
 from ..._core._x import _X
-from ..measure.unit import Unit
 
 if TYPE_CHECKING:
-    from ...dimensions.loc import Space
+    from ...dimensions.space import Space
     from .location import Location
+    from ..measure.unit import Unit
 
 
 @dataclass
@@ -45,6 +45,7 @@ class Linkage(_X):
     source: Location = None
     sink: Location = None
     dist: float | Unit = None
+    basis: Unit = None
     bi: bool = False
     auto: bool = False
 
