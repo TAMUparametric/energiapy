@@ -30,6 +30,8 @@ def scale_pyomo_set(instance: ConcreteModel, scale_level: int = 0):
     # return Set(initialize=list(product(*list_)))
 
 
+# Provide scale_pyomo_set another input for making set for backlog age and default it to zero. Add it to the end
+
 def scale_list(instance: ConcreteModel, scale_levels: int = 0):
     """returns a list with appropropriate scale(s)
 

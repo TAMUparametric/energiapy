@@ -384,14 +384,14 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
 
         if not backlog_zero:
             backlog_zero = {l: {r: 0 for r in instance.resources_demand} for l in instance.locations}
-            backlog_age = {l: {r: 0 for r in instance.resources_demand} for l in instance.locations}
+            # backlog_age = {l: {r: 0 for r in instance.resources_demand} for l in instance.locations}
         else:
             backlog_zero = {l.name: {r.name: backlog_zero[l][r] for r in backlog_zero[l]} for l in backlog_zero}
             backlog_zero = {l: {r: backlog_zero.get(l,{}).get(r,0) for r in instance.resources_demand} for l in instance.locations}
-            backlog_age = {l: {r: backlog_zero[l][r][0] if (r in backlog_zero[l] and isinstance(backlog_zero[l][r], tuple)) else 0
-                               for r in instance.resources_demand} for l in instance.locations}
+            # backlog_age = {l: {r: backlog_zero[l][r][0] if (r in backlog_zero[l] and isinstance(backlog_zero[l][r], tuple)) else 0
+            #                    for r in instance.resources_demand} for l in instance.locations}
 
-        backlog_age_max = max(max(inner.values()) for inner in backlog_age.values())
+        # backlog_age_max = max(max(inner.values()) for inner in backlog_age.values())
         # print(f'Backlog Zero: {backlog_zero}')
         # print(f'Backlog Age: {backlog_age}')
         # print(f'Backlog Age Max: {backlog_age_max}')
