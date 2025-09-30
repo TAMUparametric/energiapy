@@ -76,6 +76,10 @@ class Model(Decisions, _Init):
     :vartype conversions: list[Conversion]
     :ivar convmatrix: Conversion matrix of the Model.
     :vartype convmatrix: dict[Process, dict[Resource, int | float | list]]
+    :ivar modes_dict: Dictionary mapping Bind objects to Modes.
+    :vartype modes_dict: dict[Bind, Modes]
+    :siunits_set: True if SI units have been set.
+    :vartype siunits_set: bool
 
     :raises ValueError: If an attribute name already exists in the Model.
     """
