@@ -168,6 +168,6 @@ class _Operation(Component, Design, Scheduling):
 
                 if _insitu:
                     res.insitu = True
-                    _ = res.use(capacity, space, time) == True
+                    _ = res.use(self.capacity, space, time) == True
 
                 _ = self.capacity(space, time)[res.use] == par
