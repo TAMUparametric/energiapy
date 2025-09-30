@@ -373,7 +373,7 @@ def build_design_smodel(scen_df=pandas.DataFrame(), eps: float = 1.0):
 
     problem_mincost = formulate(scenario=scenario,
                                 constraints={Constraints.COST, Constraints.TRANSPORT, Constraints.RESOURCE_BALANCE,
-                                             Constraints.INVENTORY, Constraints.PRODUCTION, Constraints.DEMAND,
+                                             Constraints.INVENTORY, Constraints.PRODUCTION, Constraints.BACKLOG,
                                              Constraints.NETWORK},
                                 demand_sign='eq', objective=Objective.COST_W_DEMAND_PENALTY)
 

@@ -490,8 +490,6 @@ if __name__ == '__main__':
     with open(f'output_{len(load_scenario_names)}_{int(fill_rate * 10):02d}_UI_EF.pkl','wb') as file:
         pickle.dump(output_dict,file)
 
-    # error
-
     exPen_UI = 0
     for scen in load_scenario_names:
         model = getattr(ef_UI.ef, scen)
