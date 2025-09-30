@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Literal
 
-from ..core.dimension import Dimension
+from .._core._dimension import _Dimension
 from ..modeling.indices.domain import Domain
 from ..modeling.variables.control import Control
 from ..modeling.variables.impact import Impact
@@ -19,27 +19,34 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class Problem(Dimension):
-    """Aspect (Decision) Tree
+class Problem(_Dimension):
+    """
+    Aspect (Decision) Tree.
 
-    All the aspects are attached to this object
+    All the aspects are attached to this object.
 
-    Attributes:
-        model (Model): Model to which the Feasible Region belongs.
-        name (str): Name of the Feasible Region. Defaults to None.
-        controls (list[Decision]): List of controls. Defaults to empty list.
-        streams (list[Stream]): List of streams. Defaults to empty list.
-        impacts (list[Impact]): List of consequences. Defaults to empty list.
-        players (list[Player]): List of players. Defaults to empty list.
+    :param model: Model to which the representation belongs.
+    :type model: Model
 
-    Note:
-        - name is generated based on Model name
-        - controls, streams, impacts, and players are populated as model is defined
+    :ivar name: Name of the dimension, generated based on the class and model name. 
+    :vartype name: str
+    :ivar controls: List of controls. Defaults to empty list.
+    :vartype controls: list[Decision]
+    :ivar streams: List of streams. Defaults to empty list.
+    :vartype streams: list[Stream]
+    :ivar impacts: List of consequences. Defaults to empty list.
+    :vartype impacts: list[Impact]
+    :ivar players: List of players. Defaults to empty list.
+    :vartype players: list[Player]
+
+    .. note::
+    - name is generated based on Model name
+    - controls, streams, impacts, and players are populated as model is defined
     """
 
     def __post_init__(self):
 
-        Dimension.__post_init__(self)
+        _Dimension.__post_init__(self)
         self.states: list[State] = []
         self.controls: list[Control] = []
         self.streams: list[Stream] = []

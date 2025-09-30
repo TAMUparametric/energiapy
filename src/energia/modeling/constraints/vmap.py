@@ -13,7 +13,7 @@ from ._generator import _Generator
 
 if TYPE_CHECKING:
     from gana.sets.constraint import C
-    from ...core.x import X
+    from ..._core._x import _X
     from ..indices.domain import Domain
 
 
@@ -281,7 +281,6 @@ class Map(_Generator):
                         for mode in from_domain.modes
                     ]
 
-
                     if any(dom in self.maps[to_domain] for dom in domain_w_childmodes):
                         # map already written using child modes
                         # no need to write again
@@ -379,6 +378,6 @@ class Map(_Generator):
 
         from_domain.update_cons(_name)
 
-    def __call__(self, *index: X):
+    def __call__(self, *index: _X):
         """Returns the variable for the aspect at the given index"""
         return self.aspect(*index)

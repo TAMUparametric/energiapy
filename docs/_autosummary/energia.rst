@@ -33,7 +33,6 @@
    :recursive:
 
    components
-   core
    dimensions
    examples
    library

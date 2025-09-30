@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Self
 
 from gana.sets.index import I
 
-from ...core.x import X
+from ..._core._x import _X
 
 if TYPE_CHECKING:
     from gana.block.program import Prg
@@ -20,14 +20,21 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class Modes(X):
-    """Represents a discrete choice to be taken within a
-    spatiotemporal disposition.
-    Modes can split you
-    Mode of Operation, can be used for Conversion, Use, etc.
+class Modes(_X):
+    """
+    Represents a discrete choice to be taken within a spatiotemporal disposition.
+    Modes can split usage. A Mode of Operation can be used for Conversion, Use, etc.
 
-    Attributes:
-        name (str, float, int]): The name of the mode, usually a number.
+    :ivar name: The name of the mode, usually a number.
+    :vartype name: str | float | int
+    :ivar n_modes: Number of modes. Defaults to 1.
+    :vartype n_modes: int
+    :ivar bind: the aspect and component which is being 'moded'. Defaults to None.
+    :vartype bind: Bind
+    :ivar parent: Parent mode, if any. Defaults to None.
+    :vartype parent: Self
+    :ivar pos: Position in the parent mode set. Defaults to None.
+    :vartype pos: int
     """
 
     n_modes: int = 1
@@ -36,7 +43,7 @@ class Modes(X):
     pos: int = None
 
     def __post_init__(self):
-        X.__post_init__(self)
+        _X.__post_init__(self)
 
         if self.pos is not None:
             self.name = f'{self.parent}[{self.pos}]'
@@ -93,7 +100,7 @@ class Modes(X):
         """Length of the modes"""
         return self.n_modes
 
-    def __getitem__(self, key: int) -> X:
+    def __getitem__(self, key: int) -> _X:
         """Get a mode by index"""
         if not self._birthed:
             self._ = [

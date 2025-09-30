@@ -15,12 +15,9 @@
 
    .. autosummary::
    
-      Emission
       Etc
       Human
-      Land
       Mana
-      Material
       Package
       Resource
       Transact

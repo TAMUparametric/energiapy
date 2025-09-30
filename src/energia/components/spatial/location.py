@@ -6,7 +6,7 @@ from operator import is_
 from typing import TYPE_CHECKING, Self
 from warnings import warn
 
-from ...core.x import X
+from ..._core._x import _X
 from ...utils.dictionary import get_depth
 from .linkage import Linkage
 
@@ -17,16 +17,42 @@ if TYPE_CHECKING:
     from ..operation.storage import Storage
 
 
-class Location(X):
+class Location(_X):
     """A discretization of Space
     A location can be inclusive of other locations
 
+
+    :param has: Locations contained in this Location.
+    :type has: tuple[IsLocation]
+    :param label: Label of the Location. Defaults to None.
+    :type label: str, optional
+
+    :ivar model: Model to which the Location belongs.
+    :vartype model: Model
+    :ivar name: Name of the Location. Set when the Location is assigned as a Model attribute.
+    :vartype name: str
+    :ivar _indexed: True if an index set has been created.
+    :vartype _indexed: bool
+    :ivar constraints: List of constraints associated with the Location.
+    :vartype constraints: list[str]
+    :ivar domains: List of domains associated with the Location.
+    :vartype domains: list[Domain]
+    :ivar aspects: Aspects associated with the Location with domains.
+    :vartype aspects: dict[Aspect, list[Domain]]
+    :ivar isin: Location in which this Location is contained. Defaults to None.
+    :vartype isin: IsLocation, optional
+    :ivar currency: Currency used in the Location. Defaults to None.
+    :vartype currency: Currency, optional
+    :ivar alsohas: Locations contained in this Location, but not directly. Defaults to ()
+    :vartype alsohas: tuple[IsLocation]
+    :ivar hierarchy: Level of hierarchy of the Location. Defaults to None.
+    :vartype hierarchy: int, optional
     """
 
     def __init__(self, *has: tuple[Self], label=None):
 
         # it is an indexed component
-        X.__init__(self, label=label)
+        _X.__init__(self, label=label)
 
         # the other locations contained in this location
         self.has: tuple[Self] = has
@@ -53,6 +79,15 @@ class Location(X):
                     # update alsohas
                     if not locin in self.has:
                         self.alsohas += (locin,)
+
+    def __setattr__(self, name, value):
+
+        if name == 'currency' and value:
+            # all locations within a location have the same currency
+            for loc in self.has + self.alsohas:
+                loc.currency = value
+
+        super().__setattr__(name, value)
 
     def locate(self, *operations: Process | Storage):
         """Locates the Operations"""
@@ -83,15 +118,6 @@ class Location(X):
         self.hierarchy = hierarchy
         for loc in self.has:
             loc.update_hierarchy(hierarchy + 1)
-
-    def __setattr__(self, name, value):
-
-        if name == 'currency' and value:
-            # all locations within a location have the same currency
-            for loc in self.has + self.alsohas:
-                loc.currency = value
-
-        super().__setattr__(name, value)
 
     @property
     def space(self) -> Space:

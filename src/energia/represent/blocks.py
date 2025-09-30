@@ -298,7 +298,7 @@ class _System:
     @property
     def transits(self) -> list[Transport]:
         """The Transits"""
-        return self.system.transits
+        return self.system.transports
 
     @property
     def operations(self) -> list[Process | Storage | Transport]:

@@ -1,4 +1,4 @@
-﻿energia.library.decisions
+energia.library.decisions
 =========================
 
 .. automodule:: energia.library.decisions

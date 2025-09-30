@@ -1,4 +1,4 @@
-﻿energia.modeling.parameters.conversion
+energia.modeling.parameters.conversion
 ======================================
 
 .. automodule:: energia.modeling.parameters.conversion
@@ -17,5 +17,4 @@
       Conversion
       Lag
       Modes
-      Name
    

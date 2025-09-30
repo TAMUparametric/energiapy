@@ -1,4 +1,4 @@
-﻿energia.modeling.variables.state
+energia.modeling.variables.state
 ================================
 
 .. automodule:: energia.modeling.variables.state

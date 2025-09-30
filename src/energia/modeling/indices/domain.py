@@ -22,7 +22,7 @@ if TYPE_CHECKING:
     from ...components.temporal.lag import Lag
     from ...components.temporal.modes import Modes
     from ...components.temporal.periods import Periods
-    from ...core.x import X
+    from ..._core._x import _X
     from ...modeling.constraints.bind import Bind
     from ...represent.model import Model
     from ..variables.aspect import Aspect
@@ -216,7 +216,7 @@ class Domain:
     # -----------------------------------------------------
 
     @property
-    def index(self) -> list[Aspect | X]:
+    def index(self) -> list[Aspect | _X]:
         """list of _Index elements"""
 
         # binds = sum([[i, j] for i, j in self.binds.items()], [])
@@ -241,7 +241,7 @@ class Domain:
         ]
 
     @property
-    def index_binds(self) -> list[Aspect | X]:
+    def index_binds(self) -> list[Aspect | _X]:
         """List of bind indices
 
         Returns:
@@ -286,7 +286,7 @@ class Domain:
         return [b.aspect for b in self.binds]
 
     @property
-    def args(self) -> dict[str, X | Lag | Modes | list[Bind]]:
+    def args(self) -> dict[str, _X | Lag | Modes | list[Bind]]:
         """Dictionary of indices"""
         return {
             'indicator': self.indicator,
@@ -304,7 +304,7 @@ class Domain:
         }
 
     @property
-    def dictionary(self) -> dict[str, X | Lag | Modes | list[Bind]]:
+    def dictionary(self) -> dict[str, _X | Lag | Modes | list[Bind]]:
         """Dictionary of indices"""
         return {
             'primary': self.primary,
@@ -375,7 +375,7 @@ class Domain:
         """Make a copy of self"""
         return Domain(**self.args)
 
-    def change(self, what: dict[str, X]) -> Self:
+    def change(self, what: dict[str, _X]) -> Self:
         """Change some aspects and return a new Domain"""
         return Domain(**{**self.args, **what})
 
@@ -383,7 +383,7 @@ class Domain:
     #                    Vector
     # -----------------------------------------------------
 
-    def __getitem__(self, index: str) -> X:
+    def __getitem__(self, index: str) -> _X:
         """Get the index by name"""
         return self._[index]
 

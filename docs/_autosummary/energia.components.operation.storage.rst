@@ -1,4 +1,4 @@
-﻿energia.components.operation.storage
+energia.components.operation.storage
 ====================================
 
 .. automodule:: energia.components.operation.storage
@@ -15,7 +15,6 @@
    .. autosummary::
    
       Calculate
-      Component
       Conversion
       Process
       Storage

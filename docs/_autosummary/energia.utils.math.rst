@@ -1,4 +1,4 @@
-﻿energia.utils.math
+energia.utils.math
 ==================
 
 .. automodule:: energia.utils.math

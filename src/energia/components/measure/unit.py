@@ -3,14 +3,21 @@
 from operator import is_
 from typing import Self
 
-from ...core.name import Name
+from ..._core._name import _Name
 
 
-class Unit(Name):
+class Unit(_Name):
     """Unit of measure for a quantity provided as input to a component
 
-    Attributes:
-        label (str): Label of the component, used for plotting. Defaults to None.
+    :param label: Label of the component, used for plotting. Defaults to None.
+    :type label: str, optional
+    :param basis: Basis of the unit, if defined based on another Unit. Defaults to None.
+    :type basis: Unit, optional
+    :param times: How many times the basis is contained in the unit. Defaults to None.
+    :type times: int | float, optional
+
+    :ivar name: Name of the object. Defaults to ''.
+    :vartype name: str
     """
 
     def __init__(self, basis: Self = None, times: int | float = None, label=None):
@@ -29,7 +36,7 @@ class Unit(Name):
         # How many times that basis is self?
         self.times = times
 
-        Name.__init__(self, label)
+        _Name.__init__(self, label)
 
     def howmany(self, basis: Self):
         """How many times is this basis contained in the other basis

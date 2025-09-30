@@ -21,6 +21,36 @@ if TYPE_CHECKING:
 class Transport(_Operation):
     """Exports Resource through Link
     basically, moves Resources between Locations
+
+    :param basis: Unit basis of the component. Defaults to None.
+    :type basis: Unit, optional
+    :param label: An optional label for the component. Defaults to None.
+    :type label: str, optional
+    :param captions: An optional citation or description for the component. Defaults to None.
+    :type captions: str | list[str] | dict[str, str | list[str]], optional
+
+    :ivar model: The model to which the component belongs.
+    :vartype model: Model
+    :ivar name: Set when the component is assigned as a Model attribute.
+    :vartype name: str
+    :ivar _indexed: True if an index set has been created.
+    :vartype _indexed: bool
+    :ivar constraints: List of constraints associated with the component.
+    :vartype constraints: list[str]
+    :ivar domains: List of domains associated with the component.
+    :vartype domains: list[Domain]
+    :ivar aspects: Aspects associated with the component with domains.
+    :vartype aspects: dict[Aspect, list[Domain]]
+    :ivar conv: Operational conversion associated with the operation. Defaults to None.
+    :vartype conv: Conversion, optional
+    :ivar _conv: True if the operational conversion has been set. Defaults to False.
+    :vartype _conv: bool
+    :ivar fab: Material conversion associated with the operation. Defaults to None.
+    :vartype fab: Conversion, optional
+    :ivar _fab_balanced: True if the material conversion has been balanced. Defaults to False.
+    :vartype _fab_balanced: bool
+    :ivar links: List of Linkages where the transport is located. Defaults to [].
+    :vartype links: list[Linkage]
     """
 
     def __post_init__(self):

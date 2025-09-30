@@ -1,4 +1,4 @@
-﻿energia.components.spatial.linkage
+energia.components.spatial.linkage
 ==================================
 
 .. automodule:: energia.components.spatial.linkage
@@ -17,5 +17,4 @@
    
       Linkage
       Unit
-      X
    

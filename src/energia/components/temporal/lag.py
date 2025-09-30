@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from operator import is_
 from typing import TYPE_CHECKING, Self
 
-from ...core.name import Name
+from ..._core._name import _Name
 
 if TYPE_CHECKING:
     from gana.sets.index import I
@@ -16,19 +16,24 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class Lag(Name):
-    """A number of temporal Periods
+class Lag(_Name):
+    """
+    A number of temporal Periods.
 
-    Attributes:
-        label (str): Label of the component, used for plotting. Defaults to None.
-        of (Periods): Periods to lag. Defaults to None.
-        periods (int | float): Number of periods to lag. Defaults to 1.
-        name (str): generated based on the number of periods
-        domains (list[Domain]): List of Domains, lag features in. Defaults to [].
+    :ivar label: Label of the component, used for plotting. Defaults to None.
+    :vartype label: str
+    :ivar of: Periods to lag. Defaults to None.
+    :vartype of: Periods
+    :ivar periods: Number of periods to lag. Defaults to 1.
+    :vartype periods: int | float
+    :ivar name: Name of the component, generated based on the number of periods.
+    :vartype name: str
+    :ivar domains: List of Domains the lag features belong to. Defaults to [].
+    :vartype domains: list[Domain]
 
-    Note:
-        - name is generated post init
-        - domains are set as the program is built
+    .. note::
+    - Name is generated post init.
+    - Domains are set as the program is built.
     """
 
     of: Periods = None

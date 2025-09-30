@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Self
 
 from gana.sets.index import I
 
-from ...core.x import X
+from ..._core._x import _X
 from ...modeling.parameters.value import Value
 from .lag import Lag
 
@@ -21,24 +21,33 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class Periods(X):
-    """A discretization of Time
+class Periods(_X):
+    """
+    A discretization of Time.
 
-    Args:
-        periods (int | float): Number of periods in the period. Defaults to 1.
-        of (Periods | Lag, optional): The period of which this is a multiple. Defaults to None.
-        name (str, optional): Name of the period. Defaults to None.
-        label (str, optional): Label of the period. Defaults to None.
+    :param periods: Number of periods in the period. Defaults to 1.
+    :type periods: int | float
+    :param of: The period of which this is a multiple. Defaults to None.
+    :type of: Periods | Lag, optional
+    :param name: Name of the period. Defaults to None.
+    :type name: str, optional
+    :param label: Label of the period. Defaults to None.
+    :type label: str, optional
 
-    Attributes:
-        model (Model): Model to which the Periods belongs.
-        time (Time): Time to which the Periods belongs.
-        horizon (Periods): Horizon of the Time.
-        I (I): Index set of the Periods.
-        constraints (list[str]): List of constraints associated with the Periods. Defaults to [].
-        domains (list[Domain]): List of domains associated with the Periods. Defaults to [].
-        aspects (dict[Aspect, list[Domain]]): Aspects associated with the Periods.
-
+    :ivar model: Model to which the Periods belongs.
+    :vartype model: Model
+    :ivar time: Time to which the Periods belongs.
+    :vartype time: Time
+    :ivar horizon: Horizon of the Time.
+    :vartype horizon: Periods
+    :ivar I: Index set of the Periods.
+    :vartype I: I
+    :ivar constraints: List of constraints associated with the Periods. Defaults to [].
+    :vartype constraints: list[str]
+    :ivar domains: List of domains associated with the Periods. Defaults to [].
+    :vartype domains: list[Domain]
+    :ivar aspects: Aspects associated with the Periods.
+    :vartype aspects: dict[Aspect, list[Domain]]
     """
 
     periods: int | float = 1
@@ -46,7 +55,7 @@ class Periods(X):
 
     def __post_init__(self):
 
-        X.__post_init__(self)
+        _X.__post_init__(self)
 
         self._periods = self.periods
 

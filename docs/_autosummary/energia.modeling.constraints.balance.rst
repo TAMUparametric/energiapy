@@ -1,4 +1,4 @@
-﻿energia.modeling.constraints.balance
+energia.modeling.constraints.balance
 ====================================
 
 .. automodule:: energia.modeling.constraints.balance

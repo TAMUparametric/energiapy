@@ -1,4 +1,4 @@
-﻿energia.components.measure.unit
+energia.components.measure.unit
 ===============================
 
 .. automodule:: energia.components.measure.unit
@@ -14,6 +14,5 @@
 
    .. autosummary::
    
-      Name
       Unit
    

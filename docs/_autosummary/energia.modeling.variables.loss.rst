@@ -1,4 +1,4 @@
-﻿energia.modeling.variables.loss
+energia.modeling.variables.loss
 ===============================
 
 .. automodule:: energia.modeling.variables.loss
