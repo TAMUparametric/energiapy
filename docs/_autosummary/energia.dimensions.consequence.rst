@@ -1,4 +1,4 @@
-﻿energia.dimensions.consequence
+energia.dimensions.consequence
 ==============================
 
 .. automodule:: energia.dimensions.consequence
@@ -15,7 +15,6 @@
    .. autosummary::
    
       Consequence
-      Dimension
       Economic
       Environ
       Social

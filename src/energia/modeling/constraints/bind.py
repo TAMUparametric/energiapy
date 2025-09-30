@@ -23,8 +23,8 @@ if TYPE_CHECKING:
     from gana.block.program import Prg
     from gana.sets.constraint import C
 
-    from ...core.component import Component
-    from ...core.x import X
+    from ..._core._component import _Component
+    from ..._core._x import _X
 
 
 # ------------------------------------------------------------------------------
@@ -83,7 +83,7 @@ class Bind(_Generator):
         self._normalize: bool = False
 
         # the bound is set for all indices
-        self._forall: list[X] = []
+        self._forall: list[_X] = []
 
         # an index will be carried here
         self._index: I = None
@@ -94,12 +94,12 @@ class Bind(_Generator):
         return f'{self.domain.primary}.{self.aspect.name}'
 
     @property
-    def index(self) -> list[Component]:
+    def index(self) -> list[_Component]:
         """_Index"""
         return self.domain.index
 
     @property
-    def index_short(self) -> list[X | Bind]:
+    def index_short(self) -> list[_X | Bind]:
         """Short Index"""
         return self.domain.index_short
 

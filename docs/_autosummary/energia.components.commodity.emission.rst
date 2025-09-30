@@ -1,4 +1,4 @@
-﻿energia.components.commodity.emission
+energia.components.commodity.emission
 =====================================
 
 .. automodule:: energia.components.commodity.emission

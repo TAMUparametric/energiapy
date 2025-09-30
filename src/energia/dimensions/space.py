@@ -4,26 +4,35 @@ from dataclasses import dataclass
 
 from ..components.spatial.linkage import Linkage
 from ..components.spatial.location import Location
-from ..core.dimension import Dimension
+from .._core._dimension import _Dimension
 
 
 @dataclass
-class Space(Dimension):
-    """Spatial representation of the system
+class Space(_Dimension):
+    """
+    Spatial representation of the system.
 
-    All spatial components are attached to this object
+    All spatial components are attached to this object.
 
-    Attributes:
-        model (Model): Model to which the representation belongs.
-        name (str): Name of the model. Defaults to None.
-        locs (list[Loc]): List of locations in the space.
-        sources (list[Loc]): List of source locations.
-        sinks (list[Loc]): List of sink locations.
-        links (list[Link]): List of links in the space.
-        label (str): Label for the space.
-        default (Loc): Default location for the space. Defaults to None.
+    :param model: Model to which the dimension belongs.
+    :type model: Model
+    
+    :ivar name: Name of the model. Defaults to None.
+    :vartype name: str
+    :ivar locs: List of locations in the space.
+    :vartype locs: list[Loc]
+    :ivar sources: List of source locations.
+    :vartype sources: list[Loc]
+    :ivar sinks: List of sink locations.
+    :vartype sinks: list[Loc]
+    :ivar links: List of links in the space.
+    :vartype links: list[Link]
+    :ivar label: Label for the space.
+    :vartype label: str
+    :ivar default: Default location for the space. Defaults to None.
+    :vartype default: Loc
 
-    Note:
+    .. note::
         - name is self generated
         - locs, sources, sinks, and links are populated as model is defined
         - label is fixed
@@ -36,7 +45,7 @@ class Space(Dimension):
         self.sinks: list[Location] = []
         self.links: list[Linkage] = []
 
-        Dimension.__post_init__(self)
+        _Dimension.__post_init__(self)
 
     # -----------------------------------------------------
     #                    Helpers

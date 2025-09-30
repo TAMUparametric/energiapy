@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from operator import is_
 from typing import TYPE_CHECKING, Self
 
-from ...core.x import X
+from ..._core._x import _X
 from ..measure.unit import Unit
 
 if TYPE_CHECKING:
@@ -15,22 +15,31 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class Linkage(X):
-    """Linkage between two Locations
+class Linkage(_X):
+    """
+    Linkage between two Locations.
 
-    Args:
-        name (str): Name of the Linkage. Defaults to None.
-        label (str): Label of the Linkage. Defaults to None.
-        source (Loc): Source Location.
-        sink (Loc): Sink Location.
-        dist (float | Unit): Distance between the two Locations.
-        bi (bool): Is the Linkage bidirectional? Defaults to False.
-        auto (bool): Is the Linkage automatically generated? Defaults to False.
+    :param name: Name of the Linkage. Defaults to None.
+    :type name: str, optional
+    :param label: Label of the Linkage. Defaults to None.
+    :type label: str, optional
+    :param source: Source Location.
+    :type source: Loc
+    :param sink: Sink Location.
+    :type sink: Loc
+    :param dist: Distance between the two Locations.
+    :type dist: float | Unit
+    :param bi: Is the Linkage bidirectional? Defaults to False.
+    :type bi: bool, optional
+    :param auto: Is the Linkage automatically generated? Defaults to False.
+    :type auto: bool, optional
 
-    Attributes:
-        model (Model): Model to which the Linkage belongs.
-        space (Space): Space to which the Linkage belongs.
-        network (Loc): Network to which the Linkage belongs.
+    :ivar model: Model to which the Linkage belongs.
+    :vartype model: Model
+    :ivar space: Space to which the Linkage belongs.
+    :vartype space: Space
+    :ivar network: Network to which the Linkage belongs.
+    :vartype network: Loc
     """
 
     source: Location = None
@@ -45,7 +54,7 @@ class Linkage(X):
             # if the source and sink are the same, throw error
             raise ValueError(f"source and sink can't both be {self.source}")
 
-        X.__post_init__(self)
+        _X.__post_init__(self)
         self.sib: Self = None
 
         self.hierarchy = 1

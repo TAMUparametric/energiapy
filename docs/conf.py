@@ -34,7 +34,7 @@ master_doc = 'index'
 extensions = [
     # "myst_parser",
     "myst_nb",
-    "numpydoc",
+    # "numpydoc",
     "sphinx.ext.autodoc",
     "sphinx.ext.intersphinx",
     "sphinx.ext.viewcode",
@@ -62,6 +62,12 @@ myst_enable_extensions = [
     "substitution",
 ]
 add_module_names = False
+
+autosummary_context = {
+    "skip_module_names": True,
+}
+
+
 templates_path = ['_templates']
 exclude_patterns = [
     '_build',
@@ -72,11 +78,12 @@ exclude_patterns = [
 ]
 autosummary_generate = True
 autosummary_imported_members = True
-
+autodoc_inherit_docstrings = True
 autodoc_default_options = {
     'members': True,
     'undoc-members': True,
     'show-inheritance': True,
+    'inherited-members': True,
 }
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output

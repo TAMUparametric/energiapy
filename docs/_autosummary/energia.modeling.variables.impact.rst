@@ -1,4 +1,4 @@
-﻿energia.modeling.variables.impact
+energia.modeling.variables.impact
 =================================
 
 .. automodule:: energia.modeling.variables.impact

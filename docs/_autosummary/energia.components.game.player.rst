@@ -1,4 +1,4 @@
-﻿energia.components.game.player
+energia.components.game.player
 ==============================
 
 .. automodule:: energia.components.game.player
@@ -15,7 +15,6 @@
    .. autosummary::
    
       Capacitate
-      Component
       Player
       Trade
       Transact

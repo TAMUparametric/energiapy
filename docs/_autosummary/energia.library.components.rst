@@ -1,4 +1,4 @@
-﻿energia.library.components
+energia.library.components
 ==========================
 
 .. automodule:: energia.library.components

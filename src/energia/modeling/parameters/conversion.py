@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Self
 
 from ...components.temporal.lag import Lag
 from ...components.temporal.modes import Modes
-from ...core.name import Name
+from ..._core._name import _Name
 
 if TYPE_CHECKING:
     from gana.block.program import Prg
@@ -23,7 +23,7 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class Conversion(Name):
+class Conversion(_Name):
     """Processes convert one Resource to another Resource
 
     Conversion provides the conversion of resources

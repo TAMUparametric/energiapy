@@ -1,4 +1,4 @@
-﻿energia.dimensions.system
+energia.dimensions.system
 =========================
 
 .. automodule:: energia.dimensions.system
@@ -14,6 +14,5 @@
 
    .. autosummary::
    
-      Dimension
       System
    

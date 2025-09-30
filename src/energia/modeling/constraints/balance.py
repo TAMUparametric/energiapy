@@ -21,7 +21,7 @@ if TYPE_CHECKING:
     from ...components.spatial.linkage import Linkage
     from ...components.spatial.location import Location
     from ...components.temporal.periods import Periods
-    from ...core.x import X
+    from ..._core._x import _X
     from ...represent.model import Model
     from ..indices.domain import Domain
     from ..variables.aspect import Aspect
@@ -278,6 +278,6 @@ class Balance(_Generator):
     def __eq__(self, other: Self):
         return is_(self.aspect, other.aspect) and self.domain == other.domain
 
-    def __call__(self, *index: X):
+    def __call__(self, *index: _X):
         """Returns the variable for the aspect at the given index"""
         return self.aspect(*index)

@@ -1,4 +1,4 @@
-﻿energia.modeling.parameters.value
+energia.modeling.parameters.value
 =================================
 
 .. automodule:: energia.modeling.parameters.value
@@ -14,6 +14,5 @@
 
    .. autosummary::
    
-      Name
       Value
    

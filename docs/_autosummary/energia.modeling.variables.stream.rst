@@ -1,4 +1,4 @@
-﻿energia.modeling.variables.stream
+energia.modeling.variables.stream
 =================================
 
 .. automodule:: energia.modeling.variables.stream

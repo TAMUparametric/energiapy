@@ -1,4 +1,4 @@
-﻿energia.components.commodity.currency
+energia.components.commodity.currency
 =====================================
 
 .. automodule:: energia.components.commodity.currency

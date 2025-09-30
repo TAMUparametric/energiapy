@@ -24,7 +24,7 @@ from ..components.spatial.location import Location
 from ..components.temporal.modes import Modes
 from ..components.temporal.periods import Periods
 from ..components.temporal.scales import TemporalScales
-from ..core.x import X
+from .._core._x import _X
 from ..library.decisions import Decisions
 from ..modeling.parameters.conversion import Conversion
 from ..modeling.variables.control import Control
@@ -42,33 +42,42 @@ if TYPE_CHECKING:
 
 @dataclass
 class Model(Decisions, _Init):
-    """An abstract representation of an energy system
+    """
+    An abstract representation of an energy system.
 
-    Args:
-        name (str) = m
-        default (bool): True if want some default objects to be declared
-        capacitate (bool): True if want to determine process capacities to bound operations
+    :param name: Name of the Model. Defaults to m.
+    :type name: str
+    :param init: List of functions to initialize the Model. Defaults to None.
+    :type init: list[Callable], optional
+    :param default: True if some default objects should be declared.
+    :type default: bool
+    :param capacitate: True if process capacities should be determined to bound operations.
+    :type capacitate: bool
 
+    :ivar added: List of added objects to the Model.
+    :vartype added: list[str]
+    :ivar update_map: Map of representation and collection by type.
+    :vartype update_map: dict
+    :ivar time: Temporal Scope of the Model.
+    :vartype time: Time
+    :ivar space: Spatial Scope of the Model.
+    :vartype space: Space
+    :ivar impact: Impact on the exterior of the Model.
+    :vartype impact: Impact
+    :ivar tree: Feasible region (Decision-Making) of the Model.
+    :vartype tree: Tree
+    :ivar graph: Graph (Network) of the Model.
+    :vartype graph: Graph
+    :ivar system: System (Resource Task Network) of the Model.
+    :vartype system: System
+    :ivar program: Mathematical (mixed integer) program of the Model.
+    :vartype program: Program
+    :ivar conversions: List of Balances in the Model.
+    :vartype conversions: list[Conversion]
+    :ivar convmatrix: Conversion matrix of the Model.
+    :vartype convmatrix: dict[Process, dict[Resource, int | float | list]]
 
-
-    Attributes:
-        name (str): Name of the Model
-        default (bool): True if want some default objects to be declared
-        added (list[str]): List of added objects to the Model
-        update_map (dict): Map of what representation and collection by type
-        time (Time): Temporal Scope of the Model
-        space (Space): Spatial Scope of the Model
-        impact (Impact): Impact on the exterior of the Model
-        tree (Tree): Feasible region (Decision-Making) of the Model
-        graph (Graph): Graph (Network) of the Model
-        system (System): System (Resource Task Network) of the Model
-        program (Program): Mathematical (mixed integer) program of the Model
-        conversions (list[Conversion]): List of Balances in the Model
-        convmatrix (dict[Process, dict[Resource, int | float | list]]): Conversion matrix of the Model
-
-
-    Raises:
-        ValueError: If an attribute name already exists in the Model
+    :raises ValueError: If an attribute name already exists in the Model.
     """
 
     name: str = 'm'
@@ -151,7 +160,7 @@ class Model(Decisions, _Init):
     def update(
         self,
         name: str,
-        value: X,
+        value: _X,
         represent: str,
         collection: str,
     ):
@@ -197,7 +206,7 @@ class Model(Decisions, _Init):
             index_set: I = getattr(self.program, collection)
             setattr(self.program, collection, index_set | value.I)
 
-    def declare(self, what: Type[X], names: list[str]):
+    def declare(self, what: Type[_X], names: list[str]):
         """Declares objects conveniently"""
         for i in names:
             setattr(self, i, what())

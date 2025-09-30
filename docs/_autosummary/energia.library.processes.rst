@@ -1,4 +1,4 @@
-﻿energia.library.processes
+energia.library.processes
 =========================
 
 .. automodule:: energia.library.processes

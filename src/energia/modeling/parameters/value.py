@@ -5,14 +5,14 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-from ...core.name import Name
+from ..._core._name import _Name
 
 if TYPE_CHECKING:
     from ...components.temporal.periods import Periods
 
 
 @dataclass
-class Value(Name):
+class Value(_Name):
     """Input Value"""
 
     value: (

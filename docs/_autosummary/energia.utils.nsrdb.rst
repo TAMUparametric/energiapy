@@ -1,4 +1,4 @@
-﻿energia.utils.nsrdb
+energia.utils.nsrdb
 ===================
 
 .. automodule:: energia.utils.nsrdb

@@ -3,25 +3,30 @@
 from dataclasses import dataclass
 
 from ..components.impact.categories import Economic, Environ, Social
-from ..core.dimension import Dimension
+from .._core._dimension import _Dimension
 
 
 @dataclass
-class Consequence(Dimension):
-    """A representation of the Consequence of the system
-    dimensions based on the impact determined as the product of
-    activity and indicators
+class Consequence(_Dimension):
+    """
+    A representation of the Consequence of the system dimensions based on the impact
+    determined as the product of activity and indicators.
 
-    All impact indicators are attached to this object
+    All impact indicators are attached to this object.
 
-    Attributes:
-        model (Model): Model to which the representation belongs.
-        name (str): Name of the model. Defaults to None.
-        envs (list[Env]): List of environmental indicators.
-        socs (list[Soc]): List of social indicators.
-        ecos (list[Eco]): List of economic indicators.
+    :param model: Model to which the representation belongs.
+    :type model: Model
 
-    Note:
+    :ivar name: Name of the dimension, generated based on the class and model name. 
+    :vartype name: str
+    :ivar envs: List of environmental indicators.
+    :vartype envs: list[Env]
+    :ivar socs: List of social indicators.
+    :vartype socs: list[Soc]
+    :ivar ecos: List of economic indicators.
+    :vartype ecos: list[Eco]
+
+    .. note::
         - name is self generated
         - environ, socs, and ecos are populated as model is defined
 
@@ -35,7 +40,7 @@ class Consequence(Dimension):
         # economic impact
         self.ecos: list[Economic] = []
 
-        Dimension.__post_init__(self)
+        _Dimension.__post_init__(self)
 
     @property
     def indicators(self):

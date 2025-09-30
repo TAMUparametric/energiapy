@@ -1,4 +1,4 @@
-﻿energia.examples.energy
+energia.examples.energy
 =======================
 
 .. automodule:: energia.examples.energy

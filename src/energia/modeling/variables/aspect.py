@@ -21,7 +21,7 @@ from ...components.spatial.location import Location
 from ...components.temporal.lag import Lag
 from ...components.temporal.modes import Modes
 from ...components.temporal.periods import Periods
-from ...core.name import Name
+from ..._core._name import _Name
 from ..constraints.bind import Bind
 from ..indices.domain import Domain
 
@@ -30,7 +30,7 @@ if TYPE_CHECKING:
     from gana.sets.constraint import C
     from gana.sets.variable import V
 
-    from ...core.x import X
+    from ..._core._x import _X
     from ...dimensions.problem import Problem
     from ...represent.model import Model
     from .control import Control
@@ -39,7 +39,7 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class Aspect(Name):
+class Aspect(_Name):
     """Any kind of decision
 
     Attributes:
@@ -59,7 +59,7 @@ class Aspect(Name):
     latex: str = None
 
     def __post_init__(self):
-        Name.__post_init__(self)
+        _Name.__post_init__(self)
         # name of the decision
         self.model: Model = None
         self.neg: Self = None
@@ -245,7 +245,7 @@ class Aspect(Name):
         if isinstance(other, Aspect):
             return self.name == other.name
 
-    def __call__(self, *index: X, domain: Domain = None):
+    def __call__(self, *index: _X, domain: Domain = None):
         if not domain:
 
             (
@@ -354,9 +354,9 @@ class Aspect(Name):
 
     def draw(
         self,
-        x: X,
-        y: tuple[X] | X,
-        z: tuple[X] | X = None,
+        x: _X,
+        y: tuple[_X] | _X,
+        z: tuple[_X] | _X = None,
         font_size: float = 16,
         fig_size: tuple[float, float] = (12, 6),
         linewidth: float = 0.7,
