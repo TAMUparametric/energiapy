@@ -160,13 +160,19 @@ class Periods(_X):
             # return a lag
             if not self._of:
                 return Lag(of=self, periods=-times)
+
             raise ValueError(f'{self} is not a period of anything, so cannot be lagged')
 
         if times < 1:
             # if it is a fraction
             period = Periods()
-            self.of = period
-            self.periods = int(1 / times)
+            if not self.of:
+                # this is a root period
+                period.of = self
+                period.periods = times
+            else:
+                self.of = period
+                self.periods = int(1 / times)
             return period
 
         return Periods(periods=int(times), of=self)

@@ -4,6 +4,7 @@ from .components.commodity.currency import Currency
 from .components.commodity.land import Land
 from .components.commodity.material import Material
 from .components.commodity.resource import Resource
+from .components.commodity.emission import Emission
 from .components.game.player import Player
 from .components.impact.categories import Economic, Environ, Social
 from .components.measure.unit import Unit
@@ -15,6 +16,13 @@ from .components.spatial.location import Location
 from .components.temporal.periods import Periods
 from .components.temporal.scales import TemporalScales
 from .represent.model import Model
+from .library.components import (
+    si_units,
+    misc_units,
+    time_units,
+    env_indicators,
+    currencies,
+)
 
 __all__ = [
     "Currency",
@@ -29,10 +37,16 @@ __all__ = [
     "Player",
     "Process",
     "Resource",
+    "Emission",
     "Social",
     "Storage",
     "TemporalScales",
     "Transport",
     "Unit",
+    "si_units",
+    "misc_units",
+    "time_units",
+    "env_indicators",
+    "currencies",
 ]
 __version__ = "2.0.0"

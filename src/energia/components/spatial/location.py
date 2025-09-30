@@ -158,7 +158,7 @@ class Location(_X):
         """
         # this prints out all the links between the two locations
         links = []
-        for link in self.space.links:
+        for link in self.space.linkages:
             source, sink = False, False
 
             if is_(self, link.source) and is_(location, link.sink):

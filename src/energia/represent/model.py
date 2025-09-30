@@ -120,9 +120,9 @@ class Model(Decisions, _Init):
         self.update_map = {
             Periods: [('time', 'periods')],
             Modes: [('time', 'modes')],
-            Location: [('space', 'locs')],
+            Location: [('space', 'locations')],
             Linkage: [
-                ('space', 'links'),
+                ('space', 'linkages'),
             ],
             Environ: [('impact', 'envs')],
             Social: [('impact', 'socs')],
@@ -227,11 +227,37 @@ class Model(Decisions, _Init):
             # if source and sink are already linked
             raise ValueError(
                 f'A link already defined between {source} and {sink}.\n'
-                'For multiple links with different attributes, use model.named_link = Link(...)'
+                'For multiple linkages with different attributes, use model.named_link = Link(...)'
             )
 
         link = Linkage(source=source, sink=sink, dist=dist, bi=bi, auto=True)
         setattr(self, f'{source.name}-{sink.name}', link)
+
+    def TemporalScales(self, discretizations: list[int], names: list[str]):
+        """
+        This is an easy way to define multiple time periods (scales)
+
+        :param discretizations: List of discretizations for the temporal scale.
+        :type discretizations: list[int]
+        :param names: Names of the discretizations. Defaults to [t<i>] for each discretization.
+        :type names: list[str], optional
+        """
+        # set the root period:
+        setattr(self, names[-1], Periods())
+        # pick up the period that was just created
+        # use it as the root
+        root = self.periods[-1]
+        discretizations = list(reversed(discretizations))
+
+        names = list(reversed(names[:-1]))
+
+        if discretizations[-1] != 1:
+            discretizations.append(1)
+            names.append('t0')
+
+        for disc, name in zip(discretizations, names):
+            setattr(self, name, disc * root)
+            root = self.periods[-1]
 
     def __setattr__(self, name, value):
 
@@ -242,23 +268,7 @@ class Model(Decisions, _Init):
             return
 
         if isinstance(value, TemporalScales):
-            # This is an easy way to define multiple time periods (scales)
-            # set the root period:
-            setattr(self, value.names[-1], Periods())
-            # pick up the period that was just created
-            # use it as the root
-            root = self.periods[-1]
-            discretizations = list(reversed(value.discretizations))
-
-            names = list(reversed(value.names[:-1]))
-
-            if discretizations[-1] != 1:
-                discretizations.append(1)
-                names.append('t0')
-
-            for disc, name in zip(discretizations, names):
-                setattr(self, name, disc * root)
-                root = self.periods[-1]
+            self.TemporalScales(value.discretizations, value.names)
 
             return
 
