@@ -153,27 +153,27 @@ class _Impact:
     def __post_init__(self):
 
         # Impact on the exterior
-        self.impact = Consequence(self)
+        self.consequence = Consequence(self)
 
     @property
     def socs(self) -> list[Social]:
         """The Soc Variables"""
-        return self.impact.socs
+        return self.consequence.socs
 
     @property
     def envs(self) -> list[Environ]:
         """The Env Variables"""
-        return self.impact.envs
+        return self.consequence.envs
 
     @property
     def ecos(self) -> list[Economic]:
         """The Eco Variables"""
-        return self.impact.ecos
+        return self.consequence.ecos
 
     @property
     def indicators(self) -> list[Social | Environ | Economic]:
         """Indicators"""
-        return self.impact.indicators
+        return self.consequence.indicators
 
 
 @dataclass

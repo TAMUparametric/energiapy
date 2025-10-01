@@ -123,14 +123,14 @@ class Model(Decisions, _Init):
             Location: ('space', 'locations'),
             Linkage: ('space', 'linkages'),
             Environ: (
-                'impact',
+                'consequence',
                 'envs',
             ),
             Social: (
-                'impact',
+                'consequence',
                 'socs',
             ),
-            Economic: ('impact', 'ecos'),
+            Economic: ('consequence', 'ecos'),
             Process: ('system', 'processes'),
             Storage: ('system', 'storages'),
             Transport: ('system', 'transits'),
@@ -219,6 +219,7 @@ class Model(Decisions, _Init):
             index_set: I = getattr(self.program, collection)
             setattr(self.program, collection, index_set | value.I)
 
+        # set aspects (as binds) on the components
         if aspects:
             for asp in aspects:
                 aspect = getattr(self, asp)
