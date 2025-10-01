@@ -6,14 +6,13 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from ..._core._component import _Component
-from ...modeling.variables.default import Capacitate, Trade, Transact
 
 if TYPE_CHECKING:
     from ...dimensions.problem import Problem
 
 
 @dataclass
-class Player(_Component, Capacitate, Trade, Transact):
+class Player(_Component):
     """Player or Actor, the one taking the decisions
     based on information provided
 

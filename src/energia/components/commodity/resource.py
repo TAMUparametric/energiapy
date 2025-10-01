@@ -12,14 +12,13 @@ from typing import TYPE_CHECKING
 
 from energia.components.impact.categories import Environ
 from energia.components.commodity._commodity import _Commodity
-from energia.modeling.variables.default import Free, Inventory, Produce, Trade, Utilize
 
 if TYPE_CHECKING:
     from ...modeling.constraints.calculate import Calculate
 
 
 @dataclass
-class Resource(_Commodity, Trade, Produce, Utilize, Free, Inventory):
+class Resource(_Commodity):
     """
     A resource, can be a material, chemical, energy, etc.
 

@@ -14,14 +14,13 @@ from .process import Process
 
 if TYPE_CHECKING:
     from ..commodity.resource import Resource
-    from ..commodity.stored import Stored
     from ...modeling.constraints.bind import Bind
     from ..spatial.location import Location
     from gana.sets.constraint import C
 
 
 @dataclass
-class Storage(_Component):  # , Stock):
+class Storage(_Component): 
     """Storage
 
     :param basis: Unit basis of the component. Defaults to None.

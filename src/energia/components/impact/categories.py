@@ -2,12 +2,11 @@
 
 from dataclasses import dataclass
 
-from ...modeling.variables.default import EcoImp, EnvImp, SocImp
 from .indicator import Indicator
 
 
 @dataclass
-class Environ(Indicator, EnvImp):
+class Environ(Indicator):
     """Environmental Impact
 
     :param basis: Unit basis of the component. Defaults to None.
@@ -33,7 +32,7 @@ class Environ(Indicator, EnvImp):
 
 
 @dataclass
-class Social(Indicator, SocImp):
+class Social(Indicator):
     """Soc Impact
 
     :param basis: Unit basis of the component. Defaults to None.
@@ -59,7 +58,7 @@ class Social(Indicator, SocImp):
 
 
 @dataclass
-class Economic(Indicator, EcoImp):
+class Economic(Indicator):
     """Economic impact
 
     :param basis: Unit basis of the component. Defaults to None.

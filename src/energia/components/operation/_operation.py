@@ -9,7 +9,6 @@ from typing import TYPE_CHECKING
 from ...components.temporal.modes import Modes
 from ..._core._component import _Component
 from ...modeling.parameters.conversion import Conversion
-from ...modeling.variables.default import Design, Scheduling
 
 if TYPE_CHECKING:
     from ..commodity.resource import Resource
@@ -22,7 +21,7 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class _Operation(_Component, Design, Scheduling):
+class _Operation(_Component):
     """A General Operation
 
     :param basis: Unit basis of the component. Defaults to None.
