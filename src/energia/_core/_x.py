@@ -88,8 +88,13 @@ class _X:
 
     def show(self, descriptive=False, category: Optional[str] = None):
         """Pretty print the component"""
-        for c in self.cons:
-            if category is not None and c.category == category:
+        if category:
+            for c in self.cons:
+                if c.category and c.category == category:
+                    c.show(descriptive)
+
+        else:
+            for c in self.cons:
                 c.show(descriptive)
 
     # The reprs are set independently without inheriting _Name

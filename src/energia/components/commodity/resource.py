@@ -58,6 +58,11 @@ class Resource(_Commodity, Trade, Produce, Utilize, Free, Inventory):
         # resource in its stored form
         self.in_inv: list[Resource] = []
 
+
+    # @property
+    # def consume(self):
+    #     return self.model.consume(self)
+
     @property
     def gwp(self) -> Calculate:
         """Global Warming Potential"""

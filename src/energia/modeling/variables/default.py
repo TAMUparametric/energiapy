@@ -21,7 +21,7 @@ class Get(ABC):
     # The decision is pulled from the tree with the component as the default index
     def get(self, decision: str) -> Bind:
         """Get the decision"""
-        return getattr(self.problem, decision)(self)
+        # return getattr(self.problem, decision)(self)
 
 
 # -------------------------------------------------------
@@ -177,13 +177,13 @@ class Produce(Get):
 class Free(Get):
     """Free Resource Stream"""
 
-    @property
-    def consume(self):
-        return self.get('consume')
+    # @property
+    # def consume(self):
+    #     return self.get('consume')
 
-    @property
-    def release(self):
-        return self.get('release')
+    # @property
+    # def release(self):
+    #     return self.get('release')
 
 
 class Ship(Get):

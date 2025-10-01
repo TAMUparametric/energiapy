@@ -118,29 +118,33 @@ class Model(Decisions, _Init):
         #   1. Impact (Impact) categories include Eco, Soc
 
         self.update_map = {
-            Periods: [('time', 'periods')],
-            Modes: [('time', 'modes')],
-            Location: [('space', 'locations')],
-            Linkage: [
-                ('space', 'linkages'),
-            ],
-            Environ: [('impact', 'envs')],
-            Social: [('impact', 'socs')],
-            Economic: [('impact', 'ecos')],
-            Process: [('system', 'processes')],
-            Storage: [('system', 'storages')],
-            Transport: [('system', 'transits')],
-            Player: [('system', 'players')],
-            Couple: [('system', 'couples')],
-            Currency: [('system', 'currencies')],
-            Land: [('system', 'lands')],
-            Emission: [('system', 'emissions')],
-            Material: [('system', 'materials')],
-            Resource: [('system', 'resources')],
-            State: [('problem', 'states')],
-            Control: [('problem', 'controls')],
-            Stream: [('problem', 'streams')],
-            Impact: [('problem', 'impacts')],
+            Periods: ('time', 'periods'),
+            Modes: ('time', 'modes'),
+            Location: ('space', 'locations'),
+            Linkage: ('space', 'linkages'),
+            Environ: (
+                'impact',
+                'envs',
+            ),
+            Social: (
+                'impact',
+                'socs',
+            ),
+            Economic: ('impact', 'ecos'),
+            Process: ('system', 'processes'),
+            Storage: ('system', 'storages'),
+            Transport: ('system', 'transits'),
+            Player: ('system', 'players'),
+            Couple: ('system', 'couples'),
+            Currency: ('system', 'currencies'),
+            Land: ('system', 'lands'),
+            Emission: ('system', 'emissions', ['emit']),
+            Material: ('system', 'materials', ['consume']),
+            Resource: ('system', 'resources', ['consume']),
+            State: ('problem', 'states'),
+            Control: ('problem', 'controls'),
+            Stream: ('problem', 'streams'),
+            Impact: ('problem', 'impacts'),
         }
         # ---- Different representations of the model ---
         _Init.__post_init__(self)
@@ -161,12 +165,17 @@ class Model(Decisions, _Init):
         for func in self.init or []:
             func(self)
 
+    # -----------------------------------------------------
+    #              Set Component
+    # -----------------------------------------------------
+
     def update(
         self,
         name: str,
         value: _X,
         represent: str,
         collection: str,
+        aspects: list[str] = None,
     ):
         """Update the Model with a new value
 
@@ -209,6 +218,63 @@ class Model(Decisions, _Init):
         ]:
             index_set: I = getattr(self.program, collection)
             setattr(self.program, collection, index_set | value.I)
+
+        if aspects:
+            for asp in aspects:
+                aspect = getattr(self, asp)
+
+                setattr(value, asp, aspect(value))
+
+                if aspect.neg is not None:
+                    setattr(value, aspect.neg.name, aspect.neg(value))
+
+    def __setattr__(self, name, value):
+
+        if isinstance(value, (str, dict, list, bool)) or value is None:
+            # if value is a string, dict, list or bool
+            # set the attribute to the value
+            super().__setattr__(name, value)
+            return
+
+        if isinstance(value, TemporalScales):
+            self.TemporalScales(value.discretizations, value.names)
+
+            return
+
+        if isinstance(value, Unit):
+            value.name = name
+            self.units.append(value)
+
+        # map to representation and collection
+        for cls, updates in self.update_map.items():
+            if isinstance(value, cls):
+                # for args in updates:
+                self.update(name, value, *updates)
+                break
+
+        # Locations also belong to spaces
+        if isinstance(value, Location):
+
+            self.program.spaces |= value.I
+
+        # Linkages also belong to spaces
+        elif isinstance(value, Linkage):
+            self.program.spaces |= value.I
+            self.program.sources |= value.source.I
+            self.program.sinks |= value.sink.I
+            self.space.sources.append(value.source)
+            self.space.sinks.append(value.sink)
+            if value.bi:
+                # if bidirectional, set the reverse linkage
+                # also ensures that all linakges go in one direction only
+                rev = value.rev()
+                setattr(self, rev.name, rev)
+
+        super().__setattr__(name, value)
+
+    # -----------------------------------------------------
+    #              Birth Component
+    # -----------------------------------------------------
 
     def declare(self, what: Type[_X], names: list[str]):
         """Declares objects conveniently"""
@@ -258,50 +324,6 @@ class Model(Decisions, _Init):
         for disc, name in zip(discretizations, names):
             setattr(self, name, disc * root)
             root = self.periods[-1]
-
-    def __setattr__(self, name, value):
-
-        if isinstance(value, (str, dict, list, bool)) or value is None:
-            # if value is a string, dict, list or bool
-            # set the attribute to the value
-            super().__setattr__(name, value)
-            return
-
-        if isinstance(value, TemporalScales):
-            self.TemporalScales(value.discretizations, value.names)
-
-            return
-
-        if isinstance(value, Unit):
-            value.name = name
-            self.units.append(value)
-
-        # map to representation and collection
-        for cls, updates in self.update_map.items():
-            if isinstance(value, cls):
-                for args in updates:
-                    self.update(name, value, *args)
-                break
-
-        # Locations also belong to spaces
-        if isinstance(value, Location):
-
-            self.program.spaces |= value.I
-
-        # Linkages also belong to spaces
-        elif isinstance(value, Linkage):
-            self.program.spaces |= value.I
-            self.program.sources |= value.source.I
-            self.program.sinks |= value.sink.I
-            self.space.sources.append(value.source)
-            self.space.sinks.append(value.sink)
-            if value.bi:
-                # if bidirectional, set the reverse linkage
-                # also ensures that all linakges go in one direction only
-                rev = value.rev()
-                setattr(self, rev.name, rev)
-
-        super().__setattr__(name, value)
 
     def show(
         self, descriptive: bool = False, categorical: bool = True, category: str = None
