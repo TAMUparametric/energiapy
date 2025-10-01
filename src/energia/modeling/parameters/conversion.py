@@ -5,9 +5,9 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Self
 
+from ..._core._name import _Name
 from ...components.temporal.lag import Lag
 from ...components.temporal.modes import Modes
-from ..._core._name import _Name
 
 if TYPE_CHECKING:
     from gana.block.program import Prg

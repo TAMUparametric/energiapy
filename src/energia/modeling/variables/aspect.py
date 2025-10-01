@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 from gana.sets.index import I
 from matplotlib import rc
 
+from ..._core._name import _Name
 from ...components.commodity._commodity import _Commodity
 from ...components.game.couple import Couple
 from ...components.game.player import Player
@@ -21,7 +22,6 @@ from ...components.spatial.location import Location
 from ...components.temporal.lag import Lag
 from ...components.temporal.modes import Modes
 from ...components.temporal.periods import Periods
-from ..._core._name import _Name
 from ..constraints.bind import Bind
 from ..indices.domain import Domain
 

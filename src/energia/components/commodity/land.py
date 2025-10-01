@@ -1,6 +1,7 @@
 """Land"""
 
 from dataclasses import dataclass
+
 from ._commodity import _Commodity
 
 

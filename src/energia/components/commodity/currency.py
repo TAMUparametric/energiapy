@@ -1,7 +1,6 @@
 """Currency"""
 
 from dataclasses import dataclass
-
 from operator import is_
 from typing import Self
 

@@ -2,19 +2,23 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Type, Self
+from typing import TYPE_CHECKING, Self, Type
 
 from dill import dump
-from collections.abc import Callable
+
+from .._core._x import _X
+from ..components.commodity._commodity import _Commodity
 from ..components.commodity.currency import Currency
+from ..components.commodity.emission import Emission
 from ..components.commodity.land import Land
 from ..components.commodity.material import Material
-from ..components.commodity.emission import Emission
 from ..components.commodity.resource import Resource
-from ..components.game.player import Player
 from ..components.game.couple import Couple
+from ..components.game.player import Player
 from ..components.impact.categories import Economic, Environ, Social
+from ..components.impact.indicator import Indicator
 from ..components.measure.unit import Unit
 from ..components.operation.process import Process
 from ..components.operation.storage import Storage
@@ -24,11 +28,11 @@ from ..components.spatial.location import Location
 from ..components.temporal.modes import Modes
 from ..components.temporal.periods import Periods
 from ..components.temporal.scales import TemporalScales
-from .._core._x import _X
 from ..library.decisions import Decisions
 from ..modeling.parameters.conversion import Conversion
 from ..modeling.variables.control import Control
 from ..modeling.variables.impact import Impact
+from ..modeling.variables.recipe import Recipe
 from ..modeling.variables.state import State
 from ..modeling.variables.stream import Stream
 from .blocks import _Init
@@ -147,7 +151,15 @@ class Model(Decisions, _Init):
             Impact: ('problem', 'impacts'),
         }
 
-        self.attr_map = dict.fromkeys(["aa", "bb"], {"dd": {'type': Control}})
+        # map of attribute names to recipes for creating them
+        self.attr_map: dict[str, dict[str, Recipe]] = {}
+
+        # added attributes mapping to the created Aspect objects
+        self._attr_map: dict[str, Aspect] = {}
+
+        # maps to recipes for creating aspects
+        self.recipes: dict[str, Recipe] = {}
+
         # ---- Different representations of the model ---
         _Init.__post_init__(self)
 
@@ -276,20 +288,85 @@ class Model(Decisions, _Init):
         super().__setattr__(name, value)
 
     def __getattr__(self, name):
+        # Only called when attribute does not exist
+
+        if name in self._attr_map:
+            # if attribute has been called before
+            # the next time the created attribute is returned
+            return self._attr_map[name]
 
         if name in self.attr_map:
             # if this is an attribute being called for the first time
             recipe = self.attr_map[name]
             aspect_name = list(recipe.keys())[0]
+
+            if aspect_name in self.added:
+                # if same aspect is called by a different name
+                return getattr(self, aspect_name)
+
             # these are the arguments for the aspect
             args = recipe[aspect_name]
             aspect = args['type']()
 
-            setattr(self, aspect_name, aspect())
+            setattr(self, aspect_name, aspect)
+
+            self._attr_map[name] = aspect
+
+            return aspect
 
         raise AttributeError(
             f"'{type(self).__name__}' object has no attribute '{name}'"
         )
+
+    def aliases(self, *names: str, to: str):
+        """Set aspect aliases"""
+        _add = dict.fromkeys(list(names), {to: self.recipes[to]})
+        self.attr_map = {**self.attr_map, **_add}
+
+    def Recipe(self, 
+               name: str,
+        aspect_type: Type[Aspect],
+        label: str = '',
+        add: str = '',
+        sub: str = '',
+        nn: bool = True,
+        types_opr: tuple[Type[Process | Storage | Transport]] = None,
+        types_res: Type[_Commodity] = None,
+        types_dres: Type[_Commodity] = None,
+        types_idc: Type[Indicator] = None,
+        latex: str = None,
+    ):
+        """Creates a Recipe and updates recipes
+
+        Args:
+            name (str): name of the aspect
+            aspect_type (Type[Aspect]): type of the aspect
+            label (str, optional): label for the aspect. Defaults to ''.
+            add (str, optional): add control variable. Defaults to ''.
+            sub (str, optional): sub control variable. Defaults to ''.
+            nn (bool, optional): whether the aspect is non-negative. Defaults to True.
+            types_opr (tuple[Type[Process  |  Storage  |  Transport]], optional): types of operators for the aspect. Defaults to None.
+            types_res (Type[_Commodity], optional): types of resources for the aspect. Defaults to None.
+            types_dres (Type[_Commodity], optional): types of derived resources for the aspect. Defaults to None.
+            types_idc (Type[Indicator], optional): types of indicators for the aspect. Defaults to None.
+            latex (str, optional): LaTeX representation for the aspect. Defaults to None.
+        """
+        
+        self.recipes[name] = Recipe(
+            name=name,
+            aspect_type=aspect_type,
+            label=label or name,
+            add=add,
+            sub=sub,
+            nn=nn,
+            types_opr=types_opr,
+            types_res=types_res,
+            types_dres=types_dres,
+            types_idc=types_idc,
+            latex=latex,
+        )
+
+
 
     # -----------------------------------------------------
     #              Birth Component

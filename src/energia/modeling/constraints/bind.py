@@ -2,17 +2,15 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 import time as keep_time
+from dataclasses import dataclass
 from typing import TYPE_CHECKING, Literal, Self
-
 
 from gana.operators.composition import inf, sup
 from gana.operators.sigma import sigma
 from gana.sets.function import F
 from gana.sets.index import I
 from gana.sets.variable import V
-
 
 from ...components.temporal.modes import Modes
 from ...utils.math import normalize

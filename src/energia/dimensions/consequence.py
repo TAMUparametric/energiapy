@@ -2,8 +2,8 @@
 
 from dataclasses import dataclass
 
-from ..components.impact.categories import Economic, Environ, Social
 from .._core._dimension import _Dimension
+from ..components.impact.categories import Economic, Environ, Social
 
 
 @dataclass

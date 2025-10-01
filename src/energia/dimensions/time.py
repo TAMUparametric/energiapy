@@ -6,9 +6,9 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 from warnings import warn
 
+from .._core._dimension import _Dimension
 from ..components.temporal.modes import Modes
 from ..components.temporal.periods import Periods
-from .._core._dimension import _Dimension
 
 if TYPE_CHECKING:
     from gana.block.program import Prg

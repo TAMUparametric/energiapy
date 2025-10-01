@@ -2,9 +2,9 @@
 
 from dataclasses import dataclass
 
+from .._core._dimension import _Dimension
 from ..components.spatial.linkage import Linkage
 from ..components.spatial.location import Location
-from .._core._dimension import _Dimension
 
 
 @dataclass

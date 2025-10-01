@@ -9,7 +9,6 @@ from ..components.impact.categories import Environ
 from ..components.measure.unit import Unit
 from ..components.temporal.scales import TemporalScales
 
-
 if TYPE_CHECKING:
     from ..represent.model import Model
 

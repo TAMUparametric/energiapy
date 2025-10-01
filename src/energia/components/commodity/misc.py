@@ -1,9 +1,10 @@
 from dataclasses import dataclass
 
-# from ..operation.task import Task
-
 # from ..impact.categories import Eco
 from .resource import Resource
+
+# from ..operation.task import Task
+
 
 
 @dataclass

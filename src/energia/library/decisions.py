@@ -3,8 +3,8 @@
 from dataclasses import dataclass
 
 from ..components.commodity.currency import Currency
-from ..components.commodity.material import Material
 from ..components.commodity.land import Land
+from ..components.commodity.material import Material
 from ..components.commodity.resource import Resource
 from ..components.impact.categories import Environ, Social
 from ..components.operation.process import Process

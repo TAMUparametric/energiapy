@@ -6,10 +6,10 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Literal
 
 from ..components.commodity.currency import Currency
+from ..components.commodity.emission import Emission
 from ..components.commodity.land import Land
 from ..components.commodity.material import Material
 from ..components.commodity.resource import Resource
-from ..components.commodity.emission import Emission
 from ..components.operation.transport import Transport
 from ..dimensions.consequence import Consequence
 from ..dimensions.problem import Problem

@@ -10,8 +10,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-from energia.components.impact.categories import Environ
 from energia.components.commodity._commodity import _Commodity
+from energia.components.impact.categories import Environ
 
 if TYPE_CHECKING:
     from ...modeling.constraints.calculate import Calculate

@@ -13,6 +13,7 @@ from ._generator import _Generator
 
 if TYPE_CHECKING:
     from gana.sets.constraint import C
+
     from ..._core._x import _X
     from ..indices.domain import Domain
 

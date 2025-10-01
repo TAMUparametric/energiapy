@@ -1,16 +1,16 @@
 """Energy system examples"""
 
 from ..components.commodity.currency import Currency
-from ..components.commodity.resource import Resource
-from ..components.operation.process import Process
-from ..components.temporal.periods import Periods
-from ..represent.model import Model
-from ..components.operation.storage import Storage
-from ..components.temporal.scales import TemporalScales
-from ..components.impact.categories import Environ
 from ..components.commodity.material import Material
-from ..components.spatial.location import Location
+from ..components.commodity.resource import Resource
+from ..components.impact.categories import Environ
 from ..components.measure.unit import Unit
+from ..components.operation.process import Process
+from ..components.operation.storage import Storage
+from ..components.spatial.location import Location
+from ..components.temporal.periods import Periods
+from ..components.temporal.scales import TemporalScales
+from ..represent.model import Model
 
 
 def scheduling():
