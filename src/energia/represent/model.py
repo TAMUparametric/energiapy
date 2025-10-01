@@ -147,7 +147,7 @@ class Model(Decisions, _Init):
             Impact: ('problem', 'impacts'),
         }
 
-        self.attr_map = dict.fromkeys(["aa", "bb"], {"dd": (Control)})
+        self.attr_map = dict.fromkeys(["aa", "bb"], {"dd": {'type': Control}})
         # ---- Different representations of the model ---
         _Init.__post_init__(self)
 
@@ -278,7 +278,12 @@ class Model(Decisions, _Init):
     def __getattr__(self, name):
 
         if name in self.attr_map:
-            aspect_name, aspect = self.attr_map[name]
+            # if this is an attribute being called for the first time
+            recipe = self.attr_map[name]
+            aspect_name = list(recipe.keys())[0]
+            # these are the arguments for the aspect
+            args = recipe[aspect_name]
+            aspect = args['type']()
 
             setattr(self, aspect_name, aspect())
 
