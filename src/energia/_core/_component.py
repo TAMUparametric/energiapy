@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Any, Optional
 
 from ._x import _X
 
@@ -98,6 +98,18 @@ class _Component(_X):
     def space(self) -> Space:
         """Space"""
         return self.model.space
+
+    def __getattr__(self, name):
+
+        if self.model:
+            # no need to run a hasattr check
+            # let it raise an attribute error if not found
+            aspect = getattr(self.model, name)
+            if callable(aspect):
+                return aspect(self)
+        raise AttributeError(
+            f"'{type(self).__name__}' object has no attribute '{name}'"
+        )
 
     def get(self, aspect: str) -> Aspect:
         """Gets the the aspect from the model
