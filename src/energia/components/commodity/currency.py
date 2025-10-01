@@ -6,14 +6,14 @@ from operator import is_
 from typing import Self
 
 # from ..operation.task import Task
-from ...modeling.variables.default import Transact
+# from ...modeling.variables.default import Transact
 
 # from ..impact.categories import Eco
 from ._commodity import _Commodity
 
 
 @dataclass
-class Currency(_Commodity, Transact):
+class Currency(_Commodity):  # , Transact):
     """Same as Economic Impact (Eco)
 
     :param label: Label of the commodity, used for plotting. Defaults to None.
