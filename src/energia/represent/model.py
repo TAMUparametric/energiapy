@@ -146,6 +146,8 @@ class Model(Decisions, _Init):
             Stream: ('problem', 'streams'),
             Impact: ('problem', 'impacts'),
         }
+
+        self.attr_map = dict.fromkeys(["aa", "bb"], {"dd": (Control)})
         # ---- Different representations of the model ---
         _Init.__post_init__(self)
 
@@ -272,6 +274,17 @@ class Model(Decisions, _Init):
                 setattr(self, rev.name, rev)
 
         super().__setattr__(name, value)
+
+    def __getattr__(self, name):
+
+        if name in self.attr_map:
+            aspect_name, aspect = self.attr_map[name]
+
+            setattr(self, aspect_name, aspect())
+
+        raise AttributeError(
+            f"'{type(self).__name__}' object has no attribute '{name}'"
+        )
 
     # -----------------------------------------------------
     #              Birth Component

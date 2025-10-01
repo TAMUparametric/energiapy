@@ -302,7 +302,7 @@ class Aspect(_Name):
                 elif isinstance(comp, _Commodity):
                     # check if this is the right commodity type for the aspect
                     # domain.commodity should be the primary commodity only
-                    if isinstance(comp, self.types_res):
+                    if self.types_res and isinstance(comp, self.types_res):
                         commodity = comp
                     # else:
                     #     # anything else is a derivative commodity

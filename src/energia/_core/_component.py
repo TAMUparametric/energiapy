@@ -110,17 +110,3 @@ class _Component(_X):
         raise AttributeError(
             f"'{type(self).__name__}' object has no attribute '{name}'"
         )
-
-    def get(self, aspect: str) -> Aspect:
-        """Gets the the aspect from the model
-
-        Args:
-            aspect (str): Variable name
-
-        Returns:
-            Aspect: Can be a State, Control response, Stream, Impact
-        """
-        # There is only one instance of any aspect in the model
-        # so that aspect is called and index at the bare minimum
-        # of the component that is calling it
-        return getattr(self.model, aspect)(self)
