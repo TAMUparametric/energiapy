@@ -1,10 +1,10 @@
 """Decision Space of the Model"""
 
 from dataclasses import dataclass
-from typing import Type
 
 from ..components.commodity.currency import Currency
 from ..components.commodity.material import Material
+from ..components.commodity.land import Land
 from ..components.commodity.resource import Resource
 from ..components.impact.categories import Environ, Social
 from ..components.operation.process import Process
@@ -206,7 +206,7 @@ class Decisions:
 
         # Utilization
         self.dispose = Stream(
-            types_res=Resource,
+            types_res=(Resource, Land, Material),
             types_opr=(Process, Storage, Transport),
             label='Utilize Resource',
             latex=r'{disp}',

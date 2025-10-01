@@ -86,10 +86,11 @@ class _X:
         # based on the pname (attribute name) in the program
         return [getattr(self.program, c) for c in self.constraints]
 
-    def show(self, descriptive=False):
+    def show(self, descriptive=False, category: Optional[str] = None):
         """Pretty print the component"""
         for c in self.cons:
-            c.show(descriptive)
+            if category is not None and c.category == category:
+                c.show(descriptive)
 
     # The reprs are set independently without inheriting _Name
     # which allows a distinction between _Name and _Index when assigned to Model
