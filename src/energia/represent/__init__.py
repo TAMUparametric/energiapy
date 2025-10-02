@@ -1,2 +1,1 @@
-"""environ init file
-"""
+"""environ init file"""

@@ -16,10 +16,10 @@ def fetch_nsrdb_data(
     attrs: list[str],
     year: int,
     lat_lon: tuple[float] | None = None,
-    state: str = '',
-    county: str = '',
-    resolution: str = '',
-    get: str = 'max-population',
+    state: str = "",
+    county: str = "",
+    resolution: str = "",
+    get: str = "max-population",
     save: str = None,
 ) -> DataFrame | tuple:
     """fetches nsrdb data from nearest coordinates (latitude, longitude)
@@ -40,17 +40,17 @@ def fetch_nsrdb_data(
 
     if import_all:
         print(
-            'This is an optional feature. Please install h5pyd, or pip install energiapy[all]'
+            "This is an optional feature. Please install h5pyd, or pip install energiapy[all]",
         )
-        return
+        return None
 
     # fetches nsrdb data for the year
-    nsrdb_data = h5pyd.File(f"/nrel/nsrdb/v3/nsrdb_{str(year)}.h5", 'r')
-    time_index = to_datetime(nsrdb_data['time_index'][...].astype(str))
+    nsrdb_data = h5pyd.File(f"/nrel/nsrdb/v3/nsrdb_{year!s}.h5", "r")
+    time_index = to_datetime(nsrdb_data["time_index"][...].astype(str))
 
     if lat_lon is not None:
         # get coordinates for all locations
-        coords = nsrdb_data['coordinates'][...]
+        coords = nsrdb_data["coordinates"][...]
 
         tree = cKDTree(coords)
 
@@ -64,76 +64,77 @@ def fetch_nsrdb_data(
 
     else:
         # gets coordinates and associated data
-        meta = DataFrame(nsrdb_data['meta'][...])
+        meta = DataFrame(nsrdb_data["meta"][...])
         # data matching state coordinates
-        state_data = meta.loc[meta['state'] == str.encode(state)]
+        state_data = meta.loc[meta["state"] == str.encode(state)]
         county_data = state_data.loc[
-            state_data['county'] == str.encode(county)
+            state_data["county"] == str.encode(county)
         ]  # data matching county
 
         # splits the get string, e.g. max - population, gives [max,
         # population(get_metric)]
-        get_metric = get.split('-')[1]
+        get_metric = get.split("-")[1]
 
-        if get.split('-')[0] == 'min':
+        if get.split("-")[0] == "min":
             latitude = float(
-                county_data['latitude'][
+                county_data["latitude"][
                     county_data[get_metric] == min(county_data[get_metric])
-                ].iloc[0]
+                ].iloc[0],
             )
             longitude = float(
-                county_data['longitude'][
+                county_data["longitude"][
                     county_data[get_metric] == min(county_data[get_metric])
-                ].iloc[0]
+                ].iloc[0],
             )
             loc_data = county_data.loc[
-                (county_data['latitude'] == latitude)
-                & (county_data['longitude'] == longitude)
+                (county_data["latitude"] == latitude)
+                & (county_data["longitude"] == longitude)
             ]
 
-        if get.split('-')[0] == 'max':
+        if get.split("-")[0] == "max":
             latitude = float(
-                county_data['latitude'][
+                county_data["latitude"][
                     county_data[get_metric] == max(county_data[get_metric])
-                ].iloc[0]
+                ].iloc[0],
             )
             longitude = float(
-                county_data['longitude'][
+                county_data["longitude"][
                     county_data[get_metric] == max(county_data[get_metric])
-                ].iloc[0]
+                ].iloc[0],
             )
             loc_data = county_data.loc[
-                (county_data['latitude'] == latitude)
-                & (county_data['longitude'] == longitude)
+                (county_data["latitude"] == latitude)
+                & (county_data["longitude"] == longitude)
             ]
 
         idx = loc_data.index[0]
         lat_lon = (latitude, longitude)
 
     timestep_dict = {
-        'halfhourly': 1,  # native data set at 30 mins
-        'hourly': 2,  # averages over the hour
-        'daily': 48,  # averages over the day
+        "halfhourly": 1,  # native data set at 30 mins
+        "hourly": 2,  # averages over the hour
+        "daily": 48,  # averages over the day
     }
     averaged_output = DataFrame()
 
     psm_scale_dict = {
-        attr: nsrdb_data[attr].attrs['psm_scale_factor'] for attr in attrs
+        attr: nsrdb_data[attr].attrs["psm_scale_factor"] for attr in attrs
     }
 
     for attr in attrs:
         full_output = nsrdb_data[attr][:, idx]  # native data set at 30 mins
         averaged_output[attr] = average(
-            full_output.reshape(-1, timestep_dict[resolution]), axis=1
+            full_output.reshape(-1, timestep_dict[resolution]),
+            axis=1,
         )  # averages over resolution
     averaged_output = averaged_output.set_index(
-        time_index[:: timestep_dict[resolution]]
+        time_index[:: timestep_dict[resolution]],
     )
 
     for attr in attrs:
         averaged_output[attr] = averaged_output[attr] / psm_scale_dict[attr]
 
     if save is not None:
-        averaged_output.to_csv(save + '.csv')
+        averaged_output.to_csv(save + ".csv")
 
     return lat_lon, averaged_output

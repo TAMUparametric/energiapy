@@ -23,7 +23,7 @@ class _X:
 
     :param label: An optional label for the component. Defaults to None.
     :type label: str, optional
-    :param captions: An optional citation or description for the component. Defaults to None.
+    :param captions: Citation for the component. Defaults to None.
     :type captions: str | list[str] | dict[str, str | list[str]], optional
 
     :ivar model: The model to which the component belongs.
@@ -40,7 +40,8 @@ class _X:
     :vartype aspects: dict[Aspect, list[Domain]]
 
     :note:
-        - `name` and `model` are set when the component is assigned as a Model attribute.
+        - `name` and `model` are set when the component
+           is assigned as a Model attribute.
         - `_indexed` is set the first time the model is indexed.
         - `constraints` and `domains` are populated as the program is built.
     """
@@ -52,7 +53,7 @@ class _X:
         # the model
         self.model: Model = None
         # name is given by the model
-        self.name: str = ''
+        self.name: str = ""
         # is the component indexed?
         self._indexed: bool = False
         # constraint pnames associated with the component
@@ -98,7 +99,8 @@ class _X:
                 c.show(descriptive)
 
     # The reprs are set independently without inheriting _Name
-    # which allows a distinction between _Name and _Index when assigned to Model
+    # which allows a distinction between
+    # _Name and _Index when assigned to Model
 
     # -----------------------------------------------------
     #                    Hashing

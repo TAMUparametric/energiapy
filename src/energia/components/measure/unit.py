@@ -62,7 +62,7 @@ class Unit(_Name):
         # if no common basis is found
         # raise an error
         raise ValueError(
-            f"{self} and {basis} do not have a common basis for comparison"
+            f"{self} and {basis} do not have a common basis for comparison",
         )
 
     def __truediv__(self, other: float):
@@ -81,12 +81,12 @@ class Unit(_Name):
                 b = Unit(
                     self.basis,
                     1 / (other * self.times),
-                    f'{self.label}/{other*self.times}',
+                    f"{self.label}/{other*self.times}",
                 )
             # if self has no basis Unit
             # define new Unit using self as basis
             else:
-                b = Unit(self, 1 / other, f'{self.label}/{other}')
+                b = Unit(self, 1 / other, f"{self.label}/{other}")
                 self.basis = b
                 self.times = other
             return b
@@ -102,11 +102,11 @@ class Unit(_Name):
         # if self has a basis Unit
         # define new Unit based on the basis of self
         if self.basis:
-            b = Unit(self.basis, other * self.times, f'{self.label}.{other*self.times}')
+            b = Unit(self.basis, other * self.times, f"{self.label}.{other*self.times}")
         # if self has no basis Unit
         # define new Unit using self as basis
         else:
-            b = Unit(self, other, f'{self.label}.{other}')
+            b = Unit(self, other, f"{self.label}.{other}")
             self.basis = b
             self.times = 1 / other
         return b

@@ -7,13 +7,10 @@ from typing import TYPE_CHECKING
 from warnings import warn
 
 from ...modeling.parameters.conversion import Conversion
-from ..temporal.modes import Modes
 from ._operation import _Operation
 
 if TYPE_CHECKING:
     from ..commodity.resource import Resource
-    from ..measure.unit import Unit
-    from ..spatial.linkage import Linkage
     from ..spatial.location import Location
     from ..temporal.lag import Lag
     from ..temporal.periods import Periods
@@ -82,30 +79,31 @@ class Process(_Operation):
         for loc in locations:
 
             if self not in self.model.capacity.bound_spaces:
-                self.model.capacity.bound_spaces[self] = {'ub': [], 'lb': []}
+                self.model.capacity.bound_spaces[self] = {"ub": [], "lb": []}
 
-            if loc not in self.model.capacity.bound_spaces[self]['ub']:
+            if loc not in self.model.capacity.bound_spaces[self]["ub"]:
                 # check if operational capacity has been bound
                 print(
-                    f'--- Assuming  {self} capacity is unbounded in ({loc}, {self.horizon})'
+                    f"--- Assuming  {self} capacity is unbounded in ({loc}, {self.horizon})",
                 )
                 # this is not a check, this generates a constraint
                 _ = self.capacity(loc, self.horizon) == True
 
             if self not in self.model.operate.bound_spaces:
-                self.model.operate.bound_spaces[self] = {'ub': [], 'lb': []}
+                self.model.operate.bound_spaces[self] = {"ub": [], "lb": []}
 
-            if loc not in self.model.operate.bound_spaces[self]['ub']:
+            if loc not in self.model.operate.bound_spaces[self]["ub"]:
                 # check if operate has been bound
                 # if not just write opr_{pro, loc, horizon} <= capacity_{pro, loc, horizon}
                 print(
-                    f'--- Assuming operation of {self} is bound by capacity in ({loc}, {self.horizon})'
+                    f"--- Assuming operation of {self} is bound by capacity in ({loc}, {self.horizon})",
                 )
                 if self in self.model.operate.dispositions:
 
                     _ = (
                         self.operate(
-                            loc, min(self.model.operate.dispositions[self][loc])
+                            loc,
+                            min(self.model.operate.dispositions[self][loc]),
                         )
                         <= 1
                     )
@@ -134,7 +132,7 @@ class Process(_Operation):
             # This checks whether some other aspect is defined at
             # a lower temporal scale
 
-            if not loc in self.model.grb[res]:
+            if loc not in self.model.grb[res]:
                 # if not defined for that location, check for a lower order location
                 # i.e. location at a lower hierarchy,
                 # e.g. say if loc being passed is a city, and a grb has not been defined for it
@@ -147,7 +145,7 @@ class Process(_Operation):
 
                 self.model.update_grb(resource=res, space=loc, time=time)
 
-            if not time in self.model.grb[res][loc]:
+            if time not in self.model.grb[res][loc]:
                 self.model.update_grb(resource=res, space=loc, time=time)
 
             if res.inv_of:
@@ -157,7 +155,11 @@ class Process(_Operation):
 
             try:
                 times = list(
-                    [t for t in self.model.grb[res][loc] if self.model.grb[res][loc][t]]
+                    [
+                        t
+                        for t in self.model.grb[res][loc]
+                        if self.model.grb[res][loc][t]
+                    ],
                 )
             except KeyError:
                 times = []
@@ -170,7 +172,8 @@ class Process(_Operation):
 
         if not self.conv:
             warn(
-                f'{self}: Conversion not defined, no Constraints generated', UserWarning
+                f"{self}: Conversion not defined, no Constraints generated",
+                UserWarning,
             )
             return
 

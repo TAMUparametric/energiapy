@@ -3,19 +3,17 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Optional
 
 from ._x import _X
 
 if TYPE_CHECKING:
     from ..components.measure.unit import Unit
-    from ..components.spatial.linkage import Linkage
     from ..components.spatial.location import Location
     from ..components.temporal.periods import Periods
     from ..dimensions.problem import Problem
     from ..dimensions.space import Space
     from ..dimensions.time import Time
-    from ..modeling.variables.aspect import Aspect
 
 
 @dataclass
@@ -26,9 +24,9 @@ class _Component(_X):
 
     :param basis: Unit basis of the component. Defaults to None.
     :type basis: Unit, optional
-    :param label: An optional label for the component. Defaults to None.
+    :param label: Label for the component. Defaults to None.
     :type label: str, optional
-    :param captions: An optional citation or description for the component. Defaults to None.
+    :param captions: Citation for the component. Defaults to None.
     :type captions: str | list[str] | dict[str, str | list[str]], optional
 
     :ivar model: The model to which the component belongs.
@@ -45,7 +43,7 @@ class _Component(_X):
     :vartype aspects: dict[Aspect, list[Domain]]
 
     :note:
-        - `name` and `model` are set when the component is assigned as a Model attribute.
+        - `name`, `model` set when component assigned to Model attribute.
         - `_indexed` is set the first time the model is indexed.
         - `constraints` and `domains` are populated as the program is built.
     """
@@ -54,20 +52,7 @@ class _Component(_X):
     basis: Optional[Unit] = None
 
     def __post_init__(self):
-        """
-        Args:
-            model (Model): The model to which the component belongs. Defaults to None.
-            name (str): Set when the component is made a Model attribute. Defaults to ''.
-            _indexed (I): The index set, set the first time it is made. For easy call. Defaults to None.
-            constraints (list[str]): List of constraints associated with the object. Defaults to [].
-            domains (list[Domain]): List of domains associated with the object. Defaults to [].
 
-        Note:
-            name and model are set when the component is made a Model attribute.
-            _indexed is made the first time the model is indexed.
-            constraints and domains are populated as the program is built.
-
-        """
         # what differentiates a component from an index is that it has aspects
         # that we can control to adjust their states of existence
         _X.__post_init__(self)
@@ -101,7 +86,6 @@ class _Component(_X):
 
     def __getattr__(self, name):
 
-
         if self.model:
             # no need to run a hasattr check
             # let it raise an attribute error if not found
@@ -109,5 +93,5 @@ class _Component(_X):
             if callable(aspect):
                 return aspect(self)
         raise AttributeError(
-            f"'{type(self).__name__}' object has no attribute '{name}'"
+            f"'{type(self).__name__}' object has no attribute '{name}'",
         )

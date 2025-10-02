@@ -27,7 +27,6 @@ if TYPE_CHECKING:
     from gana.sets.variable import V
     from pandas import DataFrame
 
-    from ..components.game.player import Player
     from ..components.impact.categories import Economic, Environ, Social
     from ..components.operation.process import Process
     from ..components.operation.storage import Storage
@@ -60,7 +59,8 @@ class _Scope:
         # Dictionary which tells you what aspects of resource
         # have grb {loc: time: []} and {time: loc: []}
         self.grb: dict[
-            Resource, dict[Location | Linkage, dict[Periods, list[Aspect]]]
+            Resource,
+            dict[Location | Linkage, dict[Periods, list[Aspect]]],
         ] = {}
 
         # Dictionary which tells you what aspects of what component
@@ -103,7 +103,8 @@ class _Scope:
             for k, v in d2.items():
                 if k in result:
                     result[k] = merge_trees(
-                        result[k], v
+                        result[k],
+                        v,
                     )  # recurse since v must also be a dict
                 else:
                     result[k] = v
@@ -114,15 +115,15 @@ class _Scope:
     def update_grb(self, resource: Resource, space: Location | Linkage, time: Periods):
         """Creates a mesh for grb dict"""
 
-        if not resource in self.grb:
+        if resource not in self.grb:
             # update resource if needed
             self.grb[resource] = {}
 
-        if not space in self.grb[resource]:
+        if space not in self.grb[resource]:
             # update space if needed
             self.grb[resource][space] = {}
 
-        if not time in self.grb[resource][space]:
+        if time not in self.grb[resource][space]:
             self.grb[resource][space][time] = []
 
     @property
@@ -212,11 +213,21 @@ class _Tree:
     def get(
         self,
         keys: Literal[
-            'aspects', 'states', 'controls', 'streams', 'impacts', 'domains'
-        ] = 'aspects',
+            "aspects",
+            "states",
+            "controls",
+            "streams",
+            "impacts",
+            "domains",
+        ] = "aspects",
         values: Literal[
-            'aspects', 'states', 'controls', 'streams', 'impacts', 'domains'
-        ] = 'domains',
+            "aspects",
+            "states",
+            "controls",
+            "streams",
+            "impacts",
+            "domains",
+        ] = "domains",
     ) -> dict[
         State | Control | Stream | Impact | Domain,
         list[State | Control | Stream | Impact | Domain],
@@ -312,7 +323,7 @@ class _Program:
 
     def __post_init__(self):
         # mathematical (mixed integer) program
-        self.program = Program(getattr(self, 'name'))
+        self.program = Program(self.name)
 
     @property
     def _(self):

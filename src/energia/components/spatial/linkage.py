@@ -89,8 +89,8 @@ class Linkage(_X):
     def __neg__(self):
         # creates a new Link in the opposite direction
         if self.label:
-            label = self.label + '(-)'
-            self.label = self.label + '(+)'
+            label = self.label + "(-)"
+            self.label = self.label + "(+)"
         else:
             label = None
 
@@ -101,9 +101,9 @@ class Linkage(_X):
             label=label,
         )
         if self.auto:
-            _link.name = f'{self.sink.name}-{self.source.name}'
+            _link.name = f"{self.sink.name}-{self.source.name}"
         else:
-            _link.name = '-' + self.name
+            _link.name = "-" + self.name
         _link.sib, self.sib = self, _link
         return _link
 
@@ -118,7 +118,7 @@ class Linkage(_X):
             self.model = self.source.model
 
             if not self.name:
-                self.name = rf'{self.source.name}_{self.sink.name}'
+                self.name = rf"{self.source.name}_{self.sink.name}"
 
             setattr(self.model, self.name, self)
 

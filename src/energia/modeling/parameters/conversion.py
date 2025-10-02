@@ -13,10 +13,7 @@ if TYPE_CHECKING:
     from gana.block.program import Prg
 
     from ...components.commodity.resource import Resource
-    from ...components.measure.unit import Unit
     from ...components.operation._operation import _Operation
-    from ...components.operation.process import Process
-    from ...components.operation.storage import Storage
     from ...components.temporal.periods import Periods
     from ...modeling.constraints.bind import Bind
     from ...represent.model import Model
@@ -54,7 +51,7 @@ class Conversion(_Name):
     bind: Bind = None
 
     def __post_init__(self):
-        self.name = f'η({self.operation})'
+        self.name = f"η({self.operation})"
         self.base: Resource = None
         self.conversion: dict[Resource, int | float | list[int | float]] = {}
         self.lag: Lag = None
@@ -78,7 +75,7 @@ class Conversion(_Name):
         """Modes of the operation"""
         if self._modes is None:
             n_modes = len(self.conversion)
-            modes_name = f'bin{len(self.model.modes)}'
+            modes_name = f"bin{len(self.model.modes)}"
 
             setattr(self.model, modes_name, Modes(n_modes=n_modes, bind=self.bind))
 
@@ -104,9 +101,9 @@ class Conversion(_Name):
         def _balancer(conversion: dict):
 
             # check if lists are provided
-            check_list = {res: False for res in conversion.keys()}
+            check_list = dict.fromkeys(conversion.keys(), False)
             # check lengths of the list, for parameter the length is 1
-            check_len = {res: 1 for res in conversion.keys()}
+            check_len = dict.fromkeys(conversion.keys(), 1)
 
             for res, par in conversion.items():
                 if isinstance(par, list):
@@ -119,7 +116,7 @@ class Conversion(_Name):
             if len(lengths) > 1:
                 # if there are different lengths, raise an error
                 raise ValueError(
-                    f'Conversion: {self.name} has inconsistent list lengths: {lengths}'
+                    f"Conversion: {self.name} has inconsistent list lengths: {lengths}",
                 )
 
             if any(check_list.values()):
@@ -194,19 +191,18 @@ class Conversion(_Name):
             }
             self.pwl = True
 
+        # this would be a Conversion or Resource
+        elif self._mode is not None:
+            self.conversion[self._mode] = other.conversion
+            if not self.pwl:
+                self.pwl = True
+            self._mode = None
         else:
-            # this would be a Conversion or Resource
-            if self._mode is not None:
-                self.conversion[self._mode] = other.conversion
-                if not self.pwl:
-                    self.pwl = True
-                self._mode = None
-            else:
 
-                self.conversion: dict[Resource, int | float] = {
-                    **self.conversion,
-                    **other.conversion,
-                }
+            self.conversion: dict[Resource, int | float] = {
+                **self.conversion,
+                **other.conversion,
+            }
 
         self.model.convmatrix[self.operation] = self.conversion
 

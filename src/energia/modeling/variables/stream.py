@@ -71,4 +71,3 @@ class IndStream(Stream):
     def map_domain(self, domain: Domain):
 
         Map(aspect=self, domain=domain)
-

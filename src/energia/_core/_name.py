@@ -16,9 +16,10 @@ class _Name:
 
     For components with a:
         - mathematical program, use `X`
-        - mathematical program and input parameters (modeling aspects), use `Component`
+        - mathematical program and
+          input parameters (modeling aspects), use `Component`
 
-    :param label: Label of the component, used for plotting. Defaults to None.
+    :param label: Label used for plotting. Defaults to None.
     :type label: str, optional
 
     :ivar name: Name of the object. Defaults to ''.
@@ -31,7 +32,7 @@ class _Name:
     label: Optional[str] = None
 
     def __post_init__(self):
-        self.name = ''
+        self.name = ""
 
     # -----------------------------------------------------
     #                    Hashing

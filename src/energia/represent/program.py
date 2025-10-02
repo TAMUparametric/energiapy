@@ -9,7 +9,7 @@ from gana.block.program import Prg
 from gana.sets.index import I
 
 if TYPE_CHECKING:
-    from .model import Model
+    pass
 
 
 @dataclass

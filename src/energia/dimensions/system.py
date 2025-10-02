@@ -18,18 +18,17 @@ if TYPE_CHECKING:
     from ..components.operation.process import Process
     from ..components.operation.storage import Storage
     from ..components.operation.transport import Transport
-    from ..represent.model import Model
 
 
 @dataclass
 class System(_Dimension):
     """System representation as a Resource Task Network (RTN)
     All resources and tasks are attached to this object
-    
+
     :param model: Model to which the representation belongs.
     :type model: Model
 
-    :ivar name: Name of the dimension, generated based on the class and model name. 
+    :ivar name: Name of the dimension, generated based on the class and model name.
     :vartype name: str
     :ivar resources: List of resources. Defaults to [].
     :vartype resources: list[Resource]

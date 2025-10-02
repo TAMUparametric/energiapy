@@ -25,14 +25,14 @@ except ImportError:
 def pv(
     data: DataFrame,
     coord: tuple,
-    sam: str = 'cecmod',
-    module_params: str = 'Canadian_Solar_Inc__CS5P_220M',
-    inverter: str = 'cecinverter',
-    inverter_params: str = 'ABB__MICRO_0_25_I_OUTD_US_208__208V_',
-    temperature_params: str = 'open_rack_glass_glass',
-    aoi_model: str = 'no_loss',
-    ac_model: str = 'sandia',
-    spectral_model: str = 'no_loss',
+    sam: str = "cecmod",
+    module_params: str = "Canadian_Solar_Inc__CS5P_220M",
+    inverter: str = "cecinverter",
+    inverter_params: str = "ABB__MICRO_0_25_I_OUTD_US_208__208V_",
+    temperature_params: str = "open_rack_glass_glass",
+    aoi_model: str = "no_loss",
+    ac_model: str = "sandia",
+    spectral_model: str = "no_loss",
 ):
     """Calculates solar power output using weather data
     Relevant factors include DHI (W/m2), DNI (W/m2), GHI (W/m2),
@@ -57,15 +57,15 @@ def pv(
 
     if import_all:
         print(
-            'This is an optional feature. Please install pvlib, or pip install energiapy[all]'
+            "This is an optional feature. Please install pvlib, or pip install energiapy[all]",
         )
-        return
+        return None
 
     modules = retrieve_sam(sam)
     module_parameters = modules[module_params]
     inverters = retrieve_sam(inverter)
     inverter_parameters = inverters[inverter_params]
-    tparams = TEMPERATURE_MODEL_PARAMETERS['sapm'][temperature_params]
+    tparams = TEMPERATURE_MODEL_PARAMETERS["sapm"][temperature_params]
     system = PVSystem(
         module_parameters=module_parameters,
         inverter_parameters=inverter_parameters,
@@ -88,12 +88,12 @@ def pv(
 def wf(
     data: DataFrame,
     roughness_length: float = 0.1,
-    turbine_type: str = 'V100/1800',
+    turbine_type: str = "V100/1800",
     hub_height: float = 92,
-    wind_speed_model: str = 'logarithmic',
-    density_model: str = 'ideal_gas',
-    temperature_model: str = 'linear_gradient',
-    power_output_model: str = 'power_coefficient_curve',
+    wind_speed_model: str = "logarithmic",
+    density_model: str = "ideal_gas",
+    temperature_model: str = "linear_gradient",
+    power_output_model: str = "power_coefficient_curve",
     density_correction: bool = True,
     obstacle_height: float = 0,
     observation_height: float = 10,
@@ -121,45 +121,45 @@ def wf(
     # df_ = df_.dropna()
     if import_all:
         print(
-            'This is an optional feature. Please install windpowerlib, or pip install energiapy[all]'
+            "This is an optional feature. Please install windpowerlib, or pip install energiapy[all]",
         )
-        return
-    data['pressure'] = 100 * data['surface_pressure']
-    data['temperature'] = data['air_temperature'] + 273.15
-    data['roughness_length'] = roughness_length
+        return None
+    data["pressure"] = 100 * data["surface_pressure"]
+    data["temperature"] = data["air_temperature"] + 273.15
+    data["roughness_length"] = roughness_length
 
     # data = data.resample('H').mean()
     data = DataFrame(
-        data[['wind_speed', 'temperature', 'pressure', 'roughness_length']].to_numpy(),
+        data[["wind_speed", "temperature", "pressure", "roughness_length"]].to_numpy(),
         index=data.index,
         columns=[
-            np.array(['wind_speed', 'temperature', 'pressure', 'roughness_length']),
+            np.array(["wind_speed", "temperature", "pressure", "roughness_length"]),
             np.array([observation_height, observation_height, observation_height, 0]),
         ],
     )
     # specification of wind turbine where power curve is provided in the
     # oedb turbine library
     turbine_type_ = {
-        'turbine_type': turbine_type,  # Vestas
-        'hub_height': hub_height,  # in m
+        "turbine_type": turbine_type,  # Vestas
+        "hub_height": hub_height,  # in m
     }
     # initialize WindTurbine object
     turbine = WindTurbine(**turbine_type_)
 
     modelchain_data = {
-        'wind_speed_model': wind_speed_model,  # 'logarithmic' (default),
+        "wind_speed_model": wind_speed_model,  # 'logarithmic' (default),
         # 'hellman' or
         # 'interpolation_extrapolation'
-        'density_model': density_model,  # 'barometric' (default), 'ideal_gas'
+        "density_model": density_model,  # 'barometric' (default), 'ideal_gas'
         # or 'interpolation_extrapolation'
-        'temperature_model': temperature_model,  # 'linear_gradient' (def.) or
+        "temperature_model": temperature_model,  # 'linear_gradient' (def.) or
         # 'interpolation_extrapolation'
         # 'power_curve' (default) or
-        'power_output_model': power_output_model,
+        "power_output_model": power_output_model,
         # 'power_coefficient_curve'
-        'density_correction': density_correction,  # False (default) or True
-        'obstacle_height': obstacle_height,  # default: 0
-        'hellman_exp': None,
+        "density_correction": density_correction,  # False (default) or True
+        "obstacle_height": obstacle_height,  # default: 0
+        "hellman_exp": None,
     }  # None (default) or None
     # initialize ModelChain with own specifications and use run_model method to
     # calculate power output

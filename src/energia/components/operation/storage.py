@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class Storage(_Component): 
+class Storage(_Component):
     """Storage
 
     :param basis: Unit basis of the component. Defaults to None.
@@ -72,9 +72,9 @@ class Storage(_Component):
         self.locations: list[Location] = []
 
     def __setattr__(self, name, value):
-        if name == 'model' and value:
-            setattr(value, f'{self.name}.charge', self.charge)
-            setattr(value, f'{self.name}.discharge', self.discharge)
+        if name == "model" and value:
+            setattr(value, f"{self.name}.charge", self.charge)
+            setattr(value, f"{self.name}.discharge", self.discharge)
 
         super().__setattr__(name, value)
 
@@ -89,7 +89,7 @@ class Storage(_Component):
             if loc not in self.model.invcapacity.bound_spaces[self.stored]:
                 # check if the storage capacity has been bound at that location
                 print(
-                    f'--- Assuming  {self.stored} inventory capacity is unbounded in ({loc}, {self.horizon})'
+                    f"--- Assuming  {self.stored} inventory capacity is unbounded in ({loc}, {self.horizon})",
                 )
                 # this is not a check, this generates a constraint
                 _ = self.capacity(loc, self.horizon) == True
@@ -100,7 +100,7 @@ class Storage(_Component):
             if loc not in self.model.inventory.bound_spaces[self.stored]:
                 # check if the storage inventory has been bound at that location
                 print(
-                    f'--- Assuming inventory of {self.stored} is bound by inventory capacity in ({loc}, {self.horizon})'
+                    f"--- Assuming inventory of {self.stored} is bound by inventory capacity in ({loc}, {self.horizon})",
                 )
                 try:
                     times = list(
@@ -108,7 +108,7 @@ class Storage(_Component):
                             t
                             for t in self.model.grb[self.stored.inv_of][loc]
                             if self.model.grb[self.stored.inv_of][loc][t]
-                        ]
+                        ],
                     )
                 except KeyError:
                     times = []
@@ -120,7 +120,7 @@ class Storage(_Component):
                     time = self.horizon
                 # if not just write opr_{pro, loc, horizon} <= capacity_{pro, loc, horizon}
                 print(
-                    f'--- Assuming inventory of {self.stored} is bound by inventory capacity in ({loc}, {time})'
+                    f"--- Assuming inventory of {self.stored} is bound by inventory capacity in ({loc}, {time})",
                 )
                 _ = self.inventory(loc, time) <= 1
 
@@ -200,7 +200,7 @@ class Storage(_Component):
             stored = Stored()
             resource.in_inv.append(stored)
 
-            setattr(self.model, f'{resource}.{self}', stored)
+            setattr(self.model, f"{resource}.{self}", stored)
 
             # ---------- set discharge conversion
             self.discharge.conv = Conversion(operation=self.discharge, resource=stored)

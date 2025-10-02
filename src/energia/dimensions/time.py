@@ -25,7 +25,7 @@ class Time(_Dimension):
     :param model: Model to which the representation belongs.
     :type model: Model
 
-    :ivar name: Name of the dimension, generated based on the class and model name. 
+    :ivar name: Name of the dimension, generated based on the class and model name.
     :vartype name: str
     :ivar _indexed: The index set of Horizon. For easy call. Defaults to None.
     :vartype _indexed: I
@@ -39,6 +39,7 @@ class Time(_Dimension):
     - periods are populated as the program is built.
     - _indexed is made the first time Time is indexed.
     """
+
     def __post_init__(self):
         self._indexed: I = None
         self.periods: list[Periods] = []
@@ -58,7 +59,7 @@ class Time(_Dimension):
         # instead of just being indexed at the set level,
         # an ordered index set is created
         if not self._indexed:
-            _indexed = I(self.name, mutable=True, tag=f'Horizon of {self.model}')
+            _indexed = I(self.name, mutable=True, tag=f"Horizon of {self.model}")
             _indexed.name = self.name
             self._indexed = _indexed
         return self._indexed
@@ -82,10 +83,10 @@ class Time(_Dimension):
     def find(self, size: int | float) -> Periods:
         """Find the period that has the length"""
 
-        if not size in self.tree:
+        if size not in self.tree:
             # if no math make a default period
             warn(
-                f"{size} does not match the size of any data set passed, generating 't{size}'.)"
+                f"{size} does not match the size of any data set passed, generating 't{size}'.)",
             )
             _ = self.model.default_period(size=size)
 

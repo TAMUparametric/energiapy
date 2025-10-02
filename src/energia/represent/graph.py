@@ -30,7 +30,7 @@ class Graph:
     model: Model
 
     def __post_init__(self):
-        self.name = f'Graph({self.model})'
+        self.name = f"Graph({self.model})"
         self.nodes = []
         self.edges = []
 

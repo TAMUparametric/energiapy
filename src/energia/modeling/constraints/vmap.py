@@ -81,13 +81,14 @@ class Map(_Generator):
             # we need to check if it is defined for any periods sparser than time
             for sparser_period in sparser_periods:
                 if sparser_period in dispositions[space] and is_(
-                    sparser_period.of, time
+                    sparser_period.of,
+                    time,
                 ):
                     # check if the aspect has been defined for a sparser period
                     # this creates a map from this domain to a sparser domain
                     self.writecons_map(
                         self.domain,
-                        self.domain.change({'period': sparser_period}),
+                        self.domain.change({"period": sparser_period}),
                         tsum=True,
                     )
 
@@ -125,7 +126,7 @@ class Map(_Generator):
                 if contained_loc in dispositions:
                     # check if the aspect has been defined for a contained location
                     self.writecons_map(
-                        self.domain.change({'loc': contained_loc}),
+                        self.domain.change({"loc": contained_loc}),
                         self.domain,
                     )
 
@@ -133,7 +134,7 @@ class Map(_Generator):
                 # check if the aspect has been defined for a parent location
                 self.writecons_map(
                     self.domain,
-                    self.domain.change({'loc': parent_location}),
+                    self.domain.change({"loc": parent_location}),
                 )
 
             if not self.domain.binds and dispositions[space][time]:
@@ -165,23 +166,25 @@ class Map(_Generator):
                 # now user defines consumption due to using cement during construction
                 # we should have the constraint consume(water, goa, 2025) = consume(water, goa, 2025, use, cement)
 
-                self.writecons_map(self.domain, self.domain.change({'binds': []}))
+                self.writecons_map(self.domain, self.domain.change({"binds": []}))
 
             if self.domain.modes:
                 # if the variable is defined over modes
                 # we need to map it to the same domain without modes
 
                 if self.domain.modes.parent:
-                    self.writecons_map(self.domain, self.domain.change({'modes': None}))
+                    self.writecons_map(self.domain, self.domain.change({"modes": None}))
                 else:
                     self.writecons_map(
-                        self.domain, self.domain.change({'modes': None}), msum=True
+                        self.domain,
+                        self.domain.change({"modes": None}),
+                        msum=True,
                     )
 
     @property
     def name(self) -> str:
         """Name of the constraint"""
-        return self.aspect.name + '_map'
+        return self.aspect.name + "_map"
 
     @property
     def maps(self) -> list[str]:
@@ -209,7 +212,7 @@ class Map(_Generator):
             return v_sum
         if msum:
             if self.reporting:
-                v = getattr(self.program, f'x_{self.aspect.name}')
+                v = getattr(self.program, f"x_{self.aspect.name}")
             else:
                 v = getattr(self.program, self.aspect.name)
             # if the domain has been mapped to but this is a mode sum
@@ -236,7 +239,7 @@ class Map(_Generator):
     ):
         """Scales up variable to a lower dimension"""
 
-        if not to_domain in self.maps:
+        if to_domain not in self.maps:
             self.maps[to_domain] = []
 
             self.maps[to_domain].append(from_domain)
@@ -248,7 +251,7 @@ class Map(_Generator):
 
             if from_domain in self.maps[to_domain]:
                 # map already exists
-                return
+                return None
 
             if from_domain.modes:
                 # modes need some additional checks
@@ -259,33 +262,33 @@ class Map(_Generator):
 
                 if from_domain.modes.parent:
                     if (
-                        from_domain.change({'modes': from_domain.modes.parent})
+                        from_domain.change({"modes": from_domain.modes.parent})
                         in self.maps[to_domain]
                     ):
                         # map already written using parent modes
                         # no need to write again
-                        return
+                        return None
                 else:
 
                     if (
                         from_domain
-                        in self.maps[to_domain.change({'binds': from_domain.binds})]
+                        in self.maps[to_domain.change({"binds": from_domain.binds})]
                     ):
                         # TODO: This check should not be necessary
                         # TODO: but it do be necessary, figure out and rectify this
                         # map already written using no modes
                         # no need to write again
-                        return
+                        return None
 
                     domain_w_childmodes = [
-                        from_domain.change({'modes': mode})
+                        from_domain.change({"modes": mode})
                         for mode in from_domain.modes
                     ]
 
                     if any(dom in self.maps[to_domain] for dom in domain_w_childmodes):
                         # map already written using child modes
                         # no need to write again
-                        return
+                        return None
 
             self.maps[to_domain].append(from_domain)
 
@@ -297,20 +300,20 @@ class Map(_Generator):
         # for t sum,
         if tsum:
 
-            print(f'--- Mapping {var} across time from {from_domain} to {to_domain}')
+            print(f"--- Mapping {var} across time from {from_domain} to {to_domain}")
 
             rhs = self.give_sum(domain=from_domain, tsum=tsum)
 
-            _name = f'{var}{from_domain.idxname}_to_{to_domain.idxname}_tmap'
+            _name = f"{var}{from_domain.idxname}_to_{to_domain.idxname}_tmap"
 
         elif msum:
-            print(f'--- Mapping {var} across modes {from_domain} to {to_domain}')
+            print(f"--- Mapping {var} across modes {from_domain} to {to_domain}")
 
             rhs = self.give_sum(domain=from_domain, msum=msum)
             # append the from_domain to the list of maps to avoid rewriting the constraint
             self.maps[to_domain].append(from_domain)
 
-            _name = f'{var}{from_domain.idxname}_mmap'
+            _name = f"{var}{from_domain.idxname}_mmap"
 
         else:
 
@@ -322,17 +325,17 @@ class Map(_Generator):
                 # NOTE: msum is not used when writing the constraint
                 # for individual modes
                 if from_domain.modes.parent:
-                    _name = f'{var}{from_domain.change({'modes': from_domain.modes.parent}).idxname}_mmap'
+                    _name = f"{var}{from_domain.change({'modes': from_domain.modes.parent}).idxname}_mmap"
                 else:
-                    _name = f'{var}{from_domain.idxname}_mmap'
+                    _name = f"{var}{from_domain.idxname}_mmap"
             else:
                 # if not tsum or msum. The map to a lower order domain is unique
-                _name = f'{var}{to_domain.idxname}_map'
+                _name = f"{var}{to_domain.idxname}_map"
 
             if exists:
                 # check to see if the lower order domain has been upscaled to already
 
-                print(f'--- Mapping {var}: from {from_domain} to {to_domain}')
+                print(f"--- Mapping {var}: from {from_domain} to {to_domain}")
 
                 start = keep_time.time()
 
@@ -345,12 +348,12 @@ class Map(_Generator):
                 )
 
                 end = keep_time.time()
-                print(f'    Completed in {end-start} seconds')
+                print(f"    Completed in {end-start} seconds")
 
-                return
+                return None
 
         print(
-            f'--- Creating map to {to_domain}. Mapping {var}: from {from_domain} to {to_domain}'
+            f"--- Creating map to {to_domain}. Mapping {var}: from {from_domain} to {to_domain}",
         )
 
         start = keep_time.time()
@@ -371,9 +374,9 @@ class Map(_Generator):
             _name,
             cons,
         )
-        cons.categorize('Mapping')
+        cons.categorize("Mapping")
         end = keep_time.time()
-        print(f'    Completed in {end-start} seconds')
+        print(f"    Completed in {end-start} seconds")
 
         self.aspect.constraints.append(_name)
 
