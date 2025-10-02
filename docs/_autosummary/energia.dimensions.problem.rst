@@ -1,4 +1,4 @@
-﻿energia.dimensions.problem
+energia.dimensions.problem
 ==========================
 
 .. automodule:: energia.dimensions.problem
@@ -15,7 +15,6 @@
    .. autosummary::
    
       Control
-      Dimension
       Domain
       Impact
       Problem

@@ -1,4 +1,4 @@
-﻿energia.components.temporal.periods
+energia.components.temporal.periods
 ===================================
 
 .. automodule:: energia.components.temporal.periods
@@ -19,5 +19,4 @@
       Lag
       Periods
       Value
-      X
    

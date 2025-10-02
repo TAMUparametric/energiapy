@@ -1,4 +1,4 @@
-﻿energia.represent.program
+energia.represent.program
 =========================
 
 .. automodule:: energia.represent.program

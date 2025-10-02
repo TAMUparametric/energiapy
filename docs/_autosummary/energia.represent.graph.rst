@@ -1,4 +1,4 @@
-﻿energia.represent.graph
+energia.represent.graph
 =======================
 
 .. automodule:: energia.represent.graph

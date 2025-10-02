@@ -6,27 +6,55 @@ from abc import abstractmethod
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
+from ..._core._component import _Component
 from ...components.temporal.modes import Modes
-from ...core.component import Component
 from ...modeling.parameters.conversion import Conversion
-from ...modeling.variables.default import Design, Scheduling
 
 if TYPE_CHECKING:
+    from ...modeling.constraints.calculate import Calculate
     from ..commodity.resource import Resource
     from ..measure.unit import Unit
     from ..spatial.linkage import Linkage
     from ..spatial.location import Location
     from ..temporal.lag import Lag
     from ..temporal.periods import Periods
-    from ...modeling.constraints.calculate import Calculate
 
 
 @dataclass
-class _Operation(Component, Design, Scheduling):
-    """A General Operation"""
+class _Operation(_Component):
+    """A General Operation
+
+    :param basis: Unit basis of the component. Defaults to None.
+    :type basis: Unit, optional
+    :param label: An optional label for the component. Defaults to None.
+    :type label: str, optional
+    :param captions: An optional citation or description for the component. Defaults to None.
+    :type captions: str | list[str] | dict[str, str | list[str]], optional
+
+    :ivar model: The model to which the component belongs.
+    :vartype model: Model
+    :ivar name: Set when the component is assigned as a Model attribute.
+    :vartype name: str
+    :ivar _indexed: True if an index set has been created.
+    :vartype _indexed: bool
+    :ivar constraints: List of constraints associated with the component.
+    :vartype constraints: list[str]
+    :ivar domains: List of domains associated with the component.
+    :vartype domains: list[Domain]
+    :ivar aspects: Aspects associated with the component with domains.
+    :vartype aspects: dict[Aspect, list[Domain]]
+    :ivar conv: Operational conversion associated with the operation. Defaults to None.
+    :vartype conv: Conversion, optional
+    :ivar _conv: True if the operational conversion has been set. Defaults to False.
+    :vartype _conv: bool
+    :ivar fab: Material conversion associated with the operation. Defaults to None.
+    :vartype fab: Conversion, optional
+    :ivar _fab_balanced: True if the material conversion has been balanced. Defaults to False.
+    :vartype _fab_balanced: bool
+    """
 
     def __post_init__(self):
-        Component.__post_init__(self)
+        _Component.__post_init__(self)
 
         self._conv = False
 
@@ -168,6 +196,6 @@ class _Operation(Component, Design, Scheduling):
 
                 if _insitu:
                     res.insitu = True
-                    _ = res.use(capacity, space, time) == True
+                    _ = res.use(self.capacity, space, time) == True
 
                 _ = self.capacity(space, time)[res.use] == par

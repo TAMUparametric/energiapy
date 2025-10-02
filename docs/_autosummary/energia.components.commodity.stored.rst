@@ -1,4 +1,4 @@
-﻿energia.components.commodity.stored
+energia.components.commodity.stored
 ===================================
 
 .. automodule:: energia.components.commodity.stored

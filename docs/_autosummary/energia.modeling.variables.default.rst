@@ -1,4 +1,4 @@
-﻿energia.modeling.variables.default
+energia.modeling.variables.default
 ==================================
 
 .. automodule:: energia.modeling.variables.default

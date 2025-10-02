@@ -6,10 +6,10 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Literal
 
 from ..components.commodity.currency import Currency
+from ..components.commodity.emission import Emission
 from ..components.commodity.land import Land
 from ..components.commodity.material import Material
 from ..components.commodity.resource import Resource
-from ..components.impact.indicator import Indicator
 from ..components.operation.transport import Transport
 from ..dimensions.consequence import Consequence
 from ..dimensions.problem import Problem
@@ -136,14 +136,14 @@ class _Scope:
         return self.time.modes
 
     @property
-    def locs(self) -> list[Location]:
+    def locations(self) -> list[Location]:
         """The Locations"""
-        return self.space.locs
+        return self.space.locations
 
     @property
-    def links(self) -> list[Linkage]:
+    def linkages(self) -> list[Linkage]:
         """The Links"""
-        return self.space.links
+        return self.space.linkages
 
 
 @dataclass
@@ -153,27 +153,27 @@ class _Impact:
     def __post_init__(self):
 
         # Impact on the exterior
-        self.impact = Consequence(self)
+        self.consequence = Consequence(self)
 
     @property
     def socs(self) -> list[Social]:
         """The Soc Variables"""
-        return self.impact.socs
+        return self.consequence.socs
 
     @property
     def envs(self) -> list[Environ]:
         """The Env Variables"""
-        return self.impact.envs
+        return self.consequence.envs
 
     @property
     def ecos(self) -> list[Economic]:
         """The Eco Variables"""
-        return self.impact.ecos
+        return self.consequence.ecos
 
     @property
     def indicators(self) -> list[Social | Environ | Economic]:
         """Indicators"""
-        return self.impact.indicators
+        return self.consequence.indicators
 
 
 @dataclass
@@ -298,7 +298,7 @@ class _System:
     @property
     def transits(self) -> list[Transport]:
         """The Transits"""
-        return self.system.transits
+        return self.system.transports
 
     @property
     def operations(self) -> list[Process | Storage | Transport]:

@@ -1,4 +1,4 @@
-﻿energia.dimensions.space
+energia.dimensions.space
 ========================
 
 .. automodule:: energia.dimensions.space
@@ -14,7 +14,6 @@
 
    .. autosummary::
    
-      Dimension
       Linkage
       Location
       Space

@@ -19,30 +19,13 @@ class State(Aspect):
     Operational capacity or set point (utilization)
     """
 
+    add: Control = None
+    sub: Control = None
+    bound: State = None
+
     def __post_init__(self):
         Aspect.__post_init__(self)
-        # decision that adds to the domain
-        self.add: Control = None
-        # decision that subtracts from the domain
-        self.sub: Control = None
-
         self.mapped_from: list[Domain] = []
-
-    def __setattr__(self, name: str, value: Control | Any):
-
-        if name in ['add', 'sub'] and not value is None:
-            # set self as state that the control variable adjusts
-            value.state = self
-
-        super().__setattr__(name, value)
-
-    def adddomains(self) -> list[Domain]:
-        """Get the domains over which the add variable is defined"""
-        return self.problem.get('aspects', 'domains')[self.add]
-
-    def subdomains(self) -> list[Domain]:
-        """Get the domains over which the sub variable is defined"""
-        return self.problem.get('aspects', 'domains')[self.sub]
 
     def map_domain(self, domain: Domain, reporting: bool = False):
         """Add a domain to the decision variable"""

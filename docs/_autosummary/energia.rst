@@ -4,6 +4,16 @@
 .. automodule:: energia
 
    
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      currencies
+      env_indicators
+      misc_units
+      si_units
+      time_units
+   
    .. rubric:: Classes
 
    .. autosummary::
@@ -33,7 +43,6 @@
    :recursive:
 
    components
-   core
    dimensions
    examples
    library

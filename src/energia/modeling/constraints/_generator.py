@@ -5,12 +5,13 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-from ...core.name import Name
+from ..._core._name import _Name
 
 if TYPE_CHECKING:
 
     from gana.block.program import Prg
 
+    from ..._core._x import _X
     from ...components.commodity.resource import Resource
     from ...components.operation.process import Process
     from ...components.operation.storage import Storage
@@ -18,7 +19,6 @@ if TYPE_CHECKING:
     from ...components.spatial.linkage import Linkage
     from ...components.spatial.location import Location
     from ...components.temporal.periods import Periods
-    from ...core.x import X
     from ...dimensions.problem import Problem
     from ...represent.model import Model
     from ..indices.domain import Domain
@@ -31,7 +31,7 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class _Generator(Name):
+class _Generator(_Name):
     """Base class for all Energia constraint generators
 
     Args:

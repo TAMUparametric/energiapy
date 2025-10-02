@@ -23,7 +23,40 @@ if TYPE_CHECKING:
 @dataclass
 class Process(_Operation):
     """Process converts one Resource to another Resource
-    at some Location"""
+    at some Location
+
+    :param basis: Unit basis of the component. Defaults to None.
+    :type basis: Unit, optional
+    :param label: An optional label for the component. Defaults to None.
+    :type label: str, optional
+    :param captions: An optional citation or description for the component. Defaults to None.
+    :type captions: str | list[str] | dict[str, str | list[str]], optional
+
+    :ivar model: The model to which the component belongs.
+    :vartype model: Model
+    :ivar name: Set when the component is assigned as a Model attribute.
+    :vartype name: str
+    :ivar _indexed: True if an index set has been created.
+    :vartype _indexed: bool
+    :ivar constraints: List of constraints associated with the component.
+    :vartype constraints: list[str]
+    :ivar domains: List of domains associated with the component.
+    :vartype domains: list[Domain]
+    :ivar aspects: Aspects associated with the component with domains.
+    :vartype aspects: dict[Aspect, list[Domain]]
+    :ivar conv: Operational conversion associated with the operation. Defaults to None.
+    :vartype conv: Conversion, optional
+    :ivar _conv: True if the operational conversion has been set. Defaults to False.
+    :vartype _conv: bool
+    :ivar fab: Material conversion associated with the operation. Defaults to None.
+    :vartype fab: Conversion, optional
+    :ivar _fab_balanced: True if the material conversion has been balanced. Defaults to False.
+    :vartype _fab_balanced: bool
+    :ivar locations: Locations at which the process is balanced. Defaults to [].
+    :vartype locations: list[Location]
+    :ivar ofstorage: If the Process is Storage charging and discharging. Defaults to None.
+    :vartype ofstorage: Storage, optional
+    """
 
     def __post_init__(self):
         _Operation.__post_init__(self)
@@ -32,24 +65,21 @@ class Process(_Operation):
         # Note that we do not need a conversion at every temporal scale.
         # once balanced at a location for a particular time,
         # if time != horizon, the individual streams are summed up anyway
-        self.locs: list[Location] = []
+        self.locations: list[Location] = []
 
         self.ofstorage: Storage = None
-
-        # operating mode
-        self.mode: Modes = None
 
     @property
     def spaces(self) -> list[Location]:
         """Locations at which the process is balanced"""
-        return self.locs
+        return self.locations
 
-    def locate(self, *locs: Location):
+    def locate(self, *locations: Location):
         """Locate the process"""
 
         # get location, time tuples where operation is defined
         loc_times: list[tuple[Location, Periods]] = []
-        for loc in locs:
+        for loc in locations:
 
             if self not in self.model.capacity.bound_spaces:
                 self.model.capacity.bound_spaces[self] = {'ub': [], 'lb': []}
@@ -174,7 +204,7 @@ class Process(_Operation):
             loc = loc_time[0]
             time = loc_time[1]
 
-            if loc in self.locs:
+            if loc in self.locations:
                 # if the process is already balanced for the location , Skip
 
                 continue
@@ -292,7 +322,7 @@ class Process(_Operation):
                 _ = opr[rhs] == eff
 
             # update the locations at which the process exists
-            self.locs.append(loc)
+            self.locations.append(loc)
 
     def __call__(self, resource: Resource | Conversion, lag: Lag = None) -> Conversion:
         """Conversion is called with a Resource to be converted"""

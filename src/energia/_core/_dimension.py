@@ -10,16 +10,19 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class Dimension:
-    """Inherited by components that are a representation of
+class _Dimension:
+    """
+    Inherited by components that are a representation of
     some dimension of the model.
 
-    Attributes:
-        model (Model): Model to which the representation belongs.
-        name (str): Name of the model. Defaults to None.
+    :param model: Model to which the representation belongs.
+    :type model: Model
 
-    Note:
-        - name is generated based on the Class and Model name
+    :ivar name: Name of the dimension, generated based on the class and model name. 
+    :vartype name: str
+
+    :note:
+        - `name` is generated based on the class and model name.
     """
 
     # model to which the dimension belongs
@@ -43,5 +46,5 @@ class Dimension:
         return hash(self.name)
 
     def __init_subclass__(cls):
-        cls.__repr__ = Dimension.__repr__
-        cls.__hash__ = Dimension.__hash__
+        cls.__repr__ = _Dimension.__repr__
+        cls.__hash__ = _Dimension.__hash__

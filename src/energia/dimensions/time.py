@@ -6,9 +6,9 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 from warnings import warn
 
+from .._core._dimension import _Dimension
 from ..components.temporal.modes import Modes
 from ..components.temporal.periods import Periods
-from ..core.dimension import Dimension
 
 if TYPE_CHECKING:
     from gana.block.program import Prg
@@ -16,29 +16,34 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class Time(Dimension):
-    """Temporal representation of a system
-
-    All time periods are attached to this object
-
-    Attributes:
-        model (Model): Model to which the representation belongs.
-        name (str): Name of the model. Defaults to None.
-        _indexed (I): The index set of Horizon. For easy call. Defaults to None.
-        periods (list[Periods]): List of time periods. Defaults to []
-        modes (list[Modes]): List of modes. Defaults to []
-
-    Note:
-        - name is generated based on the Class and Model name
-        - periods are populated as the program is built.
-        - _indexed is made the first time Time is indexed.
+class Time(_Dimension):
     """
+    Temporal representation of a system.
 
+    All time periods are attached to this object.
+
+    :param model: Model to which the representation belongs.
+    :type model: Model
+
+    :ivar name: Name of the dimension, generated based on the class and model name. 
+    :vartype name: str
+    :ivar _indexed: The index set of Horizon. For easy call. Defaults to None.
+    :vartype _indexed: I
+    :ivar periods: List of time periods. Defaults to [].
+    :vartype periods: list[Periods]
+    :ivar modes: List of modes. Defaults to [].
+    :vartype modes: list[Modes]
+
+    .. note::
+    - name is generated based on the Class and Model name
+    - periods are populated as the program is built.
+    - _indexed is made the first time Time is indexed.
+    """
     def __post_init__(self):
         self._indexed: I = None
         self.periods: list[Periods] = []
         self.modes: list[Modes] = []
-        Dimension.__post_init__(self)
+        _Dimension.__post_init__(self)
 
     @property
     def program(self) -> Prg:

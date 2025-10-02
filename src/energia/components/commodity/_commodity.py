@@ -3,25 +3,43 @@
 from dataclasses import dataclass
 from typing import Self
 
-from ...core.component import Component
+from ..._core._component import _Component
 from ...modeling.parameters.conversion import Conversion
 
 
 @dataclass
-class _Commodity(Component):
-    """A commodity, can be a material, chemical, energy, etc.
+class _Commodity(_Component):
+    """
+    A commodity, can be a material, chemical, energy, etc.
 
-    Args:
-        label (str): Label of the commodity, used for plotting. Defaults to None.
-        name (str): Name of the commodity, used for indexing. Defaults to None.
-        basis (Unit): Unit basis of the commodity. Defaults to None.
+    :param label: Label of the commodity, used for plotting. Defaults to None.
+    :type label: str, optional
+    :param name: Name of the commodity, used for indexing. Defaults to None.
+    :type name: str, optional
+    :param basis: Unit basis of the commodity. Defaults to None.
+    :type basis: Unit, optional
 
-    Attributes:
-        conversions (list[Conv]): List of conversions associated with the commodity. Defaults to [].
+
+    :ivar model: The model to which the component belongs.
+    :vartype model: Model
+    :ivar name: Set when the component is assigned as a Model attribute.
+    :vartype name: str
+    :ivar _indexed: True if an index set has been created.
+    :vartype _indexed: bool
+    :ivar constraints: List of constraints associated with the component.
+    :vartype constraints: list[str]
+    :ivar domains: List of domains associated with the component.
+    :vartype domains: list[Domain]
+    :ivar aspects: Aspects associated with the component with domains.
+    :vartype aspects: dict[Aspect, list[Domain]]
+    :ivar conversions: List of conversions associated with the commodity. Defaults to [].
+    :vartype conversions: list[Conversion]
+    :ivar insitu: If the commodity only exists insitu, i.e., does not scale any domains
+    :vartype insitu: bool, optional
     """
 
     def __post_init__(self):
-        Component.__post_init__(self)
+        _Component.__post_init__(self)
 
         # list of conversions associated with the commodity
         self.conversions: list[Conversion] = []

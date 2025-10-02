@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from gana.sets.index import I
 
@@ -17,27 +17,36 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class X:
-    """A component (x) that feature as an index in the mathematical program
+class _X:
+    """
+    A component (`x`) that functions as an index in the mathematical program.
 
-    Args:
-        label (str, optional): component can be given an optional label. Defaults to None.
+    :param label: An optional label for the component. Defaults to None.
+    :type label: str, optional
+    :param captions: An optional citation or description for the component. Defaults to None.
+    :type captions: str | list[str] | dict[str, str | list[str]], optional
 
-    Attributes:
-        model (Model): The model to which the component belongs.
-        name (str): Set when the component is made a Model attribute.
-        _indexed (bool): Has an index set been made?
-        constraints (list[str]): List of constraints associated with the object.
-        domains (list[Domain]): List of domains associated with the object.
+    :ivar model: The model to which the component belongs.
+    :vartype model: Model
+    :ivar name: Set when the component is assigned as a Model attribute.
+    :vartype name: str
+    :ivar _indexed: True if an index set has been created.
+    :vartype _indexed: bool
+    :ivar constraints: List of constraints associated with the component.
+    :vartype constraints: list[str]
+    :ivar domains: List of domains associated with the component.
+    :vartype domains: list[Domain]
+    :ivar aspects: Aspects associated with the component with domains.
+    :vartype aspects: dict[Aspect, list[Domain]]
 
-    Note:
-        name and model are set when the component is made a Model attribute.
-        _indexed is made the first time the model is indexed.
-        constraints and domains are populated as the program is built.
+    :note:
+        - `name` and `model` are set when the component is assigned as a Model attribute.
+        - `_indexed` is set the first time the model is indexed.
+        - `constraints` and `domains` are populated as the program is built.
     """
 
-    label: str = None
-    citations: str = None
+    label: Optional[str] = None
+    citations: Optional[str] = None
 
     def __post_init__(self):
         # the model
@@ -50,7 +59,7 @@ class X:
         self.constraints: list[str] = []
         # domains associated with the component
         self.domains: list[Domain] = []
-        # aspects associated with the component at which domains
+        # aspects associated with the component with domains
         self.aspects: dict[Aspect, list[Domain]] = {}
 
     @property
@@ -77,10 +86,16 @@ class X:
         # based on the pname (attribute name) in the program
         return [getattr(self.program, c) for c in self.constraints]
 
-    def show(self, descriptive=False):
+    def show(self, descriptive=False, category: Optional[str] = None):
         """Pretty print the component"""
-        for c in self.cons:
-            c.show(descriptive)
+        if category:
+            for c in self.cons:
+                if c.category and c.category == category:
+                    c.show(descriptive)
+
+        else:
+            for c in self.cons:
+                c.show(descriptive)
 
     # The reprs are set independently without inheriting _Name
     # which allows a distinction between _Name and _Index when assigned to Model
@@ -100,5 +115,5 @@ class X:
 
     def __init_subclass__(cls):
         # the hashing will be inherited by the subclasses
-        cls.__repr__ = X.__repr__
-        cls.__hash__ = X.__hash__
+        cls.__repr__ = _X.__repr__
+        cls.__hash__ = _X.__hash__

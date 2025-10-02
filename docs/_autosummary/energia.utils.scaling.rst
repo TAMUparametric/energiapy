@@ -1,4 +1,4 @@
-﻿energia.utils.scaling
+energia.utils.scaling
 =====================
 
 .. automodule:: energia.utils.scaling

@@ -1,4 +1,4 @@
-﻿energia.modeling.variables.aspect
+energia.modeling.variables.aspect
 =================================
 
 .. automodule:: energia.modeling.variables.aspect
@@ -25,7 +25,6 @@
       Linkage
       Location
       Modes
-      Name
       Periods
       Player
       Process

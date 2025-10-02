@@ -21,20 +21,50 @@ if TYPE_CHECKING:
 class Transport(_Operation):
     """Exports Resource through Link
     basically, moves Resources between Locations
+
+    :param basis: Unit basis of the component. Defaults to None.
+    :type basis: Unit, optional
+    :param label: An optional label for the component. Defaults to None.
+    :type label: str, optional
+    :param captions: An optional citation or description for the component. Defaults to None.
+    :type captions: str | list[str] | dict[str, str | list[str]], optional
+
+    :ivar model: The model to which the component belongs.
+    :vartype model: Model
+    :ivar name: Set when the component is assigned as a Model attribute.
+    :vartype name: str
+    :ivar _indexed: True if an index set has been created.
+    :vartype _indexed: bool
+    :ivar constraints: List of constraints associated with the component.
+    :vartype constraints: list[str]
+    :ivar domains: List of domains associated with the component.
+    :vartype domains: list[Domain]
+    :ivar aspects: Aspects associated with the component with domains.
+    :vartype aspects: dict[Aspect, list[Domain]]
+    :ivar conv: Operational conversion associated with the operation. Defaults to None.
+    :vartype conv: Conversion, optional
+    :ivar _conv: True if the operational conversion has been set. Defaults to False.
+    :vartype _conv: bool
+    :ivar fab: Material conversion associated with the operation. Defaults to None.
+    :vartype fab: Conversion, optional
+    :ivar _fab_balanced: True if the material conversion has been balanced. Defaults to False.
+    :vartype _fab_balanced: bool
+    :ivar linkages: List of Linkages where the transport is located. Defaults to [].
+    :vartype linkages: list[Linkage]
     """
 
     def __post_init__(self):
         _Operation.__post_init__(self)
-        self.links: list[Linkage] = []
+        self.linkages: list[Linkage] = []
 
-    def locate(self, *links: Linkage):
+    def locate(self, *linkages: Linkage):
         """Locate the transport"""
         link_times = []
 
-        links = sum(
-            [[link, link.sib] if link.sib else [link] for link in list(links)], []
+        linkages = sum(
+            [[link, link.sib] if link.sib else [link] for link in list(linkages)], []
         )
-        for link in links:
+        for link in linkages:
 
             # check if the transport has been capacitated at that link and time
             if not self in self.problem.capacity_bound or not link in [
@@ -139,7 +169,7 @@ class Transport(_Operation):
             link, time = link_time
             # time = link_time[1]
 
-            if link in self.links:
+            if link in self.linkages:
                 # if the transport is already balanced for the location , Skip
                 continue
 
@@ -296,7 +326,7 @@ class Transport(_Operation):
                         self.model.ship_out.constraints.append(cons_name)
                     if upd_operate:
                         self.model.operate.constraints.append(cons_name)
-                self.links.append(link)
+                self.linkages.append(link)
 
     def __call__(self, resource: Resource | Conversion):
         """Conversion is called with a Resource to be converted"""

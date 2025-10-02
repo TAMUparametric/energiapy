@@ -2,17 +2,15 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 import time as keep_time
+from dataclasses import dataclass
 from typing import TYPE_CHECKING, Literal, Self
-
 
 from gana.operators.composition import inf, sup
 from gana.operators.sigma import sigma
 from gana.sets.function import F
 from gana.sets.index import I
 from gana.sets.variable import V
-
 
 from ...components.temporal.modes import Modes
 from ...utils.math import normalize
@@ -23,8 +21,8 @@ if TYPE_CHECKING:
     from gana.block.program import Prg
     from gana.sets.constraint import C
 
-    from ...core.component import Component
-    from ...core.x import X
+    from ..._core._component import _Component
+    from ..._core._x import _X
 
 
 # ------------------------------------------------------------------------------
@@ -83,7 +81,7 @@ class Bind(_Generator):
         self._normalize: bool = False
 
         # the bound is set for all indices
-        self._forall: list[X] = []
+        self._forall: list[_X] = []
 
         # an index will be carried here
         self._index: I = None
@@ -94,12 +92,12 @@ class Bind(_Generator):
         return f'{self.domain.primary}.{self.aspect.name}'
 
     @property
-    def index(self) -> list[Component]:
+    def index(self) -> list[_Component]:
         """_Index"""
         return self.domain.index
 
     @property
-    def index_short(self) -> list[X | Bind]:
+    def index_short(self) -> list[_X | Bind]:
         """Short Index"""
         return self.domain.index_short
 
@@ -371,28 +369,30 @@ class Bind(_Generator):
         - :math:`i \in \{-, +\}` are variable-making levels
         """
 
-        if not self.aspect.bound in self.model.dispositions:
+        bound_aspect = getattr(self.model, self.aspect.bound)
+
+        if not bound_aspect in self.model.dispositions:
             print(
-                f'--- Aspect ({self.aspect.bound}) not defined, a variable will be created at {self.domain.space} assuming {self.model.horizon} as the temporal index'
+                f'--- Aspect ({bound_aspect}) not defined, a variable will be created at {self.domain.space} assuming {self.model.horizon} as the temporal index'
             )
 
-            _ = self.aspect.bound(self.domain.primary, self.domain.space).V()
+            _ = bound_aspect(self.domain.primary, self.domain.space).V()
 
         if (
             not self.domain.space
-            in self.model.dispositions[self.aspect.bound][self.domain.primary]
+            in self.model.dispositions[bound_aspect][self.domain.primary]
         ):
 
             # if the bound variable has not been defined at the given space
             print(
-                f'--- Aspect ({self.aspect.bound}) not defined at {self.domain.space}, a variable will be created assuming {self.model.horizon} as the temporal index'
+                f'--- Aspect ({bound_aspect}) not defined at {self.domain.space}, a variable will be created assuming {self.model.horizon} as the temporal index'
             )
 
             domain = self.domain.change({'period': self.model.horizon})
 
         else:
             # if the bound variable has been defined for the given space
-            times = self.model.dispositions[self.aspect.bound][self.domain.primary][
+            times = self.model.dispositions[bound_aspect][self.domain.primary][
                 self.domain.space
             ]
             time = max(list(times))
@@ -401,10 +401,10 @@ class Bind(_Generator):
             else:
                 # this is if the binding variable has a sparser temporal index compared to time
                 raise ValueError(
-                    f'Incompatible temporal indices: {self.aspect.bound} defined in time {time} and {self.aspect} defined in time {self.domain.period}\n'
-                    f'Binding variable ({self.aspect.bound}) cannot have a denser discretization than variable being bound ({self.aspect})'
+                    f'Incompatible temporal indices: {bound_aspect} defined in time {time} and {self.aspect} defined in time {self.domain.period}\n'
+                    f'Binding variable ({bound_aspect}) cannot have a denser discretization than variable being bound ({self.aspect})'
                 )
-        return self.aspect.bound(domain=domain).V()
+        return bound_aspect(domain=domain).V()
 
     def X(self, parameters: float | list = None, length: int = None) -> V:
         r"""Binary Reporting Variable

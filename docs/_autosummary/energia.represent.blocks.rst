@@ -1,4 +1,4 @@
-﻿energia.represent.blocks
+energia.represent.blocks
 ========================
 
 .. automodule:: energia.represent.blocks
@@ -16,8 +16,8 @@
    
       Consequence
       Currency
+      Emission
       Graph
-      Indicator
       Land
       Material
       Problem

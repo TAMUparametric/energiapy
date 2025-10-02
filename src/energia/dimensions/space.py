@@ -2,41 +2,50 @@
 
 from dataclasses import dataclass
 
+from .._core._dimension import _Dimension
 from ..components.spatial.linkage import Linkage
 from ..components.spatial.location import Location
-from ..core.dimension import Dimension
 
 
 @dataclass
-class Space(Dimension):
-    """Spatial representation of the system
+class Space(_Dimension):
+    """
+    Spatial representation of the system.
 
-    All spatial components are attached to this object
+    All spatial components are attached to this object.
 
-    Attributes:
-        model (Model): Model to which the representation belongs.
-        name (str): Name of the model. Defaults to None.
-        locs (list[Loc]): List of locations in the space.
-        sources (list[Loc]): List of source locations.
-        sinks (list[Loc]): List of sink locations.
-        links (list[Link]): List of links in the space.
-        label (str): Label for the space.
-        default (Loc): Default location for the space. Defaults to None.
+    :param model: Model to which the dimension belongs.
+    :type model: Model
 
-    Note:
+    :ivar name: Name of the model. Defaults to None.
+    :vartype name: str
+    :ivar locations: List of locations in the space.
+    :vartype locations: list[Loc]
+    :ivar sources: List of source locations.
+    :vartype sources: list[Loc]
+    :ivar sinks: List of sink locations.
+    :vartype sinks: list[Loc]
+    :ivar linkages: List of linkages in the space.
+    :vartype linkages: list[Link]
+    :ivar label: Label for the space.
+    :vartype label: str
+    :ivar default: Default location for the space. Defaults to None.
+    :vartype default: Loc
+
+    .. note::
         - name is self generated
-        - locs, sources, sinks, and links are populated as model is defined
+        - locations, sources, sinks, and linkages are populated as model is defined
         - label is fixed
         - default is set to None initially and is updated when needed (see network property)
     """
 
     def __post_init__(self):
-        self.locs: list[Location] = []
+        self.locations: list[Location] = []
         self.sources: list[Location] = []
         self.sinks: list[Location] = []
-        self.links: list[Linkage] = []
+        self.linkages: list[Linkage] = []
 
-        Dimension.__post_init__(self)
+        _Dimension.__post_init__(self)
 
     # -----------------------------------------------------
     #                    Helpers
@@ -57,7 +66,7 @@ class Space(Dimension):
         """creates a nested dictionary of locations"""
         self.network.update_hierarchy()
         hierarchy_ = {}
-        for loc in self.locs:
+        for loc in self.locations:
             if not loc.hierarchy in hierarchy_:
                 hierarchy_[loc.hierarchy] = []
             hierarchy_[loc.hierarchy].append(loc)
@@ -92,15 +101,15 @@ class Space(Dimension):
         """An encompassing region"""
 
         # if no location is available, create a default one
-        if not self.locs:
+        if not self.locations:
             return self.model.default_loc()
 
         # if only one location is available, return it
-        if len(self.locs) == 1:
-            return self.locs[0]
+        if len(self.locations) == 1:
+            return self.locations[0]
 
         # check for locations that are not nested
-        loc_not_nested = [loc for loc in self.locs if not loc.isin]
+        loc_not_nested = [loc for loc in self.locations if not loc.isin]
 
         # only one implies that all locations are nested under the one location
         # which is the network
@@ -116,4 +125,4 @@ class Space(Dimension):
     @property
     def s(self) -> list[Location | Linkage]:
         """List of spatial components"""
-        return self.locs + self.links
+        return self.locations + self.linkages

@@ -1,24 +1,25 @@
 <p align="center">
-  <img src="_static/logo2.jpg" width="75%">
+  <img src="https://github.com/TAMUparametric/energiapy/raw/main/docs/_static/logo2.jpg" width="75%">
 </p>
 
 
 [![Documentation Status](https://readthedocs.org/projects/energiapy/badge/)](https://energiapy.readthedocs.io/en/latest/)
 [![PyPI](https://img.shields.io/pypi/v/energiapy.svg)](https://pypi.org/project/energiapy)
 [![Downloads](https://static.pepy.tech/personalized-badge/energiapy?period=total&units=international_system&left_color=grey&right_color=orange&left_text=Downloads)](https://pepy.tech/project/energiapy)
+<!-- [![Python package](https://github.com/TAMUparametric/energiapy/actions/workflows/python-package.yml/badge.svg)](https://github.com/TAMUparametric/energiapy/actions/workflows/python-package.yml) -->
 <!-- [![Codacy Badge](https://app.codacy.com/project/badge/Grade/994d46ab40ac4f0ead5ed9d1ea1b0fab)](https://app.codacy.com/gh/TAMUparametric/energiapy/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade) -->
-[![Python package](https://github.com/TAMUparametric/energiapy/actions/workflows/python-package.yml/badge.svg)](https://github.com/TAMUparametric/energiapy/actions/workflows/python-package.yml)
 
 Energia is a tool for the data-driven multiscale modeling and optimization of energy systems under uncertainty. Users are directed to {cite}`kakodkar2022review` for an overview of the state-of-the-art in the field.
 The component-driven methodology is inspired by the resource task network (RTN) methodology {cite}`barbosa_povoa_pantelides_1997` and constituent functionalities developed through the research conducted in
-the [Multiparameteric Optimization and Control (Pistikopoulos) Group](https://parametric.tamu.edu/). 
+the [Multiparameteric Optimization and Control (Pistikopoulos) Group](https://parametric.tamu.edu/). The Tutorials and Examples sections are a good starting point.
+
 
 :::{seealso}
 [Gana](https://gana.readthedocs.io/en/latest/), an Algebraic Modeling Language (AML) for Multiscale Modeling and Optimization which serves as the backend
 :::
 
 
-# Installation
+<!-- # Installation
 
 Energia can be installed using the standard pip installation. It is recommended to install the package in a separate
 conda or pip environment.
@@ -41,7 +42,7 @@ Install energiapy
 
 For the most updated (albeit occassionally unstable) version use
 
-    pip install git+https://github.com/TAMUparametric/energiapy
+    pip install git+https://github.com/TAMUparametric/energiapy -->
 
 
 # Components
@@ -119,7 +120,7 @@ Multiple objectives can be provided. Infact the lower and upperbounds of any ```
 can be determined. 
 
 
-![alt text](https://github.com/TAMUparametric/energiapy/blob/main/docs/hierarchy.png?raw=true)
+<!-- ![alt text](https://github.com/TAMUparametric/energiapy/blob/main/docs/hierarchy.png?raw=true) -->
 
 
 

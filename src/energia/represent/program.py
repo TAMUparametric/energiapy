@@ -18,8 +18,8 @@ class Program(Prg):
     Attributes:
         players (I): Players index set
         periods (I): Periods index set
-        locs (I): Locations index set
-        links (I): Links index set
+        locations (I): Locations index set
+        linkages (I): Linkages index set
         sources (I): Sources index set
         sinks (I): Sinks index set
         spaces (I): Spaces index set
@@ -48,8 +48,8 @@ class Program(Prg):
 
         self.players = I(mutable=True)
         self.periods = I(mutable=True)
-        self.locs = I(mutable=True)
-        self.links = I(mutable=True)
+        self.locations = I(mutable=True)
+        self.linkages = I(mutable=True)
         self.sources = I(mutable=True)
         self.sinks = I(mutable=True)
         self.spaces = I(mutable=True)

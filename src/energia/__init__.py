@@ -1,6 +1,7 @@
 """Energia Imports"""
 
 from .components.commodity.currency import Currency
+from .components.commodity.emission import Emission
 from .components.commodity.land import Land
 from .components.commodity.material import Material
 from .components.commodity.resource import Resource
@@ -14,6 +15,8 @@ from .components.spatial.linkage import Linkage
 from .components.spatial.location import Location
 from .components.temporal.periods import Periods
 from .components.temporal.scales import TemporalScales
+from .library.components import (currencies, env_indicators, misc_units,
+                                 si_units, time_units)
 from .represent.model import Model
 
 __all__ = [
@@ -29,9 +32,16 @@ __all__ = [
     "Player",
     "Process",
     "Resource",
+    "Emission",
     "Social",
     "Storage",
     "TemporalScales",
     "Transport",
     "Unit",
+    "si_units",
+    "misc_units",
+    "time_units",
+    "env_indicators",
+    "currencies",
 ]
+__version__ = "2.0.0"

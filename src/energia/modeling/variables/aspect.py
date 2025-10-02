@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 from gana.sets.index import I
 from matplotlib import rc
 
+from ..._core._name import _Name
 from ...components.commodity._commodity import _Commodity
 from ...components.game.couple import Couple
 from ...components.game.player import Player
@@ -21,7 +22,6 @@ from ...components.spatial.location import Location
 from ...components.temporal.lag import Lag
 from ...components.temporal.modes import Modes
 from ...components.temporal.periods import Periods
-from ...core.name import Name
 from ..constraints.bind import Bind
 from ..indices.domain import Domain
 
@@ -30,7 +30,7 @@ if TYPE_CHECKING:
     from gana.sets.constraint import C
     from gana.sets.variable import V
 
-    from ...core.x import X
+    from ..._core._x import _X
     from ...dimensions.problem import Problem
     from ...represent.model import Model
     from .control import Control
@@ -39,7 +39,7 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class Aspect(Name):
+class Aspect(_Name):
     """Any kind of decision
 
     Attributes:
@@ -56,13 +56,16 @@ class Aspect(Name):
     types_res: Type[_Commodity] = None
     types_dres: Type[_Commodity] = None
     types_idc: Type[Indicator] = None
-    latex: str = None
+    ispos: bool = True
+    neg: str = ''
+    latex: str = ''
+    bound: str = ''
 
     def __post_init__(self):
-        Name.__post_init__(self)
+        _Name.__post_init__(self)
         # name of the decision
         self.model: Model = None
-        self.neg: Self = None
+
         if self.label:
             if self.nn:
                 self.label += ' [+]'
@@ -70,10 +73,8 @@ class Aspect(Name):
                 self.label += ' [-]'
         self.indices: list[Location | Linkage, Periods] = []
 
-        # Does this add to the domain?
-        self.ispos = True
-        # if a decision is bounded by another decision
-        self.bound: Self = None
+        # # if a decision is bounded by another decision
+        # self.bound: Self = None
 
         # spaces where the aspect has been already bound
         self.bound_spaces: dict[
@@ -196,6 +197,14 @@ class Aspect(Name):
         """Dispositions dict"""
         return self.model.dispositions[self]
 
+    def aliases(self, *names: str):
+        """Create aliases for the decision
+
+        Args:
+            *names (str): Names of the aliases
+        """
+        self.model.aliases(*names, to=self.name)
+
     def map_domain(self, domain: Domain):
         """Each inherited object has their own"""
         pass
@@ -223,6 +232,7 @@ class Aspect(Name):
 
     def __neg__(self):
         """Negative Consequence"""
+
         dscn = type(self)(
             nn=False,
             types_opr=self.types_opr,
@@ -245,7 +255,7 @@ class Aspect(Name):
         if isinstance(other, Aspect):
             return self.name == other.name
 
-    def __call__(self, *index: X, domain: Domain = None):
+    def __call__(self, *index: _X, domain: Domain = None):
         if not domain:
 
             (
@@ -302,7 +312,7 @@ class Aspect(Name):
                 elif isinstance(comp, _Commodity):
                     # check if this is the right commodity type for the aspect
                     # domain.commodity should be the primary commodity only
-                    if isinstance(comp, self.types_res):
+                    if self.types_res and isinstance(comp, self.types_res):
                         commodity = comp
                     # else:
                     #     # anything else is a derivative commodity
@@ -354,9 +364,9 @@ class Aspect(Name):
 
     def draw(
         self,
-        x: X,
-        y: tuple[X] | X,
-        z: tuple[X] | X = None,
+        x: _X,
+        y: tuple[_X] | _X,
+        z: tuple[_X] | _X = None,
         font_size: float = 16,
         fig_size: tuple[float, float] = (12, 6),
         linewidth: float = 0.7,

@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from ..components.commodity.currency import Currency
 from ..components.impact.categories import Environ
 from ..components.measure.unit import Unit
 from ..components.temporal.scales import TemporalScales
-
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from ..represent.model import Model
@@ -49,7 +49,7 @@ def misc_units(model: Model):
     model.barrel = 158.987 * model.L  # barrel
     model.mmbtu = 1.055e9 * model.J  # million british thermal unit
     model.ton = 1000 * model.kg  # tonne
-    model.miles = 1.60934 * Unit(label='miles')  # miles
+    model.mile = 1.60934 * Unit(label='mile')  # miles
     model.PJ = 1e15 * model.J  # petajoule
     model.GJ = 1e9 * model.J  # gigajoule
 

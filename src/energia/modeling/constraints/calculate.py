@@ -11,7 +11,7 @@ if TYPE_CHECKING:
     from gana.block.program import Prg
     from gana.sets.constraint import C
 
-    from ...core.x import X
+    from ..._core._x import _X
     from ...represent.model import Model
     from .bind import Bind
 
@@ -45,7 +45,7 @@ class Calculate:
         self.name = calculation.name
         self.program: Prg = decision.program
         self.index = calculation.index
-        self._forall: list[X] = []
+        self._forall: list[_X] = []
 
         # if nominal is provided
         # and multiplied by the nominal value

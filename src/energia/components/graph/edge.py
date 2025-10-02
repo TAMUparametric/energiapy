@@ -5,14 +5,14 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-from ...core.name import Name
+from ..._core._name import _Name
 
 if TYPE_CHECKING:
     from ...represent.graph import Graph
 
 
 @dataclass
-class Edge(Name):
+class Edge(_Name):
     """Edge of a Graph
 
     Attributes:
@@ -26,4 +26,4 @@ class Edge(Name):
 
     def __post_init__(self):
         self.graph: Graph = None
-        Name.__post_init__(self)
+        _Name.__post_init__(self)

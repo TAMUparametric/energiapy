@@ -16,6 +16,4 @@
    .. autosummary::
    
       Linkage
-      Unit
-      X
    

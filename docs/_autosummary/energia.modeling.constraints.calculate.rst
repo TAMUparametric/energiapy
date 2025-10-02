@@ -1,4 +1,4 @@
-﻿energia.modeling.constraints.calculate
+energia.modeling.constraints.calculate
 ======================================
 
 .. automodule:: energia.modeling.constraints.calculate

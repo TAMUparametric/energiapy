@@ -5,36 +5,71 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-from ...core.component import Component
+from ..._core._component import _Component
 from ...modeling.constraints.calculate import Calculate
 from ...modeling.parameters.conversion import Conversion
 from ..commodity.stored import Stored
-
 from .process import Process
 
 if TYPE_CHECKING:
-    from ..commodity.resource import Resource
-    from ...modeling.constraints.bind import Bind
-    from ..spatial.location import Location
     from gana.sets.constraint import C
+
+    from ...modeling.constraints.bind import Bind
+    from ..commodity.resource import Resource
+    from ..spatial.location import Location
 
 
 @dataclass
-class Storage(Component):  # , Stock):
-    """Storage"""
+class Storage(_Component): 
+    """Storage
+
+    :param basis: Unit basis of the component. Defaults to None.
+    :type basis: Unit, optional
+    :param label: An optional label for the component. Defaults to None.
+    :type label: str, optional
+    :param captions: An optional citation or description for the component. Defaults to None.
+    :type captions: str | list[str] | dict[str, str | list[str]], optional
+    :param store: The resource to be stored. Defaults to None.
+    :type store: Resource, optional
+
+    :ivar model: The model to which the component belongs.
+    :vartype model: Model
+    :ivar name: Set when the component is assigned as a Model attribute.
+    :vartype name: str
+    :ivar _indexed: True if an index set has been created.
+    :vartype _indexed: bool
+    :ivar constraints: List of constraints associated with the component.
+    :vartype constraints: list[str]
+    :ivar domains: List of domains associated with the component.
+    :vartype domains: list[Domain]
+    :ivar aspects: Aspects associated with the component with domains.
+    :vartype aspects: dict[Aspect, list[Domain]]
+    :ivar stored: The resource being stored. Defaults to None.
+    :vartype stored: Stored, optional
+    :ivar conv: Operational conversion associated with the storage. Defaults to None.
+    :vartype conv: Conversion, optional
+    :ivar _conv: True if the operational conversion has been set. Defaults to False.
+    :vartype _conv: bool
+    :ivar charge: The charge process associated with the storage.
+    :vartype charge: Process
+    :ivar discharge: The discharge process associated with the storage.
+    :vartype discharge: Process
+    :ivar locations: List of locations where the storage is located. Defaults to [].
+    :vartype locations: list[Location]
+    """
 
     store: Resource = None
 
     def __post_init__(self):
-        Component.__post_init__(self)
-        self.stored = None
+        _Component.__post_init__(self)
+        self.stored: Stored = None
         self._conv = False
         self.conv = None
         self.charge = Process()
         self.charge.ofstorage = self
         self.discharge = Process()
         self.discharge.ofstorage = self
-        self.locs: list[Location] = []
+        self.locations: list[Location] = []
 
     def __setattr__(self, name, value):
         if name == 'model' and value:
@@ -43,13 +78,13 @@ class Storage(Component):  # , Stock):
 
         super().__setattr__(name, value)
 
-    def locate(self, *locs: Location):
+    def locate(self, *locations: Location):
         """Locate the storage"""
         # update the locations at which the storage exists
 
         # get location, time tuples where operation is defined
         loc_times = []
-        for loc in locs:
+        for loc in locations:
 
             if loc not in self.model.invcapacity.bound_spaces[self.stored]:
                 # check if the storage capacity has been bound at that location
@@ -90,8 +125,8 @@ class Storage(Component):  # , Stock):
                 _ = self.inventory(loc, time) <= 1
 
         # locate the charge and discharge processes
-        self.charge.locate(*locs)
-        self.discharge.locate(*locs)
+        self.charge.locate(*locations)
+        self.discharge.locate(*locations)
 
         # self.writecons_conversion(loc_times)
 
