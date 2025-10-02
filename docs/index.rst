@@ -16,6 +16,7 @@ Energia on Python
    tutorials/time
    tutorials/space
    tutorials/resource
+   tutorials/process
    tutorials/fetch_nsrdb_data
    tutorials/common_issues 
 
