@@ -59,7 +59,7 @@ class Periods(_X):
 
         self._of = self.of
 
-        if self.of and not self.of.isroot():
+        if self.of is not None and not self.of.isroot():
             self.periods = self.periods * self.of.periods
             self.of = self.of.of
 
