@@ -17,7 +17,7 @@ from ..components.operation.transport import Transport
 from ..modeling.variables.control import Control
 from ..modeling.variables.impact import Impact
 from ..modeling.variables.state import State
-from ..modeling.variables.stream import ExoStream, EndoStream
+from ..modeling.variables.stream import ExoStream, IndStream, EndoStream
 
 if TYPE_CHECKING:
     from ..represent.model import Model
@@ -104,6 +104,19 @@ def inventory_sizing(model: Model):
     )
 
 
+def usage(model: Model):
+    """Resource usage decisions"""
+    model.Recipe(
+        'dispose',
+        EndoStream,
+        types_res=(Resource, Land, Material),
+        label='Dispose Resource',
+        latex=r'{disp}',
+        neg='use',
+        neg_label='Use Resource',
+    )
+
+
 def free_movement(model: Model):
     """Free movement entails consumption or release of resources
 
@@ -115,7 +128,7 @@ def free_movement(model: Model):
     """
     model.Recipe(
         'consume',
-        EndoStream,
+        ExoStream,
         types_res=Resource,
         label='Free Resource Stream',
         latex=r'{cons}',
@@ -129,7 +142,7 @@ def trade(model: Model):
     """Trade decisions"""
     model.Recipe(
         'buy',
-        EndoStream,
+        ExoStream,
         types_res=Resource,
         label='Buy Resource',
         neg='sell',
@@ -140,7 +153,7 @@ def economic(model: Model):
     """Economic decisions"""
     model.Recipe(
         'earn',
-        ExoStream,
+        IndStream,
         types_res=(Currency, Economic),
         neg='spend',
     )
@@ -150,7 +163,7 @@ def environmental(model: Model):
     """Environmental impact decisions"""
     model.Recipe(
         'emit',
-        ExoStream,
+        IndStream,
         types_res=(Environ, Emission),
         neg='abate',
     )
@@ -160,20 +173,7 @@ def social(model: Model):
     """Social impact decisions"""
     model.Recipe(
         'benefit',
-        ExoStream,
+        IndStream,
         types_res=(Social, Currency),
         neg='detriment',
-    )
-
-
-def usage(model: Model):
-    """Resource usage decisions"""
-    model.Recipe(
-        'dispose',
-        EndoStream,
-        types_res=(Resource, Land, Material),
-        label='Dispose Resource',
-        latex=r'{disp}',
-        neg='use',
-        neg_label='Use Resource',
     )
