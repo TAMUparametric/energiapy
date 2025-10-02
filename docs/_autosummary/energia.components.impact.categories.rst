@@ -14,11 +14,8 @@ energia.components.impact.categories
 
    .. autosummary::
    
-      EcoImp
       Economic
-      EnvImp
       Environ
       Indicator
-      SocImp
       Social
    

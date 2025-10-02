@@ -17,4 +17,5 @@ energia.modeling.constraints.balance
    .. autosummary::
    
       Balance
+      Stored
    

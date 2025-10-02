@@ -15,10 +15,5 @@ energia.components.commodity.resource
    .. autosummary::
    
       Environ
-      Free
-      Inventory
-      Produce
       Resource
-      Trade
-      Utilize
    
