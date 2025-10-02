@@ -1,9 +1,12 @@
 import sys
 sys.path.append('/scratch/user/shivam.vedant')
 sys.path.append('/scratch/user/shivam.vedant/src')
-# sys.path.append('../../../../../../src')
 
 import pandas
+import time
+import pickle
+import mpisppy.utils.sputils as sputils
+from mpisppy.opt.ef import ExtensiveForm
 from energiapy.components.temporal_scale import TemporalScale
 from energiapy.components.resource import Resource, VaryingResource
 from energiapy.components.process import Process, VaryingProcess
@@ -11,41 +14,41 @@ from energiapy.components.location import Location
 from energiapy.components.transport import Transport, VaryingTransport
 from energiapy.components.network import Network
 from energiapy.components.scenario import Scenario
-# from energiapy.model.constraints.demand import constraint_demand_lb
+from energiapy.model.constraints.demand import constraint_demand_lb
 from energiapy.model.formulate import formulate, Constraints, Objective
 from energiapy.utils.scale_utils import scale_tuple
-
 from pyomo.environ import value as pyoval
 from pyomo.environ import Var, Constraint, NonNegativeReals
-# from pyomo.contrib.iis import write_iis
-
-import time
-import pickle
-
-import mpisppy.utils.sputils as sputils
-from mpisppy.opt.ef import ExtensiveForm
 
 design_planning_horizons = 1
-design_execution_scenarios = 52
-design_time_intervals = 7
-
+# design_exec_scenarios = 52
+design_scale_factor = 1
 capacity_scale_factor = 10
 
-M = 1e4
+schedule_planning_horizons = 1
+schedule_exec_scenarios = 52
+schedule_time_intervals = 7
 
+M = 1e4  # Big M
 design_annualization_factor = 1/design_planning_horizons
 
-def build_design_model(scen_df=pandas.DataFrame(), eps: float = 1.0):
-    default_df = pandas.DataFrame(data=[1] * design_execution_scenarios)
+# fill_rate = 0.6
+fill_rate = float(sys.argv[1])
+print(f"fill_rate: {fill_rate}")
+print(f"Type: {type(fill_rate)}")
+
+
+def build_design_model(eps: float, scen_df=pandas.DataFrame()):
+    default_df = pandas.DataFrame(data=[1] * schedule_exec_scenarios)
 
     # Define temporal scales
     scales = TemporalScale(
-        discretization_list=[design_planning_horizons, design_execution_scenarios, design_time_intervals])
+        discretization_list=[schedule_planning_horizons, schedule_exec_scenarios, schedule_time_intervals])
 
     # ======================================================================================================================
     # Declare resources/commodities
     # ======================================================================================================================
-    com1_pur = Resource(name='com1_pur', cons_max=500 * capacity_scale_factor,
+    com1_pur = Resource(name='com1_pur', cons_max=500 * design_scale_factor * capacity_scale_factor,
                         block={'imp': 1, 'urg': 1}, price=0.00, label='Commodity 1 consumed from outside the system',
                         varying=[VaryingResource.DETERMINISTIC_AVAILABILITY])
 
@@ -66,195 +69,183 @@ def build_design_model(scen_df=pandas.DataFrame(), eps: float = 1.0):
     # ======================================================================================================================
     # Declare processes/storage capacities
     # ======================================================================================================================
-    com1_process_capacity = 500 * capacity_scale_factor
+    com1_process_capacity = 500 * design_scale_factor * capacity_scale_factor
     min_process_capacity = 0.01
 
     com1_procure = Process(name='procure com1', prod_max=com1_process_capacity, conversion={com1_pur: -1, com1_in: 1},
-                           capex=25, vopex=0.01, prod_min=min_process_capacity, label='Procure com1')
+                           capex=25 / design_scale_factor, vopex=0.01, prod_min=min_process_capacity,
+                           label='Procure com1')
     com1_sell = Process(name='sell com1', prod_max=com1_process_capacity, conversion={com1_out: -1, com1_sold: 1},
-                        capex=1, vopex=0.01, prod_min=min_process_capacity, label='Sell com1')
+                        capex=0.1 / design_scale_factor, vopex=0.01, prod_min=min_process_capacity, label='Sell com1')
 
     com1_receive_loc1 = Process(name='com1_receive_loc1', prod_max=com1_process_capacity,
-                                conversion={com1_loc1_out: -1, com1_in: 1}, capex=1,
+                                conversion={com1_loc1_out: -1, com1_in: 1}, capex=0.1 / design_scale_factor,
                                 vopex=0.01, prod_min=min_process_capacity, label='Commodity 1 received from location 1')
     com1_receive_loc2 = Process(name='com1_receive_loc2', prod_max=com1_process_capacity,
-                                conversion={com1_loc2_out: -1, com1_in: 1}, capex=1,
+                                conversion={com1_loc2_out: -1, com1_in: 1}, capex=0.1 / design_scale_factor,
                                 vopex=0.01, prod_min=min_process_capacity, label='Commodity 1 received from location 2')
     com1_receive_loc3 = Process(name='com1_receive_loc3', prod_max=com1_process_capacity,
-                                conversion={com1_loc3_out: -1, com1_in: 1}, capex=1,
+                                conversion={com1_loc3_out: -1, com1_in: 1}, capex=0.1 / design_scale_factor,
                                 vopex=0.01, prod_min=min_process_capacity, label='Commodity 1 received from location 3')
     com1_receive_loc4 = Process(name='com1_receive_loc4', prod_max=com1_process_capacity,
-                                conversion={com1_loc4_out: -1, com1_in: 1}, capex=1,
+                                conversion={com1_loc4_out: -1, com1_in: 1}, capex=0.1 / design_scale_factor,
                                 vopex=0.01, prod_min=min_process_capacity, label='Commodity 1 received from location 4')
-    # com1_receive_loc5 = Process(name='com1_receive_loc5', prod_max=com1_process_capacity,
-    #                             conversion={com1_loc5_out: -1, com1_in: 1}, capex=1,
-    #                             vopex=0.01, prod_min=min_process_capacity, label='Commodity 1 received from location 5')
+    com1_receive_loc5 = Process(name='com1_receive_loc5', prod_max=com1_process_capacity,
+                                conversion={com1_loc5_out: -1, com1_in: 1}, capex=0.1 / design_scale_factor,
+                                vopex=0.01, prod_min=min_process_capacity, label='Commodity 1 received from location 5')
     com1_receive_loc6 = Process(name='com1_receive_loc6', prod_max=com1_process_capacity,
-                                conversion={com1_loc6_out: -1, com1_in: 1}, capex=1,
+                                conversion={com1_loc6_out: -1, com1_in: 1}, capex=0.1 / design_scale_factor,
                                 vopex=0.01, prod_min=min_process_capacity, label='Commodity 1 received from location 6')
     com1_receive_loc7 = Process(name='com1_receive_loc7', prod_max=com1_process_capacity,
-                                conversion={com1_loc7_out: -1, com1_in: 1}, capex=1,
+                                conversion={com1_loc7_out: -1, com1_in: 1}, capex=0.1 / design_scale_factor,
                                 vopex=0.01, prod_min=min_process_capacity, label='Commodity 1 received from location 7')
 
     com1_process = Process(name='com1_process', prod_max=com1_process_capacity, conversion={com1_in: -1, com1_out: 1},
-                           capex=50, vopex=0.1, prod_min=min_process_capacity,
+                           capex=5 / design_scale_factor, vopex=0.01, prod_min=min_process_capacity,
                            varying=[VaryingProcess.DETERMINISTIC_CAPACITY],
                            label='Process the commodity through the location')
 
-    com1_store = Process(name='com1_store', prod_max=com1_process_capacity, capex=20, vopex=5,
-                         store_min=0.01, store_max=500 * capacity_scale_factor,
+    com1_store = Process(name='com1_store', prod_max=com1_process_capacity, capex=0.5 / design_scale_factor, vopex=5,
+                         store_min=0.01, store_max=500 * design_scale_factor * capacity_scale_factor,
                          prod_min=min_process_capacity, label="Storage capacity of upto 100 units", storage=com1_in,
-                         storage_cost=0.02, storage_capex=75)
+                         storage_cost=0.02, storage_capex=50 / design_scale_factor)
 
     com1_loc1_send = Process(name='com1_loc1_send', prod_max=com1_process_capacity,
-                             conversion={com1_out: -1, com1_loc1_out: 1}, capex=1, vopex=0.01,
+                             conversion={com1_out: -1, com1_loc1_out: 1}, capex=0.1 / design_scale_factor, vopex=0.01,
                              prod_min=min_process_capacity, label='Send commodity one from location 1')
     com1_loc2_send = Process(name='com1_loc2_send', prod_max=com1_process_capacity,
-                             conversion={com1_out: -1, com1_loc2_out: 1}, capex=1, vopex=0.01,
+                             conversion={com1_out: -1, com1_loc2_out: 1}, capex=0.1 / design_scale_factor, vopex=0.01,
                              prod_min=min_process_capacity, label='Send commodity one from location 2')
     com1_loc3_send = Process(name='com1_loc3_send', prod_max=com1_process_capacity,
-                             conversion={com1_out: -1, com1_loc3_out: 1}, capex=1, vopex=0.01,
+                             conversion={com1_out: -1, com1_loc3_out: 1}, capex=0.1 / design_scale_factor, vopex=0.01,
                              prod_min=min_process_capacity, label='Send commodity one from location 3')
     com1_loc4_send = Process(name='com1_loc4_send', prod_max=com1_process_capacity,
-                             conversion={com1_out: -1, com1_loc4_out: 1}, capex=1, vopex=0.01,
+                             conversion={com1_out: -1, com1_loc4_out: 1}, capex=0.1 / design_scale_factor, vopex=0.01,
                              prod_min=min_process_capacity, label='Send commodity one from location 4')
     com1_loc5_send = Process(name='com1_loc5_send', prod_max=com1_process_capacity,
-                             conversion={com1_out: -1, com1_loc5_out: 1}, capex=1, vopex=0.01,
+                             conversion={com1_out: -1, com1_loc5_out: 1}, capex=0.1 / design_scale_factor, vopex=0.01,
                              prod_min=min_process_capacity, label='Send commodity one from location 5')
     com1_loc6_send = Process(name='com1_loc6_send', prod_max=com1_process_capacity,
-                             conversion={com1_out: -1, com1_loc6_out: 1}, capex=1, vopex=0.01,
+                             conversion={com1_out: -1, com1_loc6_out: 1}, capex=0.1 / design_scale_factor, vopex=0.01,
                              prod_min=min_process_capacity, label='Send commodity one from location 6')
     com1_loc7_send = Process(name='com1_loc7_send', prod_max=com1_process_capacity,
-                             conversion={com1_out: -1, com1_loc7_out: 1}, capex=1, vopex=0.01,
+                             conversion={com1_out: -1, com1_loc7_out: 1}, capex=0.1 / design_scale_factor, vopex=0.01,
                              prod_min=min_process_capacity, label='Send commodity one from location 7')
 
     # ======================================================================================================================
     # Declare locations/warehouses
     # ======================================================================================================================
     loc1 = Location(name='loc1',
-                    processes={com1_procure, com1_process, com1_store, com1_loc1_send}, label="Location 1",
-                    scales=scales, demand_scale_level=2, capacity_scale_level=1, availability_scale_level=1,
-                    availability_factor={
-                        com1_pur: scen_df[[('loc1', 'com1_pur')]] if ('loc1', 'com1_pur') in scen_df else default_df},
-                    capacity_factor={com1_process: scen_df[[('loc1', 'com1_proces')]] if ('loc1',
-                                                                                          'com1_proces') in scen_df else default_df})
+                    processes={com1_procure, com1_receive_loc2, com1_receive_loc3, com1_process, com1_store,
+                               com1_loc1_send}, label="Location 1", scales=scales, demand_scale_level=2,
+                    capacity_scale_level=1, availability_scale_level=1, availability_factor={
+            com1_pur: scen_df[[('loc1', 'com1_pur')]] if ('loc1', 'com1_pur') in scen_df else default_df})
 
-    loc2 = Location(name='loc2', processes={com1_receive_loc1, com1_process, com1_store, com1_loc2_send},
-                    label="Location 2",
-                    scales=scales, demand_scale_level=2, capacity_scale_level=1, availability_scale_level=1,
-                    capacity_factor={com1_process: scen_df[[('loc2', 'com1_process')]] if ('loc2',
-                                                                                           'com1_process') in scen_df else default_df})
+    loc2 = Location(name='loc2',
+                    processes={com1_receive_loc1, com1_receive_loc4, com1_receive_loc5, com1_process, com1_store,
+                               com1_loc2_send}, label="Location 2", scales=scales, demand_scale_level=2,
+                    capacity_scale_level=1, availability_scale_level=1, capacity_factor={
+            com1_process: scen_df[[('loc2', 'com1_process')]] if ('loc2', 'com1_process') in scen_df else default_df})
 
-    loc3 = Location(name='loc3', processes={com1_receive_loc1, com1_process, com1_store, com1_loc3_send},
-                    label="Location 3",
-                    scales=scales, demand_scale_level=2, capacity_scale_level=1, availability_scale_level=1,
-                    capacity_factor={com1_process: scen_df[[('loc3', 'com1_process')]] if ('loc3',
-                                                                                           'com1_process') in scen_df else default_df})
+    loc3 = Location(name='loc3',
+                    processes={com1_receive_loc1, com1_receive_loc4, com1_process, com1_store, com1_loc3_send},
+                    label="Location 3", scales=scales, demand_scale_level=2, capacity_scale_level=1,
+                    availability_scale_level=1)
 
-    loc4 = Location(name='loc4',
-                    processes={com1_receive_loc2, com1_receive_loc3, com1_receive_loc6, com1_process, com1_store,
-                               com1_loc4_send}, label="Location 4",
-                    scales=scales, demand_scale_level=2, capacity_scale_level=1, availability_scale_level=1,
-                    capacity_factor={com1_process: scen_df[[('loc4', 'com1_process')]] if ('loc4',
-                                                                                           'com1_process') in scen_df else default_df})
+    loc4 = Location(name='loc4', processes={com1_receive_loc2, com1_receive_loc3, com1_receive_loc6, com1_receive_loc5,
+                                            com1_receive_loc7, com1_process, com1_store, com1_loc4_send},
+                    label="Location 4", scales=scales, demand_scale_level=2, capacity_scale_level=1,
+                    availability_scale_level=1, capacity_factor={
+            com1_process: scen_df[[('loc4', 'com1_process')]] if ('loc4', 'com1_process') in scen_df else default_df})
 
-    loc5 = Location(name='loc5',
-                    processes={com1_receive_loc1, com1_receive_loc2, com1_receive_loc4, com1_receive_loc7, com1_process,
-                               com1_store, com1_loc5_send,
-                               com1_sell}, label="Location 5", scales=scales, demand_scale_level=2,
-                    capacity_scale_level=1, availability_scale_level=1,
-                    capacity_factor={com1_process: scen_df[[('loc5', 'com1_process')]] if ('loc5',
-                                                                                           'com1_process') in scen_df else default_df})
+    loc5 = Location(name='loc5', processes={com1_receive_loc1, com1_receive_loc2, com1_receive_loc4, com1_receive_loc6,
+                                            com1_receive_loc7, com1_process, com1_store, com1_loc5_send, com1_sell},
+                    label="Location 5", scales=scales, demand_scale_level=2, capacity_scale_level=1,
+                    availability_scale_level=1)
 
-    loc6 = Location(name='loc6', processes={com1_procure, com1_process, com1_store, com1_loc6_send}, label="Location 6",
-                    scales=scales, demand_scale_level=2, capacity_scale_level=1, availability_scale_level=1,
-                    availability_factor={
-                        com1_pur: scen_df[[('loc6', 'com1_pur')]] if ('loc6', 'com1_pur') in scen_df else default_df},
-                    capacity_factor={com1_process: scen_df[[('loc6', 'com1_process')]] if ('loc6',
-                                                                                           'com1_process') in scen_df else default_df})
+    loc6 = Location(name='loc6', processes={com1_procure, com1_receive_loc4, com1_process, com1_store, com1_loc6_send},
+                    label="Location 6", scales=scales, demand_scale_level=2, capacity_scale_level=1,
+                    availability_scale_level=1, availability_factor={
+            com1_pur: scen_df[[('loc6', 'com1_pur')]] if ('loc6', 'com1_pur') in scen_df else default_df})
 
-    loc7 = Location(name='loc7', processes={com1_receive_loc4, com1_process, com1_store, com1_loc7_send},
-                    label="Location 7",
-                    scales=scales, demand_scale_level=2, capacity_scale_level=1, availability_scale_level=1,
-                    capacity_factor={com1_process: scen_df[[('loc7', 'com1_process')]] if ('loc7',
-                                                                                           'com1_process') in scen_df else default_df})
+    loc7 = Location(name='loc7',
+                    processes={com1_receive_loc4, com1_receive_loc5, com1_process, com1_store, com1_loc7_send},
+                    label="Location 7", scales=scales, demand_scale_level=2, capacity_scale_level=1,
+                    availability_scale_level=1, capacity_factor={
+            com1_process: scen_df[[('loc7', 'com1_process')]] if ('loc7', 'com1_process') in scen_df else default_df})
 
     # ======================================================================================================================
     # Declare transport/trucks
     # ======================================================================================================================
 
-    truck_cap12 = 140 * capacity_scale_factor
-    truck_cap13 = 60
-    truck_cap24 = 100 * capacity_scale_factor
-    truck_cap25 = 60 * capacity_scale_factor
-    truck_cap34 = 60
-    truck_cap45 = 200 * capacity_scale_factor
-    truck_cap47 = 80 * capacity_scale_factor
-    truck_cap64 = 100 * capacity_scale_factor
-    truck_cap75 = 80 * capacity_scale_factor
-    plane_cap15 = 30
+    truck_cap12 = 140 * design_scale_factor * capacity_scale_factor
+    truck_cap13 = 60 * design_scale_factor
+    truck_cap24 = 100 * design_scale_factor * capacity_scale_factor
+    truck_cap25 = 60 * design_scale_factor * capacity_scale_factor
+    truck_cap34 = 60 * design_scale_factor
+    truck_cap45 = 200 * design_scale_factor * capacity_scale_factor
+    truck_cap47 = 80 * design_scale_factor * capacity_scale_factor
+    truck_cap64 = 100 * design_scale_factor * capacity_scale_factor
+    truck_cap75 = 80 * design_scale_factor * capacity_scale_factor
+
+    plane_cap15 = 30 * design_scale_factor
+    plane_cap65 = 40 * design_scale_factor * capacity_scale_factor
 
     truck_capmin = 0.01
     plane_capmin = 0.01
 
     truck12 = Transport(name='truck12', resources={com1_loc1_out}, trans_max=truck_cap12,
-                        label='Truck from location 1 to 2',
-                        capex=0.5, vopex=0.05, trans_min=truck_capmin,
-                        varying=[VaryingTransport.DETERMINISTIC_CAPACITY])
+                        label='Truck from location 1 to 2', capex=0.5 / design_scale_factor, vopex=0.05,
+                        trans_min=truck_capmin, varying=[VaryingTransport.DETERMINISTIC_CAPACITY], speed=50)
     # truck21 = Transport(name='truck21', resources={com1_loc2_out}, trans_max=truck_cap12, label='Truck from location 2 to 1', capex=0.0001, vopex=0.05, trans_min=truck_capmin, speed=50, varying=[VaryingTransport.DETERMINISTIC_CAPACITY])
 
     truck13 = Transport(name='truck13', resources={com1_loc1_out}, trans_max=truck_cap13,
-                        label='Truck from location 1 to 3',
-                        capex=0.3, vopex=0.03, trans_min=truck_capmin,
-                        varying=[VaryingTransport.DETERMINISTIC_CAPACITY])
+                        label='Truck from location 1 to 3', capex=0.3 / design_scale_factor, vopex=0.03,
+                        trans_min=truck_capmin, varying=[VaryingTransport.DETERMINISTIC_CAPACITY], speed=50)
     # truck31 = Transport(name='truck31', resources={com1_loc3_out}, trans_max=truck_cap13, label='Truck from location 3 to 1', capex=0.0001, vopex=0.03, trans_min=truck_capmin, speed=50, varying=[VaryingTransport.DETERMINISTIC_CAPACITY])
 
     truck24 = Transport(name='truck24', resources={com1_loc2_out}, trans_max=truck_cap24,
-                        label='Truck from location 2 to 4',
-                        capex=0.5, vopex=0.05, trans_min=truck_capmin,
-                        varying=[VaryingTransport.DETERMINISTIC_CAPACITY])
+                        label='Truck from location 2 to 4', capex=0.5 / design_scale_factor, vopex=0.05,
+                        trans_min=truck_capmin, varying=[VaryingTransport.DETERMINISTIC_CAPACITY], speed=50)
     # truck42 = Transport(name='truck42', resources={com1_loc4_out}, trans_max=truck_cap24, label='Truck from location 4 to 2', capex=0.0001, vopex=0.05, trans_min=truck_capmin, speed=50, varying=[VaryingTransport.DETERMINISTIC_CAPACITY])
 
     truck25 = Transport(name='truck25', resources={com1_loc2_out}, trans_max=truck_cap25,
-                        label='Truck from location 2 to 5',
-                        capex=0.3, vopex=0.03, trans_min=truck_capmin,
-                        varying=[VaryingTransport.DETERMINISTIC_CAPACITY])
+                        label='Truck from location 2 to 5', capex=0.3 / design_scale_factor, vopex=0.03,
+                        trans_min=truck_capmin, varying=[VaryingTransport.DETERMINISTIC_CAPACITY], speed=50)
     # truck52 = Transport(name='truck52', resources={com1_loc5_out}, trans_max=truck_cap25, label='Truck from location 5 to 2', capex=0.0001, vopex=0.03, trans_min=truck_capmin, speed=50, varying=[VaryingTransport.DETERMINISTIC_CAPACITY])
 
     truck34 = Transport(name='truck34', resources={com1_loc3_out}, trans_max=truck_cap34,
-                        label='Truck from location 3 to 4',
-                        capex=0.2, vopex=0.02, trans_min=truck_capmin,
-                        varying=[VaryingTransport.DETERMINISTIC_CAPACITY])
+                        label='Truck from location 3 to 4', capex=0.2 / design_scale_factor, vopex=0.02,
+                        trans_min=truck_capmin, varying=[VaryingTransport.DETERMINISTIC_CAPACITY], speed=50)
     # truck43 = Transport(name='truck43', resources={com1_loc4_out}, trans_max=truck_cap34, label='Truck from location 4 to 3', capex=0.0001, vopex=0.02, trans_min=truck_capmin, speed=50, varying=[VaryingTransport.DETERMINISTIC_CAPACITY])
 
     truck45 = Transport(name='truck45', resources={com1_loc4_out}, trans_max=truck_cap45,
-                        label='Truck from location 4 to 5',
-                        capex=1, vopex=0.1, trans_min=truck_capmin,
-                        varying=[VaryingTransport.DETERMINISTIC_CAPACITY])
+                        label='Truck from location 4 to 5', capex=1 / design_scale_factor, vopex=0.1,
+                        trans_min=truck_capmin, varying=[VaryingTransport.DETERMINISTIC_CAPACITY], speed=50)
     # truck54 = Transport(name='truck54', resources={com1_loc5_out}, trans_max=truck_cap45, label='Truck from location 5 to 4', capex=0.0001, vopex=0.1, trans_min=truck_capmin, speed=50, varying=[VaryingTransport.DETERMINISTIC_CAPACITY])
 
     truck47 = Transport(name='truck47', resources={com1_loc4_out}, trans_max=truck_cap47,
-                        label='Truck from location 4 to 7',
-                        capex=0.4, vopex=0.04, trans_min=truck_capmin,
-                        varying=[VaryingTransport.DETERMINISTIC_CAPACITY])
+                        label='Truck from location 4 to 7', capex=0.4 / design_scale_factor, vopex=0.04,
+                        trans_min=truck_capmin, varying=[VaryingTransport.DETERMINISTIC_CAPACITY], speed=50)
     # truck74 = Transport(name='truck74', resources={com1_loc7_out}, trans_max=truck_cap47, label='Truck from location 7 to 4', capex=0.0001, vopex=0.04, trans_min=truck_capmin, speed=50, varying=[VaryingTransport.DETERMINISTIC_CAPACITY])
 
     truck64 = Transport(name='truck64', resources={com1_loc6_out}, trans_max=truck_cap64,
-                        label='Truck from location 6 to 4',
-                        capex=0.5, vopex=0.05, trans_min=truck_capmin,
-                        varying=[VaryingTransport.DETERMINISTIC_CAPACITY])
+                        label='Truck from location 6 to 4', capex=0.5 / design_scale_factor, vopex=0.05,
+                        trans_min=truck_capmin, varying=[VaryingTransport.DETERMINISTIC_CAPACITY], speed=50)
     # truck46 = Transport(name='truck46', resources={com1_loc4_out}, trans_max=truck_cap64, label='Truck from location 4 to 6', capex=0.0001, vopex=0.05, trans_min=truck_capmin, speed=50, varying=[VaryingTransport.DETERMINISTIC_CAPACITY])
 
     truck75 = Transport(name='truck75', resources={com1_loc7_out}, trans_max=truck_cap75,
-                        label='Truck from location 7 to 5',
-                        capex=0.4, vopex=0.04, trans_min=truck_capmin,
-                        varying=[VaryingTransport.DETERMINISTIC_CAPACITY])
+                        label='Truck from location 7 to 5', capex=0.4 / design_scale_factor, vopex=0.04,
+                        trans_min=truck_capmin, varying=[VaryingTransport.DETERMINISTIC_CAPACITY], speed=50)
     # truck57 = Transport(name='truck57', resources={com1_loc5_out}, trans_max=truck_cap75, label='Truck from location 5 to 7', capex=0.0001, vopex=0.04, trans_min=truck_capmin, speed=50, varying=[VaryingTransport.DETERMINISTIC_CAPACITY])
 
     plane15 = Transport(name='plane15', resources={com1_loc1_out}, trans_max=plane_cap15,
-                        label='Plane from location 1 to 5',
-                        capex=3, vopex=0.5, trans_min=plane_capmin,
-                        varying=[VaryingTransport.DETERMINISTIC_CAPACITY])
+                        label='Plane from location 1 to 5', capex=3 / design_scale_factor, vopex=0.5,
+                        trans_min=plane_capmin, varying=[VaryingTransport.DETERMINISTIC_CAPACITY], speed=100)
+
+    # plane65 = Transport(name='plane65', resources={com1_loc6_out}, trans_max=plane_cap65,
+    #                     label='Plane from location 6 to 5', capex=3 / design_scale_factor, vopex=0.5,
+    #                     trans_min=plane_capmin, varying=[VaryingTransport.DETERMINISTIC_CAPACITY])
 
     # ======================================================================================================================
     # Declare network
@@ -298,60 +289,83 @@ def build_design_model(scen_df=pandas.DataFrame(), eps: float = 1.0):
     network = Network(name='Network', scales=scales, source_locations=sources, sink_locations=sinks,
                       transport_matrix=transport_matrix, distance_matrix=distance_matrix,
                       transport_capacity_scale_level=1,
-                      transport_capacity_factor={
-                          (loc1, loc2): {truck12: scen_df[[('truck12', 'com1_loc1_out')]] if ('truck12',
-                                                                                              'com1_loc1_out') in scen_df else default_df},
-                          (loc1, loc3): {truck13: scen_df[[('truck13', 'com1_loc1_out')]] if ('truck13',
-                                                                                              'com1_loc1_out') in scen_df else default_df},
-                          (loc1, loc5): {plane15: scen_df[[('plane15', 'com1_loc1_out')]] if ('plane15',
-                                                                                              'com1_loc1_out') in scen_df else default_df},
-                          (loc2, loc4): {truck24: scen_df[[('truck24', 'com1_loc2_out')]] if ('truck24',
-                                                                                              'com1_loc2_out') in scen_df else default_df},
-                          (loc2, loc5): {truck25: scen_df[[('truck25', 'com1_loc2_out')]] if ('truck25',
-                                                                                              'com1_loc2_out') in scen_df else default_df},
-                          (loc3, loc4): {truck34: scen_df[[('truck34', 'com1_loc3_out')]] if ('truck34',
-                                                                                              'com1_loc3_out') in scen_df else default_df},
-                          (loc4, loc5): {truck45: scen_df[[('truck45', 'com1_loc4_out')]] if ('truck45',
-                                                                                              'com1_loc4_out') in scen_df else default_df},
-                          (loc4, loc7): {truck47: scen_df[[('truck47', 'com1_loc4_out')]] if ('truck47',
-                                                                                              'com1_loc4_out') in scen_df else default_df},
-                          (loc6, loc4): {truck64: scen_df[[('truck64', 'com1_loc6_out')]] if ('truck64',
-                                                                                              'com1_loc6_out') in scen_df else default_df},
-                          (loc7, loc5): {truck75: scen_df[[('truck75', 'com1_loc7_out')]] if ('truck75',
-                                                                                              'com1_loc7_out') in scen_df else default_df},
-                      })
+                      transport_capacity_factor={(loc1, loc2): {truck12: scen_df[[('truck12', 'com1_loc1_out')]] if (
+                                                                                                                        'truck12',
+                                                                                                                        'com1_loc1_out') in scen_df else default_df},
+                                                 (loc1, loc3): {truck13: scen_df[[('truck13', 'com1_loc1_out')]] if (
+                                                                                                                        'truck13',
+                                                                                                                        'com1_loc1_out') in scen_df else default_df},
+                                                 (loc1, loc5): {plane15: scen_df[[('plane15', 'com1_loc1_out')]] if (
+                                                                                                                        'plane15',
+                                                                                                                        'com1_loc1_out') in scen_df else default_df},
+                                                 (loc2, loc4): {truck24: scen_df[[('truck24', 'com1_loc2_out')]] if (
+                                                                                                                        'truck24',
+                                                                                                                        'com1_loc2_out') in scen_df else default_df},
+                                                 (loc2, loc5): {truck25: scen_df[[('truck25', 'com1_loc2_out')]] if (
+                                                                                                                        'truck25',
+                                                                                                                        'com1_loc2_out') in scen_df else default_df},
+                                                 (loc3, loc4): {truck34: scen_df[[('truck34', 'com1_loc3_out')]] if (
+                                                                                                                        'truck34',
+                                                                                                                        'com1_loc3_out') in scen_df else default_df},
+                                                 (loc4, loc5): {truck45: scen_df[[('truck45', 'com1_loc4_out')]] if (
+                                                                                                                        'truck45',
+                                                                                                                        'com1_loc4_out') in scen_df else default_df},
+                                                 (loc4, loc7): {truck47: scen_df[[('truck47', 'com1_loc4_out')]] if (
+                                                                                                                        'truck47',
+                                                                                                                        'com1_loc4_out') in scen_df else default_df},
+                                                 (loc6, loc4): {truck64: scen_df[[('truck64', 'com1_loc6_out')]] if (
+                                                                                                                        'truck64',
+                                                                                                                        'com1_loc6_out') in scen_df else default_df},
+                                                 # (loc6, loc5): {plane65: scen_df[[('plane65', 'com1_loc6_out')]] if ('plane65', 'com1_loc6_out') in scen_df else default_df},
+                                                 (loc7, loc5): {truck75: scen_df[[('truck75', 'com1_loc7_out')]] if (
+                                                                                                                        'truck75',
+                                                                                                                        'com1_loc7_out') in scen_df else default_df},
+                                                 })
 
     # ======================================================================================================================
     # Declare scenario
     # ======================================================================================================================
 
-    daily_demand = 100
-    demand_penalty = 75
-    backlog_penalty = 50
+    daily_demand = 100 * design_scale_factor
+    demand_penalty = 25
+    backlog_penalty = 10
 
     demand_dict = {i: {com1_sold: daily_demand} if i == loc5 else {com1_sold: 0} for i in locset}
     demand_penalty_dict = {i: {com1_sold: demand_penalty} if i == loc5 else {com1_sold: 0} for i in locset}
     backlog_penalty_dict = {i: {com1_sold: backlog_penalty} if i == loc5 else {com1_sold: 0} for i in locset}
 
-    backlog_zero = {loc5: {com1_sold: 34}}
-
-    scenario = Scenario(name=f'design scenario', label='Design Scenario',
-                        annualization_factor=design_annualization_factor, scales=scales,
-                        scheduling_scale_level=2, network_scale_level=0, purchase_scale_level=2,
-                        availability_scale_level=1, demand_scale_level=2, capacity_scale_level=1,
-                        network=network, demand=demand_dict, demand_penalty=demand_penalty_dict,
-                        backlog_penalty=backlog_penalty_dict)
+    scenario = Scenario(name=f'design scenario', scales=scales, scheduling_scale_level=2, network_scale_level=0,
+                        purchase_scale_level=2, availability_scale_level=1, demand_scale_level=2,
+                        backlog_penalty_scale_level=2,
+                        capacity_scale_level=1, network=network, demand=demand_dict, demand_penalty=demand_penalty_dict,
+                        backlog_penalty=backlog_penalty_dict,
+                        label='Design Scenario', annualization_factor=design_annualization_factor)
 
     if scen_df.empty:
         # ======================================================================================================================
         # Declare problem
         # ======================================================================================================================
 
+        backlog_zero = {loc5: {com1_sold: 34}}
         problem_mincost = formulate(scenario=scenario, demand_sign='eq', objective=Objective.COST_W_DEMAND_PENALTY,
                                     backlog_zero=backlog_zero,
                                     constraints={Constraints.COST, Constraints.TRANSPORT, Constraints.RESOURCE_BALANCE,
                                                  Constraints.INVENTORY, Constraints.PRODUCTION, Constraints.BACKLOG,
                                                  Constraints.NETWORK})
+
+        demand = scenario.demand
+        if isinstance(demand, dict):
+            if isinstance(list(demand.keys())[0], Location):
+                try:
+                    demand = {i.name: {
+                        j.name: demand[i][j] for j in demand[i].keys()} for i in demand.keys()}
+                except:
+                    pass
+
+        constraint_demand_lb(instance=problem_mincost, demand=demand, demand_factor=scenario.demand_factor,
+                             demand_scale_level=scenario.demand_scale_level,
+                             scheduling_scale_level=scenario.scheduling_scale_level,
+                             location_resource_dict=scenario.location_resource_dict, epsilon=eps)
 
         scale_iter = scale_tuple(instance=problem_mincost, scale_levels=scenario.network_scale_level + 1)
         problem_mincost.first_stage_cost = Var(within=NonNegativeReals, doc='First Stage Cost')
@@ -365,31 +379,32 @@ def build_design_model(scen_df=pandas.DataFrame(), eps: float = 1.0):
         return scenario, problem_mincost
     else:
         return scenario
+
 def build_design_smodel(scen_df=pandas.DataFrame(), eps: float = 1.0):
     scenario = build_design_model(scen_df=scen_df, eps=eps)
     # ======================================================================================================================
     # Declare problem
     # ======================================================================================================================
+    backlog_zero = {'loc5': {'com1_sold': 34}}
+    problem_mincost = formulate(scenario=scenario, demand_sign='eq', objective=Objective.COST_W_DEMAND_PENALTY,
+                                    backlog_zero=backlog_zero,
+                                    constraints={Constraints.COST, Constraints.TRANSPORT, Constraints.RESOURCE_BALANCE,
+                                                 Constraints.INVENTORY, Constraints.PRODUCTION, Constraints.BACKLOG,
+                                                 Constraints.NETWORK})
 
-    problem_mincost = formulate(scenario=scenario,
-                                constraints={Constraints.COST, Constraints.TRANSPORT, Constraints.RESOURCE_BALANCE,
-                                             Constraints.INVENTORY, Constraints.PRODUCTION, Constraints.BACKLOG,
-                                             Constraints.NETWORK},
-                                demand_sign='eq', objective=Objective.COST_W_DEMAND_PENALTY)
+    demand = scenario.demand
+    if isinstance(demand, dict):
+        if isinstance(list(demand.keys())[0], Location):
+            try:
+                demand = {i.name: {
+                    j.name: demand[i][j] for j in demand[i].keys()} for i in demand.keys()}
+            except:
+                pass
 
-    # demand = scenario.demand
-    # if isinstance(demand, dict):
-    #     if isinstance(list(demand.keys())[0], Location):
-    #         try:
-    #             demand = {i.name: {
-    #                 j.name: demand[i][j] for j in demand[i].keys()} for i in demand.keys()}
-    #         except:
-    #             pass
-    #
-    # constraint_demand_lb(instance=problem_mincost, demand=demand, demand_factor=scenario.demand_factor,
-    #                      demand_scale_level=scenario.demand_scale_level,
-    #                      scheduling_scale_level=scenario.scheduling_scale_level,
-    #                      location_resource_dict=scenario.location_resource_dict, epsilon=eps)
+    constraint_demand_lb(instance=problem_mincost, demand=demand, demand_factor=scenario.demand_factor,
+                         demand_scale_level=scenario.demand_scale_level,
+                         scheduling_scale_level=scenario.scheduling_scale_level,
+                         location_resource_dict=scenario.location_resource_dict, epsilon=eps)
 
     scale_iter = scale_tuple(instance=problem_mincost, scale_levels=scenario.network_scale_level + 1)
     problem_mincost.first_stage_cost = Var(within=NonNegativeReals, doc='First Stage Cost')
@@ -413,7 +428,7 @@ def design_scenario_creator(scen_name, **kwargs):
 
 if __name__ =='__main__':
 
-    with open('scenario_dict_Backlog_EF.pkl', 'rb') as file:
+    with open('backlog_scen_dict.pkl', 'rb') as file:
         load_scenario_dict = pickle.load(file)
 
     load_scenario_names = list(load_scenario_dict.keys())
@@ -427,31 +442,29 @@ if __name__ =='__main__':
         'Heuristics': 0.20
     }
     scenario_creator_kwargs = {'scenario_dict': load_scenario_dict,
+                               'epsilon': fill_rate,
                                'fsv': first_stage_variables}
 
     start_time = time.time()
-    ef_UI = ExtensiveForm(options, load_scenario_names, design_scenario_creator,
-                          scenario_creator_kwargs=scenario_creator_kwargs)
+    ef_UI = ExtensiveForm(options, load_scenario_names, design_scenario_creator, scenario_creator_kwargs=scenario_creator_kwargs)
     results = ef_UI.solve_extensive_form(solver_options=solver_options)
     end_time = time.time()
 
     exCost_UI = ef_UI.get_objective_value()
     ssoln_UI = ef_UI.get_root_solution()
 
-    with open(f"ssoln_Backlog_EF.pkl", "wb") as file:
+    with open(f"ssoln_{len(load_scenario_names)}_{int(fill_rate * 10):02d}_Backlog.pkl", "wb") as file:
         pickle.dump(ssoln_UI, file)
 
     output_dict = dict()
     for scen in load_scenario_names:
         model_vars = getattr(ef_UI.ef, scen).component_map(ctype=Var)
         vars_dict = {i:model_vars[i].extract_values() for i in model_vars.keys()}
-
         model_obj = getattr(ef_UI.ef, scen).component_map(ctype=Objective)
         obj_dict = {'objective': model_obj[i]() for i in model_obj.keys()}
-
         output_dict[scen] ={**vars_dict, **obj_dict}
 
-    with open(f'output_Backlog_EF.pkl','wb') as file:
+    with open(f'output_{len(load_scenario_names)}_{int(fill_rate * 10):02d}_Backlog.pkl','wb') as file:
         pickle.dump(output_dict,file)
 
     exPen = 0
@@ -470,5 +483,5 @@ if __name__ =='__main__':
                           'Total Expected Penalty Cost': exPen,
                           'Execution Time': start_time - end_time}
 
-    with open(f"final_results_Backlog_EF.pkl", 'wb') as file:
+    with open(f"results_{len(load_scenario_names)}_{int(fill_rate * 10):02d}_Backlog.pkl", 'wb') as file:
         pickle.dump(final_results_dict, file)
