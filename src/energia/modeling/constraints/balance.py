@@ -141,6 +141,19 @@ class Balance(_Generator):
 
         # ---- initialize GRB for commodity if necessary -----
 
+        if not isinstance(commodity, Stored):
+            stored = False
+
+            if self.grb[commodity][loc]:
+                # If a GRB exists at a lower temporal order, append to that
+                lower_times = [t for t in self.grb[commodity][loc] if t > time]
+                if lower_times:
+                    _ = self.aspect(commodity, loc, lower_times[0]) == True
+                    return
+
+        else:
+            stored = True
+
         if not self.grb[commodity][loc][time]:
             # this checks whether a general commodity balance has been defined
             # for the commodity in that space and time
@@ -156,7 +169,7 @@ class Balance(_Generator):
             )
             start = keep_time.time()
 
-            if isinstance(commodity, Stored) and self.aspect.name == 'inventory':
+            if stored and self.aspect.name == 'inventory':
                 if len(time) == 1:
                     return
                 # if inventory is being add to GRB
