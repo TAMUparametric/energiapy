@@ -27,7 +27,7 @@ dependencies = ["gana", "ppopt", "matplotlib", "scipy", "pandas", "numpy", "guro
 
 [project.optional-dependencies]
 all = ["pvlib", "windpowerlib", "h5pyd"]
-test = ["coverage", "pytest", "hypothesis"]
+test = ["coverage", "pytest", "hypothesis", "flake8"]
 docs = [
     "sphinx",            
     "sphinx-book-theme",  
