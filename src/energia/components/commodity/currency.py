@@ -8,7 +8,7 @@ from ._commodity import _Commodity
 
 
 @dataclass
-class Currency(_Commodity): 
+class Currency(_Commodity):
     """Same as Economic Impact (Eco)
 
     :param label: Label of the commodity, used for plotting. Defaults to None.
@@ -53,4 +53,4 @@ class Currency(_Commodity):
                 self.conversion[list(self.conversion)[0]]
                 / cash.conversion[list(cash.conversion)[0]]
             )
-        raise ValueError(f'{cash} does not have an exchange rate set {self.name}')
+        raise ValueError(f"{cash} does not have an exchange rate set {self.name}")

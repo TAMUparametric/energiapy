@@ -35,6 +35,5 @@ class Material(Resource):
     :vartype insitu: bool, optional
     """
 
-
     def __post_init__(self):
         Resource.__post_init__(self)

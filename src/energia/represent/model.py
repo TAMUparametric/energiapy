@@ -30,13 +30,13 @@ from ..components.temporal.periods import Periods
 from ..components.temporal.scales import TemporalScales
 from ..library.recipes import (
     capacity_sizing,
-    operating,
-    inventory_sizing,
-    free_movement,
-    trade,
     economic,
     environmental,
+    free_movement,
+    inventory_sizing,
+    operating,
     social,
+    trade,
     usage,
 )
 from ..modeling.parameters.conversion import Conversion
@@ -98,7 +98,7 @@ class Model(_Init):
     :raises ValueError: If an attribute name already exists in the Model.
     """
 
-    name: str = 'm'
+    name: str = "m"
     init: list[Callable[Self]] = None
     default: bool = True
     capacitate: bool = False
@@ -132,33 +132,33 @@ class Model(_Init):
         #   1. Impact (Impact) categories include Eco, Soc
 
         self.update_map = {
-            Periods: ('time', 'periods'),
-            Modes: ('time', 'modes'),
-            Location: ('space', 'locations'),
-            Linkage: ('space', 'linkages'),
+            Periods: ("time", "periods"),
+            Modes: ("time", "modes"),
+            Location: ("space", "locations"),
+            Linkage: ("space", "linkages"),
             Environ: (
-                'consequence',
-                'envs',
+                "consequence",
+                "envs",
             ),
             Social: (
-                'consequence',
-                'socs',
+                "consequence",
+                "socs",
             ),
-            Economic: ('consequence', 'ecos'),
-            Process: ('system', 'processes'),
-            Storage: ('system', 'storages'),
-            Transport: ('system', 'transits'),
-            Player: ('system', 'players'),
-            Couple: ('system', 'couples'),
-            Currency: ('system', 'currencies'),
-            Land: ('system', 'lands'),
-            Emission: ('system', 'emissions'),
-            Material: ('system', 'materials'),
-            Resource: ('system', 'resources'),
-            Control: ('problem', 'controls'),
-            Stream: ('problem', 'streams'),
-            State: ('problem', 'states'),
-            Impact: ('problem', 'impacts'),
+            Economic: ("consequence", "ecos"),
+            Process: ("system", "processes"),
+            Storage: ("system", "storages"),
+            Transport: ("system", "transits"),
+            Player: ("system", "players"),
+            Couple: ("system", "couples"),
+            Currency: ("system", "currencies"),
+            Land: ("system", "lands"),
+            Emission: ("system", "emissions"),
+            Material: ("system", "materials"),
+            Resource: ("system", "resources"),
+            Control: ("problem", "controls"),
+            Stream: ("problem", "streams"),
+            State: ("problem", "states"),
+            Impact: ("problem", "impacts"),
         }
 
         # map of attribute names to recipes for creating them
@@ -234,7 +234,7 @@ class Model(_Init):
         if name in self.added:
             # do not allow overriding of components
             # throw error if name already exists
-            raise ValueError(f'{name} already defined')
+            raise ValueError(f"{name} already defined")
             # added is the list of all components that have been added to the model
         self.added.append(name)
 
@@ -247,14 +247,14 @@ class Model(_Init):
 
         # update the index set for index elements
         if collection in [
-            'resources',
-            'currencies',
-            'lands',
-            'emissions',
-            'materials',
-            'processes',
-            'storages',
-            'transits',
+            "resources",
+            "currencies",
+            "lands",
+            "emissions",
+            "materials",
+            "processes",
+            "storages",
+            "transits",
         ]:
             index_set: I = getattr(self.program, collection)
             setattr(self.program, collection, index_set | value.I)
@@ -348,7 +348,7 @@ class Model(_Init):
             return aspect
 
         raise AttributeError(
-            f"'{type(self).__name__}' object has no attribute '{name}'"
+            f"'{type(self).__name__}' object has no attribute '{name}'",
         )
 
     def aliases(self, *names: str, to: str):
@@ -360,17 +360,17 @@ class Model(_Init):
         self,
         name: str,
         kind: Type[Aspect],
-        label: str = '',
-        add: str = '',
-        add_latex: str = '',
+        label: str = "",
+        add: str = "",
+        add_latex: str = "",
         add_kind: Type[Aspect] = None,
-        sub: str = '',
-        sub_latex: str = '',
+        sub: str = "",
+        sub_latex: str = "",
         sub_kind: Type[Aspect] = None,
-        neg: str = '',
-        neg_latex: str = '',
-        neg_label: str = '',
-        bound: str = '',
+        neg: str = "",
+        neg_latex: str = "",
+        neg_label: str = "",
+        bound: str = "",
         ispos: bool = True,
         nn: bool = True,
         types_opr: tuple[Type[Process | Storage | Transport]] = None,
@@ -397,7 +397,7 @@ class Model(_Init):
             latex (str, optional): LaTeX representation for the aspect. Defaults to None.
         """
         if name in self.cookbook:
-            print(f'--- Warning: Overriding existing recipe ---{name}')
+            print(f"--- Warning: Overriding existing recipe ---{name}")
 
         self.cookbook[name] = Recipe(
             name=name,
@@ -485,12 +485,12 @@ class Model(_Init):
         if source - sink:
             # if source and sink are already linked
             raise ValueError(
-                f'A link already defined between {source} and {sink}.\n'
-                'For multiple linkages with different attributes, use model.named_link = Link(...)'
+                f"A link already defined between {source} and {sink}.\n"
+                "For multiple linkages with different attributes, use model.named_link = Link(...)",
             )
 
         link = Linkage(source=source, sink=sink, dist=dist, bi=bi, auto=True)
-        setattr(self, f'{source.name}-{sink.name}', link)
+        setattr(self, f"{source.name}-{sink.name}", link)
 
     def TemporalScales(self, discretizations: list[int], names: list[str]):
         """
@@ -512,14 +512,17 @@ class Model(_Init):
 
         if discretizations[-1] != 1:
             discretizations.append(1)
-            names.append('t0')
+            names.append("t0")
 
         for disc, name in zip(discretizations, names):
             setattr(self, name, disc * root)
             root = self.periods[-1]
 
     def show(
-        self, descriptive: bool = False, categorical: bool = True, category: str = None
+        self,
+        descriptive: bool = False,
+        categorical: bool = True,
+        category: str = None,
     ):
         """Pretty print the Model"""
         self.program.show(descriptive, categorical=categorical, category=category)
@@ -528,13 +531,13 @@ class Model(_Init):
         """Solution"""
         return self.program.sol(n_sol=n_sol, slack=slack, compare=compare)
 
-    def save(self, as_type: str = 'dill'):
+    def save(self, as_type: str = "dill"):
         """Save the Model to a file"""
-        if as_type == 'dill':
-            with open(self.name + '.energia', 'wb') as f:
+        if as_type == "dill":
+            with open(self.name + ".energia", "wb") as f:
                 dump(self.solution, f)
         else:
-            raise ValueError(f'Unknown type {as_type} for saving the model')
+            raise ValueError(f"Unknown type {as_type} for saving the model")
 
     def draw(self, variable: Aspect | Bind):
         """Draw the solution for a variable"""
@@ -546,20 +549,20 @@ class Model(_Init):
         if size:
             # if size is passed,
             # make a new temporal scale
-            new_period = Periods(f'Time/{size}', periods=size, of=self.horizon)
-            setattr(self, f't{len(self.time.periods)}', new_period)
+            new_period = Periods(f"Time/{size}", periods=size, of=self.horizon)
+            setattr(self, f"t{len(self.time.periods)}", new_period)
 
             # return the newly created period
             return self.time.periods[-1]
 
         # or create a default period
 
-        self.t0 = Periods('Time')
+        self.t0 = Periods("Time")
         return self.t0
 
     def default_loc(self) -> Location:
         """Return a default location"""
-        self.l = Location(label='l')
+        self.l = Location(label="l")
         return self.l
 
     def default_currency(self) -> Currency:
@@ -567,7 +570,7 @@ class Model(_Init):
         if self.currencies:
             return self.currencies[0]
 
-        self.money = Currency(label='$')
+        self.money = Currency(label="$")
         return self.money
 
     def locate(self, *operations: Process | Storage):

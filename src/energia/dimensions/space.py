@@ -67,7 +67,7 @@ class Space(_Dimension):
         self.network.update_hierarchy()
         hierarchy_ = {}
         for loc in self.locations:
-            if not loc.hierarchy in hierarchy_:
+            if loc.hierarchy not in hierarchy_:
                 hierarchy_[loc.hierarchy] = []
             hierarchy_[loc.hierarchy].append(loc)
         return hierarchy_

@@ -1,10 +1,5 @@
 """Data management utilities"""
 
-import copy
-import json
-import pickle
-from itertools import product
-
 import numpy as np
 import pandas as pd
 
@@ -38,16 +33,16 @@ def make_henry_price_df(
         DataFrame containing varying natural gas prices with missing values filled.
     """
 
-    df = pd.read_csv(file_name, skiprows=5, names=['date', 'CH4'])
+    df = pd.read_csv(file_name, skiprows=5, names=["date", "CH4"])
 
-    df[["month", "day", "year"]] = df['date'].str.split("/", expand=True)
-    df = df[df['year'] == str(year)].astype({"month": int, "day": int, "year": int})
+    df[["month", "day", "year"]] = df["date"].str.split("/", expand=True)
+    df = df[df["year"] == str(year)].astype({"month": int, "day": int, "year": int})
     # , format='%d%b%Y:%H:%M:%S.%f')
-    df['date'] = pd.to_datetime(df['date'])
-    df['doy'] = df['date'].dt.dayofyear
-    df = df.sort_values(by=['doy'])
-    df = df.drop(columns='date').dropna(axis='rows')
-    doy_list = list(df['doy'])
+    df["date"] = pd.to_datetime(df["date"])
+    df["doy"] = df["date"].dt.dayofyear
+    df = df.sort_values(by=["doy"])
+    df = df.drop(columns="date").dropna(axis="rows")
+    doy_list = list(df["doy"])
 
     # fixes values for weekends and holidays to last active day
     for i in np.arange(1, 366):
@@ -59,15 +54,15 @@ def make_henry_price_df(
                         pd.DataFrame.from_records(
                             [
                                 {
-                                    'CH4': df['CH4'][df['doy'] == 2].values[0],
-                                    'month': 1,
-                                    'day': 1,
-                                    'year': year,
-                                    'doy': 1,
-                                }
-                            ]
+                                    "CH4": df["CH4"][df["doy"] == 2].values[0],
+                                    "month": 1,
+                                    "day": 1,
+                                    "year": year,
+                                    "doy": 1,
+                                },
+                            ],
                         ),
-                    ]
+                    ],
                 )
                 # df = df.append({'CH4': df['CH4'][df['doy'] == 2].values[0], 'month': 1, 'day': 1, 'year': year, 'doy': 1}, ignore_index=True)
             else:
@@ -77,36 +72,38 @@ def make_henry_price_df(
                         pd.DataFrame.from_records(
                             [
                                 {
-                                    'CH4': df['CH4'][df['doy'] == i - 1].values[0],
-                                    'month': df['month'][df['doy'] == i - 1].values[0],
-                                    'day': df['day'][df['doy'] == i - 1].values[0],
-                                    'year': df['year'][df['doy'] == i - 1].values[0],
-                                    'doy': i,
-                                }
-                            ]
+                                    "CH4": df["CH4"][df["doy"] == i - 1].values[0],
+                                    "month": df["month"][df["doy"] == i - 1].values[0],
+                                    "day": df["day"][df["doy"] == i - 1].values[0],
+                                    "year": df["year"][df["doy"] == i - 1].values[0],
+                                    "doy": i,
+                                },
+                            ],
                         ),
-                    ]
+                    ],
                 )
                 # df = df.append({'CH4': df['CH4'][df['doy'] == i-1].values[0], 'month': df['month'][df['doy'] == i-1].values[0], 'day': df['day'][df['doy'] == i-1].values[0], 'year': df['year'][df['doy'] == i-1].values[0], 'doy': i}, ignore_index=True)
 
-    df = df.sort_values(by=['doy'])
+    df = df.sort_values(by=["doy"])
     df = df.reset_index(drop=True)
-    df['CH4'] = df['CH4'] / 22.4  # convert from $/MMBtu to $/kg
-    df = df[['CH4', 'doy']].rename(columns={'doy': 'day'})
+    df["CH4"] = df["CH4"] / 22.4  # convert from $/MMBtu to $/kg
+    df = df[["CH4", "doy"]].rename(columns={"doy": "day"})
     if stretch is False:
         df = df
-        df['scales'] = [(0, int(i - 1)) for i in df['day']]
+        df["scales"] = [(0, int(i - 1)) for i in df["day"]]
 
     else:
         df = df.loc[df.index.repeat(24)].reset_index(drop=True)
-        df['hour'] = [int(i) for i in range(0, 24)] * 365
-        df['scales'] = [(0, int(i - 1), int(j)) for i, j in zip(df['day'], df['hour'])]
-    df = df[['CH4', 'scales']]
+        df["hour"] = [int(i) for i in range(0, 24)] * 365
+        df["scales"] = [(0, int(i - 1), int(j)) for i, j in zip(df["day"], df["hour"])]
+    df = df[["CH4", "scales"]]
     return df
 
 
 def remove_outliers(
-    data: pd.DataFrame, sd_cuttoff: int = 2, mean_range: int = 1
+    data: pd.DataFrame,
+    sd_cuttoff: int = 2,
+    mean_range: int = 1,
 ) -> pd.DataFrame:
     """
     Removes outliers up to a chosen number of standard deviations.

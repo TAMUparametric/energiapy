@@ -17,24 +17,24 @@ class Recipe:
 
     name: str
     kind: Type[Aspect]
-    label: str = ''
-    add: str = ''
-    sub: str = ''
-    bound: str = ''
-    ctrl: str = ''
+    label: str = ""
+    add: str = ""
+    sub: str = ""
+    bound: str = ""
+    ctrl: str = ""
     ispos: bool = True
     nn: bool = True
     types_opr: tuple[Type[Process | Storage | Transport]] = None
     types_res: Type[_Commodity] = None
     types_dres: Type[_Commodity] = None
     types_idc: Type[Indicator] = None
-    latex: str = ''
+    latex: str = ""
 
     def __post_init__(self):
         self.args = {
             k: v
             for k, v in asdict(self).items()
-            if k not in ('name', 'kind') and (isinstance(v, bool) or v)
+            if k not in ("name", "kind") and (isinstance(v, bool) or v)
         }
 
     def __str__(self):

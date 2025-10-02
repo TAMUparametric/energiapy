@@ -77,12 +77,12 @@ class Location(_X):
                 for locin in loc.has:
                     # if not already notified
                     # update alsohas
-                    if not locin in self.has:
+                    if locin not in self.has:
                         self.alsohas += (locin,)
 
     def __setattr__(self, name, value):
 
-        if name == 'currency' and value:
+        if name == "currency" and value:
             # all locations within a location have the same currency
             for loc in self.has + self.alsohas:
                 loc.currency = value
@@ -170,7 +170,7 @@ class Location(_X):
             if source and sink:
                 links.append(link)
                 if print_link:
-                    print(f'{source} is source and {sink} is sink in {link}')
+                    print(f"{source} is source and {sink} is sink in {link}")
                 continue
         return links
 
@@ -218,9 +218,9 @@ class Location(_X):
         links = [link for link in links if link.source == self]
         if len(links) > 1:
             warn(
-                f'Multiple links found between ({self}, {location})\n'
-                'Suggest using model.named_link = Link(...)\n'
-                f'Currently, taking {links[0]}, with distance {links[0].dist}',
+                f"Multiple links found between ({self}, {location})\n"
+                "Suggest using model.named_link = Link(...)\n"
+                f"Currently, taking {links[0]}, with distance {links[0].dist}",
                 UserWarning,
             )
         if links:

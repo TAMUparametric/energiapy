@@ -59,7 +59,7 @@ def generate_connectivity_matrix(scale_len) -> numpy.array:
     return connect_
 
 
-def normalize(data: list, how: str = 'max') -> list:
+def normalize(data: list, how: str = "max") -> list:
     """min max normalization of data
 
     Args:
@@ -78,12 +78,12 @@ def normalize(data: list, how: str = 'max') -> list:
         ub_norm = normalize(ub, how=how)
         return [(i, j) for i, j in zip(lb_norm, ub_norm)]
 
-    if how == 'min_max':
+    if how == "min_max":
         min_ = min(data)
         max_ = max(data)
         data = [(i - min_) / (max_ - min_) for i in data]
 
-    if how == 'max':
+    if how == "max":
         max_ = max(data)
         data = [i / max(data) for i in data]
     return data

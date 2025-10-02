@@ -18,7 +18,7 @@ class _Dimension:
     :param model: Model to which the representation belongs.
     :type model: Model
 
-    :ivar name: Name of the dimension, generated based on the class and model name. 
+    :ivar name: Name of the dimension, auto generated
     :vartype name: str
 
     :note:
@@ -29,8 +29,9 @@ class _Dimension:
     model: Model
 
     def __post_init__(self):
-        # There is only one instance of these, so they take their own name
-        self.name = rf'{self.__class__.__name__}({self.model})'
+        # There is only one instance of these
+        # so they take their own name
+        self.name = rf"{self.__class__.__name__}({self.model})"
 
     # -----------------------------------------------------
     #                    Hashing

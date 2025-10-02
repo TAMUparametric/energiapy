@@ -40,7 +40,7 @@ class Lag(_Name):
     periods: int | float = 1
 
     def __post_init__(self):
-        self.name = f'-{self.periods}{self.of}'
+        self.name = f"-{self.periods}{self.of}"
         self.domains: list[Domain] = []
         self.constraints: list[str] = []
 

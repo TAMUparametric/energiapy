@@ -1,5 +1,4 @@
-"""Default Temporal Horizon 
-"""
+"""Default Temporal Horizon"""
 
 # from dataclasses import dataclass, field
 # import calendar

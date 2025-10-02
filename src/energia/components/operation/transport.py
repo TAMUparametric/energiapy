@@ -10,10 +10,8 @@ from ._operation import _Operation
 
 if TYPE_CHECKING:
     from ..commodity.resource import Resource
-    from ..measure.unit import Unit
     from ..spatial.linkage import Linkage
     from ..spatial.location import Location
-    from ..temporal.lag import Lag
     from ..temporal.periods import Periods
 
 
@@ -62,28 +60,29 @@ class Transport(_Operation):
         link_times = []
 
         linkages = sum(
-            [[link, link.sib] if link.sib else [link] for link in list(linkages)], []
+            [[link, link.sib] if link.sib else [link] for link in list(linkages)],
+            [],
         )
         for link in linkages:
 
             # check if the transport has been capacitated at that link and time
-            if not self in self.problem.capacity_bound or not link in [
+            if self not in self.problem.capacity_bound or link not in [
                 l_t[0] for l_t in self.problem.capacity_bound[self]
             ]:
                 # if the process is not capacitated at the link and time
                 print(
-                    f'--- Assuming  {self} capacity is unbounded in ({link}, {self.horizon})'
+                    f"--- Assuming  {self} capacity is unbounded in ({link}, {self.horizon})",
                 )
                 # this is not a check, this generates a constraint
                 _ = self.model.capacity(self, link, self.horizon) == True
 
             # now that the transport has been capacitated at the link
             # check if the transport has been operated at that link and time
-            if not self in self.problem.operate_bound or not link in [
+            if self not in self.problem.operate_bound or link not in [
                 l_t[0] for l_t in self.problem.operate_bound[self]
             ]:
                 # if the transport is not operated at the link and time
-                print(f'--- Assuming {self} is operated at ({link}, {self.horizon})')
+                print(f"--- Assuming {self} is operated at ({link}, {self.horizon})")
                 # this is not a check, this generates a constraint
                 _ = self.model.operate(self, link, self.horizon) <= 1
 
@@ -107,7 +106,7 @@ class Transport(_Operation):
             # This checks whether some other aspect is defined at
             # a lower temporal scale
 
-            if not loc in self.model.grb[res]:
+            if loc not in self.model.grb[res]:
                 # if not defined for that location, check for a lower order location
                 # i.e. location at a lower hierarchy,
                 # e.g. say if loc being passed is a city, and a grb has not been defined for it
@@ -120,7 +119,7 @@ class Transport(_Operation):
 
                 self.model.update_grb(resource=res, space=loc, time=time)
 
-            if not time in self.model.grb[res][loc]:
+            if time not in self.model.grb[res][loc]:
                 self.model.update_grb(resource=res, space=loc, time=time)
 
             if res.inv_of:
@@ -129,7 +128,7 @@ class Transport(_Operation):
                 res = res.inv_of
 
             times = list(
-                [t for t in self.model.grb[res][loc] if self.model.grb[res][loc][t]]
+                [t for t in self.model.grb[res][loc] if self.model.grb[res][loc][t]],
             )
             # write the conversion balance at
             # densest temporal scale in that space
@@ -204,7 +203,10 @@ class Transport(_Operation):
                         lhs = self.model.operate(self, link, self.lag.of)
                     else:
                         rhs = self.model.expend(
-                            res, link.source, self, time_checker(res, link.source, time)
+                            res,
+                            link.source,
+                            self,
+                            time_checker(res, link.source, time),
                         )
                         lhs = self.model.operate(self, link, time)
 
@@ -216,7 +218,10 @@ class Transport(_Operation):
 
                     if self.lag:
                         rhs = self.model.expend(
-                            res, self.operate, link.source, self.lag.of
+                            res,
+                            self.operate,
+                            link.source,
+                            self.lag.of,
                         )
                         lhs = self.model.operate(self, link, self.lag.of)
                     else:
@@ -236,18 +241,30 @@ class Transport(_Operation):
 
                     if self.lag:
                         rhs_export = self.model.ship_out(
-                            res, self.operate, link.source, self.lag.of
+                            res,
+                            self.operate,
+                            link.source,
+                            self.lag.of,
                         )
                         rhs_import = self.model.ship_in(
-                            res, self.operate, link.sink, self.lag
+                            res,
+                            self.operate,
+                            link.sink,
+                            self.lag,
                         )
                         lhs = self.model.operate(self, link, self.lag.of)
                     else:
                         rhs_export = self.model.ship_out(
-                            res, self, link.source, time_checker(res, link.source, time)
+                            res,
+                            self,
+                            link.source,
+                            time_checker(res, link.source, time),
                         )
                         rhs_import = self.model.ship_in(
-                            res, self, link.sink, time_checker(res, link.sink, time)
+                            res,
+                            self,
+                            link.sink,
+                            time_checker(res, link.sink, time),
                         )
                         lhs = self.model.operate(self, link, time)
                     upd_operate, upd_ship = True, True
@@ -273,21 +290,23 @@ class Transport(_Operation):
                     dom_import = rhs_import.domain
 
                     cons_name_export = (
-                        f'operate_export_{res}_{self}_{link}_{time}_bal'.replace(
-                            '-', '_'
+                        f"operate_export_{res}_{self}_{link}_{time}_bal".replace(
+                            "-",
+                            "_",
                         )
                     )
                     cons_name_import = (
-                        f'operate_import_{res}_{self}_{link}_{time}_bal'.replace(
-                            '-', '_'
+                        f"operate_import_{res}_{self}_{link}_{time}_bal".replace(
+                            "-",
+                            "_",
                         )
                     )
 
                     cons_export = v_lhs - eff * v_rhs_export == 0
                     cons_import = v_lhs - eff * v_rhs_import == 0
 
-                    cons_export.categorize('Flow')
-                    cons_import.categorize('Flow')
+                    cons_export.categorize("Flow")
+                    cons_import.categorize("Flow")
 
                     setattr(self.program, cons_name_export, cons_export)
                     setattr(self.program, cons_name_import, cons_import)
@@ -310,12 +329,13 @@ class Transport(_Operation):
 
                     dom = rhs.domain
 
-                    cons_name = f'operate_{res}_{self}_{link}_{time}_bal'.replace(
-                        '-', '_'
+                    cons_name = f"operate_{res}_{self}_{link}_{time}_bal".replace(
+                        "-",
+                        "_",
                     )
                     cons = v_rhs == (1 / eff) * v_lhs
 
-                    cons.categorize('Flow')
+                    cons.categorize("Flow")
 
                     setattr(self.program, cons_name, cons)
 

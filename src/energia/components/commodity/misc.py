@@ -6,7 +6,6 @@ from .resource import Resource
 # from ..operation.task import Task
 
 
-
 @dataclass
 class Package(Resource):
     """Package, discrete

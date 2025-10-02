@@ -77,7 +77,8 @@ class Calculate:
         # update the index and return a Calc object
 
         return Calculate(
-            calculation=self.calculation(*index), decision=self.decision(*index)
+            calculation=self.calculation(*index),
+            decision=self.decision(*index),
         )
 
     def __eq__(self, other):
@@ -168,7 +169,7 @@ class Calculate:
                     domain = calc.domain
                     v_rhs = decision.X(other)
                     cons_name = (
-                        rf'{self.calculation.aspect.name}_inc{domain.idxname}_calc'
+                        rf"{self.calculation.aspect.name}_inc{domain.idxname}_calc"
                     )
 
                 else:
@@ -176,12 +177,12 @@ class Calculate:
                     v_lhs = calc.V(other)
                     domain = calc.domain
                     v_rhs = decision.V(other)
-                    cons_name = rf'{self.calculation.aspect.name}{domain.idxname}_calc'
+                    cons_name = rf"{self.calculation.aspect.name}{domain.idxname}_calc"
 
                 cons: C = v_lhs == other * v_rhs
 
                 # categorize the constraint
-                cons.categorize('Calculation')
+                cons.categorize("Calculation")
 
                 setattr(
                     self.program,

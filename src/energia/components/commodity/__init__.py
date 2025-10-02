@@ -1,2 +1,1 @@
-"""energiapy.commodity init file
-"""
+"""energiapy.commodity init file"""

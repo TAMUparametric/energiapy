@@ -35,6 +35,5 @@ class Emission(_Commodity):
     :vartype insitu: bool, optional
     """
 
-
     def __post_init__(self):
         _Commodity.__post_init__(self)

@@ -28,6 +28,6 @@ class Value(_Name):
 
     def __post_init__(self):
         if isinstance(self.value, (float, int)):
-            self.name = f'{self.value}/{self.period}'
+            self.name = f"{self.value}/{self.period}"
         else:
-            self.name = f'Φ/{self.period}'
+            self.name = f"Φ/{self.period}"

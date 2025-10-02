@@ -17,7 +17,7 @@ class Consequence(_Dimension):
     :param model: Model to which the representation belongs.
     :type model: Model
 
-    :ivar name: Name of the dimension, generated based on the class and model name. 
+    :ivar name: Name of the dimension, generated based on the class and model name.
     :vartype name: str
     :ivar envs: List of environmental indicators.
     :vartype envs: list[Env]

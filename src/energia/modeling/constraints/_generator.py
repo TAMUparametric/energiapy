@@ -11,7 +11,6 @@ if TYPE_CHECKING:
 
     from gana.block.program import Prg
 
-    from ..._core._x import _X
     from ...components.commodity.resource import Resource
     from ...components.operation.process import Process
     from ...components.operation.storage import Storage

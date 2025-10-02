@@ -57,7 +57,6 @@ class Resource(_Commodity):
         # resource in its stored form
         self.in_inv: list[Resource] = []
 
-
     # @property
     # def consume(self):
     #     return self.model.consume(self)
@@ -66,7 +65,7 @@ class Resource(_Commodity):
     def gwp(self) -> Calculate:
         """Global Warming Potential"""
         if not hasattr(self.model, "GWP"):
-            self.model.GWP = Environ(label='Global Warming Potential (kg CO2)')
+            self.model.GWP = Environ(label="Global Warming Potential (kg CO2)")
 
         return self.consume[self.model.GWP.emit]
 
@@ -74,7 +73,7 @@ class Resource(_Commodity):
     def htp(self) -> Calculate:
         """Human Toxicity Potential"""
         if not hasattr(self.model, "HTP"):
-            self.model.HTP = Environ(label='Human Toxicity Potential (kg 1,4-DB eq.)')
+            self.model.HTP = Environ(label="Human Toxicity Potential (kg 1,4-DB eq.)")
 
         return self.consume[self.model.HTP.emit]
 

@@ -1,10 +1,9 @@
-"""Utilities for plots, manages axes and such
-"""
+"""Utilities for plots, manages axes and such"""
 
-import matplotlib.ticker as ticker
+from matplotlib import ticker
 
 
-def axis_formatter(axes, xcord: list, axis_labels: str = 'M'):
+def axis_formatter(axes, xcord: list, axis_labels: str = "M"):
     pos_list_8760 = [
         0,
         744,
@@ -34,26 +33,26 @@ def axis_formatter(axes, xcord: list, axis_labels: str = 'M'):
         334,
     ]  # hours of the year corresponding to month
     name_list = [
-        'Jan',
-        'Feb',
-        'Mar',
-        'Apr',
-        'May',
-        'Jun',
-        'Jul',
-        'Aug',
-        'Sep',
-        'Oct',
-        'Nov',
-        'Dec',
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec",
     ]
-    if axis_labels == 'M' and len(xcord) == 8760:
+    if axis_labels == "M" and len(xcord) == 8760:
         axes.xaxis.set_major_locator(ticker.FixedLocator((pos_list_8760)))
         axes.xaxis.set_major_formatter(ticker.FixedFormatter((name_list)))
-    if axis_labels == 'M' and len(xcord) == 365:
+    if axis_labels == "M" and len(xcord) == 365:
         axes.xaxis.set_major_locator(ticker.FixedLocator((pos_list_365)))
         axes.xaxis.set_major_formatter(ticker.FixedFormatter((name_list)))
-    if axis_labels == 'M' and len(xcord) == 12:
+    if axis_labels == "M" and len(xcord) == 12:
         axes.xaxis.set_major_locator(ticker.FixedLocator((list(range(12)))))
         axes.xaxis.set_major_formatter(ticker.FixedFormatter((name_list)))
 

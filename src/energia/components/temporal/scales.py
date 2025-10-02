@@ -18,4 +18,4 @@ class TemporalScales:
 
         # self.discretization_list = list(accumulate(discretization_list, mul))
         self.discretizations = discretizations
-        self.names = names if names else [f't{i}' for i in discretizations]
+        self.names = names if names else [f"t{i}" for i in discretizations]

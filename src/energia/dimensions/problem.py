@@ -28,7 +28,7 @@ class Problem(_Dimension):
     :param model: Model to which the representation belongs.
     :type model: Model
 
-    :ivar name: Name of the dimension, generated based on the class and model name. 
+    :ivar name: Name of the dimension, generated based on the class and model name.
     :vartype name: str
     :ivar controls: List of controls. Defaults to empty list.
     :vartype controls: list[Decision]
@@ -75,11 +75,21 @@ class Problem(_Dimension):
     def get(
         self,
         keys: Literal[
-            'aspects', 'states', 'controls', 'streams', 'impacts', 'domains'
-        ] = 'aspects',
+            "aspects",
+            "states",
+            "controls",
+            "streams",
+            "impacts",
+            "domains",
+        ] = "aspects",
         values: Literal[
-            'aspects', 'states', 'controls', 'streams', 'impacts', 'domains'
-        ] = 'domains',
+            "aspects",
+            "states",
+            "controls",
+            "streams",
+            "impacts",
+            "domains",
+        ] = "domains",
     ) -> dict[Aspect | Domain, list[Aspect | Domain]]:
         """Get a dictionary of the treewith a particular structure
 
@@ -93,15 +103,15 @@ class Problem(_Dimension):
         # This function will essentially return a dictionary
         # with any choice of keys and values
         # can come very handy
-        if keys in ['aspects', 'states', 'controls', 'streams', 'impacts']:
+        if keys in ["aspects", "states", "controls", "streams", "impacts"]:
             keysset: list[Aspect] = getattr(self, keys)
 
-            if values == 'domains':
+            if values == "domains":
                 return {d: [dom.tup for dom in d.domains] for d in keysset if d.domains}
             else:
                 return {d: getattr(d, values) for d in keysset if getattr(d, values)}
 
-        if keys in ['domains']:
+        if keys in ["domains"]:
             dict_ = {d: [] for d in self.domains}
 
             for dom in self.domains:
@@ -112,5 +122,5 @@ class Problem(_Dimension):
             return dict_
 
         raise ValueError(
-            'keys must be one of aspects, states, controls, streams, impacts, domains'
+            "keys must be one of aspects, states, controls, streams, impacts, domains",
         )

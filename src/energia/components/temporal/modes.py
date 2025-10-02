@@ -10,13 +10,9 @@ from gana.sets.index import I
 from ..._core._x import _X
 
 if TYPE_CHECKING:
-    from gana.block.program import Prg
     from gana.sets.constraint import C
 
     from ...modeling.constraints.bind import Bind
-    from ...modeling.indices.domain import Domain
-    from ...modeling.variables.aspect import Aspect
-    from ...represent.model import Model
 
 
 @dataclass
@@ -46,7 +42,7 @@ class Modes(_X):
         _X.__post_init__(self)
 
         if self.pos is not None:
-            self.name = f'{self.parent}[{self.pos}]'
+            self.name = f"{self.parent}[{self.pos}]"
 
         if self.parent:
             self.model = self.parent.model
@@ -65,7 +61,8 @@ class Modes(_X):
         if self.parent:
             return [getattr(self.program, c) for c in self.constraints]
         return [getattr(self.program, c) for c in self.constraints] + sum(
-            [m.cons for m in self], []
+            [m.cons for m in self],
+            [],
         )
 
     @property
@@ -84,7 +81,7 @@ class Modes(_X):
             setattr(
                 self.program,
                 self.name,
-                I(size=self.n_modes, tag=f'Modes of {self.bind.aspect}'),
+                I(size=self.n_modes, tag=f"Modes of {self.bind.aspect}"),
             )
             self._indexed = True
         # if already indexed, return the index set from the program

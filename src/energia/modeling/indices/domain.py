@@ -127,7 +127,7 @@ class Domain:
         """Primary component"""
         _primary = self.stream or self.operation
         if not _primary:
-            raise ValueError('Domain must have at least one primary index')
+            raise ValueError("Domain must have at least one primary index")
         return _primary
 
     @property
@@ -172,9 +172,9 @@ class Domain:
         if self.lag:
             return False
         if self.disposition in [
-            ('commodity', 'space', 'time'),
-            ('indicator', 'space', 'time'),
-            ('operation', 'space', 'time'),
+            ("commodity", "space", "time"),
+            ("indicator", "space", "time"),
+            ("operation", "space", "time"),
         ]:
             return True
         return False
@@ -204,12 +204,12 @@ class Domain:
     @property
     def name(self):
         """Name"""
-        return f'{tuple(self.index)}'
+        return f"{tuple(self.index)}"
 
     @property
     def idxname(self):
         """Name of the index"""
-        return '_' + '_'.join(f'{i}' for i in self.index)
+        return "_" + "_".join(f"{i}" for i in self.index)
 
     # -----------------------------------------------------
     #                    Dictionaries
@@ -289,30 +289,30 @@ class Domain:
     def args(self) -> dict[str, _X | Lag | Modes | list[Bind]]:
         """Dictionary of indices"""
         return {
-            'indicator': self.indicator,
-            'commodity': self.commodity,
-            'player': self.player,
-            'process': self.process,
-            'storage': self.storage,
-            'transport': self.transport,
-            'loc': self.loc,
-            'link': self.link,
-            'period': self.period,
-            'lag': self.lag,
-            'modes': self.modes,
-            'binds': self.binds,
+            "indicator": self.indicator,
+            "commodity": self.commodity,
+            "player": self.player,
+            "process": self.process,
+            "storage": self.storage,
+            "transport": self.transport,
+            "loc": self.loc,
+            "link": self.link,
+            "period": self.period,
+            "lag": self.lag,
+            "modes": self.modes,
+            "binds": self.binds,
         }
 
     @property
     def dictionary(self) -> dict[str, _X | Lag | Modes | list[Bind]]:
         """Dictionary of indices"""
         return {
-            'primary': self.primary,
-            'player': self.player,
-            'space': self.space,
-            'time': self.time,
-            'modes': self.modes,
-            'binds': self.binds,
+            "primary": self.primary,
+            "player": self.player,
+            "space": self.space,
+            "time": self.time,
+            "modes": self.modes,
+            "binds": self.binds,
         }
 
     # -----------------------------------------------------
@@ -346,7 +346,7 @@ class Domain:
     def update_cons(self, cons_name: str):
         """Update the constraints declared at every index"""
         for j in self.index:
-            if not cons_name in j.constraints:
+            if cons_name not in j.constraints:
                 j.constraints.append(cons_name)
 
     def update_domains(self, aspect: Aspect):
@@ -354,22 +354,21 @@ class Domain:
         that they have been modeled in
         """
         for i, j in self._.items():
-            if self.lag and i == 'time':
+            if self.lag and i == "time":
                 # lags disappear anyway, so dont bother
                 continue
-            if not i in ['binds']:
+            if i not in ["binds"]:
                 # these are dependent variables, so do not update them
-                if not self in j.domains:
+                if self not in j.domains:
                     # check and update the domains at each index
                     j.domains.append(self)
                 # if the variable is not in the list of variables at the index
                 # update those
-                if not aspect in j.aspects:
+                if aspect not in j.aspects:
                     # first time (variable) is a dict {aspect: [..aspects..]}
                     j.aspects[aspect] = [self]
-                else:
-                    if not self in j.aspects[aspect]:
-                        j.aspects[aspect].append(self)
+                elif self not in j.aspects[aspect]:
+                    j.aspects[aspect].append(self)
 
     def copy(self) -> Self:
         """Make a copy of self"""
@@ -446,7 +445,7 @@ class Domain:
                 notcommon.append(i)
         # The first loop will not check for the keys that are not in self._
         for k in other._.keys():
-            if not k in self._:
+            if k not in self._:
                 notcommon.append(k)
 
         return notcommon

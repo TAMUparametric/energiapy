@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 from ..._core._component import _Component
 
 if TYPE_CHECKING:
-    from ...dimensions.problem import Problem
+    pass
 
 
 @dataclass

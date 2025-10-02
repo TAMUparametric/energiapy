@@ -3,10 +3,9 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Literal, Self, Type
+from typing import TYPE_CHECKING, Self, Type
 
 import matplotlib.pyplot as plt
-from gana.sets.index import I
 from matplotlib import rc
 
 from ..._core._name import _Name
@@ -33,9 +32,6 @@ if TYPE_CHECKING:
     from ..._core._x import _X
     from ...dimensions.problem import Problem
     from ...represent.model import Model
-    from .control import Control
-    from .state import State
-    from .stream import Stream
 
 
 @dataclass
@@ -57,9 +53,9 @@ class Aspect(_Name):
     types_dres: Type[_Commodity] = None
     types_idc: Type[Indicator] = None
     ispos: bool = True
-    neg: str = ''
-    latex: str = ''
-    bound: str = ''
+    neg: str = ""
+    latex: str = ""
+    bound: str = ""
 
     def __post_init__(self):
         _Name.__post_init__(self)
@@ -68,9 +64,9 @@ class Aspect(_Name):
 
         if self.label:
             if self.nn:
-                self.label += ' [+]'
+                self.label += " [+]"
             else:
-                self.label += ' [-]'
+                self.label += " [-]"
         self.indices: list[Location | Linkage, Periods] = []
 
         # # if a decision is bounded by another decision
@@ -78,7 +74,8 @@ class Aspect(_Name):
 
         # spaces where the aspect has been already bound
         self.bound_spaces: dict[
-            _Commodity | Process | Storage | Transport, list[Location | Linkage]
+            _Commodity | Process | Storage | Transport,
+            list[Location | Linkage],
         ] = {}
 
         # Domains of the decision
@@ -190,7 +187,8 @@ class Aspect(_Name):
         dict[
             _Commodity | Process | Storage | Transport,
             dict[
-                Periods | Location | Linkage, dict[Location | Periods | Linkage, bool]
+                Periods | Location | Linkage,
+                dict[Location | Periods | Linkage, bool],
             ],
         ],
     ]:
@@ -215,7 +213,10 @@ class Aspect(_Name):
             c.show(descriptive)
 
     def sol(
-        self, n_sol: int = 0, aslist: bool = False, compare: bool = False
+        self,
+        n_sol: int = 0,
+        aslist: bool = False,
+        compare: bool = False,
     ) -> list[float] | None:
         """Solution
         Args:
@@ -337,7 +338,7 @@ class Aspect(_Name):
 
                 else:
                     raise ValueError(
-                        f'For component {self} of type {type(self)}: {comp} of type {type(comp)} not recognized as an index'
+                        f"For component {self} of type {type(self)}: {comp} of type {type(comp)} not recognized as an index",
                     )
 
             domain = Domain(
@@ -370,7 +371,7 @@ class Aspect(_Name):
         font_size: float = 16,
         fig_size: tuple[float, float] = (12, 6),
         linewidth: float = 0.7,
-        color: str = 'blue',
+        color: str = "blue",
         grid_alpha: float = 0.3,
         usetex: bool = True,
     ):
@@ -379,18 +380,17 @@ class Aspect(_Name):
             y = (y,)
         if not z:
             index = [i.I for i in y + (x,)]
-        else:
-            if not isinstance(z, tuple):
-                z = (z,)
+        elif not isinstance(z, tuple):
+            z = (z,)
 
         if usetex:
             rc(
-                'font',
-                **{'family': 'serif', 'serif': ['Computer Modern'], 'size': font_size},
+                "font",
+                **{"family": "serif", "serif": ["Computer Modern"], "size": font_size},
             )
-            rc('text', usetex=usetex)
+            rc("text", usetex=usetex)
         else:
-            rc('font', **{'size': font_size})
+            rc("font", **{"size": font_size})
 
         fig, ax = plt.subplots(figsize=fig_size)
         if not z:
@@ -412,9 +412,9 @@ class Aspect(_Name):
 
         label_ = [i.label if i.label else i.name for i in y]
         label_ = str(label_).replace("[", "").replace("]", "").replace("'", "")
-        plt.title(f'{self.label} - {label_}')
+        plt.title(f"{self.label} - {label_}")
         plt.ylabel("Values")
-        plt.xlabel(f'{x.label or x.name}')
+        plt.xlabel(f"{x.label or x.name}")
         plt.grid(alpha=grid_alpha)
         if z:
             plt.legend()

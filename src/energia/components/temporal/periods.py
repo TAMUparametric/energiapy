@@ -16,8 +16,6 @@ if TYPE_CHECKING:
     from gana.sets.constraint import C
 
     from ...dimensions.time import Time
-    from ...modeling.indices.domain import Domain
-    from ...modeling.variables.aspect import Aspect
 
 
 @dataclass
@@ -68,7 +66,7 @@ class Periods(_X):
         self._horizon: Self = None
 
         # can be overwritten by program
-        self.name = f'{self._periods}{self._of}'
+        self.name = f"{self._periods}{self._of}"
 
         if self.of is None:
             self.of = self
@@ -134,7 +132,7 @@ class Periods(_X):
                 # if they are multiples of the same base period
                 # check if they contain the same number of periods
                 return self.periods
-            raise ValueError(f'{period} is not a period of {self.name}')
+            raise ValueError(f"{period} is not a period of {self.name}")
 
         if is_(period.of, self.of):
 
@@ -151,7 +149,7 @@ class Periods(_X):
             # return the inverse of the of the periods
             return 1 / period.periods
 
-        raise ValueError(f'{period} is not a period of {self.name}')
+        raise ValueError(f"{period} is not a period of {self.name}")
 
     def __mul__(self, times: int | float):
 
@@ -161,7 +159,7 @@ class Periods(_X):
             if not self._of:
                 return Lag(of=self, periods=-times)
 
-            raise ValueError(f'{self} is not a period of anything, so cannot be lagged')
+            raise ValueError(f"{self} is not a period of anything, so cannot be lagged")
 
         if times < 1:
             # if it is a fraction
