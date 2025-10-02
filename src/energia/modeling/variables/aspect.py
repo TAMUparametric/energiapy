@@ -56,13 +56,16 @@ class Aspect(_Name):
     types_res: Type[_Commodity] = None
     types_dres: Type[_Commodity] = None
     types_idc: Type[Indicator] = None
-    latex: str = None
+    ispos: bool = True
+    neg: str = ''
+    latex: str = ''
+    bound: str = ''
 
     def __post_init__(self):
         _Name.__post_init__(self)
         # name of the decision
         self.model: Model = None
-        self.neg: Self = None
+
         if self.label:
             if self.nn:
                 self.label += ' [+]'
@@ -70,10 +73,8 @@ class Aspect(_Name):
                 self.label += ' [-]'
         self.indices: list[Location | Linkage, Periods] = []
 
-        # Does this add to the domain?
-        self.ispos = True
-        # if a decision is bounded by another decision
-        self.bound: Self = None
+        # # if a decision is bounded by another decision
+        # self.bound: Self = None
 
         # spaces where the aspect has been already bound
         self.bound_spaces: dict[
@@ -196,6 +197,14 @@ class Aspect(_Name):
         """Dispositions dict"""
         return self.model.dispositions[self]
 
+    def aliases(self, *names: str):
+        """Create aliases for the decision
+
+        Args:
+            *names (str): Names of the aliases
+        """
+        self.model.aliases(*names, to=self.name)
+
     def map_domain(self, domain: Domain):
         """Each inherited object has their own"""
         pass
@@ -223,6 +232,7 @@ class Aspect(_Name):
 
     def __neg__(self):
         """Negative Consequence"""
+
         dscn = type(self)(
             nn=False,
             types_opr=self.types_opr,

@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING, Self
 from gana import sigma
 
 from ._generator import _Generator
+from ...components.commodity.stored import Stored
 
 if TYPE_CHECKING:
     from gana import F, Prg
@@ -79,7 +80,6 @@ class Balance(_Generator):
 
         else:
             # if there are binds
-
             if commodity.insitu:
                 # # we need to still check if this is this is an insitu (e.g. a storage commodity)
                 # if the commodity is insitu that means that
@@ -156,7 +156,7 @@ class Balance(_Generator):
             )
             start = keep_time.time()
 
-            if commodity.inv_of and self.aspect.name == 'inventory':
+            if isinstance(commodity, Stored) and self.aspect.name == 'inventory':
                 if len(time) == 1:
                     return
                 # if inventory is being add to GRB

@@ -101,6 +101,7 @@ class _Component(_X):
 
     def __getattr__(self, name):
 
+
         if self.model:
             # no need to run a hasattr check
             # let it raise an attribute error if not found

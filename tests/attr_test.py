@@ -2,15 +2,22 @@ from energia.modeling.variables.control import Control
 from operator import is_
 import pytest
 
-from energia import Model, Resource
+from energia import Model, Resource, Transport, Process
 
 
 @pytest.fixture
 def m():
     m = Model()
     m.r = Resource()
-    m.attr_map['d'] = {'gg': {'type': Control}}
-    m.attr_map['b'] = {'gg': {'type': Control}}
+
+    m.Recipe(
+        'gg',
+        Control,
+        types_opr=(Process, Transport),
+        label='Operational Capacity',
+        latex='cap',
+    )
+    m.aliases('d', 'b', to='gg')
     return m
 
 
@@ -25,7 +32,6 @@ def test_attr(m):
             # but should not be accessible through resource
             m.r.default
 
-
     # returns the same object
     # through the alias
     assert is_(m.d, m.d)
@@ -38,4 +44,4 @@ def test_attr(m):
     # through different aliases
     assert is_(m.d, m.b)
 
-    
+    m.cookbook

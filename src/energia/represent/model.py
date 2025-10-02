@@ -28,7 +28,17 @@ from ..components.spatial.location import Location
 from ..components.temporal.modes import Modes
 from ..components.temporal.periods import Periods
 from ..components.temporal.scales import TemporalScales
-from ..library.decisions import Decisions
+from ..library.recipes import (
+    capacity_sizing,
+    operating,
+    inventory_sizing,
+    free_movement,
+    trade,
+    economic,
+    environmental,
+    social,
+    usage,
+)
 from ..modeling.parameters.conversion import Conversion
 from ..modeling.variables.control import Control
 from ..modeling.variables.impact import Impact
@@ -45,7 +55,7 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class Model(Decisions, _Init):
+class Model(_Init):
     """
     An abstract representation of an energy system.
 
@@ -145,9 +155,9 @@ class Model(Decisions, _Init):
             Emission: ('system', 'emissions'),
             Material: ('system', 'materials'),
             Resource: ('system', 'resources'),
-            State: ('problem', 'states'),
             Control: ('problem', 'controls'),
             Stream: ('problem', 'streams'),
+            State: ('problem', 'states'),
             Impact: ('problem', 'impacts'),
         }
 
@@ -158,7 +168,7 @@ class Model(Decisions, _Init):
         self._attr_map: dict[str, Aspect] = {}
 
         # maps to recipes for creating aspects
-        self.recipes: dict[str, Recipe] = {}
+        self.cookbook: dict[str, Recipe] = {}
 
         # ---- Different representations of the model ---
         _Init.__post_init__(self)
@@ -170,14 +180,30 @@ class Model(Decisions, _Init):
 
         self.modes_dict: dict[Bind, Modes] = {}
 
-        # introduce the dimensions of the model
-        Decisions.__post_init__(self)
-
         # if SI units have been set
         self.siunits_set: bool = False
 
-        for func in self.init or []:
+        if not self.init:
+            self.init = []
+
+        if self.default:
+            self.init += [
+                capacity_sizing,
+                operating,
+                inventory_sizing,
+                free_movement,
+                trade,
+                economic,
+                environmental,
+                social,
+                usage,
+            ]
+
+        for func in self.init:
             func(self)
+
+        # # introduce the dimensions of the model
+        # Decisions.__post_init__(self)
 
     # -----------------------------------------------------
     #              Set Component
@@ -289,11 +315,18 @@ class Model(Decisions, _Init):
 
     def __getattr__(self, name):
         # Only called when attribute does not exist
-
         if name in self._attr_map:
             # if attribute has been called before
             # the next time the created attribute is returned
             return self._attr_map[name]
+
+        if name in self.cookbook:
+            recipe = self.cookbook[name]
+
+            aspect = recipe.kind(**recipe.args)
+            setattr(self, name, aspect)
+
+            return aspect
 
         if name in self.attr_map:
             # if this is an attribute being called for the first time
@@ -305,8 +338,8 @@ class Model(Decisions, _Init):
                 return getattr(self, aspect_name)
 
             # these are the arguments for the aspect
-            args = recipe[aspect_name]
-            aspect = args['type']()
+            recipe = recipe[aspect_name]
+            aspect = recipe.kind(**recipe.args)
 
             setattr(self, aspect_name, aspect)
 
@@ -320,15 +353,25 @@ class Model(Decisions, _Init):
 
     def aliases(self, *names: str, to: str):
         """Set aspect aliases"""
-        _add = dict.fromkeys(list(names), {to: self.recipes[to]})
+        _add = dict.fromkeys(list(names), {to: self.cookbook[to]})
         self.attr_map = {**self.attr_map, **_add}
 
-    def Recipe(self, 
-               name: str,
-        aspect_type: Type[Aspect],
+    def Recipe(
+        self,
+        name: str,
+        kind: Type[Aspect],
         label: str = '',
         add: str = '',
+        add_latex: str = '',
+        add_kind: Type[Aspect] = None,
         sub: str = '',
+        sub_latex: str = '',
+        sub_kind: Type[Aspect] = None,
+        neg: str = '',
+        neg_latex: str = '',
+        neg_label: str = '',
+        bound: str = '',
+        ispos: bool = True,
         nn: bool = True,
         types_opr: tuple[Type[Process | Storage | Transport]] = None,
         types_res: Type[_Commodity] = None,
@@ -344,6 +387,8 @@ class Model(Decisions, _Init):
             label (str, optional): label for the aspect. Defaults to ''.
             add (str, optional): add control variable. Defaults to ''.
             sub (str, optional): sub control variable. Defaults to ''.
+            neg (str, optional): name of the negative aspect. Defaults to ''.
+            ispos (bool, optional): whether the aspect is positive. Defaults to True.
             nn (bool, optional): whether the aspect is non-negative. Defaults to True.
             types_opr (tuple[Type[Process  |  Storage  |  Transport]], optional): types of operators for the aspect. Defaults to None.
             types_res (Type[_Commodity], optional): types of resources for the aspect. Defaults to None.
@@ -351,13 +396,17 @@ class Model(Decisions, _Init):
             types_idc (Type[Indicator], optional): types of indicators for the aspect. Defaults to None.
             latex (str, optional): LaTeX representation for the aspect. Defaults to None.
         """
-        
-        self.recipes[name] = Recipe(
+        if name in self.cookbook:
+            print(f'--- Warning: Overriding existing recipe ---{name}')
+
+        self.cookbook[name] = Recipe(
             name=name,
-            aspect_type=aspect_type,
+            kind=kind,
             label=label or name,
             add=add,
             sub=sub,
+            bound=bound,
+            ispos=ispos,
             nn=nn,
             types_opr=types_opr,
             types_res=types_res,
@@ -366,7 +415,55 @@ class Model(Decisions, _Init):
             latex=latex,
         )
 
+        if add:
+            if not add_kind:
+                if sub_kind:
+                    add_kind = sub_kind
+            self.Recipe(
+                name=add,
+                kind=add_kind,
+                label=add_latex or add,
+                ispos=True,
+                nn=True,
+                types_opr=types_opr,
+                types_res=types_res,
+                types_dres=types_dres,
+                types_idc=types_idc,
+                latex=latex or add,
+            )
 
+        if sub:
+            if not sub_kind:
+                if add_kind:
+                    sub_kind = add_kind
+
+            self.Recipe(
+                name=sub,
+                kind=sub_kind,
+                label=sub_latex or sub,
+                ispos=False,
+                nn=True,
+                types_opr=types_opr,
+                types_res=types_res,
+                types_dres=types_dres,
+                types_idc=types_idc,
+                latex=latex or sub,
+            )
+
+        if neg:
+            neg_recipe = Recipe(
+                name=neg,
+                kind=kind,
+                label=neg_label,
+                ispos=not ispos,
+                nn=nn,
+                types_opr=types_opr,
+                types_res=types_res,
+                types_dres=types_dres,
+                types_idc=types_idc,
+                latex=neg_latex or neg,
+            )
+            self.cookbook[neg] = neg_recipe
 
     # -----------------------------------------------------
     #              Birth Component

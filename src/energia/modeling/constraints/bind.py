@@ -369,28 +369,30 @@ class Bind(_Generator):
         - :math:`i \in \{-, +\}` are variable-making levels
         """
 
-        if not self.aspect.bound in self.model.dispositions:
+        bound_aspect = getattr(self.model, self.aspect.bound)
+
+        if not bound_aspect in self.model.dispositions:
             print(
-                f'--- Aspect ({self.aspect.bound}) not defined, a variable will be created at {self.domain.space} assuming {self.model.horizon} as the temporal index'
+                f'--- Aspect ({bound_aspect}) not defined, a variable will be created at {self.domain.space} assuming {self.model.horizon} as the temporal index'
             )
 
-            _ = self.aspect.bound(self.domain.primary, self.domain.space).V()
+            _ = bound_aspect(self.domain.primary, self.domain.space).V()
 
         if (
             not self.domain.space
-            in self.model.dispositions[self.aspect.bound][self.domain.primary]
+            in self.model.dispositions[bound_aspect][self.domain.primary]
         ):
 
             # if the bound variable has not been defined at the given space
             print(
-                f'--- Aspect ({self.aspect.bound}) not defined at {self.domain.space}, a variable will be created assuming {self.model.horizon} as the temporal index'
+                f'--- Aspect ({bound_aspect}) not defined at {self.domain.space}, a variable will be created assuming {self.model.horizon} as the temporal index'
             )
 
             domain = self.domain.change({'period': self.model.horizon})
 
         else:
             # if the bound variable has been defined for the given space
-            times = self.model.dispositions[self.aspect.bound][self.domain.primary][
+            times = self.model.dispositions[bound_aspect][self.domain.primary][
                 self.domain.space
             ]
             time = max(list(times))
@@ -399,10 +401,10 @@ class Bind(_Generator):
             else:
                 # this is if the binding variable has a sparser temporal index compared to time
                 raise ValueError(
-                    f'Incompatible temporal indices: {self.aspect.bound} defined in time {time} and {self.aspect} defined in time {self.domain.period}\n'
-                    f'Binding variable ({self.aspect.bound}) cannot have a denser discretization than variable being bound ({self.aspect})'
+                    f'Incompatible temporal indices: {bound_aspect} defined in time {time} and {self.aspect} defined in time {self.domain.period}\n'
+                    f'Binding variable ({bound_aspect}) cannot have a denser discretization than variable being bound ({self.aspect})'
                 )
-        return self.aspect.bound(domain=domain).V()
+        return bound_aspect(domain=domain).V()
 
     def X(self, parameters: float | list = None, length: int = None) -> V:
         r"""Binary Reporting Variable

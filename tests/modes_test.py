@@ -1,6 +1,6 @@
 import pytest
 
-from energia.examples.energy import design_scheduling_materials
+from energia.library.examples.energy import design_scheduling_materials
 
 
 @pytest.fixture
