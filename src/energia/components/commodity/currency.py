@@ -1,10 +1,15 @@
 """Currency"""
 
+from __future__ import annotations
+
 from dataclasses import dataclass
 from operator import is_
-from typing import Self
+from typing import Self, TYPE_CHECKING
 
 from ._commodity import _Commodity
+
+if TYPE_CHECKING:
+    from ...components.spatial.location import Location
 
 
 @dataclass
@@ -37,20 +42,57 @@ class Currency(_Commodity):
     :vartype insitu: bool, optional
     """
 
+    locs: list[Location] = None
+
     def __post_init__(self):
         _Commodity.__post_init__(self)
+
+        # dictionary of exchange rates
+        self.exchange = {}
+
+        if self.locs:
+            for loc in self.locs:
+                loc.currency = self
+                for l in loc.alsohas:
+                    l.currency = self
 
     def howmany(self, cash: Self):
         """Exchange rate basically"""
 
         if is_(cash, self):
             return 1
-        if cash in self.conversion:
-            return self.conversion[cash]
-        # find a common currency
-        if list(self.conversion)[0] == list(cash.conversion)[0]:
-            return (
-                self.conversion[list(self.conversion)[0]]
-                / cash.conversion[list(cash.conversion)[0]]
-            )
+        if cash in self.exchange:
+            return self.exchange[cash]
+
+        # # find a common currency
+        # if list(self.conversion)[0] == list(cash.conversion)[0]:
+        #     return (
+        #         self.conversion[list(self.conversion)[0]]
+        #         / cash.conversion[list(cash.conversion)[0]]
+        #     )
         raise ValueError(f"{cash} does not have an exchange rate set {self.name}")
+
+    def __eq__(self, other):
+        if isinstance(other, Currency):
+            self.exchange[other] = 1.0
+        # assume it is a Conversion
+        else:
+            currency = list(other.conversion.keys())[0]
+            rate = other.conversion[currency]
+
+            # set the exchange rate of self against other
+            self.exchange[currency] = rate
+
+            for ex in currency.exchange:
+                if ex not in self.exchange:
+                    self.exchange[ex] = rate / currency.exchange[ex]
+
+                    if self not in ex.exchange:
+
+                        ex.exchange[self] = ex.exchange[currency] / rate
+
+                    # if self not in ex.exchange:
+                    #     ex.exchange[self] = currency.exchange[ex] / rate
+
+            # set the exchange rate of other against self
+            currency.exchange[self] = 1 / rate

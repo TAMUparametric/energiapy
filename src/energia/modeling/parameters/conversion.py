@@ -86,7 +86,13 @@ class Conversion(_Name):
     @property
     def model(self) -> Model:
         """energia Model"""
-        return self.operation.model
+
+        if self.pwl:
+            _conversion = self.conversion[list(self.conversion)[0]]
+        else:
+            _conversion = self.conversion
+
+        return next((i.model for i in _conversion), None)
 
     @property
     def program(self) -> Prg:

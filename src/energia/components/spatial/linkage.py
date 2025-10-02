@@ -88,6 +88,9 @@ class Linkage(_X):
 
     def __neg__(self):
         # creates a new Link in the opposite direction
+        if self.sib is not None:
+            return self.sib
+
         if self.label:
             label = self.label + "(-)"
             self.label = self.label + "(+)"
