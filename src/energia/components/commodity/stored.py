@@ -1,6 +1,7 @@
 """Resource in Storage"""
 
 from dataclasses import dataclass
+
 from .resource import Resource
 
 

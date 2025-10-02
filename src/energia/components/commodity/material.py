@@ -1,6 +1,7 @@
 """Material"""
 
 from dataclasses import dataclass
+
 from .resource import Resource
 
 

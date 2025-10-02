@@ -1,6 +1,6 @@
 import pytest
 
-from energia.examples.energy import supermarket
+from energia.library.examples.energy import supermarket
 
 
 @pytest.fixture

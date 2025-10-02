@@ -2,19 +2,23 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Type, Self
+from typing import TYPE_CHECKING, Self, Type
 
 from dill import dump
-from collections.abc import Callable
+
+from .._core._x import _X
+from ..components.commodity._commodity import _Commodity
 from ..components.commodity.currency import Currency
+from ..components.commodity.emission import Emission
 from ..components.commodity.land import Land
 from ..components.commodity.material import Material
-from ..components.commodity.emission import Emission
 from ..components.commodity.resource import Resource
-from ..components.game.player import Player
 from ..components.game.couple import Couple
+from ..components.game.player import Player
 from ..components.impact.categories import Economic, Environ, Social
+from ..components.impact.indicator import Indicator
 from ..components.measure.unit import Unit
 from ..components.operation.process import Process
 from ..components.operation.storage import Storage
@@ -24,11 +28,21 @@ from ..components.spatial.location import Location
 from ..components.temporal.modes import Modes
 from ..components.temporal.periods import Periods
 from ..components.temporal.scales import TemporalScales
-from .._core._x import _X
-from ..library.decisions import Decisions
+from ..library.recipes import (
+    capacity_sizing,
+    operating,
+    inventory_sizing,
+    free_movement,
+    trade,
+    economic,
+    environmental,
+    social,
+    usage,
+)
 from ..modeling.parameters.conversion import Conversion
 from ..modeling.variables.control import Control
 from ..modeling.variables.impact import Impact
+from ..modeling.variables.recipe import Recipe
 from ..modeling.variables.state import State
 from ..modeling.variables.stream import Stream
 from .blocks import _Init
@@ -41,7 +55,7 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class Model(Decisions, _Init):
+class Model(_Init):
     """
     An abstract representation of an energy system.
 
@@ -118,30 +132,44 @@ class Model(Decisions, _Init):
         #   1. Impact (Impact) categories include Eco, Soc
 
         self.update_map = {
-            Periods: [('time', 'periods')],
-            Modes: [('time', 'modes')],
-            Location: [('space', 'locations')],
-            Linkage: [
-                ('space', 'linkages'),
-            ],
-            Environ: [('impact', 'envs')],
-            Social: [('impact', 'socs')],
-            Economic: [('impact', 'ecos')],
-            Process: [('system', 'processes')],
-            Storage: [('system', 'storages')],
-            Transport: [('system', 'transits')],
-            Player: [('system', 'players')],
-            Couple: [('system', 'couples')],
-            Currency: [('system', 'currencies')],
-            Land: [('system', 'lands')],
-            Emission: [('system', 'emissions')],
-            Material: [('system', 'materials')],
-            Resource: [('system', 'resources')],
-            State: [('problem', 'states')],
-            Control: [('problem', 'controls')],
-            Stream: [('problem', 'streams')],
-            Impact: [('problem', 'impacts')],
+            Periods: ('time', 'periods'),
+            Modes: ('time', 'modes'),
+            Location: ('space', 'locations'),
+            Linkage: ('space', 'linkages'),
+            Environ: (
+                'consequence',
+                'envs',
+            ),
+            Social: (
+                'consequence',
+                'socs',
+            ),
+            Economic: ('consequence', 'ecos'),
+            Process: ('system', 'processes'),
+            Storage: ('system', 'storages'),
+            Transport: ('system', 'transits'),
+            Player: ('system', 'players'),
+            Couple: ('system', 'couples'),
+            Currency: ('system', 'currencies'),
+            Land: ('system', 'lands'),
+            Emission: ('system', 'emissions'),
+            Material: ('system', 'materials'),
+            Resource: ('system', 'resources'),
+            Control: ('problem', 'controls'),
+            Stream: ('problem', 'streams'),
+            State: ('problem', 'states'),
+            Impact: ('problem', 'impacts'),
         }
+
+        # map of attribute names to recipes for creating them
+        self.attr_map: dict[str, dict[str, Recipe]] = {}
+
+        # added attributes mapping to the created Aspect objects
+        self._attr_map: dict[str, Aspect] = {}
+
+        # maps to recipes for creating aspects
+        self.cookbook: dict[str, Recipe] = {}
+
         # ---- Different representations of the model ---
         _Init.__post_init__(self)
 
@@ -152,14 +180,34 @@ class Model(Decisions, _Init):
 
         self.modes_dict: dict[Bind, Modes] = {}
 
-        # introduce the dimensions of the model
-        Decisions.__post_init__(self)
-
         # if SI units have been set
         self.siunits_set: bool = False
 
-        for func in self.init or []:
+        if not self.init:
+            self.init = []
+
+        if self.default:
+            self.init += [
+                capacity_sizing,
+                operating,
+                inventory_sizing,
+                free_movement,
+                trade,
+                economic,
+                environmental,
+                social,
+                usage,
+            ]
+
+        for func in self.init:
             func(self)
+
+        # # introduce the dimensions of the model
+        # Decisions.__post_init__(self)
+
+    # -----------------------------------------------------
+    #              Set Component
+    # -----------------------------------------------------
 
     def update(
         self,
@@ -167,6 +215,7 @@ class Model(Decisions, _Init):
         value: _X,
         represent: str,
         collection: str,
+        aspects: list[str] = None,
     ):
         """Update the Model with a new value
 
@@ -209,6 +258,216 @@ class Model(Decisions, _Init):
         ]:
             index_set: I = getattr(self.program, collection)
             setattr(self.program, collection, index_set | value.I)
+
+        # set aspects (as binds) on the components
+        if aspects:
+            for asp in aspects:
+                aspect = getattr(self, asp)
+
+                setattr(value, asp, aspect(value))
+
+                if aspect.neg is not None:
+                    setattr(value, aspect.neg.name, aspect.neg(value))
+
+    def __setattr__(self, name, value):
+
+        if isinstance(value, (str, dict, list, bool)) or value is None:
+            # if value is a string, dict, list or bool
+            # set the attribute to the value
+            super().__setattr__(name, value)
+            return
+
+        if isinstance(value, TemporalScales):
+            self.TemporalScales(value.discretizations, value.names)
+
+            return
+
+        if isinstance(value, Unit):
+            value.name = name
+            self.units.append(value)
+
+        # map to representation and collection
+        for cls, updates in self.update_map.items():
+            if isinstance(value, cls):
+                # for args in updates:
+                self.update(name, value, *updates)
+                break
+
+        # Locations also belong to spaces
+        if isinstance(value, Location):
+
+            self.program.spaces |= value.I
+
+        # Linkages also belong to spaces
+        elif isinstance(value, Linkage):
+            self.program.spaces |= value.I
+            self.program.sources |= value.source.I
+            self.program.sinks |= value.sink.I
+            self.space.sources.append(value.source)
+            self.space.sinks.append(value.sink)
+            if value.bi:
+                # if bidirectional, set the reverse linkage
+                # also ensures that all linakges go in one direction only
+                rev = value.rev()
+                setattr(self, rev.name, rev)
+
+        super().__setattr__(name, value)
+
+    def __getattr__(self, name):
+        # Only called when attribute does not exist
+        if name in self._attr_map:
+            # if attribute has been called before
+            # the next time the created attribute is returned
+            return self._attr_map[name]
+
+        if name in self.cookbook:
+            recipe = self.cookbook[name]
+
+            aspect = recipe.kind(**recipe.args)
+            setattr(self, name, aspect)
+
+            return aspect
+
+        if name in self.attr_map:
+            # if this is an attribute being called for the first time
+            recipe = self.attr_map[name]
+            aspect_name = list(recipe.keys())[0]
+
+            if aspect_name in self.added:
+                # if same aspect is called by a different name
+                return getattr(self, aspect_name)
+
+            # these are the arguments for the aspect
+            recipe = recipe[aspect_name]
+            aspect = recipe.kind(**recipe.args)
+
+            setattr(self, aspect_name, aspect)
+
+            self._attr_map[name] = aspect
+
+            return aspect
+
+        raise AttributeError(
+            f"'{type(self).__name__}' object has no attribute '{name}'"
+        )
+
+    def aliases(self, *names: str, to: str):
+        """Set aspect aliases"""
+        _add = dict.fromkeys(list(names), {to: self.cookbook[to]})
+        self.attr_map = {**self.attr_map, **_add}
+
+    def Recipe(
+        self,
+        name: str,
+        kind: Type[Aspect],
+        label: str = '',
+        add: str = '',
+        add_latex: str = '',
+        add_kind: Type[Aspect] = None,
+        sub: str = '',
+        sub_latex: str = '',
+        sub_kind: Type[Aspect] = None,
+        neg: str = '',
+        neg_latex: str = '',
+        neg_label: str = '',
+        bound: str = '',
+        ispos: bool = True,
+        nn: bool = True,
+        types_opr: tuple[Type[Process | Storage | Transport]] = None,
+        types_res: Type[_Commodity] = None,
+        types_dres: Type[_Commodity] = None,
+        types_idc: Type[Indicator] = None,
+        latex: str = None,
+    ):
+        """Creates a Recipe and updates recipes
+
+        Args:
+            name (str): name of the aspect
+            aspect_type (Type[Aspect]): type of the aspect
+            label (str, optional): label for the aspect. Defaults to ''.
+            add (str, optional): add control variable. Defaults to ''.
+            sub (str, optional): sub control variable. Defaults to ''.
+            neg (str, optional): name of the negative aspect. Defaults to ''.
+            ispos (bool, optional): whether the aspect is positive. Defaults to True.
+            nn (bool, optional): whether the aspect is non-negative. Defaults to True.
+            types_opr (tuple[Type[Process  |  Storage  |  Transport]], optional): types of operators for the aspect. Defaults to None.
+            types_res (Type[_Commodity], optional): types of resources for the aspect. Defaults to None.
+            types_dres (Type[_Commodity], optional): types of derived resources for the aspect. Defaults to None.
+            types_idc (Type[Indicator], optional): types of indicators for the aspect. Defaults to None.
+            latex (str, optional): LaTeX representation for the aspect. Defaults to None.
+        """
+        if name in self.cookbook:
+            print(f'--- Warning: Overriding existing recipe ---{name}')
+
+        self.cookbook[name] = Recipe(
+            name=name,
+            kind=kind,
+            label=label or name,
+            add=add,
+            sub=sub,
+            bound=bound,
+            ispos=ispos,
+            nn=nn,
+            types_opr=types_opr,
+            types_res=types_res,
+            types_dres=types_dres,
+            types_idc=types_idc,
+            latex=latex,
+        )
+
+        if add:
+            if not add_kind:
+                if sub_kind:
+                    add_kind = sub_kind
+            self.Recipe(
+                name=add,
+                kind=add_kind,
+                label=add_latex or add,
+                ispos=True,
+                nn=True,
+                types_opr=types_opr,
+                types_res=types_res,
+                types_dres=types_dres,
+                types_idc=types_idc,
+                latex=latex or add,
+            )
+
+        if sub:
+            if not sub_kind:
+                if add_kind:
+                    sub_kind = add_kind
+
+            self.Recipe(
+                name=sub,
+                kind=sub_kind,
+                label=sub_latex or sub,
+                ispos=False,
+                nn=True,
+                types_opr=types_opr,
+                types_res=types_res,
+                types_dres=types_dres,
+                types_idc=types_idc,
+                latex=latex or sub,
+            )
+
+        if neg:
+            neg_recipe = Recipe(
+                name=neg,
+                kind=kind,
+                label=neg_label,
+                ispos=not ispos,
+                nn=nn,
+                types_opr=types_opr,
+                types_res=types_res,
+                types_dres=types_dres,
+                types_idc=types_idc,
+                latex=neg_latex or neg,
+            )
+            self.cookbook[neg] = neg_recipe
+
+    # -----------------------------------------------------
+    #              Birth Component
+    # -----------------------------------------------------
 
     def declare(self, what: Type[_X], names: list[str]):
         """Declares objects conveniently"""
@@ -258,50 +517,6 @@ class Model(Decisions, _Init):
         for disc, name in zip(discretizations, names):
             setattr(self, name, disc * root)
             root = self.periods[-1]
-
-    def __setattr__(self, name, value):
-
-        if isinstance(value, (str, dict, list, bool)) or value is None:
-            # if value is a string, dict, list or bool
-            # set the attribute to the value
-            super().__setattr__(name, value)
-            return
-
-        if isinstance(value, TemporalScales):
-            self.TemporalScales(value.discretizations, value.names)
-
-            return
-
-        if isinstance(value, Unit):
-            value.name = name
-            self.units.append(value)
-
-        # map to representation and collection
-        for cls, updates in self.update_map.items():
-            if isinstance(value, cls):
-                for args in updates:
-                    self.update(name, value, *args)
-                break
-
-        # Locations also belong to spaces
-        if isinstance(value, Location):
-
-            self.program.spaces |= value.I
-
-        # Linkages also belong to spaces
-        elif isinstance(value, Linkage):
-            self.program.spaces |= value.I
-            self.program.sources |= value.source.I
-            self.program.sinks |= value.sink.I
-            self.space.sources.append(value.source)
-            self.space.sinks.append(value.sink)
-            if value.bi:
-                # if bidirectional, set the reverse linkage
-                # also ensures that all linakges go in one direction only
-                rev = value.rev()
-                setattr(self, rev.name, rev)
-
-        super().__setattr__(name, value)
 
     def show(
         self, descriptive: bool = False, categorical: bool = True, category: str = None

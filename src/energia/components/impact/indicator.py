@@ -40,6 +40,6 @@ class Indicator(_Component):
         _Component.__post_init__(self)
 
     @property
-    def impact(self) -> Consequence:
+    def consequence(self) -> Consequence:
         """Impact object"""
-        return self.model.impact
+        return self.model.consequence

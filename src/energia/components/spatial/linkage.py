@@ -10,8 +10,8 @@ from ..._core._x import _X
 
 if TYPE_CHECKING:
     from ...dimensions.space import Space
-    from .location import Location
     from ..measure.unit import Unit
+    from .location import Location
 
 
 @dataclass

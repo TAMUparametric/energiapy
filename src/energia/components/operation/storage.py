@@ -9,19 +9,18 @@ from ..._core._component import _Component
 from ...modeling.constraints.calculate import Calculate
 from ...modeling.parameters.conversion import Conversion
 from ..commodity.stored import Stored
-
 from .process import Process
 
 if TYPE_CHECKING:
-    from ..commodity.resource import Resource
-    from ..commodity.stored import Stored
-    from ...modeling.constraints.bind import Bind
-    from ..spatial.location import Location
     from gana.sets.constraint import C
+
+    from ...modeling.constraints.bind import Bind
+    from ..commodity.resource import Resource
+    from ..spatial.location import Location
 
 
 @dataclass
-class Storage(_Component):  # , Stock):
+class Storage(_Component): 
     """Storage
 
     :param basis: Unit basis of the component. Defaults to None.

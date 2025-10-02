@@ -10,16 +10,15 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-from energia.components.impact.categories import Environ
 from energia.components.commodity._commodity import _Commodity
-from energia.modeling.variables.default import Free, Inventory, Produce, Trade, Utilize
+from energia.components.impact.categories import Environ
 
 if TYPE_CHECKING:
     from ...modeling.constraints.calculate import Calculate
 
 
 @dataclass
-class Resource(_Commodity, Trade, Produce, Utilize, Free, Inventory):
+class Resource(_Commodity):
     """
     A resource, can be a material, chemical, energy, etc.
 
@@ -57,6 +56,11 @@ class Resource(_Commodity, Trade, Produce, Utilize, Free, Inventory):
 
         # resource in its stored form
         self.in_inv: list[Resource] = []
+
+
+    # @property
+    # def consume(self):
+    #     return self.model.consume(self)
 
     @property
     def gwp(self) -> Calculate:

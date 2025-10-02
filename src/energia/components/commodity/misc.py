@@ -1,17 +1,9 @@
-from __future__ import annotations
-
 from dataclasses import dataclass
-from operator import is_
-from typing import TYPE_CHECKING, Self
-
-# from ..operation.task import Task
-from ...modeling.variables.default import Transact, Utilize
 
 # from ..impact.categories import Eco
 from .resource import Resource
 
-if TYPE_CHECKING:
-    from ..spatial.location import Location
+# from ..operation.task import Task
 
 
 
@@ -46,7 +38,6 @@ class Package(Resource):
     """
 
 
-
 @dataclass
 class Human(Resource):
     """Human
@@ -76,7 +67,6 @@ class Human(Resource):
     :ivar insitu: If the commodity only exists insitu, i.e., does not scale any domains
     :vartype insitu: bool, optional
     """
-
 
 
 @dataclass
@@ -110,7 +100,6 @@ class Mana(Resource):
     """
 
 
-
 @dataclass
 class Etc(Resource):
     """Etc, used for resources that do not fit into the other categories
@@ -140,4 +129,3 @@ class Etc(Resource):
     :ivar insitu: If the commodity only exists insitu, i.e., does not scale any domains
     :vartype insitu: bool, optional
     """
-

@@ -6,23 +6,22 @@ from abc import abstractmethod
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-from ...components.temporal.modes import Modes
 from ..._core._component import _Component
+from ...components.temporal.modes import Modes
 from ...modeling.parameters.conversion import Conversion
-from ...modeling.variables.default import Design, Scheduling
 
 if TYPE_CHECKING:
+    from ...modeling.constraints.calculate import Calculate
     from ..commodity.resource import Resource
     from ..measure.unit import Unit
     from ..spatial.linkage import Linkage
     from ..spatial.location import Location
     from ..temporal.lag import Lag
     from ..temporal.periods import Periods
-    from ...modeling.constraints.calculate import Calculate
 
 
 @dataclass
-class _Operation(_Component, Design, Scheduling):
+class _Operation(_Component):
     """A General Operation
 
     :param basis: Unit basis of the component. Defaults to None.

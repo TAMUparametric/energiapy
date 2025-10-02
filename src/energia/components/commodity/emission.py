@@ -3,11 +3,10 @@
 from dataclasses import dataclass
 
 from ._commodity import _Commodity
-from ...modeling.variables.default import Free, Produce, Trade
 
 
 @dataclass
-class Emission(_Commodity, Free, Produce, Trade):
+class Emission(_Commodity):
     """Emission
 
     :param label: Label of the commodity, used for plotting. Defaults to None.

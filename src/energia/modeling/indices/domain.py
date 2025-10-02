@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING, Self
 from gana.sets.index import I
 
 if TYPE_CHECKING:
+    from ..._core._x import _X
     from ...components.commodity._commodity import _Commodity
     from ...components.game.couple import Couple
     from ...components.game.player import Player
@@ -22,7 +23,6 @@ if TYPE_CHECKING:
     from ...components.temporal.lag import Lag
     from ...components.temporal.modes import Modes
     from ...components.temporal.periods import Periods
-    from ..._core._x import _X
     from ...modeling.constraints.bind import Bind
     from ...represent.model import Model
     from ..variables.aspect import Aspect

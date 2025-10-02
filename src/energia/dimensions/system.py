@@ -13,11 +13,11 @@ if TYPE_CHECKING:
     from ..components.commodity.land import Land
     from ..components.commodity.material import Material
     from ..components.commodity.resource import Resource
+    from ..components.game.couple import Couple
+    from ..components.game.player import Player
     from ..components.operation.process import Process
     from ..components.operation.storage import Storage
     from ..components.operation.transport import Transport
-    from ..components.game.couple import Couple
-    from ..components.game.player import Player
     from ..represent.model import Model
 
 

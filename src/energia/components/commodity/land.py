@@ -1,12 +1,12 @@
 """Land"""
 
 from dataclasses import dataclass
+
 from ._commodity import _Commodity
-from ...modeling.variables.default import Produce, Trade, Utilize
 
 
 @dataclass
-class Land(_Commodity, Trade, Produce, Utilize):
+class Land(_Commodity):
     """Land used by Operations
 
     :param label: Label of the commodity, used for plotting. Defaults to None.
