@@ -57,3 +57,18 @@ class ExoStream(Stream):
     def map_domain(self, domain: Domain):
 
         Map(aspect=self, domain=domain)
+
+        Balance(aspect=self, domain=domain)
+
+
+@dataclass
+class IndStream(Stream):
+    """Indicator Stream of Resource, also a state variable"""
+
+    def __post_init__(self):
+        Stream.__post_init__(self)
+
+    def map_domain(self, domain: Domain):
+
+        Map(aspect=self, domain=domain)
+
