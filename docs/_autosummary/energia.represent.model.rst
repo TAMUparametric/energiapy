@@ -8,8 +8,17 @@ energia.represent.model
 
    .. autosummary::
    
+      capacity_sizing
       dataclass
       dump
+      economic
+      environmental
+      free_movement
+      inventory_sizing
+      operating
+      social
+      trade
+      usage
    
    .. rubric:: Classes
 
@@ -20,11 +29,11 @@ energia.represent.model
       Conversion
       Couple
       Currency
-      Decisions
       Economic
       Emission
       Environ
       Impact
+      Indicator
       Land
       Linkage
       Location
@@ -34,6 +43,7 @@ energia.represent.model
       Periods
       Player
       Process
+      Recipe
       Resource
       Social
       State

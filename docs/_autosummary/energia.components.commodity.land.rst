@@ -15,7 +15,4 @@ energia.components.commodity.land
    .. autosummary::
    
       Land
-      Produce
-      Trade
-      Utilize
    

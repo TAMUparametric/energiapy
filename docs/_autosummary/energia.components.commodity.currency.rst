@@ -16,5 +16,4 @@ energia.components.commodity.currency
    .. autosummary::
    
       Currency
-      Transact
    

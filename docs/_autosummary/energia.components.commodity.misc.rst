@@ -1,4 +1,4 @@
-﻿energia.components.commodity.misc
+energia.components.commodity.misc
 =================================
 
 .. automodule:: energia.components.commodity.misc
@@ -9,7 +9,6 @@
    .. autosummary::
    
       dataclass
-      is_
    
    .. rubric:: Classes
 
@@ -20,6 +19,4 @@
       Mana
       Package
       Resource
-      Transact
-      Utilize
    

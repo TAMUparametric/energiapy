@@ -20,6 +20,7 @@
    
       Currency
       Economic
+      Emission
       Environ
       Land
       Linkage
@@ -44,7 +45,6 @@
 
    components
    dimensions
-   examples
    library
    modeling
    represent

@@ -15,7 +15,4 @@ energia.components.commodity.emission
    .. autosummary::
    
       Emission
-      Free
-      Produce
-      Trade
    

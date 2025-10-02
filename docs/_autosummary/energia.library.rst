@@ -11,5 +11,6 @@ energia.library
    :recursive:
 
    components
-   decisions
+   examples
    processes
+   recipes

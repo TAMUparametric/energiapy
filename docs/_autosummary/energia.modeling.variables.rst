@@ -12,8 +12,8 @@ energia.modeling.variables
 
    aspect
    control
-   default
    impact
    loss
+   recipe
    state
    stream

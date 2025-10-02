@@ -14,8 +14,5 @@ energia.components.game.player
 
    .. autosummary::
    
-      Capacitate
       Player
-      Trade
-      Transact
    
