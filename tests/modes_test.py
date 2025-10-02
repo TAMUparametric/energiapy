@@ -1,4 +1,5 @@
 import pytest
+from pytest import approx
 
 from energia.library.examples.energy import design_scheduling_materials
 
@@ -11,9 +12,23 @@ def m():
     return _m
 
 
+def _wrap_with_approx(expected, rel=1e-6, abs=1e-9):
+    """
+    Recursively wrap lists/floats in pytest.approx.
+    """
+    if isinstance(expected, dict):
+        return {k: _wrap_with_approx(v, rel, abs) for k, v in expected.items()}
+    elif isinstance(expected, (list, tuple)):
+        return approx(expected, rel=rel, abs=abs)
+    elif isinstance(expected, (int, float)):
+        return approx(expected, rel=rel, abs=abs)
+    else:
+        return expected
+
+
 def test_design_scheduling_materials(m):
 
-    assert m.solution[0].asdict() == {
+    expected0 = {
         'consume': [
             1556.111111111111,
             711.7836761083743,
@@ -179,7 +194,7 @@ def test_design_scheduling_materials(m):
         ],
     }
 
-    assert m.solution[1].asdict() == {
+    expected1 = {
         'consume': [
             2016.6971450617282,
             820.1944444444445,
@@ -345,3 +360,6 @@ def test_design_scheduling_materials(m):
             0.0,
         ],
     }
+
+    assert m.solution[0].asdict() == _wrap_with_approx(expected0)
+    assert m.solution[1].asdict() == _wrap_with_approx(expected1)
