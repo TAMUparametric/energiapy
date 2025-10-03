@@ -205,11 +205,10 @@ class Map(_Generator):
             # if the domain has been mapped to but this is a time sum
             # we need to first map time
             # and then add it to an existing map at a lower domain
-            v_sum = sigma(
+            return sigma(
                 v(*domain.Ilist),
                 domain.time.I,
             )
-            return v_sum
         if msum:
             if self.reporting:
                 v = getattr(self.program, f"x_{self.aspect.name}")
@@ -218,12 +217,11 @@ class Map(_Generator):
             # if the domain has been mapped to but this is a mode sum
             # we need to first map modes
             # and then add it to an existing map at a lower domain
-            v_sum = sigma(
+            return sigma(
                 v(*domain.Ilist),
                 domain.modes.I,
             )
 
-            return v_sum
         else:
             # the copy is important since otherwise, the printing will take
             # the update index if the variable is mutated

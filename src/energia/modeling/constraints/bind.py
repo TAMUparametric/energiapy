@@ -5,7 +5,8 @@ from __future__ import annotations
 import time as keep_time
 from dataclasses import dataclass
 from functools import cached_property
-from typing import TYPE_CHECKING, Literal, Self
+from itertools import chain
+from typing import TYPE_CHECKING, Literal, Optional, Self
 
 from gana import I as Idx
 from gana import V, inf, sigma, sup
@@ -138,7 +139,7 @@ class Bind(_Generator):
 
     def show(self, descriptive=False):
         """Pretty print the component"""
-        constraints = list(set(sum([i.constraints for i in self.index], [])))
+        constraints = list(chain.from_iterable(i.constraints for i in self.index))
 
         for c in constraints:
             if c in self.aspect.constraints:
@@ -147,8 +148,8 @@ class Bind(_Generator):
 
     def V(
         self,
-        parameters: float | list = None,
-        length: int = None,
+        parameters: Optional[float | list] = None,
+        length: Optional[int] = None,
         report: bool = False,
         incidental: bool = False,
     ) -> V:

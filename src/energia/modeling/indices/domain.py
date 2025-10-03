@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from math import prod
 from operator import is_, is_not
-from typing import TYPE_CHECKING, Self, Optional
+from typing import TYPE_CHECKING, Optional, Self
 
 if TYPE_CHECKING:
     from gana import I as Idx

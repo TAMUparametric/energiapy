@@ -13,7 +13,6 @@ from ..components.temporal.periods import Periods
 
 if TYPE_CHECKING:
     from gana.block.program import Prg
-    from gana.sets.index import I
 
 
 @dataclass
@@ -101,11 +100,11 @@ class Time(_Dimension):
         """The densest period"""
         if self.periods:
             return min(self.periods, key=lambda x: x.periods)
+        return self.horizon
 
     @property
     def sparsest(self) -> Periods:
         """The sparsest period"""
         if self.periods:
             return max(self.periods, key=lambda x: x.periods)
-
-        # if not periods, make a default period
+        return self.horizon

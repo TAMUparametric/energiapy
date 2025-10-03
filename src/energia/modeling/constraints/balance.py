@@ -13,7 +13,7 @@ from ...components.commodity.stored import Stored
 from ._generator import _Generator
 
 if TYPE_CHECKING:
-    from gana import F
+    from gana.sets.function import F
 
     from ..._core._x import _X
     from ..indices.domain import Domain
@@ -117,11 +117,10 @@ class Balance(_Generator):
             # if the domain has been mapped to but this is a time sum
             # we need to first map time
             # and then add it to an existing map at a lower domain
-            v_sum = sigma(
+            return sigma(
                 v(*self.domain.Ilist),
                 self.domain.time.I,
             )
-            return v_sum
         else:
             return self(*self.domain).V()
 

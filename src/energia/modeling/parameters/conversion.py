@@ -89,7 +89,7 @@ class Conversion(_Name):
         """energia Model"""
 
         if self.pwl:
-            _conversion = self.conversion[list(self.conversion)[0]]
+            _conversion = self.conversion[next(iter(self.conversion))]
         else:
             _conversion = self.conversion
 
@@ -118,7 +118,7 @@ class Conversion(_Name):
                     check_len[res] = len(par)
 
             # check if all the list lens are the same
-            lengths = set([i for i in check_len.values() if i > 1])
+            lengths = {i for i in check_len.values() if i > 1}
 
             if len(lengths) > 1:
                 # if there are different lengths, raise an error
@@ -127,7 +127,7 @@ class Conversion(_Name):
                 )
 
             if any(check_list.values()):
-                length = list(lengths)[0]
+                length = next(iter(lengths))
                 # if any of the values are a list
                 #
                 for res, par in conversion.items():
@@ -139,7 +139,7 @@ class Conversion(_Name):
             for mode, conv in self.conversion.items():
                 self.conversion[mode] = _balancer(conv)
 
-            if isinstance(list(self.conversion)[0], Modes):
+            if isinstance(next(iter(self.conversion)), Modes):
                 self.modes_set = True
 
         else:
@@ -158,7 +158,7 @@ class Conversion(_Name):
             # especially useful if Process is scaled to consumption of a resource
             # i.e. basis = -1*Resource
             self.conversion = {**self.conversion, **basis.conversion}
-            self.base = list(self.conversion)[0]
+            self.base = next(iter(self.conversion))
 
         else:
             # if a Resource is provided (Resource)
@@ -183,7 +183,7 @@ class Conversion(_Name):
 
         elif isinstance(other, dict):
 
-            key = list(other.keys())[0]
+            key = next(iter(other.keys()))
 
             if isinstance(key, Modes):
                 # conversion modes can collate

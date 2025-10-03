@@ -8,8 +8,8 @@ from .energy import (
 )
 
 __all__ = [
-    "scheduling",
     "design_scheduling",
     "design_scheduling_materials",
+    "scheduling",
     "supermarket",
 ]

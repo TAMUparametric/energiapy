@@ -276,18 +276,18 @@ class Aspect:
         if not domain:
 
             args = {
-                'indicator': None,
-                'commodity': None,
-                'player': None,
-                'process': None,
-                'storage': None,
-                'transport': None,
-                'periods': None,
-                'couple': None,
-                'loc': None,
-                'link': None,
-                'lag': None,
-                'modes': None,
+                "indicator": None,
+                "commodity": None,
+                "player": None,
+                "process": None,
+                "storage": None,
+                "transport": None,
+                "periods": None,
+                "couple": None,
+                "loc": None,
+                "link": None,
+                "lag": None,
+                "modes": None,
             }
 
             type_map = {
@@ -339,7 +339,7 @@ class Aspect:
                         ):
                             raise ValueError(
                                 f"For component {self} of type {type(self)}: "
-                                f"{comp} of type {type(comp)} not recognized as an index"
+                                f"{comp} of type {type(comp)} not recognized as an index",
                             )
                         args[attr] = comp
                         if flag == "timed":
@@ -350,13 +350,13 @@ class Aspect:
                 else:
                     raise ValueError(
                         f"For component {self} of type {type(self)}: "
-                        f"{comp} of type {type(comp)} not recognized as an index"
+                        f"{comp} of type {type(comp)} not recognized as an index",
                     )
 
             args = {k: v for k, v in args.items() if v is not None}
 
             if binds:
-                args['binds'] = binds
+                args["binds"] = binds
 
             domain = Domain(**args)
 
