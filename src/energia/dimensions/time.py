@@ -108,3 +108,5 @@ class Time(_Dimension):
         if self.periods:
             return max(self.periods, key=lambda x: x.periods)
         return self.horizon
+
+        # if not periods, make a default period

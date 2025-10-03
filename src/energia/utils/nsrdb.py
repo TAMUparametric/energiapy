@@ -57,8 +57,8 @@ def fetch_nsrdb_data(
         # find the data point closest to latitude and longitude
         def nearest_site(tree, latitude, longitude):
             lat_lon_query = array([latitude, longitude])
-            dist, pos = tree.query(lat_lon_query)
-            return pos
+            # dist, pos = tree.query(lat_lon_query)
+            return tree.query(lat_lon_query)[1]
 
         idx = nearest_site(tree=tree, latitude=lat_lon[0], longitude=lat_lon[1])
 

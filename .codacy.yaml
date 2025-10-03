@@ -1,0 +1,6 @@
+engines:
+  python:
+    enabled: true
+
+ignore:
+  - "tests/**"

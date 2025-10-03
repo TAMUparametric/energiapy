@@ -227,7 +227,6 @@ class Aspect:
 
     def map_domain(self, domain: Domain):
         """Each inherited object has their own"""
-        pass
 
     def show(self, descriptive=False):
         """Pretty print the component"""
