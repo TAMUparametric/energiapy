@@ -13,7 +13,7 @@ def m():
     m.Recipe(
         'gg',
         Control,
-        types_opr=(Process, Transport),
+        primary_type=(Process, Transport),
         label='Operational Capacity',
         latex='cap',
     )

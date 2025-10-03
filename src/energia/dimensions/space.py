@@ -122,6 +122,8 @@ class Space(_Dimension):
             self.model.ntw = sum(loc_not_nested)
             return self.model.ntw
 
+        raise ValueError("No network location could be determined")
+
     @property
     def s(self) -> list[Location | Linkage]:
         """List of spatial components"""

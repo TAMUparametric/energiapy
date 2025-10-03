@@ -9,7 +9,6 @@ from typing import TYPE_CHECKING, Self, Type
 from dill import dump
 
 from .._core._x import _X
-from ..components.commodity._commodity import _Commodity
 from ..components.commodity.currency import Currency
 from ..components.commodity.emission import Emission
 from ..components.commodity.land import Land
@@ -18,7 +17,6 @@ from ..components.commodity.resource import Resource
 from ..components.game.couple import Couple
 from ..components.game.player import Player
 from ..components.impact.categories import Economic, Environ, Social
-from ..components.impact.indicator import Indicator
 from ..components.measure.unit import Unit
 from ..components.operation.process import Process
 from ..components.operation.storage import Storage
@@ -50,6 +48,7 @@ from .blocks import _Init
 if TYPE_CHECKING:
     from gana.sets.index import I
 
+    from .._core._component import _Component
     from ..modeling.constraints.bind import Bind
     from ..modeling.variables.aspect import Aspect
 
@@ -360,6 +359,7 @@ class Model(_Init):
         self,
         name: str,
         kind: Type[Aspect],
+        primary_type: tuple[Type[_Component]] | Type[_Component],
         label: str = "",
         add: str = "",
         add_latex: str = "",
@@ -373,27 +373,20 @@ class Model(_Init):
         bound: str = "",
         ispos: bool = True,
         nn: bool = True,
-        types_opr: tuple[Type[Process | Storage | Transport]] = None,
-        types_res: Type[_Commodity] = None,
-        types_dres: Type[_Commodity] = None,
-        types_idc: Type[Indicator] = None,
         latex: str = None,
     ):
         """Creates a Recipe and updates recipes
 
         Args:
             name (str): name of the aspect
-            aspect_type (Type[Aspect]): type of the aspect
+            kind (Type[Aspect]): type of the aspect
+            primary_type (tuple[Type[_Component]] | Type[_Component]): type of primary component
             label (str, optional): label for the aspect. Defaults to ''.
             add (str, optional): add control variable. Defaults to ''.
             sub (str, optional): sub control variable. Defaults to ''.
             neg (str, optional): name of the negative aspect. Defaults to ''.
             ispos (bool, optional): whether the aspect is positive. Defaults to True.
             nn (bool, optional): whether the aspect is non-negative. Defaults to True.
-            types_opr (tuple[Type[Process  |  Storage  |  Transport]], optional): types of operators for the aspect. Defaults to None.
-            types_res (Type[_Commodity], optional): types of resources for the aspect. Defaults to None.
-            types_dres (Type[_Commodity], optional): types of derived resources for the aspect. Defaults to None.
-            types_idc (Type[Indicator], optional): types of indicators for the aspect. Defaults to None.
             latex (str, optional): LaTeX representation for the aspect. Defaults to None.
         """
         if name in self.cookbook:
@@ -408,10 +401,7 @@ class Model(_Init):
             bound=bound,
             ispos=ispos,
             nn=nn,
-            types_opr=types_opr,
-            types_res=types_res,
-            types_dres=types_dres,
-            types_idc=types_idc,
+            primary_type=primary_type,
             latex=latex,
         )
 
@@ -422,13 +412,10 @@ class Model(_Init):
             self.Recipe(
                 name=add,
                 kind=add_kind,
+                primary_type=primary_type,
                 label=add_latex or add,
                 ispos=True,
                 nn=True,
-                types_opr=types_opr,
-                types_res=types_res,
-                types_dres=types_dres,
-                types_idc=types_idc,
                 latex=latex or add,
             )
 
@@ -440,13 +427,10 @@ class Model(_Init):
             self.Recipe(
                 name=sub,
                 kind=sub_kind,
+                primary_type=primary_type,
                 label=sub_latex or sub,
                 ispos=False,
                 nn=True,
-                types_opr=types_opr,
-                types_res=types_res,
-                types_dres=types_dres,
-                types_idc=types_idc,
                 latex=latex or sub,
             )
 
@@ -457,10 +441,7 @@ class Model(_Init):
                 label=neg_label,
                 ispos=not ispos,
                 nn=nn,
-                types_opr=types_opr,
-                types_res=types_res,
-                types_dres=types_dres,
-                types_idc=types_idc,
+                primary_type=primary_type,
                 latex=neg_latex or neg,
             )
             self.cookbook[neg] = neg_recipe

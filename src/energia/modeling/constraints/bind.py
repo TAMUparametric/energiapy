@@ -5,7 +5,8 @@ from __future__ import annotations
 import time as keep_time
 from dataclasses import dataclass
 from functools import cached_property
-from typing import TYPE_CHECKING, Literal, Self
+from itertools import chain
+from typing import TYPE_CHECKING, Literal, Optional, Self
 
 from gana import I as Idx
 from gana import V, inf, sigma, sup
@@ -138,7 +139,7 @@ class Bind(_Generator):
 
     def show(self, descriptive=False):
         """Pretty print the component"""
-        constraints = list(set(sum([i.constraints for i in self.index], [])))
+        constraints = list(chain.from_iterable(i.constraints for i in self.index))
 
         for c in constraints:
             if c in self.aspect.constraints:
@@ -147,8 +148,8 @@ class Bind(_Generator):
 
     def V(
         self,
-        parameters: float | list = None,
-        length: int = None,
+        parameters: Optional[float | list] = None,
+        length: Optional[int] = None,
         report: bool = False,
         incidental: bool = False,
     ) -> V:
@@ -183,7 +184,7 @@ class Bind(_Generator):
                 # the variable has not been defined yet
                 lag = self.domain.lag
                 self.domain = self.domain.change(
-                    {"lag": None, "period": self.domain.lag.of},
+                    {"lag": None, "periods": self.domain.lag.of},
                 )
                 self.V(
                     parameters=parameters,
@@ -191,7 +192,7 @@ class Bind(_Generator):
                     report=report,
                     incidental=incidental,
                 )
-                self.domain = self.domain.change({"lag": lag, "period": None})
+                self.domain = self.domain.change({"lag": lag, "periods": None})
                 return getattr(self.program, self.aspect.name)(*self.domain.Ilist)
 
         # ------ Check time and space -------
@@ -201,20 +202,20 @@ class Bind(_Generator):
             if isinstance(parameters, list):
                 # if list is given, find using length of the list
                 if self.domain.modes is not None:
-                    self.domain.period = self.aspect.time.find(
+                    self.domain.periods = self.aspect.time.find(
                         len(parameters) / len(self.domain.modes),
                     )
                 else:
-                    self.domain.period = self.aspect.time.find(len(parameters))
+                    self.domain.periods = self.aspect.time.find(len(parameters))
 
             elif isinstance(length, int):
                 # if length is given, use it directly
-                self.domain.period = self.aspect.time.find(length)
+                self.domain.periods = self.aspect.time.find(length)
             else:
                 # else the size of parameter set is exactly one
                 # or nothing is given, meaning the variable is not time dependent
                 # thus, index by horizon
-                self.domain.period = self.aspect.horizon
+                self.domain.periods = self.aspect.horizon
 
         # this is only called if the bind variable has no spatial index defined
         def space():
@@ -319,7 +320,7 @@ class Bind(_Generator):
             if self.domain.commodity:
                 self.model.update_grb(
                     self.domain.commodity,
-                    time=self.domain.period,
+                    time=self.domain.periods,
                     space=self.domain.loc,
                 )
 
@@ -392,7 +393,7 @@ class Bind(_Generator):
                 f"--- Aspect ({bound_aspect}) not defined at {self.domain.space}, a variable will be created assuming {self.model.horizon} as the temporal index",
             )
 
-            domain = self.domain.change({"period": self.model.horizon})
+            domain = self.domain.change({"periods": self.model.horizon})
 
         else:
             # if the bound variable has been defined for the given space
@@ -400,12 +401,12 @@ class Bind(_Generator):
                 self.domain.space
             ]
             time = max(list(times))
-            if time >= self.domain.period:
-                domain = self.domain.change({"period": time})
+            if time >= self.domain.periods:
+                domain = self.domain.change({"periods": time})
             else:
                 # this is if the binding variable has a sparser temporal index compared to time
                 raise ValueError(
-                    f"Incompatible temporal indices: {bound_aspect} defined in time {time} and {self.aspect} defined in time {self.domain.period}\n"
+                    f"Incompatible temporal indices: {bound_aspect} defined in time {time} and {self.aspect} defined in time {self.domain.periods}\n"
                     f"Binding variable ({bound_aspect}) cannot have a denser discretization than variable being bound ({self.aspect})",
                 )
         return bound_aspect(domain=domain).V()
@@ -434,7 +435,7 @@ class Bind(_Generator):
         """
         if not self.timed:
             # if the temporal index is not passed
-            self.domain.period = self.model.horizon
+            self.domain.periods = self.model.horizon
         if not self.spaced:
             # if the spatial index is not passed
             self.domain.loc = self.model.network

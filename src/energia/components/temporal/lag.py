@@ -47,7 +47,7 @@ class Lag(_Name):
 
     @cached_property
     def I(self) -> Idx:
-        """Index set of period - period
+        """Index set of periods - periods
         Basically,
         if t is set of hours and lag is 5
         this returns the set of t - 5

@@ -1,14 +1,14 @@
 """Recipes to create Aspects"""
 
-from dataclasses import asdict, dataclass
-from typing import Type
+from __future__ import annotations
 
-from ...components.commodity._commodity import _Commodity
-from ...components.impact.indicator import Indicator
-from ...components.operation.process import Process
-from ...components.operation.storage import Storage
-from ...components.operation.transport import Transport
+from dataclasses import asdict, dataclass
+from typing import TYPE_CHECKING, Type
+
 from .aspect import Aspect
+
+if TYPE_CHECKING:
+    from ..._core._component import _Component
 
 
 @dataclass
@@ -17,6 +17,7 @@ class Recipe:
 
     name: str
     kind: Type[Aspect]
+    primary_type: tuple[Type[_Component]] | Type[_Component]
     label: str = ""
     add: str = ""
     sub: str = ""
@@ -24,10 +25,6 @@ class Recipe:
     ctrl: str = ""
     ispos: bool = True
     nn: bool = True
-    types_opr: tuple[Type[Process | Storage | Transport]] = None
-    types_res: Type[_Commodity] = None
-    types_dres: Type[_Commodity] = None
-    types_idc: Type[Indicator] = None
     latex: str = ""
 
     def __post_init__(self):

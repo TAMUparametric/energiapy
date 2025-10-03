@@ -48,7 +48,7 @@ class Map(_Generator):
 
         # this is the disposition of the variable to be mapped
         # through time and space
-        time, space = self.domain.period, self.domain.space
+        time, space = self.domain.periods, self.domain.space
 
         # these are periods denser and sparser than the current domain
         denser_periods, sparser_periods = self.model.time.split(time)
@@ -88,7 +88,7 @@ class Map(_Generator):
                     # this creates a map from this domain to a sparser domain
                     self.writecons_map(
                         self.domain,
-                        self.domain.change({"period": sparser_period}),
+                        self.domain.change({"periods": sparser_period}),
                         tsum=True,
                     )
 
@@ -97,7 +97,7 @@ class Map(_Generator):
 
                     # create a new domain to map from
                     domain_from = self.domain.copy()
-                    domain_from.period = denser_period
+                    domain_from.periods = denser_period
                     binds_dict = dispositions[space][denser_period]
                     binds = []
                     # TODO - check this
@@ -147,7 +147,7 @@ class Map(_Generator):
                     for d in self.aspect.domains
                     if is_(d.primary, self.domain.primary)
                     and is_(d.space, space)
-                    and is_(d.period, time)
+                    and is_(d.periods, time)
                     and d.binds
                 ]
 
@@ -205,11 +205,10 @@ class Map(_Generator):
             # if the domain has been mapped to but this is a time sum
             # we need to first map time
             # and then add it to an existing map at a lower domain
-            v_sum = sigma(
+            return sigma(
                 v(*domain.Ilist),
                 domain.time.I,
             )
-            return v_sum
         if msum:
             if self.reporting:
                 v = getattr(self.program, f"x_{self.aspect.name}")
@@ -218,12 +217,11 @@ class Map(_Generator):
             # if the domain has been mapped to but this is a mode sum
             # we need to first map modes
             # and then add it to an existing map at a lower domain
-            v_sum = sigma(
+            return sigma(
                 v(*domain.Ilist),
                 domain.modes.I,
             )
 
-            return v_sum
         else:
             # the copy is important since otherwise, the printing will take
             # the update index if the variable is mutated

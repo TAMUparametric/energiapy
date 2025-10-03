@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from functools import cached_property
+from itertools import chain
 from typing import TYPE_CHECKING, Literal
 
 from .._core._dimension import _Dimension
@@ -52,12 +54,12 @@ class Problem(_Dimension):
         self.streams: list[Stream] = []
         self.impacts: list[Impact] = []
 
-    @property
+    @cached_property
     def time(self) -> Time:
         """Time"""
         return self.model.time
 
-    @property
+    @cached_property
     def space(self) -> Space:
         """Space"""
         return self.model.space
@@ -70,7 +72,7 @@ class Problem(_Dimension):
     @property
     def domains(self) -> list[Domain]:
         """All Domains"""
-        return list(set(sum([d.domains for d in self.aspects], [])))
+        return list(set(chain.from_iterable(d.domains for d in self.aspects)))
 
     def get(
         self,
@@ -118,8 +120,7 @@ class Problem(_Dimension):
                 for val in self.get(keys=values, values=keys):
                     if dom in self.get(keys=values, values=keys)[val]:
                         dict_[dom].append(val)
-            dict_ = {k.tup: v for k, v in dict_.items() if v}
-            return dict_
+            return {k.tup: v for k, v in dict_.items() if v}
 
         raise ValueError(
             "keys must be one of aspects, states, controls, streams, impacts, domains",
