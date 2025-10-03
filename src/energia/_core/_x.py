@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from functools import cached_property
 from typing import TYPE_CHECKING, Optional
 
 if TYPE_CHECKING:
@@ -59,7 +60,7 @@ class _X:
         # aspects associated with the component with domains
         self.aspects: dict[Aspect, list[Domain]] = {}
 
-    @property
+    @cached_property
     def program(self) -> Prg:
         """Mathematical program"""
         return self.model.program

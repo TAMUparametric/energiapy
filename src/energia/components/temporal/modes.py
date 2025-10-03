@@ -22,16 +22,17 @@ class Modes(_X):
     Represents a discrete choice to be taken within a spatiotemporal disposition.
     Modes can split usage. A Mode of Operation can be used for Conversion, Use, etc.
 
+    :param n_modes: Number of modes. Defaults to 1.
+    :type n_modes: int
+    :param bind: The aspect and component which is being 'moded'. Defaults to None.
+    :type bind: Bind | None
+    :param parent: Parent mode, if any. Defaults to None.
+    :type parent: Self | None
+    :param pos: Position in the parent mode set. Defaults to None.
+    :type pos: int | None
+
     :ivar name: The name of the mode, usually a number.
     :vartype name: str | float | int
-    :ivar n_modes: Number of modes. Defaults to 1.
-    :vartype n_modes: int
-    :ivar bind: the aspect and component which is being 'moded'. Defaults to None.
-    :vartype bind: Bind
-    :ivar parent: Parent mode, if any. Defaults to None.
-    :vartype parent: Self
-    :ivar pos: Position in the parent mode set. Defaults to None.
-    :vartype pos: int
     """
 
     n_modes: int = 1

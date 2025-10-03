@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from functools import cached_property
 from typing import TYPE_CHECKING, Self
 
 from ..._core._name import _Name
@@ -83,7 +84,7 @@ class Conversion(_Name):
 
         return self._modes
 
-    @property
+    @cached_property
     def model(self) -> Model:
         """energia Model"""
 
@@ -94,7 +95,7 @@ class Conversion(_Name):
 
         return next((i.model for i in _conversion), None)
 
-    @property
+    @cached_property
     def program(self) -> Prg:
         """gana Program"""
         return self.operation.program

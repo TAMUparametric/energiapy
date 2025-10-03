@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from functools import cached_property
 from typing import TYPE_CHECKING
 from warnings import warn
 
@@ -43,7 +44,7 @@ class Time(_Dimension):
         self.modes: list[Modes] = []
         _Dimension.__post_init__(self)
 
-    @property
+    @cached_property
     def program(self) -> Prg:
         """Mathematical program"""
         return self.model.program

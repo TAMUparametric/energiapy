@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from functools import cached_property
 from typing import TYPE_CHECKING, Self, Type
 
 import matplotlib.pyplot as plt
@@ -25,9 +26,10 @@ from ..constraints.bind import Bind
 from ..indices.domain import Domain
 
 if TYPE_CHECKING:
-    from gana.block.program import Prg
+    from gana import I as Idx
+    from gana import Prg
+    from gana import V as Var
     from gana.sets.constraint import C
-    from gana.sets.variable import V
 
     from ..._core._x import _X
     from ...dimensions.problem import Problem
@@ -36,15 +38,38 @@ if TYPE_CHECKING:
 
 @dataclass
 class Aspect(_Name):
-    """Any kind of decision
+    """
+    Any kind of decision.
 
-    Attributes:
-        nn (bool): If True, the decision is a non-negative decision. Defaults to True
-        Operation (Type[Process | Storage | Transport]): The type of operation associated with the decision. Defaults to None
-        _Commodity (Type[_Commodity]): The type of commodity associated with the decision. Defaults to None
-        DResource (Type[_Commodity]): The type of derivative commodity associated with the decision. Defaults to None
-        Indicator (Type[Indicator]): The type of indicator associated with the decision. Defaults to None
-        latex (str): LaTeX representation of the decision. Defaults to None
+    :param nn: If True, the decision is a non-negative decision. Defaults to True.
+    :type nn: bool
+    :param types_opr: The type(s) of operation associated with the decision. Defaults to None.
+    :type types_opr: tuple[Type[Process | Storage | Transport]] | None
+    :param types_res: The type of commodity associated with the decision. Defaults to None.
+    :type types_res: Type[_Commodity] | None
+    :param types_dres: The type of derivative commodity associated with the decision. Defaults to None.
+    :type types_dres: Type[_Commodity] | None
+    :param types_idc: The type of indicator associated with the decision. Defaults to None.
+    :type types_idc: Type[Indicator] | None
+    :param ispos: If True, the decision is positive (non-negative). Defaults to True.
+    :type ispos: bool
+    :param neg: Negative form or representation of the decision, if any. Defaults to "".
+    :type neg: str
+    :param latex: LaTeX string. Defaults to "".
+    :type latex: str
+    :param bound: if the aspect is bounded by another. Defaults to "".
+    :type bound: str
+
+    :ivar model: Model to which the Aspect belongs.
+    :vartype model: Model
+    :ivar name: Name of the Aspect.
+    :vartype name: str
+    :ivar indices: List of indices (Location, Periods) associated with the Aspect.
+    :vartype indices: list[Location | Linkage, Periods]
+    :ivar bound_spaces: Spaces where the Aspect has been already bound.
+    :vartype bound_spaces: dict[_Commodity | Process | Storage | Transport, list[Location | Linkage]]
+    :ivar domains: List of domains associated with the Aspect.
+    :vartype domains: list[Domain]
     """
 
     nn: bool = True
@@ -88,8 +113,8 @@ class Aspect(_Name):
         self._maps_report: bool = False
 
         # reporting variable
-        self.reporting: V = None
-        
+        self.reporting: Var = None
+
         self.constraints: list[str] = []
 
     @property
@@ -108,12 +133,12 @@ class Aspect(_Name):
             self._maps_report = True
         return self.model.maps_report[self]
 
-    @property
+    @cached_property
     def isneg(self) -> bool:
         """Does this remove from the domain?"""
         return not self.ispos
 
-    @property
+    @cached_property
     def sign(self) -> float:
         """Gives the multiplier in balances"""
         if self.ispos:
@@ -121,19 +146,34 @@ class Aspect(_Name):
         else:
             return -1.0
 
+    @cached_property
+    def space(self):
+        """Space"""
+        return self.model.space
+
+    @cached_property
+    def program(self) -> Prg:
+        """Mathematical Program"""
+        return self.model.program
+
+    @cached_property
+    def problem(self) -> Problem:
+        """Tree"""
+        return self.model.problem
+
+    @cached_property
+    def time(self):
+        """Time"""
+        return self.model.time
+
     @property
-    def I(self):
+    def I(self) -> Idx:
         """gana index set (I)"""
         return getattr(self.program, self.name)
 
     @property
-    def V(self) -> V:
+    def V(self) -> Var:
         """Variable"""
-        return getattr(self.program, self.name)
-
-    @property
-    def index(self):
-        """_Index set"""
         return getattr(self.program, self.name)
 
     @property
@@ -142,34 +182,14 @@ class Aspect(_Name):
         return [getattr(self.program, c) for c in self.constraints]
 
     @property
-    def network(self):
+    def network(self) -> Location:
         """Circumscribing Loc (Spatial Scale)"""
         return self.model.network
 
     @property
-    def horizon(self):
+    def horizon(self) -> Periods:
         """Circumscribing Periods (Temporal Scale)"""
         return self.model.horizon
-
-    @property
-    def time(self):
-        """Time"""
-        return self.model.time
-
-    @property
-    def space(self):
-        """Space"""
-        return self.model.space
-
-    @property
-    def program(self) -> Prg:
-        """Mathematical Program"""
-        return self.model.program
-
-    @property
-    def problem(self) -> Problem:
-        """Tree"""
-        return self.model.problem
 
     @property
     def grb(
@@ -219,7 +239,7 @@ class Aspect(_Name):
         Args:
             aslist (bool, optional): Returns values taken as list. Defaults to False.
         """
-        var: V = getattr(self.program, self.name)
+        var: Var = getattr(self.program, self.name)
         return var.sol(n_sol, aslist, compare=compare)
 
     def gettime(self, *index) -> list[Periods]:

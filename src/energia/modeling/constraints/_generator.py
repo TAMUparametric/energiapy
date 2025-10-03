@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from functools import cached_property
 from typing import TYPE_CHECKING
 
 from ..._core._name import _Name
@@ -31,18 +32,20 @@ if TYPE_CHECKING:
 
 @dataclass
 class _Generator(_Name):
-    """Base class for all Energia constraint generators
+    """
+    Base class for all Energia constraint generators.
 
-    Args:
-        aspect (Aspect. optional): Aspect to which the constraint is applied
-        domain (Domain. optional): Domain over which the aspect is defined
+    :param aspect: Aspect to which the constraint is applied.
+    :type aspect: Aspect | None
+    :param domain: Domain over which the aspect is defined.
+    :type domain: Domain | None
 
-    Attributes:
-        name (str, optional): Name.
-        model (Model, optional): Model to which the generator belongs.
-        program (Prg, optional): Gana Program to which the generated constraint belongs.
-
-
+    :ivar name: Name of the generator.
+    :vartype name: str | None
+    :ivar model: Model to which the generator belongs.
+    :vartype model: Model | None
+    :ivar program: Gana Program to which the generated constraint belongs.
+    :vartype program: Prg | None
     """
 
     # this is the aspect for which the constraint is being defined
@@ -55,15 +58,20 @@ class _Generator(_Name):
     #     """Name of the constraint"""
     #     return self.aspect.name
 
-    @property
+    @cached_property
     def model(self) -> Model:
         """Energia Model"""
         return self.aspect.model
 
-    @property
+    @cached_property
     def program(self) -> Prg:
         """Gana Program"""
         return self.model.program
+
+    @cached_property
+    def problem(self) -> Problem:
+        """Model Tree"""
+        return self.model.problem
 
     @property
     def domains(self) -> list[Domain]:
@@ -90,8 +98,3 @@ class _Generator(_Name):
     ]:
         """List of Bind at each disposition"""
         return self.model.grb
-
-    @property
-    def problem(self) -> Problem:
-        """Model Tree"""
-        return self.model.problem

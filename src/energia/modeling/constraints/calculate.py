@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from functools import cached_property
 from typing import TYPE_CHECKING, Self
 
 from ...utils.math import normalize
@@ -17,21 +18,28 @@ if TYPE_CHECKING:
 
 
 class Calculate:
-    """Calculate the value of a dependent variable based on the value of another variable
+    """
+    Calculate the value of a dependent variable based on the value of another variable.
 
-    Usually, another variable that has a degree of freedom
+    Usually used when another variable has a degree of freedom.
 
-    Args:
-        calc (Bind): Calculated (derivative) Variable bound
-        decision (Bind): Decision variable bound
+    :param calc: Calculated (derivative) variable bound.
+    :type calc: Bind
+    :param decision: Decision variable bound.
+    :type decision: Bind
 
-    Attributes:
-        decision (Bind): Variable bound
-        calc (Bind): Calculated (derivative) Variable bound
-        self.domain (Domain): Domain of the calculated variable
-        name (str): Name of the calculated variable
-        program (Prg): Program object
-        index (I): Index set of the calculated variable
+    :ivar decision: Decision variable bound.
+    :vartype decision: Bind
+    :ivar calc: Calculated (derivative) variable bound.
+    :vartype calc: Bind
+    :ivar domain: Domain of the calculated variable.
+    :vartype domain: Domain
+    :ivar name: Name of the calculated variable.
+    :vartype name: str
+    :ivar program: Program object to which the variable belongs.
+    :vartype program: Prg
+    :ivar index: Index set of the calculated variable.
+    :vartype index: I
     """
 
     def __init__(
@@ -53,7 +61,7 @@ class Calculate:
         # the input argument is normalized if True
         self._normalize: bool = False
 
-    @property
+    @cached_property
     def model(self) -> Model:
         """Model to which the Calc belongs"""
         return self.decision.model

@@ -32,29 +32,37 @@ if TYPE_CHECKING:
 
 @dataclass
 class Bind(_Generator):
-    """Sets a bound on a variable (V) within a particular domain
+    """
+    Sets a bound on a variable (V) within a particular domain.
 
-    Args:
-        aspect (Aspect. optional): Aspect to which the constraint is applied
-        domain (Domain. optional): Domain over which the aspect is defined
-        timed (bool): If the temporal index is predetermined. Defaults to None.
-        spaced (bool): If the spatial index is predetermined. Defaults to None.
+    :param aspect: Aspect to which the constraint is applied.
+    :type aspect: Aspect | None
+    :param domain: Domain over which the aspect is defined.
+    :type domain: Domain | None
+    :param timed: If the temporal index is predetermined. Defaults to None.
+    :type timed: bool | None
+    :param spaced: If the spatial index is predetermined. Defaults to None.
+    :type spaced: bool | None
 
+    :ivar name: Name of the bind.
+    :vartype name: str | None
+    :ivar model: Model to which the generator belongs.
+    :vartype model: Model | None
+    :ivar program: Gana Program to which the generated constraint belongs.
+    :vartype program: Prg | None
+    :ivar opr: Operation to bind (in lieu of a single variable). Defaults to None.
+    :vartype opr: F | None
+    :ivar domains: Set of domains over which the Bind is applied. Defaults to [].
+    :vartype domains: Domain
+    :ivar hasinc: If the Bind has some incidental calculation. Defaults to False.
+    :vartype hasinc: bool
 
-
-    Attributes:
-        name (str, optional): Name.
-        model (Model, optional): Model to which the generator belongs.
-        program (Prg, optional): Gana Program to which the generated constraint belongs.
-        opr (F): Operation to bind (in lieu of a single variable). Defaults to None.
-        domains (Domain): set of domains over which the Bind is applied. Defaults to [].
-        hasinc (bool): If the Bind has some incidental calculation. Defaults to False.
-    Note:
-        - timed and spaced help skip the calculation of finding the appropriate index
-          for time this is done based on length of input parameter
-        - opr is useful if providing a combined bound to different variables
-        - name is generated based on the variable
-        - domains are updated as the program is built
+    .. note::
+    - ``timed`` and ``spaced`` help skip the calculation of finding the appropriate index.
+        For time, this is done based on the length of the input parameter.
+    - ``opr`` is useful if providing a combined bound to different variables.
+    - ``name`` is generated based on the variable.
+    - ``domains`` are updated as the program is built.
     """
 
     # if the temporal index is predetermined
