@@ -22,8 +22,7 @@ class Package(Resource):
     :vartype model: Model
     :ivar name: Set when the component is assigned as a Model attribute.
     :vartype name: str
-    :ivar _indexed: True if an index set has been created.
-    :vartype _indexed: bool
+
     :ivar constraints: List of constraints associated with the component.
     :vartype constraints: list[str]
     :ivar domains: List of domains associated with the component.
@@ -53,8 +52,7 @@ class Human(Resource):
     :vartype model: Model
     :ivar name: Set when the component is assigned as a Model attribute.
     :vartype name: str
-    :ivar _indexed: True if an index set has been created.
-    :vartype _indexed: bool
+
     :ivar constraints: List of constraints associated with the component.
     :vartype constraints: list[str]
     :ivar domains: List of domains associated with the component.
@@ -84,8 +82,7 @@ class Mana(Resource):
     :vartype model: Model
     :ivar name: Set when the component is assigned as a Model attribute.
     :vartype name: str
-    :ivar _indexed: True if an index set has been created.
-    :vartype _indexed: bool
+
     :ivar constraints: List of constraints associated with the component.
     :vartype constraints: list[str]
     :ivar domains: List of domains associated with the component.
@@ -115,8 +112,7 @@ class Etc(Resource):
     :vartype model: Model
     :ivar name: Set when the component is assigned as a Model attribute.
     :vartype name: str
-    :ivar _indexed: True if an index set has been created.
-    :vartype _indexed: bool
+
     :ivar constraints: List of constraints associated with the component.
     :vartype constraints: list[str]
     :ivar domains: List of domains associated with the component.

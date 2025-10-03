@@ -3,8 +3,11 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from functools import cached_property
 from operator import is_
 from typing import TYPE_CHECKING, Self
+
+from gana import I
 
 from ..._core._x import _X
 
@@ -130,3 +133,10 @@ class Linkage(_X):
         if is_(self, other):
             return True
         return False
+
+    @cached_property
+    def I(self) -> I:
+        """gana index set (I)"""
+        _index = I(self.name, tag=self.label or "")
+        setattr(self.program, self.name, _index)
+        return _index

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from operator import is_
-from typing import Self, TYPE_CHECKING
+from typing import TYPE_CHECKING, Self
 
 from ._commodity import _Commodity
 
@@ -28,8 +28,6 @@ class Currency(_Commodity):
     :vartype model: Model
     :ivar name: Set when the component is assigned as a Model attribute.
     :vartype name: str
-    :ivar _indexed: True if an index set has been created.
-    :vartype _indexed: bool
     :ivar constraints: List of constraints associated with the component.
     :vartype constraints: list[str]
     :ivar domains: List of domains associated with the component.

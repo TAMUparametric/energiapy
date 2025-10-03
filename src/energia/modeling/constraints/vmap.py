@@ -227,6 +227,7 @@ class Map(_Generator):
         else:
             # the copy is important since otherwise, the printing will take
             # the update index if the variable is mutated
+
             return getattr(self.program, self.aspect.name)(*domain.Ilist).copy()
             # return self(*domain).V()
 

@@ -4,13 +4,12 @@ from __future__ import annotations
 
 import time as keep_time
 from dataclasses import dataclass
+from functools import cached_property
 from typing import TYPE_CHECKING, Literal, Self
 
-from gana.operators.composition import inf, sup
-from gana.operators.sigma import sigma
+from gana import I as Idx
+from gana import V, inf, sigma, sup
 from gana.sets.function import F
-from gana.sets.index import I
-from gana.sets.variable import V
 
 from ...components.temporal.modes import Modes
 from ...utils.math import normalize
@@ -33,29 +32,37 @@ if TYPE_CHECKING:
 
 @dataclass
 class Bind(_Generator):
-    """Sets a bound on a variable (V) within a particular domain
+    """
+    Sets a bound on a variable (V) within a particular domain.
 
-    Args:
-        aspect (Aspect. optional): Aspect to which the constraint is applied
-        domain (Domain. optional): Domain over which the aspect is defined
-        timed (bool): If the temporal index is predetermined. Defaults to None.
-        spaced (bool): If the spatial index is predetermined. Defaults to None.
+    :param aspect: Aspect to which the constraint is applied.
+    :type aspect: Aspect | None
+    :param domain: Domain over which the aspect is defined.
+    :type domain: Domain | None
+    :param timed: If the temporal index is predetermined. Defaults to None.
+    :type timed: bool | None
+    :param spaced: If the spatial index is predetermined. Defaults to None.
+    :type spaced: bool | None
 
+    :ivar name: Name of the bind.
+    :vartype name: str | None
+    :ivar model: Model to which the generator belongs.
+    :vartype model: Model | None
+    :ivar program: Gana Program to which the generated constraint belongs.
+    :vartype program: Prg | None
+    :ivar opr: Operation to bind (in lieu of a single variable). Defaults to None.
+    :vartype opr: F | None
+    :ivar domains: Set of domains over which the Bind is applied. Defaults to [].
+    :vartype domains: Domain
+    :ivar hasinc: If the Bind has some incidental calculation. Defaults to False.
+    :vartype hasinc: bool
 
-
-    Attributes:
-        name (str, optional): Name.
-        model (Model, optional): Model to which the generator belongs.
-        program (Prg, optional): Gana Program to which the generated constraint belongs.
-        opr (F): Operation to bind (in lieu of a single variable). Defaults to None.
-        domains (Domain): set of domains over which the Bind is applied. Defaults to [].
-        hasinc (bool): If the Bind has some incidental calculation. Defaults to False.
-    Note:
-        - timed and spaced help skip the calculation of finding the appropriate index
-          for time this is done based on length of input parameter
-        - opr is useful if providing a combined bound to different variables
-        - name is generated based on the variable
-        - domains are updated as the program is built
+    .. note::
+    - ``timed`` and ``spaced`` help skip the calculation of finding the appropriate index.
+        For time, this is done based on the length of the input parameter.
+    - ``opr`` is useful if providing a combined bound to different variables.
+    - ``name`` is generated based on the variable.
+    - ``domains`` are updated as the program is built.
     """
 
     # if the temporal index is predetermined
@@ -83,9 +90,6 @@ class Bind(_Generator):
         # the bound is set for all indices
         self._forall: list[_X] = []
 
-        # an index will be carried here
-        self._index: I = None
-
     @property
     def name(self) -> str:
         """Name of the constraint"""
@@ -101,8 +105,8 @@ class Bind(_Generator):
         """Short Index"""
         return self.domain.index_short
 
-    @property
-    def I(self) -> I:
+    @cached_property
+    def I(self) -> Idx:
         """gana index set (I)"""
         return self.aspect.I
 
@@ -441,6 +445,7 @@ class Bind(_Generator):
         if len(v) == 1:
             obj = v
         else:
+            print("aaa", v, v.__dict__)
             obj = sigma(v)
 
         if self.hasinc:

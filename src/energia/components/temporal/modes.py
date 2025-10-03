@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from functools import cached_property
 from typing import TYPE_CHECKING, Self
 
-from gana.sets.index import I
+from gana import I
 
 from ..._core._x import _X
 
@@ -21,16 +22,17 @@ class Modes(_X):
     Represents a discrete choice to be taken within a spatiotemporal disposition.
     Modes can split usage. A Mode of Operation can be used for Conversion, Use, etc.
 
+    :param n_modes: Number of modes. Defaults to 1.
+    :type n_modes: int
+    :param bind: The aspect and component which is being 'moded'. Defaults to None.
+    :type bind: Bind | None
+    :param parent: Parent mode, if any. Defaults to None.
+    :type parent: Self | None
+    :param pos: Position in the parent mode set. Defaults to None.
+    :type pos: int | None
+
     :ivar name: The name of the mode, usually a number.
     :vartype name: str | float | int
-    :ivar n_modes: Number of modes. Defaults to 1.
-    :vartype n_modes: int
-    :ivar bind: the aspect and component which is being 'moded'. Defaults to None.
-    :vartype bind: Bind
-    :ivar parent: Parent mode, if any. Defaults to None.
-    :vartype parent: Self
-    :ivar pos: Position in the parent mode set. Defaults to None.
-    :vartype pos: int
     """
 
     n_modes: int = 1
@@ -65,7 +67,7 @@ class Modes(_X):
             [],
         )
 
-    @property
+    @cached_property
     def I(self) -> I:
         """Index set of modes"""
 
@@ -74,18 +76,15 @@ class Modes(_X):
             # do not set a new index set, get from parent
             return getattr(self.parent.program, self.parent.name)[self.pos]
 
-        if not self._indexed:
-            # and index element is created for each component
-            # with the same name as the component
-            # A SELF type set is created
-            setattr(
-                self.program,
-                self.name,
-                I(size=self.n_modes, tag=f"Modes of {self.bind.aspect}"),
-            )
-            self._indexed = True
-        # if already indexed, return the index set from the program
-        return getattr(self.program, self.name)
+        _index = I(size=self.n_modes, tag=f"Modes of {self.bind.aspect}")
+
+        setattr(
+            self.program,
+            self.name,
+            _index,
+        )
+
+        return _index
 
     def __eq__(self, other: Modes) -> bool:
         """Equality operator"""

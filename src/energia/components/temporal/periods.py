@@ -3,10 +3,11 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from functools import cached_property
 from operator import is_
 from typing import TYPE_CHECKING, Self
 
-from gana.sets.index import I
+from gana import I as Idx
 
 from ..._core._x import _X
 from ...modeling.parameters.value import Value
@@ -96,23 +97,17 @@ class Periods(_X):
         """Is this the horizon of the model?"""
         return self == self.time.horizon
 
-    @property
-    def I(self) -> I:
-        """_Index set of scale"""
-        # this overwrites the I property of X
+    @cached_property
+    def I(self) -> Idx:
+        """Index set of scale"""
+
         # given that temporal scale is an ordered set and not a self contained set
         # any time period will be a fraction of the horizon
 
-        if not self._indexed:
+        _index = Idx(size=self.time.horizon.howmany(self), tag=self.label or "")
+        setattr(self.program, self.name, _index)
 
-            setattr(
-                self.program,
-                self.name,
-                I(size=self.time.horizon.howmany(self), tag=self.label),
-            )
-            self._indexed = True
-
-        return getattr(self.program, self.name)
+        return _index
 
     def howmany(self, period: Self | Lag):
         """How many periods make this period"""

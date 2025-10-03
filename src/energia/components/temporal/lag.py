@@ -3,13 +3,14 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from functools import cached_property
 from operator import is_
 from typing import TYPE_CHECKING, Self
 
 from ..._core._name import _Name
 
 if TYPE_CHECKING:
-    from gana.sets.index import I
+    from gana import I as Idx
 
     from ...modeling.indices.domain import Domain
     from .periods import Periods
@@ -44,8 +45,8 @@ class Lag(_Name):
         self.domains: list[Domain] = []
         self.constraints: list[str] = []
 
-    @property
-    def I(self) -> I:
+    @cached_property
+    def I(self) -> Idx:
         """Index set of period - period
         Basically,
         if t is set of hours and lag is 5

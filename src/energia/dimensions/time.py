@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from functools import cached_property
 from typing import TYPE_CHECKING
 from warnings import warn
 
@@ -27,8 +28,6 @@ class Time(_Dimension):
 
     :ivar name: Name of the dimension, generated based on the class and model name.
     :vartype name: str
-    :ivar _indexed: The index set of Horizon. For easy call. Defaults to None.
-    :vartype _indexed: I
     :ivar periods: List of time periods. Defaults to [].
     :vartype periods: list[Periods]
     :ivar modes: List of modes. Defaults to [].
@@ -41,28 +40,14 @@ class Time(_Dimension):
     """
 
     def __post_init__(self):
-        self._indexed: I = None
         self.periods: list[Periods] = []
         self.modes: list[Modes] = []
         _Dimension.__post_init__(self)
 
-    @property
+    @cached_property
     def program(self) -> Prg:
         """Mathematical program"""
         return self.model.program
-
-    @property
-    def I(self) -> I:
-        """gana index set (I)"""
-
-        # time is indexed a little differently
-        # instead of just being indexed at the set level,
-        # an ordered index set is created
-        if not self._indexed:
-            _indexed = I(self.name, mutable=True, tag=f"Horizon of {self.model}")
-            _indexed.name = self.name
-            self._indexed = _indexed
-        return self._indexed
 
     # -----------------------------------------------------
     #                    Helpers

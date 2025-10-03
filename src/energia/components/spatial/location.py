@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
+from functools import cached_property
 from operator import is_
 from typing import TYPE_CHECKING, Self
 from warnings import warn
+
+from gana import I as Idx
 
 from ..._core._x import _X
 from ...utils.dictionary import get_depth
@@ -31,8 +34,7 @@ class Location(_X):
     :vartype model: Model
     :ivar name: Name of the Location. Set when the Location is assigned as a Model attribute.
     :vartype name: str
-    :ivar _indexed: True if an index set has been created.
-    :vartype _indexed: bool
+
     :ivar constraints: List of constraints associated with the Location.
     :vartype constraints: list[str]
     :ivar domains: List of domains associated with the Location.
@@ -133,6 +135,19 @@ class Location(_X):
     def isnetwork(self) -> bool:
         """Is this the network of the model?"""
         return self == self.model.network
+
+    @cached_property
+    def I(self) -> Idx:
+        """gana index set"""
+        if self.has:
+            # if component has a nested locations
+            _index = Idx(*[loc.name for loc in self.has], tag=self.label or "")
+
+        else:
+            # if component has no nested locations
+            _index = Idx(self.name, tag=self.label or "")
+        setattr(self.program, self.name, _index)
+        return _index
 
     def sink(self):
         """Tells whether the location is a sink"""

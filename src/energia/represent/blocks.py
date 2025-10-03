@@ -20,11 +20,9 @@ from .graph import Graph
 from .program import Program
 
 if TYPE_CHECKING:
+    from gana import P, T, V
     from gana.block.solution import Solution
-    from gana.sets.constraint import C
-    from gana.sets.parameter import P
-    from gana.sets.theta import T
-    from gana.sets.variable import V
+    from gana.sets.constraint import C as Cons
     from pandas import DataFrame
 
     from ..components.impact.categories import Economic, Environ, Social
@@ -335,12 +333,12 @@ class _Program:
     # -------------------------------------
 
     @property
-    def constraint_sets(self) -> list[C]:
+    def constraint_sets(self) -> list[Cons]:
         """Constraint sets"""
         return self.program.constraint_sets
 
     @property
-    def function_sets(self) -> list[C]:
+    def function_sets(self) -> list[Cons]:
         """Function sets"""
         return self.program.function_sets
 
@@ -369,12 +367,12 @@ class _Program:
     # -------------------------------------
 
     @property
-    def constraints(self) -> list[C]:
+    def constraints(self) -> list[Cons]:
         """Constraints"""
         return self.program.constraints
 
     @property
-    def functions(self) -> list[C]:
+    def functions(self) -> list[Cons]:
         """Functions"""
         return self.program.functions
 
@@ -394,7 +392,7 @@ class _Program:
         return self.program.indices
 
     @property
-    def objectives(self) -> list[C]:
+    def objectives(self) -> list[Cons]:
         """Objectives"""
         return self.program.objectives
 
@@ -402,7 +400,7 @@ class _Program:
     #            Ordered Lists
     # -------------------------------------
 
-    def cons(self) -> list[C]:
+    def cons(self) -> list[Cons]:
         """Order list of constraints"""
         return self.program.cons()
 
