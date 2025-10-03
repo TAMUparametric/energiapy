@@ -137,6 +137,6 @@ class Linkage(_X):
     @cached_property
     def I(self) -> I:
         """gana index set (I)"""
-        _index = I(self.name, tag=self.label or '')
+        _index = I(self.name, tag=self.label or "")
         setattr(self.program, self.name, _index)
         return _index

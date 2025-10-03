@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class _X:
+class _X(ABC):
     """
     A component (`x`) that functions as an index in the mathematical program.
 

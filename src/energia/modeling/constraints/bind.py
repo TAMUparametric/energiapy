@@ -445,7 +445,7 @@ class Bind(_Generator):
         if len(v) == 1:
             obj = v
         else:
-            print('aaa', v, v.__dict__)
+            print("aaa", v, v.__dict__)
             obj = sigma(v)
 
         if self.hasinc:

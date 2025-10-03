@@ -104,7 +104,7 @@ class Periods(_X):
         # given that temporal scale is an ordered set and not a self contained set
         # any time period will be a fraction of the horizon
 
-        _index = Idx(size=self.time.horizon.howmany(self), tag=self.label or '')
+        _index = Idx(size=self.time.horizon.howmany(self), tag=self.label or "")
         setattr(self.program, self.name, _index)
 
         return _index

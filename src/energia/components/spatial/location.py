@@ -141,11 +141,11 @@ class Location(_X):
         """gana index set"""
         if self.has:
             # if component has a nested locations
-            _index = Idx(*[loc.name for loc in self.has], tag=self.label or '')
+            _index = Idx(*[loc.name for loc in self.has], tag=self.label or "")
 
         else:
             # if component has no nested locations
-            _index = Idx(self.name, tag=self.label or '')
+            _index = Idx(self.name, tag=self.label or "")
         setattr(self.program, self.name, _index)
         return _index
 
