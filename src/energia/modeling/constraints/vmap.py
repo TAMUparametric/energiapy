@@ -4,17 +4,16 @@ from __future__ import annotations
 
 import time as keep_time
 from dataclasses import dataclass
+from functools import cached_property
 from operator import is_
 from typing import TYPE_CHECKING
 
 from gana import sigma
 
 from ._generator import _Generator
-from functools import cached_property
 
 if TYPE_CHECKING:
     from gana.sets.constraint import C
-
     from ..._core._x import _X
     from ..indices.domain import Domain
 

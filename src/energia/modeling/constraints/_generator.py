@@ -6,11 +6,10 @@ from dataclasses import dataclass
 from functools import cached_property
 from typing import TYPE_CHECKING
 
-from ..._core._name import _Name
 
 if TYPE_CHECKING:
 
-    from gana.block.program import Prg
+    from gana import Prg
 
     from ...components.commodity.resource import Resource
     from ...components.operation.process import Process
@@ -23,16 +22,11 @@ if TYPE_CHECKING:
     from ...represent.model import Model
     from ..indices.domain import Domain
     from ..variables.aspect import Aspect
-
-    # from ..variables.control import Control
-    # from ..variables.impact import Impact
-    # from ..variables.state import State
-    # from ..variables.stream import Stream
     from .bind import Bind
 
 
 @dataclass
-class _Generator(_Name):
+class _Generator:
     """
     Base class for all Energia constraint generators.
 
@@ -50,9 +44,11 @@ class _Generator(_Name):
     """
 
     # this is the aspect for which the constraint is being defined
-    aspect: Aspect = None
+    aspect: Aspect
     # the domain is passed when the aspect is called using __call__()
-    domain: Domain = None
+    domain: Domain
+
+    label: str = ''
 
     # @property
     # def name(self) -> str:
@@ -99,3 +95,16 @@ class _Generator(_Name):
     ]:
         """List of Bind at each disposition"""
         return self.model.grb
+
+    def __str__(self):
+        return self.name
+
+    def __repr__(self):
+        return self.name
+
+    def __hash__(self):
+        return hash(self.name)
+
+    def __init_subclass__(cls):
+        cls.__repr__ = _Generator.__repr__
+        cls.__hash__ = _Generator.__hash__
