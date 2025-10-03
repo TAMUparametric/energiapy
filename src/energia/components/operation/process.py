@@ -301,7 +301,7 @@ class Process(_Operation):
                         # but here we pause that binding and bind operate to explicit limits
                         self.model.operate.bound = None
 
-                        _ = opr == {n: k for n, k in enumerate(self.conversion.keys())}
+                        _ = opr == dict(enumerate(self.conversion.keys()))
 
                         # reset capacity binding
                         self.model.operate.bound = self.model.capacity

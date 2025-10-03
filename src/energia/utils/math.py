@@ -4,9 +4,6 @@ from math import erf, exp, pi, sqrt
 
 import numpy
 
-# from pandas import DataFrame, concat
-# from sklearn.preprocessing import MinMaxScaler, StandardScaler
-
 
 def norm_constant(p, mu, sigma) -> float:
     """Calculates the normal constant
@@ -76,7 +73,7 @@ def normalize(data: list, how: str = "max") -> list:
         # normalize lower and upper bounds individually
         lb_norm = normalize(lb, how=how)
         ub_norm = normalize(ub, how=how)
-        return [(i, j) for i, j in zip(lb_norm, ub_norm)]
+        return list(zip(lb_norm, ub_norm))
 
     if how == "min_max":
         min_ = min(data)
@@ -87,56 +84,3 @@ def normalize(data: list, how: str = "max") -> list:
         max_ = max(data)
         data = [i / max(data) for i in data]
     return data
-
-
-# def normalize(data: list) -> list:
-#     """normalizes data
-
-#     Args:
-#         data (numpy.array | DataFrame): time-series data
-
-#     Returns:
-#         numpy.array | DataFrame: min-maxed data array
-#     """
-#     scaler_ = MinMaxScaler()
-#     data = numpy.array(data).reshape(-1, 1)
-#     data = scaler_.fit_transform(data)
-#     # max_data = numpy.max(data)
-#     # data = data / max_data
-#     data = [float(i[0]) for i in list(data)]
-
-#     return data
-
-# def scaler(input_df: DataFrame, scale: list, child_scale: list = None) -> DataFrame:
-#     """creates a scaled list from a DataFrame object
-
-#     Args:
-#         input_df (DataFrame): df with values to be scaled
-#         parent_scale (list): scale to project into
-#         child_scale (list): scale to project
-
-#     Returns:
-#         DataFrame: scaled values
-#     """
-
-#     cols = list(input_df.columns)
-#     scaled_df = DataFrame()
-#     for col in cols:
-#         if child_scale is not None:
-#             col_names = [str(col) + '-' + str(i) for i in range(len(child_scale))]
-#             reshaped_df = numpy.reshape(
-#                 input_df[col].values, (len(scale), len(child_scale))
-#             )
-#         else:
-#             col_names = [col]
-#             # reshaped_df = input_df
-#             if len(cols) > 1:
-#                 reshaped_df = numpy.reshape(input_df[col].values, (len(scale), 1))
-#             else:
-#                 reshaped_df = input_df
-
-#         scaler_ = StandardScaler().fit(reshaped_df)
-
-#         scaled_iter = DataFrame(scaler_.transform(reshaped_df), columns=col_names)
-#         scaled_df = concat([scaled_df, scaled_iter], axis=1)
-#     return scaled_df

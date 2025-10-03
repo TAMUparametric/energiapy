@@ -82,7 +82,6 @@ class Storage(_Component):
         # update the locations at which the storage exists
 
         # get location, time tuples where operation is defined
-        loc_times = []
         for loc in locations:
 
             if loc not in self.model.invcapacity.bound_spaces[self.stored]:

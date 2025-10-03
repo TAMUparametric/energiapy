@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING
 from gana import sigma
 
 from ._generator import _Generator
+from functools import cached_property
 
 if TYPE_CHECKING:
     from gana.sets.constraint import C
@@ -181,12 +182,12 @@ class Map(_Generator):
                         msum=True,
                     )
 
-    @property
+    @cached_property
     def name(self) -> str:
         """Name of the constraint"""
         return self.aspect.name + "_map"
 
-    @property
+    @cached_property
     def maps(self) -> list[str]:
         """List of domains that the aspect has been mapped to"""
         if self.reporting:
