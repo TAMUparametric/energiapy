@@ -26,7 +26,7 @@ def capacity_sizing(model: Model):
     model.Recipe(
         "capacity",
         State,
-        types_opr=(Process, Transport),
+        primary_type=(Process, Transport),
         label="Capacitate Operation",
         latex=r"{cap}",
         add_kind=Control,
@@ -43,7 +43,7 @@ def operating(model: Model):
     model.Recipe(
         "operate",
         State,
-        types_opr=(Process, Transport),
+        primary_type=(Process, Transport),
         label="Capacity Utilization",
         latex=r"{opr}",
         add_kind=Control,
@@ -57,7 +57,7 @@ def operating(model: Model):
     model.Recipe(
         "produce",
         EndoStream,
-        types_res=Resource,
+        primary_type=Resource,
         latex="prod",
         label="Stream produced in Operation",
         neg="expend",
@@ -68,7 +68,7 @@ def operating(model: Model):
     model.Recipe(
         "ship_in",
         EndoStream,
-        types_res=Resource,
+        primary_type=Resource,
         label="Resource Imported into Location",
         latex=r"{impt}",
         neg="ship_out",
@@ -81,7 +81,7 @@ def inventory_sizing(model: Model):
     model.Recipe(
         "invcapacity",
         State,
-        types_res=Resource,
+        primary_type=Resource,
         label="Inventory Capacity",
         latex=r"{icap}",
         add_kind=Control,
@@ -94,7 +94,7 @@ def inventory_sizing(model: Model):
     model.Recipe(
         "inventory",
         EndoStream,
-        types_res=Stored,
+        primary_type=Stored,
         label="Stored Resource",
         latex=r"{inv}",
         ispos=False,
@@ -107,7 +107,7 @@ def usage(model: Model):
     model.Recipe(
         "dispose",
         EndoStream,
-        types_res=(Resource, Land, Material),
+        primary_type=(Resource, Land, Material),
         label="Dispose Resource",
         latex=r"{disp}",
         neg="use",
@@ -127,7 +127,7 @@ def free_movement(model: Model):
     model.Recipe(
         "consume",
         ExoStream,
-        types_res=Resource,
+        primary_type=Resource,
         label="Free Resource Stream",
         latex=r"{cons}",
         add_kind=Control,
@@ -141,7 +141,7 @@ def trade(model: Model):
     model.Recipe(
         "buy",
         ExoStream,
-        types_res=Resource,
+        primary_type=Resource,
         label="Buy Resource",
         neg="sell",
     )
@@ -152,7 +152,7 @@ def economic(model: Model):
     model.Recipe(
         "earn",
         IndStream,
-        types_res=(Currency, Economic),
+        primary_type=(Currency, Economic),
         neg="spend",
     )
 
@@ -162,7 +162,7 @@ def environmental(model: Model):
     model.Recipe(
         "emit",
         IndStream,
-        types_res=(Environ, Emission),
+        primary_type=(Environ, Emission),
         neg="abate",
     )
 
@@ -172,6 +172,6 @@ def social(model: Model):
     model.Recipe(
         "benefit",
         IndStream,
-        types_res=(Social, Currency),
+        primary_type=(Social, Currency),
         neg="detriment",
     )

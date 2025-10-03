@@ -3,7 +3,7 @@ select = ["F", "E", "W", "I", "NPY", "S", "B", "BLE", "A", "COM", "C4", "T10", "
 
 
 # rules to ignore
-ignore = ["E501", "RET505", "E731", "B905", "PLR0913", "ARG001", "B028"]
+ignore = ["E501", "RET505", "E731", "B905", "PLR0913", "ARG001", "B028","PLW1641"]
 
 # Rule explanations:
 # E501: line too long
@@ -22,3 +22,4 @@ exclude = ['tests', 'docs', '.github']
 
 [mccabe]
 max-complexity = 10
+

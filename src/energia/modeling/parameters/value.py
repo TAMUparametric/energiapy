@@ -24,10 +24,10 @@ class Value(_Name):
         | tuple[int]
         | tuple[list[int | float]]
     ) = None
-    period: Periods = None
+    periods: Periods = None
 
     def __post_init__(self):
         if isinstance(self.value, (float, int)):
-            self.name = f"{self.value}/{self.period}"
+            self.name = f"{self.value}/{self.periods}"
         else:
-            self.name = f"Φ/{self.period}"
+            self.name = f"Φ/{self.periods}"

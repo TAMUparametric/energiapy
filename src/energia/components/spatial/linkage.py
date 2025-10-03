@@ -63,7 +63,7 @@ class Linkage(_X):
 
         self.hierarchy = 1
 
-    @property
+    @cached_property
     def space(self) -> Space:
         """Space to which the Location belongs"""
         return self.model.space
