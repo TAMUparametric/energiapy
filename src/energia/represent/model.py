@@ -47,8 +47,8 @@ from .blocks import _Init
 
 if TYPE_CHECKING:
     from gana.sets.index import I
-    from .._core._component import _Component
 
+    from .._core._component import _Component
     from ..modeling.constraints.bind import Bind
     from ..modeling.variables.aspect import Aspect
 

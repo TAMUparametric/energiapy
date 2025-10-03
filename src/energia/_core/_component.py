@@ -58,13 +58,6 @@ class _Component(_X):
         _X.__post_init__(self)
 
     @property
-    def problem(self) -> Problem:
-        """Feasible Region"""
-        # the decision tree gives the component access to
-        # the aspects of all other components
-        return self.model.problem
-
-    @property
     def network(self) -> Location:
         """Circumscribing Loc (Spatial Scale)"""
         return self.model.network
@@ -74,15 +67,22 @@ class _Component(_X):
         """Circumscribing Periods (Temporal Scale)"""
         return self.model.horizon
 
-    @property
+    @cached_property
     def time(self) -> Time:
         """Time"""
         return self.model.time
 
-    @property
+    @cached_property
     def space(self) -> Space:
         """Space"""
         return self.model.space
+
+    @cached_property
+    def problem(self) -> Problem:
+        """Feasible Region"""
+        # the decision tree gives the component access to
+        # the aspects of all other components
+        return self.model.problem
 
     def __getattr__(self, name):
 

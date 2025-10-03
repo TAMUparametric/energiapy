@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Literal
+from functools import cached_property
 
 from .._core._dimension import _Dimension
 from ..modeling.indices.domain import Domain
@@ -52,12 +53,12 @@ class Problem(_Dimension):
         self.streams: list[Stream] = []
         self.impacts: list[Impact] = []
 
-    @property
+    @cached_property
     def time(self) -> Time:
         """Time"""
         return self.model.time
 
-    @property
+    @cached_property
     def space(self) -> Space:
         """Space"""
         return self.model.space

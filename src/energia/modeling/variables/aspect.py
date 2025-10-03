@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from functools import cached_property
-from typing import TYPE_CHECKING, Self, Type, Optional
+from typing import TYPE_CHECKING, Optional, Self, Type
 
 import matplotlib.pyplot as plt
 from matplotlib import rc
@@ -32,8 +32,8 @@ if TYPE_CHECKING:
     from gana import V as Var
     from gana.sets.constraint import C
 
-    from ..._core._x import _X
     from ..._core._component import _Component
+    from ..._core._x import _X
     from ...dimensions.problem import Problem
     from ...represent.model import Model
 

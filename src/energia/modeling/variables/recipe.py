@@ -1,8 +1,9 @@
 """Recipes to create Aspects"""
 
 from __future__ import annotations
+
 from dataclasses import asdict, dataclass
-from typing import Type, TYPE_CHECKING
+from typing import TYPE_CHECKING, Type
 
 from .aspect import Aspect
 
