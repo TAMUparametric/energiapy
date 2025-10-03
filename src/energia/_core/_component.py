@@ -6,6 +6,8 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Optional
 
 from ._x import _X
+from gana import I
+from functools import cached_property
 
 if TYPE_CHECKING:
     from ..components.measure.unit import Unit
@@ -33,8 +35,6 @@ class _Component(_X):
     :vartype model: Model
     :ivar name: Set when the component is assigned as a Model attribute.
     :vartype name: str
-    :ivar _indexed: True if an index set has been created.
-    :vartype _indexed: bool
     :ivar constraints: List of constraints associated with the component.
     :vartype constraints: list[str]
     :ivar domains: List of domains associated with the component.
@@ -44,7 +44,6 @@ class _Component(_X):
 
     :note:
         - `name`, `model` set when component assigned to Model attribute.
-        - `_indexed` is set the first time the model is indexed.
         - `constraints` and `domains` are populated as the program is built.
     """
 
@@ -95,3 +94,10 @@ class _Component(_X):
         raise AttributeError(
             f"'{type(self).__name__}' object has no attribute '{name}'",
         )
+
+    @cached_property
+    def I(self):
+        """gana index set (I)"""
+        _index = I(self.name, tag=self.label or '')
+        setattr(self.program, self.name, _index)
+        return _index

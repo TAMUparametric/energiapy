@@ -7,6 +7,8 @@ from operator import is_
 from typing import TYPE_CHECKING, Self
 
 from ..._core._x import _X
+from gana import I
+from functools import cached_property
 
 if TYPE_CHECKING:
     from ...dimensions.space import Space
@@ -130,3 +132,10 @@ class Linkage(_X):
         if is_(self, other):
             return True
         return False
+
+    @cached_property
+    def I(self) -> I:
+        """gana index set (I)"""
+        _index = I(self.name, tag=self.label or '')
+        setattr(self.program, self.name, _index)
+        return _index

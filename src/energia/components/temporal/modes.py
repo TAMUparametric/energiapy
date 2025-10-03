@@ -5,7 +5,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Self
 
-from gana.sets.index import I
+from gana import I
+from functools import cached_property
 
 from ..._core._x import _X
 
@@ -65,7 +66,7 @@ class Modes(_X):
             [],
         )
 
-    @property
+    @cached_property
     def I(self) -> I:
         """Index set of modes"""
 
@@ -74,18 +75,15 @@ class Modes(_X):
             # do not set a new index set, get from parent
             return getattr(self.parent.program, self.parent.name)[self.pos]
 
-        if not self._indexed:
-            # and index element is created for each component
-            # with the same name as the component
-            # A SELF type set is created
-            setattr(
-                self.program,
-                self.name,
-                I(size=self.n_modes, tag=f"Modes of {self.bind.aspect}"),
-            )
-            self._indexed = True
-        # if already indexed, return the index set from the program
-        return getattr(self.program, self.name)
+        _index = I(size=self.n_modes, tag=f"Modes of {self.bind.aspect}")
+
+        setattr(
+            self.program,
+            self.name,
+            _index,
+        )
+
+        return _index
 
     def __eq__(self, other: Modes) -> bool:
         """Equality operator"""

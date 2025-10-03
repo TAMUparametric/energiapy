@@ -89,10 +89,7 @@ class Aspect(_Name):
 
         # reporting variable
         self.reporting: V = None
-
-        # has this variable been set at as index
-        self._indexed: bool = False
-
+        
         self.constraints: list[str] = []
 
     @property

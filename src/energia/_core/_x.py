@@ -30,8 +30,6 @@ class _X:
     :vartype model: Model
     :ivar name: Set when the component is assigned as a Model attribute.
     :vartype name: str
-    :ivar _indexed: True if an index set has been created.
-    :vartype _indexed: bool
     :ivar constraints: List of constraints associated with the component.
     :vartype constraints: list[str]
     :ivar domains: List of domains associated with the component.
@@ -42,7 +40,6 @@ class _X:
     :note:
         - `name` and `model` are set when the component
            is assigned as a Model attribute.
-        - `_indexed` is set the first time the model is indexed.
         - `constraints` and `domains` are populated as the program is built.
     """
 
@@ -54,8 +51,7 @@ class _X:
         self.model: Model = None
         # name is given by the model
         self.name: str = ""
-        # is the component indexed?
-        self._indexed: bool = False
+
         # constraint pnames associated with the component
         self.constraints: list[str] = []
         # domains associated with the component
@@ -67,18 +63,6 @@ class _X:
     def program(self) -> Prg:
         """Mathematical program"""
         return self.model.program
-
-    @property
-    def I(self) -> I:
-        """gana index set (I)"""
-        if not self._indexed:
-            # and index element is created for each component
-            # with the same name as the component
-            # A SELF type set is created
-            setattr(self.program, self.name, I(self.name, tag=self.label))
-            self._indexed = True
-        # if already indexed, return the index set from the program
-        return getattr(self.program, self.name)
 
     @property
     def cons(self) -> list[C]:

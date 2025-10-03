@@ -10,6 +10,7 @@ from .._core._dimension import _Dimension
 from ..components.temporal.modes import Modes
 from ..components.temporal.periods import Periods
 
+
 if TYPE_CHECKING:
     from gana.block.program import Prg
     from gana.sets.index import I
@@ -27,8 +28,6 @@ class Time(_Dimension):
 
     :ivar name: Name of the dimension, generated based on the class and model name.
     :vartype name: str
-    :ivar _indexed: The index set of Horizon. For easy call. Defaults to None.
-    :vartype _indexed: I
     :ivar periods: List of time periods. Defaults to [].
     :vartype periods: list[Periods]
     :ivar modes: List of modes. Defaults to [].
@@ -41,7 +40,6 @@ class Time(_Dimension):
     """
 
     def __post_init__(self):
-        self._indexed: I = None
         self.periods: list[Periods] = []
         self.modes: list[Modes] = []
         _Dimension.__post_init__(self)
@@ -50,19 +48,6 @@ class Time(_Dimension):
     def program(self) -> Prg:
         """Mathematical program"""
         return self.model.program
-
-    @property
-    def I(self) -> I:
-        """gana index set (I)"""
-
-        # time is indexed a little differently
-        # instead of just being indexed at the set level,
-        # an ordered index set is created
-        if not self._indexed:
-            _indexed = I(self.name, mutable=True, tag=f"Horizon of {self.model}")
-            _indexed.name = self.name
-            self._indexed = _indexed
-        return self._indexed
 
     # -----------------------------------------------------
     #                    Helpers
