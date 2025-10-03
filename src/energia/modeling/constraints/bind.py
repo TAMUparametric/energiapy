@@ -4,15 +4,13 @@ from __future__ import annotations
 
 import time as keep_time
 from dataclasses import dataclass
+from functools import cached_property
 from typing import TYPE_CHECKING, Literal, Self
 
-from gana import inf, sup, sigma, V
 from gana import I as Idx
-
-
+from gana import V, inf, sigma, sup
 from gana.sets.function import F
 
-from functools import cached_property
 from ...components.temporal.modes import Modes
 from ...utils.math import normalize
 from ._generator import _Generator

@@ -28,17 +28,9 @@ from ..components.spatial.location import Location
 from ..components.temporal.modes import Modes
 from ..components.temporal.periods import Periods
 from ..components.temporal.scales import TemporalScales
-from ..library.recipes import (
-    capacity_sizing,
-    economic,
-    environmental,
-    free_movement,
-    inventory_sizing,
-    operating,
-    social,
-    trade,
-    usage,
-)
+from ..library.recipes import (capacity_sizing, economic, environmental,
+                               free_movement, inventory_sizing, operating,
+                               social, trade, usage)
 from ..modeling.parameters.conversion import Conversion
 from ..modeling.variables.control import Control
 from ..modeling.variables.impact import Impact

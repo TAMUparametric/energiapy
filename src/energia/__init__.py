@@ -15,13 +15,8 @@ from .components.spatial.linkage import Linkage
 from .components.spatial.location import Location
 from .components.temporal.periods import Periods
 from .components.temporal.scales import TemporalScales
-from .library.components import (
-    currencies,
-    env_indicators,
-    misc_units,
-    si_units,
-    time_units,
-)
+from .library.components import (currencies, env_indicators, misc_units,
+                                 si_units, time_units)
 from .represent.model import Model
 
 __all__ = [

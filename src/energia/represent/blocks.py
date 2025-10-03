@@ -20,9 +20,9 @@ from .graph import Graph
 from .program import Program
 
 if TYPE_CHECKING:
-    from gana.block.solution import Solution
-    from gana.sets.constraint import C as Cons 
     from gana import P, T, V
+    from gana.block.solution import Solution
+    from gana.sets.constraint import C as Cons
     from pandas import DataFrame
 
     from ..components.impact.categories import Economic, Environ, Social

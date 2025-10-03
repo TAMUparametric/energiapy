@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from functools import cached_property
 from typing import TYPE_CHECKING, Self
 
 from gana import I
-from functools import cached_property
 
 from ..._core._x import _X
 

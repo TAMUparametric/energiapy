@@ -3,11 +3,11 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from functools import cached_property
 from operator import is_
 from typing import TYPE_CHECKING, Self
 
 from ..._core._name import _Name
-from functools import cached_property
 
 if TYPE_CHECKING:
     from gana import I

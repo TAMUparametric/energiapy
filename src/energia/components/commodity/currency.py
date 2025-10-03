@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from operator import is_
-from typing import Self, TYPE_CHECKING
+from typing import TYPE_CHECKING, Self
 
 from ._commodity import _Commodity
 

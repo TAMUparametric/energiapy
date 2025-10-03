@@ -2,11 +2,9 @@
 
 from __future__ import annotations
 
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Optional
-
-from abc import ABC, abstractmethod
-
 
 if TYPE_CHECKING:
     from gana import I as Idx

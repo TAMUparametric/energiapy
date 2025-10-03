@@ -10,7 +10,6 @@ from .._core._dimension import _Dimension
 from ..components.temporal.modes import Modes
 from ..components.temporal.periods import Periods
 
-
 if TYPE_CHECKING:
     from gana.block.program import Prg
     from gana.sets.index import I

@@ -3,11 +3,12 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from functools import cached_property
 from typing import TYPE_CHECKING, Optional
 
-from ._x import _X
 from gana import I
-from functools import cached_property
+
+from ._x import _X
 
 if TYPE_CHECKING:
     from ..components.measure.unit import Unit
