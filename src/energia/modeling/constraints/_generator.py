@@ -48,7 +48,7 @@ class _Generator:
     # the domain is passed when the aspect is called using __call__()
     domain: Domain
 
-    label: str = ''
+    label: str = ""
 
     # @property
     # def name(self) -> str:

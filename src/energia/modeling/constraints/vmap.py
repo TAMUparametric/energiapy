@@ -14,15 +14,23 @@ from ._generator import _Generator
 
 if TYPE_CHECKING:
     from gana.sets.constraint import C
+
     from ..._core._x import _X
     from ..indices.domain import Domain
 
 
 @dataclass
 class Map(_Generator):
-    """Maps between domains"""
+    """Maps between domains
 
-    return_sum: bool = False
+    :param aspect: Aspect to which the constraint is applied.
+    :type aspect: Aspect
+    :param domain: Domain over which the aspect is defined.
+    :type domain: Domain
+    :param reporting: If True, the map is for a reporting variable.
+    :type reporting: bool
+    """
+
     reporting: bool = False
 
     def __post_init__(self):
@@ -363,10 +371,6 @@ class Map(_Generator):
 
         # write the constraint
         cons: C = v_lower == rhs
-
-        if self.return_sum:
-            # if only a sum is requested, don't set to the program
-            return cons
 
         setattr(
             self.program,
