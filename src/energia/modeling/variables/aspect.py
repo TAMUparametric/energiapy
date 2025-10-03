@@ -22,6 +22,8 @@ from ...components.spatial.location import Location
 from ...components.temporal.lag import Lag
 from ...components.temporal.modes import Modes
 from ...components.temporal.periods import Periods
+from ...dimensions.space import Space
+from ...dimensions.time import Time
 from ..constraints.bind import Bind
 from ..indices.domain import Domain
 
@@ -147,7 +149,7 @@ class Aspect(_Name):
             return -1.0
 
     @cached_property
-    def space(self):
+    def space(self) -> Space:
         """Space"""
         return self.model.space
 
@@ -162,7 +164,7 @@ class Aspect(_Name):
         return self.model.problem
 
     @cached_property
-    def time(self):
+    def time(self) -> Time:
         """Time"""
         return self.model.time
 
