@@ -4,12 +4,11 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from functools import cached_property
-from typing import TYPE_CHECKING, Self, Type
+from typing import TYPE_CHECKING, Self, Type, Optional
 
 import matplotlib.pyplot as plt
 from matplotlib import rc
 
-from ..._core._name import _Name
 from ...components.commodity._commodity import _Commodity
 from ...components.game.couple import Couple
 from ...components.game.player import Player
@@ -34,12 +33,13 @@ if TYPE_CHECKING:
     from gana.sets.constraint import C
 
     from ..._core._x import _X
+    from ..._core._component import _Component
     from ...dimensions.problem import Problem
     from ...represent.model import Model
 
 
 @dataclass
-class Aspect(_Name):
+class Aspect:
     """
     Any kind of decision.
 
@@ -72,20 +72,23 @@ class Aspect(_Name):
     :vartype bound_spaces: dict[_Commodity | Process | Storage | Transport, list[Location | Linkage]]
     :ivar domains: List of domains associated with the Aspect.
     :vartype domains: list[Domain]
+
+    raises ValueError:
+        - If `primary_type` is not defined.
     """
 
+    primary_type: Type[_Component]
     nn: bool = True
-    types_opr: tuple[Type[Process | Storage | Transport]] = None
-    types_res: Type[_Commodity] = None
-    types_dres: Type[_Commodity] = None
-    types_idc: Type[Indicator] = None
     ispos: bool = True
     neg: str = ""
     latex: str = ""
     bound: str = ""
+    label: Optional[str] = None
 
     def __post_init__(self):
-        _Name.__post_init__(self)
+        # will be set when added to model
+        self.name: str = ""
+
         # name of the decision
         self.model: Model = None
 
@@ -94,7 +97,7 @@ class Aspect(_Name):
                 self.label += " [+]"
             else:
                 self.label += " [-]"
-        self.indices: list[Location | Linkage, Periods] = []
+        self.indices: list[Location | Linkage | Periods] = []
 
         # # if a decision is bounded by another decision
         # self.bound: Self = None
@@ -115,7 +118,7 @@ class Aspect(_Name):
         self._maps_report: bool = False
 
         # reporting variable
-        self.reporting: Var = None
+        self.reporting: Optional[Var] = None
 
         self.constraints: list[str] = []
 
@@ -255,18 +258,11 @@ class Aspect(_Name):
 
         dscn = type(self)(
             nn=False,
-            types_opr=self.types_opr,
-            types_res=self.types_res,
-            types_idc=self.types_idc,
-            types_dres=self.types_dres,
+            primary_type=self.primary_type,
         )
         dscn.neg, self.neg = self, dscn
         dscn.ispos = not self.ispos
         return dscn
-
-    def __init_subclass__(cls):
-        cls.__repr__ = Aspect.__repr__
-        cls.__hash__ = Aspect.__hash__
 
     def __len__(self):
         return len(self.domains)
@@ -315,13 +311,31 @@ class Aspect(_Name):
                     spaced = True
 
                 elif isinstance(comp, Process):
-                    process = comp
+                    if self.primary_type and isinstance(comp, self.primary_type):
+                        process = comp
+
+                    else:
+                        raise ValueError(
+                            f"For component {self} of type {type(self)}: {comp} of type {type(comp)} not recognized as an index",
+                        )
 
                 elif isinstance(comp, Storage):
-                    storage = comp
+                    if self.primary_type and isinstance(comp, self.primary_type):
+                        storage = comp
+
+                    else:
+                        raise ValueError(
+                            f"For component {self} of type {type(self)}: {comp} of type {type(comp)} not recognized as an index",
+                        )
 
                 elif isinstance(comp, Transport):
-                    transport = comp
+                    if self.primary_type and isinstance(comp, self.primary_type):
+                        transport = comp
+
+                    else:
+                        raise ValueError(
+                            f"For component {self} of type {type(self)}: {comp} of type {type(comp)} not recognized as an index",
+                        )
 
                 elif isinstance(comp, Player):
                     player = comp
@@ -332,7 +346,7 @@ class Aspect(_Name):
                 elif isinstance(comp, _Commodity):
                     # check if this is the right commodity type for the aspect
                     # domain.commodity should be the primary commodity only
-                    if self.types_res and isinstance(comp, self.types_res):
+                    if self.primary_type and isinstance(comp, self.primary_type):
                         commodity = comp
                     # else:
                     #     # anything else is a derivative commodity
@@ -438,3 +452,16 @@ class Aspect(_Name):
         if z:
             plt.legend()
         plt.rcdefaults()
+
+    def __str__(self):
+        return self.name
+
+    def __repr__(self):
+        return self.name
+
+    def __hash__(self):
+        return hash(self.name)
+
+    def __init_subclass__(cls):
+        cls.__repr__ = Aspect.__repr__
+        cls.__hash__ = Aspect.__hash__
