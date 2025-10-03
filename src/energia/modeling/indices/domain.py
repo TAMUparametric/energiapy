@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from math import prod
 from operator import is_, is_not
-from typing import TYPE_CHECKING, Self
+from typing import TYPE_CHECKING, Self, Optional
 
 if TYPE_CHECKING:
     from gana import I as Idx
@@ -31,24 +31,53 @@ if TYPE_CHECKING:
 
 @dataclass
 class Domain:
-    """A domain is a an ordered set of the indices of an element
+    """
+    A domain is an ordered set of the indices of an element.
 
-    Attributes:
-        indicator (Indicator): Indicates the impact of some activity through an equivalency, e.g. GWP, ODP.
-        commodity (_Commodity): _Commodity can represent the flow of any stream, measured using some basis, e.g. water, Rupee, carbon-dioxide.
-        player (Player): Player is the actor that takes decisions, e.g. me, you.
-        dr_aspect (Aspect): The aspect regarding the dresource that is being considered, e.g. consumption, production, purchase.
-        dresource (_Commodity): dresource is responsible for the flow of commodity, e.g. GWP due to water consumption, Rupee spent on water purchasing.
-        op_aspect (Aspect): The aspect regarding the operation that is being considered, e.g. capacity, operating level.
-        process (Process): Process is the process that is being considered, e.g. dam, farming.
-        storage (Storage): Storage is the storage that is being considered, e.g. reservoir,
-        transport (Transport): Transport is the transport that is being considered, e.g. pipeline, road.
-        lag (bool): Lag is a boolean that indicates whether the temporal element is lagged or not
-        loc (Loc): Location is the spatial aspect of the domain, e.g. Goa, Texas.
-        link (Link): Linkage is the linkage aspect of the domain, e.g. pipeline, road.
-        link (bool): Link is a boolean that indicates whether the spatial element is a linkage.
-        period (Periods): Time is the temporal aspect of the domain, e.g. year, month.
-        lag (Lag): Lag is a boolean that indicates whether the temporal element is lagged or not.
+    :param indicator: Indicates the impact of some activity through an equivalency,
+        e.g. GWP, ODP.
+    :type indicator: Indicator | None
+
+    :param commodity: Represents the flow of any stream, measured using some basis,
+        e.g. water, Rupee, carbon-dioxide.
+    :type commodity: _Commodity | None
+
+    :param process: Process that is being considered, e.g. dam, farming.
+    :type process: Process | None
+
+    :param storage: Storage that is being considered, e.g. reservoir.
+    :type storage: Storage | None
+
+    :param transport: Transport that is being considered, e.g. pipeline, road.
+    :type transport: Transport | None
+
+    :param player: Actor that takes decisions, e.g. me, you.
+    :type player: Player | None
+
+    :param couple: Other actor that might be paired with the player.
+    :type couple: Couple | None
+
+    :param loc: Spatial aspect of the domain, e.g. Goa, Texas.
+    :type loc: Location | None
+
+    :param link: Linkage aspect of the domain, e.g. pipeline, road.
+    :type link: Linkage | None
+
+    :param periods: Temporal aspect of the domain, e.g. year, month.
+    :type periods: Periods | None
+
+    :param lag: Indicates whether the temporal element is lagged or not.
+    :type lag: Lag | None
+
+    :param modes: Modes applicable to the domain.
+    :type modes: Modes | None
+
+    :param binds: List of binds that can be summed over.
+    :type binds: list[Bind] | None
+
+    :ivar model: Model to which the Domain belongs.
+    :vartype model: Model
+
     """
 
     # the reason I keep these individual
@@ -56,35 +85,28 @@ class Domain:
     # is because we do an instance check in Aspect
     # this helps relay the checks
     # primary component (one of these is needed)
-    indicator: Indicator = None
-    commodity: _Commodity = None
+    indicator: Optional[Indicator] = None
+    commodity: Optional[_Commodity] = None
 
-    process: Process = None
-    storage: Storage = None
-    transport: Transport = None
+    process: Optional[Process] = None
+    storage: Optional[Storage] = None
+    transport: Optional[Transport] = None
 
     # decision - maker and other decision-maker
-    player: Player = None
-    couple: Couple = None
+    player: Optional[Player] = None
+    couple: Optional[Couple] = None
 
     # compulsory space and time elements
-    loc: Location = None
-    link: Linkage = None
-    period: Periods = None
-    lag: Lag = None
-    modes: Modes = None
+    loc: Optional[Location] = None
+    link: Optional[Linkage] = None
+    periods: Optional[Periods] = None
+    lag: Optional[Lag] = None
+    modes: Optional[Modes] = None
 
     # These can be summed over
-    binds: list[Bind] = None
+    binds: Optional[list[Bind]] = field(default_factory=list)
 
     def __post_init__(self):
-        """Post initialization method to set up the domain
-        Args:
-            operation (Process | Storage | Transport): Operation is the process that is being considered, e.g. dam, farming.
-            space (Loc | Link): Space is the spatial aspect of the domain, e.g. Goa, Texas.
-            lagged (bool): Lagged is a boolean that indicates whether the temporal element is lagged or not.
-        """
-
         # Domains are structured something like this:
         # (primary_component ...aspect_n, secondary_component_n....,decision-makers, space, time
         # primary_component can be an indicator, commodity, or operation (process | storage | transport)
@@ -95,10 +117,6 @@ class Domain:
 
         # primary index being modeled in some spatiotemporal context
         self.model: Model = next((i.model for i in self.index_short if i), None)
-
-        if not self.binds:
-            # these are the list of binds on which a stream can depend on
-            self.binds: list[Bind] = []
 
     @property
     def I(self) -> tuple[Idx, ...]:
@@ -144,8 +162,8 @@ class Domain:
     @property
     def time(self) -> Periods | Lag:
         """Time"""
-        if self.period is not None:
-            return self.period
+        if self.periods is not None:
+            return self.periods
         if self.lag is not None:
             return self.lag
 
@@ -237,7 +255,7 @@ class Domain:
         """
         return [self.primary] + [
             i
-            for i in [self.loc, self.link, self.period, self.lag, self.modes]
+            for i in [self.loc, self.link, self.periods, self.lag, self.modes]
             if i is not None
         ]
 
@@ -298,7 +316,7 @@ class Domain:
             "transport": self.transport,
             "loc": self.loc,
             "link": self.link,
-            "period": self.period,
+            "periods": self.periods,
             "lag": self.lag,
             "modes": self.modes,
             "binds": self.binds,

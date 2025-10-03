@@ -23,10 +23,11 @@ if TYPE_CHECKING:
     from ...represent.model import Model
     from ..indices.domain import Domain
     from ..variables.aspect import Aspect
-    from ..variables.control import Control
-    from ..variables.impact import Impact
-    from ..variables.state import State
-    from ..variables.stream import Stream
+
+    # from ..variables.control import Control
+    # from ..variables.impact import Impact
+    # from ..variables.state import State
+    # from ..variables.stream import Stream
     from .bind import Bind
 
 
@@ -49,7 +50,7 @@ class _Generator(_Name):
     """
 
     # this is the aspect for which the constraint is being defined
-    aspect: State | Control | Impact | Stream = None
+    aspect: Aspect = None
     # the domain is passed when the aspect is called using __call__()
     domain: Domain = None
 

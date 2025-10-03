@@ -138,7 +138,7 @@ class Calculate:
                     ]
 
             if isinstance(other, Value):
-                time = other.period
+                time = other.periods
                 other = other.value
 
             else:

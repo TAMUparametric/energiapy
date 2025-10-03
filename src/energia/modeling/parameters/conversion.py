@@ -56,7 +56,7 @@ class Conversion(_Name):
         self.base: Resource = None
         self.conversion: dict[Resource, int | float | list[int | float]] = {}
         self.lag: Lag = None
-        self.period: Periods = None
+        self.periods: Periods = None
 
         # if piece wise linear conversion is provided
         self.pwl: bool = False
@@ -243,6 +243,6 @@ class Conversion(_Name):
     def __rmul__(self, times) -> Self:
         return self * times
 
-    def __truediv__(self, period: Periods) -> Self:
-        self.period = period
+    def __truediv__(self, periods: Periods) -> Self:
+        self.periods = periods
         return self

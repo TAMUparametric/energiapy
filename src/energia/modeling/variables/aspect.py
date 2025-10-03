@@ -272,127 +272,96 @@ class Aspect:
             return self.name == other.name
 
     def __call__(self, *index: _X, domain: Domain = None):
+
         if not domain:
 
-            (
-                indicator,
-                commodity,
-                player,
-                process,
-                storage,
-                transport,
-                period,
-                couple,
-                loc,
-                link,
-                lag,
-                modes,
-            ) = (None for _ in range(12))
+            args = {
+                'indicator': None,
+                'commodity': None,
+                'player': None,
+                'process': None,
+                'storage': None,
+                'transport': None,
+                'periods': None,
+                'couple': None,
+                'loc': None,
+                'link': None,
+                'lag': None,
+                'modes': None,
+            }
+
+            type_map = {
+                Periods: ("periods", "timed", False),
+                Lag: ("lag", "timed", False),
+                Location: ("loc", "spaced", False),
+                Linkage: ("link", "spaced", False),
+                Process: ("process", None, True),
+                Storage: ("storage", None, True),
+                Transport: ("transport", None, True),
+                Player: ("player", None, False),
+                Couple: ("couple", None, False),
+                Indicator: ("indicator", None, False),
+                Modes: ("modes", None, False),
+                _Commodity: ("commodity", None, True),
+            }
+            # (
+            #     indicator,
+            #     commodity,
+            #     player,
+            #     process,
+            #     storage,
+            #     transport,
+            #     period,
+            #     couple,
+            #     loc,
+            #     link,
+            #     lag,
+            #     modes,
+            # ) = (None for _ in range(12))
 
             binds: list[Bind] = []
             timed, spaced = False, False
 
             for comp in index:
-
-                if isinstance(comp, Periods):
-                    period = comp
-                    timed = True
-
-                elif isinstance(comp, Lag):
-                    lag = comp
-                    timed = True
-
-                elif isinstance(comp, Location):
-                    loc = comp
-                    spaced = True
-
-                elif isinstance(comp, Linkage):
-                    link = comp
-                    spaced = True
-
-                elif isinstance(comp, Process):
-                    if self.primary_type and isinstance(comp, self.primary_type):
-                        process = comp
-
-                    else:
-                        raise ValueError(
-                            f"For component {self} of type {type(self)}: {comp} of type {type(comp)} not recognized as an index",
-                        )
-
-                elif isinstance(comp, Storage):
-                    if self.primary_type and isinstance(comp, self.primary_type):
-                        storage = comp
-
-                    else:
-                        raise ValueError(
-                            f"For component {self} of type {type(self)}: {comp} of type {type(comp)} not recognized as an index",
-                        )
-
-                elif isinstance(comp, Transport):
-                    if self.primary_type and isinstance(comp, self.primary_type):
-                        transport = comp
-
-                    else:
-                        raise ValueError(
-                            f"For component {self} of type {type(self)}: {comp} of type {type(comp)} not recognized as an index",
-                        )
-
-                elif isinstance(comp, Player):
-                    player = comp
-
-                elif isinstance(comp, Couple):
-                    couple = comp
-
-                elif isinstance(comp, _Commodity):
-                    # check if this is the right commodity type for the aspect
-                    # domain.commodity should be the primary commodity only
-                    if self.primary_type and isinstance(comp, self.primary_type):
-                        commodity = comp
-                    # else:
-                    #     # anything else is a derivative commodity
-                    #     dresource = comp
-
-                elif isinstance(comp, Indicator):
-                    indicator = comp
-
-                elif isinstance(comp, Bind):
-                    # if a direct Bind is being passed
-                    # thing get a little easier as the bind has specific information
-                    # this only comes in play for calculations (streams, impacts)
-
+                if isinstance(comp, Bind):
                     binds.append(comp)
                     for b in binds:
                         if b.domain.binds:
                             binds.extend(b.domain.binds)
                     binds = list(set(binds))
+                    continue
 
-                elif isinstance(comp, Modes):
-                    modes = comp
-
+                for typ, (attr, flag, require_primary) in type_map.items():
+                    if isinstance(comp, typ):
+                        if require_primary and (
+                            not self.primary_type
+                            or not isinstance(comp, self.primary_type)
+                        ):
+                            raise ValueError(
+                                f"For component {self} of type {type(self)}: "
+                                f"{comp} of type {type(comp)} not recognized as an index"
+                            )
+                        args[attr] = comp
+                        if flag == "timed":
+                            timed = True
+                        elif flag == "spaced":
+                            spaced = True
+                        break
                 else:
                     raise ValueError(
-                        f"For component {self} of type {type(self)}: {comp} of type {type(comp)} not recognized as an index",
+                        f"For component {self} of type {type(self)}: "
+                        f"{comp} of type {type(comp)} not recognized as an index"
                     )
 
-            domain = Domain(
-                indicator=indicator,
-                commodity=commodity,
-                process=process,
-                storage=storage,
-                transport=transport,
-                player=player,
-                couple=couple,
-                loc=loc,
-                link=link,
-                period=period,
-                lag=lag,
-                modes=modes,
-                binds=binds,
-            )
+            args = {k: v for k, v in args.items() if v is not None}
+
+            if binds:
+                args['binds'] = binds
+
+            domain = Domain(**args)
 
         else:
-            timed = True
-            spaced = True
+            timed = spaced = True
 
         return Bind(aspect=self, domain=domain, timed=timed, spaced=spaced)
 

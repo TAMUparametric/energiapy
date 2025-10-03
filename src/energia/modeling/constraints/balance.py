@@ -164,7 +164,7 @@ class Balance(_Generator):
                 if len(time) == 1:
                     return
                 # if inventory is being add to GRB
-                lagged_domain = self.domain.change({"lag": -1 * time, "period": None})
+                lagged_domain = self.domain.change({"lag": -1 * time, "periods": None})
 
                 cons_grb = -self(*self.domain).V() + self(*lagged_domain).V() == 0
             elif self.aspect.ispos:  # or _signs[n]:
@@ -205,7 +205,7 @@ class Balance(_Generator):
 
             if commodity.in_inv and self.aspect.name == "inventory":
                 # if inventory is being add to GRB
-                lagged_domain = self.domain.change({"lag": -1 * time, "period": None})
+                lagged_domain = self.domain.change({"lag": -1 * time, "periods": None})
 
                 setattr(
                     self.program,

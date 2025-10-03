@@ -3,8 +3,8 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Literal
 from functools import cached_property
+from typing import TYPE_CHECKING, Literal
 
 from .._core._dimension import _Dimension
 from ..modeling.indices.domain import Domain

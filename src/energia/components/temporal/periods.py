@@ -24,13 +24,13 @@ class Periods(_X):
     """
     A discretization of Time.
 
-    :param periods: Number of periods in the period. Defaults to 1.
+    :param periods: Number of periods in Periods. Defaults to 1.
     :type periods: int | float
-    :param of: The period of which this is a multiple. Defaults to None.
+    :param of: The periods of which this is a multiple. Defaults to None.
     :type of: Periods | Lag, optional
-    :param name: Name of the period. Defaults to None.
+    :param name: Name of the periods. Defaults to None.
     :type name: str, optional
-    :param label: Label of the period. Defaults to None.
+    :param label: Label of the periods. Defaults to None.
     :type label: str, optional
 
     :ivar model: Model to which the Periods belongs.
@@ -102,7 +102,7 @@ class Periods(_X):
         """Index set of scale"""
 
         # given that temporal scale is an ordered set and not a self contained set
-        # any time period will be a fraction of the horizon
+        # any time periods will be a fraction of the horizon
 
         _index = Idx(size=self.time.horizon.howmany(self), tag=self.label or "")
         setattr(self.program, self.name, _index)
@@ -179,7 +179,7 @@ class Periods(_X):
         # return Periods(periods=other, of=self)
 
     def __rtruediv__(self, other: int | float):
-        return Value(value=other, period=self)
+        return Value(value=other, periods=self)
 
     def __rmul__(self, other: int | float):
         return self * other
