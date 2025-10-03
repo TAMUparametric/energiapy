@@ -7,9 +7,10 @@ from operator import is_
 from typing import TYPE_CHECKING, Self
 
 from ..._core._name import _Name
+from functools import cached_property
 
 if TYPE_CHECKING:
-    from gana.sets.index import I
+    from gana import I
 
     from ...modeling.indices.domain import Domain
     from .periods import Periods
@@ -44,7 +45,7 @@ class Lag(_Name):
         self.domains: list[Domain] = []
         self.constraints: list[str] = []
 
-    @property
+    @cached_property
     def I(self) -> I:
         """Index set of period - period
         Basically,

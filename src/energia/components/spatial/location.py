@@ -8,10 +8,11 @@ from warnings import warn
 
 from ..._core._x import _X
 from ...utils.dictionary import get_depth
+from functools import cached_property
 from .linkage import Linkage
 
 
-from gana import I
+from gana import I as Idx
 
 if TYPE_CHECKING:
     from ...dimensions.space import Space
@@ -136,26 +137,18 @@ class Location(_X):
         """Is this the network of the model?"""
         return self == self.model.network
 
-    def __getattr__(self, name):
-        if name == "I":
-            if self.has:
-                # if component has a nested locations
-                _index = I(*[loc.name for loc in self.has], tag=self.label or '')
+    @cached_property
+    def I(self) -> Idx:
+        """gana index set"""
+        if self.has:
+            # if component has a nested locations
+            _index = Idx(*[loc.name for loc in self.has], tag=self.label or '')
 
-            else:
-                # if component has no nested locations
-                _index = I(self.name, tag=self.label or '')
-            setattr(
-                self.program,
-                self.name,
-                _index,
-            )
-            setattr(self, 'I', _index)
-            return _index
-
-        raise AttributeError(
-            f"'{type(self).__name__}' object has no attribute '{name}'"
-        )
+        else:
+            # if component has no nested locations
+            _index = Idx(self.name, tag=self.label or '')
+        setattr(self.program, self.name, _index)
+        return _index
 
     def sink(self):
         """Tells whether the location is a sink"""

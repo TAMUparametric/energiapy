@@ -6,12 +6,13 @@ import time as keep_time
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Literal, Self
 
-from gana.operators.composition import inf, sup
-from gana.operators.sigma import sigma
-from gana.sets.function import F
-from gana.sets.index import I
-from gana.sets.variable import V
+from gana import inf, sup, sigma, V
+from gana import I as Idx
 
+
+from gana.sets.function import F
+
+from functools import cached_property
 from ...components.temporal.modes import Modes
 from ...utils.math import normalize
 from ._generator import _Generator
@@ -83,9 +84,6 @@ class Bind(_Generator):
         # the bound is set for all indices
         self._forall: list[_X] = []
 
-        # an index will be carried here
-        self._index: I = None
-
     @property
     def name(self) -> str:
         """Name of the constraint"""
@@ -101,8 +99,8 @@ class Bind(_Generator):
         """Short Index"""
         return self.domain.index_short
 
-    @property
-    def I(self) -> I:
+    @cached_property
+    def I(self) -> Idx:
         """gana index set (I)"""
         return self.aspect.I
 

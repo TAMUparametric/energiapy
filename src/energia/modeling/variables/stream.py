@@ -5,10 +5,10 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-from energia.modeling.indices.domain import Domain
 
 from ..constraints.balance import Balance
 from ..constraints.vmap import Map
+
 from .state import State
 
 if TYPE_CHECKING:

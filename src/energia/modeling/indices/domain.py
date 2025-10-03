@@ -7,9 +7,10 @@ from math import prod
 from operator import is_, is_not
 from typing import TYPE_CHECKING, Self
 
-from gana.sets.index import I
 
 if TYPE_CHECKING:
+    from gana import I as Idx
+    from gana import V
     from ..._core._x import _X
     from ...components.commodity._commodity import _Commodity
     from ...components.game.couple import Couple
@@ -100,7 +101,7 @@ class Domain:
             self.binds: list[Bind] = []
 
     @property
-    def I(self) -> tuple[I]:
+    def I(self) -> tuple[Idx, ...]:
         """Compound index"""
         return prod(self.Ilist)
 
@@ -335,7 +336,7 @@ class Domain:
         return list(self._.values())
 
     @property
-    def Ilist(self):
+    def Ilist(self) -> list[Idx | list[V]]:
         """List of I"""
         return [i if isinstance(i, list) else i.I for i in self.index]
 

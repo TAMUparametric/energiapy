@@ -7,7 +7,7 @@ from functools import cached_property
 from operator import is_
 from typing import TYPE_CHECKING, Self
 
-from gana.sets.index import I
+from gana import I as Idx
 
 from ..._core._x import _X
 from ...modeling.parameters.value import Value
@@ -98,13 +98,13 @@ class Periods(_X):
         return self == self.time.horizon
 
     @cached_property
-    def I(self) -> I:
+    def I(self) -> Idx:
         """Index set of scale"""
 
         # given that temporal scale is an ordered set and not a self contained set
         # any time period will be a fraction of the horizon
 
-        _index = I(size=self.time.horizon.howmany(self), tag=self.label or '')
+        _index = Idx(size=self.time.horizon.howmany(self), tag=self.label or '')
         setattr(self.program, self.name, _index)
 
         return _index

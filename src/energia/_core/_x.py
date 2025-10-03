@@ -5,9 +5,11 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Optional
 
-from gana.sets.index import I
+from abc import ABC, abstractmethod
+
 
 if TYPE_CHECKING:
+    from gana import I as Idx
     from gana.block.program import Prg
     from gana.sets.constraint import C
 
@@ -70,6 +72,11 @@ class _X:
         # this gets the actual constraint objects from the program
         # based on the pname (attribute name) in the program
         return [getattr(self.program, c) for c in self.constraints]
+
+    @property
+    @abstractmethod
+    def I(self) -> Idx:
+        """gana index set"""
 
     def show(self, descriptive=False, category: Optional[str] = None):
         """Pretty print the component"""
