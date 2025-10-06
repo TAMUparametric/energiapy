@@ -70,57 +70,6 @@ class Process(_Operation):
         """Locations at which the process is balanced"""
         return self.locations
 
-    def locate(self, *locations: Location):
-        """Locate the process"""
-
-        # get location, time tuples where operation is defined
-        loc_times: list[tuple[Location, Periods]] = []
-        for loc in locations:
-
-            if self not in self.model.capacity.bound_spaces:
-                self.model.capacity.bound_spaces[self] = {"ub": [], "lb": []}
-
-            if loc not in self.model.capacity.bound_spaces[self]["ub"]:
-                # check if operational capacity has been bound
-                print(
-                    f"--- Assuming  {self} capacity is unbounded in ({loc}, {self.horizon})",
-                )
-                # this is not a check, this generates a constraint
-                _ = self.capacity(loc, self.horizon) == True
-
-            if self not in self.model.operate.bound_spaces:
-                self.model.operate.bound_spaces[self] = {"ub": [], "lb": []}
-
-            if loc not in self.model.operate.bound_spaces[self]["ub"]:
-                # check if operate has been bound
-                # if not just write opr_{pro, loc, horizon} <= capacity_{pro, loc, horizon}
-                print(
-                    f"--- Assuming operation of {self} is bound by capacity in ({loc}, {self.horizon})",
-                )
-                if self in self.model.operate.dispositions:
-
-                    _ = (
-                        self.operate(
-                            loc,
-                            min(self.model.operate.dispositions[self][loc]),
-                        )
-                        <= 1
-                    )
-                else:
-                    _ = self.operate(loc, self.horizon) <= 1
-
-            # check if the process is being operated at the location
-            for d in self.model.operate.domains:
-                if d.operation == self and d.space == loc:
-                    loc_time = (loc, d.time)
-                    if loc_time not in loc_times:
-                        loc_times.append(loc_time)
-
-        self.writecons_conversion(loc_times)
-
-        if self.fabrication:
-            self.writecons_fabrication(loc_times)
-
     def writecons_conversion(self, loc_times: list[tuple[Location, Periods]]):
         """Write the conversion constraints for the process"""
 
@@ -203,8 +152,7 @@ class Process(_Operation):
             conversion = self.conversion
 
         for loc_time in loc_times:
-            loc = loc_time[0]
-            time = loc_time[1]
+            loc, time = loc_time
 
             if loc in self.locations:
                 # if the process is already balanced for the location , Skip

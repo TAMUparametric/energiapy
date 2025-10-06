@@ -153,7 +153,7 @@ class Model(_Init):
             Economic: ("consequence", "ecos"),
             Process: ("system", "processes"),
             Storage: ("system", "storages"),
-            Transport: ("system", "transits"),
+            Transport: ("system", "transports"),
             Player: ("system", "players"),
             Couple: ("system", "couples"),
             Currency: ("system", "currencies"),
