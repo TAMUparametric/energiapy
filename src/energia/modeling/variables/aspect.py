@@ -54,7 +54,7 @@ class Aspect:
     represent the state of the system. States can be operation capacity, production levels,
     purchase levels, emissions, consumption levels, etc.
 
-    In Energia,
+    In Energia, 
 
     :param primary_types: associated components type(s). Defaults to None.
     :type primary_types: Type[_Component] | tuple[Type[_Component], ...]

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Self, Type
+from typing import TYPE_CHECKING, Self, Type, Optional
 
 from dill import dump
 
@@ -39,17 +39,16 @@ from ..library.recipes import (
 )
 from ..modeling.parameters.conversion import Conversion
 from ..modeling.variables.control import Control
-from ..modeling.variables.states import Impact
 from ..modeling.variables.recipe import Recipe
-from ..modeling.variables.states import State, Stream
+from ..modeling.variables.states import Impact, State, Stream
 from .blocks import _Init
 
 if TYPE_CHECKING:
     from gana.sets.index import I
-
     from .._core._component import _Component
     from ..modeling.constraints.bind import Bind
     from ..modeling.variables.aspect import Aspect
+    from enum import Enum
 
 
 @dataclass
@@ -92,12 +91,19 @@ class Model(_Init):
     :vartype modes_dict: dict[Bind, Modes]
     :siunits_set: True if SI units have been set.
     :vartype siunits_set: bool
+    :ivar cookbook: Recipes to create Aspects.
+    :vartype cookbook: dict[str, Recipe]
+    :ivar attr_map: Map of attribute names to recipes for creating them.
+    :vartype attr_map: dict[str, dict[str, Recipe]]
+    :ivar classifiers: List of classifiers for the Model.
+    :vartype classifiers: list[Enum]
+
 
     :raises ValueError: If an attribute name already exists in the Model.
     """
 
     name: str = "m"
-    init: list[Callable[Self]] = None
+    init: Optional[list[Callable[Self]]] = None
     default: bool = True
     capacitate: bool = False
 
@@ -203,6 +209,13 @@ class Model(_Init):
         # # introduce the dimensions of the model
         # Decisions.__post_init__(self)
 
+        self.classifiers: dict[str, list[Enum]] = {
+            "uncertainty": [],
+            "structure": [],
+            "scale": [],
+            "paradigm": [],
+        }
+
     # -----------------------------------------------------
     #              Set Component
     # -----------------------------------------------------
@@ -213,7 +226,7 @@ class Model(_Init):
         value: _X,
         represent: str,
         collection: str,
-        aspects: list[str] = None,
+        aspects: Optional[list[str]] = None,
     ):
         """Update the Model with a new value
 

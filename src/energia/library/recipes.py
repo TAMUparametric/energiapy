@@ -14,7 +14,7 @@ from ..components.impact.categories import Economic, Environ, Social
 from ..components.operation.process import Process
 from ..components.operation.transport import Transport
 from ..modeling.variables.control import Control
-from ..modeling.variables.states import State, EndoStream, ExoStream, IndStream
+from ..modeling.variables.states import EndoStream, ExoStream, IndStream, State
 
 if TYPE_CHECKING:
     from ..represent.model import Model
