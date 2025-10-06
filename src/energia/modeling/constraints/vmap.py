@@ -148,7 +148,7 @@ class Map(_Generator):
                                     self.domain.change(
                                         {
                                             "loc": contained_loc,
-                                            'binds': [
+                                            "binds": [
                                                 k(list(v)[0])
                                                 for k, v in dispositions[contained_loc][
                                                     time

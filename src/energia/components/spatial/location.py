@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from functools import cached_property
 from operator import is_
-from typing import TYPE_CHECKING, Self, Optional
+from typing import TYPE_CHECKING, Optional, Self
 from warnings import warn
 
 from gana import I as Idx
@@ -54,7 +54,7 @@ class Location(_X):
     def __init__(self, *has: Self, label: str = None):
 
         # it is an indexed component
-        _X.__init__(self, label=label or '')
+        _X.__init__(self, label=label or "")
 
         # the other locations contained in this location
         self.has: tuple[Self] = has
