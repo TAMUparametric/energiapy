@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Self, Type, Optional
+from typing import TYPE_CHECKING, Optional, Self, Type
 
 from dill import dump
 
@@ -44,11 +44,13 @@ from ..modeling.variables.states import Impact, State, Stream
 from .blocks import _Init
 
 if TYPE_CHECKING:
+    from enum import Enum
+
     from gana.sets.index import I
+
     from .._core._component import _Component
     from ..modeling.constraints.bind import Bind
     from ..modeling.variables.aspect import Aspect
-    from enum import Enum
 
 
 @dataclass
@@ -325,6 +327,7 @@ class Model(_Init):
         super().__setattr__(name, value)
 
     def __getattr__(self, name):
+
         # Only called when attribute does not exist
         if name in self._attr_map:
             # if attribute has been called before

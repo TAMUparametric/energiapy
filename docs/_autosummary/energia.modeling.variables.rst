@@ -12,7 +12,6 @@
 
    aspect
    control
-   impact
    loss
    recipe
    reporting

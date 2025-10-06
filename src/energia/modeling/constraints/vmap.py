@@ -51,23 +51,6 @@ class Map(_Generator):
         # #   (dam, goa, q) with disposition ['operation', 'space', 'time'] is added
         # #   The variable will need to be mapped across 'time
 
-        if self.domain.lag:
-            return
-
-        # this is the disposition of the variable to be mapped
-        # through time and space
-        time, space = self.domain.periods, self.domain.space
-
-        # these are periods denser and sparser than the current domain
-        denser_periods, sparser_periods = self.model.time.split(time)
-
-        # these are spaces contained in loc and parent location to which this loc belongs
-
-        contained_locations, parent_location = self.model.space.split(space)
-
-        # this gives all the dispositions at which the aspect has been defined
-        dispositions = self.dispositions[self.aspect][self.domain.primary]
-
         # mapping happens between:
         # 1. sparser time to denser time in same space
         # 2. contained location to parent location
@@ -82,6 +65,21 @@ class Map(_Generator):
         # the operators <, > wont work since they will add any space a higher order
         # this will lead to adding twice. India = Goa + Madgaon + Ponje (WRONG)
         # We scale only one level up
+
+        if self.domain.lag:
+            return
+
+        # this is the disposition of the variable to be mapped
+        # through time and space
+        time, space = self.domain.periods, self.domain.space
+
+        # these are periods denser and sparser than the current domain
+        denser_periods, sparser_periods = self.model.time.split(time)
+
+        # these are spaces contained in loc and parent location to which this loc belongs
+
+        # this gives all the dispositions at which the aspect has been defined
+        dispositions = self.dispositions[self.aspect][self.domain.primary]
 
         # DONOT map across all periods, only to from the densest which is given by .of
         if space in dispositions and time in dispositions[space]:
@@ -129,6 +127,8 @@ class Map(_Generator):
                         domain_to,
                         tsum=True,
                     )
+
+            contained_locations, parent_location = self.model.space.split(space)
 
             for contained_loc in contained_locations:
                 if contained_loc in dispositions:
@@ -195,7 +195,7 @@ class Map(_Generator):
         return self.aspect.name + "_map"
 
     @cached_property
-    def maps(self) -> list[str]:
+    def maps(self) -> dict[str, list[Domain]]:
         """List of domains that the aspect has been mapped to"""
         if self.reporting:
             return self.aspect.maps_report

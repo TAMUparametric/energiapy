@@ -1,4 +1,4 @@
-﻿energia.components.spatial.location
+energia.components.spatial.location
 ===================================
 
 .. automodule:: energia.components.spatial.location

@@ -1,8 +1,18 @@
-energia.components.commodity
+﻿energia.components.commodity
 ============================
 
 .. automodule:: energia.components.commodity
 
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      Currency
+      Emission
+      Land
+      Material
+      Resource
    
 .. rubric:: Modules
 

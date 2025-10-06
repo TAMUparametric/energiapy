@@ -18,6 +18,7 @@ energia.modeling.variables.states
       Balance
       EndoStream
       ExoStream
+      Impact
       IndStream
       Map
       State

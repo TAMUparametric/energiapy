@@ -1,7 +1,7 @@
 """Unit"""
 
 from operator import is_
-from typing import Self
+from typing import Self, Optional
 
 from ..._core._name import _Name
 
@@ -20,7 +20,12 @@ class Unit(_Name):
     :vartype name: str
     """
 
-    def __init__(self, basis: Self = None, times: int | float = None, label=None):
+    def __init__(
+        self,
+        basis: Optional[Self] = None,
+        times: Optional[int | float] = None,
+        label: Optional[str] = None,
+    ):
         """
         Args:
             basis (Unit): Basis of the unit, if defined based on another Unit. Defaults to None.
