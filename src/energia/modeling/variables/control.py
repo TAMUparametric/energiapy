@@ -10,7 +10,7 @@ from .aspect import Aspect
 
 if TYPE_CHECKING:
     from ..indices.domain import Domain
-    from .state import State
+    from .states import State
 
 
 @dataclass

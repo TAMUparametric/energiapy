@@ -1,4 +1,4 @@
-energia.components.operation.process
+﻿energia.components.operation.process
 ====================================
 
 .. automodule:: energia.components.operation.process
@@ -16,6 +16,5 @@ energia.components.operation.process
    .. autosummary::
    
       Conversion
-      Modes
       Process
    

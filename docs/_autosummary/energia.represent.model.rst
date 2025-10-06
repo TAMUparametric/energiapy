@@ -1,4 +1,4 @@
-energia.represent.model
+﻿energia.represent.model
 =======================
 
 .. automodule:: energia.represent.model
@@ -33,7 +33,6 @@ energia.represent.model
       Emission
       Environ
       Impact
-      Indicator
       Land
       Linkage
       Location

@@ -40,19 +40,26 @@ if TYPE_CHECKING:
 
 @dataclass
 class Aspect:
-    """
-    Any kind of decision.
+    r"""
+    A particular facet of the system under consideration. A sample of an aspect at a
+    specific disposition is represented by a variable (:math:`\overset{*}{v} \in \overset{*}{\mathcal{V}}`).
+    The range of values which the :math:`\overset{*}{v}` is bounded such that:
 
+    .. math::
+
+        \overset{*}{v} \in [\underline{\theta}, \overline{\theta}]
+
+    Aspects can be decision-variables (:math:`\dot{v}`) that prescribe a control action
+    or a set point for the state, or derived (calculated) variables (:math:`\hat{v}`) that
+    represent the state of the system. States can be operation capacity, production levels,
+    purchase levels, emissions, consumption levels, etc.
+
+    In Energia,
+
+    :param primary_types: associated components type(s). Defaults to None.
+    :type primary_types: Type[_Component] | tuple[Type[_Component], ...]
     :param nn: If True, the decision is a non-negative decision. Defaults to True.
     :type nn: bool
-    :param types_opr: The type(s) of operation associated with the decision. Defaults to None.
-    :type types_opr: tuple[Type[Process | Storage | Transport]] | None
-    :param types_res: The type of commodity associated with the decision. Defaults to None.
-    :type types_res: Type[_Commodity] | None
-    :param types_dres: The type of derivative commodity associated with the decision. Defaults to None.
-    :type types_dres: Type[_Commodity] | None
-    :param types_idc: The type of indicator associated with the decision. Defaults to None.
-    :type types_idc: Type[Indicator] | None
     :param ispos: If True, the decision is positive (non-negative). Defaults to True.
     :type ispos: bool
     :param neg: Negative form or representation of the decision, if any. Defaults to "".
@@ -61,6 +68,8 @@ class Aspect:
     :type latex: str
     :param bound: if the aspect is bounded by another. Defaults to "".
     :type bound: str
+    :param label: Label for the decision. Defaults to "".
+    :type label: str
 
     :ivar model: Model to which the Aspect belongs.
     :vartype model: Model
@@ -77,7 +86,7 @@ class Aspect:
         - If `primary_type` is not defined.
     """
 
-    primary_type: Type[_Component]
+    primary_type: Type[_Component] | tuple[Type[_Component], ...]
     nn: bool = True
     ispos: bool = True
     neg: str = ""

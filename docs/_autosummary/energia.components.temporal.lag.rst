@@ -1,4 +1,4 @@
-energia.components.temporal.lag
+﻿energia.components.temporal.lag
 ===============================
 
 .. automodule:: energia.components.temporal.lag
@@ -16,4 +16,5 @@ energia.components.temporal.lag
    .. autosummary::
    
       Lag
+      cached_property
    

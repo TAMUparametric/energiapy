@@ -19,7 +19,6 @@ energia.modeling.variables.aspect
       Bind
       Couple
       Domain
-      I
       Indicator
       Lag
       Linkage
@@ -28,6 +27,9 @@ energia.modeling.variables.aspect
       Periods
       Player
       Process
+      Space
       Storage
+      Time
       Transport
+      cached_property
    

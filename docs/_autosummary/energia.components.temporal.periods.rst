@@ -1,4 +1,4 @@
-energia.components.temporal.periods
+﻿energia.components.temporal.periods
 ===================================
 
 .. automodule:: energia.components.temporal.periods
@@ -15,8 +15,9 @@ energia.components.temporal.periods
 
    .. autosummary::
    
-      I
+      Idx
       Lag
       Periods
       Value
+      cached_property
    

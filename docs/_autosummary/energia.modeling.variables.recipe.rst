@@ -16,9 +16,5 @@ energia.modeling.variables.recipe
    .. autosummary::
    
       Aspect
-      Indicator
-      Process
       Recipe
-      Storage
-      Transport
    

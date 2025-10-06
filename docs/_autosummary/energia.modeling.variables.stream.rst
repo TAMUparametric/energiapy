@@ -15,7 +15,6 @@ energia.modeling.variables.stream
    .. autosummary::
    
       Balance
-      Domain
       EndoStream
       ExoStream
       IndStream

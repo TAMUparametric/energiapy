@@ -35,9 +35,8 @@ if TYPE_CHECKING:
     from ..modeling.indices.domain import Domain
     from ..modeling.variables.aspect import Aspect
     from ..modeling.variables.control import Control
-    from ..modeling.variables.impact import Impact
-    from ..modeling.variables.state import State
-    from ..modeling.variables.stream import Stream
+    from ..modeling.variables.states import Impact
+    from ..modeling.variables.states import State, Stream
 
 
 @dataclass

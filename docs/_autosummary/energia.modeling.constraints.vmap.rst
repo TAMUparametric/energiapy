@@ -1,4 +1,4 @@
-energia.modeling.constraints.vmap
+﻿energia.modeling.constraints.vmap
 =================================
 
 .. automodule:: energia.modeling.constraints.vmap
@@ -17,4 +17,5 @@ energia.modeling.constraints.vmap
    .. autosummary::
    
       Map
+      cached_property
    

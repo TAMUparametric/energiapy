@@ -1,4 +1,4 @@
-energia.components.spatial.linkage
+﻿energia.components.spatial.linkage
 ==================================
 
 .. automodule:: energia.components.spatial.linkage
@@ -15,5 +15,7 @@ energia.components.spatial.linkage
 
    .. autosummary::
    
+      I
       Linkage
+      cached_property
    

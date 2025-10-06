@@ -39,10 +39,9 @@ from ..library.recipes import (
 )
 from ..modeling.parameters.conversion import Conversion
 from ..modeling.variables.control import Control
-from ..modeling.variables.impact import Impact
+from ..modeling.variables.states import Impact
 from ..modeling.variables.recipe import Recipe
-from ..modeling.variables.state import State
-from ..modeling.variables.stream import Stream
+from ..modeling.variables.states import State, Stream
 from .blocks import _Init
 
 if TYPE_CHECKING:

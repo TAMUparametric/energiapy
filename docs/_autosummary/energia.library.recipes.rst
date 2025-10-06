@@ -1,4 +1,4 @@
-energia.library.recipes
+﻿energia.library.recipes
 =======================
 
 .. automodule:: energia.library.recipes
@@ -29,7 +29,6 @@ energia.library.recipes
       EndoStream
       Environ
       ExoStream
-      Impact
       IndStream
       Land
       Material
@@ -37,7 +36,6 @@ energia.library.recipes
       Resource
       Social
       State
-      Storage
       Stored
       Transport
    

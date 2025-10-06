@@ -1,4 +1,4 @@
-energia.components.temporal.modes
+﻿energia.components.temporal.modes
 =================================
 
 .. automodule:: energia.components.temporal.modes
@@ -16,4 +16,5 @@ energia.components.temporal.modes
    
       I
       Modes
+      cached_property
    

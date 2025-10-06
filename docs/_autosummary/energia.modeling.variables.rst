@@ -1,4 +1,4 @@
-energia.modeling.variables
+﻿energia.modeling.variables
 ==========================
 
 .. automodule:: energia.modeling.variables
@@ -15,5 +15,5 @@ energia.modeling.variables
    impact
    loss
    recipe
-   state
-   stream
+   reporting
+   states
