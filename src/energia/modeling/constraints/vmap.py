@@ -130,13 +130,34 @@ class Map(_Generator):
 
             contained_locations, parent_location = self.model.space.split(space)
 
+            # TODO: spatial mapping is too convoluted
             for contained_loc in contained_locations:
                 if contained_loc in dispositions:
-                    # check if the aspect has been defined for a contained location
-                    self.writecons_map(
-                        self.domain.change({"loc": contained_loc}),
-                        self.domain,
-                    )
+                    if time in dispositions[contained_loc]:
+                        # check if the aspect has been defined for a contained location
+                        if not dispositions[contained_loc][time]:
+                            self.writecons_map(
+                                self.domain.change({"loc": contained_loc}),
+                                self.domain,
+                            )
+                        else:
+
+                            if not self.domain.binds:
+
+                                self.writecons_map(
+                                    self.domain.change(
+                                        {
+                                            "loc": contained_loc,
+                                            'binds': [
+                                                k(list(v)[0])
+                                                for k, v in dispositions[contained_loc][
+                                                    time
+                                                ].items()
+                                            ],
+                                        }
+                                    ),
+                                    self.domain,
+                                )
 
             if parent_location in dispositions:
                 # check if the aspect has been defined for a parent location

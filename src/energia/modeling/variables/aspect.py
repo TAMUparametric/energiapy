@@ -54,6 +54,7 @@ class Aspect:
     represent the state of the system. States can be operation capacity, production levels,
     purchase levels, emissions, consumption levels, etc.
 
+
     :param primary_types: associated components type(s). Defaults to None.
     :type primary_types: Type[_Component] | tuple[Type[_Component], ...]
     :param nn: If True, the decision is a non-negative decision. Defaults to True.

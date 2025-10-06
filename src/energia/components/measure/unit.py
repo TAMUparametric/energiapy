@@ -1,7 +1,7 @@
 """Unit"""
 
 from operator import is_
-from typing import Self, Optional
+from typing import Optional, Self
 
 from ..._core._name import _Name
 

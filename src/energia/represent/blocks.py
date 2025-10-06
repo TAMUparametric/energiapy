@@ -86,10 +86,6 @@ class _Scope:
         self,
         aspect: Aspect,
         domain: Domain,
-        # resource: Resource = None,
-        # operation: Process | Storage | Transport = None,
-        # space: Space = None,
-        # time: Periods = None,
     ):
         """Updates the spatiotemporal dispositions for an aspect pertaining to a component"""
 
