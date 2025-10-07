@@ -83,8 +83,11 @@ class Linkage(_X):
     @property
     def isin(self) -> Location | None:
         """Location to which the Linkage belongs"""
-        if self.source.isin == self.sink.isin:
-            return self.source.isin
+        if self.source.isin:
+            if self.source.isin == self.sink.isin:
+                self.source.isin.has += (self,)
+                return self.source.isin
+        self.network.has += (self,)
         return self.network
 
     def rev(self):
@@ -147,3 +150,8 @@ class Linkage(_X):
         _index = I(self.name, tag=self.label or "")
         setattr(self.program, self.name, _index)
         return _index
+
+    def update_hierarchy(self, hierarchy: int = 0):
+        """Updates the hierarchy of the locations"""
+
+        self.hierarchy = hierarchy

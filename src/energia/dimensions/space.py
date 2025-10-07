@@ -66,10 +66,10 @@ class Space(_Dimension):
         """creates a nested dictionary of locations"""
         self.network.update_hierarchy()
         hierarchy_ = {}
-        for loc in self.locations:
-            if loc.hierarchy not in hierarchy_:
-                hierarchy_[loc.hierarchy] = []
-            hierarchy_[loc.hierarchy].append(loc)
+        for spc in self.locations + self.linkages:
+            if spc.hierarchy not in hierarchy_:
+                hierarchy_[spc.hierarchy] = []
+            hierarchy_[spc.hierarchy].append(spc)
         return hierarchy_
 
     def split(self, loc: Location) -> tuple[list[Location], list[Location]]:
