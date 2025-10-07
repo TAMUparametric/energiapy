@@ -80,6 +80,13 @@ class Linkage(_X):
         """
         return False
 
+    @property
+    def isin(self) -> Location | None:
+        """Location to which the Linkage belongs"""
+        if self.source.isin == self.sink.isin:
+            return self.source.isin
+        return self.network
+
     def rev(self):
         """Reversed Link"""
         # locations are all uni directional
