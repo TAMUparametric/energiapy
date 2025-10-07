@@ -66,7 +66,7 @@ class Space(_Dimension):
         """creates a nested dictionary of locations"""
         self.network.update_hierarchy()
         hierarchy_ = {}
-        for spc in self.locations + self.linkages:
+        for spc in self.s:
             if spc.hierarchy not in hierarchy_:
                 hierarchy_[spc.hierarchy] = []
             hierarchy_[spc.hierarchy].append(spc)

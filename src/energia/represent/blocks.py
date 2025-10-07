@@ -23,6 +23,7 @@ if TYPE_CHECKING:
     from gana import P, T, V
     from gana.block.solution import Solution
     from gana.sets.constraint import C as Cons
+    from gana.sets.function import F as Func
     from pandas import DataFrame
 
     from ..components.impact.categories import Economic, Environ, Social
@@ -299,7 +300,7 @@ class _System:
         return self.system.storages
 
     @property
-    def transits(self) -> list[Transport]:
+    def transports(self) -> list[Transport]:
         """The Transits"""
         return self.system.transports
 
@@ -332,7 +333,7 @@ class _Program:
         return self.program.constraint_sets
 
     @property
-    def function_sets(self) -> list[Cons]:
+    def function_sets(self) -> list[Func]:
         """Function sets"""
         return self.program.function_sets
 

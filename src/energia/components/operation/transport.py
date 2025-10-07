@@ -109,6 +109,11 @@ class Transport(_Operation):
         else:
             conversion = self.conversion
 
+        shipping_conversion, rest_conversion = {self.conv.base: 1}, {
+            k: v for k, v in conversion.items() if k != self.conv.base
+        }
+        print(shipping_conversion, rest_conversion)
+
         for link_time in link_times:
             link, time = link_time
             # time = link_time[1]
@@ -122,7 +127,7 @@ class Transport(_Operation):
                 setattr(res, self.name, self)
                 # now there are two cases possible
                 # the parameter (par) is positive or negative
-                # if positive, the resource is expendd
+                # if positive, the resource is expend
                 # if negative, the resource is produced
                 # also, the par can be an number or a list of numbers
 
@@ -131,7 +136,7 @@ class Transport(_Operation):
                 if res in self.model.grb:
                     time = time_checker(res, link.source, time)
 
-                    if self.model.grb[res][link.source][time]:
+                    if self.model.grb[res][link][time]:
                         # if the grb has been defined for that resource at that location and time
                         _insitu = False
                     else:
