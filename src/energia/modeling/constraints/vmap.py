@@ -35,6 +35,8 @@ class Map(_Generator):
 
     def __post_init__(self):
 
+        _Generator.__post_init__(self)
+
         # if the variable is being defined for the first time, do not bother with the rest
         # Also note that if a variable already exists then a new is not created
         # thus map_domain is not called in Bind.V()

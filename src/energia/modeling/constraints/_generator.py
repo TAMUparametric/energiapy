@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from functools import cached_property
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -25,7 +25,7 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class _Generator:
+class _Generator(ABC):
     """
     Base class for all Energia constraint generators.
 
@@ -54,25 +54,17 @@ class _Generator:
     #     """Name of the constraint"""
     #     return self.aspect.name
 
-    @cached_property
-    def model(self) -> Model:
-        """Energia Model"""
-        return self.aspect.model
+    def __post_init__(self):
 
-    @cached_property
-    def program(self) -> Prg:
-        """Gana Program"""
-        return self.model.program
-
-    @cached_property
-    def problem(self) -> Problem:
-        """Model Tree"""
-        return self.model.problem
+        self.model = self.aspect.model
+        self.program = self.model.program
+        self.problem = self.model.problem
+        self.domains = self.aspect.domains
 
     @property
-    def domains(self) -> list[Domain]:
-        """Returns the domains over which the aspect has been defined"""
-        return self.aspect.domains
+    @abstractmethod
+    def name(self) -> str:
+        """Name of the constraint"""
 
     @property
     def dispositions(self) -> dict[

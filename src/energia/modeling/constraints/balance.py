@@ -33,6 +33,8 @@ class Balance(_Generator):
 
     def __post_init__(self):
 
+        _Generator.__post_init__(self)
+
         # this is the disposition of the variable to be mapped
         # through time and space
 

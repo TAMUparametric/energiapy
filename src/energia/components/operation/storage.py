@@ -95,7 +95,7 @@ class Storage(_Component):
             if self.stored not in self.model.inventory.bound_spaces:
                 _ = self.model.inventory(self.stored) == True
 
-            if loc not in self.model.inventory.bound_spaces[self.stored]:
+            if loc not in self.model.inventory.bound_spaces[self.stored]["ub"]:
                 # check if the storage inventory has been bound at that location
                 print(
                     f"--- Assuming inventory of {self.stored} is bound by inventory capacity in ({loc}, {self.horizon})",
@@ -120,6 +120,7 @@ class Storage(_Component):
                 print(
                     f"--- Assuming inventory of {self.stored} is bound by inventory capacity in ({loc}, {time})",
                 )
+                print("asdasda", type(time))
                 _ = self.inventory(loc, time) <= 1
 
         # locate the charge and discharge processes
