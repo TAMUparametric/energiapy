@@ -26,6 +26,11 @@ from ..components.spatial.location import Location
 from ..components.temporal.modes import Modes
 from ..components.temporal.periods import Periods
 from ..components.temporal.scales import TemporalScales
+from ..dimensions.consequence import Consequence
+from ..dimensions.problem import Problem
+from ..dimensions.space import Space
+from ..dimensions.system import System
+from ..dimensions.time import Time
 from ..library.recipes import (
     capacity_sizing,
     economic,
@@ -41,11 +46,14 @@ from ..modeling.parameters.conversion import Conversion
 from ..modeling.variables.control import Control
 from ..modeling.variables.recipe import Recipe
 from ..modeling.variables.states import Impact, State, Stream
-from .blocks import _Init
+from .mapper import Mapper
+from .graph import Graph
+from .program import Program
 
 if TYPE_CHECKING:
     from enum import Enum
 
+    from gana.block.solution import Solution
     from gana.sets.index import I
 
     from .._core._component import _Component
@@ -54,7 +62,7 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class Model(_Init):
+class Model(Mapper):
     """
     An abstract representation of an energy system.
 
@@ -198,7 +206,29 @@ class Model(_Init):
         self.cookbook: dict[str, Recipe] = {}
 
         # ---- Different representations of the model ---
-        _Init.__post_init__(self)
+        Mapper.__post_init__(self)
+
+        # Temporal Scope
+        self.time = Time(self)
+        # Spatial Scope
+        self.space = Space(self)
+
+        # Impact on the exterior
+        self.consequence = Consequence(self)
+
+        # System (Resource Task Network)
+        self.system = System(self)
+
+        # Graph (Network)
+        self.graph = Graph(self)
+
+        # the problem
+        self.problem = Problem(self)
+
+        # mathematical program
+        self.program = Program(model=self)
+        # shorthand
+        self._ = self.program
 
         # measuring units
         self.units: list[Unit] = []
@@ -242,6 +272,31 @@ class Model(_Init):
     # -----------------------------------------------------
     #              Set Component
     # -----------------------------------------------------
+
+    @property
+    def horizon(self) -> Periods:
+        """The horizon of the Model"""
+        return self.time.horizon
+
+    @property
+    def network(self) -> Location:
+        """The network of the Model"""
+        return self.space.network
+
+    @property
+    def indicators(self) -> list[Social | Environ | Economic]:
+        """Indicators"""
+        return self.consequence.indicators
+
+    @property
+    def operations(self) -> list[Process | Storage | Transport]:
+        """The Operations"""
+        return self.system.operations
+
+    @property
+    def solution(self) -> dict[int, Solution]:
+        """The solution of the program"""
+        return self.program.solution
 
     def update(
         self,
@@ -289,9 +344,12 @@ class Model(_Init):
             "processes",
             "storages",
             "transits",
+            "locations",
+            "linkages",
         ]:
-            index_set: I = getattr(self.program, collection)
-            setattr(self.program, collection, index_set | value.I)
+            setattr(
+                self.program, collection, getattr(self.program, collection) | value.I
+            )
 
         # set aspects (as binds) on the components
         if aspects:
@@ -327,18 +385,12 @@ class Model(_Init):
                 self.update(name, value, *updates)
                 break
 
-        # Locations also belong to spaces
-        if isinstance(value, Location):
+        # Special linkage instructions
+        if isinstance(value, Linkage):
 
-            self.program.spaces |= value.I
-
-        # Linkages also belong to spaces
-        elif isinstance(value, Linkage):
-            self.program.spaces |= value.I
-            self.program.sources |= value.source.I
-            self.program.sinks |= value.sink.I
             self.space.sources.append(value.source)
             self.space.sinks.append(value.sink)
+
             if value.bi:
                 # if bidirectional, set the reverse linkage
                 # also ensures that all linakges go in one direction only
@@ -394,7 +446,7 @@ class Model(_Init):
             return aspect
 
         raise AttributeError(
-            f"'{type(self).__name__}' object has no attribute '{name}'",
+            f"{self} has no '{name}'",
         )
 
     def aliases(self, *names: str, to: str):
