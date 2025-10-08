@@ -46,8 +46,8 @@ from ..modeling.parameters.conversion import Conversion
 from ..modeling.variables.control import Control
 from ..modeling.variables.recipe import Recipe
 from ..modeling.variables.states import Impact, State, Stream
-from .mapper import Mapper
 from .graph import Graph
+from .mapper import Mapper
 from .program import Program
 
 if TYPE_CHECKING:
