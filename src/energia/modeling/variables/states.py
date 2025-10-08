@@ -36,14 +36,31 @@ class State(Aspect):
 
 
 @dataclass
+class Size(State):
+    """Capacity State Variable
+    Operational capacity
+    """
+
+    def __post_init__(self):
+        State.__post_init__(self)
+
+
+@dataclass
+class SetPoint(State):
+    """Set Point State Variable
+    Operational set point (utilization)
+    """
+
+    def __post_init__(self):
+        State.__post_init__(self)
+
+
+@dataclass
 class Impact(State):
     """Consequence of an action"""
 
-    def map_domain(self, domain: Domain, reporting: bool = False):
-        """Add a domain to the decision variable"""
-
-        # Write a mapping constraint
-        Map(aspect=self, domain=domain, reporting=reporting)
+    def __post_init__(self):
+        State.__post_init__(self)
 
 
 @dataclass
@@ -71,9 +88,9 @@ class EndoStream(Stream):
     def __post_init__(self):
         Stream.__post_init__(self)
 
-    def map_domain(self, domain: Domain):
+    def map_domain(self, domain: Domain, reporting: bool = False):
 
-        Map(aspect=self, domain=domain)
+        Map(aspect=self, domain=domain, reporting=reporting)
 
         Balance(aspect=self, domain=domain)
 
@@ -85,9 +102,9 @@ class ExoStream(Stream):
     def __post_init__(self):
         Stream.__post_init__(self)
 
-    def map_domain(self, domain: Domain):
+    def map_domain(self, domain: Domain, reporting: bool = False):
 
-        Map(aspect=self, domain=domain)
+        Map(aspect=self, domain=domain, reporting=reporting)
 
         Balance(aspect=self, domain=domain)
 
@@ -99,6 +116,6 @@ class IndStream(Stream):
     def __post_init__(self):
         Stream.__post_init__(self)
 
-    def map_domain(self, domain: Domain):
+    def map_domain(self, domain: Domain, reporting: bool = False):
 
-        Map(aspect=self, domain=domain)
+        Map(aspect=self, domain=domain, reporting=reporting)

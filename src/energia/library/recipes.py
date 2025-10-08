@@ -14,7 +14,14 @@ from ..components.impact.categories import Economic, Environ, Social
 from ..components.operation.process import Process
 from ..components.operation.transport import Transport
 from ..modeling.variables.control import Control
-from ..modeling.variables.states import EndoStream, ExoStream, IndStream, State
+from ..modeling.variables.states import (
+    EndoStream,
+    ExoStream,
+    IndStream,
+    SetPoint,
+    Size,
+    State,
+)
 
 if TYPE_CHECKING:
     from ..represent.model import Model
@@ -24,7 +31,7 @@ def capacity_sizing(model: Model):
     """Sets capacity sizing decisions"""
     model.Recipe(
         "capacity",
-        State,
+        Size,
         primary_type=(Process, Transport),
         label="Capacitate Operation",
         latex=r"{cap}",
@@ -41,7 +48,7 @@ def operating(model: Model):
 
     model.Recipe(
         "operate",
-        State,
+        SetPoint,
         primary_type=(Process, Transport),
         label="Capacity Utilization",
         latex=r"{opr}",
@@ -79,7 +86,7 @@ def inventory_sizing(model: Model):
     """Inventory management decisions"""
     model.Recipe(
         "invcapacity",
-        State,
+        Size,
         primary_type=Resource,
         label="Inventory Capacity",
         latex=r"{icap}",

@@ -173,7 +173,6 @@ class Process(_Operation):
                 # do not initiate a grb so we need to run a check for that first
                 if res in self.model.grb:
                     time = time_checker(res, loc, time)
-                    print("adada", res, loc, time)
 
                     if self.model.grb[res][loc][time]:
                         _insitu = False
