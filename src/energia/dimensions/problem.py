@@ -10,9 +10,7 @@ from typing import TYPE_CHECKING, Literal
 from .._core._dimension import _Dimension
 from ..modeling.indices.domain import Domain
 from ..modeling.variables.control import Control
-from ..modeling.variables.impact import Impact
-from ..modeling.variables.state import State
-from ..modeling.variables.stream import Stream
+from ..modeling.variables.states import Impact, State, Stream
 
 if TYPE_CHECKING:
     from ..modeling.variables.aspect import Aspect

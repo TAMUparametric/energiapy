@@ -196,3 +196,54 @@ class _Operation(_Component):
                     _ = res.use(self.capacity, space, time) == True
 
                 _ = self.capacity(space, time)[res.use] == par
+
+    def locate(self, *spaces: Location | Linkage):
+        """Locate the process"""
+
+        # get location, time tuples where operation is defined
+        space_times: list[tuple[Location | Linkage, Periods]] = []
+        for space in spaces:
+
+            if self not in self.model.capacity.bound_spaces:
+                self.model.capacity.bound_spaces[self] = {"ub": [], "lb": []}
+
+            if space not in self.model.capacity.bound_spaces[self]["ub"]:
+                # check if operational capacity has been bound
+                print(
+                    f"--- Assuming  {self} capacity is unbounded in ({space}, {self.horizon})",
+                )
+                # this is not a check, this generates a constraint
+                _ = self.capacity(space, self.horizon) == True
+
+            if self not in self.model.operate.bound_spaces:
+                self.model.operate.bound_spaces[self] = {"ub": [], "lb": []}
+
+            if space not in self.model.operate.bound_spaces[self]["ub"]:
+                # check if operate has been bound
+                # if not just write opr_{pro, space, horizon} <= capacity_{pro, space, horizon}
+                print(
+                    f"--- Assuming operation of {self} is bound by capacity in ({space}, {self.horizon})",
+                )
+                if self in self.model.operate.dispositions:
+
+                    _ = (
+                        self.operate(
+                            space,
+                            min(self.model.operate.dispositions[self][space]),
+                        )
+                        <= 1
+                    )
+                else:
+                    _ = self.operate(space, self.horizon) <= 1
+
+            # check if the process is being operated at the location
+            for d in self.model.operate.domains:
+                if d.operation == self and d.space == space:
+                    space_time = (space, d.time)
+                    if space_time not in space_times:
+                        space_times.append(space_time)
+
+        self.writecons_conversion(space_times)
+
+        if self.fabrication:
+            self.writecons_fabrication(space_times)

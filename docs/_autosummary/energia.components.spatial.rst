@@ -1,8 +1,15 @@
-energia.components.spatial
+﻿energia.components.spatial
 ==========================
 
 .. automodule:: energia.components.spatial
 
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      Linkage
+      Location
    
 .. rubric:: Modules
 

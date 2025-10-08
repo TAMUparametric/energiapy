@@ -16,4 +16,5 @@ energia.components.temporal.modes
    
       I
       Modes
+      cached_property
    

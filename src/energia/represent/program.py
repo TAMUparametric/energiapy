@@ -9,7 +9,7 @@ from gana.block.program import Prg
 from gana.sets.index import I
 
 if TYPE_CHECKING:
-    pass
+    from .model import Model
 
 
 @dataclass
@@ -42,28 +42,20 @@ class Program(Prg):
         - all the index sets are generated post initialization
     """
 
+    model: Model = None
+
     def __post_init__(self):
         Prg.__post_init__(self)
-        # Component Index Sets
 
-        self.players = I(mutable=True)
-        self.periods = I(mutable=True)
-        self.locations = I(mutable=True)
-        self.linkages = I(mutable=True)
-        self.sources = I(mutable=True)
-        self.sinks = I(mutable=True)
-        self.spaces = I(mutable=True)
-        self.currencies = I(mutable=True)
-        self.envs = I(mutable=True)
-        self.socs = I(mutable=True)
-        self.ecos = I(mutable=True)
-        self.resources = I(mutable=True)
-        self.lands = I(mutable=True)
-        self.materials = I(mutable=True)
-        self.processes = I(mutable=True)
-        self.storages = I(mutable=True)
-        self.transits = I(mutable=True)
-        self.states = I(mutable=True)
-        self.controls = I(mutable=True)
-        self.streams = I(mutable=True)
-        self.impacts = I(mutable=True)
+        # Component Index Sets
+        self.name = f"Program({self.model})"
+
+    def __getattr__(self, item):
+
+        if item in self.model.dimension_map:
+            index = I(mutable=True)
+            setattr(self, item, index)
+            return index
+        raise AttributeError(
+            f"{self} has no '{item}'",
+        )

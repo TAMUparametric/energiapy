@@ -1,4 +1,4 @@
-energia.modeling.constraints.bind
+﻿energia.modeling.constraints.bind
 =================================
 
 .. automodule:: energia.modeling.constraints.bind
@@ -22,7 +22,9 @@ energia.modeling.constraints.bind
       Calculate
       F
       FBind
-      I
+      Idx
       Modes
       V
+      cached_property
+      chain
    

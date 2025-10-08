@@ -1,8 +1,15 @@
-energia.components.temporal
+﻿energia.components.temporal
 ===========================
 
 .. automodule:: energia.components.temporal
 
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      Periods
+      TemporalScales
    
 .. rubric:: Modules
 

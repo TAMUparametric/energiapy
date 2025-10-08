@@ -142,3 +142,4 @@ nb_execution_mode = "off"
 
 bibtex_bibfiles = ["refs.bib", "frameworks.bib"]
 bibtex_default_style = "unsrt"
+autodoc_member_order = 'bysource'

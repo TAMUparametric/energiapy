@@ -1,8 +1,16 @@
-energia.components.operation
+﻿energia.components.operation
 ============================
 
 .. automodule:: energia.components.operation
 
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      Process
+      Storage
+      Transport
    
 .. rubric:: Modules
 

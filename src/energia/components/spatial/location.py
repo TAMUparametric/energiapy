@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from functools import cached_property
 from operator import is_
-from typing import TYPE_CHECKING, Self
+from typing import TYPE_CHECKING, Optional, Self
 from warnings import warn
 
 from gana import I as Idx
@@ -51,22 +51,22 @@ class Location(_X):
     :vartype hierarchy: int, optional
     """
 
-    def __init__(self, *has: tuple[Self], label=None):
+    def __init__(self, *has: Self, label: str = None):
 
         # it is an indexed component
-        _X.__init__(self, label=label)
+        _X.__init__(self, label=label or "")
 
         # the other locations contained in this location
         self.has: tuple[Self] = has
         # if the location is a part of another
-        self.isin = None
+        self.isin: Optional[Self] = None
         # the currency used in the location
-        self.currency: Currency = None
+        self.currency: Optional[Currency] = None
         # goes down another level of hierarchy
         # to find locations within the locations contained in this location
         self.alsohas: tuple[Self] = ()
 
-        """Hierarchy in the space tree"""
+        # Hierarchy in the space tree
         self.hierarchy: int = None
 
         for loc in self.has:

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Self, Type
+from typing import TYPE_CHECKING, Optional, Self, Type
 
 from dill import dump
 
@@ -26,6 +26,11 @@ from ..components.spatial.location import Location
 from ..components.temporal.modes import Modes
 from ..components.temporal.periods import Periods
 from ..components.temporal.scales import TemporalScales
+from ..dimensions.consequence import Consequence
+from ..dimensions.problem import Problem
+from ..dimensions.space import Space
+from ..dimensions.system import System
+from ..dimensions.time import Time
 from ..library.recipes import (
     capacity_sizing,
     economic,
@@ -39,13 +44,16 @@ from ..library.recipes import (
 )
 from ..modeling.parameters.conversion import Conversion
 from ..modeling.variables.control import Control
-from ..modeling.variables.impact import Impact
 from ..modeling.variables.recipe import Recipe
-from ..modeling.variables.state import State
-from ..modeling.variables.stream import Stream
-from .blocks import _Init
+from ..modeling.variables.states import Impact, State, Stream
+from .graph import Graph
+from .mapper import Mapper
+from .program import Program
 
 if TYPE_CHECKING:
+    from enum import Enum
+
+    from gana.block.solution import Solution
     from gana.sets.index import I
 
     from .._core._component import _Component
@@ -54,7 +62,7 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class Model(_Init):
+class Model(Mapper):
     """
     An abstract representation of an energy system.
 
@@ -69,15 +77,15 @@ class Model(_Init):
 
     :ivar added: List of added objects to the Model.
     :vartype added: list[str]
-    :ivar update_map: Map of representation and collection by type.
+    :ivar update_map: maps component type to representation and collection.
     :vartype update_map: dict
-    :ivar time: Temporal Scope of the Model.
+    :ivar time: time representation of the Model.
     :vartype time: Time
-    :ivar space: Spatial Scope of the Model.
+    :ivar space: spatial representation of the Model.
     :vartype space: Space
-    :ivar impact: Impact on the exterior of the Model.
+    :ivar impact: impact representation of the Model.
     :vartype impact: Impact
-    :ivar tree: Feasible region (Decision-Making) of the Model.
+    :ivar tree: feasible region (Decision-Making) of the Model.
     :vartype tree: Tree
     :ivar graph: Graph (Network) of the Model.
     :vartype graph: Graph
@@ -93,12 +101,19 @@ class Model(_Init):
     :vartype modes_dict: dict[Bind, Modes]
     :siunits_set: True if SI units have been set.
     :vartype siunits_set: bool
+    :ivar cookbook: Recipes to create Aspects.
+    :vartype cookbook: dict[str, Recipe]
+    :ivar attr_map: Map of attribute names to recipes for creating them.
+    :vartype attr_map: dict[str, dict[str, Recipe]]
+    :ivar classifiers: List of classifiers for the Model.
+    :vartype classifiers: list[Enum]
+
 
     :raises ValueError: If an attribute name already exists in the Model.
     """
 
     name: str = "m"
-    init: list[Callable[Self]] = None
+    init: Optional[list[Callable[Self]]] = None
     default: bool = True
     capacitate: bool = False
 
@@ -146,7 +161,7 @@ class Model(_Init):
             Economic: ("consequence", "ecos"),
             Process: ("system", "processes"),
             Storage: ("system", "storages"),
-            Transport: ("system", "transits"),
+            Transport: ("system", "transports"),
             Player: ("system", "players"),
             Couple: ("system", "couples"),
             Currency: ("system", "currencies"),
@@ -160,6 +175,27 @@ class Model(_Init):
             Impact: ("problem", "impacts"),
         }
 
+        self.dimension_map = {
+            collection: dimension for dimension, collection in self.update_map.values()
+        }
+
+        self.program_collections = [
+            "constraint_sets",
+            "function_sets",
+            "variable_sets",
+            "parameter_sets",
+            "theta_sets",
+            "index_sets",
+            "constraints",
+            "functions",
+            "variables",
+            "thetas",
+            "indices",
+            "objectives",
+        ]
+
+        self.graph_components = ["edges", "nodes"]
+
         # map of attribute names to recipes for creating them
         self.attr_map: dict[str, dict[str, Recipe]] = {}
 
@@ -170,7 +206,29 @@ class Model(_Init):
         self.cookbook: dict[str, Recipe] = {}
 
         # ---- Different representations of the model ---
-        _Init.__post_init__(self)
+        Mapper.__post_init__(self)
+
+        # Temporal Scope
+        self.time = Time(self)
+        # Spatial Scope
+        self.space = Space(self)
+
+        # Impact on the exterior
+        self.consequence = Consequence(self)
+
+        # System (Resource Task Network)
+        self.system = System(self)
+
+        # Graph (Network)
+        self.graph = Graph(self)
+
+        # the problem
+        self.problem = Problem(self)
+
+        # mathematical program
+        self.program = Program(model=self)
+        # shorthand
+        self._ = self.program
 
         # measuring units
         self.units: list[Unit] = []
@@ -204,9 +262,41 @@ class Model(_Init):
         # # introduce the dimensions of the model
         # Decisions.__post_init__(self)
 
+        self.classifiers: dict[str, list[Enum]] = {
+            "uncertainty": [],
+            "structure": [],
+            "scale": [],
+            "paradigm": [],
+        }
+
     # -----------------------------------------------------
     #              Set Component
     # -----------------------------------------------------
+
+    @property
+    def horizon(self) -> Periods:
+        """The horizon of the Model"""
+        return self.time.horizon
+
+    @property
+    def network(self) -> Location:
+        """The network of the Model"""
+        return self.space.network
+
+    @property
+    def indicators(self) -> list[Social | Environ | Economic]:
+        """Indicators"""
+        return self.consequence.indicators
+
+    @property
+    def operations(self) -> list[Process | Storage | Transport]:
+        """The Operations"""
+        return self.system.operations
+
+    @property
+    def solution(self) -> dict[int, Solution]:
+        """The solution of the program"""
+        return self.program.solution
 
     def update(
         self,
@@ -214,7 +304,7 @@ class Model(_Init):
         value: _X,
         represent: str,
         collection: str,
-        aspects: list[str] = None,
+        aspects: Optional[list[str]] = None,
     ):
         """Update the Model with a new value
 
@@ -254,9 +344,12 @@ class Model(_Init):
             "processes",
             "storages",
             "transits",
+            "locations",
+            "linkages",
         ]:
-            index_set: I = getattr(self.program, collection)
-            setattr(self.program, collection, index_set | value.I)
+            setattr(
+                self.program, collection, getattr(self.program, collection) | value.I
+            )
 
         # set aspects (as binds) on the components
         if aspects:
@@ -292,18 +385,12 @@ class Model(_Init):
                 self.update(name, value, *updates)
                 break
 
-        # Locations also belong to spaces
-        if isinstance(value, Location):
+        # Special linkage instructions
+        if isinstance(value, Linkage):
 
-            self.program.spaces |= value.I
-
-        # Linkages also belong to spaces
-        elif isinstance(value, Linkage):
-            self.program.spaces |= value.I
-            self.program.sources |= value.source.I
-            self.program.sinks |= value.sink.I
             self.space.sources.append(value.source)
             self.space.sinks.append(value.sink)
+
             if value.bi:
                 # if bidirectional, set the reverse linkage
                 # also ensures that all linakges go in one direction only
@@ -313,6 +400,18 @@ class Model(_Init):
         super().__setattr__(name, value)
 
     def __getattr__(self, name):
+
+        if name in self.dimension_map:
+            dimension = getattr(self, self.dimension_map[name])
+            collection = getattr(dimension, name)
+            setattr(self, name, collection)
+            return collection
+
+        if name in self.program_collections:
+            collection = getattr(self.program, name)
+            setattr(self, name, collection)
+            return collection
+
         # Only called when attribute does not exist
         if name in self._attr_map:
             # if attribute has been called before
@@ -347,7 +446,7 @@ class Model(_Init):
             return aspect
 
         raise AttributeError(
-            f"'{type(self).__name__}' object has no attribute '{name}'",
+            f"{self} has no '{name}'",
         )
 
     def aliases(self, *names: str, to: str):

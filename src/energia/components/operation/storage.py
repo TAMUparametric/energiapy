@@ -213,7 +213,5 @@ class Storage(_Component):
 
             self.stored, self.stored.inv_of = stored, self.base
             self._conv = True
-            # self.model.update_grb_aspects(add=self.stored)
 
-            # self.model.update_grb(add=self.stored)
         return self.discharge.conv(resource)

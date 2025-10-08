@@ -1,4 +1,4 @@
-energia.modeling.indices.domain
+﻿energia.modeling.indices.domain
 ===============================
 
 .. automodule:: energia.modeling.indices.domain
@@ -9,6 +9,7 @@ energia.modeling.indices.domain
    .. autosummary::
    
       dataclass
+      field
       is_
       is_not
       prod
@@ -18,5 +19,4 @@ energia.modeling.indices.domain
    .. autosummary::
    
       Domain
-      I
    

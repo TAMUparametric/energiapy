@@ -1,7 +1,7 @@
-energia.modeling.variables.stream
+energia.modeling.variables.states
 =================================
 
-.. automodule:: energia.modeling.variables.stream
+.. automodule:: energia.modeling.variables.states
 
    
    .. rubric:: Functions
@@ -14,9 +14,11 @@ energia.modeling.variables.stream
 
    .. autosummary::
    
+      Aspect
       Balance
       EndoStream
       ExoStream
+      Impact
       IndStream
       Map
       State

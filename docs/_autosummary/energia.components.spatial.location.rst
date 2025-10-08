@@ -16,6 +16,8 @@ energia.components.spatial.location
 
    .. autosummary::
    
+      Idx
       Linkage
       Location
+      cached_property
    

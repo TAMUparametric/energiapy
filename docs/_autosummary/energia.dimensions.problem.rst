@@ -1,4 +1,4 @@
-energia.dimensions.problem
+﻿energia.dimensions.problem
 ==========================
 
 .. automodule:: energia.dimensions.problem
@@ -20,4 +20,6 @@ energia.dimensions.problem
       Problem
       State
       Stream
+      cached_property
+      chain
    

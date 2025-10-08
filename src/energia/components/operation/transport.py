@@ -13,6 +13,7 @@ if TYPE_CHECKING:
     from ..spatial.linkage import Linkage
     from ..spatial.location import Location
     from ..temporal.periods import Periods
+    from ..temporal.lag import Lag
 
 
 @dataclass
@@ -54,49 +55,13 @@ class Transport(_Operation):
         _Operation.__post_init__(self)
         self.linkages: list[Linkage] = []
 
-    def locate(self, *linkages: Linkage):
-        """Locate the transport"""
-        link_times = []
-
-        linkages = sum(
-            [[link, link.sib] if link.sib else [link] for link in list(linkages)],
-            [],
-        )
-        for link in linkages:
-
-            # check if the transport has been capacitated at that link and time
-            if self not in self.problem.capacity_bound or link not in [
-                l_t[0] for l_t in self.problem.capacity_bound[self]
-            ]:
-                # if the process is not capacitated at the link and time
-                print(
-                    f"--- Assuming  {self} capacity is unbounded in ({link}, {self.horizon})",
-                )
-                # this is not a check, this generates a constraint
-                _ = self.model.capacity(self, link, self.horizon) == True
-
-            # now that the transport has been capacitated at the link
-            # check if the transport has been operated at that link and time
-            if self not in self.problem.operate_bound or link not in [
-                l_t[0] for l_t in self.problem.operate_bound[self]
-            ]:
-                # if the transport is not operated at the link and time
-                print(f"--- Assuming {self} is operated at ({link}, {self.horizon})")
-                # this is not a check, this generates a constraint
-                _ = self.model.operate(self, link, self.horizon) <= 1
-
-            for d in self.model.operate.domains:
-                if d.operation == self and d.space == link:
-                    link_time = (link, d.time)
-                    if link_time not in link_times:
-                        link_times.append(link_time)
-
-        self.writecons_conversion(link_times)
+    @property
+    def spaces(self) -> list[Location]:
+        """Locations at which the process is balanced"""
+        return self.linkages
 
     def writecons_conversion(self, link_times: list[tuple[Linkage, Periods]]):
         """Write the conversion constraints for the transport"""
-
-        self.conv.balancer()
 
         def time_checker(res: Resource, loc: Location, time: Periods):
             """This checks if it is actually necessary
@@ -136,32 +101,19 @@ class Transport(_Operation):
 
             return time.horizon
 
-        # def time_checker(res: Resource, loc: Loc, time: Periods):
-        #     """This checks if it is actually necessary
-        #     to write conversion at denser temporal scales
-        #     """
+        self.conv.balancer()
 
-        #     # This checks whether some other aspect is defined at
-        #     # a lower temporal scale
+        if self.conv.pwl:
 
-        #     if not link.source in self.model.grb[res]:
-        #         # if not defined for that location, check for a lower order location
-        #         # i.e. location at a lower hierarchy,
-        #         # e.g. say if loc being passed is a city, and a grb has not been defined for it
-        #         # then we need to check at a higher order
-        #         parent = self.space.split(link.source)[1]  # get location at one hierarchy above
-        #         if parent:
-        #             # if that indeed exists, then make the parent the loc
-        #             # the conversion Balance variables will feature in grb for parent location
-        #             link.source = parent
+            conversion = self.conversion[list(self.conversion)[0]]
 
-        #     if (
-        #         self.model.grb[res][link.source][time]
-        #         or self.model.grb[res][link.sink][time]
-        #     ):
-        #         return time
-        #     else:
-        #         return time.horizon
+        else:
+            conversion = self.conversion
+
+        shipping_conversion, rest_conversion = {self.conv.base: 1}, {
+            k: v for k, v in conversion.items() if k != self.conv.base
+        }
+        print(shipping_conversion, rest_conversion)
 
         for link_time in link_times:
             link, time = link_time
@@ -171,74 +123,59 @@ class Transport(_Operation):
                 # if the transport is already balanced for the location , Skip
                 continue
 
-            for res, par in self.conversion.items():
+            for res, par in conversion.items():
                 # set, the conversion on the resource
                 setattr(res, self.name, self)
                 # now there are two cases possible
                 # the parameter (par) is positive or negative
-                # if positive, the resource is expendd
+                # if positive, the resource is expend
                 # if negative, the resource is produced
                 # also, the par can be an number or a list of numbers
 
                 # insitu resource (expended and ship_outed within the system)
                 # do not initiate a grb so we need to run a check for that first
                 if res in self.model.grb:
-                    # time = time_checker(res, link, time)
-                    _insitu = False
+                    time = time_checker(res, link.source, time)
+
+                    if self.model.grb[res][link][time]:
+                        # if the grb has been defined for that resource at that location and time
+                        _insitu = False
+                    else:
+                        _insitu = True
                 else:
                     # this implies that the grb needs to be initiated
                     # by declaring relevant variable
                     # the relevant variable will be unbounded
                     _insitu = True
 
-                upd_expend, upd_ship, upd_operate = False, False, False
-
                 if isinstance(par, (int | float)) and par < 0:
                     # condition: negative number
                     eff = -par
 
                     if self.lag:
-                        rhs = self.model.expend(res, self, link.source, self.lag.of)
-                        lhs = self.model.operate(self, link, self.lag.of)
+                        opr = self.operate(link, self.lag.of)
+                        rhs = res.expend(self.operate, link.source, self.lag.of)
                     else:
-                        rhs = self.model.expend(
-                            res,
-                            link.source,
-                            self,
-                            time_checker(res, link.source, time),
-                        )
-                        lhs = self.model.operate(self, link, time)
-
-                    upd_expend, upd_operate = True, True
+                        opr = self.operate(link, time)
+                        rhs = res.expend(opr, link.source, time)
 
                 elif isinstance(par, list) and par[0] < 0:
                     # condition: list with negative numbers
                     eff = [-i for i in par]
 
                     if self.lag:
-                        rhs = self.model.expend(
-                            res,
-                            self.operate,
-                            link.source,
-                            self.lag.of,
-                        )
-                        lhs = self.model.operate(self, link, self.lag.of)
+                        opr = self.operate(link, self.lag.of)
+                        rhs = res.expend(self.operate, link.source, self.lag.of)
                     else:
-
-                        rhs = self.model.expend(
-                            res,
-                            self.operate,
-                            link.source,
-                            time_checker(res, link.source, time),
-                        )
-                        lhs = self.model.operate(self, link, time)
-                    upd_expend, upd_operate = True, True
+                        opr = self.operate(link, time)
+                        rhs = res.expend(self.operate, link.source, time)
 
                 else:
                     # condition: positive number or list of positive numbers
                     eff = par
 
                     if self.lag:
+                        opr = self.operate(link, self.lag)
                         rhs_export = self.model.ship_out(
                             res,
                             self.operate,
@@ -251,8 +188,8 @@ class Transport(_Operation):
                             link.sink,
                             self.lag,
                         )
-                        lhs = self.model.operate(self, link, self.lag.of)
                     else:
+                        opr = self.operate(link, time)
                         rhs_export = self.model.ship_out(
                             res,
                             self,
@@ -265,92 +202,125 @@ class Transport(_Operation):
                             link.sink,
                             time_checker(res, link.sink, time),
                         )
-                        lhs = self.model.operate(self, link, time)
-                    upd_operate, upd_ship = True, True
-
-                if len(time) > 1:
-                    par = [par] * len(time)
 
                 if _insitu:
-                    # this initiates a grb
                     res.insitu = True
-                    if upd_ship:
-                        _ = rhs_export == True
-                        _ = rhs_import == True
-                    v_rhs_export = rhs_export.V(par)
-                    v_rhs_import = rhs_import.V(par)
+                    _ = rhs_export == True
+                    _ = rhs_import == True
 
-                if upd_ship:
-                    if not _insitu:
-                        v_rhs_export = rhs_export.V(par)
-                        v_rhs_import = rhs_import.V(par)
-                    v_lhs = lhs.V(par)
-                    dom_export = rhs_export.domain
-                    dom_import = rhs_import.domain
+                if self.conv.pwl:
 
-                    cons_name_export = (
-                        f"operate_export_{res}_{self}_{link}_{time}_bal".replace(
-                            "-",
-                            "_",
-                        )
-                    )
-                    cons_name_import = (
-                        f"operate_import_{res}_{self}_{link}_{time}_bal".replace(
-                            "-",
-                            "_",
-                        )
-                    )
+                    eff = [conv[res] for conv in self.conversion.values()]
 
-                    cons_export = v_lhs - eff * v_rhs_export == 0
-                    cons_import = v_lhs - eff * v_rhs_import == 0
+                    if eff[0] < 0:
+                        eff = [-i for i in eff]
 
-                    cons_export.categorize("Flow")
-                    cons_import.categorize("Flow")
+                    if not self.conv.modes_set:
+                        self.model.operate.bound = None
+                        _ = opr == dict(enumerate(self.conversion.keys()))
 
-                    setattr(self.program, cons_name_export, cons_export)
-                    setattr(self.program, cons_name_import, cons_import)
-                    dom_export.update_cons(cons_name_export)
-                    dom_import.update_cons(cons_name_import)
+                        self.model.operate.bound = self.conv.model.capacity
 
-                    self.model.ship_out.constraints.append(cons_name_export)
-                    self.model.ship_in.constraints.append(cons_name_import)
-                    if upd_expend:
-                        self.model.expend.constraints.append(cons_name_export)
-                        self.model.expend.constraints.append(cons_name_import)
-                    if upd_operate:
-                        self.model.operate.constraints.append(cons_name_export)
-                        self.model.operate.constraints.append(cons_name_import)
+                        modes = self.model.modes[-1]
+                        self.conv.modes_set = True
 
-                else:
+                    else:
+                        modes = self.conv.modes
+                        modes.bind = self.operate
+                        self.conv.modes_set = True
 
-                    v_rhs = rhs.V(par)
-                    v_lhs = lhs.V(par)
+                    opr = opr(modes)
+                    rhs_export = rhs_export(modes)
+                    rhs_import = rhs_import(modes)
 
-                    dom = rhs.domain
+                _ = opr[rhs_export] == eff
+                _ = opr[rhs_import] == eff
 
-                    cons_name = f"operate_{res}_{self}_{link}_{time}_bal".replace(
-                        "-",
-                        "_",
-                    )
-                    cons = v_rhs == (1 / eff) * v_lhs
+                # if len(time) > 1:
+                #     par = [par] * len(time)
 
-                    cons.categorize("Flow")
+                # if _insitu:
+                #     # this initiates a grb
+                #     res.insitu = True
+                #     if upd_ship:
+                #         _ = rhs_export == True
+                #         _ = rhs_import == True
+                #     v_rhs_export = rhs_export.V(par)
+                #     v_rhs_import = rhs_import.V(par)
 
-                    setattr(self.program, cons_name, cons)
+                # if upd_ship:
+                #     if not _insitu:
+                #         v_rhs_export = rhs_export.V(par)
+                #         v_rhs_import = rhs_import.V(par)
+                #     v_lhs = lhs.V(par)
+                #     dom_export = rhs_export.domain
+                #     dom_import = rhs_import.domain
 
-                    dom.update_cons(cons_name)
-                    if upd_expend:
-                        self.model.expend.constraints.append(cons_name)
-                    if upd_ship:
-                        self.model.ship_out.constraints.append(cons_name)
-                    if upd_operate:
-                        self.model.operate.constraints.append(cons_name)
+                #     cons_name_export = (
+                #         f"operate_export_{res}_{self}_{link}_{time}_bal".replace(
+                #             "-",
+                #             "_",
+                #         )
+                #     )
+                #     cons_name_import = (
+                #         f"operate_import_{res}_{self}_{link}_{time}_bal".replace(
+                #             "-",
+                #             "_",
+                #         )
+                #     )
+
+                #     cons_export = v_lhs - eff * v_rhs_export == 0
+                #     cons_import = v_lhs - eff * v_rhs_import == 0
+
+                #     cons_export.categorize("Flow")
+                #     cons_import.categorize("Flow")
+
+                #     setattr(self.program, cons_name_export, cons_export)
+                #     setattr(self.program, cons_name_import, cons_import)
+                #     dom_export.update_cons(cons_name_export)
+                #     dom_import.update_cons(cons_name_import)
+
+                #     self.model.ship_out.constraints.append(cons_name_export)
+                #     self.model.ship_in.constraints.append(cons_name_import)
+                #     if upd_expend:
+                #         self.model.expend.constraints.append(cons_name_export)
+                #         self.model.expend.constraints.append(cons_name_import)
+                #     if upd_operate:
+                #         self.model.operate.constraints.append(cons_name_export)
+                #         self.model.operate.constraints.append(cons_name_import)
+
+                # else:
+
+                #     v_rhs = rhs.V(par)
+                #     v_lhs = lhs.V(par)
+
+                #     dom = rhs.domain
+
+                #     cons_name = f"operate_{res}_{self}_{link}_{time}_bal".replace(
+                #         "-",
+                #         "_",
+                #     )
+                #     cons = v_rhs == (1 / eff) * v_lhs
+
+                #     cons.categorize("Flow")
+
+                #     setattr(self.program, cons_name, cons)
+
+                #     dom.update_cons(cons_name)
+                #     if upd_expend:
+                #         self.model.expend.constraints.append(cons_name)
+                #     if upd_ship:
+                #         self.model.ship_out.constraints.append(cons_name)
+                #     if upd_operate:
+                #         self.model.operate.constraints.append(cons_name)
                 self.linkages.append(link)
 
-    def __call__(self, resource: Resource | Conversion):
+    def __call__(self, resource: Resource | Conversion, lag: Lag = None) -> Conversion:
         """Conversion is called with a Resource to be converted"""
         if not self._conv:
 
             self.conv = Conversion(operation=self)
             self._conv = True
+
+        self.conv.lag = lag
         return self.conv(resource)

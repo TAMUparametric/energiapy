@@ -1,4 +1,4 @@
-energia.dimensions.time
+﻿energia.dimensions.time
 =======================
 
 .. automodule:: energia.dimensions.time
@@ -18,4 +18,5 @@ energia.dimensions.time
       Modes
       Periods
       Time
+      cached_property
    

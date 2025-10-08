@@ -16,6 +16,5 @@ energia.components.operation.process
    .. autosummary::
    
       Conversion
-      Modes
       Process
    

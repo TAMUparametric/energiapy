@@ -1,4 +1,4 @@
-energia.utils.data
+﻿energia.utils.data
 ==================
 
 .. automodule:: energia.utils.data
@@ -10,10 +10,4 @@ energia.utils.data
    
       make_henry_price_df
       remove_outliers
-   
-   .. rubric:: Classes
-
-   .. autosummary::
-   
-      product
    

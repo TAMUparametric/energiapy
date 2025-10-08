@@ -1,4 +1,4 @@
-energia.modeling.variables
+﻿energia.modeling.variables
 ==========================
 
 .. automodule:: energia.modeling.variables
@@ -12,8 +12,7 @@ energia.modeling.variables
 
    aspect
    control
-   impact
    loss
    recipe
-   state
-   stream
+   reporting
+   states

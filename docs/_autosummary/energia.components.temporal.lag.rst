@@ -16,4 +16,5 @@ energia.components.temporal.lag
    .. autosummary::
    
       Lag
+      cached_property
    

@@ -14,10 +14,11 @@ class Space(_Dimension):
 
     All spatial components are attached to this object.
 
-    :param model: Model to which the dimension belongs.
+
+    :param model: Model to which the representation belongs.
     :type model: Model
 
-    :ivar name: Name of the model. Defaults to None.
+    :ivar name: Name of the dimension, auto generated
     :vartype name: str
     :ivar locations: List of locations in the space.
     :vartype locations: list[Loc]
@@ -31,6 +32,15 @@ class Space(_Dimension):
     :vartype label: str
     :ivar default: Default location for the space. Defaults to None.
     :vartype default: Loc
+    :ivar network: The encompassing region (network) of the space.
+    :vartype network: Loc
+    :ivar s: List of spatial components (locations and linkages).
+    :vartype s: list[Loc | Link]
+    :ivar tree: Nested dictionary of locations.
+    :vartype tree: dict
+    :ivar hierarchy: position on tree.
+    :vartype hierarchy: dict[int, list[Loc]]
+
 
     .. note::
         - name is self generated
@@ -63,34 +73,14 @@ class Space(_Dimension):
 
     @property
     def hierarchy(self) -> dict[int, list[Location]]:
-        """creates a nested dictionary of locations"""
+        """gives position in tree"""
         self.network.update_hierarchy()
         hierarchy_ = {}
-        for loc in self.locations:
-            if loc.hierarchy not in hierarchy_:
-                hierarchy_[loc.hierarchy] = []
-            hierarchy_[loc.hierarchy].append(loc)
+        for spc in self.s:
+            if spc.hierarchy not in hierarchy_:
+                hierarchy_[spc.hierarchy] = []
+            hierarchy_[spc.hierarchy].append(spc)
         return hierarchy_
-
-    def split(self, loc: Location) -> tuple[list[Location], list[Location]]:
-        """Gives a list of locations at a higher and lower hierarchy than loc"""
-        hierarchy = self.hierarchy
-
-        loc_pos = loc.hierarchy
-
-        if loc_pos + 1 in hierarchy:
-            lower = [l for l in hierarchy[loc_pos + 1] if l in loc.has]
-        else:
-            lower = []
-
-        if loc_pos - 1 in hierarchy:
-            upper = [l for l in hierarchy[loc_pos - 1] if loc in l.has]
-
-            upper = upper[0] if upper else None
-        else:
-            upper = None
-
-        return lower, upper
 
     # -----------------------------------------------------
     #                    Superlative
@@ -98,7 +88,7 @@ class Space(_Dimension):
 
     @property
     def network(self) -> Location:
-        """An encompassing region"""
+        """An encompassing location"""
 
         # if no location is available, create a default one
         if not self.locations:
@@ -128,3 +118,23 @@ class Space(_Dimension):
     def s(self) -> list[Location | Linkage]:
         """List of spatial components"""
         return self.locations + self.linkages
+
+    def split(self, loc: Location) -> tuple[list[Location], list[Location]]:
+        """Gives a list of locations at a higher and lower hierarchy than loc"""
+        hierarchy = self.hierarchy
+
+        loc_pos = loc.hierarchy
+
+        if loc_pos + 1 in hierarchy:
+            lower = [l for l in hierarchy[loc_pos + 1] if l in loc.has]
+        else:
+            lower = []
+
+        if loc_pos - 1 in hierarchy:
+            upper = [l for l in hierarchy[loc_pos - 1] if loc in l.has]
+
+            upper = upper[0] if upper else None
+        else:
+            upper = None
+
+        return lower, upper

@@ -14,7 +14,6 @@ energia.modeling.variables.state
 
    .. autosummary::
    
-      Any
       Aspect
       Map
       State

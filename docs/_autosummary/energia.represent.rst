@@ -1,4 +1,4 @@
-energia.represent
+﻿energia.represent
 =================
 
 .. automodule:: energia.represent
@@ -11,6 +11,7 @@ energia.represent
    :recursive:
 
    blocks
+   classifiers
    graph
    model
    program

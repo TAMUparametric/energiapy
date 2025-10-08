@@ -14,15 +14,23 @@ from ._generator import _Generator
 
 if TYPE_CHECKING:
     from gana.sets.constraint import C
+
     from ..._core._x import _X
     from ..indices.domain import Domain
 
 
 @dataclass
 class Map(_Generator):
-    """Maps between domains"""
+    """Maps between domains
 
-    return_sum: bool = False
+    :param aspect: Aspect to which the constraint is applied.
+    :type aspect: Aspect
+    :param domain: Domain over which the aspect is defined.
+    :type domain: Domain
+    :param reporting: If True, the map is for a reporting variable.
+    :type reporting: bool
+    """
+
     reporting: bool = False
 
     def __post_init__(self):
@@ -43,23 +51,6 @@ class Map(_Generator):
         # #   (dam, goa, q) with disposition ['operation', 'space', 'time'] is added
         # #   The variable will need to be mapped across 'time
 
-        if self.domain.lag:
-            return
-
-        # this is the disposition of the variable to be mapped
-        # through time and space
-        time, space = self.domain.periods, self.domain.space
-
-        # these are periods denser and sparser than the current domain
-        denser_periods, sparser_periods = self.model.time.split(time)
-
-        # these are spaces contained in loc and parent location to which this loc belongs
-
-        contained_locations, parent_location = self.model.space.split(space)
-
-        # this gives all the dispositions at which the aspect has been defined
-        dispositions = self.dispositions[self.aspect][self.domain.primary]
-
         # mapping happens between:
         # 1. sparser time to denser time in same space
         # 2. contained location to parent location
@@ -74,6 +65,21 @@ class Map(_Generator):
         # the operators <, > wont work since they will add any space a higher order
         # this will lead to adding twice. India = Goa + Madgaon + Ponje (WRONG)
         # We scale only one level up
+
+        if self.domain.lag:
+            return
+
+        # this is the disposition of the variable to be mapped
+        # through time and space
+        time, space = self.domain.periods, self.domain.space
+
+        # these are periods denser and sparser than the current domain
+        denser_periods, sparser_periods = self.model.time.split(time)
+
+        # these are spaces contained in loc and parent location to which this loc belongs
+
+        # this gives all the dispositions at which the aspect has been defined
+        dispositions = self.dispositions[self.aspect][self.domain.primary]
 
         # DONOT map across all periods, only to from the densest which is given by .of
         if space in dispositions and time in dispositions[space]:
@@ -122,13 +128,36 @@ class Map(_Generator):
                         tsum=True,
                     )
 
+            contained_locations, parent_location = self.model.space.split(space)
+
+            # TODO: spatial mapping is too convoluted
             for contained_loc in contained_locations:
                 if contained_loc in dispositions:
-                    # check if the aspect has been defined for a contained location
-                    self.writecons_map(
-                        self.domain.change({"loc": contained_loc}),
-                        self.domain,
-                    )
+                    if time in dispositions[contained_loc]:
+                        # check if the aspect has been defined for a contained location
+                        if not dispositions[contained_loc][time]:
+                            self.writecons_map(
+                                self.domain.change({"loc": contained_loc}),
+                                self.domain,
+                            )
+                        else:
+
+                            if not self.domain.binds:
+
+                                self.writecons_map(
+                                    self.domain.change(
+                                        {
+                                            "loc": contained_loc,
+                                            "binds": [
+                                                k(list(v)[0])
+                                                for k, v in dispositions[contained_loc][
+                                                    time
+                                                ].items()
+                                            ],
+                                        }
+                                    ),
+                                    self.domain,
+                                )
 
             if parent_location in dispositions:
                 # check if the aspect has been defined for a parent location
@@ -187,7 +216,7 @@ class Map(_Generator):
         return self.aspect.name + "_map"
 
     @cached_property
-    def maps(self) -> list[str]:
+    def maps(self) -> dict[str, list[Domain]]:
         """List of domains that the aspect has been mapped to"""
         if self.reporting:
             return self.aspect.maps_report
@@ -363,10 +392,6 @@ class Map(_Generator):
 
         # write the constraint
         cons: C = v_lower == rhs
-
-        if self.return_sum:
-            # if only a sum is requested, don't set to the program
-            return cons
 
         setattr(
             self.program,

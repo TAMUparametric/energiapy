@@ -33,7 +33,6 @@ energia.represent.model
       Emission
       Environ
       Impact
-      Indicator
       Land
       Linkage
       Location
