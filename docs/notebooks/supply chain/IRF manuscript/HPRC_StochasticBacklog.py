@@ -32,8 +32,8 @@ schedule_time_intervals = 7
 M = 1e4  # Big M
 design_annualization_factor = 1/design_planning_horizons
 
-# fill_rate = 0.6
-fill_rate = float(sys.argv[1])
+fill_rate = 0.0
+# fill_rate = float(sys.argv[1])
 print(f"fill_rate: {fill_rate}")
 print(f"Type: {type(fill_rate)}")
 
@@ -353,19 +353,19 @@ def build_design_model(eps: float, scen_df=pandas.DataFrame()):
                                                  Constraints.INVENTORY, Constraints.PRODUCTION, Constraints.BACKLOG,
                                                  Constraints.NETWORK})
 
-        demand = scenario.demand
-        if isinstance(demand, dict):
-            if isinstance(list(demand.keys())[0], Location):
-                try:
-                    demand = {i.name: {
-                        j.name: demand[i][j] for j in demand[i].keys()} for i in demand.keys()}
-                except:
-                    pass
-
-        constraint_demand_lb(instance=problem_mincost, demand=demand, demand_factor=scenario.demand_factor,
-                             demand_scale_level=scenario.demand_scale_level,
-                             scheduling_scale_level=scenario.scheduling_scale_level,
-                             location_resource_dict=scenario.location_resource_dict, epsilon=eps)
+        # demand = scenario.demand
+        # if isinstance(demand, dict):
+        #     if isinstance(list(demand.keys())[0], Location):
+        #         try:
+        #             demand = {i.name: {
+        #                 j.name: demand[i][j] for j in demand[i].keys()} for i in demand.keys()}
+        #         except:
+        #             pass
+        #
+        # constraint_demand_lb(instance=problem_mincost, demand=demand, demand_factor=scenario.demand_factor,
+        #                      demand_scale_level=scenario.demand_scale_level,
+        #                      scheduling_scale_level=scenario.scheduling_scale_level,
+        #                      location_resource_dict=scenario.location_resource_dict, epsilon=eps)
 
         scale_iter = scale_tuple(instance=problem_mincost, scale_levels=scenario.network_scale_level + 1)
         problem_mincost.first_stage_cost = Var(within=NonNegativeReals, doc='First Stage Cost')
@@ -392,19 +392,19 @@ def build_design_smodel(scen_df=pandas.DataFrame(), eps: float = 1.0):
                                                  Constraints.INVENTORY, Constraints.PRODUCTION, Constraints.BACKLOG,
                                                  Constraints.NETWORK})
 
-    demand = scenario.demand
-    if isinstance(demand, dict):
-        if isinstance(list(demand.keys())[0], Location):
-            try:
-                demand = {i.name: {
-                    j.name: demand[i][j] for j in demand[i].keys()} for i in demand.keys()}
-            except:
-                pass
-
-    constraint_demand_lb(instance=problem_mincost, demand=demand, demand_factor=scenario.demand_factor,
-                         demand_scale_level=scenario.demand_scale_level,
-                         scheduling_scale_level=scenario.scheduling_scale_level,
-                         location_resource_dict=scenario.location_resource_dict, epsilon=eps)
+    # demand = scenario.demand
+    # if isinstance(demand, dict):
+    #     if isinstance(list(demand.keys())[0], Location):
+    #         try:
+    #             demand = {i.name: {
+    #                 j.name: demand[i][j] for j in demand[i].keys()} for i in demand.keys()}
+    #         except:
+    #             pass
+    #
+    # constraint_demand_lb(instance=problem_mincost, demand=demand, demand_factor=scenario.demand_factor,
+    #                      demand_scale_level=scenario.demand_scale_level,
+    #                      scheduling_scale_level=scenario.scheduling_scale_level,
+    #                      location_resource_dict=scenario.location_resource_dict, epsilon=eps)
 
     scale_iter = scale_tuple(instance=problem_mincost, scale_levels=scenario.network_scale_level + 1)
     problem_mincost.first_stage_cost = Var(within=NonNegativeReals, doc='First Stage Cost')

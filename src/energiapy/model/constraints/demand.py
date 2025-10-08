@@ -601,9 +601,8 @@ def constraint_backlog_penalty_cost(instance: ConcreteModel, backlog_penalty: di
     constraint_latex_render(backlog_penalty_cost_rule)
     return instance.constraint_backlog_penalty_cost
 
-
 def constraint_demand_penalty_cost_location(instance: ConcreteModel, demand_scale_level: int = 0,
-                                            network_scale_level: int = 0, isBacklog: bool = False) -> Constraint:
+                                            network_scale_level: int = 0) -> Constraint:
     '''
 
     Args:
@@ -620,16 +619,9 @@ def constraint_demand_penalty_cost_location(instance: ConcreteModel, demand_scal
 
     def location_demand_penalty_cost_rule(instance, location, resource_demand, *scale_list):
         if scale_list in scale_iter_n:
-            if isBacklog:
-                backlog_cost = sum(
-                    instance.Demand_backlog_cost[location, resource_demand, scale_[:demand_scale_level + 1]]
-                    for scale_ in scale_iter if scale_[:network_scale_level + 1] == scale_list)
-            else:
-                backlog_cost = 0
-
             return instance.Demand_penalty_cost_location[location, resource_demand, scale_list] == sum(
                 instance.Demand_penalty_cost[location, resource_demand, scale_[:demand_scale_level + 1]]
-                for scale_ in scale_iter if scale_[:network_scale_level + 1] == scale_list) + backlog_cost
+                for scale_ in scale_iter if scale_[:network_scale_level + 1] == scale_list)
         else:
             return Constraint.Skip
 
@@ -638,6 +630,58 @@ def constraint_demand_penalty_cost_location(instance: ConcreteModel, demand_scal
                                                                   doc='Total demand penalty cost at a location')
     constraint_latex_render(location_demand_penalty_cost_rule)
     return instance.constraint_demand_penalty_cost_location
+
+def constraint_backlog_penalty_cost_location(instance: ConcreteModel, demand_scale_level: int = 0,
+                                             network_scale_level: int = 0, isBacklog: bool = False) -> Constraint:
+    """
+
+    Args:
+        instance:
+        demand_scale_level:
+        network_scale_level:
+        isBacklog:
+
+    Returns:
+
+    """
+
+
+# def constraint_demand_penalty_cost_location(instance: ConcreteModel, demand_scale_level: int = 0,
+#                                             network_scale_level: int = 0, isBacklog: bool = False) -> Constraint:
+#     '''
+#
+#     Args:
+#         instance:
+#         demand_scale_level:
+#         network_scale_level:
+#
+#     Returns:
+#
+#     '''
+#     scales = scale_list(instance=instance, scale_levels=network_scale_level + 1)
+#     scale_iter_n = scale_tuple(instance=instance, scale_levels=network_scale_level + 1)
+#     scale_iter = scale_tuple(instance=instance, scale_levels=demand_scale_level + 1)
+#
+#     def location_demand_penalty_cost_rule(instance, location, resource_demand, *scale_list):
+#         if scale_list in scale_iter_n:
+#             if isBacklog:
+#                 backlog_cost = sum(
+#                     instance.Demand_backlog_cost[location, resource_demand, scale_[:demand_scale_level + 1]]
+#                     for scale_ in scale_iter if scale_[:network_scale_level + 1] == scale_list)
+#             else:
+#                 backlog_cost = 0
+#
+#             return instance.Demand_penalty_cost_location[location, resource_demand, scale_list] == sum(
+#                 instance.Demand_penalty_cost[location, resource_demand, scale_[:demand_scale_level + 1]]
+#                 for scale_ in scale_iter if scale_[:network_scale_level + 1] == scale_list) + backlog_cost
+#         else:
+#             return Constraint.Skip
+#
+#     instance.constraint_demand_penalty_cost_location = Constraint(instance.locations, instance.resources_demand,
+#                                                                   *scales, rule=location_demand_penalty_cost_rule,
+#                                                                   doc='Total demand penalty cost at a location')
+#     constraint_latex_render(location_demand_penalty_cost_rule)
+#     return instance.constraint_demand_penalty_cost_location
 
 
 def constraint_demand_penalty_cost_network(instance: ConcreteModel, network_scale_level: int = 0):

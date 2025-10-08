@@ -418,3 +418,16 @@ def objective_emission_min(instance: ConcreteModel, network_scale_level: int = 0
         rule=objective_emission_min_rule, doc='minimize total emission for network')
     constraint_latex_render(objective_emission_min_rule)
     return instance.objective_emission_min
+
+def objective_time_to_recover(instance: ConcreteModel, isBacklog: bool, backlog_wt:dict = dict(),
+                              demand_scale_level:int=0, backlog_penalty_scale_level:int=0, network_scale_level:int=0) -> Objective:
+    """
+
+    Args:
+        instance:
+        isBacklog:
+        backlog_wt:
+
+    Returns:
+
+    """

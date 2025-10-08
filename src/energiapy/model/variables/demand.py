@@ -52,10 +52,10 @@ def generate_demand_backlog_vars(instance: ConcreteModel):
                                           within=NonNegativeReals, doc='Total backlog from network')
     instance.Demand_backlog_cost = Var(instance.locations, instance.resources_demand, instance.scales_demand,
                                        within=NonNegativeReals, doc='backlog cost')
-    # instance.Demand_backlog_cost_location = Var(instance.locations, instance.resources_demand, instance.scales_network,
-    #                                             within=NonNegativeReals, doc='Total backlog cost at a location')
-    # instance.Demand_backlog_cost_network = Var(instance.resources_demand, instance.scales_network,
-    #                                            within=NonNegativeReals, doc='Total backlog cost from network')
+    instance.Demand_backlog_cost_location = Var(instance.locations, instance.resources_demand, instance.scales_network,
+                                                within=NonNegativeReals, doc='Total backlog cost at a location')
+    instance.Demand_backlog_cost_network = Var(instance.resources_demand, instance.scales_network,
+                                               within=NonNegativeReals, doc='Total backlog cost from network')
 
 
 def generate_demand_theta_vars(instance: ConcreteModel):

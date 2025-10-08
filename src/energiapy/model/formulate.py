@@ -220,7 +220,8 @@ from .objectives import (
     objective_gwp_min,
     objective_cost_w_demand_penalty,
     objective_profit_w_demand_penalty,
-    objective_emission_min
+    objective_emission_min,
+    objective_time_to_recover
 )
 
 from .sets import generate_sets
@@ -286,6 +287,10 @@ class Objective(Enum):
     EMISSION = auto()
     """
     Minimize emission using weighted sum method
+    """
+    TIME_TO_RECOVER = auto()
+    """
+    Minimize recovery time post a disruption (requires backlog cost)
     """
 
 
@@ -1038,7 +1043,7 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
                                            demand_penalty_dict=scenario.demand_penalty, demand_penalty_factor=scenario.demand_penalty_factor)
 
             constraint_demand_penalty_cost_location(instance=instance, demand_scale_level=scenario.demand_scale_level,
-                                                    network_scale_level=scenario.network_scale_level, isBacklog=isBacklog,)
+                                                    network_scale_level=scenario.network_scale_level)
 
             constraint_demand_penalty_cost_network(instance=instance, network_scale_level=scenario.network_scale_level)
 
@@ -1060,7 +1065,7 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
             constraint_demand_penalty_cost(instance=instance, demand_scale_level=scenario.demand_scale_level, demand_penalty_dict=scenario.demand_penalty, demand_penalty_factor=scenario.demand_penalty_factor)
 
             constraint_demand_penalty_cost_location(instance=instance, demand_scale_level=scenario.demand_scale_level,
-                                                    network_scale_level=scenario.network_scale_level, isBacklog=isBacklog,)
+                                                    network_scale_level=scenario.network_scale_level)
 
             constraint_demand_penalty_cost_network(instance=instance, network_scale_level=scenario.network_scale_level)
 
@@ -1127,6 +1132,9 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
 
             objective_emission_min(instance=instance, network_scale_level=scenario.network_scale_level, gwp_w=scenario.emission_weights.gwp, odp_w=scenario.emission_weights.odp, acid_w=scenario.emission_weights.acid,
                                    eutt_w=scenario.emission_weights.eutt, eutf_w=scenario.emission_weights.eutf, eutm_w=scenario.emission_weights.eutm)
+
+        if objective == Objective.TIME_TO_RECOVER:
+            objective_time_to_recover(instance=instance, isBacklog=isBacklog, backlog_wt = backlog_penalty)
 
         if scenario.capacity_bounds is not None:
             constraint_min_capacity_facility(instance=instance, location_process_dict=scenario.location_process_dict,
