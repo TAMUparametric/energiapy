@@ -13,6 +13,7 @@ if TYPE_CHECKING:
     from ..spatial.linkage import Linkage
     from ..spatial.location import Location
     from ..temporal.periods import Periods
+    from ..temporal.lag import Lag
 
 
 @dataclass

@@ -7,18 +7,21 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from ..components.commodity.resource import Resource
-    from ..components.impact.categories import Economic, Environ, Social
+
+    # from ..components.impact.categories import Economic, Environ, Social
     from ..components.operation.process import Process
     from ..components.operation.storage import Storage
     from ..components.operation.transport import Transport
     from ..components.spatial.linkage import Linkage
     from ..components.spatial.location import Location
-    from ..components.temporal.modes import Modes
+
+    # from ..components.temporal.modes import Modes
     from ..components.temporal.periods import Periods
     from ..modeling.indices.domain import Domain
     from ..modeling.variables.aspect import Aspect
-    from ..modeling.variables.control import Control
-    from ..modeling.variables.states import Impact, State, Stream
+
+    # from ..modeling.variables.control import Control
+    # from ..modeling.variables.states import Impact, State, Stream
 
 
 @dataclass
