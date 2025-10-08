@@ -88,14 +88,6 @@ class Time(_Dimension):
     # -----------------------------------------------------
 
     @property
-    def horizon(self) -> Periods:
-        """The sparsest scale is treated as the horizon"""
-        if self.periods:
-            return self.sparsest
-        # if nothing found, make a default period
-        return self.model.default_period()
-
-    @property
     def densest(self) -> Periods:
         """The densest period"""
         if self.periods:
@@ -109,4 +101,10 @@ class Time(_Dimension):
             return max(self.periods, key=lambda x: x.periods)
         return self.horizon
 
-        # if not periods, make a default period
+    @property
+    def horizon(self) -> Periods:
+        """The sparsest scale is treated as the horizon"""
+        if self.periods:
+            return self.sparsest
+        # if nothing found, make a default period
+        return self.model.default_period()

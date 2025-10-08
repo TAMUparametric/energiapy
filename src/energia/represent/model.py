@@ -69,15 +69,15 @@ class Model(_Init):
 
     :ivar added: List of added objects to the Model.
     :vartype added: list[str]
-    :ivar update_map: Map of representation and collection by type.
+    :ivar update_map: maps component type to representation and collection.
     :vartype update_map: dict
-    :ivar time: Temporal Scope of the Model.
+    :ivar time: time representation of the Model.
     :vartype time: Time
-    :ivar space: Spatial Scope of the Model.
+    :ivar space: spatial representation of the Model.
     :vartype space: Space
-    :ivar impact: Impact on the exterior of the Model.
+    :ivar impact: impact representation of the Model.
     :vartype impact: Impact
-    :ivar tree: Feasible region (Decision-Making) of the Model.
+    :ivar tree: feasible region (Decision-Making) of the Model.
     :vartype tree: Tree
     :ivar graph: Graph (Network) of the Model.
     :vartype graph: Graph
@@ -166,6 +166,27 @@ class Model(_Init):
             State: ("problem", "states"),
             Impact: ("problem", "impacts"),
         }
+
+        self.dimension_map = {
+            collection: dimension for dimension, collection in self.update_map.values()
+        }
+
+        self.program_collections = [
+            "constraint_sets",
+            "function_sets",
+            "variable_sets",
+            "parameter_sets",
+            "theta_sets",
+            "index_sets",
+            "constraints",
+            "functions",
+            "variables",
+            "thetas",
+            "indices",
+            "objectives",
+        ]
+
+        self.graph_components = ["edges", "nodes"]
 
         # map of attribute names to recipes for creating them
         self.attr_map: dict[str, dict[str, Recipe]] = {}
@@ -327,6 +348,17 @@ class Model(_Init):
         super().__setattr__(name, value)
 
     def __getattr__(self, name):
+
+        if name in self.dimension_map:
+            dimension = getattr(self, self.dimension_map[name])
+            collection = getattr(dimension, name)
+            setattr(self, name, collection)
+            return collection
+
+        if name in self.program_collections:
+            collection = getattr(self.program, name)
+            setattr(self, name, collection)
+            return collection
 
         # Only called when attribute does not exist
         if name in self._attr_map:

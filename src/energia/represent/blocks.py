@@ -5,10 +5,6 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Literal
 
-from ..components.commodity.currency import Currency
-from ..components.commodity.emission import Emission
-from ..components.commodity.land import Land
-from ..components.commodity.material import Material
 from ..components.commodity.resource import Resource
 from ..components.operation.transport import Transport
 from ..dimensions.consequence import Consequence
@@ -41,7 +37,15 @@ if TYPE_CHECKING:
 
 @dataclass
 class _Scope:
-    """Defines the scope of the model"""
+    """Defines the scope of the model.
+
+    :param update_map: Mapping used for updating internal structures (if applicable).
+    :type update_map: dict
+    :param time: Time representation of the Model (set during post-initialization).
+    :type time: Time
+    :param space: Spatial representation of the Model (set during post-initialization).
+    :type space: Space
+    """
 
     # meshes of space and time to denote whether a constraint is written
     # general resource balance
@@ -52,6 +56,34 @@ class _Scope:
         self.time = Time(self)
         # Spatial Scope
         self.space = Space(self)
+
+    @property
+    def horizon(self) -> Periods:
+        """The horizon of the Model"""
+        return self.time.horizon
+
+    @property
+    def network(self) -> Location:
+        """The network of the Model"""
+        return self.space.network
+
+
+@dataclass
+class _Mapping:
+    """Defines the scope of the model.
+
+    :param update_map: Mapping used for updating internal structures (if applicable).
+    :type update_map: dict
+    :param time: Time representation of the Model (set during post-initialization).
+    :type time: Time
+    :param space: Spatial representation of the Model (set during post-initialization).
+    :type space: Space
+    """
+
+    # meshes of space and time to denote whether a constraint is written
+    # general resource balance
+
+    def __post_init__(self):
 
         # Dictionary which tells you what aspects of resource
         # have grb {loc: time: []} and {time: loc: []}
@@ -72,16 +104,6 @@ class _Scope:
 
         self.maps: dict[Aspect, dict[Domain, dict[str, list[Domain]]]] = {}
         self.maps_report: dict[Aspect, dict[Domain, dict[str, list[Domain]]]] = {}
-
-    @property
-    def horizon(self) -> Periods:
-        """The horizon of the Model"""
-        return self.time.horizon
-
-    @property
-    def network(self) -> Location:
-        """The network of the Model"""
-        return self.space.network
 
     def update_dispositions(
         self,
@@ -119,26 +141,6 @@ class _Scope:
         if time not in self.grb[resource][space]:
             self.grb[resource][space][time] = []
 
-    @property
-    def periods(self) -> list[Periods]:
-        """The periods of the Model"""
-        return self.time.periods
-
-    @property
-    def modes(self) -> list[Modes]:
-        """The modes of the Model"""
-        return self.time.modes
-
-    @property
-    def locations(self) -> list[Location]:
-        """The Locations"""
-        return self.space.locations
-
-    @property
-    def linkages(self) -> list[Linkage]:
-        """The Links"""
-        return self.space.linkages
-
 
 @dataclass
 class _Impact:
@@ -148,21 +150,6 @@ class _Impact:
 
         # Impact on the exterior
         self.consequence = Consequence(self)
-
-    @property
-    def socs(self) -> list[Social]:
-        """The Soc Variables"""
-        return self.consequence.socs
-
-    @property
-    def envs(self) -> list[Environ]:
-        """The Env Variables"""
-        return self.consequence.envs
-
-    @property
-    def ecos(self) -> list[Economic]:
-        """The Eco Variables"""
-        return self.consequence.ecos
 
     @property
     def indicators(self) -> list[Social | Environ | Economic]:
@@ -177,31 +164,6 @@ class _Tree:
     def __post_init__(self):
         # Tree (Feasible Region)
         self.problem = Problem(self)
-
-    @property
-    def states(self) -> list[State]:
-        """The State Variables"""
-        return self.problem.states
-
-    @property
-    def controls(self) -> list[Control]:
-        """The Control Variables"""
-        return self.problem.controls
-
-    @property
-    def streams(self) -> list[Stream]:
-        """The Stream Variables"""
-        return self.problem.streams
-
-    @property
-    def impacts(self) -> list[Impact]:
-        """The Impact Variables"""
-        return self.problem.impacts
-
-    @property
-    def domains(self):
-        """The domains of the Model"""
-        return self.problem.domains
 
     def get(
         self,
@@ -245,15 +207,15 @@ class _Graph:
         # Graph (Network)
         self.graph = Graph(self)
 
-    @property
-    def edges(self) -> list[Linkage]:
-        """The Edges"""
-        return self.graph.edges
+    # @property
+    # def edges(self) -> list[Linkage]:
+    #     """The Edges"""
+    #     return self.graph.edges
 
-    @property
-    def nodes(self) -> list[Location]:
-        """The Nodes"""
-        return self.graph.nodes
+    # @property
+    # def nodes(self) -> list[Location]:
+    #     """The Nodes"""
+    #     return self.graph.nodes
 
 
 @dataclass
@@ -263,46 +225,6 @@ class _System:
     def __post_init__(self):
         # System (Resource Task Network)
         self.system = System(self)
-
-    @property
-    def resources(self) -> list[Resource]:
-        """The Resources"""
-        return self.system.resources
-
-    @property
-    def lands(self) -> list[Land]:
-        """The Lands"""
-        return self.system.lands
-
-    @property
-    def materials(self) -> list[Material]:
-        """The Materials"""
-        return self.system.materials
-
-    @property
-    def currencies(self) -> list[Currency]:
-        """The Currencies"""
-        return self.system.currencies
-
-    @property
-    def emissions(self) -> list[Emission]:
-        """The Emissions"""
-        return self.system.emissions
-
-    @property
-    def processes(self) -> list[Process]:
-        """The Processes"""
-        return self.system.processes
-
-    @property
-    def storages(self) -> list[Storage]:
-        """The Storages"""
-        return self.system.storages
-
-    @property
-    def transports(self) -> list[Transport]:
-        """The Transits"""
-        return self.system.transports
 
     @property
     def operations(self) -> list[Process | Storage | Transport]:
@@ -317,103 +239,7 @@ class _Program:
     def __post_init__(self):
         # mathematical (mixed integer) program
         self.program = Program(self.name)
-
-    @property
-    def _(self):
-        """gana program"""
-        return self.program
-
-    # -------------------------------------
-    #            Sets
-    # -------------------------------------
-
-    @property
-    def constraint_sets(self) -> list[Cons]:
-        """Constraint sets"""
-        return self.program.constraint_sets
-
-    @property
-    def function_sets(self) -> list[Func]:
-        """Function sets"""
-        return self.program.function_sets
-
-    @property
-    def variable_sets(self) -> list[V]:
-        """Variable sets"""
-        return self.program.variable_sets
-
-    @property
-    def parameter_sets(self) -> list[P]:
-        """Parameter sets"""
-        return self.program.parameter_sets
-
-    @property
-    def theta_sets(self) -> list[T]:
-        """Theta sets"""
-        return self.program.theta_sets
-
-    @property
-    def index_sets(self) -> list[str]:
-        """Index sets"""
-        return self.program.index_sets
-
-    # -------------------------------------
-    #            Elements
-    # -------------------------------------
-
-    @property
-    def constraints(self) -> list[Cons]:
-        """Constraints"""
-        return self.program.constraints
-
-    @property
-    def functions(self) -> list[Cons]:
-        """Functions"""
-        return self.program.functions
-
-    @property
-    def variables(self) -> list[V]:
-        """Variables"""
-        return self.program.variables
-
-    @property
-    def thetas(self) -> list[T]:
-        """Thetas"""
-        return self.program.thetas
-
-    @property
-    def indices(self) -> list[str]:
-        """Indices"""
-        return self.program.indices
-
-    @property
-    def objectives(self) -> list[Cons]:
-        """Objectives"""
-        return self.program.objectives
-
-    # -------------------------------------
-    #            Ordered Lists
-    # -------------------------------------
-
-    def cons(self) -> list[Cons]:
-        """Order list of constraints"""
-        return self.program.cons()
-
-    def contvars(self) -> list[V]:
-        """Order list of continuous variables"""
-        return self.program.contvars()
-
-    def intvars(self) -> list[V]:
-        """Order list of integer variables"""
-        return self.program.intvars()
-
-    def bnrvars(self) -> list[V]:
-        """Order list of binary variables"""
-        return self.program.bnrvars()
-
-    # -------------------------------------
-    #            Matrices
-    # -------------------------------------
+        self._ = self.program
 
     @property
     def A(self) -> list[list[float]]:
@@ -475,6 +301,15 @@ class _Program:
     def F(self) -> list[list[float]]:
         """F matrix for the constraints"""
         return self.program.F
+
+    # -------------------------------------
+    #            Solution
+    # -------------------------------------
+
+    @property
+    def solution(self) -> Solution:
+        """The solution of the program"""
+        return self.program.solution
 
     def make_A_df(self, longname: bool = False) -> DataFrame:
         """Create a DataFrame from the A matrix.
@@ -552,17 +387,28 @@ class _Program:
         return self.program.make_CrB_df(longname)
 
     # -------------------------------------
-    #            Solution
+    #            Ordered Lists
     # -------------------------------------
 
-    @property
-    def solution(self) -> Solution:
-        """The solution of the program"""
-        return self.program.solution
+    def cons(self) -> list[Cons]:
+        """Order list of constraints"""
+        return self.program.cons()
+
+    def contvars(self) -> list[V]:
+        """Order list of continuous variables"""
+        return self.program.contvars()
+
+    def intvars(self) -> list[V]:
+        """Order list of integer variables"""
+        return self.program.intvars()
+
+    def bnrvars(self) -> list[V]:
+        """Order list of binary variables"""
+        return self.program.bnrvars()
 
 
 @dataclass
-class _Init(_Scope, _Impact, _Tree, _Graph, _System, _Program):
+class _Init(_Scope, _Impact, _Tree, _Graph, _System, _Program, _Mapping):
     """Defines the representation of the model"""
 
     def __post_init__(self):
@@ -573,3 +419,4 @@ class _Init(_Scope, _Impact, _Tree, _Graph, _System, _Program):
         _Graph.__post_init__(self)
         _System.__post_init__(self)
         _Program.__post_init__(self)
+        _Mapping.__post_init__(self)
