@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from functools import cached_property
+from dataclasses import dataclass
 from typing import TYPE_CHECKING, Self
 
 from ...utils.math import normalize
@@ -17,6 +17,7 @@ if TYPE_CHECKING:
     from .bind import Bind
 
 
+@dataclass
 class Calculate:
     """
     Calculate the value of a dependent variable based on the value of another variable.
@@ -42,17 +43,18 @@ class Calculate:
     :vartype index: I
     """
 
-    def __init__(
+    calculation: Bind
+    decision: Bind
+
+    def __post_init__(
         self,
-        calculation: Bind,
-        decision: Bind,
     ):
-        self.decision = decision
-        self.calculation = calculation
-        self.domain = calculation.domain
-        self.name = calculation.name
-        self.program: Prg = decision.program
-        self.index = calculation.index
+        self.model = self.calculation.model
+        self.domain = self.calculation.domain
+        self.name = self.calculation.name
+        self.program = self.calculation.program
+        self.index = self.calculation.index
+
         self._forall: list[_X] = []
 
         # if nominal is provided
@@ -60,11 +62,6 @@ class Calculate:
         self._nominal: float = None
         # the input argument is normalized if True
         self._normalize: bool = False
-
-    @cached_property
-    def model(self) -> Model:
-        """Model to which the Calc belongs"""
-        return self.decision.model
 
     def forall(self, index) -> Self:
         """Write the constraint for all indices in the index set"""
@@ -80,14 +77,6 @@ class Calculate:
         self._nominal = nominal
         self._normalize = norm
         return self
-
-    def __call__(self, *index) -> Self:
-        # update the index and return a Calc object
-
-        return Calculate(
-            calculation=self.calculation(*index),
-            decision=self.decision(*index),
-        )
 
     def __eq__(self, other):
 
@@ -199,3 +188,9 @@ class Calculate:
 
                 calc.aspect.constraints.append(cons_name)
                 domain.update_cons(cons_name)
+
+    def __call__(self, *index) -> Self:
+        return Calculate(
+            calculation=self.calculation(*index),
+            decision=self.decision(*index),
+        )

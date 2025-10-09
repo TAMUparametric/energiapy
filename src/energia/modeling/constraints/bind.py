@@ -73,6 +73,8 @@ class Bind(_Generator):
 
     def __post_init__(self):
 
+        _Generator.__post_init__(self)
+
         # if the aspect is bound (operate for example)
         self.bound = self.aspect.bound
 
@@ -733,7 +735,7 @@ class Bind(_Generator):
     def __rmul__(self, other: int | float):
         return FBind(F=other * self.F, program=self.program)
 
-    def __call__(self, *index) -> V:
+    def __call__(self, *index) -> Self:
 
         index = list(set(self.domain.index_short + list(index)))
         v = self.aspect(*index)

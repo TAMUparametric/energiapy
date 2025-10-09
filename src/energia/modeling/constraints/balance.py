@@ -33,6 +33,8 @@ class Balance(_Generator):
 
     def __post_init__(self):
 
+        _Generator.__post_init__(self)
+
         # this is the disposition of the variable to be mapped
         # through time and space
 
@@ -144,7 +146,54 @@ class Balance(_Generator):
         else:
             stored = True
 
-        if not self.grb[commodity][loc][time]:
+        if (
+            not self.domain.link
+            and loc.isin
+            and commodity in self.grb
+            and loc.isin in self.grb[commodity]
+        ):
+
+            if (
+                loc.isin in self.grb[commodity]
+                and time in self.grb[commodity][loc.isin]
+                and self.grb[commodity][loc.isin][time]
+            ):
+
+                if self.domain.operation:
+                    print(
+                        f"--- General Resource Balance for {commodity} in ({loc.isin}, {time}): adding {self.aspect} from {self.domain.operation}",
+                    )
+                else:
+                    print(
+                        f"--- General Resource Balance for {commodity} in ({loc.isin}, {time}): adding {self.aspect}",
+                    )
+
+                start = keep_time.time()
+
+                _name = f"{commodity}_{loc.isin}_{time}_grb"
+
+                cons_grb = getattr(self.program, _name)
+                if self.aspect.ispos:  # or _signs[n]:
+                    setattr(
+                        self.program,
+                        _name,
+                        cons_grb + self(*self.domain).V(),
+                    )
+                else:
+                    setattr(
+                        self.program,
+                        _name,
+                        cons_grb - self(*self.domain).V(),
+                    )
+
+                end = keep_time.time()
+                print(f"    Completed in {end-start} seconds")
+
+                self.domain.update_cons(_name)
+                if _name not in self.aspect.constraints:
+                    self.aspect.constraints.append(_name)
+
+        elif not self.grb[commodity][loc][time]:
             # this checks whether a general commodity balance has been defined
             # for the commodity in that space and time
 
@@ -162,9 +211,9 @@ class Balance(_Generator):
             if stored and self.aspect.name == "inventory":
                 if len(time) == 1:
                     return
+
                 # if inventory is being add to GRB
                 lagged_domain = self.domain.change({"lag": -1 * time, "periods": None})
-
                 cons_grb = -self(*self.domain).V() + self(*lagged_domain).V() == 0
             elif self.aspect.ispos:  # or _signs[n]:
                 cons_grb = self(*self.domain).V() == 0
@@ -237,42 +286,6 @@ class Balance(_Generator):
         # ---- add aspect to GRB if not added already ----
 
         # check if the commodity is bound at a spatial index of a lower order
-        elif not self.domain.link and loc.isin:
-            if self.grb[commodity][loc.isin][time]:
-
-                if self.domain.operation:
-                    print(
-                        f"--- General Resource Balance for {commodity} in ({loc.isin}, {time}): adding {self.aspect} from {self.domain.operation}",
-                    )
-                else:
-                    print(
-                        f"--- General Resource Balance for {commodity} in ({loc.isin}, {time}): adding {self.aspect}",
-                    )
-
-                start = keep_time.time()
-
-                _name = f"{commodity}_{loc.isin}_{time}_grb"
-
-                cons_grb = getattr(self.program, _name)
-                if self.aspect.ispos:  # or _signs[n]:
-                    setattr(
-                        self.program,
-                        _name,
-                        cons_grb + self(*self.domain).V(),
-                    )
-                else:
-                    setattr(
-                        self.program,
-                        _name,
-                        cons_grb - self(*self.domain).V(),
-                    )
-
-                end = keep_time.time()
-                print(f"    Completed in {end-start} seconds")
-
-                self.domain.update_cons(_name)
-                if _name not in self.aspect.constraints:
-                    self.aspect.constraints.append(_name)
 
     def __eq__(self, other: Self):
         return is_(self.aspect, other.aspect) and self.domain == other.domain

@@ -12,8 +12,8 @@ if TYPE_CHECKING:
     from ..commodity.resource import Resource
     from ..spatial.linkage import Linkage
     from ..spatial.location import Location
-    from ..temporal.periods import Periods
     from ..temporal.lag import Lag
+    from ..temporal.periods import Periods
 
 
 @dataclass
@@ -113,7 +113,6 @@ class Transport(_Operation):
         shipping_conversion, rest_conversion = {self.conv.base: 1}, {
             k: v for k, v in conversion.items() if k != self.conv.base
         }
-        print(shipping_conversion, rest_conversion)
 
         for link_time in link_times:
             link, time = link_time
@@ -236,83 +235,6 @@ class Transport(_Operation):
                 _ = opr[rhs_export] == eff
                 _ = opr[rhs_import] == eff
 
-                # if len(time) > 1:
-                #     par = [par] * len(time)
-
-                # if _insitu:
-                #     # this initiates a grb
-                #     res.insitu = True
-                #     if upd_ship:
-                #         _ = rhs_export == True
-                #         _ = rhs_import == True
-                #     v_rhs_export = rhs_export.V(par)
-                #     v_rhs_import = rhs_import.V(par)
-
-                # if upd_ship:
-                #     if not _insitu:
-                #         v_rhs_export = rhs_export.V(par)
-                #         v_rhs_import = rhs_import.V(par)
-                #     v_lhs = lhs.V(par)
-                #     dom_export = rhs_export.domain
-                #     dom_import = rhs_import.domain
-
-                #     cons_name_export = (
-                #         f"operate_export_{res}_{self}_{link}_{time}_bal".replace(
-                #             "-",
-                #             "_",
-                #         )
-                #     )
-                #     cons_name_import = (
-                #         f"operate_import_{res}_{self}_{link}_{time}_bal".replace(
-                #             "-",
-                #             "_",
-                #         )
-                #     )
-
-                #     cons_export = v_lhs - eff * v_rhs_export == 0
-                #     cons_import = v_lhs - eff * v_rhs_import == 0
-
-                #     cons_export.categorize("Flow")
-                #     cons_import.categorize("Flow")
-
-                #     setattr(self.program, cons_name_export, cons_export)
-                #     setattr(self.program, cons_name_import, cons_import)
-                #     dom_export.update_cons(cons_name_export)
-                #     dom_import.update_cons(cons_name_import)
-
-                #     self.model.ship_out.constraints.append(cons_name_export)
-                #     self.model.ship_in.constraints.append(cons_name_import)
-                #     if upd_expend:
-                #         self.model.expend.constraints.append(cons_name_export)
-                #         self.model.expend.constraints.append(cons_name_import)
-                #     if upd_operate:
-                #         self.model.operate.constraints.append(cons_name_export)
-                #         self.model.operate.constraints.append(cons_name_import)
-
-                # else:
-
-                #     v_rhs = rhs.V(par)
-                #     v_lhs = lhs.V(par)
-
-                #     dom = rhs.domain
-
-                #     cons_name = f"operate_{res}_{self}_{link}_{time}_bal".replace(
-                #         "-",
-                #         "_",
-                #     )
-                #     cons = v_rhs == (1 / eff) * v_lhs
-
-                #     cons.categorize("Flow")
-
-                #     setattr(self.program, cons_name, cons)
-
-                #     dom.update_cons(cons_name)
-                #     if upd_expend:
-                #         self.model.expend.constraints.append(cons_name)
-                #     if upd_ship:
-                #         self.model.ship_out.constraints.append(cons_name)
-                #     if upd_operate:
-                #         self.model.operate.constraints.append(cons_name)
                 self.linkages.append(link)
 
     def __call__(self, resource: Resource | Conversion, lag: Lag = None) -> Conversion:

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 from warnings import warn
 
 from ...modeling.parameters.conversion import Conversion
@@ -63,7 +63,7 @@ class Process(_Operation):
         # if time != horizon, the individual streams are summed up anyway
         self.locations: list[Location] = []
 
-        self.ofstorage: Storage = None
+        self.ofstorage: Optional[Storage] = None
 
     @property
     def spaces(self) -> list[Location]:
@@ -156,7 +156,6 @@ class Process(_Operation):
 
             if loc in self.locations:
                 # if the process is already balanced for the location , Skip
-
                 continue
 
             for res, par in conversion.items():
@@ -171,11 +170,20 @@ class Process(_Operation):
 
                 # insitu resource (produced and expended within the system)
                 # do not initiate a grb so we need to run a check for that first
+
                 if res in self.model.grb:
+
                     time = time_checker(res, loc, time)
 
-                    if self.model.grb[res][loc][time]:
+                    if not loc in self.model.grb[res]:
+                        _insitu = True
+
+                    elif (
+                        time in self.model.grb[res][loc]
+                        and self.model.grb[res][loc][time]
+                    ):
                         _insitu = False
+
                     else:
                         _insitu = True
                 else:
@@ -275,12 +283,15 @@ class Process(_Operation):
             # update the locations at which the process exists
             self.locations.append(loc)
 
-    def __call__(self, resource: Resource | Conversion, lag: Lag = None) -> Conversion:
+    def __call__(
+        self, resource: Resource | Conversion, lag: Optional[Lag] = None
+    ) -> Conversion:
         """Conversion is called with a Resource to be converted"""
 
         if not self._conv:
             self.conv = Conversion(operation=self)
             self._conv = True
 
-        self.conv.lag = lag
+        if lag:
+            return self.conv(resource, lag)
         return self.conv(resource)

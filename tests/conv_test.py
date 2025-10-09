@@ -19,6 +19,9 @@ def m():
     _m.proc = Process()
     _m.proc(_m.c) == {100: _m.a - [20, 30, 40] * _m.b, 200: [20, 30, 40] * _m.b + _m.a}
 
+    _m.proc2 = Process()
+    _m.proc2(_m.c) == {0: [1, 2, 3] * _m.a, 1: _m.b}
+
     return _m
 
 
@@ -42,4 +45,10 @@ def test_conv(m):
     assert m.proc.conversion == {
         100: {m.c: [1.0, 1.0, 1.0], m.a: [1, 1, 1], m.b: [-20, -30, -40]},
         200: {m.c: [1.0, 1.0, 1.0], m.b: [20, 30, 40], m.a: [1, 1, 1]},
+    }
+
+    m.proc2.conv.balancer()
+    assert m.proc2.conversion == {
+        0: {m.c: [1.0, 1.0, 1.0], m.a: [1, 2, 3]},
+        1: {m.c: 1.0, m.b: 1.0},
     }
