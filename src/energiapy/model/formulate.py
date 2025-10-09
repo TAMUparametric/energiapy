@@ -160,7 +160,9 @@ from .constraints.demand import (
     constraint_demand_penalty_cost_location,
     constraint_demand_penalty_cost_network,
     constraint_backlog,
-    constraint_backlog_penalty_cost
+    constraint_backlog_penalty_cost,
+    constraint_backlog_penalty_cost_location,
+    constraint_backlog_penalty_cost_network
 )
 from .constraints.transport import (
     # constraint_transport_balance,
@@ -1027,6 +1029,7 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
                                                    scheduling_scale_level=scenario.scheduling_scale_level)
                 constraint_backlog_penalty_cost(instance=instance, backlog_penalty=backlog_penalty, backlog_penalty_factor=scenario.backlog_penalty_factor,
                                                 demand_scale_level=scenario.demand_scale_level, backlog_penalty_scale_level=scenario.backlog_penalty_scale_level,)
+                constraint_backlog_penalty_cost_location(instance=instance, demand_scale_level=scenario.demand_scale_level, network_scale_level=scenario.network_scale_level)
 
 
             constraint_demand_penalty(instance=instance, demand_scale_level=scenario.demand_scale_level,
@@ -1047,8 +1050,8 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
 
             constraint_demand_penalty_cost_network(instance=instance, network_scale_level=scenario.network_scale_level)
 
-            objective_cost_w_demand_penalty(instance=instance, demand_penalty=scenario.demand_penalty,
-                                            constraints=constraints, network_scale_level=scenario.network_scale_level, demand_scale_level=scenario.demand_scale_level)
+            objective_cost_w_demand_penalty(instance=instance,
+                                            constraints=constraints, network_scale_level=scenario.network_scale_level, isBacklog=isBacklog)
 
         elif objective == Objective.PROFIT_W_DEMAND_PENALTY:
             generate_demand_vars(

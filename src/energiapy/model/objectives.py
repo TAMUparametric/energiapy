@@ -78,8 +78,8 @@ def objective_cost(instance: ConcreteModel, constraints: Set[Constraints], netwo
     return instance.objective_cost
 
 
-def objective_cost_w_demand_penalty(instance: ConcreteModel, demand_penalty: Dict[Location, Dict[Resource, float]], constraints: Set[Constraints],
-                                    network_scale_level: int = 0, demand_scale_level: int = 0) -> Objective:
+def objective_cost_w_demand_penalty(instance: ConcreteModel, constraints: Set[Constraints],
+                                    network_scale_level: int = 0, isBacklog: bool = False) -> Objective:
     """Objective to minimize total cost with demand penalty
 
     Args:
@@ -92,8 +92,6 @@ def objective_cost_w_demand_penalty(instance: ConcreteModel, demand_penalty: Dic
     """
     scale_iter = scale_tuple(
         instance=instance, scale_levels=network_scale_level + 1)
-    scale_iter_penalty = scale_tuple(
-        instance=instance, scale_levels=demand_scale_level + 1)
 
     def objective_cost_w_demand_penalty_rule(instance):
         capex = sum(instance.Capex_network[scale_] for scale_ in scale_iter)
@@ -132,12 +130,12 @@ def objective_cost_w_demand_penalty(instance: ConcreteModel, demand_penalty: Dic
             cost_trans_vopex = 0
             cost_trans_fopex = 0
 
-        # penalty = sum(demand_penalty[location_][resource_]*instance.Demand_penalty[location_, resource_, scale_] for location_, resource_, scale_ in product(
-        #     instance.locations, instance.resources_demand, scale_iter_penalty))
-
-        penalty = sum(instance.Demand_penalty_cost_network[resource_, scale_] for resource_ in instance.resources_demand for scale_ in scale_iter)
-
-        return capex + cost_trans_capex + vopex + fopex + cost_purch + cost_trans_vopex + cost_trans_fopex + incidental + land_cost - credit + penalty + storage_cost
+        demand_penalty = sum(instance.Demand_penalty_cost_network[resource_, scale_] for resource_ in instance.resources_demand for scale_ in scale_iter)
+        if isBacklog:
+            backlog_penalty = sum(instance.Demand_penalty_cost_network[resource_, scale_] for resource_ in instance.resources_demand for scale_ in scale_iter)
+        else:
+            backlog_penalty = 0
+        return capex + cost_trans_capex + vopex + fopex + cost_purch + cost_trans_vopex + cost_trans_fopex + incidental + land_cost - credit + demand_penalty + storage_cost + backlog_penalty
     instance.objective_cost_w_demand_penalty = Objective(
         rule=objective_cost_w_demand_penalty_rule, doc='total cost with penalty for demand')
     constraint_latex_render(objective_cost_w_demand_penalty_rule)
