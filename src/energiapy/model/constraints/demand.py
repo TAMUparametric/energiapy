@@ -296,8 +296,6 @@ def constraint_demand_penalty(instance: ConcreteModel, demand: Union[dict, float
         Constraint: demand
     """
     scales = scale_list(instance=instance, scale_levels=demand_scale_level + 1)
-    # scales = scale_list(instance=instance,
-    #                     scale_levels=len(instance.scales))
     scale_iter = scale_tuple(instance=instance, scale_levels=scheduling_scale_level + 1)
     scale_iter_d = scale_tuple(instance=instance, scale_levels=demand_scale_level + 1)
 
@@ -656,7 +654,7 @@ def constraint_backlog_penalty_cost_location(instance: ConcreteModel, demand_sca
                 instance.Demand_backlog_cost[location, resource_demand, scale_[:demand_scale_level+1]]
                 for scale_ in scale_iter if scale_[:network_scale_level+1] == scale_list)
         else:
-            Constraint.Skip
+            return Constraint.Skip
 
     instance.constraint_backlog_cost_location = Constraint(instance.locations, instance.resources_demand,
                                                            *scales, rule=location_backlog_penalty_cost_rule,

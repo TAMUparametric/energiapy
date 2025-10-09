@@ -1030,6 +1030,7 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
                 constraint_backlog_penalty_cost(instance=instance, backlog_penalty=backlog_penalty, backlog_penalty_factor=scenario.backlog_penalty_factor,
                                                 demand_scale_level=scenario.demand_scale_level, backlog_penalty_scale_level=scenario.backlog_penalty_scale_level,)
                 constraint_backlog_penalty_cost_location(instance=instance, demand_scale_level=scenario.demand_scale_level, network_scale_level=scenario.network_scale_level)
+                constraint_backlog_penalty_cost_network(instance=instance, network_scale_level=scenario.network_scale_level)
 
 
             constraint_demand_penalty(instance=instance, demand_scale_level=scenario.demand_scale_level,
