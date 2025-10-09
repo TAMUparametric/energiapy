@@ -63,7 +63,7 @@ class Process(_Operation):
         # if time != horizon, the individual streams are summed up anyway
         self.locations: list[Location] = []
 
-        self.ofstorage: Storage = None
+        self.ofstorage: Optional[Storage] = None
 
     @property
     def spaces(self) -> list[Location]:
@@ -178,8 +178,12 @@ class Process(_Operation):
                     if not loc in self.model.grb[res]:
                         _insitu = True
 
-                    elif self.model.grb[res][loc][time]:
+                    elif (
+                        time in self.model.grb[res][loc]
+                        and self.model.grb[res][loc][time]
+                    ):
                         _insitu = False
+
                     else:
                         _insitu = True
                 else:

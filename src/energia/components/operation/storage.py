@@ -120,7 +120,7 @@ class Storage(_Component):
                 print(
                     f"--- Assuming inventory of {self.stored} is bound by inventory capacity in ({loc}, {time})",
                 )
-                print("asdasda", type(time))
+
                 _ = self.inventory(loc, time) <= 1
 
         # locate the charge and discharge processes

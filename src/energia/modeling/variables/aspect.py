@@ -130,6 +130,9 @@ class Aspect:
 
         self.constraints: list[str] = []
 
+        # this keeps track of whether GRB has already been added
+        self.grb: dict[tuple[Idx, ...], bool] = {}
+
     @property
     def maps(self) -> dict[Domain, dict[str, list[Domain]]]:
         """Maps of the decision"""
@@ -203,13 +206,6 @@ class Aspect:
     def horizon(self) -> Periods:
         """Circumscribing Periods (Temporal Scale)"""
         return self.model.horizon
-
-    @property
-    def grb(
-        self,
-    ) -> dict[_Commodity, dict[Location | Linkage, dict[Periods, list[Aspect]]]]:
-        """General _Commodity Balance dict"""
-        return self.model.grb
 
     @property
     def dispositions(self) -> dict[

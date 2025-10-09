@@ -224,7 +224,10 @@ class _Operation(_Component):
                 print(
                     f"--- Assuming operation of {self} is bound by capacity in ({space}, {self.horizon})",
                 )
-                if self in self.model.operate.dispositions:
+                if (
+                    self in self.model.operate.dispositions
+                    and space in self.model.operate.dispositions[self]
+                ):
 
                     _ = (
                         self.operate(
