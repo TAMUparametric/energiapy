@@ -116,6 +116,12 @@ class Aspect:
             list[Location | Linkage],
         ] = {}
 
+        # upper/lower/exact bounds are set on these locations/periods
+
+        self.ubs: dict[Location | Linkage, Periods] = {}
+        self.lbs: dict[Location | Linkage, Periods] = {}
+        self.eqs: dict[Location | Linkage, Periods] = {}
+
         # Domains of the decision
         self.domains: list[Domain] = []
 
