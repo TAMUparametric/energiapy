@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 
     from ..._core._x import _X
     from ...represent.model import Model
-    from .bind import Bind
+    from ..variables.sample import Sample
 
 
 @dataclass
@@ -43,8 +43,8 @@ class Calculate:
     :vartype index: I
     """
 
-    calculation: Bind
-    decision: Bind
+    calculation: Sample
+    decision: Sample
 
     def __post_init__(
         self,
@@ -149,16 +149,16 @@ class Calculate:
             else:
                 # the aspect being calculated
                 if time:
-                    calc: Bind = self.calculation(time)
+                    calc: Sample = self.calculation(time)
                 else:
-                    calc: Bind = self.calculation
+                    calc: Sample = self.calculation
 
                 if self.decision.domain.modes:
                     # mode calculations, should map to modes
                     calc = calc(self.decision.domain.modes)
 
                 # the aspect the calculation is dependant on
-                decision: Bind = self.decision
+                decision: Sample = self.decision
                 if self.decision.report:
                     # incidental, v_inc_calc = P_inc*x_v
                     v_lhs = calc.Vinc(other)

@@ -16,8 +16,8 @@ if TYPE_CHECKING:
     from ...components.commodity.resource import Resource
     from ...components.operation._operation import _Operation
     from ...components.temporal.periods import Periods
-    from ...modeling.constraints.bind import Bind
     from ...represent.model import Model
+    from ..variables.sample import Sample
 
 
 @dataclass
@@ -49,7 +49,7 @@ class Conversion(_Name):
 
     resource: Resource = None
     operation: _Operation = None
-    bind: Bind = None
+    bind: Sample = None
 
     def __post_init__(self):
         self.name = f"η({self.operation})"

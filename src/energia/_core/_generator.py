@@ -10,18 +10,18 @@ if TYPE_CHECKING:
 
     from gana import Prg
 
-    from ...components.commodity.resource import Resource
-    from ...components.operation.process import Process
-    from ...components.operation.storage import Storage
-    from ...components.operation.transport import Transport
-    from ...components.spatial.linkage import Linkage
-    from ...components.spatial.location import Location
-    from ...components.temporal.periods import Periods
-    from ...dimensions.problem import Problem
-    from ...represent.model import Model
-    from ..indices.domain import Domain
-    from ..variables.aspect import Aspect
-    from .bind import Bind
+    from ..components.commodity.resource import Resource
+    from ..components.operation.process import Process
+    from ..components.operation.storage import Storage
+    from ..components.operation.transport import Transport
+    from ..components.spatial.linkage import Linkage
+    from ..components.spatial.location import Location
+    from ..components.temporal.periods import Periods
+    from ..dimensions.problem import Problem
+    from ..represent.model import Model
+    from ..modeling.indices.domain import Domain
+    from ..modeling.variables.aspect import Aspect
+    from ..modeling.variables.sample import Sample
 
 
 @dataclass
@@ -82,7 +82,7 @@ class _Generator(ABC):
         self,
     ) -> dict[
         Resource | Process | Storage | Transport,
-        dict[Location, dict[Periods | Linkage, list[Bind]]],
+        dict[Location, dict[Periods | Linkage, list[Sample]]],
     ]:
         """List of Bind at each disposition"""
         return self.model.grb

@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING
 
 from gana import sigma
 
-from ._generator import _Generator
+from ..._core._generator import _Generator
 
 if TYPE_CHECKING:
     from gana.sets.constraint import C

@@ -13,7 +13,7 @@ from ..._core._x import _X
 if TYPE_CHECKING:
     from gana.sets.constraint import C
 
-    from ...modeling.constraints.bind import Bind
+    from ...modeling.variables.sample import Sample
 
 
 @dataclass
@@ -36,7 +36,7 @@ class Modes(_X):
     """
 
     n_modes: int = 1
-    bind: Bind = None
+    bind: Sample = None
     parent: Self = None
     pos: int = None
 
