@@ -9,8 +9,8 @@ from typing import TYPE_CHECKING, Self
 
 from gana import sigma
 
+from ..._core._generator import _Generator
 from ...components.commodity.stored import Stored
-from ._generator import _Generator
 
 if TYPE_CHECKING:
     from gana.sets.function import F

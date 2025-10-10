@@ -24,9 +24,9 @@ if TYPE_CHECKING:
     from ...components.temporal.lag import Lag
     from ...components.temporal.modes import Modes
     from ...components.temporal.periods import Periods
-    from ...modeling.constraints.bind import Bind
     from ...represent.model import Model
     from ..variables.aspect import Aspect
+    from ..variables.sample import Sample
 
 
 @dataclass
@@ -104,7 +104,7 @@ class Domain:
     modes: Optional[Modes] = None
 
     # These can be summed over
-    binds: Optional[list[Bind]] = field(default_factory=list)
+    binds: Optional[list[Sample]] = field(default_factory=list)
 
     def __post_init__(self):
         # Domains are structured something like this:
@@ -271,7 +271,7 @@ class Domain:
     @property
     def index_short(
         self,
-    ) -> list[Indicator | _Commodity | Process | Storage | Transport | Bind]:
+    ) -> list[Indicator | _Commodity | Process | Storage | Transport | Sample]:
         """Set of indices"""
         return self.index_primary + self.binds
 
@@ -305,7 +305,7 @@ class Domain:
         return [b.aspect for b in self.binds]
 
     @property
-    def args(self) -> dict[str, _X | Lag | Modes | list[Bind]]:
+    def args(self) -> dict[str, _X | Lag | Modes | list[Sample]]:
         """Dictionary of indices"""
         return {
             "indicator": self.indicator,
@@ -323,7 +323,7 @@ class Domain:
         }
 
     @property
-    def dictionary(self) -> dict[str, _X | Lag | Modes | list[Bind]]:
+    def dictionary(self) -> dict[str, _X | Lag | Modes | list[Sample]]:
         """Dictionary of indices"""
         return {
             "primary": self.primary,
