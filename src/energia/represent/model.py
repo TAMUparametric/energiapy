@@ -57,8 +57,8 @@ if TYPE_CHECKING:
     from gana.sets.index import I
 
     from .._core._component import _Component
-    from ..modeling.constraints.bind import Bind
     from ..modeling.variables.aspect import Aspect
+    from ..modeling.variables.sample import Sample
 
 
 @dataclass
@@ -235,7 +235,7 @@ class Model(Mapper):
         self.conversions: list[Conversion] = []  # not added to program
         self.convmatrix: dict[Process, dict[Resource, int | float | list]] = {}
 
-        self.modes_dict: dict[Bind, Modes] = {}
+        self.modes_dict: dict[Sample, Modes] = {}
 
         # if SI units have been set
         self.siunits_set: bool = False
@@ -619,7 +619,7 @@ class Model(Mapper):
         else:
             raise ValueError(f"Unknown type {as_type} for saving the model")
 
-    def draw(self, variable: Aspect | Bind):
+    def draw(self, variable: Aspect | Sample):
         """Draw the solution for a variable"""
         self.program.draw(variable.V())
 
