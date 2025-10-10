@@ -20,10 +20,17 @@ class Bind:
     """Bind constraint
 
     :param sample: The sample variable to bind
+    :type sample: Sample
     :param bound: The bound value
+    :type bound: float | list[float] | dict[float, float] | tuple[float, float] | list[tuple[float, float]]
     :param leq: If True, the sample is constrained to be less than or equal to the bound
+    :type leq: bool
     :param geq: If True, the sample is constrained to be greater than or equal to the bound
+    :type geq: bool
     :param eq: If True, the sample is constrained to be equal to the bound
+    :type eq: bool
+    :param forall: If provided, the constraint is applied for all elements in this list
+    :type forall: list[_X | _Component] | None
     """
 
     def __init__(
@@ -39,7 +46,7 @@ class Bind:
         leq: bool = False,
         geq: bool = False,
         eq: bool = False,
-        forall: list[_X | _Component] = None,
+        forall: list[_X | _Component] | None = None,
     ):
         self.sample = sample
         self.parameter = parameter
@@ -112,9 +119,9 @@ class Bind:
             modes_lb = [b[0] for b in mode_bounds]
             modes_ub = [b[1] for b in mode_bounds]
 
-            _ = self(modes) >= modes_lb
+            _ = self.sample(modes) >= modes_lb
 
-            _ = self(modes) <= modes_ub
+            _ = self.sample(modes) <= modes_ub
             return
 
         if self.nominal:

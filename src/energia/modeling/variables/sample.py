@@ -555,12 +555,12 @@ class Sample(_Generator):
     def __rmul__(self, other: int | float):
         return FBind(F=other * self.F, program=self.program)
 
-    def __call__(self, *index) -> V:
+    def __call__(self, *index) -> Self:
 
         index = list(set(self.domain.index_short + list(index)))
-        v = self.aspect(*index)
-        v.report = self.report
-        return v
+        sample = self.aspect(*index)
+        sample.report = self.report
+        return sample
 
     def __getitem__(self, dependent: Sample):
         if isinstance(dependent, int):
