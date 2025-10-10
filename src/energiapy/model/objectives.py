@@ -435,8 +435,10 @@ def objective_time_to_recover(instance: ConcreteModel, network_scale_level:int=0
         instance=instance, scale_levels=network_scale_level + 1)
 
     def objective_time_to_recover_rule(instance):
-        return sum(instance.Demand_backlog_cost_network[resource_, scale_]
-                   for resource_ in instance.resources_demand for scale_ in scale_iter)
+        return (sum(instance.Demand_backlog_cost_network[resource_, scale_]
+                   for resource_ in instance.resources_demand for scale_ in scale_iter) +
+                sum(instance.Demand_penalty_cost_network[resource_, scale_]
+                    for resource_ in instance.resources_demand for scale_ in scale_iter))
 
     instance.objective_time_to_recover = Objective(rule=objective_time_to_recover_rule, doc='minimize time to recovery')
     constraint_latex_render(objective_time_to_recover_rule)
