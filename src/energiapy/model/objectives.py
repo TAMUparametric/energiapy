@@ -131,10 +131,12 @@ def objective_cost_w_demand_penalty(instance: ConcreteModel, constraints: Set[Co
             cost_trans_fopex = 0
 
         demand_penalty = sum(instance.Demand_penalty_cost_network[resource_, scale_] for resource_ in instance.resources_demand for scale_ in scale_iter)
+
         if isBacklog:
-            backlog_penalty = sum(instance.Demand_penalty_cost_network[resource_, scale_] for resource_ in instance.resources_demand for scale_ in scale_iter)
+            backlog_penalty = sum(instance.Demand_backlog_cost_network[resource_, scale_] for resource_ in instance.resources_demand for scale_ in scale_iter)
         else:
             backlog_penalty = 0
+
         return capex + cost_trans_capex + vopex + fopex + cost_purch + cost_trans_vopex + cost_trans_fopex + incidental + land_cost - credit + demand_penalty + storage_cost + backlog_penalty
     instance.objective_cost_w_demand_penalty = Objective(
         rule=objective_cost_w_demand_penalty_rule, doc='total cost with penalty for demand')
@@ -417,8 +419,7 @@ def objective_emission_min(instance: ConcreteModel, network_scale_level: int = 0
     constraint_latex_render(objective_emission_min_rule)
     return instance.objective_emission_min
 
-def objective_time_to_recover(instance: ConcreteModel, isBacklog: bool, backlog_wt:dict = dict(),
-                              demand_scale_level:int=0, backlog_penalty_scale_level:int=0, network_scale_level:int=0) -> Objective:
+def objective_time_to_recover(instance: ConcreteModel, network_scale_level:int=0) -> Objective:
     """
 
     Args:
@@ -429,3 +430,15 @@ def objective_time_to_recover(instance: ConcreteModel, isBacklog: bool, backlog_
     Returns:
 
     """
+
+    scale_iter = scale_tuple(
+        instance=instance, scale_levels=network_scale_level + 1)
+
+    def objective_time_to_recover_rule(instance):
+        return sum(instance.Demand_backlog_cost_network[resource_, scale_]
+                   for resource_ in instance.resources_demand for scale_ in scale_iter)
+
+    instance.objective_time_to_recover = Objective(rule=objective_time_to_recover_rule, doc='minimize time to recovery')
+    constraint_latex_render(objective_time_to_recover_rule)
+
+    return instance.objective_time_to_recover

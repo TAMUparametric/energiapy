@@ -1015,7 +1015,7 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
                 instance=instance, network_scale_level=scenario.network_scale_level,
                 gwp_reduction_pct=gwp_reduction_pct, gwp=gwp)
 
-        if objective == Objective.COST_W_DEMAND_PENALTY:
+        if objective == Objective.COST_W_DEMAND_PENALTY or objective == Objective.TIME_TO_RECOVER:
             generate_demand_vars(
                 instance=instance, scale_level=scenario.demand_scale_level)
 
@@ -1051,7 +1051,13 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
 
             constraint_demand_penalty_cost_network(instance=instance, network_scale_level=scenario.network_scale_level)
 
-            objective_cost_w_demand_penalty(instance=instance,
+            if objective == Objective.TIME_TO_RECOVER:
+                if not isBacklog:
+                    raise ValueError('NOPE!!')
+                else:
+                    objective_time_to_recover(instance=instance, network_scale_level=scenario.network_scale_level)
+            else:
+                objective_cost_w_demand_penalty(instance=instance,
                                             constraints=constraints, network_scale_level=scenario.network_scale_level, isBacklog=isBacklog)
 
         elif objective == Objective.PROFIT_W_DEMAND_PENALTY:
@@ -1137,8 +1143,11 @@ def formulate(scenario: Scenario, constraints: Set[Constraints] = None, objectiv
             objective_emission_min(instance=instance, network_scale_level=scenario.network_scale_level, gwp_w=scenario.emission_weights.gwp, odp_w=scenario.emission_weights.odp, acid_w=scenario.emission_weights.acid,
                                    eutt_w=scenario.emission_weights.eutt, eutf_w=scenario.emission_weights.eutf, eutm_w=scenario.emission_weights.eutm)
 
-        if objective == Objective.TIME_TO_RECOVER:
-            objective_time_to_recover(instance=instance, isBacklog=isBacklog, backlog_wt = backlog_penalty)
+        # if objective == Objective.TIME_TO_RECOVER:
+        #     if isBacklog:
+        #         objective_time_to_recover(instance=instance, network_scale_level=scenario.network_scale_level)
+        #     else:
+        #         raise ValueError("Need Backlog Cost to minimize time to recover")
 
         if scenario.capacity_bounds is not None:
             constraint_min_capacity_facility(instance=instance, location_process_dict=scenario.location_process_dict,
