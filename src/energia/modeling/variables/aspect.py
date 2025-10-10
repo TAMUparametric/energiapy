@@ -23,8 +23,8 @@ from ...components.temporal.modes import Modes
 from ...components.temporal.periods import Periods
 from ...dimensions.space import Space
 from ...dimensions.time import Time
-from ..constraints.bind import Bind
 from ..indices.domain import Domain
+from .sample import Sample
 
 if TYPE_CHECKING:
     from gana import I as Idx
@@ -304,26 +304,12 @@ class Aspect:
                 Modes: ("modes", None, False),
                 _Commodity: ("commodity", None, True),
             }
-            # (
-            #     indicator,
-            #     commodity,
-            #     player,
-            #     process,
-            #     storage,
-            #     transport,
-            #     period,
-            #     couple,
-            #     loc,
-            #     link,
-            #     lag,
-            #     modes,
-            # ) = (None for _ in range(12))
 
-            binds: list[Bind] = []
+            binds: list[Sample] = []
             timed, spaced = False, False
 
             for comp in index:
-                if isinstance(comp, Bind):
+                if isinstance(comp, Sample):
                     binds.append(comp)
                     for b in binds:
                         if b.domain.binds:
@@ -363,7 +349,7 @@ class Aspect:
         else:
             timed = spaced = True
 
-        return Bind(aspect=self, domain=domain, timed=timed, spaced=spaced)
+        return Sample(aspect=self, domain=domain, timed=timed, spaced=spaced)
 
     def draw(
         self,

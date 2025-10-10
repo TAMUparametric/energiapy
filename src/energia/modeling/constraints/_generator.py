@@ -28,7 +28,7 @@ if TYPE_CHECKING:
     # from ..variables.impact import Impact
     # from ..variables.state import State
     # from ..variables.stream import Stream
-    from .bind import Bind
+    from ..variables.sample import Sample
 
 
 @dataclass
@@ -95,7 +95,7 @@ class _Generator(_Name):
         self,
     ) -> dict[
         Resource | Process | Storage | Transport,
-        dict[Location, dict[Periods | Linkage, list[Bind]]],
+        dict[Location, dict[Periods | Linkage, list[Sample]]],
     ]:
         """List of Bind at each disposition"""
         return self.model.grb

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from functools import cached_property
-from typing import TYPE_CHECKING, Self
+from typing import TYPE_CHECKING, Optional, Self
 
 from gana import I
 
@@ -13,7 +13,7 @@ from ..._core._x import _X
 if TYPE_CHECKING:
     from gana.sets.constraint import C
 
-    from ...modeling.constraints.bind import Bind
+    from ...modeling.variables.sample import Sample
 
 
 @dataclass
@@ -36,9 +36,9 @@ class Modes(_X):
     """
 
     n_modes: int = 1
-    bind: Bind = None
-    parent: Self = None
-    pos: int = None
+    bind: Optional[Sample] = None
+    parent: Optional[Self] = None
+    pos: Optional[int] = None
 
     def __post_init__(self):
         _X.__post_init__(self)

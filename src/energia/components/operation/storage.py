@@ -14,7 +14,7 @@ from .process import Process
 if TYPE_CHECKING:
     from gana.sets.constraint import C
 
-    from ...modeling.constraints.bind import Bind
+    from ...modeling.variables.sample import Sample
     from ..commodity.resource import Resource
     from ..spatial.location import Location
 
@@ -130,22 +130,22 @@ class Storage(_Component):
         # self.writecons_conversion(loc_times)
 
     @property
-    def capacity(self) -> Bind:
+    def capacity(self) -> Sample:
         """Reports invcapacity as capacity"""
         return self.stored.invcapacity
 
     @property
-    def setup(self) -> Bind:
+    def setup(self) -> Sample:
         """Reports invsetup as setup"""
         return self.stored.invsetup
 
     @property
-    def dismantle(self) -> Bind:
+    def dismantle(self) -> Sample:
         """Reports invdismantle as dismantle"""
         return self.stored.invdismantle
 
     @property
-    def inventory(self) -> Bind:
+    def inventory(self) -> Sample:
         """Inventory of the stored resource"""
         return self.stored.inventory
 
