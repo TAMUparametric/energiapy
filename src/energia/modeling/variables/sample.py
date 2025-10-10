@@ -9,14 +9,12 @@ from typing import TYPE_CHECKING, Optional, Self
 
 from gana import I as Idx
 from gana import V, inf, sigma, sup
-from gana.sets.function import F
 
 from ..._core._generator import _Generator
 from ..constraints.bind import Bind
 from ..constraints.calculate import Calculate
 
 if TYPE_CHECKING:
-    from gana.block.program import Prg
     from gana.sets.constraint import C
 
     from ..._core._component import _Component
@@ -177,7 +175,8 @@ class Sample(_Generator):
             - parameters and length are mutually exclusive
         """
 
-        # with lag it is assumed that the variable of which this is a lagged subset is already defined
+        # with lag it is assumed that the variable of which this is a lagged subset is
+        # already defined
         # for example, if opr_t = opr_t-1 + x_t, then opr_t is already defined
         if self.domain.lag:
             # t - 1 is made after t, so no need to set a new one
@@ -492,7 +491,7 @@ class Sample(_Generator):
         """Solution
 
         Args:
-            aslist (bool, optional): Returns the solution as a list, otherwise as a variable
+            aslist (bool, optional): Returns the solution as list, otherwise as a variable
         """
         return self.V().sol(aslist=aslist)
 
@@ -534,29 +533,6 @@ class Sample(_Generator):
         print(f"--- Bind {self} < {other} is being written as {self} <= {other}")
         _ = self <= other
 
-    def __add__(self, other: Self | FBind):
-        if isinstance(other, (int, float)):
-            return FBind(F=self.F + other, program=self.program)
-        return FBind(F=self.F + other.F, program=self.program)
-
-    def __radd__(self, other):
-        if not other:
-            return self
-
-    def __sub__(self, other: Self | FBind):
-        if isinstance(other, (int, float)):
-            return FBind(F=self.F - other, program=self.program)
-        return FBind(F=self.F - other.F, program=self.program)
-
-    def __rsub__(self, other: int | float):
-        return FBind(F=other - self.F, program=self.program)
-
-    def __mul__(self, other: Self | FBind):
-        return FBind(F=self.F * other.F, program=self.program)
-
-    def __rmul__(self, other: int | float):
-        return FBind(F=other * self.F, program=self.program)
-
     def __call__(self, *index) -> Self:
 
         index = list(set(self.domain.index_short + list(index)))
@@ -585,45 +561,71 @@ class Sample(_Generator):
         v.draw(**kwargs)
 
 
-class FBind:
-    """Function Bind
+# This is for binding sample operations, eg. sample + sample or sample - sample
 
-    This is used to bind a function of variables to a given parameter (set)
 
-    """
+#    def __add__(self, other: Self | FBind):
+#         if isinstance(other, (int, float)):
+#             return FBind(F=self.F + other, program=self.program)
+#         return FBind(F=self.F + other.F, program=self.program)
 
-    def __init__(self, F: F, program: Prg):
-        self.program = program
-        self.F = F
+#     def __radd__(self, other):
+#         if not other:
+#             return self
 
-    def __add__(self, other: Self | Sample):
-        if isinstance(other, (int, float)):
-            return FBind(F=self.F + other, program=self.program)
-        return FBind(F=self.F + other.F, program=self.program)
+#     def __sub__(self, other: Self | FBind):
+#         if isinstance(other, (int, float)):
+#             return FBind(F=self.F - other, program=self.program)
+#         return FBind(F=self.F - other.F, program=self.program)
 
-    def __radd__(self, other):
-        if not other:
-            return self
+#     def __rsub__(self, other: int | float):
+#         return FBind(F=other - self.F, program=self.program)
 
-    def __sub__(self, other: Self | Sample):
-        if isinstance(other, (int, float)):
-            return FBind(F=self.F - other, program=self.program)
-        return FBind(F=self.F - other.F, program=self.program)
+#     def __mul__(self, other: Self | FBind):
+#         return FBind(F=self.F * other.F, program=self.program)
 
-    def __rsub__(self, other: int | float):
-        return FBind(F=other - self.F, program=self.program)
+#     def __rmul__(self, other: int | float):
+#         return FBind(F=other * self.F, program=self.program)
 
-    def __mul__(self, other: Self | Sample):
-        return FBind(F=self.F * other.F, program=self.program)
+# class FBind:
+#     """Function Bind
 
-    def __rmul__(self, other: int | float):
-        return FBind(F=other * self.F, program=self.program)
+#     This is used to bind a function of variables to a given parameter (set)
 
-    def __eq__(self, other):
-        setattr(self.program, f"eq_{self.F.name}", self.F == other)
+#     """
 
-    def __le__(self, other):
-        setattr(self.program, f"le_{self.F.name}", self.F <= other)
+#     def __init__(self, F: F, program: Prg):
+#         self.program = program
+#         self.F = F
 
-    def __ge__(self, other):
-        setattr(self.program, f"ge_{self.F.name}", self.F >= other)
+#     def __add__(self, other: Self | Sample):
+#         if isinstance(other, (int, float)):
+#             return FBind(F=self.F + other, program=self.program)
+#         return FBind(F=self.F + other.F, program=self.program)
+
+#     def __radd__(self, other):
+#         if not other:
+#             return self
+
+#     def __sub__(self, other: Self | Sample):
+#         if isinstance(other, (int, float)):
+#             return FBind(F=self.F - other, program=self.program)
+#         return FBind(F=self.F - other.F, program=self.program)
+
+#     def __rsub__(self, other: int | float):
+#         return FBind(F=other - self.F, program=self.program)
+
+#     def __mul__(self, other: Self | Sample):
+#         return FBind(F=self.F * other.F, program=self.program)
+
+#     def __rmul__(self, other: int | float):
+#         return FBind(F=other * self.F, program=self.program)
+
+#     def __eq__(self, other):
+#         setattr(self.program, f"eq_{self.F.name}", self.F == other)
+
+#     def __le__(self, other):
+#         setattr(self.program, f"le_{self.F.name}", self.F <= other)
+
+#     def __ge__(self, other):
+#         setattr(self.program, f"ge_{self.F.name}", self.F >= other)

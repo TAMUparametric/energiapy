@@ -18,10 +18,10 @@ if TYPE_CHECKING:
     from ..components.spatial.location import Location
     from ..components.temporal.periods import Periods
     from ..dimensions.problem import Problem
-    from ..represent.model import Model
     from ..modeling.indices.domain import Domain
     from ..modeling.variables.aspect import Aspect
     from ..modeling.variables.sample import Sample
+    from ..represent.model import Model
 
 
 @dataclass
