@@ -12,6 +12,8 @@ if TYPE_CHECKING:
     from gana.sets.constraint import C
 
     from ..._core._x import _X
+    from ...components.spatial.linkage import Linkage
+    from ...components.spatial.location import Location
     from ...components.temporal.periods import Periods
     from ..indices.domain import Domain
     from ..variables.aspect import Aspect
@@ -129,12 +131,24 @@ class Balance:
 
         return True
 
-    def _create_constraint(self, name: str, stored: bool, time: Periods) -> bool:
+    def _create_constraint(
+        self, name: str, stored: bool, time: Periods, space: Location | Linkage
+    ) -> bool:
         """Creates a new GRB constraint"""
 
         if stored and self.aspect.name == "inventory":
 
             if len(time) == 1:
+                return False
+
+            # TODO: potential bug here
+            # this avoids writing inv_ntw_t - inv_ntw_t-1 = 0
+            # the need for this check is absurd
+            # it ensures that inventory balances are not created for the network directly
+            # when location-wise inventory balances can be written
+            # this is a temporary fix and needs to be generalized
+            if self.model.network.has and space.isnetwork:
+                # if the location is a network, we cannot have storage
                 return False
 
             # if inventory is being add to GRB
@@ -161,10 +175,21 @@ class Balance:
     def writecons_grb(self, commodity, loc, time):
         """Writes the stream balance constraint"""
 
+        if (
+            loc.isin is not None
+            and not self.grb[commodity][loc][time]
+            and self.grb[commodity][loc.isin][time]
+        ):
+            # if the location is in another location
+            # and there is no GRB for that location
+            # work with the parent location
+            loc = loc.isin
+
         _name = f"{commodity}_{loc}_{time}_grb"
 
         if isinstance(commodity, Stored):
             stored = True
+
         else:
             stored = False
 
@@ -187,13 +212,14 @@ class Balance:
 
             start = keep_time.time()
 
-            made = self._create_constraint(_name, stored, time)
+            made = self._create_constraint(_name, stored, time, loc)
 
         # ---- add aspect to GRB if not added already ----
 
         # elif self not in self.grb[commodity][loc][time]:
 
         else:
+
             print(
                 f"--- General Resource Balance for {commodity} in ({loc}, {time}): adding {self.aspect}{self.domain}",
             )

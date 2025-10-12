@@ -145,31 +145,44 @@ class Map:
                 self.writecons_map(from_domain, self.domain, tsum=True)
 
     def _map_across_space(self, dispositions, contained_locs, parent_loc, time):
-        for location in contained_locs:
-            if location not in dispositions or time not in dispositions[location]:
-                # the aspect is already defined at this location
-                # we need to check if it is defined for any periods sparser than time
-                continue
-            binds = dispositions[location][time]
-            if not binds:
-                self.writecons_map(
-                    self.domain.change({"location": location}), self.domain
-                )
-            else:
-                new_binds = [k(list(v)[0]) for k, v in binds.items()]
-                # consider the case where overall consumption for water in some location and time is defined
-                # now user defines consumption due to using cement during construction
-                # we should have the constraint consume(water, goa, 2025) = consume(water, goa, 2025, use, cement)
-                # in that case, binds is just []
-                self.writecons_map(
-                    self.domain.change({"location": location, "binds": new_binds}),
-                    self.domain,
-                )
 
-        if parent_loc in dispositions:
+        parent_loc = self.domain.location.isin
+
+        if parent_loc:
+            if parent_loc not in dispositions or time not in dispositions[parent_loc]:
+                return
             self.writecons_map(
-                self.domain, self.domain.change({"location": parent_loc})
+                self.domain,
+                self.domain.change({"location": parent_loc}),
             )
+
+        # for location in contained_locs:
+        #     if location not in dispositions or time not in dispositions[location]:
+        #         # the aspect is already defined at this location
+        #         # we need to check if it is defined for any periods sparser than time
+        #         continue
+        #     # binds = dispositions[location][time]
+        #     # if not binds:
+
+        #     print('asdadada', location, self.domain)
+        #     self.writecons_map(self.domain.change({"location": location}), self.domain)
+        # else:
+        #     new_binds = [k(list(v)[0]) for k, v in binds.items()]
+        #     print('aaaa', self.aspect, new_binds, self.domain)
+        #     # consider the case where overall consumption for water in some location and time is defined
+        #     # now user defines consumption due to using cement during construction
+        #     # we should have the constraint consume(water, goa, 2025) = consume(water, goa, 2025, use, cement)
+        #     # in that case, binds is just []
+        #     self.writecons_map(
+        #         self.domain.change({"location": location, "binds": new_binds}),
+        #         self.domain,
+        #     )
+
+        # if parent_loc in dispositions:
+
+        #     self.writecons_map(
+        #         self.domain, self.domain.change({"location": parent_loc})
+        #     )
 
     def _map_across_binds(self, dispositions, space, time):
         if self.domain.binds or not dispositions[space][time]:
@@ -248,6 +261,7 @@ class Map:
             return sigma(v(*domain.Ilist), domain.modes.I)
         # the copy is important since otherwise, the printing will take
         # the update index if the variable is mutated
+
         return v(*domain.Ilist).copy()
 
     # ---------------------------------------------------------------------- #
@@ -257,6 +271,7 @@ class Map:
         self, from_domain: Domain, to_domain: Domain, tsum=False, msum=False
     ):
         """Scales up variable to a lower dimension"""
+
         if to_domain not in self.maps:
             self.maps[to_domain] = [from_domain]
             exists = False
