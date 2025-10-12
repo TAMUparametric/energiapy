@@ -2,10 +2,13 @@
 
 from __future__ import annotations
 
+from collections import defaultdict
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from typing import DefaultDict
+
     from ..components.commodity.resource import Resource
 
     # from ..components.impact.categories import Economic, Environ, Social
@@ -22,6 +25,10 @@ if TYPE_CHECKING:
 
     # from ..modeling.variables.control import Control
     # from ..modeling.variables.states import Impact, State, Stream
+
+    GRBType = DefaultDict[
+        Resource, DefaultDict[Location | Linkage, DefaultDict[Periods, list[Aspect]]]
+    ]
 
 
 @dataclass
@@ -46,7 +53,7 @@ class Mapper:
         self.grb: dict[
             Resource,
             dict[Location | Linkage, dict[Periods, list[Aspect]]],
-        ] = {}
+        ] = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
 
         # Dictionary which tells you what aspects of what component
         # have been bound at what location and time
@@ -86,13 +93,4 @@ class Mapper:
     def update_grb(self, resource: Resource, space: Location | Linkage, time: Periods):
         """Creates a mesh for grb dict"""
 
-        if resource not in self.grb:
-            # update resource if needed
-            self.grb[resource] = {}
-
-        if space not in self.grb[resource]:
-            # update space if needed
-            self.grb[resource][space] = {}
-
-        if time not in self.grb[resource][space]:
-            self.grb[resource][space][time] = []
+        _ = self.grb[resource][space][time]

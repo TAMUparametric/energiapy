@@ -54,17 +54,7 @@ class Balance(_Generator):
         else:
             loc = self.domain.location
 
-        # if no time is provided, take a default period
-        if time is None:
-            time = self.model.default_period()
-
-        if commodity not in self.grb:
-            self.model.update_grb(commodity, space=loc, time=time)
-
-        # self.model.update_grb(commodity=commodity, space=loc, time=time)
-        if time not in self.grb[commodity][loc]:
-            # this is only used if times are being declared dynamically (based on parameter set sizes)
-            self.model.update_grb(commodity=commodity, time=time, space=loc)
+        self.model.update_grb(commodity, loc, time)
 
         if not binds and commodity:
             # if no binds, then create GRB or append to exisiting GRB
