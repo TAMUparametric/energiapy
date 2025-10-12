@@ -224,7 +224,7 @@ class Sample(_Generator):
             """Assigns to network is spatial index is not given"""
             # if spatial index is not explicity given
             # default to the network
-            self.domain.loc = self.aspect.network
+            self.domain.location = self.aspect.network
 
         if not self.spaced:
             # if the spatial index is not passed
@@ -323,7 +323,7 @@ class Sample(_Generator):
                 self.model.update_grb(
                     self.domain.commodity,
                     time=self.domain.periods,
-                    space=self.domain.loc,
+                    space=self.domain.location,
                 )
 
             # this lets all index elements in the domain know
@@ -338,7 +338,7 @@ class Sample(_Generator):
 
             # for the same aspect, map variables with higher order indices
             # to variables with lower order indices
-            self.aspect.map_domain(self.domain)
+            self.aspect.update(self.domain)
 
             self.aspect.domains.append(self.domain)
 
@@ -440,7 +440,7 @@ class Sample(_Generator):
             self.domain.periods = self.model.horizon
         if not self.spaced:
             # if the spatial index is not passed
-            self.domain.loc = self.model.network
+            self.domain.location = self.model.network
 
         # consider all of self.domain
         v = self.V()
@@ -550,7 +550,7 @@ class Sample(_Generator):
         decision = self(*self.index_short)
         decision.report = self.report
 
-        return Calculate(calculation=calculation, decision=decision)
+        return Calculate(calculation=calculation, sample=decision)
 
         # variable.report = self.report
         # return Calculate(calc=dependent(*self.index), decision=variable)

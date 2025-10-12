@@ -151,10 +151,9 @@ class Process(_Operation):
         else:
             conversion = self.conversion
 
-        for loc_time in loc_times:
-            loc, time = loc_time
+        for location, time in loc_times:
 
-            if loc in self.locations:
+            if location in self.locations:
                 # if the process is already balanced for the location , Skip
                 continue
 
@@ -172,78 +171,26 @@ class Process(_Operation):
                 # do not initiate a grb so we need to run a check for that first
 
                 if res in self.model.grb:
-
-                    time = time_checker(res, loc, time)
-
-                    if not loc in self.model.grb[res]:
-                        _insitu = True
-
-                    elif (
-                        time in self.model.grb[res][loc]
-                        and self.model.grb[res][loc][time]
-                    ):
-                        _insitu = False
-
-                    else:
-                        _insitu = True
+                    time = time_checker(res, location, time)
+                    _ = self.model.grb[res].get(location, {})
                 else:
-                    # this implies that the grb needs to be initiated
-                    # by declaring relevant variable
-                    # the relevant variable will be unbounded
-                    _insitu = True
-
-                # upd_expend, upd_produce, upd_operate = False, False, False
-
-                if isinstance(par, (int | float)) and par < 0:
-                    # if par == 0:
-                    #     continue
-
-                    # if par < 0:
-                    # condition: negative number
-                    eff = -par
-                    if self.lag:
-                        opr = self.operate(loc, self.lag.of)
-                        rhs = res.expend(self.operate, loc, self.lag.of)
-                    else:
-                        opr = self.operate(loc, time)
-                        rhs = res.expend(self.operate, loc, time)
-
-                elif isinstance(par, list) and par[0] < 0:
-                    # NOTE: this only checks the sign of the first element
-                    # if par[0] < 0:
-                    # condition: list with negative numbers
-                    eff = [-i for i in par]
-
-                    if self.lag:
-                        opr = self.operate(loc, self.lag.of)
-                        rhs = res.expend(self.operate, loc, self.lag.of)
-                    else:
-                        opr = self.operate(loc, time)
-                        rhs = res.expend(self.operate, loc, time)
-
-                    # if par[0] == 0:
-                    #     continue
-
-                else:
-                    # condition: positive number or list of positive numbers
-                    eff = par
-
-                    if self.lag:
-                        # Lag is considered on the outset
-                        # i.e. commodities are immediately consumed, and produced after lag
-                        opr = self.operate(loc, self.lag)
-                        rhs = res.produce(self.operate, loc, self.lag.of)
-                    else:
-                        opr = self.operate(loc, time)
-                        rhs = res.produce(self.operate, loc, time)
-
-                if _insitu:
-                    # this initiates a grb
                     res.insitu = True
-                    _ = rhs(self.operate, loc, time) == True
+                    _ = rhs(self.operate, location, time) == True
 
-                # if list, a time match will be done,
-                # because of using .balancer(), expend/produce thus on same temporal scale
+                eff = par if isinstance(par, list) else [par]
+
+                if eff[0] < 0:
+                    # Resources are consumed (expendend by Process) immediately
+                    rhs = res.expend(self.operate, location, time)
+                    eff = [-e for e in eff]
+                    opr = self.operate(location, time)
+                else:
+                    # Production — may occur after lag
+                    lag_time = self.lag.of if self.lag else time
+                    rhs = res.produce(self.operate, location, lag_time)
+                    opr = self.operate(location, time)
+
+                # because of using .balancer(), expend/produce are on same temporal scale
 
                 if self.conv.pwl:
 
@@ -281,7 +228,7 @@ class Process(_Operation):
                 _ = opr[rhs] == eff
 
             # update the locations at which the process exists
-            self.locations.append(loc)
+            self.locations.append(location)
 
     def __call__(
         self, resource: Resource | Conversion, lag: Optional[Lag] = None

@@ -116,6 +116,8 @@ class Transport(_Operation):
 
         for link_time in link_times:
             link, time = link_time
+            source, sink = link.source, link.sink
+
             # time = link_time[1]
 
             if link in self.linkages:

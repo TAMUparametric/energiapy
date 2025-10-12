@@ -45,14 +45,14 @@ class Balance(_Generator):
         binds = self.domain.binds
         time = self.domain.time
 
-        if self.domain.link:
+        if self.domain.linkage:
             if self.aspect.sign == -1:
-                loc = self.domain.link.source
+                loc = self.domain.linkage.source
 
             else:
-                loc = self.domain.link.sink
+                loc = self.domain.linkage.sink
         else:
-            loc = self.domain.loc
+            loc = self.domain.location
 
         # if no time is provided, take a default period
         if time is None:
@@ -147,7 +147,7 @@ class Balance(_Generator):
             stored = True
 
         if (
-            not self.domain.link
+            not self.domain.linkage
             and loc.isin
             and commodity in self.grb
             and loc.isin in self.grb[commodity]
