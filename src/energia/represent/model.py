@@ -55,7 +55,6 @@ if TYPE_CHECKING:
     from typing import DefaultDict
 
     from gana.block.solution import Solution
-    from gana.sets.index import I
 
     from .._core._component import _Component
     from ..components.commodity._commodity import _Commodity
@@ -115,6 +114,14 @@ class Model:
     :vartype attr_map: dict[str, dict[str, Recipe]]
     :ivar classifiers: List of classifiers for the Model.
     :vartype classifiers: list[Enum]
+    :ivar grb: Dictionary which tells you what aspects of resource have GRB {loc: time: []} and {time: loc: []}.
+    :vartype grb: DefaultDict[_Commodity,DefaultDict[Location | Linkage, DefaultDict[Periods, list[Aspect]]]]
+    :ivar dispositions: Dictionary which tells you what aspects of what component have been bound at what location and time.
+    :vartype dispositions: dict[Aspect, dict[_Commodity | Process | Storage | Transport, dict[Location | Linkage, dict[Periods, list[Aspect]]]]]
+    :ivar maps: Maps of aspects to domains.
+    :vartype maps: dict[Aspect, dict[Domain, dict[str, list[Domain]]]]
+    :ivar maps_report: Maps of aspects to domains for reporting variables.
+    :vartype maps_report: dict[Aspect, dict[Domain, dict[str, list[Domain]]]]
 
 
     :raises ValueError: If an attribute name already exists in the Model.

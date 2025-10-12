@@ -99,9 +99,18 @@ class Map(_Generator):
         # --- Mode mapping ---
         self._map_across_modes()
 
+    @cached_property
+    def name(self) -> str:
+        return f"{self.aspect.name}_map"
+
+    @cached_property
+    def maps(self) -> dict[str, list[Domain]]:
+        return self.aspect.maps_report if self.reporting else self.aspect.maps
+
     # ---------------------------------------------------------------------- #
-    # Subfunctions for readability
+    # Helper functions
     # ---------------------------------------------------------------------- #
+
     def _map_across_time(
         self, dispositions, space, time, sparser_periods, denser_periods
     ):
@@ -191,18 +200,31 @@ class Map(_Generator):
                 self.domain, self.domain.change({"modes": None}), msum=True
             )
 
-    # ---------------------------------------------------------------------- #
-    # Helper functions
-    # ---------------------------------------------------------------------- #
-    @cached_property
-    def name(self) -> str:
-        return f"{self.aspect.name}_map"
+    def _give_cname(
+        self,
+        var,
+        from_domain,
+        to_domain,
+        tsum: bool = False,
+        msum: bool = False,
+    ) -> str:
+        """Return canonical map constraint name based on domain relationship and aggregation type."""
+        if tsum:
+            return f"{var}{from_domain.idxname}_to_{to_domain.idxname}_tmap"
 
-    @cached_property
-    def maps(self) -> dict[str, list[Domain]]:
-        return self.aspect.maps_report if self.reporting else self.aspect.maps
+        if msum:
+            # Original behavior: use from_domain idxname for per-mode naming
+            return f"{var}{from_domain.idxname}_mmap"
 
-    def give_sum(self, domain: Domain, tsum=False, msum=False):
+        if from_domain.modes:
+            if from_domain.modes.parent:
+                parent_domain = from_domain.change({"modes": from_domain.modes.parent})
+                return f"{var}{parent_domain.idxname}_mmap"
+            return f"{var}{from_domain.idxname}_mmap"
+
+        return f"{var}{to_domain.idxname}_map"
+
+    def _give_sum(self, domain: Domain, tsum=False, msum=False):
         """Gives the sum of the variable over the domain"""
         varname = (
             f"x_{self.aspect.name}" if (msum and self.reporting) else self.aspect.name
@@ -242,21 +264,9 @@ class Map(_Generator):
 
         var = self.aspect.reporting if self.reporting else self.aspect
 
-        rhs = self.give_sum(from_domain, tsum, msum)
+        rhs = self._give_sum(from_domain, tsum, msum)
 
-        if tsum:
-            cname = f"{var}{from_domain.idxname}_to_{to_domain.idxname}_tmap"
-        elif msum:
-            # follow original behavior which used from_domain idxname for per-mode naming
-            cname = f"{var}{from_domain.idxname}_mmap"
-        elif from_domain.modes:
-            if from_domain.modes.parent:
-                cname = f"{var}{from_domain.change({'modes': from_domain.modes.parent}).idxname}_mmap"
-            else:
-                cname = f"{var}{from_domain.idxname}_mmap"
-
-        else:
-            cname = f"{var}{to_domain.idxname}_map"
+        cname = self._give_cname(var, from_domain, to_domain, tsum, msum)
 
         print(f"--- Mapping {var}: {from_domain} → {to_domain}")
         start = keep_time.time()
