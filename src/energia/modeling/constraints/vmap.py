@@ -3,24 +3,21 @@
 from __future__ import annotations
 
 import time as keep_time
-from dataclasses import dataclass
 from functools import cached_property
 from operator import is_
 from typing import TYPE_CHECKING
 
 from gana import sigma
 
-from ..._core._generator import _Generator
-
 if TYPE_CHECKING:
     from gana.sets.constraint import C
 
     from ..._core._x import _X
     from ..indices.domain import Domain
+    from ..variables.aspect import Aspect
 
 
-@dataclass
-class Map(_Generator):
+class Map:
     """Maps between domains
 
     :param aspect: Aspect to which the constraint is applied.
@@ -31,11 +28,10 @@ class Map(_Generator):
     :type reporting: bool
     """
 
-    reporting: bool = False
+    def __init__(
+        self, aspect: Aspect, domain: Domain, label: str = "", reporting=False
+    ):
 
-    def __post_init__(self):
-
-        _Generator.__post_init__(self)
         # if the variable is being defined for the first time, do not bother with the rest
         # Also note that if a variable already exists then a new is not created
         # thus map_domain is not called in Bind.V()
@@ -67,8 +63,17 @@ class Map(_Generator):
         # this will lead to adding twice. India = Goa + Madgaon + Ponje (WRONG)
         # We scale only one level up
 
+        self.aspect = aspect
+        self.domain = domain
+        self.label = label
+        self.reporting = reporting
+
         if self.domain.lag:
             return
+
+        self.model = self.aspect.model
+        self.dispositions = self.model.dispositions
+        self.program = self.model.program
 
         # this is the disposition of the variable to be mapped
         # through time and space

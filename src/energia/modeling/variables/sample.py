@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 from functools import cached_property
 from itertools import chain
 from typing import TYPE_CHECKING, Optional, Self
@@ -10,7 +9,6 @@ from typing import TYPE_CHECKING, Optional, Self
 from gana import I as Idx
 from gana import V, inf, sigma, sup
 
-from ..._core._generator import _Generator
 from ...utils.dictionary import merge_trees
 from ..constraints.bind import Bind
 from ..constraints.calculate import Calculate
@@ -20,19 +18,17 @@ if TYPE_CHECKING:
 
     from ..._core._component import _Component
     from ..._core._x import _X
+    from ..indices.domain import Domain
+    from ..variables.aspect import Aspect
 
-# import time as keep_time
-# from ...components.temporal.modes import Modes
-# from ...utils.math import normalize
 
 # ------------------------------------------------------------------------------
-# Bind is the primary constraint generator
+# Sample is the primary constraint generator
 # These are essentially a variable waiting to be bound
 # ------------------------------------------------------------------------------
 
 
-@dataclass
-class Sample(_Generator):
+class Sample:
     """
     Sets a bound on a variable (V) within a particular domain.
 
@@ -66,14 +62,29 @@ class Sample(_Generator):
     - ``domains`` are updated as the program is built.
     """
 
-    # if the temporal index is predetermined
-    timed: bool = False
-    # if the spatial index is predetermined
-    spaced: bool = False
+    def __init__(
+        self,
+        aspect: Aspect,
+        domain: Domain,
+        label: str = "",
+        timed: bool = False,
+        spaced: bool = False,
+    ):
 
-    def __post_init__(self):
+        # this is the aspect for which the constraint is being defined
+        self.aspect = aspect
+        # the domain is passed when the aspect is called using __call__()
+        self.domain = domain
 
-        _Generator.__post_init__(self)
+        self.label = label
+        # if the temporal index is predetermined
+        self.timed = timed
+        # if the spatial index is predetermined
+        self.spaced = spaced
+
+        self.model = self.aspect.model
+        self.program = self.model.program
+        self.grb = self.model.grb
 
         # if the aspect is bound (operate for example)
         self.bound = self.aspect.bound
@@ -321,9 +332,7 @@ class Sample(_Generator):
             # this updates the balanced dictionary, by adding the commodity as a key
 
             if self.domain.commodity and not self.domain.lag:
-                _ = self.model.grb[self.domain.commodity][self.domain.space][
-                    self.domain.time
-                ]
+                _ = self.grb[self.domain.commodity][self.domain.space][self.domain.time]
 
             # this lets all index elements in the domain know
             # that the aspect was sampled
@@ -561,6 +570,15 @@ class Sample(_Generator):
         """Draws the variable"""
         v = self.V()
         v.draw(**kwargs)
+
+    def __str__(self):
+        return self.name
+
+    def __repr__(self):
+        return self.name
+
+    def __hash__(self):
+        return hash(self.name)
 
 
 # This is for binding sample operations, eg. sample + sample or sample - sample

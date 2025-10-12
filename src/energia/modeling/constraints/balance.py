@@ -3,11 +3,9 @@
 from __future__ import annotations
 
 import time as keep_time
-from dataclasses import dataclass
 from operator import is_
 from typing import TYPE_CHECKING, Self
 
-from ..._core._generator import _Generator
 from ...components.commodity.stored import Stored
 
 if TYPE_CHECKING:
@@ -16,10 +14,10 @@ if TYPE_CHECKING:
     from ..._core._x import _X
     from ...components.temporal.periods import Periods
     from ..indices.domain import Domain
+    from ..variables.aspect import Aspect
 
 
-@dataclass
-class Balance(_Generator):
+class Balance:
     """Performs a general commodity balance
 
     Args:
@@ -30,12 +28,14 @@ class Balance(_Generator):
         name (str. optional): Name of the constraint.
     """
 
-    def __post_init__(self):
+    def __init__(self, aspect: Aspect, domain: Domain, label: str = ""):
+        self.aspect = aspect
+        self.domain = domain
+        self.label = label
 
-        _Generator.__post_init__(self)
-
-        # this is the disposition of the variable to be mapped
-        # through time and space
+        self.model = self.aspect.model
+        self.program = self.model.program
+        self.grb = self.model.grb
 
         if self.domain.modes:
             return
@@ -54,7 +54,7 @@ class Balance(_Generator):
             )
         )
 
-        _ = self.model.grb[commodity][loc][time]
+        _ = self.grb[commodity][loc][time]
 
         if not binds and commodity:
             # if no binds, then create GRB or append to exisiting GRB
