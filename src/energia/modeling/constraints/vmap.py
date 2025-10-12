@@ -256,7 +256,6 @@ class Map(_Generator):
             self.maps[to_domain] = [from_domain]
             exists = False
         elif from_domain in self.maps[to_domain]:
-
             return
         else:
             self.maps[to_domain].append(from_domain)
@@ -284,7 +283,8 @@ class Map(_Generator):
 
         end = keep_time.time()
         print(f"    Completed in {end-start:.3f}s")
-        self.aspect.constraints.append(cname)
+        if cname not in self.aspect.constraints:
+            self.aspect.constraints.append(cname)
         from_domain.update_cons(cname)
 
     def __call__(self, *index: _X):

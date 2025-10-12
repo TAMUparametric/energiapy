@@ -1,5 +1,7 @@
 """dictionary utils"""
 
+from collections import defaultdict
+
 
 def get_depth(dict_: dict) -> int:
     """
@@ -97,3 +99,10 @@ def merge_trees(d1: dict, d2: dict) -> dict:
         else:
             result[k] = v
     return result
+
+
+def dictify(d: defaultdict | dict) -> dict:
+    """Recursively convert defaultdict to dict."""
+    if isinstance(d, defaultdict):
+        return {k: dictify(v) for k, v in d.items()}
+    return d

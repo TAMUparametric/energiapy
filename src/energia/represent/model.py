@@ -282,7 +282,7 @@ class Model:
         }
 
         # Dictionary which tells you what aspects of resource
-        # have grb {loc: time: []} and {time: loc: []}
+        # have been set in what location and time
         self.grb: dict[
             _Commodity,
             dict[Location | Linkage, dict[Periods, list[Aspect]]],

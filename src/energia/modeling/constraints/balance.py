@@ -7,8 +7,6 @@ from dataclasses import dataclass
 from operator import is_
 from typing import TYPE_CHECKING, Self
 
-from gana import sigma
-
 from ..._core._generator import _Generator
 from ...components.commodity.stored import Stored
 
@@ -45,14 +43,15 @@ class Balance(_Generator):
         binds = self.domain.binds
         time = self.domain.time
 
-        if self.domain.linkage:
-            if self.aspect.sign == -1:
-                loc = self.domain.linkage.source
-
-            else:
-                loc = self.domain.linkage.sink
-        else:
-            loc = self.domain.location
+        loc = (
+            self.domain.linkage.source
+            if self.aspect.sign == -1 and self.domain.linkage
+            else (
+                self.domain.linkage.sink
+                if self.domain.linkage
+                else self.domain.location
+            )
+        )
 
         _ = self.model.grb[commodity][loc][time]
 
@@ -60,25 +59,25 @@ class Balance(_Generator):
             # if no binds, then create GRB or append to exisiting GRB
             # writecons_grb will figure it out
             self.writecons_grb(commodity, loc, time)
+            return
 
-        else:
-            # if there are binds
-            if commodity.insitu:
-                # # we need to still check if this is this is an insitu (e.g. a storage commodity)
-                # if the commodity is insitu that means that
-                # no external bounds have been defined
-                # a GRB is still needed
+        # if there are binds
+        if commodity.insitu:
+            # # we need to still check if this is this is an insitu (e.g. a storage commodity)
+            # if the commodity is insitu that means that
+            # no external bounds have been defined
+            # a GRB is still needed
 
-                self.writecons_grb(commodity, loc, time)
+            self.writecons_grb(commodity, loc, time)
 
-            if self.aspect(commodity, loc, time) not in self.grb[commodity][loc][time]:
-                # for the second check, consider the case where
+        if self.aspect(commodity, loc, time) not in self.grb[commodity][loc][time]:
+            # for the second check, consider the case where
 
-                # # these do not get their own GRB, as they are only utilized within a process
+            # # these do not get their own GRB, as they are only utilized within a process
 
-                # if there is already a GRB existing
-                # add the bind to the GRB at the same scale
-                self.writecons_grb(commodity, loc, time)
+            # if there is already a GRB existing
+            # add the bind to the GRB at the same scale
+            self.writecons_grb(commodity, loc, time)
 
     @property
     def name(self) -> str:
@@ -95,23 +94,6 @@ class Balance(_Generator):
         """Returns the aspect"""
         return self.aspect.sign
 
-    def give_sum(self, mapped: F = None, tsum: bool = False):
-        """Gives the sum of the variable over the domain"""
-        if tsum:
-            if mapped:
-                v = mapped
-            else:
-                v = getattr(self.program, self.aspect.name)
-            # if the domain has been mapped to but this is a time sum
-            # we need to first map time
-            # and then add it to an existing map at a lower domain
-            return sigma(
-                v(*self.domain.Ilist),
-                self.domain.time.I,
-            )
-        else:
-            return self(*self.domain).V()
-
     def writecons_grb(self, commodity, loc, time):
         """Writes the stream balance constraint"""
 
@@ -119,7 +101,9 @@ class Balance(_Generator):
 
         # ---- initialize GRB for commodity if necessary -----
 
-        if not isinstance(commodity, Stored):
+        if isinstance(commodity, Stored):
+            stored = True
+        else:
             stored = False
 
             if self.grb[commodity][loc]:
@@ -128,9 +112,6 @@ class Balance(_Generator):
                 if lower_times:
                     _ = self.aspect(commodity, loc, lower_times[0]) == True
                     return
-
-        else:
-            stored = True
 
         if (
             not self.domain.linkage
