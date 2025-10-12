@@ -11,6 +11,7 @@ from gana import I as Idx
 from gana import V, inf, sigma, sup
 
 from ..._core._generator import _Generator
+from ...utils.dictionary import merge_trees
 from ..constraints.bind import Bind
 from ..constraints.calculate import Calculate
 
@@ -319,12 +320,10 @@ class Sample(_Generator):
 
             # this updates the balanced dictionary, by adding the commodity as a key
 
-            if self.domain.commodity:
-                self.model.update_grb(
-                    self.domain.commodity,
-                    time=self.domain.periods,
-                    space=self.domain.location,
-                )
+            if self.domain.commodity and not self.domain.lag:
+                _ = self.model.grb[self.domain.commodity][self.domain.space][
+                    self.domain.time
+                ]
 
             # this lets all index elements in the domain know
             # that the aspect was sampled
@@ -334,7 +333,10 @@ class Sample(_Generator):
 
             # get the primary component
             # update the disposition dictionary
-            self.model.update_dispositions(self.aspect, self.domain)
+            self.model.dispositions = merge_trees(
+                self.model.dispositions,
+                {self.aspect: self.domain.tree},
+            )
 
             # for the same aspect, map variables with higher order indices
             # to variables with lower order indices

@@ -91,10 +91,7 @@ class Process(_Operation):
                     # the conversion Balance variables will feature in grb for parent location
                     loc = parent
 
-                self.model.update_grb(resource=res, space=loc, time=time)
-
-            if time not in self.model.grb[res][loc]:
-                self.model.update_grb(resource=res, space=loc, time=time)
+            _ = self.model.grb[res][loc][time]
 
             if res.inv_of:
                 # for inventoried resources, the conversion is written

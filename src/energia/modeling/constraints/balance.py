@@ -1,4 +1,4 @@
-"""Bal"""
+"""Balance"""
 
 from __future__ import annotations
 
@@ -54,7 +54,7 @@ class Balance(_Generator):
         else:
             loc = self.domain.location
 
-        self.model.update_grb(commodity, loc, time)
+        _ = self.model.grb[commodity][loc][time]
 
         if not binds and commodity:
             # if no binds, then create GRB or append to exisiting GRB
@@ -71,11 +71,7 @@ class Balance(_Generator):
 
                 self.writecons_grb(commodity, loc, time)
 
-            if (
-                self.grb[commodity][loc][time]
-                and self.aspect(commodity, loc, time)
-                not in self.grb[commodity][loc][time]
-            ):
+            if self.aspect(commodity, loc, time) not in self.grb[commodity][loc][time]:
                 # for the second check, consider the case where
 
                 # # these do not get their own GRB, as they are only utilized within a process

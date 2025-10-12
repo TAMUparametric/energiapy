@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections import defaultdict
 from collections.abc import Callable
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Optional, Self, Type
@@ -47,22 +48,29 @@ from ..modeling.variables.control import Control
 from ..modeling.variables.recipe import Recipe
 from ..modeling.variables.states import Impact, State, Stream
 from .graph import Graph
-from .mapper import Mapper
 from .program import Program
 
 if TYPE_CHECKING:
     from enum import Enum
+    from typing import DefaultDict
 
     from gana.block.solution import Solution
     from gana.sets.index import I
 
     from .._core._component import _Component
+    from ..components.commodity._commodity import _Commodity
+    from ..modeling.indices.domain import Domain
     from ..modeling.variables.aspect import Aspect
     from ..modeling.variables.sample import Sample
 
+    GRBType = DefaultDict[
+        _Commodity,
+        DefaultDict[Location | Linkage, DefaultDict[Periods, list[Aspect]]],
+    ]
+
 
 @dataclass
-class Model(Mapper):
+class Model:
     """
     An abstract representation of an energy system.
 
@@ -205,9 +213,6 @@ class Model(Mapper):
         # maps to recipes for creating aspects
         self.cookbook: dict[str, Recipe] = {}
 
-        # ---- Different representations of the model ---
-        Mapper.__post_init__(self)
-
         # Temporal Scope
         self.time = Time(self)
         # Spatial Scope
@@ -268,6 +273,26 @@ class Model(Mapper):
             "scale": [],
             "paradigm": [],
         }
+
+        # Dictionary which tells you what aspects of resource
+        # have grb {loc: time: []} and {time: loc: []}
+        self.grb: dict[
+            _Commodity,
+            dict[Location | Linkage, dict[Periods, list[Aspect]]],
+        ] = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
+
+        # Dictionary which tells you what aspects of what component
+        # have been bound at what location and time
+        self.dispositions: dict[
+            Aspect,
+            dict[
+                _Commodity | Process | Storage | Transport,
+                dict[Location | Linkage, dict[Periods, list[Aspect]]],
+            ],
+        ] = {}
+
+        self.maps: dict[Aspect, dict[Domain, dict[str, list[Domain]]]] = {}
+        self.maps_report: dict[Aspect, dict[Domain, dict[str, list[Domain]]]] = {}
 
     # -----------------------------------------------------
     #              Set Component

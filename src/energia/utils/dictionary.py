@@ -83,3 +83,17 @@ def tupler(d: dict, path: tuple = ()) -> list[tuple[str]]:
                 result.append(path_ + (v_,))
 
     return result
+
+
+def merge_trees(d1: dict, d2: dict) -> dict:
+    """Recursively merge two tree-like dicts (values always dicts)."""
+    result = dict(d1)  # shallow copy of d1
+    for k, v in d2.items():
+        if k in result:
+            result[k] = merge_trees(
+                result[k],
+                v,
+            )  # recurse since v must also be a dict
+        else:
+            result[k] = v
+    return result
