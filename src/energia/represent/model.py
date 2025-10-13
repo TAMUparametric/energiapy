@@ -47,8 +47,8 @@ from ..modeling.parameters.conversion import Conversion
 from ..modeling.variables.control import Control
 from ..modeling.variables.recipe import Recipe
 from ..modeling.variables.states import Impact, State, Stream
-from .graph import Graph
-from .program import Program
+from .ations.graph import Graph
+from .ations.program import Program
 
 if TYPE_CHECKING:
     from enum import Enum
@@ -207,7 +207,27 @@ class Model:
             "thetas",
             "indices",
             "objectives",
+            "A",
+            "B",
+            "C",
+            "F",
+            "G",
+            "H",
+            "CrA",
+            "CrB",
+            "NN",
+            "A_with_NN",
+            "B_with_NN",
+            "Z",
+            "P",
         ]
+
+        self.default_components = {
+            "l": self.default_location,
+            "t0": self.default_periods,
+            "t": self.default_periods,
+            "money": self.default_currency,
+        }
 
         self.graph_components = ["edges", "nodes"]
 
@@ -433,6 +453,10 @@ class Model:
 
     def __getattr__(self, name):
 
+        if name in self.default_components:
+            component = self.default_components[name]()
+            return component
+
         if name in self.dimension_map:
             dimension = getattr(self, self.dimension_map[name])
             collection = getattr(dimension, name)
@@ -655,7 +679,7 @@ class Model:
         """Draw the solution for a variable"""
         self.program.draw(variable.V())
 
-    def default_period(self, size: int = None) -> Periods:
+    def default_periods(self, size: int = 0) -> Periods:
         """Return a default period"""
 
         if size:
@@ -672,7 +696,7 @@ class Model:
         self.t0 = Periods("Time")
         return self.t0
 
-    def default_loc(self) -> Location:
+    def default_location(self) -> Location:
         """Return a default location"""
         self.l = Location(label="l")
         return self.l

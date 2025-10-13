@@ -92,7 +92,7 @@ class Space(_Dimension):
 
         # if no location is available, create a default one
         if not self.locations:
-            return self.model.default_loc()
+            return self.model.default_location()
 
         # if only one location is available, return it
         if len(self.locations) == 1:

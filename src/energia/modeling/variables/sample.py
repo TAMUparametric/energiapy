@@ -390,11 +390,12 @@ class Sample:
         bound_aspect = getattr(self.model, self.aspect.bound)
 
         if bound_aspect not in self.model.dispositions:
-            print(
-                f"--- Aspect ({bound_aspect}) not defined, a variable will be created at {self.domain.space} assuming {self.model.horizon} as the temporal index",
-            )
+            return 1
+            # print(
+            #     f"--- Aspect ({bound_aspect}) not defined, a variable will be created at {self.domain.space} assuming {self.model.horizon} as the temporal index",
+            # )
 
-            _ = bound_aspect(self.domain.primary, self.domain.space).V()
+            # _ = bound_aspect(self.domain.primary, self.domain.space).V()
 
         if (
             self.domain.space
@@ -459,7 +460,7 @@ class Sample:
         if len(v) == 1:
             obj = v
         else:
-            print("aaa", v, v.__dict__)
+
             obj = sigma(v)
 
         if self.hasinc:

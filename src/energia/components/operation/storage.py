@@ -84,7 +84,10 @@ class Storage(_Component):
         # get location, time tuples where operation is defined
         for loc in locations:
 
-            if loc not in self.model.invcapacity.bound_spaces[self.stored]:
+            if self not in self.model.invcapacity.bound_spaces:
+                self.model.invcapacity.bound_spaces[self.stored] = {"ub": [], "lb": []}
+
+            if loc not in self.model.invcapacity.bound_spaces[self.stored]["ub"]:
                 # check if the storage capacity has been bound at that location
                 print(
                     f"--- Assuming  {self.stored} inventory capacity is unbounded in ({loc}, {self.horizon})",
