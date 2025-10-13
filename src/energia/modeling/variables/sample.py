@@ -442,8 +442,8 @@ class Sample:
         """
         return self.V(parameters, length, report=True)
 
-    def opt(self, max: bool = False):
-        """Optimize
+    def obj(self, max: bool = False):
+        """Set the sample itself as the objective
 
         max (bool): if maximization, defaults to False
         """
@@ -458,25 +458,33 @@ class Sample:
         v = self.V()
 
         if len(v) == 1:
-            obj = v
+            _obj = v
         else:
 
-            obj = sigma(v)
+            _obj = sigma(v)
 
         if self.hasinc:
             # if there is an incidental variable
             # the incidental variable is added to the objective
             v_inc = self.Vinc()
             if len(v_inc) == 1:
-                obj += v_inc
+                _obj += v_inc
             else:
-                obj += sigma(v_inc)
+                _obj += sigma(v_inc)
 
         if max:
-            setattr(self.program, f"max{self.aspect.name})", sup(obj))
+            setattr(self.program, f"max{self.aspect.name})", sup(_obj))
         else:
-            setattr(self.program, f"min({self.aspect.name})", inf(obj))
+            setattr(self.program, f"min({self.aspect.name})", inf(_obj))
 
+        self.program.renumber()
+
+    def opt(self, max: bool = False):
+        """Optimize
+
+        max (bool): if maximization, defaults to False
+        """
+        self.obj(max)
         # optimize!
         self.program.opt()
 
@@ -506,6 +514,13 @@ class Sample:
             aslist (bool, optional): Returns the solution as list, otherwise as a variable
         """
         return self.V().sol(aslist=aslist)
+
+    def eval(self, *values: float):
+        """Evaluate the variable using parametric variable values
+        Args:
+            *values (float): values for the parametric variables
+        """
+        return self.V().eval(*values)
 
     def forall(self, index) -> Self:
         """Returns the function at the given index"""
