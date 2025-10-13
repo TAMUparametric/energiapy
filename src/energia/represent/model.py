@@ -675,6 +675,12 @@ class Model:
         """Solution"""
         return self.program.sol(n_sol=n_sol, slack=slack, compare=compare)
 
+    def eval(
+        self, *theta_vals: float, n_sol: int = 0, roundoff: int = 4
+    ) -> list[float]:
+        """Evaluate the objective function at given theta values"""
+        return self.program.eval(*theta_vals, n_sol=n_sol, roundoff=roundoff)
+
     def save(self, as_type: str = "dill"):
         """Save the Model to a file"""
         if as_type == "dill":
@@ -683,9 +689,13 @@ class Model:
         else:
             raise ValueError(f"Unknown type {as_type} for saving the model")
 
-    def draw(self, variable: Aspect | Sample):
+    def draw(self, variable: Aspect | Sample = None, n_sol: int = 0):
         """Draw the solution for a variable"""
-        self.program.draw(variable.V())
+        if variable is not None:
+            self.program.draw(variable=variable.V(), n_sol=n_sol)
+
+        else:
+            self.program.draw(n_sol=n_sol)
 
     def default_periods(self, size: int = 0) -> Periods:
         """Return a default period"""
