@@ -5,9 +5,11 @@ from __future__ import annotations
 from collections import defaultdict
 from collections.abc import Callable
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Optional, Self, Type
+from typing import TYPE_CHECKING, Literal, Optional, Self, Type
 
 from dill import dump
+from ppopt.mplp_program import MPLP_Program
+from ppopt.solution import Solution as MPSolution
 
 from .._core._x import _X
 from ..components.commodity.currency import Currency
@@ -55,6 +57,7 @@ if TYPE_CHECKING:
     from typing import DefaultDict
 
     from gana.block.solution import Solution
+    from gurobipy import Model as GPModel
 
     from .._core._component import _Component
     from ..components.commodity._commodity import _Commodity
@@ -346,9 +349,14 @@ class Model:
         return self.system.operations
 
     @property
-    def solution(self) -> dict[int, Solution]:
+    def solution(self) -> dict[int, Solution | MPSolution]:
         """The solution of the program"""
         return self.program.solution
+
+    @property
+    def formulation(self) -> dict[int, GPModel | MPLP_Program]:
+        """The formulations of the program"""
+        return self.program.formulation
 
     def update(
         self,
@@ -712,6 +720,26 @@ class Model:
     def locate(self, *operations: Process | Storage):
         """Locate operations in the network"""
         self.network.locate(*operations)
+
+    def solve(
+        self,
+        using: Literal[
+            "combinatorial",
+            "combinatorial_parallel",
+            "combinatorial_parallel_exp",
+            "graph",
+            "graph_exp",
+            "graph_parallel",
+            "graph_parallel_exp",
+            "combinatorial_graph",
+            "geometric",
+            "geometric_parallel",
+            "geometric_parallel_exp",
+        ] = "combinatorial",
+    ):
+        """Solve the multiparametric program"""
+
+        self.program.solve(using=using)
 
     def __call__(self, *funcs: Callable[Self]):
         """Set functions on the model
