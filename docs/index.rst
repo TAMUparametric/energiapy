@@ -25,12 +25,12 @@ Energia on Python
    :caption: Examples
    :hidden:
 
-   examples/example1
-   examples/example2
-   examples/example3
-   examples/supermarket
-
-
+   examples/scheduling
+   examples/design_scheduling
+   examples/design_scheduling_material
+   .. examples/multi_location
+   .. examples/multi_parametric
+   .. examples/supermarket
 
 
 .. toctree::
