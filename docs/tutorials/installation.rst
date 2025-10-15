@@ -8,8 +8,11 @@ This should help you get Energia up and running on your PC.
 What you are going to need:
 
 1. A computer
-2. Python 3.13
+2. Python >=3.12
 3. Will power
+
+Setting up an Environment
+-------------------------
 
 
 The choice of whether to use a conda or virtual environment is up to you.
@@ -22,13 +25,16 @@ For a virtual environment (preferred, in the root directory):
 
     python3.13 -m venv energiaenv
 
-For a conda environment:
+.. tip:: For a conda environment:
 
-.. code-block:: bash
+    .. code-block:: bash
 
-    conda create --name energiaenv python=3.13
+        conda create --name energiaenv python=3.13
 
-Now that your environment is ready, you will need to activate it:
+Now that your environment is ready, you will need to activate it.
+
+Activating an Environment
+-------------------------
 
 For a virtual environment on Windows PowerShell or Command Prompt:
 
@@ -42,11 +48,22 @@ For a virtual environment on Windows PowerShell or Command Prompt:
 
         source energiaenv/bin/activate
 
-For a conda environment:
+.. tip:: For a conda environment:
+
+    .. code-block:: bash
+
+        conda activate energiaenv
+
+
+
+Installing Energia
+------------------
+
+Energia supports the standard pip installation:
 
 .. code-block:: bash
 
-    conda activate energiaenv
+    pip install energiapy
 
 
 Integrated Development Environments (IDEs)
@@ -54,9 +71,9 @@ Integrated Development Environments (IDEs)
 
 Handling environments and such is much simpler if you use an IDE. Here are some guides for popular IDEs:
 
-- **Visual Studio Code**: [Python environments in VS Code](https://code.visualstudio.com/docs/python/environments)
+- **Visual Studio Code**: `Python environments in VS Code <https://code.visualstudio.com/docs/python/environments>`_
 
-- **PyCharm**: [Configuring Python interpreter](https://www.jetbrains.com/help/pycharm/configuring-python-interpreter.html)
+- **PyCharm**: `Configuring Python interpreter <https://www.jetbrains.com/help/pycharm/configuring-python-interpreter.html>`_
 
 
 

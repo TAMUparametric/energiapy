@@ -43,12 +43,12 @@ if TYPE_CHECKING:
 class Aspect:
     r"""
     A particular facet of the system under consideration. A sample of an aspect at a
-    specific disposition is represented by a variable (:math:`\overset{*}{v} \in \overset{*}{\mathcal{V}}`).
-    The range of values which the :math:`\overset{*}{v}` is bounded such that:
+    specific disposition is represented by a variable (:math:`\overset{\*}{v} \in \overset{\*}{\mathcal{V}}`).
+    The range of values which the :math:`\overset{\*}{v}` is bounded such that:
 
     .. math::
 
-        \overset{*}{v} \in [\underline{\theta}, \overline{\theta}]
+        \overset{\*}{v} \in [\underline{\theta}, \overline{\theta}]
 
     Aspects can be decision-variables (:math:`\dot{v}`) that prescribe a control action
     or a set point for the state, or derived (calculated) variables (:math:`\hat{v}`) that
@@ -232,7 +232,7 @@ class Aspect:
         """Create aliases for the decision
 
         Args:
-            *names (str): Names of the aliases
+            names (str): Names of the aliases
         """
         self.model.aliases(*names, to=self.name)
 

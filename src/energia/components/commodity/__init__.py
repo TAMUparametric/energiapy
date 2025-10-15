@@ -1,4 +1,4 @@
-"""energiapy.commodity init file"""
+"""energiapy.commodity module"""
 
 from .currency import Currency
 from .emission import Emission
