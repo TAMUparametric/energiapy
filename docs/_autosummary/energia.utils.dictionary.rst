@@ -8,7 +8,15 @@ energia.utils.dictionary
 
    .. autosummary::
    
+      dictify
       flatten
       get_depth
+      merge_trees
       tupler
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      defaultdict
    

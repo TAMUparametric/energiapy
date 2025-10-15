@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "energiapy"
-version = "2.0.0"
+version = "2.0.1"
 authors = [
   { name="Rahul Kakodkar", email="cacodcar@gmail.com" },
   {name = "Efstratios N. Pistikopoulos", email = "stratos@tamu.edu"}
@@ -13,7 +13,7 @@ maintainers = [
   { name="Rahul Kakodkar", email="cacodcar@gmail.com" },
 ]
 description = "For multiscale modeling and optimization of energy systems"
-requires-python = ">=3.13"
+requires-python = ">=3.12"
 readme = "README.md"
 license = { file = "LICENSE" }
 keywords = ["modeling", "optimization", "energy systems", "ems", "multiscale"]
@@ -23,7 +23,7 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 
-dependencies = ["gana", "ppopt", "matplotlib", "scipy", "pandas", "numpy", "gurobipy"]
+dependencies = ["gana", "ppopt", "IPython", "matplotlib", "scipy", "pandas", "numpy", "gurobipy"]
 
 [project.optional-dependencies]
 all = ["pvlib", "windpowerlib", "h5pyd"]
@@ -37,11 +37,12 @@ docs = [
     "sphinxcontrib-bibtex",
     "sphinx-copybutton",
     "sphinx-togglebutton",
-    "numpydoc",
-    "linkify"
+    "sphinx-thebe",
+    "sphinx-design",
+    "sphinx-examples",          
+    "sphinx-tabs",
+    "sphinxext-opengraph",
 ]
-
-
 
 [project.urls]
 Homepage = "https://github.com/TAMUparametric/energiapy"

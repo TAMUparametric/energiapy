@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 from ..._core._name import _Name
 
 if TYPE_CHECKING:
-    from ...represent.graph import Graph
+    from ...represent._ations.graph import Graph
 
 
 @dataclass

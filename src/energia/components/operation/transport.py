@@ -81,10 +81,12 @@ class Transport(_Operation):
                     # the conversion Balance variables will feature in grb for parent location
                     loc = parent
 
-                self.model.update_grb(resource=res, space=loc, time=time)
+            _ = self.model.grb[res][loc][time]
 
-            if time not in self.model.grb[res][loc]:
-                self.model.update_grb(resource=res, space=loc, time=time)
+            #     self.model.update_grb(resource=res, space=loc, time=time)
+
+            # if time not in self.model.grb[res][loc]:
+            #     self.model.update_grb(resource=res, space=loc, time=time)
 
             if res.inv_of:
                 # for inventoried resources, the conversion is written
@@ -116,6 +118,8 @@ class Transport(_Operation):
 
         for link_time in link_times:
             link, time = link_time
+            source, sink = link.source, link.sink
+
             # time = link_time[1]
 
             if link in self.linkages:

@@ -1,4 +1,4 @@
-﻿energia.dimensions.time
+energia.dimensions.time
 =======================
 
 .. automodule:: energia.dimensions.time

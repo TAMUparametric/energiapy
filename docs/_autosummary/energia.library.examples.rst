@@ -1,4 +1,4 @@
-﻿energia.library.examples
+energia.library.examples
 ========================
 
 .. automodule:: energia.library.examples

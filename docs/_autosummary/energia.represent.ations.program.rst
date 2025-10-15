@@ -1,7 +1,7 @@
-energia.represent.program
-=========================
+energia.represent.ations.program
+================================
 
-.. automodule:: energia.represent.program
+.. automodule:: energia.represent.ations.program
 
    
    .. rubric:: Functions

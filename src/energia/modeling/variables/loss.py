@@ -19,6 +19,6 @@ class Loss(Aspect):
     Unlike Dismantle, loss is not a decision
     """
 
-    def map_domain(self, domain: Domain):
+    def update(self, domain: Domain):
         """Add a domain to the decision variable"""
         self.domains.append(domain)

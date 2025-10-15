@@ -49,4 +49,4 @@ __all__ = [
     "si_units",
     "time_units",
 ]
-__version__ = "2.0.0"
+__version__ = "2.0.1"

@@ -72,6 +72,12 @@ class Periods(_X):
         if self.of is None:
             self.of = self
 
+        # if this is a slice of another period
+        self.slice: slice = None
+
+        # if this is a single period in Periods
+        self.pos: int = None
+
     def isroot(self):
         """Is used to define another period?"""
         if self.of is None:
@@ -103,10 +109,14 @@ class Periods(_X):
 
         # given that temporal scale is an ordered set and not a self contained set
         # any time periods will be a fraction of the horizon
+        if self.slice is not None:
+            return self.of.I[self.slice]
+
+        if self.pos is not None:
+            return self.of.I[self.pos]
 
         _index = Idx(size=self.time.horizon.howmany(self), tag=self.label or "")
         setattr(self.program, self.name, _index)
-
         return _index
 
     def howmany(self, period: Self | Lag):
@@ -210,3 +220,19 @@ class Periods(_X):
 
     def __lt__(self, other: Self):
         return self.time.horizon.howmany(self) > self.time.horizon.howmany(other)
+
+    def __getitem__(self, key: int | slice):
+        periods = Periods()
+        periods.of = self
+        periods.model = self.model
+
+        if isinstance(key, slice):
+            periods.slice = key
+            start = key.start or 0
+            stop = key.stop or len(self)
+            periods.name = rf"{self}[{start}: {stop}]"
+        else:
+            periods.pos = key
+            periods.name = rf"{self}[{key}]"
+
+        return periods

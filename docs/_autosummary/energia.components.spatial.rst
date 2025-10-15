@@ -1,4 +1,4 @@
-﻿energia.components.spatial
+energia.components.spatial
 ==========================
 
 .. automodule:: energia.components.spatial

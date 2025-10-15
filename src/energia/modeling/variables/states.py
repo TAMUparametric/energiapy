@@ -28,7 +28,7 @@ class State(Aspect):
         Aspect.__post_init__(self)
         self.mapped_from: list[Domain] = []
 
-    def map_domain(self, domain: Domain, reporting: bool = False):
+    def update(self, domain: Domain, reporting: bool = False):
         """Add a domain to the decision variable"""
 
         # Write a mapping constraint
@@ -70,7 +70,7 @@ class Stream(State):
     def __post_init__(self):
         State.__post_init__(self)
 
-    # def map_domain(self, domain: Domain):
+    # def update(self, domain: Domain):
     #     """Add a domain to the decision variable"""
 
     #     # Write a mapping constraint
@@ -88,7 +88,7 @@ class EndoStream(Stream):
     def __post_init__(self):
         Stream.__post_init__(self)
 
-    def map_domain(self, domain: Domain, reporting: bool = False):
+    def update(self, domain: Domain, reporting: bool = False):
 
         Map(aspect=self, domain=domain, reporting=reporting)
 
@@ -102,7 +102,7 @@ class ExoStream(Stream):
     def __post_init__(self):
         Stream.__post_init__(self)
 
-    def map_domain(self, domain: Domain, reporting: bool = False):
+    def update(self, domain: Domain, reporting: bool = False):
 
         Map(aspect=self, domain=domain, reporting=reporting)
 
@@ -116,6 +116,6 @@ class IndStream(Stream):
     def __post_init__(self):
         Stream.__post_init__(self)
 
-    def map_domain(self, domain: Domain, reporting: bool = False):
+    def update(self, domain: Domain, reporting: bool = False):
 
         Map(aspect=self, domain=domain, reporting=reporting)

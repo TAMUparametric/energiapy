@@ -1,4 +1,4 @@
-﻿energia.library.recipes
+energia.library.recipes
 =======================
 
 .. automodule:: energia.library.recipes
@@ -34,6 +34,8 @@
       Material
       Process
       Resource
+      SetPoint
+      Size
       Social
       State
       Stored

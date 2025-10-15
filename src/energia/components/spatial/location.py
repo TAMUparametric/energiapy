@@ -191,6 +191,7 @@ class Location(_X):
 
     def connected(self, location, print_link: bool = False) -> bool:
         """Finds whether the Locations are connected
+
         Args:
             location (IsLocation): Location to verify Links with
             print_link (bool, optional): Whether to print the Links. Defaults to False.

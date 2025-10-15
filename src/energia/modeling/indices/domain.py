@@ -24,9 +24,9 @@ if TYPE_CHECKING:
     from ...components.temporal.lag import Lag
     from ...components.temporal.modes import Modes
     from ...components.temporal.periods import Periods
-    from ...modeling.constraints.bind import Bind
     from ...represent.model import Model
     from ..variables.aspect import Aspect
+    from ..variables.sample import Sample
 
 
 @dataclass
@@ -57,11 +57,11 @@ class Domain:
     :param couple: Other actor that might be paired with the player.
     :type couple: Couple | None
 
-    :param loc: Spatial aspect of the domain, e.g. Goa, Texas.
-    :type loc: Location | None
+    :param location: Spatial aspect of the domain, e.g. Goa, Texas.
+    :type location: Location | None
 
-    :param link: Linkage aspect of the domain, e.g. pipeline, road.
-    :type link: Linkage | None
+    :param linkage: Linkage aspect of the domain, e.g. pipeline, road.
+    :type linkage: Linkage | None
 
     :param periods: Temporal aspect of the domain, e.g. year, month.
     :type periods: Periods | None
@@ -97,14 +97,14 @@ class Domain:
     couple: Optional[Couple] = None
 
     # compulsory space and time elements
-    loc: Optional[Location] = None
-    link: Optional[Linkage] = None
+    location: Optional[Location] = None
+    linkage: Optional[Linkage] = None
     periods: Optional[Periods] = None
     lag: Optional[Lag] = None
     modes: Optional[Modes] = None
 
     # These can be summed over
-    binds: Optional[list[Bind]] = field(default_factory=list)
+    binds: Optional[list[Sample]] = field(default_factory=list)
 
     def __post_init__(self):
         # Domains are structured something like this:
@@ -112,7 +112,7 @@ class Domain:
         # primary_component can be an indicator, commodity, or operation (process | storage | transport)
         # {aspect_n: secondary_component_n} is given in self.binds
         # decision-makers = player | couple
-        # space = loc | link
+        # space = location | linkage
         # time = period | lag
 
         # primary index being modeled in some spatiotemporal context
@@ -152,7 +152,7 @@ class Domain:
     @property
     def space(self) -> Location | Linkage:
         """Space"""
-        return self.link or self.loc
+        return self.linkage or self.location
 
     @property
     def maker(self) -> Player | Couple:
@@ -172,7 +172,7 @@ class Domain:
     @property
     def linked(self) -> bool:
         """Linked"""
-        return True if self.link else False
+        return True if self.linkage else False
 
     @property
     def lagged(self) -> bool:
@@ -255,7 +255,7 @@ class Domain:
         """
         return [self.primary] + [
             i
-            for i in [self.loc, self.link, self.periods, self.lag, self.modes]
+            for i in [self.location, self.linkage, self.periods, self.lag, self.modes]
             if i is not None
         ]
 
@@ -271,7 +271,7 @@ class Domain:
     @property
     def index_short(
         self,
-    ) -> list[Indicator | _Commodity | Process | Storage | Transport | Bind]:
+    ) -> list[Indicator | _Commodity | Process | Storage | Transport | Sample]:
         """Set of indices"""
         return self.index_primary + self.binds
 
@@ -305,7 +305,7 @@ class Domain:
         return [b.aspect for b in self.binds]
 
     @property
-    def args(self) -> dict[str, _X | Lag | Modes | list[Bind]]:
+    def args(self) -> dict[str, _X | Lag | Modes | list[Sample]]:
         """Dictionary of indices"""
         return {
             "indicator": self.indicator,
@@ -314,8 +314,8 @@ class Domain:
             "process": self.process,
             "storage": self.storage,
             "transport": self.transport,
-            "loc": self.loc,
-            "link": self.link,
+            "location": self.location,
+            "linkage": self.linkage,
             "periods": self.periods,
             "lag": self.lag,
             "modes": self.modes,
@@ -323,7 +323,7 @@ class Domain:
         }
 
     @property
-    def dictionary(self) -> dict[str, _X | Lag | Modes | list[Bind]]:
+    def dictionary(self) -> dict[str, _X | Lag | Modes | list[Sample]]:
         """Dictionary of indices"""
         return {
             "primary": self.primary,

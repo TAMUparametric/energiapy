@@ -23,8 +23,8 @@ from ...components.temporal.modes import Modes
 from ...components.temporal.periods import Periods
 from ...dimensions.space import Space
 from ...dimensions.time import Time
-from ..constraints.bind import Bind
 from ..indices.domain import Domain
+from .sample import Sample
 
 if TYPE_CHECKING:
     from gana import I as Idx
@@ -35,6 +35,7 @@ if TYPE_CHECKING:
     from ..._core._component import _Component
     from ..._core._x import _X
     from ...dimensions.problem import Problem
+    from ...modeling.indices.domain import Domain
     from ...represent.model import Model
 
 
@@ -115,6 +116,12 @@ class Aspect:
             _Commodity | Process | Storage | Transport,
             list[Location | Linkage],
         ] = {}
+
+        # upper/lower/exact bounds are set on these locations/periods
+
+        self.ubs: dict[Location | Linkage, Periods] = {}
+        self.lbs: dict[Location | Linkage, Periods] = {}
+        self.eqs: dict[Location | Linkage, Periods] = {}
 
         # Domains of the decision
         self.domains: list[Domain] = []
@@ -199,7 +206,7 @@ class Aspect:
 
     @property
     def network(self) -> Location:
-        """Circumscribing Loc (Spatial Scale)"""
+        """Circumscribing Location (Spatial Scale)"""
         return self.model.network
 
     @property
@@ -229,7 +236,7 @@ class Aspect:
         """
         self.model.aliases(*names, to=self.name)
 
-    def map_domain(self, domain: Domain):
+    def update(self, domain: Domain, reporting: bool = False):
         """Each inherited object has their own"""
 
     def show(self, descriptive=False):
@@ -255,6 +262,64 @@ class Aspect:
         ds = [i for i in self.indices if all([x in i for x in index])]
         t = [t for t in ds if isinstance(t, Periods)]
         return t
+
+    def draw(
+        self,
+        x: _X,
+        y: tuple[_X] | _X,
+        z: tuple[_X] | _X = None,
+        font_size: float = 16,
+        fig_size: tuple[float, float] = (12, 6),
+        linewidth: float = 0.7,
+        color: str = "blue",
+        grid_alpha: float = 0.3,
+        usetex: bool = True,
+    ):
+        """Plot the decision"""
+        if not isinstance(y, tuple):
+            y = (y,)
+        if not z:
+            index = [i.I for i in y + (x,)]
+        elif not isinstance(z, tuple):
+            z = (z,)
+
+        if usetex:
+            rc(
+                "font",
+                **{"family": "serif", "serif": ["Computer Modern"], "size": font_size},
+            )
+            rc("text", usetex=usetex)
+        else:
+            rc("font", **{"size": font_size})
+
+        fig, ax = plt.subplots(figsize=fig_size)
+
+        if not z:
+            ax.plot(
+                [i.name for i in x.I._],
+                self.V(*index).sol(True),
+                linewidth=linewidth,
+                color=color,
+            )
+        else:
+            for z_ in z:
+                index = [i.I for i in (z_,) + y + (x,)]
+                ax.plot(
+                    [i.name for i in x.I._],
+                    self.V(*index).sol(True),
+                    linewidth=linewidth,
+                    label=z_.label if z_.label else z_.name,
+                )
+
+        label_ = [i.label if i.label else i.name for i in y]
+        label_ = str(label_).replace("[", "").replace("]", "").replace("'", "")
+        plt.title(f"{self.label} - {label_}")
+        plt.ylabel("Values")
+        plt.xlabel(f"{x.label or x.name}")
+        plt.grid(alpha=grid_alpha)
+        if z:
+            plt.legend()
+        plt.rcdefaults()
 
     def __neg__(self):
         """Negative Consequence"""
@@ -287,8 +352,8 @@ class Aspect:
                 "transport": None,
                 "periods": None,
                 "couple": None,
-                "loc": None,
-                "link": None,
+                "location": None,
+                "linkage": None,
                 "lag": None,
                 "modes": None,
             }
@@ -296,8 +361,8 @@ class Aspect:
             type_map = {
                 Periods: ("periods", "timed", False),
                 Lag: ("lag", "timed", False),
-                Location: ("loc", "spaced", False),
-                Linkage: ("link", "spaced", False),
+                Location: ("location", "spaced", False),
+                Linkage: ("linkage", "spaced", False),
                 Process: ("process", None, True),
                 Storage: ("storage", None, True),
                 Transport: ("transport", None, True),
@@ -316,17 +381,17 @@ class Aspect:
             #     transport,
             #     period,
             #     couple,
-            #     loc,
-            #     link,
+            #     location,
+            #     linkage,
             #     lag,
             #     modes,
             # ) = (None for _ in range(12))
 
-            binds: list[Bind] = []
+            binds: list[Sample] = []
             timed, spaced = False, False
 
             for comp in index:
-                if isinstance(comp, Bind):
+                if isinstance(comp, Sample):
                     binds.append(comp)
                     for b in binds:
                         if b.domain.binds:
@@ -366,64 +431,7 @@ class Aspect:
         else:
             timed = spaced = True
 
-        return Bind(aspect=self, domain=domain, timed=timed, spaced=spaced)
-
-    def draw(
-        self,
-        x: _X,
-        y: tuple[_X] | _X,
-        z: tuple[_X] | _X = None,
-        font_size: float = 16,
-        fig_size: tuple[float, float] = (12, 6),
-        linewidth: float = 0.7,
-        color: str = "blue",
-        grid_alpha: float = 0.3,
-        usetex: bool = True,
-    ):
-        """Plot the decision"""
-        if not isinstance(y, tuple):
-            y = (y,)
-        if not z:
-            index = [i.I for i in y + (x,)]
-        elif not isinstance(z, tuple):
-            z = (z,)
-
-        if usetex:
-            rc(
-                "font",
-                **{"family": "serif", "serif": ["Computer Modern"], "size": font_size},
-            )
-            rc("text", usetex=usetex)
-        else:
-            rc("font", **{"size": font_size})
-
-        fig, ax = plt.subplots(figsize=fig_size)
-        if not z:
-            ax.plot(
-                [i.name for i in x.I._],
-                self.V(*index).sol(True),
-                linewidth=linewidth,
-                color=color,
-            )
-        else:
-            for z_ in z:
-                index = [i.I for i in (z_,) + y + (x,)]
-                ax.plot(
-                    [i.name for i in x.I._],
-                    self.V(*index).sol(True),
-                    linewidth=linewidth,
-                    label=z_.label if z_.label else z_.name,
-                )
-
-        label_ = [i.label if i.label else i.name for i in y]
-        label_ = str(label_).replace("[", "").replace("]", "").replace("'", "")
-        plt.title(f"{self.label} - {label_}")
-        plt.ylabel("Values")
-        plt.xlabel(f"{x.label or x.name}")
-        plt.grid(alpha=grid_alpha)
-        if z:
-            plt.legend()
-        plt.rcdefaults()
+        return Sample(aspect=self, domain=domain, timed=timed, spaced=spaced)
 
     def __str__(self):
         return self.name

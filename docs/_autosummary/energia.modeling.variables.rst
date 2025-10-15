@@ -1,4 +1,4 @@
-﻿energia.modeling.variables
+energia.modeling.variables
 ==========================
 
 .. automodule:: energia.modeling.variables
@@ -14,5 +14,5 @@
    control
    loss
    recipe
-   reporting
+   sample
    states
