@@ -37,11 +37,12 @@ docs = [
     "sphinxcontrib-bibtex",
     "sphinx-copybutton",
     "sphinx-togglebutton",
-    "numpydoc",
-    "linkify"
+    "sphinx-thebe",
+    "sphinx-design",
+    "sphinx-examples",          
+    "sphinx-tabs",
+    "sphinxext-opengraph",
 ]
-
-
 
 [project.urls]
 Homepage = "https://github.com/TAMUparametric/energiapy"
