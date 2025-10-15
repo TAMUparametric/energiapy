@@ -110,7 +110,7 @@ extensions = [
     "sphinx_togglebutton",
     # Add support for bibliographies and citations using .bib files
     # Example usage: :cite:`doe2020`
-    # "sphinxcontrib.bibtex",
+    "sphinxcontrib.bibtex",
     # Include TODO notes in your docs without breaking the build
     # Example: .. todo:: Add more examples for the API
     "sphinx.ext.todo",
@@ -204,7 +204,10 @@ html_css_files = ['custom.css']
 html_copy_source = True
 html_last_updated_fmt = ""
 source_suffix = {".rst": 'restructuredtext', ".md": 'markdown', ".ipynb": 'myst-nb'}
-
+html_context = {
+    # ...
+    "default_mode": "light"
+}
 
 suppress_warnings = [
     "ref.python",  # suppress all ambiguous cross-reference warnings in Python domain
