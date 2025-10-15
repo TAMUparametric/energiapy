@@ -16,7 +16,6 @@ energia.modeling.variables.aspect
    .. autosummary::
    
       Aspect
-      Bind
       Couple
       Domain
       Indicator
@@ -27,6 +26,7 @@ energia.modeling.variables.aspect
       Periods
       Player
       Process
+      Sample
       Space
       Storage
       Time

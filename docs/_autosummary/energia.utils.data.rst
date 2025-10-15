@@ -1,4 +1,4 @@
-﻿energia.utils.data
+energia.utils.data
 ==================
 
 .. automodule:: energia.utils.data

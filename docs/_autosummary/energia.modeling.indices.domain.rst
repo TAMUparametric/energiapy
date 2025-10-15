@@ -1,4 +1,4 @@
-﻿energia.modeling.indices.domain
+energia.modeling.indices.domain
 ===============================
 
 .. automodule:: energia.modeling.indices.domain

@@ -8,9 +8,7 @@ energia.modeling.constraints.balance
 
    .. autosummary::
    
-      dataclass
       is_
-      sigma
    
    .. rubric:: Classes
 

@@ -1,4 +1,4 @@
-﻿energia.components.measure
+energia.components.measure
 ==========================
 
 .. automodule:: energia.components.measure

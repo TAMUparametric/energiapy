@@ -1,0 +1,4 @@
+/* Hides dark/light mode switch button */
+button.theme-switch-button {
+    display: none !important;
+}

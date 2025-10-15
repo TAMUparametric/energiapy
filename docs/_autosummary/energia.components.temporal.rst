@@ -1,4 +1,4 @@
-﻿energia.components.temporal
+energia.components.temporal
 ===========================
 
 .. automodule:: energia.components.temporal

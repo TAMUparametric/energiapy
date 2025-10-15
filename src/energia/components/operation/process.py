@@ -170,9 +170,6 @@ class Process(_Operation):
                 if res in self.model.grb:
                     time = time_checker(res, location, time)
                     _ = self.model.grb[res].get(location, {})
-                else:
-                    res.insitu = True
-                    _ = rhs(self.operate, location, time) == True
 
                 eff = par if isinstance(par, list) else [par]
 

@@ -1,4 +1,4 @@
-﻿energia.represent
+energia.represent
 =================
 
 .. automodule:: energia.represent
@@ -10,9 +10,6 @@
    :toctree:
    :recursive:
 
-   blocks
+   ations
    classifiers
-   graph
    model
-   program
-   scenario
