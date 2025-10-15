@@ -165,11 +165,11 @@ class Bind:
                 # --------- if just variable bound
                 rhs = parameter * self.sample.Vb()
 
-        # --------- if  parameter bound
         elif self.report or self.domain.modes is not None:
-            # --------- if  parameter bound and reported
+            # --------- if  parameter bound and reported or has modes
+            # create reporting variable write v <= p*x
             rhs = parameter * self.sample.X(parameter)
-            self.aspect.map_domain(self.domain, reporting=True)
+            self.aspect.update(self.domain, reporting=True)
 
         else:
             # --------- if just parameter bound

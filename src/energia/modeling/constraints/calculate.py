@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 from typing import TYPE_CHECKING, Self
 
 from ...utils.math import normalize
@@ -17,7 +16,6 @@ if TYPE_CHECKING:
     from ..variables.sample import Sample
 
 
-@dataclass
 class Calculate:
     """
     Calculate the value of a dependent variable based on the value of another variable.
@@ -43,17 +41,20 @@ class Calculate:
     :vartype index: I
     """
 
-    calculation: Sample
-    decision: Sample
-
-    def __post_init__(
+    def __init__(
         self,
+        calculation: Sample,
+        sample: Sample,
     ):
+        self.calculation = calculation
+
         self.model = self.calculation.model
         self.domain = self.calculation.domain
         self.name = self.calculation.name
         self.program = self.calculation.program
         self.index = self.calculation.index
+
+        self.sample = sample
 
         self._forall: list[_X] = []
 
@@ -95,13 +96,13 @@ class Calculate:
             # 6. spend = spend(bin0) + spend(bin1) + spend(bin2)
 
             # this takes care of 1 and 2
-            _ = self.decision == dict(enumerate(other))
+            _ = self.sample == dict(enumerate(other))
             # this takes care of 3-6
 
             # the new modes object would have just been added to the model
             modes = self.model.modes[-1]
 
-            _ = self.decision(modes)[self.calculation(modes)] == list(other.values())
+            _ = self.sample(modes)[self.calculation(modes)] == list(other.values())
 
         else:
 
@@ -132,9 +133,9 @@ class Calculate:
             else:
                 time = None
 
-            if self.decision.aspect not in self.model.dispositions:
+            if self.sample.aspect not in self.model.dispositions:
                 # if a calculation is given directly, without an explicit bound being set
-                _ = self.decision == True
+                _ = self.sample == True
 
             if self._forall:
                 if isinstance(other, list):
@@ -153,13 +154,13 @@ class Calculate:
                 else:
                     calc: Sample = self.calculation
 
-                if self.decision.domain.modes:
+                if self.sample.domain.modes:
                     # mode calculations, should map to modes
-                    calc = calc(self.decision.domain.modes)
+                    calc = calc(self.sample.domain.modes)
 
                 # the aspect the calculation is dependant on
-                decision: Sample = self.decision
-                if self.decision.report:
+                decision: Sample = self.sample
+                if self.sample.report:
                     # incidental, v_inc_calc = P_inc*x_v
                     v_lhs = calc.Vinc(other)
                     domain = calc.domain
@@ -192,5 +193,5 @@ class Calculate:
     def __call__(self, *index) -> Self:
         return Calculate(
             calculation=self.calculation(*index),
-            decision=self.decision(*index),
+            sample=self.sample(*index),
         )

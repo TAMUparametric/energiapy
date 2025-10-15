@@ -1,4 +1,4 @@
-﻿energia.components.impact
+energia.components.impact
 =========================
 
 .. automodule:: energia.components.impact

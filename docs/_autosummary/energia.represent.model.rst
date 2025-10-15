@@ -25,6 +25,7 @@ energia.represent.model
    .. autosummary::
    
       Callable
+      Consequence
       Control
       Conversion
       Couple
@@ -32,23 +33,32 @@ energia.represent.model
       Economic
       Emission
       Environ
+      Graph
       Impact
       Land
       Linkage
       Location
+      MPLP_Program
+      MPSolution
       Material
       Model
       Modes
       Periods
       Player
+      Problem
       Process
+      Program
       Recipe
       Resource
       Social
+      Space
       State
       Storage
       Stream
+      System
       TemporalScales
+      Time
       Transport
       Unit
+      defaultdict
    

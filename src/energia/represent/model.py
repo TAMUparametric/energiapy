@@ -2,11 +2,14 @@
 
 from __future__ import annotations
 
+from collections import defaultdict
 from collections.abc import Callable
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Optional, Self, Type
+from typing import TYPE_CHECKING, Literal, Optional, Self, Type
 
 from dill import dump
+from ppopt.mplp_program import MPLP_Program
+from ppopt.solution import Solution as MPSolution
 
 from .._core._x import _X
 from ..components.commodity.currency import Currency
@@ -46,23 +49,30 @@ from ..modeling.parameters.conversion import Conversion
 from ..modeling.variables.control import Control
 from ..modeling.variables.recipe import Recipe
 from ..modeling.variables.states import Impact, State, Stream
-from .graph import Graph
-from .mapper import Mapper
-from .program import Program
+from .ations.graph import Graph
+from .ations.program import Program
 
 if TYPE_CHECKING:
     from enum import Enum
+    from typing import DefaultDict
 
     from gana.block.solution import Solution
-    from gana.sets.index import I
+    from gurobipy import Model as GPModel
 
     from .._core._component import _Component
+    from ..components.commodity._commodity import _Commodity
+    from ..modeling.indices.domain import Domain
     from ..modeling.variables.aspect import Aspect
     from ..modeling.variables.sample import Sample
 
+    GRBType = DefaultDict[
+        _Commodity,
+        DefaultDict[Location | Linkage, DefaultDict[Periods, list[Aspect]]],
+    ]
+
 
 @dataclass
-class Model(Mapper):
+class Model:
     """
     An abstract representation of an energy system.
 
@@ -107,6 +117,14 @@ class Model(Mapper):
     :vartype attr_map: dict[str, dict[str, Recipe]]
     :ivar classifiers: List of classifiers for the Model.
     :vartype classifiers: list[Enum]
+    :ivar grb: Dictionary which tells you what aspects of resource have GRB {loc: time: []} and {time: loc: []}.
+    :vartype grb: DefaultDict[_Commodity,DefaultDict[Location | Linkage, DefaultDict[Periods, list[Aspect]]]]
+    :ivar dispositions: Dictionary which tells you what aspects of what component have been bound at what location and time.
+    :vartype dispositions: dict[Aspect, dict[_Commodity | Process | Storage | Transport, dict[Location | Linkage, dict[Periods, list[Aspect]]]]]
+    :ivar maps: Maps of aspects to domains.
+    :vartype maps: dict[Aspect, dict[Domain, dict[str, list[Domain]]]]
+    :ivar maps_report: Maps of aspects to domains for reporting variables.
+    :vartype maps_report: dict[Aspect, dict[Domain, dict[str, list[Domain]]]]
 
 
     :raises ValueError: If an attribute name already exists in the Model.
@@ -192,7 +210,27 @@ class Model(Mapper):
             "thetas",
             "indices",
             "objectives",
+            "A",
+            "B",
+            "C",
+            "F",
+            "G",
+            "H",
+            "CrA",
+            "CrB",
+            "NN",
+            "A_with_NN",
+            "B_with_NN",
+            "Z",
+            "P",
         ]
+
+        self.default_components = {
+            "l": self.default_location,
+            "t0": self.default_periods,
+            "t": self.default_periods,
+            "money": self.default_currency,
+        }
 
         self.graph_components = ["edges", "nodes"]
 
@@ -204,9 +242,6 @@ class Model(Mapper):
 
         # maps to recipes for creating aspects
         self.cookbook: dict[str, Recipe] = {}
-
-        # ---- Different representations of the model ---
-        Mapper.__post_init__(self)
 
         # Temporal Scope
         self.time = Time(self)
@@ -269,6 +304,26 @@ class Model(Mapper):
             "paradigm": [],
         }
 
+        # Dictionary which tells you what aspects of resource
+        # have been set in what location and time
+        self.grb: dict[
+            _Commodity,
+            dict[Location | Linkage, dict[Periods, list[Aspect]]],
+        ] = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
+
+        # Dictionary which tells you what aspects of what component
+        # have been bound at what location and time
+        self.dispositions: dict[
+            Aspect,
+            dict[
+                _Commodity | Process | Storage | Transport,
+                dict[Location | Linkage, dict[Periods, list[Aspect]]],
+            ],
+        ] = {}
+
+        self.maps: dict[Aspect, dict[Domain, dict[str, list[Domain]]]] = {}
+        self.maps_report: dict[Aspect, dict[Domain, dict[str, list[Domain]]]] = {}
+
     # -----------------------------------------------------
     #              Set Component
     # -----------------------------------------------------
@@ -294,9 +349,14 @@ class Model(Mapper):
         return self.system.operations
 
     @property
-    def solution(self) -> dict[int, Solution]:
+    def solution(self) -> dict[int, Solution | MPSolution]:
         """The solution of the program"""
         return self.program.solution
+
+    @property
+    def formulation(self) -> dict[int, GPModel | MPLP_Program]:
+        """The formulations of the program"""
+        return self.program.formulation
 
     def update(
         self,
@@ -400,6 +460,10 @@ class Model(Mapper):
         super().__setattr__(name, value)
 
     def __getattr__(self, name):
+
+        if name in self.default_components:
+            component = self.default_components[name]()
+            return component
 
         if name in self.dimension_map:
             dimension = getattr(self, self.dimension_map[name])
@@ -611,6 +675,12 @@ class Model(Mapper):
         """Solution"""
         return self.program.sol(n_sol=n_sol, slack=slack, compare=compare)
 
+    def eval(
+        self, *theta_vals: float, n_sol: int = 0, roundoff: int = 4
+    ) -> list[float]:
+        """Evaluate the objective function at given theta values"""
+        return self.program.eval(*theta_vals, n_sol=n_sol, roundoff=roundoff)
+
     def save(self, as_type: str = "dill"):
         """Save the Model to a file"""
         if as_type == "dill":
@@ -619,11 +689,15 @@ class Model(Mapper):
         else:
             raise ValueError(f"Unknown type {as_type} for saving the model")
 
-    def draw(self, variable: Aspect | Sample):
+    def draw(self, variable: Aspect | Sample = None, n_sol: int = 0):
         """Draw the solution for a variable"""
-        self.program.draw(variable.V())
+        if variable is not None:
+            self.program.draw(variable=variable.V(), n_sol=n_sol)
 
-    def default_period(self, size: int = None) -> Periods:
+        else:
+            self.program.draw(n_sol=n_sol)
+
+    def default_periods(self, size: int = 0) -> Periods:
         """Return a default period"""
 
         if size:
@@ -640,7 +714,7 @@ class Model(Mapper):
         self.t0 = Periods("Time")
         return self.t0
 
-    def default_loc(self) -> Location:
+    def default_location(self) -> Location:
         """Return a default location"""
         self.l = Location(label="l")
         return self.l
@@ -656,6 +730,26 @@ class Model(Mapper):
     def locate(self, *operations: Process | Storage):
         """Locate operations in the network"""
         self.network.locate(*operations)
+
+    def solve(
+        self,
+        using: Literal[
+            "combinatorial",
+            "combinatorial_parallel",
+            "combinatorial_parallel_exp",
+            "graph",
+            "graph_exp",
+            "graph_parallel",
+            "graph_parallel_exp",
+            "combinatorial_graph",
+            "geometric",
+            "geometric_parallel",
+            "geometric_parallel_exp",
+        ] = "combinatorial",
+    ):
+        """Solve the multiparametric program"""
+
+        self.program.solve(using=using)
 
     def __call__(self, *funcs: Callable[Self]):
         """Set functions on the model

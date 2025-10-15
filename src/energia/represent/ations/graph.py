@@ -5,11 +5,11 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-from ..components.graph.edge import Edge
-from ..components.graph.node import Node
+from ...components.graph.edge import Edge
+from ...components.graph.node import Node
 
 if TYPE_CHECKING:
-    from .model import Model
+    from ..model import Model
 
 
 @dataclass

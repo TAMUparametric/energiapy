@@ -1,7 +1,7 @@
-energia.represent.graph
-=======================
+energia.represent.ations.graph
+==============================
 
-.. automodule:: energia.represent.graph
+.. automodule:: energia.represent.ations.graph
 
    
    .. rubric:: Functions

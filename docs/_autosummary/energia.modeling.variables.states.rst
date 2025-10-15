@@ -21,6 +21,8 @@ energia.modeling.variables.states
       Impact
       IndStream
       Map
+      SetPoint
+      Size
       State
       Stream
    

@@ -1,54 +1,47 @@
 """dictionary utils"""
 
+from collections import defaultdict
 
-def get_depth(dict_: dict) -> int:
+
+def get_depth(d: dict) -> int:
     """
     Finds the depth of a dictionary.
 
-    Parameters
-    ----------
-    dict_ : :class:`dict`
-        The dictionary to measure.
+    Args:
+        d (dict): The dictionary to measure.
 
-    Returns
-    -------
-    int
-        Depth of the dictionary.
+    Returns:
+        int: Depth of the dictionary.
     """
-    if not isinstance(dict_, dict) or not dict_:
-        # If the input is not a dict_ or is an empty dict_, return 0
+    if not isinstance(d, dict) or not d:
+        # If the input is not a d or is an empty d, return 0
         return 0
 
     # Recursively find the maximum depth of nested dictionaries
-    max_depth = max(get_depth(value) for value in dict_.values())
+    max_depth = max(get_depth(value) for value in d.values())
 
     # Return one more than the maximum depth found
     return 1 + max_depth
 
 
-def flatten(dict_: dict, key_: tuple = ()) -> dict:
+def flatten(d: dict, key: tuple = ()) -> dict:
     """
     Makes a flat dictionary from a nested dictionary.
 
-    Parameters
-    ----------
-    dict_ : :class:`dict`
-        Nested dictionary. For example: ``{'a': {'b': {'c': 1}}}``.
-    key_ : :class:`tuple`, optional
-        Internal use; do not provide an input. Defaults to ``()``.
+    Args:
+        d (dict): The dictionary to flatten.
+        key (tuple, optional): Current key path. Defaults to ``()``.
 
-    Returns
-    -------
-    :class:`dict`
-        Flattened dictionary. For example: ``{('a', 'b', 'c'): 1}``.
+    Returns:
+        dict: Flattened dictionary with tuple keys.
     """
     items = []
-    for key, val in dict_.items():
-        key_upd = key_ + (key,)
+    for key, val in d.items():
+        keyupd = key + (key,)
         if isinstance(val, dict):
-            items.extend(flatten(val, key_upd).items())
+            items.extend(flatten(val, keyupd).items())
         else:
-            items.append((key_upd, val))
+            items.append((keyupd, val))
     return dict(items)
 
 
@@ -83,3 +76,24 @@ def tupler(d: dict, path: tuple = ()) -> list[tuple[str]]:
                 result.append(path_ + (v_,))
 
     return result
+
+
+def merge_trees(d1: dict, d2: dict) -> dict:
+    """Recursively merge two tree-like dicts (values always dicts)."""
+    result = dict(d1)  # shallow copy of d1
+    for k, v in d2.items():
+        if k in result:
+            result[k] = merge_trees(
+                result[k],
+                v,
+            )  # recurse since v must also be a dict
+        else:
+            result[k] = v
+    return result
+
+
+def dictify(d: defaultdict | dict) -> dict:
+    """Recursively convert defaultdict to dict."""
+    if isinstance(d, defaultdict):
+        return {k: dictify(v) for k, v in d.items()}
+    return d

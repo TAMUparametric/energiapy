@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 from functools import cached_property
 from itertools import chain
 from typing import TYPE_CHECKING, Optional, Self
@@ -10,7 +9,7 @@ from typing import TYPE_CHECKING, Optional, Self
 from gana import I as Idx
 from gana import V, inf, sigma, sup
 
-from ..._core._generator import _Generator
+from ...utils.dictionary import merge_trees
 from ..constraints.bind import Bind
 from ..constraints.calculate import Calculate
 
@@ -19,19 +18,17 @@ if TYPE_CHECKING:
 
     from ..._core._component import _Component
     from ..._core._x import _X
+    from ..indices.domain import Domain
+    from ..variables.aspect import Aspect
 
-# import time as keep_time
-# from ...components.temporal.modes import Modes
-# from ...utils.math import normalize
 
 # ------------------------------------------------------------------------------
-# Bind is the primary constraint generator
+# Sample is the primary constraint generator
 # These are essentially a variable waiting to be bound
 # ------------------------------------------------------------------------------
 
 
-@dataclass
-class Sample(_Generator):
+class Sample:
     """
     Sets a bound on a variable (V) within a particular domain.
 
@@ -65,14 +62,29 @@ class Sample(_Generator):
     - ``domains`` are updated as the program is built.
     """
 
-    # if the temporal index is predetermined
-    timed: bool = False
-    # if the spatial index is predetermined
-    spaced: bool = False
+    def __init__(
+        self,
+        aspect: Aspect,
+        domain: Domain,
+        label: str = "",
+        timed: bool = False,
+        spaced: bool = False,
+    ):
 
-    def __post_init__(self):
+        # this is the aspect for which the constraint is being defined
+        self.aspect = aspect
+        # the domain is passed when the aspect is called using __call__()
+        self.domain = domain
 
-        _Generator.__post_init__(self)
+        self.label = label
+        # if the temporal index is predetermined
+        self.timed = timed
+        # if the spatial index is predetermined
+        self.spaced = spaced
+
+        self.model = self.aspect.model
+        self.program = self.model.program
+        self.grb = self.model.grb
 
         # if the aspect is bound (operate for example)
         self.bound = self.aspect.bound
@@ -224,7 +236,7 @@ class Sample(_Generator):
             """Assigns to network is spatial index is not given"""
             # if spatial index is not explicity given
             # default to the network
-            self.domain.loc = self.aspect.network
+            self.domain.location = self.aspect.network
 
         if not self.spaced:
             # if the spatial index is not passed
@@ -319,12 +331,8 @@ class Sample(_Generator):
 
             # this updates the balanced dictionary, by adding the commodity as a key
 
-            if self.domain.commodity:
-                self.model.update_grb(
-                    self.domain.commodity,
-                    time=self.domain.periods,
-                    space=self.domain.loc,
-                )
+            if self.domain.commodity and not self.domain.lag:
+                _ = self.grb[self.domain.commodity][self.domain.space][self.domain.time]
 
             # this lets all index elements in the domain know
             # that the aspect was sampled
@@ -334,11 +342,14 @@ class Sample(_Generator):
 
             # get the primary component
             # update the disposition dictionary
-            self.model.update_dispositions(self.aspect, self.domain)
+            self.model.dispositions = merge_trees(
+                self.model.dispositions,
+                {self.aspect: self.domain.tree},
+            )
 
             # for the same aspect, map variables with higher order indices
             # to variables with lower order indices
-            self.aspect.map_domain(self.domain)
+            self.aspect.update(self.domain)
 
             self.aspect.domains.append(self.domain)
 
@@ -379,11 +390,12 @@ class Sample(_Generator):
         bound_aspect = getattr(self.model, self.aspect.bound)
 
         if bound_aspect not in self.model.dispositions:
-            print(
-                f"--- Aspect ({bound_aspect}) not defined, a variable will be created at {self.domain.space} assuming {self.model.horizon} as the temporal index",
-            )
+            return 1
+            # print(
+            #     f"--- Aspect ({bound_aspect}) not defined, a variable will be created at {self.domain.space} assuming {self.model.horizon} as the temporal index",
+            # )
 
-            _ = bound_aspect(self.domain.primary, self.domain.space).V()
+            # _ = bound_aspect(self.domain.primary, self.domain.space).V()
 
         if (
             self.domain.space
@@ -430,8 +442,8 @@ class Sample(_Generator):
         """
         return self.V(parameters, length, report=True)
 
-    def opt(self, max: bool = False):
-        """Optimize
+    def obj(self, max: bool = False):
+        """Set the sample itself as the objective
 
         max (bool): if maximization, defaults to False
         """
@@ -440,31 +452,39 @@ class Sample(_Generator):
             self.domain.periods = self.model.horizon
         if not self.spaced:
             # if the spatial index is not passed
-            self.domain.loc = self.model.network
+            self.domain.location = self.model.network
 
         # consider all of self.domain
         v = self.V()
 
         if len(v) == 1:
-            obj = v
+            _obj = v
         else:
-            print("aaa", v, v.__dict__)
-            obj = sigma(v)
+
+            _obj = sigma(v)
 
         if self.hasinc:
             # if there is an incidental variable
             # the incidental variable is added to the objective
             v_inc = self.Vinc()
             if len(v_inc) == 1:
-                obj += v_inc
+                _obj += v_inc
             else:
-                obj += sigma(v_inc)
+                _obj += sigma(v_inc)
 
         if max:
-            setattr(self.program, f"max{self.aspect.name})", sup(obj))
+            setattr(self.program, f"max{self.aspect.name})", sup(_obj))
         else:
-            setattr(self.program, f"min({self.aspect.name})", inf(obj))
+            setattr(self.program, f"min({self.aspect.name})", inf(_obj))
 
+        self.program.renumber()
+
+    def opt(self, max: bool = False):
+        """Optimize
+
+        max (bool): if maximization, defaults to False
+        """
+        self.obj(max)
         # optimize!
         self.program.opt()
 
@@ -494,6 +514,13 @@ class Sample(_Generator):
             aslist (bool, optional): Returns the solution as list, otherwise as a variable
         """
         return self.V().sol(aslist=aslist)
+
+    def eval(self, *values: float):
+        """Evaluate the variable using parametric variable values
+        Args:
+            *values (float): values for the parametric variables
+        """
+        return self.V().eval(*values)
 
     def forall(self, index) -> Self:
         """Returns the function at the given index"""
@@ -550,7 +577,7 @@ class Sample(_Generator):
         decision = self(*self.index_short)
         decision.report = self.report
 
-        return Calculate(calculation=calculation, decision=decision)
+        return Calculate(calculation=calculation, sample=decision)
 
         # variable.report = self.report
         # return Calculate(calc=dependent(*self.index), decision=variable)
@@ -559,6 +586,15 @@ class Sample(_Generator):
         """Draws the variable"""
         v = self.V()
         v.draw(**kwargs)
+
+    def __str__(self):
+        return self.name
+
+    def __repr__(self):
+        return self.name
+
+    def __hash__(self):
+        return hash(self.name)
 
 
 # This is for binding sample operations, eg. sample + sample or sample - sample
