@@ -200,7 +200,7 @@ autodoc_member_order = 'bysource'
 
 html_theme = 'sphinx_book_theme'
 html_static_path = ['_static']
-html_css_files = ['custom.css']
+# html_css_files = ['custom.css']
 html_copy_source = True
 html_last_updated_fmt = ""
 source_suffix = {".rst": 'restructuredtext', ".md": 'markdown', ".ipynb": 'myst-nb'}
