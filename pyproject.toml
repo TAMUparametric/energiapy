@@ -23,7 +23,7 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 
-dependencies = ["gana", "ppopt", "matplotlib", "scipy", "pandas", "numpy", "gurobipy"]
+dependencies = ["gana", "ppopt", "IPython", "matplotlib", "scipy", "pandas", "numpy", "gurobipy"]
 
 [project.optional-dependencies]
 all = ["pvlib", "windpowerlib", "h5pyd"]
