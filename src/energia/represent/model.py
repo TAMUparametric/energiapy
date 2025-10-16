@@ -360,12 +360,16 @@ class Model:
     ):
         """Update the Model with a new value
 
-        Args:
-            name (str): Name of the value to be added
-            value (X): Value to be added
-            represent (str): Representation to which the value belongs
-            collection (str): Collection within the representation to which the value belongs
-            subset (bool, optional): If True, the value is not added to the Model's
+        :param name: Name of the value to be added
+        :type name: str
+        :param value: Value to be added
+        :type value: X
+        :param represent: Representation to which the value belongs
+        :type represent: str
+        :param collection: Collection within the representation to which the value belongs
+        :type collection: str
+        :param aspects: Aspects to be added to the value, defaults to None
+        :type aspects: list[str], optional
         """
 
         value.name = name
@@ -506,7 +510,13 @@ class Model:
         )
 
     def aliases(self, *names: str, to: str):
-        """Set aspect aliases"""
+        """Set aspect aliases
+
+        :param names: Names of the aliases
+        :type names: str
+        :param to: Name of the aspect to which the aliases point
+        :type to: str
+        """
         _add = dict.fromkeys(list(names), {to: self.cookbook[to]})
         self.attr_map = {**self.attr_map, **_add}
 
@@ -516,33 +526,56 @@ class Model:
         kind: Type[Aspect],
         primary_type: tuple[Type[_Component]] | Type[_Component],
         label: str = "",
+        latex: Optional[str] = None,
         add: str = "",
         add_latex: str = "",
-        add_kind: Type[Aspect] = None,
+        add_kind: Optional[Type[Aspect]] = None,
         sub: str = "",
         sub_latex: str = "",
-        sub_kind: Type[Aspect] = None,
+        sub_kind: Optional[Type[Aspect]] = None,
         neg: str = "",
         neg_latex: str = "",
         neg_label: str = "",
         bound: str = "",
         ispos: bool = True,
         nn: bool = True,
-        latex: str = None,
     ):
         """Creates a Recipe and updates recipes
 
-        Args:
-            name (str): name of the aspect
-            kind (Type[Aspect]): type of the aspect
-            primary_type (tuple[Type[_Component]] | Type[_Component]): type of primary component
-            label (str, optional): label for the aspect. Defaults to ''.
-            add (str, optional): add control variable. Defaults to ''.
-            sub (str, optional): sub control variable. Defaults to ''.
-            neg (str, optional): name of the negative aspect. Defaults to ''.
-            ispos (bool, optional): whether the aspect is positive. Defaults to True.
-            nn (bool, optional): whether the aspect is non-negative. Defaults to True.
-            latex (str, optional): LaTeX representation for the aspect. Defaults to None.
+        :param name: Name of the aspect
+        :type name: str
+        :param kind: type of the aspect
+        :type kind: Type[Aspect]
+        :param primary_type: type of primary component
+        :type primary_type: tuple[Type[_Component]] | Type[_Component]
+        :param label: label for the aspect. Defaults to ''.
+        :type label: str, optional
+        :param latex: LaTeX representation for the aspect. Defaults to None.
+        :type latex: str, optional
+        :param add: add control variable. Defaults to ''.
+        :type add: str, optional
+        :param add_latex: LaTeX representation for the add aspect. Defaults to ''.
+        :type add_latex: str, optional
+        :param add_kind: type of the add aspect. Defaults to None.
+        :type add_kind: Optional[Type[Aspect]], optional
+        :param sub: sub control variable. Defaults to ''.
+        :type sub: str, optional
+        :param sub_latex: LaTeX representation for the sub aspect. Defaults to ''.
+        :type sub_latex: str, optional
+        :param sub_kind: type of the sub aspect. Defaults to None.
+        :type sub_kind: Optional[Type[Aspect]], optional
+        :param neg: name of the negative aspect. Defaults to ''.
+        :type neg: str, optional
+        :param neg_latex: LaTeX representation for the negative aspect. Defaults to ''.
+        :type neg_latex: str, optional
+        :param neg_label: label for the negative aspect. Defaults to ''.
+        :type neg_label: str, optional
+        :param bound: name of the bound aspect. Defaults to ''.
+        :type bound: str, optional
+        :param ispos: whether the aspect is positive. Defaults to True.
+        :type ispos: bool, optional
+        :param nn: whether the aspect is non-negative. Defaults to True.
+        :type nn: bool, optional
         """
         if name in self.cookbook:
             print(f"--- Warning: Overriding existing recipe ---{name}")
@@ -606,7 +639,13 @@ class Model:
     # -----------------------------------------------------
 
     def declare(self, what: Type[_X], names: list[str]):
-        """Declares objects conveniently"""
+        """Declares objects conveniently
+
+        :param what: Type of object to be created
+        :type what: Type[X]
+        :param names: Names of the objects to be created
+        :type names: list[str]
+        """
         for i in names:
             setattr(self, i, what())
 
@@ -614,10 +653,21 @@ class Model:
         self,
         source: Location,
         sink: Location,
-        dist: float | Unit = None,
+        dist: Optional[float | Unit] = None,
         bi: bool = False,
     ):
-        """Link two Locations"""
+        """
+        Link two Locations
+
+        :param source: Source Location
+        :type source: Location
+        :param sink: Sink Location
+        :type sink: Location
+        :param dist: Distance between the Locations. Defaults to None.
+        :type dist: float | Unit, optional
+        :param bi: Whether the linkage is bidirectional. Defaults to False.
+        :type bi: bool, optional
+        """
         if source - sink:
             # if source and sink are already linked
             raise ValueError(
@@ -658,9 +708,18 @@ class Model:
         self,
         descriptive: bool = False,
         categorical: bool = True,
-        category: str = None,
+        category: Optional[str] = None,
     ):
-        """Pretty print the Model"""
+        """
+        Pretty print the Model
+
+        :param descriptive: Whether to show descriptive information. Defaults to False.
+        :type descriptive: bool, optional
+        :param categorical: Whether to group by category. Defaults to True.
+        :type categorical: bool, optional
+        :param category: If provided, shows only this category. Defaults to None.
+        :type category: str, optional
+        """
         self.program.show(descriptive, categorical=categorical, category=category)
 
     def sol(self, n_sol: int = 0, slack: bool = True, compare: bool = False):
@@ -670,7 +729,19 @@ class Model:
     def eval(
         self, *theta_vals: float, n_sol: int = 0, roundoff: int = 4
     ) -> list[float]:
-        """Evaluate the objective function at given theta values"""
+        """
+        Evaluate the objective function at given theta values
+
+        :param theta_vals: values for the parametric variables
+        :type theta_vals: float
+        :param n_sol: solution number to evaluate, defaults to 0
+        :type n_sol: int, optional
+        :param roundoff: number of decimal places to round off to, defaults to 4
+        :type roundoff: int, optional
+
+        :return: list of objective function values
+        :rtype: list[float]
+        """
         return self.program.eval(*theta_vals, n_sol=n_sol, roundoff=roundoff)
 
     def save(self, as_type: str = "dill"):
@@ -681,8 +752,16 @@ class Model:
         else:
             raise ValueError(f"Unknown type {as_type} for saving the model")
 
-    def draw(self, variable: Aspect | Sample = None, n_sol: int = 0):
-        """Draw the solution for a variable"""
+    def draw(self, variable: Optional[Aspect | Sample] = None, n_sol: int = 0):
+        """
+        Draw the solution for a variable
+
+        :param variable: Variable to draw. Defaults to None.
+        :type variable: Optional[Aspect | Sample], optional
+        :param n_sol: Solution number to draw. Defaults to 0.
+        :type n_sol: int, optional
+
+        """
         if variable is not None:
             self.program.draw(variable=variable.V(), n_sol=n_sol)
 
@@ -690,7 +769,14 @@ class Model:
             self.program.draw(n_sol=n_sol)
 
     def default_periods(self, size: int = 0) -> Periods:
-        """Return a default period"""
+        """Return a default period
+
+        :param size: Size of the period. Defaults to 0.
+        :type size: int, optional
+
+        :return: Periods object
+        :rtype: Periods
+        """
 
         if size:
             # if size is passed,
@@ -720,7 +806,11 @@ class Model:
         return self.money
 
     def locate(self, *operations: Process | Storage):
-        """Locate operations in the network"""
+        """Locate operations in the network
+
+        :param operations: Operations to locate
+        :type operations: Process | Storage
+        """
         self.network.locate(*operations)
 
     def solve(
@@ -739,7 +829,24 @@ class Model:
             "geometric_parallel_exp",
         ] = "combinatorial",
     ):
-        """Solve the multiparametric program"""
+        """
+        Solve the multiparametric program
+
+        :param using: The solving method to use. Defaults to "combinatorial".
+        :type using: Literal[
+            "combinatorial",
+            "combinatorial_parallel",
+            "combinatorial_parallel_exp",
+            "graph",
+            "graph_exp",
+            "graph_parallel",
+            "graph_parallel_exp",
+            "combinatorial_graph",
+            "geometric",
+            "geometric_parallel",
+            "geometric_parallel_exp",
+        ], optional
+        """
 
         self.program.solve(using=using)
 

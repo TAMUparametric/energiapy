@@ -21,8 +21,8 @@ if TYPE_CHECKING:
 
 
 class Location(_X):
-    """A discretization of Space
-    A location can be inclusive of other locations
+    """
+    A discretization of Space. A location can be inclusive of other locations
 
 
     :param has: Locations contained in this Location.
@@ -162,14 +162,16 @@ class Location(_X):
         return False
 
     def links(self, location, print_link: bool = True) -> list[Linkage]:
-        """Finds the links between two Locations
+        """
+        Finds the links between two Locations
 
-        Args:
-            location (IsLocation): Location to find links with
-            print_link (bool, optional): Whether the links are to be printed. Defaults to True.
+        :param location: Location to find links with
+        :type location: IsLocation
+        :param print_link: Whether the links are to be printed. Defaults to True.
+        :type print_link: bool, optional
 
-        Returns:
-            list: Provides the links between the locations
+        :returns: Links between the Locations
+        :rtype: list[Linkage]
         """
         # this prints out all the links between the two locations
         links = []
@@ -190,14 +192,16 @@ class Location(_X):
         return links
 
     def connected(self, location, print_link: bool = False) -> bool:
-        """Finds whether the Locations are connected
+        """
+        Finds whether the Locations are connected
 
-        Args:
-            location (IsLocation): Location to verify Links with
-            print_link (bool, optional): Whether to print the Links. Defaults to False.
+        :param location: Location to verify Links with
+        :type location: IsLocation
+        :param print_link: Whether to print the Links. Defaults to False.
+        :type print_link: bool, optional
 
-        Returns:
-            bool: True if Locations are connection
+        :return: True if Locations are connected
+        :rtype: bool
         """
         # this lets you know whether the two locations are connected
         if self.links(location, print_link=print_link):

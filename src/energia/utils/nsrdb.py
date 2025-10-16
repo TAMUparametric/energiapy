@@ -1,5 +1,7 @@
 """Fetch data from NREL's NSRDB database"""
 
+from typing import Optional
+
 from numpy import array, average
 from pandas import DataFrame, to_datetime
 from scipy.spatial import cKDTree
@@ -20,22 +22,31 @@ def fetch_nsrdb_data(
     county: str = "",
     resolution: str = "",
     get: str = "max-population",
-    save: str = None,
+    save: Optional[str] = None,
 ) -> DataFrame | tuple:
-    """fetches nsrdb data from nearest coordinates (latitude, longitude)
+    """
+    Fetches nsrdb data from nearest coordinates (latitude, longitude)
     or from county in a state matching a particular 'get' metric
 
-    Args:
-        attrs (list[str]): attributes to fetch ['air_temperature', 'clearsky_dhi', 'clearsky_dni', 'clearsky_ghi', 'cloud_type', 'coordinates', 'dew_point', 'dhi', 'dni', 'fill_flag', 'ghi', 'meta', 'relative_humidity', 'solar_zenith_angle', 'surface_albedo', 'surface_pressure', 'time_index', 'total_precipitable_water', 'wind_direction', 'wind_speed']
-        year (int): year of choice, e.g. 2019
-        lat_lon (Tuple[float], optional): (latitude, longitude) to fetch closest data point. Defaults to None.
-        state (str, optional): capitalized state name, e.g. 'Texas' . Defaults to ''.
-        county (str, optional): capitalized county name, e.g. 'Brazos' . Defaults to ''.
-        resolution (str, optional): choose from 'halfhourly', 'hourly', 'daily'. Defaults to ''.
-        get (str, optional): Defaults to 'max-population'. From within county choose the data point that matches one of the following. 'max-population', 'max-elevation', 'max-landcover' 'min-population', 'min-elevation', 'min-landcover'
+    :param attrs: attributes to fetch
+    :type attrs: list[str]
+    :param year: year of choice, e.g. 2019
+    :type year: int
+    :param lat_lon: (latitude, longitude) to fetch closest data point. Defaults to None.
+    :type lat_lon: tuple[float] | None
+    :param state: capitalized state name, e.g. 'Texas' . Defaults to ''.
+    :type state: str
+    :param county: capitalized county name, e.g. 'Brazos' . Defaults to ''.
+    :type county: str
+    :param resolution: choose from 'halfhourly', 'hourly', 'daily'. Defaults to ''.
+    :type resolution: str
+    :param get: Defaults to 'max-population'. From within county choose the data point that matches one of the following. 'max-population', 'max-elevation', 'max-landcover' 'min-population', 'min-elevation', 'min-landcover'
+    :type get: str
+    :param save: path to save the data. Defaults to None.
+    :type save: str | None
 
-    Returns:
-        DataFrame, tuple: Dataframe with output data, (latitude, longitude)
+    :return: DataFrame with output data, (latitude, longitude)
+    :rtype: DataFrame | tuple
     """
 
     if import_all:

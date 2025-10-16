@@ -7,7 +7,8 @@ from .indicator import Indicator
 
 @dataclass
 class Environ(Indicator):
-    """Environmental Impact
+    """
+    Environmental Impact
 
     :param basis: Unit basis of the component. Defaults to None.
     :type basis: Unit, optional
@@ -32,7 +33,8 @@ class Environ(Indicator):
 
 @dataclass
 class Social(Indicator):
-    """Soc Impact
+    """
+    Social Impact
 
     :param basis: Unit basis of the component. Defaults to None.
     :type basis: Unit, optional
@@ -57,7 +59,8 @@ class Social(Indicator):
 
 @dataclass
 class Economic(Indicator):
-    """Economic impact
+    """
+    Economic impact
 
     :param basis: Unit basis of the component. Defaults to None.
     :type basis: Unit, optional

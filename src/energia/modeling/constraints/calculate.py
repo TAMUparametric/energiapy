@@ -64,16 +64,29 @@ class Calculate:
         # the input argument is normalized if True
         self._normalize: bool = False
 
-    def forall(self, index) -> Self:
-        """Write the constraint for all indices in the index set"""
+    def forall(self, index: list[_X]) -> Self:
+        """
+        Write the constraint for all indices in the index set
+
+        :param index: List of indices over which the constraint is written
+        :type index: list[_X]
+        :returns: calculate object with the forall indices set
+        :rtype: Self
+        """
         self._forall = index
         return self
 
     def prep(self, nominal: float = 1, norm: bool = True) -> Self:
-        """Nominal value
-        Args:
-            value (float): Nominal value to multiply with bounds
-            norm (bool): If the input argument (bounds) are normalized, defaults to True
+        """
+        Nominal value
+
+        :param nominal: If the input argument (bounds) are to be scaled, defaults to 1
+        :type nominal: float, optional
+        :param norm: If the input argument (bounds) are normalized, defaults to True
+        :type norm: bool, optional
+
+        :returns: calculate object with the nominal and normalization set
+        :rtype: Self
         """
         self._nominal = nominal
         self._normalize = norm

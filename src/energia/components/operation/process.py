@@ -19,8 +19,8 @@ if TYPE_CHECKING:
 
 @dataclass
 class Process(_Operation):
-    """Process converts one Resource to another Resource
-    at some Location
+    """
+    Process converts one Resource to another Resource at some Location
 
     :param basis: Unit basis of the component. Defaults to None.
     :type basis: Unit, optional

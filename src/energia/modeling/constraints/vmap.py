@@ -18,7 +18,8 @@ if TYPE_CHECKING:
 
 
 class Map:
-    """Maps between domains
+    """
+    Maps between domains
 
     :param aspect: Aspect to which the constraint is applied.
     :type aspect: Aspect
@@ -26,10 +27,12 @@ class Map:
     :type domain: Domain
     :param reporting: If True, the map is for a reporting variable.
     :type reporting: bool
+    :param label: Label for the constraint. Defaults to "".
+    :type label: str
     """
 
     def __init__(
-        self, aspect: Aspect, domain: Domain, label: str = "", reporting=False
+        self, aspect: Aspect, domain: Domain, reporting=False, label: str = ""
     ):
 
         # if the variable is being defined for the first time, do not bother with the rest
@@ -65,8 +68,8 @@ class Map:
 
         self.aspect = aspect
         self.domain = domain
-        self.label = label
         self.reporting = reporting
+        self.label = label
 
         if self.domain.lag:
             return
@@ -109,7 +112,7 @@ class Map:
         return f"{self.aspect.name}_map"
 
     @cached_property
-    def maps(self) -> dict[str, list[Domain]]:
+    def maps(self) -> dict[Domain, dict[str, list[Domain]]]:
         return self.aspect.maps_report if self.reporting else self.aspect.maps
 
     # ---------------------------------------------------------------------- #
@@ -119,6 +122,20 @@ class Map:
     def _map_across_time(
         self, dispositions, space, time, sparser_periods, denser_periods
     ):
+        """
+        Maps across time
+
+        :param dispositions: Dispositions at which the aspect has been defined
+        :type dispositions: dict[Space, dict[Periods, dict[Aspect, dict[Component, ...]]]]
+        :param space: Space at which the domain is defined
+        :type space: Space
+        :param time: Time at which the domain is defined
+        :type time: Periods
+        :param sparser_periods: Periods sparser than the domain period
+        :type sparser_periods: list[Periods]
+        :param denser_periods: Periods denser than the domain period
+        :type denser_periods: list[Periods]
+        """
         for sp in sparser_periods:
             # check if the aspect has been defined for a sparser period
             # this creates a map from this domain to a sparser domain
@@ -145,6 +162,18 @@ class Map:
                 self.writecons_map(from_domain, self.domain, tsum=True)
 
     def _map_across_space(self, dispositions, contained_locs, parent_loc, time):
+        """
+        Maps across space
+        
+        :param dispositions: Dispositions at which the aspect has been defined
+        :type dispositions: dict[Space, dict[Periods, dict[Aspect, dict[Component, ...]]]]
+        :param contained_locs: Locations contained in the domain location
+        :type contained_locs: list[Space]
+        :param parent_loc: Parent location of the domain location
+        :type parent_loc: Space | None
+        :param time: Time at which the domain is defined
+        :type time: Periods
+        """
 
         parent_loc = self.domain.location.isin
 

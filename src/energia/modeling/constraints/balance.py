@@ -22,12 +22,19 @@ if TYPE_CHECKING:
 class Balance:
     """Performs a general commodity balance
 
-    Args:
-        aspect (Aspect. optional): Aspect to which the constraint is applied
-        domain (Domain. optional): Domain over which the aspect is defined
+    :param aspect: Aspect to which the constraint is applied
+    :type aspect: Aspect
+    :param domain: Domain over which the aspect is defined
+    :type domain: Domain
+    :param label: Label for the constraint. Defaults to "".
+    :type label: str
 
-    Attributes:
-        name (str. optional): Name of the constraint.
+    :ivar model: The model to which the component belongs.
+    :vartype model: Model
+    :ivar program: The program to which the constraint belongs.
+    :vartype program: Program
+    :ivar grb: The general resource balance dictionary.
+    :vartype grb: dict[Commodity, dict[Location, dict[Periods, list[Aspect]]]]
     """
 
     def __init__(self, aspect: Aspect, domain: Domain, label: str = ""):
@@ -104,7 +111,21 @@ class Balance:
         time: Periods,
         cons_grb: C,
     ) -> bool:
-        """Updates an existing GRB constraint with the new aspect"""
+        """
+        Updates an existing GRB constraint with the new aspect
+
+        :param name: Name of the constraint
+        :type name: str
+        :param stored: If the commodity is stored
+        :type stored: bool
+        :param time: Time period of the constraint
+        :type time: Periods
+        :param cons_grb: The existing GRB constraint
+        :type cons_grb: C
+
+        :returns: If the constraint was updated
+        :rtype: bool
+        """
         if stored and self.aspect.name == "inventory":
 
             if len(time) == 1:
@@ -134,7 +155,21 @@ class Balance:
     def _create_constraint(
         self, name: str, stored: bool, time: Periods, space: Location | Linkage
     ) -> bool:
-        """Creates a new GRB constraint"""
+        """
+        Creates a new GRB constraint
+
+        :param name: Name of the constraint
+        :type name: str
+        :param stored: If the commodity is stored
+        :type stored: bool
+        :param time: Time period of the constraint
+        :type time: Periods
+        :param space: Location or Linkage of the constraint
+        :type space: Location | Linkage
+
+        :returns: If the constraint was created
+        :rtype: bool
+        """
 
         if stored and self.aspect.name == "inventory":
 
@@ -172,8 +207,19 @@ class Balance:
 
         return True
 
-    def writecons_grb(self, commodity, loc, time):
-        """Writes the stream balance constraint"""
+    def writecons_grb(self, commodity, loc, time) -> bool | None:
+        """Writes the stream balance constraint
+
+        :param commodity: Commodity being balanced
+        :type commodity: Commodity
+        :param loc: Location at which the balance is being written
+        :type loc: Location
+        :param time: Time period at which the balance is being written
+        :type time: Periods
+
+        :returns: False if the constraint was not created or updated
+        :rtype: bool | None
+        """
 
         if (
             loc.isin is not None
@@ -231,7 +277,7 @@ class Balance:
             )
 
         if not made:
-            return
+            return False
 
         end = keep_time.time()
         print(f"    Completed in {end-start} seconds")

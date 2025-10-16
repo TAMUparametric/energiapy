@@ -82,8 +82,7 @@ class Aspect:
     :ivar domains: List of domains associated with the Aspect.
     :vartype domains: list[Domain]
 
-    raises ValueError:
-        - If `primary_type` is not defined.
+    :raises ValueError: If `primary_type` is not defined.
     """
 
     primary_type: Type[_Component] | tuple[Type[_Component], ...]
@@ -229,10 +228,11 @@ class Aspect:
         return self.model.dispositions[self]
 
     def aliases(self, *names: str):
-        """Create aliases for the decision
+        """
+        Create aliases for the decision
 
-        Args:
-            names (str): Names of the aliases
+        :param names: Names of the aliases
+        :type names: str
         """
         self.model.aliases(*names, to=self.name)
 
@@ -251,7 +251,8 @@ class Aspect:
         asdict: bool = False,
         compare: bool = False,
     ) -> list[float] | dict[tuple[Idx, ...], float] | None:
-        """Solution
+        """
+        Solution
 
         :param n_sol: Solution number. Defaults to 0.
         :type n_sol: int, optional

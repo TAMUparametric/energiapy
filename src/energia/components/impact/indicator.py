@@ -13,7 +13,8 @@ if TYPE_CHECKING:
 
 @dataclass
 class Indicator(_Component):
-    """Impact Indicator
+    """
+    Impact Indicator
 
     :param basis: Unit basis of the component. Defaults to None.
     :type basis: Unit, optional

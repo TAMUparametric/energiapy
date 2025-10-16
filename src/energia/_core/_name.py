@@ -25,7 +25,7 @@ class _Name:
     :ivar name: Name of the object. Defaults to ''.
     :vartype name: str
 
-    :note:
+    .. note:
         - `name` is set when the component is made a Model attribute.
     """
 

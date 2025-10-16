@@ -8,7 +8,8 @@ from .resource import Resource
 
 @dataclass
 class Package(Resource):
-    """Package, discrete
+    """
+    Package, discrete
 
     :param label: Label of the commodity, used for plotting. Defaults to None.
     :type label: str, optional
@@ -38,7 +39,8 @@ class Package(Resource):
 
 @dataclass
 class Human(Resource):
-    """Human
+    """
+    Human
 
     :param label: Label of the commodity, used for plotting. Defaults to None.
     :type label: str, optional
@@ -68,7 +70,8 @@ class Human(Resource):
 
 @dataclass
 class Mana(Resource):
-    """Mana
+    """
+    Mana
 
     :param label: Label of the commodity, used for plotting. Defaults to None.
     :type label: str, optional
@@ -98,7 +101,8 @@ class Mana(Resource):
 
 @dataclass
 class Etc(Resource):
-    """Etc, used for resources that do not fit into the other categories
+    """
+    Etc, used for resources that do not fit into the other categories
 
     :param label: Label of the commodity, used for plotting. Defaults to None.
     :type label: str, optional

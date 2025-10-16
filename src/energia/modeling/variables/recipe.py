@@ -13,7 +13,35 @@ if TYPE_CHECKING:
 
 @dataclass
 class Recipe:
-    """Recipe to create Aspects"""
+    """
+    Recipe to create Aspects
+
+    :param name: Name of the aspect
+    :type name: str
+    :param kind: Kind of aspect, e.g., Aspect, Control, etc.
+    :type kind: Type[Aspect]
+    :param primary_type: Primary type(s) of component the aspect can be applied to
+    :type primary_type: tuple[Type[_Component]] | Type[_Component]
+    :param label: Label for plotting. Defaults to "".
+    :type label: str
+    :param add: Add string for constraints. Defaults to "".
+    :type add: str
+    :param sub: Subtract string for constraints. Defaults to "".
+    :type sub: str
+    :param bound: Bound string for constraints. Defaults to "".
+    :type bound: str
+    :param ctrl: Control string for constraints. Defaults to "".
+    :type ctrl: str
+    :param ispos: If the aspect is positive. Defaults to True.
+    :type ispos: bool
+    :param nn: If the aspect is non-negative. Defaults to True.
+    :type nn: bool
+    :param latex: LaTeX representation. Defaults to "".
+    :type latex: str
+
+    :ivar args: Arguments for aspect creation.
+    :vartype args: dict[str, Any]
+    """
 
     name: str
     kind: Type[Aspect]

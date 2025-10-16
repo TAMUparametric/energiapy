@@ -16,13 +16,17 @@ if TYPE_CHECKING:
 class Graph:
     """Graph representation
 
-    Attributes:
-        model (Model): Model to which the graph belongs.
-        name (str): Name of the graph. Defaults to None.
-        nodes (list[Node]): List of nodes in the graph.
-        edges (list[Edge]): List of edges in the graph.
+    :param model: Model to which the graph belongs.
+    :type model: Model
 
-    Note:
+    :ivar name: Name of the graph. Defaults to None.
+    :vartype name: str
+    :ivar nodes: List of nodes in the graph.
+    :vartype nodes: list[Node]
+    :ivar edges: List of edges in the graph.
+    :vartype edges: list[Edge]
+
+    .. note::
         - name is generated based on Model name
         - nodes and edges are populated as model is defined
     """

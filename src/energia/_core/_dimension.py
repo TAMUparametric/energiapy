@@ -21,7 +21,7 @@ class _Dimension:
     :ivar name: Name of the dimension, auto generated
     :vartype name: str
 
-    :note:
+    .. note:
         - `name` is generated based on the class and model name.
     """
 

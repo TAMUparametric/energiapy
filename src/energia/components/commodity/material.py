@@ -7,7 +7,8 @@ from .resource import Resource
 
 @dataclass
 class Material(Resource):
-    """Materials are Resources, that are used to set up Operations
+    """
+    Materials are Resources, that are used to set up Operations
 
     :param label: Label of the commodity, used for plotting. Defaults to None.
     :type label: str, optional

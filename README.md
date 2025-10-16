@@ -14,11 +14,6 @@ The component-driven methodology is inspired by the resource task network (RTN) 
 the [Multiparameteric Optimization and Control (Pistikopoulos) Group](https://parametric.tamu.edu/). The Tutorials and Examples sections are a good starting point.
 
 
-:::{seealso}
-[Gana](https://gana.readthedocs.io/en/latest/), an Algebraic Modeling Language (AML) for Multiscale Modeling and Optimization which serves as the backend
-:::
-
-
 
 <!-- ![alt text](https://github.com/TAMUparametric/energiapy/blob/main/docs/hierarchy.png?raw=true) -->
 
@@ -76,5 +71,3 @@ Other (and optional) features include:
 
 Direct any communication to Rahul Kakodkar (cacodcar@gmail.com) 
 
-# References
-```{bibliography}

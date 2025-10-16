@@ -14,7 +14,8 @@ from ..components.impact.categories import Economic, Environ, Social
 from ..components.operation.process import Process
 from ..components.operation.transport import Transport
 from ..modeling.variables.control import Control
-from ..modeling.variables.states import EndoStream, ExoStream, IndStream, SetPoint, Size
+from ..modeling.variables.states import (EndoStream, ExoStream, IndStream,
+                                         SetPoint, Size)
 
 if TYPE_CHECKING:
     from ..represent.model import Model
@@ -115,13 +116,12 @@ def usage(model: Model):
 
 
 def free_movement(model: Model):
-    """Free movement entails consumption or release of resources
-
+    """
+    Free movement entails consumption or release of resources
     This is an interaction with the system exterior
 
     .. note::
         Use buy and sell if interacting with a Player
-
     """
     model.Recipe(
         "consume",

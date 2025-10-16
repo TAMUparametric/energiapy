@@ -49,9 +49,9 @@ html_theme_options = {
             "type": "url",
         },
     ],
-    "announcement": (
-        "⚠️Energia 2.x is a beta release. It is not compatible with Energia 1.x⚠️"
-    ),
+    # "announcement": (
+    #     "⚠️Energia 2.x is a beta release. It is not compatible with Energia 1.x⚠️"
+    # ),
     "path_to_docs": "docs",
     "repository_branch": "main",
     "use_edit_page_button": True,

@@ -1,6 +1,8 @@
 Getting Started
 ===============
 
+This sections will help you get started with Energia from :ref:`installation` to :doc:`initializing_models`.
+
 
 .. toctree::
    :maxdepth: 1
@@ -8,4 +10,4 @@ Getting Started
    :hidden:
 
    installation
-   model
+   initializing_models

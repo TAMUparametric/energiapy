@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from functools import cached_property
-from typing import TYPE_CHECKING, Self
+from typing import TYPE_CHECKING, Optional, Self
 
 from ..._core._name import _Name
 from ...components.temporal.lag import Lag
@@ -22,51 +22,57 @@ if TYPE_CHECKING:
 
 @dataclass
 class Conversion(_Name):
-    """Processes convert one Resource to another Resource
-
+    """
+    Processes convert one Resource to another Resource
     Conversion provides the conversion of resources
 
-    Attributes:
-        label (str): Label of the component, used for plotting. Defaults to None.
-        process (Process): Process that converts Resources. Defaults to None.
-        storage (Storage): Storage that stores Resources. Defaults to None.
-        resource (Resource): Resource that is balanced. Defaults to None.
-        name (str): generated as η(process).
-        operation (Process | Storage): Process or Storage that serves as primary spatial index.
-        base (Resource): Basis Resource, usually has a value 1 in the conversion matrix, set using __call__. Defaults to None.
-        conversion (dict[Resource : int | float]): {Resources: conversion}. Defaults to {}, set using __eq__.
-        lag (Lag): Temporal lag (processing time) for conversion, set using __getitem__. Defaults to None.
+    :param resource: Resource that is balanced
+    :type resource: Resource
+    :param operation: Process or Storage that serves as primary spatial index
+    :type operation: Process | Storage
+    :param bind: Sample that is used to define the conversion
+    :type bind: Sample
 
-    Raises:
-        TypeError: If __getitem__ input is not of type Lag.
+    :ivar name: Name of the component, generated based on the operation.
+    :vartype name: str
+    :ivar base: Basis Resource, usually has a value 1 in the conversion matrix, set using __call__. Defaults to None.
+    :vartype base: Resource
+    :ivar conversion: {Resources: conversion}. Defaults to {}, set using __eq__.
+    :vartype conversion: dict[Resource : int | float]
+    :ivar lag: Temporal lag (processing time) for conversion, set using __getitem__.
+    :vartype lag: Lag
+    :ivar periods: Periods over which the conversion is defined. Defaults to None.
+    :vartype periods: Periods
 
-    Note:
+    :raises ValueError: If conversion lists are of inconsistent lengths.
+
+    .. note::
         - name and operation are generated post init
         - base (__call__), conversion (__eq__), lag (__getitem__) are defined as the program is built
         - Storage contains two processes (charge and discharge), hence is provided separately
 
     """
 
-    resource: Resource = None
-    operation: _Operation = None
-    bind: Sample = None
+    resource: Optional[Resource] = None
+    operation: Optional[_Operation] = None
+    bind: Optional[Sample] = None
 
     def __post_init__(self):
         self.name = f"η({self.operation})"
-        self.base: Resource = None
+        self.base: Optional[Resource] = None
         self.conversion: dict[Resource, int | float | list[int | float]] = {}
-        self.lag: Lag = None
-        self.periods: Periods = None
+        self.lag: Optional[Lag] = None
+        self.periods: Optional[Periods] = None
 
         # if piece wise linear conversion is provided
         self.pwl: bool = False
 
         # this is holds a mode for the conversion to be appended to
-        self._mode: int | str = None
+        self._mode: Optional[int | str] = None
 
         # modes if PWL conversion is defined
         # or if multiple modes are defined
-        self._modes: Modes = None
+        self._modes: Optional[Modes] = None
 
         # if the keys are converted into Modes
         self.modes_set: bool = False
@@ -101,7 +107,8 @@ class Conversion(_Name):
         return self.operation.program
 
     def balancer(self):
-        """Checks if there is a list in the conversion
+        """
+        Checks if there is a list in the conversion
         If yes, tries to make everything consistent
         """
 

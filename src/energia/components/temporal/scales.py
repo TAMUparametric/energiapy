@@ -1,7 +1,6 @@
 """Temporal Scales"""
 
-# from itertools import accumulate
-# from operator import mul
+from typing import Optional
 
 
 class TemporalScales:
@@ -14,7 +13,7 @@ class TemporalScales:
     :type names: list[str], optional
     """
 
-    def __init__(self, discretizations: list[int], names: list[str] = None):
+    def __init__(self, discretizations: list[int], names: Optional[list[str]] = None):
 
         # self.discretization_list = list(accumulate(discretization_list, mul))
         self.discretizations = discretizations

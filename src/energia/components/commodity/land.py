@@ -7,7 +7,8 @@ from ._commodity import _Commodity
 
 @dataclass
 class Land(_Commodity):
-    """Land used by Operations
+    """
+    Land used by Operations
 
     :param label: Label of the commodity, used for plotting. Defaults to None.
     :type label: str, optional

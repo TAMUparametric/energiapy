@@ -1,22 +1,23 @@
 """Function for scaling input data"""
 
+from typing import Literal
+
 from pandas import DataFrame
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 
 
-def scaling(data: DataFrame, how: str) -> DataFrame:
+def scaling(data: DataFrame, how: Literal['max', 'minmax', 'standard']) -> DataFrame:
     """Scales input DataFrame
 
-    Args:
-        data (DataFrame): input data
-        how (str): 'max', 'minmax', 'standard'
+    :param data: input data
+    :type data: DataFrame
+    :param how: 'max', 'minmax', 'standard'
+    :type how: Literal['max', 'minmax', 'standard']
 
-    Returns:
-        DataFrame: scaled DataFrame
+    :return: scaled DataFrame
+    :rtype: DataFrame
 
-    Raises:
-        ValueError: if data is not a DataFrame
-
+    :raises ValueError: if data is not DataFrame
     """
     if not isinstance(data, DataFrame):
         raise ValueError("please provide DataFrame")

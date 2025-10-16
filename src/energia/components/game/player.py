@@ -13,7 +13,8 @@ if TYPE_CHECKING:
 
 @dataclass
 class Player(_Component):
-    """Player or Actor, the one taking the decisions
+    """
+    Player or Actor, the one taking the decisions
     based on information provided
 
     Players own certain processes and be responsible for the streams and impact

@@ -7,7 +7,8 @@ from ._commodity import _Commodity
 
 @dataclass
 class Emission(_Commodity):
-    """Emission
+    """
+    Emission
 
     :param label: Label of the commodity, used for plotting. Defaults to None.
     :type label: str, optional

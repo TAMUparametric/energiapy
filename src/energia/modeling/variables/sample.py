@@ -166,7 +166,8 @@ class Sample:
         report: bool = False,
         incidental: bool = False,
     ) -> V:
-        """Returns a gana variable (V) using .domain as the index.
+        """
+        Returns a gana variable (V) using .domain as the index.
         If time and space are (or) not given, i.e. .spaced or .timed are False,
         They can be determined.
 
@@ -177,13 +178,16 @@ class Sample:
 
         If the spatial index is not given, it defaults to the network.
 
+        :param parameters: the parameter/parameter set. Defaults to None.
+        :type parameters: int | list, optional
+        :param length: length of the parameter set. Defaults to None.
+        :type length: int, optional
+        :param report: to make a binary reporting variable. Defaults to False.
+        :type report: bool, optional
+        :param incidental: if this is an incidental calculation. Defaults to False.
+        :type incidental: bool, optional
 
-        Args:
-            parameters (int | list): the parameter/parameter set. Defaults to None.
-            length (int): length of the parameter set. Defaults to None.
-            report (bool): to make a binary reporting variable. Defaults to False.
-            incidental (bool): if this is an incidental calculation. Defaults to False.
-        Note:
+        .. note::
             - parameters and length are mutually exclusive
         """
 
@@ -356,26 +360,28 @@ class Sample:
         return getattr(self.program, self.aspect.name)(*index)
 
     def Vinc(self, parameters: float | list = None, length: int = None) -> V:
-        """Returns the incidental variable
+        """
+        Returns the incidental variable
 
-        Args:
-            parameters (float | list): the parameter/parameter set. Defaults to None.
-            length (int): length of the parameter set. Defaults to None.
+        :param parameters: the parameter/parameter set. Defaults to None.
+        :type parameters: float | list, optional
+        :param length: length of the parameter set. Defaults to None.
+        :type length: int, optional
 
-        Returns:
-            V: the incidental variable
+        :returns: the incidental variable
+        :rtype: V
         """
         self.hasinc = True
         return self.V(parameters, length, incidental=True)
 
     def Vb(self) -> V:
-        r"""Bound Variable
-
-        Returns:
-            V: the bound variable
-
+        r"""
+        Bound Variable
         These apply when there are multiple levels of variable-making
         Endogenous bounds apply, i.e.
+
+        :returns: the bound variable
+        :rtype: V
 
         .. math::
            \mathbf{v}_{\dots, t^{+}} <= {\theta}_{\dots, t^{+}} \cdot \mathbf{v}_{\dots, t^{-}}
@@ -426,8 +432,8 @@ class Sample:
         return bound_aspect(domain=domain).V()
 
     def X(self, parameters: float | list = None, length: int = None) -> V:
-        r"""Binary Reporting Variable
-
+        r"""
+        Binary Reporting Variable
         These report whether a variable has been made or not
         Also useful to make the variable space semi-continuous
 
@@ -443,9 +449,11 @@ class Sample:
         return self.V(parameters, length, report=True)
 
     def obj(self, max: bool = False):
-        """Set the sample itself as the objective
+        """
+        Set the sample itself as the objective
 
-        max (bool): if maximization, defaults to False
+        :param max: if maximization, defaults to False
+        :type max: bool, optional
         """
         if not self.timed:
             # if the temporal index is not passed
@@ -480,9 +488,11 @@ class Sample:
         self.program.renumber()
 
     def opt(self, max: bool = False):
-        """Optimize
+        """
+        Optimize
 
-        max (bool): if maximization, defaults to False
+        :param max: if maximization, defaults to False
+        :type max: bool, optional
         """
         self.obj(max)
         # optimize!
@@ -498,27 +508,37 @@ class Sample:
         return (bmin, bmax)
 
     def prep(self, nominal: float = 1, norm: bool = True) -> Self:
-        """Nominal value
-        Args:
-            value (float): Nominal value to multiply with bounds
-            norm (bool): If the input argument (bounds) are normalized, defaults to True
+        """
+        Nominal value
+
+        :param nominal: If the input argument (bounds) are to be scaled, defaults to 1
+        :type nominal: float, optional
+        :param norm: If the input argument (bounds) are normalized, defaults to True
+        :type norm: bool, optional
         """
         self.nominal = nominal
         self.norm = norm
         return self
 
-    def sol(self, aslist: bool = False):
-        """Solution
-
-        Args:
-            aslist (bool, optional): Returns the solution as list, otherwise as a variable
+    def sol(self, aslist: bool = False, asdict: bool = False, compare: bool = False):
         """
-        return self.V().sol(aslist=aslist)
+        Solution
+
+        :param aslist: Returns the solution as list, otherwise as a variable
+        :type aslist: bool, optional
+        :param asdict: Returns the solution as dict, otherwise as a variable
+        :type asdict: bool, optional
+        :param compare: If True, compares the solutions across multiple solves
+        :type compare: bool, optional
+        """
+        return self.V().sol(aslist=aslist, asdict=asdict, compare=compare)
 
     def eval(self, *values: float):
-        """Evaluate the variable using parametric variable values
-        Args:
-            *values (float): values for the parametric variables
+        """
+        Evaluate the variable using parametric variable values
+
+        :param values: values for the parametric variables
+        :type values: float
         """
         return self.V().eval(*values)
 

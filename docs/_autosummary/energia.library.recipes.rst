@@ -1,4 +1,4 @@
-energia.library.recipes
+﻿energia.library.recipes
 =======================
 
 .. automodule:: energia.library.recipes
@@ -37,7 +37,6 @@ energia.library.recipes
       SetPoint
       Size
       Social
-      State
       Stored
       Transport
    

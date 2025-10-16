@@ -22,7 +22,8 @@ if TYPE_CHECKING:
 
 @dataclass
 class System(_Dimension):
-    """System representation as a Resource Task Network (RTN)
+    """
+    System representation as a Resource Task Network (RTN)
     All resources and tasks are attached to this object
 
     :param model: Model to which the representation belongs.

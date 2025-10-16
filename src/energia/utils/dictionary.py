@@ -7,11 +7,11 @@ def get_depth(d: dict) -> int:
     """
     Finds the depth of a dictionary.
 
-    Args:
-        d (dict): The dictionary to measure.
+    :param d: The dictionary to measure.
+    :type d: dict
 
-    Returns:
-        int: Depth of the dictionary.
+    :return: Depth of the dictionary.
+    :rtype: int
     """
     if not isinstance(d, dict) or not d:
         # If the input is not a d or is an empty d, return 0
@@ -28,12 +28,13 @@ def flatten(d: dict, key: tuple = ()) -> dict:
     """
     Makes a flat dictionary from a nested dictionary.
 
-    Args:
-        d (dict): The dictionary to flatten.
-        key (tuple, optional): Current key path. Defaults to ``()``.
+    :param d: The dictionary to flatten.
+    :type d: dict
+    :param key: Current key path. Defaults to ``()``.
+    :type key: tuple, optional
 
-    Returns:
-        dict: Flattened dictionary with tuple keys.
+    :return: Flattened dictionary with tuple keys.
+    :rtype: dict
     """
     items = []
     for key, val in d.items():
@@ -49,17 +50,13 @@ def tupler(d: dict, path: tuple = ()) -> list[tuple[str]]:
     """
     Makes a list of tuples of keys in a nested dictionary.
 
-    Parameters
-    ----------
-    d : :class:`dict`
-        The dictionary to traverse.
-    current_path : :class:`tuple`, optional
-        Path taken to get to a value. Defaults to ``()``.
+    :param d: The dictionary to traverse.
+    :type d: dict
+    :param path: Current path. Defaults to ``()``.
+    :type path: tuple, optional
 
-    Returns
-    -------
-    :class:`list` of :class:`tuple` of :class:`str`
-        List of tuples of keys representing the paths to each value.
+    :return: List of tuples of keys representing the paths to each value.
+    :rtype: list[tuple[str]]
     """
 
     result = []
@@ -79,7 +76,17 @@ def tupler(d: dict, path: tuple = ()) -> list[tuple[str]]:
 
 
 def merge_trees(d1: dict, d2: dict) -> dict:
-    """Recursively merge two tree-like dicts (values always dicts)."""
+    """
+    Recursively merge two tree-like dicts (values always dicts).
+
+    :param d1: First dictionary.
+    :type d1: dict
+    :param d2: Second dictionary.
+    :type d2: dict
+
+    :return: Merged dictionary.
+    :rtype: dict
+    """
     result = dict(d1)  # shallow copy of d1
     for k, v in d2.items():
         if k in result:
@@ -93,7 +100,12 @@ def merge_trees(d1: dict, d2: dict) -> dict:
 
 
 def dictify(d: defaultdict | dict) -> dict:
-    """Recursively convert defaultdict to dict."""
+    """
+    Recursively convert defaultdict to dict.
+
+    :param d: The dictionary to convert.
+    :type d: defaultdict | dict
+    """
     if isinstance(d, defaultdict):
         return {k: dictify(v) for k, v in d.items()}
     return d

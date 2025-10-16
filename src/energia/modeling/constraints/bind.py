@@ -21,8 +21,8 @@ class Bind:
 
     :param sample: The sample variable to bind
     :type sample: Sample
-    :param bound: The bound value
-    :type bound: float | list[float] | dict[float, float] | tuple[float, float] | list[tuple[float, float]]
+    :param parameter: The parameter bound
+    :type parameter: float | list[float] | dict[float, float] | tuple[float, float] | list[tuple[float, float]]
     :param leq: If True, the sample is constrained to be less than or equal to the bound
     :type leq: bool
     :param geq: If True, the sample is constrained to be greater than or equal to the bound
@@ -31,6 +31,21 @@ class Bind:
     :type eq: bool
     :param forall: If provided, the constraint is applied for all elements in this list
     :type forall: list[_X | _Component] | None
+
+    :ivar model: The model to which the component belongs.
+    :vartype model: Model
+    :ivar nominal: The nominal value of the sample variable.
+    :vartype nominal: float | None
+    :ivar norm: If True, the sample variable is normalized.
+    :vartype norm: bool
+    :ivar domain: The domain of the sample.
+    :vartype domain: Domain
+    :ivar aspect: The aspect of the sample.
+    :vartype aspect: Aspect
+    :ivar report: If True, the sample variable is reported.
+    :vartype report: bool
+    :ivar program: The program to which the sample belongs.
+    :vartype program: Prg
     """
 
     def __init__(

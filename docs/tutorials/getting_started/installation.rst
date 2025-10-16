@@ -8,7 +8,7 @@ This tutorial should help you get Energia up and running on your PC.
 What you are going to need:
 
 1. A computer
-2. Python >=3.12
+2. Internet access
 3. Will power
 
 
@@ -39,13 +39,21 @@ A virtual environment (**.venv/**) can be placed here. This will contain all the
 Your code in Energia will be written in these. It is good practice to have dedicated folders for your input **data** and output **results**.
 
 
+Getting Python
+---------------
+
+Energia is compatible with Python 3.12 and above. Python can be downloaded from the `official website <https://www.python.org/downloads/>`_. 
+It is also available through the Microsoft Store on Windows, Homebrew on Mac, and various Linux package managers.
+
 
 Setting up an Environment
 -------------------------
 
-This tutorial focuses on creating virtual environments. Conda environments can also be used.
-Inside your terminal (Command Prompt, PowerShell, bash, etc.), navigate to your project folder.
-Run the following command.
+Virtual environments can be installed using ``pip`` which comes pre-installed with Python.
+Conda environments can also be used. `Anaconda <https://anaconda.org/anaconda/conda>`_ is a popular choice for managing conda environments with a good GUI.
+
+This tutorial focuses on creating virtual environments through your terminal (Command Prompt, PowerShell, bash, etc.).
+To do so, navigate to your project folder and run the following command.
 
 .. code-block:: bash
 
@@ -64,7 +72,7 @@ Activating an Environment
 -------------------------
 
 Make sure that your environment is activated before installing Energia or running any scripts.
-It will show up in your terminal prompt, e.g. **(.venv) path/to//projects>**.
+It will show up in your terminal prompt, e.g. **(.venv) path/to//projects>**.``
 
 .. code-block:: bat
 

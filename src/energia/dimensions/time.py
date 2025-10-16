@@ -33,9 +33,9 @@ class Time(_Dimension):
     :vartype modes: list[Modes]
 
     .. note::
-    - name is generated based on the Class and Model name
-    - periods are populated as the program is built.
-    - _indexed is made the first time Time is indexed.
+        - name is generated based on the Class and Model name
+        - periods are populated as the program is built.
+        - _indexed is made the first time Time is indexed.
     """
 
     def __post_init__(self):
@@ -53,7 +53,7 @@ class Time(_Dimension):
     # -----------------------------------------------------
 
     @property
-    def tree(self) -> list[Periods]:
+    def tree(self) -> dict[int | float, Periods]:
         """Return the tree of periods"""
         hrz = self.horizon
 

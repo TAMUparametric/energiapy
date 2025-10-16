@@ -1,10 +1,8 @@
 
-
 .. _overview_components:
 
 Overview
 ========
-
 
 ``Model`` is the primary central object which aggregate components based on a broader
 perspective of what they describe, namely Scope (``Time``, ``Space``), ``System`` , ``Consequence``, ``Problem``. 
@@ -114,3 +112,4 @@ Objective
 
 Multiple objectives can be provided. Infact the lower and upperbounds of any ``Aspect`` with regards to a specific component within some spatiotemporal context 
 can be determined. 
+

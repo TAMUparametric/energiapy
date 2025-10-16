@@ -91,14 +91,17 @@ class Problem(_Dimension):
             "domains",
         ] = "domains",
     ) -> dict[Aspect | Domain, list[Aspect | Domain]]:
-        """Get a dictionary of the treewith a particular structure
+        """Get a dictionary of the tree with a particular structure
 
-        Args:
-            keys (Literal[ 'aspects', 'states', 'controls', 'streams', 'impacts', 'domains' ], optional): Defaults to 'aspects'.
-            values (Literal[ 'aspects', 'states', 'controls', 'streams', 'impacts', 'domains' ], optional): Defaults to 'domains'.
+        :param keys: Keys to use for the dictionary. Defaults to 'aspects'.
+        :type keys: Literal[ 'aspects', 'states', 'controls', 'streams', 'impacts', 'domains' ], optional
+        :param values: Values to use for the dictionary. Defaults to 'domains'.
+        :type values: Literal[ 'aspects', 'states', 'controls', 'streams', 'impacts', 'domains' ], optional
 
-        Returns:
-            dict[Aspect | Domain, list[Aspect | Domain]]: dictionary with particular structure
+        :returns: dictionary with particular structure
+        :rtype: dict[Aspect | Domain, list[Aspect | Domain]]
+
+        :raises ValueError: If keys is not one of the allowed values
         """
         # This function will essentially return a dictionary
         # with any choice of keys and values

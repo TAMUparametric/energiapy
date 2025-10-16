@@ -18,8 +18,8 @@ if TYPE_CHECKING:
 
 @dataclass
 class Transport(_Operation):
-    """Exports Resource through Link
-    basically, moves Resources between Locations
+    """
+    Exports Resource through Link basically, moves Resources between Locations
 
     :param basis: Unit basis of the component. Defaults to None.
     :type basis: Unit, optional

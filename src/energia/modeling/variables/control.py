@@ -15,10 +15,39 @@ if TYPE_CHECKING:
 
 @dataclass
 class Control(Aspect):
-    """Some action to be performed by a component
+    """
+    Some action to be performed by a component
     that adjusts a state variable
     can have a consequence (Impact)
     or elicit a motion (Stream) that has a consequence (Impact)
+
+    :param primary_types: associated components type(s). Defaults to None.
+    :type primary_types: Type[_Component] | tuple[Type[_Component], ...]
+    :param nn: If True, the decision is a non-negative decision. Defaults to True.
+    :type nn: bool
+    :param ispos: If True, the decision is positive (non-negative). Defaults to True.
+    :type ispos: bool
+    :param neg: Negative form or representation of the decision, if any. Defaults to "".
+    :type neg: str
+    :param latex: LaTeX string. Defaults to "".
+    :type latex: str
+    :param bound: if the aspect is bounded by another. Defaults to "".
+    :type bound: str
+    :param label: Label for the decision. Defaults to "".
+    :type label: str
+
+    :ivar model: Model to which the Aspect belongs.
+    :vartype model: Model
+    :ivar name: Name of the Aspect.
+    :vartype name: str
+    :ivar indices: List of indices (Location, Periods) associated with the Aspect.
+    :vartype indices: list[Location | Linkage, Periods]
+    :ivar bound_spaces: Spaces where the Aspect has been already bound.
+    :vartype bound_spaces: dict[_Commodity | Process | Storage | Transport, list[Location | Linkage]]
+    :ivar domains: List of domains associated with the Aspect.
+    :vartype domains: list[Domain]
+
+    :raises ValueError: If `primary_type` is not defined.
     """
 
     def __post_init__(self):

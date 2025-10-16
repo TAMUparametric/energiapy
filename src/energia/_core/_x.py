@@ -38,7 +38,7 @@ class _X(ABC):
     :ivar aspects: Aspects associated with the component with domains.
     :vartype aspects: dict[Aspect, list[Domain]]
 
-    :note:
+    .. note:
         - `name` and `model` are set when the component
            is assigned as a Model attribute.
         - `constraints` and `domains` are populated as the program is built.

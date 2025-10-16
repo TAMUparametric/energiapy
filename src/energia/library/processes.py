@@ -24,7 +24,7 @@ except ImportError:
 
 def pv(
     data: DataFrame,
-    coord: tuple,
+    coord: tuple[float, float],
     sam: str = "cecmod",
     module_params: str = "Canadian_Solar_Inc__CS5P_220M",
     inverter: str = "cecinverter",
@@ -33,25 +33,35 @@ def pv(
     aoi_model: str = "no_loss",
     ac_model: str = "sandia",
     spectral_model: str = "no_loss",
-):
-    """Calculates solar power output using weather data
+) -> list[float] | None:
+    """
+    Calculates solar power output using weather data
     Relevant factors include DHI (W/m2), DNI (W/m2), GHI (W/m2),
     Temperature (C), Dewpoint (C), Relative humidity (%)
 
-    Args:
-        data (DataFrame): weather data input with dni, dhi, wind_speed, ghi, air_temperature, dew_point, relative_humidity
-        coord (tuple): latitude and longitude
-        sam (str, optional): Defaults to 'cecmod'.
-        module_parameters (str, optional): Defaults to 'Canadian_Solar_Inc__CS5P_220M'.
-        inverter (str, optional):  Defaults to 'cecinverter'.
-        inverter_parameters (str, optional): Defaults to 'ABB__MICRO_0_25_I_OUTD_US_208__208V_'.
-        temperature_params (str, optional): Defaults to 'open_rack_glass_glass'.
-        aoi_model (str, optional): Defaults to 'no_loss'.
-        ac_model (str, optional): Defaults to 'sandia'.
-        spectral_model (str, optional): Defaults to 'no_loss'.
+    :param data: weather data input with dni, dhi, wind_speed, ghi, air_temperature, dew_point, relative_humidity
+    :type data: DataFrame
+    :param coord: latitude and longitude
+    :type coord: tuple[float, float]
+    :param sam: Defaults to 'cecmod'.
+    :type sam: str, optional
+    :param module_parameters: Defaults to 'Canadian_Solar_Inc__CS5P_220M'.
+    :type module_parameters: str, optional
+    :param inverter:  Defaults to 'cecinverter'.
+    :type inverter: str, optional
+    :param inverter_parameters: Defaults to 'ABB__MICRO_0_25_I_OUTD_US_208__208V_'.
+    :type inverter_parameters: str, optional
+    :param temperature_params: Defaults to 'open_rack_glass_glass'.
+    :type temperature_params: str, optional
+    :param aoi_model: Defaults to 'no_loss'.
+    :type aoi_model: str, optional
+    :param ac_model: Defaults to 'sandia'.
+    :type ac_model: str, optional
+    :param spectral_model: Defaults to 'no_loss'.
+    :type spectral_model: str, optional
 
-    Returns:
-        output (DataFrame): a dataframe with hourly solar power outputs
+    :returns: a list with solar power outputs
+    :rtype: list[float] | None
     """
     # data = data.resample('H').mean()
 
@@ -97,25 +107,36 @@ def wf(
     density_correction: bool = True,
     obstacle_height: float = 0,
     observation_height: float = 10,
-):
-    """Calculates wind power output using weather data
+) -> list[float] | None:
+    """
+    Calculates wind power output using weather data
     Relevant factors include wind speeds (m/s), temperature (K), and pressure(Pa)
 
-    Args:
-        data (DataFrame): weather data input with wind_speed, air_temperature, surface_pressure
-        roughness_length (float, optional): Defaults to 0.1.
-        turbine_type (str, optional): Defaults to 'V100/1800'.
-        hub_height (float, optional): Defaults to 92.
-        wind_speed_model (str, optional): Defaults to 'logarithmic'.
-        density_model (str, optional): Defaults to 'ideal_gas'.
-        temperature_model (str, optional): Defaults to 'linear_gradient'.
-        power_output_model (str, optional): Defaults to power_coefficient_curve.
-        density_correction (bool, optional): Defaults to True.
-        obstacle_height (float, optional): Defaults to 0.
-        observation_height (float, optional): Defaults to 10.
+    :param data: weather data input with wind_speed, air_temperature, surface_pressure
+    :type data: DataFrame
+    :param roughness_length: Defaults to 0.1.
+    :type roughness_length: float, optional
+    :param turbine_type: Defaults to 'V100/1800'.
+    :type turbine_type: str, optional
+    :param hub_height: Defaults to 92.
+    :type hub_height: float, optional
+    :param wind_speed_model: Defaults to 'logarithmic'.
+    :type wind_speed_model: str, optional
+    :param density_model: Defaults to 'ideal_gas'.
+    :type density_model: str, optional
+    :param temperature_model: Defaults to 'linear_gradient'.
+    :type temperature_model: str, optional
+    :param power_output_model: Defaults to power_coefficient_curve.
+    :type power_output_model: str, optional
+    :param density_correction: Defaults to True.
+    :type density_correction: bool, optional
+    :param obstacle_height: Defaults to 0.
+    :type obstacle_height: float, optional
+    :param observation_height: Defaults to 10.
+    :type observation_height: float, optional
 
-    Returns:
-        output (DataFrame): a dataframe with hourly wind power outputs
+    :returns: a dataframe with hourly wind power outputs
+    :rtype: list[float] | None
     """
 
     # df_ = df_.dropna()

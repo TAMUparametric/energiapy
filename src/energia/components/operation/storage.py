@@ -21,7 +21,8 @@ if TYPE_CHECKING:
 
 @dataclass
 class Storage(_Component):
-    """Storage
+    """
+    Storage
 
     :param basis: Unit basis of the component. Defaults to None.
     :type basis: Unit, optional

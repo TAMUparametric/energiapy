@@ -14,7 +14,8 @@ if TYPE_CHECKING:
 
 @dataclass
 class Currency(_Commodity):
-    """Same as Economic Impact (Eco)
+    """
+    Same as Economic Impact (Eco)
 
     :param label: Label of the commodity, used for plotting. Defaults to None.
     :type label: str, optional

@@ -37,41 +37,29 @@ class Domain:
     :param indicator: Indicates the impact of some activity through an equivalency,
         e.g. GWP, ODP.
     :type indicator: Indicator | None
-
     :param commodity: Represents the flow of any stream, measured using some basis,
         e.g. water, Rupee, carbon-dioxide.
     :type commodity: _Commodity | None
-
     :param process: Process that is being considered, e.g. dam, farming.
     :type process: Process | None
-
     :param storage: Storage that is being considered, e.g. reservoir.
     :type storage: Storage | None
-
     :param transport: Transport that is being considered, e.g. pipeline, road.
     :type transport: Transport | None
-
     :param player: Actor that takes decisions, e.g. me, you.
     :type player: Player | None
-
     :param couple: Other actor that might be paired with the player.
     :type couple: Couple | None
-
     :param location: Spatial aspect of the domain, e.g. Goa, Texas.
     :type location: Location | None
-
     :param linkage: Linkage aspect of the domain, e.g. pipeline, road.
     :type linkage: Linkage | None
-
     :param periods: Temporal aspect of the domain, e.g. year, month.
     :type periods: Periods | None
-
     :param lag: Indicates whether the temporal element is lagged or not.
     :type lag: Lag | None
-
     :param modes: Modes applicable to the domain.
     :type modes: Modes | None
-
     :param binds: List of binds that can be summed over.
     :type binds: list[Bind] | None
 
@@ -185,7 +173,8 @@ class Domain:
 
     @property
     def isroot(self) -> bool:
-        """This implies that the domain is of the form
+        """
+        This implies that the domain is of the form
         <object, space, time>
         """
         if self.lag:
@@ -200,7 +189,8 @@ class Domain:
 
     @property
     def isrootroot(self) -> bool:
-        """This implies that the domain is of the form
+        """
+        This implies that the domain is of the form
         <object, network, horizon>
         Thus, an element attached to this domain has the
         lowest possible dimensionality
@@ -250,8 +240,8 @@ class Domain:
     ) -> list[Indicator | _Commodity | Process | Storage | Transport]:
         """Primary index
 
-        Returns:
-            list[X]: list of primary indices
+        :returns: list of primary indices
+        :rtype: list[X]
         """
         return [self.primary] + [
             i
@@ -263,8 +253,8 @@ class Domain:
     def index_binds(self) -> list[Aspect | _X]:
         """List of bind indices
 
-        Returns:
-            list[Bind, X]: list of bind indices
+        :returns: list of bind indices
+        :rtype: list[X]
         """
         return [x for b in self.binds for x in (b.aspect, b.domain.primary)]
 
@@ -305,7 +295,24 @@ class Domain:
         return [b.aspect for b in self.binds]
 
     @property
-    def args(self) -> dict[str, _X | Lag | Modes | list[Sample]]:
+    def args(
+        self,
+    ) -> dict[
+        str,
+        Indicator
+        | _Commodity
+        | Player
+        | Process
+        | Storage
+        | Transport
+        | Location
+        | Linkage
+        | Periods
+        | Lag
+        | Modes
+        | list[Sample]
+        | None,
+    ]:
         """Dictionary of indices"""
         return {
             "indicator": self.indicator,
@@ -323,7 +330,24 @@ class Domain:
         }
 
     @property
-    def dictionary(self) -> dict[str, _X | Lag | Modes | list[Sample]]:
+    def dictionary(
+        self,
+    ) -> dict[
+        str,
+        Indicator
+        | _Commodity
+        | Process
+        | Storage
+        | Transport
+        | Player
+        | Location
+        | Linkage
+        | Periods
+        | Lag
+        | Modes
+        | list[Sample]
+        | None,
+    ]:
         """Dictionary of indices"""
         return {
             "primary": self.primary,
@@ -369,7 +393,8 @@ class Domain:
                 j.constraints.append(cons_name)
 
     def update_domains(self, aspect: Aspect):
-        """Update all elements in the domains with the aspects
+        """
+        Update all elements in the domains with the aspects
         that they have been modeled in
         """
         for i, j in self._.items():
@@ -420,15 +445,16 @@ class Domain:
     # -----------------------------------------------------
 
     def __truediv__(self, other: list[str]) -> Self:
-        """Will give you the Domain minus a particular index
+        """
+        Will give you the Domain minus a particular index
 
-        Args:
-            other (str): index you wish to remove
+        :param other: index you wish to remove
+        :type other: str | list[str]
 
-        Returns:
-            Self: lower dimensional domain
+        :returns: lower dimensional domain
+        :rtype: Domain
 
-        Example:
+        .. example::
             >>> domain = Domain(commodity=water, operation=dam, space=goa, time=year)
             (water, dam, goa, year)
             >>> domain/'operation'
@@ -440,13 +466,13 @@ class Domain:
         return Domain(**{i: j for i, j in self.args.items() if i not in other})
 
     def __sub__(self, other: Self) -> list[str]:
-        """Will give you a list of indices that are not common between two domains
-        Args:
-            other (Self): another Domain object
-        Returns:
-            list[str]: list of indices that are not common
+        """
+        Will give you a list of indices that are not common between two domains
 
-        Example:
+        :param other: another Domain object
+        :type other: Self
+
+        .. example::
             >>> domain1 = Domain(commodity=water, operation=dam, space=goa, time=year)
             >>> domain2 = Domain(commodity=water, space=mumbai, time=year)
             >>> domain1 - domain2
