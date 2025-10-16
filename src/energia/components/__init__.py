@@ -12,11 +12,10 @@ from .measure.unit import Unit
 from .operation.process import Process
 from .operation.storage import Storage
 from .operation.transport import Transport
-from .spatial.location import Location
 from .spatial.linkage import Linkage
+from .spatial.location import Location
 from .temporal.periods import Periods
 from .temporal.scales import TemporalScales
-
 
 __all__ = [
     "Currency",
