@@ -40,8 +40,8 @@ class Problem(_Dimension):
     :vartype players: list[Player]
 
     .. note::
-    - name is generated based on Model name
-    - controls, streams, impacts, and players are populated as model is defined
+        - name is generated based on Model name
+        - controls, streams, impacts, and players are populated as model is defined
     """
 
     def __post_init__(self):

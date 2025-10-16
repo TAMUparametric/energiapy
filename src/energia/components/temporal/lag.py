@@ -33,8 +33,8 @@ class Lag(_Name):
     :vartype domains: list[Domain]
 
     .. note::
-    - Name is generated post init.
-    - Domains are set as the program is built.
+        - Name is generated post init.
+        - Domains are set as the program is built.
     """
 
     of: Periods = None

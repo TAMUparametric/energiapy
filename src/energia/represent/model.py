@@ -34,17 +34,9 @@ from ..dimensions.problem import Problem
 from ..dimensions.space import Space
 from ..dimensions.system import System
 from ..dimensions.time import Time
-from ..library.recipes import (
-    capacity_sizing,
-    economic,
-    environmental,
-    free_movement,
-    inventory_sizing,
-    operating,
-    social,
-    trade,
-    usage,
-)
+from ..library.recipes import (capacity_sizing, economic, environmental,
+                               free_movement, inventory_sizing, operating,
+                               social, trade, usage)
 from ..modeling.parameters.conversion import Conversion
 from ..modeling.variables.control import Control
 from ..modeling.variables.recipe import Recipe

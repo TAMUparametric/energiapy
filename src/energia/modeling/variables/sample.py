@@ -55,11 +55,11 @@ class Sample:
     :vartype hasinc: bool
 
     .. note::
-    - ``timed`` and ``spaced`` help skip the calculation of finding the appropriate index.
-        For time, this is done based on the length of the input parameter.
-    - ``opr`` is useful if providing a combined bound to different variables.
-    - ``name`` is generated based on the variable.
-    - ``domains`` are updated as the program is built.
+        - ``timed`` and ``spaced`` help skip the calculation of finding the appropriate index.
+            For time, this is done based on the length of the input parameter.
+        - ``opr`` is useful if providing a combined bound to different variables.
+        - ``name`` is generated based on the variable.
+        - ``domains`` are updated as the program is built.
     """
 
     def __init__(

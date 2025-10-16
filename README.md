@@ -20,87 +20,11 @@ the [Multiparameteric Optimization and Control (Pistikopoulos) Group](https://pa
 
 
 
-
-# Components
-
-```Model``` is the primary central object which aggregate components based on a broader
-perspective of what they describe, namely Scope (```Time```, ```Space```), ```System``` , ```Consequence```, ```Problem```. 
-
-
-**Scope** which defines the extent of the system under consideration, and the fidelity of data. 
-
-1. ```Time```, with ```Periods``` and ```TemporalScales``` defining the discretization
-2. ```Space```, with ```Location``` and ```Linkage``` serving as nodes and edges 
-
-The most sparsely discretized ```Periods``` serves as the temporal ```horizon```, and the most encompassing ```Location``` (which are nested) is the ```network```
-
-**Streams** which scale the domains of the system via operations.
-
-3. ```Commodity``` which includes ```Resource```, and subsets ```Currency```, ```Land```, ```Emission```, ```Material```, etc.
-4. ```Indicator``` categories such as ```Environ```, ```Social```, and ```Economic```
-
-```Commodity```  streams belong to ```System```, whereas ```Indicators``` inform the ```Consequence```.
-
-**Operational** components, decisions pertaining to which generate and direct ```Commodity``` streams. 
-
-5. ```Process``` for commodity conversion
-6. ```Transport``` to import and export certain commodities
-7. ```Storage``` to charge and discharge inventory
-
-```Storage``` is actually a combination of two ```Process``` objects (for charging and discharging) and ```Inventory``` space. 
-
-**Game** components suggest ownership and strategic interactions between independent actors.
-
-8. ```Player``` is an independent actor
-9. ```Couple``` represents a link between two ```Player```s
-
-**Aspect**s are the facets being modeled.
-
-These generate variables:
-
-10. ```State``` (in Energia) are restricted to operational conditions
-11. ```Control``` or decision variables 
-12. ```Stream```, also a ```State``` that quantify ```Commodity``` streams 
-13. ```Impact``` which quantify ```Indicator``` streams 
-14. ```Loss```, a general variable to describe loss and (or) degradation 
-
-Note that users can choose to model sans ```Control``` variables and model ```State``` directly. 
-
-**Constraints** 
-
-Data provided either:
-
-15. ```Bind``` or restrict any given ```Aspect```
-or
-16. ```Calculate``` a dependent ```Aspect``` such as  ```Stream```, ```Impact```, or ```Loss```  
-
-Consistency is maintained by generating implicit constraints:
-
-17. ```Balance``` for general resource balance 
-and
-18. ```Map``` to scale and sum streams across spatiotemporal domains
-
-**Parameters**
-
-No special parameter types exist of bind and calculations. However,:
-
-19. ```Conversion``` serves as general parameter that dictates conversion efficiency and material use for setup
-
-**Disposition** describes both the fidelity and specificity of a modeling element.
-
-20. ```Domain``` is an ordered index set 
-
-**Objectives**
-
-Multiple objectives can be provided. Infact the lower and upperbounds of any ```Aspect``` with regards to a specific component within some spatiotemporal context 
-can be determined. 
-
-
 <!-- ![alt text](https://github.com/TAMUparametric/energiapy/blob/main/docs/hierarchy.png?raw=true) -->
 
 
 
-# Application
+# Applications
 
 Models can also simultaneously perform the following analyses under an integrated paradigm:
 

@@ -248,14 +248,25 @@ class Aspect:
         self,
         n_sol: int = 0,
         aslist: bool = False,
+        asdict: bool = False,
         compare: bool = False,
-    ) -> list[float] | None:
+    ) -> list[float] | dict[tuple[Idx, ...], float] | None:
         """Solution
-        Args:
-            aslist (bool, optional): Returns values taken as list. Defaults to False.
+
+        :param n_sol: Solution number. Defaults to 0.
+        :type n_sol: int, optional
+        :param compare: Compares the solution with the previous one. Defaults to False.
+        :type compare: bool, optional
+        :param asdict (bool, optional): Returns values taken as dict. Defaults to False.
+        :type asdict: bool, optional
+        :param aslist (bool, optional): Returns values taken as list. Defaults to False.
+        :type aslist: bool, optional
+
+        :return: List of values taken by the decision.
+        :rtype: list[float] | None
         """
         var: Var = getattr(self.program, self.name)
-        return var.sol(n_sol, aslist, compare=compare)
+        return var.sol(n_sol, aslist=aslist, asdict=asdict, compare=compare)
 
     def gettime(self, *index) -> list[Periods]:
         """Finds the sparsest time scale in the domains"""

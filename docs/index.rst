@@ -6,19 +6,15 @@ Energia on Python
 
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
    :caption: Tutorials
    :hidden:
 
-   tutorials/installation
-   tutorials/model
-   tutorials/units
-   tutorials/time
-   tutorials/space
-   tutorials/resource
-   tutorials/process
-   tutorials/fetch_nsrdb_data
-   tutorials/common_issues 
+   tutorials/getting_started/index
+   tutorials/defining_components/index
+   tutorials/additional_features/index
+   tutorials/troubleshooting/index
+
 
 .. toctree::
    :maxdepth: 1
