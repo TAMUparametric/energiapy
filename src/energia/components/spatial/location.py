@@ -254,7 +254,7 @@ class Location(_X):
         # if a location is nested within another
         return self in other.has or self in other.alsohas
 
-    def __leq__(self, other: Self):
+    def __le__(self, other: Self):
         # same as less than & equality
         return self < other or self == other
 
@@ -262,7 +262,7 @@ class Location(_X):
         # reverse check
         return other < self
 
-    def __geq__(self, other: Self):
+    def __ge__(self, other: Self):
         # reverse check
         return other <= self
 

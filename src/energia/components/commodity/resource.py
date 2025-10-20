@@ -7,7 +7,6 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from energia.components.commodity._commodity import _Commodity

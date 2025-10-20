@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import logging
-from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from ..._core._component import _Component
@@ -139,7 +138,7 @@ class Storage(_Component):
 
         # locate the charge and discharge processes
         self.charge.locate(*locations)
-        # self.discharge.locate(*locations)
+        self.discharge.locate(*locations)
 
         # self.writecons_conversion(loc_times)
 

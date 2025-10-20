@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import logging
 from abc import abstractmethod
-from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from ..._core._component import _Component
@@ -245,7 +244,7 @@ class _Operation(_Component):
 
             # check if the process is being operated at the location
             for d in self.model.operate.domains:
-                if d.operation == self and d.space == space:
+                if d.space == space:
                     space_time = (space, d.time)
                     if space_time not in space_times:
                         space_times.append(space_time)
@@ -254,4 +253,3 @@ class _Operation(_Component):
 
         if self.fabrication:
             self.writecons_fabrication(space_times)
-
