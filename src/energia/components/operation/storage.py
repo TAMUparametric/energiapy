@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
@@ -10,6 +11,8 @@ from ...modeling.constraints.calculate import Calculate
 from ...modeling.parameters.conversion import Conversion
 from ..commodity.stored import Stored
 from .process import Process
+
+logger = logging.getLogger("energia")
 
 if TYPE_CHECKING:
     from gana.sets.constraint import C
@@ -90,8 +93,9 @@ class Storage(_Component):
 
             if loc not in self.model.invcapacity.bound_spaces[self.stored]["ub"]:
                 # check if the storage capacity has been bound at that location
-                print(
-                    f"--- Assuming  {self.stored} inventory capacity is unbounded in ({loc}, {self.horizon})",
+
+                logger.info(
+                    f"Assuming  {self.stored} inventory capacity is unbounded in ({loc}, {self.horizon})",
                 )
                 # this is not a check, this generates a constraint
                 _ = self.capacity(loc, self.horizon) == True
@@ -101,8 +105,8 @@ class Storage(_Component):
 
             if loc not in self.model.inventory.bound_spaces[self.stored]["ub"]:
                 # check if the storage inventory has been bound at that location
-                print(
-                    f"--- Assuming inventory of {self.stored} is bound by inventory capacity in ({loc}, {self.horizon})",
+                logger.info(
+                    f"Assuming inventory of {self.stored} is bound by inventory capacity in ({loc}, {self.horizon})",
                 )
                 try:
                     times = list(
@@ -121,8 +125,8 @@ class Storage(_Component):
                 else:
                     time = self.horizon
                 # if not just write opr_{pro, loc, horizon} <= capacity_{pro, loc, horizon}
-                print(
-                    f"--- Assuming inventory of {self.stored} is bound by inventory capacity in ({loc}, {time})",
+                logger.info(
+                    f"Assuming inventory of {self.stored} is bound by inventory capacity in ({loc}, {time})",
                 )
 
                 _ = self.inventory(loc, time) <= 1
@@ -205,11 +209,11 @@ class Storage(_Component):
 
             setattr(self.model, f"{resource}.{self}", stored)
 
-            # ---------- set discharge conversion
+            # -------set discharge conversion
             self.discharge.conv = Conversion(operation=self.discharge, resource=stored)
             _ = self.discharge.conv(resource) == -1.0 * stored
 
-            # ---------- set charge conversion
+            # -------set charge conversion
             self.charge.conv = Conversion(operation=self.charge, resource=resource)
 
             _ = self.charge.conv(stored) == -1.0 * resource

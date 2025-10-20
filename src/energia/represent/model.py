@@ -2,10 +2,11 @@
 
 from __future__ import annotations
 
+import logging
 from collections import defaultdict
 from collections.abc import Callable
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Literal, Optional, Self, Type
+from typing import TYPE_CHECKING, Literal, Self, Type
 
 from dill import dump
 from ppopt.mplp_program import MPLP_Program
@@ -43,6 +44,16 @@ from ..modeling.variables.recipe import Recipe
 from ..modeling.variables.states import Impact, State, Stream
 from .ations.graph import Graph
 from .ations.program import Program
+
+logger = logging.getLogger("energia")
+logger.setLevel(logging.INFO)
+
+ch = logging.StreamHandler()
+ch.setLevel(logging.INFO)
+formatter = logging.Formatter("%(asctime)s [%(levelname)s] %(message)s")
+ch.setFormatter(formatter)
+logger.addHandler(ch)
+
 
 if TYPE_CHECKING:
     from enum import Enum
@@ -123,7 +134,7 @@ class Model:
     """
 
     name: str = "m"
-    init: Optional[list[Callable[Self]]] = None
+    init: list[Callable[Self]] | None = None
     default: bool = True
     capacitate: bool = False
 
@@ -356,7 +367,7 @@ class Model:
         value: _X,
         represent: str,
         collection: str,
-        aspects: Optional[list[str]] = None,
+        aspects: list[str] | None = None,
     ):
         """Update the Model with a new value
 
@@ -526,13 +537,13 @@ class Model:
         kind: Type[Aspect],
         primary_type: tuple[Type[_Component]] | Type[_Component],
         label: str = "",
-        latex: Optional[str] = None,
+        latex: str = "",
         add: str = "",
         add_latex: str = "",
-        add_kind: Optional[Type[Aspect]] = None,
+        add_kind: Type[Aspect] | None = None,
         sub: str = "",
         sub_latex: str = "",
-        sub_kind: Optional[Type[Aspect]] = None,
+        sub_kind: Type[Aspect] | None = None,
         neg: str = "",
         neg_latex: str = "",
         neg_label: str = "",
@@ -557,13 +568,13 @@ class Model:
         :param add_latex: LaTeX representation for the add aspect. Defaults to ''.
         :type add_latex: str, optional
         :param add_kind: type of the add aspect. Defaults to None.
-        :type add_kind: Optional[Type[Aspect]], optional
+        :type add_kind: Type[Aspect], optional
         :param sub: sub control variable. Defaults to ''.
         :type sub: str, optional
         :param sub_latex: LaTeX representation for the sub aspect. Defaults to ''.
         :type sub_latex: str, optional
         :param sub_kind: type of the sub aspect. Defaults to None.
-        :type sub_kind: Optional[Type[Aspect]], optional
+        :type sub_kind: Type[Aspect], optional
         :param neg: name of the negative aspect. Defaults to ''.
         :type neg: str, optional
         :param neg_latex: LaTeX representation for the negative aspect. Defaults to ''.
@@ -578,7 +589,7 @@ class Model:
         :type nn: bool, optional
         """
         if name in self.cookbook:
-            print(f"--- Warning: Overriding existing recipe ---{name}")
+            logger.warning(f"Overriding existing recipe: {name}")
 
         self.cookbook[name] = Recipe(
             name=name,
@@ -653,7 +664,7 @@ class Model:
         self,
         source: Location,
         sink: Location,
-        dist: Optional[float | Unit] = None,
+        dist: float | Unit = 0,
         bi: bool = False,
     ):
         """
@@ -708,7 +719,7 @@ class Model:
         self,
         descriptive: bool = False,
         categorical: bool = True,
-        category: Optional[str] = None,
+        category: str = "",
     ):
         """
         Pretty print the Model
@@ -752,12 +763,12 @@ class Model:
         else:
             raise ValueError(f"Unknown type {as_type} for saving the model")
 
-    def draw(self, variable: Optional[Aspect | Sample] = None, n_sol: int = 0):
+    def draw(self, variable: Aspect | Sample | None = None, n_sol: int = 0):
         """
         Draw the solution for a variable
 
         :param variable: Variable to draw. Defaults to None.
-        :type variable: Optional[Aspect | Sample], optional
+        :type variable: Aspect | Sample | None, optional
         :param n_sol: Solution number to draw. Defaults to 0.
         :type n_sol: int, optional
 

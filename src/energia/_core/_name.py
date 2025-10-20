@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Optional
 
 
 @dataclass
@@ -29,7 +28,7 @@ class _Name:
         - `name` is set when the component is made a Model attribute.
     """
 
-    label: Optional[str] = None
+    label: str = ""
 
     def __post_init__(self):
         self.name = ""

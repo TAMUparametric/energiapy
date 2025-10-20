@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from functools import cached_property
-from typing import TYPE_CHECKING, Optional, Self
+from typing import TYPE_CHECKING, Self
 
 from ..._core._name import _Name
 from ...components.temporal.lag import Lag
@@ -53,29 +53,29 @@ class Conversion(_Name):
 
     """
 
-    resource: Optional[Resource] = None
-    operation: Optional[_Operation] = None
-    bind: Optional[Sample] = None
+    resource: Resource | None = None
+    operation: _Operation | None = None
+    bind: Sample | None = None
 
     def __post_init__(self):
         self.name = f"η({self.operation})"
-        self.base: Optional[Resource] = None
-        self.conversion: dict[Resource, int | float | list[int | float]] = {}
-        self.lag: Optional[Lag] = None
-        self.periods: Optional[Periods] = None
+        self.base: Resource | None = None
+        self.lag: Lag | None = None
+        self.periods: Periods | None = None
 
         # if piece wise linear conversion is provided
         self.pwl: bool = False
 
         # this is holds a mode for the conversion to be appended to
-        self._mode: Optional[int | str] = None
+        self._mode: int | str | None = None
 
         # modes if PWL conversion is defined
         # or if multiple modes are defined
-        self._modes: Optional[Modes] = None
+        self._modes: Modes | None = None
 
         # if the keys are converted into Modes
         self.modes_set: bool = False
+        self.conversion: dict[Resource, int | float | list[int | float]] = {}
 
     @property
     def modes(self) -> Modes:

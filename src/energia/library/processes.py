@@ -1,7 +1,11 @@
 """Process conversion models (external libraries)"""
 
+import logging
+
 import numpy as np
 from pandas import DataFrame
+
+logger = logging.getLogger("energia")
 
 try:
     from pvlib.location import Location as PVLocation
@@ -66,7 +70,7 @@ def pv(
     # data = data.resample('H').mean()
 
     if import_all:
-        print(
+        logger.warning(
             "This is an optional feature. Please install pvlib, or pip install energiapy[all]",
         )
         return None
@@ -141,7 +145,7 @@ def wf(
 
     # df_ = df_.dropna()
     if import_all:
-        print(
+        logger.warning(
             "This is an optional feature. Please install windpowerlib, or pip install energiapy[all]",
         )
         return None

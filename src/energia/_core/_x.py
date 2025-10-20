@@ -5,7 +5,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from functools import cached_property
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from gana import I as Idx
@@ -44,12 +44,12 @@ class _X(ABC):
         - `constraints` and `domains` are populated as the program is built.
     """
 
-    label: Optional[str] = None
-    citations: Optional[str] = None
+    label: str = ""
+    citations: str = ""
 
     def __post_init__(self):
         # the model
-        self.model: Model = None
+        self.model: Model | None = None
         # name is given by the model
         self.name: str = ""
 
@@ -77,7 +77,7 @@ class _X(ABC):
     def I(self) -> Idx:
         """gana index set"""
 
-    def show(self, descriptive=False, category: Optional[str] = None):
+    def show(self, descriptive=False, category: str = ""):
         """Pretty print the component"""
         if category:
             for c in self.cons:

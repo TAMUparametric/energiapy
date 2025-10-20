@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from functools import cached_property
 from operator import is_
-from typing import TYPE_CHECKING, Optional, Self
+from typing import TYPE_CHECKING, Self
 from warnings import warn
 
 from gana import I as Idx
@@ -59,15 +59,15 @@ class Location(_X):
         # the other locations contained in this location
         self.has: tuple[Self] = has
         # if the location is a part of another
-        self.isin: Optional[Self] = None
+        self.isin: Self | None = None
         # the currency used in the location
-        self.currency: Optional[Currency] = None
+        self.currency: Currency | None = None
         # goes down another level of hierarchy
         # to find locations within the locations contained in this location
         self.alsohas: tuple[Self] = ()
 
         # Hierarchy in the space tree
-        self.hierarchy: int = None
+        self.hierarchy: int | None = None
 
         for loc in self.has:
             if loc.name:

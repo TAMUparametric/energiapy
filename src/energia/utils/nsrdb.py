@@ -1,10 +1,12 @@
 """Fetch data from NREL's NSRDB database"""
 
-from typing import Optional
+import logging
 
 from numpy import array, average
 from pandas import DataFrame, to_datetime
 from scipy.spatial import cKDTree
+
+logger = logging.getLogger("energia")
 
 try:
     import h5pyd
@@ -22,7 +24,7 @@ def fetch_nsrdb_data(
     county: str = "",
     resolution: str = "",
     get: str = "max-population",
-    save: Optional[str] = None,
+    save: str | None = None,
 ) -> DataFrame | tuple:
     """
     Fetches nsrdb data from nearest coordinates (latitude, longitude)
@@ -50,7 +52,7 @@ def fetch_nsrdb_data(
     """
 
     if import_all:
-        print(
+        logger.warning(
             "This is an optional feature. Please install h5pyd, or pip install energiapy[all]",
         )
         return None

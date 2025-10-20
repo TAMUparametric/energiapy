@@ -1,7 +1,7 @@
 """Unit"""
 
 from operator import is_
-from typing import Optional, Self
+from typing import Self
 
 from ..._core._name import _Name
 
@@ -23,9 +23,9 @@ class Unit(_Name):
 
     def __init__(
         self,
-        basis: Optional[Self] = None,
-        times: Optional[int | float] = None,
-        label: Optional[str] = None,
+        basis: Self | None = None,
+        times: int | float | None = None,
+        label: str = "",
     ):
         # A basis can itself be measured using another basis
         self.basis = basis
