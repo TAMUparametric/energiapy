@@ -94,19 +94,30 @@ class _Component(_X):
     def __setattr__(self, name, value):
         object.__setattr__(self, name, value)
 
+        # this handles the parameters being set on init
         if name == "model" and value is not None:
 
             for attr, value in self.parameters.items():
 
+                # attributes name expected here are of the format <aspect>_<bound>
+                # for exact equality, just <aspect>
+
                 split_attr = attr.split('_')
+                # irrespective of exact or bound, first part is always the aspect
                 aspect = split_attr[0]
 
                 if isinstance(self, self.model.cookbook[aspect].primary_type):
+                    # check type match
 
+                    # get the sample
                     sample = getattr(self, aspect)
 
                     if len(split_attr) == 1:
+                        # if split returned just the aspect name
+                        # then it's an equality
                         _ = sample == value
+
+                    # else, check if lower or upper bound
 
                     elif split_attr[1] in ["max", "ub", "UB", "leq"]:
                         _ = sample <= value
@@ -115,7 +126,7 @@ class _Component(_X):
                         _ = sample >= value
 
                 else:
-
+                    # error if type mismatch
                     raise AttributeError(
                         f"Parameter {attr} valid for {self.model.cookbook[aspect].primary_type} not {type(self).__name__}"
                     )
