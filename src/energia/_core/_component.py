@@ -51,9 +51,12 @@ class _Component(_X):
         basis: Unit | None = None,
         label: str = "",
         captions: str = "",
+        **kwargs,
     ):
 
         self.basis = basis
+
+        self.parameters = kwargs
 
         # what differentiates a component from an index is that it has aspects
         # that we can control to adjust their states of existence
@@ -85,6 +88,24 @@ class _Component(_X):
         # the decision tree gives the component access to
         # the aspects of all other components
         return self.model.problem
+
+    def __setattr__(self, name, value):
+        object.__setattr__(self, name, value)
+
+        if name == "model" and value is not None:
+
+            for attr, value in self.parameters.items():
+                split_attr = attr.split('_')
+                sample = getattr(self, split_attr[0])
+
+                if len(split_attr) == 1:
+                    _ = sample == value
+
+                elif split_attr[1] == "max":
+                    _ = sample <= value
+
+                elif split_attr[1] == "min":
+                    _ = sample >= value
 
     def __getattr__(self, name):
 

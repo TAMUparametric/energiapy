@@ -66,9 +66,10 @@ class Storage(_Component):
         basis: Unit | None = None,
         label: str = "",
         captions: str = "",
+        **kwargs,
     ):
 
-        _Component.__init__(self, basis=basis, label=label, captions=captions)
+        _Component.__init__(self, basis=basis, label=label, captions=captions, **kwargs)
 
         self.stored = store
         self._conv = False

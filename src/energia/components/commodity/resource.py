@@ -51,8 +51,9 @@ class Resource(_Commodity):
         basis: Unit | None = None,
         label: str = "",
         captions: str = "",
+        **kwargs,
     ):
-        _Commodity.__init__(self, basis=basis, label=label, captions=captions)
+        _Commodity.__init__(self, basis=basis, label=label, captions=captions, **kwargs)
 
         # base resource, if any in conversion
         self.inv_of: Resource | None = None

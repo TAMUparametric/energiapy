@@ -50,9 +50,11 @@ class Transport(_Operation):
     :vartype linkages: list[Linkage]
     """
 
-    def __init__(self, basis: Unit | None = None, label: str = "", captions: str = ""):
+    def __init__(
+        self, basis: Unit | None = None, label: str = "", captions: str = "", **kwargs
+    ):
 
-        _Operation.__init__(self, basis=basis, label=label, captions=captions)
+        _Operation.__init__(self, basis=basis, label=label, captions=captions, **kwargs)
         self.linkages: list[Linkage] = []
 
     @property

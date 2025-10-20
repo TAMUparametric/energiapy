@@ -39,8 +39,10 @@ class _Commodity(_Component):
     :vartype insitu: bool, optional
     """
 
-    def __init__(self, basis: Unit | None = None, label: str = "", captions: str = ""):
-        _Component.__init__(self, basis=basis, label=label, captions=captions)
+    def __init__(
+        self, basis: Unit | None = None, label: str = "", captions: str = "", **kwargs
+    ):
+        _Component.__init__(self, basis=basis, label=label, captions=captions, **kwargs)
 
         # list of conversions associated with the commodity
         self.conversions: list[Conversion] = []
@@ -115,4 +117,3 @@ class _Commodity(_Component):
     def __truediv__(self, other: int | float):
         # treat division as multiplication by the inverse
         return self * (1 / other)
-
