@@ -41,6 +41,8 @@ class _Component(_X):
     :ivar aspects: Aspects associated with the component with domains.
     :vartype aspects: dict[Aspect, list[Domain]]
 
+    :raises AttributeError: If an invalid parameter is provided for the component type.
+
     .. note:
         - `name`, `model` set when component assigned to Model attribute.
         - `constraints` and `domains` are populated as the program is built.
@@ -95,17 +97,28 @@ class _Component(_X):
         if name == "model" and value is not None:
 
             for attr, value in self.parameters.items():
+
                 split_attr = attr.split('_')
-                sample = getattr(self, split_attr[0])
+                aspect = split_attr[0]
 
-                if len(split_attr) == 1:
-                    _ = sample == value
+                if isinstance(self, self.model.cookbook[aspect].primary_type):
 
-                elif split_attr[1] == "max":
-                    _ = sample <= value
+                    sample = getattr(self, aspect)
 
-                elif split_attr[1] == "min":
-                    _ = sample >= value
+                    if len(split_attr) == 1:
+                        _ = sample == value
+
+                    elif split_attr[1] in ["max", "ub", "UB"]:
+                        _ = sample <= value
+
+                    elif split_attr[1] in ["min", "lb", "LB"]:
+                        _ = sample >= value
+
+                else:
+
+                    raise AttributeError(
+                        f"Parameter {attr} valid for {self.model.cookbook[aspect].primary_type} not {type(self).__name__}"
+                    )
 
     def __getattr__(self, name):
 
