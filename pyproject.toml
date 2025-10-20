@@ -47,3 +47,4 @@ docs = [
 [project.urls]
 Homepage = "https://github.com/TAMUparametric/energiapy"
 Issues = "https://github.com/TAMUparametric/energiapy/issues"
+Changelog = "https://github.com/yourusername/yourrepo/blob/main/CHANGELOG.md"

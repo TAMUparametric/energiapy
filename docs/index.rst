@@ -41,6 +41,15 @@ Energia on Python
    
    frameworks
 
+.. toctree::
+   :maxdepth: 1
+   :caption: Information
+   :hidden:
+
+   license
+   changelog
+   
+
 References
 ----------
 
