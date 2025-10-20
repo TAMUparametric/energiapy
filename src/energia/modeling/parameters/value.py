@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from ..._core._name import _Name
@@ -11,23 +10,26 @@ if TYPE_CHECKING:
     from ...components.temporal.periods import Periods
 
 
-@dataclass
 class Value(_Name):
     """Input Value"""
 
-    value: (
-        float
-        | int
-        | list[float]
-        | list[int]
-        | tuple[float]
-        | tuple[int]
-        | tuple[list[int | float]]
-        | None
-    ) = None
-    periods: Periods | None = None
-
-    def __post_init__(self):
+    def __init__(
+        self,
+        value: (
+            float
+            | int
+            | list[float]
+            | list[int]
+            | tuple[float]
+            | tuple[int]
+            | tuple[list[int | float]]
+            | None
+        ) = None,
+        periods: Periods | None = None,
+    ):
+        self.value = value
+        self.periods = periods
+        _Name.__init__(self, label="")
         if isinstance(self.value, (float, int)):
             self.name = f"{self.value}/{self.periods}"
         else:

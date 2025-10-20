@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from ..._core._name import _Name
@@ -11,7 +10,6 @@ if TYPE_CHECKING:
     from ...represent.ations.graph import Graph
 
 
-@dataclass
 class Node(_Name):
     """
     Node of a Graph
@@ -27,6 +25,6 @@ class Node(_Name):
         - name and Graph are set when made a Graph attribute.
     """
 
-    def __post_init__(self):
-        self.graph: Graph = None
-        _Name.__post_init__(self)
+    def __init__(self, label: str = ""):
+        self.graph: Graph | None = None
+        _Name.__init__(self, label=label)

@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 from functools import cached_property
 from typing import TYPE_CHECKING, Self
 
@@ -20,7 +19,6 @@ if TYPE_CHECKING:
     from ..variables.sample import Sample
 
 
-@dataclass
 class Conversion(_Name):
     """
     Processes convert one Resource to another Resource
@@ -53,11 +51,19 @@ class Conversion(_Name):
 
     """
 
-    resource: Resource | None = None
-    operation: _Operation | None = None
-    bind: Sample | None = None
+    def __init__(
+        self,
+        resource: Resource | None = None,
+        operation: _Operation | None = None,
+        bind: Sample | None = None,
+    ):
 
-    def __post_init__(self):
+        self.resource = resource
+        self.operation = operation
+        self.bind = bind
+
+        _Name.__init__(self, label="")
+
         self.name = f"η({self.operation})"
         self.base: Resource | None = None
         self.lag: Lag | None = None

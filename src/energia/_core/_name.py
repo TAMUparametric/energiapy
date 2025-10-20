@@ -1,11 +1,6 @@
 """Inherited _Name (reprs) class"""
 
-from __future__ import annotations
 
-from dataclasses import dataclass
-
-
-@dataclass
 class _Name:
     """
     Inherited by components that only have a name.
@@ -28,9 +23,8 @@ class _Name:
         - `name` is set when the component is made a Model attribute.
     """
 
-    label: str = ""
-
-    def __post_init__(self):
+    def __init__(self, label: str = ""):
+        self.label = label
         self.name = ""
 
     # -----------------------------------------------------
