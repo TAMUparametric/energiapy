@@ -139,7 +139,7 @@ class Storage(_Component):
 
         # locate the charge and discharge processes
         self.charge.locate(*locations)
-        self.discharge.locate(*locations)
+        # self.discharge.locate(*locations)
 
         # self.writecons_conversion(loc_times)
 

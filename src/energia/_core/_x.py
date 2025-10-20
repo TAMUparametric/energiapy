@@ -107,12 +107,7 @@ class _X(ABC):
     def __hash__(self):
         return hash(self.name)
 
-    # def __init_subclass__(cls):
-    #     # the hashing will be inherited by the subclasses
-    #     cls.__repr__ = _X.__repr__
-    #     cls.__hash__ = _X.__hash__
-
-    def __init_subclass__(cls, **kwargs):
-        super().__init_subclass__(**kwargs)
+    def __init_subclass__(cls):
+        # the hashing will be inherited by the subclasses
         cls.__repr__ = _X.__repr__
         cls.__hash__ = _X.__hash__
