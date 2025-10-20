@@ -16,6 +16,7 @@ if TYPE_CHECKING:
     from ..dimensions.problem import Problem
     from ..dimensions.space import Space
     from ..dimensions.time import Time
+    from ..modeling.variables.sample import Sample
 
 
 class _Component(_X):
@@ -94,6 +95,26 @@ class _Component(_X):
     def __setattr__(self, name, value):
         object.__setattr__(self, name, value)
 
+        def _get_sample(aspect: str, sample: Sample) -> Sample:
+            """Check if a nominal parameter is set for the aspect"""
+
+            # check if a request to normalize has been made
+            nominal = aspect + "_nominal"
+            nom = aspect + "_nom"
+            normalize = aspect + "_normalize"
+            norm = aspect + "_norm"
+            if normalize in self.parameters or norm in self.parameters:
+                _normalize = self.parameters.get(normalize, self.parameters.get(norm))
+
+            else:
+                # default behavior is to normalize
+                _normalize = True
+
+            # irrespective of normalize request, check if nominal value set
+            if nominal in self.parameters or nom in self.parameters:
+                return sample.prep(self.parameters[nominal], _normalize)
+            return sample
+
         # this handles the parameters being set on init
         if name == "model" and value is not None:
 
@@ -115,15 +136,15 @@ class _Component(_X):
                     if len(split_attr) == 1:
                         # if split returned just the aspect name
                         # then it's an equality
-                        _ = sample == value
+                        _ = _get_sample(aspect, sample) == value
 
                     # else, check if lower or upper bound
 
                     elif split_attr[1] in ["max", "ub", "UB", "leq"]:
-                        _ = sample <= value
+                        _ = _get_sample(aspect, sample) <= value
 
                     elif split_attr[1] in ["min", "lb", "LB", "geq"]:
-                        _ = sample >= value
+                        _ = _get_sample(aspect, sample) >= value
 
                 else:
                     # error if type mismatch
