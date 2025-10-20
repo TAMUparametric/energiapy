@@ -15,9 +15,9 @@ def m():
     m_.eu = Location()
     m_.ind = Location()
     m_.maitri = Location()
-    m_.usd = Currency(locs=[m_.usa])
-    m_.eur = Currency(locs=[m_.eu])
-    m_.inr = Currency(locs=[m_.ind, m_.maitri])
+    m_.usd = Currency(m_.usa)
+    m_.eur = Currency(m_.eu)
+    m_.inr = Currency(m_.ind, m_.maitri)
     m_.eur == m_.usd * 0.8
     m_.inr == m_.usd / 80
     return m_

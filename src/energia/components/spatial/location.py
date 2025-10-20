@@ -51,13 +51,13 @@ class Location(_X):
     :vartype hierarchy: int, optional
     """
 
-    def __init__(self, *has: Self, label: str = None):
-
-        # it is an indexed component
-        _X.__init__(self, label=label or "")
+    def __init__(self, *has: Self, label: str = "", captions: str = ""):
 
         # the other locations contained in this location
         self.has: tuple[Self] = has
+
+        _X.__init__(self, label=label, captions=captions)
+
         # if the location is a part of another
         self.isin: Self | None = None
         # the currency used in the location

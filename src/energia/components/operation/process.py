@@ -11,13 +11,13 @@ from ._operation import _Operation
 
 if TYPE_CHECKING:
     from ..commodity.resource import Resource
+    from ..measure.unit import Unit
     from ..spatial.location import Location
     from ..temporal.lag import Lag
     from ..temporal.periods import Periods
     from .storage import Storage
 
 
-@dataclass
 class Process(_Operation):
     """
     Process converts one Resource to another Resource at some Location
@@ -54,8 +54,9 @@ class Process(_Operation):
     :vartype ofstorage: Storage, optional
     """
 
-    def __post_init__(self):
-        _Operation.__post_init__(self)
+    def __init__(self, basis: Unit | None = None, label: str = "", captions: str = ""):
+
+        _Operation.__init__(self, basis=basis, label=label, captions=captions)
 
         # at which locations the process is balanced
         # Note that we do not need a conversion at every temporal scale.

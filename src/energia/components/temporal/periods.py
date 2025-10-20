@@ -19,7 +19,6 @@ if TYPE_CHECKING:
     from ...dimensions.time import Time
 
 
-@dataclass
 class Periods(_X):
     """
     A discretization of Time.
@@ -49,12 +48,17 @@ class Periods(_X):
     :vartype aspects: dict[Aspect, list[Domain]]
     """
 
-    periods: int | float = 1
-    of: Self = None
+    def __init__(
+        self,
+        periods: int | float = 1,
+        of: Self | None = None,
+        label: str = "",
+        captions: str = "",
+    ):
+        self.periods = periods
+        self.of = of
 
-    def __post_init__(self):
-
-        _X.__post_init__(self)
+        _X.__init__(self, label=label, captions=captions)
 
         self._periods = self.periods
 
@@ -64,7 +68,7 @@ class Periods(_X):
             self.periods = self.periods * self.of.periods
             self.of = self.of.of
 
-        self._horizon: Self = None
+        self._horizon: Self | None = None
 
         # can be overwritten by program
         self.name = f"{self._periods}{self._of}"
@@ -73,10 +77,10 @@ class Periods(_X):
             self.of = self
 
         # if this is a slice of another period
-        self.slice: slice = None
+        self.slice: slice | None = None
 
         # if this is a single period in Periods
-        self.pos: int = None
+        self.pos: int | None = None
 
     def isroot(self):
         """Is used to define another period?"""

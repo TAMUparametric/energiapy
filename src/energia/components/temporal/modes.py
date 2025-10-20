@@ -16,7 +16,6 @@ if TYPE_CHECKING:
     from ...modeling.variables.sample import Sample
 
 
-@dataclass
 class Modes(_X):
     """
     Represents a discrete choice to be taken within a spatiotemporal disposition.
@@ -35,13 +34,21 @@ class Modes(_X):
     :vartype name: str | float | int
     """
 
-    n_modes: int = 1
-    bind: Sample = None
-    parent: Self = None
-    pos: int = None
+    def __init__(
+        self,
+        n_modes: int = 1,
+        bind: Sample | None = None,
+        parent: Self | None = None,
+        pos: int | None = None,
+        label: str = "",
+        captions: str = "",
+    ):
+        self.n_modes = n_modes
+        self.bind = bind
+        self.parent = parent
+        self.pos = pos
 
-    def __post_init__(self):
-        _X.__post_init__(self)
+        _X.__init__(self, label=label, captions=captions)
 
         if self.pos is not None:
             self.name = f"{self.parent}[{self.pos}]"

@@ -1,11 +1,16 @@
 """Resource in Storage"""
 
+from __future__ import annotations
+
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 from .resource import Resource
 
+if TYPE_CHECKING:
+    from ..measure.unit import Unit
 
-@dataclass
+
 class Stored(Resource):
     """
     Stored form of a Resource.
@@ -35,5 +40,10 @@ class Stored(Resource):
     :vartype insitu: bool, optional
     """
 
-    def __post_init__(self):
-        Resource.__post_init__(self)
+    def __init__(
+        self,
+        basis: Unit | None = None,
+        label: str = "",
+        captions: str = "",
+    ):
+        Resource.__init__(self, basis=basis, label=label, captions=captions)

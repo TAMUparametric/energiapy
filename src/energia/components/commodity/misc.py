@@ -1,12 +1,16 @@
-from dataclasses import dataclass
+"""Miscellaneous Commodities"""
 
-# from ..impact.categories import Eco
+from __future__ import annotations
+
+from dataclasses import dataclass
+from typing import TYPE_CHECKING
+
 from .resource import Resource
 
-# from ..operation.task import Task
+if TYPE_CHECKING:
+    from ..measure.unit import Unit
 
 
-@dataclass
 class Package(Resource):
     """
     Package, discrete
@@ -36,8 +40,15 @@ class Package(Resource):
     :vartype insitu: bool, optional
     """
 
+    def __init__(
+        self,
+        basis: Unit | None = None,
+        label: str = "",
+        captions: str = "",
+    ):
+        Resource.__init__(self, basis=basis, label=label, captions=captions)
 
-@dataclass
+
 class Human(Resource):
     """
     Human
@@ -67,8 +78,15 @@ class Human(Resource):
     :vartype insitu: bool, optional
     """
 
+    def __init__(
+        self,
+        basis: Unit | None = None,
+        label: str = "",
+        captions: str = "",
+    ):
+        Resource.__init__(self, basis=basis, label=label, captions=captions)
 
-@dataclass
+
 class Mana(Resource):
     """
     Mana
@@ -98,8 +116,15 @@ class Mana(Resource):
     :vartype insitu: bool, optional
     """
 
+    def __init__(
+        self,
+        basis: Unit | None = None,
+        label: str = "",
+        captions: str = "",
+    ):
+        Resource.__init__(self, basis=basis, label=label, captions=captions)
 
-@dataclass
+
 class Etc(Resource):
     """
     Etc, used for resources that do not fit into the other categories
@@ -128,3 +153,11 @@ class Etc(Resource):
     :ivar insitu: If the commodity only exists insitu, i.e., does not scale any domains
     :vartype insitu: bool, optional
     """
+
+    def __init__(
+        self,
+        basis: Unit | None = None,
+        label: str = "",
+        captions: str = "",
+    ):
+        Resource.__init__(self, basis=basis, label=label, captions=captions)

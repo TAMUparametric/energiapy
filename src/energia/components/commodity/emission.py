@@ -1,11 +1,16 @@
 """Emission"""
 
+from __future__ import annotations
+
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 from ._commodity import _Commodity
 
+if TYPE_CHECKING:
+    from ..measure.unit import Unit
 
-@dataclass
+
 class Emission(_Commodity):
     """
     Emission
@@ -35,5 +40,10 @@ class Emission(_Commodity):
     :vartype insitu: bool, optional
     """
 
-    def __post_init__(self):
-        _Commodity.__post_init__(self)
+    def __init__(
+        self,
+        basis: Unit | None = None,
+        label: str = "",
+        captions: str = "",
+    ):
+        _Commodity.__init__(self, basis=basis, label=label, captions=captions)

@@ -17,7 +17,6 @@ if TYPE_CHECKING:
     from .location import Location
 
 
-@dataclass
 class Linkage(_X):
     """
     Linkage between two Locations.
@@ -45,21 +44,31 @@ class Linkage(_X):
     :vartype network: Loc
     """
 
-    source: Location = None
-    sink: Location = None
-    dist: float | Unit = None
-    basis: Unit = None
-    bi: bool = False
-    auto: bool = False
-
-    def __post_init__(self):
-
-        if is_(self.source, self.sink):
+    def __init__(
+        self,
+        source: Location,
+        sink: Location,
+        dist: float | None = None,
+        basis: Unit | None = None,
+        bi: bool = False,
+        auto: bool = False,
+        label: str = "",
+        captions: str = "",
+    ):
+        if is_(source, sink):
             # if the source and sink are the same, throw error
-            raise ValueError(f"source and sink can't both be {self.source}")
+            raise ValueError(f"source and sink can't both be {source}")
 
-        _X.__post_init__(self)
-        self.sib: Self = None
+        self.source = source
+        self.sink = sink
+        self.dist = dist
+        self.basis = basis
+        self.bi = bi
+        self.auto = auto
+
+        _X.__init__(self, label=label, captions=captions)
+
+        self.sib: Self | None = None
 
         self.hierarchy = 1
 

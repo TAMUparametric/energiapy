@@ -1,13 +1,17 @@
 """Commodity Base Class"""
 
+from __future__ import annotations
+
 from dataclasses import dataclass
-from typing import Self
+from typing import TYPE_CHECKING, Self
 
 from ..._core._component import _Component
 from ...modeling.parameters.conversion import Conversion
 
+if TYPE_CHECKING:
+    from ..measure.unit import Unit
 
-@dataclass
+
 class _Commodity(_Component):
     """
     A commodity, can be a material, chemical, energy, etc.
@@ -36,8 +40,8 @@ class _Commodity(_Component):
     :vartype insitu: bool, optional
     """
 
-    def __post_init__(self):
-        _Component.__post_init__(self)
+    def __init__(self, basis: Unit | None = None, label: str = "", captions: str = ""):
+        _Component.__init__(self, basis=basis, label=label, captions=captions)
 
         # list of conversions associated with the commodity
         self.conversions: list[Conversion] = []
@@ -46,7 +50,7 @@ class _Commodity(_Component):
         self.insitu = False
 
     @property
-    def conversion(self) -> dict[Conversion, int | float]:
+    def conversion(self) -> dict[Conversion | Self, int | float]:
         """Conversion"""
         # if no conversion is set, return 1.0
         if not self.conversions:
@@ -112,3 +116,4 @@ class _Commodity(_Component):
     def __truediv__(self, other: int | float):
         # treat division as multiplication by the inverse
         return self * (1 / other)
+

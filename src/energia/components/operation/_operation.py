@@ -15,13 +15,13 @@ logger = logging.getLogger("energia")
 if TYPE_CHECKING:
     from ...modeling.constraints.calculate import Calculate
     from ..commodity.resource import Resource
+    from ..measure.unit import Unit
     from ..spatial.linkage import Linkage
     from ..spatial.location import Location
     from ..temporal.lag import Lag
     from ..temporal.periods import Periods
 
 
-@dataclass
 class _Operation(_Component):
     """A General Operation
 
@@ -53,16 +53,17 @@ class _Operation(_Component):
     :vartype _fab_balanced: bool
     """
 
-    def __post_init__(self):
-        _Component.__post_init__(self)
+    def __init__(self, basis: Unit | None = None, label: str = "", captions: str = ""):
+
+        _Component.__init__(self, basis=basis, label=label, captions=captions)
 
         self._conv = False
 
         # Operational conversion
-        self.conv: Conversion = None
+        self.conv: Conversion | None = None
 
         # Material conversion
-        self._fab: Conversion = None
+        self._fab: Conversion | None = None
 
         # to check if fab is balanced
         self._fab_balanced: bool = False
@@ -253,3 +254,4 @@ class _Operation(_Component):
 
         if self.fabrication:
             self.writecons_fabrication(space_times)
+
