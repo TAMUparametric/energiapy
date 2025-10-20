@@ -2,16 +2,15 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from ..._core._component import _Component
 
 if TYPE_CHECKING:
     from ...dimensions.consequence import Consequence
+    from ..measure.unit import Unit
 
 
-@dataclass
 class Indicator(_Component):
     """
     Impact Indicator
@@ -36,8 +35,9 @@ class Indicator(_Component):
     :vartype aspects: dict[Aspect, list[Domain]]
     """
 
-    def __post_init__(self):
-        _Component.__post_init__(self)
+    def __init__(self, basis: Unit | None = None, label: str = "", captions: str = ""):
+
+        _Component.__init__(self, basis=basis, label=label, captions=captions)
 
     @property
     def consequence(self) -> Consequence:

@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
 from functools import cached_property
 from typing import TYPE_CHECKING
 
@@ -17,7 +16,6 @@ if TYPE_CHECKING:
     from ..represent.model import Model
 
 
-@dataclass
 class _X(ABC):
     """
     A component (`x`) that functions as an index in the mathematical program.
@@ -25,7 +23,7 @@ class _X(ABC):
     :param label: An optional label for the component. Defaults to None.
     :type label: str, optional
     :param captions: Citation for the component. Defaults to None.
-    :type captions: str | list[str] | dict[str, str | list[str]], optional
+    :type captions: str, optional
 
     :ivar model: The model to which the component belongs.
     :vartype model: Model
@@ -44,10 +42,13 @@ class _X(ABC):
         - `constraints` and `domains` are populated as the program is built.
     """
 
-    label: str = ""
-    citations: str = ""
-
-    def __post_init__(self):
+    def __init__(
+        self,
+        label: str = "",
+        captions: str = "",
+    ):
+        self.label = label
+        self.captions = captions
         # the model
         self.model: Model | None = None
         # name is given by the model

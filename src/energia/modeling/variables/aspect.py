@@ -351,7 +351,7 @@ class Aspect:
         if isinstance(other, Aspect):
             return self.name == other.name
 
-    def __call__(self, *index: _X, domain: Domain = None):
+    def __call__(self, *index: _X, domain: Domain | None = None):
 
         if not domain:
 
@@ -384,21 +384,7 @@ class Aspect:
                 Modes: ("modes", None, False),
                 _Commodity: ("commodity", None, True),
             }
-            # (
-            #     indicator,
-            #     commodity,
-            #     player,
-            #     process,
-            #     storage,
-            #     transport,
-            #     period,
-            #     couple,
-            #     location,
-            #     linkage,
-            #     lag,
-            #     modes,
-            # ) = (None for _ in range(12))
-
+    
             binds: list[Sample] = []
             timed, spaced = False, False
 

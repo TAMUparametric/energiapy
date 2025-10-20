@@ -1,11 +1,15 @@
 """Impact Indicator Categories"""
 
-from dataclasses import dataclass
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 from .indicator import Indicator
 
+if TYPE_CHECKING:
+    from ..measure.unit import Unit
 
-@dataclass
+
 class Environ(Indicator):
     """
     Environmental Impact
@@ -30,8 +34,11 @@ class Environ(Indicator):
     :vartype aspects: dict[Aspect, list[Domain]]
     """
 
+    def __init__(self, basis: Unit | None = None, label: str = "", captions: str = ""):
 
-@dataclass
+        Indicator.__init__(self, basis=basis, label=label, captions=captions)
+
+
 class Social(Indicator):
     """
     Social Impact
@@ -56,8 +63,11 @@ class Social(Indicator):
     :vartype aspects: dict[Aspect, list[Domain]]
     """
 
+    def __init__(self, basis: Unit | None = None, label: str = "", captions: str = ""):
 
-@dataclass
+        Indicator.__init__(self, basis=basis, label=label, captions=captions)
+
+
 class Economic(Indicator):
     """
     Economic impact
@@ -81,3 +91,7 @@ class Economic(Indicator):
     :ivar aspects: Aspects associated with the component with domains.
     :vartype aspects: dict[Aspect, list[Domain]]
     """
+
+    def __init__(self, basis: Unit | None = None, label: str = "", captions: str = ""):
+
+        Indicator.__init__(self, basis=basis, label=label, captions=captions)

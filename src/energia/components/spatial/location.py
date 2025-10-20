@@ -51,13 +51,13 @@ class Location(_X):
     :vartype hierarchy: int, optional
     """
 
-    def __init__(self, *has: Self, label: str = None):
-
-        # it is an indexed component
-        _X.__init__(self, label=label or "")
+    def __init__(self, *has: Self, label: str = "", captions: str = ""):
 
         # the other locations contained in this location
         self.has: tuple[Self] = has
+
+        _X.__init__(self, label=label, captions=captions)
+
         # if the location is a part of another
         self.isin: Self | None = None
         # the currency used in the location
@@ -254,7 +254,7 @@ class Location(_X):
         # if a location is nested within another
         return self in other.has or self in other.alsohas
 
-    def __leq__(self, other: Self):
+    def __le__(self, other: Self):
         # same as less than & equality
         return self < other or self == other
 
@@ -262,7 +262,7 @@ class Location(_X):
         # reverse check
         return other < self
 
-    def __geq__(self, other: Self):
+    def __ge__(self, other: Self):
         # reverse check
         return other <= self
 

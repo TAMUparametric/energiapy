@@ -2,16 +2,14 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from ..._core._component import _Component
 
 if TYPE_CHECKING:
-    pass
+    from ..measure.unit import Unit
 
 
-@dataclass
 class Player(_Component):
     """
     Player or Actor, the one taking the decisions
@@ -40,5 +38,6 @@ class Player(_Component):
     :vartype aspects: dict[Aspect, list[Domain]]
     """
 
-    def __post_init__(self):
-        _Component.__post_init__(self)
+    def __init__(self, basis: Unit | None, label: str = "", captions: str = ""):
+
+        _Component.__init__(self, basis=basis, label=label, captions=captions)

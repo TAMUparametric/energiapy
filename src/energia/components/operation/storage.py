@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import logging
-from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from ..._core._component import _Component
@@ -19,10 +18,10 @@ if TYPE_CHECKING:
 
     from ...modeling.variables.sample import Sample
     from ..commodity.resource import Resource
+    from ..measure.unit import Unit
     from ..spatial.location import Location
 
 
-@dataclass
 class Storage(_Component):
     """
     Storage
@@ -61,11 +60,17 @@ class Storage(_Component):
     :vartype locations: list[Location]
     """
 
-    store: Resource = None
+    def __init__(
+        self,
+        store: Resource | None = None,
+        basis: Unit | None = None,
+        label: str = "",
+        captions: str = "",
+    ):
 
-    def __post_init__(self):
-        _Component.__post_init__(self)
-        self.stored: Stored = None
+        _Component.__init__(self, basis=basis, label=label, captions=captions)
+
+        self.stored = store
         self._conv = False
         self.conv = None
         self.charge = Process()
@@ -75,7 +80,7 @@ class Storage(_Component):
         self.locations: list[Location] = []
 
     def __setattr__(self, name, value):
-        if name == "model" and value:
+        if name == "model" and value is not None:
             setattr(value, f"{self.name}.charge", self.charge)
             setattr(value, f"{self.name}.discharge", self.discharge)
 

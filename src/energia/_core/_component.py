@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 from functools import cached_property
 from typing import TYPE_CHECKING
 
@@ -19,7 +18,6 @@ if TYPE_CHECKING:
     from ..dimensions.time import Time
 
 
-@dataclass
 class _Component(_X):
     """
     A component with a mathematical program (hence index in it) and
@@ -48,14 +46,18 @@ class _Component(_X):
         - `constraints` and `domains` are populated as the program is built.
     """
 
-    # every component has a basis unit
-    basis: Unit | None = None
+    def __init__(
+        self,
+        basis: Unit | None = None,
+        label: str = "",
+        captions: str = "",
+    ):
 
-    def __post_init__(self):
+        self.basis = basis
 
         # what differentiates a component from an index is that it has aspects
         # that we can control to adjust their states of existence
-        _X.__post_init__(self)
+        _X.__init__(self, label=label, captions=captions)
 
     @property
     def network(self) -> Location:

@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from ...modeling.parameters.conversion import Conversion
@@ -10,13 +9,13 @@ from ._operation import _Operation
 
 if TYPE_CHECKING:
     from ..commodity.resource import Resource
+    from ..measure.unit import Unit
     from ..spatial.linkage import Linkage
     from ..spatial.location import Location
     from ..temporal.lag import Lag
     from ..temporal.periods import Periods
 
 
-@dataclass
 class Transport(_Operation):
     """
     Exports Resource through Link basically, moves Resources between Locations
@@ -51,8 +50,9 @@ class Transport(_Operation):
     :vartype linkages: list[Linkage]
     """
 
-    def __post_init__(self):
-        _Operation.__post_init__(self)
+    def __init__(self, basis: Unit | None = None, label: str = "", captions: str = ""):
+
+        _Operation.__init__(self, basis=basis, label=label, captions=captions)
         self.linkages: list[Linkage] = []
 
     @property
