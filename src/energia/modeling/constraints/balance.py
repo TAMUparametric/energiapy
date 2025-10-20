@@ -7,6 +7,9 @@ from operator import is_
 from typing import TYPE_CHECKING, Self
 
 from ...components.commodity.stored import Stored
+import logging
+
+logger = logging.getLogger("energia")
 
 if TYPE_CHECKING:
     from gana.sets.constraint import C
@@ -246,28 +249,28 @@ class Balance:
                     _ = self.aspect(commodity, loc, lower_times[0]) == True
                     return
 
-        # ---- initialize GRB for commodity if necessary -----
+        # -initialize GRB for commodity if necessary -----
 
         if not self.grb[commodity][loc][time]:
             # this checks whether a general commodity balance has been defined
             # for the commodity in that space and time
 
-            print(
-                f"--- General Resource Balance for {commodity} in ({loc}, {time}): initializing constraint, adding {self.aspect}{self.domain}",
+            logger.info(
+                f"General Resource Balance for {commodity} in ({loc}, {time}): initializing constraint, adding {self.aspect}{self.domain}",
             )
 
             start = keep_time.time()
 
             made = self._create_constraint(_name, stored, time, loc)
 
-        # ---- add aspect to GRB if not added already ----
+        # -add aspect to GRB if not added already ----
 
         # elif self not in self.grb[commodity][loc][time]:
 
         else:
 
-            print(
-                f"--- General Resource Balance for {commodity} in ({loc}, {time}): adding {self.aspect}{self.domain}",
+            logger.info(
+                f"General Resource Balance for {commodity} in ({loc}, {time}): adding {self.aspect}{self.domain}",
             )
 
             start = keep_time.time()
@@ -280,7 +283,7 @@ class Balance:
             return False
 
         end = keep_time.time()
-        print(f"    Completed in {end-start} seconds")
+        logger.info(f"\u2714 Completed in {end-start} seconds")
 
         # updates the constraints in all the indices of self.domain
         # add constraint name to aspect

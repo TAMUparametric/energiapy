@@ -8,6 +8,9 @@ from typing import TYPE_CHECKING
 
 from ..._core._component import _Component
 from ...modeling.parameters.conversion import Conversion
+import logging
+
+logger = logging.getLogger("energia")
 
 if TYPE_CHECKING:
     from ...modeling.constraints.calculate import Calculate
@@ -209,8 +212,8 @@ class _Operation(_Component):
 
             if space not in self.model.capacity.bound_spaces[self]["ub"]:
                 # check if operational capacity has been bound
-                print(
-                    f"--- Assuming  {self} capacity is unbounded in ({space}, {self.horizon})",
+                logger.info(
+                    f"Assuming  {self} capacity is unbounded in ({space}, {self.horizon})",
                 )
                 # this is not a check, this generates a constraint
                 _ = self.capacity(space, self.horizon) == True
@@ -221,8 +224,8 @@ class _Operation(_Component):
             if space not in self.model.operate.bound_spaces[self]["ub"]:
                 # check if operate has been bound
                 # if not just write opr_{pro, space, horizon} <= capacity_{pro, space, horizon}
-                print(
-                    f"--- Assuming operation of {self} is bound by capacity in ({space}, {self.horizon})",
+                logger.info(
+                    f"Assuming operation of {self} is bound by capacity in ({space}, {self.horizon})",
                 )
                 if (
                     self in self.model.operate.dispositions

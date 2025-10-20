@@ -12,6 +12,9 @@ from gana import V, inf, sigma, sup
 from ...utils.dictionary import merge_trees
 from ..constraints.bind import Bind
 from ..constraints.calculate import Calculate
+import logging
+
+logger = logging.getLogger("energia")
 
 if TYPE_CHECKING:
     from gana.sets.constraint import C
@@ -213,7 +216,7 @@ class Sample:
                 self.domain = self.domain.change({"lag": lag, "periods": None})
                 return getattr(self.program, self.aspect.name)(*self.domain.Ilist)
 
-        # ------ Check time and space -------
+        # ---Check time and space -------
         # this is only called if the bind variable has no temporal index defined
         def time():
             """Matches an appropriate temporal scale"""
@@ -256,7 +259,7 @@ class Sample:
         # get the list of Indices in the domain
         index = tuple(self.domain.Ilist)
 
-        # --------- if reporting binary ---------------
+        # ------if reporting binary ---------------
         # if a reporting binary variable is needed
         if report:
             # these are basically named using a breve over the variable name or latex name
@@ -288,7 +291,7 @@ class Sample:
         #   calc = v * param
         #   calc_incidental = v_reporting * param_incidental
 
-        # --------- if incidental ---------------
+        # ------if incidental ---------------
 
         if incidental:
             # named with a superscript inc
@@ -305,7 +308,7 @@ class Sample:
             )
             return getattr(self.program, f"{self.aspect.name}_incidental")(*index)
 
-        # --------- if continuous ---------------
+        # ------if continuous ---------------
 
         # the reason we check by name:
         # some variables can serve as indices, a normal check ends by
@@ -342,7 +345,7 @@ class Sample:
             # that the aspect was sampled
             self.domain.update_domains(self.aspect)
 
-            # --------- Update the disposition ---------------
+            # ------Update the disposition ---------------
 
             # get the primary component
             # update the disposition dictionary
@@ -397,8 +400,8 @@ class Sample:
 
         if bound_aspect not in self.model.dispositions:
             return 1
-            # print(
-            #     f"--- Aspect ({bound_aspect}) not defined, a variable will be created at {self.domain.space} assuming {self.model.horizon} as the temporal index",
+            # logger.info(
+            #     f"Aspect ({bound_aspect}) not defined, a variable will be created at {self.domain.space} assuming {self.model.horizon} as the temporal index",
             # )
 
             # _ = bound_aspect(self.domain.primary, self.domain.space).V()
@@ -409,8 +412,8 @@ class Sample:
         ):
 
             # if the bound variable has not been defined at the given space
-            print(
-                f"--- Aspect ({bound_aspect}) not defined at {self.domain.space}, a variable will be created assuming {self.model.horizon} as the temporal index",
+            logger.info(
+                f"Aspect ({bound_aspect}) not defined at {self.domain.space}, a variable will be created assuming {self.model.horizon} as the temporal index",
             )
 
             domain = self.domain.change({"periods": self.model.horizon})
@@ -573,11 +576,11 @@ class Sample:
             Bind(sample=self, parameter=other, eq=True, forall=self._forall)
 
     def __gt__(self, other):
-        print(f"--- Bind {self} > {other} is being written as {self} >= {other}")
+        logger.info(f"Bind {self} > {other} is being written as {self} >= {other}")
         _ = self >= other
 
     def __lt__(self, other):
-        print(f"--- Bind {self} < {other} is being written as {self} <= {other}")
+        logger.info(f"Bind {self} < {other} is being written as {self} <= {other}")
         _ = self <= other
 
     def __call__(self, *index) -> Self:

@@ -34,15 +34,36 @@ from ..dimensions.problem import Problem
 from ..dimensions.space import Space
 from ..dimensions.system import System
 from ..dimensions.time import Time
-from ..library.recipes import (capacity_sizing, economic, environmental,
-                               free_movement, inventory_sizing, operating,
-                               social, trade, usage)
+from ..library.recipes import (
+    capacity_sizing,
+    economic,
+    environmental,
+    free_movement,
+    inventory_sizing,
+    operating,
+    social,
+    trade,
+    usage,
+)
 from ..modeling.parameters.conversion import Conversion
 from ..modeling.variables.control import Control
 from ..modeling.variables.recipe import Recipe
 from ..modeling.variables.states import Impact, State, Stream
 from .ations.graph import Graph
 from .ations.program import Program
+
+import logging
+
+
+logger = logging.getLogger("energia")
+logger.setLevel(logging.INFO)
+
+ch = logging.StreamHandler()
+ch.setLevel(logging.INFO)
+formatter = logging.Formatter("%(asctime)s [%(levelname)s] %(message)s")
+ch.setFormatter(formatter)
+logger.addHandler(ch)
+
 
 if TYPE_CHECKING:
     from enum import Enum
@@ -578,7 +599,7 @@ class Model:
         :type nn: bool, optional
         """
         if name in self.cookbook:
-            print(f"--- Warning: Overriding existing recipe ---{name}")
+            logger.info(f"Warning: Overriding existing recipe ---{name}")
 
         self.cookbook[name] = Recipe(
             name=name,

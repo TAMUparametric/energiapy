@@ -7,6 +7,9 @@ from typing import TYPE_CHECKING
 
 from ...components.temporal.modes import Modes
 from ...utils.math import normalize
+import logging
+
+logger = logging.getLogger("energia")
 
 if TYPE_CHECKING:
     from gana.sets.constraint import C
@@ -157,37 +160,37 @@ class Bind:
                 for i in parameter
             ]
 
-            # --------- Get LHS
+            # ------Get LHS
             # lhs needs to be determined here
             # because V will be spaced and timed if not passed by user
             # .X(), .Vb() need time and space
 
         lhs = self.sample.V(parameter)
 
-        print(f"--- Binding {self.aspect} in domain {self.domain}")
+        logger.info(f"Binding {self.aspect} in domain {self.domain}")
 
         start = keep_time.time()
-        # --------- Get RHS
+        # ------Get RHS
 
         if self.aspect.bound is not None:
-            # --------- if variable bound
+            # ------if variable bound
             if self.report:
-                # --------- if variable bound and reported
+                # ------if variable bound and reported
                 # we do not want a bi-linear term
                 rhs = parameter * self.sample.X(parameter)
 
             else:
-                # --------- if just variable bound
+                # ------if just variable bound
                 rhs = parameter * self.sample.Vb()
 
         elif self.report or self.domain.modes is not None:
-            # --------- if  parameter bound and reported or has modes
+            # ------if  parameter bound and reported or has modes
             # create reporting variable write v <= p*x
             rhs = parameter * self.sample.X(parameter)
             self.aspect.update(self.domain, reporting=True)
 
         else:
-            # --------- if just parameter bound
+            # ------if just parameter bound
             rhs = parameter
 
         if self.leq:
@@ -247,4 +250,4 @@ class Bind:
         )
 
         end = keep_time.time()
-        print(f"    Completed in {end-start} seconds")
+        logger.info(f"\u2714 Completed in {end-start} seconds")

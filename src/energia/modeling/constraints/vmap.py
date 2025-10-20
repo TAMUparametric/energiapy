@@ -16,6 +16,10 @@ if TYPE_CHECKING:
     from ..indices.domain import Domain
     from ..variables.aspect import Aspect
 
+import logging
+
+logger = logging.getLogger("energia")
+
 
 class Map:
     """
@@ -92,19 +96,19 @@ class Map:
         if space not in dispositions or time not in dispositions[space]:
             return
 
-        # --- Time mapping ---
+        # Time mapping ---
         self._map_across_time(
             dispositions, space, time, sparser_periods, denser_periods
         )
 
-        # --- Space mapping ---
+        # Space mapping ---
         contained_locs, parent_loc = self.model.space.split(space)
         self._map_across_space(dispositions, contained_locs, parent_loc, time)
 
-        # --- Bind mapping ---
+        # Bind mapping ---
         self._map_across_binds(dispositions, space, time)
 
-        # --- Mode mapping ---
+        # Mode mapping ---
         self._map_across_modes()
 
     @cached_property
@@ -115,9 +119,9 @@ class Map:
     def maps(self) -> dict[Domain, dict[str, list[Domain]]]:
         return self.aspect.maps_report if self.reporting else self.aspect.maps
 
-    # ---------------------------------------------------------------------- #
+    # -------------------------------------------------------------------#
     # Helper functions
-    # ---------------------------------------------------------------------- #
+    # -------------------------------------------------------------------#
 
     def _map_across_time(
         self, dispositions, space, time, sparser_periods, denser_periods
@@ -164,7 +168,7 @@ class Map:
     def _map_across_space(self, dispositions, contained_locs, parent_loc, time):
         """
         Maps across space
-        
+
         :param dispositions: Dispositions at which the aspect has been defined
         :type dispositions: dict[Space, dict[Periods, dict[Aspect, dict[Component, ...]]]]
         :param contained_locs: Locations contained in the domain location
@@ -193,11 +197,11 @@ class Map:
         #     # binds = dispositions[location][time]
         #     # if not binds:
 
-        #     print('asdadada', location, self.domain)
+        #     logger.info('asdadada', location, self.domain)
         #     self.writecons_map(self.domain.change({"location": location}), self.domain)
         # else:
         #     new_binds = [k(list(v)[0]) for k, v in binds.items()]
-        #     print('aaaa', self.aspect, new_binds, self.domain)
+        #     logger.info('aaaa', self.aspect, new_binds, self.domain)
         #     # consider the case where overall consumption for water in some location and time is defined
         #     # now user defines consumption due to using cement during construction
         #     # we should have the constraint consume(water, goa, 2025) = consume(water, goa, 2025, use, cement)
@@ -293,9 +297,9 @@ class Map:
 
         return v(*domain.Ilist).copy()
 
-    # ---------------------------------------------------------------------- #
+    # -------------------------------------------------------------------#
     # Constraint writing
-    # ---------------------------------------------------------------------- #
+    # -------------------------------------------------------------------#
     def writecons_map(
         self, from_domain: Domain, to_domain: Domain, tsum=False, msum=False
     ):
@@ -316,7 +320,7 @@ class Map:
 
         cname = self._give_cname(var, from_domain, to_domain, tsum, msum)
 
-        print(f"--- Mapping {var}: {from_domain} → {to_domain}")
+        logger.info(f"Mapping {var}: {from_domain} → {to_domain}")
         start = keep_time.time()
 
         v_lower = self(*to_domain).X() if self.reporting else self(*to_domain).V()
@@ -331,7 +335,7 @@ class Map:
             cons.categorize("Mapping")
 
         end = keep_time.time()
-        print(f"    Completed in {end-start:.3f}s")
+        logger.info(f"\u2714 Completed in {end-start:.3f}s")
         if cname not in self.aspect.constraints:
             self.aspect.constraints.append(cname)
         from_domain.update_cons(cname)

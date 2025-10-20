@@ -54,7 +54,7 @@ class System(_Dimension):
     """
 
     def __post_init__(self):
-        # ---------- Commodities/Resources ----------
+        # -------Commodities/Resources ----------
 
         self.resources: list[Resource] = []
         self.lands: list[Land] = []
@@ -62,7 +62,7 @@ class System(_Dimension):
         self.currencies: list[Currency] = []
         self.emissions: list[Emission] = []
 
-        # ---------- Operations/Tasks ----------
+        # -------Operations/Tasks ----------
 
         self.processes: list[Process] = []
         self.storages: list[Storage] = []
