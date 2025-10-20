@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from math import prod
 from operator import is_, is_not
-from typing import TYPE_CHECKING, Optional, Self
+from typing import TYPE_CHECKING, Self
 
 if TYPE_CHECKING:
     from gana import I as Idx
@@ -73,26 +73,26 @@ class Domain:
     # is because we do an instance check in Aspect
     # this helps relay the checks
     # primary component (one of these is needed)
-    indicator: Optional[Indicator] = None
-    commodity: Optional[_Commodity] = None
+    indicator: Indicator | None = None
+    commodity: _Commodity | None = None
 
-    process: Optional[Process] = None
-    storage: Optional[Storage] = None
-    transport: Optional[Transport] = None
+    process: Process | None = None
+    storage: Storage | None = None
+    transport: Transport | None = None
 
     # decision - maker and other decision-maker
-    player: Optional[Player] = None
-    couple: Optional[Couple] = None
+    player: Player | None = None
+    couple: Couple | None = None
 
     # compulsory space and time elements
-    location: Optional[Location] = None
-    linkage: Optional[Linkage] = None
-    periods: Optional[Periods] = None
-    lag: Optional[Lag] = None
-    modes: Optional[Modes] = None
+    location: Location | None = None
+    linkage: Linkage | None = None
+    periods: Periods | None = None
+    lag: Lag | None = None
+    modes: Modes | None = None
 
     # These can be summed over
-    binds: Optional[list[Sample]] = field(default_factory=list)
+    binds: list[Sample] | None = field(default_factory=list)
 
     def __post_init__(self):
         # Domains are structured something like this:
