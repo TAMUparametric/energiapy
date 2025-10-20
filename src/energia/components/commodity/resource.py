@@ -61,10 +61,6 @@ class Resource(_Commodity):
         # resource in its stored form
         self.in_inv: list[Resource] = []
 
-    # @property
-    # def consume(self):
-    #     return self.model.consume(self)
-
     @property
     def gwp(self) -> Calculate:
         """Global Warming Potential"""
@@ -81,10 +77,10 @@ class Resource(_Commodity):
 
         return self.consume[self.model.HTP.emit]
 
-    @property
-    def demand(self) -> Calculate:
-        """Demand (alias for the Aspect release)"""
-        return self.release
+    # @property
+    # def demand(self) -> Calculate:
+    #     """Demand (alias for the Aspect release)"""
+    #     return self.release
 
     @property
     def price(self) -> Calculate:

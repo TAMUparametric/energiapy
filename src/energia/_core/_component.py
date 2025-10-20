@@ -127,7 +127,7 @@ class _Component(_X):
                 # irrespective of exact or bound, first part is always the aspect
                 aspect = split_attr[0]
 
-                if isinstance(self, self.model.cookbook[aspect].primary_type):
+                if isinstance(self, getattr(self.model, aspect).primary_type):
                     # check type match
 
                     # get the sample
