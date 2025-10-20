@@ -1,8 +1,9 @@
 """Process conversion models (external libraries)"""
 
+import logging
+
 import numpy as np
 from pandas import DataFrame
-import logging
 
 logger = logging.getLogger("energia")
 

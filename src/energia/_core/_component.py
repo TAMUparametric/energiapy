@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from functools import cached_property
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from gana import I
 
@@ -49,7 +49,7 @@ class _Component(_X):
     """
 
     # every component has a basis unit
-    basis: Optional[Unit] = None
+    basis: Unit | None = None
 
     def __post_init__(self):
 

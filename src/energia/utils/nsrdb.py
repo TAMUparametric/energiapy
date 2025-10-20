@@ -1,10 +1,13 @@
 """Fetch data from NREL's NSRDB database"""
 
+import logging
 from typing import Optional
 
 from numpy import array, average
 from pandas import DataFrame, to_datetime
 from scipy.spatial import cKDTree
+
+logger = logging.getLogger("energia")
 
 try:
     import h5pyd
@@ -50,7 +53,7 @@ def fetch_nsrdb_data(
     """
 
     if import_all:
-        print(
+        logger.warning(
             "This is an optional feature. Please install h5pyd, or pip install energiapy[all]",
         )
         return None
