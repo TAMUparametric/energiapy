@@ -108,10 +108,10 @@ class _Component(_X):
                     if len(split_attr) == 1:
                         _ = sample == value
 
-                    elif split_attr[1] in ["max", "ub", "UB"]:
+                    elif split_attr[1] in ["max", "ub", "UB", "leq"]:
                         _ = sample <= value
 
-                    elif split_attr[1] in ["min", "lb", "LB"]:
+                    elif split_attr[1] in ["min", "lb", "LB", "geq"]:
                         _ = sample >= value
 
                 else:
