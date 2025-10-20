@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from functools import cached_property
-from typing import TYPE_CHECKING, Optional, Self, Type
+from typing import TYPE_CHECKING, Self, Type
 
 import matplotlib.pyplot as plt
 from matplotlib import rc
@@ -91,14 +91,14 @@ class Aspect:
     neg: str = ""
     latex: str = ""
     bound: str = ""
-    label: Optional[str] = None
+    label: str = ""
 
     def __post_init__(self):
         # will be set when added to model
         self.name: str = ""
 
         # name of the decision
-        self.model: Optional[Model] = None
+        self.model: Model | None = None
 
         if self.label:
             if self.nn:
@@ -132,7 +132,7 @@ class Aspect:
         self._maps_report: bool = False
 
         # reporting variable
-        self.reporting: Optional[Var] = None
+        self.reporting: Var | None = None
 
         self.constraints: list[str] = []
 

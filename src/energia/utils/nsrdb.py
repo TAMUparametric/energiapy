@@ -1,7 +1,6 @@
 """Fetch data from NREL's NSRDB database"""
 
 import logging
-from typing import Optional
 
 from numpy import array, average
 from pandas import DataFrame, to_datetime
@@ -25,7 +24,7 @@ def fetch_nsrdb_data(
     county: str = "",
     resolution: str = "",
     get: str = "max-population",
-    save: Optional[str] = None,
+    save: str | None = None,
 ) -> DataFrame | tuple:
     """
     Fetches nsrdb data from nearest coordinates (latitude, longitude)

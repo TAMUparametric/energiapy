@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from ..._core._name import _Name
 
@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 class Value(_Name):
     """Input Value"""
 
-    value: Optional[
+    value: (
         float
         | int
         | list[float]
@@ -23,8 +23,9 @@ class Value(_Name):
         | tuple[float]
         | tuple[int]
         | tuple[list[int | float]]
-    ] = None
-    periods: Optional[Periods] = None
+        | None
+    ) = None
+    periods: Periods | None = None
 
     def __post_init__(self):
         if isinstance(self.value, (float, int)):

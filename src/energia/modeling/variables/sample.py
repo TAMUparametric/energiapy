@@ -5,7 +5,7 @@ from __future__ import annotations
 import logging
 from functools import cached_property
 from itertools import chain
-from typing import TYPE_CHECKING, Optional, Self
+from typing import TYPE_CHECKING, Self
 
 from gana import I as Idx
 from gana import V, inf, sigma, sup
@@ -100,7 +100,7 @@ class Sample:
 
         # if nominal is provided
         # and multiplied by the nominal value
-        self.nominal: Optional[float] = None
+        self.nominal: float | None = None
         # the input argument is normalized if True
         self.norm: bool = False
 
@@ -164,8 +164,8 @@ class Sample:
 
     def V(
         self,
-        parameters: Optional[float | list] = None,
-        length: Optional[int] = None,
+        parameters: float | list[float] | None = None,
+        length: int | None = None,
         report: bool = False,
         incidental: bool = False,
     ) -> V:
