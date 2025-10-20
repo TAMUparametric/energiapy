@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
+import logging
 import time as keep_time
 from operator import is_
 from typing import TYPE_CHECKING, Self
 
 from ...components.commodity.stored import Stored
-import logging
 
 logger = logging.getLogger("energia")
 

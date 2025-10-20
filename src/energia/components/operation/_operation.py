@@ -2,13 +2,13 @@
 
 from __future__ import annotations
 
+import logging
 from abc import abstractmethod
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from ..._core._component import _Component
 from ...modeling.parameters.conversion import Conversion
-import logging
 
 logger = logging.getLogger("energia")
 

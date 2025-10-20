@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 from collections import defaultdict
 from collections.abc import Callable
 from dataclasses import dataclass
@@ -34,26 +35,15 @@ from ..dimensions.problem import Problem
 from ..dimensions.space import Space
 from ..dimensions.system import System
 from ..dimensions.time import Time
-from ..library.recipes import (
-    capacity_sizing,
-    economic,
-    environmental,
-    free_movement,
-    inventory_sizing,
-    operating,
-    social,
-    trade,
-    usage,
-)
+from ..library.recipes import (capacity_sizing, economic, environmental,
+                               free_movement, inventory_sizing, operating,
+                               social, trade, usage)
 from ..modeling.parameters.conversion import Conversion
 from ..modeling.variables.control import Control
 from ..modeling.variables.recipe import Recipe
 from ..modeling.variables.states import Impact, State, Stream
 from .ations.graph import Graph
 from .ations.program import Program
-
-import logging
-
 
 logger = logging.getLogger("energia")
 logger.setLevel(logging.INFO)

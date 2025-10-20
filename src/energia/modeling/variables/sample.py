@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 from functools import cached_property
 from itertools import chain
 from typing import TYPE_CHECKING, Optional, Self
@@ -12,7 +13,6 @@ from gana import V, inf, sigma, sup
 from ...utils.dictionary import merge_trees
 from ..constraints.bind import Bind
 from ..constraints.calculate import Calculate
-import logging
 
 logger = logging.getLogger("energia")
 

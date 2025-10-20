@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
+import logging
 import time as keep_time
 from typing import TYPE_CHECKING
 
 from ...components.temporal.modes import Modes
 from ...utils.math import normalize
-import logging
 
 logger = logging.getLogger("energia")
 

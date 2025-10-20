@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
@@ -10,7 +11,6 @@ from ...modeling.constraints.calculate import Calculate
 from ...modeling.parameters.conversion import Conversion
 from ..commodity.stored import Stored
 from .process import Process
-import logging
 
 logger = logging.getLogger("energia")
 
