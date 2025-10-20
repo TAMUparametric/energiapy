@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from ..._core._name import _Name
 
@@ -28,5 +28,5 @@ class Edge(_Name):
     """
 
     def __post_init__(self):
-        self.graph: Optional[Graph] = None
+        self.graph: Graph | None = None
         _Name.__post_init__(self)

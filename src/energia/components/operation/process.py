@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 from warnings import warn
 
 from ...modeling.parameters.conversion import Conversion
@@ -63,7 +63,7 @@ class Process(_Operation):
         # if time != horizon, the individual streams are summed up anyway
         self.locations: list[Location] = []
 
-        self.ofstorage: Optional[Storage] = None
+        self.ofstorage: Storage | None = None
 
     @property
     def spaces(self) -> list[Location]:
@@ -225,7 +225,7 @@ class Process(_Operation):
             self.locations.append(location)
 
     def __call__(
-        self, resource: Resource | Conversion, lag: Optional[Lag] = None
+        self, resource: Resource | Conversion, lag: Lag | None = None
     ) -> Conversion:
         """Conversion is called with a Resource to be converted"""
 

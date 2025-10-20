@@ -49,7 +49,7 @@ class _X(ABC):
 
     def __post_init__(self):
         # the model
-        self.model: Model = None
+        self.model: Model | None = None
         # name is given by the model
         self.name: str = ""
 
@@ -77,7 +77,7 @@ class _X(ABC):
     def I(self) -> Idx:
         """gana index set"""
 
-    def show(self, descriptive=False, category: Optional[str] = None):
+    def show(self, descriptive=False, category: str = ""):
         """Pretty print the component"""
         if category:
             for c in self.cons:
