@@ -133,7 +133,6 @@ class Storage(_Component):
 
             setattr(model, f"{self.name}.charge", self.charge)
             setattr(model, f"{self.name}.discharge", self.discharge)
-
             setattr(model, f"{self.name}.stored", self.stored)
 
             for conv in self.conversions:
@@ -282,6 +281,9 @@ class Storage(_Component):
             setattr(self.model, f"{self.name}.charge", self.charge)
             setattr(self.model, f"{self.name}.discharge", self.discharge)
             setattr(self.model, f"{resource}.{self}", self.stored)
+            self.charge.charges = self
+            self.discharge.discharges = self
+            self._birthed = True
 
         # -------set discharge conversion
         self.discharge.conversion = Conversion(
