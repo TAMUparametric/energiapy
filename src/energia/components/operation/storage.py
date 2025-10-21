@@ -77,33 +77,22 @@ class Storage(_Component):
 
         _Component.__init__(self, basis=basis, label=label, captions=captions, **kwargs)
 
-        # self.stored = store
-
-        self.charge = None
-        self.discharge = None
-        self.stored = None
+        self.charge: Process | None = None
+        self.discharge: Process | None = None
+        self.stored: Stored | None = None
 
         self._birthed = False
 
         self.locations: list[Location] = []
 
         self.conversions = args
-        # used if stored is passed from outside
-
-    # @cached_property
-    # def stored(self) -> Stored:
-    #     """Creates a Stored resource"""
-    #     _stored = Stored()
-    #     if self.model is not None:
-    #         _stored.model = self.model
-
-    #     return _stored
 
     def __setattr__(self, name, value):
 
         object.__setattr__(self, name, value)
 
         if name == "model" and value is not None:
+
             model: Model = value
 
             # TODO: for general case with multiple resources
@@ -149,23 +138,6 @@ class Storage(_Component):
 
                 if conv.hold is not None:
                     _ = self(conv.basis) == conv.hold
-
-            # for attr, param in _parameters.items():
-            #     split_attr = attr.split("_")
-
-            #     _attr = split_attr[0]
-
-            #     # if charge or discharge parameter
-            #     if _attr in ["charge", "discharge"]:
-
-            #         setattr(getattr(self, _attr), split_attr[1], param)
-            #     else:
-            #         self.stored = Stored(*self.parameters)
-            #         # set rest of the parameters on stored
-            #         setattr(self.stored, 'inv' + attr, param)
-
-            #     # remove from storage parameters
-            #     self.parameters.pop(attr)
 
         super().__setattr__(name, value)
 
