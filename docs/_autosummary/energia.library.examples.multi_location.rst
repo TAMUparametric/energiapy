@@ -1,7 +1,7 @@
-﻿energia
-=======
+energia.library.examples.multi\_location
+========================================
 
-.. automodule:: energia
+.. automodule:: energia.library.examples.multi_location
 
    
    .. rubric:: Functions
@@ -37,16 +37,3 @@
       Transport
       Unit
    
-.. rubric:: Modules
-
-.. autosummary::
-   :toctree:
-   :recursive:
-
-   components
-   dimensions
-   export
-   library
-   modeling
-   represent
-   utils

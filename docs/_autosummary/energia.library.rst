@@ -10,7 +10,9 @@ energia.library
    :toctree:
    :recursive:
 
+   aliases
    components
    examples
+   instructions
    processes
    recipes

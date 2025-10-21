@@ -1,4 +1,4 @@
-﻿energia.components
+energia.components
 ==================
 
 .. automodule:: energia.components

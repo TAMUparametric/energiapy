@@ -1,14 +1,8 @@
-energia.components.temporal.modes
+﻿energia.components.temporal.modes
 =================================
 
 .. automodule:: energia.components.temporal.modes
 
-   
-   .. rubric:: Functions
-
-   .. autosummary::
-   
-      dataclass
    
    .. rubric:: Classes
 

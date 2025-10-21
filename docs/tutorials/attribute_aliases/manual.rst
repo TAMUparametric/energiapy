@@ -1,0 +1,4 @@
+.. _manual:
+
+Instruction Manual
+==================

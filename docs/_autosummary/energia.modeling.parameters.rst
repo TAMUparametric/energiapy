@@ -1,4 +1,4 @@
-energia.modeling.parameters
+﻿energia.modeling.parameters
 ===========================
 
 .. automodule:: energia.modeling.parameters
@@ -11,4 +11,6 @@ energia.modeling.parameters
    :recursive:
 
    conversion
+   instruction
+   multiplier
    value

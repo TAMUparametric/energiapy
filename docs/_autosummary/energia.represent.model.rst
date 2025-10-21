@@ -1,4 +1,4 @@
-energia.represent.model
+﻿energia.represent.model
 =======================
 
 .. automodule:: energia.represent.model
@@ -8,7 +8,9 @@ energia.represent.model
 
    .. autosummary::
    
+      aspect_aliases
       capacity_sizing
+      costing_operation
       dataclass
       dump
       economic
@@ -35,6 +37,7 @@ energia.represent.model
       Environ
       Graph
       Impact
+      Instruction
       Land
       Linkage
       Location

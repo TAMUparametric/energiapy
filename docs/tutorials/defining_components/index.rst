@@ -1,5 +1,5 @@
 Defining Components
-====================
+===================
 
 
 See :ref:`overview_components` to understand the various components and their roles in an Energia model.

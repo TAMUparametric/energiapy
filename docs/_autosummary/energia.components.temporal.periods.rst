@@ -1,4 +1,4 @@
-energia.components.temporal.periods
+﻿energia.components.temporal.periods
 ===================================
 
 .. automodule:: energia.components.temporal.periods
@@ -8,7 +8,6 @@ energia.components.temporal.periods
 
    .. autosummary::
    
-      dataclass
       is_
    
    .. rubric:: Classes

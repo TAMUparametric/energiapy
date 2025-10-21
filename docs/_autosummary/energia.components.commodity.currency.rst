@@ -1,4 +1,4 @@
-energia.components.commodity.currency
+﻿energia.components.commodity.currency
 =====================================
 
 .. automodule:: energia.components.commodity.currency
@@ -8,7 +8,6 @@ energia.components.commodity.currency
 
    .. autosummary::
    
-      dataclass
       is_
    
    .. rubric:: Classes

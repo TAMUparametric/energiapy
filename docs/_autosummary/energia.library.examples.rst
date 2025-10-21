@@ -19,4 +19,7 @@ energia.library.examples
    :toctree:
    :recursive:
 
+   design_scheduling_material
    energy
+   multi_location
+   parametric
