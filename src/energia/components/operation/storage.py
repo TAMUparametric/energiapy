@@ -112,7 +112,10 @@ class Storage(_Component):
             if len(self.conversions) == 1:
                 conv = self.conversions[0]
 
-                _ = self(conv.basis) == conv.hold
+                if conv.hold is not None:
+                    _ = self(conv.basis) == conv.hold
+
+                # TODO: for general case with multiple resources
 
         super().__setattr__(name, value)
 
