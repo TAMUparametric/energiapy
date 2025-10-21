@@ -35,6 +35,7 @@ from ..dimensions.problem import Problem
 from ..dimensions.space import Space
 from ..dimensions.system import System
 from ..dimensions.time import Time
+from ..library.aliases import aspect_aliases
 from ..library.recipes import (capacity_sizing, economic, environmental,
                                free_movement, inventory_sizing, operating,
                                social, trade, usage)
@@ -292,6 +293,7 @@ class Model:
                 environmental,
                 social,
                 usage,
+                aspect_aliases,
             ]
 
         for func in self.init:

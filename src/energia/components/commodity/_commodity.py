@@ -117,3 +117,11 @@ class _Commodity(_Component):
     def __truediv__(self, other: int | float):
         # treat division as multiplication by the inverse
         return self * (1 / other)
+
+    def __eq__(self, other: Conversion | Self):
+        if isinstance(other, Conversion):
+            conv = self + other
+            # set itself as base
+            conv.base = self
+            return conv
+        return super().__eq__(other)

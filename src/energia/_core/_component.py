@@ -95,14 +95,14 @@ class _Component(_X):
     def __setattr__(self, name, value):
         object.__setattr__(self, name, value)
 
-        def _get_sample(aspect: str, sample: Sample) -> Sample:
+        def _handle_norm(aspect: str, sample: Sample) -> Sample:
             """Check if a nominal parameter is set for the aspect"""
-
             # check if a request to normalize has been made
             nominal = aspect + "_nominal"
             nom = aspect + "_nom"
             normalize = aspect + "_normalize"
             norm = aspect + "_norm"
+
             if normalize in self.parameters or norm in self.parameters:
                 _normalize = self.parameters.get(normalize, self.parameters.get(norm))
 
@@ -114,6 +114,19 @@ class _Component(_X):
             if nominal in self.parameters or nom in self.parameters:
                 return sample.prep(self.parameters[nominal], _normalize)
             return sample
+
+        def _handle_x(aspect: str, sample: Sample) -> Sample:
+            """Check if aspect is optional"""
+            if (
+                aspect + '_optional' in self.parameters
+                and self.parameters[aspect + '_optional']
+            ):
+                return sample.x
+            return sample
+
+        def _handle(aspect: str, sample: Sample) -> Sample:
+            """Handle both nominal and optional"""
+            return _handle_x(aspect, _handle_norm(aspect, sample))
 
         # this handles the parameters being set on init
         if name == "model" and value is not None:
@@ -132,19 +145,20 @@ class _Component(_X):
 
                     # get the sample
                     sample = getattr(self, aspect)
-
+                    sample = _handle(aspect, sample)
                     if len(split_attr) == 1:
                         # if split returned just the aspect name
                         # then it's an equality
-                        _ = _get_sample(aspect, sample) == value
+                        _ = sample == value
 
                     # else, check if lower or upper bound
 
                     elif split_attr[1] in ["max", "ub", "UB", "leq"]:
-                        _ = _get_sample(aspect, sample) <= value
+
+                        _ = sample <= value
 
                     elif split_attr[1] in ["min", "lb", "LB", "geq"]:
-                        _ = _get_sample(aspect, sample) >= value
+                        _ = sample >= value
 
                 else:
                     # error if type mismatch

@@ -226,15 +226,5 @@ class Process(_Operation):
             # update the locations at which the process exists
             self.locations.append(location)
 
-    def __call__(
-        self, resource: Resource | Conversion, lag: Lag | None = None
-    ) -> Conversion:
-        """Conversion is called with a Resource to be converted"""
 
-        if not self._conv:
-            self.conv = Conversion(operation=self)
-            self._conv = True
 
-        if lag:
-            return self.conv(resource, lag)
-        return self.conv(resource)

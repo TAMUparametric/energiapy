@@ -50,24 +50,30 @@ class _Operation(_Component):
     :vartype fab: Conversion, optional
     :ivar _fab_balanced: True if the material conversion has been balanced. Defaults to False.
     :vartype _fab_balanced: bool
+
+
     """
 
     def __init__(
-        self, basis: Unit | None = None, label: str = "", captions: str = "", **kwargs
+        self,
+        basis: Unit | None = None,
+        label: str = "",
+        captions: str = "",
+        *args,
+        **kwargs,
     ):
-
         _Component.__init__(self, basis=basis, label=label, captions=captions, **kwargs)
 
-        self._conv = False
-
         # Operational conversion
-        self.conv: Conversion | None = None
+        self.conv = Conversion(operation=self)
 
         # Material conversion
         self._fab: Conversion | None = None
 
         # to check if fab is balanced
         self._fab_balanced: bool = False
+
+        self.conversions = args
 
     @property
     @abstractmethod
@@ -255,3 +261,12 @@ class _Operation(_Component):
 
         if self.fabrication:
             self.writecons_fabrication(space_times)
+
+    def __call__(
+        self, resource: Resource | Conversion, lag: Lag | None = None
+    ) -> Conversion:
+        """Conversion is called with a Resource to be converted"""
+
+        if lag:
+            return self.conv(resource, lag)
+        return self.conv(resource)
