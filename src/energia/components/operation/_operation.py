@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 from abc import abstractmethod
+from functools import cached_property
 from typing import TYPE_CHECKING
 
 from ..._core._component import _Component
@@ -60,9 +61,6 @@ class _Operation(_Component):
     ):
         _Component.__init__(self, label=label, captions=captions, **kwargs)
 
-        # Operational conversion
-        self.conversion = Conversion(operation=self)
-
         # Material conversion
         self._fab: Conversion | None = None
 
@@ -70,6 +68,12 @@ class _Operation(_Component):
         self._fab_balanced: bool = False
 
         self.conversions = args
+
+    @cached_property
+    def conversion(self) -> Conversion:
+        """Operational conversion"""
+        _conversion = Conversion(operation=self)
+        return _conversion
 
     @property
     @abstractmethod

@@ -62,9 +62,6 @@ class Conversion(_Name):
         self.operation = operation
         self.bind = bind
 
-        # _Name.__init__(self, label="")
-
-        # self.name = f"η({self.operation})"
         self._basis: Resource | None = None
         self.lag: Lag | None = None
         self.periods: Periods | None = None
