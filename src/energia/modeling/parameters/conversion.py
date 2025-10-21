@@ -12,8 +12,8 @@ from ...components.temporal.modes import Modes
 if TYPE_CHECKING:
     from gana.block.program import Prg
 
+    from ..._core._operation import _Operation
     from ...components.commodity.resource import Resource
-    from ...components.operation._operation import _Operation
     from ...components.temporal.periods import Periods
     from ...represent.model import Model
     from ..variables.sample import Sample

@@ -65,8 +65,8 @@ if TYPE_CHECKING:
     from gana.block.solution import Solution
     from gurobipy import Model as GPModel
 
+    from .._core._commodity import _Commodity
     from .._core._component import _Component
-    from ..components.commodity._commodity import _Commodity
     from ..modeling.indices.domain import Domain
     from ..modeling.variables.aspect import Aspect
     from ..modeling.variables.sample import Sample

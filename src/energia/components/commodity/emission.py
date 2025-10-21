@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from ._commodity import _Commodity
+from ..._core._commodity import _Commodity
 
 if TYPE_CHECKING:
     from ..measure.unit import Unit

@@ -4,11 +4,11 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Self
 
-from ..._core._component import _Component
-from ...modeling.parameters.conversion import Conversion
+from ..modeling.parameters.conversion import Conversion
+from ._component import _Component
 
 if TYPE_CHECKING:
-    from ..measure.unit import Unit
+    from ..components.measure.unit import Unit
 
 
 class _Commodity(_Component):

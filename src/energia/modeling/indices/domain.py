@@ -11,8 +11,8 @@ if TYPE_CHECKING:
     from gana import I as Idx
     from gana import V
 
+    from ..._core._commodity import _Commodity
     from ..._core._x import _X
-    from ...components.commodity._commodity import _Commodity
     from ...components.game.couple import Couple
     from ...components.game.player import Player
     from ...components.impact.indicator import Indicator

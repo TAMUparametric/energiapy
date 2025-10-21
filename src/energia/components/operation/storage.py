@@ -17,6 +17,7 @@ if TYPE_CHECKING:
     from gana.sets.constraint import C
 
     from ...modeling.variables.sample import Sample
+    from ...represent.model import Model
     from ..commodity.resource import Resource
     from ..measure.unit import Unit
     from ..spatial.location import Location
@@ -85,8 +86,10 @@ class Storage(_Component):
 
     def __setattr__(self, name, value):
         if name == "model" and value is not None:
-            setattr(value, f"{self.name}.charge", self.charge)
-            setattr(value, f"{self.name}.discharge", self.discharge)
+            model: Model = value
+
+            setattr(model, f"{self.name}.charge", self.charge)
+            setattr(model, f"{self.name}.discharge", self.discharge)
 
         super().__setattr__(name, value)
 

@@ -17,6 +17,7 @@ if TYPE_CHECKING:
     from ..dimensions.space import Space
     from ..dimensions.time import Time
     from ..modeling.variables.sample import Sample
+    from ..represent.model import Model
 
 
 class _Component(_X):
@@ -137,9 +138,11 @@ class _Component(_X):
         # this handles the parameters being set on init
         if name == "model" and value is not None:
 
+            model: Model = value
+
             for attr, param in self.parameters.items():
 
-                if attr in value.manual:
+                if attr in model.manual:
                     _ = getattr(self, attr) == param
                     continue
 

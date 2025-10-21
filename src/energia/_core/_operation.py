@@ -7,19 +7,17 @@ from abc import abstractmethod
 from functools import cached_property
 from typing import TYPE_CHECKING
 
-from ..._core._component import _Component
-from ...modeling.parameters.conversion import Conversion
+from ..modeling.parameters.conversion import Conversion
+from ._component import _Component
 
 logger = logging.getLogger("energia")
 
 if TYPE_CHECKING:
-    from ...modeling.constraints.calculate import Calculate
-    from ..commodity.resource import Resource
-    from ..measure.unit import Unit
-    from ..spatial.linkage import Linkage
-    from ..spatial.location import Location
-    from ..temporal.lag import Lag
-    from ..temporal.periods import Periods
+    from ..components.commodity.resource import Resource
+    from ..components.spatial.linkage import Linkage
+    from ..components.spatial.location import Location
+    from ..components.temporal.lag import Lag
+    from ..components.temporal.periods import Periods
 
 
 class _Operation(_Component):
