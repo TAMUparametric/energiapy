@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 from functools import cached_property
+from pyexpat import model
 from typing import TYPE_CHECKING
 
 from ..._core._component import _Component
@@ -77,10 +78,13 @@ class Storage(_Component):
         _Component.__init__(self, basis=basis, label=label, captions=captions, **kwargs)
 
         # self.stored = store
-        self.charge = Process()
-        self.charge.charges = self
-        self.discharge = Process()
-        self.discharge.discharges = self
+
+        self.charge = None
+        self.discharge = None
+        self.stored = None
+
+        self._birthed = False
+
         self.locations: list[Location] = []
 
         self.conversions = args
@@ -102,8 +106,39 @@ class Storage(_Component):
         if name == "model" and value is not None:
             model: Model = value
 
+            # TODO: for general case with multiple resources
+
+            # split the dictionary into charging, discharging and storage parameters
+
+            _charging_args = {}
+            _discharging_args = {}
+            _storage_args = {}
+
+            for attr, param in self.parameters.items():
+                split_attr = attr.split("_")
+
+                _attr = split_attr[0]
+
+                if _attr == "charge":
+                    _charging_args[split_attr[1]] = param
+                elif _attr == "discharge":
+                    _discharging_args[split_attr[1]] = param
+                else:
+                    _storage_args["inv" + attr] = param
+
+            self.parameters = {}
+
+            self.charge = Process(**_charging_args)
+            self.discharge = Process(**_discharging_args)
+            self.stored = Stored(**_storage_args)
+            self.charge.charges = self
+            self.discharge.discharges = self
+            self._birthed = True
+
             setattr(model, f"{self.name}.charge", self.charge)
             setattr(model, f"{self.name}.discharge", self.discharge)
+
+            setattr(model, f"{self.name}.stored", self.stored)
 
             for conv in self.conversions:
                 if not isinstance(conv, int | float):
@@ -115,26 +150,22 @@ class Storage(_Component):
                 if conv.hold is not None:
                     _ = self(conv.basis) == conv.hold
 
-                # TODO: for general case with multiple resources
+            # for attr, param in _parameters.items():
+            #     split_attr = attr.split("_")
 
-            _parameters = dict(self.parameters)
+            #     _attr = split_attr[0]
 
-            for attr, param in _parameters.items():
-                split_attr = attr.split("_")
+            #     # if charge or discharge parameter
+            #     if _attr in ["charge", "discharge"]:
 
-                _attr = split_attr[0]
+            #         setattr(getattr(self, _attr), split_attr[1], param)
+            #     else:
+            #         self.stored = Stored(*self.parameters)
+            #         # set rest of the parameters on stored
+            #         setattr(self.stored, 'inv' + attr, param)
 
-                # if charge or discharge parameter
-                if _attr in ["charge", "discharge"]:
-
-                    setattr(getattr(self, _attr), split_attr[1], param)
-                else:
-                    self.stored = Stored(*self.parameters)
-                    # set rest of the parameters on stored
-                    setattr(self.stored, 'inv' + attr, param)
-
-                # remove from storage parameters
-                self.parameters.pop(attr)
+            #     # remove from storage parameters
+            #     self.parameters.pop(attr)
 
         super().__setattr__(name, value)
 
@@ -263,12 +294,15 @@ class Storage(_Component):
 
     def __call__(self, resource: Stored | Conversion):
         """Conversion is called with a Resource to be converted"""
-        # create storage resource
-        self.stored = Stored()
 
-        resource.in_inv.append(self.stored)
+        if not self._birthed:
+            self.charge = Process()
+            self.discharge = Process()
+            self.stored = Stored()
 
-        setattr(self.model, f"{resource}.{self}", self.stored)
+            setattr(self.model, f"{self.name}.charge", self.charge)
+            setattr(self.model, f"{self.name}.discharge", self.discharge)
+            setattr(self.model, f"{resource}.{self}", self.stored)
 
         # -------set discharge conversion
         self.discharge.conversion = Conversion(
