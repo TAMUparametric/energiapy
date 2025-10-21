@@ -85,8 +85,13 @@ class Storage(_Component):
 
         self.conversions = args
 
+        # used if stored is passed from outside
+        self._stored: Stored | None = None
+
     @cached_property
     def stored(self) -> Stored:
+        if self._stored is not None:
+            return self._stored
         return Stored()
 
     def __setattr__(self, name, value):
@@ -99,13 +104,28 @@ class Storage(_Component):
             setattr(model, f"{self.name}.charge", self.charge)
             setattr(model, f"{self.name}.discharge", self.discharge)
 
-            # for conv in self.conversions:
-            #     if not isinstance(conv, int | float):
-            #         conv.operation = self
+            for conv in self.conversions:
+                if not isinstance(conv, int | float):
+                    conv.operation = self
 
-            # if len(self.conversions) == 1:
+            if len(self.conversions) == 1:
 
-            #     self.conversions[0].balance[self.stored] = self.conversions[0][None]
+                self._stored = self.conversions[0].dummy
+
+                resource = self.conversions[0].basis
+
+                # -------set discharge conversion
+                self.discharge.conversion = Conversion(
+                    operation=self.discharge, basis=self.stored
+                )
+                _ = self.discharge.conversion(resource) == -1.0 * self.stored
+
+                # -------set charge conversion
+                self.charge.conversion = Conversion(
+                    operation=self.charge, basis=resource
+                )
+
+                _ = self.charge.conversion(self.stored) == -1.0 * resource
 
         super().__setattr__(name, value)
 
