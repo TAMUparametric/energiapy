@@ -24,7 +24,10 @@ if TYPE_CHECKING:
 
 class Storage(_Component):
     """
-    Storage
+    Storage is a container for three main elements:
+    1. A Stored resource
+    2. A charge Process that puts the resource into storage
+    3. A discharge Process that withdraws the resource from storage
 
     :param basis: Unit basis of the component. Defaults to None.
     :type basis: Unit, optional
@@ -39,7 +42,6 @@ class Storage(_Component):
     :vartype model: Model
     :ivar name: Set when the component is assigned as a Model attribute.
     :vartype name: str
-
     :ivar constraints: List of constraints associated with the component.
     :vartype constraints: list[str]
     :ivar domains: List of domains associated with the component.
@@ -62,6 +64,7 @@ class Storage(_Component):
 
     def __init__(
         self,
+        *args,
         store: Resource | None = None,
         basis: Unit | None = None,
         label: str = "",
@@ -77,6 +80,8 @@ class Storage(_Component):
         self.discharge = Process()
         self.discharge.discharges = self
         self.locations: list[Location] = []
+
+        self.conversions = args
 
     def __setattr__(self, name, value):
         if name == "model" and value is not None:
