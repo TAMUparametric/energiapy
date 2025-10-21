@@ -105,18 +105,24 @@ class _Component(_X):
 
             if normalize in self.parameters or norm in self.parameters:
                 _normalize = self.parameters.get(normalize, self.parameters.get(norm))
-
             else:
                 # default behavior is to normalize
-                _normalize = True
+                _normalize = False
 
             # irrespective of normalize request, check if nominal value set
             if nominal in self.parameters or nom in self.parameters:
-                return sample.prep(self.parameters[nominal], _normalize)
+                # if nominal is given, normalize to it
+                return sample.prep(self.parameters[nominal], True)
+
+            if _normalize:
+                # if _normalize is True but no nominal provided
+                return sample.prep(norm=True)
+
             return sample
 
         def _handle_x(aspect: str, sample: Sample) -> Sample:
             """Check if aspect is optional"""
+
             if (
                 aspect + '_optional' in self.parameters
                 and self.parameters[aspect + '_optional']
@@ -124,9 +130,9 @@ class _Component(_X):
                 return sample.x
             return sample
 
-        def _handle(aspect: str, sample: Sample) -> Sample:
-            """Handle both nominal and optional"""
-            return _handle_x(aspect, _handle_norm(aspect, sample))
+        # def _handle(aspect: str, sample: Sample) -> Sample:
+        #     """Handle both nominal and optional"""
+        #     return _handle_x(aspect, _handle_norm(aspect, sample))
 
         # this handles the parameters being set on init
         if name == "model" and value is not None:
@@ -145,7 +151,13 @@ class _Component(_X):
 
                     # get the sample
                     sample = getattr(self, aspect)
-                    sample = _handle(aspect, sample)
+
+                    if isinstance(value, list):
+                        sample = _handle_x(aspect, _handle_norm(aspect, sample))
+
+                    else:
+                        sample = _handle_x(aspect, sample)
+
                     if len(split_attr) == 1:
                         # if split returned just the aspect name
                         # then it's an equality

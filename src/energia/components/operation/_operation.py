@@ -54,9 +54,9 @@ class _Operation(_Component):
 
     def __init__(
         self,
+        *args,
         label: str = "",
         captions: str = "",
-        *args,
         **kwargs,
     ):
         _Component.__init__(self, label=label, captions=captions, **kwargs)
@@ -72,8 +72,7 @@ class _Operation(_Component):
     @cached_property
     def conversion(self) -> Conversion:
         """Operational conversion"""
-        _conversion = Conversion(operation=self)
-        return _conversion
+        return Conversion(operation=self)
 
     @property
     @abstractmethod
@@ -274,3 +273,14 @@ class _Operation(_Component):
         if lag:
             return self.conversion(resource, lag)
         return self.conversion(resource)
+
+    def __setattr__(self, name, value):
+
+        if name == "model" and value is not None:
+            for conv in self.conversions:
+                conv.operation = self
+
+            if len(self.conversions) == 1:
+                self.conversion += self.conversions[0]
+
+        super().__setattr__(name, value)
