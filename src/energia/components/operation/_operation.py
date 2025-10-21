@@ -101,7 +101,7 @@ class _Operation(_Component):
     @property
     def base(self) -> Resource:
         """Base resource"""
-        return self.conversion._basis
+        return self.conversion.basis
 
     @property
     def balance(self) -> dict[Resource, int | float]:

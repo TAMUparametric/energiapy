@@ -58,7 +58,7 @@ class Conversion(_Name):
         bind: Sample | None = None,
     ):
 
-        self.resource = basis
+        self.basis = basis
         self.operation = operation
         self.bind = bind
 
@@ -200,7 +200,7 @@ class Conversion(_Name):
             # this is used for inventory conversion
             # when not other resource besides the one being inventoried is involved
 
-            self.balance = {**self.balance, self.resource: -1.0 / float(other)}
+            self.balance = {**self.balance, self.basis: -1.0 / float(other)}
 
         elif isinstance(other, dict):
 
