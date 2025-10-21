@@ -208,13 +208,11 @@ class Storage(_Component):
         setattr(self.model, f"{resource}.{self}", stored)
 
         # -------set discharge conversion
-        self.discharge.conversion = Conversion(
-            operation=self.discharge, resource=stored
-        )
+        self.discharge.conversion = Conversion(operation=self.discharge, basis=stored)
         _ = self.discharge.conversion(resource) == -1.0 * stored
 
         # -------set charge conversion
-        self.charge.conversion = Conversion(operation=self.charge, resource=resource)
+        self.charge.conversion = Conversion(operation=self.charge, basis=resource)
 
         _ = self.charge.conversion(stored) == -1.0 * resource
 

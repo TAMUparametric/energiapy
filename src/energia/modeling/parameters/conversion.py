@@ -53,12 +53,12 @@ class Conversion(_Name):
 
     def __init__(
         self,
-        resource: Resource | None = None,
+        basis: Resource | None = None,
         operation: _Operation | None = None,
         bind: Sample | None = None,
     ):
 
-        self.resource = resource
+        self.resource = basis
         self.operation = operation
         self.bind = bind
 
