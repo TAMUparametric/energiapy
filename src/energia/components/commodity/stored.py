@@ -44,5 +44,6 @@ class Stored(Resource):
         basis: Unit | None = None,
         label: str = "",
         captions: str = "",
+        **kwargs,
     ):
-        Resource.__init__(self, basis=basis, label=label, captions=captions)
+        Resource.__init__(self, basis=basis, label=label, captions=captions, **kwargs)

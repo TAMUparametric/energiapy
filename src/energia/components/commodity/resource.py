@@ -51,18 +51,15 @@ class Resource(_Commodity):
         basis: Unit | None = None,
         label: str = "",
         captions: str = "",
+        **kwargs,
     ):
-        _Commodity.__init__(self, basis=basis, label=label, captions=captions)
+        _Commodity.__init__(self, basis=basis, label=label, captions=captions, **kwargs)
 
         # base resource, if any in conversion
         self.inv_of: Resource | None = None
 
         # resource in its stored form
         self.in_inv: list[Resource] = []
-
-    # @property
-    # def consume(self):
-    #     return self.model.consume(self)
 
     @property
     def gwp(self) -> Calculate:
@@ -80,10 +77,10 @@ class Resource(_Commodity):
 
         return self.consume[self.model.HTP.emit]
 
-    @property
-    def demand(self) -> Calculate:
-        """Demand (alias for the Aspect release)"""
-        return self.release
+    # @property
+    # def demand(self) -> Calculate:
+    #     """Demand (alias for the Aspect release)"""
+    #     return self.release
 
     @property
     def price(self) -> Calculate:

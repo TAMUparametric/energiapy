@@ -48,9 +48,10 @@ class Currency(_Commodity):
         basis: Unit | None = None,
         label: str = "",
         captions: str = "",
+        **kwargs,
     ):
         self.locs = list(locs)
-        _Commodity.__init__(self, basis=basis, label=label, captions=captions)
+        _Commodity.__init__(self, basis=basis, label=label, captions=captions, **kwargs)
 
         # dictionary of exchange rates
         self.exchange = {}

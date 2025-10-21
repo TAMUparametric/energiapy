@@ -34,9 +34,11 @@ class Environ(Indicator):
     :vartype aspects: dict[Aspect, list[Domain]]
     """
 
-    def __init__(self, basis: Unit | None = None, label: str = "", captions: str = ""):
+    def __init__(
+        self, basis: Unit | None = None, label: str = "", captions: str = "", **kwargs
+    ):
 
-        Indicator.__init__(self, basis=basis, label=label, captions=captions)
+        Indicator.__init__(self, basis=basis, label=label, captions=captions, **kwargs)
 
 
 class Social(Indicator):
@@ -63,9 +65,11 @@ class Social(Indicator):
     :vartype aspects: dict[Aspect, list[Domain]]
     """
 
-    def __init__(self, basis: Unit | None = None, label: str = "", captions: str = ""):
+    def __init__(
+        self, basis: Unit | None = None, label: str = "", captions: str = "", **kwargs
+    ):
 
-        Indicator.__init__(self, basis=basis, label=label, captions=captions)
+        Indicator.__init__(self, basis=basis, label=label, captions=captions, **kwargs)
 
 
 class Economic(Indicator):
@@ -92,6 +96,8 @@ class Economic(Indicator):
     :vartype aspects: dict[Aspect, list[Domain]]
     """
 
-    def __init__(self, basis: Unit | None = None, label: str = "", captions: str = ""):
+    def __init__(
+        self, basis: Unit | None = None, label: str = "", captions: str = "", **kwargs
+    ):
 
-        Indicator.__init__(self, basis=basis, label=label, captions=captions)
+        Indicator.__init__(self, basis=basis, label=label, captions=captions, **kwargs)

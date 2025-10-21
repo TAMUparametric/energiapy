@@ -35,9 +35,11 @@ class Indicator(_Component):
     :vartype aspects: dict[Aspect, list[Domain]]
     """
 
-    def __init__(self, basis: Unit | None = None, label: str = "", captions: str = ""):
+    def __init__(
+        self, basis: Unit | None = None, label: str = "", captions: str = "", **kwargs
+    ):
 
-        _Component.__init__(self, basis=basis, label=label, captions=captions)
+        _Component.__init__(self, basis=basis, label=label, captions=captions, **kwargs)
 
     @property
     def consequence(self) -> Consequence:

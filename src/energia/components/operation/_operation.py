@@ -52,9 +52,11 @@ class _Operation(_Component):
     :vartype _fab_balanced: bool
     """
 
-    def __init__(self, basis: Unit | None = None, label: str = "", captions: str = ""):
+    def __init__(
+        self, basis: Unit | None = None, label: str = "", captions: str = "", **kwargs
+    ):
 
-        _Component.__init__(self, basis=basis, label=label, captions=captions)
+        _Component.__init__(self, basis=basis, label=label, captions=captions, **kwargs)
 
         self._conv = False
 
