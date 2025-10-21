@@ -65,7 +65,7 @@ class _Operation(_Component):
         _Component.__init__(self, basis=basis, label=label, captions=captions, **kwargs)
 
         # Operational conversion
-        self.conv = Conversion(operation=self)
+        self.conversion = Conversion(operation=self)
 
         # Material conversion
         self._fab: Conversion | None = None
@@ -102,12 +102,12 @@ class _Operation(_Component):
     @property
     def base(self) -> Resource:
         """Base resource"""
-        return self.conv.base
+        return self.conversion.base
 
     @property
-    def conversion(self) -> dict[Resource, int | float]:
+    def balance(self) -> dict[Resource, int | float]:
         """Conversion of commodities"""
-        return self.conv.conversion
+        return self.conversion.balance
 
     @property
     def fabrication(
@@ -119,16 +119,16 @@ class _Operation(_Component):
         """Material conversion of commodities"""
         if self.fab.pwl:
             return {
-                mode: self.fab.conversion[_mode]
-                for mode, _mode in zip(self.fab.modes, list(self.fab.conversion))
+                mode: self.fab.balance[_mode]
+                for mode, _mode in zip(self.fab.modes, list(self.fab.balance))
             }
 
-        return self.fab.conversion
+        return self.fab.balance
 
     @property
     def lag(self) -> Lag:
         """Lag of the process"""
-        return self.conv.lag
+        return self.conversion.lag
 
     def writecons_fabrication(
         self,
@@ -268,5 +268,5 @@ class _Operation(_Component):
         """Conversion is called with a Resource to be converted"""
 
         if lag:
-            return self.conv(resource, lag)
-        return self.conv(resource)
+            return self.conversion(resource, lag)
+        return self.conversion(resource)

@@ -83,8 +83,8 @@ class Currency(_Commodity):
             self.exchange[other] = 1.0
         # assume it is a Conversion
         else:
-            currency = list(other.conversion.keys())[0]
-            rate = other.conversion[currency]
+            currency = list(other.balance.keys())[0]
+            rate = other.balance[currency]
 
             # set the exchange rate of self against other
             self.exchange[currency] = rate

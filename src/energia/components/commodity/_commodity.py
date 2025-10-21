@@ -51,14 +51,14 @@ class _Commodity(_Component):
         self.insitu = False
 
     @property
-    def conversion(self) -> dict[Conversion | Self, int | float]:
+    def balance(self) -> dict[Conversion | Self, int | float]:
         """Conversion"""
         # if no conversion is set, return 1.0
         if not self.conversions:
             return {self: 1.0}
         # if there is a conversion, return its parameter in all tasks its
         # associated with
-        return {task: task.conversion[self] for task in self.conversions}
+        return {task: task.balance[self] for task in self.conversions}
 
     def __setattr__(self, name, value):
 
@@ -72,7 +72,7 @@ class _Commodity(_Component):
         # multiplying a number with a resources gives conversion
         # math operations with conversions form the balance in tasks
         conv = Conversion()
-        conv.conversion = {self: other}
+        conv.balance = {self: other}
         return conv
 
     def __rmul__(self, other: int | float) -> Conversion:
@@ -83,11 +83,11 @@ class _Commodity(_Component):
         conv = Conversion()
         if isinstance(other, _Commodity):
             # if another resource is added, give it the parameter 1
-            conv.conversion = {self: 1, other: 1}
+            conv.balance = {self: 1, other: 1}
             return conv
 
         # if added with another conversion, updated the balance
-        conv.conversion = {self: 1, **other.conversion}
+        conv.balance = {self: 1, **other.balance}
         return conv
 
     def __neg__(self) -> Conversion:
@@ -103,13 +103,13 @@ class _Commodity(_Component):
             # if another conversion is subtracted, update the balance
             conv = Conversion()
 
-            conv.conversion = {
+            conv.balance = {
                 self: 1,
                 **{
                     res: (
                         -1 * par if isinstance(par, (int, float)) else [-i for i in par]
                     )
-                    for res, par in other.conversion.items()
+                    for res, par in other.balance.items()
                 },
             }
             return conv

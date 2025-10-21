@@ -109,10 +109,10 @@ class Transport(_Operation):
 
         if self.conv.pwl:
 
-            conversion = self.conversion[list(self.conversion)[0]]
+            conversion = self.balance[list(self.balance)[0]]
 
         else:
-            conversion = self.conversion
+            conversion = self.balance
 
         shipping_conversion, rest_conversion = {self.conv.base: 1}, {
             k: v for k, v in conversion.items() if k != self.conv.base
@@ -215,14 +215,14 @@ class Transport(_Operation):
 
                 if self.conv.pwl:
 
-                    eff = [conv[res] for conv in self.conversion.values()]
+                    eff = [conv[res] for conv in self.balance.values()]
 
                     if eff[0] < 0:
                         eff = [-i for i in eff]
 
                     if not self.conv.modes_set:
                         self.model.operate.bound = None
-                        _ = opr == dict(enumerate(self.conversion.keys()))
+                        _ = opr == dict(enumerate(self.balance.keys()))
 
                         self.model.operate.bound = self.conv.model.capacity
 

@@ -5,7 +5,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 from warnings import warn
 
-from ...modeling.parameters.conversion import Conversion
 from ._operation import _Operation
 
 if TYPE_CHECKING:
@@ -117,7 +116,7 @@ class Process(_Operation):
 
             return time.horizon
 
-        if not self.conv:
+        if not self.conversion:
             warn(
                 f"{self}: Conversion not defined, no Constraints generated",
                 UserWarning,
@@ -126,9 +125,9 @@ class Process(_Operation):
 
         # This makes the conversion consistent
         # check conv_test.py in tests for examples
-        self.conv.balancer()
+        self.conversion.balancer()
 
-        if self.conv.pwl:
+        if self.conversion.pwl:
             # if there are piece-wise linear conversions
             # here we assume that the same resources appear in all piece-wise segments
             # this is a reasonable assumption for conversion in processes
@@ -145,10 +144,10 @@ class Process(_Operation):
             # there is a problem though, because I am only checking for the elements in the first dict
             # in the multi conversion dict
 
-            conversion = self.conversion[list(self.conversion)[0]]
+            conversion = self.balance[list(self.balance)[0]]
 
         else:
-            conversion = self.conversion
+            conversion = self.balance
 
         for location, time in loc_times:
 
@@ -188,31 +187,31 @@ class Process(_Operation):
 
                 # because of using .balancer(), expend/produce are on same temporal scale
 
-                if self.conv.pwl:
+                if self.conversion.pwl:
 
-                    eff = [conv[res] for conv in self.conversion.values()]
+                    eff = [conv[res] for conv in self.balance.values()]
 
                     if eff[0] < 0:
                         eff = [-e for e in eff]
 
-                    if not self.conv.modes_set:
+                    if not self.conversion.modes_set:
                         # this is setting the bin limits for piece wise linear conversion
                         # these are written bound to capacity generally
                         # but here we pause that binding and bind operate to explicit limits
                         self.model.operate.bound = None
 
-                        _ = opr == dict(enumerate(self.conversion.keys()))
+                        _ = opr == dict(enumerate(self.balance.keys()))
 
                         # reset capacity binding
                         self.model.operate.bound = self.model.capacity
 
                         modes = self.model.modes[-1]
-                        self.conv.modes_set = True
+                        self.conversion.modes_set = True
 
                     else:
-                        modes = self.conv.modes
+                        modes = self.conversion.modes
                         modes.bind = self.operate
-                        self.conv.modes_set = True
+                        self.conversion.modes_set = True
 
                     opr = opr(modes)
 
@@ -225,6 +224,3 @@ class Process(_Operation):
 
             # update the locations at which the process exists
             self.locations.append(location)
-
-
-

@@ -176,7 +176,7 @@ class Storage(_Component):
     @property
     def base(self) -> Resource:
         """Base resource"""
-        return self.discharge.conv.base
+        return self.discharge.conversion.base
 
     @property
     def storage_cost(self) -> Calculate:
@@ -211,17 +211,21 @@ class Storage(_Component):
             setattr(self.model, f"{resource}.{self}", stored)
 
             # -------set discharge conversion
-            self.discharge.conv = Conversion(operation=self.discharge, resource=stored)
-            _ = self.discharge.conv(resource) == -1.0 * stored
+            self.discharge.conversion = Conversion(
+                operation=self.discharge, resource=stored
+            )
+            _ = self.discharge.conversion(resource) == -1.0 * stored
 
             # -------set charge conversion
-            self.charge.conv = Conversion(operation=self.charge, resource=resource)
+            self.charge.conversion = Conversion(
+                operation=self.charge, resource=resource
+            )
 
-            _ = self.charge.conv(stored) == -1.0 * resource
+            _ = self.charge.conversion(stored) == -1.0 * resource
 
             setattr(self.base, self.name, stored)
 
             self.stored, self.stored.inv_of = stored, self.base
             self._conv = True
 
-        return self.discharge.conv(resource)
+        return self.discharge.conversion(resource)
