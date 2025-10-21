@@ -48,8 +48,10 @@ class Process(_Operation):
     :vartype _fab_balanced: bool
     :ivar locations: Locations at which the process is balanced. Defaults to [].
     :vartype locations: list[Location]
-    :ivar ofstorage: If the Process is Storage charging and discharging. Defaults to None.
-    :vartype ofstorage: Storage, optional
+    :ivar charges: If the Process is Storage charging. Defaults to None.
+    :vartype charges: Storage, optional
+    :ivar discharges: If the Process is Storage discharging. Defaults to None.
+    :vartype discharges: Storage, optional
     """
 
     def __init__(self, *args, label: str = "", captions: str = "", **kwargs):
@@ -62,7 +64,9 @@ class Process(_Operation):
         # if time != horizon, the individual streams are summed up anyway
         self.locations: list[Location] = []
 
-        self.ofstorage: Storage | None = None
+        self.charges: Storage | None = None
+
+        self.discharges: Storage | None = None
 
     @property
     def spaces(self) -> list[Location]:

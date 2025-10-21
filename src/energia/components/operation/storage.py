@@ -73,9 +73,9 @@ class Storage(_Component):
 
         self.stored = store
         self.charge = Process()
-        self.charge.ofstorage = self
+        self.charge.charges = self
         self.discharge = Process()
-        self.discharge.ofstorage = self
+        self.discharge.discharges = self
         self.locations: list[Location] = []
 
     def __setattr__(self, name, value):
