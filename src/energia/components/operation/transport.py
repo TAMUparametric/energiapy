@@ -38,8 +38,8 @@ class Transport(_Operation):
     :vartype domains: list[Domain]
     :ivar aspects: Aspects associated with the component with domains.
     :vartype aspects: dict[Aspect, list[Domain]]
-    :ivar conv: Operational conversion associated with the operation. Defaults to None.
-    :vartype conv: Conversion, optional
+    :ivar conversion: Operational conversion associated with the operation. Defaults to None.
+    :vartype conversion: Conversion, optional
     :ivar _conv: True if the operational conversion has been set. Defaults to False.
     :vartype _conv: bool
     :ivar fab: Material conversion associated with the operation. Defaults to None.
@@ -112,8 +112,8 @@ class Transport(_Operation):
         else:
             conversion = self.balance
 
-        shipping_conversion, rest_conversion = {self.conversion._basis: 1}, {
-            k: v for k, v in conversion.items() if k != self.conversion._basis
+        shipping_conversion, rest_conversion = {self.conversion.basis: 1}, {
+            k: v for k, v in conversion.items() if k != self.conversion.basis
         }
 
         for link_time in link_times:

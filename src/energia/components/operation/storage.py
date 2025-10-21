@@ -48,8 +48,8 @@ class Storage(_Component):
     :vartype aspects: dict[Aspect, list[Domain]]
     :ivar stored: The resource being stored. Defaults to None.
     :vartype stored: Stored, optional
-    :ivar conv: Operational conversion associated with the storage. Defaults to None.
-    :vartype conv: Conversion, optional
+    :ivar conversion: Operational conversion associated with the storage. Defaults to None.
+    :vartype conversion: Conversion, optional
     :ivar _conv: True if the operational conversion has been set. Defaults to False.
     :vartype _conv: bool
     :ivar charge: The charge process associated with the storage.

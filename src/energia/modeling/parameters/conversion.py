@@ -86,7 +86,7 @@ class Conversion(_Name):
     @property
     def name(self) -> str:
         """Name"""
-        return f"η({self.operation}, {self._basis})"
+        return f"η({self.operation}, {self.basis})"
 
     @property
     def modes(self) -> Modes:
@@ -191,14 +191,10 @@ class Conversion(_Name):
         return self
 
     def __eq__(self, other: Conversion | int | float | dict[int | float, Conversion]):
-        # cons = []
-
-        if isinstance(other, Conversion) and other._basis is not None:
-            self._basis = other._basis
 
         if isinstance(other, (int, float)):
             # this is used for inventory conversion
-            # when not other resource besides the one being inventoried is involved
+            # when not other resource besides the one being inventoried is involvedt
 
             self.balance = {**self.balance, self.basis: -1.0 / float(other)}
 
