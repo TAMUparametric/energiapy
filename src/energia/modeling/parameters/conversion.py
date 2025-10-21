@@ -258,3 +258,6 @@ class Conversion(_Name):
     def __truediv__(self, periods: Periods) -> Self:
         self.periods = periods
         return self
+    
+
+    
