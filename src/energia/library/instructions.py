@@ -13,11 +13,19 @@ if TYPE_CHECKING:
 def costing_operation(model: Model):
     """Sets costing parameters for operations"""
 
-    model.Parameter(
+    model.Instruction(
         name="capex",
         kind=_Operation,
         deciding="capacity",
         depending="spend",
         default="money",
         label="Capital Expenditure",
+    )
+    model.Instruction(
+        name="opex",
+        kind=_Operation,
+        deciding="operate",
+        depending="spend",
+        default="money",
+        label="Operational Expenditure",
     )

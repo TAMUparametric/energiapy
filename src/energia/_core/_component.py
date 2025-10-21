@@ -139,7 +139,7 @@ class _Component(_X):
 
             for attr, param in self.parameters.items():
 
-                if attr in value.instructions:
+                if attr in value.manual:
                     _ = getattr(self, attr) == param
                     continue
 

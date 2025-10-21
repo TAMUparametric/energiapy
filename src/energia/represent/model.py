@@ -36,12 +36,12 @@ from ..dimensions.space import Space
 from ..dimensions.system import System
 from ..dimensions.time import Time
 from ..library.aliases import aspect_aliases
-from ..library.parameters import costing_operation
+from ..library.instructions import costing_operation
 from ..library.recipes import (capacity_sizing, economic, environmental,
                                free_movement, inventory_sizing, operating,
                                social, trade, usage)
 from ..modeling.parameters.conversion import Conversion
-from ..modeling.parameters.parameter import Parameter
+from ..modeling.parameters.instruction import Instruction
 from ..modeling.variables.control import Control
 from ..modeling.variables.recipe import Recipe
 from ..modeling.variables.states import Impact, State, Stream
@@ -250,7 +250,7 @@ class Model:
         self.cookbook: dict[str, Recipe] = {}
 
         # maps to parameters for calculations
-        self.instructions: dict[str, Parameter] = {}
+        self.manual: dict[str, Instruction] = {}
 
         # Temporal Scope
         self.time = Time(self)
@@ -505,9 +505,9 @@ class Model:
 
             return aspect
 
-        if name in self.instructions:
+        if name in self.manual:
 
-            return self.instructions[name]
+            return self.manual[name]
 
         if name in self.attr_map:
             # if this is an attribute being called for the first time
@@ -657,7 +657,7 @@ class Model:
             )
             self.cookbook[neg] = neg_recipe
 
-    def Parameter(
+    def Instruction(
         self,
         name: str,
         kind: Type[_Component],
@@ -666,7 +666,7 @@ class Model:
         default: str,
         label: str = "",
     ):
-        """Creates a Parameter and adds it to the model
+        """Creates an Instruction and updates the manual
 
         :param deciding: Name of the deciding aspect
         :type deciding: str
@@ -680,7 +680,7 @@ class Model:
         :type captions: str, optional
         """
 
-        self.instructions[name] = Parameter(
+        self.manual[name] = Instruction(
             name=name,
             kind=kind,
             deciding=deciding,

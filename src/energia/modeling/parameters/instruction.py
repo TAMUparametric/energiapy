@@ -9,9 +9,9 @@ if TYPE_CHECKING:
     from ...represent.model import Model
 
 
-class Parameter:
+class Instruction:
     """
-    Pre-set parameters for components
+    Pre-set instructions to deal with parameter calculations
 
     :param deciding: Name of the deciding aspect
     :type deciding: str
