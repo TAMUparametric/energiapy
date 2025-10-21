@@ -174,7 +174,7 @@ class Storage(_Component):
     @property
     def base(self) -> Resource:
         """Base resource"""
-        return self.discharge.conversion.base
+        return self.discharge.conversion.basis
 
     @property
     def storage_cost(self) -> Calculate:
@@ -218,8 +218,8 @@ class Storage(_Component):
 
         _ = self.charge.conversion(stored) == -1.0 * resource
 
-        setattr(self.base, self.name, stored)
+        setattr(self.discharge.conversion.basis, self.name, stored)
 
-        self.stored, self.stored.inv_of = stored, self.base
+        self.stored, self.stored.inv_of = stored, self.discharge.conversion.basis
 
         return self.discharge.conversion(resource)

@@ -112,8 +112,8 @@ class Transport(_Operation):
         else:
             conversion = self.balance
 
-        shipping_conversion, rest_conversion = {self.conversion.base: 1}, {
-            k: v for k, v in conversion.items() if k != self.conversion.base
+        shipping_conversion, rest_conversion = {self.conversion.basis: 1}, {
+            k: v for k, v in conversion.items() if k != self.conversion.basis
         }
 
         for link_time in link_times:

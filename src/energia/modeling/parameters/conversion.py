@@ -65,7 +65,7 @@ class Conversion(_Name):
         _Name.__init__(self, label="")
 
         self.name = f"η({self.operation})"
-        self.base: Resource | None = None
+        self.basis: Resource | None = None
         self.lag: Lag | None = None
         self.periods: Periods | None = None
 
@@ -171,13 +171,13 @@ class Conversion(_Name):
             # especially useful if Process is scaled to consumption of a resource
             # i.e. basis = -1*Resource
             self.balance = {**self.balance, **basis.balance}
-            self.base = next(iter(self.balance))
+            self.basis = next(iter(self.balance))
 
         else:
             # if a Resource is provided (Resource)
             # implies that the conversion is 1
             # i.e the Process is scaled to one unit of this Resource produced
-            self.base = basis
+            self.basis = basis
             self.balance = {basis: 1.0, **self.balance}
 
         if lag:
