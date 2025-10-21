@@ -72,8 +72,6 @@ class Storage(_Component):
         _Component.__init__(self, basis=basis, label=label, captions=captions, **kwargs)
 
         self.stored = store
-        self._conv = False
-        self.conv = None
         self.charge = Process()
         self.charge.ofstorage = self
         self.discharge = Process()
@@ -203,29 +201,25 @@ class Storage(_Component):
 
     def __call__(self, resource: Stored | Conversion):
         """Conversion is called with a Resource to be converted"""
-        if not self._conv:
-            # create storage resource
-            stored = Stored()
-            resource.in_inv.append(stored)
+        # create storage resource
+        stored = Stored()
+        resource.in_inv.append(stored)
 
-            setattr(self.model, f"{resource}.{self}", stored)
+        setattr(self.model, f"{resource}.{self}", stored)
 
-            # -------set discharge conversion
-            self.discharge.conversion = Conversion(
-                operation=self.discharge, resource=stored
-            )
-            _ = self.discharge.conversion(resource) == -1.0 * stored
+        # -------set discharge conversion
+        self.discharge.conversion = Conversion(
+            operation=self.discharge, resource=stored
+        )
+        _ = self.discharge.conversion(resource) == -1.0 * stored
 
-            # -------set charge conversion
-            self.charge.conversion = Conversion(
-                operation=self.charge, resource=resource
-            )
+        # -------set charge conversion
+        self.charge.conversion = Conversion(operation=self.charge, resource=resource)
 
-            _ = self.charge.conversion(stored) == -1.0 * resource
+        _ = self.charge.conversion(stored) == -1.0 * resource
 
-            setattr(self.base, self.name, stored)
+        setattr(self.base, self.name, stored)
 
-            self.stored, self.stored.inv_of = stored, self.base
-            self._conv = True
+        self.stored, self.stored.inv_of = stored, self.base
 
         return self.discharge.conversion(resource)
