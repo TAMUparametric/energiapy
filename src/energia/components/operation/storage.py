@@ -115,7 +115,11 @@ class Storage(_Component):
                 elif _attr == "discharge":
                     _discharging_args["_".join(split_attr[1:])] = param
                 else:
-                    _storage_args["inv" + attr] = param
+                    if attr[:3] == "inv":
+                        _storage_args[attr] = param
+                    else:
+                        # if there is no inv prefix.
+                        _storage_args["inv" + attr] = param
 
             self.parameters = {}
 

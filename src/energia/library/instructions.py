@@ -39,3 +39,12 @@ def costing_operation(model: Model):
         default="money",
         label="Capital Expenditure (Storage)",
     )
+
+    model.Instruction(
+        name="inventory_cost",
+        kind=Stored,
+        deciding="inventory",
+        depending="spend",
+        default="money",
+        label="Inventory Cost (Storage)",
+    )
