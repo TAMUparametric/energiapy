@@ -36,10 +36,12 @@ from ..dimensions.space import Space
 from ..dimensions.system import System
 from ..dimensions.time import Time
 from ..library.aliases import aspect_aliases
+from ..library.parameters import costing_operation
 from ..library.recipes import (capacity_sizing, economic, environmental,
                                free_movement, inventory_sizing, operating,
                                social, trade, usage)
 from ..modeling.parameters.conversion import Conversion
+from ..modeling.parameters.parameter import Parameter
 from ..modeling.variables.control import Control
 from ..modeling.variables.recipe import Recipe
 from ..modeling.variables.states import Impact, State, Stream
@@ -247,6 +249,9 @@ class Model:
         # maps to recipes for creating aspects
         self.cookbook: dict[str, Recipe] = {}
 
+        # maps to parameters for calculations
+        self.instructions: dict[str, Parameter] = {}
+
         # Temporal Scope
         self.time = Time(self)
         # Spatial Scope
@@ -294,6 +299,7 @@ class Model:
                 social,
                 usage,
                 aspect_aliases,
+                costing_operation,
             ]
 
         for func in self.init:
@@ -499,6 +505,10 @@ class Model:
 
             return aspect
 
+        if name in self.instructions:
+
+            return self.instructions[name]
+
         if name in self.attr_map:
             # if this is an attribute being called for the first time
             recipe = self.attr_map[name]
@@ -591,7 +601,7 @@ class Model:
         :type nn: bool, optional
         """
         if name in self.cookbook:
-            logger.warning(f"Overriding existing recipe: {name}")
+            logger.warning("Overriding existing recipe: %s", name)
 
         self.cookbook[name] = Recipe(
             name=name,
@@ -646,6 +656,38 @@ class Model:
                 latex=neg_latex or neg,
             )
             self.cookbook[neg] = neg_recipe
+
+    def Parameter(
+        self,
+        name: str,
+        kind: Type[_Component],
+        deciding: str,
+        depending: str,
+        default: str,
+        label: str = "",
+    ):
+        """Creates a Parameter and adds it to the model
+
+        :param deciding: Name of the deciding aspect
+        :type deciding: str
+        :param depending: Name of the depending aspect
+        :type depending: str
+        :param default: Name of the default component
+        :type default: str
+        :param label: Label for the parameter. Defaults to ''.
+        :type label: str, optional
+        :param captions: Captions for the parameter. Defaults to ''.
+        :type captions: str, optional
+        """
+
+        self.instructions[name] = Parameter(
+            name=name,
+            kind=kind,
+            deciding=deciding,
+            depending=depending,
+            default=default,
+            label=label,
+        )
 
     # -----------------------------------------------------
     #              Birth Component

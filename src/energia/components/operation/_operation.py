@@ -88,10 +88,10 @@ class _Operation(_Component):
             self._fab = Conversion(operation=self, bind=self.capacity)
         return self._fab
 
-    @property
-    def capex(self) -> Calculate:
-        """Capital Expenditure"""
-        return self.capacity[self.model.default_currency().spend]
+    # @property
+    # def capex(self) -> Calculate:
+    #     """Capital Expenditure"""
+    #     return self.capacity[self.model.default_currency().spend]
 
     @property
     def opex(self) -> Calculate:

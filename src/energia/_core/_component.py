@@ -137,7 +137,11 @@ class _Component(_X):
         # this handles the parameters being set on init
         if name == "model" and value is not None:
 
-            for attr, value in self.parameters.items():
+            for attr, param in self.parameters.items():
+
+                if attr in value.instructions:
+                    _ = getattr(self, attr) == param
+                    continue
 
                 # attributes name expected here are of the format <aspect>_<bound>
                 # for exact equality, just <aspect>
@@ -152,7 +156,7 @@ class _Component(_X):
                     # get the sample
                     sample = getattr(self, aspect)
 
-                    if isinstance(value, list):
+                    if isinstance(param, list):
                         sample = _handle_x(aspect, _handle_norm(aspect, sample))
 
                     else:
@@ -161,16 +165,16 @@ class _Component(_X):
                     if len(split_attr) == 1:
                         # if split returned just the aspect name
                         # then it's an equality
-                        _ = sample == value
+                        _ = sample == param
 
                     # else, check if lower or upper bound
 
                     elif split_attr[1] in ["max", "ub", "UB", "leq"]:
 
-                        _ = sample <= value
+                        _ = sample <= param
 
                     elif split_attr[1] in ["min", "lb", "LB", "geq"]:
-                        _ = sample >= value
+                        _ = sample >= param
 
                 else:
                     # error if type mismatch
