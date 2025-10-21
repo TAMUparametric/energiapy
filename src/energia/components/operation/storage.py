@@ -111,9 +111,9 @@ class Storage(_Component):
                 _attr = split_attr[0]
 
                 if _attr == "charge":
-                    _charging_args[split_attr[1]] = param
+                    _charging_args["_".join(split_attr[1:])] = param
                 elif _attr == "discharge":
-                    _discharging_args[split_attr[1]] = param
+                    _discharging_args["_".join(split_attr[1:])] = param
                 else:
                     _storage_args["inv" + attr] = param
 

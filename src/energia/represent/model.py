@@ -37,17 +37,9 @@ from ..dimensions.system import System
 from ..dimensions.time import Time
 from ..library.aliases import aspect_aliases
 from ..library.instructions import costing_operation
-from ..library.recipes import (
-    capacity_sizing,
-    economic,
-    environmental,
-    free_movement,
-    inventory_sizing,
-    operating,
-    social,
-    trade,
-    usage,
-)
+from ..library.recipes import (capacity_sizing, economic, environmental,
+                               free_movement, inventory_sizing, operating,
+                               social, trade, usage)
 from ..modeling.parameters.conversion import Conversion
 from ..modeling.parameters.instruction import Instruction
 from ..modeling.variables.control import Control
