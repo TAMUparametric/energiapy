@@ -3,35 +3,35 @@
 
 # # Supermarket
 
-# ## Problem Statement 
+# ## Problem Statement
 
 # Given is a supermarket comprising of on-site energy conversion blocks and energy demands. The expected operating horizon of the supermarket is 20 years. The energy demands are listed in Table 1.
-# 
-# 
-# |               | Lighting | Refrigeration | Space Heating | 
+#
+#
+# |               | Lighting | Refrigeration | Space Heating |
 # |---------------|----------|---------------|---------------|
 # | Demand [kW]   | 200      | 1000          |100            |
 
 # Primary energy resources include natural gas and biomass. Prices of the primary energy resources and grid electricity as well as their associated CO2 production is given in Table 2 – it should be noted that 1 [GJ] is approximately equal to 277.78 [KWh].
-# 
-# |                    | Natural Gas | Biomass | Grid Electricity | 
+#
+# |                    | Natural Gas | Biomass | Grid Electricity |
 # |--------------------|-------------|---------|------------------|
 # | Price [\$/GJ]      | 8.89        | 9.72    |36.11             |
 # | CO$_2$ gen. [kg/PJ]| 56          | 100     | 90               |
-# 
+#
 
 # The on-site energy generation section involves two electricity generation technologies, one heat generation technology, and one co-production technology. The electrical efficiency (ηE), heating efficiency (ηH), minimum capacity if constructed (LB), maximum capacity if constructed (UB), capital cost (CAPEX), and operational cost (OPEX) are give in Table 3. Table 3: Technical and economic parameters of on-site energy generation technologies
-# 
+#
 # | Process            | ηE [%] | ηH [%] | LB [kW] | UB [kW] | Capex [$/kW] | Opex [$/ (kW·year)] |
 # |--------------------|--------|--------|---------|---------|--------------|---------------------|
 # | Biomass ST         |   68   |   0    |   100   | 10⁶     |    250       |        15           |
 # | Natural Gas CHP    |   44   |  28    |   800   | 10⁶     |    500       |        15           |
 # | Solar PV           |    9   |   0    |    10   |  300    |   2000       |       500           |
 # | Wind Farm          |   22   |   0    |    10   |  500    |   2000       |      1200           |
-# 
+#
 
 # Two electricity driven energy conversion technologies and one heat driven energy conversion technologies is given in order to meet the demands of lighting, refrigeration, and space heating. The efficiency (or coefficient of performance, COP), types of energy input, types of utility output, capital cost and operational cost of these technologies are summarized in Table 4.
-# 
+#
 # |                      | Refrigeration      | LED         | Heating      |
 # |----------------------|--------------------|-------------|--------------|
 # | **Input [-]**        | Electricity        | Electricity | Heating      |
@@ -39,7 +39,7 @@
 # | **Efficiency [%]**   | 300 (COP)          | 80          | 85           |
 # | **Capex [$/kW]**     | 70                 | 10          | 30           |
 # | **Opex [$/kW·year]** | 4                  | 1           | 3            |
-# 
+#
 
 # Determine system configurations for optimal cost, energy efficiency, and emission
 
@@ -317,10 +317,10 @@ m.supermarket.locate(m.st, m.chp, m.pv, m.wf, m.grid, m.refrigerator, m.led, m.h
 # In[18]:
 
 
-m.show(category='General Resource Balance')
+m.show(category='Balance')
 
 
-# ### Optimal Cost 
+# ### Optimal Cost
 
 # In[19]:
 
@@ -372,7 +372,7 @@ m.operate.sol()
 m.co2_vent.release.opt()
 
 
-# ### Optimal Energy Efficiency 
+# ### Optimal Energy Efficiency
 
 # In the formulation, the objective can be skipped and a bespoke objective can be introduced as shown below
 
@@ -386,4 +386,3 @@ m._.lb(sum(m._.consume))
 
 
 m.solution
-

@@ -201,7 +201,7 @@ class Balance:
                 else -self(*self.domain).V() == 0
             )
 
-        cons_grb.categorize("General Resource Balance")
+        cons_grb.categorize("Balance")
 
         setattr(
             self.program,
@@ -257,7 +257,7 @@ class Balance:
             # for the commodity in that space and time
 
             logger.info(
-                f"General Resource Balance for {commodity} in ({loc}, {time}): initializing constraint, adding {self.aspect}{self.domain}",
+                f"Balance for {commodity} in ({loc}, {time}): initializing constraint, adding {self.aspect}{self.domain}",
             )
 
             start = keep_time.time()
@@ -271,7 +271,7 @@ class Balance:
         else:
 
             logger.info(
-                f"General Resource Balance for {commodity} in ({loc}, {time}): adding {self.aspect}{self.domain}",
+                f"Balance for {commodity} in ({loc}, {time}): adding {self.aspect}{self.domain}",
             )
 
             start = keep_time.time()

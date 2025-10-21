@@ -16,6 +16,7 @@ def _create_default_aliases():
             'throughput',
             'potential',
             'output',
+            'cap',
         ],
         'setup': [
             'install',
