@@ -52,11 +52,9 @@ class Process(_Operation):
     :vartype ofstorage: Storage, optional
     """
 
-    def __init__(
-        self, basis: Unit | None = None, label: str = "", captions: str = "", **kwargs
-    ):
+    def __init__(self, label: str = "", captions: str = "", **kwargs):
 
-        _Operation.__init__(self, basis=basis, label=label, captions=captions, **kwargs)
+        _Operation.__init__(self, label=label, captions=captions, **kwargs)
 
         # at which locations the process is balanced
         # Note that we do not need a conversion at every temporal scale.

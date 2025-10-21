@@ -56,13 +56,12 @@ class _Operation(_Component):
 
     def __init__(
         self,
-        basis: Unit | None = None,
         label: str = "",
         captions: str = "",
         *args,
         **kwargs,
     ):
-        _Component.__init__(self, basis=basis, label=label, captions=captions, **kwargs)
+        _Component.__init__(self, label=label, captions=captions, **kwargs)
 
         # Operational conversion
         self.conversion = Conversion(operation=self)
