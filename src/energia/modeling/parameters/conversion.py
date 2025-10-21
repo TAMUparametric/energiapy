@@ -80,6 +80,8 @@ class Conversion(_Name):
         self.modes_set: bool = False
         self.balance: dict[Resource, int | float | list[int | float]] = {}
 
+        self.dummy: Resource | None = None
+
     @property
     def name(self) -> str:
         """Name"""
@@ -258,6 +260,3 @@ class Conversion(_Name):
     def __truediv__(self, periods: Periods) -> Self:
         self.periods = periods
         return self
-    
-
-    

@@ -124,4 +124,14 @@ class _Commodity(_Component):
             # set itself as base
             conv.basis = self
             return conv
+
+        if isinstance(other, int | float):
+            conv = Conversion()
+            _commodity = type(self)()
+            _commodity.name = f'{self.name}_'
+            _ = conv(self) == other * _commodity
+            conv.basis = self
+            conv.dummy = _commodity
+            return conv
+
         return super().__eq__(other)

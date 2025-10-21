@@ -85,11 +85,22 @@ class Storage(_Component):
         self.conversions = args
 
     def __setattr__(self, name, value):
+
+        object.__setattr__(self, name, value)
+
         if name == "model" and value is not None:
             model: Model = value
 
             setattr(model, f"{self.name}.charge", self.charge)
             setattr(model, f"{self.name}.discharge", self.discharge)
+
+            # for conv in self.conversions:
+            #     if not isinstance(conv, int | float):
+            #         conv.operation = self
+
+            # if len(self.conversions) == 1:
+
+            #     self.conversions[0].balance[self.stored] = self.conversions[0][None]
 
         super().__setattr__(name, value)
 
@@ -220,6 +231,7 @@ class Storage(_Component):
         """Conversion is called with a Resource to be converted"""
         # create storage resource
         stored = Stored()
+
         resource.in_inv.append(stored)
 
         setattr(self.model, f"{resource}.{self}", stored)
