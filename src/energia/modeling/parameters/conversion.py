@@ -62,9 +62,9 @@ class Conversion(_Name):
         self.operation = operation
         self.bind = bind
 
-        _Name.__init__(self, label="")
+        # _Name.__init__(self, label="")
 
-        self.name = f"η({self.operation})"
+        # self.name = f"η({self.operation})"
         self.basis: Resource | None = None
         self.lag: Lag | None = None
         self.periods: Periods | None = None
@@ -82,6 +82,11 @@ class Conversion(_Name):
         # if the keys are converted into Modes
         self.modes_set: bool = False
         self.balance: dict[Resource, int | float | list[int | float]] = {}
+
+    @property
+    def name(self) -> str:
+        """Name"""
+        return f"η({self.operation}, {self.basis})"
 
     @property
     def modes(self) -> Modes:
