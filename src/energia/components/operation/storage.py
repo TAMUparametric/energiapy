@@ -84,16 +84,16 @@ class Storage(_Component):
         self.locations: list[Location] = []
 
         self.conversions = args
-
         # used if stored is passed from outside
-        self._stored: Stored | None = None
 
-    @cached_property
-    def stored(self) -> Stored:
-        """Creates a Stored resource"""
-        if self._stored is not None:
-            return self._stored
-        return Stored()
+    # @cached_property
+    # def stored(self) -> Stored:
+    #     """Creates a Stored resource"""
+    #     _stored = Stored()
+    #     if self.model is not None:
+    #         _stored.model = self.model
+
+    #     return _stored
 
     def __setattr__(self, name, value):
 
@@ -116,6 +116,25 @@ class Storage(_Component):
                     _ = self(conv.basis) == conv.hold
 
                 # TODO: for general case with multiple resources
+
+            _parameters = dict(self.parameters)
+
+            for attr, param in _parameters.items():
+                split_attr = attr.split("_")
+
+                _attr = split_attr[0]
+
+                # if charge or discharge parameter
+                if _attr in ["charge", "discharge"]:
+
+                    setattr(getattr(self, _attr), split_attr[1], param)
+                else:
+                    self.stored = Stored(*self.parameters)
+                    # set rest of the parameters on stored
+                    setattr(self.stored, 'inv' + attr, param)
+
+                # remove from storage parameters
+                self.parameters.pop(attr)
 
         super().__setattr__(name, value)
 
@@ -245,7 +264,7 @@ class Storage(_Component):
     def __call__(self, resource: Stored | Conversion):
         """Conversion is called with a Resource to be converted"""
         # create storage resource
-        # stored = Stored()
+        self.stored = Stored()
 
         resource.in_inv.append(self.stored)
 
