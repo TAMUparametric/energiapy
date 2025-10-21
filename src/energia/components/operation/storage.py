@@ -90,6 +90,7 @@ class Storage(_Component):
 
     @cached_property
     def stored(self) -> Stored:
+        """Creates a Stored resource"""
         if self._stored is not None:
             return self._stored
         return Stored()
@@ -109,23 +110,9 @@ class Storage(_Component):
                     conv.operation = self
 
             if len(self.conversions) == 1:
+                conv = self.conversions[0]
 
-                self._stored = self.conversions[0].dummy
-
-                resource = self.conversions[0].basis
-
-                # -------set discharge conversion
-                self.discharge.conversion = Conversion(
-                    operation=self.discharge, basis=self.stored
-                )
-                _ = self.discharge.conversion(resource) == -1.0 * self.stored
-
-                # -------set charge conversion
-                self.charge.conversion = Conversion(
-                    operation=self.charge, basis=resource
-                )
-
-                _ = self.charge.conversion(self.stored) == -1.0 * resource
+                _ = self(conv.basis) == conv.hold
 
         super().__setattr__(name, value)
 

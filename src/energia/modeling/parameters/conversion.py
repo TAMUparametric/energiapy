@@ -56,11 +56,15 @@ class Conversion(_Name):
         basis: Resource | None = None,
         operation: _Operation | None = None,
         bind: Sample | None = None,
+        hold: int | float = None,
     ):
 
         self.basis = basis
         self.operation = operation
         self.bind = bind
+
+        # value to hold, will be applied later
+        self.hold = hold
 
         self._basis: Resource | None = None
         self.lag: Lag | None = None
@@ -79,8 +83,6 @@ class Conversion(_Name):
         # if the keys are converted into Modes
         self.modes_set: bool = False
         self.balance: dict[Resource, int | float | list[int | float]] = {}
-
-        self.dummy: Resource | None = None
 
     @property
     def name(self) -> str:
