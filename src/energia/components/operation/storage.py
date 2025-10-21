@@ -179,11 +179,6 @@ class Storage(_Component):
         return self.discharge.conv.base
 
     @property
-    def conversion(self) -> dict[Resource, int | float]:
-        """Conversion of commodities"""
-        return self.discharge.conv.conversion
-
-    @property
     def storage_cost(self) -> Calculate:
         """Cost of storing the resource"""
         return self.inventory[self.model.default_currency().spend]
