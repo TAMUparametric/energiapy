@@ -193,6 +193,9 @@ class Conversion(_Name):
     def __eq__(self, other: Conversion | int | float | dict[int | float, Conversion]):
         # cons = []
 
+        if isinstance(other, Conversion) and other.basis is not None:
+            self.basis = other.basis
+
         if isinstance(other, (int, float)):
             # this is used for inventory conversion
             # when not other resource besides the one being inventoried is involved
