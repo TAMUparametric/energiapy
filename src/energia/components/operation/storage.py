@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+from functools import cached_property
 from typing import TYPE_CHECKING
 
 from ..._core._component import _Component
@@ -66,7 +67,7 @@ class Storage(_Component):
     def __init__(
         self,
         *args,
-        store: Resource | None = None,
+        # store: Resource | None = None,
         basis: Unit | None = None,
         label: str = "",
         captions: str = "",
@@ -75,7 +76,7 @@ class Storage(_Component):
 
         _Component.__init__(self, basis=basis, label=label, captions=captions, **kwargs)
 
-        self.stored = store
+        # self.stored = store
         self.charge = Process()
         self.charge.charges = self
         self.discharge = Process()
@@ -83,6 +84,10 @@ class Storage(_Component):
         self.locations: list[Location] = []
 
         self.conversions = args
+
+    @cached_property
+    def stored(self) -> Stored:
+        return Stored()
 
     def __setattr__(self, name, value):
 
@@ -230,23 +235,25 @@ class Storage(_Component):
     def __call__(self, resource: Stored | Conversion):
         """Conversion is called with a Resource to be converted"""
         # create storage resource
-        stored = Stored()
+        # stored = Stored()
 
-        resource.in_inv.append(stored)
+        resource.in_inv.append(self.stored)
 
-        setattr(self.model, f"{resource}.{self}", stored)
+        setattr(self.model, f"{resource}.{self}", self.stored)
 
         # -------set discharge conversion
-        self.discharge.conversion = Conversion(operation=self.discharge, basis=stored)
-        _ = self.discharge.conversion(resource) == -1.0 * stored
+        self.discharge.conversion = Conversion(
+            operation=self.discharge, basis=self.stored
+        )
+        _ = self.discharge.conversion(resource) == -1.0 * self.stored
 
         # -------set charge conversion
         self.charge.conversion = Conversion(operation=self.charge, basis=resource)
 
-        _ = self.charge.conversion(stored) == -1.0 * resource
+        _ = self.charge.conversion(self.stored) == -1.0 * resource
 
-        setattr(self.discharge.conversion._basis, self.name, stored)
+        setattr(self.discharge.conversion._basis, self.name, self.stored)
 
-        self.stored, self.stored.inv_of = stored, self.discharge.conversion._basis
+        self.stored, self.stored.inv_of = self.stored, self.discharge.conversion._basis
 
         return self.discharge.conversion(resource)
