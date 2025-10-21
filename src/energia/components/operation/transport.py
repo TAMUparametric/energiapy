@@ -242,13 +242,3 @@ class Transport(_Operation):
                 _ = opr[rhs_import] == eff
 
                 self.linkages.append(link)
-
-    def __call__(self, resource: Resource | Conversion, lag: Lag = None) -> Conversion:
-        """Conversion is called with a Resource to be converted"""
-        if not self._conv:
-
-            self.conversion = Conversion(operation=self)
-            self._conv = True
-
-        self.conversion.lag = lag
-        return self.conversion(resource)
