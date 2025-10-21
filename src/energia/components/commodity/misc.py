@@ -43,10 +43,10 @@ class Package(Resource):
         self,
         basis: Unit | None = None,
         label: str = "",
-        captions: str = "",
+        citations: str = "",
         **kwargs,
     ):
-        Resource.__init__(self, basis=basis, label=label, captions=captions, **kwargs)
+        Resource.__init__(self, basis=basis, label=label, citations=citations, **kwargs)
 
 
 class Human(Resource):
@@ -82,10 +82,10 @@ class Human(Resource):
         self,
         basis: Unit | None = None,
         label: str = "",
-        captions: str = "",
+        citations: str = "",
         **kwargs,
     ):
-        Resource.__init__(self, basis=basis, label=label, captions=captions, **kwargs)
+        Resource.__init__(self, basis=basis, label=label, citations=citations, **kwargs)
 
 
 class Mana(Resource):
@@ -121,10 +121,10 @@ class Mana(Resource):
         self,
         basis: Unit | None = None,
         label: str = "",
-        captions: str = "",
+        citations: str = "",
         **kwargs,
     ):
-        Resource.__init__(self, basis=basis, label=label, captions=captions, **kwargs)
+        Resource.__init__(self, basis=basis, label=label, citations=citations, **kwargs)
 
 
 class Etc(Resource):
@@ -160,7 +160,7 @@ class Etc(Resource):
         self,
         basis: Unit | None = None,
         label: str = "",
-        captions: str = "",
+        citations: str = "",
         **kwargs,
     ):
-        Resource.__init__(self, basis=basis, label=label, captions=captions, **kwargs)
+        Resource.__init__(self, basis=basis, label=label, citations=citations, **kwargs)

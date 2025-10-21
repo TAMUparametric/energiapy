@@ -29,8 +29,8 @@ class _Component(_X):
     :type basis: Unit, optional
     :param label: Label for the component. Defaults to None.
     :type label: str, optional
-    :param captions: Citation for the component. Defaults to None.
-    :type captions: str | list[str] | dict[str, str | list[str]], optional
+    :param citations: Citation for the component. Defaults to None.
+    :type citations: str | list[str] | dict[str, str | list[str]], optional
 
     :ivar model: The model to which the component belongs.
     :vartype model: Model
@@ -54,7 +54,7 @@ class _Component(_X):
         self,
         basis: Unit | None = None,
         label: str = "",
-        captions: str = "",
+        citations: str = "",
         **kwargs,
     ):
 
@@ -64,7 +64,7 @@ class _Component(_X):
 
         # what differentiates a component from an index is that it has aspects
         # that we can control to adjust their states of existence
-        _X.__init__(self, label=label, captions=captions)
+        _X.__init__(self, label=label, citations=citations)
 
     @property
     def network(self) -> Location:

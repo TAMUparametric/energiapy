@@ -52,7 +52,7 @@ class Linkage(_X):
         bi: bool = False,
         auto: bool = False,
         label: str = "",
-        captions: str = "",
+        citations: str = "",
     ):
         if is_(source, sink):
             # if the source and sink are the same, throw error
@@ -65,7 +65,7 @@ class Linkage(_X):
         self.bi = bi
         self.auto = auto
 
-        _X.__init__(self, label=label, captions=captions)
+        _X.__init__(self, label=label, citations=citations)
 
         self.sib: Self | None = None
 

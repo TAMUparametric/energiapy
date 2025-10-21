@@ -36,8 +36,8 @@ class Storage(_Component):
     :type basis: Unit, optional
     :param label: An optional label for the component. Defaults to None.
     :type label: str, optional
-    :param captions: An optional citation or description for the component. Defaults to None.
-    :type captions: str | list[str] | dict[str, str | list[str]], optional
+    :param citations: An optional citation or description for the component. Defaults to None.
+    :type citations: str | list[str] | dict[str, str | list[str]], optional
     :param store: The resource to be stored. Defaults to None.
     :type store: Resource, optional
 
@@ -71,11 +71,13 @@ class Storage(_Component):
         # store: Resource | None = None,
         basis: Unit | None = None,
         label: str = "",
-        captions: str = "",
+        citations: str = "",
         **kwargs,
     ):
 
-        _Component.__init__(self, basis=basis, label=label, captions=captions, **kwargs)
+        _Component.__init__(
+            self, basis=basis, label=label, citations=citations, **kwargs
+        )
 
         self.charge: Process | None = None
         self.discharge: Process | None = None

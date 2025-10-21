@@ -18,8 +18,8 @@ class Environ(Indicator):
     :type basis: Unit, optional
     :param label: An optional label for the component. Defaults to None.
     :type label: str, optional
-    :param captions: An optional citation or description for the component. Defaults to None.
-    :type captions: str | list[str] | dict[str, str | list[str]], optional
+    :param citations: An optional citation or description for the component. Defaults to None.
+    :type citations: str | list[str] | dict[str, str | list[str]], optional
 
     :ivar model: The model to which the component belongs.
     :vartype model: Model
@@ -35,10 +35,12 @@ class Environ(Indicator):
     """
 
     def __init__(
-        self, basis: Unit | None = None, label: str = "", captions: str = "", **kwargs
+        self, basis: Unit | None = None, label: str = "", citations: str = "", **kwargs
     ):
 
-        Indicator.__init__(self, basis=basis, label=label, captions=captions, **kwargs)
+        Indicator.__init__(
+            self, basis=basis, label=label, citations=citations, **kwargs
+        )
 
 
 class Social(Indicator):
@@ -49,8 +51,8 @@ class Social(Indicator):
     :type basis: Unit, optional
     :param label: An optional label for the component. Defaults to None.
     :type label: str, optional
-    :param captions: An optional citation or description for the component. Defaults to None.
-    :type captions: str | list[str] | dict[str, str | list[str]], optional
+    :param citations: An optional citation or description for the component. Defaults to None.
+    :type citations: str | list[str] | dict[str, str | list[str]], optional
 
     :ivar model: The model to which the component belongs.
     :vartype model: Model
@@ -66,10 +68,12 @@ class Social(Indicator):
     """
 
     def __init__(
-        self, basis: Unit | None = None, label: str = "", captions: str = "", **kwargs
+        self, basis: Unit | None = None, label: str = "", citations: str = "", **kwargs
     ):
 
-        Indicator.__init__(self, basis=basis, label=label, captions=captions, **kwargs)
+        Indicator.__init__(
+            self, basis=basis, label=label, citations=citations, **kwargs
+        )
 
 
 class Economic(Indicator):
@@ -80,8 +84,8 @@ class Economic(Indicator):
     :type basis: Unit, optional
     :param label: An optional label for the component. Defaults to None.
     :type label: str, optional
-    :param captions: An optional citation or description for the component. Defaults to None.
-    :type captions: str | list[str] | dict[str, str | list[str]], optional
+    :param citations: An optional citation or description for the component. Defaults to None.
+    :type citations: str | list[str] | dict[str, str | list[str]], optional
 
     :ivar model: The model to which the component belongs.
     :vartype model: Model
@@ -97,7 +101,9 @@ class Economic(Indicator):
     """
 
     def __init__(
-        self, basis: Unit | None = None, label: str = "", captions: str = "", **kwargs
+        self, basis: Unit | None = None, label: str = "", citations: str = "", **kwargs
     ):
 
-        Indicator.__init__(self, basis=basis, label=label, captions=captions, **kwargs)
+        Indicator.__init__(
+            self, basis=basis, label=label, citations=citations, **kwargs
+        )

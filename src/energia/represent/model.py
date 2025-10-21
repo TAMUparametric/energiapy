@@ -37,9 +37,17 @@ from ..dimensions.system import System
 from ..dimensions.time import Time
 from ..library.aliases import aspect_aliases
 from ..library.instructions import costing_operation
-from ..library.recipes import (capacity_sizing, economic, environmental,
-                               free_movement, inventory_sizing, operating,
-                               social, trade, usage)
+from ..library.recipes import (
+    capacity_sizing,
+    economic,
+    environmental,
+    free_movement,
+    inventory_sizing,
+    operating,
+    social,
+    trade,
+    usage,
+)
 from ..modeling.parameters.conversion import Conversion
 from ..modeling.parameters.instruction import Instruction
 from ..modeling.variables.control import Control
@@ -676,8 +684,8 @@ class Model:
         :type default: str
         :param label: Label for the parameter. Defaults to ''.
         :type label: str, optional
-        :param captions: Captions for the parameter. Defaults to ''.
-        :type captions: str, optional
+        :param citations: Captions for the parameter. Defaults to ''.
+        :type citations: str, optional
         """
 
         self.manual[name] = Instruction(

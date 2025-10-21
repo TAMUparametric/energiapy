@@ -21,8 +21,8 @@ class Instruction:
     :type default: str
     :param label: Label for the parameter. Defaults to ''.
     :type label: str, optional
-    :param captions: Captions for the parameter. Defaults to ''.
-    :type captions: str, optional
+    :param citations: Captions for the parameter. Defaults to ''.
+    :type citations: str, optional
 
     :raises TypeError: If the component provided is not of the correct kind.
     """

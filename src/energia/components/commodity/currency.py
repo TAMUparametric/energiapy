@@ -47,11 +47,13 @@ class Currency(_Commodity):
         *locs: Location,
         basis: Unit | None = None,
         label: str = "",
-        captions: str = "",
+        citations: str = "",
         **kwargs,
     ):
         self.locs = list(locs)
-        _Commodity.__init__(self, basis=basis, label=label, captions=captions, **kwargs)
+        _Commodity.__init__(
+            self, basis=basis, label=label, citations=citations, **kwargs
+        )
 
         # dictionary of exchange rates
         self.exchange = {}

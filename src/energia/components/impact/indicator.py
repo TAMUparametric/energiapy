@@ -19,8 +19,8 @@ class Indicator(_Component):
     :type basis: Unit, optional
     :param label: An optional label for the component. Defaults to None.
     :type label: str, optional
-    :param captions: An optional citation or description for the component. Defaults to None.
-    :type captions: str | list[str] | dict[str, str | list[str]], optional
+    :param citations: An optional citation or description for the component. Defaults to None.
+    :type citations: str | list[str] | dict[str, str | list[str]], optional
 
     :ivar model: The model to which the component belongs.
     :vartype model: Model
@@ -36,10 +36,12 @@ class Indicator(_Component):
     """
 
     def __init__(
-        self, basis: Unit | None = None, label: str = "", captions: str = "", **kwargs
+        self, basis: Unit | None = None, label: str = "", citations: str = "", **kwargs
     ):
 
-        _Component.__init__(self, basis=basis, label=label, captions=captions, **kwargs)
+        _Component.__init__(
+            self, basis=basis, label=label, citations=citations, **kwargs
+        )
 
     @property
     def consequence(self) -> Consequence:

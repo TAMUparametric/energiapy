@@ -52,12 +52,12 @@ class Periods(_X):
         periods: int | float = 1,
         of: Self | None = None,
         label: str = "",
-        captions: str = "",
+        citations: str = "",
     ):
         self.periods = periods
         self.of = of
 
-        _X.__init__(self, label=label, captions=captions)
+        _X.__init__(self, label=label, citations=citations)
 
         self._periods = self.periods
 

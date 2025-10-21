@@ -24,8 +24,8 @@ class Transport(_Operation):
     :type basis: Unit, optional
     :param label: An optional label for the component. Defaults to None.
     :type label: str, optional
-    :param captions: An optional citation or description for the component. Defaults to None.
-    :type captions: str | list[str] | dict[str, str | list[str]], optional
+    :param citations: An optional citation or description for the component. Defaults to None.
+    :type citations: str | list[str] | dict[str, str | list[str]], optional
 
     :ivar model: The model to which the component belongs.
     :vartype model: Model
@@ -50,9 +50,9 @@ class Transport(_Operation):
     :vartype linkages: list[Linkage]
     """
 
-    def __init__(self, *args, label: str = "", captions: str = "", **kwargs):
+    def __init__(self, *args, label: str = "", citations: str = "", **kwargs):
 
-        _Operation.__init__(self, *args, label=label, captions=captions, **kwargs)
+        _Operation.__init__(self, *args, label=label, citations=citations, **kwargs)
         self.linkages: list[Linkage] = []
 
     @property

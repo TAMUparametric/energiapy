@@ -40,14 +40,14 @@ class Modes(_X):
         parent: Self | None = None,
         pos: int | None = None,
         label: str = "",
-        captions: str = "",
+        citations: str = "",
     ):
         self.n_modes = n_modes
         self.bind = bind
         self.parent = parent
         self.pos = pos
 
-        _X.__init__(self, label=label, captions=captions)
+        _X.__init__(self, label=label, citations=citations)
 
         if self.pos is not None:
             self.name = f"{self.parent}[{self.pos}]"
