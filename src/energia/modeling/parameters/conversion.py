@@ -176,7 +176,7 @@ class Conversion(_Name):
             # especially useful if Process is scaled to consumption of a resource
             # i.e. basis = -1*Resource
             self.balance = {**self.balance, **basis.balance}
-            self._basis = next(iter(self.balance))
+            self.basis = next(iter(self.balance))
 
         else:
             # if a Resource is provided (Resource)

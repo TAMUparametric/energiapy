@@ -174,7 +174,7 @@ class Storage(_Component):
     @property
     def base(self) -> Resource:
         """Base resource"""
-        return self.discharge.conversion._basis
+        return self.discharge.conversion.basis
 
     @property
     def storage_cost(self) -> Calculate:
