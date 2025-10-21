@@ -119,6 +119,7 @@ class Storage(_Component):
 
             self.parameters = {}
 
+            # initiate the processes
             self.charge = Process(**_charging_args)
             self.discharge = Process(**_discharging_args)
             self.stored = Stored(**_storage_args)
@@ -228,10 +229,10 @@ class Storage(_Component):
         """Inventory of the stored resource"""
         return self.stored.inventory
 
-    @property
-    def capex(self) -> Calculate:
-        """Capital Expenditure"""
-        return self.capacity[self.model.default_currency().spend]
+    # @property
+    # def capex(self) -> Calculate:
+    #     """Capital Expenditure"""
+    #     return self.capacity[self.model.default_currency().spend]
 
     @property
     def opex(self) -> Calculate:
