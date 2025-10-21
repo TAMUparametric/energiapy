@@ -46,11 +46,11 @@ class Problem(_Dimension):
 
     def __post_init__(self):
 
-        _Dimension.__post_init__(self)
         self.states: list[State] = []
         self.controls: list[Control] = []
         self.streams: list[Stream] = []
         self.impacts: list[Impact] = []
+        _Dimension.__post_init__(self)
 
     @cached_property
     def time(self) -> Time:

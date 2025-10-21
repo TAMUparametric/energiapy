@@ -72,6 +72,8 @@ class System(_Dimension):
         self.players: list[Player] = []
         self.couples: list[Couple] = []
 
+        _Dimension.__post_init__(self)
+
     @property
     def operations(self) -> list[Process | Storage | Transport]:
         """All Operations"""
