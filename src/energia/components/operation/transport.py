@@ -105,17 +105,17 @@ class Transport(_Operation):
 
             return time.horizon
 
-        self.conv.balancer()
+        self.conversion.balancer()
 
-        if self.conv.pwl:
+        if self.conversion.pwl:
 
             conversion = self.balance[list(self.balance)[0]]
 
         else:
             conversion = self.balance
 
-        shipping_conversion, rest_conversion = {self.conv.base: 1}, {
-            k: v for k, v in conversion.items() if k != self.conv.base
+        shipping_conversion, rest_conversion = {self.conversion.base: 1}, {
+            k: v for k, v in conversion.items() if k != self.conversion.base
         }
 
         for link_time in link_times:
@@ -213,26 +213,26 @@ class Transport(_Operation):
                     _ = rhs_export == True
                     _ = rhs_import == True
 
-                if self.conv.pwl:
+                if self.conversion.pwl:
 
                     eff = [conv[res] for conv in self.balance.values()]
 
                     if eff[0] < 0:
                         eff = [-i for i in eff]
 
-                    if not self.conv.modes_set:
+                    if not self.conversion.modes_set:
                         self.model.operate.bound = None
                         _ = opr == dict(enumerate(self.balance.keys()))
 
-                        self.model.operate.bound = self.conv.model.capacity
+                        self.model.operate.bound = self.conversion.model.capacity
 
                         modes = self.model.modes[-1]
-                        self.conv.modes_set = True
+                        self.conversion.modes_set = True
 
                     else:
-                        modes = self.conv.modes
+                        modes = self.conversion.modes
                         modes.bind = self.operate
-                        self.conv.modes_set = True
+                        self.conversion.modes_set = True
 
                     opr = opr(modes)
                     rhs_export = rhs_export(modes)
@@ -247,8 +247,8 @@ class Transport(_Operation):
         """Conversion is called with a Resource to be converted"""
         if not self._conv:
 
-            self.conv = Conversion(operation=self)
+            self.conversion = Conversion(operation=self)
             self._conv = True
 
-        self.conv.lag = lag
-        return self.conv(resource)
+        self.conversion.lag = lag
+        return self.conversion(resource)
