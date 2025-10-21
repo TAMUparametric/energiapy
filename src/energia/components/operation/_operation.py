@@ -220,6 +220,7 @@ class _Operation(_Component):
 
             if space not in self.model.capacity.bound_spaces[self]["ub"]:
                 # check if operational capacity has been bound
+
                 logger.info(
                     f"Assuming  {self} capacity is unbounded in ({space}, {self.horizon})",
                 )
@@ -233,7 +234,10 @@ class _Operation(_Component):
                 # check if operate has been bound
                 # if not just write opr_{pro, space, horizon} <= capacity_{pro, space, horizon}
                 logger.info(
-                    f"Assuming operation of {self} is bound by capacity in ({space}, {self.horizon})",
+                    "Assuming operation of %s is bound by capacity in (%s, %s)",
+                    self,
+                    space,
+                    self.horizon,
                 )
                 if (
                     self in self.model.operate.dispositions

@@ -99,7 +99,10 @@ class Storage(_Component):
                 # check if the storage capacity has been bound at that location
 
                 logger.info(
-                    f"Assuming  {self.stored} inventory capacity is unbounded in ({loc}, {self.horizon})",
+                    f"Assuming  %s inventory capacity is unbounded in (%s, %s)",
+                    self.stored,
+                    loc,
+                    self.horizon,
                 )
                 # this is not a check, this generates a constraint
                 _ = self.capacity(loc, self.horizon) == True
@@ -110,7 +113,10 @@ class Storage(_Component):
             if loc not in self.model.inventory.bound_spaces[self.stored]["ub"]:
                 # check if the storage inventory has been bound at that location
                 logger.info(
-                    f"Assuming inventory of {self.stored} is bound by inventory capacity in ({loc}, {self.horizon})",
+                    "Assuming inventory of %s is unbounded in (%s, %s)",
+                    self.stored,
+                    loc,
+                    self.horizon,
                 )
                 try:
                     times = list(
@@ -130,7 +136,10 @@ class Storage(_Component):
                     time = self.horizon
                 # if not just write opr_{pro, loc, horizon} <= capacity_{pro, loc, horizon}
                 logger.info(
-                    f"Assuming inventory of {self.stored} is bound by inventory capacity in ({loc}, {time})",
+                    "Assuming inventory of %s is bound by inventory capacity in (%s, %s)",
+                    self.stored,
+                    loc,
+                    time,
                 )
 
                 _ = self.inventory(loc, time) <= 1

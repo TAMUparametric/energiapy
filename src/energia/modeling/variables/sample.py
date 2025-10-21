@@ -413,7 +413,10 @@ class Sample:
 
             # if the bound variable has not been defined at the given space
             logger.info(
-                f"Aspect ({bound_aspect}) not defined at {self.domain.space}, a variable will be created assuming {self.model.horizon} as the temporal index",
+                "Aspect (%s) not defined at %s, a variable will be created assuming %s as the temporal index",
+                bound_aspect,
+                self.domain.space,
+                self.model.horizon,
             )
 
             domain = self.domain.change({"periods": self.model.horizon})
@@ -576,11 +579,15 @@ class Sample:
             Bind(sample=self, parameter=other, eq=True, forall=self._forall)
 
     def __gt__(self, other):
-        logger.info(f"Bind {self} > {other} is being written as {self} >= {other}")
+        logger.info(
+            "Bind %s > %s is being written as %s >= %s", self, other, self, other
+        )
         _ = self >= other
 
     def __lt__(self, other):
-        logger.info(f"Bind {self} < {other} is being written as {self} <= {other}")
+        logger.info(
+            "Bind %s < %s is being written as %s <= %s", self, other, self, other
+        )
         _ = self <= other
 
     def __call__(self, *index) -> Self:

@@ -257,7 +257,7 @@ class Balance:
             # for the commodity in that space and time
 
             logger.info(
-                f"Balance for {commodity} in ({loc}, {time}): initializing constraint, adding {self.aspect}{self.domain}",
+                "Balance for %s in (%s, %s): initializing", commodity, loc, time
             )
 
             start = keep_time.time()
@@ -271,7 +271,12 @@ class Balance:
         else:
 
             logger.info(
-                f"Balance for {commodity} in ({loc}, {time}): adding {self.aspect}{self.domain}",
+                "Balance for %s in (%s, %s): adding %s%s",
+                commodity,
+                loc,
+                time,
+                self.aspect,
+                self.domain,
             )
 
             start = keep_time.time()
@@ -284,8 +289,7 @@ class Balance:
             return False
 
         end = keep_time.time()
-        logger.info(f"\u2714 Completed in {end-start} seconds")
-
+        logger.info("\u2714 Completed in %s seconds", end - start)
         # updates the constraints in all the indices of self.domain
         # add constraint name to aspect
         self.domain.update_cons(_name)

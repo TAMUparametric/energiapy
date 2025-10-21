@@ -167,7 +167,7 @@ class Bind:
 
         lhs = self.sample.V(parameter)
 
-        logger.info(f"Binding {self.aspect} in domain {self.domain}")
+        logger.info("Binding %s in domain %s", self.aspect, self.domain)
 
         start = keep_time.time()
         # ------Get RHS
@@ -250,4 +250,4 @@ class Bind:
         )
 
         end = keep_time.time()
-        logger.info(f"\u2714 Completed in {end-start} seconds")
+        logger.info("\u2714 Completed in %s seconds", end - start)
