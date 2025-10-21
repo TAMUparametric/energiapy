@@ -122,6 +122,6 @@ class _Commodity(_Component):
         if isinstance(other, Conversion):
             conv = self + other
             # set itself as base
-            conv.basis = self
+            conv._basis = self
             return conv
         return super().__eq__(other)

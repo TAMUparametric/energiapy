@@ -65,7 +65,7 @@ class Conversion(_Name):
         # _Name.__init__(self, label="")
 
         # self.name = f"η({self.operation})"
-        self.basis: Resource | None = None
+        self._basis: Resource | None = None
         self.lag: Lag | None = None
         self.periods: Periods | None = None
 
@@ -86,7 +86,7 @@ class Conversion(_Name):
     @property
     def name(self) -> str:
         """Name"""
-        return f"η({self.operation}, {self.basis})"
+        return f"η({self.operation}, {self._basis})"
 
     @property
     def modes(self) -> Modes:
@@ -176,13 +176,13 @@ class Conversion(_Name):
             # especially useful if Process is scaled to consumption of a resource
             # i.e. basis = -1*Resource
             self.balance = {**self.balance, **basis.balance}
-            self.basis = next(iter(self.balance))
+            self._basis = next(iter(self.balance))
 
         else:
             # if a Resource is provided (Resource)
             # implies that the conversion is 1
             # i.e the Process is scaled to one unit of this Resource produced
-            self.basis = basis
+            self._basis = basis
             self.balance = {basis: 1.0, **self.balance}
 
         if lag:
@@ -193,8 +193,8 @@ class Conversion(_Name):
     def __eq__(self, other: Conversion | int | float | dict[int | float, Conversion]):
         # cons = []
 
-        if isinstance(other, Conversion) and other.basis is not None:
-            self.basis = other.basis
+        if isinstance(other, Conversion) and other._basis is not None:
+            self._basis = other._basis
 
         if isinstance(other, (int, float)):
             # this is used for inventory conversion
