@@ -8,11 +8,9 @@ from ...utils.math import normalize
 from ..parameters.value import Value
 
 if TYPE_CHECKING:
-    from gana.block.program import Prg
     from gana.sets.constraint import C
 
     from ..._core._x import _X
-    from ...represent.model import Model
     from ..variables.sample import Sample
 
 

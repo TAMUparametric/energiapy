@@ -35,8 +35,8 @@ class Graph:
 
     def __post_init__(self):
         self.name = f"Graph({self.model})"
-        self.nodes = []
-        self.edges = []
+        self.nodes: list[Node] = []
+        self.edges: list[Edge] = []
 
     def __str__(self):
         return self.name

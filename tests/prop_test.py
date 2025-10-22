@@ -12,9 +12,9 @@ def m():
     _m.r = Resource()
     _m.r_in = Resource()
     _m.r_out = Resource()
-    _m.r.consume <= 100
+    _ = _m.r.consume <= 100
     _m.p = Process()
-    _m.p(_m.r_out) == -_m.r_in
+    _ = _m.p(_m.r_out) == -_m.r_in
     return _m
 
 
