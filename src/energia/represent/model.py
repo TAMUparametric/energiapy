@@ -264,7 +264,7 @@ class Model:
         # word -> n_word
         self.program_attrs += ['n_' + w for w in self.program_attrs]
         self.program_attrs += ["index_sets", "indices", "objectives", "parameter_sets", "X"]
-        self.program_attrs = {i: self.program for i in  self.program_attrs}
+        # self.program_attrs = {i: self.program for i in  self.program_attrs}
         
         # properties that can be called by model
         # these never get set
