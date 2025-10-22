@@ -222,21 +222,24 @@ class Model:
         self._ = self.program
 
         # Start with patterened
-
-        _program_attrs =    [ 
+        self.program_attrs =    [ 
             "constraint",
             "function",
             "variable",
             "parameter",
             "theta",
         ]
-
-        _program_attrs += [w + s for w in _program_attrs for s in ['s', '_sets']]
-        _program_attrs += ["index_sets", "indices", "objectives", "parameter_sets", "solution"]
-        _program_attrs += ['n_' + w for w in _program_attrs]
-        _program_attrs = {i: self.program for i in  _program_attrs}
-        _program_properties = {i: self.program for i in [ "A","B","C","F","G","H","CrA","CrB","NN","A_with_NN","B_with_NN","Z","P", ]}
-
+        # word -> words and word_sets
+        self.program_attrs += [w + s for w in self.program_attrs for s in ['s', '_sets']]
+        self.program_attrs += ["solution", "formulation",  "evaluation"]
+        # word -> n_word
+        self.program_attrs += ['n_' + w for w in self.program_attrs]
+        self.program_attrs += ["index_sets", "indices", "objectives", "parameter_sets", "X"]
+        self.program_attrs = {i: self.program for i in  self.program_attrs}
+        
+        # properties that can be called by model
+        # these never get set
+        _program_matrices = [ "A","B","C","F","G","H","CrA","CrB","NN","A_with_NN","B_with_NN","Z","P",]
         self.properties = {
             "horizon": self.time, 
             "network": self.space,
@@ -244,59 +247,8 @@ class Model:
             "operations": self.system, 
             "aspects": self.problem,
             "domains": self.problem,
-            **_program_properties
+            **{i: self.program for i in _program_matrices},
         }
-
-        # ``
-
-        # index_sets
-        # indices
-        # objectives
-        # parameter_sets
-
-        # variable_sets
-        # variables
-        # theta_sets
-        # thetas
-
-        # function_sets
-        # functions
-
-        # constraint_sets
-        # constraints
-
-
-
-        # n_index_sets
-        # n_index_elements
-        # n_variable_sets
-        # n_variables
-        # n_parameter_sets
-        # n_theta_sets
-        # n_thetas
-        # n_function_sets
-        # n_functions
-        # n_constraint_sets
-        # n_constraints
-        # n_objectives
-
-        # formulation
-        # solution
-        # evaluation
-
-        # X 
-        # n_sol
-
-
-        # formulation
-        # n_for
-        # n_eval
-        # sol_types
-
-
-        self.ancestry = {**_program_attrs}
-
-        
 
         # if any of these attributes are called,
         # or an exiting one is returned
@@ -313,25 +265,22 @@ class Model:
         # -----------------------------------------------
         #  Books
         # -----------------------------------------------
-        # The contrain maps of 
+        # Maps between:
 
-        # attribute names to recipes
-        # recipes have not 
+        # user_input_attr -> matching_aspect -> Recipe
         self.directory: dict[str, dict[str, Recipe]] = {}
 
-        # maps
+        # already_defined_user_input_attr -> matching_aspect
         self.registry: dict[str, Aspect] = {}
 
-        # maps to recipes for creating aspects
+        # matching_aspect -> Recipe
         self.cookbook: dict[str, Recipe] = {}
 
-        # maps to parameters for calculations
+        # parameter_name -> parameter_handling_instruction
         self.manual: dict[str, Instruction] = {}
-
 
         # measuring units
         self.units: list[Unit] = []
-        self.conversions: list[Conversion] = []  # not added to program
         self.convmatrix: dict[Process, dict[Resource, int | float | list]] = {}
 
         self.modes_dict: dict[Sample, Modes] = {}
@@ -561,8 +510,8 @@ class Model:
             setattr(self, name, collection)
             return collection
 
-        if name in self.ancestry:
-            collection = getattr(self.ancestry[name], name)
+        if name in self.program_attrs:
+            collection = getattr(self.program_attrs[name], name)
             setattr(self, name, collection)
             return collection
 
