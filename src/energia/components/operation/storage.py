@@ -3,8 +3,6 @@
 from __future__ import annotations
 
 import logging
-from functools import cached_property
-from pyexpat import model
 from typing import TYPE_CHECKING
 
 from ..._core._component import _Component
@@ -161,7 +159,7 @@ class Storage(_Component):
                 # check if the storage capacity has been bound at that location
 
                 logger.info(
-                    f"Assuming  %s inventory capacity is unbounded in (%s, %s)",
+                    "Assuming  %s inventory capacity is unbounded in (%s, %s)",
                     self.stored,
                     loc,
                     self.horizon,

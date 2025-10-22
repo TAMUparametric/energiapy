@@ -35,7 +35,6 @@ if TYPE_CHECKING:
     from ..._core._component import _Component
     from ..._core._x import _X
     from ...dimensions.problem import Problem
-    from ...modeling.indices.domain import Domain
     from ...represent.model import Model
 
 

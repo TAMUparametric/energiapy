@@ -9,9 +9,7 @@ from ..._core._operation import _Operation
 
 if TYPE_CHECKING:
     from ..commodity.resource import Resource
-    from ..measure.unit import Unit
     from ..spatial.location import Location
-    from ..temporal.lag import Lag
     from ..temporal.periods import Periods
     from .storage import Storage
 

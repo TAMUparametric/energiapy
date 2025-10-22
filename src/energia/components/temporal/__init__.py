@@ -3,7 +3,7 @@
 from .periods import Periods
 from .scales import TemporalScales
 
-___all__ = [
+__all__ = [
     "Periods",
     "TemporalScales",
 ]

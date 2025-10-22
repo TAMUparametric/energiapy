@@ -5,14 +5,11 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from ..._core._operation import _Operation
-from ...modeling.parameters.conversion import Conversion
 
 if TYPE_CHECKING:
     from ..commodity.resource import Resource
-    from ..measure.unit import Unit
     from ..spatial.linkage import Linkage
     from ..spatial.location import Location
-    from ..temporal.lag import Lag
     from ..temporal.periods import Periods
 
 
