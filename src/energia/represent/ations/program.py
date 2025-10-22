@@ -73,7 +73,7 @@ class Program(Prg):
 
     def __getattr__(self, item):
 
-        if item in self.model.dimension_map:
+        if item in self.model.ancestry:
             index = I(mutable=True)
             setattr(self, item, index)
             return index

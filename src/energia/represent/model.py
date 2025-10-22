@@ -149,8 +149,7 @@ class Model:
         # an object of a particular type belongs to
 
         # the structure of components:
-        # I Temporal representation (Time):
-        # 1.  Periods (Periods) generates a bespoke discretization.
+
         # II Spatial representation (Space):
         # 1. Spatial representation (Space). Location (Loc) generate a bespoke discretization.
         # III Streams (System):
@@ -169,7 +168,9 @@ class Model:
         # V Impact, scales a stream and projects onto a common metric
         #   1. Impact (Impact) categories include Eco, Soc
 
-        self.update_map = {
+        self.familytree = {
+            # I Temporal representation (Time):
+            # 1.  Periods (Periods) generates a bespoke discretization.
             Periods: ("time", "periods"),
             Modes: ("time", "modes"),
             Location: ("space", "locations"),
@@ -200,8 +201,8 @@ class Model:
         }
 
         # 
-        self.dimension_map = {
-            collection: dimension for dimension, collection in self.update_map.values()
+        self.ancestry = {
+            collection: dimension for dimension, collection in self.familytree.values()
         }
 
         # Temporal Scope
@@ -422,7 +423,7 @@ class Model:
             self.units.append(value)
 
         # map to representation and collection
-        for cls, updates in self.update_map.items():
+        for cls, updates in self.familytree.items():
             if isinstance(value, cls):
                 # for args in updates:
                 self.update(name, value, *updates)
@@ -455,8 +456,8 @@ class Model:
             return component
 
         # 
-        if name in self.dimension_map:
-            dimension = getattr(self, self.dimension_map[name])
+        if name in self.ancestry:
+            dimension = getattr(self, self.ancestry[name])
             collection = getattr(dimension, name)
             setattr(self, name, collection)
             return collection
