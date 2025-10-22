@@ -70,7 +70,7 @@ class Transport(_Operation):
             # This checks whether some other aspect is defined at
             # a lower temporal scale
 
-            if loc not in self.model.grb[res]:
+            if loc not in self.model.balances[res]:
                 # if not defined for that location, check for a lower order location
                 # i.e. location at a lower hierarchy,
                 # e.g. say if loc being passed is a city, and a grb has not been defined for it
@@ -81,7 +81,7 @@ class Transport(_Operation):
                     # the conversion Balance variables will feature in grb for parent location
                     loc = parent
 
-            _ = self.model.grb[res][loc][time]
+            _ = self.model.balances[res][loc][time]
 
             #     self.model.update_grb(resource=res, space=loc, time=time)
 
@@ -94,7 +94,11 @@ class Transport(_Operation):
                 res = res.inv_of
 
             times = list(
-                [t for t in self.model.grb[res][loc] if self.model.grb[res][loc][t]],
+                [
+                    t
+                    for t in self.model.balances[res][loc]
+                    if self.model.balances[res][loc][t]
+                ],
             )
             # write the conversion balance at
             # densest temporal scale in that space
@@ -137,10 +141,10 @@ class Transport(_Operation):
 
                 # insitu resource (expended and ship_outed within the system)
                 # do not initiate a grb so we need to run a check for that first
-                if res in self.model.grb:
+                if res in self.model.balances:
                     time = time_checker(res, link.source, time)
 
-                    if self.model.grb[res][link][time]:
+                    if self.model.balances[res][link][time]:
                         # if the grb has been defined for that resource at that location and time
                         _insitu = False
                     else:

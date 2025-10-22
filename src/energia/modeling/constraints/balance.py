@@ -47,7 +47,7 @@ class Balance:
 
         self.model = self.aspect.model
         self.program = self.model.program
-        self.grb = self.model.grb
+        self.grb = self.model.balances
 
         if self.domain.modes:
             return

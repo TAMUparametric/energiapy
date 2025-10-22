@@ -42,7 +42,6 @@ from ..library.instructions import costing_operation
 from ..library.recipes import (capacity_sizing, economic, environmental,
                                free_movement, inventory_sizing, operating,
                                social, trade, usage)
-from ..modeling.parameters.conversion import Conversion
 from ..modeling.parameters.instruction import Instruction
 from ..modeling.variables.control import Control
 from ..modeling.variables.recipe import Recipe
@@ -320,13 +319,13 @@ class Model:
         # * Books of Maps
         # --------------------------------------------------------------------
         # Maps between:
-        # matching_aspect -> Recipe
+        # * matching_aspect -> Recipe
         self.cookbook: dict[str, Recipe] = {}
-        # parameter_name -> parameter_handling_instruction
+        # * parameter_name -> parameter_handling_instruction
         self.manual: dict[str, Instruction] = {}
-        # already_defined_user_input_attr -> matching_aspect
+        # * already_defined_user_input_attr -> matching_aspect
         self.registry: dict[str, Aspect] = {}
-        # user_input_attr -> matching_aspect -> Recipe
+        # * user_input_attr -> matching_aspect -> Recipe
         self.directory: dict[str, dict[str, Recipe]] = {}
 
         # --------------------------------------------------------------------
@@ -335,12 +334,16 @@ class Model:
 
         # Dictionary which tells you what aspects of resource
         # have been set in what location and time
-        self.grb: dict[
+
+        # * General Resource Balances
+        self.balances: dict[
             _Commodity,
             dict[Location | Linkage, dict[Periods, list[Aspect]]],
         ] = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
         # Dictionary which tells you what aspects of what component
         # have been bound at what location and time
+
+        # * Sample Dispositions
         self.dispositions: dict[
             Aspect,
             dict[
@@ -348,9 +351,15 @@ class Model:
                 dict[Location | Linkage, dict[Periods, list[Aspect]]],
             ],
         ] = {}
+
+        # * Drawn Maps
         self.maps: dict[Aspect, dict[Domain, dict[str, list[Domain]]]] = {}
         self.maps_report: dict[Aspect, dict[Domain, dict[str, list[Domain]]]] = {}
+
+        # * Generated Modes
         self.modes_dict: dict[Sample, Modes] = {}
+
+        # * Conversion Matrix
         self.convmatrix: dict[Process, dict[Resource, int | float | list]] = {}
 
         # --------------------------------------------------------------------
@@ -396,7 +405,7 @@ class Model:
             func(self)
 
     # -------------------------------------------------------------------
-    # * Updates Component based on familytree
+    # * Onboard Component and Send to Family
     # -------------------------------------------------------------------
 
     def update(

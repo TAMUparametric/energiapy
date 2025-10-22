@@ -83,7 +83,7 @@ class Process(_Operation):
             # This checks whether some other aspect is defined at
             # a lower temporal scale
 
-            if loc not in self.model.grb[res]:
+            if loc not in self.model.balances[res]:
                 # if not defined for that location, check for a lower order location
                 # i.e. location at a lower hierarchy,
                 # e.g. say if loc being passed is a city, and a grb has not been defined for it
@@ -94,7 +94,7 @@ class Process(_Operation):
                     # the conversion Balance variables will feature in grb for parent location
                     loc = parent
 
-            _ = self.model.grb[res][loc][time]
+            _ = self.model.balances[res][loc][time]
 
             if res.inv_of:
                 # for inventoried resources, the conversion is written
@@ -105,8 +105,8 @@ class Process(_Operation):
                 times = list(
                     [
                         t
-                        for t in self.model.grb[res][loc]
-                        if self.model.grb[res][loc][t]
+                        for t in self.model.balances[res][loc]
+                        if self.model.balances[res][loc][t]
                     ],
                 )
             except KeyError:
@@ -170,9 +170,9 @@ class Process(_Operation):
                 # insitu resource (produced and expended within the system)
                 # do not initiate a grb so we need to run a check for that first
 
-                if res in self.model.grb:
+                if res in self.model.balances:
                     time = time_checker(res, location, time)
-                    _ = self.model.grb[res].get(location, {})
+                    _ = self.model.balances[res].get(location, {})
 
                 eff = par if isinstance(par, list) else [par]
 

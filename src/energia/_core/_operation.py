@@ -178,10 +178,10 @@ class _Operation(_Component):
                     if par[0] == 0:
                         continue
 
-                if res in self.model.grb:
+                if res in self.model.balances:
                     time = time_checker()
 
-                    if self.model.grb[res][space][time]:
+                    if self.model.balances[res][space][time]:
                         _insitu = False
                     else:
                         _insitu = True

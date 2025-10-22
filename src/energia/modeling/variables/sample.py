@@ -87,7 +87,7 @@ class Sample:
 
         self.model = self.aspect.model
         self.program = self.model.program
-        self.grb = self.model.grb
+        self.grb = self.model.balances
 
         # if the aspect is bound (operate for example)
         self.bound = self.aspect.bound

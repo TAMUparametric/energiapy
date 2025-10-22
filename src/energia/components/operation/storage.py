@@ -184,8 +184,8 @@ class Storage(_Component):
                     times = list(
                         [
                             t
-                            for t in self.model.grb[self.stored.inv_of][loc]
-                            if self.model.grb[self.stored.inv_of][loc][t]
+                            for t in self.model.balances[self.stored.inv_of][loc]
+                            if self.model.balances[self.stored.inv_of][loc][t]
                         ],
                     )
                 except KeyError:
