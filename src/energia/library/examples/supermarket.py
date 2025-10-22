@@ -337,7 +337,7 @@ m.show(True)
 # In[21]:
 
 
-m.usd.spend.sol()
+m.usd.spend.output()
 
 
 # In[22]:
@@ -349,19 +349,19 @@ m.show(category='Flow')
 # In[23]:
 
 
-m.capacity.sol()
+m.capacity.output()
 
 
 # In[24]:
 
 
-m.release.sol()
+m.release.output()
 
 
 # In[25]:
 
 
-m.operate.sol()
+m.operate.output()
 
 
 # ### Optimal Emissions

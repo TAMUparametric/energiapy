@@ -177,7 +177,7 @@ m.usd.spend.opt()
 # In[ ]:
 
 
-m.inventory.sol()
+m.inventory.output()
 
 
 # The amount charged into inventory is:
@@ -185,7 +185,7 @@ m.inventory.sol()
 # In[ ]:
 
 
-m.produce(m.power.lii, m.lii.charge.operate, m.q).sol()
+m.produce(m.power.lii, m.lii.charge.operate, m.q).output()
 
 
 # The amount discharged from inventory is:
@@ -193,7 +193,7 @@ m.produce(m.power.lii, m.lii.charge.operate, m.q).sol()
 # In[ ]:
 
 
-m.produce(m.power, m.lii.discharge.operate, m.q).sol()
+m.produce(m.power, m.lii.discharge.operate, m.q).output()
 
 
 # ### Integer Decisions 
@@ -203,11 +203,11 @@ m.produce(m.power, m.lii.discharge.operate, m.q).sol()
 # In[ ]:
 
 
-m.capacity.reporting.sol()
+m.capacity.reporting.output()
 
 
 # In[ ]:
 
 
-m.capacity.sol()
+m.capacity.output()
 

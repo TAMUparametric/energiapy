@@ -526,7 +526,7 @@ class Sample:
         self.norm = norm
         return self
 
-    def sol(self, aslist: bool = False, asdict: bool = False, compare: bool = False):
+    def output(self, aslist: bool = False, asdict: bool = False, compare: bool = False):
         """
         Solution
 
@@ -537,7 +537,7 @@ class Sample:
         :param compare: If True, compares the solutions across multiple solves
         :type compare: bool, optional
         """
-        return self.V().sol(aslist=aslist, asdict=asdict, compare=compare)
+        return self.V().output(aslist=aslist, asdict=asdict, compare=compare)
 
     def eval(self, *values: float):
         """

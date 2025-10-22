@@ -170,5 +170,5 @@ m.show()
 # In[26]:
 
 
-m.sol(False)
+m.output(False)
 

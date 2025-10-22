@@ -729,11 +729,11 @@ class Model:
 
     # * III Solution
 
-    def sol(self, n_sol: int = 0, slack: bool = True, compare: bool = False):
+    def output(self, n_sol: int = 0, slack: bool = True, compare: bool = False):
         """Solution"""
-        return self.program.sol(n_sol=n_sol, slack=slack, compare=compare)
+        return self.program.output(n_sol=n_sol, slack=slack, compare=compare)
     
-    
+
     # ------------------------------------------------------------------------
     # * Solution Generation, Handling and Analysis
     # ------------------------------------------------------------------------

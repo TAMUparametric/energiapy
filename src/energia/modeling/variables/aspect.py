@@ -244,7 +244,7 @@ class Aspect:
         for c in self.cons:
             c.show(descriptive)
 
-    def sol(
+    def output(
         self,
         n_sol: int = 0,
         aslist: bool = False,
@@ -267,7 +267,7 @@ class Aspect:
         :rtype: list[float] | None
         """
         var: Var = getattr(self.program, self.name)
-        return var.sol(n_sol, aslist=aslist, asdict=asdict, compare=compare)
+        return var.output(n_sol, aslist=aslist, asdict=asdict, compare=compare)
 
     def gettime(self, *index) -> list[Periods]:
         """Finds the sparsest time scale in the domains"""
@@ -309,7 +309,7 @@ class Aspect:
         if not z:
             ax.plot(
                 [i.name for i in x.I._],
-                self.V(*index).sol(True),
+                self.V(*index).output(True),
                 linewidth=linewidth,
                 color=color,
             )
@@ -318,7 +318,7 @@ class Aspect:
                 index = [i.I for i in (z_,) + y + (x,)]
                 ax.plot(
                     [i.name for i in x.I._],
-                    self.V(*index).sol(True),
+                    self.V(*index).output(True),
                     linewidth=linewidth,
                     label=z_.label if z_.label else z_.name,
                 )

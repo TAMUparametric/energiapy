@@ -221,7 +221,7 @@ m.usd.spend.opt()
 # In[19]:
 
 
-m.sol()
+m.output()
 
 
 # ### Individual
@@ -231,5 +231,5 @@ m.sol()
 # In[20]:
 
 
-m.operate.sol()
+m.operate.output()
 
