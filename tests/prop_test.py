@@ -1,6 +1,6 @@
 import pytest
 
-from energia import Resource, Model, Periods, Location, Process, Unit
+from energia import Resource, Model, Periods, Location, Process
 from operator import is_
 
 

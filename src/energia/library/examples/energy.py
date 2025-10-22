@@ -60,8 +60,8 @@ def scheduling():
     # $\mathbf{rlse}_{power, network, quarter_3} \geq 30$
     #
 
-    m.wind.consume <= 400
-    m.power.release.prep(100) >= [0.6, 0.7, 1, 0.3]
+    _ = m.wind.consume <= 400
+    _ = m.power.release.prep(100) >= [0.6, 0.7, 1, 0.3]
 
     # Check the model anytime, using m.show(), or object.show()
     #
