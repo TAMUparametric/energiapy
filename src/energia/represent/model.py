@@ -690,7 +690,6 @@ class Model:
     # ------------------------------------------------------------------------
 
     # * I Mathematical
-
     def show(
         self,
         descriptive: bool = False,
@@ -710,7 +709,6 @@ class Model:
         self.program.show(descriptive, categorical=categorical, category=category)
 
     # * II Graphical
-
     def draw(self, variable: Aspect | Sample | None = None, n_sol: int = 0):
             """
             Draw the solution for a variable
@@ -728,44 +726,14 @@ class Model:
                 self.program.draw(n_sol=n_sol)
 
     # * III Solution
-
     def output(self, n_sol: int = 0, slack: bool = True, compare: bool = False):
         """Solution"""
         return self.program.output(n_sol=n_sol, slack=slack, compare=compare)
     
 
     # ------------------------------------------------------------------------
-    # * Solution Generation, Handling and Analysis
+    # * Solution Prep, Generation, and  Handling
     # ------------------------------------------------------------------------
-
-
-
-    def eval(
-        self, *theta_vals: float, n_sol: int = 0, roundoff: int = 4
-    ) -> list[float]:
-        """
-        Evaluate the objective function at given theta values
-
-        :param theta_vals: values for the parametric variables
-        :type theta_vals: float
-        :param n_sol: solution number to evaluate, defaults to 0
-        :type n_sol: int, optional
-        :param roundoff: number of decimal places to round off to, defaults to 4
-        :type roundoff: int, optional
-
-        :return: list of objective function values
-        :rtype: list[float]
-        """
-        return self.program.eval(*theta_vals, n_sol=n_sol, roundoff=roundoff)
-
-    def save(self, as_type: str = "dill"):
-        """Save the Model to a file"""
-        if as_type == "dill":
-            with open(self.name + ".energia", "wb") as f:
-                dump(self.solution, f)
-        else:
-            raise ValueError(f"Unknown type {as_type} for saving the model")
-
     def locate(self, *operations: Process | Storage):
         """Locate operations in the network
 
@@ -774,6 +742,7 @@ class Model:
         """
         self.network.locate(*operations)
 
+    # * Optimization 
     def solve(
         self,
         using: Literal[
@@ -810,8 +779,39 @@ class Model:
         """
 
         self.program.solve(using=using)
+
+    # * Solution evaluation 
+    def eval(
+        self, *theta_vals: float, n_sol: int = 0, roundoff: int = 4
+    ) -> list[float]:
+        """
+        Evaluate the objective function at given theta values
+
+        :param theta_vals: values for the parametric variables
+        :type theta_vals: float
+        :param n_sol: solution number to evaluate, defaults to 0
+        :type n_sol: int, optional
+        :param roundoff: number of decimal places to round off to, defaults to 4
+        :type roundoff: int, optional
+
+        :return: list of objective function values
+        :rtype: list[float]
+        """
+        return self.program.eval(*theta_vals, n_sol=n_sol, roundoff=roundoff)
+    
+
+    # * Saving
+    def save(self, as_type: str = "dill"):
+        """Save the Model to a file"""
+        if as_type == "dill":
+            with open(self.name + ".energia", "wb") as f:
+                dump(self.solution, f)
+        else:
+            raise ValueError(f"Unknown type {as_type} for saving the model")
+        
+
     # ------------------------------------------------------------------------
-    # * Solution Generation and Analysis
+    # * Default Components
     # ------------------------------------------------------------------------
     
     
@@ -853,7 +853,7 @@ class Model:
 
 
     # -------------------------------------------------------------------
-    # * Attribute Handling
+    # * Attribute Setting and Getting
     # -------------------------------------------------------------------
 
     def __setattr__(self, name, value):
@@ -907,23 +907,31 @@ class Model:
             component = self.default_components[name]()
             return component
 
-        # 
+        # Inherits collections based on ancestry
         if name in self.ancestry:
             dimension = getattr(self, self.ancestry[name])
             collection = getattr(dimension, name)
             setattr(self, name, collection)
             return collection
-
+        
+        # Program attributes
         if name in self.program_attrs:
-            collection = getattr(self.program_attrs[name], name)
+            collection = getattr(self.program, name)
             setattr(self, name, collection)
             return collection
 
+        # properties from dimensions and representations
+        if name in self.properties:
+            return getattr(self.properties[name], name)
+
+        # already declare and mapped to aspect
         if name in self.registry:
-            # if attribute has been called before
-            # the next time the created attribute is returned
             return self.registry[name]
 
+        if name in self.manual:
+            return self.manual[name]
+
+        # Recipe for defining aspects
         if name in self.cookbook:
             recipe = self.cookbook[name]
 
@@ -931,14 +939,8 @@ class Model:
             setattr(self, name, aspect)
 
             return aspect
-
-        if name in self.properties:
-            return getattr(self.properties[name], name)
-
-
-        if name in self.manual:
-            return self.manual[name]
-
+        
+        # maps many attribute names to aspects
         if name in self.directory:
             # if this is an attribute being called for the first time
             recipe = self.directory[name]
@@ -963,6 +965,10 @@ class Model:
         )
     
 
+    # ---------------------------------------------------------------
+    # * Call to Initialize using functions and Hashing
+    # ---------------------------------------------------------------
+
     def __call__(self, *funcs: Callable[Self]):
         """Set functions on the model
 
@@ -973,9 +979,6 @@ class Model:
         for f in funcs:
             f(self)
 
-    # -----------------------------------------------------
-    #                    Hashing
-    # -----------------------------------------------------
 
     def __str__(self):
         return self.name
