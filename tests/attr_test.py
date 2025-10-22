@@ -18,7 +18,7 @@ def m():
         label='Operational Capacity',
         latex='cap',
     )
-    m.alias('d', 'b', to='gg')
+    m.alias('d', 'b', of='gg')
     return m
 
 

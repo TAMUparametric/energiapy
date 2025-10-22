@@ -320,14 +320,14 @@ class Model:
         # * Books of Maps
         # --------------------------------------------------------------------
         # Maps between:
-        # user_input_attr -> matching_aspect -> Recipe
-        self.directory: dict[str, dict[str, Recipe]] = {}
-        # already_defined_user_input_attr -> matching_aspect
-        self.registry: dict[str, Aspect] = {}
         # matching_aspect -> Recipe
         self.cookbook: dict[str, Recipe] = {}
         # parameter_name -> parameter_handling_instruction
         self.manual: dict[str, Instruction] = {}
+        # already_defined_user_input_attr -> matching_aspect
+        self.registry: dict[str, Aspect] = {}
+        # user_input_attr -> matching_aspect -> Recipe
+        self.directory: dict[str, dict[str, Recipe]] = {}
 
         # --------------------------------------------------------------------
         # * Constraint Ledger
@@ -585,7 +585,7 @@ class Model:
             )
             self.cookbook[neg] = neg_recipe
 
-    def alias(self, *names: str, to: str):
+    def alias(self, *names: str, of: str):
         """Set aspect aliases
 
         :param names: Names of the aliases
@@ -593,7 +593,7 @@ class Model:
         :param to: Name of the aspect to which the aliases point
         :type to: str
         """
-        _add = dict.fromkeys(list(names), {to: self.cookbook[to]})
+        _add = dict.fromkeys(list(names), {of: self.cookbook[of]})
         self.directory = {**self.directory, **_add}
 
     def Instruction(
@@ -946,7 +946,6 @@ class Model:
             setattr(self, name, aspect)
 
             return aspect
-
         # maps many attribute names to aspects
         if name in self.directory:
             # if this is an attribute being called for the first time

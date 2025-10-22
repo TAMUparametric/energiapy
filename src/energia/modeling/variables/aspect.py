@@ -234,7 +234,7 @@ class Aspect:
         :param names: Names of the aliases
         :type names: str
         """
-        self.model.alias(*names, to=self.name)
+        self.model.alias(*names, of=self.name)
 
     def update(self, domain: Domain, reporting: bool = False):
         """Each inherited object has their own"""
@@ -384,7 +384,7 @@ class Aspect:
                 Modes: ("modes", None, False),
                 _Commodity: ("commodity", None, True),
             }
-    
+
             binds: list[Sample] = []
             timed, spaced = False, False
 
