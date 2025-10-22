@@ -206,59 +206,93 @@ class Model:
 
         # Temporal Scope
         self.time = Time(self)
-        _time_attrs = {'periods', 'modes'}
         # Spatial Scope
-        self.space = Space(self)
-        _space_attrs = {i: self.time for i in ['locations', 'sources', 'sinks', 'linkages']}
-        
-
+        self.space = Space(self)        
         # Impact on the exterior
         self.consequence = Consequence(self)
-
         # System (Resource Task Network)
         self.system = System(self)
-
         # Graph (Network)
         self.graph = Graph(self)
-
         # the problem
         self.problem = Problem(self)
-
         # mathematical program
         self.program = Program(model=self)
         # shorthand
         self._ = self.program
 
-        # Things to get 
-        _program_attrs = {i: self.program for i in [
-            "constraint_sets",
-            "function_sets",
-            "variable_sets",
-            "parameter_sets",
-            "theta_sets",
-            "index_sets",
-            "constraints",
-            "functions",
-            "variables",
-            "thetas",
-            "indices",
-            "objectives",
-            "A",
-            "B",
-            "C",
-            "F",
-            "G",
-            "H",
-            "CrA",
-            "CrB",
-            "NN",
-            "A_with_NN",
-            "B_with_NN",
-            "Z",
-            "P",
+        # Start with patterened
+
+        _program_attrs =    [ 
+            "constraint",
+            "function",
+            "variable",
+            "parameter",
+            "theta",
         ]
+
+        _program_attrs += [w + s for w in _program_attrs for s in ['s', '_sets']]
+        _program_attrs += ["index_sets", "indices", "objectives", "parameter_sets", "solution"]
+        _program_attrs += ['n_' + w for w in _program_attrs]
+        _program_attrs = {i: self.program for i in  _program_attrs}
+        _program_properties = {i: self.program for i in [ "A","B","C","F","G","H","CrA","CrB","NN","A_with_NN","B_with_NN","Z","P", ]}
+
+        self.properties = {
+            "horizon": self.time, 
+            "network": self.space,
+            "indicators": self.consequence, 
+            "operations": self.system, 
+            "aspects": self.problem,
+            "domains": self.problem,
+            **_program_properties
         }
-   
+
+        # ``
+
+        # index_sets
+        # indices
+        # objectives
+        # parameter_sets
+
+        # variable_sets
+        # variables
+        # theta_sets
+        # thetas
+
+        # function_sets
+        # functions
+
+        # constraint_sets
+        # constraints
+
+
+
+        # n_index_sets
+        # n_index_elements
+        # n_variable_sets
+        # n_variables
+        # n_parameter_sets
+        # n_theta_sets
+        # n_thetas
+        # n_function_sets
+        # n_functions
+        # n_constraint_sets
+        # n_constraints
+        # n_objectives
+
+        # formulation
+        # solution
+        # evaluation
+
+        # X 
+        # n_sol
+
+
+        # formulation
+        # n_for
+        # n_eval
+        # sol_types
+
 
         self.ancestry = {**_program_attrs}
 
@@ -279,12 +313,13 @@ class Model:
         # -----------------------------------------------
         #  Books
         # -----------------------------------------------
+        # The contrain maps of 
 
-        # map of attribute names to recipes for creating them
+        # attribute names to recipes
+        # recipes have not 
         self.directory: dict[str, dict[str, Recipe]] = {}
 
-        # added attribute mappings to the created Aspect objects
-        
+        # maps
         self.registry: dict[str, Aspect] = {}
 
         # maps to recipes for creating aspects
@@ -357,41 +392,50 @@ class Model:
         self.maps_report: dict[Aspect, dict[Domain, dict[str, list[Domain]]]] = {}
 
 
-        # self.directory = {'grb': self.grb, ''}
 
     # -----------------------------------------------------
     #              Set Component
     # -----------------------------------------------------
 
-    @property
-    def horizon(self) -> Periods:
-        """The horizon of the Model"""
-        return self.time.horizon
+    # @property
+    # def horizon(self) -> Periods:
+    #     """The horizon of the Model"""
+    #     return self.time.horizon
 
-    @property
-    def network(self) -> Location:
-        """The network of the Model"""
-        return self.space.network
+    # @property
+    # def network(self) -> Location:
+    #     """The network of the Model"""
+    #     return self.space.network
 
-    @property
-    def indicators(self) -> list[Social | Environ | Economic]:
-        """Indicators"""
-        return self.consequence.indicators
+    # @property
+    # def indicators(self) -> list[Social | Environ | Economic]:
+    #     """Indicators"""
+    #     return self.consequence.indicators
 
-    @property
-    def operations(self) -> list[Process | Storage | Transport]:
-        """The Operations"""
-        return self.system.operations
+    # @property
+    # def operations(self) -> list[Process | Storage | Transport]:
+    #     """The Operations"""
+    #     return self.system.operations
 
-    @property
-    def solution(self) -> dict[int, Solution | MPSolution]:
-        """The solution of the program"""
-        return self.program.solution
+    # @property
+    # def solution(self) -> dict[int, Solution | MPSolution]:
+    #     """The solution of the program"""
+    #     return self.program.solution
 
-    @property
-    def formulation(self) -> dict[int, GPModel | MPLP_Program]:
-        """The formulations of the program"""
-        return self.program.formulation
+    # @property
+    # def formulation(self) -> dict[int, GPModel | MPLP_Program]:
+    #     """The formulations of the program"""
+    #     return self.program.formulation
+    
+    # @property
+    # def aspects(self) -> list[Impact | Stream | Control | State]:
+    #     """All Decisions"""
+    #     return self.problem.aspects
+
+    # @property
+    # def domains(self) -> list[Domain]:
+    #     """All Domains"""
+    #     return self.problem.domains
 
     def update(
         self,
@@ -535,8 +579,11 @@ class Model:
 
             return aspect
 
-        if name in self.manual:
+        if name in self.properties:
+            return getattr(self.properties[name], name)
 
+
+        if name in self.manual:
             return self.manual[name]
 
         if name in self.directory:
