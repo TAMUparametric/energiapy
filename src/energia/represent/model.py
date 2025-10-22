@@ -199,11 +199,35 @@ class Model:
             Impact: ("problem", "impacts"),
         }
 
+        # 
         self.dimension_map = {
             collection: dimension for dimension, collection in self.update_map.values()
         }
 
-        self.program_collections = [
+        # Temporal Scope
+        self.time = Time(self)
+        # Spatial Scope
+        self.space = Space(self)
+
+        # Impact on the exterior
+        self.consequence = Consequence(self)
+
+        # System (Resource Task Network)
+        self.system = System(self)
+
+        # Graph (Network)
+        self.graph = Graph(self)
+
+        # the problem
+        self.problem = Problem(self)
+
+        # mathematical program
+        self.program = Program(model=self)
+        # shorthand
+        self._ = self.program
+
+        # Things to get 
+        _program_attrs = {i: self.program for i in [
             "constraint_sets",
             "function_sets",
             "variable_sets",
@@ -230,6 +254,12 @@ class Model:
             "Z",
             "P",
         ]
+        }
+   
+
+        self.ancestry = {**_program_attrs}
+
+        
 
         # if any of these attributes are called,
         # or an exiting one is returned
@@ -243,11 +273,15 @@ class Model:
 
         self.graph_components = ["edges", "nodes"]
 
+        # -----------------------------------------------
+        #  Books
+        # -----------------------------------------------
+
         # map of attribute names to recipes for creating them
         self.directory: dict[str, dict[str, Recipe]] = {}
 
-        # added attributes mapping to the created Aspect objects
-
+        # added attribute mappings to the created Aspect objects
+        
         self._attr_map: dict[str, Aspect] = {}
 
         # maps to recipes for creating aspects
@@ -256,27 +290,6 @@ class Model:
         # maps to parameters for calculations
         self.manual: dict[str, Instruction] = {}
 
-        # Temporal Scope
-        self.time = Time(self)
-        # Spatial Scope
-        self.space = Space(self)
-
-        # Impact on the exterior
-        self.consequence = Consequence(self)
-
-        # System (Resource Task Network)
-        self.system = System(self)
-
-        # Graph (Network)
-        self.graph = Graph(self)
-
-        # the problem
-        self.problem = Problem(self)
-
-        # mathematical program
-        self.program = Program(model=self)
-        # shorthand
-        self._ = self.program
 
         # measuring units
         self.units: list[Unit] = []
@@ -484,18 +497,25 @@ class Model:
 
     def __getattr__(self, name):
 
+        # if something like t, t0 is called
+        # just return a default component
+        # t/t0, l/l0, cash, money
+        # this will not intefere with the setting of 
+        # attributes what this name
         if name in self.default_components:
             component = self.default_components[name]()
             return component
 
+        # 
         if name in self.dimension_map:
             dimension = getattr(self, self.dimension_map[name])
             collection = getattr(dimension, name)
             setattr(self, name, collection)
             return collection
 
-        if name in self.program_collections:
-            collection = getattr(self.program, name)
+        if name in self.ancestry:
+
+            collection = getattr(self.ancestry[name], name)
             setattr(self, name, collection)
             return collection
 
@@ -864,7 +884,6 @@ class Model:
         """Return a default currency"""
         if self.currencies:
             return self.currencies[0]
-
         self.cash = Currency(label="$")
         return self.cash
 
