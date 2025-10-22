@@ -443,3 +443,8 @@ class Aspect:
     def __init_subclass__(cls):
         cls.__repr__ = Aspect.__repr__
         cls.__hash__ = Aspect.__hash__
+
+    def __iter__(self):
+        """Iterate over domains"""
+        for d in self.domains:
+            yield self(domain=d)

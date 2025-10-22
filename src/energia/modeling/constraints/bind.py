@@ -251,3 +251,4 @@ class Bind:
 
         end = keep_time.time()
         logger.info("\u2714 Completed in %s seconds", end - start)
+

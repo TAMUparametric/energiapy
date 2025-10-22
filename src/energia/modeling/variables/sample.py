@@ -18,6 +18,8 @@ logger = logging.getLogger("energia")
 
 if TYPE_CHECKING:
     from gana.sets.constraint import C
+    from gana.sets.function import F
+    from gana.sets.program import Prg
 
     from ..._core._component import _Component
     from ..._core._x import _X
@@ -626,72 +628,71 @@ class Sample:
     def __hash__(self):
         return hash(self.name)
 
+    # This is for binding sample operations, eg. sample + sample or sample - sample
 
-# This is for binding sample operations, eg. sample + sample or sample - sample
+    def __add__(self, other: Self | FuncOfSamples):
+        if isinstance(other, (int, float)):
+            return FuncOfSamples(F=self.F + other, program=self.program)
+        return FuncOfSamples(F=self.F + other.F, program=self.program)
+
+    def __radd__(self, other):
+        if not other:
+            return self
+
+    def __sub__(self, other: Self | FuncOfSamples):
+        if isinstance(other, (int, float)):
+            return FuncOfSamples(F=self.F - other, program=self.program)
+        return FuncOfSamples(F=self.F - other.F, program=self.program)
+
+    def __rsub__(self, other: int | float):
+        return FuncOfSamples(F=other - self.F, program=self.program)
+
+    def __mul__(self, other: Self | FuncOfSamples):
+        return FuncOfSamples(F=self.F * other.F, program=self.program)
+
+    def __rmul__(self, other: int | float):
+        return FuncOfSamples(F=other * self.F, program=self.program)
 
 
-#    def __add__(self, other: Self | FBind):
-#         if isinstance(other, (int, float)):
-#             return FBind(F=self.F + other, program=self.program)
-#         return FBind(F=self.F + other.F, program=self.program)
+class FuncOfSamples:
+    """Some Function of Samples
 
-#     def __radd__(self, other):
-#         if not other:
-#             return self
+    This is used to bind a function of variables to a given parameter (set)
 
-#     def __sub__(self, other: Self | FBind):
-#         if isinstance(other, (int, float)):
-#             return FBind(F=self.F - other, program=self.program)
-#         return FBind(F=self.F - other.F, program=self.program)
+    """
 
-#     def __rsub__(self, other: int | float):
-#         return FBind(F=other - self.F, program=self.program)
+    def __init__(self, F: F, program: Prg):
+        self.program = program
+        self.F = F
 
-#     def __mul__(self, other: Self | FBind):
-#         return FBind(F=self.F * other.F, program=self.program)
+    def __add__(self, other: Self | Sample):
+        if isinstance(other, (int, float)):
+            return FuncOfSamples(F=self.F + other, program=self.program)
+        return FuncOfSamples(F=self.F + other.F, program=self.program)
 
-#     def __rmul__(self, other: int | float):
-#         return FBind(F=other * self.F, program=self.program)
+    def __radd__(self, other):
+        if not other:
+            return self
 
-# class FBind:
-#     """Function Bind
+    def __sub__(self, other: Self | Sample):
+        if isinstance(other, (int, float)):
+            return FuncOfSamples(F=self.F - other, program=self.program)
+        return FuncOfSamples(F=self.F - other.F, program=self.program)
 
-#     This is used to bind a function of variables to a given parameter (set)
+    def __rsub__(self, other: int | float):
+        return FuncOfSamples(F=other - self.F, program=self.program)
 
-#     """
+    def __mul__(self, other: Self | Sample):
+        return FuncOfSamples(F=self.F * other.F, program=self.program)
 
-#     def __init__(self, F: F, program: Prg):
-#         self.program = program
-#         self.F = F
+    def __rmul__(self, other: int | float):
+        return FuncOfSamples(F=other * self.F, program=self.program)
 
-#     def __add__(self, other: Self | Sample):
-#         if isinstance(other, (int, float)):
-#             return FBind(F=self.F + other, program=self.program)
-#         return FBind(F=self.F + other.F, program=self.program)
+    def __eq__(self, other):
+        setattr(self.program, f"eq_{self.F.name}", self.F == other)
 
-#     def __radd__(self, other):
-#         if not other:
-#             return self
+    def __le__(self, other):
+        setattr(self.program, f"le_{self.F.name}", self.F <= other)
 
-#     def __sub__(self, other: Self | Sample):
-#         if isinstance(other, (int, float)):
-#             return FBind(F=self.F - other, program=self.program)
-#         return FBind(F=self.F - other.F, program=self.program)
-
-#     def __rsub__(self, other: int | float):
-#         return FBind(F=other - self.F, program=self.program)
-
-#     def __mul__(self, other: Self | Sample):
-#         return FBind(F=self.F * other.F, program=self.program)
-
-#     def __rmul__(self, other: int | float):
-#         return FBind(F=other * self.F, program=self.program)
-
-#     def __eq__(self, other):
-#         setattr(self.program, f"eq_{self.F.name}", self.F == other)
-
-#     def __le__(self, other):
-#         setattr(self.program, f"le_{self.F.name}", self.F <= other)
-
-#     def __ge__(self, other):
-#         setattr(self.program, f"ge_{self.F.name}", self.F >= other)
+    def __ge__(self, other):
+        setattr(self.program, f"ge_{self.F.name}", self.F >= other)
