@@ -221,15 +221,13 @@ class Conversion(_Name):
                 self.pwl = True
             self._mode = None
         else:
-            print('wewe')
-            print(self.balance, other.balance)
             self.balance: dict[Resource, int | float] = {
                 **self.balance,
                 **other.balance,
             }
-            return self
 
         self.model.convmatrix[self.operation] = self.balance
+        return self
 
     # these update the conversion of the resource (self.conversion)
     def __add__(self, other: Conversion) -> Self:
