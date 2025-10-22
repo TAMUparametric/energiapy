@@ -14,9 +14,9 @@ energia.dimensions.problem
 
    .. autosummary::
    
+      Consequence
       Control
       Domain
-      Impact
       Problem
       State
       Stream

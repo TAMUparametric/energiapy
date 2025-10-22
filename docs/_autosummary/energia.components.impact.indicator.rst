@@ -1,4 +1,4 @@
-﻿energia.components.impact.indicator
+energia.components.impact.indicator
 ===================================
 
 .. automodule:: energia.components.impact.indicator

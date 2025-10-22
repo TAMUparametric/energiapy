@@ -10,7 +10,8 @@ energia.dimensions
    :toctree:
    :recursive:
 
-   consequence
+   game
+   impact
    problem
    space
    system

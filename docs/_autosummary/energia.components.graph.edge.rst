@@ -1,4 +1,4 @@
-﻿energia.components.graph.edge
+energia.components.graph.edge
 =============================
 
 .. automodule:: energia.components.graph.edge

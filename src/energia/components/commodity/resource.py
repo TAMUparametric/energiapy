@@ -79,11 +79,6 @@ class Resource(_Commodity):
 
         return self.consume[self.model.HTP.emit]
 
-    # @property
-    # def demand(self) -> Calculate:
-    #     """Demand (alias for the Aspect release)"""
-    #     return self.release
-
     @property
     def price(self) -> Calculate:
         """Cost of consume"""

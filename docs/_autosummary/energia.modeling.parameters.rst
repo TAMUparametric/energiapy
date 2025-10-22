@@ -1,4 +1,4 @@
-﻿energia.modeling.parameters
+energia.modeling.parameters
 ===========================
 
 .. automodule:: energia.modeling.parameters
@@ -12,5 +12,4 @@
 
    conversion
    instruction
-   multiplier
    value

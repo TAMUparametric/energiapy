@@ -1,4 +1,4 @@
-﻿energia.components.graph.node
+energia.components.graph.node
 =============================
 
 .. automodule:: energia.components.graph.node

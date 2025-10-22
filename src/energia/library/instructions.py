@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from .._core._operation import _Operation
+from ..components.commodity.resource import _Commodity
 from ..components.commodity.stored import Stored
 
 if TYPE_CHECKING:
@@ -47,4 +48,17 @@ def costing_operation(model: Model):
         depending="spend",
         default="money",
         label="Inventory Cost (Storage)",
+    )
+
+
+def costing_commodity(model: Model):
+    """Sets costing parameters for resources"""
+
+    model.Instruction(
+        name="price",
+        kind=_Commodity,
+        deciding="consume",
+        depending="spend",
+        default="money",
+        label="Resource Price",
     )

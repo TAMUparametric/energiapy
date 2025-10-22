@@ -1,4 +1,4 @@
-﻿energia.components.operation.storage
+energia.components.operation.storage
 ====================================
 
 .. automodule:: energia.components.operation.storage

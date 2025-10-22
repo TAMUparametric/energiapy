@@ -9,8 +9,6 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Literal, Self, Type
 
 from dill import dump
-from ppopt.mplp_program import MPLP_Program
-from ppopt.solution import Solution as MPSolution
 
 from .._core._x import _X
 from ..components.commodity.currency import Currency
@@ -20,8 +18,8 @@ from ..components.commodity.material import Material
 from ..components.commodity.resource import Resource
 from ..components.game.couple import Interact
 from ..components.game.player import Player
-from ..components.graph.edge import Edge
-from ..components.graph.node import Node
+# from ..components.graph.edge import Edge
+# from ..components.graph.node import Node
 from ..components.impact.categories import Economic, Environ, Social
 from ..components.measure.unit import Unit
 from ..components.operation.process import Process
@@ -38,7 +36,7 @@ from ..dimensions.space import Space
 from ..dimensions.system import System
 from ..dimensions.time import Time
 from ..library.aliases import aspect_aliases
-from ..library.instructions import costing_operation
+from ..library.instructions import costing_commodity, costing_operation
 from ..library.recipes import (capacity_sizing, economic, environmental,
                                free_movement, inventory_sizing, operating,
                                social, trade, usage)
@@ -62,9 +60,6 @@ logger.addHandler(ch)
 if TYPE_CHECKING:
     from enum import Enum
     from typing import DefaultDict
-
-    from gana.block.solution import Solution
-    from gurobipy import Model as GPModel
 
     from .._core._commodity import _Commodity
     from .._core._component import _Component
@@ -138,7 +133,7 @@ class Model:
     """
 
     name: str = "m"
-    init: list[Callable[Self]] | None = None
+    init: list[Callable[[Self]]] | None = None
     default: bool = True
     capacitate: bool = False
 
@@ -388,6 +383,7 @@ class Model:
 
         if self.default:
             self.init += [
+                # Recipes
                 capacity_sizing,
                 operating,
                 inventory_sizing,
@@ -398,7 +394,9 @@ class Model:
                 social,
                 usage,
                 aspect_aliases,
+                # Instructions
                 costing_operation,
+                costing_commodity,
             ]
 
         for func in self.init:

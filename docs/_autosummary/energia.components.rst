@@ -8,11 +8,11 @@ energia.components
 
    .. autosummary::
    
-      Couple
       Currency
       Economic
       Emission
       Environ
+      Interact
       Land
       Linkage
       Location

@@ -1,4 +1,4 @@
-﻿energia.components.game.player
+energia.components.game.player
 ==============================
 
 .. automodule:: energia.components.game.player

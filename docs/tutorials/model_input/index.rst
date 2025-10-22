@@ -14,4 +14,4 @@ calculations
 
    cookbook 
    manual
-   aliases
+   attributes

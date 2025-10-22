@@ -8,7 +8,7 @@ energia.components.game
 
    .. autosummary::
    
-      Couple
+      Interact
       Player
    
 .. rubric:: Modules

@@ -1,4 +1,4 @@
-﻿energia.represent.model
+energia.represent.model
 =======================
 
 .. automodule:: energia.represent.model
@@ -29,15 +29,15 @@
       Callable
       Consequence
       Control
-      Conversion
-      Couple
       Currency
       Economic
+      Edge
       Emission
       Environ
       Graph
       Impact
       Instruction
+      Interact
       Land
       Linkage
       Location
@@ -46,6 +46,7 @@
       Material
       Model
       Modes
+      Node
       Periods
       Player
       Problem

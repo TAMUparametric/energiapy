@@ -1,4 +1,4 @@
-﻿energia.components.game.couple
+energia.components.game.couple
 ==============================
 
 .. automodule:: energia.components.game.couple
@@ -8,5 +8,5 @@
 
    .. autosummary::
    
-      Couple
+      Interact
    

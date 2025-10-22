@@ -64,6 +64,8 @@ class _X(ABC):
     @cached_property
     def program(self) -> Prg:
         """Mathematical program"""
+        if self.model is None:
+            raise ValueError(f"{type(self)} needs to be assign as Model attribute")
         return self.model.program
 
     @property
@@ -92,6 +94,7 @@ class _X(ABC):
     # The reprs are set independently without inheriting _Name
     # which allows a distinction between
     # _Name and _Index when assigned to Model
+    # If needed
 
     # -----------------------------------------------------
     #                    Hashing
