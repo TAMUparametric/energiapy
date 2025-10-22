@@ -107,7 +107,7 @@ def aspect_aliases(m: Model):
     """
 
     for aspect, aliases in default_aliases.items():
-        m.aliases(*aliases, to=aspect)
+        m.alias(*aliases, to=aspect)
 
 
 # FOR TESTING PURPOSES ONLY

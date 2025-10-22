@@ -151,17 +151,17 @@ class Model:
         # an object of a particular type belongs to
 
         # --------------------------------------------------------------------
-        # * Component Mapping to Dimension and Collection 
+        # * Component Mapping to Dimension and Collection
         # --------------------------------------------------------------------
-        #Dimensions in brackets
-        self.familytree = {            
+        # Dimensions in brackets
+        self.familytree = {
             # * I Temporal (Time):
             # 1.  Periods (Periods) generates a bespoke discretization.
             Periods: ("time", "periods"),
-            # 2. Modes discrete options in the same time 
+            # 2. Modes discrete options in the same time
             Modes: ("time", "modes"),
             # * II Spatial (Space):
-            # Spatial representation (Space). 
+            # Spatial representation (Space).
             # 1. a bespoke discretization.
             Location: ("space", "locations"),
             # 2. link between them
@@ -174,7 +174,7 @@ class Model:
             Land: ("system", "lands"),
             # 3. Emission (Emission) resource
             Emission: ("system", "emissions"),
-            # Resource is a general Commodity 
+            # Resource is a general Commodity
             # These are Resource subsets
             # 1. Material (Material) used to setup processes
             Material: ("system", "materials"),
@@ -183,11 +183,11 @@ class Model:
             # * IV Operations (System):
             # 1. A production operation (Process) involves conversion of resources
             Process: ("system", "processes"),
-            # 2. A transport operation (Transport) which describes a task in the system 
+            # 2. A transport operation (Transport) which describes a task in the system
             # that involves transporting resources from
             #    one location to another.
             Transport: ("system", "transports"),
-            # 3. A storage operation (Storage) stores (charges) 
+            # 3. A storage operation (Storage) stores (charges)
             # and retrieves (discharge) resources
             Storage: ("system", "storages"),
             # *V Indicators (Consequence):
@@ -208,13 +208,13 @@ class Model:
             Interact: ("game", "interacts"),
             # * VII Problem Aspects
             # The problem at hand
-            #1. to control the volume of streams
+            # 1. to control the volume of streams
             Control: ("problem", "controls"),
-            #2. movement
+            # 2. movement
             Stream: ("problem", "streams"),
-            #3. size, quantity
+            # 3. size, quantity
             State: ("problem", "states"),
-            #4. consequence
+            # 4. consequence
             Consequence: ("problem", "consequences"),
         }
 
@@ -232,7 +232,7 @@ class Model:
         # * 1. Time with Periods and Modes
         self.time = Time(self)
         # * 2. Space with Locations and Linkages
-        self.space = Space(self)        
+        self.space = Space(self)
         # * 3. Impact with Indicator categories
         self.impact = Impact(self)
         # * 4. System (Resource Task Network)
@@ -251,7 +251,7 @@ class Model:
         # * Attributes Inherited from Dimensions or Representations
         # --------------------------------------------------------------------
         # Start with patterened
-        self.program_attrs =    [ 
+        self.program_attrs = [
             "constraint",
             "function",
             "variable",
@@ -259,28 +259,50 @@ class Model:
             "theta",
         ]
         # word -> words and word_sets
-        self.program_attrs += [w + s for w in self.program_attrs for s in ['s', '_sets']]
-        self.program_attrs += ["solution", "formulation",  "evaluation"]
+        self.program_attrs += [
+            w + s for w in self.program_attrs for s in ['s', '_sets']
+        ]
+        self.program_attrs += ["solution", "formulation", "evaluation"]
         # word -> n_word
         self.program_attrs += ['n_' + w for w in self.program_attrs]
-        self.program_attrs += ["index_sets", "indices", "objectives", "parameter_sets", "X"]
+        self.program_attrs += [
+            "index_sets",
+            "indices",
+            "objectives",
+            "parameter_sets",
+            "X",
+        ]
         # self.program_attrs = {i: self.program for i in  self.program_attrs}
-        
+
         # properties that can be called by model
         # these never get set
-        _program_matrices = [ "A","B","C","F","G","H","CrA","CrB","NN","A_with_NN","B_with_NN","Z","P",]
+        _program_matrices = [
+            "A",
+            "B",
+            "C",
+            "F",
+            "G",
+            "H",
+            "CrA",
+            "CrB",
+            "NN",
+            "A_with_NN",
+            "B_with_NN",
+            "Z",
+            "P",
+        ]
         self.properties = {
-            "horizon": self.time, 
+            "horizon": self.time,
             "network": self.space,
-            "indicators": self.impact, 
-            "operations": self.system, 
+            "indicators": self.impact,
+            "operations": self.system,
             "aspects": self.problem,
             "domains": self.problem,
             **{i: self.program for i in _program_matrices},
         }
 
         # --------------------------------------------------------------------
-        # * Default Components 
+        # * Default Components
         # --------------------------------------------------------------------
         # if any of these attributes are called,
         # or an exiting one is returned
@@ -295,7 +317,7 @@ class Model:
         self.graph_components = ["edges", "nodes"]
 
         # --------------------------------------------------------------------
-        # * Books of Maps 
+        # * Books of Maps
         # --------------------------------------------------------------------
         # Maps between:
         # user_input_attr -> matching_aspect -> Recipe
@@ -306,7 +328,6 @@ class Model:
         self.cookbook: dict[str, Recipe] = {}
         # parameter_name -> parameter_handling_instruction
         self.manual: dict[str, Instruction] = {}
-
 
         # --------------------------------------------------------------------
         # * Constraint Ledger
@@ -349,7 +370,6 @@ class Model:
             "paradigm": [],
         }
 
-
         # --------------------------------------------------------------------
         # * Model Initialization
         # --------------------------------------------------------------------
@@ -374,8 +394,6 @@ class Model:
 
         for func in self.init:
             func(self)
-
-
 
     # -------------------------------------------------------------------
     # * Updates Component based on familytree
@@ -447,8 +465,6 @@ class Model:
 
                 if aspect.neg is not None:
                     setattr(value, aspect.neg.name, aspect.neg(value))
-
-
 
     # -------------------------------------------------------------------
     # * Birthing Procedures and Setting Aliases
@@ -569,9 +585,7 @@ class Model:
             )
             self.cookbook[neg] = neg_recipe
 
-
-
-    def aliases(self, *names: str, to: str):
+    def alias(self, *names: str, to: str):
         """Set aspect aliases
 
         :param names: Names of the aliases
@@ -581,7 +595,6 @@ class Model:
         """
         _add = dict.fromkeys(list(names), {to: self.cookbook[to]})
         self.directory = {**self.directory, **_add}
-
 
     def Instruction(
         self,
@@ -710,26 +723,25 @@ class Model:
 
     # * II Graphical
     def draw(self, variable: Aspect | Sample | None = None, n_sol: int = 0):
-            """
-            Draw the solution for a variable
+        """
+        Draw the solution for a variable
 
-            :param variable: Variable to draw. Defaults to None.
-            :type variable: Aspect | Sample | None, optional
-            :param n_sol: Solution number to draw. Defaults to 0.
-            :type n_sol: int, optional
+        :param variable: Variable to draw. Defaults to None.
+        :type variable: Aspect | Sample | None, optional
+        :param n_sol: Solution number to draw. Defaults to 0.
+        :type n_sol: int, optional
 
-            """
-            if variable is not None:
-                self.program.draw(variable=variable.V(), n_sol=n_sol)
+        """
+        if variable is not None:
+            self.program.draw(variable=variable.V(), n_sol=n_sol)
 
-            else:
-                self.program.draw(n_sol=n_sol)
+        else:
+            self.program.draw(n_sol=n_sol)
 
     # * III Solution
     def output(self, n_sol: int = 0, slack: bool = True, compare: bool = False):
         """Solution"""
         return self.program.output(n_sol=n_sol, slack=slack, compare=compare)
-    
 
     # ------------------------------------------------------------------------
     # * Solution Prep, Generation, and  Handling
@@ -742,7 +754,7 @@ class Model:
         """
         self.network.locate(*operations)
 
-    # * Optimization 
+    # * Optimization
     def solve(
         self,
         using: Literal[
@@ -780,7 +792,7 @@ class Model:
 
         self.program.solve(using=using)
 
-    # * Solution evaluation 
+    # * Solution evaluation
     def eval(
         self, *theta_vals: float, n_sol: int = 0, roundoff: int = 4
     ) -> list[float]:
@@ -798,7 +810,6 @@ class Model:
         :rtype: list[float]
         """
         return self.program.eval(*theta_vals, n_sol=n_sol, roundoff=roundoff)
-    
 
     # * Saving
     def save(self, as_type: str = "dill"):
@@ -808,13 +819,11 @@ class Model:
                 dump(self.solution, f)
         else:
             raise ValueError(f"Unknown type {as_type} for saving the model")
-        
 
     # ------------------------------------------------------------------------
     # * Default Components
     # ------------------------------------------------------------------------
-    
-    
+
     def _t0(self, size: int = 0) -> Periods:
         """Return a default period
 
@@ -851,7 +860,6 @@ class Model:
         self.cash = Currency(label="$")
         return self.cash
 
-
     # -------------------------------------------------------------------
     # * Attribute Setting and Getting
     # -------------------------------------------------------------------
@@ -880,7 +888,6 @@ class Model:
                 self.update(name, value, *updates)
                 break
 
-
         # Special linkage instructions
         if isinstance(value, Linkage):
 
@@ -901,7 +908,7 @@ class Model:
         # if something like t, t0 is called
         # just return a default component
         # t/t0, l/l0, cash, money
-        # this will not intefere with the setting of 
+        # this will not intefere with the setting of
         # attributes what this name
         if name in self.default_components:
             component = self.default_components[name]()
@@ -913,7 +920,7 @@ class Model:
             collection = getattr(dimension, name)
             setattr(self, name, collection)
             return collection
-        
+
         # Program attributes
         if name in self.program_attrs:
             collection = getattr(self.program, name)
@@ -939,7 +946,7 @@ class Model:
             setattr(self, name, aspect)
 
             return aspect
-        
+
         # maps many attribute names to aspects
         if name in self.directory:
             # if this is an attribute being called for the first time
@@ -963,7 +970,6 @@ class Model:
         raise AttributeError(
             f"{self} has no '{name}'",
         )
-    
 
     # ---------------------------------------------------------------
     # * Call to Initialize using functions and Hashing
@@ -978,7 +984,6 @@ class Model:
 
         for f in funcs:
             f(self)
-
 
     def __str__(self):
         return self.name

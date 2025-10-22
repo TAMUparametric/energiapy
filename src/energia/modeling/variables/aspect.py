@@ -227,14 +227,14 @@ class Aspect:
         """Dispositions dict"""
         return self.model.dispositions[self]
 
-    def aliases(self, *names: str):
+    def alias(self, *names: str):
         """
         Create aliases for the decision
 
         :param names: Names of the aliases
         :type names: str
         """
-        self.model.aliases(*names, to=self.name)
+        self.model.alias(*names, to=self.name)
 
     def update(self, domain: Domain, reporting: bool = False):
         """Each inherited object has their own"""
