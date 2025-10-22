@@ -5,7 +5,7 @@ from .commodity.emission import Emission
 from .commodity.land import Land
 from .commodity.material import Material
 from .commodity.resource import Resource
-from .game.couple import Couple
+from .game.couple import Interact
 from .game.player import Player
 from .impact.categories import Economic, Environ, Social
 from .measure.unit import Unit
@@ -23,7 +23,7 @@ __all__ = [
     "Land",
     "Material",
     "Resource",
-    "Couple",
+    "Interact",
     "Player",
     "Economic",
     "Environ",

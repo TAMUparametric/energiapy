@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 from matplotlib import rc
 
 from ..._core._commodity import _Commodity
-from ...components.game.couple import Couple
+from ...components.game.couple import Interact
 from ...components.game.player import Player
 from ...components.impact.indicator import Indicator
 from ...components.operation.process import Process
@@ -379,7 +379,7 @@ class Aspect:
                 Storage: ("storage", None, True),
                 Transport: ("transport", None, True),
                 Player: ("player", None, False),
-                Couple: ("couple", None, False),
+                Interact: ("couple", None, False),
                 Indicator: ("indicator", None, False),
                 Modes: ("modes", None, False),
                 _Commodity: ("commodity", None, True),

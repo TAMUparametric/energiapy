@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from ..components.commodity.land import Land
     from ..components.commodity.material import Material
     from ..components.commodity.resource import Resource
-    from ..components.game.couple import Couple
+    from ..components.game.couple import Interact
     from ..components.game.player import Player
     from ..components.operation.process import Process
     from ..components.operation.storage import Storage
@@ -47,10 +47,6 @@ class System(_Dimension):
     :vartype storages: list[Storage]
     :ivar transports: List of transport operations. Defaults to [].
     :vartype transports: list[Transport]
-    :ivar players: List of players. Defaults to [].
-    :vartype players: list[Player]
-    :ivar couples: List of couples. Defaults to [].
-    :vartype couples: list[Couple]
     """
 
     def __post_init__(self):
@@ -67,10 +63,6 @@ class System(_Dimension):
         self.processes: list[Process] = []
         self.storages: list[Storage] = []
         self.transports: list[Transport] = []
-
-        # ------------Decision-Makers----------------------
-        self.players: list[Player] = []
-        self.couples: list[Couple] = []
 
         _Dimension.__post_init__(self)
 

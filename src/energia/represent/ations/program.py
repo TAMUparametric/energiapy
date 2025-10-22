@@ -56,8 +56,8 @@ class Program(Prg):
     :vartype controls: I
     :ivar streams: Streams index set
     :vartype streams: I
-    :ivar impacts: Consequences index set
-    :vartype impacts: I
+    :ivar consequences: Consequences index set
+    :vartype consequences: I
 
     .. note::
         - all the index sets are generated post initialization

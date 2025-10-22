@@ -1,4 +1,4 @@
-"""Couple"""
+"""Interact"""
 
 from __future__ import annotations
 
@@ -8,8 +8,8 @@ if TYPE_CHECKING:
     from .player import Player
 
 
-class Couple:
-    """Couple of players
+class Interact:
+    """Interaction between Players
     
     :param player1: First player
     :type player1: Player

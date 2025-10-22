@@ -38,22 +38,6 @@ class Graph:
         self.nodes = []
         self.edges = []
 
-    def __setattr__(self, name, value):
-        # give a name to the Node or Edge
-        # set self as the graph of the Node or Edge
-        # add the Node or Edge to the graph
-
-        if isinstance(value, Node):
-            value.name = name
-            value.graph = self
-            self.nodes.append(value)
-        elif isinstance(value, Edge):
-            value.name = name
-            value.graph = self
-            self.edges.append(value)
-
-        super().__setattr__(name, value)
-
     def __str__(self):
         return self.name
 

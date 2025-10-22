@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 from ..._core._component import _Component
 
 if TYPE_CHECKING:
-    from ...dimensions.consequence import Consequence
+    from ...dimensions.impact import Impact
     from ..measure.unit import Unit
 
 
@@ -44,6 +44,6 @@ class Indicator(_Component):
         )
 
     @property
-    def consequence(self) -> Consequence:
+    def consequence(self) -> Impact:
         """Impact object"""
-        return self.model.consequence
+        return self.model.impact

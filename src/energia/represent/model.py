@@ -18,8 +18,10 @@ from ..components.commodity.emission import Emission
 from ..components.commodity.land import Land
 from ..components.commodity.material import Material
 from ..components.commodity.resource import Resource
-from ..components.game.couple import Couple
+from ..components.game.couple import Interact
 from ..components.game.player import Player
+from ..components.graph.edge import Edge
+from ..components.graph.node import Node
 from ..components.impact.categories import Economic, Environ, Social
 from ..components.measure.unit import Unit
 from ..components.operation.process import Process
@@ -30,7 +32,7 @@ from ..components.spatial.location import Location
 from ..components.temporal.modes import Modes
 from ..components.temporal.periods import Periods
 from ..components.temporal.scales import TemporalScales
-from ..dimensions.consequence import Consequence
+from ..dimensions.impact import Impact
 from ..dimensions.problem import Problem
 from ..dimensions.space import Space
 from ..dimensions.system import System
@@ -44,7 +46,7 @@ from ..modeling.parameters.conversion import Conversion
 from ..modeling.parameters.instruction import Instruction
 from ..modeling.variables.control import Control
 from ..modeling.variables.recipe import Recipe
-from ..modeling.variables.states import Impact, State, Stream
+from ..modeling.variables.states import Consequence, State, Stream
 from .ations.graph import Graph
 from .ations.program import Program
 
@@ -148,56 +150,70 @@ class Model:
         # map of what representation and collection within that representation
         # an object of a particular type belongs to
 
-        # the structure of components:
-
-        # II Spatial representation (Space):
-        # 1. Spatial representation (Space). Location (Loc) generate a bespoke discretization.
-        # III Streams (System):
-        # 1. Commodity (Resource) of any kind
-        # 2. Emission (Emission) resource
-        # 3. Land (Land) resource
-        # 4. Money (Currency)
-        # 5. Material (Material) used to setup processes
-        # 6. etc. societal (Jobs), etc (Etc).
-        # IV Operations (System):
-        # 1. A production operation (Process) which describes a task in the system that involves conversion of resources
-        # 2. A storage operation (Storage) which describes a task in the system that involves storing (charge) resources
-        # and retrieving (discharge) them at later times.
-        # 3. A transport operation (Transport) which describes a task in the system that involves transporting resources from
-        #    one location to another.
-        # V Impact, scales a stream and projects onto a common metric
-        #   1. Impact (Impact) categories include Eco, Soc
-
-        self.familytree = {
-            # I Temporal representation (Time):
+        # --------------------------------------------------------------------
+        # Component Mapping to Dimension and Collection 
+        # --------------------------------------------------------------------
+        #Dimensions in brackets
+        self.familytree = {            
+            # * I Temporal (Time):
             # 1.  Periods (Periods) generates a bespoke discretization.
             Periods: ("time", "periods"),
+            # 2. Modes discrete options in the same time 
             Modes: ("time", "modes"),
+            # * II Spatial (Space):
+            # 1. Spatial representation (Space). Location (Loc) generate a bespoke discretization.
             Location: ("space", "locations"),
             Linkage: ("space", "linkages"),
+            # * III Streams (System):
+            # All are Commodity derived:
+            # 1. Money (Currency)
+            Currency: ("system", "currencies"),
+            # 2. Land (Land) resource
+            Land: ("system", "lands"),
+            # 3. Emission (Emission) resource
+            Emission: ("system", "emissions"),
+            # Resource is a general Commodity 
+            # These are Resource subsets
+            # 1. Material (Material) used to setup processes
+            Material: ("system", "materials"),
+            # 2. etc. societal (Jobs), etc (Etc).
+            Resource: ("system", "resources"),
+            # * IV Operations (System):
+            # 1. A production operation (Process) involves conversion of resources
+            Process: ("system", "processes"),
+            # 2. A transport operation (Transport) which describes a task in the system 
+            # that involves transporting resources from
+            #    one location to another.
+            Transport: ("system", "transports"),
+            # 3. A storage operation (Storage) stores (charges) 
+            # and retrieves (discharge) resources
+            Storage: ("system", "storages"),
+            # *V Indicators (Consequence):
+            # scales a stream and projects onto a common metric
+            # categories include
             Environ: (
-                "consequence",
-                "envs",
+                "impact",
+                "environment",
             ),
             Social: (
-                "consequence",
-                "socs",
+                "impact",
+                "society",
             ),
-            Economic: ("consequence", "ecos"),
-            Process: ("system", "processes"),
-            Storage: ("system", "storages"),
-            Transport: ("system", "transports"),
-            Player: ("system", "players"),
-            Couple: ("system", "couples"),
-            Currency: ("system", "currencies"),
-            Land: ("system", "lands"),
-            Emission: ("system", "emissions"),
-            Material: ("system", "materials"),
-            Resource: ("system", "resources"),
+            Economic: ("impact", "economy"),
+            # * VI Game Components
+            # To model Competition
+            Player: ("game", "players"),
+            Interact: ("game", "interacts"),
+            # * VII Problem Aspects
+            # The problem at hand
+            #1. to control the volume of streams
             Control: ("problem", "controls"),
+            #2. movement
             Stream: ("problem", "streams"),
+            #3. size, quantity
             State: ("problem", "states"),
-            Impact: ("problem", "impacts"),
+            #4. consequence
+            Consequence: ("problem", "consequences"),
         }
 
         # 
@@ -210,7 +226,7 @@ class Model:
         # Spatial Scope
         self.space = Space(self)        
         # Impact on the exterior
-        self.consequence = Consequence(self)
+        self.impact = Impact(self)
         # System (Resource Task Network)
         self.system = System(self)
         # Graph (Network)
@@ -244,7 +260,7 @@ class Model:
         self.properties = {
             "horizon": self.time, 
             "network": self.space,
-            "indicators": self.consequence, 
+            "indicators": self.impact, 
             "operations": self.system, 
             "aspects": self.problem,
             "domains": self.problem,
@@ -428,6 +444,7 @@ class Model:
                 # for args in updates:
                 self.update(name, value, *updates)
                 break
+
 
         # Special linkage instructions
         if isinstance(value, Linkage):
