@@ -240,7 +240,7 @@ class Storage(_Component):
     @property
     def opex(self) -> Calculate:
         """Operational Expenditure"""
-        return self.charge.operate[self.model.default_currency().spend]
+        return self.charge.operate[self.model._cash().spend]
 
     @property
     def base(self) -> Resource:
@@ -250,7 +250,7 @@ class Storage(_Component):
     @property
     def storage_cost(self) -> Calculate:
         """Cost of storing the resource"""
-        return self.inventory[self.model.default_currency().spend]
+        return self.inventory[self.model._cash().spend]
 
     @property
     def cons(self) -> list[C]:

@@ -195,7 +195,7 @@ m.power.lii.inventory == (10, 100)
 
 # m.lii.capacity >= 10
 # m.lii.capacity[m.money.spend] == 1302
-m.power.lii.inventory[m.money.spend] == 2000
+m.power.lii.inventory[m.cash.spend] == 2000
 m.lii.charge.operate <= 25
 m.lii.discharge.operate <= 25
 
@@ -207,13 +207,13 @@ m.wf = Process()
 m.wf(m.power) == -1 / 0.85 * m.wind
 # m.wf.operate == (0, 100)
 m.wf.operate <= 100
-m.wf.operate[m.money.spend] == 990
+m.wf.operate[m.cash.spend] == 990
 
 m.pv = Process()
 m.pv(m.power) == -1 / 0.75 * m.solar
 # m.pv.operate == (0, 100)
 m.pv.operate <= 100
-m.pv.operate[m.money.spend] == 567
+m.pv.operate[m.cash.spend] == 567
 
 
 # In[5]:
@@ -225,10 +225,10 @@ m.locate(m.pv, m.wf, m.lii)
 # In[6]:
 
 
-m.money.spend.obj()
+m.cash.spend.obj()
 m.solve()
 
-m.money.spend.opt()
+m.cash.spend.opt()
 
 
 # In[7]:
@@ -339,19 +339,19 @@ m.h2.release == (0, 80)
 
 m.ur = Resource(basis=m.kg, label='Uranium')
 m.ur.consume <= 1000
-m.ur.consume[m.money.spend] == 42.70 / (250 / 2)
+m.ur.consume[m.cash.spend] == 42.70 / (250 / 2)
 
 m.wf = Process()
 m.wf(m.power) == -1 / 0.85 * m.wind
 # m.wf.operate == (0, 100)
 m.wf.operate == (0, 100)
-m.wf.operate[m.money.spend] == 990
+m.wf.operate[m.cash.spend] == 990
 
 m.pv = Process()
 m.pv(m.power) == -1 / 0.75 * m.solar
 # m.pv.operate == (0, 100)
 m.pv.operate == (0, 100)
-m.pv.operate[m.money.spend] == 567
+m.pv.operate[m.cash.spend] == 567
 
 
 m.lii = Storage()
@@ -362,7 +362,7 @@ m.power.lii.inventory <= 200
 m.lii.charge.operate <= 25
 m.lii.discharge.operate <= 25
 
-m.lii.charge.operate[m.money.spend] == 1302
+m.lii.charge.operate[m.cash.spend] == 1302
 
 
 m.pem = Process(
@@ -371,7 +371,7 @@ m.pem = Process(
 )
 m.pem(-m.power) == 0.3537 * m.h2 - 3.1839 * m.h2o + m.o2
 m.pem.operate <= 100
-m.pem.operate[m.money.spend] == 1550
+m.pem.operate[m.cash.spend] == 1550
 
 m.asmr = Process(
     basis=m.MW,
@@ -379,11 +379,11 @@ m.asmr = Process(
 )
 m.asmr(m.power) == -4.17e-5 * m.ur - 3.364 * m.h2o + m.power
 m.asmr.operate <= 100
-m.asmr.operate[m.money.spend] == 7988951
+m.asmr.operate[m.cash.spend] == 7988951
 
 m.locate(m.pv, m.wf, m.lii, m.pem, m.asmr)
 
-m.money.spend.obj()
+m.cash.spend.obj()
 
 
 # In[15]:
@@ -419,17 +419,17 @@ m.h2.release >= 2
 
 m.ur = Resource(basis=m.kg, label='Uranium')
 m.ur.consume <= 1000
-m.ur.consume[m.money.spend] == 42.70 / (250 / 2)
+m.ur.consume[m.cash.spend] == 42.70 / (250 / 2)
 
 m.wf = Process()
 m.wf(m.power) == -1 / 0.85 * m.wind
 m.wf.operate <= 100
-m.wf.operate[m.money.spend] == 990
+m.wf.operate[m.cash.spend] == 990
 
 m.pv = Process()
 m.pv(m.power) == -1 / 0.75 * m.solar
 m.pv.operate <= 100
-m.pv.operate[m.money.spend] == 567
+m.pv.operate[m.cash.spend] == 567
 
 
 m.lii = Storage()
@@ -440,7 +440,7 @@ m.power.lii.inventory <= 200
 m.lii.charge.operate <= 25
 m.lii.discharge.operate <= 25
 
-m.lii.charge.operate[m.money.spend] == 1302
+m.lii.charge.operate[m.cash.spend] == 1302
 
 
 m.pem = Process(
@@ -449,7 +449,7 @@ m.pem = Process(
 )
 m.pem(-m.power) == 0.3537 * m.h2 - 3.1839 * m.h2o + m.o2
 m.pem.operate <= 100
-m.pem.operate[m.money.spend] == 1550
+m.pem.operate[m.cash.spend] == 1550
 
 m.asmr = Process(
     basis=m.MW,
@@ -457,13 +457,13 @@ m.asmr = Process(
 )
 m.asmr(m.power) == -4.17e-5 * m.ur - 3.364 * m.h2o + m.power
 m.asmr.operate <= 100
-m.asmr.operate[m.money.spend] == 7988951
+m.asmr.operate[m.cash.spend] == 7988951
 
 m.locate(m.pv, m.wf, m.lii, m.pem, m.asmr)
 
 # m.money.spend.obj()
 
-m.money.spend.opt()
+m.cash.spend.opt()
 
 
 # In[18]:

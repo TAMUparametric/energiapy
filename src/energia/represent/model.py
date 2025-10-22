@@ -119,8 +119,8 @@ class Model:
     :vartype siunits_set: bool
     :ivar cookbook: Recipes to create Aspects.
     :vartype cookbook: dict[str, Recipe]
-    :ivar attr_map: Map of attribute names to recipes for creating them.
-    :vartype attr_map: dict[str, dict[str, Recipe]]
+    :ivar directory: Map of attribute names to recipes for creating them.
+    :vartype directory: dict[str, dict[str, Recipe]]
     :ivar classifiers: List of classifiers for the Model.
     :vartype classifiers: list[Enum]
     :ivar grb: Dictionary which tells you what aspects of resource have GRB {loc: time: []} and {time: loc: []}.
@@ -231,19 +231,23 @@ class Model:
             "P",
         ]
 
+        # if any of these attributes are called,
+        # or an exiting one is returned
         self.default_components = {
-            "l": self.default_location,
-            "t0": self.default_periods,
-            "t": self.default_periods,
-            "money": self.default_currency,
+            "l": self._l0,
+            "l0": self._l0,
+            "t0": self._t0,
+            "t": self._t0,
+            "money": self._cash,
         }
 
         self.graph_components = ["edges", "nodes"]
 
         # map of attribute names to recipes for creating them
-        self.attr_map: dict[str, dict[str, Recipe]] = {}
+        self.directory: dict[str, dict[str, Recipe]] = {}
 
         # added attributes mapping to the created Aspect objects
+
         self._attr_map: dict[str, Aspect] = {}
 
         # maps to recipes for creating aspects
@@ -332,8 +336,12 @@ class Model:
             ],
         ] = {}
 
+
         self.maps: dict[Aspect, dict[Domain, dict[str, list[Domain]]]] = {}
         self.maps_report: dict[Aspect, dict[Domain, dict[str, list[Domain]]]] = {}
+
+
+        # self.directory = {'grb': self.grb, ''}
 
     # -----------------------------------------------------
     #              Set Component
@@ -509,9 +517,9 @@ class Model:
 
             return self.manual[name]
 
-        if name in self.attr_map:
+        if name in self.directory:
             # if this is an attribute being called for the first time
-            recipe = self.attr_map[name]
+            recipe = self.directory[name]
             aspect_name = list(recipe.keys())[0]
 
             if aspect_name in self.added:
@@ -541,7 +549,7 @@ class Model:
         :type to: str
         """
         _add = dict.fromkeys(list(names), {to: self.cookbook[to]})
-        self.attr_map = {**self.attr_map, **_add}
+        self.directory = {**self.directory, **_add}
 
     def Recipe(
         self,
@@ -822,8 +830,8 @@ class Model:
 
         else:
             self.program.draw(n_sol=n_sol)
-
-    def default_periods(self, size: int = 0) -> Periods:
+    
+    def _t0(self, size: int = 0) -> Periods:
         """Return a default period
 
         :param size: Size of the period. Defaults to 0.
@@ -847,18 +855,18 @@ class Model:
         self.t0 = Periods("Time")
         return self.t0
 
-    def default_location(self) -> Location:
+    def _l0(self) -> Location:
         """Return a default location"""
-        self.l = Location(label="l")
-        return self.l
+        self.l0 = Location(label="l")
+        return self.l0
 
-    def default_currency(self) -> Currency:
+    def _cash(self) -> Currency:
         """Return a default currency"""
         if self.currencies:
             return self.currencies[0]
 
-        self.money = Currency(label="$")
-        return self.money
+        self.cash = Currency(label="$")
+        return self.cash
 
     def locate(self, *operations: Process | Storage):
         """Locate operations in the network

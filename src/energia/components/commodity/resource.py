@@ -87,7 +87,7 @@ class Resource(_Commodity):
     @property
     def price(self) -> Calculate:
         """Cost of consume"""
-        return self.consume[self.model.default_currency().spend]
+        return self.consume[self.model._cash().spend]
 
     def __init_subclass__(cls):
         # the hashing will be inherited by the subclasses
