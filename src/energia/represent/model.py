@@ -206,8 +206,11 @@ class Model:
 
         # Temporal Scope
         self.time = Time(self)
+        _time_attrs = {'periods', 'modes'}
         # Spatial Scope
         self.space = Space(self)
+        _space_attrs = {i: self.time for i in ['locations', 'sources', 'sinks', 'linkages']}
+        
 
         # Impact on the exterior
         self.consequence = Consequence(self)
@@ -282,7 +285,7 @@ class Model:
 
         # added attribute mappings to the created Aspect objects
         
-        self._attr_map: dict[str, Aspect] = {}
+        self.registry: dict[str, Aspect] = {}
 
         # maps to recipes for creating aspects
         self.cookbook: dict[str, Recipe] = {}
@@ -496,6 +499,7 @@ class Model:
         super().__setattr__(name, value)
 
     def __getattr__(self, name):
+        # Only called when attribute does not exist
 
         # if something like t, t0 is called
         # just return a default component
@@ -514,16 +518,14 @@ class Model:
             return collection
 
         if name in self.ancestry:
-
             collection = getattr(self.ancestry[name], name)
             setattr(self, name, collection)
             return collection
 
-        # Only called when attribute does not exist
-        if name in self._attr_map:
+        if name in self.registry:
             # if attribute has been called before
             # the next time the created attribute is returned
-            return self._attr_map[name]
+            return self.registry[name]
 
         if name in self.cookbook:
             recipe = self.cookbook[name]
@@ -552,7 +554,7 @@ class Model:
 
             setattr(self, aspect_name, aspect)
 
-            self._attr_map[name] = aspect
+            self.registry[name] = aspect
 
             return aspect
 
