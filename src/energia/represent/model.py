@@ -151,7 +151,7 @@ class Model:
         # an object of a particular type belongs to
 
         # --------------------------------------------------------------------
-        # Component Mapping to Dimension and Collection 
+        # * Component Mapping to Dimension and Collection 
         # --------------------------------------------------------------------
         #Dimensions in brackets
         self.familytree = {            
@@ -216,28 +216,37 @@ class Model:
             Consequence: ("problem", "consequences"),
         }
 
-        # 
+        # * Maps Components to Dimensions
+        # derived from familytree
         self.ancestry = {
             collection: dimension for dimension, collection in self.familytree.values()
         }
 
-        # Temporal Scope
+        # --------------------------------------------------------------------
+        # * Dimensions or Representation
+        # --------------------------------------------------------------------
+        # * I Dimensions
+        # * 1. Time with Periods and Modes
         self.time = Time(self)
-        # Spatial Scope
+        # * 2. Space with Locations and Linkages
         self.space = Space(self)        
-        # Impact on the exterior
+        # * 3. Impact with Indicator categories
         self.impact = Impact(self)
-        # System (Resource Task Network)
+        # * 4. System (Resource Task Network)
         self.system = System(self)
-        # Graph (Network)
+        # * II Representations
+        # * 1. Graph with Edges and Nodes
         self.graph = Graph(self)
-        # the problem
+        # * 2. Problem at hand
         self.problem = Problem(self)
-        # mathematical program
+        # * 3 mathematical Program of mpMINLP subclass
         self.program = Program(model=self)
         # shorthand
         self._ = self.program
 
+        # --------------------------------------------------------------------
+        # * Attributes Inherited from Dimensions or Representations
+        # --------------------------------------------------------------------
         # Start with patterened
         self.program_attrs =    [ 
             "constraint",
@@ -267,6 +276,9 @@ class Model:
             **{i: self.program for i in _program_matrices},
         }
 
+        # --------------------------------------------------------------------
+        # * Default Components 
+        # --------------------------------------------------------------------
         # if any of these attributes are called,
         # or an exiting one is returned
         self.default_components = {
@@ -279,11 +291,10 @@ class Model:
 
         self.graph_components = ["edges", "nodes"]
 
-        # -----------------------------------------------
-        #  Books
-        # -----------------------------------------------
+        # --------------------------------------------------------------------
+        # * Books of Maps 
+        # --------------------------------------------------------------------
         # Maps between:
-
         # user_input_attr -> matching_aspect -> Recipe
         self.directory: dict[str, dict[str, Recipe]] = {}
         # already_defined_user_input_attr -> matching_aspect
@@ -293,13 +304,16 @@ class Model:
         # parameter_name -> parameter_handling_instruction
         self.manual: dict[str, Instruction] = {}
 
-        # measuring units
+
+        # --------------------------------------------------------------------
+        # * Measurement Related
+        # --------------------------------------------------------------------
         self.units: list[Unit] = []
         # if SI units have been set
         self.siunits_set: bool = False
 
         self.convmatrix: dict[Process, dict[Resource, int | float | list]] = {}
-        self.modes_dict: dict[Sample, Modes] = {}
+
 
         if not self.init:
             self.init = []
@@ -350,6 +364,9 @@ class Model:
         self.maps_report: dict[Aspect, dict[Domain, dict[str, list[Domain]]]] = {}
 
 
+        self.modes_dict: dict[Sample, Modes] = {}
+
+        
     # -----------------------------------------------------
     #              Set Component
     # -----------------------------------------------------
