@@ -19,7 +19,7 @@ Energia on Python
    tutorials/defining_components/index
    tutorials/additional_features/index
    tutorials/troubleshooting/index
-   tutorials/attribute_aliases/index
+   tutorials/model_input/index
 
 
 .. toctree::
