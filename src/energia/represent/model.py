@@ -161,8 +161,10 @@ class Model:
             # 2. Modes discrete options in the same time 
             Modes: ("time", "modes"),
             # * II Spatial (Space):
-            # 1. Spatial representation (Space). Location (Loc) generate a bespoke discretization.
+            # Spatial representation (Space). 
+            # 1. a bespoke discretization.
             Location: ("space", "locations"),
+            # 2. link between them
             Linkage: ("space", "linkages"),
             # * III Streams (System):
             # All are Commodity derived:
@@ -225,6 +227,7 @@ class Model:
         # --------------------------------------------------------------------
         # * Dimensions or Representation
         # --------------------------------------------------------------------
+
         # * I Dimensions
         # * 1. Time with Periods and Modes
         self.time = Time(self)
@@ -306,15 +309,51 @@ class Model:
 
 
         # --------------------------------------------------------------------
+        # * Constraint Ledger
+        # --------------------------------------------------------------------
+
+        # Dictionary which tells you what aspects of resource
+        # have been set in what location and time
+        self.grb: dict[
+            _Commodity,
+            dict[Location | Linkage, dict[Periods, list[Aspect]]],
+        ] = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
+        # Dictionary which tells you what aspects of what component
+        # have been bound at what location and time
+        self.dispositions: dict[
+            Aspect,
+            dict[
+                _Commodity | Process | Storage | Transport,
+                dict[Location | Linkage, dict[Periods, list[Aspect]]],
+            ],
+        ] = {}
+        self.maps: dict[Aspect, dict[Domain, dict[str, list[Domain]]]] = {}
+        self.maps_report: dict[Aspect, dict[Domain, dict[str, list[Domain]]]] = {}
+        self.modes_dict: dict[Sample, Modes] = {}
+        self.convmatrix: dict[Process, dict[Resource, int | float | list]] = {}
+
+        # --------------------------------------------------------------------
         # * Measurement Related
         # --------------------------------------------------------------------
         self.units: list[Unit] = []
         # if SI units have been set
         self.siunits_set: bool = False
 
-        self.convmatrix: dict[Process, dict[Resource, int | float | list]] = {}
+        # --------------------------------------------------------------------
+        # * Model Classification
+        # --------------------------------------------------------------------
+        self.classifiers: dict[str, list[Enum]] = {
+            "uncertainty": [],
+            "structure": [],
+            "scale": [],
+            "paradigm": [],
+        }
 
 
+        # --------------------------------------------------------------------
+        # * Model Initialization
+        # --------------------------------------------------------------------
+        # functions are passed and initialized on self
         if not self.init:
             self.init = []
 
@@ -336,40 +375,11 @@ class Model:
         for func in self.init:
             func(self)
 
-        self.classifiers: dict[str, list[Enum]] = {
-            "uncertainty": [],
-            "structure": [],
-            "scale": [],
-            "paradigm": [],
-        }
-
-        # Dictionary which tells you what aspects of resource
-        # have been set in what location and time
-        self.grb: dict[
-            _Commodity,
-            dict[Location | Linkage, dict[Periods, list[Aspect]]],
-        ] = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
-
-        # Dictionary which tells you what aspects of what component
-        # have been bound at what location and time
-        self.dispositions: dict[
-            Aspect,
-            dict[
-                _Commodity | Process | Storage | Transport,
-                dict[Location | Linkage, dict[Periods, list[Aspect]]],
-            ],
-        ] = {}
-
-        self.maps: dict[Aspect, dict[Domain, dict[str, list[Domain]]]] = {}
-        self.maps_report: dict[Aspect, dict[Domain, dict[str, list[Domain]]]] = {}
 
 
-        self.modes_dict: dict[Sample, Modes] = {}
-
-        
-    # -----------------------------------------------------
-    #              Set Component
-    # -----------------------------------------------------
+    # -------------------------------------------------------------------
+    # * Updates Component based on familytree
+    # -------------------------------------------------------------------
 
     def update(
         self,
@@ -438,122 +448,12 @@ class Model:
                 if aspect.neg is not None:
                     setattr(value, aspect.neg.name, aspect.neg(value))
 
-    def __setattr__(self, name, value):
-
-        if isinstance(value, (str, dict, list, bool)) or value is None:
-            # if value is a string, dict, list or bool
-            # set the attribute to the value
-            super().__setattr__(name, value)
-            return
-
-        if isinstance(value, TemporalScales):
-            self.TemporalScales(value.discretizations, value.names)
-
-            return
-
-        if isinstance(value, Unit):
-            value.name = name
-            self.units.append(value)
-
-        # map to representation and collection
-        for cls, updates in self.familytree.items():
-            if isinstance(value, cls):
-                # for args in updates:
-                self.update(name, value, *updates)
-                break
 
 
-        # Special linkage instructions
-        if isinstance(value, Linkage):
-
-            self.space.sources.append(value.source)
-            self.space.sinks.append(value.sink)
-
-            if value.bi:
-                # if bidirectional, set the reverse linkage
-                # also ensures that all linakges go in one direction only
-                rev = value.rev()
-                setattr(self, rev.name, rev)
-
-        super().__setattr__(name, value)
-
-    def __getattr__(self, name):
-        # Only called when attribute does not exist
-
-        # if something like t, t0 is called
-        # just return a default component
-        # t/t0, l/l0, cash, money
-        # this will not intefere with the setting of 
-        # attributes what this name
-        if name in self.default_components:
-            component = self.default_components[name]()
-            return component
-
-        # 
-        if name in self.ancestry:
-            dimension = getattr(self, self.ancestry[name])
-            collection = getattr(dimension, name)
-            setattr(self, name, collection)
-            return collection
-
-        if name in self.program_attrs:
-            collection = getattr(self.program_attrs[name], name)
-            setattr(self, name, collection)
-            return collection
-
-        if name in self.registry:
-            # if attribute has been called before
-            # the next time the created attribute is returned
-            return self.registry[name]
-
-        if name in self.cookbook:
-            recipe = self.cookbook[name]
-
-            aspect = recipe.kind(**recipe.args)
-            setattr(self, name, aspect)
-
-            return aspect
-
-        if name in self.properties:
-            return getattr(self.properties[name], name)
-
-
-        if name in self.manual:
-            return self.manual[name]
-
-        if name in self.directory:
-            # if this is an attribute being called for the first time
-            recipe = self.directory[name]
-            aspect_name = list(recipe.keys())[0]
-
-            if aspect_name in self.added:
-                # if same aspect is called by a different name
-                return getattr(self, aspect_name)
-
-            # these are the arguments for the aspect
-            recipe = recipe[aspect_name]
-            aspect = recipe.kind(**recipe.args)
-
-            setattr(self, aspect_name, aspect)
-
-            self.registry[name] = aspect
-
-            return aspect
-
-        raise AttributeError(
-            f"{self} has no '{name}'",
-        )
-
-    def aliases(self, *names: str, to: str):
-        """Set aspect aliases
-
-        :param names: Names of the aliases
-        :type names: str
-        :param to: Name of the aspect to which the aliases point
-        :type to: str
-        """
-        _add = dict.fromkeys(list(names), {to: self.cookbook[to]})
-        self.directory = {**self.directory, **_add}
+    # -------------------------------------------------------------------
+    # * Birthing Procedures and Setting Aliases
+    # -------------------------------------------------------------------
+    # These take an action on attribute inputs
 
     def Recipe(
         self,
@@ -669,6 +569,20 @@ class Model:
             )
             self.cookbook[neg] = neg_recipe
 
+
+
+    def aliases(self, *names: str, to: str):
+        """Set aspect aliases
+
+        :param names: Names of the aliases
+        :type names: str
+        :param to: Name of the aspect to which the aliases point
+        :type to: str
+        """
+        _add = dict.fromkeys(list(names), {to: self.cookbook[to]})
+        self.directory = {**self.directory, **_add}
+
+
     def Instruction(
         self,
         name: str,
@@ -701,9 +615,9 @@ class Model:
             label=label,
         )
 
-    # -----------------------------------------------------
-    #              Birth Component
-    # -----------------------------------------------------
+    # ------------------------------------------------------------------------
+    # * Easy Birthing of Components
+    # ------------------------------------------------------------------------
 
     def declare(self, what: Type[_X], names: list[str]):
         """Declares objects conveniently
@@ -771,6 +685,12 @@ class Model:
             setattr(self, name, disc * root)
             root = self.periods[-1]
 
+    # ------------------------------------------------------------------------
+    # * Illustrations from Different Perspectives
+    # ------------------------------------------------------------------------
+
+    # * I Mathematical
+
     def show(
         self,
         descriptive: bool = False,
@@ -789,9 +709,36 @@ class Model:
         """
         self.program.show(descriptive, categorical=categorical, category=category)
 
+    # * II Graphical
+
+    def draw(self, variable: Aspect | Sample | None = None, n_sol: int = 0):
+            """
+            Draw the solution for a variable
+
+            :param variable: Variable to draw. Defaults to None.
+            :type variable: Aspect | Sample | None, optional
+            :param n_sol: Solution number to draw. Defaults to 0.
+            :type n_sol: int, optional
+
+            """
+            if variable is not None:
+                self.program.draw(variable=variable.V(), n_sol=n_sol)
+
+            else:
+                self.program.draw(n_sol=n_sol)
+
+    # * III Solution
+
     def sol(self, n_sol: int = 0, slack: bool = True, compare: bool = False):
         """Solution"""
         return self.program.sol(n_sol=n_sol, slack=slack, compare=compare)
+    
+    
+    # ------------------------------------------------------------------------
+    # * Solution Generation, Handling and Analysis
+    # ------------------------------------------------------------------------
+
+
 
     def eval(
         self, *theta_vals: float, n_sol: int = 0, roundoff: int = 4
@@ -818,58 +765,6 @@ class Model:
                 dump(self.solution, f)
         else:
             raise ValueError(f"Unknown type {as_type} for saving the model")
-
-    def draw(self, variable: Aspect | Sample | None = None, n_sol: int = 0):
-        """
-        Draw the solution for a variable
-
-        :param variable: Variable to draw. Defaults to None.
-        :type variable: Aspect | Sample | None, optional
-        :param n_sol: Solution number to draw. Defaults to 0.
-        :type n_sol: int, optional
-
-        """
-        if variable is not None:
-            self.program.draw(variable=variable.V(), n_sol=n_sol)
-
-        else:
-            self.program.draw(n_sol=n_sol)
-    
-    def _t0(self, size: int = 0) -> Periods:
-        """Return a default period
-
-        :param size: Size of the period. Defaults to 0.
-        :type size: int, optional
-
-        :return: Periods object
-        :rtype: Periods
-        """
-
-        if size:
-            # if size is passed,
-            # make a new temporal scale
-            new_period = Periods(f"Time/{size}", periods=size, of=self.horizon)
-            setattr(self, f"t{len(self.time.periods)}", new_period)
-
-            # return the newly created period
-            return self.time.periods[-1]
-
-        # or create a default period
-
-        self.t0 = Periods("Time")
-        return self.t0
-
-    def _l0(self) -> Location:
-        """Return a default location"""
-        self.l0 = Location(label="l")
-        return self.l0
-
-    def _cash(self) -> Currency:
-        """Return a default currency"""
-        if self.currencies:
-            return self.currencies[0]
-        self.cash = Currency(label="$")
-        return self.cash
 
     def locate(self, *operations: Process | Storage):
         """Locate operations in the network
@@ -915,6 +810,158 @@ class Model:
         """
 
         self.program.solve(using=using)
+    # ------------------------------------------------------------------------
+    # * Solution Generation and Analysis
+    # ------------------------------------------------------------------------
+    
+    
+    def _t0(self, size: int = 0) -> Periods:
+        """Return a default period
+
+        :param size: Size of the period. Defaults to 0.
+        :type size: int, optional
+
+        :return: Periods object
+        :rtype: Periods
+        """
+
+        if size:
+            # if size is passed,
+            # make a new temporal scale
+            new_period = Periods(f"Time/{size}", periods=size, of=self.horizon)
+            setattr(self, f"t{len(self.time.periods)}", new_period)
+
+            # return the newly created period
+            return self.time.periods[-1]
+
+        # or create a default period
+
+        self.t0 = Periods("Time")
+        return self.t0
+
+    def _l0(self) -> Location:
+        """Return a default location"""
+        self.l0 = Location(label="l")
+        return self.l0
+
+    def _cash(self) -> Currency:
+        """Return a default currency"""
+        if self.currencies:
+            return self.currencies[0]
+        self.cash = Currency(label="$")
+        return self.cash
+
+
+    # -------------------------------------------------------------------
+    # * Attribute Handling
+    # -------------------------------------------------------------------
+
+    def __setattr__(self, name, value):
+
+        if isinstance(value, (str, dict, list, bool)) or value is None:
+            # if value is a string, dict, list or bool
+            # set the attribute to the value
+            super().__setattr__(name, value)
+            return
+
+        if isinstance(value, TemporalScales):
+            self.TemporalScales(value.discretizations, value.names)
+
+            return
+
+        if isinstance(value, Unit):
+            value.name = name
+            self.units.append(value)
+
+        # map to representation and collection
+        for cls, updates in self.familytree.items():
+            if isinstance(value, cls):
+                # for args in updates:
+                self.update(name, value, *updates)
+                break
+
+
+        # Special linkage instructions
+        if isinstance(value, Linkage):
+
+            self.space.sources.append(value.source)
+            self.space.sinks.append(value.sink)
+
+            if value.bi:
+                # if bidirectional, set the reverse linkage
+                # also ensures that all linakges go in one direction only
+                rev = value.rev()
+                setattr(self, rev.name, rev)
+
+        super().__setattr__(name, value)
+
+    def __getattr__(self, name):
+        # Only called when attribute does not exist
+
+        # if something like t, t0 is called
+        # just return a default component
+        # t/t0, l/l0, cash, money
+        # this will not intefere with the setting of 
+        # attributes what this name
+        if name in self.default_components:
+            component = self.default_components[name]()
+            return component
+
+        # 
+        if name in self.ancestry:
+            dimension = getattr(self, self.ancestry[name])
+            collection = getattr(dimension, name)
+            setattr(self, name, collection)
+            return collection
+
+        if name in self.program_attrs:
+            collection = getattr(self.program_attrs[name], name)
+            setattr(self, name, collection)
+            return collection
+
+        if name in self.registry:
+            # if attribute has been called before
+            # the next time the created attribute is returned
+            return self.registry[name]
+
+        if name in self.cookbook:
+            recipe = self.cookbook[name]
+
+            aspect = recipe.kind(**recipe.args)
+            setattr(self, name, aspect)
+
+            return aspect
+
+        if name in self.properties:
+            return getattr(self.properties[name], name)
+
+
+        if name in self.manual:
+            return self.manual[name]
+
+        if name in self.directory:
+            # if this is an attribute being called for the first time
+            recipe = self.directory[name]
+            aspect_name = list(recipe.keys())[0]
+
+            if aspect_name in self.added:
+                # if same aspect is called by a different name
+                return getattr(self, aspect_name)
+
+            # these are the arguments for the aspect
+            recipe = recipe[aspect_name]
+            aspect = recipe.kind(**recipe.args)
+
+            setattr(self, aspect_name, aspect)
+
+            self.registry[name] = aspect
+
+            return aspect
+
+        raise AttributeError(
+            f"{self} has no '{name}'",
+        )
+    
 
     def __call__(self, *funcs: Callable[Self]):
         """Set functions on the model
