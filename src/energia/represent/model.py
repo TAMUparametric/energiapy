@@ -231,6 +231,7 @@ class Model:
         self.impact = Impact(self)
         # * 4. System (Resource Task Network)
         self.system = System(self)
+        
         # * II Representations
         # * 1. Graph with Edges and Nodes
         self.graph = Graph(self)

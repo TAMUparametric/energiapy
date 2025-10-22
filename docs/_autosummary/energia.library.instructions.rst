@@ -1,4 +1,4 @@
-energia.library.instructions
+﻿energia.library.instructions
 ============================
 
 .. automodule:: energia.library.instructions
@@ -8,6 +8,7 @@ energia.library.instructions
 
    .. autosummary::
    
+      costing_commodity
       costing_operation
    
    .. rubric:: Classes

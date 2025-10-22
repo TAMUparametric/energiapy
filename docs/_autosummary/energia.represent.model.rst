@@ -1,4 +1,4 @@
-energia.represent.model
+﻿energia.represent.model
 =======================
 
 .. automodule:: energia.represent.model
@@ -10,6 +10,7 @@ energia.represent.model
    
       aspect_aliases
       capacity_sizing
+      costing_commodity
       costing_operation
       dataclass
       dump
@@ -31,7 +32,6 @@ energia.represent.model
       Control
       Currency
       Economic
-      Edge
       Emission
       Environ
       Graph
@@ -41,12 +41,9 @@ energia.represent.model
       Land
       Linkage
       Location
-      MPLP_Program
-      MPSolution
       Material
       Model
       Modes
-      Node
       Periods
       Player
       Problem

@@ -19,7 +19,8 @@ Energia on Python
    tutorials/defining_components/index
    tutorials/additional_features/index
    tutorials/troubleshooting/index
-   tutorials/model_input/index
+   tutorials/handling_attributes/index
+   tutorials/mathematical_program/index
 
 
 .. toctree::
@@ -28,11 +29,10 @@ Energia on Python
    :hidden:
 
    examples/scheduling
+   examples/design_scheduling_attrs
    examples/design_scheduling
    examples/design_scheduling_material
-   .. examples/multi_location
-   .. examples/multi_parametric
-   .. examples/supermarket
+
 
 
 .. toctree::

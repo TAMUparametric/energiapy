@@ -129,6 +129,12 @@ class _Component(_X):
                 and self.parameters[aspect + '_optional']
             ):
                 return sample.x
+            if (
+                aspect + '_report' in self.parameters
+                and self.parameters[aspect + '_report']
+            ):
+                return sample.x
+
             return sample
 
         # def _handle(aspect: str, sample: Sample) -> Sample:
