@@ -16,9 +16,9 @@ energia.modeling.variables.states
    
       Aspect
       Balance
+      Consequence
       EndoStream
       ExoStream
-      Impact
       IndStream
       Map
       SetPoint

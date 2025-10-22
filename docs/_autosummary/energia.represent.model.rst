@@ -1,4 +1,4 @@
-energia.represent.model
+﻿energia.represent.model
 =======================
 
 .. automodule:: energia.represent.model
@@ -8,7 +8,10 @@ energia.represent.model
 
    .. autosummary::
    
+      aspect_aliases
       capacity_sizing
+      costing_commodity
+      costing_operation
       dataclass
       dump
       economic
@@ -27,19 +30,17 @@ energia.represent.model
       Callable
       Consequence
       Control
-      Conversion
-      Couple
       Currency
       Economic
       Emission
       Environ
       Graph
       Impact
+      Instruction
+      Interact
       Land
       Linkage
       Location
-      MPLP_Program
-      MPSolution
       Material
       Model
       Modes

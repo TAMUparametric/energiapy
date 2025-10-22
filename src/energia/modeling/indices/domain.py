@@ -11,9 +11,9 @@ if TYPE_CHECKING:
     from gana import I as Idx
     from gana import V
 
+    from ..._core._commodity import _Commodity
     from ..._core._x import _X
-    from ...components.commodity._commodity import _Commodity
-    from ...components.game.couple import Couple
+    from ...components.game.couple import Interact
     from ...components.game.player import Player
     from ...components.impact.indicator import Indicator
     from ...components.operation.process import Process
@@ -82,7 +82,7 @@ class Domain:
 
     # decision - maker and other decision-maker
     player: Player | None = None
-    couple: Couple | None = None
+    couple: Interact | None = None
 
     # compulsory space and time elements
     location: Location | None = None
@@ -143,7 +143,7 @@ class Domain:
         return self.linkage or self.location
 
     @property
-    def maker(self) -> Player | Couple:
+    def maker(self) -> Player | Interact:
         """Decision-maker"""
         return self.couple or self.player
 

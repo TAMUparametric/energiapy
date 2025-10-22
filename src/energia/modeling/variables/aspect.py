@@ -9,8 +9,8 @@ from typing import TYPE_CHECKING, Self, Type
 import matplotlib.pyplot as plt
 from matplotlib import rc
 
-from ...components.commodity._commodity import _Commodity
-from ...components.game.couple import Couple
+from ..._core._commodity import _Commodity
+from ...components.game.couple import Interact
 from ...components.game.player import Player
 from ...components.impact.indicator import Indicator
 from ...components.operation.process import Process
@@ -227,14 +227,14 @@ class Aspect:
         """Dispositions dict"""
         return self.model.dispositions[self]
 
-    def aliases(self, *names: str):
+    def alias(self, *names: str):
         """
         Create aliases for the decision
 
         :param names: Names of the aliases
         :type names: str
         """
-        self.model.aliases(*names, to=self.name)
+        self.model.alias(*names, of=self.name)
 
     def update(self, domain: Domain, reporting: bool = False):
         """Each inherited object has their own"""
@@ -244,7 +244,7 @@ class Aspect:
         for c in self.cons:
             c.show(descriptive)
 
-    def sol(
+    def output(
         self,
         n_sol: int = 0,
         aslist: bool = False,
@@ -267,7 +267,7 @@ class Aspect:
         :rtype: list[float] | None
         """
         var: Var = getattr(self.program, self.name)
-        return var.sol(n_sol, aslist=aslist, asdict=asdict, compare=compare)
+        return var.output(n_sol, aslist=aslist, asdict=asdict, compare=compare)
 
     def gettime(self, *index) -> list[Periods]:
         """Finds the sparsest time scale in the domains"""
@@ -309,7 +309,7 @@ class Aspect:
         if not z:
             ax.plot(
                 [i.name for i in x.I._],
-                self.V(*index).sol(True),
+                self.V(*index).output(True),
                 linewidth=linewidth,
                 color=color,
             )
@@ -318,7 +318,7 @@ class Aspect:
                 index = [i.I for i in (z_,) + y + (x,)]
                 ax.plot(
                     [i.name for i in x.I._],
-                    self.V(*index).sol(True),
+                    self.V(*index).output(True),
                     linewidth=linewidth,
                     label=z_.label if z_.label else z_.name,
                 )
@@ -379,12 +379,12 @@ class Aspect:
                 Storage: ("storage", None, True),
                 Transport: ("transport", None, True),
                 Player: ("player", None, False),
-                Couple: ("couple", None, False),
+                Interact: ("couple", None, False),
                 Indicator: ("indicator", None, False),
                 Modes: ("modes", None, False),
                 _Commodity: ("commodity", None, True),
             }
-    
+
             binds: list[Sample] = []
             timed, spaced = False, False
 
@@ -443,3 +443,8 @@ class Aspect:
     def __init_subclass__(cls):
         cls.__repr__ = Aspect.__repr__
         cls.__hash__ = Aspect.__hash__
+
+    def __iter__(self):
+        """Iterate over domains"""
+        for d in self.domains:
+            yield self(domain=d)

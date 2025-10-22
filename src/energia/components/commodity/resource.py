@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from energia.components.commodity._commodity import _Commodity
+from energia._core._commodity import _Commodity
 from energia.components.impact.categories import Environ
 
 if TYPE_CHECKING:
@@ -50,10 +50,12 @@ class Resource(_Commodity):
         self,
         basis: Unit | None = None,
         label: str = "",
-        captions: str = "",
+        citations: str = "",
         **kwargs,
     ):
-        _Commodity.__init__(self, basis=basis, label=label, captions=captions, **kwargs)
+        _Commodity.__init__(
+            self, basis=basis, label=label, citations=citations, **kwargs
+        )
 
         # base resource, if any in conversion
         self.inv_of: Resource | None = None
@@ -77,15 +79,10 @@ class Resource(_Commodity):
 
         return self.consume[self.model.HTP.emit]
 
-    # @property
-    # def demand(self) -> Calculate:
-    #     """Demand (alias for the Aspect release)"""
-    #     return self.release
-
     @property
     def price(self) -> Calculate:
         """Cost of consume"""
-        return self.consume[self.model.default_currency().spend]
+        return self.consume[self.model._cash().spend]
 
     def __init_subclass__(cls):
         # the hashing will be inherited by the subclasses

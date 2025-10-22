@@ -8,7 +8,6 @@ energia.components.temporal.periods
 
    .. autosummary::
    
-      dataclass
       is_
    
    .. rubric:: Classes

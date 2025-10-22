@@ -11,4 +11,5 @@ energia.modeling.parameters
    :recursive:
 
    conversion
+   instruction
    value

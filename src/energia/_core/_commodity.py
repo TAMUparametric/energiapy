@@ -4,11 +4,11 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Self
 
-from ..._core._component import _Component
-from ...modeling.parameters.conversion import Conversion
+from ..modeling.parameters.conversion import Conversion
+from ._component import _Component
 
 if TYPE_CHECKING:
-    from ..measure.unit import Unit
+    from ..components.measure.unit import Unit
 
 
 class _Commodity(_Component):
@@ -40,9 +40,11 @@ class _Commodity(_Component):
     """
 
     def __init__(
-        self, basis: Unit | None = None, label: str = "", captions: str = "", **kwargs
+        self, basis: Unit | None = None, label: str = "", citations: str = "", **kwargs
     ):
-        _Component.__init__(self, basis=basis, label=label, captions=captions, **kwargs)
+        _Component.__init__(
+            self, basis=basis, label=label, citations=citations, **kwargs
+        )
 
         # list of conversions associated with the commodity
         self.conversions: list[Conversion] = []
@@ -51,14 +53,14 @@ class _Commodity(_Component):
         self.insitu = False
 
     @property
-    def conversion(self) -> dict[Conversion | Self, int | float]:
+    def balance(self) -> dict[Conversion | Self, int | float]:
         """Conversion"""
         # if no conversion is set, return 1.0
         if not self.conversions:
             return {self: 1.0}
         # if there is a conversion, return its parameter in all tasks its
         # associated with
-        return {task: task.conversion[self] for task in self.conversions}
+        return {task: task.balance[self] for task in self.conversions}
 
     def __setattr__(self, name, value):
 
@@ -72,7 +74,7 @@ class _Commodity(_Component):
         # multiplying a number with a resources gives conversion
         # math operations with conversions form the balance in tasks
         conv = Conversion()
-        conv.conversion = {self: other}
+        conv.balance = {self: other}
         return conv
 
     def __rmul__(self, other: int | float) -> Conversion:
@@ -83,11 +85,11 @@ class _Commodity(_Component):
         conv = Conversion()
         if isinstance(other, _Commodity):
             # if another resource is added, give it the parameter 1
-            conv.conversion = {self: 1, other: 1}
+            conv.balance = {self: 1, other: 1}
             return conv
 
         # if added with another conversion, updated the balance
-        conv.conversion = {self: 1, **other.conversion}
+        conv.balance = {self: 1, **other.balance}
         return conv
 
     def __neg__(self) -> Conversion:
@@ -103,13 +105,13 @@ class _Commodity(_Component):
             # if another conversion is subtracted, update the balance
             conv = Conversion()
 
-            conv.conversion = {
+            conv.balance = {
                 self: 1,
                 **{
                     res: (
                         -1 * par if isinstance(par, (int, float)) else [-i for i in par]
                     )
-                    for res, par in other.conversion.items()
+                    for res, par in other.balance.items()
                 },
             }
             return conv
@@ -117,3 +119,17 @@ class _Commodity(_Component):
     def __truediv__(self, other: int | float):
         # treat division as multiplication by the inverse
         return self * (1 / other)
+
+    def __eq__(self, other: Conversion | Self):
+        if isinstance(other, Conversion):
+            conv = self + other
+            # set itself as base
+            conv.basis = self
+            return conv
+
+        if isinstance(other, int | float):
+            conv = Conversion(basis=self, hold=other)
+
+            return conv
+
+        return super().__eq__(other)

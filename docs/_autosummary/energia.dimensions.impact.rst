@@ -1,7 +1,7 @@
-energia.dimensions.consequence
-==============================
+energia.dimensions.impact
+=========================
 
-.. automodule:: energia.dimensions.consequence
+.. automodule:: energia.dimensions.impact
 
    
    .. rubric:: Functions
@@ -14,8 +14,8 @@ energia.dimensions.consequence
 
    .. autosummary::
    
-      Consequence
       Economic
       Environ
+      Impact
       Social
    

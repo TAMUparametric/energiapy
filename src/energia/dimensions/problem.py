@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, Literal
 from .._core._dimension import _Dimension
 from ..modeling.indices.domain import Domain
 from ..modeling.variables.control import Control
-from ..modeling.variables.states import Impact, State, Stream
+from ..modeling.variables.states import Consequence, State, Stream
 
 if TYPE_CHECKING:
     from ..modeling.variables.aspect import Aspect
@@ -34,23 +34,23 @@ class Problem(_Dimension):
     :vartype controls: list[Decision]
     :ivar streams: List of streams. Defaults to empty list.
     :vartype streams: list[Stream]
-    :ivar impacts: List of consequences. Defaults to empty list.
-    :vartype impacts: list[Impact]
+    :ivar consequences: List of consequences. Defaults to empty list.
+    :vartype consequences: list[Impact]
     :ivar players: List of players. Defaults to empty list.
     :vartype players: list[Player]
 
     .. note::
         - name is generated based on Model name
-        - controls, streams, impacts, and players are populated as model is defined
+        - controls, streams, consequences, and players are populated as model is defined
     """
 
     def __post_init__(self):
 
-        _Dimension.__post_init__(self)
         self.states: list[State] = []
         self.controls: list[Control] = []
         self.streams: list[Stream] = []
-        self.impacts: list[Impact] = []
+        self.consequences: list[Consequence] = []
+        _Dimension.__post_init__(self)
 
     @cached_property
     def time(self) -> Time:
@@ -63,9 +63,9 @@ class Problem(_Dimension):
         return self.model.space
 
     @property
-    def aspects(self) -> list[Impact | Stream | Control | State]:
+    def aspects(self) -> list[Consequence | Stream | Control | State]:
         """All Decisions"""
-        return self.states + self.controls + self.streams + self.impacts
+        return self.states + self.controls + self.streams + self.consequences
 
     @property
     def domains(self) -> list[Domain]:
@@ -79,7 +79,7 @@ class Problem(_Dimension):
             "states",
             "controls",
             "streams",
-            "impacts",
+            "consequences",
             "domains",
         ] = "aspects",
         values: Literal[
@@ -87,16 +87,16 @@ class Problem(_Dimension):
             "states",
             "controls",
             "streams",
-            "impacts",
+            "consequences",
             "domains",
         ] = "domains",
     ) -> dict[Aspect | Domain, list[Aspect | Domain]]:
         """Get a dictionary of the tree with a particular structure
 
         :param keys: Keys to use for the dictionary. Defaults to 'aspects'.
-        :type keys: Literal[ 'aspects', 'states', 'controls', 'streams', 'impacts', 'domains' ], optional
+        :type keys: Literal[ 'aspects', 'states', 'controls', 'streams', 'consequences', 'domains' ], optional
         :param values: Values to use for the dictionary. Defaults to 'domains'.
-        :type values: Literal[ 'aspects', 'states', 'controls', 'streams', 'impacts', 'domains' ], optional
+        :type values: Literal[ 'aspects', 'states', 'controls', 'streams', 'consequences', 'domains' ], optional
 
         :returns: dictionary with particular structure
         :rtype: dict[Aspect | Domain, list[Aspect | Domain]]
@@ -106,7 +106,7 @@ class Problem(_Dimension):
         # This function will essentially return a dictionary
         # with any choice of keys and values
         # can come very handy
-        if keys in ["aspects", "states", "controls", "streams", "impacts"]:
+        if keys in ["aspects", "states", "controls", "streams", "consequences"]:
             keysset: list[Aspect] = getattr(self, keys)
 
             if values == "domains":
@@ -124,5 +124,5 @@ class Problem(_Dimension):
             return {k.tup: v for k, v in dict_.items() if v}
 
         raise ValueError(
-            "keys must be one of aspects, states, controls, streams, impacts, domains",
+            "keys must be one of aspects, states, controls, streams, consequences, domains",
         )

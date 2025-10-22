@@ -8,7 +8,6 @@ energia.components.temporal.lag
 
    .. autosummary::
    
-      dataclass
       is_
    
    .. rubric:: Classes

@@ -8,13 +8,11 @@ energia.components.operation.process
 
    .. autosummary::
    
-      dataclass
       warn
    
    .. rubric:: Classes
 
    .. autosummary::
    
-      Conversion
       Process
    

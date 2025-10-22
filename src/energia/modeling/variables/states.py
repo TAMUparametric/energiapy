@@ -59,7 +59,7 @@ class SetPoint(State):
 
 
 @dataclass
-class Impact(State):
+class Consequence(State):
     """Consequence of an action"""
 
     def __post_init__(self):

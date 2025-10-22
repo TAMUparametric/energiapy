@@ -1,4 +1,4 @@
-﻿energia.library.recipes
+energia.library.recipes
 =======================
 
 .. automodule:: energia.library.recipes

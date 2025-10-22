@@ -12,8 +12,8 @@ from ...components.temporal.modes import Modes
 if TYPE_CHECKING:
     from gana.block.program import Prg
 
+    from ..._core._operation import _Operation
     from ...components.commodity.resource import Resource
-    from ...components.operation._operation import _Operation
     from ...components.temporal.periods import Periods
     from ...represent.model import Model
     from ..variables.sample import Sample
@@ -53,19 +53,20 @@ class Conversion(_Name):
 
     def __init__(
         self,
-        resource: Resource | None = None,
+        basis: Resource | None = None,
         operation: _Operation | None = None,
         bind: Sample | None = None,
+        hold: int | float = None,
     ):
 
-        self.resource = resource
+        self.basis = basis
         self.operation = operation
         self.bind = bind
 
-        _Name.__init__(self, label="")
+        # value to hold, will be applied later
+        self.hold = hold
 
-        self.name = f"η({self.operation})"
-        self.base: Resource | None = None
+        self._basis: Resource | None = None
         self.lag: Lag | None = None
         self.periods: Periods | None = None
 
@@ -81,13 +82,18 @@ class Conversion(_Name):
 
         # if the keys are converted into Modes
         self.modes_set: bool = False
-        self.conversion: dict[Resource, int | float | list[int | float]] = {}
+        self.balance: dict[Resource, int | float | list[int | float]] = {}
+
+    @property
+    def name(self) -> str:
+        """Name"""
+        return f"η({self.operation}, {self.basis})"
 
     @property
     def modes(self) -> Modes:
         """Modes of the operation"""
         if self._modes is None:
-            n_modes = len(self.conversion)
+            n_modes = len(self.balance)
             modes_name = f"bin{len(self.model.modes)}"
 
             setattr(self.model, modes_name, Modes(n_modes=n_modes, bind=self.bind))
@@ -101,9 +107,9 @@ class Conversion(_Name):
         """energia Model"""
 
         if self.pwl:
-            _conversion = self.conversion[next(iter(self.conversion))]
+            _conversion = self.balance[next(iter(self.balance))]
         else:
-            _conversion = self.conversion
+            _conversion = self.balance
 
         return next((i.model for i in _conversion), None)
 
@@ -149,14 +155,14 @@ class Conversion(_Name):
             return conversion
 
         if self.pwl:
-            for mode, conv in self.conversion.items():
-                self.conversion[mode] = _balancer(conv)
+            for mode, conv in self.balance.items():
+                self.balance[mode] = _balancer(conv)
 
-            if isinstance(next(iter(self.conversion)), Modes):
+            if isinstance(next(iter(self.balance)), Modes):
                 self.modes_set = True
 
         else:
-            self.conversion = _balancer(self.conversion)
+            self.balance = _balancer(self.balance)
 
     def __getitem__(self, mode: int | str) -> Self:
         """Used to define mode based conversions"""
@@ -170,15 +176,15 @@ class Conversion(_Name):
             # In this case the associated conversion is not 1
             # especially useful if Process is scaled to consumption of a resource
             # i.e. basis = -1*Resource
-            self.conversion = {**self.conversion, **basis.conversion}
-            self.base = next(iter(self.conversion))
+            self.balance = {**self.balance, **basis.balance}
+            self.basis = next(iter(self.balance))
 
         else:
             # if a Resource is provided (Resource)
             # implies that the conversion is 1
             # i.e the Process is scaled to one unit of this Resource produced
-            self.base = basis
-            self.conversion = {basis: 1.0, **self.conversion}
+            self._basis = basis
+            self.balance = {basis: 1.0, **self.balance}
 
         if lag:
             self.lag = lag
@@ -186,13 +192,12 @@ class Conversion(_Name):
         return self
 
     def __eq__(self, other: Conversion | int | float | dict[int | float, Conversion]):
-        # cons = []
 
         if isinstance(other, (int, float)):
             # this is used for inventory conversion
-            # when not other resource besides the one being inventoried is involved
+            # when not other resource besides the one being inventoried is involvedt
 
-            self.conversion = {**self.conversion, self.resource: -1.0 / float(other)}
+            self.balance = {**self.balance, self.basis: -1.0 / float(other)}
 
         elif isinstance(other, dict):
 
@@ -206,51 +211,49 @@ class Conversion(_Name):
 
             # this is when there is a proper resource conversion
             # -20*res1 = 10*res2 for example
-            self.conversion = {
-                k: {**self.conversion, **v.conversion} for k, v in other.items()
-            }
+            self.balance = {k: {**self.balance, **v.balance} for k, v in other.items()}
             self.pwl = True
 
         # this would be a Conversion or Resource
         elif self._mode is not None:
-            self.conversion[self._mode] = other.conversion
+            self.balance[self._mode] = other.balance
             if not self.pwl:
                 self.pwl = True
             self._mode = None
         else:
-
-            self.conversion: dict[Resource, int | float] = {
-                **self.conversion,
-                **other.conversion,
+            self.balance: dict[Resource, int | float] = {
+                **self.balance,
+                **other.balance,
             }
 
-        self.model.convmatrix[self.operation] = self.conversion
+        self.model.convmatrix[self.operation] = self.balance
+        return self
 
     # these update the conversion of the resource (self.conversion)
     def __add__(self, other: Conversion) -> Self:
         if isinstance(other, Conversion):
-            self.conversion = {**self.conversion, **other.conversion}
+            self.balance = {**self.balance, **other.balance}
             return self
-        self.conversion = {**self.conversion, other: 1}
+        self.balance = {**self.balance, other: 1}
         return self
 
     def __sub__(self, other: Conversion) -> Self:
         if isinstance(other, Conversion):
-            self.conversion = {
-                **self.conversion,
-                **{res: -1 * par for res, par in other.conversion.items()},
+            self.balance = {
+                **self.balance,
+                **{res: -1 * par for res, par in other.balance.items()},
             }
             return self
-        self.conversion = {**self.conversion, other: -1}
+        self.balance = {**self.balance, other: -1}
         return self
 
     def __mul__(self, times: int | float | list) -> Self:
         if isinstance(times, list):
-            self.conversion = {
-                res: [par * i for i in times] for res, par in self.conversion.items()
+            self.balance = {
+                res: [par * i for i in times] for res, par in self.balance.items()
             }
         else:
-            self.conversion = {res: par * times for res, par in self.conversion.items()}
+            self.balance = {res: par * times for res, par in self.balance.items()}
         return self
 
     def __rmul__(self, times) -> Self:

@@ -22,8 +22,8 @@ class _X(ABC):
 
     :param label: An optional label for the component. Defaults to None.
     :type label: str, optional
-    :param captions: Citation for the component. Defaults to None.
-    :type captions: str, optional
+    :param citations: Citation for the component. Defaults to None.
+    :type citations: str, optional
 
     :ivar model: The model to which the component belongs.
     :vartype model: Model
@@ -45,10 +45,10 @@ class _X(ABC):
     def __init__(
         self,
         label: str = "",
-        captions: str = "",
+        citations: str = "",
     ):
         self.label = label
-        self.captions = captions
+        self.citations = citations
         # the model
         self.model: Model | None = None
         # name is given by the model
@@ -64,6 +64,8 @@ class _X(ABC):
     @cached_property
     def program(self) -> Prg:
         """Mathematical program"""
+        if self.model is None:
+            raise ValueError(f"{type(self)} needs to be assign as Model attribute")
         return self.model.program
 
     @property
@@ -92,6 +94,7 @@ class _X(ABC):
     # The reprs are set independently without inheriting _Name
     # which allows a distinction between
     # _Name and _Index when assigned to Model
+    # If needed
 
     # -----------------------------------------------------
     #                    Hashing

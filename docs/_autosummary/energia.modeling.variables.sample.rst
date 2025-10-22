@@ -1,4 +1,4 @@
-energia.modeling.variables.sample
+﻿energia.modeling.variables.sample
 =================================
 
 .. automodule:: energia.modeling.variables.sample
@@ -19,6 +19,7 @@ energia.modeling.variables.sample
    
       Bind
       Calculate
+      FuncOfSamples
       Idx
       Sample
       V

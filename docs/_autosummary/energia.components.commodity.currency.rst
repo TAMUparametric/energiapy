@@ -8,7 +8,6 @@ energia.components.commodity.currency
 
    .. autosummary::
    
-      dataclass
       is_
    
    .. rubric:: Classes

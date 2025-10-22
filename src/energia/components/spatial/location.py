@@ -51,12 +51,12 @@ class Location(_X):
     :vartype hierarchy: int, optional
     """
 
-    def __init__(self, *has: Self, label: str = "", captions: str = ""):
+    def __init__(self, *has: Self, label: str = "", citations: str = ""):
 
         # the other locations contained in this location
         self.has: tuple[Self] = has
 
-        _X.__init__(self, label=label, captions=captions)
+        _X.__init__(self, label=label, citations=citations)
 
         # if the location is a part of another
         self.isin: Self | None = None

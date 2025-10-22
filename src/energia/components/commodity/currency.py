@@ -5,7 +5,7 @@ from __future__ import annotations
 from operator import is_
 from typing import TYPE_CHECKING, Self
 
-from ._commodity import _Commodity
+from ..._core._commodity import _Commodity
 
 if TYPE_CHECKING:
     from ...components.spatial.location import Location
@@ -47,11 +47,13 @@ class Currency(_Commodity):
         *locs: Location,
         basis: Unit | None = None,
         label: str = "",
-        captions: str = "",
+        citations: str = "",
         **kwargs,
     ):
         self.locs = list(locs)
-        _Commodity.__init__(self, basis=basis, label=label, captions=captions, **kwargs)
+        _Commodity.__init__(
+            self, basis=basis, label=label, citations=citations, **kwargs
+        )
 
         # dictionary of exchange rates
         self.exchange = {}
@@ -83,8 +85,8 @@ class Currency(_Commodity):
             self.exchange[other] = 1.0
         # assume it is a Conversion
         else:
-            currency = list(other.conversion.keys())[0]
-            rate = other.conversion[currency]
+            currency = list(other.balance.keys())[0]
+            rate = other.balance[currency]
 
             # set the exchange rate of self against other
             self.exchange[currency] = rate

@@ -56,8 +56,8 @@ class Program(Prg):
     :vartype controls: I
     :ivar streams: Streams index set
     :vartype streams: I
-    :ivar impacts: Consequences index set
-    :vartype impacts: I
+    :ivar consequences: Consequences index set
+    :vartype consequences: I
 
     .. note::
         - all the index sets are generated post initialization
@@ -73,7 +73,7 @@ class Program(Prg):
 
     def __getattr__(self, item):
 
-        if item in self.model.dimension_map:
+        if item in self.model.ancestry:
             index = I(mutable=True)
             setattr(self, item, index)
             return index

@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from ..._core._operation import _Operation
 from ...modeling.parameters.conversion import Conversion
-from ._operation import _Operation
 
 if TYPE_CHECKING:
     from ..commodity.resource import Resource
@@ -24,8 +24,8 @@ class Transport(_Operation):
     :type basis: Unit, optional
     :param label: An optional label for the component. Defaults to None.
     :type label: str, optional
-    :param captions: An optional citation or description for the component. Defaults to None.
-    :type captions: str | list[str] | dict[str, str | list[str]], optional
+    :param citations: An optional citation or description for the component. Defaults to None.
+    :type citations: str | list[str] | dict[str, str | list[str]], optional
 
     :ivar model: The model to which the component belongs.
     :vartype model: Model
@@ -38,8 +38,8 @@ class Transport(_Operation):
     :vartype domains: list[Domain]
     :ivar aspects: Aspects associated with the component with domains.
     :vartype aspects: dict[Aspect, list[Domain]]
-    :ivar conv: Operational conversion associated with the operation. Defaults to None.
-    :vartype conv: Conversion, optional
+    :ivar conversion: Operational conversion associated with the operation. Defaults to None.
+    :vartype conversion: Conversion, optional
     :ivar _conv: True if the operational conversion has been set. Defaults to False.
     :vartype _conv: bool
     :ivar fab: Material conversion associated with the operation. Defaults to None.
@@ -50,11 +50,9 @@ class Transport(_Operation):
     :vartype linkages: list[Linkage]
     """
 
-    def __init__(
-        self, basis: Unit | None = None, label: str = "", captions: str = "", **kwargs
-    ):
+    def __init__(self, *args, label: str = "", citations: str = "", **kwargs):
 
-        _Operation.__init__(self, basis=basis, label=label, captions=captions, **kwargs)
+        _Operation.__init__(self, *args, label=label, citations=citations, **kwargs)
         self.linkages: list[Linkage] = []
 
     @property
@@ -72,7 +70,7 @@ class Transport(_Operation):
             # This checks whether some other aspect is defined at
             # a lower temporal scale
 
-            if loc not in self.model.grb[res]:
+            if loc not in self.model.balances[res]:
                 # if not defined for that location, check for a lower order location
                 # i.e. location at a lower hierarchy,
                 # e.g. say if loc being passed is a city, and a grb has not been defined for it
@@ -83,7 +81,7 @@ class Transport(_Operation):
                     # the conversion Balance variables will feature in grb for parent location
                     loc = parent
 
-            _ = self.model.grb[res][loc][time]
+            _ = self.model.balances[res][loc][time]
 
             #     self.model.update_grb(resource=res, space=loc, time=time)
 
@@ -96,7 +94,11 @@ class Transport(_Operation):
                 res = res.inv_of
 
             times = list(
-                [t for t in self.model.grb[res][loc] if self.model.grb[res][loc][t]],
+                [
+                    t
+                    for t in self.model.balances[res][loc]
+                    if self.model.balances[res][loc][t]
+                ],
             )
             # write the conversion balance at
             # densest temporal scale in that space
@@ -105,17 +107,17 @@ class Transport(_Operation):
 
             return time.horizon
 
-        self.conv.balancer()
+        self.conversion.balancer()
 
-        if self.conv.pwl:
+        if self.conversion.pwl:
 
-            conversion = self.conversion[list(self.conversion)[0]]
+            conversion = self.balance[list(self.balance)[0]]
 
         else:
-            conversion = self.conversion
+            conversion = self.balance
 
-        shipping_conversion, rest_conversion = {self.conv.base: 1}, {
-            k: v for k, v in conversion.items() if k != self.conv.base
+        shipping_conversion, rest_conversion = {self.conversion.basis: 1}, {
+            k: v for k, v in conversion.items() if k != self.conversion.basis
         }
 
         for link_time in link_times:
@@ -139,10 +141,10 @@ class Transport(_Operation):
 
                 # insitu resource (expended and ship_outed within the system)
                 # do not initiate a grb so we need to run a check for that first
-                if res in self.model.grb:
+                if res in self.model.balances:
                     time = time_checker(res, link.source, time)
 
-                    if self.model.grb[res][link][time]:
+                    if self.model.balances[res][link][time]:
                         # if the grb has been defined for that resource at that location and time
                         _insitu = False
                     else:
@@ -213,26 +215,26 @@ class Transport(_Operation):
                     _ = rhs_export == True
                     _ = rhs_import == True
 
-                if self.conv.pwl:
+                if self.conversion.pwl:
 
-                    eff = [conv[res] for conv in self.conversion.values()]
+                    eff = [conv[res] for conv in self.balance.values()]
 
                     if eff[0] < 0:
                         eff = [-i for i in eff]
 
-                    if not self.conv.modes_set:
+                    if not self.conversion.modes_set:
                         self.model.operate.bound = None
-                        _ = opr == dict(enumerate(self.conversion.keys()))
+                        _ = opr == dict(enumerate(self.balance.keys()))
 
-                        self.model.operate.bound = self.conv.model.capacity
+                        self.model.operate.bound = self.conversion.model.capacity
 
                         modes = self.model.modes[-1]
-                        self.conv.modes_set = True
+                        self.conversion.modes_set = True
 
                     else:
-                        modes = self.conv.modes
+                        modes = self.conversion.modes
                         modes.bind = self.operate
-                        self.conv.modes_set = True
+                        self.conversion.modes_set = True
 
                     opr = opr(modes)
                     rhs_export = rhs_export(modes)
@@ -242,13 +244,3 @@ class Transport(_Operation):
                 _ = opr[rhs_import] == eff
 
                 self.linkages.append(link)
-
-    def __call__(self, resource: Resource | Conversion, lag: Lag = None) -> Conversion:
-        """Conversion is called with a Resource to be converted"""
-        if not self._conv:
-
-            self.conv = Conversion(operation=self)
-            self._conv = True
-
-        self.conv.lag = lag
-        return self.conv(resource)

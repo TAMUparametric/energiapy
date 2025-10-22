@@ -17,6 +17,7 @@ if TYPE_CHECKING:
     from ..dimensions.space import Space
     from ..dimensions.time import Time
     from ..modeling.variables.sample import Sample
+    from ..represent.model import Model
 
 
 class _Component(_X):
@@ -28,8 +29,8 @@ class _Component(_X):
     :type basis: Unit, optional
     :param label: Label for the component. Defaults to None.
     :type label: str, optional
-    :param captions: Citation for the component. Defaults to None.
-    :type captions: str | list[str] | dict[str, str | list[str]], optional
+    :param citations: Citation for the component. Defaults to None.
+    :type citations: str | list[str] | dict[str, str | list[str]], optional
 
     :ivar model: The model to which the component belongs.
     :vartype model: Model
@@ -53,7 +54,7 @@ class _Component(_X):
         self,
         basis: Unit | None = None,
         label: str = "",
-        captions: str = "",
+        citations: str = "",
         **kwargs,
     ):
 
@@ -63,7 +64,7 @@ class _Component(_X):
 
         # what differentiates a component from an index is that it has aspects
         # that we can control to adjust their states of existence
-        _X.__init__(self, label=label, captions=captions)
+        _X.__init__(self, label=label, citations=citations)
 
     @property
     def network(self) -> Location:
@@ -95,30 +96,61 @@ class _Component(_X):
     def __setattr__(self, name, value):
         object.__setattr__(self, name, value)
 
-        def _get_sample(aspect: str, sample: Sample) -> Sample:
+        def _handle_norm(aspect: str, sample: Sample) -> Sample:
             """Check if a nominal parameter is set for the aspect"""
-
             # check if a request to normalize has been made
             nominal = aspect + "_nominal"
             nom = aspect + "_nom"
             normalize = aspect + "_normalize"
             norm = aspect + "_norm"
+
             if normalize in self.parameters or norm in self.parameters:
                 _normalize = self.parameters.get(normalize, self.parameters.get(norm))
-
             else:
                 # default behavior is to normalize
-                _normalize = True
+                _normalize = False
 
             # irrespective of normalize request, check if nominal value set
             if nominal in self.parameters or nom in self.parameters:
-                return sample.prep(self.parameters[nominal], _normalize)
+                # if nominal is given, normalize to it
+                return sample.prep(self.parameters[nominal], True)
+
+            if _normalize:
+                # if _normalize is True but no nominal provided
+                return sample.prep(norm=True)
+
             return sample
+
+        def _handle_x(aspect: str, sample: Sample) -> Sample:
+            """Check if aspect is optional"""
+
+            if (
+                aspect + '_optional' in self.parameters
+                and self.parameters[aspect + '_optional']
+            ):
+                return sample.x
+            if (
+                aspect + '_report' in self.parameters
+                and self.parameters[aspect + '_report']
+            ):
+                return sample.x
+
+            return sample
+
+        # def _handle(aspect: str, sample: Sample) -> Sample:
+        #     """Handle both nominal and optional"""
+        #     return _handle_x(aspect, _handle_norm(aspect, sample))
 
         # this handles the parameters being set on init
         if name == "model" and value is not None:
 
-            for attr, value in self.parameters.items():
+            model: Model = value
+
+            for attr, param in self.parameters.items():
+
+                if attr in model.manual:
+                    _ = getattr(self, attr) == param
+                    continue
 
                 # attributes name expected here are of the format <aspect>_<bound>
                 # for exact equality, just <aspect>
@@ -133,18 +165,25 @@ class _Component(_X):
                     # get the sample
                     sample = getattr(self, aspect)
 
+                    if isinstance(param, list):
+                        sample = _handle_x(aspect, _handle_norm(aspect, sample))
+
+                    else:
+                        sample = _handle_x(aspect, sample)
+
                     if len(split_attr) == 1:
                         # if split returned just the aspect name
                         # then it's an equality
-                        _ = _get_sample(aspect, sample) == value
+                        _ = sample == param
 
                     # else, check if lower or upper bound
 
                     elif split_attr[1] in ["max", "ub", "UB", "leq"]:
-                        _ = _get_sample(aspect, sample) <= value
+
+                        _ = sample <= param
 
                     elif split_attr[1] in ["min", "lb", "LB", "geq"]:
-                        _ = _get_sample(aspect, sample) >= value
+                        _ = sample >= param
 
                 else:
                     # error if type mismatch

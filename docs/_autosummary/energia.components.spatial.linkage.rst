@@ -8,7 +8,6 @@ energia.components.spatial.linkage
 
    .. autosummary::
    
-      dataclass
       is_
    
    .. rubric:: Classes

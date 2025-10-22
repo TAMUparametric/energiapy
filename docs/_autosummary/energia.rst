@@ -45,6 +45,7 @@
 
    components
    dimensions
+   export
    library
    modeling
    represent

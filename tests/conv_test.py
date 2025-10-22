@@ -26,29 +26,29 @@ def m():
 
 
 def test_conv(m):
-    assert m.conv1.conversion == {m.a: 1, m.b: [-20, -30, -40]}
-    assert m.conv2.conversion == {m.b: [20, 30, 40], m.a: -1}
-    assert m.conv3.conversion == {m.b: [20, 30, 40], m.a: 1}
-    assert m.conv4.conversion == {m.a: 1, m.b: [20, 30, 40]}
+    assert m.conv1.balance == {m.a: 1, m.b: [-20, -30, -40]}
+    assert m.conv2.balance == {m.b: [20, 30, 40], m.a: -1}
+    assert m.conv3.balance == {m.b: [20, 30, 40], m.a: 1}
+    assert m.conv4.balance == {m.a: 1, m.b: [20, 30, 40]}
 
     m.conv1.balancer()
     m.conv2.balancer()
     m.conv3.balancer()
     m.conv4.balancer()
 
-    assert m.conv1.conversion == {m.a: [1, 1, 1], m.b: [-20, -30, -40]}
-    assert m.conv2.conversion == {m.b: [20, 30, 40], m.a: [-1, -1, -1]}
-    assert m.conv3.conversion == {m.b: [20, 30, 40], m.a: [1, 1, 1]}
-    assert m.conv4.conversion == {m.a: [1, 1, 1], m.b: [20, 30, 40]}
+    assert m.conv1.balance == {m.a: [1, 1, 1], m.b: [-20, -30, -40]}
+    assert m.conv2.balance == {m.b: [20, 30, 40], m.a: [-1, -1, -1]}
+    assert m.conv3.balance == {m.b: [20, 30, 40], m.a: [1, 1, 1]}
+    assert m.conv4.balance == {m.a: [1, 1, 1], m.b: [20, 30, 40]}
 
-    m.proc.conv.balancer()
-    assert m.proc.conversion == {
+    m.proc.conversion.balancer()
+    assert m.proc.balance == {
         100: {m.c: [1.0, 1.0, 1.0], m.a: [1, 1, 1], m.b: [-20, -30, -40]},
         200: {m.c: [1.0, 1.0, 1.0], m.b: [20, 30, 40], m.a: [1, 1, 1]},
     }
 
-    m.proc2.conv.balancer()
-    assert m.proc2.conversion == {
+    m.proc2.conversion.balancer()
+    assert m.proc2.balance == {
         0: {m.c: [1.0, 1.0, 1.0], m.a: [1, 2, 3]},
         1: {m.c: 1.0, m.b: 1.0},
     }

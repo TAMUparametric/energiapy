@@ -16,9 +16,9 @@ energia.modeling.variables.aspect
    .. autosummary::
    
       Aspect
-      Couple
       Domain
       Indicator
+      Interact
       Lag
       Linkage
       Location

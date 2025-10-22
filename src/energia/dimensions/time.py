@@ -72,7 +72,7 @@ class Time(_Dimension):
             warn(
                 f"{size} does not match the size of any data set passed, generating 't{size}'.)",
             )
-            _ = self.model.default_periods(size=size)
+            _ = self.model._t0(size=size)
 
         return self.tree[size]
 
@@ -107,4 +107,4 @@ class Time(_Dimension):
         if self.periods:
             return self.sparsest
         # if nothing found, make a default period
-        return self.model.default_periods()
+        return self.model._t0()

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from ._commodity import _Commodity
+from ..._core._commodity import _Commodity
 
 if TYPE_CHECKING:
     from ..measure.unit import Unit
@@ -43,7 +43,9 @@ class Emission(_Commodity):
         self,
         basis: Unit | None = None,
         label: str = "",
-        captions: str = "",
+        citations: str = "",
         **kwargs,
     ):
-        _Commodity.__init__(self, basis=basis, label=label, captions=captions, **kwargs)
+        _Commodity.__init__(
+            self, basis=basis, label=label, citations=citations, **kwargs
+        )
