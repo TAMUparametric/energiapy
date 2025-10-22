@@ -148,6 +148,9 @@ class Sample:
     @property
     def F(self):
         """Function"""
+
+        if self.report:
+            return self.X(1)
         return self.V(1)
 
     @property
@@ -689,10 +692,26 @@ class FuncOfSamples:
         return FuncOfSamples(F=other * self.F, program=self.program)
 
     def __eq__(self, other):
-        setattr(self.program, f"eq_{self.F.name}", self.F == other)
+        func = self.F == other
+        setattr(self.program, f"eq_{self.F.name}", func)
+        return func
 
     def __le__(self, other):
-        setattr(self.program, f"le_{self.F.name}", self.F <= other)
+        func = self.F <= other
+        setattr(self.program, f"le_{self.F.name}", func)
+        return func
 
     def __ge__(self, other):
-        setattr(self.program, f"ge_{self.F.name}", self.F >= other)
+        func = self.F >= other
+        setattr(self.program, f"ge_{self.F.name}", func)
+        return func
+
+    def opt(self, max=False):
+        """Optimize the function
+
+        :param max: if maximization, defaults to False
+        :type max: bool, optional
+        """
+
+        setattr(self.program, f"min_{self.F.name}", inf(self.F))
+        self.program.opt()
