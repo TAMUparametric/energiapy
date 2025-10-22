@@ -269,24 +269,20 @@ class Model:
 
         # user_input_attr -> matching_aspect -> Recipe
         self.directory: dict[str, dict[str, Recipe]] = {}
-
         # already_defined_user_input_attr -> matching_aspect
         self.registry: dict[str, Aspect] = {}
-
         # matching_aspect -> Recipe
         self.cookbook: dict[str, Recipe] = {}
-
         # parameter_name -> parameter_handling_instruction
         self.manual: dict[str, Instruction] = {}
 
         # measuring units
         self.units: list[Unit] = []
-        self.convmatrix: dict[Process, dict[Resource, int | float | list]] = {}
-
-        self.modes_dict: dict[Sample, Modes] = {}
-
         # if SI units have been set
         self.siunits_set: bool = False
+
+        self.convmatrix: dict[Process, dict[Resource, int | float | list]] = {}
+        self.modes_dict: dict[Sample, Modes] = {}
 
         if not self.init:
             self.init = []
@@ -308,9 +304,6 @@ class Model:
 
         for func in self.init:
             func(self)
-
-        # # introduce the dimensions of the model
-        # Decisions.__post_init__(self)
 
         self.classifiers: dict[str, list[Enum]] = {
             "uncertainty": [],
@@ -336,55 +329,13 @@ class Model:
             ],
         ] = {}
 
-
         self.maps: dict[Aspect, dict[Domain, dict[str, list[Domain]]]] = {}
         self.maps_report: dict[Aspect, dict[Domain, dict[str, list[Domain]]]] = {}
-
 
 
     # -----------------------------------------------------
     #              Set Component
     # -----------------------------------------------------
-
-    # @property
-    # def horizon(self) -> Periods:
-    #     """The horizon of the Model"""
-    #     return self.time.horizon
-
-    # @property
-    # def network(self) -> Location:
-    #     """The network of the Model"""
-    #     return self.space.network
-
-    # @property
-    # def indicators(self) -> list[Social | Environ | Economic]:
-    #     """Indicators"""
-    #     return self.consequence.indicators
-
-    # @property
-    # def operations(self) -> list[Process | Storage | Transport]:
-    #     """The Operations"""
-    #     return self.system.operations
-
-    # @property
-    # def solution(self) -> dict[int, Solution | MPSolution]:
-    #     """The solution of the program"""
-    #     return self.program.solution
-
-    # @property
-    # def formulation(self) -> dict[int, GPModel | MPLP_Program]:
-    #     """The formulations of the program"""
-    #     return self.program.formulation
-    
-    # @property
-    # def aspects(self) -> list[Impact | Stream | Control | State]:
-    #     """All Decisions"""
-    #     return self.problem.aspects
-
-    # @property
-    # def domains(self) -> list[Domain]:
-    #     """All Domains"""
-    #     return self.problem.domains
 
     def update(
         self,
