@@ -95,7 +95,7 @@ class Conversion(_Hash):
     def modes(self) -> Modes:
         """Modes of the operation"""
         if self._modes is None:
-            n_modes = len(self.balance)
+            n_modes = len(self)
             modes_name = f"bin{len(self.model.modes)}"
 
             setattr(self.model, modes_name, Modes(n_modes=n_modes, bind=self.bind))
@@ -266,3 +266,7 @@ class Conversion(_Hash):
     def items(self):
         """Items of the conversion balance"""
         return self.balance.items()
+
+    def __len__(self):
+        """Length of the conversion balance"""
+        return len(self.balance)
