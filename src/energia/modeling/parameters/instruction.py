@@ -65,12 +65,3 @@ class Instruction(_Name):
         raise TypeError(
             f"{component} ({type(component)}): {self.name} earmarked for {self.kind.__name__}"
         )
-
-    def __str__(self):
-        return self.name
-
-    def __repr__(self):
-        return self.name
-
-    def __hash__(self):
-        return hash(self.name)
