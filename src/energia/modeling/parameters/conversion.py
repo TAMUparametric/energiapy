@@ -141,9 +141,7 @@ class Conversion(Mapping, _Hash):
 
         self.balance = _balancer(self.balance)
 
-    def write(
-        self, operation: _Operation, space: Location | Linkage, time: Periods | Lag
-    ):
+    def write(self, space: Location | Linkage, time: Periods | Lag):
         """Writes equations for conversion balance"""
 
         def time_checker(res: _Commodity, space: Location | Linkage, time: Periods):
@@ -153,18 +151,18 @@ class Conversion(Mapping, _Hash):
             # This checks whether some other aspect is defined at
             # a lower temporal scale
 
-            if loc not in self.model.balances[res]:
+            if space not in self.model.balances[res]:
                 # if not defined for that location, check for a lower order location
                 # i.e. location at a lower hierarchy,
-                # e.g. say if loc being passed is a city, and a grb has not been defined for it
+                # e.g. say if space being passed is a city, and a grb has not been defined for it
                 # then we need to check at a higher order
                 parent = self.model.space.split(space)[
                     1
                 ]  # get location at one hierarchy above
                 if parent:
-                    # if that indeed exists, then make the parent the loc
+                    # if that indeed exists, then make the parent the space
                     # the conversion Balance variables will feature in grb for parent location
-                    loc = parent
+                    space = parent
 
             _ = self.model.balances[res][space][time]
 
@@ -177,8 +175,8 @@ class Conversion(Mapping, _Hash):
                 times = list(
                     [
                         t
-                        for t in self.model.balances[res][loc]
-                        if self.model.balances[res][loc][t]
+                        for t in self.model.balances[res][space]
+                        if self.model.balances[res][space][t]
                     ],
                 )
             except KeyError:
@@ -198,7 +196,7 @@ class Conversion(Mapping, _Hash):
 
             eff = par if isinstance(par, list) else [par]
 
-            decision = getattr(operation, self.by)
+            decision = getattr(self.operation, self.by)
 
             if eff[0] < 0:
                 # Resources are consumed (expendend by Process) immediately

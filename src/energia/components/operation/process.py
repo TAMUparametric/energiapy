@@ -68,47 +68,47 @@ class Process(_Operation):
     def writecons_conversion(self, loc_times: list[tuple[Location, Periods]]):
         """Write the conversion constraints for the process"""
 
-        def time_checker(res: Resource, loc: Location, time: Periods):
-            """This checks if it is actually necessary
-            to write conversion at denser temporal scales
-            """
-            # This checks whether some other aspect is defined at
-            # a lower temporal scale
+        # def time_checker(res: Resource, loc: Location, time: Periods):
+        #     """This checks if it is actually necessary
+        #     to write conversion at denser temporal scales
+        #     """
+        #     # This checks whether some other aspect is defined at
+        #     # a lower temporal scale
 
-            if loc not in self.model.balances[res]:
-                # if not defined for that location, check for a lower order location
-                # i.e. location at a lower hierarchy,
-                # e.g. say if loc being passed is a city, and a grb has not been defined for it
-                # then we need to check at a higher order
-                parent = self.space.split(loc)[1]  # get location at one hierarchy above
-                if parent:
-                    # if that indeed exists, then make the parent the loc
-                    # the conversion Balance variables will feature in grb for parent location
-                    loc = parent
+        #     if loc not in self.model.balances[res]:
+        #         # if not defined for that location, check for a lower order location
+        #         # i.e. location at a lower hierarchy,
+        #         # e.g. say if loc being passed is a city, and a grb has not been defined for it
+        #         # then we need to check at a higher order
+        #         parent = self.space.split(loc)[1]  # get location at one hierarchy above
+        #         if parent:
+        #             # if that indeed exists, then make the parent the loc
+        #             # the conversion Balance variables will feature in grb for parent location
+        #             loc = parent
 
-            _ = self.model.balances[res][loc][time]
+        #     _ = self.model.balances[res][loc][time]
 
-            if res.inv_of:
-                # for inventoried resources, the conversion is written
-                # using the time of the base resource's grb
-                res = res.inv_of
+        #     if res.inv_of:
+        #         # for inventoried resources, the conversion is written
+        #         # using the time of the base resource's grb
+        #         res = res.inv_of
 
-            try:
-                times = list(
-                    [
-                        t
-                        for t in self.model.balances[res][loc]
-                        if self.model.balances[res][loc][t]
-                    ],
-                )
-            except KeyError:
-                times = []
-            # write the conversion balance at
-            # densest temporal scale in that space
-            if times:
-                return min(times)
+        #     try:
+        #         times = list(
+        #             [
+        #                 t
+        #                 for t in self.model.balances[res][loc]
+        #                 if self.model.balances[res][loc][t]
+        #             ],
+        #         )
+        #     except KeyError:
+        #         times = []
+        #     # write the conversion balance at
+        #     # densest temporal scale in that space
+        #     if times:
+        #         return min(times)
 
-            return time.horizon
+        #     return time.horizon
 
         if not self.production:
             warn(
@@ -149,74 +149,77 @@ class Process(_Operation):
                 # if the process is already balanced for the location , Skip
                 continue
 
-            for res, par in self.production.items():
-                # set, the conversion on the resource
+            self.production.write(location, time)
 
-                #! Repurpose
-                # setattr(res, self.name, self)
+            # for res, par in self.production.items():
+            #     # set, the conversion on the resource
 
-                # now there are two cases possible
-                # the parameter (par) is positive or negative
-                # if positive, the resource is expended
-                # if negative, the resource is produced
-                # also, the par can be an number or a list of numbers
+            #     #! Repurpose
+            #     # setattr(res, self.name, self)
 
-                # insitu resource (produced and expended within the system)
-                # do not initiate a grb so we need to run a check for that first
+            #     # now there are two cases possible
+            #     # the parameter (par) is positive or negative
+            #     # if positive, the resource is expended
+            #     # if negative, the resource is produced
+            #     # also, the par can be an number or a list of numbers
 
-                if res in self.model.balances:
-                    time = time_checker(res, location, time)
-                    _ = self.model.balances[res].get(location, {})
+            #     # insitu resource (produced and expended within the system)
+            #     # do not initiate a grb so we need to run a check for that first
 
-                eff = par if isinstance(par, list) else [par]
+            #     if res in self.model.balances:
+            #         time = time_checker(res, location, time)
+            #         _ = self.model.balances[res].get(location, {})
 
-                if eff[0] < 0:
-                    # Resources are consumed (expendend by Process) immediately
-                    rhs = res.expend(self.operate, location, time)
-                    eff = [-e for e in eff]
-                else:
-                    # Production — may occur after lag
-                    lag_time = self.lag.of if self.lag else time
-                    rhs = res.produce(self.operate, location, lag_time)
+            #     eff = par if isinstance(par, list) else [par]
 
-                opr = self.operate(location, time)
+            #     if eff[0] < 0:
+            #         # Resources are consumed (expendend by Process) immediately
+            #         rhs = res.expend(self.operate, location, time)
+            #         eff = [-e for e in eff]
+            #     else:
+            #         # Production — may occur after lag
+            #         lag_time = self.lag.of if self.lag else time
+            #         rhs = res.produce(self.operate, location, lag_time)
 
-                # because of using .balancer(), expend/produce are on same temporal scale
+            #     opr = self.operate(location, time)
 
-                # if self.conversion.pwl:
+            #! PWL
+            # because of using .balancer(), expend/produce are on same temporal scale
 
-                #     eff = [conv[res] for conv in self.balance.values()]
+            # if self.conversion.pwl:
 
-                #     if eff[0] < 0:
-                #         eff = [-e for e in eff]
+            #     eff = [conv[res] for conv in self.balance.values()]
 
-                #     if not self.conversion.modes_set:
-                #         # this is setting the bin limits for piece wise linear conversion
-                #         # these are written bound to capacity generally
-                #         # but here we pause that binding and bind operate to explicit limits
-                #         self.model.operate.bound = None
+            #     if eff[0] < 0:
+            #         eff = [-e for e in eff]
 
-                #         _ = opr == dict(enumerate(self.balance.keys()))
+            #     if not self.conversion.modes_set:
+            #         # this is setting the bin limits for piece wise linear conversion
+            #         # these are written bound to capacity generally
+            #         # but here we pause that binding and bind operate to explicit limits
+            #         self.model.operate.bound = None
 
-                #         # reset capacity binding
-                #         self.model.operate.bound = self.model.capacity
+            #         _ = opr == dict(enumerate(self.balance.keys()))
 
-                #         modes = self.model.modes[-1]
-                #         self.conversion.modes_set = True
+            #         # reset capacity binding
+            #         self.model.operate.bound = self.model.capacity
 
-                #     else:
-                #         modes = self.conversion.modes
-                #         modes.bind = self.operate
-                #         self.conversion.modes_set = True
+            #         modes = self.model.modes[-1]
+            #         self.conversion.modes_set = True
 
-                #     opr = opr(modes)
+            #     else:
+            #         modes = self.conversion.modes
+            #         modes.bind = self.operate
+            #         self.conversion.modes_set = True
 
-                #     rhs = rhs(modes)
+            #     opr = opr(modes)
 
-                # _ = opr(modes)[rhs(modes)] == eff
+            #     rhs = rhs(modes)
 
-                # else:
-                _ = opr[rhs] == eff
+            # _ = opr(modes)[rhs(modes)] == eff
+
+            # else:
+            # _ = opr[rhs] == eff
 
             # update the locations at which the process exists
             self.locations.append(location)
