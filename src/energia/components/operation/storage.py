@@ -23,6 +23,24 @@ if TYPE_CHECKING:
     from ..spatial.location import Location
 
 
+class Charge(Process):
+    """Process that Charges Storage"""
+
+    def __init__(self, storage: Storage, *args, **kwargs):
+
+        self.storage = storage
+        super().__init__(*args, **kwargs)
+
+
+class Discharge(Process):
+    """Process that Discharges Storage"""
+
+    def __init__(self, storage: Storage, *args, **kwargs):
+
+        self.storage = storage
+        super().__init__(*args, **kwargs)
+
+
 class Storage(_Component):
     """
     Storage is a container for three main elements:
@@ -79,8 +97,8 @@ class Storage(_Component):
 
         # * Storage is made up of three components:
         # Charging, Discharging, and Stored Resource (Inventory)
-        self.charge: Process | None = None
-        self.discharge: Process | None = None
+        self.charge: Charge | None = None
+        self.discharge: Discharge | None = None
         self.stored: Stored | None = None
 
         self._birthed = False
@@ -124,11 +142,10 @@ class Storage(_Component):
             self.parameters = {}
 
             # initiate the processes
-            self.charge = Process(**_charging_args)
-            self.discharge = Process(**_discharging_args)
+            self.charge = Charge(storage=self, **_charging_args)
+            self.discharge = Discharge(storage=self, **_discharging_args)
             self.stored = Stored(**_storage_args)
-            self.charge.charges = self
-            self.discharge.discharges = self
+
             self._birthed = True
 
             setattr(model, f"{self.name}.charge", self.charge)
@@ -274,15 +291,13 @@ class Storage(_Component):
         """Conversion is called with a Resource to be converted"""
 
         if not self._birthed:
-            self.charge = Process()
-            self.discharge = Process()
+            self.charge = Charge(storage=self)
+            self.discharge = Discharge(storage=self)
             self.stored = Stored()
 
             setattr(self.model, f"{self.name}.charge", self.charge)
             setattr(self.model, f"{self.name}.discharge", self.discharge)
             setattr(self.model, f"{resource}.{self}", self.stored)
-            self.charge.charges = self
-            self.discharge.discharges = self
             self._birthed = True
 
         # -------set discharge conversion
