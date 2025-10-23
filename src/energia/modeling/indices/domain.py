@@ -62,8 +62,8 @@ class Domain(_Hash):
     :type lag: Lag | None
     :param modes: Modes applicable to the domain.
     :type modes: Modes | None
-    :param binds: List of binds that can be summed over.
-    :type binds: list[Bind] | None
+    :param samples: List of samples that can be summed over.
+    :type samples: list[Bind] | None
 
     :ivar model: Model to which the Domain belongs.
     :vartype model: Model
@@ -94,13 +94,13 @@ class Domain(_Hash):
     modes: Modes | None = None
 
     # These can be summed over
-    binds: list[Sample] | None = field(default_factory=list)
+    samples: list[Sample] | None = field(default_factory=list)
 
     def __post_init__(self):
         # Domains are structured something like this:
         # (primary_component ...aspect_n, secondary_component_n....,decision-makers, space, time
         # primary_component can be an indicator, commodity, or operation (process | storage | transport)
-        # {aspect_n: secondary_component_n} is given in self.binds
+        # {aspect_n: secondary_component_n} is given in self.samples
         # decision-makers = player | couple
         # space = location | linkage
         # time = period | lag
@@ -230,7 +230,7 @@ class Domain(_Hash):
     def index(self) -> list[Aspect | _X]:
         """list of _Index elements"""
 
-        # binds = sum([[i, j] for i, j in self.binds.items()], [])
+        # samples = sum([[i, j] for i, j in self.samples.items()], [])
 
         # these default to network and horizon, so can default from model using .space or .time
 
@@ -258,14 +258,14 @@ class Domain(_Hash):
         :returns: list of bind indices
         :rtype: list[X]
         """
-        return [x for b in self.binds for x in (b.aspect, b.domain.primary)]
+        return [x for b in self.samples for x in (b.aspect, b.domain.primary)]
 
     @property
     def index_short(
         self,
     ) -> list[Indicator | _Commodity | Process | Storage | Transport | Sample]:
         """Set of indices"""
-        return self.index_primary + self.binds
+        return self.index_primary + self.samples
 
     @property
     def tree(self) -> dict:
@@ -274,14 +274,14 @@ class Domain(_Hash):
         tree = {}
         node = tree
 
-        if self.binds:
-            index = self.index[: -2 * (len(self.binds))]
+        if self.samples:
+            index = self.index[: -2 * (len(self.samples))]
         else:
             index = self.index
         for key in index:
             node[key] = {}
             node = node[key]
-        for b in self.binds:
+        for b in self.samples:
             node[b.aspect] = {}
             node[b.aspect][b.domain.primary] = {}
             node = node[b.aspect][b.domain.primary]
@@ -294,7 +294,7 @@ class Domain(_Hash):
     @property
     def aspects(self) -> list[Aspect]:
         """Aspects"""
-        return [b.aspect for b in self.binds]
+        return [b.aspect for b in self.samples]
 
     @property
     def args(
@@ -328,7 +328,7 @@ class Domain(_Hash):
             "periods": self.periods,
             "lag": self.lag,
             "modes": self.modes,
-            "binds": self.binds,
+            "samples": self.samples,
         }
 
     @property
@@ -357,7 +357,7 @@ class Domain(_Hash):
             "space": self.space,
             "time": self.time,
             "modes": self.modes,
-            "binds": self.binds,
+            "samples": self.samples,
         }
 
     # -----------------------------------------------------
@@ -403,7 +403,7 @@ class Domain(_Hash):
             if self.lag and i == "time":
                 # lags disappear anyway, so dont bother
                 continue
-            if i not in ["binds"]:
+            if i not in ["samples"]:
                 # these are dependent variables, so do not update them
                 if self not in j.domains:
                     # check and update the domains at each index

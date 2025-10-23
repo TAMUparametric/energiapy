@@ -384,16 +384,16 @@ class Aspect:
                 _Commodity: ("commodity", None, True),
             }
 
-            binds: list[Sample] = []
+            samples: list[Sample] = []
             timed, spaced = False, False
 
             for comp in index:
                 if isinstance(comp, Sample):
-                    binds.append(comp)
-                    for b in binds:
-                        if b.domain.binds:
-                            binds.extend(b.domain.binds)
-                    binds = list(set(binds))
+                    samples.append(comp)
+                    for b in samples:
+                        if b.domain.samples:
+                            samples.extend(b.domain.samples)
+                    samples = list(set(samples))
                     continue
 
                 for typ, (attr, flag, require_primary) in type_map.items():
@@ -420,8 +420,8 @@ class Aspect:
 
             args = {k: v for k, v in args.items() if v is not None}
 
-            if binds:
-                args["binds"] = binds
+            if samples:
+                args["samples"] = samples
 
             domain = Domain(**args)
 
