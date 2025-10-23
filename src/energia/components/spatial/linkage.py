@@ -48,7 +48,6 @@ class Linkage(_X):
         source: Location,
         sink: Location,
         dist: float | None = None,
-        basis: Unit | None = None,
         bi: bool = False,
         auto: bool = False,
         label: str = "",
@@ -61,7 +60,6 @@ class Linkage(_X):
         self.source = source
         self.sink = sink
         self.dist = dist
-        self.basis = basis
         self.bi = bi
         self.auto = auto
 

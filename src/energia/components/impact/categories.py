@@ -14,8 +14,7 @@ class Environ(Indicator):
     """
     Environmental Impact
 
-    :param basis: Unit basis of the component. Defaults to None.
-    :type basis: Unit, optional
+
     :param label: An optional label for the component. Defaults to None.
     :type label: str, optional
     :param citations: An optional citation or description for the component. Defaults to None.
@@ -34,21 +33,15 @@ class Environ(Indicator):
     :vartype aspects: dict[Aspect, list[Domain]]
     """
 
-    def __init__(
-        self, basis: Unit | None = None, label: str = "", citations: str = "", **kwargs
-    ):
+    def __init__(self, label: str = "", citations: str = "", **kwargs):
 
-        Indicator.__init__(
-            self, basis=basis, label=label, citations=citations, **kwargs
-        )
+        Indicator.__init__(self, label=label, citations=citations, **kwargs)
 
 
 class Social(Indicator):
     """
     Social Impact
 
-    :param basis: Unit basis of the component. Defaults to None.
-    :type basis: Unit, optional
     :param label: An optional label for the component. Defaults to None.
     :type label: str, optional
     :param citations: An optional citation or description for the component. Defaults to None.
@@ -67,21 +60,15 @@ class Social(Indicator):
     :vartype aspects: dict[Aspect, list[Domain]]
     """
 
-    def __init__(
-        self, basis: Unit | None = None, label: str = "", citations: str = "", **kwargs
-    ):
+    def __init__(self, label: str = "", citations: str = "", **kwargs):
 
-        Indicator.__init__(
-            self, basis=basis, label=label, citations=citations, **kwargs
-        )
+        Indicator.__init__(self, label=label, citations=citations, **kwargs)
 
 
 class Economic(Indicator):
     """
     Economic impact
 
-    :param basis: Unit basis of the component. Defaults to None.
-    :type basis: Unit, optional
     :param label: An optional label for the component. Defaults to None.
     :type label: str, optional
     :param citations: An optional citation or description for the component. Defaults to None.
@@ -100,10 +87,6 @@ class Economic(Indicator):
     :vartype aspects: dict[Aspect, list[Domain]]
     """
 
-    def __init__(
-        self, basis: Unit | None = None, label: str = "", citations: str = "", **kwargs
-    ):
+    def __init__(self, label: str = "", citations: str = "", **kwargs):
 
-        Indicator.__init__(
-            self, basis=basis, label=label, citations=citations, **kwargs
-        )
+        Indicator.__init__(self, label=label, citations=citations, **kwargs)

@@ -23,8 +23,6 @@ if TYPE_CHECKING:
 class _Operation(_Component):
     """A General Operation
 
-    :param basis: Unit basis of the component. Defaults to None.
-    :type basis: Unit, optional
     :param label: An optional label for the component. Defaults to None.
     :type label: str, optional
     :param citations: An optional citation or description for the component. Defaults to None.

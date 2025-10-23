@@ -18,8 +18,6 @@ class Player(_Component):
     Players own certain processes and be responsible for the streams and impact
     caused by their decisions pertaining to this
 
-    :param basis: Unit basis of the component. Defaults to None.
-    :type basis: Unit, optional
     :param label: An optional label for the component. Defaults to None.
     :type label: str, optional
     :param citations: An optional citation or description for the component. Defaults to None.
@@ -39,9 +37,9 @@ class Player(_Component):
     """
 
     def __init__(
-        self, basis: Unit | None, label: str = "", citations: str = "", **kwargs
+        self,  label: str = "", citations: str = "", **kwargs
     ):
 
         _Component.__init__(
-            self, basis=basis, label=label, citations=citations, **kwargs
+            self, label=label, citations=citations, **kwargs
         )

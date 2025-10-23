@@ -105,9 +105,8 @@ class Storage(_Component):
         **kwargs,
     ):
 
-        _Component.__init__(
-            self, basis=basis, label=label, citations=citations, **kwargs
-        )
+        _Component.__init__(self, label=label, citations=citations, **kwargs)
+        self.basis = basis
 
         # Charging, Discharging, and Stored Resource (Inventory)
         self.charge: Charge | None = None

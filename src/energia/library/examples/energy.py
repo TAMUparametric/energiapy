@@ -382,7 +382,7 @@ def supermarket():
     m.heating = Resource(basis=m.kW, label="Heating")
     _ = m.heating.release >= resource_demand_dict["Space Heating"]
 
-    m.st = Process(basis=m.PJ, label="Biomass ST")
+    m.st = Process(label="Biomass ST")
     _ = (
         m.st(-m.biomass)
         == (277.78 * generation_process_dict["Biomass ST"]["nE"] / 100) * m.power
@@ -397,7 +397,7 @@ def supermarket():
     )
     _ = m.st.operate[m.usd.spend] == generation_process_dict["Biomass ST"]["Opex"]
 
-    m.chp = Process(basis=m.PJ, label="Biomass ST")
+    m.chp = Process(label="Biomass ST")
     _ = (
         m.chp(-m.ng)
         == (277.78 * generation_process_dict["Natural Gas CHP"]["nE"] / 100) * m.power
@@ -413,7 +413,7 @@ def supermarket():
     )
     _ = m.chp.operate[m.usd.spend] == generation_process_dict["Natural Gas CHP"]["Opex"]
 
-    m.pv = Process(basis=m.kW, label="Solar PV")
+    m.pv = Process(label="Solar PV")
     _ = (
         m.pv(-m.solar)
         == (277.78 * generation_process_dict["Solar PV"]["nE"] / 100) * m.power
@@ -426,7 +426,7 @@ def supermarket():
     )
     _ = m.pv.operate[m.usd.spend] == generation_process_dict["Solar PV"]["Opex"]
 
-    m.wf = Process(basis=m.kW, label="Wind Farm")
+    m.wf = Process(label="Wind Farm")
     _ = (
         m.wf(-m.wind)
         == (277.78 * generation_process_dict["Wind Farm"]["nE"] / 100) * m.power
@@ -439,7 +439,7 @@ def supermarket():
     )
     _ = m.wf.operate[m.usd.spend] == generation_process_dict["Wind Farm"]["Opex"]
 
-    m.grid = Process(basis=m.PJ, label="Grid Electricity")
+    m.grid = Process(label="Grid Electricity")
     _ = (
         m.grid(-m.gridpower)
         == 277.78 * m.power
@@ -447,7 +447,7 @@ def supermarket():
     )
     _ = m.grid.capacity <= 10**5  # no binary needed because no upper bound
 
-    m.refrigerator = Process(basis=m.kW, label="Refrigerator")
+    m.refrigerator = Process(label="Refrigerator")
     _ = m.refrigerator.capacity <= 10**5
     _ = (
         m.refrigerator(-m.power)
@@ -463,7 +463,7 @@ def supermarket():
         == consumption_process_dict["Refrigeration"]["Opex"]
     )
 
-    m.led = Process(basis=m.kW, label="LED")
+    m.led = Process(label="LED")
     _ = (
         m.led(-m.power)
         == (consumption_process_dict["LED"]["Efficiency"] / 100) * m.lighting
@@ -471,7 +471,7 @@ def supermarket():
     _ = m.led.capacity[m.usd.spend] == consumption_process_dict["LED"]["Capex"] * 0.05
     _ = m.led.operate[m.usd.spend] == consumption_process_dict["LED"]["Opex"]
 
-    m.heater = Process(basis=m.kW, label="Heater")
+    m.heater = Process(label="Heater")
     _ = (
         m.heater(-m.heat)
         == (consumption_process_dict["Heating"]["Efficiency"] / 100) * m.heating

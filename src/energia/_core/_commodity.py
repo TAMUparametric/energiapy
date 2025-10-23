@@ -43,9 +43,8 @@ class _Commodity(_Component, Mapping):
     def __init__(
         self, basis: Unit | None = None, label: str = "", citations: str = "", **kwargs
     ):
-        _Component.__init__(
-            self, basis=basis, label=label, citations=citations, **kwargs
-        )
+        self.basis = basis
+        _Component.__init__(self, label=label, citations=citations, **kwargs)
 
         # list of conversions associated with the commodity
         self.conversions: list[Conversion] = []

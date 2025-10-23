@@ -18,8 +18,6 @@ class Process(_Operation):
     """
     Process converts one Resource to another Resource at some Location
 
-    :param basis: Unit basis of the component. Defaults to None.
-    :type basis: Unit, optional
     :param label: An optional label for the component. Defaults to None.
     :type label: str, optional
     :param citations: An optional citation or description for the component. Defaults to None.

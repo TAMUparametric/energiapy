@@ -20,9 +20,6 @@ class Currency(_Commodity):
     :type label: str, optional
     :param name: Name of the commodity, used for indexing. Defaults to None.
     :type name: str, optional
-    :param basis: Unit basis of the commodity. Defaults to None.
-    :type basis: Unit, optional
-
 
     :ivar model: The model to which the component belongs.
     :vartype model: Model
@@ -45,14 +42,13 @@ class Currency(_Commodity):
     def __init__(
         self,
         *locs: Location,
-        basis: Unit | None = None,
         label: str = "",
         citations: str = "",
         **kwargs,
     ):
         self.locs = list(locs)
         _Commodity.__init__(
-            self, basis=basis, label=label, citations=citations, **kwargs
+            self, label=label, citations=citations, **kwargs
         )
 
         # dictionary of exchange rates

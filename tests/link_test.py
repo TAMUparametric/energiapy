@@ -12,8 +12,8 @@ def m():
     m_.sd = Location()
     m_.mum = Location()
     m_.ny = Location()
-    m_.grid = Linkage(source=m_.htown, sink=m_.sd, dist=1400, basis=m_.mile)
-    m_.sea = Linkage(source=m_.ny, sink=m_.mum, dist=10000, basis=m_.km, bi=True)
+    m_.grid = Linkage(source=m_.htown, sink=m_.sd, dist=1400)
+    m_.sea = Linkage(source=m_.ny, sink=m_.mum, dist=10000, bi=True)
     return m_
 
 

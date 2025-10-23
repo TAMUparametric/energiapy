@@ -15,8 +15,6 @@ class Indicator(_Component):
     """
     Impact Indicator
 
-    :param basis: Unit basis of the component. Defaults to None.
-    :type basis: Unit, optional
     :param label: An optional label for the component. Defaults to None.
     :type label: str, optional
     :param citations: An optional citation or description for the component. Defaults to None.
@@ -35,13 +33,9 @@ class Indicator(_Component):
     :vartype aspects: dict[Aspect, list[Domain]]
     """
 
-    def __init__(
-        self, basis: Unit | None = None, label: str = "", citations: str = "", **kwargs
-    ):
+    def __init__(self, label: str = "", citations: str = "", **kwargs):
 
-        _Component.__init__(
-            self, basis=basis, label=label, citations=citations, **kwargs
-        )
+        _Component.__init__(self, label=label, citations=citations, **kwargs)
 
     @property
     def consequence(self) -> Impact:
