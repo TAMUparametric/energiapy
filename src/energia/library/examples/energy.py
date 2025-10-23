@@ -158,6 +158,51 @@ def design_scheduling():
     return m
 
 
+def design_scheduling_w_attrs():
+    """A small design and scheduling example with attributes"""
+
+    m = Model()
+    m.q = Periods()
+    m.y = 4 * m.q
+    m.usd = Currency()
+    m.solar = Resource(consume_max=[100] * 4)
+    m.wind = Resource(consume_max=100 * 4)
+    m.power = Resource(demand_nominal=180, demand_min=[0.6, 0.7, 0.8, 0.3])
+    m.wf = Process(
+        m.power == -1.0 * m.wind,
+        capacity_max=100,
+        capacity_min=10,
+        capacity_optional=True,
+        operate_normalize=True,
+        operate_max=[0.9, 0.8, 0.5, 0.7],
+        capex=990637 + 3354,
+        opex=49,
+    )
+
+    m.pv = Process(
+        m.power == -1 * m.solar,
+        capacity_max=100,
+        capacity_min=10,
+        capacity_optional=True,
+        operate_normalize=True,
+        operate_max=[0.6, 0.8, 0.9, 0.7],
+        capex=567000 + 872046,
+        opex=90000,
+    )
+    m.lii = Storage(
+        m.power == 0.9,
+        capacity_max=100,
+        capacity_min=10,
+        capacity_optional=True,
+        capex=1302182 + 41432,
+        inventory_cost=2000,
+    )
+
+    m.locate(m.wf, m.pv, m.lii)
+
+    return m
+
+
 def design_scheduling_materials():
     """Design and scheduling considering materials and emissions from them"""
     m = Model("design_scheduling")

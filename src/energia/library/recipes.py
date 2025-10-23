@@ -9,9 +9,9 @@ from ..components.commodity.emission import Emission
 from ..components.commodity.land import Land
 from ..components.commodity.material import Material
 from ..components.commodity.resource import Resource
-from ..components.commodity.stored import Stored
 from ..components.impact.categories import Economic, Environ, Social
 from ..components.operation.process import Process
+from ..components.operation.storage import Stored
 from ..components.operation.transport import Transport
 from ..modeling.variables.control import Control
 from ..modeling.variables.states import (EndoStream, ExoStream, IndStream,
@@ -81,7 +81,7 @@ def inventory_sizing(model: Model):
     model.Recipe(
         "invcapacity",
         Size,
-        primary_type=Resource,
+        primary_type=Stored,
         label="Inventory Capacity",
         latex=r"{icap}",
         add_kind=Control,

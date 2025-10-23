@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 
 from .._core._operation import _Operation
 from ..components.commodity.resource import _Commodity
-from ..components.commodity.stored import Stored
+from ..components.operation.storage import Stored
 
 if TYPE_CHECKING:
     from ..represent.model import Model

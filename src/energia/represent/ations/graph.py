@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
+from ..._core._hash import _Hash
 from ...components.graph.edge import Edge
 from ...components.graph.node import Node
 
@@ -13,7 +14,7 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class Graph:
+class Graph(_Hash):
     """Graph representation
 
     :param model: Model to which the graph belongs.
@@ -37,12 +38,3 @@ class Graph:
         self.name = f"Graph({self.model})"
         self.nodes: list[Node] = []
         self.edges: list[Edge] = []
-
-    def __str__(self):
-        return self.name
-
-    def __repr__(self):
-        return self.name
-
-    def __hash__(self):
-        return hash(self.name)

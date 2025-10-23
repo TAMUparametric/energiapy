@@ -4,12 +4,14 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Type
 
+from ..._core._name import _Name
+
 if TYPE_CHECKING:
     from ..._core._component import _Component
     from ...represent.model import Model
 
 
-class Instruction:
+class Instruction(_Name):
     """
     Pre-set instructions to deal with parameter calculations
 
@@ -36,12 +38,13 @@ class Instruction:
         default: str,
         label: str = "",
     ):
+
+        _Name.__init__(self, label=label)
         self.name = name
         self.kind = kind
         self.deciding = deciding
         self.depending = depending
         self.default = default
-        self.label = label
         self.model: Model | None = None
 
     def __call__(self, component: _Component):
@@ -62,12 +65,3 @@ class Instruction:
         raise TypeError(
             f"{component} ({type(component)}): {self.name} earmarked for {self.kind.__name__}"
         )
-
-    def __str__(self):
-        return self.name
-
-    def __repr__(self):
-        return self.name
-
-    def __hash__(self):
-        return hash(self.name)

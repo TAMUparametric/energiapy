@@ -37,13 +37,12 @@ class Lag(_Name):
 
     def __init__(self, of: Periods | None = None, periods: int | float = 1):
 
+        _Name.__init__(self, label="")
         self.of = of
         self.periods = periods
         self.name = f"-{self.periods}{self.of}"
         self.domains: list[Domain] = []
         self.constraints: list[str] = []
-
-        _Name.__init__(self, label="")
 
     @cached_property
     def I(self) -> Idx:

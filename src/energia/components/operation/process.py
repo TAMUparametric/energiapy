@@ -62,10 +62,6 @@ class Process(_Operation):
         # if time != horizon, the individual streams are summed up anyway
         self.locations: list[Location] = []
 
-        self.charges: Storage | None = None
-
-        self.discharges: Storage | None = None
-
     @property
     def spaces(self) -> list[Location]:
         """Locations at which the process is balanced"""
