@@ -7,7 +7,7 @@ from abc import abstractmethod
 from functools import cached_property
 from typing import TYPE_CHECKING
 
-from ..modeling.parameters.conversion import Conversion
+from ..modeling.parameters.conversion import Construction, Operation
 from ._component import _Component
 
 logger = logging.getLogger("energia")
@@ -60,31 +60,36 @@ class _Operation(_Component):
         _Component.__init__(self, label=label, citations=citations, **kwargs)
 
         # Material conversion
-        self._fab: Conversion | None = None
+        # self._fab: Conversion | None = None
 
         # to check if fab is balanced
-        self._fab_balanced: bool = False
+        # self._fab_balanced: bool = False
 
         self.conversions = args
 
     @cached_property
-    def conversion(self) -> Conversion:
+    def conversion(self) -> Operation:
         """Operational conversion"""
-        return Conversion(operation=self)
+        return Operation(operation=self)
+
+    @cached_property
+    def construction(self) -> Construction:
+        """Material conversion"""
+        return Construction(operation=self)
 
     @property
     @abstractmethod
     def spaces(self) -> list[Location | Linkage]:
         """Locations at which the process is balanced"""
 
-    @property
-    def fab(self) -> Conversion:
-        """Material conversion"""
+    # @property
+    # def fab(self) -> Conversion:
+    #     """Material conversion"""
 
-        if self._fab is None:
-            # will be made the first time it is called
-            self._fab = Conversion(operation=self, sample=self.capacity)
-        return self._fab
+    #     if self._fab is None:
+    #         # will be made the first time it is called
+    #         self._fab = Conversion(operation=self, sample=self.capacity)
+    #     return self._fab
 
     @property
     def base(self) -> Resource:
@@ -96,22 +101,22 @@ class _Operation(_Component):
         """Conversion of commodities"""
         return self.conversion.balance
 
-    @property
-    def fabrication(
-        self,
-    ) -> (
-        dict[Resource, int | float | list[int | float]]
-        | dict[int | str, dict[Resource, int | float | list[int | float]]]
-    ):
-        """Material conversion of commodities"""
-        #! PWL
-        # if self.fab.pwl:
-        #     return {
-        #         mode: self.fab.balance[_mode]
-        #         for mode, _mode in zip(self.fab.modes, list(self.fab.balance))
-        #     }
+    # @property
+    # def fabrication(
+    #     self,
+    # ) -> (
+    #     dict[Resource, int | float | list[int | float]]
+    #     | dict[int | str, dict[Resource, int | float | list[int | float]]]
+    # ):
+    #     """Material conversion of commodities"""
+    #     #! PWL
+    #     # if self.fab.pwl:
+    #     #     return {
+    #     #         mode: self.fab.balance[_mode]
+    #     #         for mode, _mode in zip(self.fab.modes, list(self.fab.balance))
+    #     #     }
 
-        return self.fab.balance
+    #     return self.fab.balance
 
     @property
     def lag(self) -> Lag:
@@ -152,10 +157,10 @@ class _Operation(_Component):
 
         if self.fab.pwl:
 
-            _modes = list(self.fabrication)
+            _modes = list(self.construction)
             for n, mode in enumerate(modes):
 
-                for res, par in self.fabrication[_modes[n]].items():
+                for res, par in self.construction[_modes[n]].items():
 
                     if isinstance(par, (int | float)):
                         if par == 0:
@@ -169,7 +174,7 @@ class _Operation(_Component):
 
         else:
 
-            for res, par in self.fabrication.items():
+            for res, par in self.construction.items():
 
                 if isinstance(par, (int | float)):
                     if par == 0:

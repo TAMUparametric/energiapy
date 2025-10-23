@@ -15,7 +15,6 @@ if TYPE_CHECKING:
 
     from ..._core._commodity import _Commodity
     from ..._core._operation import _Operation
-    from ...components.temporal.periods import Periods
     from ...represent.model import Model
     from ..variables.sample import Sample
 
@@ -54,18 +53,20 @@ class Conversion(Mapping, _Hash):
 
     def __init__(
         self,
+        by: str = "",
+        add: str = "",
+        sub: str = "",
         basis: _Commodity | None = None,
         balance: dict[_Commodity, float | list[float]] | None = None,
         operation: _Operation | None = None,
-        sample: Sample | None = None,
         hold: int | float | None = None,
-        add: str = "produce",
-        sub: str = "expend",
     ):
 
         self.basis = basis
         self.operation = operation
-        self.sample = sample
+
+        # * Aspect that elicits the conversion
+        self.by = by
 
         # * Aspects corresponding to positive and negative conversion
         self.add = add
@@ -209,6 +210,22 @@ class Conversion(Mapping, _Hash):
 
     def __iter__(self):
         return iter(self.balance)
+
+
+class Operation(Conversion):
+    """Conversion by Operation"""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(by="operate", add="produce", sub="expend", *args, **kwargs)
+
+
+class Construction(Conversion):
+    """Conversion by Construction"""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(by="capacity", add="produce", sub="expend", *args, **kwargs)
+
+        # super().__init__(by="setup", add="produce", sub="expend", *args, **kwargs)
 
 
 class PWLConversion(_Hash):

@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 
 from ..._core._component import _Component
 from ...modeling.constraints.calculate import Calculate
-from ...modeling.parameters.conversion import Conversion
+from ...modeling.parameters.conversion import Operation
 from ..commodity.resource import Resource
 from .process import Process
 
@@ -324,13 +324,17 @@ class Storage(_Component):
         # _ = self.charge(stored) ==
 
         # -------set discharge conversion
-        self.discharge.conversion = Conversion(
-            operation=self.discharge, basis=self.stored
+        self.discharge.conversion = Operation(
+            operation=self.discharge,
+            basis=self.stored,
         )
         _ = self.discharge.conversion(resource) == -1.0 * self.stored
 
         # -------set charge conversion
-        self.charge.conversion = Conversion(operation=self.charge, basis=resource)
+        self.charge.conversion = Operation(
+            operation=self.charge,
+            basis=resource,
+        )
 
         _ = self.charge.conversion(self.stored) == -1.0 * resource
 
