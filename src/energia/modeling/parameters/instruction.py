@@ -4,12 +4,14 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Type
 
+from ..._core._name import _Name
+
 if TYPE_CHECKING:
     from ..._core._component import _Component
     from ...represent.model import Model
 
 
-class Instruction:
+class Instruction(_Name):
     """
     Pre-set instructions to deal with parameter calculations
 
@@ -36,12 +38,13 @@ class Instruction:
         default: str,
         label: str = "",
     ):
+
+        _Name.__init__(self, label=label)
         self.name = name
         self.kind = kind
         self.deciding = deciding
         self.depending = depending
         self.default = default
-        self.label = label
         self.model: Model | None = None
 
     def __call__(self, component: _Component):
