@@ -464,7 +464,7 @@ class Model:
                 self.program, collection, getattr(self.program, collection) | value.I
             )
 
-        # set aspects (as binds) on the components
+        # set aspect samples on the components
         if aspects:
             for asp in aspects:
                 aspect = getattr(self, asp)
