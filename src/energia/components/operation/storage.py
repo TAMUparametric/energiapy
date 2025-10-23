@@ -160,10 +160,6 @@ class Storage(_Component):
 
             self._birthed = True
 
-            setattr(model, f"{self.name}.charge", self.charge)
-            setattr(model, f"{self.name}.discharge", self.discharge)
-            setattr(model, f"{self.name}.stored", self.stored)
-
             for conv in self.conversions:
                 if not isinstance(conv, int | float):
                     conv.operation = self
@@ -313,16 +309,16 @@ class Storage(_Component):
         )
         self.stored = Stored(**storage_args if storage_args else {})
 
+        setattr(self.model, f"{self.name}.charge", self.charge)
+        setattr(self.model, f"{self.name}.discharge", self.discharge)
+        setattr(self.model, f"{self.name}.stored", self.stored)
+
     def __call__(self, resource: Stored | Conversion):
         """Conversion is called with a Resource to be converted"""
 
         if not self._birthed:
 
             self._birth_constituents()
-
-            setattr(self.model, f"{self.name}.charge", self.charge)
-            setattr(self.model, f"{self.name}.discharge", self.discharge)
-            setattr(self.model, f"{resource}.{self}", self.stored)
 
             self._birthed = True
 
