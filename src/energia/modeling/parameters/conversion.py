@@ -64,6 +64,8 @@ class Conversion(_Hash):
         self.bind = bind
 
         # value to hold, will be applied later
+        # occurs when Conversion/Resource == parameter is used
+        # the parameter is held until a dummy resource is created
         self.hold = hold
 
         self._basis: Resource | None = None
@@ -93,7 +95,7 @@ class Conversion(_Hash):
     def modes(self) -> Modes:
         """Modes of the operation"""
         if self._modes is None:
-            n_modes = len(self.balance)
+            n_modes = len(self)
             modes_name = f"bin{len(self.model.modes)}"
 
             setattr(self.model, modes_name, Modes(n_modes=n_modes, bind=self.bind))
@@ -155,7 +157,7 @@ class Conversion(_Hash):
             return conversion
 
         if self.pwl:
-            for mode, conv in self.balance.items():
+            for mode, conv in self.items():
                 self.balance[mode] = _balancer(conv)
 
             if isinstance(next(iter(self.balance)), Modes):
@@ -195,7 +197,7 @@ class Conversion(_Hash):
 
         if isinstance(other, (int, float)):
             # this is used for inventory conversion
-            # when not other resource besides the one being inventoried is involvedt
+            # when not other resource besides the one being inventoried is involved
 
             self.balance = {**self.balance, self.basis: -1.0 / float(other)}
 
@@ -241,7 +243,7 @@ class Conversion(_Hash):
         if isinstance(other, Conversion):
             self.balance = {
                 **self.balance,
-                **{res: -1 * par for res, par in other.balance.items()},
+                **{res: -1 * par for res, par in other.items()},
             }
             return self
         self.balance = {**self.balance, other: -1}
@@ -249,11 +251,9 @@ class Conversion(_Hash):
 
     def __mul__(self, times: int | float | list) -> Self:
         if isinstance(times, list):
-            self.balance = {
-                res: [par * i for i in times] for res, par in self.balance.items()
-            }
+            self.balance = {res: [par * i for i in times] for res, par in self.items()}
         else:
-            self.balance = {res: par * times for res, par in self.balance.items()}
+            self.balance = {res: par * times for res, par in self.items()}
         return self
 
     def __rmul__(self, times) -> Self:
@@ -262,3 +262,11 @@ class Conversion(_Hash):
     def __truediv__(self, periods: Periods) -> Self:
         self.periods = periods
         return self
+
+    def items(self):
+        """Items of the conversion balance"""
+        return self.balance.items()
+
+    def __len__(self):
+        """Length of the conversion balance"""
+        return len(self.balance)
