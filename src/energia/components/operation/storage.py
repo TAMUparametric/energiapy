@@ -77,6 +77,8 @@ class Storage(_Component):
             self, basis=basis, label=label, citations=citations, **kwargs
         )
 
+        # * Storage is made up of three components:
+        # Charging, Discharging, and Stored Resource (Inventory)
         self.charge: Process | None = None
         self.discharge: Process | None = None
         self.stored: Stored | None = None

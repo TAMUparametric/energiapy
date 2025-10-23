@@ -81,7 +81,7 @@ def inventory_sizing(model: Model):
     model.Recipe(
         "invcapacity",
         Size,
-        primary_type=Resource,
+        primary_type=Stored,
         label="Inventory Capacity",
         latex=r"{icap}",
         add_kind=Control,
