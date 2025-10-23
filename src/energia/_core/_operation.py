@@ -250,8 +250,8 @@ class _Operation(_Component):
 
         self.writecons_conversion(space_times)
 
-        if self.fabrication:
-            self.writecons_fabrication(space_times)
+        # if self.fabrication:
+        #     self.writecons_fabrication(space_times)
 
     def __call__(
         self, resource: Resource | Conversion, lag: Lag | None = None

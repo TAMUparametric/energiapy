@@ -123,27 +123,28 @@ class Process(_Operation):
         # check conv_test.py in tests for examples
         self.conversion.balancer()
 
-        if self.conversion.pwl:
-            # if there are piece-wise linear conversions
-            # here we assume that the same resources appear in all piece-wise segments
-            # this is a reasonable assumption for conversion in processes
-            # but not if process modes involve different resources
+        #! PWL
+        # if self.conversion.pwl:
+        # if there are piece-wise linear conversions
+        # here we assume that the same resources appear in all piece-wise segments
+        # this is a reasonable assumption for conversion in processes
+        # but not if process modes involve different resources
 
-            # TODO:
-            # make the statement eff = [conv[res] for conv in self.conversion.values()]
-            # into try
-            # if that fails, create a consistent dict, see:
-            # {0: {r1: 10, r2: -5}, 1: {r1: 8, r2: -4, r3: -2}}
-            # transforms to {0: {r1: 10, r2: -5, r3: 0}, 1: {r1: 8, r2: -4, r3: -2}}
-            # the r3: 0 will ensure that r3 is considered in all modes
-            # the zero checks will prevent unnecessary constraints
-            # there is a problem though, because I am only checking for the elements in the first dict
-            # in the multi conversion dict
+        # TODO:
+        # make the statement eff = [conv[res] for conv in self.conversion.values()]
+        # into try
+        # if that fails, create a consistent dict, see:
+        # {0: {r1: 10, r2: -5}, 1: {r1: 8, r2: -4, r3: -2}}
+        # transforms to {0: {r1: 10, r2: -5, r3: 0}, 1: {r1: 8, r2: -4, r3: -2}}
+        # the r3: 0 will ensure that r3 is considered in all modes
+        # the zero checks will prevent unnecessary constraints
+        # there is a problem though, because I am only checking for the elements in the first dict
+        # in the multi conversion dict
 
-            conversion = self.balance[list(self.balance)[0]]
+        #     conversion = self.balance[list(self.balance)[0]]
 
-        else:
-            conversion = self.balance
+        # else:
+        conversion = self.balance
 
         for location, time in loc_times:
 
@@ -183,37 +184,37 @@ class Process(_Operation):
 
                 # because of using .balancer(), expend/produce are on same temporal scale
 
-                if self.conversion.pwl:
+                # if self.conversion.pwl:
 
-                    eff = [conv[res] for conv in self.balance.values()]
+                #     eff = [conv[res] for conv in self.balance.values()]
 
-                    if eff[0] < 0:
-                        eff = [-e for e in eff]
+                #     if eff[0] < 0:
+                #         eff = [-e for e in eff]
 
-                    if not self.conversion.modes_set:
-                        # this is setting the bin limits for piece wise linear conversion
-                        # these are written bound to capacity generally
-                        # but here we pause that binding and bind operate to explicit limits
-                        self.model.operate.bound = None
+                #     if not self.conversion.modes_set:
+                #         # this is setting the bin limits for piece wise linear conversion
+                #         # these are written bound to capacity generally
+                #         # but here we pause that binding and bind operate to explicit limits
+                #         self.model.operate.bound = None
 
-                        _ = opr == dict(enumerate(self.balance.keys()))
+                #         _ = opr == dict(enumerate(self.balance.keys()))
 
-                        # reset capacity binding
-                        self.model.operate.bound = self.model.capacity
+                #         # reset capacity binding
+                #         self.model.operate.bound = self.model.capacity
 
-                        modes = self.model.modes[-1]
-                        self.conversion.modes_set = True
+                #         modes = self.model.modes[-1]
+                #         self.conversion.modes_set = True
 
-                    else:
-                        modes = self.conversion.modes
-                        modes.bind = self.operate
-                        self.conversion.modes_set = True
+                #     else:
+                #         modes = self.conversion.modes
+                #         modes.bind = self.operate
+                #         self.conversion.modes_set = True
 
-                    opr = opr(modes)
+                #     opr = opr(modes)
 
-                    rhs = rhs(modes)
+                #     rhs = rhs(modes)
 
-                    # _ = opr(modes)[rhs(modes)] == eff
+                # _ = opr(modes)[rhs(modes)] == eff
 
                 # else:
                 _ = opr[rhs] == eff
