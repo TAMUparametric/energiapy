@@ -270,3 +270,12 @@ class Conversion(_Hash):
     def __len__(self):
         """Length of the conversion balance"""
         return len(self.balance)
+
+
+class PWLConversion(_Hash):
+    """Piece Wise Linear Conversion"""
+
+    def __init__(self, modes: Modes, bind: Sample | None = None):
+        self.modes = modes
+        self.bind = bind
+        self.balance: dict[int | str, Conversion] = {}

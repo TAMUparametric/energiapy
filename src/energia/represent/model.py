@@ -212,12 +212,6 @@ class Model:
             Consequence: ("problem", "consequences"),
         }
 
-        # * Maps Components to Dimensions
-        # derived from familytree
-        self.ancestry = {
-            collection: dimension for dimension, collection in self.familytree.values()
-        }
-
         # --------------------------------------------------------------------
         # * Dimensions or Representation
         # --------------------------------------------------------------------
@@ -312,9 +306,8 @@ class Model:
         self.graph_components = ["edges", "nodes"]
 
         # --------------------------------------------------------------------
-        # * Books of Maps
+        # * Books of Maps Between:
         # --------------------------------------------------------------------
-        # Maps between:
         # * matching_aspect -> Recipe
         self.cookbook: dict[str, Recipe] = {}
         # * parameter_name -> parameter_handling_instruction
@@ -323,6 +316,17 @@ class Model:
         self.registry: dict[str, Aspect] = {}
         # * user_input_attr -> matching_aspect -> Recipe
         self.directory: dict[str, dict[str, Recipe]] = {}
+        # * collection -> dimension
+        # derived from familytree
+        self.ancestry = {
+            collection: dimension for dimension, collection in self.familytree.values()
+        }
+        # * collection to component
+        # derived from familytree
+        self.ilk = {
+            collection: component
+            for component, (_, collection) in self.familytree.items()
+        }
 
         # --------------------------------------------------------------------
         # * Constraint Ledger
@@ -553,12 +557,9 @@ class Model:
         )
 
         if add:
-            if not add_kind:
-                if sub_kind:
-                    add_kind = sub_kind
             self.Recipe(
                 name=add,
-                kind=add_kind,
+                kind=add_kind or sub_kind or Control,
                 primary_type=primary_type,
                 label=add_latex or add,
                 ispos=True,
@@ -567,13 +568,9 @@ class Model:
             )
 
         if sub:
-            if not sub_kind:
-                if add_kind:
-                    sub_kind = add_kind
-
             self.Recipe(
                 name=sub,
-                kind=sub_kind,
+                kind=sub_kind or add_kind or Control,
                 primary_type=primary_type,
                 label=sub_latex or sub,
                 ispos=False,
@@ -655,7 +652,7 @@ class Model:
         self,
         source: Location,
         sink: Location,
-        dist: float | Unit = 0,
+        dist: float = 0,
         bi: bool = False,
     ):
         """
