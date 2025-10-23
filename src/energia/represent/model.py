@@ -18,7 +18,6 @@ from ..components.commodity.material import Material
 from ..components.commodity.resource import Resource
 from ..components.game.couple import Interact
 from ..components.game.player import Player
-
 # from ..components.graph.edge import Edge
 # from ..components.graph.node import Node
 from ..components.impact.categories import Economic, Environ, Social
@@ -38,17 +37,9 @@ from ..dimensions.system import System
 from ..dimensions.time import Time
 from ..library.aliases import aspect_aliases
 from ..library.instructions import costing_commodity, costing_operation
-from ..library.recipes import (
-    capacity_sizing,
-    economic,
-    environmental,
-    free_movement,
-    inventory_sizing,
-    operating,
-    social,
-    trade,
-    usage,
-)
+from ..library.recipes import (capacity_sizing, economic, environmental,
+                               free_movement, inventory_sizing, operating,
+                               social, trade, usage)
 from ..modeling.parameters.instruction import Instruction
 from ..modeling.variables.control import Control
 from ..modeling.variables.recipe import Recipe
@@ -221,12 +212,6 @@ class Model:
             Consequence: ("problem", "consequences"),
         }
 
-        # * Maps Components to Dimensions
-        # derived from familytree
-        self.ancestry = {
-            collection: dimension for dimension, collection in self.familytree.values()
-        }
-
         # --------------------------------------------------------------------
         # * Dimensions or Representation
         # --------------------------------------------------------------------
@@ -321,9 +306,8 @@ class Model:
         self.graph_components = ["edges", "nodes"]
 
         # --------------------------------------------------------------------
-        # * Books of Maps
+        # * Books of Maps Between:
         # --------------------------------------------------------------------
-        # Maps between:
         # * matching_aspect -> Recipe
         self.cookbook: dict[str, Recipe] = {}
         # * parameter_name -> parameter_handling_instruction
@@ -332,6 +316,17 @@ class Model:
         self.registry: dict[str, Aspect] = {}
         # * user_input_attr -> matching_aspect -> Recipe
         self.directory: dict[str, dict[str, Recipe]] = {}
+        # * collection -> dimension
+        # derived from familytree
+        self.ancestry = {
+            collection: dimension for dimension, collection in self.familytree.values()
+        }
+        # * collection to component
+        # derived from familytree
+        self.ilk = {
+            collection: component
+            for component, (_, collection) in self.familytree.items()
+        }
 
         # --------------------------------------------------------------------
         # * Constraint Ledger
@@ -657,7 +652,7 @@ class Model:
         self,
         source: Location,
         sink: Location,
-        dist: float | Unit = 0,
+        dist: float = 0,
         bi: bool = False,
     ):
         """
