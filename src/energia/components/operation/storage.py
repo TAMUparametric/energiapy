@@ -156,9 +156,7 @@ class Storage(_Component):
 
             # initiate the processes
 
-            self.charge = Charge(storage=self, **_charging_args)
-            self.discharge = Discharge(storage=self, **_discharging_args)
-            self.stored = Stored(**_storage_args)
+            self._birth_constituents(_charging_args, _discharging_args, _storage_args)
 
             self._birthed = True
 
@@ -320,9 +318,7 @@ class Storage(_Component):
 
         if not self._birthed:
 
-            self.charge = Charge(storage=self)
-            self.discharge = Discharge(storage=self)
-            self.stored = Stored()
+            self._birth_constituents()
 
             setattr(self.model, f"{self.name}.charge", self.charge)
             setattr(self.model, f"{self.name}.discharge", self.discharge)
