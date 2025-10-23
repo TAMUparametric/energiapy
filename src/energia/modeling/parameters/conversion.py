@@ -157,7 +157,7 @@ class Conversion(_Hash):
             return conversion
 
         if self.pwl:
-            for mode, conv in self.balance.items():
+            for mode, conv in self.items():
                 self.balance[mode] = _balancer(conv)
 
             if isinstance(next(iter(self.balance)), Modes):
@@ -243,7 +243,7 @@ class Conversion(_Hash):
         if isinstance(other, Conversion):
             self.balance = {
                 **self.balance,
-                **{res: -1 * par for res, par in other.balance.items()},
+                **{res: -1 * par for res, par in other.items()},
             }
             return self
         self.balance = {**self.balance, other: -1}
@@ -251,11 +251,9 @@ class Conversion(_Hash):
 
     def __mul__(self, times: int | float | list) -> Self:
         if isinstance(times, list):
-            self.balance = {
-                res: [par * i for i in times] for res, par in self.balance.items()
-            }
+            self.balance = {res: [par * i for i in times] for res, par in self.items()}
         else:
-            self.balance = {res: par * times for res, par in self.balance.items()}
+            self.balance = {res: par * times for res, par in self.items()}
         return self
 
     def __rmul__(self, times) -> Self:

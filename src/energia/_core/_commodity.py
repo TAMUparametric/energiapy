@@ -111,7 +111,7 @@ class _Commodity(_Component):
                     res: (
                         -1 * par if isinstance(par, (int, float)) else [-i for i in par]
                     )
-                    for res, par in other.balance.items()
+                    for res, par in other.items()
                 },
             }
             return conv
