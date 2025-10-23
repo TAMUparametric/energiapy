@@ -76,7 +76,6 @@ class Conversion(Mapping, _Hash):
 
         self._basis: _Commodity | None = None
         self.lag: Lag | None = None
-        self.periods: Periods | None = None
 
     @property
     def name(self) -> str:
@@ -138,7 +137,7 @@ class Conversion(Mapping, _Hash):
     def __setitem__(self, key: _Commodity, value: float | list[float]):
         self.balance[key] = value
 
-    def __call__(self, basis: _Commodity | Conversion, lag: Lag = None) -> Self:
+    def __call__(self, basis: _Commodity | Conversion, lag: Lag | None = None) -> Self:
         # sets the basis
         if isinstance(basis, Conversion):
             # if a Conversion is provided (parameter*Commodity)
@@ -161,25 +160,19 @@ class Conversion(Mapping, _Hash):
         return self
 
     def __eq__(self, other: Conversion | int | float | dict[int | float, Conversion]):
-
         if isinstance(other, (int, float)):
             # this is used for inventory conversion
             # when not other resource besides the one being inventoried is involved
-
             self.balance = {**self, self.basis: -1.0 / float(other)}
-
         else:
 
-            self.balance: dict[_Commodity, int | float] = {
-                **self,
-                **other,
-            }
-
+            self.balance = {**self, **other}
         self.model.convmatrix[self.operation] = self.balance
         return self
 
     def __neg__(self) -> Self:
-        return Conversion(balance={res: -par for res, par in self.items()})
+        self.balance = {res: -par for res, par in self.balance.items()}
+        return self
 
     def __add__(self, other: Conversion) -> Self:
         self.balance = {**self, **other}
@@ -188,12 +181,6 @@ class Conversion(Mapping, _Hash):
     def __sub__(self, other: Conversion) -> Self:
         self.balance = {**self, **-other}
         return self
-
-        # if isinstance(other, Conversion):
-        #     self.balance = {**self, **-other}
-        #     return self
-        # self.balance = {**self, other: -1}
-        # return self
 
     def __mul__(self, times: int | float | list) -> Self:
         if isinstance(times, list):
@@ -204,10 +191,6 @@ class Conversion(Mapping, _Hash):
 
     def __rmul__(self, times) -> Self:
         return self * times
-
-    def __truediv__(self, periods: Periods) -> Self:
-        self.periods = periods
-        return self
 
     def items(self):
         """Items of the conversion balance"""

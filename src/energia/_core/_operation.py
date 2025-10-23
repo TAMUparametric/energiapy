@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 from abc import abstractmethod
+from collections.abc import Mapping
 from functools import cached_property
 from typing import TYPE_CHECKING
 
@@ -104,11 +105,12 @@ class _Operation(_Component):
         | dict[int | str, dict[Resource, int | float | list[int | float]]]
     ):
         """Material conversion of commodities"""
-        if self.fab.pwl:
-            return {
-                mode: self.fab.balance[_mode]
-                for mode, _mode in zip(self.fab.modes, list(self.fab.balance))
-            }
+        #! PWL
+        # if self.fab.pwl:
+        #     return {
+        #         mode: self.fab.balance[_mode]
+        #         for mode, _mode in zip(self.fab.modes, list(self.fab.balance))
+        #     }
 
         return self.fab.balance
 
