@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 from ..._core._component import _Component
 from ...modeling.constraints.calculate import Calculate
 from ...modeling.parameters.conversion import Conversion
-from ..commodity.stored import Stored
+from ..commodity.resource import Resource
 from .process import Process
 
 logger = logging.getLogger("energia")
@@ -39,6 +39,15 @@ class Discharge(Process):
 
         self.storage = storage
         super().__init__(*args, **kwargs)
+
+
+class Stored(Resource):
+    """Resource in Storage"""
+
+    def __init__(self, *args, **kwargs):
+        Resource.__init__(self, *args, **kwargs)
+
+        # self.inv_of: Resource | None = None
 
 
 class Storage(_Component):

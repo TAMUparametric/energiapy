@@ -7,7 +7,7 @@ import time as keep_time
 from operator import is_
 from typing import TYPE_CHECKING, Self
 
-from ...components.commodity.stored import Stored
+from ...components.operation.storage import Stored
 
 logger = logging.getLogger("energia")
 
