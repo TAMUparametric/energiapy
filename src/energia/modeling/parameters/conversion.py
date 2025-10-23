@@ -64,6 +64,8 @@ class Conversion(_Hash):
         self.bind = bind
 
         # value to hold, will be applied later
+        # occurs when Conversion/Resource == parameter is used
+        # the parameter is held until a dummy resource is created
         self.hold = hold
 
         self._basis: Resource | None = None
@@ -195,7 +197,7 @@ class Conversion(_Hash):
 
         if isinstance(other, (int, float)):
             # this is used for inventory conversion
-            # when not other resource besides the one being inventoried is involvedt
+            # when not other resource besides the one being inventoried is involved
 
             self.balance = {**self.balance, self.basis: -1.0 / float(other)}
 
@@ -262,3 +264,7 @@ class Conversion(_Hash):
     def __truediv__(self, periods: Periods) -> Self:
         self.periods = periods
         return self
+
+    def items(self):
+        """Items of the conversion balance"""
+        return self.balance.items()
