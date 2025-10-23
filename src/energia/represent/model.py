@@ -18,6 +18,7 @@ from ..components.commodity.material import Material
 from ..components.commodity.resource import Resource
 from ..components.game.couple import Interact
 from ..components.game.player import Player
+
 # from ..components.graph.edge import Edge
 # from ..components.graph.node import Node
 from ..components.impact.categories import Economic, Environ, Social
@@ -37,9 +38,17 @@ from ..dimensions.system import System
 from ..dimensions.time import Time
 from ..library.aliases import aspect_aliases
 from ..library.instructions import costing_commodity, costing_operation
-from ..library.recipes import (capacity_sizing, economic, environmental,
-                               free_movement, inventory_sizing, operating,
-                               social, trade, usage)
+from ..library.recipes import (
+    capacity_sizing,
+    economic,
+    environmental,
+    free_movement,
+    inventory_sizing,
+    operating,
+    social,
+    trade,
+    usage,
+)
 from ..modeling.parameters.instruction import Instruction
 from ..modeling.variables.control import Control
 from ..modeling.variables.recipe import Recipe
@@ -553,12 +562,9 @@ class Model:
         )
 
         if add:
-            if not add_kind:
-                if sub_kind:
-                    add_kind = sub_kind
             self.Recipe(
                 name=add,
-                kind=add_kind,
+                kind=add_kind or sub_kind or Control,
                 primary_type=primary_type,
                 label=add_latex or add,
                 ispos=True,
@@ -567,13 +573,9 @@ class Model:
             )
 
         if sub:
-            if not sub_kind:
-                if add_kind:
-                    sub_kind = add_kind
-
             self.Recipe(
                 name=sub,
-                kind=sub_kind,
+                kind=sub_kind or add_kind or Control,
                 primary_type=primary_type,
                 label=sub_latex or sub,
                 ispos=False,
