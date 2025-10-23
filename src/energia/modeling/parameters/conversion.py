@@ -130,10 +130,9 @@ class Conversion(_Hash):
 
         self.balance = _balancer(self.balance)
 
-    def __getitem__(self, mode: int | str) -> Self:
+    def __getitem__(self, key: _Commodity) -> float | list[float]:
         """Used to define mode based conversions"""
-        self._mode = mode
-        return self
+        return self.balance[key]
 
     def __call__(self, basis: _Commodity | Conversion, lag: Lag = None) -> Self:
         # sets the basis
@@ -291,3 +290,9 @@ class PWLConversion(_Hash):
         #         self._modes = self.model.modes[-1]
 
         #     return self._modes
+
+        #! PWL
+        # def __getitem__(self, mode: int | str) -> Self:
+        #     """Used to define mode based conversions"""
+        #     self._mode = mode
+        #     return self
