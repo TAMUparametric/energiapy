@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import logging
 from abc import abstractmethod
-from collections.abc import Mapping
 from functools import cached_property
 from typing import TYPE_CHECKING
 
@@ -84,7 +83,7 @@ class _Operation(_Component):
 
         if self._fab is None:
             # will be made the first time it is called
-            self._fab = Conversion(operation=self, bind=self.capacity)
+            self._fab = Conversion(operation=self, sample=self.capacity)
         return self._fab
 
     @property
@@ -211,7 +210,10 @@ class _Operation(_Component):
                 # check if operational capacity has been bound
 
                 logger.info(
-                    f"Assuming  {self} capacity is unbounded in ({space}, {self.horizon})",
+                    "Assuming  %s capacity is unbounded in (%s, %s)",
+                    self,
+                    space,
+                    self.horizon,
                 )
                 # this is not a check, this generates a constraint
                 _ = self.capacity(space, self.horizon) == True

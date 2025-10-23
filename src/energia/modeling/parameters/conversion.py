@@ -57,13 +57,20 @@ class Conversion(Mapping, _Hash):
         basis: _Commodity | None = None,
         balance: dict[_Commodity, float | list[float]] | None = None,
         operation: _Operation | None = None,
-        bind: Sample | None = None,
+        sample: Sample | None = None,
         hold: int | float | None = None,
+        add: str = "produce",
+        sub: str = "expend",
     ):
 
         self.basis = basis
         self.operation = operation
-        self.bind = bind
+        self.sample = sample
+
+        # * Aspects corresponding to positive and negative conversion
+        self.add = add
+        self.sub = sub
+
         if balance:
             self.balance = balance
         else:
