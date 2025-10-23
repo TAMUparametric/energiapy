@@ -60,9 +60,6 @@ class Resource(_Commodity):
         # base resource, if any in conversion
         self.inv_of: Resource | None = None
 
-        # resource in its stored form
-        self.in_inv: list[Resource] = []
-
     @property
     def gwp(self) -> Calculate:
         """Global Warming Potential"""
