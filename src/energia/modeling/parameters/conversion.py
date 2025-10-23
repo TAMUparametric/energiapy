@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from functools import cached_property
 from typing import TYPE_CHECKING, Self
 
@@ -19,7 +20,7 @@ if TYPE_CHECKING:
     from ..variables.sample import Sample
 
 
-class Conversion(_Hash):
+class Conversion(Mapping, _Hash):
     """
     Processes convert one Commodity to another Commodity
     Conversion provides the conversion of resources
@@ -141,7 +142,7 @@ class Conversion(_Hash):
             # In this case the associated conversion is not 1
             # especially useful if Process is scaled to consumption of a commodity
             # i.e. basis = -1*Commodity
-            self.balance = {**self.balance, **basis.balance}
+            self.balance = {**self, **basis}
             self.basis = next(iter(self.balance))
 
         else:
@@ -149,7 +150,7 @@ class Conversion(_Hash):
             # implies that the conversion is 1
             # i.e the Process is scaled to one unit of this Commodity produced
             self._basis = basis
-            self.balance = {basis: 1.0, **self.balance}
+            self.balance = {basis: 1.0, **self}
 
         if lag:
             self.lag = lag
@@ -162,13 +163,13 @@ class Conversion(_Hash):
             # this is used for inventory conversion
             # when not other resource besides the one being inventoried is involved
 
-            self.balance = {**self.balance, self.basis: -1.0 / float(other)}
+            self.balance = {**self, self.basis: -1.0 / float(other)}
 
         else:
 
             self.balance: dict[_Commodity, int | float] = {
-                **self.balance,
-                **other.balance,
+                **self,
+                **other,
             }
 
         self.model.convmatrix[self.operation] = self.balance
@@ -177,9 +178,9 @@ class Conversion(_Hash):
     # these update the conversion of the resource (self.conversion)
     def __add__(self, other: Conversion) -> Self:
         if isinstance(other, Conversion):
-            self.balance = {**self.balance, **other.balance}
+            self.balance = {**self, **other}
             return self
-        self.balance = {**self.balance, other: 1}
+        self.balance = {**self, other: 1}
         return self
 
     def __sub__(self, other: Conversion) -> Self:
@@ -189,7 +190,7 @@ class Conversion(_Hash):
                 **{res: -1 * par for res, par in other.items()},
             }
             return self
-        self.balance = {**self.balance, other: -1}
+        self.balance = {**self, other: -1}
         return self
 
     def __mul__(self, times: int | float | list) -> Self:
@@ -213,6 +214,9 @@ class Conversion(_Hash):
     def __len__(self):
         """Length of the conversion balance"""
         return len(self.balance)
+
+    def __iter__(self):
+        return iter(self.balance)
 
 
 class PWLConversion(_Hash):
