@@ -114,6 +114,7 @@ class Storage(_Component):
         self.discharge: Discharge | None = None
         self.stored: Stored | None = None
 
+        # prevents repeated
         self._birthed = False
 
         self.locations: list[Location] = []
@@ -126,39 +127,9 @@ class Storage(_Component):
 
         if name == "model" and value is not None:
 
-            model: Model = value
-
             # TODO: for general case with multiple resources
 
-            # split the dictionary into charging, discharging and storage parameters
-
-            _charging_args = {}
-            _discharging_args = {}
-            _storage_args = {}
-
-            for attr, param in self.parameters.items():
-                split_attr = attr.split("_")
-
-                _attr = split_attr[0]
-
-                if _attr == "charge":
-                    _charging_args["_".join(split_attr[1:])] = param
-                elif _attr == "discharge":
-                    _discharging_args["_".join(split_attr[1:])] = param
-                else:
-                    if attr[:3] == "inv":
-                        _storage_args[attr] = param
-                    else:
-                        # if there is no inv prefix.
-                        _storage_args["inv" + attr] = param
-
-            self.parameters = {}
-
-            # initiate the processes
-
-            self._birth_constituents(_charging_args, _discharging_args, _storage_args)
-
-            self._birthed = True
+            self._birth_constituents(*self._split_attr())
 
             for conv in self.conversions:
                 if not isinstance(conv, int | float):
@@ -302,25 +273,52 @@ class Storage(_Component):
         storage_args: dict | None = None,
     ):
         """Birth the constituents of the storage component"""
+        if not self._birthed:
+            self.charge = Charge(storage=self, **charging_args if charging_args else {})
+            self.discharge = Discharge(
+                storage=self, **discharging_args if discharging_args else {}
+            )
+            self.stored = Stored(**storage_args if storage_args else {})
 
-        self.charge = Charge(storage=self, **charging_args if charging_args else {})
-        self.discharge = Discharge(
-            storage=self, **discharging_args if discharging_args else {}
-        )
-        self.stored = Stored(**storage_args if storage_args else {})
+            # Set them on the model
+            setattr(self.model, f"{self.name}.charge", self.charge)
+            setattr(self.model, f"{self.name}.discharge", self.discharge)
+            setattr(self.model, f"{self.name}.stored", self.stored)
 
-        setattr(self.model, f"{self.name}.charge", self.charge)
-        setattr(self.model, f"{self.name}.discharge", self.discharge)
-        setattr(self.model, f"{self.name}.stored", self.stored)
+        self._birthed = True
+
+    def _split_attr(self):
+        """Splits the parameters dictionary into charging, discharging and storage parameters"""
+
+        _charging_args = {}
+        _discharging_args = {}
+        _storage_args = {}
+
+        for attr, param in self.parameters.items():
+            split_attr = attr.split("_")
+
+            _attr = split_attr[0]
+
+            if _attr == "charge":
+                _charging_args["_".join(split_attr[1:])] = param
+            elif _attr == "discharge":
+                _discharging_args["_".join(split_attr[1:])] = param
+            else:
+                if attr[:3] == "inv":
+                    _storage_args[attr] = param
+                else:
+                    # if there is no inv prefix.
+                    _storage_args["inv" + attr] = param
+        # reset parameters to empty
+        # none of these go on Storage itself
+        self.parameters = {}
+
+        return _charging_args, _discharging_args, _storage_args
 
     def __call__(self, resource: Stored | Conversion):
         """Conversion is called with a Resource to be converted"""
 
-        if not self._birthed:
-
-            self._birth_constituents()
-
-            self._birthed = True
+        self._birth_constituents()
 
         # -------set discharge conversion
         self.discharge.conversion = Conversion(
