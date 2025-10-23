@@ -1,6 +1,7 @@
 """Inherited _Name (reprs) class"""
 
 
+# Donot use this for any component that has a built-in name generating scheme
 class _Name:
     """
     Inherited by components that only have a name.

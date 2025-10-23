@@ -5,7 +5,7 @@ from __future__ import annotations
 from functools import cached_property
 from typing import TYPE_CHECKING, Self
 
-from ..._core._name import _Name
+# from ..._core._name import _Name
 from ...components.temporal.lag import Lag
 from ...components.temporal.modes import Modes
 
@@ -19,7 +19,7 @@ if TYPE_CHECKING:
     from ..variables.sample import Sample
 
 
-class Conversion(_Name):
+class Conversion:
     """
     Processes convert one Resource to another Resource
     Conversion provides the conversion of resources
@@ -56,7 +56,7 @@ class Conversion(_Name):
         basis: Resource | None = None,
         operation: _Operation | None = None,
         bind: Sample | None = None,
-        hold: int | float = None,
+        hold: int | float | None = None,
     ):
 
         self.basis = basis
@@ -87,7 +87,7 @@ class Conversion(_Name):
     @property
     def name(self) -> str:
         """Name"""
-        return f"η({self.operation}, {self.basis})"
+        return f"η({self.operation}, {self.basis or self._basis})"
 
     @property
     def modes(self) -> Modes:
@@ -262,3 +262,12 @@ class Conversion(_Name):
     def __truediv__(self, periods: Periods) -> Self:
         self.periods = periods
         return self
+
+    def __str__(self):
+        return self.name
+
+    def __repr__(self):
+        return self.name
+
+    def __hash__(self):
+        return hash(self.name)

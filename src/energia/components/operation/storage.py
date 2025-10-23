@@ -320,6 +320,11 @@ class Storage(_Component):
 
         self._birth_constituents()
 
+        # _ = self.discharge(resource) == -1 * self.stored
+        # _ = self.charge(stored) == 
+
+        print('aaa', self.discharge.conversion)
+
         # -------set discharge conversion
         self.discharge.conversion = Conversion(
             operation=self.discharge, basis=self.stored
