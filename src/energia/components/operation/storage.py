@@ -18,7 +18,6 @@ if TYPE_CHECKING:
 
     from ...modeling.variables.sample import Sample
     from ...represent.model import Model
-    from ..commodity.resource import Resource
     from ..measure.unit import Unit
     from ..spatial.location import Location
 
