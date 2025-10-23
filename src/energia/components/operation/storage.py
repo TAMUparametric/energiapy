@@ -22,6 +22,20 @@ if TYPE_CHECKING:
     from ..spatial.location import Location
 
 
+# * Storage is made up of three components:
+
+
+# Resource in Storage
+class Stored(Resource):
+    """Resource in Storage"""
+
+    def __init__(self, *args, **kwargs):
+        Resource.__init__(self, *args, **kwargs)
+
+        # self.inv_of: Resource | None = None
+
+
+# A charging process to convert Resource into Stored
 class Charge(Process):
     """Process that Charges Storage"""
 
@@ -31,6 +45,7 @@ class Charge(Process):
         super().__init__(*args, **kwargs)
 
 
+# A discharging process to convert Stored back into Resource
 class Discharge(Process):
     """Process that Discharges Storage"""
 
@@ -38,15 +53,6 @@ class Discharge(Process):
 
         self.storage = storage
         super().__init__(*args, **kwargs)
-
-
-class Stored(Resource):
-    """Resource in Storage"""
-
-    def __init__(self, *args, **kwargs):
-        Resource.__init__(self, *args, **kwargs)
-
-        # self.inv_of: Resource | None = None
 
 
 class Storage(_Component):
@@ -103,7 +109,6 @@ class Storage(_Component):
             self, basis=basis, label=label, citations=citations, **kwargs
         )
 
-        # * Storage is made up of three components:
         # Charging, Discharging, and Stored Resource (Inventory)
         self.charge: Charge | None = None
         self.discharge: Discharge | None = None
@@ -299,6 +304,7 @@ class Storage(_Component):
         """Conversion is called with a Resource to be converted"""
 
         if not self._birthed:
+
             self.charge = Charge(storage=self)
             self.discharge = Discharge(storage=self)
             self.stored = Stored()
@@ -321,6 +327,6 @@ class Storage(_Component):
 
         setattr(self.discharge.conversion._basis, self.name, self.stored)
 
-        self.stored, self.stored.inv_of = self.stored, self.discharge.conversion._basis
+        self.stored.inv_of = self.discharge.conversion._basis
 
         return self.discharge.conversion(resource)
