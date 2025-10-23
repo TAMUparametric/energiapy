@@ -135,6 +135,9 @@ class Conversion(Mapping, _Hash):
         """Used to define mode based conversions"""
         return self.balance[key]
 
+    def __setitem__(self, key: _Commodity, value: float | list[float]):
+        self.balance[key] = value
+
     def __call__(self, basis: _Commodity | Conversion, lag: Lag = None) -> Self:
         # sets the basis
         if isinstance(basis, Conversion):
@@ -175,23 +178,22 @@ class Conversion(Mapping, _Hash):
         self.model.convmatrix[self.operation] = self.balance
         return self
 
-    # these update the conversion of the resource (self.conversion)
+    def __neg__(self) -> Self:
+        return Conversion(balance={res: -par for res, par in self.items()})
+
     def __add__(self, other: Conversion) -> Self:
-        if isinstance(other, Conversion):
-            self.balance = {**self, **other}
-            return self
-        self.balance = {**self, other: 1}
+        self.balance = {**self, **other}
         return self
 
     def __sub__(self, other: Conversion) -> Self:
-        if isinstance(other, Conversion):
-            self.balance = {
-                **self.balance,
-                **{res: -1 * par for res, par in other.items()},
-            }
-            return self
-        self.balance = {**self, other: -1}
+        self.balance = {**self, **-other}
         return self
+
+        # if isinstance(other, Conversion):
+        #     self.balance = {**self, **-other}
+        #     return self
+        # self.balance = {**self, other: -1}
+        # return self
 
     def __mul__(self, times: int | float | list) -> Self:
         if isinstance(times, list):

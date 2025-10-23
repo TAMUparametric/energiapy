@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Self
 
 from ..modeling.parameters.conversion import Conversion
@@ -11,7 +12,7 @@ if TYPE_CHECKING:
     from ..components.measure.unit import Unit
 
 
-class _Commodity(_Component):
+class _Commodity(_Component, Mapping):
     """
     A commodity, can be a material, chemical, energy, etc.
 
@@ -130,3 +131,12 @@ class _Commodity(_Component):
             return conv
 
         return super().__eq__(other)
+
+    def __getitem__(self, _):
+        return 1
+
+    def __iter__(self):
+        return iter([self])
+
+    def __len__(self):
+        return 1
