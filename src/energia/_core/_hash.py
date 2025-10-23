@@ -1,5 +1,6 @@
 """Hashing Base Class"""
 
+
 class _Hash:
 
     def __str__(self):

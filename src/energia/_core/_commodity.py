@@ -73,24 +73,20 @@ class _Commodity(_Component):
     def __mul__(self, other: int | float) -> Conversion:
         # multiplying a number with a resources gives conversion
         # math operations with conversions form the balance in tasks
-        conv = Conversion()
-        conv.balance = {self: other}
-        return conv
+        return Conversion(balance={self: other})
 
     def __rmul__(self, other: int | float) -> Conversion:
         # reverse multiplication
         return self * other
 
     def __add__(self, other: Conversion) -> Conversion:
-        conv = Conversion()
         if isinstance(other, _Commodity):
-            # if another resource is added, give it the parameter 1
-            conv.balance = {self: 1, other: 1}
-            return conv
-
-        # if added with another conversion, updated the balance
-        conv.balance = {self: 1, **other.balance}
-        return conv
+            # if another commodity is added, give it the parameter 1
+            _balance = {self: 1, other: 1}
+        else:
+            # if added with another conversion, updated the balance
+            _balance = {self: 1, **other.balance}
+        return Conversion(balance=_balance)
 
     def __neg__(self) -> Conversion:
         # just multiply by -1
@@ -103,18 +99,19 @@ class _Commodity(_Component):
             return self + -1 * other
         if isinstance(other, Conversion):
             # if another conversion is subtracted, update the balance
-            conv = Conversion()
-
-            conv.balance = {
-                self: 1,
-                **{
-                    res: (
-                        -1 * par if isinstance(par, (int, float)) else [-i for i in par]
-                    )
-                    for res, par in other.items()
-                },
-            }
-            return conv
+            return Conversion(
+                balance={
+                    self: 1,
+                    **{
+                        res: (
+                            -1 * par
+                            if isinstance(par, (int, float))
+                            else [-i for i in par]
+                        )
+                        for res, par in other.items()
+                    },
+                }
+            )
 
     def __truediv__(self, other: int | float):
         # treat division as multiplication by the inverse

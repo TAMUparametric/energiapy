@@ -12,8 +12,8 @@ from ...components.temporal.modes import Modes
 if TYPE_CHECKING:
     from gana.block.program import Prg
 
+    from ..._core._commodity import _Commodity
     from ..._core._operation import _Operation
-    from ...components.commodity.resource import Resource
     from ...components.temporal.periods import Periods
     from ...represent.model import Model
     from ..variables.sample import Sample
@@ -21,11 +21,11 @@ if TYPE_CHECKING:
 
 class Conversion(_Hash):
     """
-    Processes convert one Resource to another Resource
+    Processes convert one Commodity to another Commodity
     Conversion provides the conversion of resources
 
-    :param resource: Resource that is balanced
-    :type resource: Resource
+    :param resource: Commodity that is balanced
+    :type resource: Commodity
     :param operation: Process or Storage that serves as primary spatial index
     :type operation: Process | Storage
     :param bind: Sample that is used to define the conversion
@@ -33,10 +33,10 @@ class Conversion(_Hash):
 
     :ivar name: Name of the component, generated based on the operation.
     :vartype name: str
-    :ivar base: Basis Resource, usually has a value 1 in the conversion matrix, set using __call__. Defaults to None.
-    :vartype base: Resource
-    :ivar conversion: {Resources: conversion}. Defaults to {}, set using __eq__.
-    :vartype conversion: dict[Resource : int | float]
+    :ivar base: Basis Commodity, usually has a value 1 in the conversion matrix, set using __call__. Defaults to None.
+    :vartype base: Commodity
+    :ivar conversion: {Commoditys: conversion}. Defaults to {}, set using __eq__.
+    :vartype conversion: dict[Commodity : int | float]
     :ivar lag: Temporal lag (processing time) for conversion, set using __getitem__.
     :vartype lag: Lag
     :ivar periods: Periods over which the conversion is defined. Defaults to None.
@@ -53,7 +53,8 @@ class Conversion(_Hash):
 
     def __init__(
         self,
-        basis: Resource | None = None,
+        basis: _Commodity | None = None,
+        balance: dict[_Commodity, float | list[float]] | None = None,
         operation: _Operation | None = None,
         bind: Sample | None = None,
         hold: int | float | None = None,
@@ -64,11 +65,11 @@ class Conversion(_Hash):
         self.bind = bind
 
         # value to hold, will be applied later
-        # occurs when Conversion/Resource == parameter is used
+        # occurs when Conversion/Commodity == parameter is used
         # the parameter is held until a dummy resource is created
         self.hold = hold
 
-        self._basis: Resource | None = None
+        self._basis: _Commodity | None = None
         self.lag: Lag | None = None
         self.periods: Periods | None = None
 
@@ -84,7 +85,10 @@ class Conversion(_Hash):
 
         # if the keys are converted into Modes
         self.modes_set: bool = False
-        self.balance: dict[Resource, int | float | list[int | float]] = {}
+        if balance:
+            self.balance = balance
+        else:
+            self.balance = {}
 
     @property
     def name(self) -> str:
@@ -171,20 +175,20 @@ class Conversion(_Hash):
         self._mode = mode
         return self
 
-    def __call__(self, basis: Resource | Conversion, lag: Lag = None) -> Self:
+    def __call__(self, basis: _Commodity | Conversion, lag: Lag = None) -> Self:
         # sets the basis
         if isinstance(basis, Conversion):
-            # if a Conversion is provided (parameter*Resource)
+            # if a Conversion is provided (parameter*Commodity)
             # In this case the associated conversion is not 1
-            # especially useful if Process is scaled to consumption of a resource
-            # i.e. basis = -1*Resource
+            # especially useful if Process is scaled to consumption of a commodity
+            # i.e. basis = -1*Commodity
             self.balance = {**self.balance, **basis.balance}
             self.basis = next(iter(self.balance))
 
         else:
-            # if a Resource is provided (Resource)
+            # if a Commodity is provided
             # implies that the conversion is 1
-            # i.e the Process is scaled to one unit of this Resource produced
+            # i.e the Process is scaled to one unit of this Commodity produced
             self._basis = basis
             self.balance = {basis: 1.0, **self.balance}
 
@@ -216,14 +220,14 @@ class Conversion(_Hash):
             self.balance = {k: {**self.balance, **v.balance} for k, v in other.items()}
             self.pwl = True
 
-        # this would be a Conversion or Resource
+        # this would be a Conversion or Commodity
         elif self._mode is not None:
             self.balance[self._mode] = other.balance
             if not self.pwl:
                 self.pwl = True
             self._mode = None
         else:
-            self.balance: dict[Resource, int | float] = {
+            self.balance: dict[_Commodity, int | float] = {
                 **self.balance,
                 **other.balance,
             }
