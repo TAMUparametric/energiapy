@@ -1,16 +1,23 @@
 import pytest
 
-from energia.library.examples.energy import design_scheduling
+from energia.library.examples.energy import design_scheduling, design_scheduling_w_attrs
 
 
 @pytest.fixture
-def m():
-    _m = design_scheduling()
+def model(request):
+    if request.param == "plain":
+        _m = design_scheduling()
+    elif request.param == "attrs":
+        _m = design_scheduling_w_attrs()
+    else:
+        raise ValueError(f"Unknown model type: {request.param}")
     _m.usd.spend.opt()
     return _m
 
 
-def test_small_1L_mT_mO_MILP(m):
+@pytest.mark.parametrize("model", ["plain", "attrs"], indirect=True)
+def test_small_1L_mT_mO_MILP(model):
+    m = model
     assert m.storages == [m.lii]
     assert m.release.output(aslist=True) == pytest.approx(
         [135.0, 157.5, 180.0, 67.5], rel=1e-9
@@ -24,7 +31,9 @@ def test_small_1L_mT_mO_MILP(m):
     assert m.invcapacity.output(aslist=True) == pytest.approx(
         [27.160493827160423], rel=1e-9
     )
-    assert m.capacity.reporting.output(aslist=True) == pytest.approx([1.0, 1.0], rel=1e-9)
+    assert m.capacity.reporting.output(aslist=True) == pytest.approx(
+        [1.0, 1.0], rel=1e-9
+    )
     assert m.invcapacity.reporting.output(aslist=True) == pytest.approx([1.0], rel=1e-9)
     assert m.operate.output(aslist=True) == pytest.approx(
         [

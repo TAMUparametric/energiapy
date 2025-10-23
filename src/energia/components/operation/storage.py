@@ -155,6 +155,7 @@ class Storage(_Component):
             self.parameters = {}
 
             # initiate the processes
+
             self.charge = Charge(storage=self, **_charging_args)
             self.discharge = Discharge(storage=self, **_discharging_args)
             self.stored = Stored(**_storage_args)
@@ -300,6 +301,20 @@ class Storage(_Component):
         """Fabrication conversion of commodities"""
         return self.charge.fab
 
+    def _birth_constituents(
+        self,
+        charging_args: dict | None = None,
+        discharging_args: dict | None = None,
+        storage_args: dict | None = None,
+    ):
+        """Birth the constituents of the storage component"""
+
+        self.charge = Charge(storage=self, **charging_args if charging_args else {})
+        self.discharge = Discharge(
+            storage=self, **discharging_args if discharging_args else {}
+        )
+        self.stored = Stored(**storage_args if storage_args else {})
+
     def __call__(self, resource: Stored | Conversion):
         """Conversion is called with a Resource to be converted"""
 
@@ -312,6 +327,7 @@ class Storage(_Component):
             setattr(self.model, f"{self.name}.charge", self.charge)
             setattr(self.model, f"{self.name}.discharge", self.discharge)
             setattr(self.model, f"{resource}.{self}", self.stored)
+
             self._birthed = True
 
         # -------set discharge conversion
