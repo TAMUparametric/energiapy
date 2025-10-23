@@ -77,50 +77,15 @@ class Conversion(_Hash):
         self.lag: Lag | None = None
         self.periods: Periods | None = None
 
-        #! PWL
-
-        # # if piece wise linear conversion is provided
-        # self.pwl: bool = False
-
-        # # this is holds a mode for the conversion to be appended to
-        # self._mode: int | str | None = None
-
-        # # modes if PWL conversion is defined
-        # # or if multiple modes are defined
-        # self._modes: Modes | None = None
-
-        # # if the keys are converted into Modes
-        # self.modes_set: bool = False
-
     @property
     def name(self) -> str:
         """Name"""
         return f"η({self.operation}, {self.basis or self._basis})"
 
-    #! PWL
-    # @property
-    # def modes(self) -> Modes:
-    #     """Modes of the operation"""
-    #     if self._modes is None:
-    #         n_modes = len(self)
-    #         modes_name = f"bin{len(self.model.modes)}"
-
-    #         setattr(self.model, modes_name, Modes(n_modes=n_modes, bind=self.bind))
-
-    #         self._modes = self.model.modes[-1]
-
-    #     return self._modes
-
     @cached_property
     def model(self) -> Model:
         """energia Model"""
-
-        #! PWL
-        # if self.pwl:
-        #     _conversion = self.balance[next(iter(self.balance))]
-        # else:
-        _conversion = self.balance
-        return next((i.model for i in _conversion), None)
+        return next((i.model for i in self.balance))
 
     @cached_property
     def program(self) -> Prg:
@@ -163,16 +128,6 @@ class Conversion(_Hash):
                         conversion[res] = [par] * length
             return conversion
 
-        #! PWL
-
-        # if self.pwl:
-        #     for mode, conv in self.items():
-        #         self.balance[mode] = _balancer(conv)
-
-        #     if isinstance(next(iter(self.balance)), Modes):
-        #         self.modes_set = True
-
-        # else:
         self.balance = _balancer(self.balance)
 
     def __getitem__(self, mode: int | str) -> Self:
@@ -210,28 +165,6 @@ class Conversion(_Hash):
 
             self.balance = {**self.balance, self.basis: -1.0 / float(other)}
 
-        #! PWL
-        # elif isinstance(other, dict):
-
-        #     key = next(iter(other.keys()))
-
-        #     if isinstance(key, Modes):
-        #         # conversion modes can collate
-        #         # for example resource conversion modes and material conversion modes
-        #         self.modes_set = True
-        #         self._modes = key.parent
-
-        #     # this is when there is a proper resource conversion
-        #     # -20*res1 = 10*res2 for example
-        #     self.balance = {k: {**self.balance, **v.balance} for k, v in other.items()}
-        #     self.pwl = True
-
-        # # this would be a Conversion or Commodity
-        # elif self._mode is not None:
-        #     self.balance[self._mode] = other.balance
-        #     if not self.pwl:
-        #         self.pwl = True
-        #     self._mode = None
         else:
 
             self.balance: dict[_Commodity, int | float] = {
@@ -290,3 +223,71 @@ class PWLConversion(_Hash):
         self.modes = modes
         self.bind = bind
         self.balance: dict[int | str, Conversion] = {}
+
+        #! PWL
+
+        # if self.pwl:
+        #     for mode, conv in self.items():
+        #         self.balance[mode] = _balancer(conv)
+
+        #     if isinstance(next(iter(self.balance)), Modes):
+        #         self.modes_set = True
+
+        # else:
+
+        #! PWL
+
+        # # if piece wise linear conversion is provided
+        # self.pwl: bool = False
+
+        # # this is holds a mode for the conversion to be appended to
+        # self._mode: int | str | None = None
+
+        # # modes if PWL conversion is defined
+        # # or if multiple modes are defined
+        # self._modes: Modes | None = None
+
+        # # if the keys are converted into Modes
+        # self.modes_set: bool = False
+
+        #! PWL
+        # elif isinstance(other, dict):
+
+        #     key = next(iter(other.keys()))
+
+        #     if isinstance(key, Modes):
+        #         # conversion modes can collate
+        #         # for example resource conversion modes and material conversion modes
+        #         self.modes_set = True
+        #         self._modes = key.parent
+
+        #     # this is when there is a proper resource conversion
+        #     # -20*res1 = 10*res2 for example
+        #     self.balance = {k: {**self.balance, **v.balance} for k, v in other.items()}
+        #     self.pwl = True
+
+        # # this would be a Conversion or Commodity
+        # elif self._mode is not None:
+        #     self.balance[self._mode] = other.balance
+        #     if not self.pwl:
+        #         self.pwl = True
+        #     self._mode = None
+
+        #! PWL
+        # if self.pwl:
+        #     _conversion = self.balance[next(iter(self.balance))]
+        # else:
+
+        #! PWL
+        # @property
+        # def modes(self) -> Modes:
+        #     """Modes of the operation"""
+        #     if self._modes is None:
+        #         n_modes = len(self)
+        #         modes_name = f"bin{len(self.model.modes)}"
+
+        #         setattr(self.model, modes_name, Modes(n_modes=n_modes, bind=self.bind))
+
+        #         self._modes = self.model.modes[-1]
+
+        #     return self._modes
