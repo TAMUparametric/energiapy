@@ -7,6 +7,8 @@ from math import prod
 from operator import is_, is_not
 from typing import TYPE_CHECKING, Self
 
+from ..._core._hash import _Hash
+
 if TYPE_CHECKING:
     from gana import I as Idx
     from gana import V
@@ -30,7 +32,7 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class Domain:
+class Domain(_Hash):
     """
     A domain is an ordered set of the indices of an element.
 
@@ -514,16 +516,3 @@ class Domain:
     def __gt__(self, other: Self) -> bool:
         """Greater than comparison based on the number of indices"""
         return other < self
-
-    # -----------------------------------------------------
-    #                    Hashing
-    # -----------------------------------------------------
-
-    def __str__(self):
-        return self.name
-
-    def __repr__(self):
-        return self.name
-
-    def __hash__(self):
-        return hash(self.name)

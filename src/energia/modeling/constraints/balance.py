@@ -7,6 +7,7 @@ import time as keep_time
 from operator import is_
 from typing import TYPE_CHECKING, Self
 
+from ..._core._hash import _Hash
 from ...components.operation.storage import Stored
 
 logger = logging.getLogger("energia")
@@ -22,7 +23,7 @@ if TYPE_CHECKING:
     from ..variables.aspect import Aspect
 
 
-class Balance:
+class Balance(_Hash):
     """Performs a general commodity balance
 
     :param aspect: Aspect to which the constraint is applied
@@ -306,12 +307,3 @@ class Balance:
     def __call__(self, *index: _X):
         """Returns the variable for the aspect at the given index"""
         return self.aspect(*index)
-
-    def __str__(self):
-        return self.name
-
-    def __repr__(self):
-        return self.name
-
-    def __hash__(self):
-        return hash(self.name)

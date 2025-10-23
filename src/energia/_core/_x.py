@@ -6,6 +6,8 @@ from abc import ABC, abstractmethod
 from functools import cached_property
 from typing import TYPE_CHECKING
 
+from ._hash import _Hash
+
 if TYPE_CHECKING:
     from gana import I as Idx
     from gana.block.program import Prg
@@ -16,7 +18,7 @@ if TYPE_CHECKING:
     from ..represent.model import Model
 
 
-class _X(ABC):
+class _X(ABC, _Hash):
     """
     A component (`x`) that functions as an index in the mathematical program.
 
@@ -90,26 +92,3 @@ class _X(ABC):
         else:
             for c in self.cons:
                 c.show(descriptive)
-
-    # The reprs are set independently without inheriting _Name
-    # which allows a distinction between
-    # _Name and _Index when assigned to Model
-    # If needed
-
-    # -----------------------------------------------------
-    #                    Hashing
-    # -----------------------------------------------------
-
-    def __str__(self):
-        return self.name
-
-    def __repr__(self):
-        return self.name
-
-    def __hash__(self):
-        return hash(self.name)
-
-    def __init_subclass__(cls):
-        # the hashing will be inherited by the subclasses
-        cls.__repr__ = _X.__repr__
-        cls.__hash__ = _X.__hash__
