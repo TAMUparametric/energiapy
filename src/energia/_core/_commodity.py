@@ -85,7 +85,7 @@ class _Commodity(_Component):
             _balance = {self: 1, other: 1}
         else:
             # if added with another conversion, updated the balance
-            _balance = {self: 1, **other.balance}
+            _balance = {self: 1, **other}
         return Conversion(balance=_balance)
 
     def __neg__(self) -> Conversion:
