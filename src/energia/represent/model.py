@@ -231,7 +231,7 @@ class Model:
         self.impact = Impact(self)
         # * 4. System (Resource Task Network)
         self.system = System(self)
-        
+
         # * II Representations
         # * 1. Graph with Edges and Nodes
         self.graph = Graph(self)
@@ -982,7 +982,7 @@ class Model:
     # * Call to Initialize using functions and Hashing
     # ---------------------------------------------------------------
 
-    def __call__(self, *funcs: Callable[Self]):
+    def __call__(self, *funcs: Callable[[Self]]):
         """Set functions on the model
 
         These can include default units
