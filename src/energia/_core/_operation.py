@@ -7,7 +7,7 @@ from abc import abstractmethod
 from functools import cached_property
 from typing import TYPE_CHECKING
 
-from ..modeling.parameters.conversion import Construction, Operation
+from ..modeling.parameters.conversion import Construction, Production
 from ._component import _Component
 
 logger = logging.getLogger("energia")
@@ -66,9 +66,9 @@ class _Operation(_Component):
         self.conversions = args
 
     @cached_property
-    def conversion(self) -> Operation:
+    def production(self) -> Production:
         """Operational conversion"""
-        return Operation(operation=self)
+        return Production(operation=self)
 
     @cached_property
     def construction(self) -> Construction:
@@ -92,12 +92,12 @@ class _Operation(_Component):
     @property
     def base(self) -> Resource:
         """Base resource"""
-        return self.conversion.basis
+        return self.production.basis
 
     @property
     def balance(self) -> dict[Resource, int | float]:
         """Conversion of commodities"""
-        return self.conversion.balance
+        return self.production.balance
 
     # @property
     # def fabrication(
@@ -119,7 +119,7 @@ class _Operation(_Component):
     @property
     def lag(self) -> Lag:
         """Lag of the process"""
-        return self.conversion.lag
+        return self.production.lag
 
     def writecons_fabrication(
         self,
@@ -266,8 +266,8 @@ class _Operation(_Component):
         """Conversion is called with a Resource to be converted"""
 
         if lag:
-            return self.conversion(resource, lag)
-        return self.conversion(resource)
+            return self.production(resource, lag)
+        return self.production(resource)
 
     def __setattr__(self, name, value):
 
@@ -276,6 +276,6 @@ class _Operation(_Component):
                 conv.operation = self
 
             if len(self.conversions) == 1:
-                self.conversion += self.conversions[0]
+                self.production += self.conversions[0]
 
         super().__setattr__(name, value)

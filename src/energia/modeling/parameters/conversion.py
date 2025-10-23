@@ -15,6 +15,9 @@ if TYPE_CHECKING:
 
     from ..._core._commodity import _Commodity
     from ..._core._operation import _Operation
+    from ...components.spatial.linkage import Linkage
+    from ...components.spatial.location import Location
+    from ...components.temporal.periods import Periods
     from ...represent.model import Model
     from ..variables.sample import Sample
 
@@ -91,12 +94,12 @@ class Conversion(Mapping, _Hash):
         return f"η({self.operation}, {self.basis or self._basis})"
 
     @cached_property
-    def model(self) -> Model:
+    def model(self) -> Model | None:
         """energia Model"""
-        return next((i.model for i in self.balance))
+        return next((i.model for i in self.balance), None)
 
     @cached_property
-    def program(self) -> Prg:
+    def program(self) -> Prg | None:
         """gana Program"""
         return self.operation.program
 
@@ -138,6 +141,90 @@ class Conversion(Mapping, _Hash):
 
         self.balance = _balancer(self.balance)
 
+    def write(
+        self, operation: _Operation, space: Location | Linkage, time: Periods | Lag
+    ):
+        """Writes equations for conversion balance"""
+
+        def time_checker(res: _Commodity, space: Location | Linkage, time: Periods):
+            """This checks if it is actually necessary
+            to write conversion at denser temporal scales
+            """
+            # This checks whether some other aspect is defined at
+            # a lower temporal scale
+
+            if loc not in self.model.balances[res]:
+                # if not defined for that location, check for a lower order location
+                # i.e. location at a lower hierarchy,
+                # e.g. say if loc being passed is a city, and a grb has not been defined for it
+                # then we need to check at a higher order
+                parent = self.model.space.split(space)[
+                    1
+                ]  # get location at one hierarchy above
+                if parent:
+                    # if that indeed exists, then make the parent the loc
+                    # the conversion Balance variables will feature in grb for parent location
+                    loc = parent
+
+            _ = self.model.balances[res][space][time]
+
+            if res.inv_of:
+                # for inventoried resources, the conversion is written
+                # using the time of the base resource's grb
+                res = res.inv_of
+
+            try:
+                times = list(
+                    [
+                        t
+                        for t in self.model.balances[res][loc]
+                        if self.model.balances[res][loc][t]
+                    ],
+                )
+            except KeyError:
+                times = []
+            # write the conversion balance at
+            # densest temporal scale in that space
+            if times:
+                return min(times)
+
+            return time.horizon
+
+        for res, par in self.items():
+
+            if res in self.model.balances:
+                time = time_checker(res, space, time)
+                _ = self.model.balances[res].get(space, {})
+
+            eff = par if isinstance(par, list) else [par]
+
+            decision = getattr(operation, self.by)
+
+            if eff[0] < 0:
+                # Resources are consumed (expendend by Process) immediately
+
+                rhs = getattr(res, self.sub)(decision, space, time)
+                eff = [-e for e in eff]
+            else:
+                # Production — may occur after lag
+                lag_time = self.lag.of if self.lag else time
+                rhs = getattr(res, self.add)(decision, space, lag_time)
+
+            opr = decision(space, time)
+            _ = opr[rhs] == eff
+
+    def items(self):
+        """Items of the conversion balance"""
+        return self.balance.items()
+
+    def keys(self):
+        """Keys of the conversion balance"""
+        return self.balance.keys()
+
+    def values(self):
+        """Values of the conversion balance"""
+        return self.balance.values()
+
     def __getitem__(self, key: _Commodity) -> float | list[float]:
         """Used to define mode based conversions"""
         return self.balance[key]
@@ -153,7 +240,7 @@ class Conversion(Mapping, _Hash):
             # especially useful if Process is scaled to consumption of a commodity
             # i.e. basis = -1*Commodity
             self.balance = {**self, **basis}
-            self.basis = next(iter(self.balance))
+            self.basis = next(iter(self))
 
         else:
             # if a Commodity is provided
@@ -173,7 +260,6 @@ class Conversion(Mapping, _Hash):
             # when not other resource besides the one being inventoried is involved
             self.balance = {**self, self.basis: -1.0 / float(other)}
         else:
-
             self.balance = {**self, **other}
         self.model.convmatrix[self.operation] = self.balance
         return self
@@ -200,10 +286,6 @@ class Conversion(Mapping, _Hash):
     def __rmul__(self, times) -> Self:
         return self * times
 
-    def items(self):
-        """Items of the conversion balance"""
-        return self.balance.items()
-
     def __len__(self):
         """Length of the conversion balance"""
         return len(self.balance)
@@ -212,7 +294,7 @@ class Conversion(Mapping, _Hash):
         return iter(self.balance)
 
 
-class Operation(Conversion):
+class Production(Conversion):
     """Conversion by Operation"""
 
     def __init__(self, *args, **kwargs):

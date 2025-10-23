@@ -104,17 +104,17 @@ class Transport(_Operation):
 
             return time.horizon
 
-        self.conversion.balancer()
+        self.production.balancer()
 
-        if self.conversion.pwl:
+        if self.production.pwl:
 
             conversion = self.balance[list(self.balance)[0]]
 
         else:
             conversion = self.balance
 
-        shipping_conversion, rest_conversion = {self.conversion.basis: 1}, {
-            k: v for k, v in conversion.items() if k != self.conversion.basis
+        shipping_conversion, rest_conversion = {self.production.basis: 1}, {
+            k: v for k, v in conversion.items() if k != self.production.basis
         }
 
         for link_time in link_times:
@@ -212,26 +212,26 @@ class Transport(_Operation):
                     _ = rhs_export == True
                     _ = rhs_import == True
 
-                if self.conversion.pwl:
+                if self.production.pwl:
 
                     eff = [conv[res] for conv in self.balance.values()]
 
                     if eff[0] < 0:
                         eff = [-i for i in eff]
 
-                    if not self.conversion.modes_set:
+                    if not self.production.modes_set:
                         self.model.operate.bound = None
                         _ = opr == dict(enumerate(self.balance.keys()))
 
-                        self.model.operate.bound = self.conversion.model.capacity
+                        self.model.operate.bound = self.production.model.capacity
 
                         modes = self.model.modes[-1]
-                        self.conversion.modes_set = True
+                        self.production.modes_set = True
 
                     else:
-                        modes = self.conversion.modes
+                        modes = self.production.modes
                         modes.bind = self.operate
-                        self.conversion.modes_set = True
+                        self.production.modes_set = True
 
                     opr = opr(modes)
                     rhs_export = rhs_export(modes)

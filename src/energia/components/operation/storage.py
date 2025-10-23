@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 
 from ..._core._component import _Component
 from ...modeling.constraints.calculate import Calculate
-from ...modeling.parameters.conversion import Operation
+from ...modeling.parameters.conversion import Production
 from ..commodity.resource import Resource
 from .process import Process
 
@@ -240,7 +240,7 @@ class Storage(_Component):
     @property
     def base(self) -> Resource:
         """Base resource"""
-        return self.discharge.conversion.basis
+        return self.discharge.production.basis
 
     @property
     def storage_cost(self) -> Calculate:
@@ -323,22 +323,22 @@ class Storage(_Component):
         # _ = self.charge(stored) ==
 
         # -------set discharge conversion
-        self.discharge.conversion = Operation(
+        self.discharge.production = Production(
             operation=self.discharge,
             basis=self.stored,
         )
-        _ = self.discharge.conversion(resource) == -1.0 * self.stored
+        _ = self.discharge.production(resource) == -1.0 * self.stored
 
         # -------set charge conversion
-        self.charge.conversion = Operation(
+        self.charge.production = Production(
             operation=self.charge,
             basis=resource,
         )
 
-        _ = self.charge.conversion(self.stored) == -1.0 * resource
+        _ = self.charge.production(self.stored) == -1.0 * resource
 
-        setattr(self.discharge.conversion._basis, self.name, self.stored)
+        setattr(self.discharge.production._basis, self.name, self.stored)
 
-        self.stored.inv_of = self.discharge.conversion._basis
+        self.stored.inv_of = self.discharge.production._basis
 
-        return self.discharge.conversion(resource)
+        return self.discharge.production(resource)

@@ -110,7 +110,7 @@ class Process(_Operation):
 
             return time.horizon
 
-        if not self.conversion:
+        if not self.production:
             warn(
                 f"{self}: Conversion not defined, no Constraints generated",
                 UserWarning,
@@ -119,7 +119,7 @@ class Process(_Operation):
 
         # This makes the conversion consistent
         # check conv_test.py in tests for examples
-        self.conversion.balancer()
+        self.production.balancer()
 
         #! PWL
         # if self.conversion.pwl:
@@ -142,7 +142,6 @@ class Process(_Operation):
         #     conversion = self.balance[list(self.balance)[0]]
 
         # else:
-        conversion = self.balance
 
         for location, time in loc_times:
 
@@ -150,10 +149,12 @@ class Process(_Operation):
                 # if the process is already balanced for the location , Skip
                 continue
 
-            for res, par in conversion.items():
+            for res, par in self.production.items():
                 # set, the conversion on the resource
 
-                setattr(res, self.name, self)
+                #! Repurpose
+                # setattr(res, self.name, self)
+
                 # now there are two cases possible
                 # the parameter (par) is positive or negative
                 # if positive, the resource is expended
@@ -173,12 +174,12 @@ class Process(_Operation):
                     # Resources are consumed (expendend by Process) immediately
                     rhs = res.expend(self.operate, location, time)
                     eff = [-e for e in eff]
-                    opr = self.operate(location, time)
                 else:
                     # Production — may occur after lag
                     lag_time = self.lag.of if self.lag else time
                     rhs = res.produce(self.operate, location, lag_time)
-                    opr = self.operate(location, time)
+
+                opr = self.operate(location, time)
 
                 # because of using .balancer(), expend/produce are on same temporal scale
 
