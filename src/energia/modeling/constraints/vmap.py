@@ -116,8 +116,12 @@ class Map:
         return f"{self.aspect.name}_map"
 
     @cached_property
-    def maps(self) -> dict[Domain, dict[str, list[Domain]]]:
+    def maps(self) -> dict[Domain, list[Domain]]:
         return self.aspect.maps_report if self.reporting else self.aspect.maps
+
+    @property
+    def mmaps(self) -> dict[Domain, dict[Domain, list[C]]]:
+        return self.aspect.mmaps
 
     # -------------------------------------------------------------------#
     # Helper functions
@@ -260,6 +264,7 @@ class Map:
         msum: bool = False,
     ) -> str:
         """Return canonical map constraint name based on domain relationship and aggregation type."""
+
         if tsum:
             return f"{var}{from_domain.idxname}_to_{to_domain.idxname}_tmap"
 
@@ -305,6 +310,13 @@ class Map:
     ):
         """Scales up variable to a lower dimension"""
 
+        #!MMAPS
+        if to_domain not in self.mmaps:
+            self.mmaps[to_domain] = {from_domain: None}
+
+        if from_domain not in self.mmaps[to_domain]:
+            self.mmaps[to_domain][from_domain] = None
+
         if to_domain not in self.maps:
             self.maps[to_domain] = [from_domain]
             exists = False
@@ -328,6 +340,7 @@ class Map:
         if not tsum and not msum and exists:
             cons_existing: C = getattr(self.program, cname)
             setattr(self.program, cname, cons_existing - rhs)
+            cons = getattr(self.program, cname)
 
         else:
             cons = v_lower == rhs
@@ -338,6 +351,8 @@ class Map:
         logger.info("\u2714 Completed in %s seconds", end - start)
         if cname not in self.aspect.constraints:
             self.aspect.constraints.append(cname)
+
+        self.mmaps[to_domain][from_domain] = cons
         from_domain.update_cons(cname)
 
     def __call__(self, *index: _X):

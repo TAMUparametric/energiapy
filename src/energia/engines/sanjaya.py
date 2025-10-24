@@ -23,22 +23,18 @@ if TYPE_CHECKING:
     from ..represent.model import Model
   
 
-class Sanjaya:
+class Sanjaya(_Hash):
     """Sanjaya Event Logger"""
 
     def __init__(self, model: Model):
+        self.name = "Sanjaya"
+
         self.model = model
 
-
-
+        # scope of the problem
         self.time = self.model.time
         self.space = self.model.space
 
-
-        self.balances = model.balances  
-        self.dispositions = model.dispositions
-        self.maps = model.maps
-        self.maps_report = model.maps_report
         self.modes_dict = model.modes_dict
         self.convmatrix = model.convmatrix
     
@@ -62,6 +58,7 @@ class Sanjaya:
         # * Drawn Maps
         self.maps: dict[Aspect, dict[Domain, dict[str, list[Domain]]]] = self.model.maps
         self.maps_report: dict[Aspect, dict[Domain, dict[str, list[Domain]]]] = self.model.maps_report
+        
         # * Generated Modes
         self.modes_dict: dict[Sample, Modes] = self.model.modes_dict
 
