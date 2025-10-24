@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 from warnings import warn
 
-from ._operation import _Operation
+from ._operation import Operation
 
 if TYPE_CHECKING:
     from ..commodities.resource import Resource
@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from .storage import Storage
 
 
-class Process(_Operation):
+class Process(Operation):
     """
     Process converts one Resource to another Resource at some Location
 
@@ -52,7 +52,7 @@ class Process(_Operation):
 
     def __init__(self, *args, label: str = "", citations: str = "", **kwargs):
 
-        _Operation.__init__(self, *args, label=label, citations=citations, **kwargs)
+        Operation.__init__(self, *args, label=label, citations=citations, **kwargs)
 
         # at which locations the process is balanced
         # Note that we do not need a conversion at every temporal scale.

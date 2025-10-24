@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from gana.block.program import Prg
 
     from ...components.commodities.commodity import Commodity
-    from ...components.operation._operation import _Operation
+    from ...components.operation._operation import Operation
     from ...components.spatial.linkage import Linkage
     from ...components.spatial.location import Location
     from ...components.temporal.periods import Periods
@@ -61,7 +61,7 @@ class Conversion(Mapping, _Hash):
         sub: str = "",
         basis: Commodity | None = None,
         balance: dict[Commodity, float | list[float]] | None = None,
-        operation: _Operation | None = None,
+        operation: Operation | None = None,
         hold: int | float | None = None,
     ):
 

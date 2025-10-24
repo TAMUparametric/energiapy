@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from ..components.commodities.resource import Commodity
-from ..components.operation._operation import _Operation
+from ..components.operation._operation import Operation
 from ..components.operation.storage import Stored
 
 if TYPE_CHECKING:
@@ -17,7 +17,7 @@ def costing_operation(model: Model):
 
     model.Instruction(
         name="capex",
-        kind=_Operation,
+        kind=Operation,
         deciding="capacity",
         depending="spend",
         default="money",
@@ -25,7 +25,7 @@ def costing_operation(model: Model):
     )
     model.Instruction(
         name="opex",
-        kind=_Operation,
+        kind=Operation,
         deciding="operate",
         depending="spend",
         default="money",

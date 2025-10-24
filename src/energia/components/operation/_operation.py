@@ -20,7 +20,7 @@ if TYPE_CHECKING:
     from ..temporal.periods import Periods
 
 
-class _Operation(_Component):
+class Operation(_Component):
     """A General Operation
 
     :param label: An optional label for the component. Defaults to None.

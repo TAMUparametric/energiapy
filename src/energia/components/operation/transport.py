@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from ._operation import _Operation
+from ._operation import Operation
 
 if TYPE_CHECKING:
     from ..commodities.resource import Resource
@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from ..temporal.periods import Periods
 
 
-class Transport(_Operation):
+class Transport(Operation):
     """
     Exports Resource through Link basically, moves Resources between Locations
 
@@ -49,7 +49,7 @@ class Transport(_Operation):
 
     def __init__(self, *args, label: str = "", citations: str = "", **kwargs):
 
-        _Operation.__init__(self, *args, label=label, citations=citations, **kwargs)
+        Operation.__init__(self, *args, label=label, citations=citations, **kwargs)
         self.linkages: list[Linkage] = []
 
     @property
