@@ -94,86 +94,98 @@ class Operation(_Component):
         """Lag of the process"""
         return self.production.lag
 
-    # def writecons_fabrication(
-    #     self,
-    #     space_times: list[tuple[Location | Linkage, Periods]],
-    #     # fabrication: dict[Resource, int | float | list[int | float]],
-    # ):
-    #     """write fabrication constraints for the operation"""
-    #     if not self._fab_balanced:
-    #         self.fab.balancer()
-    #         self._fab_balanced = True
+    def writecons_fabrication(
+        self,
+        space_times: list[tuple[Location | Linkage, Periods]],
+        # fabrication: dict[Resource, int | float | list[int | float]],
+    ):
+        """write fabrication constraints for the operation"""
 
-    #     if self.fab.pwl:
-    #         # n_modes = len(self.fabrication)
-    #         # modes_name = f'bin{len(self.model.modes)}'
+        self.construction.balancer()
 
-    #         # setattr(self.model, modes_name, Modes(n_modes=n_modes, bind=self.capacity))
+        for location, time in space_times:
+            if location in self.spaces:
+                continue
 
-    #         # modes = self.model.modes[-1]
+            self.construction.write(location, time)
 
-    #         # this will create modes if not already created
-    #         modes = self.fab.modes
+        # if not self._fab_balanced:
+        #     self.fab.balancer()
+        #     self._fab_balanced = True
 
-    #     for space_time in space_times:
-    #         space = space_time[0]
-    #         time = space_time[1]
+        # if self.fab.pwl:
+        #     # n_modes = len(self.fabrication)
+        #     # modes_name = f'bin{len(self.model.modes)}'
 
-    #         if space in self.spaces:
-    #             continue
+        #     # setattr(self.model, modes_name, Modes(n_modes=n_modes, bind=self.capacity))
 
-    #     def time_checker():
-    #         # write use on the densest temporal index
-    #         return max(self.model.dispositions[self.model.capacity][self][space])
+        #     # modes = self.model.modes[-1]
 
-    #     if self.fab.pwl:
+        #     # this will create modes if not already created
+        #     modes = self.fab.modes
 
-    #         _modes = list(self.construction)
-    #         for n, mode in enumerate(modes):
+        # for space_time in space_times:
+        #     space = space_time[0]
+        #     time = space_time[1]
 
-    #             for res, par in self.construction[_modes[n]].items():
+        #     if space in self.spaces:
+        #         continue
 
-    #                 if isinstance(par, (int | float)):
-    #                     if par == 0:
-    #                         continue
+        # def time_checker():
+        #     # write use on the densest temporal index
+        #     return max(self.model.dispositions[self.model.capacity][self][space])
 
-    #                 if isinstance(par, list):
-    #                     if par[0] == 0:
-    #                         continue
+        # if self.fab.pwl:
 
-    #                 _ = self.capacity(space, time_checker(), mode)[res.use(mode)] == par
+        #     _modes = list(self.construction)
+        #     for n, mode in enumerate(modes):
 
-    #     else:
+        #         for res, par in self.construction[_modes[n]].items():
 
-    #         for res, par in self.construction.items():
+        #             if isinstance(par, (int | float)):
+        #                 if par == 0:
+        #                     continue
 
-    #             if isinstance(par, (int | float)):
-    #                 if par == 0:
-    #                     continue
+        #             if isinstance(par, list):
+        #                 if par[0] == 0:
+        #                     continue
 
-    #             if isinstance(par, list):
-    #                 if par[0] == 0:
-    #                     continue
+        #             _ = self.capacity(space, time_checker(), mode)[res.use(mode)] == par
 
-    #             if res in self.model.balances:
-    #                 time = time_checker()
+        # else:
 
-    #                 if self.model.balances[res][space][time]:
-    #                     _insitu = False
-    #                 else:
-    #                     _insitu = True
+        #     for res, par in self.construction.items():
 
-    #             else:
-    #                 _insitu = True
+        #         if isinstance(par, (int | float)):
+        #             if par == 0:
+        #                 continue
 
-    #             if _insitu:
-    #                 res.insitu = True
-    #                 _ = res.use(self.capacity, space, time) == True
+        #         if isinstance(par, list):
+        #             if par[0] == 0:
+        #                 continue
 
-    #             _ = self.capacity(space, time)[res.use] == par
+        #         if res in self.model.balances:
+        #             time = time_checker()
+
+        #             if self.model.balances[res][space][time]:
+        #                 _insitu = False
+        #             else:
+        #                 _insitu = True
+
+        #         else:
+        #             _insitu = True
+
+        #         if _insitu:
+        #             res.insitu = True
+        #             _ = res.use(self.capacity, space, time) == True
+
+        #         _ = self.capacity(space, time)[res.use] == par
 
     def locate(self, *spaces: Location | Linkage):
         """Locate the process"""
+
+        if not spaces:
+            spaces = (self.model.network,)
 
         # get location, time tuples where operation is defined
         space_times: list[tuple[Location | Linkage, Periods]] = []
@@ -230,8 +242,8 @@ class Operation(_Component):
 
         self.writecons_conversion(space_times)
 
-        # if self.fabrication:
-        #     self.writecons_fabrication(space_times)
+        if self.construction:
+            self.writecons_fabrication(space_times)
 
     def __call__(
         self, resource: Resource | Conversion, lag: Lag | None = None
