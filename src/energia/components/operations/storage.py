@@ -318,23 +318,10 @@ class Storage(_Component):
 
         self._birth_constituents()
 
-        # -------set discharge conversion
-        self.discharge.production = Production(
-            operation=self.discharge,
-            basis=self.stored,
-        )
-        _ = self.discharge.production(resource) == -1.0 * self.stored
+        _ = self.charge(self.stored) == -resource
 
-        # -------set charge conversion
-        self.charge.production = Production(
-            operation=self.charge,
-            basis=resource,
-        )
+        self.discharge.production.expect = self.stored
 
-        _ = self.charge.production(self.stored) == -1.0 * resource
+        self.stored.inv_of = resource
 
-        setattr(self.discharge.production._basis, self.name, self.stored)
-
-        self.stored.inv_of = self.discharge.production._basis
-
-        return self.discharge.production(resource)
+        return self.discharge(resource)

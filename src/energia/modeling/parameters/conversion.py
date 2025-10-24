@@ -87,10 +87,12 @@ class Conversion(Mapping, _Hash):
 
         self.lag: Lag | None = None
 
+        self.expect: Commodity | None = None
+
     @property
     def name(self) -> str:
         """Name"""
-        return f"η({self.operation}, {self.basis or self._basis})"
+        return f"η({self.operation}, {self.basis})"
 
     @cached_property
     def model(self) -> Model | None:
@@ -243,7 +245,6 @@ class Conversion(Mapping, _Hash):
             # if a Commodity is provided
             # implies that the conversion is 1
             # i.e the Process is scaled to one unit of this Commodity produced
-            self._basis = basis
             self.balance = {basis: 1.0, **self}
 
         if lag:
@@ -255,7 +256,7 @@ class Conversion(Mapping, _Hash):
         if isinstance(other, (int, float)):
             # this is used for inventory conversion
             # when not other resource besides the one being inventoried is involved
-            self.balance = {**self, self.basis: -1.0 / float(other)}
+            self.balance = {**self, self.expect: 1 / -float(other)}
         else:
             self.balance = {**self, **other}
         self.model.convmatrix[self.operation] = self.balance
