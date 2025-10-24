@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 from warnings import warn
 
-from ..operation._operation import Operation
+from ..operation.operation import Operation
 
 if TYPE_CHECKING:
     from ..commodities.resource import Resource

@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from ..components.commodities.resource import Commodity
-from ..components.operation._operation import Operation
+from ..components.operation.operation import Operation
 from ..components.operation.storage import Stored
 
 if TYPE_CHECKING:
