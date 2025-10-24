@@ -13,8 +13,8 @@ from ...components.temporal.modes import Modes
 if TYPE_CHECKING:
     from gana.block.program import Prg
 
-    from ..._core._commodity import _Commodity
-    from ..._core._operation import _Operation
+    from ...components.commodities._commodity import _Commodity
+    from ...components.operation._operation import _Operation
     from ...components.spatial.linkage import Linkage
     from ...components.spatial.location import Location
     from ...components.temporal.periods import Periods

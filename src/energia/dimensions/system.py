@@ -8,11 +8,11 @@ from typing import TYPE_CHECKING
 from .._core._dimension import _Dimension
 
 if TYPE_CHECKING:
-    from ..components.commodity.currency import Currency
-    from ..components.commodity.emission import Emission
-    from ..components.commodity.land import Land
-    from ..components.commodity.material import Material
-    from ..components.commodity.resource import Resource
+    from ..components.commodities.currency import Currency
+    from ..components.commodities.emission import Emission
+    from ..components.commodities.land import Land
+    from ..components.commodities.material import Material
+    from ..components.commodities.resource import Resource
     from ..components.operation.process import Process
     from ..components.operation.storage import Storage
     from ..components.operation.transport import Transport

@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from energia._core._commodity import _Commodity
+from energia.components.commodities._commodity import _Commodity
 from energia.components.impact.categories import Environ
 
 if TYPE_CHECKING:

@@ -11,11 +11,11 @@ from typing import TYPE_CHECKING, Literal, Self, Type
 from dill import dump
 
 from .._core._x import _X
-from ..components.commodity.currency import Currency
-from ..components.commodity.emission import Emission
-from ..components.commodity.land import Land
-from ..components.commodity.material import Material
-from ..components.commodity.resource import Resource
+from ..components.commodities.currency import Currency
+from ..components.commodities.emission import Emission
+from ..components.commodities.land import Land
+from ..components.commodities.material import Material
+from ..components.commodities.resource import Resource
 from ..components.game.couple import Interact
 from ..components.game.player import Player
 # from ..components.graph.edge import Edge
@@ -61,8 +61,8 @@ if TYPE_CHECKING:
     from enum import Enum
     from typing import DefaultDict
 
-    from .._core._commodity import _Commodity
     from .._core._component import _Component
+    from ..components.commodities._commodity import _Commodity
     from ..modeling.indices.domain import Domain
     from ..modeling.variables.aspect import Aspect
     from ..modeling.variables.sample import Sample

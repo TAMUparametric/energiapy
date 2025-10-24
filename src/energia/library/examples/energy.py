@@ -1,8 +1,8 @@
 """Energy system examples"""
 
-from ...components.commodity.currency import Currency
-from ...components.commodity.material import Material
-from ...components.commodity.resource import Resource
+from ...components.commodities.currency import Currency
+from ...components.commodities.material import Material
+from ...components.commodities.resource import Resource
 from ...components.impact.categories import Environ
 from ...components.measure.unit import Unit
 from ...components.operation.process import Process

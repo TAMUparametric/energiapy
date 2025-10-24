@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from .._core._operation import _Operation
-from ..components.commodity.resource import _Commodity
+from ..components.commodities.resource import _Commodity
+from ..components.operation._operation import _Operation
 from ..components.operation.storage import Stored
 
 if TYPE_CHECKING:

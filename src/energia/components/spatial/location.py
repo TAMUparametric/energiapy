@@ -15,7 +15,7 @@ from .linkage import Linkage
 
 if TYPE_CHECKING:
     from ...dimensions.space import Space
-    from ..commodity.currency import Currency
+    from ..commodities.currency import Currency
     from ..operation.process import Process
     from ..operation.storage import Storage
 

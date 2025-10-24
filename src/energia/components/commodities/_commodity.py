@@ -5,11 +5,11 @@ from __future__ import annotations
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Self
 
-from ..modeling.parameters.conversion import Conversion
-from ._component import _Component
+from ..._core._component import _Component
+from ...modeling.parameters.conversion import Conversion
 
 if TYPE_CHECKING:
-    from ..components.measure.unit import Unit
+    from ..measure.unit import Unit
 
 
 class _Commodity(_Component, Mapping):
