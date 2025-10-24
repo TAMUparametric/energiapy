@@ -422,9 +422,7 @@ class PWLConversion(Mapping, _Hash):
 
     def balancer(self):
         """Balances all conversions"""
-        print(self.balance)
         for conv in self.balance.values():
-            print(conv)
             conv.balancer()
 
     @property
