@@ -64,7 +64,6 @@ class Operation(_Component):
             operation=self, by='capacity', add="dispose", sub="use"
         )
 
-
         self.conversions = args
 
     @property
@@ -81,7 +80,6 @@ class Operation(_Component):
     def balance(self) -> dict[Resource, int | float]:
         """Conversion of commodities"""
         return self.production.balance
-
 
     @property
     def lag(self) -> Lag:

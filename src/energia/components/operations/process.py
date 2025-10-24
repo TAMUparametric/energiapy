@@ -68,48 +68,6 @@ class Process(Operation):
     def writecons_conversion(self, loc_times: list[tuple[Location, Periods]]):
         """Write the conversion constraints for the process"""
 
-        # def time_checker(res: Resource, loc: Location, time: Periods):
-        #     """This checks if it is actually necessary
-        #     to write conversion at denser temporal scales
-        #     """
-        #     # This checks whether some other aspect is defined at
-        #     # a lower temporal scale
-
-        #     if loc not in self.model.balances[res]:
-        #         # if not defined for that location, check for a lower order location
-        #         # i.e. location at a lower hierarchy,
-        #         # e.g. say if loc being passed is a city, and a grb has not been defined for it
-        #         # then we need to check at a higher order
-        #         parent = self.space.split(loc)[1]  # get location at one hierarchy above
-        #         if parent:
-        #             # if that indeed exists, then make the parent the loc
-        #             # the conversion Balance variables will feature in grb for parent location
-        #             loc = parent
-
-        #     _ = self.model.balances[res][loc][time]
-
-        #     if res.inv_of:
-        #         # for inventoried resources, the conversion is written
-        #         # using the time of the base resource's grb
-        #         res = res.inv_of
-
-        #     try:
-        #         times = list(
-        #             [
-        #                 t
-        #                 for t in self.model.balances[res][loc]
-        #                 if self.model.balances[res][loc][t]
-        #             ],
-        #         )
-        #     except KeyError:
-        #         times = []
-        #     # write the conversion balance at
-        #     # densest temporal scale in that space
-        #     if times:
-        #         return min(times)
-
-        #     return time.horizon
-
         if not self.production:
             warn(
                 f"{self}: Conversion not defined, no Constraints generated",

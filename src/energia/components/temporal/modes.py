@@ -22,8 +22,8 @@ class Modes(_X):
 
     :param n_modes: Number of modes. Defaults to 1.
     :type n_modes: int
-    :param bind: The aspect and component which is being 'moded'. Defaults to None.
-    :type bind: Bind | None
+    :param sample: The aspect and component (sample) which is being 'moded'. Defaults to None.
+    :type sample: Sample | None
     :param parent: Parent mode, if any. Defaults to None.
     :type parent: Self | None
     :param pos: Position in the parent mode set. Defaults to None.
@@ -36,14 +36,14 @@ class Modes(_X):
     def __init__(
         self,
         n_modes: int = 1,
-        bind: Sample | None = None,
+        sample: Sample | None = None,
         parent: Self | None = None,
         pos: int | None = None,
         label: str = "",
         citations: str = "",
     ):
         self.n_modes = n_modes
-        self.bind = bind
+        self.sample = sample
         self.parent = parent
         self.pos = pos
 
@@ -82,7 +82,7 @@ class Modes(_X):
             # do not set a new index set, get from parent
             return getattr(self.parent.program, self.parent.name)[self.pos]
 
-        _index = I(size=self.n_modes, tag=f"Modes of {self.bind.aspect}")
+        _index = I(size=self.n_modes, tag=f"Modes of {self.sample.aspect}")
 
         setattr(
             self.program,
@@ -106,7 +106,8 @@ class Modes(_X):
         """Get a mode by index"""
         if not self._birthed:
             self._ = [
-                Modes(bind=self.bind, parent=self, pos=i) for i in range(self.n_modes)
+                Modes(sample=self.sample, parent=self, pos=i)
+                for i in range(self.n_modes)
             ]
             self._birthed = True
 

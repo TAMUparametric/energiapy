@@ -17,9 +17,9 @@ from ..constraints.calculate import Calculate
 logger = logging.getLogger("energia")
 
 if TYPE_CHECKING:
+    from gana.block.program import Prg
     from gana.sets.constraint import C
     from gana.sets.function import F
-    from gana.sets.program import Prg
 
     from ..._core._component import _Component
     from ..._core._x import _X
@@ -344,7 +344,9 @@ class Sample:
             # this updates the balanced dictionary, by adding the commodity as a key
 
             if self.domain.commodity and not self.domain.lag:
-                _ = self.balances[self.domain.commodity][self.domain.space][self.domain.time]
+                _ = self.balances[self.domain.commodity][self.domain.space][
+                    self.domain.time
+                ]
 
             # this lets all index elements in the domain know
             # that the aspect was sampled
