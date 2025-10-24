@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from energia.components.commodities._commodity import _Commodity
+from energia.components.commodities._commodity import Commodity
 from energia.components.impact.categories import Environ
 
 if TYPE_CHECKING:
@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     from ..measure.unit import Unit
 
 
-class Resource(_Commodity):
+class Resource(Commodity):
     """
     A resource, can be a material, chemical, energy, etc.
 
@@ -53,7 +53,7 @@ class Resource(_Commodity):
         citations: str = "",
         **kwargs,
     ):
-        _Commodity.__init__(
+        Commodity.__init__(
             self, basis=basis, label=label, citations=citations, **kwargs
         )
 

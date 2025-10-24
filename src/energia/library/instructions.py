@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from ..components.commodities.resource import _Commodity
+from ..components.commodities.resource import Commodity
 from ..components.operation._operation import _Operation
 from ..components.operation.storage import Stored
 
@@ -56,7 +56,7 @@ def costing_commodity(model: Model):
 
     model.Instruction(
         name="price",
-        kind=_Commodity,
+        kind=Commodity,
         deciding="consume",
         depending="spend",
         default="money",

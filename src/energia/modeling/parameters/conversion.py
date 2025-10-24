@@ -13,7 +13,7 @@ from ...components.temporal.modes import Modes
 if TYPE_CHECKING:
     from gana.block.program import Prg
 
-    from ...components.commodities._commodity import _Commodity
+    from ...components.commodities._commodity import Commodity
     from ...components.operation._operation import _Operation
     from ...components.spatial.linkage import Linkage
     from ...components.spatial.location import Location
@@ -59,8 +59,8 @@ class Conversion(Mapping, _Hash):
         by: str = "",
         add: str = "",
         sub: str = "",
-        basis: _Commodity | None = None,
-        balance: dict[_Commodity, float | list[float]] | None = None,
+        basis: Commodity | None = None,
+        balance: dict[Commodity, float | list[float]] | None = None,
         operation: _Operation | None = None,
         hold: int | float | None = None,
     ):
@@ -85,7 +85,7 @@ class Conversion(Mapping, _Hash):
         # the parameter is held until a dummy resource is created
         self.hold = hold
 
-        self._basis: _Commodity | None = None
+        self._basis: Commodity | None = None
         self.lag: Lag | None = None
 
     @property
@@ -144,7 +144,7 @@ class Conversion(Mapping, _Hash):
     def write(self, space: Location | Linkage, time: Periods | Lag):
         """Writes equations for conversion balance"""
 
-        def time_checker(res: _Commodity, space: Location | Linkage, time: Periods):
+        def time_checker(res: Commodity, space: Location | Linkage, time: Periods):
             """This checks if it is actually necessary
             to write conversion at denser temporal scales
             """
@@ -223,14 +223,14 @@ class Conversion(Mapping, _Hash):
         """Values of the conversion balance"""
         return self.balance.values()
 
-    def __getitem__(self, key: _Commodity) -> float | list[float]:
+    def __getitem__(self, key: Commodity) -> float | list[float]:
         """Used to define mode based conversions"""
         return self.balance[key]
 
-    def __setitem__(self, key: _Commodity, value: float | list[float]):
+    def __setitem__(self, key: Commodity, value: float | list[float]):
         self.balance[key] = value
 
-    def __call__(self, basis: _Commodity | Conversion, lag: Lag | None = None) -> Self:
+    def __call__(self, basis: Commodity | Conversion, lag: Lag | None = None) -> Self:
         # sets the basis
         if isinstance(basis, Conversion):
             # if a Conversion is provided (parameter*Commodity)

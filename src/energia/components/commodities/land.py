@@ -4,13 +4,13 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from ._commodity import _Commodity
+from ._commodity import Commodity
 
 if TYPE_CHECKING:
     from ..measure.unit import Unit
 
 
-class Land(_Commodity):
+class Land(Commodity):
     """
     Land used by Operations
 
@@ -46,6 +46,6 @@ class Land(_Commodity):
         citations: str = "",
         **kwargs,
     ):
-        _Commodity.__init__(
+        Commodity.__init__(
             self, basis=basis, label=label, citations=citations, **kwargs
         )

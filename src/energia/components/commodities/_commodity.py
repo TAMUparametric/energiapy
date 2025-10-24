@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from ..measure.unit import Unit
 
 
-class _Commodity(_Component, Mapping):
+class Commodity(_Component, Mapping):
     """
     A commodity, can be a material, chemical, energy, etc.
 
@@ -80,7 +80,7 @@ class _Commodity(_Component, Mapping):
         return self * other
 
     def __add__(self, other: Conversion) -> Conversion:
-        if isinstance(other, _Commodity):
+        if isinstance(other, Commodity):
             # if another commodity is added, give it the parameter 1
             _balance = {self: 1, other: 1}
         else:
@@ -93,7 +93,7 @@ class _Commodity(_Component, Mapping):
         return self * -1
 
     def __sub__(self, other: Conversion | Self):
-        if isinstance(other, _Commodity):
+        if isinstance(other, Commodity):
             # if another resource is subtracted
             # give it the parameter -1
             return self + -1 * other

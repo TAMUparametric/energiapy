@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from gana import V
 
     from ..._core._x import _X
-    from ...components._commodity import _Commodity
+    from ...components._commodity import Commodity
     from ...components.game.couple import Interact
     from ...components.game.player import Player
     from ...components.impact.indicator import Indicator
@@ -41,7 +41,7 @@ class Domain(_Hash):
     :type indicator: Indicator | None
     :param commodity: Represents the flow of any stream, measured using some basis,
         e.g. water, Rupee, carbon-dioxide.
-    :type commodity: _Commodity | None
+    :type commodity: Commodity | None
     :param process: Process that is being considered, e.g. dam, farming.
     :type process: Process | None
     :param storage: Storage that is being considered, e.g. reservoir.
@@ -76,7 +76,7 @@ class Domain(_Hash):
     # this helps relay the checks
     # primary component (one of these is needed)
     indicator: Indicator | None = None
-    commodity: _Commodity | None = None
+    commodity: Commodity | None = None
 
     process: Process | None = None
     storage: Storage | None = None
@@ -122,7 +122,7 @@ class Domain(_Hash):
     # look at change() and call()
 
     @property
-    def stream(self) -> Indicator | _Commodity:
+    def stream(self) -> Indicator | Commodity:
         """Stream"""
         return self.indicator or self.commodity
 
@@ -132,7 +132,7 @@ class Domain(_Hash):
         return self.process or self.storage or self.transport
 
     @property
-    def primary(self) -> Indicator | _Commodity | Process | Storage | Transport:
+    def primary(self) -> Indicator | Commodity | Process | Storage | Transport:
         """Primary component"""
         _primary = self.stream or self.operation
         if not _primary:
@@ -239,7 +239,7 @@ class Domain(_Hash):
     @property
     def index_primary(
         self,
-    ) -> list[Indicator | _Commodity | Process | Storage | Transport]:
+    ) -> list[Indicator | Commodity | Process | Storage | Transport]:
         """Primary index
 
         :returns: list of primary indices
@@ -263,7 +263,7 @@ class Domain(_Hash):
     @property
     def index_short(
         self,
-    ) -> list[Indicator | _Commodity | Process | Storage | Transport | Sample]:
+    ) -> list[Indicator | Commodity | Process | Storage | Transport | Sample]:
         """Set of indices"""
         return self.index_primary + self.samples
 
@@ -302,7 +302,7 @@ class Domain(_Hash):
     ) -> dict[
         str,
         Indicator
-        | _Commodity
+        | Commodity
         | Player
         | Process
         | Storage
@@ -337,7 +337,7 @@ class Domain(_Hash):
     ) -> dict[
         str,
         Indicator
-        | _Commodity
+        | Commodity
         | Process
         | Storage
         | Transport

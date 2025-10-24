@@ -5,14 +5,14 @@ from __future__ import annotations
 from operator import is_
 from typing import TYPE_CHECKING, Self
 
-from ._commodity import _Commodity
+from ._commodity import Commodity
 
 if TYPE_CHECKING:
     from ...components.spatial.location import Location
     from ..measure.unit import Unit
 
 
-class Currency(_Commodity):
+class Currency(Commodity):
     """
     Same as Economic Impact (Eco)
 
@@ -47,9 +47,7 @@ class Currency(_Commodity):
         **kwargs,
     ):
         self.locs = list(locs)
-        _Commodity.__init__(
-            self, label=label, citations=citations, **kwargs
-        )
+        Commodity.__init__(self, label=label, citations=citations, **kwargs)
 
         # dictionary of exchange rates
         self.exchange = {}

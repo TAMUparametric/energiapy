@@ -62,13 +62,13 @@ if TYPE_CHECKING:
     from typing import DefaultDict
 
     from .._core._component import _Component
-    from ..components.commodities._commodity import _Commodity
+    from ..components.commodities._commodity import Commodity
     from ..modeling.indices.domain import Domain
     from ..modeling.variables.aspect import Aspect
     from ..modeling.variables.sample import Sample
 
     GRBType = DefaultDict[
-        _Commodity,
+        Commodity,
         DefaultDict[Location | Linkage, DefaultDict[Periods, list[Aspect]]],
     ]
 
@@ -120,9 +120,9 @@ class Model:
     :ivar classifiers: List of classifiers for the Model.
     :vartype classifiers: list[Enum]
     :ivar grb: Dictionary which tells you what aspects of resource have GRB {loc: time: []} and {time: loc: []}.
-    :vartype grb: DefaultDict[_Commodity,DefaultDict[Location | Linkage, DefaultDict[Periods, list[Aspect]]]]
+    :vartype grb: DefaultDict[Commodity,DefaultDict[Location | Linkage, DefaultDict[Periods, list[Aspect]]]]
     :ivar dispositions: Dictionary which tells you what aspects of what component have been bound at what location and time.
-    :vartype dispositions: dict[Aspect, dict[_Commodity | Process | Storage | Transport, dict[Location | Linkage, dict[Periods, list[Aspect]]]]]
+    :vartype dispositions: dict[Aspect, dict[Commodity | Process | Storage | Transport, dict[Location | Linkage, dict[Periods, list[Aspect]]]]]
     :ivar maps: Maps of aspects to domains.
     :vartype maps: dict[Aspect, dict[Domain, dict[str, list[Domain]]]]
     :ivar maps_report: Maps of aspects to domains for reporting variables.
@@ -337,7 +337,7 @@ class Model:
 
         # * General Resource Balances
         self.balances: dict[
-            _Commodity,
+            Commodity,
             dict[Location | Linkage, dict[Periods, list[Aspect]]],
         ] = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
         # Dictionary which tells you what aspects of what component
@@ -347,7 +347,7 @@ class Model:
         self.dispositions: dict[
             Aspect,
             dict[
-                _Commodity | Process | Storage | Transport,
+                Commodity | Process | Storage | Transport,
                 dict[Location | Linkage, dict[Periods, list[Aspect]]],
             ],
         ] = {}
