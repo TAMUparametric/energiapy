@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 
 from ..._core._component import _Component
 from ...modeling.constraints.calculate import Calculate
-from ...modeling.parameters.conversion import Conversion, Production
+from ...modeling.parameters.conversion import Conversion
 from ..commodities.resource import Resource
 from .process import Process
 

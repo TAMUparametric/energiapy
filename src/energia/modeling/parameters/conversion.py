@@ -59,9 +59,9 @@ class Conversion(Mapping, _Hash):
         by: str = "",
         add: str = "",
         sub: str = "",
+        operation: Operation | None = None,
         basis: Commodity | None = None,
         balance: dict[Commodity, float | list[float]] | None = None,
-        operation: Operation | None = None,
         hold: int | float | None = None,
     ):
 
@@ -84,10 +84,17 @@ class Conversion(Mapping, _Hash):
         # occurs when Conversion/Commodity == parameter is used
         # the parameter is held until a dummy resource is created
         self.hold = hold
+        self.expect: Commodity | None = None
 
         self.lag: Lag | None = None
 
-        self.expect: Commodity | None = None
+    @classmethod
+    def from_balance(cls, balance: dict[Commodity, float | list[float]]) -> Self:
+        """Creates Conversion from balance dict"""
+        conv = cls()
+        conv.basis = next(iter(balance))
+        conv.balance = balance
+        return conv
 
     @property
     def name(self) -> str:
@@ -290,22 +297,6 @@ class Conversion(Mapping, _Hash):
 
     def __iter__(self):
         return iter(self.balance)
-
-
-class Production(Conversion):
-    """Conversion by Operation"""
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(by="operate", add="produce", sub="expend", *args, **kwargs)
-
-
-class Construction(Conversion):
-    """Conversion by Construction"""
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(by="capacity", add="produce", sub="expend", *args, **kwargs)
-
-        # super().__init__(by="setup", add="produce", sub="expend", *args, **kwargs)
 
 
 class PWLConversion(_Hash):
