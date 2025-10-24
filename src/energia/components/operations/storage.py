@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 
 from ..._core._component import _Component
 from ...modeling.constraints.calculate import Calculate
-from ...modeling.parameters.conversion import Production
+from ...modeling.parameters.conversion import Conversion, Production
 from ..commodities.resource import Resource
 from .process import Process
 
@@ -260,10 +260,10 @@ class Storage(_Component):
             + self.stored.cons
         )
 
-    @property
-    def fab(self) -> Conversion:
-        """Fabrication conversion of commodities"""
-        return self.charge.fab
+    # @property
+    # def fab(self) -> Conversion:
+    #     """Fabrication conversion of commodities"""
+    #     return self.charge.fab
 
     def _birth_constituents(
         self,
