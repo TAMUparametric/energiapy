@@ -89,7 +89,7 @@ class Sample:
 
         self.model = self.aspect.model
         self.program = self.model.program
-        self.grb = self.model.balances
+        self.balances = self.model.balances
 
         # if the aspect is bound (operate for example)
         self.bound = self.aspect.bound
@@ -344,7 +344,7 @@ class Sample:
             # this updates the balanced dictionary, by adding the commodity as a key
 
             if self.domain.commodity and not self.domain.lag:
-                _ = self.grb[self.domain.commodity][self.domain.space][self.domain.time]
+                _ = self.balances[self.domain.commodity][self.domain.space][self.domain.time]
 
             # this lets all index elements in the domain know
             # that the aspect was sampled

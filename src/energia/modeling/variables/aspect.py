@@ -136,7 +136,7 @@ class Aspect:
         self.constraints: list[str] = []
 
         # this keeps track of whether GRB has already been added
-        self.grb: dict[tuple[Idx, ...], bool] = {}
+        self.balances: dict[tuple[Idx, ...], bool] = {}
 
     @property
     def maps(self) -> dict[Domain, dict[str, list[Domain]]]:

@@ -82,7 +82,7 @@ class Transport(Operation):
 
             #     self.model.update_grb(resource=res, space=loc, time=time)
 
-            # if time not in self.model.grb[res][loc]:
+            # if time not in self.model.balances[res][loc]:
             #     self.model.update_grb(resource=res, space=loc, time=time)
 
             if res.inv_of:

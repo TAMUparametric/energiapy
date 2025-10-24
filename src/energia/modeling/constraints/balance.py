@@ -48,7 +48,7 @@ class Balance(_Hash):
 
         self.model = self.aspect.model
         self.program = self.model.program
-        self.grb = self.model.balances
+        self.balances = self.model.balances
 
         if self.domain.modes:
             return
@@ -67,7 +67,7 @@ class Balance(_Hash):
             )
         )
 
-        _ = self.grb[commodity][loc][time]
+        _ = self.balances[commodity][loc][time]
 
         if not samples and commodity:
             # if no samples, then create GRB or append to exisiting GRB
@@ -84,7 +84,7 @@ class Balance(_Hash):
 
             self.writecons_grb(commodity, loc, time)
 
-        if self.aspect(commodity, loc, time) not in self.grb[commodity][loc][time]:
+        if self.aspect(commodity, loc, time) not in self.balances[commodity][loc][time]:
 
             # for the second check, consider the case where
 
@@ -228,8 +228,8 @@ class Balance(_Hash):
 
         if (
             loc.isin is not None
-            and not self.grb[commodity][loc][time]
-            and self.grb[commodity][loc.isin][time]
+            and not self.balances[commodity][loc][time]
+            and self.balances[commodity][loc.isin][time]
         ):
             # if the location is in another location
             # and there is no GRB for that location
@@ -243,9 +243,9 @@ class Balance(_Hash):
 
         else:
             stored = False
-            if self.grb[commodity][loc]:
+            if self.balances[commodity][loc]:
                 # If a GRB exists at a lower temporal order, append to that
-                lower_times = [t for t in self.grb[commodity][loc] if t > time]
+                lower_times = [t for t in self.balances[commodity][loc] if t > time]
 
                 if lower_times:
                     _ = self.aspect(commodity, loc, lower_times[0]) == True
@@ -253,7 +253,7 @@ class Balance(_Hash):
 
         # -initialize GRB for commodity if necessary -----
 
-        if not self.grb[commodity][loc][time]:
+        if not self.balances[commodity][loc][time]:
             # this checks whether a general commodity balance has been defined
             # for the commodity in that space and time
 
@@ -267,7 +267,7 @@ class Balance(_Hash):
 
         # -add aspect to GRB if not added already ----
 
-        # elif self not in self.grb[commodity][loc][time]:
+        # elif self not in self.balances[commodity][loc][time]:
 
         else:
 
@@ -299,7 +299,7 @@ class Balance(_Hash):
             self.aspect.constraints.append(_name)
 
         # update the GRB aspects
-        self.grb[commodity][loc][time].append(self)
+        self.balances[commodity][loc][time].append(self)
 
     def __eq__(self, other: Self):
         return is_(self.aspect, other.aspect) and self.domain == other.domain

@@ -80,11 +80,10 @@ class Transport(Operation):
 
             _ = self.model.balances[res][loc][time]
 
-            #     self.model.update_grb(resource=res, space=loc, time=time)
+            #     self.model.update_balances(resource=res, space=loc, time=time)
 
-            # if time not in self.model.grb[res][loc]:
-            #     self.model.update_grb(resource=res, space=loc, time=time)
-
+            # if time not in self.model.balances[res][loc]:
+            #     self.model.update_balances(resource=res, space=loc, time=time)
             if res.inv_of:
                 # for inventoried resources, the conversion is written
                 # using the time of the base resource's grb
