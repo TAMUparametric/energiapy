@@ -4,11 +4,10 @@ from __future__ import annotations
 
 import logging
 from abc import abstractmethod
-from functools import cached_property
 from typing import TYPE_CHECKING
 
 from ..._core._component import _Component
-from ...modeling.parameters.conversion import Construction, Production
+from ...modeling.parameters.conversion import Conversion
 
 logger = logging.getLogger("energia")
 
@@ -57,6 +56,14 @@ class Operation(_Component):
     ):
         _Component.__init__(self, label=label, citations=citations, **kwargs)
 
+        self.production = Conversion(
+            operation=self, by='operate', add="produce", sub="expend"
+        )
+
+        self.construction = Conversion(
+            operation=self, by='capacity', add="dispose", sub="use"
+        )
+
         # Material conversion
         # self._fab: Conversion | None = None
 
@@ -64,16 +71,6 @@ class Operation(_Component):
         # self._fab_balanced: bool = False
 
         self.conversions = args
-
-    @cached_property
-    def production(self) -> Production:
-        """Operational conversion"""
-        return Production(operation=self)
-
-    @cached_property
-    def construction(self) -> Construction:
-        """Material conversion"""
-        return Construction(operation=self)
 
     @property
     @abstractmethod
