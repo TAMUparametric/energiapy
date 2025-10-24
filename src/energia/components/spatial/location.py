@@ -109,6 +109,11 @@ class Location(_X):
         return {}
 
     @property
+    def parent(self) -> Self | None:
+        """Finds the parent Location"""
+        return self.isin
+
+    @property
     def depth(self):
         """Finds the depth of the Location"""
         # gets the level of hierarchy of the Location

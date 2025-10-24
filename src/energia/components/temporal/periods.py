@@ -81,6 +81,9 @@ class Periods(_X):
         # if this is a single period in Periods
         self.pos: int | None = None
 
+        # if parent is true, this is part of another periods set
+        self.parent: Self | None = None
+
     def isroot(self):
         """Is used to define another period?"""
         if self.of is None:
@@ -226,7 +229,8 @@ class Periods(_X):
 
     def __getitem__(self, key: int | slice):
         periods = Periods()
-        periods.of = self
+        periods.parent = self
+        periods.of = self.of
         periods.model = self.model
 
         if isinstance(key, slice):
