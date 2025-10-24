@@ -63,6 +63,7 @@ class Conversion(Mapping, _Hash):
         basis: Commodity | None = None,
         balance: dict[Commodity, float | list[float]] | None = None,
         hold: int | float | None = None,
+        attr_name: str = "",
     ):
 
         self.basis = basis
@@ -88,6 +89,9 @@ class Conversion(Mapping, _Hash):
         self.expect: Commodity | None = None
 
         self.lag: Lag | None = None
+
+        # this is carried forth incase, piece wise linear conversion is used
+        self.attr_name = attr_name
 
     @classmethod
     def from_balance(cls, balance: dict[Commodity, float | list[float]]) -> Self:
@@ -261,10 +265,47 @@ class Conversion(Mapping, _Hash):
 
         return self
 
-    def __eq__(self, other: Conversion | int | float | dict[int | float, Conversion]):
-
+    def __eq__(
+        self,
+        other: Conversion | list[Conversion] | int | float | dict[Modes, Conversion],
+    ):
         if isinstance(other, dict):
-            return PWLConversion(list(other.values()), getattr(self.operation, self.by))
+
+            collect_parents = []
+            for mode, conv in other.items():
+                conv.operation = self.operation
+
+                collect_parents.append(mode.parent)
+
+                other[mode] = {**self, **conv}
+
+
+            if len(set(collect_parents)) > 1:
+                raise ValueError(
+                    f"{self}: PWL Conversion modes must belong to the same parent Modes",
+                )
+
+            if len(collect_parents[0]) != len(other):
+                raise ValueError(
+                    f"{self}: PWL Conversion modes must account for all modes in {collect_parents[0]}",
+                )
+
+            setattr(
+                self.operation,
+                self.attr_name,
+                PWLConversion.from_balance(
+                    balance=other, sample=getattr(self.operation, self.by)
+                ),
+            )
+            return getattr(self.operation, self.attr_name)
+
+        if isinstance(other, list):
+            setattr(
+                self.operation,
+                self.attr_name,
+                PWLConversion(other, getattr(self.operation, self.by)),
+            )
+            return getattr(self.operation, self.attr_name)
 
         if isinstance(other, (int, float)):
             # this is used for inventory conversion
@@ -311,24 +352,38 @@ class PWLConversion(Mapping, _Hash):
     def __init__(self, conversions: list[Conversion], sample: Sample):
 
         self.sample = sample
-        self.basis = next(iter(conversions)).basis
         self.operation = self.sample.domain.operation
-        self.model = self.operation.model
+        self.model = self.sample.model
+        if conversions:
+            n_modes = len(conversions)
+            modes_name = f"bin{len(self.model.modes)}"
+            setattr(self.model, modes_name, Modes(n_modes=n_modes, sample=sample))
+            self.modes = self.model.modes[-1]
 
-        n_modes = len(conversions)
-        modes_name = f"bin{len(self.model.modes)}"
+            self.balance: dict[Modes, Conversion] = {
+                m: conv for m, conv in zip(self.modes, conversions)
+            }
 
-        setattr(self.model, modes_name, Modes(n_modes=n_modes, sample=sample))
+            for conv in conversions:
+                conv.operation = self.operation
 
-        self.modes = self.model.modes[-1]
-        self.balance: dict[Modes, Conversion] = {
-            m: conv for m, conv in zip(self.modes, conversions)
-        }
+    @classmethod
+    def from_balance(
+        cls,
+        balance: dict[Modes, Conversion],
+        sample: Sample,
+    ) -> Self:
+        """Creates PWLConversion from balance dict"""
+        conv = cls([], sample)
+        conv.operation = sample.domain.operation
+        conv.balance = balance
+        conv.modes = (next(iter(balance))).parent
+        return conv
 
     @property
     def name(self) -> str:
         """Name"""
-        return f"η_PWL({self.operation}, {self.basis})"
+        return f"η_PWL({self.operation}, {self.modes})"
 
     def __len__(self):
         """Length of the conversion balance"""

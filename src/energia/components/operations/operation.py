@@ -57,11 +57,19 @@ class Operation(_Component):
         _Component.__init__(self, label=label, citations=citations, **kwargs)
 
         self.production = Conversion(
-            operation=self, by='operate', add="produce", sub="expend"
+            operation=self,
+            by='operate',
+            add="produce",
+            sub="expend",
+            attr_name="production",
         )
 
         self.construction = Conversion(
-            operation=self, by='capacity', add="dispose", sub="use"
+            operation=self,
+            by='capacity',
+            add="dispose",
+            sub="use",
+            attr_name="construction",
         )
 
         self.conversions = args
