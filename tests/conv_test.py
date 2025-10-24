@@ -22,6 +22,13 @@ def m():
     _m.proc2 = Process()
     _m.proc2(_m.c) == [[1, 2, 3] * _m.a, _m.b]
 
+    _m.proc.construction == [_m.conv1, _m.conv2, _m.conv3, _m.conv4]
+
+    _m.proc2.construction == {
+        _m.proc2.production.modes[0]: _m.conv1,
+        _m.proc2.production.modes[1]: _m.conv2,
+    }
+
     return _m
 
 
@@ -51,4 +58,18 @@ def test_conv(m):
     assert {k: {**v} for k, v in m.proc2.production.items()} == {
         m.bin1[0]: {m.c: [1.0, 1.0, 1.0], m.a: [1, 2, 3]},
         m.bin1[1]: {m.c: 1.0, m.b: 1.0},
+    }
+
+    m.proc.construction.balancer()
+    assert {k: {**v} for k, v in m.proc.construction.balance.items()} == {
+        m.bin2[0]: {m.a: [1, 1, 1], m.b: [-20, -30, -40]},
+        m.bin2[1]: {m.b: [20, 30, 40], m.a: [-1, -1, -1]},
+        m.bin2[2]: {m.b: [20, 30, 40], m.a: [1, 1, 1]},
+        m.bin2[3]: {m.a: [1, 1, 1], m.b: [20, 30, 40]},
+    }
+
+    m.proc2.construction.balancer()
+    assert {k: {**v} for k, v in m.proc2.construction.balance.items()} == {
+        m.bin1[0]: {m.a: [1, 1, 1], m.b: [-20, -30, -40]},
+        m.bin1[1]: {m.b: [20, 30, 40], m.a: [-1, -1, -1]},
     }
