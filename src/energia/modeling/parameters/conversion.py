@@ -64,10 +64,13 @@ class Conversion(Mapping, _Hash):
         balance: dict[Commodity, float | list[float]] | None = None,
         hold: int | float | None = None,
         attr_name: str = "",
+        symbol: str = "η",
     ):
 
         self.basis = basis
         self.operation = operation
+
+        self.symbol = symbol
 
         # * Aspect that elicits the conversion
         self.by = by
@@ -93,19 +96,44 @@ class Conversion(Mapping, _Hash):
         # this is carried forth incase, piece wise linear conversion is used
         self.attr_name = attr_name
 
+    @property
+    def args(self) -> dict[str, str | Operation | Commodity | None]:
+        """Arguments of the conversion"""
+        return {
+            'by': self.by,
+            'add': self.add,
+            'sub': self.sub,
+            'operation': self.operation,
+            'basis': self.basis,
+        }
+
     @classmethod
-    def from_balance(cls, balance: dict[Commodity, float | list[float]]) -> Self:
+    def from_balance(
+        cls,
+        balance: dict[Commodity, float | list[float]],
+        by: str = "",
+        add: str = "",
+        sub: str = "",
+        operation: Operation | None = None,
+        basis: Commodity | None = None,
+    ) -> Self:
         """Creates Conversion from balance dict"""
         conv = cls()
         # set first resource as the basis
-        conv.basis = next(iter(balance))
         conv.balance = balance
+        conv.operation = operation
+        conv.by = by
+        conv.add = add
+        conv.sub = sub
+        conv.basis = basis
         return conv
 
     @property
     def name(self) -> str:
         """Name"""
-        return f"η({self.operation}, {self.basis})"
+        if self.basis:
+            return f"{self.symbol}({self.operation}, {self.basis})"
+        return f"{self.symbol}({self.operation})"
 
     @cached_property
     def model(self) -> Model | None:
@@ -155,7 +183,9 @@ class Conversion(Mapping, _Hash):
 
         self.balance = _balancer(self.balance)
 
-    def write(self, space: Location | Linkage, time: Periods | Lag):
+    def write(
+        self, space: Location | Linkage, time: Periods | Lag, modes: Modes | None = None
+    ):
         """Writes equations for conversion balance"""
 
         def time_checker(res: Commodity, space: Location | Linkage, time: Periods):
@@ -223,6 +253,11 @@ class Conversion(Mapping, _Hash):
                 rhs = getattr(res, self.add)(decision, space, lag_time)
 
             opr = decision(space, time)
+
+            if modes is not None:
+                opr = opr(modes)
+                rhs = rhs(modes)
+
             _ = opr[rhs] == eff
 
     def items(self):
@@ -277,8 +312,7 @@ class Conversion(Mapping, _Hash):
 
                 collect_parents.append(mode.parent)
 
-                other[mode] = {**self, **conv}
-
+                other[mode] = Conversion.from_balance({**self, **conv}, **self.args)
 
             if len(set(collect_parents)) > 1:
                 raise ValueError(
@@ -300,6 +334,12 @@ class Conversion(Mapping, _Hash):
             return getattr(self.operation, self.attr_name)
 
         if isinstance(other, list):
+            if self.basis:
+                for i, o in enumerate(other):
+                    other[i] = Conversion.from_balance(
+                        {**self, **o},
+                    )
+
             setattr(
                 self.operation,
                 self.attr_name,
@@ -380,6 +420,13 @@ class PWLConversion(Mapping, _Hash):
         conv.modes = (next(iter(balance))).parent
         return conv
 
+    def balancer(self):
+        """Balances all conversions"""
+        print(self.balance)
+        for conv in self.balance.values():
+            print(conv)
+            conv.balancer()
+
     @property
     def name(self) -> str:
         """Name"""
@@ -406,3 +453,20 @@ class PWLConversion(Mapping, _Hash):
             key = self.modes[key]
 
         return self.balance[key]
+
+    def items(self):
+        """Items of the conversion balance"""
+        return self.balance.items()
+
+    def keys(self):
+        """Keys of the conversion balance"""
+        return self.balance.keys()
+
+    def values(self):
+        """Values of the conversion balance"""
+        return self.balance.values()
+
+    def write(self, space: Location | Linkage, time: Periods | Lag):
+        """Writes equations for conversion balance"""
+        for mode, conv in self.items():
+            conv.write(space, time, mode)
