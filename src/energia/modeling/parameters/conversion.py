@@ -85,7 +85,6 @@ class Conversion(Mapping, _Hash):
         # the parameter is held until a dummy resource is created
         self.hold = hold
 
-        self._basis: Commodity | None = None
         self.lag: Lag | None = None
 
     @property

@@ -98,15 +98,12 @@ class Storage(_Component):
     def __init__(
         self,
         *args,
-        # store: Resource | None = None,
-        basis: Unit | None = None,
         label: str = "",
         citations: str = "",
         **kwargs,
     ):
 
         _Component.__init__(self, label=label, citations=citations, **kwargs)
-        self.basis = basis
 
         # Charging, Discharging, and Stored Resource (Inventory)
         self.charge: Charge | None = None
@@ -119,28 +116,6 @@ class Storage(_Component):
         self.locations: list[Location] = []
 
         self.conversions = args
-
-    def __setattr__(self, name, value):
-
-        object.__setattr__(self, name, value)
-
-        if name == "model" and value is not None:
-
-            # TODO: for general case with multiple resources
-
-            self._birth_constituents(*self._split_attr())
-
-            for conv in self.conversions:
-                if not isinstance(conv, int | float):
-                    conv.operation = self
-
-            if len(self.conversions) == 1:
-                conv = self.conversions[0]
-
-                if conv.hold is not None:
-                    _ = self(conv.basis) == conv.hold
-
-        super().__setattr__(name, value)
 
     def locate(self, *locations: Location):
         """Locate the storage"""
@@ -238,7 +213,7 @@ class Storage(_Component):
         return self.charge.operate[self.model._cash().spend]
 
     @property
-    def base(self) -> Resource:
+    def basis(self) -> Resource:
         """Base resource"""
         return self.discharge.production.basis
 
@@ -273,11 +248,13 @@ class Storage(_Component):
     ):
         """Birth the constituents of the storage component"""
         if not self._birthed:
+            self.stored = Stored(**storage_args if storage_args else {})
+
             self.charge = Charge(storage=self, **charging_args if charging_args else {})
+
             self.discharge = Discharge(
                 storage=self, **discharging_args if discharging_args else {}
             )
-            self.stored = Stored(**storage_args if storage_args else {})
 
             # Set them on the model
             setattr(self.model, f"{self.name}.charge", self.charge)
@@ -314,13 +291,32 @@ class Storage(_Component):
 
         return _charging_args, _discharging_args, _storage_args
 
+    def __setattr__(self, name, value):
+
+        object.__setattr__(self, name, value)
+
+        if name == "model" and value is not None:
+
+            # TODO: for general case with multiple resources
+
+            self._birth_constituents(*self._split_attr())
+
+            for conv in self.conversions:
+                if not isinstance(conv, int | float):
+                    conv.operation = self
+
+            if len(self.conversions) == 1:
+                conv = self.conversions[0]
+
+                if conv.hold is not None:
+                    _ = self(conv.basis) == conv.hold
+
+        super().__setattr__(name, value)
+
     def __call__(self, resource: Stored | Conversion):
         """Conversion is called with a Resource to be converted"""
 
         self._birth_constituents()
-
-        # _ = self.discharge(resource) == -1 * self.stored
-        # _ = self.charge(stored) ==
 
         # -------set discharge conversion
         self.discharge.production = Production(

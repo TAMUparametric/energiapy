@@ -87,7 +87,7 @@ class Operation(_Component):
     #     return self._fab
 
     @property
-    def base(self) -> Resource:
+    def basis(self) -> Resource:
         """Base resource"""
         return self.production.basis
 
