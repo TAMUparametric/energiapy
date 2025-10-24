@@ -243,6 +243,7 @@ class Operation(_Component):
         self.writecons_conversion(space_times)
 
         if self.construction:
+            print("asdasdsadasd")
             self.writecons_fabrication(space_times)
 
     def __call__(

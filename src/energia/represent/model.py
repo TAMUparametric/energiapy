@@ -356,8 +356,6 @@ class Model:
         self.maps: dict[Aspect, dict[Domain, dict[str, list[Domain]]]] = {}
         self.maps_report: dict[Aspect, dict[Domain, dict[str, list[Domain]]]] = {}
 
-        self.mmaps: dict[Aspect, dict[Domain, dict[str, list[Domain]]]] = {}
-
         # * Generated Modes
         self.modes_dict: dict[Sample, Modes] = {}
 

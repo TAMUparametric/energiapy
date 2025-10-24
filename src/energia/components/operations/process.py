@@ -181,3 +181,5 @@ class Process(Operation):
 
             # update the locations at which the process exists
             self.locations.append(location)
+
+            

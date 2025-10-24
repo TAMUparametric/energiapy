@@ -119,10 +119,6 @@ class Map:
     def maps(self) -> dict[Domain, list[Domain]]:
         return self.aspect.maps_report if self.reporting else self.aspect.maps
 
-    @property
-    def mmaps(self) -> dict[Domain, dict[Domain, list[C]]]:
-        return self.aspect.mmaps
-
     # -------------------------------------------------------------------#
     # Helper functions
     # -------------------------------------------------------------------#
@@ -310,13 +306,6 @@ class Map:
     ):
         """Scales up variable to a lower dimension"""
 
-        #!MMAPS
-        if to_domain not in self.mmaps:
-            self.mmaps[to_domain] = {from_domain: None}
-
-        if from_domain not in self.mmaps[to_domain]:
-            self.mmaps[to_domain][from_domain] = None
-
         if to_domain not in self.maps:
             self.maps[to_domain] = [from_domain]
             exists = False
@@ -340,7 +329,6 @@ class Map:
         if not tsum and not msum and exists:
             cons_existing: C = getattr(self.program, cname)
             setattr(self.program, cname, cons_existing - rhs)
-            cons = getattr(self.program, cname)
 
         else:
             cons = v_lower == rhs
@@ -352,7 +340,6 @@ class Map:
         if cname not in self.aspect.constraints:
             self.aspect.constraints.append(cname)
 
-        self.mmaps[to_domain][from_domain] = cons
         from_domain.update_cons(cname)
 
     def __call__(self, *index: _X):

@@ -128,8 +128,6 @@ class Aspect:
 
         self._maps: bool = False
 
-        self._mmaps: bool = False
-
         self._maps_report: bool = False
 
         # reporting variable
@@ -147,14 +145,6 @@ class Aspect:
             self.model.maps[self] = {}
             self._maps = True
         return self.model.maps[self]
-
-    @property
-    def mmaps(self) -> dict[Domain, dict[str, list[Domain]]]:
-        """Maps of the decision"""
-        if not self._mmaps:
-            self.model.mmaps[self] = {}
-            self._mmaps = True
-        return self.model.mmaps[self]
 
     @property
     def maps_report(self) -> dict[Domain, dict[str, list[Domain]]]:
