@@ -5,7 +5,7 @@ from __future__ import annotations
 from operator import is_
 from typing import TYPE_CHECKING, Self
 
-from ._commodity import Commodity
+from .commodity import Commodity
 
 if TYPE_CHECKING:
     from ...components.spatial.location import Location

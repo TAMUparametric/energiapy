@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from gana import V
 
     from ..._core._x import _X
-    from ...components._commodity import Commodity
+    from ...components.commodity import Commodity
     from ...components.game.couple import Interact
     from ...components.game.player import Player
     from ...components.impact.indicator import Indicator

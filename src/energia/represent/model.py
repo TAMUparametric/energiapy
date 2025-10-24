@@ -62,7 +62,7 @@ if TYPE_CHECKING:
     from typing import DefaultDict
 
     from .._core._component import _Component
-    from ..components.commodities._commodity import Commodity
+    from ..components.commodities.commodity import Commodity
     from ..modeling.indices.domain import Domain
     from ..modeling.variables.aspect import Aspect
     from ..modeling.variables.sample import Sample

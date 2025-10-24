@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Self, Type
 import matplotlib.pyplot as plt
 from matplotlib import rc
 
-from ...components.commodities._commodity import Commodity
+from ...components.commodities.commodity import Commodity
 from ...components.game.couple import Interact
 from ...components.game.player import Player
 from ...components.impact.indicator import Indicator
