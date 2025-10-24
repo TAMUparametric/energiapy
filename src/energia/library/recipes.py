@@ -10,9 +10,9 @@ from ..components.commodities.land import Land
 from ..components.commodities.material import Material
 from ..components.commodities.resource import Resource
 from ..components.impact.categories import Economic, Environ, Social
-from ..components.operation.process import Process
-from ..components.operation.storage import Stored
-from ..components.operation.transport import Transport
+from ..components.operations.process import Process
+from ..components.operations.storage import Stored
+from ..components.operations.transport import Transport
 from ..modeling.variables.control import Control
 from ..modeling.variables.states import (EndoStream, ExoStream, IndStream,
                                          SetPoint, Size)

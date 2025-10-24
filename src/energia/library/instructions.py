@@ -5,8 +5,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from ..components.commodities.resource import Commodity
-from ..components.operation.operation import Operation
-from ..components.operation.storage import Stored
+from ..components.operations.operation import Operation
+from ..components.operations.storage import Stored
 
 if TYPE_CHECKING:
     from ..represent.model import Model

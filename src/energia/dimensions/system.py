@@ -13,9 +13,9 @@ if TYPE_CHECKING:
     from ..components.commodities.land import Land
     from ..components.commodities.material import Material
     from ..components.commodities.resource import Resource
-    from ..components.operation.process import Process
-    from ..components.operation.storage import Storage
-    from ..components.operation.transport import Transport
+    from ..components.operations.process import Process
+    from ..components.operations.storage import Storage
+    from ..components.operations.transport import Transport
 
 
 @dataclass

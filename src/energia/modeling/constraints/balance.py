@@ -8,7 +8,7 @@ from operator import is_
 from typing import TYPE_CHECKING, Self
 
 from ..._core._hash import _Hash
-from ...components.operation.storage import Stored
+from ...components.operations.storage import Stored
 
 logger = logging.getLogger("energia")
 

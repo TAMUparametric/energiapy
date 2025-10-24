@@ -5,8 +5,8 @@ from ...components.commodities.material import Material
 from ...components.commodities.resource import Resource
 from ...components.impact.categories import Environ
 from ...components.measure.unit import Unit
-from ...components.operation.process import Process
-from ...components.operation.storage import Storage
+from ...components.operations.process import Process
+from ...components.operations.storage import Storage
 from ...components.spatial.location import Location
 from ...components.temporal.periods import Periods
 from ...components.temporal.scales import TemporalScales

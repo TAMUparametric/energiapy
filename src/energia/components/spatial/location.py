@@ -16,8 +16,8 @@ from .linkage import Linkage
 if TYPE_CHECKING:
     from ...dimensions.space import Space
     from ..commodities.currency import Currency
-    from ..operation.process import Process
-    from ..operation.storage import Storage
+    from ..operations.process import Process
+    from ..operations.storage import Storage
 
 
 class Location(_X):

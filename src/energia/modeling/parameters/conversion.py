@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from gana.block.program import Prg
 
     from ...components.commodities.commodity import Commodity
-    from ...components.operation.operation import Operation
+    from ...components.operations.operation import Operation
     from ...components.spatial.linkage import Linkage
     from ...components.spatial.location import Location
     from ...components.temporal.periods import Periods

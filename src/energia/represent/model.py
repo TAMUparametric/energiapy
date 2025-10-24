@@ -22,9 +22,9 @@ from ..components.game.player import Player
 # from ..components.graph.node import Node
 from ..components.impact.categories import Economic, Environ, Social
 from ..components.measure.unit import Unit
-from ..components.operation.process import Process
-from ..components.operation.storage import Storage
-from ..components.operation.transport import Transport
+from ..components.operations.process import Process
+from ..components.operations.storage import Storage
+from ..components.operations.transport import Transport
 from ..components.spatial.linkage import Linkage
 from ..components.spatial.location import Location
 from ..components.temporal.modes import Modes

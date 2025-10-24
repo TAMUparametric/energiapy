@@ -13,9 +13,9 @@ from ...components.commodities.commodity import Commodity
 from ...components.game.couple import Interact
 from ...components.game.player import Player
 from ...components.impact.indicator import Indicator
-from ...components.operation.process import Process
-from ...components.operation.storage import Storage
-from ...components.operation.transport import Transport
+from ...components.operations.process import Process
+from ...components.operations.storage import Storage
+from ...components.operations.transport import Transport
 from ...components.spatial.linkage import Linkage
 from ...components.spatial.location import Location
 from ...components.temporal.lag import Lag

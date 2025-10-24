@@ -9,9 +9,9 @@ from .game.couple import Interact
 from .game.player import Player
 from .impact.categories import Economic, Environ, Social
 from .measure.unit import Unit
-from .operation.process import Process
-from .operation.storage import Storage
-from .operation.transport import Transport
+from .operations.process import Process
+from .operations.storage import Storage
+from .operations.transport import Transport
 from .spatial.linkage import Linkage
 from .spatial.location import Location
 from .temporal.periods import Periods
