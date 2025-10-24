@@ -73,20 +73,14 @@ class Commodity(_Component, Mapping):
     def __mul__(self, other: int | float) -> Conversion:
         # multiplying a number with a resources gives conversion
         # math operations with conversions form the balance in tasks
-        return Conversion(balance={self: other})
+        return Conversion.from_balance({self: other})
 
     def __rmul__(self, other: int | float) -> Conversion:
         # reverse multiplication
         return self * other
 
-    def __add__(self, other: Conversion) -> Conversion:
-        if isinstance(other, Commodity):
-            # if another commodity is added, give it the parameter 1
-            _balance = {self: 1, other: 1}
-        else:
-            # if added with another conversion, updated the balance
-            _balance = {self: 1, **other}
-        return Conversion(balance=_balance)
+    def __add__(self, other: Conversion | Commodity) -> Conversion:
+        return Conversion.from_balance({self: 1, **other})
 
     def __neg__(self) -> Conversion:
         # just multiply by -1
@@ -99,8 +93,8 @@ class Commodity(_Component, Mapping):
             return self + -1 * other
         if isinstance(other, Conversion):
             # if another conversion is subtracted, update the balance
-            return Conversion(
-                balance={
+            return Conversion.from_balance(
+                {
                     self: 1,
                     **{
                         res: (

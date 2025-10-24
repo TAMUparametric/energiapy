@@ -64,11 +64,6 @@ class Operation(_Component):
             operation=self, by='capacity', add="dispose", sub="use"
         )
 
-        # Material conversion
-        # self._fab: Conversion | None = None
-
-        # to check if fab is balanced
-        # self._fab_balanced: bool = False
 
         self.conversions = args
 
@@ -76,15 +71,6 @@ class Operation(_Component):
     @abstractmethod
     def spaces(self) -> list[Location | Linkage]:
         """Locations at which the process is balanced"""
-
-    # @property
-    # def fab(self) -> Conversion:
-    #     """Material conversion"""
-
-    #     if self._fab is None:
-    #         # will be made the first time it is called
-    #         self._fab = Conversion(operation=self, sample=self.capacity)
-    #     return self._fab
 
     @property
     def basis(self) -> Resource:
@@ -96,22 +82,6 @@ class Operation(_Component):
         """Conversion of commodities"""
         return self.production.balance
 
-    # @property
-    # def fabrication(
-    #     self,
-    # ) -> (
-    #     dict[Resource, int | float | list[int | float]]
-    #     | dict[int | str, dict[Resource, int | float | list[int | float]]]
-    # ):
-    #     """Material conversion of commodities"""
-    #     #! PWL
-    #     # if self.fab.pwl:
-    #     #     return {
-    #     #         mode: self.fab.balance[_mode]
-    #     #         for mode, _mode in zip(self.fab.modes, list(self.fab.balance))
-    #     #     }
-
-    #     return self.fab.balance
 
     @property
     def lag(self) -> Lag:
