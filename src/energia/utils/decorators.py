@@ -33,14 +33,14 @@ def timer(logger: logging.Logger, kind=None, level=logging.INFO):
 
                 if kind == 'balance-update':
 
-                    msg = f"⚖   Updating Balance for {result.commodity} in ({result.space}, {result.time})"
+                    msg = f"⚖   Updated Balance for {result.commodity} in ({result.space}, {result.time})"
 
                 elif kind == 'balance-init':
 
-                    msg = f"⚖   Initiating Balance for {result.commodity} in ({result.space}, {result.time})"
+                    msg = f"⚖   Initiated Balance for {result.commodity} in ({result.space}, {result.time})"
 
                 elif kind == 'map':
-                    msg = f"🧭  Mapping {result[0]} [{(result[1] - result[2])[0]}] : {result[1]} ⟺ {result[2]}"
+                    msg = f"🧭  Mapped {result[0]} [{(result[1] - result[2])[0]}] : {result[1]} ⟺ {result[2]}"
 
                 elif kind == 'bind':
                     if result[2] == "_ub":
@@ -49,16 +49,16 @@ def timer(logger: logging.Logger, kind=None, level=logging.INFO):
                         rel = "≥"
                     else:
                         rel = "="
-                    msg = f"🔗  Binding [{rel}] {result[0]} in {result[1]}"
+                    msg = f"🔗  Bound [{rel}] {result[0]} in {result[1]}"
 
                 elif kind == 'assume-capacity':
-                    msg = f"💡  Assuming {result[0]} capacity unbounded in ({result[1]}, {result[2]})"
+                    msg = f"💡  Assumed {result[0]} capacity unbounded in ({result[1]}, {result[2]})"
 
                 elif kind == 'assume-operate':
-                    msg = f"💡  Assuming {result[0]} operate bounded by capacity in ({result[1]}, {result[2]})"
+                    msg = f"💡  Assumed {result[0]} operate bounded by capacity in ({result[1]}, {result[2]})"
 
                 elif kind == 'assume-inventory':
-                    msg = f"💡  Assuming {result[0]} inventory bounded by capacity in ({result[1]}, {result[2]})"
+                    msg = f"💡  Assumed {result[0]} inventory bounded by capacity in ({result[1]}, {result[2]})"
 
                 else:
                     msg = f"⏱  Executed {func.__name__}"

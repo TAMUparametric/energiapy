@@ -548,7 +548,7 @@ class Model:
         :type nn: bool, optional
         """
         if name in self.cookbook:
-            logger.warning("Overriding existing recipe: %s", name)
+            logger.warning("⛔ Overriding existing recipe: %s ⛔", name)
 
         self.cookbook[name] = Recipe(
             name=name,

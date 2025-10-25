@@ -71,7 +71,7 @@ def pv(
 
     if import_all:
         logger.warning(
-            "This is an optional feature. Please install pvlib, or pip install energiapy[all]",
+            "⚠ This is an optional feature. Please install pvlib, or pip install energiapy[all] ⚠",
         )
         return None
 
@@ -146,7 +146,7 @@ def wf(
     # df_ = df_.dropna()
     if import_all:
         logger.warning(
-            "This is an optional feature. Please install windpowerlib, or pip install energiapy[all]",
+            "⚠ This is an optional feature. Please install windpowerlib, or pip install energiapy[all] ⚠",
         )
         return None
     data["pressure"] = 100 * data["surface_pressure"]
