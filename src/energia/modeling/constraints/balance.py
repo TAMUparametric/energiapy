@@ -73,7 +73,7 @@ class Balance(_Hash):
         if not self.samples and self.commodity:
             # if no samples, then create GRB or append to exisiting GRB
             # writecons_grb will figure it out
-            self.writecons_grb(self.space, self.time)
+            self.writecons_grb()
             return
 
         # if there are samples
@@ -83,10 +83,10 @@ class Balance(_Hash):
             # no external bounds have been defined
             # a GRB is still needed
 
-            self.writecons_grb(self.space, self.time)
+            self.writecons_grb()
 
         if (
-            self.aspect(self.commodity, self.space, self.time)
+            self.aspect(self.commodity, self.time)
             not in self.balances[self.commodity][self.space][self.time]
         ):
 
@@ -96,7 +96,7 @@ class Balance(_Hash):
 
             # if there is already a GRB existing
             # add the bind to the GRB at the same scale
-            self.writecons_grb(self.space, self.time)
+            self.writecons_grb()
 
     @property
     def name(self) -> str:
@@ -159,14 +159,12 @@ class Balance(_Hash):
                 ),
             )
 
-        self._inform(name, self.domain.commodity, self.domain.space, self.domain.time)
+        self._inform(name)
 
         return True
 
     @timer(logger, "Initiating Balance")
-    def _create_constraint(
-        self, name: str, stored: bool, time: Periods, space: Location | Linkage
-    ) -> bool:
+    def _create_constraint(self, name: str, stored: bool) -> bool:
         """
         Creates a new GRB constraint
 
@@ -185,7 +183,7 @@ class Balance(_Hash):
 
         if stored and self.aspect.name == "inventory":
 
-            if len(time) == 1:
+            if len(self.time) == 1:
                 return False
 
             # TODO: potential bug here
@@ -194,12 +192,12 @@ class Balance(_Hash):
             # it ensures that inventory balances are not created for the network directly
             # when location-wise inventory balances can be written
             # this is a temporary fix and needs to be generalized
-            if self.model.network.has and space.isnetwork:
+            if self.model.network.has and self.space.isnetwork:
                 # if the location is a network, we cannot have storage
                 return False
 
             # if inventory is being add to GRB
-            lagged_domain = self.domain.change({"lag": -1 * time, "periods": None})
+            lagged_domain = self.domain.change({"lag": -1 * self.time, "periods": None})
             cons_grb = -self(*self.domain).V() + self(*lagged_domain).V() == 0
 
         else:
@@ -216,11 +214,11 @@ class Balance(_Hash):
             name,
             cons_grb,
         )
-        self._inform(name, self.domain.commodity, self.domain.space, self.domain.time)
+        self._inform(name)
 
-        return True
+        return self.domain
 
-    def _inform(self, cons_name, commodity, loc, time):
+    def _inform(self, cons_name):
         """
         Updates the constraints in all the indices of self.domain
         Add constraint name to aspect
@@ -240,74 +238,79 @@ class Balance(_Hash):
             self.aspect.constraints.append(cons_name)
 
         # update the GRB aspects
-        self.balances[commodity][loc][time].append(self)
+        self.balances[self.commodity][self.space][self.time].append(self)
 
-    def writecons_grb(self, loc, time) -> bool | None:
+    def writecons_grb(self) -> bool | None:
         """Writes the stream balance constraint
 
         :param self.commodity: Commodity being balanced
         :type self.commodity: Commodity
-        :param loc: Location at which the balance is being written
-        :type loc: Location
-        :param time: Time period at which the balance is being written
-        :type time: Periods
+        :param self.space: Location at which the balance is being written
+        :type self.space: Location
+        :param self.time: Time period at which the balance is being written
+        :type self.time: Periods
 
         :returns: False if the constraint was not created or updated
         :rtype: bool | None
         """
 
         if (
-            loc.isin is not None
-            and not self.balances[self.commodity][loc][time]
-            and self.balances[self.commodity][loc.isin][time]
+            self.space.isin is not None
+            and not self.balances[self.commodity][self.space][self.time]
+            and self.balances[self.commodity][self.space.isin][self.time]
         ):
             # if the location is in another location
             # and there is no GRB for that location
             # work with the parent location
-            loc = loc.isin
+            self.space = self.space.isin
 
-        _name = f"{self.commodity}_{loc}_{time}_grb"
+        _name = f"{self.commodity}_{self.space}_{self.time}_grb"
 
         if isinstance(self.commodity, Stored):
             stored = True
 
         else:
             stored = False
-            if self.balances[self.commodity][loc]:
+            if self.balances[self.commodity][self.space]:
                 # If a GRB exists at a lower temporal order, append to that
                 lower_times = [
-                    t for t in self.balances[self.commodity][loc] if t > time
+                    t
+                    for t in self.balances[self.commodity][self.space]
+                    if t > self.time
                 ]
 
                 if lower_times:
-                    _ = self.aspect(self.commodity, loc, lower_times[0]) == True
+                    _ = self.aspect(self.commodity, self.space, lower_times[0]) == True
                     return
 
         # -initialize GRB for self.commodity if necessary -----
 
-        if not self.balances[self.commodity][loc][time]:
+        if not self.balances[self.commodity][self.space][self.time]:
             # this checks whether a general self.commodity balance has been defined
-            # for the self.commodity in that space and time
+            # for the self.commodity in that space and self.time
 
             logger.info(
-                "Balance for %s in (%s, %s): initializing", self.commodity, loc, time
+                "Balance for %s in (%s, %s): initializing",
+                self.commodity,
+                self.space,
+                self.time,
             )
 
             start = keep_time.time()
 
-            made = self._create_constraint(_name, stored, time, loc)
+            made = self._create_constraint(_name, stored)
 
         # -add aspect to GRB if not added already ----
 
-        # elif self not in self.balances[self.commodity][loc][time]:
+        # elif self not in self.balances[self.commodity][self.space][self.time]:
 
         else:
 
             logger.info(
                 "Balance for %s in (%s, %s): adding %s%s",
                 self.commodity,
-                loc,
-                time,
+                self.space,
+                self.time,
                 self.aspect,
                 self.domain,
             )
