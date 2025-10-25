@@ -6,6 +6,8 @@ import logging
 import time as keep_time
 from typing import TYPE_CHECKING
 
+from ...utils.decorators import timer
+
 # from ...components.temporal.modes import Modes
 from ...utils.math import normalize
 
@@ -157,14 +159,15 @@ class Bind:
             # because V will be spaced and timed if not passed by user
             # .X(), .Vb() need time and space
 
-        logger.info("Binding %s in domain %s", self.aspect, self.domain)
+        # logger.info("Binding %s in domain %s", self.aspect, self.domain)
 
-        start = keep_time.time()
-        # ------Get RHS
+        # start = keep_time.time()
+        # # ------Get RHS
         self.write()
-        end = keep_time.time()
-        logger.info("\u23f1 %s  seconds", end - start)
+        # end = keep_time.time()
+        # logger.info("\u23f1 %s  seconds", end - start)
 
+    @timer(logger, kind="bind")
     def write(self):
         """Writes the bind constraint"""
         lhs = self.sample.V(self.parameter)
@@ -196,7 +199,7 @@ class Bind:
                 self.domain.space in self.aspect.bound_spaces[self.domain.primary]["ub"]
             ) and not self.domain.modes:
                 # return if aspect already bound in space
-                return
+                return False
             self.aspect.bound_spaces[self.domain.primary]["ub"].append(
                 self.domain.space,
             )
@@ -214,14 +217,14 @@ class Bind:
                 self.domain.space in self.aspect.bound_spaces[self.domain.primary]["lb"]
             ) and not self.domain.modes:
                 # return if aspect already bound in space
-                return
+                return False
             self.aspect.bound_spaces[self.domain.primary]["lb"].append(
                 self.domain.space,
             )
             cons: C = lhs >= rhs
             rel = "_lb"
         else:
-            return
+            return False
 
         # name of the constraint
         cons_name = rf"{self.aspect.name}{self.domain.idxname}{rel}"
@@ -245,3 +248,5 @@ class Bind:
             cons_name,
             cons,
         )
+
+        return self.aspect, self.domain, rel

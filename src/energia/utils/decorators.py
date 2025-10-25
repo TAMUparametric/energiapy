@@ -25,22 +25,31 @@ def timer(logger: logging.Logger, kind=None, level=logging.INFO):
         @wraps(func)
         def wrapper(*args, **kwargs):
             start = time.time()
-            # returns the domain if successful
-            domain = func(*args, **kwargs)
+            # returns the result if successful, else False
+            result = func(*args, **kwargs)
             elapsed = time.time() - start
 
-            if domain:
+            if result:
 
                 if kind == 'balance-update':
 
-                    msg = f"⚖  Updating Balance for {domain.commodity} in ({domain.space}, {domain.time})"
+                    msg = f"⚖  Updating Balance for {result.commodity} in ({result.space}, {result.time})"
 
                 elif kind == 'balance-init':
 
-                    msg = f"⚖  Initiating Balance for {domain.commodity} in ({domain.space}, {domain.time})"
+                    msg = f"⚖  Initiating Balance for {result.commodity} in ({result.space}, {result.time})"
 
                 elif kind == 'map':
-                    msg = f"🧭 Mapping {domain[0]} across {(domain[1] - domain[2])[0]} : {domain[1]} ⟺ {domain[2]}"
+                    msg = f"🧭 Mapping {result[0]} [{(result[1] - result[2])[0]}] : {result[1]} ⟺ {result[2]}"
+
+                elif kind == 'bind':
+                    if result[2] == "_ub":
+                        rel = "≤"
+                    elif result[2] == "_lb":
+                        rel = "≥"
+                    else:
+                        rel = "="
+                    msg = f"🔗 Binding [{rel}] {result[0]} in {result[1]}"
 
                 else:
                     msg = f"⏱  Executed {func.__name__}"
