@@ -51,6 +51,15 @@ def timer(logger: logging.Logger, kind=None, level=logging.INFO):
                         rel = "="
                     msg = f"🔗  Binding [{rel}] {result[0]} in {result[1]}"
 
+                elif kind == 'assume-capacity':
+                    msg = f"💡  Assuming {result[0]} capacity unbounded in ({result[1]}, {result[2]})"
+
+                elif kind == 'assume-operate':
+                    msg = f"💡  Assuming {result[0]} operate bounded by capacity in ({result[1]}, {result[2]})"
+
+                elif kind == 'assume-inventory':
+                    msg = f"💡  Assuming {result[0]} inventory bounded by capacity in ({result[1]}, {result[2]})"
+
                 else:
                     msg = f"⏱  Executed {func.__name__}"
 
