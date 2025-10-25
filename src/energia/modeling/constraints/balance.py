@@ -113,22 +113,17 @@ class Balance(_Hash):
         """Returns the aspect"""
         return self.aspect.sign
 
+    @timer(logger, "Updating Balance")
     def _update_constraint(
         self,
-        name: str,
         stored: bool,
-        # time: Periods,
         cons_grb: C,
     ) -> bool:
         """
         Updates an existing GRB constraint with the new aspect
 
-        :param name: Name of the constraint
-        :type name: str
         :param stored: If the commodity is stored
         :type stored: bool
-        :param time: Time period of the constraint
-        :type time: Periods
         :param cons_grb: The existing GRB constraint
         :type cons_grb: C
 
@@ -145,13 +140,13 @@ class Balance(_Hash):
 
             setattr(
                 self.program,
-                name,
+                self._name,
                 cons_grb + self(*lagged_domain).V() - self(*self.domain).V(),
             )
         else:
             setattr(
                 self.program,
-                name,
+                self._name,
                 (
                     cons_grb + self(*self.domain).V()
                     if self.aspect.ispos
@@ -159,26 +154,20 @@ class Balance(_Hash):
                 ),
             )
 
-        self._inform(name)
+        self._inform()
 
-        return True
+        return self.domain
 
     @timer(logger, "Initiating Balance")
-    def _create_constraint(self, name: str, stored: bool) -> bool:
+    def _create_constraint(self, stored: bool) -> Domain:
         """
         Creates a new GRB constraint
 
-        :param name: Name of the constraint
-        :type name: str
         :param stored: If the commodity is stored
         :type stored: bool
-        :param time: Time period of the constraint
-        :type time: Periods
-        :param space: Location or Linkage of the constraint
-        :type space: Location | Linkage
 
-        :returns: If the constraint was created
-        :rtype: bool
+        :returns: Domain in which the constraint was created
+        :rtype: Domain
         """
 
         if stored and self.aspect.name == "inventory":
@@ -211,48 +200,28 @@ class Balance(_Hash):
 
         setattr(
             self.program,
-            name,
+            self._name,
             cons_grb,
         )
-        self._inform(name)
+        self._inform()
 
         return self.domain
 
-    def _inform(self, cons_name):
+    def _inform(self):
         """
         Updates the constraints in all the indices of self.domain
         Add constraint name to aspect
-
-        :param cons_name: Name of the constraint
-        :type cons_name: str
-        :param commodity: Commodity being balanced
-        :type commodity: Commodity
-        :param loc: Location at which the balance is being written
-        :type loc: Location
-        :param time: Time period at which the balance is being written
-        :type time: Periods
         """
-        self.domain.update_cons(cons_name)
+        self.domain.update_cons(self._name)
 
-        if cons_name not in self.aspect.constraints:
-            self.aspect.constraints.append(cons_name)
+        if self._name not in self.aspect.constraints:
+            self.aspect.constraints.append(self._name)
 
         # update the GRB aspects
         self.balances[self.commodity][self.space][self.time].append(self)
 
     def writecons_grb(self) -> bool | None:
-        """Writes the stream balance constraint
-
-        :param self.commodity: Commodity being balanced
-        :type self.commodity: Commodity
-        :param self.space: Location at which the balance is being written
-        :type self.space: Location
-        :param self.time: Time period at which the balance is being written
-        :type self.time: Periods
-
-        :returns: False if the constraint was not created or updated
-        :rtype: bool | None
-        """
+        """Writes the stream balance constraint"""
 
         if (
             self.space.isin is not None
@@ -264,7 +233,7 @@ class Balance(_Hash):
             # work with the parent location
             self.space = self.space.isin
 
-        _name = f"{self.commodity}_{self.space}_{self.time}_grb"
+        self._name = f"{self.commodity}_{self.space}_{self.time}_grb"
 
         if isinstance(self.commodity, Stored):
             stored = True
@@ -289,41 +258,11 @@ class Balance(_Hash):
             # this checks whether a general self.commodity balance has been defined
             # for the self.commodity in that space and self.time
 
-            logger.info(
-                "Balance for %s in (%s, %s): initializing",
-                self.commodity,
-                self.space,
-                self.time,
-            )
-
-            start = keep_time.time()
-
-            made = self._create_constraint(_name, stored)
+            return self._create_constraint(stored)
 
         # -add aspect to GRB if not added already ----
 
-        # elif self not in self.balances[self.commodity][self.space][self.time]:
-
-        else:
-
-            logger.info(
-                "Balance for %s in (%s, %s): adding %s%s",
-                self.commodity,
-                self.space,
-                self.time,
-                self.aspect,
-                self.domain,
-            )
-
-            start = keep_time.time()
-
-            made = self._update_constraint(_name, stored, getattr(self.program, _name))
-
-        if not made:
-            return False
-
-        end = keep_time.time()
-        logger.info("\u23f1 %s seconds", end - start)
+        return self._update_constraint(stored, getattr(self.program, self._name))
 
     def __eq__(self, other: Self):
         return is_(self.aspect, other.aspect) and self.domain == other.domain

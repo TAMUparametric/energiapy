@@ -25,11 +25,11 @@ def timer(logger: logging.Logger, msg=None, level=logging.INFO):
         @wraps(func)
         def wrapper(*args, **kwargs):
             start = time.time()
-            result = func(*args, **kwargs)
+            domain = func(*args, **kwargs)
             elapsed = time.time() - start
 
             logger.log(level, f"{msg} ⏱  {elapsed:.6f} s")
-            return result
+            return domaing
 
         return wrapper
 
