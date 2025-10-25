@@ -94,8 +94,8 @@ class EndoStream(Stream):
     def update(self, domain: Domain, reporting: bool = False):
 
         Map(aspect=self, domain=domain, reporting=reporting)
-
-        Balance(aspect=self, domain=domain)
+        if not domain.modes:
+            Balance(aspect=self, domain=domain)
 
 
 @dataclass
@@ -108,8 +108,8 @@ class ExoStream(Stream):
     def update(self, domain: Domain, reporting: bool = False):
 
         Map(aspect=self, domain=domain, reporting=reporting)
-
-        Balance(aspect=self, domain=domain)
+        if not domain.modes:
+            Balance(aspect=self, domain=domain)
 
 
 @dataclass

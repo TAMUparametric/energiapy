@@ -38,7 +38,7 @@ class Balance(_Hash):
     :vartype model: Model
     :ivar program: The program to which the constraint belongs.
     :vartype program: Program
-    :ivar grb: The general resource balance dictionary.
+    :ivar grb: The general resource balance dictionary.t
     :vartype grb: dict[Commodity, dict[Location, dict[Periods, list[Aspect]]]]
     """
 
@@ -50,9 +50,6 @@ class Balance(_Hash):
         self.model = self.aspect.model
         self.program = self.model.program
         self.balances = self.model.balances
-
-        if self.domain.modes:
-            return
 
         self.commodity = self.domain.commodity
         self.samples = self.domain.samples
@@ -104,16 +101,11 @@ class Balance(_Hash):
         return f"{self.aspect.name}{self.domain}"
 
     @property
-    def mapped_to(self) -> list[Domain]:
-        """List of domains that the aspect has been mapped to"""
-        return self.aspect.maps
-
-    @property
     def sign(self) -> float:
         """Returns the aspect"""
         return self.aspect.sign
 
-    @timer(logger, "Updating Balance")
+    @timer(logger, "balance-update")
     def _update_constraint(
         self,
         stored: bool,
@@ -158,7 +150,7 @@ class Balance(_Hash):
 
         return self.domain
 
-    @timer(logger, "Initiating Balance")
+    @timer(logger, "balance-init")
     def _create_constraint(self, stored: bool) -> Domain:
         """
         Creates a new GRB constraint
@@ -228,7 +220,7 @@ class Balance(_Hash):
             and not self.balances[self.commodity][self.space][self.time]
             and self.balances[self.commodity][self.space.isin][self.time]
         ):
-            # if the location is in another location
+            # if the location is nested under another location
             # and there is no GRB for that location
             # work with the parent location
             self.space = self.space.isin

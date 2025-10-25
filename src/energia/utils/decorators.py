@@ -16,7 +16,7 @@ def once(func):
     return wrapper
 
 
-def timer(logger: logging.Logger, msg=None, level=logging.INFO):
+def timer(logger: logging.Logger, kind=None, level=logging.INFO):
     """
     Logs execution time and optionally shows a full computation using function arguments and result.
     """
@@ -25,11 +25,26 @@ def timer(logger: logging.Logger, msg=None, level=logging.INFO):
         @wraps(func)
         def wrapper(*args, **kwargs):
             start = time.time()
+            # returns the domain if successful
             domain = func(*args, **kwargs)
             elapsed = time.time() - start
 
-            logger.log(level, f"{msg} ⏱  {elapsed:.6f} s")
-            return domaing
+            if domain:
+
+                if kind == 'balance-update':
+
+                    msg = f"Updating Balance for {domain.commodity} in ({domain.space}, {domain.time})"
+
+                elif kind == 'balance-init':
+
+                    msg = f"Initiating Balance for {domain.commodity} in ({domain.space}, {domain.time})"
+                else:
+                    msg = f"Executing {func.__name__}"
+
+                logger.log(
+                    level,
+                    f"{msg}  ⏱  {elapsed:.6f} s",
+                )
 
         return wrapper
 
