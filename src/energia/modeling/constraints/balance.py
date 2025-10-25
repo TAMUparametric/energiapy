@@ -11,6 +11,7 @@ from ..._core._hash import _Hash
 from ...components.operations.storage import Stored
 
 logger = logging.getLogger("energia")
+from ...utils.decorators import timer
 
 if TYPE_CHECKING:
     from gana.sets.constraint import C
@@ -155,8 +156,11 @@ class Balance(_Hash):
                 ),
             )
 
+        self._inform(name, self.domain.commodity, self.domain.space, self.domain.time)
+
         return True
 
+    # @timer(logger, )
     def _create_constraint(
         self, name: str, stored: bool, time: Periods, space: Location | Linkage
     ) -> bool:
@@ -209,8 +213,31 @@ class Balance(_Hash):
             name,
             cons_grb,
         )
+        self._inform(name, self.domain.commodity, self.domain.space, self.domain.time)
 
         return True
+
+    def _inform(self, cons_name, commodity, loc, time):
+        """
+        Updates the constraints in all the indices of self.domain
+        Add constraint name to aspect
+
+        :param cons_name: Name of the constraint
+        :type cons_name: str
+        :param commodity: Commodity being balanced
+        :type commodity: Commodity
+        :param loc: Location at which the balance is being written
+        :type loc: Location
+        :param time: Time period at which the balance is being written
+        :type time: Periods
+        """
+        self.domain.update_cons(cons_name)
+
+        if cons_name not in self.aspect.constraints:
+            self.aspect.constraints.append(cons_name)
+
+        # update the GRB aspects
+        self.balances[commodity][loc][time].append(self)
 
     def writecons_grb(self, commodity, loc, time) -> bool | None:
         """Writes the stream balance constraint
@@ -291,15 +318,16 @@ class Balance(_Hash):
 
         end = keep_time.time()
         logger.info("\u23f1 %s seconds", end - start)
+
         # updates the constraints in all the indices of self.domain
         # add constraint name to aspect
-        self.domain.update_cons(_name)
+        # self.domain.update_cons(_name)
 
-        if _name not in self.aspect.constraints:
-            self.aspect.constraints.append(_name)
+        # if _name not in self.aspect.constraints:
+        #     self.aspect.constraints.append(_name)
 
-        # update the GRB aspects
-        self.balances[commodity][loc][time].append(self)
+        # # update the GRB aspects
+        # self.balances[commodity][loc][time].append(self)
 
     def __eq__(self, other: Self):
         return is_(self.aspect, other.aspect) and self.domain == other.domain
