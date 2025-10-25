@@ -297,19 +297,22 @@ class Storage(_Component):
 
         if name == "model" and value is not None:
 
-            # TODO: for general case with multiple resources
-
             self._birth_constituents(*self._split_attr())
 
-            for conv in self.conversions:
-                if not isinstance(conv, int | float):
-                    conv.operation = self
+            if self.conversions:
 
-            if len(self.conversions) == 1:
-                conv = self.conversions[0]
+                # if len(self.conversions) > 1:
+                #     self.modes = 
 
-                if conv.hold is not None:
-                    _ = self(conv.resource) == conv.hold
+                for conversion in self.conversions:
+                    if not isinstance(conversion, int | float):
+                        conversion.operation = self
+
+                if len(self.conversions) == 1:
+                    conversion = self.conversions[0]
+
+                    if conversion.hold is not None:
+                        _ = self(conversion.resource) == conversion.hold
 
         super().__setattr__(name, value)
 

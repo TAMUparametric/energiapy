@@ -336,7 +336,7 @@ class Map:
             cons.categorize("Mapping")
 
         end = keep_time.time()
-        logger.info("\u2714 Completed in %s seconds", end - start)
+        logger.info("\u23f1 %s seconds", end - start)
         if cname not in self.aspect.constraints:
             self.aspect.constraints.append(cname)
 

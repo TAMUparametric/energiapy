@@ -18,6 +18,7 @@ from ..components.commodities.material import Material
 from ..components.commodities.resource import Resource
 from ..components.game.couple import Interact
 from ..components.game.player import Player
+
 # from ..components.graph.edge import Edge
 # from ..components.graph.node import Node
 from ..components.impact.categories import Economic, Environ, Social
@@ -37,9 +38,17 @@ from ..dimensions.system import System
 from ..dimensions.time import Time
 from ..library.aliases import aspect_aliases
 from ..library.instructions import costing_commodity, costing_operation
-from ..library.recipes import (capacity_sizing, economic, environmental,
-                               free_movement, inventory_sizing, operating,
-                               social, trade, usage)
+from ..library.recipes import (
+    capacity_sizing,
+    economic,
+    environmental,
+    free_movement,
+    inventory_sizing,
+    operating,
+    social,
+    trade,
+    usage,
+)
 from ..modeling.parameters.instruction import Instruction
 from ..modeling.variables.control import Control
 from ..modeling.variables.recipe import Recipe
@@ -47,12 +56,13 @@ from ..modeling.variables.states import Consequence, State, Stream
 from .ations.graph import Graph
 from .ations.program import Program
 
+
 logger = logging.getLogger("energia")
 logger.setLevel(logging.INFO)
 
 ch = logging.StreamHandler()
 ch.setLevel(logging.INFO)
-formatter = logging.Formatter("%(asctime)s [%(levelname)s] %(message)s")
+formatter = logging.Formatter("[%(levelname)s] %(message)s")
 ch.setFormatter(formatter)
 logger.addHandler(ch)
 
@@ -67,7 +77,7 @@ if TYPE_CHECKING:
     from ..modeling.variables.aspect import Aspect
     from ..modeling.variables.sample import Sample
 
-    GRBType = DefaultDict[
+    BalanceType = DefaultDict[
         Commodity,
         DefaultDict[Location | Linkage, DefaultDict[Periods, list[Aspect]]],
     ]
@@ -138,6 +148,8 @@ class Model:
     capacitate: bool = False
 
     def __post_init__(self):
+
+        self.reserved_names = []
 
         # what components have been added to the model
         self.added: list[str] = []
@@ -212,6 +224,8 @@ class Model:
             Consequence: ("problem", "consequences"),
         }
 
+        self.reserved_names += zip(*self.familytree.values())
+
         # --------------------------------------------------------------------
         # * Dimensions or Representation
         # --------------------------------------------------------------------
@@ -261,7 +275,8 @@ class Model:
             "parameter_sets",
             "X",
         ]
-        # self.program_attrs = {i: self.program for i in  self.program_attrs}
+
+        self.reserved_names += self.program_attrs
 
         # properties that can be called by model
         # these never get set
@@ -280,6 +295,9 @@ class Model:
             "Z",
             "P",
         ]
+
+        self.reserved_names += _program_matrices
+
         self.properties = {
             "horizon": self.time,
             "network": self.space,
@@ -336,10 +354,9 @@ class Model:
         # have been set in what location and time
 
         # * General Resource Balances
-        self.balances: dict[
-            Commodity,
-            dict[Location | Linkage, dict[Periods, list[Aspect]]],
-        ] = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
+        self.balances: BalanceType = defaultdict(
+            lambda: defaultdict(lambda: defaultdict(list))
+        )
         # Dictionary which tells you what aspects of what component
         # have been bound at what location and time
 
@@ -702,6 +719,20 @@ class Model:
         for disc, name in zip(discretizations, names):
             setattr(self, name, disc * root)
             root = self.periods[-1]
+
+    def Modes(self, size: int, sample: Sample):
+        """
+        This is an easy way to define modes within a period
+
+        :param size: Number of modes to create
+        :type size: int
+        :param name: Name of the modes. Defaults to "modes".
+        :type name: str, optional
+        """
+        nth = len(self.modes)
+        modes = Modes(size=size, sample=sample, n=nth)
+        setattr(self, f'b{nth}', modes)
+        return modes
 
     # ------------------------------------------------------------------------
     # * Illustrations from Different Perspectives

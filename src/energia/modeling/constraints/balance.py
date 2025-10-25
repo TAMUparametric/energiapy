@@ -290,7 +290,7 @@ class Balance(_Hash):
             return False
 
         end = keep_time.time()
-        logger.info("\u2714 Completed in %s seconds", end - start)
+        logger.info("\u23f1 %s seconds", end - start)
         # updates the constraints in all the indices of self.domain
         # add constraint name to aspect
         self.domain.update_cons(_name)

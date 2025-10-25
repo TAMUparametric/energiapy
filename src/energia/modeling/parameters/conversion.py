@@ -391,7 +391,7 @@ class PWLConversion(Mapping, _Hash):
         if conversions:
             n_modes = len(conversions)
             modes_name = f"bin{len(self.model.modes)}"
-            setattr(self.model, modes_name, Modes(n_modes=n_modes, sample=sample))
+            setattr(self.model, modes_name, Modes(size=n_modes, sample=sample))
             self.modes = self.model.modes[-1]
 
             self.balance: dict[Modes, Conversion] = {
@@ -402,7 +402,7 @@ class PWLConversion(Mapping, _Hash):
                 conv.operation = self.operation
 
     @property
-    def by(self) -> str:
+    def aspect(self) -> str:
         return self[0].aspect
 
     @property
@@ -497,14 +497,14 @@ class PWLConversion(Mapping, _Hash):
             if space not in self.model.balances[res]:
                 # if not defined for that location, check for a lower order location
                 # i.e. location at a lower hierarchy,
-                # e.g. say if space being passed is a city, and a grb has not been defined for it
+                # e.g. say if space being passed is a city, and a balance has not been defined for it
                 # then we need to check at a higher order
                 parent = self.model.space.split(space)[
                     1
                 ]  # get location at one hierarchy above
                 if parent:
                     # if that indeed exists, then make the parent the space
-                    # the conversion Balance variables will feature in grb for parent location
+                    # the conversion Balance variables will feature in balance for parent location
                     space = parent
 
             _ = self.model.balances[res][space][time]
@@ -539,7 +539,7 @@ class PWLConversion(Mapping, _Hash):
                 time = time_checker(res, space, time)
                 _ = self.model.balances[res].get(space, {})
 
-            decision = getattr(self.operation, self.by)
+            decision = getattr(self.operation, self.aspect)
 
             if par[0] < 0:
                 # Resources are consumed (expendend by Process) immediately

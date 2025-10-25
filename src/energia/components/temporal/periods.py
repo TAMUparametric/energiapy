@@ -51,6 +51,7 @@ class Periods(_X):
         self,
         periods: int | float = 1,
         of: Self | None = None,
+        n: int | None = None,
         label: str = "",
         citations: str = "",
     ):
@@ -79,7 +80,7 @@ class Periods(_X):
         self.slice: slice | None = None
 
         # if this is a single period in Periods
-        self.pos: int | None = None
+        self.n = n
 
         # if parent is true, this is part of another periods set
         self.parent: Self | None = None
@@ -118,8 +119,8 @@ class Periods(_X):
         if self.slice is not None:
             return self.of.I[self.slice]
 
-        if self.pos is not None:
-            return self.of.I[self.pos]
+        if self.n is not None:
+            return self.of.I[self.n]
 
         _index = Idx(size=self.time.horizon.howmany(self), tag=self.label or "")
         setattr(self.program, self.name, _index)
@@ -228,6 +229,7 @@ class Periods(_X):
         return self.time.horizon.howmany(self) > self.time.horizon.howmany(other)
 
     def __getitem__(self, key: int | slice):
+
         periods = Periods()
         periods.parent = self
         periods.of = self.of
@@ -235,11 +237,14 @@ class Periods(_X):
 
         if isinstance(key, slice):
             periods.slice = key
+            # record the range
             start = key.start or 0
             stop = key.stop or len(self)
+            # not set on the model
             periods.name = rf"{self}[{start}: {stop}]"
         else:
-            periods.pos = key
+            # single period
+            periods.n = key
             periods.name = rf"{self}[{key}]"
 
         return periods

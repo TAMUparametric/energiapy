@@ -35,22 +35,22 @@ class Modes(_X):
 
     def __init__(
         self,
-        n_modes: int = 1,
+        size: int = 1,
         sample: Sample | None = None,
         parent: Self | None = None,
-        pos: int | None = None,
+        n: int | None = None,
         label: str = "",
         citations: str = "",
     ):
-        self.n_modes = n_modes
+        self.size = size
         self.sample = sample
         self.parent = parent
-        self.pos = pos
+        self.n = n
 
         _X.__init__(self, label=label, citations=citations)
 
-        if self.pos is not None:
-            self.name = f"{self.parent}[{self.pos}]"
+        if self.n is not None:
+            self.name = f"{self.parent}[{self.n}]"
 
         if self.parent:
             self.model = self.parent.model
@@ -80,9 +80,9 @@ class Modes(_X):
         if self.parent:
             _ = self.parent.I  # makes sure the parent is indexed
             # do not set a new index set, get from parent
-            return getattr(self.parent.program, self.parent.name)[self.pos]
+            return getattr(self.parent.program, self.parent.name)[self.n]
 
-        _index = I(size=self.n_modes, tag=f"Modes of {self.sample.aspect}")
+        _index = I(size=self.size, tag=f"Modes of {self.sample.aspect}")
 
         setattr(
             self.program,
@@ -100,14 +100,14 @@ class Modes(_X):
 
     def __len__(self) -> int:
         """Length of the modes"""
-        return self.n_modes
+        return self.size
 
     def __getitem__(self, key: int) -> _X:
         """Get a mode by index"""
         if not self._birthed:
             self._ = [
-                Modes(sample=self.sample, parent=self, pos=i)
-                for i in range(self.n_modes)
+                Modes(sample=self.sample, parent=self, n=i)
+                for i in range(self.size)
             ]
             self._birthed = True
 
@@ -115,5 +115,5 @@ class Modes(_X):
 
     def __iter__(self):
         """Iterate over modes"""
-        for i in range(self.n_modes):
+        for i in range(self.size):
             yield self[i]

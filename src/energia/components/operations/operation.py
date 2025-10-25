@@ -50,11 +50,15 @@ class Operation(_Component):
     def __init__(
         self,
         *args,
+        # operaing_aspect: str,
         label: str = "",
         citations: str = "",
+
         **kwargs,
     ):
         _Component.__init__(self, label=label, citations=citations, **kwargs)
+
+
 
         self.production = Conversion(
             operation=self,
@@ -243,7 +247,6 @@ class Operation(_Component):
         self.writecons_conversion(space_times)
 
         if self.construction:
-            print("asdasdsadasd")
             self.writecons_fabrication(space_times)
 
     def __call__(

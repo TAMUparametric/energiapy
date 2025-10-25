@@ -122,7 +122,7 @@ class Bind:
             n_modes = len(parameter)
             modes_name = f"bin{len(self.model.modes)}"
 
-            setattr(self.model, modes_name, Modes(n_modes=n_modes, sample=self.sample))
+            setattr(self.model, modes_name, Modes(size=n_modes, sample=self.sample))
 
             # this gets the last set mode (which was just set above)
             modes = self.model.modes[-1]
@@ -250,4 +250,4 @@ class Bind:
         )
 
         end = keep_time.time()
-        logger.info("\u2714 Completed in %s seconds", end - start)
+        logger.info("\u23f1 %s  seconds", end - start)
