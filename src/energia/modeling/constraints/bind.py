@@ -89,16 +89,16 @@ class Bind:
         # write the constraint 'for all' elements in it
         if self.forall:
 
-            if isinstance(parameter, list):
+            if isinstance(self.parameter, list):
                 # if a list is passed
                 # iterate over it
                 for n, idx in enumerate(self.forall):
                     if self.leq:
-                        _ = self.sample(idx) <= parameter[n]
+                        _ = self.sample(idx) <= self.parameter[n]
                     if self.geq:
-                        _ = self.sample(idx) >= parameter[n]
+                        _ = self.sample(idx) >= self.parameter[n]
                     if self.eq:
-                        _ = self.sample(idx) == parameter[n]
+                        _ = self.sample(idx) == self.parameter[n]
                 return
 
             # if a single value is passed
@@ -108,23 +108,23 @@ class Bind:
             for idx in self.forall:
 
                 if self.leq:
-                    _ = self.sample(idx) <= parameter
+                    _ = self.sample(idx) <= self.parameter
                 if self.geq:
-                    _ = self.sample(idx) >= parameter
+                    _ = self.sample(idx) >= self.parameter
                 if self.eq:
-                    _ = self.sample(idx) == parameter
+                    _ = self.sample(idx) == self.parameter
 
             return
 
-        if isinstance(parameter, dict):
-            self.modes = self.model.Modes(size=len(parameter), sample=self.sample)
+        if isinstance(self.parameter, dict):
+            self.modes = self.model.Modes(size=len(self.parameter), sample=self.sample)
             mode_bounds = [
                 (
-                    (parameter[i - 1], parameter[i])
-                    if i - 1 in parameter
-                    else (0, parameter[i])
+                    (self.parameter[i - 1], self.parameter[i])
+                    if i - 1 in self.parameter
+                    else (0, self.parameter[i])
                 )
-                for i in parameter
+                for i in self.parameter
             ]
             modes_lb = [b[0] for b in mode_bounds]
             modes_ub = [b[1] for b in mode_bounds]
@@ -135,21 +135,21 @@ class Bind:
             return
 
         if self.nominal:
-            # if a nominal value for the parameter is passed
+            # if a nominal value for the self.parameter is passed
             # this is essentially the expectation
             # skipping an instance check here
             # if a non iterable is passed, let an error be raised
             if self.norm:
-                parameter = normalize(parameter)
+                self.parameter = normalize(self.parameter)
 
             # if the sample needs to be normalized
-            parameter = [
+            self.parameter = [
                 (
                     (self.nominal * i[0], self.nominal * i[1])
                     if isinstance(i, tuple)
                     else self.nominal * i
                 )
-                for i in parameter
+                for i in self.parameter
             ]
 
             # ------Get LHS
@@ -157,33 +157,38 @@ class Bind:
             # because V will be spaced and timed if not passed by user
             # .X(), .Vb() need time and space
 
-        lhs = self.sample.V(parameter)
-
         logger.info("Binding %s in domain %s", self.aspect, self.domain)
 
         start = keep_time.time()
         # ------Get RHS
+        self.write()
+        end = keep_time.time()
+        logger.info("\u23f1 %s  seconds", end - start)
+
+    def write(self):
+        """Writes the bind constraint"""
+        lhs = self.sample.V(self.parameter)
 
         if self.aspect.bound is not None:
             # ------if variable bound
             if self.report:
                 # ------if variable bound and reported
                 # we do not want a bi-linear term
-                rhs = parameter * self.sample.X(parameter)
+                rhs = self.parameter * self.sample.X(self.parameter)
 
             else:
                 # ------if just variable bound
-                rhs = parameter * self.sample.Vb()
+                rhs = self.parameter * self.sample.Vb()
 
         elif self.report or self.domain.modes is not None:
-            # ------if  parameter bound and reported or has modes
+            # ------if  self.parameter bound and reported or has modes
             # create reporting variable write v <= p*x
-            rhs = parameter * self.sample.X(parameter)
+            rhs = self.parameter * self.sample.X(self.parameter)
             self.aspect.update(self.domain, reporting=True)
 
         else:
-            # ------if just parameter bound
-            rhs = parameter
+            # ------if just self.parameter bound
+            rhs = self.parameter
 
         if self.leq:
             # Less than equal to
@@ -240,6 +245,3 @@ class Bind:
             cons_name,
             cons,
         )
-
-        end = keep_time.time()
-        logger.info("\u23f1 %s  seconds", end - start)
