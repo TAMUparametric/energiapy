@@ -84,29 +84,27 @@ class Map:
 
         # this is the disposition of the variable to be mapped
         # through time and space
-        time, space = self.domain.periods, self.domain.space
+        self.time, self.space = self.domain.periods, self.domain.space
 
         # these are periods denser and sparser than the current domain
-        denser_periods, sparser_periods = self.model.time.split(time)
+        denser_periods, sparser_periods = self.model.time.split(self.time)
 
         # these are spaces contained in location and parent location to which this location belongs
         # this gives all the dispositions at which the aspect has been defined
         dispositions = self.dispositions[self.aspect][self.domain.primary]
 
-        if space not in dispositions or time not in dispositions[space]:
+        if self.space not in dispositions or self.time not in dispositions[self.space]:
             return
 
         # Time mapping ---
-        self._map_across_time(
-            dispositions, space, time, sparser_periods, denser_periods
-        )
+        self._map_across_time(dispositions, sparser_periods, denser_periods)
 
         # Space mapping ---
-        contained_locs, parent_loc = self.model.space.split(space)
-        self._map_across_space(dispositions, contained_locs, parent_loc, time)
+        contained_locs, parent_loc = self.model.space.split(self.space)
+        self._map_across_space(dispositions, contained_locs, parent_loc)
 
         # Bind mapping ---
-        self._map_across_binds(dispositions, space, time)
+        self._map_across_binds(dispositions)
 
         # Mode mapping ---
         self._map_across_modes()
@@ -123,16 +121,12 @@ class Map:
     # Helper functions
     # -------------------------------------------------------------------#
 
-    def _map_across_time(
-        self, dispositions, space, time, sparser_periods, denser_periods
-    ):
+    def _map_across_time(self, dispositions, sparser_periods, denser_periods):
         """
         Maps across time
 
         :param dispositions: Dispositions at which the aspect has been defined
         :type dispositions: dict[Space, dict[Periods, dict[Aspect, dict[Component, ...]]]]
-        :param space: Space at which the domain is defined
-        :type space: Space
         :param time: Time at which the domain is defined
         :type time: Periods
         :param sparser_periods: Periods sparser than the domain period
@@ -143,14 +137,14 @@ class Map:
         for sp in sparser_periods:
             # check if the aspect has been defined for a sparser period
             # this creates a map from this domain to a sparser domain
-            if sp in dispositions[space] and is_(sp.of, time):
+            if sp in dispositions[self.space] and is_(sp.of, self.time):
                 self.writecons_map(
                     self.domain, self.domain.change({"periods": sp}), tsum=True
                 )
 
         for dp in denser_periods:
-            if dp in dispositions[space] and is_(time.of, dp):
-                binds_dict = dispositions[space][dp]
+            if dp in dispositions[self.space] and is_(self.time.of, dp):
+                binds_dict = dispositions[self.space][dp]
                 # TODO - check this
                 # here I am re creating Bind objects
                 # from the dict of the form {aspect: {component: {aspect: {component: {...}}}}}
@@ -165,7 +159,7 @@ class Map:
                 from_domain.periods, from_domain.samples = dp, samples
                 self.writecons_map(from_domain, self.domain, tsum=True)
 
-    def _map_across_space(self, dispositions, contained_locs, parent_loc, time):
+    def _map_across_space(self, dispositions, contained_locs, parent_loc):
         """
         Maps across space
 
@@ -182,7 +176,7 @@ class Map:
         parent_loc = self.domain.location.isin
 
         if parent_loc:
-            if parent_loc not in dispositions or time not in dispositions[parent_loc]:
+            if parent_loc not in dispositions or self.time not in dispositions[parent_loc]:
                 return
             self.writecons_map(
                 self.domain,
@@ -217,8 +211,8 @@ class Map:
         #         self.domain, self.domain.change({"location": parent_loc})
         #     )
 
-    def _map_across_binds(self, dispositions, space, time):
-        if self.domain.samples or not dispositions[space][time]:
+    def _map_across_binds(self, dispositions):
+        if self.domain.samples or not dispositions[self.space][self.time]:
             return
         # if the current variable being declared has no samples
         # but the aspect has already been defined at this location and time with samples
@@ -229,8 +223,8 @@ class Map:
             d
             for d in self.aspect.domains
             if is_(d.primary, self.domain.primary)
-            and is_(d.space, space)
-            and is_(d.periods, time)
+            and is_(d.space, self.space)
+            and is_(d.periods, self.time)
             and d.samples
         ]
         for domain in domains:
