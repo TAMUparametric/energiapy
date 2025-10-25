@@ -2,16 +2,17 @@
 
 from __future__ import annotations
 
+import logging
 from typing import TYPE_CHECKING
-from warnings import warn
 
+from ...utils.decorators import timer
 from .operation import Operation
 
+logger = logging.getLogger("energia")
+
 if TYPE_CHECKING:
-    from ..commodities.resource import Resource
     from ..spatial.location import Location
     from ..temporal.periods import Periods
-    from .storage import Storage
 
 
 class Process(Operation):
@@ -65,17 +66,18 @@ class Process(Operation):
         """Locations at which the process is balanced"""
         return self.locations
 
-    def writecons_conversion(self, loc_times: list[tuple[Location, Periods]]):
-        """Write the conversion constraints for the process"""
+    @timer(logger, kind="production")
+    def write_production(self, space_times: list[tuple[Location, Periods]]):
+        """Write the production constraints for the process"""
 
         if not self.production:
-            warn(
-                f"{self}: Conversion not defined, no Constraints generated",
-                UserWarning,
+            logger.warning(
+                "%s: Production not defined, no Constraints generated",
+                self.name,
             )
             return
 
-        # This makes the conversion consistent
+        # This makes the production consistent
         # check conv_test.py in tests for examples
         self.production.balancer()
 
@@ -101,85 +103,87 @@ class Process(Operation):
 
         # else:
 
-        for location, time in loc_times:
+        for space, time in space_times:
 
-            if location in self.locations:
-                # if the process is already balanced for the location , Skip
+            if space in self.locations:
+                # if the process is already balanced for the space , Skip
                 continue
 
-            self.production.write(location, time)
-
-            # for res, par in self.production.items():
-            #     # set, the conversion on the resource
-
-            #     #! Repurpose
-            #     # setattr(res, self.name, self)
-
-            #     # now there are two cases possible
-            #     # the parameter (par) is positive or negative
-            #     # if positive, the resource is expended
-            #     # if negative, the resource is produced
-            #     # also, the par can be an number or a list of numbers
-
-            #     # insitu resource (produced and expended within the system)
-            #     # do not initiate a grb so we need to run a check for that first
-
-            #     if res in self.model.balances:
-            #         time = time_checker(res, location, time)
-            #         _ = self.model.balances[res].get(location, {})
-
-            #     eff = par if isinstance(par, list) else [par]
-
-            #     if eff[0] < 0:
-            #         # Resources are consumed (expendend by Process) immediately
-            #         rhs = res.expend(self.operate, location, time)
-            #         eff = [-e for e in eff]
-            #     else:
-            #         # Production — may occur after lag
-            #         lag_time = self.lag.of if self.lag else time
-            #         rhs = res.produce(self.operate, location, lag_time)
-
-            #     opr = self.operate(location, time)
-
-            #! PWL
-            # because of using .balancer(), expend/produce are on same temporal scale
-
-            # if self.conversion.pwl:
-
-            #     eff = [conv[res] for conv in self.balance.values()]
-
-            #     if eff[0] < 0:
-            #         eff = [-e for e in eff]
-
-            #     if not self.conversion.modes_set:
-            #         # this is setting the bin limits for piece wise linear conversion
-            #         # these are written bound to capacity generally
-            #         # but here we pause that binding and bind operate to explicit limits
-            #         self.model.operate.bound = None
-
-            #         _ = opr == dict(enumerate(self.balance.keys()))
-
-            #         # reset capacity binding
-            #         self.model.operate.bound = self.model.capacity
-
-            #         modes = self.model.modes[-1]
-            #         self.conversion.modes_set = True
-
-            #     else:
-            #         modes = self.conversion.modes
-            #         modes.bind = self.operate
-            #         self.conversion.modes_set = True
-
-            #     opr = opr(modes)
-
-            #     rhs = rhs(modes)
-
-            # _ = opr(modes)[rhs(modes)] == eff
-
-            # else:
-            # _ = opr[rhs] == eff
+            self.production.write(space, time)
 
             # update the locations at which the process exists
-            self.locations.append(location)
+            self.locations.append(space)
+            self.space_times.append((space, time))
 
-            
+        return self, self.locations
+
+
+# for res, par in self.production.items():
+#     # set, the conversion on the resource
+
+#     #! Repurpose
+#     # setattr(res, self.name, self)
+
+#     # now there are two cases possible
+#     # the parameter (par) is positive or negative
+#     # if positive, the resource is expended
+#     # if negative, the resource is produced
+#     # also, the par can be an number or a list of numbers
+
+#     # insitu resource (produced and expended within the system)
+#     # do not initiate a grb so we need to run a check for that first
+
+#     if res in self.model.balances:
+#         time = time_checker(res, location, time)
+#         _ = self.model.balances[res].get(location, {})
+
+#     eff = par if isinstance(par, list) else [par]
+
+#     if eff[0] < 0:
+#         # Resources are consumed (expendend by Process) immediately
+#         rhs = res.expend(self.operate, location, time)
+#         eff = [-e for e in eff]
+#     else:
+#         # Production — may occur after lag
+#         lag_time = self.lag.of if self.lag else time
+#         rhs = res.produce(self.operate, location, lag_time)
+
+#     opr = self.operate(location, time)
+
+#! PWL
+# because of using .balancer(), expend/produce are on same temporal scale
+
+# if self.conversion.pwl:
+
+#     eff = [conv[res] for conv in self.balance.values()]
+
+#     if eff[0] < 0:
+#         eff = [-e for e in eff]
+
+#     if not self.conversion.modes_set:
+#         # this is setting the bin limits for piece wise linear conversion
+#         # these are written bound to capacity generally
+#         # but here we pause that binding and bind operate to explicit limits
+#         self.model.operate.bound = None
+
+#         _ = opr == dict(enumerate(self.balance.keys()))
+
+#         # reset capacity binding
+#         self.model.operate.bound = self.model.capacity
+
+#         modes = self.model.modes[-1]
+#         self.conversion.modes_set = True
+
+#     else:
+#         modes = self.conversion.modes
+#         modes.bind = self.operate
+#         self.conversion.modes_set = True
+
+#     opr = opr(modes)
+
+#     rhs = rhs(modes)
+
+# _ = opr(modes)[rhs(modes)] == eff
+
+# else:
+# _ = opr[rhs] == eff

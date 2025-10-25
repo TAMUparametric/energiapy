@@ -33,14 +33,14 @@ def timer(logger: logging.Logger, kind=None, level=logging.INFO):
 
                 if kind == 'balance-update':
 
-                    msg = f"⚖   Updated Balance for {result.commodity} in ({result.space}, {result.time})"
+                    msg = f"⚖   Updated {result[0].commodity} balance with {result[1]}{result[0]}"
 
                 elif kind == 'balance-init':
 
-                    msg = f"⚖   Initiated Balance for {result.commodity} in ({result.space}, {result.time})"
+                    msg = f"⚖   Initiated {result.commodity} balance in ({result.space}, {result.time})"
 
                 elif kind == 'map':
-                    msg = f"🧭  Mapped [{(result[1] - result[2])[0]}] {result[0]} {result[1]} ⟺ {result[2]}"
+                    msg = f"🧭  Mapped {(result[1] - result[2])[0]} for {result[0]} {result[1]} ⟺ {result[2]}"
 
                 elif kind == 'bind':
                     if result[2] == "_ub":
@@ -63,12 +63,15 @@ def timer(logger: logging.Logger, kind=None, level=logging.INFO):
                 elif kind == 'locate':
                     msg = f"🌍  Located {result[0]} in {', '.join([str(s) for s in result[1]])}"
 
+                elif kind == 'production':
+                    msg = f"🏭  Operating streams introduced for {result[0]} in {', '.join([str(s) for s in result[1]])}"
+
                 else:
-                    msg = f"⏱  Executed {func.__name__}"
+                    msg = f"  Executed {func.__name__}"
 
                 logger.log(
                     level,
-                    f"{msg:<80} ⏱ {elapsed:.4f} s",
+                    f"{msg:<75} ⏱ {elapsed:.4f} s",
                 )
 
         return wrapper

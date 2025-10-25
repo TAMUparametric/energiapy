@@ -56,7 +56,7 @@ class Conversion(Mapping, _Hash):
 
     def __init__(
         self,
-        aspsect: str = "",
+        aspect: str = "",
         add: str = "",
         sub: str = "",
         operation: Operation | None = None,
@@ -73,7 +73,7 @@ class Conversion(Mapping, _Hash):
         self.symbol = symbol
 
         # * Aspect that elicits the conversion
-        self.aspect = aspsect
+        self.aspect = aspect
 
         # * Aspects corresponding to positive and negative conversion
         self.add = add
@@ -400,6 +400,7 @@ class PWLConversion(Mapping, _Hash):
 
     @property
     def aspect(self) -> str:
+        print(self[0], self[0].__dict__)
         return self[0].aspect
 
     @property
@@ -425,6 +426,7 @@ class PWLConversion(Mapping, _Hash):
         conv.operation = sample.domain.operation
         conv.balance = balance
         conv.modes = (next(iter(balance))).parent
+
         return conv
 
     def balancer(self):

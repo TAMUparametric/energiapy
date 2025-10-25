@@ -157,7 +157,7 @@ class Balance(_Hash):
 
         self._inform()
 
-        return self.domain
+        return self.domain, self.aspect
 
     @timer(logger, "balance-init")
     def _create_constraint(self, stored: bool) -> Domain:

@@ -57,7 +57,7 @@ class Transport(Operation):
         """Locations at which the process is balanced"""
         return self.linkages
 
-    def writecons_conversion(self, link_times: list[tuple[Linkage, Periods]]):
+    def write_production(self, link_times: list[tuple[Linkage, Periods]]):
         """Write the conversion constraints for the transport"""
 
         def time_checker(res: Resource, loc: Location, time: Periods):

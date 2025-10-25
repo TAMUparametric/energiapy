@@ -63,7 +63,7 @@ class Operation(_Component):
 
         self.production = Conversion(
             operation=self,
-            aspsect='operate',
+            aspect='operate',
             add="produce",
             sub="expend",
             attr_name="production",
@@ -71,13 +71,14 @@ class Operation(_Component):
 
         self.construction = Conversion(
             operation=self,
-            aspsect='capacity',
+            aspect='capacity',
             add="dispose",
             sub="use",
             attr_name="construction",
         )
 
         self.conversions = args
+        self.space_times: list[tuple[Location | Linkage, Periods]] = []
 
     @property
     @abstractmethod
@@ -119,13 +120,14 @@ class Operation(_Component):
         """Lag of the process"""
         return self.production.lag
 
-    def writecons_conversion(
+    def write_production(
         self,
         space_times: list[tuple[Location | Linkage, Periods]],
     ):
         """write conversion constraints for the operation"""
 
-    def writecons_fabrication(
+    @timer(logger, kind="construction")
+    def write_construction(
         self,
         space_times: list[tuple[Location | Linkage, Periods]],
         # fabrication: dict[Resource, int | float | list[int | float]],
@@ -135,9 +137,6 @@ class Operation(_Component):
         self.construction.balancer()
 
         for location, time in space_times:
-            if location in self.spaces:
-                continue
-
             self.construction.write(location, time)
 
     @timer(logger, kind='assume-capacity')
@@ -180,7 +179,7 @@ class Operation(_Component):
             return self, space, time
 
         return False
-        
+
     @timer(logger, kind='locate')
     def locate(self, *spaces: Location | Linkage):
         """Locate the process"""
@@ -203,10 +202,10 @@ class Operation(_Component):
                     if space_time not in space_times:
                         space_times.append(space_time)
 
-        self.writecons_conversion(space_times)
+        self.write_production(space_times)
 
-        if self.construction:
-            self.writecons_fabrication(space_times)
+        if self.construction is not None:
+            self.write_construction(self.space_times)
 
         return self, spaces
 
