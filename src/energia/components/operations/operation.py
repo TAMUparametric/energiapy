@@ -180,7 +180,8 @@ class Operation(_Component):
             return self, space, time
 
         return False
-
+        
+    @timer(logger, kind='locate')
     def locate(self, *spaces: Location | Linkage):
         """Locate the process"""
 
@@ -206,6 +207,8 @@ class Operation(_Component):
 
         if self.construction:
             self.writecons_fabrication(space_times)
+
+        return self, spaces
 
     def __call__(
         self, resource: Resource | Conversion, lag: Lag | None = None

@@ -219,6 +219,7 @@ class Storage(_Component):
 
         return False
 
+    @timer(logger, kind='locate')
     def locate(self, *spaces: Location):
         """Locate the storage"""
         # update the locations at which the storage exists
@@ -233,6 +234,8 @@ class Storage(_Component):
         # locate the charge and discharge processes
         self.charge.locate(*spaces)
         self.discharge.locate(*spaces)
+
+        return self, spaces
 
         # self.writecons_conversion(loc_times)
 

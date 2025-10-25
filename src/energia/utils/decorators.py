@@ -40,7 +40,7 @@ def timer(logger: logging.Logger, kind=None, level=logging.INFO):
                     msg = f"⚖   Initiated Balance for {result.commodity} in ({result.space}, {result.time})"
 
                 elif kind == 'map':
-                    msg = f"🧭  Mapped {result[0]} [{(result[1] - result[2])[0]}] : {result[1]} ⟺ {result[2]}"
+                    msg = f"🧭  Mapped [{(result[1] - result[2])[0]}] {result[0]} {result[1]} ⟺ {result[2]}"
 
                 elif kind == 'bind':
                     if result[2] == "_ub":
@@ -49,7 +49,7 @@ def timer(logger: logging.Logger, kind=None, level=logging.INFO):
                         rel = "≥"
                     else:
                         rel = "="
-                    msg = f"🔗  Bound [{rel}] {result[0]} in {result[1]}"
+                    msg = f"🔗  Bound [{rel}] {result[1].primary} {result[0]} in ({result[1].space}, {result[1].time})"
 
                 elif kind == 'assume-capacity':
                     msg = f"💡  Assumed {result[0]} capacity unbounded in ({result[1]}, {result[2]})"
@@ -59,6 +59,9 @@ def timer(logger: logging.Logger, kind=None, level=logging.INFO):
 
                 elif kind == 'assume-inventory':
                     msg = f"💡  Assumed {result[0]} inventory bounded by capacity in ({result[1]}, {result[2]})"
+
+                elif kind == 'locate':
+                    msg = f"🌍  Located {result[0]} in {', '.join([str(s) for s in result[1]])}"
 
                 else:
                     msg = f"⏱  Executed {func.__name__}"
