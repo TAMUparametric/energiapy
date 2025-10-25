@@ -6,7 +6,7 @@ import logging
 import time as keep_time
 from typing import TYPE_CHECKING
 
-from ...components.temporal.modes import Modes
+# from ...components.temporal.modes import Modes
 from ...utils.math import normalize
 
 logger = logging.getLogger("energia")
@@ -117,7 +117,7 @@ class Bind:
             return
 
         if isinstance(parameter, dict):
-            self.model.Modes(size=len(parameter), sample=self.sample)
+            self.modes = self.model.Modes(size=len(parameter), sample=self.sample)
             mode_bounds = [
                 (
                     (parameter[i - 1], parameter[i])
@@ -129,9 +129,9 @@ class Bind:
             modes_lb = [b[0] for b in mode_bounds]
             modes_ub = [b[1] for b in mode_bounds]
 
-            _ = self.sample(modes) >= modes_lb
+            _ = self.sample(self.modes) >= modes_lb
 
-            _ = self.sample(modes) <= modes_ub
+            _ = self.sample(self.modes) <= modes_ub
             return
 
         if self.nominal:

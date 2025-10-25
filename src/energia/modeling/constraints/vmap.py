@@ -297,6 +297,8 @@ class Map:
     # -------------------------------------------------------------------#
     # Constraint writing
     # -------------------------------------------------------------------#
+
+    @timer(logger, kind='map')
     def writecons_map(
         self, from_domain: Domain, to_domain: Domain, tsum=False, msum=False
     ):
@@ -317,9 +319,6 @@ class Map:
 
         cname = self._give_cname(var, from_domain, to_domain, tsum, msum)
 
-        logger.info("Mapping %s: %s → %s", var, from_domain, to_domain)
-        start = keep_time.time()
-
         v_lower = self(*to_domain).X() if self.reporting else self(*to_domain).V()
 
         if not tsum and not msum and exists:
@@ -331,12 +330,12 @@ class Map:
             setattr(self.program, cname, cons)
             cons.categorize("Mapping")
 
-        end = keep_time.time()
-        logger.info("\u23f1 %s seconds", end - start)
         if cname not in self.aspect.constraints:
             self.aspect.constraints.append(cname)
 
         from_domain.update_cons(cname)
+
+        return (self.aspect, from_domain, to_domain)
 
     def __call__(self, *index: _X):
         return self.aspect(*index)

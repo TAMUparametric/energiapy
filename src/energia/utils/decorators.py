@@ -33,17 +33,21 @@ def timer(logger: logging.Logger, kind=None, level=logging.INFO):
 
                 if kind == 'balance-update':
 
-                    msg = f"Updating Balance for {domain.commodity} in ({domain.space}, {domain.time})"
+                    msg = f"⚖  Updating Balance for {domain.commodity} in ({domain.space}, {domain.time})"
 
                 elif kind == 'balance-init':
 
-                    msg = f"Initiating Balance for {domain.commodity} in ({domain.space}, {domain.time})"
+                    msg = f"⚖  Initiating Balance for {domain.commodity} in ({domain.space}, {domain.time})"
+
+                elif kind == 'map':
+                    msg = f"🧭 Mapping {domain[0]} across {(domain[1] - domain[2])[0]} : {domain[1]} ⟺ {domain[2]}"
+
                 else:
-                    msg = f"Executing {func.__name__}"
+                    msg = f"⏱  Executed {func.__name__}"
 
                 logger.log(
                     level,
-                    f"{msg}  ⏱  {elapsed:.6f} s",
+                    f"{msg:<100} ⏱ {elapsed:.4f} s",
                 )
 
         return wrapper
