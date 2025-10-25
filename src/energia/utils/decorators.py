@@ -2,7 +2,7 @@
 
 import logging
 import time
-from contextlib import contextmanager
+from functools import wraps
 
 
 def once(func):
@@ -16,16 +16,21 @@ def once(func):
     return wrapper
 
 
-@contextmanager
-def timer(logger: logging.Logger, msg: str, level: int = logging.INFO):
+def timer(logger: logging.Logger, msg=None, level=logging.INFO):
     """
-    Context manager to log a message with elapsed time.
+    Logs execution time and optionally shows a full computation using function arguments and result.
+    """
 
-    Usage:
-        with log_time(logger, "Doing something"):
-            # code block
-    """
-    start = time.time()
-    yield
-    elapsed = time.time() - start
-    logger.log(level, f"{msg} ⏳ {elapsed:.6f} seconds")
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            start = time.time()
+            result = func(*args, **kwargs)
+            elapsed = time.time() - start
+
+            logger.log(level, f"{msg} ⏱  {elapsed:.6f} s")
+            return result
+
+        return wrapper
+
+    return decorator
