@@ -9,6 +9,8 @@ from typing import TYPE_CHECKING
 
 from gana import sigma
 
+from ...utils.decorators import timer
+
 if TYPE_CHECKING:
     from gana.sets.constraint import C
 
@@ -99,12 +101,10 @@ class Map:
         # Time mapping ---
 
         # these are periods denser and sparser than the current domain
-        denser_periods, sparser_periods = self.model.time.split(self.time)
-        self._map_across_time(denser_periods, sparser_periods)
+        self._map_across_time()
 
         # Space mapping ---
-        contained_locs, parent_loc = self.model.space.split(self.space)
-        self._map_across_space(contained_locs, parent_loc)
+        self._map_across_space()
         # Bind mapping ---
         self._map_across_binds()
 
@@ -123,18 +123,18 @@ class Map:
     # Helper functions
     # -------------------------------------------------------------------#
 
-    def _map_across_time(self, denser_periods, sparser_periods):
+    def _map_across_time(self):
         """
         Maps across time
 
 
-        :param time: Time at which the domain is defined
-        :type time: Periods
         :param sparser_periods: Periods sparser than the domain period
         :type sparser_periods: list[Periods]
         :param denser_periods: Periods denser than the domain period
         :type denser_periods: list[Periods]
         """
+        denser_periods, sparser_periods = self.model.time.split(self.time)
+
         for sp in sparser_periods:
             # check if the aspect has been defined for a sparser period
             # this creates a map from this domain to a sparser domain
@@ -160,7 +160,7 @@ class Map:
                 from_domain.periods, from_domain.samples = dp, samples
                 self.writecons_map(from_domain, self.domain, tsum=True)
 
-    def _map_across_space(self, contained_locs, parent_loc):
+    def _map_across_space(self):
         """
         Maps across space
 
@@ -171,7 +171,6 @@ class Map:
         :param time: Time at which the domain is defined
         :type time: Periods
         """
-
         parent_loc = self.domain.location.isin
 
         if parent_loc:
@@ -185,6 +184,7 @@ class Map:
                 self.domain.change({"location": parent_loc}),
             )
 
+        # contained_locs, parent_loc = self.model.space.split(self.space)
         # for location in contained_locs:
         #     if location not in dispositions or time not in dispositions[location]:
         #         # the aspect is already defined at this location
