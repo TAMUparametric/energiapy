@@ -58,7 +58,7 @@ class Operation(_Component):
 
         self.production = Conversion(
             operation=self,
-            by='operate',
+            aspsect='operate',
             add="produce",
             sub="expend",
             attr_name="production",
@@ -66,7 +66,7 @@ class Operation(_Component):
 
         self.construction = Conversion(
             operation=self,
-            by='capacity',
+            aspsect='capacity',
             add="dispose",
             sub="use",
             attr_name="construction",
@@ -82,7 +82,7 @@ class Operation(_Component):
     @property
     def basis(self) -> Resource:
         """Base resource"""
-        return self.production.basis
+        return self.production.resource
 
     @property
     def balance(self) -> dict[Resource, int | float]:
@@ -250,7 +250,7 @@ class Operation(_Component):
         self, resource: Resource | Conversion, lag: Lag | None = None
     ) -> Conversion:
         """Conversion is called with a Resource to be converted"""
-        self.production.basis = resource
+        self.production.resource = resource
         if lag:
             return self.production(resource, lag)
         return self.production(resource)
@@ -263,6 +263,6 @@ class Operation(_Component):
 
             if len(self.conversions) == 1:
                 self.production += self.conversions[0]
-                self.production.basis = self.conversions[0].basis
+                self.production.resource = self.conversions[0].resource
 
         super().__setattr__(name, value)

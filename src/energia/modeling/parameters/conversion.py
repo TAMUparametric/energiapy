@@ -56,24 +56,24 @@ class Conversion(Mapping, _Hash):
 
     def __init__(
         self,
-        by: str = "",
+        aspsect: str = "",
         add: str = "",
         sub: str = "",
         operation: Operation | None = None,
-        basis: Commodity | None = None,
+        resource: Commodity | None = None,
         balance: dict[Commodity, float | list[float]] | None = None,
         hold: int | float | None = None,
         attr_name: str = "",
         symbol: str = "η",
     ):
 
-        self.basis = basis
+        self.resource = resource
         self.operation = operation
 
         self.symbol = symbol
 
         # * Aspect that elicits the conversion
-        self.by = by
+        self.aspect = aspsect
 
         # * Aspects corresponding to positive and negative conversion
         self.add = add
@@ -100,11 +100,11 @@ class Conversion(Mapping, _Hash):
     def args(self) -> dict[str, str | Operation | Commodity | None]:
         """Arguments of the conversion"""
         return {
-            'by': self.by,
+            'by': self.aspect,
             'add': self.add,
             'sub': self.sub,
             'operation': self.operation,
-            'basis': self.basis,
+            'basis': self.resource,
         }
 
     @classmethod
@@ -122,17 +122,17 @@ class Conversion(Mapping, _Hash):
         # set first resource as the basis
         conv.balance = balance
         conv.operation = operation
-        conv.by = by
+        conv.aspect = by
         conv.add = add
         conv.sub = sub
-        conv.basis = basis
+        conv.resource = basis
         return conv
 
     @property
     def name(self) -> str:
         """Name"""
-        if self.basis:
-            return f"{self.symbol}({self.operation}, {self.basis})"
+        if self.resource:
+            return f"{self.symbol}({self.operation}, {self.resource})"
         return f"{self.symbol}({self.operation})"
 
     @cached_property
@@ -238,7 +238,7 @@ class Conversion(Mapping, _Hash):
 
             eff = par if isinstance(par, list) else [par]
 
-            decision = getattr(self.operation, self.by)
+            decision = getattr(self.operation, self.aspect)
 
             if eff[0] < 0:
                 # Resources are consumed (expendend by Process) immediately
@@ -281,7 +281,7 @@ class Conversion(Mapping, _Hash):
             # especially useful if Process is scaled to consumption of a commodity
             # i.e. basis = -1*Commodity
             self.balance = {**self, **basis}
-            self.basis = next(iter(self))
+            self.resource = next(iter(self))
 
         else:
             # if a Commodity is provided
@@ -322,13 +322,13 @@ class Conversion(Mapping, _Hash):
                 self.operation,
                 self.attr_name,
                 PWLConversion.from_balance(
-                    balance=other, sample=getattr(self.operation, self.by)
+                    balance=other, sample=getattr(self.operation, self.aspect)
                 ),
             )
             return getattr(self.operation, self.attr_name)
 
         if isinstance(other, list):
-            if self.basis:
+            if self.resource:
                 for i, o in enumerate(other):
                     other[i] = Conversion.from_balance(
                         {**self, **o},
@@ -337,7 +337,7 @@ class Conversion(Mapping, _Hash):
             setattr(
                 self.operation,
                 self.attr_name,
-                PWLConversion(other, getattr(self.operation, self.by)),
+                PWLConversion(other, getattr(self.operation, self.aspect)),
             )
             return getattr(self.operation, self.attr_name)
 
@@ -403,7 +403,7 @@ class PWLConversion(Mapping, _Hash):
 
     @property
     def by(self) -> str:
-        return self[0].by
+        return self[0].aspect
 
     @property
     def add(self) -> str:

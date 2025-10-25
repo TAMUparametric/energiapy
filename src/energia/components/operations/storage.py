@@ -309,7 +309,7 @@ class Storage(_Component):
                 conv = self.conversions[0]
 
                 if conv.hold is not None:
-                    _ = self(conv.basis) == conv.hold
+                    _ = self(conv.resource) == conv.hold
 
         super().__setattr__(name, value)
 

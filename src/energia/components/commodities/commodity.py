@@ -115,11 +115,11 @@ class Commodity(_Component, Mapping):
         if isinstance(other, Conversion):
             conv = self + other
             # set itself as base
-            conv.basis = self
+            conv.resource = self
             return conv
 
         if isinstance(other, int | float):
-            conv = Conversion(basis=self, hold=other)
+            conv = Conversion(resource=self, hold=other)
 
             return conv
 
