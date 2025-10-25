@@ -10,6 +10,8 @@ energia.modeling.parameters.conversion
    
       Conversion
       Lag
+      Mapping
       Modes
+      PWLConversion
       cached_property
    

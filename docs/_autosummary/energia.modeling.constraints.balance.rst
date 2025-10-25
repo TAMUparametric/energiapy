@@ -9,6 +9,7 @@ energia.modeling.constraints.balance
    .. autosummary::
    
       is_
+      timer
    
    .. rubric:: Classes
 

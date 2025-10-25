@@ -33,11 +33,11 @@ energia.components
    :toctree:
    :recursive:
 
-   commodity
+   commodities
    game
    graph
    impact
    measure
-   operation
+   operations
    spatial
    temporal

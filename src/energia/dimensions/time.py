@@ -12,7 +12,7 @@ from ..components.temporal.modes import Modes
 from ..components.temporal.periods import Periods
 
 if TYPE_CHECKING:
-    from gana.block.program import Prg
+    from gana import Prg
 
 
 @dataclass

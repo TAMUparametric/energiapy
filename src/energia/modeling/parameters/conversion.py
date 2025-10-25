@@ -11,7 +11,7 @@ from ...components.temporal.lag import Lag
 from ...components.temporal.modes import Modes
 
 if TYPE_CHECKING:
-    from gana.block.program import Prg
+    from gana import Prg
 
     from ...components.commodities.commodity import Commodity
     from ...components.operations.operation import Operation

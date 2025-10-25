@@ -10,6 +10,7 @@ energia.modeling.constraints.vmap
    
       is_
       sigma
+      timer
    
    .. rubric:: Classes
 

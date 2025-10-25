@@ -16,6 +16,7 @@ energia.modeling.variables.aspect
    .. autosummary::
    
       Aspect
+      Commodity
       Domain
       Indicator
       Interact

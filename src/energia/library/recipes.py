@@ -14,7 +14,8 @@ from ..components.operations.process import Process
 from ..components.operations.storage import Stored
 from ..components.operations.transport import Transport
 from ..modeling.variables.control import Control
-from ..modeling.variables.states import EndoStream, ExoStream, IndStream, SetPoint, Size
+from ..modeling.variables.states import (EndoStream, ExoStream, IndStream,
+                                         SetPoint, Size)
 
 if TYPE_CHECKING:
     from ..represent.model import Model

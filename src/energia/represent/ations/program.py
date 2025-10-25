@@ -5,8 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-from gana.block.program import Prg
-from gana.sets.index import I
+from gana import I, Prg
 
 if TYPE_CHECKING:
     from ..model import Model

@@ -17,7 +17,7 @@ from ..constraints.calculate import Calculate
 logger = logging.getLogger("energia")
 
 if TYPE_CHECKING:
-    from gana.block.program import Prg
+    from gana import Prg
     from gana.sets.constraint import C
     from gana.sets.function import F
 
