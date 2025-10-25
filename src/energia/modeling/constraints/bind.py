@@ -119,13 +119,16 @@ class Bind:
         if isinstance(parameter, dict):
             # if a dictionary is passed
             # modes are assumed
-            n_modes = len(parameter)
-            modes_name = f"bin{len(self.model.modes)}"
+            # n_modes = len(parameter)
+            # modes_name = f"bin{len(self.model.modes)}"
 
-            setattr(self.model, modes_name, Modes(size=n_modes, sample=self.sample))
+            # setattr(self.model, modes_name, Modes(size=n_modes, sample=self.sample))
 
-            # this gets the last set mode (which was just set above)
-            modes = self.model.modes[-1]
+            # # this gets the last set mode (which was just set above)
+            # modes = self.model.modes[-1]
+
+
+            self.model.Modes(size=len(parameter), sample=self.sample)
             mode_bounds = [
                 (
                     (parameter[i - 1], parameter[i])

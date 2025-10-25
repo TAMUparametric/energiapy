@@ -389,10 +389,12 @@ class PWLConversion(Mapping, _Hash):
         self.operation = self.sample.domain.operation
         self.model = self.sample.model
         if conversions:
-            n_modes = len(conversions)
-            modes_name = f"bin{len(self.model.modes)}"
-            setattr(self.model, modes_name, Modes(size=n_modes, sample=sample))
-            self.modes = self.model.modes[-1]
+
+            self.modes = self.model.Modes(size=len(conversions), sample=sample)
+            # n_modes = len(conversions)
+            # modes_name = f"bin{len(self.model.modes)}"
+            # setattr(self.model, modes_name, Modes(size=n_modes, sample=sample))
+            # self.modes = self.model.modes[-1]
 
             self.balance: dict[Modes, Conversion] = {
                 m: conv for m, conv in zip(self.modes, conversions)
