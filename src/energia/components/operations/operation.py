@@ -53,12 +53,9 @@ class Operation(_Component):
         # operaing_aspect: str,
         label: str = "",
         citations: str = "",
-
         **kwargs,
     ):
         _Component.__init__(self, label=label, citations=citations, **kwargs)
-
-
 
         self.production = Conversion(
             operation=self,
@@ -112,6 +109,110 @@ class Operation(_Component):
                 continue
 
             self.construction.write(location, time)
+
+    def _check_capacity_bound(self, space: Location | Linkage):
+
+        capacity_aspect = getattr(self.model, 'capacity')
+
+        if space not in capacity_aspect.bound_spaces[self]["ub"]:
+            # check if operational capacity has been bound
+            capacity_sample = getattr(self, 'capacity')(space, self.horizon)
+
+            logger.info(
+                "Assuming  %s capacity is unbounded in (%s, %s)",
+                self,
+                space,
+                self.horizon,
+            )
+            # this is not a check, this generates a constraint
+            _ = capacity_sample == True
+
+    def locate(self, *spaces: Location | Linkage):
+        """Locate the process"""
+
+        if not spaces:
+            spaces = (self.model.network,)
+
+        # get location, time tuples where operation is defined
+        space_times: list[tuple[Location | Linkage, Periods]] = []
+        for space in spaces:
+
+            if self not in self.model.capacity.bound_spaces:
+                self.model.capacity.bound_spaces[self] = {"ub": [], "lb": []}
+
+            self._check_capacity_bound(space)
+
+            # if space not in self.model.capacity.bound_spaces[self]["ub"]:
+            #     # check if operational capacity has been bound
+
+            #     logger.info(
+            #         "Assuming  %s capacity is unbounded in (%s, %s)",
+            #         self,
+            #         space,
+            #         self.horizon,
+            #     )
+            #     # this is not a check, this generates a constraint
+            #     _ = self.capacity(space, self.horizon) == True
+
+            if self not in self.model.operate.bound_spaces:
+                self.model.operate.bound_spaces[self] = {"ub": [], "lb": []}
+
+            if space not in self.model.operate.bound_spaces[self]["ub"]:
+                # check if operate has been bound
+                # if not just write opr_{pro, space, horizon} <= capacity_{pro, space, horizon}
+                logger.info(
+                    "Assuming operation of %s is bound by capacity in (%s, %s)",
+                    self,
+                    space,
+                    self.horizon,
+                )
+                if (
+                    self in self.model.operate.dispositions
+                    and space in self.model.operate.dispositions[self]
+                ):
+
+                    _ = (
+                        self.operate(
+                            space,
+                            min(self.model.operate.dispositions[self][space]),
+                        )
+                        <= 1
+                    )
+                else:
+                    _ = self.operate(space, self.horizon) <= 1
+
+            # check if the process is being operated at the location
+            for d in self.model.operate.domains:
+                if d.space == space:
+                    space_time = (space, d.time)
+                    if space_time not in space_times:
+                        space_times.append(space_time)
+
+        self.writecons_conversion(space_times)
+
+        if self.construction:
+            self.writecons_fabrication(space_times)
+
+    def __call__(
+        self, resource: Resource | Conversion, lag: Lag | None = None
+    ) -> Conversion:
+        """Conversion is called with a Resource to be converted"""
+        self.production.resource = resource
+        if lag:
+            return self.production(resource, lag)
+        return self.production(resource)
+
+    def __setattr__(self, name, value):
+
+        if name == "model" and value is not None:
+            for conv in self.conversions:
+                conv.operation = self
+
+            if len(self.conversions) == 1:
+                self.production += self.conversions[0]
+                self.production.resource = self.conversions[0].resource
+
+        super().__setattr__(name, value)
 
         # if not self._fab_balanced:
         #     self.fab.balancer()
@@ -184,88 +285,3 @@ class Operation(_Component):
         #             _ = res.use(self.capacity, space, time) == True
 
         #         _ = self.capacity(space, time)[res.use] == par
-
-    def locate(self, *spaces: Location | Linkage):
-        """Locate the process"""
-
-        if not spaces:
-            spaces = (self.model.network,)
-
-        # get location, time tuples where operation is defined
-        space_times: list[tuple[Location | Linkage, Periods]] = []
-        for space in spaces:
-
-            if self not in self.model.capacity.bound_spaces:
-                self.model.capacity.bound_spaces[self] = {"ub": [], "lb": []}
-
-            if space not in self.model.capacity.bound_spaces[self]["ub"]:
-                # check if operational capacity has been bound
-
-                logger.info(
-                    "Assuming  %s capacity is unbounded in (%s, %s)",
-                    self,
-                    space,
-                    self.horizon,
-                )
-                # this is not a check, this generates a constraint
-                _ = self.capacity(space, self.horizon) == True
-
-            if self not in self.model.operate.bound_spaces:
-                self.model.operate.bound_spaces[self] = {"ub": [], "lb": []}
-
-            if space not in self.model.operate.bound_spaces[self]["ub"]:
-                # check if operate has been bound
-                # if not just write opr_{pro, space, horizon} <= capacity_{pro, space, horizon}
-                logger.info(
-                    "Assuming operation of %s is bound by capacity in (%s, %s)",
-                    self,
-                    space,
-                    self.horizon,
-                )
-                if (
-                    self in self.model.operate.dispositions
-                    and space in self.model.operate.dispositions[self]
-                ):
-
-                    _ = (
-                        self.operate(
-                            space,
-                            min(self.model.operate.dispositions[self][space]),
-                        )
-                        <= 1
-                    )
-                else:
-                    _ = self.operate(space, self.horizon) <= 1
-
-            # check if the process is being operated at the location
-            for d in self.model.operate.domains:
-                if d.space == space:
-                    space_time = (space, d.time)
-                    if space_time not in space_times:
-                        space_times.append(space_time)
-
-        self.writecons_conversion(space_times)
-
-        if self.construction:
-            self.writecons_fabrication(space_times)
-
-    def __call__(
-        self, resource: Resource | Conversion, lag: Lag | None = None
-    ) -> Conversion:
-        """Conversion is called with a Resource to be converted"""
-        self.production.resource = resource
-        if lag:
-            return self.production(resource, lag)
-        return self.production(resource)
-
-    def __setattr__(self, name, value):
-
-        if name == "model" and value is not None:
-            for conv in self.conversions:
-                conv.operation = self
-
-            if len(self.conversions) == 1:
-                self.production += self.conversions[0]
-                self.production.resource = self.conversions[0].resource
-
-        super().__setattr__(name, value)

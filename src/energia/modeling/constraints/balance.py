@@ -3,15 +3,14 @@
 from __future__ import annotations
 
 import logging
-import time as keep_time
 from operator import is_
 from typing import TYPE_CHECKING, Self
 
 from ..._core._hash import _Hash
 from ...components.operations.storage import Stored
+from ...utils.decorators import timer
 
 logger = logging.getLogger("energia")
-from ...utils.decorators import timer
 
 if TYPE_CHECKING:
     from gana.sets.constraint import C

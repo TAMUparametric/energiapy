@@ -407,11 +407,6 @@ class Sample:
 
         if bound_aspect not in self.model.dispositions:
             return 1
-            # logger.info(
-            #     f"Aspect ({bound_aspect}) not defined, a variable will be created at {self.domain.space} assuming {self.model.horizon} as the temporal index",
-            # )
-
-            # _ = bound_aspect(self.domain.primary, self.domain.space).V()
 
         if (
             self.domain.space

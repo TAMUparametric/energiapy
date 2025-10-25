@@ -3,11 +3,9 @@
 from __future__ import annotations
 
 import logging
-import time as keep_time
 from typing import TYPE_CHECKING
 
 from ...utils.decorators import timer
-
 # from ...components.temporal.modes import Modes
 from ...utils.math import normalize
 
@@ -154,24 +152,18 @@ class Bind:
                 for i in self.parameter
             ]
 
-            # ------Get LHS
-            # lhs needs to be determined here
-            # because V will be spaced and timed if not passed by user
-            # .X(), .Vb() need time and space
-
-        # logger.info("Binding %s in domain %s", self.aspect, self.domain)
-
-        # start = keep_time.time()
-        # # ------Get RHS
         self.write()
-        # end = keep_time.time()
-        # logger.info("\u23f1 %s  seconds", end - start)
 
     @timer(logger, kind="bind")
     def write(self):
         """Writes the bind constraint"""
+        # ------Get LHS
+        # lhs needs to be determined here
+        # because V will be spaced and timed if not passed by user
+        # .X(), .Vb() need time and space
         lhs = self.sample.V(self.parameter)
 
+        # # ------Get RHS
         if self.aspect.bound is not None:
             # ------if variable bound
             if self.report:

@@ -33,14 +33,14 @@ def timer(logger: logging.Logger, kind=None, level=logging.INFO):
 
                 if kind == 'balance-update':
 
-                    msg = f"⚖  Updating Balance for {result.commodity} in ({result.space}, {result.time})"
+                    msg = f"⚖   Updating Balance for {result.commodity} in ({result.space}, {result.time})"
 
                 elif kind == 'balance-init':
 
-                    msg = f"⚖  Initiating Balance for {result.commodity} in ({result.space}, {result.time})"
+                    msg = f"⚖   Initiating Balance for {result.commodity} in ({result.space}, {result.time})"
 
                 elif kind == 'map':
-                    msg = f"🧭 Mapping {result[0]} [{(result[1] - result[2])[0]}] : {result[1]} ⟺ {result[2]}"
+                    msg = f"🧭  Mapping {result[0]} [{(result[1] - result[2])[0]}] : {result[1]} ⟺ {result[2]}"
 
                 elif kind == 'bind':
                     if result[2] == "_ub":
@@ -49,7 +49,7 @@ def timer(logger: logging.Logger, kind=None, level=logging.INFO):
                         rel = "≥"
                     else:
                         rel = "="
-                    msg = f"🔗 Binding [{rel}] {result[0]} in {result[1]}"
+                    msg = f"🔗  Binding [{rel}] {result[0]} in {result[1]}"
 
                 else:
                     msg = f"⏱  Executed {func.__name__}"

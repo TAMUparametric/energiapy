@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-import time as keep_time
+import logging
 from functools import cached_property
 from operator import is_
 from typing import TYPE_CHECKING
@@ -11,16 +11,14 @@ from gana import sigma
 
 from ...utils.decorators import timer
 
+logger = logging.getLogger("energia")
+
 if TYPE_CHECKING:
     from gana.sets.constraint import C
 
     from ..._core._x import _X
     from ..indices.domain import Domain
     from ..variables.aspect import Aspect
-
-import logging
-
-logger = logging.getLogger("energia")
 
 
 class Map:
@@ -193,11 +191,9 @@ class Map:
         #     # samples = dispositions[location][time]
         #     # if not samples:
 
-        #     logger.info('asdadada', location, self.domain)
         #     self.writecons_map(self.domain.change({"location": location}), self.domain)
         # else:
         #     new_binds = [k(list(v)[0]) for k, v in samples.items()]
-        #     logger.info('aaaa', self.aspect, new_binds, self.domain)
         #     # consider the case where overall consumption for water in some location and time is defined
         #     # now user defines consumption due to using cement during construction
         #     # we should have the constraint consume(water, goa, 2025) = consume(water, goa, 2025, use, cement)
