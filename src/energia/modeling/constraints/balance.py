@@ -65,7 +65,7 @@ class Balance(_Hash):
             )
         )
 
-        _ = self.balances[self.commodity][self.space][self.time]
+        self.existing_aspects = self.balances[self.commodity][self.space][self.time]
 
         if not self.samples and self.commodity:
             # if no samples, then create GRB or append to exisiting GRB
@@ -82,10 +82,7 @@ class Balance(_Hash):
 
             self.writecons_grb()
 
-        if (
-            self.aspect(self.commodity, self.time)
-            not in self.balances[self.commodity][self.space][self.time]
-        ):
+        if self.aspect(self.commodity, self.time) not in self.existing_aspects:
 
             # for the second check, consider the case where
 
@@ -104,6 +101,19 @@ class Balance(_Hash):
     def sign(self) -> float:
         """Returns the aspect"""
         return self.aspect.sign
+
+    def _inform(self):
+        """
+        Updates the constraints in all the indices of self.domain
+        Add constraint name to aspect
+        """
+        self.domain.update_cons(self._name)
+
+        if self._name not in self.aspect.constraints:
+            self.aspect.constraints.append(self._name)
+
+        # update the GRB aspects
+        self.existing_aspects.append(self)
 
     @timer(logger, "balance-update")
     def _update_constraint(
@@ -199,25 +209,12 @@ class Balance(_Hash):
 
         return self.domain
 
-    def _inform(self):
-        """
-        Updates the constraints in all the indices of self.domain
-        Add constraint name to aspect
-        """
-        self.domain.update_cons(self._name)
-
-        if self._name not in self.aspect.constraints:
-            self.aspect.constraints.append(self._name)
-
-        # update the GRB aspects
-        self.balances[self.commodity][self.space][self.time].append(self)
-
     def writecons_grb(self) -> bool | None:
         """Writes the stream balance constraint"""
 
         if (
             self.space.isin is not None
-            and not self.balances[self.commodity][self.space][self.time]
+            and not self.existing_aspects
             and self.balances[self.commodity][self.space.isin][self.time]
         ):
             # if the location is nested under another location
@@ -246,7 +243,7 @@ class Balance(_Hash):
 
         # -initialize GRB for self.commodity if necessary -----
 
-        if not self.balances[self.commodity][self.space][self.time]:
+        if not self.existing_aspects:
             # this checks whether a general self.commodity balance has been defined
             # for the self.commodity in that space and self.time
 
