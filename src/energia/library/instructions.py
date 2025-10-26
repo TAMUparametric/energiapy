@@ -21,6 +21,7 @@ def costing_operation(model: Model):
         deciding="capacity",
         depending="spend",
         default="money",
+        latex="Capex",
         label="Capital Expenditure",
     )
     model.Instruction(
@@ -29,6 +30,7 @@ def costing_operation(model: Model):
         deciding="operate",
         depending="spend",
         default="money",
+        latex="Opex",
         label="Operational Expenditure",
     )
 
@@ -38,6 +40,7 @@ def costing_operation(model: Model):
         deciding="invcapacity",
         depending="spend",
         default="money",
+        latex="Capex",
         label="Capital Expenditure (Storage)",
     )
 
@@ -47,6 +50,7 @@ def costing_operation(model: Model):
         deciding="inventory",
         depending="spend",
         default="money",
+        latex=r"Cost^{inv}",
         label="Inventory Cost (Storage)",
     )
 
@@ -60,5 +64,6 @@ def costing_commodity(model: Model):
         deciding="consume",
         depending="spend",
         default="money",
+        latex=r"Price",
         label="Resource Price",
     )

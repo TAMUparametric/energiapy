@@ -9,6 +9,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Literal, Self, Type
 
 from dill import dump
+from gana import P
 
 from .._core._x import _X
 from ..components.commodities.currency import Currency
@@ -616,6 +617,7 @@ class Model:
         depending: str,
         default: str,
         label: str = "",
+        latex: str = "",
     ):
         """Creates an Instruction and updates the manual
 
@@ -627,8 +629,8 @@ class Model:
         :type default: str
         :param label: Label for the parameter. Defaults to ''.
         :type label: str, optional
-        :param citations: Captions for the parameter. Defaults to ''.
-        :type citations: str, optional
+        :param latex: LaTeX representation for the parameter. Defaults to ''.
+        :type latex: str, optional
         """
 
         self.manual[name] = Instruction(
@@ -638,6 +640,7 @@ class Model:
             depending=depending,
             default=default,
             label=label,
+            latex=latex,
         )
 
     # ------------------------------------------------------------------------
@@ -721,7 +724,7 @@ class Model:
         """
         nth = len(self.modes)
         modes = Modes(size=size, sample=sample, n=nth)
-        setattr(self, f'b{nth}', modes)
+        setattr(self, f'pwl{nth}', modes)
         return modes
 
     # ------------------------------------------------------------------------

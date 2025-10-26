@@ -88,50 +88,12 @@ class Bind:
         # if as set is passed
         # write the constraint 'for all' elements in it
         if self.forall:
-
-            if isinstance(self.parameter, list):
-                # if a list is passed
-                # iterate over it
-                for n, idx in enumerate(self.forall):
-                    if self.leq:
-                        _ = self.sample(idx) <= self.parameter[n]
-                    if self.geq:
-                        _ = self.sample(idx) >= self.parameter[n]
-                    if self.eq:
-                        _ = self.sample(idx) == self.parameter[n]
-                return
-
-            # if a single value is passed
-            # just repeat the same value over
-            # all elements in the set
-
-            for idx in self.forall:
-
-                if self.leq:
-                    _ = self.sample(idx) <= self.parameter
-                if self.geq:
-                    _ = self.sample(idx) >= self.parameter
-                if self.eq:
-                    _ = self.sample(idx) == self.parameter
-
+            self._write_forall()
             return
 
         if isinstance(self.parameter, dict):
-            self.modes = self.model.Modes(size=len(self.parameter), sample=self.sample)
-            mode_bounds = [
-                (
-                    (self.parameter[i - 1], self.parameter[i])
-                    if i - 1 in self.parameter
-                    else (0, self.parameter[i])
-                )
-                for i in self.parameter
-            ]
-            modes_lb = [b[0] for b in mode_bounds]
-            modes_ub = [b[1] for b in mode_bounds]
-
-            _ = self.sample(self.modes) >= modes_lb
-
-            _ = self.sample(self.modes) <= modes_ub
+            # if a dict is passed, it is assumed to be mode bounds
+            self._write_w_modes()
             return
 
         if self.nominal:
@@ -153,6 +115,44 @@ class Bind:
             ]
 
         self.write()
+
+    def _write_forall(self):
+        """Writes the bind constraint for all elements in the set"""
+
+        for n, idx in enumerate(self.forall):
+
+            lhs = self.sample(idx)
+
+            try:
+                # if a list is passed
+                # or any iterable vector
+                rhs = self.parameter[n]
+            except TypeError:
+                # if not repeat the same value
+                # over all elements
+                rhs = self.parameter
+
+            if self.leq:
+                _ = lhs <= rhs
+            if self.geq:
+                _ = lhs >= rhs
+            if self.eq:
+                _ = lhs == rhs
+
+    def _write_w_modes(self):
+        """Writes the bind constraint with modes"""
+        self.modes = self.model.Modes(size=len(self.parameter), sample=self.sample)
+        mode_bounds = [
+            (
+                (self.parameter[i - 1], self.parameter[i])
+                if i - 1 in self.parameter
+                else (0, self.parameter[i])
+            )
+            for i in self.parameter
+        ]
+
+        _ = self.sample(self.modes) >= [b[0] for b in mode_bounds]
+        _ = self.sample(self.modes) <= [b[1] for b in mode_bounds]
 
     @timer(logger, kind="bind")
     def write(self):
@@ -241,4 +241,4 @@ class Bind:
             cons,
         )
 
-        return self.aspect, self.domain, rel
+        return self.sample, rel

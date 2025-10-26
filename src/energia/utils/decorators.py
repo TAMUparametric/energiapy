@@ -16,7 +16,11 @@ def once(func):
     return wrapper
 
 
-def timer(logger: logging.Logger, kind=None, level=logging.INFO):
+def timer(
+    logger: logging.Logger,
+    kind=None,
+    level=logging.INFO,
+):
     """
     Logs execution time and optionally shows a full computation using function arguments and result.
     """
@@ -29,7 +33,7 @@ def timer(logger: logging.Logger, kind=None, level=logging.INFO):
             result = func(*args, **kwargs)
             elapsed = time.time() - start
 
-            if result:
+            if result is not False:
 
                 if kind == 'balance-update':
 
@@ -40,16 +44,23 @@ def timer(logger: logging.Logger, kind=None, level=logging.INFO):
                     msg = f"⚖   Initiated {result.commodity} balance in ({result.space}, {result.time})"
 
                 elif kind == 'map':
+                    print(result)
                     msg = f"🧭  Mapped {(result[1] - result[2])[0]} for {result[0]} {result[1]} ⟺ {result[2]}"
 
                 elif kind == 'bind':
-                    if result[2] == "_ub":
+                    sample = result[0]
+                    aspect = sample.aspect
+                    domain = sample.domain
+                    rel = result[1]
+
+                    if rel == "_ub":
                         rel = "≤"
-                    elif result[2] == "_lb":
+                    elif rel == "_lb":
                         rel = "≥"
                     else:
                         rel = "="
-                    msg = f"🔗  Bound [{rel}] {result[1].primary} {result[0]} in ({result[1].space}, {result[1].time})"
+
+                    msg = f"🔗  Bound [{rel}] {domain.primary} {aspect} in ({domain.space}, {domain.time})"
 
                 elif kind == 'assume-capacity':
                     msg = f"💡  Assumed {result[0]} capacity unbounded in ({result[1]}, {result[2]})"

@@ -45,14 +45,13 @@ class Calculate:
         sample: Sample,
     ):
         self.calculation = calculation
-
         self.model = self.calculation.model
         self.domain = self.calculation.domain
         self.name = self.calculation.name
         self.program = self.calculation.program
         self.index = self.calculation.index
-
         self.sample = sample
+        self.parameter = None
 
         self._forall: list[_X] = []
 
@@ -90,30 +89,36 @@ class Calculate:
         self._normalize = norm
         return self
 
+    def _write_w_modes(self):
+        """Write with modes"""
+        # if this is a dict, piece wise linear functions are being passed
+        # Take the example of expenditure and capacity being modeled
+        # sat the input is {(0, 200): 5000, (200, 300): 4000, (300, 400): 3000
+        # what this implies is that for the capacity between 0 and 200, the expenditure is 5000
+        # for the capacity between 200 and 300, the expenditure is 4000
+        # for the capacity between 300 and 400, the expenditure is 3000
+        # Modes objects index the bin. Three in this case : 1 - (0,200), 2 - (200,300), 3 - (300,400)
+        # We need the following equations:
+        # *1. capacity = capacity(bin0) + capacity(bin1) + capacity(bin2)
+        # *2. x_capacity = 0*capacity(bin0) + 200*capacity(bin1) + 300*capacity(bin2), where is a reporting binary
+        # *3-5. spend(bin0) = 5000*capacity(bin0); spend(bin1) = 4000*capacity(bin1); spend(bin2) = 3000*capacity(bin2)
+        # *6. spend = spend(bin0) + spend(bin1) + spend(bin2)
+        # this takes care of *1 and *2
+        _ = self.sample == dict(enumerate(self.parameter))
+        # this takes care of *3-*6
+
+        # the new modes object would have just been added to the model
+        modes = self.model.modes[-1]
+
+        _ = self.sample(modes)[self.calculation(modes)] == list(self.parameter.values())
+
     def __eq__(self, other):
 
+        self.parameter = other
+
         if isinstance(other, dict):
-            # if this is a dict, piece wise linear functions are being passed
-            # Take the example of expenditure and capacity being modeled
-            # sat the input is {(0, 200): 5000, (200, 300): 4000, (300, 400): 3000
-            # what this implies is that for the capacity between 0 and 200, the expenditure is 5000
-            # for the capacity between 200 and 300, the expenditure is 4000
-            # for the capacity between 300 and 400, the expenditure is 3000
-            # Modes objects index the bin. Three in this case : 1 - (0,200), 2 - (200,300), 3 - (300,400)
-            # We need the following equations:
-            # 1. capacity = capacity(bin0) + capacity(bin1) + capacity(bin2)
-            # 2. x_capacity = 0*capacity(bin0) + 200*capacity(bin1) + 300*capacity(bin2), where is a reporting binary
-            # 3-5. spend(bin0) = 5000*capacity(bin0); spend(bin1) = 4000*capacity(bin1); spend(bin2) = 3000*capacity(bin2)
-            # 6. spend = spend(bin0) + spend(bin1) + spend(bin2)
 
-            # this takes care of 1 and 2
-            _ = self.sample == dict(enumerate(other))
-            # this takes care of 3-6
-
-            # the new modes object would have just been added to the model
-            modes = self.model.modes[-1]
-
-            _ = self.sample(modes)[self.calculation(modes)] == list(other.values())
+            self._write_w_modes()
 
         else:
 

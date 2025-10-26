@@ -304,7 +304,7 @@ class Map:
             self.maps[to_domain] = [from_domain]
             exists = False
         elif from_domain in self.maps[to_domain]:
-            return
+            return False
         else:
             self.maps[to_domain].append(from_domain)
             exists = True

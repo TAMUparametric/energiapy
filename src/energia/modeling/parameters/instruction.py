@@ -23,8 +23,8 @@ class Instruction(_Name):
     :type default: str
     :param label: Label for the parameter. Defaults to ''.
     :type label: str, optional
-    :param citations: Captions for the parameter. Defaults to ''.
-    :type citations: str, optional
+    :param latex: LaTeX representation of the parameter. Defaults to ''.
+    :type latex: str, optional
 
     :raises TypeError: If the component provided is not of the correct kind.
     """
@@ -37,6 +37,7 @@ class Instruction(_Name):
         depending: str,
         default: str,
         label: str = "",
+        latex: str = "",
     ):
 
         _Name.__init__(self, label=label)
@@ -46,6 +47,7 @@ class Instruction(_Name):
         self.depending = depending
         self.default = default
         self.model: Model | None = None
+        self.latex = latex or self.name
 
     def __call__(self, component: _Component):
         # create the calculation

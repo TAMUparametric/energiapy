@@ -50,26 +50,26 @@ def test_conv(m):
 
     m.proc.production.balancer()
     assert {k: {**v} for k, v in m.proc.production.items()} == {
-        m.b0[0]: {m.c: [1.0, 1.0, 1.0], m.a: [1, 1, 1], m.b: [-20, -30, -40]},
-        m.b0[1]: {m.c: [1.0, 1.0, 1.0], m.b: [20, 30, 40], m.a: [1, 1, 1]},
+        m.modes[0][0]: {m.c: [1.0, 1.0, 1.0], m.a: [1, 1, 1], m.b: [-20, -30, -40]},
+        m.modes[0][1]: {m.c: [1.0, 1.0, 1.0], m.b: [20, 30, 40], m.a: [1, 1, 1]},
     }
 
     m.proc2.production.balancer()
     assert {k: {**v} for k, v in m.proc2.production.items()} == {
-        m.b1[0]: {m.c: [1.0, 1.0, 1.0], m.a: [1, 2, 3]},
-        m.b1[1]: {m.c: 1.0, m.b: 1.0},
+        m.modes[1][0]: {m.c: [1.0, 1.0, 1.0], m.a: [1, 2, 3]},
+        m.modes[1][1]: {m.c: 1.0, m.b: 1.0},
     }
 
     m.proc.construction.balancer()
     assert {k: {**v} for k, v in m.proc.construction.balance.items()} == {
-        m.b2[0]: {m.a: [1, 1, 1], m.b: [-20, -30, -40]},
-        m.b2[1]: {m.b: [20, 30, 40], m.a: [-1, -1, -1]},
-        m.b2[2]: {m.b: [20, 30, 40], m.a: [1, 1, 1]},
-        m.b2[3]: {m.a: [1, 1, 1], m.b: [20, 30, 40]},
+        m.modes[2][0]: {m.a: [1, 1, 1], m.b: [-20, -30, -40]},
+        m.modes[2][1]: {m.b: [20, 30, 40], m.a: [-1, -1, -1]},
+        m.modes[2][2]: {m.b: [20, 30, 40], m.a: [1, 1, 1]},
+        m.modes[2][3]: {m.a: [1, 1, 1], m.b: [20, 30, 40]},
     }
 
     m.proc2.construction.balancer()
     assert {k: {**v} for k, v in m.proc2.construction.balance.items()} == {
-        m.b1[0]: {m.a: [1, 1, 1], m.b: [-20, -30, -40]},
-        m.b1[1]: {m.b: [20, 30, 40], m.a: [-1, -1, -1]},
+        m.modes[1][0]: {m.a: [1, 1, 1], m.b: [-20, -30, -40]},
+        m.modes[1][1]: {m.b: [20, 30, 40], m.a: [-1, -1, -1]},
     }
