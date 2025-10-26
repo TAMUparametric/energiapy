@@ -44,7 +44,6 @@ def timer(
                     msg = f"⚖   Initiated {result.commodity} balance in ({result.space}, {result.time})"
 
                 elif kind == 'map':
-                    print(result)
                     msg = f"🧭  Mapped {(result[1] - result[2])[0]} for {result[0]} {result[1]} ⟺ {result[2]}"
 
                 elif kind == 'bind':
@@ -76,6 +75,9 @@ def timer(
 
                 elif kind == 'production':
                     msg = f"🏭  Operating streams introduced for {result[0]} in {', '.join([str(s) for s in result[1]])}"
+
+                elif kind == 'construction':
+                    msg = f"🏗  Construction streams introduced for {result[0]} in {', '.join([str(s) for s in result[1]])}"
 
                 else:
                     msg = f"  Executed {func.__name__}"

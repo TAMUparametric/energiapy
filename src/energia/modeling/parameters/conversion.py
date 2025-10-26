@@ -15,6 +15,7 @@ if TYPE_CHECKING:
 
     from ...components.commodities.commodity import Commodity
     from ...components.operations.operation import Operation
+    from ...components.operations.storage import Storage
     from ...components.spatial.linkage import Linkage
     from ...components.spatial.location import Location
     from ...components.temporal.periods import Periods
@@ -59,7 +60,7 @@ class Conversion(Mapping, _Hash):
         aspect: str = "",
         add: str = "",
         sub: str = "",
-        operation: Operation | None = None,
+        operation: Operation | Storage | None = None,
         resource: Commodity | None = None,
         balance: dict[Commodity, float | list[float]] | None = None,
         hold: int | float | None = None,
@@ -183,7 +184,9 @@ class Conversion(Mapping, _Hash):
 
         self.balance = _balancer(self.balance)
 
-    def write(self, space: Location | Linkage, time: Periods | Lag):
+    def write(
+        self, space: Location | Linkage, time: Periods | Lag, modes: Modes | None = None
+    ):
         """Writes equations for conversion balance"""
 
         def time_checker(res: Commodity, space: Location | Linkage, time: Periods):
@@ -243,16 +246,23 @@ class Conversion(Mapping, _Hash):
             if eff[0] < 0:
                 # Resources are consumed (expendend by Process) immediately
 
-                rhs = getattr(res, self.sub)(decision, space, time)
+                dependent = getattr(res, self.sub)
                 eff = [-e for e in eff]
             else:
                 # Production — may occur after lag
-                lag_time = self.lag.of if self.lag else time
-                rhs = getattr(res, self.add)(decision, space, lag_time)
+                time = self.lag.of if self.lag else time
+                dependent = getattr(res, self.add)
 
-            opr = decision(space, time)
+            if modes:
+                rhs = dependent(decision, space, modes, time)
 
-            _ = opr[rhs] == eff
+                lhs = decision(space, modes, time)
+            else:
+                rhs = dependent(decision, space, time)
+
+                lhs = decision(space, time)
+
+            _ = lhs[rhs] == eff
 
     def items(self):
         """Items of the conversion balance"""
@@ -333,11 +343,20 @@ class Conversion(Mapping, _Hash):
                     other[i] = Conversion.from_balance(
                         {**self, **o},
                     )
-
             setattr(
                 self.operation,
                 self.attr_name,
-                PWLConversion(other, getattr(self.operation, self.aspect)),
+                PWLConversion(
+                    conversions=other,
+                    sample=(
+                        getattr(self.operation.stored, self.aspect)
+                        if hasattr(self.operation, "stored")
+                        else getattr(self.operation, self.aspect)
+                    ),
+                    aspect=self.aspect,
+                    add=self.add,
+                    sub=self.sub,
+                ),
             )
             return getattr(self.operation, self.attr_name)
 
@@ -383,10 +402,17 @@ class Conversion(Mapping, _Hash):
 class PWLConversion(Mapping, _Hash):
     """Piece Wise Linear Conversion"""
 
-    def __init__(self, conversions: list[Conversion], sample: Sample):
+    def __init__(
+        self,
+        conversions: list[Conversion],
+        sample: Sample,
+        aspect: str = "",
+        add: str = "",
+        sub: str = "",
+    ):
 
         self.sample = sample
-        self.operation = self.sample.domain.operation
+        self.operation = self.sample.domain.operation or self.sample.domain.primary
         self.model = self.sample.model
         if conversions:
 
@@ -397,18 +423,30 @@ class PWLConversion(Mapping, _Hash):
 
             for conv in conversions:
                 conv.operation = self.operation
+                conv.aspect = aspect or conv.aspect
+                conv.add = add or conv.add
+                conv.sub = sub or conv.sub
+
+        self._aspect = aspect
+        self._add = add
+        self._sub = sub
 
     @property
     def aspect(self) -> str:
-        print(self[0], self[0].__dict__)
+        if self._aspect:
+            return self._aspect
         return self[0].aspect
 
     @property
     def add(self) -> str:
+        if self._add:
+            return self._add
         return self[0].add
 
     @property
     def sub(self) -> str:
+        if self._sub:
+            return self._sub
         return self[0].sub
 
     @property
@@ -475,81 +513,109 @@ class PWLConversion(Mapping, _Hash):
 
     def box(self):
         """Consolidates the conversion dict into {resource: par} format"""
-        conv = {}
-        for mode, conversion in self.balance.items():
-            for res, par in conversion.items():
-                if res not in conv:
-                    conv[res] = []
-                conv[res].append(par)
-        return conv
+        resources = list(set().union(*self.values()))
+        _box = {r: [] for r in resources}
+        for conv in self.values():
+            for resource in resources:
+                if resource in conv:
+                    _box[resource].append(conv[resource])
+                else:
+                    _box[resource].append(None)
+
+        return _box
 
     def write(self, space: Location | Linkage, time: Periods | Lag):
         """Writes equations for conversion balance"""
 
-        def time_checker(res: Commodity, space: Location | Linkage, time: Periods):
-            """This checks if it is actually necessary
-            to write conversion at denser temporal scales
-            """
-            # This checks whether some other aspect is defined at
-            # a lower temporal scale
+        # def time_checker(res: Commodity, space: Location | Linkage, time: Periods):
+        #     """This checks if it is actually necessary
+        #     to write conversion at denser temporal scales
+        #     """
+        #     # This checks whether some other aspect is defined at
+        #     # a lower temporal scale
 
-            if space not in self.model.balances[res]:
-                # if not defined for that location, check for a lower order location
-                # i.e. location at a lower hierarchy,
-                # e.g. say if space being passed is a city, and a balance has not been defined for it
-                # then we need to check at a higher order
-                parent = self.model.space.split(space)[
-                    1
-                ]  # get location at one hierarchy above
-                if parent:
-                    # if that indeed exists, then make the parent the space
-                    # the conversion Balance variables will feature in balance for parent location
-                    space = parent
+        #     if space not in self.model.balances[res]:
+        #         # if not defined for that location, check for a lower order location
+        #         # i.e. location at a lower hierarchy,
+        #         # e.g. say if space being passed is a city, and a balance has not been defined for it
+        #         # then we need to check at a higher order
+        #         parent = self.model.space.split(space)[
+        #             1
+        #         ]  # get location at one hierarchy above
+        #         if parent:
+        #             # if that indeed exists, then make the parent the space
+        #             # the conversion Balance variables will feature in balance for parent location
+        #             space = parent
 
-            _ = self.model.balances[res][space][time]
+        #     _ = self.model.balances[res][space][time]
 
-            if res.inv_of:
-                # for inventoried resources, the conversion is written
-                # using the time of the base resource's grb
-                res = res.inv_of
+        #     if res.inv_of:
+        #         # for inventoried resources, the conversion is written
+        #         # using the time of the base resource's grb
+        #         res = res.inv_of
 
-            try:
-                times = list(
-                    [
-                        t
-                        for t in self.model.balances[res][space]
-                        if self.model.balances[res][space][t]
-                    ],
-                )
-            except KeyError:
-                times = []
-            # write the conversion balance at
-            # densest temporal scale in that space
-            if times:
-                return min(times)
+        #     try:
+        #         times = list(
+        #             [
+        #                 t
+        #                 for t in self.model.balances[res][space]
+        #                 if self.model.balances[res][space][t]
+        #             ],
+        #         )
+        #     except KeyError:
+        #         times = []
+        #     # write the conversion balance at
+        #     # densest temporal scale in that space
+        #     if times:
+        #         return min(times)
 
-            return time.horizon
+        #     return time.horizon
 
-        conversion = self.box()
+        for mode, conv in self.items():
 
-        for res, par in conversion.items():
+            conv.write(space, time, mode)
 
-            if res in self.model.balances:
-                time = time_checker(res, space, time)
-                _ = self.model.balances[res].get(space, {})
+        # for res, par in self.box().items():
 
-            decision = getattr(self.operation, self.aspect)
+        #     for n, p in enumerate(par):
 
-            if par[0] < 0:
-                # Resources are consumed (expendend by Process) immediately
+        #         if not p:
+        #             continue
+        #         else:
 
-                rhs = getattr(res, self.sub)(decision, space, self.modes, time)
-                par = [-e for e in par]
-            else:
-                # Production — may occur after lag
-                lag_time = self.lag.of if self.lag else time
-                rhs = getattr(res, self.add)(decision, space, self.modes, lag_time)
+        #             modes = self.modes[n]
 
-            opr = decision(space, self.modes, time)
+        #             if res in self.model.balances:
+        #                 time = time_checker(res, space, time)
+        #                 _ = self.model.balances[res].get(space, {})
 
-            _ = opr[rhs] == par
+        #             decision = (
+        #                 getattr(self.operation.stored, self.aspect)
+        #                 if hasattr(self.operation, "stored")
+        #                 else getattr(self.operation, self.aspect)
+        #             )
+
+        #             if p < 0:
+        #                 rhs = getattr(res, self.sub)(decision, space, modes, time)
+        #                 p = -p
+        #             else:
+        #                 lag_time = self.lag.of if self.lag else time
+        #                 rhs = getattr(res, self.add)(decision, space, modes, lag_time)
+        #             lhs = decision(space, time, modes)
+        #             _ = lhs[rhs] == p
+
+        # # the box is consistent, the resource features in all modes
+        # if par[0] < 0:
+        #     # Resources are consumed (expendend by Process) immediately
+
+        #     rhs = getattr(res, self.sub)(decision, space, self.modes, time)
+        #     par = [-e for e in par]
+        # else:
+        #     # Production — may occur after lag
+        #     lag_time = self.lag.of if self.lag else time
+        #     rhs = getattr(res, self.add)(decision, space, self.modes, lag_time)
+
+        # opr = decision(space, time, self.modes)
+
+        # print(opr, opr.domain, rhs, rhs.domain, par)
+        # _ = opr[rhs] == par

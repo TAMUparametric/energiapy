@@ -139,6 +139,8 @@ class Operation(_Component):
         for location, time in space_times:
             self.construction.write(location, time)
 
+        return self, (l for l, _ in space_times)
+
     @timer(logger, kind='assume-capacity')
     def _check_capacity_bound(self, space: Location | Linkage):
         """Check if capacity is bounded in space"""

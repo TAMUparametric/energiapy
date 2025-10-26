@@ -18,6 +18,7 @@ logger = logging.getLogger("energia")
 if TYPE_CHECKING:
     from gana.sets.constraint import C
 
+    from ...components.temporal.periods import Periods
     from ...modeling.variables.aspect import Aspect
     from ...modeling.variables.sample import Sample
     from ..spatial.location import Location
@@ -117,6 +118,19 @@ class Storage(_Component):
         self.locations: list[Location] = []
 
         self.conversions = args
+
+        self.construction = Conversion(
+            operation=self,
+            aspect='invcapacity',
+            add="dispose",
+            sub="use",
+            attr_name="construction",
+        )
+
+    @cached_property
+    def space_times(self) -> list[tuple[Location, Periods]]:
+        """List of location, time tuples where storage is located"""
+        return self.charge.space_times
 
     @cached_property
     def capacity_aspect(self) -> Aspect:
@@ -219,6 +233,21 @@ class Storage(_Component):
 
         return False
 
+    @timer(logger, kind="construction")
+    def write_construction(
+        self,
+        space_times: list[tuple[Location, Periods]],
+        # fabrication: dict[Resource, int | float | list[int | float]],
+    ):
+        """write fabrication constraints for the operation"""
+
+        self.construction.balancer()
+
+        for location, time in space_times:
+            self.construction.write(location, time)
+
+        return self, (l for l, _ in space_times)
+
     @timer(logger, kind='locate')
     def locate(self, *spaces: Location):
         """Locate the storage"""
@@ -235,14 +264,10 @@ class Storage(_Component):
         self.charge.locate(*spaces)
         self.discharge.locate(*spaces)
 
+        if self.construction is not None:
+            self.write_construction(self.space_times)
+
         return self, spaces
-
-        # self.writecons_conversion(loc_times)
-
-    # @property
-    # def fab(self) -> Conversion:
-    #     """Fabrication conversion of commodities"""
-    #     return self.charge.fab
 
     def _birth_constituents(
         self,
