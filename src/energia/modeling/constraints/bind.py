@@ -7,6 +7,7 @@ from functools import cached_property
 from typing import TYPE_CHECKING
 
 from ...utils.decorators import timer
+
 # from ...components.temporal.modes import Modes
 from ...utils.math import normalize
 
@@ -69,14 +70,15 @@ class Bind:
         parameter_name: str = "",
     ):
         self.sample = sample
-        self.parameter = parameter
+        self._parameter = parameter
         self.leq = leq
         self.geq = geq
         self.eq = eq
         self.forall = forall
+        self.parameter_name = parameter_name
 
+        # borrowed from Sample
         self.model = sample.model
-
         self.nominal = sample.nominal
         self.norm = sample.norm
         self.domain = sample.domain
@@ -84,19 +86,25 @@ class Bind:
         self.report = sample.report
         self.program = sample.program
 
-        # when i say all elements in the set, it implies that each element features
-        # individually in the index of the updated sample
+        # will be written
+        self.cons: C = None
 
-        # if as set is passed
-        # write the constraint 'for all' elements in it
         if self.forall:
+            # if as set is passed
+            # write the constraint 'for all' elements in it
             self._write_forall()
             return
 
-        if isinstance(self.parameter, dict):
+        if isinstance(self._parameter, dict):
             # if a dict is passed, it is assumed to be mode bounds
             self._write_w_modes()
             return
+
+        self.write()
+
+    @cached_property
+    def parameter(self):
+        """Parameter bound of the bind constraint"""
 
         if self.nominal:
             # if a nominal value for the self.parameter is passed
@@ -104,21 +112,33 @@ class Bind:
             # skipping an instance check here
             # if a non iterable is passed, let an error be raised
             if self.norm:
-                self.parameter = normalize(self.parameter)
+                _parameter = normalize(self._parameter)
+
+            else:
+                _parameter = self._parameter
 
             # if the sample needs to be normalized
-            self.parameter = [
+            _parameter = [
                 (
                     (self.nominal * i[0], self.nominal * i[1])
                     if isinstance(i, tuple)
                     else self.nominal * i
                 )
-                for i in self.parameter
+                for i in _parameter
             ]
+            return _parameter
 
-        self.parameter_name = parameter_name
+        return self._parameter
 
-        self.write()
+    @cached_property
+    def lhs(self):
+        """Left hand side of the bind constraint"""
+
+        # ------Get LHS
+        # lhs needs to be determined here
+        # because V will be spaced and timed if not passed by user
+        # .X(), .Vb() need time and space
+        return self.sample.V(self.parameter)
 
     @cached_property
     def rhs(self):
@@ -147,30 +167,55 @@ class Bind:
         return _rhs
 
     @cached_property
-    def lhs(self):
-        """Left hand side of the bind constraint"""
+    def rel(self):
+        """Constraint name suffix"""
 
-        # ------Get LHS
-        # lhs needs to be determined here
-        # because V will be spaced and timed if not passed by user
-        # .X(), .Vb() need time and space
-        return self.sample.V(self.parameter)
+        if self.leq:
+            return "ub"
+        elif self.eq:
+            return "eq"
+        elif self.geq:
+            return "lb"
 
-    def _inform(self):
-        """Informs the aspect and domain about the bind constraint"""
+    @cached_property
+    def cons_name(self):
+        """Constraint name"""
 
-        # categorize the constraint
-        if self.domain.modes:
-            self.cons.categorize("Piecewise Linear")
+        return rf"{self.aspect.name}{self.domain.idxname}_{self.rel}"
+
+    @timer(logger, kind="bind")
+    def write(self):
+        """Writes the bind constraint"""
+
+        # the lhs comes from the sample
+        # calling the lhs here, updates the
+        _ = self.lhs
+
+        if self._check_existing():
+            return False
+
+        if self.leq:
+            self.cons: C = self.lhs <= self.rhs
+
+        elif self.eq:
+            self.cons: C = self.lhs == self.rhs
+
+        elif self.geq:
+            self.cons: C = self.lhs >= self.rhs
+
         else:
-            self.cons.categorize("Bound")
+            return False
 
-        # let the aspect know about the new constraint
-        self.aspect.constraints.append(self.cons_name)
+        self._inform()
 
-        # let all objects in the domain know that
-        # a constraint with this name contains it
-        self.domain.update_cons(self.cons_name)
+        # set the constraint
+        setattr(
+            self.program,
+            self.cons_name,
+            self.cons,
+        )
+        # returned for @timer
+        return self.sample, self.rel
 
     def _write_forall(self):
         """Writes the bind constraint for all elements in the set"""
@@ -213,23 +258,6 @@ class Bind:
         _ = self.sample(self.modes) >= [b[0] for b in mode_bounds]
         _ = self.sample(self.modes) <= [b[1] for b in mode_bounds]
 
-    @cached_property
-    def rel(self):
-        """Constraint name suffix"""
-
-        if self.leq:
-            return "ub"
-        elif self.eq:
-            return "eq"
-        elif self.geq:
-            return "lb"
-
-    @cached_property
-    def cons_name(self):
-        """Constraint name"""
-
-        return rf"{self.aspect.name}{self.domain.idxname}_{self.rel}"
-
     def _check_existing(self) -> bool:
         """Checks if aspect already has been bound in that space"""
         if (
@@ -241,36 +269,18 @@ class Bind:
             self.domain.space,
         )
 
-    @timer(logger, kind="bind")
-    def write(self):
-        """Writes the bind constraint"""
+    def _inform(self):
+        """Informs the aspect and domain about the bind constraint"""
 
-        # the lhs comes from the sample
-        # calling the lhs here, updates the
-        _ = self.lhs
-
-        if self._check_existing():
-            return False
-
-        if self.leq:
-            self.cons: C = self.lhs <= self.rhs
-
-        elif self.eq:
-            self.cons: C = self.lhs == self.rhs
-
-        elif self.geq:
-            self.cons: C = self.lhs >= self.rhs
-
+        # categorize the constraint
+        if self.domain.modes:
+            self.cons.categorize("Piecewise Linear")
         else:
-            return False
+            self.cons.categorize("Bound")
 
-        self._inform()
+        # let the aspect know about the new constraint
+        self.aspect.constraints.append(self.cons_name)
 
-        # set the constraint
-        setattr(
-            self.program,
-            self.cons_name,
-            self.cons,
-        )
-        # returned for the @imed
-        return self.sample, self.rel
+        # let all objects in the domain know that
+        # a constraint with this name contains it
+        self.domain.update_cons(self.cons_name)

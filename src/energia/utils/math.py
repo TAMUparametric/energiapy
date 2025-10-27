@@ -89,9 +89,7 @@ def normalize(data: list, how: str = "max") -> list:
     if how == "min_max":
         min_ = min(data)
         max_ = max(data)
-        data = [(i - min_) / (max_ - min_) for i in data]
+        return [(i - min_) / (max_ - min_) for i in data]
 
     if how == "max":
-        max_ = max(data)
-        data = [i / max(data) for i in data]
-    return data
+        return [i / max(data) for i in data]
