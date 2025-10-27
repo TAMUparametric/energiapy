@@ -69,24 +69,11 @@ class Bind:
         parameter_name: str = "",
     ):
         self.sample = sample
-        self._parameter = parameter
-        self.leq = leq
-        self.geq = geq
-        self.eq = eq
+        self._parameter, self.parameter_name = parameter, parameter_name
+        self.leq, self.geq, self.eq = leq, geq, eq
         self.forall = forall
-        self.parameter_name = parameter_name
 
-        # borrowed from Sample
-        self.model = sample.model
-        self.nominal = sample.nominal
-        self.norm = sample.norm
-        self.domain = sample.domain
-        self.aspect = sample.aspect
-        self.report = sample.report
-        self.program = sample.program
-
-        # will be written
-        self.cons: C = None
+        self._handshake()
 
         if self.forall:
             # if as set is passed
@@ -283,3 +270,14 @@ class Bind:
         # let all objects in the domain know that
         # a constraint with this name contains it
         self.domain.update_cons(self.cons_name)
+
+    def _handshake(self):
+        """Borrow attributes from sample"""
+        # borrowed from Sample
+        self.model = self.sample.model
+        self.nominal = self.sample.nominal
+        self.norm = self.sample.norm
+        self.domain = self.sample.domain
+        self.aspect = self.sample.aspect
+        self.report = self.sample.report
+        self.program = self.sample.program

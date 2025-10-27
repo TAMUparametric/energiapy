@@ -46,15 +46,24 @@ class Balance(_Hash):
         self.domain = domain
         self.label = label
 
-        self.model = self.aspect.model
-        self.program = self.model.program
-        self.balances = self.model.balances
+        self._handshake()
 
-        self.commodity = self.domain.commodity
-        self.samples = self.domain.samples
-        self.time = self.domain.time
+        self.write()
 
-        self.space = (
+    def _check_existing(self) -> bool:
+        """Checks if the balance constraint already exists"""
+        if (
+            (not self.samples and self.commodity)
+            or (self.aspect(self.commodity, self.time) not in self.existing_aspects)
+            or (self.commodity.insitu)
+        ):
+            return False
+        return True
+
+    @property
+    def space(self) -> Location | Linkage | None:
+        """Location or Linkage of the constraint"""
+        return (
             self.domain.linkage.source
             if self.aspect.sign == -1 and self.domain.linkage
             else (
@@ -63,33 +72,6 @@ class Balance(_Hash):
                 else self.domain.location
             )
         )
-
-        self.existing_aspects = self.balances[self.commodity][self.space][self.time]
-
-        if not self.samples and self.commodity:
-            # if no samples, then create GRB or append to exisiting GRB
-            # writecons_grb will figure it out
-            self.write()
-            return
-
-        # if there are samples
-        if self.commodity.insitu:
-            # # we need to still check if this is this is an insitu (e.g. a storage commodity)
-            # if the commodity is insitu that means that
-            # no external bounds have been defined
-            # a GRB is still needed
-
-            self.write()
-
-        if self.aspect(self.commodity, self.time) not in self.existing_aspects:
-
-            # for the second check, consider the case where
-
-            # # these do not get their own GRB, as they are only utilized within a process
-
-            # if there is already a GRB existing
-            # add the bind to the GRB at the same scale
-            self.write()
 
     @property
     def name(self) -> str:
@@ -217,6 +199,9 @@ class Balance(_Hash):
     def write(self) -> bool | None:
         """Writes the stream balance constraint"""
 
+        if self._check_existing():
+            return False
+
         if (
             self.space.isin is not None
             and not self.existing_aspects
@@ -257,6 +242,17 @@ class Balance(_Hash):
         # -add aspect to GRB if not added already ----
 
         return self._update_constraint(stored, getattr(self.program, self._name))
+
+    def _handshake(self):
+        """Borrow attributes from aspect and domain"""
+        self.model = self.aspect.model
+        self.program = self.model.program
+        self.balances = self.model.balances
+
+        self.commodity = self.domain.commodity
+        self.samples = self.domain.samples
+        self.time = self.domain.time
+        self.existing_aspects = self.balances[self.commodity][self.space][self.time]
 
     def __eq__(self, other: Self):
         return is_(self.aspect, other.aspect) and self.domain == other.domain
