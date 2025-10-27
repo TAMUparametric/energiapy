@@ -125,11 +125,6 @@ class Aspect:
         self.domains: list[Domain] = []
 
         # a dictionary of domains and their maps from higher order domains
-
-        self._maps: bool = False
-
-        self._maps_report: bool = False
-
         # reporting variable
         self.reporting: Var | None = None
 
@@ -138,20 +133,16 @@ class Aspect:
         # this keeps track of whether GRB has already been added
         self.balances: dict[tuple[Idx, ...], bool] = {}
 
-    @property
+    @cached_property
     def maps(self) -> dict[Domain, dict[str, list[Domain]]]:
         """Maps of the decision"""
-        if not self._maps:
-            self.model.maps[self] = {}
-            self._maps = True
+        self.model.maps[self] = {}
         return self.model.maps[self]
 
-    @property
+    @cached_property
     def maps_report(self) -> dict[Domain, dict[str, list[Domain]]]:
         """Maps of the decision"""
-        if not self._maps_report:
-            self.model.maps_report[self] = {}
-            self._maps_report = True
+        self.model.maps_report[self] = {}
         return self.model.maps_report[self]
 
     @cached_property
