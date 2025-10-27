@@ -131,7 +131,7 @@ class Map:
             return False
 
         if from_domain in self.maps[what][to_domain]:
-            # There is an exisiting map
+            # There is an existing map
             return True
         if what in ["samples", "modes"]:
             return True

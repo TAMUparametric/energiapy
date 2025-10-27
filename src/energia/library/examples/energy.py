@@ -149,6 +149,9 @@ def design_scheduling_materials():
     _ = m.si_poly.consume[m.gwp.emit] == 98646.7
 
     m.wf = Process()
+    _ = m.wf.capacity.x <= 100
+    _ = m.wf.capacity.x >= 10
+    _ = m.wf.operate.prep(norm=True) <= [0.9, 0.8, 0.5, 0.7]
     _ = m.wf.construction == [
         -109.9 * m.steel - 398.7 * m.concrete,
         -249.605 * m.steel - 12.4 * m.concrete,
@@ -157,9 +160,6 @@ def design_scheduling_materials():
         m.wf.construction.modes[0]: -2.857 * m.wind,
         m.wf.construction.modes[1]: -2.3255 * m.wind,
     }
-    _ = m.wf.capacity.x <= 100
-    _ = m.wf.capacity.x >= 10
-    _ = m.wf.operate.prep(norm=True) <= [0.9, 0.8, 0.5, 0.7]
 
     m.wf.capacity[m.usd.spend](m.wf.construction.modes) == [150000, 120000]
     _ = m.wf.capacity(m.wf.construction.modes)[m.usd.spend] == [

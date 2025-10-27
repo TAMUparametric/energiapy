@@ -77,7 +77,7 @@ def timer(
                     msg = f"🏭  Operating streams introduced for {result[0]} in {', '.join([str(s) for s in result[1]])}"
 
                 elif kind == 'construction':
-                    msg = f"🏗  Construction streams introduced for {result[0]} in {', '.join([str(s) for s in result[1]])}"
+                    msg = f"🏗   Construction streams introduced for {result[0]} in {', '.join([str(s) for s in result[1]])}"
 
                 else:
                     msg = f"  Executed {func.__name__}"
