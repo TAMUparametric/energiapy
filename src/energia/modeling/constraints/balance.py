@@ -51,20 +51,47 @@ class Balance(_Hash):
 
         self.write()
 
-    def _check_existing(self) -> bool:
-        """Checks if the balance constraint already exists"""
-        if (
-            (not self.samples and self.commodity)
-            or (self.aspect(self.commodity, self.time) not in self.existing_aspects)
-            or (self.commodity.insitu)
-        ):
+    def write(self) -> bool | None:
+        """Writes the stream balance constraint"""
+
+        if self._check_existing():
             return False
-        return True
+
+        self._name = f"{self.commodity}_{self.space}_{self.time}_grb"
+
+        if isinstance(self.commodity, Stored):
+            stored = True
+
+        else:
+            stored = False
+            if self.balances[self.commodity][self.space]:
+                # If a GRB exists at a lower temporal order, append to that
+                lower_times = [
+                    t
+                    for t in self.balances[self.commodity][self.space]
+                    if t > self.time
+                ]
+
+                if lower_times:
+                    _ = self.aspect(self.commodity, self.space, lower_times[0]) == True
+                    return
+
+        # -initialize GRB for self.commodity if necessary -----
+
+        if not self.existing_aspects:
+            # this checks whether a general self.commodity balance has been defined
+            # for the self.commodity in that space and self.time
+
+            return self._create_constraint(stored)
+
+        # -add aspect to GRB if not added already ----
+
+        return self._update_constraint(stored, getattr(self.program, self._name))
 
     @cached_property
     def space(self) -> Location | Linkage | None:
         """Location or Linkage of the constraint"""
-        return (
+        _space = (
             self.domain.linkage.source
             if self.aspect.sign == -1 and self.domain.linkage
             else (
@@ -73,6 +100,15 @@ class Balance(_Hash):
                 else self.domain.location
             )
         )
+
+        if (
+            _space.isin is not None
+            and not self.existing_aspects
+            and self.balances[self.commodity][_space.isin][self.time]
+        ):
+
+            return _space.isin
+        return _space
 
     @cached_property
     def name(self) -> str:
@@ -83,64 +119,6 @@ class Balance(_Hash):
     def sign(self) -> float:
         """Returns the aspect"""
         return self.aspect.sign
-
-    def _inform(self):
-        """
-        Updates the constraints in all the indices of self.domain
-        Add constraint name to aspect
-        """
-        self.domain.update_cons(self._name)
-
-        if self._name not in self.aspect.constraints:
-            self.aspect.constraints.append(self._name)
-
-        # update the GRB aspects
-        self.existing_aspects.append(self)
-
-    @timer(logger, "balance-update")
-    def _update_constraint(
-        self,
-        stored: bool,
-        cons_grb: C,
-    ) -> bool:
-        """
-        Updates an existing GRB constraint with the new aspect
-
-        :param stored: If the commodity is stored
-        :type stored: bool
-        :param cons_grb: The existing GRB constraint
-        :type cons_grb: C
-
-        :returns: If the constraint was updated
-        :rtype: bool
-        """
-        if stored and self.aspect.name == "inventory":
-
-            if len(self.time) == 1:
-                return False
-
-            # if inventory is being add to GRB
-            lagged_domain = self.domain.change({"lag": -1 * self.time, "periods": None})
-
-            setattr(
-                self.program,
-                self._name,
-                cons_grb + self(*lagged_domain).V() - self(*self.domain).V(),
-            )
-        else:
-            setattr(
-                self.program,
-                self._name,
-                (
-                    cons_grb + self(*self.domain).V()
-                    if self.aspect.ispos
-                    else cons_grb - self(*self.domain).V()
-                ),
-            )
-
-        self._inform()
-
-        return self.domain, self.aspect
 
     @timer(logger, "balance-init")
     def _create_constraint(self, stored: bool) -> Domain:
@@ -197,52 +175,73 @@ class Balance(_Hash):
 
         return self.domain
 
-    def write(self) -> bool | None:
-        """Writes the stream balance constraint"""
+    @timer(logger, "balance-update")
+    def _update_constraint(
+        self,
+        stored: bool,
+        cons_grb: C,
+    ) -> bool:
+        """
+        Updates an existing GRB constraint with the new aspect
 
-        if self._check_existing():
-            return False
+        :param stored: If the commodity is stored
+        :type stored: bool
+        :param cons_grb: The existing GRB constraint
+        :type cons_grb: C
 
-        if (
-            self.space.isin is not None
-            and not self.existing_aspects
-            and self.balances[self.commodity][self.space.isin][self.time]
-        ):
-            # if the location is nested under another location
-            # and there is no GRB for that location
-            # work with the parent location
-            self.space = self.space.isin
+        :returns: If the constraint was updated
+        :rtype: bool
+        """
+        if stored and self.aspect.name == "inventory":
 
-        self._name = f"{self.commodity}_{self.space}_{self.time}_grb"
+            if len(self.time) == 1:
+                return False
 
-        if isinstance(self.commodity, Stored):
-            stored = True
+            # if inventory is being add to GRB
+            lagged_domain = self.domain.change({"lag": -1 * self.time, "periods": None})
 
+            setattr(
+                self.program,
+                self._name,
+                cons_grb + self(*lagged_domain).V() - self(*self.domain).V(),
+            )
         else:
-            stored = False
-            if self.balances[self.commodity][self.space]:
-                # If a GRB exists at a lower temporal order, append to that
-                lower_times = [
-                    t
-                    for t in self.balances[self.commodity][self.space]
-                    if t > self.time
-                ]
+            setattr(
+                self.program,
+                self._name,
+                (
+                    cons_grb + self(*self.domain).V()
+                    if self.aspect.ispos
+                    else cons_grb - self(*self.domain).V()
+                ),
+            )
 
-                if lower_times:
-                    _ = self.aspect(self.commodity, self.space, lower_times[0]) == True
-                    return
+        self._inform()
 
-        # -initialize GRB for self.commodity if necessary -----
+        return self.domain, self.aspect
 
-        if not self.existing_aspects:
-            # this checks whether a general self.commodity balance has been defined
-            # for the self.commodity in that space and self.time
+    def _check_existing(self) -> bool:
+        """Checks if the balance constraint already exists"""
+        if (
+            (not self.samples and self.commodity)
+            or (self.aspect(self.commodity, self.time) not in self.existing_aspects)
+            or (self.commodity.insitu)
+        ):
+            return False
+        return True
 
-            return self._create_constraint(stored)
+    def _inform(self):
+        """
+        Updates the constraints in all the indices of self.domain
+        Add constraint name to aspect
+        """
+        self.domain.update_cons(self._name)
 
-        # -add aspect to GRB if not added already ----
+        if self._name not in self.aspect.constraints:
+            self.aspect.constraints.append(self._name)
 
-        return self._update_constraint(stored, getattr(self.program, self._name))
+        # update the GRB aspects
+        self.existing_aspects.append(self)
 
     def _handshake(self):
         """Borrow attributes from aspect and domain"""

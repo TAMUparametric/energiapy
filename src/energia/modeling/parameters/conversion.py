@@ -66,6 +66,7 @@ class Conversion(Mapping, _Hash):
         hold: int | float | None = None,
         attr_name: str = "",
         symbol: str = "η",
+        use_max_time: bool = False,
     ):
 
         self.resource = resource
@@ -96,6 +97,8 @@ class Conversion(Mapping, _Hash):
 
         # this is carried forth incase, piece wise linear conversion is used
         self.attr_name = attr_name
+
+        self.use_max_time = use_max_time
 
     @property
     def args(self) -> dict[str, str | Operation | Commodity | None]:
@@ -229,6 +232,8 @@ class Conversion(Mapping, _Hash):
             # write the conversion balance at
             # densest temporal scale in that space
             if times:
+                if self.use_max_time:
+                    return max(times)
                 return min(times)
 
             return time.horizon
@@ -572,7 +577,6 @@ class PWLConversion(Mapping, _Hash):
         #     return time.horizon
 
         for mode, conv in self.items():
-
             conv.write(space, time, mode)
 
         # for res, par in self.box().items():

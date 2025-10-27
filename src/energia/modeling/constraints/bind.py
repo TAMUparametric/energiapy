@@ -88,6 +88,40 @@ class Bind:
 
         self.write()
 
+    @timer(logger, kind="bind")
+    def write(self):
+        """Writes the bind constraint"""
+
+        # the lhs comes from the sample
+        # calling the lhs here, updates the
+        _ = self.lhs
+
+        if self._check_existing():
+            return False
+
+        if self.leq:
+            self.cons: C = self.lhs <= self.rhs
+
+        elif self.eq:
+            self.cons: C = self.lhs == self.rhs
+
+        elif self.geq:
+            self.cons: C = self.lhs >= self.rhs
+
+        else:
+            return False
+
+        self._inform()
+
+        # set the constraint
+        setattr(
+            self.program,
+            self.cons_name,
+            self.cons,
+        )
+        # returned for @timer
+        return self.sample, self.rel
+
     @cached_property
     def parameter(self):
         """Parameter bound of the bind constraint"""
@@ -168,40 +202,6 @@ class Bind:
         """Constraint name"""
 
         return rf"{self.aspect.name}{self.domain.idxname}_{self.rel}"
-
-    @timer(logger, kind="bind")
-    def write(self):
-        """Writes the bind constraint"""
-
-        # the lhs comes from the sample
-        # calling the lhs here, updates the
-        _ = self.lhs
-
-        if self._check_existing():
-            return False
-
-        if self.leq:
-            self.cons: C = self.lhs <= self.rhs
-
-        elif self.eq:
-            self.cons: C = self.lhs == self.rhs
-
-        elif self.geq:
-            self.cons: C = self.lhs >= self.rhs
-
-        else:
-            return False
-
-        self._inform()
-
-        # set the constraint
-        setattr(
-            self.program,
-            self.cons_name,
-            self.cons,
-        )
-        # returned for @timer
-        return self.sample, self.rel
 
     def _write_forall(self):
         """Writes the bind constraint for all elements in the set"""

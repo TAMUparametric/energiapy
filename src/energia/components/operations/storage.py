@@ -125,6 +125,7 @@ class Storage(_Component):
             add="dispose",
             sub="use",
             attr_name="construction",
+            use_max_time=True,
         )
 
     @cached_property

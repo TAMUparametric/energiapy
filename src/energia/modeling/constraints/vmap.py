@@ -39,6 +39,33 @@ class Map:
         self, aspect: Aspect, domain: Domain, reporting=False, label: str = ""
     ):
 
+        self.aspect = aspect
+        self.domain = domain
+        self.reporting = reporting
+        self.label = label
+
+        self._handshake()
+
+        if self.domain.lag:
+            return
+
+        # these are periods denser and sparser than the current domain
+        self._map_across_time()
+
+        # Space mapping ---
+        self._map_across_space()
+        # Bind mapping ---
+        self._map_across_binds()
+
+        # Mode mapping ---
+        self._map_across_modes()
+
+    # -------------------------------------------------------------------#
+    # Helper functions
+    # -------------------------------------------------------------------#
+    @timer(logger, kind='map')
+    def write(self, from_domain: Domain, to_domain: Domain, tsum=False, msum=False):
+        """Scales up variable to a lower dimension"""
         # if the variable is being defined for the first time, do not bother with the rest
         # Also note that if a variable already exists then a new is not created
         # thus map_domain is not called in Bind.V()
@@ -69,27 +96,54 @@ class Map:
         # the operators <, > wont work since they will add any space a higher order
         # this will lead to adding twice. India = Goa + Madgaon + Ponje (WRONG)
         # We scale only one level up
-
-        self.aspect = aspect
-        self.domain = domain
-        self.reporting = reporting
-        self.label = label
-
-        self._handshake()
-
-        if self.domain.lag:
+        if self._check_existing():
             return
 
-        # these are periods denser and sparser than the current domain
-        self._map_across_time()
+        # if self.domain.modes:
+        #     _to_domain = to_domain.change({"modes": self.domain.modes.parent})
+        # else:
+        #     _to_domain = to_domain
 
-        # Space mapping ---
-        self._map_across_space()
-        # Bind mapping ---
-        self._map_across_binds()
+        if to_domain not in self.maps:
+            if self.domain.modes and self.domain.modes.parent:
+                self.maps[to_domain.change({"modes": self.domain.modes.parent})] = [
+                    from_domain
+                ]
+            else:
+                self.maps[to_domain] = [from_domain]
+            exists = False
+        elif from_domain in self.maps[to_domain]:
+            return False
+        else:
+            if self.domain.modes and self.domain.modes.parent:
+                self.maps[to_domain.change({"modes": self.domain.modes.parent})].append(
+                    from_domain
+                )
+            else:
+                self.maps[to_domain].append(from_domain)
 
-        # Mode mapping ---
-        self._map_across_modes()
+            exists = True
+
+        var = self.aspect.reporting if self.reporting else self.aspect
+
+        rhs = self._give_sum(from_domain, tsum, msum)
+
+        self.cons_name = self._give_cname(var, from_domain, to_domain, tsum, msum)
+
+        v_lower = self(*to_domain).X() if self.reporting else self(*to_domain).V()
+
+        if not tsum and not msum and exists:
+            cons_existing: C = getattr(self.program, self.cons_name)
+            setattr(self.program, self.cons_name, cons_existing - rhs)
+
+        else:
+            cons = v_lower == rhs
+            setattr(self.program, self.cons_name, cons)
+            cons.categorize("Mapping")
+
+        self._inform(from_domain)
+
+        return (self.aspect, from_domain, to_domain)
 
     @cached_property
     def name(self) -> str:
@@ -98,49 +152,6 @@ class Map:
     @cached_property
     def maps(self) -> dict[Domain, list[Domain]]:
         return self.aspect.maps_report if self.reporting else self.aspect.maps
-
-    # -------------------------------------------------------------------#
-    # Helper functions
-    # -------------------------------------------------------------------#
-    @timer(logger, kind='map')
-    def write(self, from_domain: Domain, to_domain: Domain, tsum=False, msum=False):
-        """Scales up variable to a lower dimension"""
-
-        if self._check_existing():
-            return
-
-        if to_domain not in self.maps:
-            self.maps[to_domain] = [from_domain]
-            exists = False
-        elif from_domain in self.maps[to_domain]:
-            return False
-        else:
-            self.maps[to_domain].append(from_domain)
-            exists = True
-
-        var = self.aspect.reporting if self.reporting else self.aspect
-
-        rhs = self._give_sum(from_domain, tsum, msum)
-
-        cname = self._give_cname(var, from_domain, to_domain, tsum, msum)
-
-        v_lower = self(*to_domain).X() if self.reporting else self(*to_domain).V()
-
-        if not tsum and not msum and exists:
-            cons_existing: C = getattr(self.program, cname)
-            setattr(self.program, cname, cons_existing - rhs)
-
-        else:
-            cons = v_lower == rhs
-            setattr(self.program, cname, cons)
-            cons.categorize("Mapping")
-
-        if cname not in self.aspect.constraints:
-            self.aspect.constraints.append(cname)
-
-        from_domain.update_cons(cname)
-
-        return (self.aspect, from_domain, to_domain)
 
     def _map_across_time(self):
         """
@@ -311,6 +322,20 @@ class Map:
     # Constraint writing
     # -------------------------------------------------------------------#
 
+    def _check_existing(self) -> bool:
+        """Checks if the map constraint already exists"""
+        if (
+            self.space not in self.dispositions
+            or self.time not in self.dispositions[self.space]
+        ):
+            return True
+
+    def _inform(self, from_domain: Domain):
+        if self.cons_name not in self.aspect.constraints:
+            self.aspect.constraints.append(self.cons_name)
+
+        from_domain.update_cons(self.cons_name)
+
     def _handshake(self):
         """Borrow attributes from aspect"""
         self.model = self.aspect.model
@@ -322,14 +347,6 @@ class Map:
         # this is the disposition of the variable to be mapped
         # through time and space
         self.time, self.space = self.domain.periods, self.domain.space
-
-    def _check_existing(self) -> bool:
-        """Checks if the map constraint already exists"""
-        if (
-            self.space not in self.dispositions
-            or self.time not in self.dispositions[self.space]
-        ):
-            return True
 
     def __call__(self, *index: _X):
         return self.aspect(*index)
