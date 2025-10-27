@@ -99,20 +99,7 @@ class Map:
         if self._check_validity():
             return
 
-        diff = (to_domain - from_domain)[0]
-
-        exists = self._check_existing(diff, to_domain, from_domain)
-        print('b', exists)
-
-        # if to_domain not in self.maps:
-        #     self.maps[diff][to_domain] = [from_domain]
-        #     exists = False
-        # elif from_domain in self.maps[diff][to_domain]:
-        #     return False
-        # else:
-
-        #     self.maps[diff][to_domain].append(from_domain)
-        #     exists = True
+        exists = self._check_existing(to_domain, from_domain)
 
         self.cons_name = self._give_cname(self.var, from_domain, to_domain, tsum, msum)
 
@@ -135,11 +122,9 @@ class Map:
 
         return (self.aspect, from_domain, to_domain)
 
-    def _check_existing(
-        self, what: str, to_domain: Domain, from_domain: Domain
-    ) -> bool:
+    def _check_existing(self, to_domain: Domain, from_domain: Domain) -> bool:
         """Checks if the map constraint already exists"""
-        print(what, to_domain, from_domain)
+        what = (to_domain - from_domain)[0]
         if to_domain not in self.maps[what]:
             self.maps[what][to_domain] = [from_domain]
             # make new constraint
@@ -148,7 +133,7 @@ class Map:
         if from_domain in self.maps[what][to_domain]:
             # There is an exisiting map
             return True
-        if what == "samples":
+        if what in ["samples", "modes"]:
             return True
 
     @cached_property
@@ -159,9 +144,9 @@ class Map:
     def rhs(self):
         return self.rhs(self.domain)
 
-    # @cached_property
-    # def name(self) -> str:
-    #     return f"{self.aspect.name}_map"
+    @cached_property
+    def name(self) -> str:
+        return f"{self.aspect.name}_map"
 
     @cached_property
     def maps(self) -> dict[Domain, list[Domain]]:
