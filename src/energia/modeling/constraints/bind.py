@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+from functools import cached_property
 from typing import TYPE_CHECKING
 
 from ...utils.decorators import timer
@@ -65,6 +66,7 @@ class Bind:
         geq: bool = False,
         eq: bool = False,
         forall: list[_X | _Component] | None = None,
+        parameter_name: str = "",
     ):
         self.sample = sample
         self.parameter = parameter
@@ -114,7 +116,61 @@ class Bind:
                 for i in self.parameter
             ]
 
+        self.parameter_name = parameter_name
+
         self.write()
+
+    @cached_property
+    def rhs(self):
+        """Right hand side of the bind constraint"""
+
+        if self.aspect.bound is not None:
+            # ------if variable bound
+            if self.report:
+                # ------if variable bound and reported
+                # we do not want a bi-linear term
+                _rhs = self.parameter * self.sample.X(self.parameter)
+
+            else:
+                # ------if just variable bound
+                _rhs = self.parameter * self.sample.Vb()
+
+        elif self.report or self.domain.modes is not None:
+            # ------if  self.parameter bound and reported or has modes
+            # create reporting variable write v <= p*x
+            _rhs = self.parameter * self.sample.X(self.parameter)
+            self.aspect.update(self.domain, reporting=True)
+
+        else:
+            # ------if just self.parameter bound
+            _rhs = self.parameter
+        return _rhs
+
+    @cached_property
+    def lhs(self):
+        """Left hand side of the bind constraint"""
+
+        # ------Get LHS
+        # lhs needs to be determined here
+        # because V will be spaced and timed if not passed by user
+        # .X(), .Vb() need time and space
+        return self.sample.V(self.parameter)
+
+    def _inform(self):
+        """Informs the aspect and domain about the bind constraint"""
+
+        # categorize the constraint
+        if self.domain.modes:
+            self.cons.categorize("Piecewise Linear")
+        else:
+            self.cons.categorize("Bound")
+
+        # let the aspect know about the new constraint
+        self.aspect.constraints.append(self.cons_name)
+
+        # let all objects in the domain know that
+        # a constraint with this name contains it
+        self.domain.update_cons(self.cons_name)
 
     def _write_forall(self):
         """Writes the bind constraint for all elements in the set"""
@@ -141,7 +197,10 @@ class Bind:
 
     def _write_w_modes(self):
         """Writes the bind constraint with modes"""
+
+        # create modes
         self.modes = self.model.Modes(size=len(self.parameter), sample=self.sample)
+
         mode_bounds = [
             (
                 (self.parameter[i - 1], self.parameter[i])
@@ -154,91 +213,64 @@ class Bind:
         _ = self.sample(self.modes) >= [b[0] for b in mode_bounds]
         _ = self.sample(self.modes) <= [b[1] for b in mode_bounds]
 
+    @cached_property
+    def rel(self):
+        """Constraint name suffix"""
+
+        if self.leq:
+            return "ub"
+        elif self.eq:
+            return "eq"
+        elif self.geq:
+            return "lb"
+
+    @cached_property
+    def cons_name(self):
+        """Constraint name"""
+
+        return rf"{self.aspect.name}{self.domain.idxname}_{self.rel}"
+
+    def _check_existing(self) -> bool:
+        """Checks if aspect already has been bound in that space"""
+        if (
+            self.domain.space in self.aspect.bound_spaces[self.domain.primary][self.rel]
+        ) and not self.domain.modes:
+            return True
+
+        self.aspect.bound_spaces[self.domain.primary][self.rel].append(
+            self.domain.space,
+        )
+
     @timer(logger, kind="bind")
     def write(self):
         """Writes the bind constraint"""
-        # ------Get LHS
-        # lhs needs to be determined here
-        # because V will be spaced and timed if not passed by user
-        # .X(), .Vb() need time and space
-        lhs = self.sample.V(self.parameter)
 
-        # # ------Get RHS
-        if self.aspect.bound is not None:
-            # ------if variable bound
-            if self.report:
-                # ------if variable bound and reported
-                # we do not want a bi-linear term
-                rhs = self.parameter * self.sample.X(self.parameter)
+        # the lhs comes from the sample
+        # calling the lhs here, updates the
+        _ = self.lhs
 
-            else:
-                # ------if just variable bound
-                rhs = self.parameter * self.sample.Vb()
-
-        elif self.report or self.domain.modes is not None:
-            # ------if  self.parameter bound and reported or has modes
-            # create reporting variable write v <= p*x
-            rhs = self.parameter * self.sample.X(self.parameter)
-            self.aspect.update(self.domain, reporting=True)
-
-        else:
-            # ------if just self.parameter bound
-            rhs = self.parameter
+        if self._check_existing():
+            return False
 
         if self.leq:
-            # Less than equal to
-            if (
-                self.domain.space in self.aspect.bound_spaces[self.domain.primary]["ub"]
-            ) and not self.domain.modes:
-                # return if aspect already bound in space
-                return False
-            self.aspect.bound_spaces[self.domain.primary]["ub"].append(
-                self.domain.space,
-            )
-            cons: C = lhs <= rhs
-            rel = "_ub"
+            self.cons: C = self.lhs <= self.rhs
 
         elif self.eq:
-            # Exactly equal to
-            cons: C = lhs == rhs
-            rel = "_eq"
+            self.cons: C = self.lhs == self.rhs
 
         elif self.geq:
-            # Greater than equal to
-            if (
-                self.domain.space in self.aspect.bound_spaces[self.domain.primary]["lb"]
-            ) and not self.domain.modes:
-                # return if aspect already bound in space
-                return False
-            self.aspect.bound_spaces[self.domain.primary]["lb"].append(
-                self.domain.space,
-            )
-            cons: C = lhs >= rhs
-            rel = "_lb"
+            self.cons: C = self.lhs >= self.rhs
+
         else:
             return False
 
-        # name of the constraint
-        cons_name = rf"{self.aspect.name}{self.domain.idxname}{rel}"
-
-        # categorize the constraint
-        if self.domain.modes:
-            cons.categorize("Piecewise Linear")
-        else:
-            cons.categorize("Bound")
-
-        # let all objects in the domain know that
-        # a constraint with this name contains it
-        self.domain.update_cons(cons_name)
-
-        # let the aspect know about the new constraint
-        self.aspect.constraints.append(cons_name)
+        self._inform()
 
         # set the constraint
         setattr(
             self.program,
-            cons_name,
-            cons,
+            self.cons_name,
+            self.cons,
         )
-
-        return self.sample, rel
+        # returned for the @imed
+        return self.sample, self.rel

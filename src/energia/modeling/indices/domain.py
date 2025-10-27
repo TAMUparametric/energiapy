@@ -108,10 +108,10 @@ class Domain(_Hash):
         # primary index being modeled in some spatiotemporal context
         self.model: Model = next((i.model for i in self.index_short if i), None)
 
-    @property
-    def I(self) -> tuple[Idx, ...]:
-        """Compound index"""
-        return prod(self.Ilist)
+    # @property
+    # def I(self) -> tuple[Idx, ...]:
+    #     """Compound index"""
+    #     return prod(self.Ilist)
 
     # -----------------------------------------------------
     #                    Components
@@ -229,11 +229,6 @@ class Domain(_Hash):
     @property
     def index(self) -> list[Aspect | _X]:
         """list of _Index elements"""
-
-        # samples = sum([[i, j] for i, j in self.samples.items()], [])
-
-        # these default to network and horizon, so can default from model using .space or .time
-
         return self.index_primary + self.index_binds
 
     @property
@@ -380,9 +375,9 @@ class Domain(_Hash):
         return list(self._.values())
 
     @property
-    def Ilist(self) -> list[Idx | list[V]]:
+    def I(self) -> list[Idx | list[V]]:
         """List of I"""
-        return [i if isinstance(i, list) else i.I for i in self.index]
+        return tuple([i if isinstance(i, list) else i.I for i in self.index])
 
     # -----------------------------------------------------
     #                    Helpers

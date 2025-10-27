@@ -279,16 +279,16 @@ class Map:
             # if the domain has been mapped to but this is a time sum
             # we need to first map time
             # and then add it to an existing map at a lower domain
-            return sigma(v(*domain.Ilist), domain.time.I)
+            return sigma(v(*domain.I), domain.time.I)
         if msum:
             # if the domain has been mapped to but this is a mode sum
             # we need to first map modes
             # and then add it to an existing map at a lower domain
-            return sigma(v(*domain.Ilist), domain.modes.I)
+            return sigma(v(*domain.I), domain.modes.I)
         # the copy is important since otherwise, the printing will take
         # the update index if the variable is mutated
 
-        return v(*domain.Ilist).copy()
+        return v(*domain.I).copy()
 
     # -------------------------------------------------------------------#
     # Constraint writing

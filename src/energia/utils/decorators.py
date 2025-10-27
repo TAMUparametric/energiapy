@@ -52,9 +52,9 @@ def timer(
                     domain = sample.domain
                     rel = result[1]
 
-                    if rel == "_ub":
+                    if rel == "ub":
                         rel = "≤"
-                    elif rel == "_lb":
+                    elif rel == "lb":
                         rel = "≥"
                     else:
                         rel = "="

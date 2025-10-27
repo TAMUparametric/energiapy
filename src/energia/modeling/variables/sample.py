@@ -16,8 +16,9 @@ from ..constraints.calculate import Calculate
 
 logger = logging.getLogger("energia")
 
+
 if TYPE_CHECKING:
-    from gana import Prg
+    from gana import P, Prg
     from gana.sets.constraint import C
     from gana.sets.function import F
 
@@ -109,6 +110,10 @@ class Sample:
         # the bound is set for all indices
         self._forall: list[_X] = []
 
+        # parameters
+        self.parameter: P = None
+        self.length: int = 0
+
     @property
     def name(self) -> str:
         """Name of the constraint"""
@@ -127,7 +132,7 @@ class Sample:
     @cached_property
     def I(self) -> Idx:
         """gana index set (I)"""
-        return self.aspect.I
+        return self.domain.I
 
     @property
     def x(self) -> Self:
@@ -167,12 +172,122 @@ class Sample:
                 cons: C = getattr(self.program, c)
                 cons.show(descriptive)
 
+    @cached_property
+    def time(self):
+        """Matches an appropriate temporal scale"""
+        if not self.timed:
+
+            if isinstance(self.parameter, list):
+                # if list is given, find using length of the list
+                if self.domain.modes is not None:
+                    self.domain.periods = self.aspect.time.find(
+                        len(self.parameter) / len(self.domain.modes),
+                    )
+                else:
+                    self.domain.periods = self.aspect.time.find(len(self.parameter))
+
+            elif isinstance(self.length, int):
+                # if length is given, use it directly
+                self.domain.periods = self.aspect.time.find(self.length)
+            else:
+                # else the size of parameter set is exactly one
+                # or nothing is given, meaning the variable is not time dependent
+                # thus, index by horizon
+                self.domain.periods = self.aspect.horizon
+
+        return self.domain.periods
+
+    @cached_property
+    def space(self):
+        """Assigns to network is spatial index is not given"""
+        if not self.spaced:
+            # if spatial index is not explicity given
+            # default to the network
+            self.domain.location = self.aspect.network
+
+        return self.domain.location
+
+    def Vlag(self):
+        """Handles lagged domains"""
+        # with lag it is assumed that the variable of which this is a lagged subset is
+        # already defined
+        # for example, if opr_t = opr_t-1 + x_t, then opr_t is already defined
+        try:
+            return getattr(self.program, self.aspect.name)(*self.domain.I)
+        except KeyError:
+            # the variable has not been defined yet
+            lag = self.domain.lag
+            self.domain = self.domain.change(
+                {"lag": None, "periods": self.domain.lag.of},
+            )
+            args = (self.parameter, self.length)
+
+            if self.hasinc:
+                _ = self.Vinc(*args)
+
+            if self.report:
+                _ = self.X(*args)
+
+            else:
+                _ = self.V(*args)
+
+            self.domain = self.domain.change({"lag": lag, "periods": None})
+            return getattr(self.program, self.aspect.name)(*self.domain.I)
+
+    def _inform(self):
+        """Informs the aspect and domain about the sample"""
+        # updated the indices
+        # we can be confident that the self.I is unique
+        # because of the check above
+        self.aspect.indices.append(self.I)
+
+        # this updates the balanced dictionary, by adding the commodity as a key
+
+        if self.domain.commodity and not self.domain.lag:
+            _ = self.balances[self.domain.commodity][self.domain.space][
+                self.domain.time
+            ]
+
+        # this lets all self.I elements in the domain know
+        # that the aspect was sampled
+        self.domain.update_domains(self.aspect)
+
+        # ------Update the disposition ---------------
+
+        # get the primary component
+        # update the disposition dictionary
+        self.model.dispositions = merge_trees(
+            self.model.dispositions,
+            {self.aspect: self.domain.tree},
+        )
+
+        # for the same aspect, map variables with higher order indices
+        # to variables with lower order indices
+        self.aspect.update(self.domain)
+
+        self.aspect.domains.append(self.domain)
+
+    def _init_V(self, parameter: float | list = None, length: int = None):
+        """Initialize making a variable"""
+
+        self.parameter = parameter
+        self.length = length
+
+        if self.domain.primary not in self.aspect.bound_spaces:
+            self.aspect.bound_spaces[self.domain.primary] = {
+                "ub": [],
+                "lb": [],
+                "eq": [],
+            }
+
+        # Sample will figure these out if needed
+        _ = self.time
+        _ = self.space
+
     def V(
         self,
-        parameters: float | list[float] | None = None,
+        parameter: float | list[float] | None = None,
         length: int | None = None,
-        report: bool = False,
-        incidental: bool = False,
     ) -> V:
         """
         Returns a gana variable (V) using .domain as the index.
@@ -199,175 +314,34 @@ class Sample:
             - parameters and length are mutually exclusive
         """
 
+        self._init_V(parameter, length)
+
         # with lag it is assumed that the variable of which this is a lagged subset is
         # already defined
         # for example, if opr_t = opr_t-1 + x_t, then opr_t is already defined
         if self.domain.lag:
-            # t - 1 is made after t, so no need to set a new one
-            try:
-                return getattr(self.program, self.aspect.name)(*self.domain.Ilist)
-            except KeyError:
-                # the variable has not been defined yet
-                lag = self.domain.lag
-                self.domain = self.domain.change(
-                    {"lag": None, "periods": self.domain.lag.of},
-                )
-                self.V(
-                    parameters=parameters,
-                    length=length,
-                    report=report,
-                    incidental=incidental,
-                )
-                self.domain = self.domain.change({"lag": lag, "periods": None})
-                return getattr(self.program, self.aspect.name)(*self.domain.Ilist)
+            return self.Vlag()
 
-        # ---Check time and space -------
-        # this is only called if the bind variable has no temporal index defined
-        def time():
-            """Matches an appropriate temporal scale"""
-            if isinstance(parameters, list):
-                # if list is given, find using length of the list
-                if self.domain.modes is not None:
-                    self.domain.periods = self.aspect.time.find(
-                        len(parameters) / len(self.domain.modes),
-                    )
-                else:
-                    self.domain.periods = self.aspect.time.find(len(parameters))
-
-            elif isinstance(length, int):
-                # if length is given, use it directly
-                self.domain.periods = self.aspect.time.find(length)
-            else:
-                # else the size of parameter set is exactly one
-                # or nothing is given, meaning the variable is not time dependent
-                # thus, index by horizon
-                self.domain.periods = self.aspect.horizon
-
-        # this is only called if the bind variable has no spatial index defined
-        def space():
-            """Assigns to network is spatial index is not given"""
-            # if spatial index is not explicity given
-            # default to the network
-            self.domain.location = self.aspect.network
-
-        if not self.spaced:
-            # if the spatial index is not passed
-            space()
-
-        if self.domain.primary not in self.aspect.bound_spaces:
-            self.aspect.bound_spaces[self.domain.primary] = {"ub": [], "lb": []}
-
-        if not self.timed:
-            # if the temporal index is not passed
-            time()
-
-        # get the list of Indices in the domain
-        index = tuple(self.domain.Ilist)
-
-        # ------if reporting binary ---------------
-        # if a reporting binary variable is needed
-        if report:
-            # these are basically named using a breve over the variable name or latex name
-
-            if self.aspect.latex:
-                ltx = r"{\breve{" + self.aspect.latex + r"}}"
-            else:
-                ltx = r"{\breve{" + self.aspect.name + r"}}"
-            # create a binary variable
-            setattr(
-                self.program,
-                f"x_{self.aspect.name}",
-                V(
-                    *index,
-                    mutable=True,
-                    ltx=ltx,
-                    bnr=True,
-                ),
-            )
-            v_rpt = getattr(self.program, f"x_{self.aspect.name}")
-            self.aspect.reporting = v_rpt
-            return v_rpt(*index)
-
-        # if incidental calculation is needed
-        # incidental calculations do not scale with variable value
-        # rather, they are incurred if the reporting binary = 1
-        # see the equations below:
-        #   calc_total = calc + calc_incidental
-        #   calc = v * param
-        #   calc_incidental = v_reporting * param_incidental
-
-        # ------if incidental ---------------
-
-        if incidental:
-            # named with a superscript inc
-            if self.aspect.latex:
-                ltx = self.aspect.latex + r"^{inc}"
-            else:
-                ltx = self.aspect.name + r"^{inc}"
-
-            # create an incidental variable (continuous)
-            setattr(
-                self.program,
-                f"{self.aspect.name}_incidental",
-                V(*index, mutable=True, ltx=ltx),
-            )
-            return getattr(self.program, f"{self.aspect.name}_incidental")(*index)
-
-        # ------if continuous ---------------
-
-        # the reason we check by name:
+        # the reason we check by string is that:
         # some variables can serve as indices, a normal check ends by
         # creating a constraint variable == variable
-        # if not [i.name for i in index] in [
-        #     [i.name for i in idx] for idx in self.aspect.indices
-        # ]:
 
-        if [i.name for i in index] not in [
-            [i.name for i in idx] for idx in self.aspect.indices
-        ]:
-            # if not index in self.aspect.indices:
+        # TODO: run this check for all V types.
+        # TODO: Will require separate aspect.indices lists
+        if str(self.I) not in [str(i) for i in self.aspect.indices]:
 
-            # if a variable has not been created for the index
+            # if a variable has not been created for the self.I
             # create a variable
             # all energia variables are mutable by default
             setattr(
                 self.program,
                 self.aspect.name,
-                V(*index, mutable=True, ltx=self.aspect.latex),
+                V(*self.I, mutable=True, ltx=self.aspect.latex),
             )
 
-            # updated the indices
-            # we can be confident that the index is unique
-            # because of the check above
-            self.aspect.indices.append(index)
+            self._inform()
 
-            # this updates the balanced dictionary, by adding the commodity as a key
-
-            if self.domain.commodity and not self.domain.lag:
-                _ = self.balances[self.domain.commodity][self.domain.space][
-                    self.domain.time
-                ]
-
-            # this lets all index elements in the domain know
-            # that the aspect was sampled
-            self.domain.update_domains(self.aspect)
-
-            # ------Update the disposition ---------------
-
-            # get the primary component
-            # update the disposition dictionary
-            self.model.dispositions = merge_trees(
-                self.model.dispositions,
-                {self.aspect: self.domain.tree},
-            )
-
-            # for the same aspect, map variables with higher order indices
-            # to variables with lower order indices
-            self.aspect.update(self.domain)
-
-            self.aspect.domains.append(self.domain)
-
-        return getattr(self.program, self.aspect.name)(*index)
+        return getattr(self.program, self.aspect.name)(*self.I)
 
     def Vinc(self, parameters: float | list = None, length: int = None) -> V:
         """
@@ -381,8 +355,33 @@ class Sample:
         :returns: the incidental variable
         :rtype: V
         """
+        self._init_V(parameters, length)
+
+        if self.domain.lag:
+            return self.Vlag()
+
         self.hasinc = True
-        return self.V(parameters, length, incidental=True)
+
+        # if incidental calculation is needed
+        # incidental calculations do not scale with variable value
+        # rather, they are incurred if the reporting binary = 1
+        # see the equations below:
+        #   calc_total = calc + calc_incidental
+        #   calc = v * param
+        #   calc_incidental = v_reporting * param_incidental
+        # named with a superscript inc
+        if self.aspect.latex:
+            ltx = self.aspect.latex + r"^{inc}"
+        else:
+            ltx = self.aspect.name + r"^{inc}"
+
+        # create an incidental variable (continuous)
+        setattr(
+            self.program,
+            f"{self.aspect.name}_incidental",
+            V(*self.I, mutable=True, ltx=ltx),
+        )
+        return getattr(self.program, f"{self.aspect.name}_incidental")(*self.I)
 
     def Vb(self) -> V:
         r"""
@@ -454,7 +453,32 @@ class Sample:
             - :math:`\theta` is the parameter set
             - :math:`t` some bespoke discretization of the horizon
         """
-        return self.V(parameters, length, report=True)
+
+        self._init_V(parameters, length)
+
+        if self.domain.lag:
+            return self.Vlag()
+
+        # these are basically named using a breve over the variable name or latex name
+
+        if self.aspect.latex:
+            ltx = r"{\breve{" + self.aspect.latex + r"}}"
+        else:
+            ltx = r"{\breve{" + self.aspect.name + r"}}"
+        # create a binary variable
+        setattr(
+            self.program,
+            f"x_{self.aspect.name}",
+            V(
+                *self.I,
+                mutable=True,
+                ltx=ltx,
+                bnr=True,
+            ),
+        )
+        v_rpt = getattr(self.program, f"x_{self.aspect.name}")
+        self.aspect.reporting = v_rpt
+        return v_rpt(*self.I)
 
     def obj(self, max: bool = False):
         """
@@ -610,9 +634,6 @@ class Sample:
         decision.report = self.report
 
         return Calculate(calculation=calculation, sample=decision)
-
-        # variable.report = self.report
-        # return Calculate(calc=dependent(*self.index), decision=variable)
 
     def draw(self, **kwargs):
         """Draws the variable"""

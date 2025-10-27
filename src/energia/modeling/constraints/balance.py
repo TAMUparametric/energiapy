@@ -69,7 +69,7 @@ class Balance(_Hash):
         if not self.samples and self.commodity:
             # if no samples, then create GRB or append to exisiting GRB
             # writecons_grb will figure it out
-            self.writecons_grb()
+            self.write()
             return
 
         # if there are samples
@@ -79,7 +79,7 @@ class Balance(_Hash):
             # no external bounds have been defined
             # a GRB is still needed
 
-            self.writecons_grb()
+            self.write()
 
         if self.aspect(self.commodity, self.time) not in self.existing_aspects:
 
@@ -89,7 +89,7 @@ class Balance(_Hash):
 
             # if there is already a GRB existing
             # add the bind to the GRB at the same scale
-            self.writecons_grb()
+            self.write()
 
     @property
     def name(self) -> str:
@@ -171,6 +171,12 @@ class Balance(_Hash):
         :rtype: Domain
         """
 
+        # The reason this is avoided is:
+        # inv(t) - inv(t-1)  = #charge_eff*p_charge - #charge_eff*p_dcharge
+        # for one time period, this becomes
+        # inv(t) = #charge_eff*p_charge - #charge_eff*p_dcharge
+        # if inv cost is not provided, this can become unbounded
+        # or bounded to the max capacity
         if stored and self.aspect.name == "inventory":
 
             if len(self.time) == 1:
@@ -208,7 +214,7 @@ class Balance(_Hash):
 
         return self.domain
 
-    def writecons_grb(self) -> bool | None:
+    def write(self) -> bool | None:
         """Writes the stream balance constraint"""
 
         if (
