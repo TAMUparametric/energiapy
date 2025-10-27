@@ -4,16 +4,16 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from ..._core._operation import _Operation
+from .operation import Operation
 
 if TYPE_CHECKING:
-    from ..commodity.resource import Resource
+    from ..commodities.resource import Resource
     from ..spatial.linkage import Linkage
     from ..spatial.location import Location
     from ..temporal.periods import Periods
 
 
-class Transport(_Operation):
+class Transport(Operation):
     """
     Exports Resource through Link basically, moves Resources between Locations
 
@@ -49,7 +49,7 @@ class Transport(_Operation):
 
     def __init__(self, *args, label: str = "", citations: str = "", **kwargs):
 
-        _Operation.__init__(self, *args, label=label, citations=citations, **kwargs)
+        Operation.__init__(self, *args, label=label, citations=citations, **kwargs)
         self.linkages: list[Linkage] = []
 
     @property
@@ -57,7 +57,7 @@ class Transport(_Operation):
         """Locations at which the process is balanced"""
         return self.linkages
 
-    def writecons_conversion(self, link_times: list[tuple[Linkage, Periods]]):
+    def write_production(self, link_times: list[tuple[Linkage, Periods]]):
         """Write the conversion constraints for the transport"""
 
         def time_checker(res: Resource, loc: Location, time: Periods):
@@ -80,11 +80,10 @@ class Transport(_Operation):
 
             _ = self.model.balances[res][loc][time]
 
-            #     self.model.update_grb(resource=res, space=loc, time=time)
+            #     self.model.update_balances(resource=res, space=loc, time=time)
 
-            # if time not in self.model.grb[res][loc]:
-            #     self.model.update_grb(resource=res, space=loc, time=time)
-
+            # if time not in self.model.balances[res][loc]:
+            #     self.model.update_balances(resource=res, space=loc, time=time)
             if res.inv_of:
                 # for inventoried resources, the conversion is written
                 # using the time of the base resource's grb
@@ -104,17 +103,17 @@ class Transport(_Operation):
 
             return time.horizon
 
-        self.conversion.balancer()
+        self.production.balancer()
 
-        if self.conversion.pwl:
+        if self.production.pwl:
 
             conversion = self.balance[list(self.balance)[0]]
 
         else:
             conversion = self.balance
 
-        shipping_conversion, rest_conversion = {self.conversion.basis: 1}, {
-            k: v for k, v in conversion.items() if k != self.conversion.basis
+        shipping_conversion, rest_conversion = {self.production.resource: 1}, {
+            k: v for k, v in conversion.items() if k != self.production.resource
         }
 
         for link_time in link_times:
@@ -212,26 +211,26 @@ class Transport(_Operation):
                     _ = rhs_export == True
                     _ = rhs_import == True
 
-                if self.conversion.pwl:
+                if self.production.pwl:
 
                     eff = [conv[res] for conv in self.balance.values()]
 
                     if eff[0] < 0:
                         eff = [-i for i in eff]
 
-                    if not self.conversion.modes_set:
+                    if not self.production.modes_set:
                         self.model.operate.bound = None
                         _ = opr == dict(enumerate(self.balance.keys()))
 
-                        self.model.operate.bound = self.conversion.model.capacity
+                        self.model.operate.bound = self.production.model.capacity
 
                         modes = self.model.modes[-1]
-                        self.conversion.modes_set = True
+                        self.production.modes_set = True
 
                     else:
-                        modes = self.conversion.modes
+                        modes = self.production.modes
                         modes.bind = self.operate
-                        self.conversion.modes_set = True
+                        self.production.modes_set = True
 
                     opr = opr(modes)
                     rhs_export = rhs_export(modes)

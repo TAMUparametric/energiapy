@@ -2,12 +2,16 @@
 
 from __future__ import annotations
 
-import time as keep_time
+import logging
 from functools import cached_property
 from operator import is_
 from typing import TYPE_CHECKING
 
 from gana import sigma
+
+from ...utils.decorators import timer
+
+logger = logging.getLogger("energia")
 
 if TYPE_CHECKING:
     from gana.sets.constraint import C
@@ -15,10 +19,6 @@ if TYPE_CHECKING:
     from ..._core._x import _X
     from ..indices.domain import Domain
     from ..variables.aspect import Aspect
-
-import logging
-
-logger = logging.getLogger("energia")
 
 
 class Map:
@@ -84,29 +84,27 @@ class Map:
 
         # this is the disposition of the variable to be mapped
         # through time and space
-        time, space = self.domain.periods, self.domain.space
-
-        # these are periods denser and sparser than the current domain
-        denser_periods, sparser_periods = self.model.time.split(time)
+        self.time, self.space = self.domain.periods, self.domain.space
 
         # these are spaces contained in location and parent location to which this location belongs
         # this gives all the dispositions at which the aspect has been defined
-        dispositions = self.dispositions[self.aspect][self.domain.primary]
+        self.dispositions = self.dispositions[self.aspect][self.domain.primary]
 
-        if space not in dispositions or time not in dispositions[space]:
+        if (
+            self.space not in self.dispositions
+            or self.time not in self.dispositions[self.space]
+        ):
             return
 
         # Time mapping ---
-        self._map_across_time(
-            dispositions, space, time, sparser_periods, denser_periods
-        )
+
+        # these are periods denser and sparser than the current domain
+        self._map_across_time()
 
         # Space mapping ---
-        contained_locs, parent_loc = self.model.space.split(space)
-        self._map_across_space(dispositions, contained_locs, parent_loc, time)
-
+        self._map_across_space()
         # Bind mapping ---
-        self._map_across_binds(dispositions, space, time)
+        self._map_across_binds()
 
         # Mode mapping ---
         self._map_across_modes()
@@ -116,41 +114,36 @@ class Map:
         return f"{self.aspect.name}_map"
 
     @cached_property
-    def maps(self) -> dict[Domain, dict[str, list[Domain]]]:
+    def maps(self) -> dict[Domain, list[Domain]]:
         return self.aspect.maps_report if self.reporting else self.aspect.maps
 
     # -------------------------------------------------------------------#
     # Helper functions
     # -------------------------------------------------------------------#
 
-    def _map_across_time(
-        self, dispositions, space, time, sparser_periods, denser_periods
-    ):
+    def _map_across_time(self):
         """
         Maps across time
 
-        :param dispositions: Dispositions at which the aspect has been defined
-        :type dispositions: dict[Space, dict[Periods, dict[Aspect, dict[Component, ...]]]]
-        :param space: Space at which the domain is defined
-        :type space: Space
-        :param time: Time at which the domain is defined
-        :type time: Periods
+
         :param sparser_periods: Periods sparser than the domain period
         :type sparser_periods: list[Periods]
         :param denser_periods: Periods denser than the domain period
         :type denser_periods: list[Periods]
         """
+        denser_periods, sparser_periods = self.model.time.split(self.time)
+
         for sp in sparser_periods:
             # check if the aspect has been defined for a sparser period
             # this creates a map from this domain to a sparser domain
-            if sp in dispositions[space] and is_(sp.of, time):
+            if sp in self.dispositions[self.space] and is_(sp.of, self.time):
                 self.writecons_map(
                     self.domain, self.domain.change({"periods": sp}), tsum=True
                 )
 
         for dp in denser_periods:
-            if dp in dispositions[space] and is_(time.of, dp):
-                binds_dict = dispositions[space][dp]
+            if dp in self.dispositions[self.space] and is_(self.time.of, dp):
+                binds_dict = self.dispositions[self.space][dp]
                 # TODO - check this
                 # here I am re creating Bind objects
                 # from the dict of the form {aspect: {component: {aspect: {component: {...}}}}}
@@ -165,12 +158,10 @@ class Map:
                 from_domain.periods, from_domain.samples = dp, samples
                 self.writecons_map(from_domain, self.domain, tsum=True)
 
-    def _map_across_space(self, dispositions, contained_locs, parent_loc, time):
+    def _map_across_space(self):
         """
         Maps across space
 
-        :param dispositions: Dispositions at which the aspect has been defined
-        :type dispositions: dict[Space, dict[Periods, dict[Aspect, dict[Component, ...]]]]
         :param contained_locs: Locations contained in the domain location
         :type contained_locs: list[Space]
         :param parent_loc: Parent location of the domain location
@@ -178,17 +169,20 @@ class Map:
         :param time: Time at which the domain is defined
         :type time: Periods
         """
-
         parent_loc = self.domain.location.isin
 
         if parent_loc:
-            if parent_loc not in dispositions or time not in dispositions[parent_loc]:
+            if (
+                parent_loc not in self.dispositions
+                or self.time not in self.dispositions[parent_loc]
+            ):
                 return
             self.writecons_map(
                 self.domain,
                 self.domain.change({"location": parent_loc}),
             )
 
+        # contained_locs, parent_loc = self.model.space.split(self.space)
         # for location in contained_locs:
         #     if location not in dispositions or time not in dispositions[location]:
         #         # the aspect is already defined at this location
@@ -197,11 +191,9 @@ class Map:
         #     # samples = dispositions[location][time]
         #     # if not samples:
 
-        #     logger.info('asdadada', location, self.domain)
         #     self.writecons_map(self.domain.change({"location": location}), self.domain)
         # else:
         #     new_binds = [k(list(v)[0]) for k, v in samples.items()]
-        #     logger.info('aaaa', self.aspect, new_binds, self.domain)
         #     # consider the case where overall consumption for water in some location and time is defined
         #     # now user defines consumption due to using cement during construction
         #     # we should have the constraint consume(water, goa, 2025) = consume(water, goa, 2025, use, cement)
@@ -217,8 +209,8 @@ class Map:
         #         self.domain, self.domain.change({"location": parent_loc})
         #     )
 
-    def _map_across_binds(self, dispositions, space, time):
-        if self.domain.samples or not dispositions[space][time]:
+    def _map_across_binds(self):
+        if self.domain.samples or not self.dispositions[self.space][self.time]:
             return
         # if the current variable being declared has no samples
         # but the aspect has already been defined at this location and time with samples
@@ -229,8 +221,8 @@ class Map:
             d
             for d in self.aspect.domains
             if is_(d.primary, self.domain.primary)
-            and is_(d.space, space)
-            and is_(d.periods, time)
+            and is_(d.space, self.space)
+            and is_(d.periods, self.time)
             and d.samples
         ]
         for domain in domains:
@@ -260,6 +252,7 @@ class Map:
         msum: bool = False,
     ) -> str:
         """Return canonical map constraint name based on domain relationship and aggregation type."""
+
         if tsum:
             return f"{var}{from_domain.idxname}_to_{to_domain.idxname}_tmap"
 
@@ -286,20 +279,22 @@ class Map:
             # if the domain has been mapped to but this is a time sum
             # we need to first map time
             # and then add it to an existing map at a lower domain
-            return sigma(v(*domain.Ilist), domain.time.I)
+            return sigma(v(*domain.I), domain.time.I)
         if msum:
             # if the domain has been mapped to but this is a mode sum
             # we need to first map modes
             # and then add it to an existing map at a lower domain
-            return sigma(v(*domain.Ilist), domain.modes.I)
+            return sigma(v(*domain.I), domain.modes.I)
         # the copy is important since otherwise, the printing will take
         # the update index if the variable is mutated
 
-        return v(*domain.Ilist).copy()
+        return v(*domain.I).copy()
 
     # -------------------------------------------------------------------#
     # Constraint writing
     # -------------------------------------------------------------------#
+
+    @timer(logger, kind='map')
     def writecons_map(
         self, from_domain: Domain, to_domain: Domain, tsum=False, msum=False
     ):
@@ -309,7 +304,7 @@ class Map:
             self.maps[to_domain] = [from_domain]
             exists = False
         elif from_domain in self.maps[to_domain]:
-            return
+            return False
         else:
             self.maps[to_domain].append(from_domain)
             exists = True
@@ -319,9 +314,6 @@ class Map:
         rhs = self._give_sum(from_domain, tsum, msum)
 
         cname = self._give_cname(var, from_domain, to_domain, tsum, msum)
-
-        logger.info("Mapping %s: %s → %s", var, from_domain, to_domain)
-        start = keep_time.time()
 
         v_lower = self(*to_domain).X() if self.reporting else self(*to_domain).V()
 
@@ -334,11 +326,12 @@ class Map:
             setattr(self.program, cname, cons)
             cons.categorize("Mapping")
 
-        end = keep_time.time()
-        logger.info("\u2714 Completed in %s seconds", end - start)
         if cname not in self.aspect.constraints:
             self.aspect.constraints.append(cname)
+
         from_domain.update_cons(cname)
+
+        return (self.aspect, from_domain, to_domain)
 
     def __call__(self, *index: _X):
         return self.aspect(*index)

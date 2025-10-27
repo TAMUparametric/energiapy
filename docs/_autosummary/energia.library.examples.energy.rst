@@ -10,6 +10,7 @@ energia.library.examples.energy
    
       design_scheduling
       design_scheduling_materials
+      design_scheduling_w_attrs
       scheduling
       supermarket
    

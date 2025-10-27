@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from functools import cached_property
 from typing import TYPE_CHECKING, Self
 
@@ -10,16 +11,19 @@ from ...components.temporal.lag import Lag
 from ...components.temporal.modes import Modes
 
 if TYPE_CHECKING:
-    from gana.block.program import Prg
+    from gana import Prg
 
-    from ..._core._commodity import _Commodity
-    from ..._core._operation import _Operation
+    from ...components.commodities.commodity import Commodity
+    from ...components.operations.operation import Operation
+    from ...components.operations.storage import Storage
+    from ...components.spatial.linkage import Linkage
+    from ...components.spatial.location import Location
     from ...components.temporal.periods import Periods
     from ...represent.model import Model
     from ..variables.sample import Sample
 
 
-class Conversion(_Hash):
+class Conversion(Mapping, _Hash):
     """
     Processes convert one Commodity to another Commodity
     Conversion provides the conversion of resources
@@ -53,74 +57,92 @@ class Conversion(_Hash):
 
     def __init__(
         self,
-        basis: _Commodity | None = None,
-        balance: dict[_Commodity, float | list[float]] | None = None,
-        operation: _Operation | None = None,
-        bind: Sample | None = None,
+        aspect: str = "",
+        add: str = "",
+        sub: str = "",
+        operation: Operation | Storage | None = None,
+        resource: Commodity | None = None,
+        balance: dict[Commodity, float | list[float]] | None = None,
         hold: int | float | None = None,
+        attr_name: str = "",
+        symbol: str = "η",
     ):
 
-        self.basis = basis
+        self.resource = resource
         self.operation = operation
-        self.bind = bind
 
-        # value to hold, will be applied later
-        # occurs when Conversion/Commodity == parameter is used
-        # the parameter is held until a dummy resource is created
-        self.hold = hold
+        self.symbol = symbol
 
-        self._basis: _Commodity | None = None
-        self.lag: Lag | None = None
-        self.periods: Periods | None = None
+        # * Aspect that elicits the conversion
+        self.aspect = aspect
 
-        # if piece wise linear conversion is provided
-        self.pwl: bool = False
+        # * Aspects corresponding to positive and negative conversion
+        self.add = add
+        self.sub = sub
 
-        # this is holds a mode for the conversion to be appended to
-        self._mode: int | str | None = None
-
-        # modes if PWL conversion is defined
-        # or if multiple modes are defined
-        self._modes: Modes | None = None
-
-        # if the keys are converted into Modes
-        self.modes_set: bool = False
         if balance:
             self.balance = balance
         else:
             self.balance = {}
 
+        # value to hold, will be applied later
+        # occurs when Conversion/Commodity == parameter is used
+        # the parameter is held until a dummy resource is created
+        self.hold = hold
+        # used if a resource is expected to be inventoried
+        self.expect: Commodity | None = None
+
+        self.lag: Lag | None = None
+
+        # this is carried forth incase, piece wise linear conversion is used
+        self.attr_name = attr_name
+
+    @property
+    def args(self) -> dict[str, str | Operation | Commodity | None]:
+        """Arguments of the conversion"""
+        return {
+            'by': self.aspect,
+            'add': self.add,
+            'sub': self.sub,
+            'operation': self.operation,
+            'basis': self.resource,
+        }
+
+    @classmethod
+    def from_balance(
+        cls,
+        balance: dict[Commodity, float | list[float]],
+        by: str = "",
+        add: str = "",
+        sub: str = "",
+        operation: Operation | None = None,
+        basis: Commodity | None = None,
+    ) -> Self:
+        """Creates Conversion from balance dict"""
+        conv = cls()
+        # set first resource as the basis
+        conv.balance = balance
+        conv.operation = operation
+        conv.aspect = by
+        conv.add = add
+        conv.sub = sub
+        conv.resource = basis
+        return conv
+
     @property
     def name(self) -> str:
         """Name"""
-        return f"η({self.operation}, {self.basis or self._basis})"
-
-    @property
-    def modes(self) -> Modes:
-        """Modes of the operation"""
-        if self._modes is None:
-            n_modes = len(self)
-            modes_name = f"bin{len(self.model.modes)}"
-
-            setattr(self.model, modes_name, Modes(n_modes=n_modes, bind=self.bind))
-
-            self._modes = self.model.modes[-1]
-
-        return self._modes
+        if self.resource:
+            return f"{self.symbol}({self.operation}, {self.resource})"
+        return f"{self.symbol}({self.operation})"
 
     @cached_property
-    def model(self) -> Model:
+    def model(self) -> Model | None:
         """energia Model"""
-
-        if self.pwl:
-            _conversion = self.balance[next(iter(self.balance))]
-        else:
-            _conversion = self.balance
-
-        return next((i.model for i in _conversion), None)
+        return next((i.model for i in self.balance), None)
 
     @cached_property
-    def program(self) -> Prg:
+    def program(self) -> Prg | None:
         """gana Program"""
         return self.operation.program
 
@@ -160,97 +182,203 @@ class Conversion(_Hash):
                         conversion[res] = [par] * length
             return conversion
 
-        if self.pwl:
-            for mode, conv in self.items():
-                self.balance[mode] = _balancer(conv)
+        self.balance = _balancer(self.balance)
 
-            if isinstance(next(iter(self.balance)), Modes):
-                self.modes_set = True
+    def write(
+        self, space: Location | Linkage, time: Periods | Lag, modes: Modes | None = None
+    ):
+        """Writes equations for conversion balance"""
 
-        else:
-            self.balance = _balancer(self.balance)
+        def time_checker(res: Commodity, space: Location | Linkage, time: Periods):
+            """This checks if it is actually necessary
+            to write conversion at denser temporal scales
+            """
+            # This checks whether some other aspect is defined at
+            # a lower temporal scale
 
-    def __getitem__(self, mode: int | str) -> Self:
+            if space not in self.model.balances[res]:
+                # if not defined for that location, check for a lower order location
+                # i.e. location at a lower hierarchy,
+                # e.g. say if space being passed is a city, and a grb has not been defined for it
+                # then we need to check at a higher order
+                parent = self.model.space.split(space)[
+                    1
+                ]  # get location at one hierarchy above
+                if parent:
+                    # if that indeed exists, then make the parent the space
+                    # the conversion Balance variables will feature in grb for parent location
+                    space = parent
+
+            _ = self.model.balances[res][space][time]
+
+            if res.inv_of:
+                # for inventoried resources, the conversion is written
+                # using the time of the base resource's grb
+                res = res.inv_of
+
+            try:
+                times = list(
+                    [
+                        t
+                        for t in self.model.balances[res][space]
+                        if self.model.balances[res][space][t]
+                    ],
+                )
+            except KeyError:
+                times = []
+            # write the conversion balance at
+            # densest temporal scale in that space
+            if times:
+                return min(times)
+
+            return time.horizon
+
+        for res, par in self.items():
+
+            if res in self.model.balances:
+                time = time_checker(res, space, time)
+                _ = self.model.balances[res].get(space, {})
+
+            eff = par if isinstance(par, list) else [par]
+
+            decision = getattr(self.operation, self.aspect)
+
+            if eff[0] < 0:
+                # Resources are consumed (expendend by Process) immediately
+
+                dependent = getattr(res, self.sub)
+                eff = [-e for e in eff]
+            else:
+                # Production — may occur after lag
+                time = self.lag.of if self.lag else time
+                dependent = getattr(res, self.add)
+
+            if modes:
+                rhs = dependent(decision, space, modes, time)
+
+                lhs = decision(space, modes, time)
+            else:
+                rhs = dependent(decision, space, time)
+
+                lhs = decision(space, time)
+
+            _ = lhs[rhs] == eff
+
+    def items(self):
+        """Items of the conversion balance"""
+        return self.balance.items()
+
+    def keys(self):
+        """Keys of the conversion balance"""
+        return self.balance.keys()
+
+    def values(self):
+        """Values of the conversion balance"""
+        return self.balance.values()
+
+    def __getitem__(self, key: Commodity) -> float | list[float]:
         """Used to define mode based conversions"""
-        self._mode = mode
-        return self
+        return self.balance[key]
 
-    def __call__(self, basis: _Commodity | Conversion, lag: Lag = None) -> Self:
+    def __setitem__(self, key: Commodity, value: float | list[float]):
+        self.balance[key] = value
+
+    def __call__(self, basis: Commodity | Conversion, lag: Lag | None = None) -> Self:
         # sets the basis
         if isinstance(basis, Conversion):
             # if a Conversion is provided (parameter*Commodity)
             # In this case the associated conversion is not 1
             # especially useful if Process is scaled to consumption of a commodity
             # i.e. basis = -1*Commodity
-            self.balance = {**self.balance, **basis.balance}
-            self.basis = next(iter(self.balance))
+            self.balance = {**self, **basis}
+            self.resource = next(iter(self))
 
         else:
             # if a Commodity is provided
             # implies that the conversion is 1
             # i.e the Process is scaled to one unit of this Commodity produced
-            self._basis = basis
-            self.balance = {basis: 1.0, **self.balance}
+            self.balance = {basis: 1.0, **self}
 
         if lag:
             self.lag = lag
 
         return self
 
-    def __eq__(self, other: Conversion | int | float | dict[int | float, Conversion]):
+    def __eq__(
+        self,
+        other: Conversion | list[Conversion] | int | float | dict[Modes, Conversion],
+    ):
+        if isinstance(other, dict):
+
+            collect_parents = []
+            for mode, conv in other.items():
+                conv.operation = self.operation
+
+                collect_parents.append(mode.parent)
+
+                other[mode] = Conversion.from_balance({**self, **conv}, **self.args)
+
+            if len(set(collect_parents)) > 1:
+                raise ValueError(
+                    f"{self}: PWL Conversion modes must belong to the same parent Modes",
+                )
+
+            if len(collect_parents[0]) != len(other):
+                raise ValueError(
+                    f"{self}: PWL Conversion modes must account for all modes in {collect_parents[0]}",
+                )
+
+            setattr(
+                self.operation,
+                self.attr_name,
+                PWLConversion.from_balance(
+                    balance=other, sample=getattr(self.operation, self.aspect)
+                ),
+            )
+            return getattr(self.operation, self.attr_name)
+
+        if isinstance(other, list):
+            if self.resource:
+                for i, o in enumerate(other):
+                    other[i] = Conversion.from_balance(
+                        {**self, **o},
+                    )
+            setattr(
+                self.operation,
+                self.attr_name,
+                PWLConversion(
+                    conversions=other,
+                    sample=(
+                        getattr(self.operation.stored, self.aspect)
+                        if hasattr(self.operation, "stored")
+                        else getattr(self.operation, self.aspect)
+                    ),
+                    aspect=self.aspect,
+                    add=self.add,
+                    sub=self.sub,
+                ),
+            )
+            return getattr(self.operation, self.attr_name)
 
         if isinstance(other, (int, float)):
             # this is used for inventory conversion
             # when not other resource besides the one being inventoried is involved
-
-            self.balance = {**self.balance, self.basis: -1.0 / float(other)}
-
-        elif isinstance(other, dict):
-
-            key = next(iter(other.keys()))
-
-            if isinstance(key, Modes):
-                # conversion modes can collate
-                # for example resource conversion modes and material conversion modes
-                self.modes_set = True
-                self._modes = key.parent
-
-            # this is when there is a proper resource conversion
-            # -20*res1 = 10*res2 for example
-            self.balance = {k: {**self.balance, **v.balance} for k, v in other.items()}
-            self.pwl = True
-
-        # this would be a Conversion or Commodity
-        elif self._mode is not None:
-            self.balance[self._mode] = other.balance
-            if not self.pwl:
-                self.pwl = True
-            self._mode = None
+            self.balance = {**self, self.expect: 1 / -float(other)}
         else:
-            self.balance: dict[_Commodity, int | float] = {
-                **self.balance,
-                **other.balance,
-            }
-
+            self.balance = {**self, **other}
         self.model.convmatrix[self.operation] = self.balance
         return self
 
-    # these update the conversion of the resource (self.conversion)
+    def __neg__(self) -> Self:
+        self.balance = {res: -par for res, par in self.balance.items()}
+        return self
+
     def __add__(self, other: Conversion) -> Self:
-        if isinstance(other, Conversion):
-            self.balance = {**self.balance, **other.balance}
-            return self
-        self.balance = {**self.balance, other: 1}
+        self.balance = {**self, **other}
         return self
 
     def __sub__(self, other: Conversion) -> Self:
-        if isinstance(other, Conversion):
-            self.balance = {
-                **self.balance,
-                **{res: -1 * par for res, par in other.items()},
-            }
-            return self
-        self.balance = {**self.balance, other: -1}
+        self.balance = {**self, **-other}
         return self
 
     def __mul__(self, times: int | float | list) -> Self:
@@ -263,23 +391,231 @@ class Conversion(_Hash):
     def __rmul__(self, times) -> Self:
         return self * times
 
-    def __truediv__(self, periods: Periods) -> Self:
-        self.periods = periods
-        return self
+    def __len__(self):
+        """Length of the conversion balance"""
+        return len(self.balance)
 
-    def items(self):
-        """Items of the conversion balance"""
-        return self.balance.items()
+    def __iter__(self):
+        return iter(self.balance)
+
+
+class PWLConversion(Mapping, _Hash):
+    """Piece Wise Linear Conversion"""
+
+    def __init__(
+        self,
+        conversions: list[Conversion],
+        sample: Sample,
+        aspect: str = "",
+        add: str = "",
+        sub: str = "",
+    ):
+
+        self.sample = sample
+        self.operation = self.sample.domain.operation or self.sample.domain.primary
+        self.model = self.sample.model
+        if conversions:
+
+            self.modes = self.model.Modes(size=len(conversions), sample=sample)
+            self.balance: dict[Modes, Conversion] = {
+                m: conv for m, conv in zip(self.modes, conversions)
+            }
+
+            for conv in conversions:
+                conv.operation = self.operation
+                conv.aspect = aspect or conv.aspect
+                conv.add = add or conv.add
+                conv.sub = sub or conv.sub
+
+        self._aspect = aspect
+        self._add = add
+        self._sub = sub
+
+    @property
+    def aspect(self) -> str:
+        if self._aspect:
+            return self._aspect
+        return self[0].aspect
+
+    @property
+    def add(self) -> str:
+        if self._add:
+            return self._add
+        return self[0].add
+
+    @property
+    def sub(self) -> str:
+        if self._sub:
+            return self._sub
+        return self[0].sub
+
+    @property
+    def lag(self) -> str:
+        return self[0].lag
+
+    @classmethod
+    def from_balance(
+        cls,
+        balance: dict[Modes, Conversion],
+        sample: Sample,
+    ) -> Self:
+        """Creates PWLConversion from balance dict"""
+        conv = cls([], sample)
+        conv.operation = sample.domain.operation
+        conv.balance = balance
+        conv.modes = (next(iter(balance))).parent
+
+        return conv
+
+    def balancer(self):
+        """Balances all conversions"""
+        for conv in self.balance.values():
+            conv.balancer()
+
+    @property
+    def name(self) -> str:
+        """Name"""
+        return f"η_PWL({self.operation}, {self.modes})"
 
     def __len__(self):
         """Length of the conversion balance"""
         return len(self.balance)
 
+    def __iter__(self):
+        return iter(self.balance)
 
-class PWLConversion(_Hash):
-    """Piece Wise Linear Conversion"""
+    def __setitem__(self, key: int | str | Modes, value: Conversion):
 
-    def __init__(self, modes: Modes, bind: Sample | None = None):
-        self.modes = modes
-        self.bind = bind
-        self.balance: dict[int | str, Conversion] = {}
+        if isinstance(key, int):
+            key = self.modes[key]
+
+        self.balance[key] = value
+
+    def __getitem__(self, key: int | str) -> Conversion:
+        """Used to define mode based conversions"""
+
+        if isinstance(key, int):
+            key = self.modes[key]
+
+        return self.balance[key]
+
+    def items(self):
+        """Items of the conversion balance"""
+        return self.balance.items()
+
+    def keys(self):
+        """Keys of the conversion balance"""
+        return self.balance.keys()
+
+    def values(self):
+        """Values of the conversion balance"""
+        return self.balance.values()
+
+    def box(self):
+        """Consolidates the conversion dict into {resource: par} format"""
+        resources = list(set().union(*self.values()))
+        _box = {r: [] for r in resources}
+        for conv in self.values():
+            for resource in resources:
+                if resource in conv:
+                    _box[resource].append(conv[resource])
+                else:
+                    _box[resource].append(None)
+
+        return _box
+
+    def write(self, space: Location | Linkage, time: Periods | Lag):
+        """Writes equations for conversion balance"""
+
+        # def time_checker(res: Commodity, space: Location | Linkage, time: Periods):
+        #     """This checks if it is actually necessary
+        #     to write conversion at denser temporal scales
+        #     """
+        #     # This checks whether some other aspect is defined at
+        #     # a lower temporal scale
+
+        #     if space not in self.model.balances[res]:
+        #         # if not defined for that location, check for a lower order location
+        #         # i.e. location at a lower hierarchy,
+        #         # e.g. say if space being passed is a city, and a balance has not been defined for it
+        #         # then we need to check at a higher order
+        #         parent = self.model.space.split(space)[
+        #             1
+        #         ]  # get location at one hierarchy above
+        #         if parent:
+        #             # if that indeed exists, then make the parent the space
+        #             # the conversion Balance variables will feature in balance for parent location
+        #             space = parent
+
+        #     _ = self.model.balances[res][space][time]
+
+        #     if res.inv_of:
+        #         # for inventoried resources, the conversion is written
+        #         # using the time of the base resource's grb
+        #         res = res.inv_of
+
+        #     try:
+        #         times = list(
+        #             [
+        #                 t
+        #                 for t in self.model.balances[res][space]
+        #                 if self.model.balances[res][space][t]
+        #             ],
+        #         )
+        #     except KeyError:
+        #         times = []
+        #     # write the conversion balance at
+        #     # densest temporal scale in that space
+        #     if times:
+        #         return min(times)
+
+        #     return time.horizon
+
+        for mode, conv in self.items():
+
+            conv.write(space, time, mode)
+
+        # for res, par in self.box().items():
+
+        #     for n, p in enumerate(par):
+
+        #         if not p:
+        #             continue
+        #         else:
+
+        #             modes = self.modes[n]
+
+        #             if res in self.model.balances:
+        #                 time = time_checker(res, space, time)
+        #                 _ = self.model.balances[res].get(space, {})
+
+        #             decision = (
+        #                 getattr(self.operation.stored, self.aspect)
+        #                 if hasattr(self.operation, "stored")
+        #                 else getattr(self.operation, self.aspect)
+        #             )
+
+        #             if p < 0:
+        #                 rhs = getattr(res, self.sub)(decision, space, modes, time)
+        #                 p = -p
+        #             else:
+        #                 lag_time = self.lag.of if self.lag else time
+        #                 rhs = getattr(res, self.add)(decision, space, modes, lag_time)
+        #             lhs = decision(space, time, modes)
+        #             _ = lhs[rhs] == p
+
+        # # the box is consistent, the resource features in all modes
+        # if par[0] < 0:
+        #     # Resources are consumed (expendend by Process) immediately
+
+        #     rhs = getattr(res, self.sub)(decision, space, self.modes, time)
+        #     par = [-e for e in par]
+        # else:
+        #     # Production — may occur after lag
+        #     lag_time = self.lag.of if self.lag else time
+        #     rhs = getattr(res, self.add)(decision, space, self.modes, lag_time)
+
+        # opr = decision(space, time, self.modes)
+
+        # print(opr, opr.domain, rhs, rhs.domain, par)
+        # _ = opr[rhs] == par

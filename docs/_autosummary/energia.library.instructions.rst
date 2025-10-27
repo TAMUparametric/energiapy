@@ -1,4 +1,4 @@
-﻿energia.library.instructions
+energia.library.instructions
 ============================
 
 .. automodule:: energia.library.instructions
@@ -15,5 +15,7 @@
 
    .. autosummary::
    
+      Commodity
+      Operation
       Stored
    

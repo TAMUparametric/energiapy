@@ -9,4 +9,6 @@ energia.utils.decorators
    .. autosummary::
    
       once
+      timer
+      wraps
    

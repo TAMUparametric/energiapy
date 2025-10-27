@@ -1,18 +1,18 @@
-"""Land"""
+"""Emission"""
 
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from ..._core._commodity import _Commodity
+from .commodity import Commodity
 
 if TYPE_CHECKING:
     from ..measure.unit import Unit
 
 
-class Land(_Commodity):
+class Emission(Commodity):
     """
-    Land used by Operations
+    Emission
 
     :param label: Label of the commodity, used for plotting. Defaults to None.
     :type label: str, optional
@@ -46,6 +46,6 @@ class Land(_Commodity):
         citations: str = "",
         **kwargs,
     ):
-        _Commodity.__init__(
+        Commodity.__init__(
             self, basis=basis, label=label, citations=citations, **kwargs
         )

@@ -72,7 +72,7 @@ def test_small_1L_mT_mO_MILP(model):
         ],
         rel=1e-9,
     )
-    assert m.produce(m.power.lii, m.lii.charge.operate, m.q).output(
+    assert m.produce(m.lii.stored, m.lii.charge.operate, m.q).output(
         aslist=True
     ) == pytest.approx([6.882716049382594, 20.27777777777778, 0.0, 0.0], rel=1e-9)
     assert m.produce(m.power, m.lii.discharge.operate, m.q).output(
@@ -87,7 +87,7 @@ def test_small_1L_mT_mO_MILP(model):
     assert m.expend(m.power, m.lii.charge.operate, m.q).output(
         aslist=True
     ) == pytest.approx([6.882716049382594, 20.27777777777778, 0.0, 0.0], rel=1e-9)
-    assert m.expend(m.power.lii, m.lii.discharge.operate, m.q).output(
+    assert m.expend(m.lii.stored, m.lii.discharge.operate, m.q).output(
         True
     ) == pytest.approx([0.0, 0.0, 27.160493827160423, 0.0], rel=1e-9)
     assert m.expend(m.wind, m.wf.operate, m.y).output(aslist=True) == pytest.approx(

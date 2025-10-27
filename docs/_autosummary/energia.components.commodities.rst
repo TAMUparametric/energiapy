@@ -1,7 +1,7 @@
-energia.components.commodity
-============================
+energia.components.commodities
+==============================
 
-.. automodule:: energia.components.commodity
+.. automodule:: energia.components.commodities
 
    
    .. rubric:: Classes
@@ -20,10 +20,10 @@ energia.components.commodity
    :toctree:
    :recursive:
 
+   commodity
    currency
    emission
    land
    material
    misc
    resource
-   stored

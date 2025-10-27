@@ -1,12 +1,12 @@
 """Energy system examples"""
 
-from ...components.commodity.currency import Currency
-from ...components.commodity.material import Material
-from ...components.commodity.resource import Resource
+from ...components.commodities.currency import Currency
+from ...components.commodities.material import Material
+from ...components.commodities.resource import Resource
 from ...components.impact.categories import Environ
 from ...components.measure.unit import Unit
-from ...components.operation.process import Process
-from ...components.operation.storage import Storage
+from ...components.operations.process import Process
+from ...components.operations.storage import Storage
 from ...components.spatial.location import Location
 from ...components.temporal.periods import Periods
 from ...components.temporal.scales import TemporalScales
@@ -238,8 +238,12 @@ def design_scheduling_materials():
     _ = m.si_poly.consume[m.gwp.emit] == 98646.7
 
     m.wf = Process()
-    _ = m.wf.fab[0] == 109.9 * m.steel + 398.7 * m.concrete
-    _ = m.wf.fab[1] == 249.605 * m.steel + 12.4 * m.concrete
+    _ = m.wf.construction = {
+        0: 109.9 * m.steel + 398.7 * m.concrete,
+        1: 249.605 * m.steel + 12.4 * m.concrete,
+    }
+    # _ = m.wf.fab[0] == 109.9 * m.steel + 398.7 * m.concrete
+    # _ = m.wf.fab[1] == 249.605 * m.steel + 12.4 * m.concrete
     _ = m.wf(m.power) == {
         m.wf.fab.modes[0]: -2.857 * m.wind,
         m.wf.fab.modes[1]: -2.3255 * m.wind,
@@ -254,8 +258,12 @@ def design_scheduling_materials():
     _ = m.wf.operate[m.usd.spend] == 49
 
     m.pv = Process()
-    _ = m.pv.fab[0] == 70 * m.glass + 7 * m.si_mono
-    _ = m.pv.fab[1] == 70 * m.glass + 7 * m.si_poly
+    _ = m.pv.construction = {
+        0: 70 * m.glass + 7 * m.si_mono,
+        1: 70 * m.glass + 7 * m.si_poly,
+    }
+    # _ = m.pv.fab[0] == 70 * m.glass + 7 * m.si_mono
+    # _ = m.pv.fab[1] == 70 * m.glass + 7 * m.si_poly
     _ = m.pv(m.power) == {
         m.pv.fab.modes[0]: -5 * m.solar,
         m.pv.fab.modes[1]: -6.67 * m.solar,
@@ -268,8 +276,12 @@ def design_scheduling_materials():
 
     m.lii = Storage()
     _ = m.lii(m.power) == 0.9
-    _ = m.lii.fab[0] == 0.137 * m.lib + 1.165 * m.steel
-    _ = m.lii.fab[1] == 0.137 * m.lir + 1.165 * m.steel
+    _ = m.lii.construction = {
+        0: 0.137 * m.lib + 1.165 * m.steel,
+        1: 0.137 * m.lir + 1.165 * m.steel,
+    }
+    # _ = m.lii.fab[0] == 0.137 * m.lib + 1.165 * m.steel
+    # _ = m.lii.fab[1] == 0.137 * m.lir + 1.165 * m.steel
     _ = m.lii.capacity.x <= 100
     _ = m.lii.capacity.x >= 10
     _ = m.lii.capacity[m.usd.spend] == 1302182 + 41432
@@ -382,7 +394,7 @@ def supermarket():
     m.heating = Resource(basis=m.kW, label="Heating")
     _ = m.heating.release >= resource_demand_dict["Space Heating"]
 
-    m.st = Process(basis=m.PJ, label="Biomass ST")
+    m.st = Process(label="Biomass ST")
     _ = (
         m.st(-m.biomass)
         == (277.78 * generation_process_dict["Biomass ST"]["nE"] / 100) * m.power
@@ -397,7 +409,7 @@ def supermarket():
     )
     _ = m.st.operate[m.usd.spend] == generation_process_dict["Biomass ST"]["Opex"]
 
-    m.chp = Process(basis=m.PJ, label="Biomass ST")
+    m.chp = Process(label="Biomass ST")
     _ = (
         m.chp(-m.ng)
         == (277.78 * generation_process_dict["Natural Gas CHP"]["nE"] / 100) * m.power
@@ -413,7 +425,7 @@ def supermarket():
     )
     _ = m.chp.operate[m.usd.spend] == generation_process_dict["Natural Gas CHP"]["Opex"]
 
-    m.pv = Process(basis=m.kW, label="Solar PV")
+    m.pv = Process(label="Solar PV")
     _ = (
         m.pv(-m.solar)
         == (277.78 * generation_process_dict["Solar PV"]["nE"] / 100) * m.power
@@ -426,7 +438,7 @@ def supermarket():
     )
     _ = m.pv.operate[m.usd.spend] == generation_process_dict["Solar PV"]["Opex"]
 
-    m.wf = Process(basis=m.kW, label="Wind Farm")
+    m.wf = Process(label="Wind Farm")
     _ = (
         m.wf(-m.wind)
         == (277.78 * generation_process_dict["Wind Farm"]["nE"] / 100) * m.power
@@ -439,7 +451,7 @@ def supermarket():
     )
     _ = m.wf.operate[m.usd.spend] == generation_process_dict["Wind Farm"]["Opex"]
 
-    m.grid = Process(basis=m.PJ, label="Grid Electricity")
+    m.grid = Process(label="Grid Electricity")
     _ = (
         m.grid(-m.gridpower)
         == 277.78 * m.power
@@ -447,7 +459,7 @@ def supermarket():
     )
     _ = m.grid.capacity <= 10**5  # no binary needed because no upper bound
 
-    m.refrigerator = Process(basis=m.kW, label="Refrigerator")
+    m.refrigerator = Process(label="Refrigerator")
     _ = m.refrigerator.capacity <= 10**5
     _ = (
         m.refrigerator(-m.power)
@@ -463,7 +475,7 @@ def supermarket():
         == consumption_process_dict["Refrigeration"]["Opex"]
     )
 
-    m.led = Process(basis=m.kW, label="LED")
+    m.led = Process(label="LED")
     _ = (
         m.led(-m.power)
         == (consumption_process_dict["LED"]["Efficiency"] / 100) * m.lighting
@@ -471,7 +483,7 @@ def supermarket():
     _ = m.led.capacity[m.usd.spend] == consumption_process_dict["LED"]["Capex"] * 0.05
     _ = m.led.operate[m.usd.spend] == consumption_process_dict["LED"]["Opex"]
 
-    m.heater = Process(basis=m.kW, label="Heater")
+    m.heater = Process(label="Heater")
     _ = (
         m.heater(-m.heat)
         == (consumption_process_dict["Heating"]["Efficiency"] / 100) * m.heating

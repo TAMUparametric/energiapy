@@ -9,13 +9,13 @@ from typing import TYPE_CHECKING, Self, Type
 import matplotlib.pyplot as plt
 from matplotlib import rc
 
-from ..._core._commodity import _Commodity
+from ...components.commodities.commodity import Commodity
 from ...components.game.couple import Interact
 from ...components.game.player import Player
 from ...components.impact.indicator import Indicator
-from ...components.operation.process import Process
-from ...components.operation.storage import Storage
-from ...components.operation.transport import Transport
+from ...components.operations.process import Process
+from ...components.operations.storage import Storage
+from ...components.operations.transport import Transport
 from ...components.spatial.linkage import Linkage
 from ...components.spatial.location import Location
 from ...components.temporal.lag import Lag
@@ -77,7 +77,7 @@ class Aspect:
     :ivar indices: List of indices (Location, Periods) associated with the Aspect.
     :vartype indices: list[Location | Linkage, Periods]
     :ivar bound_spaces: Spaces where the Aspect has been already bound.
-    :vartype bound_spaces: dict[_Commodity | Process | Storage | Transport, list[Location | Linkage]]
+    :vartype bound_spaces: dict[Commodity | Process | Storage | Transport, list[Location | Linkage]]
     :ivar domains: List of domains associated with the Aspect.
     :vartype domains: list[Domain]
 
@@ -111,7 +111,7 @@ class Aspect:
 
         # spaces where the aspect has been already bound
         self.bound_spaces: dict[
-            _Commodity | Process | Storage | Transport,
+            Commodity | Process | Storage | Transport,
             list[Location | Linkage],
         ] = {}
 
@@ -136,7 +136,7 @@ class Aspect:
         self.constraints: list[str] = []
 
         # this keeps track of whether GRB has already been added
-        self.grb: dict[tuple[Idx, ...], bool] = {}
+        self.balances: dict[tuple[Idx, ...], bool] = {}
 
     @property
     def maps(self) -> dict[Domain, dict[str, list[Domain]]]:
@@ -216,7 +216,7 @@ class Aspect:
     def dispositions(self) -> dict[
         Self,
         dict[
-            _Commodity | Process | Storage | Transport,
+            Commodity | Process | Storage | Transport,
             dict[
                 Periods | Location | Linkage,
                 dict[Location | Periods | Linkage, bool],
@@ -381,7 +381,7 @@ class Aspect:
                 Interact: ("couple", None, False),
                 Indicator: ("indicator", None, False),
                 Modes: ("modes", None, False),
-                _Commodity: ("commodity", None, True),
+                Commodity: ("commodity", None, True),
             }
 
             samples: list[Sample] = []

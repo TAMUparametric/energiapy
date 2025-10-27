@@ -9,11 +9,11 @@ energia.modeling.constraints.bind
    .. autosummary::
    
       normalize
+      timer
    
    .. rubric:: Classes
 
    .. autosummary::
    
       Bind
-      Modes
    

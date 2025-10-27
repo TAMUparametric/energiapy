@@ -1,4 +1,4 @@
-﻿energia.represent.model
+energia.represent.model
 =======================
 
 .. automodule:: energia.represent.model

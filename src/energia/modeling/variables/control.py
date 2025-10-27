@@ -43,7 +43,7 @@ class Control(Aspect):
     :ivar indices: List of indices (Location, Periods) associated with the Aspect.
     :vartype indices: list[Location | Linkage, Periods]
     :ivar bound_spaces: Spaces where the Aspect has been already bound.
-    :vartype bound_spaces: dict[_Commodity | Process | Storage | Transport, list[Location | Linkage]]
+    :vartype bound_spaces: dict[Commodity | Process | Storage | Transport, list[Location | Linkage]]
     :ivar domains: List of domains associated with the Aspect.
     :vartype domains: list[Domain]
 
