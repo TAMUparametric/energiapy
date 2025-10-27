@@ -96,48 +96,38 @@ class Map:
         # the operators <, > wont work since they will add any space a higher order
         # this will lead to adding twice. India = Goa + Madgaon + Ponje (WRONG)
         # We scale only one level up
-        if self._check_existing():
+        if self._check_validity():
             return
 
-        # if self.domain.modes:
-        #     _to_domain = to_domain.change({"modes": self.domain.modes.parent})
+        diff = (to_domain - from_domain)[0]
+
+        exists = self._check_existing(diff, to_domain, from_domain)
+        print('b', exists)
+
+        # if to_domain not in self.maps:
+        #     self.maps[diff][to_domain] = [from_domain]
+        #     exists = False
+        # elif from_domain in self.maps[diff][to_domain]:
+        #     return False
         # else:
-        #     _to_domain = to_domain
 
-        if to_domain not in self.maps:
-            if self.domain.modes and self.domain.modes.parent:
-                self.maps[to_domain.change({"modes": self.domain.modes.parent})] = [
-                    from_domain
-                ]
-            else:
-                self.maps[to_domain] = [from_domain]
-            exists = False
-        elif from_domain in self.maps[to_domain]:
-            return False
-        else:
-            if self.domain.modes and self.domain.modes.parent:
-                self.maps[to_domain.change({"modes": self.domain.modes.parent})].append(
-                    from_domain
-                )
-            else:
-                self.maps[to_domain].append(from_domain)
+        #     self.maps[diff][to_domain].append(from_domain)
+        #     exists = True
 
-            exists = True
-
-        var = self.aspect.reporting if self.reporting else self.aspect
-
-        rhs = self._give_sum(from_domain, tsum, msum)
-
-        self.cons_name = self._give_cname(var, from_domain, to_domain, tsum, msum)
+        self.cons_name = self._give_cname(self.var, from_domain, to_domain, tsum, msum)
 
         v_lower = self(*to_domain).X() if self.reporting else self(*to_domain).V()
 
         if not tsum and not msum and exists:
             cons_existing: C = getattr(self.program, self.cons_name)
-            setattr(self.program, self.cons_name, cons_existing - rhs)
+            setattr(
+                self.program,
+                self.cons_name,
+                cons_existing - self.rhs(from_domain, tsum, msum),
+            )
 
         else:
-            cons = v_lower == rhs
+            cons = v_lower == self.rhs(from_domain, tsum, msum)
             setattr(self.program, self.cons_name, cons)
             cons.categorize("Mapping")
 
@@ -145,9 +135,33 @@ class Map:
 
         return (self.aspect, from_domain, to_domain)
 
+    def _check_existing(
+        self, what: str, to_domain: Domain, from_domain: Domain
+    ) -> bool:
+        """Checks if the map constraint already exists"""
+        print(what, to_domain, from_domain)
+        if to_domain not in self.maps[what]:
+            self.maps[what][to_domain] = [from_domain]
+            # make new constraint
+            return False
+
+        if from_domain in self.maps[what][to_domain]:
+            # There is an exisiting map
+            return True
+        if what == "samples":
+            return True
+
     @cached_property
-    def name(self) -> str:
-        return f"{self.aspect.name}_map"
+    def var(self):
+        return self.aspect.reporting if self.reporting else self.aspect
+
+    @cached_property
+    def rhs(self):
+        return self.rhs(self.domain)
+
+    # @cached_property
+    # def name(self) -> str:
+    #     return f"{self.aspect.name}_map"
 
     @cached_property
     def maps(self) -> dict[Domain, list[Domain]]:
@@ -296,7 +310,7 @@ class Map:
 
         return f"{var}{to_domain.idxname}_map"
 
-    def _give_sum(self, domain: Domain, tsum=False, msum=False):
+    def rhs(self, domain: Domain, tsum=False, msum=False):
         """Gives the sum of the variable over the domain"""
         varname = (
             f"x_{self.aspect.name}" if (msum and self.reporting) else self.aspect.name
@@ -322,8 +336,8 @@ class Map:
     # Constraint writing
     # -------------------------------------------------------------------#
 
-    def _check_existing(self) -> bool:
-        """Checks if the map constraint already exists"""
+    def _check_validity(self) -> bool:
+        """Check space and time"""
         if (
             self.space not in self.dispositions
             or self.time not in self.dispositions[self.space]

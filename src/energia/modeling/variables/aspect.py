@@ -134,16 +134,33 @@ class Aspect:
         self.balances: dict[tuple[Idx, ...], bool] = {}
 
     @cached_property
-    def maps(self) -> dict[Domain, dict[str, list[Domain]]]:
+    def maps(self) -> dict[Aspect, dict[str, list[Domain]]]:
         """Maps of the decision"""
-        self.model.maps[self] = {}
+        self.model.maps[self] = {"time": {}, "space": {}, "modes": {}, "samples": {}}
         return self.model.maps[self]
 
     @cached_property
-    def maps_report(self) -> dict[Domain, dict[str, list[Domain]]]:
+    def maps_report(self) -> dict[Aspect, dict[str, list[Domain]]]:
         """Maps of the decision"""
-        self.model.maps_report[self] = {}
+        self.model.maps_report[self] = {
+            "time": {},
+            "space": {},
+            "modes": {},
+            "samples": {},
+        }
         return self.model.maps_report[self]
+
+    # @cached_property
+    # def maps(self) -> dict[Aspect, dict[str, list[Domain]]]:
+    #     """Maps of the decision"""
+    #     self.model.maps[self] = {}
+    #     return self.model.maps[self]
+
+    # @cached_property
+    # def maps_report(self) -> dict[Aspect, dict[str, list[Domain]]]:
+    #     """Maps of the decision"""
+    #     self.model.maps_report[self] = {s}
+    #     return self.model.maps_report[self]
 
     @cached_property
     def isneg(self) -> bool:
