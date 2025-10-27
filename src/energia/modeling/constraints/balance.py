@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+from functools import cached_property
 from operator import is_
 from typing import TYPE_CHECKING, Self
 
@@ -60,7 +61,7 @@ class Balance(_Hash):
             return False
         return True
 
-    @property
+    @cached_property
     def space(self) -> Location | Linkage | None:
         """Location or Linkage of the constraint"""
         return (
@@ -73,12 +74,12 @@ class Balance(_Hash):
             )
         )
 
-    @property
+    @cached_property
     def name(self) -> str:
         """Name of the constraint"""
         return f"{self.aspect.name}{self.domain}"
 
-    @property
+    @cached_property
     def sign(self) -> float:
         """Returns the aspect"""
         return self.aspect.sign
