@@ -250,12 +250,13 @@ class Bind:
     def _check_existing(self) -> bool:
         """Checks if aspect already has been bound in that space"""
         if (
-            self.domain.space in self.aspect.bound_spaces[self.domain.primary][self.rel]
+            (self.domain.space, self.domain.time)
+            in self.aspect.bound_spaces[self.domain.primary][self.rel]
         ) and not self.domain.modes:
             return True
 
         self.aspect.bound_spaces[self.domain.primary][self.rel].append(
-            self.domain.space,
+            (self.domain.space, self.domain.time)
         )
 
     def _inform(self):
