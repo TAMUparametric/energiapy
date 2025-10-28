@@ -854,7 +854,7 @@ class Model:
     # * Default Components
     # ------------------------------------------------------------------------
 
-    def _t0(self, size: int = 0) -> Periods:
+    def _t0(self, size: int = 1) -> Periods:
         """Return a default period
 
         :param size: Size of the period. Defaults to 0.
@@ -864,19 +864,21 @@ class Model:
         :rtype: Periods
         """
 
-        if size:
-            # if size is passed,
-            # make a new temporal scale
-            new_period = Periods(f"Time/{size}", periods=size, of=self.horizon)
-            setattr(self, f"t{len(self.time.periods)}", new_period)
+        if not self.periods:
+            # if no periods exits yet, make the horizon
+            
+            self.t0 = Periods()
+        
 
-            # return the newly created period
-            return self.time.periods[-1]
+
+        if size > 1:
+            setattr(self, f"t{len(self.periods)}", self.horizon/size)
+
+        return self.periods[-1]
+        
 
         # or create a default period
 
-        self.t0 = Periods("Time")
-        return self.t0
 
     def _l0(self) -> Location:
         """Return a default location"""

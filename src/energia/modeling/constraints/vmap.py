@@ -122,20 +122,6 @@ class Map:
 
         return (self.aspect, from_domain, to_domain)
 
-    def _check_existing(self, to_domain: Domain, from_domain: Domain) -> bool:
-        """Checks if the map constraint already exists"""
-        what = (to_domain - from_domain)[0]
-        if to_domain not in self.maps[what]:
-            self.maps[what][to_domain] = [from_domain]
-            # make new constraint
-            return False
-
-        if from_domain in self.maps[what][to_domain]:
-            # There is an existing map
-            return True
-        if what in ["samples", "modes"]:
-            return True
-
     @cached_property
     def var(self):
         return self.aspect.reporting if self.reporting else self.aspect
@@ -269,6 +255,20 @@ class Map:
             self.write(self.domain, self.domain.change({"modes": None}))
         else:
             self.write(self.domain, self.domain.change({"modes": None}), msum=True)
+
+    def _check_existing(self, to_domain: Domain, from_domain: Domain) -> bool:
+        """Checks if the map constraint already exists"""
+        what = (to_domain - from_domain)[0]
+        if to_domain not in self.maps[what]:
+            self.maps[what][to_domain] = [from_domain]
+            # make new constraint
+            return False
+
+        if from_domain in self.maps[what][to_domain]:
+            # There is an existing map
+            return True
+        if what in ["samples", "modes"]:
+            return True
 
     def _give_cname(
         self,

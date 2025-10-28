@@ -19,7 +19,6 @@ if TYPE_CHECKING:
     from ..._core._x import _X
     from ...components.spatial.linkage import Linkage
     from ...components.spatial.location import Location
-    from ...components.temporal.periods import Periods
     from ..indices.domain import Domain
     from ..variables.aspect import Aspect
 
@@ -103,7 +102,6 @@ class Balance(_Hash):
 
         if (
             _space.isin is not None
-            and not self.existing_aspects
             and self.balances[self.commodity][_space.isin][self.time]
         ):
 

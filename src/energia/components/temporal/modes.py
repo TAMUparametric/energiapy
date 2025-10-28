@@ -68,9 +68,14 @@ class Modes(_X):
         # based on the pname (attribute name) in the program
         if self.parent:
             return [getattr(self.program, c) for c in self.constraints]
-        return [getattr(self.program, c) for c in self.constraints] + sum(
-            [m.cons for m in self],
-            [],
+        return list(
+            set(
+                [getattr(self.program, c) for c in self.constraints]
+                + sum(
+                    [m.cons for m in self],
+                    [],
+                )
+            )
         )
 
     @cached_property
@@ -106,8 +111,7 @@ class Modes(_X):
         """Get a mode by index"""
         if not self._birthed:
             self._ = [
-                Modes(sample=self.sample, parent=self, n=i)
-                for i in range(self.size)
+                Modes(sample=self.sample, parent=self, n=i) for i in range(self.size)
             ]
             self._birthed = True
 

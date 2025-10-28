@@ -5,11 +5,13 @@ from __future__ import annotations
 from dataclasses import dataclass
 from functools import cached_property
 from typing import TYPE_CHECKING
-from warnings import warn
+import logging
 
 from .._core._dimension import _Dimension
 from ..components.temporal.modes import Modes
 from ..components.temporal.periods import Periods
+
+logger = logging.getLogger("energia")
 
 if TYPE_CHECKING:
     from gana import Prg
@@ -69,8 +71,10 @@ class Time(_Dimension):
 
         if size not in self.tree:
             # if no math make a default period
-            warn(
-                f"{size} does not match the size of any data set passed, generating 't{size}'.)",
+            logger.info(
+                "💡  %s does not match the size of any data set passed, generating 't%s'.)",
+                size,
+                len(self.periods),
             )
             _ = self.model._t0(size=size)
 
