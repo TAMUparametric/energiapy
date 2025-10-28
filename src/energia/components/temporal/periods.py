@@ -15,6 +15,7 @@ from .lag import Lag
 if TYPE_CHECKING:
     from gana.sets.constraint import C
 
+    from ...components.temporal.modes import Modes
     from ...dimensions.time import Time
 
 
@@ -84,6 +85,8 @@ class Periods(_X):
 
         # if parent is true, this is part of another periods set
         self.parent: Self | None = None
+
+        self.modes: list[Modes] = []
 
     def isroot(self):
         """Is used to define another period?"""

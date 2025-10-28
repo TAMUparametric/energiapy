@@ -104,7 +104,6 @@ class Bind:
         if self._check_existing():
             return False
 
-        print(self.lhs, self.rhs)
         if self.leq:
             self.cons: C = self.lhs <= self.rhs
 

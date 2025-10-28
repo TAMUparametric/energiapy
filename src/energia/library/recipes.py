@@ -13,7 +13,7 @@ from ..components.impact.categories import Economic, Environ, Social
 from ..components.operations.process import Process
 from ..components.operations.storage import Stored
 from ..components.operations.transport import Transport
-from ..modeling.variables.control import Control
+# from ..modeling.variables.control import Control
 from ..modeling.variables.states import (EndoStream, ExoStream, IndStream,
                                          SetPoint, Size)
 

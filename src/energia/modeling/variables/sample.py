@@ -153,7 +153,6 @@ class Sample:
     @property
     def F(self):
         """Function"""
-
         if self.report:
             return self.X(1)
         return self.V(1)

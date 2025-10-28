@@ -55,7 +55,7 @@ class Map:
         # Space mapping ---
         self._map_across_space()
         # Bind mapping ---
-        self._map_across_binds()
+        self._map_across_samples()
 
         # Mode mapping ---
         self._map_across_modes()
@@ -238,7 +238,7 @@ class Map:
         #         self.domain, self.domain.change({"location": parent_loc})
         #     )
 
-    def _map_across_binds(self):
+    def _map_across_samples(self):
         if self.domain.samples or not self.dispositions[self.space][self.time]:
             return
         # if the current variable being declared has no samples

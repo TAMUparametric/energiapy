@@ -722,9 +722,10 @@ class Model:
         :param name: Name of the modes. Defaults to "modes".
         :type name: str, optional
         """
-        nth = len(self.modes)
-        modes = Modes(size=size, sample=sample, n=nth)
-        setattr(self, f'pwl{nth}', modes)
+        modes = Modes(size=size, sample=sample, n=len(self.modes))
+        periods = sample.domain.periods or self.time.horizon
+        setattr(self, f'_{periods}{len(periods.modes)}', modes)
+        periods.modes.append(modes)
         return modes
 
     # ------------------------------------------------------------------------
