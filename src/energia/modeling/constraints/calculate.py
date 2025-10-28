@@ -204,7 +204,7 @@ class Calculate:
                 )
 
                 calc.aspect.constraints.append(cons_name)
-                domain.update_cons(cons_name)
+                domain.inform_indices(cons_name)
 
     def __call__(self, *index) -> Self:
         return Calculate(

@@ -7,6 +7,7 @@ from functools import cached_property
 from typing import TYPE_CHECKING
 
 from ...utils.decorators import timer
+
 # from ...components.temporal.modes import Modes
 from ...utils.math import normalize
 
@@ -76,6 +77,7 @@ class Bind:
 
         # if a bound variable is generated
         self.Vb: V = None
+        self.X: V = None
 
         self._handshake()
 
@@ -102,7 +104,8 @@ class Bind:
 
         if self._check_existing():
             return False
-
+        
+        print(self.lhs, self.rhs)
         if self.leq:
             self.cons: C = self.lhs <= self.rhs
 
@@ -173,23 +176,20 @@ class Bind:
             if self.report:
                 # ------if variable bound and reported
                 # we do not want a bi-linear term
-                _rhs = self.parameter * self.sample.X(self.parameter)
+                return self.parameter * self.sample.X(self.parameter)
 
-            else:
-                # ------if just variable bound
-                
-                _rhs = self.parameter * self.sample.Vb()
+            # ------if just variable bound
 
-        elif self.report or self.domain.modes is not None:
+            return self.parameter * self.sample.Vb()
+
+        if self.report or self.domain.modes is not None:
             # ------if  self.parameter bound and reported or has modes
             # create reporting variable write v <= p*x
-            _rhs = self.parameter * self.sample.X(self.parameter)
             self.aspect.update(self.domain, reporting=True)
+            return self.parameter * self.sample.X(self.parameter)
 
-        else:
-            # ------if just self.parameter bound
-            _rhs = self.parameter
-        return _rhs
+        # ------if just self.parameter bound
+        return self.parameter
 
     @cached_property
     def rel(self):
@@ -274,7 +274,7 @@ class Bind:
 
         # let all objects in the domain know that
         # a constraint with this name contains it
-        self.domain.update_cons(self.cons_name)
+        self.domain.inform_indices(self.cons_name)
 
     def _handshake(self):
         """Borrow attributes from sample"""

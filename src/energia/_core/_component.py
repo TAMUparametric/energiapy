@@ -203,3 +203,6 @@ class _Component(_X):
         _index = I(self.name, tag=self.label or "")
         setattr(self.program, self.name, _index)
         return _index
+
+
+    

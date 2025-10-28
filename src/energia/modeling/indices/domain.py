@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from math import prod
 from operator import is_, is_not
 from typing import TYPE_CHECKING, Self
 
@@ -34,7 +33,7 @@ if TYPE_CHECKING:
 @dataclass
 class Domain(_Hash):
     """
-    A domain is an ordered set of the indices of an element.
+    Point represented by a tuple of indices
 
     :param indicator: Indicates the impact of some activity through an equivalency,
         e.g. GWP, ODP.
@@ -134,7 +133,7 @@ class Domain(_Hash):
     @property
     def primary(self) -> Indicator | Commodity | Process | Storage | Transport:
         """Primary component"""
-        _primary = self.stream or self.operation
+        _primary = self.stream or self.operation or self.samples[0]
         if not _primary:
             raise ValueError("Domain must have at least one primary index")
         return _primary
@@ -379,11 +378,16 @@ class Domain(_Hash):
         """List of I"""
         return tuple([i if isinstance(i, list) else i.I for i in self.index])
 
+    @property
+    def size(self) -> int:
+        """Size of the domain"""
+        return len(self.index)
+
     # -----------------------------------------------------
     #                    Helpers
     # -----------------------------------------------------
 
-    def update_cons(self, cons_name: str):
+    def inform_indices(self, cons_name: str):
         """Update the constraints declared at every index"""
         for j in self.index:
             if cons_name not in j.constraints:

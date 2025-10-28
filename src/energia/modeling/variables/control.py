@@ -64,8 +64,10 @@ class Control(Aspect):
         # what decreases the state/impact/stream
         self.less: Self = None
 
-    def update(self, domain: Domain):
+        self.mapped_from: list[Domain] = []
+
+    def update(self, domain: Domain, reporting: bool = False):
         """Add a domain to the decision variable"""
 
         # Write a mapping constraint
-        Map(aspect=self, domain=domain)
+        Map(aspect=self, domain=domain, reporting=reporting)

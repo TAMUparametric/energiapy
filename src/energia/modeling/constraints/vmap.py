@@ -333,7 +333,7 @@ class Map:
         if self.cons_name not in self.aspect.constraints:
             self.aspect.constraints.append(self.cons_name)
 
-        from_domain.update_cons(self.cons_name)
+        from_domain.inform_indices(self.cons_name)
 
     def _handshake(self):
         """Borrow attributes from aspect"""

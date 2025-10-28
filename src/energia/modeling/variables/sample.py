@@ -579,6 +579,11 @@ class Sample:
         self._forall = index
         return self
 
+    def __getattr__(self, other):
+        aspect = getattr(self.model, other)
+        return aspect(self)
+
+
     def __le__(self, other):
 
         Bind(sample=self, parameter=other, leq=True, forall=self._forall)

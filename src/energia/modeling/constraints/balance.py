@@ -235,7 +235,7 @@ class Balance(_Hash):
         Updates the constraints in all the indices of self.domain
         Add constraint name to aspect
         """
-        self.domain.update_cons(self._name)
+        self.domain.inform_indices(self._name)
 
         if self._name not in self.aspect.constraints:
             self.aspect.constraints.append(self._name)
