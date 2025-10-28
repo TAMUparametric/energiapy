@@ -7,7 +7,6 @@ from functools import cached_property
 from typing import TYPE_CHECKING
 
 from ...utils.decorators import timer
-
 # from ...components.temporal.modes import Modes
 from ...utils.math import normalize
 
@@ -104,7 +103,7 @@ class Bind:
 
         if self._check_existing():
             return False
-        
+
         print(self.lhs, self.rhs)
         if self.leq:
             self.cons: C = self.lhs <= self.rhs
@@ -171,7 +170,7 @@ class Bind:
     def rhs(self):
         """Right hand side of the bind constraint"""
 
-        if self.aspect.bound is not None:
+        if self.aspect.bound:
             # ------if variable bound
             if self.report:
                 # ------if variable bound and reported
