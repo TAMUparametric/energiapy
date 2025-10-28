@@ -126,7 +126,7 @@ class Periods(_X):
             return self.of.I[self.n]
 
         _index = Idx(size=self.time.horizon.howmany(self), tag=self.label or "")
-        setattr(self.program, self.name, _index)
+        setattr(self.program, self.name, _index)        
         return _index
 
     def howmany(self, period: Self | Lag):
