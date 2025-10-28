@@ -13,6 +13,7 @@ from ...utils.math import normalize
 logger = logging.getLogger("energia")
 
 if TYPE_CHECKING:
+    from gana import V
     from gana.sets.constraint import C
 
     from ..._core._component import _Component
@@ -72,6 +73,9 @@ class Bind:
         self._parameter, self.parameter_name = parameter, parameter_name
         self.leq, self.geq, self.eq = leq, geq, eq
         self.forall = forall
+
+        # if a bound variable is generated
+        self.Vb: V = None
 
         self._handshake()
 
@@ -173,6 +177,7 @@ class Bind:
 
             else:
                 # ------if just variable bound
+                
                 _rhs = self.parameter * self.sample.Vb()
 
         elif self.report or self.domain.modes is not None:
@@ -262,7 +267,7 @@ class Bind:
         if self.domain.modes:
             self.cons.categorize("Piecewise Linear")
         else:
-            self.cons.categorize("Bound")
+            self.cons.categorize("Binds")
 
         # let the aspect know about the new constraint
         self.aspect.constraints.append(self.cons_name)

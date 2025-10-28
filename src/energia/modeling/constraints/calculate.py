@@ -195,7 +195,7 @@ class Calculate:
                 cons: C = v_lhs == other * v_rhs
 
                 # categorize the constraint
-                cons.categorize("Calculation")
+                cons.categorize("Calculations")
 
                 setattr(
                     self.program,
