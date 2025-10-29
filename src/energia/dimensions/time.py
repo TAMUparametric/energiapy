@@ -95,14 +95,14 @@ class Time(_Dimension):
     def densest(self) -> Periods:
         """The densest period"""
         if self.periods:
-            return min(self.periods, key=lambda x: x.periods)
+            return min(self.periods, key=lambda x: x.size)
         return self.horizon
 
     @property
     def sparsest(self) -> Periods:
         """The sparsest period"""
         if self.periods:
-            return max(self.periods, key=lambda x: x.periods)
+            return max(self.periods, key=lambda x: x.size)
         return self.horizon
 
     @property

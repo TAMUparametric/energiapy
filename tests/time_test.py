@@ -77,17 +77,17 @@ def test_period(m):
     assert m.d.howmany(m.y) == 0.0027397260273972603
     assert m.w.howmany(m.h) == 168
     assert m.w.howmany(m.d) == 7
-    assert m.w.howmany(m.y) == 0.019178082191780823
+    assert m.w.howmany(m.y) == 0.019178082191780823  # Muted
     assert m.y.howmany(m.h) == 8760
     assert m.y.howmany(m.d) == 365
-    assert m.y.howmany(m.w) == 52.142857142857146
+    assert m.y.howmany(m.w) == 52.142857142857146  #
     assert m.time.horizon == m.y
-    assert m.h.periods == 1
-    assert m.d.periods == 24
-    assert m.y.periods == 8760
-    assert m.w.periods == 168
+    assert m.h.size == 1
+    assert m.d.size == 24
+    assert m.y.size == 365
+    assert m.w.size == 7
 
-    with pytest.raises(AttributeError):
+    with pytest.raises(NotImplementedError):
         m.fail = m.h * m.y
 
     with pytest.raises(ValueError):
