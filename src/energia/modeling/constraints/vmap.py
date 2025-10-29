@@ -127,6 +127,10 @@ class Map:
         return self.aspect.reporting if self.reporting else self.aspect
 
     @cached_property
+    def rhs(self):
+        return self.rhs(self.domain)
+
+    @cached_property
     def name(self) -> str:
         return f"{self.aspect.name}_map"
 
@@ -248,9 +252,7 @@ class Map:
         if not self.domain.modes:
             return
         if self.domain.modes.parent:
-
             self.write(self.domain, self.domain.change({"modes": None}))
-
         else:
             self.write(self.domain, self.domain.change({"modes": None}), msum=True)
 
@@ -265,6 +267,9 @@ class Map:
         if from_domain in self.maps[what][to_domain]:
             # There is an existing map
             return True
+        else:
+            self.maps[what][to_domain].append(from_domain)
+
         if what in ["samples", "modes"]:
             return True
 
