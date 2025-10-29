@@ -16,4 +16,5 @@ energia.modeling.constraints.bind
    .. autosummary::
    
       Bind
+      cached_property
    

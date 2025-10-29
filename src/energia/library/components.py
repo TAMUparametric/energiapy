@@ -7,7 +7,8 @@ from typing import TYPE_CHECKING
 from ..components.commodities.currency import Currency
 from ..components.impact.categories import Environ
 from ..components.measure.unit import Unit
-from ..components.temporal.scales import TemporalScales
+
+# from ..components.temporal.scales import TemporalScales
 
 if TYPE_CHECKING:
     from ..represent.model import Model
@@ -15,7 +16,7 @@ if TYPE_CHECKING:
 
 def time_units(model: Model):
     """Time units"""
-    model.h = TemporalScales([1, 365, 24, 60, 60], ["y", "d", "h", "min", "s"])
+    model.TemporalScales([1, 365, 24, 60, 60], ["y", "d", "h", "min", "s"])
 
 
 def si_units(model: Model):

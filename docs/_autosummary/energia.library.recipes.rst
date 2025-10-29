@@ -22,7 +22,6 @@ energia.library.recipes
 
    .. autosummary::
    
-      Control
       Currency
       Economic
       Emission

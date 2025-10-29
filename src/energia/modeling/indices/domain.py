@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from functools import cached_property
 from operator import is_, is_not
 from typing import TYPE_CHECKING, Self
 
@@ -373,10 +374,19 @@ class Domain(_Hash):
         """Tuple of objects"""
         return list(self._.values())
 
-    @property
+    @cached_property
     def I(self) -> list[Idx | list[V]]:
         """List of I"""
-        return tuple([i if isinstance(i, list) else i.I for i in self.index])
+        _I = []
+        for idx in self.index:
+            if isinstance(idx, list):
+                # this is how variables are handled in gana
+                _I.append(idx)
+            elif isinstance(idx.I, tuple):
+                _I.extend(idx.I)
+            else:
+                _I.append(idx.I)
+        return tuple(_I)
 
     @property
     def size(self) -> int:

@@ -62,20 +62,16 @@ class Periods(_X):
         citations: str = "",
     ):
         self.size = size
+
+        if of is not None:
+            of.isof.append(self)
+
         self.of = of
 
+        # is a period of
+        self.isof: list[Self] = []
+
         _X.__init__(self, label=label, citations=citations)
-
-        # self._periods = self.periods
-
-        # self._of = self.of
-
-        # if self.of is not None and not self.of.isroot():
-        #     self.periods = self.periods * self.of.periods
-        #     self.of = self.of.of
-
-        # if self.of is None:
-        #     self.of = self
 
         # if this is a slice of another period
         self.slice: slice | None = None
@@ -91,6 +87,8 @@ class Periods(_X):
         if self.of is not None and self.size:
             # self.tree = {self.of: self.of.tree}
             self.name = f"{self.size}{self.of}"
+
+        self._howmany: dict[Periods, float] = {}
 
     def isroot(self):
         """Is used to define another period?"""
@@ -111,11 +109,6 @@ class Periods(_X):
         return [getattr(self.program, c) for c in self.constraints]
 
     @property
-    def time(self) -> Time:
-        """Time to which the Periods belongs"""
-        return self.model.time
-
-    @property
     def horizon(self) -> Self:
         """Time Horizon"""
         return self.time.horizon
@@ -126,8 +119,13 @@ class Periods(_X):
         return self == self.time.horizon
 
     @cached_property
+    def time(self) -> Time:
+        """Time to which the Periods belongs"""
+        return self.model.time
+
+    @cached_property
     def I(self) -> Idx:
-        """Index set of scale"""
+        """Index tuple"""
 
         # given that temporal scale is an ordered set and not a self contained set
         # any time periods will be a fraction of the horizon
@@ -137,23 +135,46 @@ class Periods(_X):
         if self.n is not None:
             return self.of.I[self.n]
 
-        _index = Idx(size=self.time.horizon.howmany(self), tag=self.label or "")
-        setattr(self.program, self.name, _index)
-        return _index
+        if self.isof:
+            return self.isof[0].I + (self.i,)
+        return (self.i,)
+
+    @cached_property
+    def i(self) -> Idx:
+        """Only Index"""
+        _i = Idx(size=self.isof[0].size if self.isof else 1, tag=self.label or "")
+        setattr(self.program, self.name, _i)
+        return _i
+
+    @property
+    def true_size(self) -> float:
+        """True size of the Periods"""
+        if self.of is None:
+            return self.size
+
+        return self.size * self.of.true_size
 
     def howmany(self, of: Periods):
         """How many periods make this period"""
-
         try:
-            return compare(self.tree, of)
-        except NotFoundError:
+            return self._howmany[of]
+        except KeyError:
             try:
-                return 1 / compare(of.tree, self)
+                _return = compare(self.tree, of)
             except NotFoundError:
                 try:
-                    return self.size / compare(of.tree, self.of)
+                    _return = 1 / compare(of.tree, self)
                 except NotFoundError:
-                    raise ValueError(f"No common basis between {self} and {of}")
+                    try:
+                        _return = self.size / compare(of.tree, self.of)
+                    except NotFoundError:
+                        try:
+                            _return = compare(self.tree, of.of) / of.size
+                        except NotFoundError:
+                            raise ValueError(f"No common basis between {self} and {of}")
+
+        self._howmany[of] = _return
+        return _return
 
     def __mul__(self, times: int | float):
 

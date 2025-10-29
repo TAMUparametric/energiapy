@@ -13,8 +13,9 @@ from ...utils.math import normalize
 logger = logging.getLogger("energia")
 
 if TYPE_CHECKING:
-    from gana import V
+    from gana import P, V
     from gana.sets.constraint import C
+    from gana.sets.function import F
 
     from ..._core._component import _Component
     from ..._core._x import _X
@@ -73,10 +74,6 @@ class Bind:
         self._parameter, self.parameter_name = parameter, parameter_name
         self.leq, self.geq, self.eq = leq, geq, eq
         self.forall = forall
-
-        # if a bound variable is generated
-        self.Vb: V = None
-        self.X: V = None
 
         self._handshake()
 
@@ -166,7 +163,7 @@ class Bind:
         return self.sample.V(self.parameter)
 
     @cached_property
-    def rhs(self):
+    def rhs(self) -> V | F | P:
         """Right hand side of the bind constraint"""
 
         if self.aspect.bound:

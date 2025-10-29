@@ -32,21 +32,15 @@ Energia on Python
    examples/design_scheduling_attrs
    examples/design_scheduling
    examples/design_scheduling_material
+   examples/material_process_modes
 
-
-
-.. toctree::
-   :maxdepth: 1
-   :caption: Implementation:
-   :hidden:
-   
-   frameworks
 
 .. toctree::
    :maxdepth: 1
    :caption: Information
    :hidden:
 
+   frameworks
    license
    changelog
    

@@ -9,7 +9,6 @@ energia.dimensions.time
    .. autosummary::
    
       dataclass
-      warn
    
    .. rubric:: Classes
 

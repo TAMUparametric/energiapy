@@ -136,7 +136,12 @@ class Aspect:
     @cached_property
     def maps(self) -> dict[Aspect, dict[str, list[Domain]]]:
         """Maps of the decision"""
-        self.model.maps[self] = {"time": {}, "space": {}, "modes": {}, "samples": {}}
+        self.model.maps[self] = {
+            "time": {},
+            "space": {},
+            "modes": {},
+            "samples": {},
+        }
         return self.model.maps[self]
 
     @cached_property

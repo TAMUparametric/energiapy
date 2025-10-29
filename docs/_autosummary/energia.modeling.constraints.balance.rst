@@ -17,4 +17,5 @@ energia.modeling.constraints.balance
    
       Balance
       Stored
+      cached_property
    

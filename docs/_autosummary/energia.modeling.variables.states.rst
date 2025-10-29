@@ -20,6 +20,7 @@ energia.modeling.variables.states
       EndoStream
       ExoStream
       IndStream
+      Inventory
       Map
       SetPoint
       Size

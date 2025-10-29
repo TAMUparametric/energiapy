@@ -337,7 +337,6 @@ class Sample:
                 self.aspect.name,
                 V(*self.I, mutable=True, ltx=self.aspect.latex),
             )
-
             self._inform()
 
         return getattr(self.program, self.aspect.name)(*self.I)
